@@ -80,8 +80,7 @@ template <class T, class U>
 concept bool ExplicitlyConvertible =
   Same<T, U> ||
   requires(T&& t) {
-    static_cast<U>((T&&)t);
-    // U{(T&&)t};
+    static_cast<U>(std::forward<T>(t));
   };
 
 template <class T, class U>
@@ -89,7 +88,6 @@ concept bool Convertible =
   Same<T, U> ||
   (std::is_convertible<T, U>::value &&
    ExplicitlyConvertible<T, U>);
-// requires(T&& t, void (&f)(U)) { f((T&&)t); } ??
 
 template <class T, class U>
 concept bool PubliclyDerived =
@@ -161,28 +159,25 @@ concept bool CopyConstructible =
 
 template <class T, class U>
 concept bool Assignable =
-  requires(T&& t, U&& u) {
-    (U&&)u = (T&&)t;
+  requires(T& t, U&& u) {
+    t = std::forward<U>(u);
+    requires Same<T&, decltype(t = std::forward<U>(u))>;
   };
+
+template <class T, class U>
+concept bool AssignableTo =
+  Assignable<U, T>;
 
 template <class T>
 concept bool MoveAssignable =
-  Assignable<T&&, T&> &&
-  requires(T& a, T&& b) {
-    requires Same<T&, decltype(a = (T&&)b)>;
-  };
+  Assignable<T, T&&>;
 
 template <class T>
 concept bool CopyAssignable =
   MoveAssignable<T> &&
-  Assignable<T&, T&> &&
-  Assignable<const T&, T&> &&
-  Assignable<const T&&, T&> &&
-  requires(T& a, const T&& b) {
-    requires Same<T&, decltype(a = a)>;
-    requires Same<T&, decltype(a = b)>;
-    requires Same<T&, decltype(a = (const T&&)b)>;
-  };
+  Assignable<T, T&> &&
+  Assignable<T, const T&> &&
+  Assignable<T, const T&&>;
 
 template <class T>
 concept bool Movable =
@@ -204,7 +199,7 @@ concept bool Copyable =
   CopyConstructible<T> &&
   CopyAssignable<T>;
 
-template <Movable T, Assignable<T&> U = T>
+template <MoveConstructible T, AssignableTo<T> U = T>
 constexpr T exchange(T& t, U&& u)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_assignable<T&, U>::value) {
