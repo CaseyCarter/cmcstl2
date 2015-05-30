@@ -8,3 +8,6 @@ all: foo
 
 test: foo
 	./foo
+
+clean:
+	$(RM) *~ *.o *.obj foo a.out
