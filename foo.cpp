@@ -360,6 +360,7 @@ concept bool TotallyOrdered =
     (Common<T, U> &&
      detail::TotallyOrdered<CommonType<T, U>, CommonType<T, U>>));
 
+#if 0
 template <class T>
 concept bool Scalar =
   std::is_scalar<T>::value && Regular<T>;
@@ -371,6 +372,13 @@ concept bool Arithmetic =
 template <class T>
 concept bool Integral =
   std::is_integral<T>::value && Arithmetic<T>;
+
+#else
+
+template <class T>
+concept bool Integral =
+  std::is_integral<T>::value;
+#endif
 
 template <class T>
 concept bool SignedIntegral =
