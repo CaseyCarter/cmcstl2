@@ -92,7 +92,7 @@ concept bool Convertible =
 // requires(T&& t, void (&f)(U)) { f((T&&)t); } ??
 
 template <class T, class U>
-concept bool IsA =
+concept bool PubliclyDerived =
   Same<T, U> ||
   (Derived<T, U> &&
    Convertible<T, U>);
@@ -116,9 +116,9 @@ concept bool Common =
     requires ExplicitlyConvertible<U, CommonType<T, U>>;
   };
 
-// Same<T, U> subsumes Convertible<T, U> and IsA<T, U> and Common<T, U>
-// IsA<T, U> subsumes Convertible<T, U>
-// Convertible<T, U> (and transitively Same<T, U> and IsA<T, U>) subsumes ExplicitlyConvertible<T, U>
+// Same<T, U> subsumes Convertible<T, U> and PubliclyDerived<T, U> and Common<T, U>
+// PubliclyDerived<T, U> subsumes Convertible<T, U>
+// Convertible<T, U> (and transitively Same<T, U> and PubliclyDerived<T, U>) subsumes ExplicitlyConvertible<T, U>
 
 template <class B>
 concept bool Boolean =
@@ -141,7 +141,7 @@ concept bool Constructible =
   ExplicitlyConvertible<Args..., T> ||
   std::is_constructible<T, Args...>::value;
 
-// ExplictlyConvertible<T, U> (and transitively Convertible<T, U>, IsA<T, U>,
+// ExplictlyConvertible<T, U> (and transitively Convertible<T, U>, PubliclyDerived<T, U>,
 // and Same<T, U>) subsumes Constructible<U, T>
 
 template <class T>
@@ -802,7 +802,7 @@ static_assert(!is_same<int, double>(), "");
 template <class, class>
 constexpr bool is_a() { return false; }
 template <class T, class U>
-  requires IsA<T, U>
+  requires PubliclyDerived<T, U>
 constexpr bool is_a() { return true; }
 
 namespace is_a_test {
@@ -1203,7 +1203,7 @@ struct C : B {};
 #if 0
 void f(A) { std::cout << "exactly A\n"; }
 
-void f(IsA<A>) { std::cout << "IsA A\n"; }
+void f(PubliclyDerived<A>) { std::cout << "Publicly derived from A\n"; }
 
 void f(Convertible<A>) { std::cout << "Implicitly convertible to A\n"; }
 
@@ -1222,7 +1222,7 @@ std::enable_if_t<std::is_base_of<A, T>::value &&
                  std::is_convertible<T,A>::value &&
                  !(std::is_same<A,T>::value)>
 f(T) {
-  std::cout << "IsA A\n";
+  std::cout << "Publicly derived from A\n";
 }
 
 template <class T>
