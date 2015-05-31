@@ -1,0 +1,3 @@
+[submodule "meta"]
+	path = meta
+	url = git@github.com:ericniebler/meta.git
