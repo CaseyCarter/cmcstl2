@@ -26,7 +26,9 @@ constexpr T exchange(T& t, U&& u)
  * http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
  */
 
-constexpr void swap(Movable& a, Movable& b)
+template <class T>
+  requires MoveConstructible<T> && MoveAssignable<T>
+constexpr void swap(T& a, T& b)
   noexcept(noexcept(exchange(a, move(b)))) {
   exchange(b, exchange(a, move(b)));
 }

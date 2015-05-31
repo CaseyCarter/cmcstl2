@@ -42,8 +42,10 @@ constexpr T exchange(T& t, U&& u)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_assignable<T&, U>::value);
 
-constexpr void swap(Movable& a, Movable& b)
-  noexcept(noexcept(exchange(a, std::move(b))));
+template <class T>
+  requires MoveConstructible<T> && MoveAssignable<T>
+constexpr void swap(T& a, T& b)
+  noexcept(noexcept(exchange(a, move(b))));
 
 namespace detail {
 template <class T, class U>
@@ -81,8 +83,8 @@ template <class T, class U, std::size_t N,
   requires detail::SameExtents<T, U> &&
     detail::SwappableNonarrayLvalue<TE, UE>
 constexpr void swap(T (&a)[N], U (&b)[N])
-  noexcept(noexcept(swap(std::declval<TE&>(),
-                         std::declval<UE&>()))) {
+  noexcept(noexcept(swap(declval<TE&>(),
+                         declval<UE&>()))) {
   for (std::size_t i = 0; i < N; ++i) {
     swap(a[i], b[i]);
   }
