@@ -2,7 +2,9 @@ CXX = ~/concept-gcc/bin/g++
 CXXFLAGS = -std=gnu++1z
 LDFLAGS = -Wl,-rpath,$(HOME)/concept-gcc/lib64
 WARN = -Wall -Wextra
-CPPFLAGS = $(WARN)
+CPPFLAGS = $(WARN) $(addprefix -I,$(INCLUDES))
+
+INCLUDES = meta/include include
 
 all: test
 

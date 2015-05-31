@@ -3,485 +3,12 @@
 #include <type_traits>
 #include <utility>
 
-//#define SWAPPABLE_POINTERS
+#include <meta/meta.hpp>
 
-#if defined(__GNUC__)
-#define IS_SAME_AS(T, U) __is_same_as(T, U)
-#define IS_BASE_OF(T, U) __is_base_of(T, U)
-#else
-#define IS_SAME_AS(T, U) std::is_same<T, U>::value
-#define IS_BASE_OF(T, U) std::is_base_of<T, U>::value
-#endif
+#include <stl2/concept/all.hpp>
+#include <stl2/utility.hpp>
 
-namespace meta {
-template <class T>
-using eval = typename T::type;
-
-template <class T>
-struct id { using type = T; };
-
-template <bool B>
-using bool_ = std::integral_constant<bool, B>;
-
-template <template <class...> class F, class...Ts>
-using apply_trait = eval<F<Ts...>>;
-} // namespace meta
-
-namespace detail {
-template <class T>
-using uncvref =
-  std::remove_cv_t<std::remove_reference_t<T>>;
-
-#if 0
-template <class, class, class>
-struct same_extents_ : std::false_type {};
-template <class T, class U, std::size_t...Is>
-struct same_extents_<T, U, std::index_sequence<Is...>> :
-  meta::fast_and<
-    meta::equals<std::extent<T, Is>, std::extent<U, Is>>...
-  >;
-  template <class, class, class = void>
-struct same_extents : std::false_type {};
-template <class T, class U>
-  requires std::rank<T>::value == std::rank<U>::value
-struct same_extents<T, U> :
-  same_extents_<T, U, std::make_index_sequence<std::rank<T>::value>> {};
-
-#else
-
-template <class T, class U>
-struct same_extents :
-  meta::bool_<
-    !(std::is_array<T>::value ||
-      std::is_array<U>::value)
-  > {};
-
-template <class T, class U, std::size_t N>
-struct same_extents<T[N], U[N]> :
-  same_extents<T, U> {};
-#endif
-} // namespace detail
-
-////////////////
-// Core Concepts
-//
-template <class T, class U>
-concept bool Same =
-  IS_SAME_AS(T, U);
-// Types T and U model Same iff T and U are the same type.
-
-template <class T, class U>
-concept bool Derived =
-  IS_BASE_OF(U, T);
-// Types T and U model Derived iff T and U are class types
-// and U is a base of T
-
-template <class T, class U>
-concept bool ExplicitlyConvertible =
-  Same<T, U> ||
-  requires(T&& t) {
-    static_cast<U>(std::forward<T>(t));
-  };
-
-template <class T, class U>
-concept bool Convertible =
-  Same<T, U> ||
-  (std::is_convertible<T, U>::value &&
-   ExplicitlyConvertible<T, U>);
-
-template <class T, class U>
-concept bool PubliclyDerived =
-  Same<T, U> ||
-  (Derived<T, U> &&
-   Convertible<T, U>);
-
-template <class T, class U>
-using CommonType =
-  meta::eval<std::conditional_t<
-    IS_SAME_AS(T, U),
-    meta::id<T>,
-    std::common_type<T, U>
-  >>;
-
-template <class T, class U>
-concept bool Common =
-  Same<T, U> ||
-  requires {
-    typename CommonType<T, U>;
-    typename CommonType<U, T>;
-    requires Same<CommonType<T, U>, CommonType<U, T>>;
-    requires ExplicitlyConvertible<T, CommonType<T, U>>;
-    requires ExplicitlyConvertible<U, CommonType<T, U>>;
-  };
-
-// Same<T, U> subsumes Convertible<T, U> and PubliclyDerived<T, U> and Common<T, U>
-// PubliclyDerived<T, U> subsumes Convertible<T, U>
-// Convertible<T, U> (and transitively Same<T, U> and PubliclyDerived<T, U>) subsumes ExplicitlyConvertible<T, U>
-
-#undef IS_SAME_AS
-#undef IS_BASE_OF
-
-template <class B>
-concept bool Boolean =
-  Convertible<B, bool> &&
-  requires(B&& b1, B&& b2) {
-    //{ !b1 } -> Boolean;
-    !b1; requires Convertible<decltype(!b1),bool>;
-    //{ b1 && b2 } -> Same<bool>;
-    b1 && b2; requires Convertible<decltype(b1 && b2),bool>;
-    //{ b1 || b2 } -> Same<bool>;
-    b1 || b2; requires Convertible<decltype(b1 || b2),bool>;
-  };
-
-template <class T>
-concept bool Destructible =
-  std::is_destructible<T>::value;
-
-template <class T, class...Args>
-concept bool Constructible =
-  ExplicitlyConvertible<Args..., T> ||
-  std::is_constructible<T, Args...>::value;
-
-// ExplictlyConvertible<T, U> (and transitively Convertible<T, U>, PubliclyDerived<T, U>,
-// and Same<T, U>) subsumes Constructible<U, T>
-
-template <class T>
-concept bool DefaultConstructible =
-  Constructible<T>;
-
-template <class T>
-concept bool MoveConstructible =
-  Constructible<T, T&&>;
-
-template <class T>
-concept bool CopyConstructible =
-  MoveConstructible<T> &&
-  Constructible<T, T&> &&
-  Constructible<T, const T&> &&
-  Constructible<T, const T&&>;
-
-template <class T, class U>
-concept bool Assignable =
-  requires(T& t, U&& u) {
-    t = std::forward<U>(u);
-    requires Same<T&, decltype(t = std::forward<U>(u))>;
-  };
-
-template <class T, class U>
-concept bool AssignableTo =
-  Assignable<U, T>;
-
-template <class T>
-concept bool MoveAssignable =
-  Assignable<T, T&&>;
-
-template <class T>
-concept bool CopyAssignable =
-  MoveAssignable<T> &&
-  Assignable<T, T&> &&
-  Assignable<T, const T&> &&
-  Assignable<T, const T&&>;
-
-template <class T>
-concept bool Movable =
-  Destructible<T> &&
-  MoveConstructible<T> &&
-  MoveAssignable<T> &&
-  requires(T& t, std::size_t n) {
-    &t; requires Same<T*, decltype(&t)>;
-    { t.~T() } noexcept;
-    new T; requires Same<T*, decltype(new T)>;
-    new T[n]; requires Same<T*, decltype(new T[n])>;
-    delete new T;
-    delete new T[n];
-  };
-
-template <class T>
-concept bool Copyable =
-  Movable<T> &&
-  CopyConstructible<T> &&
-  CopyAssignable<T>;
-
-template <MoveConstructible T, AssignableTo<T> U = T>
-constexpr T exchange(T& t, U&& u)
-  noexcept(std::is_nothrow_move_constructible<T>::value &&
-           std::is_nothrow_assignable<T&, U>::value) {
-  auto tmp = std::move(t);
-  t = std::forward<U>(u);
-  return tmp;
-}
-
-/*
- * http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2152
- * http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
- */
-
-constexpr void swap(Movable& a, Movable& b)
-  noexcept(noexcept(exchange(a, std::move(b)))) {
-  exchange(b, exchange(a, std::move(b)));
-}
-
-namespace detail {
-template <class T, class U>
-concept bool SwappableNonarrayLvalue_ =
-  requires(T& t, U& u) {
-    swap(t, u);
-  };
-
-template <class T, class U>
-concept bool SwappableNonarrayLvalue =
-  SwappableNonarrayLvalue_<T, T> &&
-  (Same<T, U> ||
-    (SwappableNonarrayLvalue_<U, U> &&
-     SwappableNonarrayLvalue_<T, U> &&
-     SwappableNonarrayLvalue_<U, T>));
-} // namespace detail
-
-template <class T, class U, std::size_t N,
-          class TE = std::remove_all_extents_t<T>,
-          class UE = std::remove_all_extents_t<U>>
-  requires detail::same_extents<T, U>::value &&
-    detail::SwappableNonarrayLvalue<TE, UE>
-constexpr void swap(T (&a)[N], U (&b)[N])
-  noexcept(noexcept(swap(std::declval<TE&>(),
-                         std::declval<UE&>()))) {
-  for (std::size_t i = 0; i < N; ++i) {
-    swap(a[i], b[i]);
-  }
-}
-
-#ifdef SWAPPABLE_POINTERS
-namespace detail {
-template <class T, class U>
-concept bool SwappableLvalue_ =
-  requires(T& t, U& u) {
-    swap(a, b);
-  };
-
-template <class T, class U>
-concept bool SwappableLvalue =
-  SwappableLvalue_<T, T> &&
-  (Same<T, U> ||
-   (SwappableLvalue_<U, U> &&
-    SwappableLvalue_<T, U> &&
-    SwappableLvalue_<U, T>));
-} // namespace detail
-
-// swap rvalue pointers
-template <class T, class U>
-  requires detail::SwappableLvalue<T, U>
-constexpr void swap(T*&& a, U*&& b)
-  noexcept(noexcept(swap(*a, *b))) {
-  assert(a);
-  assert(b);
-  swap(*a, *b);
-}
-
-// swap rvalue pointer with lvalue reference
-template <class T, class U>
-  requires detail::SwappableLvalue<T, U>
-constexpr void swap(T& a, U*&& b)
-  noexcept(noexcept(swap(a, *b))) {
-  assert(b);
-  swap(a, *b);
-}
-
-template <class T, class U>
-  requires detail::SwappableLvalue<T, U>
-constexpr void swap(T*&& a, U& b)
-  noexcept(noexcept(swap(*a, b))) {
-  assert(a);
-  swap(*a, b);
-}
-#endif
-
-namespace detail {
-template <class T, class U>
-concept bool Swappable_ =
-  requires(T&& t, U&& u) { 
-    swap(std::forward<T>(t), std::forward<U>(u));
-  };
-} // namespace detail
-
-template <class T, class U = T>
-concept bool Swappable =
-  detail::Swappable_<T, T> &&
-  (Same<T, U> ||
-   (detail::Swappable_<U, U> &&
-    detail::Swappable_<T, U> &&
-    detail::Swappable_<U, T>));
-
-////////////////////////
-// Foundational Concepts
-//
-template <class T>
-concept bool Semiregular =
-  Copyable<T> &&
-  DefaultConstructible<T>;
-
-namespace detail {
-template <class T, class U>
-concept bool EqualityComparable =
-  requires(T&& t, U&& u) {
-    { std::forward<T>(t) == std::forward<U>(u) } -> Boolean;
-    { std::forward<T>(t) != std::forward<U>(u) } -> Boolean;
-  };
-} // namespace detail
-
-template <class T, class U = T>
-concept bool WeaklyEqualityComparable =
-  detail::EqualityComparable<T, T> &&
-  (Same<T, U> ||
-    (detail::EqualityComparable<T, U> &&
-     detail::EqualityComparable<U, T> &&
-     detail::EqualityComparable<U, U>));
-
-template <class T, class U = T>
-concept bool EqualityComparable =
-  WeaklyEqualityComparable<T, U> &&
-  (Same<T, U> ||
-    (Common<T, U> &&
-     WeaklyEqualityComparable<CommonType<T, U>>));
-
-template <class T>
-concept bool Regular =
-  Semiregular<T> &&
-  EqualityComparable<T>;
-
-namespace detail {
-template <class T, class U>
-concept bool TotallyOrdered =
-  WeaklyEqualityComparable<T, U> &&
-  requires(T&& a, U&& b) {
-    { a < b } -> Boolean;
-    { a > b } -> Boolean;
-    { a <= b } -> Boolean;
-    { a >= b } -> Boolean;
-  };
-} // namespace detail
-
-template <class T, class U = T>
-concept bool WeaklyTotallyOrdered =
-  detail::TotallyOrdered<T, T> &&
-  (Same<T, U> ||
-    (detail::TotallyOrdered<T, U> &&
-     detail::TotallyOrdered<U, T> &&
-     detail::TotallyOrdered<U, U>));
-
-template <class T, class U = T>
-concept bool TotallyOrdered =
-  WeaklyTotallyOrdered<T, U> &&
-  (Same<T, U> ||
-    (Common<T, U> &&
-     detail::TotallyOrdered<CommonType<T, U>, CommonType<T, U>>));
-
-#if 0
-template <class T>
-concept bool Scalar =
-  std::is_scalar<T>::value && Regular<T>;
-
-template <class T>
-concept bool Arithmetic =
-  std::is_arithmetic<T>::value && Scalar<T> && TotallyOrdered<T>;
-
-template <class T>
-concept bool Integral =
-  std::is_integral<T>::value && Arithmetic<T>;
-
-#else
-
-template <class T>
-concept bool Integral =
-  std::is_integral<T>::value;
-#endif
-
-template <class T>
-concept bool SignedIntegral =
-  Integral<T> && std::is_signed<T>::value;
-
-template <class T>
-concept bool UnsignedIntegral =
-  Integral<T> && !SignedIntegral<T>;
-
-// Integral<T> subsumes SignedIntegral<T> and UnsignedIntegral<T>
-// SignedIntegral<T> and UnsignedIntegral<T> are mutually exclusive
-
-////////////////////
-// Function Concepts
-//
-template <class F, class...Args>
-using ResultType =
-  std::result_of_t<F(Args...)>;
-
-template <class F, class...Args>
-concept bool Function =
-  Destructible<F> &&
-  CopyConstructible<F> &&
-  requires(F& f, Args&&...args) {
-    typename ResultType<F, Args...>;
-    f((Args&&)(args)...);
-    requires Same<ResultType<F, Args...>, decltype(f((Args&&)(args)...))>;
-    &f; requires Same<F*,decltype(&f)>;
-    { f.~F() } noexcept;
-    new F; requires Same<F*,decltype(new F)>;
-    delete new F;
-  };
-
-template <class F, class...Args>
-concept bool RegularFunction =
-  Function<F, Args...>;
-
-template <class F, class...Args>
-concept bool Predicate =
-  RegularFunction<F, Args...> &&
-  requires(F& f, Args&&...args) {
-    { f((Args&&)(args)...) } -> Boolean;
-  };
-
-template <class R, class T, class U = T>
-concept bool WeakRelation =
-  Predicate<R, T, T> &&
-  (Same<T, U> ||
-    (Predicate<R, T, U> &&
-     Predicate<R, U, T> &&
-     Predicate<R, U, U>));
-
-template <class R, class T, class U = T>
-concept bool Relation =
-  WeakRelation<R, T, U> &&
-  (Same<T, U> ||
-    (Common<T, U> &&
-     Predicate<R, CommonType<T, U>,
-                  CommonType<T, U>>));
-
-
-////////////////////
-// General Utilities
-//
-struct identity {
-  template <class T>
-  constexpr T&& operator()(T&& t) const noexcept {
-    return std::forward<T>(t);
-  }
-};
-
-template <class T = void>
-  requires Same<T, void> || WeaklyEqualityComparable<T>
-struct equal_to {
-  constexpr bool operator()(const T& a, const T& b) const {
-    return bool(a == b);
-  }
-};
-template <>
-struct equal_to<void> {
-  template <class T, WeaklyEqualityComparable<T> U>
-  constexpr bool operator()(const T& t, const U& u) const {
-    return bool(t == u);
-  }
-
-  using is_transparent = std::true_type;
-};
-
+namespace stl2 { inline namespace v1 {
 
 ////////////////////
 // Iterator concepts
@@ -489,9 +16,13 @@ struct equal_to<void> {
 
 template <class T>
 using ReferenceType =
-  decltype(*std::declval<T>());
+  decltype(*declval<T>());
 
 namespace detail {
+template <class T>
+using uncvref =
+  std::remove_cv_t<std::remove_reference_t<T>>;
+
 template <class T>
 concept bool Void =
   std::is_void<T>::value;
@@ -586,7 +117,7 @@ template <class T>
       a - b; !detail::Void<decltype(a - b)>;
     }
 struct difference_type<T> :
-  std::remove_cv<decltype(std::declval<T>() - std::declval<T>())> {};
+  std::remove_cv<decltype(declval<T>() - declval<T>())> {};
 
 template <>
 struct difference_type<std::nullptr_t> {
@@ -776,9 +307,9 @@ auto adl_end(auto&& t) ->
 } // namespace detail
 
 template <class T>
-using IteratorType = decltype(detail::adl_begin(std::declval<T>()));
+using IteratorType = decltype(detail::adl_begin(declval<T>()));
 template <class T>
-using SentinelType = decltype(detail::adl_end(std::declval<T>()));
+using SentinelType = decltype(detail::adl_end(declval<T>()));
 
 template <class T>
 concept bool Range =
@@ -799,6 +330,7 @@ static_assert(same_extents<int, double>(), "");
 static_assert(same_extents<int[3], double[3]>(), "");
 static_assert(!same_extents<int[3], double[2]>(), "");
 static_assert(same_extents<int[2][5][3], double[2][5][3]>(), "");
+static_assert(!same_extents<int[2][5][3], double[2][5]>(), "");
 static_assert(!same_extents<int[3], int>(), "");
 static_assert(!same_extents<int[][2][1], double[][2][1]>(), "");
 }
@@ -860,16 +392,16 @@ static_assert(is_convertible<double, int>(), "");
 
 namespace common {
 struct A {};
-}}
+}}}}
 
 namespace std {
 template <>
-struct common_type<concept_test::common::A, concept_test::common::A> {
+struct common_type<::stl2::concept_test::common::A, ::stl2::concept_test::common::A> {
   using type = void;
 };
 }
 
-namespace concept_test { namespace common {
+namespace stl2 { namespace v1 { namespace concept_test { namespace common {
 static_assert(is_same<CommonType<int, int>, int>(), "");
 static_assert(is_same<CommonType<A, A>, A>(), "");
 }
@@ -967,7 +499,7 @@ static_assert(!is_swappable<int&, double&>(), "");
 static_assert(!is_swappable<int(&)[4], bool(&)[4]>(), "");
 static_assert(!is_swappable<int(&)[3][4], int(&)[4][3]>(), "");
 
-static_assert(noexcept(swap(std::declval<int&>(), std::declval<int&>())), "");
+static_assert(noexcept(swap(declval<int&>(), declval<int&>())), "");
 
 struct A {
   A() = default;
@@ -976,7 +508,7 @@ struct A {
   friend void swap(A&, A&) noexcept {}
 };
 static_assert(is_swappable<A&>(), "");
-static_assert(noexcept(swap(std::declval<A&>(), std::declval<A&>())), "");
+static_assert(noexcept(swap(declval<A&>(), declval<A&>())), "");
 
 struct B {
   friend void swap(A&, B&) noexcept {}
@@ -990,11 +522,11 @@ static_assert(!is_swappable<B(&)[3][1], A(&)[1][3]>(), "");
 
 #ifdef SWAPPABLE_POINTERS
 static_assert(is_swappable<int*,int&>(), "");
-static_assert(noexcept(::swap(std::declval<int*>(), std::declval<int&>())), "");
+static_assert(noexcept(::swap(declval<int*>(), declval<int&>())), "");
 static_assert(!is_swappable<int*&,int&>(), "");
 static_assert(is_swappable<A*,B*>(), "");
 static_assert(is_swappable<A(*)[4], B(&)[4]>(), "");
-static_assert(noexcept(::swap(std::declval<A(*)[4]>(), std::declval<B(&)[4]>())), "");
+static_assert(noexcept(::swap(declval<A(*)[4]>(), declval<B(&)[4]>())), "");
 #endif
 }
 
@@ -1146,20 +678,19 @@ static_assert(!is_incrementable<void>(), "");
 static_assert(is_incrementable<int*>(), "");
 static_assert(is_incrementable<const int*>(), "");
 #endif
-} // namespace concept_test
-
+}}} // namespace stl2::v1::concept_test
 
 #include <iostream>
 
 namespace detail {
 struct destroy_fn {
-  template <Destructible T>
+  template <stl2::Destructible T>
   void operator()(T& o) const noexcept {
     o.~T();
   }
 
   template <class T, std::size_t N>
-    requires Destructible<std::remove_all_extents<T>>
+    requires stl2::Destructible<std::remove_all_extents<T>>
   void operator()(T (&a)[N]) const noexcept {
     for (auto& i : a) {
       (*this)(i);
@@ -1182,24 +713,24 @@ struct array {
   }
 };
 
-using ::swap;
+using stl2::swap;
 
 template <class T, class U, std::size_t N>
-  requires Swappable<T&, U&>
+  requires stl2::Swappable<T&, U&>
 void swap(array<T, N>& a, array<U, N>& b)
   noexcept(noexcept(swap(a.elements_, b.elements_))) {
   swap(a.elements_, b.elements_);
 }
 
 template <class T, class U, std::size_t N>
-  requires Swappable<T&, U&>
+  requires stl2::Swappable<T&, U&>
 void swap(array<T, N>& a, U (&b)[N])
   noexcept(noexcept(swap(a.elements_, b))) {
   swap(a.elements_, b);
 }
 
 template <class T, class U, std::size_t N>
-  requires Swappable<T&, U&>
+  requires stl2::Swappable<T&, U&>
 void swap(T (&b)[N], array<U, N>& a)
   noexcept(noexcept(swap(b, a.elements_))) {
   swap(b, a.elements_);
@@ -1212,14 +743,14 @@ struct A { A() = default; A(int) {} explicit A(tag) {} };
 struct B : A {};
 struct C : B {};
 
-#if 0
+#if 1
 void f(A) { std::cout << "exactly A\n"; }
 
-void f(PubliclyDerived<A>) { std::cout << "Publicly derived from A\n"; }
+void f(stl2::PubliclyDerived<A>) { std::cout << "Publicly derived from A\n"; }
 
-void f(Convertible<A>) { std::cout << "Implicitly convertible to A\n"; }
+void f(stl2::Convertible<A>) { std::cout << "Implicitly convertible to A\n"; }
 
-void f(ExplicitlyConvertible<A>) { std::cout << "Explicitly convertible to A\n"; }
+void f(stl2::ExplicitlyConvertible<A>) { std::cout << "Explicitly convertible to A\n"; }
 
 void f(auto) { std::cout << "Nothing to do with A\n"; }
 
@@ -1283,8 +814,8 @@ int main() {
     int a[2][2] = {{0, 1}, {2, 3}};
     int b[2][2] = {{4, 5}, {6, 7}};
 
+    using stl2::swap;
     static_assert(noexcept(swap(a, b)), "");
-    using ::swap;
     swap(a, b);
 
     assert(a[0][0] == 4);
@@ -1302,9 +833,9 @@ int main() {
     array<int, 4> a = {0,1,2,3};
     int b[4] = {4,5,6,7};
 
-    using ::swap;
+    using stl2::swap;
 
-    //static_assert(concept_test::is_swappable<decltype((a)),decltype((b))>(), "");
+    //static_assert(stl2::concept_test::is_swappable<decltype((a)),decltype((b))>(), "");
     swap(a, b);
 
     assert(a[0] == 4);
@@ -1322,15 +853,15 @@ int main() {
     array<array<int, 2>, 3> a = {{{{0, 1}}, {{2, 3}}, {{4, 5}}}};
     int b[3][2] = {{6, 7}, {8, 9}, {10, 11}};
 
-    using ::swap;
+    using stl2::swap;
     swap(a, b);
   }
 #endif
-#ifdef SWAPPABLE_POINTERS
+#ifdef STL2_SWAPPABLE_POINTERS
   {
     struct A {
       void foo(A& other) {
-	using ::swap;
+	using stl2::swap;
         swap(this, other);
       }
     };
