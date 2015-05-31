@@ -61,32 +61,21 @@ concept bool SwappableNonarrayLvalue =
      SwappableNonarrayLvalue_<U, T>));
 
 #if 1
-template <class A, class B>
-using equal_non_zero =
-  meta::fast_and<
-    meta::not_equal_to<A, meta::size_t<0>>,
-    meta::equal_to<A, B>
-  >;
-
-template <class, class, class>
+template <class, class, class, class>
 struct same_extents_
+  : std::false_type
 {};
 
 template <class T, class U, std::size_t...Is>
-struct same_extents_<T, U, std::index_sequence<Is...>>
-  : meta::fast_and<
-      equal_non_zero<std::extent<T, Is>, std::extent<U, Is>>...
-    >
+struct same_extents_<T, U, std::index_sequence<Is...>, std::index_sequence<Is...>>
+  : meta::bit_and<meta::size_t<1>, std::extent<T, Is>...>
 {};
 
-template <class, class, class = void>
-struct same_extents
-  : std::false_type {};
-
 template <class T, class U>
-    requires std::rank<T>::value == std::rank<U>::value
-struct same_extents<T, U>
-  : same_extents_<T, U, std::make_index_sequence<std::rank<T>::value>> {};
+using same_extents =
+  same_extents_<T, U,
+      std::make_index_sequence<std::rank<T>::value>,
+      std::make_index_sequence<std::rank<U>::value>;
 
 #else
 
@@ -157,7 +146,7 @@ constexpr void swap(T*&& a, U& b)
 namespace detail {
 template <class T, class U>
 concept bool Swappable_ =
-  requires(T&& t, U&& u) { 
+  requires(T&& t, U&& u) {
     swap(forward<T>(t), forward<U>(u));
   };
 
