@@ -103,6 +103,7 @@ struct same_extents<T[N], U[N]>
 template <class T, class U>
 concept bool SameExtents =
   same_extents<T, U>::value;
+
 } // namespace detail
 
 template <class T, class U, std::size_t N,
@@ -120,6 +121,7 @@ constexpr void swap(T (&a)[N], U (&b)[N])
 
 #ifdef STL2_SWAPPABLE_POINTERS
 namespace detail {
+
 template <class T, class U>
 concept bool SwappableLvalue_ =
   requires(T& t, U& u) {
@@ -133,6 +135,7 @@ concept bool SwappableLvalue =
    (SwappableLvalue_<U, U> &&
     SwappableLvalue_<T, U> &&
     SwappableLvalue_<U, T>));
+
 } // namespace detail
 
 template <class T, class U>
@@ -151,13 +154,16 @@ constexpr void swap(T*&& a, U& b)
   noexcept(noexcept(swap(*a, b)));
 #endif
 
-namespace concepts { namespace detail {
+namespace detail {
 template <class T, class U>
 concept bool Swappable_ =
   requires(T&& t, U&& u) { 
     swap(forward<T>(t), forward<U>(u));
   };
+
 } // namespace detail
+
+namespace concepts {
 
 template <class T, class U = T>
 concept bool Swappable =
@@ -184,14 +190,20 @@ concept bool Boolean =
     b1 || b2; requires Convertible<decltype(b1 || b2),bool>;
   };
 
+} // namespace concepts
+
 namespace detail {
+
 template <class T, class U>
 concept bool EqualityComparable =
   requires(T&& t, U&& u) {
     { forward<T>(t) == forward<U>(u) } -> Boolean;
     { forward<T>(t) != forward<U>(u) } -> Boolean;
   };
+
 } // namespace detail
+
+namespace concepts {
 
 template <class T, class U = T>
 concept bool WeaklyEqualityComparable =
@@ -213,7 +225,10 @@ concept bool Regular =
   Semiregular<T> &&
   EqualityComparable<T>;
 
+} // namespace concepts
+
 namespace detail {
+
 template <class T, class U>
 concept bool TotallyOrdered =
   WeaklyEqualityComparable<T, U> &&
@@ -223,7 +238,10 @@ concept bool TotallyOrdered =
     { a <= b } -> Boolean;
     { a >= b } -> Boolean;
   };
+
 } // namespace detail
+
+namespace concepts {
 
 template <class T, class U = T>
 concept bool WeaklyTotallyOrdered =

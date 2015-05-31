@@ -19,6 +19,7 @@ using ReferenceType =
   decltype(*declval<T>());
 
 namespace detail {
+
 template <class T>
 using uncvref =
   std::remove_cv_t<std::remove_reference_t<T>>;
@@ -27,19 +28,14 @@ template <class T>
 concept bool Void =
   std::is_void<T>::value;
 
-namespace impl {
 template <class T>
 struct nonvoid { using type = T; };
 
 template <Void T>
 struct nonvoid<T> {};
-} // namespace impl
 
 template <class T>
-using nonvoid = meta::eval<impl::nonvoid<T>>;
-
-template <class T>
-using nvuncvref = nonvoid<uncvref<T>>;
+using nvuncvref = meta::eval<nonvoid<uncvref<T>>>;
 
 template <class T>
 concept bool HasValueType =
@@ -52,6 +48,7 @@ concept bool HasElementType =
 template <class T>
 concept bool HasReferenceType =
   requires { typename ReferenceType<T>; };
+
 } // namespace detail
 
 template <class>
@@ -99,12 +96,15 @@ concept bool IndirectlySwappable =
   Readable<I1> &&
   Readable<I2> &&
   Swappable<ReferenceType<I1>, ReferenceType<I2>>;
+
 } // namespace concepts
 
 namespace detail {
+
 template <class T>
 concept bool HasDifferenceType =
   requires { typename T::difference_type; };
+
 } // namespace detail
 
 template <class> struct difference_type {};
@@ -129,14 +129,15 @@ template <class T>
 using DifferenceType =
   detail::nvuncvref<meta::eval<difference_type<T>>>;
 
-
 namespace detail {
+
 template <class T>
 concept bool IntegralDifference =
   requires {
     typename DifferenceType<T>;
     requires Integral<DifferenceType<T>>;
   };
+
 } // namespace detail
 
 template <class> struct distance_type {};
@@ -167,6 +168,7 @@ concept bool Incrementable =
   requires(I& i) {
     i++; requires Same<I, decltype(i++)>;
   };
+
 } // namespace concepts
 
 struct weak_input_iterator_tag {};
@@ -293,7 +295,6 @@ concept bool ContiguousIterator =
   RandomAccessIterator<I> &&
   Derived<IteratorCategory<I>, contiguous_iterator_tag> &&
   std::is_reference<ReferenceType<I>>::value;
-
 
 namespace test {
 

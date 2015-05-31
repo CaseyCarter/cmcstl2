@@ -3,7 +3,7 @@
 
 #include <stl2/detail/config.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/concept/foundational.hpp>
+#include <stl2/concepts/foundational.hpp>
 
 #include <cassert>
 

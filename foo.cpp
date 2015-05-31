@@ -1,3 +1,5 @@
+// -*- compile-command: "(cd ~/stl2/build && make && ./foo)" -*-
+
 #include <stl2/concepts/all.hpp>
 #include <stl2/utility.hpp>
 
@@ -10,8 +12,11 @@
 ////////////
 // Test code
 //
+using namespace stl2::concepts;
+using namespace stl2::concepts::test;
 
-using stl2::v1::detail::same_extents;
+namespace same_extents_test {
+using stl2::detail::same_extents;
 
 static_assert(same_extents<int, double>(), "");
 static_assert(same_extents<int[3], double[3]>(), "");
@@ -20,8 +25,7 @@ static_assert(same_extents<int[2][5][3], double[2][5][3]>(), "");
 static_assert(!same_extents<int[2][5][3], double[2][5]>(), "");
 static_assert(!same_extents<int[3], int>(), "");
 static_assert(!same_extents<int[][2][1], double[][2][1]>(), "");
-
-using namespace stl2::v1::concepts::test;
+}
 
 static_assert(is_same<int, int>(), "");
 static_assert(is_same<double, double>(), "");
@@ -125,6 +129,8 @@ static_assert(is_destructible<int[4]>(), "");
 static_assert(!is_destructible<int()>(), "");
 
 namespace swappable {
+using stl2::swap;
+
 static_assert(is_swappable<int&>(), "");
 static_assert(is_swappable<int(&)[4]>(), "");
 static_assert(is_swappable<int(&)[3][4], int(&)[3][4]>(), "");
@@ -134,7 +140,8 @@ static_assert(!is_swappable<int&, double&>(), "");
 static_assert(!is_swappable<int(&)[4], bool(&)[4]>(), "");
 static_assert(!is_swappable<int(&)[3][4], int(&)[4][3]>(), "");
 
-static_assert(noexcept(swap(declval<int&>(), declval<int&>())), "");
+static_assert(noexcept(swap(stl2::declval<int&>(),
+                            stl2::declval<int&>())), "");
 
 struct A {
   A() = default;
@@ -143,7 +150,7 @@ struct A {
   friend void swap(A&, A&) noexcept {}
 };
 static_assert(is_swappable<A&>(), "");
-static_assert(noexcept(swap(declval<A&>(), declval<A&>())), "");
+static_assert(noexcept(swap(stl2::declval<A&>(), stl2::declval<A&>())), "");
 
 struct B {
   friend void swap(A&, B&) noexcept {}
@@ -154,17 +161,20 @@ static_assert(is_swappable<A&, B&>(), "");
 static_assert(is_swappable<B(&)[1], A(&)[1]>(), "");
 static_assert(is_swappable<B(&)[1][3], A(&)[1][3]>(), "");
 static_assert(!is_swappable<B(&)[3][1], A(&)[1][3]>(), "");
+#if 1
+}
+#else
 
 #ifdef STL2_SWAPPABLE_POINTERS
 static_assert(is_swappable<int*,int&>(), "");
-  static_assert(noexcept(stl2::swap(declval<int*>(), declval<int&>())), "");
+static_assert(noexcept(stl2::swap(stl2::declval<int*>(), stl2::declval<int&>())), "");
 static_assert(!is_swappable<int*&,int&>(), "");
 static_assert(is_swappable<A*,B*>(), "");
 static_assert(is_swappable<A(*)[4], B(&)[4]>(), "");
-static_assert(noexcept(stl2::swap(declval<A(*)[4]>(), declval<B(&)[4]>())), "");
+static_assert(noexcept(swap(stl2::declval<A(*)[4]>(), stl2::declval<B(&)[4]>())), "");
 #endif
 }
-
+#endif
 
 struct copyable {};
 struct moveonly {
@@ -230,6 +240,7 @@ struct D : A {
   using element_type = char;
 };
 
+using stl2::ReferenceType;
 static_assert(is_same<int&, ReferenceType<int*>>(), "");
 static_assert(is_same<int&, ReferenceType<int[]>>(), "");
 static_assert(is_same<int&, ReferenceType<int[4]>>(), "");
@@ -239,6 +250,7 @@ static_assert(is_same<int&, ReferenceType<C>>(), "");
 static_assert(is_same<int&, ReferenceType<D>>(), "");
 static_assert(is_same<const int&, ReferenceType<const int*>>(), "");
 
+using stl2::ValueType;
 static_assert(is_same<int, ValueType<int*>>(), "");
 static_assert(is_same<int, ValueType<int[]>>(), "");
 static_assert(is_same<int, ValueType<int[4]>>(), "");
@@ -248,6 +260,8 @@ static_assert(is_same<double, ValueType<C>>(), "");
 static_assert(is_same<double, ValueType<D>>(), "");
 static_assert(is_same<int, ValueType<const int*>>(), "");
 
+using stl2::DifferenceType;
+using stl2::DistanceType;
 static_assert(is_same<std::ptrdiff_t, DifferenceType<int*>>(), "");
 static_assert(is_same<std::ptrdiff_t, DifferenceType<int[]>>(), "");
 static_assert(is_same<std::ptrdiff_t, DifferenceType<int[4]>>(), "");
