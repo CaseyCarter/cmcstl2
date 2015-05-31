@@ -118,6 +118,9 @@ concept bool Common =
 // PubliclyDerived<T, U> subsumes Convertible<T, U>
 // Convertible<T, U> (and transitively Same<T, U> and PubliclyDerived<T, U>) subsumes ExplicitlyConvertible<T, U>
 
+#undef IS_SAME_AS
+#undef IS_BASE_OF
+
 template <class B>
 concept bool Boolean =
   Convertible<B, bool> &&
@@ -220,13 +223,18 @@ constexpr void swap(Movable& a, Movable& b)
 
 namespace detail {
 template <class T, class U>
-concept bool SwappableNonarrayLvalue =
+concept bool SwappableNonarrayLvalue_ =
   requires(T& t, U& u) {
-    swap(t, t);
     swap(t, u);
-    swap(u, t);
-    swap(u, u);
   };
+
+template <class T, class U>
+concept bool SwappableNonarrayLvalue =
+  SwappableNonarrayLvalue_<T, T> &&
+  (Same<T, U> ||
+    (SwappableNonarrayLvalue_<U, U> &&
+     SwappableNonarrayLvalue_<T, U> &&
+     SwappableNonarrayLvalue_<U, T>));
 } // namespace detail
 
 template <class T, class U, std::size_t N,
@@ -245,13 +253,18 @@ constexpr void swap(T (&a)[N], U (&b)[N])
 #ifdef SWAPPABLE_POINTERS
 namespace detail {
 template <class T, class U>
-concept bool SwappableLvalue =
+concept bool SwappableLvalue_ =
   requires(T& t, U& u) {
-    swap(t, t);
-    swap(t, u);
-    swap(u, t);
-    swap(u, u);
+    swap(a, b);
   };
+
+template <class T, class U>
+concept bool SwappableLvalue =
+  SwappableLvalue_<T, T> &&
+  (Same<T, U> ||
+   (SwappableLvalue_<U, U> &&
+    SwappableLvalue_<T, U> &&
+    SwappableLvalue_<U, T>));
 } // namespace detail
 
 // swap rvalue pointers
@@ -282,14 +295,21 @@ constexpr void swap(T*&& a, U& b)
 }
 #endif
 
+namespace detail {
+template <class T, class U>
+concept bool Swappable_ =
+  requires(T&& t, U&& u) { 
+    swap(std::forward<T>(t), std::forward<U>(u));
+  };
+} // namespace detail
+
 template <class T, class U = T>
 concept bool Swappable =
-  requires(T&& t, U&& u) {
-    swap(std::forward<T>(t), std::forward<T>(t));
-    swap(std::forward<T>(t), std::forward<U>(u));
-    swap(std::forward<U>(u), std::forward<T>(t));
-    swap(std::forward<U>(u), std::forward<U>(u));
-  };
+  detail::Swappable_<T, T> &&
+  (Same<T, U> ||
+   (detail::Swappable_<U, U> &&
+    detail::Swappable_<T, U> &&
+    detail::Swappable_<U, T>));
 
 ////////////////////////
 // Foundational Concepts
@@ -302,9 +322,9 @@ concept bool Semiregular =
 namespace detail {
 template <class T, class U>
 concept bool EqualityComparable =
-  requires(T&& a, U&& b) {
-    { a == b } -> Boolean;
-    { a != b } -> Boolean;
+  requires(T&& t, U&& u) {
+    { std::forward<T>(t) == std::forward<U>(u) } -> Boolean;
+    { std::forward<T>(t) != std::forward<U>(u) } -> Boolean;
   };
 } // namespace detail
 
@@ -446,7 +466,7 @@ struct identity {
 };
 
 template <class T = void>
-requires Same<T, void> || WeaklyEqualityComparable<T>
+  requires Same<T, void> || WeaklyEqualityComparable<T>
 struct equal_to {
   constexpr bool operator()(const T& a, const T& b) const {
     return bool(a == b);
@@ -1127,9 +1147,6 @@ static_assert(is_incrementable<int*>(), "");
 static_assert(is_incrementable<const int*>(), "");
 #endif
 } // namespace concept_test
-
-#undef IS_SAME_AS
-#undef IS_BASE_OF
 
 
 #include <iostream>
