@@ -1,5 +1,5 @@
-#ifndef STL2_CONCEPT_CORE_HPP
-#define STL2_CONCEPT_CORE_HPP
+#ifndef STL2_CONCEPTS_CORE_HPP
+#define STL2_CONCEPTS_CORE_HPP
 
 #include <stl2/detail/config.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -19,7 +19,7 @@
 #define STL2_IS_BASE_OF(T, U) std::is_base_of<T, U>::value
 #endif
 
-namespace stl2 { namespace v1 {
+namespace stl2 { namespace v1 { namespace concepts {
 
 template <class T, class U>
 concept bool Same =
@@ -126,7 +126,7 @@ concept bool CopyAssignable =
 #undef STL2_IS_SAME_AS
 #undef STL2_IS_BASE_OF
 
-namespace concept_test {
+namespace test {
 
 template <class, class>
 constexpr bool is_same() { return false; }
@@ -178,6 +178,6 @@ constexpr bool is_copy_constructible() { return false; }
 template <CopyConstructible>
 constexpr bool is_copy_constructible() { return true; }
 
-}}} // namespace stl2::v1::concept_test
+}}}} // namespace stl2::v1::concepts::test
 
-#endif // STL2_CONCEPT_CORE_HPP
+#endif // STL2_CONCEPTS_CORE_HPP

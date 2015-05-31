@@ -1,20 +1,18 @@
-#include <stl2/concept/all.hpp>
+#include <stl2/concepts/all.hpp>
 #include <stl2/utility.hpp>
 
 #include <cassert>
 #include <cstddef>
 #include <type_traits>
 #include <utility>
-
-#include <meta/meta.hpp>
-
-namespace stl2 { namespace v1 {
+#include <iostream>
 
 ////////////
 // Test code
 //
 
-namespace detail {
+using stl2::v1::detail::same_extents;
+
 static_assert(same_extents<int, double>(), "");
 static_assert(same_extents<int[3], double[3]>(), "");
 static_assert(!same_extents<int[3], double[2]>(), "");
@@ -22,9 +20,8 @@ static_assert(same_extents<int[2][5][3], double[2][5][3]>(), "");
 static_assert(!same_extents<int[2][5][3], double[2][5]>(), "");
 static_assert(!same_extents<int[3], int>(), "");
 static_assert(!same_extents<int[][2][1], double[][2][1]>(), "");
-}
 
-namespace concept_test {
+using namespace stl2::v1::concepts::test;
 
 static_assert(is_same<int, int>(), "");
 static_assert(is_same<double, double>(), "");
@@ -65,16 +62,16 @@ static_assert(is_convertible<double, int>(), "");
 
 namespace common {
 struct A {};
-}}}}
+}
 
 namespace std {
 template <>
-struct common_type<::stl2::concept_test::common::A, ::stl2::concept_test::common::A> {
+struct common_type<::common::A, ::common::A> {
   using type = void;
 };
 }
 
-namespace stl2 { namespace v1 { namespace concept_test { namespace common {
+namespace common {
 static_assert(is_same<CommonType<int, int>, int>(), "");
 static_assert(is_same<CommonType<A, A>, A>(), "");
 }
@@ -281,9 +278,6 @@ static_assert(!is_incrementable<void>(), "");
 static_assert(is_incrementable<int*>(), "");
 static_assert(is_incrementable<const int*>(), "");
 #endif
-}}} // namespace stl2::v1::concept_test
-
-#include <iostream>
 
 namespace detail {
 struct destroy_fn {

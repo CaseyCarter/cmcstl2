@@ -1,14 +1,14 @@
-#ifndef STL2_CONCEPT_FUNCTION_HPP
-#define STL2_CONCEPT_FUNCTION_HPP
+#ifndef STL2_CONCEPTS_FUNCTION_HPP
+#define STL2_CONCEPTS_FUNCTION_HPP
 
 #include <stl2/detail/config.hpp>
-#include <stl2/concept/foundational.hpp>
-
-namespace stl2 { namespace v1 {
+#include <stl2/concepts/foundational.hpp>
 
 ////////////////////
 // Function Concepts
 //
+namespace stl2 { namespace v1 { namespace concepts {
+
 template <class F, class...Args>
 using ResultType =
   std::result_of_t<F(Args...)>;
@@ -54,6 +54,6 @@ concept bool Relation =
      Predicate<R, CommonType<T, U>,
                   CommonType<T, U>>));
 
-}} // namespace stl2::v1
+}}} // namespace stl2::v1::concepts
 
-#endif // STL2_CONCEPT_FUNCTION_HPP
+#endif // STL2_CONCEPTS_FUNCTION_HPP

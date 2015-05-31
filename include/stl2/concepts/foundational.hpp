@@ -1,8 +1,8 @@
-#ifndef STL2_CONCEPT_FOUNDATIONAL_HPP
-#define STL2_CONCEPT_FOUNDATIONAL_HPP
+#ifndef STL2_CONCEPTS_FOUNDATIONAL_HPP
+#define STL2_CONCEPTS_FOUNDATIONAL_HPP
 
 #include <stl2/detail/config.hpp>
-#include <stl2/concept/core.hpp>
+#include <stl2/concepts/core.hpp>
 
 #include <meta/meta.hpp>
 
@@ -13,7 +13,7 @@
 ////////////////////////
 // Foundational Concepts
 //
-namespace stl2 { namespace v1 {
+namespace stl2 { namespace v1 { namespace concepts {
 
 template <class T>
 concept bool Movable =
@@ -34,6 +34,8 @@ concept bool Copyable =
   Movable<T> &&
   CopyConstructible<T> &&
   CopyAssignable<T>;
+
+} // namespace concepts
 
 template <MoveConstructible T, AssignableTo<T> U = T>
 constexpr T exchange(T& t, U&& u)
@@ -149,7 +151,7 @@ constexpr void swap(T*&& a, U& b)
   noexcept(noexcept(swap(*a, b)));
 #endif
 
-namespace detail {
+namespace concepts { namespace detail {
 template <class T, class U>
 concept bool Swappable_ =
   requires(T&& t, U&& u) { 
@@ -269,7 +271,7 @@ concept bool UnsignedIntegral =
 // Integral<T> subsumes SignedIntegral<T> and UnsignedIntegral<T>
 // SignedIntegral<T> and UnsignedIntegral<T> are mutually exclusive
 
-namespace concept_test {
+namespace test {
 
 template <class>
 constexpr bool is_movable() { return false; }
@@ -319,6 +321,6 @@ constexpr bool is_integral() { return false; }
 template <Integral>
 constexpr bool is_integral() { return true; }
 
-}}} // namespace stl2::v1::concept_test
+}}}} // namespace stl2::v1::concepts::test
 
-#endif // STL2_CONCEPT_FOUNDATIONAL_HPP
+#endif // STL2_CONCEPTS_FOUNDATIONAL_HPP

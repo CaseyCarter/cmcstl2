@@ -1,5 +1,5 @@
-#ifndef STL2_CONCEPT_ITERATOR_HPP
-#define STL2_CONCEPT_ITERATOR_HPP
+#ifndef STL2_CONCEPTS_ITERATOR_HPP
+#define STL2_CONCEPTS_ITERATOR_HPP
 
 #include <type_traits>
 
@@ -7,7 +7,7 @@
 
 #include <stl2/detail/config.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/concept/foundational.hpp>
+#include <stl2/concepts/foundational.hpp>
 
 ////////////////////
 // Iterator concepts
@@ -72,6 +72,7 @@ template <class T>
 using ValueType =
   detail::nvuncvref<meta::eval<value_type<T>>>;
 
+namespace concepts {
 
 template <class I>
 concept bool Readable =
@@ -98,7 +99,7 @@ concept bool IndirectlySwappable =
   Readable<I1> &&
   Readable<I2> &&
   Swappable<ReferenceType<I1>, ReferenceType<I2>>;
-
+} // namespace concepts
 
 namespace detail {
 template <class T>
@@ -147,6 +148,8 @@ template <class T>
 using DistanceType =
   meta::eval<distance_type<T>>;
 
+namespace concepts {
+
 template <class I>
 concept bool WeaklyIncrementable =
   Semiregular<I> &&
@@ -164,6 +167,7 @@ concept bool Incrementable =
   requires(I& i) {
     i++; requires Same<I, decltype(i++)>;
   };
+} // namespace concepts
 
 struct weak_input_iterator_tag {};
 struct input_iterator_tag :
@@ -192,6 +196,8 @@ struct iterator_category<T> {
 template <class T>
 using IteratorCategory =
   meta::eval<iterator_category<T>>;
+
+namespace concepts {
 
 template <class I>
 concept bool WeakIterator =
@@ -289,7 +295,7 @@ concept bool ContiguousIterator =
   std::is_reference<ReferenceType<I>>::value;
 
 
-namespace concept_test {
+namespace test {
 
 template <class>
 constexpr bool is_readable() { return false; }
@@ -311,6 +317,6 @@ constexpr bool is_incrementable() { return false; }
 template <Incrementable>
 constexpr bool is_incrementable() { return true; }
 
-}}} // namespace stl2::v1::concept_test
+}}}} // namespace stl2::v1::concepts::test
 
-#endif // STL2_CONCEPT_ITERATOR_HPP
+#endif // STL2_CONCEPTS_ITERATOR_HPP
