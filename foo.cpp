@@ -1,4 +1,4 @@
-// -*- compile-command: "(cd ~/stl2/build && make && ./foo)" -*-
+// -*- compile-command: "(cd ~/cmcstl2/build && make && ./foo)" -*-
 
 #include <stl2/concepts/all.hpp>
 #include <stl2/utility.hpp>
@@ -24,7 +24,6 @@ static_assert(!same_extents<int[3], double[2]>(), "");
 static_assert(same_extents<int[2][5][3], double[2][5][3]>(), "");
 static_assert(!same_extents<int[2][5][3], double[2][5]>(), "");
 static_assert(!same_extents<int[3], int>(), "");
-static_assert(!same_extents<int[][2][1], double[][2][1]>(), "");
 }
 
 static_assert(is_same<int, int>(), "");
@@ -138,7 +137,8 @@ static_assert(is_swappable<int(&)[3][4][1][2], int(&)[3][4][1][2]>(), "");
 static_assert(!is_swappable<int, int>(), "");
 static_assert(!is_swappable<int&, double&>(), "");
 static_assert(!is_swappable<int(&)[4], bool(&)[4]>(), "");
-static_assert(!is_swappable<int(&)[3][4], int(&)[4][3]>(), "");
+static_assert(!is_swappable<int(&)[], int(&)[]>(), "");
+static_assert(!is_swappable<int(&)[][4], int(&)[][4]>(), "");
 
 static_assert(noexcept(swap(stl2::declval<int&>(),
                             stl2::declval<int&>())), "");
@@ -472,7 +472,7 @@ int main() {
   {
     struct A {
       void foo(A& other) {
-	using stl2::swap;
+        using stl2::swap;
         swap(this, other);
       }
     };

@@ -60,34 +60,14 @@ concept bool SwappableNonarrayLvalue =
      SwappableNonarrayLvalue_<T, U> &&
      SwappableNonarrayLvalue_<U, T>));
 
-#if 1
-template <class, class, class, class>
-struct same_extents_
-  : std::false_type
-{};
-
-template <class T, class U, std::size_t...Is>
-struct same_extents_<T, U, std::index_sequence<Is...>, std::index_sequence<Is...>>
-  : meta::bit_and<meta::size_t<1>, std::extent<T, Is>...>
-{};
-
-template <class T, class U>
-using same_extents =
-  same_extents_<T, U,
-      std::make_index_sequence<std::rank<T>::value>,
-      std::make_index_sequence<std::rank<U>::value>;
-
-#else
-
 template <class T, class U>
 struct same_extents
-  : meta::not_<meta::fast_or<std::is_array<T>, std::is_array<U>>>
+  : meta::bool_<!(std::is_array<T>::value || std::is_array<U>::value)>
 {};
 
 template <class T, class U, std::size_t N>
 struct same_extents<T[N], U[N]>
   : same_extents<T, U> {};
-#endif
 
 template <class T, class U>
 concept bool SameExtents =
