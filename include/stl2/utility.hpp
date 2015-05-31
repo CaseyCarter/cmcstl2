@@ -5,6 +5,8 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/concept/foundational.hpp>
 
+#include <cassert>
+
 namespace stl2 { inline namespace v1 {
 
 ////////////////////
@@ -28,6 +30,35 @@ constexpr void swap(Movable& a, Movable& b)
   noexcept(noexcept(exchange(a, move(b)))) {
   exchange(b, exchange(a, move(b)));
 }
+
+#ifdef STL2_SWAPPABLE_POINTERS
+// swap rvalue pointers
+template <class T, class U>
+  requires detail::SwappableLvalue<T, U>
+constexpr void swap(T*&& a, U*&& b)
+  noexcept(noexcept(swap(*a, *b))) {
+  assert(a);
+  assert(b);
+  swap(*a, *b);
+}
+
+// swap rvalue pointer with lvalue reference
+template <class T, class U>
+  requires detail::SwappableLvalue<T, U>
+constexpr void swap(T& a, U*&& b)
+  noexcept(noexcept(swap(a, *b))) {
+  assert(b);
+  swap(a, *b);
+}
+
+template <class T, class U>
+  requires detail::SwappableLvalue<T, U>
+constexpr void swap(T*&& a, U& b)
+  noexcept(noexcept(swap(*a, b))) {
+  assert(a);
+  swap(*a, b);
+}
+#endif // STL2_SWAPPABLE_POINTERS
 
 
 ////////////////////

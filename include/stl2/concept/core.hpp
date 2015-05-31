@@ -1,31 +1,34 @@
 #ifndef STL2_CONCEPT_CORE_HPP
 #define STL2_CONCEPT_CORE_HPP
 
-#include <type_traits>
-
 #include <stl2/detail/config.hpp>
 #include <stl2/detail/fwd.hpp>
 
-#if defined(__GNUC__)
-#define IS_SAME_AS(T, U) __is_same_as(T, U)
-#define IS_BASE_OF(T, U) __is_base_of(T, U)
-#else
-#define IS_SAME_AS(T, U) std::is_same<T, U>::value
-#define IS_BASE_OF(T, U) std::is_base_of<T, U>::value
-#endif
+#include <meta/meta.hpp>
+#include <type_traits>
 
-namespace stl2 { namespace v1 {
 ////////////////
 // Core Concepts
 //
+
+#if defined(__GNUC__)
+#define STL2_IS_SAME_AS(T, U) __is_same_as(T, U)
+#define STL2_IS_BASE_OF(T, U) __is_base_of(T, U)
+#else
+#define STL2_IS_SAME_AS(T, U) std::is_same<T, U>::value
+#define STL2_IS_BASE_OF(T, U) std::is_base_of<T, U>::value
+#endif
+
+namespace stl2 { namespace v1 {
+
 template <class T, class U>
 concept bool Same =
-  IS_SAME_AS(T, U);
+  STL2_IS_SAME_AS(T, U);
 // Types T and U model Same iff T and U are the same type.
 
 template <class T, class U>
 concept bool Derived =
-  IS_BASE_OF(U, T);
+  STL2_IS_BASE_OF(U, T);
 // Types T and U model Derived iff T and U are class types
 // and U is a base of T
 
@@ -51,7 +54,7 @@ concept bool PubliclyDerived =
 template <class T, class U>
 using CommonType =
   meta::eval<std::conditional_t<
-    IS_SAME_AS(T, U),
+    STL2_IS_SAME_AS(T, U),
     meta::id<T>,
     std::common_type<T, U>
   >>;
@@ -70,9 +73,6 @@ concept bool Common =
 // Same<T, U> subsumes Convertible<T, U> and PubliclyDerived<T, U> and Common<T, U>
 // PubliclyDerived<T, U> subsumes Convertible<T, U>
 // Convertible<T, U> (and transitively Same<T, U> and PubliclyDerived<T, U>) subsumes ExplicitlyConvertible<T, U>
-
-#undef IS_SAME_AS
-#undef IS_BASE_OF
 
 template <class T>
 concept bool Destructible =
@@ -122,6 +122,62 @@ concept bool CopyAssignable =
   Assignable<T, T&> &&
   Assignable<T, const T&> &&
   Assignable<T, const T&&>;
-}} // namespace stl2::v1
+
+#undef STL2_IS_SAME_AS
+#undef STL2_IS_BASE_OF
+
+namespace concept_test {
+
+template <class, class>
+constexpr bool is_same() { return false; }
+
+template <class T, Same<T> >
+constexpr bool is_same() { return true; }
+
+
+template <class, class>
+constexpr bool is_convertible() { return false; }
+
+template <class T, class U>
+  requires Convertible<T, U>
+constexpr bool is_convertible() { return true; }
+
+
+template <class, class>
+constexpr bool is_publicly_derived() { return false; }
+
+template <class T, class U>
+  requires PubliclyDerived<T, U>
+constexpr bool is_publicly_derived() { return true; }
+
+
+template <class, class>
+constexpr bool is_common() { return false; }
+
+template <class T, Common<T> >
+constexpr bool is_common() { return true; }
+
+
+template <class>
+constexpr bool is_destructible() { return false; }
+
+template <Destructible>
+constexpr bool is_destructible() { return true; }
+
+
+template <class, class...>
+constexpr bool is_constructible() { return false; }
+
+Constructible{T, ...Args}
+constexpr bool is_constructible() { return false; }
+
+
+template <class>
+constexpr bool is_copy_constructible() { return false; }
+
+template <CopyConstructible>
+constexpr bool is_copy_constructible() { return true; }
+
+}}} // namespace stl2::v1::concept_test
 
 #endif // STL2_CONCEPT_CORE_HPP

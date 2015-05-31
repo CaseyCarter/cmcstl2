@@ -1,3 +1,6 @@
+#include <stl2/concept/all.hpp>
+#include <stl2/utility.hpp>
+
 #include <cassert>
 #include <cstddef>
 #include <type_traits>
@@ -5,321 +8,7 @@
 
 #include <meta/meta.hpp>
 
-#include <stl2/concept/all.hpp>
-#include <stl2/utility.hpp>
-
-namespace stl2 { inline namespace v1 {
-
-////////////////////
-// Iterator concepts
-//
-
-template <class T>
-using ReferenceType =
-  decltype(*declval<T>());
-
-namespace detail {
-template <class T>
-using uncvref =
-  std::remove_cv_t<std::remove_reference_t<T>>;
-
-template <class T>
-concept bool Void =
-  std::is_void<T>::value;
-
-namespace impl {
-template <class T>
-struct nonvoid { using type = T; };
-
-template <Void T>
-struct nonvoid<T> {};
-} // namespace impl
-
-template <class T>
-using nonvoid = meta::eval<impl::nonvoid<T>>;
-
-template <class T>
-using nvuncvref = nonvoid<uncvref<T>>;
-
-template <class T>
-concept bool HasValueType =
-  requires { typename T::value_type; };
-
-template <class T>
-concept bool HasElementType =
-  requires { typename T::element_type; };
-
-template <class T>
-concept bool HasReferenceType =
-  requires { typename ReferenceType<T>; };
-} // namespace detail
-
-template <class>
-struct value_type {};
-
-template <detail::HasValueType T>
-struct value_type<T> { using type = typename T::value_type; };
-
-template <detail::HasElementType T>
-  requires !detail::HasValueType<T>
-struct value_type<T> { using type = typename T::element_type; };
-
-template <detail::HasReferenceType T>
-  requires !detail::HasElementType<T> && !detail::HasValueType<T>
-struct value_type<T> { using type = ReferenceType<T>; };
-
-template <class T>
-using ValueType =
-  detail::nvuncvref<meta::eval<value_type<T>>>;
-
-
-template <class I>
-concept bool Readable =
-  Semiregular<I> &&
-  requires(I& i) {
-    typename ValueType<I>;
-    { *i } -> const ValueType<I>&;
-  };
-
-template <class Out, class T>
-concept bool Writable =
-  Semiregular<Out> &&
-  requires(Out& o, T&& t) {
-    *o = (T&&)t;
-  };
-
-template <class I, class Out>
-concept bool IndirectlyAssignable =
-  Readable<I> &&
-  Writable<Out, ReferenceType<I>>;
-
-template <class I1, class I2 = I1>
-concept bool IndirectlySwappable =
-  Readable<I1> &&
-  Readable<I2> &&
-  Swappable<ReferenceType<I1>, ReferenceType<I2>>;
-
-
-namespace detail {
-template <class T>
-concept bool HasDifferenceType =
-  requires { typename T::difference_type; };
-} // namespace detail
-
-template <class> struct difference_type {};
-
-template <detail::HasDifferenceType T>
-struct difference_type<T> { using type = typename T::difference_type; };
-
-template <class T>
-  requires !detail::HasDifferenceType<T> &&
-    requires(T& a, T& b) {
-      a - b; !detail::Void<decltype(a - b)>;
-    }
-struct difference_type<T> :
-  std::remove_cv<decltype(declval<T>() - declval<T>())> {};
-
-template <>
-struct difference_type<std::nullptr_t> {
-  using type = std::ptrdiff_t;
-};
-
-template <class T>
-using DifferenceType =
-  detail::nvuncvref<meta::eval<difference_type<T>>>;
-
-
-namespace detail {
-template <class T>
-concept bool IntegralDifference =
-  requires {
-    typename DifferenceType<T>;
-    requires Integral<DifferenceType<T>>;
-  };
-} // namespace detail
-
-template <class> struct distance_type {};
-template <detail::IntegralDifference T>
-struct distance_type<T> :
-  std::make_unsigned<DifferenceType<T>> {};
-
-template <class T>
-using DistanceType =
-  meta::eval<distance_type<T>>;
-
-template <class I>
-concept bool WeaklyIncrementable =
-  Semiregular<I> &&
-  requires(I& i) {
-    typename DistanceType<I>;
-    requires Integral<DistanceType<I>>; // Try without this?
-    ++i; requires Same<I&, decltype(++i)>;
-    i++;
-  };
-
-template <class I>
-concept bool Incrementable =
-  WeaklyIncrementable<I> &&
-  EqualityComparable<I> &&
-  requires(I& i) {
-    i++; requires Same<I, decltype(i++)>;
-  };
-
-struct weak_input_iterator_tag {};
-struct input_iterator_tag :
-  weak_input_iterator_tag {};
-struct forward_iterator_tag :
-  input_iterator_tag {};
-struct bidirectional_iterator_tag :
-  forward_iterator_tag {};
-struct random_access_iterator_tag :
-  bidirectional_iterator_tag {};
-struct contiguous_iterator_tag :
-  random_access_iterator_tag {};
-
-template <class>
-struct iterator_category {};
-template <class T>
-struct iterator_category<T*> {
-  using type = contiguous_iterator_tag;
-};
-template <class T>
-  requires requires { typename T::iterator_category; }
-struct iterator_category<T> {
-  using type = typename T::iterator_category;
-};
-
-template <class T>
-using IteratorCategory =
-  meta::eval<iterator_category<T>>;
-
-template <class I>
-concept bool WeakIterator =
-  WeaklyIncrementable<I> &&
-  requires(I& i) {
-    //{ *i } -> auto&&;
-    *i; requires !detail::Void<decltype(*i)>;
-  };
-
-template <class I>
-concept bool Iterator =
-  WeakIterator<I> &&
-  EqualityComparable<I>;
-
-template <class S, class I>
-concept bool Sentinel =
-  Iterator<I> &&
-  Regular<S> &&
-  EqualityComparable<I, S>;
-
-template <class I>
-concept bool WeakInputIterator =
-  WeakIterator<I> &&
-  Readable<I> &&
-  requires(I i) {
-    typename IteratorCategory<I>;
-    Derived<IteratorCategory<I>, weak_input_iterator_tag>;
-    //{ i++ } -> Readable;
-    requires Readable<decltype(i++)>;
-    requires Same<ValueType<I>,ValueType<decltype(i++)>>;
-  };
-
-template <class I>
-concept bool InputIterator =
-  WeakInputIterator<I> &&
-  Iterator<I> &&
-  Derived<IteratorCategory<I>, input_iterator_tag>;
-
-template <class I, class T>
-concept bool WeakOutputIterator =
-  WeakIterator<I> &&
-  Writable<I, T>;
-
-template <class I, class T>
-concept bool OutputIterator =
-  WeakOutputIterator<I, T> &&
-  Iterator<I>;
-
-template <class I>
-concept bool ForwardIterator =
-  InputIterator<I> &&
-  Incrementable<I> &&
-  Derived<IteratorCategory<I>, forward_iterator_tag>;
-
-template <class I>
-concept bool BidirectionalIterator =
-  ForwardIterator<I> &&
-  Derived<IteratorCategory<I>, bidirectional_iterator_tag> &&
-  requires(I i) {
-    --i; requires Same<I&, decltype(--i)>;
-    i--; requires Same<I, decltype(i--)>;
-  };
-
-template <class I, class S = I>
-concept bool SizedIteratorRange =
-  Sentinel<S, I> &&
-  requires(I i, S s) {
-    typename DifferenceType<I>;
-    // Common<DifferenceType<I>, DistanceType<I>> ??
-    { i - i } -> DifferenceType<I>;
-    { s - s } -> DifferenceType<I>;
-    { s - i } -> DifferenceType<I>;
-    { i - s } -> DifferenceType<I>;
-  };
-
-template <class I>
-concept bool RandomAccessIterator =
-  BidirectionalIterator<I> &&
-  Derived<IteratorCategory<I>, random_access_iterator_tag> &&
-  TotallyOrdered<I> &&
-  SizedIteratorRange<I> &&
-  requires(I i, I j, DifferenceType<I> n) {
-    i += n; requires Same<I&, decltype(i += n)>;
-    i + n; requires Same<I, decltype(i + n)>;
-    n + i; requires Same<I, decltype(n + i)>;
-    i -= n; requires Same<I&, decltype(i -= n)>;
-    i - n; requires Same<I, decltype(i - n)>;
-    i[n]; requires Same<ReferenceType<I>,decltype(i[n])>;
-  };
-
-template <class I>
-concept bool ContiguousIterator =
-  RandomAccessIterator<I> &&
-  Derived<IteratorCategory<I>, contiguous_iterator_tag> &&
-  std::is_reference<ReferenceType<I>>::value;
-
-
-/////////////////
-// Range concepts
-
-namespace detail {
-using std::begin;
-auto adl_begin(auto&& t) ->
-  decltype(begin((decltype(t)&&)t)) {
-    return begin((decltype(t)&&)t);
-}
-
-using std::end;
-auto adl_end(auto&& t) ->
-  decltype(end((decltype(t)&&)t)) {
-    return end((decltype(t)&&)t);
-}
-} // namespace detail
-
-template <class T>
-using IteratorType = decltype(detail::adl_begin(declval<T>()));
-template <class T>
-using SentinelType = decltype(detail::adl_end(declval<T>()));
-
-template <class T>
-concept bool Range =
-  requires(T&& t) {
-    detail::adl_begin(t);
-    detail::adl_end(t);
-    typename IteratorType<T>;
-    typename SentinelType<T>;
-    requires Sentinel<SentinelType<T>, IteratorType<T>>;
-  };
+namespace stl2 { namespace v1 {
 
 ////////////
 // Test code
@@ -336,47 +25,31 @@ static_assert(!same_extents<int[][2][1], double[][2][1]>(), "");
 }
 
 namespace concept_test {
-template <class, class>
-constexpr bool is_same() { return false; }
-template <class T, Same<T> >
-constexpr bool is_same() { return true; }
 
 static_assert(is_same<int, int>(), "");
 static_assert(is_same<double, double>(), "");
 static_assert(!is_same<double, int>(), "");
 static_assert(!is_same<int, double>(), "");
 
-template <class, class>
-constexpr bool is_a() { return false; }
-template <class T, class U>
-  requires PubliclyDerived<T, U>
-constexpr bool is_a() { return true; }
-
-namespace is_a_test {
+namespace is_publicly_derived_test {
 struct A {};
 struct B : A {};
 struct C : A {};
 struct D : B, C {};
 
-static_assert(is_a<int,int>(), "");
-static_assert(is_a<A,A>(), "");
-static_assert(is_a<B,B>(), "");
-static_assert(is_a<C,C>(), "");
-static_assert(is_a<D,D>(), "");
-static_assert(is_a<B,A>(), "");
-static_assert(is_a<C,A>(), "");
-static_assert(!is_a<A,B>(), "");
-static_assert(!is_a<A,C>(), "");
-static_assert(!is_a<A,D>(), "");
-static_assert(!is_a<D,A>(), "");
-static_assert(!is_a<int,void>(), "");
+static_assert(is_publicly_derived<int,int>(), "");
+static_assert(is_publicly_derived<A,A>(), "");
+static_assert(is_publicly_derived<B,B>(), "");
+static_assert(is_publicly_derived<C,C>(), "");
+static_assert(is_publicly_derived<D,D>(), "");
+static_assert(is_publicly_derived<B,A>(), "");
+static_assert(is_publicly_derived<C,A>(), "");
+static_assert(!is_publicly_derived<A,B>(), "");
+static_assert(!is_publicly_derived<A,C>(), "");
+static_assert(!is_publicly_derived<A,D>(), "");
+static_assert(!is_publicly_derived<D,A>(), "");
+static_assert(!is_publicly_derived<int,void>(), "");
 }
-
-template <class, class>
-constexpr bool is_convertible() { return false; }
-template <class T, class U>
-  requires Convertible<T, U>
-constexpr bool is_convertible() { return true; }
 
 namespace convertible {
 struct A {};
@@ -406,11 +79,6 @@ static_assert(is_same<CommonType<int, int>, int>(), "");
 static_assert(is_same<CommonType<A, A>, A>(), "");
 }
 
-template <class, class>
-constexpr bool is_common() { return false; }
-template <class T, Common<T> >
-constexpr bool is_common() { return true; }
-
 static_assert(is_common<int, int>(), "");
 static_assert(is_common<int, double>(), "");
 static_assert(is_common<double, int>(), "");
@@ -420,11 +88,6 @@ static_assert(!is_common<int*, int>(), "");
 static_assert(is_common<void*, int*>(), "");
 static_assert(is_common<double,long long>(), "");
 
-template <class>
-constexpr bool is_boolean() { return false; }
-template <Boolean>
-constexpr bool is_boolean() { return true; }
-
 namespace boolean {
 static_assert(is_boolean<bool>(), "");
 static_assert(is_boolean<int>(), "");
@@ -433,20 +96,10 @@ struct A {};
 static_assert(!is_boolean<A>(), "");
 }
 
-template <class>
-constexpr bool is_integral() { return false; }
-template <Integral>
-constexpr bool is_integral() { return true; }
-
 static_assert(is_integral<int>(), "");
 static_assert(!is_integral<double>(), "");
 static_assert(is_integral<unsigned>(), "");
 static_assert(!is_integral<void>(), "");
-
-template <class, class...>
-constexpr bool is_constructible() { return false; }
-Constructible{T, ...Args}
-constexpr bool is_constructible() { return false; }
 
 namespace constructible {
 template <class T, class U>
@@ -468,26 +121,11 @@ static_assert(f<A, int>(), "");
 static_assert(!f<B, int>(), "");
 }
 
-template <class>
-constexpr bool is_destructible() { return false; }
-template <Destructible>
-constexpr bool is_destructible() { return true; }
-
 static_assert(!is_destructible<void>(), "");
 static_assert(is_destructible<int>(), "");
 static_assert(is_destructible<int&>(), "");
 static_assert(is_destructible<int[4]>(), "");
 static_assert(!is_destructible<int()>(), "");
-
-template <class>
-constexpr bool is_swappable() { return false; }
-template <class T>
-  requires Swappable<T>
-constexpr bool is_swappable() { return true; }
-template <class, class>
-constexpr bool is_swappable() { return false; }
-template <class T, Swappable<T> U>
-constexpr bool is_swappable() { return true; }
 
 namespace swappable {
 static_assert(is_swappable<int&>(), "");
@@ -520,13 +158,13 @@ static_assert(is_swappable<B(&)[1], A(&)[1]>(), "");
 static_assert(is_swappable<B(&)[1][3], A(&)[1][3]>(), "");
 static_assert(!is_swappable<B(&)[3][1], A(&)[1][3]>(), "");
 
-#ifdef SWAPPABLE_POINTERS
+#ifdef STL2_SWAPPABLE_POINTERS
 static_assert(is_swappable<int*,int&>(), "");
-static_assert(noexcept(::swap(declval<int*>(), declval<int&>())), "");
+  static_assert(noexcept(stl2::swap(declval<int*>(), declval<int&>())), "");
 static_assert(!is_swappable<int*&,int&>(), "");
 static_assert(is_swappable<A*,B*>(), "");
 static_assert(is_swappable<A(*)[4], B(&)[4]>(), "");
-static_assert(noexcept(::swap(declval<A(*)[4]>(), declval<B(&)[4]>())), "");
+static_assert(noexcept(stl2::swap(declval<A(*)[4]>(), declval<B(&)[4]>())), "");
 #endif
 }
 
@@ -550,22 +188,12 @@ struct copyonly {
 };
 
 
-template <class>
-constexpr bool is_copy_constructible() { return false; }
-template <CopyConstructible>
-constexpr bool is_copy_constructible() { return true; }
-
 static_assert(!is_copy_constructible<void>(), "");
 static_assert(is_copy_constructible<int>(), "");
 static_assert(!is_copy_constructible<int[4]>(), "");
 static_assert(is_copy_constructible<int&>(), "");
 static_assert(!is_copy_constructible<void()>(), "");
 
-
-template <class>
-constexpr bool is_movable() { return false; }
-template <Movable>
-constexpr bool is_movable() { return true; }
 
 static_assert(is_movable<int>(), "");
 static_assert(is_movable<double>(), "");
@@ -576,11 +204,6 @@ static_assert(!is_movable<nonmovable>(), "");
 static_assert(!is_movable<copyonly>(), "");
 
 
-template <class>
-constexpr bool is_copyable() { return false; }
-template <Copyable>
-constexpr bool is_copyable() { return true; }
-
 static_assert(is_copyable<int>(), "");
 static_assert(is_copyable<double>(), "");
 static_assert(!is_copyable<void>(), "");
@@ -589,11 +212,6 @@ static_assert(!is_copyable<moveonly>(), "");
 static_assert(!is_copyable<nonmovable>(), "");
 static_assert(!is_copyable<copyonly>(), "");
 
-
-template <class>
-constexpr bool is_semiregular() { return false; }
-template <Semiregular>
-constexpr bool is_semiregular() { return true; }
 
 namespace semiregular {
 struct A {};
@@ -643,21 +261,11 @@ static_assert(is_same<int, DifferenceType<int>>(), "");
 static_assert(is_same<unsigned, DistanceType<int>>(), "");
 }
 
-template <class>
-constexpr bool is_readable() { return false; }
-template <Readable>
-constexpr bool is_readable() { return true; }
-
 static_assert(!is_readable<void>(), "");
 static_assert(!is_readable<void*>(), "");
 static_assert(is_readable<int*>(), "");
 static_assert(is_readable<const int*>(), "");
 
-
-template <class>
-constexpr bool is_weakly_incrementable() { return false; }
-template <WeaklyIncrementable>
-constexpr bool is_weakly_incrementable() { return true; }
 
 static_assert(is_weakly_incrementable<int>(), "");
 static_assert(is_weakly_incrementable<unsigned int>(), "");
@@ -665,11 +273,6 @@ static_assert(!is_weakly_incrementable<void>(), "");
 static_assert(is_weakly_incrementable<int*>(), "");
 static_assert(is_weakly_incrementable<const int*>(), "");
 
-
-template <class>
-constexpr bool is_incrementable() { return false; }
-template <Incrementable>
-constexpr bool is_incrementable() { return true; }
 
 #if 0
 static_assert(is_incrementable<int>(), "");

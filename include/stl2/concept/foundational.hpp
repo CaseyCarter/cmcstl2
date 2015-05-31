@@ -6,53 +6,14 @@
 
 #include <meta/meta.hpp>
 
-#define STL2_SWAPPABLE_POINTERS
-
-namespace stl2 { namespace v1 { namespace detail {
-#if 1
-template <class A, class B>
-using equal_non_zero =
-  meta::fast_and<
-    meta::not_equal_to<A, meta::size_t<0>>,
-    meta::equal_to<A, B>
-  >;
-
-template <class, class, class>
-struct same_extents_
-{};
-
-template <class T, class U, std::size_t...Is>
-struct same_extents_<T, U, std::index_sequence<Is...>>
-  : meta::fast_and<
-      equal_non_zero<std::extent<T, Is>, std::extent<U, Is>>...
-    >
-{};
-
-template <class, class, class = void>
-struct same_extents
-  : std::false_type {};
-
-template <class T, class U>
-    requires std::rank<T>::value == std::rank<U>::value
-struct same_extents<T, U>
-  : same_extents_<T, U, std::make_index_sequence<std::rank<T>::value>> {};
-
-#else
-
-template <class T, class U>
-struct same_extents
-  : meta::not_<meta::or_<std::is_array<T>, std::is_array<U>>>
-{};
-
-template <class T, class U, std::size_t N>
-struct same_extents<T[N], U[N]>
-  : same_extents<T, U> {};
-#endif
-} // namespace detail
+#include <cassert>
+#include <type_traits>
+#include <utility>
 
 ////////////////////////
 // Foundational Concepts
 //
+namespace stl2 { namespace v1 {
 
 template <class T>
 concept bool Movable =
@@ -96,12 +57,56 @@ concept bool SwappableNonarrayLvalue =
     (SwappableNonarrayLvalue_<U, U> &&
      SwappableNonarrayLvalue_<T, U> &&
      SwappableNonarrayLvalue_<U, T>));
+
+#if 1
+template <class A, class B>
+using equal_non_zero =
+  meta::fast_and<
+    meta::not_equal_to<A, meta::size_t<0>>,
+    meta::equal_to<A, B>
+  >;
+
+template <class, class, class>
+struct same_extents_
+{};
+
+template <class T, class U, std::size_t...Is>
+struct same_extents_<T, U, std::index_sequence<Is...>>
+  : meta::fast_and<
+      equal_non_zero<std::extent<T, Is>, std::extent<U, Is>>...
+    >
+{};
+
+template <class, class, class = void>
+struct same_extents
+  : std::false_type {};
+
+template <class T, class U>
+    requires std::rank<T>::value == std::rank<U>::value
+struct same_extents<T, U>
+  : same_extents_<T, U, std::make_index_sequence<std::rank<T>::value>> {};
+
+#else
+
+template <class T, class U>
+struct same_extents
+  : meta::not_<meta::fast_or<std::is_array<T>, std::is_array<U>>>
+{};
+
+template <class T, class U, std::size_t N>
+struct same_extents<T[N], U[N]>
+  : same_extents<T, U> {};
+#endif
+
+template <class T, class U>
+concept bool SameExtents =
+  same_extents<T, U>::value;
 } // namespace detail
 
 template <class T, class U, std::size_t N,
           class TE = std::remove_all_extents_t<T>,
           class UE = std::remove_all_extents_t<U>>
-  requires detail::same_extents<T, U>::value &&
+  requires detail::SameExtents<T, U> &&
     detail::SwappableNonarrayLvalue<TE, UE>
 constexpr void swap(T (&a)[N], U (&b)[N])
   noexcept(noexcept(swap(std::declval<TE&>(),
@@ -116,7 +121,7 @@ namespace detail {
 template <class T, class U>
 concept bool SwappableLvalue_ =
   requires(T& t, U& u) {
-  swap(t, u);
+    swap(t, u);
   };
 
 template <class T, class U>
@@ -128,32 +133,20 @@ concept bool SwappableLvalue =
     SwappableLvalue_<U, T>));
 } // namespace detail
 
-// swap rvalue pointers
 template <class T, class U>
   requires detail::SwappableLvalue<T, U>
 constexpr void swap(T*&& a, U*&& b)
-  noexcept(noexcept(swap(*a, *b))) {
-  assert(a);
-  assert(b);
-  swap(*a, *b);
-}
+  noexcept(noexcept(swap(*a, *b)));
 
-// swap rvalue pointer with lvalue reference
 template <class T, class U>
   requires detail::SwappableLvalue<T, U>
 constexpr void swap(T& a, U*&& b)
-  noexcept(noexcept(swap(a, *b))) {
-  assert(b);
-  swap(a, *b);
-}
+  noexcept(noexcept(swap(a, *b)));
 
 template <class T, class U>
   requires detail::SwappableLvalue<T, U>
 constexpr void swap(T*&& a, U& b)
-  noexcept(noexcept(swap(*a, b))) {
-  assert(a);
-  swap(*a, b);
-}
+  noexcept(noexcept(swap(*a, b)));
 #endif
 
 namespace detail {
@@ -276,6 +269,56 @@ concept bool UnsignedIntegral =
 // Integral<T> subsumes SignedIntegral<T> and UnsignedIntegral<T>
 // SignedIntegral<T> and UnsignedIntegral<T> are mutually exclusive
 
-}} // namespace stl2::v1
+namespace concept_test {
+
+template <class>
+constexpr bool is_movable() { return false; }
+
+template <Movable>
+constexpr bool is_movable() { return true; }
+
+
+template <class>
+constexpr bool is_copyable() { return false; }
+
+template <Copyable>
+constexpr bool is_copyable() { return true; }
+
+
+template <class>
+constexpr bool is_swappable() { return false; }
+
+template <class T>
+  requires Swappable<T>
+constexpr bool is_swappable() { return true; }
+
+template <class, class>
+constexpr bool is_swappable() { return false; }
+
+template <class T, Swappable<T> U>
+constexpr bool is_swappable() { return true; }
+
+
+template <class>
+constexpr bool is_semiregular() { return false; }
+
+template <Semiregular>
+constexpr bool is_semiregular() { return true; }
+
+
+template <class>
+constexpr bool is_boolean() { return false; }
+
+template <Boolean>
+constexpr bool is_boolean() { return true; }
+
+
+template <class>
+constexpr bool is_integral() { return false; }
+
+template <Integral>
+constexpr bool is_integral() { return true; }
+
+}}} // namespace stl2::v1::concept_test
 
 #endif // STL2_CONCEPT_FOUNDATIONAL_HPP
