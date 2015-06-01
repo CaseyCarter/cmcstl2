@@ -161,20 +161,18 @@ static_assert(is_swappable<A&, B&>(), "");
 static_assert(is_swappable<B(&)[1], A(&)[1]>(), "");
 static_assert(is_swappable<B(&)[1][3], A(&)[1][3]>(), "");
 static_assert(!is_swappable<B(&)[3][1], A(&)[1][3]>(), "");
-#if 1
-}
-#else
 
 #ifdef STL2_SWAPPABLE_POINTERS
 static_assert(is_swappable<int*,int&>(), "");
-static_assert(noexcept(stl2::swap(stl2::declval<int*>(), stl2::declval<int&>())), "");
+static_assert(noexcept(swap(stl2::declval<int*>(), stl2::declval<int&>())), "");
 static_assert(!is_swappable<int*&,int&>(), "");
+#if 0 // FIXME: These cause the compiler to bomb memory
 static_assert(is_swappable<A*,B*>(), "");
 static_assert(is_swappable<A(*)[4], B(&)[4]>(), "");
+#endif
 static_assert(noexcept(swap(stl2::declval<A(*)[4]>(), stl2::declval<B(&)[4]>())), "");
 #endif
 }
-#endif
 
 struct copyable {};
 struct moveonly {
@@ -285,7 +283,7 @@ static_assert(is_weakly_incrementable<int*>(), "");
 static_assert(is_weakly_incrementable<const int*>(), "");
 
 
-#if 0
+#if 0 // FIXME: These cause the compiler to ICE
 static_assert(is_incrementable<int>(), "");
 static_assert(is_incrementable<unsigned int>(), "");
 static_assert(!is_incrementable<void>(), "");
@@ -313,7 +311,18 @@ namespace {
   constexpr const auto& destroy = detail::destroy_fn{};
 } // unnamed namespace
 
-namespace {
+namespace adl_swap_detail {
+using stl2::swap;
+
+Swappable{T, U}
+constexpr void adl_swap(T&& t, U&& u)
+  noexcept(noexcept(swap(stl2::forward<T>(t), stl2::forward<U>(u)))) {
+  swap(stl2::forward<T>(t), stl2::forward<U>(u));
+}
+} // namespace adl_swap_detail
+
+using adl_swap_detail::adl_swap;
+
 template <class T, std::size_t N>
 struct array {
   T elements_[N];
@@ -324,29 +333,26 @@ struct array {
   }
 };
 
-using stl2::swap;
-
 template <class T, class U, std::size_t N>
-  requires stl2::Swappable<T&, U&>
+  requires Swappable<T&, U&>
 void swap(array<T, N>& a, array<U, N>& b)
-  noexcept(noexcept(swap(a.elements_, b.elements_))) {
-  swap(a.elements_, b.elements_);
+  noexcept(noexcept(adl_swap(a.elements_, b.elements_))) {
+  adl_swap(a.elements_, b.elements_);
 }
 
 template <class T, class U, std::size_t N>
-  requires stl2::Swappable<T&, U&>
+  requires Swappable<T&, U&>
 void swap(array<T, N>& a, U (&b)[N])
-  noexcept(noexcept(swap(a.elements_, b))) {
-  swap(a.elements_, b);
+  noexcept(noexcept(adl_swap(a.elements_, b))) {
+  adl_swap(a.elements_, b);
 }
 
 template <class T, class U, std::size_t N>
-  requires stl2::Swappable<T&, U&>
+  requires Swappable<T&, U&>
 void swap(T (&b)[N], array<U, N>& a)
-  noexcept(noexcept(swap(b, a.elements_))) {
-  swap(b, a.elements_);
+  noexcept(noexcept(adl_swap(b, a.elements_))) {
+  adl_swap(b, a.elements_);
 }
-} // unnamed namespace
 
 namespace {
 struct tag {};
@@ -357,11 +363,11 @@ struct C : B {};
 #if 1
 void f(A) { std::cout << "exactly A\n"; }
 
-void f(stl2::PubliclyDerived<A>) { std::cout << "Publicly derived from A\n"; }
+void f(PubliclyDerived<A>) { std::cout << "Publicly derived from A\n"; }
 
-void f(stl2::Convertible<A>) { std::cout << "Implicitly convertible to A\n"; }
+void f(Convertible<A>) { std::cout << "Implicitly convertible to A\n"; }
 
-void f(stl2::ExplicitlyConvertible<A>) { std::cout << "Explicitly convertible to A\n"; }
+void f(ExplicitlyConvertible<A>) { std::cout << "Explicitly convertible to A\n"; }
 
 void f(auto) { std::cout << "Nothing to do with A\n"; }
 
@@ -425,9 +431,9 @@ int main() {
     int a[2][2] = {{0, 1}, {2, 3}};
     int b[2][2] = {{4, 5}, {6, 7}};
 
-    using stl2::swap;
-    static_assert(noexcept(swap(a, b)), "");
-    swap(a, b);
+    static_assert(is_swappable<decltype((a)),decltype((b))>(), "");
+    adl_swap(a, b);
+    static_assert(noexcept(adl_swap(a, b)), "");
 
     assert(a[0][0] == 4);
     assert(a[0][1] == 5);
@@ -444,10 +450,9 @@ int main() {
     array<int, 4> a = {0,1,2,3};
     int b[4] = {4,5,6,7};
 
-    using stl2::swap;
-
-    //static_assert(stl2::concept_test::is_swappable<decltype((a)),decltype((b))>(), "");
-    swap(a, b);
+    static_assert(is_swappable<decltype((a)),decltype((b))>(), "");
+    adl_swap(a, b);
+    static_assert(noexcept(adl_swap(a, b)), "");
 
     assert(a[0] == 4);
     assert(a[1] == 5);
@@ -459,21 +464,26 @@ int main() {
     assert(b[2] == 2);
     assert(b[3] == 3);
   }
-#if 0
+#if 1 // FIXME
   {
+    using stl2::swap;
+
     array<array<int, 2>, 3> a = {{{{0, 1}}, {{2, 3}}, {{4, 5}}}};
     int b[3][2] = {{6, 7}, {8, 9}, {10, 11}};
 
-    using stl2::swap;
-    swap(a, b);
+    static_assert(is_swappable<decltype(a[0]),decltype(b[0])>(), "");
+    static_assert(noexcept(adl_swap(a[0], b[0])), "");
+
+    static_assert(is_swappable<decltype((a)),decltype((b))>(), "");
+    adl_swap(a, b);
+    static_assert(noexcept(adl_swap(a, b)), "");
   }
 #endif
 #ifdef STL2_SWAPPABLE_POINTERS
   {
     struct A {
       void foo(A& other) {
-        using stl2::swap;
-        swap(this, other);
+        adl_swap(this, other);
       }
     };
 
