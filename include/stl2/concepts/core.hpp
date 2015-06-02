@@ -41,23 +41,20 @@ concept bool ExplicitlyConvertible =
 
 template <class T, class U>
 concept bool Convertible =
-  Same<T, U> ||
-  (std::is_convertible<T, U>::value &&
-   ExplicitlyConvertible<T, U>);
+  ExplicitlyConvertible<T, U> &&
+  (Same<T, U> || std::is_convertible<T, U>::value);
 
 template <class T, class U>
 concept bool PubliclyDerived =
   Same<T, U> ||
-  (Derived<T, U> &&
-   Convertible<T, U>);
+  (Derived<T, U> && Convertible<T, U>);
 
 template <class T, class U>
 using CommonType =
-  meta::eval<std::conditional_t<
-    STL2_IS_SAME_AS(T, U),
-    meta::id<T>,
-    std::common_type<T, U>
-  >>;
+  meta::let<
+    meta::if_c<STL2_IS_SAME_AS(T, U), T,
+      meta::defer_trait<std::common_type, T, U>>
+  >;
 
 template <class T, class U>
 concept bool Common =
@@ -76,11 +73,15 @@ concept bool Common =
 
 template <class T>
 concept bool Destructible =
-  std::is_destructible<T>::value;
+  std::is_object<T>::value &&
+  requires(T&& t) {
+    { t.~T() } noexcept;
+  };
 
 template <class T, class...Args>
 concept bool Constructible =
   ExplicitlyConvertible<Args..., T> ||
+  // requires(Args&&...args) { T(forward<Args>(args)...); }; // ICE
   std::is_constructible<T, Args...>::value;
 
 // ExplictlyConvertible<T, U> (and transitively Convertible<T, U>, PubliclyDerived<T, U>,

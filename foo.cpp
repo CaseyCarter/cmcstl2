@@ -133,8 +133,8 @@ using stl2::concepts::test::is_destructible;
 
 static_assert(!is_destructible<void>(), "");
 static_assert(is_destructible<int>(), "");
-static_assert(is_destructible<int&>(), "");
-static_assert(is_destructible<int[4]>(), "");
+static_assert(!is_destructible<int&>(), "");
+static_assert(!is_destructible<int[4]>(), "");
 static_assert(!is_destructible<int()>(), "");
 }
 
@@ -176,13 +176,18 @@ static_assert(is_swappable<B(&)[1][3], A(&)[1][3]>(), "");
 static_assert(!is_swappable<B(&)[3][1], A(&)[1][3]>(), "");
 
 #ifdef STL2_SWAPPABLE_POINTERS
+static_assert(is_swappable<int*,int*>(), "");
 static_assert(is_swappable<int*,int&>(), "");
+static_assert(is_swappable<int&,int*>(), "");
 static_assert(noexcept(swap(stl2::declval<int*>(), stl2::declval<int&>())), "");
 static_assert(!is_swappable<int*&,int&>(), "");
+static_assert(is_swappable<int(*)[3][2][1], int(&)[3][2][1]>(), "");
+
 #if 0 // FIXME: These cause the compiler to bomb memory
 static_assert(is_swappable<A*,B*>(), "");
 static_assert(is_swappable<A(*)[4], B(&)[4]>(), "");
 #endif
+
 static_assert(noexcept(swap(stl2::declval<A(*)[4]>(), stl2::declval<B(&)[4]>())), "");
 #endif
 } // namespace swappable_test
