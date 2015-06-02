@@ -75,18 +75,11 @@ constexpr void swap(T (&t)[N], U (&u)[N])
 namespace detail {
 
 template <class T, class U>
-concept bool SwappableLvalue_ =
+concept bool SwappableLvalue =
   requires(T& t, U& u) {
     swap(t, u);
+    swap(u, t);
   };
-
-template <class T, class U>
-concept bool SwappableLvalue =
-  SwappableLvalue_<T, T> &&
-  (Same<T, U> ||
-   (SwappableLvalue_<U, U> &&
-    SwappableLvalue_<T, U> &&
-    SwappableLvalue_<U, T>));
 
 } // namespace detail
 

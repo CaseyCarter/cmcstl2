@@ -523,6 +523,7 @@ void test_swap() {
   {
     struct A {
       void foo(A& other) {
+        static_assert(is_swappable<A*,A&>(), "");
         adl_swap(this, other);
       }
     };
