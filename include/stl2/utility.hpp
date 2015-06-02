@@ -34,7 +34,7 @@ constexpr void swap(T& a, T& b)
   a = move(b);
   b = move(tmp);
 }
- 
+
 template <class T, class U, std::size_t N>
   requires detail::swappable_array<T, U>::value
 constexpr void swap(T (&t)[N], U (&u)[N])

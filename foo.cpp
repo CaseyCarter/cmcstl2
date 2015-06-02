@@ -15,10 +15,6 @@
 using namespace stl2::concepts;
 using namespace stl2::concepts::test;
 
-namespace same_extents_test {
-// FIXME
-}
-
 static_assert(is_same<int, int>(), "");
 static_assert(is_same<double, double>(), "");
 static_assert(!is_same<double, int>(), "");
@@ -307,7 +303,7 @@ namespace {
 namespace adl_swap_detail {
 using stl2::swap;
 
-Swappable{T, U}
+stl2::Swappable{T, U}
 constexpr void adl_swap(T&& t, U&& u)
   noexcept(noexcept(swap(stl2::forward<T>(t), stl2::forward<U>(u)))) {
   swap(stl2::forward<T>(t), stl2::forward<U>(u));

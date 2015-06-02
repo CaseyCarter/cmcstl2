@@ -46,25 +46,26 @@ namespace detail {
 
 template <class, class>
 struct swappable_array :
-    std::false_type {};
- 
+  std::false_type {};
+
 template <class T, class U>
-    requires requires(T& t, U&u) {
-        swap(t, u); swap(u, t);
-    }
+  requires requires(T& t, U&u) {
+    swap(t, u);
+    swap(u, t);
+  }
 struct swappable_array<T, U> {
-    static constexpr bool value = true;
-    static constexpr bool nothrow =
-        noexcept(swap(std::declval<T&>(),
-                      std::declval<U&>()));
+  static constexpr bool value = true;
+  static constexpr bool nothrow =
+    noexcept(swap(std::declval<T&>(),
+                  std::declval<U&>()));
 };
 
 template <class T, class U, std::size_t N>
 struct swappable_array<T[N], U[N]> :
-    swappable_array<T, U> {};
+  swappable_array<T, U> {};
 
 } // namespace detail
- 
+
 template <class T, class U, std::size_t N>
   requires detail::swappable_array<T, U>::value
 constexpr void swap(T (&t)[N], U (&u)[N])
@@ -105,24 +106,14 @@ constexpr void swap(T*&& a, U& b)
   noexcept(noexcept(swap(*a, b)));
 #endif
 
-namespace detail {
-template <class T, class U>
-concept bool Swappable_ =
-  requires(T&& t, U&& u) {
-    swap(forward<T>(t), forward<U>(u));
-  };
-
-} // namespace detail
-
 namespace concepts {
 
 template <class T, class U = T>
 concept bool Swappable =
-  detail::Swappable_<T, T> &&
-  (Same<T, U> ||
-   (detail::Swappable_<U, U> &&
-    detail::Swappable_<T, U> &&
-    detail::Swappable_<U, T>));
+  requires (T&& t, U&& u) {
+    swap(forward<T>(t), forward<U>(u));
+    swap(forward<U>(u), forward<T>(t));
+  };
 
 template <class T>
 concept bool Semiregular =
