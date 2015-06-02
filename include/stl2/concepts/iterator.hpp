@@ -296,7 +296,7 @@ concept bool ContiguousIterator =
   Derived<IteratorCategory<I>, contiguous_iterator_tag> &&
   std::is_reference<ReferenceType<I>>::value;
 
-namespace test {
+namespace check {
 
 template <class>
 constexpr bool is_readable() { return false; }
@@ -318,6 +318,6 @@ constexpr bool is_incrementable() { return false; }
 template <Incrementable>
 constexpr bool is_incrementable() { return true; }
 
-}}}} // namespace stl2::v1::concepts::test
+}}}} // namespace stl2::v1::concepts::check
 
 #endif // STL2_CONCEPTS_ITERATOR_HPP

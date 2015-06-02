@@ -13,7 +13,7 @@
 // Test code
 //
 namespace same_test {
-using stl2::concepts::test::is_same;
+using stl2::concepts::check::is_same;
 
 static_assert(is_same<int, int>(), "");
 static_assert(is_same<double, double>(), "");
@@ -22,7 +22,7 @@ static_assert(!is_same<int, double>(), "");
 }
 
 namespace is_publicly_derived_test {
-using stl2::concepts::test::is_publicly_derived;
+using stl2::concepts::check::is_publicly_derived;
 
 struct A {};
 struct B : A {};
@@ -44,7 +44,7 @@ static_assert(!is_publicly_derived<int,void>(), "");
 }
 
 namespace convertible_test {
-using stl2::concepts::test::is_convertible;
+using stl2::concepts::check::is_convertible;
 
 struct A {};
 struct B : A {};
@@ -58,9 +58,9 @@ static_assert(is_convertible<double, int>(), "");
 }
 
 namespace common_test {
-using stl2::concepts::test::is_same;
+using stl2::concepts::check::is_same;
 using stl2::concepts::CommonType;
-using stl2::concepts::test::is_common;
+using stl2::concepts::check::is_common;
 
 struct A {};
 }
@@ -87,7 +87,7 @@ static_assert(is_common<double,long long>(), "");
 }
 
 namespace boolean_test {
-using stl2::concepts::test::is_boolean;
+using stl2::concepts::check::is_boolean;
 
 static_assert(is_boolean<bool>(), "");
 static_assert(is_boolean<int>(), "");
@@ -97,7 +97,7 @@ static_assert(!is_boolean<A>(), "");
 }
 
 namespace integral_test {
-using stl2::concepts::test::is_integral;
+using stl2::concepts::check::is_integral;
 
 static_assert(is_integral<int>(), "");
 static_assert(!is_integral<double>(), "");
@@ -129,7 +129,7 @@ static_assert(!f<B, int>(), "");
 }
 
 namespace destructible_test {
-using stl2::concepts::test::is_destructible;
+using stl2::concepts::check::is_destructible;
 
 static_assert(!is_destructible<void>(), "");
 static_assert(is_destructible<int>(), "");
@@ -139,7 +139,7 @@ static_assert(!is_destructible<int()>(), "");
 }
 
 namespace swappable_test {
-using stl2::concepts::test::is_swappable;
+using stl2::concepts::check::is_swappable;
 using stl2::swap;
 
 static_assert(is_swappable<int&>(), "");
@@ -193,9 +193,9 @@ static_assert(noexcept(swap(stl2::declval<A(*)[4]>(), stl2::declval<B(&)[4]>()))
 } // namespace swappable_test
 
 namespace copy_move_test {
-using stl2::concepts::test::is_copy_constructible;
-using stl2::concepts::test::is_movable;
-using stl2::concepts::test::is_copyable;
+using stl2::concepts::check::is_copy_constructible;
+using stl2::concepts::check::is_movable;
+using stl2::concepts::check::is_copyable;
 
 struct copyable {};
 struct moveonly {
@@ -242,7 +242,7 @@ static_assert(!is_copyable<copyonly>(), "");
 } // namespace copy_move_test
 
 namespace semiregular {
-using stl2::concepts::test::is_semiregular;
+using stl2::concepts::check::is_semiregular;
 
 struct A {};
 
@@ -255,7 +255,7 @@ static_assert(is_semiregular<A>(), "");
 
 
 namespace associated_type_test {
-using stl2::concepts::test::is_same;
+using stl2::concepts::check::is_same;
 using stl2::ReferenceType;
 using stl2::ValueType;
 using stl2::DifferenceType;
@@ -298,7 +298,7 @@ static_assert(is_same<unsigned, DistanceType<int>>(), "");
 } // namespace associated_type_test
 
 namespace readable_test {
-using stl2::concepts::test::is_readable;
+using stl2::concepts::check::is_readable;
 
 static_assert(!is_readable<void>(), "");
 static_assert(!is_readable<void*>(), "");
@@ -307,7 +307,7 @@ static_assert(is_readable<const int*>(), "");
 }
 
 namespace weakly_incrementable_test {
-using stl2::concepts::test::is_weakly_incrementable;
+using stl2::concepts::check::is_weakly_incrementable;
 
 static_assert(is_weakly_incrementable<int>(), "");
 static_assert(is_weakly_incrementable<unsigned int>(), "");
@@ -318,7 +318,7 @@ static_assert(is_weakly_incrementable<const int*>(), "");
 
 #if 0 // FIXME: These cause the compiler to ICE
 namespace incrementable_test {
-using stl2::concepts::test::is_incrementable;
+using stl2::concepts::check::is_incrementable;
 
 static_assert(is_incrementable<int>(), "");
 static_assert(is_incrementable<unsigned int>(), "");
@@ -468,7 +468,7 @@ void test_relationships() {
 }
 
 void test_swap() {
-  using stl2::concepts::test::is_swappable;
+  using stl2::concepts::check::is_swappable;
 
   {
     int a[2][2] = {{0, 1}, {2, 3}};

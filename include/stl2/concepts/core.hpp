@@ -74,7 +74,7 @@ concept bool Common =
 template <class T>
 concept bool Destructible =
   std::is_object<T>::value &&
-  requires(T&& t) {
+  requires(T& t) {
     { t.~T() } noexcept;
   };
 
@@ -127,7 +127,7 @@ concept bool CopyAssignable =
 #undef STL2_IS_SAME_AS
 #undef STL2_IS_BASE_OF
 
-namespace test {
+namespace check {
 
 template <class, class>
 constexpr bool is_same() { return false; }
@@ -179,6 +179,6 @@ constexpr bool is_copy_constructible() { return false; }
 template <CopyConstructible>
 constexpr bool is_copy_constructible() { return true; }
 
-}}}} // namespace stl2::v1::concepts::test
+}}}} // namespace stl2::v1::concepts::check
 
 #endif // STL2_CONCEPTS_CORE_HPP

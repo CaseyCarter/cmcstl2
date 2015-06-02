@@ -224,7 +224,7 @@ concept bool UnsignedIntegral =
 // Integral<T> subsumes SignedIntegral<T> and UnsignedIntegral<T>
 // SignedIntegral<T> and UnsignedIntegral<T> are mutually exclusive
 
-namespace test {
+namespace check {
 
 template <class>
 constexpr bool is_movable() { return false; }
@@ -274,6 +274,6 @@ constexpr bool is_integral() { return false; }
 template <Integral>
 constexpr bool is_integral() { return true; }
 
-}}}} // namespace stl2::v1::concepts::test
+}}}} // namespace stl2::v1::concepts::check
 
 #endif // STL2_CONCEPTS_FOUNDATIONAL_HPP
