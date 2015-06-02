@@ -7,12 +7,12 @@
 
 #include <cassert>
 
-namespace stl2 { inline namespace v1 {
+namespace stl2 { namespace v1 {
 
 ////////////////////
 // exchange and swap
 //
-template <MoveConstructible T, AssignableTo<T> U = T>
+template <Movable T, AssignableTo<T> U = T>
 constexpr T exchange(T& t, U&& u)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_assignable<T&, U>::value) {
@@ -26,11 +26,22 @@ constexpr T exchange(T& t, U&& u)
  * http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
  */
 
-template <class T>
-  requires MoveConstructible<T> && MoveAssignable<T>
+template <Movable T>
 constexpr void swap(T& a, T& b)
-  noexcept(noexcept(exchange(a, move(b)))) {
-  exchange(b, exchange(a, move(b)));
+  noexcept(std::is_nothrow_move_constructible<T>::value &&
+           std::is_nothrow_move_assignable<T>::value) {
+  T tmp(move(a));
+  a = move(b);
+  b = move(tmp);
+}
+ 
+template <class T, class U, std::size_t N>
+  requires detail::swappable_array<T, U>::value
+constexpr void swap(T (&t)[N], U (&u)[N])
+  noexcept(detail::swappable_array<T, U>::nothrow) {
+  for (std::size_t i = 0; i < N; ++i) {
+    swap(t[i], u[i]);
+  }
 }
 
 #ifdef STL2_SWAPPABLE_POINTERS

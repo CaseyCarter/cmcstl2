@@ -37,58 +37,38 @@ concept bool Copyable =
 
 } // namespace concepts
 
-template <MoveConstructible T, AssignableTo<T> U = T>
-constexpr T exchange(T& t, U&& u)
-  noexcept(std::is_nothrow_move_constructible<T>::value &&
-           std::is_nothrow_assignable<T&, U>::value);
-
-template <class T>
-  requires MoveConstructible<T> && MoveAssignable<T>
+template <Movable T>
 constexpr void swap(T& a, T& b)
-  noexcept(noexcept(exchange(a, move(b))));
+  noexcept(std::is_nothrow_move_constructible<T>::value &&
+           std::is_nothrow_move_assignable<T>::value);
 
 namespace detail {
-template <class T, class U>
-concept bool SwappableNonarrayLvalue_ =
-  requires(T& t, U& u) {
-    swap(t, u);
-  };
 
+template <class, class>
+struct swappable_array :
+    std::false_type {};
+ 
 template <class T, class U>
-concept bool SwappableNonarrayLvalue =
-  SwappableNonarrayLvalue_<T, T> &&
-  (Same<T, U> ||
-    (SwappableNonarrayLvalue_<U, U> &&
-     SwappableNonarrayLvalue_<T, U> &&
-     SwappableNonarrayLvalue_<U, T>));
-
-template <class T, class U>
-struct same_extents
-  : meta::bool_<!(std::is_array<T>::value || std::is_array<U>::value)>
-{};
+    requires requires(T& t, U&u) {
+        swap(t, u); swap(u, t);
+    }
+struct swappable_array<T, U> {
+    static constexpr bool value = true;
+    static constexpr bool nothrow =
+        noexcept(swap(std::declval<T&>(),
+                      std::declval<U&>()));
+};
 
 template <class T, class U, std::size_t N>
-struct same_extents<T[N], U[N]>
-  : same_extents<T, U> {};
-
-template <class T, class U>
-concept bool SameExtents =
-  same_extents<T, U>::value;
+struct swappable_array<T[N], U[N]> :
+    swappable_array<T, U> {};
 
 } // namespace detail
-
-template <class T, class U, std::size_t N,
-          class TE = std::remove_all_extents_t<T>,
-          class UE = std::remove_all_extents_t<U>>
-  requires detail::SameExtents<T, U> &&
-    detail::SwappableNonarrayLvalue<TE, UE>
-constexpr void swap(T (&a)[N], U (&b)[N])
-  noexcept(noexcept(swap(declval<TE&>(),
-                         declval<UE&>()))) {
-  for (std::size_t i = 0; i < N; ++i) {
-    swap(a[i], b[i]);
-  }
-}
+ 
+template <class T, class U, std::size_t N>
+  requires detail::swappable_array<T, U>::value
+constexpr void swap(T (&t)[N], U (&u)[N])
+  noexcept(detail::swappable_array<T, U>::nothrow);
 
 #ifdef STL2_SWAPPABLE_POINTERS
 namespace detail {
