@@ -35,6 +35,11 @@ concept bool Copyable =
   CopyConstructible<T> &&
   CopyAssignable<T>;
 
+template <class T>
+concept bool Semiregular =
+  Copyable<T> &&
+  DefaultConstructible<T>;
+
 } // namespace concepts
 
 template <Movable T>
@@ -97,7 +102,7 @@ template <class T, class U>
   requires detail::SwappableLvalue<T, U>
 constexpr void swap(T*&& a, U& b)
   noexcept(noexcept(swap(*a, b)));
-#endif
+#endif // STL2_SWAPPABLE_POINTERS
 
 namespace concepts {
 
@@ -107,11 +112,6 @@ concept bool Swappable =
     swap(forward<T>(t), forward<U>(u));
     swap(forward<U>(u), forward<T>(t));
   };
-
-template <class T>
-concept bool Semiregular =
-  Copyable<T> &&
-  DefaultConstructible<T>;
 
 template <class B>
 concept bool Boolean =
@@ -130,7 +130,7 @@ concept bool Boolean =
 namespace detail {
 
 template <class T, class U>
-concept bool EqualityComparable =
+concept bool EqualityComparable_ =
   requires(T&& t, U&& u) {
     { forward<T>(t) == forward<U>(u) } -> Boolean;
     { forward<T>(t) != forward<U>(u) } -> Boolean;
@@ -141,19 +141,19 @@ concept bool EqualityComparable =
 namespace concepts {
 
 template <class T, class U = T>
-concept bool WeaklyEqualityComparable =
-  detail::EqualityComparable<T, T> &&
+concept bool EqualityComparable =
+  detail::EqualityComparable_<T, T> &&
   (Same<T, U> ||
-    (detail::EqualityComparable<T, U> &&
-     detail::EqualityComparable<U, T> &&
-     detail::EqualityComparable<U, U>));
+    (detail::EqualityComparable_<T, U> &&
+     detail::EqualityComparable_<U, T> &&
+     detail::EqualityComparable_<U, U>));
 
 template <class T, class U = T>
-concept bool EqualityComparable =
-  WeaklyEqualityComparable<T, U> &&
+concept bool StronglyEqualityComparable =
+  EqualityComparable<T, U> &&
   (Same<T, U> ||
     (Common<T, U> &&
-     WeaklyEqualityComparable<CommonType<T, U>>));
+     EqualityComparable<CommonType<T, U>>));
 
 template <class T>
 concept bool Regular =
@@ -165,8 +165,8 @@ concept bool Regular =
 namespace detail {
 
 template <class T, class U>
-concept bool TotallyOrdered =
-  WeaklyEqualityComparable<T, U> &&
+concept bool TotallyOrdered_ =
+  EqualityComparable<T, U> &&
   requires(T&& a, U&& b) {
     { a < b } -> Boolean;
     { a > b } -> Boolean;
@@ -179,19 +179,19 @@ concept bool TotallyOrdered =
 namespace concepts {
 
 template <class T, class U = T>
-concept bool WeaklyTotallyOrdered =
-  detail::TotallyOrdered<T, T> &&
+concept bool TotallyOrdered =
+  detail::TotallyOrdered_<T, T> &&
   (Same<T, U> ||
-    (detail::TotallyOrdered<T, U> &&
-     detail::TotallyOrdered<U, T> &&
-     detail::TotallyOrdered<U, U>));
+    (detail::TotallyOrdered_<T, U> &&
+     detail::TotallyOrdered_<U, T> &&
+     detail::TotallyOrdered_<U, U>));
 
 template <class T, class U = T>
-concept bool TotallyOrdered =
-  WeaklyTotallyOrdered<T, U> &&
+concept bool StronglyTotallyOrdered =
+  TotallyOrdered<T, U> &&
   (Same<T, U> ||
     (Common<T, U> &&
-     detail::TotallyOrdered<CommonType<T, U>, CommonType<T, U>>));
+     TotallyOrdered<CommonType<T, U>>));
 
 #if 0
 template <class T>

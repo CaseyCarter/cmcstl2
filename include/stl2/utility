@@ -85,7 +85,7 @@ struct identity {
 };
 
 template <class T = void>
-  requires Same<T, void> || WeaklyEqualityComparable<T>
+  requires Same<T, void> || EqualityComparable<T>
 struct equal_to {
   constexpr auto operator()(const T& a, const T& b) const {
     return a == b;
@@ -94,7 +94,7 @@ struct equal_to {
 
 template <>
 struct equal_to<void> {
-  template <class T, WeaklyEqualityComparable<T> U>
+  template <class T, EqualityComparable<T> U>
   constexpr auto operator()(const T& t, const U& u) const {
     return t == u;
   }

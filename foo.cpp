@@ -1,7 +1,7 @@
 // -*- compile-command: "(cd ~/cmcstl2/build && make && ./foo)" -*-
 
 #include <stl2/concepts/all.hpp>
-#include <stl2/utility.hpp>
+#include <stl2/utility>
 
 #include <cassert>
 #include <cstddef>
@@ -161,6 +161,7 @@ struct A {
   A& operator=(A&&) = delete;
   friend void swap(A&, A&) noexcept {}
 };
+// A is Swappable despite non-Movable
 static_assert(is_swappable<A&>(), "");
 static_assert(noexcept(swap(stl2::declval<A&>(), stl2::declval<A&>())), "");
 
@@ -495,17 +496,17 @@ void test_swap() {
     adl_swap(a, b);
     static_assert(noexcept(adl_swap(a, b)), "");
 
-    assert(a[0] == 4);
+    assert(a[0] == 0);
     assert(a[1] == 5);
     assert(a[2] == 6);
     assert(a[3] == 7);
 
-    assert(b[0] == 0);
+    assert(b[0] == 4);
     assert(b[1] == 1);
     assert(b[2] == 2);
     assert(b[3] == 3);
   }
-#if 1 // FIXME
+
   {
     array<array<int, 2>, 3> a = {{{{0, 1}}, {{2, 3}}, {{4, 5}}}};
     int b[3][2] = {{6, 7}, {8, 9}, {10, 11}};
@@ -518,13 +519,14 @@ void test_swap() {
     adl_swap(a, b);
     static_assert(noexcept(adl_swap(a, b)), "");
   }
-#endif
+
 #ifdef STL2_SWAPPABLE_POINTERS
   {
     struct A {
       void foo(A& other) {
         static_assert(is_swappable<A*,A&>(), "");
-        adl_swap(this, other);
+        // adl_swap(this, other); // ICE
+        stl2::swap(this, other);
       }
     };
 
