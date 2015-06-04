@@ -255,10 +255,32 @@ constexpr bool is_swappable() { return true; }
 
 
 template <class>
+constexpr bool is_equality_comparable() { return false; }
+
+template <class T>
+  requires EqualityComparable<T>
+constexpr bool is_equality_comparable() { return true; }
+
+template <class, class>
+constexpr bool is_equality_comparable() { return false; }
+
+template <class T, class U>
+  requires EqualityComparable<T, U>
+constexpr bool is_equality_comparable() { return true; }
+
+
+template <class>
 constexpr bool is_semiregular() { return false; }
 
 template <Semiregular>
 constexpr bool is_semiregular() { return true; }
+
+
+template <class>
+constexpr bool is_regular() { return false; }
+
+template <Regular>
+constexpr bool is_regular() { return true; }
 
 
 template <class>

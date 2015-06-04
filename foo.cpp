@@ -58,8 +58,8 @@ static_assert(is_convertible<double, int>(), "");
 }
 
 namespace common_test {
-using stl2::concepts::check::is_same;
 using stl2::concepts::CommonType;
+using stl2::concepts::check::is_same;
 using stl2::concepts::check::is_common;
 
 struct A {};
@@ -92,8 +92,12 @@ using stl2::concepts::check::is_boolean;
 static_assert(is_boolean<bool>(), "");
 static_assert(is_boolean<int>(), "");
 static_assert(is_boolean<void*>(), "");
+
 struct A {};
 static_assert(!is_boolean<A>(), "");
+
+struct B { operator bool() const { return true; } };
+static_assert(is_boolean<B>(), "");
 }
 
 namespace integral_test {
@@ -253,6 +257,28 @@ static_assert(!is_semiregular<int&>(), "");
 static_assert(is_semiregular<A>(), "");
 }
 
+#if 0
+namespace regular {
+using stl2::concepts::check::is_equality_comparable;
+using stl2::concepts::check::is_semiregular;
+using stl2::concepts::check::is_regular;
+
+struct A {
+  friend constexpr bool operator==(const A&, const A&) {
+    return true;
+  }
+  friend constexpr bool operator!=(const A&, const A&) {
+    return false;
+  }
+};
+
+static_assert(is_semiregular<int>(), "");
+static_assert(is_equality_comparable<int>(), "");
+static_assert(is_regular<int>(), "");
+static_assert(is_regular<A>(), "");
+static_assert(!is_regular<void>(), "");
+}
+#endif
 
 namespace associated_type_test {
 using stl2::concepts::check::is_same;
