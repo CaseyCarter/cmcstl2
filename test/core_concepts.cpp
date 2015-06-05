@@ -3,10 +3,7 @@
 #include <stl2/concepts/core.hpp>
 #include <stl2/utility>
 
-#include <cassert>
-#include <cstddef>
 #include <type_traits>
-#include <utility>
 #include <iostream>
 
 #include "copymove.hpp"
