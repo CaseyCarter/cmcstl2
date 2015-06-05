@@ -128,6 +128,11 @@ static_assert(copy_constructible<int>(), "");
 static_assert(!copy_constructible<int[4]>(), "");
 static_assert(copy_constructible<int&>(), "");
 static_assert(!copy_constructible<void()>(), "");
+
+static_assert(copy_constructible<copyable_t>(), "");
+static_assert(!copy_constructible<moveonly_t>(), "");
+static_assert(!copy_constructible<nonmovable_t>(), "");
+static_assert(!copy_constructible<copyonly_t>(), "");
 } // namespace copy_move_test
 
 namespace detail {
