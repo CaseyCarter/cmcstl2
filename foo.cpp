@@ -12,84 +12,6 @@
 ////////////
 // Test code
 //
-namespace same_test {
-using stl2::concepts::models::same;
-
-static_assert(same<int, int>(), "");
-static_assert(same<double, double>(), "");
-static_assert(!same<double, int>(), "");
-static_assert(!same<int, double>(), "");
-}
-
-namespace publicly_derived_test {
-using stl2::concepts::models::publicly_derived;
-
-struct A {};
-struct B : A {};
-struct C : A {};
-struct D : B, C {};
-
-static_assert(publicly_derived<int,int>(), "");
-static_assert(publicly_derived<A,A>(), "");
-static_assert(publicly_derived<B,B>(), "");
-static_assert(publicly_derived<C,C>(), "");
-static_assert(publicly_derived<D,D>(), "");
-static_assert(publicly_derived<B,A>(), "");
-static_assert(publicly_derived<C,A>(), "");
-static_assert(!publicly_derived<A,B>(), "");
-static_assert(!publicly_derived<A,C>(), "");
-static_assert(!publicly_derived<A,D>(), "");
-static_assert(!publicly_derived<D,A>(), "");
-static_assert(!publicly_derived<int,void>(), "");
-}
-
-namespace convertible_test {
-using stl2::concepts::models::convertible;
-
-struct A {};
-struct B : A {};
-
-static_assert(convertible<A, A>(), "");
-static_assert(convertible<B, B>(), "");
-static_assert(!convertible<A, B>(), "");
-static_assert(convertible<B, A>(), "");
-static_assert(convertible<int, double>(), "");
-static_assert(convertible<double, int>(), "");
-}
-
-namespace common_test {
-using stl2::concepts::CommonType;
-using stl2::concepts::models::same;
-using stl2::concepts::models::common;
-
-struct A {};
-}
-
-namespace std {
-template <>
-struct common_type<::common_test::A, ::common_test::A> {
-  using type = void;
-};
-}
-
-namespace common_test {
-static_assert(same<CommonType<int, int>, int>(), "");
-static_assert(same<CommonType<A, A>, A>(), "");
-
-static_assert(common<int, int>(), "");
-static_assert(common<int, double>(), "");
-static_assert(common<double, int>(), "");
-static_assert(common<double, double>(), "");
-static_assert(!common<void, int>(), "");
-static_assert(!common<int*, int>(), "");
-static_assert(common<void*, int*>(), "");
-static_assert(common<double,long long>(), "");
-
-struct B {};
-struct C { C() = default; C(B) {} };
-static_assert(common<B,C>(), "");
-}
-
 namespace boolean_test {
 using stl2::concepts::models::boolean;
 
@@ -111,39 +33,6 @@ static_assert(integral<int>(), "");
 static_assert(!integral<double>(), "");
 static_assert(integral<unsigned>(), "");
 static_assert(!integral<void>(), "");
-}
-
-namespace constructible_test {
-using stl2::concepts::Convertible;
-using stl2::concepts::Constructible;
-
-template <class T, class U>
-  requires Constructible<T, U>
-constexpr bool f() { return false; }
-template <class T, Convertible<T> >
-constexpr bool f() { return true; }
-
-static_assert(f<int,int>(), "");
-static_assert(f<int,long>(), "");
-
-struct A {
-  A(int);
-};
-struct B {
-  explicit B(int);
-};
-static_assert(f<A, int>(), "");
-static_assert(!f<B, int>(), "");
-}
-
-namespace destructible_test {
-using stl2::concepts::models::destructible;
-
-static_assert(!destructible<void>(), "");
-static_assert(destructible<int>(), "");
-static_assert(!destructible<int&>(), "");
-static_assert(!destructible<int[4]>(), "");
-static_assert(!destructible<int()>(), "");
 }
 
 namespace swappable_test {
@@ -201,7 +90,6 @@ static_assert(noexcept(swap(stl2::declval<A(*)[4]>(), stl2::declval<B(&)[4]>()))
 } // namespace swappable_test
 
 namespace copy_move_test {
-using stl2::concepts::models::copy_constructible;
 using stl2::concepts::models::movable;
 using stl2::concepts::models::copyable;
 
@@ -223,14 +111,6 @@ struct copyonly {
   copyonly& operator=(copyonly&&) = delete;
 };
 
-
-static_assert(!copy_constructible<void>(), "");
-static_assert(copy_constructible<int>(), "");
-static_assert(!copy_constructible<int[4]>(), "");
-static_assert(copy_constructible<int&>(), "");
-static_assert(!copy_constructible<void()>(), "");
-
-
 static_assert(movable<int>(), "");
 static_assert(movable<double>(), "");
 static_assert(!movable<void>(), "");
@@ -238,7 +118,6 @@ static_assert(movable<copyable>(), "");
 static_assert(movable<moveonly>(), "");
 static_assert(!movable<nonmovable>(), "");
 static_assert(!movable<copyonly>(), "");
-
 
 static_assert(copyable<int>(), "");
 static_assert(copyable<double>(), "");
@@ -358,26 +237,6 @@ static_assert(incrementable<const int*>(), "");
 }
 #endif
 
-namespace detail {
-struct destroy_fn {
-  template <stl2::Destructible T>
-  void operator()(T& o) const noexcept {
-    o.~T();
-  }
-
-  template <class T, std::size_t N>
-    requires stl2::Destructible<std::remove_all_extents<T>>
-  void operator()(T (&a)[N]) const noexcept {
-    for (auto& i : a) {
-      (*this)(i);
-    }
-  }
-};
-} // namespace detail
-namespace {
-  constexpr const auto& destroy = detail::destroy_fn{};
-} // unnamed namespace
-
 namespace adl_swap_detail {
 using stl2::swap;
 
@@ -424,77 +283,6 @@ template <class T, class U, std::size_t N>
 void swap(T (&b)[N], array<U, N>& a)
   noexcept(noexcept(adl_swap(a.elements_, b))) {
   adl_swap(a.elements_, b);
-}
-
-namespace {
-struct tag {};
-struct A { A() = default; A(int) {} explicit A(tag) {} };
-struct B : A {};
-struct C : B {};
-
-#if 1
-void f(A) { std::cout << "exactly A\n"; }
-
-void f(stl2::PubliclyDerived<A>) { std::cout << "Publicly derived from A\n"; }
-
-void f(stl2::Convertible<A>) { std::cout << "Implicitly convertible to A\n"; }
-
-void f(stl2::ExplicitlyConvertible<A>) { std::cout << "Explicitly convertible to A\n"; }
-
-void f(auto) { std::cout << "Nothing to do with A\n"; }
-
-#else
-
-void f(A) {
-  std::cout << "exactly A\n";
-}
-
-template <class T>
-std::enable_if_t<std::is_base_of<A, T>::value &&
-                 std::is_convertible<T,A>::value &&
-                 !(std::is_same<A,T>::value)>
-f(T) {
-  std::cout << "Publicly derived from A\n";
-}
-
-template <class T>
-std::enable_if_t<
-  std::is_convertible<T,A>::value &&
-  !(std::is_base_of<A,T>::value ||
-    std::is_same<A,T>::value)>
-f(T) {
-  std::cout << "Implicitly convertible to A\n";
-}
-
-template <class T>
-std::enable_if_t<
-  std::is_constructible<A,T>::value &&
-  !(std::is_convertible<T,A>::value ||
-    std::is_base_of<A,T>::value ||
-    std::is_same<A,T>::value)>
-f(T) {
-  std::cout << "Explicitly convertible to A\n";
-}
-
-template <class T>
-std::enable_if_t<
-  !(std::is_constructible<A,T>::value ||
-    std::is_convertible<T,A>::value ||
-    std::is_base_of<A,T>::value ||
-    std::is_same<A,T>::value)>
-f(T) {
-  std::cout << "Nothing to do with A\n";
-}
-#endif
-
-void test_relationships() {
-  f(A{});
-  { const A a{}; f(a); }
-  f(B{});
-  { const B b{}; f(b); }
-  f(42);
-  f(tag{});
-  f("foo");
 }
 
 void test_swap() {
@@ -574,5 +362,4 @@ void test_swap() {
 
 int main() {
   test_swap();
-  test_relationships();
 }

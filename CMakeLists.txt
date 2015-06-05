@@ -49,7 +49,7 @@ endif()
 #     return()
 # endif()
 
-# add_subdirectory(test)
+add_subdirectory(test)
 # add_subdirectory(example)
 # add_subdirectory(perf)
 # add_subdirectory(libs/range/v3/scratch)
