@@ -13,54 +13,54 @@
 // Test code
 //
 namespace same_test {
-using stl2::concepts::check::is_same;
+using stl2::concepts::models::same;
 
-static_assert(is_same<int, int>(), "");
-static_assert(is_same<double, double>(), "");
-static_assert(!is_same<double, int>(), "");
-static_assert(!is_same<int, double>(), "");
+static_assert(same<int, int>(), "");
+static_assert(same<double, double>(), "");
+static_assert(!same<double, int>(), "");
+static_assert(!same<int, double>(), "");
 }
 
-namespace is_publicly_derived_test {
-using stl2::concepts::check::is_publicly_derived;
+namespace publicly_derived_test {
+using stl2::concepts::models::publicly_derived;
 
 struct A {};
 struct B : A {};
 struct C : A {};
 struct D : B, C {};
 
-static_assert(is_publicly_derived<int,int>(), "");
-static_assert(is_publicly_derived<A,A>(), "");
-static_assert(is_publicly_derived<B,B>(), "");
-static_assert(is_publicly_derived<C,C>(), "");
-static_assert(is_publicly_derived<D,D>(), "");
-static_assert(is_publicly_derived<B,A>(), "");
-static_assert(is_publicly_derived<C,A>(), "");
-static_assert(!is_publicly_derived<A,B>(), "");
-static_assert(!is_publicly_derived<A,C>(), "");
-static_assert(!is_publicly_derived<A,D>(), "");
-static_assert(!is_publicly_derived<D,A>(), "");
-static_assert(!is_publicly_derived<int,void>(), "");
+static_assert(publicly_derived<int,int>(), "");
+static_assert(publicly_derived<A,A>(), "");
+static_assert(publicly_derived<B,B>(), "");
+static_assert(publicly_derived<C,C>(), "");
+static_assert(publicly_derived<D,D>(), "");
+static_assert(publicly_derived<B,A>(), "");
+static_assert(publicly_derived<C,A>(), "");
+static_assert(!publicly_derived<A,B>(), "");
+static_assert(!publicly_derived<A,C>(), "");
+static_assert(!publicly_derived<A,D>(), "");
+static_assert(!publicly_derived<D,A>(), "");
+static_assert(!publicly_derived<int,void>(), "");
 }
 
 namespace convertible_test {
-using stl2::concepts::check::is_convertible;
+using stl2::concepts::models::convertible;
 
 struct A {};
 struct B : A {};
 
-static_assert(is_convertible<A, A>(), "");
-static_assert(is_convertible<B, B>(), "");
-static_assert(!is_convertible<A, B>(), "");
-static_assert(is_convertible<B, A>(), "");
-static_assert(is_convertible<int, double>(), "");
-static_assert(is_convertible<double, int>(), "");
+static_assert(convertible<A, A>(), "");
+static_assert(convertible<B, B>(), "");
+static_assert(!convertible<A, B>(), "");
+static_assert(convertible<B, A>(), "");
+static_assert(convertible<int, double>(), "");
+static_assert(convertible<double, int>(), "");
 }
 
 namespace common_test {
 using stl2::concepts::CommonType;
-using stl2::concepts::check::is_same;
-using stl2::concepts::check::is_common;
+using stl2::concepts::models::same;
+using stl2::concepts::models::common;
 
 struct A {};
 }
@@ -73,40 +73,44 @@ struct common_type<::common_test::A, ::common_test::A> {
 }
 
 namespace common_test {
-static_assert(is_same<CommonType<int, int>, int>(), "");
-static_assert(is_same<CommonType<A, A>, A>(), "");
+static_assert(same<CommonType<int, int>, int>(), "");
+static_assert(same<CommonType<A, A>, A>(), "");
 
-static_assert(is_common<int, int>(), "");
-static_assert(is_common<int, double>(), "");
-static_assert(is_common<double, int>(), "");
-static_assert(is_common<double, double>(), "");
-static_assert(!is_common<void, int>(), "");
-static_assert(!is_common<int*, int>(), "");
-static_assert(is_common<void*, int*>(), "");
-static_assert(is_common<double,long long>(), "");
+static_assert(common<int, int>(), "");
+static_assert(common<int, double>(), "");
+static_assert(common<double, int>(), "");
+static_assert(common<double, double>(), "");
+static_assert(!common<void, int>(), "");
+static_assert(!common<int*, int>(), "");
+static_assert(common<void*, int*>(), "");
+static_assert(common<double,long long>(), "");
+
+struct B {};
+struct C { C() = default; C(B) {} };
+static_assert(common<B,C>(), "");
 }
 
 namespace boolean_test {
-using stl2::concepts::check::is_boolean;
+using stl2::concepts::models::boolean;
 
-static_assert(is_boolean<bool>(), "");
-static_assert(is_boolean<int>(), "");
-static_assert(is_boolean<void*>(), "");
+static_assert(boolean<bool>(), "");
+static_assert(boolean<int>(), "");
+static_assert(boolean<void*>(), "");
 
 struct A {};
-static_assert(!is_boolean<A>(), "");
+static_assert(!boolean<A>(), "");
 
 struct B { operator bool() const { return true; } };
-static_assert(is_boolean<B>(), "");
+static_assert(boolean<B>(), "");
 }
 
 namespace integral_test {
-using stl2::concepts::check::is_integral;
+using stl2::concepts::models::integral;
 
-static_assert(is_integral<int>(), "");
-static_assert(!is_integral<double>(), "");
-static_assert(is_integral<unsigned>(), "");
-static_assert(!is_integral<void>(), "");
+static_assert(integral<int>(), "");
+static_assert(!integral<double>(), "");
+static_assert(integral<unsigned>(), "");
+static_assert(!integral<void>(), "");
 }
 
 namespace constructible_test {
@@ -133,28 +137,28 @@ static_assert(!f<B, int>(), "");
 }
 
 namespace destructible_test {
-using stl2::concepts::check::is_destructible;
+using stl2::concepts::models::destructible;
 
-static_assert(!is_destructible<void>(), "");
-static_assert(is_destructible<int>(), "");
-static_assert(!is_destructible<int&>(), "");
-static_assert(!is_destructible<int[4]>(), "");
-static_assert(!is_destructible<int()>(), "");
+static_assert(!destructible<void>(), "");
+static_assert(destructible<int>(), "");
+static_assert(!destructible<int&>(), "");
+static_assert(!destructible<int[4]>(), "");
+static_assert(!destructible<int()>(), "");
 }
 
 namespace swappable_test {
-using stl2::concepts::check::is_swappable;
+using stl2::concepts::models::swappable;
 using stl2::swap;
 
-static_assert(is_swappable<int&>(), "");
-static_assert(is_swappable<int(&)[4]>(), "");
-static_assert(is_swappable<int(&)[3][4], int(&)[3][4]>(), "");
-static_assert(is_swappable<int(&)[3][4][1][2], int(&)[3][4][1][2]>(), "");
-static_assert(!is_swappable<int, int>(), "");
-static_assert(!is_swappable<int&, double&>(), "");
-static_assert(!is_swappable<int(&)[4], bool(&)[4]>(), "");
-static_assert(!is_swappable<int(&)[], int(&)[]>(), "");
-static_assert(!is_swappable<int(&)[][4], int(&)[][4]>(), "");
+static_assert(swappable<int&>(), "");
+static_assert(swappable<int(&)[4]>(), "");
+static_assert(swappable<int(&)[3][4], int(&)[3][4]>(), "");
+static_assert(swappable<int(&)[3][4][1][2], int(&)[3][4][1][2]>(), "");
+static_assert(!swappable<int, int>(), "");
+static_assert(!swappable<int&, double&>(), "");
+static_assert(!swappable<int(&)[4], bool(&)[4]>(), "");
+static_assert(!swappable<int(&)[], int(&)[]>(), "");
+static_assert(!swappable<int(&)[][4], int(&)[][4]>(), "");
 
 static_assert(noexcept(swap(stl2::declval<int&>(),
                             stl2::declval<int&>())), "");
@@ -166,30 +170,30 @@ struct A {
   friend void swap(A&, A&) noexcept {}
 };
 // A is Swappable despite non-Movable
-static_assert(is_swappable<A&>(), "");
+static_assert(swappable<A&>(), "");
 static_assert(noexcept(swap(stl2::declval<A&>(), stl2::declval<A&>())), "");
 
 struct B {
   friend void swap(A&, B&) noexcept {}
   friend void swap(B&, A&) noexcept {}
 };
-static_assert(is_swappable<B&>(), "");
-static_assert(is_swappable<A&, B&>(), "");
-static_assert(is_swappable<B(&)[1], A(&)[1]>(), "");
-static_assert(is_swappable<B(&)[1][3], A(&)[1][3]>(), "");
-static_assert(!is_swappable<B(&)[3][1], A(&)[1][3]>(), "");
+static_assert(swappable<B&>(), "");
+static_assert(swappable<A&, B&>(), "");
+static_assert(swappable<B(&)[1], A(&)[1]>(), "");
+static_assert(swappable<B(&)[1][3], A(&)[1][3]>(), "");
+static_assert(!swappable<B(&)[3][1], A(&)[1][3]>(), "");
 
 #ifdef STL2_SWAPPABLE_POINTERS
-static_assert(is_swappable<int*,int*>(), "");
-static_assert(is_swappable<int*,int&>(), "");
-static_assert(is_swappable<int&,int*>(), "");
+static_assert(swappable<int*,int*>(), "");
+static_assert(swappable<int*,int&>(), "");
+static_assert(swappable<int&,int*>(), "");
 static_assert(noexcept(swap(stl2::declval<int*>(), stl2::declval<int&>())), "");
-static_assert(!is_swappable<int*&,int&>(), "");
-static_assert(is_swappable<int(*)[3][2][1], int(&)[3][2][1]>(), "");
+static_assert(!swappable<int*&,int&>(), "");
+static_assert(swappable<int(*)[3][2][1], int(&)[3][2][1]>(), "");
 
 #if 0 // FIXME: These cause the compiler to bomb memory
-static_assert(is_swappable<A*,B*>(), "");
-static_assert(is_swappable<A(*)[4], B(&)[4]>(), "");
+static_assert(swappable<A*,B*>(), "");
+static_assert(swappable<A(*)[4], B(&)[4]>(), "");
 #endif
 
 static_assert(noexcept(swap(stl2::declval<A(*)[4]>(), stl2::declval<B(&)[4]>())), "");
@@ -197,9 +201,9 @@ static_assert(noexcept(swap(stl2::declval<A(*)[4]>(), stl2::declval<B(&)[4]>()))
 } // namespace swappable_test
 
 namespace copy_move_test {
-using stl2::concepts::check::is_copy_constructible;
-using stl2::concepts::check::is_movable;
-using stl2::concepts::check::is_copyable;
+using stl2::concepts::models::copy_constructible;
+using stl2::concepts::models::movable;
+using stl2::concepts::models::copyable;
 
 struct copyable {};
 struct moveonly {
@@ -220,48 +224,48 @@ struct copyonly {
 };
 
 
-static_assert(!is_copy_constructible<void>(), "");
-static_assert(is_copy_constructible<int>(), "");
-static_assert(!is_copy_constructible<int[4]>(), "");
-static_assert(is_copy_constructible<int&>(), "");
-static_assert(!is_copy_constructible<void()>(), "");
+static_assert(!copy_constructible<void>(), "");
+static_assert(copy_constructible<int>(), "");
+static_assert(!copy_constructible<int[4]>(), "");
+static_assert(copy_constructible<int&>(), "");
+static_assert(!copy_constructible<void()>(), "");
 
 
-static_assert(is_movable<int>(), "");
-static_assert(is_movable<double>(), "");
-static_assert(!is_movable<void>(), "");
-static_assert(is_movable<copyable>(), "");
-static_assert(is_movable<moveonly>(), "");
-static_assert(!is_movable<nonmovable>(), "");
-static_assert(!is_movable<copyonly>(), "");
+static_assert(movable<int>(), "");
+static_assert(movable<double>(), "");
+static_assert(!movable<void>(), "");
+static_assert(movable<copyable>(), "");
+static_assert(movable<moveonly>(), "");
+static_assert(!movable<nonmovable>(), "");
+static_assert(!movable<copyonly>(), "");
 
 
-static_assert(is_copyable<int>(), "");
-static_assert(is_copyable<double>(), "");
-static_assert(!is_copyable<void>(), "");
-static_assert(is_copyable<copyable>(), "");
-static_assert(!is_copyable<moveonly>(), "");
-static_assert(!is_copyable<nonmovable>(), "");
-static_assert(!is_copyable<copyonly>(), "");
+static_assert(copyable<int>(), "");
+static_assert(copyable<double>(), "");
+static_assert(!copyable<void>(), "");
+static_assert(copyable<copyable>(), "");
+static_assert(!copyable<moveonly>(), "");
+static_assert(!copyable<nonmovable>(), "");
+static_assert(!copyable<copyonly>(), "");
 } // namespace copy_move_test
 
 namespace semiregular {
-using stl2::concepts::check::is_semiregular;
+using stl2::concepts::models::semiregular;
 
 struct A {};
 
-static_assert(is_semiregular<int>(), "");
-static_assert(is_semiregular<double>(), "");
-static_assert(!is_semiregular<void>(), "");
-static_assert(!is_semiregular<int&>(), "");
-static_assert(is_semiregular<A>(), "");
+static_assert(semiregular<int>(), "");
+static_assert(semiregular<double>(), "");
+static_assert(!semiregular<void>(), "");
+static_assert(!semiregular<int&>(), "");
+static_assert(semiregular<A>(), "");
 }
 
 #if 0
 namespace regular {
-using stl2::concepts::check::is_equality_comparable;
-using stl2::concepts::check::is_semiregular;
-using stl2::concepts::check::is_regular;
+using stl2::concepts::models::equality_comparable;
+using stl2::concepts::models::semiregular;
+using stl2::concepts::models::regular;
 
 struct A {
   friend constexpr bool operator==(const A&, const A&) {
@@ -272,16 +276,16 @@ struct A {
   }
 };
 
-static_assert(is_semiregular<int>(), "");
-static_assert(is_equality_comparable<int>(), "");
-static_assert(is_regular<int>(), "");
-static_assert(is_regular<A>(), "");
-static_assert(!is_regular<void>(), "");
+static_assert(semiregular<int>(), "");
+static_assert(equality_comparable<int>(), "");
+static_assert(regular<int>(), "");
+static_assert(regular<A>(), "");
+static_assert(!regular<void>(), "");
 }
 #endif
 
 namespace associated_type_test {
-using stl2::concepts::check::is_same;
+using stl2::concepts::models::same;
 using stl2::ReferenceType;
 using stl2::ValueType;
 using stl2::DifferenceType;
@@ -295,62 +299,62 @@ struct D : A {
   using element_type = char;
 };
 
-static_assert(is_same<int&, ReferenceType<int*>>(), "");
-static_assert(is_same<int&, ReferenceType<int[]>>(), "");
-static_assert(is_same<int&, ReferenceType<int[4]>>(), "");
-static_assert(is_same<int&, ReferenceType<A>>(), "");
-static_assert(is_same<int&, ReferenceType<B>>(), "");
-static_assert(is_same<int&, ReferenceType<C>>(), "");
-static_assert(is_same<int&, ReferenceType<D>>(), "");
-static_assert(is_same<const int&, ReferenceType<const int*>>(), "");
+static_assert(same<int&, ReferenceType<int*>>(), "");
+static_assert(same<int&, ReferenceType<int[]>>(), "");
+static_assert(same<int&, ReferenceType<int[4]>>(), "");
+static_assert(same<int&, ReferenceType<A>>(), "");
+static_assert(same<int&, ReferenceType<B>>(), "");
+static_assert(same<int&, ReferenceType<C>>(), "");
+static_assert(same<int&, ReferenceType<D>>(), "");
+static_assert(same<const int&, ReferenceType<const int*>>(), "");
 
-static_assert(is_same<int, ValueType<int*>>(), "");
-static_assert(is_same<int, ValueType<int[]>>(), "");
-static_assert(is_same<int, ValueType<int[4]>>(), "");
-static_assert(is_same<int, ValueType<A>>(), "");
-static_assert(is_same<double, ValueType<B>>(), "");
-static_assert(is_same<double, ValueType<C>>(), "");
-static_assert(is_same<double, ValueType<D>>(), "");
-static_assert(is_same<int, ValueType<const int*>>(), "");
+static_assert(same<int, ValueType<int*>>(), "");
+static_assert(same<int, ValueType<int[]>>(), "");
+static_assert(same<int, ValueType<int[4]>>(), "");
+static_assert(same<int, ValueType<A>>(), "");
+static_assert(same<double, ValueType<B>>(), "");
+static_assert(same<double, ValueType<C>>(), "");
+static_assert(same<double, ValueType<D>>(), "");
+static_assert(same<int, ValueType<const int*>>(), "");
 
-static_assert(is_same<std::ptrdiff_t, DifferenceType<int*>>(), "");
-static_assert(is_same<std::ptrdiff_t, DifferenceType<int[]>>(), "");
-static_assert(is_same<std::ptrdiff_t, DifferenceType<int[4]>>(), "");
-static_assert(is_same<std::ptrdiff_t, DifferenceType<std::nullptr_t>>(), "");
-static_assert(is_same<std::make_unsigned_t<std::ptrdiff_t>, DistanceType<int*>>(), "");
+static_assert(same<std::ptrdiff_t, DifferenceType<int*>>(), "");
+static_assert(same<std::ptrdiff_t, DifferenceType<int[]>>(), "");
+static_assert(same<std::ptrdiff_t, DifferenceType<int[4]>>(), "");
+static_assert(same<std::ptrdiff_t, DifferenceType<std::nullptr_t>>(), "");
+static_assert(same<std::make_unsigned_t<std::ptrdiff_t>, DistanceType<int*>>(), "");
 
-static_assert(is_same<int, DifferenceType<int>>(), "");
-static_assert(is_same<unsigned, DistanceType<int>>(), "");
+static_assert(same<int, DifferenceType<int>>(), "");
+static_assert(same<unsigned, DistanceType<int>>(), "");
 } // namespace associated_type_test
 
 namespace readable_test {
-using stl2::concepts::check::is_readable;
+using stl2::concepts::models::readable;
 
-static_assert(!is_readable<void>(), "");
-static_assert(!is_readable<void*>(), "");
-static_assert(is_readable<int*>(), "");
-static_assert(is_readable<const int*>(), "");
+static_assert(!readable<void>(), "");
+static_assert(!readable<void*>(), "");
+static_assert(readable<int*>(), "");
+static_assert(readable<const int*>(), "");
 }
 
 namespace weakly_incrementable_test {
-using stl2::concepts::check::is_weakly_incrementable;
+using stl2::concepts::models::weakly_incrementable;
 
-static_assert(is_weakly_incrementable<int>(), "");
-static_assert(is_weakly_incrementable<unsigned int>(), "");
-static_assert(!is_weakly_incrementable<void>(), "");
-static_assert(is_weakly_incrementable<int*>(), "");
-static_assert(is_weakly_incrementable<const int*>(), "");
+static_assert(weakly_incrementable<int>(), "");
+static_assert(weakly_incrementable<unsigned int>(), "");
+static_assert(!weakly_incrementable<void>(), "");
+static_assert(weakly_incrementable<int*>(), "");
+static_assert(weakly_incrementable<const int*>(), "");
 }
 
 #if 0 // FIXME: These cause the compiler to ICE
 namespace incrementable_test {
-using stl2::concepts::check::is_incrementable;
+using stl2::concepts::models::incrementable;
 
-static_assert(is_incrementable<int>(), "");
-static_assert(is_incrementable<unsigned int>(), "");
-static_assert(!is_incrementable<void>(), "");
-static_assert(is_incrementable<int*>(), "");
-static_assert(is_incrementable<const int*>(), "");
+static_assert(incrementable<int>(), "");
+static_assert(incrementable<unsigned int>(), "");
+static_assert(!incrementable<void>(), "");
+static_assert(incrementable<int*>(), "");
+static_assert(incrementable<const int*>(), "");
 }
 #endif
 
@@ -494,13 +498,13 @@ void test_relationships() {
 }
 
 void test_swap() {
-  using stl2::concepts::check::is_swappable;
+  using stl2::concepts::models::swappable;
 
   {
     int a[2][2] = {{0, 1}, {2, 3}};
     int b[2][2] = {{4, 5}, {6, 7}};
 
-    static_assert(is_swappable<decltype((a)),decltype((b))>(), "");
+    static_assert(swappable<decltype((a)),decltype((b))>(), "");
     adl_swap(a, b);
     static_assert(noexcept(adl_swap(a, b)), "");
 
@@ -519,11 +523,11 @@ void test_swap() {
     array<int, 4> a = {0,1,2,3};
     int b[4] = {4,5,6,7};
 
-    static_assert(is_swappable<decltype(a[0]),decltype(b[0])>(), "");
+    static_assert(swappable<decltype(a[0]),decltype(b[0])>(), "");
     adl_swap(a[0], b[0]);
     static_assert(noexcept(adl_swap(a[0], b[0])), "");
 
-    static_assert(is_swappable<decltype((a)),decltype((b))>(), "");
+    static_assert(swappable<decltype((a)),decltype((b))>(), "");
     adl_swap(a, b);
     static_assert(noexcept(adl_swap(a, b)), "");
 
@@ -542,11 +546,11 @@ void test_swap() {
     array<array<int, 2>, 3> a = {{{{0, 1}}, {{2, 3}}, {{4, 5}}}};
     int b[3][2] = {{6, 7}, {8, 9}, {10, 11}};
 
-    static_assert(is_swappable<decltype(a[0]),decltype(b[0])>(), "");
+    static_assert(swappable<decltype(a[0]),decltype(b[0])>(), "");
     adl_swap(a[0], b[0]);
     static_assert(noexcept(adl_swap(a[0], b[0])), "");
 
-    static_assert(is_swappable<decltype((a)),decltype((b))>(), "");
+    static_assert(swappable<decltype((a)),decltype((b))>(), "");
     adl_swap(a, b);
     static_assert(noexcept(adl_swap(a, b)), "");
   }
@@ -555,7 +559,7 @@ void test_swap() {
   {
     struct A {
       void foo(A& other) {
-        static_assert(is_swappable<A*,A&>(), "");
+        static_assert(swappable<A*,A&>(), "");
         // adl_swap(this, other); // ICE
         stl2::swap(this, other);
       }

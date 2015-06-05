@@ -127,58 +127,58 @@ concept bool CopyAssignable =
 #undef STL2_IS_SAME_AS
 #undef STL2_IS_BASE_OF
 
-namespace check {
+namespace models {
 
 template <class, class>
-constexpr bool is_same() { return false; }
+constexpr bool same() { return false; }
 
 template <class T, Same<T> >
-constexpr bool is_same() { return true; }
+constexpr bool same() { return true; }
 
 
 template <class, class>
-constexpr bool is_convertible() { return false; }
+constexpr bool convertible() { return false; }
 
 template <class T, class U>
   requires Convertible<T, U>
-constexpr bool is_convertible() { return true; }
+constexpr bool convertible() { return true; }
 
 
 template <class, class>
-constexpr bool is_publicly_derived() { return false; }
+constexpr bool publicly_derived() { return false; }
 
 template <class T, class U>
   requires PubliclyDerived<T, U>
-constexpr bool is_publicly_derived() { return true; }
+constexpr bool publicly_derived() { return true; }
 
 
 template <class, class>
-constexpr bool is_common() { return false; }
+constexpr bool common() { return false; }
 
 template <class T, Common<T> >
-constexpr bool is_common() { return true; }
+constexpr bool common() { return true; }
 
 
 template <class>
-constexpr bool is_destructible() { return false; }
+constexpr bool destructible() { return false; }
 
 template <Destructible>
-constexpr bool is_destructible() { return true; }
+constexpr bool destructible() { return true; }
 
 
 template <class, class...>
-constexpr bool is_constructible() { return false; }
+constexpr bool constructible() { return false; }
 
 Constructible{T, ...Args}
-constexpr bool is_constructible() { return false; }
+constexpr bool constructible() { return false; }
 
 
 template <class>
-constexpr bool is_copy_constructible() { return false; }
+constexpr bool copy_constructible() { return false; }
 
 template <CopyConstructible>
-constexpr bool is_copy_constructible() { return true; }
+constexpr bool copy_constructible() { return true; }
 
-}}}} // namespace stl2::v1::concepts::check
+}}}} // namespace stl2::v1::concepts::models
 
 #endif // STL2_CONCEPTS_CORE_HPP

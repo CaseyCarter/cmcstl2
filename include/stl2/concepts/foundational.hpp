@@ -224,78 +224,78 @@ concept bool UnsignedIntegral =
 // Integral<T> subsumes SignedIntegral<T> and UnsignedIntegral<T>
 // SignedIntegral<T> and UnsignedIntegral<T> are mutually exclusive
 
-namespace check {
+namespace models {
 
 template <class>
-constexpr bool is_movable() { return false; }
+constexpr bool movable() { return false; }
 
 template <Movable>
-constexpr bool is_movable() { return true; }
+constexpr bool movable() { return true; }
 
 
 template <class>
-constexpr bool is_copyable() { return false; }
+constexpr bool copyable() { return false; }
 
 template <Copyable>
-constexpr bool is_copyable() { return true; }
+constexpr bool copyable() { return true; }
 
 
 template <class>
-constexpr bool is_swappable() { return false; }
+constexpr bool swappable() { return false; }
 
 template <class T>
   requires Swappable<T>
-constexpr bool is_swappable() { return true; }
+constexpr bool swappable() { return true; }
 
 template <class, class>
-constexpr bool is_swappable() { return false; }
+constexpr bool swappable() { return false; }
 
 template <class T, Swappable<T> U>
-constexpr bool is_swappable() { return true; }
+constexpr bool swappable() { return true; }
 
 
 template <class>
-constexpr bool is_equality_comparable() { return false; }
+constexpr bool equality_comparable() { return false; }
 
 template <class T>
   requires EqualityComparable<T>
-constexpr bool is_equality_comparable() { return true; }
+constexpr bool equality_comparable() { return true; }
 
 template <class, class>
-constexpr bool is_equality_comparable() { return false; }
+constexpr bool equality_comparable() { return false; }
 
 template <class T, class U>
   requires EqualityComparable<T, U>
-constexpr bool is_equality_comparable() { return true; }
+constexpr bool equality_comparable() { return true; }
 
 
 template <class>
-constexpr bool is_semiregular() { return false; }
+constexpr bool semiregular() { return false; }
 
 template <Semiregular>
-constexpr bool is_semiregular() { return true; }
+constexpr bool semiregular() { return true; }
 
 
 template <class>
-constexpr bool is_regular() { return false; }
+constexpr bool regular() { return false; }
 
 template <Regular>
-constexpr bool is_regular() { return true; }
+constexpr bool regular() { return true; }
 
 
 template <class>
-constexpr bool is_boolean() { return false; }
+constexpr bool boolean() { return false; }
 
 template <Boolean>
-constexpr bool is_boolean() { return true; }
+constexpr bool boolean() { return true; }
 
 
 template <class>
-constexpr bool is_integral() { return false; }
+constexpr bool integral() { return false; }
 
 template <Integral>
-constexpr bool is_integral() { return true; }
+constexpr bool integral() { return true; }
 
-}}}} // namespace stl2::v1::concepts::check
+}}}} // namespace stl2::v1::concepts::models
 
 #endif // STL2_CONCEPTS_FOUNDATIONAL_HPP

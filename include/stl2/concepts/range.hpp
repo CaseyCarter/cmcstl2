@@ -32,6 +32,13 @@ concept bool Range =
     requires Sentinel<SentinelType<T>, IteratorType<T>>;
   };
 
-}}} // namespace stl2::v1::concepts
+namespace models {
+
+template <class>
+constexpr bool range() { return false; }
+template <Range>
+constexpr bool range() { return true; }
+
+}}}} // namespace stl2::v1::concepts::models
 
 #endif // STL2_CONCEPTS_RANGE_HPP
