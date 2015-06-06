@@ -8,10 +8,11 @@
 
 namespace associated_type_test {
 using stl2::concepts::models::same;
-using stl2::ReferenceType;
-using stl2::ValueType;
-using stl2::DifferenceType;
-using stl2::DistanceType;
+using stl2::concepts::DifferenceType;
+using stl2::concepts::DistanceType;
+using stl2::concepts::IteratorCategory;
+using stl2::concepts::ReferenceType;
+using stl2::concepts::ValueType;
 
 struct A { int& operator*(); };
 struct B : A { using value_type = double; };
@@ -19,6 +20,7 @@ struct C : A { using element_type = double; };
 struct D : A {
   using value_type = double;
   using element_type = char;
+  using iterator_category = stl2::forward_iterator_tag;
 };
 
 static_assert(same<int&, ReferenceType<int*>>(), "");
@@ -47,6 +49,10 @@ static_assert(same<std::make_unsigned_t<std::ptrdiff_t>, DistanceType<int*>>(), 
 
 static_assert(same<int, DifferenceType<int>>(), "");
 static_assert(same<unsigned, DistanceType<int>>(), "");
+
+static_assert(same<IteratorCategory<int*>, stl2::contiguous_iterator_tag>(), "");
+static_assert(same<IteratorCategory<const int*>, stl2::contiguous_iterator_tag>(), "");
+static_assert(same<IteratorCategory<D>, stl2::forward_iterator_tag>(), "");
 } // namespace associated_type_test
 
 namespace readable_test {
