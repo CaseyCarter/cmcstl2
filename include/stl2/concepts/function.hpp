@@ -2,7 +2,10 @@
 #define STL2_CONCEPTS_FUNCTION_HPP
 
 #include <stl2/detail/config.hpp>
+#include <stl2/concepts/core.hpp>
 #include <stl2/concepts/foundational.hpp>
+
+#include <type_traits>
 
 ////////////////////
 // Function Concepts

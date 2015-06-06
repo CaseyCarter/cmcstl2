@@ -2,13 +2,10 @@
 #define STL2_CONCEPTS_FOUNDATIONAL_HPP
 
 #include <stl2/detail/config.hpp>
+#include <stl2/detail/fwd.hpp>
 #include <stl2/concepts/core.hpp>
 
-#include <meta/meta.hpp>
-
-#include <cassert>
 #include <type_traits>
-#include <utility>
 
 ////////////////////////
 // Foundational Concepts
@@ -61,8 +58,8 @@ template <class T, class U>
 struct swappable_array<T, U> {
   static constexpr bool value = true;
   static constexpr bool nothrow =
-    noexcept(swap(std::declval<T&>(),
-                  std::declval<U&>()));
+    noexcept(swap(stl2::declval<T&>(),
+                  stl2::declval<U&>()));
 };
 
 template <class T, class U, std::size_t N>
