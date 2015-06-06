@@ -49,6 +49,10 @@ template <class T>
 concept bool HasReferenceType =
   requires { typename ReferenceType<T>; };
 
+template <class T>
+concept bool HasDifferenceType =
+  requires { typename T::difference_type; };
+
 } // namespace detail
 
 template <class>
@@ -98,14 +102,6 @@ concept bool IndirectlySwappable =
   Swappable<ReferenceType<I1>, ReferenceType<I2>>;
 
 } // namespace concepts
-
-namespace detail {
-
-template <class T>
-concept bool HasDifferenceType =
-  requires { typename T::difference_type; };
-
-} // namespace detail
 
 template <class> struct difference_type {};
 
@@ -229,7 +225,7 @@ concept bool WeakInputIterator =
     Derived<IteratorCategory<I>, weak_input_iterator_tag>;
     //{ i++ } -> Readable;
     requires Readable<decltype(i++)>;
-    requires Same<ValueType<I>,ValueType<decltype(i++)>>;
+    requires Same<ValueType<I>, ValueType<decltype(i++)>>;
   };
 
 template <class I>

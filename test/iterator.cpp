@@ -52,10 +52,15 @@ static_assert(same<unsigned, DistanceType<int>>(), "");
 namespace readable_test {
 using stl2::concepts::models::readable;
 
+struct A {
+  int operator*() const { return 42; }
+};
+
 static_assert(!readable<void>(), "");
 static_assert(!readable<void*>(), "");
 static_assert(readable<int*>(), "");
 static_assert(readable<const int*>(), "");
+static_assert(readable<A>(), "");
 }
 
 namespace weakly_incrementable_test {
