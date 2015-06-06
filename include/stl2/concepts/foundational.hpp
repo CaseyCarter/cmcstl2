@@ -55,8 +55,7 @@ template <class T, class U>
     swap(t, u);
     swap(u, t);
   }
-struct swappable_array<T, U> {
-  static constexpr bool value = true;
+struct swappable_array<T, U> : std::true_type {
   static constexpr bool nothrow =
     noexcept(swap(stl2::declval<T&>(),
                   stl2::declval<U&>()));
