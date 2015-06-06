@@ -307,6 +307,14 @@ template <Readable>
 constexpr bool readable() { return true; }
 
 
+template <class, class>
+constexpr bool writable() { return false; }
+
+template <class O, class T>
+  requires Writable<O, T>
+constexpr bool writable() { return true; }
+
+
 template <class>
 constexpr bool weakly_incrementable() { return false; }
 

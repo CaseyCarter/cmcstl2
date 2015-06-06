@@ -51,9 +51,11 @@ static_assert(same<unsigned, DistanceType<int>>(), "");
 
 namespace readable_test {
 using stl2::concepts::models::readable;
+using stl2::concepts::ValueType;
+using stl2::concepts::models::same;
 
 struct A {
-  int operator*() const { return 42; }
+  int operator*() const;
 };
 
 static_assert(!readable<void>(), "");
@@ -61,7 +63,26 @@ static_assert(!readable<void*>(), "");
 static_assert(readable<int*>(), "");
 static_assert(readable<const int*>(), "");
 static_assert(readable<A>(), "");
+static_assert(same<ValueType<A>,int>(), "");
 }
+
+namespace writable_test {
+using stl2::concepts::models::writable;
+
+struct A {
+  int& operator*() const;
+};
+
+static_assert(!writable<void, int>(), "");
+static_assert(!writable<void*, void>(), "");
+static_assert(writable<int*, int>(), "");
+static_assert(writable<int*, int&>(), "");
+static_assert(writable<int*, const int&>(), "");
+static_assert(writable<int*, const int>(), "");
+static_assert(!writable<const int*, int>(), "");
+static_assert(writable<A, int>(), "");
+static_assert(writable<A, double>(), "");
+} // namespace writable_test
 
 namespace weakly_incrementable_test {
 using stl2::concepts::models::weakly_incrementable;
@@ -71,7 +92,7 @@ static_assert(weakly_incrementable<unsigned int>(), "");
 static_assert(!weakly_incrementable<void>(), "");
 static_assert(weakly_incrementable<int*>(), "");
 static_assert(weakly_incrementable<const int*>(), "");
-}
+} // namespace weakly_incrementable_test
 
 namespace incrementable_test {
 using stl2::concepts::models::incrementable;
@@ -81,6 +102,6 @@ static_assert(incrementable<unsigned int>(), "");
 static_assert(!incrementable<void>(), "");
 static_assert(incrementable<int*>(), "");
 static_assert(incrementable<const int*>(), "");
-}
+} // namespace incrementable_test
 
 int main() {}
