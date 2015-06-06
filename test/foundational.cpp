@@ -100,4 +100,17 @@ static_assert(regular<A>(), "");
 static_assert(!regular<void>(), "");
 } // namespace regular_test
 
+namespace totally_ordered_test {
+using stl2::concepts::models::totally_ordered;
+
+static_assert(totally_ordered<int>(), "");
+static_assert(totally_ordered<float>(), "");
+static_assert(totally_ordered<std::nullptr_t>(), "");
+static_assert(!totally_ordered<void>(), "");
+
+static_assert(totally_ordered<int, int>(), "");
+static_assert(totally_ordered<int, double>(), "");
+static_assert(!totally_ordered<int, void>(), "");
+} // namespace totally_ordered_test
+
 int main() {}

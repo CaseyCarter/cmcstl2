@@ -169,10 +169,17 @@ template <class T, class U>
 concept bool TotallyOrdered_ =
   EqualityComparable<T, U> &&
   requires(T&& a, U&& b) {
-    { a < b } -> Boolean;
-    { a > b } -> Boolean;
-    { a <= b } -> Boolean;
-    { a >= b } -> Boolean;
+#if 0 // FIXME: ICE
+    //{ a < b } -> Boolean;
+    //{ a > b } -> Boolean;
+    //{ a <= b } -> Boolean;
+    //{ a >= b } -> Boolean;
+#else
+    { a < b } -> bool;
+    { a > b } -> bool;
+    { a <= b } -> bool;
+    { a >= b } -> bool;
+#endif
   };
 
 } // namespace detail
@@ -282,6 +289,21 @@ constexpr bool regular() { return false; }
 
 template <Regular>
 constexpr bool regular() { return true; }
+
+
+template <class>
+constexpr bool totally_ordered() { return false; }
+
+template <class T>
+  requires TotallyOrdered<T>
+constexpr bool totally_ordered() { return true; }
+
+template <class, class>
+constexpr bool totally_ordered() { return false; }
+
+template <class T, class U>
+  requires TotallyOrdered<T, U>
+constexpr bool totally_ordered() { return true; }
 
 
 template <class>
