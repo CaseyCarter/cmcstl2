@@ -36,7 +36,8 @@ namespace models {
 
 template <class>
 constexpr bool range() { return false; }
-template <Range>
+
+Range{T}
 constexpr bool range() { return true; }
 
 }}}} // namespace stl2::v1::concepts::models

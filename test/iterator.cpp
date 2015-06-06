@@ -158,7 +158,7 @@ static_assert(models::equality_comparable<int*, int*>(), "");
 #if 0 // FIXME: compiling models::sentinel explodes memory
 static_assert(models::sentinel<int*, int*>(), "");
 static_assert(models::sentinel<const int*, const int*>(), "");
-static_assert(models::sentinel<int*, const int*>(), "");
+static_assert(models::sentinel<const int*, int*>(), "");
 static_assert(!models::sentinel<void*, void*>(), "");
 static_assert(models::sentinel<A, A>(), "");
 #endif

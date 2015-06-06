@@ -26,7 +26,7 @@ constexpr T exchange(T& t, U&& u)
  * http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
  */
 
-template <Movable T>
+Movable{T}
 constexpr void swap(T& a, T& b)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_move_assignable<T>::value) {
@@ -94,7 +94,7 @@ struct equal_to {
 
 template <>
 struct equal_to<void> {
-  template <class T, EqualityComparable<T> U>
+  EqualityComparable{T, U}
   constexpr auto operator()(const T& t, const U& u) const {
     return t == u;
   }

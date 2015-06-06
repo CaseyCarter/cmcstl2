@@ -132,37 +132,35 @@ namespace models {
 template <class, class>
 constexpr bool same() { return false; }
 
-template <class T, Same<T> >
+Same{T, U}
 constexpr bool same() { return true; }
 
 
 template <class, class>
 constexpr bool convertible() { return false; }
 
-template <class T, class U>
-  requires Convertible<T, U>
+Convertible{T, U}
 constexpr bool convertible() { return true; }
 
 
 template <class, class>
 constexpr bool publicly_derived() { return false; }
 
-template <class T, class U>
-  requires PubliclyDerived<T, U>
+PubliclyDerived{T, U}
 constexpr bool publicly_derived() { return true; }
 
 
 template <class, class>
 constexpr bool common() { return false; }
 
-template <class T, Common<T> >
+Common{T, U}
 constexpr bool common() { return true; }
 
 
 template <class>
 constexpr bool destructible() { return false; }
 
-template <Destructible>
+Destructible{T}
 constexpr bool destructible() { return true; }
 
 
@@ -176,7 +174,7 @@ constexpr bool constructible() { return false; }
 template <class>
 constexpr bool copy_constructible() { return false; }
 
-template <CopyConstructible>
+CopyConstructible{T}
 constexpr bool copy_constructible() { return true; }
 
 }}}} // namespace stl2::v1::concepts::models

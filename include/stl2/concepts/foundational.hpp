@@ -39,7 +39,7 @@ concept bool Semiregular =
 
 } // namespace concepts
 
-template <Movable T>
+Movable{T}
 constexpr void swap(T& a, T& b)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_move_assignable<T>::value);
@@ -236,14 +236,14 @@ namespace models {
 template <class>
 constexpr bool movable() { return false; }
 
-template <Movable>
+Movable{T}
 constexpr bool movable() { return true; }
 
 
 template <class>
 constexpr bool copyable() { return false; }
 
-template <Copyable>
+Copyable{T}
 constexpr bool copyable() { return true; }
 
 
@@ -257,7 +257,7 @@ constexpr bool swappable() { return true; }
 template <class, class>
 constexpr bool swappable() { return false; }
 
-template <class T, Swappable<T> U>
+Swappable{T, U}
 constexpr bool swappable() { return true; }
 
 
@@ -271,22 +271,21 @@ constexpr bool equality_comparable() { return true; }
 template <class, class>
 constexpr bool equality_comparable() { return false; }
 
-template <class T, class U>
-  requires EqualityComparable<T, U>
+EqualityComparable{T, U}
 constexpr bool equality_comparable() { return true; }
 
 
 template <class>
 constexpr bool semiregular() { return false; }
 
-template <Semiregular>
+Semiregular{T}
 constexpr bool semiregular() { return true; }
 
 
 template <class>
 constexpr bool regular() { return false; }
 
-template <Regular>
+Regular{T}
 constexpr bool regular() { return true; }
 
 
@@ -300,22 +299,21 @@ constexpr bool totally_ordered() { return true; }
 template <class, class>
 constexpr bool totally_ordered() { return false; }
 
-template <class T, class U>
-  requires TotallyOrdered<T, U>
+TotallyOrdered{T, U}
 constexpr bool totally_ordered() { return true; }
 
 
 template <class>
 constexpr bool boolean() { return false; }
 
-template <Boolean>
+Boolean{T}
 constexpr bool boolean() { return true; }
 
 
 template <class>
 constexpr bool integral() { return false; }
 
-template <Integral>
+Integral{T}
 constexpr bool integral() { return true; }
 
 }}}} // namespace stl2::v1::concepts::models

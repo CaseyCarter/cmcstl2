@@ -33,7 +33,7 @@ concept bool Void =
 template <class T>
 struct nonvoid { using type = T; };
 
-template <Void T>
+Void{T}
 struct nonvoid<T> {};
 
 template <class T>
@@ -317,7 +317,7 @@ namespace models {
 template <class>
 constexpr bool readable() { return false; }
 
-template <Readable>
+Readable{T}
 constexpr bool readable() { return true; }
 
 
@@ -331,28 +331,28 @@ constexpr bool writable() { return true; }
 template <class>
 constexpr bool weakly_incrementable() { return false; }
 
-template <WeaklyIncrementable>
+WeaklyIncrementable{T}
 constexpr bool weakly_incrementable() { return true; }
 
 
 template <class>
 constexpr bool incrementable() { return false; }
 
-template <Incrementable>
+Incrementable{T}
 constexpr bool incrementable() { return true; }
 
 
 template <class>
 constexpr bool weak_iterator() { return false; }
 
-template <WeakIterator>
+WeakIterator{T}
 constexpr bool weak_iterator() { return true; }
 
 
 template <class>
 constexpr bool iterator() { return false; }
 
-template <Iterator>
+Iterator{T}
 constexpr bool iterator() { return true; }
 
 #if 0 // FIXME: explodes memory
