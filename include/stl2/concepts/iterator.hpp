@@ -83,7 +83,7 @@ template <class Out, class T>
 concept bool Writable =
   Semiregular<Out> &&
   requires(Out& o, T&& t) {
-    *o = (T&&)t;
+    *o = stl2::forward<T>(t);
   };
 
 template <class I, class Out>

@@ -121,7 +121,6 @@ concept bool Boolean =
     //{ b1 || b2 } -> Same<bool>;
     b1 || b2; requires Convertible<decltype(b1 || b2),bool>;
   };
-
 } // namespace concepts
 
 namespace detail {
@@ -129,8 +128,13 @@ namespace detail {
 template <class T, class U>
 concept bool EqualityComparable_ =
   requires(T&& t, U&& u) {
+#if 0 // FIXME: ICE
     { forward<T>(t) == forward<U>(u) } -> Boolean;
     { forward<T>(t) != forward<U>(u) } -> Boolean;
+#else
+    { forward<T>(t) == forward<U>(u) } -> bool;
+    { forward<T>(t) != forward<U>(u) } -> bool;
+#endif
   };
 
 } // namespace detail

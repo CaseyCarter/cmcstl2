@@ -68,7 +68,6 @@ static_assert(weakly_incrementable<int*>(), "");
 static_assert(weakly_incrementable<const int*>(), "");
 }
 
-#if 0 // FIXME: ICE
 namespace incrementable_test {
 using stl2::concepts::models::incrementable;
 
@@ -78,6 +77,5 @@ static_assert(!incrementable<void>(), "");
 static_assert(incrementable<int*>(), "");
 static_assert(incrementable<const int*>(), "");
 }
-#endif
 
 int main() {}
