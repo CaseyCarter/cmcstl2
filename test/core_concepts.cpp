@@ -167,6 +167,7 @@ enum class result {
 };
 
 #if 1
+// Concepts version
 result f(A) {
   std::cout << "exactly A\n";
   return result::exact;
@@ -193,7 +194,7 @@ result f(auto) {
 }
 
 #else
-
+// C++14 version
 result f(A) {
   std::cout << "exactly A\n";
   return result::exact;

@@ -1,17 +1,10 @@
-// -*- compile-command: "(cd ~/cmcstl2/build && make foo && ./foo)" -*-
+// -*- compile-command: "(cd ~/cmcstl2/build && make iterator && ./test/iterator)" -*-
 
-#include <stl2/concepts/all.hpp>
-#include <stl2/utility>
+#include <stl2/concepts/core.hpp>
+#include <stl2/concepts/iterator.hpp>
 
-#include <cassert>
 #include <cstddef>
 #include <type_traits>
-#include <utility>
-#include <iostream>
-
-////////////
-// Test code
-//
 
 namespace associated_type_test {
 using stl2::concepts::models::same;
@@ -75,7 +68,7 @@ static_assert(weakly_incrementable<int*>(), "");
 static_assert(weakly_incrementable<const int*>(), "");
 }
 
-#if 0 // FIXME: These cause the compiler to ICE
+#if 0 // FIXME: ICE
 namespace incrementable_test {
 using stl2::concepts::models::incrementable;
 

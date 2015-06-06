@@ -74,14 +74,14 @@ struct A {
   }
 };
 
-#if 0 // ICE
+#if 0 // FIXME: ICE
 static_assert(equality_comparable<int>(), "");
 static_assert(equality_comparable<A>(), "");
 #endif
 } // namespace equality_comparable_test
 
-#if 0 // ICE
-namespace regular {
+#if 0 // FIXME: ICE
+namespace regular_test {
 using stl2::concepts::models::semiregular;
 using stl2::concepts::models::regular;
 
@@ -89,7 +89,7 @@ static_assert(semiregular<int>(), "");
 static_assert(regular<int>(), "");
 static_assert(regular<A>(), "");
 static_assert(!regular<void>(), "");
-}
+} // namespac regular_test
 #endif
 
 int main() {}
