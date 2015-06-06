@@ -107,13 +107,16 @@ concept bool IndirectlySwappable =
 
 template <class> struct difference_type {};
 
+template <> struct difference_type<void*> {};
+
 template <detail::HasDifferenceType T>
 struct difference_type<T> { using type = typename T::difference_type; };
 
 template <class T>
   requires !detail::HasDifferenceType<T> &&
     requires(T& a, T& b) {
-      a - b; !detail::Void<decltype(a - b)>;
+      a - b;
+      requires !detail::Void<decltype(a - b)>;
     }
 struct difference_type<T> :
   std::remove_cv<decltype(declval<T>() - declval<T>())> {};
@@ -140,10 +143,21 @@ concept bool IntegralDifference =
     requires Integral<DifferenceType<T>>;
   };
 
+template <class T>
+concept bool HasDistanceType =
+  requires { typename T::distance_type; };
+
 } // namespace detail
 
 template <class> struct distance_type {};
+
+template <detail::HasDistanceType T>
+struct distance_type<T> {
+  using type = typename T::distance_type;
+};
+
 template <detail::IntegralDifference T>
+  requires(!detail::HasDistanceType<T>)
 struct distance_type<T> :
   std::make_unsigned<DifferenceType<T>> {};
 
@@ -327,6 +341,13 @@ constexpr bool incrementable() { return false; }
 
 template <Incrementable>
 constexpr bool incrementable() { return true; }
+
+
+template <class>
+constexpr bool weak_iterator() { return false; }
+
+template <WeakIterator>
+constexpr bool weak_iterator() { return true; }
 
 }}}} // namespace stl2::v1::concepts::models
 

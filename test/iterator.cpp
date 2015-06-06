@@ -6,6 +6,8 @@
 #include <cstddef>
 #include <type_traits>
 
+#include <meta/meta.hpp>
+
 namespace associated_type_test {
 using stl2::concepts::models::same;
 using stl2::concepts::DifferenceType;
@@ -40,12 +42,16 @@ static_assert(same<double, ValueType<B>>(), "");
 static_assert(same<double, ValueType<C>>(), "");
 static_assert(same<double, ValueType<D>>(), "");
 static_assert(same<int, ValueType<const int*>>(), "");
+static_assert(!meta::has_type<stl2::value_type<void>>(), "");
 
 static_assert(same<std::ptrdiff_t, DifferenceType<int*>>(), "");
 static_assert(same<std::ptrdiff_t, DifferenceType<int[]>>(), "");
 static_assert(same<std::ptrdiff_t, DifferenceType<int[4]>>(), "");
 static_assert(same<std::ptrdiff_t, DifferenceType<std::nullptr_t>>(), "");
 static_assert(same<std::make_unsigned_t<std::ptrdiff_t>, DistanceType<int*>>(), "");
+
+static_assert(!meta::has_type<stl2::difference_type<void>>(), "");
+static_assert(!meta::has_type<stl2::difference_type<void*>>(), "");
 
 static_assert(same<int, DifferenceType<int>>(), "");
 static_assert(same<unsigned, DistanceType<int>>(), "");
@@ -109,5 +115,21 @@ static_assert(!incrementable<void>(), "");
 static_assert(incrementable<int*>(), "");
 static_assert(incrementable<const int*>(), "");
 } // namespace incrementable_test
+
+namespace weak_iterator_test {
+using namespace stl2::concepts;
+
+struct A {
+  using difference_type = signed char;
+  A& operator++();
+  A operator++(int);
+  double operator*() const;
+};
+
+static_assert(models::weak_iterator<int*>(), "");
+static_assert(models::weak_iterator<const int*>(), "");
+static_assert(!models::weak_iterator<void*>(), "");
+static_assert(models::weak_iterator<A>(), "");
+} // namespace weak_iterator_test
 
 int main() {}
