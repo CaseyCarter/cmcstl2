@@ -12,11 +12,13 @@
 ////////////////////
 // Iterator concepts
 //
-namespace stl2 { namespace v1 {
+namespace stl2 { namespace v1 { namespace concepts {
 
 template <class T>
 using ReferenceType =
   decltype(*declval<T>());
+
+} // namespace concepts
 
 namespace detail {
 
@@ -69,11 +71,11 @@ template <detail::HasReferenceType T>
   requires !detail::HasElementType<T> && !detail::HasValueType<T>
 struct value_type<T> { using type = ReferenceType<T>; };
 
+namespace concepts {
+
 template <class T>
 using ValueType =
   detail::nvuncvref<meta::eval<value_type<T>>>;
-
-namespace concepts {
 
 template <class I>
 concept bool Readable =
@@ -121,9 +123,13 @@ struct difference_type<std::nullptr_t> {
   using type = std::ptrdiff_t;
 };
 
+namespace concepts {
+
 template <class T>
 using DifferenceType =
   detail::nvuncvref<meta::eval<difference_type<T>>>;
+
+} // namespace concepts
 
 namespace detail {
 
@@ -141,11 +147,11 @@ template <detail::IntegralDifference T>
 struct distance_type<T> :
   std::make_unsigned<DifferenceType<T>> {};
 
+namespace concepts {
+
 template <class T>
 using DistanceType =
   meta::eval<distance_type<T>>;
-
-namespace concepts {
 
 template <class I>
 concept bool WeaklyIncrementable =
@@ -191,11 +197,11 @@ struct iterator_category<T> {
   using type = typename T::iterator_category;
 };
 
+namespace concepts {
+
 template <class T>
 using IteratorCategory =
   meta::eval<iterator_category<T>>;
-
-namespace concepts {
 
 template <class I>
 concept bool WeakIterator =
