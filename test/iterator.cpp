@@ -132,4 +132,36 @@ static_assert(!models::weak_iterator<void*>(), "");
 static_assert(models::weak_iterator<A>(), "");
 } // namespace weak_iterator_test
 
+namespace iterator_sentinel_test {
+using namespace stl2::concepts;
+
+struct A {
+  using difference_type = signed char;
+  using iterator_category = stl2::input_iterator_tag;
+  A& operator++();
+  A operator++(int);
+  double operator*() const;
+
+  bool operator == (const A&) const;
+  bool operator != (const A&) const;
+};
+
+static_assert(models::iterator<int*>(), "");
+static_assert(models::iterator<const int*>(), "");
+static_assert(!models::iterator<void*>(), "");
+static_assert(models::iterator<A>(), "");
+
+static_assert(models::iterator<int*>(), "");
+static_assert(models::regular<int*>(), "");
+static_assert(models::equality_comparable<int*, int*>(), "");
+
+#if 0 // FIXME: compiling models::sentinel explodes memory
+static_assert(models::sentinel<int*, int*>(), "");
+static_assert(models::sentinel<const int*, const int*>(), "");
+static_assert(models::sentinel<int*, const int*>(), "");
+static_assert(!models::sentinel<void*, void*>(), "");
+static_assert(models::sentinel<A, A>(), "");
+#endif
+} // namespace iterator_sentinel_test
+
 int main() {}

@@ -324,8 +324,7 @@ constexpr bool readable() { return true; }
 template <class, class>
 constexpr bool writable() { return false; }
 
-template <class O, class T>
-  requires Writable<O, T>
+Writable{O, T}
 constexpr bool writable() { return true; }
 
 
@@ -348,6 +347,21 @@ constexpr bool weak_iterator() { return false; }
 
 template <WeakIterator>
 constexpr bool weak_iterator() { return true; }
+
+
+template <class>
+constexpr bool iterator() { return false; }
+
+template <Iterator>
+constexpr bool iterator() { return true; }
+
+#if 0 // FIXME: explodes memory
+template <class, class>
+constexpr bool sentinel() { return false; }
+
+Sentinel{S, I}
+constexpr bool sentinel() { return true; }
+#endif
 
 }}}} // namespace stl2::v1::concepts::models
 
