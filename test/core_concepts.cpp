@@ -110,51 +110,6 @@ static_assert(f<A, int>(), "");
 static_assert(!f<B, int>(), "");
 }
 
-namespace destructible_test {
-using stl2::concepts::models::destructible;
-
-static_assert(!destructible<void>(), "");
-static_assert(destructible<int>(), "");
-static_assert(!destructible<int&>(), "");
-static_assert(!destructible<int[4]>(), "");
-static_assert(!destructible<int()>(), "");
-}
-
-namespace copy_move_test {
-using stl2::concepts::models::copy_constructible;
-
-static_assert(!copy_constructible<void>(), "");
-static_assert(copy_constructible<int>(), "");
-static_assert(!copy_constructible<int[4]>(), "");
-static_assert(copy_constructible<int&>(), "");
-static_assert(!copy_constructible<void()>(), "");
-
-static_assert(copy_constructible<copyable_t>(), "");
-static_assert(!copy_constructible<moveonly_t>(), "");
-static_assert(!copy_constructible<nonmovable_t>(), "");
-static_assert(!copy_constructible<copyonly_t>(), "");
-} // namespace copy_move_test
-
-namespace detail {
-struct destroy_fn {
-  template <stl2::Destructible T>
-  void operator()(T& o) const noexcept {
-    o.~T();
-  }
-
-  template <class T, std::size_t N>
-    requires stl2::Destructible<std::remove_all_extents<T>>
-  void operator()(T (&a)[N]) const noexcept {
-    for (auto& i : a) {
-      (*this)(i);
-    }
-  }
-};
-} // namespace detail
-namespace {
-  constexpr const auto& destroy = detail::destroy_fn{};
-} // unnamed namespace
-
 namespace {
 struct tag {};
 struct A { A() = default; A(int) {} explicit A(tag) {} };

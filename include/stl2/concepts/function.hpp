@@ -18,16 +18,12 @@ using ResultType =
 
 template <class F, class...Args>
 concept bool Function =
-  Destructible<F> &&
   CopyConstructible<F> &&
   requires(F& f, Args&&...args) {
     typename ResultType<F, Args...>;
     f((Args&&)(args)...);
-    requires Same<ResultType<F, Args...>, decltype(f((Args&&)(args)...))>;
-    &f; requires Same<F*,decltype(&f)>;
-    { f.~F() } noexcept;
-    new F; requires Same<F*,decltype(new F)>;
-    delete new F;
+    requires Same<ResultType<F, Args...>,
+                  decltype(f(forward<Args>(args)...))>;
   };
 
 template <class F, class...Args>
@@ -37,9 +33,7 @@ concept bool RegularFunction =
 template <class F, class...Args>
 concept bool Predicate =
   RegularFunction<F, Args...> &&
-  requires(F& f, Args&&...args) {
-    { f((Args&&)(args)...) } -> Boolean;
-  };
+  Boolean<ResultType<F, Args...>>;
 
 template <class R, class T, class U = T>
 concept bool WeakRelation =

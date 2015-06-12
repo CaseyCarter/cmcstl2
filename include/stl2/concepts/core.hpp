@@ -71,13 +71,6 @@ concept bool Common =
 // PubliclyDerived<T, U> subsumes Convertible<T, U>
 // Convertible<T, U> (and transitively Same<T, U> and PubliclyDerived<T, U>) subsumes ExplicitlyConvertible<T, U>
 
-template <class T>
-concept bool Destructible =
-  std::is_object<T>::value &&
-  requires(T& t) {
-    { t.~T() } noexcept;
-  };
-
 template <class T, class...Args>
 concept bool Constructible =
   ExplicitlyConvertible<Args..., T> ||
@@ -86,21 +79,6 @@ concept bool Constructible =
 
 // ExplictlyConvertible<T, U> (and transitively Convertible<T, U>, PubliclyDerived<T, U>,
 // and Same<T, U>) subsumes Constructible<U, T>
-
-template <class T>
-concept bool DefaultConstructible =
-  Constructible<T>;
-
-template <class T>
-concept bool MoveConstructible =
-  Constructible<T, T&&>;
-
-template <class T>
-concept bool CopyConstructible =
-  MoveConstructible<T> &&
-  Constructible<T, T&> &&
-  Constructible<T, const T&> &&
-  Constructible<T, const T&&>;
 
 template <class T, class U>
 concept bool Assignable =
@@ -112,17 +90,6 @@ concept bool Assignable =
 template <class T, class U>
 concept bool AssignableTo =
   Assignable<U, T>;
-
-template <class T>
-concept bool MoveAssignable =
-  Assignable<T, T&&>;
-
-template <class T>
-concept bool CopyAssignable =
-  MoveAssignable<T> &&
-  Assignable<T, T&> &&
-  Assignable<T, const T&> &&
-  Assignable<T, const T&&>;
 
 #undef STL2_IS_SAME_AS
 #undef STL2_IS_BASE_OF
@@ -157,25 +124,11 @@ Common{T, U}
 constexpr bool common() { return true; }
 
 
-template <class>
-constexpr bool destructible() { return false; }
-
-Destructible{T}
-constexpr bool destructible() { return true; }
-
-
 template <class, class...>
 constexpr bool constructible() { return false; }
 
 Constructible{T, ...Args}
 constexpr bool constructible() { return false; }
-
-
-template <class>
-constexpr bool copy_constructible() { return false; }
-
-CopyConstructible{T}
-constexpr bool copy_constructible() { return true; }
 
 }}}} // namespace stl2::v1::concepts::models
 

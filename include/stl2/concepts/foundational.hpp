@@ -13,29 +13,56 @@
 namespace stl2 { namespace v1 { namespace concepts {
 
 template <class T>
-concept bool Movable =
-  Destructible<T> &&
-  MoveConstructible<T> &&
-  MoveAssignable<T> &&
-  requires(T& t, std::size_t n) {
+concept bool Destructible =
+  std::is_object<T>::value &&
+  requires(T& t, T* p) {
     &t; requires Same<T*, decltype(&t)>;
     { t.~T() } noexcept;
-    new T; requires Same<T*, decltype(new T)>;
-    new T[n]; requires Same<T*, decltype(new T[n])>;
-    delete new T;
-    delete new T[n];
+    delete p;
   };
+
+template <class T>
+concept bool MoveConstructible =
+  Destructible<T> &&
+  Constructible<T, T&&> &&
+  requires(T&& t) {
+    new T(move(t)); requires Same<T*, decltype(new T(move(t)))>;
+  };
+
+template <class T>
+concept bool CopyConstructible =
+  MoveConstructible<T> &&
+  Constructible<T, T&> &&
+  Constructible<T, const T&> &&
+  Constructible<T, const T&&> &&
+  requires(T& a, const T& b, const T&& c) {
+    new T(a); requires Same<T*, decltype(new T(a))>;
+    new T(b); requires Same<T*, decltype(new T(b))>;
+    new T(move(c)); requires Same<T*, decltype(new T(move(c)))>;
+  };
+
+template <class T>
+concept bool Movable =
+  MoveConstructible<T> &&
+  Assignable<T, T&&>;
 
 template <class T>
 concept bool Copyable =
   Movable<T> &&
   CopyConstructible<T> &&
-  CopyAssignable<T>;
+  Assignable<T, T&> &&
+  Assignable<T, const T&> &&
+  Assignable<T, const T&&>;
 
 template <class T>
 concept bool Semiregular =
   Copyable<T> &&
-  DefaultConstructible<T>;
+  Constructible<T> &&
+  requires(T& t, T* p, std::size_t n) {
+    new T; requires Same<T*, decltype(new T)>;
+    new T[n]; requires Same<T*, decltype(new T[n])>;
+    delete[] p;
+  };
 
 } // namespace concepts
 
@@ -232,6 +259,27 @@ concept bool UnsignedIntegral =
 // SignedIntegral<T> and UnsignedIntegral<T> are mutually exclusive
 
 namespace models {
+
+template <class>
+constexpr bool destructible() { return false; }
+
+Destructible{T}
+constexpr bool destructible() { return true; }
+
+
+template <class>
+constexpr bool move_constructible() { return false; }
+
+MoveConstructible{T}
+constexpr bool move_constructible() { return true; }
+
+
+template <class>
+constexpr bool copy_constructible() { return false; }
+
+CopyConstructible{T}
+constexpr bool copy_constructible() { return true; }
+
 
 template <class>
 constexpr bool movable() { return false; }
