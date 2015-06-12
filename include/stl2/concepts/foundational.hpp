@@ -19,27 +19,33 @@ concept bool Destructible =
     &t; requires Same<T*, decltype(&t)>;
     { t.~T() } noexcept;
     delete p;
+    delete[] p;
   };
+
+template <class T, class...Args>
+concept bool Constructible =
+  Destructible<T> &&
+#if 0 // pack expansion bug
+  requires(Args&&...args) {
+    T{forward<Args>(args)...};
+    new T{forward<Args>(args)...};
+    requires Same<T*,decltype(new T{forward<Args>(args)...})>;
+  };
+#else
+  std::is_constructible<T, Args...>::value;
+#endif
 
 template <class T>
 concept bool MoveConstructible =
   Destructible<T> &&
-  Constructible<T, T&&> &&
-  requires(T&& t) {
-    new T(move(t)); requires Same<T*, decltype(new T(move(t)))>;
-  };
+  Constructible<T, T&&>;
 
 template <class T>
 concept bool CopyConstructible =
   MoveConstructible<T> &&
   Constructible<T, T&> &&
   Constructible<T, const T&> &&
-  Constructible<T, const T&&> &&
-  requires(T& a, const T& b, const T&& c) {
-    new T(a); requires Same<T*, decltype(new T(a))>;
-    new T(b); requires Same<T*, decltype(new T(b))>;
-    new T(move(c)); requires Same<T*, decltype(new T(move(c)))>;
-  };
+  Constructible<T, const T&&>;
 
 template <class T>
 concept bool Movable =
@@ -58,10 +64,8 @@ template <class T>
 concept bool Semiregular =
   Copyable<T> &&
   Constructible<T> &&
-  requires(T& t, T* p, std::size_t n) {
-    new T; requires Same<T*, decltype(new T)>;
+  requires(std::size_t n) {
     new T[n]; requires Same<T*, decltype(new T[n])>;
-    delete[] p;
   };
 
 } // namespace concepts
@@ -265,6 +269,13 @@ constexpr bool destructible() { return false; }
 
 Destructible{T}
 constexpr bool destructible() { return true; }
+
+
+template <class, class...>
+constexpr bool constructible() { return false; }
+
+Constructible{T, ...Args}
+constexpr bool constructible() { return false; }
 
 
 template <class>

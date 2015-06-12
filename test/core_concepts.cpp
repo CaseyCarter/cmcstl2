@@ -88,13 +88,10 @@ static_assert(common<B,C>(), "");
 }
 
 namespace constructible_test {
-using stl2::concepts::Convertible;
-using stl2::concepts::Constructible;
-
 template <class T, class U>
-  requires Constructible<T, U>
+  requires stl2::core::Constructible<T, U>
 constexpr bool f() { return false; }
-template <class T, Convertible<T> >
+template <class T, stl2::Convertible<T> >
 constexpr bool f() { return true; }
 
 static_assert(f<int,int>(), "");

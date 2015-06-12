@@ -71,12 +71,6 @@ concept bool Common =
 // PubliclyDerived<T, U> subsumes Convertible<T, U>
 // Convertible<T, U> (and transitively Same<T, U> and PubliclyDerived<T, U>) subsumes ExplicitlyConvertible<T, U>
 
-template <class T, class...Args>
-concept bool Constructible =
-  ExplicitlyConvertible<Args..., T> ||
-  // requires(Args&&...args) { T(forward<Args>(args)...); }; // ICE
-  std::is_constructible<T, Args...>::value;
-
 // ExplictlyConvertible<T, U> (and transitively Convertible<T, U>, PubliclyDerived<T, U>,
 // and Same<T, U>) subsumes Constructible<U, T>
 
@@ -90,6 +84,15 @@ concept bool Assignable =
 template <class T, class U>
 concept bool AssignableTo =
   Assignable<U, T>;
+
+namespace core {
+
+template <class T, class...Args>
+concept bool Constructible =
+  ExplicitlyConvertible<Args..., T> ||
+  std::is_constructible<T, Args...>::value;
+
+} // namespace core
 
 #undef STL2_IS_SAME_AS
 #undef STL2_IS_BASE_OF
@@ -123,12 +126,12 @@ constexpr bool common() { return false; }
 Common{T, U}
 constexpr bool common() { return true; }
 
-
 template <class, class...>
-constexpr bool constructible() { return false; }
+constexpr bool core_constructible() { return false; }
 
-Constructible{T, ...Args}
-constexpr bool constructible() { return false; }
+template <class T, class...Args>
+requires core::Constructible<T, Args...>
+constexpr bool core_constructible() { return false; }
 
 }}}} // namespace stl2::v1::concepts::models
 
