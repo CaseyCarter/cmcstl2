@@ -51,6 +51,10 @@ concept bool StrongRelation =
      Predicate<R, CommonType<T, U>,
                   CommonType<T, U>>));
 
+template <class R, class T, class U = T>
+concept bool StrictWeakOrder =
+  Relation<R, T, U>;
+
 }}} // namespace stl2::v1::concepts
 
 #endif // STL2_CONCEPTS_FUNCTION_HPP
