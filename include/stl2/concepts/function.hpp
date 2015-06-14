@@ -36,7 +36,7 @@ concept bool Predicate =
   Boolean<ResultType<F, Args...>>;
 
 template <class R, class T, class U = T>
-concept bool WeakRelation =
+concept bool Relation =
   Predicate<R, T, T> &&
   (Same<T, U> ||
     (Predicate<R, T, U> &&
@@ -44,8 +44,8 @@ concept bool WeakRelation =
      Predicate<R, U, U>));
 
 template <class R, class T, class U = T>
-concept bool Relation =
-  WeakRelation<R, T, U> &&
+concept bool StrongRelation =
+  Relation<R, T, U> &&
   (Same<T, U> ||
     (Common<T, U> &&
      Predicate<R, CommonType<T, U>,
