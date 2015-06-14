@@ -16,8 +16,8 @@ template <class T>
 concept bool Destructible =
   std::is_object<T>::value &&
   requires(T& t, T* p) {
-    &t; requires Same<T*, decltype(&t)>;
     { t.~T() } noexcept;
+    &t; requires Same<T*, decltype(&t)>;
     delete p;
     delete[] p;
   };
