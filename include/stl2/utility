@@ -16,7 +16,7 @@ template <Movable T, AssignableTo<T> U = T>
 constexpr T exchange(T& t, U&& u)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_assignable<T&, U>::value) {
-  auto tmp = move(t);
+  T tmp(move(t));
   t = forward<U>(u);
   return tmp;
 }
@@ -28,11 +28,8 @@ constexpr T exchange(T& t, U&& u)
 
 Movable{T}
 constexpr void swap(T& a, T& b)
-  noexcept(std::is_nothrow_move_constructible<T>::value &&
-           std::is_nothrow_move_assignable<T>::value) {
-  T tmp(move(a));
-  a = move(b);
-  b = move(tmp);
+  noexcept(noexcept(b = exchange(a, std::move(b)))) {
+  b = exchange(a, std::move(b));
 }
 
 template <class T, class U, std::size_t N>
