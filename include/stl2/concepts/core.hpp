@@ -41,8 +41,9 @@ concept bool ExplicitlyConvertible =
 
 template <class T, class U>
 concept bool Convertible =
-  ExplicitlyConvertible<T, U> &&
-  (Same<T, U> || std::is_convertible<T, U>::value);
+  Same<T, U> ||
+  (ExplicitlyConvertible<T, U> &&
+    std::is_convertible<T, U>::value);
 
 template <class T, class U>
 concept bool PubliclyDerived =
