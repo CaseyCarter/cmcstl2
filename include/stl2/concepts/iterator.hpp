@@ -22,9 +22,16 @@ using ReferenceType =
 
 namespace detail {
 
+using meta::detail::uncvref_t;
+
+template <class>
+struct acceptable_value_type {};
+
 template <class T>
-using uncvref =
-  std::remove_cv_t<std::remove_reference_t<T>>;
+  requires std::is_object<T>::value;
+struct acceptable_value_type {
+  using type = T;
+};
 
 template <class T>
 concept bool Void =
@@ -37,7 +44,7 @@ Void{T}
 struct nonvoid<T> {};
 
 template <class T>
-using nvuncvref = meta::eval<nonvoid<uncvref<T>>>;
+using nvuncvref_t = meta::eval<nonvoid<uncvref_t<T>>>;
 
 template <class T>
 concept bool HasValueType =
@@ -61,26 +68,35 @@ template <class>
 struct value_type {};
 
 template <detail::HasValueType T>
-struct value_type<T> { using type = typename T::value_type; };
+struct value_type<T> {
+  using type = typename T::value_type;
+};
 
 template <detail::HasElementType T>
   requires !detail::HasValueType<T>
-struct value_type<T> { using type = typename T::element_type; };
+struct value_type<T> {
+  using type = typename T::element_type;
+};
 
 template <detail::HasReferenceType T>
   requires !detail::HasElementType<T> && !detail::HasValueType<T>
-struct value_type<T> { using type = ReferenceType<T>; };
+struct value_type<T> {
+  using type = detail::uncvref_t<ReferenceType<T>>;
+};
 
 namespace concepts {
 
 template <class T>
-using ValueType =
-  detail::nvuncvref<meta::eval<value_type<T>>>;
+using ValueType = meta::eval<detail::acceptable_value_type<
+  meta::eval<value_type<remove_cv_t<T>>>
+>>;
 
 template <class I>
 concept bool Readable =
   Semiregular<I> &&
   requires(I& i) {
+    typename ReferenceType<I>;
+    // { *i } -> Same<ReferenceType<I>>;
     typename ValueType<I>;
     { *i } -> const ValueType<I>&;
   };
@@ -130,7 +146,7 @@ namespace concepts {
 
 template <class T>
 using DifferenceType =
-  detail::nvuncvref<meta::eval<difference_type<T>>>;
+  detail::nvuncvref_t<meta::eval<difference_type<T>>>;
 
 } // namespace concepts
 
