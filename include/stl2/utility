@@ -28,8 +28,8 @@ constexpr T exchange(T& t, U&& u)
 
 Movable{T}
 constexpr void swap(T& a, T& b)
-  noexcept(noexcept(b = exchange(a, std::move(b)))) {
-  b = exchange(a, std::move(b));
+  noexcept(noexcept(b = exchange(a, move(b)))) {
+  b = exchange(a, move(b));
 }
 
 template <class T, class U, std::size_t N>
