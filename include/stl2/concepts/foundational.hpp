@@ -70,10 +70,14 @@ concept bool Semiregular =
 
 } // namespace concepts
 
+template <Movable T, AssignableTo<T> U = T>
+constexpr T exchange(T& t, U&& u)
+  noexcept(std::is_nothrow_move_constructible<T>::value &&
+           std::is_nothrow_assignable<T&, U>::value);
+
 Movable{T}
 constexpr void swap(T& a, T& b)
-  noexcept(std::is_nothrow_move_constructible<T>::value &&
-           std::is_nothrow_move_assignable<T>::value);
+  noexcept(noexcept(b = exchange(a, move(b))));
 
 namespace detail {
 
