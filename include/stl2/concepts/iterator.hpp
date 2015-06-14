@@ -28,8 +28,8 @@ template <class>
 struct acceptable_value_type {};
 
 template <class T>
-  requires std::is_object<T>::value;
-struct acceptable_value_type {
+  requires std::is_object<T>::value
+struct acceptable_value_type<T> {
   using type = T;
 };
 
@@ -88,7 +88,7 @@ namespace concepts {
 
 template <class T>
 using ValueType = meta::eval<detail::acceptable_value_type<
-  meta::eval<value_type<remove_cv_t<T>>>
+  meta::eval<value_type<std::remove_cv_t<T>>>
 >>;
 
 template <class I>
