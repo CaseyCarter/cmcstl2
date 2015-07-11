@@ -4,6 +4,7 @@
 #include <stl2/concepts/iterator.hpp>
 
 #include <cstddef>
+#include <memory>
 #include <type_traits>
 
 #include <meta/meta.hpp>
@@ -14,6 +15,7 @@ using stl2::concepts::DifferenceType;
 using stl2::concepts::DistanceType;
 using stl2::concepts::IteratorCategory;
 using stl2::concepts::ReferenceType;
+using stl2::concepts::RvalueReferenceType;
 using stl2::concepts::ValueType;
 
 struct A { int& operator*(); };
@@ -33,6 +35,15 @@ static_assert(same<int&, ReferenceType<B>>(), "");
 static_assert(same<int&, ReferenceType<C>>(), "");
 static_assert(same<int&, ReferenceType<D>>(), "");
 static_assert(same<const int&, ReferenceType<const int*>>(), "");
+
+static_assert(same<int&&, RvalueReferenceType<int*>>(), "");
+static_assert(same<int&&, RvalueReferenceType<int[]>>(), "");
+static_assert(same<int&&, RvalueReferenceType<int[4]>>(), "");
+static_assert(same<int&&, RvalueReferenceType<A>>(), "");
+static_assert(same<int&&, RvalueReferenceType<B>>(), "");
+static_assert(same<int&&, RvalueReferenceType<C>>(), "");
+static_assert(same<int&&, RvalueReferenceType<D>>(), "");
+static_assert(same<const int&&, RvalueReferenceType<const int*>>(), "");
 
 static_assert(same<int, ValueType<int*>>(), "");
 static_assert(same<int, ValueType<int[]>>(), "");
@@ -79,12 +90,15 @@ static_assert(same<ValueType<A>,int>(), "");
 }
 
 namespace writable_test {
+using stl2::concepts::models::move_writable;
 using stl2::concepts::models::writable;
 
 struct A {
   int& operator*() const;
 };
 
+static_assert(move_writable<std::unique_ptr<int>*, std::unique_ptr<int>>(), "");
+static_assert(!writable<std::unique_ptr<int>*, std::unique_ptr<int>>(), "");
 static_assert(!writable<void, int>(), "");
 static_assert(!writable<void*, void>(), "");
 static_assert(writable<int*, int>(), "");
@@ -130,6 +144,7 @@ static_assert(models::weak_iterator<int*>(), "");
 static_assert(models::weak_iterator<const int*>(), "");
 static_assert(!models::weak_iterator<void*>(), "");
 static_assert(models::weak_iterator<A>(), "");
+static_assert(models::same<RvalueReferenceType<A>, double>(), "");
 } // namespace weak_iterator_test
 
 namespace iterator_sentinel_test {

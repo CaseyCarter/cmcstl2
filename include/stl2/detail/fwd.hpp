@@ -5,7 +5,7 @@
 
 #include <stl2/detail/config.hpp>
 
-namespace stl2 { namespace v1 {
+namespace stl2 { inline namespace v1 {
 template <class T>
 constexpr T&& forward(std::remove_reference_t<T>& t) noexcept {
   return static_cast<T&&>(t);

@@ -10,7 +10,7 @@
 /////////////////
 // Range concepts
 //
-namespace stl2 { namespace v1 {
+namespace stl2 { inline namespace v1 {
 
 using std::begin;
 using std::end;

@@ -24,14 +24,15 @@ concept bool Convertible =
     std::is_convertible<T, U>::value);
 
 template <class T>
-concept bool Destructible =
+concept bool Destructible = //() { return
   requires(T& t) {
     { t.~T() } noexcept;
   };
+//}
 
 template <class T>
 concept bool Copyable =
-  Destructible<T> &&
+  Destructible<T>/*()*/ &&
   requires(T& t, T& b, const T& c) {
     T(c);
     T(std::move(c));
@@ -124,7 +125,7 @@ concept bool SwappableReference =
 
 SwappableReference{T, U}
 void swap(T&& t, U&& u)
-  requires Destructible<ReferenceValueType<T>> {
+  requires Destructible<ReferenceValueType<T>>/*()*/ {
   using V = ReferenceValueType<T>;
   V tmp(std::move(t));
   t = static_cast<V>(std::move(u));

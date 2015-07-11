@@ -19,7 +19,7 @@
 #define STL2_IS_BASE_OF(T, U) std::is_base_of<T, U>::value
 #endif
 
-namespace stl2 { namespace v1 { namespace concepts {
+namespace stl2 { inline namespace v1 { namespace concepts {
 
 template <class T, class U>
 concept bool Same =
@@ -32,17 +32,23 @@ concept bool Derived =
 // Types T and U model Derived iff T and U are class types
 // and U is a base of T
 
+//template <class...>
+//concept bool ExplicitlyConvertible() {
+//  return false;
+//}
+
 template <class T, class U>
-concept bool ExplicitlyConvertible =
+concept bool ExplicitlyConvertible() { return
   Same<T, U> ||
   requires(T&& t) {
-    static_cast<U>(forward<T>(t));
+    static_cast<U>(stl2::forward<T>(t));
   };
+}
 
 template <class T, class U>
 concept bool Convertible =
   Same<T, U> ||
-  (ExplicitlyConvertible<T, U> &&
+  (ExplicitlyConvertible<T, U>() &&
     std::is_convertible<T, U>::value);
 
 template <class T, class U>
@@ -64,8 +70,8 @@ concept bool Common =
     typename CommonType<T, U>;
     typename CommonType<U, T>;
     requires Same<CommonType<T, U>, CommonType<U, T>>;
-    requires ExplicitlyConvertible<T, CommonType<T, U>>;
-    requires ExplicitlyConvertible<U, CommonType<T, U>>;
+    requires ExplicitlyConvertible<T, CommonType<T, U>>();
+    requires ExplicitlyConvertible<U, CommonType<T, U>>();
   };
 
 // Same<T, U> subsumes Convertible<T, U> and PubliclyDerived<T, U> and Common<T, U>
@@ -77,9 +83,9 @@ concept bool Common =
 
 template <class T, class U>
 concept bool Assignable =
-  requires(T& t, U&& u) {
-    t = forward<U>(u);
-    requires Same<T&, decltype(t = forward<U>(u))>;
+  requires(T&& t, U&& u) {
+    stl2::forward<T>(t) = stl2::forward<U>(u);
+    requires Same<T&, decltype(stl2::forward<T>(t) = stl2::forward<U>(u))>;
   };
 
 template <class T, class U>
@@ -88,10 +94,21 @@ concept bool AssignableTo =
 
 namespace core {
 
-template <class T, class...Args>
-concept bool Constructible =
-  ExplicitlyConvertible<Args..., T> ||
-  std::is_constructible<T, Args...>::value;
+template <class T, class... Args>
+concept bool Constructible() { return
+  //ExplicitlyConvertible<Args..., T>() ||
+  requires (Args&&... args) {
+    T{ stl2::forward<Args>(args)... };
+  };
+}
+
+template <class T, class U>
+concept bool Constructible() { return
+  ExplicitlyConvertible<U, T>() ||
+  requires (U&& u) {
+    T{ stl2::forward<U>(u) };
+  };
+}
 
 } // namespace core
 
@@ -106,6 +123,11 @@ constexpr bool same() { return false; }
 Same{T, U}
 constexpr bool same() { return true; }
 
+template <class, class>
+constexpr bool assignable() { return false; }
+
+Assignable{T, U}
+constexpr bool assignable() { return true; }
 
 template <class, class>
 constexpr bool convertible() { return false; }
@@ -131,7 +153,7 @@ template <class, class...>
 constexpr bool core_constructible() { return false; }
 
 template <class T, class...Args>
-requires core::Constructible<T, Args...>
+requires core::Constructible<T, Args...>()
 constexpr bool core_constructible() { return false; }
 
 }}}} // namespace stl2::v1::concepts::models

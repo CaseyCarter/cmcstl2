@@ -1,7 +1,7 @@
 // -*- compile-command: "(cd ~/cmcstl2/build && make swap && ./test/swap)" -*-
 
 #include <stl2/concepts/foundational.hpp>
-#include <stl2/utility>
+#include <stl2/utility.hpp>
 
 #include <cassert>
 #include <cstddef>
@@ -10,6 +10,7 @@
 
 namespace swappable_test {
 using stl2::concepts::models::swappable;
+using stl2::is_nothrow_swappable_v;
 using stl2::swap;
 
 static_assert(swappable<int&>(), "");
@@ -21,6 +22,7 @@ static_assert(!swappable<int&, double&>(), "");
 static_assert(!swappable<int(&)[4], bool(&)[4]>(), "");
 static_assert(!swappable<int(&)[], int(&)[]>(), "");
 static_assert(!swappable<int(&)[][4], int(&)[][4]>(), "");
+static_assert(!swappable<int(&)[3][4][1][2], int(&)[4][4][1][2]>(), "");
 
 static_assert(noexcept(swap(stl2::declval<int&>(),
                             stl2::declval<int&>())), "");
@@ -34,6 +36,7 @@ struct A {
 // A is Swappable despite non-Movable
 static_assert(swappable<A&>(), "");
 static_assert(noexcept(swap(stl2::declval<A&>(), stl2::declval<A&>())), "");
+static_assert(is_nothrow_swappable_v<A&, A&>, "");
 
 struct B {
   friend void swap(A&, B&) noexcept {}
@@ -45,19 +48,6 @@ static_assert(swappable<B(&)[1], A(&)[1]>(), "");
 static_assert(swappable<B(&)[1][3], A(&)[1][3]>(), "");
 static_assert(!swappable<B(&)[3][1], A(&)[1][3]>(), "");
 
-#ifdef STL2_SWAPPABLE_POINTERS
-static_assert(swappable<int*,int*>(), "");
-static_assert(swappable<int*,int&>(), "");
-static_assert(swappable<int&,int*>(), "");
-static_assert(noexcept(swap(stl2::declval<int*>(), stl2::declval<int&>())), "");
-static_assert(!swappable<int*&,int&>(), "");
-static_assert(swappable<int(*)[3][2][1], int(&)[3][2][1]>(), "");
-
-static_assert(swappable<A*,B*>(), "");
-static_assert(swappable<A(*)[4], B(&)[4]>(), "");
-
-static_assert(noexcept(swap(stl2::declval<A(*)[4]>(), stl2::declval<B(&)[4]>())), "");
-#endif // STL2_SWAPPABLE_POINTERS
 } // namespace swappable_test
 
 namespace adl_swap_detail {
@@ -179,19 +169,4 @@ int main() {
     CHECK(b[2][0] == 4);
     CHECK(b[2][1] == 5);
   }
-
-#ifdef STL2_SWAPPABLE_POINTERS
-  {
-    struct A {
-      void foo(A& other) {
-        static_assert(swappable<A*,A&>(), "");
-        // adl_swap(this, other); // ICE
-        stl2::swap(this, other);
-      }
-    };
-
-    A a, b;
-    a.foo(b);
-  }
-#endif // STL2_SWAPPABLE_POINTERS
 }

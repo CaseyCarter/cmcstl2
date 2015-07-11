@@ -8,17 +8,36 @@
 #include <stl2/detail/config.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/concepts/foundational.hpp>
+#include <stl2/utility.hpp>
 
 ////////////////////
 // Iterator concepts
 //
-namespace stl2 { namespace v1 { namespace concepts {
+namespace stl2 { inline namespace v1 { namespace concepts {
 
 template <class T>
 using ReferenceType =
   decltype(*declval<T>());
 
 } // namespace concepts
+
+namespace detail {
+template <class R>
+using __iter_move_t =
+  meta::if_<
+    std::is_reference<ReferenceType<R>>,
+    std::remove_reference_t<ReferenceType<R>> &&,
+    std::decay_t<ReferenceType<R>>>;
+}
+
+template <class T>
+detail::__iter_move_t<T> iter_move2(T t)
+  noexcept(noexcept(detail::__iter_move_t<T>(stl2::move(*t))));
+
+namespace concepts {
+template <class T>
+using RvalueReferenceType = decltype(iter_move2(declval<T&>()));
+}
 
 namespace detail {
 
@@ -87,26 +106,75 @@ struct value_type<T> {
 namespace concepts {
 
 template <class T>
-using ValueType = meta::eval<detail::acceptable_value_type<
-  meta::eval<value_type<std::remove_cv_t<T>>>
->>;
+using ValueType =
+  meta::eval<detail::acceptable_value_type<
+    meta::eval<value_type<std::remove_cv_t<T>>>>>;
 
 template <class I>
 concept bool Readable =
   Semiregular<I> &&
   requires(I& i) {
-    typename ReferenceType<I>;
-    // { *i } -> Same<ReferenceType<I>>;
     typename ValueType<I>;
+    typename ReferenceType<I>;
+    typename RvalueReferenceType<I>;
     { *i } -> const ValueType<I>&;
   };
 
 template <class Out, class T>
-concept bool Writable =
+concept bool MoveWritable =
   Semiregular<Out> &&
-  requires(Out& o, T&& t) {
-    *o = stl2::forward<T>(t);
+  requires(Out o, T t) {
+    typename ReferenceType<Out>;
+    *o = stl2::move(t);
   };
+
+template <class Out, class T>
+concept bool Writable =
+  MoveWritable<Out, T> &&
+  requires(Out o, const T& t) {
+    *o = t;
+  };
+} // namespace concepts
+
+namespace detail {
+  template <class In, class Out>
+  concept bool IndirectlyMovable =
+    concepts::Readable<In> &&
+    concepts::Constructible<ValueType<In>, RvalueReferenceType<In>>() &&
+    concepts::MoveWritable<Out, RvalueReferenceType<In>> &&
+    concepts::MoveWritable<Out, ValueType<In>>;
+
+  template <class In, class Out>
+  constexpr bool is_nothrow_indirectly_movable_v = false;
+
+  IndirectlyMovable{In, Out}
+  constexpr bool is_nothrow_indirectly_movable_v =
+    std::is_nothrow_constructible<ValueType<In>, RvalueReferenceType<In>>::value &&
+    std::is_nothrow_assignable<ReferenceType<Out>, RvalueReferenceType<In>>::value &&
+    std::is_nothrow_assignable<ReferenceType<Out>, ValueType<In>>::value;
+
+  template <class In, class Out>
+  struct is_nothrow_indirectly_movable
+    : meta::bool_<is_nothrow_indirectly_movable_v<In, Out>> {};
+
+  template <class In, class Out>
+  using is_nothrow_indirectly_movable_t = meta::_t<is_nothrow_indirectly_movable<In, Out>>;
+}
+
+// iter_swap2
+template <concepts::Readable R1, concepts::Readable R2>
+  requires Swappable<ReferenceType<R1>, ReferenceType<R2>>
+void iter_swap2(R1 r1, R2 r2)
+  noexcept(is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>);
+
+template <concepts::Readable R1, concepts::Readable R2>
+  requires !concepts::Swappable<ReferenceType<R1>, ReferenceType<R2>> &&
+    detail::IndirectlyMovable<R1, R2> && detail::IndirectlyMovable<R2, R1>
+void iter_swap2(R1 r1, R2 r2)
+  noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&
+           detail::is_nothrow_indirectly_movable_v<R2, R1>);
+
+namespace concepts {
 
 template <class I, class Out>
 concept bool IndirectlyAssignable =
@@ -189,7 +257,8 @@ concept bool WeaklyIncrementable =
   requires(I& i) {
     typename DistanceType<I>;
     requires Integral<DistanceType<I>>; // Try without this?
-    ++i; requires Same<I&, decltype(++i)>;
+    ++i;
+    requires Same<I&, decltype(++i)>;
     i++;
   };
 
@@ -198,7 +267,8 @@ concept bool Incrementable =
   WeaklyIncrementable<I> &&
   EqualityComparable<I> &&
   requires(I& i) {
-    i++; requires Same<I, decltype(i++)>;
+    i++;
+    requires Same<I, decltype(i++)>;
   };
 
 } // namespace concepts
@@ -238,7 +308,8 @@ concept bool WeakIterator =
   WeaklyIncrementable<I> &&
   requires(I& i) {
     //{ *i } -> auto&&;
-    *i; requires !detail::Void<decltype(*i)>;
+    *i;
+    requires !detail::Void<decltype(*i)>;
   };
 
 template <class I>
@@ -338,6 +409,12 @@ constexpr bool readable() { return true; }
 
 
 template <class, class>
+constexpr bool move_writable() { return false; }
+
+MoveWritable{O, T}
+constexpr bool move_writable() { return true; }
+
+template <class, class>
 constexpr bool writable() { return false; }
 
 Writable{O, T}
@@ -379,6 +456,34 @@ Sentinel{S, I}
 constexpr bool sentinel() { return true; }
 #endif
 
-}}}} // namespace stl2::v1::concepts::models
+}} // namespace concepts::models
+
+
+template <class R>
+detail::__iter_move_t<R> iter_move2(R r)
+  noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r)))) {
+  return stl2::move(*r);
+}
+
+// iter_swap2
+template <concepts::Readable R1, concepts::Readable R2>
+  requires Swappable<ReferenceType<R1>, ReferenceType<R2>>
+void iter_swap2(R1 r1, R2 r2)
+  noexcept(is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>) {
+  swap(*r1, *r2);
+}
+
+template <concepts::Readable R1, concepts::Readable R2>
+  requires !concepts::Swappable<ReferenceType<R1>, ReferenceType<R2>> &&
+    detail::IndirectlyMovable<R1, R2> && detail::IndirectlyMovable<R2, R1>
+void iter_swap2(R1 r1, R2 r2)
+  noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&
+           detail::is_nothrow_indirectly_movable_v<R2, R1>) {
+  ValueType<R1> tmp = iter_move2(r1);
+  *r1 = iter_move2(r2);
+  *r2 = std::move(tmp);
+}
+
+}} // namespace stl2::v1
 
 #endif // STL2_CONCEPTS_ITERATOR_HPP

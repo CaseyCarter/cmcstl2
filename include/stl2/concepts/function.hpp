@@ -10,7 +10,7 @@
 ////////////////////
 // Function Concepts
 //
-namespace stl2 { namespace v1 { namespace concepts {
+namespace stl2 { inline namespace v1 { namespace concepts {
 
 template <class F, class...Args>
 using ResultType =
@@ -23,7 +23,7 @@ concept bool Function =
     typename ResultType<F, Args...>;
     f((Args&&)(args)...);
     requires Same<ResultType<F, Args...>,
-                  decltype(f(forward<Args>(args)...))>;
+                  decltype(f(stl2::forward<Args>(args)...))>;
   };
 
 template <class F, class...Args>

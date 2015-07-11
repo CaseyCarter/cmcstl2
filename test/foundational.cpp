@@ -1,7 +1,7 @@
 // -*- compile-command: "(cd ~/cmcstl2/build && make foundational && ./test/foundational)" -*-
 
 #include <stl2/concepts/foundational.hpp>
-#include <stl2/utility>
+#include <stl2/utility.hpp>
 
 #include "copymove.hpp"
 #include "simple_test.hpp"
@@ -147,7 +147,7 @@ struct destroy_fn {
   }
 
   template <class T, std::size_t N>
-    requires stl2::Destructible<std::remove_all_extents<T>>
+    requires stl2::Destructible<std::remove_all_extents<T>>()
   void operator()(T (&a)[N]) const noexcept {
     for (auto& i : a) {
       (*this)(i);

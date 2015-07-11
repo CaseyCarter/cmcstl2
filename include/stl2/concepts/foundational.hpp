@@ -6,149 +6,112 @@
 #include <stl2/concepts/core.hpp>
 
 #include <type_traits>
+#include <utility>
 
 ////////////////////////
 // Foundational Concepts
 //
-namespace stl2 { namespace v1 { namespace concepts {
+namespace stl2 { inline namespace v1 { namespace concepts {
 
 template <class T>
-concept bool Destructible =
-  std::is_object<T>::value &&
-  requires(T& t, T* p) {
-    { t.~T() } noexcept;
-    &t; requires Same<T*, decltype(&t)>;
-    delete p;
-    delete[] p;
-  };
+concept bool Destructible() { return
+    std::is_object<T>::value &&
+    requires(T& t, T* p) {
+      { t.~T() } noexcept;
+      &t;
+      requires Same<T*, decltype(&t)>;
+      delete p;
+      delete[] p;
+    };
+}
 
 template <class T, class...Args>
-concept bool Constructible =
-  Destructible<T> &&
-#if 0 // pack expansion bug
+concept bool Constructible() { return
+  Destructible<T>() &&
   requires(Args&&...args) {
-    T{forward<Args>(args)...};
-    new T{forward<Args>(args)...};
-    requires Same<T*,decltype(new T{forward<Args>(args)...})>;
+    T{ stl2::forward<Args>(args)... };
+    new T{ stl2::forward<Args>(args)... };
   };
-#else
-  std::is_constructible<T, Args...>::value;
-#endif
+}
 
 template <class T>
 concept bool MoveConstructible =
-  Destructible<T> &&
-  Constructible<T, T&&>;
+  Constructible<T, T&&>();
 
 template <class T>
 concept bool CopyConstructible =
   MoveConstructible<T> &&
-  Constructible<T, T&> &&
-  Constructible<T, const T&> &&
-  Constructible<T, const T&&>;
+  Constructible<T, T&>() &&
+  Constructible<T, const T&>() &&
+  Constructible<T, const T&&>();
 
 template <class T>
 concept bool Movable =
   MoveConstructible<T> &&
-  Assignable<T, T&&>;
+  Assignable<T&, T&&>;
 
 template <class T>
 concept bool Copyable =
   Movable<T> &&
   CopyConstructible<T> &&
-  Assignable<T, T&> &&
-  Assignable<T, const T&> &&
-  Assignable<T, const T&&>;
+  Assignable<T&, T&> &&
+  Assignable<T&, const T&> &&
+  Assignable<T&, const T&&>;
 
 template <class T>
 concept bool Semiregular =
   Copyable<T> &&
-  Constructible<T> &&
+  Constructible<T>() &&
   requires(std::size_t n) {
-    new T[n]; requires Same<T*, decltype(new T[n])>;
+    new T[n];
+    requires Same<T*, decltype(new T[n])>;
   };
 
 } // namespace concepts
 
-template <Movable T, AssignableTo<T> U = T>
+template <concepts::Movable T, concepts::AssignableTo<T&> U = T>
 constexpr T exchange(T& t, U&& u)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_assignable<T&, U>::value);
 
-Movable{T}
+concepts::Movable{T}
 constexpr void swap(T& a, T& b)
-  noexcept(noexcept(b = exchange(a, move(b))));
+  noexcept(noexcept(b = exchange(a, stl2::move(b))));
 
 namespace detail {
+  constexpr struct __try_swap_fn {
+    template <class T, class U>
+    auto operator()(T &t, U &u) const
+      noexcept(noexcept(swap(t,u)))
+      -> decltype(swap(t,u));
 
-template <class, class>
-struct swappable_array :
-  std::false_type {};
-
-template <class T, class U>
-  requires requires(T& t, U&u) {
-    swap(t, u);
-    swap(u, t);
-  }
-struct swappable_array<T, U> : std::true_type {
-  static constexpr bool nothrow =
-    noexcept(swap(stl2::declval<T&>(),
-                  stl2::declval<U&>()));
-};
+    template <class T, class U, std::size_t N,
+      typename This = __try_swap_fn>
+    auto operator()(T (&t)[N], U (&u)[N]) const
+      noexcept(noexcept(This{}(*t, *u)))
+      -> decltype(This{}(*t, *u));
+  } __try_swap{};
+}
 
 template <class T, class U, std::size_t N>
-struct swappable_array<T[N], U[N]> :
-  swappable_array<T, U> {};
-
-} // namespace detail
-
-template <class T, class U, std::size_t N>
-  requires detail::swappable_array<T, U>::value
+  requires requires (T &t, U &u) { detail::__try_swap(t, u); }
 constexpr void swap(T (&t)[N], U (&u)[N])
-  noexcept(detail::swappable_array<T, U>::nothrow);
-
-#ifdef STL2_SWAPPABLE_POINTERS
-namespace detail {
-
-template <class T, class U>
-concept bool SwappableLvalue =
-  requires(T& t, U& u) {
-    swap(t, u);
-    swap(u, t);
-  };
-
-} // namespace detail
-
-template <class T, class U>
-  requires detail::SwappableLvalue<T, U>
-constexpr void swap(T*&& a, U*&& b)
-  noexcept(noexcept(swap(*a, *b)));
-
-template <class T, class U>
-  requires detail::SwappableLvalue<T, U>
-constexpr void swap(T& a, U*&& b)
-  noexcept(noexcept(swap(a, *b)));
-
-template <class T, class U>
-  requires detail::SwappableLvalue<T, U>
-constexpr void swap(T*&& a, U& b)
-  noexcept(noexcept(swap(*a, b)));
-#endif // STL2_SWAPPABLE_POINTERS
+  noexcept(noexcept(detail::__try_swap(*t, *u)));
 
 namespace concepts {
 
 template <class T, class U = T>
 concept bool Swappable =
   requires (T&& t, U&& u) {
-    swap(forward<T>(t), forward<U>(u));
-    swap(forward<U>(u), forward<T>(t));
+    swap(stl2::forward<T>(t), stl2::forward<U>(u));
+    swap(stl2::forward<U>(u), stl2::forward<T>(t));
   };
 
 template <class B>
 concept bool Boolean =
   Convertible<B, bool> &&
   requires(B&& b1, B&& b2) {
-    //{ !b1 } -> Boolean;
+    // { !b1 } -> Boolean;
     !b1; requires Convertible<decltype(!b1),bool>;
     //{ b1 && b2 } -> Same<bool>;
     b1 && b2; requires Convertible<decltype(b1 && b2),bool>;
@@ -163,11 +126,11 @@ template <class T, class U>
 concept bool EqualityComparable_ =
   requires(T&& t, U&& u) {
 #if 0 // FIXME: ICE
-    { forward<T>(t) == forward<U>(u) } -> Boolean;
-    { forward<T>(t) != forward<U>(u) } -> Boolean;
+    { stl2::forward<T>(t) == stl2::forward<U>(u) } -> Boolean;
+    { stl2::forward<T>(t) != stl2::forward<U>(u) } -> Boolean;
 #else
-    { forward<T>(t) == forward<U>(u) } -> bool;
-    { forward<T>(t) != forward<U>(u) } -> bool;
+    { stl2::forward<T>(t) == stl2::forward<U>(u) } -> bool;
+    { stl2::forward<T>(t) != stl2::forward<U>(u) } -> bool;
 #endif
   };
 
@@ -201,7 +164,7 @@ namespace detail {
 
 template <class T, class U>
 concept bool TotallyOrdered_ =
-  EqualityComparable<T, U> &&
+  concepts::EqualityComparable<T, U> &&
   requires(T&& a, U&& b) {
 #if 0 // FIXME: ICE
     //{ a < b } -> Boolean;
@@ -257,7 +220,7 @@ concept bool Integral =
 
 template <class T>
 concept bool SignedIntegral =
-  Integral<T> && std::is_signed<T>::value;
+  Integral<T> && (T(-1) < T(0));
 
 template <class T>
 concept bool UnsignedIntegral =

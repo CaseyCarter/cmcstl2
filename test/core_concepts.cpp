@@ -1,7 +1,7 @@
 // -*- compile-command: "(cd ~/cmcstl2/build && make core_concepts && ./test/core_concepts)" -*-
 
 #include <stl2/concepts/core.hpp>
-#include <stl2/utility>
+#include <stl2/utility.hpp>
 
 #include <type_traits>
 #include <iostream>
@@ -88,9 +88,11 @@ static_assert(common<B,C>(), "");
 }
 
 namespace constructible_test {
+
 template <class T, class U>
-  requires stl2::core::Constructible<T, U>
+  requires stl2::core::Constructible<T, U>()
 constexpr bool f() { return false; }
+
 template <class T, stl2::Convertible<T> >
 constexpr bool f() { return true; }
 
