@@ -1,11 +1,13 @@
 #ifndef STL2_CONCEPTS_CORE_HPP
 #define STL2_CONCEPTS_CORE_HPP
 
-#include <stl2/detail/config.hpp>
-#include <stl2/detail/fwd.hpp>
+#include <type_traits>
 
 #include <meta/meta.hpp>
-#include <type_traits>
+
+#include <stl2/detail/config.hpp>
+#include <stl2/detail/fwd.hpp>
+#include <stl2/common_type.hpp>
 
 ////////////////
 // Core Concepts
@@ -19,7 +21,7 @@
 #define STL2_IS_BASE_OF(T, U) std::is_base_of<T, U>::value
 #endif
 
-namespace stl2 { inline namespace v1 { namespace concepts {
+namespace stl2 { inline namespace v1 { inline namespace concepts {
 
 template <class T, class U>
 concept bool Same =
@@ -31,11 +33,6 @@ concept bool Derived =
   STL2_IS_BASE_OF(U, T);
 // Types T and U model Derived iff T and U are class types
 // and U is a base of T
-
-//template <class...>
-//concept bool ExplicitlyConvertible() {
-//  return false;
-//}
 
 template <class T, class U>
 concept bool ExplicitlyConvertible() { return
@@ -60,8 +57,7 @@ template <class T, class U>
 using CommonType =
   meta::let<
     meta::if_c<STL2_IS_SAME_AS(T, U), T,
-      meta::defer_trait<std::common_type, T, U>>
-  >;
+      meta::defer_trait<stl2::common_type, T, U>>>;
 
 template <class T, class U>
 concept bool Common =
@@ -94,11 +90,10 @@ concept bool AssignableTo =
 
 namespace core {
 
-template <class T, class... Args>
+template <class T>
 concept bool Constructible() { return
-  //ExplicitlyConvertible<Args..., T>() ||
-  requires (Args&&... args) {
-    T{ stl2::forward<Args>(args)... };
+  requires {
+    T{ };
   };
 }
 
@@ -106,7 +101,14 @@ template <class T, class U>
 concept bool Constructible() { return
   ExplicitlyConvertible<U, T>() ||
   requires (U&& u) {
-    T{ stl2::forward<U>(u) };
+    T{ (U&&)u };
+  };
+}
+
+template <class T, class U, class V, class...Args>
+concept bool Constructible() { return
+  requires (U&& u, V&& v, Args&&...args) {
+    T{ (U&&)u, (V&&)v, (Args&&)args... };
   };
 }
 
@@ -149,12 +151,12 @@ constexpr bool common() { return false; }
 Common{T, U}
 constexpr bool common() { return true; }
 
-template <class, class...>
-constexpr bool core_constructible() { return false; }
-
-template <class T, class...Args>
-requires core::Constructible<T, Args...>()
-constexpr bool core_constructible() { return false; }
+//template <class, class...>
+//constexpr bool core_constructible() { return false; }
+//
+//template <class T, class...Args>
+//requires core::Constructible<T, Args...>()
+//constexpr bool core_constructible() { return false; }
 
 }}}} // namespace stl2::v1::concepts::models
 

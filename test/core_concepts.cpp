@@ -1,10 +1,10 @@
 // -*- compile-command: "(cd ~/cmcstl2/build && make core_concepts && ./test/core_concepts)" -*-
 
+#include <iostream>
+#include <type_traits>
+
 #include <stl2/concepts/core.hpp>
 #include <stl2/utility.hpp>
-
-#include <type_traits>
-#include <iostream>
 
 #include "copymove.hpp"
 #include "simple_test.hpp"

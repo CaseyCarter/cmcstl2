@@ -13,7 +13,7 @@
 ////////////////////
 // Iterator concepts
 //
-namespace stl2 { inline namespace v1 { namespace concepts {
+namespace stl2 { inline namespace v1 { inline namespace concepts {
 
 template <class T>
 using ReferenceType =
