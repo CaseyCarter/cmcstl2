@@ -20,20 +20,20 @@ template <class T>
 using SentinelType = decltype(end(declval<T>()));
 
 template <class T>
-concept bool Range =
-  requires(T&& t) {
+concept bool Range() {
+  return requires(T&& t) {
     begin(t);
     end(t);
     typename IteratorType<T>;
     typename SentinelType<T>;
-    requires Sentinel<SentinelType<T>, IteratorType<T>>;
+    requires Sentinel<SentinelType<T>, IteratorType<T>>();
   };
+}
 
 namespace models {
 
 template <class>
 constexpr bool range() { return false; }
-
 Range{T}
 constexpr bool range() { return true; }
 

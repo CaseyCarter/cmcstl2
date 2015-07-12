@@ -13,7 +13,7 @@ namespace stl2 { inline namespace v1 {
 // exchange and swap
 //
 template <Movable T, class U = T>
-  requires Assignable<T&, U>
+  requires Assignable<T&, U>()
 constexpr T exchange(T& t, U&& u)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_assignable<T&, U>::value) {
@@ -27,8 +27,7 @@ constexpr T exchange(T& t, U&& u)
  * http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
  */
 
-Movable{T}
-constexpr void swap(T& a, T& b)
+constexpr void swap(Movable& a, Movable& b)
   noexcept(noexcept(b = exchange(a, stl2::move(b)))) {
   b = exchange(a, stl2::move(b));
 }
@@ -66,7 +65,7 @@ struct identity {
 };
 
 template <class T = void>
-  requires Same<T, void> || EqualityComparable<T>
+  requires Same<T, void>() || EqualityComparable<T>()
 struct equal_to {
   constexpr auto operator()(const T& a, const T& b) const {
     return a == b;

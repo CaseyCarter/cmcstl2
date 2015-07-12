@@ -104,37 +104,40 @@ using ValueType =
     meta::eval<value_type<std::remove_cv_t<T>>>>>;
 
 template <class I>
-concept bool Readable =
-  Semiregular<I> &&
-  requires(I& i) {
-    typename ValueType<I>;
-    typename ReferenceType<I>;
-    typename RvalueReferenceType<I>;
-    { *i } -> const ValueType<I>&;
-  };
+concept bool Readable() {
+  return Semiregular<I>() &&
+    requires (I& i) {
+      typename ValueType<I>;
+      typename ReferenceType<I>;
+      typename RvalueReferenceType<I>;
+      { *i } -> const ValueType<I>&;
+    };
+}
 
 template <class Out, class T>
-concept bool MoveWritable =
-  Semiregular<Out> &&
-  requires(Out o, T t) {
-    typename ReferenceType<Out>;
-    *o = stl2::move(t);
-  };
+concept bool MoveWritable() {
+  return Semiregular<Out>() &&
+    requires (Out o, T t) {
+      typename ReferenceType<Out>;
+      *o = stl2::move(t);
+    };
+}
 
 template <class Out, class T>
-concept bool Writable =
-  MoveWritable<Out, T> &&
-  requires(Out o, const T& t) {
-    *o = t;
-  };
+concept bool Writable() {
+  return MoveWritable<Out, T>() &&
+    requires (Out o, const T& t) {
+      *o = t;
+    };
+}
 
 namespace detail {
   template <class In, class Out>
   concept bool IndirectlyMovable =
-    Readable<In> &&
+    Readable<In>() &&
     Constructible<ValueType<In>, RvalueReferenceType<In>>() &&
-    MoveWritable<Out, RvalueReferenceType<In>> &&
-    MoveWritable<Out, ValueType<In>>;
+    MoveWritable<Out, RvalueReferenceType<In>>() &&
+    MoveWritable<Out, ValueType<In>>();
 
   template <class In, class Out>
   constexpr bool is_nothrow_indirectly_movable_v = false;
@@ -155,27 +158,30 @@ namespace detail {
 
 // iter_swap2
 template <Readable R1, Readable R2>
-  requires Swappable<ReferenceType<R1>, ReferenceType<R2>>
+  requires Swappable<ReferenceType<R1>, ReferenceType<R2>>()
 void iter_swap2(R1 r1, R2 r2)
   noexcept(is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>);
 
 template <Readable R1, Readable R2>
-  requires !Swappable<ReferenceType<R1>, ReferenceType<R2>> &&
+  requires !Swappable<ReferenceType<R1>, ReferenceType<R2>>() &&
     detail::IndirectlyMovable<R1, R2> && detail::IndirectlyMovable<R2, R1>
 void iter_swap2(R1 r1, R2 r2)
   noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&
            detail::is_nothrow_indirectly_movable_v<R2, R1>);
 
+#if 0
 template <class I, class Out>
 concept bool IndirectlyAssignable =
   Readable<I> &&
   Writable<Out, ReferenceType<I>>;
+#endif
 
 template <class I1, class I2 = I1>
-concept bool IndirectlySwappable =
-  Readable<I1> &&
-  Readable<I2> &&
-  Swappable<ReferenceType<I1>, ReferenceType<I2>>;
+concept bool IndirectlySwappable() {
+  return Readable<I1> &&
+    Readable<I2> &&
+    Swappable<ReferenceType<I1>, ReferenceType<I2>>();
+}
 
 template <class> struct difference_type {};
 
@@ -186,7 +192,7 @@ struct difference_type<T> { using type = typename T::difference_type; };
 
 template <class T>
   requires !detail::HasDifferenceType<T> &&
-    requires(T& a, T& b) {
+    requires (T& a, T& b) {
       a - b;
       requires !detail::Void<decltype(a - b)>;
     }
@@ -208,7 +214,7 @@ template <class T>
 concept bool IntegralDifference =
   requires {
     typename DifferenceType<T>;
-    requires Integral<DifferenceType<T>>;
+    requires Integral<DifferenceType<T>>();
   };
 
 template <class T>
@@ -234,24 +240,26 @@ using DistanceType =
   meta::eval<distance_type<T>>;
 
 template <class I>
-concept bool WeaklyIncrementable =
-  Semiregular<I> &&
-  requires(I& i) {
-    typename DistanceType<I>;
-    requires Integral<DistanceType<I>>; // Try without this?
-    ++i;
-    requires Same<I&, decltype(++i)>;
-    i++;
-  };
+concept bool WeaklyIncrementable() {
+  return Semiregular<I>() &&
+    requires (I& i) {
+      typename DistanceType<I>;
+      requires Integral<DistanceType<I>>();
+      ++i;
+      requires Same<I&, decltype(++i)>();
+      i++;
+    };
+}
 
 template <class I>
-concept bool Incrementable =
-  WeaklyIncrementable<I> &&
-  EqualityComparable<I> &&
-  requires(I& i) {
-    i++;
-    requires Same<I, decltype(i++)>;
-  };
+concept bool Incrementable() {
+  return WeaklyIncrementable<I>() &&
+    EqualityComparable<I>() &&
+    requires (I& i) {
+      i++;
+      requires Same<I, decltype(i++)>();
+    };
+}
 
 struct weak_input_iterator_tag {};
 struct input_iterator_tag :
@@ -282,160 +290,153 @@ using IteratorCategory =
   meta::eval<iterator_category<T>>;
 
 template <class I>
-concept bool WeakIterator =
-  WeaklyIncrementable<I> &&
-  requires(I& i) {
-    //{ *i } -> auto&&;
-    *i;
-    requires !detail::Void<decltype(*i)>;
-  };
+concept bool WeakIterator() {
+  return WeaklyIncrementable<I>() &&
+    requires (I& i) {
+      //{ *i } -> auto&&;
+      *i;
+      requires !detail::Void<decltype(*i)>;
+    };
+}
 
 template <class I>
-concept bool Iterator =
-  WeakIterator<I> &&
-  EqualityComparable<I>;
+concept bool Iterator() {
+  return WeakIterator<I>() &&
+    EqualityComparable<I>();
+}
 
 template <class S, class I>
-concept bool Sentinel =
-  Iterator<I> &&
-  Regular<S> &&
-  EqualityComparable<I, S>;
+concept bool Sentinel() {
+  return Iterator<I>() &&
+    Regular<S>() &&
+    EqualityComparable<I, S>();
+}
 
 template <class I>
-concept bool WeakInputIterator =
-  WeakIterator<I> &&
-  Readable<I> &&
-  requires(I i) {
-    typename IteratorCategory<I>;
-    Derived<IteratorCategory<I>, weak_input_iterator_tag>;
-    //{ i++ } -> Readable;
-    requires Readable<decltype(i++)>;
-    requires Same<ValueType<I>, ValueType<decltype(i++)>>;
-  };
+concept bool WeakInputIterator() {
+  return WeakIterator<I>() &&
+    Readable<I>() &&
+    requires (I i) {
+      typename IteratorCategory<I>;
+      Derived<IteratorCategory<I>, weak_input_iterator_tag>();
+      //{ i++ } -> Readable;
+      requires Readable<decltype(i++)>();
+      requires Same<ValueType<I>, ValueType<decltype(i++)>>();
+    };
+}
 
 template <class I>
-concept bool InputIterator =
-  WeakInputIterator<I> &&
-  Iterator<I> &&
-  Derived<IteratorCategory<I>, input_iterator_tag>;
+concept bool InputIterator() {
+  return WeakInputIterator<I>() &&
+    Iterator<I>() &&
+    Derived<IteratorCategory<I>, input_iterator_tag>();
+}
 
 template <class I, class T>
-concept bool WeakOutputIterator =
-  WeakIterator<I> &&
-  Writable<I, T>;
+concept bool WeakOutputIterator() {
+  return WeakIterator<I>() &&
+    Writable<I, T>();
+}
 
 template <class I, class T>
-concept bool OutputIterator =
-  WeakOutputIterator<I, T> &&
-  Iterator<I>;
+concept bool OutputIterator() {
+  return WeakOutputIterator<I, T>() &&
+    Iterator<I>();
+}
 
 template <class I>
-concept bool ForwardIterator =
-  InputIterator<I> &&
-  Incrementable<I> &&
-  Derived<IteratorCategory<I>, forward_iterator_tag>;
+concept bool ForwardIterator() {
+  return InputIterator<I>() &&
+    Incrementable<I>() &&
+    Derived<IteratorCategory<I>, forward_iterator_tag>();
+}
 
 template <class I>
-concept bool BidirectionalIterator =
-  ForwardIterator<I> &&
-  Derived<IteratorCategory<I>, bidirectional_iterator_tag> &&
-  requires(I i) {
-    --i; requires Same<I&, decltype(--i)>;
-    i--; requires Same<I, decltype(i--)>;
-  };
+concept bool BidirectionalIterator() {
+  return ForwardIterator<I>() &&
+    Derived<IteratorCategory<I>, bidirectional_iterator_tag>() &&
+    requires (I i) {
+      --i; requires Same<I&, decltype(--i)>();
+      i--; requires Same<I, decltype(i--)>();
+    };
+}
 
 template <class I, class S = I>
-concept bool SizedIteratorRange =
-  Sentinel<S, I> &&
-  requires(I i, S s) {
-    typename DifferenceType<I>;
-    // Common<DifferenceType<I>, DistanceType<I>> ??
-    { i - i } -> DifferenceType<I>;
-    { s - s } -> DifferenceType<I>;
-    { s - i } -> DifferenceType<I>;
-    { i - s } -> DifferenceType<I>;
-  };
+concept bool SizedIteratorRange() {
+  return Sentinel<S, I>() &&
+    requires (I i, S s) {
+      typename DifferenceType<I>;
+      // Common<DifferenceType<I>, DistanceType<I>> ??
+      { i - i } -> DifferenceType<I>;
+      { s - s } -> DifferenceType<I>;
+      { s - i } -> DifferenceType<I>;
+      { i - s } -> DifferenceType<I>;
+    };
+}
 
 template <class I>
-concept bool RandomAccessIterator =
-  BidirectionalIterator<I> &&
-  Derived<IteratorCategory<I>, random_access_iterator_tag> &&
-  TotallyOrdered<I> &&
-  SizedIteratorRange<I> &&
-  requires(I i, I j, DifferenceType<I> n) {
-    i += n; requires Same<I&, decltype(i += n)>;
-    i + n; requires Same<I, decltype(i + n)>;
-    n + i; requires Same<I, decltype(n + i)>;
-    i -= n; requires Same<I&, decltype(i -= n)>;
-    i - n; requires Same<I, decltype(i - n)>;
-    i[n]; requires Same<ReferenceType<I>,decltype(i[n])>;
-  };
+concept bool RandomAccessIterator() {
+  return BidirectionalIterator<I>() &&
+    Derived<IteratorCategory<I>, random_access_iterator_tag>() &&
+    TotallyOrdered<I>() &&
+    SizedIteratorRange<I>() &&
+    requires (I i, I j, DifferenceType<I> n) {
+      i += n; requires Same<I&, decltype(i += n)>();
+      i + n; requires Same<I, decltype(i + n)>();
+      n + i; requires Same<I, decltype(n + i)>();
+      i -= n; requires Same<I&, decltype(i -= n)>();
+      i - n; requires Same<I, decltype(i - n)>();
+      i[n]; requires Same<ReferenceType<I>,decltype(i[n])>();
+    };
+}
 
-template <class I>
-concept bool ContiguousIterator =
-  RandomAccessIterator<I> &&
-  Derived<IteratorCategory<I>, contiguous_iterator_tag> &&
-  std::is_reference<ReferenceType<I>>::value;
+// ContiguousIterator?
 
 namespace models {
 
 template <class>
 constexpr bool readable() { return false; }
-
 Readable{T}
 constexpr bool readable() { return true; }
 
-
 template <class, class>
 constexpr bool move_writable() { return false; }
-
 MoveWritable{O, T}
 constexpr bool move_writable() { return true; }
 
 template <class, class>
 constexpr bool writable() { return false; }
-
 Writable{O, T}
 constexpr bool writable() { return true; }
 
-
 template <class>
 constexpr bool weakly_incrementable() { return false; }
-
 WeaklyIncrementable{T}
 constexpr bool weakly_incrementable() { return true; }
 
-
 template <class>
 constexpr bool incrementable() { return false; }
-
 Incrementable{T}
 constexpr bool incrementable() { return true; }
 
-
 template <class>
 constexpr bool weak_iterator() { return false; }
-
 WeakIterator{T}
 constexpr bool weak_iterator() { return true; }
 
-
 template <class>
 constexpr bool iterator() { return false; }
-
 Iterator{T}
 constexpr bool iterator() { return true; }
 
 #if 0 // FIXME: explodes memory
 template <class, class>
 constexpr bool sentinel() { return false; }
-
 Sentinel{S, I}
 constexpr bool sentinel() { return true; }
 #endif
 
 } // namespace models
-
 
 template <class R>
 detail::__iter_move_t<R> iter_move2(R r)
@@ -445,14 +446,14 @@ detail::__iter_move_t<R> iter_move2(R r)
 
 // iter_swap2
 template <Readable R1, Readable R2>
-  requires Swappable<ReferenceType<R1>, ReferenceType<R2>>
+  requires Swappable<ReferenceType<R1>, ReferenceType<R2>>()
 void iter_swap2(R1 r1, R2 r2)
   noexcept(is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>) {
   swap(*r1, *r2);
 }
 
 template <Readable R1, Readable R2>
-  requires !Swappable<ReferenceType<R1>, ReferenceType<R2>> &&
+  requires !Swappable<ReferenceType<R1>, ReferenceType<R2>>() &&
     detail::IndirectlyMovable<R1, R2> && detail::IndirectlyMovable<R2, R1>
 void iter_swap2(R1 r1, R2 r2)
   noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&

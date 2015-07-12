@@ -78,21 +78,21 @@ struct array {
 };
 
 template <class T, class U, std::size_t N>
-  requires stl2::Swappable<T&, U&>
+  requires stl2::Swappable<T&, U&>()
 void swap(array<T, N>& a, array<U, N>& b)
   noexcept(noexcept(adl_swap(a.elements_, b.elements_))) {
   adl_swap(a.elements_, b.elements_);
 }
 
 template <class T, class U, std::size_t N>
-  requires stl2::Swappable<T&, U&>
+  requires stl2::Swappable<T&, U&>()
 void swap(array<T, N>& a, U (&b)[N])
   noexcept(noexcept(adl_swap(a.elements_, b))) {
   adl_swap(a.elements_, b);
 }
 
 template <class T, class U, std::size_t N>
-  requires stl2::Swappable<T&, U&>
+  requires stl2::Swappable<T&, U&>()
 void swap(T (&b)[N], array<U, N>& a)
   noexcept(noexcept(adl_swap(a.elements_, b))) {
   adl_swap(a.elements_, b);
