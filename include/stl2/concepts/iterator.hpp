@@ -111,16 +111,16 @@ template <class Out, class T>
 concept bool MoveWritable() {
   return Semiregular<Out>() &&
     detail::Dereferencable<Out> &&
-    requires (const Out& o, T&& t) {
-      *o = stl2::move(t);
+    requires (Out& o, T&& t) {
+      *o = stl2::move(t); // not equality preserving
     };
 }
 
 template <class Out, class T>
 concept bool Writable() {
   return MoveWritable<Out, T>() &&
-    requires (const Out& o, const T& t) {
-      *o = t;
+    requires (Out& o, const T& t) {
+      *o = t; // not equality preserving
     };
 }
 
@@ -214,15 +214,15 @@ concept bool WeaklyIncrementable() {
   return Semiregular<I>() &&
     requires (I& i) {
       typename DifferenceType<I>;
-      STL2_EXACT_TYPE_CONSTRAINT(++i, I&);
-      i++;
+      STL2_EXACT_TYPE_CONSTRAINT(++i, I&); // not equality preserving
+      i++; // not equality preserving
     };
 }
 
 template <class I>
 concept bool Incrementable() {
   return WeaklyIncrementable<I>() &&
-    EqualityComparable<I>() &&
+    Regular<I>() &&
     requires (I& i) {
       STL2_EXACT_TYPE_CONSTRAINT(i++, I);
     };
