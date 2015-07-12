@@ -40,9 +40,15 @@ namespace ext {
 template <class T, class U>
 concept bool ExplicitlyConvertible() {
   return Same<T, U>() ||
-    requires(T&& t) {
+    requires (T&& t) {
       static_cast<U>(stl2::forward<T>(t));
     };
+}
+
+template <class T, class U>
+concept bool ImplicitlyConvertible() {
+  return Same<T, U>() ||
+    std::is_convertible<T, U>::value;
 }
 
 } // namespace ext
@@ -54,9 +60,8 @@ concept bool ExplicitlyConvertible() {
 // conversion with equal results.
 template <class T, class U>
 concept bool Convertible() {
-  return Same<T, U>() ||
-    (ext::ExplicitlyConvertible<T, U>() &&
-      std::is_convertible<T, U>::value);
+  return ext::ExplicitlyConvertible<T, U>() &&
+    ext::ImplicitlyConvertible<T, U>();
 }
 
 namespace ext {
@@ -97,7 +102,7 @@ concept bool Common() {
 
 template <class T, class U>
 concept bool Assignable() {
-  return requires(T&& t, U&& u) {
+  return requires (T&& t, U&& u) {
     stl2::forward<T>(t) = stl2::forward<U>(u);
     requires Same<T&, decltype(stl2::forward<T>(t) = stl2::forward<U>(u))>();
   };
@@ -108,7 +113,7 @@ namespace ext { namespace core {
 template <class T>
 concept bool Constructible() {
   return requires {
-    T{ };
+    T{ }; // not equality preserving
   };
 }
 
@@ -116,14 +121,14 @@ template <class T, class U>
 concept bool Constructible() {
   return ExplicitlyConvertible<U, T>() ||
     requires (U&& u) {
-      T{ (U&&)u };
+      T{ (U&&)u }; // not equality preserving
     };
 }
 
 template <class T, class U, class V, class...Args>
 concept bool Constructible() {
   return requires (U&& u, V&& v, Args&&...args) {
-    T{ (U&&)u, (V&&)v, (Args&&)args... };
+    T{ (U&&)u, (V&&)v, (Args&&)args... }; // not equality preserving
   };
 }
 
