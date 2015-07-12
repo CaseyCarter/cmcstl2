@@ -1,9 +1,5 @@
 // -*- compile-command: "(cd ~/cmcstl2/build && make iterator && ./test/concepts/iterator)" -*-
 
-#if 1
-#error BOOM!
-#else
-
 #include <stl2/concepts/core.hpp>
 #include <stl2/concepts/iterator.hpp>
 
@@ -71,8 +67,8 @@ static_assert(!meta::has_type<stl2::difference_type<void*>>(), "");
 static_assert(same<int, DifferenceType<int>>(), "");
 static_assert(same<unsigned, DistanceType<int>>(), "");
 
-static_assert(same<IteratorCategory<int*>, stl2::contiguous_iterator_tag>(), "");
-static_assert(same<IteratorCategory<const int*>, stl2::contiguous_iterator_tag>(), "");
+static_assert(same<IteratorCategory<int*>, stl2::ext::contiguous_iterator_tag>(), "");
+static_assert(same<IteratorCategory<const int*>, stl2::ext::contiguous_iterator_tag>(), "");
 static_assert(same<IteratorCategory<D>, stl2::forward_iterator_tag>(), "");
 } // namespace associated_type_test
 
@@ -183,7 +179,5 @@ static_assert(!models::sentinel<void*, void*>(), "");
 static_assert(models::sentinel<A, A>(), "");
 #endif
 } // namespace iterator_sentinel_test
-
-#endif
 
 int main() {}

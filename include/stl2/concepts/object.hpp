@@ -22,8 +22,8 @@ concept bool Destructible() {
   return std::is_object<T>::value &&
     requires (T& t, const T& ct, T* const p) {
       { t.~T() } noexcept;
-      &t; requires Same<T*, decltype(&t)>(); // not equality preserving
-      &ct; requires Same<const T*, decltype(&ct)>(); // not equality preserving
+      STL2_EXACT_TYPE_CONSTRAINT(&t, T*); // not equality preserving
+      STL2_EXACT_TYPE_CONSTRAINT(&ct, const T*); // not equality preserving
       delete p;
       delete[] p;
     };
@@ -147,6 +147,8 @@ concept bool Swappable() {
 }
 
 #if 0
+namespace ext {
+
 template <class T>
 concept bool Scalar() {
   return std::is_scalar<T>::value && Regular<T>();
@@ -157,9 +159,11 @@ concept bool Arithmetic() {
   return std::is_arithmetic<T>::value && Scalar<T>() && TotallyOrdered<T>();
 }
 
+}
+
 template <class T>
 concept bool Integral() {
-  return std::is_integral<T>::value && Arithmetic<T>();
+  return std::is_integral<T>::value && ext::Arithmetic<T>();
 }
 
 #else

@@ -16,25 +16,28 @@
 //
 namespace stl2 { inline namespace v1 {
 
-template <class T>
+template <class R>
 using ReferenceType =
-  decltype(*declval<T>());
+  decltype(*declval<R>());
 
 namespace detail {
+
 template <class R>
 using __iter_move_t =
   meta::if_<
     std::is_reference<ReferenceType<R>>,
     std::remove_reference_t<ReferenceType<R>> &&,
     std::decay_t<ReferenceType<R>>>;
+
 }
 
-template <class T>
-detail::__iter_move_t<T> iter_move2(T t)
-  noexcept(noexcept(detail::__iter_move_t<T>(stl2::move(*t))));
+template <class R>
+detail::__iter_move_t<R> iter_move2(R r)
+  noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r))));
 
-template <class T>
-using RvalueReferenceType = decltype(iter_move2(declval<T&>()));
+template <class R>
+using RvalueReferenceType =
+  decltype(iter_move2(declval<R>()));
 
 namespace detail {
 
@@ -54,13 +57,16 @@ concept bool Void =
   std::is_void<T>::value;
 
 template <class T>
-struct nonvoid { using type = T; };
+struct nonvoid {
+  using type = T;
+};
 
 Void{T}
 struct nonvoid<T> {};
 
 template <class T>
-using nvuncvref_t = meta::_t<nonvoid<uncvref_t<T>>>;
+using nvuncvref_t =
+  meta::_t<nonvoid<uncvref_t<T>>>;
 
 template <class T>
 concept bool MemberValueType =
@@ -155,8 +161,12 @@ namespace detail {
     : meta::bool_<is_nothrow_indirectly_movable_v<In, Out>> {};
 
   template <class In, class Out>
-  using is_nothrow_indirectly_movable_t = meta::_t<is_nothrow_indirectly_movable<In, Out>>;
+  using is_nothrow_indirectly_movable_t =
+    meta::_t<is_nothrow_indirectly_movable<In, Out>>;
 }
+
+#define CASEYBROKEITERSWAP 1
+#if !CASEYBROKEITERSWAP
 
 // iter_swap2
 template <Readable R1, Readable R2>
@@ -171,11 +181,6 @@ void iter_swap2(R1 r1, R2 r2)
   noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&
            detail::is_nothrow_indirectly_movable_v<R2, R1>);
 
-#if 0
-template <class I, class Out>
-concept bool IndirectlyAssignable =
-  Readable<I> &&
-  Writable<Out, ReferenceType<I>>;
 #endif
 
 template <class I1, class I2 = I1>
@@ -189,8 +194,14 @@ template <class> struct difference_type {};
 
 template <> struct difference_type<void*> {};
 
+template <> struct difference_type<std::nullptr_t> {
+  using type = std::ptrdiff_t;
+};
+
 template <detail::MemberDifferenceType T>
-struct difference_type<T> { using type = typename T::difference_type; };
+struct difference_type<T> {
+  using type = typename T::difference_type;
+};
 
 template <class T>
   requires !detail::MemberDifferenceType<T> &&
@@ -200,11 +211,6 @@ template <class T>
     }
 struct difference_type<T> :
   std::remove_cv<decltype(declval<T>() - declval<T>())> {};
-
-template <>
-struct difference_type<std::nullptr_t> {
-  using type = std::ptrdiff_t;
-};
 
 template <class T>
 using DifferenceType =
@@ -247,8 +253,7 @@ concept bool WeaklyIncrementable() {
     requires (I& i) {
       typename DistanceType<I>;
       requires Integral<DistanceType<I>>();
-      ++i;
-      requires Same<I&, decltype(++i)>();
+      STL2_EXACT_TYPE_CONSTRAINT(++i, I&);
       i++;
     };
 }
@@ -258,8 +263,7 @@ concept bool Incrementable() {
   return WeaklyIncrementable<I>() &&
     EqualityComparable<I>() &&
     requires (I& i) {
-      i++;
-      requires Same<I, decltype(i++)>();
+      STL2_EXACT_TYPE_CONSTRAINT(i++, I);
     };
 }
 
@@ -324,8 +328,7 @@ concept bool WeakInputIterator() {
     requires (I i) {
       typename IteratorCategory<I>;
       Derived<IteratorCategory<I>, weak_input_iterator_tag>();
-      //{ i++ } -> Readable;
-      requires Readable<decltype(i++)>();
+      STL2_DEDUCTION_CONSTRAINT(i++, Readable);
       requires Same<ValueType<I>, ValueType<decltype(i++)>>();
     };
 }
@@ -361,8 +364,8 @@ concept bool BidirectionalIterator() {
   return ForwardIterator<I>() &&
     Derived<IteratorCategory<I>, bidirectional_iterator_tag>() &&
     requires (I i) {
-      --i; requires Same<I&, decltype(--i)>();
-      i--; requires Same<I, decltype(i--)>();
+      STL2_EXACT_TYPE_CONSTRAINT(--i, I&);
+      STL2_EXACT_TYPE_CONSTRAINT(i--, I);
     };
 }
 
@@ -385,19 +388,26 @@ concept bool RandomAccessIterator() {
     Derived<IteratorCategory<I>, random_access_iterator_tag>() &&
     TotallyOrdered<I>() &&
     SizedIteratorRange<I>() &&
-    requires (I i, I j, DifferenceType<I> n) {
-      i += n; requires Same<I&, decltype(i += n)>();
-      i + n; requires Same<I, decltype(i + n)>();
-      n + i; requires Same<I, decltype(n + i)>();
-      i -= n; requires Same<I&, decltype(i -= n)>();
-      i - n; requires Same<I, decltype(i - n)>();
-      i[n]; requires Same<ReferenceType<I>,decltype(i[n])>();
+    requires (I i, const I j, DifferenceType<I> n) {
+      STL2_EXACT_TYPE_CONSTRAINT(i += n, I&);
+      STL2_EXACT_TYPE_CONSTRAINT(j + n, I);
+      STL2_EXACT_TYPE_CONSTRAINT(n + j, I);
+      STL2_EXACT_TYPE_CONSTRAINT(i -= n, I&);
+      STL2_EXACT_TYPE_CONSTRAINT(j - n, I);
+      STL2_EXACT_TYPE_CONSTRAINT(j[n], ReferenceType<I>);
     };
 }
 
-// ContiguousIterator?
+namespace ext {
 
-namespace ext { namespace models {
+template <class I>
+concept bool ContiguousIterator() {
+  return RandomAccessIterator<I>() &&
+    Derived<IteratorCategory<I>, contiguous_iterator_tag>() &&
+    std::is_reference<ReferenceType<I>>::value; // or something
+}
+
+namespace models {
 
 template <class>
 constexpr bool readable() { return false; }
@@ -449,6 +459,8 @@ detail::__iter_move_t<R> iter_move2(R r)
   return stl2::move(*r);
 }
 
+#if !CASEYBROKEITERSWAP
+
 // iter_swap2
 template <Readable R1, Readable R2>
   requires Swappable<ReferenceType<R1>, ReferenceType<R2>>()
@@ -467,6 +479,8 @@ void iter_swap2(R1 r1, R2 r2)
   *r1 = iter_move2(r2);
   *r2 = std::move(tmp);
 }
+
+#endif
 
 }} // namespace stl2::v1
 

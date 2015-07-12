@@ -11,22 +11,22 @@ namespace stl2 { inline namespace v1 {
 
 template <class B>
 concept bool Boolean() {
-  return Convertible<B, bool>() &&
-    requires (const B& b1, const B& b2, const bool a) {
-      !b1; requires Convertible<decltype(!b1), bool>();
-      b1 && b2; requires Same<decltype(b1 && b2), bool>();
-      b1 && a; requires Same<decltype(b1 && a), bool>();
-      a && b2; requires Same<decltype(a && b2), bool>();
-      b1 || b2; requires Same<decltype(b1 || b2), bool>();
-      b1 || a; requires Same<decltype(b1 || a), bool>();
-      a || b2; requires Same<decltype(a || b2), bool>();
-      b1 == b2; requires Convertible<decltype(b1 == b2), bool>();
-      b1 == a; requires Convertible<decltype(b1 == a), bool>();
-      a == b2; requires Convertible<decltype(a == b2), bool>();
-      b1 != b2; requires Convertible<decltype(b1 != b2), bool>();
-      b1 != a; requires Convertible<decltype(b1 != a), bool>();
-      a != b2; requires Convertible<decltype(a != b2), bool>();
-    };
+  return requires (const B& b1, const B& b2, const bool a) {
+    STL2_CONVERSION_CONSTRAINT(b1, bool);
+    STL2_CONVERSION_CONSTRAINT(!b1, bool);
+    STL2_EXACT_TYPE_CONSTRAINT(b1 && b2, bool);
+    STL2_EXACT_TYPE_CONSTRAINT(b1 && a, bool);
+    STL2_EXACT_TYPE_CONSTRAINT(a && b2, bool);
+    STL2_EXACT_TYPE_CONSTRAINT(b1 || b2, bool);
+    STL2_EXACT_TYPE_CONSTRAINT(b1 || a, bool);
+    STL2_EXACT_TYPE_CONSTRAINT(a || b2, bool);
+    STL2_CONVERSION_CONSTRAINT(b1 == b2, bool);
+    STL2_CONVERSION_CONSTRAINT(b1 == a, bool);
+    STL2_CONVERSION_CONSTRAINT(a == b2, bool);
+    STL2_CONVERSION_CONSTRAINT(b1 != b2, bool);
+    STL2_CONVERSION_CONSTRAINT(b1 != a, bool);
+    STL2_CONVERSION_CONSTRAINT(a != b2, bool);
+  };
 }
 
 namespace detail {
@@ -35,8 +35,8 @@ template <class T, class U>
 concept bool EqualityComparable_ =
   requires (const T& t, const U& u) {
 #if 0 // FIXME: ICE
-    { t == u } -> Boolean;
-    { t != u } -> Boolean;
+    STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
+    STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
 #else
     { t == u } -> bool;
     { t != u } -> bool;
@@ -82,10 +82,10 @@ concept bool TotallyOrdered_ =
   EqualityComparable_<T, U> &&
   requires (const T& a, const U& b) {
 #if 0 // FIXME: ICE
-    //{ a < b } -> Boolean;
-    //{ a > b } -> Boolean;
-    //{ a <= b } -> Boolean;
-    //{ a >= b } -> Boolean;
+    STL2_DEDUCTION_CONSTRAINT(a < b, Boolean);
+    STL2_DEDUCTION_CONSTRAINT(a > b, Boolean);
+    STL2_DEDUCTION_CONSTRAINT(a <= b, Boolean);
+    STL2_DEDUCTION_CONSTRAINT(a >= b, Boolean);
 #else
     { a < b } -> bool;
     { a > b } -> bool;

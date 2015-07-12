@@ -55,7 +55,7 @@ concept bool ExplicitlyConvertible() {
 template <class T, class U>
 concept bool ImplicitlyConvertible() {
   return Same<T, U>() ||
-    std::is_convertible<T, U>::value;
+    std::is_convertible<T, U>::value; // Maybe { t } -> U ?
 }
 
 } // namespace ext
@@ -106,8 +106,7 @@ concept bool Common() {
 template <class T, class U>
 concept bool Assignable() {
   return requires (T&& t, U&& u) {
-    stl2::forward<T>(t) = stl2::forward<U>(u);
-    requires Same<T&, decltype(stl2::forward<T>(t) = stl2::forward<U>(u))>();
+    STL2_EXACT_TYPE_CONSTRAINT(stl2::forward<T>(t) = stl2::forward<U>(u), T&);
   };
 }
 
