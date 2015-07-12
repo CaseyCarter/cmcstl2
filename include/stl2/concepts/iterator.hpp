@@ -43,30 +43,17 @@ namespace detail {
 
 using meta::detail::uncvref_t;
 
-template <class>
-struct acceptable_value_type {};
+template <class T>
+concept bool AcceptableValueType =
+  std::is_object<T>::value && ! std::is_array<T>::value;
 
 template <class T>
-  requires (std::is_object<T>::value && !std::is_array<T>::value)
-struct acceptable_value_type<T> {
-  using type = T;
-};
+concept bool NonVoid =
+  !std::is_void<T>::value;
 
 template <class T>
-concept bool Void =
-  std::is_void<T>::value;
-
-template <class T>
-struct nonvoid {
-  using type = T;
-};
-
-Void{T}
-struct nonvoid<T> {};
-
-template <class T>
-using nvuncvref_t =
-  meta::_t<nonvoid<uncvref_t<T>>>;
+  requires NonVoid<uncvref_t<T>>
+using nvuncvref_t = uncvref_t<T>;
 
 template <class T>
 concept bool MemberValueType =
@@ -107,9 +94,9 @@ struct value_type<T> {
 };
 
 template <class T>
+  requires detail::AcceptableValueType<meta::_t<value_type<std::remove_cv_t<T>>>>
 using ValueType =
-  meta::_t<detail::acceptable_value_type<
-    meta::_t<value_type<std::remove_cv_t<T>>>>>;
+  meta::_t<value_type<std::remove_cv_t<T>>>;
 
 template <class I>
 concept bool Readable() {
@@ -205,54 +192,22 @@ struct difference_type<T> {
 
 template <class T>
   requires !detail::MemberDifferenceType<T> &&
-    requires (T& a, T& b) {
+    requires (const T& a, const T& b) {
       a - b;
-      requires !detail::Void<decltype(a - b)>;
     }
 struct difference_type<T> :
-  std::remove_cv<decltype(declval<T>() - declval<T>())> {};
+  std::remove_cv<decltype(declval<const T>() - declval<const T>())> {};
 
 template <class T>
+  requires SignedIntegral<meta::_t<difference_type<T>>>()
 using DifferenceType =
-  detail::nvuncvref_t<meta::_t<difference_type<T>>>;
-
-namespace detail {
-
-template <class T>
-concept bool IntegralDifference =
-  requires {
-    typename DifferenceType<T>;
-    requires Integral<DifferenceType<T>>();
-  };
-
-template <class T>
-concept bool MemberDistanceType =
-  requires { typename T::distance_type; };
-
-} // namespace detail
-
-template <class> struct distance_type {};
-
-template <detail::MemberDistanceType T>
-struct distance_type<T> {
-  using type = typename T::distance_type;
-};
-
-template <detail::IntegralDifference T>
-  requires (!detail::MemberDistanceType<T>)
-struct distance_type<T> :
-  std::make_unsigned<DifferenceType<T>> {};
-
-template <class T>
-using DistanceType =
-  meta::_t<distance_type<T>>;
+  meta::_t<difference_type<T>>;
 
 template <class I>
 concept bool WeaklyIncrementable() {
   return Semiregular<I>() &&
     requires (I& i) {
-      typename DistanceType<I>;
-      requires Integral<DistanceType<I>>();
+      typename DifferenceType<I>;
       STL2_EXACT_TYPE_CONSTRAINT(++i, I&);
       i++;
     };
@@ -304,7 +259,7 @@ concept bool WeakIterator() {
     requires (I& i) {
       //{ *i } -> auto&&;
       *i;
-      requires !detail::Void<decltype(*i)>;
+      requires detail::NonVoid<decltype(*i)>;
     };
 }
 
@@ -373,8 +328,6 @@ template <class I, class S = I>
 concept bool SizedIteratorRange() {
   return Sentinel<S, I>() &&
     requires (I i, S s) {
-      typename DifferenceType<I>;
-      // Common<DifferenceType<I>, DistanceType<I>> ??
       { i - i } -> DifferenceType<I>;
       { s - s } -> DifferenceType<I>;
       { s - i } -> DifferenceType<I>;
@@ -411,7 +364,7 @@ namespace models {
 
 template <class>
 constexpr bool readable() { return false; }
-Readable{T}
+Readable{R}
 constexpr bool readable() { return true; }
 
 template <class, class>
@@ -426,22 +379,29 @@ constexpr bool writable() { return true; }
 
 template <class>
 constexpr bool weakly_incrementable() { return false; }
-WeaklyIncrementable{T}
+WeaklyIncrementable{I}
 constexpr bool weakly_incrementable() { return true; }
 
 template <class>
 constexpr bool incrementable() { return false; }
-Incrementable{T}
+Incrementable{I}
 constexpr bool incrementable() { return true; }
 
 template <class>
 constexpr bool weak_iterator() { return false; }
-WeakIterator{T}
+WeakIterator{I}
 constexpr bool weak_iterator() { return true; }
+
+#if 0
+template <class>
+constexpr bool input_iterator() { return false; }
+InputIterator{I}
+constexpr bool input_iterator() { return true; }
+#endif
 
 template <class>
 constexpr bool iterator() { return false; }
-Iterator{T}
+Iterator{I}
 constexpr bool iterator() { return true; }
 
 #if 0 // FIXME: explodes memory
@@ -477,7 +437,7 @@ void iter_swap2(R1 r1, R2 r2)
            detail::is_nothrow_indirectly_movable_v<R2, R1>) {
   ValueType<R1> tmp = iter_move2(r1);
   *r1 = iter_move2(r2);
-  *r2 = std::move(tmp);
+  *r2 = stl2::move(tmp);
 }
 
 #endif

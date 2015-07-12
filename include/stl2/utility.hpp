@@ -45,7 +45,7 @@ template<class T, class U>
 constexpr bool is_nothrow_swappable_v = false;
 
 template<class T, class U>
-  requires requires (T&& t, U&& u) { swap((T&&)t, (U&&)u); }
+  requires Swappable<T, U>()
 constexpr bool is_nothrow_swappable_v =
   noexcept(swap(declval<T>(), declval<U>()));
 

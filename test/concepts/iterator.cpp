@@ -12,7 +12,6 @@
 namespace associated_type_test {
 using stl2::ext::models::same;
 using stl2::DifferenceType;
-using stl2::DistanceType;
 using stl2::IteratorCategory;
 using stl2::ReferenceType;
 using stl2::RvalueReferenceType;
@@ -59,13 +58,11 @@ static_assert(same<std::ptrdiff_t, DifferenceType<int*>>(), "");
 static_assert(same<std::ptrdiff_t, DifferenceType<int[]>>(), "");
 static_assert(same<std::ptrdiff_t, DifferenceType<int[4]>>(), "");
 static_assert(same<std::ptrdiff_t, DifferenceType<std::nullptr_t>>(), "");
-static_assert(same<std::make_unsigned_t<std::ptrdiff_t>, DistanceType<int*>>(), "");
 
 static_assert(!meta::has_type<stl2::difference_type<void>>(), "");
 static_assert(!meta::has_type<stl2::difference_type<void*>>(), "");
 
 static_assert(same<int, DifferenceType<int>>(), "");
-static_assert(same<unsigned, DistanceType<int>>(), "");
 
 static_assert(same<IteratorCategory<int*>, stl2::ext::contiguous_iterator_tag>(), "");
 static_assert(same<IteratorCategory<const int*>, stl2::ext::contiguous_iterator_tag>(), "");
@@ -166,6 +163,7 @@ static_assert(models::iterator<int*>(), "");
 static_assert(models::iterator<const int*>(), "");
 static_assert(!models::iterator<void*>(), "");
 static_assert(models::iterator<A>(), "");
+  //static_assert(models::input_iterator<A>(), "");
 
 static_assert(models::iterator<int*>(), "");
 static_assert(models::regular<int*>(), "");

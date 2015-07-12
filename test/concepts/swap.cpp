@@ -26,6 +26,9 @@ static_assert(!swappable<int(&)[3][4][1][2], int(&)[4][4][1][2]>(), "");
 
 static_assert(noexcept(swap(stl2::declval<int&>(),
                             stl2::declval<int&>())), "");
+static_assert(is_nothrow_swappable_v<int&, int&>, "");
+static_assert(is_nothrow_swappable_v<int(&)[42], int(&)[42]>, "");
+static_assert(is_nothrow_swappable_v<int(&)[6][7], int(&)[6][7]>, "");
 
 struct A {
   A() = default;
@@ -33,9 +36,18 @@ struct A {
   A& operator=(A&&) = delete;
   friend void swap(A&, A&) noexcept {}
 };
+
 static_assert(swappable<A&>(), "");
 static_assert(noexcept(swap(stl2::declval<A&>(), stl2::declval<A&>())), "");
 static_assert(is_nothrow_swappable_v<A&, A&>, "");
+
+struct B {
+  friend void swap(B&, B&) {}
+};
+
+static_assert(swappable<B&>(), "");
+static_assert(!noexcept(swap(stl2::declval<B&>(), stl2::declval<B&>())), "");
+static_assert(!is_nothrow_swappable_v<B&, B&>, "");
 
 } // namespace swappable_test
 
