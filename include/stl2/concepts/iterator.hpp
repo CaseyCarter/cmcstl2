@@ -16,7 +16,17 @@
 //
 namespace stl2 { inline namespace v1 {
 
+namespace detail {
+
+template <class T>
+concept bool Dereferencable =
+  requires (T&& t) {
+    { *stl2::forward<T>(t) } -> auto&&;
+  };
+}
+
 template <class R>
+  requires detail::Dereferencable<R>
 using ReferenceType =
   decltype(*declval<R>());
 
@@ -31,11 +41,14 @@ using __iter_move_t =
 
 }
 
-template <class R>
+template <detail::Dereferencable R>
 detail::__iter_move_t<R> iter_move2(R r)
   noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r))));
 
 template <class R>
+  requires requires (R&& r) {
+    { iter_move2(stl2::forward<R>(r)) } -> auto&&;
+  }
 using RvalueReferenceType =
   decltype(iter_move2(declval<R>()));
 
@@ -44,16 +57,12 @@ namespace detail {
 using meta::detail::uncvref_t;
 
 template <class T>
-concept bool AcceptableValueType =
-  std::is_object<T>::value && ! std::is_array<T>::value;
-
-template <class T>
 concept bool NonVoid =
   !std::is_void<T>::value;
 
 template <class T>
-  requires NonVoid<uncvref_t<T>>
-using nvuncvref_t = uncvref_t<T>;
+concept bool AcceptableValueType =
+  Same<T, std::decay_t<T>>() && NonVoid<T>;
 
 template <class T>
 concept bool MemberValueType =
@@ -62,14 +71,6 @@ concept bool MemberValueType =
 template <class T>
 concept bool MemberElementType =
   requires { typename T::element_type; };
-
-template <class T>
-concept bool HasReferenceType =
-  requires { typename ReferenceType<T>; };
-
-template <class T>
-concept bool MemberDifferenceType =
-  requires { typename T::difference_type; };
 
 } // namespace detail
 
@@ -87,7 +88,7 @@ struct value_type<T> {
   using type = typename T::element_type;
 };
 
-template <detail::HasReferenceType T>
+template <detail::Dereferencable T>
   requires !detail::MemberElementType<T> && !detail::MemberValueType<T>
 struct value_type<T> {
   using type = detail::uncvref_t<ReferenceType<T>>;
@@ -101,9 +102,9 @@ using ValueType =
 template <class I>
 concept bool Readable() {
   return Semiregular<I>() &&
-    requires (I& i) {
+    detail::Dereferencable<I> &&
+    requires (const I& i) {
       typename ValueType<I>;
-      typename ReferenceType<I>;
       typename RvalueReferenceType<I>;
       { *i } -> const ValueType<I>&;
     };
@@ -112,8 +113,8 @@ concept bool Readable() {
 template <class Out, class T>
 concept bool MoveWritable() {
   return Semiregular<Out>() &&
-    requires (Out o, T t) {
-      typename ReferenceType<Out>;
+    detail::Dereferencable<Out> &&
+    requires (const Out& o, T&& t) {
       *o = stl2::move(t);
     };
 }
@@ -121,7 +122,7 @@ concept bool MoveWritable() {
 template <class Out, class T>
 concept bool Writable() {
   return MoveWritable<Out, T>() &&
-    requires (Out o, const T& t) {
+    requires (const Out& o, const T& t) {
       *o = t;
     };
 }
@@ -177,6 +178,14 @@ concept bool IndirectlySwappable() {
     Swappable<ReferenceType<I1>, ReferenceType<I2>>();
 }
 
+namespace detail {
+
+template <class T>
+concept bool MemberDifferenceType =
+  requires { typename T::difference_type; };
+
+}
+
 template <class> struct difference_type {};
 
 template <> struct difference_type<void*> {};
@@ -196,7 +205,7 @@ template <class T>
       a - b;
     }
 struct difference_type<T> :
-  std::remove_cv<decltype(declval<const T>() - declval<const T>())> {};
+  std::decay<decltype(declval<const T>() - declval<const T>())> {};
 
 template <class T>
   requires SignedIntegral<meta::_t<difference_type<T>>>()
@@ -237,12 +246,14 @@ struct contiguous_iterator_tag :
   random_access_iterator_tag {};
 }
 
-template <class>
-struct iterator_category {};
+template <class> struct iterator_category {};
+
 template <class T>
+  requires detail::NonVoid<T>
 struct iterator_category<T*> {
   using type = ext::contiguous_iterator_tag;
 };
+
 template <class T>
   requires requires { typename T::iterator_category; }
 struct iterator_category<T> {
@@ -256,11 +267,7 @@ using IteratorCategory =
 template <class I>
 concept bool WeakIterator() {
   return WeaklyIncrementable<I>() &&
-    requires (I& i) {
-      //{ *i } -> auto&&;
-      *i;
-      requires detail::NonVoid<decltype(*i)>;
-    };
+    detail::Dereferencable<const I&>;
 }
 
 template <class I>
@@ -413,7 +420,7 @@ constexpr bool sentinel() { return true; }
 
 }} // namespace ext::models
 
-template <class R>
+template <detail::Dereferencable R>
 detail::__iter_move_t<R> iter_move2(R r)
   noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r)))) {
   return stl2::move(*r);
