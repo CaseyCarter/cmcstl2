@@ -12,7 +12,8 @@ namespace stl2 { inline namespace v1 {
 ////////////////////
 // exchange and swap
 //
-template <Movable T, AssignableTo<T&> U = T>
+template <Movable T, class U = T>
+  requires Assignable<T&, U>
 constexpr T exchange(T& t, U&& u)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_assignable<T&, U>::value) {

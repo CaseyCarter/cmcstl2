@@ -83,10 +83,6 @@ concept bool Assignable =
     requires Same<T&, decltype(stl2::forward<T>(t) = stl2::forward<U>(u))>;
   };
 
-template <class T, class U>
-concept bool AssignableTo =
-  Assignable<U, T>;
-
 namespace core {
 
 template <class T>
