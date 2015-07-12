@@ -12,6 +12,13 @@
 // Core Concepts [concepts.lib.corelang]
 //
 
+// Subsumption relationships (#ASCIIart):
+//
+//                                           /- ext::ExplicitlyConvertible <= ext::core::Constructible
+//     /- ext::PubliclyDerived <= Convertible
+// Same                                      \- ext::ImplicitlyConvertible
+//     \- Common
+
 #if defined(__GNUC__)
 #define STL2_IS_SAME_AS(T, U) __is_same_as(T, U)
 #define STL2_IS_BASE_OF(T, U) __is_base_of(T, U)
@@ -95,10 +102,6 @@ concept bool Common() {
       requires ext::ExplicitlyConvertible<U, CommonType<T, U>>();
     };
 }
-
-// Subsumption relationships:
-// Same <= ext::PubliclyDerived <= Convertible <= ext::ExplicitlyConvertible <= ext::core::Constructible
-// Same <= Common
 
 template <class T, class U>
 concept bool Assignable() {
