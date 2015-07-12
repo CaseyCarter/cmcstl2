@@ -5,7 +5,6 @@
 
 #include <meta/meta.hpp>
 
-#include <stl2/detail/config.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/common_type.hpp>
 
@@ -21,7 +20,7 @@
 #define STL2_IS_BASE_OF(T, U) std::is_base_of<T, U>::value
 #endif
 
-namespace stl2 { inline namespace v1 { inline namespace concepts {
+namespace stl2 { inline namespace v1 {
 
 template <class T, class U>
 concept bool Same =
@@ -158,6 +157,6 @@ constexpr bool common() { return true; }
 //requires core::Constructible<T, Args...>()
 //constexpr bool core_constructible() { return false; }
 
-}}}} // namespace stl2::v1::concepts::models
+}}} // namespace stl2::v1::models
 
 #endif // STL2_CONCEPTS_CORE_HPP

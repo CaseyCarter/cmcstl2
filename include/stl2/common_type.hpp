@@ -4,7 +4,6 @@
 #include <utility>
 #include <type_traits>
 
-#include <stl2/detail/config.hpp>
 #include <stl2/detail/fwd.hpp>
 
 #include <meta/meta.hpp>

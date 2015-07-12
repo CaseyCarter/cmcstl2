@@ -9,7 +9,7 @@
 #include "simple_test.hpp"
 
 namespace swappable_test {
-using stl2::concepts::models::swappable;
+using stl2::models::swappable;
 using stl2::is_nothrow_swappable_v;
 using stl2::swap;
 
@@ -99,7 +99,7 @@ void swap(T (&b)[N], array<U, N>& a)
 }
 
 int main() {
-  using stl2::concepts::models::swappable;
+  using stl2::models::swappable;
 
   {
     int a[2][2] = {{0, 1}, {2, 3}};

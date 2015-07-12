@@ -1,7 +1,6 @@
 #ifndef STL2_CONCEPTS_FUNCTION_HPP
 #define STL2_CONCEPTS_FUNCTION_HPP
 
-#include <stl2/detail/config.hpp>
 #include <stl2/concepts/core.hpp>
 #include <stl2/concepts/foundational.hpp>
 
@@ -10,7 +9,7 @@
 ////////////////////
 // Function Concepts
 //
-namespace stl2 { inline namespace v1 { inline namespace concepts {
+namespace stl2 { inline namespace v1 {
 
 template <class F, class...Args>
 using ResultType =
@@ -55,6 +54,6 @@ template <class R, class T, class U = T>
 concept bool StrictWeakOrder =
   Relation<R, T, U>;
 
-}}} // namespace stl2::v1::concepts
+}} // namespace stl2::v1
 
 #endif // STL2_CONCEPTS_FUNCTION_HPP

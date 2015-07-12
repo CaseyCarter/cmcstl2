@@ -1,7 +1,6 @@
 #ifndef STL2_UTILITY // -*- mode: c++ -*-
 #define STL2_UTILITY
 
-#include <stl2/detail/config.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/concepts/foundational.hpp>
 

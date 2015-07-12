@@ -3,9 +3,8 @@
 
 #include <type_traits>
 
-#include <stl2/detail/config.hpp>
-
 namespace stl2 { inline namespace v1 {
+
 template <class T>
 constexpr T&& forward(std::remove_reference_t<T>& t) noexcept {
   return static_cast<T&&>(t);
@@ -26,6 +25,7 @@ constexpr std::remove_reference_t<T>&& move(T&& t) noexcept {
 
 template <class T>
 std::add_rvalue_reference_t<T> declval() noexcept;
+
 }} // namespace stl2::v1
 
 #endif // STL2_DETAIL_FWD_HPP

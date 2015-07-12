@@ -5,7 +5,6 @@
 
 #include <meta/meta.hpp>
 
-#include <stl2/detail/config.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/concepts/foundational.hpp>
 #include <stl2/utility.hpp>
@@ -13,13 +12,11 @@
 ////////////////////
 // Iterator concepts
 //
-namespace stl2 { inline namespace v1 { inline namespace concepts {
+namespace stl2 { inline namespace v1 {
 
 template <class T>
 using ReferenceType =
   decltype(*declval<T>());
-
-} // namespace concepts
 
 namespace detail {
 template <class R>
@@ -34,10 +31,8 @@ template <class T>
 detail::__iter_move_t<T> iter_move2(T t)
   noexcept(noexcept(detail::__iter_move_t<T>(stl2::move(*t))));
 
-namespace concepts {
 template <class T>
 using RvalueReferenceType = decltype(iter_move2(declval<T&>()));
-}
 
 namespace detail {
 
@@ -103,8 +98,6 @@ struct value_type<T> {
   using type = detail::uncvref_t<ReferenceType<T>>;
 };
 
-namespace concepts {
-
 template <class T>
 using ValueType =
   meta::eval<detail::acceptable_value_type<
@@ -134,15 +127,14 @@ concept bool Writable =
   requires(Out o, const T& t) {
     *o = t;
   };
-} // namespace concepts
 
 namespace detail {
   template <class In, class Out>
   concept bool IndirectlyMovable =
-    concepts::Readable<In> &&
-    concepts::Constructible<ValueType<In>, RvalueReferenceType<In>>() &&
-    concepts::MoveWritable<Out, RvalueReferenceType<In>> &&
-    concepts::MoveWritable<Out, ValueType<In>>;
+    Readable<In> &&
+    Constructible<ValueType<In>, RvalueReferenceType<In>>() &&
+    MoveWritable<Out, RvalueReferenceType<In>> &&
+    MoveWritable<Out, ValueType<In>>;
 
   template <class In, class Out>
   constexpr bool is_nothrow_indirectly_movable_v = false;
@@ -162,19 +154,17 @@ namespace detail {
 }
 
 // iter_swap2
-template <concepts::Readable R1, concepts::Readable R2>
+template <Readable R1, Readable R2>
   requires Swappable<ReferenceType<R1>, ReferenceType<R2>>
 void iter_swap2(R1 r1, R2 r2)
   noexcept(is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>);
 
-template <concepts::Readable R1, concepts::Readable R2>
-  requires !concepts::Swappable<ReferenceType<R1>, ReferenceType<R2>> &&
+template <Readable R1, Readable R2>
+  requires !Swappable<ReferenceType<R1>, ReferenceType<R2>> &&
     detail::IndirectlyMovable<R1, R2> && detail::IndirectlyMovable<R2, R1>
 void iter_swap2(R1 r1, R2 r2)
   noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&
            detail::is_nothrow_indirectly_movable_v<R2, R1>);
-
-namespace concepts {
 
 template <class I, class Out>
 concept bool IndirectlyAssignable =
@@ -186,8 +176,6 @@ concept bool IndirectlySwappable =
   Readable<I1> &&
   Readable<I2> &&
   Swappable<ReferenceType<I1>, ReferenceType<I2>>;
-
-} // namespace concepts
 
 template <class> struct difference_type {};
 
@@ -210,13 +198,9 @@ struct difference_type<std::nullptr_t> {
   using type = std::ptrdiff_t;
 };
 
-namespace concepts {
-
 template <class T>
 using DifferenceType =
   detail::nvuncvref_t<meta::eval<difference_type<T>>>;
-
-} // namespace concepts
 
 namespace detail {
 
@@ -245,8 +229,6 @@ template <detail::IntegralDifference T>
 struct distance_type<T> :
   std::make_unsigned<DifferenceType<T>> {};
 
-namespace concepts {
-
 template <class T>
 using DistanceType =
   meta::eval<distance_type<T>>;
@@ -271,8 +253,6 @@ concept bool Incrementable =
     requires Same<I, decltype(i++)>;
   };
 
-} // namespace concepts
-
 struct weak_input_iterator_tag {};
 struct input_iterator_tag :
   weak_input_iterator_tag {};
@@ -296,8 +276,6 @@ template <class T>
 struct iterator_category<T> {
   using type = typename T::iterator_category;
 };
-
-namespace concepts {
 
 template <class T>
 using IteratorCategory =
@@ -456,7 +434,7 @@ Sentinel{S, I}
 constexpr bool sentinel() { return true; }
 #endif
 
-}} // namespace concepts::models
+} // namespace models
 
 
 template <class R>
@@ -466,15 +444,15 @@ detail::__iter_move_t<R> iter_move2(R r)
 }
 
 // iter_swap2
-template <concepts::Readable R1, concepts::Readable R2>
+template <Readable R1, Readable R2>
   requires Swappable<ReferenceType<R1>, ReferenceType<R2>>
 void iter_swap2(R1 r1, R2 r2)
   noexcept(is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>) {
   swap(*r1, *r2);
 }
 
-template <concepts::Readable R1, concepts::Readable R2>
-  requires !concepts::Swappable<ReferenceType<R1>, ReferenceType<R2>> &&
+template <Readable R1, Readable R2>
+  requires !Swappable<ReferenceType<R1>, ReferenceType<R2>> &&
     detail::IndirectlyMovable<R1, R2> && detail::IndirectlyMovable<R2, R1>
 void iter_swap2(R1 r1, R2 r2)
   noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&

@@ -10,13 +10,13 @@
 #include <meta/meta.hpp>
 
 namespace associated_type_test {
-using stl2::concepts::models::same;
-using stl2::concepts::DifferenceType;
-using stl2::concepts::DistanceType;
-using stl2::concepts::IteratorCategory;
-using stl2::concepts::ReferenceType;
-using stl2::concepts::RvalueReferenceType;
-using stl2::concepts::ValueType;
+using stl2::models::same;
+using stl2::DifferenceType;
+using stl2::DistanceType;
+using stl2::IteratorCategory;
+using stl2::ReferenceType;
+using stl2::RvalueReferenceType;
+using stl2::ValueType;
 
 struct A { int& operator*(); };
 struct B : A { using value_type = double; };
@@ -73,9 +73,9 @@ static_assert(same<IteratorCategory<D>, stl2::forward_iterator_tag>(), "");
 } // namespace associated_type_test
 
 namespace readable_test {
-using stl2::concepts::models::readable;
-using stl2::concepts::ValueType;
-using stl2::concepts::models::same;
+using stl2::models::readable;
+using stl2::ValueType;
+using stl2::models::same;
 
 struct A {
   int operator*() const;
@@ -90,8 +90,8 @@ static_assert(same<ValueType<A>,int>(), "");
 }
 
 namespace writable_test {
-using stl2::concepts::models::move_writable;
-using stl2::concepts::models::writable;
+using stl2::models::move_writable;
+using stl2::models::writable;
 
 struct A {
   int& operator*() const;
@@ -111,7 +111,7 @@ static_assert(writable<A, double>(), "");
 } // namespace writable_test
 
 namespace weakly_incrementable_test {
-using stl2::concepts::models::weakly_incrementable;
+using stl2::models::weakly_incrementable;
 
 static_assert(weakly_incrementable<int>(), "");
 static_assert(weakly_incrementable<unsigned int>(), "");
@@ -121,7 +121,7 @@ static_assert(weakly_incrementable<const int*>(), "");
 } // namespace weakly_incrementable_test
 
 namespace incrementable_test {
-using stl2::concepts::models::incrementable;
+using stl2::models::incrementable;
 
 static_assert(incrementable<int>(), "");
 static_assert(incrementable<unsigned int>(), "");
@@ -131,7 +131,8 @@ static_assert(incrementable<const int*>(), "");
 } // namespace incrementable_test
 
 namespace weak_iterator_test {
-using namespace stl2::concepts;
+namespace models = stl2::models;
+using stl2::RvalueReferenceType;
 
 struct A {
   using difference_type = signed char;
@@ -148,7 +149,7 @@ static_assert(models::same<RvalueReferenceType<A>, double>(), "");
 } // namespace weak_iterator_test
 
 namespace iterator_sentinel_test {
-using namespace stl2::concepts;
+namespace models = stl2::models;
 
 struct A {
   using difference_type = signed char;

@@ -1,7 +1,6 @@
 #ifndef STL2_CONCEPTS_FOUNDATIONAL_HPP
 #define STL2_CONCEPTS_FOUNDATIONAL_HPP
 
-#include <stl2/detail/config.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/concepts/core.hpp>
 
@@ -11,7 +10,7 @@
 ////////////////////////
 // Foundational Concepts
 //
-namespace stl2 { inline namespace v1 { inline namespace concepts {
+namespace stl2 { inline namespace v1 {
 
 template <class T>
 concept bool Destructible() { return
@@ -67,14 +66,12 @@ concept bool Semiregular =
     requires Same<T*, decltype(new T[n])>;
   };
 
-} // namespace concepts
-
-template <concepts::Movable T, concepts::AssignableTo<T&> U = T>
+template <Movable T, AssignableTo<T&> U = T>
 constexpr T exchange(T& t, U&& u)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_assignable<T&, U>::value);
 
-concepts::Movable{T}
+Movable{T}
 constexpr void swap(T& a, T& b)
   noexcept(noexcept(b = exchange(a, stl2::move(b))));
 
@@ -98,8 +95,6 @@ template <class T, class U, std::size_t N>
 constexpr void swap(T (&t)[N], U (&u)[N])
   noexcept(noexcept(detail::__try_swap(*t, *u)));
 
-namespace concepts {
-
 template <class T, class U = T>
 concept bool Swappable =
   requires (T&& t, U&& u) {
@@ -118,7 +113,6 @@ concept bool Boolean =
     //{ b1 || b2 } -> Same<bool>;
     b1 || b2; requires Convertible<decltype(b1 || b2),bool>;
   };
-} // namespace concepts
 
 namespace detail {
 
@@ -135,8 +129,6 @@ concept bool EqualityComparable_ =
   };
 
 } // namespace detail
-
-namespace concepts {
 
 template <class T, class U = T>
 concept bool EqualityComparable =
@@ -158,13 +150,11 @@ concept bool Regular =
   Semiregular<T> &&
   EqualityComparable<T>;
 
-} // namespace concepts
-
 namespace detail {
 
 template <class T, class U>
 concept bool TotallyOrdered_ =
-  concepts::EqualityComparable<T, U> &&
+  EqualityComparable<T, U> &&
   requires(T&& a, U&& b) {
 #if 0 // FIXME: ICE
     //{ a < b } -> Boolean;
@@ -180,8 +170,6 @@ concept bool TotallyOrdered_ =
   };
 
 } // namespace detail
-
-namespace concepts {
 
 template <class T, class U = T>
 concept bool TotallyOrdered =
@@ -342,6 +330,6 @@ constexpr bool integral() { return false; }
 Integral{T}
 constexpr bool integral() { return true; }
 
-}}}} // namespace stl2::v1::concepts::models
+}}} // namespace stl2::v1::models
 
 #endif // STL2_CONCEPTS_FOUNDATIONAL_HPP

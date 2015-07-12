@@ -10,7 +10,7 @@
 #include "simple_test.hpp"
 
 namespace same_test {
-using stl2::concepts::models::same;
+using stl2::models::same;
 
 static_assert(same<int, int>(), "");
 static_assert(same<double, double>(), "");
@@ -19,7 +19,7 @@ static_assert(!same<int, double>(), "");
 }
 
 namespace publicly_derived_test {
-using stl2::concepts::models::publicly_derived;
+using stl2::models::publicly_derived;
 
 struct A {};
 struct B : A {};
@@ -41,7 +41,7 @@ static_assert(!publicly_derived<int,void>(), "");
 }
 
 namespace convertible_test {
-using stl2::concepts::models::convertible;
+using stl2::models::convertible;
 
 struct A {};
 struct B : A {};
@@ -55,9 +55,9 @@ static_assert(convertible<double, int>(), "");
 }
 
 namespace common_test {
-using stl2::concepts::CommonType;
-using stl2::concepts::models::same;
-using stl2::concepts::models::common;
+using stl2::CommonType;
+using stl2::models::same;
+using stl2::models::common;
 
 struct A {};
 }

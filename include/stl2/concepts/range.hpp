@@ -1,7 +1,6 @@
 #ifndef STL2_CONCEPTS_RANGE_HPP
 #define STL2_CONCEPTS_RANGE_HPP
 
-#include <stl2/detail/config.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/concepts/iterator.hpp>
 
@@ -14,8 +13,6 @@ namespace stl2 { inline namespace v1 {
 
 using std::begin;
 using std::end;
-
-namespace concepts {
 
 template <class T>
 using IteratorType = decltype(begin(declval<T>()));
@@ -40,6 +37,6 @@ constexpr bool range() { return false; }
 Range{T}
 constexpr bool range() { return true; }
 
-}}}} // namespace stl2::v1::concepts::models
+}}} // namespace stl2::v1::models
 
 #endif // STL2_CONCEPTS_RANGE_HPP
