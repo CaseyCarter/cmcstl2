@@ -44,7 +44,7 @@ template <class>
 struct acceptable_value_type {};
 
 template <class T>
-  requires std::is_object<T>::value
+  requires (std::is_object<T>::value && !std::is_array<T>::value)
 struct acceptable_value_type<T> {
   using type = T;
 };
@@ -60,14 +60,14 @@ Void{T}
 struct nonvoid<T> {};
 
 template <class T>
-using nvuncvref_t = meta::eval<nonvoid<uncvref_t<T>>>;
+using nvuncvref_t = meta::_t<nonvoid<uncvref_t<T>>>;
 
 template <class T>
-concept bool HasValueType =
+concept bool MemberValueType =
   requires { typename T::value_type; };
 
 template <class T>
-concept bool HasElementType =
+concept bool MemberElementType =
   requires { typename T::element_type; };
 
 template <class T>
@@ -75,7 +75,7 @@ concept bool HasReferenceType =
   requires { typename ReferenceType<T>; };
 
 template <class T>
-concept bool HasDifferenceType =
+concept bool MemberDifferenceType =
   requires { typename T::difference_type; };
 
 } // namespace detail
@@ -83,27 +83,27 @@ concept bool HasDifferenceType =
 template <class>
 struct value_type {};
 
-template <detail::HasValueType T>
+template <detail::MemberValueType T>
 struct value_type<T> {
   using type = typename T::value_type;
 };
 
-template <detail::HasElementType T>
-  requires !detail::HasValueType<T>
+template <detail::MemberElementType T>
+  requires !detail::MemberValueType<T>
 struct value_type<T> {
   using type = typename T::element_type;
 };
 
 template <detail::HasReferenceType T>
-  requires !detail::HasElementType<T> && !detail::HasValueType<T>
+  requires !detail::MemberElementType<T> && !detail::MemberValueType<T>
 struct value_type<T> {
   using type = detail::uncvref_t<ReferenceType<T>>;
 };
 
 template <class T>
 using ValueType =
-  meta::eval<detail::acceptable_value_type<
-    meta::eval<value_type<std::remove_cv_t<T>>>>>;
+  meta::_t<detail::acceptable_value_type<
+    meta::_t<value_type<std::remove_cv_t<T>>>>>;
 
 template <class I>
 concept bool Readable() {
@@ -189,11 +189,11 @@ template <class> struct difference_type {};
 
 template <> struct difference_type<void*> {};
 
-template <detail::HasDifferenceType T>
+template <detail::MemberDifferenceType T>
 struct difference_type<T> { using type = typename T::difference_type; };
 
 template <class T>
-  requires !detail::HasDifferenceType<T> &&
+  requires !detail::MemberDifferenceType<T> &&
     requires (T& a, T& b) {
       a - b;
       requires !detail::Void<decltype(a - b)>;
@@ -208,7 +208,7 @@ struct difference_type<std::nullptr_t> {
 
 template <class T>
 using DifferenceType =
-  detail::nvuncvref_t<meta::eval<difference_type<T>>>;
+  detail::nvuncvref_t<meta::_t<difference_type<T>>>;
 
 namespace detail {
 
@@ -220,26 +220,26 @@ concept bool IntegralDifference =
   };
 
 template <class T>
-concept bool HasDistanceType =
+concept bool MemberDistanceType =
   requires { typename T::distance_type; };
 
 } // namespace detail
 
 template <class> struct distance_type {};
 
-template <detail::HasDistanceType T>
+template <detail::MemberDistanceType T>
 struct distance_type<T> {
   using type = typename T::distance_type;
 };
 
 template <detail::IntegralDifference T>
-  requires(!detail::HasDistanceType<T>)
+  requires (!detail::MemberDistanceType<T>)
 struct distance_type<T> :
   std::make_unsigned<DifferenceType<T>> {};
 
 template <class T>
 using DistanceType =
-  meta::eval<distance_type<T>>;
+  meta::_t<distance_type<T>>;
 
 template <class I>
 concept bool WeaklyIncrementable() {
@@ -272,14 +272,17 @@ struct bidirectional_iterator_tag :
   forward_iterator_tag {};
 struct random_access_iterator_tag :
   bidirectional_iterator_tag {};
+
+namespace ext {
 struct contiguous_iterator_tag :
   random_access_iterator_tag {};
+}
 
 template <class>
 struct iterator_category {};
 template <class T>
 struct iterator_category<T*> {
-  using type = contiguous_iterator_tag;
+  using type = ext::contiguous_iterator_tag;
 };
 template <class T>
   requires requires { typename T::iterator_category; }
@@ -289,7 +292,7 @@ struct iterator_category<T> {
 
 template <class T>
 using IteratorCategory =
-  meta::eval<iterator_category<T>>;
+  meta::_t<iterator_category<T>>;
 
 template <class I>
 concept bool WeakIterator() {

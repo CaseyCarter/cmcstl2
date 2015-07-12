@@ -13,7 +13,7 @@ concept bool Same = std::is_same<T, U>::value;
 template <class T, class U>
 concept bool ExplicitlyConvertible =
   Same<T, U> ||
-  requires(T&& t) {
+  requires (T&& t) {
     static_cast<U>(std::forward<T>(t));
   };
 
@@ -25,7 +25,7 @@ concept bool Convertible =
 
 template <class T>
 concept bool Destructible = //() { return
-  requires(T& t) {
+  requires (T& t) {
     { t.~T() } noexcept;
   };
 //}
@@ -33,7 +33,7 @@ concept bool Destructible = //() { return
 template <class T>
 concept bool Copyable =
   Destructible<T>/*()*/ &&
-  requires(T& t, T& b, const T& c) {
+  requires (T& t, T& b, const T& c) {
     T(c);
     T(std::move(c));
     T(b);
@@ -78,7 +78,7 @@ struct reference_value_type<std::pair<First, Second>> {
 
 template <class R>
 using ReferenceValueType =
-  std::remove_cv_t<std::remove_reference_t<meta::eval<reference_value_type<R>>>>;
+  std::remove_cv_t<std::remove_reference_t<meta::_t<reference_value_type<R>>>>;
 
 template <class R>
 concept bool ReadableReference =
@@ -95,7 +95,7 @@ concept bool ReadableReference =
 template <class W, class R>
 concept bool WritableReference =
   ReadableReference<R> &&
-  requires(W&& w, R&& r) {
+  requires (W&& w, R&& r) {
     std::forward<W>(w) = std::forward<R>(r);
   };
 
@@ -141,7 +141,7 @@ using ValueType = ReferenceValueType<ReferenceType<I>>;
 template <class I>
 concept bool Readable =
   // Semiregular<I> &&
-  requires(I& i) {
+  requires (I& i) {
     typename ReferenceType<I>;
     // { *i } -> Same<ReferenceType<I>;
     *i; requires Same<ReferenceType<I>, decltype(*i)>;
@@ -151,7 +151,7 @@ concept bool Readable =
 template <class O, class T>
 concept bool Writable =
   // Semiregular<O> &&
-  requires(O& o) {
+  requires (O& o) {
     typename ReferenceType<O>;
     // { *o } -> Same<ReferenceType<O>;
     *o; requires Same<ReferenceType<O>, decltype(*o)>;
@@ -170,20 +170,20 @@ concept bool IndirectSwappable =
 #ifdef SWAPPABLE_POINTERS
 IndirectSwappable{T, U}
 void swap(T&& t, U&& u)
-  requires(!std::is_reference<T>::value &&
-           !std::is_reference<U>::value)
+  requires (!std::is_reference<T>::value &&
+            !std::is_reference<U>::value)
 { swap(*t, *u); }
 
 template <Mutable T, MutableReference U>
-  requires(Compatible<ValueType<T>, ReferenceValueType<U>> &&
-           !std::is_reference<T>::value)
+  requires (Compatible<ValueType<T>, ReferenceValueType<U>> &&
+            !std::is_reference<T>::value)
 void swap(T&& t, U&& u) {
   swap(*t, u);
 }
 
 template <MutableReference T, Mutable U>
-  requires(Compatible<ReferenceValueType<T>, ValueType<U>> &&
-           !std::is_reference<U>::value)
+  requires (Compatible<ReferenceValueType<T>, ValueType<U>> &&
+            !std::is_reference<U>::value)
 void swap(T&& t, U&& u) {
   swap(t, *u);
 }
@@ -243,7 +243,7 @@ struct array {
     }
 
     T* operator->() const
-      requires(std::is_class<T>::value || std::is_union<T>::value)
+      requires (std::is_class<T>::value || std::is_union<T>::value)
     { return ptr_; }
 
     iterator& operator++() {

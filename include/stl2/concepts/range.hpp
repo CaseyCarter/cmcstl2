@@ -21,7 +21,7 @@ using SentinelType = decltype(end(declval<T>()));
 
 template <class T>
 concept bool Range() {
-  return requires(T&& t) {
+  return requires (T&& t) {
     begin(t);
     end(t);
     typename IteratorType<T>;

@@ -12,7 +12,7 @@ namespace stl2 { inline namespace v1 {
 template <class B>
 concept bool Boolean() {
   return Convertible<B, bool>() &&
-    requires(const B& b1, const B& b2, const bool a) {
+    requires (const B& b1, const B& b2, const bool a) {
       !b1; requires Convertible<decltype(!b1), bool>();
       b1 && b2; requires Same<decltype(b1 && b2), bool>();
       b1 && a; requires Same<decltype(b1 && a), bool>();

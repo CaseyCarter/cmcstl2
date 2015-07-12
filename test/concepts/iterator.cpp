@@ -1,4 +1,8 @@
-// -*- compile-command: "(cd ~/cmcstl2/build && make iterator && ./test/iterator)" -*-
+// -*- compile-command: "(cd ~/cmcstl2/build && make iterator && ./test/concepts/iterator)" -*-
+
+#if 1
+#error BOOM!
+#else
 
 #include <stl2/concepts/core.hpp>
 #include <stl2/concepts/iterator.hpp>
@@ -179,5 +183,7 @@ static_assert(!models::sentinel<void*, void*>(), "");
 static_assert(models::sentinel<A, A>(), "");
 #endif
 } // namespace iterator_sentinel_test
+
+#endif
 
 int main() {}

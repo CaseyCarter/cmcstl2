@@ -13,13 +13,17 @@
 //
 namespace stl2 { inline namespace v1 {
 
+// Destructible is not to spec as of 20150712,
+// is_object and accepting the parameters by reference
+// are needed to protect against hard errors in the
+// requires clause with odd types.
 template <class T>
 concept bool Destructible() {
   return std::is_object<T>::value &&
-    requires(T& t, T* p) {
+    requires (T& t, const T& ct, T* const p) {
       { t.~T() } noexcept;
-      &t;
-      requires Same<T*, decltype(&t)>();
+      &t; requires Same<T*, decltype(&t)>(); // not equality preserving
+      &ct; requires Same<const T*, decltype(&ct)>(); // not equality preserving
       delete p;
       delete[] p;
     };
@@ -27,24 +31,41 @@ concept bool Destructible() {
 
 template <class T, class...Args>
 concept bool Constructible() {
-  return Destructible<T>() &&
-    requires(Args&&...args) {
-      T{ stl2::forward<Args>(args)... };
-      new T{ stl2::forward<Args>(args)... };
+  return requires (Args&&...args) {
+    T{ stl2::forward<Args>(args)... }; // not equality preserving
+  } && (std::is_reference<T>::value ||
+    (Destructible<T>() && requires (Args&&...args) {
+      new T{ stl2::forward<Args>(args)... }; // not equality preserving
+    }));
+}
+
+// There's implementation variance around DR1518, this may not
+// require the default constructor to be non-explicit.
+template <class T>
+concept bool DefaultConstructible() {
+  return Constructible<T>() &&
+    requires (const std::size_t n) {
+      new T[n]{}; // not equality preserving;
     };
 }
 
+// 20150712: Not as specified, uses ImplicitlyConvertible instead of
+// a lambda to require the move constructor to be non-explicit.
 template <class T>
 concept bool MoveConstructible() {
-  return Constructible<T, T&&>();
+  return Constructible<T, std::remove_cv_t<T>&&>() &&
+    ext::ImplicitlyConvertible<std::remove_cv_t<T>&&, T>();
 }
 
+// 20150712: Not as specified, uses ImplicitlyConvertible instead of
+// a lambda to require the copy constructor to be non-explicit.
 template <class T>
 concept bool CopyConstructible() {
   return MoveConstructible<T>() &&
-    Constructible<T, T&>() &&
-    Constructible<T, const T&>() &&
-    Constructible<T, const T&&>();
+    Constructible<T, const std::remove_cv_t<T>&>() &&
+    ext::ImplicitlyConvertible<std::remove_cv_t<T>&, T>() &&
+    ext::ImplicitlyConvertible<const std::remove_cv_t<T>&, T>() &&
+    ext::ImplicitlyConvertible<const std::remove_cv_t<T>&&, T>();
 }
 
 template <class T>
@@ -55,21 +76,21 @@ concept bool Movable() {
 
 template <class T>
 concept bool Copyable() {
-  return Movable<T>() &&
-    CopyConstructible<T>() &&
-    Assignable<T&, T&>() &&
-    Assignable<T&, const T&>() &&
-    Assignable<T&, const T&&>();
+  return CopyConstructible<T>() &&
+    Movable<T>() &&
+    Assignable<T&, const T&>();
 }
 
 template <class T>
 concept bool Semiregular() {
   return Copyable<T>() &&
-  Constructible<T>() &&
-  requires (const std::size_t n) {
-    new T[n];
-    requires Same<T*, decltype(new T[n])>();
-  };
+    DefaultConstructible<T>();
+}
+
+template <class T>
+concept bool Regular() {
+  return Semiregular<T>() &&
+    EqualityComparable<T>();
 }
 
 template <Movable T, class U = T>
@@ -101,18 +122,28 @@ template <class T, class U, std::size_t N>
 constexpr void swap(T (&t)[N], U (&u)[N])
   noexcept(noexcept(detail::__try_swap(*t, *u)));
 
-template <class T, class U = T>
-concept bool Swappable() {
-  return requires (T&& t, U&& u) {
+namespace detail {
+
+template <class T, class U>
+concept bool Swappable_ =
+  requires (T&& t, U&&u) {
     swap(stl2::forward<T>(t), stl2::forward<U>(u));
-    swap(stl2::forward<U>(u), stl2::forward<T>(t));
   };
+
 }
 
 template <class T>
-concept bool Regular() {
-  return Semiregular<T>() &&
-    EqualityComparable<T>();
+concept bool Swappable() {
+  return detail::Swappable_<T, T>;
+}
+
+template <class T, class U>
+concept bool Swappable() {
+  return Swappable<T>() &&
+    Swappable<U>() &&
+    Common<T, U>() &&
+    detail::Swappable_<T, U> &&
+    detail::Swappable_<U, T>;
 }
 
 #if 0
@@ -139,6 +170,7 @@ concept bool Integral() {
 }
 #endif
 
+// 20150712: Not to spec.
 template <class T>
 concept bool SignedIntegral() {
   return Integral<T>() && (T(-1) < T(0));
@@ -165,6 +197,11 @@ Constructible{T, ...Args}
 constexpr bool constructible() { return false; }
 
 template <class>
+constexpr bool default_constructible() { return false; }
+DefaultConstructible{T}
+constexpr bool default_constructible() { return true; }
+
+template <class>
 constexpr bool move_constructible() { return false; }
 MoveConstructible{T}
 constexpr bool move_constructible() { return true; }
@@ -185,17 +222,6 @@ Copyable{T}
 constexpr bool copyable() { return true; }
 
 template <class>
-constexpr bool swappable() { return false; }
-template <class T>
-  requires Swappable<T>()
-constexpr bool swappable() { return true; }
-
-template <class, class>
-constexpr bool swappable() { return false; }
-Swappable{T, U}
-constexpr bool swappable() { return true; }
-
-template <class>
 constexpr bool semiregular() { return false; }
 Semiregular{T}
 constexpr bool semiregular() { return true; }
@@ -204,6 +230,16 @@ template <class>
 constexpr bool regular() { return false; }
 Regular{T}
 constexpr bool regular() { return true; }
+
+template <class>
+constexpr bool swappable() { return false; }
+template <Swappable T>
+constexpr bool swappable() { return true; }
+template <class, class>
+constexpr bool swappable() { return false; }
+template <class T, class U>
+  requires Swappable<T, U>()
+constexpr bool swappable() { return true; }
 
 template <class>
 constexpr bool integral() { return false; }

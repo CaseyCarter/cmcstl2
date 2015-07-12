@@ -21,7 +21,7 @@ concept bool Function() {
   return CopyConstructible<F>() &&
     requires (F& f, Args&&...args) {
       typename ResultType<F, Args...>;
-      f((Args&&)(args)...);
+      f(stl2::forward<Args>(args)...); // not equality preserving
       requires Same<ResultType<F, Args...>,
                     decltype(f(stl2::forward<Args>(args)...))>();
     };
@@ -38,23 +38,42 @@ concept bool Predicate() {
     Boolean<ResultType<F, Args...>>();
 }
 
-template <class R, class T, class U = T>
-concept bool Relation() {
-  return Predicate<R, T, T>() &&
-    (Same<T, U>() ||
-      (Predicate<R, T, U>() &&
-       Predicate<R, U, T>() &&
-       Predicate<R, U, U>()));
+namespace ext {
+
+template <class R, class T>
+concept bool WeakRelation() {
+  return Predicate<R, T, T>();
 }
 
-template <class R, class T, class U = T>
-concept bool StrongRelation() {
-  return Relation<R, T, U>() &&
+template <class R, class T, class U>
+concept bool WeakRelation() {
+  return WeakRelation<R, T>() &&
+    (Same<T, U>() ||
+      (WeakRelation<R, U>() &&
+       Predicate<R, T, U>() &&
+       Predicate<R, U, T>()));
+}
+
+}
+
+template <class R, class T>
+concept bool Relation() {
+  return ext::WeakRelation<R, T>();
+}
+
+template <class R, class T, class U>
+concept bool Relation() {
+  return ext::WeakRelation<R, T, U>() &&
     (Same<T, U>() ||
       (Common<T, U>() &&
-       Predicate<R, CommonType<T, U>, CommonType<T, U>>()));
+       Predicate<R, CommonType<T, U>>()));
 
-template <class R, class T, class U = T>
+template <class R, class T>
+concept bool StrictWeakOrder() {
+  return Relation<R, T>();
+}
+
+template <class R, class T, class U>
 concept bool StrictWeakOrder() {
   return Relation<R, T, U>();
 }

@@ -1,6 +1,6 @@
 template <class T>
 concept bool C =
-  requires(T& a, T& b) {
+  requires (T& a, T& b) {
     a - b;
   };
 
