@@ -2,7 +2,8 @@
 #define STL2_UTILITY
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/concepts/foundational.hpp>
+#include <stl2/concepts/core.hpp>
+#include <stl2/concepts/object.hpp>
 
 #include <cassert>
 #include <type_traits>

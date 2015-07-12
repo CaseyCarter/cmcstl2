@@ -1,13 +1,14 @@
 #ifndef STL2_CONCEPTS_FUNCTION_HPP
 #define STL2_CONCEPTS_FUNCTION_HPP
 
+#include <stl2/concepts/compare.hpp>
 #include <stl2/concepts/core.hpp>
-#include <stl2/concepts/foundational.hpp>
+#include <stl2/concepts/object.hpp>
 
 #include <type_traits>
 
-////////////////////
-// Function Concepts
+////////////////////////////////////////////
+// Function Concepts [concepts.lib.function]
 //
 namespace stl2 { inline namespace v1 {
 

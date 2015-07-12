@@ -8,8 +8,8 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/common_type.hpp>
 
-////////////////
-// Core Concepts
+////////////////////////////////////////
+// Core Concepts [concepts.lib.corelang]
 //
 
 #if defined(__GNUC__)
@@ -35,6 +35,8 @@ concept bool Derived() {
   return STL2_IS_BASE_OF(U, T);
 }
 
+namespace ext {
+
 template <class T, class U>
 concept bool ExplicitlyConvertible() {
   return Same<T, U>() ||
@@ -43,18 +45,24 @@ concept bool ExplicitlyConvertible() {
     };
 }
 
+} // namespace ext
+
 template <class T, class U>
 concept bool Convertible() {
   return Same<T, U>() ||
-    (ExplicitlyConvertible<T, U>() &&
+    (ext::ExplicitlyConvertible<T, U>() &&
       std::is_convertible<T, U>::value);
 }
+
+namespace ext {
 
 template <class T, class U>
 concept bool PubliclyDerived() {
   return Same<T, U>() ||
     (Derived<T, U>() && Convertible<T, U>());
 }
+
+} // namespace ext
 
 template <class T, class U>
 using CommonType =
@@ -69,8 +77,8 @@ concept bool Common() {
       typename CommonType<T, U>;
       typename CommonType<U, T>;
       requires Same<CommonType<T, U>, CommonType<U, T>>();
-      requires ExplicitlyConvertible<T, CommonType<T, U>>();
-      requires ExplicitlyConvertible<U, CommonType<T, U>>();
+      requires ext::ExplicitlyConvertible<T, CommonType<T, U>>();
+      requires ext::ExplicitlyConvertible<U, CommonType<T, U>>();
     };
 }
 
@@ -89,7 +97,7 @@ concept bool Assignable() {
   };
 }
 
-namespace core {
+namespace ext { namespace core {
 
 template <class T>
 concept bool Constructible() {
@@ -113,52 +121,54 @@ concept bool Constructible() {
   };
 }
 
-} // namespace core
+}} // namespace ext::core
 
 #undef STL2_IS_SAME_AS
 #undef STL2_IS_BASE_OF
 
-namespace models {
+namespace ext { namespace models {
 
 template <class, class>
 constexpr bool same() { return false; }
-
 Same{T, U}
 constexpr bool same() { return true; }
 
 template <class, class>
 constexpr bool assignable() { return false; }
-
 Assignable{T, U}
 constexpr bool assignable() { return true; }
 
 template <class, class>
 constexpr bool convertible() { return false; }
-
 Convertible{T, U}
 constexpr bool convertible() { return true; }
 
-
 template <class, class>
 constexpr bool publicly_derived() { return false; }
-
 PubliclyDerived{T, U}
 constexpr bool publicly_derived() { return true; }
 
-
 template <class, class>
 constexpr bool common() { return false; }
-
 Common{T, U}
 constexpr bool common() { return true; }
 
-//template <class, class...>
-//constexpr bool core_constructible() { return false; }
-//
-//template <class T, class...Args>
-//requires core::Constructible<T, Args...>()
-//constexpr bool core_constructible() { return false; }
+template <class>
+constexpr bool core_constructible() { return false; }
+template <class T>
+  requires core::Constructible<T>()
+constexpr bool core_constructible() { return false; }
+template <class, class>
+constexpr bool core_constructible() { return false; }
+template <class T, class U>
+  requires core::Constructible<T, U>()
+constexpr bool core_constructible() { return false; }
+template <class, class, class...>
+constexpr bool core_constructible() { return false; }
+template <class T, class U, class V, class...Args>
+  requires core::Constructible<T, U, V, Args...>()
+constexpr bool core_constructible() { return false; }
 
-}}} // namespace stl2::v1::models
+}}}} // namespace stl2::v1::ext::models
 
 #endif // STL2_CONCEPTS_CORE_HPP

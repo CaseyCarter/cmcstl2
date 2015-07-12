@@ -6,11 +6,13 @@
 #include <meta/meta.hpp>
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/concepts/foundational.hpp>
+#include <stl2/concepts/compare.hpp>
+#include <stl2/concepts/core.hpp>
+#include <stl2/concepts/object.hpp>
 #include <stl2/utility.hpp>
 
-////////////////////
-// Iterator concepts
+////////////////////////////////////////////
+// Iterator concepts [iterator.requirements]
 //
 namespace stl2 { inline namespace v1 {
 
@@ -392,7 +394,7 @@ concept bool RandomAccessIterator() {
 
 // ContiguousIterator?
 
-namespace models {
+namespace ext { namespace models {
 
 template <class>
 constexpr bool readable() { return false; }
@@ -436,7 +438,7 @@ Sentinel{S, I}
 constexpr bool sentinel() { return true; }
 #endif
 
-} // namespace models
+}} // namespace ext::models
 
 template <class R>
 detail::__iter_move_t<R> iter_move2(R r)

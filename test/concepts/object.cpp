@@ -1,13 +1,13 @@
-// -*- compile-command: "(cd ~/cmcstl2/build && make foundational && ./test/foundational)" -*-
+// -*- compile-command: "(cd ~/cmcstl2/build && make object && ./test/object)" -*-
 
-#include <stl2/concepts/foundational.hpp>
+#include <stl2/concepts/object.hpp>
 #include <stl2/utility.hpp>
 
 #include "copymove.hpp"
-#include "simple_test.hpp"
+#include "../simple_test.hpp"
 
 namespace destructible_test {
-using stl2::models::destructible;
+using stl2::ext::models::destructible;
 
 static_assert(!destructible<void>(), "");
 static_assert(destructible<int>(), "");
@@ -17,7 +17,7 @@ static_assert(!destructible<int()>(), "");
 }
 
 namespace copy_move_test {
-using stl2::models::copy_constructible;
+using stl2::ext::models::copy_constructible;
 
 static_assert(!copy_constructible<void>(), "");
 static_assert(copy_constructible<int>(), "");
@@ -31,22 +31,8 @@ static_assert(!copy_constructible<nonmovable_t>(), "");
 static_assert(!copy_constructible<copyonly_t>(), "");
 } // namespace copy_move_test
 
-namespace boolean_test {
-using stl2::models::boolean;
-
-static_assert(boolean<bool>(), "");
-static_assert(boolean<int>(), "");
-static_assert(boolean<void*>(), "");
-
-struct A {};
-struct B { operator bool() const { return true; } };
-
-static_assert(!boolean<A>(), "");
-static_assert(boolean<B>(), "");
-}
-
 namespace integral_test {
-using stl2::models::integral;
+using stl2::ext::models::integral;
 
 static_assert(integral<int>(), "");
 static_assert(!integral<double>(), "");
@@ -55,8 +41,8 @@ static_assert(!integral<void>(), "");
 }
 
 namespace copy_move_test {
-using stl2::models::movable;
-using stl2::models::copyable;
+using stl2::ext::models::movable;
+using stl2::ext::models::copyable;
 
 static_assert(movable<int>(), "");
 static_assert(movable<double>(), "");
@@ -76,7 +62,7 @@ static_assert(!copyable<copyonly_t>(), "");
 } // namespace copy_move_test
 
 namespace semiregular {
-using stl2::models::semiregular;
+using stl2::ext::models::semiregular;
 
 struct A {};
 
@@ -87,29 +73,8 @@ static_assert(!semiregular<int&>(), "");
 static_assert(semiregular<A>(), "");
 }
 
-namespace equality_comparable_test {
-using stl2::models::equality_comparable;
-
-struct A {
-  friend constexpr bool operator==(const A&, const A&) {
-    return true;
-  }
-  friend constexpr bool operator!=(const A&, const A&) {
-    return false;
-  }
-};
-
-static_assert(equality_comparable<int>(), "");
-static_assert(equality_comparable<A>(), "");
-static_assert(!equality_comparable<void>(), "");
-
-static_assert(equality_comparable<int, int>(), "");
-static_assert(equality_comparable<A, A>(), "");
-static_assert(!equality_comparable<void, void>(), "");
-} // namespace equality_comparable_test
-
 namespace regular_test {
-using stl2::models::regular;
+using stl2::ext::models::regular;
 
 struct A {
   friend constexpr bool operator==(const A&, const A&) {
@@ -124,19 +89,6 @@ static_assert(regular<int>(), "");
 static_assert(regular<A>(), "");
 static_assert(!regular<void>(), "");
 } // namespace regular_test
-
-namespace totally_ordered_test {
-using stl2::models::totally_ordered;
-
-static_assert(totally_ordered<int>(), "");
-static_assert(totally_ordered<float>(), "");
-static_assert(totally_ordered<std::nullptr_t>(), "");
-static_assert(!totally_ordered<void>(), "");
-
-static_assert(totally_ordered<int, int>(), "");
-static_assert(totally_ordered<int, double>(), "");
-static_assert(!totally_ordered<int, void>(), "");
-} // namespace totally_ordered_test
 
 
 namespace detail {

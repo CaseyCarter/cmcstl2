@@ -6,8 +6,8 @@
 
 #include <iterator>
 
-/////////////////
-// Range concepts
+/////////////////////////////
+// Range concepts [iterables]
 //
 namespace stl2 { inline namespace v1 {
 
@@ -30,13 +30,13 @@ concept bool Range() {
   };
 }
 
-namespace models {
+namespace ext { namespace models {
 
 template <class>
 constexpr bool range() { return false; }
 Range{T}
 constexpr bool range() { return true; }
 
-}}} // namespace stl2::v1::models
+}}}} // namespace stl2::v1::ext::models
 
 #endif // STL2_CONCEPTS_RANGE_HPP

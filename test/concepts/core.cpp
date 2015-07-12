@@ -7,10 +7,10 @@
 #include <stl2/utility.hpp>
 
 #include "copymove.hpp"
-#include "simple_test.hpp"
+#include "../simple_test.hpp"
 
 namespace same_test {
-using stl2::models::same;
+using stl2::ext::models::same;
 
 static_assert(same<int, int>(), "");
 static_assert(same<double, double>(), "");
@@ -19,7 +19,7 @@ static_assert(!same<int, double>(), "");
 }
 
 namespace publicly_derived_test {
-using stl2::models::publicly_derived;
+using stl2::ext::models::publicly_derived;
 
 struct A {};
 struct B : A {};
@@ -41,7 +41,7 @@ static_assert(!publicly_derived<int,void>(), "");
 }
 
 namespace convertible_test {
-using stl2::models::convertible;
+using stl2::ext::models::convertible;
 
 struct A {};
 struct B : A {};
@@ -56,8 +56,8 @@ static_assert(convertible<double, int>(), "");
 
 namespace common_test {
 using stl2::CommonType;
-using stl2::models::same;
-using stl2::models::common;
+using stl2::ext::models::same;
+using stl2::ext::models::common;
 
 struct A {};
 }
@@ -90,7 +90,7 @@ static_assert(common<B,C>(), "");
 namespace constructible_test {
 
 template <class T, class U>
-  requires stl2::core::Constructible<T, U>()
+  requires stl2::ext::core::Constructible<T, U>()
 constexpr bool f() { return false; }
 
 template <class T, stl2::Convertible<T> >
@@ -127,7 +127,7 @@ result f(A) {
   return result::exact;
 }
 
-result f(stl2::PubliclyDerived<A>) {
+result f(stl2::ext::PubliclyDerived<A>) {
   std::cout << "Publicly derived from A\n";
   return result::publicly_derived;
 }
@@ -137,7 +137,7 @@ result f(stl2::Convertible<A>) {
   return result::convertible;
 }
 
-result f(stl2::ExplicitlyConvertible<A>) {
+  result f(stl2::ext::ExplicitlyConvertible<A>) {
   std::cout << "Explicitly convertible to A\n";
   return result::explicitly_convertible;
 }
