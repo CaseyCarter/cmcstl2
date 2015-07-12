@@ -47,6 +47,11 @@ concept bool ExplicitlyConvertible() {
 
 } // namespace ext
 
+// Convertible is not to spec as of 20150711. The draft specifies
+// that Convertible has the same value as is_convertible, but Casey
+// strongly suspects that we (a) want Same to subsume Convertible,
+// and (b) want Convertible to require both implicit and explicit
+// conversion with equal results.
 template <class T, class U>
 concept bool Convertible() {
   return Same<T, U>() ||
@@ -56,6 +61,7 @@ concept bool Convertible() {
 
 namespace ext {
 
+// "PubliclyAndUnambiguouslyDerived" would be a very long name.
 template <class T, class U>
 concept bool PubliclyDerived() {
   return Same<T, U>() ||
@@ -70,6 +76,9 @@ using CommonType =
     meta::if_c<STL2_IS_SAME_AS(T, U), T,
       meta::defer_trait<stl2::common_type, T, U>>>;
 
+// Common is not to spec as of 20150711. Casey strongly suspects
+// that we want Same to subsume Common (see the discussion at
+// https://github.com/ericniebler/stl2/issues/50).
 template <class T, class U>
 concept bool Common() {
   return Same<T, U>() ||
@@ -82,12 +91,9 @@ concept bool Common() {
     };
 }
 
-// Same<T, U> subsumes Convertible<T, U> and PubliclyDerived<T, U> and Common<T, U>
-// PubliclyDerived<T, U> subsumes Convertible<T, U>
-// Convertible<T, U> (and transitively Same<T, U> and PubliclyDerived<T, U>) subsumes ExplicitlyConvertible<T, U>
-
-// ExplictlyConvertible<T, U> (and transitively Convertible<T, U>, PubliclyDerived<T, U>,
-// and Same<T, U>) subsumes Constructible<U, T>
+// Subsumption relationships:
+// Same <= ext::PubliclyDerived <= Convertible <= ext::ExplicitlyConvertible <= ext::core::Constructible
+// Same <= Common
 
 template <class T, class U>
 concept bool Assignable() {
@@ -134,11 +140,6 @@ Same{T, U}
 constexpr bool same() { return true; }
 
 template <class, class>
-constexpr bool assignable() { return false; }
-Assignable{T, U}
-constexpr bool assignable() { return true; }
-
-template <class, class>
 constexpr bool convertible() { return false; }
 Convertible{T, U}
 constexpr bool convertible() { return true; }
@@ -152,6 +153,11 @@ template <class, class>
 constexpr bool common() { return false; }
 Common{T, U}
 constexpr bool common() { return true; }
+
+template <class, class>
+constexpr bool assignable() { return false; }
+Assignable{T, U}
+constexpr bool assignable() { return true; }
 
 template <class>
 constexpr bool core_constructible() { return false; }

@@ -12,13 +12,20 @@ namespace stl2 { inline namespace v1 {
 template <class B>
 concept bool Boolean() {
   return Convertible<B, bool>() &&
-    requires(B&& b1, B&& b2) {
-      // { !b1 } -> Boolean;
-      !b1; requires Convertible<decltype(!b1),bool>();
-      //{ b1 && b2 } -> Same<bool>();
-      b1 && b2; requires Convertible<decltype(b1 && b2),bool>();
-      //{ b1 || b2 } -> Same<bool>();
-      b1 || b2; requires Convertible<decltype(b1 || b2),bool>();
+    requires(const B& b1, const B& b2, const bool a) {
+      !b1; requires Convertible<decltype(!b1), bool>();
+      b1 && b2; requires Same<decltype(b1 && b2), bool>();
+      b1 && a; requires Same<decltype(b1 && a), bool>();
+      a && b2; requires Same<decltype(a && b2), bool>();
+      b1 || b2; requires Same<decltype(b1 || b2), bool>();
+      b1 || a; requires Same<decltype(b1 || a), bool>();
+      a || b2; requires Same<decltype(a || b2), bool>();
+      b1 == b2; requires Convertible<decltype(b1 == b2), bool>();
+      b1 == a; requires Convertible<decltype(b1 == a), bool>();
+      a == b2; requires Convertible<decltype(a == b2), bool>();
+      b1 != b2; requires Convertible<decltype(b1 != b2), bool>();
+      b1 != a; requires Convertible<decltype(b1 != a), bool>();
+      a != b2; requires Convertible<decltype(a != b2), bool>();
     };
 }
 
@@ -26,30 +33,43 @@ namespace detail {
 
 template <class T, class U>
 concept bool EqualityComparable_ =
-  requires (T&& t, U&& u) {
+  requires (const T& t, const U& u) {
 #if 0 // FIXME: ICE
-    { stl2::forward<T>(t) == stl2::forward<U>(u) } -> Boolean;
-    { stl2::forward<T>(t) != stl2::forward<U>(u) } -> Boolean;
+    { t == u } -> Boolean;
+    { t != u } -> Boolean;
 #else
-    { stl2::forward<T>(t) == stl2::forward<U>(u) } -> bool;
-    { stl2::forward<T>(t) != stl2::forward<U>(u) } -> bool;
+    { t == u } -> bool;
+    { t != u } -> bool;
 #endif
   };
 
 } // namespace detail
 
-template <class T, class U = T>
-concept bool EqualityComparable() {
-  return detail::EqualityComparable_<T, T> &&
-  (Same<T, U>() ||
-    (detail::EqualityComparable_<T, U> &&
-     detail::EqualityComparable_<U, T> &&
-     detail::EqualityComparable_<U, U>));
+namespace ext {
+
+template <class T>
+concept bool WeaklyEqualityComparable() {
+  return detail::EqualityComparable_<T, T>;
 }
 
-template <class T, class U = T>
-concept bool StronglyEqualityComparable() {
-  return EqualityComparable<T, U>() &&
+template <class T, class U>
+concept bool WeaklyEqualityComparable() {
+  return WeaklyEqualityComparable<T>() &&
+    WeaklyEqualityComparable<U>() &&
+    detail::EqualityComparable_<T, U> &&
+    detail::EqualityComparable_<U, T>;
+}
+
+} // namespace ext
+
+template <class T>
+concept bool EqualityComparable() {
+  return ext::WeaklyEqualityComparable<T>();
+}
+
+template <class T, class U>
+concept bool EqualityComparable() {
+  return ext::WeaklyEqualityComparable<T, U>() &&
     (Same<T, U>() ||
       (Common<T, U>() &&
        EqualityComparable<CommonType<T, U>>()));
@@ -59,8 +79,8 @@ namespace detail {
 
 template <class T, class U>
 concept bool TotallyOrdered_ =
-  EqualityComparable<T, U>() &&
-  requires (T&& a, U&& b) {
+  EqualityComparable_<T, U> &&
+  requires (const T& a, const U& b) {
 #if 0 // FIXME: ICE
     //{ a < b } -> Boolean;
     //{ a > b } -> Boolean;
@@ -76,18 +96,31 @@ concept bool TotallyOrdered_ =
 
 } // namespace detail
 
-template <class T, class U = T>
-concept bool TotallyOrdered() {
-  return detail::TotallyOrdered_<T, T> &&
-    (Same<T, U>() ||
-      (detail::TotallyOrdered_<T, U> &&
-       detail::TotallyOrdered_<U, T> &&
-       detail::TotallyOrdered_<U, U>));
+namespace ext {
+
+template <class T>
+concept bool WeaklyTotallyOrdered() {
+  return detail::TotallyOrdered_<T, T>;
 }
 
-template <class T, class U = T>
-concept bool StronglyTotallyOrdered() {
-  return TotallyOrdered<T, U>() &&
+template <class T, class U>
+concept bool WeaklyTotallyOrdered() {
+  return WeaklyTotallyOrdered<T>() &&
+    WeaklyTotallyOrdered<U>() &&
+    detail::TotallyOrdered_<T, U> &&
+    detail::TotallyOrdered_<U, T>;
+}
+
+} // namespace ext
+
+template <class T>
+concept bool TotallyOrdered() {
+  return ext::WeaklyTotallyOrdered<T>();
+}
+
+template <class T, class U>
+concept bool TotallyOrdered() {
+  return ext::WeaklyTotallyOrdered<T, U>() &&
     (Same<T, U>() ||
       (Common<T, U>() &&
        TotallyOrdered<CommonType<T, U>>()));
