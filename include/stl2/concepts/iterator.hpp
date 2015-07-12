@@ -25,8 +25,7 @@ concept bool Dereferencable =
   };
 }
 
-template <class R>
-  requires detail::Dereferencable<R>
+template <detail::Dereferencable R>
 using ReferenceType =
   decltype(*declval<R>());
 
@@ -54,14 +53,12 @@ using RvalueReferenceType =
 
 namespace detail {
 
-using meta::detail::uncvref_t;
-
 template <class T>
 concept bool NonVoid =
   !std::is_void<T>::value;
 
 template <class T>
-concept bool AcceptableValueType =
+concept bool IsValueType =
   Same<T, std::decay_t<T>>() && NonVoid<T>;
 
 template <class T>
@@ -89,13 +86,13 @@ struct value_type<T> {
 };
 
 template <detail::Dereferencable T>
-  requires !detail::MemberElementType<T> && !detail::MemberValueType<T>
+  requires !(detail::MemberElementType<T> || detail::MemberValueType<T>)
 struct value_type<T> {
-  using type = detail::uncvref_t<ReferenceType<T>>;
+  using type = std::decay_t<ReferenceType<T>>;
 };
 
 template <class T>
-  requires detail::AcceptableValueType<meta::_t<value_type<std::remove_cv_t<T>>>>
+  requires detail::IsValueType<meta::_t<value_type<std::remove_cv_t<T>>>>
 using ValueType =
   meta::_t<value_type<std::remove_cv_t<T>>>;
 
@@ -248,8 +245,7 @@ struct contiguous_iterator_tag :
 
 template <class> struct iterator_category {};
 
-template <class T>
-  requires detail::NonVoid<T>
+template <detail::NonVoid T>
 struct iterator_category<T*> {
   using type = ext::contiguous_iterator_tag;
 };
