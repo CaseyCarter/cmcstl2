@@ -21,7 +21,7 @@ namespace detail {
 template <class T>
 concept bool Dereferencable =
   requires (T&& t) {
-    { *stl2::forward<T>(t) } -> auto&&;
+    { *static_cast<T&&>(t) } -> auto&&;
   };
 }
 
@@ -103,7 +103,7 @@ concept bool Readable() {
     requires (const I& i) {
       typename ValueType<I>;
       typename RvalueReferenceType<I>;
-      { *i } -> const ValueType<I>&;
+      { *i } -> const ValueType<I>&; // Convertible<ReferenceType<I>, const ValueType<I>&>() ?
     };
 }
 
@@ -142,12 +142,12 @@ namespace detail {
     std::is_nothrow_assignable<ReferenceType<Out>, ValueType<In>>::value;
 
   template <class In, class Out>
-  struct is_nothrow_indirectly_movable
-    : meta::bool_<is_nothrow_indirectly_movable_v<In, Out>> {};
+  using is_nothrow_indirectly_movable_t =
+    meta::bool_<is_nothrow_indirectly_movable_v<In, Out>>;
 
   template <class In, class Out>
-  using is_nothrow_indirectly_movable_t =
-    meta::_t<is_nothrow_indirectly_movable<In, Out>>;
+  struct is_nothrow_indirectly_movable
+    : is_nothrow_indirectly_movable_t<In, Out> {};
 }
 
 #define CASEYBROKEITERSWAP 1
@@ -161,7 +161,8 @@ void iter_swap2(R1 r1, R2 r2)
 
 template <Readable R1, Readable R2>
   requires !Swappable<ReferenceType<R1>, ReferenceType<R2>>() &&
-    detail::IndirectlyMovable<R1, R2> && detail::IndirectlyMovable<R2, R1>
+    detail::IndirectlyMovable<R1, R2> &&
+    detail::IndirectlyMovable<R2, R1>
 void iter_swap2(R1 r1, R2 r2)
   noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&
            detail::is_nothrow_indirectly_movable_v<R2, R1>);
@@ -434,11 +435,12 @@ void iter_swap2(R1 r1, R2 r2)
 
 template <Readable R1, Readable R2>
   requires !Swappable<ReferenceType<R1>, ReferenceType<R2>>() &&
-    detail::IndirectlyMovable<R1, R2> && detail::IndirectlyMovable<R2, R1>
+    detail::IndirectlyMovable<R1, R2> &&
+    detail::IndirectlyMovable<R2, R1>
 void iter_swap2(R1 r1, R2 r2)
   noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&
            detail::is_nothrow_indirectly_movable_v<R2, R1>) {
-  ValueType<R1> tmp = iter_move2(r1);
+  ValueType<R1> tmp(iter_move2(r1));
   *r1 = iter_move2(r2);
   *r2 = stl2::move(tmp);
 }

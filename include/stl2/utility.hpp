@@ -44,16 +44,17 @@ constexpr void swap(T (&t)[N], U (&u)[N])
 template<class T, class U>
 constexpr bool is_nothrow_swappable_v = false;
 
-template<class T, class U>
-  requires Swappable<T, U>()
+Swappable{T, U}
 constexpr bool is_nothrow_swappable_v =
   noexcept(swap(declval<T>(), declval<U>()));
 
 template<class T, class U>
-struct is_nothrow_swappable : meta::bool_<is_nothrow_swappable_v<T, U>> {};
+using is_nothrow_swappable_t =
+  meta::bool_<is_nothrow_swappable_v<T, U>>;
 
 template<class T, class U>
-using is_nothrow_swappable_t = meta::_t<is_nothrow_swappable<T, U>>;
+struct is_nothrow_swappable :
+  is_nothrow_swappable_t<T, U> {};
 
 ////////////////////
 // General Utilities
@@ -69,7 +70,7 @@ template <class T = void>
   requires Same<T, void>() || EqualityComparable<T>()
 struct equal_to {
   constexpr auto operator()(const T& a, const T& b) const {
-    return a == b;
+    return a == b; // FIXME: Boolean is not MoveConstructible.
   }
 };
 
@@ -77,7 +78,7 @@ template <>
 struct equal_to<void> {
   EqualityComparable{T, U}
   constexpr auto operator()(const T& t, const U& u) const {
-    return t == u;
+    return t == u; // FIXME: Boolean is not MoveConstructible.
   }
 
   using is_transparent = std::true_type;
