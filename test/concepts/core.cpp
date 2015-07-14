@@ -1,4 +1,4 @@
-// -*- compile-command: "(cd ~/cmcstl2/build && make core_concepts && ./test/core_concepts)" -*-
+// -*- compile-command: "(cd ~/cmcstl2/build && make core && ./test/concepts/core)" -*-
 
 #include <iostream>
 #include <type_traits>
@@ -12,8 +12,17 @@
 namespace same_test {
 using stl2::ext::models::same;
 
+static_assert(stl2::detail::all_same<>(), "");
+static_assert(stl2::detail::all_same<int, int>(), "");
+static_assert(stl2::detail::all_same<double, double>(), "");
+static_assert(stl2::detail::all_same<double>(), "");
+static_assert(!stl2::detail::all_same<double, int>(), "");
+static_assert(!stl2::detail::all_same<int, double>(), "");
+
+static_assert(same<>(), "");
 static_assert(same<int, int>(), "");
 static_assert(same<double, double>(), "");
+static_assert(same<double>(), "");
 static_assert(!same<double, int>(), "");
 static_assert(!same<int, double>(), "");
 }

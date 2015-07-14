@@ -29,10 +29,23 @@
 
 namespace stl2 { inline namespace v1 {
 
-// Types T and U model Same iff T and U are the same type.
-template <class T, class U>
+namespace detail {
+
+template <class...>
+struct all_same : std::true_type {};
+
+template <class T, class...Rest>
+struct all_same<T, T, Rest...> : all_same<T, Rest...> {};
+
+template <class T, class U, class...Rest>
+struct all_same<T, U, Rest...> : std::false_type {};
+
+}
+
+// 20150713: Not to spec; variadic.
+template <class...Ts>
 concept bool Same() {
-  return STL2_IS_SAME_AS(T, U);
+  return meta::_v<detail::all_same<Ts...>>;
 }
 
 // Types T and U model Derived iff T and U are class types
@@ -82,25 +95,33 @@ concept bool PubliclyDerived() {
 
 } // namespace ext
 
-template <class T, class U>
-using CommonType =
-  meta::let<
-    meta::if_c<STL2_IS_SAME_AS(T, U), T,
-      meta::defer_trait<stl2::common_type, T, U>>>;
+namespace detail {
 
-// Common is not to spec as of 20150711. Casey strongly suspects
-// that we want Same to subsume Common (see the discussion at
+template <class To, class...From>
+constexpr bool all_explicitly_convertible =
+  meta::_v<meta::fast_and<std::is_constructible<To, From&&>...>>;
+
+template <class To, class...From>
+concept bool AllExplicitlyConvertible =
+  all_explicitly_convertible<To, From...>;
+
+}
+
+template <class...Ts>
+  requires sizeof...(Ts) != 0
+using CommonType =
+  stl2::common_type_t<Ts...>;
+
+// 20150714: Not to spec, variadic and without consistency check.
+// Casey strongly suspects that we want Same to subsume Common
+// (see the discussion at
 // https://github.com/ericniebler/stl2/issues/50).
-template <class T, class U>
+template <class...Ts>
 concept bool Common() {
-  return Same<T, U>() ||
-    requires {
-      typename CommonType<T, U>;
-      typename CommonType<U, T>;
-      requires Same<CommonType<T, U>, CommonType<U, T>>();
-      requires ext::ExplicitlyConvertible<T, CommonType<T, U>>();
-      requires ext::ExplicitlyConvertible<U, CommonType<T, U>>();
-    };
+  return Same<Ts...>() ||
+    (requires { typename CommonType<Ts...>; } &&
+     // ... && requires ext::ExplicitlyConvertible<Ts, CommonType<Ts...>>());
+     detail::AllExplicitlyConvertible<CommonType<Ts...>, Ts...>);
 }
 
 template <class T, class U>
@@ -141,9 +162,9 @@ concept bool Constructible() {
 
 namespace ext { namespace models {
 
-template <class, class>
+template <class...>
 constexpr bool same() { return false; }
-Same{T, U}
+Same{...Ts}
 constexpr bool same() { return true; }
 
 template <class, class>
@@ -156,9 +177,9 @@ constexpr bool publicly_derived() { return false; }
 PubliclyDerived{T, U}
 constexpr bool publicly_derived() { return true; }
 
-template <class, class>
+template <class...>
 constexpr bool common() { return false; }
-Common{T, U}
+Common{...Ts}
 constexpr bool common() { return true; }
 
 template <class, class>
