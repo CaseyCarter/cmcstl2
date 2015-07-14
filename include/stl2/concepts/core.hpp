@@ -48,8 +48,6 @@ concept bool Same() {
   return meta::_v<detail::all_same<Ts...>>;
 }
 
-// Types T and U model Derived iff T and U are class types
-// and U is a base of T
 template <class T, class U>
 concept bool Derived() {
   return STL2_IS_BASE_OF(U, T);
@@ -191,17 +189,17 @@ template <class>
 constexpr bool core_constructible() { return false; }
 template <class T>
   requires core::Constructible<T>()
-constexpr bool core_constructible() { return false; }
+constexpr bool core_constructible() { return true; }
 template <class, class>
 constexpr bool core_constructible() { return false; }
 template <class T, class U>
   requires core::Constructible<T, U>()
-constexpr bool core_constructible() { return false; }
+constexpr bool core_constructible() { return true; }
 template <class, class, class...>
 constexpr bool core_constructible() { return false; }
 template <class T, class U, class V, class...Args>
   requires core::Constructible<T, U, V, Args...>()
-constexpr bool core_constructible() { return false; }
+constexpr bool core_constructible() { return true; }
 
 }}}} // namespace stl2::v1::ext::models
 
