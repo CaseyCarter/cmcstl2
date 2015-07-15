@@ -31,7 +31,7 @@ using ReferenceType =
 
 namespace detail {
 
-template <class R>
+template <detail::Dereferencable R>
 using __iter_move_t =
   meta::if_<
     std::is_reference<ReferenceType<R>>,
@@ -44,7 +44,7 @@ template <detail::Dereferencable R>
 detail::__iter_move_t<R> iter_move2(R r)
   noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r))));
 
-template <class R>
+template <detail::Dereferencable R>
   requires requires (R&& r) {
     { iter_move2(stl2::forward<R>(r)) } -> auto&&;
   }
@@ -96,9 +96,12 @@ template <class T>
 using ValueType =
   meta::_t<value_type<std::remove_cv_t<T>>>;
 
+// 20150714: Not to spec, relax Semiregular<I> to Movable<I>
+// as in https://github.com/ericniebler/range-v3/issues/179.
 template <class I>
 concept bool Readable() {
-  return Semiregular<I>() &&
+  return Movable<I>() &&
+    DefaultConstructible<I>() &&
     detail::Dereferencable<I> &&
     requires (const I& i) {
       typename ValueType<I>;
@@ -107,20 +110,16 @@ concept bool Readable() {
     };
 }
 
+// 20150714: Not to spec, relax Semiregular<I> to
+// Movable<I> && DefaultConstructible<I> as in
+// https://github.com/ericniebler/range-v3/issues/179.
 template <class Out, class T>
 concept bool MoveWritable() {
-  return Semiregular<Out>() &&
+  return Movable<Out>() &&
+    DefaultConstructible<Out>() &&
     detail::Dereferencable<Out> &&
     requires (Out& o, T&& t) {
       *o = stl2::move(t); // not equality preserving
-    };
-}
-
-template <class Out, class T>
-concept bool Writable() {
-  return MoveWritable<Out, T>() &&
-    requires (Out& o, const T& t) {
-      *o = t; // not equality preserving
     };
 }
 
@@ -168,6 +167,14 @@ void iter_swap2(R1 r1, R2 r2)
            detail::is_nothrow_indirectly_movable_v<R2, R1>);
 
 #endif
+
+template <class Out, class T>
+concept bool Writable() {
+  return MoveWritable<Out, T>() &&
+    requires (Out& o, const T& t) {
+      *o = t; // not equality preserving
+    };
+}
 
 template <class I1, class I2 = I1>
 concept bool IndirectlySwappable() {
@@ -292,17 +299,17 @@ concept bool WeakInputIterator() {
     };
 }
 
+template <class I, class T>
+concept bool WeakOutputIterator() {
+  return WeakIterator<I>() &&
+    Writable<I, T>();
+}
+
 template <class I>
 concept bool InputIterator() {
   return WeakInputIterator<I>() &&
     Iterator<I>() &&
     Derived<IteratorCategory<I>, input_iterator_tag>();
-}
-
-template <class I, class T>
-concept bool WeakOutputIterator() {
-  return WeakIterator<I>() &&
-    Writable<I, T>();
 }
 
 template <class I, class T>
