@@ -133,6 +133,10 @@ namespace detail {
     MoveWritable<Out, RvalueReferenceType<In>>() &&
     MoveWritable<Out, ValueType<In>>();
 
+  // This is a manual expansion of:
+  //   IndirectlyMovable<I1, I2> && IndirectlyMovable<I2, I1>
+  // with modifications to keep the compiler from blowing up
+  // memory when it sees the declaration of iter_swap2.
   template <class I1, class I2>
   concept bool IterSwappable =
     Readable<I1>() && Readable<I2>() &&
