@@ -17,7 +17,7 @@ using stl2::ReferenceType;
 using stl2::RvalueReferenceType;
 using stl2::ValueType;
 
-struct A { int& operator*(); };
+struct A { int& operator*() const; };
 struct B : A { using value_type = double; };
 struct C : A { using element_type = double; };
 struct D : A {

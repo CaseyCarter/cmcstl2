@@ -20,8 +20,8 @@ namespace detail {
 
 template <class T>
 concept bool Dereferencable =
-  requires (T&& t) {
-    { *static_cast<T&&>(t) } -> auto&&;
+  requires (const T& t) {
+    { *t } -> auto&&;
   };
 }
 
@@ -96,8 +96,9 @@ template <class T>
 using ValueType =
   meta::_t<value_type<std::remove_cv_t<T>>>;
 
-// 20150714: Not to spec, relax Semiregular<I> to Movable<I>
-// as in https://github.com/ericniebler/range-v3/issues/179.
+// 20150714: Not to spec, relax Semiregular<I> to
+// Movable<I> && DefaultConstructible<I> as in
+// https://github.com/ericniebler/range-v3/issues/179.
 template <class I>
 concept bool Readable() {
   return Movable<I>() &&
@@ -148,25 +149,6 @@ namespace detail {
   struct is_nothrow_indirectly_movable
     : is_nothrow_indirectly_movable_t<In, Out> {};
 }
-
-#define CASEYBROKEITERSWAP 1
-#if !CASEYBROKEITERSWAP
-
-// iter_swap2
-template <Readable R1, Readable R2>
-  requires Swappable<ReferenceType<R1>, ReferenceType<R2>>()
-void iter_swap2(R1 r1, R2 r2)
-  noexcept(is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>);
-
-template <Readable R1, Readable R2>
-  requires !Swappable<ReferenceType<R1>, ReferenceType<R2>>() &&
-    detail::IndirectlyMovable<R1, R2> &&
-    detail::IndirectlyMovable<R2, R1>
-void iter_swap2(R1 r1, R2 r2)
-  noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&
-           detail::is_nothrow_indirectly_movable_v<R2, R1>);
-
-#endif
 
 template <class Out, class T>
 concept bool Writable() {
@@ -423,36 +405,6 @@ constexpr bool sentinel() { return true; }
 #endif
 
 }} // namespace ext::models
-
-template <detail::Dereferencable R>
-detail::__iter_move_t<R> iter_move2(R r)
-  noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r)))) {
-  return stl2::move(*r);
-}
-
-#if !CASEYBROKEITERSWAP
-
-// iter_swap2
-template <Readable R1, Readable R2>
-  requires Swappable<ReferenceType<R1>, ReferenceType<R2>>()
-void iter_swap2(R1 r1, R2 r2)
-  noexcept(is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>) {
-  swap(*r1, *r2);
-}
-
-template <Readable R1, Readable R2>
-  requires !Swappable<ReferenceType<R1>, ReferenceType<R2>>() &&
-    detail::IndirectlyMovable<R1, R2> &&
-    detail::IndirectlyMovable<R2, R1>
-void iter_swap2(R1 r1, R2 r2)
-  noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&
-           detail::is_nothrow_indirectly_movable_v<R2, R1>) {
-  ValueType<R1> tmp(iter_move2(r1));
-  *r1 = iter_move2(r2);
-  *r2 = stl2::move(tmp);
-}
-
-#endif
 
 }} // namespace stl2::v1
 
