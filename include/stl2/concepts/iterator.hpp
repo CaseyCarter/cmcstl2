@@ -20,14 +20,14 @@ namespace detail {
 
 template <class T>
 concept bool Dereferencable =
-  requires (const T& t) {
+  requires (T& t) {
     { *t } -> auto&&;
   };
 }
 
 template <detail::Dereferencable R>
 using ReferenceType =
-  decltype(*declval<R>());
+  decltype(*declval<R&>());
 
 namespace detail {
 
@@ -41,15 +41,15 @@ using __iter_move_t =
 }
 
 template <detail::Dereferencable R>
-detail::__iter_move_t<R> iter_move2(R r)
+detail::__iter_move_t<R> iter_move2(R& r)
   noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r))));
 
 template <detail::Dereferencable R>
-  requires requires (R&& r) {
-    { iter_move2(stl2::forward<R>(r)) } -> auto&&;
+  requires requires (R& r) {
+    { iter_move2(r) } -> auto&&;
   }
 using RvalueReferenceType =
-  decltype(iter_move2(declval<R>()));
+  decltype(iter_move2(declval<R&>()));
 
 namespace detail {
 
@@ -103,7 +103,7 @@ template <class I>
 concept bool Readable() {
   return Movable<I>() &&
     DefaultConstructible<I>() &&
-    detail::Dereferencable<I> &&
+    detail::Dereferencable<const I> &&
     requires (const I& i) {
       typename ValueType<I>;
       typename RvalueReferenceType<I>;
