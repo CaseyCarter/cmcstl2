@@ -17,7 +17,7 @@ static_assert(boolean<std::true_type>(), "");
 static_assert(boolean<std::bitset<42>::reference>(), "");
 
 static_assert(boolean<int>(), "");
-static_assert(!boolean<void*>(), "");
+static_assert(boolean<void*>(), "");
 
 struct A {};
 struct B { operator bool() const { return true; } };

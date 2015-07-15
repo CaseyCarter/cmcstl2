@@ -9,6 +9,22 @@
 //
 namespace stl2 { inline namespace v1 {
 
+#if 1
+// BooleanTestable from DR2114.
+// (See https://github.com/CaseyCarter/stl2/issues/3#issuecomment-121147664)
+template <class B>
+concept bool Boolean() {
+  return requires (const B& b, const bool a) {
+    STL2_CONVERSION_CONSTRAINT(b, bool);
+    STL2_CONVERSION_CONSTRAINT(!b, bool);
+    STL2_EXACT_TYPE_CONSTRAINT(b && a, bool);
+    STL2_EXACT_TYPE_CONSTRAINT(b || a, bool);
+  };
+}
+
+#else
+
+// Boolean from the proposal.
 template <class B>
 concept bool Boolean() {
   return requires (const B& b1, const B& b2, const bool a) {
@@ -28,13 +44,14 @@ concept bool Boolean() {
     STL2_CONVERSION_CONSTRAINT(a != b2, bool);
   };
 }
+#endif
 
 namespace detail {
 
 template <class T, class U>
 concept bool EqualityComparable_ =
   requires (const T& t, const U& u) {
-#if 0 // FIXME: ICE
+#if 0 // BUG: OOM
     STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
     STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
 #else
@@ -135,8 +152,7 @@ constexpr bool boolean() { return true; }
 
 template <class>
 constexpr bool equality_comparable() { return false; }
-template <class T>
-  requires EqualityComparable<T>()
+EqualityComparable{T}
 constexpr bool equality_comparable() { return true; }
 template <class, class>
 constexpr bool equality_comparable() { return false; }
@@ -145,8 +161,7 @@ constexpr bool equality_comparable() { return true; }
 
 template <class>
 constexpr bool totally_ordered() { return false; }
-template <class T>
-  requires TotallyOrdered<T>()
+TotallyOrdered{T}
 constexpr bool totally_ordered() { return true; }
 template <class, class>
 constexpr bool totally_ordered() { return false; }
