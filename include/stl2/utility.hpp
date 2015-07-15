@@ -69,16 +69,21 @@ struct identity {
 template <class T = void>
   requires Same<T, void>() || EqualityComparable<T>()
 struct equal_to {
-  constexpr auto operator()(const T& a, const T& b) const {
-    return a == b; // FIXME: Boolean is not MoveConstructible.
+  constexpr bool operator()(const T& a, const T& b) const {
+    return a == b;
   }
+
+  using first_argument_type = T;
+  using second_argument_type = T;
+  using result_type = bool;
 };
 
 template <>
 struct equal_to<void> {
   EqualityComparable{T, U}
-  constexpr auto operator()(const T& t, const U& u) const {
-    return t == u; // FIXME: Boolean is not MoveConstructible.
+  constexpr auto operator()(const T& t, const U& u) const ->
+    decltype(t == u) {
+    return {t == u};
   }
 
   using is_transparent = std::true_type;
