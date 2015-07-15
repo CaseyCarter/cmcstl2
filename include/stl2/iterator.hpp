@@ -21,13 +21,11 @@ void iter_swap2(R1& r1, R2& r2)
   swap(*r1, *r2);
 }
 
-template <Readable R1, Readable R2>
-  requires (!Swappable<ReferenceType<R1>, ReferenceType<R2>>() &&
-    detail::IndirectlyMovable<R1, R2> /*&&
-    detail::IndirectlyMovable<R2, R1>*/)
+template <class R1, class R2>
+  requires detail::IterSwappable<R1, R2> &&
+    !Swappable<ReferenceType<R1>, ReferenceType<R2>>()
 void iter_swap2(R1& r1, R2& r2)
-  noexcept(detail::is_nothrow_indirectly_movable_v<R1, R2> &&
-           detail::is_nothrow_indirectly_movable_v<R2, R1>) {
+  noexcept(detail::is_nothrow_iter_swappable_v<R1, R2>) {
   ValueType<R1> tmp(iter_move2(r1));
   *r1 = iter_move2(r2);
   *r2 = stl2::move(tmp);

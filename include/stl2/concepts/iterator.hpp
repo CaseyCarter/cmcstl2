@@ -120,7 +120,7 @@ concept bool MoveWritable() {
     DefaultConstructible<Out>() &&
     detail::Dereferencable<Out> &&
     requires (Out& o, T&& t) {
-      *o = stl2::move(t); // not equality preserving
+      *o = (T&&)t; // not equality preserving
     };
 }
 
@@ -131,6 +131,22 @@ namespace detail {
     Constructible<ValueType<In>, RvalueReferenceType<In>>() &&
     MoveWritable<Out, RvalueReferenceType<In>>() &&
     MoveWritable<Out, ValueType<In>>();
+
+  template <class I1, class I2>
+  concept bool IterSwappable =
+    Readable<I1>() && Readable<I2>() &&
+    Constructible<ValueType<I1>, RvalueReferenceType<I1>>() &&
+    MoveWritable<I1, RvalueReferenceType<I2>>() &&
+    MoveWritable<I2, ValueType<I1>>();
+
+  template <class, class>
+  constexpr bool is_nothrow_iter_swappable_v = false;
+
+  IterSwappable{I1, I2}
+  constexpr bool is_nothrow_iter_swappable_v =
+    std::is_nothrow_constructible<ValueType<I1>, RvalueReferenceType<I1>>::value &&
+    std::is_nothrow_assignable<ReferenceType<I1>, RvalueReferenceType<I2>>::value &&
+    std::is_nothrow_assignable<ReferenceType<I2>, ValueType<I1>>::value;
 
   template <class In, class Out>
   constexpr bool is_nothrow_indirectly_movable_v = false;
@@ -158,10 +174,9 @@ concept bool Writable() {
     };
 }
 
-template <class I1, class I2 = I1>
+template <class I1, class I2>
 concept bool IndirectlySwappable() {
-  return Readable<I1> &&
-    Readable<I2> &&
+  return Readable<I1> && Readable<I2> &&
     Swappable<ReferenceType<I1>, ReferenceType<I2>>();
 }
 
