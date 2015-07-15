@@ -12,12 +12,12 @@
 namespace same_test {
 using stl2::ext::models::same;
 
-static_assert(stl2::detail::all_same<>(), "");
-static_assert(stl2::detail::all_same<int, int>(), "");
-static_assert(stl2::detail::all_same<double, double>(), "");
-static_assert(stl2::detail::all_same<double>(), "");
-static_assert(!stl2::detail::all_same<double, int>(), "");
-static_assert(!stl2::detail::all_same<int, double>(), "");
+static_assert(stl2::detail::all_same<>, "");
+static_assert(stl2::detail::all_same<int, int>, "");
+static_assert(stl2::detail::all_same<double, double>, "");
+static_assert(stl2::detail::all_same<double>, "");
+static_assert(!stl2::detail::all_same<double, int>, "");
+static_assert(!stl2::detail::all_same<int, double>, "");
 
 static_assert(same<>(), "");
 static_assert(same<int, int>(), "");
@@ -25,6 +25,9 @@ static_assert(same<double, double>(), "");
 static_assert(same<double>(), "");
 static_assert(!same<double, int>(), "");
 static_assert(!same<int, double>(), "");
+
+static_assert(same<int, int, int, int>(), "");
+static_assert(!same<int, int, double, int>(), "");
 }
 
 namespace publicly_derived_test {
@@ -81,6 +84,7 @@ struct common_type<::common_test::A, ::common_test::A> {
 namespace common_test {
 static_assert(same<CommonType<int, int>, int>(), "");
 static_assert(same<CommonType<A, A>, A>(), "");
+static_assert(same<CommonType<int, float, double>, double>(), "");
 
 static_assert(common<int, int>(), "");
 static_assert(common<int, double>(), "");
@@ -90,10 +94,13 @@ static_assert(!common<void, int>(), "");
 static_assert(!common<int*, int>(), "");
 static_assert(common<void*, int*>(), "");
 static_assert(common<double,long long>(), "");
+static_assert(common<int, float, double>(), "");
+static_assert(!common<int, float, double, void>(), "");
 
 struct B {};
-struct C { C() = default; C(B) {} };
+struct C { C() = default; C(B) {} C(int) {} };
 static_assert(common<B,C>(), "");
+static_assert(common<int, C, B>(), "");
 }
 
 namespace constructible_test {

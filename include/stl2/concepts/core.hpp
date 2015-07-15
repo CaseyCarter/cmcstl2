@@ -30,22 +30,38 @@
 namespace stl2 { inline namespace v1 {
 
 namespace detail {
+#if 0 // Uses fold expressions
+template <class T, class U>
+constexpr bool pairwise_same = STL2_IS_SAME_AS(T, U);
 
 template <class...>
-struct all_same : std::true_type {};
+constexpr bool all_same = true;
+
+template <class First, class...Rest>
+constexpr bool all_same =
+  (pairwise_same<First, Rest> && ... && true);
+
+#else
+
+template <class...>
+struct all_same_ : std::true_type {};
 
 template <class T, class...Rest>
-struct all_same<T, T, Rest...> : all_same<T, Rest...> {};
+struct all_same_<T, T, Rest...> : all_same_<T, Rest...> {};
 
 template <class T, class U, class...Rest>
-struct all_same<T, U, Rest...> : std::false_type {};
+struct all_same_<T, U, Rest...> : std::false_type {};
 
+template <class...Ts>
+constexpr bool all_same =
+  meta::_v<all_same_<Ts...>>;
+#endif
 }
 
-// 20150713: Not to spec; variadic.
+// 20150714: Conforming extension: variadic.
 template <class...Ts>
 concept bool Same() {
-  return meta::_v<detail::all_same<Ts...>>;
+  return detail::all_same<Ts...>;
 }
 
 template <class T, class U>
@@ -101,6 +117,7 @@ constexpr bool all_explicitly_convertible =
 
 template <class To, class...From>
 concept bool AllExplicitlyConvertible =
+  // ext::ExplicitlyConvertible<From, To>() && ... && true;
   all_explicitly_convertible<To, From...>;
 
 }
@@ -187,15 +204,14 @@ constexpr bool assignable() { return true; }
 
 template <class>
 constexpr bool core_constructible() { return false; }
-template <class T>
-  requires core::Constructible<T>()
+template <core::Constructible T>
 constexpr bool core_constructible() { return true; }
 template <class, class>
 constexpr bool core_constructible() { return false; }
 template <class T, class U>
   requires core::Constructible<T, U>()
 constexpr bool core_constructible() { return true; }
-template <class, class, class...>
+template <class, class, class, class...>
 constexpr bool core_constructible() { return false; }
 template <class T, class U, class V, class...Args>
   requires core::Constructible<T, U, V, Args...>()
