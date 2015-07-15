@@ -28,8 +28,8 @@ std::add_rvalue_reference_t<T> declval() noexcept;
 
 }} // namespace stl2::v1
 
-#define STL2_EXACT_TYPE_CONSTRAINT(E, T) E; requires Same<decltype(E),T>()
-#define STL2_DEDUCTION_CONSTRAINT(E, T) E; requires T<decltype(E)>()
-#define STL2_CONVERSION_CONSTRAINT(E, T) E; requires Convertible<decltype(E),T>()
+#define STL2_EXACT_TYPE_CONSTRAINT(E, ...) requires Same<decltype(E), __VA_ARGS__>()
+#define STL2_DEDUCTION_CONSTRAINT(E, ...) requires __VA_ARGS__ <decltype(E)>()
+#define STL2_CONVERSION_CONSTRAINT(E, ...) requires Convertible<decltype(E),__VA_ARGS__>()
 
 #endif // STL2_DETAIL_FWD_HPP

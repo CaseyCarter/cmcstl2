@@ -183,11 +183,11 @@ int main() {
     // implies IterSwappable<I, I>, so this should resolve to the second
     // overload of iter_swap2. Except that it won't compile because
     // the constraints are not satisfied?!?
-    //stl2::iter_swap2(a.begin() + 0, a.begin() + 2);
-    CHECK(a[0] == 0);
-    CHECK(a[1] == 1);
-    CHECK(a[2] == 2);
-    CHECK(a[3] == 3);
+    //stl2::iter_swap2(a.begin() + 1, a.begin() + 3);
+    CHECK(a[0] == 2);
+    CHECK(a[1] == 3);
+    CHECK(a[2] == 0);
+    CHECK(a[3] == 1);
   }
 
   return ::test_result();

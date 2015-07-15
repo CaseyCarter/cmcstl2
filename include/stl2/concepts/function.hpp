@@ -20,10 +20,9 @@ template <class F, class...Args>
 concept bool Function() {
   return CopyConstructible<F>() &&
     requires (F& f, Args&&...args) {
-      typename ResultType<F, Args...>;
-      f(stl2::forward<Args>(args)...); // not equality preserving
-      requires Same<ResultType<F, Args...>,
-                    decltype(f(stl2::forward<Args>(args)...))>();
+      // not equality preserving
+      STL2_EXACT_TYPE_CONSTRAINT(f(stl2::forward<Args>(args)...),
+                                 ResultType<F, Args...>);
     };
 }
 
@@ -67,6 +66,7 @@ concept bool Relation() {
     (Same<T, U>() ||
       (Common<T, U>() &&
        Predicate<R, CommonType<T, U>>()));
+}
 
 template <class R, class T>
 concept bool StrictWeakOrder() {
