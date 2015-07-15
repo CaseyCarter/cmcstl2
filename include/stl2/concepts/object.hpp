@@ -29,14 +29,25 @@ concept bool Destructible() {
     };
 }
 
+namespace ext {
+template <class T, class...Args>
+concept bool ConstructibleObject =
+  Destructible<T>() && requires (Args&&...args) {
+    T{ stl2::forward<Args>(args)... }; // not equality preserving
+    new T{ stl2::forward<Args>(args)... }; // not equality preserving
+  };
+
+template <class T, class...Args>
+concept bool BindableReference =
+  std::is_reference<T>::value && requires (Args&&...args) {
+    T( stl2::forward<Args>(args)... );
+  };
+}
+
 template <class T, class...Args>
 concept bool Constructible() {
-  return requires (Args&&...args) {
-    T{ stl2::forward<Args>(args)... }; // not equality preserving
-  } && (std::is_reference<T>::value ||
-    (Destructible<T>() && requires (Args&&...args) {
-      new T{ stl2::forward<Args>(args)... }; // not equality preserving
-    }));
+  return ext::ConstructibleObject<T, Args...> ||
+    ext::BindableReference<T, Args...>;
 }
 
 // There's implementation variance around DR1518, this may not
