@@ -40,7 +40,7 @@ static_assert(!default_constructible<int(int)>(), "");
 static_assert(!move_constructible<void>(), "");
 static_assert(move_constructible<int>(), "");
 static_assert(!move_constructible<int[4]>(), "");
-static_assert(!move_constructible<int&>(), "");
+static_assert(move_constructible<int&>(), "");
 static_assert(!move_constructible<void()>(), "");
 
 static_assert(move_constructible<copyable_t>(), "");
@@ -53,7 +53,7 @@ static_assert(move_constructible<explicit_copy_t>(), "");
 static_assert(!copy_constructible<void>(), "");
 static_assert(copy_constructible<int>(), "");
 static_assert(!copy_constructible<int[4]>(), "");
-static_assert(!copy_constructible<int&>(), "");
+static_assert(copy_constructible<int&>(), "");
 static_assert(!copy_constructible<void()>(), "");
 
 static_assert(copy_constructible<copyable_t>(), "");

@@ -44,6 +44,8 @@ concept bool BindableReference =
   };
 }
 
+// 20150715: Not to spec, spec is broken. There's implementation
+// variance around CWG1521.
 template <class T, class...Args>
 concept bool Constructible() {
   return ext::ConstructibleObject<T, Args...> ||
