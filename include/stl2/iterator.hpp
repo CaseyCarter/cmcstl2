@@ -15,23 +15,23 @@ detail::__iter_move_t<R> iter_move2(RR& r)
 }
 
 // iter_swap2
-template <class R1, class R2,
-          class RR1 = std::remove_reference_t<R1>,
-          class RR2 = std::remove_reference_t<R2>>
-  requires Readable<RR1>() && Readable<RR2>() &&
-    Swappable<ReferenceType<RR1>, ReferenceType<RR2>>()
-void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(is_nothrow_swappable_v<ReferenceType<RR1>, ReferenceType<RR2>>) {
+template <class RR1, class RR2,
+          class R1 = std::remove_reference_t<RR1>,
+          class R2 = std::remove_reference_t<RR2>>
+  requires Readable<R1>() && Readable<R2>() &&
+    Swappable<ReferenceType<R1>, ReferenceType<R2>>()
+void iter_swap2(RR1&& r1, RR2&& r2)
+  noexcept(is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>) {
   swap(*r1, *r2);
 }
 
-template <class R1, class R2,
-          class RR1 = std::remove_reference_t<R1>,
-          class RR2 = std::remove_reference_t<R2>>
-  requires !Swappable<ReferenceType<RR1>, ReferenceType<RR2>>() &&
-    detail::IterSwappable<RR1, RR2>
-void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(detail::is_nothrow_iter_swappable_v<RR1, RR2>) {
+template <class RR1, class RR2,
+          class R1 = std::remove_reference_t<RR1>,
+          class R2 = std::remove_reference_t<RR2>>
+  requires detail::IterSwappable<R1, R2> &&
+    !Swappable<ReferenceType<R1>, ReferenceType<R2>>()
+void iter_swap2(RR1&& r1, RR2&& r2)
+  noexcept(detail::is_nothrow_iter_swappable_v<R1, R2>) {
   ValueType<R1> tmp(iter_move2(r1));
   *r1 = iter_move2(r2);
   *r2 = stl2::move(tmp);

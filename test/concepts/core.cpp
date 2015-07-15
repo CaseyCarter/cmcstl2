@@ -103,7 +103,7 @@ static_assert(common<B,C>(), "");
 static_assert(common<int, C, B>(), "");
 }
 
-namespace constructible_test {
+namespace core_constructible_test {
 
 template <class T, class U>
   requires stl2::ext::core::Constructible<T, U>()

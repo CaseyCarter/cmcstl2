@@ -1,4 +1,4 @@
-// -*- compile-command: "(cd ~/cmcstl2/build && make object && ./test/concepts/object)" -*-
+// -*- compile-command: "(cd ~/cmcstl2/build && make concepts.object && ./test/concepts/concepts.object)" -*-
 
 #include <stl2/concepts/object.hpp>
 #include <stl2/utility.hpp>
@@ -13,6 +13,18 @@ static_assert(destructible<int>(), "");
 static_assert(!destructible<int&>(), "");
 static_assert(!destructible<int[4]>(), "");
 static_assert(!destructible<int()>(), "");
+
+static_assert(constructible<int>(), "");
+static_assert(constructible<int&, int&>(), "");
+static_assert(constructible<const int&, int&>(), "");
+static_assert(constructible<const int&, const int&>(), "");
+static_assert(constructible<const int&, int&&>(), "");
+static_assert(constructible<int, int>(), "");
+static_assert(constructible<int, const int>(), "");
+static_assert(constructible<int, int&>(), "");
+static_assert(constructible<int, const int&>(), "");
+static_assert(constructible<int, int&&>(), "");
+static_assert(constructible<int, const int&&>(), "");
 
 static_assert(default_constructible<int>(), "");
 static_assert(default_constructible<double>(), "");
