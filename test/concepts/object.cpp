@@ -120,4 +120,6 @@ namespace {
   constexpr const auto& destroy = detail::destroy_fn{};
 } // unnamed namespace
 
-int main() {}
+int main() {
+  return ::test_result();
+}

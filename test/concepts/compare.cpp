@@ -5,6 +5,8 @@
 #include <type_traits>
 #include <bitset>
 
+#include "../simple_test.hpp"
+
 namespace boolean_test {
 using stl2::ext::models::boolean;
 
@@ -58,4 +60,6 @@ static_assert(totally_ordered<int, double>(), "");
 static_assert(!totally_ordered<int, void>(), "");
 } // namespace totally_ordered_test
 
-int main() {}
+int main() {
+  return ::test_result();
+}

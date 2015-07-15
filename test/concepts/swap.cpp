@@ -1,4 +1,4 @@
-// -*- compile-command: "(cd ~/cmcstl2/build && make swap && ./test/concepts/swap)" -*-
+// -*- compile-command: "(cd ~/cmcstl2/build && make concepts.swap && ./test/concepts/concepts.swap)" -*-
 
 #include <stl2/concepts/object.hpp>
 #include <stl2/utility.hpp>
@@ -176,4 +176,6 @@ int main() {
     CHECK(b[2][1] == 5);
   }
 #endif
+
+  return ::test_result();
 }

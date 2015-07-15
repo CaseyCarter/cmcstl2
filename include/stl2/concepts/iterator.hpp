@@ -40,8 +40,9 @@ using __iter_move_t =
 
 }
 
-template <detail::Dereferencable R>
-detail::__iter_move_t<R> iter_move2(R& r)
+template <class RR, class R = std::remove_reference_t<RR>>
+  requires detail::Dereferencable<R>
+detail::__iter_move_t<R> iter_move2(RR& r)
   noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r))));
 
 template <detail::Dereferencable R>
@@ -136,8 +137,11 @@ namespace detail {
   concept bool IterSwappable =
     Readable<I1>() && Readable<I2>() &&
     Constructible<ValueType<I1>, RvalueReferenceType<I1>>() &&
+    //Constructible<ValueType<I2>, RvalueReferenceType<I2>>() && // BUG: OOM
     MoveWritable<I1, RvalueReferenceType<I2>>() &&
-    MoveWritable<I2, ValueType<I1>>();
+    MoveWritable<I2, RvalueReferenceType<I1>>() &&
+    MoveWritable<I2, ValueType<I1>>() &&
+    MoveWritable<I1, ValueType<I2>>();
 
   template <class, class>
   constexpr bool is_nothrow_iter_swappable_v = false;

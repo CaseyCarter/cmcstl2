@@ -9,6 +9,8 @@
 
 #include <meta/meta.hpp>
 
+#include "../simple_test.hpp"
+
 namespace associated_type_test {
 using stl2::ext::models::same;
 using stl2::DifferenceType;
@@ -178,4 +180,6 @@ static_assert(models::sentinel<A, A>(), "");
 #endif
 } // namespace iterator_sentinel_test
 
-int main() {}
+int main() {
+  return ::test_result();
+}
