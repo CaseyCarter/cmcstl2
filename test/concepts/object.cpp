@@ -3,10 +3,45 @@
 #include <stl2/concepts/object.hpp>
 #include <stl2/utility.hpp>
 
-#include "copymove.hpp"
 #include "../simple_test.hpp"
 
 using namespace stl2::ext::models;
+
+struct copyable_t {};
+
+struct moveonly_t {
+  moveonly_t() = default;
+  moveonly_t(moveonly_t&&) = default;
+  moveonly_t& operator=(moveonly_t&&) = default;
+};
+
+struct nonmovable_t {
+  nonmovable_t() = default;
+  nonmovable_t(nonmovable_t&&) = delete;
+};
+
+struct copyonly_t {
+  copyonly_t() = default;
+  copyonly_t(const copyonly_t&) = default;
+  copyonly_t& operator=(const copyonly_t&) = default;
+  copyonly_t(copyonly_t&&) = delete;
+  copyonly_t& operator=(copyonly_t&&) = delete;
+};
+
+struct explicit_default_t {
+  explicit explicit_default_t() {}
+};
+
+struct explicit_move_t {
+  explicit_move_t() = default;
+  explicit explicit_move_t(explicit_move_t&&) = default;
+};
+
+struct explicit_copy_t {
+  explicit_copy_t() = default;
+  explicit_copy_t(explicit_copy_t&&) = default;
+  explicit explicit_copy_t(const explicit_copy_t&) = default;
+};
 
 static_assert(!destructible<void>(), "");
 static_assert(destructible<int>(), "");
@@ -36,6 +71,8 @@ static_assert(!default_constructible<int(int)>(), "");
 // It's hard to catch explicit default constructors, see
 // http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1518.
 // static_assert(!default_constructible<explicit_default_t>(), "");
+static_assert(default_constructible<explicit_move_t>(), "");
+static_assert(default_constructible<explicit_copy_t>(), "");
 
 static_assert(!move_constructible<void>(), "");
 static_assert(move_constructible<int>(), "");
@@ -87,6 +124,8 @@ static_assert(semiregular<double>(), "");
 static_assert(!semiregular<void>(), "");
 static_assert(!semiregular<int&>(), "");
 static_assert(semiregular<A>(), "");
+static_assert(!semiregular<explicit_move_t>(), "");
+static_assert(!semiregular<explicit_copy_t>(), "");
 }
 
 namespace regular_test {

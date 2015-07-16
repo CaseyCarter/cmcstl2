@@ -21,7 +21,7 @@ concept bool Function() {
   return CopyConstructible<F>() &&
     requires (F& f, Args&&...args) {
       // not equality preserving
-      STL2_EXACT_TYPE_CONSTRAINT(f(stl2::forward<Args>(args)...),
+      STL2_EXACT_TYPE_CONSTRAINT(f((Args&&)args...),
                                  ResultType<F, Args...>);
     };
 }
@@ -47,10 +47,9 @@ concept bool WeakRelation() {
 template <class R, class T, class U>
 concept bool WeakRelation() {
   return WeakRelation<R, T>() &&
-    (Same<T, U>() ||
-      (WeakRelation<R, U>() &&
-       Predicate<R, T, U>() &&
-       Predicate<R, U, T>()));
+    WeakRelation<R, U>() &&
+    Predicate<R, T, U>() &&
+    Predicate<R, U, T>();
 }
 
 }
@@ -63,9 +62,8 @@ concept bool Relation() {
 template <class R, class T, class U>
 concept bool Relation() {
   return ext::WeakRelation<R, T, U>() &&
-    (Same<T, U>() ||
-      (Common<T, U>() &&
-       Predicate<R, CommonType<T, U>>()));
+    Common<T, U>() &&
+    Predicate<R, CommonType<T, U>>();
 }
 
 template <class R, class T>

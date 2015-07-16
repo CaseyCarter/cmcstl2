@@ -1,4 +1,4 @@
-// -*- compile-command: "(cd ~/cmcstl2/build && make compare && ./test/compare)" -*-
+// -*- compile-command: "(cd ~/cmcstl2/build && make test/concepts/compare && ./test/concepts/compare)" -*-
 
 #include <stl2/concepts/compare.hpp>
 
@@ -20,7 +20,7 @@ static_assert(boolean<int>(), "");
 static_assert(boolean<void*>(), "");
 
 struct A {};
-struct B { operator bool() const { return true; } };
+struct B { operator bool() const; };
 
 static_assert(!boolean<A>(), "");
 static_assert(boolean<B>(), "");
@@ -30,12 +30,8 @@ namespace equality_comparable_test {
 using stl2::ext::models::equality_comparable;
 
 struct A {
-  friend constexpr bool operator==(const A&, const A&) {
-    return true;
-  }
-  friend constexpr bool operator!=(const A&, const A&) {
-    return false;
-  }
+  friend bool operator==(const A&, const A&);
+  friend bool operator!=(const A&, const A&);
 };
 
 static_assert(equality_comparable<int>(), "");

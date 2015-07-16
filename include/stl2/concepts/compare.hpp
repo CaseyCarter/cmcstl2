@@ -87,9 +87,8 @@ concept bool EqualityComparable() {
 template <class T, class U>
 concept bool EqualityComparable() {
   return ext::WeaklyEqualityComparable<T, U>() &&
-    (Same<T, U>() ||
-      (Common<T, U>() &&
-       EqualityComparable<CommonType<T, U>>()));
+    Common<T, U>() &&
+    EqualityComparable<CommonType<T, U>>();
 }
 
 namespace detail {
@@ -138,9 +137,8 @@ concept bool TotallyOrdered() {
 template <class T, class U>
 concept bool TotallyOrdered() {
   return ext::WeaklyTotallyOrdered<T, U>() &&
-    (Same<T, U>() ||
-      (Common<T, U>() &&
-       TotallyOrdered<CommonType<T, U>>()));
+    Common<T, U>() &&
+    TotallyOrdered<CommonType<T, U>>();
 }
 
 namespace ext { namespace models {

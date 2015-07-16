@@ -1,4 +1,4 @@
-// -*- compile-command: "(cd ~/cmcstl2/build && make iterator && ./test/concepts/iterator)" -*-
+// -*- compile-command: "(cd ~/cmcstl2/build && make concepts.iterator && ./test/concepts/concepts.iterator)" -*-
 
 #include <stl2/concepts/core.hpp>
 #include <stl2/concepts/iterator.hpp>
@@ -55,6 +55,7 @@ static_assert(same<double, ValueType<C>>(), "");
 static_assert(same<double, ValueType<D>>(), "");
 static_assert(same<int, ValueType<const int*>>(), "");
 static_assert(!meta::has_type<stl2::value_type<void>>(), "");
+static_assert(!meta::has_type<stl2::value_type<void*>>(), "");
 
 static_assert(same<std::ptrdiff_t, DifferenceType<int*>>(), "");
 static_assert(same<std::ptrdiff_t, DifferenceType<int[]>>(), "");

@@ -25,6 +25,7 @@ concept bool Dereferencable =
   };
 }
 
+// 20150715: Not to spec, forbids void.
 template <detail::Dereferencable R>
 using ReferenceType =
   decltype(*declval<R&>());
@@ -72,6 +73,11 @@ concept bool MemberElementType =
 
 } // namespace detail
 
+// 20150715: Not to spec for various reasons:
+// * Resolves the ambiguity for a class with both members value_type
+//   and element_type in favor of value_type.
+// * Falls back on decay_t<ReferenceType<T>> when neither value_type
+//   nor element_type are present.
 template <class>
 struct value_type {};
 
@@ -92,6 +98,16 @@ struct value_type<T> {
   using type = std::decay_t<ReferenceType<T>>;
 };
 
+// 20150715: Not to spec.
+// * Strips cv-qualifiers before evaluating value_type. Someone out
+//   there may think it's a good idea to have T, const T, and volatile T
+//   be iterators with differing value types, I think they are insane.
+// * Requires ValueType to actually be a value type, i.e., non-void
+//   and Same<T, decay_t<T>>. I don't think generic code can reasonably
+//   be expected to work with an iterator whose value_type is a function
+//   or array.
+// The end result is that the logic is mostly in ValueType, since
+// value_type is subject to the depradations of user specialization.
 template <class T>
   requires detail::IsValueType<meta::_t<value_type<std::remove_cv_t<T>>>>
 using ValueType =
@@ -106,9 +122,8 @@ concept bool Readable() {
     DefaultConstructible<I>() &&
     detail::Dereferencable<const I> &&
     requires (const I& i) {
-      typename ValueType<I>;
-      typename RvalueReferenceType<I>;
       { *i } -> const ValueType<I>&; // Convertible<ReferenceType<I>, const ValueType<I>&>() ?
+      typename RvalueReferenceType<I>;
     };
 }
 
@@ -121,70 +136,88 @@ concept bool MoveWritable() {
     DefaultConstructible<Out>() &&
     detail::Dereferencable<Out> &&
     requires (Out& o, T&& t) {
-      *o = (T&&)t; // not equality preserving
+      *o = (T&&)t; // not equality preserving // Maybe void(*o = (T&&)t) ?
     };
-}
-
-namespace detail {
-  template <class In, class Out>
-  concept bool IndirectlyMovable =
-    Readable<In>() &&
-    Constructible<ValueType<In>, RvalueReferenceType<In>>() &&
-    MoveWritable<Out, RvalueReferenceType<In>>() &&
-    MoveWritable<Out, ValueType<In>>();
-
-  // This is a manual expansion of:
-  //   IndirectlyMovable<I1, I2> && IndirectlyMovable<I2, I1>
-  // with modifications to keep the compiler from blowing up
-  // memory when it sees the declaration of iter_swap2.
-  template <class I1, class I2>
-  concept bool IterSwappable =
-    Readable<I1>() && Readable<I2>() &&
-    Constructible<ValueType<I1>, RvalueReferenceType<I1>>() &&
-    //Constructible<ValueType<I2>, RvalueReferenceType<I2>>() && // BUG: OOM
-    MoveWritable<I1, RvalueReferenceType<I2>>() &&
-    MoveWritable<I2, RvalueReferenceType<I1>>() &&
-    MoveWritable<I2, ValueType<I1>>() &&
-    MoveWritable<I1, ValueType<I2>>();
-
-  template <class, class>
-  constexpr bool is_nothrow_iter_swappable_v = false;
-
-  IterSwappable{I1, I2}
-  constexpr bool is_nothrow_iter_swappable_v =
-    std::is_nothrow_constructible<ValueType<I1>, RvalueReferenceType<I1>>::value &&
-    std::is_nothrow_assignable<ReferenceType<I1>, RvalueReferenceType<I2>>::value &&
-    std::is_nothrow_assignable<ReferenceType<I2>, ValueType<I1>>::value;
-
-  template <class In, class Out>
-  constexpr bool is_nothrow_indirectly_movable_v = false;
-
-  IndirectlyMovable{In, Out}
-  constexpr bool is_nothrow_indirectly_movable_v =
-    std::is_nothrow_constructible<ValueType<In>, RvalueReferenceType<In>>::value &&
-    std::is_nothrow_assignable<ReferenceType<Out>, RvalueReferenceType<In>>::value &&
-    std::is_nothrow_assignable<ReferenceType<Out>, ValueType<In>>::value;
-
-  template <class In, class Out>
-  using is_nothrow_indirectly_movable_t =
-    meta::bool_<is_nothrow_indirectly_movable_v<In, Out>>;
-
-  template <class In, class Out>
-  struct is_nothrow_indirectly_movable
-    : is_nothrow_indirectly_movable_t<In, Out> {};
 }
 
 template <class Out, class T>
 concept bool Writable() {
   return MoveWritable<Out, T>() &&
     requires (Out& o, const T& t) {
-      *o = t; // not equality preserving
+      *o = t; // not equality preserving // Maybe void(*o = t) ?
     };
 }
 
+// 20150715: Not to spec, additionally requires:
+//   ValueType<In> v{iter_move2(i)};
+// and
+//   *o = iter_move2(i);
+// to be valid (with stl2::iter_move2 in scope).
+template <class In, class Out>
+concept bool IndirectlyMovable() {
+  return Readable<In>() &&
+    Constructible<ValueType<In>, RvalueReferenceType<In>>() &&
+    MoveWritable<Out, RvalueReferenceType<In>>() &&
+    MoveWritable<Out, ValueType<In>>();
+}
+
+namespace ext {
+
+template <class In, class Out>
+constexpr bool is_nothrow_indirectly_movable_v = false;
+
+IndirectlyMovable{In, Out}
+constexpr bool is_nothrow_indirectly_movable_v =
+  std::is_nothrow_constructible<ValueType<In>, RvalueReferenceType<In>>::value &&
+  std::is_nothrow_assignable<ReferenceType<Out>, RvalueReferenceType<In>>::value &&
+  std::is_nothrow_assignable<ReferenceType<Out>, ValueType<In>>::value;
+
+template <class In, class Out>
+using is_nothrow_indirectly_movable_t =
+  meta::bool_<is_nothrow_indirectly_movable_v<In, Out>>;
+
+template <class In, class Out>
+struct is_nothrow_indirectly_movable :
+  is_nothrow_indirectly_movable_t<In, Out> {};
+
+}
+
+namespace detail {
+// This is a manual expansion of:
+//   IndirectlyMovable<I1, I2> && IndirectlyMovable<I2, I1>
+// with modifications to keep the compiler from blowing up
+// memory when it sees the declaration of iter_swap2.
+template <class I1, class I2>
+concept bool IterSwappable =
+  Readable<I1>() && Readable<I2>() &&
+  Constructible<ValueType<I1>, RvalueReferenceType<I1>>() &&
+  //Constructible<ValueType<I2>, RvalueReferenceType<I2>>() && // BUG: OOM
+  MoveWritable<I1, RvalueReferenceType<I2>>() &&
+  MoveWritable<I2, RvalueReferenceType<I1>>() &&
+  MoveWritable<I2, ValueType<I1>>() &&
+  MoveWritable<I1, ValueType<I2>>();
+
+// Similarly, this is a manual:
+//   is_nothrow_indirectly_movable_v<T, U> &&
+//   is_nothrow_indirectly_movable_v<U, T>
+template <class, class>
+constexpr bool is_nothrow_iter_swappable_v = false;
+
+IterSwappable{I1, I2}
+constexpr bool is_nothrow_iter_swappable_v =
+  std::is_nothrow_constructible<ValueType<I1>, RvalueReferenceType<I1>>::value &&
+  std::is_nothrow_constructible<ValueType<I2>, RvalueReferenceType<I2>>::value &&
+  std::is_nothrow_assignable<ReferenceType<I1>, RvalueReferenceType<I2>>::value &&
+  std::is_nothrow_assignable<ReferenceType<I2>, RvalueReferenceType<I1>>::value &&
+  std::is_nothrow_assignable<ReferenceType<I2>, ValueType<I1>>::value &&
+  std::is_nothrow_assignable<ReferenceType<I1>, ValueType<I2>>::value;
+}
+
+// To spec, but should probably be replaced by detail::IterSwappable
+// or IndirectlyMovable<I1, I2>() && IndirectlyMovable<I2, I1>()
 template <class I1, class I2>
 concept bool IndirectlySwappable() {
-  return Readable<I1> && Readable<I2> &&
+  return Readable<I1>() && Readable<I2>() &&
     Swappable<ReferenceType<I1>, ReferenceType<I2>>();
 }
 
@@ -196,6 +229,9 @@ concept bool MemberDifferenceType =
 
 }
 
+// 20150715: Conforming extension: defaults to
+// make_unsigned_t<decltype(t - t)> when decltype(t - t) models
+// Integral, instead of only when T models Integral.
 template <class> struct difference_type {};
 
 template <> struct difference_type<void*> {};
@@ -212,16 +248,24 @@ struct difference_type<T> {
 template <class T>
   requires !detail::MemberDifferenceType<T> &&
     requires (const T& a, const T& b) {
-      a - b;
+      STL2_DEDUCTION_CONSTRAINT(a - b, Integral);
     }
 struct difference_type<T> :
-  std::decay<decltype(declval<const T>() - declval<const T>())> {};
+  std::make_signed<
+    decltype(declval<const T>() - declval<const T>())> {};
 
+// 20150715: Not to spec.
+// * Strips cv-qualifiers before applying difference_type (see
+//   ValueType for why)
+// * Requires DifferenceType to model SignedIntegral
 template <class T>
-  requires SignedIntegral<meta::_t<difference_type<T>>>()
+  requires SignedIntegral<meta::_t<difference_type<std::remove_cv_t<T>>>>()
 using DifferenceType =
-  meta::_t<difference_type<T>>;
+  meta::_t<difference_type<std::remove_cv_t<T>>>;
 
+// Technically to spec, although the requirement
+// SignedIntegral<DifferenceType<I>>() is applied directly
+// in DifferenceType.
 template <class I>
 concept bool WeaklyIncrementable() {
   return Semiregular<I>() &&
@@ -271,7 +315,7 @@ struct iterator_category<T> {
 
 template <class T>
 using IteratorCategory =
-  meta::_t<iterator_category<T>>;
+  meta::_t<iterator_category<std::remove_cv_t<T>>>;
 
 template <class I>
 concept bool WeakIterator() {

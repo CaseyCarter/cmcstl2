@@ -18,12 +18,12 @@ detail::__iter_move_t<R> iter_move2(RR& r)
 template <class RR1, class RR2,
           class R1 = std::remove_reference_t<RR1>,
           class R2 = std::remove_reference_t<RR2>>
-  requires Readable<R1>() && Readable<R2>() &&
-    Swappable<ReferenceType<R1>, ReferenceType<R2>>()
-void iter_swap2(RR1&& r1, RR2&& r2)
-  noexcept(is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>) {
-  swap(*r1, *r2);
-}
+  requires IndirectlySwappable<R1, R2>()
+auto iter_swap2(RR1&& r1, RR2&& r2)
+STL2_DECLTYPE_AUTO_RETURN_NOEXCEPT(
+  void(swap(*stl2::forward<RR1>(r1),
+            *stl2::forward<RR2>(r2)))
+)
 
 template <class RR1, class RR2,
           class R1 = std::remove_reference_t<RR1>,

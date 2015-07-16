@@ -1,4 +1,4 @@
-// -*- compile-command: "(cd ~/cmcstl2/build && make core && ./test/concepts/core)" -*-
+// -*- compile-command: "(cd ~/cmcstl2/build && make concepts.core && ./test/concepts/concepts.core)" -*-
 
 #include <iostream>
 #include <type_traits>
@@ -6,18 +6,17 @@
 #include <stl2/concepts/core.hpp>
 #include <stl2/utility.hpp>
 
-#include "copymove.hpp"
 #include "../simple_test.hpp"
 
 namespace same_test {
 using stl2::ext::models::same;
 
-static_assert(stl2::detail::all_same<>, "");
-static_assert(stl2::detail::all_same<int, int>, "");
-static_assert(stl2::detail::all_same<double, double>, "");
-static_assert(stl2::detail::all_same<double>, "");
-static_assert(!stl2::detail::all_same<double, int>, "");
-static_assert(!stl2::detail::all_same<int, double>, "");
+static_assert(stl2::detail::all_same<>(), "");
+static_assert(stl2::detail::all_same<int, int>(), "");
+static_assert(stl2::detail::all_same<double, double>(), "");
+static_assert(stl2::detail::all_same<double>(), "");
+static_assert(!stl2::detail::all_same<double, int>(), "");
+static_assert(!stl2::detail::all_same<int, double>(), "");
 
 static_assert(same<>(), "");
 static_assert(same<int, int>(), "");

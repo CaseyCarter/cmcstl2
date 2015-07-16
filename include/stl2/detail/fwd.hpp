@@ -32,4 +32,7 @@ std::add_rvalue_reference_t<T> declval() noexcept;
 #define STL2_DEDUCTION_CONSTRAINT(E, ...) requires __VA_ARGS__ <decltype(E)>()
 #define STL2_CONVERSION_CONSTRAINT(E, ...) requires Convertible<decltype(E),__VA_ARGS__>()
 
+#define STL2_DECLTYPE_AUTO_RETURN_NOEXCEPT(E) \
+  noexcept(noexcept(E)) -> decltype(E) { return (E); }
+
 #endif // STL2_DETAIL_FWD_HPP

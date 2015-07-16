@@ -30,38 +30,20 @@
 namespace stl2 { inline namespace v1 {
 
 namespace detail {
-#if 0 // Uses fold expressions
-template <class T, class U>
-constexpr bool pairwise_same = STL2_IS_SAME_AS(T, U);
-
 template <class...>
-constexpr bool all_same = true;
-
-template <class First, class...Rest>
-constexpr bool all_same =
-  (pairwise_same<First, Rest> && ... && true);
-
-#else
-
-template <class...>
-struct all_same_ : std::true_type {};
+struct all_same : std::true_type {};
 
 template <class T, class...Rest>
-struct all_same_<T, T, Rest...> : all_same_<T, Rest...> {};
+struct all_same<T, T, Rest...> : all_same<T, Rest...> {};
 
 template <class T, class U, class...Rest>
-struct all_same_<T, U, Rest...> : std::false_type {};
-
-template <class...Ts>
-constexpr bool all_same =
-  meta::_v<all_same_<Ts...>>;
-#endif
+struct all_same<T, U, Rest...> : std::false_type {};
 }
 
 // 20150714: Conforming extension: variadic.
 template <class...Ts>
 concept bool Same() {
-  return detail::all_same<Ts...>;
+  return detail::all_same<Ts...>::value;
 }
 
 template <class T, class U>
@@ -74,9 +56,7 @@ namespace ext {
 template <class T, class U>
 concept bool ExplicitlyConvertible() {
   return Same<T, U>() ||
-    requires (T&& t) {
-      static_cast<U>(stl2::forward<T>(t));
-    };
+    requires (T&& t) { static_cast<U>((T&&)t); };
 }
 
 template <class T, class U>
@@ -87,11 +67,11 @@ concept bool ImplicitlyConvertible() {
 
 } // namespace ext
 
-// Convertible is not to spec as of 20150711. The draft specifies
-// that Convertible has the same value as is_convertible, but Casey
-// strongly suspects that we (a) want Same to subsume Convertible,
-// and (b) want Convertible to require both implicit and explicit
-// conversion with equal results.
+// 20150715: not to spec. The draft specifies that Convertible has
+// the same value as is_convertible, but Casey strongly suspects
+// that we (a) want Same to subsume Convertible, and (b) want
+// Convertible to require both implicit and explicit conversion
+// with equal results.
 template <class T, class U>
 concept bool Convertible() {
   return ext::ExplicitlyConvertible<T, U>() &&
@@ -115,34 +95,28 @@ template <class To, class...From>
 constexpr bool all_explicitly_convertible =
   meta::_v<meta::fast_and<std::is_constructible<To, From&&>...>>;
 
-template <class To, class...From>
-concept bool AllExplicitlyConvertible =
-  // ext::ExplicitlyConvertible<From, To>() && ... && true;
-  all_explicitly_convertible<To, From...>;
-
 }
 
 template <class...Ts>
-  requires sizeof...(Ts) != 0
 using CommonType =
   stl2::common_type_t<Ts...>;
 
-// 20150714: Not to spec, variadic and without consistency check.
-// Casey strongly suspects that we want Same to subsume Common
-// (see the discussion at
-// https://github.com/ericniebler/stl2/issues/50).
+// 20150714: Not to spec: doesn't check consistency of
+// CommonType<T, U> and CommonType<U, T>. Also, Casey strongly
+// suspects that we want Same to subsume Common
+// (See https://github.com/ericniebler/stl2/issues/50).
+// Conforming extension: variadic.
 template <class...Ts>
 concept bool Common() {
   return Same<Ts...>() ||
-    (requires { typename CommonType<Ts...>; } &&
-     // ... && requires ext::ExplicitlyConvertible<Ts, CommonType<Ts...>>());
-     detail::AllExplicitlyConvertible<CommonType<Ts...>, Ts...>);
+    // (ext::ExplicitlyConvertible<Ts, CommonType<Ts...>>() && ...);
+    detail::all_explicitly_convertible<CommonType<Ts...>, Ts...>;
 }
 
 template <class T, class U>
 concept bool Assignable() {
   return requires (T&& t, U&& u) {
-    STL2_EXACT_TYPE_CONSTRAINT(stl2::forward<T>(t) = stl2::forward<U>(u), T&);
+    STL2_EXACT_TYPE_CONSTRAINT((T&&)t = (U&&)u, T&);
   };
 }
 

@@ -13,10 +13,9 @@
 //
 namespace stl2 { inline namespace v1 {
 
-// Destructible is not to spec as of 20150712,
-// is_object and accepting the parameters by reference
-// are needed to protect against hard errors in the
-// requires clause with odd types.
+// 20150712: not to spec. is_object and accepting the
+// parameters by reference are necessary to prevent hard
+// errors in the requires clause with odd types.
 template <class T>
 concept bool Destructible() {
   return std::is_object<T>::value &&
@@ -33,19 +32,17 @@ namespace ext {
 template <class T, class...Args>
 concept bool ConstructibleObject =
   Destructible<T>() && requires (Args&&...args) {
-    T{ stl2::forward<Args>(args)... }; // not equality preserving
-    new T{ stl2::forward<Args>(args)... }; // not equality preserving
+    T{ (Args&&)args... }; // not equality preserving
+    new T{ (Args&&)args... }; // not equality preserving
   };
 
 template <class T, class...Args>
 concept bool BindableReference =
   std::is_reference<T>::value && requires (Args&&...args) {
-    T( stl2::forward<Args>(args)... );
+    T( (Args&&)args... );
   };
 }
 
-// 20150715: Not to spec, spec is broken. There's implementation
-// variance around CWG1521.
 template <class T, class...Args>
 concept bool Constructible() {
   return ext::ConstructibleObject<T, Args...> ||
@@ -53,7 +50,8 @@ concept bool Constructible() {
 }
 
 // There's implementation variance around DR1518, this may not
-// require the default constructor to be non-explicit.
+// enforce the requirement that the default constructor be
+// non-explicit.
 template <class T>
 concept bool DefaultConstructible() {
   return Constructible<T>() &&
@@ -62,16 +60,12 @@ concept bool DefaultConstructible() {
     };
 }
 
-// 20150712: Not as specified, uses ImplicitlyConvertible instead of
-// a lambda to require the move constructor to be non-explicit.
 template <class T>
 concept bool MoveConstructible() {
   return Constructible<T, std::remove_cv_t<T>&&>() &&
     ext::ImplicitlyConvertible<std::remove_cv_t<T>&&, T>();
 }
 
-// 20150712: Not as specified, uses ImplicitlyConvertible instead of
-// a lambda to require the copy constructor to be non-explicit.
 template <class T>
 concept bool CopyConstructible() {
   return MoveConstructible<T>() &&
@@ -130,6 +124,8 @@ namespace detail {
   } __try_swap{};
 }
 
+// 20150715: Conforming extension: can swap T(&)[N] with U(&)[N]
+// if T& and U& are Swappable.
 template <class T, class U, std::size_t N>
   requires requires (T &t, U &u) { detail::__try_swap(t, u); }
 constexpr void swap(T (&t)[N], U (&u)[N])
@@ -140,7 +136,7 @@ namespace detail {
 template <class T, class U>
 concept bool Swappable_ =
   requires (T&& t, U&&u) {
-    swap(stl2::forward<T>(t), stl2::forward<U>(u));
+    swap((T&&)t, (U&&)u);
   };
 
 }
