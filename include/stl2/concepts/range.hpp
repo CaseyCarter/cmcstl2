@@ -2,9 +2,11 @@
 #define STL2_CONCEPTS_RANGE_HPP
 
 #include <stl2/detail/fwd.hpp>
+#include <stl2/concepts/core.hpp>
 #include <stl2/concepts/iterator.hpp>
 
 #include <iterator>
+#include <type_traits>
 
 /////////////////////////////
 // Range concepts [iterables]
@@ -21,13 +23,28 @@ using SentinelType = decltype(end(declval<T>()));
 
 template <class T>
 concept bool Range() {
-  return requires (T&& t) {
-    begin(t);
-    end(t);
-    typename IteratorType<T>;
-    typename SentinelType<T>;
-    requires Sentinel<SentinelType<T>, IteratorType<T>>();
-  };
+  return Sentinel<SentinelType<T>, IteratorType<T>>();
+}
+
+namespace detail {
+template <class T>
+concept bool SizedRangeLike =
+  Range<T>() &&
+  requires (const T& t) {
+    { size(t) } -> Integral;
+    requires ConvertibleTo<decltype(size(t)), DifferenceType<IteratorType<T>>>();
+  };  
+}
+
+template <class>
+struct is_sized_range : std::false_type {};
+template <detail::SizedRangeLike T>
+struct is_sized_range<T> : std::true_type {};
+
+template <class T>
+concept bool SizedRange() {
+  return detail::SizedRangeLike<T>() &&
+    meta::_v<is_sized_range<std::remove_reference_t<T>>>;
 }
 
 namespace ext { namespace models {
@@ -36,6 +53,11 @@ template <class>
 constexpr bool range() { return false; }
 Range{T}
 constexpr bool range() { return true; }
+
+template <class>
+constexpr bool sized_range() { return false; }
+SizedRange{T}
+constexpr bool sized_range() { return true; }
 
 }}}} // namespace stl2::v1::ext::models
 

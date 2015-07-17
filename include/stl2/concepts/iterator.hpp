@@ -318,6 +318,9 @@ using std_iterator_category =
   decltype(std_iterator_category_::f((T*)nullptr));
 }
 
+// 20150716: Conforming extension: category for pointers is
+// ext::contiguous_iterator_tag which derives from
+// random_access_iterator_tag.
 template <class> struct iterator_category {};
 
 template <detail::NonVoid T>
@@ -347,7 +350,7 @@ using IteratorCategory =
 template <class I>
 concept bool WeakIterator() {
   return WeaklyIncrementable<I>() &&
-    detail::Dereferencable<const I&>;
+    detail::Dereferencable<I&>;
 }
 
 template <class I>
@@ -367,11 +370,12 @@ template <class I>
 concept bool WeakInputIterator() {
   return WeakIterator<I>() &&
     Readable<I>() &&
-    requires (I i) {
+    requires (I& i, const I& ci) {
       typename IteratorCategory<I>;
       Derived<IteratorCategory<I>, weak_input_iterator_tag>();
       STL2_DEDUCTION_CONSTRAINT(i++, Readable);
       requires Same<ValueType<I>, ValueType<decltype(i++)>>();
+      { *ci } -> const ValueType<I>&;
     };
 }
 
@@ -405,7 +409,7 @@ template <class I>
 concept bool BidirectionalIterator() {
   return ForwardIterator<I>() &&
     Derived<IteratorCategory<I>, bidirectional_iterator_tag>() &&
-    requires (I i) {
+    requires (I& i) {
       STL2_EXACT_TYPE_CONSTRAINT(--i, I&);
       STL2_EXACT_TYPE_CONSTRAINT(i--, I);
     };
@@ -414,7 +418,7 @@ concept bool BidirectionalIterator() {
 template <class I, class S = I>
 concept bool SizedIteratorRange() {
   return Sentinel<S, I>() &&
-    requires (I i, S s) {
+    requires (const I& i, const S& s) {
       { i - i } -> DifferenceType<I>;
       { s - s } -> DifferenceType<I>;
       { s - i } -> DifferenceType<I>;
@@ -422,20 +426,34 @@ concept bool SizedIteratorRange() {
     };
 }
 
+namespace detail {
+template <class I>
+concept bool MutableIterator =
+  Iterator<I>() &&
+  requires (const I& i) {
+    { *i } -> auto&;
+    *i = *i;
+  };
+}
+
 template <class I>
 concept bool RandomAccessIterator() {
   return BidirectionalIterator<I>() &&
-    Derived<IteratorCategory<I>, random_access_iterator_tag>() &&
     TotallyOrdered<I>() &&
+    Derived<IteratorCategory<I>, random_access_iterator_tag>() &&
     SizedIteratorRange<I>() &&
-    requires (I i, const I j, DifferenceType<I> n) {
+    requires (I& i, const I& j, const DifferenceType<I> n) {
       STL2_EXACT_TYPE_CONSTRAINT(i += n, I&);
       STL2_EXACT_TYPE_CONSTRAINT(j + n, I);
       STL2_EXACT_TYPE_CONSTRAINT(n + j, I);
       STL2_EXACT_TYPE_CONSTRAINT(i -= n, I&);
       STL2_EXACT_TYPE_CONSTRAINT(j - n, I);
-      STL2_EXACT_TYPE_CONSTRAINT(j[n], ReferenceType<I>);
-    };
+      STL2_CONVERSION_CONSTRAINT(j[n], const ValueType<I>&);
+    } &&
+    (!detail::MutableIterator<I> ||
+     requires (const I& i, const DifferenceType<I> n) {
+       i[n] = *i; *i = i[n];
+     });
 }
 
 namespace ext {
