@@ -72,14 +72,14 @@ static_assert(same<IteratorCategory<const int*>, stl2::ext::contiguous_iterator_
 static_assert(same<IteratorCategory<D>, stl2::forward_iterator_tag>(), "");
 
 template <class T>
-struct derived_from : T {};
+struct derive_from : T {};
 
 template <class T, bool Derive>
 using iterator =
   meta::apply_list<
     meta::bind_front<
       meta::quote<std::iterator>,
-      meta::if_c<Derive, derived_from<T>, T>>,
+      meta::if_c<Derive, derive_from<T>, T>>,
     meta::if_<
       std::is_same<T, std::output_iterator_tag>,
       meta::list<void, void, void, void>,

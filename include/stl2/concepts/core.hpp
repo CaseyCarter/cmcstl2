@@ -14,9 +14,9 @@
 
 // Subsumption relationships (#ASCIIart):
 //
-//                                           /- ext::ExplicitlyConvertible <= ext::core::Constructible
-//     /- ext::PubliclyDerived <= Convertible
-// Same                                      \- ext::ImplicitlyConvertible
+//                                                 /- ext::ExplicitlyConvertibleTo <= ext::core::Constructible
+//     /- ext::PubliclyDerivedFrom <= ConvertibleTo
+// Same                                            \- ext::ImplicitlyConvertibleTo
 //     \- Common
 
 #if defined(__GNUC__)
@@ -47,44 +47,44 @@ concept bool Same() {
 }
 
 template <class T, class U>
-concept bool Derived() {
+concept bool DerivedFrom() {
   return STL2_IS_BASE_OF(U, T);
 }
 
 namespace ext {
 
 template <class T, class U>
-concept bool ExplicitlyConvertible() {
+concept bool ExplicitlyConvertibleTo() {
   return Same<T, U>() ||
     requires (T&& t) { static_cast<U>((T&&)t); };
 }
 
 template <class T, class U>
-concept bool ImplicitlyConvertible() {
+concept bool ImplicitlyConvertibleTo() {
   return Same<T, U>() ||
     std::is_convertible<T, U>::value; // Maybe { t } -> U ?
 }
 
 } // namespace ext
 
-// 20150715: not to spec. The draft specifies that Convertible has
+// 20150715: not to spec. The draft specifies that ConvertibleTo has
 // the same value as is_convertible, but Casey strongly suspects
-// that we (a) want Same to subsume Convertible, and (b) want
-// Convertible to require both implicit and explicit conversion
+// that we (a) want Same to subsume ConvertibleTo, and (b) want
+// ConvertibleTo to require both implicit and explicit conversion
 // with equal results.
 template <class T, class U>
-concept bool Convertible() {
-  return ext::ExplicitlyConvertible<T, U>() &&
-    ext::ImplicitlyConvertible<T, U>();
+concept bool ConvertibleTo() {
+  return ext::ExplicitlyConvertibleTo<T, U>() &&
+    ext::ImplicitlyConvertibleTo<T, U>();
 }
 
 namespace ext {
 
-// "PubliclyAndUnambiguouslyDerived" would be a very long name.
+// "PubliclyAndUnambiguouslyDerivedFrom" would be a very long name.
 template <class T, class U>
-concept bool PubliclyDerived() {
+concept bool PubliclyDerivedFrom() {
   return Same<T, U>() ||
-    (Derived<T, U>() && Convertible<T, U>());
+    (DerivedFrom<T, U>() && ConvertibleTo<T, U>());
 }
 
 } // namespace ext
@@ -109,7 +109,7 @@ using CommonType =
 template <class...Ts>
 concept bool Common() {
   return Same<Ts...>() ||
-    // (ext::ExplicitlyConvertible<Ts, CommonType<Ts...>>() && ...);
+    // (ext::ExplicitlyConvertibleTo<Ts, CommonType<Ts...>>() && ...);
     detail::all_explicitly_convertible<CommonType<Ts...>, Ts...>;
 }
 
@@ -131,7 +131,7 @@ concept bool Constructible() {
 
 template <class T, class U>
 concept bool Constructible() {
-  return ExplicitlyConvertible<U, T>() ||
+  return ExplicitlyConvertibleTo<U, T>() ||
     requires (U&& u) {
       T{ (U&&)u }; // not equality preserving
     };
@@ -157,14 +157,14 @@ Same{...Ts}
 constexpr bool same() { return true; }
 
 template <class, class>
-constexpr bool convertible() { return false; }
-Convertible{T, U}
-constexpr bool convertible() { return true; }
+constexpr bool convertible_to() { return false; }
+ConvertibleTo{T, U}
+constexpr bool convertible_to() { return true; }
 
 template <class, class>
-constexpr bool publicly_derived() { return false; }
-PubliclyDerived{T, U}
-constexpr bool publicly_derived() { return true; }
+constexpr bool publicly_derived_from() { return false; }
+PubliclyDerivedFrom{T, U}
+constexpr bool publicly_derived_from() { return true; }
 
 template <class...>
 constexpr bool common() { return false; }

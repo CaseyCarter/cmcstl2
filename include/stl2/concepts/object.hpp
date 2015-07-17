@@ -63,16 +63,16 @@ concept bool DefaultConstructible() {
 template <class T>
 concept bool MoveConstructible() {
   return Constructible<T, std::remove_cv_t<T>&&>() &&
-    ext::ImplicitlyConvertible<std::remove_cv_t<T>&&, T>();
+    ext::ImplicitlyConvertibleTo<std::remove_cv_t<T>&&, T>();
 }
 
 template <class T>
 concept bool CopyConstructible() {
   return MoveConstructible<T>() &&
     Constructible<T, const std::remove_cv_t<T>&>() &&
-    ext::ImplicitlyConvertible<std::remove_cv_t<T>&, T>() &&
-    ext::ImplicitlyConvertible<const std::remove_cv_t<T>&, T>() &&
-    ext::ImplicitlyConvertible<const std::remove_cv_t<T>&&, T>();
+    ext::ImplicitlyConvertibleTo<std::remove_cv_t<T>&, T>() &&
+    ext::ImplicitlyConvertibleTo<const std::remove_cv_t<T>&, T>() &&
+    ext::ImplicitlyConvertibleTo<const std::remove_cv_t<T>&&, T>();
 }
 
 template <class T>

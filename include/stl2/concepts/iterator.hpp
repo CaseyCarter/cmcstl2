@@ -123,7 +123,7 @@ concept bool Readable() {
     DefaultConstructible<I>() &&
     detail::Dereferencable<const I> &&
     requires (const I& i) {
-      { *i } -> const ValueType<I>&; // Convertible<ReferenceType<I>, const ValueType<I>&>() ?
+      { *i } -> const ValueType<I>&; // ConvertibleTo<ReferenceType<I>, const ValueType<I>&>() ?
       typename RvalueReferenceType<I>;
     };
 }
@@ -334,11 +334,11 @@ struct iterator_category<T> {
 };
 
 template <detail::MemberIteratorCategory T>
-  requires Derived<typename T::iterator_category, std::output_iterator_tag>()
+  requires DerivedFrom<typename T::iterator_category, std::output_iterator_tag>()
 struct iterator_category<T> {};
 
 template <detail::MemberIteratorCategory T>
-  requires Derived<typename T::iterator_category, std::input_iterator_tag>()
+  requires DerivedFrom<typename T::iterator_category, std::input_iterator_tag>()
 struct iterator_category<T> {
   using type = detail::std_iterator_category<typename T::iterator_category>;
 };
@@ -372,7 +372,7 @@ concept bool WeakInputIterator() {
     Readable<I>() &&
     requires (I& i, const I& ci) {
       typename IteratorCategory<I>;
-      Derived<IteratorCategory<I>, weak_input_iterator_tag>();
+      DerivedFrom<IteratorCategory<I>, weak_input_iterator_tag>();
       STL2_DEDUCTION_CONSTRAINT(i++, Readable);
       requires Same<ValueType<I>, ValueType<decltype(i++)>>();
       { *ci } -> const ValueType<I>&;
@@ -389,7 +389,7 @@ template <class I>
 concept bool InputIterator() {
   return WeakInputIterator<I>() &&
     Iterator<I>() &&
-    Derived<IteratorCategory<I>, input_iterator_tag>();
+    DerivedFrom<IteratorCategory<I>, input_iterator_tag>();
 }
 
 template <class I, class T>
@@ -402,13 +402,13 @@ template <class I>
 concept bool ForwardIterator() {
   return InputIterator<I>() &&
     Incrementable<I>() &&
-    Derived<IteratorCategory<I>, forward_iterator_tag>();
+    DerivedFrom<IteratorCategory<I>, forward_iterator_tag>();
 }
 
 template <class I>
 concept bool BidirectionalIterator() {
   return ForwardIterator<I>() &&
-    Derived<IteratorCategory<I>, bidirectional_iterator_tag>() &&
+    DerivedFrom<IteratorCategory<I>, bidirectional_iterator_tag>() &&
     requires (I& i) {
       STL2_EXACT_TYPE_CONSTRAINT(--i, I&);
       STL2_EXACT_TYPE_CONSTRAINT(i--, I);
@@ -440,7 +440,7 @@ template <class I>
 concept bool RandomAccessIterator() {
   return BidirectionalIterator<I>() &&
     TotallyOrdered<I>() &&
-    Derived<IteratorCategory<I>, random_access_iterator_tag>() &&
+    DerivedFrom<IteratorCategory<I>, random_access_iterator_tag>() &&
     SizedIteratorRange<I>() &&
     requires (I& i, const I& j, const DifferenceType<I> n) {
       STL2_EXACT_TYPE_CONSTRAINT(i += n, I&);
@@ -461,7 +461,7 @@ namespace ext {
 template <class I>
 concept bool ContiguousIterator() {
   return RandomAccessIterator<I>() &&
-    Derived<IteratorCategory<I>, contiguous_iterator_tag>() &&
+    DerivedFrom<IteratorCategory<I>, contiguous_iterator_tag>() &&
     std::is_reference<ReferenceType<I>>::value; // or something
 }
 

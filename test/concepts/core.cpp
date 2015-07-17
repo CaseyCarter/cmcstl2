@@ -29,40 +29,40 @@ static_assert(same<int, int, int, int>(), "");
 static_assert(!same<int, int, double, int>(), "");
 }
 
-namespace publicly_derived_test {
-using stl2::ext::models::publicly_derived;
+namespace publicly_derived_from_test {
+using stl2::ext::models::publicly_derived_from;
 
 struct A {};
 struct B : A {};
 struct C : A {};
 struct D : B, C {};
 
-static_assert(publicly_derived<int,int>(), "");
-static_assert(publicly_derived<A,A>(), "");
-static_assert(publicly_derived<B,B>(), "");
-static_assert(publicly_derived<C,C>(), "");
-static_assert(publicly_derived<D,D>(), "");
-static_assert(publicly_derived<B,A>(), "");
-static_assert(publicly_derived<C,A>(), "");
-static_assert(!publicly_derived<A,B>(), "");
-static_assert(!publicly_derived<A,C>(), "");
-static_assert(!publicly_derived<A,D>(), "");
-static_assert(!publicly_derived<D,A>(), "");
-static_assert(!publicly_derived<int,void>(), "");
+static_assert(publicly_derived_from<int,int>(), "");
+static_assert(publicly_derived_from<A,A>(), "");
+static_assert(publicly_derived_from<B,B>(), "");
+static_assert(publicly_derived_from<C,C>(), "");
+static_assert(publicly_derived_from<D,D>(), "");
+static_assert(publicly_derived_from<B,A>(), "");
+static_assert(publicly_derived_from<C,A>(), "");
+static_assert(!publicly_derived_from<A,B>(), "");
+static_assert(!publicly_derived_from<A,C>(), "");
+static_assert(!publicly_derived_from<A,D>(), "");
+static_assert(!publicly_derived_from<D,A>(), "");
+static_assert(!publicly_derived_from<int,void>(), "");
 }
 
-namespace convertible_test {
-using stl2::ext::models::convertible;
+namespace convertible_to_test {
+using stl2::ext::models::convertible_to;
 
 struct A {};
 struct B : A {};
 
-static_assert(convertible<A, A>(), "");
-static_assert(convertible<B, B>(), "");
-static_assert(!convertible<A, B>(), "");
-static_assert(convertible<B, A>(), "");
-static_assert(convertible<int, double>(), "");
-static_assert(convertible<double, int>(), "");
+static_assert(convertible_to<A, A>(), "");
+static_assert(convertible_to<B, B>(), "");
+static_assert(!convertible_to<A, B>(), "");
+static_assert(convertible_to<B, A>(), "");
+static_assert(convertible_to<int, double>(), "");
+static_assert(convertible_to<double, int>(), "");
 }
 
 namespace common_test {
@@ -108,7 +108,7 @@ template <class T, class U>
   requires stl2::ext::core::Constructible<T, U>()
 constexpr bool f() { return false; }
 
-template <class T, stl2::Convertible<T> >
+template <class T, stl2::ConvertibleTo<T> >
 constexpr bool f() { return true; }
 
 static_assert(f<int,int>(), "");
@@ -142,17 +142,17 @@ result f(A) {
   return result::exact;
 }
 
-result f(stl2::ext::PubliclyDerived<A>) {
+result f(stl2::ext::PubliclyDerivedFrom<A>) {
   std::cout << "Publicly derived from A\n";
   return result::publicly_derived;
 }
 
-result f(stl2::Convertible<A>) {
+result f(stl2::ConvertibleTo<A>) {
   std::cout << "Implicitly convertible to A\n";
   return result::convertible;
 }
 
-  result f(stl2::ext::ExplicitlyConvertible<A>) {
+  result f(stl2::ext::ExplicitlyConvertibleTo<A>) {
   std::cout << "Explicitly convertible to A\n";
   return result::explicitly_convertible;
 }

@@ -31,11 +31,11 @@ std::add_rvalue_reference_t<T> declval() noexcept;
 #if 0
 #define STL2_DEDUCTION_CONSTRAINT(E, ...) { E } -> __VA_ARGS__
 #define STL2_EXACT_TYPE_CONSTRAINT(E, ...) STL2_DEDUCTION_CONSTRAINT(E, Same<__VA_ARGS__>)
-#define STL2_CONVERSION_CONSTRAINT(E, ...) STL2_DEDUCTION_CONSTRAINT(E, Convertible<__VA_ARGS__>)
+#define STL2_CONVERSION_CONSTRAINT(E, ...) STL2_DEDUCTION_CONSTRAINT(E, ConvertibleTo<__VA_ARGS__>)
 #else
 #define STL2_DEDUCTION_CONSTRAINT(E, ...) requires __VA_ARGS__ <decltype(E)>()
 #define STL2_EXACT_TYPE_CONSTRAINT(E, ...) requires Same<decltype(E), __VA_ARGS__>()
-#define STL2_CONVERSION_CONSTRAINT(E, ...) requires Convertible<decltype(E),__VA_ARGS__>()
+#define STL2_CONVERSION_CONSTRAINT(E, ...) requires ConvertibleTo<decltype(E),__VA_ARGS__>()
 #endif
 
 #define STL2_DECLTYPE_AUTO_RETURN_NOEXCEPT(...) \
