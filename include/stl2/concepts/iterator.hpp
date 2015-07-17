@@ -1,6 +1,7 @@
 #ifndef STL2_CONCEPTS_ITERATOR_HPP
 #define STL2_CONCEPTS_ITERATOR_HPP
 
+#include <iterator>
 #include <type_traits>
 
 #include <meta/meta.hpp>
@@ -300,6 +301,23 @@ struct contiguous_iterator_tag :
   random_access_iterator_tag {};
 }
 
+namespace detail {
+template <class T>
+concept bool MemberIteratorCategory =
+  requires { typename T::iterator_category; };
+
+namespace std_iterator_category_ {
+  input_iterator_tag f(std::input_iterator_tag*);
+  forward_iterator_tag f(std::forward_iterator_tag*);
+  bidirectional_iterator_tag f(std::bidirectional_iterator_tag*);
+  random_access_iterator_tag f(std::random_access_iterator_tag*);
+}
+
+template <class T>
+using std_iterator_category =
+  decltype(std_iterator_category_::f((T*)nullptr));
+}
+
 template <class> struct iterator_category {};
 
 template <detail::NonVoid T>
@@ -307,10 +325,19 @@ struct iterator_category<T*> {
   using type = ext::contiguous_iterator_tag;
 };
 
-template <class T>
-  requires requires { typename T::iterator_category; }
+template <detail::MemberIteratorCategory T>
 struct iterator_category<T> {
   using type = typename T::iterator_category;
+};
+
+template <detail::MemberIteratorCategory T>
+  requires Derived<typename T::iterator_category, std::output_iterator_tag>()
+struct iterator_category<T> {};
+
+template <detail::MemberIteratorCategory T>
+  requires Derived<typename T::iterator_category, std::input_iterator_tag>()
+struct iterator_category<T> {
+  using type = detail::std_iterator_category<typename T::iterator_category>;
 };
 
 template <class T>

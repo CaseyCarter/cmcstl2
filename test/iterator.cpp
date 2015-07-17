@@ -1,3 +1,5 @@
+// -*- compile-command: "(cd ~/cmcstl2/build && make iterator && ./test/iterator)" -*-
+
 #include <stl2/iterator.hpp>
 
 #include <cassert>
