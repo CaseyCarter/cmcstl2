@@ -43,11 +43,31 @@ struct explicit_copy_t {
   explicit explicit_copy_t(const explicit_copy_t&) = default;
 };
 
+struct partial_overloaded_address {
+  partial_overloaded_address* operator&();
+};
+struct overloaded_address {
+  overloaded_address* operator&();
+  const overloaded_address* operator&() const;
+};
+struct bad_overloaded_address {
+  void operator&() const;
+};
+struct bad_overloaded_const_address {
+  bad_overloaded_const_address* operator&();
+  void operator&() const;
+};
+
 static_assert(!destructible<void>(), "");
 static_assert(destructible<int>(), "");
 static_assert(!destructible<int&>(), "");
 static_assert(!destructible<int[4]>(), "");
 static_assert(!destructible<int()>(), "");
+
+static_assert(destructible<partial_overloaded_address>(), "");
+static_assert(destructible<overloaded_address>(), "");
+static_assert(!destructible<bad_overloaded_address>(), "");
+static_assert(!destructible<bad_overloaded_const_address>(), "");
 
 static_assert(constructible<int>(), "");
 static_assert(constructible<int&, int&>(), "");
