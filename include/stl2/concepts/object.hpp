@@ -21,8 +21,8 @@ concept bool Destructible() {
   return std::is_object<T>::value &&
     requires (T& t, const T& ct, T* const p) {
       { t.~T() } noexcept;
-      STL2_EXACT_TYPE_CONSTRAINT(&t, T*); // not equality preserving
-      STL2_EXACT_TYPE_CONSTRAINT(&ct, const T*); // not equality preserving
+      STL2_EXACT_TYPE_CONSTRAINT(&t, T*); // not required to be equality preserving
+      STL2_EXACT_TYPE_CONSTRAINT(&ct, const T*); // not required to be equality preserving
       delete p;
       delete[] p;
     };
@@ -32,15 +32,18 @@ namespace ext {
 template <class T, class...Args>
 concept bool ConstructibleObject =
   Destructible<T>() && requires (Args&&...args) {
-    T{ (Args&&)args... }; // not equality preserving
-    new T{ (Args&&)args... }; // not equality preserving
+    T{ (Args&&)args... }; // not required to be equality preserving
+    new T{ (Args&&)args... }; // not required to be equality preserving
   };
 
+// 20150718: Not to spec: spec is broken.
+// FIXME: Correct wording.
 template <class T, class...Args>
 concept bool BindableReference =
-  std::is_reference<T>::value && requires (Args&&...args) {
-    T( (Args&&)args... );
-  };
+  std::is_reference<T>::value &&
+  // requires (Args&&...args) { T{ (Args&&)args... }; };
+  // requires (Args&&...args) { T( (Args&&)args... ); };
+  std::is_constructible<T, Args...>::value;
 }
 
 template <class T, class...Args>
@@ -56,7 +59,7 @@ template <class T>
 concept bool DefaultConstructible() {
   return Constructible<T>() &&
     requires (const std::size_t n) {
-      new T[n]{}; // not equality preserving;
+      new T[n]{}; // not required to be equality preserving
     };
 }
 
@@ -203,6 +206,18 @@ template <class>
 constexpr bool destructible() { return false; }
 Destructible{T}
 constexpr bool destructible() { return true; }
+
+template <class T, class...Args>
+constexpr bool constructible_object() { return false; }
+template <class T, class...Args>
+  requires ConstructibleObject<T, Args...>
+constexpr bool constructible_object() { return true; }
+
+template <class T, class...Args>
+constexpr bool bindable_reference() { return false; }
+template <class T, class...Args>
+  requires BindableReference<T, Args...>
+constexpr bool bindable_reference() { return true; }
 
 template <class, class...>
 constexpr bool constructible() { return false; }
