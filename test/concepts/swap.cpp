@@ -1,5 +1,9 @@
 // -*- compile-command: "(cd ~/cmcstl2/build && make concepts.swap && ./test/concepts/concepts.swap)" -*-
 
+#ifdef VALIDATE_RANGES
+#error No range-v3 version of this test yet.
+#endif
+
 #include <stl2/concepts/object.hpp>
 #include <stl2/utility.hpp>
 

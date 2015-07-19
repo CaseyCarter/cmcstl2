@@ -1,5 +1,9 @@
 // -*- compile-command: "(cd ~/cmcstl2/build && make test/concepts/compare && ./test/concepts/compare)" -*-
 
+#ifdef VALIDATE_RANGES
+#error No range-v3 version of this test yet.
+#endif
+
 #include <stl2/concepts/compare.hpp>
 
 #include <type_traits>

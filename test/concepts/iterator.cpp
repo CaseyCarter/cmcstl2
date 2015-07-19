@@ -1,5 +1,9 @@
 // -*- compile-command: "(cd ~/cmcstl2/build && make concepts.iterator && ./test/concepts/concepts.iterator)" -*-
 
+#ifdef VALIDATE_RANGES
+#error No range-v3 version of this test yet.
+#endif
+
 #include <stl2/concepts/core.hpp>
 #include <stl2/concepts/iterator.hpp>
 
