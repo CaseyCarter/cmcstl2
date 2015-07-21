@@ -135,13 +135,11 @@ constexpr void swap(T (&t)[N], U (&u)[N])
   noexcept(noexcept(detail::__try_swap(*t, *u)));
 
 namespace detail {
-
 template <class T, class U>
 concept bool Swappable_ =
   requires (T&& t, U&&u) {
     swap((T&&)t, (U&&)u);
   };
-
 }
 
 template <class T>
@@ -157,6 +155,28 @@ concept bool Swappable() {
     detail::Swappable_<T, U> &&
     detail::Swappable_<U, T>;
 }
+
+namespace ext {
+
+template <class T, class U = T>
+constexpr bool is_nothrow_swappable_v = false;
+
+Swappable{T, U}
+constexpr bool is_nothrow_swappable_v =
+  noexcept(swap(stl2::declval<T>(), stl2::declval<U>())) &&
+  noexcept(swap(stl2::declval<U>(), stl2::declval<T>())) &&
+  noexcept(swap(stl2::declval<T>(), stl2::declval<T>())) &&
+  noexcept(swap(stl2::declval<U>(), stl2::declval<U>()));
+
+template <class T, class U>
+struct is_nothrow_swappable
+  : meta::bool_<is_nothrow_swappable_v<T, U>> {};
+
+template <class T, class U>
+using is_nothrow_swappable_t = meta::_t<is_nothrow_swappable<T, U>>;
+
+}
+
 
 #if 0
 namespace ext {

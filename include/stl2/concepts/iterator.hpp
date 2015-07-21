@@ -44,15 +44,15 @@ using __iter_move_t =
 
 template <class RR, class R = std::remove_reference_t<RR>>
   requires detail::Dereferencable<R>
-detail::__iter_move_t<R> iter_move2(RR& r)
+detail::__iter_move_t<R> iter_move(RR& r)
   noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r))));
 
 template <detail::Dereferencable R>
   requires requires (R& r) {
-    { iter_move2(r) } -> auto&&;
+    { iter_move(r) } -> auto&&;
   }
 using RvalueReferenceType =
-  decltype(iter_move2(declval<R&>()));
+  decltype(iter_move(declval<R&>()));
 
 namespace detail {
 
@@ -149,17 +149,22 @@ concept bool Writable() {
     };
 }
 
-// 20150715: Not to spec, additionally requires:
-//   ValueType<In> v{iter_move2(i)};
-// and
-//   *o = iter_move2(i);
-// to be valid (with stl2::iter_move2 in scope).
 template <class In, class Out>
 concept bool IndirectlyMovable() {
-  return Readable<In>() &&
+  return Readable<In>() && Movable<ValueType<In>>() &&
     Constructible<ValueType<In>, RvalueReferenceType<In>>() &&
+    Assignable<ValueType<In> &, RvalueReferenceType<In>>() &&
     MoveWritable<Out, RvalueReferenceType<In>>() &&
     MoveWritable<Out, ValueType<In>>();
+}
+
+template <class In, class Out>
+concept bool IndirectlyCopyable() {
+  return IndirectlyMovable<In, Out>() && Copyable<ValueType<In>>() &&
+    Constructible<ValueType<In>, ReferenceType<In>>() &&
+    Assignable<ValueType<In> &, ReferenceType<In>>() &&
+    Writable<Out, ReferenceType<In>>() &&
+    Writable<Out, ValueType<In>>();
 }
 
 namespace ext {
@@ -170,56 +175,62 @@ constexpr bool is_nothrow_indirectly_movable_v = false;
 IndirectlyMovable{In, Out}
 constexpr bool is_nothrow_indirectly_movable_v =
   std::is_nothrow_constructible<ValueType<In>, RvalueReferenceType<In>>::value &&
+  std::is_nothrow_assignable<ValueType<In> &, RvalueReferenceType<In>>::value &&
   std::is_nothrow_assignable<ReferenceType<Out>, RvalueReferenceType<In>>::value &&
   std::is_nothrow_assignable<ReferenceType<Out>, ValueType<In>>::value;
 
 template <class In, class Out>
-using is_nothrow_indirectly_movable_t =
-  meta::bool_<is_nothrow_indirectly_movable_v<In, Out>>;
+struct is_nothrow_indirectly_movable
+  : meta::bool_<is_nothrow_indirectly_movable_v<In, Out>> {};
 
 template <class In, class Out>
-struct is_nothrow_indirectly_movable :
-  is_nothrow_indirectly_movable_t<In, Out> {};
+using is_nothrow_indirectly_movable_t = meta::_t<is_nothrow_indirectly_movable<In, Out>>;
 
 }
 
-namespace detail {
-// This is a manual expansion of:
-//   IndirectlyMovable<I1, I2> && IndirectlyMovable<I2, I1>
-// with modifications to keep the compiler from blowing up
-// memory when it sees the declaration of iter_swap2.
-template <class I1, class I2>
-concept bool IterSwappable =
-  Readable<I1>() && Readable<I2>() &&
-  Constructible<ValueType<I1>, RvalueReferenceType<I1>>() &&
-  //Constructible<ValueType<I2>, RvalueReferenceType<I2>>() && // BUG: OOM
-  MoveWritable<I1, RvalueReferenceType<I2>>() &&
-  MoveWritable<I2, RvalueReferenceType<I1>>() &&
-  MoveWritable<I2, ValueType<I1>>() &&
-  MoveWritable<I1, ValueType<I2>>();
+// iter_swap2
+template <Readable R1, Readable R2>
+  requires Swappable<ReferenceType<R1>, ReferenceType<R2>>()
+void iter_swap2(R1 r1, R2 r2)
+  noexcept(ext::is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>);
 
-// Similarly, this is a manual:
-//   is_nothrow_indirectly_movable_v<T, U> &&
-//   is_nothrow_indirectly_movable_v<U, T>
-template <class, class>
-constexpr bool is_nothrow_iter_swappable_v = false;
+template <Readable R1, Readable R2>
+  requires IndirectlyMovable<R1, R2>() && IndirectlyMovable<R2, R1>() &&
+    !Swappable<ReferenceType<R1>, ReferenceType<R2>>()
+void iter_swap2(R1 r1, R2 r2)
+  noexcept(ext::is_nothrow_indirectly_movable_v<R1, R2> &&
+           ext::is_nothrow_indirectly_movable_v<R2, R1>);
 
-IterSwappable{I1, I2}
-constexpr bool is_nothrow_iter_swappable_v =
-  std::is_nothrow_constructible<ValueType<I1>, RvalueReferenceType<I1>>::value &&
-  std::is_nothrow_constructible<ValueType<I2>, RvalueReferenceType<I2>>::value &&
-  std::is_nothrow_assignable<ReferenceType<I1>, RvalueReferenceType<I2>>::value &&
-  std::is_nothrow_assignable<ReferenceType<I2>, RvalueReferenceType<I1>>::value &&
-  std::is_nothrow_assignable<ReferenceType<I2>, ValueType<I1>>::value &&
-  std::is_nothrow_assignable<ReferenceType<I1>, ValueType<I2>>::value;
-}
-
-// To spec, but should probably be replaced by detail::IterSwappable
-// or IndirectlyMovable<I1, I2>() && IndirectlyMovable<I2, I1>()
-template <class I1, class I2>
+template <class I1, class I2 = I1>
 concept bool IndirectlySwappable() {
   return Readable<I1>() && Readable<I2>() &&
-    Swappable<ReferenceType<I1>, ReferenceType<I2>>();
+    requires (I1 i1, I2 i2) {
+      iter_swap2(i1, i2);
+      iter_swap2(i2, i1);
+      iter_swap2(i1, i1);
+      iter_swap2(i2, i2);
+    };
+}
+
+namespace ext {
+
+template <class R1, class R2>
+constexpr bool is_nothrow_indirectly_swappable_v = false;
+
+IndirectlySwappable{R1, R2}
+constexpr bool is_nothrow_indirectly_swappable_v =
+  noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R2>())) &&
+  noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R1>())) &&
+  noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R1>())) &&
+  noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R2>()));
+
+template <class R1, class R2>
+struct is_nothrow_indirectly_swappable
+  : meta::bool_<is_nothrow_indirectly_swappable_v<R1, R2>> {};
+
+template <class R1, class R2>
+using is_nothrow_indirectly_swappable_t = meta::_t<is_nothrow_indirectly_swappable<R1, R2>>;
+
 }
 
 namespace detail {

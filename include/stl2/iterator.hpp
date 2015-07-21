@@ -7,34 +7,29 @@
 
 namespace stl2 { inline namespace v1 {
 
-template <class RR, class R = std::remove_reference_t<RR>>
-  requires detail::Dereferencable<R>
-detail::__iter_move_t<R> iter_move2(RR& r)
+template <class R>
+detail::__iter_move_t<R> iter_move(R r)
   noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r)))) {
   return stl2::move(*r);
 }
 
 // iter_swap2
-template <class RR1, class RR2,
-          class R1 = std::remove_reference_t<RR1>,
-          class R2 = std::remove_reference_t<RR2>>
-  requires IndirectlySwappable<R1, R2>()
-auto iter_swap2(RR1&& r1, RR2&& r2)
-STL2_DECLTYPE_AUTO_RETURN_NOEXCEPT(
-  void(swap(*stl2::forward<RR1>(r1),
-            *stl2::forward<RR2>(r2)))
-)
+template <Readable R1, Readable R2>
+  requires Swappable<ReferenceType<R1>, ReferenceType<R2>>()
+void iter_swap2(R1 r1, R2 r2)
+  noexcept(ext::is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>) {
+  swap(*r1, *r2);
+}
 
-template <class RR1, class RR2,
-          class R1 = std::remove_reference_t<RR1>,
-          class R2 = std::remove_reference_t<RR2>>
-  requires detail::IterSwappable<R1, R2> &&
+template <Readable R1, Readable R2>
+  requires IndirectlyMovable<R1, R2>() && IndirectlyMovable<R2, R1>() &&
     !Swappable<ReferenceType<R1>, ReferenceType<R2>>()
-void iter_swap2(RR1&& r1, RR2&& r2)
-  noexcept(detail::is_nothrow_iter_swappable_v<R1, R2>) {
-  ValueType<R1> tmp(iter_move2(r1));
-  *r1 = iter_move2(r2);
-  *r2 = stl2::move(tmp);
+void iter_swap2(R1 r1, R2 r2)
+  noexcept(ext::is_nothrow_indirectly_movable_v<R1, R2> &&
+           ext::is_nothrow_indirectly_movable_v<R2, R1>) {
+  ValueType<R1> tmp = iter_move(r1);
+  *r1 = iter_move(r2);
+  *r2 = std::move(tmp);
 }
 
 }} // namespace stl2::v1

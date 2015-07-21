@@ -94,8 +94,8 @@ struct array {
       return {ptr_ + n};
     }
 
-    friend decltype(auto) iter_move2(iterator i) noexcept {
-      //std::cout << "iter_move2(" << static_cast<void*>(i.ptr_) << ")\n";
+    friend decltype(auto) iter_move(iterator i) noexcept {
+      //std::cout << "iter_move(" << static_cast<void*>(i.ptr_) << ")\n";
       assert(i.ptr_);
       return static_cast<T&&>(*i.ptr_);
     }
@@ -106,15 +106,15 @@ struct array {
 };
 
 namespace adl {
-using stl2::iter_move2;
+using stl2::iter_move;
 
 template <class RR1, class RR2,
           class R1 = std::remove_reference_t<RR1>,
           class R2 = std::remove_reference_t<RR2>>
 void foo(RR1&& r1, RR2&& r2)
   noexcept(stl2::detail::is_nothrow_iter_swappable_v<R1, R2>) {
-  stl2::ValueType<R1> tmp(iter_move2(r1));
-  *r1 = iter_move2(r2);
+  stl2::ValueType<R1> tmp(iter_move(r1));
+  *r1 = iter_move(r2);
   *r2 = stl2::move(tmp);
 }
 }
