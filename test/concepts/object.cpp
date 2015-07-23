@@ -347,4 +347,12 @@ static_assert(!models::regular<copyonly>(), "");
 static_assert(!models::regular<explicit_move>(), "");
 static_assert(!models::regular<explicit_copy>(), "");
 
+static_assert(models::constructible_object<std::initializer_list<int>>(), "");
+static_assert(models::constructible<std::initializer_list<int>>(), "");
+static_assert(models::default_constructible<std::initializer_list<int>>(), "");
+
+static_assert(models::constructible_object<int*>(), "");
+static_assert(models::constructible<int*>(), "");
+static_assert(models::default_constructible<int*>(), "");
+
 int main() {}

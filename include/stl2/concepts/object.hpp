@@ -294,6 +294,16 @@ constexpr bool integral() { return false; }
 Integral{T}
 constexpr bool integral() { return true; }
 
+template <class>
+constexpr bool signed_integral() { return false; }
+SignedIntegral{T}
+constexpr bool signed_integral() { return true; }
+
+template <class>
+constexpr bool unsigned_integral() { return false; }
+UnsignedIntegral{T}
+constexpr bool unsigned_integral() { return true; }
+
 }}}} // namespace stl2::v1::ext::models
 
 #endif // STL2_CONCEPTS_OBJECT_HPP

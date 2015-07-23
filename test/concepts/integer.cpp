@@ -21,11 +21,35 @@ using unsigned_integral = ranges::UnsignedIntegral<T>;
 #include <stl2/concepts/object.hpp>
 
 namespace models = stl2::ext::models;
+
+#if __cpp_static_assert >= 201411
+#define CONCEPT_ASSERT(...) static_assert((__VA_ARGS__))
+#else
+#define CONCEPT_ASSERT(...) static_assert((__VA_ARGS__), "Concept check failed: " # __VA_ARGS__)
+#endif
 #endif
 
-static_assert(integral<int>(), "");
-static_assert(!integral<double>(), "");
-static_assert(integral<unsigned>(), "");
-static_assert(!integral<void>(), "");
+#include <cstddef>
+
+CONCEPT_ASSERT(models::integral<int>());
+CONCEPT_ASSERT(!models::integral<double>());
+CONCEPT_ASSERT(models::integral<unsigned>());
+CONCEPT_ASSERT(!models::integral<void>());
+CONCEPT_ASSERT(models::integral<std::ptrdiff_t>());
+CONCEPT_ASSERT(models::integral<std::size_t>());
+
+CONCEPT_ASSERT(models::signed_integral<int>());
+CONCEPT_ASSERT(!models::signed_integral<double>());
+CONCEPT_ASSERT(!models::signed_integral<unsigned>());
+CONCEPT_ASSERT(!models::signed_integral<void>());
+CONCEPT_ASSERT(models::signed_integral<std::ptrdiff_t>());
+CONCEPT_ASSERT(!models::signed_integral<std::size_t>());
+
+CONCEPT_ASSERT(!models::unsigned_integral<int>());
+CONCEPT_ASSERT(!models::unsigned_integral<double>());
+CONCEPT_ASSERT(models::unsigned_integral<unsigned>());
+CONCEPT_ASSERT(!models::unsigned_integral<void>());
+CONCEPT_ASSERT(!models::unsigned_integral<std::ptrdiff_t>());
+CONCEPT_ASSERT(models::unsigned_integral<std::size_t>());
 
 int main() {}
