@@ -8,13 +8,13 @@ using same = ranges::Same<Ts...>;
 template <class T, class U>
 using convertible_to = ranges::ConvertibleTo<T, U>;
 
-template <class First, class Second, class...Rest>
-using common = ranges::Common<First, Second, Rest...>;
+template <class First, class Second>
+using common = ranges::Common<First, Second>;
 }
 
 namespace ns {
-template <class...Ts>
-using CommonType = ranges::common_type_t<Ts...>;
+template <class T, class U>
+using CommonType = ranges::common_type_t<T, U>;
 }
 
 #elif VALIDATE_STL2
@@ -81,8 +81,11 @@ namespace common_test {
 struct A {};
 }
 
-// FIXME: Does this need to be ranges::common_type for rv3?
-namespace std {
+#if VALIDATE_RANGES
+namespace ranges {
+#else
+namespace stl2 {
+#endif
 template <>
 struct common_type<::common_test::A, ::common_test::A> {
   using type = void;
@@ -91,8 +94,8 @@ struct common_type<::common_test::A, ::common_test::A> {
 
 namespace common_test {
 CONCEPT_ASSERT(models::same<ns::CommonType<int, int>, int>());
-CONCEPT_ASSERT(models::same<ns::CommonType<A, A>, A>());
-CONCEPT_ASSERT(models::same<ns::CommonType<int, float, double>, double>());
+CONCEPT_ASSERT(models::same<ns::CommonType<A, A>, void>());
+//CONCEPT_ASSERT(models::same<ns::CommonType<int, float, double>, double>());
 
 CONCEPT_ASSERT(models::common<int, int>());
 CONCEPT_ASSERT(models::common<int, double>());
@@ -102,13 +105,13 @@ CONCEPT_ASSERT(!models::common<void, int>());
 CONCEPT_ASSERT(!models::common<int*, int>());
 CONCEPT_ASSERT(models::common<void*, int*>());
 CONCEPT_ASSERT(models::common<double,long long>());
-CONCEPT_ASSERT(models::common<int, float, double>());
-CONCEPT_ASSERT(!models::common<int, float, double, void>());
+//CONCEPT_ASSERT(models::common<int, float, double>());
+//CONCEPT_ASSERT(!models::common<int, float, double, void>());
 
 struct B {};
 struct C { C() = default; C(B) {} C(int) {} };
 CONCEPT_ASSERT(models::common<B,C>());
-CONCEPT_ASSERT(models::common<int, C, B>());
+//CONCEPT_ASSERT(models::common<int, C, B>());
 }
 
 // range-v3 does not have core::Constructible. (STL2 probably should not either) 

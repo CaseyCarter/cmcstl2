@@ -51,7 +51,7 @@ namespace detail {
 template <class T, class U>
 concept bool EqualityComparable_ =
   requires (const T& t, const U& u) {
-#if 0 // BUG: OOM
+#if 1 //0 // BUG: OOM
     STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
     STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
 #else
@@ -87,7 +87,7 @@ concept bool EqualityComparable() {
 template <class T, class U>
 concept bool EqualityComparable() {
   return ext::WeaklyEqualityComparable<T, U>() &&
-    Common<T, U>() &&
+    CommonReference<const T&, const U&>() &&
     EqualityComparable<CommonType<T, U>>();
 }
 
@@ -97,7 +97,7 @@ template <class T, class U>
 concept bool TotallyOrdered_ =
   EqualityComparable_<T, U> &&
   requires (const T& a, const U& b) {
-#if 0 // FIXME: ICE
+#if 1 //0 // FIXME: ICE
     STL2_DEDUCTION_CONSTRAINT(a < b, Boolean);
     STL2_DEDUCTION_CONSTRAINT(a > b, Boolean);
     STL2_DEDUCTION_CONSTRAINT(a <= b, Boolean);
@@ -137,7 +137,7 @@ concept bool TotallyOrdered() {
 template <class T, class U>
 concept bool TotallyOrdered() {
   return ext::WeaklyTotallyOrdered<T, U>() &&
-    Common<T, U>() &&
+    CommonReference<const T&, const U&>() &&
     TotallyOrdered<CommonType<T, U>>();
 }
 

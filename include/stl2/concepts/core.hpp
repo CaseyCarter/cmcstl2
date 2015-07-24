@@ -86,19 +86,41 @@ constexpr bool all_explicitly_convertible =
 
 }
 
-template <class...Ts>
-using CommonType =
-  stl2::common_type_t<Ts...>;
+template <class T, class U>
+using CommonReferenceType =
+  stl2::common_reference_t<T, U>;
 
-// 20150714: Not to spec: doesn't check consistency of
-// CommonType<T, U> and CommonType<U, T>. Also, Casey strongly
-// suspects that we want Same to subsume Common
+template <class T, class U>
+concept bool CommonReference() {
+  return
+    requires (T&& t, U&& u) {
+      typename CommonReferenceType<T, U>;
+      typename CommonReferenceType<U, T>;
+      requires Same<CommonReferenceType<T, U>,
+                    CommonReferenceType<U, T>>();
+      CommonReferenceType<T, U>(stl2::forward<T>(t));
+      CommonReferenceType<T, U>(stl2::forward<U>(u));
+    };
+}
+
+template <class T, class U>
+using CommonType = common_type_t<T, U>;
+
+// Casey strongly suspects that we want Same to subsume Common
 // (See https://github.com/ericniebler/stl2/issues/50).
-// Conforming extension: variadic.
-template <class...Ts>
+template <class T, class U>
 concept bool Common() {
-  return // (ext::ExplicitlyConvertibleTo<Ts, CommonType<Ts...>>() && ...);
-    detail::all_explicitly_convertible<CommonType<Ts...>, Ts...>;
+  return CommonReference<const T&, const U&>() &&
+    requires (T&& t, U&& u) {
+      typename CommonType<T, U>;
+      typename CommonType<U, T>;
+      requires Same<CommonType<T, U>,
+                    CommonType<U, T>>();
+      CommonType<T, U>(std::forward<T>(t));
+      CommonType<T, U>(std::forward<U>(u));
+      requires CommonReference<CommonType<T, U>&,
+                               CommonReferenceType<const T&, const U&>>();
+    };
 }
 
 template <class T, class U>
@@ -151,9 +173,9 @@ constexpr bool publicly_derived_from() { return false; }
 PubliclyDerivedFrom{T, U}
 constexpr bool publicly_derived_from() { return true; }
 
-template <class...>
+template <class, class>
 constexpr bool common() { return false; }
-Common{...Ts}
+Common{T, U}
 constexpr bool common() { return true; }
 
 template <class, class>

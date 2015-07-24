@@ -160,7 +160,7 @@ template <class T, class U>
 concept bool Swappable() {
   return Swappable<T>() &&
     Swappable<U>() &&
-    Common<T, U>() &&
+    CommonReference<const T&, const U&>() &&
     detail::Swappable_<T, U> &&
     detail::Swappable_<U, T>;
 }
@@ -168,21 +168,23 @@ concept bool Swappable() {
 namespace ext {
 
 template <class T, class U = T>
-constexpr bool is_nothrow_swappable_v = false;
+struct is_nothrow_swappable : std::false_type { };
 
 Swappable{T, U}
+struct is_nothrow_swappable<T, U> :
+  meta::bool_<
+    noexcept(swap(stl2::declval<T>(), stl2::declval<U>())) &&
+    noexcept(swap(stl2::declval<U>(), stl2::declval<T>())) &&
+    noexcept(swap(stl2::declval<T>(), stl2::declval<T>())) &&
+    noexcept(swap(stl2::declval<U>(), stl2::declval<U>()))> { };
+
+template <class T, class U = T>
 constexpr bool is_nothrow_swappable_v =
-  noexcept(swap(stl2::declval<T>(), stl2::declval<U>())) &&
-  noexcept(swap(stl2::declval<U>(), stl2::declval<T>())) &&
-  noexcept(swap(stl2::declval<T>(), stl2::declval<T>())) &&
-  noexcept(swap(stl2::declval<U>(), stl2::declval<U>()));
+  meta::_v<is_nothrow_swappable<T, U>>;
 
 template <class T, class U>
-struct is_nothrow_swappable
-  : meta::bool_<is_nothrow_swappable_v<T, U>> {};
-
-template <class T, class U>
-using is_nothrow_swappable_t = meta::_t<is_nothrow_swappable<T, U>>;
+using is_nothrow_swappable_t =
+  meta::_t<is_nothrow_swappable<T, U>>;
 
 }
 
