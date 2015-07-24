@@ -78,23 +78,7 @@ CONCEPT_ASSERT(models::convertible_to<double, int>());
 }
 
 namespace common_test {
-struct A {};
-}
-
-#if VALIDATE_RANGES
-namespace ranges {
-#else
-namespace stl2 {
-#endif
-template <>
-struct common_type<::common_test::A, ::common_test::A> {
-  using type = void;
-};
-}
-
-namespace common_test {
 CONCEPT_ASSERT(models::same<ns::CommonType<int, int>, int>());
-CONCEPT_ASSERT(models::same<ns::CommonType<A, A>, void>());
 //CONCEPT_ASSERT(models::same<ns::CommonType<int, float, double>, double>());
 
 CONCEPT_ASSERT(models::common<int, int>());
