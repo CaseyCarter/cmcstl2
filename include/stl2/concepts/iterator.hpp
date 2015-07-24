@@ -42,8 +42,8 @@ using __iter_move_t =
 
 }
 
-template <class R, class _R = std::remove_reference_t<R>>
-  requires detail::Dereferencable<_R>
+template <class R,
+  detail::Dereferencable _R = std::remove_reference_t<R>>
 detail::__iter_move_t<_R> iter_move(R&& r)
   noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r))));
 
@@ -114,23 +114,39 @@ template <class T>
 using ValueType =
   meta::_t<value_type<std::remove_cv_t<T>>>;
 
-// 20150714: Not to spec, relax Semiregular<I> to
-// Movable<I> && DefaultConstructible<I> as in
-// https://github.com/ericniebler/range-v3/issues/179.
 template <class I>
 concept bool Readable() {
   return Movable<I>() &&
     DefaultConstructible<I>() &&
-    detail::Dereferencable<const I> &&
-    requires (const I& i) {
-      { *i } -> const ValueType<I>&; // ConvertibleTo<ReferenceType<I>, const ValueType<I>&>() ?
+    detail::Dereferencable<I> &&
+    requires(const I& i) {
+      // Associated types
+      typename ValueType<I>;
+      typename ReferenceType<I>;
       typename RvalueReferenceType<I>;
-    };
+
+      // Valid expressions
+      STL2_EXACT_TYPE_CONSTRAINT(*i, ReferenceType<I>);
+      STL2_EXACT_TYPE_CONSTRAINT(iter_move(i), RvalueReferenceType<I>);
+    } &&
+    // Relationships between associated types
+    CommonReference<ReferenceType<I>, ValueType<I>&>() &&
+    CommonReference<ReferenceType<I>, RvalueReferenceType<I>>() &&
+    CommonReference<RvalueReferenceType<I>, const ValueType<I>&>() &&
+    // Extra sanity checks (not strictly needed)
+    Same<
+      CommonReferenceType<ReferenceType<I>, ValueType<I>>,
+      ValueType<I>>() &&
+    Same<
+      CommonReferenceType<RvalueReferenceType<I>, ValueType<I>>,
+      ValueType<I>>();
 }
 
-// 20150714: Not to spec, relax Semiregular<I> to
-// Movable<I> && DefaultConstructible<I> as in
-// https://github.com/ericniebler/range-v3/issues/179.
+// A generally useful dependent type
+template <Readable I>
+using iter_common_reference_t =
+  common_reference_t<ReferenceType<I>, ValueType<I>&>;
+
 template <class Out, class T>
 concept bool MoveWritable() {
   return Movable<Out>() &&
@@ -153,7 +169,7 @@ template <class In, class Out>
 concept bool IndirectlyMovable() {
   return Readable<In>() && Movable<ValueType<In>>() &&
     Constructible<ValueType<In>, RvalueReferenceType<In>>() &&
-    Assignable<ValueType<In> &, RvalueReferenceType<In>>() &&
+    Assignable<ValueType<In>&, RvalueReferenceType<In>>() &&
     MoveWritable<Out, RvalueReferenceType<In>>() &&
     MoveWritable<Out, ValueType<In>>();
 }
@@ -162,7 +178,7 @@ template <class In, class Out>
 concept bool IndirectlyCopyable() {
   return IndirectlyMovable<In, Out>() && Copyable<ValueType<In>>() &&
     Constructible<ValueType<In>, ReferenceType<In>>() &&
-    Assignable<ValueType<In> &, ReferenceType<In>>() &&
+    Assignable<ValueType<In>&, ReferenceType<In>>() &&
     Writable<Out, ReferenceType<In>>() &&
     Writable<Out, ValueType<In>>();
 }

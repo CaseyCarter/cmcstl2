@@ -78,14 +78,6 @@ concept bool PubliclyDerivedFrom() {
 
 } // namespace ext
 
-namespace detail {
-
-template <class To, class...From>
-constexpr bool all_explicitly_convertible =
-  meta::_v<meta::fast_and<std::is_constructible<To, From&&>...>>;
-
-}
-
 template <class T, class U>
 using CommonReferenceType =
   stl2::common_reference_t<T, U>;
