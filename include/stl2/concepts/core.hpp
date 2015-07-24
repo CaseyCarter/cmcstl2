@@ -12,13 +12,6 @@
 // Core Concepts [concepts.lib.corelang]
 //
 
-// Subsumption relationships (#ASCIIart):
-//
-//                                                 /- ext::ExplicitlyConvertibleTo <= ext::core::Constructible
-//     /- ext::PubliclyDerivedFrom <= ConvertibleTo
-// Same                                            \- ext::ImplicitlyConvertibleTo
-//     \- Common
-
 #if defined(__GNUC__)
 #define STL2_IS_SAME_AS(T, U) __is_same_as(T, U)
 #define STL2_IS_BASE_OF(T, U) __is_base_of(T, U)
@@ -54,14 +47,12 @@ namespace ext {
 
 template <class T, class U>
 concept bool ExplicitlyConvertibleTo() {
-  return Same<T, U>() ||
-    requires (T&& t) { static_cast<U>((T&&)t); };
+  return requires (T&& t) { static_cast<U>((T&&)t); };
 }
 
 template <class T, class U>
 concept bool ImplicitlyConvertibleTo() {
-  return Same<T, U>() ||
-    std::is_convertible<T, U>::value; // Maybe { t } -> U ?
+  return std::is_convertible<T, U>::value; // Maybe { t } -> U ?
 }
 
 } // namespace ext
@@ -82,8 +73,7 @@ namespace ext {
 // "PubliclyAndUnambiguouslyDerivedFrom" would be a very long name.
 template <class T, class U>
 concept bool PubliclyDerivedFrom() {
-  return Same<T, U>() ||
-    (DerivedFrom<T, U>() && ConvertibleTo<T, U>());
+  return ConvertibleTo<T, U>() && (Same<T, U>() || DerivedFrom<T, U>());
 }
 
 } // namespace ext
@@ -107,8 +97,7 @@ using CommonType =
 // Conforming extension: variadic.
 template <class...Ts>
 concept bool Common() {
-  return Same<Ts...>() ||
-    // (ext::ExplicitlyConvertibleTo<Ts, CommonType<Ts...>>() && ...);
+  return // (ext::ExplicitlyConvertibleTo<Ts, CommonType<Ts...>>() && ...);
     detail::all_explicitly_convertible<CommonType<Ts...>, Ts...>;
 }
 
@@ -130,10 +119,7 @@ concept bool Constructible() {
 
 template <class T, class U>
 concept bool Constructible() {
-  return ExplicitlyConvertibleTo<U, T>() ||
-    requires (U&& u) {
-      T{ (U&&)u }; // not equality preserving
-    };
+  return ExplicitlyConvertibleTo<U, T>();
 }
 
 template <class T, class U, class V, class...Args>

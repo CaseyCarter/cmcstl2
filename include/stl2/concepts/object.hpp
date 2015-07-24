@@ -46,10 +46,19 @@ concept bool BindableReference =
   std::is_constructible<T, Args...>::value;
 }
 
+namespace detail {
+template <class T, class...Args>
+struct constructible_object_or_ref : std::false_type {};
+
+template <class T, class...Args>
+  requires ext::ConstructibleObject<T, Args...> ||
+    ext::BindableReference<T, Args...>
+struct constructible_object_or_ref<T, Args...> : std::true_type {};
+}
+
 template <class T, class...Args>
 concept bool Constructible() {
-  return ext::ConstructibleObject<T, Args...> ||
-    ext::BindableReference<T, Args...>;
+  return meta::_v<detail::constructible_object_or_ref<T, Args...>>;
 }
 
 // There's implementation variance around DR1518, this may not
