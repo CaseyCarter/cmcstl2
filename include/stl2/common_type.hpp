@@ -130,16 +130,17 @@ struct common_reference<T> : meta::id<T> { };
 
 template <class T, class U>
 struct common_reference<T, U>
-  : meta::if_<meta::has_type<__basic_common_reference<T, U>>,
-      __basic_common_reference<T, U>, common_type<T, U>>{ };
+  : common_type<T, U> { };
+
+template <class T, class U>
+  requires requires { typename __basic_common_reference<T, U>::type; }
+struct common_reference<T, U>
+  : __basic_common_reference<T, U> { };
 
 template <class T, class U>
   requires requires {typename __builtin_common_t<T, U>;} &&
     meta::_v<std::is_reference<__builtin_common_t<T, U>>>
 struct common_reference<T, U> : __builtin_common<T, U> { };
-
-template <class T, class U, class V, class... W>
-struct common_reference<T, U, V, W...> { };
 
 template <class T, class U, class V, class... W>
   requires requires { typename common_reference_t<T, U>; }
