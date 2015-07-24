@@ -1,10 +1,14 @@
-// -*- compile-command: "(cd ~/cmcstl2/build && make test/concepts/compare && ./test/concepts/compare)" -*-
+#include "validate.hpp"
 
-#ifdef VALIDATE_RANGES
-#error No range-v3 version of this test yet.
-#endif
+#if VALIDATE_RANGES
+namespace models {
+template <class T>
+using boolean = std::is_same<T, bool>; // Obviously many tests will fail ;)
+}
 
+#elif VALIDATE_STL2
 #include <stl2/concepts/compare.hpp>
+#endif
 
 #include <type_traits>
 #include <bitset>
@@ -12,53 +16,45 @@
 #include "../simple_test.hpp"
 
 namespace boolean_test {
-using stl2::ext::models::boolean;
-
 // Better have at least these three, since we use them as
 // examples in the TS draft.
-static_assert(boolean<bool>(), "");
-static_assert(boolean<std::true_type>(), "");
-static_assert(boolean<std::bitset<42>::reference>(), "");
+CONCEPT_ASSERT(models::boolean<bool>());
+CONCEPT_ASSERT(models::boolean<std::true_type>());
+CONCEPT_ASSERT(models::boolean<std::bitset<42>::reference>());
 
-static_assert(boolean<int>(), "");
-static_assert(boolean<void*>(), "");
+CONCEPT_ASSERT(models::boolean<int>());
+CONCEPT_ASSERT(models::boolean<void*>());
 
 struct A {};
 struct B { operator bool() const; };
 
-static_assert(!boolean<A>(), "");
-static_assert(boolean<B>(), "");
+CONCEPT_ASSERT(!models::boolean<A>());
+CONCEPT_ASSERT(models::boolean<B>());
 }
 
 namespace equality_comparable_test {
-using stl2::ext::models::equality_comparable;
-
 struct A {
   friend bool operator==(const A&, const A&);
   friend bool operator!=(const A&, const A&);
 };
 
-static_assert(equality_comparable<int>(), "");
-static_assert(equality_comparable<A>(), "");
-static_assert(!equality_comparable<void>(), "");
+CONCEPT_ASSERT(models::equality_comparable<int>());
+CONCEPT_ASSERT(models::equality_comparable<A>());
+CONCEPT_ASSERT(!models::equality_comparable<void>());
 
-static_assert(equality_comparable<int, int>(), "");
-static_assert(equality_comparable<A, A>(), "");
-static_assert(!equality_comparable<void, void>(), "");
+CONCEPT_ASSERT(models::equality_comparable<int, int>());
+CONCEPT_ASSERT(models::equality_comparable<A, A>());
+CONCEPT_ASSERT(!models::equality_comparable<void, void>());
 } // namespace equality_comparable_test
 
-namespace totally_ordered_test {
-using stl2::ext::models::totally_ordered;
+CONCEPT_ASSERT(models::totally_ordered<int>());
+CONCEPT_ASSERT(models::totally_ordered<float>());
+CONCEPT_ASSERT(models::totally_ordered<std::nullptr_t>());
+CONCEPT_ASSERT(!models::totally_ordered<void>());
 
-static_assert(totally_ordered<int>(), "");
-static_assert(totally_ordered<float>(), "");
-static_assert(totally_ordered<std::nullptr_t>(), "");
-static_assert(!totally_ordered<void>(), "");
-
-static_assert(totally_ordered<int, int>(), "");
-static_assert(totally_ordered<int, double>(), "");
-static_assert(!totally_ordered<int, void>(), "");
-} // namespace totally_ordered_test
+CONCEPT_ASSERT(models::totally_ordered<int, int>());
+CONCEPT_ASSERT(models::totally_ordered<int, double>());
+CONCEPT_ASSERT(!models::totally_ordered<int, void>());
 
 int main() {
   return ::test_result();

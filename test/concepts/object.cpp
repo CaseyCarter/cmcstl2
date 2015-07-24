@@ -1,10 +1,6 @@
-#if VALIDATE_RANGES == VALIDATE_STL2
-#error You must define exactly one of VALIDATE_RANGES or VALIDATE_STL2.
-#endif
+#include "validate.hpp"
 
 #if VALIDATE_RANGES
-#include <range/v3/utility/concepts.hpp>
-
 namespace models {
 template <class T>
 using destructible = ranges::Destructible<T>;
@@ -43,10 +39,7 @@ using regular = ranges::Regular<T>;
 } // namespace models
 
 #elif VALIDATE_STL2
-
 #include <stl2/concepts/object.hpp>
-
-namespace models = stl2::ext::models;
 #endif
 
 struct copyable {};
@@ -128,231 +121,231 @@ struct XXX
     explicit XXX(int) {}
 };
 
-static_assert(models::destructible<int>(), "");
-static_assert(models::destructible<const int>(), "");
-static_assert(!models::destructible<void>(), "");
-static_assert(!models::destructible<int&>(), "");
-static_assert(!models::destructible<void()>(), "");
-static_assert(models::destructible<void(*)()>(), "");
-static_assert(!models::destructible<void(&)()>(), "");
-static_assert(!models::destructible<int[]>(), "");
-static_assert(!models::destructible<int[2]>(), "");
-static_assert(models::destructible<int(*)[2]>(), "");
-static_assert(!models::destructible<int(&)[2]>(), "");
-static_assert(models::destructible<moveonly>(), "");
-static_assert(models::destructible<nonmovable>(), "");
-static_assert(!models::destructible<indestructible>(), "");
-static_assert(!models::destructible<incomplete>(), "");
+CONCEPT_ASSERT(models::destructible<int>());
+CONCEPT_ASSERT(models::destructible<const int>());
+CONCEPT_ASSERT(!models::destructible<void>());
+CONCEPT_ASSERT(!models::destructible<int&>());
+CONCEPT_ASSERT(!models::destructible<void()>());
+CONCEPT_ASSERT(models::destructible<void(*)()>());
+CONCEPT_ASSERT(!models::destructible<void(&)()>());
+CONCEPT_ASSERT(!models::destructible<int[]>());
+CONCEPT_ASSERT(!models::destructible<int[2]>());
+CONCEPT_ASSERT(models::destructible<int(*)[2]>());
+CONCEPT_ASSERT(!models::destructible<int(&)[2]>());
+CONCEPT_ASSERT(models::destructible<moveonly>());
+CONCEPT_ASSERT(models::destructible<nonmovable>());
+CONCEPT_ASSERT(!models::destructible<indestructible>());
+CONCEPT_ASSERT(!models::destructible<incomplete>());
 
-static_assert(models::destructible<partial_overloaded_address>(), "");
-static_assert(models::destructible<overloaded_address>(), "");
-static_assert(!models::destructible<bad_overloaded_address>(), "");
-static_assert(!models::destructible<bad_overloaded_const_address>(), "");
+CONCEPT_ASSERT(models::destructible<partial_overloaded_address>());
+CONCEPT_ASSERT(models::destructible<overloaded_address>());
+CONCEPT_ASSERT(!models::destructible<bad_overloaded_address>());
+CONCEPT_ASSERT(!models::destructible<bad_overloaded_const_address>());
 
-static_assert(models::constructible<int>(), "");
-static_assert(models::constructible<int const>(), "");
-static_assert(!models::constructible<int const&>(), "");
-static_assert(!models::constructible<int ()>(), "");
-static_assert(!models::constructible<int(&)()>(), "");
-static_assert(!models::constructible<int[]>(), "");
-static_assert(!models::constructible<int[5]>(), "");
-static_assert(!models::constructible<nondefaultconstructible>(), "");
-static_assert(models::constructible<int const(&)[5], int(&)[5]>(), "");
-static_assert(!models::constructible<int, int(&)[3]>(), "");
+CONCEPT_ASSERT(models::constructible<int>());
+CONCEPT_ASSERT(models::constructible<int const>());
+CONCEPT_ASSERT(!models::constructible<int const&>());
+CONCEPT_ASSERT(!models::constructible<int ()>());
+CONCEPT_ASSERT(!models::constructible<int(&)()>());
+CONCEPT_ASSERT(!models::constructible<int[]>());
+CONCEPT_ASSERT(!models::constructible<int[5]>());
+CONCEPT_ASSERT(!models::constructible<nondefaultconstructible>());
+CONCEPT_ASSERT(models::constructible<int const(&)[5], int(&)[5]>());
+CONCEPT_ASSERT(!models::constructible<int, int(&)[3]>());
 
-static_assert(models::constructible_object<int, int>(), "");
-static_assert(models::constructible_object<int, int&>(), "");
-static_assert(models::constructible_object<int, int&&>(), "");
-static_assert(models::constructible_object<int, const int>(), "");
-static_assert(models::constructible_object<int, const int&>(), "");
-static_assert(models::constructible_object<int, const int&&>(), "");
-static_assert(models::constructible<int, int>(), "");
-static_assert(models::constructible<int, int&>(), "");
-static_assert(models::constructible<int, int&&>(), "");
-static_assert(models::constructible<int, const int>(), "");
-static_assert(models::constructible<int, const int&>(), "");
-static_assert(models::constructible<int, const int&&>(), "");
+CONCEPT_ASSERT(models::constructible_object<int, int>());
+CONCEPT_ASSERT(models::constructible_object<int, int&>());
+CONCEPT_ASSERT(models::constructible_object<int, int&&>());
+CONCEPT_ASSERT(models::constructible_object<int, const int>());
+CONCEPT_ASSERT(models::constructible_object<int, const int&>());
+CONCEPT_ASSERT(models::constructible_object<int, const int&&>());
+CONCEPT_ASSERT(models::constructible<int, int>());
+CONCEPT_ASSERT(models::constructible<int, int&>());
+CONCEPT_ASSERT(models::constructible<int, int&&>());
+CONCEPT_ASSERT(models::constructible<int, const int>());
+CONCEPT_ASSERT(models::constructible<int, const int&>());
+CONCEPT_ASSERT(models::constructible<int, const int&&>());
 
-static_assert(models::constructible_object<copyable, copyable>(), "");
-static_assert(models::constructible_object<copyable, copyable&>(), "");
-static_assert(models::constructible_object<copyable, copyable&&>(), "");
-static_assert(models::constructible_object<copyable, const copyable>(), "");
-static_assert(models::constructible_object<copyable, const copyable&>(), "");
-static_assert(models::constructible_object<copyable, const copyable&&>(), "");
-static_assert(models::constructible<copyable, copyable>(), "");
-static_assert(models::constructible<copyable, copyable&>(), "");
-static_assert(models::constructible<copyable, copyable&&>(), "");
-static_assert(models::constructible<copyable, const copyable>(), "");
-static_assert(models::constructible<copyable, const copyable&>(), "");
-static_assert(models::constructible<copyable, const copyable&&>(), "");
+CONCEPT_ASSERT(models::constructible_object<copyable, copyable>());
+CONCEPT_ASSERT(models::constructible_object<copyable, copyable&>());
+CONCEPT_ASSERT(models::constructible_object<copyable, copyable&&>());
+CONCEPT_ASSERT(models::constructible_object<copyable, const copyable>());
+CONCEPT_ASSERT(models::constructible_object<copyable, const copyable&>());
+CONCEPT_ASSERT(models::constructible_object<copyable, const copyable&&>());
+CONCEPT_ASSERT(models::constructible<copyable, copyable>());
+CONCEPT_ASSERT(models::constructible<copyable, copyable&>());
+CONCEPT_ASSERT(models::constructible<copyable, copyable&&>());
+CONCEPT_ASSERT(models::constructible<copyable, const copyable>());
+CONCEPT_ASSERT(models::constructible<copyable, const copyable&>());
+CONCEPT_ASSERT(models::constructible<copyable, const copyable&&>());
 
-static_assert(!models::bindable_reference<int&, int>(), "");
-static_assert(models::bindable_reference<int&, int&>(), "");
-static_assert(!models::bindable_reference<int&, int&&>(), "");
-static_assert(!models::bindable_reference<int&, const int>(), "");
-static_assert(!models::bindable_reference<int&, const int&>(), "");
-static_assert(!models::bindable_reference<int&, const int&&>(), "");
-static_assert(!models::constructible<int&, int>(), "");
-static_assert(models::constructible<int&, int&>(), "");
-static_assert(!models::constructible<int&, int&&>(), "");
-static_assert(!models::constructible<int&, const int>(), "");
-static_assert(!models::constructible<int&, const int&>(), "");
-static_assert(!models::constructible<int&, const int&&>(), "");
+CONCEPT_ASSERT(!models::bindable_reference<int&, int>());
+CONCEPT_ASSERT(models::bindable_reference<int&, int&>());
+CONCEPT_ASSERT(!models::bindable_reference<int&, int&&>());
+CONCEPT_ASSERT(!models::bindable_reference<int&, const int>());
+CONCEPT_ASSERT(!models::bindable_reference<int&, const int&>());
+CONCEPT_ASSERT(!models::bindable_reference<int&, const int&&>());
+CONCEPT_ASSERT(!models::constructible<int&, int>());
+CONCEPT_ASSERT(models::constructible<int&, int&>());
+CONCEPT_ASSERT(!models::constructible<int&, int&&>());
+CONCEPT_ASSERT(!models::constructible<int&, const int>());
+CONCEPT_ASSERT(!models::constructible<int&, const int&>());
+CONCEPT_ASSERT(!models::constructible<int&, const int&&>());
 
-static_assert(models::bindable_reference<const int&, int>(), "");
-static_assert(models::bindable_reference<const int&, int&>(), "");
-static_assert(models::bindable_reference<const int&, int&&>(), "");
-static_assert(models::bindable_reference<const int&, const int>(), "");
-static_assert(models::bindable_reference<const int&, const int&>(), "");
-static_assert(models::bindable_reference<const int&, const int&&>(), "");
-static_assert(models::constructible<const int&, int>(), "");
-static_assert(models::constructible<const int&, int&>(), "");
-static_assert(models::constructible<const int&, int&&>(), "");
-static_assert(models::constructible<const int&, const int>(), "");
-static_assert(models::constructible<const int&, const int&>(), "");
-static_assert(models::constructible<const int&, const int&&>(), "");
+CONCEPT_ASSERT(models::bindable_reference<const int&, int>());
+CONCEPT_ASSERT(models::bindable_reference<const int&, int&>());
+CONCEPT_ASSERT(models::bindable_reference<const int&, int&&>());
+CONCEPT_ASSERT(models::bindable_reference<const int&, const int>());
+CONCEPT_ASSERT(models::bindable_reference<const int&, const int&>());
+CONCEPT_ASSERT(models::bindable_reference<const int&, const int&&>());
+CONCEPT_ASSERT(models::constructible<const int&, int>());
+CONCEPT_ASSERT(models::constructible<const int&, int&>());
+CONCEPT_ASSERT(models::constructible<const int&, int&&>());
+CONCEPT_ASSERT(models::constructible<const int&, const int>());
+CONCEPT_ASSERT(models::constructible<const int&, const int&>());
+CONCEPT_ASSERT(models::constructible<const int&, const int&&>());
 
-static_assert(models::bindable_reference<int&&, int>(), "");
-static_assert(!models::bindable_reference<int&&, int&>(), "");
-static_assert(models::bindable_reference<int&&, int&&>(), "");
-static_assert(!models::bindable_reference<int&&, const int>(), "");
-static_assert(!models::bindable_reference<int&&, const int&>(), "");
-static_assert(!models::bindable_reference<int&&, const int&&>(), "");
-static_assert(models::constructible<int&&, int>(), "");
-static_assert(!models::constructible<int&&, int&>(), "");
-static_assert(models::constructible<int&&, int&&>(), "");
-static_assert(!models::constructible<int&&, const int>(), "");
-static_assert(!models::constructible<int&&, const int&>(), "");
-static_assert(!models::constructible<int&&, const int&&>(), "");
+CONCEPT_ASSERT(models::bindable_reference<int&&, int>());
+CONCEPT_ASSERT(!models::bindable_reference<int&&, int&>());
+CONCEPT_ASSERT(models::bindable_reference<int&&, int&&>());
+CONCEPT_ASSERT(!models::bindable_reference<int&&, const int>());
+CONCEPT_ASSERT(!models::bindable_reference<int&&, const int&>());
+CONCEPT_ASSERT(!models::bindable_reference<int&&, const int&&>());
+CONCEPT_ASSERT(models::constructible<int&&, int>());
+CONCEPT_ASSERT(!models::constructible<int&&, int&>());
+CONCEPT_ASSERT(models::constructible<int&&, int&&>());
+CONCEPT_ASSERT(!models::constructible<int&&, const int>());
+CONCEPT_ASSERT(!models::constructible<int&&, const int&>());
+CONCEPT_ASSERT(!models::constructible<int&&, const int&&>());
 
-static_assert(models::bindable_reference<const int&&, int>(), "");
-static_assert(!models::bindable_reference<const int&&, int&>(), "");
-static_assert(models::bindable_reference<const int&&, int&&>(), "");
-static_assert(models::bindable_reference<const int&&, const int>(), "");
-static_assert(!models::bindable_reference<const int&&, const int&>(), "");
-static_assert(models::bindable_reference<const int&&, const int&&>(), "");
-static_assert(models::constructible<const int&&, int>(), "");
-static_assert(!models::constructible<const int&&, int&>(), "");
-static_assert(models::constructible<const int&&, int&&>(), "");
-static_assert(models::constructible<const int&&, const int>(), "");
-static_assert(!models::constructible<const int&&, const int&>(), "");
-static_assert(models::constructible<const int&&, const int&&>(), "");
+CONCEPT_ASSERT(models::bindable_reference<const int&&, int>());
+CONCEPT_ASSERT(!models::bindable_reference<const int&&, int&>());
+CONCEPT_ASSERT(models::bindable_reference<const int&&, int&&>());
+CONCEPT_ASSERT(models::bindable_reference<const int&&, const int>());
+CONCEPT_ASSERT(!models::bindable_reference<const int&&, const int&>());
+CONCEPT_ASSERT(models::bindable_reference<const int&&, const int&&>());
+CONCEPT_ASSERT(models::constructible<const int&&, int>());
+CONCEPT_ASSERT(!models::constructible<const int&&, int&>());
+CONCEPT_ASSERT(models::constructible<const int&&, int&&>());
+CONCEPT_ASSERT(models::constructible<const int&&, const int>());
+CONCEPT_ASSERT(!models::constructible<const int&&, const int&>());
+CONCEPT_ASSERT(models::constructible<const int&&, const int&&>());
 
-static_assert(models::constructible<XXX, int>(), "");
+CONCEPT_ASSERT(models::constructible<XXX, int>());
 
-static_assert(models::default_constructible<int>(), "");
-static_assert(models::default_constructible<int const>(), "");
-static_assert(!models::default_constructible<int&>(), "");
-static_assert(!models::default_constructible<int const&>(), "");
-static_assert(!models::default_constructible<int ()>(), "");
-static_assert(!models::default_constructible<int(&)()>(), "");
-static_assert(models::default_constructible<double>(), "");
-static_assert(!models::default_constructible<void>(), "");
-static_assert(!models::default_constructible<int[]>(), "");
-static_assert(!models::default_constructible<int[2]>(), "");
-static_assert(!models::default_constructible<nondefaultconstructible>(), "");
+CONCEPT_ASSERT(models::default_constructible<int>());
+CONCEPT_ASSERT(models::default_constructible<int const>());
+CONCEPT_ASSERT(!models::default_constructible<int&>());
+CONCEPT_ASSERT(!models::default_constructible<int const&>());
+CONCEPT_ASSERT(!models::default_constructible<int ()>());
+CONCEPT_ASSERT(!models::default_constructible<int(&)()>());
+CONCEPT_ASSERT(models::default_constructible<double>());
+CONCEPT_ASSERT(!models::default_constructible<void>());
+CONCEPT_ASSERT(!models::default_constructible<int[]>());
+CONCEPT_ASSERT(!models::default_constructible<int[2]>());
+CONCEPT_ASSERT(!models::default_constructible<nondefaultconstructible>());
 
 // It's hard to catch explicit default constructors, see
 // http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1518.
-// static_assert(!models::default_constructible<explicit_default>(), "");
-static_assert(models::default_constructible<explicit_move>(), "");
-static_assert(models::default_constructible<explicit_copy>(), "");
+// CONCEPT_ASSERT(!models::default_constructible<explicit_default>());
+CONCEPT_ASSERT(models::default_constructible<explicit_move>());
+CONCEPT_ASSERT(models::default_constructible<explicit_copy>());
 
-static_assert(!models::move_constructible<void>(), "");
-static_assert(models::move_constructible<int>(), "");
-static_assert(models::move_constructible<const int>(), "");
-static_assert(!models::move_constructible<int[4]>(), "");
-static_assert(!models::move_constructible<void()>(), "");
-static_assert(models::move_constructible<int &>(), "");
-static_assert(models::move_constructible<int &&>(), "");
-static_assert(models::move_constructible<const int &>(), "");
-static_assert(models::move_constructible<const int &&>(), "");
+CONCEPT_ASSERT(!models::move_constructible<void>());
+CONCEPT_ASSERT(models::move_constructible<int>());
+CONCEPT_ASSERT(models::move_constructible<const int>());
+CONCEPT_ASSERT(!models::move_constructible<int[4]>());
+CONCEPT_ASSERT(!models::move_constructible<void()>());
+CONCEPT_ASSERT(models::move_constructible<int &>());
+CONCEPT_ASSERT(models::move_constructible<int &&>());
+CONCEPT_ASSERT(models::move_constructible<const int &>());
+CONCEPT_ASSERT(models::move_constructible<const int &&>());
 
-static_assert(models::constructible_object<moveonly, moveonly>(), "");
-static_assert(models::constructible<moveonly, moveonly>(), "");
-static_assert(models::move_constructible<copyable>(), "");
-static_assert(models::move_constructible<moveonly>(), "");
-static_assert(!models::move_constructible<nonmovable>(), "");
-static_assert(!models::move_constructible<copyonly>(), "");
-static_assert(!models::move_constructible<explicit_move>(), "");
-static_assert(models::move_constructible<explicit_copy>(), "");
+CONCEPT_ASSERT(models::constructible_object<moveonly, moveonly>());
+CONCEPT_ASSERT(models::constructible<moveonly, moveonly>());
+CONCEPT_ASSERT(models::move_constructible<copyable>());
+CONCEPT_ASSERT(models::move_constructible<moveonly>());
+CONCEPT_ASSERT(!models::move_constructible<nonmovable>());
+CONCEPT_ASSERT(!models::move_constructible<copyonly>());
+CONCEPT_ASSERT(!models::move_constructible<explicit_move>());
+CONCEPT_ASSERT(models::move_constructible<explicit_copy>());
 
-static_assert(models::move_constructible<nonmovable &>(), "");
-static_assert(models::move_constructible<nonmovable &&>(), "");
-static_assert(models::move_constructible<const nonmovable &>(), "");
-static_assert(models::move_constructible<const nonmovable &&>(), "");
+CONCEPT_ASSERT(models::move_constructible<nonmovable &>());
+CONCEPT_ASSERT(models::move_constructible<nonmovable &&>());
+CONCEPT_ASSERT(models::move_constructible<const nonmovable &>());
+CONCEPT_ASSERT(models::move_constructible<const nonmovable &&>());
 
-static_assert(!models::copy_constructible<void>(), "");
-static_assert(models::copy_constructible<int>(), "");
-static_assert(models::copy_constructible<const int>(), "");
-static_assert(models::copy_constructible<int&>(), "");
-static_assert(!models::copy_constructible<int&&>(), "");
-static_assert(models::copy_constructible<const int&>(), "");
-static_assert(!models::copy_constructible<const int&&>(), "");
-static_assert(!models::copy_constructible<int[4]>(), "");
-static_assert(!models::copy_constructible<void()>(), "");
+CONCEPT_ASSERT(!models::copy_constructible<void>());
+CONCEPT_ASSERT(models::copy_constructible<int>());
+CONCEPT_ASSERT(models::copy_constructible<const int>());
+CONCEPT_ASSERT(models::copy_constructible<int&>());
+CONCEPT_ASSERT(!models::copy_constructible<int&&>());
+CONCEPT_ASSERT(models::copy_constructible<const int&>());
+CONCEPT_ASSERT(!models::copy_constructible<const int&&>());
+CONCEPT_ASSERT(!models::copy_constructible<int[4]>());
+CONCEPT_ASSERT(!models::copy_constructible<void()>());
 
-static_assert(models::copy_constructible<copyable>(), "");
-static_assert(!models::copy_constructible<moveonly>(), "");
-static_assert(!models::copy_constructible<nonmovable>(), "");
-static_assert(!models::copy_constructible<copyonly>(), "");
-static_assert(!models::copy_constructible<explicit_move>(), "");
-static_assert(!models::copy_constructible<explicit_copy>(), "");
-static_assert(models::copy_constructible<nonmovable &>(), "");
-static_assert(!models::copy_constructible<nonmovable &&>(), "");
-static_assert(models::copy_constructible<const nonmovable &>(), "");
-static_assert(!models::copy_constructible<const nonmovable &&>(), "");
+CONCEPT_ASSERT(models::copy_constructible<copyable>());
+CONCEPT_ASSERT(!models::copy_constructible<moveonly>());
+CONCEPT_ASSERT(!models::copy_constructible<nonmovable>());
+CONCEPT_ASSERT(!models::copy_constructible<copyonly>());
+CONCEPT_ASSERT(!models::copy_constructible<explicit_move>());
+CONCEPT_ASSERT(!models::copy_constructible<explicit_copy>());
+CONCEPT_ASSERT(models::copy_constructible<nonmovable &>());
+CONCEPT_ASSERT(!models::copy_constructible<nonmovable &&>());
+CONCEPT_ASSERT(models::copy_constructible<const nonmovable &>());
+CONCEPT_ASSERT(!models::copy_constructible<const nonmovable &&>());
 
-static_assert(models::movable<int>(), "");
-static_assert(!models::movable<const int>(), "");
-static_assert(models::movable<double>(), "");
-static_assert(!models::movable<void>(), "");
-static_assert(models::movable<copyable>(), "");
-static_assert(models::movable<moveonly>(), "");
-static_assert(!models::movable<nonmovable>(), "");
-static_assert(!models::movable<copyonly>(), "");
+CONCEPT_ASSERT(models::movable<int>());
+CONCEPT_ASSERT(!models::movable<const int>());
+CONCEPT_ASSERT(models::movable<double>());
+CONCEPT_ASSERT(!models::movable<void>());
+CONCEPT_ASSERT(models::movable<copyable>());
+CONCEPT_ASSERT(models::movable<moveonly>());
+CONCEPT_ASSERT(!models::movable<nonmovable>());
+CONCEPT_ASSERT(!models::movable<copyonly>());
 
-static_assert(models::copyable<int>(), "");
-static_assert(!models::copyable<const int>(), "");
-static_assert(models::copyable<double>(), "");
-static_assert(!models::copyable<void>(), "");
-static_assert(models::copyable<copyable>(), "");
-static_assert(!models::copyable<moveonly>(), "");
-static_assert(!models::copyable<nonmovable>(), "");
-static_assert(!models::copyable<copyonly>(), "");
+CONCEPT_ASSERT(models::copyable<int>());
+CONCEPT_ASSERT(!models::copyable<const int>());
+CONCEPT_ASSERT(models::copyable<double>());
+CONCEPT_ASSERT(!models::copyable<void>());
+CONCEPT_ASSERT(models::copyable<copyable>());
+CONCEPT_ASSERT(!models::copyable<moveonly>());
+CONCEPT_ASSERT(!models::copyable<nonmovable>());
+CONCEPT_ASSERT(!models::copyable<copyonly>());
 
-static_assert(models::semiregular<int>(), "");
-static_assert(models::semiregular<double>(), "");
-static_assert(!models::semiregular<void>(), "");
-static_assert(!models::semiregular<int&>(), "");
-static_assert(models::semiregular<semiregular>(), "");
-static_assert(models::semiregular<regular>(), "");
-static_assert(models::semiregular<copyable>(), "");
-static_assert(!models::semiregular<moveonly>(), "");
-static_assert(!models::semiregular<nonmovable>(), "");
-static_assert(!models::semiregular<copyonly>(), "");
-static_assert(!models::semiregular<explicit_move>(), "");
-static_assert(!models::semiregular<explicit_copy>(), "");
+CONCEPT_ASSERT(models::semiregular<int>());
+CONCEPT_ASSERT(models::semiregular<double>());
+CONCEPT_ASSERT(!models::semiregular<void>());
+CONCEPT_ASSERT(!models::semiregular<int&>());
+CONCEPT_ASSERT(models::semiregular<semiregular>());
+CONCEPT_ASSERT(models::semiregular<regular>());
+CONCEPT_ASSERT(models::semiregular<copyable>());
+CONCEPT_ASSERT(!models::semiregular<moveonly>());
+CONCEPT_ASSERT(!models::semiregular<nonmovable>());
+CONCEPT_ASSERT(!models::semiregular<copyonly>());
+CONCEPT_ASSERT(!models::semiregular<explicit_move>());
+CONCEPT_ASSERT(!models::semiregular<explicit_copy>());
 
-static_assert(models::regular<int>(), "");
-static_assert(models::regular<double>(), "");
-static_assert(!models::regular<void>(), "");
-static_assert(!models::regular<int&>(), "");
-static_assert(!models::regular<semiregular>(), "");
-static_assert(models::regular<regular>(), "");
-static_assert(!models::regular<copyable>(), "");
-static_assert(!models::regular<moveonly>(), "");
-static_assert(!models::regular<nonmovable>(), "");
-static_assert(!models::regular<copyonly>(), "");
-static_assert(!models::regular<explicit_move>(), "");
-static_assert(!models::regular<explicit_copy>(), "");
+CONCEPT_ASSERT(models::regular<int>());
+CONCEPT_ASSERT(models::regular<double>());
+CONCEPT_ASSERT(!models::regular<void>());
+CONCEPT_ASSERT(!models::regular<int&>());
+CONCEPT_ASSERT(!models::regular<semiregular>());
+CONCEPT_ASSERT(models::regular<regular>());
+CONCEPT_ASSERT(!models::regular<copyable>());
+CONCEPT_ASSERT(!models::regular<moveonly>());
+CONCEPT_ASSERT(!models::regular<nonmovable>());
+CONCEPT_ASSERT(!models::regular<copyonly>());
+CONCEPT_ASSERT(!models::regular<explicit_move>());
+CONCEPT_ASSERT(!models::regular<explicit_copy>());
 
-static_assert(models::constructible_object<std::initializer_list<int>>(), "");
-static_assert(models::constructible<std::initializer_list<int>>(), "");
-static_assert(models::default_constructible<std::initializer_list<int>>(), "");
+CONCEPT_ASSERT(models::constructible_object<std::initializer_list<int>>());
+CONCEPT_ASSERT(models::constructible<std::initializer_list<int>>());
+CONCEPT_ASSERT(models::default_constructible<std::initializer_list<int>>());
 
-static_assert(models::constructible_object<int*>(), "");
-static_assert(models::constructible<int*>(), "");
-static_assert(models::default_constructible<int*>(), "");
+CONCEPT_ASSERT(models::constructible_object<int*>());
+CONCEPT_ASSERT(models::constructible<int*>());
+CONCEPT_ASSERT(models::default_constructible<int*>());
 
 int main() {}

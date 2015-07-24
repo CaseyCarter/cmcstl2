@@ -9,6 +9,8 @@ using std::forward;
 using std::move;
 using std::declval;
 
+namespace ext { namespace models {}}
+
 }} // namespace stl2::v1
 
 #if 0
