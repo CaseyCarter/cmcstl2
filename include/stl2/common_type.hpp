@@ -113,10 +113,10 @@ template <class T, class U, template <class> class TQual,
 struct basic_common_reference { };
 
 template <class T, class U>
-using __basic_common_reference_t =
-  meta::_t<basic_common_reference<__uncvref<T>, __uncvref<U>,
+using __basic_common_reference =
+  basic_common_reference<__uncvref<T>, __uncvref<U>,
     __unary<meta::_t<__qual::__xref<T>>>::template apply,
-    __unary<meta::_t<__qual::__xref<U>>>::template apply>>;
+    __unary<meta::_t<__qual::__xref<U>>>::template apply>;
 
 // common_reference
 template <class... T>
@@ -129,7 +129,7 @@ template <class T>
 struct common_reference<T> : meta::id<T> { };
 
 template <class T, class U>
-struct common_reference
+struct common_reference<T, U>
   : meta::if_<meta::has_type<__basic_common_reference<T, U>>,
       __basic_common_reference<T, U>, common_type<T, U>>{ };
 
