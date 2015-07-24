@@ -12,13 +12,6 @@
 // Core Concepts [concepts.lib.corelang]
 //
 
-// Subsumption relationships (#ASCIIart):
-//
-//                                                 /- ext::ExplicitlyConvertibleTo <= ext::core::Constructible
-//     /- ext::PubliclyDerivedFrom <= ConvertibleTo
-// Same                                            \- ext::ImplicitlyConvertibleTo
-//     \- Common
-
 #if defined(__GNUC__)
 #define STL2_IS_SAME_AS(T, U) __is_same_as(T, U)
 #define STL2_IS_BASE_OF(T, U) __is_base_of(T, U)
