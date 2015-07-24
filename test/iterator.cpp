@@ -1,10 +1,10 @@
 // -*- compile-command: "(cd ~/cmcstl2/build && make iterator && ./test/iterator)" -*-
 
-#include <stl2/iterator.hpp>
-
 #include <cassert>
 #include <iostream>
 #include <memory>
+
+#include <stl2/iterator.hpp>
 
 #include "simple_test.hpp"
 
@@ -112,7 +112,7 @@ template <class RR1, class RR2,
           class R1 = std::remove_reference_t<RR1>,
           class R2 = std::remove_reference_t<RR2>>
 void foo(RR1&& r1, RR2&& r2)
-  noexcept(stl2::detail::is_nothrow_iter_swappable_v<R1, R2>) {
+  noexcept(stl2::ext::is_nothrow_indirectly_swappable_v<R1, R2>) {
   stl2::ValueType<R1> tmp(iter_move(r1));
   *r1 = iter_move(r2);
   *r2 = stl2::move(tmp);
@@ -172,7 +172,7 @@ int main() {
     static_assert(models::move_writable<I, V>(), "");
     static_assert(models::move_writable<I, RR>(), "");
     static_assert(!models::swappable<R, R>(), "");
-    static_assert(stl2::detail::is_nothrow_iter_swappable_v<I, I>, "");
+    static_assert(stl2::ext::is_nothrow_indirectly_swappable_v<I, I>, "");
 
     // foo - an unconstrained copy of iter_swap2 - works:
     foo(a.begin() + 0, a.begin() + 2);
@@ -181,11 +181,11 @@ int main() {
     CHECK(a[2] == 0);
     CHECK(a[3] == 3);
 
-    // Swappable<R, R>() is false, and is_nothrow_iter_swappable<I, I>
-    // implies IterSwappable<I, I>, so this should resolve to the second
+    // Swappable<R, R>() is false, and is_nothrow_indirectly_swappable<I, I>
+    // implies IndirectlySwappable<I, I>, so this should resolve to the second
     // overload of iter_swap2. Except that it won't compile because
     // the constraints are not satisfied?!?
-    //stl2::iter_swap2(a.begin() + 1, a.begin() + 3);
+    stl2::iter_swap2(a.begin() + 1, a.begin() + 3);
     CHECK(a[0] == 2);
     CHECK(a[1] == 3);
     CHECK(a[2] == 0);

@@ -42,9 +42,9 @@ using __iter_move_t =
 
 }
 
-template <class RR, class R = std::remove_reference_t<RR>>
-  requires detail::Dereferencable<R>
-detail::__iter_move_t<R> iter_move(RR& r)
+template <class R, class _R = std::remove_reference_t<R>>
+  requires detail::Dereferencable<_R>
+detail::__iter_move_t<_R> iter_move(R&& r)
   noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r))));
 
 template <detail::Dereferencable R>
@@ -188,18 +188,34 @@ using is_nothrow_indirectly_movable_t = meta::_t<is_nothrow_indirectly_movable<I
 
 }
 
-// iter_swap2
-template <Readable R1, Readable R2>
-  requires Swappable<ReferenceType<R1>, ReferenceType<R2>>()
-void iter_swap2(R1 r1, R2 r2)
-  noexcept(ext::is_nothrow_swappable_v<ReferenceType<R1>, ReferenceType<R2>>);
+// Dispatch to a helper function because there seems to be a problem with
+// negated constraints; e.g. IndirectlyMovable && !Swappable.
+namespace detail {
+  // __iter_swap2
+  template <class R1, class R2,
+    Readable _R1 = std::remove_reference_t<R1>,
+    Readable _R2 = std::remove_reference_t<R2>>
+    requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
+  void __iter_swap2(R1&& r1, R2&& r2, int)
+    noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>);
 
-template <Readable R1, Readable R2>
-  requires IndirectlyMovable<R1, R2>() && IndirectlyMovable<R2, R1>() &&
-    !Swappable<ReferenceType<R1>, ReferenceType<R2>>()
-void iter_swap2(R1 r1, R2 r2)
-  noexcept(ext::is_nothrow_indirectly_movable_v<R1, R2> &&
-           ext::is_nothrow_indirectly_movable_v<R2, R1>);
+  template <class R1, class R2,
+    Readable _R1 = std::remove_reference_t<R1>,
+    Readable _R2 = std::remove_reference_t<R2>>
+    requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>()
+  void __iter_swap2(R1&& r1, R2&& r2, long)
+    noexcept(ext::is_nothrow_indirectly_movable_v<_R1, _R2> &&
+             ext::is_nothrow_indirectly_movable_v<_R2, _R1>);
+}
+
+// iter_swap2
+template <class R1, class R2,
+  Readable _R1 = std::remove_reference_t<R1>,
+  Readable _R2 = std::remove_reference_t<R2>>
+  requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>() ||
+    (IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>())
+void iter_swap2(R1&& r1, R2&& r2)
+  noexcept(noexcept(detail::__iter_swap2((R1&&)r1, (R2&&)r2, 0)));
 
 template <class I1, class I2 = I1>
 concept bool IndirectlySwappable() {
@@ -215,21 +231,24 @@ concept bool IndirectlySwappable() {
 namespace ext {
 
 template <class R1, class R2>
-constexpr bool is_nothrow_indirectly_swappable_v = false;
+struct is_nothrow_indirectly_swappable : meta::bool_<false> {};
 
 IndirectlySwappable{R1, R2}
+struct is_nothrow_indirectly_swappable<R1, R2> :
+  meta::bool_<
+    noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R2>())) &&
+    noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R1>())) &&
+    noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R1>())) &&
+    noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R2>()))>
+{};
+
+template <class R1, class R2>
 constexpr bool is_nothrow_indirectly_swappable_v =
-  noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R2>())) &&
-  noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R1>())) &&
-  noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R1>())) &&
-  noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R2>()));
+  meta::_v<is_nothrow_indirectly_swappable<R1, R2>>;
 
 template <class R1, class R2>
-struct is_nothrow_indirectly_swappable
-  : meta::bool_<is_nothrow_indirectly_swappable_v<R1, R2>> {};
-
-template <class R1, class R2>
-using is_nothrow_indirectly_swappable_t = meta::_t<is_nothrow_indirectly_swappable<R1, R2>>;
+using is_nothrow_indirectly_swappable_t =
+  meta::_t<is_nothrow_indirectly_swappable<R1, R2>>;
 
 }
 
