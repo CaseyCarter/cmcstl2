@@ -45,7 +45,7 @@ using __iter_move_t =
 template <class R,
   detail::Dereferencable _R = std::remove_reference_t<R>>
 detail::__iter_move_t<_R> iter_move(R&& r)
-  noexcept(noexcept(detail::__iter_move_t<R>(stl2::move(*r))));
+  noexcept(noexcept(detail::__iter_move_t<_R>(stl2::move(*r))));
 
 template <detail::Dereferencable R>
   requires requires (R& r) {
