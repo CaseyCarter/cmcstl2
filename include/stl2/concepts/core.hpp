@@ -34,10 +34,9 @@ template <class...>
 struct all_same : std::true_type {};
 
 template <class T, class...Rest>
-struct all_same<T, T, Rest...> : all_same<T, Rest...> {};
-
-template <class T, class U, class...Rest>
-struct all_same<T, U, Rest...> : std::false_type {};
+struct all_same<T, Rest...> :
+  // meta::bool_<STL2_IS_SAME_AS(T, Rest) && ... && true>
+  meta::and_c<STL2_IS_SAME_AS(T, Rest)...> {};
 }
 
 // 20150714: Conforming extension: variadic.

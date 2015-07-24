@@ -171,18 +171,18 @@ using test = std::is_same<ns::IteratorCategory<iterator<T, B>>, U>;
 CONCEPT_ASSERT(!meta::has_type<ns::iterator_category<iterator<std::output_iterator_tag, false>>>());
 CONCEPT_ASSERT(!meta::has_type<ns::iterator_category<iterator<std::output_iterator_tag, true>>>());
 
-CONCEPT_ASSERT(test<std::input_iterator_tag, false, ns::input_iterator_tag>);
-CONCEPT_ASSERT(test<std::forward_iterator_tag, false, ns::forward_iterator_tag>);
-CONCEPT_ASSERT(test<std::bidirectional_iterator_tag, false, ns::bidirectional_iterator_tag>);
-CONCEPT_ASSERT(test<std::random_access_iterator_tag, false, ns::random_access_iterator_tag>);
+CONCEPT_ASSERT(test<std::input_iterator_tag, false, ns::input_iterator_tag>());
+CONCEPT_ASSERT(test<std::forward_iterator_tag, false, ns::forward_iterator_tag>());
+CONCEPT_ASSERT(test<std::bidirectional_iterator_tag, false, ns::bidirectional_iterator_tag>());
+CONCEPT_ASSERT(test<std::random_access_iterator_tag, false, ns::random_access_iterator_tag>());
 
-CONCEPT_ASSERT(test<std::input_iterator_tag, true, ns::input_iterator_tag>);
-CONCEPT_ASSERT(test<std::forward_iterator_tag, true, ns::forward_iterator_tag>);
-CONCEPT_ASSERT(test<std::bidirectional_iterator_tag, true, ns::bidirectional_iterator_tag>);
-CONCEPT_ASSERT(test<std::random_access_iterator_tag, true, ns::random_access_iterator_tag>);
+CONCEPT_ASSERT(test<std::input_iterator_tag, true, ns::input_iterator_tag>());
+CONCEPT_ASSERT(test<std::forward_iterator_tag, true, ns::forward_iterator_tag>());
+CONCEPT_ASSERT(test<std::bidirectional_iterator_tag, true, ns::bidirectional_iterator_tag>());
+CONCEPT_ASSERT(test<std::random_access_iterator_tag, true, ns::random_access_iterator_tag>());
 
 struct foo {};
-CONCEPT_ASSERT(test<foo, false, foo>);
+CONCEPT_ASSERT(test<foo, false, foo>());
 } // namespace associated_type_test
 
 namespace readable_test {
