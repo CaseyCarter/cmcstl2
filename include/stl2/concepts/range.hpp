@@ -43,7 +43,7 @@ struct is_sized_range<T> : std::true_type {};
 
 template <class T>
 concept bool SizedRange() {
-  return detail::SizedRangeLike<T>() &&
+  return detail::SizedRangeLike<T> &&
     meta::_v<is_sized_range<std::remove_reference_t<T>>>;
 }
 

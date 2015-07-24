@@ -452,7 +452,8 @@ concept bool RandomAccessIterator() {
     } &&
     (!detail::MutableIterator<I> ||
      requires (const I& i, const DifferenceType<I> n) {
-       i[n] = *i; *i = i[n];
+       i[n] = *i;
+       *i = i[n];
      });
 }
 
@@ -497,7 +498,7 @@ constexpr bool weak_iterator() { return false; }
 WeakIterator{I}
 constexpr bool weak_iterator() { return true; }
 
-#if 0
+#if 1
 template <class>
 constexpr bool input_iterator() { return false; }
 InputIterator{I}
@@ -509,7 +510,7 @@ constexpr bool iterator() { return false; }
 Iterator{I}
 constexpr bool iterator() { return true; }
 
-#if 0 // FIXME: explodes memory
+#if 1 // FIXME: explodes memory
 template <class, class>
 constexpr bool sentinel() { return false; }
 Sentinel{S, I}
