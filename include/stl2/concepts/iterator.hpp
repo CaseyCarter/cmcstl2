@@ -528,25 +528,20 @@ constexpr bool weak_iterator() { return false; }
 WeakIterator{I}
 constexpr bool weak_iterator() { return true; }
 
-#if 1
-template <class>
-constexpr bool input_iterator() { return false; }
-InputIterator{I}
-constexpr bool input_iterator() { return true; }
-#endif
-
 template <class>
 constexpr bool iterator() { return false; }
 Iterator{I}
 constexpr bool iterator() { return true; }
 
-#if 1 // FIXME: explodes memory
+template <class>
+constexpr bool input_iterator() { return false; }
+InputIterator{I}
+constexpr bool input_iterator() { return true; }
+
 template <class, class>
 constexpr bool sentinel() { return false; }
 Sentinel{S, I}
 constexpr bool sentinel() { return true; }
-#endif
-
 }} // namespace ext::models
 
 }} // namespace stl2::v1
