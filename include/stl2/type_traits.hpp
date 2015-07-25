@@ -10,6 +10,9 @@
 
 namespace stl2 { inline namespace v1 {
 
+template <template <class...> class T, class... U>
+concept bool _Valid = requires { typename T<U...>; };
+
 template <class T>
 struct __unary {
   template <class U>
@@ -40,14 +43,14 @@ struct __builtin_common { };
 template <class T, class U>
 using __builtin_common_t = meta::_t<__builtin_common<T, U>>;
 template <class T, class U>
-  requires requires { typename __cond<__cref<T>, __cref<U>>; }
+  requires _Valid<__cond, __cref<T>, __cref<U>>
 struct __builtin_common<T, U> :
   std::decay<__cond<__cref<T>, __cref<U>>> { };
 template <class T, class U, class R = __builtin_common_t<T &, U &>>
 using __rref_res = std::conditional_t<meta::_v<std::is_reference<R>>,
   std::remove_reference_t<R> &&, R>;
 template <class T, class U>
-  requires requires { typename __rref_res<T, U>; }
+  requires _Valid<__rref_res, T, U>
     && meta::_v<std::is_convertible<T &&, __rref_res<T, U>>>
     && meta::_v<std::is_convertible<U &&, __rref_res<T, U>>>
 struct __builtin_common<T &&, U &&> : meta::id<__rref_res<T, U>> { };
@@ -56,7 +59,7 @@ using __lref_res = __cond<__copy_cv<T, U> &, __copy_cv<U, T> &>;
 template <class T, class U>
 struct __builtin_common<T &, U &> : meta::defer<__lref_res, T, U> { };
 template <class T, class U>
-  requires requires { typename __builtin_common_t<T &, U const &>; }
+  requires _Valid<__builtin_common_t, T &, U const &>
     && meta::_v<std::is_convertible<U &&, __builtin_common_t<T &, U const &>>>
 struct __builtin_common<T &, U &&> :
   __builtin_common<T &, U const &> { };
@@ -84,7 +87,7 @@ template <_Decayed T, _Decayed U>
 struct common_type<T, U> : __builtin_common<T, U> { };
 
 template <class T, class U, class V, class... W>
-  requires requires { typename common_type_t<T, U>; }
+  requires _Valid<common_type_t, T, U>
 struct common_type<T, U, V, W...>
   : common_type<common_type_t<T, U>, V, W...> { };
 
@@ -131,12 +134,12 @@ struct common_reference<T, U>
       __basic_common_reference<T, U>, common_type<T, U>> { };
 
 template <class T, class U>
-  requires requires {typename __builtin_common_t<T, U>;} &&
-    meta::_v<std::is_reference<__builtin_common_t<T, U>>>
+  requires _Valid<__builtin_common_t, T, U>
+    && meta::_v<std::is_reference<__builtin_common_t<T, U>>>
 struct common_reference<T, U> : __builtin_common<T, U> { };
 
 template <class T, class U, class V, class... W>
-  requires requires { typename common_reference_t<T, U>; }
+  requires _Valid<common_reference_t, T, U>
 struct common_reference<T, U, V, W...>
   : common_reference<common_reference_t<T, U>, V, W...> { };
 

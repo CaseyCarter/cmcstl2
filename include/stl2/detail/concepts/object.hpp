@@ -126,14 +126,12 @@ constexpr void swap(Movable& a, Movable& b)
 
 namespace detail {
   constexpr struct __try_swap_fn {
-    template <class T, class U>
-    auto operator()(T &t, U &u) const
+    auto operator()(auto &t, auto &u) const
       noexcept(noexcept(swap(t,u)))
       -> decltype(swap(t,u));
 
-    template <class T, class U, std::size_t N,
-      typename This = __try_swap_fn>
-    auto operator()(T (&t)[N], U (&u)[N]) const
+    template <std::size_t N, typename This = __try_swap_fn>
+    auto operator()(auto (&t)[N], auto (&u)[N]) const
       noexcept(noexcept(This{}(*t, *u)))
       -> decltype(This{}(*t, *u));
   } __try_swap{};
@@ -243,14 +241,12 @@ constexpr bool destructible() { return true; }
 
 template <class T, class...Args>
 constexpr bool constructible_object() { return false; }
-template <class T, class...Args>
-  requires ConstructibleObject<T, Args...>
+ConstructibleObject{T, ...Args}
 constexpr bool constructible_object() { return true; }
 
 template <class T, class...Args>
 constexpr bool bindable_reference() { return false; }
-template <class T, class...Args>
-  requires BindableReference<T, Args...>
+BindableReference{T, ...Args}
 constexpr bool bindable_reference() { return true; }
 
 template <class, class...>
@@ -295,12 +291,11 @@ constexpr bool regular() { return true; }
 
 template <class>
 constexpr bool swappable() { return false; }
-template <Swappable T>
+Swappable{T}
 constexpr bool swappable() { return true; }
 template <class, class>
 constexpr bool swappable() { return false; }
-template <class T, class U>
-  requires Swappable<T, U>()
+Swappable{T, U}
 constexpr bool swappable() { return true; }
 
 template <class>
