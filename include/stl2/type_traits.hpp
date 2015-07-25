@@ -38,11 +38,14 @@ struct __copy_cv_<From const volatile, To> : std::add_cv<To> { };
 template <class From, class To>
 using __copy_cv = meta::_t<__copy_cv_<From, To>>;
 
+template <class T>
+concept bool _NotRef = !meta::_v<std::is_reference<T>>;
+
 template <class T, class U>
 struct __builtin_common { };
 template <class T, class U>
 using __builtin_common_t = meta::_t<__builtin_common<T, U>>;
-template <class T, class U>
+template <_NotRef T, _NotRef U>
   requires _Valid<__cond, __cref<T>, __cref<U>>
 struct __builtin_common<T, U> :
   std::decay<__cond<__cref<T>, __cref<U>>> { };
@@ -50,7 +53,7 @@ template <class T, class U, class R = __builtin_common_t<T &, U &>>
 using __rref_res = std::conditional_t<meta::_v<std::is_reference<R>>,
   std::remove_reference_t<R> &&, R>;
 template <class T, class U>
-  requires _Valid<__rref_res, T, U>
+  requires _Valid<__builtin_common_t, T &, U &>
     && meta::_v<std::is_convertible<T &&, __rref_res<T, U>>>
     && meta::_v<std::is_convertible<U &&, __rref_res<T, U>>>
 struct __builtin_common<T &&, U &&> : meta::id<__rref_res<T, U>> { };
