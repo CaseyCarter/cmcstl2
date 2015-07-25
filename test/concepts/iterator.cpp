@@ -63,8 +63,8 @@ using ranges::random_access_iterator_tag;
 }
 
 #elif VALIDATE_STL2
-#include <stl2/concepts/core.hpp>
-#include <stl2/concepts/iterator.hpp>
+#include <stl2/detail/concepts/core.hpp>
+#include <stl2/iterator.hpp>
 
 namespace ns {
 using stl2::DifferenceType;

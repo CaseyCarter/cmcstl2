@@ -17,7 +17,7 @@ using ranges::swap;
 }
 
 #elif VALIDATE_STL2
-#include <stl2/concepts/object.hpp>
+#include <stl2/detail/concepts/object.hpp>
 #include <stl2/utility.hpp>
 
 namespace ns {

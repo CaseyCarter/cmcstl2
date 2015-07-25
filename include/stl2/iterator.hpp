@@ -1,8 +1,10 @@
 #ifndef STL2_ITERATOR_HPP
 #define STL2_ITERATOR_HPP
 
+#include <type_traits>
+
 #include <stl2/detail/fwd.hpp>
-#include <stl2/concepts/iterator.hpp>
+#include <stl2/detail/concepts/iterator.hpp>
 #include <stl2/utility.hpp>
 
 namespace stl2 { inline namespace v1 {

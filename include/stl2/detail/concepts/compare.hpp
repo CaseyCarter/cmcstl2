@@ -1,9 +1,9 @@
-#ifndef STL2_CONCEPTS_COMPARE_HPP
-#define STL2_CONCEPTS_COMPARE_HPP
+#ifndef STL2_DETAIL_CONCEPTS_COMPARE_HPP
+#define STL2_DETAIL_CONCEPTS_COMPARE_HPP
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/concepts/core.hpp>
-#include <stl2/common_type.hpp>
+#include <stl2/detail/concepts/core.hpp>
+#include <stl2/type_traits.hpp>
 
 /////////////////////////////////////////////
 // Comparison Concepts [concepts.lib.compare]
@@ -52,13 +52,8 @@ namespace detail {
 template <class T, class U>
 concept bool EqualityComparable_ =
   requires (const T& t, const U& u) {
-#if 1 //0 // BUG: OOM
     STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
     STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
-#else
-    { t == u } -> bool;
-    { t != u } -> bool;
-#endif
   };
 
 } // namespace detail
@@ -98,17 +93,10 @@ template <class T, class U>
 concept bool TotallyOrdered_ =
   EqualityComparable_<T, U> &&
   requires (const T& a, const U& b) {
-#if 1 //0 // FIXME: ICE
     STL2_DEDUCTION_CONSTRAINT(a < b, Boolean);
     STL2_DEDUCTION_CONSTRAINT(a > b, Boolean);
     STL2_DEDUCTION_CONSTRAINT(a <= b, Boolean);
     STL2_DEDUCTION_CONSTRAINT(a >= b, Boolean);
-#else
-    { a < b } -> bool;
-    { a > b } -> bool;
-    { a <= b } -> bool;
-    { a >= b } -> bool;
-#endif
   };
 
 } // namespace detail
@@ -169,4 +157,4 @@ constexpr bool totally_ordered() { return true; }
 
 }}}} // namespace stl2::v1::ext::models
 
-#endif // STL2_CONCEPTS_COMPARE_HPP
+#endif

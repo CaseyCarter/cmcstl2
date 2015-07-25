@@ -5,9 +5,11 @@
 #include <type_traits>
 #include <utility>
 
+#include <meta/meta.hpp>
+
 #include <stl2/detail/fwd.hpp>
-#include <stl2/concepts/core.hpp>
-#include <stl2/concepts/object.hpp>
+#include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/object.hpp>
 
 namespace stl2 { inline namespace v1 {
 
@@ -92,4 +94,4 @@ struct equal_to<void> {
 
 }} // namespace stl2::v1
 
-#endif // STL2_UTILITY
+#endif

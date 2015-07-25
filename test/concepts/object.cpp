@@ -39,7 +39,7 @@ using regular = ranges::Regular<T>;
 } // namespace models
 
 #elif VALIDATE_STL2
-#include <stl2/concepts/object.hpp>
+#include <stl2/detail/concepts/object.hpp>
 #endif
 
 struct copyable {};

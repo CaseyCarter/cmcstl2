@@ -1,13 +1,12 @@
-#ifndef STL2_COMMON_TYPE_HPP
-#define STL2_COMMON_TYPE_HPP
+#ifndef STL2_TYPE_TRAITS
+#define STL2_TYPE_TRAITS
 
-#include <utility>
 #include <type_traits>
 
-#include <stl2/detail/fwd.hpp>
-#include <stl2/concepts/core.hpp>
-
 #include <meta/meta.hpp>
+
+#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/concepts/core.hpp>
 
 namespace stl2 { inline namespace v1 {
 

@@ -5,9 +5,9 @@
 
 namespace stl2 { inline namespace v1 {
 
+using std::declval;
 using std::forward;
 using std::move;
-using std::declval;
 
 namespace ext { namespace models {}}
 
@@ -26,4 +26,4 @@ namespace ext { namespace models {}}
 #define STL2_DECLTYPE_AUTO_RETURN_NOEXCEPT(...) \
   noexcept(noexcept(__VA_ARGS__)) -> decltype(__VA_ARGS__) { return (__VA_ARGS__); }
 
-#endif // STL2_DETAIL_FWD_HPP
+#endif

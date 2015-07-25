@@ -18,7 +18,7 @@ using CommonType = ranges::common_type_t<T, U>;
 }
 
 #elif VALIDATE_STL2
-#include <stl2/concepts/core.hpp>
+#include <stl2/detail/concepts/core.hpp>
 #include <stl2/utility.hpp>
 
 namespace ns {

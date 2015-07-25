@@ -1,5 +1,5 @@
-#ifndef STL2_CONCEPTS_CORE_HPP
-#define STL2_CONCEPTS_CORE_HPP
+#ifndef STL2_DETAIL_CONCEPTS_CORE_HPP
+#define STL2_DETAIL_CONCEPTS_CORE_HPP
 
 #include <type_traits>
 
@@ -51,7 +51,10 @@ concept bool ExplicitlyConvertibleTo() {
 
 template <class T, class U>
 concept bool ImplicitlyConvertibleTo() {
-  return std::is_convertible<T, U>::value; // Maybe { t } -> U ?
+  // Q: Why not { t } -> U ?
+  // A: They do not have equivalent results as of 20150724,
+  //    which I think is a bug.
+  return std::is_convertible<T, U>::value;
 }
 
 } // namespace ext
@@ -149,4 +152,4 @@ constexpr bool core_constructible() { return true; }
 
 }}}} // namespace stl2::v1::ext::models
 
-#endif // STL2_CONCEPTS_CORE_HPP
+#endif

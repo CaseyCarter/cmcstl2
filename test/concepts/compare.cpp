@@ -7,7 +7,7 @@ using boolean = std::is_same<T, bool>; // Obviously many tests will fail ;)
 }
 
 #elif VALIDATE_STL2
-#include <stl2/concepts/compare.hpp>
+#include <stl2/detail/concepts/compare.hpp>
 #endif
 
 #include <type_traits>

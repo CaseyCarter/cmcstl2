@@ -1,12 +1,14 @@
-#ifndef STL2_CONCEPTS_RANGE_HPP
-#define STL2_CONCEPTS_RANGE_HPP
-
-#include <stl2/detail/fwd.hpp>
-#include <stl2/concepts/core.hpp>
-#include <stl2/concepts/iterator.hpp>
+#ifndef STL2_DETAIL_CONCEPTS_RANGE_HPP
+#define STL2_DETAIL_CONCEPTS_RANGE_HPP
 
 #include <iterator>
 #include <type_traits>
+
+#include <meta/meta.hpp>
+
+#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/iterator.hpp>
 
 /////////////////////////////
 // Range concepts [iterables]
@@ -61,4 +63,4 @@ constexpr bool sized_range() { return true; }
 
 }}}} // namespace stl2::v1::ext::models
 
-#endif // STL2_CONCEPTS_RANGE_HPP
+#endif

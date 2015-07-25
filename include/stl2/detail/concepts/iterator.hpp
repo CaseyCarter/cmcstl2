@@ -1,5 +1,5 @@
-#ifndef STL2_CONCEPTS_ITERATOR_HPP
-#define STL2_CONCEPTS_ITERATOR_HPP
+#ifndef STL2_DETAIL_CONCEPTS_ITERATOR_HPP
+#define STL2_DETAIL_CONCEPTS_ITERATOR_HPP
 
 #include <iterator>
 #include <type_traits>
@@ -7,9 +7,10 @@
 #include <meta/meta.hpp>
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/concepts/compare.hpp>
-#include <stl2/concepts/core.hpp>
-#include <stl2/concepts/object.hpp>
+#include <stl2/detail/concepts/compare.hpp>
+#include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/object.hpp>
+#include <stl2/type_traits.hpp>
 #include <stl2/utility.hpp>
 
 ////////////////////////////////////////////
@@ -562,4 +563,4 @@ constexpr bool sentinel() { return true; }
 
 }} // namespace stl2::v1
 
-#endif // STL2_CONCEPTS_ITERATOR_HPP
+#endif
