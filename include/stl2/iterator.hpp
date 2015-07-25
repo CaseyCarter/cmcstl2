@@ -117,9 +117,9 @@ using ValueType =
 
 template <class I>
 concept bool Readable() {
-  return Movable<I>() &&
+  return detail::Dereferencable<I> &&
+    Movable<I>() &&
     DefaultConstructible<I>() &&
-    detail::Dereferencable<I> &&
     requires(const I& i) {
       // Associated types
       typename ValueType<I>;
@@ -150,9 +150,9 @@ using iter_common_reference_t =
 
 template <class Out, class T>
 concept bool MoveWritable() {
-  return Movable<Out>() &&
+  return detail::Dereferencable<Out> &&
+    Movable<Out>() &&
     DefaultConstructible<Out>() &&
-    detail::Dereferencable<Out> &&
     requires (Out& o, T&& t) {
       *o = (T&&)t; // not equality preserving // Maybe void(*o = (T&&)t) ?
     };
@@ -185,7 +185,6 @@ concept bool IndirectlyCopyable() {
 }
 
 namespace ext {
-
 template <class In, class Out>
 constexpr bool is_nothrow_indirectly_movable_v = false;
 
@@ -202,7 +201,6 @@ struct is_nothrow_indirectly_movable
 
 template <class In, class Out>
 using is_nothrow_indirectly_movable_t = meta::_t<is_nothrow_indirectly_movable<In, Out>>;
-
 }
 
 // Dispatch to a helper function because there seems to be a problem with
@@ -246,7 +244,6 @@ concept bool IndirectlySwappable() {
 }
 
 namespace ext {
-
 template <class R1, class R2>
 struct is_nothrow_indirectly_swappable : meta::bool_<false> {};
 
@@ -266,15 +263,12 @@ constexpr bool is_nothrow_indirectly_swappable_v =
 template <class R1, class R2>
 using is_nothrow_indirectly_swappable_t =
   meta::_t<is_nothrow_indirectly_swappable<R1, R2>>;
-
 }
 
 namespace detail {
-
 template <class T>
 concept bool MemberDifferenceType =
   requires { typename T::difference_type; };
-
 }
 
 // 20150715: Conforming extension: defaults to
@@ -403,7 +397,7 @@ concept bool WeakIterator() {
 template <class I>
 concept bool Iterator() {
   return WeakIterator<I>() &&
-    EqualityComparable<I>();
+    Regular<I>();
 }
 
 template <class S, class I>
@@ -411,6 +405,18 @@ concept bool Sentinel() {
   return Iterator<I>() &&
     Regular<S>() &&
     EqualityComparable<I, S>();
+}
+
+template <class I, class T>
+concept bool WeakOutputIterator() {
+  return WeakIterator<I>() &&
+    Writable<I, T>();
+}
+
+template <class I, class T>
+concept bool OutputIterator() {
+  return WeakOutputIterator<I, T>() &&
+    Iterator<I>();
 }
 
 template <class I>
@@ -426,23 +432,11 @@ concept bool WeakInputIterator() {
     };
 }
 
-template <class I, class T>
-concept bool WeakOutputIterator() {
-  return WeakIterator<I>() &&
-    Writable<I, T>();
-}
-
 template <class I>
 concept bool InputIterator() {
   return WeakInputIterator<I>() &&
     Iterator<I>() &&
     DerivedFrom<IteratorCategory<I>, input_iterator_tag>();
-}
-
-template <class I, class T>
-concept bool OutputIterator() {
-  return WeakOutputIterator<I, T>() &&
-    Iterator<I>();
 }
 
 template <class I>
@@ -505,7 +499,6 @@ concept bool RandomAccessIterator() {
 }
 
 namespace ext {
-
 template <class I>
 concept bool ContiguousIterator() {
   return RandomAccessIterator<I>() &&
@@ -550,15 +543,50 @@ constexpr bool iterator() { return false; }
 Iterator{I}
 constexpr bool iterator() { return true; }
 
+template <class, class>
+constexpr bool sentinel() { return false; }
+Sentinel{S, I}
+constexpr bool sentinel() { return true; }
+
+template <class, class>
+constexpr bool weak_output_iterator() { return false; }
+WeakOutputIterator{I, T}
+constexpr bool weak_output_iterator() { return true; }
+
+template <class, class>
+constexpr bool output_iterator() { return false; }
+OutputIterator{I, T}
+constexpr bool output_iterator() { return true; }
+
+template <class>
+constexpr bool weak_input_iterator() { return false; }
+WeakInputIterator{I}
+constexpr bool weak_input_iterator() { return true; }
+
 template <class>
 constexpr bool input_iterator() { return false; }
 InputIterator{I}
 constexpr bool input_iterator() { return true; }
 
-template <class, class>
-constexpr bool sentinel() { return false; }
-Sentinel{S, I}
-constexpr bool sentinel() { return true; }
+template <class>
+constexpr bool forward_iterator() { return false; }
+ForwardIterator{I}
+constexpr bool forward_iterator() { return true; }
+
+template <class>
+constexpr bool bidirectional_iterator() { return false; }
+BidirectionalIterator{I}
+constexpr bool bidirectional_iterator() { return true; }
+
+template <class>
+constexpr bool random_access_iterator() { return false; }
+RandomAccessIterator{I}
+constexpr bool random_access_iterator() { return true; }
+
+template <class>
+constexpr bool contiguous_iterator() { return false; }
+ContiguousIterator{I}
+constexpr bool contiguous_iterator() { return true; }
 }} // namespace ext::models
 
 
