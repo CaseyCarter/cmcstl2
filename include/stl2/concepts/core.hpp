@@ -6,7 +6,6 @@
 #include <meta/meta.hpp>
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/common_type.hpp>
 
 ////////////////////////////////////////
 // Core Concepts [concepts.lib.corelang]
@@ -79,43 +78,6 @@ concept bool PubliclyDerivedFrom() {
 } // namespace ext
 
 template <class T, class U>
-using CommonReferenceType =
-  stl2::common_reference_t<T, U>;
-
-template <class T, class U>
-concept bool CommonReference() {
-  return
-    requires (T&& t, U&& u) {
-      typename CommonReferenceType<T, U>;
-      typename CommonReferenceType<U, T>;
-      requires Same<CommonReferenceType<T, U>,
-                    CommonReferenceType<U, T>>();
-      CommonReferenceType<T, U>(stl2::forward<T>(t));
-      CommonReferenceType<T, U>(stl2::forward<U>(u));
-    };
-}
-
-template <class T, class U>
-using CommonType = common_type_t<T, U>;
-
-// Casey strongly suspects that we want Same to subsume Common
-// (See https://github.com/ericniebler/stl2/issues/50).
-template <class T, class U>
-concept bool Common() {
-  return CommonReference<const T&, const U&>() &&
-    requires (T&& t, U&& u) {
-      typename CommonType<T, U>;
-      typename CommonType<U, T>;
-      requires Same<CommonType<T, U>,
-                    CommonType<U, T>>();
-      CommonType<T, U>(std::forward<T>(t));
-      CommonType<T, U>(std::forward<U>(u));
-      requires CommonReference<CommonType<T, U>&,
-                               CommonReferenceType<const T&, const U&>>();
-    };
-}
-
-template <class T, class U>
 concept bool Assignable() {
   return requires (T&& t, U&& u) {
     STL2_EXACT_TYPE_CONSTRAINT((T&&)t = (U&&)u, T&);
@@ -164,11 +126,6 @@ template <class, class>
 constexpr bool publicly_derived_from() { return false; }
 PubliclyDerivedFrom{T, U}
 constexpr bool publicly_derived_from() { return true; }
-
-template <class, class>
-constexpr bool common() { return false; }
-Common{T, U}
-constexpr bool common() { return true; }
 
 template <class, class>
 constexpr bool assignable() { return false; }

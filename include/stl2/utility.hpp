@@ -1,12 +1,13 @@
 #ifndef STL2_UTILITY // -*- mode: c++ -*-
 #define STL2_UTILITY
 
+#include <cassert>
+#include <type_traits>
+#include <utility>
+
 #include <stl2/detail/fwd.hpp>
 #include <stl2/concepts/core.hpp>
 #include <stl2/concepts/object.hpp>
-
-#include <cassert>
-#include <type_traits>
 
 namespace stl2 { inline namespace v1 {
 

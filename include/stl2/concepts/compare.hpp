@@ -3,6 +3,7 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/concepts/core.hpp>
+#include <stl2/common_type.hpp>
 
 /////////////////////////////////////////////
 // Comparison Concepts [concepts.lib.compare]

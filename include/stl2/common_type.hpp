@@ -5,6 +5,7 @@
 #include <type_traits>
 
 #include <stl2/detail/fwd.hpp>
+#include <stl2/concepts/core.hpp>
 
 #include <meta/meta.hpp>
 
@@ -84,9 +85,6 @@ template <_Decayed T, _Decayed U>
 struct common_type<T, U> : __builtin_common<T, U> { };
 
 template <class T, class U, class V, class... W>
-struct common_type<T, U, V, W...> { };
-
-template <class T, class U, class V, class... W>
   requires requires { typename common_type_t<T, U>; }
 struct common_type<T, U, V, W...>
   : common_type<common_type_t<T, U>, V, W...> { };
@@ -143,6 +141,48 @@ template <class T, class U, class V, class... W>
 struct common_reference<T, U, V, W...>
   : common_reference<common_reference_t<T, U>, V, W...> { };
 
-}}
+template <class T, class U>
+using CommonReferenceType =
+  stl2::common_reference_t<T, U>;
+
+template <class T, class U>
+concept bool CommonReference() {
+  return
+    requires (T&& t, U&& u) {
+      typename CommonReferenceType<T, U>;
+      typename CommonReferenceType<U, T>;
+      requires Same<CommonReferenceType<T, U>,
+                    CommonReferenceType<U, T>>();
+      CommonReferenceType<T, U>(stl2::forward<T>(t));
+      CommonReferenceType<T, U>(stl2::forward<U>(u));
+    };
+}
+
+template <class T, class U>
+using CommonType = common_type_t<T, U>;
+
+// Casey strongly suspects that we want Same to subsume Common
+// (See https://github.com/ericniebler/stl2/issues/50).
+template <class T, class U>
+concept bool Common() {
+  return CommonReference<const T&, const U&>() &&
+    requires (T&& t, U&& u) {
+      typename CommonType<T, U>;
+      typename CommonType<U, T>;
+      requires Same<CommonType<T, U>,
+                    CommonType<U, T>>();
+      CommonType<T, U>(std::forward<T>(t));
+      CommonType<T, U>(std::forward<U>(u));
+      requires CommonReference<CommonType<T, U>&,
+                               CommonReferenceType<const T&, const U&>>();
+    };
+}
+
+namespace ext { namespace models {
+template <class, class>
+constexpr bool common() { return false; }
+Common{T, U}
+constexpr bool common() { return true; }
+}}}}
 
 #endif
