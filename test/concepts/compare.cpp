@@ -4,6 +4,12 @@
 namespace models {
 template <class T>
 using boolean = std::is_same<T, bool>; // Obviously many tests will fail ;)
+
+template <class T, class U = T>
+using equality_comparable = ranges::EqualityComparable<T, U>;
+
+template <class T, class U = T>
+using totally_ordered = ranges::TotallyOrdered<T, U>;
 }
 
 #elif VALIDATE_STL2
