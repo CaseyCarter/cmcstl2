@@ -1,6 +1,7 @@
 // -*- compile-command: "(cd ~/cmcstl2/build && make iterator && ./test/iterator)" -*-
 
 #include <cassert>
+#include <cstring>
 #include <iostream>
 #include <memory>
 
@@ -105,21 +106,37 @@ struct array {
   iterator end() { return {&e_[0] + N}; }
 };
 
-namespace adl {
-using stl2::iter_move;
+template <stl2::InputIterator>
+constexpr bool f() { return false; }
+template <stl2::ext::ContiguousIterator>
+constexpr bool f() { return true; }
 
-template <class RR1, class RR2,
-          class R1 = std::remove_reference_t<RR1>,
-          class R2 = std::remove_reference_t<RR2>>
-void foo(RR1&& r1, RR2&& r2)
-  noexcept(stl2::ext::is_nothrow_indirectly_swappable_v<R1, R2>) {
-  stl2::ValueType<R1> tmp(iter_move(r1));
-  *r1 = iter_move(r2);
-  *r2 = stl2::move(tmp);
-}
+template <stl2::InputIterator I, stl2::Sentinel<I> S, class O>
+  requires stl2::IndirectlyCopyable<I, O>()
+bool copy(I first, S last, O o) {
+  while (first != last) {
+    *o = *first;
+    ++first;
+    ++o;
+  }
+  return false;
 }
 
-using adl::foo;
+template <stl2::ext::ContiguousIterator I, stl2::Sentinel<I> S,
+          stl2::ext::ContiguousIterator O>
+  requires stl2::IndirectlyCopyable<I, O>() &&
+    stl2::SizedIteratorRange<I, S>() &&
+    stl2::ext::ContiguousIterator<O>() &&
+    stl2::Same<stl2::ValueType<I>, stl2::ValueType<O>>() &&
+    std::is_trivially_copyable<stl2::ValueType<I>>::value
+bool copy(I first, S last, O o) {
+  auto n = last - first;
+  if (n) {
+    std::memmove(std::addressof(*o), std::addressof(*first),
+                 n * sizeof(stl2::ValueType<I>));
+  }
+  return true;
+}
 
 int main() {
   namespace models = stl2::ext::models;
@@ -184,5 +201,33 @@ int main() {
     CHECK(a[3] == 1);
   }
 
+  {
+    struct A {
+      int value;
+      A(int i) : value{i} {}
+      A(const A& that) :
+        value{that.value} {}
+    };
+    A a[] = {0,1,2,3}, b[] = {4,5,6,7};
+    CHECK(!copy(std::begin(a) + 1, std::end(a) - 1, std::begin(b) + 1));
+    CHECK(b[0].value == 4);
+    CHECK(b[1].value == 1);
+    CHECK(b[2].value == 2);
+    CHECK(b[3].value == 7);
+  }
+
+  {
+    int a[] = {0,1,2,3,4,5,6,7}, b[] = {7,6,5,4,3,2,1,0};
+    static_assert(f<decltype(std::begin(a))>(), "");
+    CHECK(copy(std::begin(a) + 2, std::end(a) - 2, std::begin(b) + 2));
+    CHECK(b[0] == 7);
+    CHECK(b[1] == 6);
+    CHECK(b[2] == 2);
+    CHECK(b[3] == 3);
+    CHECK(b[4] == 4);
+    CHECK(b[5] == 5);
+    CHECK(b[6] == 1);
+    CHECK(b[7] == 0);
+  }
   return ::test_result();
 }

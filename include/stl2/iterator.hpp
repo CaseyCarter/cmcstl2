@@ -21,20 +21,20 @@ namespace stl2 { inline namespace v1 {
 namespace detail {
 
 template <class T>
-concept bool Dereferencable =
+concept bool Dereferenceable =
   requires (T& t) {
     { *t } -> auto&&;
   };
 }
 
 // 20150715: Not to spec, forbids void.
-template <detail::Dereferencable R>
+template <detail::Dereferenceable R>
 using ReferenceType =
   decltype(*declval<R&>());
 
 namespace detail {
 
-template <detail::Dereferencable R>
+template <detail::Dereferenceable R>
 using __iter_move_t =
   meta::if_<
     std::is_reference<ReferenceType<R>>,
@@ -44,11 +44,11 @@ using __iter_move_t =
 }
 
 template <class R,
-  detail::Dereferencable _R = std::remove_reference_t<R>>
+  detail::Dereferenceable _R = std::remove_reference_t<R>>
 detail::__iter_move_t<_R> iter_move(R&& r)
   noexcept(noexcept(detail::__iter_move_t<_R>(stl2::move(*r))));
 
-template <detail::Dereferencable R>
+template <detail::Dereferenceable R>
   requires requires (R& r) {
     { iter_move(r) } -> auto&&;
   }
@@ -94,7 +94,7 @@ struct value_type<T> {
   using type = typename T::element_type;
 };
 
-template <detail::Dereferencable T>
+template <detail::Dereferenceable T>
   requires !(detail::MemberElementType<T> || detail::MemberValueType<T>)
 struct value_type<T> {
   using type = std::decay_t<ReferenceType<T>>;
@@ -117,7 +117,7 @@ using ValueType =
 
 template <class I>
 concept bool Readable() {
-  return detail::Dereferencable<I> &&
+  return detail::Dereferenceable<I> &&
     Movable<I>() &&
     DefaultConstructible<I>() &&
     requires(const I& i) {
@@ -150,7 +150,7 @@ using iter_common_reference_t =
 
 template <class Out, class T>
 concept bool MoveWritable() {
-  return detail::Dereferencable<Out> &&
+  return detail::Dereferenceable<Out> &&
     Movable<Out>() &&
     DefaultConstructible<Out>() &&
     requires (Out& o, T&& t) {
@@ -391,7 +391,7 @@ using IteratorCategory =
 template <class I>
 concept bool WeakIterator() {
   return WeaklyIncrementable<I>() &&
-    detail::Dereferencable<I&>;
+    detail::Dereferenceable<I&>;
 }
 
 template <class I>
@@ -594,7 +594,7 @@ constexpr bool contiguous_iterator() { return true; }
 // Iterator primitives
 //
 template <class R,
-  detail::Dereferencable _R = std::remove_reference_t<R>>
+  detail::Dereferenceable _R = std::remove_reference_t<R>>
 detail::__iter_move_t<_R> iter_move(R&& r)
   noexcept(noexcept(detail::__iter_move_t<_R>(stl2::move(*r)))) {
   return stl2::move(*r);
