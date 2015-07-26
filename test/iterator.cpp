@@ -106,6 +106,25 @@ struct array {
   iterator end() { return {&e_[0] + N}; }
 };
 
+enum class category {
+  none, weak, input, forward, bidirectional, random_access, contiguous
+};
+
+template <class>
+constexpr category iterator_dispatch() { return category::none; }
+template <stl2::WeakInputIterator>
+constexpr category iterator_dispatch() { return category::weak; }
+template <stl2::InputIterator>
+constexpr category iterator_dispatch() { return category::input; }
+template <stl2::ForwardIterator>
+constexpr category iterator_dispatch() { return category::forward; }
+template <stl2::BidirectionalIterator>
+constexpr category iterator_dispatch() { return category::bidirectional; }
+template <stl2::RandomAccessIterator>
+constexpr category iterator_dispatch() { return category::random_access; }
+template <stl2::ext::ContiguousIterator>
+constexpr category iterator_dispatch() { return category::contiguous; }
+
 template <stl2::InputIterator I, stl2::Sentinel<I> S, class O>
   requires stl2::IndirectlyCopyable<I, O>()
 bool copy(I first, S last, O o) {
@@ -197,6 +216,11 @@ int main() {
   }
 
   {
+    CHECK(iterator_dispatch<void>() == category::none);
+    CHECK(iterator_dispatch<int*>() == category::contiguous);
+  }
+
+  {
     struct A {
       int value;
       A(int i) : value{i} {}
@@ -213,9 +237,7 @@ int main() {
 
   {
     int a[] = {0,1,2,3,4,5,6,7}, b[] = {7,6,5,4,3,2,1,0};
-    // "Ambiguous" - probably a compiler bug.
-    //CHECK(copy(std::begin(a) + 2, std::end(a) - 2, std::begin(b) + 2));
-    (void)a;
+    CHECK(copy(std::begin(a) + 2, std::end(a) - 2, std::begin(b) + 2));
     CHECK(b[0] == 7);
     CHECK(b[1] == 6);
     CHECK(b[2] == 2);

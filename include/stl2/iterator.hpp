@@ -103,7 +103,7 @@ struct value_type<T> {
 // 20150715: Not to spec.
 // * Strips cv-qualifiers before evaluating value_type. Someone out
 //   there may think it's a good idea to have T, const T, and volatile T
-//   be iterators with differing value types, I think they are insane.
+//   be iterators with differing value types - I think they are insane.
 // * Requires ValueType to actually be a value type, i.e., non-void
 //   and Same<T, decay_t<T>>. I don't think generic code can reasonably
 //   be expected to work with an iterator whose value_type is a function
@@ -120,7 +120,7 @@ concept bool Readable() {
   return detail::Dereferenceable<I> &&
     Movable<I>() &&
     DefaultConstructible<I>() &&
-    requires(const I& i) {
+    requires (const I& i) {
       // Associated types
       typename ValueType<I>;
       typename ReferenceType<I>;
@@ -426,7 +426,9 @@ concept bool WeakInputIterator() {
     requires (I& i, const I& ci) {
       typename IteratorCategory<I>;
       DerivedFrom<IteratorCategory<I>, weak_input_iterator_tag>();
-      STL2_DEDUCTION_CONSTRAINT(i++, Readable);
+      // Comment out for now, pending resolution of
+      // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67018
+      // STL2_DEDUCTION_CONSTRAINT(i++, Readable);
       requires Same<ValueType<I>, ValueType<decltype(i++)>>();
       { *ci } -> const ValueType<I>&;
     };
