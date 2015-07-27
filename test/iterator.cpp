@@ -208,7 +208,7 @@ void test_iterator_dispatch() {
 
   CHECK(iterator_dispatch<void>() == category::none);
 #if 1
-  CHECK(!"iterator_dispatch tests won't compile due to ambiguity.");
+  CHECK(!"iterator_dispatch tests disabled pending GCC bug 67038.");
 #else
   // Ambiguous across the board - probably because of the
   // !DerivedFrom<C, std::weak_input_iterator_tag> requirement.
