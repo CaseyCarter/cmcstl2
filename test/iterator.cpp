@@ -113,12 +113,15 @@ enum class category {
 
 template <class>
 constexpr category iterator_dispatch() { return category::none; }
+#if 0
+// These don't overload properly thanks to GCC bug 67038.
 template <stl2::WeakOutputIterator<int> I>
   requires !stl2::WeakInputIterator<I>()
 constexpr category iterator_dispatch() { return category::weak_output; }
 template <stl2::OutputIterator<int> I>
   requires !stl2::WeakInputIterator<I>()
 constexpr category iterator_dispatch() { return category::output; }
+#endif
 template <stl2::WeakInputIterator>
 constexpr category iterator_dispatch() { return category::weak_input; }
 template <stl2::InputIterator>
@@ -207,11 +210,6 @@ void test_iterator_dispatch() {
   namespace models = stl2::ext::models;
 
   CHECK(iterator_dispatch<void>() == category::none);
-#if 1
-  CHECK(!"iterator_dispatch tests disabled pending GCC bug 67038.");
-#else
-  // Ambiguous across the board - probably because of the
-  // !DerivedFrom<C, std::weak_input_iterator_tag> requirement.
   CHECK(iterator_dispatch<int*>() == category::contiguous);
 
   {
@@ -244,7 +242,6 @@ void test_iterator_dispatch() {
     static_assert(models::contiguous_iterator<I>());
     CHECK(iterator_dispatch<I>() == category::contiguous);
   }
-#endif
 
   {
     using I = arbitrary_iterator<weak_output_iterator_tag>;
