@@ -580,6 +580,11 @@ constexpr bool bidirectional_iterator() { return false; }
 BidirectionalIterator{I}
 constexpr bool bidirectional_iterator() { return true; }
 
+template <class I, class S = I>
+constexpr bool sized_iterator_range() { return false; }
+SizedIteratorRange{I, S}
+constexpr bool sized_iterator_range() { return true; }
+
 template <class>
 constexpr bool random_access_iterator() { return false; }
 RandomAccessIterator{I}

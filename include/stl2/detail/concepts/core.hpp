@@ -126,6 +126,11 @@ ConvertibleTo{T, U}
 constexpr bool convertible_to() { return true; }
 
 template <class, class>
+constexpr bool derived_from() { return false; }
+DerivedFrom{T, U}
+constexpr bool derived_from() { return true; }
+
+template <class, class>
 constexpr bool publicly_derived_from() { return false; }
 PubliclyDerivedFrom{T, U}
 constexpr bool publicly_derived_from() { return true; }

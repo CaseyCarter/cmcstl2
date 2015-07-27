@@ -107,13 +107,20 @@ struct array {
 };
 
 enum class category {
-  none, weak, input, forward, bidirectional, random_access, contiguous
+  none, weak_output, output,
+    weak_input, input, forward, bidirectional, random_access, contiguous
 };
 
 template <class>
 constexpr category iterator_dispatch() { return category::none; }
+template <stl2::WeakOutputIterator<int> I>
+  requires !stl2::WeakInputIterator<I>()
+constexpr category iterator_dispatch() { return category::weak_output; }
+template <stl2::OutputIterator<int> I>
+  requires !stl2::WeakInputIterator<I>()
+constexpr category iterator_dispatch() { return category::output; }
 template <stl2::WeakInputIterator>
-constexpr category iterator_dispatch() { return category::weak; }
+constexpr category iterator_dispatch() { return category::weak_input; }
 template <stl2::InputIterator>
 constexpr category iterator_dispatch() { return category::input; }
 template <stl2::ForwardIterator>
@@ -124,6 +131,132 @@ template <stl2::RandomAccessIterator>
 constexpr category iterator_dispatch() { return category::random_access; }
 template <stl2::ext::ContiguousIterator>
 constexpr category iterator_dispatch() { return category::contiguous; }
+
+struct weak_output_iterator_tag {};
+struct output_iterator_tag : weak_output_iterator_tag {};
+
+template <class C>
+struct arbitrary_iterator {
+  using difference_type = std::ptrdiff_t;
+
+  arbitrary_iterator& operator*();
+  arbitrary_iterator& operator=(int);
+
+  arbitrary_iterator& operator++();
+  arbitrary_iterator& operator++(int);
+
+  bool operator==(arbitrary_iterator) const
+    requires stl2::DerivedFrom<C, output_iterator_tag>();
+  bool operator!=(arbitrary_iterator) const
+    requires stl2::DerivedFrom<C, output_iterator_tag>();
+};
+
+template <stl2::DerivedFrom<stl2::weak_input_iterator_tag> C>
+struct arbitrary_iterator<C> {
+  using iterator_category = C;
+  using value_type = int;
+  using difference_type = std::ptrdiff_t;
+
+  value_type& operator*() const;
+
+  arbitrary_iterator& operator++();
+  arbitrary_iterator operator++(int);
+
+  bool operator==(arbitrary_iterator) const
+    requires stl2::DerivedFrom<C, stl2::input_iterator_tag>();
+  bool operator!=(arbitrary_iterator) const
+    requires stl2::DerivedFrom<C, stl2::input_iterator_tag>();
+
+  arbitrary_iterator& operator--()
+    requires stl2::DerivedFrom<C, stl2::bidirectional_iterator_tag>();
+  arbitrary_iterator operator--(int)
+    requires stl2::DerivedFrom<C, stl2::bidirectional_iterator_tag>();
+
+  bool operator<(arbitrary_iterator) const
+    requires stl2::DerivedFrom<C, stl2::random_access_iterator_tag>();
+  bool operator>(arbitrary_iterator) const
+    requires stl2::DerivedFrom<C, stl2::random_access_iterator_tag>();
+  bool operator<=(arbitrary_iterator) const
+    requires stl2::DerivedFrom<C, stl2::random_access_iterator_tag>();
+  bool operator>=(arbitrary_iterator) const
+    requires stl2::DerivedFrom<C, stl2::random_access_iterator_tag>();
+
+  arbitrary_iterator& operator+=(difference_type)
+    requires stl2::DerivedFrom<C, stl2::random_access_iterator_tag>();
+  arbitrary_iterator& operator-=(difference_type)
+    requires stl2::DerivedFrom<C, stl2::random_access_iterator_tag>();
+
+  arbitrary_iterator operator-(difference_type) const
+    requires stl2::DerivedFrom<C, stl2::random_access_iterator_tag>();
+  difference_type operator-(arbitrary_iterator) const
+    requires stl2::DerivedFrom<C, stl2::random_access_iterator_tag>();
+
+  value_type& operator[](difference_type) const
+    requires stl2::DerivedFrom<C, stl2::random_access_iterator_tag>();
+};
+
+template <stl2::DerivedFrom<stl2::random_access_iterator_tag> C>
+arbitrary_iterator<C> operator+(arbitrary_iterator<C>,
+                                typename arbitrary_iterator<C>::difference_type);
+
+template <stl2::DerivedFrom<stl2::random_access_iterator_tag> C>
+arbitrary_iterator<C> operator+(typename arbitrary_iterator<C>::difference_type,
+                                arbitrary_iterator<C>);
+
+void test_iterator_dispatch() {
+  namespace models = stl2::ext::models;
+
+  CHECK(iterator_dispatch<void>() == category::none);
+#if 1
+  CHECK(!"iterator_dispatch tests won't compile due to ambiguity.");
+#else
+  // Ambiguous across the board - probably because of the
+  // !DerivedFrom<C, std::weak_input_iterator_tag> requirement.
+  CHECK(iterator_dispatch<int*>() == category::contiguous);
+
+  {
+    using I = arbitrary_iterator<stl2::weak_input_iterator_tag>;
+    static_assert(models::weak_input_iterator<I>());
+    CHECK(iterator_dispatch<I>() == category::weak_input);
+  }
+  {
+    using I = arbitrary_iterator<stl2::input_iterator_tag>;
+    static_assert(models::input_iterator<I>());
+    CHECK(iterator_dispatch<I>() == category::input);
+  }
+  {
+    using I = arbitrary_iterator<stl2::forward_iterator_tag>;
+    static_assert(models::forward_iterator<I>());
+    CHECK(iterator_dispatch<I>() == category::forward);
+  }
+  {
+    using I = arbitrary_iterator<stl2::bidirectional_iterator_tag>;
+    static_assert(models::bidirectional_iterator<I>());
+    CHECK(iterator_dispatch<I>() == category::bidirectional);
+  }
+  {
+    using I = arbitrary_iterator<stl2::random_access_iterator_tag>;
+    static_assert(models::random_access_iterator<I>());
+    CHECK(iterator_dispatch<I>() == category::random_access);
+  }
+  {
+    using I = arbitrary_iterator<stl2::ext::contiguous_iterator_tag>;
+    static_assert(models::contiguous_iterator<I>());
+    CHECK(iterator_dispatch<I>() == category::contiguous);
+  }
+#endif
+
+  {
+    using I = arbitrary_iterator<weak_output_iterator_tag>;
+    static_assert(models::weak_output_iterator<I, int>());
+    CHECK(iterator_dispatch<I>() == category::weak_output);
+  }
+  {
+    using I = arbitrary_iterator<output_iterator_tag>;
+    static_assert(models::output_iterator<I, int>());
+    CHECK(iterator_dispatch<I>() == category::output);
+  }
+}
 
 template <stl2::InputIterator I, stl2::Sentinel<I> S, class O>
   requires stl2::IndirectlyCopyable<I, O>()
@@ -150,6 +283,36 @@ bool copy(I first, S last, O o) {
                  n * sizeof(stl2::ValueType<I>));
   }
   return true;
+}
+
+void test_copy() {
+  {
+    struct A {
+      int value;
+      A(int i) : value{i} {}
+      A(const A& that) :
+        value{that.value} {}
+    };
+    A a[] = {0,1,2,3}, b[] = {4,5,6,7};
+    CHECK(!copy(std::begin(a) + 1, std::end(a) - 1, std::begin(b) + 1));
+    CHECK(b[0].value == 4);
+    CHECK(b[1].value == 1);
+    CHECK(b[2].value == 2);
+    CHECK(b[3].value == 7);
+  }
+
+  {
+    int a[] = {0,1,2,3,4,5,6,7}, b[] = {7,6,5,4,3,2,1,0};
+    CHECK(copy(std::begin(a) + 2, std::end(a) - 2, std::begin(b) + 2));
+    CHECK(b[0] == 7);
+    CHECK(b[1] == 6);
+    CHECK(b[2] == 2);
+    CHECK(b[3] == 3);
+    CHECK(b[4] == 4);
+    CHECK(b[5] == 5);
+    CHECK(b[6] == 1);
+    CHECK(b[7] == 0);
+  }
 }
 
 int main() {
@@ -215,37 +378,8 @@ int main() {
     CHECK(a[3] == 1);
   }
 
-  {
-    CHECK(iterator_dispatch<void>() == category::none);
-    CHECK(iterator_dispatch<int*>() == category::contiguous);
-  }
+  test_iterator_dispatch();
+  test_copy();
 
-  {
-    struct A {
-      int value;
-      A(int i) : value{i} {}
-      A(const A& that) :
-        value{that.value} {}
-    };
-    A a[] = {0,1,2,3}, b[] = {4,5,6,7};
-    CHECK(!copy(std::begin(a) + 1, std::end(a) - 1, std::begin(b) + 1));
-    CHECK(b[0].value == 4);
-    CHECK(b[1].value == 1);
-    CHECK(b[2].value == 2);
-    CHECK(b[3].value == 7);
-  }
-
-  {
-    int a[] = {0,1,2,3,4,5,6,7}, b[] = {7,6,5,4,3,2,1,0};
-    CHECK(copy(std::begin(a) + 2, std::end(a) - 2, std::begin(b) + 2));
-    CHECK(b[0] == 7);
-    CHECK(b[1] == 6);
-    CHECK(b[2] == 2);
-    CHECK(b[3] == 3);
-    CHECK(b[4] == 4);
-    CHECK(b[5] == 5);
-    CHECK(b[6] == 1);
-    CHECK(b[7] == 0);
-  }
   return ::test_result();
 }
