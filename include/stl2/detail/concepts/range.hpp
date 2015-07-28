@@ -31,7 +31,7 @@ concept bool SizedRangeLike =
   requires (T& t) {
     STL2_DEDUCTION_CONSTRAINT(size(t), Integral);
     STL2_CONVERSION_CONSTRAINT(size(t), DifferenceType<IteratorType<T>>);
-  };  
+  };
 }
 
 template <class>
@@ -39,8 +39,8 @@ struct is_sized_range : std::true_type {};
 
 template <class T>
 concept bool SizedRange() {
-  return detail::SizedRangeLike<T> &&
-    meta::_v<is_sized_range<detail::uncvref_t<T>>>;
+  return meta::_v<is_sized_range<uncvref_t<T>>> &&
+    detail::SizedRangeLike<T>;
 }
 
 namespace ext { namespace models {
