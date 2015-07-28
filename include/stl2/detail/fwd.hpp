@@ -3,11 +3,17 @@
 
 #include <utility>
 
+#include <meta/meta.hpp>
+
 namespace stl2 { inline namespace v1 {
 
 using std::declval;
 using std::forward;
 using std::move;
+
+namespace detail {
+using meta::detail::uncvref_t;
+}
 
 namespace ext { namespace models {}}
 

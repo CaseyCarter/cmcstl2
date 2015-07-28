@@ -15,5 +15,8 @@ add_test(test.concepts.iterator concepts.iterator)
 add_executable(concepts.object object.cpp)
 add_test(test.concepts.object concepts.object)
 
+add_executable(concepts.range range.cpp)
+add_test(test.concepts.range concepts.range)
+
 add_executable(concepts.swap swap.cpp)
 add_test(test.concepts.swap concepts.swap)

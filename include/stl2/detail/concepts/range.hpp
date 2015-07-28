@@ -14,9 +14,6 @@
 //
 namespace stl2 { inline namespace v1 {
 
-using std::begin;
-using std::end;
-
 template <class T>
 using IteratorType = decltype(begin(declval<T>()));
 template <class T>
@@ -31,21 +28,19 @@ namespace detail {
 template <class T>
 concept bool SizedRangeLike =
   Range<T>() &&
-  requires (const T& t) {
-    { size(t) } -> Integral;
-    requires ConvertibleTo<decltype(size(t)), DifferenceType<IteratorType<T>>>();
+  requires (T& t) {
+    STL2_DEDUCTION_CONSTRAINT(size(t), Integral);
+    STL2_CONVERSION_CONSTRAINT(size(t), DifferenceType<IteratorType<T>>);
   };  
 }
 
 template <class>
-struct is_sized_range : std::false_type {};
-template <detail::SizedRangeLike T>
-struct is_sized_range<T> : std::true_type {};
+struct is_sized_range : std::true_type {};
 
 template <class T>
 concept bool SizedRange() {
   return detail::SizedRangeLike<T> &&
-    meta::_v<is_sized_range<std::remove_reference_t<T>>>;
+    meta::_v<is_sized_range<detail::uncvref_t<T>>>;
 }
 
 namespace ext { namespace models {
@@ -59,6 +54,11 @@ template <class>
 constexpr bool sized_range() { return false; }
 SizedRange{T}
 constexpr bool sized_range() { return true; }
+
+template <class>
+constexpr bool sized_range_like() { return false; }
+detail::SizedRangeLike{T}
+constexpr bool sized_range_like() { return true; }
 
 }}}} // namespace stl2::v1::ext::models
 

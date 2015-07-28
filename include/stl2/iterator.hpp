@@ -18,6 +18,10 @@
 //
 namespace stl2 { inline namespace v1 {
 
+// Imports
+using std::begin;
+using std::end;
+
 namespace detail {
 
 template <class T>
@@ -642,6 +646,19 @@ void iter_swap2(R1&& r1, R2&& r2)
   detail::__iter_swap2((R1&&)r1, (R2&&)r2, 0);
 }
 
+// size
+template <class T, std::size_t N>
+constexpr std::size_t size(T(&)[N]) {
+  return N;
+}
+
+template <class C>
+  requires requires (const C& c) {
+    STL2_DEDUCTION_CONSTRAINT(c.size(), Integral);
+  }
+constexpr auto size(const C& c) {
+  return c.size();
+}
 }} // namespace stl2::v1
 
 #endif // STL2_ITERATOR_HPP
