@@ -42,6 +42,12 @@ using stl2::size;
 
 #include "../simple_test.hpp"
 
+struct sized_range {
+  int const* begin() const;
+  int const* end() const;
+  int size() const;
+};
+
 struct not_sized_range {
   int* begin();
   int* end();
@@ -54,8 +60,6 @@ struct is_sized_range<not_sized_range> :
   std::false_type {};
 }
 
-template <class> struct show_type;
-
 int main() {
   CHECK(!models::range<void>());
   CHECK(!models::sized_range<void>());
@@ -67,6 +71,11 @@ int main() {
   CHECK(models::range<not_sized_range&>());
   CHECK(!models::range<const not_sized_range&>());
   CHECK(!models::sized_range<not_sized_range&>());
+
+  CHECK(models::sized_range<sized_range>());
+  CHECK(models::sized_range<sized_range &>());
+  CHECK(models::sized_range<sized_range const>());
+  CHECK(models::sized_range<sized_range const &>());
 
   return ::test_result();
 }
