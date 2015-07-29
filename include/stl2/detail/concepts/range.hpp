@@ -21,7 +21,12 @@ using SentinelType = decltype(end(declval<T>()));
 
 template <class T>
 concept bool Range() {
-  return Sentinel<SentinelType<T>, IteratorType<T>>();
+  return
+    requires {
+      typename SentinelType<T>;
+      typename IteratorType<T>;
+    } &&
+    Sentinel<SentinelType<T>, IteratorType<T>>();
 }
 
 struct view_base {};
@@ -51,24 +56,37 @@ concept bool SizedRange() {
     is_sized_range<T>::value;
 }
 
-template <Range T>
+// HACKHACK around <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67038> (?)
+template <class T>
+constexpr bool __container_like() { return false; }
+template <class T>
+  requires Range<T&>() &&
+    Range<const T&>() &&
+    !Same<ReferenceType<IteratorType<T &>>,
+          ReferenceType<IteratorType<const T &>>>()
+constexpr bool __container_like() { return true; }
+template <class T>
+concept bool _ContainerLike = __container_like<T>();
+
+template <class T>
+  requires Range<T&>()
 struct is_view : is_view<detail::uncvref_t<T>> {};
 
-template <Range T>
-  requires _Unqual<T>
+template <class T>
+  requires Range<T&>() &&
+    _Unqual<T>
 struct is_view<T> : std::false_type {};
 
-template <Range T>
-  requires _Unqual<T> &&
+template <class T>
+  requires Range<T&>() &&
+    _Unqual<T> &&
     Semiregular<T>() &&
-    (DerivedFrom<T, view_base>() ||
-    Same<ReferenceType<IteratorType<T&>>,
-         ReferenceType<IteratorType<const T &>>>())
+    (DerivedFrom<T, view_base>() || !_ContainerLike<T>)
 struct is_view<T> : std::true_type {};
 
 template <class T>
 concept bool View() {
-  return Range<T>() &&
+  return Range<T&>() &&
     Semiregular<T>() &&
     is_view<T>::value;
 }
@@ -89,6 +107,11 @@ template <class>
 constexpr bool sized_range_like() { return false; }
 _SizedRangeLike{T}
 constexpr bool sized_range_like() { return true; }
+
+template <class>
+constexpr bool container_like() { return false; }
+_ContainerLike{T}
+constexpr bool container_like() { return true; }
 
 template <class>
 constexpr bool view() { return false; }
