@@ -1,3 +1,4 @@
+#include <vector>
 #include "validate.hpp"
 
 #if VALIDATE_RANGES
@@ -105,6 +106,20 @@ struct is_sized_range<mutable_only_badsized_range> :
 template <>
 struct is_sized_range<immutable_badsized_range> :
   std::false_type {};
+}
+
+struct strange_view
+{
+  std::vector<int>::iterator begin();
+  std::vector<int>::const_iterator begin() const;
+
+  std::vector<int>::iterator end();
+  std::vector<int>::const_iterator end() const;
+};
+
+namespace NAMESPACE {
+  template <>
+  struct is_view<strange_view> : std::true_type {};
 }
 
 int main() {
@@ -231,6 +246,13 @@ int main() {
   CHECK(!models::sized_range<immutable_badsized_range&>());
   CHECK(!models::sized_range<const immutable_badsized_range>());
   CHECK(!models::sized_range<const immutable_badsized_range&>());
+
+  CHECK(!models::view<std::vector<int>>());
+  CHECK(models::range<strange_view&>());
+  CHECK(models::view<strange_view>());
+  CHECK(!models::view<strange_view const>());
+  CHECK(!models::view<strange_view&>());
+  CHECK(!models::view<const strange_view&>());
 
   return ::test_result();
 }
