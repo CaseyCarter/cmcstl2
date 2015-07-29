@@ -152,7 +152,7 @@ int main() {
   CHECK(!models::sized_range<const mutable_unsized_range>());
   CHECK(!models::sized_range<const mutable_unsized_range&>());
 
-  CHECK(!models::range<mutable_only_unsized_range>());
+  CHECK(models::range<mutable_only_unsized_range>());
   CHECK(models::range<mutable_only_unsized_range&>());
   CHECK(!models::range<const mutable_only_unsized_range>());
   CHECK(!models::range<const mutable_only_unsized_range&>());
@@ -191,7 +191,7 @@ int main() {
   CHECK(models::sized_range<const mutable_sized_range>());
   CHECK(models::sized_range<const mutable_sized_range&>());
 
-  CHECK(!models::range<mutable_only_sized_range>());
+  CHECK(models::range<mutable_only_sized_range>());
   CHECK(models::range<mutable_only_sized_range&>());
   CHECK(!models::range<const mutable_only_sized_range>());
   CHECK(!models::range<const mutable_only_sized_range&>());
@@ -199,7 +199,7 @@ int main() {
   CHECK(models::sized_range_like<mutable_only_sized_range&>());
   CHECK(!models::sized_range_like<const mutable_only_sized_range>());
   CHECK(!models::sized_range_like<const mutable_only_sized_range&>());
-  CHECK(!models::sized_range<mutable_only_sized_range>());
+  CHECK(models::sized_range<mutable_only_sized_range>());
   CHECK(models::sized_range<mutable_only_sized_range&>());
   CHECK(!models::sized_range<const mutable_only_sized_range>());
   CHECK(!models::sized_range<const mutable_only_sized_range&>());
@@ -230,7 +230,7 @@ int main() {
   CHECK(!models::sized_range<const mutable_badsized_range>());
   CHECK(!models::sized_range<const mutable_badsized_range&>());
 
-  CHECK(!models::range<mutable_only_badsized_range>());
+  CHECK(models::range<mutable_only_badsized_range>());
   CHECK(models::range<mutable_only_badsized_range&>());
   CHECK(!models::range<const mutable_only_badsized_range>());
   CHECK(!models::range<const mutable_only_badsized_range&>());
@@ -269,8 +269,10 @@ int main() {
   CHECK(!models::view<const strange_view&>());
   CHECK(models::range<mutable_only_unsized_range&>());
   CHECK(!models::range<const mutable_only_unsized_range&>());
+  CHECK(models::range<mutable_only_unsized_range>());
   CHECK(models::view<mutable_only_unsized_range>());
   CHECK(!models::view<mutable_only_unsized_range&>());
+  CHECK(!models::view<mutable_only_unsized_range&&>());
   CHECK(!models::view<const mutable_only_unsized_range&>());
 
   return ::test_result();

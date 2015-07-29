@@ -15,9 +15,12 @@
 namespace stl2 { inline namespace v1 {
 
 template <class T>
-using IteratorType = decltype(begin(declval<T>()));
+meta::if_<std::is_reference<T>, T, T&> __val();
+
 template <class T>
-using SentinelType = decltype(end(declval<T>()));
+using IteratorType = decltype(begin(__val<T>()));
+template <class T>
+using SentinelType = decltype(end(__val<T>()));
 
 template <class T>
 concept bool Range() {
@@ -36,7 +39,7 @@ concept bool _Unqual = Same<T, detail::uncvref_t<T>>();
 
 template <class T>
 concept bool _SizedRangeLike =
-  Range<T&>() &&
+  Range<T>() &&
   requires (const T& t) {
     STL2_DEDUCTION_CONSTRAINT(size(t), Integral);
     STL2_CONVERSION_CONSTRAINT(size(t), DifferenceType<IteratorType<T&>>);
@@ -59,34 +62,30 @@ concept bool SizedRange() {
 // HACKHACK around <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67038> (?)
 template <class T>
 constexpr bool __container_like() { return false; }
-template <class T>
-  requires Range<T&>() &&
-    Range<const T&>() &&
-    !Same<ReferenceType<IteratorType<T &>>,
-          ReferenceType<IteratorType<const T &>>>()
+template <Range T>
+  requires Range<const T>() &&
+    !Same<ReferenceType<IteratorType<T>>,
+          ReferenceType<IteratorType<const T>>>()
 constexpr bool __container_like() { return true; }
 template <class T>
 concept bool _ContainerLike = __container_like<T>();
 
-template <class T>
-  requires Range<T&>()
+template <Range T>
 struct is_view : is_view<detail::uncvref_t<T>> {};
 
-template <class T>
-  requires Range<T&>() &&
-    _Unqual<T>
+template <Range T>
+  requires _Unqual<T>
 struct is_view<T> : std::false_type {};
 
-template <class T>
-  requires Range<T&>() &&
-    _Unqual<T> &&
+template <Range T>
+  requires _Unqual<T> &&
     Semiregular<T>() &&
     (DerivedFrom<T, view_base>() || !_ContainerLike<T>)
 struct is_view<T> : std::true_type {};
 
 template <class T>
 concept bool View() {
-  return Range<T&>() &&
+  return Range<T>() &&
     Semiregular<T>() &&
     is_view<T>::value;
 }
