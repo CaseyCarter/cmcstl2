@@ -24,30 +24,29 @@ concept bool Range() {
   return Sentinel<SentinelType<T>, IteratorType<T>>();
 }
 
-namespace detail {
 template <class T>
 concept bool _SizedRangeLike =
   Range<T&>() &&
-  requires (T& t) {
-    size(t);
+  requires (const T& t) {
     STL2_DEDUCTION_CONSTRAINT(size(t), Integral);
     STL2_CONVERSION_CONSTRAINT(size(t), DifferenceType<IteratorType<T&>>);
   };
-template <class T>
-concept bool _Unqual = Same<T, uncvref_t<T>>();
-}
 
-template <detail::_SizedRangeLike T>
+template <class T>
+concept bool _Unqual = Same<T, detail::uncvref_t<T>>();
+
+template <_SizedRangeLike T>
 struct is_sized_range : is_sized_range<detail::uncvref_t<T>> {};
 
-template <detail::_SizedRangeLike T>
-  requires detail::_Unqual<T>
+template <_SizedRangeLike T>
+  requires _Unqual<T>
 struct is_sized_range<T> : std::true_type {};
 
 template <class T>
 concept bool SizedRange() {
-  return detail::_SizedRangeLike<T>
-    && meta::_v<is_sized_range<T>>;
+  return Range<T>() &&
+    _SizedRangeLike<T> &&
+    is_sized_range<T>::value;
 }
 
 namespace ext { namespace models {
@@ -64,7 +63,7 @@ constexpr bool sized_range() { return true; }
 
 template <class>
 constexpr bool sized_range_like() { return false; }
-detail::_SizedRangeLike{T}
+_SizedRangeLike{T}
 constexpr bool sized_range_like() { return true; }
 
 }}}} // namespace stl2::v1::ext::models
