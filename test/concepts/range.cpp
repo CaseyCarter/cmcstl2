@@ -135,9 +135,18 @@ int main() {
   CHECK(!models::range<void>());
   CHECK(!models::sized_range<void>());
 
+  CHECK(!models::range<int[2]>());
+  CHECK(!models::range<const int[2]>());
   CHECK(models::range<int(&)[2]>());
+  CHECK(models::range<const int(&)[2]>());
   CHECK(models::sized_range_like<int(&)[2]>());
+  CHECK(!models::sized_range<int[2]>());
+  CHECK(!models::sized_range<const int[2]>());
   CHECK(models::sized_range<int(&)[2]>());
+  CHECK(models::sized_range<const int(&)[2]>());
+  CHECK(!models::view<int[2]>());
+  CHECK(!models::view<int(&)[2]>());
+  CHECK(!models::view<const int(&)[2]>());
 
   CHECK(models::range<mutable_unsized_range>());
   CHECK(models::range<mutable_unsized_range&>());

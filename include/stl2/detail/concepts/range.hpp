@@ -15,12 +15,9 @@
 namespace stl2 { inline namespace v1 {
 
 template <class T>
-meta::if_<std::is_reference<T>, T, T&> __val();
-
+using IteratorType = decltype(begin(declval<T>()));
 template <class T>
-using IteratorType = decltype(begin(__val<T>()));
-template <class T>
-using SentinelType = decltype(end(__val<T>()));
+using SentinelType = decltype(end(declval<T>()));
 
 template <class T>
 concept bool Range() {
@@ -47,6 +44,10 @@ concept bool _SizedRangeLike =
 
 template <_SizedRangeLike T>
 struct is_sized_range : is_sized_range<detail::uncvref_t<T>> {};
+
+template <class T>
+  requires _SizedRangeLike<T&> && std::is_array<T>::value
+struct is_sized_range<T&> : std::true_type {};
 
 template <_SizedRangeLike T>
   requires _Unqual<T>
