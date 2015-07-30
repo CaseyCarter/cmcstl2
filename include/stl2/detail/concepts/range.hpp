@@ -15,14 +15,23 @@
 namespace stl2 { inline namespace v1 {
 
 template <class T>
+  requires Iterator<decltype(begin(declval<T>()))>()
 using IteratorType = decltype(begin(declval<T>()));
 template <class T>
+  requires Sentinel<decltype(end(declval<T>())), IteratorType<T>>()
 using SentinelType = decltype(end(declval<T>()));
 
 template <class T>
 concept bool Range() {
-  return Sentinel<SentinelType<T>, IteratorType<T>>();
+  return requires { typename SentinelType<T>; };
 }
+
+// 20150729: Extension: DifferenceType<Range>.
+template <class T>
+  requires Range<T&>()
+struct difference_type<T> {
+  using type = DifferenceType<IteratorType<T&>>;
+};
 
 template <class T>
 concept bool _SizedRangeLike =
@@ -57,14 +66,14 @@ Range{T}
 constexpr bool range() { return true; }
 
 template <class>
-constexpr bool sized_range() { return false; }
-SizedRange{T}
-constexpr bool sized_range() { return true; }
-
-template <class>
 constexpr bool sized_range_like() { return false; }
 _SizedRangeLike{T}
 constexpr bool sized_range_like() { return true; }
+
+template <class>
+constexpr bool sized_range() { return false; }
+SizedRange{T}
+constexpr bool sized_range() { return true; }
 
 }}}} // namespace stl2::v1::ext::models
 

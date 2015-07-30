@@ -1,6 +1,7 @@
 #include "validate.hpp"
 
 #if VALIDATE_RANGES
+#include <range/v3/utility/concepts.hpp>
 #include <range/v3/range_concepts.hpp>
 #include <range/v3/range_traits.hpp>
 
@@ -17,6 +18,9 @@ using ranges::size;
 }
 
 namespace models {
+template <class T, class U>
+using same = ranges::Same<T, U>;
+
 template <class R>
 using range = ranges::Range<R>;
 
@@ -48,6 +52,7 @@ struct arbitrary_range {
 #define NAMESPACE stl2
 
 namespace ns {
+using stl2::DifferenceType;
 using stl2::IteratorType;
 using stl2::SentinelType;
 
@@ -108,129 +113,315 @@ struct is_sized_range<immutable_badsized_range> :
 }
 
 int main() {
-  CHECK(!models::range<void>());
-  CHECK(!models::sized_range<void>());
+  {
+    CHECK(!models::range<void>());
+    CHECK(!models::sized_range_like<void>());
+    CHECK(!models::sized_range<void>());
+  }
 
-  CHECK(models::range<int(&)[2]>());
-  CHECK(models::sized_range_like<int(&)[2]>());
-  CHECK(models::sized_range<int(&)[2]>());
+  using I = int*;
+  using CI = const int*;
 
-  CHECK(models::range<mutable_unsized_range>());
-  CHECK(models::range<mutable_unsized_range&>());
-  CHECK(models::range<const mutable_unsized_range>());
-  CHECK(models::range<const mutable_unsized_range&>());
-  CHECK(!models::sized_range_like<mutable_unsized_range>());
-  CHECK(!models::sized_range_like<mutable_unsized_range&>());
-  CHECK(!models::sized_range_like<const mutable_unsized_range>());
-  CHECK(!models::sized_range_like<const mutable_unsized_range&>());
-  CHECK(!models::sized_range<mutable_unsized_range>());
-  CHECK(!models::sized_range<mutable_unsized_range&>());
-  CHECK(!models::sized_range<const mutable_unsized_range>());
-  CHECK(!models::sized_range<const mutable_unsized_range&>());
+  {
+    using T = int[2];
 
-  CHECK(!models::range<mutable_only_unsized_range>());
-  CHECK(models::range<mutable_only_unsized_range&>());
-  CHECK(!models::range<const mutable_only_unsized_range>());
-  CHECK(!models::range<const mutable_only_unsized_range&>());
-  CHECK(!models::sized_range_like<mutable_only_unsized_range>());
-  CHECK(!models::sized_range_like<mutable_only_unsized_range&>());
-  CHECK(!models::sized_range_like<const mutable_only_unsized_range>());
-  CHECK(!models::sized_range_like<const mutable_only_unsized_range&>());
-  CHECK(!models::sized_range<mutable_only_unsized_range>());
-  CHECK(!models::sized_range<mutable_only_unsized_range&>());
-  CHECK(!models::sized_range<const mutable_only_unsized_range>());
-  CHECK(!models::sized_range<const mutable_only_unsized_range&>());
+    {
+      CHECK(!models::range<T>());
+      CHECK(models::sized_range_like<T>());
+      CHECK(!models::sized_range<T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<T&>, I>());
+      CHECK(models::same<ns::SentinelType<T&>, I>());
+      CHECK(models::range<T&>());
+      CHECK(models::sized_range_like<T&>());
+      CHECK(models::sized_range<T&>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T>, CI>());
+      CHECK(models::same<ns::SentinelType<const T>, CI>());
+      CHECK(models::range<const T>());
+      CHECK(models::sized_range_like<const T>());
+      CHECK(models::sized_range<const T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T&>, CI>());
+      CHECK(models::same<ns::SentinelType<const T&>, CI>());
+      CHECK(models::range<const T&>());
+      CHECK(models::sized_range_like<const T&>());
+      CHECK(models::sized_range<const T&>());
+    }
+  }
 
-  CHECK(models::range<immutable_unsized_range>());
-  CHECK(models::range<immutable_unsized_range&>());
-  CHECK(models::range<const immutable_unsized_range>());
-  CHECK(models::range<const immutable_unsized_range&>());
-  CHECK(!models::sized_range_like<immutable_unsized_range>());
-  CHECK(!models::sized_range_like<immutable_unsized_range&>());
-  CHECK(!models::sized_range_like<const immutable_unsized_range>());
-  CHECK(!models::sized_range_like<const immutable_unsized_range&>());
-  CHECK(!models::sized_range<immutable_unsized_range>());
-  CHECK(!models::sized_range<immutable_unsized_range&>());
-  CHECK(!models::sized_range<const immutable_unsized_range>());
-  CHECK(!models::sized_range<const immutable_unsized_range&>());
+  {
+    using T = mutable_unsized_range;
+    {
+      CHECK(models::same<ns::IteratorType<T>, CI>());
+      CHECK(models::same<ns::SentinelType<T>, CI>());
+      CHECK(models::range<T>());
+      CHECK(!models::sized_range_like<T>());
+      CHECK(!models::sized_range<T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<T&>, I>());
+      CHECK(models::same<ns::SentinelType<T&>, I>());
+      CHECK(models::range<T&>());
+      CHECK(!models::sized_range_like<T&>());
+      CHECK(!models::sized_range<T&>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T>, CI>());
+      CHECK(models::same<ns::SentinelType<const T>, CI>());
+      CHECK(models::range<const T>());
+      CHECK(!models::sized_range_like<const T>());
+      CHECK(!models::sized_range<const T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T&>, CI>());
+      CHECK(models::same<ns::SentinelType<const T&>, CI>());
+      CHECK(models::range<const T&>());
+      CHECK(!models::sized_range_like<const T&>());
+      CHECK(!models::sized_range<const T&>());
+    }
+  }
 
-  CHECK(models::range<mutable_sized_range>());
-  CHECK(models::range<mutable_sized_range&>());
-  CHECK(models::range<const mutable_sized_range>());
-  CHECK(models::range<const mutable_sized_range&>());
-  CHECK(models::sized_range_like<mutable_sized_range>());
-  CHECK(models::sized_range_like<mutable_sized_range&>());
-  CHECK(models::sized_range_like<const mutable_sized_range>());
-  CHECK(models::sized_range_like<const mutable_sized_range&>());
-  CHECK(models::sized_range<mutable_sized_range>());
-  CHECK(models::sized_range<mutable_sized_range&>());
-  CHECK(models::sized_range<const mutable_sized_range>());
-  CHECK(models::sized_range<const mutable_sized_range&>());
+  {
+    using T = mutable_only_unsized_range;
+    {
+      CHECK(!models::range<T>());
+      CHECK(!models::sized_range_like<T>());
+      CHECK(!models::sized_range<T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<T&>, I>());
+      CHECK(models::same<ns::SentinelType<T&>, I>());
+      CHECK(models::range<T&>());
+      CHECK(!models::sized_range_like<T&>());
+      CHECK(!models::sized_range<T&>());
+    }
+    {
+      CHECK(!models::range<const T>());
+      CHECK(!models::sized_range_like<const T>());
+      CHECK(!models::sized_range<const T>());
+    }
+    {
+      CHECK(!models::range<const T&>());
+      CHECK(!models::sized_range_like<const T&>());
+      CHECK(!models::sized_range<const T&>());
+    }
+  }
 
-  CHECK(!models::range<mutable_only_sized_range>());
-  CHECK(models::range<mutable_only_sized_range&>());
-  CHECK(!models::range<const mutable_only_sized_range>());
-  CHECK(!models::range<const mutable_only_sized_range&>());
-  CHECK(models::sized_range_like<mutable_only_sized_range>());
-  CHECK(models::sized_range_like<mutable_only_sized_range&>());
-  CHECK(!models::sized_range_like<const mutable_only_sized_range>());
-  CHECK(!models::sized_range_like<const mutable_only_sized_range&>());
-  CHECK(!models::sized_range<mutable_only_sized_range>());
-  CHECK(models::sized_range<mutable_only_sized_range&>());
-  CHECK(!models::sized_range<const mutable_only_sized_range>());
-  CHECK(!models::sized_range<const mutable_only_sized_range&>());
+  {
+    using T = immutable_unsized_range;
+    {
+      CHECK(models::same<ns::IteratorType<T>, CI>());
+      CHECK(models::same<ns::SentinelType<T>, CI>());
+      CHECK(models::range<T>());
+      CHECK(!models::sized_range_like<T>());
+      CHECK(!models::sized_range<T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<T&>, CI>());
+      CHECK(models::same<ns::SentinelType<T&>, CI>());
+      CHECK(models::range<T&>());
+      CHECK(!models::sized_range_like<T&>());
+      CHECK(!models::sized_range<T&>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T>, CI>());
+      CHECK(models::same<ns::SentinelType<const T>, CI>());
+      CHECK(models::range<const T>());
+      CHECK(!models::sized_range_like<const T>());
+      CHECK(!models::sized_range<const T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T&>, CI>());
+      CHECK(models::same<ns::SentinelType<const T&>, CI>());
+      CHECK(models::range<const T&>());
+      CHECK(!models::sized_range_like<const T&>());
+      CHECK(!models::sized_range<const T&>());
+    }
+  }
 
-  CHECK(models::range<immutable_sized_range>());
-  CHECK(models::range<immutable_sized_range&>());
-  CHECK(models::range<const immutable_sized_range>());
-  CHECK(models::range<const immutable_sized_range&>());
-  CHECK(models::sized_range_like<immutable_sized_range>());
-  CHECK(models::sized_range_like<immutable_sized_range&>());
-  CHECK(models::sized_range_like<const immutable_sized_range>());
-  CHECK(models::sized_range_like<const immutable_sized_range&>());
-  CHECK(models::sized_range<immutable_sized_range>());
-  CHECK(models::sized_range<immutable_sized_range&>());
-  CHECK(models::sized_range<const immutable_sized_range>());
-  CHECK(models::sized_range<const immutable_sized_range&>());
+  {
+    using T = mutable_sized_range;
+    {
+      CHECK(models::same<ns::IteratorType<T>, CI>());
+      CHECK(models::same<ns::SentinelType<T>, CI>());
+      CHECK(models::range<T>());
+      CHECK(models::sized_range_like<T>());
+      CHECK(models::sized_range<T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<T&>, I>());
+      CHECK(models::same<ns::SentinelType<T&>, I>());
+      CHECK(models::range<T&>());
+      CHECK(models::sized_range_like<T&>());
+      CHECK(models::sized_range<T&>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T>, CI>());
+      CHECK(models::same<ns::SentinelType<const T>, CI>());
+      CHECK(models::range<const T>());
+      CHECK(models::sized_range_like<const T>());
+      CHECK(models::sized_range<const T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T&>, CI>());
+      CHECK(models::same<ns::SentinelType<const T&>, CI>());
+      CHECK(models::range<const T&>());
+      CHECK(models::sized_range_like<const T&>());
+      CHECK(models::sized_range<const T&>());
+    }
+  }
 
-  CHECK(models::range<mutable_badsized_range>());
-  CHECK(models::range<mutable_badsized_range&>());
-  CHECK(models::range<const mutable_badsized_range>());
-  CHECK(models::range<const mutable_badsized_range&>());
-  CHECK(models::sized_range_like<mutable_badsized_range>());
-  CHECK(models::sized_range_like<mutable_badsized_range&>());
-  CHECK(models::sized_range_like<const mutable_badsized_range>());
-  CHECK(models::sized_range_like<const mutable_badsized_range&>());
-  CHECK(!models::sized_range<mutable_badsized_range>());
-  CHECK(!models::sized_range<mutable_badsized_range&>());
-  CHECK(!models::sized_range<const mutable_badsized_range>());
-  CHECK(!models::sized_range<const mutable_badsized_range&>());
+  {
+    using T = mutable_only_sized_range;
+    {
+      CHECK(!models::range<T>());
+      CHECK(models::sized_range_like<T>());
+      CHECK(!models::sized_range<T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<T&>, I>());
+      CHECK(models::same<ns::SentinelType<T&>, I>());
+      CHECK(models::range<T&>());
+      CHECK(models::sized_range_like<T&>());
+      CHECK(models::sized_range<T&>());
+    }
+    {
+      CHECK(!models::range<const T>());
+      CHECK(!models::sized_range_like<const T>());
+      CHECK(!models::sized_range<const T>());
+    }
+    {
+      CHECK(!models::range<const T&>());
+      CHECK(!models::sized_range_like<const T&>());
+      CHECK(!models::sized_range<const T&>());
+    }
+  }
 
-  CHECK(!models::range<mutable_only_badsized_range>());
-  CHECK(models::range<mutable_only_badsized_range&>());
-  CHECK(!models::range<const mutable_only_badsized_range>());
-  CHECK(!models::range<const mutable_only_badsized_range&>());
-  CHECK(models::sized_range_like<mutable_only_badsized_range>());
-  CHECK(models::sized_range_like<mutable_only_badsized_range&>());
-  CHECK(!models::sized_range_like<const mutable_only_badsized_range>());
-  CHECK(!models::sized_range_like<const mutable_only_badsized_range&>());
-  CHECK(!models::sized_range<mutable_only_badsized_range>());
-  CHECK(!models::sized_range<mutable_only_badsized_range&>());
-  CHECK(!models::sized_range<const mutable_only_badsized_range>());
-  CHECK(!models::sized_range<const mutable_only_badsized_range&>());
+  {
+    using T = immutable_sized_range;
+    {
+      CHECK(models::same<ns::IteratorType<T>, CI>());
+      CHECK(models::same<ns::SentinelType<T>, CI>());
+      CHECK(models::range<T>());
+      CHECK(models::sized_range_like<T>());
+      CHECK(models::sized_range<T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<T&>, CI>());
+      CHECK(models::same<ns::SentinelType<T&>, CI>());
+      CHECK(models::range<T&>());
+      CHECK(models::sized_range_like<T&>());
+      CHECK(models::sized_range<T&>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T>, CI>());
+      CHECK(models::same<ns::SentinelType<const T>, CI>());
+      CHECK(models::range<const T>());
+      CHECK(models::sized_range_like<const T>());
+      CHECK(models::sized_range<const T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T&>, CI>());
+      CHECK(models::same<ns::SentinelType<const T&>, CI>());
+      CHECK(models::range<const T&>());
+      CHECK(models::sized_range_like<const T&>());
+      CHECK(models::sized_range<const T&>());
+    }
+  }
 
-  CHECK(models::range<immutable_badsized_range>());
-  CHECK(models::range<immutable_badsized_range&>());
-  CHECK(models::range<const immutable_badsized_range>());
-  CHECK(models::range<const immutable_badsized_range&>());
-  CHECK(models::sized_range_like<immutable_badsized_range>());
-  CHECK(models::sized_range_like<immutable_badsized_range&>());
-  CHECK(models::sized_range_like<const immutable_badsized_range>());
-  CHECK(models::sized_range_like<const immutable_badsized_range&>());
-  CHECK(!models::sized_range<immutable_badsized_range>());
-  CHECK(!models::sized_range<immutable_badsized_range&>());
-  CHECK(!models::sized_range<const immutable_badsized_range>());
-  CHECK(!models::sized_range<const immutable_badsized_range&>());
+  {
+    using T = mutable_badsized_range;
+    {
+      CHECK(models::same<ns::IteratorType<T>, CI>());
+      CHECK(models::same<ns::SentinelType<T>, CI>());
+      CHECK(models::range<T>());
+      CHECK(models::sized_range_like<T>());
+      CHECK(!models::sized_range<T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<T&>, I>());
+      CHECK(models::same<ns::SentinelType<T&>, I>());
+      CHECK(models::range<T&>());
+      CHECK(models::sized_range_like<T&>());
+      CHECK(!models::sized_range<T&>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T>, CI>());
+      CHECK(models::same<ns::SentinelType<const T>, CI>());
+      CHECK(models::range<const T>());
+      CHECK(models::sized_range_like<const T>());
+      CHECK(!models::sized_range<const T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T&>, CI>());
+      CHECK(models::same<ns::SentinelType<const T&>, CI>());
+      CHECK(models::range<const T&>());
+      CHECK(models::sized_range_like<const T&>());
+      CHECK(!models::sized_range<const T&>());
+    }
+  }
+
+  {
+    using T = mutable_only_badsized_range;
+    {
+      CHECK(!models::range<T>());
+      CHECK(models::sized_range_like<T>());
+      CHECK(!models::sized_range<T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<T&>, I>());
+      CHECK(models::same<ns::SentinelType<T&>, I>());
+      CHECK(models::range<T&>());
+      CHECK(models::sized_range_like<T&>());
+      CHECK(!models::sized_range<T&>());
+    }
+    {
+      CHECK(!models::range<const T>());
+      CHECK(!models::sized_range_like<const T>());
+      CHECK(!models::sized_range<const T>());
+    }
+    {
+      CHECK(!models::range<const T&>());
+      CHECK(!models::sized_range_like<const T&>());
+      CHECK(!models::sized_range<const T&>());
+    }
+  }
+
+  {
+    using T = immutable_badsized_range;
+    {
+      CHECK(models::same<ns::IteratorType<T>, CI>());
+      CHECK(models::same<ns::SentinelType<T>, CI>());
+      CHECK(models::range<T>());
+      CHECK(models::sized_range_like<T>());
+      CHECK(!models::sized_range<T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<T&>, CI>());
+      CHECK(models::same<ns::SentinelType<T&>, CI>());
+      CHECK(models::range<T&>());
+      CHECK(models::sized_range_like<T&>());
+      CHECK(!models::sized_range<T&>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T>, CI>());
+      CHECK(models::same<ns::SentinelType<const T>, CI>());
+      CHECK(models::range<const T>());
+      CHECK(models::sized_range_like<const T>());
+      CHECK(!models::sized_range<const T>());
+    }
+    {
+      CHECK(models::same<ns::IteratorType<const T&>, CI>());
+      CHECK(models::same<ns::SentinelType<const T&>, CI>());
+      CHECK(models::range<const T&>());
+      CHECK(models::sized_range_like<const T&>());
+      CHECK(!models::sized_range<const T&>());
+    }
+  }
 
   return ::test_result();
 }
