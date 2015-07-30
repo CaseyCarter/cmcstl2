@@ -46,6 +46,7 @@ concept bool _Unqual = Same<T, detail::uncvref_t<T>>();
 template <class T>
 struct disable_sized_range :
   disable_sized_range<detail::uncvref_t<T>> {};
+
 template <_Unqual T>
 struct disable_sized_range<T> :
   std::false_type {};
@@ -76,28 +77,24 @@ constexpr bool __container_like() { return true; }
 template <class T>
 concept bool _ContainerLike = __container_like<T>();
 
-template <Range T>
-struct is_view : is_view<detail::uncvref_t<T>> {};
+template <class T>
+struct enable_view :
+  enable_view<detail::uncvref_t<T>> {};
 
-template <Range T>
-  requires _Unqual<T>
-struct is_view<T> : std::false_type {};
-
-template <Range T>
-  requires _Unqual<T> &&
-    Semiregular<T>() &&
-    (DerivedFrom<T, view_base>() || !_ContainerLike<T>)
-struct is_view<T> : std::true_type {};
+template <_Unqual T>
+struct enable_view<T> {};
 
 template <class T>
 concept bool View() {
   return Range<T>() &&
     Semiregular<T>() &&
-    is_view<T>::value;
+    ((meta::has_type<enable_view<T>>::value && enable_view<T>::type::value) ||
+     (!meta::has_type<enable_view<T>>::value &&
+      (DerivedFrom<T, view_base>() || !_ContainerLike<T>)));
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// Traits
+// Test Predicates
 //
 namespace ext { namespace models {
 

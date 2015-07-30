@@ -154,10 +154,18 @@ struct strange_view2 : ns::view_base
   std::vector<int>::const_iterator end() const;
 };
 
-namespace NAMESPACE {
+#if VALIDATE_STL2
+namespace stl2 {
+  template <>
+  struct enable_view<strange_view> : std::true_type {};
+}
+
+#elif VALIDATE_RANGES
+namespace ranges {
   template <>
   struct is_view<strange_view> : std::true_type {};
 }
+#endif
 
 int main() {
   {
