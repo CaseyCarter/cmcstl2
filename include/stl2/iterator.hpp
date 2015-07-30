@@ -221,34 +221,22 @@ template <class In, class Out>
 using is_nothrow_indirectly_movable_t = meta::_t<is_nothrow_indirectly_movable<In, Out>>;
 }
 
-// Dispatch to a helper function because there seems to be a problem with
-// negated constraints; e.g. IndirectlyMovable && !Swappable.
-namespace detail {
-  // __iter_swap2
-  template <class R1, class R2,
-    Readable _R1 = std::remove_reference_t<R1>,
-    Readable _R2 = std::remove_reference_t<R2>>
-    requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
-  void __iter_swap2(R1&& r1, R2&& r2, int)
-    noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>);
-
-  template <class R1, class R2,
-    Readable _R1 = std::remove_reference_t<R1>,
-    Readable _R2 = std::remove_reference_t<R2>>
-    requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>()
-  void __iter_swap2(R1&& r1, R2&& r2, long)
-    noexcept(ext::is_nothrow_indirectly_movable_v<_R1, _R2> &&
-             ext::is_nothrow_indirectly_movable_v<_R2, _R1>);
-}
-
 // iter_swap2
 template <class R1, class R2,
   Readable _R1 = std::remove_reference_t<R1>,
   Readable _R2 = std::remove_reference_t<R2>>
-  requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>() ||
-    (IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>())
+  requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(noexcept(detail::__iter_swap2((R1&&)r1, (R2&&)r2, 0)));
+  noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>);
+
+template <class R1, class R2,
+  Readable _R1 = std::remove_reference_t<R1>,
+  Readable _R2 = std::remove_reference_t<R2>>
+  requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>() &&
+    !Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
+void iter_swap2(R1&& r1, R2&& r2)
+  noexcept(ext::is_nothrow_indirectly_movable_v<_R1, _R2> &&
+           ext::is_nothrow_indirectly_movable_v<_R2, _R1>);
 
 template <class I1, class I2 = I1>
 concept bool IndirectlySwappable() {
@@ -544,6 +532,11 @@ constexpr bool writable() { return false; }
 Writable{O, T}
 constexpr bool writable() { return true; }
 
+template <class, class>
+constexpr bool indirectly_movable() { return false; }
+IndirectlyMovable{T, U}
+constexpr bool indirectly_movable() { return true; }
+
 template <class>
 constexpr bool weakly_incrementable() { return false; }
 WeaklyIncrementable{I}
@@ -626,39 +619,27 @@ detail::__iter_move_t<_R> iter_move(R&& r)
   return stl2::move(*r);
 }
 
-namespace detail {
-  // __iter_swap2
-  template <class R1, class R2,
-    Readable _R1 = std::remove_reference_t<R1>,
-    Readable _R2 = std::remove_reference_t<R2>>
-    requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
-  void __iter_swap2(R1&& r1, R2&& r2, int)
-    noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>) {
-    swap(*r1, *r2);
-  }
-
-  template <class R1, class R2,
-    Readable _R1 = std::remove_reference_t<R1>,
-    Readable _R2 = std::remove_reference_t<R2>>
-    requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>()
-  void __iter_swap2(R1&& r1, R2&& r2, long)
-    noexcept(ext::is_nothrow_indirectly_movable_v<_R1, _R2> &&
-             ext::is_nothrow_indirectly_movable_v<_R2, _R1>) {
-    ValueType<_R1> tmp = iter_move(r1);
-    *r1 = iter_move(r2);
-    *r2 = std::move(tmp);
-  }
-}
-
 // iter_swap2
 template <class R1, class R2,
   Readable _R1 = std::remove_reference_t<R1>,
   Readable _R2 = std::remove_reference_t<R2>>
-  requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>() ||
-    (IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>())
+  requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(noexcept(detail::__iter_swap2((R1&&)r1, (R2&&)r2, 0))) {
-  detail::__iter_swap2((R1&&)r1, (R2&&)r2, 0);
+  noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>) {
+  swap(*r1, *r2);
+}
+
+template <class R1, class R2,
+  Readable _R1 = std::remove_reference_t<R1>,
+  Readable _R2 = std::remove_reference_t<R2>>
+  requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>() &&
+    !Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
+void iter_swap2(R1&& r1, R2&& r2)
+  noexcept(ext::is_nothrow_indirectly_movable_v<_R1, _R2> &&
+           ext::is_nothrow_indirectly_movable_v<_R2, _R1>) {
+  ValueType<_R1> tmp = iter_move(r1);
+  *r1 = iter_move(r2);
+  *r2 = std::move(tmp);
 }
 
 // size

@@ -9,6 +9,8 @@
 
 #include "simple_test.hpp"
 
+namespace models = stl2::ext::models;
+
 template <class T>
 struct reference_wrapper {
   T* ptr_;
@@ -204,8 +206,6 @@ arbitrary_iterator<C> operator+(typename arbitrary_iterator<C>::difference_type,
                                 arbitrary_iterator<C>);
 
 void test_iterator_dispatch() {
-  namespace models = stl2::ext::models;
-
   CHECK(iterator_dispatch<void>() == category::none);
   CHECK(iterator_dispatch<int*>() == category::contiguous);
 
@@ -308,9 +308,7 @@ void test_copy() {
   }
 }
 
-int main() {
-  namespace models = stl2::ext::models;
-
+void test_iter_swap2() {
   {
     int a[] = { 42, 13 };
     stl2::iter_swap2(a + 0, a + 1);
@@ -370,7 +368,10 @@ int main() {
     CHECK(a[2] == 2);
     CHECK(a[3] == 1);
   }
+}
 
+int main() {
+  test_iter_swap2();
   test_iterator_dispatch();
   test_copy();
 
