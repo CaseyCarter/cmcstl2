@@ -51,7 +51,7 @@ template <_SizedRangeLike T>
 struct is_sized_range : is_sized_range<detail::uncvref_t<T>> {};
 
 template <class T>
-  requires _SizedRangeLike<T&> && std::is_array<T>::value
+  requires _SizedRangeLike<T&> && _Is<T, std::is_array>
 struct is_sized_range<T&> : std::true_type {};
 
 template <_SizedRangeLike T>

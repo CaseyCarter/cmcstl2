@@ -21,7 +21,7 @@ namespace stl2 { inline namespace v1 {
 // errors in the requires clause with odd types.
 template <class T>
 concept bool Destructible() {
-  return std::is_object<T>::value &&
+  return _Is<T, std::is_object> &&
     requires (T& t, const T& ct, T* const p) {
       { t.~T() } noexcept;
       STL2_EXACT_TYPE_CONSTRAINT(&t, T*); // not required to be equality preserving
@@ -43,10 +43,10 @@ concept bool ConstructibleObject =
 // FIXME: Correct wording.
 template <class T, class...Args>
 concept bool BindableReference =
-  std::is_reference<T>::value &&
+  _Is<T, std::is_reference> &&
   // requires (Args&&...args) { T{ (Args&&)args... }; };
   // requires (Args&&...args) { T( (Args&&)args... ); };
-  std::is_constructible<T, Args...>::value;
+  _Is<T, std::is_constructible, Args...>;
 }
 
 namespace detail {
@@ -195,26 +195,26 @@ namespace ext {
 
 template <class T>
 concept bool Scalar() {
-  return std::is_scalar<T>::value && Regular<T>();
+  return _Is<T, std::is_scalar> && Regular<T>();
 }
 
 template <class T>
 concept bool Arithmetic() {
-  return std::is_arithmetic<T>::value && Scalar<T>() && TotallyOrdered<T>();
+  return _Is<T, std::is_arithmetic> && Scalar<T>() && TotallyOrdered<T>();
 }
 
 }
 
 template <class T>
 concept bool Integral() {
-  return std::is_integral<T>::value && ext::Arithmetic<T>();
+  return _Is<T, std::is_integral> && ext::Arithmetic<T>();
 }
 
 #else
 
 template <class T>
 concept bool Integral() {
-  return std::is_integral<T>::value;
+  return _Is<T, std::is_integral>;
 }
 #endif
 

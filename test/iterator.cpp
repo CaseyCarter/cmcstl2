@@ -267,7 +267,6 @@ template <stl2::ext::ContiguousIterator I, stl2::Sentinel<I> S,
           stl2::ext::ContiguousIterator O>
   requires stl2::IndirectlyCopyable<I, O>() &&
     stl2::SizedIteratorRange<I, S>() &&
-    stl2::ext::ContiguousIterator<O>() &&
     stl2::Same<stl2::ValueType<I>, stl2::ValueType<O>>() &&
     std::is_trivially_copyable<stl2::ValueType<I>>::value
 bool copy(I first, S last, O o) {

@@ -80,12 +80,8 @@ using RvalueReferenceType =
 namespace detail {
 
 template <class T>
-concept bool NonVoid =
-  !std::is_void<T>::value;
-
-template <class T>
 concept bool IsValueType =
-  Same<T, std::decay_t<T>>() && NonVoid<T>;
+  Same<T, std::decay_t<T>>() && _IsNot<T, std::is_void>;
 
 template <class T>
 concept bool MemberValueType =
@@ -386,7 +382,7 @@ using std_iterator_category =
 // random_access_iterator_tag.
 template <class> struct iterator_category {};
 
-template <detail::NonVoid T>
+template <_IsNot<std::is_void> T>
 struct iterator_category<T*> {
   using type = ext::contiguous_iterator_tag;
 };
@@ -527,7 +523,8 @@ template <class I>
 concept bool ContiguousIterator() {
   return RandomAccessIterator<I>() &&
     DerivedFrom<IteratorCategory<I>, contiguous_iterator_tag>() &&
-    std::is_reference<ReferenceType<I>>::value; // or something
+    _Is<ReferenceType<I>, std::is_reference> &&
+    Same<ValueType<I>, std::decay_t<ReferenceType<I>>>();
 }
 
 namespace models {

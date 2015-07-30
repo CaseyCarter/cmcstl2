@@ -15,8 +15,8 @@
 #define STL2_IS_SAME_AS(T, U) __is_same_as(T, U)
 #define STL2_IS_BASE_OF(T, U) __is_base_of(T, U)
 #else
-#define STL2_IS_SAME_AS(T, U) std::is_same<T, U>::value
-#define STL2_IS_BASE_OF(T, U) std::is_base_of<T, U>::value
+#define STL2_IS_SAME_AS(T, U) _Is<T, std::is_same, U>
+#define STL2_IS_BASE_OF(T, U) _Is<T, std::is_base_of, U>
 #endif
 
 namespace stl2 { inline namespace v1 {
@@ -63,7 +63,7 @@ concept bool ImplicitlyConvertibleTo() {
   // Q: Why not { t } -> U ?
   // A: They do not have equivalent results as of 20150724,
   //    which I think is a bug.
-  return std::is_convertible<T, U>::value;
+  return _Is<T, std::is_convertible, U>;
 }
 
 } // namespace ext
