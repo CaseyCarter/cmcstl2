@@ -10,15 +10,6 @@
 
 namespace stl2 { inline namespace v1 {
 
-template <template <class...> class T, class... U>
-concept bool _Valid = requires { typename T<U...>; };
-
-template <class U, template <class...> class T, class... V>
-concept bool _Is = _Valid<T, U, V...> && meta::_v<T<U, V...>>;
-
-template <class U, template <class...> class T, class... V>
-concept bool _IsNot = !_Is<U, T, V...>;
-
 template <class T>
 struct __unary {
   template <class U>
