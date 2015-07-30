@@ -29,7 +29,7 @@ auto begin(T&& t) noexcept(noexcept(move(t).begin())) {
 }
 
 template <_Is<std::is_object> T>
-  requires requires (T&& t) { {move(t).begin()} -> auto&&; }
+  requires requires (T&& t) { {move(t).end()} -> auto&&; }
 auto end(T&& t) noexcept(noexcept(move(t).end())) {
   return move(t).end();
 }
