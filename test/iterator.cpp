@@ -113,15 +113,12 @@ enum class category {
 
 template <class>
 constexpr category iterator_dispatch() { return category::none; }
-#if 0
-// These don't overload properly thanks to GCC bug 67038.
 template <stl2::WeakOutputIterator<int> I>
   requires !stl2::WeakInputIterator<I>()
 constexpr category iterator_dispatch() { return category::weak_output; }
 template <stl2::OutputIterator<int> I>
   requires !stl2::WeakInputIterator<I>()
 constexpr category iterator_dispatch() { return category::output; }
-#endif
 template <stl2::WeakInputIterator>
 constexpr category iterator_dispatch() { return category::weak_input; }
 template <stl2::InputIterator>
