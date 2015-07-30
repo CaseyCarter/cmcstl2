@@ -108,6 +108,7 @@ constexpr bool sized_range() { return false; }
 SizedRange{T}
 constexpr bool sized_range() { return true; }
 
+template <class>
 constexpr bool container_like() { return false; }
 _ContainerLike{T}
 constexpr bool container_like() { return true; }
