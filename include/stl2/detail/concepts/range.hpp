@@ -9,11 +9,14 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/iterator.hpp>
 
-/////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 // Range concepts [iterables]
 //
 namespace stl2 { inline namespace v1 {
 
+///////////////////////////////////////////////////////////////////////////
+// Range
+//
 template <class T>
   requires Iterator<decltype(begin(declval<T>()))>()
 using IteratorType = decltype(begin(declval<T>()));
@@ -34,36 +37,33 @@ struct difference_type<T> {
   using type = DifferenceType<IteratorType<T&>>;
 };
 
-struct view_base {};
-
 template <class T>
 concept bool _Unqual = Same<T, detail::uncvref_t<T>>();
 
+///////////////////////////////////////////////////////////////////////////
+// SizedRange
+//
 template <class T>
-concept bool _SizedRangeLike =
-  Range<T>() &&
-  requires (const T& t) {
-    STL2_DEDUCTION_CONSTRAINT(size(t), Integral);
-    STL2_CONVERSION_CONSTRAINT(size(t), DifferenceType<IteratorType<T&>>);
-  };
+struct disable_sized_range :
+  disable_sized_range<detail::uncvref_t<T>> {};
+template <_Unqual T>
+struct disable_sized_range<T> :
+  std::false_type {};
 
-template <_SizedRangeLike T>
-struct is_sized_range : is_sized_range<detail::uncvref_t<T>> {};
-
-template <class T>
-  requires _SizedRangeLike<T&> && _Is<T, std::is_array>
-struct is_sized_range<T&> : std::true_type {};
-
-template <_SizedRangeLike T>
-  requires _Unqual<T>
-struct is_sized_range<T> : std::true_type {};
-
-template <class T>
+template <class R>
 concept bool SizedRange() {
-  return Range<T>() &&
-    _SizedRangeLike<T> &&
-    is_sized_range<T>::value;
+  return _IsNot<R, disable_sized_range> &&
+    Range<R>() &&
+    requires (const std::remove_reference_t<R>& r) {
+      STL2_DEDUCTION_CONSTRAINT(size(r), Integral);
+      STL2_CONVERSION_CONSTRAINT(size(r), DifferenceType<IteratorType<R&>>);
+    };
 }
+
+///////////////////////////////////////////////////////////////////////////
+// View
+//
+struct view_base {};
 
 // HACKHACK around <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67038> (?)
 template <class T>
@@ -96,17 +96,15 @@ concept bool View() {
     is_view<T>::value;
 }
 
+///////////////////////////////////////////////////////////////////////////
+// Traits
+//
 namespace ext { namespace models {
 
 template <class>
 constexpr bool range() { return false; }
 Range{T}
 constexpr bool range() { return true; }
-
-template <class>
-constexpr bool sized_range_like() { return false; }
-_SizedRangeLike{T}
-constexpr bool sized_range_like() { return true; }
 
 template <class>
 constexpr bool sized_range() { return false; }

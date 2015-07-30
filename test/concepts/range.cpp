@@ -109,7 +109,21 @@ struct mutable_only_badsized_range :
 struct immutable_badsized_range :
   immutable_sized_range {};
 
-namespace NAMESPACE {
+#if VALIDATE_STL2
+namespace stl2 {
+template <>
+struct disable_sized_range<mutable_badsized_range> :
+  std::true_type {};
+template <>
+struct disable_sized_range<mutable_only_badsized_range> :
+  std::true_type {};
+template <>
+struct disable_sized_range<immutable_badsized_range> :
+  std::true_type {};
+}
+
+#elif VALIDATE_RANGES
+namespace ranges {
 template <>
 struct is_sized_range<mutable_badsized_range> :
   std::false_type {};
@@ -120,6 +134,7 @@ template <>
 struct is_sized_range<immutable_badsized_range> :
   std::false_type {};
 }
+#endif
 
 struct strange_view
 {
@@ -147,7 +162,6 @@ namespace NAMESPACE {
 int main() {
   {
     CHECK(!models::range<void>());
-    CHECK(!models::sized_range_like<void>());
     CHECK(!models::sized_range<void>());
   }
 
@@ -159,7 +173,6 @@ int main() {
 
     {
       CHECK(!models::range<T>());
-      CHECK(!models::sized_range_like<T>());
       CHECK(!models::sized_range<T>());
       CHECK(!models::view<T>());
     }
@@ -167,13 +180,11 @@ int main() {
       CHECK(models::same<ns::IteratorType<T&>, I>());
       CHECK(models::same<ns::SentinelType<T&>, I>());
       CHECK(models::range<T&>());
-      CHECK(models::sized_range_like<T&>());
       CHECK(models::sized_range<T&>());
       CHECK(!models::view<T&>());
     }
     {
       CHECK(!models::range<const T>());
-      CHECK(!models::sized_range_like<const T>());
       CHECK(!models::sized_range<const T>());
       CHECK(!models::view<const T>());
     }
@@ -181,7 +192,6 @@ int main() {
       CHECK(models::same<ns::IteratorType<const T&>, CI>());
       CHECK(models::same<ns::SentinelType<const T&>, CI>());
       CHECK(models::range<const T&>());
-      CHECK(models::sized_range_like<const T&>());
       CHECK(models::sized_range<const T&>());
       CHECK(!models::view<const T&>());
     }
@@ -193,28 +203,24 @@ int main() {
       CHECK(models::same<ns::IteratorType<T>, I>());
       CHECK(models::same<ns::SentinelType<T>, I>());
       CHECK(models::range<T>());
-      CHECK(!models::sized_range_like<T>());
       CHECK(!models::sized_range<T>());
     }
     {
       CHECK(models::same<ns::IteratorType<T&>, I>());
       CHECK(models::same<ns::SentinelType<T&>, I>());
       CHECK(models::range<T&>());
-      CHECK(!models::sized_range_like<T&>());
       CHECK(!models::sized_range<T&>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T>, CI>());
       CHECK(models::same<ns::SentinelType<const T>, CI>());
       CHECK(models::range<const T>());
-      CHECK(!models::sized_range_like<const T>());
       CHECK(!models::sized_range<const T>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T&>, CI>());
       CHECK(models::same<ns::SentinelType<const T&>, CI>());
       CHECK(models::range<const T&>());
-      CHECK(!models::sized_range_like<const T&>());
       CHECK(!models::sized_range<const T&>());
     }
   }
@@ -225,24 +231,20 @@ int main() {
       CHECK(models::same<ns::IteratorType<T&>, I>());
       CHECK(models::same<ns::SentinelType<T&>, I>());
       CHECK(models::range<T>());
-      CHECK(!models::sized_range_like<T>());
       CHECK(!models::sized_range<T>());
     }
     {
       CHECK(models::same<ns::IteratorType<T&>, I>());
       CHECK(models::same<ns::SentinelType<T&>, I>());
       CHECK(models::range<T&>());
-      CHECK(!models::sized_range_like<T&>());
       CHECK(!models::sized_range<T&>());
     }
     {
       CHECK(!models::range<const T>());
-      CHECK(!models::sized_range_like<const T>());
       CHECK(!models::sized_range<const T>());
     }
     {
       CHECK(!models::range<const T&>());
-      CHECK(!models::sized_range_like<const T&>());
       CHECK(!models::sized_range<const T&>());
     }
   }
@@ -253,28 +255,24 @@ int main() {
       CHECK(models::same<ns::IteratorType<T>, CI>());
       CHECK(models::same<ns::SentinelType<T>, CI>());
       CHECK(models::range<T>());
-      CHECK(!models::sized_range_like<T>());
       CHECK(!models::sized_range<T>());
     }
     {
       CHECK(models::same<ns::IteratorType<T&>, CI>());
       CHECK(models::same<ns::SentinelType<T&>, CI>());
       CHECK(models::range<T&>());
-      CHECK(!models::sized_range_like<T&>());
       CHECK(!models::sized_range<T&>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T>, CI>());
       CHECK(models::same<ns::SentinelType<const T>, CI>());
       CHECK(models::range<const T>());
-      CHECK(!models::sized_range_like<const T>());
       CHECK(!models::sized_range<const T>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T&>, CI>());
       CHECK(models::same<ns::SentinelType<const T&>, CI>());
       CHECK(models::range<const T&>());
-      CHECK(!models::sized_range_like<const T&>());
       CHECK(!models::sized_range<const T&>());
     }
   }
@@ -285,28 +283,24 @@ int main() {
       CHECK(models::same<ns::IteratorType<T>, I>());
       CHECK(models::same<ns::SentinelType<T>, I>());
       CHECK(models::range<T>());
-      CHECK(models::sized_range_like<T>());
       CHECK(models::sized_range<T>());
     }
     {
       CHECK(models::same<ns::IteratorType<T&>, I>());
       CHECK(models::same<ns::SentinelType<T&>, I>());
       CHECK(models::range<T&>());
-      CHECK(models::sized_range_like<T&>());
       CHECK(models::sized_range<T&>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T>, CI>());
       CHECK(models::same<ns::SentinelType<const T>, CI>());
       CHECK(models::range<const T>());
-      CHECK(models::sized_range_like<const T>());
       CHECK(models::sized_range<const T>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T&>, CI>());
       CHECK(models::same<ns::SentinelType<const T&>, CI>());
       CHECK(models::range<const T&>());
-      CHECK(models::sized_range_like<const T&>());
       CHECK(models::sized_range<const T&>());
     }
   }
@@ -317,24 +311,20 @@ int main() {
       CHECK(models::same<ns::IteratorType<T>, I>());
       CHECK(models::same<ns::SentinelType<T>, I>());
       CHECK(models::range<T>());
-      CHECK(models::sized_range_like<T>());
       CHECK(models::sized_range<T>());
     }
     {
       CHECK(models::same<ns::IteratorType<T&>, I>());
       CHECK(models::same<ns::SentinelType<T&>, I>());
       CHECK(models::range<T&>());
-      CHECK(models::sized_range_like<T&>());
       CHECK(models::sized_range<T&>());
     }
     {
       CHECK(!models::range<const T>());
-      CHECK(!models::sized_range_like<const T>());
       CHECK(!models::sized_range<const T>());
     }
     {
       CHECK(!models::range<const T&>());
-      CHECK(!models::sized_range_like<const T&>());
       CHECK(!models::sized_range<const T&>());
     }
   }
@@ -345,28 +335,24 @@ int main() {
       CHECK(models::same<ns::IteratorType<T>, CI>());
       CHECK(models::same<ns::SentinelType<T>, CI>());
       CHECK(models::range<T>());
-      CHECK(models::sized_range_like<T>());
       CHECK(models::sized_range<T>());
     }
     {
       CHECK(models::same<ns::IteratorType<T&>, CI>());
       CHECK(models::same<ns::SentinelType<T&>, CI>());
       CHECK(models::range<T&>());
-      CHECK(models::sized_range_like<T&>());
       CHECK(models::sized_range<T&>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T>, CI>());
       CHECK(models::same<ns::SentinelType<const T>, CI>());
       CHECK(models::range<const T>());
-      CHECK(models::sized_range_like<const T>());
       CHECK(models::sized_range<const T>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T&>, CI>());
       CHECK(models::same<ns::SentinelType<const T&>, CI>());
       CHECK(models::range<const T&>());
-      CHECK(models::sized_range_like<const T&>());
       CHECK(models::sized_range<const T&>());
     }
   }
@@ -377,28 +363,24 @@ int main() {
       CHECK(models::same<ns::IteratorType<T>, I>());
       CHECK(models::same<ns::SentinelType<T>, I>());
       CHECK(models::range<T>());
-      CHECK(models::sized_range_like<T>());
       CHECK(!models::sized_range<T>());
     }
     {
       CHECK(models::same<ns::IteratorType<T&>, I>());
       CHECK(models::same<ns::SentinelType<T&>, I>());
       CHECK(models::range<T&>());
-      CHECK(models::sized_range_like<T&>());
       CHECK(!models::sized_range<T&>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T>, CI>());
       CHECK(models::same<ns::SentinelType<const T>, CI>());
       CHECK(models::range<const T>());
-      CHECK(models::sized_range_like<const T>());
       CHECK(!models::sized_range<const T>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T&>, CI>());
       CHECK(models::same<ns::SentinelType<const T&>, CI>());
       CHECK(models::range<const T&>());
-      CHECK(models::sized_range_like<const T&>());
       CHECK(!models::sized_range<const T&>());
     }
   }
@@ -409,24 +391,20 @@ int main() {
       CHECK(models::same<ns::IteratorType<T>, I>());
       CHECK(models::same<ns::SentinelType<T>, I>());
       CHECK(models::range<T>());
-      CHECK(models::sized_range_like<T>());
       CHECK(!models::sized_range<T>());
     }
     {
       CHECK(models::same<ns::IteratorType<T&>, I>());
       CHECK(models::same<ns::SentinelType<T&>, I>());
       CHECK(models::range<T&>());
-      CHECK(models::sized_range_like<T&>());
       CHECK(!models::sized_range<T&>());
     }
     {
       CHECK(!models::range<const T>());
-      CHECK(!models::sized_range_like<const T>());
       CHECK(!models::sized_range<const T>());
     }
     {
       CHECK(!models::range<const T&>());
-      CHECK(!models::sized_range_like<const T&>());
       CHECK(!models::sized_range<const T&>());
     }
   }
@@ -437,28 +415,24 @@ int main() {
       CHECK(models::same<ns::IteratorType<T>, CI>());
       CHECK(models::same<ns::SentinelType<T>, CI>());
       CHECK(models::range<T>());
-      CHECK(models::sized_range_like<T>());
       CHECK(!models::sized_range<T>());
     }
     {
       CHECK(models::same<ns::IteratorType<T&>, CI>());
       CHECK(models::same<ns::SentinelType<T&>, CI>());
       CHECK(models::range<T&>());
-      CHECK(models::sized_range_like<T&>());
       CHECK(!models::sized_range<T&>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T>, CI>());
       CHECK(models::same<ns::SentinelType<const T>, CI>());
       CHECK(models::range<const T>());
-      CHECK(models::sized_range_like<const T>());
       CHECK(!models::sized_range<const T>());
     }
     {
       CHECK(models::same<ns::IteratorType<const T&>, CI>());
       CHECK(models::same<ns::SentinelType<const T&>, CI>());
       CHECK(models::range<const T&>());
-      CHECK(models::sized_range_like<const T&>());
       CHECK(!models::sized_range<const T&>());
     }
   }
