@@ -66,16 +66,11 @@ concept bool SizedRange() {
 //
 struct view_base {};
 
-// HACKHACK around <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67038> (?)
 template <class T>
-constexpr bool __container_like() { return false; }
-template <Range T>
-  requires Range<const T>() &&
-    !Same<ReferenceType<IteratorType<T>>,
-          ReferenceType<IteratorType<const T>>>()
-constexpr bool __container_like() { return true; }
-template <class T>
-concept bool _ContainerLike = __container_like<T>();
+concept bool _ContainerLike =
+  Range<T>() && Range<const T>() &&
+  !Same<ReferenceType<IteratorType<T>>,
+        ReferenceType<IteratorType<const T>>>();
 
 template <class T>
 struct enable_view :
@@ -85,12 +80,29 @@ template <_Unqual T>
 struct enable_view<T> {};
 
 template <class T>
+concept bool _HasMemberType =
+  requires { typename T::type; };
+
+template <class T>
+struct __enable_view_predicate :
+  std::true_type {};
+
+template <class T>
+  requires _HasMemberType<enable_view<T>>
+struct __enable_view_predicate<T> :
+  enable_view<T> {};
+
+template <_ContainerLike T>
+  requires !DerivedFrom<T, view_base>() &&
+    !_HasMemberType<enable_view<T>>
+struct __enable_view_predicate<T> :
+   std::false_type {};
+
+template <class T>
 concept bool View() {
   return Range<T>() &&
     Semiregular<T>() &&
-    ((meta::has_type<enable_view<T>>::value && enable_view<T>::type::value) ||
-     (!meta::has_type<enable_view<T>>::value &&
-      (DerivedFrom<T, view_base>() || !_ContainerLike<T>)));
+    __enable_view_predicate<T>::value;
 }
 
 ///////////////////////////////////////////////////////////////////////////
