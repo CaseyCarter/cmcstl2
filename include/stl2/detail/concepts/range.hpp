@@ -76,25 +76,25 @@ template <class T>
 struct enable_view {};
 
 template <class T>
-struct __enable_view_predicate :
+struct __view_predicate :
   std::true_type {};
 
 template <class T>
   requires _Valid<meta::_t, enable_view<T>>
-struct __enable_view_predicate<T> :
+struct __view_predicate<T> :
   enable_view<T> {};
 
 template <_ContainerLike T>
-  requires !DerivedFrom<T, view_base>() &&
-    !_Valid<meta::_t, enable_view<T>>
-struct __enable_view_predicate<T> :
+  requires !(DerivedFrom<T, view_base>() ||
+             _Valid<meta::_t, enable_view<T>>)
+struct __view_predicate<T> :
    std::false_type {};
 
 template <class T>
 concept bool View() {
   return Range<T>() &&
     Semiregular<T>() &&
-    __enable_view_predicate<T>::value;
+    __view_predicate<T>::value;
 }
 
 ///////////////////////////////////////////////////////////////////////////
