@@ -80,21 +80,17 @@ template <_Unqual T>
 struct enable_view<T> {};
 
 template <class T>
-concept bool _HasMemberType =
-  requires { typename T::type; };
-
-template <class T>
 struct __enable_view_predicate :
   std::true_type {};
 
 template <class T>
-  requires _HasMemberType<enable_view<T>>
+  requires _Valid<meta::_t, enable_view<T>>
 struct __enable_view_predicate<T> :
   enable_view<T> {};
 
 template <_ContainerLike T>
   requires !DerivedFrom<T, view_base>() &&
-    !_HasMemberType<enable_view<T>>
+    !_Valid<meta::_t, enable_view<T>>
 struct __enable_view_predicate<T> :
    std::false_type {};
 
