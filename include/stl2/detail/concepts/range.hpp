@@ -68,9 +68,9 @@ struct view_base {};
 
 template <class T>
 concept bool _ContainerLike =
-  Range<T>() && Range<const T>() &&
-  !Same<ReferenceType<IteratorType<T>>,
-        ReferenceType<IteratorType<const T>>>();
+  Range<T&>() && Range<const T&>() &&
+  !Same<ReferenceType<IteratorType<T&>>,
+        ReferenceType<IteratorType<const T&>>>();
 
 template <class T>
 struct enable_view {};
@@ -92,7 +92,7 @@ struct __view_predicate<T> :
 
 template <class T>
 concept bool View() {
-  return Range<T>() &&
+  return Range<T&>() &&
     Semiregular<T>() &&
     __view_predicate<T>::value;
 }
