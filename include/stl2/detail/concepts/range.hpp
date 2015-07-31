@@ -73,11 +73,7 @@ concept bool _ContainerLike =
         ReferenceType<IteratorType<const T>>>();
 
 template <class T>
-struct enable_view :
-  enable_view<detail::uncvref_t<T>> {};
-
-template <_Unqual T>
-struct enable_view<T> {};
+struct enable_view {};
 
 template <class T>
 struct __enable_view_predicate :
