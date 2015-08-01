@@ -20,6 +20,9 @@ namespace stl2 { inline namespace v1 {
 #ifndef STL2_STRICT_RANGE
 #define STL2_STRICT_RANGE 0
 #endif
+#ifndef STL2_STRICT_VIEW
+#define STL2_STRICT_VIEW 0
+#endif
 
 template <class T>
   requires Iterator<decltype(begin(declval<T&>()))>()
@@ -62,7 +65,11 @@ template <class R>
 concept bool SizedRange() {
   return _IsNot<R, disable_sized_range> &&
     Range<R>() &&
+#if STL2_STRICT_RANGE
+    requires (const R& r) {
+#else
     requires (const std::remove_reference_t<R>& r) {
+#endif
       STL2_DEDUCTION_CONSTRAINT(size(r), Integral);
       STL2_CONVERSION_CONSTRAINT(size(r), DifferenceType<IteratorType<R>>);
     };
@@ -100,7 +107,7 @@ struct __view_predicate<T> :
 template <class T>
 concept bool View() {
   return Range<T>() &&
-#if STL2_STRICT_RANGE
+#if STL2_STRICT_RANGE || STL2_STRICT_VIEW
     Semiregular<T>() &&
     __view_predicate<T>::value;
 #else

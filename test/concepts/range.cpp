@@ -244,7 +244,7 @@ void ridiculously_exhaustive_range_property_test() {
   CHECK(models::range<mutable_only_unsized_range&>() == !STL2_STRICT_RANGE);
   CHECK(!models::sized_range<mutable_only_unsized_range&>());
   CHECK(!models::container_like<mutable_only_unsized_range&>());
-  CHECK(models::view<mutable_only_unsized_range&>() == !STL2_STRICT_RANGE);
+  CHECK(models::view<mutable_only_unsized_range&>() == !(STL2_STRICT_RANGE || STL2_STRICT_VIEW));
 
   CHECK(!models::range<const mutable_only_unsized_range>());
   CHECK(!models::sized_range<const mutable_only_unsized_range>());
@@ -269,7 +269,7 @@ void ridiculously_exhaustive_range_property_test() {
   CHECK(models::range<immutable_unsized_range&>() == !STL2_STRICT_RANGE);
   CHECK(!models::sized_range<immutable_unsized_range&>());
   CHECK(!models::container_like<immutable_unsized_range&>());
-  CHECK(models::view<immutable_unsized_range&>() == !STL2_STRICT_RANGE);
+  CHECK(models::view<immutable_unsized_range&>() == !(STL2_STRICT_RANGE || STL2_STRICT_VIEW));
 
   CHECK(models::same<ns::IteratorType<const immutable_unsized_range>, CI>());
   CHECK(models::same<ns::SentinelType<const immutable_unsized_range>, CI>());
@@ -327,7 +327,7 @@ void ridiculously_exhaustive_range_property_test() {
   CHECK(models::range<mutable_only_sized_range&>() == !STL2_STRICT_RANGE);
   CHECK(models::sized_range<mutable_only_sized_range&>() == !STL2_STRICT_RANGE);
   CHECK(!models::container_like<mutable_only_sized_range&>());
-  CHECK(models::view<mutable_only_sized_range&>() == !STL2_STRICT_RANGE);
+  CHECK(models::view<mutable_only_sized_range&>() == !(STL2_STRICT_RANGE || STL2_STRICT_VIEW));
 
   CHECK(!models::range<const mutable_only_sized_range>());
   CHECK(!models::sized_range<const mutable_only_sized_range>());
@@ -352,7 +352,7 @@ void ridiculously_exhaustive_range_property_test() {
   CHECK(models::range<immutable_sized_range&>() == !STL2_STRICT_RANGE);
   CHECK(models::sized_range<immutable_sized_range&>() == !STL2_STRICT_RANGE);
   CHECK(!models::container_like<immutable_sized_range&>());
-  CHECK(models::view<immutable_sized_range&>() == !STL2_STRICT_RANGE);
+  CHECK(models::view<immutable_sized_range&>() == !(STL2_STRICT_RANGE || STL2_STRICT_VIEW));
 
   CHECK(models::same<ns::IteratorType<const immutable_sized_range>, CI>());
   CHECK(models::same<ns::SentinelType<const immutable_sized_range>, CI>());
@@ -410,7 +410,7 @@ void ridiculously_exhaustive_range_property_test() {
   CHECK(models::range<mutable_only_badsized_range&>() == !STL2_STRICT_RANGE);
   CHECK(!models::sized_range<mutable_only_badsized_range&>());
   CHECK(!models::container_like<mutable_only_badsized_range&>());
-  CHECK(models::view<mutable_only_badsized_range&>() == !STL2_STRICT_RANGE);
+  CHECK(models::view<mutable_only_badsized_range&>() == !(STL2_STRICT_RANGE || STL2_STRICT_VIEW));
 
   CHECK(!models::range<const mutable_only_badsized_range>());
   CHECK(!models::sized_range<const mutable_only_badsized_range>());
@@ -435,7 +435,7 @@ void ridiculously_exhaustive_range_property_test() {
   CHECK(models::range<immutable_badsized_range&>() == !STL2_STRICT_RANGE);
   CHECK(!models::sized_range<immutable_badsized_range&>());
   CHECK(!models::container_like<immutable_badsized_range&>());
-  CHECK(models::view<immutable_badsized_range&>() == !STL2_STRICT_RANGE);
+  CHECK(models::view<immutable_badsized_range&>() == !(STL2_STRICT_RANGE || STL2_STRICT_VIEW));
 
   CHECK(models::same<ns::IteratorType<const immutable_badsized_range>, CI>());
   CHECK(models::same<ns::SentinelType<const immutable_badsized_range>, CI>());
@@ -463,13 +463,13 @@ void ridiculously_exhaustive_range_property_test() {
   CHECK(models::range<strange_view>());
   CHECK(models::range<strange_view&>() == !STL2_STRICT_RANGE);
   CHECK(models::view<strange_view>());
-  CHECK(models::view<strange_view&>() == !STL2_STRICT_RANGE);
+  CHECK(models::view<strange_view&>() == !(STL2_STRICT_RANGE || STL2_STRICT_VIEW));
   CHECK(!models::view<const strange_view>());
 
   CHECK(models::range<strange_view2>());
   CHECK(models::range<strange_view2&>() == !STL2_STRICT_RANGE);
   CHECK(models::view<strange_view2>());
-  CHECK(models::view<strange_view2&>() == !STL2_STRICT_RANGE);
+  CHECK(models::view<strange_view2&>() == !(STL2_STRICT_RANGE || STL2_STRICT_VIEW));
   CHECK(!models::view<const strange_view2>());
 
   CHECK(models::range<strange_view3>());
@@ -481,8 +481,8 @@ void ridiculously_exhaustive_range_property_test() {
   CHECK(models::range<mutable_only_unsized_range&>() == !STL2_STRICT_RANGE);
   CHECK(models::range<mutable_only_unsized_range>());
   CHECK(models::view<mutable_only_unsized_range>());
-  CHECK(models::view<mutable_only_unsized_range&>() == !STL2_STRICT_RANGE);
-  CHECK(models::view<mutable_only_unsized_range&&>() == !STL2_STRICT_RANGE);
+  CHECK(models::view<mutable_only_unsized_range&>() == !(STL2_STRICT_RANGE || STL2_STRICT_VIEW));
+  CHECK(models::view<mutable_only_unsized_range&&>() == !(STL2_STRICT_RANGE || STL2_STRICT_VIEW));
   CHECK(!models::range<const mutable_only_unsized_range&>());
   CHECK(!models::view<const mutable_only_unsized_range&>());
 }
