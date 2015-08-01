@@ -59,39 +59,6 @@ template<class T, class U>
 struct is_nothrow_swappable :
   is_nothrow_swappable_t<T, U> {};
 
-////////////////////
-// General Utilities
-//
-struct identity {
-  template <class T>
-  constexpr T&& operator()(T&& t) const noexcept {
-    return stl2::forward<T>(t);
-  }
-};
-
-template <class T = void>
-  requires Same<T, void>() || EqualityComparable<T>()
-struct equal_to {
-  constexpr bool operator()(const T& a, const T& b) const {
-    return a == b;
-  }
-
-  using first_argument_type = T;
-  using second_argument_type = T;
-  using result_type = bool;
-};
-
-template <>
-struct equal_to<void> {
-  EqualityComparable{T, U}
-  constexpr auto operator()(const T& t, const U& u) const ->
-    decltype(t == u) {
-    return {t == u};
-  }
-
-  using is_transparent = std::true_type;
-};
-
 }} // namespace stl2::v1
 
 #endif
