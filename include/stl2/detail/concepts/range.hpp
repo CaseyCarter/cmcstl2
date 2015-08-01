@@ -98,6 +98,51 @@ concept bool View() {
 }
 
 ///////////////////////////////////////////////////////////////////////////
+// BoundedRange
+//
+template <class T>
+concept bool BoundedRange() {
+  return Range<T>() && Same<IteratorType<T>, SentinelType<T>>(); 
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Ranges with various IteratorType
+//
+namespace ext {
+template <class T, class U>
+concept bool OutputRange() {
+  return Range<T>() && OutputIterator<IteratorType<T>, U>();
+}
+}
+
+template <class T>
+concept bool InputRange() {
+  return Range<T>() && InputIterator<IteratorType<T>>();
+}
+
+template <class T>
+concept bool ForwardRange() {
+  return Range<T>() && ForwardIterator<IteratorType<T>>();
+}
+
+template <class T>
+concept bool BidirectionalRange() {
+  return Range<T>() && BidirectionalIterator<IteratorType<T>>();
+}
+
+template <class T>
+concept bool RandomAccessRange() {
+  return Range<T>() && RandomAccessIterator<IteratorType<T>>();
+}
+
+namespace ext {
+template <class T>
+concept bool ContiguousRange() {
+  return Range<T>() && ContiguousIterator<IteratorType<T>>();
+}
+}
+
+///////////////////////////////////////////////////////////////////////////
 // Test Predicates
 //
 namespace ext { namespace models {
@@ -121,6 +166,41 @@ template <class>
 constexpr bool view() { return false; }
 View{T}
 constexpr bool view() { return true; }
+
+template <class>
+constexpr bool bounded_range() { return false; }
+BoundedRange{T}
+constexpr bool bounded_range() { return true; }
+
+template <class, class>
+constexpr bool output_range() { return false; }
+OutputRange{T, U}
+constexpr bool output_range() { return true; }
+
+template <class>
+constexpr bool input_range() { return false; }
+InputRange{T}
+constexpr bool input_range() { return true; }
+
+template <class>
+constexpr bool forward_range() { return false; }
+ForwardRange{T}
+constexpr bool forward_range() { return true; }
+
+template <class>
+constexpr bool bidirectional_range() { return false; }
+BidirectionalRange{T}
+constexpr bool bidirectional_range() { return true; }
+
+template <class>
+constexpr bool random_access_range() { return false; }
+RandomAccessRange{T}
+constexpr bool random_access_range() { return true; }
+
+template <class>
+constexpr bool contiguous_range() { return false; }
+ContiguousRange{T}
+constexpr bool contiguous_range() { return true; }
 
 }}}} // namespace stl2::v1::ext::models
 
