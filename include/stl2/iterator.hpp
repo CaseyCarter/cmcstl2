@@ -22,6 +22,7 @@ namespace stl2 { inline namespace v1 {
 using std::begin;
 using std::end;
 
+#if 0
 template <_Is<std::is_object> T>
   requires requires (T&& t) { {move(t).begin()} -> auto&&; }
 auto begin(T&& t) noexcept(noexcept(move(t).begin())) {
@@ -39,6 +40,7 @@ const T* begin(const T (&&t)[N]) noexcept = delete;
 
 template <class T, std::size_t N>
 const T* end(const T (&&t)[N]) noexcept = delete;
+#endif
 
 namespace detail {
 

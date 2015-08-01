@@ -17,24 +17,31 @@ namespace stl2 { inline namespace v1 {
 ///////////////////////////////////////////////////////////////////////////
 // Range
 //
-template <class T>
-  requires Iterator<decltype(begin(declval<T>()))>()
-using IteratorType = decltype(begin(declval<T>()));
+#ifndef STL2_STRICT_RANGE
+#define STL2_STRICT_RANGE 0
+#endif
 
 template <class T>
-  requires Sentinel<decltype(end(declval<T>())), IteratorType<T>>()
-using SentinelType = decltype(end(declval<T>()));
+  requires Iterator<decltype(begin(declval<T&>()))>()
+using IteratorType = decltype(begin(declval<T&>()));
+
+template <class T>
+  requires Sentinel<decltype(end(declval<T&>())), IteratorType<T>>()
+using SentinelType = decltype(end(declval<T&>()));
 
 template <class T>
 concept bool Range() {
-  return requires { typename SentinelType<T>; };
+  return
+#if STL2_STRICT_RANGE
+    _IsNot<T, std::is_reference> &&
+#endif
+    requires { typename SentinelType<T>; };
 }
 
 // 20150729: Extension: DifferenceType<Range>.
-template <class T>
-  requires Range<T&>()
+template <Range T>
 struct difference_type<T> {
-  using type = DifferenceType<IteratorType<T&>>;
+  using type = DifferenceType<IteratorType<T>>;
 };
 
 template <class T>
@@ -57,7 +64,7 @@ concept bool SizedRange() {
     Range<R>() &&
     requires (const std::remove_reference_t<R>& r) {
       STL2_DEDUCTION_CONSTRAINT(size(r), Integral);
-      STL2_CONVERSION_CONSTRAINT(size(r), DifferenceType<IteratorType<R&>>);
+      STL2_CONVERSION_CONSTRAINT(size(r), DifferenceType<IteratorType<R>>);
     };
 }
 
@@ -68,9 +75,9 @@ struct view_base {};
 
 template <class T>
 concept bool _ContainerLike =
-  Range<T&>() && Range<const T&>() &&
-  !Same<ReferenceType<IteratorType<T&>>,
-        ReferenceType<IteratorType<const T&>>>();
+  Range<T>() && Range<const T>() &&
+  !Same<ReferenceType<IteratorType<T>>,
+        ReferenceType<IteratorType<const T>>>();
 
 template <class T>
 struct enable_view {};
@@ -92,9 +99,14 @@ struct __view_predicate<T> :
 
 template <class T>
 concept bool View() {
-  return Range<T&>() &&
+  return Range<T>() &&
+#if STL2_STRICT_RANGE
     Semiregular<T>() &&
     __view_predicate<T>::value;
+#else
+    Semiregular<std::remove_reference_t<T>>() &&
+    __view_predicate<std::remove_reference_t<T>>::value;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////
