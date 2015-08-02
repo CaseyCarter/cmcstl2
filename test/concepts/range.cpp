@@ -39,6 +39,9 @@ using container_like = ranges::ContainerLike_<R>;
 
 template <class R>
 using view = ranges::View<R>;
+
+template <class R>
+using bounded_range = ranges::BoundedRange<R>;
 }
 
 template <bool allow_nonconst, bool allow_const, bool allow_size>
@@ -550,5 +553,17 @@ void complicated_algorithm_test() {
 int main() {
   ridiculously_exhaustive_range_property_test();
   complicated_algorithm_test();
+
+  {
+    using T = int[2];
+    CHECK(models::bounded_range<T>());
+    CHECK(models::output_range<T, int>());
+    CHECK(models::input_range<T>());
+    CHECK(models::forward_range<T>());
+    CHECK(models::bidirectional_range<T>());
+    CHECK(models::random_access_range<T>());
+    CHECK(models::contiguous_range<T>());
+  }
+
   return ::test_result();
 }
