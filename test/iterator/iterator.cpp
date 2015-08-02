@@ -7,7 +7,7 @@
 
 #include <stl2/iterator.hpp>
 
-#include "simple_test.hpp"
+#include "../simple_test.hpp"
 
 namespace models = stl2::ext::models;
 

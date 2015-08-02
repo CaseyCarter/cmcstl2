@@ -804,7 +804,7 @@ public:
   using reference = ReferenceType<I>;
   using pointer = I;
 
-  reverse_iterator() : current{} {}
+  reverse_iterator() = default;
   explicit reverse_iterator(I x) :
     current{std::move(x)} {}
 
@@ -835,10 +835,12 @@ public:
   }
 
   pointer operator->() const
+#if 0 // FIXME: this is hard erroring when I is a pointer.
     requires _Is<I, std::is_pointer> ||
       requires (const I& i) {
         i.operator->();
       }
+#endif
   {
     return stl2::prev(current);
   }
@@ -888,7 +890,7 @@ public:
   }
 
 protected:
-  I current;
+  I current{};
 };
 
 EqualityComparable{I1, I2}
