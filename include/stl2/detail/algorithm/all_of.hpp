@@ -36,7 +36,7 @@ template <class Rng, MoveConstructible F, MoveConstructible P = identity,
   InputRange R = std::add_lvalue_reference_t<Rng>>
   requires IndirectCallablePredicate<F, Projected<IteratorType<R>, P>>()
 bool all_of(Rng &&rng, F pred, P proj = P{}) {
-  return all_of(begin(rng), end(rng), std::move(pred), std::move(proj));
+  return all_of(begin(rng), end(rng), stl2::move(pred), stl2::move(proj));
 }
 }}
 
