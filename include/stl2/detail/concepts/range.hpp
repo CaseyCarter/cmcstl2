@@ -207,6 +207,18 @@ constexpr bool contiguous_range() { return true; }
 ///////////////////////////////////////////////////////////////////////////
 // Range primitives?
 //
+#if STL2_STRICT_RANGE
+template <class R, Range = std::remove_reference_T<R>>
+DifferenceType<R> distance(R&& r) {
+  return stl2::distance(begin(r), end(r));
+}
+
+template <class R, SizedRange = std::remove_reference_T<R>>
+DifferenceType<R> distance(R&& r) {
+  return size(r);
+}
+
+#else
 Range{R}
 DifferenceType<R> distance(R&& r) {
   return stl2::distance(begin(r), end(r));
@@ -216,6 +228,7 @@ SizedRange{R}
 DifferenceType<R> distance(R&& r) {
   return size(r);
 }
+#endif
 }} // namespace stl2::v1
 
 #endif

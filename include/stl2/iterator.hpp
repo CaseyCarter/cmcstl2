@@ -644,7 +644,7 @@ void iter_swap2(R1&& r1, R2&& r2)
 
 // size
 template <class T, std::size_t N>
-constexpr std::size_t size(T(&)[N]) {
+constexpr std::size_t size(T(&)[N]) noexcept {
   return N;
 }
 
@@ -652,7 +652,8 @@ template <class C>
   requires requires (const C& c) {
     STL2_DEDUCTION_CONSTRAINT(c.size(), Integral);
   }
-constexpr auto size(const C& c) {
+constexpr auto /* Integral */ size(const C& c)
+  noexcept(noexcept(c.size())) {
   return c.size();
 }
 
@@ -760,13 +761,7 @@ DifferenceType<I> distance(I first, S last) {
 
 // next
 WeakIterator{I}
-I next(I x) {
-  ++x;
-  return x;
-}
-
-WeakIterator{I}
-I next(I x, DifferenceType<I> n) {
+I next(I x, DifferenceType<I> n = 1) {
   advance(x, n);
   return x;
 }
@@ -785,13 +780,7 @@ I next(I x, DifferenceType<I> n, S bound) {
 
 // prev
 BidirectionalIterator{I}
-I prev(I x) {
-  --x;
-  return x;
-}
-
-BidirectionalIterator{I}
-I prev(I x, DifferenceType<I> n) {
+I prev(I x, DifferenceType<I> n = 1) {
   advance(x, -n);
   return x;
 }
