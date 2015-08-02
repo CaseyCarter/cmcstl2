@@ -659,6 +659,7 @@ constexpr auto size(const C& c) {
 ///////////////////////////////////////////////////////////////////////////
 // Iterator operations [iterator.operations]
 //
+// advance
 WeakIterator{I}
 void advance(I& i, DifferenceType<I> n) {
   while (n != 0) {
@@ -741,6 +742,7 @@ DifferenceType<I> advance(I& i, DifferenceType<I> n, S bound) {
   }
 }
 
+// distance
 Sentinel{S, I}
 DifferenceType<I> distance(I first, S last) {
   DifferenceType<I> n = 0;
@@ -754,6 +756,50 @@ DifferenceType<I> distance(I first, S last) {
 SizedIteratorRange{I, S}
 DifferenceType<I> distance(I first, S last) {
   return last - first;
+}
+
+// next
+WeakIterator{I}
+I next(I x) {
+  ++x;
+  return x;
+}
+
+WeakIterator{I}
+I next(I x, DifferenceType<I> n) {
+  advance(x, n);
+  return x;
+}
+
+Sentinel{S, I}
+I next(I x, S bound) {
+  advance(x, bound);
+  return x;
+}
+
+Sentinel{S, I}
+I next(I x, DifferenceType<I> n, S bound) {
+  advance(x, n, bound);
+  return x;
+}
+
+// prev
+BidirectionalIterator{I}
+I prev(I x) {
+  --x;
+  return x;
+}
+
+BidirectionalIterator{I}
+I prev(I x, DifferenceType<I> n) {
+  advance(x, -n);
+  return x;
+}
+
+template <BidirectionalIterator I, Sentinel<I> S>
+I prev(I x, DifferenceType<I> n, S bound) {
+  advance(x, -n, bound);
+  return x;
 }
 
 ///////////////////////////////////////////////////////////////////////////
