@@ -333,6 +333,7 @@ concept bool Incrementable() {
     };
 }
 
+struct output_iterator_tag {};
 struct weak_input_iterator_tag {};
 struct input_iterator_tag :
   weak_input_iterator_tag {};
@@ -432,9 +433,7 @@ concept bool WeakInputIterator() {
     requires (I& i, const I& ci) {
       typename IteratorCategory<I>;
       DerivedFrom<IteratorCategory<I>, weak_input_iterator_tag>();
-      // Comment out for now, pending resolution of
-      // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67018
-      // STL2_DEDUCTION_CONSTRAINT(i++, Readable);
+      STL2_DEDUCTION_CONSTRAINT(i++, Readable);
       requires Same<ValueType<I>, ValueType<decltype(i++)>>();
       { *ci } -> const ValueType<I>&;
     };
