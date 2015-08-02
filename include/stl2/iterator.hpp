@@ -354,7 +354,7 @@ template <class T>
 concept bool MemberIteratorCategory =
   requires { typename T::iterator_category; };
 
-namespace std_iterator_category_ {
+namespace std_to_stl2_iterator_category_ {
   input_iterator_tag f(std::input_iterator_tag*);
   forward_iterator_tag f(std::forward_iterator_tag*);
   bidirectional_iterator_tag f(std::bidirectional_iterator_tag*);
@@ -362,8 +362,8 @@ namespace std_iterator_category_ {
 }
 
 template <class T>
-using std_iterator_category =
-  decltype(std_iterator_category_::f((T*)nullptr));
+using std_to_stl2_iterator_category =
+  decltype(std_to_stl2_iterator_category_::f((T*)nullptr));
 }
 
 // 20150716: Conforming extension: category for pointers is
@@ -388,7 +388,7 @@ struct iterator_category<T> {};
 template <detail::MemberIteratorCategory T>
   requires DerivedFrom<typename T::iterator_category, std::input_iterator_tag>()
 struct iterator_category<T> {
-  using type = detail::std_iterator_category<typename T::iterator_category>;
+  using type = detail::std_to_stl2_iterator_category<typename T::iterator_category>;
 };
 
 template <class T>
@@ -654,6 +654,127 @@ template <class C>
 constexpr auto size(const C& c) {
   return c.size();
 }
-}} // namespace stl2::v1
 
-#endif // STL2_ITERATOR_HPP
+///////////////////////////////////////////////////////////////////////////
+// iterator_traits [iterator.assoc]
+//
+template <WeakInputIterator I>
+struct __pointer_type {
+  using type = std::add_pointer_t<ReferenceType<I>>;
+};
+
+template <WeakInputIterator I>
+  requires requires (I i) { { i.operator->() } -> auto&&; }
+struct __pointer_type<I> {
+  using type = decltype(declval<I>().operator->());
+};
+
+template <class>
+struct __iterator_traits { };
+
+template <WeakIterator I>
+struct __iterator_traits<I> {
+  using difference_type = DifferenceType<I>;
+  using value_type = void;
+  using reference = void;
+  using pointer = void;
+  using iterator_category = output_iterator_tag;
+};
+
+template <WeakInputIterator I>
+struct __iterator_traits<I> {
+  using difference_type = DifferenceType<I>;
+  using value_type = ValueType<I>;
+  using reference = ReferenceType<I>;
+  using pointer = meta::_t<__pointer_type<I>>;
+  using iterator_category = IteratorCategory<I>;
+};
+
+template <class I>
+using iterator_traits = __iterator_traits<I>;
+
+///////////////////////////////////////////////////////////////////////////
+// Standard iterator traits [iterator.stdtraits]
+// 20150802: Not to spec: Adds constraints to ::iterator_category so as to
+//           apply only to STL2 iterators and avoid "partial specialization
+//           after instantiation" errors.
+//
+template <stl2::WeakIterator W>
+struct __std_out_value_type {
+  using type = void;
+};
+template <stl2::WeakIterator W>
+  requires detail::MemberValueType<W>
+struct __std_out_value_type<W> {
+  using type = typename W::value_type;
+};
+
+template <stl2::WeakIterator W, class Default = void>
+struct __std_reference_type {
+  using type = Default;
+};
+template <stl2::WeakIterator W, class Default>
+  requires requires { typename W::reference; }
+struct __std_reference_type<W, Default> {
+  using type = typename W::reference;
+};
+
+template <stl2::WeakIterator W, class Default = void>
+struct __std_pointer_type {
+  using type = Default;
+};
+template <stl2::WeakIterator W, class Default>
+  requires requires { typename W::pointer; }
+struct __std_pointer_type<W, Default> {
+  using type = typename W::pointer;
+};
+
+namespace detail {
+namespace stl2_to_std_iterator_category_ {
+  std::input_iterator_tag f(input_iterator_tag*);
+  std::forward_iterator_tag f(forward_iterator_tag*);
+  std::bidirectional_iterator_tag f(bidirectional_iterator_tag*);
+  std::random_access_iterator_tag f(random_access_iterator_tag*);
+}
+
+template <class T>
+using stl2_to_std_iterator_category =
+  decltype(stl2_to_std_iterator_category_::f((T*)nullptr));
+}}}
+
+namespace std {
+template <::stl2::WeakIterator Out>
+  requires !::stl2::detail::MemberIteratorCategory<Out>
+struct iterator_traits<Out> {
+  using difference_type = ::stl2::DifferenceType<Out>;
+  using value_type = meta::_t<::stl2::__std_out_value_type<Out>>;
+  using reference = meta::_t<::stl2::__std_reference_type<Out>>;
+  using pointer = meta::_t<::stl2::__std_pointer_type<Out>>;
+  using iterator_category = std::output_iterator_tag;
+};
+
+template <::stl2::WeakInputIterator WI>
+  requires ::stl2::DerivedFrom<typename WI::iterator_category,
+                               ::stl2::weak_input_iterator_tag>() &&
+    !::stl2::DerivedFrom<typename WI::iterator_category,
+                               ::stl2::input_iterator_tag>()
+struct iterator_traits<WI> {};
+
+template <::stl2::InputIterator I>
+  requires ::stl2::DerivedFrom<typename I::iterator_category,
+                               ::stl2::input_iterator_tag>()
+struct iterator_traits<I> {
+  using difference_type = ::stl2::DifferenceType<I>;
+  using value_type = ::stl2::ValueType<I>;
+  using reference = meta::_t<
+    ::stl2::__std_reference_type<I, ::stl2::ReferenceType<I>>>;
+  using pointer = meta::_t<
+    ::stl2::__std_pointer_type<I, typename ::stl2::iterator_traits<I>::pointer>>;
+  using iterator_category = meta::if_<
+    is_reference<::stl2::ReferenceType<I>>,
+    ::stl2::detail::stl2_to_std_iterator_category<typename I::iterator_category>,
+    std::input_iterator_tag>;
+};
+}
+
+#endif
