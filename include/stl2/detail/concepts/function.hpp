@@ -35,7 +35,7 @@ concept bool RegularFunction() {
 
 template <class F, class...Args>
 concept bool Predicate() {
-  return RegularFunction<F, Args...> &&
+  return RegularFunction<F, Args...>() &&
     Boolean<ResultType<F, Args...>>();
 }
 

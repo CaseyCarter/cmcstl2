@@ -19,22 +19,23 @@ namespace stl2 { inline namespace v1 {
 // FunctionType
 //
 // 20150801: Not (exactly) to spec: I think the Constructible requirement
-// is implicit.
+// is implicit. Also, as_function must be exported so that users can use
+// Callables.
 template <class T>
   requires Constructible<T, T&&>()
-T __as_function(T&& t) {
+T as_function(T&& t) {
   return stl2::forward<T>(t);
 }
 
 template <class T>
   requires _Is<std::decay<T>, std::is_member_pointer>
-auto __as_function(T&& t) {
+auto as_function(T&& t) {
   return std::mem_fn(t);
 }
 
 template <class T>
 using FunctionType =
-  decltype(__as_function(declval<T>()));
+  decltype(as_function(declval<T>()));
 
 ///////////////////////////////////////////////////////////////////////////
 // Projected
