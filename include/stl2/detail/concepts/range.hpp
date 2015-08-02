@@ -202,6 +202,20 @@ constexpr bool contiguous_range() { return false; }
 ContiguousRange{T}
 constexpr bool contiguous_range() { return true; }
 
-}}}} // namespace stl2::v1::ext::models
+}} // namespace ext::models
+
+///////////////////////////////////////////////////////////////////////////
+// Range primitives?
+//
+Range{R}
+DifferenceType<R> distance(R&& r) {
+  return stl2::distance(begin(r), end(r));
+}
+
+SizedRange{R}
+DifferenceType<R> distance(R&& r) {
+  return size(r);
+}
+}} // namespace stl2::v1
 
 #endif

@@ -21,6 +21,7 @@ namespace stl2 { inline namespace v1 {
 // Imports
 using std::begin;
 using std::end;
+using std::iterator;
 
 template <_Is<std::is_object> T>
   requires requires (T&& t) { {move(t).begin()} -> auto&&; }
@@ -653,6 +654,106 @@ template <class C>
   }
 constexpr auto size(const C& c) {
   return c.size();
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Iterator operations [iterator.operations]
+//
+WeakIterator{I}
+void advance(I& i, DifferenceType<I> n) {
+  while (n != 0) {
+    --n;
+    ++i;
+  }
+}
+
+BidirectionalIterator{I}
+void advance(I& i, DifferenceType<I> n) {
+  if (n > 0) {
+    while (n != 0) {
+      --n;
+      ++i;
+    }
+  } else {
+    while (n != 0) {
+      ++n;
+      --i;
+    }
+  }
+}
+
+RandomAccessIterator{I}
+void advance(I& i, DifferenceType<I> n) {
+  i += n;
+}
+
+Sentinel{S, I}
+void advance(I& i, S bound) {
+  while (i != bound) {
+    ++i;
+  }
+}
+
+SizedIteratorRange{I, S}
+void advance(I& i, S bound) {
+  stl2::advance(i, bound - i);
+}
+
+Iterator{I}
+void advance(I& i, I bound) {
+  i = bound;
+}
+
+Sentinel{S, I}
+DifferenceType<I> advance(I& i, DifferenceType<I> n, S bound) {
+  while (i != bound && n != 0) {
+    ++i;
+    --n;
+  }
+  return n;
+}
+
+template <BidirectionalIterator I, Sentinel<I> S>
+DifferenceType<I> advance(I& i, DifferenceType<I> n, S bound) {
+  if (n > 0) {
+    while (i != bound && n != 0) {
+      ++i;
+      --n;
+    }
+  } else {
+    while (i != bound && n != 0) {
+      --i;
+      ++n;
+    }
+  }
+  return n;
+}
+
+SizedIteratorRange{I, S}
+DifferenceType<I> advance(I& i, DifferenceType<I> n, S bound) {
+  const auto D = DifferenceType<I>{bound - i};
+  if (n >= 0 ? n >= D : n <= D) {
+    stl2::advance(i, bound);
+    return n - D;
+  } else {
+    stl2::advance(i, n);
+    return 0;
+  }
+}
+
+Sentinel{S, I}
+DifferenceType<I> distance(I first, S last) {
+  DifferenceType<I> n = 0;
+  while (first != last) {
+    ++n;
+    ++first;
+  }
+  return n;
+}
+
+SizedIteratorRange{I, S}
+DifferenceType<I> distance(I first, S last) {
+  return last - first;
 }
 
 ///////////////////////////////////////////////////////////////////////////
