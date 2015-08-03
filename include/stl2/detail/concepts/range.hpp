@@ -106,7 +106,7 @@ concept bool BoundedRange() {
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// Ranges with various IteratorType
+// Ranges with various Iterator types
 //
 namespace ext {
 template <class T, class U>
@@ -208,13 +208,13 @@ constexpr bool contiguous_range() { return true; }
 // Range primitives?
 //
 #if STL2_STRICT_RANGE
-template <class R, Range = std::remove_reference_T<R>>
-DifferenceType<R> distance(R&& r) {
+template <class R_, Range R = std::remove_reference_T<R_>>
+DifferenceType<R> distance(R_&& r) {
   return stl2::distance(begin(r), end(r));
 }
 
-template <class R, SizedRange = std::remove_reference_T<R>>
-DifferenceType<R> distance(R&& r) {
+template <class R_, SizedRange R = std::remove_reference_T<R_>>
+DifferenceType<R> distance(R_&& r) {
   return size(r);
 }
 
