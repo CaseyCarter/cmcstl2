@@ -1,6 +1,7 @@
 #ifndef STL2_ITERATOR_HPP
 #define STL2_ITERATOR_HPP
 
+#include <initializer_list>
 #include <iterator>
 #include <type_traits>
 
@@ -40,6 +41,20 @@ const T* begin(const T (&&t)[N]) noexcept = delete;
 
 template <class T, std::size_t N>
 const T* end(const T (&&t)[N]) noexcept = delete;
+
+template <class C>
+constexpr auto cbegin(const C& c)
+  noexcept(noexcept(stl2::begin(c))) ->
+  decltype(stl2::begin(c)) {
+  return stl2::begin(c);
+}
+
+template <class C>
+constexpr auto cend(const C& c)
+  noexcept(noexcept(stl2::end(c))) ->
+  decltype(stl2::end(c)) {
+  return stl2::end(c);
+}
 
 namespace detail {
 
@@ -944,6 +959,55 @@ reverse_iterator<I> operator+(DifferenceType<I> n,
 BidirectionalIterator{I}
 reverse_iterator<I> make_reverse_iterator(I i) {
   return reverse_iterator<I>{std::move(i)};
+}
+
+template <class C>
+auto rbegin(C& c) -> decltype(c.rbegin()) {
+  return c.rbegin();
+}
+template <class C>
+auto rbegin(const C& c) -> decltype(c.rbegin()) {
+  return c.rbegin();
+}
+
+template <class C>
+auto rend(C& c) -> decltype(c.rend()) {
+  return c.rend();
+}
+
+template <class C>
+auto rend(const C& c) -> decltype(c.rend()) {
+  return c.rend();
+}
+
+template <class T, size_t N>
+reverse_iterator<T*> rbegin(T (&array)[N]) {
+  return reverse_iterator<T*>{&array[0] + N};
+}
+
+template <class T, size_t N>
+reverse_iterator<T*> rend(T (&array)[N]) {
+  return reverse_iterator<T*>{&array[0]};
+}
+
+template <class E>
+reverse_iterator<const E*> rbegin(std::initializer_list<E> il) {
+  return reverse_iterator<const E*>{il.end()};
+}
+
+template <class E>
+reverse_iterator<const E*> rend(std::initializer_list<E> il) {
+  return reverse_iterator<const E*>{il.begin()};
+}
+
+template <class C>
+auto crbegin(const C& c) -> decltype(stl2::rbegin(c)) {
+  return stl2::rbegin(c);
+}
+
+template <class C>
+auto crend(const C& c) -> decltype(stl2::rend(c)) {
+  return stl2::rend(c);
 }
 
 ///////////////////////////////////////////////////////////////////////////
