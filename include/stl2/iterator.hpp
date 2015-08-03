@@ -1,6 +1,7 @@
 #ifndef STL2_ITERATOR_HPP
 #define STL2_ITERATOR_HPP
 
+#include <cassert>
 #include <initializer_list>
 #include <iterator>
 #include <type_traits>
@@ -957,7 +958,7 @@ reverse_iterator<I> operator+(DifferenceType<I> n,
 }
 
 BidirectionalIterator{I}
-reverse_iterator<I> make_reverse_iterator(I i) {
+auto make_reverse_iterator(I i) {
   return reverse_iterator<I>{std::move(i)};
 }
 
@@ -1008,6 +1009,67 @@ constexpr auto crbegin(const C& c) -> decltype(stl2::rbegin(c)) {
 template <class C>
 constexpr auto crend(const C& c) -> decltype(stl2::rend(c)) {
   return stl2::rend(c);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// back_insert_iterator [back.insert.iterator]
+//
+namespace detail {
+template <class C, class V>
+concept bool back_insertable =
+  requires (C& c, V&& v) {
+    c.push_back((V&&)v);
+  };
+}
+
+template <class Container>
+  requires requires { typename Container::value_type; }
+class back_insert_iterator {
+public:
+  using container_type = Container;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = output_iterator_tag;
+
+  using value_type = typename Container::value_type;
+
+  back_insert_iterator() = default;
+  explicit back_insert_iterator(Container& x) :
+    container{std::addressof(x)} {}
+
+  back_insert_iterator&
+  operator=(const value_type& value) &
+    requires detail::back_insertable<Container, const value_type&> {
+    assert(container);
+    container->push_back(value);
+    return *this;
+  }
+
+  back_insert_iterator&
+  operator=(value_type&& value) &
+    requires detail::back_insertable<Container, value_type&&> {
+    assert(container);
+    container->push_back(stl2::move(value));
+    return *this;
+  }
+
+  back_insert_iterator& operator*() {
+    return *this;
+  }
+
+  back_insert_iterator& operator++() & {
+    return *this;
+  }
+  back_insert_iterator operator++(int) & {
+    return *this;
+  }
+
+protected:
+  Container* container = nullptr;
+};
+
+template <class Container>
+auto back_inserter(Container& x) {
+  return back_insert_iterator<Container>{x};
 }
 
 ///////////////////////////////////////////////////////////////////////////
