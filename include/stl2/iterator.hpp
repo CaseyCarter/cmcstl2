@@ -1030,6 +1030,7 @@ public:
   using difference_type = std::ptrdiff_t;
   using iterator_category = output_iterator_tag;
 
+  // Extension
   using value_type = typename Container::value_type;
 
   back_insert_iterator() = default;
@@ -1070,6 +1071,67 @@ protected:
 template <class Container>
 auto back_inserter(Container& x) {
   return back_insert_iterator<Container>{x};
+}
+
+///////////////////////////////////////////////////////////////////////////
+// front_insert_iterator [front.insert.iterator]
+//
+namespace detail {
+template <class C, class V>
+concept bool front_insertable =
+  requires (C& c, V&& v) {
+    c.push_front((V&&)v);
+  };
+}
+
+template <class Container>
+  requires requires { typename Container::value_type; }
+class front_insert_iterator {
+public:
+  using container_type = Container;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = output_iterator_tag;
+
+  // Extension
+  using value_type = typename Container::value_type;
+
+  front_insert_iterator() = default;
+  explicit front_insert_iterator(Container& x):
+    container{std::addressof(x)} {}
+
+  front_insert_iterator&
+  operator=(const value_type& value) &
+    requires detail::front_insertable<Container, const value_type&> {
+    assert(container);
+    container->push_front(value);
+    return *this;
+  }
+
+  front_insert_iterator&
+  operator=(value_type&& value) &
+    requires detail::front_insertable<Container, value_type&&> {
+    assert(container);
+    container->push_front(stl2::move(value));
+    return *this;
+  }
+  
+  front_insert_iterator& operator*() {
+    return *this;
+  }
+  front_insert_iterator& operator++() {
+    return *this;
+  }
+  front_insert_iterator operator++(int) {
+    return *this;
+  }
+
+protected:
+  Container* container = nullptr;
+};
+
+template <class Container>
+auto front_inserter(Container& x) {
+  return front_insert_iterator<Container>{x};
 }
 
 ///////////////////////////////////////////////////////////////////////////
