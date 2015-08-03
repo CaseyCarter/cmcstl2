@@ -962,32 +962,32 @@ reverse_iterator<I> make_reverse_iterator(I i) {
 }
 
 template <class C>
-auto rbegin(C& c) -> decltype(c.rbegin()) {
+constexpr auto rbegin(C& c) -> decltype(c.rbegin()) {
   return c.rbegin();
 }
 template <class C>
-auto rbegin(const C& c) -> decltype(c.rbegin()) {
+constexpr auto rbegin(const C& c) -> decltype(c.rbegin()) {
   return c.rbegin();
 }
 
 template <class C>
-auto rend(C& c) -> decltype(c.rend()) {
+constexpr auto rend(C& c) -> decltype(c.rend()) {
   return c.rend();
 }
 
 template <class C>
-auto rend(const C& c) -> decltype(c.rend()) {
+constexpr auto rend(const C& c) -> decltype(c.rend()) {
   return c.rend();
 }
 
 template <class T, size_t N>
 reverse_iterator<T*> rbegin(T (&array)[N]) {
-  return reverse_iterator<T*>{&array[0] + N};
+  return reverse_iterator<T*>{stl2::end(array)};
 }
 
 template <class T, size_t N>
 reverse_iterator<T*> rend(T (&array)[N]) {
-  return reverse_iterator<T*>{&array[0]};
+  return reverse_iterator<T*>{stl2::begin(array)};
 }
 
 template <class E>
@@ -1001,12 +1001,12 @@ reverse_iterator<const E*> rend(std::initializer_list<E> il) {
 }
 
 template <class C>
-auto crbegin(const C& c) -> decltype(stl2::rbegin(c)) {
+constexpr auto crbegin(const C& c) -> decltype(stl2::rbegin(c)) {
   return stl2::rbegin(c);
 }
 
 template <class C>
-auto crend(const C& c) -> decltype(stl2::rend(c)) {
+constexpr auto crend(const C& c) -> decltype(stl2::rend(c)) {
   return stl2::rend(c);
 }
 
