@@ -7,8 +7,7 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/function.hpp>
 #include <stl2/detail/concepts/object.hpp>
-
-#include <stl2/iterator.hpp>
-#include <stl2/type_traits.hpp>
+#include <stl2/detail/concepts/range.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
 
 #endif
