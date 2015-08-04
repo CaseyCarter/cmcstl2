@@ -18,12 +18,12 @@ namespace stl2 { inline namespace v1 {
 // Range
 //
 template <class T>
-  requires Iterator<decltype(begin(declval<T>()))>()
-using IteratorType = decltype(begin(declval<T>()));
+  requires Iterator<decltype(begin(declval<T&>()))>()
+using IteratorType = decltype(begin(declval<T&>()));
 
 template <class T>
-  requires Sentinel<decltype(end(declval<T>())), IteratorType<T>>()
-using SentinelType = decltype(end(declval<T>()));
+  requires Sentinel<decltype(end(declval<T&>())), IteratorType<T>>()
+using SentinelType = decltype(end(declval<T&>()));
 
 template <class T>
 concept bool Range() {
@@ -31,10 +31,9 @@ concept bool Range() {
 }
 
 // 20150729: Extension: DifferenceType<Range>.
-template <class T>
-  requires Range<T&>()
+template <Range T>
 struct difference_type<T> {
-  using type = DifferenceType<IteratorType<T&>>;
+  using type = DifferenceType<IteratorType<T>>;
 };
 
 template <class T>
@@ -57,7 +56,7 @@ concept bool SizedRange() {
     Range<R>() &&
     requires (const std::remove_reference_t<R>& r) {
       STL2_DEDUCTION_CONSTRAINT(size(r), Integral);
-      STL2_CONVERSION_CONSTRAINT(size(r), DifferenceType<IteratorType<R&>>);
+      STL2_CONVERSION_CONSTRAINT(size(r), DifferenceType<IteratorType<R>>);
     };
 }
 
@@ -68,9 +67,9 @@ struct view_base {};
 
 template <class T>
 concept bool _ContainerLike =
-  Range<T&>() && Range<const T&>() &&
-  !Same<ReferenceType<IteratorType<T&>>,
-        ReferenceType<IteratorType<const T&>>>();
+  Range<T>() && Range<const T>() &&
+  !Same<ReferenceType<IteratorType<T>>,
+        ReferenceType<IteratorType<const T>>>();
 
 template <class T>
 struct enable_view {};
@@ -92,7 +91,7 @@ struct __view_predicate<T> :
 
 template <class T>
 concept bool View() {
-  return Range<T&>() &&
+  return Range<T>() &&
     Semiregular<T>() &&
     __view_predicate<T>::value;
 }
@@ -102,7 +101,7 @@ concept bool View() {
 //
 template <class T>
 concept bool BoundedRange() {
-  return Range<T>() && Same<IteratorType<T>, SentinelType<T>>(); 
+  return Range<T>() && Same<IteratorType<T>, SentinelType<T>>();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -207,18 +206,6 @@ constexpr bool contiguous_range() { return true; }
 ///////////////////////////////////////////////////////////////////////////
 // Range primitives?
 //
-#if STL2_STRICT_RANGE
-template <class R_, Range R = std::remove_reference_T<R_>>
-DifferenceType<R> distance(R_&& r) {
-  return stl2::distance(begin(r), end(r));
-}
-
-template <class R_, SizedRange R = std::remove_reference_T<R_>>
-DifferenceType<R> distance(R_&& r) {
-  return size(r);
-}
-
-#else
 Range{R}
 DifferenceType<R> distance(R&& r) {
   return stl2::distance(begin(r), end(r));
@@ -228,7 +215,6 @@ SizedRange{R}
 DifferenceType<R> distance(R&& r) {
   return size(r);
 }
-#endif
 }} // namespace stl2::v1
 
 #endif

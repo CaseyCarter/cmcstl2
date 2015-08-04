@@ -25,24 +25,6 @@ using std::begin;
 using std::end;
 using std::iterator;
 
-template <_Is<std::is_object> T>
-  requires requires (T&& t) { {move(t).begin()} -> auto&&; }
-auto begin(T&& t) noexcept(noexcept(move(t).begin())) {
-  return move(t).begin();
-}
-
-template <_Is<std::is_object> T>
-  requires requires (T&& t) { {move(t).end()} -> auto&&; }
-auto end(T&& t) noexcept(noexcept(move(t).end())) {
-  return move(t).end();
-}
-
-template <class T, std::size_t N>
-const T* begin(const T (&&t)[N]) noexcept = delete;
-
-template <class T, std::size_t N>
-const T* end(const T (&&t)[N]) noexcept = delete;
-
 template <class C>
 constexpr auto cbegin(const C& c)
   noexcept(noexcept(stl2::begin(c))) ->

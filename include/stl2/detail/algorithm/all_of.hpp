@@ -20,11 +20,12 @@
 #include <stl2/iterator.hpp>
 
 namespace stl2 { inline namespace v1 {
-template <InputIterator I, Sentinel<I> S, class F, class P = identity>
+// 20150803: Not to spec: the Destructible requirements are implicit.
+template <InputIterator I, Sentinel<I> S, Destructible F, Destructible P = identity>
   requires IndirectCallablePredicate<F, Projected<I, P>>()
 bool all_of(I first, S last, F pred, P proj = P{}) {
-  /* Destructible */ auto &&ipred = as_function(pred);
-  /* Destructible */ auto &&iproj = as_function(proj);
+  /* Destructible? */ auto &&ipred = as_function(pred);
+  /* Destructible? */ auto &&iproj = as_function(proj);
   while (first != last && ipred(iproj(*first))) {
     ++first;
   }
@@ -32,10 +33,9 @@ bool all_of(I first, S last, F pred, P proj = P{}) {
 }
 
 // 20150801: Not to spec: the MoveConstructible requirements are implicit.
-template <class Rng, MoveConstructible F, MoveConstructible P = identity,
-  InputRange R = std::add_lvalue_reference_t<Rng>>
+template <InputRange R, MoveConstructible F, MoveConstructible P = identity>
   requires IndirectCallablePredicate<F, Projected<IteratorType<R>, P>>()
-bool all_of(Rng &&rng, F pred, P proj = P{}) {
+bool all_of(R&& rng, F pred, P proj = P{}) {
   return all_of(begin(rng), end(rng), stl2::move(pred), stl2::move(proj));
 }
 }}
