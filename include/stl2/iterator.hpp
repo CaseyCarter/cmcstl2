@@ -636,7 +636,7 @@ void iter_swap2(R1&& r1, R2&& r2)
            ext::is_nothrow_indirectly_movable_v<_R2, _R1>) {
   ValueType<_R1> tmp = iter_move(r1);
   *r1 = iter_move(r2);
-  *r2 = std::move(tmp);
+  *r2 = stl2::move(tmp);
 }
 
 // size
@@ -973,32 +973,32 @@ DifferenceType<R> distance(R&& r) {
 // next
 WeakIterator{I}
 I next(I x, DifferenceType<I> n = 1) {
-  advance(x, n);
+  stl2::advance(x, n);
   return x;
 }
 
 Sentinel{S, I}
 I next(I x, S bound) {
-  advance(x, bound);
+  stl2::advance(x, bound);
   return x;
 }
 
 Sentinel{S, I}
 I next(I x, DifferenceType<I> n, S bound) {
-  advance(x, n, bound);
+  stl2::advance(x, n, bound);
   return x;
 }
 
 // prev
 BidirectionalIterator{I}
 I prev(I x, DifferenceType<I> n = 1) {
-  advance(x, -n);
+  stl2::advance(x, -n);
   return x;
 }
 
 template <BidirectionalIterator I, Sentinel<I> S>
 I prev(I x, DifferenceType<I> n, S bound) {
-  advance(x, -n, bound);
+  stl2::advance(x, -n, bound);
   return x;
 }
 
@@ -1017,7 +1017,7 @@ public:
 
   reverse_iterator() = default;
   explicit reverse_iterator(I x) :
-    current{std::move(x)} {}
+    current{stl2::move(x)} {}
 
   template <ConvertibleTo<I> U>
   reverse_iterator(const reverse_iterator<U>& u) :
@@ -1154,7 +1154,7 @@ reverse_iterator<I> operator+(DifferenceType<I> n,
 
 BidirectionalIterator{I}
 auto make_reverse_iterator(I i) {
-  return reverse_iterator<I>{std::move(i)};
+  return reverse_iterator<I>{stl2::move(i)};
 }
 
 template <class C>
