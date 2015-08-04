@@ -60,7 +60,7 @@ struct arbitrary_range {
 };
 
 #elif VALIDATE_STL2
-#include <stl2/detail/concepts/range.hpp>
+#include <stl2/iterator.hpp>
 
 #define NAMESPACE stl2
 

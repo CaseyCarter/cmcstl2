@@ -15,7 +15,6 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/callable.hpp>
-#include <stl2/detail/concepts/range.hpp>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 
