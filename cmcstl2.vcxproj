@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{034E2682-53F9-4C36-B2A7-CB2B5ED346AA}</ProjectGuid>
+    <RootNamespace>cmcstl2</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)meta\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)meta\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="include\stl2\algorithm.hpp" />
+    <ClInclude Include="include\stl2\concepts.hpp" />
+    <ClInclude Include="include\stl2\detail\algorithm\all_of.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\algorithm.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\callable.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\compare.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\core.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\function.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\iterator.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\object.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\range.hpp" />
+    <ClInclude Include="include\stl2\detail\fwd.hpp" />
+    <ClInclude Include="include\stl2\detail\iterator\concepts.hpp" />
+    <ClInclude Include="include\stl2\detail\iterator\insert_iterators.hpp" />
+    <ClInclude Include="include\stl2\detail\iterator\operations.hpp" />
+    <ClInclude Include="include\stl2\detail\iterator\reverse_iterator.hpp" />
+    <ClInclude Include="include\stl2\functional.hpp" />
+    <ClInclude Include="include\stl2\iterator.hpp" />
+    <ClInclude Include="include\stl2\type_traits.hpp" />
+    <ClInclude Include="include\stl2\utility.hpp" />
+    <ClInclude Include="meta\include\meta\meta.hpp" />
+    <ClInclude Include="meta\include\meta\meta_fwd.hpp" />
+    <ClInclude Include="test\concepts\validate.hpp" />
+    <ClInclude Include="test\iterator\test_iterators.hpp" />
+    <ClInclude Include="test\simple_test.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test\algorithm\all_of.cpp" />
+    <ClCompile Include="test\concepts\compare.cpp" />
+    <ClCompile Include="test\concepts\core.cpp" />
+    <ClCompile Include="test\concepts\integer.cpp" />
+    <ClCompile Include="test\concepts\iterator.cpp" />
+    <ClCompile Include="test\concepts\object.cpp" />
+    <ClCompile Include="test\concepts\range.cpp" />
+    <ClCompile Include="test\concepts\swap.cpp" />
+    <ClCompile Include="test\headers.cpp" />
+    <ClCompile Include="test\iterator\iterator.cpp" />
+    <ClCompile Include="test\iterator\reverse_iterator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+    <Text Include="test\algorithm\CMakeLists.txt" />
+    <Text Include="test\CMakeLists.txt" />
+    <Text Include="test\concepts\CMakeLists.txt" />
+    <Text Include="test\concept_select.txt" />
+    <Text Include="test\iterator\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include=".gitmodules" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
