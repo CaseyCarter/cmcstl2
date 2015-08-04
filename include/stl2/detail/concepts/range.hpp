@@ -18,11 +18,16 @@ namespace stl2 { inline namespace v1 {
 // Range
 //
 template <class T>
-  requires Iterator<decltype(begin(declval<T&>()))>()
+  requires requires (T& t) {
+    STL2_DEDUCTION_CONSTRAINT(begin(t), Iterator);
+  }
 using IteratorType = decltype(begin(declval<T&>()));
 
 template <class T>
-  requires Sentinel<decltype(end(declval<T&>())), IteratorType<T>>()
+  requires requires (T& t) {
+    // { end(t) } -> Sentinel<IteratorType<T>>;
+    requires Sentinel<decltype(end(t)), IteratorType<T>>();
+  }
 using SentinelType = decltype(end(declval<T&>()));
 
 template <class T>
