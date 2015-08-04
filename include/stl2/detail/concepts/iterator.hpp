@@ -24,20 +24,6 @@ using std::begin;
 using std::end;
 using std::iterator;
 
-template <class C>
-constexpr auto cbegin(const C& c)
-  noexcept(noexcept(stl2::begin(c))) ->
-  decltype(stl2::begin(c)) {
-  return stl2::begin(c);
-}
-
-template <class C>
-constexpr auto cend(const C& c)
-  noexcept(noexcept(stl2::end(c))) ->
-  decltype(stl2::end(c)) {
-  return stl2::end(c);
-}
-
 namespace detail {
 
 template <class T>

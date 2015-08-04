@@ -317,55 +317,74 @@ auto make_reverse_iterator(I i) {
   return reverse_iterator<I>{stl2::move(i)};
 }
 
-template <class C>
+namespace detail {
+  template <class>
+  concept bool _Auto = true;
+}
+
+template <detail::_Auto C>
+constexpr auto cbegin(const C& c)
+  noexcept(noexcept(begin(c))) ->
+  decltype(begin(c)) {
+  return begin(c);
+}
+
+template <detail::_Auto C>
+constexpr auto cend(const C& c)
+  noexcept(noexcept(end(c))) ->
+  decltype(end(c)) {
+  return end(c);
+}
+
+template <detail::_Auto C>
 constexpr auto rbegin(C& c) -> decltype(c.rbegin()) {
   return c.rbegin();
 }
-template <class C>
+
+template <detail::_Auto C>
 constexpr auto rbegin(const C& c) -> decltype(c.rbegin()) {
   return c.rbegin();
 }
 
-template <class C>
+template <detail::_Auto C>
 constexpr auto rend(C& c) -> decltype(c.rend()) {
   return c.rend();
 }
 
-template <class C>
+template <detail::_Auto C>
 constexpr auto rend(const C& c) -> decltype(c.rend()) {
   return c.rend();
 }
 
-template <class T, size_t N>
+template <detail::_Auto T, size_t N>
 reverse_iterator<T*> rbegin(T (&array)[N]) {
-  return reverse_iterator<T*>{stl2::end(array)};
+  return reverse_iterator<T*>{array + N};
 }
 
-template <class T, size_t N>
+template <detail::_Auto T, size_t N>
 reverse_iterator<T*> rend(T (&array)[N]) {
-  return reverse_iterator<T*>{stl2::begin(array)};
+  return reverse_iterator<T*>{array};
 }
 
-template <class E>
+template <detail::_Auto E>
 reverse_iterator<const E*> rbegin(std::initializer_list<E> il) {
   return reverse_iterator<const E*>{il.end()};
 }
 
-template <class E>
+template <detail::_Auto E>
 reverse_iterator<const E*> rend(std::initializer_list<E> il) {
   return reverse_iterator<const E*>{il.begin()};
 }
 
-template <class C>
+template <detail::_Auto C>
 constexpr auto crbegin(const C& c) -> decltype(stl2::rbegin(c)) {
   return stl2::rbegin(c);
 }
 
-template <class C>
+template <detail::_Auto C>
 constexpr auto crend(const C& c) -> decltype(stl2::rend(c)) {
   return stl2::rend(c);
 }
-
 
 template <class Derived, class Container>
   requires requires { typename Container::value_type; }

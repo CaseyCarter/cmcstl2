@@ -284,7 +284,7 @@ void test_copy() {
         value{that.value} {}
     };
     A a[] = {0,1,2,3}, b[] = {4,5,6,7};
-    CHECK(!copy(std::begin(a) + 1, std::end(a) - 1, std::begin(b) + 1));
+    CHECK(!copy(stl2::begin(a) + 1, stl2::end(a) - 1, stl2::begin(b) + 1));
     CHECK(b[0].value == 4);
     CHECK(b[1].value == 1);
     CHECK(b[2].value == 2);
@@ -293,7 +293,7 @@ void test_copy() {
 
   {
     int a[] = {0,1,2,3,4,5,6,7}, b[] = {7,6,5,4,3,2,1,0};
-    CHECK(copy(std::begin(a) + 2, std::end(a) - 2, std::begin(b) + 2));
+    CHECK(copy(stl2::begin(a) + 2, stl2::end(a) - 2, stl2::begin(b) + 2));
     CHECK(b[0] == 7);
     CHECK(b[1] == 6);
     CHECK(b[2] == 2);

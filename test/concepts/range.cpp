@@ -538,6 +538,13 @@ void complicated_algorithm_test() {
   CHECK(complicated_algorithm(array_view<int>{some_ints}) == std::end(some_ints));
 }
 
+void test_range_access_ambiguity() {
+  std::vector<stl2::reverse_iterator<int*>> vri{};
+  using stl2::cbegin;
+  using stl2::cend;
+  (void)cbegin(vri);
+  (void)cend(vri);
+}
 int main() {
   ridiculously_exhaustive_range_property_test();
   complicated_algorithm_test();
