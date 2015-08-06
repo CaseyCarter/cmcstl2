@@ -66,7 +66,7 @@ namespace __begin {
   };
 }
 namespace {
-  constexpr auto& begin = detail::static_const<__begin::fn>;
+  constexpr auto& begin = detail::static_const<__begin::fn>::value;
 }
 
 // end
@@ -121,7 +121,7 @@ namespace __end {
   };
 }
 namespace {
-  constexpr auto& end = detail::static_const<__end::fn>;
+  constexpr auto& end = detail::static_const<__end::fn>::value;
 }
 
 // cbegin
@@ -261,7 +261,7 @@ namespace __size {
   };
 }
 namespace {
-  constexpr auto& size = detail::static_const<__size::fn>;
+  constexpr auto& size = detail::static_const<__size::fn>::value;
 }
 
 // empty

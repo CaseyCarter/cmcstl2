@@ -137,7 +137,7 @@ struct __try_swap_fn {
 };
 
 namespace {
-  constexpr auto& __try_swap = static_const<__try_swap_fn>;
+  constexpr auto& __try_swap = static_const<__try_swap_fn>::value;
 }
 
 // 20150715: Conforming extension: can swap T(&)[N] with U(&)[N]
@@ -157,7 +157,7 @@ struct fn {
 
 namespace {
 // 20150805: Not to spec: swap is a N4381-style function object customization point.
-constexpr auto& swap = detail::static_const<detail::__swap::fn>;
+  constexpr auto& swap = detail::static_const<detail::__swap::fn>::value;
 }
 
 namespace detail {

@@ -56,7 +56,7 @@ struct fn {
 };
 }}
 namespace {
-constexpr auto& iter_move = detail::static_const<detail::__iter_move::fn>;
+  constexpr auto& iter_move = detail::static_const<detail::__iter_move::fn>::value;
 }
 
 template <detail::Dereferenceable R>
@@ -243,7 +243,7 @@ struct fn {
 };
 }
 namespace {
-  constexpr auto& iter_swap2 = detail::static_const<__iter_swap::fn>;
+  constexpr auto& iter_swap2 = detail::static_const<__iter_swap::fn>::value;
 }
 
 template <class I1, class I2 = I1>

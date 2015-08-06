@@ -15,7 +15,12 @@ namespace detail {
 using meta::detail::uncvref_t;
 
 template <class T>
-constexpr T static_const{};
+struct static_const {
+  static constexpr T value{};
+};
+
+template <class T>
+constexpr T static_const<T>::value;
 }
 
 namespace ext { namespace models {}}
