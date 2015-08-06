@@ -84,8 +84,9 @@ namespace __end {
       requires Sentinel<decltype(r.end()), decltype(r.begin())>();
 #endif
     }
-  constexpr STL2_CONSTRAINED_AUTO(Iterator) end(R& r)
-    noexcept(noexcept(r.end())) {
+  constexpr auto end(R& r)
+    noexcept(noexcept(r.end())) ->
+    STL2_CONSTRAINED_AUTO(Sentinel<decltype(r.begin())>) {
     return r.end();
   }
 
@@ -97,8 +98,9 @@ namespace __end {
       requires Sentinel<decltype(r.end()), decltype(r.begin())>();
 #endif
     }
-  constexpr STL2_CONSTRAINED_AUTO(Iterator) end(const R& r)
-    noexcept(noexcept(r.end())) {
+  constexpr auto end(const R& r)
+    noexcept(noexcept(r.end())) ->
+    STL2_CONSTRAINED_AUTO(Sentinel<decltype(r.begin())>) {
     return r.end();
   }
 
@@ -111,8 +113,9 @@ namespace __end {
         requires Sentinel<decltype(end((R&&)r)), decltype(begin((R&&)r))>();
 #endif
       }
-    constexpr STL2_CONSTRAINED_AUTO(Iterator) operator()(R&& r) const
-      noexcept(noexcept(end(stl2::forward<R>(r)))) {
+    constexpr auto operator()(R&& r) const
+      noexcept(noexcept(end(stl2::forward<R>(r)))) ->
+      STL2_CONSTRAINED_AUTO(Sentinel<decltype(begin((R&&)r))>) {
       return end(r);
     }
   };
@@ -132,15 +135,16 @@ constexpr STL2_CONSTRAINED_AUTO(Iterator) cbegin(const R& r)
 // cend
 template <class R>
   requires requires (const R& r) { stl2::end(r); }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) cend(const R& r)
-  noexcept(noexcept(stl2::end(r))) {
+constexpr auto cend(const R& r)
+  noexcept(noexcept(stl2::end(r))) ->
+  STL2_CONSTRAINED_AUTO(Sentinel<decltype(stl2::begin(r))>) {
   return stl2::end(r);
 }
 
 // rbegin
 template <class T, size_t N>
 reverse_iterator<T*> rbegin(T (&array)[N]) {
-  return reverse_iterator<T*>{stl2::end(array)};
+  return reverse_iterator<T*>{end(array)};
 }
 
 template <class E>
@@ -156,7 +160,8 @@ template <class R>
     STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
 #endif
   }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) rbegin(R& r) {
+constexpr STL2_CONSTRAINED_AUTO(Iterator) rbegin(R& r)
+  noexcept(noexcept(r.rbegin())) {
   return r.rbegin();
 }
 
@@ -168,14 +173,15 @@ template <class R>
     STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
 #endif
   }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) rbegin(const R& r) {
+constexpr STL2_CONSTRAINED_AUTO(Iterator) rbegin(const R& r)
+  noexcept(noexcept(r.rbegin())) {
   return r.rbegin();
 }
 
 // rend
 template <class T, size_t N>
 reverse_iterator<T*> rend(T (&array)[N]) {
-  return reverse_iterator<T*>{stl2::begin(array)};
+  return reverse_iterator<T*>{begin(array)};
 }
 
 template <class E>
@@ -188,10 +194,12 @@ template <class R>
 #ifdef STL2_HACK_CONSTRAINTS
     r.rend();
 #else
-    STL2_DEDUCTION_CONSTRAINT(r.rend(), Iterator);
+    requires Sentinel<decltype(r.rend()), decltype(r.rbegin())>();
 #endif
   }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) rend(R& r) {
+constexpr auto rend(R& r)
+  noexcept(noexcept(r.rend())) ->
+  STL2_CONSTRAINED_AUTO(Sentinel<decltype(r.rbegin(r))>) {
   return r.rend();
 }
 
@@ -200,24 +208,29 @@ template <class R>
 #ifdef STL2_HACK_CONSTRAINTS
     r.rend();
 #else
-    STL2_DEDUCTION_CONSTRAINT(r.rend(), Iterator);
+    requires Sentinel<decltype(r.rend()), decltype(r.rbegin())>();
 #endif
   }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) rend(const R& r) {
+constexpr auto rend(const R& r)
+  noexcept(noexcept(r.rend())) ->
+  STL2_CONSTRAINED_AUTO(Sentinel<decltype(r.rbegin(r))>) {
   return r.rend();
 }
 
 // crbegin
 template <class R>
   requires requires(const R& r) { stl2::rbegin(r); }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) crbegin(const R& r) {
+constexpr STL2_CONSTRAINED_AUTO(Iterator) crbegin(const R& r)
+  noexcept(noexcept(stl2::rbegin(r))) {
   return stl2::rbegin(r);
 }
 
 // crend
 template <class R>
   requires requires(const R& r) { stl2::rend(r); }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) crend(const R& r) {
+constexpr auto crend(const R& r)
+  noexcept(noexcept(stl2::rend(r))) ->
+  STL2_CONSTRAINED_AUTO(Sentinel<decltype(stl2::rbegin(r))>) {
   return stl2::rend(r);
 }
 
