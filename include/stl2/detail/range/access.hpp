@@ -20,30 +20,30 @@ namespace __begin {
     return array;
   }
 
-  template <class C>
-    requires requires (C& c) {
+  template <class R>
+    requires requires (R& r) {
 #ifdef STL2_HACK_CONSTRAINTS
-      c.begin();
+      r.begin();
 #else
-      STL2_DEDUCTION_CONSTRAINT(c.begin(), Iterator);
+      STL2_DEDUCTION_CONSTRAINT(r.begin(), Iterator);
 #endif
     }
-  constexpr STL2_CONSTRAINED_AUTO(Iterator) begin(C& c)
-    noexcept(noexcept(c.begin())) {
-    return c.begin();
+  constexpr STL2_CONSTRAINED_AUTO(Iterator) begin(R& r)
+    noexcept(noexcept(r.begin())) {
+    return r.begin();
   }
 
-  template <class C>
-    requires requires (const C& c) {
+  template <class R>
+    requires requires (const R& r) {
 #ifdef STL2_HACK_CONSTRAINTS
-      c.begin();
+      r.begin();
 #else
-      STL2_DEDUCTION_CONSTRAINT(c.begin(), Iterator);
+      STL2_DEDUCTION_CONSTRAINT(r.begin(), Iterator);
 #endif
     }
-  constexpr STL2_CONSTRAINED_AUTO(Iterator) begin(const C& c)
-    noexcept(noexcept(c.begin())) {
-    return c.begin();
+  constexpr STL2_CONSTRAINED_AUTO(Iterator) begin(const R& r)
+    noexcept(noexcept(r.begin())) {
+    return r.begin();
   }
 
   struct fn {
@@ -72,30 +72,30 @@ namespace __end {
     return array + N;
   }
 
-  template <class C>
-    requires requires (C& c) {
+  template <class R>
+    requires requires (R& r) {
 #ifdef STL2_HACK_CONSTRAINTS
-      c.end();
+      r.end();
 #else
-      requires Sentinel<decltype(c.end()), decltype(c.begin())>();
+      requires Sentinel<decltype(r.end()), decltype(r.begin())>();
 #endif
     }
-  constexpr STL2_CONSTRAINED_AUTO(Iterator) end(C& c)
-    noexcept(noexcept(c.end())) {
-    return c.end();
+  constexpr STL2_CONSTRAINED_AUTO(Iterator) end(R& r)
+    noexcept(noexcept(r.end())) {
+    return r.end();
   }
 
-  template <class C>
-    requires requires (const C& c) {
+  template <class R>
+    requires requires (const R& r) {
 #ifdef STL2_HACK_CONSTRAINTS
-      c.end();
+      r.end();
 #else
-      requires Sentinel<decltype(c.end()), decltype(c.begin())>();
+      requires Sentinel<decltype(r.end()), decltype(r.begin())>();
 #endif
     }
-  constexpr STL2_CONSTRAINED_AUTO(Iterator) end(const C& c)
-    noexcept(noexcept(c.end())) {
-    return c.end();
+  constexpr STL2_CONSTRAINED_AUTO(Iterator) end(const R& r)
+    noexcept(noexcept(r.end())) {
+    return r.end();
   }
 
   struct fn {
@@ -133,52 +133,52 @@ constexpr STL2_CONSTRAINED_AUTO(Iterator) cend(const R& r)
   return stl2::end(r);
 }
 
-template <class C>
-  requires requires(C& c) {
+template <class R>
+  requires requires(R& r) {
 #ifdef STL2_HACK_CONSTRAINTS
-    c.rbegin();
+    r.rbegin();
 #else
-    STL2_DEDUCTION_CONSTRAINT(c.rbegin(), Iterator);
+    STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
 #endif
   }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) rbegin(C& c) {
-  return c.rbegin();
+constexpr STL2_CONSTRAINED_AUTO(Iterator) rbegin(R& r) {
+  return r.rbegin();
 }
 
-template <class C>
-  requires requires(const C& c) {
+template <class R>
+  requires requires(const R& r) {
 #ifdef STL2_HACK_CONSTRAINTS
-    c.rbegin();
+    r.rbegin();
 #else
-    STL2_DEDUCTION_CONSTRAINT(c.rbegin(), Iterator);
+    STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
 #endif
   }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) rbegin(const C& c) {
-  return c.rbegin();
+constexpr STL2_CONSTRAINED_AUTO(Iterator) rbegin(const R& r) {
+  return r.rbegin();
 }
 
-template <class C>
-  requires requires(C& c) {
+template <class R>
+  requires requires(R& r) {
 #ifdef STL2_HACK_CONSTRAINTS
-    c.rend();
+    r.rend();
 #else
-    STL2_DEDUCTION_CONSTRAINT(c.rend(), Iterator);
+    STL2_DEDUCTION_CONSTRAINT(r.rend(), Iterator);
 #endif
   }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) rend(C& c) {
-  return c.rend();
+constexpr STL2_CONSTRAINED_AUTO(Iterator) rend(R& r) {
+  return r.rend();
 }
 
-template <class C>
-  requires requires(const C& c) {
+template <class R>
+  requires requires(const R& r) {
 #ifdef STL2_HACK_CONSTRAINTS
-    c.rend();
+    r.rend();
 #else
-    STL2_DEDUCTION_CONSTRAINT(c.rend(), Iterator);
+    STL2_DEDUCTION_CONSTRAINT(r.rend(), Iterator);
 #endif
   }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) rend(const C& c) {
-  return c.rend();
+constexpr STL2_CONSTRAINED_AUTO(Iterator) rend(const R& r) {
+  return r.rend();
 }
 
 template <class T, size_t N>
@@ -201,20 +201,48 @@ reverse_iterator<const E*> rend(std::initializer_list<E> il) {
   return reverse_iterator<const E*>{il.begin()};
 }
 
-template <class C>
-  requires requires(const C& c) { stl2::rbegin(c); }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) crbegin(const C& c) {
-  return stl2::rbegin(c);
+template <class R>
+  requires requires(const R& r) { stl2::rbegin(r); }
+constexpr STL2_CONSTRAINED_AUTO(Iterator) crbegin(const R& r) {
+  return stl2::rbegin(r);
 }
 
-template <class C>
-  requires requires(const C& c) { stl2::rend(c); }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) crend(const C& c) {
-  return stl2::rend(c);
+template <class R>
+  requires requires(const R& r) { stl2::rend(r); }
+constexpr STL2_CONSTRAINED_AUTO(Iterator) crend(const R& r) {
+  return stl2::rend(r);
 }
 
 #undef STL2_HACK_CONSTRAINTS
 
+// size
+namespace __size {
+  template <class T, std::size_t N>
+  constexpr std::size_t size(T(&)[N]) noexcept {
+    return N;
+  }
+
+  template <class R>
+    requires requires (const R& r) {
+      { r.size() } -> auto&&;
+    }
+  constexpr auto size(const R& r)
+    noexcept(noexcept(r.size())) {
+    return r.size();
+  }
+
+  struct fn {
+    template <class R>
+      requires requires (const R& r) { size(r); }
+    constexpr auto operator()(const R& r) const
+      noexcept(noexcept(size(r))) {
+      return size(r);
+    }
+  };
+}
+namespace {
+  constexpr auto& size = detail::static_const<__size::fn>;
+}
 }} // namespace stl2::v1
 
 #endif

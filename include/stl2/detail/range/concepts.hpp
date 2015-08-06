@@ -15,21 +15,6 @@
 
 namespace stl2 { inline namespace v1 {
 
-// size
-template <class T, std::size_t N>
-constexpr std::size_t size(T(&)[N]) noexcept {
-  return N;
-}
-
-template <class C>
-  requires requires (const C& c) {
-    STL2_DEDUCTION_CONSTRAINT(c.size(), Integral);
-  }
-constexpr auto /* Integral */ size(const C& c)
-  noexcept(noexcept(c.size())) {
-  return c.size();
-}
-
 ///////////////////////////////////////////////////////////////////////////
 // Range [iterable.iterables]
 //
