@@ -26,23 +26,32 @@ constexpr T exchange(T& t, U&& u)
   return tmp;
 }
 
-/*
- * http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2152
- * http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
- */
+
+namespace detail { namespace __swap {
+// http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2152
+// http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
 
 constexpr void swap(Movable& a, Movable& b)
-  noexcept(noexcept(b = exchange(a, stl2::move(b)))) {
-  b = exchange(a, stl2::move(b));
+  noexcept(noexcept(b = stl2::exchange(a, stl2::move(b)))) {
+  b = stl2::exchange(a, stl2::move(b));
 }
 
 template <class T, class U, std::size_t N>
-  requires requires (T &x, U &y) { detail::__try_swap(x, y); }
+  requires requires (T &x, U &y) { __try_swap(x, y); }
 constexpr void swap(T (&t)[N], U (&u)[N])
-  noexcept(noexcept(detail::__try_swap(*t, *u))) {
-  for (std::size_t i = 0; i < N; ++i)
-    swap(t[i], u[i]);
+  noexcept(noexcept(__try_swap(*t, *u))) {
+  for (std::size_t i = 0; i < N; ++i) {
+    stl2::swap(t[i], u[i]);
+  }
 }
+
+template <class T, class U>
+  requires requires (T&& a, U&& b) { swap((T&&)a, (U&&)b); }
+constexpr void fn::operator()(T&& a, U&& b) const
+  noexcept(noexcept(swap(stl2::forward<T>(a), stl2::forward<U>(b)))) {
+  swap(stl2::forward<T>(a), stl2::forward<U>(b));
+}
+}}
 
 template<class T, class U>
 constexpr bool is_nothrow_swappable_v = false;

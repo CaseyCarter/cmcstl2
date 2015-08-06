@@ -18,27 +18,7 @@
 //
 namespace stl2 { inline namespace v1 {
 
-// Imports
-using std::begin;
-using std::end;
-using std::iterator;
-
-template <class C>
-constexpr auto cbegin(const C& c)
-  noexcept(noexcept(stl2::begin(c))) ->
-  decltype(stl2::begin(c)) {
-  return stl2::begin(c);
-}
-
-template <class C>
-constexpr auto cend(const C& c)
-  noexcept(noexcept(stl2::end(c))) ->
-  decltype(stl2::end(c)) {
-  return stl2::end(c);
-}
-
 namespace detail {
-
 template <class T>
 concept bool Dereferenceable =
   requires (T& t) {
@@ -52,25 +32,34 @@ using ReferenceType =
   decltype(*declval<R&>());
 
 namespace detail {
-
-template <detail::Dereferenceable R>
+template <Dereferenceable R>
 using __iter_move_t =
   meta::if_<
     std::is_reference<ReferenceType<R>>,
     std::remove_reference_t<ReferenceType<R>> &&,
     std::decay_t<ReferenceType<R>>>;
 
+namespace __iter_move {
+template <class R, Dereferenceable _R = std::remove_reference_t<R>>
+__iter_move_t<_R> iter_move(R&& r)
+  noexcept(noexcept(__iter_move_t<_R>(stl2::move(*r)))) {
+  return stl2::move(*r);
 }
 
-template <class R,
-  detail::Dereferenceable _R = std::remove_reference_t<R>>
-detail::__iter_move_t<_R> iter_move(R&& r)
-  noexcept(noexcept(detail::__iter_move_t<_R>(stl2::move(*r))));
+struct fn {
+  template <class R>
+    requires requires (R&& r) { { iter_move((R&&)r) } -> auto&&; }
+  constexpr decltype(auto) operator()(R&& r) const
+    noexcept(noexcept(iter_move(stl2::forward<R>(r)))) {
+    return iter_move(stl2::forward<R>(r));
+  }
+};
+}}
+namespace {
+constexpr auto& iter_move = detail::static_const<detail::__iter_move::fn>;
+}
 
 template <detail::Dereferenceable R>
-  requires requires (R& r) {
-    { iter_move(r) } -> auto&&;
-  }
 using RvalueReferenceType =
   decltype(iter_move(declval<R&>()));
 
@@ -219,12 +208,15 @@ using is_nothrow_indirectly_movable_t = meta::_t<is_nothrow_indirectly_movable<I
 }
 
 // iter_swap2
+namespace __iter_swap {
 template <class R1, class R2,
   Readable _R1 = std::remove_reference_t<R1>,
   Readable _R2 = std::remove_reference_t<R2>>
   requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>);
+  noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>) {
+  swap(*r1, *r2);
+}
 
 template <class R1, class R2,
   Readable _R1 = std::remove_reference_t<R1>,
@@ -233,7 +225,26 @@ template <class R1, class R2,
     !Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
   noexcept(ext::is_nothrow_indirectly_movable_v<_R1, _R2> &&
-           ext::is_nothrow_indirectly_movable_v<_R2, _R1>);
+           ext::is_nothrow_indirectly_movable_v<_R2, _R1>) {
+  ValueType<_R1> tmp = iter_move(r1);
+  *r1 = iter_move(r2);
+  *r2 = stl2::move(tmp);
+}
+
+struct fn {
+  template <class R1, class R2>
+    requires requires (R1&& r1, R1&& r2) {
+      iter_swap2((R1&&)r1, (R2&&)r2);
+    }
+  constexpr void operator()(R1&& r1, R2&& r2) const
+    noexcept(noexcept(iter_swap2(stl2::forward<R1>(r1), stl2::forward<R2>(r2)))) {
+    iter_swap2(stl2::forward<R1>(r1), stl2::forward<R2>(r2));
+  }
+};
+}
+namespace {
+  constexpr auto& iter_swap2 = detail::static_const<__iter_swap::fn>;
+}
 
 template <class I1, class I2 = I1>
 concept bool IndirectlySwappable() {
@@ -604,43 +615,11 @@ ContiguousIterator{I}
 constexpr bool contiguous_iterator() { return true; }
 }} // namespace ext::models
 
-////////////////////////////////////////////
-// Iterator primitives
-//
-template <class R,
-  detail::Dereferenceable _R = std::remove_reference_t<R>>
-detail::__iter_move_t<_R> iter_move(R&& r)
-  noexcept(noexcept(detail::__iter_move_t<_R>(stl2::move(*r)))) {
-  return stl2::move(*r);
-}
-
-// iter_swap2
-template <class R1, class R2,
-  Readable _R1 = std::remove_reference_t<R1>,
-  Readable _R2 = std::remove_reference_t<R2>>
-  requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
-void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>) {
-  swap(*r1, *r2);
-}
-
-template <class R1, class R2,
-  Readable _R1 = std::remove_reference_t<R1>,
-  Readable _R2 = std::remove_reference_t<R2>>
-  requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>() &&
-    !Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
-void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(ext::is_nothrow_indirectly_movable_v<_R1, _R2> &&
-           ext::is_nothrow_indirectly_movable_v<_R2, _R1>) {
-  ValueType<_R1> tmp = iter_move(r1);
-  *r1 = iter_move(r2);
-  *r2 = stl2::move(tmp);
-}
-
-
 ///////////////////////////////////////////////////////////////////////////
 // iterator_traits [iterator.assoc]
 //
+using std::iterator;
+
 template <WeakInputIterator I>
 struct __pointer_type {
   using type = std::add_pointer_t<ReferenceType<I>>;

@@ -1,5 +1,5 @@
-#ifndef STL2_DETAIL_CONCEPTS_RANGE_HPP
-#define STL2_DETAIL_CONCEPTS_RANGE_HPP
+#ifndef STL2_DETAIL_RANGE_CONCEPTS_HPP
+#define STL2_DETAIL_RANGE_CONCEPTS_HPP
 
 #include <initializer_list>
 #include <type_traits>
@@ -11,7 +11,7 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/concepts/object.hpp>
-#include <stl2/detail/concepts/range.hpp>
+#include <stl2/detail/range/access.hpp>
 
 namespace stl2 { inline namespace v1 {
 

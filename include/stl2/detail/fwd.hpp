@@ -13,6 +13,9 @@ using std::move;
 
 namespace detail {
 using meta::detail::uncvref_t;
+
+template <class T>
+constexpr T static_const{};
 }
 
 namespace ext { namespace models {}}
