@@ -1,16 +1,17 @@
 #ifndef STL2_DETAIL_RANGE_ACCESS_HPP
 #define STL2_DETAIL_RANGE_ACCESS_HPP
 
+#include <initializer_list>
+
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
-//#include <stl2/detail/iterator/reverse_iterator.hpp>
+
+// Disable constraints that cause the compiler to OOM
+#define STL2_HACK_CONSTRAINTS
 
 namespace stl2 { namespace v1 {
 
 BidirectionalIterator{I} class reverse_iterator;
-
-// Disable constraints that cause the compiler to OOM
-#define STL2_HACK_CONSTRAINTS
 
 // begin
 // 20150805: Not to spec: is an N4381-style customization point.
@@ -213,8 +214,6 @@ constexpr STL2_CONSTRAINED_AUTO(Iterator) crend(const R& r) {
   return stl2::rend(r);
 }
 
-#undef STL2_HACK_CONSTRAINTS
-
 // size
 namespace __size {
   template <class T, std::size_t N>
@@ -258,7 +257,7 @@ template <class R>
     STL2_CONVERSION_CONSTRAINT(r.empty(), bool);
   }
 constexpr bool empty(const R& r)
-  noexcept(noexcept(bool(r.empty))) {
+  noexcept(noexcept(bool(r.empty()))) {
   return r.empty();
 }
 
@@ -288,5 +287,7 @@ constexpr auto data(const R& r)
 }
 
 }} // namespace stl2::v1
+
+#undef STL2_HACK_CONSTRAINTS
 
 #endif
