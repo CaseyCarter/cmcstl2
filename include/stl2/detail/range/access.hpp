@@ -13,6 +13,9 @@ namespace stl2 { namespace v1 {
 
 BidirectionalIterator{I} class reverse_iterator;
 
+///////////////////////////////////////////////////////////////////////////
+// Range access [iterator.range]
+//
 // begin
 // 20150805: Not to spec: is an N4381-style customization point.
 namespace __begin {
@@ -134,6 +137,17 @@ constexpr STL2_CONSTRAINED_AUTO(Iterator) cend(const R& r)
   return stl2::end(r);
 }
 
+// rbegin
+template <class T, size_t N>
+reverse_iterator<T*> rbegin(T (&array)[N]) {
+  return reverse_iterator<T*>{stl2::end(array)};
+}
+
+template <class E>
+reverse_iterator<const E*> rbegin(std::initializer_list<E> il) {
+  return reverse_iterator<const E*>{il.end()};
+}
+
 template <class R>
   requires requires(R& r) {
 #ifdef STL2_HACK_CONSTRAINTS
@@ -156,6 +170,17 @@ template <class R>
   }
 constexpr STL2_CONSTRAINED_AUTO(Iterator) rbegin(const R& r) {
   return r.rbegin();
+}
+
+// rend
+template <class T, size_t N>
+reverse_iterator<T*> rend(T (&array)[N]) {
+  return reverse_iterator<T*>{stl2::begin(array)};
+}
+
+template <class E>
+reverse_iterator<const E*> rend(std::initializer_list<E> il) {
+  return reverse_iterator<const E*>{il.begin()};
 }
 
 template <class R>
@@ -182,38 +207,23 @@ constexpr STL2_CONSTRAINED_AUTO(Iterator) rend(const R& r) {
   return r.rend();
 }
 
-template <class T, size_t N>
-reverse_iterator<T*> rbegin(T (&array)[N]) {
-  return reverse_iterator<T*>{stl2::end(array)};
-}
-
-template <class T, size_t N>
-reverse_iterator<T*> rend(T (&array)[N]) {
-  return reverse_iterator<T*>{stl2::begin(array)};
-}
-
-template <class E>
-reverse_iterator<const E*> rbegin(std::initializer_list<E> il) {
-  return reverse_iterator<const E*>{il.end()};
-}
-
-template <class E>
-reverse_iterator<const E*> rend(std::initializer_list<E> il) {
-  return reverse_iterator<const E*>{il.begin()};
-}
-
+// crbegin
 template <class R>
   requires requires(const R& r) { stl2::rbegin(r); }
 constexpr STL2_CONSTRAINED_AUTO(Iterator) crbegin(const R& r) {
   return stl2::rbegin(r);
 }
 
+// crend
 template <class R>
   requires requires(const R& r) { stl2::rend(r); }
 constexpr STL2_CONSTRAINED_AUTO(Iterator) crend(const R& r) {
   return stl2::rend(r);
 }
 
+///////////////////////////////////////////////////////////////////////////
+// Container access [iterator.container]
+//
 // size
 namespace __size {
   template <class T, std::size_t N>
