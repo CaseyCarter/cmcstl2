@@ -223,9 +223,7 @@ namespace __size {
   }
 
   template <class R>
-    requires requires (const R& r) {
-      { r.size() } -> auto&&;
-    }
+    requires requires (const R& r) { r.size(); }
   constexpr auto size(const R& r)
     noexcept(noexcept(r.size())) {
     return r.size();
@@ -243,6 +241,52 @@ namespace __size {
 namespace {
   constexpr auto& size = detail::static_const<__size::fn>;
 }
+
+// empty
+template <class T, std::size_t N>
+constexpr bool empty(T(&)[N]) noexcept {
+  return N == 0;
+}
+
+template <class E>
+constexpr bool empty(std::initializer_list<E> il) noexcept {
+  return il.size() == 0;
+}
+
+template <class R>
+  requires requires (const R& r) {
+    STL2_CONVERSION_CONSTRAINT(r.empty(), bool);
+  }
+constexpr bool empty(const R& r)
+  noexcept(noexcept(bool(r.empty))) {
+  return r.empty();
+}
+
+// data
+template <class T, std::size_t N>
+constexpr T* data(T (&array)[N]) noexcept {
+  return array;
+}
+
+template <class E>
+constexpr const E* data(std::initializer_list<E> il) noexcept {
+  return il.begin();
+}
+
+template <class R>
+  requires requires (R& r) { r.data(); }
+constexpr auto data(R& r)
+  noexcept(noexcept(r.data())) {
+  return r.data();
+}
+
+template <class R>
+  requires requires (const R& r) { r.data(); }
+constexpr auto data(const R& r)
+  noexcept(noexcept(r.data())) {
+  return r.data();
+}
+
 }} // namespace stl2::v1
 
 #endif
