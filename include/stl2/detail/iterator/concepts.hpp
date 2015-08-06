@@ -193,7 +193,7 @@ template <class In, class Out>
 constexpr bool is_nothrow_indirectly_movable_v = false;
 
 IndirectlyMovable{In, Out}
-constexpr bool is_nothrow_indirectly_movable_v =
+constexpr bool is_nothrow_indirectly_movable_v<In, Out> =
   std::is_nothrow_constructible<ValueType<In>, RvalueReferenceType<In>>::value &&
   std::is_nothrow_assignable<ValueType<In> &, RvalueReferenceType<In>>::value &&
   std::is_nothrow_assignable<ReferenceType<Out>, RvalueReferenceType<In>>::value &&

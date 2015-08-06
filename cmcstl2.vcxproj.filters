@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2">
+      <UniqueIdentifier>{cbb7e17e-f6d1-4f4b-ac10-464d80047e1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\meta">
+      <UniqueIdentifier>{7d7b7db0-ebea-490f-8e5f-3cf887b52cfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2">
+      <UniqueIdentifier>{abd21d2b-e740-4586-9367-220a3be2824e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\detail">
+      <UniqueIdentifier>{fabeeb70-566b-4e3a-99f3-013462df0b62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\meta\include">
+      <UniqueIdentifier>{1122ee4c-dd15-4e76-8367-bac685858231}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\meta\include\meta">
+      <UniqueIdentifier>{a1a9ea2c-d9c1-4215-9e12-38ecb8f0c710}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Files">
+      <UniqueIdentifier>{1502d095-18e4-4d1b-b85b-aa8875cdbb6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Files\concepts">
+      <UniqueIdentifier>{c02bc38b-989e-4dff-b4d2-a897be13339d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\detail\concepts">
+      <UniqueIdentifier>{5e5296f1-673d-46df-9c8f-cf948267f6a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Files\algorithm">
+      <UniqueIdentifier>{088aeebe-4a77-4e6f-b6f3-148b6fc01a61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Files\iterator">
+      <UniqueIdentifier>{bb154e64-308c-4418-9bd7-6c813d69f789}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\detail\iterator">
+      <UniqueIdentifier>{feeeb742-22cf-4e29-8ef0-87be73bf561e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\detail\algorithm">
+      <UniqueIdentifier>{44740440-b416-4103-bc95-fec51911588c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\stl2\iterator.hpp">
+      <Filter>Header Files\cmcstl2\stl2</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\utility.hpp">
+      <Filter>Header Files\cmcstl2\stl2</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\fwd.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="meta\include\meta\meta.hpp">
+      <Filter>Header Files\meta\include\meta</Filter>
+    </ClInclude>
+    <ClInclude Include="meta\include\meta\meta_fwd.hpp">
+      <Filter>Header Files\meta\include\meta</Filter>
+    </ClInclude>
+    <ClInclude Include="test\simple_test.hpp">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\compare.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\core.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\function.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\object.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\range.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\concepts.hpp">
+      <Filter>Header Files\cmcstl2\stl2</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\type_traits.hpp">
+      <Filter>Header Files\cmcstl2\stl2</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\iterator.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="test\iterator\test_iterators.hpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="test\concepts\validate.hpp">
+      <Filter>Test Files\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\algorithm.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\callable.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\algorithm.hpp">
+      <Filter>Header Files\cmcstl2\stl2</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\functional.hpp">
+      <Filter>Header Files\cmcstl2\stl2</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\all_of.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\concepts.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\insert_iterators.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\operations.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\reverse_iterator.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test\headers.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\concepts\compare.cpp">
+      <Filter>Test Files\concepts</Filter>
+    </ClCompile>
+    <ClCompile Include="test\concepts\core.cpp">
+      <Filter>Test Files\concepts</Filter>
+    </ClCompile>
+    <ClCompile Include="test\concepts\integer.cpp">
+      <Filter>Test Files\concepts</Filter>
+    </ClCompile>
+    <ClCompile Include="test\concepts\iterator.cpp">
+      <Filter>Test Files\concepts</Filter>
+    </ClCompile>
+    <ClCompile Include="test\concepts\object.cpp">
+      <Filter>Test Files\concepts</Filter>
+    </ClCompile>
+    <ClCompile Include="test\concepts\swap.cpp">
+      <Filter>Test Files\concepts</Filter>
+    </ClCompile>
+    <ClCompile Include="test\concepts\range.cpp">
+      <Filter>Test Files\concepts</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\iterator.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\reverse_iterator.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\all_of.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="test\CMakeLists.txt">
+      <Filter>Test Files</Filter>
+    </Text>
+    <Text Include="test\concept_select.txt">
+      <Filter>Test Files</Filter>
+    </Text>
+    <Text Include="test\concepts\CMakeLists.txt">
+      <Filter>Test Files\concepts</Filter>
+    </Text>
+    <Text Include="CMakeLists.txt" />
+    <Text Include="test\algorithm\CMakeLists.txt" />
+    <Text Include="test\iterator\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include=".gitmodules" />
+  </ItemGroup>
+</Project>

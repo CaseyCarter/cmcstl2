@@ -57,7 +57,7 @@ template<class T, class U>
 constexpr bool is_nothrow_swappable_v = false;
 
 Swappable{T, U}
-constexpr bool is_nothrow_swappable_v =
+constexpr bool is_nothrow_swappable_v<T, U> =
   noexcept(swap(declval<T>(), declval<U>()));
 
 template<class T, class U>

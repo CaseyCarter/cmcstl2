@@ -1,6 +1,3 @@
-#include <vector>
-#include "../simple_test.hpp"
-
 #include "validate.hpp"
 
 #if VALIDATE_RANGES
@@ -83,6 +80,9 @@ struct arbitrary_range {
   int size() const requires allow_size;
 };
 #endif
+
+#include "../simple_test.hpp"
+#include <vector>
 
 using mutable_unsized_range =
   arbitrary_range<true, true, false>;

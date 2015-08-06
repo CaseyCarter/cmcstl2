@@ -2,10 +2,24 @@
 #include <stl2/iterator.hpp>
 #include <cassert>
 #include <iostream>
+#include <vector>
 
 namespace models = stl2::ext::models;
 
-namespace ns {
+void test_range_access_ambiguity() {
+  std::vector<stl2::reverse_iterator<int*>> vri{};
+  using namespace stl2;
+  (void)begin(vri);
+  (void)end(vri);
+  (void)cbegin(vri);
+  (void)cend(vri);
+  (void)rbegin(vri);
+  (void)rend(vri);
+  (void)crbegin(vri);
+  (void)crend(vri);
+}
+
+namespace X {
 template <class T, std::size_t N>
   requires N != 0
 struct array {
@@ -34,7 +48,7 @@ static_assert(models::iterator<CI>());
 int main() {
   using namespace stl2;
 
-  static constexpr ns::array<int, 4> some_ints = {{0,1,2,3}};
+  static constexpr X::array<int, 4> some_ints = {{0,1,2,3}};
 
   constexpr auto first = begin(some_ints);
   constexpr auto last = end(some_ints);
