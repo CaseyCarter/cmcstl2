@@ -121,7 +121,7 @@ constexpr T exchange(T& t, U&& u)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_assignable<T&, U>::value);
 
-namespace detail { namespace __swap {
+namespace __swap {
 constexpr void swap(Movable& a, Movable& b)
   noexcept(noexcept(b = exchange(a, stl2::move(b))));
 
@@ -137,7 +137,7 @@ struct __try_swap_fn {
 };
 
 namespace {
-  constexpr auto& __try_swap = static_const<__try_swap_fn>::value;
+  constexpr auto& __try_swap = detail::static_const<__try_swap_fn>::value;
 }
 
 // 20150715: Conforming extension: can swap T(&)[N] with U(&)[N]
@@ -153,11 +153,11 @@ struct fn {
   constexpr void operator()(T&& a, U&& b) const
     noexcept(noexcept(swap(stl2::forward<T>(a), stl2::forward<U>(b))));
 };
-}}
+} // namespace __swap
 
 namespace {
 // 20150805: Not to spec: swap is a N4381-style function object customization point.
-  constexpr auto& swap = detail::static_const<detail::__swap::fn>::value;
+  constexpr auto& swap = detail::static_const<__swap::fn>::value;
 }
 
 namespace detail {
@@ -205,10 +205,8 @@ using is_nothrow_swappable_t =
 
 }
 
-
 #if 0
 namespace ext {
-
 template <class T>
 concept bool Scalar() {
   return _Is<T, std::is_scalar> && Regular<T>();
@@ -218,7 +216,6 @@ template <class T>
 concept bool Arithmetic() {
   return _Is<T, std::is_arithmetic> && Scalar<T>() && TotallyOrdered<T>();
 }
-
 }
 
 template <class T>
@@ -249,7 +246,6 @@ concept bool UnsignedIntegral() {
 // SignedIntegral<T> and UnsignedIntegral<T> are mutually exclusive
 
 namespace ext { namespace models {
-
 template <class>
 constexpr bool destructible() { return false; }
 Destructible{T}
@@ -328,7 +324,6 @@ template <class>
 constexpr bool unsigned_integral() { return false; }
 UnsignedIntegral{T}
 constexpr bool unsigned_integral() { return true; }
-
 }}}} // namespace stl2::v1::ext::models
 
 #endif

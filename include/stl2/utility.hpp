@@ -13,9 +13,7 @@
 
 namespace stl2 { inline namespace v1 {
 
-////////////////////
-// exchange and swap
-//
+// exchange
 template <Movable T, class U = T>
   requires Assignable<T&, U>()
 constexpr T exchange(T& t, U&& u)
@@ -26,8 +24,8 @@ constexpr T exchange(T& t, U&& u)
   return tmp;
 }
 
-
-namespace detail { namespace __swap {
+// swap
+namespace __swap {
 // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2152
 // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
 
@@ -51,23 +49,22 @@ constexpr void fn::operator()(T&& a, U&& b) const
   noexcept(noexcept(swap(stl2::forward<T>(a), stl2::forward<U>(b)))) {
   swap(stl2::forward<T>(a), stl2::forward<U>(b));
 }
-}}
+} // namespace __swap
 
-template<class T, class U>
+template <class T, class U>
 constexpr bool is_nothrow_swappable_v = false;
 
 Swappable{T, U}
 constexpr bool is_nothrow_swappable_v<T, U> =
   noexcept(swap(declval<T>(), declval<U>()));
 
-template<class T, class U>
+template <class T, class U>
 using is_nothrow_swappable_t =
   meta::bool_<is_nothrow_swappable_v<T, U>>;
 
-template<class T, class U>
+template <class T, class U>
 struct is_nothrow_swappable :
   is_nothrow_swappable_t<T, U> {};
-
 }} // namespace stl2::v1
 
 #endif
