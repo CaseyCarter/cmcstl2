@@ -1,6 +1,7 @@
 #ifndef STL2_DETAIL_CONCEPTS_ITERATOR
 #define STL2_DETAIL_CONCEPTS_ITERATOR
 
+#include <functional>
 #include <iterator>
 #include <type_traits>
 
@@ -10,6 +11,7 @@
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/concepts/function.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/utility.hpp>
 
@@ -44,7 +46,7 @@ using __iter_move_t =
   meta::if_<
     std::is_reference<ReferenceType<R>>,
     std::remove_reference_t<ReferenceType<R>> &&,
-    std::decay_t<ReferenceType<R>>>;
+    ReferenceType<R>>;
 
 }
 
@@ -185,7 +187,26 @@ concept bool IndirectlyCopyable() {
     Writable<Out, ValueType<In>>();
 }
 
-namespace ext {
+#if 0 //1
+template <class In, class Out>
+struct is_nothrow_indirectly_movable : std::false_type { };
+
+IndirectlyMovable{In, Out}
+struct is_nothrow_indirectly_movable<In, Out> :
+  meta::bool_<
+    std::is_nothrow_constructible<ValueType<In>, RvalueReferenceType<In>>::value &&
+    std::is_nothrow_assignable<ValueType<In> &, RvalueReferenceType<In>>::value &&
+    std::is_nothrow_assignable<ReferenceType<Out>, RvalueReferenceType<In>>::value &&
+    std::is_nothrow_assignable<ReferenceType<Out>, ValueType<In>>::value> { };
+
+template <class In, class Out>
+constexpr bool is_nothrow_indirectly_movable_v =
+  meta::_v<is_nothrow_indirectly_movable<In, Out>>;
+
+template <class In, class Out>
+using is_nothrow_indirectly_movable_t =
+  meta::_t<is_nothrow_indirectly_movable<In, Out>>;
+#else
 template <class In, class Out>
 constexpr bool is_nothrow_indirectly_movable_v = false;
 
@@ -202,7 +223,7 @@ struct is_nothrow_indirectly_movable
 
 template <class In, class Out>
 using is_nothrow_indirectly_movable_t = meta::_t<is_nothrow_indirectly_movable<In, Out>>;
-}
+#endif
 
 // iter_swap2
 template <class R1, class R2,
@@ -210,7 +231,7 @@ template <class R1, class R2,
   Readable _R2 = std::remove_reference_t<R2>>
   requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>);
+  noexcept(is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>);
 
 template <class R1, class R2,
   Readable _R1 = std::remove_reference_t<R1>,
@@ -218,8 +239,8 @@ template <class R1, class R2,
   requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>() &&
     !Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(ext::is_nothrow_indirectly_movable_v<_R1, _R2> &&
-           ext::is_nothrow_indirectly_movable_v<_R2, _R1>);
+  noexcept(is_nothrow_indirectly_movable_v<_R1, _R2> &&
+           is_nothrow_indirectly_movable_v<_R2, _R1>);
 
 template <class I1, class I2 = I1>
 concept bool IndirectlySwappable() {
@@ -232,7 +253,6 @@ concept bool IndirectlySwappable() {
     };
 }
 
-namespace ext {
 template <class R1, class R2>
 struct is_nothrow_indirectly_swappable : meta::bool_<false> {};
 
@@ -252,7 +272,6 @@ constexpr bool is_nothrow_indirectly_swappable_v =
 template <class R1, class R2>
 using is_nothrow_indirectly_swappable_t =
   meta::_t<is_nothrow_indirectly_swappable<R1, R2>>;
-}
 
 namespace detail {
 template <class T>
@@ -606,7 +625,7 @@ template <class R1, class R2,
   Readable _R2 = std::remove_reference_t<R2>>
   requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>) {
+  noexcept(is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>) {
   swap(*r1, *r2);
 }
 
@@ -616,8 +635,8 @@ template <class R1, class R2,
   requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>() &&
     !Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(ext::is_nothrow_indirectly_movable_v<_R1, _R2> &&
-           ext::is_nothrow_indirectly_movable_v<_R2, _R1>) {
+  noexcept(is_nothrow_indirectly_movable_v<_R1, _R2> &&
+           is_nothrow_indirectly_movable_v<_R2, _R1>) {
   ValueType<_R1> tmp = iter_move(r1);
   *r1 = iter_move(r2);
   *r2 = stl2::move(tmp);
@@ -711,6 +730,8 @@ using stl2_to_std_iterator_category =
   decltype(stl2_to_std_iterator_category_::f((T*)nullptr));
 }}} // namespace stl2::v1::detail
 
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67152
+#if 0 // BUGBUG
 namespace std {
 template <::stl2::WeakIterator Out>
   requires !::stl2::detail::MemberIteratorCategory<Out>
@@ -745,5 +766,6 @@ struct iterator_traits<I> {
     std::input_iterator_tag>;
 };
 }
+#endif
 
 #endif

@@ -74,7 +74,6 @@
     <ClInclude Include="include\stl2\detail\concepts\compare.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\core.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\function.hpp" />
-    <ClInclude Include="include\stl2\detail\concepts\iterator.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\object.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\range.hpp" />
     <ClInclude Include="include\stl2\detail\fwd.hpp" />

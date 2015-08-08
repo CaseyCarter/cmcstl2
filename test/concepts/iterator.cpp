@@ -5,8 +5,10 @@
 #include <range/v3/utility/iterator_traits.hpp>
 
 namespace models {
-template <class...Ts>
-using same = ranges::Same<Ts...>;
+//template <class...Ts>
+//using same = ranges::Same<Ts...>;
+template <class T, class U>
+using same = ranges::Same<T, U>;
 
 template <class R>
 using readable = ranges::Readable<R>;
@@ -65,6 +67,7 @@ using ranges::random_access_iterator_tag;
 #elif VALIDATE_STL2
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/iterator.hpp>
+#include <stl2/detail/concepts/callable.hpp>
 
 namespace ns {
 using stl2::DifferenceType;
@@ -273,6 +276,10 @@ CONCEPT_ASSERT(models::sentinel<const int*, int*>());
 CONCEPT_ASSERT(!models::sentinel<void*, void*>());
 CONCEPT_ASSERT(models::sentinel<A, A>());
 } // namespace iterator_sentinel_test
+
+namespace indirectly_callable_test {
+CONCEPT_ASSERT(models::indirect_callable<std::plus<int>, int*, int*>());
+}
 
 int main() {
   return ::test_result();

@@ -27,8 +27,7 @@ T as_function(T&& t) {
   return stl2::forward<T>(t);
 }
 
-template <class T>
-  requires _Is<std::decay<T>, std::is_member_pointer>
+template <class T, _Is<std::is_member_pointer> = std::decay_t<T>>
 auto as_function(T&& t) {
   return std::mem_fn(t);
 }
@@ -57,51 +56,131 @@ struct difference_type<Projected<I, Proj>> :
 ///////////////////////////////////////////////////////////////////////////
 // Indirect callables [indirectfunc.indirectcallables]
 //
+template <class> struct __readable : std::false_type {};
+Readable{T} struct __readable<T> : std::true_type {};
+
+template <class, class...> struct __function : std::false_type {};
+Function{F, ...Args} struct __function<F, Args...> : std::true_type {};
+
+template <class, class...> struct __regular_function : std::false_type {};
+RegularFunction{F, ...Args} struct __regular_function<F, Args...> : std::true_type {};
+
+template <class, class...> struct __predicate : std::false_type {};
+Predicate{F, ...Args} struct __predicate<F, Args...> : std::true_type {};
+
+template <class, class I1, class I2 = I1> struct __relation : std::false_type {};
+Relation{F, I1, I2} struct __relation<F, I1, I2> : std::true_type {};
+
+template <class, class I1, class I2 = I1> struct __strict_weak_order : std::false_type {};
+StrictWeakOrder{F, I1, I2} struct __strict_weak_order<F, I1, I2> : std::true_type {};
+
+template <class...T> struct __common_reference : meta::bool_<sizeof...(T)==1> {};
+template <class T, class U, class...Rest> requires CommonReference<T,U>()
+struct __common_reference<T,U,Rest...> : __common_reference<CommonReferenceType<T,U>,Rest...> {};
+
+template <class...Is>
+using __iter_args_lists =
+  meta::push_back<
+    meta::cartesian_product<
+      meta::list<meta::list<ValueType<Is>, ReferenceType<Is>>...>>,
+    meta::list<iter_common_reference_t<Is>...>>;
+
 template <class F, class...Is>
 using IndirectCallableResultType =
-  ResultType<F, ValueType<Is>...>;
-
-namespace detail {
-template <class...Ts>
-struct all_readable : std::false_type {};
-
-template <>
-struct all_readable<> : std::true_type {};
-
-template <Readable First, class...Rest>
-struct all_readable<First, Rest...> :
-  all_readable<Rest...> {};
-}
+  ResultType<FunctionType<F>, ValueType<Is>...>;
 
 template <class F, class...Is>
 concept bool IndirectCallable() {
-  return detail::all_readable<Is...>::value &&
-    Function<FunctionType<F>, ValueType<Is>...>();
+  return
+    //(Readable<Is>() &&...) &&
+    meta::_v<meta::and_<__readable<Is>...>> &&
+    meta::_v<meta::apply_list<
+      meta::quote<meta::and_>,
+      meta::transform<
+        __iter_args_lists<Is...>,
+        meta::uncurry<meta::bind_front<meta::quote<__function>, FunctionType<F>>>>>> &&
+    meta::_v<meta::apply_list<
+      meta::quote<__common_reference>,
+      meta::transform<
+        __iter_args_lists<Is...>,
+        meta::uncurry<meta::bind_front<meta::quote<ResultType>, FunctionType<F>>>>>>;
 }
 
 template <class F, class...Is>
 concept bool IndirectRegularCallable() {
-  return detail::all_readable<Is...>::value &&
-    RegularFunction<FunctionType<F>, ValueType<Is>...>();
+  return
+    //(Readable<Is>() &&...) &&
+    meta::_v<meta::and_<__readable<Is>...>> &&
+    meta::_v<meta::apply_list<
+      meta::quote<meta::and_>,
+      meta::transform<
+        __iter_args_lists<Is...>,
+        meta::uncurry<meta::bind_front<meta::quote<__regular_function>, FunctionType<F>>>>>> &&
+    meta::_v<meta::apply_list<
+      meta::quote<__common_reference>,
+      meta::transform<
+        __iter_args_lists<Is...>,
+        meta::uncurry<meta::bind_front<meta::quote<ResultType>, FunctionType<F>>>>>>;
 }
 
 template <class F, class...Is>
 concept bool IndirectCallablePredicate() {
-  return detail::all_readable<Is...>::value &&
-    Predicate<FunctionType<F>, ValueType<Is>...>();
+  return
+    //(Readable<Is>() &&...) &&
+    meta::_v<meta::and_<__readable<Is>...>> &&
+    meta::_v<meta::apply_list<
+      meta::quote<meta::and_>,
+      meta::transform<
+        __iter_args_lists<Is...>,
+        meta::uncurry<meta::bind_front<meta::quote<__predicate>, FunctionType<F>>>>>>;
 }
 
 template <class F, class I1, class I2 = I1>
 concept bool IndirectCallableRelation() {
-  return Readable<I1>() && Readable<I2>() &&
-    Relation<FunctionType<F>, ValueType<I1>, ValueType<I2>>();
+  return
+    Readable<I1>() && Readable<I2>() &&
+    Relation<FunctionType<F>, ValueType<I1>, ValueType<I2>>() &&
+    Relation<FunctionType<F>, ValueType<I1>, ReferenceType<I2>>() &&
+    Relation<FunctionType<F>, ReferenceType<I1>, ValueType<I2>>() &&
+    Relation<FunctionType<F>, ReferenceType<I1>, ReferenceType<I2>>() &&
+    Relation<FunctionType<F>, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
 }
 
 template <class F, class I1, class I2 = I1>
 concept bool IndirectCallableStrictWeakOrder() {
-  return Readable<I1>() && Readable<I2>() &&
-    StrictWeakOrder<FunctionType<F>, ValueType<I1>, ValueType<I2>>();
+  return
+    Readable<I1>() && Readable<I2>() &&
+    StrictWeakOrder<FunctionType<F>, ValueType<I1>, ValueType<I2>>() &&
+    StrictWeakOrder<FunctionType<F>, ValueType<I1>, ReferenceType<I2>>() &&
+    StrictWeakOrder<FunctionType<F>, ReferenceType<I1>, ValueType<I2>>() &&
+    StrictWeakOrder<FunctionType<F>, ReferenceType<I1>, ReferenceType<I2>>() &&
+    StrictWeakOrder<FunctionType<F>, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
 }
+
+
+namespace ext { namespace models {
+
+template <class, class...>
+constexpr bool indirect_callable() { return false; }
+IndirectCallable{F, ...Args}
+constexpr bool indirect_callable() { return true; }
+
+template <class, class...>
+constexpr bool indirect_predicate() { return false; }
+IndirectCallablePredicate{F, ...Args}
+constexpr bool indirect_predicate() { return true; }
+
+#if 0
+template <class, class, class = void>
+constexpr bool indirect_relation() { return false; }
+IndirectCallableRelation{F, I1}
+constexpr bool indirect_relation() { return true; }
+IndirectCallableRelation{F, I1, I2}
+constexpr bool indirect_relation() { return true; }
+#endif
+
+}}
+
 }}
 
 #endif

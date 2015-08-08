@@ -31,15 +31,15 @@ using stl2::CommonType;
 
 #include "../simple_test.hpp"
 
-CONCEPT_ASSERT(models::same<>());
+//CONCEPT_ASSERT(models::same<>());
 CONCEPT_ASSERT(models::same<int, int>());
 CONCEPT_ASSERT(models::same<double, double>());
-CONCEPT_ASSERT(models::same<double>());
+//CONCEPT_ASSERT(models::same<double>());
 CONCEPT_ASSERT(!models::same<double, int>());
 CONCEPT_ASSERT(!models::same<int, double>());
 
-CONCEPT_ASSERT(models::same<int, int, int, int>());
-CONCEPT_ASSERT(!models::same<int, int, double, int>());
+//CONCEPT_ASSERT(models::same<int, int, int, int>());
+//CONCEPT_ASSERT(!models::same<int, int, double, int>());
 
 #if VALIDATE_STL2
 namespace publicly_derived_from_test {

@@ -30,6 +30,8 @@ concept bool _Is = _Valid<T, U, V...> && T<U, V...>::value;
 template <class U, template <class...> class T, class... V>
 concept bool _IsNot = !_Is<U, T, V...>;
 
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67148
+#if 0
 namespace detail {
 template <class...>
 struct all_same : std::true_type {};
@@ -45,6 +47,12 @@ template <class...Ts>
 concept bool Same() {
   return detail::all_same<Ts...>::value;
 }
+#else
+template <class T, class U>
+concept bool Same() {
+  return STL2_IS_SAME_AS(T,U);
+}
+#endif
 
 template <class T, class U>
 concept bool DerivedFrom() {
@@ -124,10 +132,18 @@ concept bool Constructible() {
 
 namespace ext { namespace models {
 
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67148
+#if 0
 template <class...>
 constexpr bool same() { return false; }
 Same{...Ts}
 constexpr bool same() { return true; }
+#else
+template <class T, class U>
+constexpr bool same() { return false; }
+Same{T, U}
+constexpr bool same() { return true; }
+#endif
 
 template <class, class>
 constexpr bool convertible_to() { return false; }

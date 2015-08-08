@@ -44,6 +44,26 @@ constexpr void swap(T (&t)[N], U (&u)[N])
     swap(t[i], u[i]);
 }
 
+#if 0 //1
+template <class T, class U = T>
+struct is_nothrow_swappable : std::false_type { };
+
+Swappable{T, U}
+struct is_nothrow_swappable<T, U> :
+  meta::bool_<
+    noexcept(swap(stl2::declval<T>(), stl2::declval<U>())) &&
+    noexcept(swap(stl2::declval<U>(), stl2::declval<T>())) &&
+    noexcept(swap(stl2::declval<T>(), stl2::declval<T>())) &&
+    noexcept(swap(stl2::declval<U>(), stl2::declval<U>()))> { };
+
+template <class T, class U = T>
+constexpr bool is_nothrow_swappable_v =
+  meta::_v<is_nothrow_swappable<T, U>>;
+
+template <class T, class U>
+using is_nothrow_swappable_t =
+  meta::_t<is_nothrow_swappable<T, U>>;
+#else
 template<class T, class U>
 constexpr bool is_nothrow_swappable_v = false;
 
@@ -58,6 +78,7 @@ using is_nothrow_swappable_t =
 template<class T, class U>
 struct is_nothrow_swappable :
   is_nothrow_swappable_t<T, U> {};
+#endif
 
 }} // namespace stl2::v1
 
