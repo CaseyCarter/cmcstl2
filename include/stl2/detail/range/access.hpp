@@ -32,7 +32,7 @@ namespace __begin {
       STL2_DEDUCTION_CONSTRAINT(r.begin(), Iterator);
 #endif
     }
-  constexpr STL2_CONSTRAINED_AUTO(Iterator) begin(R& r)
+  constexpr STL2_CONSTRAINED_RETURN(Iterator) begin(R& r)
     noexcept(noexcept(r.begin())) {
     return r.begin();
   }
@@ -45,7 +45,7 @@ namespace __begin {
       STL2_DEDUCTION_CONSTRAINT(r.begin(), Iterator);
 #endif
     }
-  constexpr STL2_CONSTRAINED_AUTO(Iterator) begin(const R& r)
+  constexpr STL2_CONSTRAINED_RETURN(Iterator) begin(const R& r)
     noexcept(noexcept(r.begin())) {
     return r.begin();
   }
@@ -59,7 +59,7 @@ namespace __begin {
         STL2_DEDUCTION_CONSTRAINT(begin((R&&)r), Iterator);
 #endif
       }
-    constexpr STL2_CONSTRAINED_AUTO(Iterator) operator()(R&& r) const
+    constexpr STL2_CONSTRAINED_RETURN(Iterator) operator()(R&& r) const
       noexcept(noexcept(begin(stl2::forward<R>(r)))) {
       return begin(stl2::forward<R>(r));
     }
@@ -86,7 +86,7 @@ namespace __end {
     }
   constexpr auto end(R& r)
     noexcept(noexcept(r.end())) ->
-    STL2_CONSTRAINED_AUTO(Sentinel<decltype(r.begin())>) {
+    STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.begin())>) {
     return r.end();
   }
 
@@ -100,7 +100,7 @@ namespace __end {
     }
   constexpr auto end(const R& r)
     noexcept(noexcept(r.end())) ->
-    STL2_CONSTRAINED_AUTO(Sentinel<decltype(r.begin())>) {
+    STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.begin())>) {
     return r.end();
   }
 
@@ -115,7 +115,7 @@ namespace __end {
       }
     constexpr auto operator()(R&& r) const
       noexcept(noexcept(end(stl2::forward<R>(r)))) ->
-      STL2_CONSTRAINED_AUTO(Sentinel<decltype(begin((R&&)r))>) {
+      STL2_CONSTRAINED_RETURN(Sentinel<decltype(begin((R&&)r))>) {
       return end(r);
     }
   };
@@ -127,7 +127,7 @@ namespace {
 // cbegin
 template <class R>
   requires requires (const R& r) { stl2::begin(r); }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) cbegin(const R& r)
+constexpr STL2_CONSTRAINED_RETURN(Iterator) cbegin(const R& r)
   noexcept(noexcept(stl2::begin(r))) {
   return stl2::begin(r);
 }
@@ -137,7 +137,7 @@ template <class R>
   requires requires (const R& r) { stl2::end(r); }
 constexpr auto cend(const R& r)
   noexcept(noexcept(stl2::end(r))) ->
-  STL2_CONSTRAINED_AUTO(Sentinel<decltype(stl2::begin(r))>) {
+  STL2_CONSTRAINED_RETURN(Sentinel<decltype(stl2::begin(r))>) {
   return stl2::end(r);
 }
 
@@ -160,7 +160,7 @@ template <class R>
     STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
 #endif
   }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) rbegin(R& r)
+constexpr STL2_CONSTRAINED_RETURN(Iterator) rbegin(R& r)
   noexcept(noexcept(r.rbegin())) {
   return r.rbegin();
 }
@@ -173,7 +173,7 @@ template <class R>
     STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
 #endif
   }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) rbegin(const R& r)
+constexpr STL2_CONSTRAINED_RETURN(Iterator) rbegin(const R& r)
   noexcept(noexcept(r.rbegin())) {
   return r.rbegin();
 }
@@ -199,7 +199,7 @@ template <class R>
   }
 constexpr auto rend(R& r)
   noexcept(noexcept(r.rend())) ->
-  STL2_CONSTRAINED_AUTO(Sentinel<decltype(r.rbegin(r))>) {
+  STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.rbegin(r))>) {
   return r.rend();
 }
 
@@ -213,14 +213,14 @@ template <class R>
   }
 constexpr auto rend(const R& r)
   noexcept(noexcept(r.rend())) ->
-  STL2_CONSTRAINED_AUTO(Sentinel<decltype(r.rbegin(r))>) {
+  STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.rbegin(r))>) {
   return r.rend();
 }
 
 // crbegin
 template <class R>
   requires requires(const R& r) { stl2::rbegin(r); }
-constexpr STL2_CONSTRAINED_AUTO(Iterator) crbegin(const R& r)
+constexpr STL2_CONSTRAINED_RETURN(Iterator) crbegin(const R& r)
   noexcept(noexcept(stl2::rbegin(r))) {
   return stl2::rbegin(r);
 }
@@ -230,7 +230,7 @@ template <class R>
   requires requires(const R& r) { stl2::rend(r); }
 constexpr auto crend(const R& r)
   noexcept(noexcept(stl2::rend(r))) ->
-  STL2_CONSTRAINED_AUTO(Sentinel<decltype(stl2::rbegin(r))>) {
+  STL2_CONSTRAINED_RETURN(Sentinel<decltype(stl2::rbegin(r))>) {
   return stl2::rend(r);
 }
 
@@ -265,6 +265,7 @@ namespace {
 }
 
 // empty
+namespace __empty {
 template <class T, std::size_t N>
 constexpr bool empty(T(&)[N]) noexcept {
   return N == 0;
@@ -284,7 +285,23 @@ constexpr bool empty(const R& r)
   return r.empty();
 }
 
+struct fn {
+  template <class R>
+    requires requires (const R& r) {
+      STL2_CONVERSION_CONSTRAINT(empty(r), bool);
+    }
+  constexpr bool operator()(const R& r) const
+    noexcept(noexcept(empty(r))) {
+    return empty(r);
+  }
+};
+}
+namespace {
+constexpr auto& empty = detail::static_const<__empty::fn>::value;
+}
+
 // data
+namespace __data {
 template <class T, std::size_t N>
 constexpr T* data(T (&array)[N]) noexcept {
   return array;
@@ -296,19 +313,40 @@ constexpr const E* data(std::initializer_list<E> il) noexcept {
 }
 
 template <class R>
-  requires requires (R& r) { r.data(); }
-constexpr auto data(R& r)
-  noexcept(noexcept(r.data())) {
+  requires requires (R& r) {
+    //{ r.data() } -> _Is<std::is_pointer>;
+    requires _Is<decltype(r.data()), std::is_pointer>;
+  }
+constexpr STL2_CONSTRAINED_RETURN(_Is<std::is_pointer>)
+data(R& r) noexcept(noexcept(r.data())) {
   return r.data();
 }
 
 template <class R>
-  requires requires (const R& r) { r.data(); }
-constexpr auto data(const R& r)
-  noexcept(noexcept(r.data())) {
+  requires requires (const R& r) {
+    //{ r.data() } -> _Is<std::is_pointer>;
+    requires _Is<decltype(r.data()), std::is_pointer>;
+  }
+constexpr STL2_CONSTRAINED_RETURN(_Is<std::is_pointer>)
+data(const R& r) noexcept(noexcept(r.data())) {
   return r.data();
 }
 
+struct fn {
+  template <class R>
+    requires requires (R& r) {
+      //{ data(r) } -> _Is<std::is_pointer>;
+      requires _Is<decltype(data(r)), std::is_pointer>;
+    }
+  constexpr STL2_CONSTRAINED_RETURN(_Is<std::is_pointer>)
+  operator()(R& r) const
+    noexcept(noexcept(data(r))) {
+  }
+};
+}
+namespace {
+constexpr auto& data = detail::static_const<__data::fn>::value;
+}
 }} // namespace stl2::v1
 
 #undef STL2_HACK_CONSTRAINTS
