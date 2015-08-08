@@ -63,8 +63,7 @@ using ranges::random_access_iterator_tag;
 }
 
 #elif VALIDATE_STL2
-#include <stl2/detail/concepts/core.hpp>
-#include <stl2/iterator.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
 
 namespace ns = stl2;
 #endif
