@@ -51,18 +51,21 @@ constexpr void fn::operator()(T&& a, U&& b) const
 }
 } // namespace __swap
 
-template <class T, class U>
+template <class T, class U = T>
 constexpr bool is_nothrow_swappable_v = false;
 
 Swappable{T, U}
 constexpr bool is_nothrow_swappable_v<T, U> =
-  noexcept(swap(declval<T>(), declval<U>()));
+  noexcept(swap(stl2::declval<T>(), stl2::declval<U>())) &&
+  noexcept(swap(stl2::declval<U>(), stl2::declval<T>())) &&
+  noexcept(swap(stl2::declval<T>(), stl2::declval<T>())) &&
+  noexcept(swap(stl2::declval<U>(), stl2::declval<U>()));
 
-template <class T, class U>
+template <class T, class U = T>
 using is_nothrow_swappable_t =
   meta::bool_<is_nothrow_swappable_v<T, U>>;
 
-template <class T, class U>
+template <class T, class U = T>
 struct is_nothrow_swappable :
   is_nothrow_swappable_t<T, U> {};
 }} // namespace stl2::v1
