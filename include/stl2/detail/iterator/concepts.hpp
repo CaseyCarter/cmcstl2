@@ -200,11 +200,12 @@ constexpr bool is_nothrow_indirectly_movable_v<In, Out> =
   std::is_nothrow_assignable<ReferenceType<Out>, ValueType<In>>::value;
 
 template <class In, class Out>
-struct is_nothrow_indirectly_movable
-  : meta::bool_<is_nothrow_indirectly_movable_v<In, Out>> {};
+using is_nothrow_indirectly_movable_t =
+  meta::bool_<is_nothrow_indirectly_movable_v<In, Out>>;
 
 template <class In, class Out>
-using is_nothrow_indirectly_movable_t = meta::_t<is_nothrow_indirectly_movable<In, Out>>;
+struct is_nothrow_indirectly_movable
+  : is_nothrow_indirectly_movable_t<In, Out> {};
 }
 
 // iter_swap2
@@ -259,24 +260,22 @@ concept bool IndirectlySwappable() {
 
 namespace ext {
 template <class R1, class R2>
-struct is_nothrow_indirectly_swappable : meta::bool_<false> {};
+constexpr bool is_nothrow_indirectly_swappable_v = false;
 
 IndirectlySwappable{R1, R2}
-struct is_nothrow_indirectly_swappable<R1, R2> :
-  meta::bool_<
-    noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R2>())) &&
-    noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R1>())) &&
-    noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R1>())) &&
-    noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R2>()))>
-{};
-
-template <class R1, class R2>
-constexpr bool is_nothrow_indirectly_swappable_v =
-  meta::_v<is_nothrow_indirectly_swappable<R1, R2>>;
+constexpr bool is_nothrow_indirectly_swappable_v<R1, R2> =
+  noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R2>())) &&
+  noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R1>())) &&
+  noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R1>())) &&
+  noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R2>()));
 
 template <class R1, class R2>
 using is_nothrow_indirectly_swappable_t =
-  meta::_t<is_nothrow_indirectly_swappable<R1, R2>>;
+  meta::bool_<is_nothrow_indirectly_swappable_v<R1, R2>>;
+
+template <class R1, class R2>
+struct is_nothrow_indirectly_swappable
+  : is_nothrow_indirectly_swappable_t<R1, R2> {};
 }
 
 namespace detail {
