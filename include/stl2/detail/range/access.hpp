@@ -6,7 +6,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 
-// Disable constraints that cause the compiler to OOM
+// HACKHACK: Disable constraints that cause the compiler to OOM
 #define STL2_HACK_CONSTRAINTS
 
 namespace stl2 { namespace v1 {
@@ -34,6 +34,9 @@ namespace __begin {
     }
   constexpr STL2_CONSTRAINED_RETURN(Iterator) begin(R& r)
     noexcept(noexcept(r.begin())) {
+#ifdef STL2_HACK_CONSTRAINTS
+    static_assert(ext::models::iterator<decltype(r.begin())>());
+#endif
     return r.begin();
   }
 
@@ -47,6 +50,9 @@ namespace __begin {
     }
   constexpr STL2_CONSTRAINED_RETURN(Iterator) begin(const R& r)
     noexcept(noexcept(r.begin())) {
+#ifdef STL2_HACK_CONSTRAINTS
+    static_assert(ext::models::iterator<decltype(r.begin())>());
+#endif
     return r.begin();
   }
 
@@ -61,6 +67,9 @@ namespace __begin {
       }
     constexpr STL2_CONSTRAINED_RETURN(Iterator) operator()(R&& r) const
       noexcept(noexcept(begin(stl2::forward<R>(r)))) {
+#ifdef STL2_HACK_CONSTRAINTS
+      static_assert(ext::models::iterator<decltype(begin(stl2::forward<R>(r)))>());
+#endif
       return begin(stl2::forward<R>(r));
     }
   };
@@ -87,6 +96,9 @@ namespace __end {
   constexpr auto end(R& r)
     noexcept(noexcept(r.end())) ->
     STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.begin())>) {
+#ifdef STL2_HACK_CONSTRAINTS
+    static_assert(ext::models::sentinel<decltype(r.end()), decltype(r.begin())>());
+#endif
     return r.end();
   }
 
@@ -101,6 +113,9 @@ namespace __end {
   constexpr auto end(const R& r)
     noexcept(noexcept(r.end())) ->
     STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.begin())>) {
+#ifdef STL2_HACK_CONSTRAINTS
+    static_assert(ext::models::sentinel<decltype(r.end()), decltype(r.begin())>());
+#endif
     return r.end();
   }
 
@@ -116,6 +131,9 @@ namespace __end {
     constexpr auto operator()(R&& r) const
       noexcept(noexcept(end(stl2::forward<R>(r)))) ->
       STL2_CONSTRAINED_RETURN(Sentinel<decltype(begin((R&&)r))>) {
+#ifdef STL2_HACK_CONSTRAINTS
+      static_assert(ext::models::sentinel<decltype(end((R&&)r)), decltype(begin((R&&)r))>());
+#endif
       return end(r);
     }
   };
