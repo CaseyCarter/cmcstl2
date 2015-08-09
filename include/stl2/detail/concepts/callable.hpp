@@ -94,16 +94,19 @@ concept bool IndirectCallable() {
   return
     //(Readable<Is>() &&...) &&
     meta::_v<meta::and_<__readable<Is>...>> &&
+    Function<FunctionType<F>, ValueType<Is>...>() &&
+    Function<FunctionType<F>, ReferenceType<Is>...>() &&
+    Function<FunctionType<F>, iter_common_reference_t<Is>...>() &&
     meta::_v<meta::apply_list<
-      meta::quote<meta::and_>,
-      meta::transform<
-        __iter_args_lists<Is...>,
-        meta::uncurry<meta::bind_front<meta::quote<__function>, FunctionType<F>>>>>> &&
+      meta::on<
+        meta::quote<meta::and_>,
+        meta::uncurry<meta::bind_front<meta::quote<__function>, FunctionType<F>>>>,
+      __iter_args_lists<Is...>>> &&
     meta::_v<meta::apply_list<
-      meta::quote<__common_reference>,
-      meta::transform<
-        __iter_args_lists<Is...>,
-        meta::uncurry<meta::bind_front<meta::quote<ResultType>, FunctionType<F>>>>>>;
+      meta::on<
+        meta::quote<__common_reference>,
+        meta::uncurry<meta::bind_front<meta::quote<ResultType>, FunctionType<F>>>>,
+      __iter_args_lists<Is...>>>;
 }
 
 template <class F, class...Is>
@@ -111,16 +114,19 @@ concept bool IndirectRegularCallable() {
   return
     //(Readable<Is>() &&...) &&
     meta::_v<meta::and_<__readable<Is>...>> &&
+    RegularFunction<FunctionType<F>, ValueType<Is>...>() &&
+    RegularFunction<FunctionType<F>, ReferenceType<Is>...>() &&
+    RegularFunction<FunctionType<F>, iter_common_reference_t<Is>...>() &&
     meta::_v<meta::apply_list<
-      meta::quote<meta::and_>,
-      meta::transform<
-        __iter_args_lists<Is...>,
-        meta::uncurry<meta::bind_front<meta::quote<__regular_function>, FunctionType<F>>>>>> &&
+      meta::on<
+        meta::quote<meta::and_>,
+        meta::uncurry<meta::bind_front<meta::quote<__regular_function>, FunctionType<F>>>>,
+      __iter_args_lists<Is...>>> &&
     meta::_v<meta::apply_list<
-      meta::quote<__common_reference>,
-      meta::transform<
-        __iter_args_lists<Is...>,
-        meta::uncurry<meta::bind_front<meta::quote<ResultType>, FunctionType<F>>>>>>;
+      meta::on<
+        meta::quote<__common_reference>,
+        meta::uncurry<meta::bind_front<meta::quote<ResultType>, FunctionType<F>>>>,
+      __iter_args_lists<Is...>>>;
 }
 
 template <class F, class...Is>
@@ -128,11 +134,14 @@ concept bool IndirectCallablePredicate() {
   return
     //(Readable<Is>() &&...) &&
     meta::_v<meta::and_<__readable<Is>...>> &&
+    Predicate<FunctionType<F>, ValueType<Is>...>() &&
+    Predicate<FunctionType<F>, ReferenceType<Is>...>() &&
+    Predicate<FunctionType<F>, iter_common_reference_t<Is>...>() &&
     meta::_v<meta::apply_list<
-      meta::quote<meta::and_>,
-      meta::transform<
-        __iter_args_lists<Is...>,
-        meta::uncurry<meta::bind_front<meta::quote<__predicate>, FunctionType<F>>>>>>;
+      meta::on<
+        meta::quote<meta::and_>,
+        meta::uncurry<meta::bind_front<meta::quote<__predicate>, FunctionType<F>>>>,
+      __iter_args_lists<Is...>>>;
 }
 
 template <class F, class I1, class I2 = I1>
