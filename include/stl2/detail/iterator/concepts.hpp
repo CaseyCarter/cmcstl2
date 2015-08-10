@@ -731,8 +731,6 @@ using stl2_to_std_iterator_category =
   decltype(stl2_to_std_iterator_category_::f((T*)nullptr));
 }}} // namespace stl2::v1::detail
 
-// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67152
-#if 0 // BUGBUG
 namespace std {
 template <::stl2::WeakIterator Out>
   requires !::stl2::detail::MemberIteratorCategory<Out>
@@ -767,6 +765,5 @@ struct iterator_traits<I> {
     std::input_iterator_tag>;
 };
 }
-#endif
 
 #endif

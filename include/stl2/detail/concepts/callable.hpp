@@ -100,10 +100,12 @@ concept bool IndirectCallable() {
   return
     //(Readable<Is>() &&...) &&
     meta::_v<meta::and_<__readable<Is>...>> &&
+    // The following 3 are checked redundantly, but are called out
+    // specially for better error messages on concept check failure.
     Function<FunctionType<F>, ValueType<Is>...>() &&
     Function<FunctionType<F>, ReferenceType<Is>...>() &&
     Function<FunctionType<F>, iter_common_reference_t<Is>...>() &&
-    meta::_v<meta::apply<
+    meta::_v<meta::apply<  // redundantly checkes the above 3 requirements
       __iter_map_reduce_fn<
         meta::bind_front<meta::quote<__function>, FunctionType<F>>,
         meta::quote<meta::fast_and>>,
@@ -120,10 +122,12 @@ concept bool IndirectRegularCallable() {
   return
     //(Readable<Is>() &&...) &&
     meta::_v<meta::and_<__readable<Is>...>> &&
+    // The following 3 are checked redundantly, but are called out
+    // specially for better error messages on concept check failure.
     RegularFunction<FunctionType<F>, ValueType<Is>...>() &&
     RegularFunction<FunctionType<F>, ReferenceType<Is>...>() &&
     RegularFunction<FunctionType<F>, iter_common_reference_t<Is>...>() &&
-    meta::_v<meta::apply<
+    meta::_v<meta::apply<  // redundantly checkes the above 3 requirements
       __iter_map_reduce_fn<
         meta::bind_front<meta::quote<__regular_function>, FunctionType<F>>,
         meta::quote<meta::fast_and>>,
@@ -140,10 +144,12 @@ concept bool IndirectCallablePredicate() {
   return
     //(Readable<Is>() &&...) &&
     meta::_v<meta::and_<__readable<Is>...>> &&
+    // The following 3 are checked redundantly, but are called out
+    // specially for better error messages on concept check failure.
     Predicate<FunctionType<F>, ValueType<Is>...>() &&
     Predicate<FunctionType<F>, ReferenceType<Is>...>() &&
     Predicate<FunctionType<F>, iter_common_reference_t<Is>...>() &&
-    meta::_v<meta::apply<
+    meta::_v<meta::apply< // redundantly checkes the above 3 requirements
       __iter_map_reduce_fn<
         meta::bind_front<meta::quote<__predicate>, FunctionType<F>>,
         meta::quote<meta::fast_and>>,
