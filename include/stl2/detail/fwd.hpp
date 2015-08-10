@@ -29,7 +29,12 @@ namespace ext { namespace models {}}
 #define STL2_CONVERSION_CONSTRAINT(E, ...) requires ConvertibleTo<decltype(E),__VA_ARGS__>()
 #endif
 
-#define STL2_DECLTYPE_AUTO_RETURN_NOEXCEPT(...) \
-  noexcept(noexcept(__VA_ARGS__)) -> decltype(__VA_ARGS__) { return (__VA_ARGS__); }
+// For constraining the result of return type deduction,
+// which GCC does not currently implement completely.
+#if 0
+#define STL2_CONSTRAINED_RETURN(...) __VA_ARGS__
+#else
+#define STL2_CONSTRAINED_RETURN(...) auto
+#endif
 
 #endif
