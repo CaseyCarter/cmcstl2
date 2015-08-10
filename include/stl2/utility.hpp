@@ -3,11 +3,13 @@
 
 #include <cassert>
 #include <type_traits>
+#include <tuple>
 #include <utility>
 
 #include <meta/meta.hpp>
 
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/tagged.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
@@ -58,7 +60,6 @@ using is_nothrow_swappable_t =
 template<class T, class U>
 struct is_nothrow_swappable :
   is_nothrow_swappable_t<T, U> {};
-
 }} // namespace stl2::v1
 
 #endif
