@@ -19,6 +19,7 @@ namespace ext { namespace models {}}
 
 }} // namespace stl2::v1
 
+// Workaround GCC's bugs with deduction constraints.
 #if 0
 #define STL2_DEDUCTION_CONSTRAINT(E, ...) { E } -> __VA_ARGS__
 #define STL2_EXACT_TYPE_CONSTRAINT(E, ...) STL2_DEDUCTION_CONSTRAINT(E, Same<__VA_ARGS__>)

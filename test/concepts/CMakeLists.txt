@@ -6,8 +6,8 @@ add_test(test.concepts.core concepts.core)
 add_executable(concepts.compare compare.cpp)
 add_test(test.concepts.compare concepts.compare)
 
-add_executable(concepts.integer integer.cpp)
-add_test(test.concepts.integer concepts.integer)
+add_executable(concepts.fundamental fundamental.cpp)
+add_test(test.concepts.fundamental concepts.fundamental)
 
 add_executable(concepts.iterator iterator.cpp)
 add_test(test.concepts.iterator concepts.iterator)
