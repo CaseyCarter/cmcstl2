@@ -10,6 +10,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/fundamental.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/concepts/function.hpp>
 #include <stl2/type_traits.hpp>
