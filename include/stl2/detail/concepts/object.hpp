@@ -189,49 +189,6 @@ using is_nothrow_swappable_t =
 
 }
 
-
-#if 0
-namespace ext {
-
-template <class T>
-concept bool Scalar() {
-  return _Is<T, std::is_scalar> && Regular<T>();
-}
-
-template <class T>
-concept bool Arithmetic() {
-  return _Is<T, std::is_arithmetic> && Scalar<T>() && TotallyOrdered<T>();
-}
-
-}
-
-template <class T>
-concept bool Integral() {
-  return _Is<T, std::is_integral> && ext::Arithmetic<T>();
-}
-
-#else
-
-template <class T>
-concept bool Integral() {
-  return _Is<T, std::is_integral>;
-}
-#endif
-
-// 20150712: Not to spec.
-template <class T>
-concept bool SignedIntegral() {
-  return Integral<T>() && (T(-1) < T(0));
-}
-
-template <class T>
-concept bool UnsignedIntegral() {
-  return Integral<T>() && !SignedIntegral<T>();
-}
-
-// Integral<T> subsumes SignedIntegral<T> and UnsignedIntegral<T>
-// SignedIntegral<T> and UnsignedIntegral<T> are mutually exclusive
-
 namespace ext { namespace models {
 
 template <class>
@@ -297,21 +254,6 @@ template <class, class>
 constexpr bool swappable() { return false; }
 Swappable{T, U}
 constexpr bool swappable() { return true; }
-
-template <class>
-constexpr bool integral() { return false; }
-Integral{T}
-constexpr bool integral() { return true; }
-
-template <class>
-constexpr bool signed_integral() { return false; }
-SignedIntegral{T}
-constexpr bool signed_integral() { return true; }
-
-template <class>
-constexpr bool unsigned_integral() { return false; }
-UnsignedIntegral{T}
-constexpr bool unsigned_integral() { return true; }
 
 }}}} // namespace stl2::v1::ext::models
 
