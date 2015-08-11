@@ -10,42 +10,37 @@
 //
 namespace stl2 { inline namespace v1 {
 
-#if 1
-// BooleanTestable from DR2114.
+// 20150807: Not to spec. Is actually BooleanTestable from DR2114.
 // (See https://github.com/CaseyCarter/stl2/issues/3#issuecomment-121147664)
 template <class B>
 concept bool Boolean() {
-  return requires (const B& b, const bool a) {
-    STL2_CONVERSION_CONSTRAINT(b, bool);
-    STL2_CONVERSION_CONSTRAINT(!b, bool);
-    STL2_EXACT_TYPE_CONSTRAINT(b && a, bool);
-    STL2_EXACT_TYPE_CONSTRAINT(b || a, bool);
-  };
-}
-
-#else
-
-// Boolean from the proposal.
-template <class B>
-concept bool Boolean() {
   return requires (const B& b1, const B& b2, const bool a) {
+    // Requirements common to both Boolean and BooleanTestable.
     STL2_CONVERSION_CONSTRAINT(b1, bool);
     STL2_CONVERSION_CONSTRAINT(!b1, bool);
-    STL2_EXACT_TYPE_CONSTRAINT(b1 && b2, bool);
     STL2_EXACT_TYPE_CONSTRAINT(b1 && a, bool);
+    STL2_EXACT_TYPE_CONSTRAINT(b1 || a, bool);
+
+    // Requirements of Boolean that are also be valid for
+    // BooleanTestable, but for which BooleanTestable does not
+    // require validation.
+    STL2_EXACT_TYPE_CONSTRAINT(b1 && b2, bool);
     STL2_EXACT_TYPE_CONSTRAINT(a && b2, bool);
     STL2_EXACT_TYPE_CONSTRAINT(b1 || b2, bool);
-    STL2_EXACT_TYPE_CONSTRAINT(b1 || a, bool);
     STL2_EXACT_TYPE_CONSTRAINT(a || b2, bool);
+
+#if 0
+    // Requirements of Boolean that are not required by
+    // BooleanTestable.
     STL2_CONVERSION_CONSTRAINT(b1 == b2, bool);
     STL2_CONVERSION_CONSTRAINT(b1 == a, bool);
     STL2_CONVERSION_CONSTRAINT(a == b2, bool);
     STL2_CONVERSION_CONSTRAINT(b1 != b2, bool);
     STL2_CONVERSION_CONSTRAINT(b1 != a, bool);
     STL2_CONVERSION_CONSTRAINT(a != b2, bool);
+#endif
   };
 }
-#endif
 
 namespace detail {
 
