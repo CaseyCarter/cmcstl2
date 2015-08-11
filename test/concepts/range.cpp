@@ -1,6 +1,3 @@
-#include <vector>
-#include "../simple_test.hpp"
-
 #include "validate.hpp"
 
 #if VALIDATE_RANGES
@@ -60,7 +57,7 @@ struct arbitrary_range {
 };
 
 #elif VALIDATE_STL2
-#include <stl2/iterator.hpp>
+#include <stl2/detail/range/concepts.hpp>
 
 #define NAMESPACE stl2
 
@@ -83,6 +80,9 @@ struct arbitrary_range {
   int size() const requires allow_size;
 };
 #endif
+
+#include "../simple_test.hpp"
+#include <vector>
 
 using mutable_unsized_range =
   arbitrary_range<true, true, false>;
@@ -176,6 +176,9 @@ void ridiculously_exhaustive_range_property_test() {
 
   using I = int*;
   using CI = const int*;
+
+  static_assert(stl2::ext::models::iterator<I>());
+  static_assert(stl2::ext::models::iterator<CI>());
 
   CHECK(models::same<ns::IteratorType<int[2]>, I>());
   CHECK(models::same<ns::SentinelType<int[2]>, I>());
@@ -538,13 +541,6 @@ void complicated_algorithm_test() {
   CHECK(complicated_algorithm(array_view<int>{some_ints}) == std::end(some_ints));
 }
 
-void test_range_access_ambiguity() {
-  std::vector<stl2::reverse_iterator<int*>> vri{};
-  using stl2::cbegin;
-  using stl2::cend;
-  (void)cbegin(vri);
-  (void)cend(vri);
-}
 int main() {
   ridiculously_exhaustive_range_property_test();
   complicated_algorithm_test();

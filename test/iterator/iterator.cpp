@@ -1,5 +1,3 @@
-// -*- compile-command: "(cd ~/cmcstl2/build && make iterator && ./test/iterator)" -*-
-
 #include <cassert>
 #include <cstring>
 #include <iostream>

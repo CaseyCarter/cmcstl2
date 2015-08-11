@@ -2,7 +2,7 @@
 #define STL2_DETAIL_ITERATOR_OPERATIONS_HPP
 
 #include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/concepts/range.hpp>
+#include <stl2/detail/range/concepts.hpp>
 
 namespace stl2 { inline namespace v1 {
 

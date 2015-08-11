@@ -90,8 +90,11 @@
     <ClInclude Include="include\stl2\detail\concepts\object.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\concepts\range.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    <ClInclude Include="include\stl2\detail\range\concepts.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\access.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
     </ClInclude>
     <ClInclude Include="include\stl2\concepts.hpp">
       <Filter>Header Files\cmcstl2\stl2</Filter>
@@ -137,6 +140,9 @@
     <ClCompile Include="test\headers.cpp">
       <Filter>Test Files</Filter>
     </ClCompile>
+    <ClCompile Include="test\range_access.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
     <ClCompile Include="test\tagged.cpp">
       <Filter>Test Files</Filter>
     </ClCompile>
@@ -144,9 +150,6 @@
       <Filter>Test Files\concepts</Filter>
     </ClCompile>
     <ClCompile Include="test\concepts\core.cpp">
-      <Filter>Test Files\concepts</Filter>
-    </ClCompile>
-    <ClCompile Include="test\concepts\integer.cpp">
       <Filter>Test Files\concepts</Filter>
     </ClCompile>
     <ClCompile Include="test\concepts\iterator.cpp">
@@ -169,6 +172,9 @@
     </ClCompile>
     <ClCompile Include="test\algorithm\all_of.cpp">
       <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\concepts\fundamental.cpp">
+      <Filter>Test Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

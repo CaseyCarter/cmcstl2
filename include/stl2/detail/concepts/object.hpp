@@ -167,7 +167,6 @@ concept bool Swappable() {
 }
 
 namespace ext { namespace models {
-
 template <class>
 constexpr bool destructible() { return false; }
 Destructible{T}
@@ -231,7 +230,6 @@ template <class, class>
 constexpr bool swappable() { return false; }
 Swappable{T, U}
 constexpr bool swappable() { return true; }
-
 }}}} // namespace stl2::v1::ext::models
 
 #endif

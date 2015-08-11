@@ -1,5 +1,5 @@
-#ifndef STL2_DETAIL_CONCEPTS_ITERATOR
-#define STL2_DETAIL_CONCEPTS_ITERATOR
+#ifndef STL2_DETAIL_ITERATOR_CONCEPTS_HPP
+#define STL2_DETAIL_ITERATOR_CONCEPTS_HPP
 
 #include <functional>
 #include <iterator>
@@ -20,14 +20,7 @@
 // Iterator concepts [iterator.requirements]
 //
 namespace stl2 { inline namespace v1 {
-
-// Imports
-using std::begin;
-using std::end;
-using std::iterator;
-
 namespace detail {
-
 template <class T>
 concept bool Dereferenceable =
   requires (T& t) {
@@ -41,14 +34,12 @@ using ReferenceType =
   decltype(*declval<R&>());
 
 namespace detail {
-
 template <detail::Dereferenceable R>
 using __iter_move_t =
   meta::if_<
     std::is_reference<ReferenceType<R>>,
     std::remove_reference_t<ReferenceType<R>> &&,
     ReferenceType<R>>;
-
 }
 
 template <class R,
@@ -64,7 +55,6 @@ using RvalueReferenceType =
   decltype(iter_move(declval<R&>()));
 
 namespace detail {
-
 template <class T>
 concept bool IsValueType =
   Same<T, std::decay_t<T>>() && _IsNot<T, std::is_void>;
@@ -76,7 +66,6 @@ concept bool MemberValueType =
 template <class T>
 concept bool MemberElementType =
   requires { typename T::element_type; };
-
 } // namespace detail
 
 // 20150715: Not to spec for various reasons:
@@ -764,6 +753,6 @@ struct iterator_traits<I> {
     ::stl2::detail::stl2_to_std_iterator_category<typename I::iterator_category>,
     std::input_iterator_tag>;
 };
-}
+} // namespace std
 
 #endif
