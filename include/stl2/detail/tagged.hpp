@@ -107,7 +107,7 @@ struct tagged
   }
 
   void swap(tagged& that)
-    noexcept(is_nothrow_swappable_v<Base&>)
+    noexcept(is_nothrow_swappable_v<Base&, Base&>)
     requires Swappable<Base&>() {
     using stl2::swap;
     swap(static_cast<Base&>(*this), static_cast<Base&>(that));

@@ -124,7 +124,7 @@ void test_noexcept() {
   CHECK(noexcept(T{1, 2}));
   // Force to rvalue to workaround
   // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67185
-  CHECK(bool(stl2::is_nothrow_swappable_v<T&>));
+  CHECK(bool(stl2::is_nothrow_swappable_v<T&, T&>));
 }
 
 // Why? Because we can.
