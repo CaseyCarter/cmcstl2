@@ -63,25 +63,9 @@ using ranges::random_access_iterator_tag;
 }
 
 #elif VALIDATE_STL2
-#include <stl2/detail/concepts/core.hpp>
-#include <stl2/iterator.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
 
-namespace ns {
-using stl2::DifferenceType;
-using stl2::IteratorCategory;
-using stl2::ReferenceType;
-using stl2::RvalueReferenceType;
-using stl2::ValueType;
-
-using stl2::value_type;
-using stl2::difference_type;
-using stl2::iterator_category;
-
-using stl2::input_iterator_tag;
-using stl2::forward_iterator_tag;
-using stl2::bidirectional_iterator_tag;
-using stl2::random_access_iterator_tag;
-}
+namespace ns = stl2;
 #endif
 
 #include <cstddef>

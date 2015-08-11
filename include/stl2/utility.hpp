@@ -14,7 +14,6 @@
 #include <stl2/detail/concepts/object.hpp>
 
 namespace stl2 { inline namespace v1 {
-
 using std::initializer_list;
 
 namespace rel_ops = std::rel_ops;

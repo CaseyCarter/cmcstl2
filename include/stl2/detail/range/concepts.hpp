@@ -1,5 +1,5 @@
-#ifndef STL2_DETAIL_CONCEPTS_RANGE_HPP
-#define STL2_DETAIL_CONCEPTS_RANGE_HPP
+#ifndef STL2_DETAIL_RANGE_CONCEPTS_HPP
+#define STL2_DETAIL_RANGE_CONCEPTS_HPP
 
 #include <initializer_list>
 #include <type_traits>
@@ -9,27 +9,11 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
-#include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/concepts/object.hpp>
-#include <stl2/detail/concepts/range.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/range/access.hpp>
 
 namespace stl2 { inline namespace v1 {
-
-// size
-template <class T, std::size_t N>
-constexpr std::size_t size(T(&)[N]) noexcept {
-  return N;
-}
-
-template <class C>
-  requires requires (const C& c) {
-    STL2_DEDUCTION_CONSTRAINT(c.size(), Integral);
-  }
-constexpr auto /* Integral */ size(const C& c)
-  noexcept(noexcept(c.size())) {
-  return c.size();
-}
-
 ///////////////////////////////////////////////////////////////////////////
 // Range [iterable.iterables]
 //
