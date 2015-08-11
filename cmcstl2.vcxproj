@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -74,14 +74,16 @@
     <ClInclude Include="include\stl2\detail\concepts\compare.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\core.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\function.hpp" />
-    <ClInclude Include="include\stl2\detail\concepts\iterator.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\object.hpp" />
-    <ClInclude Include="include\stl2\detail\concepts\range.hpp" />
     <ClInclude Include="include\stl2\detail\fwd.hpp" />
+    <ClInclude Include="include\stl2\detail\swap.hpp" />
+    <ClInclude Include="include\stl2\detail\tagged.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\concepts.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\insert_iterators.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\operations.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\reverse_iterator.hpp" />
+    <ClInclude Include="include\stl2\detail\range\concepts.hpp" />
+    <ClInclude Include="include\stl2\detail\range\access.hpp" />
     <ClInclude Include="include\stl2\functional.hpp" />
     <ClInclude Include="include\stl2\iterator.hpp" />
     <ClInclude Include="include\stl2\type_traits.hpp" />
@@ -102,6 +104,8 @@
     <ClCompile Include="test\concepts\range.cpp" />
     <ClCompile Include="test\concepts\swap.cpp" />
     <ClCompile Include="test\headers.cpp" />
+    <ClCompile Include="test\range_access.cpp" />
+    <ClCompile Include="test\tagged.cpp" />
     <ClCompile Include="test\iterator\iterator.cpp" />
     <ClCompile Include="test\iterator\reverse_iterator.cpp" />
   </ItemGroup>

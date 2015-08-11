@@ -176,7 +176,7 @@ void ridiculously_exhaustive_range_property_test() {
 
   using I = int*;
   using CI = const int*;
-  
+
   static_assert(stl2::ext::models::iterator<I>());
   static_assert(stl2::ext::models::iterator<CI>());
 

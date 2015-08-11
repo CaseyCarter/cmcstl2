@@ -14,7 +14,6 @@
 #include <stl2/detail/range/access.hpp>
 
 namespace stl2 { inline namespace v1 {
-
 ///////////////////////////////////////////////////////////////////////////
 // Range [iterable.iterables]
 //

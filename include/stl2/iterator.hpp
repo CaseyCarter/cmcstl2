@@ -18,4 +18,8 @@
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 
+namespace stl2 { namespace v1 {
+using std::iterator;
+}}
+
 #endif

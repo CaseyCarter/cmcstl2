@@ -1,5 +1,5 @@
-#ifndef STL2_DETAIL_CONCEPTS_ITERATOR
-#define STL2_DETAIL_CONCEPTS_ITERATOR
+#ifndef STL2_DETAIL_ITERATOR_CONCEPTS_HPP
+#define STL2_DETAIL_ITERATOR_CONCEPTS_HPP
 
 #include <iterator>
 #include <type_traits>
@@ -18,7 +18,6 @@
 // Iterator concepts [iterator.requirements]
 //
 namespace stl2 { inline namespace v1 {
-
 namespace detail {
 template <class T>
 concept bool Dereferenceable =
@@ -618,8 +617,6 @@ constexpr bool contiguous_iterator() { return true; }
 ///////////////////////////////////////////////////////////////////////////
 // iterator_traits [iterator.assoc]
 //
-using std::iterator;
-
 template <WeakInputIterator I>
 struct __pointer_type {
   using type = std::add_pointer_t<ReferenceType<I>>;
@@ -737,6 +734,6 @@ struct iterator_traits<I> {
     ::stl2::detail::stl2_to_std_iterator_category<typename I::iterator_category>,
     std::input_iterator_tag>;
 };
-}
+} // namespace std
 
 #endif
