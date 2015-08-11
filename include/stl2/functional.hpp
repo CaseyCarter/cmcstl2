@@ -8,14 +8,51 @@
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 
-///////////////////////////////////////////////////////////////////////////
-// Functional stuff
-//
 namespace stl2 { inline namespace v1 {
+///////////////////////////////////////////////////////////////////////////
+// <functional> imports
+//
+using std::result_of_t;
 
 using std::reference_wrapper;
 using std::ref;
 using std::cref;
+
+using std::plus;
+using std::minus;
+using std::multiplies;
+using std::divides;
+using std::modulus;
+using std::negate;
+
+using std::logical_and;
+using std::logical_or;
+using std::logical_not;
+
+using std::bit_and;
+using std::bit_or;
+using std::bit_xor;
+using std::bit_not;
+
+using std::unary_negate;
+using std::binary_negate;
+using std::not1;
+using std::not2;
+
+using std::is_bind_expression;
+using std::is_placeholder;
+using std::bind;
+namespace placeholders = std::placeholders;
+
+using std::mem_fn;
+using std::bad_function_call;
+
+using std::function;
+using std::hash;
+
+#if 0 // NYI
+using std::invoke;
+#endif
 
 ///////////////////////////////////////////////////////////////////////////
 // identity
@@ -182,6 +219,6 @@ struct less_equal<void> {
 
   using is_transparent = std::true_type;
 };
-}}
+}} // namespace stl2::v1
 
 #endif
