@@ -98,10 +98,12 @@ void test_swap() {
 template <class T> T& lv();
 
 struct nothrow_pair {
-  int first; int second;
+  int first;
+  int second;
 
   nothrow_pair() = default;
-  constexpr nothrow_pair(int f, int s) noexcept : first(f), second(s) {}
+  constexpr nothrow_pair(int f, int s) noexcept :
+    first{f}, second{s} {}
 };
 
 namespace std {
@@ -114,15 +116,15 @@ namespace std {
 
 void test_noexcept() {
   using T = stl2::tagged<nothrow_pair, stl2::tag::in1, stl2::tag::in2>;
-  constexpr T t{1, 2}; (void)t;
-
-  CHECK(std::is_nothrow_default_constructible<T>());
-  CHECK(std::is_nothrow_move_constructible<T>());
-  CHECK(std::is_nothrow_copy_constructible<T>());
-  CHECK(std::is_nothrow_move_assignable<T>());
-  CHECK(std::is_nothrow_copy_assignable<T>());
+  CHECK(stl2::is_nothrow_default_constructible<T>());
+  CHECK(stl2::is_nothrow_move_constructible<T>());
+  CHECK(stl2::is_nothrow_copy_constructible<T>());
+  CHECK(stl2::is_nothrow_move_assignable<T>());
+  CHECK(stl2::is_nothrow_copy_assignable<T>());
   CHECK(noexcept(T{1, 2}));
-  CHECK(stl2::ext::is_nothrow_swappable_v<T&>);
+  // Force to rvalue to workaround
+  // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67185
+  CHECK(bool(stl2::is_nothrow_swappable_v<T&, T&>));
 }
 
 // Why? Because we can.

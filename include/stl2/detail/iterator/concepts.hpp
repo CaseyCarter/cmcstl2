@@ -211,7 +211,7 @@ template <class R1, class R2,
   Readable _R2 = std::remove_reference_t<R2>>
   requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>);
+  noexcept(is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>);
 
 template <class R1, class R2,
   Readable _R1 = std::remove_reference_t<R1>,
@@ -607,7 +607,7 @@ template <class R1, class R2,
   Readable _R2 = std::remove_reference_t<R2>>
   requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(ext::is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>) {
+  noexcept(is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>) {
   swap(*r1, *r2);
 }
 
