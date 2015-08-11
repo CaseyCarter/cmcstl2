@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -61,6 +61,12 @@
       <Filter>Header Files\cmcstl2\stl2</Filter>
     </ClInclude>
     <ClInclude Include="include\stl2\detail\fwd.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\swap.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\tagged.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail</Filter>
     </ClInclude>
     <ClInclude Include="meta\include\meta\meta.hpp">
@@ -129,6 +135,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\headers.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\tagged.cpp">
       <Filter>Test Files</Filter>
     </ClCompile>
     <ClCompile Include="test\concepts\compare.cpp">
