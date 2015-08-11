@@ -152,9 +152,6 @@
     <ClCompile Include="test\concepts\core.cpp">
       <Filter>Test Files\concepts</Filter>
     </ClCompile>
-    <ClCompile Include="test\concepts\integer.cpp">
-      <Filter>Test Files\concepts</Filter>
-    </ClCompile>
     <ClCompile Include="test\concepts\iterator.cpp">
       <Filter>Test Files\concepts</Filter>
     </ClCompile>
@@ -175,6 +172,9 @@
     </ClCompile>
     <ClCompile Include="test\algorithm\all_of.cpp">
       <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\concepts\fundamental.cpp">
+      <Filter>Test Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

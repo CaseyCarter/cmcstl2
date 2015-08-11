@@ -64,7 +64,6 @@ using RvalueReferenceType =
   decltype(iter_move(declval<R&>()));
 
 namespace detail {
-
 template <class T>
 concept bool IsValueType =
   Same<T, std::decay_t<T>>() && _IsNot<T, std::is_void>;
@@ -76,7 +75,6 @@ concept bool MemberValueType =
 template <class T>
 concept bool MemberElementType =
   requires { typename T::element_type; };
-
 } // namespace detail
 
 // 20150715: Not to spec for various reasons:

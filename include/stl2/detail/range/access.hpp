@@ -2,8 +2,8 @@
 #define STL2_DETAIL_RANGE_ACCESS_HPP
 
 #include <initializer_list>
-
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 
 // HACKHACK: Disable constraints that cause the compiler to OOM
@@ -368,5 +368,4 @@ constexpr auto& data = detail::static_const<__data::fn>::value;
 }} // namespace stl2::v1
 
 #undef STL2_HACK_CONSTRAINTS
-
 #endif
