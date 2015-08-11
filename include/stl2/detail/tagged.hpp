@@ -56,20 +56,24 @@ struct tagged
   using Base::Base;
   tagged() = default;
 
+  // 20150810: Extension, converting constructor from Base&&
   constexpr tagged(Base&& that)
     noexcept(std::is_nothrow_move_constructible<Base>::value)
     : Base(static_cast<Base&&>(that)) {}
 
+  // 20150810: Extension, converting constructor from const Base&
   constexpr tagged(const Base& that)
     noexcept(std::is_nothrow_copy_constructible<Base>::value)
     : Base(static_cast<const Base&>(that)) {}
 
+  // 20150810: Not to spec: constexpr.
   template <typename Other>
     requires Constructible<Base, Other>()
   constexpr tagged(tagged<Other, Tags...>&& that)
     noexcept(std::is_nothrow_constructible<Base, Other&&>::value)
     : Base(static_cast<Other&&>(that)) {}
 
+  // 20150810: Not to spec: constexpr. Extension: conditional noexcept.
   template <typename Other>
     requires Constructible<Base, const Other&>()
   constexpr tagged(tagged<Other, Tags...> const& that)
@@ -84,6 +88,7 @@ struct tagged
     return *this;
   }
 
+  // 20150810: Extension: conditional noexcept.
   template <typename Other>
     requires Assignable<Base&, const Other&>()
   tagged& operator=(const tagged<Other, Tags...>& that)
@@ -109,7 +114,7 @@ struct tagged
 
   friend void swap(tagged& a, tagged& b)
     noexcept(noexcept(a.swap(b)))
-    requires Swappable<Base&>() {
+    requires requires { a.swap(b); } {
     a.swap(b);
   }
 };
@@ -163,17 +168,27 @@ STL2_DEFINE_GETTER(end)
 
 #undef STL2_DEFINE_GETTER
 
+template <class T>
+struct __unwrap : __unwrap<std::decay_t<T>> {};
+template <_Decayed T>
+struct __unwrap<T> { using type = T; };
+template <class T>
+struct __unwrap<std::reference_wrapper<T>> { using type = T&; };
+template <class T>
+using __unwrap_t = meta::_t<__unwrap<T>>;
+
 // tagged_pair
 template <class F, class S>
 using tagged_pair = tagged<
   std::pair<meta::_t<__tag_elem<F>>, meta::_t<__tag_elem<S>>>,
   meta::_t<__tag_spec<F>>, meta::_t<__tag_spec<S>>>;
 
-// tagged_tuple
-template <class...Types>
-using tagged_tuple = tagged<
-  std::tuple<meta::_t<__tag_elem<Types>>...>,
-  meta::_t<__tag_spec<Types>>...>;
+// make_tagged_pair
+template <class Tag1, class Tag2, class T1, class T2>
+constexpr tagged_pair<Tag1(__unwrap_t<T1>), Tag2(__unwrap_t<T2>)>
+make_tagged_pair(T1&& x, T2&& y) {
+  return {stl2::forward<T1>(x), stl2::forward<T2>(y)};
+}
 }} // namespace stl2::v1
 
 #endif

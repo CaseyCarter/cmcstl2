@@ -77,9 +77,6 @@ template <class T, class U>
 struct common_type<T, U>
   : common_type<std::decay_t<T>, std::decay_t<U>> { };
 
-template <class T>
-concept bool _Decayed = meta::_v<std::is_same<std::decay_t<T>, T>>;
-
 template <_Decayed T, _Decayed U>
 struct common_type<T, U> : __builtin_common<T, U> { };
 

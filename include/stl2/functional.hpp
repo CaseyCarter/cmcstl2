@@ -12,6 +12,11 @@
 // Functional stuff
 //
 namespace stl2 { inline namespace v1 {
+
+using std::reference_wrapper;
+using std::ref;
+using std::cref;
+
 ///////////////////////////////////////////////////////////////////////////
 // identity
 //

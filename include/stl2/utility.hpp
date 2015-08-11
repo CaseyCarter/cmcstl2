@@ -15,6 +15,9 @@
 
 namespace stl2 { inline namespace v1 {
 
+using std::pair;
+using std::make_pair;
+
 ////////////////////
 // exchange and swap
 //
