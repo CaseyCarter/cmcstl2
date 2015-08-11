@@ -5,6 +5,7 @@
 #include <utility>
 #include <meta/meta.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/swap.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
@@ -106,7 +107,7 @@ struct tagged
   }
 
   void swap(tagged& that)
-    noexcept(ext::is_nothrow_swappable_v<Base&>)
+    noexcept(is_nothrow_swappable_v<Base&, Base&>)
     requires Swappable<Base&>() {
     using stl2::swap;
     swap(static_cast<Base&>(*this), static_cast<Base&>(that));
