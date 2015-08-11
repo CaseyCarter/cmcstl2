@@ -46,6 +46,9 @@ concept bool Same() {
   return detail::all_same<Ts...>::value;
 }
 
+template <class T>
+concept bool _Decayed = Same<T, std::decay_t<T>>();
+
 template <class T, class U>
 concept bool DerivedFrom() {
   return STL2_IS_BASE_OF(U, T);
