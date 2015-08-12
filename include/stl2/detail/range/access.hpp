@@ -12,6 +12,8 @@
 namespace stl2 { namespace v1 {
 
 BidirectionalIterator{I} class reverse_iterator;
+BidirectionalIterator{I}
+reverse_iterator<I> make_reverse_iterator(I);
 
 ///////////////////////////////////////////////////////////////////////////
 // Range access [iterator.range]
@@ -160,14 +162,16 @@ constexpr auto cend(const R& r)
 }
 
 // rbegin
-template <class T, size_t N>
-reverse_iterator<T*> rbegin(T (&array)[N]) {
-  return reverse_iterator<T*>{end(array)};
-}
-
-template <class E>
-reverse_iterator<const E*> rbegin(std::initializer_list<E> il) {
-  return reverse_iterator<const E*>{il.end()};
+template <class R>
+  requires requires(R& r) {
+    // BoundedRange
+    requires Same<decltype(stl2::begin(r)), decltype(stl2::end(r))>();
+    make_reverse_iterator(stl2::end(r));
+  }
+constexpr STL2_CONSTRAINED_RETURN(Iterator)
+__rbegin(R& r, ext::priority_tag<0>)
+  noexcept(noexcept(make_reverse_iterator(stl2::end(r)))) {
+  return make_reverse_iterator(stl2::end(r));
 }
 
 template <class R>
@@ -178,9 +182,23 @@ template <class R>
     STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
 #endif
   }
-constexpr STL2_CONSTRAINED_RETURN(Iterator) rbegin(R& r)
+constexpr STL2_CONSTRAINED_RETURN(Iterator)
+__rbegin(R& r, ext::priority_tag<1>)
   noexcept(noexcept(r.rbegin())) {
+  static_assert(ext::models::iterator<decltype(r.rbegin())>());
   return r.rbegin();
+}
+
+template <class R>
+  requires requires(const R& r) {
+    // BoundedRange
+    requires Same<decltype(stl2::begin(r)), decltype(stl2::end(r))>();
+    make_reverse_iterator(stl2::end(r));
+  }
+constexpr STL2_CONSTRAINED_RETURN(Iterator)
+__rbegin(const R& r, ext::priority_tag<0>)
+  noexcept(noexcept(make_reverse_iterator(stl2::end(r)))) {
+  return make_reverse_iterator(stl2::end(r));
 }
 
 template <class R>
@@ -191,20 +209,34 @@ template <class R>
     STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
 #endif
   }
-constexpr STL2_CONSTRAINED_RETURN(Iterator) rbegin(const R& r)
+constexpr STL2_CONSTRAINED_RETURN(Iterator)
+__rbegin(const R& r, ext::priority_tag<1>)
   noexcept(noexcept(r.rbegin())) {
+  static_assert(ext::models::iterator<decltype(r.rbegin())>());
   return r.rbegin();
+}
+
+template <class R>
+  requires requires (R&& r) {
+    stl2::__rbegin((R&&)r, ext::max_priority_tag);
+  }
+constexpr STL2_CONSTRAINED_RETURN(Iterator)
+rbegin(R&& r)
+  noexcept(noexcept(stl2::__rbegin(stl2::forward<R>(r), ext::max_priority_tag))) {
+  return stl2::__rbegin(stl2::forward<R>(r), ext::max_priority_tag);
 }
 
 // rend
-template <class T, size_t N>
-reverse_iterator<T*> rend(T (&array)[N]) {
-  return reverse_iterator<T*>{begin(array)};
-}
-
-template <class E>
-reverse_iterator<const E*> rend(std::initializer_list<E> il) {
-  return reverse_iterator<const E*>{il.begin()};
+template <class R>
+  requires requires(R& r) {
+    // BoundedRange
+    requires Same<decltype(stl2::begin(r)), decltype(stl2::end(r))>();
+    make_reverse_iterator(stl2::begin(r));
+  }
+constexpr STL2_CONSTRAINED_RETURN(Iterator)
+__rend(R& r, ext::priority_tag<0>)
+  noexcept(noexcept(make_reverse_iterator(stl2::begin(r)))) {
+  return make_reverse_iterator(stl2::begin(r));
 }
 
 template <class R>
@@ -215,10 +247,22 @@ template <class R>
     requires Sentinel<decltype(r.rend()), decltype(r.rbegin())>();
 #endif
   }
-constexpr auto rend(R& r)
+constexpr auto __rend(R& r, ext::priority_tag<1>)
   noexcept(noexcept(r.rend())) ->
   STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.rbegin(r))>) {
   return r.rend();
+}
+
+template <class R>
+  requires requires(const R& r) {
+    // BoundedRange
+    requires Same<decltype(stl2::begin(r)), decltype(stl2::end(r))>();
+    make_reverse_iterator(stl2::begin(r));
+  }
+constexpr STL2_CONSTRAINED_RETURN(Iterator)
+__rend(const R& r, ext::priority_tag<0>)
+  noexcept(noexcept(make_reverse_iterator(stl2::begin(r)))) {
+  return make_reverse_iterator(stl2::begin(r));
 }
 
 template <class R>
@@ -229,10 +273,21 @@ template <class R>
     requires Sentinel<decltype(r.rend()), decltype(r.rbegin())>();
 #endif
   }
-constexpr auto rend(const R& r)
+constexpr auto __rend(const R& r, ext::priority_tag<1>)
   noexcept(noexcept(r.rend())) ->
   STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.rbegin(r))>) {
   return r.rend();
+}
+
+template <class R>
+  requires requires (R&& r) {
+    stl2::__rend((R&&)r, ext::max_priority_tag);
+  }
+constexpr auto
+rend(R&& r)
+  noexcept(noexcept(stl2::__rend(stl2::forward<R>(r), ext::max_priority_tag))) ->
+  STL2_CONSTRAINED_RETURN(Sentinel<decltype(stl2::rbegin(r))>) {
+  return stl2::__rend(stl2::forward<R>(r), ext::max_priority_tag);
 }
 
 // crbegin
@@ -290,7 +345,7 @@ constexpr bool empty(T(&)[N]) noexcept {
 }
 
 template <class E>
-constexpr bool empty(std::initializer_list<E> il) noexcept {
+constexpr bool empty(const std::initializer_list<E>& il) noexcept {
   return il.size() == 0;
 }
 
@@ -359,6 +414,7 @@ struct fn {
   constexpr STL2_CONSTRAINED_RETURN(_Is<std::is_pointer>)
   operator()(R& r) const
     noexcept(noexcept(data(r))) {
+    return data(r);
   }
 };
 }

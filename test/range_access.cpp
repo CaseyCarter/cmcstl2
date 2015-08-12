@@ -1,7 +1,7 @@
 #include <stl2/iterator.hpp>
-#include <cassert>
 #include <iostream>
 #include <vector>
+#include "simple_test.hpp"
 
 namespace models = stl2::ext::models;
 
@@ -16,6 +16,47 @@ void test_range_access_ambiguity() {
   (void)rend(vri);
   (void)crbegin(vri);
   (void)crend(vri);
+}
+
+void test_initializer_list() {
+  std::initializer_list<int> il = {0,1,2};
+  {
+    int count = 0;
+    for (auto p = stl2::begin(il), e = stl2::end(il); p != e; ++p) {
+      CHECK(*p == count++);
+    }
+  }
+  {
+    int count = 3;
+    for (auto p = stl2::rbegin(il), e = stl2::rend(il); p != e; ++p) {
+      CHECK(*p == --count);
+    }
+  }
+  CHECK(stl2::size(il) == std::size_t{3});
+
+  // libstdc++ has overloads of data and empty that are found by
+  // ADL but don't work for initializer_list.
+  CHECK(stl2::__data::data(il) == &*il.begin());
+  CHECK(stl2::__empty::empty(il) == false);
+}
+
+void test_array() {
+  const int a[] = {0,1,2};
+  {
+    int count = 0;
+    for (auto p = stl2::begin(a), e = stl2::end(a); p != e; ++p) {
+      CHECK(*p == count++);
+    }
+  }
+  {
+    int count = 3;
+    for (auto p = stl2::rbegin(a), e = stl2::rend(a); p != e; ++p) {
+      CHECK(*p == --count);
+    }
+  }
+  CHECK(stl2::size(a) == std::size_t{3});
+  CHECK(stl2::data(a) == a + 0);
+  CHECK(stl2::empty(a) == false);
 }
 
 namespace X {
@@ -69,7 +110,7 @@ int main() {
   auto is_first = true;
   auto count = 0;
   for (auto&& i : some_ints) {
-    assert(i == count++);
+    CHECK(i == count++);
     if (is_first) {
       is_first = false;
     } else {
@@ -78,4 +119,8 @@ int main() {
     if (output) std::cout << i;
   }
   if (output) std::cout << "}\n";
+
+  test_initializer_list();
+  test_array();
+  return ::test_result();
 }
