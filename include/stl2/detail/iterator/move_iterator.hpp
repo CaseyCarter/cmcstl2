@@ -35,8 +35,7 @@ public:
   }
 
   reference operator*() const {
-    using stl2::iter_move;
-    return iter_move(current_);
+    return stl2::iter_move(current_);
   }
 
   // FIXME: constraints

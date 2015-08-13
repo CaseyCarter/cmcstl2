@@ -443,7 +443,28 @@ namespace __data {
 namespace {
   constexpr auto& data = detail::static_const<__data::fn>::value;
 }
-}} // namespace stl2::v1
+
+namespace ext {
+// cdata
+namespace __cdata {
+  struct fn {
+    template <class R>
+      requires requires (const R& r) { stl2::data(r); }
+    constexpr auto operator()(const R& r) const
+      noexcept(noexcept(stl2::data(r))) {
+      return stl2::data(r);
+    }
+
+#if !STL2_TREAT_RVALUES_AS_CONST
+    template <class R>
+    constexpr auto operator()(const R&&) const = delete;
+#endif
+  };
+}
+namespace {
+  constexpr auto& cdata = detail::static_const<__cdata::fn>::value;
+}
+}}} // namespace stl2::v1::ext
 
 #undef STL2_TREAT_RVALUES_AS_CONST
 #undef STL2_HACK_END_CONSTRAINTS

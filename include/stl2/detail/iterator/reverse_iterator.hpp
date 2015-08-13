@@ -70,8 +70,7 @@ public:
 
   // 20150813: Extension.
   friend auto iter_move(reverse_iterator i) {
-    using stl2::iter_move;
-    return iter_move(i.current);
+    return stl2::iter_move(stl2::prev(i.current));
   }
 
   reverse_iterator& operator++() & {
