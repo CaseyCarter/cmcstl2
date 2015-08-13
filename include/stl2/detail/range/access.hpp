@@ -7,6 +7,10 @@
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>
 
+// Backwards compatibility: rvalues are treated as const lvalues.
+// They should probably be ill-formed.
+#define STL2_TREAT_RVALUES_AS_CONST 1
+
 // HACKHACK: Disable constraints that cause the compiler to OOM
 #define STL2_HACK_END_CONSTRAINTS 1
 
@@ -43,6 +47,11 @@ namespace __begin {
       return array;
     }
 
+    template <class E>
+    constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
+      return il.begin();
+    }
+
     template <class R>
       requires requires (R& r) { __begin::impl(r, ext::max_priority_tag); }
     constexpr auto operator()(R& r) const
@@ -50,21 +59,12 @@ namespace __begin {
       return __begin::impl(r, ext::max_priority_tag);
     }
 
-#if 1
-    // Backwards compatibility: rvalues are treated as
-    // const lvalues.
+#if STL2_TREAT_RVALUES_AS_CONST
     template <class R>
       requires requires (const R& r) { __begin::impl(r, ext::max_priority_tag); }
     constexpr auto operator()(const R&& r) const
       noexcept(noexcept(__begin::impl(r, ext::max_priority_tag))) {
       return __begin::impl(r, ext::max_priority_tag);
-    }
-#else
-    // Forget backwards compatibility, begin on rvalues is broken;
-    // except for std::initializer_list.
-    template <class E>
-    constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
-      return il.begin();
     }
 #endif
   };
@@ -79,8 +79,9 @@ namespace __end {
   template <class R>
     requires requires (R& r) {
       // { r.end() } -> Sentinel<decltype(stl2::begin(r))>;
+#if STL2_HACK_END_CONSTRAINTS
       r.end();
-#if !STL2_HACK_END_CONSTRAINTS
+#else
       requires Sentinel<decltype(r.end()), decltype(stl2::begin(r))>();
 #endif
     }
@@ -96,8 +97,9 @@ namespace __end {
   template <class R>
     requires requires (R& r) {
       // { end(r) } -> Sentinel<decltype(stl2::begin(r))>;
+#if STL2_HACK_END_CONSTRAINTS
       end(r);
-#if !STL2_HACK_END_CONSTRAINTS
+#else
       requires Sentinel<decltype(end(r)), decltype(stl2::begin(r))>();
 #endif
     }
@@ -115,6 +117,11 @@ namespace __end {
       return array + N;
     }
 
+    template <class E>
+    constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
+      return il.end();
+    }
+
     template <class R>
       requires requires (R& r) { __end::impl(r, ext::max_priority_tag); }
     constexpr auto operator()(R& r) const
@@ -122,21 +129,12 @@ namespace __end {
       return __end::impl(r, ext::max_priority_tag);
     }
 
-#if 1
-    // Backwards compatibility: rvalues are treated as
-    // const lvalues.
+#if STL2_TREAT_RVALUES_AS_CONST
     template <class R>
       requires requires (const R& r) { __end::impl(r, ext::max_priority_tag); }
     constexpr auto operator()(const R&& r) const
       noexcept(noexcept(__end::impl(r, ext::max_priority_tag))) {
       return __end::impl(r, ext::max_priority_tag);
-    }
-#else
-    // Forget backwards compatibility, end on rvalues is broken;
-    // except for std::initializer_list.
-    template <class E>
-    constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
-      return il.end();
     }
 #endif
   };
@@ -154,6 +152,11 @@ namespace __cbegin {
       noexcept(noexcept(stl2::begin(r))) {
       return stl2::begin(r);
     }
+
+#if !STL2_TREAT_RVALUES_AS_CONST
+    template <class R>
+    constexpr auto operator()(const R&&) const = delete;
+#endif
   };
 }
 namespace {
@@ -169,6 +172,11 @@ namespace __cend {
       noexcept(noexcept(stl2::end(r))) {
       return stl2::end(r);
     }
+
+#if !STL2_TREAT_RVALUES_AS_CONST
+    template <class R>
+    constexpr auto operator()(const R&&) const = delete;
+#endif
   };
 }
 namespace {
@@ -208,22 +216,18 @@ namespace __rbegin {
       return __rbegin::impl(r, ext::max_priority_tag);
     }
 
-#if 1
-    // Backwards compatibility: rvalues are treated as
-    // const lvalues.
+    template <class E>
+    constexpr reverse_iterator<const E*>
+    operator()(std::initializer_list<E> il) const noexcept {
+      return reverse_iterator<const E*>{il.end()};
+    }
+
+#if STL2_TREAT_RVALUES_AS_CONST
     template <class R>
       requires requires (const R& r) { __rbegin::impl(r, ext::max_priority_tag); }
     constexpr auto operator()(const R&& r) const
       noexcept(noexcept(__rbegin::impl(r, ext::max_priority_tag))) {
       return __rbegin::impl(r, ext::max_priority_tag);
-    }
-#else
-    // Forget backwards compatibility,
-    // except for std::initializer_list.
-    template <class E>
-    constexpr reverse_iterator<const E*>
-    operator()(std::initializer_list<E> il) const noexcept {
-      return reverse_iterator<const E*>{il.end()};
     }
 #endif
   };
@@ -251,8 +255,9 @@ namespace __rend {
   template <class R>
     requires requires (R& r) {
       // { r.rend() } -> Sentinel<decltype(stl2::rbegin(r))>;
+#if STL2_HACK_REND_CONSTRAINTS
       r.rend();
-#if !STL2_HACK_REND_CONSTRAINTS
+#else
       requires Sentinel<decltype(r.rend()), decltype(stl2::rbegin(r))>();
 #endif
     }
@@ -265,6 +270,12 @@ namespace __rend {
   }
 
   struct fn {
+    template <class E>
+    constexpr reverse_iterator<const E*>
+    operator()(std::initializer_list<E> il) const noexcept {
+      return reverse_iterator<const E*>{il.begin()};
+    }
+
     template <class R>
       requires requires (R& r) { __rend::impl(r, ext::max_priority_tag); }
     constexpr auto operator()(R& r) const
@@ -272,22 +283,12 @@ namespace __rend {
       return __rend::impl(r, ext::max_priority_tag);
     }
 
-#if 1
-    // Backwards compatibility: rvalues are treated as
-    // const lvalues.
+#if STL2_TREAT_RVALUES_AS_CONST
     template <class R>
       requires requires (const R& r) { __rend::impl(r, ext::max_priority_tag); }
     constexpr auto operator()(const R&& r) const
       noexcept(noexcept(__rend::impl(r, ext::max_priority_tag))) {
       return __rend::impl(r, ext::max_priority_tag);
-    }
-#else
-    // Forget backwards compatibility,
-    // except for std::initializer_list.
-    template <class E>
-    constexpr reverse_iterator<const E*>
-    operator()(std::initializer_list<E> il) const noexcept {
-      return reverse_iterator<const E*>{il.begin()};
     }
 #endif
   };
@@ -305,6 +306,11 @@ namespace __crbegin {
       noexcept(noexcept(stl2::rbegin(r))) {
       return stl2::rbegin(r);
     }
+
+#if !STL2_TREAT_RVALUES_AS_CONST
+    template <class R>
+    constexpr auto operator()(const R&&) const = delete;
+#endif
   };
 }
 namespace {
@@ -320,6 +326,11 @@ namespace __crend {
       noexcept(noexcept(stl2::rend(r))) {
       return stl2::rend(r);
     }
+
+#if !STL2_TREAT_RVALUES_AS_CONST
+    template <class R>
+    constexpr auto operator()(const R&&) const = delete;
+#endif
   };
 }
 namespace {
@@ -419,18 +430,13 @@ namespace __data {
       return __data::impl(r);
     }
 
-#if 1
-    // Backwards compatibility: rvalues are treated as
-    // const lvalues.
+#if STL2_TREAT_RVALUES_AS_CONST
     template <class R>
       requires requires (const R& r) { __data::impl(r); }
     constexpr auto operator()(const R&& r) const
       noexcept(noexcept(__data::impl(r))) {
       return __data::impl(r);
     }
-#else
-    // Forget backwards compatibility, data on rvalues is broken;
-    // except for std::initializer_list.
 #endif
   };
 }
@@ -438,5 +444,9 @@ namespace {
   constexpr auto& data = detail::static_const<__data::fn>::value;
 }
 }} // namespace stl2::v1
+
+#undef STL2_TREAT_RVALUES_AS_CONST
+#undef STL2_HACK_END_CONSTRAINTS
+#undef STL2_HACK_REND_CONSTRAINTS
 
 #endif
