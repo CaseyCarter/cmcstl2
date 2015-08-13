@@ -158,7 +158,7 @@ DifferenceType<I2> operator-(const reverse_iterator<I1>& x,
   return static_cast<const I2&>(y) - static_cast<const I1&>(x);
 }
 
-template <class I>
+RandomAccessIterator{I}
 reverse_iterator<I> operator+(DifferenceType<I> n,
                               const reverse_iterator<I>& x) {
   return reverse_iterator<I>{static_cast<const I&>(x) - n};
