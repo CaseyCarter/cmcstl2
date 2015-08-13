@@ -150,19 +150,33 @@ namespace {
 }
 
 // cbegin
-template <class R>
-  requires requires (const R& r) { stl2::begin(r); }
-constexpr auto cbegin(const R& r)
-  noexcept(noexcept(stl2::begin(r))) {
-  return stl2::begin(r);
+namespace __cbegin {
+  struct fn {
+    template <class R>
+      requires requires (const R& r) { stl2::begin(r); }
+    constexpr auto operator()(const R& r) const
+      noexcept(noexcept(stl2::begin(r))) {
+      return stl2::begin(r);
+    }
+  };
+}
+namespace {
+  constexpr auto& cbegin = detail::static_const<__cbegin::fn>::value;
 }
 
 // cend
-template <class R>
-  requires requires (const R& r) { stl2::end(r); }
-constexpr auto cend(const R& r)
-  noexcept(noexcept(stl2::end(r))) {
-  return stl2::end(r);
+namespace __cend {
+  struct fn {
+    template <class R>
+      requires requires (const R& r) { stl2::end(r); }
+    constexpr auto operator()(const R& r) const
+      noexcept(noexcept(stl2::end(r))) {
+      return stl2::end(r);
+    }
+  };
+}
+namespace {
+  constexpr auto& cend = detail::static_const<__cend::fn>::value;
 }
 
 // rbegin
