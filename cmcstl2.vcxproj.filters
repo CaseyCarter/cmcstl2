@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -52,6 +52,9 @@
     <Filter Include="Header Files\cmcstl2\stl2\detail\algorithm">
       <UniqueIdentifier>{44740440-b416-4103-bc95-fec51911588c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\detail\range">
+      <UniqueIdentifier>{913cee68-4003-4159-8f9d-0792ed72f286}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stl2\iterator.hpp">
@@ -89,12 +92,6 @@
     </ClInclude>
     <ClInclude Include="include\stl2\detail\concepts\object.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\concepts.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\access.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
     </ClInclude>
     <ClInclude Include="include\stl2\concepts.hpp">
       <Filter>Header Files\cmcstl2\stl2</Filter>
@@ -134,6 +131,15 @@
     </ClInclude>
     <ClInclude Include="include\stl2\detail\iterator\reverse_iterator.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\access.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\concepts.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\tuple.hpp">
+      <Filter>Header Files\cmcstl2\stl2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

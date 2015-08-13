@@ -171,7 +171,7 @@ STL2_DEFINE_GETTER(end)
 
 template <class T>
 struct __unwrap : __unwrap<std::decay_t<T>> {};
-template <_Decayed T>
+_Decayed{T}
 struct __unwrap<T> { using type = T; };
 template <class T>
 struct __unwrap<std::reference_wrapper<T>> { using type = T&; };

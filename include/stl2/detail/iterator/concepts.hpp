@@ -39,7 +39,7 @@ using __iter_move_t =
   meta::if_<
     std::is_reference<ReferenceType<R>>,
     std::remove_reference_t<ReferenceType<R>> &&,
-    ReferenceType<R>>;
+    std::decay_t<ReferenceType<R>>>;
 }
 
 template <class R,
