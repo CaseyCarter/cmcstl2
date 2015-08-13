@@ -23,9 +23,17 @@ template <class T>
 constexpr T static_const<T>::value;
 }
 
-namespace ext { namespace models {}}
+namespace ext {
+template <unsigned N>
+struct priority_tag : priority_tag<N - 1> {};
+template <>
+struct priority_tag<0> {};
+namespace {
+constexpr auto& max_priority_tag = detail::static_const<priority_tag<1>>::value;
+}
 
-}} // namespace stl2::v1
+namespace models {}
+}}} // namespace stl2::v1::ext
 
 // Workaround bugs in deduction constraints by replacing:
 // * { E } -> T with requires T<decltype(E)>()

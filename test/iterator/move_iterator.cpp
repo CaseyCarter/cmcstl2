@@ -23,13 +23,13 @@ void test_move_iterator() {
   static constexpr std::size_t N = 42;
   std::vector<A> vec(N);
   std::vector<A> vec2;
-  vec2.reserve(vec.size());
+  vec2.reserve(stl2::size(vec));
 
   A::clear();
 
   {
-    auto first = stl2::make_move_iterator(vec.begin()),
-      last = stl2::make_move_iterator(vec.end());
+    auto first = stl2::make_move_iterator(stl2::begin(vec)),
+      last = stl2::make_move_iterator(stl2::end(vec));
     auto out = stl2::back_inserter(vec2);
 
     for (; first != last; ++first, ++out) {
@@ -37,7 +37,7 @@ void test_move_iterator() {
     }
   }
 
-  CHECK(vec2.size() == N);
+  CHECK(stl2::size(vec2) == N);
   CHECK(A::copy_count == std::size_t{0});
   CHECK(A::move_count == N);
 }
@@ -46,22 +46,21 @@ void test_iter_move() {
   static constexpr std::size_t N = 42;
   std::vector<A> vec(N);
   std::vector<A> vec2;
-  vec2.reserve(vec.size());
+  vec2.reserve(stl2::size(vec));
 
   A::clear();
 
   {
-    auto first = vec.begin(),
-      last = vec.end();
+    auto first = stl2::begin(vec),
+      last = stl2::end(vec);
     auto out = stl2::back_inserter(vec2);
 
     for (; first != last; ++first, ++out) {
-      using stl2::iter_move;
-      *out = iter_move(first);
+      *out = stl2::iter_move(first);
     }
   }
 
-  CHECK(vec2.size() == N);
+  CHECK(stl2::size(vec2) == N);
   CHECK(A::copy_count == std::size_t{0});
   CHECK(A::move_count == N);
 }
@@ -70,22 +69,21 @@ void test_both() {
   static constexpr std::size_t N = 42;
   std::vector<A> vec(N);
   std::vector<A> vec2;
-  vec2.reserve(vec.size());
+  vec2.reserve(stl2::size(vec));
 
   A::clear();
 
   {
-    auto first = stl2::make_move_iterator(vec.begin()),
-      last = stl2::make_move_iterator(vec.end());
+    auto first = stl2::make_move_iterator(stl2::begin(vec)),
+      last = stl2::make_move_iterator(stl2::end(vec));
     auto out = stl2::back_inserter(vec2);
 
     for (; first != last; ++first, ++out) {
-      using stl2::iter_move;
-      *out = iter_move(first);
+      *out = stl2::iter_move(first);
     }
   }
 
-  CHECK(vec2.size() == N);
+  CHECK(stl2::size(vec2) == N);
   CHECK(A::copy_count == std::size_t{0});
   CHECK(A::move_count == N);
 }
@@ -134,7 +132,7 @@ void test_proxy_iterator() {
   static constexpr std::size_t N = 42;
   std::vector<A> vec(N);
   std::vector<A> vec2;
-  vec2.reserve(vec.size());
+  vec2.reserve(stl2::size(vec));
 
   A::clear();
 
@@ -148,7 +146,7 @@ void test_proxy_iterator() {
     }
   }
 
-  CHECK(vec2.size() == N);
+  CHECK(stl2::size(vec2) == N);
   CHECK(A::copy_count == std::size_t{0});
   CHECK(A::move_count == N);
 }

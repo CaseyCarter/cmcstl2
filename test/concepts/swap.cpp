@@ -35,8 +35,6 @@ using stl2::is_nothrow_swappable;
 #include "../simple_test.hpp"
 
 namespace swappable_test {
-using ns::swap;
-
 CONCEPT_ASSERT(models::swappable<int&>());
 CONCEPT_ASSERT(models::swappable<int&, int&>());
 CONCEPT_ASSERT(models::swappable<int(&)[4]>());
@@ -48,8 +46,8 @@ CONCEPT_ASSERT(!models::swappable<int(&)[4], bool(&)[4]>());
 CONCEPT_ASSERT(!models::swappable<int(&)[]>());
 CONCEPT_ASSERT(!models::swappable<int(&)[][4]>());
 
-CONCEPT_ASSERT(noexcept(swap(ns::declval<int&>(),
-                             ns::declval<int&>())));
+CONCEPT_ASSERT(noexcept(ns::swap(ns::declval<int&>(),
+                                 ns::declval<int&>())));
 CONCEPT_ASSERT(ns::is_nothrow_swappable<int&, int&>());
 CONCEPT_ASSERT(ns::is_nothrow_swappable<int(&)[42], int(&)[42]>());
 
@@ -72,7 +70,7 @@ struct A {
 };
 
 CONCEPT_ASSERT(models::swappable<A&>());
-CONCEPT_ASSERT(noexcept(swap(ns::declval<A&>(), ns::declval<A&>())));
+CONCEPT_ASSERT(noexcept(ns::swap(ns::declval<A&>(), ns::declval<A&>())));
 CONCEPT_ASSERT(ns::is_nothrow_swappable<A&, A&>());
 }
 
@@ -82,29 +80,11 @@ struct B {
 };
 
 CONCEPT_ASSERT(models::swappable<B&>());
-CONCEPT_ASSERT(!noexcept(swap(ns::declval<B&>(), ns::declval<B&>())));
+CONCEPT_ASSERT(!noexcept(ns::swap(ns::declval<B&>(), ns::declval<B&>())));
 CONCEPT_ASSERT(!ns::is_nothrow_swappable<B&, B&>());
 }
 
 } // namespace swappable_test
-
-namespace adl_swap_detail {
-using ns::swap;
-
-#if VALIDATE_STL2
-template <class T, class U>
-  requires stl2::Swappable<T, U>()
-#else
-template <class T, class U,
-  CONCEPT_REQUIRES_(ranges::Swappable<T, U>())>
-#endif
-constexpr void adl_swap(T&& t, U&& u)
-  noexcept(noexcept(swap(ns::forward<T>(t), ns::forward<U>(u)))) {
-  swap(ns::forward<T>(t), ns::forward<U>(u));
-}
-} // namespace adl_swap_detail
-
-using adl_swap_detail::adl_swap;
 
 #if 0 // No longer functional
 
@@ -126,22 +106,22 @@ struct array {
 template <class T, class U, std::size_t N>
   requires stl2::Swappable<T&, U&>()
 void swap(array<T, N>& a, array<U, N>& b)
-  noexcept(noexcept(adl_swap(a.elements_, b.elements_))) {
-  adl_swap(a.elements_, b.elements_);
+  noexcept(noexcept(ns::swap(a.elements_, b.elements_))) {
+  ns::swap(a.elements_, b.elements_);
 }
 
 template <class T, class U, std::size_t N>
   requires stl2::Swappable<T&, U&>()
 void swap(array<T, N>& a, U (&b)[N])
-  noexcept(noexcept(adl_swap(a.elements_, b))) {
-  adl_swap(a.elements_, b);
+  noexcept(noexcept(ns::swap(a.elements_, b))) {
+  ns::swap(a.elements_, b);
 }
 
 template <class T, class U, std::size_t N>
   requires stl2::Swappable<T&, U&>()
 void swap(T (&b)[N], array<U, N>& a)
-  noexcept(noexcept(adl_swap(a.elements_, b))) {
-  adl_swap(a.elements_, b);
+  noexcept(noexcept(ns::swap(a.elements_, b))) {
+  ns::swap(a.elements_, b);
 }
 
 #endif
@@ -153,8 +133,8 @@ int main() {
     int b[2][2] = {{4, 5}, {6, 7}};
 
     CONCEPT_ASSERT(models::swappable<decltype((a)),decltype((b))>());
-    adl_swap(a, b);
-    CONCEPT_ASSERT(noexcept(adl_swap(a, b)));
+    ns::swap(a, b);
+    CONCEPT_ASSERT(noexcept(ns::swap(a, b)));
 
     CHECK(a[0][0] == 4);
     CHECK(a[0][1] == 5);
@@ -174,12 +154,12 @@ int main() {
     int b[4] = {4,5,6,7};
 
     CONCEPT_ASSERT(models::swappable<decltype(a[0]),decltype(b[0])>());
-    adl_swap(a[0], b[0]);
-    CONCEPT_ASSERT(noexcept(adl_swap(a[0], b[0])));
+    ns::swap(a[0], b[0]);
+    CONCEPT_ASSERT(noexcept(ns::swap(a[0], b[0])));
 
     CONCEPT_ASSERT(models::swappable<decltype((a)),decltype((b))>());
-    adl_swap(a, b);
-    CONCEPT_ASSERT(noexcept(adl_swap(a, b)));
+    ns::swap(a, b);
+    CONCEPT_ASSERT(noexcept(ns::swap(a, b)));
 
     CHECK(a[0] == 0);
     CHECK(a[1] == 5);
@@ -197,12 +177,12 @@ int main() {
     int b[3][2] = {{6, 7}, {8, 9}, {10, 11}};
 
     CONCEPT_ASSERT(models::swappable<decltype(a[0]),decltype(b[0])>());
-    adl_swap(a[0], b[0]);
-    CONCEPT_ASSERT(noexcept(adl_swap(a[0], b[0])));
+    ns::swap(a[0], b[0]);
+    CONCEPT_ASSERT(noexcept(ns::swap(a[0], b[0])));
 
     CONCEPT_ASSERT(models::swappable<decltype((a)),decltype((b))>());
-    adl_swap(a, b);
-    CONCEPT_ASSERT(noexcept(adl_swap(a, b)));
+    ns::swap(a, b);
+    CONCEPT_ASSERT(noexcept(ns::swap(a, b)));
 
     CHECK(a[0][0] == 0);
     CHECK(a[0][1] == 1);

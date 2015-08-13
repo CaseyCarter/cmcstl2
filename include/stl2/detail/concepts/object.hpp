@@ -61,7 +61,7 @@ struct constructible_object_or_ref<T, Args...> : std::true_type {};
 
 template <class T, class...Args>
 concept bool Constructible() {
-  return meta::_v<detail::constructible_object_or_ref<T, Args...>>;
+  return detail::constructible_object_or_ref<T, Args...>::value;
 }
 
 // There's implementation variance around DR1518, this may not
@@ -121,28 +121,44 @@ constexpr T exchange(T& t, U&& u)
   noexcept(std::is_nothrow_move_constructible<T>::value &&
            std::is_nothrow_assignable<T&, U>::value);
 
+namespace __swap {
 constexpr void swap(Movable& a, Movable& b)
   noexcept(noexcept(b = exchange(a, stl2::move(b))));
 
-namespace detail {
-  constexpr struct __try_swap_fn {
-    auto operator()(auto &t, auto &u) const
-      noexcept(noexcept(swap(t,u)))
-      -> decltype(swap(t,u));
+struct __try_swap_fn {
+  auto operator()(auto &t, auto &u) const
+    noexcept(noexcept(swap(t,u)))
+    -> decltype(swap(t,u));
 
-    template <std::size_t N, typename This = __try_swap_fn>
-    auto operator()(auto (&t)[N], auto (&u)[N]) const
-      noexcept(noexcept(This{}(*t, *u)))
-      -> decltype(This{}(*t, *u));
-  } __try_swap{};
+  template <std::size_t N, typename This = __try_swap_fn>
+  auto operator()(auto (&t)[N], auto (&u)[N]) const
+    noexcept(noexcept(This{}(*t, *u)))
+    -> decltype(This{}(*t, *u));
+};
+
+namespace {
+  constexpr auto& __try_swap = detail::static_const<__try_swap_fn>::value;
 }
 
 // 20150715: Conforming extension: can swap T(&)[N] with U(&)[N]
 // if T& and U& are Swappable.
 template <class T, class U, std::size_t N>
-  requires requires (T &t, U &u) { detail::__try_swap(t, u); }
+  requires requires (T &t, U &u) { __try_swap(t, u); }
 constexpr void swap(T (&t)[N], U (&u)[N])
-  noexcept(noexcept(detail::__try_swap(*t, *u)));
+  noexcept(noexcept(__try_swap(*t, *u)));
+
+struct fn {
+  template <class T, class U>
+    requires requires (T&& a, U&& b) { swap((T&&)a, (U&&)b); }
+  constexpr void operator()(T&& a, U&& b) const
+    noexcept(noexcept(swap(stl2::forward<T>(a), stl2::forward<U>(b))));
+};
+} // namespace __swap
+
+namespace {
+// 20150805: Not to spec: swap is a N4381-style function object customization point.
+  constexpr auto& swap = detail::static_const<__swap::fn>::value;
+}
 
 namespace detail {
 template <class T, class U>

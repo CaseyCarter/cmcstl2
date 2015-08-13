@@ -182,7 +182,7 @@ reverse_iterator<I> operator+(DifferenceType<I> n,
 }
 
 BidirectionalIterator{I}
-auto make_reverse_iterator(I i) {
+reverse_iterator<I> make_reverse_iterator(I i) {
   return reverse_iterator<I>{stl2::move(i)};
 }
 

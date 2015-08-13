@@ -18,17 +18,10 @@ namespace stl2 { inline namespace v1 {
 // Range [iterable.iterables]
 //
 template <class T>
-  requires requires (T& t) {
-    STL2_DEDUCTION_CONSTRAINT(begin(t), Iterator);
-  }
-using IteratorType = decltype(begin(declval<T&>()));
+using IteratorType = decltype(stl2::begin(declval<T&>()));
 
 template <class T>
-  requires requires (T& t) {
-    // { end(t) } -> Sentinel<IteratorType<T>>;
-    requires Sentinel<decltype(end(t)), IteratorType<T>>();
-  }
-using SentinelType = decltype(end(declval<T&>()));
+using SentinelType = decltype(stl2::end(declval<T&>()));
 
 template <class T>
 concept bool Range() {
@@ -61,8 +54,8 @@ concept bool SizedRange() {
   return _IsNot<R, disable_sized_range> &&
     Range<R>() &&
     requires (const std::remove_reference_t<R>& r) {
-      STL2_DEDUCTION_CONSTRAINT(size(r), Integral);
-      STL2_CONVERSION_CONSTRAINT(size(r), DifferenceType<IteratorType<R>>);
+      STL2_DEDUCTION_CONSTRAINT(stl2::size(r), Integral);
+      STL2_CONVERSION_CONSTRAINT(stl2::size(r), DifferenceType<IteratorType<R>>);
     };
 }
 
@@ -152,7 +145,10 @@ concept bool RandomAccessRange() {
 namespace ext {
 template <class T>
 concept bool ContiguousRange() {
-  return Range<T>() && ContiguousIterator<IteratorType<T>>();
+  return SizedRange<T>() && ContiguousIterator<IteratorType<T>>() &&
+    requires (T& t) {
+      STL2_EXACT_TYPE_CONSTRAINT(stl2::data(t), std::add_pointer_t<ReferenceType<IteratorType<T>>>);
+    };
 }
 }
 

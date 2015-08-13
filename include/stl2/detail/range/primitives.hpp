@@ -14,12 +14,12 @@ namespace stl2 { inline namespace v1 {
 // distance
 Range{R}
 DifferenceType<R> distance(R&& r) {
-  return stl2::distance(begin(r), end(r));
+  return stl2::distance(stl2::begin(r), stl2::end(r));
 }
 
 SizedRange{R}
 DifferenceType<R> distance(R&& r) {
-  return size(r);
+  return stl2::size(r);
 }
 
 }} // namespace stl2::v1

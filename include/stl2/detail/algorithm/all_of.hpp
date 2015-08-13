@@ -35,7 +35,7 @@ bool all_of(I first, S last, F pred, P proj = P{}) {
 template <InputRange R, MoveConstructible F, MoveConstructible P = identity>
   requires IndirectCallablePredicate<F, Projected<IteratorType<R>, P>>()
 bool all_of(R&& rng, F pred, P proj = P{}) {
-  return all_of(begin(rng), end(rng), stl2::move(pred), stl2::move(proj));
+  return all_of(stl2::begin(rng), stl2::end(rng), stl2::move(pred), stl2::move(proj));
 }
 }}
 
