@@ -68,6 +68,11 @@ public:
     return stl2::prev(current);
   }
 
+  // 20150813: Extension.
+  friend auto iter_move(reverse_iterator i) {
+    return stl2::iter_move(stl2::prev(i.current));
+  }
+
   reverse_iterator& operator++() & {
     --current;
     return *this;
@@ -112,6 +117,17 @@ public:
     return current[-n - 1];
   }
 
+  EqualityComparable{I1, I2}
+  friend bool operator==(const reverse_iterator<I1>&,
+                         const reverse_iterator<I2>&);
+
+  TotallyOrdered{I1, I2}
+  friend bool operator<(const reverse_iterator<I1>&,
+                        const reverse_iterator<I2>&);
+
+  SizedIteratorRange{I2, I1}
+  friend DifferenceType<I2> operator-(const reverse_iterator<I1>&,
+                                      const reverse_iterator<I2>&);
 protected:
   I current{};
 };
@@ -119,53 +135,53 @@ protected:
 EqualityComparable{I1, I2}
 bool operator==(const reverse_iterator<I1>& x,
                 const reverse_iterator<I2>& y) {
-  return static_cast<const I1&>(x) == static_cast<const I2&>(y);
+  return x.current == y.current;
 }
 
 EqualityComparable{I1, I2}
 bool operator!=(const reverse_iterator<I1>& x,
                 const reverse_iterator<I2>& y) {
-  return static_cast<const I1&>(x) != static_cast<const I2&>(y);
+  return !(x == y);
 }
 
 TotallyOrdered{I1, I2}
 bool operator<(const reverse_iterator<I1>& x,
                const reverse_iterator<I2>& y) {
-  return static_cast<const I1&>(x) > static_cast<const I2&>(y);
+  return y.current < x.current;
 }
 
 TotallyOrdered{I1, I2}
 bool operator>(const reverse_iterator<I1>& x,
                const reverse_iterator<I2>& y) {
-  return static_cast<const I1&>(x) < static_cast<const I2&>(y);
+  return y < x;
 }
 
 TotallyOrdered{I1, I2}
 bool operator<=(const reverse_iterator<I1>& x,
                 const reverse_iterator<I2>& y) {
-  return static_cast<const I1&>(x) >= static_cast<const I2&>(y);
+  return !(y < x);
 }
 
 TotallyOrdered{I1, I2}
 bool operator>=(const reverse_iterator<I1>& x,
                 const reverse_iterator<I2>& y) {
-  return static_cast<const I1&>(x) <= static_cast<const I2&>(y);
+  return !(x < y);
 }
 
 SizedIteratorRange{I2, I1}
 DifferenceType<I2> operator-(const reverse_iterator<I1>& x,
                              const reverse_iterator<I2>& y) {
-  return static_cast<const I2&>(y) - static_cast<const I1&>(x);
+  return y.current - x.current;
 }
 
-template <class I>
+RandomAccessIterator{I}
 reverse_iterator<I> operator+(DifferenceType<I> n,
                               const reverse_iterator<I>& x) {
-  return reverse_iterator<I>{static_cast<const I&>(x) - n};
+  return x + n;
 }
 
 BidirectionalIterator{I}
-auto make_reverse_iterator(I i) {
+reverse_iterator<I> make_reverse_iterator(I i) {
   return reverse_iterator<I>{stl2::move(i)};
 }
 

@@ -30,7 +30,6 @@ public:
 
   Derived& operator++() & {
     return static_cast<Derived&>(*this);
-    return *this;
   }
   Derived operator++(int) & {
     return static_cast<Derived&>(*this);

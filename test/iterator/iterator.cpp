@@ -11,7 +11,11 @@ namespace models = stl2::ext::models;
 
 template <class T>
 struct reference_wrapper {
+#ifdef NDEBUG
   T* ptr_;
+#else
+  T* ptr_{};
+#endif
 
   reference_wrapper() = default;
   reference_wrapper(T& t) noexcept : ptr_{std::addressof(t)} {}

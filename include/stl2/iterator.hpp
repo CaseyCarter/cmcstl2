@@ -13,10 +13,12 @@
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/insert_iterators.hpp>
+#include <stl2/detail/iterator/move_iterator.hpp>
 #include <stl2/detail/iterator/operations.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 namespace stl2 { namespace v1 {
 using std::iterator;
