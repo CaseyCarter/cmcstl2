@@ -18,10 +18,7 @@ namespace stl2 { inline namespace v1 {
 // Range [iterable.iterables]
 //
 template <class T>
-  requires requires (T& t) {
-    STL2_DEDUCTION_CONSTRAINT(begin(t), Iterator);
-  }
-using IteratorType = decltype(begin(declval<T&>()));
+using IteratorType = decltype(stl2::begin(declval<T&>()));
 
 template <class T>
   requires requires (T& t) {

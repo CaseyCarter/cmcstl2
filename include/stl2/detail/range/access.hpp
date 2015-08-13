@@ -7,10 +7,9 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 // HACKHACK: Disable constraints that cause the compiler to OOM
-#define STL2_HACK_CONSTRAINTS
+#define STL2_HACK_CONSTRAINTS 1
 
-namespace stl2 { namespace v1 {
-
+namespace stl2 { inline namespace v1 {
 BidirectionalIterator{I} class reverse_iterator;
 BidirectionalIterator{I}
 reverse_iterator<I> make_reverse_iterator(I);
@@ -21,59 +20,56 @@ reverse_iterator<I> make_reverse_iterator(I);
 // begin
 // 20150805: Not to spec: is an N4381-style customization point.
 namespace __begin {
-  template <class T, std::size_t N>
-  constexpr T* begin(T (&array)[N]) noexcept {
-    return array;
-  }
-
+  // Use member if it returns Iterator.
   template <class R>
     requires requires (R& r) {
-#ifdef STL2_HACK_CONSTRAINTS
-      r.begin();
-#else
       STL2_DEDUCTION_CONSTRAINT(r.begin(), Iterator);
-#endif
     }
-  constexpr STL2_CONSTRAINED_RETURN(Iterator) begin(R& r)
+  constexpr auto impl(R& r, ext::priority_tag<0>)
     noexcept(noexcept(r.begin())) {
-#ifdef STL2_HACK_CONSTRAINTS
-    static_assert(ext::models::iterator<decltype(r.begin())>());
-#endif
     return r.begin();
   }
 
+  // Prefer ADL if it returns Iterator.
   template <class R>
-    requires requires (const R& r) {
-#ifdef STL2_HACK_CONSTRAINTS
-      r.begin();
-#else
-      STL2_DEDUCTION_CONSTRAINT(r.begin(), Iterator);
-#endif
+    requires requires (R& r) {
+      STL2_DEDUCTION_CONSTRAINT(begin(r), Iterator);
     }
-  constexpr STL2_CONSTRAINED_RETURN(Iterator) begin(const R& r)
-    noexcept(noexcept(r.begin())) {
-#ifdef STL2_HACK_CONSTRAINTS
-    static_assert(ext::models::iterator<decltype(r.begin())>());
-#endif
-    return r.begin();
+  constexpr auto impl(R& r, ext::priority_tag<1>)
+    noexcept(noexcept(begin(r))) {
+    return begin(r);
   }
 
   struct fn {
-    template <class R>
-      requires requires (R&& r) {
-#ifdef STL2_HACK_CONSTRAINTS
-        begin((R&&)r);
-#else
-        STL2_DEDUCTION_CONSTRAINT(begin((R&&)r), Iterator);
-#endif
-      }
-    constexpr STL2_CONSTRAINED_RETURN(Iterator) operator()(R&& r) const
-      noexcept(noexcept(begin(stl2::forward<R>(r)))) {
-#ifdef STL2_HACK_CONSTRAINTS
-      static_assert(ext::models::iterator<decltype(begin(stl2::forward<R>(r)))>());
-#endif
-      return begin(stl2::forward<R>(r));
+    template <class R, std::size_t N>
+    constexpr R* operator()(R (&array)[N]) const noexcept {
+      return array;
     }
+
+    template <class R>
+      requires requires (R& r) { __begin::impl(r, ext::max_priority_tag); }
+    constexpr auto operator()(R& r) const
+      noexcept(noexcept(__begin::impl(r, ext::max_priority_tag))) {
+      return __begin::impl(r, ext::max_priority_tag);
+    }
+
+#if 1
+    // Backwards compatibility: rvalues are treated as
+    // const lvalues.
+    template <class R>
+      requires requires (const R& r) { __begin::impl(r, ext::max_priority_tag); }
+    constexpr auto operator()(const R&& r) const
+      noexcept(noexcept(__begin::impl(r, ext::max_priority_tag))) {
+      return __begin::impl(r, ext::max_priority_tag);
+    }
+#else
+    // Forget backwards compatibility, begin on rvalues is broken;
+    // except for std::initializer_list.
+    template <class E>
+    constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
+      return il.begin();
+    }
+#endif
   };
 }
 namespace {
@@ -92,14 +88,13 @@ namespace __end {
 #ifdef STL2_HACK_CONSTRAINTS
       r.end();
 #else
-      requires Sentinel<decltype(r.end()), decltype(r.begin())>();
+      requires Sentinel<decltype(r.end()), decltype(stl2::begin(r))>();
 #endif
     }
   constexpr auto end(R& r)
-    noexcept(noexcept(r.end())) ->
-    STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.begin())>) {
+    noexcept(noexcept(r.end())) {
 #ifdef STL2_HACK_CONSTRAINTS
-    static_assert(ext::models::sentinel<decltype(r.end()), decltype(r.begin())>());
+    static_assert(ext::models::sentinel<decltype(r.end()), decltype(stl2::begin(r))>());
 #endif
     return r.end();
   }
@@ -109,14 +104,13 @@ namespace __end {
 #ifdef STL2_HACK_CONSTRAINTS
       r.end();
 #else
-      requires Sentinel<decltype(r.end()), decltype(r.begin())>();
+      requires Sentinel<decltype(r.end()), decltype(stl2::begin(r))>();
 #endif
     }
   constexpr auto end(const R& r)
-    noexcept(noexcept(r.end())) ->
-    STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.begin())>) {
+    noexcept(noexcept(r.end())) {
 #ifdef STL2_HACK_CONSTRAINTS
-    static_assert(ext::models::sentinel<decltype(r.end()), decltype(r.begin())>());
+    static_assert(ext::models::sentinel<decltype(r.end()), decltype(stl2::begin(r))>());
 #endif
     return r.end();
   }
@@ -127,14 +121,14 @@ namespace __end {
 #ifdef STL2_HACK_CONSTRAINTS
         end((R&&)r);
 #else
-        requires Sentinel<decltype(end((R&&)r)), decltype(begin((R&&)r))>();
+        requires Sentinel<decltype(end((R&&)r)), decltype(stl2::begin((R&&)r))>();
 #endif
       }
     constexpr auto operator()(R&& r) const
       noexcept(noexcept(end(stl2::forward<R>(r)))) ->
-      STL2_CONSTRAINED_RETURN(Sentinel<decltype(begin((R&&)r))>) {
+      STL2_CONSTRAINED_RETURN(Sentinel<decltype(stl2::begin((R&&)r))>) {
 #ifdef STL2_HACK_CONSTRAINTS
-      static_assert(ext::models::sentinel<decltype(end((R&&)r)), decltype(begin((R&&)r))>());
+      static_assert(ext::models::sentinel<decltype(end((R&&)r)), decltype(stl2::begin((R&&)r))>());
 #endif
       return end(r);
     }
@@ -185,7 +179,9 @@ template <class R>
 constexpr STL2_CONSTRAINED_RETURN(Iterator)
 __rbegin(R& r, ext::priority_tag<1>)
   noexcept(noexcept(r.rbegin())) {
+#ifdef STL2_HACK_CONSTRAINTS
   static_assert(ext::models::iterator<decltype(r.rbegin())>());
+#endif
   return r.rbegin();
 }
 
@@ -212,7 +208,9 @@ template <class R>
 constexpr STL2_CONSTRAINED_RETURN(Iterator)
 __rbegin(const R& r, ext::priority_tag<1>)
   noexcept(noexcept(r.rbegin())) {
+#ifdef STL2_HACK_CONSTRAINTS
   static_assert(ext::models::iterator<decltype(r.rbegin())>());
+#endif
   return r.rbegin();
 }
 
@@ -250,6 +248,9 @@ template <class R>
 constexpr auto __rend(R& r, ext::priority_tag<1>)
   noexcept(noexcept(r.rend())) ->
   STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.rbegin(r))>) {
+#ifdef STL2_HACK_CONSTRAINTS
+  static_assert(ext::models::sentinel<decltype(r.rend()), decltype(r.rbegin())>());
+#endif
   return r.rend();
 }
 
@@ -276,6 +277,9 @@ template <class R>
 constexpr auto __rend(const R& r, ext::priority_tag<1>)
   noexcept(noexcept(r.rend())) ->
   STL2_CONSTRAINED_RETURN(Sentinel<decltype(r.rbegin(r))>) {
+#ifdef STL2_HACK_CONSTRAINTS
+  static_assert(ext::models::sentinel<decltype(r.rend()), decltype(r.rbegin())>());
+#endif
   return r.rend();
 }
 

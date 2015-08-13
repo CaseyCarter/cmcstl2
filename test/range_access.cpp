@@ -40,8 +40,9 @@ void test_initializer_list() {
   CHECK(stl2::__empty::empty(il) == false);
 }
 
-void test_array() {
-  const int a[] = {0,1,2};
+template <class T, T...Is>
+void test_array(std::integer_sequence<T, Is...>) {
+  T a[sizeof...(Is)] = { Is... };
   {
     int count = 0;
     for (auto p = stl2::begin(a), e = stl2::end(a); p != e; ++p) {
@@ -49,15 +50,90 @@ void test_array() {
     }
   }
   {
-    int count = 3;
+    int count = sizeof...(Is);
     for (auto p = stl2::rbegin(a), e = stl2::rend(a); p != e; ++p) {
       CHECK(*p == --count);
     }
   }
-  CHECK(stl2::size(a) == std::size_t{3});
+  CHECK(stl2::size(a) == sizeof...(Is));
   CHECK(stl2::data(a) == a + 0);
   CHECK(stl2::empty(a) == false);
 }
+
+namespace begin_testing {
+template <class R>
+concept bool CanBegin =
+  requires (R&& r) {
+    stl2::begin((R&&)r);
+  };
+
+template <class>
+constexpr bool can_begin() { return false; }
+CanBegin{R}
+constexpr bool can_begin() { return true; }
+
+struct A {
+  int* begin();
+  int* end();
+  const int* begin() const;
+  const int* end() const;
+};
+
+struct B : A {};
+void* begin(B&);
+
+struct C : A {};
+void begin(C&);
+
+struct D : A {};
+char* begin(D&);
+
+void test() {
+  // Valid
+  static_assert(can_begin<int(&)[2]>());
+  static_assert(models::same<decltype(stl2::begin(stl2::declval<int(&)[2]>())), int*>());
+  static_assert(can_begin<const int(&)[2]>());
+  static_assert(models::same<decltype(stl2::begin(stl2::declval<const int(&)[2]>())), const int*>());
+
+  // Ill-formed: array rvalue
+  static_assert(!can_begin<int(&&)[2]>());
+
+  // Valid: only member begin
+  static_assert(can_begin<A&>());
+  static_assert(models::same<decltype(stl2::begin(stl2::declval<A&>())), int*>());
+  static_assert(can_begin<const A&>());
+  static_assert(models::same<decltype(stl2::begin(stl2::declval<const A&>())), const int*>());
+
+  // Valid: Both member and non-member begin, but non-member returns non-Iterator.
+  static_assert(can_begin<B&>());
+  static_assert(models::same<decltype(stl2::begin(stl2::declval<B&>())), int*>());
+  static_assert(can_begin<const B&>());
+  static_assert(models::same<decltype(stl2::begin(stl2::declval<const B&>())), const int*>());
+
+#if 0 // FIXME: Bug?
+  // Valid: Both member and non-member begin, but non-member returns non-Iterator.
+  static_assert(can_begin<C&>());
+#endif
+  static_assert(can_begin<const C&>());
+
+  // Valid: Prefer non-member begin
+  static_assert(can_begin<D&>());
+  static_assert(models::same<char*, decltype(stl2::begin(stl2::declval<D&>()))>());
+  static_assert(can_begin<const D&>());
+  static_assert(models::same<const int*, decltype(stl2::begin(stl2::declval<const D&>()))>());
+
+  {
+    using T = std::initializer_list<int>;
+    // Valid: begin accepts lvalue initializer_list
+    static_assert(models::same<const int*, decltype(stl2::begin(stl2::declval<T&>()))>());
+    static_assert(models::same<const int*, decltype(stl2::begin(stl2::declval<const T&>()))>());
+
+    // Valid: begin accepts rvalue initializer_list
+    static_assert(models::same<const int*, decltype(stl2::begin(stl2::declval<T>()))>());
+    static_assert(models::same<const int*, decltype(stl2::begin(stl2::declval<const T>()))>());
+  }
+}
+} // namespace begin_testing
 
 namespace X {
 template <class T, std::size_t N>
@@ -121,6 +197,9 @@ int main() {
   if (output) std::cout << "}\n";
 
   test_initializer_list();
-  test_array();
+  test_array(stl2::make_integer_sequence<int, 3>{});
+  test_array(stl2::make_integer_sequence<const int, 3>{});
+  begin_testing::test();
+
   return ::test_result();
 }

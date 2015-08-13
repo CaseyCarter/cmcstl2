@@ -208,7 +208,6 @@ void ridiculously_exhaustive_range_property_test() {
   CHECK(!models::container_like<const int(&)[2]>());
   CHECK(!models::view<const int(&)[2]>());
 
-
   CHECK(models::same<ns::IteratorType<mutable_unsized_range>, I>());
   CHECK(models::same<ns::SentinelType<mutable_unsized_range>, I>());
   CHECK(models::range<mutable_unsized_range>());

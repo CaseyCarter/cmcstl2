@@ -61,7 +61,7 @@ struct constructible_object_or_ref<T, Args...> : std::true_type {};
 
 template <class T, class...Args>
 concept bool Constructible() {
-  return meta::_v<detail::constructible_object_or_ref<T, Args...>>;
+  return detail::constructible_object_or_ref<T, Args...>::value;
 }
 
 // There's implementation variance around DR1518, this may not
