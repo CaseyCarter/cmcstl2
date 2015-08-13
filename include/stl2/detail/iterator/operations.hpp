@@ -1,9 +1,8 @@
 #ifndef STL2_DETAIL_ITERATOR_OPERATIONS_HPP
 #define STL2_DETAIL_ITERATOR_OPERATIONS_HPP
 
+#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/range/access.hpp>
-#include <stl2/detail/range/concepts.hpp>
 
 namespace stl2 { inline namespace v1 {
 
@@ -107,16 +106,6 @@ DifferenceType<I> distance(I first, S last) {
 SizedIteratorRange{I, S}
 DifferenceType<I> distance(I first, S last) {
   return last - first;
-}
-
-Range{R}
-DifferenceType<R> distance(R&& r) {
-  return stl2::distance(stl2::begin(r), stl2::end(r));
-}
-
-SizedRange{R}
-DifferenceType<R> distance(R&& r) {
-  return stl2::size(r);
 }
 
 // next
