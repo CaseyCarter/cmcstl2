@@ -33,11 +33,8 @@ void test_initializer_list() {
     }
   }
   CHECK(stl2::size(il) == std::size_t{3});
-
-  // libstdc++ has overloads of data and empty that are found by
-  // ADL but don't work for initializer_list.
-  CHECK(stl2::__data::data(il) == &*il.begin());
-  CHECK(stl2::__empty::empty(il) == false);
+  CHECK(stl2::data(il) == &*il.begin());
+  CHECK(stl2::empty(il) == false);
 }
 
 template <class T, T...Is>
