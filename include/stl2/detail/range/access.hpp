@@ -5,12 +5,11 @@
 #include <iterator>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/iterator/reverse_iterator.hpp>
 
 namespace stl2 { inline namespace v1 {
 using std::begin;
 using std::end;
-
-BidirectionalIterator{I} class reverse_iterator;
 
 namespace detail {
   template <class>

@@ -17,6 +17,7 @@
 #include <stl2/detail/iterator/reverse_iterator.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 namespace stl2 { namespace v1 {
 using std::iterator;
