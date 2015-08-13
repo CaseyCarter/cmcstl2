@@ -508,8 +508,7 @@ I complicated_algorithm(I i, S s) {
 
 stl2::InputRange{R}
 stl2::IteratorType<R> complicated_algorithm(R&& r) {
-  using stl2::begin; using stl2::end;
-  return complicated_algorithm(begin(r), end(r));
+  return complicated_algorithm(stl2::begin(r), stl2::end(r));
 }
 
 template <class T>
@@ -532,12 +531,12 @@ void complicated_algorithm_test() {
   CHECK(models::sized_range<decltype(some_ints)>());
   CHECK(models::container_like<decltype(some_ints)>());
   CHECK(!models::view<decltype(some_ints)>());
-  CHECK(complicated_algorithm(some_ints) == std::end(some_ints));
+  CHECK(complicated_algorithm(some_ints) == stl2::end(some_ints));
   CHECK(models::range<array_view<int>>());
   CHECK(models::sized_range<array_view<int>>());
   CHECK(!models::container_like<array_view<int>>());
   CHECK(models::view<array_view<int>>());
-  CHECK(complicated_algorithm(array_view<int>{some_ints}) == std::end(some_ints));
+  CHECK(complicated_algorithm(array_view<int>{some_ints}) == stl2::end(some_ints));
 }
 
 int main() {

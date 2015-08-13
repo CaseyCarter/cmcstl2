@@ -77,61 +77,72 @@ namespace {
 }
 
 // end
+#define STL2_HACK_END_CONSTRAINTS STL2_HACK_CONSTRAINTS
 namespace __end {
-  template <class T, std::size_t N>
-  constexpr T* end(T (&array)[N]) noexcept {
-    return array + N;
-  }
-
+  // Use member if it returns Sentinel.
   template <class R>
     requires requires (R& r) {
-#ifdef STL2_HACK_CONSTRAINTS
+      // { r.end() } -> Sentinel<decltype(stl2::begin(r))>;
       r.end();
-#else
+#if !STL2_HACK_END_CONSTRAINTS
       requires Sentinel<decltype(r.end()), decltype(stl2::begin(r))>();
 #endif
     }
-  constexpr auto end(R& r)
+  constexpr auto impl(R& r, ext::priority_tag<0>)
     noexcept(noexcept(r.end())) {
-#ifdef STL2_HACK_CONSTRAINTS
+#if STL2_HACK_END_CONSTRAINTS
     static_assert(ext::models::sentinel<decltype(r.end()), decltype(stl2::begin(r))>());
 #endif
     return r.end();
   }
 
+  // Prefer ADL if it returns Sentinel.
   template <class R>
-    requires requires (const R& r) {
-#ifdef STL2_HACK_CONSTRAINTS
-      r.end();
-#else
-      requires Sentinel<decltype(r.end()), decltype(stl2::begin(r))>();
+    requires requires (R& r) {
+      // { end(r) } -> Sentinel<decltype(stl2::begin(r))>;
+      end(r);
+#if !STL2_HACK_END_CONSTRAINTS
+      requires Sentinel<decltype(end(r)), decltype(stl2::begin(r))>();
 #endif
     }
-  constexpr auto end(const R& r)
-    noexcept(noexcept(r.end())) {
-#ifdef STL2_HACK_CONSTRAINTS
-    static_assert(ext::models::sentinel<decltype(r.end()), decltype(stl2::begin(r))>());
+  constexpr auto impl(R& r, ext::priority_tag<1>)
+    noexcept(noexcept(end(r))) {
+#if STL2_HACK_END_CONSTRAINTS
+    static_assert(ext::models::sentinel<decltype(end(r)), decltype(stl2::begin(r))>());
 #endif
-    return r.end();
+    return end(r);
   }
 
   struct fn {
-    template <class R>
-      requires requires (R&& r) {
-#ifdef STL2_HACK_CONSTRAINTS
-        end((R&&)r);
-#else
-        requires Sentinel<decltype(end((R&&)r)), decltype(stl2::begin((R&&)r))>();
-#endif
-      }
-    constexpr auto operator()(R&& r) const
-      noexcept(noexcept(end(stl2::forward<R>(r)))) ->
-      STL2_CONSTRAINED_RETURN(Sentinel<decltype(stl2::begin((R&&)r))>) {
-#ifdef STL2_HACK_CONSTRAINTS
-      static_assert(ext::models::sentinel<decltype(end((R&&)r)), decltype(stl2::begin((R&&)r))>());
-#endif
-      return end(r);
+    template <class R, std::size_t N>
+    constexpr R* operator()(R (&array)[N]) const noexcept {
+      return array + N;
     }
+
+    template <class R>
+      requires requires (R& r) { __end::impl(r, ext::max_priority_tag); }
+    constexpr auto operator()(R& r) const
+      noexcept(noexcept(__end::impl(r, ext::max_priority_tag))) {
+      return __end::impl(r, ext::max_priority_tag);
+    }
+
+#if 1
+    // Backwards compatibility: rvalues are treated as
+    // const lvalues.
+    template <class R>
+      requires requires (const R& r) { __end::impl(r, ext::max_priority_tag); }
+    constexpr auto operator()(const R&& r) const
+      noexcept(noexcept(__end::impl(r, ext::max_priority_tag))) {
+      return __end::impl(r, ext::max_priority_tag);
+    }
+#else
+    // Forget backwards compatibility, end on rvalues is broken;
+    // except for std::initializer_list.
+    template <class E>
+    constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
+      return il.end();
+    }
+#endif
   };
 }
 namespace {
@@ -141,7 +152,7 @@ namespace {
 // cbegin
 template <class R>
   requires requires (const R& r) { stl2::begin(r); }
-constexpr STL2_CONSTRAINED_RETURN(Iterator) cbegin(const R& r)
+constexpr auto cbegin(const R& r)
   noexcept(noexcept(stl2::begin(r))) {
   return stl2::begin(r);
 }
@@ -150,8 +161,7 @@ constexpr STL2_CONSTRAINED_RETURN(Iterator) cbegin(const R& r)
 template <class R>
   requires requires (const R& r) { stl2::end(r); }
 constexpr auto cend(const R& r)
-  noexcept(noexcept(stl2::end(r))) ->
-  STL2_CONSTRAINED_RETURN(Sentinel<decltype(stl2::begin(r))>) {
+  noexcept(noexcept(stl2::end(r))) {
   return stl2::end(r);
 }
 
