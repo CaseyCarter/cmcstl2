@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -93,16 +93,6 @@
     <ClInclude Include="include\stl2\detail\concepts\object.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\concepts.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\access.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\primitives.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
-    </ClInclude>
-
     <ClInclude Include="include\stl2\concepts.hpp">
       <Filter>Header Files\cmcstl2\stl2</Filter>
     </ClInclude>
@@ -142,20 +132,20 @@
     <ClInclude Include="include\stl2\detail\iterator\reverse_iterator.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
     </ClInclude>
-
-    <ClInclude Include="include\stl2\detail\range\access.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\concepts.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
-    </ClInclude>
     <ClInclude Include="include\stl2\tuple.hpp">
       <Filter>Header Files\cmcstl2\stl2</Filter>
-
     </ClInclude>
     <ClInclude Include="include\stl2\detail\iterator\move_iterator.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
-
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\concepts.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\access.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\primitives.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -199,6 +189,9 @@
       <Filter>Test Files\algorithm</Filter>
     </ClCompile>
     <ClCompile Include="test\concepts\fundamental.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\common.cpp">
       <Filter>Test Files</Filter>
     </ClCompile>
   </ItemGroup>
