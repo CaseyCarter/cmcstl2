@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <vector>
 #include <stl2/type_traits.hpp>
 #include <stl2/variant.hpp>
 #include "simple_test.hpp"
@@ -27,6 +28,11 @@ struct nontrivial {
   static int move_count;
   static int copy_count;
   static int destroy_count;
+
+  static void zero() {
+    create_count = move_count = copy_count = destroy_count = 0;
+  }
+
   nontrivial() noexcept { ++create_count; }
   nontrivial(const nontrivial&) { ++copy_count; }
   nontrivial(nontrivial&&) noexcept { ++move_count; }
@@ -124,10 +130,267 @@ void test_raw() {
   }
 }
 
+void test_emplaced_index() {
+  {
+    using V = variant<int, int&, int&&, const int, const int&, const int&&>;
+    int i = 42;
+    const int& ci = i;
+
+    {
+      V v{emplaced_index<0>, i};
+      CHECK(v.index() == std::size_t{0});
+    }
+    {
+      V v{emplaced_index<0>, ci};
+      CHECK(v.index() == std::size_t{0});
+    }
+    {
+      V v{emplaced_index<0>, move(i)};
+      CHECK(v.index() == std::size_t{0});
+    }
+    {
+      V v{emplaced_index<0>, move(ci)};
+      CHECK(v.index() == std::size_t{0});
+    }
+
+    {
+      V v{emplaced_index<1>, i};
+      CHECK(v.index() == std::size_t{1});
+    }
+    {
+      // V v{emplaced_index<1>, ci}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_index_t<1>, const int&>());
+    }
+    {
+      // V v{emplaced_index<1>, move(i)}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_index_t<1>, int&&>());
+    }
+    {
+      // V v{emplaced_index<1>, move(ci)}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_index_t<1>, const int&&>());
+    }
+
+    {
+      // V v{emplaced_index<2>, i}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_index_t<2>, int&>());
+    }
+    {
+      // V v{emplaced_index<2>, ci}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_index_t<2>, const int&>());
+    }
+    {
+      V v{emplaced_index<2>, move(i)};
+      CHECK(v.index() == std::size_t{2});
+    }
+    {
+      // V v{emplaced_index<2>, move(ci)}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_index_t<2>, const int&&>());
+    }
+
+    {
+      V v{emplaced_index<3>, i};
+      CHECK(v.index() == std::size_t{3});
+    }
+    {
+      V v{emplaced_index<3>, ci};
+      CHECK(v.index() == std::size_t{3});
+    }
+    {
+      V v{emplaced_index<3>, move(i)};
+      CHECK(v.index() == std::size_t{3});
+    }
+    {
+      V v{emplaced_index<3>, move(ci)};
+      CHECK(v.index() == std::size_t{3});
+    }
+
+    {
+      V v{emplaced_index<4>, i};
+      CHECK(v.index() == std::size_t{4});
+    }
+    {
+      V v{emplaced_index<4>, ci};
+      CHECK(v.index() == std::size_t{4});
+    }
+    {
+      V v{emplaced_index<4>, move(i)};
+      CHECK(v.index() == std::size_t{4});
+    }
+    {
+      V v{emplaced_index<4>, move(ci)};
+      CHECK(v.index() == std::size_t{4});
+    }
+
+    {
+      // V v{emplaced_index<5>, i}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_index_t<5>, int&>());
+    }
+    {
+      // V v{emplaced_index<5>, ci}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_index_t<5>, const int&>());
+    }
+    {
+      V v{emplaced_index<5>, move(i)};
+      CHECK(v.index() == std::size_t{5});
+    }
+    {
+      V v{emplaced_index<5>, move(ci)};
+      CHECK(v.index() == std::size_t{5});
+    }
+  }
+
+  {
+    nontrivial::zero();
+    {
+      using V = variant<std::vector<nontrivial>>;
+      V v{emplaced_index<0>, std::size_t{4}};
+      CHECK(v.index() == std::size_t{0});
+      CHECK(get<0>(v).size() == std::size_t{4});
+      CHECK(nontrivial::create_count == 4);
+      CHECK(nontrivial::move_count == 0);
+      CHECK(nontrivial::copy_count == 0);
+      CHECK(nontrivial::destroy_count == 0);
+      get<0>(v)[0];
+    }
+    CHECK(nontrivial::create_count == 4);
+    CHECK(nontrivial::move_count == 0);
+    CHECK(nontrivial::copy_count == 0);
+    CHECK(nontrivial::destroy_count == 4);
+  }
+}
+
+void test_emplaced_type() {
+  {
+    using V = variant<int, int&, int&&, const int, const int&, const int&&>;
+    int i = 42;
+    const int& ci = i;
+
+    {
+      V v{emplaced_type<int>, i};
+      CHECK(holds_alternative<int>(v));
+    }
+    {
+      V v{emplaced_type<int>, ci};
+      CHECK(holds_alternative<int>(v));
+    }
+    {
+      V v{emplaced_type<int>, move(i)};
+      CHECK(holds_alternative<int>(v));
+    }
+    {
+      V v{emplaced_type<int>, move(ci)};
+      CHECK(holds_alternative<int>(v));
+    }
+
+    {
+      V v{emplaced_type<int&>, i};
+      CHECK(holds_alternative<int&>(v));
+    }
+    {
+      // V v{emplaced_type<int&>, ci}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_type_t<int&>, const int&>());
+    }
+    {
+      // V v{emplaced_type<int&>, move(i)}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_type_t<int&>, int&&>());
+    }
+    {
+      // V v{emplaced_type<int&>, move(ci)}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_type_t<int&>, const int&&>());
+    }
+
+    {
+      // V v{emplaced_type<int&&>, i}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_type_t<int&&>, int&>());
+    }
+    {
+      // V v{emplaced_type<int&&>, ci}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_type_t<int&&>, const int&>());
+    }
+    {
+      V v{emplaced_type<int&&>, move(i)};
+      CHECK(holds_alternative<int&&>(v));
+    }
+    {
+      // V v{emplaced_type<int&&>, move(ci)}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_type_t<int&&>, const int&&>());
+    }
+
+    {
+      V v{emplaced_type<const int>, i};
+      CHECK(holds_alternative<const int>(v));
+    }
+    {
+      V v{emplaced_type<const int>, ci};
+      CHECK(holds_alternative<const int>(v));
+    }
+    {
+      V v{emplaced_type<const int>, move(i)};
+      CHECK(holds_alternative<const int>(v));
+    }
+    {
+      V v{emplaced_type<const int>, move(ci)};
+      CHECK(holds_alternative<const int>(v));
+    }
+
+    {
+      V v{emplaced_type<const int&>, i};
+      CHECK(holds_alternative<const int&>(v));
+    }
+    {
+      V v{emplaced_type<const int&>, ci};
+      CHECK(holds_alternative<const int&>(v));
+    }
+    {
+      V v{emplaced_type<const int&>, move(i)};
+      CHECK(holds_alternative<const int&>(v));
+    }
+    {
+      V v{emplaced_type<const int&>, move(ci)};
+      CHECK(holds_alternative<const int&>(v));
+    }
+
+    {
+      // V v{emplaced_type<const int&&>, i}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_type_t<const int&&>, int&>());
+    }
+    {
+      // V v{emplaced_type<const int&&>, ci}; // ill-formed
+      static_assert(!models::constructible<V, emplaced_type_t<const int&&>, const int&>());
+    }
+    {
+      V v{emplaced_type<const int&&>, move(i)};
+      CHECK(holds_alternative<const int&&>(v));
+    }
+    {
+      V v{emplaced_type<const int&&>, move(ci)};
+      CHECK(holds_alternative<const int&&>(v));
+    }
+  }
+
+  {
+    nontrivial::zero();
+    {
+      using V = variant<std::vector<nontrivial>>;
+      V v{emplaced_type<std::vector<nontrivial>>, std::size_t{4}};
+      CHECK(holds_alternative<std::vector<nontrivial>>(v));
+      CHECK(get<0>(v).size() == std::size_t{4});
+      CHECK(nontrivial::create_count == 4);
+      CHECK(nontrivial::move_count == 0);
+      CHECK(nontrivial::copy_count == 0);
+      CHECK(nontrivial::destroy_count == 0);
+      get<0>(v)[0];
+    }
+    CHECK(nontrivial::create_count == 4);
+    CHECK(nontrivial::move_count == 0);
+    CHECK(nontrivial::copy_count == 0);
+    CHECK(nontrivial::destroy_count == 4);
+  }
+}
+
 void test_construction() {
   {
-    nontrivial::create_count = 0;
-    nontrivial::destroy_count = 0;
+    nontrivial::zero();
     {
       variant<nontrivial> v;
       CHECK(v.index() == std::size_t{0});
@@ -143,7 +406,7 @@ void test_construction() {
     static_assert(!is_trivially_destructible<variant<int, double, nontrivial>>());
   }
   {
-    nontrivial::destroy_count = 0;
+    nontrivial::zero();
     variant<nontrivial>{};
     CHECK(nontrivial::destroy_count == 1);
     variant<nontrivial, int, double>{};
@@ -209,6 +472,9 @@ void test_construction() {
     variant<int&&, int&&, int&&, int&&> v3{emplaced_index<2>, 42};
     CHECK(v3.index() == std::size_t{2});
   }
+
+  test_emplaced_index();
+  test_emplaced_type();
 }
 
 void test_get() {

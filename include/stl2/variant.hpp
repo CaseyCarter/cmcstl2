@@ -324,18 +324,6 @@ public:
   base() requires DefaultConstructible<data_t>()
     : index_{0} {}
 
-  template <std::size_t I, class...Args>
-    requires Constructible<data_t, emplaced_index_t<I>, Args...>()
-  constexpr base(emplaced_index_t<I>, Args&&...args)
-    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, Args...>::value)
-    : data_{emplaced_index<I>, stl2::forward<Args>(args)...}, index_{I} {}
-
-  template <std::size_t I, _IsNot<is_reference> T>
-    requires Constructible<data_t, emplaced_index_t<I>, T&>()
-  constexpr base(emplaced_index_t<I>, T&& t)
-    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
-    : data_{emplaced_index<I>, t}, index_{I} {}
-
   template <class T>
     requires !Same<decay_t<T>, base>() &&
       constructible_from<T&&, Ts...>::value &&
@@ -361,6 +349,28 @@ public:
       constructible_from<T&&, Ts...>::ambiguous
   base(T&&) = delete;
   // variant construction from type is ambiguous.
+
+  template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+    requires Constructible<T, Args...>()
+  constexpr base(emplaced_index_t<I>, Args&&...args)
+    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, Args...>::value)
+    : data_{emplaced_index<I>, stl2::forward<Args>(args)...}, index_{I} {}
+
+  template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
+  constexpr base(emplaced_index_t<I>, meta::id_t<T> t)
+    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
+    : data_{emplaced_index<I>, t}, index_{I} {}
+
+  template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, Ts...>()>
+    requires Constructible<T, Args...>()
+  constexpr base(emplaced_type_t<T>, Args&&...args)
+    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, Args...>::value)
+    : data_{emplaced_index<I>, stl2::forward<Args>(args)...}, index_{I} {}
+
+  template <_Is<is_reference> T, std::size_t I = index_of_type<T, Ts...>()>
+  constexpr base(emplaced_type_t<T>, meta::id_t<T> t)
+    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
+    : data_{emplaced_index<I>, t}, index_{I} {}
 
   constexpr index_t index() const noexcept { return index_; }
   constexpr bool valid() const noexcept { return index_ != invalid_index; }
