@@ -10,6 +10,9 @@ add_test(test.tagged tagged)
 add_executable(common common.cpp)
 add_test(test.common common)
 
+add_executable(variant variant.cpp)
+add_test(test.variant variant)
+
 add_subdirectory(concepts)
 add_subdirectory(iterator)
 add_subdirectory(algorithm)
