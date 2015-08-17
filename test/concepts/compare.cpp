@@ -29,7 +29,7 @@ CONCEPT_ASSERT(models::boolean<std::true_type>());
 CONCEPT_ASSERT(models::boolean<std::bitset<42>::reference>());
 
 CONCEPT_ASSERT(models::boolean<int>());
-CONCEPT_ASSERT(models::boolean<void*>());
+CONCEPT_ASSERT(!models::boolean<void*>());
 
 struct A {};
 struct B { operator bool() const; };
