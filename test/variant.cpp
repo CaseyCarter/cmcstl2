@@ -46,6 +46,12 @@ struct moveonly {
   moveonly& operator=(moveonly&&) & = default;
 };
 
+struct nonmovable {
+  nonmovable() = default;
+  nonmovable(nonmovable&&) = delete;
+  nonmovable& operator=(nonmovable&&) & = delete;
+};
+
 void test_raw() {
   __variant::data<int, double, nontrivial, reference_wrapper<int>> v;
   static_assert(sizeof(v) == sizeof(double));
@@ -238,8 +244,18 @@ int main() {
   test_get();
 
   {
+    // variant<>{}; // ill-formed
     static_assert(!models::default_constructible<variant<>>());
     static_assert(!models::default_constructible<variant<int&>>());
+    static_assert(models::move_constructible<variant<int, double, nontrivial>>());
+    static_assert(models::move_constructible<variant<int, double, moveonly>>());
+    // variant<nonmovable>{variant<nonmovable>{}}; // ill-formed
+    static_assert(!models::move_constructible<variant<nonmovable>>());
+    static_assert(models::copy_constructible<variant<int, double, nontrivial>>());
+    // { variant<moveonly> v; auto c = v; } // ill-formed
+    static_assert(!models::copy_constructible<variant<moveonly>>());
+    // { variant<nonmovable> v; auto c = v; } // ill-formed
+    static_assert(!models::copy_constructible<variant<nonmovable>>());
   }
 
   {

@@ -414,10 +414,7 @@ public:
   using base_t::base_t;
 
   move_base() = default;
-  move_base(move_base&& that)
-    requires meta::all_of<
-      meta::list<element_t<Ts>...>,
-      meta::quote_trait<stl2::is_move_constructible>>::value :
+  move_base(move_base&& that) :
     base_t{empty_tag{}} {
     if (that.valid()) {
       using size = meta::size<typename base_t::types>;
@@ -447,10 +444,7 @@ public:
 
   copy_base() = default;
   copy_base(copy_base&&) = default;
-  copy_base(const copy_base& that)
-    requires meta::all_of<
-      meta::list<element_t<Ts>...>,
-      meta::quote_trait<stl2::is_copy_constructible>>::value :
+  copy_base(const copy_base& that) :
     base_t{empty_tag{}} {
     if (that.valid()) {
       with_static_index(meta::size_t<sizeof...(Ts)>{}, that.index(),
