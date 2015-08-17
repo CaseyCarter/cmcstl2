@@ -33,18 +33,38 @@ struct nontrivial {
     create_count = move_count = copy_count = destroy_count = 0;
   }
 
+  ~nontrivial() { ++destroy_count; }
   nontrivial() noexcept { ++create_count; }
   nontrivial(const nontrivial&) { ++copy_count; }
   nontrivial(nontrivial&&) noexcept { ++move_count; }
   nontrivial& operator=(nontrivial&&) & noexcept { return *this; }
   nontrivial& operator=(const nontrivial&) & { return *this; }
-  ~nontrivial() { ++destroy_count; }
 };
 
 int nontrivial::create_count;
 int nontrivial::move_count;
 int nontrivial::copy_count;
 int nontrivial::destroy_count;
+
+struct nontrivial_literal {
+  int value;
+
+  constexpr nontrivial_literal(int v = 0) : value{v} {}
+  constexpr nontrivial_literal(nontrivial_literal&& that) : value{that.value} {}
+  constexpr nontrivial_literal(const nontrivial_literal& that) : value{that.value} {}
+  constexpr nontrivial_literal& operator=(nontrivial_literal&& that) & {
+    value = that.value;
+    return *this;
+  }
+  constexpr nontrivial_literal& operator=(const nontrivial_literal& that) & {
+    value = that.value;
+    return *this;
+  }
+
+  constexpr operator int() const {
+    return value;
+  }
+};
 
 struct moveonly {
   moveonly() = default;
@@ -386,6 +406,14 @@ void test_emplaced_type() {
     CHECK(nontrivial::copy_count == 0);
     CHECK(nontrivial::destroy_count == 4);
   }
+
+  {
+    using V = variant<int, int>;
+    // V v1{emplaced_type<int>}; // ill-formed: ambiguous
+    static_assert(!models::constructible<V, emplaced_type_t<int>>());
+    // V v2{emplaced_type<int>, 42}; // ill-formed: ambiguous
+    static_assert(!models::constructible<V, emplaced_type_t<int>, int>());
+  }
 }
 
 void test_construction() {
@@ -588,6 +616,13 @@ int main() {
     auto move2 = stl2::move(move1);
     CHECK(nontrivial::move_count == 2);
     CHECK(nontrivial::copy_count == 0);
+  }
+
+  {
+    using V = variant<nontrivial_literal>;
+    constexpr V v1{nontrivial_literal{42}};
+    constexpr V v2 = move(v1); // FIXME
+    constexpr V v3 = v2; // FIXME
   }
 
   return ::test_result();

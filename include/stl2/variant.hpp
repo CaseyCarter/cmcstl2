@@ -51,22 +51,18 @@ constexpr bool operator>=(const monostate&, const monostate&)
 class bad_variant_access {};
 
 namespace __variant {
-template <class T, class...Types>
-constexpr std::size_t index_of_type() noexcept {
-  using Tail = meta::find<meta::list<Types...>, T>;
-  static_assert(!meta::_v<meta::empty<Tail>>,
-    "T is not a valid alternative for variant");
-  static_assert(meta::find_index<meta::pop_front<Tail>, T>::value == meta::npos::value,
-    "T is not a unique alternative for variant");
-  return sizeof...(Types) - Tail::size();
-}
+template <class T, class...Types, class Tail = meta::find<meta::list<Types...>, T>>
+  requires !meta::_v<meta::empty<Tail>> &&
+  meta::_v<meta::find_index<meta::pop_front<Tail>, T>> == meta::_v<meta::npos>
+constexpr std::size_t index_of_type =
+  sizeof...(Types) - Tail::size();
 
 template <class...> class base;
 }
 
 template <class T, class...Types>
 constexpr bool holds_alternative(const __variant::base<Types...>& v) noexcept {
-  return v.index() == __variant::index_of_type<T, Types...>();
+  return v.index() == __variant::index_of_type<T, Types...>;
 }
 
 template <std::size_t I, class...Types>
@@ -361,13 +357,13 @@ public:
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
     : data_{emplaced_index<I>, t}, index_{I} {}
 
-  template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, Ts...>()>
+  template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, Ts...>>
     requires Constructible<T, Args...>()
   constexpr base(emplaced_type_t<T>, Args&&...args)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, Args...>::value)
     : data_{emplaced_index<I>, stl2::forward<Args>(args)...}, index_{I} {}
 
-  template <_Is<is_reference> T, std::size_t I = index_of_type<T, Ts...>()>
+  template <_Is<is_reference> T, std::size_t I = index_of_type<T, Ts...>>
   constexpr base(emplaced_type_t<T>, meta::id_t<T> t)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
     : data_{emplaced_index<I>, t}, index_{I} {}
@@ -424,7 +420,7 @@ public:
   using base_t::base_t;
 
   move_base() = default;
-  move_base(move_base&& that) :
+  constexpr move_base(move_base&& that) :
     base_t{empty_tag{}} {
     if (that.valid()) {
       using size = meta::size<typename base_t::types>;
@@ -454,7 +450,7 @@ public:
 
   copy_base() = default;
   copy_base(copy_base&&) = default;
-  copy_base(const copy_base& that) :
+  constexpr copy_base(const copy_base& that) :
     base_t{empty_tag{}} {
     if (that.valid()) {
       with_static_index(meta::size_t<sizeof...(Ts)>{}, that.index(),
@@ -508,17 +504,17 @@ constexpr decltype(auto) get(__variant::base<Types...>&& v) {
 
 template <class T, class...Types>
 constexpr decltype(auto) get(__variant::base<Types...>& v) {
-  return get<__variant::index_of_type<T, Types...>()>(v);
+  return get<__variant::index_of_type<T, Types...>>(v);
 }
 
 template <class T, class...Types>
 constexpr decltype(auto) get(const __variant::base<Types...>& v) {
-  return get<__variant::index_of_type<T, Types...>()>(v);
+  return get<__variant::index_of_type<T, Types...>>(v);
 }
 
 template <class T, class...Types>
 constexpr decltype(auto) get(__variant::base<Types...>&& v) {
-  return get<__variant::index_of_type<T, Types...>()>(stl2::move(v));
+  return get<__variant::index_of_type<T, Types...>>(stl2::move(v));
 }
 }} // namespace stl2::v1
 
