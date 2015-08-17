@@ -83,8 +83,7 @@ using element_t =
 
 struct empty_tag {};
 
-template <bool TrivialDestruction, class...Ts>
-  // requires (Destructible<Ts>() && ...)
+template <bool TrivialDestruction, class...Ts> // Destructible...Ts
 union data_;
 
 template <class>
@@ -107,6 +106,10 @@ union data_<TrivialDestruction> {
   static constexpr std::size_t size = 0;
 };
 
+
+// TODO: Think about binary instead of linear decomposition of the elements, i.e.,
+//       a recursive union binary tree instead of a recursive union list. It will
+//       add implementation complexity, but may interact positively with inlining.
 template <class First, class...Rest>
 union data_<true, First, Rest...> {
   static constexpr std::size_t size = 1 + sizeof...(Rest);
@@ -131,6 +134,18 @@ union data_<true, First, Rest...> {
   constexpr data_(meta::size_t<0>, Args&&...args)
     noexcept(stl2::is_nothrow_constructible<head_t, Args...>::value) :
     head_{stl2::forward<Args>(args)...} {}
+
+  template <std::size_t N, class E, class...Args>
+    requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>()
+  constexpr data_(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
+    noexcept(stl2::is_nothrow_constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>::value) :
+    tail_{meta::size_t<N - 1>{}, il, stl2::forward<Args>(args)...} {}
+
+  template <class E, class...Args>
+    requires Constructible<First, std::initializer_list<E>, Args...>()
+  constexpr data_(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
+    noexcept(stl2::is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value) :
+    head_{il, stl2::forward<Args>(args)...} {}
 };
 
 template <class First, class...Rest>
@@ -159,6 +174,18 @@ union data_<false, First, Rest...> {
   constexpr data_(meta::size_t<0>, Args&&...args)
     noexcept(stl2::is_nothrow_constructible<head_t, Args...>::value) :
     head_{stl2::forward<Args>(args)...} {}
+
+  template <std::size_t N, class E, class...Args>
+    requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>()
+  constexpr data_(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
+    noexcept(stl2::is_nothrow_constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>::value) :
+    tail_{meta::size_t<N - 1>{}, il, stl2::forward<Args>(args)...} {}
+
+  template <class E, class...Args>
+    requires Constructible<First, std::initializer_list<E>, Args...>()
+  constexpr data_(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
+    noexcept(stl2::is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value) :
+    head_{il, stl2::forward<Args>(args)...} {}
 };
 
 template <IsData D>
@@ -292,9 +319,6 @@ protected:
   data_t data_;
   index_t index_;
 
-  base(empty_tag) noexcept :
-    data_{empty_tag{}}, index_{invalid_index} {}
-
   template <class F>
   struct visitor {
     base& self_;
@@ -316,9 +340,12 @@ protected:
                       visitor<F>{*this, stl2::forward<F>(f)});
   }
 
+  base(empty_tag) noexcept :
+    data_{empty_tag{}}, index_{invalid_index} {}
+
 public:
-  base() requires DefaultConstructible<data_t>()
-    : index_{0} {}
+  base() requires DefaultConstructible<data_t>() :
+    index_{0} {}
 
   template <class T>
     requires !Same<decay_t<T>, base>() &&
@@ -367,6 +394,18 @@ public:
   constexpr base(emplaced_type_t<T>, meta::id_t<T> t)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
     : data_{emplaced_index<I>, t}, index_{I} {}
+
+  template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+    requires Constructible<T, Args...>()
+    constexpr base(emplaced_index_t<I>, std::initializer_list<E> il, Args&&...args)
+    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
+    : data_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
+
+  template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, Ts...>>
+    requires Constructible<T, Args...>()
+  constexpr base(emplaced_type_t<T>, std::initializer_list<E> il, Args&&...args)
+    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
+    : data_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
 
   constexpr index_t index() const noexcept { return index_; }
   constexpr bool valid() const noexcept { return index_ != invalid_index; }
