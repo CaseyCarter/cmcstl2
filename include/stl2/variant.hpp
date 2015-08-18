@@ -475,7 +475,7 @@ public:
   using base_t::base_t;
 
   move_base() = default;
-  constexpr move_base(move_base&& that) :
+  move_base(move_base&& that) :
     base_t{empty_tag{}} {
     if (that.valid()) {
       using size = meta::size<typename base_t::types>;
@@ -505,7 +505,7 @@ public:
 
   copy_base() = default;
   copy_base(copy_base&&) = default;
-  constexpr copy_base(const copy_base& that) :
+  copy_base(const copy_base& that) :
     base_t{empty_tag{}} {
     if (that.valid()) {
       with_static_index(meta::size_t<sizeof...(Ts)>{}, that.index(),
