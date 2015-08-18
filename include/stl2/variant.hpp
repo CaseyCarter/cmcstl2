@@ -60,9 +60,10 @@ constexpr std::size_t index_of_type =
 template <class...> class base;
 }
 
-template <class T, class...Types>
+template <class T, class...Types,
+  std::size_t I = __variant::index_of_type<T, Types...>>
 constexpr bool holds_alternative(const __variant::base<Types...>& v) noexcept {
-  return v.index() == __variant::index_of_type<T, Types...>;
+  return v.index() == I;
 }
 
 template <std::size_t I, class...Types>
@@ -94,7 +95,7 @@ struct storage_type<void> {
 };
 
 template <class T>
-using element_t = meta::_t<storage_type<T>>;
+using storage_t = meta::_t<storage_type<T>>;
 
 struct empty_tag {};
 
@@ -225,18 +226,18 @@ constexpr decltype(auto) raw_get(meta::size_t<I>, D&& d) noexcept {
 
 template <class T>
 constexpr remove_reference_t<T>&
-cook(element_t<meta::id_t<T>>& t) noexcept {
+cook(storage_t<meta::id_t<T>>& t) noexcept {
   return t;
 }
 
 template <class T>
 constexpr const remove_reference_t<T>&
-cook(const element_t<meta::id_t<T>>& t) noexcept {
+cook(const storage_t<meta::id_t<T>>& t) noexcept {
   return t;
 }
 
 template <class T>
-constexpr T&& cook(element_t<meta::id_t<T>>&& t) noexcept {
+constexpr T&& cook(storage_t<meta::id_t<T>>&& t) noexcept {
   return stl2::move(cook<T>(t));
 }
 
@@ -323,7 +324,7 @@ protected:
   friend class access;
 
   using types = meta::list<Ts...>;
-  using data_t = data<element_t<Ts>...>;
+  using data_t = data<storage_t<Ts>...>;
   using index_t =
 #if 0
     std::size_t;
@@ -386,35 +387,35 @@ public:
 
   template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
     requires Constructible<T, Args...>()
-  constexpr base(emplaced_index_t<I>, Args&&...args)
+  explicit constexpr base(emplaced_index_t<I>, Args&&...args)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, Args...>::value)
     : data_{emplaced_index<I>, stl2::forward<Args>(args)...}, index_{I} {}
 
   template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
-  constexpr base(emplaced_index_t<I>, meta::id_t<T> t)
+  explicit constexpr base(emplaced_index_t<I>, meta::id_t<T> t)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
     : data_{emplaced_index<I>, t}, index_{I} {}
 
   template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, Ts...>>
     requires Constructible<T, Args...>()
-  constexpr base(emplaced_type_t<T>, Args&&...args)
+  explicit constexpr base(emplaced_type_t<T>, Args&&...args)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, Args...>::value)
     : data_{emplaced_index<I>, stl2::forward<Args>(args)...}, index_{I} {}
 
   template <_Is<is_reference> T, std::size_t I = index_of_type<T, Ts...>>
-  constexpr base(emplaced_type_t<T>, meta::id_t<T> t)
+  explicit constexpr base(emplaced_type_t<T>, meta::id_t<T> t)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
     : data_{emplaced_index<I>, t}, index_{I} {}
 
   template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
     requires Constructible<T, Args...>()
-    constexpr base(emplaced_index_t<I>, std::initializer_list<E> il, Args&&...args)
+  explicit constexpr base(emplaced_index_t<I>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
     : data_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
 
   template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, Ts...>>
     requires Constructible<T, Args...>()
-  constexpr base(emplaced_type_t<T>, std::initializer_list<E> il, Args&&...args)
+  explicit constexpr base(emplaced_type_t<T>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
     : data_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
 
@@ -474,21 +475,36 @@ namespace {
 template <class...Ts>
 class destruct_base : public base<Ts...> {
   using base_t = base<Ts...>;
-public:
-  ~destruct_base() noexcept {
-    if (base_t::valid()) {
+protected:
+  void clear() {
+    if (this->valid()) {
       dynamic_visit(*this, destroy);
+      this->index_ = this->invalid_index;
     }
   }
+
+public:
+  ~destruct_base() noexcept {
+    clear();
+  }
+
+  destruct_base() = default;
+  destruct_base(destruct_base&&) = default;
+  destruct_base(const destruct_base&) = default;
+  destruct_base& operator=(destruct_base&&) & = default;
+  destruct_base& operator=(const destruct_base&) & = default;
 
   using base_t::base_t;
 };
 
 template <class...Ts>
-  requires is_trivially_destructible<data<element_t<Ts>...>>::value
+  requires is_trivially_destructible<data<storage_t<Ts>...>>::value
 class destruct_base<Ts...> : public base<Ts...> {
+  using base_t = base<Ts...>;
+protected:
+  void clear() {}
 public:
-  using base<Ts...>::base;
+  using base_t::base_t;
 };
 
 struct construct_fn {
@@ -511,10 +527,12 @@ public:
   move_base() = default;
   move_base(move_base&&) = delete;
   move_base(const move_base&) = default;
+  move_base& operator=(move_base&&) & = default;
+  move_base& operator=(const move_base&) = default;
 };
 
 template <class...Ts>
-  requires AllAre<is_move_constructible, element_t<Ts>...>
+  requires AllAre<is_move_constructible, storage_t<Ts>...>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
@@ -522,23 +540,25 @@ public:
 
   move_base() = default;
   move_base(move_base&& that)
-    noexcept(meta::_v<meta::all_of<meta::list<element_t<Ts>...>,
+    noexcept(meta::_v<meta::all_of<meta::list<storage_t<Ts>...>,
                meta::quote_trait<is_nothrow_move_constructible>>>) :
     base_t{empty_tag{}} {
     if (that.valid()) {
       with_static_index(meta::size_t<sizeof...(Ts)>{}, that.index(),
         [this,&that](auto i) {
-          construct(raw_get(i, this->data_),
-                    stl2::get<i()>(stl2::move(that)));
+          construct(raw_get(i, this->data_), raw_get(i, stl2::move(that).data_));
           this->index_ = i;
         });
     }
   }
+  move_base(const move_base&) = default;
+  move_base& operator=(move_base&&) & = default;
+  move_base& operator=(const move_base&) = default;
 };
 
 template <class...Ts>
-  requires AllAre<is_move_constructible, element_t<Ts>...> &&
-    meta::_v<is_trivially_move_constructible<data<element_t<Ts>...>>>
+  requires AllAre<is_move_constructible, storage_t<Ts>...> &&
+    meta::_v<is_trivially_move_constructible<data<storage_t<Ts>...>>>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
@@ -546,44 +566,106 @@ public:
 };
 
 template <class...Ts>
-class copy_base : public move_base<Ts...> {
+class move_assign_base : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
+public:
+  using base_t::base_t;
+
+  move_assign_base() = default;
+  move_assign_base(move_assign_base&&) = default;
+  move_assign_base(const move_assign_base&) = default;
+  move_assign_base& operator=(move_assign_base&&) & = delete;
+  move_assign_base& operator=(const move_assign_base&) & = default;
+};
+
+template <class...Ts>
+  requires AllAre<is_move_assignable, storage_t<Ts>...>
+class move_assign_base<Ts...> : public move_base<Ts...> {
+  using base_t = move_base<Ts...>;
+public:
+  using base_t::base_t;
+
+  move_assign_base() = default;
+  move_assign_base(move_assign_base&&) = default;
+  move_assign_base(const move_assign_base&) = default;
+  move_assign_base& operator=(move_assign_base&& that) &
+    noexcept(meta::_v<meta::all_of<meta::list<storage_t<Ts>...>,
+               meta::quote_trait<is_nothrow_move_assignable>>>) {
+    auto i = that.index();
+    if (this->index() == i) {
+      if (this->valid()) {
+        with_static_index(meta::size_t<sizeof...(Ts)>{}, i,
+          [this,&that](auto i) {
+            raw_get(i, this->data_) = raw_get(i, stl2::move(that).data_);
+          });
+      }
+    } else {
+      this->clear();
+      if (that.valid()) {
+        with_static_index(meta::size_t<sizeof...(Ts)>{}, that.index(),
+          [this,&that](auto i) {
+            construct(raw_get(i, this->data_), raw_get(i, stl2::move(that).data_));
+          });
+      }
+    }
+    this->index_ = i;
+    return *this;
+  }
+  move_assign_base& operator=(const move_assign_base&) & = default;
+};
+
+template <class...Ts>
+  requires AllAre<is_move_assignable, storage_t<Ts>...> &&
+    meta::_v<is_trivially_move_assignable<data<storage_t<Ts>...>>>
+class move_assign_base<Ts...> : public move_base<Ts...> {
+  using base_t = move_base<Ts...>;
+public:
+  using base_t::base_t;
+};
+
+template <class...Ts>
+class copy_base : public move_assign_base<Ts...> {
+  using base_t = move_assign_base<Ts...>;
 public:
   using base_t::base_t;
 
   copy_base() = default;
   copy_base(copy_base&&) = default;
   copy_base(const copy_base&) = delete;
+  copy_base& operator=(copy_base&&) & = default;
+  copy_base& operator=(const copy_base&) & = default;
 };
 
 template <class...Ts>
-  requires AllAre<is_copy_constructible, element_t<Ts>...>
-class copy_base<Ts...> : public move_base<Ts...> {
-  using base_t = move_base<Ts...>;
+  requires AllAre<is_copy_constructible, storage_t<Ts>...>
+class copy_base<Ts...> : public move_assign_base<Ts...> {
+  using base_t = move_assign_base<Ts...>;
 public:
   using base_t::base_t;
 
   copy_base() = default;
   copy_base(copy_base&&) = default;
   copy_base(const copy_base& that)
-    noexcept(meta::_v<meta::all_of<meta::list<element_t<Ts>...>,
+    noexcept(meta::_v<meta::all_of<meta::list<storage_t<Ts>...>,
                meta::quote_trait<is_nothrow_copy_constructible>>>) :
     base_t{empty_tag{}} {
     if (that.valid()) {
       with_static_index(meta::size_t<sizeof...(Ts)>{}, that.index(),
         [this,&that](auto i) {
-          construct(raw_get(i, this->data_), stl2::get<i()>(that));
+          construct(raw_get(i, this->data_), raw_get(i, that.data_));
           this->index_ = i;
         });
     }
   }
+  copy_base& operator=(copy_base&&) & = default;
+  copy_base& operator=(const copy_base&) & = default;
 };
 
 template <class...Ts>
-  requires AllAre<is_copy_constructible, element_t<Ts>...> &&
-    meta::_v<is_trivially_copy_constructible<data<element_t<Ts>...>>>
-class copy_base<Ts...> : public move_base<Ts...> {
-  using base_t = move_base<Ts...>;
+  requires AllAre<is_copy_constructible, storage_t<Ts>...> &&
+    meta::_v<is_trivially_copy_constructible<data<storage_t<Ts>...>>>
+class copy_base<Ts...> : public move_assign_base<Ts...> {
+  using base_t = move_assign_base<Ts...>;
 public:
   using base_t::base_t;
 };

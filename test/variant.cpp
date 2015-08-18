@@ -13,10 +13,12 @@ template <class> class show_type;
 // variants of trivially {destructible,move constructible,copy constructible} types
 // are trivially {destructible,move constructible,copy constructible}.
 using VDI = stl2::variant<char, short, int, long, long long,
-                          float, double, std::pair<int, int>>;
+                          float, double>;
 static_assert(stl2::is_trivially_destructible<VDI>());
 static_assert(stl2::is_trivially_move_constructible<VDI>());
 static_assert(stl2::is_trivially_copy_constructible<VDI>());
+static_assert(stl2::is_trivially_move_assignable<VDI>());
+static_assert(stl2::is_trivially_copy_assignable<VDI>());
 
 // The triviality goal ensures that trivial variants are passed by value in
 // registers on x64. This function optimizes to two register moves:
@@ -24,28 +26,35 @@ VDI v_test(VDI source) {
   return source;
 }
 
+// This is two stores:
+void v_assign(VDI& target, VDI source) {
+  target = move(source);
+}
+
 struct nontrivial {
-  static int create_count;
-  static int move_count;
-  static int copy_count;
-  static int destroy_count;
+  struct counts {
+    unsigned create;
+    unsigned move;
+    unsigned copy;
+    unsigned move_assign;
+    unsigned copy_assign;
+    unsigned destroy;
+  };
+  static counts count;
 
   static void zero() {
-    create_count = move_count = copy_count = destroy_count = 0;
+    count = {};
   }
 
-  ~nontrivial() { ++destroy_count; }
-  nontrivial() noexcept { ++create_count; }
-  nontrivial(const nontrivial&) { ++copy_count; }
-  nontrivial(nontrivial&&) noexcept { ++move_count; }
-  nontrivial& operator=(nontrivial&&) & noexcept { return *this; }
-  nontrivial& operator=(const nontrivial&) & { return *this; }
+  ~nontrivial() { ++count.destroy; }
+  nontrivial() noexcept { ++count.create; }
+  nontrivial(const nontrivial&) { ++count.copy; }
+  nontrivial(nontrivial&&) noexcept { ++count.move; }
+  nontrivial& operator=(nontrivial&&) & noexcept { ++count.move_assign; return *this; }
+  nontrivial& operator=(const nontrivial&) & { ++count.copy_assign; return *this; }
 };
 
-int nontrivial::create_count;
-int nontrivial::move_count;
-int nontrivial::copy_count;
-int nontrivial::destroy_count;
+nontrivial::counts nontrivial::count;
 
 struct nontrivial_literal {
   int value;
@@ -264,26 +273,26 @@ void test_emplaced_index() {
     nontrivial::zero();
     {
       using V = variant<std::vector<nontrivial>>;
-      V v{emplaced_index<0>, std::size_t{4}};
-      CHECK(v.index() == std::size_t{0});
-      CHECK(get<0>(v).size() == std::size_t{4});
-      CHECK(nontrivial::create_count == 4);
-      CHECK(nontrivial::move_count == 0);
-      CHECK(nontrivial::copy_count == 0);
-      CHECK(nontrivial::destroy_count == 0);
+      V v{emplaced_index<0>, 4u};
+      CHECK(v.index() == 0u);
+      CHECK(get<0>(v).size() == 4u);
+      CHECK(nontrivial::count.create == 4u);
+      CHECK(nontrivial::count.move == 0u);
+      CHECK(nontrivial::count.copy == 0u);
+      CHECK(nontrivial::count.destroy == 0u);
       get<0>(v)[0];
     }
-    CHECK(nontrivial::create_count == 4);
-    CHECK(nontrivial::move_count == 0);
-    CHECK(nontrivial::copy_count == 0);
-    CHECK(nontrivial::destroy_count == 4);
+    CHECK(nontrivial::count.create == 4u);
+    CHECK(nontrivial::count.move == 0u);
+    CHECK(nontrivial::count.copy == 0u);
+    CHECK(nontrivial::count.destroy == 4u);
   }
 
   {
     using V = variant<std::vector<int>>;
     V v{emplaced_index<0>, {1,2,3,4}};
-    CHECK(v.index() == std::size_t{0});
-    CHECK(get<0>(v).size() == std::size_t{4});
+    CHECK(v.index() == 0u);
+    CHECK(get<0>(v).size() == 4u);
     CHECK(get<0>(v)[2] == 3);
   }
 }
@@ -401,26 +410,26 @@ void test_emplaced_type() {
     nontrivial::zero();
     {
       using V = variant<std::vector<nontrivial>>;
-      V v{emplaced_type<std::vector<nontrivial>>, std::size_t{4}};
+      V v{emplaced_type<std::vector<nontrivial>>, 4u};
       CHECK(holds_alternative<std::vector<nontrivial>>(v));
-      CHECK(get<0>(v).size() == std::size_t{4});
-      CHECK(nontrivial::create_count == 4);
-      CHECK(nontrivial::move_count == 0);
-      CHECK(nontrivial::copy_count == 0);
-      CHECK(nontrivial::destroy_count == 0);
+      CHECK(get<0>(v).size() == 4u);
+      CHECK(nontrivial::count.create == 4u);
+      CHECK(nontrivial::count.move == 0u);
+      CHECK(nontrivial::count.copy == 0u);
+      CHECK(nontrivial::count.destroy == 0u);
       get<0>(v)[0];
     }
-    CHECK(nontrivial::create_count == 4);
-    CHECK(nontrivial::move_count == 0);
-    CHECK(nontrivial::copy_count == 0);
-    CHECK(nontrivial::destroy_count == 4);
+    CHECK(nontrivial::count.create == 4u);
+    CHECK(nontrivial::count.move == 0u);
+    CHECK(nontrivial::count.copy == 0u);
+    CHECK(nontrivial::count.destroy == 4u);
   }
 
   {
     using V = variant<std::vector<int>>;
     V v{emplaced_type<std::vector<int>>, {1,2,3,4}};
     CHECK(holds_alternative<std::vector<int>>(v));
-    CHECK(get<0>(v).size() == std::size_t{4});
+    CHECK(get<0>(v).size() == 4u);
     CHECK(get<0>(v)[2] == 3);
   }
 
@@ -438,30 +447,30 @@ void test_construction() {
     nontrivial::zero();
     {
       variant<nontrivial> v;
-      CHECK(v.index() == std::size_t{0});
+      CHECK(v.index() == 0u);
       CHECK(holds_alternative<nontrivial>(v));
-      CHECK(nontrivial::create_count == 1);
+      CHECK(nontrivial::count.create == 1u);
     }
-    CHECK(nontrivial::destroy_count == 1);
+    CHECK(nontrivial::count.destroy == 1u);
   }
   {
     variant<nontrivial, int, double> vnid;
-    CHECK(vnid.index() == std::size_t{0});
+    CHECK(vnid.index() == 0u);
     CHECK(holds_alternative<nontrivial>(vnid));
     static_assert(!is_trivially_destructible<variant<int, double, nontrivial>>());
   }
   {
     nontrivial::zero();
     variant<nontrivial>{};
-    CHECK(nontrivial::destroy_count == 1);
+    CHECK(nontrivial::count.destroy == 1u);
     variant<nontrivial, int, double>{};
-    CHECK(nontrivial::destroy_count == 2);
+    CHECK(nontrivial::count.destroy == 2u);
   }
   {
     //variant<int, int> v{42}; // ill-formed: ambiguous.
     static_assert(!models::constructible<variant<int,int>, int&&>());
     variant<int, int> v{emplaced_index<1>, 42};
-    CHECK(v.index() == std::size_t{1});
+    CHECK(v.index() == 1u);
     //get<int>(v); // ill-formed: ambiguous.
     //CHECK(holds_alternative<int>(v)); // ill-formed: ambiguous.
   }
@@ -549,10 +558,119 @@ void test_get() {
   }
 }
 
+void test_move_assignment() {
+  {
+    // trivial
+    using V = variant<int, double, int&>;
+    static_assert(is_trivially_move_assignable<V>());
+    V v;
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 0);
+    v = V{42};
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 42);
+    v = V{3.14};
+    CHECK(holds_alternative<double>(v));
+    CHECK(get<double>(v) == 3.14);
+    v = V{42};
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 42);
+    int i = 42;
+    v = V{emplaced_type<int&>, i};
+    CHECK(holds_alternative<int&>(v));
+    CHECK(get<int&>(v) == 42);
+    CHECK(&get<int&>(v) == &i);
+    int j = 13;
+    v = V{emplaced_type<int&>, j};
+    CHECK(holds_alternative<int&>(v));
+    CHECK(get<int&>(v) == 13);
+    CHECK(&get<int&>(v) == &j);
+  }
+  {
+    // nontrivial
+    using V = variant<int, double, int&, nontrivial>;
+    static_assert(!is_trivially_move_assignable<V>());
+    V v;
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 0);
+    v = V{42};
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 42);
+    v = V{3.14};
+    CHECK(holds_alternative<double>(v));
+    CHECK(get<double>(v) == 3.14);
+    v = V{42};
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 42);
+    int i = 42;
+    v = V{emplaced_type<int&>, i};
+    CHECK(holds_alternative<int&>(v));
+    CHECK(get<int&>(v) == 42);
+    CHECK(&get<int&>(v) == &i);
+    int j = 13;
+    v = V{emplaced_type<int&>, j};
+    CHECK(holds_alternative<int&>(v));
+    CHECK(get<int&>(v) == 13);
+    CHECK(&get<int&>(v) == &j);
+
+    nontrivial::zero();
+    v = V{emplaced_type<nontrivial>};
+    CHECK(holds_alternative<nontrivial>(v));
+    CHECK(nontrivial::count.move == 1u);
+    CHECK(nontrivial::count.move_assign == 0u);
+    v = V{emplaced_type<nontrivial>};
+    CHECK(holds_alternative<nontrivial>(v));
+    CHECK(nontrivial::count.move == 1u);
+    CHECK(nontrivial::count.move_assign == 1u);
+  }
+
+  {
+    // Really nontrivial
+    using V = variant<int, double, std::vector<nontrivial>>;
+    constexpr auto N = std::size_t{42};
+    nontrivial::zero();
+    V v{emplaced_index<2>, N};
+    CHECK(v.index() == 2u);
+    CHECK(get<2>(v).size() == N);
+    CHECK(nontrivial::count.create == N);
+    V v2;
+    CHECK(v2.index() == 0u);
+    v2 = move(v);
+    CHECK(v2.index() == 2u);
+    CHECK(get<2>(v).empty());
+    CHECK(get<2>(v2).size() == N);
+    v = move(v2);
+    CHECK(get<2>(v2).empty());
+    CHECK(get<2>(v).size() == N);
+  }
+}
+
+void test_void() {
+  {
+    using V = variant<int, void, double>;
+    static_assert(is_trivially_destructible<V>());
+    static_assert(is_trivially_move_constructible<V>());
+    static_assert(is_trivially_copy_constructible<V>());
+    static_assert(is_trivially_move_assignable<V>());
+    static_assert(is_trivially_copy_assignable<V>());
+    V v1{42};
+    V{3.14};
+    V{emplaced_index<0>};
+    V{emplaced_index<2>};
+    // V{emplaced_type<void>}; // ill-formed
+    static_assert(!models::constructible<V, emplaced_type_t<void>>());
+    // V{emplaced_index<1>}; // ill-formed
+    static_assert(!models::constructible<V, emplaced_index_t<1>>());
+
+    static_assert(sizeof(variant<char>) == sizeof(variant<char, void>));
+  }
+}
+
 int main() {
   test_raw();
   test_construction();
   test_get();
+  test_move_assignment();
 
   {
     // variant<>{}; // ill-formed
@@ -604,7 +722,7 @@ int main() {
     static_assert(!is_trivially_copyable<variant<int, double, nontrivial>>());
     static_assert(is_copy_constructible<variant<int, double, nontrivial>>());
     static_assert(!is_trivially_move_constructible<variant<int, double, nontrivial>>());
-    nontrivial::copy_count = 0;
+    nontrivial::count.copy = 0;
     variant<int, double, nontrivial> v{};
     CHECK(v.index() == std::size_t{0});
     CHECK(holds_alternative<int>(v));
@@ -626,13 +744,13 @@ int main() {
   }
 
   {
-    nontrivial::move_count = 0;
-    nontrivial::copy_count = 0;
+    nontrivial::count.move = 0u;
+    nontrivial::count.copy = 0u;
     variant<nontrivial, int, double> v;
     auto move1 = stl2::move(v);
     auto move2 = stl2::move(move1);
-    CHECK(nontrivial::move_count == 2);
-    CHECK(nontrivial::copy_count == 0);
+    CHECK(nontrivial::count.move == 2u);
+    CHECK(nontrivial::count.copy == 0u);
   }
 
   {
@@ -642,22 +760,7 @@ int main() {
     // constexpr V v3 = v2; // FIXME: this seems to be non-implementable.
   }
 
-  {
-    using V = variant<int, void, double>;
-    static_assert(is_trivially_destructible<V>());
-    static_assert(is_trivially_move_constructible<V>());
-    static_assert(is_trivially_copy_constructible<V>());
-    V v1{42};
-    V{3.14};
-    V{emplaced_index<0>};
-    V{emplaced_index<2>};
-    // V{emplaced_type<void>}; // ill-formed
-    static_assert(!models::constructible<V, emplaced_type_t<void>>());
-    // V{emplaced_index<1>}; // ill-formed
-    static_assert(!models::constructible<V, emplaced_index_t<1>>());
-
-    static_assert(sizeof(variant<char>) == sizeof(variant<char, void>));
-  }
+  test_void();
 
   return ::test_result();
 }
