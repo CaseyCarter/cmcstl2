@@ -66,12 +66,15 @@ constexpr bool holds_alternative(const __variant::base<Types...>& v) noexcept {
 }
 
 template <std::size_t I, class...Types>
+  requires I < sizeof...(Types)
 constexpr decltype(auto) get(__variant::base<Types...>& v);
 
 template <std::size_t I, class...Types>
+  requires I < sizeof...(Types)
 constexpr decltype(auto) get(const __variant::base<Types...>& v);
 
 template <std::size_t I, class...Types>
+  requires I < sizeof...(Types)
 constexpr decltype(auto) get(__variant::base<Types...>&& v);
 
 namespace __variant {
@@ -234,7 +237,9 @@ with_static_index(meta::size_t<I>, meta::size_t<End>, std::size_t, F&&) noexcept
 template <std::size_t I, std::size_t End, class F>
   requires I < End
 constexpr void
-with_static_index(meta::size_t<I>, meta::size_t<End>, std::size_t n, F&& f) {
+with_static_index(meta::size_t<I>, meta::size_t<End>, std::size_t n, F&& f)
+  noexcept(noexcept(stl2::forward<F>(f)(meta::size_t<I>{}),
+                    with_static_index(meta::size_t<I+1>{}, meta::size_t<End>{}, n, stl2::forward<F>(f)))) {
   if (n == I) {
     stl2::forward<F>(f)(meta::size_t<I>{});
   } else {
@@ -243,7 +248,11 @@ with_static_index(meta::size_t<I>, meta::size_t<End>, std::size_t n, F&& f) {
 }
 
 template <std::size_t End, class F>
-constexpr void with_static_index(meta::size_t<End>, std::size_t n, F&& f) {
+constexpr void with_static_index(meta::size_t<End>, std::size_t n, F&& f)
+  noexcept(noexcept(
+    with_static_index(meta::size_t<0>{}, meta::size_t<End>{}, n, stl2::forward<F>(f))
+  ))
+{
   assert(n < End);
   with_static_index(meta::size_t<0>{}, meta::size_t<End>{}, n, stl2::forward<F>(f));
 }
@@ -261,12 +270,15 @@ class access {
   }
 
   template <std::size_t I, class...Types>
+    requires I < sizeof...(Types)
   friend constexpr decltype(auto) stl2::v1::get(__variant::base<Types...>& v);
 
   template <std::size_t I, class...Types>
+    requires I < sizeof...(Types)
   friend constexpr decltype(auto) stl2::v1::get(const __variant::base<Types...>& v);
 
   template <std::size_t I, class...Types>
+    requires I < sizeof...(Types)
   friend constexpr decltype(auto) stl2::v1::get(__variant::base<Types...>&& v);
 };
 
@@ -325,32 +337,13 @@ protected:
   data_t data_;
   index_t index_;
 
-  template <class F>
-  struct visitor {
-    base& self_;
-    F f_;
-
-    constexpr visitor(base& self, F f) : self_(self), f_(f) {}
-
-    template <std::size_t N>
-    constexpr void operator()(meta::size_t<N>) {
-      static_assert(N < types::size());
-      f_(stl2::get<N>(self_));
-    }
-  };
-
-  template <class F>
-  constexpr void dynamic_visit(F&& f) {
-    assert(valid());
-    with_static_index(meta::size<types>{}, index(),
-                      visitor<F>{*this, stl2::forward<F>(f)});
-  }
-
   base(empty_tag) noexcept :
     data_{empty_tag{}}, index_{invalid_index} {}
 
 public:
-  constexpr base() requires DefaultConstructible<data_t>() :
+  constexpr base()
+    noexcept(is_nothrow_default_constructible<data_t>::value)
+    requires DefaultConstructible<data_t>() :
     index_{0} {}
 
   template <class T>
@@ -427,6 +420,35 @@ public:
   }
 };
 
+template <_Is<is_reference> V, _Is<is_reference> F>
+// FIXME: require uncvref<V> is derived from a specialization of base
+struct visitor {
+  V target_;
+  F f_;
+
+  constexpr visitor(V target, F f) noexcept :
+    target_(target), f_(f) {}
+
+  template <std::size_t N, class T = decltype(stl2::get<N>(declval<V>()))>
+    requires requires (F&& f, T&& t) { ((F&&)f)((T&&)t); }
+  constexpr void operator()(meta::size_t<N>)
+    noexcept(noexcept(f_(declval<T>()))) {
+    stl2::forward<F>(f_)(stl2::get<N>(stl2::forward<V>(target_)));
+  }
+};
+
+template <class V, class F>
+// FIXME: require uncvref<V> is derived from a specialization of base
+constexpr void dynamic_visit(V&& v, F&& f)
+  noexcept(noexcept(
+     with_static_index(meta::size<typename remove_reference_t<V>::types>{},
+                       0, visitor<V&&, F&&>{declval<V>(), declval<F>()}))) {
+  assert(v.valid());
+  with_static_index(meta::size<typename remove_reference_t<V>::types>{},
+                    v.index(), visitor<V&&, F&&>{stl2::forward<V>(v),
+                                                 stl2::forward<F>(f)});
+}
+
 struct destroy_fn {
   Destructible{T}
   constexpr void operator()(T& t) const noexcept {
@@ -443,7 +465,7 @@ class destruct_base : public base<Ts...> {
 public:
   ~destruct_base() noexcept {
     if (base_t::valid()) {
-      base_t::dynamic_visit(destroy);
+      dynamic_visit(*this, destroy);
     }
   }
 
@@ -487,15 +509,17 @@ public:
   using base_t::base_t;
 
   move_base() = default;
-  move_base(move_base&& that) :
+  move_base(move_base&& that)
+    noexcept(meta::_v<meta::all_of<meta::list<element_t<Ts>...>,
+               meta::quote_trait<is_nothrow_move_constructible>>>) :
     base_t{empty_tag{}} {
     if (that.valid()) {
-      using size = meta::size<typename base_t::types>;
-      with_static_index(size{}, that.index(), [this,&that](auto i) {
-        construct(raw_get(i, this->data_),
-                  stl2::get<i()>(stl2::move(that)));
-        this->index_ = i;
-      });
+      with_static_index(meta::size_t<sizeof...(Ts)>{}, that.index(),
+        [this,&that](auto i) {
+          construct(raw_get(i, this->data_),
+                    stl2::get<i()>(stl2::move(that)));
+          this->index_ = i;
+        });
     }
   }
 };
@@ -529,7 +553,9 @@ public:
 
   copy_base() = default;
   copy_base(copy_base&&) = default;
-  copy_base(const copy_base& that) :
+  copy_base(const copy_base& that)
+    noexcept(meta::_v<meta::all_of<meta::list<element_t<Ts>...>,
+               meta::quote_trait<is_nothrow_copy_constructible>>>) :
     base_t{empty_tag{}} {
     if (that.valid()) {
       with_static_index(meta::size_t<sizeof...(Ts)>{}, that.index(),
@@ -561,27 +587,28 @@ class variant<> {
 };
 
 template <std::size_t I, class...Types>
+  requires I < sizeof...(Types)
 constexpr decltype(auto) get(__variant::base<Types...>& v) {
-  static_assert(I < sizeof...(Types));
   using T = meta::at_c<meta::list<Types...>, I>;
   return __variant::access::get<I, T>(v);
 }
 
 template <std::size_t I, class...Types>
+  requires I < sizeof...(Types)
 constexpr decltype(auto) get(const __variant::base<Types...>& v) {
-  static_assert(I < sizeof...(Types));
   using T = meta::at_c<meta::list<Types...>, I>;
   return __variant::access::get<I, T>(v);
 }
 
 template <std::size_t I, class...Types>
+  requires I < sizeof...(Types)
 constexpr decltype(auto) get(__variant::base<Types...>&& v) {
-  static_assert(I < sizeof...(Types));
   using T = meta::at_c<meta::list<Types...>, I>;
   return __variant::access::get<I, T>(stl2::move(v));
 }
 
 template <class T, class...Types>
+  requires __variant::index_of_type<T, Types...> >= 0
 constexpr decltype(auto) get(__variant::base<Types...>& v) {
   return get<__variant::index_of_type<T, Types...>>(v);
 }
