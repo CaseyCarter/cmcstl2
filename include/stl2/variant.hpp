@@ -242,32 +242,36 @@ constexpr T&& cook(storage_t<meta::id_t<T>>&& t) noexcept {
 }
 
 template <std::size_t I, std::size_t End, class F>
-[[noreturn]] void
-with_static_index(meta::size_t<I>, meta::size_t<End>, std::size_t, F&&) noexcept {
-  std::terminate();
+  requires I + 1 == End
+constexpr decltype(auto)
+with_static_index(meta::size_t<I>, meta::size_t<End>, std::size_t n, F&& f)
+  noexcept(noexcept(stl2::forward<F>(f)(meta::size_t<I>{}))) {
+  assert(n == I);
+  return stl2::forward<F>(f)(meta::size_t<I>{});
 }
 
 template <std::size_t I, std::size_t End, class F>
-  requires I < End
-constexpr void
+  requires I + 1 < End
+constexpr decltype(auto)
 with_static_index(meta::size_t<I>, meta::size_t<End>, std::size_t n, F&& f)
   noexcept(noexcept(stl2::forward<F>(f)(meta::size_t<I>{}),
                     with_static_index(meta::size_t<I+1>{}, meta::size_t<End>{}, n, stl2::forward<F>(f)))) {
   if (n == I) {
-    stl2::forward<F>(f)(meta::size_t<I>{});
+    return stl2::forward<F>(f)(meta::size_t<I>{});
   } else {
-    with_static_index(meta::size_t<I+1>{}, meta::size_t<End>{}, n, stl2::forward<F>(f));
+    return with_static_index(meta::size_t<I+1>{}, meta::size_t<End>{}, n, stl2::forward<F>(f));
   }
 }
 
 template <std::size_t End, class F>
-constexpr void with_static_index(meta::size_t<End>, std::size_t n, F&& f)
+constexpr decltype(auto)
+with_static_index(meta::size_t<End>, std::size_t n, F&& f)
   noexcept(noexcept(
     with_static_index(meta::size_t<0>{}, meta::size_t<End>{}, n, stl2::forward<F>(f))
   ))
 {
   assert(n < End);
-  with_static_index(meta::size_t<0>{}, meta::size_t<End>{}, n, stl2::forward<F>(f));
+  return with_static_index(meta::size_t<0>{}, meta::size_t<End>{}, n, stl2::forward<F>(f));
 }
 
 class access {
@@ -440,26 +444,37 @@ struct visitor {
   F f_;
 
   constexpr visitor(V target, F f) noexcept :
-    target_(target), f_(f) {}
+    target_(stl2::forward<V>(target)), f_(stl2::forward<F>(f)) {}
 
   template <std::size_t N, class T = decltype(stl2::get<N>(declval<V>()))>
     requires requires (F&& f, T&& t) { ((F&&)f)((T&&)t); }
-  constexpr void operator()(meta::size_t<N>)
-    noexcept(noexcept(f_(declval<T>()))) {
-    stl2::forward<F>(f_)(stl2::get<N>(stl2::forward<V>(target_)));
+  constexpr decltype(auto) operator()(meta::size_t<N>) &&
+    noexcept(noexcept(((F&&)f_)(declval<T>()))) {
+    return stl2::forward<F>(f_)(stl2::get<N>(stl2::forward<V>(target_)));
   }
 };
 
 template <class V, class F>
 // FIXME: require uncvref<V> is derived from a specialization of base
-constexpr void dynamic_visit(V&& v, F&& f)
+constexpr decltype(auto) visit(F&& f, V&& v)
   noexcept(noexcept(
      with_static_index(meta::size<typename remove_reference_t<V>::types>{},
                        0, visitor<V&&, F&&>{declval<V>(), declval<F>()}))) {
   assert(v.valid());
-  with_static_index(meta::size<typename remove_reference_t<V>::types>{},
-                    v.index(), visitor<V&&, F&&>{stl2::forward<V>(v),
-                                                 stl2::forward<F>(f)});
+  return with_static_index(meta::size<typename remove_reference_t<V>::types>{},
+                           v.index(), visitor<V&&, F&&>{stl2::forward<V>(v),
+                                                        stl2::forward<F>(f)});
+}
+
+template <class F, class First, class...Rest>
+// FIXME: constraints
+constexpr decltype(auto) visit(F&& fn, First&& first, Rest&&...rest) {
+  return visit([&](auto&& f) {
+    return visit([&](auto&&...r){
+      return stl2::forward<F>(fn)(stl2::forward<decltype(f)>(f),
+                                  stl2::forward<decltype(r)>(r)...);
+    }, stl2::forward<Rest>(rest)...);
+  }, stl2::forward<First>(first));
 }
 
 struct destroy_fn {
@@ -478,7 +493,7 @@ class destruct_base : public base<Ts...> {
 protected:
   void clear() {
     if (this->valid()) {
-      dynamic_visit(*this, destroy);
+      visit(destroy, *this);
       this->index_ = this->invalid_index;
     }
   }
@@ -679,6 +694,8 @@ template <>
 class variant<> {
   variant() requires false;
 };
+
+using __variant::visit;
 
 template <std::size_t I, class...Types>
   requires I < sizeof...(Types)

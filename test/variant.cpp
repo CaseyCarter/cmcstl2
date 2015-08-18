@@ -74,6 +74,10 @@ struct nontrivial_literal {
   constexpr operator int() const {
     return value;
   }
+
+  friend std::ostream& operator<<(std::ostream& os, const nontrivial_literal& ntl) {
+    return os << "nontrivial_literal{" << ntl.value << '}';
+  }
 };
 
 struct moveonly {
@@ -666,6 +670,51 @@ void test_void() {
   }
 }
 
+struct print_fn {
+  stl2::reference_wrapper<std::ostream> os;
+
+  int operator()(const auto& t) const {
+    os.get() << t << '\n';
+    return 1;
+  }
+  int operator()(const auto& first, const auto&...rest) const {
+    os.get() << first << ", ";
+    return 1 + (*this)(stl2::forward<decltype(rest)>(rest)...);
+  }
+};
+
+void test_visit() {
+  using V = variant<int, double, /* FIXME: void, */ nontrivial_literal>;
+  auto print = print_fn{std::cout};
+
+  CHECK(visit(print, V{42}) == 1);
+  CHECK(visit(print, V{3.14}) == 1);
+  CHECK(visit(print, V{nontrivial_literal{13}}) == 1);
+
+  CHECK(visit(print, V{42}, V{13}) == 2);
+  CHECK(visit(print, V{42}, V{3.14}) == 2);
+  CHECK(visit(print, V{42}, V{nontrivial_literal{42}}) == 2);
+  CHECK(visit(print, V{3.14}, V{1.414}) == 2);
+  CHECK(visit(print, V{3.14}, V{42}) == 2);
+  CHECK(visit(print, V{3.14}, V{nontrivial_literal{42}}) == 2);
+  CHECK(visit(print, V{nontrivial_literal{42}}, V{13}) == 2);
+  CHECK(visit(print, V{nontrivial_literal{42}}, V{3.14}) == 2);
+
+  CHECK(visit(print, V{42}, V{3.14}, V{nontrivial_literal{42}}) == 3);
+
+#if 0
+  CHECK(visit(print, V{0}) == 1);
+  CHECK(visit(print, V{0}, V{1}) == 2);
+  CHECK(visit(print, V{0}, V{1}, V{2}) == 3);
+  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}) == 4);
+  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}) == 5);
+  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}) == 6);
+  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}, V{6}) == 7);
+  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}, V{6}, V{7}) == 8);
+  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}, V{6}, V{7}, V{8}) == 9);
+#endif
+}
+
 int main() {
   test_raw();
   test_construction();
@@ -761,6 +810,7 @@ int main() {
   }
 
   test_void();
+  test_visit();
 
   return ::test_result();
 }
