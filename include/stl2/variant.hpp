@@ -83,26 +83,23 @@ using element_t =
 
 struct empty_tag {};
 
-template <bool TrivialDestruction, class...Ts> // Destructible...Ts
-class data_;
+template <template <class> class Trait, class...Ts>
+concept bool AllAre =
+  meta::_v<meta::all_of<meta::list<Ts...>, meta::quote_trait<Trait>>>;
+
+template <class...Ts> // Destructible...Ts
+class data;
 
 template <class>
 constexpr bool is_data = false;
-template <bool B, class...Ts>
-constexpr bool is_data<data_<B, Ts...>> = true;
+template <class...Ts>
+constexpr bool is_data<data<Ts...>> = true;
 
 template <class T>
 concept bool IsData = is_data<decay_t<T>>;
 
-template <class...Ts>
-using data = data_<
-  meta::all_of<
-    meta::list<Ts...>,
-    meta::quote_trait<is_trivially_destructible>>::value,
-  Ts...>;
-
 template <>
-class data_<true> {};
+class data<> {};
 
 // TODO: Think about binary instead of linear decomposition of the elements, i.e.,
 //       a recursive union binary tree instead of a recursive union list. It will
@@ -110,7 +107,7 @@ class data_<true> {};
 //       Be careful about instantiating multiple identical empty leaves - they
 //       could enlarge an otherwise small variant with padding.
 template <class First, class...Rest>
-class data_<true, First, Rest...> {
+class data<First, Rest...> {
 public:
   using head_t = First;
   using tail_t = data<Rest...>;
@@ -122,39 +119,42 @@ public:
     tail_t tail_;
   };
 
-  constexpr data_()
+  ~data() {}
+
+  constexpr data()
     requires DefaultConstructible<head_t>()
     : head_{} {}
 
-  data_(empty_tag) {}
+  data(empty_tag) {}
 
   template <std::size_t N, class...Args>
     requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, Args...>()
-  constexpr data_(meta::size_t<N>, Args&&...args)
+  constexpr data(meta::size_t<N>, Args&&...args)
     noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, Args...>::value) :
     tail_{meta::size_t<N - 1>{}, stl2::forward<Args>(args)...} {}
 
   template <class...Args>
     requires Constructible<First, Args...>()
-  constexpr data_(meta::size_t<0>, Args&&...args)
+  constexpr data(meta::size_t<0>, Args&&...args)
     noexcept(is_nothrow_constructible<head_t, Args...>::value) :
     head_{stl2::forward<Args>(args)...} {}
 
   template <std::size_t N, class E, class...Args>
     requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>()
-  constexpr data_(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
+  constexpr data(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>::value) :
     tail_{meta::size_t<N - 1>{}, il, stl2::forward<Args>(args)...} {}
 
   template <class E, class...Args>
     requires Constructible<First, std::initializer_list<E>, Args...>()
-  constexpr data_(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
+  constexpr data(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value) :
     head_{il, stl2::forward<Args>(args)...} {}
 };
 
 template <class First, class...Rest>
-class data_<false, First, Rest...> {
+  requires AllAre<is_trivially_destructible, First, Rest...>
+class data<First, Rest...> {
 public:
   using head_t = First;
   using tail_t = data<Rest...>;
@@ -166,35 +166,33 @@ public:
     tail_t tail_;
   };
 
-  ~data_() {}
-
-  constexpr data_()
+  constexpr data()
     requires DefaultConstructible<head_t>()
     : head_{} {}
 
-  data_(empty_tag) {}
+  data(empty_tag) {}
 
   template <std::size_t N, class...Args>
     requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, Args...>()
-  constexpr data_(meta::size_t<N>, Args&&...args)
+  constexpr data(meta::size_t<N>, Args&&...args)
     noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, Args...>::value) :
     tail_{meta::size_t<N - 1>{}, stl2::forward<Args>(args)...} {}
 
   template <class...Args>
     requires Constructible<First, Args...>()
-  constexpr data_(meta::size_t<0>, Args&&...args)
+  constexpr data(meta::size_t<0>, Args&&...args)
     noexcept(is_nothrow_constructible<head_t, Args...>::value) :
     head_{stl2::forward<Args>(args)...} {}
 
   template <std::size_t N, class E, class...Args>
     requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>()
-  constexpr data_(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
+  constexpr data(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>::value) :
     tail_{meta::size_t<N - 1>{}, il, stl2::forward<Args>(args)...} {}
 
   template <class E, class...Args>
     requires Constructible<First, std::initializer_list<E>, Args...>()
-  constexpr data_(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
+  constexpr data(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value) :
     head_{il, stl2::forward<Args>(args)...} {}
 };
@@ -352,7 +350,7 @@ protected:
     data_{empty_tag{}}, index_{invalid_index} {}
 
 public:
-  base() requires DefaultConstructible<data_t>() :
+  constexpr base() requires DefaultConstructible<data_t>() :
     index_{0} {}
 
   template <class T>
@@ -492,7 +490,7 @@ public:
 
 template <class...Ts>
   requires is_trivially_move_constructible<data<element_t<Ts>...>>::value ||
-    !meta::_v<meta::all_of<meta::list<Ts...>, meta::quote_trait<is_move_constructible>>>
+    !AllAre<is_move_constructible, Ts...>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
@@ -521,7 +519,7 @@ public:
 
 template <class...Ts>
   requires is_trivially_copy_constructible<data<element_t<Ts>...>>::value ||
-    !meta::_v<meta::all_of<meta::list<Ts...>, meta::quote_trait<is_copy_constructible>>>
+    !AllAre<is_copy_constructible, Ts...>
 class copy_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
