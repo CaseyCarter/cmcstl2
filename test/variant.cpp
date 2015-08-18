@@ -637,8 +637,8 @@ int main() {
   {
     using V = variant<nontrivial_literal>;
     constexpr V v1{nontrivial_literal{42}};
-    // constexpr V v2 = move(v1); // FIXME
-    // constexpr V v3 = v2; // FIXME
+    // constexpr V v2 = move(v1); // FIXME: this seems to be non-implementable.
+    // constexpr V v3 = v2; // FIXME: this seems to be non-implementable.
   }
 
   return ::test_result();
