@@ -99,7 +99,7 @@ struct array {
       return {ptr_ + n};
     }
 
-    friend decltype(auto) iter_move(iterator i) noexcept {
+    friend T&& iter_move(iterator i) noexcept {
       //std::cout << "iter_move(" << static_cast<void*>(i.ptr_) << ")\n";
       assert(i.ptr_);
       return static_cast<T&&>(*i.ptr_);

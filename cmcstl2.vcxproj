@@ -71,6 +71,7 @@
     <ClInclude Include="include\stl2\algorithm.hpp" />
     <ClInclude Include="include\stl2\concepts.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\all_of.hpp" />
+    <ClInclude Include="include\stl2\detail\algorithm\transform.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\algorithm.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\callable.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\compare.hpp" />
@@ -101,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\algorithm\all_of.cpp" />
+    <ClCompile Include="test\algorithm\transform.cpp" />
     <ClCompile Include="test\common.cpp" />
     <ClCompile Include="test\concepts\compare.cpp" />
     <ClCompile Include="test\concepts\core.cpp" />

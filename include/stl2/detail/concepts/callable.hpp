@@ -45,8 +45,16 @@ template <Readable I, class Proj>
   requires RegularFunction<FunctionType<Proj>, ValueType<I>>() &&
     RegularFunction<FunctionType<Proj>, ReferenceType<I>>()
 struct Projected {
-  using value_type = std::decay_t<ResultType<FunctionType<Proj>, ValueType<I>>>;
-  ResultType<FunctionType<Proj>, ReferenceType<I>> operator*() const;
+  using value_type =
+    std::decay_t<ResultType<FunctionType<Proj>, ValueType<I>>>;
+  [[noreturn]] auto operator*() const ->
+    ResultType<FunctionType<Proj>, ReferenceType<I>> {
+    std::terminate();
+  }
+  [[noreturn]] friend auto iter_move(Projected) ->
+    ResultType<FunctionType<Proj>, RvalueReferenceType<I>> {
+    std::terminate();
+  }
 };
 
 template <WeaklyIncrementable I, class Proj>
@@ -92,10 +100,6 @@ using __iter_map_reduce_fn =
     meta::quote<__iter_args_lists>>;
 
 template <class F, class...Is>
-using IndirectCallableResultType =
-  ResultType<FunctionType<F>, ValueType<Is>...>;
-
-template <class F, class...Is>
 concept bool IndirectCallable() {
   return
     //(Readable<Is>() &&...) &&
@@ -116,6 +120,10 @@ concept bool IndirectCallable() {
         meta::quote<__common_reference>>,
       Is...>>;
 }
+
+IndirectCallable{F, ...Is}
+using IndirectCallableResultType =
+  ResultType<FunctionType<F>, ValueType<Is>...>;
 
 template <class F, class...Is>
 concept bool IndirectRegularCallable() {

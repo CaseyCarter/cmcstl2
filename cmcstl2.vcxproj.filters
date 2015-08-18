@@ -147,6 +147,9 @@
     <ClInclude Include="include\stl2\detail\range\primitives.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\transform.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\headers.cpp">
@@ -193,6 +196,9 @@
     </ClCompile>
     <ClCompile Include="test\common.cpp">
       <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\transform.cpp">
+      <Filter>Test Files\algorithm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

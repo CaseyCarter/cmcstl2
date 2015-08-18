@@ -120,7 +120,7 @@ public:
     return tmp;
   }
 
-  friend decltype(auto) iter_move(proxy_iterator p) {
+  friend T&& iter_move(proxy_iterator p) {
     return stl2::move(*p.ptr_);
   }
 

@@ -51,8 +51,9 @@ __iter_move_t<_R> iter_move(R&& r)
 struct fn {
   template <class R>
     requires requires (R&& r) { { iter_move((R&&)r) } -> auto&&; }
-  constexpr decltype(auto) operator()(R&& r) const
-    noexcept(noexcept(iter_move(stl2::forward<R>(r)))) {
+  constexpr auto operator()(R&& r) const
+    noexcept(noexcept(iter_move(stl2::forward<R>(r)))) ->
+    decltype(iter_move(stl2::forward<R>(r))) {
     return iter_move(stl2::forward<R>(r));
   }
 };
