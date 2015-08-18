@@ -12,7 +12,8 @@ template <class> class show_type;
 
 // variants of trivially {destructible,move constructible,copy constructible} types
 // are trivially {destructible,move constructible,copy constructible}.
-using VDI = stl2::variant<char, short, int, long, long long, float, double>;
+using VDI = stl2::variant<char, short, int, long, long long,
+                          float, double, std::pair<int, int>>;
 static_assert(stl2::is_trivially_destructible<VDI>());
 static_assert(stl2::is_trivially_move_constructible<VDI>());
 static_assert(stl2::is_trivially_copy_constructible<VDI>());
@@ -639,6 +640,23 @@ int main() {
     constexpr V v1{nontrivial_literal{42}};
     // constexpr V v2 = move(v1); // FIXME: this seems to be non-implementable.
     // constexpr V v3 = v2; // FIXME: this seems to be non-implementable.
+  }
+
+  {
+    using V = variant<int, void, double>;
+    static_assert(is_trivially_destructible<V>());
+    static_assert(is_trivially_move_constructible<V>());
+    static_assert(is_trivially_copy_constructible<V>());
+    V v1{42};
+    V{3.14};
+    V{emplaced_index<0>};
+    V{emplaced_index<2>};
+    // V{emplaced_type<void>}; // ill-formed
+    static_assert(!models::constructible<V, emplaced_type_t<void>>());
+    // V{emplaced_index<1>}; // ill-formed
+    static_assert(!models::constructible<V, emplaced_index_t<1>>());
+
+    static_assert(sizeof(variant<char>) == sizeof(variant<char, void>));
   }
 
   return ::test_result();

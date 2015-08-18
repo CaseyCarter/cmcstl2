@@ -53,7 +53,7 @@ class bad_variant_access {};
 namespace __variant {
 template <class T, class...Types, class Tail = meta::find<meta::list<Types...>, T>>
   requires !meta::_v<meta::empty<Tail>> &&
-  meta::_v<meta::find_index<meta::pop_front<Tail>, T>> == meta::_v<meta::npos>
+    meta::_v<meta::find_index<meta::pop_front<Tail>, T>> == meta::_v<meta::npos>
 constexpr std::size_t index_of_type =
   sizeof...(Types) - Tail::size();
 
@@ -78,11 +78,23 @@ template <std::size_t I, class...Types>
 constexpr decltype(auto) get(__variant::base<Types...>&& v);
 
 namespace __variant {
+struct void_storage { void_storage() requires false; };
+
 template <class T>
-using element_t =
-  meta::if_<is_reference<T>,
-    reference_wrapper<remove_reference_t<T>>,
-    T>;
+struct storage_type {
+  using type = T;
+};
+template <_Is<is_reference> T>
+struct storage_type<T> {
+  using type = reference_wrapper<remove_reference_t<T>>;
+};
+template <>
+struct storage_type<void> {
+  using type = void_storage;
+};
+
+template <class T>
+using element_t = meta::_t<storage_type<T>>;
 
 struct empty_tag {};
 
@@ -258,7 +270,7 @@ constexpr void with_static_index(meta::size_t<End>, std::size_t n, F&& f)
 }
 
 class access {
-  template <std::size_t I, class T, class V>
+  template <std::size_t I, _IsNot<is_void> T, class V>
     // FIXME: constrain remove_reference_t<V> to instance of base.
   static constexpr decltype(auto) get(V&& v) {
     if (v.index() != I) {
@@ -370,7 +382,7 @@ public:
       constructible_from<T&&, Ts...>::value &&
       constructible_from<T&&, Ts...>::ambiguous
   base(T&&) = delete;
-  // variant construction from type is ambiguous.
+  // variant construction from T is ambiguous.
 
   template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
     requires Constructible<T, Args...>()
