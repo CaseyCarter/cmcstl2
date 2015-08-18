@@ -475,6 +475,18 @@ public:
   using base_t::base_t;
 
   move_base() = default;
+  move_base(move_base&&) = delete;
+  move_base(const move_base&) = default;
+};
+
+template <class...Ts>
+  requires AllAre<is_move_constructible, element_t<Ts>...>
+class move_base<Ts...> : public destruct_base<Ts...> {
+  using base_t = destruct_base<Ts...>;
+public:
+  using base_t::base_t;
+
+  move_base() = default;
   move_base(move_base&& that) :
     base_t{empty_tag{}} {
     if (that.valid()) {
@@ -489,8 +501,8 @@ public:
 };
 
 template <class...Ts>
-  requires is_trivially_move_constructible<data<element_t<Ts>...>>::value ||
-    !AllAre<is_move_constructible, Ts...>
+  requires AllAre<is_move_constructible, element_t<Ts>...> &&
+    meta::_v<is_trivially_move_constructible<data<element_t<Ts>...>>>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
@@ -499,6 +511,18 @@ public:
 
 template <class...Ts>
 class copy_base : public move_base<Ts...> {
+  using base_t = move_base<Ts...>;
+public:
+  using base_t::base_t;
+
+  copy_base() = default;
+  copy_base(copy_base&&) = default;
+  copy_base(const copy_base&) = delete;
+};
+
+template <class...Ts>
+  requires AllAre<is_copy_constructible, element_t<Ts>...>
+class copy_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
   using base_t::base_t;
@@ -518,8 +542,8 @@ public:
 };
 
 template <class...Ts>
-  requires is_trivially_copy_constructible<data<element_t<Ts>...>>::value ||
-    !AllAre<is_copy_constructible, Ts...>
+  requires AllAre<is_copy_constructible, element_t<Ts>...> &&
+    meta::_v<is_trivially_copy_constructible<data<element_t<Ts>...>>>
 class copy_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
