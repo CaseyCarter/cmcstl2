@@ -37,31 +37,6 @@ using FunctionType =
   decltype(as_function(declval<T>()));
 
 ///////////////////////////////////////////////////////////////////////////
-// Projected
-//
-// 20150801: Not (exactly) to spec: I think the
-// RegularFunction<..., ReferenceType<I>> requirement is implicit.
-template <Readable I, class Proj>
-  requires RegularFunction<FunctionType<Proj>, ValueType<I>>() &&
-    RegularFunction<FunctionType<Proj>, ReferenceType<I>>()
-struct Projected {
-  using value_type =
-    std::decay_t<ResultType<FunctionType<Proj>, ValueType<I>>>;
-  [[noreturn]] auto operator*() const ->
-    ResultType<FunctionType<Proj>, ReferenceType<I>> {
-    std::terminate();
-  }
-  [[noreturn]] friend auto iter_move(Projected) ->
-    ResultType<FunctionType<Proj>, RvalueReferenceType<I>> {
-    std::terminate();
-  }
-};
-
-template <WeaklyIncrementable I, class Proj>
-struct difference_type<Projected<I, Proj>> :
-  meta::id<DifferenceType<I>> {};
-
-///////////////////////////////////////////////////////////////////////////
 // Indirect callables [indirectfunc.indirectcallables]
 //
 template <class> struct __readable : std::false_type {};
@@ -186,6 +161,21 @@ concept bool IndirectCallableStrictWeakOrder() {
     StrictWeakOrder<FunctionType<F>, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
 }
 
+///////////////////////////////////////////////////////////////////////////
+// Projected
+//
+// 20150801: Not (exactly) to spec: I think the
+// RegularFunction<..., ReferenceType<I>> requirement is implicit.
+template <Readable I, IndirectRegularCallable<I> Proj>
+struct Projected {
+  using value_type =
+    std::decay_t<ResultType<FunctionType<Proj>, ValueType<I>>>;
+  auto operator*() const ->
+    ResultType<FunctionType<Proj>, ReferenceType<I>>;
+};
+
+template <WeaklyIncrementable I, IndirectRegularCallable<I> Proj>
+struct difference_type<Projected<I, Proj>> : difference_type<I> { };
 
 namespace ext { namespace models {
 
