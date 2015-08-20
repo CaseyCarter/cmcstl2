@@ -60,14 +60,17 @@ public:
 
 namespace __variant {
 template <class T, class...Types,
-  std::size_t I = meta::_v<meta::find_index<meta::list<Types...>, T>>>
+    std::size_t I = meta::_v<meta::find_index<meta::list<Types...>, T>>>
   requires I != meta::_v<meta::npos> &&
-    meta::_v<meta::find_index<meta::drop_c<meta::list<Types...>, I + 1>, T>> ==
-      meta::_v<meta::npos>
+    Same<meta::find_index<meta::drop_c<meta::list<Types...>, I + 1>, T>, meta::npos>()
 constexpr std::size_t index_of_type = I;
 
 template <class...> class base;
 }
+
+template <class T, class... Types>
+constexpr std::size_t tuple_find<T, variant<Types...>> =
+  __variant::index_of_type<T, Types...>;
 
 template <class T, class...Types,
   std::size_t I = __variant::index_of_type<T, Types...>>
@@ -791,11 +794,6 @@ template <class...Ts>
 using tagged_variant = tagged<
   variant<meta::_t<__tag_elem<Ts>>...>,
   meta::_t<__tag_spec<Ts>>...>;
-
-template <class T, class... Types>
-  requires __variant::index_of_type<T, Types...> != tuple_not_found
-constexpr std::size_t tuple_find<T, variant<Types...>> =
-  __variant::index_of_type<T, Types...>;
 }} // namespace stl2::v1
 
 namespace std {
