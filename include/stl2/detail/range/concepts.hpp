@@ -35,9 +35,6 @@ struct difference_type<T> {
   using type = DifferenceType<IteratorType<T>>;
 };
 
-template <class T>
-concept bool _Unqual = Same<T, detail::uncvref_t<T>>();
-
 ///////////////////////////////////////////////////////////////////////////
 // SizedRange [sized.iterables]
 //

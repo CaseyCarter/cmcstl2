@@ -715,6 +715,19 @@ void test_visit() {
 #endif
 }
 
+void test_tagged() {
+  using V = tagged_variant<tag::in(int), tag::out(double)>;
+  static_assert(is_trivially_destructible<V>());
+  static_assert(is_trivially_move_constructible<V>());
+  static_assert(is_trivially_copy_constructible<V>());
+  V v1{42};
+  CHECK(get<0>(v1) == 42);
+  CHECK(v1.in() == 42);
+  V v2{3.14};
+  CHECK(get<1>(v2) == 3.14);
+  CHECK(v2.out() == 3.14);
+}
+
 int main() {
   test_raw();
   test_construction();
@@ -811,6 +824,7 @@ int main() {
 
   test_void();
   test_visit();
+  test_tagged();
 
   return ::test_result();
 }

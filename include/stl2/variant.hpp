@@ -5,15 +5,17 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <tuple>
 #include <meta/meta.hpp>
 #include <stl2/functional.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/tagged.hpp>
+#include <stl2/detail/tuple_like.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
 namespace stl2 { inline namespace v1 {
-template <class...>
-class variant;
+template <class...> class variant;
 
 template <class>
 struct emplaced_type_t {};
@@ -51,11 +53,12 @@ constexpr bool operator>=(const monostate&, const monostate&)
 class bad_variant_access {};
 
 namespace __variant {
-template <class T, class...Types, class Tail = meta::find<meta::list<Types...>, T>>
-  requires !meta::_v<meta::empty<Tail>> &&
-    meta::_v<meta::find_index<meta::pop_front<Tail>, T>> == meta::_v<meta::npos>
-constexpr std::size_t index_of_type =
-  sizeof...(Types) - Tail::size();
+template <class T, class...Types,
+  std::size_t I = meta::_v<meta::find_index<meta::list<Types...>, T>>>
+  requires I != meta::_v<meta::npos> &&
+    meta::_v<meta::find_index<meta::drop_c<meta::list<Types...>, I + 1>, T>> ==
+      meta::_v<meta::npos>
+constexpr std::size_t index_of_type = I;
 
 template <class...> class base;
 }
@@ -65,18 +68,6 @@ template <class T, class...Types,
 constexpr bool holds_alternative(const __variant::base<Types...>& v) noexcept {
   return v.index() == I;
 }
-
-template <std::size_t I, class...Types>
-  requires I < sizeof...(Types)
-constexpr decltype(auto) get(__variant::base<Types...>& v);
-
-template <std::size_t I, class...Types>
-  requires I < sizeof...(Types)
-constexpr decltype(auto) get(const __variant::base<Types...>& v);
-
-template <std::size_t I, class...Types>
-  requires I < sizeof...(Types)
-constexpr decltype(auto) get(__variant::base<Types...>&& v);
 
 namespace __variant {
 struct void_storage { void_storage() requires false; };
@@ -98,10 +89,6 @@ template <class T>
 using storage_t = meta::_t<storage_type<T>>;
 
 struct empty_tag {};
-
-template <template <class> class Trait, class...Ts>
-concept bool AllAre =
-  meta::_v<meta::all_of<meta::list<Ts...>, meta::quote_trait<Trait>>>;
 
 template <class...Ts> // Destructible...Ts
 class data;
@@ -169,7 +156,7 @@ public:
 };
 
 template <class First, class...Rest>
-  requires AllAre<is_trivially_destructible, First, Rest...>
+  requires _AllAre<is_trivially_destructible, First, Rest...>
 class data<First, Rest...> {
 public:
   using head_t = First;
@@ -281,7 +268,7 @@ class access {
     if (v.index() != I) {
       throw bad_variant_access{};
     }
-    return __variant::cook<T>(__variant::raw_get(
+    return cook<T>(raw_get(
       meta::size_t<I>{}, stl2::forward<V>(v).data_
     ));
   }
@@ -437,25 +424,60 @@ public:
   }
 };
 
+template <std::size_t I, class...Types>
+  requires I < sizeof...(Types)
+constexpr decltype(auto) get(base<Types...>& v) {
+  using T = meta::at_c<meta::list<Types...>, I>;
+  return access::get<I, T>(v);
+}
+
+template <std::size_t I, class...Types>
+  requires I < sizeof...(Types)
+constexpr decltype(auto) get(const base<Types...>& v) {
+  using T = meta::at_c<meta::list<Types...>, I>;
+  return access::get<I, T>(v);
+}
+
+template <std::size_t I, class...Types>
+  requires I < sizeof...(Types)
+constexpr decltype(auto) get(base<Types...>&& v) {
+  using T = meta::at_c<meta::list<Types...>, I>;
+  return access::get<I, T>(stl2::move(v));
+}
+
+template <class T, class...Types>
+  requires index_of_type<T, Types...> != tuple_not_found
+constexpr decltype(auto) get(base<Types...>& v) {
+  return get<index_of_type<T, Types...>>(v);
+}
+
+template <class T, class...Types>
+constexpr decltype(auto) get(const base<Types...>& v) {
+  return get<index_of_type<T, Types...>>(v);
+}
+
+template <class T, class...Types>
+constexpr decltype(auto) get(base<Types...>&& v) {
+  return get<index_of_type<T, Types...>>(stl2::move(v));
+}
+
 template <_Is<is_reference> V, _Is<is_reference> F>
 // FIXME: require uncvref<V> is derived from a specialization of base
 struct visitor {
   V target_;
   F f_;
 
-  constexpr visitor(V target, F f) noexcept :
-    target_(stl2::forward<V>(target)), f_(stl2::forward<F>(f)) {}
-
-  template <std::size_t N, class T = decltype(stl2::get<N>(declval<V>()))>
+  template <std::size_t N, class T = decltype(get<N>(declval<V>()))>
     requires requires (F&& f, T&& t) { ((F&&)f)((T&&)t); }
   constexpr decltype(auto) operator()(meta::size_t<N>) &&
     noexcept(noexcept(((F&&)f_)(declval<T>()))) {
-    return stl2::forward<F>(f_)(stl2::get<N>(stl2::forward<V>(target_)));
+    return stl2::forward<F>(f_)(get<N>(stl2::forward<V>(target_)));
   }
 };
 
 template <class V, class F>
 // FIXME: require uncvref<V> is derived from a specialization of base
+// FIXME: Don't deduce return type: variants with void alternatives go BOOM.
 constexpr decltype(auto) visit(F&& f, V&& v)
   noexcept(noexcept(
      with_static_index(meta::size<typename remove_reference_t<V>::types>{},
@@ -547,7 +569,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllAre<is_move_constructible, storage_t<Ts>...>
+  requires _AllAre<is_move_constructible, storage_t<Ts>...>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
@@ -572,7 +594,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllAre<is_move_constructible, storage_t<Ts>...> &&
+  requires _AllAre<is_move_constructible, storage_t<Ts>...> &&
     meta::_v<is_trivially_move_constructible<data<storage_t<Ts>...>>>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
@@ -594,7 +616,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllAre<is_move_assignable, storage_t<Ts>...>
+  requires _AllAre<is_move_assignable, storage_t<Ts>...>
 class move_assign_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
@@ -630,7 +652,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllAre<is_move_assignable, storage_t<Ts>...> &&
+  requires _AllAre<is_move_assignable, storage_t<Ts>...> &&
     meta::_v<is_trivially_move_assignable<data<storage_t<Ts>...>>>
 class move_assign_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
@@ -652,7 +674,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllAre<is_copy_constructible, storage_t<Ts>...>
+  requires _AllAre<is_copy_constructible, storage_t<Ts>...>
 class copy_base<Ts...> : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
 public:
@@ -677,7 +699,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllAre<is_copy_constructible, storage_t<Ts>...> &&
+  requires _AllAre<is_copy_constructible, storage_t<Ts>...> &&
     meta::_v<is_trivially_copy_constructible<data<storage_t<Ts>...>>>
 class copy_base<Ts...> : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
@@ -696,43 +718,27 @@ class variant<> {
 };
 
 using __variant::visit;
+using __variant::get;
 
-template <std::size_t I, class...Types>
-  requires I < sizeof...(Types)
-constexpr decltype(auto) get(__variant::base<Types...>& v) {
-  using T = meta::at_c<meta::list<Types...>, I>;
-  return __variant::access::get<I, T>(v);
-}
+template <class...Ts>
+using tagged_variant = tagged<
+  variant<meta::_t<__tag_elem<Ts>>...>,
+  meta::_t<__tag_spec<Ts>>...>;
 
-template <std::size_t I, class...Types>
-  requires I < sizeof...(Types)
-constexpr decltype(auto) get(const __variant::base<Types...>& v) {
-  using T = meta::at_c<meta::list<Types...>, I>;
-  return __variant::access::get<I, T>(v);
-}
-
-template <std::size_t I, class...Types>
-  requires I < sizeof...(Types)
-constexpr decltype(auto) get(__variant::base<Types...>&& v) {
-  using T = meta::at_c<meta::list<Types...>, I>;
-  return __variant::access::get<I, T>(stl2::move(v));
-}
-
-template <class T, class...Types>
-  requires __variant::index_of_type<T, Types...> >= 0
-constexpr decltype(auto) get(__variant::base<Types...>& v) {
-  return get<__variant::index_of_type<T, Types...>>(v);
-}
-
-template <class T, class...Types>
-constexpr decltype(auto) get(const __variant::base<Types...>& v) {
-  return get<__variant::index_of_type<T, Types...>>(v);
-}
-
-template <class T, class...Types>
-constexpr decltype(auto) get(__variant::base<Types...>&& v) {
-  return get<__variant::index_of_type<T, Types...>>(stl2::move(v));
-}
+template <class T, class... Types>
+  requires __variant::index_of_type<T, Types...> != tuple_not_found
+constexpr std::size_t tuple_find<T, variant<Types...>> =
+  __variant::index_of_type<T, Types...>;
 }} // namespace stl2::v1
+
+namespace std {
+template <class...Types>
+struct tuple_size<stl2::variant<Types...>> :
+  ::meta::size_t<sizeof...(Types)> {};
+
+template <size_t I, class...Types>
+struct tuple_element<I, stl2::variant<Types...>> :
+  ::meta::at_c<::meta::list<Types...>, I> {};
+}
 
 #endif

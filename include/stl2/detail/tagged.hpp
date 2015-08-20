@@ -1,11 +1,12 @@
 #ifndef STL2_DETAIL_TAGGED_HPP
 #define STL2_DETAIL_TAGGED_HPP
 
-#include <tuple>
 #include <utility>
-#include <meta/meta.hpp>
+
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/swap.hpp>
+#include <stl2/detail/tuple_like.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
@@ -14,24 +15,27 @@
 //
 namespace stl2 { inline namespace v1 {
 template <class Base, class...Tags>
-  requires sizeof...(Tags) <= std::tuple_size<Base>::value
+  requires sizeof...(Tags) <= tuple_size<Base>::value
 struct tagged;
 }}
 
 namespace std {
 template <class Base, class...Tags>
-struct tuple_size<::stl2::tagged<Base, Tags...>>
-  : tuple_size<Base> { };
+struct tuple_size<::stl2::tagged<Base, Tags...>> :
+  tuple_size<Base> {};
 
 template <size_t N, class Base, class...Tags>
-struct tuple_element<N, ::stl2::tagged<Base, Tags...>>
-  : tuple_element<N, Base> { };
+struct tuple_element<N, ::stl2::tagged<Base, Tags...>> :
+  tuple_element<N, Base> {};
 }
 
 namespace stl2 { inline namespace v1 {
+template <class T, class Base, class...Tags>
+constexpr std::size_t tuple_find<T, tagged<Base, Tags...>> = tuple_find<T, Base>;
+
 class __getters {
   template <class Base, class...Tags>
-    requires sizeof...(Tags) <= std::tuple_size<Base>::value
+    requires sizeof...(Tags) <= tuple_size<Base>::value
   friend struct tagged;
 
   template <class Type, class Indices, class...Tags>
@@ -51,7 +55,7 @@ class __getters {
 
 // tagged
 template <class Base, class...Tags>
-  requires sizeof...(Tags) <= std::tuple_size<Base>::value
+  requires sizeof...(Tags) <= tuple_size<Base>::value
 struct tagged
   : Base, __getters::collect<tagged<Base, Tags...>, Tags...> {
   using Base::Base;
@@ -59,32 +63,32 @@ struct tagged
 
   // 20150810: Extension, converting constructor from Base&&
   constexpr tagged(Base&& that)
-    noexcept(std::is_nothrow_move_constructible<Base>::value)
+    noexcept(is_nothrow_move_constructible<Base>::value)
     : Base(static_cast<Base&&>(that)) {}
 
   // 20150810: Extension, converting constructor from const Base&
   constexpr tagged(const Base& that)
-    noexcept(std::is_nothrow_copy_constructible<Base>::value)
+    noexcept(is_nothrow_copy_constructible<Base>::value)
     : Base(static_cast<const Base&>(that)) {}
 
   // 20150810: Not to spec: constexpr.
   template <typename Other>
     requires Constructible<Base, Other>()
   constexpr tagged(tagged<Other, Tags...>&& that)
-    noexcept(std::is_nothrow_constructible<Base, Other&&>::value)
+    noexcept(is_nothrow_constructible<Base, Other&&>::value)
     : Base(static_cast<Other&&>(that)) {}
 
   // 20150810: Not to spec: constexpr. Extension: conditional noexcept.
   template <typename Other>
     requires Constructible<Base, const Other&>()
   constexpr tagged(tagged<Other, Tags...> const& that)
-    noexcept(std::is_nothrow_constructible<Base, const Other&>::value)
+    noexcept(is_nothrow_constructible<Base, const Other&>::value)
     : Base(static_cast<const Other&>(that)) {}
 
   template <typename Other>
     requires Assignable<Base&, Other>()
   tagged& operator=(tagged<Other, Tags...>&& that)
-    noexcept(std::is_nothrow_assignable<Base&, Other&&>::value) {
+    noexcept(is_nothrow_assignable<Base&, Other&&>::value) {
     static_cast<Base&>(*this) = static_cast<Other&&>(that);
     return *this;
   }
@@ -93,31 +97,35 @@ struct tagged
   template <typename Other>
     requires Assignable<Base&, const Other&>()
   tagged& operator=(const tagged<Other, Tags...>& that)
-    noexcept(std::is_nothrow_assignable<Base&, const Other&>::value) {
+    noexcept(is_nothrow_assignable<Base&, const Other&>::value) {
     static_cast<Base&>(*this) = static_cast<const Other&>(that);
     return *this;
   }
 
   template <class U>
-    requires Assignable<Base&, U>() && !Same<std::decay_t<U>, tagged>()
+    requires Assignable<Base&, U>() && !Same<decay_t<U>, tagged>()
   tagged& operator=(U&& u) &
-    noexcept(std::is_nothrow_assignable<Base&, U&&>::value) {
-    static_cast<Base&>(*this) = std::forward<U>(u);
+    noexcept(is_nothrow_assignable<Base&, U&&>::value) {
+    static_cast<Base&>(*this) = stl2::forward<U>(u);
     return *this;
   }
 
   void swap(tagged& that)
     noexcept(is_nothrow_swappable_v<Base&, Base&>)
     requires Swappable<Base&>() {
-    using stl2::swap;
-    swap(static_cast<Base&>(*this), static_cast<Base&>(that));
+    stl2::swap(static_cast<Base&>(*this), static_cast<Base&>(that));
   }
 
   friend void swap(tagged& a, tagged& b)
     noexcept(noexcept(a.swap(b)))
-    requires requires { a.swap(b); } {
+    requires Swappable<Base&>() {
     a.swap(b);
   }
+
+  // 20150819: Extension.
+  constexpr Base& base() & { return *this; }
+  constexpr const Base& base() const& { return *this; }
+  constexpr Base&& base() && { return stl2::move(*this); }
 };
 
 template <class T>
@@ -130,28 +138,28 @@ struct __tag_elem { };
 template <class Spec, class Arg>
 struct __tag_elem<Spec(Arg)> { using type = Arg; };
 
-#define STL2_DEFINE_GETTER(name)                                \
-namespace tag {                                                 \
-  class name {                                                  \
-    friend struct stl2::__getters;                              \
-    template <class Derived, std::size_t I>                     \
-    struct getter {                                             \
-      constexpr decltype(auto) name () &                        \
-        requires DerivedFrom<Derived, getter>() {               \
-        return std::get<I>(static_cast<Derived&>(*this));       \
-      }                                                         \
-      constexpr decltype(auto) name () &&                       \
-        requires DerivedFrom<Derived, getter>() {               \
-        return std::get<I>(static_cast<Derived&&>(*this));      \
-      }                                                         \
-      constexpr decltype(auto) name () const &                  \
-        requires DerivedFrom<Derived, getter>() {               \
-        return std::get<I>(static_cast<const Derived&>(*this)); \
-      }                                                         \
-    protected:                                                  \
-      ~getter() = default;                                      \
-    };                                                          \
-  };                                                            \
+#define STL2_DEFINE_GETTER(name)                                        \
+namespace tag {                                                         \
+  class name {                                                          \
+    friend struct stl2::__getters;                                      \
+    template <class Derived, std::size_t I>                             \
+    struct getter {                                                     \
+      constexpr decltype(auto) name () &                                \
+        requires DerivedFrom<Derived, getter>() {                       \
+        return get<I>(static_cast<Derived&>(*this).base());             \
+      }                                                                 \
+      constexpr decltype(auto) name () &&                               \
+        requires DerivedFrom<Derived, getter>() {                       \
+        return get<I>(static_cast<Derived&&>(*this).base());            \
+      }                                                                 \
+      constexpr decltype(auto) name () const &                          \
+        requires DerivedFrom<Derived, getter>() {                       \
+        return get<I>(static_cast<const Derived&>(*this).base());       \
+      }                                                                 \
+    protected:                                                          \
+      ~getter() = default;                                              \
+    };                                                                  \
+  };                                                                    \
 }
 
 // tag specifiers [algorithm.general]
@@ -168,28 +176,6 @@ STL2_DEFINE_GETTER(begin)
 STL2_DEFINE_GETTER(end)
 
 #undef STL2_DEFINE_GETTER
-
-template <class T>
-struct __unwrap : __unwrap<std::decay_t<T>> {};
-template <_Decayed T>
-struct __unwrap<T> { using type = T; };
-template <class T>
-struct __unwrap<std::reference_wrapper<T>> { using type = T&; };
-template <class T>
-using __unwrap_t = meta::_t<__unwrap<T>>;
-
-// tagged_pair
-template <class F, class S>
-using tagged_pair = tagged<
-  std::pair<meta::_t<__tag_elem<F>>, meta::_t<__tag_elem<S>>>,
-  meta::_t<__tag_spec<F>>, meta::_t<__tag_spec<S>>>;
-
-// make_tagged_pair
-template <class Tag1, class Tag2, class T1, class T2>
-constexpr tagged_pair<Tag1(__unwrap_t<T1>), Tag2(__unwrap_t<T2>)>
-make_tagged_pair(T1&& x, T2&& y) {
-  return {stl2::forward<T1>(x), stl2::forward<T2>(y)};
-}
 }} // namespace stl2::v1
 
 #endif
