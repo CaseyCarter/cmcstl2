@@ -855,15 +855,19 @@ void f(int, int);
 
 using VV = variant<char, short, int>;
 
-void test_foo(VV a) {
+void test_foo_u(VV a) {
   visit([](auto&& t){ f(t); }, a);
 }
 
-void test_foo(VV a, VV b) {
+void test_foo_b(VV a, VV b) {
   visit([](auto&& t, auto&& u){ f(t, u); }, a, b);
 }
 
 void test_bar() {
-  test_foo(VV{42}, VV{'a'});
+  test_foo_b(VV{42}, VV{'a'});
+}
+
+void test_destruction(variant<char,short,int,nontrivial>& v) {
+  v.~variant();
 }
 #endif
