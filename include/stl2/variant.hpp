@@ -237,37 +237,50 @@ constexpr T&& cook(storage_t<meta::id_t<T>>&& t) noexcept {
   return stl2::move(cook<T>(t));
 }
 
-template <std::size_t I, std::size_t End, class F>
-  requires I + 1 == End
+template <class Indices, class F, class I = meta::front<Indices>>
+  requires Indices::size() == 1u
 constexpr decltype(auto)
-with_static_index(meta::size_t<I>, meta::size_t<End>, std::size_t n, F&& f)
-  noexcept(noexcept(stl2::forward<F>(f)(meta::size_t<I>{}))) {
-  assert(n == I);
-  return stl2::forward<F>(f)(meta::size_t<I>{});
+with_static_index(Indices, std::size_t n, F&& f)
+  noexcept(noexcept(stl2::forward<F>(f)(I{}))) {
+  assert(n == meta::_v<I>);
+  return stl2::forward<F>(f)(I{});
 }
 
-template <std::size_t I, std::size_t End, class F>
-  requires I + 1 < End
+template <class Indices, class F, class I = meta::front<Indices>>
 constexpr decltype(auto)
-with_static_index(meta::size_t<I>, meta::size_t<End>, std::size_t n, F&& f)
-  noexcept(noexcept(stl2::forward<F>(f)(meta::size_t<I>{}),
-                    with_static_index(meta::size_t<I+1>{}, meta::size_t<End>{}, n, stl2::forward<F>(f)))) {
-  if (n == I) {
-    return stl2::forward<F>(f)(meta::size_t<I>{});
+with_static_index(Indices, std::size_t n, F&& f)
+  noexcept(noexcept(
+    stl2::forward<F>(f)(I{}),
+    with_static_index(meta::pop_front<Indices>{}, n, stl2::forward<F>(f))
+  ))
+{
+  assert(n >= meta::_v<I>);
+  if (n <= meta::_v<I>) {
+    return stl2::forward<F>(f)(I{});
   } else {
-    return with_static_index(meta::size_t<I+1>{}, meta::size_t<End>{}, n, stl2::forward<F>(f));
+    return with_static_index(meta::pop_front<Indices>{}, n, stl2::forward<F>(f));
   }
 }
 
-template <std::size_t End, class F>
-constexpr decltype(auto)
-with_static_index(meta::size_t<End>, std::size_t n, F&& f)
-  noexcept(noexcept(
-    with_static_index(meta::size_t<0>{}, meta::size_t<End>{}, n, stl2::forward<F>(f))
-  ))
-{
-  assert(n < End);
-  return with_static_index(meta::size_t<0>{}, meta::size_t<End>{}, n, stl2::forward<F>(f));
+template <class List>
+using indices_for = meta::as_list<meta::make_index_sequence<List::size()>>;
+
+// Convert a list of types into a list of the indices of the non-is_void types.
+template <class Types>
+using non_void_indices = meta::transform<
+  meta::filter<
+    meta::zip<meta::list<indices_for<Types>, Types>>,
+    meta::compose<
+      meta::quote<meta::not_>,
+      meta::quote_trait<is_void>,
+      meta::quote<meta::second>>>,
+  meta::quote<meta::first>>;
+
+template <class Types, class F, class Indices = non_void_indices<Types>>
+  requires !meta::_v<meta::empty<Indices>>
+constexpr decltype(auto) with_static_index(std::size_t n, F&& f)
+  noexcept(noexcept(with_static_index(Indices{}, n, stl2::forward<F>(f)))) {
+  return with_static_index(Indices{}, n, stl2::forward<F>(f));
 }
 
 class access {
@@ -478,7 +491,8 @@ template <class...V>
 static constexpr std::size_t total_alternatives = 1;
 template <class First, class...Rest>
 static constexpr std::size_t total_alternatives<First, Rest...> =
-  __uncvref<First>::types::size() * total_alternatives<Rest...>;
+  non_void_indices<typename __uncvref<First>::types>::size() *
+  total_alternatives<Rest...>;
 
 // TODO: Tune.
 constexpr std::size_t O1_visit_threshold = 5;
@@ -537,12 +551,15 @@ template <class F, class V>
 //        and returns the same type for all alternatives.
 // FIXME: Don't deduce return type: variants with void alternatives go BOOM.
 constexpr decltype(auto) visit(F&& f, V&& v)
-  noexcept(noexcept(with_static_index(meta::size_t<__uncvref<V>::types::size()>{},
-                                      0, declval<ON_dispatch<F, V>>()))) {
+  noexcept(noexcept(
+    with_static_index<typename __uncvref<V>::types>(0, declval<ON_dispatch<F, V>>())
+  ))
+{
   using Types = typename __uncvref<V>::types;
   assert(v.index() < Types::size());
-  return with_static_index(meta::size<Types>{}, v.index(),
-                           ON_dispatch<F, V>{stl2::forward<F>(f), stl2::forward<V>(v)});
+  return with_static_index<Types>(
+    v.index(), ON_dispatch<F, V>{stl2::forward<F>(f), stl2::forward<V>(v)}
+  );
 }
 
 template <class F, class V>
@@ -651,11 +668,10 @@ public:
                meta::quote_trait<is_nothrow_move_constructible>>>) :
     base_t{empty_tag{}} {
     if (that.valid()) {
-      with_static_index(meta::size_t<sizeof...(Ts)>{}, that.index(),
-        [this,&that](auto i) {
-          construct(raw_get(i, this->data_), raw_get(i, stl2::move(that).data_));
-          this->index_ = i;
-        });
+      with_static_index<typename base_t::types>(that.index(), [this,&that](auto i) {
+        construct(raw_get(i, this->data_), raw_get(i, stl2::move(that).data_));
+        this->index_ = i;
+      });
     }
   }
   move_base(const move_base&) = default;
@@ -698,21 +714,20 @@ public:
   move_assign_base& operator=(move_assign_base&& that) &
     noexcept(meta::_v<meta::all_of<meta::list<storage_t<Ts>...>,
                meta::quote_trait<is_nothrow_move_assignable>>>) {
+    using types = typename base_t::types;
     auto i = that.index();
     if (this->index() == i) {
       if (this->valid()) {
-        with_static_index(meta::size_t<sizeof...(Ts)>{}, i,
-          [this,&that](auto i) {
-            raw_get(i, this->data_) = raw_get(i, stl2::move(that).data_);
-          });
+        with_static_index<types>(i, [this,&that](auto i) {
+          raw_get(i, this->data_) = raw_get(i, stl2::move(that).data_);
+        });
       }
     } else {
       this->clear();
       if (that.valid()) {
-        with_static_index(meta::size_t<sizeof...(Ts)>{}, that.index(),
-          [this,&that](auto i) {
-            construct(raw_get(i, this->data_), raw_get(i, stl2::move(that).data_));
-          });
+        with_static_index<types>(that.index(), [this,&that](auto i) {
+          construct(raw_get(i, this->data_), raw_get(i, stl2::move(that).data_));
+        });
       }
     }
     this->index_ = i;
@@ -757,11 +772,11 @@ public:
                meta::quote_trait<is_nothrow_copy_constructible>>>) :
     base_t{empty_tag{}} {
     if (that.valid()) {
-      with_static_index(meta::size_t<sizeof...(Ts)>{}, that.index(),
-        [this,&that](auto i) {
-          construct(raw_get(i, this->data_), raw_get(i, that.data_));
-          this->index_ = i;
-        });
+      using types = typename base_t::types;
+      with_static_index<types>(that.index(), [this,&that](auto i) {
+        construct(raw_get(i, this->data_), raw_get(i, that.data_));
+        this->index_ = i;
+      });
     }
   }
   copy_base& operator=(copy_base&&) & = default;

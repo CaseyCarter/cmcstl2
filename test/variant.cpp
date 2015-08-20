@@ -853,7 +853,7 @@ void f(char, int);
 void f(short, int);
 void f(int, int);
 
-using VV = variant<char, short, int>;
+using VV = variant<char, void, short, int>;
 
 void test_foo_u(VV a) {
   visit([](auto&& t){ f(t); }, a);
@@ -867,7 +867,11 @@ void test_bar() {
   test_foo_b(VV{42}, VV{'a'});
 }
 
-void test_destruction(variant<char,short,int,nontrivial>& v) {
+void test_destruction(variant<char,int,void,nontrivial>& v) {
   v.~variant();
+}
+
+void test_void_visit(variant<void, void, int, void, void, char, void> v) {
+  visit([](auto&& t){ f(t); return 42; }, v);
 }
 #endif
