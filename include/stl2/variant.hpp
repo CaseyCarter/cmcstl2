@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <stdexcept>
 #include <tuple>
 #include <meta/meta.hpp>
 #include <stl2/functional.hpp>
@@ -50,7 +51,12 @@ constexpr bool operator<=(const monostate&, const monostate&)
 constexpr bool operator>=(const monostate&, const monostate&)
 { return true; }
 
-class bad_variant_access {};
+class bad_variant_access : public std::logic_error {
+public:
+  using std::logic_error::logic_error;
+  bad_variant_access() :
+    std::logic_error{"Attempt to access invalid variant alternative"} {}
+};
 
 namespace __variant {
 template <class T, class...Types,
