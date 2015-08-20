@@ -262,8 +262,9 @@ with_static_index(meta::size_t<End>, std::size_t n, F&& f)
 }
 
 class access {
-  template <std::size_t I, _IsNot<is_void> T, class V>
-    // FIXME: constrain remove_reference_t<V> to instance of base.
+  template <std::size_t I, _IsNot<is_void> T, class V, class R = __uncvref<V>>
+    // FIXME: constrain R to be a specialization of base.
+    requires I < decltype(R::data_)::size
   static constexpr decltype(auto) get(V&& v) {
     if (v.index() != I) {
       throw bad_variant_access{};
@@ -464,14 +465,18 @@ constexpr decltype(auto) get(base<Types...>&& v) {
 template <_Is<is_reference> V, _Is<is_reference> F>
 // FIXME: require uncvref<V> is derived from a specialization of base
 struct visitor {
+  using UnCvRef = __uncvref<V>;
+
   V target_;
   F f_;
 
   template <std::size_t N, class T = decltype(get<N>(declval<V>()))>
-    requires requires (F&& f, T&& t) { ((F&&)f)((T&&)t); }
-  constexpr decltype(auto) operator()(meta::size_t<N>) &&
+    requires N < UnCvRef::types::size() &&
+      requires (F&& f, T&& t) { ((F&&)f)((T&&)t); }
+  constexpr decltype(auto) operator()(meta::size_t<N> i) &&
     noexcept(noexcept(((F&&)f_)(declval<T>()))) {
-    return stl2::forward<F>(f_)(get<N>(stl2::forward<V>(target_)));
+    using R = meta::at_c<typename UnCvRef::types, N>;
+    return stl2::forward<F>(f_)(cook<R>(raw_get(i, stl2::forward<V>(target_).data_)));
   }
 };
 

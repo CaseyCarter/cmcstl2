@@ -828,3 +828,42 @@ int main() {
 
   return ::test_result();
 }
+
+#if 0
+template <class T>
+constexpr bool is_variant = is_variant<__uncvref<T>>;
+template <_Unqual T>
+constexpr bool is_variant<T> = false;
+template <class...Types>
+constexpr bool is_variant<variant<Types...>> = true;
+
+template <class T>
+concept bool IsVariant = _Is<is_variant>;
+
+void f(char);
+void f(short);
+void f(int);
+void f(char, char);
+void f(short, char);
+void f(int, char);
+void f(char, short);
+void f(short, short);
+void f(int, short);
+void f(char, int);
+void f(short, int);
+void f(int, int);
+
+using VV = variant<char, short, int>;
+
+void test_foo(VV a) {
+  visit([](auto&& t){ f(t); }, a);
+}
+
+void test_foo(VV a, VV b) {
+  visit([](auto&& t, auto&& u){ f(t, u); }, a, b);
+}
+
+void test_bar() {
+  test_foo(VV{42}, VV{'a'});
+}
+#endif
