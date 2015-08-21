@@ -672,20 +672,39 @@ void test_void() {
 }
 
 struct print_fn {
-  stl2::reference_wrapper<std::ostream> os;
+  stl2::reference_wrapper<std::ostream> os_;
 
-  int operator()(const auto& t) const {
-    os.get() << t << '\n';
-    return 1;
+  std::ostream& os() const noexcept {
+    return os_.get();
   }
-  int operator()(const auto& first, const auto&...rest) const {
-    os.get() << first << ", ";
-    return 1 + (*this)(stl2::forward<decltype(rest)>(rest)...);
+
+  template <bool B>
+  int print(meta::bool_<B>) const {
+    os() << ")\n";
+    return 0;
+  }
+
+  int print(false_type, const auto& first, const auto&...rest) const;
+  int print(true_type, const auto&...args) const
+    requires sizeof...(args) > 0
+  {
+    os() << ", ";
+    return print(false_type{}, args...);
+  }
+
+  int operator()(const auto&...args) const {
+    os() << '(';
+    return print(false_type{}, args...);
   }
 };
 
+inline int print_fn::print(false_type, const auto& first, const auto&...rest) const {
+  os() << first;
+  return 1 + print(true_type{}, rest...);
+}
+
 void test_visit() {
-  using V = variant<int, double, /* FIXME: void, */ nontrivial_literal>;
+  using V = variant<int, double, void, nontrivial_literal>;
   auto print = print_fn{std::cout};
 
   CHECK(visit(print, V{42}) == 1);
@@ -832,16 +851,6 @@ int main() {
 }
 
 #if 0
-template <class T>
-constexpr bool is_variant = is_variant<__uncvref<T>>;
-template <_Unqual T>
-constexpr bool is_variant<T> = false;
-template <class...Types>
-constexpr bool is_variant<variant<Types...>> = true;
-
-template <class T>
-concept bool IsVariant = _Is<is_variant>;
-
 void f(auto);
 void f(char);
 void f(short);
@@ -855,6 +864,10 @@ void f(int, short);
 void f(char, int);
 void f(short, int);
 void f(int, int);
+
+int test_get_foo(variant<int, double> v) {
+  return stl2::get<0>(v);
+}
 
 using VV = variant<char, void, short, int>;
 
@@ -874,11 +887,72 @@ void test_destroy(variant<char,int,void,nontrivial>& v) {
   v.~variant();
 }
 
-void test_void_visit(variant<int, void, const int, void, void, void, char, void, double, long long, float> v) {
-  auto fn = [](auto&& t) -> decltype(auto) {
-    f(t);
-    return stl2::forward<decltype(t)>(t);
+template <std::size_t I, class First, class...Rest>
+struct overload_set : overload_set<I, First>, overload_set<I + 1, Rest...> {
+  overload_set(auto&& f, auto&&...r) :
+    overload_set<I, First>{stl2::forward<decltype(f)>(f)},
+    overload_set<I + 1, Rest...>{stl2::forward<decltype(r)>(r)...} {}
+
+  using overload_set<I, First>::operator();
+  using overload_set<I + 1, Rest...>::operator();
+};
+
+template <std::size_t I, class T>
+struct overload_set<I, T> {
+private:
+  T t_;
+
+  static decltype(auto) call(auto&& self, auto&&...args) {
+    return (stl2::forward<decltype(self)>(self).t_)(
+      stl2::forward<decltype(args)>(args)...
+    );
+  }
+
+public:
+  overload_set(auto&& t) :
+    t_{stl2::forward<decltype(t)>(t)} {}
+
+  decltype(auto) operator()(auto&&...args) & {
+    return call(*this, stl2::forward<decltype(args)>(args)...);
+  }
+  decltype(auto) operator()(auto&&...args) const& {
+    return call(*this, stl2::forward<decltype(args)>(args)...);
+  }
+  decltype(auto) operator()(auto&&...args) && {
+    return call(stl2::move(*this), stl2::forward<decltype(args)>(args)...);
+  }
+  decltype(auto) operator()(auto&&...args) const&& {
+    return call(stl2::move(*this), stl2::forward<decltype(args)>(args)...);
+  }
+};
+
+template <std::size_t I, _Is<is_class> T>
+  requires _IsNot<T, is_final>
+struct overload_set<I, T> : private T {
+public:
+  overload_set(auto&& t) :
+    T{stl2::forward<decltype(t)>(t)} {}
+
+  using T::operator();
+};
+
+auto overload(auto&&...fs) {
+  return overload_set<0u, decltype(fs)...>{
+    stl2::forward<decltype(fs)>(fs)...
   };
+}
+
+void test_void_visit(variant<int, void, const int, void, void, void, char, void, double, long long, float> v) {
+  auto fn = overload(
+    [](auto&& t) -> decltype(auto) {
+      f(t);
+      return stl2::forward<decltype(t)>(t);
+    },
+    [](auto const& t, auto const& u) {
+      f(t, u);
+      return t + u;
+    }
+  );
   visit(fn, v);
 }
 #endif

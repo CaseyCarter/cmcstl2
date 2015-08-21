@@ -61,22 +61,38 @@ public:
 };
 
 namespace __variant {
-template <class T, class...Types,
-    std::size_t I = meta::_v<meta::find_index<meta::list<Types...>, T>>>
+template <class T, class Types,
+    std::size_t I = meta::_v<meta::find_index<Types, T>>>
   requires I != meta::_v<meta::npos> &&
-    Same<meta::find_index<meta::drop_c<meta::list<Types...>, I + 1>, T>, meta::npos>()
+    Same<meta::find_index<meta::drop_c<Types, I + 1>, T>, meta::npos>()
 constexpr std::size_t index_of_type = I;
 
 template <class...> class base;
+
+template <class...Types>
+meta::list<Types...> types_(base<Types...>& b); // not defined
+
+template <class T>
+using VariantTypes =
+  decltype(types_(declval<__uncvref<T>&>()));
+
+// satisfied iff __uncvref<T> is derived from a
+// specialization of __variant::base
+template <class T>
+concept bool Variant =
+  requires {
+    typename VariantTypes<T>;
+  };
 }
 
-template <class T, class... Types>
-constexpr std::size_t tuple_find<T, variant<Types...>> =
-  __variant::index_of_type<T, Types...>;
+template <class T, __variant::Variant V>
+  requires _Unqual<V>
+constexpr std::size_t tuple_find<T, V> =
+  __variant::index_of_type<T, __variant::VariantTypes<V>>;
 
-template <class T, class...Types,
-  std::size_t I = __variant::index_of_type<T, Types...>>
-constexpr bool holds_alternative(const __variant::base<Types...>& v) noexcept {
+template <class T, __variant::Variant V,
+  std::size_t I = __variant::index_of_type<T, __variant::VariantTypes<V>>>
+constexpr bool holds_alternative(const V& v) noexcept {
   return v.index() == I;
 }
 
@@ -239,6 +255,24 @@ constexpr T&& cook(storage_t<meta::id_t<T>>&& t) noexcept {
   return stl2::move(cook<T>(t));
 }
 
+template <class List>
+using indices_for = meta::as_list<meta::make_index_sequence<List::size()>>;
+
+template <class Types>
+using non_void_types = meta::filter<Types,
+  meta::compose<meta::quote<meta::not_>, meta::quote_trait<is_void>>>;
+
+// Convert a list of types into a list of the indices of the non-is_void types.
+template <class Types>
+using non_void_indices = meta::transform<
+  meta::filter<
+    meta::zip<meta::list<indices_for<Types>, Types>>,
+    meta::compose<
+      meta::quote<meta::not_>,
+      meta::quote_trait<is_void>,
+      meta::quote<meta::second>>>,
+  meta::quote<meta::first>>;
+
 template <class Indices, class F, class I = meta::front<Indices>>
   requires Indices::size() == 1u
 constexpr decltype(auto)
@@ -249,6 +283,7 @@ with_static_index(Indices, std::size_t n, F&& f)
 }
 
 template <class Indices, class F, class I = meta::front<Indices>>
+  requires Indices::size() > 1u
 constexpr decltype(auto)
 with_static_index(Indices, std::size_t n, F&& f)
   noexcept(noexcept(
@@ -264,60 +299,12 @@ with_static_index(Indices, std::size_t n, F&& f)
   }
 }
 
-template <class List>
-using indices_for = meta::as_list<meta::make_index_sequence<List::size()>>;
-
-template <class Types>
-using non_void_types = meta::filter<Types,
-    meta::compose<meta::quote<meta::not_>, meta::quote_trait<is_void>>>;
-
-// Convert a list of types into a list of the indices of the non-is_void types.
-template <class Types>
-using non_void_indices = meta::transform<
-  meta::filter<
-    meta::zip<meta::list<indices_for<Types>, Types>>,
-    meta::compose<
-      meta::quote<meta::not_>,
-      meta::quote_trait<is_void>,
-      meta::quote<meta::second>>>,
-  meta::quote<meta::first>>;
-
 template <class Types, class F, class Indices = non_void_indices<Types>>
   requires !meta::_v<meta::empty<Indices>>
 constexpr decltype(auto) with_static_index(std::size_t n, F&& f)
   noexcept(noexcept(with_static_index(Indices{}, n, stl2::forward<F>(f)))) {
   return with_static_index(Indices{}, n, stl2::forward<F>(f));
 }
-
-class access {
-  [[noreturn]] static void bad_access() {
-    throw bad_variant_access{};
-  }
-
-  template <std::size_t I, _IsNot<is_void> T, class V, class R = __uncvref<V>>
-    // FIXME: constrain R to be a specialization of base.
-    requires I < decltype(R::data_)::size
-  static constexpr decltype(auto) get(V&& v) {
-    if (v.index() != I) {
-      bad_access();
-    }
-    return cook<T>(raw_get(
-      meta::size_t<I>{}, stl2::forward<V>(v).data_
-    ));
-  }
-
-  template <std::size_t I, class...Types>
-    requires I < sizeof...(Types)
-  friend constexpr decltype(auto) stl2::v1::get(__variant::base<Types...>& v);
-
-  template <std::size_t I, class...Types>
-    requires I < sizeof...(Types)
-  friend constexpr decltype(auto) stl2::v1::get(const __variant::base<Types...>& v);
-
-  template <std::size_t I, class...Types>
-    requires I < sizeof...(Types)
-  friend constexpr decltype(auto) stl2::v1::get(__variant::base<Types...>&& v);
-};
 
 template <class From, class To>
 concept bool ViableAlternative =
@@ -345,8 +332,6 @@ using constructible_from =
 template <class...Ts>
 class base {
 protected:
-  friend class access;
-
   using types = meta::list<Ts...>;
   using data_t = data<storage_t<Ts>...>;
   using index_t =
@@ -420,13 +405,13 @@ public:
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
     : data_{emplaced_index<I>, t}, index_{I} {}
 
-  template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, Ts...>>
+  template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
     requires Constructible<T, Args...>()
   explicit constexpr base(emplaced_type_t<T>, Args&&...args)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, Args...>::value)
     : data_{emplaced_index<I>, stl2::forward<Args>(args)...}, index_{I} {}
 
-  template <_Is<is_reference> T, std::size_t I = index_of_type<T, Ts...>>
+  template <_Is<is_reference> T, std::size_t I = index_of_type<T, types>>
   explicit constexpr base(emplaced_type_t<T>, meta::id_t<T> t)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
     : data_{emplaced_index<I>, t}, index_{I} {}
@@ -437,7 +422,7 @@ public:
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
     : data_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
 
-  template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, Ts...>>
+  template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
     requires Constructible<T, Args...>()
   explicit constexpr base(emplaced_type_t<T>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
@@ -455,167 +440,180 @@ public:
     requires is_signed<index_t>::value {
     return index_ >= 0;
   }
+
+  template <std::size_t I, Variant V>
+    requires I < VariantTypes<V>::size() &&
+      _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
+  friend constexpr decltype(auto) get(V&& v);
 };
 
-template <std::size_t I, class...Types>
-  requires I < sizeof...(Types)
-constexpr decltype(auto) get(base<Types...>& v) {
-  using T = meta::at_c<meta::list<Types...>, I>;
-  return access::get<I, T>(v);
+// "inline" is here for the ODR, we do not actually
+// want bad_access to be inlined into get. Having it
+// be a separate function results in better generated
+// code.
+[[noreturn]] inline void bad_access() {
+  throw bad_variant_access{};
 }
 
-template <std::size_t I, class...Types>
-  requires I < sizeof...(Types)
-constexpr decltype(auto) get(const base<Types...>& v) {
-  using T = meta::at_c<meta::list<Types...>, I>;
-  return access::get<I, T>(v);
+template <std::size_t I, Variant V>
+  requires I < VariantTypes<V>::size() &&
+    _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
+constexpr decltype(auto) get(V&& v) {
+  if (v.index() != I) {
+    bad_access();
+  }
+  return cook<meta::at_c<VariantTypes<V>, I>>(
+    raw_get(meta::size_t<I>{}, stl2::forward<V>(v).data_)
+  );
 }
 
-template <std::size_t I, class...Types>
-  requires I < sizeof...(Types)
-constexpr decltype(auto) get(base<Types...>&& v) {
-  using T = meta::at_c<meta::list<Types...>, I>;
-  return access::get<I, T>(stl2::move(v));
+template <_IsNot<is_void> T, Variant V,
+  std::size_t I = index_of_type<T, VariantTypes<V>>>
+constexpr decltype(auto) get(V&& v) {
+  return get<I>(v);
 }
 
-template <class T, class...Types>
-  requires index_of_type<T, Types...> != tuple_not_found
-constexpr decltype(auto) get(base<Types...>& v) {
-  return get<index_of_type<T, Types...>>(v);
-}
-
-template <class T, class...Types>
-  requires index_of_type<T, Types...> != tuple_not_found
-constexpr decltype(auto) get(const base<Types...>& v) {
-  return get<index_of_type<T, Types...>>(v);
-}
-
-template <class T, class...Types>
-  requires index_of_type<T, Types...> != tuple_not_found
-constexpr decltype(auto) get(base<Types...>&& v) {
-  return get<index_of_type<T, Types...>>(stl2::move(v));
-}
-
-template <class...V>
-// FIXME: require uncvref<V> is derived from a specialization of base
+template <Variant...Variants>
 static constexpr std::size_t total_alternatives = 1;
-template <class First, class...Rest>
+template <Variant First, Variant...Rest>
 static constexpr std::size_t total_alternatives<First, Rest...> =
-  non_void_types<typename __uncvref<First>::types>::size() *
+  non_void_types<VariantTypes<First>>::size() *
   total_alternatives<Rest...>;
 
-template <class F, class V, class I,
-  class T = meta::at<typename __uncvref<V>::types, I>>
-using visit_handler_return_t =
-  decltype(declval<F>()(cook<T>(raw_get(I{}, declval<V>().data_))));
+template <class F, class Variants, class Indices>
+struct single_visit_return {};
+template <class F, Variant...Variants, std::size_t...Is>
+struct single_visit_return<F, meta::list<Variants...>, meta::list<meta::size_t<Is>...>> {
+  using type =
+    decltype(declval<F>()(
+      cook<meta::at_c<VariantTypes<Variants>, Is>>(
+        raw_get(meta::size_t<Is>{}, declval<Variants>().data_))...));
+};
+template <class F, class Variants, class Indices>
+using single_visit_return_t =
+  meta::_t<single_visit_return<F, Variants, Indices>>;
 
-template <class F, class V>
+template <class F, Variant...Vs>
 using all_return_types = meta::transform<
-  non_void_indices<typename __uncvref<V>::types>,
-  meta::bind_front<meta::quote<visit_handler_return_t>, F, V>>;
+  meta::cartesian_product<meta::list<non_void_indices<VariantTypes<Vs>>...>>,
+  meta::bind_front<meta::quote<single_visit_return_t>, F, meta::list<Vs...>>>;
 
 #if 0
 // require visitation to return the same type for all alternatives.
-template <class F, class V, class Types = all_return_types<F, V>>
+template <class F, Variant...Vs>
   requires meta::_v<meta::all_of<
-    meta::pop_front<Types>,
-    meta::bind_front<meta::quote_trait<is_same>, meta::front<Types>>>>
-using visit_return_t = meta::front<Types>;
+    meta::pop_front<all_return_types<F, Vs...>>,
+    meta::bind_front<
+      meta::quote_trait<is_same>,
+      meta::front<all_return_types<F, Vs...>>>>>
+using VisitReturnType = meta::front<all_return_types<F, Vs...>>;
 
 #elif 0
 // require the return type of all alternatives to have a common
 // type which visit returns.
-template <class F, class V>
-using visit_return_t =
-  meta::apply_list<meta::quote<common_type_t>, all_return_types<F, V>>;
+template <class F, Variant...Vs>
+using VisitReturnType =
+  meta::apply_list<meta::quote<common_type_t>, all_return_types<F, Vs...>>;
 
 #else
 // require the return type of all alternatives to have a common
 // reference type which visit returns.
-template <class F, class V>
-using visit_return_t =
-   meta::apply_list<meta::quote<common_reference_t>, all_return_types<F, V>>;
+template <class F, Variant...Vs>
+using VisitReturnType =
+  meta::apply_list<meta::quote<common_reference_t>, all_return_types<F, Vs...>>;
 #endif
+
+template <class F, Variant...Vs>
+concept bool Visitor =
+  requires { typename VisitReturnType<F, Vs...>; };
 
 // TODO: Tune.
 constexpr std::size_t O1_visit_threshold = 5;
 
-template <std::size_t N, class F, class V,
-  class Types = typename __uncvref<V>::types,
-  class T = meta::at_c<Types, N>,
+template <std::size_t N, class F, Variant V,
+  class T = meta::at_c<VariantTypes<V>, N>,
   class C = decltype(cook<T>(raw_get(meta::size_t<N>{}, declval<V>().data_)))>
-  requires N < Types::size() &&
-    requires (F&& f, C&& c) { ((F&&)f)((C&&)c); }
-static constexpr visit_return_t<F, V> visit_handler(F&& f, V&& v)
+  requires Visitor<F, V>
+static constexpr VisitReturnType<F, V> visit_handler(F&& f, V&& v)
   noexcept(noexcept(((F&&)f)(declval<C>()))) {
   return stl2::forward<F>(f)(cook<T>(
     raw_get(meta::size_t<N>{}, stl2::forward<V>(v).data_)
   ));
 }
 
-template <class F, class V>
+// TODO: variadic.
+template <class F, Variant V>
+  requires Visitor<F, V>
 struct ON_dispatch {
   F&& f_;
   V&& v_;
 
   template <std::size_t N>
-  constexpr visit_return_t<F, V> operator()(meta::size_t<N>) &&
+  constexpr VisitReturnType<F, V> operator()(meta::size_t<N>) &&
   noexcept(noexcept(visit_handler<N>(declval<F>(), declval<V>()))) {
     return visit_handler<N>(stl2::forward<F>(f_), stl2::forward<V>(v_));
   }
 };
 
-template <class F, class V, class Types = typename __uncvref<V>::types>
-  requires total_alternatives<V> < O1_visit_threshold
-// FIXME: require uncvref<V> is derived from a specialization of base
-constexpr visit_return_t<F, V> visit(F&& f, V&& v)
+template <class F, Variant V>
+  requires total_alternatives<V> < O1_visit_threshold &&
+    Visitor<F, V>
+constexpr VisitReturnType<F, V> visit(F&& f, V&& v)
   noexcept(noexcept(
-    with_static_index<Types>(0, declval<ON_dispatch<F, V>>())
+    with_static_index<VariantTypes<V>>(0, declval<ON_dispatch<F, V>>())
   ))
 {
-  assert(v.index() < Types::size());
-  return with_static_index<Types>(
+  assert(v.index() < VariantTypes<V>::size());
+  return with_static_index<VariantTypes<V>>(
     v.index(), ON_dispatch<F, V>{stl2::forward<F>(f), stl2::forward<V>(v)}
   );
 }
 
-template <class F, class V>
-using visit_handler_ptr = visit_return_t<F, V>(*)(F&&, V&&);
+template <class F, Variant V>
+  requires Visitor<F, V>
+using visit_handler_ptr = VisitReturnType<F, V>(*)(F&&, V&&);
 
-template <std::size_t I, class F, class V>
+template <std::size_t I, class F, Variant V>
+  requires Visitor<F, V>
 constexpr visit_handler_ptr<F, V> visit_handler_for = {};
-template <std::size_t I, class F, class V>
-  requires _IsNot<meta::at_c<typename __uncvref<V>::types, I>, is_void>
+template <std::size_t I, class F, Variant V>
+  requires Visitor<F, V> &&
+    _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 constexpr visit_handler_ptr<F, V> visit_handler_for<I, F, V> =
   &visit_handler<I, F, V>;
 
-template <class F, class V, class Indices>
+// TODO: variadic
+template <class F, Variant V, class Indices>
+  requires Visitor<F, V>
 struct O1_dispatch;
-template <class F, class V, std::size_t...Is>
+template <class F, Variant V, std::size_t...Is>
+  requires Visitor<F, V>
 struct O1_dispatch<F, V, std::index_sequence<Is...>> {
   static constexpr visit_handler_ptr<F, V> table[] = {
     visit_handler_for<Is, F, V>...
   };
 };
 
-template <class F, class V, std::size_t...Is>
+template <class F, Variant V, std::size_t...Is>
+  requires Visitor<F, V>
 constexpr visit_handler_ptr<F, V>
   O1_dispatch<F, V, std::index_sequence<Is...>>::table[];
 
-template <class F, class V>
-  requires total_alternatives<V> >= O1_visit_threshold
-// FIXME: require uncvref<V> is derived from a specialization of base
-constexpr visit_return_t<F, V> visit(F&& f, V&& v) {
-  using Indices = std::make_index_sequence<__uncvref<V>::types::size()>;
+template <class F, Variant V>
+  requires total_alternatives<V> >= O1_visit_threshold &&
+    Visitor<F, V>
+constexpr VisitReturnType<F, V> visit(F&& f, V&& v) {
+  using Indices = std::make_index_sequence<VariantTypes<V>::size()>;
   using Dispatch = O1_dispatch<F, V, Indices>;
   assert(v.index() <= meta::_v<extent<decltype(Dispatch::table)>>);
   assert(Dispatch::table[v.index()]);
   return Dispatch::table[v.index()](stl2::forward<F>(f), stl2::forward<V>(v));
 }
 
-template <class F, class First, class...Rest>
-// FIXME: constraints, constexpr (can't be constexpr with lambdas!)
-decltype(auto) visit(F&& fn, First&& first, Rest&&...rest) {
+// FIXME: constexpr (can't be constexpr with lambdas!)
+template <class F, Variant First, Variant...Rest>
+  requires Visitor<F, First, Rest...>
+VisitReturnType<F, First, Rest...> visit(F&& fn, First&& first, Rest&&...rest) {
   return visit([&](auto&& f) {
     return visit([&](auto&&...r){
       return stl2::forward<F>(fn)(stl2::forward<decltype(f)>(f),
@@ -628,6 +626,14 @@ struct destroy_fn {
   Destructible{T}
   constexpr void operator()(T& t) const noexcept {
     t.~T();
+  }
+
+  template <Destructible T, std::size_t N>
+  constexpr void operator()(T (&a)[N]) const noexcept {
+    std::size_t i = N;
+    while (i > 0) {
+      a[--i].~T();
+    }
   }
 };
 namespace {
@@ -660,7 +666,7 @@ public:
 };
 
 template <class...Ts>
-  requires is_trivially_destructible<data<storage_t<Ts>...>>::value
+  requires _Is<data<storage_t<Ts>...>, is_trivially_destructible>
 class destruct_base<Ts...> : public base<Ts...> {
   using base_t = base<Ts...>;
 protected:
@@ -719,7 +725,7 @@ public:
 
 template <class...Ts>
   requires _AllAre<is_move_constructible, storage_t<Ts>...> &&
-    meta::_v<is_trivially_move_constructible<data<storage_t<Ts>...>>>
+    _Is<data<storage_t<Ts>...>, is_trivially_move_constructible>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
@@ -776,7 +782,7 @@ public:
 
 template <class...Ts>
   requires _AllAre<is_move_assignable, storage_t<Ts>...> &&
-    meta::_v<is_trivially_move_assignable<data<storage_t<Ts>...>>>
+    _Is<data<storage_t<Ts>...>, is_trivially_move_assignable>
 class move_assign_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
@@ -823,7 +829,7 @@ public:
 
 template <class...Ts>
   requires _AllAre<is_copy_constructible, storage_t<Ts>...> &&
-    meta::_v<is_trivially_copy_constructible<data<storage_t<Ts>...>>>
+    _Is<data<storage_t<Ts>...>, is_trivially_copy_constructible>
 class copy_base<Ts...> : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
 public:
@@ -850,13 +856,13 @@ using tagged_variant = tagged<
 }} // namespace stl2::v1
 
 namespace std {
-template <class...Types>
-struct tuple_size<stl2::variant<Types...>> :
-  ::meta::size_t<sizeof...(Types)> {};
+template <::stl2::__variant::Variant V>
+struct tuple_size<V> :
+  ::meta::size<::stl2::__variant::VariantTypes<V>> {};
 
-template <size_t I, class...Types>
-struct tuple_element<I, stl2::variant<Types...>> :
-  ::meta::at_c<::meta::list<Types...>, I> {};
+template <size_t I, ::stl2::__variant::Variant V>
+struct tuple_element<I, V> :
+  ::meta::at_c<::stl2::__variant::VariantTypes<V>, I> {};
 }
 
 #endif
