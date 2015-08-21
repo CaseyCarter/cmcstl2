@@ -22,6 +22,26 @@
 
 namespace stl2 { namespace v1 {
 using std::iterator;
+
+template <CopyConstructible T>
+class dangling {
+public:
+  dangling() requires DefaultConstructible<T>()
+    : value{}
+  { }
+  dangling(T t)
+    : value(move(t))
+  { }
+  T get_unsafe() const {
+    return value;
+  }
+private:
+  T value;
+};
+
+template <Range R>
+using safe_iterator_t =
+  meta::if_<std::is_lvalue_reference<R>, IteratorType<R>, dangling<IteratorType<R>>>;
 }}
 
 #endif

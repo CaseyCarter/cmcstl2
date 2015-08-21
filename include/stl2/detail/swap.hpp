@@ -64,6 +64,7 @@ using is_nothrow_swappable_t =
 template <class T, class U>
 struct is_nothrow_swappable :
   is_nothrow_swappable_t<T, U> {};
+
 }} // namespace stl2::v1
 
 #endif

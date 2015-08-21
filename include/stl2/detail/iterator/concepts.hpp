@@ -1,6 +1,7 @@
 #ifndef STL2_DETAIL_ITERATOR_CONCEPTS_HPP
 #define STL2_DETAIL_ITERATOR_CONCEPTS_HPP
 
+#include <functional>
 #include <iterator>
 #include <type_traits>
 
@@ -11,6 +12,7 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/concepts/function.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/utility.hpp>
 
@@ -49,8 +51,9 @@ __iter_move_t<_R> iter_move(R&& r)
 struct fn {
   template <class R>
     requires requires (R&& r) { { iter_move((R&&)r) } -> auto&&; }
-  constexpr decltype(auto) operator()(R&& r) const
-    noexcept(noexcept(iter_move(stl2::forward<R>(r)))) {
+  constexpr auto operator()(R&& r) const
+    noexcept(noexcept(iter_move(stl2::forward<R>(r)))) ->
+    decltype(iter_move(stl2::forward<R>(r))) {
     return iter_move(stl2::forward<R>(r));
   }
 };
@@ -186,7 +189,6 @@ concept bool IndirectlyCopyable() {
     Writable<Out, ValueType<In>>();
 }
 
-namespace ext {
 template <class In, class Out>
 constexpr bool is_nothrow_indirectly_movable_v = false;
 
@@ -204,7 +206,6 @@ using is_nothrow_indirectly_movable_t =
 template <class In, class Out>
 struct is_nothrow_indirectly_movable
   : is_nothrow_indirectly_movable_t<In, Out> {};
-}
 
 // iter_swap2
 namespace __iter_swap {
@@ -223,8 +224,8 @@ template <class R1, class R2,
   requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>() &&
     !Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
-  noexcept(ext::is_nothrow_indirectly_movable_v<_R1, _R2> &&
-           ext::is_nothrow_indirectly_movable_v<_R2, _R1>) {
+  noexcept(is_nothrow_indirectly_movable_v<_R1, _R2> &&
+           is_nothrow_indirectly_movable_v<_R2, _R1>) {
   ValueType<_R1> tmp = iter_move(r1);
   *r1 = iter_move(r2);
   *r2 = stl2::move(tmp);
@@ -256,7 +257,6 @@ concept bool IndirectlySwappable() {
     };
 }
 
-namespace ext {
 template <class R1, class R2>
 constexpr bool is_nothrow_indirectly_swappable_v = false;
 
@@ -274,7 +274,6 @@ using is_nothrow_indirectly_swappable_t =
 template <class R1, class R2>
 struct is_nothrow_indirectly_swappable
   : is_nothrow_indirectly_swappable_t<R1, R2> {};
-}
 
 namespace detail {
 template <class T>

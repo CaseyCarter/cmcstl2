@@ -31,6 +31,8 @@ template <template <class...> class Trait, class...Ts>
 concept bool _AllAre =
   meta::_v<meta::all_of<meta::list<Ts...>, meta::quote_trait<Trait>>>;
 
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67148
+#if 0
 namespace detail {
 template <class...>
 struct all_same : true_type {};
@@ -46,6 +48,12 @@ template <class...Ts>
 concept bool Same() {
   return detail::all_same<Ts...>::value;
 }
+#else
+template <class T, class U>
+concept bool Same() {
+  return STL2_IS_SAME_AS(T,U);
+}
+#endif
 
 template <class T>
 concept bool _Decayed = Same<T, decay_t<T>>();
@@ -131,10 +139,18 @@ concept bool Constructible() {
 
 namespace ext { namespace models {
 
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67148
+#if 0
 template <class...>
 constexpr bool same() { return false; }
 Same{...Ts}
 constexpr bool same() { return true; }
+#else
+template <class T, class U>
+constexpr bool same() { return false; }
+Same{T, U}
+constexpr bool same() { return true; }
+#endif
 
 template <class, class>
 constexpr bool convertible_to() { return false; }
