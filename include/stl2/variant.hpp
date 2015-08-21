@@ -533,6 +533,7 @@ template <std::size_t I, Variant V>
   requires I < VariantTypes<V>::size() &&
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 constexpr decltype(auto) get(V&& v) {
+  assert(v.valid());
   if (v.index() != I) {
     bad_access();
   }
@@ -544,6 +545,23 @@ constexpr decltype(auto) get(V&& v) {
 template <_IsNot<is_void> T, Variant V,
   std::size_t I = index_of_type<T, VariantTypes<V>>>
 constexpr decltype(auto) get(V&& v) {
+  return get<I>(v);
+}
+
+template <std::size_t I, Variant V>
+  requires I < VariantTypes<V>::size() &&
+    _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
+constexpr auto get(V* v) {
+  assert(v);
+  if (v->index() != I) {
+    return (decltype(&get<I>(*v)))0;
+  }
+  return &get<I>(*v);
+}
+
+template <_IsNot<is_void> T, Variant V,
+  std::size_t I = index_of_type<T, VariantTypes<V>>>
+constexpr auto get(V* v) {
   return get<I>(v);
 }
 

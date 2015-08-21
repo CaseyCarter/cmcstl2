@@ -841,6 +841,58 @@ void test_tagged() {
   CHECK(get<1>(v2) == 3.14);
   CHECK(v2.out() == 3.14);
 }
+
+void test_pointer_get() {
+  using V = variant<char, int, double>;
+  {
+    V v{'c'};
+    char* p = stl2::get<0>(&v);
+    CHECK(p == stl2::get<char>(&v));
+    CHECK(p);
+    if (p) { CHECK(*p == 'c'); }
+    CHECK(!stl2::get<1>(&v));
+    CHECK(!stl2::get<int>(&v));
+    CHECK(!stl2::get<2>(&v));
+    CHECK(!stl2::get<double>(&v));
+
+    auto const& cv = v;
+    auto cp = stl2::get<0>(&cv);
+    CHECK(is_same<decltype(cp), const char*>());
+    CHECK(p == cp);
+  }
+  {
+    V v{42};
+    CHECK(!stl2::get<0>(&v));
+    CHECK(!stl2::get<char>(&v));
+    int* p = stl2::get<1>(&v);
+    CHECK(p);
+    if (p) { CHECK(*p == 42); }
+    CHECK(p == stl2::get<int>(&v));
+    CHECK(!stl2::get<2>(&v));
+    CHECK(!stl2::get<double>(&v));
+
+    auto const& cv = v;
+    auto cp = stl2::get<1>(&cv);
+    CHECK(is_same<decltype(cp), const int*>());
+    CHECK(p == cp);
+  }
+  {
+    V v{3.14};
+    CHECK(!stl2::get<0>(&v));
+    CHECK(!stl2::get<char>(&v));
+    CHECK(!stl2::get<1>(&v));
+    CHECK(!stl2::get<int>(&v));
+    double* p = stl2::get<2>(&v);
+    CHECK(p);
+    if (p) { CHECK(*p == 3.14); }
+    CHECK(p == stl2::get<double>(&v));
+
+    auto const& cv = v;
+    auto cp = stl2::get<2>(&cv);
+    CHECK(is_same<decltype(cp), const double*>());
+    CHECK(p == cp);
+  }
+}
 } // unnamed namespace
 
 int main() {
@@ -941,6 +993,7 @@ int main() {
   test_void();
   test_visit();
   test_tagged();
+  test_pointer_get();
 
   return ::test_result();
 }
