@@ -290,12 +290,16 @@ constexpr decltype(auto) with_static_index(std::size_t n, F&& f)
 }
 
 class access {
+  [[noreturn]] static void bad_access() {
+    throw bad_variant_access{};
+  }
+
   template <std::size_t I, _IsNot<is_void> T, class V, class R = __uncvref<V>>
     // FIXME: constrain R to be a specialization of base.
     requires I < decltype(R::data_)::size
   static constexpr decltype(auto) get(V&& v) {
     if (v.index() != I) {
-      throw bad_variant_access{};
+      bad_access();
     }
     return cook<T>(raw_get(
       meta::size_t<I>{}, stl2::forward<V>(v).data_
@@ -346,7 +350,7 @@ protected:
   using types = meta::list<Ts...>;
   using data_t = data<storage_t<Ts>...>;
   using index_t =
-#if 0
+#if 1
     std::size_t;
 #else
     meta::if_c<
@@ -517,12 +521,14 @@ template <class F, class V, class Types = all_return_types<F, V>>
     meta::pop_front<Types>,
     meta::bind_front<meta::quote_trait<is_same>, meta::front<Types>>>>
 using visit_return_t = meta::front<Types>;
+
 #elif 0
 // require the return type of all alternatives to have a common
 // type which visit returns.
 template <class F, class V>
 using visit_return_t =
   meta::apply_list<meta::quote<common_type_t>, all_return_types<F, V>>;
+
 #else
 // require the return type of all alternatives to have a common
 // reference type which visit returns.

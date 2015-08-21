@@ -31,6 +31,7 @@ void v_assign(VDI& target, VDI source) {
   target = move(source);
 }
 
+namespace {
 struct nontrivial {
   struct counts {
     unsigned create;
@@ -727,6 +728,7 @@ void test_tagged() {
   CHECK(get<1>(v2) == 3.14);
   CHECK(v2.out() == 3.14);
 }
+} // unnamed namespace
 
 int main() {
   test_raw();
@@ -829,7 +831,7 @@ int main() {
   return ::test_result();
 }
 
-#if 1
+#if 0
 template <class T>
 constexpr bool is_variant = is_variant<__uncvref<T>>;
 template <_Unqual T>
@@ -868,7 +870,7 @@ void test_bar() {
   test_foo_b(VV{42}, VV{'a'});
 }
 
-void test_destruction(variant<char,int,void,nontrivial>& v) {
+void test_destroy(variant<char,int,void,nontrivial>& v) {
   v.~variant();
 }
 
