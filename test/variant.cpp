@@ -650,6 +650,100 @@ void test_move_assignment() {
   }
 }
 
+void test_copy_assignment() {
+  {
+    // trivial
+    using V = variant<int, double, int&>;
+    using CV = const V;
+    static_assert(is_trivially_copy_assignable<V>());
+    V v;
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 0);
+    v = CV{42};
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 42);
+    v = CV{3.14};
+    CHECK(holds_alternative<double>(v));
+    CHECK(get<double>(v) == 3.14);
+    v = CV{42};
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 42);
+    int i = 42;
+    v = CV{emplaced_type<int&>, i};
+    CHECK(holds_alternative<int&>(v));
+    CHECK(get<int&>(v) == 42);
+    CHECK(&get<int&>(v) == &i);
+    int j = 13;
+    v = CV{emplaced_type<int&>, j};
+    CHECK(holds_alternative<int&>(v));
+    CHECK(get<int&>(v) == 13);
+    CHECK(&get<int&>(v) == &j);
+  }
+  {
+    // nontrivial
+    using V = variant<int, double, int&, nontrivial>;
+    using CV = const V;
+    static_assert(!is_trivially_move_assignable<V>());
+    V v;
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 0);
+    v = CV{42};
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 42);
+    v = CV{3.14};
+    CHECK(holds_alternative<double>(v));
+    CHECK(get<double>(v) == 3.14);
+    v = CV{42};
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 42);
+    int i = 42;
+    v = CV{emplaced_type<int&>, i};
+    CHECK(holds_alternative<int&>(v));
+    CHECK(get<int&>(v) == 42);
+    CHECK(&get<int&>(v) == &i);
+    int j = 13;
+    v = CV{emplaced_type<int&>, j};
+    CHECK(holds_alternative<int&>(v));
+    CHECK(get<int&>(v) == 13);
+    CHECK(&get<int&>(v) == &j);
+
+    nontrivial::zero();
+    v = CV{emplaced_type<nontrivial>};
+    CHECK(holds_alternative<nontrivial>(v));
+    CHECK(nontrivial::count.copy == 1u);
+    CHECK(nontrivial::count.copy_assign == 0u);
+    v = CV{emplaced_type<nontrivial>};
+    CHECK(holds_alternative<nontrivial>(v));
+    CHECK(nontrivial::count.copy == 1u);
+    CHECK(nontrivial::count.copy_assign == 1u);
+  }
+
+  {
+    // Really nontrivial
+    using V = variant<int, double, std::vector<nontrivial>>;
+    constexpr auto N = std::size_t{42};
+    nontrivial::zero();
+    V v{emplaced_index<2>, N};
+    CHECK(v.index() == 2u);
+    CHECK(get<2>(v).size() == N);
+    CHECK(nontrivial::count.create == N);
+    V v2;
+    CHECK(v2.index() == 0u);
+    v2 = v;
+    CHECK(v2.index() == 2u);
+    CHECK(get<2>(v2).size() == N);
+    CHECK(get<2>(v).size() == N);
+    CHECK(nontrivial::count.copy == N);
+    CHECK(nontrivial::count.copy_assign == 0u);
+    v2 = v;
+    CHECK(v2.index() == 2u);
+    CHECK(get<2>(v2).size() == N);
+    CHECK(get<2>(v).size() == N);
+    CHECK(nontrivial::count.copy == N);
+    CHECK(nontrivial::count.copy_assign == N);
+  }
+}
+
 void test_void() {
   {
     using V = variant<int, void, double>;
@@ -754,6 +848,7 @@ int main() {
   test_construction();
   test_get();
   test_move_assignment();
+  test_copy_assignment();
 
   {
     // variant<>{}; // ill-formed
