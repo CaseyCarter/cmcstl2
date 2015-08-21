@@ -15,6 +15,8 @@
 #include <stl2/detail/tuple_like.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
+#define __cpp_lib_variant 20150524
+
 namespace stl2 { inline namespace v1 {
 template <class...> class variant;
 
@@ -220,7 +222,7 @@ constexpr decltype(auto) raw_get(meta::size_t<I>, D&& d) noexcept {
   return raw_get(meta::size_t<I - 1>{}, stl2::forward<D>(d).tail_);
 }
 
-template <class T>
+template <_IsNot<is_const> T>
 constexpr remove_reference_t<T>&
 cook(storage_t<meta::id_t<T>>& t) noexcept {
   return t;
@@ -264,6 +266,10 @@ with_static_index(Indices, std::size_t n, F&& f)
 
 template <class List>
 using indices_for = meta::as_list<meta::make_index_sequence<List::size()>>;
+
+template <class Types>
+using non_void_types = meta::filter<Types,
+    meta::compose<meta::quote<meta::not_>, meta::quote_trait<is_void>>>;
 
 // Convert a list of types into a list of the indices of the non-is_void types.
 template <class Types>
@@ -491,8 +497,39 @@ template <class...V>
 static constexpr std::size_t total_alternatives = 1;
 template <class First, class...Rest>
 static constexpr std::size_t total_alternatives<First, Rest...> =
-  non_void_indices<typename __uncvref<First>::types>::size() *
+  non_void_types<typename __uncvref<First>::types>::size() *
   total_alternatives<Rest...>;
+
+template <class F, class V, class I,
+  class T = meta::at<typename __uncvref<V>::types, I>>
+using visit_handler_return_t =
+  decltype(declval<F>()(cook<T>(raw_get(I{}, declval<V>().data_))));
+
+template <class F, class V>
+using all_return_types = meta::transform<
+  non_void_indices<typename __uncvref<V>::types>,
+  meta::bind_front<meta::quote<visit_handler_return_t>, F, V>>;
+
+#if 0
+// require visitation to return the same type for all alternatives.
+template <class F, class V, class Types = all_return_types<F, V>>
+  requires meta::_v<meta::all_of<
+    meta::pop_front<Types>,
+    meta::bind_front<meta::quote_trait<is_same>, meta::front<Types>>>>
+using visit_return_t = meta::front<Types>;
+#elif 0
+// require the return type of all alternatives to have a common
+// type which visit returns.
+template <class F, class V>
+using visit_return_t =
+  meta::apply_list<meta::quote<common_type_t>, all_return_types<F, V>>;
+#else
+// require the return type of all alternatives to have a common
+// reference type which visit returns.
+template <class F, class V>
+using visit_return_t =
+   meta::apply_list<meta::quote<common_reference_t>, all_return_types<F, V>>;
+#endif
 
 // TODO: Tune.
 constexpr std::size_t O1_visit_threshold = 5;
@@ -503,59 +540,33 @@ template <std::size_t N, class F, class V,
   class C = decltype(cook<T>(raw_get(meta::size_t<N>{}, declval<V>().data_)))>
   requires N < Types::size() &&
     requires (F&& f, C&& c) { ((F&&)f)((C&&)c); }
-static constexpr decltype(auto) visit_handler(F&& f, V&& v)
+static constexpr visit_return_t<F, V> visit_handler(F&& f, V&& v)
   noexcept(noexcept(((F&&)f)(declval<C>()))) {
   return stl2::forward<F>(f)(cook<T>(
     raw_get(meta::size_t<N>{}, stl2::forward<V>(v).data_)
   ));
 }
 
-template <class F, class V, class Indices>
-struct O1_dispatch;
-template <class F, class V, std::size_t...Is>
-struct O1_dispatch<F, V, std::index_sequence<Is...>> {
-  using types = typename __uncvref<V>::types;
-  static_assert(meta::and_c<(Is < types::size())...>());
-  static_assert(meta::and_c<!meta::_v<is_void<meta::at_c<types, Is>>>...>());
-
-  using H = decltype(&visit_handler<0, F, V>);
-  static constexpr H table[] = {
-    &visit_handler<Is, F, V>...
-  };
-};
-
-template <class F, class V, std::size_t...Is>
-constexpr typename O1_dispatch<F, V, std::index_sequence<Is...>>::H
-  O1_dispatch<F, V, std::index_sequence<Is...>>::table[];
-
 template <class F, class V>
 struct ON_dispatch {
-  using types = typename __uncvref<V>::types;
-
   F&& f_;
   V&& v_;
 
   template <std::size_t N>
-    requires N < types::size() &&
-      requires(F&& f, V&& v) { visit_handler<N>((F&&)f, (V&&)v); }
-  constexpr decltype(auto) operator()(meta::size_t<N>) &&
-    noexcept(noexcept(visit_handler<N>(declval<F>(), declval<V>()))) {
+  constexpr visit_return_t<F, V> operator()(meta::size_t<N>) &&
+  noexcept(noexcept(visit_handler<N>(declval<F>(), declval<V>()))) {
     return visit_handler<N>(stl2::forward<F>(f_), stl2::forward<V>(v_));
   }
 };
 
-template <class F, class V>
+template <class F, class V, class Types = typename __uncvref<V>::types>
   requires total_alternatives<V> < O1_visit_threshold
 // FIXME: require uncvref<V> is derived from a specialization of base
-// FIXME: require F is callable with all non-void alternatives of V,
-//        and returns the same type for all alternatives.
-// FIXME: Don't deduce return type: variants with void alternatives go BOOM.
-constexpr decltype(auto) visit(F&& f, V&& v)
+constexpr visit_return_t<F, V> visit(F&& f, V&& v)
   noexcept(noexcept(
-    with_static_index<typename __uncvref<V>::types>(0, declval<ON_dispatch<F, V>>())
+    with_static_index<Types>(0, declval<ON_dispatch<F, V>>())
   ))
 {
-  using Types = typename __uncvref<V>::types;
   assert(v.index() < Types::size());
   return with_static_index<Types>(
     v.index(), ON_dispatch<F, V>{stl2::forward<F>(f), stl2::forward<V>(v)}
@@ -563,20 +574,41 @@ constexpr decltype(auto) visit(F&& f, V&& v)
 }
 
 template <class F, class V>
+using visit_handler_ptr = visit_return_t<F, V>(*)(F&&, V&&);
+
+template <std::size_t I, class F, class V>
+constexpr visit_handler_ptr<F, V> visit_handler_for = {};
+template <std::size_t I, class F, class V>
+  requires _IsNot<meta::at_c<typename __uncvref<V>::types, I>, is_void>
+constexpr visit_handler_ptr<F, V> visit_handler_for<I, F, V> =
+  &visit_handler<I, F, V>;
+
+template <class F, class V, class Indices>
+struct O1_dispatch;
+template <class F, class V, std::size_t...Is>
+struct O1_dispatch<F, V, std::index_sequence<Is...>> {
+  static constexpr visit_handler_ptr<F, V> table[] = {
+    visit_handler_for<Is, F, V>...
+  };
+};
+
+template <class F, class V, std::size_t...Is>
+constexpr visit_handler_ptr<F, V>
+  O1_dispatch<F, V, std::index_sequence<Is...>>::table[];
+
+template <class F, class V>
   requires total_alternatives<V> >= O1_visit_threshold
 // FIXME: require uncvref<V> is derived from a specialization of base
-// FIXME: require F is callable with all non-void alternatives of V,
-//        and returns the same type for all alternatives.
-// FIXME: Don't deduce return type: variants with void alternatives go BOOM.
-constexpr decltype(auto) visit(F&& f, V&& v) {
+constexpr visit_return_t<F, V> visit(F&& f, V&& v) {
   using Indices = std::make_index_sequence<__uncvref<V>::types::size()>;
   using Dispatch = O1_dispatch<F, V, Indices>;
   assert(v.index() <= meta::_v<extent<decltype(Dispatch::table)>>);
+  assert(Dispatch::table[v.index()]);
   return Dispatch::table[v.index()](stl2::forward<F>(f), stl2::forward<V>(v));
 }
 
 template <class F, class First, class...Rest>
-// FIXME: constraints, constexpr
+// FIXME: constraints, constexpr (can't be constexpr with lambdas!)
 decltype(auto) visit(F&& fn, First&& first, Rest&&...rest) {
   return visit([&](auto&& f) {
     return visit([&](auto&&...r){

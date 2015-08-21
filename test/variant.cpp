@@ -829,7 +829,7 @@ int main() {
   return ::test_result();
 }
 
-#if 0
+#if 1
 template <class T>
 constexpr bool is_variant = is_variant<__uncvref<T>>;
 template <_Unqual T>
@@ -840,6 +840,7 @@ constexpr bool is_variant<variant<Types...>> = true;
 template <class T>
 concept bool IsVariant = _Is<is_variant>;
 
+void f(auto);
 void f(char);
 void f(short);
 void f(int);
@@ -871,7 +872,11 @@ void test_destruction(variant<char,int,void,nontrivial>& v) {
   v.~variant();
 }
 
-void test_void_visit(variant<void, void, int, void, void, char, void> v) {
-  visit([](auto&& t){ f(t); return 42; }, v);
+void test_void_visit(variant<int, void, const int, void, void, void, char, void, double, long long, float> v) {
+  auto fn = [](auto&& t) -> decltype(auto) {
+    f(t);
+    return stl2::forward<decltype(t)>(t);
+  };
+  visit(fn, v);
 }
 #endif
