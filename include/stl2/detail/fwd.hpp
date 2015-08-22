@@ -28,6 +28,7 @@ template <unsigned N>
 struct priority_tag : priority_tag<N - 1> {};
 template <>
 struct priority_tag<0> {};
+// Workaround GCC PR66957 by declaring this unnamed namespace inline.
 inline namespace {
 constexpr auto& max_priority_tag = detail::static_const<priority_tag<1>>::value;
 }

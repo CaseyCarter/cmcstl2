@@ -58,6 +58,7 @@ struct fn {
   }
 };
 }}
+// Workaround GCC PR66957 by declaring this unnamed namespace inline.
 inline namespace {
   constexpr auto& iter_move = detail::static_const<detail::__iter_move::fn>::value;
 }
@@ -242,6 +243,7 @@ struct fn {
   }
 };
 }
+// Workaround GCC PR66957 by declaring this unnamed namespace inline.
 inline namespace {
   constexpr auto& iter_swap2 = detail::static_const<__iter_swap::fn>::value;
 }
