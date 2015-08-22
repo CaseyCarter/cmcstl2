@@ -117,11 +117,13 @@ enum class category {
 
 template <class>
 constexpr category iterator_dispatch() { return category::none; }
+#if 0 // Broken again - causes ambiguity.
 template <stl2::WeakOutputIterator<int> I>
   requires !stl2::WeakInputIterator<I>()
 constexpr category iterator_dispatch() { return category::weak_output; }
 template <stl2::OutputIterator<int> I>
   requires !stl2::WeakInputIterator<I>()
+#endif
 constexpr category iterator_dispatch() { return category::output; }
 template <stl2::WeakInputIterator>
 constexpr category iterator_dispatch() { return category::weak_input; }
@@ -206,6 +208,7 @@ arbitrary_iterator<C> operator+(typename arbitrary_iterator<C>::difference_type,
 
 void test_iterator_dispatch() {
   CHECK(iterator_dispatch<void>() == category::none);
+  static_assert(models::contiguous_iterator<int*>());
   CHECK(iterator_dispatch<int*>() == category::contiguous);
 
   {
@@ -242,11 +245,13 @@ void test_iterator_dispatch() {
   {
     using I = arbitrary_iterator<void>;
     static_assert(models::weak_output_iterator<I, int>());
+    static_assert(!models::weak_input_iterator<I>());
     CHECK(iterator_dispatch<I>() == category::weak_output);
   }
   {
     using I = arbitrary_iterator<stl2::output_iterator_tag>;
     static_assert(models::output_iterator<I, int>());
+    static_assert(!models::weak_input_iterator<I>());
     CHECK(iterator_dispatch<I>() == category::output);
   }
 }
