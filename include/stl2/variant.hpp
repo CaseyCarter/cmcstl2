@@ -141,11 +141,6 @@ struct storage_type<void> {
   using type = void_storage;
 };
 template <class T>
-  requires !Same<T, remove_cv_t<T>>()
-struct storage_type<T> {
-  using type = remove_cv_t<T>;
-};
-template <class T>
 using storage_t = meta::_t<storage_type<T>>;
 
 struct empty_tag {};
@@ -343,6 +338,11 @@ constexpr decltype(auto) with_static_index(std::size_t n, F&& f)
   return with_static_index(Indices{}, n, stl2::forward<F>(f));
 }
 
+template <class T>
+constexpr decltype(auto) strip_cv(T& t) {
+  return const_cast<remove_cv_t<T>&>(t);
+}
+
 template <class From, class To>
 concept bool ViableAlternative =
   Same<decay_t<From>, decay_t<To>>() &&
@@ -414,7 +414,8 @@ protected:
     assert(!valid());
     if (that.valid()) {
       with_static_index<types>(that.index(), [this,&that](auto i) {
-        construct(raw_get(i, data_), raw_get(i, stl2::forward<That>(that).data_));
+        construct(strip_cv(raw_get(i, data_)),
+                  raw_get(i, stl2::forward<That>(that).data_));
         index_ = i;
       });
     }
@@ -524,7 +525,8 @@ public:
   void emplace(Args&&...args)
     noexcept(is_nothrow_constructible<storage_t<T>, Args...>::value) {
     clear();
-    construct(raw_get(meta::size_t<I>{}, data_), stl2::forward<Args>(args)...);
+    construct(strip_cv(raw_get(meta::size_t<I>{}, data_)),
+              stl2::forward<Args>(args)...);
     index_ = I;
   }
 
@@ -541,7 +543,8 @@ public:
   void emplace(std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<storage_t<T>, std::initializer_list<E>, Args...>::value) {
     clear();
-    construct(raw_get(meta::size_t<I>{}, data_), il, stl2::forward<Args>(args)...);
+    construct(strip_cv(raw_get(meta::size_t<I>{}, data_)),
+              il, stl2::forward<Args>(args)...);
     index_ = I;
   }
 
@@ -550,7 +553,8 @@ public:
   void emplace(Args&&...args)
     noexcept(is_nothrow_constructible<storage_t<T>, Args...>::value) {
     clear();
-    construct(raw_get(meta::size_t<I>{}, data_), stl2::forward<Args>(args)...);
+    construct(strip_cv(raw_get(meta::size_t<I>{}, data_)),
+              stl2::forward<Args>(args)...);
     index_ = I;
   }
 
@@ -567,7 +571,8 @@ public:
   void emplace(std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<storage_t<T>, std::initializer_list<E>, Args...>::value) {
     clear();
-    construct(raw_get(meta::size_t<I>{}, data_), il, stl2::forward<Args>(args)...);
+    construct(strip_cv(raw_get(meta::size_t<I>{}, data_)),
+              il, stl2::forward<Args>(args)...);
     index_ = I;
   }
 
