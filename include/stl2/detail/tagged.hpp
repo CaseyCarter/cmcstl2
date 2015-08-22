@@ -141,7 +141,7 @@ struct __tag_elem<Spec(Arg)> { using type = Arg; };
 #define STL2_DEFINE_GETTER(name)                                        \
 namespace tag {                                                         \
   class name {                                                          \
-    friend struct stl2::__getters;                                      \
+    friend __getters;                                                   \
     template <class Derived, std::size_t I>                             \
     struct getter {                                                     \
       constexpr decltype(auto) name () &                                \

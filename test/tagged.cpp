@@ -81,13 +81,11 @@ void test_conversions() {
 }
 
 void test_swap() {
-  using stl2::swap;
-
   auto t1 = tt(42, 3.14);
   decltype(t1) t2{};
 
   stl2::pair<int, double> stdp;
-  swap(t1, t2);
+  stl2::swap(t1, t2);
 
   CHECK(t1.in() == 0);
   CHECK(t1.out() == 0);
