@@ -742,6 +742,35 @@ void test_copy_assignment() {
     CHECK(nontrivial::count.copy == N);
     CHECK(nontrivial::count.copy_assign == N);
   }
+
+  {
+    // Test the two-step: nontrivial copy-assignment creates a copy
+    // before destroying the current state, and then moves.
+    static int state = 0;
+    struct target {
+      ~target() { CHECK(state == 3); ++state; }
+      target() { CHECK(state == 0); ++state; }
+      target(const target&) { CHECK(false); }
+      target(target&&) { CHECK(false); }
+      target& operator=(target&&) & { CHECK(false); return *this; }
+      target& operator=(const target&) & { CHECK(false); return *this; }
+    };
+    struct source {
+      ~source() { CHECK(state >= 5); ++state; }
+      source() { CHECK(state == 1); ++state; }
+      source(const source&) { CHECK(state == 2); ++state; }
+      source(source&&) { CHECK(state == 4); ++state; }
+      source& operator=(source&&) & { CHECK(false); return *this; }
+      source& operator=(const source&) & { CHECK(false); return *this; }
+    };
+    using V = variant<target, source>;
+    {
+      V v1{emplaced_type<target>};
+      V v2{emplaced_type<source>};
+      v1 = v2;
+    }
+    CHECK(state == 8);
+  }
 }
 
 void test_void() {
@@ -999,19 +1028,7 @@ int main() {
 }
 
 #if 0
-void f(auto);
-void f(char);
-void f(short);
-void f(int);
-void f(char, char);
-void f(short, char);
-void f(int, char);
-void f(char, short);
-void f(short, short);
-void f(int, short);
-void f(char, int);
-void f(short, int);
-void f(int, int);
+void f(auto...args);
 
 int test_get_foo(variant<int, double> v) {
   return stl2::get<0>(v);
@@ -1031,76 +1048,20 @@ void test_bar() {
   test_foo_b(VV{42}, VV{'a'});
 }
 
-void test_destroy(variant<char,int,void,nontrivial>& v) {
+extern "C" void test_destroy(variant<char,int,void,nontrivial>& v) {
   v.~variant();
 }
 
-template <std::size_t I, class First, class...Rest>
-struct overload_set : overload_set<I, First>, overload_set<I + 1, Rest...> {
-  overload_set(auto&& f, auto&&...r) :
-    overload_set<I, First>{stl2::forward<decltype(f)>(f)},
-    overload_set<I + 1, Rest...>{stl2::forward<decltype(r)>(r)...} {}
-
-  using overload_set<I, First>::operator();
-  using overload_set<I + 1, Rest...>::operator();
-};
-
-template <std::size_t I, class T>
-struct overload_set<I, T> {
-private:
-  T t_;
-
-  static decltype(auto) call(auto&& self, auto&&...args) {
-    return (stl2::forward<decltype(self)>(self).t_)(
-      stl2::forward<decltype(args)>(args)...
-    );
-  }
-
-public:
-  overload_set(auto&& t) :
-    t_{stl2::forward<decltype(t)>(t)} {}
-
-  decltype(auto) operator()(auto&&...args) & {
-    return call(*this, stl2::forward<decltype(args)>(args)...);
-  }
-  decltype(auto) operator()(auto&&...args) const& {
-    return call(*this, stl2::forward<decltype(args)>(args)...);
-  }
-  decltype(auto) operator()(auto&&...args) && {
-    return call(stl2::move(*this), stl2::forward<decltype(args)>(args)...);
-  }
-  decltype(auto) operator()(auto&&...args) const&& {
-    return call(stl2::move(*this), stl2::forward<decltype(args)>(args)...);
-  }
-};
-
-template <std::size_t I, _Is<is_class> T>
-  requires _IsNot<T, is_final>
-struct overload_set<I, T> : private T {
-public:
-  overload_set(auto&& t) :
-    T{stl2::forward<decltype(t)>(t)} {}
-
-  using T::operator();
-};
-
-auto overload(auto&&...fs) {
-  return overload_set<0u, decltype(fs)...>{
-    stl2::forward<decltype(fs)>(fs)...
+using VVV = variant<int, void, const int, void, void, void, char, void, double, long long, float>;
+void test_void_visit(VVV v) {
+  auto fn = [](auto&& t) -> decltype(auto) {
+    f(t);
+    return stl2::forward<decltype(t)>(t);
   };
+  visit(fn, v);
 }
 
-void test_void_visit(variant<int, void, const int, void, void, void, char, void, double, long long, float> v) {
-  auto fn = overload(
-    [](auto&& t) -> decltype(auto) {
-      f(t);
-      return stl2::forward<decltype(t)>(t);
-    },
-    [](auto const& t, auto const& u) {
-      f(t, u);
-      return t + u;
-    }
-  );
-  visit(fn, v);
+void test_known() {
+  test_void_visit(VVV{42LL});
 }
 #endif

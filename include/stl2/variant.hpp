@@ -404,6 +404,7 @@ protected:
   }
 
   template <class That>
+    requires DerivedFrom<__uncvref<That>, base>()
   void copy_move_from(That&& that) {
     assert(!valid());
     if (that.valid()) {
@@ -414,23 +415,35 @@ protected:
     }
   }
 
-  template <class That>
-  void assign_from(That&& that) {
-    auto i = that.index();
-    if (index_ == i) {
+  void move_assign_from(DerivedFrom<base>&& that) {
+    if (index_ == that.index_) {
       if (valid()) {
-        with_static_index<types>(i, [this,&that](auto i) {
-          raw_get(i, data_) =
-            raw_get(i, stl2::forward<That>(that).data_);
+        with_static_index<types>(index_, [this,&that](auto i) {
+          raw_get(i, data_) = raw_get(i, stl2::move(that).data_);
         });
       }
     } else {
       clear();
-      copy_move_from(stl2::forward<That>(that));
+      copy_move_from(stl2::move(that));
+    }
+  }
+
+  void copy_assign_from(const DerivedFrom<base>& that) {
+    if (index_ == that.index_) {
+      if (valid()) {
+        with_static_index<types>(index_, [this,&that](auto i) {
+          raw_get(i, data_) = raw_get(i, that.data_);
+        });
+      }
+    } else {
+      auto tmp = that;
+      clear();
+      copy_move_from(stl2::move(tmp));
     }
   }
 
   template <class That>
+    requires DerivedFrom<__uncvref<That>, base>()
   base(copy_move_tag, That&& that) :
     data_{empty_tag{}}, index_{invalid_index} {
     copy_move_from(stl2::forward<That>(that));
@@ -521,7 +534,7 @@ public:
   friend constexpr decltype(auto) get(V&& v);
 };
 
-// "inline" is here for the ODR, we do not actually
+// "inline" is here for the ODR; we do not actually
 // want bad_access to be inlined into get. Having it
 // be a separate function results in better generated
 // code.
@@ -581,6 +594,20 @@ struct single_visit_return<F, meta::list<Variants...>, meta::list<meta::size_t<I
       cook<meta::at_c<VariantTypes<Variants>, Is>>(
         raw_get(meta::size_t<Is>{}, declval<Variants>().data_))...));
 };
+#if 0
+template <class F, Variant...Variants, std::size_t...Is>
+  requires requires (F&& f, Variants&&...vs) {
+    ((F&&)f)(meta::list<meta::size_t<Is>...>{},
+      cook<meta::at_c<VariantTypes<Variants>, Is>>(
+        raw_get(meta::size_t<Is>{}, ((Variants&&)vs).data_))...);
+  }
+struct single_visit_return<F, meta::list<Variants...>, meta::list<meta::size_t<Is>...>> {
+  using type =
+    decltype(declval<F>()(meta::list<meta::size_t<Is>...>{},
+      cook<meta::at_c<VariantTypes<Variants>, Is>>(
+        raw_get(meta::size_t<Is>{}, declval<Variants>().data_))...));
+};
+#endif
 template <class F, class Variants, class Indices>
 using single_visit_return_t =
   meta::_t<single_visit_return<F, Variants, Indices>>;
@@ -655,7 +682,7 @@ constexpr VisitReturnType<F, V> visit(F&& f, V&& v)
     with_static_index<VariantTypes<V>>(0, declval<ON_dispatch<F, V>>())
   ))
 {
-  assert(v.index() < VariantTypes<V>::size());
+  assert(v.valid());
   return with_static_index<VariantTypes<V>>(
     v.index(), ON_dispatch<F, V>{stl2::forward<F>(f), stl2::forward<V>(v)}
   );
@@ -697,7 +724,7 @@ template <class F, Variant V>
 constexpr VisitReturnType<F, V> visit(F&& f, V&& v) {
   using Indices = std::make_index_sequence<VariantTypes<V>::size()>;
   using Dispatch = O1_dispatch<F, V, Indices>;
-  assert(v.index() <= meta::_v<extent<decltype(Dispatch::table)>>);
+  assert(v.valid());
   assert(Dispatch::table[v.index()]);
   return Dispatch::table[v.index()](stl2::forward<F>(f), stl2::forward<V>(v));
 }
@@ -749,7 +776,7 @@ public:
   move_base(move_base&&) = delete;
   move_base(const move_base&) = default;
   move_base& operator=(move_base&&) & = default;
-  move_base& operator=(const move_base&) = default;
+  move_base& operator=(const move_base&) & = default;
 };
 
 template <class...Ts>
@@ -766,7 +793,7 @@ public:
     base_t{copy_move_tag{}, stl2::move(that)} {}
   move_base(const move_base&) = default;
   move_base& operator=(move_base&&) & = default;
-  move_base& operator=(const move_base&) = default;
+  move_base& operator=(const move_base&) & = default;
 };
 
 template <class...Ts>
@@ -807,7 +834,7 @@ public:
         meta::quote_trait<is_nothrow_move_assignable>>,
       meta::all_of<meta::list<storage_t<Ts>...>,
         meta::quote_trait<is_nothrow_move_constructible>>>>) {
-    this->assign_from(stl2::move(that));
+    this->move_assign_from(stl2::move(that));
     return *this;
   }
   move_assign_base& operator=(const move_assign_base&) & = default;
@@ -891,7 +918,7 @@ public:
         meta::quote_trait<is_nothrow_copy_assignable>>,
       meta::all_of<meta::list<storage_t<Ts>...>,
         meta::quote_trait<is_nothrow_copy_constructible>>>>) {
-    this->assign_from(that);
+    this->copy_assign_from(that);
     return *this;
   }
 };
