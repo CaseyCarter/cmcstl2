@@ -20,7 +20,7 @@
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/range/primitives.hpp>
 
-namespace stl2 { namespace v1 {
+namespace stl2 { inline namespace v1 {
 using std::iterator;
 
 template <CopyConstructible T>

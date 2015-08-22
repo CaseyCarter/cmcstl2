@@ -136,7 +136,7 @@ struct __try_swap_fn {
     -> decltype(This{}(*t, *u));
 };
 
-namespace {
+inline namespace {
   constexpr auto& __try_swap = detail::static_const<__try_swap_fn>::value;
 }
 
@@ -155,8 +155,8 @@ struct fn {
 };
 } // namespace __swap
 
-namespace {
-// 20150805: Not to spec: swap is a N4381-style function object customization point.
+inline namespace {
+  // 20150805: Not to spec: swap is a N4381-style function object customization point.
   constexpr auto& swap = detail::static_const<__swap::fn>::value;
 }
 

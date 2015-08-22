@@ -69,7 +69,7 @@ namespace __begin {
 #endif
   };
 }
-namespace {
+inline namespace {
   constexpr auto& begin = detail::static_const<__begin::fn>::value;
 }
 
@@ -139,7 +139,7 @@ namespace __end {
 #endif
   };
 }
-namespace {
+inline namespace {
   constexpr auto& end = detail::static_const<__end::fn>::value;
 }
 
@@ -159,7 +159,7 @@ namespace __cbegin {
 #endif
   };
 }
-namespace {
+inline namespace {
   constexpr auto& cbegin = detail::static_const<__cbegin::fn>::value;
 }
 
@@ -179,7 +179,7 @@ namespace __cend {
 #endif
   };
 }
-namespace {
+inline namespace {
   constexpr auto& cend = detail::static_const<__cend::fn>::value;
 }
 
@@ -232,7 +232,7 @@ namespace __rbegin {
 #endif
   };
 }
-namespace {
+inline namespace {
   constexpr auto& rbegin = detail::static_const<__rbegin::fn>::value;
 }
 
@@ -293,7 +293,7 @@ namespace __rend {
 #endif
   };
 }
-namespace {
+inline namespace {
   constexpr auto& rend = detail::static_const<__rend::fn>::value;
 }
 
@@ -313,7 +313,7 @@ namespace __crbegin {
 #endif
   };
 }
-namespace {
+inline namespace {
   constexpr auto& crbegin = detail::static_const<__crbegin::fn>::value;
 }
 
@@ -333,7 +333,7 @@ namespace __crend {
 #endif
   };
 }
-namespace {
+inline namespace {
   constexpr auto& crend = detail::static_const<__crend::fn>::value;
 }
 
@@ -363,7 +363,7 @@ namespace __size {
     }
   };
 }
-namespace {
+inline namespace {
   constexpr auto& size = detail::static_const<__size::fn>::value;
 }
 
@@ -397,7 +397,7 @@ namespace __empty {
     }
   };
 }
-namespace {
+inline namespace {
   constexpr auto& empty = detail::static_const<__empty::fn>::value;
 }
 
@@ -440,7 +440,7 @@ namespace __data {
 #endif
   };
 }
-namespace {
+inline namespace {
   constexpr auto& data = detail::static_const<__data::fn>::value;
 }
 
@@ -461,7 +461,7 @@ namespace __cdata {
 #endif
   };
 }
-namespace {
+inline namespace {
   constexpr auto& cdata = detail::static_const<__cdata::fn>::value;
 }
 }}} // namespace stl2::v1::ext
