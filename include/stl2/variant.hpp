@@ -140,7 +140,11 @@ template <>
 struct storage_type<void> {
   using type = void_storage;
 };
-
+template <class T>
+  requires !Same<T, remove_cv_t<T>>()
+struct storage_type<T> {
+  using type = remove_cv_t<T>;
+};
 template <class T>
 using storage_t = meta::_t<storage_type<T>>;
 
@@ -514,6 +518,62 @@ public:
   explicit constexpr base(emplaced_type_t<T>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
     : data_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
+
+  template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
+    requires Constructible<T, Args...>()
+  void emplace(Args&&...args)
+    noexcept(is_nothrow_constructible<storage_t<T>, Args...>::value) {
+    clear();
+    construct(raw_get(meta::size_t<I>{}, data_), stl2::forward<Args>(args)...);
+    index_ = I;
+  }
+
+  template <_Is<is_reference> T, std::size_t I = index_of_type<T, types>>
+  void emplace(meta::id_t<T> t)
+    noexcept(is_nothrow_constructible<storage_t<T>, T&>::value) {
+    clear();
+    construct(raw_get(meta::size_t<I>{}, data_), t);
+    index_ = I;
+  }
+
+  template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
+    requires Constructible<T, std::initializer_list<E>, Args...>()
+  void emplace(std::initializer_list<E> il, Args&&...args)
+    noexcept(is_nothrow_constructible<storage_t<T>, std::initializer_list<E>, Args...>::value) {
+    clear();
+    construct(raw_get(meta::size_t<I>{}, data_), il, stl2::forward<Args>(args)...);
+    index_ = I;
+  }
+
+  template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+    requires Constructible<T, Args...>()
+  void emplace(Args&&...args)
+    noexcept(is_nothrow_constructible<storage_t<T>, Args...>::value) {
+    clear();
+    construct(raw_get(meta::size_t<I>{}, data_), stl2::forward<Args>(args)...);
+    index_ = I;
+  }
+
+  template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
+  void emplace(meta::id_t<T> t)
+    noexcept(is_nothrow_constructible<storage_t<T>, T&>::value) {
+    clear();
+    construct(raw_get(meta::size_t<I>{}, data_), t);
+    index_ = I;
+  }
+
+  template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+    requires Constructible<T, std::initializer_list<E>, Args...>()
+  void emplace(std::initializer_list<E> il, Args&&...args)
+    noexcept(is_nothrow_constructible<storage_t<T>, std::initializer_list<E>, Args...>::value) {
+    clear();
+    construct(raw_get(meta::size_t<I>{}, data_), il, stl2::forward<Args>(args)...);
+    index_ = I;
+  }
+
+  void swap(base& other) {
+    std::terminate(); // FIXME: NYI
+  }
 
   constexpr std::size_t index() const noexcept {
     return index_;

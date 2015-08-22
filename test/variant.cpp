@@ -173,24 +173,24 @@ void test_emplaced_index() {
 
     {
       V v{emplaced_index<0>, i};
-      CHECK(v.index() == std::size_t{0});
+      CHECK(v.index() == 0u);
     }
     {
       V v{emplaced_index<0>, ci};
-      CHECK(v.index() == std::size_t{0});
+      CHECK(v.index() == 0u);
     }
     {
       V v{emplaced_index<0>, move(i)};
-      CHECK(v.index() == std::size_t{0});
+      CHECK(v.index() == 0u);
     }
     {
       V v{emplaced_index<0>, move(ci)};
-      CHECK(v.index() == std::size_t{0});
+      CHECK(v.index() == 0u);
     }
 
     {
       V v{emplaced_index<1>, i};
-      CHECK(v.index() == std::size_t{1});
+      CHECK(v.index() == 1u);
     }
     {
       // V v{emplaced_index<1>, ci}; // ill-formed
@@ -215,7 +215,7 @@ void test_emplaced_index() {
     }
     {
       V v{emplaced_index<2>, move(i)};
-      CHECK(v.index() == std::size_t{2});
+      CHECK(v.index() == 2u);
     }
     {
       // V v{emplaced_index<2>, move(ci)}; // ill-formed
@@ -224,36 +224,36 @@ void test_emplaced_index() {
 
     {
       V v{emplaced_index<3>, i};
-      CHECK(v.index() == std::size_t{3});
+      CHECK(v.index() == 3u);
     }
     {
       V v{emplaced_index<3>, ci};
-      CHECK(v.index() == std::size_t{3});
+      CHECK(v.index() == 3u);
     }
     {
       V v{emplaced_index<3>, move(i)};
-      CHECK(v.index() == std::size_t{3});
+      CHECK(v.index() == 3u);
     }
     {
       V v{emplaced_index<3>, move(ci)};
-      CHECK(v.index() == std::size_t{3});
+      CHECK(v.index() == 3u);
     }
 
     {
       V v{emplaced_index<4>, i};
-      CHECK(v.index() == std::size_t{4});
+      CHECK(v.index() == 4u);
     }
     {
       V v{emplaced_index<4>, ci};
-      CHECK(v.index() == std::size_t{4});
+      CHECK(v.index() == 4u);
     }
     {
       V v{emplaced_index<4>, move(i)};
-      CHECK(v.index() == std::size_t{4});
+      CHECK(v.index() == 4u);
     }
     {
       V v{emplaced_index<4>, move(ci)};
-      CHECK(v.index() == std::size_t{4});
+      CHECK(v.index() == 4u);
     }
 
     {
@@ -266,11 +266,11 @@ void test_emplaced_index() {
     }
     {
       V v{emplaced_index<5>, move(i)};
-      CHECK(v.index() == std::size_t{5});
+      CHECK(v.index() == 5u);
     }
     {
       V v{emplaced_index<5>, move(ci)};
-      CHECK(v.index() == std::size_t{5});
+      CHECK(v.index() == 5u);
     }
   }
 
@@ -529,7 +529,7 @@ void test_construction() {
     variant<int, int, int, int&&> v2{emplaced_index<3>, 42};
     CHECK(holds_alternative<int&&>(v2));
     variant<int&&, int&&, int&&, int&&> v3{emplaced_index<2>, 42};
-    CHECK(v3.index() == std::size_t{2});
+    CHECK(v3.index() == 2u);
   }
 
   test_emplaced_index();
@@ -557,7 +557,7 @@ void test_get() {
   }
   {
     variant<int, int> v{emplaced_index<1>, 42};
-    CHECK(v.index() == std::size_t{1});
+    CHECK(v.index() == 1u);
     CHECK(get<1>(v) == 42);
     //get<int>(v); // ill-formed: not unique.
   }
@@ -922,6 +922,329 @@ void test_pointer_get() {
     CHECK(p == cp);
   }
 }
+
+template <class T, std::size_t I, class...Args>
+concept bool Emplaceable() {
+  return requires (T& t, Args&&...args) {
+    t.template emplace<I>((Args&&)args...);
+  };
+}
+
+template <class, std::size_t, class...>
+constexpr bool emplaceable() { return false; }
+Emplaceable{T, I, ...Args}
+constexpr bool emplaceable() { return true; }
+
+template <class T, class U, class...Args>
+concept bool Emplaceable() {
+  return requires (T& t, Args&&...args) {
+    t.template emplace<U>((Args&&)args...);
+  };
+}
+
+template <class, class, class...>
+constexpr bool emplaceable() { return false; }
+template <class T, class U, class...Args>
+  requires Emplaceable<T, U, Args...>()
+constexpr bool emplaceable() { return true; }
+
+void test_emplace() {
+  {
+    using V = variant<int, int&, int&&, const int, const int&, const int&&>;
+    int i = 42;
+    const int& ci = i;
+
+    {
+      V v;
+      v.emplace<0>(i);
+      CHECK(v.index() == 0u);
+    }
+    {
+      V v;
+      v.emplace<0>(ci);
+      CHECK(v.index() == 0u);
+    }
+    {
+      V v;
+      v.emplace<0>(move(i));
+      CHECK(v.index() == 0u);
+    }
+    {
+      V v;
+      v.emplace<0>(move(ci));
+      CHECK(v.index() == 0u);
+    }
+
+    {
+      V v;
+      v.emplace<1>(i);
+      CHECK(v.index() == 1u);
+    }
+    {
+      //V v; v.emplace<1>(ci); // ill-formed
+      static_assert(!emplaceable<V, 1u, decltype((ci))>());
+    }
+    {
+      //V v; v.emplace<1>(move(i)); // ill-formed
+      static_assert(!emplaceable<V, 1u, decltype(move(i))>());
+    }
+    {
+      //V v; v.emplace<1>(move(ci)); // ill-formed
+      static_assert(!emplaceable<V, 1u, decltype(move(ci))>());
+    }
+
+    {
+      //V v; v.emplace<2>(i); // ill-formed
+      static_assert(!emplaceable<V, 2u, decltype((i))>());
+    }
+    {
+      //V v; v.emplace<2>(ci); // ill-formed
+      static_assert(!emplaceable<V, 2u, decltype((ci))>());
+    }
+    {
+      V v;
+      v.emplace<2>(move(i));
+      CHECK(v.index() == 2u);
+    }
+    {
+      //V v; v.emplace<2>(move(ci)); // ill-formed
+      static_assert(!emplaceable<V, 2u, decltype(move(ci))>());
+    }
+
+    {
+      V v;
+      v.emplace<3>(i);
+      CHECK(v.index() == 3u);
+    }
+    {
+      V v;
+      v.emplace<3>(ci);
+      CHECK(v.index() == 3u);
+    }
+    {
+      V v;
+      v.emplace<3>(move(i));
+      CHECK(v.index() == 3u);
+    }
+    {
+      V v;
+      v.emplace<3>(move(ci));
+      CHECK(v.index() == 3u);
+    }
+
+    {
+      V v;
+      v.emplace<4>(i);
+      CHECK(v.index() == 4u);
+    }
+    {
+      V v;
+      v.emplace<4>(ci);
+      CHECK(v.index() == 4u);
+    }
+    {
+      V v;
+      v.emplace<4>(move(i));
+      CHECK(v.index() == 4u);
+    }
+    {
+      V v;
+      v.emplace<4>(move(ci));
+      CHECK(v.index() == 4u);
+    }
+
+    {
+      //V v; v.emplace<5>(i); // ill-formed
+      static_assert(!emplaceable<V, 5u, decltype((i))>());
+    }
+    {
+      //V v; v.emplace<5>(ci); // ill-formed
+      static_assert(!emplaceable<V, 5u, decltype((ci))>());
+    }
+    {
+      V v;
+      v.emplace<5>(move(i));
+      CHECK(v.index() == 5u);
+    }
+    {
+      V v;
+      v.emplace<5>(move(ci));
+      CHECK(v.index() == 5u);
+    }
+  }
+
+  {
+    nontrivial::zero();
+    {
+      using V = variant<std::vector<nontrivial>>;
+      V v;
+      v.emplace<0>(std::size_t{4});
+      CHECK(v.index() == 0u);
+      CHECK(get<0>(v).size() == 4u);
+      CHECK(nontrivial::count.create == 4u);
+      CHECK(nontrivial::count.move == 0u);
+      CHECK(nontrivial::count.copy == 0u);
+      CHECK(nontrivial::count.destroy == 0u);
+      get<0>(v)[0];
+    }
+    CHECK(nontrivial::count.create == 4u);
+    CHECK(nontrivial::count.move == 0u);
+    CHECK(nontrivial::count.copy == 0u);
+    CHECK(nontrivial::count.destroy == 4u);
+  }
+
+  {
+    using V = variant<std::vector<int>>;
+    V v;
+    v.emplace<0>({1,2,3,4});
+    CHECK(v.index() == 0u);
+    CHECK(get<0>(v).size() == 4u);
+    CHECK(get<0>(v)[2] == 3);
+  }
+
+  {
+    using V = variant<int, int&, int&&, const int, const int&, const int&&>;
+    int i = 42;
+    const int& ci = i;
+
+    {
+      V v; v.emplace<int>(i);
+      CHECK(holds_alternative<int>(v));
+    }
+    {
+      V v; v.emplace<int>(ci);
+      CHECK(holds_alternative<int>(v));
+    }
+    {
+      V v; v.emplace<int>(move(i));
+      CHECK(holds_alternative<int>(v));
+    }
+    {
+      V v; v.emplace<int>(move(ci));
+      CHECK(holds_alternative<int>(v));
+    }
+
+    {
+      V v; v.emplace<int&>(i);
+      CHECK(holds_alternative<int&>(v));
+    }
+    {
+      //V v; v.emplace<int&>(ci); // ill-formed
+      static_assert(!emplaceable<V, int&, decltype((ci))>());
+    }
+    {
+      //V v; v.emplace<int&>(move(i)); // ill-formed
+      static_assert(!emplaceable<V, int&, decltype(move(i))>());
+    }
+    {
+      //V v; v.emplace<int&>(move(ci)); // ill-formed
+      static_assert(!emplaceable<V, int&, decltype(move(ci))>());
+    }
+
+    {
+      //V v; v.emplace<int&&>(i); // ill-formed
+      static_assert(!emplaceable<V, int&&, decltype((i))>());
+    }
+    {
+      //V v; v.emplace<int&&>(ci); // ill-formed
+      static_assert(!emplaceable<V, int&&, decltype((ci))>());
+    }
+    {
+      V v; v.emplace<int&&>(move(i));
+      CHECK(holds_alternative<int&&>(v));
+    }
+    {
+      //V v; v.emplace<int&&>(move(ci)); // ill-formed
+      static_assert(!emplaceable<V, int&&, decltype(move(ci))>());
+    }
+
+    {
+      V v; v.emplace<const int>(i);
+      CHECK(holds_alternative<const int>(v));
+    }
+    {
+      V v; v.emplace<const int>(ci);
+      CHECK(holds_alternative<const int>(v));
+    }
+    {
+      V v; v.emplace<const int>(move(i));
+      CHECK(holds_alternative<const int>(v));
+    }
+    {
+      V v; v.emplace<const int>(move(ci));
+      CHECK(holds_alternative<const int>(v));
+    }
+
+    {
+      V v; v.emplace<const int&>(i);
+      CHECK(holds_alternative<const int&>(v));
+    }
+    {
+      V v; v.emplace<const int&>(ci);
+      CHECK(holds_alternative<const int&>(v));
+    }
+    {
+      V v; v.emplace<const int&>(move(i));
+      CHECK(holds_alternative<const int&>(v));
+    }
+    {
+      V v; v.emplace<const int&>(move(ci));
+      CHECK(holds_alternative<const int&>(v));
+    }
+
+    {
+      //V v; v.emplace<const int&&>(i); // ill-formed
+      static_assert(!emplaceable<V, const int&&, decltype((i))>());
+    }
+    {
+      //V v; v.emplace<const int&&>(ci); // ill-formed
+      static_assert(!emplaceable<V, const int&&, decltype((ci))>());
+    }
+    {
+      V v; v.emplace<const int&&>(move(i));
+      CHECK(holds_alternative<const int&&>(v));
+    }
+    {
+      V v; v.emplace<const int&&>(move(ci));
+      CHECK(holds_alternative<const int&&>(v));
+    }
+  }
+
+  {
+    nontrivial::zero();
+    {
+      using V = variant<std::vector<nontrivial>>;
+      V v; v.emplace<std::vector<nontrivial>>(4u);
+      CHECK(holds_alternative<std::vector<nontrivial>>(v));
+      CHECK(get<0>(v).size() == 4u);
+      CHECK(nontrivial::count.create == 4u);
+      CHECK(nontrivial::count.move == 0u);
+      CHECK(nontrivial::count.copy == 0u);
+      CHECK(nontrivial::count.destroy == 0u);
+      get<0>(v)[0];
+    }
+    CHECK(nontrivial::count.create == 4u);
+    CHECK(nontrivial::count.move == 0u);
+    CHECK(nontrivial::count.copy == 0u);
+    CHECK(nontrivial::count.destroy == 4u);
+  }
+
+  {
+    using V = variant<std::vector<int>>;
+    V v; v.emplace<std::vector<int>>({1,2,3,4});
+    CHECK(holds_alternative<std::vector<int>>(v));
+    CHECK(get<0>(v).size() == 4u);
+    CHECK(get<0>(v)[2] == 3);
+  }
+
+  {
+    using V = variant<int, int>;
+    //V v1; v1.emplace<int>(); // ill-formed: ambiguous
+    static_assert(!emplaceable<V, int>());
+    //V v2; v2.emplace<int>(42); // ill-formed: ambiguous
+    static_assert(!emplaceable<V, int, int>());
+  }
+}
 } // unnamed namespace
 
 int main() {
@@ -949,7 +1272,7 @@ int main() {
   {
     int i = 42;
     variant<int&> vir{meta::size_t<0>{}, i};
-    CHECK(vir.index() == std::size_t{0});
+    CHECK(vir.index() == 0u);
     CHECK(holds_alternative<int&>(vir));
     CHECK(&get<0>(vir) == &i);
     CHECK(&get<int&>(vir) == &i);
@@ -958,7 +1281,7 @@ int main() {
 
   {
     constexpr variant<int> vi{meta::size_t<0>{}, 42};
-    static_assert(vi.index() == std::size_t{0});
+    static_assert(vi.index() == 0u);
     static_assert(holds_alternative<int>(vi));
     CHECK(get<0>(vi) == 42);
     CHECK(get<int>(vi) == 42);
@@ -983,22 +1306,22 @@ int main() {
     static_assert(!is_trivially_move_constructible<variant<int, double, nontrivial>>());
     nontrivial::count.copy = 0;
     variant<int, double, nontrivial> v{};
-    CHECK(v.index() == std::size_t{0});
+    CHECK(v.index() == 0u);
     CHECK(holds_alternative<int>(v));
     auto copy1 = v;
-    CHECK(copy1.index() == std::size_t{0});
+    CHECK(copy1.index() == 0u);
     CHECK(holds_alternative<int>(copy1));
     auto copy2 = copy1;
-    CHECK(copy2.index() == std::size_t{0});
+    CHECK(copy2.index() == 0u);
     CHECK(holds_alternative<int>(copy2));
   }
 
   {
     constexpr variant<int> v{meta::size_t<0>{}, 42};
-    CHECK(v.index() == std::size_t{0});
+    CHECK(v.index() == 0u);
     CHECK(holds_alternative<int>(v));
     constexpr variant<int> c = v;
-    CHECK(c.index() == std::size_t{0});
+    CHECK(c.index() == 0u);
     CHECK(holds_alternative<int>(c));
   }
 
@@ -1023,6 +1346,7 @@ int main() {
   test_visit();
   test_tagged();
   test_pointer_get();
+  test_emplace();
 
   return ::test_result();
 }
