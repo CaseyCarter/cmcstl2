@@ -303,6 +303,9 @@ using non_void_indices = meta::transform<
       meta::quote<meta::second>>>,
   meta::quote<meta::first>>;
 
+// TODO: with_static_index should be an implementation detail of
+//       O(N) visit, with other uses replaced by calls to something
+//       like "visit_with_index".
 template <class Indices, class F, class I = meta::front<Indices>>
   requires Indices::size() == 1u
 constexpr decltype(auto)
@@ -391,9 +394,7 @@ protected:
 
   void clear() {
     if (valid()) {
-      if (!is_trivially_destructible<data_t>()) {
-        visit(destroy, *this);
-      }
+      visit(destroy, *this);
       index_ = invalid_index;
     }
   }
@@ -478,8 +479,7 @@ public:
     requires !Same<decay_t<T>, base>() &&
       constructible_from<T&&, Ts...>::value &&
       constructible_from<T&&, Ts...>::ambiguous
-  base(T&&) = delete;
-  // variant construction from T is ambiguous.
+  base(T&&) = delete; // Conversion from T is ambiguous.
 
   template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
     requires Constructible<T, Args...>()
