@@ -14,18 +14,17 @@
 //
 namespace stl2 { inline namespace v1 {
 template <class T>
-struct __tag_spec_ {};
+struct __tag_properties {};
 template <class Spec, class Arg>
-struct __tag_spec_<Spec(Arg)> { using type = Spec; };
+struct __tag_properties<Spec(Arg)> {
+  using specifier = Spec;
+  using type = Arg;
+};
 template <class T>
-using __tag_spec = meta::_t<__tag_spec_<T>>;
+using __tag_spec = typename __tag_properties<T>::specifier;
 
 template <class T>
-struct __tag_elem_ {};
-template <class Spec, class Arg>
-struct __tag_elem_<Spec(Arg)> { using type = Arg; };
-template <class T>
-using __tag_elem = meta::_t<__tag_elem_<T>>;
+using __tag_elem = meta::_t<__tag_properties<T>>;
 
 namespace tag { struct __specifier_tag {}; }
 
@@ -35,15 +34,11 @@ concept bool TagSpecifier() {
 }
 
 template <class T>
-concept bool __UnaryFunctionType =
-  requires {
-    typename __tag_spec<T>;
-  };
-
-template <class T>
 concept bool TaggedType() {
-  return __UnaryFunctionType<T> &&
-    TagSpecifier<__tag_spec<T>>();
+  return requires {
+    typename __tag_spec<T>;
+    requires TagSpecifier<__tag_spec<T>>();
+  };
 }
 
 template <class Base, TagSpecifier...Tags>
