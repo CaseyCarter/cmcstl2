@@ -364,7 +364,7 @@ struct constructible_from_<T, I, First, Rest...> : true_type {
 
 template <class T, class...Types>
 using constructible_from =
-  constructible_from_<T, 0, Types...>;
+  constructible_from_<T, 0u, Types...>;
 
 template <class...Ts>
 class base {
@@ -396,14 +396,14 @@ protected:
   data_t data_;
   index_t index_;
 
-  void clear() {
+  void clear() noexcept {
     if (valid()) {
       visit(destroy, *this);
       index_ = invalid_index;
     }
   }
 
-  void clear()
+  void clear() noexcept
     requires _Is<data_t, is_trivially_destructible> {
     index_ = invalid_index;
   }
@@ -519,6 +519,40 @@ public:
   explicit constexpr base(emplaced_type_t<T>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
     : data_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
+
+#if 0 // FIXME: badness.
+  template <class T>
+    requires constructible_from<T&&, Ts...>::value &&
+      !constructible_from<T&&, Ts...>::ambiguous &&
+      Same<T, meta::at_c<types, constructible_from<T&&, Ts...>::index>>()
+  base& operator=(T&& t) &
+    noexcept(is_nothrow_move_constructible<T>::value &&
+             is_nothrow_move_assignable<T>::value) {
+    constexpr auto I = constructible_from<T&&, Ts...>::index;
+    if (index_ == I) {
+      raw_get(meta::size_t<I>{}, data_) = stl2::move(t);
+    } else {
+      clear();
+      construct(strip_cv(raw_get(meta::size_t<I>{}, data_)), stl2::move(t));
+    }
+    return *this;
+  }
+
+  template <class T>
+    requires constructible_from<T&&, Ts...>::value &&
+      !constructible_from<T&&, Ts...>::ambiguous
+  base& operator=(T&& t) &
+    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&>::value);
+#if 0 // FIXME: NYI
+    : data_{emplaced_index<constructible_from<T&&, Ts...>::index>, t},
+      index_{constructible_from<T&&, Ts...>::index} {}
+#endif
+
+  template <class T>
+    requires constructible_from<T&&, Ts...>::value &&
+      constructible_from<T&&, Ts...>::ambiguous
+  base& operator=(T&&) & = delete; // Assignment from T is ambiguous.
+#endif
 
   template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
     requires Constructible<T, Args...>()

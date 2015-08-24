@@ -448,6 +448,9 @@ void test_emplaced_type() {
 }
 
 void test_construction() {
+  static_assert(models::copy_constructible<variant<const int>>());
+  static_assert(!models::movable<variant<const int>>());
+
   {
     nontrivial::zero();
     {
