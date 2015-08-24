@@ -40,13 +40,13 @@ constexpr std::size_t tuple_find<T, pair<T1, T2>> =
   meta::_v<meta::find_index<meta::list<T1, T2>, T>>;
 
 // tagged_pair
-template <class F, class S>
-using tagged_pair = tagged<
-  pair<meta::_t<__tag_elem<F>>, meta::_t<__tag_elem<S>>>,
-  meta::_t<__tag_spec<F>>, meta::_t<__tag_spec<S>>>;
+template <TaggedType F, TaggedType S>
+using tagged_pair =
+  tagged<pair<__tag_elem<F>, __tag_elem<S>>,
+    __tag_spec<F>, __tag_spec<S>>;
 
 // make_tagged_pair
-template <class Tag1, class Tag2, class T1, class T2>
+template <TagSpecifier Tag1, TagSpecifier Tag2, class T1, class T2>
 constexpr tagged_pair<Tag1(__unwrap<T1>), Tag2(__unwrap<T2>)>
 make_tagged_pair(T1&& x, T2&& y) {
   return {stl2::forward<T1>(x), stl2::forward<T2>(y)};

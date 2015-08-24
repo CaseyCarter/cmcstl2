@@ -1044,10 +1044,9 @@ class variant<> {
 using __variant::visit;
 using __variant::get;
 
-template <class...Ts>
-using tagged_variant = tagged<
-  variant<meta::_t<__tag_elem<Ts>>...>,
-  meta::_t<__tag_spec<Ts>>...>;
+template <TaggedType...Ts>
+using tagged_variant =
+  tagged<variant<__tag_elem<Ts>...>, __tag_spec<Ts>...>;
 }} // namespace stl2::v1
 
 namespace std {

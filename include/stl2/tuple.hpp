@@ -21,13 +21,12 @@ constexpr std::size_t tuple_find<T, tuple<Types...>> =
   meta::_v<meta::find_index<meta::list<Types...>, T>>;
 
 // tagged_tuple
-template <class...Types>
-using tagged_tuple = tagged<
-  tuple<meta::_t<__tag_elem<Types>>...>,
-  meta::_t<__tag_spec<Types>>...>;
+template <TaggedType...Types>
+using tagged_tuple =
+  tagged<tuple<__tag_elem<Types>...>, __tag_spec<Types>...>;
 
 // make_tagged_tuple
-template<class...Tags, class...Types>
+template<TagSpecifier...Tags, class...Types>
 constexpr auto make_tagged_tuple(Types&&...ts) {
   return tagged_tuple<Tags(__unwrap<Types>)...>{
     stl2::forward<Types>(ts)...

@@ -14,19 +14,52 @@
 // Tagged tuple-like types [taggedtup]
 //
 namespace stl2 { inline namespace v1 {
-template <class Base, class...Tags>
+template <class T>
+struct __tag_spec_ {};
+template <class Spec, class Arg>
+struct __tag_spec_<Spec(Arg)> { using type = Spec; };
+template <class T>
+using __tag_spec = meta::_t<__tag_spec_<T>>;
+
+template <class T>
+struct __tag_elem_ {};
+template <class Spec, class Arg>
+struct __tag_elem_<Spec(Arg)> { using type = Arg; };
+template <class T>
+using __tag_elem = meta::_t<__tag_elem_<T>>;
+
+namespace tag { struct __specifier_tag {}; }
+
+template <class T>
+concept bool TagSpecifier() {
+  return DerivedFrom<T, tag::__specifier_tag>();
+}
+
+template <class T>
+concept bool __UnaryFunctionType =
+  requires {
+    typename __tag_spec<T>;
+  };
+
+template <class T>
+concept bool TaggedType() {
+  return __UnaryFunctionType<T> &&
+    TagSpecifier<__tag_spec<T>>();
+}
+
+template <class Base, TagSpecifier...Tags>
   requires sizeof...(Tags) <= tuple_size<Base>::value
 struct tagged;
 }}
 
 namespace std {
-template <class Base, class...Tags>
-struct tuple_size<::stl2::tagged<Base, Tags...>> :
-  tuple_size<Base> {};
+template <class Base, ::stl2::TagSpecifier...Tags>
+struct tuple_size<::stl2::tagged<Base, Tags...>>
+  : tuple_size<Base> { };
 
-template <size_t N, class Base, class...Tags>
-struct tuple_element<N, ::stl2::tagged<Base, Tags...>> :
-  tuple_element<N, Base> {};
+template <size_t N, class Base, ::stl2::TagSpecifier...Tags>
+struct tuple_element<N, ::stl2::tagged<Base, Tags...>>
+  : tuple_element<N, Base> { };
 }
 
 namespace stl2 { inline namespace v1 {
@@ -34,14 +67,14 @@ template <class T, class Base, class...Tags>
 constexpr std::size_t tuple_find<T, tagged<Base, Tags...>> = tuple_find<T, Base>;
 
 class __getters {
-  template <class Base, class...Tags>
+  template <class Base, TagSpecifier...Tags>
     requires sizeof...(Tags) <= tuple_size<Base>::value
   friend struct tagged;
 
-  template <class Type, class Indices, class...Tags>
+  template <class Type, class Indices, TagSpecifier...Tags>
   class collect_;
 
-  template <class Type, std::size_t...Is, class...Tags>
+  template <class Type, std::size_t...Is, TagSpecifier...Tags>
     requires sizeof...(Is) == sizeof...(Tags)
   class collect_<Type, std::index_sequence<Is...>, Tags...>
     : public Tags::template getter<Type, Is>... {
@@ -49,12 +82,12 @@ class __getters {
     ~collect_() = default;
   };
 
-  template <class Type, class...Tags>
+  template <class Type, TagSpecifier...Tags>
   using collect = collect_<Type, std::index_sequence_for<Tags...>, Tags...>;
 };
 
 // tagged
-template <class Base, class...Tags>
+template <class Base, TagSpecifier...Tags>
   requires sizeof...(Tags) <= tuple_size<Base>::value
 struct tagged
   : Base, __getters::collect<tagged<Base, Tags...>, Tags...> {
@@ -72,20 +105,20 @@ struct tagged
     : Base(static_cast<const Base&>(that)) {}
 
   // 20150810: Not to spec: constexpr.
-  template <typename Other>
+  template <class Other>
     requires Constructible<Base, Other>()
   constexpr tagged(tagged<Other, Tags...>&& that)
     noexcept(is_nothrow_constructible<Base, Other&&>::value)
     : Base(static_cast<Other&&>(that)) {}
 
   // 20150810: Not to spec: constexpr. Extension: conditional noexcept.
-  template <typename Other>
+  template <class Other>
     requires Constructible<Base, const Other&>()
   constexpr tagged(tagged<Other, Tags...> const& that)
     noexcept(is_nothrow_constructible<Base, const Other&>::value)
     : Base(static_cast<const Other&>(that)) {}
 
-  template <typename Other>
+  template <class Other>
     requires Assignable<Base&, Other>()
   tagged& operator=(tagged<Other, Tags...>&& that)
     noexcept(is_nothrow_assignable<Base&, Other&&>::value) {
@@ -94,7 +127,7 @@ struct tagged
   }
 
   // 20150810: Extension: conditional noexcept.
-  template <typename Other>
+  template <class Other>
     requires Assignable<Base&, const Other&>()
   tagged& operator=(const tagged<Other, Tags...>& that)
     noexcept(is_nothrow_assignable<Base&, const Other&>::value) {
@@ -128,19 +161,9 @@ struct tagged
   constexpr Base&& base() && { return stl2::move(*this); }
 };
 
-template <class T>
-struct __tag_spec { };
-template <class Spec, class Arg>
-struct __tag_spec<Spec(Arg)> { using type = Spec; };
-
-template <class T>
-struct __tag_elem { };
-template <class Spec, class Arg>
-struct __tag_elem<Spec(Arg)> { using type = Arg; };
-
 #define STL2_DEFINE_GETTER(name)                                        \
 namespace tag {                                                         \
-  class name {                                                          \
+ class name : public __specifier_tag {                                  \
     friend __getters;                                                   \
     template <class Derived, std::size_t I>                             \
     struct getter {                                                     \
