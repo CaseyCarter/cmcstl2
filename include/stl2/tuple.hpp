@@ -19,13 +19,12 @@ using std::get;
 using std::uses_allocator;
 
 // tagged_tuple
-template <class...Types>
-using tagged_tuple = tagged<
-  tuple<meta::_t<__tag_elem<Types>>...>,
-  meta::_t<__tag_spec<Types>>...>;
+template <TaggedType...Types>
+using tagged_tuple =
+  tagged<tuple<__tag_elem<Types>...>, __tag_spec<Types>...>;
 
 // make_tagged_tuple
-template<class...Tags, class...Types,
+template<TagSpecifier...Tags, class...Types,
   class Tuple = tagged_tuple<Tags(__unwrap_t<Types>)...>>
 constexpr Tuple
 make_tagged_tuple(Types&&...ts) {
