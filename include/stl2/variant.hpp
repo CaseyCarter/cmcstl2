@@ -257,13 +257,13 @@ public:
 };
 
 template <IsData D>
-constexpr decltype(auto) raw_get(meta::size_t<0>, D&& d) noexcept {
-  return (stl2::forward<D>(d).head_);
+constexpr auto&& raw_get(meta::size_t<0>, D&& d) noexcept {
+  return stl2::forward<D>(d).head_;
 }
 
 template <std::size_t I, IsData D>
   requires I < remove_reference_t<D>::size
-constexpr decltype(auto) raw_get(meta::size_t<I>, D&& d) noexcept {
+constexpr auto&& raw_get(meta::size_t<I>, D&& d) noexcept {
   return raw_get(meta::size_t<I - 1>{}, stl2::forward<D>(d).tail_);
 }
 
@@ -339,7 +339,7 @@ constexpr decltype(auto) with_static_index(std::size_t n, F&& f)
 }
 
 template <class T>
-constexpr decltype(auto) strip_cv(T& t) {
+constexpr auto& strip_cv(T& t) {
   return const_cast<remove_cv_t<T>&>(t);
 }
 
@@ -520,40 +520,6 @@ public:
     noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
     : data_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
 
-#if 0 // FIXME: badness.
-  template <class T>
-    requires constructible_from<T&&, Ts...>::value &&
-      !constructible_from<T&&, Ts...>::ambiguous &&
-      Same<T, meta::at_c<types, constructible_from<T&&, Ts...>::index>>()
-  base& operator=(T&& t) &
-    noexcept(is_nothrow_move_constructible<T>::value &&
-             is_nothrow_move_assignable<T>::value) {
-    constexpr auto I = constructible_from<T&&, Ts...>::index;
-    if (index_ == I) {
-      raw_get(meta::size_t<I>{}, data_) = stl2::move(t);
-    } else {
-      clear();
-      construct(strip_cv(raw_get(meta::size_t<I>{}, data_)), stl2::move(t));
-    }
-    return *this;
-  }
-
-  template <class T>
-    requires constructible_from<T&&, Ts...>::value &&
-      !constructible_from<T&&, Ts...>::ambiguous
-  base& operator=(T&& t) &
-    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&>::value);
-#if 0 // FIXME: NYI
-    : data_{emplaced_index<constructible_from<T&&, Ts...>::index>, t},
-      index_{constructible_from<T&&, Ts...>::index} {}
-#endif
-
-  template <class T>
-    requires constructible_from<T&&, Ts...>::value &&
-      constructible_from<T&&, Ts...>::ambiguous
-  base& operator=(T&&) & = delete; // Assignment from T is ambiguous.
-#endif
-
   template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
     requires Constructible<T, Args...>()
   void emplace(Args&&...args)
@@ -630,7 +596,7 @@ public:
   template <std::size_t I, Variant V>
     requires I < VariantTypes<V>::size() &&
       _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
-  friend constexpr decltype(auto) get(V&& v);
+  friend constexpr auto&& get(V&& v);
 };
 
 // "inline" is here for the ODR; we do not actually
@@ -644,7 +610,7 @@ public:
 template <std::size_t I, Variant V>
   requires I < VariantTypes<V>::size() &&
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
-constexpr decltype(auto) get(V&& v) {
+constexpr auto&& get(V&& v) {
   assert(v.valid());
   if (v.index() != I) {
     bad_access();
@@ -656,7 +622,7 @@ constexpr decltype(auto) get(V&& v) {
 
 template <_IsNot<is_void> T, Variant V,
   std::size_t I = index_of_type<T, VariantTypes<V>>>
-constexpr decltype(auto) get(V&& v) {
+constexpr auto&& get(V&& v) {
   return get<I>(v);
 }
 
@@ -869,13 +835,13 @@ template <class...Ts>
 class move_base : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
-  using base_t::base_t;
-
   move_base() = default;
   move_base(move_base&&) = delete;
   move_base(const move_base&) = default;
   move_base& operator=(move_base&&) & = default;
   move_base& operator=(const move_base&) & = default;
+
+  using base_t::base_t;
 };
 
 template <class...Ts>
@@ -883,8 +849,6 @@ template <class...Ts>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
-  using base_t::base_t;
-
   move_base() = default;
   move_base(move_base&& that)
     noexcept(meta::_v<meta::all_of<meta::list<storage_t<Ts>...>,
@@ -893,6 +857,8 @@ public:
   move_base(const move_base&) = default;
   move_base& operator=(move_base&&) & = default;
   move_base& operator=(const move_base&) & = default;
+
+  using base_t::base_t;
 };
 
 template <class...Ts>
@@ -908,13 +874,13 @@ template <class...Ts>
 class move_assign_base : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
-  using base_t::base_t;
-
   move_assign_base() = default;
   move_assign_base(move_assign_base&&) = default;
   move_assign_base(const move_assign_base&) = default;
   move_assign_base& operator=(move_assign_base&&) & = delete;
   move_assign_base& operator=(const move_assign_base&) & = default;
+
+  using base_t::base_t;
 };
 
 template <class...Ts>
@@ -922,8 +888,6 @@ template <class...Ts>
 class move_assign_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
-  using base_t::base_t;
-
   move_assign_base() = default;
   move_assign_base(move_assign_base&&) = default;
   move_assign_base(const move_assign_base&) = default;
@@ -937,6 +901,8 @@ public:
     return *this;
   }
   move_assign_base& operator=(const move_assign_base&) & = default;
+
+  using base_t::base_t;
 };
 
 template <class...Ts>
@@ -952,13 +918,13 @@ template <class...Ts>
 class copy_base : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
 public:
-  using base_t::base_t;
-
   copy_base() = default;
   copy_base(copy_base&&) = default;
   copy_base(const copy_base&) = delete;
   copy_base& operator=(copy_base&&) & = default;
   copy_base& operator=(const copy_base&) & = default;
+
+  using base_t::base_t;
 };
 
 template <class...Ts>
@@ -966,8 +932,6 @@ template <class...Ts>
 class copy_base<Ts...> : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
 public:
-  using base_t::base_t;
-
   copy_base() = default;
   copy_base(copy_base&&) = default;
   copy_base(const copy_base& that)
@@ -976,6 +940,8 @@ public:
     base_t{copy_move_tag{}, that} {}
   copy_base& operator=(copy_base&&) & = default;
   copy_base& operator=(const copy_base&) & = default;
+
+  using base_t::base_t;
 };
 
 template <class...Ts>
@@ -991,13 +957,13 @@ template <class...Ts>
 class copy_assign_base : public copy_base<Ts...> {
   using base_t = copy_base<Ts...>;
 public:
-  using base_t::base_t;
-
   copy_assign_base() = default;
   copy_assign_base(copy_assign_base&&) = default;
   copy_assign_base(const copy_assign_base&) = default;
   copy_assign_base& operator=(copy_assign_base&&) & = default;
   copy_assign_base& operator=(const copy_assign_base&) & = delete;
+
+  using base_t::base_t;
 };
 
 template <class...Ts>
@@ -1005,8 +971,6 @@ template <class...Ts>
 class copy_assign_base<Ts...> : public copy_base<Ts...> {
   using base_t = copy_base<Ts...>;
 public:
-  using base_t::base_t;
-
   copy_assign_base() = default;
   copy_assign_base(copy_assign_base&&) = default;
   copy_assign_base(const copy_assign_base&) = default;
@@ -1020,6 +984,8 @@ public:
     this->copy_assign_from(that);
     return *this;
   }
+
+  using base_t::base_t;
 };
 
 template <class...Ts>
@@ -1034,8 +1000,54 @@ public:
 
 template <class...Ts>
 class variant : public __variant::copy_assign_base<Ts...> {
-  using __variant::copy_assign_base<Ts...>::copy_assign_base;
+  using base_t = __variant::copy_assign_base<Ts...>;
+
+  template <class T>
+  using constructible_from = __variant::constructible_from<T, Ts...>;
+
+public:
+  using base_t::base_t;
+
+  template <_IsNot<is_reference> T, class CF = constructible_from<T&&>>
+    requires CF::value && !CF::ambiguous &&
+      Same<T, meta::at_c<meta::list<Ts...>, CF::index>>() &&
+      Movable<T>()
+  variant& operator=(T&& t) &
+    noexcept(is_nothrow_move_constructible<T>::value &&
+             is_nothrow_move_assignable<T>::value) {
+    constexpr auto I = CF::index;
+    if (this->index_ == I) {
+      auto& target = __variant::raw_get(meta::size_t<I>{}, this->data_);
+      target = stl2::move(t);
+    } else {
+      this->template emplace<T>(stl2::move(t));
+    }
+    return *this;
+  }
+
+  template <class T, class CF = constructible_from<const T&>>
+    requires CF::value && !CF::ambiguous &&
+      Same<T, meta::at_c<meta::list<Ts...>, CF::index>>() &&
+      Copyable<T>()
+  variant& operator=(const T& t) &
+    noexcept(is_nothrow_copy_constructible<T>::value &&
+             is_nothrow_copy_assignable<T>::value &&
+             is_nothrow_move_constructible<T>::value) {
+    constexpr auto I = CF::index;
+    if (this->index_ == I) {
+      auto& target = __variant::raw_get(meta::size_t<I>{}, this->data_);
+      target = t;
+    } else {
+      this->template emplace<T>(T{t});
+    }
+    return *this;
+  }
+
+  template <class T, class CF = constructible_from<T&&>>
+    requires CF::value && CF::ambiguous
+  variant& operator=(T&&) & = delete; // Assignment from T is ambiguous.
 };
+
 template <>
 class variant<> {
   variant() requires false;

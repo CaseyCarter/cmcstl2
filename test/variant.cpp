@@ -1248,6 +1248,79 @@ void test_emplace() {
     static_assert(!emplaceable<V, int, int>());
   }
 }
+
+void test_conversion_assign() {
+  variant<int, double, nontrivial_literal> v{0};
+  {
+    // rvalue assignment
+    CHECK(holds_alternative<int>(v));
+    v = 42;
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 42);
+    v = 3.14;
+    CHECK(holds_alternative<double>(v));
+    CHECK(get<double>(v) == 3.14);
+    v = 1.414;
+    CHECK(holds_alternative<double>(v));
+    CHECK(get<double>(v) == 1.414);
+    v = nontrivial_literal{13};
+    CHECK(holds_alternative<nontrivial_literal>(v));
+    CHECK(get<nontrivial_literal>(v) == 13);
+    v = nontrivial_literal{42};
+    CHECK(holds_alternative<nontrivial_literal>(v));
+    CHECK(get<nontrivial_literal>(v) == 42);
+    v = 13;
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 13);
+  }
+  {
+    // lvalue assignment
+    int i1 = 42;
+    int i2 = 13;
+    double d1 = 3.14;
+    double d2 = 1.414;
+    nontrivial_literal nt1{13};
+    nontrivial_literal nt2{42};
+
+    v = i1;
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 42);
+    v = d1;
+    CHECK(holds_alternative<double>(v));
+    CHECK(get<double>(v) == 3.14);
+    v = d2;
+    CHECK(holds_alternative<double>(v));
+    CHECK(get<double>(v) == 1.414);
+    v = nt1;
+    CHECK(holds_alternative<nontrivial_literal>(v));
+    CHECK(get<nontrivial_literal>(v) == 13);
+    v = nt2;
+    CHECK(holds_alternative<nontrivial_literal>(v));
+    CHECK(get<nontrivial_literal>(v) == 42);
+    v = i2;
+    CHECK(holds_alternative<int>(v));
+    CHECK(get<int>(v) == 13);
+  }
+  {
+    using V = variant<int, int>;
+    // V v; v = 42; // ill-formed: ambiguous.
+    static_assert(!models::assignable<V&, int>());
+    static_assert(!models::assignable<V&, int&>());
+    static_assert(!models::assignable<V&, int&&>());
+    static_assert(!models::assignable<V&, const int&>());
+    static_assert(!models::assignable<V&, const int&&>());
+  }
+  {
+    using V = variant<int&>;
+    int i = 42;
+    V v{i};
+    int j = 13;
+    // FIXME: Is this the desired behavior? Equivalent to v = variant<int&>{j}.
+    v = j;
+    CHECK(&get<int&>(v) == &j);
+    CHECK(i == 42);
+  }
+}
 } // unnamed namespace
 
 int main() {
@@ -1350,6 +1423,7 @@ int main() {
   test_tagged();
   test_pointer_get();
   test_emplace();
+  test_conversion_assign();
 
   return ::test_result();
 }
