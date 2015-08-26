@@ -51,17 +51,18 @@ concept bool BindableReference =
 
 namespace detail {
 template <class T, class...Args>
-struct constructible_object_or_ref : std::false_type {};
+constexpr bool constructible_object_or_ref = false;
 
-template <class T, class...Args>
-  requires ext::ConstructibleObject<T, Args...> ||
-    ext::BindableReference<T, Args...>
-struct constructible_object_or_ref<T, Args...> : std::true_type {};
+ext::ConstructibleObject{T, ...Args}
+constexpr bool constructible_object_or_ref<T, Args...> = true;
+
+ext::BindableReference{T, ...Args}
+constexpr bool constructible_object_or_ref<T, Args...> = true;
 }
 
 template <class T, class...Args>
 concept bool Constructible() {
-  return detail::constructible_object_or_ref<T, Args...>::value;
+  return detail::constructible_object_or_ref<T, Args...>;
 }
 
 // There's implementation variance around DR1518, this may not
