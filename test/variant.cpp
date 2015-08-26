@@ -1507,7 +1507,7 @@ extern "C" void test_destroy(variant<char,int,void,nontrivial>& v) {
 
 using VVV = variant<int, void, const int, void, void, void, char, void, double, long long, float>;
 void test_void_visit(VVV v) {
-  auto fn = [](auto&& t) -> decltype(auto) {
+  auto fn = [](auto&& t) -> auto&& {
     f(t);
     return stl2::forward<decltype(t)>(t);
   };
