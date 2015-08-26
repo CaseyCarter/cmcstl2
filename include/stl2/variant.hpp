@@ -18,6 +18,46 @@
 #define __cpp_lib_variant 20150524
 
 namespace stl2 { inline namespace v1 {
+
+namespace detail {
+// Hack around the absence of fold expressions
+// MoveConstructible<Ts>() && ...
+template <class...Ts>
+constexpr bool AllMoveConstructible = false;
+template <MoveConstructible...Ts>
+constexpr bool AllMoveConstructible<Ts...> = true;
+
+// Movable<Ts>() && ...
+template <class...Ts>
+constexpr bool AllMovable = false;
+template <Movable...Ts>
+constexpr bool AllMovable<Ts...> = true;
+
+// CopyConstructible<Ts>() && ...
+template <class...Ts>
+constexpr bool AllCopyConstructible = false;
+template <CopyConstructible...Ts>
+constexpr bool AllCopyConstructible<Ts...> = true;
+
+// Copyable<Ts>() && ...
+template <class...Ts>
+constexpr bool AllCopyable = false;
+template <Copyable...Ts>
+constexpr bool AllCopyable<Ts...> = true;
+
+// Swappable<Ts>() && ...
+template <class...Ts>
+constexpr bool AllSwappable = false;
+template <Swappable...Ts>
+constexpr bool AllSwappable<Ts...> = true;
+
+// EqualityComparable<Ts>() && ...
+template <class...Ts>
+constexpr bool AllEqualityComparable = false;
+template <EqualityComparable...Ts>
+constexpr bool AllEqualityComparable<Ts...> = true;
+}
+
 template <class...> class variant;
 
 template <class>
@@ -126,7 +166,9 @@ namespace {
   constexpr auto& construct = detail::static_const<construct_fn>::value;
 }
 
-struct void_storage { void_storage() requires false; };
+struct void_storage : monostate {
+  void_storage() requires false;
+};
 
 template <class T>
 struct storage_type {
@@ -576,10 +618,6 @@ public:
     index_ = I;
   }
 
-  void swap(base& other) {
-    std::terminate(); // FIXME: NYI
-  }
-
   constexpr std::size_t index() const noexcept {
     return index_;
   }
@@ -845,7 +883,7 @@ public:
 };
 
 template <class...Ts>
-  requires _AllAre<is_move_constructible, storage_t<Ts>...>
+  requires detail::AllMoveConstructible<storage_t<Ts>...>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
@@ -862,7 +900,7 @@ public:
 };
 
 template <class...Ts>
-  requires _AllAre<is_move_constructible, storage_t<Ts>...> &&
+  requires detail::AllMoveConstructible<storage_t<Ts>...> &&
     _Is<data<storage_t<Ts>...>, is_trivially_move_constructible>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
@@ -884,7 +922,7 @@ public:
 };
 
 template <class...Ts>
-  requires _AllAre<is_move_assignable, storage_t<Ts>...>
+  requires detail::AllMovable<storage_t<Ts>...>
 class move_assign_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
@@ -906,7 +944,7 @@ public:
 };
 
 template <class...Ts>
-  requires _AllAre<is_move_assignable, storage_t<Ts>...> &&
+  requires detail::AllMovable<storage_t<Ts>...> &&
     _Is<data<storage_t<Ts>...>, is_trivially_move_assignable>
 class move_assign_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
@@ -928,7 +966,7 @@ public:
 };
 
 template <class...Ts>
-  requires _AllAre<is_copy_constructible, storage_t<Ts>...>
+  requires detail::AllCopyConstructible<storage_t<Ts>...>
 class copy_base<Ts...> : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
 public:
@@ -945,7 +983,7 @@ public:
 };
 
 template <class...Ts>
-  requires _AllAre<is_copy_constructible, storage_t<Ts>...> &&
+  requires detail::AllCopyConstructible<storage_t<Ts>...> &&
     _Is<data<storage_t<Ts>...>, is_trivially_copy_constructible>
 class copy_base<Ts...> : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
@@ -967,7 +1005,7 @@ public:
 };
 
 template <class...Ts>
-  requires _AllAre<is_copy_assignable, storage_t<Ts>...>
+  requires detail::AllCopyable<storage_t<Ts>...>
 class copy_assign_base<Ts...> : public copy_base<Ts...> {
   using base_t = copy_base<Ts...>;
 public:
@@ -989,7 +1027,7 @@ public:
 };
 
 template <class...Ts>
-  requires _AllAre<is_copy_assignable, storage_t<Ts>...> &&
+  requires detail::AllCopyable<storage_t<Ts>...> &&
     _Is<data<storage_t<Ts>...>, is_trivially_copy_assignable>
 class copy_assign_base<Ts...> : public copy_base<Ts...> {
   using base_t = copy_base<Ts...>;
@@ -1006,11 +1044,12 @@ class variant : public __variant::copy_assign_base<Ts...> {
   using constructible_from = __variant::constructible_from<T, Ts...>;
 
 public:
+  using types = meta::list<Ts...>;
   using base_t::base_t;
 
   template <_IsNot<is_reference> T, class CF = constructible_from<T&&>>
     requires CF::value && !CF::ambiguous &&
-      Same<T, meta::at_c<meta::list<Ts...>, CF::index>>() &&
+      Same<T, meta::at_c<types, CF::index>>() &&
       Movable<T>()
   variant& operator=(T&& t) &
     noexcept(is_nothrow_move_constructible<T>::value &&
@@ -1025,9 +1064,9 @@ public:
     return *this;
   }
 
-  template <class T, class CF = constructible_from<const T&>>
+  template <_IsNot<is_reference> T, class CF = constructible_from<const T&>>
     requires CF::value && !CF::ambiguous &&
-      Same<T, meta::at_c<meta::list<Ts...>, CF::index>>() &&
+      Same<T, meta::at_c<types, CF::index>>() &&
       Copyable<T>()
   variant& operator=(const T& t) &
     noexcept(is_nothrow_copy_constructible<T>::value &&
@@ -1046,6 +1085,62 @@ public:
   template <class T, class CF = constructible_from<T&&>>
     requires CF::value && CF::ambiguous
   variant& operator=(T&&) & = delete; // Assignment from T is ambiguous.
+
+  template <class T, class CF = constructible_from<T&&>>
+    requires CF::value && !CF::ambiguous &&
+      _Is<meta::at_c<types, CF::index>, is_reference>
+  variant& operator=(T&&) & = delete; // Assignment to reference alternatives is ill-formed.
+
+  constexpr void swap(variant& that)
+    noexcept(is_nothrow_move_constructible<variant>::value &&
+             is_nothrow_move_assignable<variant>::value &&
+             meta::_v<meta::and_c<is_nothrow_swappable_v<
+               __variant::storage_t<Ts>&, __variant::storage_t<Ts>&>...>>)
+    requires Movable<base_t>() && // FIXME: Movable<variant>()
+      detail::AllSwappable<__variant::storage_t<Ts>&...>
+  {
+    if (this->index_ == that.index_) {
+      if (this->valid()) {
+        // FIXME: constexpr != lambda
+        __variant::with_static_index<types>(this->index_, [this,&that](auto i) {
+          stl2::swap(__variant::raw_get(i, this->data_),
+                     __variant::raw_get(i, that.data_));
+        });
+      }
+    } else {
+      that = stl2::exchange(*this, stl2::move(that));
+    }
+  }
+
+  friend constexpr void swap(variant& lhs, variant& rhs)
+    noexcept(noexcept(lhs.swap(rhs)))
+    requires requires { lhs.swap(rhs); }
+  {
+    lhs.swap(rhs);
+  }
+
+  friend constexpr bool operator==(const variant& lhs, const variant& rhs)
+    requires detail::AllEqualityComparable<__variant::storage_t<Ts>...>
+  {
+    assert(lhs.valid());
+    assert(rhs.valid());
+    if (lhs.index_ != rhs.index_) {
+      return false;
+    }
+    // FIXME: constexpr != lambda
+    return __variant::with_static_index<variant::types>(lhs.index_, [&](auto i) {
+      using T = meta::at_c<variant::types, i()>;
+      const auto& l = __variant::cook<T>(__variant::raw_get(i, lhs.data_));
+      const auto& r = __variant::cook<T>(__variant::raw_get(i, rhs.data_));
+      return l == r;
+    });
+  }
+
+  friend constexpr bool operator!=(const variant& lhs, const variant& rhs)
+    requires detail::AllEqualityComparable<__variant::storage_t<Ts>...>
+  {
+    return !(lhs == rhs);
+  }
 };
 
 template <>

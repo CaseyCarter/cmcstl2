@@ -448,8 +448,17 @@ void test_emplaced_type() {
 }
 
 void test_construction() {
+  static_assert(models::move_constructible<variant<int>>());
+  static_assert(models::move_constructible<variant<const int>>());
+  static_assert(models::copy_constructible<variant<int>>());
   static_assert(models::copy_constructible<variant<const int>>());
+  static_assert(is_trivially_copy_constructible<variant<int>>());
+  static_assert(is_trivially_copy_constructible<variant<const int>>());
+
+  static_assert(models::movable<variant<int>>());
   static_assert(!models::movable<variant<const int>>());
+  static_assert(models::copyable<variant<int>>());
+  static_assert(!models::copyable<variant<const int>>());
 
   {
     nontrivial::zero();
@@ -1312,13 +1321,54 @@ void test_conversion_assign() {
   }
   {
     using V = variant<int&>;
+    // int i = 42; V v{i}; int j = 13; v = j; // ill-formed
+    static_assert(!models::assignable<V&, int&>());
+  }
+}
+
+void test_swap() {
+  {
+    using V = variant<int, float>;
+    static_assert(models::swappable<V&>());
+    V v1{42};
+    V v2{3.14f};
+    stl2::swap(v1, v2);
+    CHECK(holds_alternative<float>(v1));
+    CHECK(get<float>(v1) == 3.14f);
+    CHECK(holds_alternative<int>(v2));
+    CHECK(get<int>(v2) == 42);
+  }
+
+  static_assert(!models::swappable<variant<const int>&>());
+
+  {
+    using V = variant<int&>;
+    static_assert(models::swappable<V&>());
     int i = 42;
-    V v{i};
     int j = 13;
-    // FIXME: Is this the desired behavior? Equivalent to v = variant<int&>{j}.
-    v = j;
-    CHECK(&get<int&>(v) == &j);
-    CHECK(i == 42);
+    V v1{i};
+    V v2{j};
+    stl2::swap(v1, v2);
+    CHECK(&get<0>(v1) == &j);
+    CHECK(&get<0>(v2) == &i);
+  }
+}
+
+void test_n4542_examples() {
+  {
+    variant<int, float> v, w;
+    v = 12;
+    int i = get<int>(v);
+    w = get<int>(v);
+    w = get<0>(v); // same effect as the previous line
+    w = v; // same effect as the previous line
+    // get<double>(v); // ill formed
+    // get<3>(v); // ill formed
+    try {
+      get<float>(w); // will throw.
+      CHECK(false);
+    } catch (bad_variant_access&) {}
+    (void)i;
   }
 }
 } // unnamed namespace
@@ -1424,6 +1474,8 @@ int main() {
   test_pointer_get();
   test_emplace();
   test_conversion_assign();
+  test_swap();
+  test_n4542_examples();
 
   return ::test_result();
 }
