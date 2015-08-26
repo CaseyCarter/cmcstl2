@@ -10,12 +10,13 @@
 //
 namespace stl2 { inline namespace v1 {
 
+//namespace detail {
 template <class B>
 concept bool Boolean() {
   return requires (const B& b1, const B& b2, const bool a) {
     // Requirements common to both Boolean and BooleanTestable.
-    STL2_CONVERSION_CONSTRAINT(b1, bool);
-    STL2_CONVERSION_CONSTRAINT(!b1, bool);
+    {b1} -> bool;
+    {!b1} -> bool;
     STL2_EXACT_TYPE_CONSTRAINT(b1 && a, bool);
     STL2_EXACT_TYPE_CONSTRAINT(b1 || a, bool);
 
@@ -30,12 +31,12 @@ concept bool Boolean() {
 #if 1
     // Requirements of Boolean that are not required by
     // BooleanTestable.
-    STL2_CONVERSION_CONSTRAINT(b1 == b2, bool);
-    STL2_CONVERSION_CONSTRAINT(b1 == a, bool);
-    STL2_CONVERSION_CONSTRAINT(a == b2, bool);
-    STL2_CONVERSION_CONSTRAINT(b1 != b2, bool);
-    STL2_CONVERSION_CONSTRAINT(b1 != a, bool);
-    STL2_CONVERSION_CONSTRAINT(a != b2, bool);
+    {b1 == b2} -> bool;
+    {b1 == a} -> bool;
+    {a == b2} -> bool;
+    {b1 != b2} -> bool;
+    {b1 != a} -> bool;
+    {a != b2} -> bool;
 #endif
   };
 }

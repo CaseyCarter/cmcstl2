@@ -115,6 +115,29 @@ enum class category {
     weak_input, input, forward, bidirectional, random_access, contiguous
 };
 
+std::ostream& operator<<(std::ostream& sout, category c) {
+  switch(c) {
+  case category::weak_output:
+    return sout << "category::weak_output";
+  case category::output:
+    return sout << "category::output";
+  case category::weak_input:
+    return sout << "category::weak_input";
+  case category::input:
+    return sout << "category::input";
+  case category::forward:
+    return sout << "category::forward";
+  case category::bidirectional:
+    return sout << "category::bidirectional";
+  case category::random_access:
+    return sout << "category::random_access";
+  case category::contiguous:
+    return sout << "category::contiguous";
+  default:
+    return sout << "category::none";
+  }
+}
+
 template <class>
 constexpr category iterator_dispatch() { return category::none; }
 #if 0 // Broken again - causes ambiguity.
@@ -123,8 +146,8 @@ template <stl2::WeakOutputIterator<int> I>
 constexpr category iterator_dispatch() { return category::weak_output; }
 template <stl2::OutputIterator<int> I>
   requires !stl2::WeakInputIterator<I>()
-#endif
 constexpr category iterator_dispatch() { return category::output; }
+#endif
 template <stl2::WeakInputIterator>
 constexpr category iterator_dispatch() { return category::weak_input; }
 template <stl2::InputIterator>
