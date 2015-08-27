@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <new>
 #include <vector>
 #include <stl2/type_traits.hpp>
 #include <stl2/variant.hpp>
@@ -94,7 +95,7 @@ struct nonmovable {
 };
 
 void test_raw() {
-  __variant::data<int, double, nontrivial, reference_wrapper<int>> v;
+  __variant::storage<int, double, nontrivial, reference_wrapper<int>> v;
   static_assert(sizeof(v) == sizeof(double));
   {
     int& i = __variant::raw_get(meta::size_t<0>{}, v);

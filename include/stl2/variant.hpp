@@ -5,8 +5,8 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <new>
 #include <stdexcept>
-#include <tuple>
 #include <meta/meta.hpp>
 #include <stl2/functional.hpp>
 #include <stl2/tuple.hpp>
@@ -14,14 +14,35 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/tagged.hpp>
 #include <stl2/detail/tuple_like.hpp>
+#include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
 #define __cpp_lib_variant 20150524
 
 namespace stl2 { inline namespace v1 {
+struct monostate {};
 
-namespace detail {
+constexpr bool operator==(monostate, monostate)
+{ return true; }
+constexpr bool operator!=(monostate, monostate)
+{ return false; }
+constexpr bool operator<(monostate, monostate)
+{ return false; }
+constexpr bool operator>(monostate, monostate)
+{ return false; }
+constexpr bool operator<=(monostate, monostate)
+{ return true; }
+constexpr bool operator>=(monostate, monostate)
+{ return true; }
+
+namespace __variant {
 // Hack around the absence of fold expressions
+// Destructible<Ts>() && ...
+template <class...Ts>
+constexpr bool AllDestructible = false;
+template <Destructible...Ts>
+constexpr bool AllDestructible<Ts...> = true;
+
 // MoveConstructible<Ts>() && ...
 template <class...Ts>
 constexpr bool AllMoveConstructible = false;
@@ -57,9 +78,53 @@ template <class...Ts>
 constexpr bool AllEqualityComparable = false;
 template <EqualityComparable...Ts>
 constexpr bool AllEqualityComparable<Ts...> = true;
-}
 
-template <class...> class variant;
+struct void_storage : monostate {
+  void_storage() requires false;
+};
+
+template <class T>
+struct element_storage_ {
+  using type = T;
+};
+template <_Is<is_reference> T>
+struct element_storage_<T> {
+  using type = reference_wrapper<remove_reference_t<T>>;
+};
+template <>
+struct element_storage_<void> {
+  using type = void_storage;
+};
+template <class T>
+using element_t = meta::_t<element_storage_<T>>;
+
+template <class T, class Types,
+    std::size_t I = meta::_v<meta::find_index<Types, T>>>
+  requires I != meta::_v<meta::npos> &&
+    Same<meta::find_index<meta::drop_c<Types, I + 1>, T>, meta::npos>()
+constexpr std::size_t index_of_type = I;
+
+template <class...Ts>
+  requires AllDestructible<element_t<Ts>...>
+class base;
+
+template <class...Types>
+meta::list<Types...> types_(base<Types...>& b); // not defined
+
+template <class T>
+using VariantTypes =
+  decltype(types_(declval<__uncvref<T>&>()));
+
+// satisfied iff __uncvref<T> is derived from a
+// specialization of __variant::base
+template <class T>
+concept bool Variant =
+  requires { typename VariantTypes<T>; };
+} // namespace __variant
+
+template <class...Ts>
+  requires __variant::AllDestructible<__variant::element_t<Ts>...>
+class variant;
 
 template <class>
 struct emplaced_type_t {};
@@ -79,57 +144,12 @@ constexpr auto& emplaced_index =
   detail::static_const<emplaced_index_t<I>>::value;
 }
 
-struct monostate {};
-
-constexpr bool operator==(const monostate&, const monostate&)
-{ return true; }
-constexpr bool operator!=(const monostate&, const monostate&)
-{ return false; }
-constexpr bool operator<(const monostate&, const monostate&)
-{ return false; }
-constexpr bool operator>(const monostate&, const monostate&)
-{ return false; }
-constexpr bool operator<=(const monostate&, const monostate&)
-{ return true; }
-constexpr bool operator>=(const monostate&, const monostate&)
-{ return true; }
-
 class bad_variant_access : public std::logic_error {
 public:
   using std::logic_error::logic_error;
   bad_variant_access() :
     std::logic_error{"Attempt to access invalid variant alternative"} {}
 };
-
-namespace __variant {
-template <class T, class Types,
-    std::size_t I = meta::_v<meta::find_index<Types, T>>>
-  requires I != meta::_v<meta::npos> &&
-    Same<meta::find_index<meta::drop_c<Types, I + 1>, T>, meta::npos>()
-constexpr std::size_t index_of_type = I;
-
-template <class...> class base;
-
-template <class...Types>
-meta::list<Types...> types_(base<Types...>& b); // not defined
-
-template <class T>
-using VariantTypes =
-  decltype(types_(declval<__uncvref<T>&>()));
-
-// satisfied iff __uncvref<T> is derived from a
-// specialization of __variant::base
-template <class T>
-concept bool Variant =
-  requires {
-    typename VariantTypes<T>;
-  };
-}
-
-template <class T, __variant::Variant V>
-  requires _Unqual<V>
-constexpr std::size_t tuple_find<T, V> =
-  __variant::index_of_type<T, __variant::VariantTypes<V>>;
 
 template <class T, __variant::Variant V,
   std::size_t I = __variant::index_of_type<T, __variant::VariantTypes<V>>>
@@ -138,7 +158,7 @@ constexpr bool holds_alternative(const V& v) noexcept {
 }
 
 namespace __variant {
-struct destroy_fn {
+struct destruct_fn {
   Destructible{T}
   constexpr void operator()(T& t) const noexcept {
     t.~T();
@@ -153,55 +173,37 @@ struct destroy_fn {
   }
 };
 namespace {
-  constexpr auto& destroy = detail::static_const<destroy_fn>::value;
+  constexpr auto& destruct = detail::static_const<destruct_fn>::value;
 }
 
 struct construct_fn {
   Constructible{T, ...Args}
   constexpr void operator()(T& t, Args&&...args) const
     noexcept(std::is_nothrow_constructible<T, Args...>::value) {
-    ::new(std::addressof(t)) T{std::forward<Args>(args)...};
+    ::new(static_cast<void*>(std::addressof(t)))
+      T{std::forward<Args>(args)...};
   }
 };
 namespace {
   constexpr auto& construct = detail::static_const<construct_fn>::value;
 }
 
-struct void_storage : monostate {
-  void_storage() requires false;
-};
-
-template <class T>
-struct storage_type {
-  using type = T;
-};
-template <_Is<is_reference> T>
-struct storage_type<T> {
-  using type = reference_wrapper<remove_reference_t<T>>;
-};
-template <>
-struct storage_type<void> {
-  using type = void_storage;
-};
-template <class T>
-using storage_t = meta::_t<storage_type<T>>;
-
 struct empty_tag {};
 struct copy_move_tag {};
 
-template <class...Ts> // Destructible...Ts
-class data;
+template <Destructible...Ts>
+class storage;
 
 template <class>
-constexpr bool is_data = false;
-template <class...Ts>
-constexpr bool is_data<data<Ts...>> = true;
+constexpr bool is_storage = false;
+template <Destructible...Ts>
+constexpr bool is_storage<storage<Ts...>> = true;
 
 template <class T>
-concept bool IsData = is_data<decay_t<T>>;
+concept bool IsStorage = is_storage<decay_t<T>>;
 
 template <>
-class data<> {};
+class storage<> {};
 
 // TODO: Think about binary instead of linear decomposition of the elements, i.e.,
 //       a recursive union binary tree instead of a recursive union list. It will
@@ -209,10 +211,10 @@ class data<> {};
 //       Be careful about instantiating multiple identical empty leaves - they
 //       could enlarge an otherwise small variant with padding.
 template <class First, class...Rest>
-class data<First, Rest...> {
+class storage<First, Rest...> {
 public:
   using head_t = First;
-  using tail_t = data<Rest...>;
+  using tail_t = storage<Rest...>;
 
   static constexpr std::size_t size = 1 + sizeof...(Rest);
 
@@ -221,45 +223,46 @@ public:
     tail_t tail_;
   };
 
-  ~data() {}
+  ~storage() {}
 
-  constexpr data()
-    requires DefaultConstructible<head_t>()
-    : head_{} {}
+  constexpr storage()
+    noexcept(is_nothrow_default_constructible<head_t>::value)
+    requires DefaultConstructible<head_t>() :
+    head_{} {}
 
-  data(empty_tag) {}
+  storage(empty_tag) noexcept {}
 
   template <std::size_t N, class...Args>
     requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, Args...>()
-  constexpr data(meta::size_t<N>, Args&&...args)
+  constexpr storage(meta::size_t<N>, Args&&...args)
     noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, Args...>::value) :
     tail_{meta::size_t<N - 1>{}, stl2::forward<Args>(args)...} {}
 
   template <class...Args>
     requires Constructible<First, Args...>()
-  constexpr data(meta::size_t<0>, Args&&...args)
+  constexpr storage(meta::size_t<0>, Args&&...args)
     noexcept(is_nothrow_constructible<head_t, Args...>::value) :
     head_{stl2::forward<Args>(args)...} {}
 
   template <std::size_t N, class E, class...Args>
     requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>()
-  constexpr data(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
+  constexpr storage(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>::value) :
     tail_{meta::size_t<N - 1>{}, il, stl2::forward<Args>(args)...} {}
 
   template <class E, class...Args>
     requires Constructible<First, std::initializer_list<E>, Args...>()
-  constexpr data(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
+  constexpr storage(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value) :
     head_{il, stl2::forward<Args>(args)...} {}
 };
 
 template <class First, class...Rest>
   requires _AllAre<is_trivially_destructible, First, Rest...>
-class data<First, Rest...> {
+class storage<First, Rest...> {
 public:
   using head_t = First;
-  using tail_t = data<Rest...>;
+  using tail_t = storage<Rest...>;
 
   static constexpr std::size_t size = 1 + sizeof...(Rest);
 
@@ -268,43 +271,44 @@ public:
     tail_t tail_;
   };
 
-  constexpr data()
-    requires DefaultConstructible<head_t>()
-    : head_{} {}
+  constexpr storage()
+    noexcept(is_nothrow_default_constructible<head_t>::value)
+    requires DefaultConstructible<head_t>() :
+    head_{} {}
 
-  data(empty_tag) {}
+  storage(empty_tag) noexcept {}
 
   template <std::size_t N, class...Args>
     requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, Args...>()
-  constexpr data(meta::size_t<N>, Args&&...args)
+  constexpr storage(meta::size_t<N>, Args&&...args)
     noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, Args...>::value) :
     tail_{meta::size_t<N - 1>{}, stl2::forward<Args>(args)...} {}
 
   template <class...Args>
     requires Constructible<First, Args...>()
-  constexpr data(meta::size_t<0>, Args&&...args)
+  constexpr storage(meta::size_t<0>, Args&&...args)
     noexcept(is_nothrow_constructible<head_t, Args...>::value) :
     head_{stl2::forward<Args>(args)...} {}
 
   template <std::size_t N, class E, class...Args>
     requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>()
-  constexpr data(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
+  constexpr storage(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>::value) :
     tail_{meta::size_t<N - 1>{}, il, stl2::forward<Args>(args)...} {}
 
   template <class E, class...Args>
     requires Constructible<First, std::initializer_list<E>, Args...>()
-  constexpr data(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
+  constexpr storage(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value) :
     head_{il, stl2::forward<Args>(args)...} {}
 };
 
-template <IsData D>
+template <IsStorage D>
 constexpr auto&& raw_get(meta::size_t<0>, D&& d) noexcept {
   return stl2::forward<D>(d).head_;
 }
 
-template <std::size_t I, IsData D>
+template <std::size_t I, IsStorage D>
   requires I < remove_reference_t<D>::size
 constexpr auto&& raw_get(meta::size_t<I>, D&& d) noexcept {
   return raw_get(meta::size_t<I - 1>{}, stl2::forward<D>(d).tail_);
@@ -312,18 +316,18 @@ constexpr auto&& raw_get(meta::size_t<I>, D&& d) noexcept {
 
 template <_IsNot<is_const> T>
 constexpr remove_reference_t<T>&
-cook(storage_t<meta::id_t<T>>& t) noexcept {
+cook(element_t<meta::id_t<T>>& t) noexcept {
   return t;
 }
 
 template <class T>
 constexpr const remove_reference_t<T>&
-cook(const storage_t<meta::id_t<T>>& t) noexcept {
+cook(const element_t<meta::id_t<T>>& t) noexcept {
   return t;
 }
 
 template <class T>
-constexpr T&& cook(storage_t<meta::id_t<T>>&& t) noexcept {
+constexpr T&& cook(element_t<meta::id_t<T>>&& t) noexcept {
   return stl2::move(cook<T>(t));
 }
 
@@ -347,8 +351,9 @@ using non_void_indices =
 template <class>
 struct as_integer_sequence_ {};
 template <class T, T...Is>
-struct as_integer_sequence_<meta::list<std::integral_constant<T, Is>...>> :
-  meta::id<std::integer_sequence<T, Is...>> {};
+struct as_integer_sequence_<meta::list<std::integral_constant<T, Is>...>> {
+  using type = std::integer_sequence<T, Is...>;
+};
 template <class T>
 using as_integer_sequence = meta::_t<as_integer_sequence_<T>>;
 
@@ -393,7 +398,7 @@ constexpr decltype(auto) with_static_index(std::size_t n, F&& f)
 }
 
 template <class T>
-constexpr auto& strip_cv(T& t) {
+constexpr auto& strip_cv(T& t) noexcept {
   return const_cast<remove_cv_t<T>&>(t);
 }
 
@@ -421,10 +426,10 @@ using constructible_from =
   constructible_from_<T, 0u, Types...>;
 
 template <class...Ts>
+  requires AllDestructible<element_t<Ts>...>
 class base {
 protected:
-  using types = meta::list<Ts...>;
-  using data_t = data<storage_t<Ts>...>;
+  using storage_t = storage<element_t<Ts>...>;
   using index_t =
 #if 1
     std::size_t;
@@ -447,18 +452,18 @@ protected:
                 std::numeric_limits<index_t>::max());
   static constexpr auto invalid_index = index_t(-1);
 
-  data_t data_;
+  storage_t storage_;
   index_t index_;
 
   void clear() noexcept {
     if (valid()) {
-      visit(destroy, *this);
+      visit(destruct, *this);
       index_ = invalid_index;
     }
   }
 
   void clear() noexcept
-    requires _Is<data_t, is_trivially_destructible> {
+    requires _Is<storage_t, is_trivially_destructible> {
     index_ = invalid_index;
   }
 
@@ -468,8 +473,8 @@ protected:
     assert(!valid());
     if (that.valid()) {
       with_static_index<types>(that.index(), [this,&that](auto i) {
-        construct(strip_cv(raw_get(i, data_)),
-                  raw_get(i, stl2::forward<That>(that).data_));
+        construct(strip_cv(raw_get(i, storage_)),
+                  raw_get(i, stl2::forward<That>(that).storage_));
         index_ = i;
       });
     }
@@ -479,7 +484,7 @@ protected:
     if (index_ == that.index_) {
       if (valid()) {
         with_static_index<types>(index_, [this,&that](auto i) {
-          raw_get(i, data_) = raw_get(i, stl2::move(that).data_);
+          raw_get(i, storage_) = raw_get(i, stl2::move(that).storage_);
         });
       }
     } else {
@@ -492,7 +497,7 @@ protected:
     if (index_ == that.index_) {
       if (valid()) {
         with_static_index<types>(index_, [this,&that](auto i) {
-          raw_get(i, data_) = raw_get(i, that.data_);
+          raw_get(i, storage_) = raw_get(i, that.storage_);
         });
       }
     } else {
@@ -505,24 +510,26 @@ protected:
   template <class That>
     requires DerivedFrom<__uncvref<That>, base>()
   base(copy_move_tag, That&& that) :
-    data_{empty_tag{}}, index_{invalid_index} {
+    storage_{empty_tag{}}, index_{invalid_index} {
     copy_move_from(stl2::forward<That>(that));
   }
 
 public:
+  using types = meta::list<Ts...>;
+
   constexpr base()
-    noexcept(is_nothrow_default_constructible<data_t>::value)
-    requires DefaultConstructible<data_t>() :
+    noexcept(is_nothrow_default_constructible<storage_t>::value)
+    requires DefaultConstructible<storage_t>() :
     index_{0} {}
 
   template <class T>
     requires !Same<decay_t<T>, base>() &&
       constructible_from<T&&, Ts...>::value &&
       !constructible_from<T&&, Ts...>::ambiguous &&
-      Constructible<data_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&&>()
+      Constructible<storage_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&&>()
   constexpr base(T&& t)
-    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&&>::value)
-    : data_{emplaced_index<constructible_from<T&&, Ts...>::index>, stl2::forward<T>(t)},
+    noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&&>::value)
+    : storage_{emplaced_index<constructible_from<T&&, Ts...>::index>, stl2::forward<T>(t)},
       index_{constructible_from<T&&, Ts...>::index} {}
 
   template <class T>
@@ -530,8 +537,8 @@ public:
       constructible_from<T&&, Ts...>::value &&
       !constructible_from<T&&, Ts...>::ambiguous
   constexpr base(T&& t)
-    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&>::value)
-    : data_{emplaced_index<constructible_from<T&&, Ts...>::index>, t},
+    noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&>::value)
+    : storage_{emplaced_index<constructible_from<T&&, Ts...>::index>, t},
       index_{constructible_from<T&&, Ts...>::index} {}
 
   template <class T>
@@ -543,61 +550,61 @@ public:
   template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
     requires Constructible<T, Args...>()
   explicit constexpr base(emplaced_index_t<I>, Args&&...args)
-    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, Args...>::value)
-    : data_{emplaced_index<I>, stl2::forward<Args>(args)...}, index_{I} {}
+    noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, Args...>::value)
+    : storage_{emplaced_index<I>, stl2::forward<Args>(args)...}, index_{I} {}
 
   template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
   explicit constexpr base(emplaced_index_t<I>, meta::id_t<T> t)
-    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
-    : data_{emplaced_index<I>, t}, index_{I} {}
+    noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, T&>::value)
+    : storage_{emplaced_index<I>, t}, index_{I} {}
 
   template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
     requires Constructible<T, Args...>()
   explicit constexpr base(emplaced_type_t<T>, Args&&...args)
-    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, Args...>::value)
-    : data_{emplaced_index<I>, stl2::forward<Args>(args)...}, index_{I} {}
+    noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, Args...>::value)
+    : storage_{emplaced_index<I>, stl2::forward<Args>(args)...}, index_{I} {}
 
   template <_Is<is_reference> T, std::size_t I = index_of_type<T, types>>
   explicit constexpr base(emplaced_type_t<T>, meta::id_t<T> t)
-    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, T&>::value)
-    : data_{emplaced_index<I>, t}, index_{I} {}
+    noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, T&>::value)
+    : storage_{emplaced_index<I>, t}, index_{I} {}
 
   template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
     requires Constructible<T, Args...>()
   explicit constexpr base(emplaced_index_t<I>, std::initializer_list<E> il, Args&&...args)
-    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
-    : data_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
+    noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
+    : storage_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
 
   template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
     requires Constructible<T, Args...>()
   explicit constexpr base(emplaced_type_t<T>, std::initializer_list<E> il, Args&&...args)
-    noexcept(is_nothrow_constructible<data_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
-    : data_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
+    noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
+    : storage_{emplaced_index<I>, il, stl2::forward<Args>(args)...}, index_{I} {}
 
   template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
     requires Constructible<T, Args...>()
   void emplace(Args&&...args)
-    noexcept(is_nothrow_constructible<storage_t<T>, Args...>::value) {
+    noexcept(is_nothrow_constructible<element_t<T>, Args...>::value) {
     clear();
-    construct(strip_cv(raw_get(meta::size_t<I>{}, data_)),
+    construct(strip_cv(raw_get(meta::size_t<I>{}, storage_)),
               stl2::forward<Args>(args)...);
     index_ = I;
   }
 
   template <_Is<is_reference> T, std::size_t I = index_of_type<T, types>>
   void emplace(meta::id_t<T> t)
-    noexcept(is_nothrow_constructible<storage_t<T>, T&>::value) {
+    noexcept(is_nothrow_constructible<element_t<T>, T&>::value) {
     clear();
-    construct(raw_get(meta::size_t<I>{}, data_), t);
+    construct(raw_get(meta::size_t<I>{}, storage_), t);
     index_ = I;
   }
 
   template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
     requires Constructible<T, std::initializer_list<E>, Args...>()
   void emplace(std::initializer_list<E> il, Args&&...args)
-    noexcept(is_nothrow_constructible<storage_t<T>, std::initializer_list<E>, Args...>::value) {
+    noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value) {
     clear();
-    construct(strip_cv(raw_get(meta::size_t<I>{}, data_)),
+    construct(strip_cv(raw_get(meta::size_t<I>{}, storage_)),
               il, stl2::forward<Args>(args)...);
     index_ = I;
   }
@@ -605,27 +612,27 @@ public:
   template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
     requires Constructible<T, Args...>()
   void emplace(Args&&...args)
-    noexcept(is_nothrow_constructible<storage_t<T>, Args...>::value) {
+    noexcept(is_nothrow_constructible<element_t<T>, Args...>::value) {
     clear();
-    construct(strip_cv(raw_get(meta::size_t<I>{}, data_)),
+    construct(strip_cv(raw_get(meta::size_t<I>{}, storage_)),
               stl2::forward<Args>(args)...);
     index_ = I;
   }
 
   template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
   void emplace(meta::id_t<T> t)
-    noexcept(is_nothrow_constructible<storage_t<T>, T&>::value) {
+    noexcept(is_nothrow_constructible<element_t<T>, T&>::value) {
     clear();
-    construct(raw_get(meta::size_t<I>{}, data_), t);
+    construct(raw_get(meta::size_t<I>{}, storage_), t);
     index_ = I;
   }
 
   template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
     requires Constructible<T, std::initializer_list<E>, Args...>()
   void emplace(std::initializer_list<E> il, Args&&...args)
-    noexcept(is_nothrow_constructible<storage_t<T>, std::initializer_list<E>, Args...>::value) {
+    noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value) {
     clear();
-    construct(strip_cv(raw_get(meta::size_t<I>{}, data_)),
+    construct(strip_cv(raw_get(meta::size_t<I>{}, storage_)),
               il, stl2::forward<Args>(args)...);
     index_ = I;
   }
@@ -666,7 +673,7 @@ constexpr auto&& get(V&& v) {
     bad_access();
   }
   return cook<meta::at_c<VariantTypes<V>, I>>(
-    raw_get(meta::size_t<I>{}, stl2::forward<V>(v).data_)
+    raw_get(meta::size_t<I>{}, stl2::forward<V>(v).storage_)
   );
 }
 
@@ -695,9 +702,9 @@ constexpr auto get(V* v) noexcept {
 
 // Visitation
 template <Variant...Variants>
-static constexpr std::size_t total_alternatives = 1;
+constexpr std::size_t total_alternatives = 1;
 template <Variant First, Variant...Rest>
-static constexpr std::size_t total_alternatives<First, Rest...> =
+constexpr std::size_t total_alternatives<First, Rest...> =
   non_void_types<VariantTypes<First>>::size() *
   total_alternatives<Rest...>;
 
@@ -707,7 +714,7 @@ template <class F, Variant...Variants, std::size_t...Is>
 struct single_visit_return<F, meta::list<Variants...>, meta::list<meta::size_t<Is>...>> {
   using type = decltype(declval<F>()(std::index_sequence<Is...>{},
     cook<meta::at_c<VariantTypes<Variants>, Is>>(
-      raw_get(meta::size_t<Is>{}, declval<Variants>().data_))...
+      raw_get(meta::size_t<Is>{}, declval<Variants>().storage_))...
     ));
 };
 template <class F, class Variants, class Indices>
@@ -756,12 +763,12 @@ constexpr VisitReturnType<F, Vs...>
 visit_handler(std::index_sequence<Is...> indices, F&& f, Vs&&...vs)
   noexcept(noexcept(((F&&)f)(indices,
     cook<meta::at_c<VariantTypes<Vs>, Is>>(
-      raw_get(meta::size_t<Is>{}, declval<Vs>().data_))...
+      raw_get(meta::size_t<Is>{}, declval<Vs>().storage_))...
   )))
 {
   return stl2::forward<F>(f)(indices,
     cook<meta::at_c<VariantTypes<Vs>, Is>>(
-      raw_get(meta::size_t<Is>{}, stl2::forward<Vs>(vs).data_))...
+      raw_get(meta::size_t<Is>{}, stl2::forward<Vs>(vs).storage_))...
   );
 }
 
@@ -983,7 +990,7 @@ public:
 };
 
 template <class...Ts>
-  requires _Is<data<storage_t<Ts>...>, is_trivially_destructible>
+  requires _Is<storage<element_t<Ts>...>, is_trivially_destructible>
 class destruct_base<Ts...> : public base<Ts...> {
   using base_t = base<Ts...>;
 public:
@@ -1004,13 +1011,13 @@ public:
 };
 
 template <class...Ts>
-  requires detail::AllMoveConstructible<storage_t<Ts>...>
+  requires AllMoveConstructible<element_t<Ts>...>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
   move_base() = default;
   move_base(move_base&& that)
-    noexcept(meta::_v<meta::all_of<meta::list<storage_t<Ts>...>,
+    noexcept(meta::_v<meta::all_of<meta::list<element_t<Ts>...>,
                meta::quote_trait<is_nothrow_move_constructible>>>) :
     base_t{copy_move_tag{}, stl2::move(that)} {}
   move_base(const move_base&) = default;
@@ -1021,8 +1028,8 @@ public:
 };
 
 template <class...Ts>
-  requires detail::AllMoveConstructible<storage_t<Ts>...> &&
-    _Is<data<storage_t<Ts>...>, is_trivially_move_constructible>
+  requires AllMoveConstructible<element_t<Ts>...> &&
+    _Is<storage<element_t<Ts>...>, is_trivially_move_constructible>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
@@ -1043,7 +1050,7 @@ public:
 };
 
 template <class...Ts>
-  requires detail::AllMovable<storage_t<Ts>...>
+  requires AllMovable<element_t<Ts>...>
 class move_assign_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
@@ -1052,9 +1059,9 @@ public:
   move_assign_base(const move_assign_base&) = default;
   move_assign_base& operator=(move_assign_base&& that) &
     noexcept(meta::_v<meta::fast_and<
-      meta::all_of<meta::list<storage_t<Ts>...>,
+      meta::all_of<meta::list<element_t<Ts>...>,
         meta::quote_trait<is_nothrow_move_assignable>>,
-      meta::all_of<meta::list<storage_t<Ts>...>,
+      meta::all_of<meta::list<element_t<Ts>...>,
         meta::quote_trait<is_nothrow_move_constructible>>>>) {
     this->move_assign_from(stl2::move(that));
     return *this;
@@ -1065,8 +1072,8 @@ public:
 };
 
 template <class...Ts>
-  requires detail::AllMovable<storage_t<Ts>...> &&
-    _Is<data<storage_t<Ts>...>, is_trivially_move_assignable>
+  requires AllMovable<element_t<Ts>...> &&
+    _Is<storage<element_t<Ts>...>, is_trivially_move_assignable>
 class move_assign_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
@@ -1087,14 +1094,14 @@ public:
 };
 
 template <class...Ts>
-  requires detail::AllCopyConstructible<storage_t<Ts>...>
+  requires AllCopyConstructible<element_t<Ts>...>
 class copy_base<Ts...> : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
 public:
   copy_base() = default;
   copy_base(copy_base&&) = default;
   copy_base(const copy_base& that)
-    noexcept(meta::_v<meta::all_of<meta::list<storage_t<Ts>...>,
+    noexcept(meta::_v<meta::all_of<meta::list<element_t<Ts>...>,
                meta::quote_trait<is_nothrow_copy_constructible>>>) :
     base_t{copy_move_tag{}, that} {}
   copy_base& operator=(copy_base&&) & = default;
@@ -1104,8 +1111,8 @@ public:
 };
 
 template <class...Ts>
-  requires detail::AllCopyConstructible<storage_t<Ts>...> &&
-    _Is<data<storage_t<Ts>...>, is_trivially_copy_constructible>
+  requires AllCopyConstructible<element_t<Ts>...> &&
+    _Is<storage<element_t<Ts>...>, is_trivially_copy_constructible>
 class copy_base<Ts...> : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
 public:
@@ -1126,7 +1133,7 @@ public:
 };
 
 template <class...Ts>
-  requires detail::AllCopyable<storage_t<Ts>...>
+  requires AllCopyable<element_t<Ts>...>
 class copy_assign_base<Ts...> : public copy_base<Ts...> {
   using base_t = copy_base<Ts...>;
 public:
@@ -1136,9 +1143,9 @@ public:
   copy_assign_base& operator=(copy_assign_base&&) & = default;
   copy_assign_base& operator=(const copy_assign_base& that) &
     noexcept(meta::_v<meta::fast_and<
-      meta::all_of<meta::list<storage_t<Ts>...>,
+      meta::all_of<meta::list<element_t<Ts>...>,
         meta::quote_trait<is_nothrow_copy_assignable>>,
-      meta::all_of<meta::list<storage_t<Ts>...>,
+      meta::all_of<meta::list<element_t<Ts>...>,
         meta::quote_trait<is_nothrow_copy_constructible>>>>) {
     this->copy_assign_from(that);
     return *this;
@@ -1148,8 +1155,8 @@ public:
 };
 
 template <class...Ts>
-  requires detail::AllCopyable<storage_t<Ts>...> &&
-    _Is<data<storage_t<Ts>...>, is_trivially_copy_assignable>
+  requires AllCopyable<element_t<Ts>...> &&
+    _Is<storage<element_t<Ts>...>, is_trivially_copy_assignable>
 class copy_assign_base<Ts...> : public copy_base<Ts...> {
   using base_t = copy_base<Ts...>;
 public:
@@ -1158,6 +1165,7 @@ public:
 } // namespace __variant
 
 template <class...Ts>
+  requires __variant::AllDestructible<__variant::element_t<Ts>...>
 class variant : public __variant::copy_assign_base<Ts...> {
   using base_t = __variant::copy_assign_base<Ts...>;
 
@@ -1177,7 +1185,7 @@ public:
              is_nothrow_move_assignable<T>::value) {
     constexpr auto I = CF::index;
     if (this->index_ == I) {
-      auto& target = __variant::raw_get(meta::size_t<I>{}, this->data_);
+      auto& target = __variant::raw_get(meta::size_t<I>{}, this->storage_);
       target = stl2::move(t);
     } else {
       this->template emplace<T>(stl2::move(t));
@@ -1195,7 +1203,7 @@ public:
              is_nothrow_move_constructible<T>::value) {
     constexpr auto I = CF::index;
     if (this->index_ == I) {
-      auto& target = __variant::raw_get(meta::size_t<I>{}, this->data_);
+      auto& target = __variant::raw_get(meta::size_t<I>{}, this->storage_);
       target = t;
     } else {
       this->template emplace<T>(T{t});
@@ -1216,16 +1224,16 @@ public:
     noexcept(is_nothrow_move_constructible<variant>::value &&
              is_nothrow_move_assignable<variant>::value &&
              meta::_v<meta::and_c<is_nothrow_swappable_v<
-               __variant::storage_t<Ts>&, __variant::storage_t<Ts>&>...>>)
+               __variant::element_t<Ts>&, __variant::element_t<Ts>&>...>>)
     requires Movable<base_t>() && // FIXME: Movable<variant>()
-      detail::AllSwappable<__variant::storage_t<Ts>&...>
+      __variant::AllSwappable<__variant::element_t<Ts>&...>
   {
     if (this->index_ == that.index_) {
       if (this->valid()) {
         // FIXME: constexpr != lambda
         __variant::with_static_index<types>(this->index_, [this,&that](auto i) {
-          stl2::swap(__variant::raw_get(i, this->data_),
-                     __variant::raw_get(i, that.data_));
+          stl2::swap(__variant::raw_get(i, this->storage_),
+                     __variant::raw_get(i, that.storage_));
         });
       }
     } else {
@@ -1241,7 +1249,7 @@ public:
   }
 
   friend constexpr bool operator==(const variant& lhs, const variant& rhs)
-    requires detail::AllEqualityComparable<__variant::storage_t<Ts>...>
+    requires __variant::AllEqualityComparable<__variant::element_t<Ts>...>
   {
     if (lhs.index_ != rhs.index_) {
       return false;
@@ -1249,12 +1257,12 @@ public:
     // FIXME: constexpr != lambda
     return visit_with_index([&rhs](auto i, const auto& l) {
       using T = meta::at_c<variant::types, i()>;
-      return l == __variant::cook<T>(__variant::raw_get(i, rhs.data_));
+      return l == __variant::cook<T>(__variant::raw_get(i, rhs.storage_));
     }, lhs);
   }
 
   friend constexpr bool operator!=(const variant& lhs, const variant& rhs)
-    requires detail::AllEqualityComparable<__variant::storage_t<Ts>...>
+    requires __variant::AllEqualityComparable<__variant::element_t<Ts>...>
   {
     return !(lhs == rhs);
   }
@@ -1273,6 +1281,10 @@ using __variant::visit_with_indices;
 template <TaggedType...Ts>
 using tagged_variant =
   tagged<variant<__tag_elem<Ts>...>, __tag_spec<Ts>...>;
+
+template <class T, __variant::Variant V>
+constexpr std::size_t tuple_find<T, V> =
+  __variant::index_of_type<T, __variant::VariantTypes<V>>;
 }} // namespace stl2::v1
 
 namespace std {
