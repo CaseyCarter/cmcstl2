@@ -19,6 +19,12 @@
 
 #define __cpp_lib_variant 20150524
 
+#if 1
+#define STL2_CONSTEXPR_VISIT
+#else
+#define STL2_CONSTEXPR_VISIT constexpr
+#endif
+
 namespace stl2 { inline namespace v1 {
 struct monostate {};
 
@@ -160,12 +166,12 @@ constexpr bool holds_alternative(const V& v) noexcept {
 namespace __variant {
 struct destruct_fn {
   Destructible{T}
-  constexpr void operator()(T& t) const noexcept {
+  void operator()(T& t) const noexcept {
     t.~T();
   }
 
   template <Destructible T, std::size_t N>
-  constexpr void operator()(T (&a)[N]) const noexcept {
+  void operator()(T (&a)[N]) const noexcept {
     std::size_t i = N;
     while (i > 0) {
       a[--i].~T();
@@ -178,7 +184,7 @@ namespace {
 
 struct construct_fn {
   Constructible{T, ...Args}
-  constexpr void operator()(T& t, Args&&...args) const
+  void operator()(T& t, Args&&...args) const
     noexcept(std::is_nothrow_constructible<T, Args...>::value) {
     ::new(static_cast<void*>(std::addressof(t)))
       T{std::forward<Args>(args)...};
@@ -309,8 +315,8 @@ constexpr auto&& raw_get(meta::size_t<0>, D&& d) noexcept {
 }
 
 template <std::size_t I, IsStorage D>
-  requires I < remove_reference_t<D>::size
 constexpr auto&& raw_get(meta::size_t<I>, D&& d) noexcept {
+  static_assert(I < remove_reference_t<D>::size);
   return raw_get(meta::size_t<I - 1>{}, stl2::forward<D>(d).tail_);
 }
 
@@ -329,6 +335,13 @@ cook(const element_t<meta::id_t<T>>& t) noexcept {
 template <class T>
 constexpr T&& cook(element_t<meta::id_t<T>>&& t) noexcept {
   return stl2::move(cook<T>(t));
+}
+
+template <std::size_t I, Variant V,
+  _IsNot<is_void> T = meta::at_c<VariantTypes<V>, I>>
+constexpr auto&& cooked_get(meta::size_t<I> i, V&& v) noexcept {
+  assert(I == v.index());
+  return cook<T>(raw_get(i, stl2::forward<V>(v).storage_));
 }
 
 using non_void_predicate =
@@ -356,46 +369,6 @@ struct as_integer_sequence_<meta::list<std::integral_constant<T, Is>...>> {
 };
 template <class T>
 using as_integer_sequence = meta::_t<as_integer_sequence_<T>>;
-
-// TODO: with_static_index should be an implementation detail of
-//       O(N) visit, with other uses replaced by calls to something
-//       like "visit_with_index".
-template <class Indices, class F, class I = meta::front<Indices>>
-  requires Indices::size() == 1u
-constexpr decltype(auto)
-with_static_index(Indices, std::size_t n, F&& f)
-  noexcept(noexcept(stl2::forward<F>(f)(I{}))) {
-  assert(n == meta::_v<I>); (void)n;
-  return stl2::forward<F>(f)(I{});
-}
-
-template <class Indices, class F, class I = meta::front<Indices>>
-  requires Indices::size() > 1u
-constexpr decltype(auto)
-with_static_index(Indices, std::size_t n, F&& f)
-  noexcept(noexcept(
-    stl2::forward<F>(f)(I{}),
-    with_static_index(
-      meta::pop_front<Indices>{}, n, stl2::forward<F>(f)
-    )
-  ))
-{
-  assert(n >= meta::_v<I>);
-  if (n <= meta::_v<I>) {
-    return stl2::forward<F>(f)(I{});
-  } else {
-    return with_static_index(
-      meta::pop_front<Indices>{}, n, stl2::forward<F>(f)
-    );
-  }
-}
-
-template <class Types, class F, class Indices = non_void_indices<Types>>
-  requires !meta::_v<meta::empty<Indices>>
-constexpr decltype(auto) with_static_index(std::size_t n, F&& f)
-  noexcept(noexcept(with_static_index(Indices{}, n, stl2::forward<F>(f)))) {
-  return with_static_index(Indices{}, n, stl2::forward<F>(f));
-}
 
 template <class T>
 constexpr auto& strip_cv(T& t) noexcept {
@@ -472,20 +445,20 @@ protected:
   void copy_move_from(That&& that) {
     assert(!valid());
     if (that.valid()) {
-      with_static_index<types>(that.index(), [this,&that](auto i) {
+      raw_visit_with_index([this](auto i, auto&& from) {
         construct(strip_cv(raw_get(i, storage_)),
-                  raw_get(i, stl2::forward<That>(that).storage_));
+                  stl2::forward<decltype(from)>(from));
         index_ = i;
-      });
+      }, stl2::forward<That>(that));
     }
   }
 
   void move_assign_from(DerivedFrom<base>&& that) {
     if (index_ == that.index_) {
       if (valid()) {
-        with_static_index<types>(index_, [this,&that](auto i) {
-          raw_get(i, storage_) = raw_get(i, stl2::move(that).storage_);
-        });
+        raw_visit_with_index([this](auto i, auto&& from) {
+          raw_get(i, storage_) = stl2::forward<decltype(from)>(from);
+        }, stl2::move(that));
       }
     } else {
       clear();
@@ -496,9 +469,9 @@ protected:
   void copy_assign_from(const DerivedFrom<base>& that) {
     if (index_ == that.index_) {
       if (valid()) {
-        with_static_index<types>(index_, [this,&that](auto i) {
-          raw_get(i, storage_) = raw_get(i, that.storage_);
-        });
+        raw_visit_with_index([this](auto i, const auto& from) {
+          raw_get(i, storage_) = from;
+        }, that);
       }
     } else {
       auto tmp = that;
@@ -672,9 +645,7 @@ constexpr auto&& get(V&& v) {
   if (v.index() != I) {
     bad_access();
   }
-  return cook<meta::at_c<VariantTypes<V>, I>>(
-    raw_get(meta::size_t<I>{}, stl2::forward<V>(v).storage_)
-  );
+  return cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
 }
 
 template <_IsNot<is_void> T, Variant V,
@@ -839,7 +810,7 @@ public:
 };
 
 Visitor{F, ...Vs}
-constexpr VisitReturnType<F, Vs...>
+STL2_CONSTEXPR_VISIT VisitReturnType<F, Vs...>
 raw_visit_with_indices(F&& f, Vs&&...vs)
   noexcept(noexcept(declval<ON_dispatch<F, Vs...>>().visit()))
   requires total_alternatives<Vs...> < O1_visit_threshold
@@ -914,7 +885,7 @@ using all_indices =
     meta::quote<as_integer_sequence>>;
 
 Visitor{F, ...Vs}
-constexpr VisitReturnType<F, Vs...>
+STL2_CONSTEXPR_VISIT VisitReturnType<F, Vs...>
 raw_visit_with_indices(F&& f, Vs&&...vs)
   noexcept(noexcept(O1_dispatch<all_indices<Vs...>, F, Vs...>
     ::table[0](declval<F>(), declval<Vs>()...)))
@@ -1217,6 +1188,26 @@ class variant : public __variant::copy_assign_base<Ts...> {
   template <class T>
   using constructible_from = __variant::constructible_from<T, Ts...>;
 
+  struct swap_visitor {
+    variant& self_;
+
+    constexpr void operator()(auto i, auto& from)
+      noexcept(is_nothrow_swappable_v<decltype((from)), decltype((from))>) {
+      stl2::swap(__variant::raw_get(i, self_.storage_), from);
+    }
+  };
+
+  struct equal_to_visitor {
+    const variant& self_;
+
+    constexpr bool operator()(auto i, const auto& o) const
+      noexcept(noexcept(o == o)) {
+      const auto& s = cooked_get(i, self_);
+      static_assert(is_same<decltype(o), decltype(s)>());
+      return s == o;
+    }
+  };
+
 public:
   using types = meta::list<Ts...>;
   using base_t::base_t;
@@ -1265,6 +1256,7 @@ public:
       _Is<meta::at_c<types, CF::index>, is_reference>
   variant& operator=(T&&) & = delete; // Assignment to reference alternatives is ill-formed.
 
+  // TODO: Use default swap if all alternatives are TriviallyMovable?
   constexpr void swap(variant& that)
     noexcept(is_nothrow_move_constructible<variant>::value &&
              is_nothrow_move_assignable<variant>::value &&
@@ -1275,11 +1267,7 @@ public:
   {
     if (this->index_ == that.index_) {
       if (this->valid()) {
-        // FIXME: constexpr != lambda
-        __variant::with_static_index<types>(this->index_, [this,&that](auto i) {
-          stl2::swap(__variant::raw_get(i, this->storage_),
-                     __variant::raw_get(i, that.storage_));
-        });
+        __variant::raw_visit_with_index(swap_visitor{*this}, that);
       }
     } else {
       that = stl2::exchange(*this, stl2::move(that));
@@ -1299,11 +1287,7 @@ public:
     if (lhs.index_ != rhs.index_) {
       return false;
     }
-    // FIXME: constexpr != lambda
-    return visit_with_index([&rhs](auto i, const auto& l) {
-      using T = meta::at_c<variant::types, i()>;
-      return l == __variant::cook<T>(__variant::raw_get(i, rhs.storage_));
-    }, lhs);
+    return __variant::visit_with_index(equal_to_visitor{lhs}, rhs);
   }
 
   friend constexpr bool operator!=(const variant& lhs, const variant& rhs)
@@ -1331,6 +1315,8 @@ template <class T, __variant::Variant V>
 constexpr std::size_t tuple_find<T, V> =
   __variant::index_of_type<T, __variant::VariantTypes<V>>;
 }} // namespace stl2::v1
+
+#undef STL2_CONSTEXPR_VISIT
 
 namespace std {
 template <::stl2::__variant::Variant V>
