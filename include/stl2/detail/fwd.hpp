@@ -79,4 +79,8 @@ namespace models {}
 #define STL2_CONSTRAINED_VAR(...) auto
 #endif
 
+#define STL2_NOEXCEPT_RETURN(...) \
+  noexcept(noexcept(__VA_ARGS__)) \
+  { return __VA_ARGS__; }
+
 #endif
