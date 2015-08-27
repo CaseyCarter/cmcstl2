@@ -729,6 +729,7 @@ using VisitReturnType =
 
 template <class F, Variant...Vs>
 concept bool Visitor =
+  sizeof...(Vs) > 0 &&
   requires { typename VisitReturnType<F, Vs...>; };
 
 // TODO: Tune.
@@ -1360,7 +1361,27 @@ using tagged_variant =
 template <class T, __variant::Variant V>
 constexpr std::size_t tuple_find<T, V> =
   __variant::index_of_type<T, __variant::VariantTypes<V>>;
-}} // namespace stl2::v1
+
+namespace __variant {
+// Lifted from Boost.
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v) {
+  std::hash<T> hasher;
+  seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
+template <class T>
+concept bool Hashable =
+  requires (const element_t<T>& e) {
+    typename std::hash<element_t<T>>;
+    std::hash<element_t<T>>{}(e);
+  };
+
+template <class...>
+constexpr bool AllHashable = false;
+template <Hashable...Ts>
+constexpr bool AllHashable<Ts...> = true;
+}}} // namespace stl2::v1::detail
 
 #undef STL2_CONSTEXPR_VISIT
 
@@ -1372,6 +1393,51 @@ struct tuple_size<V> :
 template <size_t I, ::stl2::__variant::Variant V>
 struct tuple_element<I, V> :
   ::meta::at_c<::stl2::__variant::VariantTypes<V>, I> {};
+
+template <>
+struct hash<::stl2::monostate> {
+  using result_type = size_t;
+  using argument_type = ::stl2::monostate;
+
+  constexpr size_t operator()(::stl2::monostate) const {
+    return 42;
+  }
+};
+
+template <>
+struct hash<::stl2::__variant::void_storage> {
+  using result_type = size_t;
+  using argument_type = ::stl2::__variant::void_storage;
+
+  [[noreturn]] size_t
+  operator()(const ::stl2::__variant::void_storage&) const {
+    std::terminate();
+  }
+};
+
+template <class...Ts>
+  requires ::stl2::__variant::AllHashable<Ts...>
+struct hash<::stl2::variant<Ts...>> {
+private:
+  struct hash_visitor {
+    std::size_t seed = 0u;
+
+    constexpr void operator()(const auto& e) {
+      ::stl2::__variant::hash_combine(seed, e);
+    }
+  };
+
+public:
+  using result_type = size_t;
+  using argument_type = ::stl2::variant<Ts...>;
+
+  constexpr size_t operator()(const argument_type& v) const {
+    hash_visitor visitor;
+    visitor(v.index());
+    ::stl2::__variant::raw_visit(visitor, v);
+    return visitor.seed;
+  }
+};
 }
 
 #endif

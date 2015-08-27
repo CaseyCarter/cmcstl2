@@ -1431,6 +1431,14 @@ void test_comparisons() {
   }
 }
 
+void test_hash() {
+  using V = variant<monostate, int, void, double>;
+  std::hash<V> h;
+  h(V{42});
+  h(V{3.14});
+  h(V{});
+}
+
 void test_n4542_examples() {
   {
     variant<int, float> v, w;
@@ -1541,8 +1549,8 @@ int main() {
   {
     using V = variant<nontrivial_literal>;
     constexpr V v1{nontrivial_literal{42}};
-    // constexpr V v2 = move(v1); // FIXME: this seems to be non-implementable.
-    // constexpr V v3 = v2; // FIXME: this seems to be non-implementable.
+    // constexpr V v2 = move(v1); // This seems to be unimplementable.
+    // constexpr V v3 = v2; // This seems to be unimplementable.
   }
 
   test_void();
@@ -1553,6 +1561,7 @@ int main() {
   test_conversion_assign();
   test_swap();
   test_comparisons();
+  test_hash();
   test_n4542_examples();
 
   return ::test_result();
