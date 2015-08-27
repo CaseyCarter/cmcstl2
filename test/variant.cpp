@@ -41,6 +41,7 @@ struct nontrivial {
     unsigned move_assign;
     unsigned copy_assign;
     unsigned destroy;
+    unsigned swap;
   };
   static counts count;
 
@@ -54,6 +55,9 @@ struct nontrivial {
   nontrivial(nontrivial&&) noexcept { ++count.move; }
   nontrivial& operator=(nontrivial&&) & noexcept { ++count.move_assign; return *this; }
   nontrivial& operator=(const nontrivial&) & { ++count.copy_assign; return *this; }
+  friend void swap(nontrivial&, nontrivial&) noexcept {
+    ++count.swap;
+  }
 };
 
 nontrivial::counts nontrivial::count;
@@ -1353,6 +1357,78 @@ void test_swap() {
     CHECK(&get<0>(v1) == &j);
     CHECK(&get<0>(v2) == &i);
   }
+
+  {
+    using V = variant<int,nontrivial>;
+    V v1{emplaced_type<nontrivial>};
+    V v2{v1};
+    nontrivial::zero();
+    stl2::swap(v1, v2);
+    CHECK(nontrivial::count.swap == 1u);
+    v1 = 42;
+    nontrivial::zero();
+    stl2::swap(v1, v2);
+    CHECK(holds_alternative<nontrivial>(v1));
+    CHECK(holds_alternative<int>(v2));
+    CHECK(get<int>(v2) == 42);
+    CHECK(nontrivial::count.swap == 0u);
+    CHECK((nontrivial::count.move >= 1u && nontrivial::count.move <= 2u));
+  }
+}
+
+void test_comparisons() {
+  {
+    static_assert(models::equality_comparable<variant<int, double>>());
+    static_assert(models::totally_ordered<variant<int, double>>());
+
+    static_assert(models::equality_comparable<variant<int, void, double>>());
+    static_assert(models::totally_ordered<variant<int, void, double>>());
+
+    struct bar {
+      bool operator==(const bar&) const;
+      bool operator!=(const bar&) const;
+    };
+    static_assert(models::equality_comparable<variant<int, bar>>());
+    static_assert(!models::totally_ordered<variant<int, bar>>());
+
+    struct foo {};
+    static_assert(!models::equality_comparable<variant<int, foo>>());
+    static_assert(!models::totally_ordered<variant<int, foo>>());
+
+    static_assert(models::equality_comparable<variant<int&, int&&>>());
+    static_assert(models::totally_ordered<variant<int&, int&&>>());
+  }
+
+  {
+    using V = variant<int, void, double>;
+    CHECK(V{42} == V{42});
+    CHECK(V{42} != V{3.14});
+    CHECK(V{3.14} != V{42});
+    CHECK(V{3.14} == V{3.14});
+    CHECK(V{0} != V{0.0});
+    CHECK(V{42} <= V{42});
+    CHECK(V{42} < V{3.14});
+    CHECK(V{3.14} >= V{3.14});
+  }
+
+  {
+    using V = variant<int, int>;
+    CHECK(V{emplaced_index<0>, 42} != V{emplaced_index<1>, 42});
+  }
+
+  {
+    int i = 42;
+    int j = 42;
+    using V = variant<int&>;
+    V v1{i}, v2{j};
+    CHECK(v1 == v2);
+    j = 13;
+    CHECK(v1 != v2);
+  }
+
+  {
+    static_assert(!models::equality_comparable<variant<int>, variant<long>>());
+  }
 }
 
 void test_n4542_examples() {
@@ -1476,6 +1552,7 @@ int main() {
   test_emplace();
   test_conversion_assign();
   test_swap();
+  test_comparisons();
   test_n4542_examples();
 
   return ::test_result();

@@ -85,6 +85,12 @@ constexpr bool AllEqualityComparable = false;
 template <EqualityComparable...Ts>
 constexpr bool AllEqualityComparable<Ts...> = true;
 
+// TotallyOrdered<Ts>() && ...
+template <class...Ts>
+constexpr bool AllTotallyOrdered = false;
+template <TotallyOrdered...Ts>
+constexpr bool AllTotallyOrdered<Ts...> = true;
+
 struct void_storage : monostate {
   void_storage() requires false;
 };
@@ -1201,9 +1207,20 @@ class variant : public __variant::copy_assign_base<Ts...> {
 
     constexpr bool operator()(auto i, const auto& o) const
       noexcept(noexcept(o == o)) {
-      const auto& s = cooked_get(i, self_);
+      const auto& s = __variant::cooked_get(i, self_);
       static_assert(is_same<decltype(o), decltype(s)>());
       return s == o;
+    }
+  };
+
+  struct less_than_visitor {
+    const variant& self_;
+
+    constexpr bool operator()(auto i, const auto& o) const
+      noexcept(noexcept(o < o)) {
+      const auto& s = __variant::cooked_get(i, self_);
+      static_assert(is_same<decltype(o), decltype(s)>());
+      return s < o;
     }
   };
 
@@ -1255,7 +1272,6 @@ public:
       _Is<meta::at_c<types, CF::index>, is_reference>
   variant& operator=(T&&) & = delete; // Assignment to reference alternatives is ill-formed.
 
-  // TODO: Use default swap if all alternatives are TriviallyMovable?
   constexpr void swap(variant& that)
     noexcept(is_nothrow_move_constructible<variant>::value &&
              is_nothrow_move_assignable<variant>::value &&
@@ -1269,7 +1285,8 @@ public:
         __variant::raw_visit_with_index(swap_visitor{*this}, that);
       }
     } else {
-      that = stl2::exchange(*this, stl2::move(that));
+      stl2::swap(static_cast<base_t&>(*this),
+                 static_cast<base_t&>(that));
     }
   }
 
@@ -1293,6 +1310,36 @@ public:
     requires __variant::AllEqualityComparable<__variant::element_t<Ts>...>
   {
     return !(lhs == rhs);
+  }
+
+  friend constexpr bool operator<(const variant& lhs, const variant& rhs)
+    requires __variant::AllTotallyOrdered<__variant::element_t<Ts>...>
+  {
+    if (lhs.index_ < rhs.index_) {
+      return true;
+    } else if (lhs.index_ == rhs.index_) {
+      return __variant::visit_with_index(less_than_visitor{lhs}, rhs);
+    } else {
+      return false;
+    }
+  }
+
+  friend constexpr bool operator>(const variant& lhs, const variant& rhs)
+    requires __variant::AllTotallyOrdered<__variant::element_t<Ts>...>
+  {
+    return rhs < lhs;
+  }
+
+  friend constexpr bool operator<=(const variant& lhs, const variant& rhs)
+    requires __variant::AllTotallyOrdered<__variant::element_t<Ts>...>
+  {
+    return !(rhs < lhs);
+  }
+
+  friend constexpr bool operator>=(const variant& lhs, const variant& rhs)
+    requires __variant::AllTotallyOrdered<__variant::element_t<Ts>...>
+  {
+    return !(lhs < rhs);
   }
 };
 
