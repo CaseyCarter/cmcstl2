@@ -263,8 +263,7 @@ public:
     head_{il, stl2::forward<Args>(args)...} {}
 };
 
-template <class First, class...Rest>
-  requires _AllAre<is_trivially_destructible, First, Rest...>
+template <ext::TriviallyDestructible First, ext::TriviallyDestructible...Rest>
 class storage<First, Rest...> {
 public:
   using head_t = First;
@@ -436,7 +435,7 @@ protected:
   }
 
   void clear() noexcept
-    requires _Is<storage_t, is_trivially_destructible> {
+    requires ext::TriviallyDestructible<storage_t>() {
     index_ = invalid_index;
   }
 
@@ -1006,7 +1005,7 @@ public:
 };
 
 template <class...Ts>
-  requires _Is<storage<element_t<Ts>...>, is_trivially_destructible>
+  requires ext::TriviallyDestructible<storage<element_t<Ts>...>>()
 class destruct_base<Ts...> : public base<Ts...> {
   using base_t = base<Ts...>;
 public:
@@ -1045,7 +1044,7 @@ public:
 
 template <class...Ts>
   requires AllMoveConstructible<element_t<Ts>...> &&
-    _Is<storage<element_t<Ts>...>, is_trivially_move_constructible>
+    ext::TriviallyMoveConstructible<storage<element_t<Ts>...>>()
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
@@ -1089,7 +1088,7 @@ public:
 
 template <class...Ts>
   requires AllMovable<element_t<Ts>...> &&
-    _Is<storage<element_t<Ts>...>, is_trivially_move_assignable>
+    ext::TriviallyMovable<storage<element_t<Ts>...>>()
 class move_assign_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
@@ -1128,7 +1127,7 @@ public:
 
 template <class...Ts>
   requires AllCopyConstructible<element_t<Ts>...> &&
-    _Is<storage<element_t<Ts>...>, is_trivially_copy_constructible>
+    ext::TriviallyCopyConstructible<storage<element_t<Ts>...>>()
 class copy_base<Ts...> : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
 public:
@@ -1172,7 +1171,7 @@ public:
 
 template <class...Ts>
   requires AllCopyable<element_t<Ts>...> &&
-    _Is<storage<element_t<Ts>...>, is_trivially_copy_assignable>
+    ext::TriviallyCopyable<storage<element_t<Ts>...>>()
 class copy_assign_base<Ts...> : public copy_base<Ts...> {
   using base_t = copy_base<Ts...>;
 public:
