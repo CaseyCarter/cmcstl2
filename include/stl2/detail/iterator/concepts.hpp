@@ -469,7 +469,7 @@ concept bool BidirectionalIterator() {
     };
 }
 
-template <class I, class S = I>
+template <class I, class S>
 concept bool SizedIteratorRange() {
   return Sentinel<S, I>() &&
     requires (const I& i, const S& s) {
@@ -495,7 +495,7 @@ concept bool RandomAccessIterator() {
   return BidirectionalIterator<I>() &&
     TotallyOrdered<I>() &&
     DerivedFrom<IteratorCategory<I>, random_access_iterator_tag>() &&
-    SizedIteratorRange<I>() &&
+    SizedIteratorRange<I,I>() &&
     requires (I& i, const I& j, const DifferenceType<I> n) {
       STL2_EXACT_TYPE_CONSTRAINT(i += n, I&);
       STL2_EXACT_TYPE_CONSTRAINT(j + n, I);
@@ -597,7 +597,7 @@ constexpr bool bidirectional_iterator() { return false; }
 BidirectionalIterator{I}
 constexpr bool bidirectional_iterator() { return true; }
 
-template <class I, class S = I>
+template <class I, class S>
 constexpr bool sized_iterator_range() { return false; }
 SizedIteratorRange{I, S}
 constexpr bool sized_iterator_range() { return true; }

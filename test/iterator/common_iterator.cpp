@@ -97,7 +97,34 @@ int main() {
           bidirectional_iterator<const char *>,
           sentinel<const char *>>(),
         "");
+    // Sized iterator range tests
+    static_assert(
+      !models::sized_iterator_range<
+        stl2::common_iterator<
+          forward_iterator<int*>,
+          sentinel<int*, true> >,
+        stl2::common_iterator<
+          forward_iterator<int*>,
+          sentinel<int*, true> > >(),
+        "");
+    static_assert(
+      models::sized_iterator_range<
+        stl2::common_iterator<
+          random_access_iterator<int*>,
+          sentinel<int*, true> >,
+        stl2::common_iterator<
+          random_access_iterator<int*>,
+          sentinel<int*, true> > >(),
+        "");
+    static_assert(
+      !models::sized_iterator_range<
+        stl2::common_iterator<
+          random_access_iterator<int*>,
+          sentinel<int*, false> >,
+        stl2::common_iterator<
+          random_access_iterator<int*>,
+          sentinel<int*, false> > >(),
+        "");
   }
-
   return test_result();
 }

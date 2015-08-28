@@ -105,6 +105,20 @@ std::ptrdiff_t operator-(sentinel<It, true> end, I<It> begin)
     return base(end) - base(begin);
 }
 
+template<typename It, template<typename> class I>
+constexpr
+std::ptrdiff_t operator-(I<It> end, sentinel<It, true> begin)
+{
+    return -(begin - end);
+}
+
+template<typename It>
+inline constexpr
+std::ptrdiff_t operator-(sentinel<It, true>, sentinel<It, true>)
+{
+    return 0;
+}
+
 template <class It>
 class output_iterator
 {

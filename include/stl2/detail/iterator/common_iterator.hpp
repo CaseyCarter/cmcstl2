@@ -20,56 +20,28 @@ concept bool __WeakSentinel =
   Iterator<I>() && Regular<S>() &&
   ext::WeaklyEqualityComparable<I, S>();
 
+template <class I, class S, class D>
+concept bool __CompatibleSizedIteratorRange =
+  SizedIteratorRange<I, S>() &&
+  requires (const I i, const S s) {
+    {i - s} -> D;
+    {s - i} -> D;
+  };
+
 template <Iterator I>
 constexpr bool __forward_iter = false;
-
 template <ForwardIterator I>
 constexpr bool __forward_iter<I> = true;
 
-template <InputIterator I, __WeakSentinel<I> S>
-  requires !Same<I, S>()
-class common_iterator;
-
-template <InputIterator I1, __WeakSentinel<I1> S1, InputIterator I2, __WeakSentinel<I2> S2>
-  requires EqualityComparable<I1, I2>() && ext::WeaklyEqualityComparable<I1, S2>() &&
-    ext::WeaklyEqualityComparable<I2, S1>()
-bool operator==(
-  const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y);
-
-template <InputIterator I1, __WeakSentinel<I1> S1, InputIterator I2, __WeakSentinel<I2> S2>
-  requires SizedIteratorRange<I1, I1>() && SizedIteratorRange<I2, I2>() &&
-    requires(const I1 i1, const S1 s1, const I2 i2, const S2 s2) {
-      {i1 - i2} -> DifferenceType<I2>;
-      {i2 - i1} -> DifferenceType<I2>;
-      {i1 - s2} -> DifferenceType<I2>;
-      {s2 - i1} -> DifferenceType<I2>;
-      {i2 - s1} -> DifferenceType<I2>;
-      {s1 - i2} -> DifferenceType<I2>;
-    }
-DifferenceType<I2> operator-(
-  const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y);
+struct __ci_access;
 
 template <InputIterator I, __WeakSentinel<I> S>
   requires !Same<I, S>()
 class common_iterator {
-  template <InputIterator I1, __WeakSentinel<I1> S1, InputIterator I2, __WeakSentinel<I2> S2>
-    requires EqualityComparable<I1, I2>() && ext::WeaklyEqualityComparable<I1, S2>() &&
-      ext::WeaklyEqualityComparable<I2, S1>()
-  friend bool operator==(
-    const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y);
-
-  template <InputIterator I1, __WeakSentinel<I1> S1, InputIterator I2, __WeakSentinel<I2> S2>
-    requires SizedIteratorRange<I1, I1>() && SizedIteratorRange<I2, I2>() &&
-      requires(const I1 i1, const S1 s1, const I2 i2, const S2 s2) {
-        {i1 - i2} -> DifferenceType<I2>;
-        {i2 - i1} -> DifferenceType<I2>;
-        {i1 - s2} -> DifferenceType<I2>;
-        {s2 - i1} -> DifferenceType<I2>;
-        {i2 - s1} -> DifferenceType<I2>;
-        {s1 - i2} -> DifferenceType<I2>;
-      }
-  friend DifferenceType<I2> operator-(
-    const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y);
+  friend __ci_access;
+  bool is_sentinel;
+  I iter;
+  S sent;
 public:
   using difference_type = DifferenceType<I>;
   using value_type = ValueType<I>;
@@ -111,25 +83,36 @@ public:
     ++*this;
     return tmp;
   }
-private:
-  bool is_sentinel;
-  I iter;
-  S sent;
 };
 
-template <InputIterator I1, __WeakSentinel<I1> S1, InputIterator I2, __WeakSentinel<I2> S2>
+struct __ci_access {
+  template <class I, class S>
+  static bool is_sentinel(const common_iterator<I, S>& ci) {
+    return ci.is_sentinel;
+  }
+  template <class I, class S>
+  static const I& iter(const common_iterator<I, S>& ci) {
+    return ci.iter;
+  }
+  template <class I, class S>
+  static const S& sent(const common_iterator<I, S>& ci) {
+    return ci.sent;
+  }
+};
+
+template <class I1, class S1, class I2, class S2>
   requires EqualityComparable<I1, I2>() && ext::WeaklyEqualityComparable<I1, S2>() &&
     ext::WeaklyEqualityComparable<I2, S1>()
 bool operator==(
   const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
-    return x.is_sentinel ?
-      (y.is_sentinel || y.iter == x.sent) :
-        (y.is_sentinel ?
-          x.iter == y.sent :
-          x.iter == y.iter);
+    return __ci_access::is_sentinel(x) ?
+      (__ci_access::is_sentinel(y) || __ci_access::iter(y) == __ci_access::sent(x)) :
+        (__ci_access::is_sentinel(y) ?
+          __ci_access::iter(x) == __ci_access::sent(y) :
+          __ci_access::iter(x) == __ci_access::iter(y));
 }
 
-template <InputIterator I1, __WeakSentinel<I1> S1, InputIterator I2, __WeakSentinel<I2> S2>
+template <class I1, class S1, class I2, class S2>
   requires EqualityComparable<I1, I2>() && ext::WeaklyEqualityComparable<I1, S2>() &&
     ext::WeaklyEqualityComparable<I2, S1>()
 bool operator!=(
@@ -137,23 +120,18 @@ bool operator!=(
     return !(x == y);
 }
 
-template <InputIterator I1, __WeakSentinel<I1> S1, InputIterator I2, __WeakSentinel<I2> S2>
-  requires SizedIteratorRange<I1, I1>() && SizedIteratorRange<I2, I2>() &&
-    requires(const I1 i1, const S1 s1, const I2 i2, const S2 s2) {
-      {i1 - i2} -> DifferenceType<I2>;
-      {i2 - i1} -> DifferenceType<I2>;
-      {i1 - s2} -> DifferenceType<I2>;
-      {s2 - i1} -> DifferenceType<I2>;
-      {i2 - s1} -> DifferenceType<I2>;
-      {s1 - i2} -> DifferenceType<I2>;
-    }
+template <class I1, class S1, class I2, class S2>
+  requires
+    __CompatibleSizedIteratorRange<I1, I2, DifferenceType<I2>> &&
+    __CompatibleSizedIteratorRange<I1, S2, DifferenceType<I2>> &&
+    __CompatibleSizedIteratorRange<I2, S1, DifferenceType<I2>>
 DifferenceType<I2> operator-(
   const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
-    return x.is_sentinel ?
-      (y.is_sentinel ? 0 : x.sent - y.iter) :
-        (y.is_sentinel ?
-          x.iter - y.sent :
-          x.iter - y.iter);
+    return __ci_access::is_sentinel(x) ?
+      (__ci_access::is_sentinel(y) ? 0 : __ci_access::sent(x) - __ci_access::iter(y)) :
+        (__ci_access::is_sentinel(y) ?
+          __ci_access::iter(x) - __ci_access::sent(y) :
+          __ci_access::iter(x) - __ci_access::iter(y));
 }
 
 }}
