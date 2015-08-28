@@ -24,7 +24,7 @@ namespace detail {
 template <class T>
 concept bool Dereferenceable =
   requires (T& t) {
-    { *t } -> auto&&;
+    STL2_DEDUCE_AUTO_REF_REF(*t);
   };
 }
 
@@ -485,7 +485,7 @@ template <class I>
 concept bool MutableIterator =
   Iterator<I>() &&
   requires (const I& i) {
-    { *i } -> auto&;
+    STL2_DEDUCE_AUTO_REF(*i);
     *i = *i;
   };
 }
@@ -622,7 +622,9 @@ struct __pointer_type {
 };
 
 template <WeakInputIterator I>
-  requires requires (I i) { { i.operator->() } -> auto&&; }
+  requires requires (I i) {
+    STL2_DEDUCE_AUTO_REF_REF(i.operator->());
+  }
 struct __pointer_type<I> {
   using type = decltype(declval<I>().operator->());
 };

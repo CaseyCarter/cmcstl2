@@ -140,14 +140,12 @@ std::ostream& operator<<(std::ostream& sout, category c) {
 
 template <class>
 constexpr category iterator_dispatch() { return category::none; }
-#if 0 // Broken again - causes ambiguity.
 template <stl2::WeakOutputIterator<int> I>
   requires !stl2::WeakInputIterator<I>()
 constexpr category iterator_dispatch() { return category::weak_output; }
 template <stl2::OutputIterator<int> I>
   requires !stl2::WeakInputIterator<I>()
 constexpr category iterator_dispatch() { return category::output; }
-#endif
 template <stl2::WeakInputIterator>
 constexpr category iterator_dispatch() { return category::weak_input; }
 template <stl2::InputIterator>
@@ -298,6 +296,7 @@ template <stl2::ext::ContiguousIterator I, stl2::Sentinel<I> S,
     std::is_trivially_copyable<stl2::ValueType<I>>::value
 bool copy(I first, S last, O o) {
   auto n = last - first;
+  assert(n >= 0);
   if (n) {
     std::memmove(std::addressof(*o), std::addressof(*first),
                  n * sizeof(stl2::ValueType<I>));

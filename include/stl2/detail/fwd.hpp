@@ -61,6 +61,20 @@ namespace models {}
 #define STL2_CONVERSION_CONSTRAINT(E, ...) \
   STL2_BINARY_DEDUCTION_CONSTRAINT(E, ConvertibleTo, __VA_ARGS__)
 
+// Workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67384
+// Use the expression constraint "deduce_auto_ref_ref(E);" in place
+// of the compound constraint "{ E } -> auto&&;"
+namespace stl2 { inline namespace v1 { namespace detail {
+void deduce_auto_ref(auto&);
+void deduce_auto_ref_ref(auto&&);
+}}}
+
+#define STL2_DEDUCE_AUTO_REF(E) \
+  ::stl2::detail::deduce_auto_ref(E)
+
+#define STL2_DEDUCE_AUTO_REF_REF(E) \
+  ::stl2::detail::deduce_auto_ref_ref(E)
+
 // Workaround bugs in constrained return types
 // (e.g., Iterator begin(Range&&);) by simply disabling
 // the feature and using "auto"
