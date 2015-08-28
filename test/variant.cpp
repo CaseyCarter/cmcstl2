@@ -21,17 +21,6 @@ static_assert(stl2::is_trivially_copy_constructible<VDI>());
 static_assert(stl2::is_trivially_move_assignable<VDI>());
 static_assert(stl2::is_trivially_copy_assignable<VDI>());
 
-// The triviality goal ensures that trivial variants are passed by value in
-// registers on x64. This function optimizes to two register moves:
-VDI v_test(VDI source) {
-  return source;
-}
-
-// This is two stores:
-void v_assign(VDI& target, VDI source) {
-  target = move(source);
-}
-
 namespace {
 struct nontrivial {
   struct counts {
@@ -578,6 +567,15 @@ void test_get() {
     CHECK(get<1>(v) == 42);
     //get<int>(v); // ill-formed: not unique.
   }
+  {
+    constexpr variant<int, double> v1{42};
+    constexpr variant<int, double> v2{3.14};
+    static_assert(get<0>(v1) == 42);
+    static_assert(get<int>(v1) == 42);
+    static_assert(get<1>(v2) == 3.14);
+    // Broken by GCC PR67371
+    //static_assert(get<double>(v1) == 3.14);
+  }
 }
 
 void test_move_assignment() {
@@ -824,7 +822,11 @@ struct print_fn {
     return 0;
   }
 
-  int print(false_type, const auto& first, const auto&...rest) const;
+  int print(false_type, const auto& first, const auto&...rest) const {
+    os() << first;
+    return 1 + print(true_type{}, rest...);
+  }
+
   int print(true_type, const auto&...args) const
     requires sizeof...(args) > 0
   {
@@ -837,11 +839,6 @@ struct print_fn {
     return print(false_type{}, args...);
   }
 };
-
-inline int print_fn::print(false_type, const auto& first, const auto&...rest) const {
-  os() << first;
-  return 1 + print(true_type{}, rest...);
-}
 
 void test_visit() {
   using V = variant<int, double, void, nontrivial_literal>;
@@ -1570,8 +1567,23 @@ int main() {
 #if 0
 void f(auto...args);
 
-int test_get_foo(variant<int, double> v) {
+// The triviality goal ensures that trivial variants are passed by value in
+// registers on x64. This function optimizes to two register moves:
+VDI v_test(VDI source) {
+  return source;
+}
+
+// This is two stores:
+void v_assign(VDI& target, VDI source) {
+  target = move(source);
+}
+
+int test_get(variant<int, double> v) {
   return stl2::get<0>(v);
+}
+
+int test_guarded_get(variant<int, double> v) {
+  return v.index() == 0 ? stl2::get<0>(v) : 0;
 }
 
 using VV = variant<char, void, short, int>;

@@ -19,10 +19,8 @@
 
 #define __cpp_lib_variant 20150524
 
-#if 1
-#define STL2_CONSTEXPR_VISIT
-#else
-#define STL2_CONSTEXPR_VISIT constexpr
+#ifndef STL2_CONSTEXPR_VISIT
+#define STL2_CONSTEXPR_VISIT 0
 #endif
 
 namespace stl2 { inline namespace v1 {
@@ -93,6 +91,11 @@ constexpr bool AllTotallyOrdered<Ts...> = true;
 
 struct void_storage : monostate {
   void_storage() requires false;
+private:
+  // void_storage must have at least one constexpr constructor
+  // to be a literal type.
+  struct hack_tag {};
+  constexpr void_storage(hack_tag) {}
 };
 
 template <class T>
@@ -647,33 +650,34 @@ template <std::size_t I, Variant V>
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 constexpr auto&& get(V&& v) {
   assert(v.valid());
-  if (v.index() != I) {
-    bad_access();
-  }
+  // Tortured syntax here to avoid
+  // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67371
+  (void)(v.index() != I && (bad_access(), false));
   return cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
 }
 
 template <_IsNot<is_void> T, Variant V,
   std::size_t I = index_of_type<T, VariantTypes<V>>>
 constexpr auto&& get(V&& v) {
-  return get<I>(v);
+  return __variant::get<I>(v);
 }
 
 template <std::size_t I, Variant V>
   requires I < VariantTypes<V>::size() &&
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
-constexpr auto get(V* v) noexcept {
+constexpr auto get(V* v) noexcept ->
+  decltype(&__variant::cooked_get(meta::size_t<I>{}, *v)) {
   assert(v);
-  if (v->index() != I) {
-    return (decltype(&get<I>(*v)))0;
+  if (v->index() == I) {
+    return &__variant::cooked_get(meta::size_t<I>{}, *v);
   }
-  return &get<I>(*v);
+  return nullptr;
 }
 
 template <_IsNot<is_void> T, Variant V,
   std::size_t I = index_of_type<T, VariantTypes<V>>>
 constexpr auto get(V* v) noexcept {
-  return get<I>(v);
+  return __variant::get<I>(v);
 }
 
 // Visitation
@@ -816,8 +820,10 @@ public:
 };
 
 Visitor{F, ...Vs}
-STL2_CONSTEXPR_VISIT VisitReturnType<F, Vs...>
-raw_visit_with_indices(F&& f, Vs&&...vs)
+#if STL2_CONSTEXPR_VISIT
+constexpr
+#endif
+VisitReturnType<F, Vs...> raw_visit_with_indices(F&& f, Vs&&...vs)
   noexcept(noexcept(declval<ON_dispatch<F, Vs...>>().visit()))
   requires total_alternatives<Vs...> < O1_visit_threshold
 {
@@ -891,8 +897,10 @@ using all_indices =
     meta::quote<as_integer_sequence>>;
 
 Visitor{F, ...Vs}
-STL2_CONSTEXPR_VISIT VisitReturnType<F, Vs...>
-raw_visit_with_indices(F&& f, Vs&&...vs)
+#if STL2_CONSTEXPR_VISIT
+constexpr
+#endif
+VisitReturnType<F, Vs...> raw_visit_with_indices(F&& f, Vs&&...vs)
   noexcept(noexcept(O1_dispatch<all_indices<Vs...>, F, Vs...>
     ::table[0](declval<F>(), declval<Vs>()...)))
   requires total_alternatives<Vs...> >= O1_visit_threshold
@@ -944,12 +952,8 @@ STL2_NOEXCEPT_RETURN(
 )
 
 template <class F, Variant...Vs>
-class cooked_visitor {
+struct cooked_visitor {
   F&& f_;
-
-public:
-  cooked_visitor(F&& f) :
-    f_(stl2::forward<F>(f)) {}
 
   template <std::size_t...Is, class...Args>
   constexpr decltype(auto) operator()(std::index_sequence<Is...> i, Args&&...args) &&
@@ -1400,7 +1404,8 @@ struct hash<::stl2::monostate> {
   using argument_type = ::stl2::monostate;
 
   constexpr size_t operator()(::stl2::monostate) const {
-    return 42;
+    // https://xkcd.com/221/
+    return 4;
   }
 };
 
