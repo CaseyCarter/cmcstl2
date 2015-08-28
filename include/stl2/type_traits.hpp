@@ -71,11 +71,15 @@ template <class T>
 struct common_type<T> : decay<T> { };
 
 template <class T, class U>
-struct common_type<T, U>
+struct __common_type2
   : common_type<decay_t<T>, decay_t<U>> { };
 
 template <_Decayed T, _Decayed U>
-struct common_type<T, U> : __builtin_common<T, U> { };
+struct __common_type2<T, U> : __builtin_common<T, U> { };
+
+template <class T, class U>
+struct common_type<T, U>
+  : __common_type2<T, U> { };
 
 template <class T, class U, class V, class... W>
   requires _Valid<common_type_t, T, U>
@@ -123,14 +127,17 @@ template <class T>
 struct common_reference<T> : meta::id<T> { };
 
 template <class T, class U>
-struct common_reference<T, U>
+struct __common_reference2
   : meta::if_<meta::has_type<__basic_common_reference<T, U>>,
       __basic_common_reference<T, U>, common_type<T, U>> { };
 
 template <class T, class U>
   requires _Valid<__builtin_common_t, T, U>
     && meta::_v<is_reference<__builtin_common_t<T, U>>>
-struct common_reference<T, U> : __builtin_common<T, U> { };
+struct __common_reference2<T, U> : __builtin_common<T, U> { };
+
+template <class T, class U>
+struct common_reference<T, U> : __common_reference2<T, U> { };
 
 template <class T, class U, class V, class... W>
   requires _Valid<common_reference_t, T, U>

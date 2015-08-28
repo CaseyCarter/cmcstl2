@@ -6,3 +6,6 @@ add_test(test.iterator.move move_iterator)
 
 add_executable(reverse_iterator reverse_iterator.cpp)
 add_test(test.iterator.reverse reverse_iterator)
+
+add_executable(common_iterator common_iterator.cpp)
+add_test(test.iterator.common common_iterator)

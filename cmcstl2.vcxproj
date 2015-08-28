@@ -79,6 +79,7 @@
     <ClInclude Include="include\stl2\detail\concepts\function.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\object.hpp" />
     <ClInclude Include="include\stl2\detail\fwd.hpp" />
+    <ClInclude Include="include\stl2\detail\iterator\common_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\swap.hpp" />
     <ClInclude Include="include\stl2\detail\tagged.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\concepts.hpp" />
@@ -112,6 +113,7 @@
     <ClCompile Include="test\concepts\range.cpp" />
     <ClCompile Include="test\concepts\swap.cpp" />
     <ClCompile Include="test\headers.cpp" />
+    <ClCompile Include="test\iterator\common_iterator.cpp" />
     <ClCompile Include="test\range_access.cpp" />
     <ClCompile Include="test\tagged.cpp" />
     <ClCompile Include="test\iterator\iterator.cpp" />

@@ -16,9 +16,11 @@
 #include <stl2/detail/iterator/move_iterator.hpp>
 #include <stl2/detail/iterator/operations.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>
+#include <stl2/detail/iterator/common_iterator.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/range/primitives.hpp>
+#include <stl2/type_traits.hpp>
 
 namespace stl2 { inline namespace v1 {
 using std::iterator;
@@ -42,6 +44,20 @@ private:
 template <Range R>
 using safe_iterator_t =
   meta::if_<std::is_lvalue_reference<R>, IteratorType<R>, dangling<IteratorType<R>>>;
+
+// Not to spec: extension
+template <Iterator I, Regular S>
+  requires !_Valid<__cond, I, S> && ext::WeaklyEqualityComparable<I,S>()
+struct common_type<I, S> {
+  using type = common_iterator<I, S>;
+};
+
+template <Regular S, Iterator I>
+  requires !_Valid<__cond, I, S> && ext::WeaklyEqualityComparable<I,S>()
+struct common_type<S, I> {
+  using type = common_iterator<I, S>;
+};
+
 }}
 
 #endif

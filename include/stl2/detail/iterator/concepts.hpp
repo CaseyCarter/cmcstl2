@@ -24,7 +24,7 @@ namespace detail {
 template <class T>
 concept bool Dereferenceable =
   requires (T& t) {
-    { *t } -> auto&&;
+    STL2_DEDUCE_AUTO_REF_REF(*t);
   };
 }
 
@@ -469,7 +469,7 @@ concept bool BidirectionalIterator() {
     };
 }
 
-template <class I, class S = I>
+template <class I, class S>
 concept bool SizedIteratorRange() {
   return Sentinel<S, I>() &&
     requires (const I& i, const S& s) {
@@ -485,7 +485,7 @@ template <class I>
 concept bool MutableIterator =
   Iterator<I>() &&
   requires (const I& i) {
-    { *i } -> auto&;
+    STL2_DEDUCE_AUTO_REF(*i);
     *i = *i;
   };
 }
@@ -495,7 +495,7 @@ concept bool RandomAccessIterator() {
   return BidirectionalIterator<I>() &&
     TotallyOrdered<I>() &&
     DerivedFrom<IteratorCategory<I>, random_access_iterator_tag>() &&
-    SizedIteratorRange<I>() &&
+    SizedIteratorRange<I,I>() &&
     requires (I& i, const I& j, const DifferenceType<I> n) {
       STL2_EXACT_TYPE_CONSTRAINT(i += n, I&);
       STL2_EXACT_TYPE_CONSTRAINT(j + n, I);
@@ -597,7 +597,7 @@ constexpr bool bidirectional_iterator() { return false; }
 BidirectionalIterator{I}
 constexpr bool bidirectional_iterator() { return true; }
 
-template <class I, class S = I>
+template <class I, class S>
 constexpr bool sized_iterator_range() { return false; }
 SizedIteratorRange{I, S}
 constexpr bool sized_iterator_range() { return true; }
@@ -622,7 +622,9 @@ struct __pointer_type {
 };
 
 template <WeakInputIterator I>
-  requires requires (I i) { { i.operator->() } -> auto&&; }
+  requires requires (I i) {
+    STL2_DEDUCE_AUTO_REF_REF(i.operator->());
+  }
 struct __pointer_type<I> {
   using type = decltype(declval<I>().operator->());
 };
