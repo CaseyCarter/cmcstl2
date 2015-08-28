@@ -19,8 +19,12 @@
 
 #define __cpp_lib_variant 20150524
 
-#ifndef STL2_CONSTEXPR_VISIT
-#define STL2_CONSTEXPR_VISIT 0
+#if 1
+// Disable asserts in the visitation machinery that ICE the compiler.
+// (Probably https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66635)
+#define STL2_VISIT_ASSERT(...)
+#else
+#define STL2_VISIT_ASSERT assert
 #endif
 
 namespace stl2 { inline namespace v1 {
@@ -641,7 +645,7 @@ public:
 // want bad_access to be inlined into get. Having it
 // be a separate function results in better generated
 // code.
-[[noreturn]] inline void bad_access() {
+[[noreturn]] inline bool bad_access() {
   throw bad_variant_access{};
 }
 
@@ -650,9 +654,9 @@ template <std::size_t I, Variant V>
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 constexpr auto&& get(V&& v) {
   assert(v.valid());
-  // Tortured syntax here to avoid
+  // Odd syntax here to avoid
   // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67371
-  (void)(v.index() != I && (bad_access(), false));
+  v.index() == I || bad_access();
   return cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
 }
 
@@ -777,7 +781,8 @@ class ON_dispatch {
   constexpr R find_one_index(std::index_sequence<Is...>, std::size_t n, std::index_sequence<Last>)
     noexcept(noexcept(declval<ON_dispatch&>().
       find_indices(std::index_sequence<Is..., Last>{}))) {
-    assert(n == Last); (void)n;
+    assert(n == Last);
+    (void)n;
     return find_indices(std::index_sequence<Is..., Last>{});
   }
 
@@ -804,7 +809,7 @@ class ON_dispatch {
     noexcept(noexcept(declval<ON_dispatch&>()
       .find_one_index(i, std::size_t{0}, NVI{}))) {
     auto& v = stl2::get<sizeof...(Is)>(vs_);
-    assert(v.valid());
+    STL2_VISIT_ASSERT(v.valid());
     return find_one_index(i, v.index(), NVI{});
   }
 
@@ -820,10 +825,8 @@ public:
 };
 
 Visitor{F, ...Vs}
-#if STL2_CONSTEXPR_VISIT
-constexpr
-#endif
-VisitReturnType<F, Vs...> raw_visit_with_indices(F&& f, Vs&&...vs)
+constexpr VisitReturnType<F, Vs...>
+raw_visit_with_indices(F&& f, Vs&&...vs)
   noexcept(noexcept(declval<ON_dispatch<F, Vs...>>().visit()))
   requires total_alternatives<Vs...> < O1_visit_threshold
 {
@@ -880,7 +883,7 @@ constexpr std::size_t calc_index() noexcept {
 template <Variant First, Variant...Rest>
 constexpr std::size_t
 calc_index(const First& f, const Rest&...rest) noexcept {
-  assert(f.valid());
+  STL2_VISIT_ASSERT(f.valid());
   constexpr std::size_t M = meta::_v<meta::fold<
     meta::list<meta::size<VariantTypes<Rest>>...>,
     meta::size_t<1>,
@@ -897,17 +900,15 @@ using all_indices =
     meta::quote<as_integer_sequence>>;
 
 Visitor{F, ...Vs}
-#if STL2_CONSTEXPR_VISIT
-constexpr
-#endif
-VisitReturnType<F, Vs...> raw_visit_with_indices(F&& f, Vs&&...vs)
+constexpr VisitReturnType<F, Vs...>
+raw_visit_with_indices(F&& f, Vs&&...vs)
   noexcept(noexcept(O1_dispatch<all_indices<Vs...>, F, Vs...>
     ::table[0](declval<F>(), declval<Vs>()...)))
   requires total_alternatives<Vs...> >= O1_visit_threshold
 {
   using Dispatch = O1_dispatch<all_indices<Vs...>, F, Vs...>;
   std::size_t i = calc_index(vs...);
-  assert(Dispatch::table[i]);
+  STL2_VISIT_ASSERT(Dispatch::table[i]);
   return Dispatch::table[i](stl2::forward<F>(f), stl2::forward<Vs>(vs)...);
 }
 

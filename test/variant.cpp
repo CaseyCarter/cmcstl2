@@ -573,8 +573,7 @@ void test_get() {
     static_assert(get<0>(v1) == 42);
     static_assert(get<int>(v1) == 42);
     static_assert(get<1>(v2) == 3.14);
-    // Broken by GCC PR67371
-    //static_assert(get<double>(v1) == 3.14);
+    static_assert(get<double>(v2) == 3.14);
   }
 }
 
