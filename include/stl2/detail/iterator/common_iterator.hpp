@@ -42,30 +42,42 @@ class common_iterator {
   bool is_sentinel;
   I iter;
   S sent;
+  template <InputIterator U, __WeakSentinel<U> V>
+    requires ConvertibleTo<U, I>() && ConvertibleTo<V, S>()
+  void assign_(const common_iterator<U, V>& u) {
+    if(u.is_sentinel)
+      sent = u.sent;
+    else
+      iter = u.iter;
+    is_sentinel = u.is_sentinel;
+  }
 public:
   using difference_type = DifferenceType<I>;
   using value_type = ValueType<I>;
   using iterator_category =
     conditional_t<__forward_iter<I>,
-    std::forward_iterator_tag,
-    std::input_iterator_tag>;
+    stl2::forward_iterator_tag,
+    stl2::input_iterator_tag>;
   using reference = ReferenceType<I>;
   common_iterator() : is_sentinel{}, iter{}, sent{} {}
   common_iterator(I i) : is_sentinel{false}, iter(stl2::move(i)), sent{} {}
   common_iterator(S s) : is_sentinel{true}, iter{}, sent(stl2::move(s)) {}
+  common_iterator(const common_iterator& u) : common_iterator() {
+    this->assign_(u);
+  }
   template <InputIterator U, __WeakSentinel<U> V>
     requires ConvertibleTo<U, I>() && ConvertibleTo<V, S>()
   common_iterator(const common_iterator<U, V>& u) : common_iterator() {
-    *this = u;
+    this->assign_(u);
+  }
+  common_iterator& operator=(const common_iterator& u) {
+    this->assign_(u);
+    return *this;
   }
   template <InputIterator U, __WeakSentinel<U> V>
     requires ConvertibleTo<U, I>() && ConvertibleTo<V, S>()
   common_iterator& operator=(const common_iterator<U, V>& u) {
-    is_sentinel = u.is_sentinel;
-    if(is_sentinel)
-      sent = u.sent;
-    else
-      iter = u.iter;
+    this->assign_(u);
     return *this;
   }
   ~common_iterator() = default;

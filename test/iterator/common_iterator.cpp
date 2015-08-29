@@ -7,6 +7,7 @@
 //
 // Project home: https://github.com/ericniebler/range-v3
 
+#include <algorithm>
 #include <stl2/iterator.hpp>
 #include "../simple_test.hpp"
 #include "test_iterators.hpp"
@@ -125,6 +126,15 @@ int main() {
           random_access_iterator<int*>,
           sentinel<int*, false> > >(),
         "");
+  }
+  {
+    int rgi[] {0,1,2,3,4,5,6,7,8,9};
+    using CI = stl2::common_iterator<
+      random_access_iterator<int*>,
+      sentinel<int*>>;
+    CI first{random_access_iterator<int*>{rgi}};
+    CI last{sentinel<int*>{rgi+10}};
+    CHECK(std::accumulate(first, last, 0, std::plus<int>{}) == 45);
   }
   return test_result();
 }
