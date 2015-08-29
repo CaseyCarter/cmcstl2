@@ -9,6 +9,7 @@
 using namespace stl2;
 namespace models = stl2::ext::models;
 
+namespace {
 template <class> class show_type;
 
 // variants of trivially {destructible,move constructible,copy constructible} types
@@ -21,7 +22,6 @@ static_assert(stl2::is_trivially_copy_constructible<VDI>());
 static_assert(stl2::is_trivially_move_assignable<VDI>());
 static_assert(stl2::is_trivially_copy_assignable<VDI>());
 
-namespace {
 struct nontrivial {
   struct counts {
     unsigned create;
@@ -840,35 +840,84 @@ struct print_fn {
 };
 
 void test_visit() {
-  using V = variant<int, double, void, nontrivial_literal>;
-  auto print = print_fn{std::cout};
+  {
+    using V = variant<int, double, void, nontrivial_literal>;
+    auto print = print_fn{std::cout};
 
-  CHECK(visit(print, V{42}) == 1);
-  CHECK(visit(print, V{3.14}) == 1);
-  CHECK(visit(print, V{nontrivial_literal{13}}) == 1);
+    CHECK(visit(print, V{42}) == 1);
+    CHECK(visit(print, V{3.14}) == 1);
+    CHECK(visit(print, V{nontrivial_literal{13}}) == 1);
 
-  CHECK(visit(print, V{42}, V{13}) == 2);
-  CHECK(visit(print, V{42}, V{3.14}) == 2);
-  CHECK(visit(print, V{42}, V{nontrivial_literal{42}}) == 2);
-  CHECK(visit(print, V{3.14}, V{1.414}) == 2);
-  CHECK(visit(print, V{3.14}, V{42}) == 2);
-  CHECK(visit(print, V{3.14}, V{nontrivial_literal{42}}) == 2);
-  CHECK(visit(print, V{nontrivial_literal{42}}, V{13}) == 2);
-  CHECK(visit(print, V{nontrivial_literal{42}}, V{3.14}) == 2);
+    CHECK(visit(print, V{42}, V{13}) == 2);
+    CHECK(visit(print, V{42}, V{3.14}) == 2);
+    CHECK(visit(print, V{42}, V{nontrivial_literal{42}}) == 2);
+    CHECK(visit(print, V{3.14}, V{1.414}) == 2);
+    CHECK(visit(print, V{3.14}, V{42}) == 2);
+    CHECK(visit(print, V{3.14}, V{nontrivial_literal{42}}) == 2);
+    CHECK(visit(print, V{nontrivial_literal{42}}, V{13}) == 2);
+    CHECK(visit(print, V{nontrivial_literal{42}}, V{3.14}) == 2);
 
-  CHECK(visit(print, V{42}, V{3.14}, V{nontrivial_literal{42}}) == 3);
+    CHECK(visit(print, V{42}, V{3.14}, V{nontrivial_literal{42}}) == 3);
 
 #if 0
-  CHECK(visit(print, V{0}) == 1);
-  CHECK(visit(print, V{0}, V{1}) == 2);
-  CHECK(visit(print, V{0}, V{1}, V{2}) == 3);
-  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}) == 4);
-  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}) == 5);
-  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}) == 6);
-  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}, V{6}) == 7);
-  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}, V{6}, V{7}) == 8);
-  CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}, V{6}, V{7}, V{8}) == 9);
+    CHECK(visit(print, V{0}) == 1);
+    CHECK(visit(print, V{0}, V{1}) == 2);
+    CHECK(visit(print, V{0}, V{1}, V{2}) == 3);
+    CHECK(visit(print, V{0}, V{1}, V{2}, V{3}) == 4);
+    CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}) == 5);
+    CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}) == 6);
+    CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}, V{6}) == 7);
+    CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}, V{6}, V{7}) == 8);
+    CHECK(visit(print, V{0}, V{1}, V{2}, V{3}, V{4}, V{5}, V{6}, V{7}, V{8}) == 9);
 #endif
+  }
+
+  {
+    using V = variant<int, unsigned, long, unsigned long,
+      long long, unsigned long long>;
+    auto plus = stl2::plus<>{};
+    static_assert(visit(plus, V{42}, V{42}) == 84ull);
+    static_assert(visit(plus, V{42}, V{42u}) == 84ull);
+    static_assert(visit(plus, V{42}, V{42l}) == 84ull);
+    static_assert(visit(plus, V{42}, V{42ul}) == 84ull);
+    static_assert(visit(plus, V{42}, V{42ll}) == 84ull);
+    static_assert(visit(plus, V{42}, V{42ull}) == 84ull);
+
+    static_assert(visit(plus, V{42u}, V{42}) == 84ull);
+    static_assert(visit(plus, V{42u}, V{42u}) == 84ull);
+    static_assert(visit(plus, V{42u}, V{42l}) == 84ull);
+    static_assert(visit(plus, V{42u}, V{42ul}) == 84ull);
+    static_assert(visit(plus, V{42u}, V{42ll}) == 84ull);
+    static_assert(visit(plus, V{42u}, V{42ull}) == 84ull);
+
+    static_assert(visit(plus, V{42l}, V{42}) == 84ull);
+    static_assert(visit(plus, V{42l}, V{42u}) == 84ull);
+    static_assert(visit(plus, V{42l}, V{42l}) == 84ull);
+    static_assert(visit(plus, V{42l}, V{42ul}) == 84ull);
+    static_assert(visit(plus, V{42l}, V{42ll}) == 84ull);
+    static_assert(visit(plus, V{42l}, V{42ull}) == 84ull);
+
+    static_assert(visit(plus, V{42ul}, V{42}) == 84ull);
+    static_assert(visit(plus, V{42ul}, V{42u}) == 84ull);
+    static_assert(visit(plus, V{42ul}, V{42l}) == 84ull);
+    static_assert(visit(plus, V{42ul}, V{42ul}) == 84ull);
+    static_assert(visit(plus, V{42ul}, V{42ll}) == 84ull);
+    static_assert(visit(plus, V{42ul}, V{42ull}) == 84ull);
+
+    static_assert(visit(plus, V{42ll}, V{42}) == 84ull);
+    static_assert(visit(plus, V{42ll}, V{42u}) == 84ull);
+    static_assert(visit(plus, V{42ll}, V{42l}) == 84ull);
+    static_assert(visit(plus, V{42ll}, V{42ul}) == 84ull);
+    static_assert(visit(plus, V{42ll}, V{42ll}) == 84ull);
+    static_assert(visit(plus, V{42ll}, V{42ull}) == 84ull);
+
+    static_assert(visit(plus, V{42ull}, V{42}) == 84ull);
+    static_assert(visit(plus, V{42ull}, V{42u}) == 84ull);
+    static_assert(visit(plus, V{42ull}, V{42l}) == 84ull);
+    static_assert(visit(plus, V{42ull}, V{42ul}) == 84ull);
+    static_assert(visit(plus, V{42ull}, V{42ll}) == 84ull);
+    static_assert(visit(plus, V{42ull}, V{42ull}) == 84ull);
+  }
 }
 
 void test_tagged() {

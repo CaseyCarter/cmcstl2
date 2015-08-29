@@ -198,7 +198,7 @@ namespace {
 struct construct_fn {
   Constructible{T, ...Args}
   void operator()(T& t, Args&&...args) const
-    noexcept(std::is_nothrow_constructible<T, Args...>::value) {
+    noexcept(is_nothrow_constructible<T, Args...>::value) {
     ::new(static_cast<void*>(std::addressof(t)))
       T{std::forward<Args>(args)...};
   }
@@ -693,22 +693,34 @@ constexpr std::size_t total_alternatives<First, Rest...> =
   total_alternatives<Rest...>;
 
 template <class F, class Variants, class Indices>
-struct single_visit_return {};
+struct single_visit_properties {};
 template <class F, Variant...Variants, std::size_t...Is>
-struct single_visit_return<F,
+struct single_visit_properties<F,
   meta::list<Variants...>, meta::list<meta::size_t<Is>...>>
 {
-  using type = decltype(declval<F>()(std::index_sequence<Is...>{},
-    raw_get(meta::size_t<Is>{}, declval<Variants>().storage_)...));
+  using type =
+    decltype(declval<F>()(std::index_sequence<Is...>{},
+      raw_get(meta::size_t<Is>{}, declval<Variants>().storage_)...));
+  static constexpr bool nothrow =
+    noexcept(declval<F>()(std::index_sequence<Is...>{},
+      raw_get(meta::size_t<Is>{}, declval<Variants>().storage_)...));
 };
 template <class F, class Variants, class Indices>
 using single_visit_return_t =
-  meta::_t<single_visit_return<F, Variants, Indices>>;
+  meta::_t<single_visit_properties<F, Variants, Indices>>;
+template <class F, class Variants, class Indices>
+using single_visit_noexcept =
+  meta::bool_<single_visit_properties<F, Variants, Indices>::nothrow>;
+
+template <Variant...Vs>
+using all_visit_vectors =
+  meta::cartesian_product<meta::list<non_void_indices<VariantTypes<Vs>>...>>;
 
 template <class F, Variant...Vs>
-using all_return_types = meta::transform<
-  meta::cartesian_product<meta::list<non_void_indices<VariantTypes<Vs>>...>>,
-  meta::bind_front<meta::quote<single_visit_return_t>, F, meta::list<Vs...>>>;
+using all_return_types =
+  meta::transform<
+    all_visit_vectors<Vs...>,
+    meta::bind_front<meta::quote<single_visit_return_t>, F, meta::list<Vs...>>>;
 
 #if 0
 // require visitation to return the same type for all alternatives.
@@ -718,33 +730,40 @@ template <class F, Variant...Vs>
     meta::bind_front<
       meta::quote_trait<is_same>,
       meta::front<all_return_types<F, Vs...>>>>>
-using VisitReturnType = meta::front<all_return_types<F, Vs...>>;
+using VisitReturn = meta::front<all_return_types<F, Vs...>>;
 
 #elif 0
 // require the return type of all alternatives to have a common
 // type which visit returns.
 template <class F, Variant...Vs>
-using VisitReturnType =
+using VisitReturn =
   meta::apply_list<meta::quote<common_type_t>, all_return_types<F, Vs...>>;
 
 #else
 // require the return type of all alternatives to have a common
 // reference type which visit returns.
 template <class F, Variant...Vs>
-using VisitReturnType =
+using VisitReturn =
   meta::apply_list<meta::quote<common_reference_t>, all_return_types<F, Vs...>>;
 #endif
 
 template <class F, Variant...Vs>
 concept bool Visitor =
   sizeof...(Vs) > 0 &&
-  requires { typename VisitReturnType<F, Vs...>; };
+  requires { typename VisitReturn<F, Vs...>; };
+
+Visitor{F, ...Vs}
+constexpr bool VisitNothrow =
+  meta::_v<meta::apply_list<meta::quote<meta::fast_and>,
+    meta::transform<all_visit_vectors<Vs...>,
+      meta::bind_front<meta::quote<single_visit_noexcept>,
+        F, meta::list<Vs...>>>>>;
 
 // TODO: Tune.
 constexpr std::size_t O1_visit_threshold = 5;
 
 template <std::size_t...Is, Variant...Vs, Visitor<Vs...> F>
-constexpr VisitReturnType<F, Vs...>
+constexpr VisitReturn<F, Vs...>
 visit_handler(std::index_sequence<Is...> indices, F&& f, Vs&&...vs)
 STL2_NOEXCEPT_RETURN(
   stl2::forward<F>(f)(indices,
@@ -753,7 +772,7 @@ STL2_NOEXCEPT_RETURN(
 
 Visitor{F, ...Vs}
 class ON_dispatch {
-  using R = VisitReturnType<F, Vs...>;
+  using R = VisitReturn<F, Vs...>;
   static constexpr std::size_t N = sizeof...(Vs);
 
   F&& f_;
@@ -818,16 +837,15 @@ public:
     f_(stl2::forward<F>(f)), vs_{stl2::forward<Vs>(vs)...} {}
 
   constexpr R visit() &&
-    noexcept(noexcept(declval<ON_dispatch&>()
-      .find_indices(std::index_sequence<>{}))) {
+    noexcept(VisitNothrow<F, Vs...>) {
     return find_indices(std::index_sequence<>{});
   }
 };
 
 Visitor{F, ...Vs}
-constexpr VisitReturnType<F, Vs...>
+constexpr VisitReturn<F, Vs...>
 raw_visit_with_indices(F&& f, Vs&&...vs)
-  noexcept(noexcept(declval<ON_dispatch<F, Vs...>>().visit()))
+  noexcept(VisitNothrow<F, Vs...>)
   requires total_alternatives<Vs...> < O1_visit_threshold
 {
   return ON_dispatch<F, Vs...>{
@@ -837,7 +855,7 @@ raw_visit_with_indices(F&& f, Vs&&...vs)
 
 template <class I, class F, Variant...Vs>
   requires Visitor<F, Vs...>
-constexpr VisitReturnType<F, Vs...>
+constexpr VisitReturn<F, Vs...>
 o1_visit_handler(F&& f, Vs&&...vs)
 STL2_NOEXCEPT_RETURN(
   visit_handler(I{}, stl2::forward<F>(f),
@@ -846,7 +864,7 @@ STL2_NOEXCEPT_RETURN(
 
 Visitor{F, ...Vs}
 using visit_handler_ptr =
-  VisitReturnType<F, Vs...>(*)(F&&, Vs&&...);
+  VisitReturn<F, Vs...>(*)(F&&, Vs&&...);
 
 template <class Indices, class F, Variant...Vs>
   requires Visitor<F, Vs...>
@@ -900,10 +918,9 @@ using all_indices =
     meta::quote<as_integer_sequence>>;
 
 Visitor{F, ...Vs}
-constexpr VisitReturnType<F, Vs...>
+constexpr VisitReturn<F, Vs...>
 raw_visit_with_indices(F&& f, Vs&&...vs)
-  noexcept(noexcept(O1_dispatch<all_indices<Vs...>, F, Vs...>
-    ::table[0](declval<F>(), declval<Vs>()...)))
+  noexcept(VisitNothrow<F, Vs...>)
   requires total_alternatives<Vs...> >= O1_visit_threshold
 {
   using Dispatch = O1_dispatch<all_indices<Vs...>, F, Vs...>;
@@ -924,13 +941,13 @@ struct single_index_visitor {
 
 template <class F, Variant V>
   requires Visitor<single_index_visitor<F>, V>
-constexpr VisitReturnType<single_index_visitor<F>, V>
+constexpr VisitReturn<single_index_visitor<F>, V>
 raw_visit_with_index(F&& f, V&& v)
-STL2_NOEXCEPT_RETURN(
-  raw_visit_with_indices(
+  noexcept(VisitNothrow<single_index_visitor<F>, V>) {
+  return raw_visit_with_indices(
     single_index_visitor<F>{stl2::forward<F>(f)},
-    stl2::forward<V>(v))
-)
+    stl2::forward<V>(v));
+}
 
 template <class F, Variant...Vs>
 struct no_index_visitor {
@@ -944,13 +961,13 @@ struct no_index_visitor {
 
 template <class F, Variant...Vs>
   requires Visitor<no_index_visitor<F>, Vs...>
-constexpr VisitReturnType<no_index_visitor<F>, Vs...>
+constexpr VisitReturn<no_index_visitor<F>, Vs...>
 raw_visit(F&& f, Vs&&...vs)
-STL2_NOEXCEPT_RETURN(
-  raw_visit_with_indices(
+  noexcept(VisitNothrow<no_index_visitor<F>, Vs...>) {
+  return raw_visit_with_indices(
     no_index_visitor<F>{stl2::forward<F>(f)},
-    stl2::forward<Vs>(vs)...)
-)
+    stl2::forward<Vs>(vs)...);
+}
 
 template <class F, Variant...Vs>
 struct cooked_visitor {
@@ -968,36 +985,36 @@ struct cooked_visitor {
   }
 };
 
-template <class F, Variant...Vs>
-  requires Visitor<cooked_visitor<F, Vs...>, Vs...>
-constexpr decltype(auto)
+template <class F, Variant...Vs, class CV = cooked_visitor<F, Vs...>>
+  requires Visitor<CV, Vs...>
+constexpr VisitReturn<CV, Vs...>
 visit_with_indices(F&& f, Vs&&...vs)
-STL2_NOEXCEPT_RETURN(
-  raw_visit_with_indices(
-    cooked_visitor<F, Vs...>{stl2::forward<F>(f)},
-    stl2::forward<Vs>(vs)...)
-)
+  noexcept(VisitNothrow<CV, Vs...>) {
+  return raw_visit_with_indices(
+    CV{stl2::forward<F>(f)},
+    stl2::forward<Vs>(vs)...);
+}
 
-template <class F, Variant V>
-  requires Visitor<cooked_visitor<
-    single_index_visitor<F>, V>, V>
-constexpr decltype(auto)
+template <class F, Variant V,
+  class CV = cooked_visitor<single_index_visitor<F>, V>>
+  requires Visitor<CV, V>
+constexpr VisitReturn<CV, V>
 visit_with_index(F&& f, V&& v)
-STL2_NOEXCEPT_RETURN(
-  visit_with_indices(
+  noexcept(VisitNothrow<CV, V>) {
+  return visit_with_indices(
     single_index_visitor<F>{stl2::forward<F>(f)},
-    stl2::forward<V>(v))
-)
+    stl2::forward<V>(v));
+}
 
-template <class F, Variant...Vs>
-  requires Visitor<cooked_visitor<
-    no_index_visitor<F>, Vs...>, Vs...>
-constexpr decltype(auto) visit(F&& f, Vs&&...vs)
-STL2_NOEXCEPT_RETURN(
-  visit_with_indices(
+template <class F, Variant...Vs,
+  class CV = cooked_visitor<no_index_visitor<F>, Vs...>>
+  requires Visitor<CV, Vs...>
+constexpr VisitReturn<CV, Vs...> visit(F&& f, Vs&&...vs)
+  noexcept(VisitNothrow<CV, Vs...>) {
+  return visit_with_indices(
     no_index_visitor<F>{stl2::forward<F>(f)},
-    stl2::forward<Vs>(vs)...)
-)
+    stl2::forward<Vs>(vs)...);
+}
 
 template <class...Ts>
 class destruct_base : public base<Ts...> {
