@@ -652,12 +652,26 @@ public:
 template <std::size_t I, Variant V>
   requires I < VariantTypes<V>::size() &&
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
+constexpr auto&& get_unchecked(V&& v) {
+  assert(v.index() == I);
+  return cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
+}
+
+template <std::size_t I, Variant V>
+  requires I < VariantTypes<V>::size() &&
+    _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 constexpr auto&& get(V&& v) {
   assert(v.valid());
   // Odd syntax here to avoid
   // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67371
   v.index() == I || bad_access();
   return cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
+}
+
+template <_IsNot<is_void> T, Variant V,
+  std::size_t I = index_of_type<T, VariantTypes<V>>>
+constexpr auto&& get_unchecked(V&& v) {
+  return __variant::get_unchecked<I>(v);
 }
 
 template <_IsNot<is_void> T, Variant V,
@@ -1372,6 +1386,7 @@ class variant<> {
 };
 
 using __variant::get;
+using __variant::get_unchecked;
 using __variant::visit;
 using __variant::visit_with_index;
 using __variant::visit_with_indices;
