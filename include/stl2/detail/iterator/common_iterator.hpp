@@ -4,6 +4,7 @@
 #include <cassert>
 #include <type_traits>
 
+#include <stl2/variant.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
@@ -33,15 +34,11 @@ constexpr bool __forward_iter = false;
 template <ForwardIterator I>
 constexpr bool __forward_iter<I> = true;
 
-struct __ci_access;
-
 template <InputIterator I, __WeakSentinel<I> S>
   requires !Same<I, S>()
 class common_iterator {
-  friend __ci_access;
-  bool is_sentinel;
-  I iter;
-  S sent;
+  friend struct __ci_access;
+  variant<I, S> v_;
 public:
   using difference_type = DifferenceType<I>;
   using value_type = ValueType<I>;
@@ -50,32 +47,28 @@ public:
     std::forward_iterator_tag,
     std::input_iterator_tag>;
   using reference = ReferenceType<I>;
-  common_iterator() : is_sentinel{}, iter{}, sent{} {}
-  common_iterator(I i) : is_sentinel{false}, iter(stl2::move(i)), sent{} {}
-  common_iterator(S s) : is_sentinel{true}, iter{}, sent(stl2::move(s)) {}
-  template <InputIterator U, __WeakSentinel<U> V>
-    requires ConvertibleTo<U, I>() && ConvertibleTo<V, S>()
+  common_iterator() = default;
+  common_iterator(I i) : v_{stl2::move(i)} {}
+  common_iterator(S s) : v_{stl2::move(s)} {}
+  template <ConvertibleTo<I> U, ConvertibleTo<S> V>
   common_iterator(const common_iterator<U, V>& u) : common_iterator() {
     *this = u;
   }
-  template <InputIterator U, __WeakSentinel<U> V>
-    requires ConvertibleTo<U, I>() && ConvertibleTo<V, S>()
+  template <ConvertibleTo<I> U, ConvertibleTo<S> V>
   common_iterator& operator=(const common_iterator<U, V>& u) {
-    is_sentinel = u.is_sentinel;
-    if(is_sentinel)
-      sent = u.sent;
-    else
-      iter = u.iter;
+    visit_with_index([this](auto i, auto& t) {
+      v_.emplace<i()>(t);
+    }, u.v_);
     return *this;
   }
   ~common_iterator() = default;
   reference operator*() const {
-    assert(!is_sentinel);
-    return *iter;
+    assert(holds_alternative<I>(v_));
+    return *stl2::get_unchecked<I>(v_);
   }
   common_iterator& operator++() {
-    assert(!is_sentinel);
-    ++iter;
+    assert(holds_alternative<I>(v_));
+    ++stl2::get_unchecked<I>(v_);
     return *this;
   }
   common_iterator operator++(int) {
@@ -86,34 +79,39 @@ public:
 };
 
 struct __ci_access {
-  template <class I, class S>
-  static bool is_sentinel(const common_iterator<I, S>& ci) {
-    return ci.is_sentinel;
+  template <class I1, class S1, class I2, class S2>
+    requires EqualityComparable<I1, I2>() &&
+      ext::WeaklyEqualityComparable<I1, S2>() &&
+      ext::WeaklyEqualityComparable<I2, S1>()
+  static bool equals(
+    const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
+      return visit([](auto& l, auto& r) { return l == r; }, x.v_, y.v_);
   }
-  template <class I, class S>
-  static const I& iter(const common_iterator<I, S>& ci) {
-    return ci.iter;
-  }
-  template <class I, class S>
-  static const S& sent(const common_iterator<I, S>& ci) {
-    return ci.sent;
+  template <class I1, class S1, class I2, class S2>
+    requires
+      __CompatibleSizedIteratorRange<I1, I2, DifferenceType<I2>> &&
+      __CompatibleSizedIteratorRange<I1, S2, DifferenceType<I2>> &&
+      __CompatibleSizedIteratorRange<I2, S1, DifferenceType<I2>>
+  static DifferenceType<I2> difference(
+    const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
+      return visit([](auto& l, auto& r) {
+        return static_cast<DifferenceType<I2>>(l - r);
+      }, x.v_, y.v_);
   }
 };
 
 template <class I1, class S1, class I2, class S2>
-  requires EqualityComparable<I1, I2>() && ext::WeaklyEqualityComparable<I1, S2>() &&
+  requires EqualityComparable<I1, I2>() &&
+    ext::WeaklyEqualityComparable<I1, S2>() &&
     ext::WeaklyEqualityComparable<I2, S1>()
 bool operator==(
   const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
-    return __ci_access::is_sentinel(x) ?
-      (__ci_access::is_sentinel(y) || __ci_access::iter(y) == __ci_access::sent(x)) :
-        (__ci_access::is_sentinel(y) ?
-          __ci_access::iter(x) == __ci_access::sent(y) :
-          __ci_access::iter(x) == __ci_access::iter(y));
+    return __ci_access::equals(x, y);
 }
 
 template <class I1, class S1, class I2, class S2>
-  requires EqualityComparable<I1, I2>() && ext::WeaklyEqualityComparable<I1, S2>() &&
+  requires EqualityComparable<I1, I2>() &&
+    ext::WeaklyEqualityComparable<I1, S2>() &&
     ext::WeaklyEqualityComparable<I2, S1>()
 bool operator!=(
   const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
@@ -127,11 +125,7 @@ template <class I1, class S1, class I2, class S2>
     __CompatibleSizedIteratorRange<I2, S1, DifferenceType<I2>>
 DifferenceType<I2> operator-(
   const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
-    return __ci_access::is_sentinel(x) ?
-      (__ci_access::is_sentinel(y) ? 0 : __ci_access::sent(x) - __ci_access::iter(y)) :
-        (__ci_access::is_sentinel(y) ?
-          __ci_access::iter(x) - __ci_access::sent(y) :
-          __ci_access::iter(x) - __ci_access::iter(y));
+    return __ci_access::difference(x, y);
 }
 
 }}
