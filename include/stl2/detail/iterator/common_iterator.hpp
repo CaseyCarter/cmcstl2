@@ -56,7 +56,7 @@ public:
   }
   template <ConvertibleTo<I> U, ConvertibleTo<S> V>
   common_iterator& operator=(const common_iterator<U, V>& u) {
-    visit_with_index([this](auto i, auto& t) {
+    stl2::visit_with_index([this](auto i, auto& t) {
       v_.emplace<i()>(t);
     }, u.v_);
     return *this;
@@ -85,7 +85,7 @@ struct __ci_access {
       ext::WeaklyEqualityComparable<I2, S1>()
   static bool equals(
     const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
-      return visit([](auto& l, auto& r) { return l == r; }, x.v_, y.v_);
+      return stl2::visit([](auto& l, auto& r) { return l == r; }, x.v_, y.v_);
   }
   template <class I1, class S1, class I2, class S2>
     requires
@@ -94,7 +94,7 @@ struct __ci_access {
       __CompatibleSizedIteratorRange<I2, S1, DifferenceType<I2>>
   static DifferenceType<I2> difference(
     const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
-      return visit([](auto& l, auto& r) {
+      return stl2::visit([](auto& l, auto& r) {
         return static_cast<DifferenceType<I2>>(l - r);
       }, x.v_, y.v_);
   }
