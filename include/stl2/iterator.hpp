@@ -11,12 +11,12 @@
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/iterator/common_iterator.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/insert_iterators.hpp>
 #include <stl2/detail/iterator/move_iterator.hpp>
 #include <stl2/detail/iterator/operations.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>
-#include <stl2/detail/iterator/common_iterator.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/range/primitives.hpp>
@@ -57,6 +57,30 @@ template <Regular S, Iterator I>
 struct common_type<S, I> {
   using type = common_iterator<I, S>;
 };
+
+struct default_sentinel {};
+constexpr bool operator==(const default_sentinel&, const default_sentinel&) noexcept {
+  return true;
+}
+constexpr bool operator!=(const default_sentinel&, const default_sentinel&) noexcept {
+  return false;
+}
+constexpr bool operator<(const default_sentinel&, const default_sentinel&) noexcept {
+  return false;
+}
+constexpr bool operator>(const default_sentinel&, const default_sentinel&) noexcept {
+  return false;
+}
+constexpr bool operator<=(const default_sentinel&, const default_sentinel&) noexcept {
+  return true;
+}
+constexpr bool operator>=(const default_sentinel&, const default_sentinel&) noexcept {
+  return true;
+}
+constexpr std::ptrdiff_t operator-(
+  const default_sentinel&, const default_sentinel&) noexcept {
+    return 0;
+}
 
 }}
 
