@@ -40,7 +40,8 @@ class common_iterator {
   friend struct __ci_access;
   template <class, class> friend class common_iterator;
   variant<I, S> v_;
-  void assign_(auto&& that) {
+  template <ConvertibleTo<I> U, ConvertibleTo<S> V>
+  void assign_(const common_iterator<U, V>& that) {
     stl2::visit_with_index([this](auto i, auto& t) {
       v_.emplace<i()>(t);
     }, stl2::forward<decltype(that)>(that).v_);
@@ -61,17 +62,8 @@ public:
     this->assign_(u);
   }
   template <ConvertibleTo<I> U, ConvertibleTo<S> V>
-  common_iterator(common_iterator<U, V>&& u) : common_iterator() {
-    this->assign_(stl2::move(u));
-  }
-  template <ConvertibleTo<I> U, ConvertibleTo<S> V>
   common_iterator& operator=(const common_iterator<U, V>& u) {
     this->assign_(u);
-    return *this;
-  }
-  template <ConvertibleTo<I> U, ConvertibleTo<S> V>
-  common_iterator& operator=(common_iterator<U, V>&& u) {
-    this->assign_(stl2::move(u));
     return *this;
   }
   reference operator*() const {
