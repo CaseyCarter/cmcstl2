@@ -91,55 +91,55 @@ void test_raw() {
   __variant::storage<int, double, nontrivial, reference_wrapper<int>> v;
   static_assert(sizeof(v) == sizeof(double));
   {
-    int& i = __variant::raw_get(meta::size_t<0>{}, v);
+    int& i = __variant::st_access::raw_get(meta::size_t<0>{}, v);
     {
-      const int& i = __variant::raw_get(meta::size_t<0>{}, v);
+      const int& i = __variant::st_access::raw_get(meta::size_t<0>{}, v);
       (void)i;
     }
     {
-      const int& i = __variant::raw_get(meta::size_t<0>{}, const_cast<const decltype(v)&>(v));
+      const int& i = __variant::st_access::raw_get(meta::size_t<0>{}, const_cast<const decltype(v)&>(v));
       (void)i;
     }
     {
-      int&& i = __variant::raw_get(meta::size_t<0>{}, move(v));
+      int&& i = __variant::st_access::raw_get(meta::size_t<0>{}, move(v));
       (void)i;
     }
     i = 42;
-    CHECK(__variant::raw_get(meta::size_t<0>{}, v) == 42);
+    CHECK(__variant::st_access::raw_get(meta::size_t<0>{}, v) == 42);
   }
 
   {
-    double& d = __variant::raw_get(meta::size_t<1>{}, v);
+    double& d = __variant::st_access::raw_get(meta::size_t<1>{}, v);
     ::new(&d) double;
     {
-      const double& d = __variant::raw_get(meta::size_t<1>{}, v);
+      const double& d = __variant::st_access::raw_get(meta::size_t<1>{}, v);
       (void)d;
     }
     {
-      const double& d = __variant::raw_get(meta::size_t<1>{}, const_cast<const decltype(v)&>(v));
+      const double& d = __variant::st_access::raw_get(meta::size_t<1>{}, const_cast<const decltype(v)&>(v));
       (void)d;
     }
     {
-      double&& d = __variant::raw_get(meta::size_t<1>{}, move(v));
+      double&& d = __variant::st_access::raw_get(meta::size_t<1>{}, move(v));
       (void)d;
     }
     d = 3.14;
-    CHECK(__variant::raw_get(meta::size_t<1>{}, v) == 3.14);
+    CHECK(__variant::st_access::raw_get(meta::size_t<1>{}, v) == 3.14);
   }
 
   {
-    nontrivial& n = __variant::raw_get(meta::size_t<2>{}, v);
+    nontrivial& n = __variant::st_access::raw_get(meta::size_t<2>{}, v);
     ::new(&n) nontrivial;
     {
-      const nontrivial& n = __variant::raw_get(meta::size_t<2>{}, v);
+      const nontrivial& n = __variant::st_access::raw_get(meta::size_t<2>{}, v);
       (void)n;
     }
     {
-      const nontrivial& n = __variant::raw_get(meta::size_t<2>{}, const_cast<const decltype(v)&>(v));
+      const nontrivial& n = __variant::st_access::raw_get(meta::size_t<2>{}, const_cast<const decltype(v)&>(v));
       (void)n;
     }
     {
-      nontrivial&& n = __variant::raw_get(meta::size_t<2>{}, move(v));
+      nontrivial&& n = __variant::st_access::raw_get(meta::size_t<2>{}, move(v));
       (void)n;
     }
     n.~nontrivial();
@@ -147,12 +147,12 @@ void test_raw() {
 
   {
     int value = 42;
-    reference_wrapper<int>& r = __variant::raw_get(meta::size_t<3>{}, v);
+    reference_wrapper<int>& r = __variant::st_access::raw_get(meta::size_t<3>{}, v);
     ::new(&r) reference_wrapper<int>{value};
     int& i = __variant::cook<int&>(r);
     CHECK(i == 42);
     CHECK(&i == &value);
-    reference_wrapper<int>&& rr = __variant::raw_get(meta::size_t<3>{}, move(v));
+    reference_wrapper<int>&& rr = __variant::st_access::raw_get(meta::size_t<3>{}, move(v));
     int&& ii = __variant::cook<int&&>(move(rr));
     CHECK(&ii == &value);
     r.~reference_wrapper();

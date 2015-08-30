@@ -231,7 +231,6 @@ class storage<> {};
 //       could enlarge an otherwise small variant with padding.
 template <class First, class...Rest>
 class storage<First, Rest...> {
-public:
   using head_t = First;
   using tail_t = storage<Rest...>;
 
@@ -242,6 +241,7 @@ public:
     tail_t tail_;
   };
 
+public:
   ~storage() {}
 
   constexpr storage()
@@ -278,7 +278,6 @@ public:
 
 template <ext::TriviallyDestructible First, ext::TriviallyDestructible...Rest>
 class storage<First, Rest...> {
-public:
   using head_t = First;
   using tail_t = storage<Rest...>;
 
@@ -289,6 +288,7 @@ public:
     tail_t tail_;
   };
 
+public:
   constexpr storage()
     noexcept(is_nothrow_default_constructible<head_t>::value)
     requires DefaultConstructible<head_t>() :
@@ -321,16 +321,18 @@ public:
     head_{il, stl2::forward<Args>(args)...} {}
 };
 
-template <IsStorage D>
-constexpr auto&& raw_get(meta::size_t<0>, D&& d) noexcept {
-  return stl2::forward<D>(d).head_;
-}
+struct st_access {
+  template <IsStorage D>
+  static constexpr auto&& raw_get(meta::size_t<0>, D&& d) noexcept {
+    return stl2::forward<D>(d).head_;
+  }
 
-template <std::size_t I, IsStorage D>
-constexpr auto&& raw_get(meta::size_t<I>, D&& d) noexcept {
-  static_assert(I < remove_reference_t<D>::size);
-  return raw_get(meta::size_t<I - 1>{}, stl2::forward<D>(d).tail_);
-}
+  template <std::size_t I, IsStorage D>
+  static constexpr auto&& raw_get(meta::size_t<I>, D&& d) noexcept {
+    static_assert(I < remove_reference_t<D>::size);
+    return st_access::raw_get(meta::size_t<I - 1>{}, stl2::forward<D>(d).tail_);
+  }
+};
 
 template <_IsNot<is_const> T>
 constexpr remove_reference_t<T>&
@@ -352,8 +354,8 @@ constexpr T&& cook(element_t<meta::id_t<T>>&& t) noexcept {
 template <std::size_t I, Variant V,
   _IsNot<is_void> T = meta::at_c<VariantTypes<V>, I>>
 constexpr auto&& cooked_get(meta::size_t<I> i, V&& v) noexcept {
-  assert(I == v.index());
-  return cook<T>(raw_get(i, stl2::forward<V>(v).storage_));
+  assert(i == v.index());
+  return cook<T>(st_access::raw_get(i, stl2::forward<V>(v).storage_));
 }
 
 using non_void_predicate =
@@ -458,7 +460,7 @@ protected:
     assert(!valid());
     if (that.valid()) {
       raw_visit_with_index([this](auto i, auto&& from) {
-        construct(strip_cv(raw_get(i, storage_)),
+        construct(strip_cv(st_access::raw_get(i, storage_)),
                   stl2::forward<decltype(from)>(from));
         index_ = i;
       }, stl2::forward<That>(that));
@@ -469,7 +471,7 @@ protected:
     if (index_ == that.index_) {
       if (valid()) {
         raw_visit_with_index([this](auto i, auto&& from) {
-          raw_get(i, storage_) = stl2::forward<decltype(from)>(from);
+          st_access::raw_get(i, storage_) = stl2::forward<decltype(from)>(from);
         }, stl2::move(that));
       }
     } else {
@@ -482,7 +484,7 @@ protected:
     if (index_ == that.index_) {
       if (valid()) {
         raw_visit_with_index([this](auto i, const auto& from) {
-          raw_get(i, storage_) = from;
+          st_access::raw_get(i, storage_) = from;
         }, that);
       }
     } else {
@@ -571,7 +573,7 @@ public:
   void emplace(Args&&...args)
     noexcept(is_nothrow_constructible<element_t<T>, Args...>::value) {
     clear();
-    construct(strip_cv(raw_get(meta::size_t<I>{}, storage_)),
+    construct(strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
               stl2::forward<Args>(args)...);
     index_ = I;
   }
@@ -580,7 +582,7 @@ public:
   void emplace(meta::id_t<T> t)
     noexcept(is_nothrow_constructible<element_t<T>, T&>::value) {
     clear();
-    construct(raw_get(meta::size_t<I>{}, storage_), t);
+    construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
     index_ = I;
   }
 
@@ -589,7 +591,7 @@ public:
   void emplace(std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value) {
     clear();
-    construct(strip_cv(raw_get(meta::size_t<I>{}, storage_)),
+    construct(strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
               il, stl2::forward<Args>(args)...);
     index_ = I;
   }
@@ -599,7 +601,7 @@ public:
   void emplace(Args&&...args)
     noexcept(is_nothrow_constructible<element_t<T>, Args...>::value) {
     clear();
-    construct(strip_cv(raw_get(meta::size_t<I>{}, storage_)),
+    construct(strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
               stl2::forward<Args>(args)...);
     index_ = I;
   }
@@ -608,7 +610,7 @@ public:
   void emplace(meta::id_t<T> t)
     noexcept(is_nothrow_constructible<element_t<T>, T&>::value) {
     clear();
-    construct(raw_get(meta::size_t<I>{}, storage_), t);
+    construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
     index_ = I;
   }
 
@@ -617,7 +619,7 @@ public:
   void emplace(std::initializer_list<E> il, Args&&...args)
     noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value) {
     clear();
-    construct(strip_cv(raw_get(meta::size_t<I>{}, storage_)),
+    construct(strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
               il, stl2::forward<Args>(args)...);
     index_ = I;
   }
@@ -714,10 +716,10 @@ struct single_visit_properties<F,
 {
   using type =
     decltype(declval<F>()(std::index_sequence<Is...>{},
-      raw_get(meta::size_t<Is>{}, declval<Variants>().storage_)...));
+      st_access::raw_get(meta::size_t<Is>{}, declval<Variants>().storage_)...));
   static constexpr bool nothrow =
     noexcept(declval<F>()(std::index_sequence<Is...>{},
-      raw_get(meta::size_t<Is>{}, declval<Variants>().storage_)...));
+      st_access::raw_get(meta::size_t<Is>{}, declval<Variants>().storage_)...));
 };
 template <class F, class Variants, class Indices>
 using single_visit_return_t =
@@ -781,7 +783,7 @@ constexpr VisitReturn<F, Vs...>
 visit_handler(std::index_sequence<Is...> indices, F&& f, Vs&&...vs)
 STL2_NOEXCEPT_RETURN(
   stl2::forward<F>(f)(indices,
-    raw_get(meta::size_t<Is>{}, stl2::forward<Vs>(vs).storage_)...)
+    st_access::raw_get(meta::size_t<Is>{}, stl2::forward<Vs>(vs).storage_)...)
 )
 
 Visitor{F, ...Vs}
@@ -1235,7 +1237,7 @@ class variant : public __variant::copy_assign_base<Ts...> {
 
     constexpr void operator()(auto i, auto& from)
       noexcept(is_nothrow_swappable_v<decltype((from)), decltype((from))>) {
-      stl2::swap(__variant::raw_get(i, self_.storage_), from);
+      stl2::swap(__variant::st_access::raw_get(i, self_.storage_), from);
     }
   };
 
@@ -1274,7 +1276,7 @@ public:
              is_nothrow_move_assignable<T>::value) {
     constexpr auto I = CF::index;
     if (this->index_ == I) {
-      auto& target = __variant::raw_get(meta::size_t<I>{}, this->storage_);
+      auto& target = __variant::st_access::raw_get(meta::size_t<I>{}, this->storage_);
       target = stl2::move(t);
     } else {
       this->template emplace<T>(stl2::move(t));
@@ -1292,7 +1294,7 @@ public:
              is_nothrow_move_constructible<T>::value) {
     constexpr auto I = CF::index;
     if (this->index_ == I) {
-      auto& target = __variant::raw_get(meta::size_t<I>{}, this->storage_);
+      auto& target = __variant::st_access::raw_get(meta::size_t<I>{}, this->storage_);
       target = t;
     } else {
       this->template emplace<T>(T{t});
