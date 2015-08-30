@@ -38,30 +38,42 @@ template <InputIterator I, __WeakSentinel<I> S>
   requires !Same<I, S>()
 class common_iterator {
   friend struct __ci_access;
+  template <class, class> friend class common_iterator;
   variant<I, S> v_;
+  void assign_(auto&& that) {
+    stl2::visit_with_index([this](auto i, auto& t) {
+      v_.emplace<i()>(t);
+    }, stl2::forward<decltype(that)>(that).v_);
+  }
 public:
   using difference_type = DifferenceType<I>;
   using value_type = ValueType<I>;
   using iterator_category =
     conditional_t<__forward_iter<I>,
-    std::forward_iterator_tag,
-    std::input_iterator_tag>;
+    stl2::forward_iterator_tag,
+    stl2::input_iterator_tag>;
   using reference = ReferenceType<I>;
   common_iterator() = default;
   common_iterator(I i) : v_{stl2::move(i)} {}
   common_iterator(S s) : v_{stl2::move(s)} {}
   template <ConvertibleTo<I> U, ConvertibleTo<S> V>
   common_iterator(const common_iterator<U, V>& u) : common_iterator() {
-    *this = u;
+    this->assign_(u);
+  }
+  template <ConvertibleTo<I> U, ConvertibleTo<S> V>
+  common_iterator(common_iterator<U, V>&& u) : common_iterator() {
+    this->assign_(stl2::move(u));
   }
   template <ConvertibleTo<I> U, ConvertibleTo<S> V>
   common_iterator& operator=(const common_iterator<U, V>& u) {
-    stl2::visit_with_index([this](auto i, auto& t) {
-      v_.emplace<i()>(t);
-    }, u.v_);
+    this->assign_(u);
     return *this;
   }
-  ~common_iterator() = default;
+  template <ConvertibleTo<I> U, ConvertibleTo<S> V>
+  common_iterator& operator=(common_iterator<U, V>&& u) {
+    this->assign_(stl2::move(u));
+    return *this;
+  }
   reference operator*() const {
     assert(holds_alternative<I>(v_));
     return *stl2::get_unchecked<I>(v_);
