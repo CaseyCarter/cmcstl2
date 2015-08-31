@@ -8,6 +8,14 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
+///////////////////////////////////////////////////////////////////////////
+// __variant::storage : Recursive-union implementation.
+//
+// TODO: Think about binary instead of linear decomposition of the elements,
+//       i.e., a recursive union binary tree instead of a recursive union
+//       list. It will add implementation complexity, but may interact
+//       positively with inlining.
+//
 namespace stl2 { inline namespace v1 { namespace __variant {
 struct empty_tag {};
 
@@ -25,11 +33,10 @@ concept bool IsStorage = is_storage<decay_t<T>>;
 template <>
 class storage<> {};
 
-// TODO: Think about binary instead of linear decomposition of the elements, i.e.,
-//       a recursive union binary tree instead of a recursive union list. It will
-//       add implementation complexity, but may interact positively with inlining.
-//       Be careful about instantiating multiple identical empty leaves - they
-//       could enlarge an otherwise small variant with padding.
+///////////////////////////////////////////////////////////////////////////
+// Specialization for non-trivially destructible element types, has a
+// no-op nontrivial destructor.
+//
 template <class First, class...Rest>
 class storage<First, Rest...> {
   using head_t = First;
@@ -77,6 +84,11 @@ public:
     head_{il, stl2::forward<Args>(args)...} {}
 };
 
+///////////////////////////////////////////////////////////////////////////
+// Specialization for trivially destructible element types, uses the
+// implicitly-defined (trivial) destructor. Otherwise identical to the
+// other specialization.
+//
 template <ext::TriviallyDestructible First, ext::TriviallyDestructible...Rest>
 class storage<First, Rest...> {
   using head_t = First;
@@ -122,16 +134,22 @@ public:
     head_{il, stl2::forward<Args>(args)...} {}
 };
 
+///////////////////////////////////////////////////////////////////////////
+// st_access::raw_get(meta::size_t<i>, s) returns a "perfect" reference to
+// the element at index i in storage s. The complexity targets of the rest
+// of the variant machinery assume the compiler optimizes the recursion in
+// raw_get to O(1).
+//
 struct st_access {
-  template <IsStorage D>
-  static constexpr auto&& raw_get(meta::size_t<0>, D&& d) noexcept {
-    return stl2::forward<D>(d).head_;
+  template <IsStorage S>
+  static constexpr auto&& raw_get(meta::size_t<0>, S&& s) noexcept {
+    return stl2::forward<S>(s).head_;
   }
 
-  template <std::size_t I, IsStorage D>
-  static constexpr auto&& raw_get(meta::size_t<I>, D&& d) noexcept {
-    static_assert(I < remove_reference_t<D>::size);
-    return st_access::raw_get(meta::size_t<I - 1>{}, stl2::forward<D>(d).tail_);
+  template <std::size_t I, IsStorage S>
+  static constexpr auto&& raw_get(meta::size_t<I>, S&& s) noexcept {
+    static_assert(I < remove_reference_t<S>::size);
+    return st_access::raw_get(meta::size_t<I - 1>{}, stl2::forward<S>(s).tail_);
   }
 };
 }}} // namespace stl2::v1::__variant

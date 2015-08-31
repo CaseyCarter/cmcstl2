@@ -1477,6 +1477,8 @@ void test_comparisons() {
 }
 
 void test_hash() {
+  static_assert(__variant::HashableVariant<int, void, double>);
+  static_assert(!__variant::HashableVariant<int, void, double&>);
   using V = variant<monostate, int, void, double>;
   std::hash<V> h;
   h(V{42});

@@ -147,6 +147,17 @@ using std::void_t;
 
 template <class T>
 using __uncvref = remove_cv_t<remove_reference_t<T>>;
+
+namespace detail {
+template <class>
+struct __as_integer_sequence {};
+template <class T, T...Is>
+struct __as_integer_sequence<meta::list<std::integral_constant<T, Is>...>> {
+  using type = std::integer_sequence<T, Is...>;
+};
+}
+template <class T>
+using __as_integer_sequence = meta::_t<detail::__as_integer_sequence<T>>;
 }} // namespace stl2::v1
 
 #endif

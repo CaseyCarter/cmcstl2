@@ -7,7 +7,9 @@
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/variant/fwd.hpp>
 
-// Visitation
+///////////////////////////////////////////////////////////////////////////
+// Visitation machinery for variant
+//
 namespace stl2 { inline namespace v1 { namespace __variant {
 using non_void_predicate =
   meta::compose<meta::quote<meta::not_>, meta::quote_trait<is_void>>;
@@ -15,7 +17,7 @@ using non_void_predicate =
 template <class Types>
 using non_void_types = meta::filter<Types, non_void_predicate>;
 
-// Convert a list of types into a sequence of the indices of the non-is_void types.
+// Convert a list of types into a list of the indices of the non-is_void types.
 template <class Types>
 using non_void_indices =
   meta::transform<
@@ -26,15 +28,6 @@ using non_void_indices =
       meta::compose<non_void_predicate, meta::quote<meta::second>>>,
     meta::quote<meta::first>>;
 
-template <class>
-struct as_integer_sequence_ {};
-template <class T, T...Is>
-struct as_integer_sequence_<meta::list<std::integral_constant<T, Is>...>> {
-  using type = std::integer_sequence<T, Is...>;
-};
-template <class T>
-using as_integer_sequence = meta::_t<as_integer_sequence_<T>>;
-
 template <Variant...Variants>
 constexpr std::size_t total_alternatives = 1;
 template <Variant First, Variant...Rest>
@@ -42,6 +35,10 @@ constexpr std::size_t total_alternatives<First, Rest...> =
   non_void_types<VariantTypes<First>>::size() *
   total_alternatives<Rest...>;
 
+///////////////////////////////////////////////////////////////////////////
+// Determine the return type and noexcept status of visitor F on Variants
+// with active alternatives Indices
+//
 template <class F, class Variants, class Indices>
 struct single_visit_properties {};
 template <class F, Variant...Variants, std::size_t...Is>
@@ -66,14 +63,21 @@ template <Variant...Vs>
 using all_visit_vectors =
   meta::cartesian_product<meta::list<non_void_indices<VariantTypes<Vs>>...>>;
 
+///////////////////////////////////////////////////////////////////////////
+// Create a list of all possible return types from F visiting Vs
+//
 template <class F, Variant...Vs>
 using all_return_types =
   meta::transform<
     all_visit_vectors<Vs...>,
     meta::bind_front<meta::quote<single_visit_return_t>, F, meta::list<Vs...>>>;
 
+///////////////////////////////////////////////////////////////////////////
+// F is a valid visitor for Vs iff all possible return types meet a
+// particular criterion:
+//
 #if 0
-// require visitation to return the same type for all alternatives.
+// Require visitation to return the same type for all alternatives.
 template <class F, Variant...Vs>
   requires meta::_v<meta::all_of<
     meta::pop_front<all_return_types<F, Vs...>>,
@@ -83,24 +87,23 @@ template <class F, Variant...Vs>
 using VisitReturn = meta::front<all_return_types<F, Vs...>>;
 
 #elif 0
-// require the return type of all alternatives to have a common
-// type which visit returns.
+// Require the return type of all alternatives to have a common
+// type, which visit returns.
 template <class F, Variant...Vs>
 using VisitReturn =
   meta::apply_list<meta::quote<common_type_t>, all_return_types<F, Vs...>>;
 
 #else
-// require the return type of all alternatives to have a common
-// reference type which visit returns.
+// Require the return type of all alternatives to have a common
+// reference type, which visit returns.
 template <class F, Variant...Vs>
 using VisitReturn =
   meta::apply_list<meta::quote<common_reference_t>, all_return_types<F, Vs...>>;
 #endif
 
-template <class F, Variant...Vs>
+template <class F, class...Vs>
 concept bool RawVisitorWithIndices =
-  sizeof...(Vs) > 0 &&
-  requires { typename VisitReturn<F, Vs...>; };
+  sizeof...(Vs) > 0 && requires { typename VisitReturn<F, Vs...>; };
 
 RawVisitorWithIndices{F, ...Vs}
 constexpr bool VisitNothrow =
@@ -120,6 +123,9 @@ STL2_NOEXCEPT_RETURN(
     v_access::raw_get(meta::size_t<Is>{}, stl2::forward<Vs>(vs))...)
 )
 
+///////////////////////////////////////////////////////////////////////////
+// O(N) visitor implementation
+//
 RawVisitorWithIndices{F, ...Vs}
 class ON_dispatch {
   using R = VisitReturn<F, Vs...>;
@@ -171,7 +177,7 @@ class ON_dispatch {
   }
 
   template <std::size_t...Is,
-    class NVI = as_integer_sequence<non_void_indices<
+    class NVI = __as_integer_sequence<non_void_indices<
       VariantTypes<meta::at_c<meta::list<Vs...>, sizeof...(Is)>>>>>
     requires sizeof...(Is) < N
   constexpr R find_indices(std::index_sequence<Is...> i)
@@ -203,6 +209,9 @@ raw_visit_with_indices(F&& f, Vs&&...vs)
   }.visit();
 }
 
+///////////////////////////////////////////////////////////////////////////
+// O(1) visitor implementation
+//
 template <class I, class F, Variant...Vs>
   requires RawVisitorWithIndices<F, Vs...>
 constexpr VisitReturn<F, Vs...>
@@ -265,7 +274,7 @@ using all_index_vectors =
     meta::cartesian_product<meta::list<
       meta::as_list<meta::make_index_sequence<
         VariantTypes<Vs>::size()>>...>>,
-    meta::quote<as_integer_sequence>>;
+    meta::quote<__as_integer_sequence>>;
 
 RawVisitorWithIndices{F, ...Vs}
 constexpr VisitReturn<F, Vs...>
@@ -279,6 +288,10 @@ raw_visit_with_indices(F&& f, Vs&&...vs)
   return Dispatch::table[i](stl2::forward<F>(f), stl2::forward<Vs>(vs)...);
 }
 
+///////////////////////////////////////////////////////////////////////////
+// Adapt a visitor that accepts a single integral_constant index
+// to the variadic visitor model that accepts a integer_sequence of indices.
+//
 template <class F>
 struct single_index_visitor {
   F&& f_;
@@ -302,6 +315,10 @@ raw_visit_with_index(F&& f, V&& v)
     stl2::forward<V>(v));
 }
 
+///////////////////////////////////////////////////////////////////////////
+// Adapt a visitor that doesn't care about the indices of the alternatives
+// to the variadic visitor model.
+//
 template <class F, Variant...Vs>
 struct no_index_visitor {
   F&& f_;
@@ -325,6 +342,12 @@ raw_visit(F&& f, Vs&&...vs)
     stl2::forward<Vs>(vs)...);
 }
 
+///////////////////////////////////////////////////////////////////////////
+// Adaptor that "cooks" the alternative types - dereferences
+// reference_wrappers - before passing them to the visitor. Only these
+// "cooked" visit functions are exposed to users, the "raw" forms are
+// internal-only.
+//
 template <class F, Variant...Vs>
 struct cooked_visitor {
   F&& f_;
@@ -380,9 +403,12 @@ visit(F&& f, Vs&&...vs)
     stl2::forward<Vs>(vs)...);
 }
 
-// Lifted from Boost.
+///////////////////////////////////////////////////////////////////////////
+// Hash machinery.
+//
 template <class T>
 inline void hash_combine(std::size_t& seed, const T& v) {
+  // Lifted from Boost.
   std::hash<T> hasher;
   seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
 }
@@ -394,22 +420,40 @@ concept bool Hashable =
     std::hash<T>{}(e);
   };
 
-template <class...>
-constexpr bool AllHashable = false;
-template <Hashable...Ts>
-constexpr bool AllHashable<Ts...> = true;
-}}} // namespace stl2::v1::__variant
+template <class>
+struct hashable_ : false_type {};
+template <>
+struct hashable_<void> : true_type {};
+template <_IsNot<is_reference> T>
+  requires Hashable<T>
+struct hashable_<T> : true_type {};
+template <class T>
+using hashable = meta::_t<hashable_<T>>;
 
+template <class...Ts>
+constexpr bool HashableVariant =
+  meta::all_of<meta::list<Ts...>, meta::quote<hashable>>::value;
+} // namespace __variant
+
+using __variant::visit;
+using __variant::visit_with_index;
+using __variant::visit_with_indices;
+}} // namespace stl2::v1
+
+///////////////////////////////////////////////////////////////////////////
+// std::hash specialization for variants
+//
 namespace std {
 template <class...Ts>
-  requires ::stl2::__variant::AllHashable<::stl2::__variant::element_t<Ts>...>
+  requires ::stl2::__variant::HashableVariant<Ts...>
 struct hash<::stl2::variant<Ts...>> {
 private:
   struct hash_visitor {
-    std::size_t seed = 0u;
-
-    constexpr void operator()(const auto& e) {
+    constexpr std::size_t operator()(auto i, const auto& e) {
+      std::size_t seed = 0u;
+      ::stl2::__variant::hash_combine(seed, i());
       ::stl2::__variant::hash_combine(seed, e);
+      return seed;
     }
   };
 
@@ -418,10 +462,7 @@ public:
   using argument_type = ::stl2::variant<Ts...>;
 
   constexpr size_t operator()(const argument_type& v) const {
-    hash_visitor visitor;
-    visitor(v.index());
-    ::stl2::__variant::raw_visit(visitor, v);
-    return visitor.seed;
+    return ::stl2::__variant::visit_with_index(hash_visitor{}, v);
   }
 };
 } // namespace std

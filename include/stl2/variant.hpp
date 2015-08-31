@@ -20,6 +20,9 @@
 #include <stl2/detail/variant/storage.hpp>
 #include <stl2/detail/variant/visit.hpp>
 
+///////////////////////////////////////////////////////////////////////////
+// N4542 Variant implementation
+//
 namespace stl2 { inline namespace v1 { namespace __variant {
 struct copy_move_tag {};
 
@@ -28,6 +31,84 @@ constexpr auto& strip_cv(T& t) noexcept {
   return const_cast<remove_cv_t<T>&>(t);
 }
 
+///////////////////////////////////////////////////////////////////////////
+// Variant access
+//
+template <std::size_t I, Variant V, _IsNot<is_void> T>
+constexpr auto&& v_access::raw_get(meta::size_t<I> i, V&& v) noexcept {
+  STL2_VISIT_ASSERT(I == v.index());
+  return st_access::raw_get(i, stl2::forward<V>(v).storage_);
+}
+
+template <std::size_t I, Variant V, _IsNot<is_void> T>
+constexpr auto&& v_access::cooked_get(meta::size_t<I> i, V&& v) noexcept {
+  assert(I == v.index());
+  return cook<T>(v_access::raw_get(i, stl2::forward<V>(v)));
+}
+
+// "inline" is here for the ODR; we do not actually
+// want bad_access to be inlined into get. Having it
+// be a separate function results in better generated
+// code.
+[[noreturn]] inline bool bad_access() {
+  throw bad_variant_access{};
+}
+
+template <std::size_t I, Variant V>
+  requires I < VariantTypes<V>::size() &&
+    _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
+constexpr auto&& get_unchecked(V&& v) {
+  assert(v.index() == I);
+  return v_access::cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
+}
+
+template <std::size_t I, Variant V>
+  requires I < VariantTypes<V>::size() &&
+    _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
+constexpr auto&& get(V&& v) {
+  assert(v.valid());
+  // Odd syntax here to avoid
+  // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67371
+  v.index() == I || bad_access();
+  return v_access::cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
+}
+
+template <_IsNot<is_void> T, Variant V,
+  std::size_t I = index_of_type<T, VariantTypes<V>>>
+constexpr auto&& get_unchecked(V&& v) {
+  return __variant::get_unchecked<I>(v);
+}
+
+template <_IsNot<is_void> T, Variant V,
+  std::size_t I = index_of_type<T, VariantTypes<V>>>
+constexpr auto&& get(V&& v) {
+  return __variant::get<I>(v);
+}
+
+template <std::size_t I, Variant V>
+  requires I < VariantTypes<V>::size() &&
+    _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
+constexpr auto get(V* v) noexcept ->
+  decltype(&__variant::v_access::cooked_get(meta::size_t<I>{}, *v)) {
+  assert(v);
+  if (v->index() == I) {
+    return &__variant::v_access::cooked_get(meta::size_t<I>{}, *v);
+  }
+  return nullptr;
+}
+
+template <_IsNot<is_void> T, Variant V,
+  std::size_t I = index_of_type<T, VariantTypes<V>>>
+constexpr auto get(V* v) noexcept {
+  return __variant::get<I>(v);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// constructible_from<T, Types...> derives from true_type if a variant with
+// element types ...Types is constructible from type T. Member "index" is
+// the index of the constructible target type in Types, member "ambiguous"
+// is true iff multiple members of Types are constructible from T.
+//
 template <class From, class To>
 concept bool ViableAlternative =
   Same<decay_t<From>, decay_t<To>>() &&
@@ -51,6 +132,9 @@ template <class T, class...Types>
 using constructible_from =
   constructible_from_<T, 0u, Types...>;
 
+///////////////////////////////////////////////////////////////////////////
+// __variant::base: lowest layer of the variant implementation.
+//
 template <class...Ts>
   requires detail::AllDestructible<element_t<Ts>...>
 class base {
@@ -289,75 +373,9 @@ public:
   friend constexpr auto&& get(V&& v);
 };
 
-template <std::size_t I, Variant V, _IsNot<is_void> T>
-constexpr auto&& v_access::raw_get(meta::size_t<I> i, V&& v) noexcept {
-  STL2_VISIT_ASSERT(I == v.index());
-  return st_access::raw_get(i, stl2::forward<V>(v).storage_);
-}
-
-template <std::size_t I, Variant V, _IsNot<is_void> T>
-constexpr auto&& v_access::cooked_get(meta::size_t<I> i, V&& v) noexcept {
-  assert(I == v.index());
-  return cook<T>(v_access::raw_get(i, stl2::forward<V>(v)));
-}
-
-// "inline" is here for the ODR; we do not actually
-// want bad_access to be inlined into get. Having it
-// be a separate function results in better generated
-// code.
-[[noreturn]] inline bool bad_access() {
-  throw bad_variant_access{};
-}
-
-template <std::size_t I, Variant V>
-  requires I < VariantTypes<V>::size() &&
-    _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
-constexpr auto&& get_unchecked(V&& v) {
-  assert(v.index() == I);
-  return v_access::cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
-}
-
-template <std::size_t I, Variant V>
-  requires I < VariantTypes<V>::size() &&
-    _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
-constexpr auto&& get(V&& v) {
-  assert(v.valid());
-  // Odd syntax here to avoid
-  // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67371
-  v.index() == I || bad_access();
-  return v_access::cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
-}
-
-template <_IsNot<is_void> T, Variant V,
-  std::size_t I = index_of_type<T, VariantTypes<V>>>
-constexpr auto&& get_unchecked(V&& v) {
-  return __variant::get_unchecked<I>(v);
-}
-
-template <_IsNot<is_void> T, Variant V,
-  std::size_t I = index_of_type<T, VariantTypes<V>>>
-constexpr auto&& get(V&& v) {
-  return __variant::get<I>(v);
-}
-
-template <std::size_t I, Variant V>
-  requires I < VariantTypes<V>::size() &&
-    _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
-constexpr auto get(V* v) noexcept ->
-  decltype(&__variant::v_access::cooked_get(meta::size_t<I>{}, *v)) {
-  assert(v);
-  if (v->index() == I) {
-    return &__variant::v_access::cooked_get(meta::size_t<I>{}, *v);
-  }
-  return nullptr;
-}
-
-template <_IsNot<is_void> T, Variant V,
-  std::size_t I = index_of_type<T, VariantTypes<V>>>
-constexpr auto get(V* v) noexcept {
-  return __variant::get<I>(v);
-}
-
+///////////////////////////////////////////////////////////////////////////
+// destruct_base: adds nontrival destruction onto base if necessary.
+//
 template <class...Ts>
 class destruct_base : public base<Ts...> {
   using base_t = base<Ts...>;
@@ -383,6 +401,9 @@ public:
   using base_t::base_t;
 };
 
+///////////////////////////////////////////////////////////////////////////
+// move_base: Adds nontrivial or disables move construction.
+//
 template <class...Ts>
 class move_base : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
@@ -422,6 +443,9 @@ public:
   using base_t::base_t;
 };
 
+///////////////////////////////////////////////////////////////////////////
+// move_assign_base: adds nontrivial or disables move assignment.
+//
 template <class...Ts>
 class move_assign_base : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
@@ -466,6 +490,9 @@ public:
   using base_t::base_t;
 };
 
+///////////////////////////////////////////////////////////////////////////
+// copy_base: Adds nontrivial or disables copy construction.
+//
 template <class...Ts>
 class copy_base : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
@@ -505,6 +532,9 @@ public:
   using base_t::base_t;
 };
 
+///////////////////////////////////////////////////////////////////////////
+// copy_assign_base: Adds nontrivial or disables copy assignment.
+//
 template <class...Ts>
 class copy_assign_base : public copy_base<Ts...> {
   using base_t = copy_base<Ts...>;
@@ -550,6 +580,10 @@ public:
 };
 } // namespace __variant
 
+///////////////////////////////////////////////////////////////////////////
+// variant: top layer of the variant implementation. Adds swap, comparison
+// operators, and converting assignments.
+//
 template <class...Ts>
   requires detail::AllDestructible<__variant::element_t<Ts>...>
 class variant : public __variant::copy_assign_base<Ts...> {
@@ -642,7 +676,7 @@ public:
              is_nothrow_move_assignable<variant>::value &&
              meta::_v<meta::and_c<is_nothrow_swappable_v<
                __variant::element_t<Ts>&, __variant::element_t<Ts>&>...>>)
-    requires Movable<base_t>() && // FIXME: Movable<variant>()
+    requires Movable<base_t>() && // Movable<variant>() explodes here.
       detail::AllSwappable<__variant::element_t<Ts>&...>
   {
     if (this->index_ == that.index_) {
@@ -715,9 +749,6 @@ class variant<> {
 
 using __variant::get;
 using __variant::get_unchecked;
-using __variant::visit;
-using __variant::visit_with_index;
-using __variant::visit_with_indices;
 
 template <TaggedType...Ts>
 using tagged_variant =

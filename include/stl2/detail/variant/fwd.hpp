@@ -42,6 +42,8 @@ private:
   constexpr void_storage(hack_tag) {}
 };
 
+// Map from parameter type to actual type stored; wrap references,
+// replace voids.
 template <class T>
 struct element_storage_ {
   using type = T;
@@ -57,6 +59,8 @@ struct element_storage_<void> {
 template <class T>
 using element_t = meta::_t<element_storage_<T>>;
 
+// Convert a reference to a stored element to the
+// proper type, i.e., dereference reference_wrappers.
 template <_IsNot<is_const> T>
 constexpr remove_reference_t<T>&
 cook(element_t<meta::id_t<T>>& t) noexcept {
@@ -74,6 +78,8 @@ constexpr T&& cook(element_t<meta::id_t<T>>&& t) noexcept {
   return stl2::move(cook<T>(t));
 }
 
+// Obtain the index of T in Types; substitution failure if T
+// does not appear exactly once.
 template <class T, class Types,
     std::size_t I = meta::_v<meta::find_index<Types, T>>>
   requires I != meta::_v<meta::npos> &&
@@ -84,6 +90,8 @@ template <class...Ts>
   requires detail::AllDestructible<element_t<Ts>...>
 class base;
 
+// VariantTypes<T> is a list of the alternative types of T if
+// T is derived from __variant::base.
 template <class...Types>
 meta::list<Types...> types_(base<Types...>& b); // not defined
 
@@ -91,7 +99,7 @@ template <class T>
 using VariantTypes =
   decltype(types_(declval<__uncvref<T>&>()));
 
-// satisfied iff __uncvref<T> is derived from a
+// Satisfied iff __uncvref<T> is derived from a
 // specialization of __variant::base
 template <class T>
 concept bool Variant =
@@ -153,17 +161,6 @@ struct hash<::stl2::monostate> {
   constexpr size_t operator()(::stl2::monostate) const {
     // https://xkcd.com/221/
     return 4;
-  }
-};
-
-template <>
-struct hash<::stl2::__variant::void_storage> {
-  using result_type = size_t;
-  using argument_type = ::stl2::__variant::void_storage;
-
-  [[noreturn]] size_t
-  operator()(const ::stl2::__variant::void_storage&) const {
-    std::terminate();
   }
 };
 } // namespace std
