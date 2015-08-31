@@ -43,7 +43,7 @@ using __iter_move_t =
 
 namespace __iter_move {
 template <class R, Dereferenceable _R = std::remove_reference_t<R>>
-__iter_move_t<_R> iter_move(R&& r)
+constexpr __iter_move_t<_R> iter_move(R&& r)
   noexcept(noexcept(__iter_move_t<_R>(stl2::move(*r)))) {
   return stl2::move(*r);
 }

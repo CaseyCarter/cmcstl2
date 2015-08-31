@@ -2,8 +2,8 @@
 #define STL2_DETAIL_ITERATOR_COMMON_ITERATOR_HPP
 
 #include <cassert>
-#include <type_traits>
 
+#include <stl2/type_traits.hpp>
 #include <stl2/variant.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
@@ -16,7 +16,7 @@ inline namespace v1 {
 ///////////////////////////////////////////////////////////////////////////
 // common_iterator [common.iterators]
 //
-template<class S, class I>
+template <class S, class I>
 concept bool __WeakSentinel =
   Iterator<I>() && Regular<S>() &&
   ext::WeaklyEqualityComparable<I, S>();
@@ -40,12 +40,16 @@ class common_iterator {
   friend struct __ci_access;
   template <class, class> friend class common_iterator;
   variant<I, S> v_;
-  template <ConvertibleTo<I> U, ConvertibleTo<S> V>
-  void assign_(const common_iterator<U, V>& that) {
-    stl2::visit_with_index([this](auto i, auto& t) {
-      v_.emplace<i()>(t);
-    }, stl2::forward<decltype(that)>(that).v_);
-  }
+  struct convert_visitor {
+    constexpr variant<I, S> operator()(
+      meta::size_t<0>, const ConvertibleTo<I>& i) const {
+        return variant<I, S>{emplaced_index<0>, i};
+    }
+    constexpr variant<I, S> operator()(
+      meta::size_t<1>, const ConvertibleTo<S>& s) const {
+        return variant<I, S>{emplaced_index<1>, s};
+    }
+  };
 public:
   using difference_type = DifferenceType<I>;
   using value_type = ValueType<I>;
@@ -58,12 +62,11 @@ public:
   common_iterator(I i) : v_{stl2::move(i)} {}
   common_iterator(S s) : v_{stl2::move(s)} {}
   template <ConvertibleTo<I> U, ConvertibleTo<S> V>
-  common_iterator(const common_iterator<U, V>& u) : common_iterator() {
-    this->assign_(u);
-  }
+  common_iterator(const common_iterator<U, V>& u) :
+    v_{stl2::visit_with_index(convert_visitor{}, u.v_)} {}
   template <ConvertibleTo<I> U, ConvertibleTo<S> V>
   common_iterator& operator=(const common_iterator<U, V>& u) {
-    this->assign_(u);
+    v_ = stl2::visit_with_index(convert_visitor{}, u.v_);
     return *this;
   }
   reference operator*() const {
