@@ -54,6 +54,15 @@ using std::hash;
 using std::invoke;
 #endif
 
+template <class T>
+struct __unwrap_ : __unwrap_<decay_t<T>> {};
+template <_Decayed T>
+struct __unwrap_<T> : meta::id<T> {};
+template <class T>
+struct __unwrap_<reference_wrapper<T>> : meta::id<T&> {};
+template <class T>
+using __unwrap = meta::_t<__unwrap_<T>>;
+
 ///////////////////////////////////////////////////////////////////////////
 // identity
 //

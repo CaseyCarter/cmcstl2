@@ -183,7 +183,54 @@ concept bool Swappable() {
     detail::Swappable_<U, T>;
 }
 
-namespace ext { namespace models {
+namespace ext {
+template <class T>
+concept bool TriviallyDestructible() {
+  return Destructible<T>() &&
+    _Is<T, is_trivially_destructible>;
+}
+
+template <class T, class...Args>
+concept bool TriviallyConstructible() {
+  return Constructible<T, Args...>() &&
+    _Is<T, is_trivially_constructible, Args...>;
+}
+
+template <class T>
+concept bool TriviallyDefaultConstructible() {
+  return DefaultConstructible<T>() &&
+    _Is<T, is_trivially_default_constructible>;
+}
+
+template <class T>
+concept bool TriviallyMoveConstructible() {
+  return MoveConstructible<T>() &&
+    _Is<T, is_trivially_move_constructible>;
+}
+
+template <class T>
+concept bool TriviallyCopyConstructible() {
+  return CopyConstructible<T>() &&
+    TriviallyMoveConstructible<T>() &&
+    _Is<T, is_trivially_copy_constructible>;
+}
+
+template <class T>
+concept bool TriviallyMovable() {
+  return Movable<T>() &&
+    TriviallyMoveConstructible<T>() &&
+    _Is<T, is_trivially_move_assignable>;
+}
+
+template <class T>
+concept bool TriviallyCopyable() {
+  return Copyable<T>() &&
+    TriviallyMovable<T>() &&
+    TriviallyCopyConstructible<T>() &&
+    _Is<T, is_trivially_copy_assignable>;
+}
+
+namespace models {
 template <class>
 constexpr bool destructible() { return false; }
 Destructible{T}

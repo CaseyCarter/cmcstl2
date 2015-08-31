@@ -1,11 +1,8 @@
 #ifndef STL2_DETAIL_CONCEPTS_CORE_HPP
 #define STL2_DETAIL_CONCEPTS_CORE_HPP
 
-#include <type_traits>
-
-#include <meta/meta.hpp>
-
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 
 ////////////////////////////////////////
 // Core Concepts [concepts.lib.corelang]
@@ -15,8 +12,8 @@
 #define STL2_IS_SAME_AS(T, U) __is_same_as(T, U)
 #define STL2_IS_BASE_OF(T, U) __is_base_of(T, U)
 #else
-#define STL2_IS_SAME_AS(T, U) _Is<T, std::is_same, U>
-#define STL2_IS_BASE_OF(T, U) _Is<T, std::is_base_of, U>
+#define STL2_IS_SAME_AS(T, U) _Is<T, is_same, U>
+#define STL2_IS_BASE_OF(T, U) _Is<T, is_base_of, U>
 #endif
 
 namespace stl2 { inline namespace v1 {
@@ -30,11 +27,15 @@ concept bool _Is = _Valid<T, U, V...> && T<U, V...>::value;
 template <class U, template <class...> class T, class... V>
 concept bool _IsNot = !_Is<U, T, V...>;
 
+template <template <class...> class Trait, class...Ts>
+concept bool _AllAre =
+  meta::_v<meta::all_of<meta::list<Ts...>, meta::quote_trait<Trait>>>;
+
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67148
 #if 0
 namespace detail {
 template <class...>
-struct all_same : std::true_type {};
+struct all_same : true_type {};
 
 template <class T, class...Rest>
 struct all_same<T, Rest...> :
@@ -55,7 +56,10 @@ concept bool Same() {
 #endif
 
 template <class T>
-concept bool _Decayed = Same<T, std::decay_t<T>>();
+concept bool _Decayed = Same<T, decay_t<T>>();
+
+template <class T>
+concept bool _Unqual = Same<T, __uncvref<T>>();
 
 template <class T, class U>
 concept bool DerivedFrom() {
@@ -74,7 +78,7 @@ concept bool ImplicitlyConvertibleTo() {
   // Q: Why not { t } -> U ?
   // A: They do not have equivalent results as of 20150724,
   //    which I think is a bug.
-  return _Is<T, std::is_convertible, U>;
+  return _Is<T, is_convertible, U>;
 }
 
 } // namespace ext
