@@ -15,6 +15,7 @@
 #include <stl2/detail/tagged.hpp>
 #include <stl2/detail/tuple_like.hpp>
 #include <stl2/detail/concepts/compare.hpp>
+#include <stl2/detail/concepts/fold_expressions.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/variant/storage.hpp>
 
@@ -45,55 +46,6 @@ constexpr bool operator>=(monostate, monostate)
 { return true; }
 
 namespace __variant {
-// Hack around the absence of fold expressions
-// Destructible<Ts>() && ...
-template <class...Ts>
-constexpr bool AllDestructible = false;
-template <Destructible...Ts>
-constexpr bool AllDestructible<Ts...> = true;
-
-// MoveConstructible<Ts>() && ...
-template <class...Ts>
-constexpr bool AllMoveConstructible = false;
-template <MoveConstructible...Ts>
-constexpr bool AllMoveConstructible<Ts...> = true;
-
-// Movable<Ts>() && ...
-template <class...Ts>
-constexpr bool AllMovable = false;
-template <Movable...Ts>
-constexpr bool AllMovable<Ts...> = true;
-
-// CopyConstructible<Ts>() && ...
-template <class...Ts>
-constexpr bool AllCopyConstructible = false;
-template <CopyConstructible...Ts>
-constexpr bool AllCopyConstructible<Ts...> = true;
-
-// Copyable<Ts>() && ...
-template <class...Ts>
-constexpr bool AllCopyable = false;
-template <Copyable...Ts>
-constexpr bool AllCopyable<Ts...> = true;
-
-// Swappable<Ts>() && ...
-template <class...Ts>
-constexpr bool AllSwappable = false;
-template <Swappable...Ts>
-constexpr bool AllSwappable<Ts...> = true;
-
-// EqualityComparable<Ts>() && ...
-template <class...Ts>
-constexpr bool AllEqualityComparable = false;
-template <EqualityComparable...Ts>
-constexpr bool AllEqualityComparable<Ts...> = true;
-
-// TotallyOrdered<Ts>() && ...
-template <class...Ts>
-constexpr bool AllTotallyOrdered = false;
-template <TotallyOrdered...Ts>
-constexpr bool AllTotallyOrdered<Ts...> = true;
-
 struct void_storage : monostate {
   void_storage() requires false;
 private:
@@ -125,7 +77,7 @@ template <class T, class Types,
 constexpr std::size_t index_of_type = I;
 
 template <class...Ts>
-  requires AllDestructible<element_t<Ts>...>
+  requires detail::AllDestructible<element_t<Ts>...>
 class base;
 
 template <class...Types>
@@ -143,7 +95,7 @@ concept bool Variant =
 } // namespace __variant
 
 template <class...Ts>
-  requires __variant::AllDestructible<__variant::element_t<Ts>...>
+  requires detail::AllDestructible<__variant::element_t<Ts>...>
 class variant;
 
 template <class>
@@ -227,13 +179,6 @@ constexpr T&& cook(element_t<meta::id_t<T>>&& t) noexcept {
   return stl2::move(cook<T>(t));
 }
 
-template <std::size_t I, Variant V,
-  _IsNot<is_void> T = meta::at_c<VariantTypes<V>, I>>
-constexpr auto&& cooked_get(meta::size_t<I> i, V&& v) noexcept {
-  assert(i == v.index());
-  return cook<T>(st_access::raw_get(i, stl2::forward<V>(v).storage_));
-}
-
 using non_void_predicate =
   meta::compose<meta::quote<meta::not_>, meta::quote_trait<is_void>>;
 
@@ -289,8 +234,9 @@ using constructible_from =
   constructible_from_<T, 0u, Types...>;
 
 template <class...Ts>
-  requires AllDestructible<element_t<Ts>...>
+  requires detail::AllDestructible<element_t<Ts>...>
 class base {
+  friend struct v_access;
 protected:
   using storage_t = storage<element_t<Ts>...>;
   using index_t =
@@ -318,6 +264,7 @@ protected:
   storage_t storage_;
   index_t index_;
 
+protected:
   void clear() noexcept {
     if (valid()) {
       raw_visit(destruct, *this);
@@ -519,6 +466,22 @@ public:
   friend constexpr auto&& get(V&& v);
 };
 
+struct v_access {
+  template <std::size_t I, Variant V,
+    _IsNot<is_void> T = meta::at_c<VariantTypes<V>, I>>
+  static constexpr auto&& raw_get(meta::size_t<I> i, V&& v) noexcept {
+    STL2_VISIT_ASSERT(I == v.index());
+    return st_access::raw_get(i, stl2::forward<V>(v).storage_);
+  }
+
+  template <std::size_t I, Variant V,
+    _IsNot<is_void> T = meta::at_c<VariantTypes<V>, I>>
+  static constexpr auto&& cooked_get(meta::size_t<I> i, V&& v) noexcept {
+    assert(I == v.index());
+    return cook<T>(v_access::raw_get(i, stl2::forward<V>(v)));
+  }
+};
+
 // "inline" is here for the ODR; we do not actually
 // want bad_access to be inlined into get. Having it
 // be a separate function results in better generated
@@ -532,7 +495,7 @@ template <std::size_t I, Variant V>
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 constexpr auto&& get_unchecked(V&& v) {
   assert(v.index() == I);
-  return cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
+  return v_access::cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
 }
 
 template <std::size_t I, Variant V>
@@ -543,7 +506,7 @@ constexpr auto&& get(V&& v) {
   // Odd syntax here to avoid
   // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67371
   v.index() == I || bad_access();
-  return cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
+  return v_access::cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
 }
 
 template <_IsNot<is_void> T, Variant V,
@@ -562,10 +525,10 @@ template <std::size_t I, Variant V>
   requires I < VariantTypes<V>::size() &&
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 constexpr auto get(V* v) noexcept ->
-  decltype(&__variant::cooked_get(meta::size_t<I>{}, *v)) {
+  decltype(&__variant::v_access::cooked_get(meta::size_t<I>{}, *v)) {
   assert(v);
   if (v->index() == I) {
-    return &__variant::cooked_get(meta::size_t<I>{}, *v);
+    return &__variant::v_access::cooked_get(meta::size_t<I>{}, *v);
   }
   return nullptr;
 }
@@ -592,10 +555,10 @@ struct single_visit_properties<F,
 {
   using type =
     decltype(declval<F>()(std::index_sequence<Is...>{},
-      st_access::raw_get(meta::size_t<Is>{}, declval<Variants>().storage_)...));
+      v_access::raw_get(meta::size_t<Is>{}, declval<Variants>())...));
   static constexpr bool nothrow =
     noexcept(declval<F>()(std::index_sequence<Is...>{},
-      st_access::raw_get(meta::size_t<Is>{}, declval<Variants>().storage_)...));
+      v_access::raw_get(meta::size_t<Is>{}, declval<Variants>())...));
 };
 template <class F, class Variants, class Indices>
 using single_visit_return_t =
@@ -659,7 +622,7 @@ constexpr VisitReturn<F, Vs...>
 visit_handler(std::index_sequence<Is...> indices, F&& f, Vs&&...vs)
 STL2_NOEXCEPT_RETURN(
   stl2::forward<F>(f)(indices,
-    st_access::raw_get(meta::size_t<Is>{}, stl2::forward<Vs>(vs).storage_)...)
+    v_access::raw_get(meta::size_t<Is>{}, stl2::forward<Vs>(vs))...)
 )
 
 Visitor{F, ...Vs}
@@ -947,7 +910,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllMoveConstructible<element_t<Ts>...>
+  requires detail::AllMoveConstructible<element_t<Ts>...>
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
 public:
@@ -964,7 +927,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllMoveConstructible<element_t<Ts>...> &&
+  requires detail::AllMoveConstructible<element_t<Ts>...> &&
     ext::TriviallyMoveConstructible<storage<element_t<Ts>...>>()
 class move_base<Ts...> : public destruct_base<Ts...> {
   using base_t = destruct_base<Ts...>;
@@ -986,7 +949,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllMovable<element_t<Ts>...>
+  requires detail::AllMovable<element_t<Ts>...>
 class move_assign_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
 public:
@@ -1008,7 +971,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllMovable<element_t<Ts>...> &&
+  requires detail::AllMovable<element_t<Ts>...> &&
     ext::TriviallyMovable<storage<element_t<Ts>...>>()
 class move_assign_base<Ts...> : public move_base<Ts...> {
   using base_t = move_base<Ts...>;
@@ -1030,7 +993,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllCopyConstructible<element_t<Ts>...>
+  requires detail::AllCopyConstructible<element_t<Ts>...>
 class copy_base<Ts...> : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
 public:
@@ -1047,7 +1010,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllCopyConstructible<element_t<Ts>...> &&
+  requires detail::AllCopyConstructible<element_t<Ts>...> &&
     ext::TriviallyCopyConstructible<storage<element_t<Ts>...>>()
 class copy_base<Ts...> : public move_assign_base<Ts...> {
   using base_t = move_assign_base<Ts...>;
@@ -1069,7 +1032,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllCopyable<element_t<Ts>...>
+  requires detail::AllCopyable<element_t<Ts>...>
 class copy_assign_base<Ts...> : public copy_base<Ts...> {
   using base_t = copy_base<Ts...>;
 public:
@@ -1091,7 +1054,7 @@ public:
 };
 
 template <class...Ts>
-  requires AllCopyable<element_t<Ts>...> &&
+  requires detail::AllCopyable<element_t<Ts>...> &&
     ext::TriviallyCopyable<storage<element_t<Ts>...>>()
 class copy_assign_base<Ts...> : public copy_base<Ts...> {
   using base_t = copy_base<Ts...>;
@@ -1101,7 +1064,7 @@ public:
 } // namespace __variant
 
 template <class...Ts>
-  requires __variant::AllDestructible<__variant::element_t<Ts>...>
+  requires detail::AllDestructible<__variant::element_t<Ts>...>
 class variant : public __variant::copy_assign_base<Ts...> {
   using base_t = __variant::copy_assign_base<Ts...>;
 
@@ -1113,7 +1076,7 @@ class variant : public __variant::copy_assign_base<Ts...> {
 
     constexpr void operator()(auto i, auto& from)
       noexcept(is_nothrow_swappable_v<decltype((from)), decltype((from))>) {
-      stl2::swap(__variant::st_access::raw_get(i, self_.storage_), from);
+      stl2::swap(__variant::v_access::raw_get(i, self_), from);
     }
   };
 
@@ -1122,7 +1085,7 @@ class variant : public __variant::copy_assign_base<Ts...> {
 
     constexpr bool operator()(auto i, const auto& o) const
       noexcept(noexcept(o == o)) {
-      const auto& s = __variant::cooked_get(i, self_);
+      const auto& s = __variant::v_access::cooked_get(i, self_);
       static_assert(is_same<decltype(o), decltype(s)>());
       return s == o;
     }
@@ -1133,7 +1096,7 @@ class variant : public __variant::copy_assign_base<Ts...> {
 
     constexpr bool operator()(auto i, const auto& o) const
       noexcept(noexcept(o < o)) {
-      const auto& s = __variant::cooked_get(i, self_);
+      const auto& s = __variant::v_access::cooked_get(i, self_);
       static_assert(is_same<decltype(o), decltype(s)>());
       return s < o;
     }
@@ -1152,7 +1115,7 @@ public:
              is_nothrow_move_assignable<T>::value) {
     constexpr auto I = CF::index;
     if (this->index_ == I) {
-      auto& target = __variant::st_access::raw_get(meta::size_t<I>{}, this->storage_);
+      auto& target = __variant::v_access::raw_get(meta::size_t<I>{}, *this);
       target = stl2::move(t);
     } else {
       this->template emplace<T>(stl2::move(t));
@@ -1170,7 +1133,7 @@ public:
              is_nothrow_move_constructible<T>::value) {
     constexpr auto I = CF::index;
     if (this->index_ == I) {
-      auto& target = __variant::st_access::raw_get(meta::size_t<I>{}, this->storage_);
+      auto& target = __variant::v_access::raw_get(meta::size_t<I>{}, *this);
       target = t;
     } else {
       this->template emplace<T>(T{t});
@@ -1193,7 +1156,7 @@ public:
              meta::_v<meta::and_c<is_nothrow_swappable_v<
                __variant::element_t<Ts>&, __variant::element_t<Ts>&>...>>)
     requires Movable<base_t>() && // FIXME: Movable<variant>()
-      __variant::AllSwappable<__variant::element_t<Ts>&...>
+      detail::AllSwappable<__variant::element_t<Ts>&...>
   {
     if (this->index_ == that.index_) {
       if (this->valid()) {
@@ -1213,7 +1176,7 @@ public:
   }
 
   friend constexpr bool operator==(const variant& lhs, const variant& rhs)
-    requires __variant::AllEqualityComparable<__variant::element_t<Ts>...>
+    requires detail::AllEqualityComparable<__variant::element_t<Ts>...>
   {
     if (lhs.index_ != rhs.index_) {
       return false;
@@ -1222,13 +1185,13 @@ public:
   }
 
   friend constexpr bool operator!=(const variant& lhs, const variant& rhs)
-    requires __variant::AllEqualityComparable<__variant::element_t<Ts>...>
+    requires detail::AllEqualityComparable<__variant::element_t<Ts>...>
   {
     return !(lhs == rhs);
   }
 
   friend constexpr bool operator<(const variant& lhs, const variant& rhs)
-    requires __variant::AllTotallyOrdered<__variant::element_t<Ts>...>
+    requires detail::AllTotallyOrdered<__variant::element_t<Ts>...>
   {
     if (lhs.index_ < rhs.index_) {
       return true;
@@ -1240,19 +1203,19 @@ public:
   }
 
   friend constexpr bool operator>(const variant& lhs, const variant& rhs)
-    requires __variant::AllTotallyOrdered<__variant::element_t<Ts>...>
+    requires detail::AllTotallyOrdered<__variant::element_t<Ts>...>
   {
     return rhs < lhs;
   }
 
   friend constexpr bool operator<=(const variant& lhs, const variant& rhs)
-    requires __variant::AllTotallyOrdered<__variant::element_t<Ts>...>
+    requires detail::AllTotallyOrdered<__variant::element_t<Ts>...>
   {
     return !(rhs < lhs);
   }
 
   friend constexpr bool operator>=(const variant& lhs, const variant& rhs)
-    requires __variant::AllTotallyOrdered<__variant::element_t<Ts>...>
+    requires detail::AllTotallyOrdered<__variant::element_t<Ts>...>
   {
     return !(lhs < rhs);
   }
@@ -1287,9 +1250,9 @@ inline void hash_combine(std::size_t& seed, const T& v) {
 
 template <class T>
 concept bool Hashable =
-  requires (const element_t<T>& e) {
-    typename std::hash<element_t<T>>;
-    std::hash<element_t<T>>{}(e);
+  requires (const T& e) {
+    typename std::hash<T>;
+    std::hash<T>{}(e);
   };
 
 template <class...>
@@ -1332,7 +1295,7 @@ struct hash<::stl2::__variant::void_storage> {
 };
 
 template <class...Ts>
-  requires ::stl2::__variant::AllHashable<Ts...>
+  requires ::stl2::__variant::AllHashable<::stl2::__variant::element_t<Ts>...>
 struct hash<::stl2::variant<Ts...>> {
 private:
   struct hash_visitor {
