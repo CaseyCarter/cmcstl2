@@ -603,11 +603,11 @@ using VisitReturn =
 #endif
 
 template <class F, Variant...Vs>
-concept bool Visitor =
+concept bool RawVisitorWithIndices =
   sizeof...(Vs) > 0 &&
   requires { typename VisitReturn<F, Vs...>; };
 
-Visitor{F, ...Vs}
+RawVisitorWithIndices{F, ...Vs}
 constexpr bool VisitNothrow =
   meta::_v<meta::apply_list<meta::quote<meta::fast_and>,
     meta::transform<all_visit_vectors<Vs...>,
@@ -617,7 +617,7 @@ constexpr bool VisitNothrow =
 // TODO: Tune.
 constexpr std::size_t O1_visit_threshold = 5;
 
-template <std::size_t...Is, Variant...Vs, Visitor<Vs...> F>
+template <std::size_t...Is, Variant...Vs, RawVisitorWithIndices<Vs...> F>
 constexpr VisitReturn<F, Vs...>
 visit_handler(std::index_sequence<Is...> indices, F&& f, Vs&&...vs)
 STL2_NOEXCEPT_RETURN(
@@ -625,7 +625,7 @@ STL2_NOEXCEPT_RETURN(
     v_access::raw_get(meta::size_t<Is>{}, stl2::forward<Vs>(vs))...)
 )
 
-Visitor{F, ...Vs}
+RawVisitorWithIndices{F, ...Vs}
 class ON_dispatch {
   using R = VisitReturn<F, Vs...>;
   static constexpr std::size_t N = sizeof...(Vs);
@@ -697,7 +697,7 @@ public:
   }
 };
 
-Visitor{F, ...Vs}
+RawVisitorWithIndices{F, ...Vs}
 constexpr VisitReturn<F, Vs...>
 raw_visit_with_indices(F&& f, Vs&&...vs)
   noexcept(VisitNothrow<F, Vs...>)
@@ -709,7 +709,7 @@ raw_visit_with_indices(F&& f, Vs&&...vs)
 }
 
 template <class I, class F, Variant...Vs>
-  requires Visitor<F, Vs...>
+  requires RawVisitorWithIndices<F, Vs...>
 constexpr VisitReturn<F, Vs...>
 o1_visit_handler(F&& f, Vs&&...vs)
 STL2_NOEXCEPT_RETURN(
@@ -717,15 +717,15 @@ STL2_NOEXCEPT_RETURN(
     stl2::forward<Vs>(vs)...)
 )
 
-Visitor{F, ...Vs}
+RawVisitorWithIndices{F, ...Vs}
 using visit_handler_ptr =
   VisitReturn<F, Vs...>(*)(F&&, Vs&&...);
 
 template <class Indices, class F, Variant...Vs>
-  requires Visitor<F, Vs...>
+  requires RawVisitorWithIndices<F, Vs...>
 constexpr visit_handler_ptr<F, Vs...> visit_handler_for = {};
 template <std::size_t...Is, class F, Variant...Vs>
-  requires Visitor<F, Vs...> &&
+  requires RawVisitorWithIndices<F, Vs...> &&
     meta::_v<meta::all_of<
       meta::list<meta::at_c<VariantTypes<Vs>, Is>...>,
       non_void_predicate>>
@@ -734,10 +734,10 @@ constexpr visit_handler_ptr<F, Vs...>
     &o1_visit_handler<std::index_sequence<Is...>, F, Vs...>;
 
 template <class Indices, class F, Variant...Vs>
-  requires Visitor<F, Vs...>
+  requires RawVisitorWithIndices<F, Vs...>
 struct O1_dispatch;
 template <class...Is, class F, Variant...Vs>
-  requires Visitor<F, Vs...>
+  requires RawVisitorWithIndices<F, Vs...>
 struct O1_dispatch<meta::list<Is...>, F, Vs...> {
   static constexpr visit_handler_ptr<F, Vs...> table[] = {
     visit_handler_for<Is, F, Vs...>...
@@ -745,7 +745,7 @@ struct O1_dispatch<meta::list<Is...>, F, Vs...> {
 };
 
 template <class...Is, class F, Variant...Vs>
-  requires Visitor<F, Vs...>
+  requires RawVisitorWithIndices<F, Vs...>
 constexpr visit_handler_ptr<F, Vs...>
   O1_dispatch<meta::list<Is...>, F, Vs...>::table[];
 
@@ -765,20 +765,20 @@ calc_index(const First& f, const Rest&...rest) noexcept {
 }
 
 template <Variant...Vs>
-using all_indices =
+using all_index_vectors =
   meta::transform<
     meta::cartesian_product<meta::list<
       meta::as_list<meta::make_index_sequence<
         VariantTypes<Vs>::size()>>...>>,
     meta::quote<as_integer_sequence>>;
 
-Visitor{F, ...Vs}
+RawVisitorWithIndices{F, ...Vs}
 constexpr VisitReturn<F, Vs...>
 raw_visit_with_indices(F&& f, Vs&&...vs)
   noexcept(VisitNothrow<F, Vs...>)
   requires total_alternatives<Vs...> >= O1_visit_threshold
 {
-  using Dispatch = O1_dispatch<all_indices<Vs...>, F, Vs...>;
+  using Dispatch = O1_dispatch<all_index_vectors<Vs...>, F, Vs...>;
   std::size_t i = calc_index(vs...);
   STL2_VISIT_ASSERT(Dispatch::table[i]);
   return Dispatch::table[i](stl2::forward<F>(f), stl2::forward<Vs>(vs)...);
@@ -794,8 +794,11 @@ struct single_index_visitor {
   }
 };
 
-template <class F, Variant V>
-  requires Visitor<single_index_visitor<F>, V>
+template <class F, class V>
+concept bool RawVisitorWithIndex =
+  RawVisitorWithIndices<single_index_visitor<F>, V>;
+
+RawVisitorWithIndex{F, V}
 constexpr VisitReturn<single_index_visitor<F>, V>
 raw_visit_with_index(F&& f, V&& v)
   noexcept(VisitNothrow<single_index_visitor<F>, V>) {
@@ -814,8 +817,11 @@ struct no_index_visitor {
   }
 };
 
-template <class F, Variant...Vs>
-  requires Visitor<no_index_visitor<F>, Vs...>
+template <class F, class...Vs>
+concept bool RawVisitor =
+  RawVisitorWithIndices<no_index_visitor<F>, Vs...>;
+
+RawVisitor{F, ...Vs}
 constexpr VisitReturn<no_index_visitor<F>, Vs...>
 raw_visit(F&& f, Vs&&...vs)
   noexcept(VisitNothrow<no_index_visitor<F>, Vs...>) {
@@ -840,32 +846,40 @@ struct cooked_visitor {
   }
 };
 
-template <class F, Variant...Vs, class CV = cooked_visitor<F, Vs...>>
-  requires Visitor<CV, Vs...>
-constexpr VisitReturn<CV, Vs...>
+template <class F, class...Vs>
+concept bool VisitorWithIndices =
+  RawVisitorWithIndices<cooked_visitor<F, Vs...>, Vs...>;
+
+VisitorWithIndices{F, ...Vs}
+constexpr VisitReturn<cooked_visitor<F, Vs...>, Vs...>
 visit_with_indices(F&& f, Vs&&...vs)
-  noexcept(VisitNothrow<CV, Vs...>) {
+  noexcept(VisitNothrow<cooked_visitor<F, Vs...>, Vs...>) {
   return raw_visit_with_indices(
-    CV{stl2::forward<F>(f)},
+    cooked_visitor<F, Vs...>{stl2::forward<F>(f)},
     stl2::forward<Vs>(vs)...);
 }
 
-template <class F, Variant V,
-  class CV = cooked_visitor<single_index_visitor<F>, V>>
-  requires Visitor<CV, V>
-constexpr VisitReturn<CV, V>
+template <class F, class V>
+concept bool VisitorWithIndex =
+  VisitorWithIndices<single_index_visitor<F>, V>;
+
+VisitorWithIndex{F, V}
+constexpr VisitReturn<cooked_visitor<single_index_visitor<F>, V>, V>
 visit_with_index(F&& f, V&& v)
-  noexcept(VisitNothrow<CV, V>) {
+  noexcept(VisitNothrow<cooked_visitor<single_index_visitor<F>, V>, V>) {
   return visit_with_indices(
     single_index_visitor<F>{stl2::forward<F>(f)},
     stl2::forward<V>(v));
 }
 
-template <class F, Variant...Vs,
-  class CV = cooked_visitor<no_index_visitor<F>, Vs...>>
-  requires Visitor<CV, Vs...>
-constexpr VisitReturn<CV, Vs...> visit(F&& f, Vs&&...vs)
-  noexcept(VisitNothrow<CV, Vs...>) {
+template <class F, class...Vs>
+concept bool Visitor =
+  VisitorWithIndices<no_index_visitor<F>, Vs...>;
+
+Visitor{F, ...Vs}
+constexpr VisitReturn<cooked_visitor<no_index_visitor<F>, Vs...>, Vs...>
+visit(F&& f, Vs&&...vs)
+  noexcept(VisitNothrow<cooked_visitor<no_index_visitor<F>, Vs...>, Vs...>) {
   return visit_with_indices(
     no_index_visitor<F>{stl2::forward<F>(f)},
     stl2::forward<Vs>(vs)...);
