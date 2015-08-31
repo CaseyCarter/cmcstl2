@@ -27,11 +27,21 @@ using __tag_spec = typename __tag_properties<T>::specifier;
 template <class T>
 using __tag_elem = meta::_t<__tag_properties<T>>;
 
-namespace tag { struct __specifier_tag {}; }
+template <class Derived, std::size_t I>
+class tag_specifier_base;
+
+template <class T, class D, std::size_t I>
+  requires DerivedFrom<
+    typename T::template tagged_getter<tag_specifier_base<D, I>>,
+      tag_specifier_base<D, I>>()
+using __tag_specifier_getter =
+  typename T::template tagged_getter<tag_specifier_base<D, I>>;
 
 template <class T>
 concept bool TagSpecifier() {
-  return DerivedFrom<T, tag::__specifier_tag>();
+  return requires {
+    typename __tag_specifier_getter<T, std::tuple<int>, 0>;
+  };
 }
 
 template <class T>
@@ -45,21 +55,6 @@ concept bool TaggedType() {
 template <class Base, TagSpecifier...Tags>
   requires sizeof...(Tags) <= tuple_size<Base>::value
 struct tagged;
-}}
-
-namespace std {
-template <class Base, ::stl2::TagSpecifier...Tags>
-struct tuple_size<::stl2::tagged<Base, Tags...>>
-  : tuple_size<Base> { };
-
-template <size_t N, class Base, ::stl2::TagSpecifier...Tags>
-struct tuple_element<N, ::stl2::tagged<Base, Tags...>>
-  : tuple_element<N, Base> { };
-}
-
-namespace stl2 { inline namespace v1 {
-template <class T, class Base, class...Tags>
-constexpr std::size_t tuple_find<T, tagged<Base, Tags...>> = tuple_find<T, Base>;
 
 class __getters {
   template <class Base, TagSpecifier...Tags>
@@ -72,7 +67,7 @@ class __getters {
   template <class Type, std::size_t...Is, TagSpecifier...Tags>
     requires sizeof...(Is) == sizeof...(Tags)
   class collect_<Type, std::index_sequence<Is...>, Tags...>
-    : public Tags::template getter<Type, Is>... {
+    : public __tag_specifier_getter<Tags, Type, Is>... {
   protected:
     ~collect_() = default;
   };
@@ -156,31 +151,53 @@ struct tagged
   constexpr Base&& base() && { return stl2::move(*this); }
 };
 
-#define STL2_DEFINE_GETTER(name)                                        \
-namespace tag {                                                         \
- class name : public __specifier_tag {                                  \
-    friend __getters;                                                   \
-    template <class Derived, std::size_t I>                             \
-    struct getter {                                                     \
-      constexpr decltype(auto) name () &                                \
-        requires DerivedFrom<Derived, getter>() {                       \
-        return get<I>(static_cast<Derived&>(*this).base());             \
-      }                                                                 \
-      constexpr decltype(auto) name () &&                               \
-        requires DerivedFrom<Derived, getter>() {                       \
-        return get<I>(static_cast<Derived&&>(*this).base());            \
-      }                                                                 \
-      constexpr decltype(auto) name () const &                          \
-        requires DerivedFrom<Derived, getter>() {                       \
-        return get<I>(static_cast<const Derived&>(*this).base());       \
-      }                                                                 \
-    protected:                                                          \
-      ~getter() = default;                                              \
-    };                                                                  \
-  };                                                                    \
-}
+template <class Derived, std::size_t I>
+class tag_specifier_base {
+protected:
+  ~tag_specifier_base() = default;
+
+  constexpr auto&& get() & {
+    check();
+    using stl2::get;
+    return get<I>(static_cast<Derived&>(*this).base());
+  }
+  constexpr auto&& get() const& {
+    check();
+    using stl2::get;
+    return get<I>(static_cast<const Derived&>(*this).base());
+  }
+  constexpr auto&& get() && {
+    check();
+    using stl2::get;
+    return get<I>(static_cast<Derived&&>(*this).base());
+  }
+private:
+  static constexpr void check() {
+    static_assert(DerivedFrom<Derived, tag_specifier_base>());
+    // FIXME: Require Derived to be a specialization of tagged?
+  }
+};
+
+#define STL2_DEFINE_GETTER(name)                        \
+  struct name {                                         \
+    template <class Base>                               \
+    struct tagged_getter : Base {                       \
+      constexpr decltype(auto) name () & {              \
+        return Base::get();                             \
+      }                                                 \
+      constexpr decltype(auto) name () const & {        \
+        return Base::get();                             \
+      }                                                 \
+      constexpr decltype(auto) name () && {             \
+        return stl2::move(*this).Base::get();           \
+      }                                                 \
+    protected:                                          \
+      ~tagged_getter() = default;                       \
+    };                                                  \
+  };
 
 // tag specifiers [algorithm.general]
+namespace tag {
 STL2_DEFINE_GETTER(in)
 STL2_DEFINE_GETTER(in1)
 STL2_DEFINE_GETTER(in2)
@@ -192,8 +209,22 @@ STL2_DEFINE_GETTER(min)
 STL2_DEFINE_GETTER(max)
 STL2_DEFINE_GETTER(begin)
 STL2_DEFINE_GETTER(end)
+}
 
 #undef STL2_DEFINE_GETTER
+
+template <class T, class Base, class...Tags>
+constexpr std::size_t tuple_find<T, tagged<Base, Tags...>> = tuple_find<T, Base>;
 }} // namespace stl2::v1
+
+namespace std {
+template <class Base, ::stl2::TagSpecifier...Tags>
+struct tuple_size<::stl2::tagged<Base, Tags...>>
+  : tuple_size<Base> { };
+
+template <size_t N, class Base, ::stl2::TagSpecifier...Tags>
+struct tuple_element<N, ::stl2::tagged<Base, Tags...>>
+  : tuple_element<N, Base> { };
+}
 
 #endif

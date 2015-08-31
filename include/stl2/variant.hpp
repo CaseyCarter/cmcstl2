@@ -124,7 +124,8 @@ struct constructible_from_<T, I, First, Rest...> :
 template <class T, std::size_t I, class First, class...Rest>
   requires ViableAlternative<T, First>
 struct constructible_from_<T, I, First, Rest...> : true_type {
-  static constexpr bool ambiguous = meta::_v<constructible_from_<T, I + 1, Rest...>>;
+  static constexpr bool ambiguous =
+     meta::_v<constructible_from_<T, I + 1, Rest...>>;
   static constexpr std::size_t index = I;
 };
 
@@ -197,7 +198,8 @@ protected:
     if (index_ == that.index_) {
       if (valid()) {
         raw_visit_with_index([this](auto i, auto&& from) {
-          st_access::raw_get(i, storage_) = stl2::forward<decltype(from)>(from);
+          st_access::raw_get(i, storage_) =
+            stl2::forward<decltype(from)>(from);
         }, stl2::move(that));
       }
     } else {

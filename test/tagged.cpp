@@ -1,6 +1,7 @@
 #include <array>
 #include <stl2/functional.hpp>
 #include <stl2/tuple.hpp>
+#include <stl2/type_traits.hpp>
 #include <stl2/utility.hpp>
 #include "simple_test.hpp"
 
@@ -187,6 +188,31 @@ void test_tagged_tuple_creation_para_4_example() {
   CHECK(&t.out() == &j);
 }
 
+struct foo {
+  template <class B>
+  struct tagged_getter : B {
+    constexpr decltype(auto) foo() & {
+      return B::get();
+    }
+    constexpr decltype(auto) foo() const& {
+      return B::get();
+    }
+    constexpr decltype(auto) foo() && {
+      return stl2::move(*this).B::get();
+    }
+  };
+};
+
+void test_tag_extension() {
+  auto p = stl2::make_tagged_pair<stl2::tag::in, foo>(42, 13);
+  static_assert(stl2::is_same<int&, decltype(p.foo())>());
+  const auto& cp = p;
+  static_assert(stl2::is_same<const int&, decltype(cp.foo())>());
+  static_assert(stl2::is_same<int&&, decltype(stl2::move(p).foo())>());
+  CHECK(p.in() == 42);
+  CHECK(p.foo() == 13);
+}
+
 int main() {
   test_pair();
   test_tuple();
@@ -202,5 +228,6 @@ int main() {
   test_tagged_pairs_creation_para_2_example();
   test_tagged_tuple_para_3_example();
   test_tagged_tuple_creation_para_4_example();
+  test_tag_extension();
   return ::test_result();
 }
