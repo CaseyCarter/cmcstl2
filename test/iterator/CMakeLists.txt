@@ -9,3 +9,6 @@ add_test(test.iterator.reverse reverse_iterator)
 
 add_executable(common_iterator common_iterator.cpp)
 add_test(test.iterator.common common_iterator)
+
+add_executable(counted_iterator counted_iterator.cpp)
+add_test(test.iterator.counted counted_iterator)

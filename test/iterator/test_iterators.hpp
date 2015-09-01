@@ -11,7 +11,6 @@
 #define RANGES_TEST_ITERATORS_HPP
 
 #include <cassert>
-#include <iterator>
 #include <stl2/iterator.hpp>
 
 template <class It, bool Sized = false>

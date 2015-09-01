@@ -13,6 +13,8 @@
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/common_iterator.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/iterator/counted_iterator.hpp>
+#include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/detail/iterator/insert_iterators.hpp>
 #include <stl2/detail/iterator/move_iterator.hpp>
 #include <stl2/detail/iterator/operations.hpp>
@@ -57,31 +59,6 @@ template <Regular S, Iterator I>
 struct common_type<S, I> {
   using type = common_iterator<I, S>;
 };
-
-struct default_sentinel {};
-constexpr bool operator==(const default_sentinel&, const default_sentinel&) noexcept {
-  return true;
-}
-constexpr bool operator!=(const default_sentinel&, const default_sentinel&) noexcept {
-  return false;
-}
-constexpr bool operator<(const default_sentinel&, const default_sentinel&) noexcept {
-  return false;
-}
-constexpr bool operator>(const default_sentinel&, const default_sentinel&) noexcept {
-  return false;
-}
-constexpr bool operator<=(const default_sentinel&, const default_sentinel&) noexcept {
-  return true;
-}
-constexpr bool operator>=(const default_sentinel&, const default_sentinel&) noexcept {
-  return true;
-}
-constexpr std::ptrdiff_t operator-(
-  const default_sentinel&, const default_sentinel&) noexcept {
-    return 0;
-}
-
-}}
+}} // namespace stl2::v1
 
 #endif
