@@ -52,6 +52,69 @@ private:
 template <Range R>
 using safe_iterator_t =
   meta::if_<std::is_lvalue_reference<R>, IteratorType<R>, dangling<IteratorType<R>>>;
+
+// Extension: unreachable is WeaklyTotallyOrdered with *any* type.
+class unreachable {};
+
+constexpr bool operator==(const auto&, unreachable) noexcept {
+  return false;
+}
+constexpr bool operator==(unreachable, const auto&) noexcept {
+  return false;
+}
+constexpr bool operator==(unreachable, unreachable) noexcept {
+  return true;
+}
+
+constexpr bool operator!=(const auto&, unreachable) noexcept {
+  return true;
+}
+constexpr bool operator!=(unreachable, const auto&) noexcept {
+  return true;
+}
+constexpr bool operator!=(unreachable, unreachable) noexcept {
+  return false;
+}
+
+constexpr bool operator<(const auto&, unreachable) noexcept {
+  return true;
+}
+constexpr bool operator<(unreachable, const auto&) noexcept {
+  return false;
+}
+constexpr bool operator<(unreachable, unreachable) noexcept {
+  return false;
+}
+
+constexpr bool operator>(const auto&, unreachable) noexcept {
+  return false;
+}
+constexpr bool operator>(unreachable, const auto&) noexcept {
+  return true;
+}
+constexpr bool operator>(unreachable, unreachable) noexcept {
+  return false;
+}
+
+constexpr bool operator<=(const auto&, unreachable) noexcept {
+  return true;
+}
+constexpr bool operator<=(unreachable, const auto&) noexcept {
+  return false;
+}
+constexpr bool operator<=(unreachable, unreachable) noexcept {
+  return true;
+}
+
+constexpr bool operator>=(const auto&, unreachable) noexcept {
+  return false;
+}
+constexpr bool operator>=(unreachable, const auto&) noexcept {
+  return true;
+}
+constexpr bool operator>=(unreachable, unreachable) noexcept {
+  return true;
+}
 }} // namespace stl2::v1
 
 #endif

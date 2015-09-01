@@ -12,3 +12,6 @@ add_test(test.iterator.common common_iterator)
 
 add_executable(counted_iterator counted_iterator.cpp)
 add_test(test.iterator.counted counted_iterator)
+
+add_executable(unreachable unreachable.cpp)
+add_test(test.iterator.unreachable unreachable)
