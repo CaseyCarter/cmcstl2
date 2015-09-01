@@ -34,22 +34,31 @@ constexpr bool __forward_iter = false;
 template <ForwardIterator I>
 constexpr bool __forward_iter<I> = true;
 
+struct __ci_access {
+  template <class T>
+  static constexpr auto&& v(T&& ci) noexcept {
+    return stl2::forward<decltype(ci)>(ci).v_;
+  }
+};
+
+template <class I, class S>
+struct __ci_convert_visitor {
+  constexpr auto operator()(const ConvertibleTo<I>& i) const
+  STL2_NOEXCEPT_RETURN(
+    variant<I, S>{emplaced_type<I>, i}
+  )
+  constexpr auto operator()(const ConvertibleTo<S>& s) const
+  STL2_NOEXCEPT_RETURN(
+    variant<I, S>{emplaced_type<S>, s}
+  )
+};
+
 template <InputIterator I, __WeakSentinel<I> S>
   requires !Same<I, S>()
 class common_iterator {
-  friend struct __ci_access;
-  template <class, class> friend class common_iterator;
-  variant<I, S> v_;
-  struct convert_visitor {
-    constexpr variant<I, S> operator()(
-      meta::size_t<0>, const ConvertibleTo<I>& i) const {
-        return variant<I, S>{emplaced_index<0>, i};
-    }
-    constexpr variant<I, S> operator()(
-      meta::size_t<1>, const ConvertibleTo<S>& s) const {
-        return variant<I, S>{emplaced_index<1>, s};
-    }
-  };
+  friend __ci_access;
+  using var_t = variant<I, S>;
+  var_t v_;
 public:
   using difference_type = DifferenceType<I>;
   using value_type = ValueType<I>;
@@ -58,83 +67,129 @@ public:
     stl2::forward_iterator_tag,
     stl2::input_iterator_tag>;
   using reference = ReferenceType<I>;
-  common_iterator() = default;
-  common_iterator(I i) : v_{stl2::move(i)} {}
-  common_iterator(S s) : v_{stl2::move(s)} {}
+  constexpr common_iterator()
+    noexcept(is_nothrow_default_constructible<var_t>::value) = default;
+  constexpr common_iterator(I i)
+    noexcept(is_nothrow_constructible<var_t, I>::value) :
+    v_{stl2::move(i)} {}
+  constexpr common_iterator(S s)
+    noexcept(is_nothrow_constructible<var_t, S>::value) :
+    v_{stl2::move(s)} {}
   template <ConvertibleTo<I> U, ConvertibleTo<S> V>
-  common_iterator(const common_iterator<U, V>& u) :
-    v_{stl2::visit_with_index(convert_visitor{}, u.v_)} {}
+  constexpr common_iterator(const common_iterator<U, V>& u)
+    noexcept(noexcept(
+      var_t{stl2::visit(__ci_convert_visitor<I, S>{}, __ci_access::v(u))}
+    ));
   template <ConvertibleTo<I> U, ConvertibleTo<S> V>
-  common_iterator& operator=(const common_iterator<U, V>& u) {
-    v_ = stl2::visit_with_index(convert_visitor{}, u.v_);
-    return *this;
-  }
-  reference operator*() const {
+  constexpr common_iterator& operator=(const common_iterator<U, V>& u) &
+    noexcept(noexcept(
+      declval<var_t&>() = stl2::visit(
+        __ci_convert_visitor<I, S>{}, __ci_access::v(u))
+    ));
+  reference operator*() const
+    noexcept(noexcept(*declval<const I&>()))
+  {
     assert(holds_alternative<I>(v_));
     return *stl2::get_unchecked<I>(v_);
   }
-  common_iterator& operator++() {
+  common_iterator& operator++()
+    noexcept(noexcept(++declval<I&>()))
+  {
     assert(holds_alternative<I>(v_));
     ++stl2::get_unchecked<I>(v_);
     return *this;
   }
-  common_iterator operator++(int) {
+  common_iterator operator++(int)
+    noexcept(is_nothrow_copy_constructible<common_iterator>::value &&
+             is_nothrow_move_constructible<common_iterator>::value &&
+             noexcept(++declval<common_iterator&>()))
+  {
     common_iterator tmp(*this);
     ++*this;
     return tmp;
   }
 };
 
-struct __ci_access {
-  template <class I1, class S1, class I2, class S2>
-    requires EqualityComparable<I1, I2>() &&
-      ext::WeaklyEqualityComparable<I1, S2>() &&
-      ext::WeaklyEqualityComparable<I2, S1>()
-  static bool equals(
-    const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
-      return stl2::visit([](auto& l, auto& r) { return l == r; }, x.v_, y.v_);
-  }
-  template <class I1, class S1, class I2, class S2>
-    requires
-      __CompatibleSizedIteratorRange<I1, I2, DifferenceType<I2>> &&
-      __CompatibleSizedIteratorRange<I1, S2, DifferenceType<I2>> &&
-      __CompatibleSizedIteratorRange<I2, S1, DifferenceType<I2>>
-  static DifferenceType<I2> difference(
-    const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
-      return stl2::visit([](auto& l, auto& r) {
-        return static_cast<DifferenceType<I2>>(l - r);
-      }, x.v_, y.v_);
-  }
+template <class I, class S>
+template <ConvertibleTo<I> U, ConvertibleTo<S> V>
+constexpr common_iterator<I, S>::common_iterator(const common_iterator<U, V>& u)
+  noexcept(noexcept(var_t{
+    stl2::visit(__ci_convert_visitor<I, S>{}, __ci_access::v(u))
+  })) :
+  v_{stl2::visit(__ci_convert_visitor<I, S>{}, __ci_access::v(u))} {}
+
+template <class I, class S>
+template <ConvertibleTo<I> U, ConvertibleTo<S> V>
+constexpr common_iterator<I, S>&
+common_iterator<I, S>::operator=(const common_iterator<U, V>& u) &
+  noexcept(noexcept(
+    declval<var_t&>() =
+      stl2::visit(__ci_convert_visitor<I, S>{}, __ci_access::v(u))
+  ))
+{
+  v_ = stl2::visit(__ci_convert_visitor<I, S>{}, __ci_access::v(u));
+  return *this;
+}
+
+struct __ci_equal_visitor {
+  constexpr bool operator()(const auto& lhs, const auto& rhs) const
+  STL2_NOEXCEPT_RETURN(
+    lhs == rhs
+  )
 };
 
 template <class I1, class S1, class I2, class S2>
   requires EqualityComparable<I1, I2>() &&
     ext::WeaklyEqualityComparable<I1, S2>() &&
     ext::WeaklyEqualityComparable<I2, S1>()
-bool operator==(
-  const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
-    return __ci_access::equals(x, y);
-}
+constexpr bool operator==(
+  const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
+STL2_NOEXCEPT_RETURN(
+  stl2::visit(__ci_equal_visitor{}, __ci_access::v(x), __ci_access::v(y))
+)
 
 template <class I1, class S1, class I2, class S2>
   requires EqualityComparable<I1, I2>() &&
     ext::WeaklyEqualityComparable<I1, S2>() &&
     ext::WeaklyEqualityComparable<I2, S1>()
-bool operator!=(
-  const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
-    return !(x == y);
-}
+constexpr bool operator!=(
+  const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
+STL2_NOEXCEPT_RETURN(
+  !(x == y)
+)
+
+template <class D>
+struct __ci_difference_visitor {
+  constexpr D operator()(const auto& lhs, const auto& rhs) const
+  STL2_NOEXCEPT_RETURN(
+    static_cast<D>(lhs - rhs)
+  )
+};
 
 template <class I1, class S1, class I2, class S2>
   requires
     __CompatibleSizedIteratorRange<I1, I2, DifferenceType<I2>> &&
     __CompatibleSizedIteratorRange<I1, S2, DifferenceType<I2>> &&
     __CompatibleSizedIteratorRange<I2, S1, DifferenceType<I2>>
-DifferenceType<I2> operator-(
-  const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y) {
-    return __ci_access::difference(x, y);
-}
+constexpr DifferenceType<I2> operator-(
+  const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
+STL2_NOEXCEPT_RETURN(
+  stl2::visit(__ci_difference_visitor<DifferenceType<I2>>{},
+    __ci_access::v(x), __ci_access::v(y))
+)
 
-}}
+// Not to spec: extension
+template <class I, class S>
+  requires __WeakSentinel<S, I> && !_Valid<__cond, I, S>
+struct common_type<I, S> {
+  using type = common_iterator<I, S>;
+};
+
+template <class S, class I>
+  requires __WeakSentinel<S, I> && !_Valid<__cond, I, S>
+struct common_type<S, I> {
+  using type = common_iterator<I, S>;
+};
+}} // namespace stl2::v1
 
 #endif
