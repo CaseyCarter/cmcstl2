@@ -7,9 +7,8 @@
 
 #include <meta/meta.hpp>
 
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/concepts/compare.hpp>
-#include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/common_iterator.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
@@ -22,7 +21,6 @@
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/range/primitives.hpp>
-#include <stl2/type_traits.hpp>
 
 namespace stl2 { inline namespace v1 {
 using std::iterator;
@@ -30,14 +28,22 @@ using std::iterator;
 template <CopyConstructible T>
 class dangling {
 public:
-  dangling() requires DefaultConstructible<T>()
+  constexpr dangling()
+    noexcept(is_nothrow_default_constructible<T>::value)
+    requires DefaultConstructible<T>()
     : value{}
   { }
-  dangling(T t)
-    : value(move(t))
+  constexpr dangling(T t)
+    noexcept(is_nothrow_move_constructible<T>::value)
+    : value(stl2::move(t))
   { }
-  T get_unsafe() const {
+  constexpr T get_unsafe() const&
+    noexcept(is_nothrow_copy_constructible<T>::value) {
     return value;
+  }
+  constexpr T get_unsafe() &&
+    noexcept(is_nothrow_move_constructible<T>::value) {
+    return stl2::move(value);
   }
 private:
   T value;
