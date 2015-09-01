@@ -29,6 +29,8 @@ int main()
         CHECK(static_cast<std::size_t>(default_sentinel{} - i) == size(rgi));
         CHECK(&*i.base() == begin(rgi));
         CHECK(std::size_t(i.count()) == size(rgi));
+        CHECK(std::size_t(distance(i, default_sentinel{})) == size(rgi));
+
         counted_iterator<forward_iterator<const int*>> j{i};
         using C = CommonType<decltype(i), default_sentinel>;
         static_assert(is_same<C, common_iterator<decltype(i), default_sentinel>>());

@@ -117,7 +117,8 @@ DifferenceType<I> distance(I first, S last)
   return n;
 }
 
-SizedIteratorRange{I, S}
+template <class S, class I>
+  requires SizedIteratorRange<I, S>()
 DifferenceType<I> distance(I first, S last)
 STL2_NOEXCEPT_RETURN(
   last - first
