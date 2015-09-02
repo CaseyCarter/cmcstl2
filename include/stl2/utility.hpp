@@ -9,8 +9,6 @@
 #include <stl2/detail/swap.hpp>
 #include <stl2/detail/tagged.hpp>
 #include <stl2/detail/tuple_like.hpp>
-#include <stl2/detail/concepts/core.hpp>
-#include <stl2/detail/concepts/object.hpp>
 
 namespace stl2 { inline namespace v1 {
 using std::initializer_list;

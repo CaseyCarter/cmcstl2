@@ -1,6 +1,7 @@
 #ifndef STL2_CONCEPTS_HPP
 #define STL2_CONCEPTS_HPP
 
+#include <stl2/detail/swap.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/concepts/compare.hpp>
