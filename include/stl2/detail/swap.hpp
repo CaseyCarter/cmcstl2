@@ -24,20 +24,24 @@ namespace __swap {
 // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2152
 // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
 
-constexpr void swap(Movable& a, Movable& b)
+// Extension: less specialized than overloads on different Movable types.
+template <Movable T, Movable U>
+  requires Same<T, U>()
+constexpr void swap(T& a, U& b)
   noexcept(noexcept(b = stl2::exchange(a, stl2::move(b)))) {
   b = stl2::exchange(a, stl2::move(b));
 }
 
 struct __try_swap_fn {
-  auto operator()(auto &t, auto &u) const
-    noexcept(noexcept(swap(t,u)))
-    -> decltype(swap(t,u));
+  template <class T, class U>
+    requires requires (T& x, T& y) { swap(x, y); }
+  void operator()(T& t, U& u) const
+    noexcept(noexcept(swap(t,u)));
 
-  template <std::size_t N, typename This = __try_swap_fn>
-  auto operator()(auto (&t)[N], auto (&u)[N]) const
-    noexcept(noexcept(This{}(*t, *u)))
-    -> decltype(This{}(*t, *u));
+  template <class T, class U, std::size_t N, typename This = __try_swap_fn>
+    requires requires (T& x, U& y) { This{}(x, y); }
+  void operator()(T (&t)[N], U (&u)[N]) const
+    noexcept(noexcept(This{}(*t, *u)));
 };
 // Workaround GCC PR66957 by declaring this unnamed namespace inline.
 inline namespace {
@@ -81,7 +85,7 @@ namespace detail {
 template <class T, class U>
 concept bool Swappable_ =
   requires (T&& t, U&&u) {
-    swap((T&&)t, (U&&)u);
+    stl2::swap((T&&)t, (U&&)u);
   };
 }
 
@@ -104,8 +108,8 @@ constexpr bool is_nothrow_swappable_v = false;
 
 Swappable{T, U}
 constexpr bool is_nothrow_swappable_v<T, U> =
-  noexcept(swap(stl2::declval<T>(), stl2::declval<U>())) &&
-  noexcept(swap(stl2::declval<U>(), stl2::declval<T>()));
+  noexcept(stl2::swap(stl2::declval<T>(), stl2::declval<U>())) &&
+  noexcept(stl2::swap(stl2::declval<U>(), stl2::declval<T>()));
 
 template <class T, class U>
 using is_nothrow_swappable_t =

@@ -3,18 +3,16 @@
 
 #include <functional>
 #include <iterator>
-#include <type_traits>
 
-#include <meta/meta.hpp>
-
+#include <stl2/type_traits.hpp>
+#include <stl2/utility.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/concepts/function.hpp>
-#include <stl2/type_traits.hpp>
-#include <stl2/utility.hpp>
 
 ////////////////////////////////////////////
 // Iterator concepts [iterator.requirements]
@@ -37,12 +35,12 @@ namespace detail {
 template <Dereferenceable R>
 using __iter_move_t =
   meta::if_<
-    std::is_reference<ReferenceType<R>>,
-    std::remove_reference_t<ReferenceType<R>> &&,
-    std::decay_t<ReferenceType<R>>>;
+    is_reference<ReferenceType<R>>,
+    remove_reference_t<ReferenceType<R>> &&,
+    decay_t<ReferenceType<R>>>;
 
 namespace __iter_move {
-template <class R, Dereferenceable _R = std::remove_reference_t<R>>
+template <class R, Dereferenceable _R = remove_reference_t<R>>
 constexpr __iter_move_t<_R> iter_move(R&& r)
   noexcept(noexcept(__iter_move_t<_R>(stl2::move(*r)))) {
   return stl2::move(*r);
@@ -70,7 +68,7 @@ using RvalueReferenceType =
 namespace detail {
 template <class T>
 concept bool IsValueType =
-  Same<T, std::decay_t<T>>() && _IsNot<T, std::is_void>;
+  Same<T, decay_t<T>>() && _IsNot<T, is_void>;
 
 template <class T>
 concept bool MemberValueType =
@@ -103,7 +101,7 @@ struct value_type<T> {
 template <detail::Dereferenceable T>
   requires !(detail::MemberElementType<T> || detail::MemberValueType<T>)
 struct value_type<T> {
-  using type = std::decay_t<ReferenceType<T>>;
+  using type = decay_t<ReferenceType<T>>;
 };
 
 // 20150715: Not to spec.
@@ -117,9 +115,9 @@ struct value_type<T> {
 // The end result is that the logic is mostly in ValueType, since
 // value_type is subject to the depradations of user specialization.
 template <class T>
-  requires detail::IsValueType<meta::_t<value_type<std::remove_cv_t<T>>>>
+  requires detail::IsValueType<meta::_t<value_type<remove_cv_t<T>>>>
 using ValueType =
-  meta::_t<value_type<std::remove_cv_t<T>>>;
+  meta::_t<value_type<remove_cv_t<T>>>;
 
 template <class I>
 concept bool Readable() {
@@ -195,10 +193,10 @@ constexpr bool is_nothrow_indirectly_movable_v = false;
 
 IndirectlyMovable{In, Out}
 constexpr bool is_nothrow_indirectly_movable_v<In, Out> =
-  std::is_nothrow_constructible<ValueType<In>, RvalueReferenceType<In>>::value &&
-  std::is_nothrow_assignable<ValueType<In> &, RvalueReferenceType<In>>::value &&
-  std::is_nothrow_assignable<ReferenceType<Out>, RvalueReferenceType<In>>::value &&
-  std::is_nothrow_assignable<ReferenceType<Out>, ValueType<In>>::value;
+  is_nothrow_constructible<ValueType<In>, RvalueReferenceType<In>>::value &&
+  is_nothrow_assignable<ValueType<In> &, RvalueReferenceType<In>>::value &&
+  is_nothrow_assignable<ReferenceType<Out>, RvalueReferenceType<In>>::value &&
+  is_nothrow_assignable<ReferenceType<Out>, ValueType<In>>::value;
 
 template <class In, class Out>
 using is_nothrow_indirectly_movable_t =
@@ -211,17 +209,17 @@ struct is_nothrow_indirectly_movable
 // iter_swap2
 namespace __iter_swap {
 template <class R1, class R2,
-  Readable _R1 = std::remove_reference_t<R1>,
-  Readable _R2 = std::remove_reference_t<R2>>
+  Readable _R1 = remove_reference_t<R1>,
+  Readable _R2 = remove_reference_t<R2>>
   requires Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
   noexcept(is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>) {
-  swap(*r1, *r2);
+  stl2::swap(*r1, *r2);
 }
 
 template <class R1, class R2,
-  Readable _R1 = std::remove_reference_t<R1>,
-  Readable _R2 = std::remove_reference_t<R2>>
+  Readable _R1 = remove_reference_t<R1>,
+  Readable _R2 = remove_reference_t<R2>>
   requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>() &&
     !Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
 void iter_swap2(R1&& r1, R2&& r2)
@@ -252,10 +250,10 @@ template <class I1, class I2 = I1>
 concept bool IndirectlySwappable() {
   return Readable<I1>() && Readable<I2>() &&
     requires (I1 i1, I2 i2) {
-      iter_swap2(i1, i2);
-      iter_swap2(i2, i1);
-      iter_swap2(i1, i1);
-      iter_swap2(i2, i2);
+      stl2::iter_swap2(i1, i2);
+      stl2::iter_swap2(i2, i1);
+      stl2::iter_swap2(i1, i1);
+      stl2::iter_swap2(i2, i2);
     };
 }
 
@@ -264,10 +262,10 @@ constexpr bool is_nothrow_indirectly_swappable_v = false;
 
 IndirectlySwappable{R1, R2}
 constexpr bool is_nothrow_indirectly_swappable_v<R1, R2> =
-  noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R2>())) &&
-  noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R1>())) &&
-  noexcept(iter_swap2(stl2::declval<R1>(), stl2::declval<R1>())) &&
-  noexcept(iter_swap2(stl2::declval<R2>(), stl2::declval<R2>()));
+  noexcept(stl2::iter_swap2(stl2::declval<R1>(), stl2::declval<R2>())) &&
+  noexcept(stl2::iter_swap2(stl2::declval<R2>(), stl2::declval<R1>())) &&
+  noexcept(stl2::iter_swap2(stl2::declval<R1>(), stl2::declval<R1>())) &&
+  noexcept(stl2::iter_swap2(stl2::declval<R2>(), stl2::declval<R2>()));
 
 template <class R1, class R2>
 using is_nothrow_indirectly_swappable_t =
@@ -305,7 +303,7 @@ template <class T>
       STL2_DEDUCTION_CONSTRAINT(a - b, Integral);
     }
 struct difference_type<T> :
-  std::make_signed<
+  make_signed<
     decltype(declval<const T>() - declval<const T>())> {};
 
 // 20150715: Not to spec.
@@ -313,9 +311,9 @@ struct difference_type<T> :
 //   ValueType for why)
 // * Requires DifferenceType to model SignedIntegral
 template <class T>
-  requires SignedIntegral<meta::_t<difference_type<std::remove_cv_t<T>>>>()
+  requires SignedIntegral<meta::_t<difference_type<remove_cv_t<T>>>>()
 using DifferenceType =
-  meta::_t<difference_type<std::remove_cv_t<T>>>;
+  meta::_t<difference_type<remove_cv_t<T>>>;
 
 // Technically to spec, although the requirement
 // SignedIntegral<DifferenceType<I>>() is applied directly
@@ -377,7 +375,7 @@ using std_to_stl2_iterator_category =
 // random_access_iterator_tag.
 template <class> struct iterator_category {};
 
-template <_IsNot<std::is_void> T>
+template <_IsNot<is_void> T>
 struct iterator_category<T*> {
   using type = ext::contiguous_iterator_tag;
 };
@@ -399,7 +397,7 @@ struct iterator_category<T> {
 
 template <class T>
 using IteratorCategory =
-  meta::_t<iterator_category<std::remove_cv_t<T>>>;
+  meta::_t<iterator_category<remove_cv_t<T>>>;
 
 template <class I>
 concept bool WeakIterator() {
@@ -516,8 +514,8 @@ template <class I>
 concept bool ContiguousIterator() {
   return RandomAccessIterator<I>() &&
     DerivedFrom<IteratorCategory<I>, contiguous_iterator_tag>() &&
-    _Is<ReferenceType<I>, std::is_reference> &&
-    Same<ValueType<I>, std::decay_t<ReferenceType<I>>>();
+    _Is<ReferenceType<I>, is_reference> &&
+    Same<ValueType<I>, decay_t<ReferenceType<I>>>();
 }
 
 namespace models {
@@ -618,7 +616,7 @@ constexpr bool contiguous_iterator() { return true; }
 //
 template <WeakInputIterator I>
 struct __pointer_type {
-  using type = std::add_pointer_t<ReferenceType<I>>;
+  using type = add_pointer_t<ReferenceType<I>>;
 };
 
 template <WeakInputIterator I>
