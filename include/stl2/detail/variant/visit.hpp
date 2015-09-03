@@ -4,6 +4,7 @@
 #include <utility>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/hash.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/variant/fwd.hpp>
 
@@ -403,36 +404,19 @@ visit(F&& f, Vs&&...vs)
     stl2::forward<Vs>(vs)...);
 }
 
-///////////////////////////////////////////////////////////////////////////
-// Hash machinery.
-//
-template <class T>
-inline void hash_combine(std::size_t& seed, const T& v) {
-  // Lifted from Boost.
-  std::hash<T> hasher;
-  seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
-}
-
-template <class T>
-concept bool Hashable =
-  requires (const T& e) {
-    typename std::hash<T>;
-    std::hash<T>{}(e);
-  };
-
 template <class>
-struct hashable_ : false_type {};
+struct hashable_element : false_type {};
 template <>
-struct hashable_<void> : true_type {};
+struct hashable_element<void> : true_type {};
 template <_IsNot<is_reference> T>
-  requires Hashable<T>
-struct hashable_<T> : true_type {};
+  requires __hash::Hashable<T>
+struct hashable_element<T> : true_type {};
 template <class T>
-using hashable = meta::_t<hashable_<T>>;
+using hashable_element_t = meta::_t<hashable_element<T>>;
 
 template <class...Ts>
 constexpr bool HashableVariant =
-  meta::all_of<meta::list<Ts...>, meta::quote<hashable>>::value;
+  meta::all_of<meta::list<Ts...>, meta::quote<hashable_element_t>>::value;
 } // namespace __variant
 
 using __variant::visit;
@@ -451,8 +435,8 @@ private:
   struct hash_visitor {
     constexpr std::size_t operator()(auto i, const auto& e) {
       std::size_t seed = 0u;
-      ::stl2::__variant::hash_combine(seed, i());
-      ::stl2::__variant::hash_combine(seed, e);
+      ::stl2::__hash::combine(seed, i());
+      ::stl2::__hash::combine(seed, e);
       return seed;
     }
   };
