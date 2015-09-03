@@ -8,14 +8,6 @@
 
 #define __cpp_lib_variant 20150524
 
-#if 1
-// Disable asserts in the visitation machinery that ICE the compiler.
-// (Probably https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66635)
-#define STL2_VISIT_ASSERT(...)
-#else
-#define STL2_VISIT_ASSERT assert
-#endif
-
 namespace stl2 { inline namespace v1 {
 struct monostate {};
 

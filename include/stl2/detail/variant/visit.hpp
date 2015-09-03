@@ -185,7 +185,7 @@ class ON_dispatch {
     noexcept(noexcept(declval<ON_dispatch&>()
       .find_one_index(i, std::size_t{0}, NVI{}))) {
     auto& v = stl2::get<sizeof...(Is)>(vs_);
-    STL2_VISIT_ASSERT(v.valid());
+    STL2_BROKEN_ASSERT(v.valid());
     return find_one_index(i, v.index(), NVI{});
   }
 
@@ -261,7 +261,7 @@ constexpr std::size_t calc_index() noexcept {
 template <Variant First, Variant...Rest>
 constexpr std::size_t
 calc_index(const First& f, const Rest&...rest) noexcept {
-  STL2_VISIT_ASSERT(f.valid());
+  STL2_BROKEN_ASSERT(f.valid());
   constexpr std::size_t M = meta::_v<meta::fold<
     meta::list<meta::size<VariantTypes<Rest>>...>,
     meta::size_t<1>,
@@ -285,7 +285,7 @@ raw_visit_with_indices(F&& f, Vs&&...vs)
 {
   using Dispatch = O1_dispatch<all_index_vectors<Vs...>, F, Vs...>;
   std::size_t i = calc_index(vs...);
-  STL2_VISIT_ASSERT(Dispatch::table[i]);
+  STL2_BROKEN_ASSERT(Dispatch::table[i]);
   return Dispatch::table[i](stl2::forward<F>(f), stl2::forward<Vs>(vs)...);
 }
 

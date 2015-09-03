@@ -25,6 +25,23 @@ stl2::optional<T> test_copy(const stl2::optional<T>& o)
 bool test_eq(const stl2::optional<T>& l, const stl2::optional<U>& r) {
   return l == r;
 }
+
+auto test_convert(stl2::optional<U>&& o) {
+  return stl2::optional<T>{stl2::move(o)};
+}
+
+auto test_convert(const stl2::optional<U>& o) {
+  return stl2::optional<T>{o};
+}
+
+auto test_convert(stl2::optional<T>&& o) {
+  return stl2::optional<U>{stl2::move(o)};
+}
+
+auto test_convert(const stl2::optional<T>& o) {
+  return stl2::optional<U>{o};
+}
+
 #endif
 
 int main() {
@@ -72,7 +89,7 @@ int main() {
     o = {};
     CHECK(!o);
     {
-      stl2::optional<int> oi{42};
+      auto oi = stl2::make_optional(42);
       static_assert(models::swappable<stl2::optional<int>&>());
       stl2::swap(o, oi);
       CHECK(!oi);
@@ -86,7 +103,7 @@ int main() {
   }
 
   {
-    constexpr stl2::optional<int> o{42};
+    constexpr auto o = stl2::make_optional(42);
     static_assert(o);
     static_assert(*o == 42);
     static_assert(o == 42);
@@ -104,6 +121,13 @@ int main() {
     static_assert(o.value_or(42) == 42);
     static_assert(o != stl2::optional<int>{13});
     static_assert(o != stl2::optional<double>{3.14});
+  }
+
+  {
+    using OI = stl2::optional<int>;
+    using OD = stl2::optional<double>;
+    static_assert(models::totally_ordered<OI, OD>());
+    static_assert(!models::swappable<OI&, OD&>());
   }
 
   return test_result();

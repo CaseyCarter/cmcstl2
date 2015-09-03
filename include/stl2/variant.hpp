@@ -36,13 +36,13 @@ constexpr auto& strip_cv(T& t) noexcept {
 //
 template <std::size_t I, Variant V, _IsNot<is_void> T>
 constexpr auto&& v_access::raw_get(meta::size_t<I> i, V&& v) noexcept {
-  STL2_VISIT_ASSERT(I == v.index());
+  STL2_BROKEN_ASSERT(I == v.index());
   return st_access::raw_get(i, stl2::forward<V>(v).storage_);
 }
 
 template <std::size_t I, Variant V, _IsNot<is_void> T>
 constexpr auto&& v_access::cooked_get(meta::size_t<I> i, V&& v) noexcept {
-  //assert(I == v.index());
+  STL2_BROKEN_ASSERT(I == v.index());
   return cook<T>(v_access::raw_get(i, stl2::forward<V>(v)));
 }
 
@@ -58,7 +58,7 @@ template <std::size_t I, Variant V>
   requires I < VariantTypes<V>::size() &&
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 constexpr auto&& get_unchecked(V&& v) {
-  //assert(v.index() == I);
+  STL2_BROKEN_ASSERT(v.index() == I);
   return v_access::cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
 }
 

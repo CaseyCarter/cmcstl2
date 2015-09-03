@@ -97,4 +97,13 @@ void deduce_auto_ref_ref(auto&&);
   noexcept(noexcept(__VA_ARGS__)) \
   { return __VA_ARGS__; }
 
+// Hack asserts that ICE the compiler when
+// interpreting constexpr functions.
+// (Probably https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66635)
+#ifdef NDEBUG
+#define STL2_BROKEN_ASSERT(...) (void())
+#else
+#define STL2_BROKEN_ASSERT(...) (void((__VA_ARGS__) || (std::terminate(), true)))
+#endif
+
 #endif

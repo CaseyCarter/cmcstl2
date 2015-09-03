@@ -50,14 +50,58 @@ namespace stl2 {
         throw bad_optional_access{};
       }
 
-      template <Destructible T>
+      Destructible{T}
+      class optional;
+
+      struct access {
+        template <class O>
+        static constexpr decltype(auto) v(O&& o) noexcept {
+          return (stl2::forward<O>(o).v_);
+        }
+        template <class T>
+        static constexpr decltype(auto) cv(const optional<T>& o) noexcept {
+          return access::v(o);
+        }
+      };
+
+      ext::ExplicitlyConvertibleTo{From, To}
+      struct narrowing_converter {
+        static_assert(is_reference<From>());
+        From from_;
+
+        constexpr operator To() &&
+        STL2_NOEXCEPT_RETURN(
+          static_cast<To>(std::forward<From>(from_))
+        )
+      };
+
+      template <class To, class From>
+        requires ext::ExplicitlyConvertibleTo<From, To>()
+      constexpr auto allow_narrowing_conversion(From&& f) noexcept {
+        return narrowing_converter<From&&, To>{stl2::forward<From>(f)};
+      }
+
+      template <class T>
+      struct convert_visitor {
+        constexpr auto operator()(nil_) const noexcept {
+          return variant<nil_, T>{};
+        }
+        template <ConvertibleTo<T> U>
+        constexpr auto operator()(U&& u) const
+        STL2_NOEXCEPT_RETURN(
+          variant<nil_, T>{emplaced_type<T>,
+            allow_narrowing_conversion(stl2::forward<U>(u))}
+        )
+      };
+
+      Destructible{T}
       class optional {
         friend struct access;
         variant<nil_, T> v_;
 
         template <class U>
         static constexpr decltype(auto) get_unchecked(U&& v) noexcept {
-          //assert(!stl2::holds_alternative<nil_>(v));
+          STL2_BROKEN_ASSERT(!stl2::holds_alternative<nil_>(v));
           return stl2::get_unchecked<T>(stl2::forward<decltype(v)>(v));
         }
 
@@ -105,9 +149,26 @@ namespace stl2 {
           v_{emplaced_type<T>, il, stl2::forward<Args>(args)...} {}
 
         template <ConvertibleTo<T> U>
-        constexpr optional(const optional<U>&) noexcept {
-          std::terminate(); // FIXME: NYI
-        }
+          requires Constructible<T, U>()
+        constexpr optional(optional<U>&& that)
+          noexcept(is_nothrow_constructible<T, U>::value) :
+          v_{stl2::visit(convert_visitor<T>{}, access::v(stl2::move(that)))} {}
+
+        template <ConvertibleTo<T> U>
+        explicit constexpr optional(optional<U>&& that)
+          noexcept(is_nothrow_constructible<T, U>::value) :
+          v_{stl2::visit(convert_visitor<T>{}, access::v(stl2::move(that)))} {}
+
+        template <ConvertibleTo<T> U>
+          requires Constructible<T, const U&>()
+        constexpr optional(const optional<U>& that)
+          noexcept(is_nothrow_constructible<T, const U&>::value) :
+          v_{stl2::visit(convert_visitor<T>{}, access::cv(that))} {}
+
+        template <ConvertibleTo<T> U>
+        explicit constexpr optional(const optional<U>& that)
+          noexcept(is_nothrow_constructible<T, const U&>::value) :
+          v_{stl2::visit(convert_visitor<T>{}, access::cv(that))} {}
 
         optional& operator=(nullopt_t) & noexcept {
           v_ = nil_{};
@@ -130,8 +191,34 @@ namespace stl2 {
         }
 
         template <ConvertibleTo<T> U>
-        optional& operator=(const optional<U>&) & noexcept {
-          std::terminate(); // FIXME: NYI
+        optional& operator=(const optional<U>& that) &
+          noexcept(is_nothrow_constructible<T, const U&>::value &&
+                   is_nothrow_assignable<T&, const U&>::value) {
+          if (that) {
+            if (*this) {
+              **this = *that;
+            } else {
+              v_.emplace<T>(*that);
+            }
+          } else {
+            *this = {};
+          }
+          return *this;
+        }
+
+        template <ConvertibleTo<T> U>
+        optional& operator=(optional<U>&& that) &
+          noexcept(is_nothrow_constructible<T, U>::value &&
+                   is_nothrow_assignable<T&, U>::value) {
+          if (that) {
+            if (*this) {
+              **this = stl2::move(*that);
+            } else {
+              v_.emplace<T>(stl2::move(*that));
+            }
+          } else {
+            *this = {};
+          }
           return *this;
         }
 
@@ -150,13 +237,28 @@ namespace stl2 {
         }
 
         template <class U>
-          requires Swappable<T&, U&>()
+          requires Swappable<T&, U&>() &&
+            Constructible<T, U&&>() &&
+            Constructible<U, T&&>()
         void swap(optional<U>& that)
           noexcept(is_nothrow_move_constructible<T>::value &&
                    is_nothrow_move_constructible<U>::value &&
                    is_nothrow_swappable_v<T&, U&>) {
-          // FIXME: Cross-type swap needs a proper visitor.
-          stl2::swap(v_, that.v_);
+          if (*this) {
+            if (that) {
+              stl2::swap(**this, *that);
+            } else {
+              access::v(that).emplace<U>(stl2::move(**this));
+              *this = {};
+            }
+          } else {
+            if (that) {
+              v_.emplace<T>(stl2::move(*that));
+              that = {};
+            } else {
+              // Nothing to do.
+            }
+          }
         }
 
         constexpr const T* operator->() const {
@@ -175,7 +277,7 @@ namespace stl2 {
         constexpr T&& operator*() && noexcept {
           return optional::get_unchecked(stl2::move(v_));
         }
-        constexpr const T&& operator *() const && {
+        constexpr const T&& operator*() const && {
           return optional::get_unchecked(stl2::move(v_));
         }
 
@@ -200,26 +302,15 @@ namespace stl2 {
           requires CopyConstructible<T>()
         constexpr T value_or(U&& u) const & {
           return *this
-            ? optional::get_unchecked(v_)
+            ? **this
             : static_cast<T>(stl2::forward<U>(u));
         }
         template <ext::ExplicitlyConvertibleTo<T> U>
           requires CopyConstructible<T>()
         constexpr T value_or(U&& u) && {
           return *this
-            ? optional::get_unchecked(stl2::move(v_))
+            ? **this
             : static_cast<T>(stl2::forward<U>(u));
-        }
-      };
-
-      struct access {
-        template <class O>
-        static constexpr decltype(auto) v(O&& o) noexcept {
-          return (stl2::forward<O>(o).v_);
-        }
-        template <class T>
-        static constexpr decltype(auto) cv(const optional<T>& o) noexcept {
-          return access::v(o);
         }
       };
 
@@ -397,21 +488,6 @@ namespace stl2 {
       STL2_NOEXCEPT_RETURN(
         !(t < o)
       )
-
-      // Extension
-      std::ostream& operator<<(std::ostream& os, nullopt_t) {
-        return os << "(nullopt)";
-      }
-      std::ostream& operator<<(std::ostream& os, const optional<auto>& o) {
-        os << "optional[";
-        if (o) {
-          os << *o;
-        } else {
-          os << nullopt;
-        }
-        os << ']';
-        return os;
-      }
     } // namespace __optional
 
     using __optional::optional;
@@ -422,8 +498,7 @@ namespace stl2 {
       return optional<decay_t<T>>(stl2::forward<T>(t));
     }
 
-    template <class T, class U>
-      requires !_Valid<__cond, T, U> && Common<T, U>()
+    Common{T, U}
     struct common_type<optional<T>, optional<U>> {
       using type = optional<CommonType<T, U>>;
     };
