@@ -42,7 +42,7 @@ constexpr auto&& v_access::raw_get(meta::size_t<I> i, V&& v) noexcept {
 
 template <std::size_t I, Variant V, _IsNot<is_void> T>
 constexpr auto&& v_access::cooked_get(meta::size_t<I> i, V&& v) noexcept {
-  assert(I == v.index());
+  //assert(I == v.index());
   return cook<T>(v_access::raw_get(i, stl2::forward<V>(v)));
 }
 
@@ -58,7 +58,7 @@ template <std::size_t I, Variant V>
   requires I < VariantTypes<V>::size() &&
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 constexpr auto&& get_unchecked(V&& v) {
-  assert(v.index() == I);
+  //assert(v.index() == I);
   return v_access::cooked_get(meta::size_t<I>{}, stl2::forward<V>(v));
 }
 
