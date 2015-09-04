@@ -15,6 +15,7 @@
 #include <stl2/detail/iterator/counted_iterator.hpp>
 #include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/detail/iterator/insert_iterators.hpp>
+#include <stl2/detail/iterator/istream_iterator.hpp>
 #include <stl2/detail/iterator/move_iterator.hpp>
 #include <stl2/detail/iterator/operations.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>

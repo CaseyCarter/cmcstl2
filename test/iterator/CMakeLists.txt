@@ -15,3 +15,6 @@ add_test(test.iterator.counted counted_iterator)
 
 add_executable(unreachable unreachable.cpp)
 add_test(test.iterator.unreachable unreachable)
+
+add_executable(istream_iterator istream_iterator.cpp)
+add_test(test.iterator.istream istream_iterator)
