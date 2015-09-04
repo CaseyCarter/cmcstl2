@@ -116,6 +116,66 @@ constexpr bool operator>=(unreachable, const auto&) noexcept {
 constexpr bool operator>=(unreachable, unreachable) noexcept {
   return true;
 }
-}} // namespace stl2::v1
+
+namespace ext {
+template <Iterator I, Sentinel<I> S>
+class range { // iterator_range? view? simple_iterator_and_sentinel_pair?
+private:
+  using size_type = make_unsigned_t<DifferenceType<I>>;
+
+  // Todo: EBO
+  I i_;
+  S s_;
+
+public:
+  range() = default;
+
+  constexpr range(I i, S s)
+    noexcept(is_nothrow_default_constructible<I>::value &&
+             is_nothrow_default_constructible<S>::value) :
+    i_{stl2::move(i)}, s_{stl2::move(s)} {}
+
+  constexpr auto begin() const
+    noexcept(is_nothrow_copy_constructible<I>::value) {
+    return i_;
+  }
+  constexpr auto end() const
+    noexcept(is_nothrow_copy_constructible<S>::value) {
+    return s_;
+  }
+
+  constexpr bool empty() const
+    noexcept(noexcept(bool(declval<I>() == declval<S>()))) {
+    return i_ == s_;
+  }
+
+  constexpr size_type size() const
+    noexcept(noexcept(size_type(declval<S>() - declval<I>())))
+    requires SizedIteratorRange<I, S>() {
+    return s_ - i_;
+  }
+
+  constexpr auto data() const
+    noexcept(noexcept(
+      declval<I>() == declval<S>() ? nullptr : std::addressof(*declval<I>())))
+    requires ContiguousIterator<I>() {
+    return i_ == s_ ? nullptr : std::addressof(*i_);
+  }
+};
+
+template <Iterator I, Sentinel<I> S = I>
+constexpr auto make_range(I i, S s = S{})
+STL2_NOEXCEPT_RETURN(
+  range<I, S>{stl2::move(i), stl2::move(s)}
+)
+
+template <Iterator I, Sentinel<I> S = I>
+constexpr auto make_bounded_range(I i, S s = S{})
+STL2_NOEXCEPT_RETURN(
+  range<CommonType<I, S>, CommonType<I, S>>{
+    stl2::move(i), stl2::move(s)
+  }
+)
+}}} // namespace stl2::v1::ext
 
 #endif
