@@ -10,7 +10,6 @@
 #ifndef RANGES_TEST_ITERATORS_HPP
 #define RANGES_TEST_ITERATORS_HPP
 
-#include <cassert>
 #include <stl2/iterator.hpp>
 
 template <class It, bool Sized = false>
@@ -64,12 +63,12 @@ public:
     constexpr It base() const { return it_; }
     constexpr friend bool operator==(const sentinel& x, const sentinel& y)
     {
-        assert(x.it_ == y.it_);
+        STL2_ASSERT(x.it_ == y.it_); (void)x; (void)y;
         return true;
     }
     constexpr friend bool operator!=(const sentinel& x, const sentinel& y)
     {
-        assert(x.it_ == y.it_);
+        STL2_ASSERT(x.it_ == y.it_); (void)x; (void)y;
         return false;
     }
     template<typename I>

@@ -157,7 +157,7 @@ class ON_dispatch {
   constexpr R find_one_index(std::index_sequence<Is...>, std::size_t n, std::index_sequence<Last>)
     noexcept(noexcept(declval<ON_dispatch&>().
       find_indices(std::index_sequence<Is..., Last>{}))) {
-    assert(n == Last);
+    STL2_ASSERT(n == Last);
     (void)n;
     return find_indices(std::index_sequence<Is..., Last>{});
   }
@@ -169,7 +169,7 @@ class ON_dispatch {
       declval<ON_dispatch&>().find_one_index(i, n, std::index_sequence<Rest...>{})
     ))
   {
-    assert(n >= First);
+    STL2_ASSERT(n >= First);
     if (n <= First) {
       return find_indices(std::index_sequence<Is..., First>{});
     } else {

@@ -1,7 +1,6 @@
 #ifndef STL2_VARIANT_HPP
 #define STL2_VARIANT_HPP
 
-#include <cassert>
 #include <cstdint>
 #include <limits>
 #include <stdexcept>
@@ -66,7 +65,7 @@ template <std::size_t I, Variant V>
   requires I < VariantTypes<V>::size() &&
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 constexpr auto&& get(V&& v) {
-  assert(v.valid());
+  STL2_ASSERT(v.valid());
   // Odd syntax here to avoid
   // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67371
   v.index() == I || bad_access();
@@ -90,7 +89,7 @@ template <std::size_t I, Variant V>
     _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 constexpr auto get(V* v) noexcept ->
   decltype(&__variant::v_access::cooked_get(meta::size_t<I>{}, *v)) {
-  assert(v);
+  STL2_ASSERT(v);
   if (v->index() == I) {
     return &__variant::v_access::cooked_get(meta::size_t<I>{}, *v);
   }
@@ -183,7 +182,7 @@ protected:
   template <class That>
     requires DerivedFrom<__uncvref<That>, base>()
   void copy_move_from(That&& that) {
-    assert(!valid());
+    STL2_ASSERT(!valid());
     if (that.valid()) {
       raw_visit_with_index([this](auto i, auto&& from) {
         detail::construct(

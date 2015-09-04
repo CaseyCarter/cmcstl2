@@ -1,7 +1,6 @@
 #ifndef STL2_DETAIL_RAW_PTR_HPP
 #define STL2_DETAIL_RAW_PTR_HPP
 
-#include <cassert>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/core.hpp>
 
@@ -32,12 +31,12 @@ namespace stl2 {
         }
 
         constexpr T& operator*() const noexcept {
-          assert(ptr_);
+          STL2_ASSERT(ptr_);
           return *ptr_;
         }
 
         constexpr T* operator->() const noexcept {
-          assert(ptr_);
+          STL2_ASSERT(ptr_);
           return ptr_;
         }
       };

@@ -22,7 +22,7 @@ namespace stl2 {
       constexpr counted_iterator(I x, DifferenceType<I> n)
         noexcept(is_nothrow_move_constructible<I>::value) :
         current{stl2::move(x)}, cnt{n} {
-          assert(0 <= n);
+          STL2_ASSERT(0 <= n);
       }
       template <ConvertibleTo<I> U>
       constexpr counted_iterator(const counted_iterator<U>& u)
@@ -48,7 +48,7 @@ namespace stl2 {
       constexpr counted_iterator& operator++() &
         noexcept(noexcept(++declval<I&>())) {
         ++current;
-        assert(0 < cnt);
+        STL2_ASSERT(0 < cnt);
         --cnt;
         return *this;
       }
@@ -81,14 +81,14 @@ namespace stl2 {
       constexpr counted_iterator operator+(DifferenceType<I> n) const
         requires RandomAccessIterator<I>()
       {
-        assert(n <= cnt);
+        STL2_ASSERT(n <= cnt);
         return {current + n, cnt - n};
       }
       constexpr counted_iterator& operator+=(DifferenceType<I> n) &
         noexcept(noexcept(declval<I&>() += n))
         requires RandomAccessIterator<I>()
       {
-        assert(n <= cnt);
+        STL2_ASSERT(n <= cnt);
         current += n;
         cnt -= n;
         return *this;
@@ -109,7 +109,7 @@ namespace stl2 {
         noexcept(noexcept(declval<const I&>()[n]))
         requires RandomAccessIterator<I>()
       {
-        assert(n < cnt);
+        STL2_ASSERT(n < cnt);
         return current[n];
       }
 
@@ -276,7 +276,7 @@ namespace stl2 {
     WeakIterator{I}
     constexpr void advance(counted_iterator<I>& i, DifferenceType<I> n)
       noexcept(noexcept(stl2::advance(declval<I&>(), n))) {
-      assert(n <= i.count());
+      STL2_ASSERT(n <= i.count());
       stl2::advance(__counted_iterator_access::base(i), n);
       __counted_iterator_access::count(i) -= n;
     }

@@ -29,7 +29,6 @@ using stl2::is_nothrow_swappable;
 }
 #endif
 
-#include <cassert>
 #include <cstddef>
 
 #include "../simple_test.hpp"
@@ -93,12 +92,12 @@ struct array {
   T elements_[N];
 
   constexpr T& operator[](std::size_t i) noexcept {
-    assert(i < N);
+    STL2_ASSERT(i < N);
     return elements_[i];
   }
 
   constexpr const T& operator[](std::size_t i) const noexcept {
-    assert(i < N);
+    STL2_ASSERT(i < N);
     return elements_[i];
   }
 };

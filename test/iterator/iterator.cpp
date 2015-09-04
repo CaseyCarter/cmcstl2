@@ -1,4 +1,3 @@
-#include <cassert>
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -22,7 +21,7 @@ struct reference_wrapper {
   reference_wrapper(T&&) = delete;
 
   T& get() const noexcept {
-    assert(ptr_);
+    STL2_ASSERT(ptr_);
     return *ptr_;
   }
 
@@ -66,13 +65,13 @@ struct array {
     iterator(T* p) noexcept : ptr_{p} {}
 
     reference operator*() const noexcept {
-      assert(ptr_);
+      STL2_ASSERT(ptr_);
       return {*ptr_};
     }
 
     T* operator->() const noexcept
       requires std::is_class<T>::value || std::is_union<T>::value {
-      assert(ptr_);
+      STL2_ASSERT(ptr_);
       return ptr_;
     }
 
@@ -101,7 +100,7 @@ struct array {
 
     friend T&& iter_move(iterator i) noexcept {
       //std::cout << "iter_move(" << static_cast<void*>(i.ptr_) << ")\n";
-      assert(i.ptr_);
+      STL2_ASSERT(i.ptr_);
       return static_cast<T&&>(*i.ptr_);
     }
   };
@@ -296,7 +295,7 @@ template <stl2::ext::ContiguousIterator I, stl2::Sentinel<I> S,
     std::is_trivially_copyable<stl2::ValueType<I>>::value
 bool copy(I first, S last, O o) {
   auto n = last - first;
-  assert(n >= 0);
+  STL2_ASSERT(n >= 0);
   if (n) {
     std::memmove(std::addressof(*o), std::addressof(*first),
                  n * sizeof(stl2::ValueType<I>));

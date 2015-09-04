@@ -1,7 +1,6 @@
 #ifndef STL2_ITERATOR_HPP
 #define STL2_ITERATOR_HPP
 
-#include <cassert>
 #include <initializer_list>
 #include <type_traits>
 

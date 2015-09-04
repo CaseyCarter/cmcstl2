@@ -97,13 +97,23 @@ void deduce_auto_ref_ref(auto&&);
   noexcept(noexcept(__VA_ARGS__)) \
   { return __VA_ARGS__; }
 
+#if defined(NDEBUG) && defined(__GNUC__)
+// Tell the compiler to optimize on the assumption that the condition holds.
+#define STL2_ASSERT(...) (void(!(__VA_ARGS__) && (__builtin_unreachable(), true)))
+#elif defined(NDEBUG)
+#define STL2_ASSERT(...) (void())
+#else
+#include <cassert>
+#define STL2_ASSERT(...) assert(__VA_ARGS__)
+#endif
+
 // Hack asserts that ICE the compiler when
 // interpreting constexpr functions.
 // (Probably https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66635)
 #ifdef NDEBUG
-#define STL2_BROKEN_ASSERT(...) (void())
+#define STL2_BROKEN_ASSERT(...) STL2_ASSERT(__VA_ARGS__)
 #else
-#define STL2_BROKEN_ASSERT(...) (void((__VA_ARGS__) || (std::terminate(), true)))
+#define STL2_BROKEN_ASSERT(...) (void(!(__VA_ARGS__) && (std::terminate(), true)))
 #endif
 
 #endif

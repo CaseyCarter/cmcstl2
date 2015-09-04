@@ -63,7 +63,7 @@ public:
   back_insert_iterator&
   operator=(const value_type& value) &
     requires detail::back_insertable<Container, const value_type&> {
-    assert(this->container);
+    STL2_ASSERT(this->container);
     this->container->push_back(value);
     return *this;
   }
@@ -71,7 +71,7 @@ public:
   back_insert_iterator&
   operator=(value_type&& value) &
     requires detail::back_insertable<Container, value_type&&> {
-    assert(this->container);
+    STL2_ASSERT(this->container);
     this->container->push_back(stl2::move(value));
     return *this;
   }
@@ -105,7 +105,7 @@ public:
   front_insert_iterator&
   operator=(const value_type& value) &
     requires detail::front_insertable<Container, const value_type&> {
-    assert(this->container);
+    STL2_ASSERT(this->container);
     this->container->push_front(value);
     return *this;
   }
@@ -113,7 +113,7 @@ public:
   front_insert_iterator&
   operator=(value_type&& value) &
     requires detail::front_insertable<Container, value_type&&> {
-    assert(this->container);
+    STL2_ASSERT(this->container);
     this->container->push_front(stl2::move(value));
     return *this;
   }
@@ -155,7 +155,7 @@ public:
   insert_iterator&
   operator=(const value_type& value) &
     requires detail::insertable<Container, const value_type&> {
-    assert(this->container);
+    STL2_ASSERT(this->container);
     iter = this->container->insert(iter, value);
     ++iter;
     return *this;
@@ -164,7 +164,7 @@ public:
   insert_iterator&
   operator=(value_type&& value) &
     requires detail::insertable<Container, value_type&&> {
-    assert(this->container);
+    STL2_ASSERT(this->container);
     iter = this->container->insert(iter, stl2::move(value));
     ++iter;
     return *this;

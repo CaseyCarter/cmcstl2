@@ -1,7 +1,6 @@
 #ifndef STL2_DETAIL_ITERATOR_ISTREAM_ITERATOR_HPP
 #define STL2_DETAIL_ITERATOR_ISTREAM_ITERATOR_HPP
 
-#include <cassert>
 #include <iosfwd>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>

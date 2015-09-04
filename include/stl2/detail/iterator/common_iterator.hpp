@@ -1,8 +1,6 @@
 #ifndef STL2_DETAIL_ITERATOR_COMMON_ITERATOR_HPP
 #define STL2_DETAIL_ITERATOR_COMMON_ITERATOR_HPP
 
-#include <cassert>
-
 #include <stl2/type_traits.hpp>
 #include <stl2/variant.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -89,13 +87,13 @@ public:
   reference operator*() const
     noexcept(noexcept(*declval<const I&>()))
   {
-    assert(holds_alternative<I>(v_));
+    STL2_ASSERT(holds_alternative<I>(v_));
     return *stl2::get_unchecked<I>(v_);
   }
   common_iterator& operator++()
     noexcept(noexcept(++declval<I&>()))
   {
-    assert(holds_alternative<I>(v_));
+    STL2_ASSERT(holds_alternative<I>(v_));
     ++stl2::get_unchecked<I>(v_);
     return *this;
   }

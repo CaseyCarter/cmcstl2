@@ -10,6 +10,8 @@
 
 namespace models {}
 
+#define STL2_ASSERT(...) RANGES_ASSERT(__VA_ARGS__)
+
 #elif VALIDATE_STL2
 #include <stl2/detail/fwd.hpp>
 
