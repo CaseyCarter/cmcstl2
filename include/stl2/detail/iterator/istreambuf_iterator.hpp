@@ -108,7 +108,7 @@ namespace stl2 {
       }
 
     private:
-      detail::raw_ptr<streambuf_type> sbuf_; // exposition only
+      detail::raw_ptr<streambuf_type> sbuf_;
 
       charT get() const {
         auto c = sbuf_->sgetc();

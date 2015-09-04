@@ -24,3 +24,6 @@ add_test(test.iterator.ostream ostream_iterator)
 
 add_executable(istreambuf_iterator istreambuf_iterator.cpp)
 add_test(test.iterator.istreambuf istreambuf_iterator)
+
+add_executable(ostreambuf_iterator ostreambuf_iterator.cpp)
+add_test(test.iterator.ostreambuf ostreambuf_iterator)
