@@ -164,20 +164,8 @@ inline int test_result()
     (void)(::test_impl::S{__FILE__, __LINE__, #__VA_ARGS__} ->* __VA_ARGS__)                        \
     /**/
 
-template<typename Val, typename Rng>
-void check_equal(Rng && actual, std::initializer_list<Val> expected)
-{
-    auto begin0 = stl2::begin(actual);
-    auto end0 = stl2::end(actual);
-    auto begin1 = stl2::begin(expected), end1 = stl2::end(expected);
-    for(; begin0 != end0 && begin1 != end1; ++begin0, ++begin1)
-        CHECK(*begin0 == *begin1);
-    CHECK(begin0 == end0);
-    CHECK(begin1 == end1);
-}
-
 template<typename Rng, typename Rng2>
-void check_equal(Rng && actual, Rng2&& expected)
+void check_equal_(Rng && actual, Rng2&& expected)
 {
     auto begin0 = stl2::begin(actual);
     auto end0 = stl2::end(actual);
@@ -187,6 +175,18 @@ void check_equal(Rng && actual, Rng2&& expected)
         CHECK(*begin0 == *begin1);
     CHECK(begin0 == end0);
     CHECK(begin1 == end1);
+}
+
+template<typename Rng, typename Val>
+void check_equal(Rng && actual, std::initializer_list<Val> expected)
+{
+    check_equal_(actual, expected);
+}
+
+template<typename Rng, typename Rng2>
+void check_equal(Rng && actual, Rng2&& expected)
+{
+    check_equal_(actual, expected);
 }
 
 #endif

@@ -12,9 +12,20 @@
 
 namespace stl2 {
   inline namespace v1 {
+    namespace detail {
+      template <class T>
+      concept bool StreamExtractable =
+        requires (std::istream& is, T& t) {
+          STL2_EXACT_TYPE_CONSTRAINT(is >> t, std::istream&);
+          // Axiom: &is == &(is << t)
+        };
+    }
+
+    // Not to spec: Semiregular and StreamExtractable requirements are implicit.
     template <Semiregular T, class charT = char,
       class traits = std::char_traits<charT>,
       class Distance = std::ptrdiff_t>
+        requires detail::StreamExtractable<T>
     class istream_iterator {
     public:
       using iterator_category = input_iterator_tag;
@@ -26,9 +37,7 @@ namespace stl2 {
       using traits_type = traits;
       using istream_type = std::basic_istream<charT, traits>;
 
-      constexpr istream_iterator()
-        noexcept(is_nothrow_default_constructible<T>::value) :
-        stream_{nullptr}, value_{} {}
+      constexpr istream_iterator() noexcept = default;
       istream_iterator(istream_type& s)
         noexcept(is_nothrow_default_constructible<T>::value) :
         stream_{&s} {
@@ -47,7 +56,8 @@ namespace stl2 {
       }
 
       istream_iterator& operator++() & {
-        if (!(*stream_ >> value_)) {
+        *stream_ >> value_;
+        if (!*stream_) {
           stream_ = nullptr;
         }
         return *this;
@@ -88,8 +98,8 @@ namespace stl2 {
       }
 
     private:
-      detail::raw_ptr<istream_type> stream_;
-      T value_;
+      detail::raw_ptr<istream_type> stream_ = nullptr;
+      T value_{};
     };
   }
 }
