@@ -8,6 +8,7 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/function.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/iostream/concepts.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/concepts.hpp>
 

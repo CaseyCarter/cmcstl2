@@ -18,3 +18,6 @@ add_test(test.iterator.unreachable unreachable)
 
 add_executable(istream_iterator istream_iterator.cpp)
 add_test(test.iterator.istream istream_iterator)
+
+add_executable(ostream_iterator ostream_iterator.cpp)
+add_test(test.iterator.ostream ostream_iterator)

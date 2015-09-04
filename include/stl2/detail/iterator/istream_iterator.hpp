@@ -2,24 +2,17 @@
 #define STL2_DETAIL_ITERATOR_ISTREAM_ITERATOR_HPP
 
 #include <iosfwd>
+#include <string>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/iostream/concepts.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/default_sentinel.hpp>
 
 namespace stl2 {
   inline namespace v1 {
-    namespace detail {
-      template <class T>
-      concept bool StreamExtractable =
-        requires (std::istream& is, T& t) {
-          STL2_EXACT_TYPE_CONSTRAINT(is >> t, std::istream&);
-          // Axiom: &is == &(is << t)
-        };
-    }
-
     // Not to spec: Semiregular and StreamExtractable requirements are implicit.
     template <Semiregular T, class charT = char,
       class traits = std::char_traits<charT>,

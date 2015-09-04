@@ -17,6 +17,7 @@
 #include <stl2/detail/iterator/istream_iterator.hpp>
 #include <stl2/detail/iterator/move_iterator.hpp>
 #include <stl2/detail/iterator/operations.hpp>
+#include <stl2/detail/iterator/ostream_iterator.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
