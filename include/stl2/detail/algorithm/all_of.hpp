@@ -13,18 +13,18 @@
 #ifndef STL2_DETAIL_ALGORITHM_ALL_OF_HPP
 #define STL2_DETAIL_ALGORITHM_ALL_OF_HPP
 
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/concepts/callable.hpp>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
+#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/concepts/callable.hpp>
 
 namespace stl2 { inline namespace v1 {
 // 20150803: Not to spec: the Destructible requirements are implicit.
 template <InputIterator I, Sentinel<I> S, Destructible F, Destructible P = identity>
   requires IndirectCallablePredicate<F, Projected<I, P>>()
 bool all_of(I first, S last, F pred, P proj = P{}) {
-  /* Destructible? */ auto &&ipred = as_function(pred);
-  /* Destructible? */ auto &&iproj = as_function(proj);
+  auto &&ipred = as_function(pred);
+  auto &&iproj = as_function(proj);
   while (first != last && ipred(iproj(*first))) {
     ++first;
   }

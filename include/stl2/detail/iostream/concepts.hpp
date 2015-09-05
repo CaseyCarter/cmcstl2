@@ -7,6 +7,9 @@
 namespace stl2 {
   inline namespace v1 {
     namespace detail {
+      ///////////////////////////////////////////////////////////////////////////
+      // StreamExtractable [Extension]
+      //
       template <class T>
       concept bool StreamExtractable =
         requires (std::istream& is, T& t) {
@@ -14,6 +17,9 @@ namespace stl2 {
           // Axiom: &is == &(is << t)
         };
 
+      ///////////////////////////////////////////////////////////////////////////
+      // StreamInsertable [Extension]
+      //
       template <class T>
       concept bool StreamInsertable =
         requires (std::ostream& os, const T& t) {

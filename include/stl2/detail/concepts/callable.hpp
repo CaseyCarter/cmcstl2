@@ -2,14 +2,13 @@
 #define STL2_DETAIL_CONCEPTS_CALLABLE_HPP
 
 #include <functional>
-#include <type_traits>
 
-#include <meta/meta.hpp>
-
+#include <stl2/iterator.hpp>
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/function.hpp>
-#include <stl2/iterator.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // Indirect callable requirements [indirectcallables]
@@ -27,7 +26,7 @@ T as_function(T&& t) {
   return stl2::forward<T>(t);
 }
 
-template <class T, _Is<std::is_member_pointer> = std::decay_t<T>>
+template <class T, _Is<is_member_pointer> = decay_t<T>>
 auto as_function(T&& t) {
   return std::mem_fn(t);
 }
@@ -39,23 +38,23 @@ using FunctionType =
 ///////////////////////////////////////////////////////////////////////////
 // Indirect callables [indirectfunc.indirectcallables]
 //
-template <class> struct __readable : std::false_type {};
-Readable{T} struct __readable<T> : std::true_type {};
+template <class> struct __readable : false_type {};
+Readable{T} struct __readable<T> : true_type {};
 
-template <class, class...> struct __function : std::false_type {};
-Function{F, ...Args} struct __function<F, Args...> : std::true_type {};
+template <class, class...> struct __function : false_type {};
+Function{F, ...Args} struct __function<F, Args...> : true_type {};
 
-template <class, class...> struct __regular_function : std::false_type {};
-RegularFunction{F, ...Args} struct __regular_function<F, Args...> : std::true_type {};
+template <class, class...> struct __regular_function : false_type {};
+RegularFunction{F, ...Args} struct __regular_function<F, Args...> : true_type {};
 
-template <class, class...> struct __predicate : std::false_type {};
-Predicate{F, ...Args} struct __predicate<F, Args...> : std::true_type {};
+template <class, class...> struct __predicate : false_type {};
+Predicate{F, ...Args} struct __predicate<F, Args...> : true_type {};
 
-template <class, class I1, class I2 = I1> struct __relation : std::false_type {};
-Relation{F, I1, I2} struct __relation<F, I1, I2> : std::true_type {};
+template <class, class I1, class I2 = I1> struct __relation : false_type {};
+Relation{F, I1, I2} struct __relation<F, I1, I2> : true_type {};
 
-template <class, class I1, class I2 = I1> struct __strict_weak_order : std::false_type {};
-StrictWeakOrder{F, I1, I2} struct __strict_weak_order<F, I1, I2> : std::true_type {};
+template <class, class I1, class I2 = I1> struct __strict_weak_order : false_type {};
+StrictWeakOrder{F, I1, I2} struct __strict_weak_order<F, I1, I2> : true_type {};
 
 template <class...T> struct __common_reference : meta::bool_<sizeof...(T)==1> {};
 template <class T, class U, class...Rest> requires CommonReference<T,U>()
@@ -80,11 +79,11 @@ concept bool IndirectCallable() {
     //(Readable<Is>() &&...) &&
     meta::_v<meta::and_<__readable<Is>...>> &&
     // The following 3 are checked redundantly, but are called out
-    // specially for better error messages on concept check failure.
+    // specifically for better error messages on concept check failure.
     Function<FunctionType<F>, ValueType<Is>...>() &&
     Function<FunctionType<F>, ReferenceType<Is>...>() &&
     Function<FunctionType<F>, iter_common_reference_t<Is>...>() &&
-    meta::_v<meta::apply<  // redundantly checkes the above 3 requirements
+    meta::_v<meta::apply<  // redundantly checks the above 3 requirements
       __iter_map_reduce_fn<
         meta::bind_front<meta::quote<__function>, FunctionType<F>>,
         meta::quote<meta::fast_and>>,
@@ -106,11 +105,11 @@ concept bool IndirectRegularCallable() {
     //(Readable<Is>() &&...) &&
     meta::_v<meta::and_<__readable<Is>...>> &&
     // The following 3 are checked redundantly, but are called out
-    // specially for better error messages on concept check failure.
+    // specifically for better error messages on concept check failure.
     RegularFunction<FunctionType<F>, ValueType<Is>...>() &&
     RegularFunction<FunctionType<F>, ReferenceType<Is>...>() &&
     RegularFunction<FunctionType<F>, iter_common_reference_t<Is>...>() &&
-    meta::_v<meta::apply<  // redundantly checkes the above 3 requirements
+    meta::_v<meta::apply<  // redundantly checks the above 3 requirements
       __iter_map_reduce_fn<
         meta::bind_front<meta::quote<__regular_function>, FunctionType<F>>,
         meta::quote<meta::fast_and>>,
@@ -128,11 +127,11 @@ concept bool IndirectCallablePredicate() {
     //(Readable<Is>() &&...) &&
     meta::_v<meta::and_<__readable<Is>...>> &&
     // The following 3 are checked redundantly, but are called out
-    // specially for better error messages on concept check failure.
+    // specifically for better error messages on concept check failure.
     Predicate<FunctionType<F>, ValueType<Is>...>() &&
     Predicate<FunctionType<F>, ReferenceType<Is>...>() &&
     Predicate<FunctionType<F>, iter_common_reference_t<Is>...>() &&
-    meta::_v<meta::apply< // redundantly checkes the above 3 requirements
+    meta::_v<meta::apply< // redundantly checks the above 3 requirements
       __iter_map_reduce_fn<
         meta::bind_front<meta::quote<__predicate>, FunctionType<F>>,
         meta::quote<meta::fast_and>>,
@@ -169,12 +168,12 @@ concept bool IndirectCallableStrictWeakOrder() {
 template <Readable I, IndirectRegularCallable<I> Proj>
 struct Projected {
   using value_type =
-    std::decay_t<ResultType<FunctionType<Proj>, ValueType<I>>>;
+    decay_t<ResultType<FunctionType<Proj>, ValueType<I>>>;
   auto operator*() const ->
     ResultType<FunctionType<Proj>, ReferenceType<I>>;
 };
 
-template <WeaklyIncrementable I, IndirectRegularCallable<I> Proj>
+template <class I, class Proj>
 struct difference_type<Projected<I, Proj>> : difference_type<I> { };
 
 namespace ext { namespace models {
