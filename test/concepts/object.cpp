@@ -3,39 +3,39 @@
 #if VALIDATE_RANGES
 namespace models {
 template <class T>
-using destructible = ranges::Destructible<T>;
+constexpr bool Destructible = ranges::Destructible<T>();
 
 template<class T, class...Args>
-using constructible_object =
-  ranges::concepts::models<ranges::concepts::ConstructibleObject, T, Args...>;
+constexpr bool ConstructibleObject =
+  ranges::concepts::models<ranges::concepts::ConstructibleObject, T, Args...>();
 
 template<class T, class...Args>
-using bindable_reference =
-  ranges::concepts::models<ranges::concepts::BindableReference, T, Args...>;
+constexpr bool BindableReference =
+  ranges::concepts::models<ranges::concepts::BindableReference, T, Args...>();
 
 template <class T, class...Args>
-using constructible = ranges::Constructible<T, Args...>;
+constexpr bool Constructible = ranges::Constructible<T, Args...>();
 
 template <class T>
-using default_constructible = ranges::DefaultConstructible<T>;
+constexpr bool DefaultConstructible = ranges::DefaultConstructible<T>();
 
 template <class T>
-using move_constructible = ranges::MoveConstructible<T>;
+constexpr bool MoveConstructible = ranges::MoveConstructible<T>();
 
 template <class T>
-using copy_constructible = ranges::CopyConstructible<T>;
+constexpr bool CopyConstructible = ranges::CopyConstructible<T>();
 
 template <class T>
-using movable = ranges::Movable<T>;
+constexpr bool Movable = ranges::Movable<T>();
 
 template <class T>
-using copyable = ranges::Copyable<T>;
+constexpr bool Copyable = ranges::Copyable<T>();
 
 template <class T>
-using semiregular = ranges::SemiRegular<T>;
+constexpr bool Semiregular = ranges::SemiRegular<T>();
 
 template <class T>
-using regular = ranges::Regular<T>;
+constexpr bool Regular = ranges::Regular<T>();
 } // namespace models
 
 #elif VALIDATE_STL2
@@ -121,231 +121,231 @@ struct XXX
     explicit XXX(int) {}
 };
 
-CONCEPT_ASSERT(models::destructible<int>());
-CONCEPT_ASSERT(models::destructible<const int>());
-CONCEPT_ASSERT(!models::destructible<void>());
-CONCEPT_ASSERT(!models::destructible<int&>());
-CONCEPT_ASSERT(!models::destructible<void()>());
-CONCEPT_ASSERT(models::destructible<void(*)()>());
-CONCEPT_ASSERT(!models::destructible<void(&)()>());
-CONCEPT_ASSERT(!models::destructible<int[]>());
-CONCEPT_ASSERT(!models::destructible<int[2]>());
-CONCEPT_ASSERT(models::destructible<int(*)[2]>());
-CONCEPT_ASSERT(!models::destructible<int(&)[2]>());
-CONCEPT_ASSERT(models::destructible<moveonly>());
-CONCEPT_ASSERT(models::destructible<nonmovable>());
-CONCEPT_ASSERT(!models::destructible<indestructible>());
-CONCEPT_ASSERT(!models::destructible<incomplete>());
+CONCEPT_ASSERT(models::Destructible<int>);
+CONCEPT_ASSERT(models::Destructible<const int>);
+CONCEPT_ASSERT(!models::Destructible<void>);
+CONCEPT_ASSERT(!models::Destructible<int&>);
+CONCEPT_ASSERT(!models::Destructible<void()>);
+CONCEPT_ASSERT(models::Destructible<void(*)()>);
+CONCEPT_ASSERT(!models::Destructible<void(&)()>);
+CONCEPT_ASSERT(!models::Destructible<int[]>);
+CONCEPT_ASSERT(!models::Destructible<int[2]>);
+CONCEPT_ASSERT(models::Destructible<int(*)[2]>);
+CONCEPT_ASSERT(!models::Destructible<int(&)[2]>);
+CONCEPT_ASSERT(models::Destructible<moveonly>);
+CONCEPT_ASSERT(models::Destructible<nonmovable>);
+CONCEPT_ASSERT(!models::Destructible<indestructible>);
+CONCEPT_ASSERT(!models::Destructible<incomplete>);
 
-CONCEPT_ASSERT(models::destructible<partial_overloaded_address>());
-CONCEPT_ASSERT(models::destructible<overloaded_address>());
-CONCEPT_ASSERT(!models::destructible<bad_overloaded_address>());
-CONCEPT_ASSERT(!models::destructible<bad_overloaded_const_address>());
+CONCEPT_ASSERT(models::Destructible<partial_overloaded_address>);
+CONCEPT_ASSERT(models::Destructible<overloaded_address>);
+CONCEPT_ASSERT(!models::Destructible<bad_overloaded_address>);
+CONCEPT_ASSERT(!models::Destructible<bad_overloaded_const_address>);
 
-CONCEPT_ASSERT(models::constructible<int>());
-CONCEPT_ASSERT(models::constructible<int const>());
-CONCEPT_ASSERT(!models::constructible<int const&>());
-CONCEPT_ASSERT(!models::constructible<int ()>());
-CONCEPT_ASSERT(!models::constructible<int(&)()>());
-CONCEPT_ASSERT(!models::constructible<int[]>());
-CONCEPT_ASSERT(!models::constructible<int[5]>());
-CONCEPT_ASSERT(!models::constructible<nondefaultconstructible>());
-CONCEPT_ASSERT(models::constructible<int const(&)[5], int(&)[5]>());
-CONCEPT_ASSERT(!models::constructible<int, int(&)[3]>());
+CONCEPT_ASSERT(models::Constructible<int>);
+CONCEPT_ASSERT(models::Constructible<int const>);
+CONCEPT_ASSERT(!models::Constructible<int const&>);
+CONCEPT_ASSERT(!models::Constructible<int()>);
+CONCEPT_ASSERT(!models::Constructible<int(&)()>);
+CONCEPT_ASSERT(!models::Constructible<int[]>);
+CONCEPT_ASSERT(!models::Constructible<int[5]>);
+CONCEPT_ASSERT(!models::Constructible<nondefaultconstructible>);
+CONCEPT_ASSERT(models::Constructible<int const(&)[5], int(&)[5]>);
+CONCEPT_ASSERT(!models::Constructible<int, int(&)[3]>);
 
-CONCEPT_ASSERT(models::constructible_object<int, int>());
-CONCEPT_ASSERT(models::constructible_object<int, int&>());
-CONCEPT_ASSERT(models::constructible_object<int, int&&>());
-CONCEPT_ASSERT(models::constructible_object<int, const int>());
-CONCEPT_ASSERT(models::constructible_object<int, const int&>());
-CONCEPT_ASSERT(models::constructible_object<int, const int&&>());
-CONCEPT_ASSERT(models::constructible<int, int>());
-CONCEPT_ASSERT(models::constructible<int, int&>());
-CONCEPT_ASSERT(models::constructible<int, int&&>());
-CONCEPT_ASSERT(models::constructible<int, const int>());
-CONCEPT_ASSERT(models::constructible<int, const int&>());
-CONCEPT_ASSERT(models::constructible<int, const int&&>());
+CONCEPT_ASSERT(models::ConstructibleObject<int, int>);
+CONCEPT_ASSERT(models::ConstructibleObject<int, int&>);
+CONCEPT_ASSERT(models::ConstructibleObject<int, int&&>);
+CONCEPT_ASSERT(models::ConstructibleObject<int, const int>);
+CONCEPT_ASSERT(models::ConstructibleObject<int, const int&>);
+CONCEPT_ASSERT(models::ConstructibleObject<int, const int&&>);
+CONCEPT_ASSERT(models::Constructible<int, int>);
+CONCEPT_ASSERT(models::Constructible<int, int&>);
+CONCEPT_ASSERT(models::Constructible<int, int&&>);
+CONCEPT_ASSERT(models::Constructible<int, const int>);
+CONCEPT_ASSERT(models::Constructible<int, const int&>);
+CONCEPT_ASSERT(models::Constructible<int, const int&&>);
 
-CONCEPT_ASSERT(models::constructible_object<copyable, copyable>());
-CONCEPT_ASSERT(models::constructible_object<copyable, copyable&>());
-CONCEPT_ASSERT(models::constructible_object<copyable, copyable&&>());
-CONCEPT_ASSERT(models::constructible_object<copyable, const copyable>());
-CONCEPT_ASSERT(models::constructible_object<copyable, const copyable&>());
-CONCEPT_ASSERT(models::constructible_object<copyable, const copyable&&>());
-CONCEPT_ASSERT(models::constructible<copyable, copyable>());
-CONCEPT_ASSERT(models::constructible<copyable, copyable&>());
-CONCEPT_ASSERT(models::constructible<copyable, copyable&&>());
-CONCEPT_ASSERT(models::constructible<copyable, const copyable>());
-CONCEPT_ASSERT(models::constructible<copyable, const copyable&>());
-CONCEPT_ASSERT(models::constructible<copyable, const copyable&&>());
+CONCEPT_ASSERT(models::ConstructibleObject<copyable, copyable>);
+CONCEPT_ASSERT(models::ConstructibleObject<copyable, copyable&>);
+CONCEPT_ASSERT(models::ConstructibleObject<copyable, copyable&&>);
+CONCEPT_ASSERT(models::ConstructibleObject<copyable, const copyable>);
+CONCEPT_ASSERT(models::ConstructibleObject<copyable, const copyable&>);
+CONCEPT_ASSERT(models::ConstructibleObject<copyable, const copyable&&>);
+CONCEPT_ASSERT(models::Constructible<copyable, copyable>);
+CONCEPT_ASSERT(models::Constructible<copyable, copyable&>);
+CONCEPT_ASSERT(models::Constructible<copyable, copyable&&>);
+CONCEPT_ASSERT(models::Constructible<copyable, const copyable>);
+CONCEPT_ASSERT(models::Constructible<copyable, const copyable&>);
+CONCEPT_ASSERT(models::Constructible<copyable, const copyable&&>);
 
-CONCEPT_ASSERT(!models::bindable_reference<int&, int>());
-CONCEPT_ASSERT(models::bindable_reference<int&, int&>());
-CONCEPT_ASSERT(!models::bindable_reference<int&, int&&>());
-CONCEPT_ASSERT(!models::bindable_reference<int&, const int>());
-CONCEPT_ASSERT(!models::bindable_reference<int&, const int&>());
-CONCEPT_ASSERT(!models::bindable_reference<int&, const int&&>());
-CONCEPT_ASSERT(!models::constructible<int&, int>());
-CONCEPT_ASSERT(models::constructible<int&, int&>());
-CONCEPT_ASSERT(!models::constructible<int&, int&&>());
-CONCEPT_ASSERT(!models::constructible<int&, const int>());
-CONCEPT_ASSERT(!models::constructible<int&, const int&>());
-CONCEPT_ASSERT(!models::constructible<int&, const int&&>());
+CONCEPT_ASSERT(!models::BindableReference<int&, int>);
+CONCEPT_ASSERT(models::BindableReference<int&, int&>);
+CONCEPT_ASSERT(!models::BindableReference<int&, int&&>);
+CONCEPT_ASSERT(!models::BindableReference<int&, const int>);
+CONCEPT_ASSERT(!models::BindableReference<int&, const int&>);
+CONCEPT_ASSERT(!models::BindableReference<int&, const int&&>);
+CONCEPT_ASSERT(!models::Constructible<int&, int>);
+CONCEPT_ASSERT(models::Constructible<int&, int&>);
+CONCEPT_ASSERT(!models::Constructible<int&, int&&>);
+CONCEPT_ASSERT(!models::Constructible<int&, const int>);
+CONCEPT_ASSERT(!models::Constructible<int&, const int&>);
+CONCEPT_ASSERT(!models::Constructible<int&, const int&&>);
 
-CONCEPT_ASSERT(models::bindable_reference<const int&, int>());
-CONCEPT_ASSERT(models::bindable_reference<const int&, int&>());
-CONCEPT_ASSERT(models::bindable_reference<const int&, int&&>());
-CONCEPT_ASSERT(models::bindable_reference<const int&, const int>());
-CONCEPT_ASSERT(models::bindable_reference<const int&, const int&>());
-CONCEPT_ASSERT(models::bindable_reference<const int&, const int&&>());
-CONCEPT_ASSERT(models::constructible<const int&, int>());
-CONCEPT_ASSERT(models::constructible<const int&, int&>());
-CONCEPT_ASSERT(models::constructible<const int&, int&&>());
-CONCEPT_ASSERT(models::constructible<const int&, const int>());
-CONCEPT_ASSERT(models::constructible<const int&, const int&>());
-CONCEPT_ASSERT(models::constructible<const int&, const int&&>());
+CONCEPT_ASSERT(models::BindableReference<const int&, int>);
+CONCEPT_ASSERT(models::BindableReference<const int&, int&>);
+CONCEPT_ASSERT(models::BindableReference<const int&, int&&>);
+CONCEPT_ASSERT(models::BindableReference<const int&, const int>);
+CONCEPT_ASSERT(models::BindableReference<const int&, const int&>);
+CONCEPT_ASSERT(models::BindableReference<const int&, const int&&>);
+CONCEPT_ASSERT(models::Constructible<const int&, int>);
+CONCEPT_ASSERT(models::Constructible<const int&, int&>);
+CONCEPT_ASSERT(models::Constructible<const int&, int&&>);
+CONCEPT_ASSERT(models::Constructible<const int&, const int>);
+CONCEPT_ASSERT(models::Constructible<const int&, const int&>);
+CONCEPT_ASSERT(models::Constructible<const int&, const int&&>);
 
-CONCEPT_ASSERT(models::bindable_reference<int&&, int>());
-CONCEPT_ASSERT(!models::bindable_reference<int&&, int&>());
-CONCEPT_ASSERT(models::bindable_reference<int&&, int&&>());
-CONCEPT_ASSERT(!models::bindable_reference<int&&, const int>());
-CONCEPT_ASSERT(!models::bindable_reference<int&&, const int&>());
-CONCEPT_ASSERT(!models::bindable_reference<int&&, const int&&>());
-CONCEPT_ASSERT(models::constructible<int&&, int>());
-CONCEPT_ASSERT(!models::constructible<int&&, int&>());
-CONCEPT_ASSERT(models::constructible<int&&, int&&>());
-CONCEPT_ASSERT(!models::constructible<int&&, const int>());
-CONCEPT_ASSERT(!models::constructible<int&&, const int&>());
-CONCEPT_ASSERT(!models::constructible<int&&, const int&&>());
+CONCEPT_ASSERT(models::BindableReference<int&&, int>);
+CONCEPT_ASSERT(!models::BindableReference<int&&, int&>);
+CONCEPT_ASSERT(models::BindableReference<int&&, int&&>);
+CONCEPT_ASSERT(!models::BindableReference<int&&, const int>);
+CONCEPT_ASSERT(!models::BindableReference<int&&, const int&>);
+CONCEPT_ASSERT(!models::BindableReference<int&&, const int&&>);
+CONCEPT_ASSERT(models::Constructible<int&&, int>);
+CONCEPT_ASSERT(!models::Constructible<int&&, int&>);
+CONCEPT_ASSERT(models::Constructible<int&&, int&&>);
+CONCEPT_ASSERT(!models::Constructible<int&&, const int>);
+CONCEPT_ASSERT(!models::Constructible<int&&, const int&>);
+CONCEPT_ASSERT(!models::Constructible<int&&, const int&&>);
 
-CONCEPT_ASSERT(models::bindable_reference<const int&&, int>());
-CONCEPT_ASSERT(!models::bindable_reference<const int&&, int&>());
-CONCEPT_ASSERT(models::bindable_reference<const int&&, int&&>());
-CONCEPT_ASSERT(models::bindable_reference<const int&&, const int>());
-CONCEPT_ASSERT(!models::bindable_reference<const int&&, const int&>());
-CONCEPT_ASSERT(models::bindable_reference<const int&&, const int&&>());
-CONCEPT_ASSERT(models::constructible<const int&&, int>());
-CONCEPT_ASSERT(!models::constructible<const int&&, int&>());
-CONCEPT_ASSERT(models::constructible<const int&&, int&&>());
-CONCEPT_ASSERT(models::constructible<const int&&, const int>());
-CONCEPT_ASSERT(!models::constructible<const int&&, const int&>());
-CONCEPT_ASSERT(models::constructible<const int&&, const int&&>());
+CONCEPT_ASSERT(models::BindableReference<const int&&, int>);
+CONCEPT_ASSERT(!models::BindableReference<const int&&, int&>);
+CONCEPT_ASSERT(models::BindableReference<const int&&, int&&>);
+CONCEPT_ASSERT(models::BindableReference<const int&&, const int>);
+CONCEPT_ASSERT(!models::BindableReference<const int&&, const int&>);
+CONCEPT_ASSERT(models::BindableReference<const int&&, const int&&>);
+CONCEPT_ASSERT(models::Constructible<const int&&, int>);
+CONCEPT_ASSERT(!models::Constructible<const int&&, int&>);
+CONCEPT_ASSERT(models::Constructible<const int&&, int&&>);
+CONCEPT_ASSERT(models::Constructible<const int&&, const int>);
+CONCEPT_ASSERT(!models::Constructible<const int&&, const int&>);
+CONCEPT_ASSERT(models::Constructible<const int&&, const int&&>);
 
-CONCEPT_ASSERT(models::constructible<XXX, int>());
+CONCEPT_ASSERT(models::Constructible<XXX, int>);
 
-CONCEPT_ASSERT(models::default_constructible<int>());
-CONCEPT_ASSERT(models::default_constructible<int const>());
-CONCEPT_ASSERT(!models::default_constructible<int&>());
-CONCEPT_ASSERT(!models::default_constructible<int const&>());
-CONCEPT_ASSERT(!models::default_constructible<int ()>());
-CONCEPT_ASSERT(!models::default_constructible<int(&)()>());
-CONCEPT_ASSERT(models::default_constructible<double>());
-CONCEPT_ASSERT(!models::default_constructible<void>());
-CONCEPT_ASSERT(!models::default_constructible<int[]>());
-CONCEPT_ASSERT(!models::default_constructible<int[2]>());
-CONCEPT_ASSERT(!models::default_constructible<nondefaultconstructible>());
+CONCEPT_ASSERT(models::DefaultConstructible<int>);
+CONCEPT_ASSERT(models::DefaultConstructible<int const>);
+CONCEPT_ASSERT(!models::DefaultConstructible<int&>);
+CONCEPT_ASSERT(!models::DefaultConstructible<int const&>);
+CONCEPT_ASSERT(!models::DefaultConstructible<int()>);
+CONCEPT_ASSERT(!models::DefaultConstructible<int(&)()>);
+CONCEPT_ASSERT(models::DefaultConstructible<double>);
+CONCEPT_ASSERT(!models::DefaultConstructible<void>);
+CONCEPT_ASSERT(!models::DefaultConstructible<int[]>);
+CONCEPT_ASSERT(!models::DefaultConstructible<int[2]>);
+CONCEPT_ASSERT(!models::DefaultConstructible<nondefaultconstructible>);
 
 // It's hard to catch explicit default constructors, see
 // http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1518.
-// CONCEPT_ASSERT(!models::default_constructible<explicit_default>());
-CONCEPT_ASSERT(models::default_constructible<explicit_move>());
-CONCEPT_ASSERT(models::default_constructible<explicit_copy>());
+// CONCEPT_ASSERT(!models::DefaultConstructible<explicit_default>);
+CONCEPT_ASSERT(models::DefaultConstructible<explicit_move>);
+CONCEPT_ASSERT(models::DefaultConstructible<explicit_copy>);
 
-CONCEPT_ASSERT(!models::move_constructible<void>());
-CONCEPT_ASSERT(models::move_constructible<int>());
-CONCEPT_ASSERT(models::move_constructible<const int>());
-CONCEPT_ASSERT(!models::move_constructible<int[4]>());
-CONCEPT_ASSERT(!models::move_constructible<void()>());
-CONCEPT_ASSERT(models::move_constructible<int &>());
-CONCEPT_ASSERT(models::move_constructible<int &&>());
-CONCEPT_ASSERT(models::move_constructible<const int &>());
-CONCEPT_ASSERT(models::move_constructible<const int &&>());
+CONCEPT_ASSERT(!models::MoveConstructible<void>);
+CONCEPT_ASSERT(models::MoveConstructible<int>);
+CONCEPT_ASSERT(models::MoveConstructible<const int>);
+CONCEPT_ASSERT(!models::MoveConstructible<int[4]>);
+CONCEPT_ASSERT(!models::MoveConstructible<void()>);
+CONCEPT_ASSERT(models::MoveConstructible<int &>);
+CONCEPT_ASSERT(models::MoveConstructible<int &&>);
+CONCEPT_ASSERT(models::MoveConstructible<const int &>);
+CONCEPT_ASSERT(models::MoveConstructible<const int &&>);
 
-CONCEPT_ASSERT(models::constructible_object<moveonly, moveonly>());
-CONCEPT_ASSERT(models::constructible<moveonly, moveonly>());
-CONCEPT_ASSERT(models::move_constructible<copyable>());
-CONCEPT_ASSERT(models::move_constructible<moveonly>());
-CONCEPT_ASSERT(!models::move_constructible<nonmovable>());
-CONCEPT_ASSERT(!models::move_constructible<copyonly>());
-CONCEPT_ASSERT(!models::move_constructible<explicit_move>());
-CONCEPT_ASSERT(models::move_constructible<explicit_copy>());
+CONCEPT_ASSERT(models::ConstructibleObject<moveonly, moveonly>);
+CONCEPT_ASSERT(models::Constructible<moveonly, moveonly>);
+CONCEPT_ASSERT(models::MoveConstructible<copyable>);
+CONCEPT_ASSERT(models::MoveConstructible<moveonly>);
+CONCEPT_ASSERT(!models::MoveConstructible<nonmovable>);
+CONCEPT_ASSERT(!models::MoveConstructible<copyonly>);
+CONCEPT_ASSERT(!models::MoveConstructible<explicit_move>);
+CONCEPT_ASSERT(models::MoveConstructible<explicit_copy>);
 
-CONCEPT_ASSERT(models::move_constructible<nonmovable &>());
-CONCEPT_ASSERT(models::move_constructible<nonmovable &&>());
-CONCEPT_ASSERT(models::move_constructible<const nonmovable &>());
-CONCEPT_ASSERT(models::move_constructible<const nonmovable &&>());
+CONCEPT_ASSERT(models::MoveConstructible<nonmovable &>);
+CONCEPT_ASSERT(models::MoveConstructible<nonmovable &&>);
+CONCEPT_ASSERT(models::MoveConstructible<const nonmovable &>);
+CONCEPT_ASSERT(models::MoveConstructible<const nonmovable &&>);
 
-CONCEPT_ASSERT(!models::copy_constructible<void>());
-CONCEPT_ASSERT(models::copy_constructible<int>());
-CONCEPT_ASSERT(models::copy_constructible<const int>());
-CONCEPT_ASSERT(models::copy_constructible<int&>());
-CONCEPT_ASSERT(!models::copy_constructible<int&&>());
-CONCEPT_ASSERT(models::copy_constructible<const int&>());
-CONCEPT_ASSERT(!models::copy_constructible<const int&&>());
-CONCEPT_ASSERT(!models::copy_constructible<int[4]>());
-CONCEPT_ASSERT(!models::copy_constructible<void()>());
+CONCEPT_ASSERT(!models::CopyConstructible<void>);
+CONCEPT_ASSERT(models::CopyConstructible<int>);
+CONCEPT_ASSERT(models::CopyConstructible<const int>);
+CONCEPT_ASSERT(models::CopyConstructible<int&>);
+CONCEPT_ASSERT(!models::CopyConstructible<int&&>);
+CONCEPT_ASSERT(models::CopyConstructible<const int&>);
+CONCEPT_ASSERT(!models::CopyConstructible<const int&&>);
+CONCEPT_ASSERT(!models::CopyConstructible<int[4]>);
+CONCEPT_ASSERT(!models::CopyConstructible<void()>);
 
-CONCEPT_ASSERT(models::copy_constructible<copyable>());
-CONCEPT_ASSERT(!models::copy_constructible<moveonly>());
-CONCEPT_ASSERT(!models::copy_constructible<nonmovable>());
-CONCEPT_ASSERT(!models::copy_constructible<copyonly>());
-CONCEPT_ASSERT(!models::copy_constructible<explicit_move>());
-CONCEPT_ASSERT(!models::copy_constructible<explicit_copy>());
-CONCEPT_ASSERT(models::copy_constructible<nonmovable &>());
-CONCEPT_ASSERT(!models::copy_constructible<nonmovable &&>());
-CONCEPT_ASSERT(models::copy_constructible<const nonmovable &>());
-CONCEPT_ASSERT(!models::copy_constructible<const nonmovable &&>());
+CONCEPT_ASSERT(models::CopyConstructible<copyable>);
+CONCEPT_ASSERT(!models::CopyConstructible<moveonly>);
+CONCEPT_ASSERT(!models::CopyConstructible<nonmovable>);
+CONCEPT_ASSERT(!models::CopyConstructible<copyonly>);
+CONCEPT_ASSERT(!models::CopyConstructible<explicit_move>);
+CONCEPT_ASSERT(!models::CopyConstructible<explicit_copy>);
+CONCEPT_ASSERT(models::CopyConstructible<nonmovable &>);
+CONCEPT_ASSERT(!models::CopyConstructible<nonmovable &&>);
+CONCEPT_ASSERT(models::CopyConstructible<const nonmovable &>);
+CONCEPT_ASSERT(!models::CopyConstructible<const nonmovable &&>);
 
-CONCEPT_ASSERT(models::movable<int>());
-CONCEPT_ASSERT(!models::movable<const int>());
-CONCEPT_ASSERT(models::movable<double>());
-CONCEPT_ASSERT(!models::movable<void>());
-CONCEPT_ASSERT(models::movable<copyable>());
-CONCEPT_ASSERT(models::movable<moveonly>());
-CONCEPT_ASSERT(!models::movable<nonmovable>());
-CONCEPT_ASSERT(!models::movable<copyonly>());
+CONCEPT_ASSERT(models::Movable<int>);
+CONCEPT_ASSERT(!models::Movable<const int>);
+CONCEPT_ASSERT(models::Movable<double>);
+CONCEPT_ASSERT(!models::Movable<void>);
+CONCEPT_ASSERT(models::Movable<copyable>);
+CONCEPT_ASSERT(models::Movable<moveonly>);
+CONCEPT_ASSERT(!models::Movable<nonmovable>);
+CONCEPT_ASSERT(!models::Movable<copyonly>);
 
-CONCEPT_ASSERT(models::copyable<int>());
-CONCEPT_ASSERT(!models::copyable<const int>());
-CONCEPT_ASSERT(models::copyable<double>());
-CONCEPT_ASSERT(!models::copyable<void>());
-CONCEPT_ASSERT(models::copyable<copyable>());
-CONCEPT_ASSERT(!models::copyable<moveonly>());
-CONCEPT_ASSERT(!models::copyable<nonmovable>());
-CONCEPT_ASSERT(!models::copyable<copyonly>());
+CONCEPT_ASSERT(models::Copyable<int>);
+CONCEPT_ASSERT(!models::Copyable<const int>);
+CONCEPT_ASSERT(models::Copyable<double>);
+CONCEPT_ASSERT(!models::Copyable<void>);
+CONCEPT_ASSERT(models::Copyable<copyable>);
+CONCEPT_ASSERT(!models::Copyable<moveonly>);
+CONCEPT_ASSERT(!models::Copyable<nonmovable>);
+CONCEPT_ASSERT(!models::Copyable<copyonly>);
 
-CONCEPT_ASSERT(models::semiregular<int>());
-CONCEPT_ASSERT(models::semiregular<double>());
-CONCEPT_ASSERT(!models::semiregular<void>());
-CONCEPT_ASSERT(!models::semiregular<int&>());
-CONCEPT_ASSERT(models::semiregular<semiregular>());
-CONCEPT_ASSERT(models::semiregular<regular>());
-CONCEPT_ASSERT(models::semiregular<copyable>());
-CONCEPT_ASSERT(!models::semiregular<moveonly>());
-CONCEPT_ASSERT(!models::semiregular<nonmovable>());
-CONCEPT_ASSERT(!models::semiregular<copyonly>());
-CONCEPT_ASSERT(!models::semiregular<explicit_move>());
-CONCEPT_ASSERT(!models::semiregular<explicit_copy>());
+CONCEPT_ASSERT(models::Semiregular<int>);
+CONCEPT_ASSERT(models::Semiregular<double>);
+CONCEPT_ASSERT(!models::Semiregular<void>);
+CONCEPT_ASSERT(!models::Semiregular<int&>);
+CONCEPT_ASSERT(models::Semiregular<semiregular>);
+CONCEPT_ASSERT(models::Semiregular<regular>);
+CONCEPT_ASSERT(models::Semiregular<copyable>);
+CONCEPT_ASSERT(!models::Semiregular<moveonly>);
+CONCEPT_ASSERT(!models::Semiregular<nonmovable>);
+CONCEPT_ASSERT(!models::Semiregular<copyonly>);
+CONCEPT_ASSERT(!models::Semiregular<explicit_move>);
+CONCEPT_ASSERT(!models::Semiregular<explicit_copy>);
 
-CONCEPT_ASSERT(models::regular<int>());
-CONCEPT_ASSERT(models::regular<double>());
-CONCEPT_ASSERT(!models::regular<void>());
-CONCEPT_ASSERT(!models::regular<int&>());
-CONCEPT_ASSERT(!models::regular<semiregular>());
-CONCEPT_ASSERT(models::regular<regular>());
-CONCEPT_ASSERT(!models::regular<copyable>());
-CONCEPT_ASSERT(!models::regular<moveonly>());
-CONCEPT_ASSERT(!models::regular<nonmovable>());
-CONCEPT_ASSERT(!models::regular<copyonly>());
-CONCEPT_ASSERT(!models::regular<explicit_move>());
-CONCEPT_ASSERT(!models::regular<explicit_copy>());
+CONCEPT_ASSERT(models::Regular<int>);
+CONCEPT_ASSERT(models::Regular<double>);
+CONCEPT_ASSERT(!models::Regular<void>);
+CONCEPT_ASSERT(!models::Regular<int&>);
+CONCEPT_ASSERT(!models::Regular<semiregular>);
+CONCEPT_ASSERT(models::Regular<regular>);
+CONCEPT_ASSERT(!models::Regular<copyable>);
+CONCEPT_ASSERT(!models::Regular<moveonly>);
+CONCEPT_ASSERT(!models::Regular<nonmovable>);
+CONCEPT_ASSERT(!models::Regular<copyonly>);
+CONCEPT_ASSERT(!models::Regular<explicit_move>);
+CONCEPT_ASSERT(!models::Regular<explicit_copy>);
 
-CONCEPT_ASSERT(models::constructible_object<std::initializer_list<int>>());
-CONCEPT_ASSERT(models::constructible<std::initializer_list<int>>());
-CONCEPT_ASSERT(models::default_constructible<std::initializer_list<int>>());
+CONCEPT_ASSERT(models::ConstructibleObject<std::initializer_list<int>>);
+CONCEPT_ASSERT(models::Constructible<std::initializer_list<int>>);
+CONCEPT_ASSERT(models::DefaultConstructible<std::initializer_list<int>>);
 
-CONCEPT_ASSERT(models::constructible_object<int*>());
-CONCEPT_ASSERT(models::constructible<int*>());
-CONCEPT_ASSERT(models::default_constructible<int*>());
+CONCEPT_ASSERT(models::ConstructibleObject<int*>);
+CONCEPT_ASSERT(models::Constructible<int*>);
+CONCEPT_ASSERT(models::DefaultConstructible<int*>);
 
 int main() {}

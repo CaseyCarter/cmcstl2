@@ -5,36 +5,55 @@
 
 #include <meta/meta.hpp>
 
-namespace stl2 { inline namespace v1 {
+#define STL2_OPEN_NAMESPACE namespace std { namespace experimental { namespace ranges_v1
+#define STL2_CLOSE_NAMESPACE }}
 
-using std::declval;
-using std::forward;
-using std::move;
+// General namespace structure:
+STL2_OPEN_NAMESPACE {
+  namespace detail {
+    // Implementation details, not to be accessed by user code.
+  }
+  namespace ext {
+    // Supported extensions beyond what is specified in C++ and
+    // the Ranges proposal, acceptable for user code to access.
+  }
+  namespace models {
+    // Concept-test predicates. E.g., models::ForwardIterator<I> is true iff
+    // I meets the syntactic requirements of ForwardIterator.
+  }
+} STL2_CLOSE_NAMESPACE
 
-namespace detail {
-using meta::detail::uncvref_t;
+// Used to qualify STL2 names
+namespace __stl2 = ::std::experimental::ranges_v1;
 
-template <class T>
-struct static_const {
-  static constexpr T value{};
-};
+STL2_OPEN_NAMESPACE {
+  using std::declval;
+  using std::forward;
+  using std::move;
 
-template <class T>
-constexpr T static_const<T>::value;
-}
+  namespace detail {
+    // "constexpr object" ODR workaround from N4381.
+    template <class T>
+    struct static_const {
+      static constexpr T value{};
+    };
 
-namespace ext {
-template <unsigned N>
-struct priority_tag : priority_tag<N - 1> {};
-template <>
-struct priority_tag<0> {};
-// Workaround GCC PR66957 by declaring this unnamed namespace inline.
-inline namespace {
-constexpr auto& max_priority_tag = detail::static_const<priority_tag<1>>::value;
-}
+    template <class T>
+    constexpr T static_const<T>::value;
+  }
 
-namespace models {}
-}}} // namespace stl2::v1::ext
+  namespace ext {
+    // tags for manually specified overload ordereding
+    template <unsigned N>
+    struct priority_tag : priority_tag<N - 1> {};
+    template <>
+    struct priority_tag<0> {};
+    // Workaround GCC PR66957 by declaring this unnamed namespace inline.
+    inline namespace {
+      constexpr auto& max_priority_tag = detail::static_const<priority_tag<1>>::value;
+    }
+  }
+} STL2_CLOSE_NAMESPACE
 
 // Workaround bugs in deduction constraints by replacing:
 // * { E } -> T with requires T<decltype(E)>()
@@ -64,16 +83,18 @@ namespace models {}
 // Workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67384
 // Use the expression constraint "deduce_auto_ref_ref(E);" in place
 // of the compound constraint "{ E } -> auto&&;"
-namespace stl2 { inline namespace v1 { namespace detail {
-void deduce_auto_ref(auto&);
-void deduce_auto_ref_ref(auto&&);
-}}}
+STL2_OPEN_NAMESPACE {
+  namespace detail {
+    void deduce_auto_ref(auto&);
+    void deduce_auto_ref_ref(auto&&);
+  }
+} STL2_CLOSE_NAMESPACE
 
 #define STL2_DEDUCE_AUTO_REF(E) \
-  ::stl2::detail::deduce_auto_ref(E)
+  ::__stl2::detail::deduce_auto_ref(E)
 
 #define STL2_DEDUCE_AUTO_REF_REF(E) \
-  ::stl2::detail::deduce_auto_ref_ref(E)
+  ::__stl2::detail::deduce_auto_ref_ref(E)
 
 // Workaround bugs in constrained return types
 // (e.g., Iterator begin(Range&&);) by simply disabling

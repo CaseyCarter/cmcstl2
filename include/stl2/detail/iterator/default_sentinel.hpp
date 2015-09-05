@@ -4,40 +4,32 @@
 #include <cstddef>
 #include <stl2/detail/fwd.hpp>
 
-namespace stl2 {
-  inline namespace v1 {
-    struct default_sentinel {};
+STL2_OPEN_NAMESPACE {
+  struct default_sentinel {};
 
-    constexpr bool
-    operator==(default_sentinel, default_sentinel) noexcept {
-      return true;
-    }
-    constexpr bool
-    operator!=(default_sentinel, default_sentinel) noexcept {
-      return false;
-    }
-
-    constexpr bool
-    operator<(default_sentinel, default_sentinel) noexcept {
-      return false;
-    }
-    constexpr bool
-    operator>(default_sentinel, default_sentinel) noexcept {
-      return false;
-    }
-    constexpr bool
-    operator<=(default_sentinel, default_sentinel) noexcept {
-      return true;
-    }
-    constexpr bool
-    operator>=(default_sentinel, default_sentinel) noexcept {
-      return true;
-    }
-    constexpr std::ptrdiff_t
-    operator-(default_sentinel, default_sentinel) noexcept {
-      return 0;
-    }
+  constexpr bool operator==(default_sentinel, default_sentinel) noexcept {
+    return true;
   }
-}
+  constexpr bool operator!=(default_sentinel, default_sentinel) noexcept {
+    return false;
+  }
+
+  constexpr bool operator<(default_sentinel, default_sentinel) noexcept {
+    return false;
+  }
+  constexpr bool operator>(default_sentinel, default_sentinel) noexcept {
+    return false;
+  }
+  constexpr bool operator<=(default_sentinel, default_sentinel) noexcept {
+    return true;
+  }
+  constexpr bool operator>=(default_sentinel, default_sentinel) noexcept {
+    return true;
+  }
+  constexpr std::ptrdiff_t
+  operator-(default_sentinel, default_sentinel) noexcept {
+    return 0;
+  }
+} STL2_CLOSE_NAMESPACE
 
 #endif

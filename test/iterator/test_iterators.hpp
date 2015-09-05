@@ -124,16 +124,16 @@ class output_iterator
 
     template <class U> friend class output_iterator;
 public:
-    using difference_type = stl2::DifferenceType<It>;
+    using difference_type = __stl2::DifferenceType<It>;
     using pointer = It;
-    using reference = stl2::ReferenceType<It>;
+    using reference = __stl2::ReferenceType<It>;
 
     constexpr It base() const {return it_;}
 
     constexpr output_iterator () {}
     constexpr explicit output_iterator(It it) : it_(it) {}
     template <class U>
-      requires stl2::ConvertibleTo<U, It>()
+      requires __stl2::ConvertibleTo<U, It>()
     constexpr
     output_iterator(const output_iterator<U>& u) :it_(u.it_) {}
 
@@ -151,18 +151,18 @@ class input_iterator
 
     template <class U> friend class input_iterator;
 public:
-    typedef stl2::input_iterator_tag iterator_category;
-    typedef stl2::ValueType<It>      value_type;
-    typedef stl2::DifferenceType<It> difference_type;
+    typedef __stl2::input_iterator_tag iterator_category;
+    typedef __stl2::ValueType<It>      value_type;
+    typedef __stl2::DifferenceType<It> difference_type;
     typedef It                       pointer;
-    typedef stl2::ReferenceType<It>  reference;
+    typedef __stl2::ReferenceType<It>  reference;
 
     constexpr It base() const {return it_;}
 
     constexpr input_iterator() : it_() {}
     constexpr explicit input_iterator(It it) : it_(it) {}
     template <class U>
-      requires stl2::ConvertibleTo<U, It>()
+      requires __stl2::ConvertibleTo<U, It>()
     constexpr input_iterator(const input_iterator<U>& u) :it_(u.it_) {}
 
     constexpr reference operator*() const {return *it_;}
@@ -203,18 +203,18 @@ class forward_iterator
 
     template <class U> friend class forward_iterator;
 public:
-    typedef stl2::forward_iterator_tag iterator_category;
-    typedef stl2::ValueType<It>        value_type;
-    typedef stl2::DifferenceType<It>   difference_type;
+    typedef __stl2::forward_iterator_tag iterator_category;
+    typedef __stl2::ValueType<It>        value_type;
+    typedef __stl2::DifferenceType<It>   difference_type;
     typedef It                         pointer;
-    typedef stl2::ReferenceType<It>    reference;
+    typedef __stl2::ReferenceType<It>    reference;
 
     constexpr It base() const {return it_;}
 
     constexpr forward_iterator() : it_() {}
     constexpr explicit forward_iterator(It it) : it_(it) {}
     template <class U>
-      requires stl2::ConvertibleTo<U, It>()
+      requires __stl2::ConvertibleTo<U, It>()
     constexpr forward_iterator(const forward_iterator<U>& u) :it_(u.it_) {}
 
     constexpr reference operator*() const {return *it_;}
@@ -255,18 +255,18 @@ class bidirectional_iterator
 
     template <class U> friend class bidirectional_iterator;
 public:
-    typedef stl2::bidirectional_iterator_tag iterator_category;
-    typedef stl2::ValueType<It>              value_type;
-    typedef stl2::DifferenceType<It>         difference_type;
+    typedef __stl2::bidirectional_iterator_tag iterator_category;
+    typedef __stl2::ValueType<It>              value_type;
+    typedef __stl2::DifferenceType<It>         difference_type;
     typedef It                               pointer;
-    typedef stl2::ReferenceType<It>          reference;
+    typedef __stl2::ReferenceType<It>          reference;
 
     constexpr It base() const {return it_;}
 
     constexpr bidirectional_iterator() : it_() {}
     constexpr explicit bidirectional_iterator(It it) : it_(it) {}
     template <class U>
-      requires stl2::ConvertibleTo<U, It>()
+      requires __stl2::ConvertibleTo<U, It>()
     constexpr bidirectional_iterator(const bidirectional_iterator<U>& u) :it_(u.it_) {}
 
     constexpr reference operator*() const {return *it_;}
@@ -304,18 +304,18 @@ class random_access_iterator
 
     template <class U> friend class random_access_iterator;
 public:
-    typedef stl2::random_access_iterator_tag iterator_category;
-    typedef stl2::ValueType<It>              value_type;
-    typedef stl2::DifferenceType<It>         difference_type;
+    typedef __stl2::random_access_iterator_tag iterator_category;
+    typedef __stl2::ValueType<It>              value_type;
+    typedef __stl2::DifferenceType<It>         difference_type;
     typedef It                               pointer;
-    typedef stl2::ReferenceType<It>          reference;
+    typedef __stl2::ReferenceType<It>          reference;
 
     constexpr It base() const {return it_;}
 
     constexpr random_access_iterator() : it_() {}
     constexpr explicit random_access_iterator(It it) : it_(it) {}
     template <class U>
-      requires stl2::ConvertibleTo<U, It>()
+      requires __stl2::ConvertibleTo<U, It>()
     constexpr random_access_iterator(const random_access_iterator<U>& u) :it_(u.it_) {}
 
     constexpr reference operator*() const {return *it_;}
@@ -397,7 +397,7 @@ operator>=(const random_access_iterator<T>& x, const random_access_iterator<U>& 
 
 template <class T, class U>
 constexpr
-stl2::DifferenceType<T>
+__stl2::DifferenceType<T>
 operator-(const random_access_iterator<T>& x, const random_access_iterator<U>& y)
 {
     return x.base() - y.base();

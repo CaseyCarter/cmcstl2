@@ -27,16 +27,16 @@
 #include "../simple_test.hpp"
 #include "test_iterators.hpp"
 
-template <class It> void test() { stl2::reverse_iterator<It>{}; }
+template <class It> void test() { __stl2::reverse_iterator<It>{}; }
 
 template <class It> void test2(It i) {
-  stl2::reverse_iterator<It> r(i);
+  __stl2::reverse_iterator<It> r(i);
   CHECK(r.base() == i);
 }
 
 template <class It, class U> void test3(U u) {
-  const stl2::reverse_iterator<U> r2(u);
-  stl2::reverse_iterator<It> r1 = r2;
+  const __stl2::reverse_iterator<U> r2(u);
+  __stl2::reverse_iterator<It> r1 = r2;
   CHECK(r1.base() == u);
 }
 
@@ -44,69 +44,69 @@ struct Base {};
 struct Derived : Base {};
 
 template <class It> void test4(It i) {
-  const auto r = stl2::make_reverse_iterator(i);
-  static_assert(std::is_same<decltype(r), const stl2::reverse_iterator<It>>());
+  const auto r = __stl2::make_reverse_iterator(i);
+  static_assert(std::is_same<decltype(r), const __stl2::reverse_iterator<It>>());
   CHECK(r.base() == i);
 }
 
 template <class It> void test5(It l, It r, bool x) {
-  const stl2::reverse_iterator<It> r1(l);
-  const stl2::reverse_iterator<It> r2(r);
+  const __stl2::reverse_iterator<It> r1(l);
+  const __stl2::reverse_iterator<It> r2(r);
   CHECK((r1 != r2) == x);
 }
 
 template <class It> void test6(It i, It x) {
-  stl2::reverse_iterator<It> r(i);
-  stl2::reverse_iterator<It> rr = r++;
+  __stl2::reverse_iterator<It> r(i);
+  __stl2::reverse_iterator<It> rr = r++;
   CHECK(r.base() == x);
   CHECK(rr.base() == i);
 }
 
 template <class It> void test7(It i, It x) {
-  stl2::reverse_iterator<It> r(i);
-  stl2::reverse_iterator<It> &rr = ++r;
+  __stl2::reverse_iterator<It> r(i);
+  __stl2::reverse_iterator<It> &rr = ++r;
   CHECK(r.base() == x);
   CHECK(&rr == &r);
 }
 
 template <class It>
-void test8(It i, stl2::DifferenceType<It> n, It x) {
-  const stl2::reverse_iterator<It> r(i);
-  stl2::reverse_iterator<It> rr = r + n;
+void test8(It i, __stl2::DifferenceType<It> n, It x) {
+  const __stl2::reverse_iterator<It> r(i);
+  __stl2::reverse_iterator<It> rr = r + n;
   CHECK(rr.base() == x);
 }
 
 template <class It>
-void test9(It i, stl2::DifferenceType<It> n, It x) {
-  stl2::reverse_iterator<It> r(i);
-  stl2::reverse_iterator<It> &rr = r += n;
+void test9(It i, __stl2::DifferenceType<It> n, It x) {
+  __stl2::reverse_iterator<It> r(i);
+  __stl2::reverse_iterator<It> &rr = r += n;
   CHECK(r.base() == x);
   CHECK(&rr == &r);
 }
 
 template <class It> void test10(It i, It x) {
-  stl2::reverse_iterator<It> r(i);
-  stl2::reverse_iterator<It> rr = r--;
+  __stl2::reverse_iterator<It> r(i);
+  __stl2::reverse_iterator<It> rr = r--;
   CHECK(r.base() == x);
   CHECK(rr.base() == i);
 }
 template <class It> void test11(It i, It x) {
-  stl2::reverse_iterator<It> r(i);
-  stl2::reverse_iterator<It> &rr = --r;
+  __stl2::reverse_iterator<It> r(i);
+  __stl2::reverse_iterator<It> &rr = --r;
   CHECK(r.base() == x);
   CHECK(&rr == &r);
 }
 template <class It>
-void test12(It i, stl2::DifferenceType<It> n, It x) {
-  const stl2::reverse_iterator<It> r(i);
-  stl2::reverse_iterator<It> rr = r - n;
+void test12(It i, __stl2::DifferenceType<It> n, It x) {
+  const __stl2::reverse_iterator<It> r(i);
+  __stl2::reverse_iterator<It> rr = r - n;
   CHECK(rr.base() == x);
 }
 
 template <class It>
-void test13(It i, stl2::DifferenceType<It> n, It x) {
-  stl2::reverse_iterator<It> r(i);
-  stl2::reverse_iterator<It> &rr = r -= n;
+void test13(It i, __stl2::DifferenceType<It> n, It x) {
+  __stl2::reverse_iterator<It> r(i);
+  __stl2::reverse_iterator<It> &rr = r -= n;
   CHECK(r.base() == x);
   CHECK(&rr == &r);
 }
@@ -120,53 +120,53 @@ public:
   friend bool operator==(const A &x, const A &y) { return x.data_ == y.data_; }
 };
 
-template <class It> void test14(It i, stl2::ValueType<It> x) {
-  stl2::reverse_iterator<It> r(i);
+template <class It> void test14(It i, __stl2::ValueType<It> x) {
+  __stl2::reverse_iterator<It> r(i);
   CHECK(*r == x);
 }
 
 template <class It, class U> void test15(U u) {
-  const stl2::reverse_iterator<U> r2(u);
-  stl2::reverse_iterator<It> r1;
-  stl2::reverse_iterator<It> &rr = r1 = r2;
+  const __stl2::reverse_iterator<U> r2(u);
+  __stl2::reverse_iterator<It> r1;
+  __stl2::reverse_iterator<It> &rr = r1 = r2;
   CHECK(r1.base() == u);
   CHECK(&rr == &r1);
 }
 template <class It> void test16(It l, It r, bool x) {
-  const stl2::reverse_iterator<It> r1(l);
-  const stl2::reverse_iterator<It> r2(r);
+  const __stl2::reverse_iterator<It> r1(l);
+  const __stl2::reverse_iterator<It> r2(r);
   CHECK((r1 == r2) == x);
 }
 
 template <class It1, class It2> void test17(It1 l, It2 r, std::ptrdiff_t x) {
-   const stl2::reverse_iterator<It1> r1(l);
-   const stl2::reverse_iterator<It2> r2(r);
+   const __stl2::reverse_iterator<It1> r1(l);
+   const __stl2::reverse_iterator<It2> r2(r);
    CHECK((r1 - r2) == x);
 }
 
 template <class It> void test18(It l, It r, bool x) {
-  const stl2::reverse_iterator<It> r1(l);
-  const stl2::reverse_iterator<It> r2(r);
+  const __stl2::reverse_iterator<It> r1(l);
+  const __stl2::reverse_iterator<It> r2(r);
   CHECK((r1 > r2) == x);
 }
 
 template <class It> void test19(It l, It r, bool x) {
-  const stl2::reverse_iterator<It> r1(l);
-  const stl2::reverse_iterator<It> r2(r);
+  const __stl2::reverse_iterator<It> r1(l);
+  const __stl2::reverse_iterator<It> r2(r);
   CHECK((r1 >= r2) == x);
 }
 
 template <class It>
-void test20(It i, stl2::DifferenceType<It> n,
-            stl2::ValueType<It> x) {
-  const stl2::reverse_iterator<It> r(i);
-  stl2::ValueType<It> rr = r[n];
+void test20(It i, __stl2::DifferenceType<It> n,
+            __stl2::ValueType<It> x) {
+  const __stl2::reverse_iterator<It> r(i);
+  __stl2::ValueType<It> rr = r[n];
   CHECK(rr == x);
 }
 
 template <class It> void test21(It l, It r, bool x) {
-  const stl2::reverse_iterator<It> r1(l);
-  const stl2::reverse_iterator<It> r2(r);
+  const __stl2::reverse_iterator<It> r1(l);
+  const __stl2::reverse_iterator<It> r2(r);
   CHECK((r1 < r2) == x);
 }
 
@@ -174,8 +174,8 @@ template <class It>
 void
 test22(It l, It r, bool x)
 {
-    const stl2::reverse_iterator<It> r1(l);
-    const stl2::reverse_iterator<It> r2(r);
+    const __stl2::reverse_iterator<It> r1(l);
+    const __stl2::reverse_iterator<It> r2(r);
     CHECK((r1 < r2) == x);
 }
 
@@ -183,8 +183,8 @@ template <class It>
 void
 test23(It l, It r, bool x)
 {
-    const stl2::reverse_iterator<It> r1(l);
-    const stl2::reverse_iterator<It> r2(r);
+    const __stl2::reverse_iterator<It> r1(l);
+    const __stl2::reverse_iterator<It> r2(r);
     CHECK((r1 <= r2) == x);
 }
 
@@ -203,9 +203,9 @@ class B
 
 template <class It>
 void
-test24(It i, stl2::ValueType<It> x)
+test24(It i, __stl2::ValueType<It> x)
 {
-    stl2::reverse_iterator<It> r(i);
+    __stl2::reverse_iterator<It> r(i);
     CHECK((*r).get() == x.get());
 }
 
@@ -227,24 +227,22 @@ class C
 
 template <class It>
 void
-test25(It i, stl2::DifferenceType<It> n, It x)
+test25(It i, __stl2::DifferenceType<It> n, It x)
 {
-    const stl2::reverse_iterator<It> r(i);
-    stl2::reverse_iterator<It> rr = n + r;
+    const __stl2::reverse_iterator<It> r(i);
+    __stl2::reverse_iterator<It> rr = n + r;
     CHECK(rr.base() == x);
 }
 
 int main() {
   {
-    namespace models = stl2::ext::models;
+    namespace models = __stl2::models;
     static_assert(
-        models::bidirectional_iterator<
-          stl2::reverse_iterator<bidirectional_iterator<const char *>>>(),
-        "");
+        models::BidirectionalIterator<
+          __stl2::reverse_iterator<bidirectional_iterator<const char *>>>);
     static_assert(
-        models::random_access_iterator<
-          stl2::reverse_iterator<random_access_iterator<const char *>>>(),
-        "");
+        models::RandomAccessIterator<
+          __stl2::reverse_iterator<random_access_iterator<const char *>>>);
   }
   { // test
     test<bidirectional_iterator<const char *>>();
@@ -445,11 +443,11 @@ int main() {
   {
       C l[3] = {C(0), C(1), C(2)};
 
-      auto ri = stl2::rbegin(l);
+      auto ri = __stl2::rbegin(l);
       CHECK ( (*ri).get() == 2 );  ++ri;
       CHECK ( (*ri).get() == 1 );  ++ri;
       CHECK ( (*ri).get() == 0 );  ++ri;
-      CHECK ( ri == stl2::rend(l));
+      CHECK ( ri == __stl2::rend(l));
   }
   {
       const char* s = "1234567890";

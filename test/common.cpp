@@ -4,7 +4,7 @@
 #include "simple_test.hpp"
 
 using std::tuple;
-using namespace stl2;
+using namespace __stl2;
 
 static_assert(is_same<common_type_t<int, short&, int, char>, int>(), "");
 static_assert(!meta::has_type<common_type<int, short, int, char*>>(), "");
@@ -12,10 +12,10 @@ static_assert(!meta::has_type<common_type<int, short, int, char*>>(), "");
 struct X {};
 struct Y { explicit Y(X){} };
 
-namespace stl2 {
+STL2_OPEN_NAMESPACE {
 template <> struct common_type<X, Y> { typedef Y type; };
 template <> struct common_type<Y, X> { typedef Y type; };
-}
+} STL2_CLOSE_NAMESPACE
 
 static_assert(is_same<common_type_t<X, Y>, Y>(), "");    // (A)
 static_assert(is_same<common_type_t<X, Y, Y>, Y>(), ""); // (B)
@@ -34,14 +34,14 @@ static_assert(is_same<common_reference_t<int &&, int const &, int volatile &>, i
 static_assert(is_same<common_reference_t<int &&, int const &, float &>, float>(), "");
 static_assert(!meta::has_type<common_reference<int, short, int, char*>>(), "");
 
-namespace stl2 {
+STL2_OPEN_NAMESPACE {
 template <class...T, class...U, template <class> class TQual, template <class> class UQual>
   requires meta::_v<meta::and_c<meta::_v<meta::has_type<common_reference<TQual<T>, UQual<U>>>>...>>
   //requires _Valid<common_reference_t, TQual<T>, UQual<U>> &&...
 struct basic_common_reference<tuple<T...>, tuple<U...>, TQual, UQual> {
   using type = tuple<common_reference_t<TQual<T>, UQual<U>>...>;
 };
-}
+} STL2_CLOSE_NAMESPACE
 
 static_assert(is_same<
   common_reference_t<const tuple<int, short> &, tuple<int&,short volatile&>>,
@@ -123,7 +123,7 @@ struct X2 {};
 struct Y2 {};
 struct Z2 {};
 
-namespace stl2{
+STL2_OPEN_NAMESPACE {
 template<>
 struct common_type<X2, Y2>
 {
@@ -134,7 +134,7 @@ struct common_type<Y2, X2>
 {
     using type = Z2;
 };
-}
+} STL2_CLOSE_NAMESPACE
 
 static_assert(is_same<
     common_reference_t<X2 &, Y2 const &>,

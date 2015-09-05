@@ -4,6 +4,6 @@
 
 int main() {
   static const int even_ints[] = {8, 12, 0, 14};
-  CHECK(stl2::all_of(even_ints, [](auto&& i){ return i % 2 == 0; }));
+  CHECK(__stl2::all_of(even_ints, [](auto&& i){ return i % 2 == 0; }));
   return ::test_result();
 }

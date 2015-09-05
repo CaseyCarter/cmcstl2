@@ -2,213 +2,230 @@
 #define STL2_DETAIL_RANGE_CONCEPTS_HPP
 
 #include <initializer_list>
-#include <type_traits>
 
-#include <meta/meta.hpp>
-
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 
-namespace stl2 { inline namespace v1 {
-///////////////////////////////////////////////////////////////////////////
-// Range [iterable.iterables]
-//
-template <class T>
-using IteratorType = decltype(stl2::begin(declval<T&>()));
+STL2_OPEN_NAMESPACE {
+  ///////////////////////////////////////////////////////////////////////////
+  // Range [iterable.iterables]
+  //
+  template <class T>
+  using IteratorType = decltype(__stl2::begin(declval<T&>()));
 
-template <class T>
-using SentinelType = decltype(stl2::end(declval<T&>()));
+  template <class T>
+  using SentinelType = decltype(__stl2::end(declval<T&>()));
 
-template <class T>
-concept bool Range() {
-  return requires { typename SentinelType<T>; };
-}
+  template <class T>
+  concept bool Range() {
+    return requires { typename SentinelType<T>; };
+  }
 
-// 20150729: Extension: DifferenceType<Range>.
-template <Range T>
-  requires !_Is<T, std::is_array>
-struct difference_type<T> {
-  using type = DifferenceType<IteratorType<T>>;
-};
+  namespace models {
+    template <class>
+    constexpr bool Range = false;
+    __stl2::Range{R}
+    constexpr bool Range<R> = true;
+  }
 
-///////////////////////////////////////////////////////////////////////////
-// SizedRange [sized.iterables]
-//
-template <class T>
-struct disable_sized_range :
-  disable_sized_range<detail::uncvref_t<T>> {};
+  // 20150729: Extension: DifferenceType<Range>.
+  template <Range T>
+    requires !_Is<T, is_array>
+  struct difference_type<T> {
+    using type = DifferenceType<IteratorType<T>>;
+  };
 
-template <_Unqual T>
-struct disable_sized_range<T> :
-  std::false_type {};
+  ///////////////////////////////////////////////////////////////////////////
+  // SizedRange [sized.iterables]
+  //
+  template <class T>
+  struct disable_sized_range :
+    disable_sized_range<__uncvref<T>> {};
 
-template <class R>
-concept bool SizedRange() {
-  return _IsNot<R, disable_sized_range> &&
-    Range<R>() &&
-    requires (const std::remove_reference_t<R>& r) {
-      STL2_DEDUCTION_CONSTRAINT(stl2::size(r), Integral);
-      STL2_CONVERSION_CONSTRAINT(stl2::size(r), DifferenceType<IteratorType<R>>);
-    };
-}
+  template <_Unqual T>
+  struct disable_sized_range<T> :
+    false_type {};
 
-///////////////////////////////////////////////////////////////////////////
-// View [range.iterables]
-//
-struct view_base {};
+  template <class R>
+  concept bool SizedRange() {
+    return _IsNot<R, disable_sized_range> &&
+      Range<R>() &&
+      requires (const remove_reference_t<R>& r) {
+        STL2_DEDUCTION_CONSTRAINT(__stl2::size(r), Integral);
+        STL2_CONVERSION_CONSTRAINT(__stl2::size(r), DifferenceType<IteratorType<R>>);
+      };
+  }
 
-template <class T>
-concept bool _ContainerLike =
-  Range<T>() && Range<const T>() &&
-  !Same<ReferenceType<IteratorType<T>>,
-        ReferenceType<IteratorType<const T>>>();
+  namespace models {
+    template <class>
+    constexpr bool SizedRange = false;
+    __stl2::SizedRange{R}
+    constexpr bool SizedRange<R> = true;
+  }
 
-template <class T>
-struct enable_view {};
+  ///////////////////////////////////////////////////////////////////////////
+  // View [range.iterables]
+  //
+  struct view_base {};
 
-template <class T>
-struct __view_predicate :
-  std::true_type {};
+  template <class T>
+  concept bool _ContainerLike =
+    Range<T>() && Range<const T>() &&
+    !Same<ReferenceType<IteratorType<T>>,
+          ReferenceType<IteratorType<const T>>>();
 
-template <class T>
-  requires _Valid<meta::_t, enable_view<T>>
-struct __view_predicate<T> :
-  enable_view<T> {};
+  namespace models {
+    template <class>
+    constexpr bool _ContainerLike = false;
+    __stl2::_ContainerLike{R}
+    constexpr bool _ContainerLike<R> = true;
+  }
 
-template <_ContainerLike T>
-  requires !(DerivedFrom<T, view_base>() ||
-             _Valid<meta::_t, enable_view<T>>)
-struct __view_predicate<T> :
-   std::false_type {};
+  template <class T>
+  struct enable_view {};
 
-template <class T>
-concept bool View() {
-  return Range<T>() &&
-    Semiregular<T>() &&
-    __view_predicate<T>::value;
-}
+  // TODO: Convert __view_predicate to variable template
+  template <class T>
+  struct __view_predicate :
+    true_type {};
 
-///////////////////////////////////////////////////////////////////////////
-// BoundedRange [bounded.iterables]
-//
-template <class T>
-concept bool BoundedRange() {
-  return Range<T>() && Same<IteratorType<T>, SentinelType<T>>();
-}
+  template <class T>
+    requires _Valid<meta::_t, enable_view<T>>
+  struct __view_predicate<T> :
+    enable_view<T> {};
 
-namespace ext {
-template <class T, class U>
-concept bool OutputRange() {
-  return Range<T>() && OutputIterator<IteratorType<T>, U>();
-}
-}
+  // TODO: Be very certain that "!" here works as intended.
+  template <_ContainerLike T>
+    requires !(DerivedFrom<T, view_base>() ||
+               _Valid<meta::_t, enable_view<T>>)
+  struct __view_predicate<T> :
+     false_type {};
 
-///////////////////////////////////////////////////////////////////////////
-// InputRange [input.iterables]
-//
-template <class T>
-concept bool InputRange() {
-  return Range<T>() && InputIterator<IteratorType<T>>();
-}
+  template <class T>
+  concept bool View() {
+    return Range<T>() &&
+      Semiregular<T>() &&
+      __view_predicate<T>::value;
+  }
 
-///////////////////////////////////////////////////////////////////////////
-// ForwardRange [forward.iterables]
-//
-template <class T>
-concept bool ForwardRange() {
-  return Range<T>() && ForwardIterator<IteratorType<T>>();
-}
+  namespace models {
+    template <class>
+    constexpr bool View = false;
+    __stl2::View{V}
+    constexpr bool View<V> = true;
+  }
 
-///////////////////////////////////////////////////////////////////////////
-// BidirectionalRange [bidirectional.iterables]
-//
-template <class T>
-concept bool BidirectionalRange() {
-  return Range<T>() && BidirectionalIterator<IteratorType<T>>();
-}
+  ///////////////////////////////////////////////////////////////////////////
+  // BoundedRange [bounded.iterables]
+  //
+  template <class T>
+  concept bool BoundedRange() {
+    return Range<T>() && Same<IteratorType<T>, SentinelType<T>>();
+  }
 
-///////////////////////////////////////////////////////////////////////////
-// RandomAccessRange [random.access.iterables]
-//
-template <class T>
-concept bool RandomAccessRange() {
-  return Range<T>() && RandomAccessIterator<IteratorType<T>>();
-}
+  namespace models {
+    template <class>
+    constexpr bool BoundedRange = false;
+    __stl2::BoundedRange{R}
+    constexpr bool BoundedRange<R> = true;
+  }
 
-namespace ext {
-template <class T>
-concept bool ContiguousRange() {
-  return SizedRange<T>() && ContiguousIterator<IteratorType<T>>() &&
-    requires (T& t) {
-      STL2_EXACT_TYPE_CONSTRAINT(stl2::data(t), std::add_pointer_t<ReferenceType<IteratorType<T>>>);
-    };
-}
-}
+  namespace ext {
+    template <class R, class T>
+    concept bool OutputRange() {
+      return Range<R>() && OutputIterator<IteratorType<R>, T>();
+    }
+  }
 
-///////////////////////////////////////////////////////////////////////////
-// Range concept test Predicates
-//
-namespace ext { namespace models {
+  namespace models {
+    template <class, class>
+    constexpr bool OutputRange = false;
+    __stl2::ext::OutputRange{R, T}
+    constexpr bool OutputRange<R, T> = true;
+  }
 
-template <class>
-constexpr bool range() { return false; }
-Range{T}
-constexpr bool range() { return true; }
+  ///////////////////////////////////////////////////////////////////////////
+  // InputRange [input.iterables]
+  //
+  template <class T>
+  concept bool InputRange() {
+    return Range<T>() && InputIterator<IteratorType<T>>();
+  }
 
-template <class>
-constexpr bool sized_range() { return false; }
-SizedRange{T}
-constexpr bool sized_range() { return true; }
+  namespace models {
+    template <class>
+    constexpr bool InputRange = false;
+    __stl2::InputRange{R}
+    constexpr bool InputRange<R> = true;
+  }
 
-template <class>
-constexpr bool container_like() { return false; }
-_ContainerLike{T}
-constexpr bool container_like() { return true; }
+  ///////////////////////////////////////////////////////////////////////////
+  // ForwardRange [forward.iterables]
+  //
+  template <class T>
+  concept bool ForwardRange() {
+    return Range<T>() && ForwardIterator<IteratorType<T>>();
+  }
 
-template <class>
-constexpr bool view() { return false; }
-View{T}
-constexpr bool view() { return true; }
+  namespace models {
+    template <class>
+    constexpr bool ForwardRange = false;
+    __stl2::ForwardRange{R}
+    constexpr bool ForwardRange<R> = true;
+  }
 
-template <class>
-constexpr bool bounded_range() { return false; }
-BoundedRange{T}
-constexpr bool bounded_range() { return true; }
+  ///////////////////////////////////////////////////////////////////////////
+  // BidirectionalRange [bidirectional.iterables]
+  //
+  template <class T>
+  concept bool BidirectionalRange() {
+    return Range<T>() && BidirectionalIterator<IteratorType<T>>();
+  }
 
-template <class, class>
-constexpr bool output_range() { return false; }
-OutputRange{T, U}
-constexpr bool output_range() { return true; }
+  namespace models {
+    template <class>
+    constexpr bool BidirectionalRange = false;
+    __stl2::BidirectionalRange{R}
+    constexpr bool BidirectionalRange<R> = true;
+  }
 
-template <class>
-constexpr bool input_range() { return false; }
-InputRange{T}
-constexpr bool input_range() { return true; }
+  ///////////////////////////////////////////////////////////////////////////
+  // RandomAccessRange [random.access.iterables]
+  //
+  template <class T>
+  concept bool RandomAccessRange() {
+    return Range<T>() && RandomAccessIterator<IteratorType<T>>();
+  }
 
-template <class>
-constexpr bool forward_range() { return false; }
-ForwardRange{T}
-constexpr bool forward_range() { return true; }
+  namespace models {
+    template <class>
+    constexpr bool RandomAccessRange = false;
+    __stl2::RandomAccessRange{R}
+    constexpr bool RandomAccessRange<R> = true;
+  }
 
-template <class>
-constexpr bool bidirectional_range() { return false; }
-BidirectionalRange{T}
-constexpr bool bidirectional_range() { return true; }
+  namespace ext {
+  template <class T>
+  concept bool ContiguousRange() {
+    return SizedRange<T>() && ContiguousIterator<IteratorType<T>>() &&
+      requires (T& t) {
+        STL2_EXACT_TYPE_CONSTRAINT(__stl2::data(t), add_pointer_t<ReferenceType<IteratorType<T>>>);
+      };
+  }
+  }
 
-template <class>
-constexpr bool random_access_range() { return false; }
-RandomAccessRange{T}
-constexpr bool random_access_range() { return true; }
-
-template <class>
-constexpr bool contiguous_range() { return false; }
-ContiguousRange{T}
-constexpr bool contiguous_range() { return true; }
-
-}}}} // namespace stl2::v1::ext::models
+  namespace models {
+    template <class>
+    constexpr bool ContiguousRange = false;
+    __stl2::ext::ContiguousRange{R}
+    constexpr bool ContiguousRange<R> = true;
+  }
+} STL2_CLOSE_NAMESPACE
 
 #endif

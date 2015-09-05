@@ -3,13 +3,16 @@
 #if VALIDATE_RANGES
 namespace models {
 template <class T>
-using boolean = std::is_same<T, bool>; // Obviously many tests will fail ;)
+constexpr bool Boolean =
+  std::is_same<T, bool>(); // Obviously many tests will fail ;)
 
 template <class T, class U = T>
-using equality_comparable = ranges::EqualityComparable<T, U>;
+constexpr bool EqualityComparable =
+  ranges::EqualityComparable<T, U>();
 
 template <class T, class U = T>
-using totally_ordered = ranges::TotallyOrdered<T, U>;
+constexpr bool TotallyOrdered =
+  ranges::TotallyOrdered<T, U>();
 }
 
 #elif VALIDATE_STL2
@@ -18,24 +21,23 @@ using totally_ordered = ranges::TotallyOrdered<T, U>;
 
 #include <type_traits>
 #include <bitset>
-
 #include "../simple_test.hpp"
 
 namespace boolean_test {
 // Better have at least these three, since we use them as
 // examples in the TS draft.
-CONCEPT_ASSERT(models::boolean<bool>());
-CONCEPT_ASSERT(models::boolean<std::true_type>());
-CONCEPT_ASSERT(models::boolean<std::bitset<42>::reference>());
+CONCEPT_ASSERT(models::Boolean<bool>);
+CONCEPT_ASSERT(models::Boolean<std::true_type>);
+CONCEPT_ASSERT(models::Boolean<std::bitset<42>::reference>);
 
-CONCEPT_ASSERT(models::boolean<int>());
-CONCEPT_ASSERT(!models::boolean<void*>());
+CONCEPT_ASSERT(models::Boolean<int>);
+CONCEPT_ASSERT(!models::Boolean<void*>);
 
 struct A {};
 struct B { operator bool() const; };
 
-CONCEPT_ASSERT(!models::boolean<A>());
-CONCEPT_ASSERT(models::boolean<B>());
+CONCEPT_ASSERT(!models::Boolean<A>);
+CONCEPT_ASSERT(models::Boolean<B>);
 }
 
 namespace equality_comparable_test {
@@ -44,23 +46,23 @@ struct A {
   friend bool operator!=(const A&, const A&);
 };
 
-CONCEPT_ASSERT(models::equality_comparable<int>());
-CONCEPT_ASSERT(models::equality_comparable<A>());
-CONCEPT_ASSERT(!models::equality_comparable<void>());
+CONCEPT_ASSERT(models::EqualityComparable<int>);
+CONCEPT_ASSERT(models::EqualityComparable<A>);
+CONCEPT_ASSERT(!models::EqualityComparable<void>);
 
-CONCEPT_ASSERT(models::equality_comparable<int, int>());
-CONCEPT_ASSERT(models::equality_comparable<A, A>());
-CONCEPT_ASSERT(!models::equality_comparable<void, void>());
+CONCEPT_ASSERT(models::EqualityComparable<int, int>);
+CONCEPT_ASSERT(models::EqualityComparable<A, A>);
+CONCEPT_ASSERT(!models::EqualityComparable<void, void>);
 } // namespace equality_comparable_test
 
-CONCEPT_ASSERT(models::totally_ordered<int>());
-CONCEPT_ASSERT(models::totally_ordered<float>());
-CONCEPT_ASSERT(models::totally_ordered<std::nullptr_t>());
-CONCEPT_ASSERT(!models::totally_ordered<void>());
+CONCEPT_ASSERT(models::TotallyOrdered<int>);
+CONCEPT_ASSERT(models::TotallyOrdered<float>);
+CONCEPT_ASSERT(models::TotallyOrdered<std::nullptr_t>);
+CONCEPT_ASSERT(!models::TotallyOrdered<void>);
 
-CONCEPT_ASSERT(models::totally_ordered<int, int>());
-CONCEPT_ASSERT(models::totally_ordered<int, double>());
-CONCEPT_ASSERT(!models::totally_ordered<int, void>());
+CONCEPT_ASSERT(models::TotallyOrdered<int, int>);
+CONCEPT_ASSERT(models::TotallyOrdered<int, double>);
+CONCEPT_ASSERT(!models::TotallyOrdered<int, void>);
 
 int main() {
   return ::test_result();

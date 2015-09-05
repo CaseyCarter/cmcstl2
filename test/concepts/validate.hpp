@@ -15,7 +15,7 @@ namespace models {}
 #elif VALIDATE_STL2
 #include <stl2/detail/fwd.hpp>
 
-namespace models = stl2::ext::models;
+namespace models = ::__stl2::models;
 
 #if __cpp_static_assert >= 201411
 #define CONCEPT_ASSERT(...) static_assert(__VA_ARGS__)

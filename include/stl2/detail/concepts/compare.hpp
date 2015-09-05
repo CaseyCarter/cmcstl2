@@ -1,154 +1,215 @@
 #ifndef STL2_DETAIL_CONCEPTS_COMPARE_HPP
 #define STL2_DETAIL_CONCEPTS_COMPARE_HPP
 
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/core.hpp>
-#include <stl2/type_traits.hpp>
+
+// FIXME: Do a full build time comparison.
+#define STL2_BOOLEAN_BICONVERTIBLE 1
 
 /////////////////////////////////////////////
 // Comparison Concepts [concepts.lib.compare]
 //
-namespace stl2 { inline namespace v1 {
-
-//namespace detail {
-template <class B>
-concept bool Boolean() {
-  return requires (const B& b1, const B& b2, const bool a) {
-    // Requirements common to both Boolean and BooleanTestable.
-    {b1} -> bool;
-    {!b1} -> bool;
-    STL2_EXACT_TYPE_CONSTRAINT(b1 && a, bool);
-    STL2_EXACT_TYPE_CONSTRAINT(b1 || a, bool);
-
-    // Requirements of Boolean that are also be valid for
-    // BooleanTestable, but for which BooleanTestable does not
-    // require validation.
-    STL2_EXACT_TYPE_CONSTRAINT(b1 && b2, bool);
-    STL2_EXACT_TYPE_CONSTRAINT(a && b2, bool);
-    STL2_EXACT_TYPE_CONSTRAINT(b1 || b2, bool);
-    STL2_EXACT_TYPE_CONSTRAINT(a || b2, bool);
-
-#if 1
-    // Requirements of Boolean that are not required by
-    // BooleanTestable.
-    {b1 == b2} -> bool;
-    {b1 == a} -> bool;
-    {a == b2} -> bool;
-    {b1 != b2} -> bool;
-    {b1 != a} -> bool;
-    {a != b2} -> bool;
+STL2_OPEN_NAMESPACE {
+  ///////////////////////////////////////////////////////////////////////////
+  // Boolean [concepts.lib.compare.boolean]
+  //
+  namespace detail {
+    template <class B>
+    concept bool Boolean_() {
+      return requires (const B& b1, const B& b2, const bool a) {
+        // Requirements common to both Boolean and BooleanTestable.
+#if STL2_BOOLEAN_BICONVERTIBLE
+        STL2_BINARY_DEDUCTION_CONSTRAINT(b1, ConvertibleTo, bool);
+        STL2_BINARY_DEDUCTION_CONSTRAINT(!b1, ConvertibleTo, bool);
+#else
+        {b1} -> bool;
+        {!b1} -> bool;
 #endif
-  };
-}
+        STL2_EXACT_TYPE_CONSTRAINT(b1 && a, bool);
+        STL2_EXACT_TYPE_CONSTRAINT(b1 || a, bool);
 
-namespace detail {
+        // Requirements of Boolean that are also be valid for
+        // BooleanTestable, but for which BooleanTestable does not
+        // require validation.
+        STL2_EXACT_TYPE_CONSTRAINT(b1 && b2, bool);
+        STL2_EXACT_TYPE_CONSTRAINT(a && b2, bool);
+        STL2_EXACT_TYPE_CONSTRAINT(b1 || b2, bool);
+        STL2_EXACT_TYPE_CONSTRAINT(a || b2, bool);
 
-template <class T, class U>
-concept bool EqualityComparable_ =
-  requires (const T& t, const U& u) {
-    STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
-    STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
-  };
+        // Requirements of Boolean that are not required by
+        // BooleanTestable.
+#if STL2_BOOLEAN_BICONVERTIBLE
+        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 == b2, ConvertibleTo, bool);
+        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 == a, ConvertibleTo, bool);
+        STL2_BINARY_DEDUCTION_CONSTRAINT(a == b2, ConvertibleTo, bool);
+        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 != b2, ConvertibleTo, bool);
+        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 != a, ConvertibleTo, bool);
+        STL2_BINARY_DEDUCTION_CONSTRAINT(a != b2, ConvertibleTo, bool);
+#else
+        {b1 == b2} -> bool;
+        {b1 == a} -> bool;
+        {a == b2} -> bool;
+        {b1 != b2} -> bool;
+        {b1 != a} -> bool;
+        {a != b2} -> bool;
+#endif
+      };
+    }
+  }
 
-} // namespace detail
+  namespace models {
+    template <class>
+    constexpr bool Boolean = false;
+    __stl2::detail::Boolean_{T}
+    constexpr bool Boolean<T> = true;
+  }
 
-namespace ext {
+  template <class T>
+  concept bool Boolean() {
+    return models::Boolean<T>;
+  }
 
-template <class T>
-concept bool WeaklyEqualityComparable() {
-  return detail::EqualityComparable_<T, T>;
-}
+  ///////////////////////////////////////////////////////////////////////////
+  // EqualityComparable [concepts.lib.compare.equalitycomparable]
+  //
+  namespace detail {
+    template <class T, class U>
+    concept bool EqualityComparable_ =
+      requires (const T& t, const U& u) {
+        STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
+        STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
+      };
+  }
 
-template <class T, class U>
-concept bool WeaklyEqualityComparable() {
-  return WeaklyEqualityComparable<T>() &&
-    WeaklyEqualityComparable<U>() &&
-    detail::EqualityComparable_<T, U> &&
-    detail::EqualityComparable_<U, T>;
-}
+  namespace ext {
+    ///////////////////////////////////////////////////////////////////////////
+    // WeaklyEqualityComparable
+    // Extension: Equivalent to EqualityComparable, except that it doesn't
+    //            cause compile errors if common_type is unspecialized.
+    //
+    template <class T>
+    concept bool WeaklyEqualityComparable() {
+      return detail::EqualityComparable_<T, T>;
+    }
 
-} // namespace ext
+    template <class T, class U>
+    concept bool WeaklyEqualityComparable() {
+      return WeaklyEqualityComparable<T>() &&
+        WeaklyEqualityComparable<U>() &&
+        detail::EqualityComparable_<T, U> &&
+        detail::EqualityComparable_<U, T>;
+    }
+  }
 
-template <class T>
-concept bool EqualityComparable() {
-  return ext::WeaklyEqualityComparable<T>();
-}
+  namespace models {
+    template <class T, class U = T>
+    constexpr bool WeaklyEqualityComparable = false;
+    __stl2::ext::WeaklyEqualityComparable{T}
+    constexpr bool WeaklyEqualityComparable<T, T> = true;
+    __stl2::ext::WeaklyEqualityComparable{T, U}
+    constexpr bool WeaklyEqualityComparable<T, U> = true;
+  }
 
-template <class T, class U>
-concept bool EqualityComparable() {
-  return ext::WeaklyEqualityComparable<T, U>() &&
-    CommonReference<const T&, const U&>() &&
-    EqualityComparable<CommonType<T, U>>();
-}
+  template <class T>
+  concept bool EqualityComparable() {
+    return ext::WeaklyEqualityComparable<T>();
+  }
 
-namespace detail {
+  template <class T, class U>
+  concept bool EqualityComparable() {
+    return ext::WeaklyEqualityComparable<T, U>() &&
+      CommonReference<const T&, const U&>() &&
+      EqualityComparable<CommonType<T, U>>();
+  }
 
-template <class T, class U>
-concept bool TotallyOrdered_ =
-  EqualityComparable_<T, U> &&
-  requires (const T& a, const U& b) {
-    STL2_DEDUCTION_CONSTRAINT(a < b, Boolean);
-    STL2_DEDUCTION_CONSTRAINT(a > b, Boolean);
-    STL2_DEDUCTION_CONSTRAINT(a <= b, Boolean);
-    STL2_DEDUCTION_CONSTRAINT(a >= b, Boolean);
-  };
+  namespace models {
+    template <class T, class U = T>
+    constexpr bool EqualityComparable = false;
+    __stl2::EqualityComparable{T}
+    constexpr bool EqualityComparable<T, T> = true;
+    __stl2::EqualityComparable{T, U}
+    constexpr bool EqualityComparable<T, U> = true;
 
-} // namespace detail
+    // EqualityComparable<Ts>() && ...
+    template <class...Ts>
+    constexpr bool AllEqualityComparable = false;
+    template <__stl2::EqualityComparable...Ts>
+    constexpr bool AllEqualityComparable<Ts...> = true;
+  }
 
-namespace ext {
+  ///////////////////////////////////////////////////////////////////////////
+  // TotallyOrdered [concepts.lib.compare.totallyordered]
+  //
+  namespace detail {
+    template <class T, class U>
+    concept bool TotallyOrdered_ =
+      EqualityComparable_<T, U> &&
+      requires (const T& a, const U& b) {
+        STL2_DEDUCTION_CONSTRAINT(a < b, Boolean);
+        STL2_DEDUCTION_CONSTRAINT(a > b, Boolean);
+        STL2_DEDUCTION_CONSTRAINT(a <= b, Boolean);
+        STL2_DEDUCTION_CONSTRAINT(a >= b, Boolean);
+      };
+  }
 
-template <class T>
-concept bool WeaklyTotallyOrdered() {
-  return detail::TotallyOrdered_<T, T>;
-}
+  namespace ext {
+    ///////////////////////////////////////////////////////////////////////////
+    // WeaklyTotallyOrdered
+    // Extension: Equivalent to TotallyOrdered, except that it doesn't
+    //            cause compile errors if common_type is unspecialized.
+    //
+    template <class T>
+    concept bool WeaklyTotallyOrdered() {
+      return detail::TotallyOrdered_<T, T>;
+    }
 
-template <class T, class U>
-concept bool WeaklyTotallyOrdered() {
-  return WeaklyTotallyOrdered<T>() &&
-    WeaklyTotallyOrdered<U>() &&
-    detail::TotallyOrdered_<T, U> &&
-    detail::TotallyOrdered_<U, T>;
-}
+    template <class T, class U>
+    concept bool WeaklyTotallyOrdered() {
+      return WeaklyTotallyOrdered<T>() &&
+        WeaklyTotallyOrdered<U>() &&
+        detail::TotallyOrdered_<T, U> &&
+        detail::TotallyOrdered_<U, T>;
+    }
+  }
 
-} // namespace ext
+  namespace models {
+    template <class T, class U = T>
+    constexpr bool WeaklyTotallyOrdered = false;
+    __stl2::ext::WeaklyTotallyOrdered{T}
+    constexpr bool WeaklyTotallyOrdered<T, T> = true;
+    __stl2::ext::WeaklyTotallyOrdered{T, U}
+    constexpr bool WeaklyTotallyOrdered<T, U> = true;
+  }
 
-template <class T>
-concept bool TotallyOrdered() {
-  return ext::WeaklyTotallyOrdered<T>();
-}
+  template <class T>
+  concept bool TotallyOrdered() {
+    return ext::WeaklyTotallyOrdered<T>();
+  }
 
-template <class T, class U>
-concept bool TotallyOrdered() {
-  return ext::WeaklyTotallyOrdered<T, U>() &&
-    CommonReference<const T&, const U&>() &&
-    TotallyOrdered<CommonType<T, U>>();
-}
+  template <class T, class U>
+  concept bool TotallyOrdered() {
+    return ext::WeaklyTotallyOrdered<T, U>() &&
+      CommonReference<const T&, const U&>() &&
+      TotallyOrdered<CommonType<T, U>>();
+  }
 
-namespace ext { namespace models {
+  namespace models {
+    template <class T, class U = T>
+    constexpr bool TotallyOrdered = false;
+    __stl2::TotallyOrdered{T}
+    constexpr bool TotallyOrdered<T, T> = true;
+    __stl2::TotallyOrdered{T, U}
+    constexpr bool TotallyOrdered<T, U> = true;
 
-template <class>
-constexpr bool boolean() { return false; }
-Boolean{T}
-constexpr bool boolean() { return true; }
+    // TotallyOrdered<Ts>() && ...
+    template <class...Ts>
+    constexpr bool AllTotallyOrdered = false;
+    template <__stl2::TotallyOrdered...Ts>
+    constexpr bool AllTotallyOrdered<Ts...> = true;
+  }
+} STL2_CLOSE_NAMESPACE
 
-template <class>
-constexpr bool equality_comparable() { return false; }
-EqualityComparable{T}
-constexpr bool equality_comparable() { return true; }
-template <class, class>
-constexpr bool equality_comparable() { return false; }
-EqualityComparable{T, U}
-constexpr bool equality_comparable() { return true; }
-
-template <class>
-constexpr bool totally_ordered() { return false; }
-TotallyOrdered{T}
-constexpr bool totally_ordered() { return true; }
-template <class, class>
-constexpr bool totally_ordered() { return false; }
-TotallyOrdered{T, U}
-constexpr bool totally_ordered() { return true; }
-
-}}}} // namespace stl2::v1::ext::models
-
+#undef STL2_BOOLEAN_BICONVERTIBLE
 #endif

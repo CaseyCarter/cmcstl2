@@ -4,21 +4,20 @@
 #include <sstream>
 #include "../simple_test.hpp"
 
-using namespace stl2;
-namespace models = stl2::ext::models;
+using namespace __stl2;
 
 int main() {
   {
     using I = ext::range<int*, int*>;
     using CI = ext::range<const int*, const int*>;
-    static_assert(models::view<I>());
-    static_assert(models::sized_range<I>());
-    static_assert(models::contiguous_range<I>());
-    static_assert(models::bounded_range<I>());
-    static_assert(models::view<CI>());
-    static_assert(models::sized_range<CI>());
-    static_assert(models::contiguous_range<CI>());
-    static_assert(models::bounded_range<CI>());
+    static_assert(models::View<I>);
+    static_assert(models::SizedRange<I>);
+    static_assert(models::ContiguousRange<I>);
+    static_assert(models::BoundedRange<I>);
+    static_assert(models::View<CI>);
+    static_assert(models::SizedRange<CI>);
+    static_assert(models::ContiguousRange<CI>);
+    static_assert(models::BoundedRange<CI>);
   }
   {
     using I = istream_iterator<int>;
@@ -26,9 +25,9 @@ int main() {
     static_assert(is_same<ValueType<I>, int>());
     static_assert(is_same<ReferenceType<I>, const int&>());
     static_assert(is_same<RvalueReferenceType<I>, const int&&>());
-    static_assert(models::input_iterator<I>());
+    static_assert(models::InputIterator<I>);
 
-    static_assert(models::sentinel<default_sentinel, I>());
+    static_assert(models::Sentinel<default_sentinel, I>);
     using C = CommonType<I, default_sentinel>;
     static_assert(is_same<C, I>());
   }

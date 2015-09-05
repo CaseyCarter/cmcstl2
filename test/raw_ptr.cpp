@@ -2,11 +2,10 @@
 #include <stl2/detail/concepts/object.hpp>
 #include "simple_test.hpp"
 
-namespace models = stl2::ext::models;
-using stl2::detail::raw_ptr;
+using __stl2::detail::raw_ptr;
 
-static_assert(models::regular<raw_ptr<int>>());
-static_assert(models::totally_ordered<raw_ptr<int>>());
+static_assert(__stl2::models::Regular<raw_ptr<int>>);
+static_assert(__stl2::models::TotallyOrdered<raw_ptr<int>>);
 
 struct A { int i; };
 struct B : A { int j; };

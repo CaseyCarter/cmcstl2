@@ -4,13 +4,12 @@
 #include <sstream>
 #include "../simple_test.hpp"
 
-using namespace stl2;
-namespace models = stl2::ext::models;
+using namespace __stl2;
 
 int main() {
   using I = istreambuf_iterator<char>;
-  static_assert(models::input_iterator<I>());
-  static_assert(models::sentinel<default_sentinel, I>());
+  static_assert(models::InputIterator<I>);
+  static_assert(models::Sentinel<default_sentinel, I>);
   using C = CommonType<I, default_sentinel>;
   static_assert(is_same<C, I>());
 

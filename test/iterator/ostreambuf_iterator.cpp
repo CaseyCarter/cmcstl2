@@ -4,8 +4,7 @@
 #include <sstream>
 #include "../simple_test.hpp"
 
-using namespace stl2;
-namespace models = stl2::ext::models;
+using namespace __stl2;
 
 namespace {
   template <InputIterator I, Sentinel<I> S, WeakOutputIterator<ValueType<I>> O>
@@ -20,20 +19,20 @@ namespace {
   template <InputRange R, class I = IteratorType<R>, WeakOutputIterator<ValueType<I>> O>
   constexpr tagged_pair<tag::in(safe_iterator_t<R>), tag::out(O)>
   copy(R&& range, O out) {
-    return ::copy(stl2::begin(range), stl2::end(range), stl2::move(out));
+    return ::copy(__stl2::begin(range), __stl2::end(range), __stl2::move(out));
   }
 }
 
 int main() {
   using I = ostreambuf_iterator<char>;
-  static_assert(models::output_iterator<I, char>());
-  static_assert(models::sentinel<default_sentinel, I>());
+  static_assert(models::OutputIterator<I, char>);
+  static_assert(models::Sentinel<default_sentinel, I>);
   using C = CommonType<I, default_sentinel>;
   static_assert(is_same<C, I>());
 
   {
     static const char hw[] = "Hello, world!";
-    auto hw_range = ext::make_range(stl2::begin(hw), stl2::end(hw) - 1);
+    auto hw_range = ext::make_range(__stl2::begin(hw), __stl2::end(hw) - 1);
     std::ostringstream os;
     auto r = ::copy(hw_range, I{os});
     CHECK(r.out() != default_sentinel{});

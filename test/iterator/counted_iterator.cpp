@@ -18,14 +18,13 @@
 
 int main()
 {
-    using namespace stl2;
-    namespace models = stl2::ext::models;
+    using namespace __stl2;
 
     {
         int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         auto i = make_counted_iterator(forward_iterator<int*>{rgi}, size(rgi));
         static_assert(is_same<decltype(i),counted_iterator<forward_iterator<int*>>>());
-        static_assert(models::sized_iterator_range<decltype(i), default_sentinel>());
+        static_assert(models::SizedIteratorRange<decltype(i), default_sentinel>);
         CHECK(static_cast<std::size_t>(default_sentinel{} - i) == size(rgi));
         CHECK(&*i.base() == begin(rgi));
         CHECK(std::size_t(i.count()) == size(rgi));
@@ -51,7 +50,7 @@ int main()
     {
         counted_iterator<char*> c{nullptr, 0};
         counted_iterator<char const*> d{c};
-        static_assert(!models::assignable<decltype(c)&, decltype(d)>());
+        static_assert(!models::Assignable<decltype(c)&, decltype(d)>);
         CHECK((c - c) == 0);
         CHECK((d - d) == 0);
         CHECK((c - d) == 0);

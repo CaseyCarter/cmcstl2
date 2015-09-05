@@ -1,223 +1,284 @@
 #ifndef STL2_DETAIL_CONCEPTS_OBJECT_HPP
 #define STL2_DETAIL_CONCEPTS_OBJECT_HPP
 
-#include <type_traits>
-#include <utility>
-
-#include <meta/meta.hpp>
-
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
-#include <stl2/type_traits.hpp>
 
 ////////////////////////////////////////
 // Object Concepts [concepts.lib.object]
 //
-namespace stl2 { inline namespace v1 {
+STL2_OPEN_NAMESPACE {
+  ///////////////////////////////////////////////////////////////////////////
+  // Destructible [concepts.lib.object.destructible]
+  // Not to spec: is_object and accepting the parameters by reference are
+  //              necessary to prevent hard errors in the requires clause
+  //              with odd types.
+  template <class T>
+  concept bool Destructible() {
+    return _Is<T, is_object> &&
+      requires (T& t, const T& ct, T* const p) {
+        { t.~T() } noexcept;
+        STL2_EXACT_TYPE_CONSTRAINT(&t, T*);
+        STL2_EXACT_TYPE_CONSTRAINT(&ct, const T*);
+        delete p;
+        delete[] p;
+      };
+  }
 
-// 20150712: not to spec. is_object and accepting the
-// parameters by reference are necessary to prevent hard
-// errors in the requires clause with odd types.
-template <class T>
-concept bool Destructible() {
-  return _Is<T, std::is_object> &&
-    requires (T& t, const T& ct, T* const p) {
-      { t.~T() } noexcept;
-      STL2_EXACT_TYPE_CONSTRAINT(&t, T*); // not required to be equality preserving
-      STL2_EXACT_TYPE_CONSTRAINT(&ct, const T*); // not required to be equality preserving
-      delete p;
-      delete[] p;
-    };
-}
+  namespace models {
+    template <class>
+    constexpr bool Destructible = false;
+    __stl2::Destructible{T}
+    constexpr bool Destructible<T> = true;
 
-namespace ext {
-template <class T, class...Args>
-concept bool ConstructibleObject =
-  Destructible<T>() && requires (Args&&...args) {
-    T{ (Args&&)args... }; // not required to be equality preserving
-    new T{ (Args&&)args... }; // not required to be equality preserving
-  };
+    // Destructible<Ts>() && ...
+    template <class...Ts>
+    constexpr bool AllDestructible = false;
+    template <__stl2::Destructible...Ts>
+    constexpr bool AllDestructible<Ts...> = true;
+  }
 
-// 20150718: Not to spec: spec is broken.
-// FIXME: Correct wording.
-template <class T, class...Args>
-concept bool BindableReference =
-  _Is<T, std::is_reference> &&
-  // requires (Args&&...args) { T{ (Args&&)args... }; };
-  // requires (Args&&...args) { T( (Args&&)args... ); };
-  _Is<T, std::is_constructible, Args...>;
-}
+  ///////////////////////////////////////////////////////////////////////////
+  // Constructible [concepts.lib.object.constructible]
+  // Extension: ConstructibleObject and BindableReference are user-visible.
+  //
+  namespace ext {
+    template <class T, class...Args>
+    concept bool ConstructibleObject =
+      Destructible<T>() && requires (Args&&...args) {
+        T{ (Args&&)args... };
+        new T{ (Args&&)args... };
+      };
 
-namespace detail {
-template <class T, class...Args>
-constexpr bool constructible_object_or_ref = false;
+    // 20150718: Not to spec: spec is broken.
+    // FIXME: Correct wording.
+    template <class T, class...Args>
+    concept bool BindableReference =
+      _Is<T, is_reference> &&
+      // requires (Args&&...args) { T{ (Args&&)args... }; };
+      // requires (Args&&...args) { T( (Args&&)args... ); };
+      _Is<T, is_constructible, Args...>;
+  }
 
-ext::ConstructibleObject{T, ...Args}
-constexpr bool constructible_object_or_ref<T, Args...> = true;
+  namespace models {
+    template <class T, class...Args>
+    constexpr bool ConstructibleObject = false;
+    __stl2::ext::ConstructibleObject{T, ...Args}
+    constexpr bool ConstructibleObject<T, Args...> = true;
 
-ext::BindableReference{T, ...Args}
-constexpr bool constructible_object_or_ref<T, Args...> = true;
-}
+    template <class T, class...Args>
+    constexpr bool BindableReference = false;
+    __stl2::ext::BindableReference{T, ...Args}
+    constexpr bool BindableReference<T, Args...> = true;
 
-template <class T, class...Args>
-concept bool Constructible() {
-  return detail::constructible_object_or_ref<T, Args...>;
-}
+    template <class T, class...Args>
+    constexpr bool Constructible =
+      ConstructibleObject<T, Args...> ||
+      BindableReference<T, Args...>;
+  }
 
-// There's implementation variance around DR1518, this may not
-// enforce the requirement that the default constructor be
-// non-explicit.
-template <class T>
-concept bool DefaultConstructible() {
-  return Constructible<T>() &&
-    requires (const std::size_t n) {
-      new T[n]{}; // not required to be equality preserving
-    };
-}
+  template <class T, class...Args>
+  concept bool Constructible() {
+    return models::Constructible<T, Args...>;
+  }
 
-template <class T>
-concept bool MoveConstructible() {
-  return Constructible<T, std::remove_cv_t<T>&&>() &&
-    ext::ImplicitlyConvertibleTo<std::remove_cv_t<T>&&, T>();
-}
+  ///////////////////////////////////////////////////////////////////////////
+  // DefaultConstructible [concepts.lib.object.defaultconstructible]
+  // Note: Due to implementation variance around DR1518, may not correctly
+  // enforce the requirement that the default constructor be non-explicit.
+  //
+  template <class T>
+  concept bool DefaultConstructible() {
+    return Constructible<T>() &&
+      requires (const std::size_t n) {
+        new T[n]{}; // not required to be equality preserving
+      };
+  }
 
-template <class T>
-concept bool CopyConstructible() {
-  return MoveConstructible<T>() &&
-    Constructible<T, const std::remove_cv_t<T>&>() &&
-    ext::ImplicitlyConvertibleTo<std::remove_cv_t<T>&, T>() &&
-    ext::ImplicitlyConvertibleTo<const std::remove_cv_t<T>&, T>() &&
-    ext::ImplicitlyConvertibleTo<const std::remove_cv_t<T>&&, T>();
-}
+  namespace models {
+    template <class>
+    constexpr bool DefaultConstructible = false;
+    __stl2::DefaultConstructible{T}
+    constexpr bool DefaultConstructible<T> = true;
+  }
 
-template <class T>
-concept bool Movable() {
-  return MoveConstructible<T>() &&
-    Assignable<T&, T&&>();
-}
+  ///////////////////////////////////////////////////////////////////////////
+  // MoveConstructible [concepts.lib.object.moveconstructible]
+  //
+  template <class T>
+  concept bool MoveConstructible() {
+    return Constructible<T, remove_cv_t<T>&&>() &&
+      ext::ImplicitlyConvertibleTo<remove_cv_t<T>&&, T>();
+  }
 
-template <class T>
-concept bool Copyable() {
-  return CopyConstructible<T>() &&
-    Movable<T>() &&
-    Assignable<T&, const T&>();
-}
+  namespace models {
+    template <class>
+    constexpr bool MoveConstructible = false;
+    __stl2::MoveConstructible{T}
+    constexpr bool MoveConstructible<T> = true;
 
-template <class T>
-concept bool Semiregular() {
-  return Copyable<T>() &&
-    DefaultConstructible<T>();
-}
+    // MoveConstructible<Ts>() && ...
+    template <class...Ts>
+    constexpr bool AllMoveConstructible = false;
+    template <__stl2::MoveConstructible...Ts>
+    constexpr bool AllMoveConstructible<Ts...> = true;
+  }
 
-template <class T>
-concept bool Regular() {
-  return Semiregular<T>() &&
-    EqualityComparable<T>();
-}
+  ///////////////////////////////////////////////////////////////////////////
+  // CopyConstructible [concepts.lib.object.copyconstructible]
+  //
+  template <class T>
+  concept bool CopyConstructible() {
+    return MoveConstructible<T>() &&
+      Constructible<T, const remove_cv_t<T>&>() &&
+      ext::ImplicitlyConvertibleTo<remove_cv_t<T>&, T>() &&
+      ext::ImplicitlyConvertibleTo<const remove_cv_t<T>&, T>() &&
+      ext::ImplicitlyConvertibleTo<const remove_cv_t<T>&&, T>();
+  }
 
-namespace ext {
-template <class T>
-concept bool TriviallyDestructible() {
-  return Destructible<T>() &&
-    _Is<T, is_trivially_destructible>;
-}
+  namespace models {
+    template <class>
+    constexpr bool CopyConstructible = false;
+    __stl2::CopyConstructible{T}
+    constexpr bool CopyConstructible<T> = true;
 
-template <class T, class...Args>
-concept bool TriviallyConstructible() {
-  return Constructible<T, Args...>() &&
-    _Is<T, is_trivially_constructible, Args...>;
-}
+    // CopyConstructible<Ts>() && ...
+    template <class...Ts>
+    constexpr bool AllCopyConstructible = false;
+    template <__stl2::CopyConstructible...Ts>
+    constexpr bool AllCopyConstructible<Ts...> = true;
+  }
 
-template <class T>
-concept bool TriviallyDefaultConstructible() {
-  return DefaultConstructible<T>() &&
-    _Is<T, is_trivially_default_constructible>;
-}
+  ///////////////////////////////////////////////////////////////////////////
+  // Movable [concepts.lib.object.movable]
+  //
+  template <class T>
+  concept bool Movable() {
+    return MoveConstructible<T>() &&
+      Assignable<T&, T&&>();
+  }
 
-template <class T>
-concept bool TriviallyMoveConstructible() {
-  return MoveConstructible<T>() &&
-    _Is<T, is_trivially_move_constructible>;
-}
+  namespace models {
+    template <class>
+    constexpr bool Movable = false;
+    __stl2::Movable{T}
+    constexpr bool Movable<T> = true;
 
-template <class T>
-concept bool TriviallyCopyConstructible() {
-  return CopyConstructible<T>() &&
-    TriviallyMoveConstructible<T>() &&
-    _Is<T, is_trivially_copy_constructible>;
-}
+    // Movable<Ts>() && ...
+    template <class...Ts>
+    constexpr bool AllMovable = false;
+    template <__stl2::Movable...Ts>
+    constexpr bool AllMovable<Ts...> = true;
+  }
 
-template <class T>
-concept bool TriviallyMovable() {
-  return Movable<T>() &&
-    TriviallyMoveConstructible<T>() &&
-    _Is<T, is_trivially_move_assignable>;
-}
+  ///////////////////////////////////////////////////////////////////////////
+  // Copyable [concepts.lib.object.copyable]
+  //
+  template <class T>
+  concept bool Copyable() {
+    return CopyConstructible<T>() &&
+      Movable<T>() &&
+      Assignable<T&, const T&>();
+  }
 
-template <class T>
-concept bool TriviallyCopyable() {
-  return Copyable<T>() &&
-    TriviallyMovable<T>() &&
-    TriviallyCopyConstructible<T>() &&
-    _Is<T, is_trivially_copy_assignable>;
-}
+  namespace models {
+    template <class>
+    constexpr bool Copyable = false;
+    __stl2::Copyable{T}
+    constexpr bool Copyable<T> = true;
 
-namespace models {
-template <class>
-constexpr bool destructible() { return false; }
-Destructible{T}
-constexpr bool destructible() { return true; }
+    // Copyable<Ts>() && ...
+    template <class...Ts>
+    constexpr bool AllCopyable = false;
+    template <__stl2::Copyable...Ts>
+    constexpr bool AllCopyable<Ts...> = true;
+  }
 
-template <class T, class...Args>
-constexpr bool constructible_object() { return false; }
-ConstructibleObject{T, ...Args}
-constexpr bool constructible_object() { return true; }
+  ///////////////////////////////////////////////////////////////////////////
+  // Semiregular [concepts.lib.object.semiregular]
+  //
+  template <class T>
+  concept bool Semiregular() {
+    return Copyable<T>() &&
+      DefaultConstructible<T>();
+  }
 
-template <class T, class...Args>
-constexpr bool bindable_reference() { return false; }
-BindableReference{T, ...Args}
-constexpr bool bindable_reference() { return true; }
+  namespace models {
+    template <class>
+    constexpr bool Semiregular = false;
+    __stl2::Semiregular{T}
+    constexpr bool Semiregular<T> = true;
+  }
 
-template <class, class...>
-constexpr bool constructible() { return false; }
-Constructible{T, ...Args}
-constexpr bool constructible() { return true; }
+  ///////////////////////////////////////////////////////////////////////////
+  // Regular [concepts.lib.object.regular]
+  //
+  template <class T>
+  concept bool Regular() {
+    return Semiregular<T>() &&
+      EqualityComparable<T>();
+  }
 
-template <class>
-constexpr bool default_constructible() { return false; }
-DefaultConstructible{T}
-constexpr bool default_constructible() { return true; }
+  namespace models {
+    template <class>
+    constexpr bool Regular = false;
+    __stl2::Regular{T}
+    constexpr bool Regular<T> = true;
+  }
 
-template <class>
-constexpr bool move_constructible() { return false; }
-MoveConstructible{T}
-constexpr bool move_constructible() { return true; }
+  namespace ext {
+    ///////////////////////////////////////////////////////////////////////////
+    // TriviallyFoo concepts
+    //
+    template <class T>
+    concept bool TriviallyDestructible() {
+      return Destructible<T>() &&
+        _Is<T, is_trivially_destructible>;
+    }
 
-template <class>
-constexpr bool copy_constructible() { return false; }
-CopyConstructible{T}
-constexpr bool copy_constructible() { return true; }
+    template <class T, class...Args>
+    concept bool TriviallyConstructible() {
+      return Constructible<T, Args...>() &&
+        _Is<T, is_trivially_constructible, Args...>;
+    }
 
-template <class>
-constexpr bool movable() { return false; }
-Movable{T}
-constexpr bool movable() { return true; }
+    template <class T>
+    concept bool TriviallyDefaultConstructible() {
+      return DefaultConstructible<T>() &&
+        _Is<T, is_trivially_default_constructible>;
+    }
 
-template <class>
-constexpr bool copyable() { return false; }
-Copyable{T}
-constexpr bool copyable() { return true; }
+    template <class T>
+    concept bool TriviallyMoveConstructible() {
+      return MoveConstructible<T>() &&
+        _Is<T, is_trivially_move_constructible>;
+    }
 
-template <class>
-constexpr bool semiregular() { return false; }
-Semiregular{T}
-constexpr bool semiregular() { return true; }
+    template <class T>
+    concept bool TriviallyCopyConstructible() {
+      return CopyConstructible<T>() &&
+        TriviallyMoveConstructible<T>() &&
+        _Is<T, is_trivially_copy_constructible>;
+    }
 
-template <class>
-constexpr bool regular() { return false; }
-Regular{T}
-constexpr bool regular() { return true; }
-}}}} // namespace stl2::v1::ext::models
+    template <class T>
+    concept bool TriviallyMovable() {
+      return Movable<T>() &&
+        TriviallyMoveConstructible<T>() &&
+        _Is<T, is_trivially_move_assignable>;
+    }
+
+    template <class T>
+    concept bool TriviallyCopyable() {
+      return Copyable<T>() &&
+        TriviallyMovable<T>() &&
+        TriviallyCopyConstructible<T>() &&
+        _Is<T, is_trivially_copy_assignable>;
+    }
+  }
+} STL2_CLOSE_NAMESPACE
 
 #endif

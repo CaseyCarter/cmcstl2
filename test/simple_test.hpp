@@ -14,7 +14,14 @@
 #include <utility>
 #include <iostream>
 #include <typeinfo>
+
+#if VALIDATE_RANGES
+#include <range/v3/begin_end.hpp>
+namespace NS = ::ranges;
+#else
 #include <stl2/iterator.hpp>
+namespace NS = ::__stl2;
+#endif
 
 namespace test_impl
 {
@@ -167,10 +174,10 @@ inline int test_result()
 template<typename Rng, typename Rng2>
 void check_equal_(Rng && actual, Rng2&& expected)
 {
-    auto begin0 = stl2::begin(actual);
-    auto end0 = stl2::end(actual);
-    auto begin1 = stl2::begin(expected);
-    auto end1 = stl2::end(expected);
+    auto begin0 = NS::begin(actual);
+    auto end0 = NS::end(actual);
+    auto begin1 = NS::begin(expected);
+    auto end1 = NS::end(expected);
     for(; begin0 != end0 && begin1 != end1; ++begin0, ++begin1)
         CHECK(*begin0 == *begin1);
     CHECK(begin0 == end0);

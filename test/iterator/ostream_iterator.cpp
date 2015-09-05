@@ -4,8 +4,7 @@
 #include <sstream>
 #include "../simple_test.hpp"
 
-using namespace stl2;
-namespace models = stl2::ext::models;
+using namespace __stl2;
 
 namespace {
   template <InputIterator I, Sentinel<I> S, WeakOutputIterator<ValueType<I>> O>
@@ -20,12 +19,12 @@ namespace {
 
 int main() {
   using I = ostream_iterator<int>;
-  static_assert(models::weak_output_iterator<I, int>());
+  static_assert(models::WeakOutputIterator<I, int>);
   std::stringstream ss;
   
   static constexpr int some_ints[] = {0, 7, 1, 6, 2, 5, 3, 4};
 
-  ::copy(stl2::begin(some_ints), stl2::end(some_ints), I{ss, " "});
+  ::copy(__stl2::begin(some_ints), __stl2::end(some_ints), I{ss, " "});
   CHECK(ss.str() == "0 7 1 6 2 5 3 4 ");
   ::check_equal(
     ext::make_range(istream_iterator<int>{ss}, default_sentinel{}),

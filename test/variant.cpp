@@ -5,21 +5,18 @@
 #include <stl2/variant.hpp>
 #include "simple_test.hpp"
 
-using namespace stl2;
-namespace models = stl2::ext::models;
+using namespace __stl2;
 
 namespace {
-template <class> class show_type;
-
 // variants of trivially {destructible,move constructible,copy constructible} types
 // are trivially {destructible,move constructible,copy constructible}.
-using VDI = stl2::variant<char, short, int, long, long long,
-                          float, double>;
-static_assert(stl2::is_trivially_destructible<VDI>());
-static_assert(stl2::is_trivially_move_constructible<VDI>());
-static_assert(stl2::is_trivially_copy_constructible<VDI>());
-static_assert(stl2::is_trivially_move_assignable<VDI>());
-static_assert(stl2::is_trivially_copy_assignable<VDI>());
+using VDI = variant<char, short, int, long, long long,
+                    float, double>;
+static_assert(is_trivially_destructible<VDI>());
+static_assert(is_trivially_move_constructible<VDI>());
+static_assert(is_trivially_copy_constructible<VDI>());
+static_assert(is_trivially_move_assignable<VDI>());
+static_assert(is_trivially_copy_assignable<VDI>());
 
 struct nontrivial {
   struct counts {
@@ -187,24 +184,24 @@ void test_emplaced_index() {
     }
     {
       // V v{emplaced_index<1>, ci}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_index_t<1>, const int&>());
+      static_assert(!models::Constructible<V, emplaced_index_t<1>, const int&>);
     }
     {
       // V v{emplaced_index<1>, move(i)}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_index_t<1>, int&&>());
+      static_assert(!models::Constructible<V, emplaced_index_t<1>, int&&>);
     }
     {
       // V v{emplaced_index<1>, move(ci)}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_index_t<1>, const int&&>());
+      static_assert(!models::Constructible<V, emplaced_index_t<1>, const int&&>);
     }
 
     {
       // V v{emplaced_index<2>, i}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_index_t<2>, int&>());
+      static_assert(!models::Constructible<V, emplaced_index_t<2>, int&>);
     }
     {
       // V v{emplaced_index<2>, ci}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_index_t<2>, const int&>());
+      static_assert(!models::Constructible<V, emplaced_index_t<2>, const int&>);
     }
     {
       V v{emplaced_index<2>, move(i)};
@@ -212,7 +209,7 @@ void test_emplaced_index() {
     }
     {
       // V v{emplaced_index<2>, move(ci)}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_index_t<2>, const int&&>());
+      static_assert(!models::Constructible<V, emplaced_index_t<2>, const int&&>);
     }
 
     {
@@ -251,11 +248,11 @@ void test_emplaced_index() {
 
     {
       // V v{emplaced_index<5>, i}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_index_t<5>, int&>());
+      static_assert(!models::Constructible<V, emplaced_index_t<5>, int&>);
     }
     {
       // V v{emplaced_index<5>, ci}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_index_t<5>, const int&>());
+      static_assert(!models::Constructible<V, emplaced_index_t<5>, const int&>);
     }
     {
       V v{emplaced_index<5>, move(i)};
@@ -324,24 +321,24 @@ void test_emplaced_type() {
     }
     {
       // V v{emplaced_type<int&>, ci}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_type_t<int&>, const int&>());
+      static_assert(!models::Constructible<V, emplaced_type_t<int&>, const int&>);
     }
     {
       // V v{emplaced_type<int&>, move(i)}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_type_t<int&>, int&&>());
+      static_assert(!models::Constructible<V, emplaced_type_t<int&>, int&&>);
     }
     {
       // V v{emplaced_type<int&>, move(ci)}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_type_t<int&>, const int&&>());
+      static_assert(!models::Constructible<V, emplaced_type_t<int&>, const int&&>);
     }
 
     {
       // V v{emplaced_type<int&&>, i}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_type_t<int&&>, int&>());
+      static_assert(!models::Constructible<V, emplaced_type_t<int&&>, int&>);
     }
     {
       // V v{emplaced_type<int&&>, ci}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_type_t<int&&>, const int&>());
+      static_assert(!models::Constructible<V, emplaced_type_t<int&&>, const int&>);
     }
     {
       V v{emplaced_type<int&&>, move(i)};
@@ -349,7 +346,7 @@ void test_emplaced_type() {
     }
     {
       // V v{emplaced_type<int&&>, move(ci)}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_type_t<int&&>, const int&&>());
+      static_assert(!models::Constructible<V, emplaced_type_t<int&&>, const int&&>);
     }
 
     {
@@ -388,11 +385,11 @@ void test_emplaced_type() {
 
     {
       // V v{emplaced_type<const int&&>, i}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_type_t<const int&&>, int&>());
+      static_assert(!models::Constructible<V, emplaced_type_t<const int&&>, int&>);
     }
     {
       // V v{emplaced_type<const int&&>, ci}; // ill-formed
-      static_assert(!models::constructible<V, emplaced_type_t<const int&&>, const int&>());
+      static_assert(!models::Constructible<V, emplaced_type_t<const int&&>, const int&>);
     }
     {
       V v{emplaced_type<const int&&>, move(i)};
@@ -434,24 +431,24 @@ void test_emplaced_type() {
   {
     using V = variant<int, int>;
     // V v1{emplaced_type<int>}; // ill-formed: ambiguous
-    static_assert(!models::constructible<V, emplaced_type_t<int>>());
+    static_assert(!models::Constructible<V, emplaced_type_t<int>>);
     // V v2{emplaced_type<int>, 42}; // ill-formed: ambiguous
-    static_assert(!models::constructible<V, emplaced_type_t<int>, int>());
+    static_assert(!models::Constructible<V, emplaced_type_t<int>, int>);
   }
 }
 
 void test_construction() {
-  static_assert(models::move_constructible<variant<int>>());
-  static_assert(models::move_constructible<variant<const int>>());
-  static_assert(models::copy_constructible<variant<int>>());
-  static_assert(models::copy_constructible<variant<const int>>());
+  static_assert(models::MoveConstructible<variant<int>>);
+  static_assert(models::MoveConstructible<variant<const int>>);
+  static_assert(models::CopyConstructible<variant<int>>);
+  static_assert(models::CopyConstructible<variant<const int>>);
   static_assert(is_trivially_copy_constructible<variant<int>>());
   static_assert(is_trivially_copy_constructible<variant<const int>>());
 
-  static_assert(models::movable<variant<int>>());
-  static_assert(!models::movable<variant<const int>>());
-  static_assert(models::copyable<variant<int>>());
-  static_assert(!models::copyable<variant<const int>>());
+  static_assert(models::Movable<variant<int>>);
+  static_assert(!models::Movable<variant<const int>>);
+  static_assert(models::Copyable<variant<int>>);
+  static_assert(!models::Copyable<variant<const int>>);
 
   {
     nontrivial::zero();
@@ -478,7 +475,7 @@ void test_construction() {
   }
   {
     //variant<int, int> v{42}; // ill-formed: ambiguous.
-    static_assert(!models::constructible<variant<int,int>, int&&>());
+    static_assert(!models::Constructible<variant<int,int>, int&&>);
     variant<int, int> v{emplaced_index<1>, 42};
     CHECK(v.index() == 1u);
     //get<int>(v); // ill-formed: ambiguous.
@@ -507,17 +504,17 @@ void test_construction() {
       CHECK(holds_alternative<int&&>(virr));
     }
     // variant<int, int&> v1{i}; // ill-formed: ambiguous
-    static_assert(!models::constructible<variant<int,int&>, int&>());
+    static_assert(!models::Constructible<variant<int,int&>, int&>);
     variant<int, int&> v2{move(i)};
     // variant<int, int&&> v3{move(i)}; // ill-formed: ambiguous
-    static_assert(!models::constructible<variant<int,int&&>, int&&>());
+    static_assert(!models::Constructible<variant<int,int&&>, int&&>);
     variant<int, int&&> v4{i};
   }
   {
     moveonly m{};
     auto const& cm = m;
     // variant<moveonly, const moveonly&> v1{move(m)}; // ill-formed: ambiguous
-    static_assert(!models::constructible<variant<moveonly,const moveonly&>, moveonly&&>());
+    static_assert(!models::Constructible<variant<moveonly,const moveonly&>, moveonly&&>);
     variant<moveonly, moveonly&> v2{m};
     CHECK(holds_alternative<moveonly&>(v2));
     variant<moveonly, const moveonly&> v3{m};
@@ -799,16 +796,16 @@ void test_void() {
     V{emplaced_index<0>};
     V{emplaced_index<2>};
     // V{emplaced_type<void>}; // ill-formed
-    static_assert(!models::constructible<V, emplaced_type_t<void>>());
+    static_assert(!models::Constructible<V, emplaced_type_t<void>>);
     // V{emplaced_index<1>}; // ill-formed
-    static_assert(!models::constructible<V, emplaced_index_t<1>>());
+    static_assert(!models::Constructible<V, emplaced_index_t<1>>);
 
     static_assert(sizeof(variant<char>) == sizeof(variant<char, void>));
   }
 }
 
 struct print_fn {
-  stl2::reference_wrapper<std::ostream> os_;
+  reference_wrapper<std::ostream> os_;
 
   std::ostream& os() const noexcept {
     return os_.get();
@@ -874,48 +871,48 @@ void test_visit() {
   {
     using V = variant<int, unsigned, long, unsigned long,
       long long, unsigned long long>;
-    auto plus = stl2::plus<>{};
-    static_assert(visit(plus, V{42}, V{42}) == 84ull);
-    static_assert(visit(plus, V{42}, V{42u}) == 84ull);
-    static_assert(visit(plus, V{42}, V{42l}) == 84ull);
-    static_assert(visit(plus, V{42}, V{42ul}) == 84ull);
-    static_assert(visit(plus, V{42}, V{42ll}) == 84ull);
-    static_assert(visit(plus, V{42}, V{42ull}) == 84ull);
+    auto f = plus<>{};
+    static_assert(visit(f, V{42}, V{42}) == 84ull);
+    static_assert(visit(f, V{42}, V{42u}) == 84ull);
+    static_assert(visit(f, V{42}, V{42l}) == 84ull);
+    static_assert(visit(f, V{42}, V{42ul}) == 84ull);
+    static_assert(visit(f, V{42}, V{42ll}) == 84ull);
+    static_assert(visit(f, V{42}, V{42ull}) == 84ull);
 
-    static_assert(visit(plus, V{42u}, V{42}) == 84ull);
-    static_assert(visit(plus, V{42u}, V{42u}) == 84ull);
-    static_assert(visit(plus, V{42u}, V{42l}) == 84ull);
-    static_assert(visit(plus, V{42u}, V{42ul}) == 84ull);
-    static_assert(visit(plus, V{42u}, V{42ll}) == 84ull);
-    static_assert(visit(plus, V{42u}, V{42ull}) == 84ull);
+    static_assert(visit(f, V{42u}, V{42}) == 84ull);
+    static_assert(visit(f, V{42u}, V{42u}) == 84ull);
+    static_assert(visit(f, V{42u}, V{42l}) == 84ull);
+    static_assert(visit(f, V{42u}, V{42ul}) == 84ull);
+    static_assert(visit(f, V{42u}, V{42ll}) == 84ull);
+    static_assert(visit(f, V{42u}, V{42ull}) == 84ull);
 
-    static_assert(visit(plus, V{42l}, V{42}) == 84ull);
-    static_assert(visit(plus, V{42l}, V{42u}) == 84ull);
-    static_assert(visit(plus, V{42l}, V{42l}) == 84ull);
-    static_assert(visit(plus, V{42l}, V{42ul}) == 84ull);
-    static_assert(visit(plus, V{42l}, V{42ll}) == 84ull);
-    static_assert(visit(plus, V{42l}, V{42ull}) == 84ull);
+    static_assert(visit(f, V{42l}, V{42}) == 84ull);
+    static_assert(visit(f, V{42l}, V{42u}) == 84ull);
+    static_assert(visit(f, V{42l}, V{42l}) == 84ull);
+    static_assert(visit(f, V{42l}, V{42ul}) == 84ull);
+    static_assert(visit(f, V{42l}, V{42ll}) == 84ull);
+    static_assert(visit(f, V{42l}, V{42ull}) == 84ull);
 
-    static_assert(visit(plus, V{42ul}, V{42}) == 84ull);
-    static_assert(visit(plus, V{42ul}, V{42u}) == 84ull);
-    static_assert(visit(plus, V{42ul}, V{42l}) == 84ull);
-    static_assert(visit(plus, V{42ul}, V{42ul}) == 84ull);
-    static_assert(visit(plus, V{42ul}, V{42ll}) == 84ull);
-    static_assert(visit(plus, V{42ul}, V{42ull}) == 84ull);
+    static_assert(visit(f, V{42ul}, V{42}) == 84ull);
+    static_assert(visit(f, V{42ul}, V{42u}) == 84ull);
+    static_assert(visit(f, V{42ul}, V{42l}) == 84ull);
+    static_assert(visit(f, V{42ul}, V{42ul}) == 84ull);
+    static_assert(visit(f, V{42ul}, V{42ll}) == 84ull);
+    static_assert(visit(f, V{42ul}, V{42ull}) == 84ull);
 
-    static_assert(visit(plus, V{42ll}, V{42}) == 84ull);
-    static_assert(visit(plus, V{42ll}, V{42u}) == 84ull);
-    static_assert(visit(plus, V{42ll}, V{42l}) == 84ull);
-    static_assert(visit(plus, V{42ll}, V{42ul}) == 84ull);
-    static_assert(visit(plus, V{42ll}, V{42ll}) == 84ull);
-    static_assert(visit(plus, V{42ll}, V{42ull}) == 84ull);
+    static_assert(visit(f, V{42ll}, V{42}) == 84ull);
+    static_assert(visit(f, V{42ll}, V{42u}) == 84ull);
+    static_assert(visit(f, V{42ll}, V{42l}) == 84ull);
+    static_assert(visit(f, V{42ll}, V{42ul}) == 84ull);
+    static_assert(visit(f, V{42ll}, V{42ll}) == 84ull);
+    static_assert(visit(f, V{42ll}, V{42ull}) == 84ull);
 
-    static_assert(visit(plus, V{42ull}, V{42}) == 84ull);
-    static_assert(visit(plus, V{42ull}, V{42u}) == 84ull);
-    static_assert(visit(plus, V{42ull}, V{42l}) == 84ull);
-    static_assert(visit(plus, V{42ull}, V{42ul}) == 84ull);
-    static_assert(visit(plus, V{42ull}, V{42ll}) == 84ull);
-    static_assert(visit(plus, V{42ull}, V{42ull}) == 84ull);
+    static_assert(visit(f, V{42ull}, V{42}) == 84ull);
+    static_assert(visit(f, V{42ull}, V{42u}) == 84ull);
+    static_assert(visit(f, V{42ull}, V{42l}) == 84ull);
+    static_assert(visit(f, V{42ull}, V{42ul}) == 84ull);
+    static_assert(visit(f, V{42ull}, V{42ll}) == 84ull);
+    static_assert(visit(f, V{42ull}, V{42ull}) == 84ull);
   }
 }
 
@@ -936,49 +933,49 @@ void test_pointer_get() {
   using V = variant<char, int, double>;
   {
     V v{'c'};
-    char* p = stl2::get<0>(&v);
-    CHECK(p == stl2::get<char>(&v));
+    char* p = __stl2::get<0>(&v);
+    CHECK(p == __stl2::get<char>(&v));
     CHECK(p);
     if (p) { CHECK(*p == 'c'); }
-    CHECK(!stl2::get<1>(&v));
-    CHECK(!stl2::get<int>(&v));
-    CHECK(!stl2::get<2>(&v));
-    CHECK(!stl2::get<double>(&v));
+    CHECK(!__stl2::get<1>(&v));
+    CHECK(!__stl2::get<int>(&v));
+    CHECK(!__stl2::get<2>(&v));
+    CHECK(!__stl2::get<double>(&v));
 
     auto const& cv = v;
-    auto cp = stl2::get<0>(&cv);
+    auto cp = __stl2::get<0>(&cv);
     CHECK(is_same<decltype(cp), const char*>());
     CHECK(p == cp);
   }
   {
     V v{42};
-    CHECK(!stl2::get<0>(&v));
-    CHECK(!stl2::get<char>(&v));
-    int* p = stl2::get<1>(&v);
+    CHECK(!__stl2::get<0>(&v));
+    CHECK(!__stl2::get<char>(&v));
+    int* p = __stl2::get<1>(&v);
     CHECK(p);
     if (p) { CHECK(*p == 42); }
-    CHECK(p == stl2::get<int>(&v));
-    CHECK(!stl2::get<2>(&v));
-    CHECK(!stl2::get<double>(&v));
+    CHECK(p == __stl2::get<int>(&v));
+    CHECK(!__stl2::get<2>(&v));
+    CHECK(!__stl2::get<double>(&v));
 
     auto const& cv = v;
-    auto cp = stl2::get<1>(&cv);
+    auto cp = __stl2::get<1>(&cv);
     CHECK(is_same<decltype(cp), const int*>());
     CHECK(p == cp);
   }
   {
     V v{3.14};
-    CHECK(!stl2::get<0>(&v));
-    CHECK(!stl2::get<char>(&v));
-    CHECK(!stl2::get<1>(&v));
-    CHECK(!stl2::get<int>(&v));
-    double* p = stl2::get<2>(&v);
+    CHECK(!__stl2::get<0>(&v));
+    CHECK(!__stl2::get<char>(&v));
+    CHECK(!__stl2::get<1>(&v));
+    CHECK(!__stl2::get<int>(&v));
+    double* p = __stl2::get<2>(&v);
     CHECK(p);
     if (p) { CHECK(*p == 3.14); }
-    CHECK(p == stl2::get<double>(&v));
+    CHECK(p == __stl2::get<double>(&v));
 
     auto const& cv = v;
-    auto cp = stl2::get<2>(&cv);
+    auto cp = __stl2::get<2>(&cv);
     CHECK(is_same<decltype(cp), const double*>());
     CHECK(p == cp);
   }
@@ -1362,42 +1359,42 @@ void test_conversion_assign() {
   {
     using V = variant<int, int>;
     // V v; v = 42; // ill-formed: ambiguous.
-    static_assert(!models::assignable<V&, int>());
-    static_assert(!models::assignable<V&, int&>());
-    static_assert(!models::assignable<V&, int&&>());
-    static_assert(!models::assignable<V&, const int&>());
-    static_assert(!models::assignable<V&, const int&&>());
+    static_assert(!models::Assignable<V&, int>);
+    static_assert(!models::Assignable<V&, int&>);
+    static_assert(!models::Assignable<V&, int&&>);
+    static_assert(!models::Assignable<V&, const int&>);
+    static_assert(!models::Assignable<V&, const int&&>);
   }
   {
     using V = variant<int&>;
     // int i = 42; V v{i}; int j = 13; v = j; // ill-formed
-    static_assert(!models::assignable<V&, int&>());
+    static_assert(!models::Assignable<V&, int&>);
   }
 }
 
 void test_swap() {
   {
     using V = variant<int, float>;
-    static_assert(models::swappable<V&>());
+    static_assert(models::Swappable<V&>);
     V v1{42};
     V v2{3.14f};
-    stl2::swap(v1, v2);
+    __stl2::swap(v1, v2);
     CHECK(holds_alternative<float>(v1));
     CHECK(get<float>(v1) == 3.14f);
     CHECK(holds_alternative<int>(v2));
     CHECK(get<int>(v2) == 42);
   }
 
-  static_assert(!models::swappable<variant<const int>&>());
+  static_assert(!models::Swappable<variant<const int>&>);
 
   {
     using V = variant<int&>;
-    static_assert(models::swappable<V&>());
+    static_assert(models::Swappable<V&>);
     int i = 42;
     int j = 13;
     V v1{i};
     V v2{j};
-    stl2::swap(v1, v2);
+    __stl2::swap(v1, v2);
     CHECK(&get<0>(v1) == &j);
     CHECK(&get<0>(v2) == &i);
   }
@@ -1407,11 +1404,11 @@ void test_swap() {
     V v1{emplaced_type<nontrivial>};
     V v2{v1};
     nontrivial::zero();
-    stl2::swap(v1, v2);
+    __stl2::swap(v1, v2);
     CHECK(nontrivial::count.swap == 1u);
     v1 = 42;
     nontrivial::zero();
-    stl2::swap(v1, v2);
+    __stl2::swap(v1, v2);
     CHECK(holds_alternative<nontrivial>(v1));
     CHECK(holds_alternative<int>(v2));
     CHECK(get<int>(v2) == 42);
@@ -1422,25 +1419,25 @@ void test_swap() {
 
 void test_comparisons() {
   {
-    static_assert(models::equality_comparable<variant<int, double>>());
-    static_assert(models::totally_ordered<variant<int, double>>());
+    static_assert(models::EqualityComparable<variant<int, double>>);
+    static_assert(models::TotallyOrdered<variant<int, double>>);
 
-    static_assert(models::equality_comparable<variant<int, void, double>>());
-    static_assert(models::totally_ordered<variant<int, void, double>>());
+    static_assert(models::EqualityComparable<variant<int, void, double>>);
+    static_assert(models::TotallyOrdered<variant<int, void, double>>);
 
     struct bar {
       bool operator==(const bar&) const;
       bool operator!=(const bar&) const;
     };
-    static_assert(models::equality_comparable<variant<int, bar>>());
-    static_assert(!models::totally_ordered<variant<int, bar>>());
+    static_assert(models::EqualityComparable<variant<int, bar>>);
+    static_assert(!models::TotallyOrdered<variant<int, bar>>);
 
     struct foo {};
-    static_assert(!models::equality_comparable<variant<int, foo>>());
-    static_assert(!models::totally_ordered<variant<int, foo>>());
+    static_assert(!models::EqualityComparable<variant<int, foo>>);
+    static_assert(!models::TotallyOrdered<variant<int, foo>>);
 
-    static_assert(models::equality_comparable<variant<int&, int&&>>());
-    static_assert(models::totally_ordered<variant<int&, int&&>>());
+    static_assert(models::EqualityComparable<variant<int&, int&&>>);
+    static_assert(models::TotallyOrdered<variant<int&, int&&>>);
   }
 
   {
@@ -1471,7 +1468,7 @@ void test_comparisons() {
   }
 
   {
-    static_assert(!models::equality_comparable<variant<int>, variant<long>>());
+    static_assert(!models::EqualityComparable<variant<int>, variant<long>>);
   }
 }
 
@@ -1513,17 +1510,17 @@ int main() {
 
   {
     // variant<>{}; // ill-formed
-    static_assert(!models::default_constructible<variant<>>());
-    static_assert(!models::default_constructible<variant<int&>>());
-    static_assert(models::move_constructible<variant<int, double, nontrivial>>());
-    static_assert(models::move_constructible<variant<int, double, moveonly>>());
+    static_assert(!models::DefaultConstructible<variant<>>);
+    static_assert(!models::DefaultConstructible<variant<int&>>);
+    static_assert(models::MoveConstructible<variant<int, double, nontrivial>>);
+    static_assert(models::MoveConstructible<variant<int, double, moveonly>>);
     // variant<nonmovable>{variant<nonmovable>{}}; // ill-formed
-    static_assert(!models::move_constructible<variant<nonmovable>>());
-    static_assert(models::copy_constructible<variant<int, double, nontrivial>>());
+    static_assert(!models::MoveConstructible<variant<nonmovable>>);
+    static_assert(models::CopyConstructible<variant<int, double, nontrivial>>);
     // { variant<moveonly> v; auto c = v; } // ill-formed
-    static_assert(!models::copy_constructible<variant<moveonly>>());
+    static_assert(!models::CopyConstructible<variant<moveonly>>);
     // { variant<nonmovable> v; auto c = v; } // ill-formed
-    static_assert(!models::copy_constructible<variant<nonmovable>>());
+    static_assert(!models::CopyConstructible<variant<nonmovable>>);
   }
 
   {
@@ -1586,8 +1583,8 @@ int main() {
     nontrivial::count.move = 0u;
     nontrivial::count.copy = 0u;
     variant<nontrivial, int, double> v;
-    auto move1 = stl2::move(v);
-    auto move2 = stl2::move(move1);
+    auto move1 = __stl2::move(v);
+    auto move2 = __stl2::move(move1);
     CHECK(nontrivial::count.move == 2u);
     CHECK(nontrivial::count.copy == 0u);
   }
@@ -1628,11 +1625,11 @@ void v_assign(VDI& target, VDI source) {
 }
 
 int test_get(variant<int, double> v) {
-  return stl2::get<0>(v);
+  return __stl2::get<0>(v);
 }
 
 int test_guarded_get(variant<int, double> v) {
-  return v.index() == 0 ? stl2::get<0>(v) : 0;
+  return v.index() == 0 ? __stl2::get<0>(v) : 0;
 }
 
 using VV = variant<char, void, short, int>;
@@ -1657,7 +1654,7 @@ using VVV = variant<int, void, const int, void, void, void, char, void, double, 
 void test_void_visit(VVV v) {
   auto fn = [](auto&& t) -> auto&& {
     f(t);
-    return stl2::forward<decltype(t)>(t);
+    return __stl2::forward<decltype(t)>(t);
   };
   visit(fn, v);
 }

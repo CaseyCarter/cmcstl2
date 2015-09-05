@@ -1,76 +1,109 @@
 #ifndef STL2_DETAIL_CONCEPTS_FUNDAMENTAL_HPP
 #define STL2_DETAIL_CONCEPTS_FUNDAMENTAL_HPP
 
-#include <type_traits>
-
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
-namespace stl2 { inline namespace v1 { namespace ext {
-template <class T>
-concept bool Scalar() {
-  return _Is<T, std::is_scalar> && Regular<T>();
-}
+STL2_OPEN_NAMESPACE {
+  ///////////////////////////////////////////////////////////////////////////
+  // Scalar [Extension]
+  // 
+  namespace ext {
+    template <class T>
+    concept bool Scalar() {
+      return _Is<T, is_scalar> && Regular<T>();
+    }
+  }
 
-template <class T>
-concept bool Arithmetic() {
-  return _Is<T, std::is_arithmetic> && Scalar<T>() && TotallyOrdered<T>();
-}
+  namespace models {
+    template <class>
+    constexpr bool Scalar = false;
+    __stl2::ext::Scalar{T}
+    constexpr bool Scalar<T> = true;
+  }
 
-template <class T>
-concept bool FloatingPoint() {
-  return _Is<T, std::is_floating_point> && Arithmetic<T>();
-}
-} // namespace ext
+  ///////////////////////////////////////////////////////////////////////////
+  // Arithmetic [Extension]
+  //
+  namespace ext {
+    template <class T>
+    concept bool Arithmetic() {
+      return _Is<T, is_arithmetic> && Scalar<T>() && TotallyOrdered<T>();
+    }
+  }
 
-template <class T>
-concept bool Integral() {
-  return _Is<T, std::is_integral> && ext::Arithmetic<T>();
-}
+  namespace models {
+    template <class>
+    constexpr bool Arithmetic = false;
+    __stl2::ext::Arithmetic{T}
+    constexpr bool Arithmetic<T> = true;
+  }
 
-// 20150712: Not to spec.
-template <class T>
-concept bool SignedIntegral() {
-  return Integral<T>() && (T(-1) < T(0));
-}
+  ///////////////////////////////////////////////////////////////////////////
+  // FloatingPoint [Extension]
+  //
+  namespace ext {
+    template <class T>
+    concept bool FloatingPoint() {
+      return _Is<T, is_floating_point> && Arithmetic<T>();
+    }
+  }
 
-template <class T>
-concept bool UnsignedIntegral() {
-  return Integral<T>() && !SignedIntegral<T>();
-}
+  namespace models {
+    template <class>
+    constexpr bool FloatingPoint = false;
+    __stl2::ext::FloatingPoint{T}
+    constexpr bool FloatingPoint<T> = true;
+  }
 
-namespace ext { namespace models {
-template <class>
-constexpr bool scalar() { return false; }
-Scalar{T}
-constexpr bool scalar() { return true; }
+  ///////////////////////////////////////////////////////////////////////////
+  // Integral [concepts.lib.corelang.integral]
+  //
+  template <class T>
+  concept bool Integral() {
+    return _Is<T, is_integral> && ext::Arithmetic<T>();
+  }
 
-template <class>
-constexpr bool arithmetic() { return false; }
-Arithmetic{T}
-constexpr bool arithmetic() { return true; }
+  namespace models {
+    template <class>
+    constexpr bool Integral = false;
+    __stl2::Integral{T}
+    constexpr bool Integral<T> = true;
+  }
 
-template <class>
-constexpr bool floating_point() { return false; }
-FloatingPoint{T}
-constexpr bool floating_point() { return true; }
+  ///////////////////////////////////////////////////////////////////////////
+  // SignedIntegral [concepts.lib.corelang.signedintegral]
+  // Not to spec.
+  //
+  template <class T>
+  concept bool SignedIntegral() {
+    return Integral<T>() && (T(-1) < T(0));
+  }
 
-template <class>
-constexpr bool integral() { return false; }
-Integral{T}
-constexpr bool integral() { return true; }
+  namespace models {
+    template <class>
+    constexpr bool SignedIntegral = false;
+    __stl2::SignedIntegral{T}
+    constexpr bool SignedIntegral<T> = true;
+  }
 
-template <class>
-constexpr bool signed_integral() { return false; }
-SignedIntegral{T}
-constexpr bool signed_integral() { return true; }
+  ///////////////////////////////////////////////////////////////////////////
+  // UnsignedIntegral [concepts.lib.corelang.unsignedintegral]
+  //
+  template <class T>
+  concept bool UnsignedIntegral() {
+    return Integral<T>() && !SignedIntegral<T>();
+  }
 
-template <class>
-constexpr bool unsigned_integral() { return false; }
-UnsignedIntegral{T}
-constexpr bool unsigned_integral() { return true; }
-}}}} // namespace stl2::v1::ext::models
+  namespace models {
+    template <class>
+    constexpr bool UnsignedIntegral = false;
+    __stl2::UnsignedIntegral{T}
+    constexpr bool UnsignedIntegral<T> = true;
+  }
+} STL2_CLOSE_NAMESPACE
 
 #endif

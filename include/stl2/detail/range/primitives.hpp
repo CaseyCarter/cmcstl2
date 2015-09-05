@@ -9,19 +9,17 @@
 ///////////////////////////////////////////////////////////////////////////
 // Range primitives [range.primitives]
 //
-namespace stl2 { inline namespace v1 {
+STL2_OPEN_NAMESPACE {
+  // distance
+  Range{R}
+  DifferenceType<R> distance(R&& r) {
+    return __stl2::distance(__stl2::begin(r), __stl2::end(r));
+  }
 
-// distance
-Range{R}
-DifferenceType<R> distance(R&& r) {
-  return stl2::distance(stl2::begin(r), stl2::end(r));
-}
-
-SizedRange{R}
-DifferenceType<R> distance(R&& r) {
-  return stl2::size(r);
-}
-
-}} // namespace stl2::v1
+  SizedRange{R}
+  DifferenceType<R> distance(R&& r) {
+    return __stl2::size(r);
+  }
+} STL2_CLOSE_NAMESPACE
 
 #endif
