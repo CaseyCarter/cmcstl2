@@ -31,15 +31,15 @@ using stl2::CommonType;
 
 #include "../simple_test.hpp"
 
-//CONCEPT_ASSERT(models::same<>());
+CONCEPT_ASSERT(models::same<>());
 CONCEPT_ASSERT(models::same<int, int>());
 CONCEPT_ASSERT(models::same<double, double>());
-//CONCEPT_ASSERT(models::same<double>());
+CONCEPT_ASSERT(models::same<double>());
 CONCEPT_ASSERT(!models::same<double, int>());
 CONCEPT_ASSERT(!models::same<int, double>());
 
-//CONCEPT_ASSERT(models::same<int, int, int, int>());
-//CONCEPT_ASSERT(!models::same<int, int, double, int>());
+CONCEPT_ASSERT(models::same<int, int, int, int>());
+CONCEPT_ASSERT(!models::same<int, int, double, int>());
 
 #if VALIDATE_STL2
 namespace publicly_derived_from_test {
@@ -97,31 +97,6 @@ struct C { C() = default; C(B) {} C(int) {} };
 CONCEPT_ASSERT(models::common<B,C>());
 //CONCEPT_ASSERT(models::common<int, C, B>());
 }
-
-// range-v3 does not have core::Constructible. (STL2 probably should not either) 
-#if VALIDATE_STL2
-namespace core_constructible_test {
-
-template <class T, class U>
-  requires stl2::ext::core::Constructible<T, U>()
-constexpr bool f() { return false; }
-
-template <class T, stl2::ConvertibleTo<T> >
-constexpr bool f() { return true; }
-
-CONCEPT_ASSERT(f<int,int>());
-CONCEPT_ASSERT(f<int,long>());
-
-struct A {
-  A(int);
-};
-struct B {
-  explicit B(int);
-};
-CONCEPT_ASSERT(f<A, int>());
-CONCEPT_ASSERT(!f<B, int>());
-}
-#endif
 
 namespace {
 struct tag {};
