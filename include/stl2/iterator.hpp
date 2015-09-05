@@ -133,8 +133,8 @@ public:
   range() = default;
 
   constexpr range(I i, S s)
-    noexcept(is_nothrow_default_constructible<I>::value &&
-             is_nothrow_default_constructible<S>::value) :
+    noexcept(is_nothrow_move_constructible<I>::value &&
+             is_nothrow_move_constructible<S>::value) :
     i_{stl2::move(i)}, s_{stl2::move(s)} {}
 
   constexpr auto begin() const
