@@ -93,8 +93,7 @@ void test() {
   static_assert(models::Same<decltype(__stl2::begin(__stl2::declval<const int(&)[2]>())), const int*>);
 
   // Ill-formed: array rvalue
-  // FIXME: namespace change broke this test.
-  CHECK(!can_begin<int(&&)[2]>);
+  static_assert(!can_begin<int(&&)[2]>);
 
   // Valid: only member begin
   static_assert(can_begin<A&>);

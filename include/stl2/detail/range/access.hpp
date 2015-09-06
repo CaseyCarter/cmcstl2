@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
       }
   
 #if STL2_TREAT_RVALUES_AS_CONST
-      template <class R>
+      template <_IsNot<is_array> R>
         requires requires (const R& r) { __begin::impl(r, ext::max_priority_tag); }
       constexpr auto operator()(const R&& r) const
         noexcept(noexcept(__begin::impl(r, ext::max_priority_tag))) {
@@ -131,7 +131,7 @@ STL2_OPEN_NAMESPACE {
       }
   
 #if STL2_TREAT_RVALUES_AS_CONST
-      template <class R>
+      template <_IsNot<is_array> R>
         requires requires (const R& r) { __end::impl(r, ext::max_priority_tag); }
       constexpr auto operator()(const R&& r) const
         noexcept(noexcept(__end::impl(r, ext::max_priority_tag))) {
