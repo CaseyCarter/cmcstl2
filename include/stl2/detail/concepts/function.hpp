@@ -7,7 +7,7 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
-////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 // Function Concepts [concepts.lib.function]
 //
 STL2_OPEN_NAMESPACE {
@@ -15,16 +15,10 @@ STL2_OPEN_NAMESPACE {
   // Function [concepts.lib.functions.function]
   //
   template <class F, class...Args>
-  using ResultType =
-    result_of_t<F(Args...)>;
-
-  template <class F, class...Args>
   concept bool Function() {
     return CopyConstructible<F>() &&
       requires (F& f, Args&&...args) {
-        // not equality preserving
-        STL2_EXACT_TYPE_CONSTRAINT(f((Args&&)args...),
-                                   ResultType<F, Args...>);
+        f((Args&&)args...);
       };
   }
 
@@ -34,6 +28,17 @@ STL2_OPEN_NAMESPACE {
     __stl2::Function{F, ...Args}
     constexpr bool Function<F, Args...> = true;
   }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // ResultType [concepts.lib.functions.function]
+  // Not to spec:
+  // * Requires F, ...Args to satisfy Function
+  // * Uses result of calling F& since that's what the algorithms actually do
+  // * Use decltype instead of result_of_t for consistency with Function
+  //
+  Function{F, ...Args}
+  using ResultType =
+    decltype(declval<F&>()(declval<Args>()...));
 
   ///////////////////////////////////////////////////////////////////////////
   // RegularFunction [concepts.lib.functions.regularfunction]
