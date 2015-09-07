@@ -33,9 +33,12 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <class T>
-    requires CopyConstructible<__uncvref<T>>()
+    requires CopyConstructible<__uncvref<T>>() &&
+      // Given the current implementation of as_function, the prior
+      // requirement implies this requirement. Be paranoid anyway.
+      CopyConstructible<__uncvref<decltype(as_function(declval<__uncvref<T>&>()))>>()
   using FunctionType =
-    decltype(as_function(declval<__uncvref<T>&>()));
+    __uncvref<decltype(as_function(declval<__uncvref<T>&>()))>;
 
   ///////////////////////////////////////////////////////////////////////////
   // Callable [Extension]
