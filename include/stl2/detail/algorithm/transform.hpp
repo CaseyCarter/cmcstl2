@@ -21,9 +21,8 @@
 // transform [alg.transform]
 //
 STL2_OPEN_NAMESPACE {
-  // 20150803: Not to spec: the Destructible requirements are implicit.
   template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-            Destructible F, Destructible Proj = identity>
+            class F, class Proj = identity>
     requires Writable<O, IndirectCallableResultType<F, Projected<I, Proj>>>()
   tagged_pair<tag::in(I), tag::out(O)>
     transform(I first, S last, O result, F op_, Proj proj_ = Proj{}) {
@@ -35,10 +34,8 @@ STL2_OPEN_NAMESPACE {
       return {first, result};
     }
 
-  // 20150801: Not to spec: the MoveConstructible requirements are implicit.
-  template <InputRange R, WeaklyIncrementable O, MoveConstructible F,
-            MoveConstructible Proj = identity>
-    requires Writable<O, IndirectCallableResultType<F, Projected<IteratorType<R>, Proj>>>()
+  template <InputRange R, WeaklyIncrementable O, class F, class Proj = identity>
+    requires Writable<O, IndirectCallableResultType<F, Projected<R, Proj>>>()
   tagged_pair<tag::in(safe_iterator_t<R>), tag::out(O)>
     transform(R&& r, O result, F op_, Proj proj_ = Proj{}) {
       return __stl2::transform(__stl2::begin(r), __stl2::end(r), result,
@@ -46,7 +43,7 @@ STL2_OPEN_NAMESPACE {
     }
 
   template <InputIterator I1, Sentinel<I1> S1, WeakInputIterator I2, WeaklyIncrementable O,
-            Destructible F, Destructible Proj1 = identity, Destructible Proj2 = identity>
+            class F, class Proj1 = identity, class Proj2 = identity>
     requires Writable<O, IndirectCallableResultType<F, Projected<I1, Proj1>, Projected<I2, Proj2>>>()
   auto transform(I1 first1, S1 last1, I2 first2, O result,
                  F op_, Proj1 proj1_ = Proj1{}, Proj2 proj2_ = Proj2{}) {
@@ -59,10 +56,10 @@ STL2_OPEN_NAMESPACE {
     return __stl2::make_tagged_tuple<tag::in1, tag::in2, tag::out>(first1, first2, result);
   }
 
-  template <InputRange Rng, WeakInputIterator I, WeaklyIncrementable O, MoveConstructible F,
-            MoveConstructible Proj1 = identity, MoveConstructible Proj2 = identity>
+  template <InputRange Rng, WeakInputIterator I, WeaklyIncrementable O, class F,
+            class Proj1 = identity, class Proj2 = identity>
     requires Writable<O, IndirectCallableResultType<F,
-      Projected<IteratorType<Rng>, Proj1>, Projected<I, Proj2>>>()
+      Projected<Rng, Proj1>, Projected<I, Proj2>>>()
   tagged_tuple<tag::in1(safe_iterator_t<Rng>), tag::in2(I), tag::out(O)>
     transform(Rng&& r1, I first2, O result, F op_,
               Proj1 proj1_ = Proj1{}, Proj2 proj2_ = Proj2{}) {
@@ -71,8 +68,7 @@ STL2_OPEN_NAMESPACE {
     }
 
   template <InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
-            WeaklyIncrementable O, MoveConstructible F, MoveConstructible Proj1 = identity,
-            MoveConstructible Proj2 = identity>
+            WeaklyIncrementable O, class F, class Proj1 = identity, class Proj2 = identity>
     requires Writable<O, IndirectCallableResultType<F, Projected<I1, Proj1>, Projected<I2, Proj2>>>()
   auto transform(I1 first1, S1 last1, I2 first2, S2 last2, O result,
                  F op_, Proj1 proj1_ = Proj1{}, Proj2 proj2_ = Proj2{}) {
@@ -85,10 +81,10 @@ STL2_OPEN_NAMESPACE {
     return __stl2::make_tagged_tuple<tag::in1, tag::in2, tag::out>(first1, first2, result);
   }
 
-  template <InputRange Rng1, InputRange Rng2, WeaklyIncrementable O, MoveConstructible F,
-            MoveConstructible Proj1 = identity, MoveConstructible Proj2 = identity>
-    requires Writable<O, IndirectCallableResultType<F, Projected<IteratorType<Rng1>, Proj1>,
-      Projected<IteratorType<Rng2>, Proj2>>>()
+  template <InputRange Rng1, InputRange Rng2, WeaklyIncrementable O, class F,
+            class Proj1 = identity, class Proj2 = identity>
+    requires Writable<O, IndirectCallableResultType<F, Projected<Rng1, Proj1>,
+      Projected<Rng2, Proj2>>>()
   tagged_tuple<tag::in1(safe_iterator_t<Rng1>), tag::in2(safe_iterator_t<Rng2>), tag::out(O)>
     transform(Rng1&& r1, Rng2&& r2, O result,
               F op_, Proj1 proj1_ = Proj1{}, Proj2 proj2_ = Proj2{}) {
