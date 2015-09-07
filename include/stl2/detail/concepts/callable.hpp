@@ -9,6 +9,7 @@
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/function.hpp>
+#include <stl2/detail/concepts/object.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // Indirect callable requirements [indirectcallables]
@@ -16,48 +17,139 @@
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // FunctionType [functiontype.indirectcallables]
-  // Not (exactly) to spec: I think the Constructible requirement is
-  //     implicit. Also, as_function must be exported so that users can use
-  //     Callables.
+  // Not to spec: Expects the adapted function to be an lvalue, since that's
+  //              how the algorithms use it. as_function is also exported so
+  //              that users can use Callables in their own algorithms with
+  //              guaranteed std-equivalent semantics.
   //
-  template <class T>
-    requires Constructible<T, T&&>()
-  T as_function(T&& t) {
-    return __stl2::forward<T>(t);
+  constexpr auto& as_function(auto& f) noexcept {
+    return f;
   }
 
-  template <class T, _Is<is_member_pointer> = decay_t<T>>
-  auto as_function(T&& t) {
-    return std::mem_fn(t);
+  template <class C, class T>
+  auto as_function(T (C::*pm)) {
+    // TODO: constexpr version of mem_fn.
+    return std::mem_fn(pm);
   }
 
   template <class T>
+    requires CopyConstructible<__uncvref<T>>()
   using FunctionType =
-    decltype(as_function(declval<T>()));
+    decltype(as_function(declval<__uncvref<T>&>()));
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Callable [Extension]
+  //
+  namespace ext {
+    template <class F, class...Args>
+    concept bool Callable =
+      Function<FunctionType<F>, Args...>();
+
+    Callable{F, ...Args}
+    using CallableResultType = ResultType<FunctionType<F>, Args...>;
+  }
+
+  namespace models {
+    template <class F, class...Args>
+    constexpr bool Callable = false;
+    __stl2::ext::Callable{F, ...Args}
+    constexpr bool Callable<F, Args...> = true;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // RegularCallable [Extension]
+  //
+  namespace ext {
+    template <class F, class...Args>
+    concept bool RegularCallable =
+      RegularFunction<FunctionType<F>, Args...>();
+
+    RegularCallable{F, ...Args}
+    using RegularCallableResultType = CallableResultType<F, Args...>;
+  }
+
+  namespace models {
+    template <class F, class...Args>
+    constexpr bool RegularCallable = false;
+    __stl2::ext::RegularCallable{F, ...Args}
+    constexpr bool RegularCallable<F, Args...> = true;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // CallablePredicate [Extension]
+  //
+  namespace ext {
+    template <class F, class...Args>
+    concept bool CallablePredicate =
+      Predicate<FunctionType<F>, Args...>();
+  }
+
+  namespace models {
+    template <class F, class...Args>
+    constexpr bool CallablePredicate = false;
+    __stl2::ext::CallablePredicate{F, ...Args}
+    constexpr bool CallablePredicate<F, Args...> = true;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // CallableRelation [Extension]
+  //
+  namespace ext {
+    template <class F, class T>
+    concept bool CallableRelation() {
+      return Relation<FunctionType<F>, T>();
+    }
+
+    template <class F, class T, class U>
+    concept bool CallableRelation() {
+      return Relation<FunctionType<F>, T, U>();
+    }
+  }
+
+  namespace models {
+    template <class F, class T, class U = T>
+    constexpr bool CallableRelation = false;
+    __stl2::ext::CallableRelation{F, T}
+    constexpr bool CallableRelation<F, T, T> = true;
+    __stl2::ext::CallableRelation{F, T, U}
+    constexpr bool CallableRelation<F, T, U> = true;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // CallableStrictWeakOrder [Extension]
+  //
+  namespace ext {
+    template <class F, class T>
+    concept bool CallableStrictWeakOrder() {
+      return StrictWeakOrder<FunctionType<F>, T>();
+    }
+
+    template <class F, class T, class U>
+    concept bool CallableStrictWeakOrder() {
+      return StrictWeakOrder<FunctionType<F>, T, U>();
+    }
+  }
+
+  namespace models {
+    template <class F, class T, class U = T>
+    constexpr bool CallableStrictWeakOrder = false;
+    __stl2::ext::CallableStrictWeakOrder{F, T}
+    constexpr bool CallableStrictWeakOrder<F, T, T> = true;
+    __stl2::ext::CallableStrictWeakOrder{F, T, U}
+    constexpr bool CallableStrictWeakOrder<F, T, U> = true;
+  }
 
   ///////////////////////////////////////////////////////////////////////////
   // Indirect callables [indirectfunc.indirectcallables]
   //
-  template <class, class...> struct __function : false_type {};
-  Function{F, ...Args} struct __function<F, Args...> : true_type {};
-
-  template <class, class...> struct __regular_function : false_type {};
-  RegularFunction{F, ...Args} struct __regular_function<F, Args...> : true_type {};
-
   template <class, class...> struct __predicate : false_type {};
   Predicate{F, ...Args} struct __predicate<F, Args...> : true_type {};
-
-  template <class, class I1, class I2 = I1> struct __relation : false_type {};
-  Relation{F, I1, I2} struct __relation<F, I1, I2> : true_type {};
-
-  template <class, class I1, class I2 = I1> struct __strict_weak_order : false_type {};
-  StrictWeakOrder{F, I1, I2} struct __strict_weak_order<F, I1, I2> : true_type {};
 
   template <class...T> struct __common_reference : meta::bool_<sizeof...(T)==1> {};
   template <class T, class U, class...Rest> requires CommonReference<T,U>()
   struct __common_reference<T,U,Rest...> : __common_reference<CommonReferenceType<T,U>,Rest...> {};
 
-  template <class...Is>
+  template <Readable...Is>
   using __iter_args_lists =
     meta::push_back<
       meta::cartesian_product<
@@ -77,17 +169,13 @@ STL2_OPEN_NAMESPACE {
       models::AllReadable<Is...> &&
       // The following 3 are checked redundantly, but are called out
       // specifically for better error messages on concept check failure.
-      Function<FunctionType<F>, ValueType<Is>...>() &&
-      Function<FunctionType<F>, ReferenceType<Is>...>() &&
-      Function<FunctionType<F>, iter_common_reference_t<Is>...>() &&
-      meta::_v<meta::apply<  // redundantly checks the above 3 requirements
-        __iter_map_reduce_fn<
-          meta::bind_front<meta::quote<__function>, FunctionType<F>>,
-          meta::quote<meta::fast_and>>,
-        Is...>> &&
+      ext::Callable<F, ValueType<Is>...> &&
+      ext::Callable<F, ReferenceType<Is>...> &&
+      ext::Callable<F, iter_common_reference_t<Is>...> &&
+      // redundantly checks the above 3 requirements
       meta::_v<meta::apply<
         __iter_map_reduce_fn<
-          meta::bind_front<meta::quote<ResultType>, FunctionType<F>>,
+          meta::bind_front<meta::quote<ext::CallableResultType>, F>,
           meta::quote<__common_reference>>,
         Is...>>;
   }
@@ -101,7 +189,7 @@ STL2_OPEN_NAMESPACE {
 
   IndirectCallable{F, ...Is}
   using IndirectCallableResultType =
-    ResultType<FunctionType<F>, ValueType<Is>...>;
+    ext::CallableResultType<F, ValueType<Is>...>;
 
   template <class F, class...Is>
   concept bool IndirectRegularCallable() {
@@ -110,17 +198,13 @@ STL2_OPEN_NAMESPACE {
       models::AllReadable<Is...> &&
       // The following 3 are checked redundantly, but are called out
       // specifically for better error messages on concept check failure.
-      RegularFunction<FunctionType<F>, ValueType<Is>...>() &&
-      RegularFunction<FunctionType<F>, ReferenceType<Is>...>() &&
-      RegularFunction<FunctionType<F>, iter_common_reference_t<Is>...>() &&
-      meta::_v<meta::apply<  // redundantly checks the above 3 requirements
-        __iter_map_reduce_fn<
-          meta::bind_front<meta::quote<__regular_function>, FunctionType<F>>,
-          meta::quote<meta::fast_and>>,
-        Is...>> &&
+      ext::RegularCallable<F, ValueType<Is>...> &&
+      ext::RegularCallable<F, ReferenceType<Is>...> &&
+      ext::RegularCallable<F, iter_common_reference_t<Is>...> &&
+      // redundantly checks the above 3 requirements
       meta::_v<meta::apply<
         __iter_map_reduce_fn<
-          meta::bind_front<meta::quote<ResultType>, FunctionType<F>>,
+          meta::bind_front<meta::quote<ext::RegularCallableResultType>, F>,
           meta::quote<__common_reference>>,
         Is...>>;
   }
@@ -139,10 +223,11 @@ STL2_OPEN_NAMESPACE {
       models::AllReadable<Is...> &&
       // The following 3 are checked redundantly, but are called out
       // specifically for better error messages on concept check failure.
-      Predicate<FunctionType<F>, ValueType<Is>...>() &&
-      Predicate<FunctionType<F>, ReferenceType<Is>...>() &&
-      Predicate<FunctionType<F>, iter_common_reference_t<Is>...>() &&
-      meta::_v<meta::apply< // redundantly checks the above 3 requirements
+      ext::CallablePredicate<F, ValueType<Is>...> &&
+      ext::CallablePredicate<F, ReferenceType<Is>...> &&
+      ext::CallablePredicate<F, iter_common_reference_t<Is>...> &&
+      // redundantly checks the above 3 requirements
+      meta::_v<meta::apply<
         __iter_map_reduce_fn<
           meta::bind_front<meta::quote<__predicate>, FunctionType<F>>,
           meta::quote<meta::fast_and>>,
@@ -160,11 +245,11 @@ STL2_OPEN_NAMESPACE {
   concept bool IndirectCallableRelation() {
     return
       Readable<I1>() && Readable<I2>() &&
-      Relation<FunctionType<F>, ValueType<I1>, ValueType<I2>>() &&
-      Relation<FunctionType<F>, ValueType<I1>, ReferenceType<I2>>() &&
-      Relation<FunctionType<F>, ReferenceType<I1>, ValueType<I2>>() &&
-      Relation<FunctionType<F>, ReferenceType<I1>, ReferenceType<I2>>() &&
-      Relation<FunctionType<F>, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
+      ext::CallableRelation<F, ValueType<I1>, ValueType<I2>>() &&
+      ext::CallableRelation<F, ValueType<I1>, ReferenceType<I2>>() &&
+      ext::CallableRelation<F, ReferenceType<I1>, ValueType<I2>>() &&
+      ext::CallableRelation<F, ReferenceType<I1>, ReferenceType<I2>>() &&
+      ext::CallableRelation<F, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
   }
 
   namespace models {
@@ -178,11 +263,11 @@ STL2_OPEN_NAMESPACE {
   concept bool IndirectCallableStrictWeakOrder() {
     return
       Readable<I1>() && Readable<I2>() &&
-      StrictWeakOrder<FunctionType<F>, ValueType<I1>, ValueType<I2>>() &&
-      StrictWeakOrder<FunctionType<F>, ValueType<I1>, ReferenceType<I2>>() &&
-      StrictWeakOrder<FunctionType<F>, ReferenceType<I1>, ValueType<I2>>() &&
-      StrictWeakOrder<FunctionType<F>, ReferenceType<I1>, ReferenceType<I2>>() &&
-      StrictWeakOrder<FunctionType<F>, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
+      ext::CallableStrictWeakOrder<F, ValueType<I1>, ValueType<I2>>() &&
+      ext::CallableStrictWeakOrder<F, ValueType<I1>, ReferenceType<I2>>() &&
+      ext::CallableStrictWeakOrder<F, ReferenceType<I1>, ValueType<I2>>() &&
+      ext::CallableStrictWeakOrder<F, ReferenceType<I1>, ReferenceType<I2>>() &&
+      ext::CallableStrictWeakOrder<F, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
   }
 
   namespace models {
@@ -194,18 +279,27 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // Projected [projected.indirectcallables]
+  // Extension: Projected<Range, Projection>
   //
+  template <class, class> struct Projected {};
   template <Readable I, IndirectRegularCallable<I> Proj>
-  struct Projected {
-    using value_type =
-      decay_t<ResultType<FunctionType<Proj>, ValueType<I>>>;
+  struct Projected<I, Proj> {
+    using value_type = decay_t<IndirectCallableResultType<Proj, I>>;
+    using difference_type = DifferenceType<I>;
     auto operator*() const ->
-      ResultType<FunctionType<Proj>, ReferenceType<I>>;
+      ext::CallableResultType<Proj, ReferenceType<I>>;
   };
 
-  template <class I, class Proj>
+  template <WeaklyIncrementable I, class Proj>
   struct difference_type<Projected<I, Proj>> :
-    difference_type<I> { };
+    difference_type<I> {};
+
+  template <Range R, IndirectRegularCallable<IteratorType<R>> Proj>
+  struct Projected<R, Proj> : Projected<IteratorType<R>, Proj> {};
+
+  template <Range R, class Proj>
+  struct difference_type<Projected<R, Proj>> :
+    difference_type<IteratorType<R>> {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
