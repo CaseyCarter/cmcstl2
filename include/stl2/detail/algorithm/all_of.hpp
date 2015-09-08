@@ -38,8 +38,9 @@ STL2_OPEN_NAMESPACE {
   template <InputRange R, class F, class P = identity>
     requires IndirectCallablePredicate<F, Projected<R, P>>()
   bool all_of(R&& rng, F&& pred, P&& proj = P{}) {
-    return __stl2::all_of(__stl2::begin(rng), __stl2::end(rng),
-                          __stl2::forward<F>(pred), __stl2::forward<P>(proj));
+    return __stl2::all_of(
+      __stl2::begin(rng), __stl2::end(rng),
+      __stl2::forward<F>(pred), __stl2::forward<P>(proj));
   }
 } STL2_CLOSE_NAMESPACE
 
