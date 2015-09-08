@@ -1,3 +1,5 @@
+// cmcstl2 - A concept-enabled C++ standard library
+//
 //  Copyright Eric Niebler 2015
 //
 //  Use, modification and distribution is subject to the
@@ -5,8 +7,8 @@
 //  file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
-// Project home: https://github.com/ericniebler/range-v3
-
+// Project home: https://github.com/caseycarter/cmcstl2
+//
 #include <algorithm>
 #include <stl2/iterator.hpp>
 #include "../simple_test.hpp"

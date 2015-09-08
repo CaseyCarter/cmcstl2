@@ -1,3 +1,14 @@
+// cmcstl2 - A concept-enabled C++ standard library
+//
+//  Copyright Casey Carter 2015
+//
+//  Use, modification and distribution is subject to the
+//  Boost Software License, Version 1.0. (See accompanying
+//  file LICENSE_1_0.txt or copy at
+//  http://www.boost.org/LICENSE_1_0.txt)
+//
+// Project home: https://github.com/caseycarter/cmcstl2
+//
 #ifndef STL2_DETAIL_ITERATOR_REVERSE_ITERATOR_HPP
 #define STL2_DETAIL_ITERATOR_REVERSE_ITERATOR_HPP
 
@@ -56,12 +67,12 @@ STL2_OPEN_NAMESPACE {
     }
 
     pointer operator->() const
-  #if 0 // FIXME: hard error when I is a pointer.
+#if 0 // FIXME: hard error when I is a pointer.
       requires _Is<I, std::is_pointer> ||
         requires (const I& i) {
           i.operator->();
         }
-  #endif
+#endif
     {
       return __stl2::prev(current);
     }

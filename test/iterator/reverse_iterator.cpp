@@ -1,28 +1,29 @@
-// Adapted (stolen) from:
-//
-// Range v3 library
+// cmcstl2 - A concept-enabled C++ standard library
 //
 //  Copyright Eric Niebler 2014
+//  Copyright Casey Carter 2015
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
-// Project home: https://github.com/ericniebler/range-v3
+// Project home: https://github.com/caseycarter/cmcstl2
 //
-// These tests of reverse_iterator have been adapted from libc++
-// (http://libcxx.llvm.org).
+//// Adapted (stolen) from: Range v3 library
+////
+////// These tests of reverse_iterator have been adapted from libc++
+////// (http://libcxx.llvm.org).
+//////
+//////===----------------------------------------------------------------------===//
+//////
+//////                     The LLVM Compiler Infrastructure
+//////
+////// This file is dual licensed under the MIT and the University of Illinois Open
+////// Source Licenses. See LICENSE.TXT for details.
+//////
+//////===----------------------------------------------------------------------===//
 //
-//===----------------------------------------------------------------------===//
-//
-//                     The LLVM Compiler Infrastructure
-//
-// This file is dual licensed under the MIT and the University of Illinois Open
-// Source Licenses. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
-
 #include <stl2/iterator.hpp>
 #include "../simple_test.hpp"
 #include "test_iterators.hpp"

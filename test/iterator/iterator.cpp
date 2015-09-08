@@ -1,8 +1,21 @@
+// cmcstl2 - A concept-enabled C++ standard library
+//
+//  Copyright Casey Carter 2015
+//  Copyright Eric Niebler 2015
+//
+//  Use, modification and distribution is subject to the
+//  Boost Software License, Version 1.0. (See accompanying
+//  file LICENSE_1_0.txt or copy at
+//  http://www.boost.org/LICENSE_1_0.txt)
+//
+// Project home: https://github.com/caseycarter/cmcstl2
+//
 #include <cstring>
 #include <iostream>
 #include <memory>
 
 #include <stl2/iterator.hpp>
+#include <stl2/detail/raw_ptr.hpp>
 
 #include "../simple_test.hpp"
 
@@ -10,28 +23,23 @@ namespace models = ::__stl2::models;
 
 template <class T>
 struct reference_wrapper {
-#ifdef NDEBUG
-  T* ptr_;
-#else
-  T* ptr_{};
-#endif
+  __stl2::detail::raw_ptr<T> ptr_;
 
   reference_wrapper() = default;
   reference_wrapper(T& t) noexcept : ptr_{std::addressof(t)} {}
   reference_wrapper(T&&) = delete;
 
   T& get() const noexcept {
-    STL2_ASSERT(ptr_);
     return *ptr_;
   }
 
-  reference_wrapper& operator=(const T& t)
+  reference_wrapper& operator=(const T& t) &
     noexcept(std::is_nothrow_copy_assignable<T>::value) {
     get() = t;
     return *this;
   }
 
-  reference_wrapper& operator=(T&& t)
+  reference_wrapper& operator=(T&& t) // FIXME: &
     noexcept(std::is_nothrow_move_assignable<T>::value) {
     get() = __stl2::move(t);
     return *this;

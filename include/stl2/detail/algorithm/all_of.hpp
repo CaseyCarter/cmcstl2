@@ -1,4 +1,6 @@
-// Adapted (stolen) from Range v3 library
+// cmcstl2 - A concept-enabled C++ standard library
+//
+// Algorithm adapted (stolen) from Range v3 library
 //
 //  Copyright Andrew Sutton 2014
 //  Copyright Casey Carter 2015
