@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputRange R, class F, class P = identity>
-    requires IndirectCallablePredicate<__uncvref<F>, Projected<R, __uncvref<P>>>()
+    requires IndirectCallablePredicate<F, Projected<R, P>>()
   bool any_of(R&& rng, F&& pred, P&& proj = P{}) {
     return __stl2::any_of(__stl2::begin(rng), __stl2::end(rng),
                           __stl2::forward<F>(pred), __stl2::forward<P>(proj));
