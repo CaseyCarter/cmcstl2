@@ -216,6 +216,9 @@
     <ClInclude Include="include\stl2\detail\iterator\ostreambuf_iterator.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
     </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\any_of.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\headers.cpp">
@@ -296,6 +299,9 @@
     <ClCompile Include="test\raw_ptr.cpp">
       <Filter>Test Files</Filter>
     </ClCompile>
+    <ClCompile Include="test\algorithm\any_of.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="test\CMakeLists.txt">
@@ -310,6 +316,7 @@
     <Text Include="CMakeLists.txt" />
     <Text Include="test\algorithm\CMakeLists.txt" />
     <Text Include="test\iterator\CMakeLists.txt" />
+    <Text Include="LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

@@ -71,6 +71,7 @@
     <ClInclude Include="include\stl2\algorithm.hpp" />
     <ClInclude Include="include\stl2\concepts.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\all_of.hpp" />
+    <ClInclude Include="include\stl2\detail\algorithm\any_of.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\transform.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\algorithm.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\callable.hpp" />
@@ -122,6 +123,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\algorithm\all_of.cpp" />
+    <ClCompile Include="test\algorithm\any_of.cpp" />
     <ClCompile Include="test\algorithm\transform.cpp" />
     <ClCompile Include="test\common.cpp" />
     <ClCompile Include="test\concepts\compare.cpp" />
@@ -150,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
+    <Text Include="LICENSE.txt" />
     <Text Include="test\algorithm\CMakeLists.txt" />
     <Text Include="test\CMakeLists.txt" />
     <Text Include="test\concepts\CMakeLists.txt" />

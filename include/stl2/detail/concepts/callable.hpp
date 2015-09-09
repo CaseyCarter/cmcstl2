@@ -296,11 +296,9 @@ STL2_OPEN_NAMESPACE {
   // Projected [projected.indirectcallables]
   // Extension: Projected<Range, Projection>
   //
-  template <class, class> struct Projected {};
   template <Readable I, IndirectRegularCallable<I> Proj>
-  struct Projected<I, Proj> {
+  struct Projected {
     using value_type = decay_t<IndirectCallableResultType<Proj, I>>;
-    using difference_type = DifferenceType<I>;
     auto operator*() const ->
       ext::CallableResultType<Proj, ReferenceType<I>>;
   };
@@ -308,13 +306,6 @@ STL2_OPEN_NAMESPACE {
   template <WeaklyIncrementable I, class Proj>
   struct difference_type<Projected<I, Proj>> :
     difference_type<I> {};
-
-  template <Range R, IndirectRegularCallable<IteratorType<R>> Proj>
-  struct Projected<R, Proj> : Projected<IteratorType<R>, Proj> {};
-
-  template <Range R, class Proj>
-  struct difference_type<Projected<R, Proj>> :
-    difference_type<IteratorType<R>> {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
