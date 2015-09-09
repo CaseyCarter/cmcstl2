@@ -55,6 +55,12 @@
     <Filter Include="Header Files\cmcstl2\stl2\detail\range">
       <UniqueIdentifier>{913cee68-4003-4159-8f9d-0792ed72f286}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\detail\variant">
+      <UniqueIdentifier>{d2d6aaa4-335e-423e-8a09-6d7577d103ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\detail\iostream">
+      <UniqueIdentifier>{828b5bb1-9cbd-4692-b759-759d23405123}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stl2\iterator.hpp">
@@ -138,19 +144,76 @@
     <ClInclude Include="include\stl2\detail\iterator\move_iterator.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\concepts.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\access.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\primitives.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\stl2\detail\algorithm\transform.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
     </ClInclude>
     <ClInclude Include="include\stl2\detail\iterator\common_iterator.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\construct_destruct.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\meta.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\tuple_like.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\fundamental.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\fold_expressions.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\counted_iterator.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\default_sentinel.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\access.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\concepts.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\primitives.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\variant\fwd.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\variant\storage.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\variant\visit.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\variant.hpp">
+      <Filter>Header Files\cmcstl2\stl2</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\hash.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\optional.hpp">
+      <Filter>Header Files\cmcstl2\stl2</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\raw_ptr.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iostream\concepts.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iostream</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\istream_iterator.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\istreambuf_iterator.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\ostream_iterator.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\ostreambuf_iterator.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
     </ClInclude>
   </ItemGroup>
@@ -205,6 +268,33 @@
     </ClCompile>
     <ClCompile Include="test\iterator\common_iterator.cpp">
       <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\counted_iterator.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\variant.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\unreachable.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\optional.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\istream_iterator.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\istreambuf_iterator.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\ostream_iterator.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\ostreambuf_iterator.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\raw_ptr.cpp">
+      <Filter>Test Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

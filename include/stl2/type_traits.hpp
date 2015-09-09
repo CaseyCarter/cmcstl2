@@ -145,7 +145,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class T, class U>
     requires _Valid<__builtin_common_t, T, U>
-      && meta::_v<is_reference<__builtin_common_t<T, U>>>
+      && _Is<__builtin_common_t<T, U>, is_reference>
   struct __common_reference2<T, U> : __builtin_common<T, U> { };
 
   template <class T, class U>
