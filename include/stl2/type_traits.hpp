@@ -157,20 +157,15 @@ STL2_OPEN_NAMESPACE {
     : common_reference<common_reference_t<T, U>, V, W...> { };
 
   template <class T, class U>
-  using CommonReferenceType =
-    common_reference_t<T, U>;
-
-  template <class T, class U>
   concept bool CommonReference() {
-    return
-      requires (T&& t, U&& u) {
-        typename CommonReferenceType<T, U>;
-        typename CommonReferenceType<U, T>;
-        requires Same<CommonReferenceType<T, U>,
-                      CommonReferenceType<U, T>>();
-        CommonReferenceType<T, U>(__stl2::forward<T>(t));
-        CommonReferenceType<T, U>(__stl2::forward<U>(u));
-      };
+    return requires (T (&t)(), U (&u)()) {
+      typename common_reference_t<T, U>;
+      typename common_reference_t<U, T>;
+      requires Same<common_reference_t<T, U>,
+                    common_reference_t<U, T>>();
+      common_reference_t<T, U>(t());
+      common_reference_t<T, U>(u());
+    };
   }
 
   namespace models {
@@ -180,24 +175,25 @@ STL2_OPEN_NAMESPACE {
     constexpr bool CommonReference<T, U> = true;
   }
 
-  template <class T, class U>
-  using CommonType = common_type_t<T, U>;
+  CommonReference{T, U}
+  using CommonReferenceType =
+    common_reference_t<T, U>;
 
   // Casey strongly suspects that we want Same to subsume Common
   // (See https://github.com/ericniebler/stl2/issues/50).
   template <class T, class U>
   concept bool Common() {
-    return CommonReference<const T&, const U&>() &&
-      requires (T&& t, U&& u) {
-        typename CommonType<T, U>;
-        typename CommonType<U, T>;
-        requires Same<CommonType<T, U>,
-                      CommonType<U, T>>();
-        CommonType<T, U>(__stl2::forward<T>(t));
-        CommonType<T, U>(__stl2::forward<U>(u));
-        requires CommonReference<CommonType<T, U>&,
-                                 CommonReferenceType<const T&, const U&>>();
-      };
+    return requires (T (&t)(), U (&u)()) {
+      typename common_type_t<T, U>;
+      typename common_type_t<U, T>;
+      requires Same<common_type_t<T, U>,
+                    common_type_t<U, T>>();
+      common_type_t<T, U>(t());
+      common_type_t<T, U>(u());
+      requires CommonReference<add_lvalue_reference_t<common_type_t<T, U>>,
+                               CommonReferenceType<add_lvalue_reference_t<const T>,
+                                                   add_lvalue_reference_t<const U>>>();
+    };
   }
 
   namespace models {
@@ -206,6 +202,9 @@ STL2_OPEN_NAMESPACE {
     __stl2::Common{T, U}
     constexpr bool Common<T, U> = true;
   }
+
+  Common{T, U}
+  using CommonType = common_type_t<T, U>;
 } STL2_CLOSE_NAMESPACE
 
 #endif
