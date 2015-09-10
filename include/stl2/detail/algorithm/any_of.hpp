@@ -21,9 +21,9 @@
 // any_of [alg.any_of]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I, Sentinel<I> S, class F, class P = identity>
-    requires IndirectCallablePredicate<F, Projected<I, P>>()
-  bool any_of(I first, S last, F pred, P proj = P{}) {
+  template <InputIterator I, Sentinel<I> S, class Proj = identity,
+            IndirectCallablePredicate<Projected<I, Proj>> Pred>
+  bool any_of(I first, S last, Pred pred, Proj proj = Proj{}) {
     auto &&ipred = __stl2::as_function(pred);
     auto &&iproj = __stl2::as_function(proj);
     for (; first != last; ++first) {
@@ -34,11 +34,11 @@ STL2_OPEN_NAMESPACE {
     return false;
   }
 
-  template <InputRange R, class F, class P = identity>
-    requires IndirectCallablePredicate<F, Projected<IteratorType<R>, P>>()
-  bool any_of(R&& rng, F&& pred, P&& proj = P{}) {
+  template <InputRange R, class Proj = identity,
+            IndirectCallablePredicate<Projected<IteratorType<R>, Proj>> Pred>
+  bool any_of(R&& rng, Pred&& pred, Proj&& proj = Proj{}) {
     return __stl2::any_of(__stl2::begin(rng), __stl2::end(rng),
-                          __stl2::forward<F>(pred), __stl2::forward<P>(proj));
+                          __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
 

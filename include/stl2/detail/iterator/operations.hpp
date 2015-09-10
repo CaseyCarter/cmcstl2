@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
   
   Sentinel{S, I}
   constexpr void advance(I& i, S bound)
-    noexcept(noexcept(i != bound, void(), ++i)) {
+    noexcept(noexcept(bool(i != bound), ++i)) {
     while (i != bound) {
       ++i;
     }
@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
   Sentinel{S, I}
   constexpr DifferenceType<I>
   advance(I& i, DifferenceType<I> n, S bound)
-    noexcept(noexcept(i != bound, void(), ++i)) {
+    noexcept(noexcept(bool(i != bound), ++i)) {
     while (i != bound && n != 0) {
       ++i;
       --n;
@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
   template <BidirectionalIterator I, Sentinel<I> S>
   constexpr DifferenceType<I>
   advance(I& i, DifferenceType<I> n, S bound)
-    noexcept(noexcept(i!= bound, void(), ++i, void(), --i)) {
+    noexcept(noexcept(bool(i != bound), void(), ++i, void(), --i)) {
     if (n > 0) {
       while (i != bound && n != 0) {
         ++i;
@@ -121,7 +121,7 @@ STL2_OPEN_NAMESPACE {
   // distance
   Sentinel{S, I}
   constexpr DifferenceType<I> distance(I first, S last)
-    noexcept(noexcept(first != last, void(), ++first)) {
+    noexcept(noexcept(bool(first != last), void(), ++first)) {
     DifferenceType<I> n = 0;
     while (first != last) {
       ++n;
@@ -134,7 +134,7 @@ STL2_OPEN_NAMESPACE {
     requires SizedIteratorRange<I, S>()
   constexpr DifferenceType<I> distance(I first, S last)
   STL2_NOEXCEPT_RETURN(
-    last - first
+    DifferenceType<I>(last - first)
   )
   
   // next

@@ -38,19 +38,20 @@ STL2_OPEN_NAMESPACE {
     return f;
   }
 
-  template <class C, class T>
+  // auto as_function(auto (auto::*pm))
+  template <class T, class C>
   auto as_function(T (C::*pm)) {
-    // TODO: constexpr version of mem_fn.
+    // TODO: constexpr implementation of mem_fn.
     return std::mem_fn(pm);
   }
 
   template <class T>
-    requires CopyConstructible<__uncvref<T>>() &&
+    requires CopyConstructible<decay_t<T>>() &&
       // Given the current implementation of as_function, the prior
       // requirement implies this requirement. Be paranoid anyway.
-      CopyConstructible<__uncvref<decltype(as_function(declval<__uncvref<T>&>()))>>()
+      CopyConstructible<__uncvref<decltype(as_function(declval<decay_t<T>&>()))>>()
   using FunctionType =
-    __uncvref<decltype(as_function(declval<__uncvref<T>&>()))>;
+    __uncvref<decltype(as_function(declval<decay_t<T>&>()))>;
 
   ///////////////////////////////////////////////////////////////////////////
   // Callable [Extension]
@@ -294,7 +295,6 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // Projected [projected.indirectcallables]
-  // Extension: Projected<Range, Projection>
   //
   template <Readable I, IndirectRegularCallable<I> Proj>
   struct Projected {

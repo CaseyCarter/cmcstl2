@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
   };
 
   namespace __optional {
-    using nil_ = meta::nil_;
+    using nil_ = monostate;
 
     [[noreturn]] inline bool bad_access() {
       throw bad_optional_access{};
@@ -128,8 +128,8 @@ STL2_OPEN_NAMESPACE {
                     "optional cannot hold nullopt_t");
       static_assert(!is_same<__uncvref<T>, in_place_t>(),
                     "optional cannot hold in_place_t");
-      static_assert(!is_same<__uncvref<T>, meta::nil_>(),
-                    "optional cannot hold meta::nil_");
+      static_assert(!is_same<__uncvref<T>, monostate>(),
+                    "optional cannot hold monostate");
 
       constexpr optional() noexcept = default;
       constexpr optional(nullopt_t) noexcept :

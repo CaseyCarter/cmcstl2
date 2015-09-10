@@ -181,7 +181,21 @@ STL2_OPEN_NAMESPACE {
       range<I, S>{__stl2::move(i), __stl2::move(s)}
     )
 
+    template <Iterator I, Sentinel<I> S = I>
+      requires SizedIteratorRange<I, S>()
+    constexpr auto make_range(I i, S s = S{})
+    STL2_NOEXCEPT_RETURN(
+      range<I, S>{__stl2::move(i), __stl2::move(s)}
+    )
+
     template <Iterator I, Sentinel<I> S = I, class C = CommonType<I, S>>
+    constexpr auto make_bounded_range(I i, S s = S{})
+    STL2_NOEXCEPT_RETURN(
+      __stl2::ext::make_range(C{__stl2::move(i)}, C{__stl2::move(s)})
+    )
+
+    template <Iterator I, Sentinel<I> S = I, class C = CommonType<I, S>>
+      requires SizedIteratorRange<I, S>()
     constexpr auto make_bounded_range(I i, S s = S{})
     STL2_NOEXCEPT_RETURN(
       __stl2::ext::make_range(C{__stl2::move(i)}, C{__stl2::move(s)})
