@@ -386,15 +386,12 @@ void test_iter_swap2() {
     static_assert(models::Same<int&&, RR>);
 
     static_assert(models::Same<I, decltype(a.begin() + 2)>);
-    static_assert(models::Constructible<V, RR>);
-    static_assert(models::MoveWritable<I, V>);
-    static_assert(models::MoveWritable<I, RR>);
+    static_assert(models::CommonReference<const R&, const R&>);
     static_assert(!models::Swappable<R, R>);
-    static_assert(__stl2::is_nothrow_indirectly_swappable_v<I, I>, "");
+    static_assert(models::IndirectlyMovable<I, I>);
 
-    // Swappable<R, R>() is false, and is_nothrow_indirectly_swappable<I, I>
-    // implies IndirectlySwappable<I, I>, so this should resolve to the second
-    // overload of iter_swap2.
+    // Swappable<R, R>() is not satisfied, and IndirectlyMovable<I, I>() is,
+    // so this should resolve to the second overload of iter_swap2.
     __stl2::iter_swap2(a.begin() + 1, a.begin() + 3);
     CHECK(a[0] == 0);
     CHECK(a[1] == 3);

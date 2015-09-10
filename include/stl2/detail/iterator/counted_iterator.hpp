@@ -293,6 +293,32 @@ STL2_OPEN_NAMESPACE {
   RandomAccessIterator{I}
   constexpr void advance(counted_iterator<I>& i, DifferenceType<I> n)
   STL2_NOEXCEPT_RETURN(void(i += n))
+
+  namespace ext {
+    auto uncounted(const WeakIterator& i) {
+      return i;
+    }
+
+    auto uncounted(const counted_iterator<auto>& i) {
+      return i.base();
+    }
+
+    WeakIterator{I}
+    auto recounted(const I&, const I& i, DifferenceType<I> = 0) {
+      return i;
+    }
+
+    WeakIterator{I}
+    auto recounted(const counted_iterator<I>& o, I i) {
+      return counted_iterator<I>{__stl2::move(i), o.count()};
+    }
+
+    WeakIterator{I}
+    auto recounted(const counted_iterator<I>& o, I i, DifferenceType<I> n) {
+      STL2_ASSERT(!models::ForwardIterator<I> || i == __stl2::next(o, n));
+      return counted_iterator<I>{__stl2::move(i), o.count() - n};
+    }
+  }
 } STL2_CLOSE_NAMESPACE
 
 #endif

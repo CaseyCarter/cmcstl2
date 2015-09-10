@@ -329,7 +329,7 @@ STL2_OPEN_NAMESPACE {
         }
       constexpr void operator()(R1&& r1, R2&& r2) const
       STL2_NOEXCEPT_RETURN(
-        iter_swap2(__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
+        (void)iter_swap2(__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
       )
     };
   }

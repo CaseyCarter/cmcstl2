@@ -104,8 +104,8 @@ STL2_OPEN_NAMESPACE {
     template <class T, class U>
     concept bool Swappable_ =
       requires (T&& t, U&&u) {
-      __stl2::swap((T&&)t, (U&&)u);
-    };
+        __stl2::swap((T&&)t, (U&&)u);
+      };
   }
 
   template <class T>
