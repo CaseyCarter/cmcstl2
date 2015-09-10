@@ -409,63 +409,60 @@ template <class T>
   requires requires { typename T::iterator_category; }
 constexpr bool has_category<T> = true;
 
-// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67152
-#if 0 // BUGBUG
 void test_std_traits() {
   using WO = arbitrary_iterator<void>;
-  CHECK(models::Same<std::iterator_traits<WO>::iterator_category,
-                     std::output_iterator_tag>());
+  static_assert(models::Same<std::iterator_traits<WO>::iterator_category,
+                             std::output_iterator_tag>);
 
   using O = arbitrary_iterator<__stl2::output_iterator_tag>;
-  CHECK(models::Same<std::iterator_traits<O>::iterator_category,
-                     std::output_iterator_tag>());
+  static_assert(models::Same<std::iterator_traits<O>::iterator_category,
+                             std::output_iterator_tag>);
 
   using WI = arbitrary_iterator<__stl2::weak_input_iterator_tag>;
-  CHECK(!has_category<std::iterator_traits<WI>>);
+  static_assert(!has_category<std::iterator_traits<WI>>);
 
   using I = arbitrary_iterator<__stl2::input_iterator_tag>;
-  CHECK(models::Same<std::iterator_traits<I>::iterator_category,
-                     std::input_iterator_tag>());
+  static_assert(models::Same<std::iterator_traits<I>::iterator_category,
+                             std::input_iterator_tag>);
 
   using F = arbitrary_iterator<__stl2::forward_iterator_tag>;
-  CHECK(models::Same<std::iterator_traits<F>::iterator_category,
-                     std::forward_iterator_tag>());
+  static_assert(models::Same<std::iterator_traits<F>::iterator_category,
+                             std::forward_iterator_tag>);
 
   using B = arbitrary_iterator<__stl2::bidirectional_iterator_tag>;
-  CHECK(models::Same<std::iterator_traits<B>::iterator_category,
-                     std::bidirectional_iterator_tag>());
+  static_assert(models::Same<std::iterator_traits<B>::iterator_category,
+                             std::bidirectional_iterator_tag>);
 
   using R = arbitrary_iterator<__stl2::random_access_iterator_tag>;
-  CHECK(models::Same<std::iterator_traits<R>::iterator_category,
-                     std::random_access_iterator_tag>());
+  static_assert(models::Same<std::iterator_traits<R>::iterator_category,
+                             std::random_access_iterator_tag>);
 
   using C = arbitrary_iterator<__stl2::ext::contiguous_iterator_tag>;
-  CHECK(models::Same<std::iterator_traits<C>::iterator_category,
-                     std::random_access_iterator_tag>());
+  static_assert(models::Same<std::iterator_traits<C>::iterator_category,
+                             std::random_access_iterator_tag>);
 
   using IV = arbitrary_iterator<__stl2::input_iterator_tag, int>;
-  CHECK(models::Same<std::iterator_traits<IV>::iterator_category,
-                     std::input_iterator_tag>());
+  static_assert(models::Same<std::iterator_traits<IV>::iterator_category,
+                             std::input_iterator_tag>);
 
   using FV = arbitrary_iterator<__stl2::forward_iterator_tag, int>;
-  CHECK(models::Same<std::iterator_traits<FV>::iterator_category,
-                     std::input_iterator_tag>());
+  static_assert(models::Same<std::iterator_traits<FV>::iterator_category,
+                             std::input_iterator_tag>);
 
   using BV = arbitrary_iterator<__stl2::bidirectional_iterator_tag, int>;
-  CHECK(models::Same<std::iterator_traits<BV>::iterator_category,
-                     std::input_iterator_tag>());
+  static_assert(models::Same<std::iterator_traits<BV>::iterator_category,
+                             std::input_iterator_tag>);
 
   using RV = arbitrary_iterator<__stl2::random_access_iterator_tag, int>;
-  CHECK(models::Same<std::iterator_traits<RV>::iterator_category,
-                     std::input_iterator_tag>());
+  static_assert(models::Same<std::iterator_traits<RV>::iterator_category,
+                             std::input_iterator_tag>);
 }
-#endif
 
 int main() {
   test_iter_swap2();
   test_iterator_dispatch();
   test_copy();
-  //test_std_traits();
+  test_std_traits();
 
   return ::test_result();
 }
