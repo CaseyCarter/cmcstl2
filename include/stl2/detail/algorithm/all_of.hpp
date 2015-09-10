@@ -41,17 +41,15 @@ STL2_OPEN_NAMESPACE {
   template <InputRange R, class Proj = identity,
             IndirectCallablePredicate<Projected<IteratorType<R>, Proj>> Pred>
   bool all_of(R&& rng, Pred&& pred, Proj&& proj = Proj{}) {
-    return __stl2::all_of(
-      __stl2::begin(rng), __stl2::end(rng),
+    return __stl2::all_of(__stl2::begin(rng), __stl2::end(rng),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 
   // Extension
   template <class E, class Proj = identity,
             IndirectCallablePredicate<Projected<const E*, Proj>> Pred>
-  bool all_of(std::initializer_list<E> rng, Pred&& pred, Proj&& proj = Proj{}) {
-    return __stl2::all_of(
-      rng.begin(), rng.end(),
+  bool all_of(std::initializer_list<E> il, Pred&& pred, Proj&& proj = Proj{}) {
+    return __stl2::all_of(il.begin(), il.end(),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE

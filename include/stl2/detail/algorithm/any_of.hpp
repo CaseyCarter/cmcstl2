@@ -12,6 +12,7 @@
 #ifndef STL2_DETAIL_ALGORITHM_ANY_OF_HPP
 #define STL2_DETAIL_ALGORITHM_ANY_OF_HPP
 
+#include <initializer_list>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -38,7 +39,15 @@ STL2_OPEN_NAMESPACE {
             IndirectCallablePredicate<Projected<IteratorType<R>, Proj>> Pred>
   bool any_of(R&& rng, Pred&& pred, Proj&& proj = Proj{}) {
     return __stl2::any_of(__stl2::begin(rng), __stl2::end(rng),
-                          __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+      __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+  }
+
+  // Extension
+  template <class E, class Proj = identity,
+            IndirectCallablePredicate<Projected<const E*, Proj>> Pred>
+    bool any_of(std::initializer_list<E> il, Pred&& pred, Proj&& proj = Proj{}) {
+    return __stl2::any_of(il.begin(), il.end(),
+      __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
 
