@@ -312,14 +312,24 @@ STL2_OPEN_NAMESPACE {
     template <class R1, class R2,
       Readable _R1 = remove_reference_t<R1>,
       Readable _R2 = remove_reference_t<R2>>
-        requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>() &&
-          !Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
+        requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>()
     void iter_swap2(R1&& r1, R2&& r2)
       noexcept(is_nothrow_indirectly_movable_v<_R1, _R2> &&
                is_nothrow_indirectly_movable_v<_R2, _R1>) {
       ValueType<_R1> tmp = __stl2::iter_move(r1);
       *r1 = __stl2::iter_move(r2);
       *r2 = __stl2::move(tmp);
+    }
+
+    template <class R1, class R2,
+      Readable _R1 = remove_reference_t<R1>,
+      Readable _R2 = remove_reference_t<R2>>
+        requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>() &&
+          Swappable<ReferenceType<_R1>, ReferenceType<_R2>>()
+    void iter_swap2(R1&& r1, R2&& r2)
+      noexcept(is_nothrow_swappable_v<ReferenceType<_R1>, ReferenceType<_R2>>)
+    {
+      __stl2::swap(*r1, *r2);
     }
 
     struct fn {
