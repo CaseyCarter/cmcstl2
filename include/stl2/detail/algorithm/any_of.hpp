@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
   // Extension
   template <class E, class Proj = identity,
             IndirectCallablePredicate<Projected<const E*, Proj>> Pred>
-    bool any_of(std::initializer_list<E> il, Pred&& pred, Proj&& proj = Proj{}) {
+  bool any_of(std::initializer_list<E> il, Pred&& pred, Proj&& proj = Proj{}) {
     return __stl2::any_of(il.begin(), il.end(),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }

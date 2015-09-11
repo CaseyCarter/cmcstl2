@@ -98,11 +98,13 @@ STL2_OPEN_NAMESPACE {
     // 20150810: Extension, converting constructor from Base&&
     constexpr tagged(Base&& that)
       noexcept(is_nothrow_move_constructible<Base>::value)
+      requires MoveConstructible<Base>()
       : Base(static_cast<Base&&>(that)) {}
   
     // 20150810: Extension, converting constructor from const Base&
     constexpr tagged(const Base& that)
       noexcept(is_nothrow_copy_constructible<Base>::value)
+      requires CopyConstructible<Base>()
       : Base(static_cast<const Base&>(that)) {}
   
     // 20150810: Not to spec: constexpr.
@@ -193,13 +195,13 @@ STL2_OPEN_NAMESPACE {
     struct name {                                       \
       template <class Base>                             \
       struct tagged_getter : Base {                     \
-        constexpr decltype(auto) name () & {            \
+        constexpr decltype(auto) name() & {             \
           return Base::get();                           \
         }                                               \
-        constexpr decltype(auto) name () const & {      \
+        constexpr decltype(auto) name() const & {       \
           return Base::get();                           \
         }                                               \
-        constexpr decltype(auto) name () && {           \
+        constexpr decltype(auto) name() && {            \
           return __stl2::move(*this).Base::get();       \
         }                                               \
       protected:                                        \

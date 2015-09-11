@@ -33,7 +33,7 @@ int main()
     CHECK(sum == 24);
 
     sum = 0;
-    auto rfun = [&](auto&& i){ sum += i; };
+    auto rfun = [&](int& i){ sum += i; };
     CHECK(stl2::for_each(v1.begin(), v1.end(), rfun).in() == v1.end());
     CHECK(stl2::for_each(v1, rfun).in() == v1.end());
     CHECK(sum == 24);
@@ -53,6 +53,11 @@ int main()
     auto il = {0, 2, 4, 6};
     stl2::for_each(il, fun);
     CHECK(sum == 24);
+
+    auto result = stl2::for_each({0, 2, 4, 6}, [sum = 0](int i) mutable -> int {
+        return sum += i;
+    });
+    CHECK(result.fun()(0) == 12);
 
     return ::test_result();
 }
