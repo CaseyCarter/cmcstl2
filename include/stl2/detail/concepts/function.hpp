@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
   concept bool Relation() {
     return ext::WeakRelation<R, T, U>() &&
       Common<T, U>() &&
-      Predicate<R, CommonType<T, U>>();
+      ext::WeakRelation<R, CommonType<T, U>>();
   }
 
   namespace models {
