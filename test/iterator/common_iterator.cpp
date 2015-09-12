@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <stl2/iterator.hpp>
 #include "../simple_test.hpp"
-#include "test_iterators.hpp"
+#include "../test_iterators.hpp"
 
 int main() {
   {

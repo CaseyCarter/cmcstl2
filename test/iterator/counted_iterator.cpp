@@ -13,7 +13,7 @@
 #include <stl2/iterator.hpp>
 #include <stl2/type_traits.hpp>
 #include <list>
-#include "test_iterators.hpp"
+#include "../test_iterators.hpp"
 #include "../simple_test.hpp"
 
 int main()

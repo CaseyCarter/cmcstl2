@@ -26,7 +26,7 @@
 //
 #include <stl2/iterator.hpp>
 #include "../simple_test.hpp"
-#include "test_iterators.hpp"
+#include "../test_iterators.hpp"
 
 template <class It> void test() { __stl2::reverse_iterator<It>{}; }
 

@@ -21,7 +21,7 @@
 #include <stl2/detail/algorithm/find_if.hpp>
 #include <stl2/utility.hpp>
 #include "../simple_test.hpp"
-#include "../iterator/test_iterators.hpp"
+#include "../test_iterators.hpp"
 
 struct S
 {

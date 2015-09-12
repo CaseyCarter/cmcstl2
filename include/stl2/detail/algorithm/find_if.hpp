@@ -41,6 +41,7 @@ STL2_OPEN_NAMESPACE {
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 
+  // Extension
   template <class E, class Proj = identity,
             IndirectCallablePredicate<Projected<const E*, Proj>> Pred>
   dangling<const E*>
