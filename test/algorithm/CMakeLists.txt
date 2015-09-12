@@ -12,6 +12,9 @@ add_test(test.alg.find alg.find)
 add_executable(alg.find_if find_if.cpp)
 add_test(test.alg.find_if alg.find_if)
 
+add_executable(alg.find_if_not find_if_not.cpp)
+add_test(test.alg.find_if_not alg.find_if_not)
+
 add_executable(alg.for_each for_each.cpp)
 add_test(test.alg.for_each alg.for_each)
 

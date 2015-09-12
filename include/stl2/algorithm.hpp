@@ -17,6 +17,7 @@
 #include <stl2/detail/algorithm/any_of.hpp>
 #include <stl2/detail/algorithm/find.hpp>
 #include <stl2/detail/algorithm/find_if.hpp>
+#include <stl2/detail/algorithm/find_if_not.hpp>
 #include <stl2/detail/algorithm/for_each.hpp>
 #include <stl2/detail/algorithm/none_of.hpp>
 #include <stl2/detail/algorithm/transform.hpp>
