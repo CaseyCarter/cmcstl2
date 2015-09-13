@@ -12,6 +12,9 @@ add_test(test.alg.find alg.find)
 add_executable(alg.find_end find_end.cpp)
 add_test(test.alg.find_end alg.find_end)
 
+add_executable(alg.find_first_of find_first_of.cpp)
+add_test(test.alg.find_first_of alg.find_first_of)
+
 add_executable(alg.find_if find_if.cpp)
 add_test(test.alg.find_if alg.find_if)
 
