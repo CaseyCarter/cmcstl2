@@ -1,5 +1,8 @@
 include("../concept_select.txt")
 
+add_executable(alg.adjacent_find adjacent_find.cpp)
+add_test(test.alg.adjacent_find alg.adjacent_find)
+
 add_executable(alg.all_of all_of.cpp)
 add_test(test.alg.all_of alg.all_of)
 

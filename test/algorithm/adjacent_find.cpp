@@ -1,0 +1,31 @@
+// Range v3 library
+//
+//  Copyright Eric Niebler 2014
+//
+//  Use, modification and distribution is subject to the
+//  Boost Software License, Version 1.0. (See accompanying
+//  file LICENSE_1_0.txt or copy at
+//  http://www.boost.org/LICENSE_1_0.txt)
+//
+// Project home: https://github.com/ericniebler/range-v3
+
+#include <stl2/detail/algorithm/adjacent_find.hpp>
+#include "../simple_test.hpp"
+
+namespace stl2 = __stl2;
+
+int main()
+{
+    int v1[] = { 0, 2, 2, 4, 6 };
+    CHECK(stl2::adjacent_find(stl2::begin(v1), stl2::end(v1)) == &v1[1]);
+    CHECK(stl2::adjacent_find(v1) == &v1[1]);
+
+    std::pair<int, int> v2[] = {{0, 0}, {0, 2}, {0, 2}, {0, 4}, {0, 6}};
+    CHECK(stl2::adjacent_find(stl2::begin(v2), stl2::end(v2),
+            stl2::equal_to<>{}, &std::pair<int, int>::second) == &v2[1]);
+    CHECK(stl2::adjacent_find(v2, stl2::equal_to<>{}, &std::pair<int, int>::second) == &v2[1]);
+    static_assert(std::is_same<std::pair<int,int>*,
+                               decltype(stl2::adjacent_find(v2, stl2::equal_to<>{},
+                                    &std::pair<int, int>::second))>::value, "");
+    return test_result();
+}
