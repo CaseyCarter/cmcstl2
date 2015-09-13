@@ -133,8 +133,6 @@ STL2_OPEN_NAMESPACE {
     template <Iterator I, Sentinel<I> S>
     class range { // iterator_range? view? simple_iterator_and_sentinel_pair?
     private:
-      using size_type = make_unsigned_t<DifferenceType<I>>;
-
       // Todo: EBO
       I i_;
       S s_;
@@ -161,8 +159,8 @@ STL2_OPEN_NAMESPACE {
         return i_ == s_;
       }
 
-      constexpr size_type size() const
-        noexcept(noexcept(size_type(declval<S>() - declval<I>())))
+      constexpr DifferenceType<I> size() const
+        noexcept(noexcept(DifferenceType<I>(declval<S>() - declval<I>())))
         requires SizedIteratorRange<I, S>() {
         return s_ - i_;
       }

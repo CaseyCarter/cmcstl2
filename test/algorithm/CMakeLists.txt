@@ -9,6 +9,9 @@ add_test(test.alg.any_of alg.any_of)
 add_executable(alg.find find.cpp)
 add_test(test.alg.find alg.find)
 
+add_executable(alg.find_end find_end.cpp)
+add_test(test.alg.find_end alg.find_end)
+
 add_executable(alg.find_if find_if.cpp)
 add_test(test.alg.find_if alg.find_if)
 
