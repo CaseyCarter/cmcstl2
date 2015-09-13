@@ -9,6 +9,9 @@ add_test(test.alg.all_of alg.all_of)
 add_executable(alg.any_of any_of.cpp)
 add_test(test.alg.any_of alg.any_of)
 
+add_executable(alg.count count.cpp)
+add_test(test.alg.count alg.count)
+
 add_executable(alg.find find.cpp)
 add_test(test.alg.find alg.find)
 
