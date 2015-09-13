@@ -319,7 +319,7 @@ STL2_OPEN_NAMESPACE {
         requires CopyConstructible<T>()
       constexpr T value_or(U&& u) && {
         return *this
-          ? **this
+          ? __stl2::move(**this)
           : static_cast<T>(__stl2::forward<U>(u));
       }
     };
