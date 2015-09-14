@@ -83,9 +83,6 @@ STL2_OPEN_NAMESPACE {
     return models::Boolean<T>;
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // EqualityComparable [concepts.lib.compare.equalitycomparable]
-  //
   namespace detail {
     template <class T, class U>
     concept bool EqualityComparable_ =
@@ -95,12 +92,12 @@ STL2_OPEN_NAMESPACE {
       };
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  // WeaklyEqualityComparable
+  // Extension: Equivalent to EqualityComparable, except that it doesn't
+  //            cause compile errors if common_type is unspecialized.
+  //
   namespace ext {
-    ///////////////////////////////////////////////////////////////////////////
-    // WeaklyEqualityComparable
-    // Extension: Equivalent to EqualityComparable, except that it doesn't
-    //            cause compile errors if common_type is unspecialized.
-    //
     template <class T>
     concept bool WeaklyEqualityComparable() {
       return detail::EqualityComparable_<T, T>;
@@ -124,6 +121,9 @@ STL2_OPEN_NAMESPACE {
     constexpr bool WeaklyEqualityComparable<T, U> = true;
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  // EqualityComparable [concepts.lib.compare.equalitycomparable]
+  //
   template <class T>
   concept bool EqualityComparable() {
     return ext::WeaklyEqualityComparable<T>();

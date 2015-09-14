@@ -88,16 +88,27 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // ConvertibleTo [concepts.lib.corelang.convertibleto]
-  // Not to spec: Requires both implicit and explicit conversion with
-  //              equal results.
+  // ExplicitlyConvertibleTo [Extension]
   //
   namespace ext {
     template <class T, class U>
     concept bool ExplicitlyConvertibleTo() {
-      return requires (T&& t) { static_cast<U>((T&&)t); };
+      return requires (T (&t)()) { static_cast<U>(t()); };
     }
+  }
 
+  namespace models {
+    template <class, class>
+    constexpr bool ExplicitlyConvertibleTo = false;
+    __stl2::ext::ExplicitlyConvertibleTo{T, U}
+    constexpr bool ExplicitlyConvertibleTo<T, U> = true;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // ImplicitlyConvertibleTo [Extension]
+  // Equivalent to ConvertibleTo from the TS.
+  //
+  namespace ext {
     template <class T, class U>
     concept bool ImplicitlyConvertibleTo() {
       // Q: Why not { t } -> U ?
@@ -112,13 +123,13 @@ STL2_OPEN_NAMESPACE {
     constexpr bool ImplicitlyConvertibleTo = false;
     __stl2::ext::ImplicitlyConvertibleTo{T, U}
     constexpr bool ImplicitlyConvertibleTo<T, U> = true;
-
-    template <class, class>
-    constexpr bool ExplicitlyConvertibleTo = false;
-    __stl2::ext::ExplicitlyConvertibleTo{T, U}
-    constexpr bool ExplicitlyConvertibleTo<T, U> = true;
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  // ConvertibleTo [concepts.lib.corelang.convertibleto]
+  // Not to spec: Requires both implicit and explicit conversion with
+  //              equal results.
+  //
   template <class T, class U>
   concept bool ConvertibleTo() {
     return ext::ExplicitlyConvertibleTo<T, U>() &&

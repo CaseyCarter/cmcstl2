@@ -154,17 +154,6 @@ STL2_OPEN_NAMESPACE {
         return s_;
       }
 
-      constexpr bool empty() const
-        noexcept(noexcept(bool(declval<I>() == declval<S>()))) {
-        return i_ == s_;
-      }
-
-      constexpr DifferenceType<I> size() const
-        noexcept(noexcept(DifferenceType<I>(declval<S>() - declval<I>())))
-        requires SizedIteratorRange<I, S>() {
-        return s_ - i_;
-      }
-
       constexpr auto data() const
         noexcept(noexcept(
           declval<I>() == declval<S>() ? nullptr : std::addressof(*declval<I>())))
@@ -179,21 +168,7 @@ STL2_OPEN_NAMESPACE {
       range<I, S>{__stl2::move(i), __stl2::move(s)}
     )
 
-    template <Iterator I, Sentinel<I> S = I>
-      requires SizedIteratorRange<I, S>()
-    constexpr auto make_range(I i, S s = S{})
-    STL2_NOEXCEPT_RETURN(
-      range<I, S>{__stl2::move(i), __stl2::move(s)}
-    )
-
     template <Iterator I, Sentinel<I> S = I, class C = CommonType<I, S>>
-    constexpr auto make_bounded_range(I i, S s = S{})
-    STL2_NOEXCEPT_RETURN(
-      __stl2::ext::make_range(C{__stl2::move(i)}, C{__stl2::move(s)})
-    )
-
-    template <Iterator I, Sentinel<I> S = I, class C = CommonType<I, S>>
-      requires SizedIteratorRange<I, S>()
     constexpr auto make_bounded_range(I i, S s = S{})
     STL2_NOEXCEPT_RETURN(
       __stl2::ext::make_range(C{__stl2::move(i)}, C{__stl2::move(s)})

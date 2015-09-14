@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
     struct priority_tag<0> {};
     // Workaround GCC PR66957 by declaring this unnamed namespace inline.
     inline namespace {
-      constexpr auto& max_priority_tag = detail::static_const<priority_tag<1>>::value;
+      constexpr auto& max_priority_tag = detail::static_const<priority_tag<2>>::value;
     }
   }
 } STL2_CLOSE_NAMESPACE

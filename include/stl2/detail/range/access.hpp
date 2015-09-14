@@ -34,49 +34,63 @@ STL2_OPEN_NAMESPACE {
   namespace __begin {
     // Use member if it returns Iterator.
     template <class R>
+    constexpr bool has_member = false;
+    template <class R>
       requires requires (R& r) {
         STL2_DEDUCTION_CONSTRAINT(r.begin(), Iterator);
       }
+    constexpr bool has_member<R> = true;
+
+    template <class R>
+      requires has_member<R>
     constexpr auto impl(R& r, ext::priority_tag<0>)
-      noexcept(noexcept(r.begin())) {
-      return r.begin();
-    }
-  
+    STL2_NOEXCEPT_RETURN(r.begin())
+
     // Prefer ADL if it returns Iterator.
+    template <class R>
+    constexpr bool has_non_member = false;
     template <class R>
       requires requires (R& r) {
         STL2_DEDUCTION_CONSTRAINT(begin(r), Iterator);
       }
+    constexpr bool has_non_member<R> = true;
+
+    template <class R>
+      requires has_non_member<R>
     constexpr auto impl(R& r, ext::priority_tag<1>)
-      noexcept(noexcept(begin(r))) {
-      return begin(r);
-    }
-  
+    STL2_NOEXCEPT_RETURN(begin(r))
+
+    template <class R>
+    constexpr bool can_begin = false;
+    template <class R>
+      requires requires (R& r) { __begin::impl(r, ext::max_priority_tag); }
+    constexpr bool can_begin<R> = true;
+
     struct fn {
       template <class R, std::size_t N>
       constexpr R* operator()(R (&array)[N]) const noexcept {
         return array;
       }
-  
+
       template <class E>
       constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
         return il.begin();
       }
-  
+
       template <class R>
-        requires requires (R& r) { __begin::impl(r, ext::max_priority_tag); }
+        requires can_begin<R>
       constexpr auto operator()(R& r) const
-        noexcept(noexcept(__begin::impl(r, ext::max_priority_tag))) {
-        return __begin::impl(r, ext::max_priority_tag);
-      }
-  
+      STL2_NOEXCEPT_RETURN(
+        __begin::impl(r, ext::max_priority_tag)
+      )
+
 #if STL2_TREAT_RVALUES_AS_CONST
       template <_IsNot<is_array> R>
-        requires requires (const R& r) { __begin::impl(r, ext::max_priority_tag); }
+        requires can_begin<const R>
       constexpr auto operator()(const R&& r) const
-        noexcept(noexcept(__begin::impl(r, ext::max_priority_tag))) {
-        return __begin::impl(r, ext::max_priority_tag);
-      }
+      STL2_NOEXCEPT_RETURN(
+        __begin::impl(r, ext::max_priority_tag)
+      )
 #endif
     };
   }
@@ -84,19 +98,24 @@ STL2_OPEN_NAMESPACE {
   inline namespace {
     constexpr auto& begin = detail::static_const<__begin::fn>::value;
   }
-  
+
   // end
   namespace __end {
     // Use member if it returns Sentinel.
     template <class R>
+    constexpr bool has_member = false;
+    template <class R>
       requires requires (R& r) {
-        // { r.end() } -> Sentinel<decltype(__stl2::begin(r))>;
 #if STL2_HACK_END_CONSTRAINTS
         r.end();
 #else
         requires Sentinel<decltype(r.end()), decltype(__stl2::begin(r))>();
 #endif
       }
+    constexpr bool has_member<R> = true;
+
+    template <class R>
+      requires has_member<R>
     constexpr auto impl(R& r, ext::priority_tag<0>)
       noexcept(noexcept(r.end())) {
 #if STL2_HACK_END_CONSTRAINTS
@@ -104,8 +123,10 @@ STL2_OPEN_NAMESPACE {
 #endif
       return r.end();
     }
-  
+
     // Prefer ADL if it returns Sentinel.
+    template <class R>
+    constexpr bool has_non_member = false;
     template <class R>
       requires requires (R& r) {
         // { end(r) } -> Sentinel<decltype(__stl2::begin(r))>;
@@ -115,6 +136,10 @@ STL2_OPEN_NAMESPACE {
         requires Sentinel<decltype(end(r)), decltype(__stl2::begin(r))>();
 #endif
       }
+    constexpr bool has_non_member<R> = true;
+
+    template <class R>
+      requires has_non_member<R>
     constexpr auto impl(R& r, ext::priority_tag<1>)
       noexcept(noexcept(end(r))) {
 #if STL2_HACK_END_CONSTRAINTS
@@ -122,32 +147,38 @@ STL2_OPEN_NAMESPACE {
 #endif
       return end(r);
     }
-  
+
+    template <class R>
+    constexpr bool can_end = false;
+    template <class R>
+      requires requires (R& r) { __end::impl(r, ext::max_priority_tag); }
+    constexpr bool can_end<R> = true;
+
     struct fn {
       template <class R, std::size_t N>
       constexpr R* operator()(R (&array)[N]) const noexcept {
         return array + N;
       }
-  
+
       template <class E>
       constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
         return il.end();
       }
-  
+
       template <class R>
-        requires requires (R& r) { __end::impl(r, ext::max_priority_tag); }
+        requires can_end<R>
       constexpr auto operator()(R& r) const
-        noexcept(noexcept(__end::impl(r, ext::max_priority_tag))) {
-        return __end::impl(r, ext::max_priority_tag);
-      }
-  
+      STL2_NOEXCEPT_RETURN(
+        __end::impl(r, ext::max_priority_tag)
+      )
+
 #if STL2_TREAT_RVALUES_AS_CONST
       template <_IsNot<is_array> R>
-        requires requires (const R& r) { __end::impl(r, ext::max_priority_tag); }
+        requires can_end<const R>
       constexpr auto operator()(const R&& r) const
-        noexcept(noexcept(__end::impl(r, ext::max_priority_tag))) {
-        return __end::impl(r, ext::max_priority_tag);
-      }
+      STL2_NOEXCEPT_RETURN(
+        __end::impl(r, ext::max_priority_tag)
+      )
 #endif
     };
   }
@@ -155,7 +186,7 @@ STL2_OPEN_NAMESPACE {
   inline namespace {
     constexpr auto& end = detail::static_const<__end::fn>::value;
   }
-  
+
   // cbegin
   namespace __cbegin {
     struct fn {
@@ -165,7 +196,7 @@ STL2_OPEN_NAMESPACE {
         noexcept(noexcept(__stl2::begin(r))) {
         return __stl2::begin(r);
       }
-  
+
 #if !STL2_TREAT_RVALUES_AS_CONST
       template <class R>
       constexpr auto operator()(const R&&) const = delete;
@@ -176,7 +207,7 @@ STL2_OPEN_NAMESPACE {
   inline namespace {
     constexpr auto& cbegin = detail::static_const<__cbegin::fn>::value;
   }
-  
+
   // cend
   namespace __cend {
     struct fn {
@@ -186,7 +217,7 @@ STL2_OPEN_NAMESPACE {
         noexcept(noexcept(__stl2::end(r))) {
         return __stl2::end(r);
       }
-  
+
 #if !STL2_TREAT_RVALUES_AS_CONST
       template <class R>
       constexpr auto operator()(const R&&) const = delete;
@@ -197,7 +228,7 @@ STL2_OPEN_NAMESPACE {
   inline namespace {
     constexpr auto& cend = detail::static_const<__cend::fn>::value;
   }
-  
+
   // rbegin
   namespace __rbegin {
     // Default to make_reverse_iterator(end(r)) for Bounded ranges of
@@ -211,7 +242,7 @@ STL2_OPEN_NAMESPACE {
       noexcept(noexcept(make_reverse_iterator(__stl2::end(r)))) {
       return make_reverse_iterator(__stl2::end(r));
     }
-  
+
     // Prefer member if it returns Iterator
     template <class R>
       requires requires (R& r) {
@@ -222,7 +253,7 @@ STL2_OPEN_NAMESPACE {
       noexcept(noexcept(r.rbegin())) {
       return r.rbegin();
     }
-  
+
     struct fn {
       template <class R>
         requires requires (R& r) { __rbegin::impl(r, ext::max_priority_tag); }
@@ -230,13 +261,13 @@ STL2_OPEN_NAMESPACE {
         noexcept(noexcept(__rbegin::impl(r, ext::max_priority_tag))) {
         return __rbegin::impl(r, ext::max_priority_tag);
       }
-  
+
       template <class E>
       constexpr reverse_iterator<const E*>
       operator()(std::initializer_list<E> il) const noexcept {
         return reverse_iterator<const E*>{il.end()};
       }
-  
+
 #if STL2_TREAT_RVALUES_AS_CONST
       template <class R>
         requires requires (const R& r) { __rbegin::impl(r, ext::max_priority_tag); }
@@ -251,7 +282,7 @@ STL2_OPEN_NAMESPACE {
   inline namespace {
     constexpr auto& rbegin = detail::static_const<__rbegin::fn>::value;
   }
-  
+
   // rend
 #define STL2_HACK_REND_CONSTRAINTS STL2_HACK_END_CONSTRAINTS
   namespace __rend {
@@ -266,7 +297,7 @@ STL2_OPEN_NAMESPACE {
       noexcept(noexcept(make_reverse_iterator(__stl2::begin(r)))) {
       return make_reverse_iterator(__stl2::begin(r));
     }
-  
+
     // Prefer member if it returns Sentinel
     template <class R>
       requires requires (R& r) {
@@ -284,21 +315,21 @@ STL2_OPEN_NAMESPACE {
 #endif
       return r.rend();
     }
-  
+
     struct fn {
       template <class E>
       constexpr reverse_iterator<const E*>
       operator()(std::initializer_list<E> il) const noexcept {
         return reverse_iterator<const E*>{il.begin()};
       }
-  
+
       template <class R>
         requires requires (R& r) { __rend::impl(r, ext::max_priority_tag); }
       constexpr auto operator()(R& r) const
         noexcept(noexcept(__rend::impl(r, ext::max_priority_tag))) {
         return __rend::impl(r, ext::max_priority_tag);
       }
-  
+
 #if STL2_TREAT_RVALUES_AS_CONST
       template <class R>
         requires requires (const R& r) { __rend::impl(r, ext::max_priority_tag); }
@@ -313,7 +344,7 @@ STL2_OPEN_NAMESPACE {
   inline namespace {
     constexpr auto& rend = detail::static_const<__rend::fn>::value;
   }
-  
+
   // crbegin
   namespace __crbegin {
     struct fn {
@@ -323,7 +354,7 @@ STL2_OPEN_NAMESPACE {
         noexcept(noexcept(__stl2::rbegin(r))) {
         return __stl2::rbegin(r);
       }
-  
+
 #if !STL2_TREAT_RVALUES_AS_CONST
       template <class R>
       constexpr auto operator()(const R&&) const = delete;
@@ -334,7 +365,7 @@ STL2_OPEN_NAMESPACE {
   inline namespace {
     constexpr auto& crbegin = detail::static_const<__crbegin::fn>::value;
   }
-  
+
   // crend
   namespace __crend {
     struct fn {
@@ -344,7 +375,7 @@ STL2_OPEN_NAMESPACE {
         noexcept(noexcept(__stl2::rend(r))) {
         return __stl2::rend(r);
       }
-  
+
 #if !STL2_TREAT_RVALUES_AS_CONST
       template <class R>
       constexpr auto operator()(const R&&) const = delete;
@@ -355,73 +386,114 @@ STL2_OPEN_NAMESPACE {
   inline namespace {
     constexpr auto& crend = detail::static_const<__crend::fn>::value;
   }
-  
+
   ///////////////////////////////////////////////////////////////////////////
   // Container access [iterator.container]
   //
   // size
   namespace __size {
-    template <class T, std::size_t N>
-    constexpr std::size_t size(T(&)[N]) noexcept {
-      return N;
-    }
-  
+    // Extension: Use (end - begin) for SizedIteratorRange
     template <class R>
-      requires requires (const R& r) { r.size(); }
-    constexpr auto size(const R& r)
-      noexcept(noexcept(r.size())) {
-      return r.size();
-    }
-  
-    struct fn {
-      template <class R>
-        requires requires (const R& r) { size(r); }
-      constexpr auto operator()(const R& r) const
-        noexcept(noexcept(size(r))) {
-        return size(r);
+      requires requires (const R& r) {
+        requires SizedIteratorRange<decltype(__stl2::begin(r)),
+                                    decltype(__stl2::end(r))>();
       }
+    constexpr auto impl(const R& r, ext::priority_tag<0>)
+    STL2_NOEXCEPT_RETURN(
+      __stl2::end(r) - __stl2::begin(r)
+    )
+
+    // Use member
+    template <class R>
+      requires requires (const R& r) {
+        STL2_DEDUCTION_CONSTRAINT(r.size(), Integral);
+      }
+    constexpr auto impl(const R& r, ext::priority_tag<1>)
+    STL2_NOEXCEPT_RETURN(
+      r.size()
+    )
+
+    // Prefer non-member
+    template <class R>
+      requires requires (const R& r) {
+        STL2_DEDUCTION_CONSTRAINT(size(r), Integral);
+      }
+    constexpr auto impl(const R& r, ext::priority_tag<2>)
+    STL2_NOEXCEPT_RETURN(
+      size(r)
+    )
+
+    template <class R>
+    constexpr bool can_size = false;
+    template <class R>
+      requires requires (const R& r) {
+        __size::impl(r, ext::max_priority_tag);
+      }
+    constexpr bool can_size<R> = true;
+
+    struct fn {
+      template <class T, std::size_t N>
+      constexpr std::size_t operator()(T(&)[N]) const noexcept {
+        return N;
+      }
+
+      template <class R>
+        requires can_size<R>
+      constexpr auto operator()(const R& r) const
+      STL2_NOEXCEPT_RETURN(
+        __size::impl(r, ext::max_priority_tag)
+      )
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
   inline namespace {
     constexpr auto& size = detail::static_const<__size::fn>::value;
   }
-  
+
   // empty
   namespace __empty {
     template <class R>
       requires requires (const R& r) {
+        STL2_CONVERSION_CONSTRAINT(__stl2::begin(r) == __stl2::end(r), bool);
+      }
+    constexpr bool impl(const R& r, ext::priority_tag<0>)
+    STL2_NOEXCEPT_RETURN(
+      static_cast<bool>(__stl2::begin(r) == __stl2::end(r))
+    )
+
+    template <class R>
+      requires requires (const R& r) {
         STL2_CONVERSION_CONSTRAINT(r.empty(), bool);
       }
-    constexpr bool impl(const R& r)
-      noexcept(noexcept(bool(r.empty()))) {
-      return r.empty();
-    }
-  
+    constexpr bool impl(const R& r, ext::priority_tag<1>)
+    STL2_NOEXCEPT_RETURN(
+      static_cast<bool>(r.empty())
+    )
+
     struct fn {
       template <class T, std::size_t N>
       constexpr bool operator()(T(&)[N]) const noexcept {
         return N == 0;
       }
-  
+
       template <class E>
       constexpr bool operator()(std::initializer_list<E> il) const noexcept {
         return il.size() == 0;
       }
-  
+
       template <class R>
-        requires requires (const R& r) { __empty::impl(r); }
+        requires requires (const R& r) { __empty::impl(r, ext::max_priority_tag); }
       constexpr bool operator()(const R& r) const
-        noexcept(noexcept(__empty::impl(r))) {
-        return __empty::impl(r);
-      }
+      STL2_NOEXCEPT_RETURN(
+        __empty::impl(r, ext::max_priority_tag)
+      )
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
   inline namespace {
     constexpr auto& empty = detail::static_const<__empty::fn>::value;
   }
-  
+
   // data
   namespace __data {
     template <class R>
@@ -432,25 +504,25 @@ STL2_OPEN_NAMESPACE {
     constexpr auto impl(R& r) noexcept(noexcept(r.data())) {
       return r.data();
     }
-  
+
     struct fn {
       template <class T, std::size_t N>
       constexpr T* operator()(T (&array)[N]) const noexcept {
         return array;
       }
-  
+
       template <class E>
       constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
         return il.begin();
       }
-  
+
       template <class R>
         requires requires (R& r) { __data::impl(r); }
       constexpr auto operator()(R& r) const
         noexcept(noexcept(__data::impl(r))) {
         return __data::impl(r);
       }
-  
+
 #if STL2_TREAT_RVALUES_AS_CONST
       template <class R>
         requires requires (const R& r) { __data::impl(r); }
@@ -465,7 +537,7 @@ STL2_OPEN_NAMESPACE {
   inline namespace {
     constexpr auto& data = detail::static_const<__data::fn>::value;
   }
-  
+
   namespace ext {
     // cdata
     namespace __cdata {
@@ -476,7 +548,7 @@ STL2_OPEN_NAMESPACE {
           noexcept(noexcept(__stl2::data(r))) {
           return __stl2::data(r);
         }
-    
+
 #if !STL2_TREAT_RVALUES_AS_CONST
         template <class R>
         constexpr auto operator()(const R&&) const = delete;

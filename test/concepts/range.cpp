@@ -240,28 +240,28 @@ void ridiculously_exhaustive_range_property_test() {
   CONCEPT_ASSERT(models::Same<ns::IteratorType<mutable_unsized_range>, I>);
   CONCEPT_ASSERT(models::Same<ns::SentinelType<mutable_unsized_range>, I>);
   CONCEPT_ASSERT(models::Range<mutable_unsized_range>);
-  CONCEPT_ASSERT(!models::SizedRange<mutable_unsized_range>);
+  CONCEPT_ASSERT(models::SizedRange<mutable_unsized_range>);
   CONCEPT_ASSERT(models::_ContainerLike<mutable_unsized_range>);
   CONCEPT_ASSERT(!models::View<mutable_unsized_range>);
 
   CONCEPT_ASSERT(models::Same<ns::IteratorType<mutable_unsized_range&>, I>);
   CONCEPT_ASSERT(models::Same<ns::SentinelType<mutable_unsized_range&>, I>);
   CONCEPT_ASSERT(models::Range<mutable_unsized_range&>);
-  CONCEPT_ASSERT(!models::SizedRange<mutable_unsized_range&>);
+  CONCEPT_ASSERT(models::SizedRange<mutable_unsized_range&>);
   CONCEPT_ASSERT(models::_ContainerLike<mutable_unsized_range>);
   CONCEPT_ASSERT(!models::View<mutable_unsized_range>);
 
   CONCEPT_ASSERT(models::Same<ns::IteratorType<const mutable_unsized_range>, CI>);
   CONCEPT_ASSERT(models::Same<ns::SentinelType<const mutable_unsized_range>, CI>);
   CONCEPT_ASSERT(models::Range<const mutable_unsized_range>);
-  CONCEPT_ASSERT(!models::SizedRange<const mutable_unsized_range>);
+  CONCEPT_ASSERT(models::SizedRange<const mutable_unsized_range>);
   CONCEPT_ASSERT(!models::_ContainerLike<const mutable_unsized_range>);
   CONCEPT_ASSERT(!models::View<const mutable_unsized_range>);
 
   CONCEPT_ASSERT(models::Same<ns::IteratorType<const mutable_unsized_range&>, CI>);
   CONCEPT_ASSERT(models::Same<ns::SentinelType<const mutable_unsized_range&>, CI>);
   CONCEPT_ASSERT(models::Range<const mutable_unsized_range&>);
-  CONCEPT_ASSERT(!models::SizedRange<const mutable_unsized_range&>);
+  CONCEPT_ASSERT(models::SizedRange<const mutable_unsized_range&>);
   CONCEPT_ASSERT(!models::_ContainerLike<const mutable_unsized_range&>);
   CONCEPT_ASSERT(!models::View<const mutable_unsized_range&>);
 
@@ -294,28 +294,28 @@ void ridiculously_exhaustive_range_property_test() {
   CONCEPT_ASSERT(models::Same<ns::IteratorType<immutable_unsized_range>, CI>);
   CONCEPT_ASSERT(models::Same<ns::SentinelType<immutable_unsized_range>, CI>);
   CONCEPT_ASSERT(models::Range<immutable_unsized_range>);
-  CONCEPT_ASSERT(!models::SizedRange<immutable_unsized_range>);
+  CONCEPT_ASSERT(models::SizedRange<immutable_unsized_range>);
   CONCEPT_ASSERT(!models::_ContainerLike<immutable_unsized_range>);
   CONCEPT_ASSERT(models::View<immutable_unsized_range>);
 
   CONCEPT_ASSERT(models::Same<ns::IteratorType<immutable_unsized_range&>, CI>);
   CONCEPT_ASSERT(models::Same<ns::SentinelType<immutable_unsized_range&>, CI>);
   CONCEPT_ASSERT(models::Range<immutable_unsized_range&>);
-  CONCEPT_ASSERT(!models::SizedRange<immutable_unsized_range&>);
+  CONCEPT_ASSERT(models::SizedRange<immutable_unsized_range&>);
   CONCEPT_ASSERT(!models::_ContainerLike<immutable_unsized_range&>);
   CONCEPT_ASSERT(!models::View<immutable_unsized_range&>);
 
   CONCEPT_ASSERT(models::Same<ns::IteratorType<const immutable_unsized_range>, CI>);
   CONCEPT_ASSERT(models::Same<ns::SentinelType<const immutable_unsized_range>, CI>);
   CONCEPT_ASSERT(models::Range<const immutable_unsized_range>);
-  CONCEPT_ASSERT(!models::SizedRange<const immutable_unsized_range>);
+  CONCEPT_ASSERT(models::SizedRange<const immutable_unsized_range>);
   CONCEPT_ASSERT(!models::_ContainerLike<const immutable_unsized_range>);
   CONCEPT_ASSERT(!models::View<const immutable_unsized_range>);
 
   CONCEPT_ASSERT(models::Same<ns::IteratorType<const immutable_unsized_range&>, CI>);
   CONCEPT_ASSERT(models::Same<ns::SentinelType<const immutable_unsized_range&>, CI>);
   CONCEPT_ASSERT(models::Range<const immutable_unsized_range&>);
-  CONCEPT_ASSERT(!models::SizedRange<const immutable_unsized_range&>);
+  CONCEPT_ASSERT(models::SizedRange<const immutable_unsized_range&>);
   CONCEPT_ASSERT(!models::_ContainerLike<const immutable_unsized_range&>);
   CONCEPT_ASSERT(!models::View<const immutable_unsized_range&>);
 
