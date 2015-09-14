@@ -280,9 +280,9 @@ void test_rng_pred()
 int main()
 {
     ::test();
-  //::test_rng();
+    //::test_rng();
     ::test_pred();
-  //::test_rng_pred();
+    //::test_rng_pred();
 
     return ::test_result();
 }
