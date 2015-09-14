@@ -22,9 +22,6 @@
 // They should probably be ill-formed.
 #define STL2_TREAT_RVALUES_AS_CONST 1
 
-// HACKHACK: Disable constraints that cause the compiler to OOM
-#define STL2_HACK_END_CONSTRAINTS 1
-
 ///////////////////////////////////////////////////////////////////////////
 // Range access [iterator.range]
 //
@@ -106,23 +103,16 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_member = false;
     template <class R>
       requires requires (R& r) {
-#if STL2_HACK_END_CONSTRAINTS
-        r.end();
-#else
         requires Sentinel<decltype(r.end()), decltype(__stl2::begin(r))>();
-#endif
       }
     constexpr bool has_member<R> = true;
 
     template <class R>
       requires has_member<R>
     constexpr auto impl(R& r, ext::priority_tag<0>)
-      noexcept(noexcept(r.end())) {
-#if STL2_HACK_END_CONSTRAINTS
-      static_assert(models::Sentinel<decltype(r.end()), decltype(__stl2::begin(r))>);
-#endif
-      return r.end();
-    }
+    STL2_NOEXCEPT_RETURN(
+      r.end()
+    )
 
     // Prefer ADL if it returns Sentinel.
     template <class R>
@@ -130,23 +120,16 @@ STL2_OPEN_NAMESPACE {
     template <class R>
       requires requires (R& r) {
         // { end(r) } -> Sentinel<decltype(__stl2::begin(r))>;
-#if STL2_HACK_END_CONSTRAINTS
-        end(r);
-#else
         requires Sentinel<decltype(end(r)), decltype(__stl2::begin(r))>();
-#endif
       }
     constexpr bool has_non_member<R> = true;
 
     template <class R>
       requires has_non_member<R>
     constexpr auto impl(R& r, ext::priority_tag<1>)
-      noexcept(noexcept(end(r))) {
-#if STL2_HACK_END_CONSTRAINTS
-      static_assert(models::Sentinel<decltype(end(r)), decltype(__stl2::begin(r))>);
-#endif
-      return end(r);
-    }
+    STL2_NOEXCEPT_RETURN(
+      end(r)
+    )
 
     template <class R>
     constexpr bool can_end = false;
@@ -303,7 +286,6 @@ STL2_OPEN_NAMESPACE {
   }
 
   // rend
-#define STL2_HACK_REND_CONSTRAINTS STL2_HACK_END_CONSTRAINTS
   namespace __rend {
     // Default to make_reverse_iterator(begin(r)) for Bounded ranges of
     // Bidirectional iterators.
@@ -329,23 +311,16 @@ STL2_OPEN_NAMESPACE {
     template <class R>
       requires requires (R& r) {
         // { r.rend() } -> Sentinel<decltype(__stl2::rbegin(r))>;
-#if STL2_HACK_REND_CONSTRAINTS
-        r.rend();
-#else
         requires Sentinel<decltype(r.rend()), decltype(__stl2::rbegin(r))>();
-#endif
       }
     constexpr bool has_member<R> = true;
 
     template <class R>
       requires has_member<R>
     constexpr auto impl(R& r, ext::priority_tag<1>)
-      noexcept(noexcept(r.rend())) {
-#if STL2_HACK_REND_CONSTRAINTS
-      static_assert(models::Sentinel<decltype(r.rend()), decltype(__stl2::rbegin(r))>);
-#endif
-      return r.rend();
-    }
+    STL2_NOEXCEPT_RETURN(
+      r.rend()
+    )
 
     template <class R>
     constexpr bool can_rend = false;
@@ -649,7 +624,5 @@ STL2_OPEN_NAMESPACE {
 } STL2_CLOSE_NAMESPACE
 
 #undef STL2_TREAT_RVALUES_AS_CONST
-#undef STL2_HACK_END_CONSTRAINTS
-#undef STL2_HACK_REND_CONSTRAINTS
 
 #endif
