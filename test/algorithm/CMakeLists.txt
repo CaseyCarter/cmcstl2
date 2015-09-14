@@ -15,6 +15,9 @@ add_test(test.alg.count alg.count)
 add_executable(alg.count_if count_if.cpp)
 add_test(test.alg.count_if alg.count_if)
 
+add_executable(alg.equal equal.cpp)
+add_test(test.alg.equal alg.equal)
+
 add_executable(alg.find find.cpp)
 add_test(test.alg.find alg.find)
 
