@@ -22,11 +22,11 @@
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
 
-namespace ranges = __stl2;
+namespace stl2 = __stl2;
 
 void test()
 {
-    using namespace __stl2;
+    using namespace stl2;
     int ia[] = {0, 1, 2, 3, 4, 5};
     constexpr unsigned s = size(ia);
     int ib[s] = {0, 1, 2, 5, 4, 5};
@@ -74,11 +74,10 @@ void test()
                   sentinel<const int*>(ia + s - 1)));
 }
 
-#if 0
 void test_rng()
 {
-    using namespace __stl2;
-    using __stl2::ext::make_range;
+    using namespace stl2;
+    using stl2::ext::make_range;
 
     int ia[] = {0, 1, 2, 3, 4, 5};
     constexpr unsigned s = size(ia);
@@ -126,7 +125,6 @@ void test_rng()
                   make_range(random_access_iterator<const int*>(ia),
                   sentinel<const int*>(ia + s - 1))));
 }
-#endif
 
 int comparison_count = 0;
 
@@ -139,7 +137,8 @@ bool counting_equals(const T &a, const T &b)
 
 void test_pred()
 {
-    using namespace __stl2;
+    using namespace stl2;
+
     int ia[] = {0, 1, 2, 3, 4, 5};
     constexpr unsigned s = size(ia);
     int ib[s] = {0, 1, 2, 5, 4, 5};
@@ -205,11 +204,10 @@ void test_pred()
                   std::equal_to<int>()));
 }
 
-#if 0
 void test_rng_pred()
 {
-    using namespace __stl2;
-    using __stl2::ext::make_range;
+    using namespace stl2;
+    using stl2::ext::make_range;
 
     int ia[] = {0, 1, 2, 3, 4, 5};
     constexpr unsigned s = size(ia);
@@ -218,17 +216,17 @@ void test_rng_pred()
                  sentinel<const int*>(ia+s)),
                  input_iterator<const int*>(ia),
                  std::equal_to<int>()));
-    CHECK(equal(make_range(input_iterator<const int*>(ia),
+    CHECK(stl2::equal(make_range(input_iterator<const int*>(ia),
                  sentinel<const int*>(ia+s)),
                  make_range(input_iterator<const int*>(ia),
                  sentinel<const int*>(ia + s)),
                  std::equal_to<int>()));
-    CHECK(equal(make_range(random_access_iterator<const int*>(ia),
+    CHECK(stl2::equal(make_range(random_access_iterator<const int*>(ia),
                  random_access_iterator<const int*>(ia+s)),
                  make_range(random_access_iterator<const int*>(ia),
                  random_access_iterator<const int*>(ia+s)),
                  std::equal_to<int>()));
-    CHECK(equal(make_range(random_access_iterator<const int*>(ia),
+    CHECK(stl2::equal(make_range(random_access_iterator<const int*>(ia),
                  sentinel<const int*>(ia+s)),
                  make_range(random_access_iterator<const int*>(ia),
                  sentinel<const int*>(ia + s)),
@@ -259,30 +257,29 @@ void test_rng_pred()
                   sentinel<const int*>(ia+s)),
                   input_iterator<const int*>(ib),
                   std::equal_to<int>()));
-    CHECK(!equal(make_range(input_iterator<const int*>(ia),
+    CHECK(!stl2::equal(make_range(input_iterator<const int*>(ia),
                   sentinel<const int*>(ia+s)),
                   make_range(input_iterator<const int*>(ib),
                   sentinel<const int*>(ib + s)),
                   std::equal_to<int>()));
-    CHECK(!equal(make_range(random_access_iterator<const int*>(ia),
+    CHECK(!stl2::equal(make_range(random_access_iterator<const int*>(ia),
                   random_access_iterator<const int*>(ia+s)),
                   make_range(random_access_iterator<const int*>(ib),
                   random_access_iterator<const int*>(ib+s)),
                   std::equal_to<int>()));
-    CHECK(!equal(make_range(random_access_iterator<const int*>(ia),
+    CHECK(!stl2::equal(make_range(random_access_iterator<const int*>(ia),
                   sentinel<const int*>(ia+s)),
                   make_range(random_access_iterator<const int*>(ib),
                   sentinel<const int*>(ib + s)),
                   std::equal_to<int>()));
 }
-#endif
 
 int main()
 {
     ::test();
-    //::test_rng();
+    ::test_rng();
     ::test_pred();
-    //::test_rng_pred();
+    ::test_rng_pred();
 
     return ::test_result();
 }

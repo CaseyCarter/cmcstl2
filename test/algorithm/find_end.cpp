@@ -159,8 +159,6 @@ test_pred()
     auto er = make_range(Iter1(ia), Sent1(ia));
     CHECK(find_end(er, make_range(Iter2(b), Sent2(b + 1)), count_equal()) == Iter1(ia));
     CHECK(count_equal::count == 0u);
-
-    static_assert(std::is_same<Iter1, decltype(find_end(er, {1, 2, 3}))>::value, "");
 }
 
 struct S
@@ -209,7 +207,6 @@ test_proj()
 
 int main()
 {
-#if 0
     test<forward_iterator<const int*>, forward_iterator<const int*> >();
     test<forward_iterator<const int*>, bidirectional_iterator<const int*> >();
     test<forward_iterator<const int*>, random_access_iterator<const int*> >();
@@ -269,7 +266,6 @@ int main()
     test_proj<random_access_iterator<const S*>, forward_iterator<const int*>, sentinel<const S*>, sentinel<const int *> >();
     test_proj<random_access_iterator<const S*>, bidirectional_iterator<const int*>, sentinel<const S*>, sentinel<const int *> >();
     test_proj<random_access_iterator<const S*>, random_access_iterator<const int*>, sentinel<const S*>, sentinel<const int *> >();
-#endif
 
     return ::test_result();
 }

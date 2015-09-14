@@ -112,7 +112,7 @@ int main()
     test_iter<forward_iterator<const int*>, sentinel<const int*>>();
     test_iter<bidirectional_iterator<const int*>, sentinel<const int*>>();
     test_iter<random_access_iterator<const int*>, sentinel<const int*>>();
-#if 0 // Disabled - OOM.
+
     test_range<input_iterator<const int*>>();
     test_range<forward_iterator<const int*>>();
     test_range<bidirectional_iterator<const int*>>();
@@ -122,7 +122,7 @@ int main()
     test_range<forward_iterator<const int*>, sentinel<const int*>>();
     test_range<bidirectional_iterator<const int*>, sentinel<const int*>>();
     test_range<random_access_iterator<const int*>, sentinel<const int*>>();
-#endif
+
     // Works with projections?
     S s1[] = {S{1},S{2},S{3},S{4},S{-4},S{5},S{6},S{40},S{7},S{8},S{9}};
     int const i1[] = {1,2,3,4,5,6,7,8,9};
