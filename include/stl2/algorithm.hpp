@@ -24,6 +24,7 @@
 #include <stl2/detail/algorithm/find_if.hpp>
 #include <stl2/detail/algorithm/find_if_not.hpp>
 #include <stl2/detail/algorithm/for_each.hpp>
+#include <stl2/detail/algorithm/mismatch.hpp>
 #include <stl2/detail/algorithm/none_of.hpp>
 #include <stl2/detail/algorithm/transform.hpp>
 

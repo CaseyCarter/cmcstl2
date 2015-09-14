@@ -33,6 +33,9 @@ add_test(test.alg.find_if_not alg.find_if_not)
 add_executable(alg.for_each for_each.cpp)
 add_test(test.alg.for_each alg.for_each)
 
+add_executable(alg.mismatch mismatch.cpp)
+add_test(test.alg.mismatch alg.mismatch)
+
 add_executable(alg.none_of none_of.cpp)
 add_test(test.alg.none_of alg.none_of)
 
