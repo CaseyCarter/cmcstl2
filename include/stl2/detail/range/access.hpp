@@ -486,7 +486,10 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_begin_end = false;
     template <class R>
       requires requires (const R& r) {
-        STL2_CONVERSION_CONSTRAINT(__stl2::begin(r) == __stl2::end(r), bool);
+        // This is sufficient: if __stl2::end(r) is a valid expression,
+        // __stl2::begin(r) must also be valid and
+        // Sentinel<decltype(end(r)), decltype(begin(r))>() must be satisfied.
+        __stl2::end(r);
       }
     constexpr bool has_begin_end<R> = true;
 

@@ -23,8 +23,8 @@
 // find_end [alg.find.end]
 //
 STL2_OPEN_NAMESPACE {
-  template <ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
-            Sentinel<I2> S2, class Proj = identity,
+  template <ForwardIterator I1, Sentinel<I1> S1,
+            ForwardIterator I2, Sentinel<I2> S2, class Proj = identity,
             IndirectCallableRelation<I2, Projected<I1, Proj>> Pred = equal_to<>>
   I1 find_end(I1 first1, const S1 last1,
               const I2 first2, const S2 last2,
