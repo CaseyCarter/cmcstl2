@@ -21,11 +21,16 @@ STL2_OPEN_NAMESPACE {
   //
   namespace ext {
     template <class T>
-    concept bool StreamExtractable =
-      requires (std::istream& is, T& t) {
+    constexpr bool __stream_extractable = false;
+    template <class T>
+      requires requires (std::istream& is, T& t) {
         STL2_EXACT_TYPE_CONSTRAINT(is >> t, std::istream&);
         // Axiom: &is == &(is << t)
-      };
+      }
+    constexpr bool __stream_extractable<T> = true;
+
+    template <class T>
+    concept bool StreamExtractable = __stream_extractable<T>;
   }
 
   namespace models {
@@ -40,11 +45,16 @@ STL2_OPEN_NAMESPACE {
   //
   namespace ext {
     template <class T>
-    concept bool StreamInsertable =
-      requires (std::ostream& os, const T& t) {
+    constexpr bool __stream_insertable = false;
+    template <class T>
+      requires requires (std::ostream& os, const T& t) {
         STL2_EXACT_TYPE_CONSTRAINT(os << t, std::ostream&);
         // Axiom: &os == &(os << t)
-      };
+      }
+    constexpr bool __stream_insertable<T> = true;
+
+    template <class T>
+    concept bool StreamInsertable = __stream_insertable<T>;
   }
 
   namespace models {

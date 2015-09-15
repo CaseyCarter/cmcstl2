@@ -30,12 +30,18 @@ STL2_OPEN_NAMESPACE {
     ext::WeaklyEqualityComparable<I, S>();
 
   template <class I, class S, class D>
-  concept bool __CompatibleSizedIteratorRange =
-    SizedIteratorRange<I, S>() &&
-    requires (const I i, const S s) {
+  constexpr bool __compatible_sized_iterator_range = false;
+  template <class I, class S, class D>
+    requires requires (const I i, const S s) {
       {i - s} -> D;
       {s - i} -> D;
-    };
+    }
+  constexpr bool __compatible_sized_iterator_range<I, S, D> = true;
+
+  template <class I, class S, class D>
+  concept bool __CompatibleSizedIteratorRange =
+    SizedIteratorRange<I, S>() &&
+    __compatible_sized_iterator_range<I, S, D>;
 
   struct __ci_access {
     template <class T>
@@ -180,7 +186,7 @@ STL2_OPEN_NAMESPACE {
 
   // Not to spec: extension
   template <class I, class S>
-  requires __WeakSentinel<S, I> && !_Valid<__cond, I, S>
+    requires __WeakSentinel<S, I> && !_Valid<__cond, I, S>
   struct common_type<I, S> {
     using type = common_iterator<I, S>;
   };

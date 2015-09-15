@@ -26,11 +26,17 @@ STL2_OPEN_NAMESPACE {
   // Function [concepts.lib.functions.function]
   //
   template <class F, class...Args>
+  constexpr bool __function = false;
+  template <class F, class...Args>
+    requires requires (F& f, Args&&...args) {
+      f((Args&&)args...);
+    }
+  constexpr bool __function<F, Args...> = true;
+
+  template <class F, class...Args>
   concept bool Function() {
     return CopyConstructible<F>() &&
-      requires (F& f, Args&&...args) {
-        f((Args&&)args...);
-      };
+      __function<F, Args...>;
   }
 
   namespace models {
