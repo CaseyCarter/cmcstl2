@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 
     struct __try_swap_fn {
       template <class T, class U>
-        requires requires (T& x, T& y) { swap(x, y); }
+        requires requires (T& x, U& y) { swap(x, y); }
       void operator()(T& t, U& u) const
         noexcept(noexcept(swap(t,u)));
 
