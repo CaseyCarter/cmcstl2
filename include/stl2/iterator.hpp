@@ -16,6 +16,7 @@
 #include <initializer_list>
 
 #include <stl2/type_traits.hpp>
+#include <stl2/detail/ebo_storage.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -130,28 +131,25 @@ STL2_OPEN_NAMESPACE {
   }
 
   namespace ext {
+    // iterator_range? view? simple_iterator_and_sentinel_pair?
     template <Iterator I, Sentinel<I> S>
-    class range { // iterator_range? view? simple_iterator_and_sentinel_pair?
-    private:
-      // Todo: EBO
-      I i_;
-      S s_;
-
+    class range : ext::compressed_pair<I, S> {
+      using pair_t = ext::compressed_pair<I, S>;
     public:
       range() = default;
 
       constexpr range(I i, S s)
         noexcept(is_nothrow_move_constructible<I>::value &&
                  is_nothrow_move_constructible<S>::value) :
-        i_{__stl2::move(i)}, s_{__stl2::move(s)} {}
+        pair_t{__stl2::move(i), __stl2::move(s)} {}
 
       constexpr auto begin() const
         noexcept(is_nothrow_copy_constructible<I>::value) {
-        return i_;
+        return pair_t::first();
       }
       constexpr auto end() const
         noexcept(is_nothrow_copy_constructible<S>::value) {
-        return s_;
+        return pair_t::second();
       }
     };
 
