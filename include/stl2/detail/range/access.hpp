@@ -548,6 +548,25 @@ STL2_OPEN_NAMESPACE {
   // data
   namespace __data {
     template <class R>
+    constexpr bool has_contiguous_iterator = false;
+    template <class R>
+      requires requires (R& r) {
+        requires ext::ContiguousIterator<decltype(__stl2::begin(r))>();
+      }
+    constexpr bool has_contiguous_iterator<R> = true;
+
+    template <class R>
+      requires has_contiguous_iterator<R>
+    constexpr auto impl(R& r, ext::priority_tag<0>)
+      noexcept(noexcept(
+        __stl2::begin(r) == __stl2::end(r)
+          ? nullptr : std::addressof(*__stl2::begin(r))))
+    {
+      auto i = __stl2::begin(r);
+      return i == __stl2::end(r) ? nullptr : std::addressof(*i);
+    }
+
+    template <class R>
     constexpr bool has_member = false;
     template <class R>
       requires requires (R& r) {
@@ -558,7 +577,7 @@ STL2_OPEN_NAMESPACE {
 
     template <class R>
       requires has_member<R>
-    constexpr auto impl(R& r)
+    constexpr auto impl(R& r, ext::priority_tag<1>)
     STL2_NOEXCEPT_RETURN(
       r.data()
     )
@@ -566,7 +585,7 @@ STL2_OPEN_NAMESPACE {
     template <class R>
     constexpr bool can_data = false;
     template <class R>
-      requires requires (R& r) { __data::impl(r); }
+      requires requires (R& r) { __data::impl(r, ext::max_priority_tag); }
     constexpr bool can_data<R> = true;
 
     struct fn {
@@ -584,7 +603,7 @@ STL2_OPEN_NAMESPACE {
         requires can_data<R>
       constexpr auto operator()(R& r) const
       STL2_NOEXCEPT_RETURN(
-        __data::impl(r)
+        __data::impl(r, ext::max_priority_tag)
       )
 
 #if STL2_TREAT_RVALUES_AS_CONST
@@ -592,7 +611,7 @@ STL2_OPEN_NAMESPACE {
         requires can_data<const R>
       constexpr auto operator()(const R&& r) const
       STL2_NOEXCEPT_RETURN(
-        __data::impl(r)
+        __data::impl(r, ext::max_priority_tag)
       )
 #endif
     };

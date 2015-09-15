@@ -153,13 +153,6 @@ STL2_OPEN_NAMESPACE {
         noexcept(is_nothrow_copy_constructible<S>::value) {
         return s_;
       }
-
-      constexpr auto data() const
-        noexcept(noexcept(
-          declval<I>() == declval<S>() ? nullptr : std::addressof(*declval<I>())))
-        requires ContiguousIterator<I>() {
-        return i_ == s_ ? nullptr : std::addressof(*i_);
-      }
     };
 
     template <Iterator I, Sentinel<I> S = I>
