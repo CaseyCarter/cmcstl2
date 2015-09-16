@@ -39,7 +39,7 @@ int main() {
   {
     std::istringstream is("0.9 1.8 2.4 3.3");
     ::check_equal(
-      ext::make_range(istream_iterator<double>{is}),
+      ext::make_range(istream_iterator<double>{is}, default_sentinel{}),
         {0.9, 1.8, 2.4, 3.3});
   }
 
