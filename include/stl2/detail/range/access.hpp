@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
   // begin
   // 20150805: Not to spec: is an N4381-style customization point.
   namespace __begin {
-    // Use member if it returns Iterator.
+    // Prefer member if it returns Iterator.
     template <class R>
     constexpr bool has_member = false;
     template <class R>
@@ -40,10 +40,10 @@ STL2_OPEN_NAMESPACE {
 
     template <class R>
       requires has_member<R>
-    constexpr auto impl(R& r, ext::priority_tag<0>)
+    constexpr auto impl(R& r, ext::priority_tag<1>)
     STL2_NOEXCEPT_RETURN(r.begin())
 
-    // Prefer ADL if it returns Iterator.
+    // Use ADL if it returns Iterator.
     template <class R>
     constexpr bool has_non_member = false;
     template <class R>
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 
     template <class R>
       requires has_non_member<R>
-    constexpr auto impl(R& r, ext::priority_tag<1>)
+    constexpr auto impl(R& r, ext::priority_tag<0>)
     STL2_NOEXCEPT_RETURN(begin(r))
 
     template <class R>
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 
   // end
   namespace __end {
-    // Use member if it returns Sentinel.
+    // Prefer member if it returns Sentinel.
     template <class R>
     constexpr bool has_member = false;
     template <class R>
@@ -109,12 +109,12 @@ STL2_OPEN_NAMESPACE {
 
     template <class R>
       requires has_member<R>
-    constexpr auto impl(R& r, ext::priority_tag<0>)
+    constexpr auto impl(R& r, ext::priority_tag<1>)
     STL2_NOEXCEPT_RETURN(
       r.end()
     )
 
-    // Prefer ADL if it returns Sentinel.
+    // Use ADL if it returns Sentinel.
     template <class R>
     constexpr bool has_non_member = false;
     template <class R>
@@ -126,7 +126,7 @@ STL2_OPEN_NAMESPACE {
 
     template <class R>
       requires has_non_member<R>
-    constexpr auto impl(R& r, ext::priority_tag<1>)
+    constexpr auto impl(R& r, ext::priority_tag<0>)
     STL2_NOEXCEPT_RETURN(
       end(r)
     )
@@ -214,6 +214,23 @@ STL2_OPEN_NAMESPACE {
 
   // rbegin
   namespace __rbegin {
+    // Prefer member if it returns Iterator
+    template <class R>
+    constexpr bool has_member = false;
+    template <class R>
+      requires requires (R& r) {
+        // { r.rbegin() } -> Iterator;
+        STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
+      }
+    constexpr bool has_member<R> = true;
+
+    template <class R>
+      requires has_member<R>
+    constexpr auto impl(R& r, ext::priority_tag<1>)
+    STL2_NOEXCEPT_RETURN(
+      r.rbegin()
+    )
+
     // Default to make_reverse_iterator(end(r)) for Bounded ranges of
     // Bidirectional iterators.
     template <class R>
@@ -230,23 +247,6 @@ STL2_OPEN_NAMESPACE {
     constexpr auto impl(R& r, ext::priority_tag<0>)
     STL2_NOEXCEPT_RETURN(
       make_reverse_iterator(__stl2::end(r))
-    )
-
-    // Prefer member if it returns Iterator
-    template <class R>
-    constexpr bool has_member = false;
-    template <class R>
-      requires requires (R& r) {
-        // { r.rbegin() } -> Iterator;
-        STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
-      }
-    constexpr bool has_member<R> = true;
-
-    template <class R>
-      requires has_member<R>
-    constexpr auto impl(R& r, ext::priority_tag<1>)
-    STL2_NOEXCEPT_RETURN(
-      r.rbegin()
     )
 
     template <class R>
@@ -287,6 +287,23 @@ STL2_OPEN_NAMESPACE {
 
   // rend
   namespace __rend {
+    // Prefer member if it returns Sentinel
+    template <class R>
+    constexpr bool has_member = false;
+    template <class R>
+      requires requires (R& r) {
+        // { r.rend() } -> Sentinel<decltype(__stl2::rbegin(r))>;
+        requires Sentinel<decltype(r.rend()), decltype(__stl2::rbegin(r))>();
+      }
+    constexpr bool has_member<R> = true;
+
+    template <class R>
+      requires has_member<R>
+    constexpr auto impl(R& r, ext::priority_tag<1>)
+    STL2_NOEXCEPT_RETURN(
+      r.rend()
+    )
+
     // Default to make_reverse_iterator(begin(r)) for Bounded ranges of
     // Bidirectional iterators.
     template <class R>
@@ -303,23 +320,6 @@ STL2_OPEN_NAMESPACE {
     constexpr auto impl(R& r, ext::priority_tag<0>)
     STL2_NOEXCEPT_RETURN(
       make_reverse_iterator(__stl2::begin(r))
-    )
-
-    // Prefer member if it returns Sentinel
-    template <class R>
-    constexpr bool has_member = false;
-    template <class R>
-      requires requires (R& r) {
-        // { r.rend() } -> Sentinel<decltype(__stl2::rbegin(r))>;
-        requires Sentinel<decltype(r.rend()), decltype(__stl2::rbegin(r))>();
-      }
-    constexpr bool has_member<R> = true;
-
-    template <class R>
-      requires has_member<R>
-    constexpr auto impl(R& r, ext::priority_tag<1>)
-    STL2_NOEXCEPT_RETURN(
-      r.rend()
     )
 
     template <class R>
@@ -404,6 +404,38 @@ STL2_OPEN_NAMESPACE {
   //
   // size
   namespace __size {
+    // Prefer member
+    template <class R>
+    constexpr bool has_member = false;
+    template <class R>
+      requires requires (const R& r) {
+        STL2_DEDUCTION_CONSTRAINT(r.size(), Integral);
+      }
+    constexpr bool has_member<R> = true;
+
+    template <class R>
+      requires has_member<R>
+    constexpr auto impl(const R& r, ext::priority_tag<2>)
+    STL2_NOEXCEPT_RETURN(
+      r.size()
+    )
+
+    // Use non-member
+    template <class R>
+    constexpr bool has_non_member = false;
+    template <class R>
+      requires requires (const R& r) {
+        STL2_DEDUCTION_CONSTRAINT(size(r), Integral);
+      }
+    constexpr bool has_non_member<R> = true;
+
+    template <class R>
+      requires has_non_member<R>
+    constexpr auto impl(const R& r, ext::priority_tag<1>)
+    STL2_NOEXCEPT_RETURN(
+      size(r)
+    )
+
     // Extension: Use (end - begin) for SizedIteratorRange
     template <class R>
     constexpr bool has_difference = false;
@@ -419,38 +451,6 @@ STL2_OPEN_NAMESPACE {
     constexpr auto impl(const R& r, ext::priority_tag<0>)
     STL2_NOEXCEPT_RETURN(
       __stl2::end(r) - __stl2::begin(r)
-    )
-
-    // Use member
-    template <class R>
-    constexpr bool has_member = false;
-    template <class R>
-      requires requires (const R& r) {
-        STL2_DEDUCTION_CONSTRAINT(r.size(), Integral);
-      }
-    constexpr bool has_member<R> = true;
-
-    template <class R>
-      requires has_member<R>
-    constexpr auto impl(const R& r, ext::priority_tag<1>)
-    STL2_NOEXCEPT_RETURN(
-      r.size()
-    )
-
-    // Prefer non-member
-    template <class R>
-    constexpr bool has_non_member = false;
-    template <class R>
-      requires requires (const R& r) {
-        STL2_DEDUCTION_CONSTRAINT(size(r), Integral);
-      }
-    constexpr bool has_non_member<R> = true;
-
-    template <class R>
-      requires has_non_member<R>
-    constexpr auto impl(const R& r, ext::priority_tag<2>)
-    STL2_NOEXCEPT_RETURN(
-      size(r)
     )
 
     template <class R>
@@ -482,6 +482,23 @@ STL2_OPEN_NAMESPACE {
 
   // empty
   namespace __empty {
+    // Prefer member
+    template <class R>
+    constexpr bool has_member = false;
+    template <class R>
+      requires requires (const R& r) {
+        STL2_CONVERSION_CONSTRAINT(r.empty(), bool);
+      }
+    constexpr bool has_member<R> = true;
+
+    template <class R>
+      requires has_member<R>
+    constexpr bool impl(const R& r, ext::priority_tag<1>)
+    STL2_NOEXCEPT_RETURN(
+      static_cast<bool>(r.empty())
+    )
+
+    // Use begin == end
     template <class R>
     constexpr bool has_begin_end = false;
     template <class R>
@@ -498,21 +515,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool impl(const R& r, ext::priority_tag<0>)
     STL2_NOEXCEPT_RETURN(
       static_cast<bool>(__stl2::begin(r) == __stl2::end(r))
-    )
-
-    template <class R>
-    constexpr bool has_member = false;
-    template <class R>
-      requires requires (const R& r) {
-        STL2_CONVERSION_CONSTRAINT(r.empty(), bool);
-      }
-    constexpr bool has_member<R> = true;
-
-    template <class R>
-      requires has_member<R>
-    constexpr bool impl(const R& r, ext::priority_tag<1>)
-    STL2_NOEXCEPT_RETURN(
-      static_cast<bool>(r.empty())
     )
 
     template <class R>
@@ -547,25 +549,7 @@ STL2_OPEN_NAMESPACE {
 
   // data
   namespace __data {
-    template <class R>
-    constexpr bool has_contiguous_iterator = false;
-    template <class R>
-      requires requires (R& r) {
-        requires ext::ContiguousIterator<decltype(__stl2::begin(r))>();
-      }
-    constexpr bool has_contiguous_iterator<R> = true;
-
-    template <class R>
-      requires has_contiguous_iterator<R>
-    constexpr auto impl(R& r, ext::priority_tag<0>)
-      noexcept(noexcept(
-        __stl2::begin(r) == __stl2::end(r)
-          ? nullptr : std::addressof(*__stl2::begin(r))))
-    {
-      auto i = __stl2::begin(r);
-      return i == __stl2::end(r) ? nullptr : std::addressof(*i);
-    }
-
+    // Prefer member
     template <class R>
     constexpr bool has_member = false;
     template <class R>
@@ -581,6 +565,26 @@ STL2_OPEN_NAMESPACE {
     STL2_NOEXCEPT_RETURN(
       r.data()
     )
+
+    // Default implementation for contiguous ranges
+    template <class R>
+    constexpr bool has_contiguous_iterator = false;
+    template <class R>
+      requires requires (R& r) {
+        requires ext::ContiguousIterator<decltype(__stl2::begin(r))>();
+      }
+    constexpr bool has_contiguous_iterator<R> = true;
+
+    template <class R>
+      requires has_contiguous_iterator<R>
+    auto impl(R& r, ext::priority_tag<0>)
+      noexcept(noexcept(
+        __stl2::begin(r) == __stl2::end(r)
+          ? nullptr : std::addressof(*__stl2::begin(r))))
+    {
+      auto i = __stl2::begin(r);
+      return i == __stl2::end(r) ? nullptr : std::addressof(*i);
+    }
 
     template <class R>
     constexpr bool can_data = false;

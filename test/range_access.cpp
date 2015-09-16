@@ -119,15 +119,13 @@ void test() {
   static_assert(can_begin<const B&>);
   static_assert(models::Same<decltype(__stl2::begin(__stl2::declval<const B&>())), const int*>);
 
-#if 0 // FIXME: Bug?
   // Valid: Both member and non-member begin, but non-member returns non-Iterator.
   static_assert(can_begin<C&>);
-#endif
   static_assert(can_begin<const C&>);
 
-  // Valid: Prefer non-member begin
+  // Valid: Prefer member begin
   static_assert(can_begin<D&>);
-  static_assert(models::Same<char*, decltype(__stl2::begin(__stl2::declval<D&>()))>);
+  static_assert(models::Same<int*, decltype(__stl2::begin(__stl2::declval<D&>()))>);
   static_assert(can_begin<const D&>);
   static_assert(models::Same<const int*, decltype(__stl2::begin(__stl2::declval<const D&>()))>);
 

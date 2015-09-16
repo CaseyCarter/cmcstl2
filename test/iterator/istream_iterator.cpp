@@ -19,18 +19,6 @@ using namespace __stl2;
 
 int main() {
   {
-    using I = ext::range<int*, int*>;
-    using CI = ext::range<const int*, const int*>;
-    static_assert(models::View<I>);
-    static_assert(models::SizedRange<I>);
-    static_assert(models::ContiguousRange<I>);
-    static_assert(models::BoundedRange<I>);
-    static_assert(models::View<CI>);
-    static_assert(models::SizedRange<CI>);
-    static_assert(models::ContiguousRange<CI>);
-    static_assert(models::BoundedRange<CI>);
-  }
-  {
     using I = istream_iterator<int>;
     static_assert(is_same<DifferenceType<I>, std::ptrdiff_t>());
     static_assert(is_same<ValueType<I>, int>());

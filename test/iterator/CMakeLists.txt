@@ -27,3 +27,6 @@ add_test(test.iterator.istreambuf istreambuf_iterator)
 
 add_executable(ostreambuf_iterator ostreambuf_iterator.cpp)
 add_test(test.iterator.ostreambuf ostreambuf_iterator)
+
+add_executable(make_range make_range.cpp)
+add_test(test.iterator.make_range make_range)

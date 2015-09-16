@@ -513,7 +513,7 @@ STL2_OPEN_NAMESPACE {
   template <class I>
   concept bool Incrementable() {
     return WeaklyIncrementable<I>() &&
-      Regular<I>() &&
+      EqualityComparable<I>() &&
       __incrementable<I>;
   }
 
@@ -614,7 +614,7 @@ STL2_OPEN_NAMESPACE {
   template <class I>
   concept bool Iterator() {
     return WeakIterator<I>() &&
-      Regular<I>();
+      EqualityComparable<I>();
   }
 
   namespace models {
@@ -663,7 +663,7 @@ STL2_OPEN_NAMESPACE {
   template <class I, class T>
   concept bool OutputIterator() {
     return WeakOutputIterator<I, T>() &&
-      Iterator<I>();
+      EqualityComparable<I>();
   }
 
   namespace models {
