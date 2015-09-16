@@ -45,5 +45,8 @@ add_test(test.alg.mismatch alg.mismatch)
 add_executable(alg.none_of none_of.cpp)
 add_test(test.alg.none_of alg.none_of)
 
+add_executable(alg.search search.cpp)
+add_test(test.alg.search alg.search)
+
 add_executable(alg.transform transform.cpp)
 add_test(test.alg.transform alg.transform)

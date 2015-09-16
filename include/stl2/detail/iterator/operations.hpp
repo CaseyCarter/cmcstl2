@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
       ++i;
     }
   }
-  
+
   BidirectionalIterator{I}
   constexpr void advance(I& i, DifferenceType<I> n)
     noexcept(noexcept(++i, void(), --i)) {
@@ -44,13 +44,13 @@ STL2_OPEN_NAMESPACE {
       }
     }
   }
-  
+
   RandomAccessIterator{I}
   constexpr void advance(I& i, DifferenceType<I> n)
   STL2_NOEXCEPT_RETURN(
     void(i += n)
   )
-  
+
   Sentinel{S, I}
   constexpr void advance(I& i, S bound)
     noexcept(noexcept(bool(i != bound), ++i)) {
@@ -58,19 +58,21 @@ STL2_OPEN_NAMESPACE {
       ++i;
     }
   }
-  
-  SizedIteratorRange{I, S}
+
+  // Don't use SizedIteratorRange{I, S} here: GCC PR 67545.
+  template <class S, class I>
+    requires SizedIteratorRange<I, S>()
   constexpr void advance(I& i, S bound)
   STL2_NOEXCEPT_RETURN(
     __stl2::advance(i, bound - i)
   )
-  
+
   Iterator{I}
   constexpr void advance(I& i, I bound)
   STL2_NOEXCEPT_RETURN(
     void(i = bound)
   )
-  
+
   Sentinel{S, I}
   constexpr DifferenceType<I>
   advance(I& i, DifferenceType<I> n, S bound)
@@ -81,7 +83,7 @@ STL2_OPEN_NAMESPACE {
     }
     return n;
   }
-  
+
   template <BidirectionalIterator I, Sentinel<I> S>
   constexpr DifferenceType<I>
   advance(I& i, DifferenceType<I> n, S bound)
@@ -99,8 +101,10 @@ STL2_OPEN_NAMESPACE {
     }
     return n;
   }
-  
-  SizedIteratorRange{I, S}
+
+  // Don't use SizedIteratorRange{I, S} here: GCC PR 67545.
+  template <class S, class I>
+    requires SizedIteratorRange<I, S>()
   constexpr DifferenceType<I>
   advance(I& i, DifferenceType<I> n, S bound)
     noexcept(noexcept(
@@ -117,7 +121,7 @@ STL2_OPEN_NAMESPACE {
       return 0;
     }
   }
-  
+
   // distance
   Sentinel{S, I}
   constexpr DifferenceType<I> distance(I first, S last)
@@ -129,40 +133,41 @@ STL2_OPEN_NAMESPACE {
     }
     return n;
   }
-  
+
+  // Don't use SizedIteratorRange{I, S} here: GCC PR 67545.
   template <class S, class I>
     requires SizedIteratorRange<I, S>()
   constexpr DifferenceType<I> distance(I first, S last)
   STL2_NOEXCEPT_RETURN(
     DifferenceType<I>(last - first)
   )
-  
+
   // next
   WeakIterator{I}
   constexpr I next(I x, DifferenceType<I> n = 1)
   STL2_NOEXCEPT_RETURN(
     __stl2::advance(x, n), x
   )
-  
+
   Sentinel{S, I}
   constexpr I next(I x, S bound)
   STL2_NOEXCEPT_RETURN(
     __stl2::advance(x, bound), x
   )
-  
+
   Sentinel{S, I}
   constexpr I next(I x, DifferenceType<I> n, S bound)
   STL2_NOEXCEPT_RETURN(
     __stl2::advance(x, n, bound), x
   )
-  
+
   // prev
   BidirectionalIterator{I}
   constexpr I prev(I x, DifferenceType<I> n = 1)
   STL2_NOEXCEPT_RETURN(
     __stl2::advance(x, -n), x
   )
-  
+
   template <BidirectionalIterator I, Sentinel<I> S>
   constexpr I prev(I x, DifferenceType<I> n, S bound)
   STL2_NOEXCEPT_RETURN(
