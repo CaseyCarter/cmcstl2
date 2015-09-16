@@ -90,18 +90,19 @@ STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // ExplicitlyConvertibleTo [Extension]
   //
-  namespace ext {
-    template <class T, class U>
-    concept bool ExplicitlyConvertibleTo() {
-      return requires (T (&t)()) { static_cast<U>(t()); };
-    }
-  }
-
   namespace models {
     template <class, class>
     constexpr bool ExplicitlyConvertibleTo = false;
-    __stl2::ext::ExplicitlyConvertibleTo{T, U}
+    template <class T, class U>
+      requires requires (T (&t)()) { static_cast<U>(t()); }
     constexpr bool ExplicitlyConvertibleTo<T, U> = true;
+  }
+
+  namespace ext {
+    template <class T, class U>
+    concept bool ExplicitlyConvertibleTo() {
+      return models::ExplicitlyConvertibleTo<T, U>;
+    }
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -164,18 +165,17 @@ STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // Assignable [concepts.lib.corelang.assignable]
   //
-  template <class T, class U>
-    concept bool Assignable() {
-    return requires (T&& t, U&& u) {
-      STL2_EXACT_TYPE_CONSTRAINT((T&&)t = (U&&)u, T&);
-    };
-  }
-
   namespace models {
     template <class, class>
     constexpr bool Assignable = false;
-    __stl2::Assignable{T, U}
+    template <class T, class U>
+      requires Same<decltype(declval<T>() = declval<U>()), T&>
     constexpr bool Assignable<T, U> = true;
+  }
+
+  template <class T, class U>
+  concept bool Assignable() {
+    return models::Assignable<T, U>;
   }
 } STL2_CLOSE_NAMESPACE
 

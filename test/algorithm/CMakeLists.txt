@@ -36,6 +36,9 @@ add_test(test.alg.find_if_not alg.find_if_not)
 add_executable(alg.for_each for_each.cpp)
 add_test(test.alg.for_each alg.for_each)
 
+add_executable(alg.is_permutation is_permutation.cpp)
+add_test(test.alg.is_permutation alg.is_permutation)
+
 add_executable(alg.mismatch mismatch.cpp)
 add_test(test.alg.mismatch alg.mismatch)
 

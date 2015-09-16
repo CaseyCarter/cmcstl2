@@ -28,24 +28,26 @@ STL2_OPEN_NAMESPACE {
   // Not to spec: is_object and accepting the parameters by reference are
   //              necessary to prevent hard errors in the requires clause
   //              with odd types.
-  template <class T>
-  concept bool Destructible() {
-    return _Is<T, is_object> &&
-      requires (T& t, const T& ct, T* const p) {
-        { t.~T() } noexcept;
-        STL2_EXACT_TYPE_CONSTRAINT(&t, T*);
-        STL2_EXACT_TYPE_CONSTRAINT(&ct, const T*);
-        delete p;
-        delete[] p;
-      };
-  }
-
   namespace models {
     template <class>
     constexpr bool Destructible = false;
-    __stl2::Destructible{T}
+    template <class T>
+      requires _Is<T, is_object> && requires (T& t, const T& ct, T* const p) {
+        { t.~T() } noexcept;
+        requires Same<decltype(&t),T*>;
+        requires Same<decltype(&ct),const T*>;
+        delete p;
+        delete[] p;
+      }
     constexpr bool Destructible<T> = true;
+  }
 
+  template <class T>
+  concept bool Destructible() {
+    return models::Destructible<T>;
+  }
+
+  namespace models {
     // Destructible<Ts>() && ...
     template <class...Ts>
     constexpr bool AllDestructible = false;
@@ -59,11 +61,17 @@ STL2_OPEN_NAMESPACE {
   //
   namespace ext {
     template <class T, class...Args>
-    concept bool ConstructibleObject =
-      Destructible<T>() && requires (Args&&...args) {
+    constexpr bool __constructible_object = false;
+    template <class T, class...Args>
+      requires requires (Args&&...args) {
         T{ (Args&&)args... };
         new T{ (Args&&)args... };
-      };
+      }
+    constexpr bool __constructible_object<T, Args...> = true;
+
+    template <class T, class...Args>
+    concept bool ConstructibleObject =
+      Destructible<T>() && __constructible_object<T, Args...>;
 
     // 20150718: Not to spec: spec is broken.
     // FIXME: Correct wording.
@@ -103,11 +111,16 @@ STL2_OPEN_NAMESPACE {
   // enforce the requirement that the default constructor be non-explicit.
   //
   template <class T>
+  constexpr bool __default_constructible = false;
+  template <class T>
+    requires requires (const std::size_t n) {
+      new T[n]{}; // not required to be equality preserving
+    }
+  constexpr bool __default_constructible<T> = true;
+
+  template <class T>
   concept bool DefaultConstructible() {
-    return Constructible<T>() &&
-      requires (const std::size_t n) {
-        new T[n]{}; // not required to be equality preserving
-      };
+    return Constructible<T>() && __default_constructible<T>;
   }
 
   namespace models {

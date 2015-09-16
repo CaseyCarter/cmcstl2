@@ -48,14 +48,26 @@ STL2_OPEN_NAMESPACE {
       b = __stl2::exchange(a, __stl2::move(b));
     }
 
+    template <class T, class U>
+    constexpr bool __lvalue_swappable = false;
+    template <class T, class U>
+      requires requires (T& x, U& y) { swap(x, y); }
+    constexpr bool __lvalue_swappable<T, U> = true;
+
+    template <class C, class T, class U>
+    constexpr bool __recursive_swap_test = false;
+    template <class C, class T, class U>
+      requires requires (T& x, U& y) { C{}(x, y); }
+    constexpr bool __recursive_swap_test<C, T, U> = true;
+
     struct __try_swap_fn {
       template <class T, class U>
-        requires requires (T& x, U& y) { swap(x, y); }
+        requires __lvalue_swappable<T, U>
       void operator()(T& t, U& u) const
         noexcept(noexcept(swap(t,u)));
 
       template <class T, class U, std::size_t N, typename This = __try_swap_fn>
-        requires requires (T& x, U& y) { This{}(x, y); }
+        requires __recursive_swap_test<This, T, U>
       void operator()(T (&t)[N], U (&u)[N]) const
         noexcept(noexcept(This{}(*t, *u)));
     };
@@ -66,18 +78,30 @@ STL2_OPEN_NAMESPACE {
 
     // 20150715: Conforming extension: can swap T(&)[N] with U(&)[N]
     // if T& and U& are Swappable.
-    template <class T, class U, std::size_t N>
+    template <class T, class U>
+    constexpr bool __array_swap_test = false;
+    template <class T, class U>
       requires requires (T &x, U &y) { __try_swap(x, y); }
+    constexpr bool __array_swap_test<T, U> = true;
+
+    template <class T, class U, std::size_t N>
+      requires __array_swap_test<T, U>
     constexpr void swap(T (&t)[N], U (&u)[N])
       noexcept(noexcept(__try_swap(*t, *u)));
 
+    template <class T, class U>
+    constexpr bool can_swap = false;
+    template <class T, class U>
+      requires requires (T&& a, U&& b) { swap((T&&)a, (U&&)b); }
+    constexpr bool can_swap<T, U> = true;
+
     struct fn {
       template <class T, class U>
-        requires requires (T&& a, U&& b) { swap((T&&)a, (U&&)b); }
+        requires can_swap<T, U>
       constexpr void operator()(T&& a, U&& b) const
-        noexcept(noexcept(swap(__stl2::forward<T>(a), __stl2::forward<U>(b)))) {
-        swap(__stl2::forward<T>(a), __stl2::forward<U>(b));
-      }
+      STL2_NOEXCEPT_RETURN(
+        (void)swap(__stl2::forward<T>(a), __stl2::forward<U>(b))
+      )
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -88,7 +112,7 @@ STL2_OPEN_NAMESPACE {
 
   namespace __swap {
     template <class T, class U, std::size_t N>
-      requires requires (T &x, U &y) { __try_swap(x, y); }
+      requires __array_swap_test<T, U>
     constexpr void swap(T (&t)[N], U (&u)[N])
       noexcept(noexcept(__try_swap(*t, *u))) {
       for (std::size_t i = 0; i < N; ++i) {
@@ -100,17 +124,17 @@ STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // Swappable [concepts.lib.corelang.swappable]
   //
-  namespace detail {
-    template <class T, class U>
-    concept bool Swappable_ =
-      requires (T&& t, U&&u) {
-        __stl2::swap((T&&)t, (U&&)u);
-      };
-  }
+  template <class T, class U>
+  constexpr bool __swappable = false;
+  template <class T, class U>
+    requires requires (T&& t, U&&u) {
+      __stl2::swap((T&&)t, (U&&)u);
+    }
+  constexpr bool __swappable<T, U> = true;
 
   template <class T>
   concept bool Swappable() {
-    return detail::Swappable_<T, T>;
+    return __swappable<T, T>;
   }
 
   template <class T, class U>
@@ -118,8 +142,8 @@ STL2_OPEN_NAMESPACE {
     return Swappable<T>() &&
       Swappable<U>() &&
       CommonReference<const T&, const U&>() &&
-      detail::Swappable_<T, U> &&
-      detail::Swappable_<U, T>;
+      __swappable<T, U> &&
+      __swappable<U, T>;
   }
 
   namespace models {

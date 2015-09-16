@@ -83,14 +83,14 @@ STL2_OPEN_NAMESPACE {
     return models::Boolean<T>;
   }
 
-  namespace detail {
-    template <class T, class U>
-    concept bool EqualityComparable_ =
-      requires (const T& t, const U& u) {
-        STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
-        STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
-      };
-  }
+  template <class T, class U>
+    constexpr bool __equality_comparable = false;
+  template <class T, class U>
+    requires requires (const T& t, const U& u) {
+      STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
+      STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
+    }
+  constexpr bool __equality_comparable<T, U> = true;
 
   ///////////////////////////////////////////////////////////////////////////
   // WeaklyEqualityComparable
@@ -100,15 +100,15 @@ STL2_OPEN_NAMESPACE {
   namespace ext {
     template <class T>
     concept bool WeaklyEqualityComparable() {
-      return detail::EqualityComparable_<T, T>;
+      return __equality_comparable<T, T>;
     }
 
     template <class T, class U>
     concept bool WeaklyEqualityComparable() {
       return WeaklyEqualityComparable<T>() &&
         WeaklyEqualityComparable<U>() &&
-        detail::EqualityComparable_<T, U> &&
-        detail::EqualityComparable_<U, T>;
+        __equality_comparable<T, U> &&
+        __equality_comparable<U, T>;
     }
   }
 
@@ -154,17 +154,16 @@ STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // TotallyOrdered [concepts.lib.compare.totallyordered]
   //
-  namespace detail {
-    template <class T, class U>
-    concept bool TotallyOrdered_ =
-      EqualityComparable_<T, U> &&
-      requires (const T& a, const U& b) {
-        STL2_DEDUCTION_CONSTRAINT(a < b, Boolean);
-        STL2_DEDUCTION_CONSTRAINT(a > b, Boolean);
-        STL2_DEDUCTION_CONSTRAINT(a <= b, Boolean);
-        STL2_DEDUCTION_CONSTRAINT(a >= b, Boolean);
-      };
-  }
+  template <class T, class U>
+  constexpr bool __totally_ordered = false;
+  template <class T, class U>
+    requires requires (const T& a, const U& b) {
+      STL2_DEDUCTION_CONSTRAINT(a < b, Boolean);
+      STL2_DEDUCTION_CONSTRAINT(a > b, Boolean);
+      STL2_DEDUCTION_CONSTRAINT(a <= b, Boolean);
+      STL2_DEDUCTION_CONSTRAINT(a >= b, Boolean);
+    }
+  constexpr bool __totally_ordered<T, U> = true;
 
   namespace ext {
     ///////////////////////////////////////////////////////////////////////////
@@ -174,15 +173,17 @@ STL2_OPEN_NAMESPACE {
     //
     template <class T>
     concept bool WeaklyTotallyOrdered() {
-      return detail::TotallyOrdered_<T, T>;
+      return WeaklyEqualityComparable<T>() &&
+        __totally_ordered<T, T>;
     }
 
     template <class T, class U>
     concept bool WeaklyTotallyOrdered() {
       return WeaklyTotallyOrdered<T>() &&
         WeaklyTotallyOrdered<U>() &&
-        detail::TotallyOrdered_<T, U> &&
-        detail::TotallyOrdered_<U, T>;
+        WeaklyEqualityComparable<T, U>() &&
+        __totally_ordered<T, U> &&
+        __totally_ordered<U, T>;
     }
   }
 
