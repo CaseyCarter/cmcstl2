@@ -137,11 +137,15 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
 
+  template <class S1, class S2>
   struct __ci_equal_visitor {
     constexpr bool operator()(const auto& lhs, const auto& rhs) const
     STL2_NOEXCEPT_RETURN(
       lhs == rhs
     )
+    constexpr bool operator()(const S1&, const S2&) const noexcept {
+      return true;
+    }
   };
 
   template <class I1, class S1, class I2, class S2>
@@ -151,7 +155,7 @@ STL2_OPEN_NAMESPACE {
   constexpr bool operator==(
     const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
   STL2_NOEXCEPT_RETURN(
-    __stl2::visit(__ci_equal_visitor{}, __ci_access::v(x), __ci_access::v(y))
+    __stl2::visit(__ci_equal_visitor<S1, S2>{}, __ci_access::v(x), __ci_access::v(y))
   )
 
   template <class I1, class S1, class I2, class S2>
@@ -164,12 +168,15 @@ STL2_OPEN_NAMESPACE {
     !(x == y)
   )
 
-  template <class D>
+  template <class D, class S1, class S2>
   struct __ci_difference_visitor {
     constexpr D operator()(const auto& lhs, const auto& rhs) const
     STL2_NOEXCEPT_RETURN(
       static_cast<D>(lhs - rhs)
     )
+    constexpr D operator()(const S1&, const S2&) const noexcept {
+      return 0;
+    }
   };
 
   template <class I1, class S1, class I2, class S2>
@@ -180,7 +187,7 @@ STL2_OPEN_NAMESPACE {
   constexpr DifferenceType<I2> operator-(
     const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
   STL2_NOEXCEPT_RETURN(
-    __stl2::visit(__ci_difference_visitor<DifferenceType<I2>>{},
+    __stl2::visit(__ci_difference_visitor<DifferenceType<I2>, S1, S2>{},
                   __ci_access::v(x), __ci_access::v(y))
   )
 
