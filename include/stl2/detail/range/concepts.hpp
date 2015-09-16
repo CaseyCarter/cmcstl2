@@ -152,6 +152,10 @@ STL2_OPEN_NAMESPACE {
     constexpr bool BoundedRange<R> = true;
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  // OutputRange [Extension]
+  // 20150916: Proposed in https://github.com/ericniebler/stl2/pull/115
+  //
   namespace ext {
     template <class R, class T>
     concept bool OutputRange() {
