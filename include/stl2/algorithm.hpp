@@ -17,6 +17,7 @@
 #include <stl2/detail/algorithm/all_of.hpp>
 #include <stl2/detail/algorithm/any_of.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
+#include <stl2/detail/algorithm/copy_if.hpp>
 #include <stl2/detail/algorithm/copy_n.hpp>
 #include <stl2/detail/algorithm/count.hpp>
 #include <stl2/detail/algorithm/count_if.hpp>

@@ -1,5 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
+//  Copyright Eric Niebler 2014
 //  Copyright Casey Carter 2015
 //
 //  Use, modification and distribution is subject to the
@@ -25,11 +26,14 @@ STL2_OPEN_NAMESPACE {
   template <WeakInputIterator I, WeaklyIncrementable O>
     requires IndirectlyCopyable<I, O>()
   tagged_pair<tag::in(I), tag::out(O)>
-  copy_n(I first, DifferenceType<I> n, O result) {
+  copy_n(I first_, DifferenceType<I> n, O result) {
+    STL2_ASSERT(n >= 0);
+    auto norig = n;
+    auto first = __stl2::ext::uncounted(first_);
     for(; n > 0; ++first, ++result, --n) {
       *result = *first;
     }
-    return {first, result};
+    return {__stl2::ext::recounted(first_, first, norig), result};
   }
 } STL2_CLOSE_NAMESPACE
 
