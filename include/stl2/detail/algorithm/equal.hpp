@@ -24,8 +24,8 @@ STL2_OPEN_NAMESPACE {
   template <InputIterator I1, Sentinel<I1> S1, WeakInputIterator I2,
             class Pred, class Proj1, class Proj2>
     requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>()
-  bool __equal_unsized(I1 first1, S1 last1, I2 first2, Pred pred_,
-                       Proj1 proj1_, Proj2 proj2_) {
+  bool __equal_3(I1 first1, S1 last1, I2 first2, Pred pred_,
+                 Proj1 proj1_, Proj2 proj2_) {
     auto&& pred = __stl2::as_function(pred_);
     auto&& proj1 = __stl2::as_function(proj1_);
     auto&& proj2 = __stl2::as_function(proj2_);
@@ -41,8 +41,8 @@ STL2_OPEN_NAMESPACE {
   template <InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
             class Pred, class Proj1, class Proj2>
     requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>()
-  bool __equal_unsized(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred_,
-                       Proj1 proj1_, Proj2 proj2_) {
+  bool __equal_4(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred_,
+                 Proj1 proj1_, Proj2 proj2_) {
     auto&& pred = __stl2::as_function(pred_);
     auto&& proj1 = __stl2::as_function(proj1_);
     auto&& proj2 = __stl2::as_function(proj2_);
@@ -60,8 +60,7 @@ STL2_OPEN_NAMESPACE {
     requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>()
   bool equal(I1 first1, S1 last1, I2 first2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
-    return __stl2::__equal_unsized(
-      first1, last1, first2,
+    return __stl2::__equal_3(first1, last1, first2,
       __stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
       __stl2::forward<Proj2>(proj2));
   }
@@ -71,9 +70,8 @@ STL2_OPEN_NAMESPACE {
     requires IndirectlyComparable<IteratorType<Rng1>, I2, Pred, Proj1, Proj2>()
   bool equal(Rng1&& rng1, I2 first2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
-    return __stl2::__equal_unsized(
-      __stl2::begin(rng1), __stl2::end(rng1),
-      first2, __stl2::forward<Pred>(pred),
+    return __stl2::__equal_3(__stl2::begin(rng1), __stl2::end(rng1), first2,
+      __stl2::forward<Pred>(pred),
       __stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
   }
 
@@ -82,8 +80,7 @@ STL2_OPEN_NAMESPACE {
     requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>()
   bool equal(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
-    return __stl2::__equal_unsized(
-      first1, last1, first2, last2,
+    return __stl2::__equal_4(first1, last1, first2, last2,
       __stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
       __stl2::forward<Proj2>(proj2));
   }
@@ -96,7 +93,7 @@ STL2_OPEN_NAMESPACE {
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     using C = CommonType<DifferenceType<I1>, DifferenceType<I2>>;
     return C(last1 - first1) == C(last2 - first2) &&
-      __stl2::__equal_unsized(first1, last1, first2, last2,
+      __stl2::__equal_3(first1, last1, first2,
         __stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
         __stl2::forward<Proj2>(proj2));
   }
@@ -106,7 +103,7 @@ STL2_OPEN_NAMESPACE {
     requires IndirectlyComparable<IteratorType<Rng1>, IteratorType<Rng2>, Pred, Proj1, Proj2>()
   bool equal(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
-    return __stl2::__equal_unsized(
+    return __stl2::__equal_4(
       __stl2::begin(rng1), __stl2::end(rng1),
       __stl2::begin(rng2), __stl2::end(rng2),
       __stl2::forward<Pred>(pred),
@@ -123,9 +120,8 @@ STL2_OPEN_NAMESPACE {
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     using C = CommonType<DifferenceType<Rng1>, DifferenceType<Rng2>>;
     return C(__stl2::size(rng1)) == C(__stl2::size(rng2)) &&
-      __stl2::__equal_unsized(
-        __stl2::begin(rng1), __stl2::end(rng1),
-        __stl2::begin(rng2), __stl2::end(rng2),
+      __stl2::__equal_3(
+        __stl2::begin(rng1), __stl2::end(rng1), __stl2::begin(rng2),
         __stl2::forward<Pred>(pred),
         __stl2::forward<Proj1>(proj1),
         __stl2::forward<Proj2>(proj2));
