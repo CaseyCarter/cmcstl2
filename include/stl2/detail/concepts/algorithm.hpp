@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   namespace models {
-    template <class, class, class, class, class>
+    template <class, class, class = equal_to<>, class = identity, class = identity>
     constexpr bool IndirectlyComparable = false;
     __stl2::IndirectlyComparable{I1, I2, R, P1, P2}
     constexpr bool IndirectlyComparable<I1, I2, R, P1, P2> = true;
