@@ -9,34 +9,27 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_ALGORITHM_COPY_HPP
-#define STL2_DETAIL_ALGORITHM_COPY_HPP
+#ifndef STL2_DETAIL_ALGORITHM_COPY_N_HPP
+#define STL2_DETAIL_ALGORITHM_COPY_N_HPP
 
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
+#include <stl2/utility.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/tagged.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// copy [alg.copy]
+// copy_n [alg.copy]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O>
-    requires models::IndirectlyCopyable<I, O>
+  template <WeakInputIterator I, WeaklyIncrementable O>
+    requires IndirectlyCopyable<I, O>()
   tagged_pair<tag::in(I), tag::out(O)>
-  copy(I first, S last, O result) {
-    for (; first != last; ++first, ++result) {
+  copy_n(I first, DifferenceType<I> n, O result) {
+    for(; n > 0; ++first, ++result, --n) {
       *result = *first;
     }
     return {first, result};
-  }
-
-  template <InputRange Rng, WeaklyIncrementable O>
-    requires models::IndirectlyCopyable<IteratorType<Rng>, O>
-  tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
-  copy(Rng&& rng, O result) {
-    return __stl2::copy(__stl2::begin(rng), __stl2::end(rng), __stl2::move(result));
   }
 } STL2_CLOSE_NAMESPACE
 
