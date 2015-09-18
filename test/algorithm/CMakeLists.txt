@@ -57,6 +57,9 @@ add_test(test.alg.mismatch alg.mismatch)
 add_executable(alg.move move.cpp)
 add_test(test.alg.move alg.move)
 
+add_executable(alg.move_backward move_backward.cpp)
+add_test(test.alg.move_backward alg.move_backward)
+
 add_executable(alg.none_of none_of.cpp)
 add_test(test.alg.none_of alg.none_of)
 
