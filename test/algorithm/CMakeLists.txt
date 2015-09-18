@@ -66,6 +66,12 @@ add_test(test.alg.none_of alg.none_of)
 add_executable(alg.replace replace.cpp)
 add_test(test.alg.replace alg.replace)
 
+add_executable(alg.replace_copy replace_copy.cpp)
+add_test(test.alg.replace_copy alg.replace_copy)
+
+add_executable(alg.replace_copy_if replace_copy_if.cpp)
+add_test(test.alg.replace_copy_if alg.replace_copy_if)
+
 add_executable(alg.replace_if replace_if.cpp)
 add_test(test.alg.replace_if alg.replace_if)
 

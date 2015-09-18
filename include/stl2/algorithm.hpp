@@ -35,6 +35,8 @@
 #include <stl2/detail/algorithm/move_backward.hpp>
 #include <stl2/detail/algorithm/none_of.hpp>
 #include <stl2/detail/algorithm/replace.hpp>
+#include <stl2/detail/algorithm/replace_copy.hpp>
+#include <stl2/detail/algorithm/replace_copy_if.hpp>
 #include <stl2/detail/algorithm/replace_if.hpp>
 #include <stl2/detail/algorithm/search.hpp>
 #include <stl2/detail/algorithm/search_n.hpp>
