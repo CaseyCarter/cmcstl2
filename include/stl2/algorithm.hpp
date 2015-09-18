@@ -36,6 +36,7 @@
 #include <stl2/detail/algorithm/none_of.hpp>
 #include <stl2/detail/algorithm/search.hpp>
 #include <stl2/detail/algorithm/search_n.hpp>
+#include <stl2/detail/algorithm/swap_ranges.hpp>
 #include <stl2/detail/algorithm/transform.hpp>
 
 #endif
