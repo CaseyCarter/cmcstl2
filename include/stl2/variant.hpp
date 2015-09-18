@@ -32,6 +32,12 @@
 ///////////////////////////////////////////////////////////////////////////
 // N4542 Variant implementation
 //
+// TODO:
+// * Verify that visitation functions handle reference_wrapper correctly
+// * Requiring that visitor invocations _have_ a common_type /
+//   common_reference is fine, but we need to perform conversion to that
+//   return type after invoking the visitor.
+//
 STL2_OPEN_NAMESPACE {
   namespace __variant {
     struct copy_move_tag {};

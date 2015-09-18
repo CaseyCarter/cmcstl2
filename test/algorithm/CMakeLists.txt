@@ -12,6 +12,9 @@ add_test(test.alg.any_of alg.any_of)
 add_executable(alg.copy copy.cpp)
 add_test(test.alg.copy alg.copy)
 
+add_executable(alg.copy_backward copy_backward.cpp)
+add_test(test.alg.copy_backward alg.copy_backward)
+
 add_executable(alg.copy_if copy_if.cpp)
 add_test(test.alg.copy_if alg.copy_if)
 

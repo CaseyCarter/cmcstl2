@@ -13,13 +13,11 @@
 #define STL2_DETAIL_RAW_PTR_HPP
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/concepts/core.hpp>
 
 STL2_OPEN_NAMESPACE {
   namespace detail {
     template <class T>
     class raw_ptr {
-      T* ptr_;
     public:
 #ifdef NDEBUG
       raw_ptr() = default;
@@ -49,6 +47,8 @@ STL2_OPEN_NAMESPACE {
         STL2_ASSERT(ptr_);
         return ptr_;
       }
+    private:
+      T* ptr_;
     };
   }
 } STL2_CLOSE_NAMESPACE

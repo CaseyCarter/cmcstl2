@@ -16,7 +16,6 @@
 #include <initializer_list>
 
 #include <stl2/type_traits.hpp>
-#include <stl2/detail/ebo_storage.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -35,6 +34,7 @@
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/range/primitives.hpp>
+#include <stl2/detail/range/range.hpp>
 
 STL2_OPEN_NAMESPACE {
   using std::iterator;
@@ -128,42 +128,6 @@ STL2_OPEN_NAMESPACE {
   }
   constexpr bool operator>=(unreachable, unreachable) noexcept {
     return true;
-  }
-
-  namespace ext {
-    // iterator_range? view? simple_iterator_and_sentinel_pair?
-    template <Iterator I, Sentinel<I> S>
-    class range : ext::compressed_pair<I, S> {
-      using pair_t = ext::compressed_pair<I, S>;
-    public:
-      range() = default;
-
-      constexpr range(I i, S s)
-        noexcept(is_nothrow_move_constructible<I>::value &&
-                 is_nothrow_move_constructible<S>::value) :
-        pair_t{__stl2::move(i), __stl2::move(s)} {}
-
-      constexpr auto begin() const
-        noexcept(is_nothrow_copy_constructible<I>::value) {
-        return pair_t::first();
-      }
-      constexpr auto end() const
-        noexcept(is_nothrow_copy_constructible<S>::value) {
-        return pair_t::second();
-      }
-    };
-
-    template <Iterator I, Sentinel<I> S>
-    constexpr auto make_range(I i, S s)
-    STL2_NOEXCEPT_RETURN(
-      range<I, S>{__stl2::move(i), __stl2::move(s)}
-    )
-
-    template <Iterator I, Sentinel<I> S, class C = CommonType<I, S>>
-    constexpr auto make_bounded_range(I i, S s)
-    STL2_NOEXCEPT_RETURN(
-      __stl2::ext::make_range(C{__stl2::move(i)}, C{__stl2::move(s)})
-    )
   }
 } STL2_CLOSE_NAMESPACE
 
