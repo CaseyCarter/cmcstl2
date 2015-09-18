@@ -1,6 +1,7 @@
 // Range v3 library
 //
 //  Copyright Eric Niebler 2014
+//  Copyright Casey Carter 2015
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -10,12 +11,42 @@
 // Project home: https://github.com/ericniebler/range-v3
 
 #include <stl2/detail/algorithm/copy_backward.hpp>
+#include <stl2/view/repeat.hpp>
 #include <cstring>
 #include <utility>
 #include <algorithm>
 #include "../simple_test.hpp"
 
 namespace stl2 = __stl2;
+
+namespace {
+  void test_repeat_view() {
+    {
+      auto v = stl2::repeat_view<int>(42);
+      int target[8]{};
+      auto result = stl2::copy_backward(stl2::make_counted_iterator(v.begin(), 4),
+                                        stl2::make_counted_iterator(v.begin(), 0),
+                                        stl2::end(target));
+      CHECK(result.in().count() == 0);
+      CHECK(result.in().base() == v.begin());
+      CHECK(result.out() == target + 4);
+      CHECK(std::count(target, target + 4, 0) == 4);
+      CHECK(std::count(target + 4, target + 8, 42) == 4);
+    }
+    {
+      auto v = stl2::repeat_view<int>(42);
+      int target[8]{};
+      auto result = stl2::copy_backward(stl2::make_counted_iterator(v.begin(), 4),
+                                        stl2::default_sentinel{},
+                                        stl2::end(target));
+      CHECK(result.in().count() == 0);
+      CHECK(result.in().base() == v.begin());
+      CHECK(result.out() == target + 4);
+      CHECK(std::count(target, target + 4, 0) == 4);
+      CHECK(std::count(target + 4, target + 8, 42) == 4);
+    }
+  }
+}
 
 int main()
 {
@@ -45,6 +76,8 @@ int main()
     CHECK(res2.first.get_unsafe() == end(a));
     CHECK(res2.second == begin(out));
     CHECK(std::equal(a, a + size(a), out));
+
+    test_repeat_view();
 
     return test_result();
 }
