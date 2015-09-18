@@ -13,6 +13,7 @@
 #ifndef STL2_DETAIL_FWD_HPP
 #define STL2_DETAIL_FWD_HPP
 
+#include <type_traits>
 #include <utility>
 
 #include <meta/meta.hpp>
@@ -41,7 +42,12 @@ namespace __stl2 = ::std::experimental::ranges_v1;
 STL2_OPEN_NAMESPACE {
   using std::declval;
   using std::forward;
-  using std::move;
+
+  template <class T>
+    requires true
+  constexpr std::remove_reference_t<T>&& move(T&& t) noexcept {
+    return static_cast<std::remove_reference_t<T>&&>(t);
+  }
 
   namespace detail {
     // "constexpr object" ODR workaround from N4381.

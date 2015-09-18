@@ -12,12 +12,10 @@
 #ifndef STL2_DETAIL_ALGORITHM_COPY_BACKWARD_HPP
 #define STL2_DETAIL_ALGORITHM_COPY_BACKWARD_HPP
 
-#include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
-#include <stl2/detail/iterator/counted_iterator.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // copy_backward [alg.copy]

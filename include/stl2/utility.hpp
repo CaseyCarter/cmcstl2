@@ -27,7 +27,6 @@ STL2_OPEN_NAMESPACE {
   namespace rel_ops = std::rel_ops;
 
   using std::forward;
-  using std::move;
   using std::move_if_noexcept;
   using std::declval;
 

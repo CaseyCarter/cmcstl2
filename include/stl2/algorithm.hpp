@@ -31,6 +31,7 @@
 #include <stl2/detail/algorithm/for_each.hpp>
 #include <stl2/detail/algorithm/is_permutation.hpp>
 #include <stl2/detail/algorithm/mismatch.hpp>
+#include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/none_of.hpp>
 #include <stl2/detail/algorithm/search.hpp>
 #include <stl2/detail/algorithm/search_n.hpp>
