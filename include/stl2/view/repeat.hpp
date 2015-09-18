@@ -34,7 +34,8 @@ STL2_OPEN_NAMESPACE {
         detail::cheaply_copyable<T>, value_type, const value_type&>;
 
       iterator() = default;
-      constexpr iterator(const repeat_view& r) noexcept : // FIXME
+      constexpr iterator(const repeat_view& r)
+        noexcept(is_nothrow_constructible<storage_t, const T&>::value) :
         storage_t{r.repeat_view::storage_t::get()} {}
 
       reference operator*() const
@@ -93,7 +94,7 @@ STL2_OPEN_NAMESPACE {
 
     repeat_view() = default;
     repeat_view(T value)
-      noexcept(is_nothrow_move_constructible<T>::value) :
+      noexcept(is_nothrow_constructible<storage_t, T>::value) :
       storage_t{__stl2::move(value)} {}
 
     constexpr iterator begin() const
@@ -104,7 +105,7 @@ STL2_OPEN_NAMESPACE {
       return {};
     }
 
-    constexpr const T& value() const {
+    constexpr const T& value() const noexcept {
       return storage_t::get();
     }
   };
