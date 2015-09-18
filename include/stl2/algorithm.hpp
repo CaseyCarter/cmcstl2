@@ -23,6 +23,8 @@
 #include <stl2/detail/algorithm/count.hpp>
 #include <stl2/detail/algorithm/count_if.hpp>
 #include <stl2/detail/algorithm/equal.hpp>
+#include <stl2/detail/algorithm/fill.hpp>
+#include <stl2/detail/algorithm/fill_n.hpp>
 #include <stl2/detail/algorithm/find.hpp>
 #include <stl2/detail/algorithm/find_end.hpp>
 #include <stl2/detail/algorithm/find_first_of.hpp>

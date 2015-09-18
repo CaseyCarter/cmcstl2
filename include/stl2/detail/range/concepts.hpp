@@ -25,7 +25,7 @@
 
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
-  // Range [iterable.iterables]
+  // Range [ranges.range]
   //
   template <class T>
   using IteratorType = decltype(__stl2::begin(declval<T&>()));
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
     difference_type<IteratorType<T>> {};
 
   ///////////////////////////////////////////////////////////////////////////
-  // SizedRange [sized.iterables]
+  // SizedRange [ranges.sized]
   //
   template <class T>
   struct disable_sized_range :
@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // View [range.iterables]
+  // View [ranges.view]
   //
   struct view_base {};
 
@@ -138,7 +138,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // BoundedRange [bounded.iterables]
+  // BoundedRange [ranges.bounded]
   //
   template <class T>
   concept bool BoundedRange() {
@@ -153,25 +153,22 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // OutputRange [Extension]
-  // 20150916: Proposed in https://github.com/ericniebler/stl2/pull/115
+  // OutputRange [ranges.output]
   //
-  namespace ext {
-    template <class R, class T>
-    concept bool OutputRange() {
-      return Range<R>() && OutputIterator<IteratorType<R>, T>();
-    }
+  template <class R, class T>
+  concept bool OutputRange() {
+    return Range<R>() && OutputIterator<IteratorType<R>, T>();
   }
 
   namespace models {
     template <class, class>
     constexpr bool OutputRange = false;
-    __stl2::ext::OutputRange{R, T}
+    __stl2::OutputRange{R, T}
     constexpr bool OutputRange<R, T> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // InputRange [input.iterables]
+  // InputRange [ranges.input]
   //
   template <class T>
   concept bool InputRange() {
@@ -186,7 +183,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // ForwardRange [forward.iterables]
+  // ForwardRange [ranges.forward]
   //
   template <class T>
   concept bool ForwardRange() {
@@ -201,7 +198,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // BidirectionalRange [bidirectional.iterables]
+  // BidirectionalRange [ranges.bidirectional]
   //
   template <class T>
   concept bool BidirectionalRange() {
@@ -216,7 +213,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // RandomAccessRange [random.access.iterables]
+  // RandomAccessRange [ranges.random.access]
   //
   template <class T>
   concept bool RandomAccessRange() {
