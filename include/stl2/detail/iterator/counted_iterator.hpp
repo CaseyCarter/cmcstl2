@@ -54,6 +54,12 @@ STL2_OPEN_NAMESPACE {
       noexcept(noexcept(*declval<const I&>())) {
       return *current;
     }
+    // Extension to support output iterators, since Writable
+    // allows * to be modifying.
+    constexpr decltype(auto) operator*()
+      noexcept(noexcept(*declval<I&>())) {
+      return *current;
+    }
 
     constexpr counted_iterator& operator++() &
       noexcept(noexcept(++declval<I&>())) {
