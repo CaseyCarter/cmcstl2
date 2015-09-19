@@ -29,6 +29,12 @@ STL2_OPEN_NAMESPACE {
     constexpr counted_iterator()
       noexcept(is_nothrow_default_constructible<I>::value) :
       current{}, cnt{0} {}
+
+    // Extension
+    constexpr counted_iterator(default_sentinel)
+      noexcept(is_nothrow_default_constructible<I>::value) :
+      counted_iterator() {}
+
     constexpr counted_iterator(I x, DifferenceType<I> n)
       noexcept(is_nothrow_move_constructible<I>::value) :
       current{__stl2::move(x)}, cnt{n} {
