@@ -192,14 +192,14 @@ STL2_OPEN_NAMESPACE {
   )
 
   // Not to spec: extension
-  template <class I, class S>
-    requires __WeakSentinel<S, I> && !_Valid<__cond, I, S>
+  template <InputIterator I, class S>
+    requires !_Valid<__cond, I, S> && __WeakSentinel<S, I>
   struct common_type<I, S> {
     using type = common_iterator<I, S>;
   };
 
-  template <class S, class I>
-    requires __WeakSentinel<S, I> && !_Valid<__cond, I, S>
+  template <class S, InputIterator I>
+    requires !_Valid<__cond, I, S> && __WeakSentinel<S, I>
   struct common_type<S, I> {
     using type = common_iterator<I, S>;
   };
