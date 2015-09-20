@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
   template<Function F, OutputRange<ResultType<F>> Rng>
   safe_iterator_t<Rng>
   generate(Rng&& rng, F&& gen) {
-    return generate(__stl2::begin(rng), __stl2::end(rng), __stl2::forward<F>(gen));
+    return __stl2::generate(__stl2::begin(rng), __stl2::end(rng), __stl2::forward<F>(gen));
   }
 } STL2_CLOSE_NAMESPACE
 

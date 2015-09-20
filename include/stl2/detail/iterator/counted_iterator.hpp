@@ -57,7 +57,9 @@ STL2_OPEN_NAMESPACE {
     }
 
     constexpr decltype(auto) operator*() const
-      noexcept(noexcept(*declval<const I&>())) {
+      noexcept(noexcept(*declval<const I&>()))
+      // Extension: allow mutable-only iterators
+      requires detail::Dereferenceable<const I> {
       return *current;
     }
     // Extension to support output iterators, since Writable
