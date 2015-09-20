@@ -290,8 +290,8 @@ STL2_OPEN_NAMESPACE {
 
   WeakIterator{I}
   constexpr counted_iterator<I>
-    make_counted_iterator(I i, DifferenceType<I> n)
-      noexcept(is_nothrow_constructible<
+  make_counted_iterator(I i, DifferenceType<I> n)
+    noexcept(is_nothrow_constructible<
                counted_iterator<I>, I, DifferenceType<I>>::value) {
     return {i, n};
   }
