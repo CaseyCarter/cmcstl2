@@ -41,5 +41,11 @@ int main() {
     // static_assert(data(c) == data(some_ints)); // std::addressof is not constexpr.
   }
 
+  {
+    int i;
+    auto r = ext::make_range(counted_iterator<int*>(&i, 1), default_sentinel{});
+    static_assert(sizeof(r) == sizeof(counted_iterator<int*>));
+  }
+
   return test_result();
 }
