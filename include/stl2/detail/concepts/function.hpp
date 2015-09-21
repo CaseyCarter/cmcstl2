@@ -128,7 +128,7 @@ STL2_OPEN_NAMESPACE {
   template <class R, class T, class U>
   concept bool Relation() {
     return ext::WeakRelation<R, T, U>() &&
-      Common<T, U>() &&
+      CommonReference<const T&, const U&>() &&
       ext::WeakRelation<R, CommonType<T, U>>();
   }
 
