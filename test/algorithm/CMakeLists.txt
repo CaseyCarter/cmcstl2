@@ -102,6 +102,9 @@ add_test(test.alg.replace_if alg.replace_if)
 add_executable(alg.reverse reverse.cpp)
 add_test(test.alg.reverse alg.reverse)
 
+add_executable(alg.reverse_copy reverse_copy.cpp)
+add_test(test.alg.reverse_copy alg.reverse_copy)
+
 add_executable(alg.search search.cpp)
 add_test(test.alg.search alg.search)
 
