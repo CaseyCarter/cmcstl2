@@ -51,5 +51,6 @@
 #include <stl2/detail/algorithm/swap_ranges.hpp>
 #include <stl2/detail/algorithm/transform.hpp>
 #include <stl2/detail/algorithm/unique.hpp>
+#include <stl2/detail/algorithm/unique_copy.hpp>
 
 #endif

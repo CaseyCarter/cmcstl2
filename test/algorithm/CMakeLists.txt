@@ -113,3 +113,6 @@ add_test(test.alg.transform alg.transform)
 
 add_executable(alg.unique unique.cpp)
 add_test(test.alg.unique alg.unique)
+
+add_executable(alg.unique_copy unique_copy.cpp)
+add_test(test.alg.unique_copy alg.unique_copy)
