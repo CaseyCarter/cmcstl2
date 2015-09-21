@@ -78,6 +78,12 @@ add_test(test.alg.none_of alg.none_of)
 add_executable(alg.remove remove.cpp)
 add_test(test.alg.remove alg.remove)
 
+add_executable(alg.remove_copy remove_copy.cpp)
+add_test(test.alg.remove_copy alg.remove_copy)
+
+add_executable(alg.remove_copy_if remove_copy_if.cpp)
+add_test(test.alg.remove_copy_if alg.remove_copy_if)
+
 add_executable(alg.remove_if remove_if.cpp)
 add_test(test.alg.remove_if alg.remove_if)
 
