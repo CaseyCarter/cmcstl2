@@ -1,5 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
+//  Copyright Eric Niebler 2014
 //  Copyright Casey Carter 2015
 //
 //  Use, modification and distribution is subject to the
@@ -21,21 +22,14 @@
 // reverse_copy [alg.reverse]
 //
 STL2_OPEN_NAMESPACE {
-  template <BidirectionalIterator I, WeaklyIncrementable O>
-    requires IndirectlyCopyable<I, O>()
-  tagged_pair<tag::in(I), tag::out(O)> reverse_copy(I first, I last, O result) {
-    for (auto m = last; m != first; ++result) {
-      *result = *--m;
-    }
-    return {__stl2::move(last), __stl2::move(result)};
-  }
-
   template <BidirectionalIterator I, Sentinel<I> S, WeaklyIncrementable O>
     requires IndirectlyCopyable<I, O>()
   tagged_pair<tag::in(I), tag::out(O)> reverse_copy(I first, S last, O result) {
     auto bound = __stl2::next(first, __stl2::move(last));
-    return __stl2::reverse_copy(__stl2::move(first), __stl2::move(bound),
-                                __stl2::move(result));
+    for (auto m = bound; m != first; ++result) {
+      *result = *--m;
+    }
+    return {__stl2::move(bound), __stl2::move(result)};
   }
 
   template <BidirectionalRange Rng, WeaklyIncrementable O>

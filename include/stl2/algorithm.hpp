@@ -48,6 +48,7 @@
 #include <stl2/detail/algorithm/replace_if.hpp>
 #include <stl2/detail/algorithm/reverse.hpp>
 #include <stl2/detail/algorithm/reverse_copy.hpp>
+#include <stl2/detail/algorithm/rotate.hpp>
 #include <stl2/detail/algorithm/search.hpp>
 #include <stl2/detail/algorithm/search_n.hpp>
 #include <stl2/detail/algorithm/swap_ranges.hpp>

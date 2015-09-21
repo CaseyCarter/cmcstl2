@@ -101,8 +101,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <class I, class R = less<>, class P = identity>
   concept bool Sortable() {
-    return ForwardIterator<I>() &&
-      Permutable<I>() &&
+    return Permutable<I>() &&
       IndirectCallableStrictWeakOrder<R, Projected<I, P>>();
   }
 
