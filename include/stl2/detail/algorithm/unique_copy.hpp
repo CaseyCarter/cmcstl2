@@ -22,12 +22,9 @@
 // unique_copy [alg.unique]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-            class Proj = identity,
-            IndirectCallableRelation<Projected<I, Proj>> R = equal_to<>>
-    requires IndirectlyCopyable<I, O>() && Copyable<ValueType<I>>()
+  template <class I, class S, class O, class Proj, class R>
   tagged_pair<tag::in(I), tag::out(O)>
-  __unique_copy_no_fwd(I first, S last, O result, R comp_ = R{}, Proj proj_ = Proj{}) {
+  __unique_copy(false_type, false_type, I first, S last, O result, R& comp_, Proj& proj_) {
     if (first != last) {
       auto&& comp = __stl2::as_function(comp_);
       auto&& proj = __stl2::as_function(proj_);
@@ -45,22 +42,9 @@ STL2_OPEN_NAMESPACE {
     return {__stl2::move(first), __stl2::move(result)};
   }
 
-  template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-            class Proj = identity,
-            IndirectCallableRelation<Projected<I, Proj>> R = equal_to<>>
-    requires IndirectlyCopyable<I, O>() && Copyable<ValueType<I>>()
+  template <class I, class S, class O, class Proj, class R>
   tagged_pair<tag::in(I), tag::out(O)>
-  unique_copy(I first, S last, O result, R&& comp = R{}, Proj&& proj = Proj{}) {
-    return __stl2::__unique_copy_no_fwd(__stl2::move(first), __stl2::move(last),
-      __stl2::move(result), __stl2::forward<R>(comp), __stl2::forward<Proj>(proj));
-  }
-
-  template <InputIterator I, Sentinel<I> S, ForwardIterator O,
-            class Proj = identity,
-            IndirectCallableRelation<Projected<I, Proj>> R = equal_to<>>
-    requires IndirectlyCopyable<I, O>()
-  tagged_pair<tag::in(I), tag::out(O)>
-  __unique_copy_res_fwd(I first, S last, O result, R comp_ = R{}, Proj proj_ = Proj{}) {
+  __unique_copy(false_type, true_type, I first, S last, O result, R& comp_, Proj& proj_) {
     if (first != last) {
       auto&& comp = __stl2::as_function(comp_);
       auto&& proj = __stl2::as_function(proj_);
@@ -77,22 +61,9 @@ STL2_OPEN_NAMESPACE {
     return {__stl2::move(first), __stl2::move(result)};
   }
 
-  template <InputIterator I, Sentinel<I> S, ForwardIterator O,
-            class Proj = identity,
-            IndirectCallableRelation<Projected<I, Proj>> R = equal_to<>>
-    requires IndirectlyCopyable<I, O>()
+  template <class I, class S, class O, class Proj, class R>
   tagged_pair<tag::in(I), tag::out(O)>
-  unique_copy(I first, S last, O result, R&& comp = R{}, Proj&& proj = Proj{}) {
-    return __stl2::__unique_copy_res_fwd(__stl2::move(first), __stl2::move(last),
-      __stl2::move(result), __stl2::forward<R>(comp), __stl2::forward<Proj>(proj));
-  }
-
-  template <ForwardIterator I, Sentinel<I> S, WeaklyIncrementable O,
-            class Proj = identity,
-            IndirectCallableRelation<Projected<I, Proj>> R = equal_to<>>
-    requires IndirectlyCopyable<I, O>()
-  tagged_pair<tag::in(I), tag::out(O)>
-  __unique_copy_src_fwd(I first, S last, O result, R comp_ = R{}, Proj proj_ = Proj{}) {
+  __unique_copy(true_type, auto, I first, S last, O result, R& comp_, Proj& proj_) {
     if (first != last) {
       auto&& comp = __stl2::as_function(comp_);
       auto&& proj = __stl2::as_function(proj_);
@@ -110,35 +81,36 @@ STL2_OPEN_NAMESPACE {
     return {__stl2::move(first), __stl2::move(result)};
   }
 
-  template <ForwardIterator I, Sentinel<I> S, WeaklyIncrementable O,
-            class Proj = identity,
-            IndirectCallableRelation<Projected<I, Proj>> R = equal_to<>>
-    requires IndirectlyCopyable<I, O>()
-  tagged_pair<tag::in(I), tag::out(O)>
-  unique_copy(I first, S last, O result, R&& comp = R{}, Proj&& proj = Proj{}) {
-    return __stl2::__unique_copy_src_fwd(__stl2::move(first), __stl2::move(last),
-       __stl2::move(result), __stl2::forward<R>(comp), __stl2::forward<Proj>(proj));
-  }
+  template <class I, class S, class O, class P, class R>
+  constexpr bool __unique_copy_req = false;
+  template <class I, class S, class O, class P, class R>
+    requires IndirectlyCopyable<I, O>() &&
+      (models::ForwardIterator<I> || models::ForwardIterator<O> || Copyable<ValueType<I>>())
+  constexpr bool __unique_copy_req<I, S, O, P, R> = true;
 
-  template <ForwardIterator I, Sentinel<I> S, ForwardIterator O,
+  template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
             class Proj = identity,
             IndirectCallableRelation<Projected<I, Proj>> R = equal_to<>>
-    requires IndirectlyCopyable<I, O>()
+    requires __unique_copy_req<I, S, O, Proj, R>
   tagged_pair<tag::in(I), tag::out(O)>
   unique_copy(I first, S last, O result, R&& comp = R{}, Proj&& proj = Proj{}) {
-    return __stl2::__unique_copy_src_fwd(__stl2::move(first), __stl2::move(last),
-       __stl2::move(result), __stl2::forward<R>(comp), __stl2::forward<Proj>(proj));
+    return __stl2::__unique_copy(
+       meta::bool_<models::ForwardIterator<I>>{},
+       meta::bool_<models::ForwardIterator<O>>{},
+       __stl2::move(first), __stl2::move(last),
+       __stl2::move(result), comp, proj);
   }
 
   template <InputRange Rng, WeaklyIncrementable O, class Proj = identity,
             IndirectCallableRelation<Projected<IteratorType<Rng>, Proj>> R = equal_to<>>
-    requires IndirectlyCopyable<IteratorType<Rng>, O>() &&
-      (ForwardIterator<IteratorType<Rng>>() || ForwardIterator<O>() ||
-       Copyable<ValueType<IteratorType<Rng>>>())
+    requires __unique_copy_req<IteratorType<Rng>, SentinelType<Rng>, O, Proj, R>
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
   unique_copy(Rng&& rng, O result, R&& comp = R{}, Proj&& proj = Proj{}) {
-    return __stl2::unique_copy(__stl2::begin(rng), __stl2::end(rng),
-       __stl2::move(result), __stl2::forward<R>(comp), __stl2::forward<Proj>(proj));
+    return __stl2::__unique_copy(
+       meta::bool_<models::ForwardIterator<IteratorType<Rng>>>{},
+       meta::bool_<models::ForwardIterator<O>>{},
+       __stl2::begin(rng), __stl2::end(rng),
+       __stl2::move(result), comp, proj);
   }
 } STL2_CLOSE_NAMESPACE
 
