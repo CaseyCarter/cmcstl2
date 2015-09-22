@@ -84,7 +84,8 @@ STL2_OPEN_NAMESPACE {
     return n;
   }
 
-  template <BidirectionalIterator I, Sentinel<I> S>
+  template <class S, class I>
+    requires BidirectionalIterator<I>() && Sentinel<S, I>()
   constexpr DifferenceType<I>
   advance(I& i, DifferenceType<I> n, S bound)
     noexcept(noexcept(bool(i != bound), void(), ++i, void(), --i)) {
