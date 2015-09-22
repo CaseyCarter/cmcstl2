@@ -81,6 +81,9 @@ add_test(test.alg.none_of alg.none_of)
 add_executable(alg.partition partition.cpp)
 add_test(test.alg.partition alg.partition)
 
+add_executable(alg.partition_copy partition_copy.cpp)
+add_test(test.alg.partition_copy alg.partition_copy)
+
 add_executable(alg.remove remove.cpp)
 add_test(test.alg.remove alg.remove)
 

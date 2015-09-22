@@ -40,6 +40,7 @@
 #include <stl2/detail/algorithm/move_backward.hpp>
 #include <stl2/detail/algorithm/none_of.hpp>
 #include <stl2/detail/algorithm/partition.hpp>
+#include <stl2/detail/algorithm/partition_copy.hpp>
 #include <stl2/detail/algorithm/remove.hpp>
 #include <stl2/detail/algorithm/remove_copy.hpp>
 #include <stl2/detail/algorithm/remove_copy_if.hpp>
@@ -55,6 +56,7 @@
 #include <stl2/detail/algorithm/search.hpp>
 #include <stl2/detail/algorithm/search_n.hpp>
 #include <stl2/detail/algorithm/shuffle.hpp>
+#include <stl2/detail/algorithm/stable_partition.hpp>
 #include <stl2/detail/algorithm/swap_ranges.hpp>
 #include <stl2/detail/algorithm/transform.hpp>
 #include <stl2/detail/algorithm/unique.hpp>
