@@ -84,6 +84,9 @@ add_test(test.alg.partition alg.partition)
 add_executable(alg.partition_copy partition_copy.cpp)
 add_test(test.alg.partition_copy alg.partition_copy)
 
+add_executable(alg.partition_move partition_move.cpp)
+add_test(test.alg.partition_move alg.partition_move)
+
 add_executable(alg.remove remove.cpp)
 add_test(test.alg.remove alg.remove)
 

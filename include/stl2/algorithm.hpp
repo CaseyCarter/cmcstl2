@@ -41,6 +41,7 @@
 #include <stl2/detail/algorithm/none_of.hpp>
 #include <stl2/detail/algorithm/partition.hpp>
 #include <stl2/detail/algorithm/partition_copy.hpp>
+#include <stl2/detail/algorithm/partition_move.hpp>
 #include <stl2/detail/algorithm/remove.hpp>
 #include <stl2/detail/algorithm/remove_copy.hpp>
 #include <stl2/detail/algorithm/remove_copy_if.hpp>
