@@ -70,5 +70,6 @@
 #include <stl2/detail/algorithm/transform.hpp>
 #include <stl2/detail/algorithm/unique.hpp>
 #include <stl2/detail/algorithm/unique_copy.hpp>
+#include <stl2/detail/algorithm/upper_bound.hpp>
 
 #endif
