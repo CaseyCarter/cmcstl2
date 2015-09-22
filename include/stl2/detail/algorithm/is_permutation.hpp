@@ -22,9 +22,9 @@
 // is_permutation [alg.is_permutation]
 //
 STL2_OPEN_NAMESPACE {
-  template<ForwardIterator I1, Sentinel<I1> S1,
-           ForwardIterator I2, Sentinel<I2> S2,
-           class Pred, class Proj1, class Proj2>
+  template <ForwardIterator I1, Sentinel<I1> S1,
+            ForwardIterator I2, Sentinel<I2> S2,
+            class Pred, class Proj1, class Proj2>
     requires models::IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
   bool __is_permutation_tail(I1 first1, S1 last1, I2 first2, S2 last2,
                              Pred& pred, Proj1& proj1, Proj2& proj2) {
