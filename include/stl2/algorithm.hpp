@@ -34,11 +34,16 @@
 #include <stl2/detail/algorithm/generate.hpp>
 #include <stl2/detail/algorithm/generate_n.hpp>
 #include <stl2/detail/algorithm/is_partitioned.hpp>
-#include <stl2/detail/algorithm/is_permutation.hpp>
+#include <stl2/detail/algorithm/is_sorted.hpp>
+#include <stl2/detail/algorithm/is_sorted_until.hpp>
+#include <stl2/detail/algorithm/lower_bound.hpp>
 #include <stl2/detail/algorithm/mismatch.hpp>
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/move_backward.hpp>
 #include <stl2/detail/algorithm/none_of.hpp>
+#include <stl2/detail/algorithm/nth_element.hpp>
+#include <stl2/detail/algorithm/partial_sort.hpp>
+#include <stl2/detail/algorithm/partial_sort_copy.hpp>
 #include <stl2/detail/algorithm/partition.hpp>
 #include <stl2/detail/algorithm/partition_copy.hpp>
 #include <stl2/detail/algorithm/partition_move.hpp>
@@ -58,7 +63,9 @@
 #include <stl2/detail/algorithm/search.hpp>
 #include <stl2/detail/algorithm/search_n.hpp>
 #include <stl2/detail/algorithm/shuffle.hpp>
+#include <stl2/detail/algorithm/sort.hpp>
 #include <stl2/detail/algorithm/stable_partition.hpp>
+#include <stl2/detail/algorithm/stable_sort.hpp>
 #include <stl2/detail/algorithm/swap_ranges.hpp>
 #include <stl2/detail/algorithm/transform.hpp>
 #include <stl2/detail/algorithm/unique.hpp>

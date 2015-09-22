@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 
   // 20150729: Extension: DifferenceType<Range>.
   template <Range T>
-    requires !_Is<__uncvref<T>, is_array>
+    requires !_Is<__uncvref<T>, is_array> && !detail::MemberDifferenceType<T>
   struct difference_type<T> :
     difference_type<IteratorType<T>> {};
 

@@ -24,6 +24,7 @@
 
 #include <stl2/detail/algorithm/partition_point.hpp>
 #include <stl2/iterator.hpp>
+#include <stl2/view/iota.hpp>
 #include <memory>
 #include <utility>
 #include "../simple_test.hpp"
@@ -218,90 +219,6 @@ struct S
     int i;
 };
 
-stl2::Integral{I}
-class iota_view {
-  I first_;
-public:
-  class iterator {
-    I value_;
-  public:
-    using value_type = I;
-    using difference_type = stl2::make_signed_t<I>;
-    using iterator_category = stl2::random_access_iterator_tag;
-
-    iterator() = default;
-    constexpr iterator(const iota_view& v) :
-      value_{v.first_} {}
-
-    constexpr I operator*() const { return value_; }
-
-    constexpr iterator& operator++() & { ++value_; return *this; }
-    constexpr iterator& operator--() & { --value_; return *this; }
-
-    constexpr iterator operator++(int) & {
-      auto tmp = *this;
-      ++*this;
-      return tmp;
-    }
-    constexpr iterator operator--(int) & {
-      auto tmp = *this;
-      --*this;
-      return tmp;
-    }
-
-    constexpr I operator[](difference_type n) const {
-      return value_ + n;
-    }
-
-    constexpr iterator& operator+=(difference_type n) & {
-      value_ += n;
-      return *this;
-    }
-    constexpr iterator& operator-=(difference_type n) & {
-      value_ -= n;
-      return *this;
-    }
-
-    constexpr iterator operator+(difference_type n) const {
-      return {value_ + n};
-    }
-    constexpr iterator operator-(difference_type n) const {
-      return {value_ - n};
-    }
-    friend constexpr iterator operator+(difference_type n, const iterator& i) {
-      return i + n;
-    }
-
-    friend constexpr difference_type operator-(const iterator& lhs, const iterator& rhs) {
-      return lhs.value_ - rhs.value_;
-    }
-
-    friend constexpr bool operator==(const iterator& lhs, const iterator& rhs) {
-      return lhs.value_ == rhs.value_;
-    }
-    friend constexpr bool operator!=(const iterator& lhs, const iterator& rhs) {
-      return lhs.value_ != rhs.value_;
-    }
-    friend constexpr bool operator<(const iterator& lhs, const iterator& rhs) {
-      return lhs.value_ < rhs.value_;
-    }
-    friend constexpr bool operator>(const iterator& lhs, const iterator& rhs) {
-      return lhs.value_ > rhs.value_;
-    }
-    friend constexpr bool operator<=(const iterator& lhs, const iterator& rhs) {
-      return lhs.value_ <= rhs.value_;
-    }
-    friend constexpr bool operator>=(const iterator& lhs, const iterator& rhs) {
-      return lhs.value_ >= rhs.value_;
-    }
-  };
-
-  constexpr iota_view(I first = 0) noexcept : first_{first} {}
-
-  constexpr iterator begin() const noexcept { return {*this}; }
-  constexpr stl2::unreachable end() const noexcept { return {}; }
-};
-
 int main()
 {
     test_iter<forward_iterator<const int*> >();
@@ -317,7 +234,7 @@ int main()
     CHECK(stl2::partition_point(ia, is_odd(), &S::i) == ia + 3);
 
     // Test infinite range
-    CHECK(*stl2::partition_point(iota_view<int>{0},
+    CHECK(*stl2::partition_point(stl2::iota_view<int>{0},
                                 [](int i){ return i < 42; }).get_unsafe() == 42);
 
     return ::test_result();
