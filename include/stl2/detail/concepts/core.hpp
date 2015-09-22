@@ -19,7 +19,6 @@
 ////////////////////////////////////////
 // Core Concepts [concepts.lib.corelang]
 //
-
 STL2_OPEN_NAMESPACE {
   template <template <class...> class T, class... U>
   concept bool _Valid = requires { typename T<U...>; };

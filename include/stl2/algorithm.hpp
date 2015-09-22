@@ -52,6 +52,7 @@
 #include <stl2/detail/algorithm/rotate_copy.hpp>
 #include <stl2/detail/algorithm/search.hpp>
 #include <stl2/detail/algorithm/search_n.hpp>
+#include <stl2/detail/algorithm/shuffle.hpp>
 #include <stl2/detail/algorithm/swap_ranges.hpp>
 #include <stl2/detail/algorithm/transform.hpp>
 #include <stl2/detail/algorithm/unique.hpp>

@@ -14,6 +14,7 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/optional.hpp>
+#include <stl2/random.hpp>
 #include <stl2/tuple.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/utility.hpp>

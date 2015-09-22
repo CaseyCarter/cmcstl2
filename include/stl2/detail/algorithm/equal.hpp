@@ -65,13 +65,14 @@ STL2_OPEN_NAMESPACE {
       __stl2::forward<Proj2>(proj2));
   }
 
-  template <InputRange Rng1, WeakInputIterator I2, class Pred = equal_to<>,
-            class Proj1 = identity, class Proj2 = identity>
+  // Not to spec
+  template <InputRange Rng1, class I2_, WeakInputIterator I2 = __uncvref<I2_>,
+            class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
     requires IndirectlyComparable<IteratorType<Rng1>, I2, Pred, Proj1, Proj2>()
-  bool equal(Rng1&& rng1, I2 first2, Pred&& pred = Pred{},
+  bool equal(Rng1&& rng1, I2_&& first2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
-    return __stl2::__equal_3(__stl2::begin(rng1), __stl2::end(rng1), first2,
-      __stl2::forward<Pred>(pred),
+    return __stl2::__equal_3(__stl2::begin(rng1), __stl2::end(rng1),
+      __stl2::forward<I2_>(first2), __stl2::forward<Pred>(pred),
       __stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
   }
 
