@@ -84,6 +84,9 @@ add_test(test.alg.lower_bound alg.lower_bound)
 add_executable(alg.merge merge.cpp)
 add_test(test.alg.merge alg.merge)
 
+add_executable(alg.merge_move merge_move.cpp)
+add_test(test.alg.merge_move alg.merge_move)
+
 add_executable(alg.mismatch mismatch.cpp)
 add_test(test.alg.mismatch alg.mismatch)
 

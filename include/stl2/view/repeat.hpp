@@ -38,11 +38,11 @@ STL2_OPEN_NAMESPACE {
         noexcept(is_nothrow_constructible<storage_t, const T&>::value) :
         storage_t{r.repeat_view::storage_t::get()} {}
 
-      reference operator*() const
+      constexpr reference operator*() const
         noexcept(noexcept(declval<const storage_t&>().get())) {
         return storage_t::get();
       }
-      reference operator[](difference_type) const
+      constexpr reference operator[](difference_type) const
         noexcept(noexcept(declval<const storage_t&>().get())) {
         return storage_t::get();
       }

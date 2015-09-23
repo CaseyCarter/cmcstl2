@@ -19,5 +19,8 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/variant.hpp>
+#include <stl2/view/iota.hpp>
+#include <stl2/view/repeat.hpp>
+#include <stl2/view/repeat_n.hpp>
 
 int main() {}

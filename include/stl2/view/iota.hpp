@@ -9,8 +9,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_VIEW_REPEAT_HPP
-#define STL2_DETAIL_VIEW_REPEAT_HPP
+#ifndef STL2_DETAIL_VIEW_IOTA_HPP
+#define STL2_DETAIL_VIEW_IOTA_HPP
 
 #include <stl2/iterator.hpp>
 #include <stl2/type_traits.hpp>
