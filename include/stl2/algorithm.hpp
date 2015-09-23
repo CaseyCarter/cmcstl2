@@ -23,6 +23,7 @@
 #include <stl2/detail/algorithm/count.hpp>
 #include <stl2/detail/algorithm/count_if.hpp>
 #include <stl2/detail/algorithm/equal.hpp>
+#include <stl2/detail/algorithm/equal_range.hpp>
 #include <stl2/detail/algorithm/fill.hpp>
 #include <stl2/detail/algorithm/fill_n.hpp>
 #include <stl2/detail/algorithm/find.hpp>

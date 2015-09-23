@@ -24,16 +24,17 @@
 // partial_sort_copy [partial.sort.copy]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I1, Sentinel<I> S1, RandomAccessIterator I2, Sentinel<I> S2,
-            class R = less<>, class Proj = identity>
+  template <InputIterator I1, Sentinel<I1> S1,
+            RandomAccessIterator I2, Sentinel<I2> S2,
+            class Comp = less<>, class Proj = identity>
     requires IndirectlyCopyable<I1, I2>() && Sortable<I2, Comp, Proj>()
   I2 partial_sort_copy(I1 first, S1 last, I2 result_first, S2 result_last,
                        Comp comp = Comp{}, Proj proj = Proj{}) {
     std::terminate(); // FIXME: NYI
   }
 
-  template <InputRange Rng1, RandomAccessRange Rng2, class R = less<>,
-            class Proj = identity>
+  template <InputRange Rng1, RandomAccessRange Rng2,
+            class Comp = less<>, class Proj = identity>
     requires IndirectlyCopyable<IteratorType<Rng1>, IteratorType<Rng2>>() &&
       Sortable<IteratorType<Rng2>, Comp, Proj>()
   safe_iterator_t<Rng2>

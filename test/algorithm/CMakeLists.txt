@@ -33,6 +33,9 @@ add_test(test.alg.count_if alg.count_if)
 add_executable(alg.equal equal.cpp)
 add_test(test.alg.equal alg.equal)
 
+add_executable(alg.equal_range equal_range.cpp)
+add_test(test.alg.equal_range alg.equal_range)
+
 add_executable(alg.fill fill.cpp)
 add_test(test.alg.fill alg.fill)
 
