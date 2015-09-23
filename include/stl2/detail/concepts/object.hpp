@@ -24,30 +24,59 @@
 //
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
+  // Addressable [Extension]
+  //
+  template <class>
+  constexpr bool __addressable = false;
+  template <class T>
+    requires requires (T& t, const T& ct) {
+      STL2_EXACT_TYPE_CONSTRAINT(&t, T*);
+      STL2_EXACT_TYPE_CONSTRAINT(&ct, const T*);
+      // Axiom: &ct == std::addressof(ct)
+    }
+  constexpr bool __addressable<T> = true;
+
+  namespace ext {
+    template <class T>
+    concept bool Addressable() {
+      return __addressable<T>;
+    }
+  }
+
+  namespace models {
+    template <class>
+    constexpr bool Addressable = false;
+    __stl2::ext::Addressable{T}
+    constexpr bool Addressable<T> = true;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
   // Destructible [concepts.lib.object.destructible]
   // Not to spec: is_object and accepting the parameters by reference are
   //              necessary to prevent hard errors in the requires clause
   //              with odd types.
-  namespace models {
-    template <class>
-    constexpr bool Destructible = false;
-    template <class T>
-      requires _Is<T, is_object> && requires (T& t, const T& ct, T* const p) {
-        { t.~T() } noexcept;
-        requires Same<decltype(&t),T*>;
-        requires Same<decltype(&ct),const T*>;
-        delete p;
-        delete[] p;
-      }
-    constexpr bool Destructible<T> = true;
-  }
+  //
+  template <class>
+  constexpr bool __destructible = false;
+  template <class T>
+    requires _Is<T, is_object> && requires (T& t, T* const p) {
+      { t.~T() } noexcept;
+      delete p;
+      delete[] p;
+    }
+  constexpr bool __destructible<T> = true;
 
   template <class T>
   concept bool Destructible() {
-    return models::Destructible<T>;
+    return ext::Addressable<T>() && __destructible<T>;
   }
 
   namespace models {
+    template <class>
+    constexpr bool Destructible = false;
+    __stl2::Destructible{T}
+    constexpr bool Destructible<T> = true;
+
     // Destructible<Ts>() && ...
     template <class...Ts>
     constexpr bool AllDestructible = false;

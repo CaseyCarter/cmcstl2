@@ -71,11 +71,10 @@ STL2_OPEN_NAMESPACE {
       requires
         ((_Is<T, is_empty> && !_Is<T, is_final>) ||
          (sizeof(T) <= cheap_copy_size &&
-          _Is<T, is_trivially_destructible> &&
-          _Is<T, is_trivially_copy_constructible>))
+          ext::TriviallyCopyConstructible<T>()))
     constexpr bool cheaply_copyable<T> = true;
 
-    template <CopyConstructible T>
+    template <ext::Addressable T>
     class ref_box {
     public:
       ref_box() = default;
@@ -91,7 +90,8 @@ STL2_OPEN_NAMESPACE {
       raw_ptr<T> ptr_;
     };
 
-    template <CopyConstructible T>
+    // Note: promotes to CopyConstructible
+    template <ext::Addressable T>
     using cheap_reference_box_t = meta::if_c<
       cheaply_copyable<remove_cv_t<T>>,
       ebo_box<remove_cv_t<T>>,

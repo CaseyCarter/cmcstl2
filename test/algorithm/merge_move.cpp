@@ -109,7 +109,7 @@ int main()
             ia[i] = S{2 * i};
         for(auto i = 0; i < N; ++i)
             ib[i] = S{2 * i + 1};
-        auto r = stl2::merge_move(ia + 0, ia + N, ib + 0, ib + N, ic + 0, comp);
+        auto r = stl2::merge_move(ia, ib, ic, comp);
         CHECK(std::get<0>(r) == ia + N);
         CHECK(std::get<1>(r) == ib + N);
         CHECK(std::get<2>(r) == ic + 2 * N);

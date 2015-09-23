@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
       iterator() = default;
       constexpr iterator(const repeat_view& r)
         noexcept(is_nothrow_constructible<storage_t, const T&>::value) :
-        storage_t{r.repeat_view::storage_t::get()} {}
+        storage_t{r.value()} {}
 
       constexpr reference operator*() const
         noexcept(noexcept(declval<const storage_t&>().get())) {
