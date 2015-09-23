@@ -62,10 +62,11 @@ STL2_OPEN_NAMESPACE {
       constexpr const T& get() const& noexcept { return *this; }
       constexpr T&& get() && noexcept { return __stl2::move(*this); }
     };
+
     constexpr std::size_t cheap_copy_size = 32;
+
     template <class T>
     constexpr bool cheaply_copyable = false;
-
     template <CopyConstructible T>
       requires
         ((_Is<T, is_empty> && !_Is<T, is_final>) ||

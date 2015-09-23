@@ -22,26 +22,26 @@
 STL2_OPEN_NAMESPACE {
   template <Semiregular T>
   class repeat_n_view : detail::ebo_box<repeat_view<T>> {
-    using box_t = detail::ebo_box<repeat_view<T>>;
+    using repeat_t = detail::ebo_box<repeat_view<T>>;
     std::ptrdiff_t n_;
   public:
     repeat_n_view() = default;
     repeat_n_view(T value, std::ptrdiff_t n)
-      noexcept(is_nothrow_constructible<box_t, T>::value) :
-      box_t{__stl2::move(value)}, n_{n} {}
+      noexcept(is_nothrow_constructible<repeat_t, T>::value) :
+      repeat_t{__stl2::move(value)}, n_{n} {}
 
     using iterator = counted_iterator<typename repeat_view<T>::iterator>;
 
     constexpr iterator begin() const
       noexcept(noexcept(iterator{declval<const repeat_view<T>&>().begin(), 0})) {
-      return {box_t::get().begin(), n_};
+      return {repeat_t::get().begin(), n_};
     }
     constexpr default_sentinel end() const noexcept {
       return {};
     }
 
     constexpr const T& value() const noexcept {
-      return box_t::get().value();
+      return repeat_t::get().value();
     }
   };
 } STL2_CLOSE_NAMESPACE

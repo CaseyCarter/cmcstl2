@@ -38,6 +38,7 @@
 #include <stl2/detail/algorithm/is_sorted.hpp>
 #include <stl2/detail/algorithm/is_sorted_until.hpp>
 #include <stl2/detail/algorithm/lower_bound.hpp>
+#include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/mismatch.hpp>
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/move_backward.hpp>

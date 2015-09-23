@@ -30,5 +30,11 @@ int main() {
 
   static_assert(sizeof(v) == 2 * sizeof(std::ptrdiff_t));
 
+  {
+    struct empty {};
+    auto v = stl2::repeat_n_view<empty>{{}, (1ULL << 20)};
+    static_assert(sizeof(decltype(v.begin())) == sizeof(std::ptrdiff_t));
+  }
+
   return test_result();
 }

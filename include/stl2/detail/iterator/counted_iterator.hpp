@@ -13,14 +13,24 @@
 #define STL2_DETAIL_ITERATOR_COUNTED_ITERATOR_HPP
 
 #include <stl2/type_traits.hpp>
+#include <stl2/detail/cheap_storage.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/detail/iterator/operations.hpp>
 
 STL2_OPEN_NAMESPACE {
+  // Not to spec: No protected data members.
   WeakIterator{I}
-  class counted_iterator {
+  class counted_iterator : detail::ebo_box<I> {
+    friend struct __counted_iterator_access;
+    using box_t = detail::ebo_box<I>;
+    DifferenceType<I> count_;
+
+    constexpr I& current() & noexcept { return box_t::get(); }
+    constexpr const I& current() const& noexcept { return box_t::get(); }
+    constexpr I&& current() && noexcept { return box_t::get(); }
+
   public:
     using iterator_type = I;
     using difference_type = DifferenceType<I>;
@@ -28,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 
     constexpr counted_iterator()
       noexcept(is_nothrow_default_constructible<I>::value) :
-      current{}, cnt{0} {}
+      box_t{}, count_{0} {}
 
     // Extension
     constexpr counted_iterator(default_sentinel)
@@ -37,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 
     constexpr counted_iterator(I x, DifferenceType<I> n)
       noexcept(is_nothrow_move_constructible<I>::value) :
-      current{__stl2::move(x)}, cnt{n} {
+      box_t{__stl2::move(x)}, count_{n} {
         STL2_ASSERT(0 <= n);
       }
     template <ConvertibleTo<I> U>
@@ -50,30 +60,30 @@ STL2_OPEN_NAMESPACE {
 
     constexpr I base() const
       noexcept(is_nothrow_copy_constructible<I>::value) {
-      return current;
+      return current();
     }
     constexpr DifferenceType<I> count() const noexcept {
-      return cnt;
+      return count_;
     }
 
     constexpr decltype(auto) operator*() const
       noexcept(noexcept(*declval<const I&>()))
       // Extension: allow mutable-only iterators
       requires detail::Dereferenceable<const I> {
-      return *current;
+      return *current();
     }
     // Extension to support output iterators, since Writable
     // allows * to be modifying.
     constexpr decltype(auto) operator*()
       noexcept(noexcept(*declval<I&>())) {
-      return *current;
+      return *current();
     }
 
     constexpr counted_iterator& operator++() &
       noexcept(noexcept(++declval<I&>())) {
-      ++current;
-      STL2_BROKEN_ASSERT(0 < cnt);
-      --cnt;
+      ++current();
+      STL2_BROKEN_ASSERT(0 < count_);
+      --count_;
       return *this;
     }
     constexpr counted_iterator operator++(int) &
@@ -88,8 +98,8 @@ STL2_OPEN_NAMESPACE {
       noexcept(noexcept(--declval<I&>()))
       requires BidirectionalIterator<I>()
     {
-      --current;
-      ++cnt;
+      --current();
+      ++count_;
       return *this;
     }
     constexpr counted_iterator operator--(int) &
@@ -105,16 +115,16 @@ STL2_OPEN_NAMESPACE {
     constexpr counted_iterator operator+(DifferenceType<I> n) const
       requires RandomAccessIterator<I>()
     {
-      STL2_ASSERT(n <= cnt);
-      return {current + n, cnt - n};
+      STL2_ASSERT(n <= count_);
+      return {current() + n, count_ - n};
     }
     constexpr counted_iterator& operator+=(DifferenceType<I> n) &
       noexcept(noexcept(declval<I&>() += n))
       requires RandomAccessIterator<I>()
     {
-      STL2_ASSERT(n <= cnt);
-      current += n;
-      cnt -= n;
+      STL2_ASSERT(n <= count_);
+      current() += n;
+      count_ -= n;
       return *this;
     }
     constexpr counted_iterator operator-(DifferenceType<I> n) const
@@ -133,24 +143,17 @@ STL2_OPEN_NAMESPACE {
       noexcept(noexcept(declval<const I&>()[n]))
       requires RandomAccessIterator<I>()
     {
-      STL2_ASSERT(n < cnt);
-      return current[n];
+      STL2_ASSERT(n < count_);
+      return current()[n];
     }
-
-  protected:
-    I current;
-    DifferenceType<I> cnt;
-
-  private:
-    friend struct __counted_iterator_access;
   };
 
   struct __counted_iterator_access {
     static constexpr decltype(auto) base(auto&& ci) noexcept {
-      return (__stl2::forward<decltype(ci)>(ci).current);
+      return (__stl2::forward<decltype(ci)>(ci).current());
     }
     static constexpr decltype(auto) count(auto&& ci) noexcept {
-      return (__stl2::forward<decltype(ci)>(ci).cnt);
+      return (__stl2::forward<decltype(ci)>(ci).count_);
     }
   };
 
@@ -158,8 +161,8 @@ STL2_OPEN_NAMESPACE {
   template <ConvertibleTo<I> U>
   constexpr counted_iterator<I>::counted_iterator(const counted_iterator<U>& u)
     noexcept(is_nothrow_constructible<I, const U&>::value) :
-    current{__counted_iterator_access::base(u)},
-    cnt{__counted_iterator_access::count(u)} {}
+    box_t{__counted_iterator_access::base(u)},
+    count_{__counted_iterator_access::count(u)} {}
 
   WeakIterator{I}
   template <ConvertibleTo<I> U>
@@ -167,8 +170,8 @@ STL2_OPEN_NAMESPACE {
     counted_iterator<I>::operator=(const counted_iterator<U>& u) &
       noexcept(is_nothrow_assignable<I&, const U&>::value)
     {
-      current = __counted_iterator_access::base(u);
-      cnt = __counted_iterator_access::count(u);
+      current() = __counted_iterator_access::base(u);
+      count_ = __counted_iterator_access::count(u);
       return *this;
     }
 
