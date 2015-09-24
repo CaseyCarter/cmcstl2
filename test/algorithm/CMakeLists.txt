@@ -159,6 +159,25 @@ add_test(test.alg.search alg.search)
 add_executable(alg.search_n search_n.cpp)
 add_test(test.alg.search_n alg.search_n)
 
+add_executable(alg.set_union1 set_union1.cpp)
+add_test(test.alg.set_union1, alg.set_union1)
+
+add_executable(alg.set_union2 set_union2.cpp)
+add_test(test.alg.set_union2, alg.set_union2)
+
+add_executable(alg.set_union3 set_union3.cpp)
+add_test(test.alg.set_union3, alg.set_union3)
+
+add_executable(alg.set_union4 set_union4.cpp)
+add_test(test.alg.set_union4, alg.set_union4)
+
+add_executable(alg.set_union5 set_union5.cpp)
+add_test(test.alg.set_union5, alg.set_union5)
+
+# set_union6 disabled until lexicographical_compare is complete.
+#add_executable(alg.set_union6 set_union6.cpp)
+#add_test(test.alg.set_union6, alg.set_union6)
+
 add_executable(alg.shuffle shuffle.cpp)
 add_test(test.alg.shuffle alg.shuffle)
 
