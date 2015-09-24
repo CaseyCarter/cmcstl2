@@ -49,6 +49,8 @@
 #include <stl2/detail/algorithm/merge_move.hpp>
 #include <stl2/detail/algorithm/min.hpp>
 #include <stl2/detail/algorithm/min_element.hpp>
+#include <stl2/detail/algorithm/minmax.hpp>
+#include <stl2/detail/algorithm/minmax_element.hpp>
 #include <stl2/detail/algorithm/mismatch.hpp>
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/move_backward.hpp>

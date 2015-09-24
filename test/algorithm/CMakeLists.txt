@@ -126,6 +126,9 @@ add_test(test.alg.merge_move alg.merge_move)
 add_executable(alg.min_element min_element.cpp)
 add_test(test.alg.min_element alg.min_element)
 
+add_executable(alg.minmax_element minmax_element.cpp)
+add_test(test.alg.minmax_element alg.minmax_element)
+
 add_executable(alg.mismatch mismatch.cpp)
 add_test(test.alg.mismatch alg.mismatch)
 
