@@ -69,6 +69,7 @@
 #include <stl2/detail/algorithm/search_n.hpp>
 #include <stl2/detail/algorithm/set_difference.hpp>
 #include <stl2/detail/algorithm/set_intersection.hpp>
+#include <stl2/detail/algorithm/set_symmetric_difference.hpp>
 #include <stl2/detail/algorithm/set_union.hpp>
 #include <stl2/detail/algorithm/shuffle.hpp>
 #include <stl2/detail/algorithm/sort.hpp>
