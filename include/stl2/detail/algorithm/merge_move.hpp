@@ -12,6 +12,7 @@
 #ifndef STL2_DETAIL_ALGORITHM_MERGE_MOVE_HPP
 #define STL2_DETAIL_ALGORITHM_MERGE_MOVE_HPP
 
+#include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/tuple.hpp>
 #include <stl2/detail/fwd.hpp>

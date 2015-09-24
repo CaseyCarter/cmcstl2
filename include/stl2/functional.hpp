@@ -19,6 +19,10 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/object.hpp>
+
+// TODO:
+// * invoke
 
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
@@ -240,6 +244,37 @@ STL2_OPEN_NAMESPACE {
 
     using is_transparent = true_type;
   };
+
+  ///////////////////////////////////////////////////////////////////////////
+  // not_fn from N4336 Library Fundamentals v2
+  //
+  template <class F>
+  class __not_fn {
+    F f_;
+
+  public:
+    template <class FF>
+      requires Constructible<F, FF>()
+    constexpr __not_fn(FF&& arg) :
+      f_(__stl2::forward<decltype(arg)>(arg)) {}
+
+    constexpr bool operator()(auto&&...args) & {
+      return !f_(__stl2::forward<decltype(args)>(args)...);
+    }
+    constexpr bool operator()(auto&&...args) const& {
+      return !f_(__stl2::forward<decltype(args)>(args)...);
+    }
+    constexpr bool operator()(auto&&...args) && {
+      return !__stl2::move(f_)(__stl2::forward<decltype(args)>(args)...);
+    }
+  };
+
+  template <class F>
+    requires MoveConstructible<F>() &&
+      Constructible<decay_t<F>, F>()
+  __not_fn<decay_t<F>> not_fn(F&& f) {
+    return {__stl2::forward<F>(f)};
+  }
 } STL2_CLOSE_NAMESPACE
 
 #endif

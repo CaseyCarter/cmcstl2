@@ -39,34 +39,6 @@
 STL2_OPEN_NAMESPACE {
   using std::iterator;
 
-  template <CopyConstructible T>
-  class dangling {
-  public:
-    constexpr dangling()
-      noexcept(is_nothrow_default_constructible<T>::value)
-      requires DefaultConstructible<T>()
-      : value{}
-    { }
-    constexpr dangling(T t)
-      noexcept(is_nothrow_move_constructible<T>::value)
-      : value(__stl2::move(t))
-    { }
-    constexpr T get_unsafe() const&
-      noexcept(is_nothrow_copy_constructible<T>::value) {
-      return value;
-    }
-    constexpr T get_unsafe() &&
-      noexcept(is_nothrow_move_constructible<T>::value) {
-      return __stl2::move(value);
-    }
-  private:
-    T value;
-  };
-
-  template <Range R>
-  using safe_iterator_t =
-    meta::if_<is_lvalue_reference<R>, IteratorType<R>, dangling<IteratorType<R>>>;
-
   // Extension: unreachable is WeaklyTotallyOrdered with *any* type.
   class unreachable {};
 

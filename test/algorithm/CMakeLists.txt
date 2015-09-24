@@ -58,13 +58,16 @@ add_executable(alg.find_if_not find_if_not.cpp)
 add_test(test.alg.find_if_not alg.find_if_not)
 
 add_executable(alg.for_each for_each.cpp)
-add_test(test.alg.for_each alg.for_each)
-
+add_test(test.alg.for_each alg.for_each
+)
 add_executable(alg.generate generate.cpp)
 add_test(test.alg.generate alg.generate)
 
 add_executable(alg.generate_n generate_n.cpp)
 add_test(test.alg.generate_n alg.generate_n)
+
+add_executable(alg.inplace_merge inplace_merge.cpp)
+add_test(test.alg.inplace_merge alg.inplace_merge)
 
 add_executable(alg.is_partitioned is_partitioned.cpp)
 add_test(test.alg.is_partitioned alg.is_partitioned)

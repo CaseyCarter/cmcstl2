@@ -24,6 +24,11 @@
 ///////////////////////////////////////////////////////////////////////////
 // Implementation of N4529 optional
 //
+// TODO:
+// * Exception safety audit
+// * optional<T&>: Not forbidden since variant supports references, but I
+//   need to ensure the semantics are reasonable.
+//
 STL2_OPEN_NAMESPACE {
   struct nullopt_t {
     struct __tag {};

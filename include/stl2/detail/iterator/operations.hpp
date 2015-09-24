@@ -123,26 +123,6 @@ STL2_OPEN_NAMESPACE {
     }
   }
 
-  // distance
-  Sentinel{S, I}
-  constexpr DifferenceType<I> distance(I first, S last)
-    noexcept(noexcept(bool(first != last), void(), ++first)) {
-    DifferenceType<I> n = 0;
-    while (first != last) {
-      ++n;
-      ++first;
-    }
-    return n;
-  }
-
-  // Don't use SizedIteratorRange{I, S} here: GCC PR 67545.
-  template <class S, class I>
-    requires SizedIteratorRange<I, S>()
-  constexpr DifferenceType<I> distance(I first, S last)
-  STL2_NOEXCEPT_RETURN(
-    DifferenceType<I>(last - first)
-  )
-
   // next
   WeakIterator{I}
   constexpr I next(I x, DifferenceType<I> n = 1)
@@ -173,6 +153,45 @@ STL2_OPEN_NAMESPACE {
   constexpr I prev(I x, DifferenceType<I> n, S bound)
   STL2_NOEXCEPT_RETURN(
     __stl2::advance(x, -n, bound), x
+  )
+
+  namespace ext {
+    Sentinel{S, I}
+    constexpr pair<DifferenceType<I>, I> enumerate(I first, S last)
+      noexcept(noexcept(bool(first != last), void(), ++first)) {
+      DifferenceType<I> n = 0;
+      while (first != last) {
+        ++n;
+        ++first;
+      }
+      return {n, first};
+    }
+
+    // Don't use SizedIteratorRange{I, S} here: GCC PR 67545.
+    template <class S, class I>
+      requires SizedIteratorRange<I, S>()
+    constexpr auto enumerate(I first, S last)
+    STL2_NOEXCEPT_RETURN(
+      pair<DifferenceType<I>, I>{
+        DifferenceType<I>(last - first),
+         __stl2::next(__stl2::move(first), __stl2::move(last))
+      }
+    )
+  }
+
+  // distance
+  Sentinel{S, I}
+  constexpr DifferenceType<I> distance(I first, S last)
+  STL2_NOEXCEPT_RETURN(
+    ext::enumerate(__stl2::move(first), __stl2::move(last)).first
+  )
+
+  // Don't use SizedIteratorRange{I, S} here: GCC PR 67545.
+  template <class S, class I>
+    requires SizedIteratorRange<I, S>()
+  constexpr DifferenceType<I> distance(I first, S last)
+  STL2_NOEXCEPT_RETURN(
+    DifferenceType<I>(last - first)
   )
 } STL2_CLOSE_NAMESPACE
 
