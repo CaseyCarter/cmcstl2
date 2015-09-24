@@ -98,10 +98,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool operator()(const T& a, const T& b) const {
       return bool(a == b);
     }
-
-    using first_argument_type = T;
-    using second_argument_type = T;
-    using result_type = bool;
   };
 
   template <>
@@ -124,10 +120,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool operator()(const T& a, const T& b) const {
       return bool(a != b);
     }
-
-    using first_argument_type = T;
-    using second_argument_type = T;
-    using result_type = bool;
   };
 
   template <>
@@ -150,10 +142,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool operator()(const T& a, const T& b) const {
       return bool(a > b);
     }
-
-    using first_argument_type = T;
-    using second_argument_type = T;
-    using result_type = bool;
   };
 
   template <>
@@ -176,10 +164,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool operator()(const T& a, const T& b) const {
       return bool(a < b);
     }
-
-    using first_argument_type = T;
-    using second_argument_type = T;
-    using result_type = bool;
   };
 
   template <>
@@ -202,10 +186,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool operator()(const T& a, const T& b) const {
       return bool(a >= b);
     }
-
-    using first_argument_type = T;
-    using second_argument_type = T;
-    using result_type = bool;
   };
 
   template <>
@@ -228,10 +208,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool operator()(const T& a, const T& b) const {
       return bool(a <= b);
     }
-
-    using first_argument_type = T;
-    using second_argument_type = T;
-    using result_type = bool;
   };
 
   template <>
