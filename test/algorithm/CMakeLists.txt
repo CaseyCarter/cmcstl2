@@ -72,6 +72,30 @@ add_test(test.alg.includes alg.includes)
 add_executable(alg.inplace_merge inplace_merge.cpp)
 add_test(test.alg.inplace_merge alg.inplace_merge)
 
+add_executable(alg.is_heap1 is_heap1.cpp)
+add_test(test.alg.is_heap1, alg.is_heap1)
+
+add_executable(alg.is_heap2 is_heap2.cpp)
+add_test(test.alg.is_heap2, alg.is_heap2)
+
+add_executable(alg.is_heap3 is_heap3.cpp)
+add_test(test.alg.is_heap3, alg.is_heap3)
+
+add_executable(alg.is_heap4 is_heap4.cpp)
+add_test(test.alg.is_heap4, alg.is_heap4)
+
+add_executable(alg.is_heap_until1 is_heap_until1.cpp)
+add_test(test.alg.is_heap_until1, alg.is_heap_until1)
+
+add_executable(alg.is_heap_until2 is_heap_until2.cpp)
+add_test(test.alg.is_heap_until2, alg.is_heap_until2)
+
+add_executable(alg.is_heap_until3 is_heap_until3.cpp)
+add_test(test.alg.is_heap_until3, alg.is_heap_until3)
+
+add_executable(alg.is_heap_until4 is_heap_until4.cpp)
+add_test(test.alg.is_heap_until4, alg.is_heap_until4)
+
 add_executable(alg.is_partitioned is_partitioned.cpp)
 add_test(test.alg.is_partitioned alg.is_partitioned)
 
