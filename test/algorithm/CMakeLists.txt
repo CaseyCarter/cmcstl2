@@ -111,6 +111,9 @@ add_test(test.alg.is_sorted_until alg.is_sorted_until)
 add_executable(alg.lower_bound lower_bound.cpp)
 add_test(test.alg.lower_bound alg.lower_bound)
 
+add_executable(alg.make_heap make_heap.cpp)
+add_test(test.alg.make_heap alg.make_heap)
+
 add_executable(alg.merge merge.cpp)
 add_test(test.alg.merge alg.merge)
 

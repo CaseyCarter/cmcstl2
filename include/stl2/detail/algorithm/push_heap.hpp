@@ -35,18 +35,20 @@ STL2_OPEN_NAMESPACE {
   template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
             class Proj = identity>
     requires Sortable<I, Comp, Proj>()
-  I push_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) {
+  I push_heap(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     auto n = __stl2::distance(first, __stl2::move(last));
-    detail::sift_up_n(first, n, comp, proj);
+    detail::sift_up_n(first, n, __stl2::forward<Comp>(comp),
+                      __stl2::forward<Proj>(proj));
     return first + n;
   }
 
   template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
     requires Sortable<IteratorType<Rng>, Comp, Proj>()
   safe_iterator_t<Rng>
-  push_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{}) {
+  push_heap(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     auto n = __stl2::distance(rng);
-    detail::sift_up_n(__stl2::begin(rng), n, comp, proj);
+    detail::sift_up_n(__stl2::begin(rng), n, __stl2::forward<Comp>(comp),
+                      __stl2::forward<Proj>(proj));
     return __stl2::begin(rng) + n;
   }
 } STL2_CLOSE_NAMESPACE
