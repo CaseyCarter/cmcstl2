@@ -36,6 +36,8 @@
 #include <stl2/detail/algorithm/generate_n.hpp>
 #include <stl2/detail/algorithm/includes.hpp>
 #include <stl2/detail/algorithm/inplace_merge.hpp>
+#include <stl2/detail/algorithm/is_heap.hpp>
+#include <stl2/detail/algorithm/is_heap_until.hpp>
 #include <stl2/detail/algorithm/is_partitioned.hpp>
 #include <stl2/detail/algorithm/is_sorted.hpp>
 #include <stl2/detail/algorithm/is_sorted_until.hpp>
@@ -53,6 +55,7 @@
 #include <stl2/detail/algorithm/partition_copy.hpp>
 #include <stl2/detail/algorithm/partition_move.hpp>
 #include <stl2/detail/algorithm/partition_point.hpp>
+#include <stl2/detail/algorithm/push_heap.hpp>
 #include <stl2/detail/algorithm/remove.hpp>
 #include <stl2/detail/algorithm/remove_copy.hpp>
 #include <stl2/detail/algorithm/remove_copy_if.hpp>
