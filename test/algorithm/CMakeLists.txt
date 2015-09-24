@@ -141,6 +141,9 @@ add_test(test.alg.partition_move alg.partition_move)
 add_executable(alg.partition_point partition_point.cpp)
 add_test(test.alg.partition_point alg.partition_point)
 
+add_executable(alg.pop_heap pop_heap.cpp)
+add_test(test.alg.pop_heap alg.pop_heap)
+
 add_executable(alg.push_heap push_heap.cpp)
 add_test(test.alg.push_heap alg.push_heap)
 
