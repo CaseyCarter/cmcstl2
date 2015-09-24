@@ -159,6 +159,25 @@ add_test(test.alg.search alg.search)
 add_executable(alg.search_n search_n.cpp)
 add_test(test.alg.search_n alg.search_n)
 
+add_executable(alg.set_intersection1 set_intersection1.cpp)
+add_test(test.alg.set_intersection1, alg.set_intersection1)
+
+add_executable(alg.set_intersection2 set_intersection2.cpp)
+add_test(test.alg.set_intersection2, alg.set_intersection2)
+
+add_executable(alg.set_intersection3 set_intersection3.cpp)
+add_test(test.alg.set_intersection3, alg.set_intersection3)
+
+add_executable(alg.set_intersection4 set_intersection4.cpp)
+add_test(test.alg.set_intersection4, alg.set_intersection4)
+
+add_executable(alg.set_intersection5 set_intersection5.cpp)
+add_test(test.alg.set_intersection5, alg.set_intersection5)
+
+# set_intersection6 disabled pending lexicographical_compare
+#add_executable(alg.set_intersection6 set_intersection6.cpp)
+#add_test(test.alg.set_intersection6, alg.set_intersection6)
+
 add_executable(alg.set_union1 set_union1.cpp)
 add_test(test.alg.set_union1, alg.set_union1)
 
@@ -174,7 +193,7 @@ add_test(test.alg.set_union4, alg.set_union4)
 add_executable(alg.set_union5 set_union5.cpp)
 add_test(test.alg.set_union5, alg.set_union5)
 
-# set_union6 disabled until lexicographical_compare is complete.
+# set_union6 disabled pending lexicographical_compare
 #add_executable(alg.set_union6 set_union6.cpp)
 #add_test(test.alg.set_union6, alg.set_union6)
 
