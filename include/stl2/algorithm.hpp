@@ -43,8 +43,12 @@
 #include <stl2/detail/algorithm/is_sorted_until.hpp>
 #include <stl2/detail/algorithm/lower_bound.hpp>
 #include <stl2/detail/algorithm/make_heap.hpp>
+#include <stl2/detail/algorithm/max.hpp>
+#include <stl2/detail/algorithm/max_element.hpp>
 #include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/merge_move.hpp>
+#include <stl2/detail/algorithm/min.hpp>
+#include <stl2/detail/algorithm/min_element.hpp>
 #include <stl2/detail/algorithm/mismatch.hpp>
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/move_backward.hpp>
