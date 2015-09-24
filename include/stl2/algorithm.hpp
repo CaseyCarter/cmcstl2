@@ -78,6 +78,7 @@
 #include <stl2/detail/algorithm/set_union.hpp>
 #include <stl2/detail/algorithm/shuffle.hpp>
 #include <stl2/detail/algorithm/sort.hpp>
+#include <stl2/detail/algorithm/sort_heap.hpp>
 #include <stl2/detail/algorithm/stable_partition.hpp>
 #include <stl2/detail/algorithm/stable_sort.hpp>
 #include <stl2/detail/algorithm/swap_ranges.hpp>
