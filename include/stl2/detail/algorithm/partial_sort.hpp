@@ -15,10 +15,11 @@
 
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
-#include <stl2/tuple.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/heap_sift.hpp>
+#include <stl2/detail/algorithm/make_heap.hpp>
+#include <stl2/detail/algorithm/sort_heap.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
-#include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // partial_sort [partial.sort]
@@ -27,8 +28,21 @@ STL2_OPEN_NAMESPACE {
   template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
             class Proj = identity>
     requires Sortable<I, Comp, Proj>()
-  I partial_sort(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{}) {
-    std::terminate(); // FIXME: NYI
+  I partial_sort(I first, I middle, S last, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
+    auto&& comp = __stl2::as_function(comp_);
+    auto&& proj = __stl2::as_function(proj_);
+
+    __stl2::make_heap(first, middle, __stl2::ref(comp), __stl2::ref(proj));
+    const auto len = __stl2::distance(first, middle);
+    I i = middle;
+    for(; i != last; ++i) {
+      if(comp(proj(*i), proj(*first))) {
+        __stl2::iter_swap2(i, first);
+        detail::sift_down_n(first, len, first, __stl2::ref(comp), __stl2::ref(proj));
+      }
+    }
+    __stl2::sort_heap(first, middle, __stl2::ref(comp), __stl2::ref(proj));
+    return i;
   }
 
   template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>

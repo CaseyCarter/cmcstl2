@@ -150,6 +150,9 @@ add_test(test.alg.move_backward alg.move_backward)
 add_executable(alg.none_of none_of.cpp)
 add_test(test.alg.none_of alg.none_of)
 
+add_executable(alg.partial_sort partial_sort.cpp)
+add_test(test.alg.partial_sort alg.partial_sort)
+
 add_executable(alg.partition partition.cpp)
 add_test(test.alg.partition alg.partition)
 
