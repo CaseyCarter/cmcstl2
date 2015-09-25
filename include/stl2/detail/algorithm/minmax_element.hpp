@@ -28,9 +28,10 @@
 // minmax_element [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
+  // Extension: constexpr
   template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
             IndirectCallableStrictWeakOrder<Projected<I, Proj>> Comp = less<>>
-  tagged_pair<tag::min(I), tag::max(I)>
+  constexpr tagged_pair<tag::min(I), tag::max(I)>
   minmax_element(I first, S last, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
     tagged_pair<tag::min(I), tag::max(I)> result{first, first};
     if (first == last || ++first == last) {
@@ -73,10 +74,11 @@ STL2_OPEN_NAMESPACE {
     return result;
   }
 
+  // Extension: constexpr
   template <ForwardRange Rng, class Proj = identity,
             IndirectCallableStrictWeakOrder<Projected<IteratorType<Rng>, Proj>> Comp = less<>>
-  tagged_pair<tag::min(safe_iterator_t<Rng>),
-              tag::max(safe_iterator_t<Rng>)>
+  constexpr tagged_pair<tag::min(safe_iterator_t<Rng>),
+                        tag::max(safe_iterator_t<Rng>)>
   minmax_element(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::minmax_element(__stl2::begin(rng), __stl2::end(rng),
                                   __stl2::forward<Comp>(comp),

@@ -16,7 +16,6 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/algorithm/min_element.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
@@ -24,36 +23,47 @@
 // min [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-  template<class T, class Comp = less<>>
-    requires StrictWeakOrder<FunctionType<Comp>, T>()
-  constexpr const T& min(const T& a, const T& b, Comp comp_ = Comp{}) {
+  // Extension: projection.
+  template<class T, class Proj = identity,
+           IndirectCallableStrictWeakOrder<
+             Projected<const T*, Proj>> Comp = less<>>
+  constexpr const T& min(const T& a, const T& b,
+                         Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
     auto&& comp = __stl2::as_function(comp_);
-    return comp(b, a) ? b : a;
+    auto&& proj = __stl2::as_function(proj_);
+    return comp(proj(b), proj(a)) ? b : a;
   }
 
-  // Not to spec: relax Semiregular to CopyConstructible
-  template <CopyConstructible T, class Comp = less<>>
-    requires StrictWeakOrder<FunctionType<Comp>, T>()
-  constexpr T min(std::initializer_list<T> rng, Comp comp_ = Comp{}) {
-    STL2_ASSERT(rng.size() != 0);
+  // Not to spec: constexpr.
+  // Extension: projection.
+  template <InputRange Rng, class Proj = identity,
+            IndirectCallableStrictWeakOrder<
+              Projected<IteratorType<Rng>, Proj>> Comp = less<>>
+    requires Copyable<ValueType<IteratorType<Rng>>>()
+  constexpr ValueType<IteratorType<Rng>>
+  min(Rng&& r, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
+    auto first = __stl2::begin(r);
+    auto last = __stl2::end(r);
+    STL2_ASSERT(first != last);
+    auto tmp = *first;
     auto&& comp = __stl2::as_function(comp_);
-    auto result = rng.begin();
-    for (auto i = result + 1, e = rng.end(); i != e; ++i) {
-      if (comp(*i, *result)) {
-        result = i;
+    auto&& proj = __stl2::as_function(proj_);
+    while (++first != last) {
+      if (comp(proj(*first), proj(tmp))) {
+        tmp = *first;
       }
     }
-    return *result;
+    return tmp;
   }
 
-  // Not to spec: relax Semiregular to CopyConstructible
-  template <InputRange Rng,
-            IndirectCallableStrictWeakOrder<IteratorType<Rng>> Comp = less<>>
-    requires CopyConstructible<ValueType<IteratorType<Rng>>>()
-  ValueType<IteratorType<Rng>> min(Rng&& rng, Comp&& comp = Comp{}) {
-    auto result = __stl2::min_element(rng, __stl2::forward<Comp>(comp));
-    STL2_ASSERT(result != __stl2::end(rng));
-    return *result;
+  // Extension: projection.
+  template <Copyable T, class Proj = identity,
+           IndirectCallableStrictWeakOrder<
+             Projected<const T*, Proj>> Comp = less<>>
+  constexpr T min(std::initializer_list<T>&& rng,
+                  Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+    return __stl2::min(rng, __stl2::forward<Comp>(comp),
+                       __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
 

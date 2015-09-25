@@ -17,6 +17,9 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
 
+// TODO:
+// * Relax to WeaklyIncrementable.
+
 STL2_OPEN_NAMESPACE {
   Integral{I}
   class iota_view {

@@ -24,36 +24,47 @@
 // max [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-  template<class T, class Comp = less<>>
-    requires StrictWeakOrder<FunctionType<Comp>, T>()
-  constexpr const T& max(const T& a, const T& b, Comp comp_ = Comp{}) {
+  // Extension: projection.
+  template<class T, class Proj = identity,
+            IndirectCallableStrictWeakOrder<
+              Projected<const T*, Proj>> Comp = less<>>
+  constexpr const T& max(const T& a, const T& b,
+                         Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
     auto&& comp = __stl2::as_function(comp_);
-    return !comp(a, b) ? a : b;
+    auto&& proj = __stl2::as_function(proj_);
+    return !comp(proj(a), proj(b)) ? a : b;
   }
 
-  // Not to spec: relax Semiregular to CopyConstructible
-  template <CopyConstructible T, class Comp = less<>>
-    requires StrictWeakOrder<FunctionType<Comp>, T>()
-  constexpr T max(std::initializer_list<T> rng, Comp comp_ = Comp{}) {
-    STL2_ASSERT(rng.size() != 0);
+  // Not to spec: constexpr.
+  // Extension: projection.
+  template <InputRange Rng, class Proj = identity,
+            IndirectCallableStrictWeakOrder<
+              Projected<IteratorType<Rng>, Proj>> Comp = less<>>
+    requires Copyable<ValueType<IteratorType<Rng>>>()
+  constexpr ValueType<IteratorType<Rng>>
+  max(Rng&& r, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
     auto&& comp = __stl2::as_function(comp_);
-    auto result = rng.begin();
-    for (auto i = result + 1, e = rng.end(); i != e; ++i) {
-      if (!comp(*i, *result)) {
-        result = i;
+    auto&& proj = __stl2::as_function(proj_);
+    auto first = __stl2::begin(r);
+    auto last = __stl2::end(r);
+    STL2_ASSERT(first != last);
+    auto tmp = *first;
+    while (++first != last) {
+      if (comp(proj(tmp), proj(*first))) {
+        tmp = *first;
       }
     }
-    return *result;
+    return tmp;
   }
 
-  // Not to spec: relax Semiregular to CopyConstructible
-  template <InputRange Rng,
-            IndirectCallableStrictWeakOrder<IteratorType<Rng>> Comp = less<>>
-    requires CopyConstructible<ValueType<IteratorType<Rng>>>()
-  ValueType<IteratorType<Rng>> max(Rng&& rng, Comp&& comp = Comp{}) {
-    auto result = __stl2::max_element(rng, __stl2::forward<Comp>(comp));
-    STL2_ASSERT(result != __stl2::end(rng));
-    return *result;
+  // Extension: projection.
+  template <Copyable T, class Proj = identity,
+            IndirectCallableStrictWeakOrder<
+              Projected<const T*, Proj>> Comp = less<>>
+  constexpr T max(std::initializer_list<T>&& rng,
+                  Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+    return __stl2::max(rng, __stl2::forward<Comp>(comp),
+                       __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
 
