@@ -20,6 +20,8 @@
 
 ///////////////////////////////////////////////////////////////////////////
 // reverse [alg.reverse]
+// TODO:
+// * Forward ranges.
 //
 STL2_OPEN_NAMESPACE {
   template <BidirectionalIterator I>

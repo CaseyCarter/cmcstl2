@@ -29,8 +29,10 @@ STL2_OPEN_NAMESPACE {
   equal_range(I first, S last, const T& value, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
     auto&& comp = __stl2::as_function(comp_);
     auto&& proj = __stl2::as_function(proj_);
-    auto lb = __stl2::lower_bound(__stl2::move(first), last, value, comp, proj);
-    auto ub = __stl2::upper_bound(lb, __stl2::move(last), value, comp, proj);
+    auto lb = __stl2::lower_bound(__stl2::move(first), last, value,
+                                  __stl2::ref(comp), __stl2::ref(proj));
+    auto ub = __stl2::upper_bound(lb, __stl2::move(last), value,
+                                  __stl2::ref(comp), __stl2::ref(proj));
     return {__stl2::move(lb), __stl2::move(ub)};
   }
 

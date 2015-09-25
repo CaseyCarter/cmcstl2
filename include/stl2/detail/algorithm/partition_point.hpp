@@ -15,7 +15,6 @@
 
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
-#include <stl2/tuple.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
@@ -27,7 +26,7 @@ STL2_OPEN_NAMESPACE {
   namespace ext {
     template <ForwardIterator I, class Proj = identity,
               IndirectCallablePredicate<Projected<I, Proj>> Pred>
-    I partition_point(I first, DifferenceType<I> n, Pred pred_, Proj proj_ = Proj{}) {
+    I partition_point_n(I first, DifferenceType<I> n, Pred pred_, Proj proj_ = Proj{}) {
       auto&& pred = __stl2::as_function(pred_);
       auto&& proj = __stl2::as_function(proj_);
 
@@ -60,7 +59,8 @@ STL2_OPEN_NAMESPACE {
       auto d = __stl2::advance(m, n, last);
       if (m == last || !pred(proj(*m))) {
         n -= d;
-        return __stl2::ext::partition_point(__stl2::move(first), n, pred, proj);
+        return __stl2::ext::partition_point_n(__stl2::move(first), n,
+                                              __stl2::ref(pred), __stl2::ref(proj));
       }
       first = __stl2::move(m);
       n *= 2;
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
     requires SizedIteratorRange<I, S>()
   I partition_point(I first, S last, Pred&& pred, Proj&& proj = Proj{}) {
     auto n = __stl2::distance(first, last);
-    return __stl2::ext::partition_point(__stl2::move(first), n,
+    return __stl2::ext::partition_point_n(__stl2::move(first), n,
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 
@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
     requires SizedRange<Rng>()
   safe_iterator_t<Rng>
   partition_point(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
-    return __stl2::ext::partition_point(__stl2::begin(rng), __stl2::distance(rng),
+    return __stl2::ext::partition_point_n(__stl2::begin(rng), __stl2::distance(rng),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE

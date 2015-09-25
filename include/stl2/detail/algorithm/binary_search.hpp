@@ -28,7 +28,8 @@ STL2_OPEN_NAMESPACE {
                      Proj proj_ = Proj{}) {
     auto&& comp = __stl2::as_function(comp_);
     auto&& proj = __stl2::as_function(proj_);
-    auto result = __stl2::lower_bound(__stl2::move(first), last, value, comp, proj);
+    auto result = __stl2::lower_bound(__stl2::move(first), last, value,
+                                      __stl2::ref(comp), __stl2::ref(proj));
     return result != last && !comp(value, proj(*result));
   }
 

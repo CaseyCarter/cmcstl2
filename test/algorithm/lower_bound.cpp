@@ -48,9 +48,9 @@ int main()
     std::pair<int, int> a[] = {{0, 0}, {0, 1}, {1, 2}, {1, 3}, {3, 4}, {3, 5}};
     const std::pair<int, int> c[] = {{0, 0}, {0, 1}, {1, 2}, {1, 3}, {3, 4}, {3, 5}};
 
-    CHECK(stl2::ext::lower_bound(begin(a), size(a), a[0]) == &a[0]);
-    CHECK(stl2::ext::lower_bound(begin(a), size(a), a[1], less<>()) == &a[1]);
-    CHECK(stl2::ext::lower_bound(begin(a), size(a), 1, less<>(), &std::pair<int, int>::first) == &a[2]);
+    CHECK(stl2::ext::lower_bound_n(begin(a), size(a), a[0]) == &a[0]);
+    CHECK(stl2::ext::lower_bound_n(begin(a), size(a), a[1], less<>()) == &a[1]);
+    CHECK(stl2::ext::lower_bound_n(begin(a), size(a), 1, less<>(), &std::pair<int, int>::first) == &a[2]);
 
     CHECK(stl2::lower_bound(begin(a), end(a), a[0]) == &a[0]);
     CHECK(stl2::lower_bound(begin(a), end(a), a[1], less<>()) == &a[1]);

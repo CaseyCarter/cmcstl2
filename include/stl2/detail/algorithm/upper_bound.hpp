@@ -39,9 +39,9 @@ STL2_OPEN_NAMESPACE {
     template <ForwardIterator I, class T, class Proj = identity,
               IndirectCallableStrictWeakOrder<const T*,
                                               Projected<I, Proj>> Comp = less<>>
-    I upper_bound(I first, DifferenceType<I> n, const T& value,
-                  Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
-      return __stl2::ext::partition_point(__stl2::move(first), n,
+    I upper_bound_n(I first, DifferenceType<I> n, const T& value,
+                    Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+      return __stl2::ext::partition_point_n(__stl2::move(first), n,
         __upper_bound_fn<Comp, T>{__stl2::forward<Comp>(comp), value},
         __stl2::forward<Proj>(proj));
     }
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
   I upper_bound(I first, S last, const T& value, Comp&& comp = Comp{},
                 Proj&& proj = Proj{}) {
     auto n = __stl2::distance(first, __stl2::move(last));
-    return __stl2::ext::upper_bound(__stl2::move(first), n, value,
+    return __stl2::ext::upper_bound_n(__stl2::move(first), n, value,
       __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
   }
 
@@ -81,7 +81,7 @@ STL2_OPEN_NAMESPACE {
     requires SizedRange<Rng>()
   safe_iterator_t<Rng>
   upper_bound(Rng&& rng, const T& value, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
-    return __stl2::ext::upper_bound(__stl2::begin(rng), __stl2::distance(rng), value,
+    return __stl2::ext::upper_bound_n(__stl2::begin(rng), __stl2::distance(rng), value,
       __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
