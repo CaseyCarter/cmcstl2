@@ -115,6 +115,11 @@ STL2_OPEN_NAMESPACE {
         emplace_back(__stl2::move(t));
       }
     };
+
+    Destructible{T}
+    temporary_vector<T> make_temporary_vector(temporary_buffer<T>& buf) {
+      return {buf};
+    }
   }
 } STL2_CLOSE_NAMESPACE
 

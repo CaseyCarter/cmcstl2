@@ -23,9 +23,10 @@
 // merge_move [alg.merge]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
-            Incrementable O, class Comp = less<>, class Proj1 = identity,
-            class Proj2 = identity>
+  template <InputIterator I1, Sentinel<I1> S1,
+            InputIterator I2, Sentinel<I2> S2,
+            class O, class Comp = less<>,
+            class Proj1 = identity, class Proj2 = identity>
     requires MergeMovable<I1, I2, O, Comp, Proj1, Proj2>()
   tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
   merge_move(I1 first1, S1 last1, I2 first2, S2 last2, O result,
@@ -56,9 +57,11 @@ STL2_OPEN_NAMESPACE {
     return {__stl2::move(first1), __stl2::move(first2), __stl2::move(result)};
   }
 
-  template <InputRange Rng1, InputRange Rng2, Incrementable O, class Comp = less<>,
+  template <InputRange Rng1, InputRange Rng2,
+            class O, class Comp = less<>,
             class Proj1 = identity, class Proj2 = identity>
-    requires MergeMovable<IteratorType<Rng1>, IteratorType<Rng2>, O, Comp, Proj1, Proj2>()
+    requires MergeMovable<IteratorType<Rng1>, IteratorType<Rng2>,
+                          O, Comp, Proj1, Proj2>()
   tagged_tuple<tag::in1(safe_iterator_t<Rng1>), tag::in2(safe_iterator_t<Rng2>),
                tag::out(O)>
   merge_move(Rng1&& rng1, Rng2&& rng2, O result, Comp&& comp = Comp{},
