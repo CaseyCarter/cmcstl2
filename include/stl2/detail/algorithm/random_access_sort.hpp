@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
         }
       }
 
-      template <RandomAccessIterator I, class Comp, class Proj>
+      template <BidirectionalIterator I, class Comp, class Proj>
         requires Sortable<I, Comp, Proj>()
       void unguarded_linear_insert(I last, ValueType<I> val, Comp& comp, Proj& proj) {
         I next = __stl2::prev(last);
@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
         *last = __stl2::move(val);
       }
 
-      template <RandomAccessIterator I, class Comp, class Proj>
+      template <BidirectionalIterator I, class Comp, class Proj>
         requires Sortable<I, Comp, Proj>()
       void linear_insert(I first, I last, Comp& comp, Proj& proj)
       {
@@ -91,7 +91,7 @@ STL2_OPEN_NAMESPACE {
         }
       }
 
-      template <RandomAccessIterator I, class Comp, class Proj>
+      template <BidirectionalIterator I, class Comp, class Proj>
         requires Sortable<I, Comp, Proj>()
       void insertion_sort(I first, I last, Comp& comp, Proj& proj) {
         if (first != last) {
@@ -101,7 +101,7 @@ STL2_OPEN_NAMESPACE {
         }
       }
 
-      template <RandomAccessIterator I, class Comp, class Proj>
+      template <BidirectionalIterator I, class Comp, class Proj>
         requires Sortable<I, Comp, Proj>()
       void unguarded_insertion_sort(I first, I last, Comp& comp, Proj& proj) {
         for (I i = first; i != last; ++i) {

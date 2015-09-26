@@ -19,8 +19,6 @@
 // fill_n [alg.fill]
 //
 STL2_OPEN_NAMESPACE {
-  // Not to spec: spec requires T to be Semiregular
-  // See https://github.com/ericniebler/stl2/issues/121
   template <class T, WeakOutputIterator<T> O>
   O fill_n(O first, DifferenceType<O> n, const T& value) {
     for (; n > 0; --n, ++first) {

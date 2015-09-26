@@ -40,7 +40,7 @@
 ///////////////////////////////////////////////////////////////////////////
 // sort [Extension]
 //
-// Algorithm for forward iterators from Elements of Programming.
+// Algorithm for forward iterators from EoP.
 //
 STL2_OPEN_NAMESPACE {
   namespace detail {
@@ -57,13 +57,12 @@ STL2_OPEN_NAMESPACE {
         __stl2::move(__stl2::make_counted_iterator(f0, n0),
                      __stl2::default_sentinel{},
                      __stl2::back_inserter(vec));
-        auto res = __stl2::merge_move(
+        return __stl2::merge_move(
           vec.begin(), vec.end(),
           __stl2::make_counted_iterator(__stl2::move(f1), n1),
           __stl2::default_sentinel{},
           __stl2::move(f0), __stl2::ref(comp),
           __stl2::ref(proj), __stl2::ref(proj)).out();
-        return res;
       }
 
       Sortable{I, Comp, Proj}
@@ -135,24 +134,27 @@ STL2_OPEN_NAMESPACE {
       }
 
       Sortable{I, Comp, Proj}
-      I sort_n_adaptive(I first, DifferenceType<I> n, buf_t<I>& buf,
+      I sort_n_adaptive(I first, const DifferenceType<I> n, buf_t<I>& buf,
                         Comp& comp, Proj& proj) {
-        DifferenceType<I> h = n / 2;
-        if (!h) {
+        auto half_n = n / 2;
+        if (!half_n) {
           return __stl2::next(first, n);
         }
-        I m = fsort::sort_n_adaptive(first, h, buf, comp, proj);
-              fsort::sort_n_adaptive(m, n - h, buf, comp, proj);
-        return fsort::merge_n_adaptive(first, h, m, n - h, buf, comp, proj);
+        I middle = fsort::sort_n_adaptive(first, half_n, buf, comp, proj);
+        fsort::sort_n_adaptive(middle, n - half_n, buf, comp, proj);
+        return fsort::merge_n_adaptive(first, half_n, middle, n - half_n,
+                                       buf, comp, proj);
       }
 
       template <class I, class Comp = less<>, class Proj = identity>
         requires Sortable<I, Comp, Proj>()
-      inline I sort_n(I first, DifferenceType<I> n,
+      inline I sort_n(I first, const DifferenceType<I> n,
                       Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
         auto&& comp = __stl2::as_function(comp_);
         auto&& proj = __stl2::as_function(proj_);
-        detail::temporary_buffer<ValueType<I>> buf{n / 2};
+        using buf_t = temporary_buffer<ValueType<I>>;
+        // TODO: tune this threshold.
+        auto buf = n / 2 >= 16 ? buf_t{n / 2} : buf_t{};
         return detail::fsort::sort_n_adaptive(first, n, buf, comp, proj);
       }
     }

@@ -38,7 +38,9 @@
 ///////////////////////////////////////////////////////////////////////////
 // inplace_merge [alg.merge]
 //
-// TODO: SizedRange overload; downgrade the enumerate call to a distance?
+// TODO:
+// * SizedRange overload; downgrade the enumerate call to a distance?
+// * Forward ranges.
 //
 STL2_OPEN_NAMESPACE {
   namespace detail {
@@ -182,7 +184,7 @@ STL2_OPEN_NAMESPACE {
     auto len2_and_end = __stl2::ext::enumerate(middle, __stl2::move(last));
     auto buf_size = std::min(len1, len2_and_end.first);
     detail::temporary_buffer<ValueType<I>> buf;
-    if (is_trivially_copy_assignable<ValueType<I>>() && 8 < buf_size) {
+    if (is_trivially_move_assignable<ValueType<I>>() && 8 < buf_size) {
       buf = detail::temporary_buffer<ValueType<I>>{buf_size};
     }
     detail::merge_adaptive(__stl2::move(first), __stl2::move(middle), len2_and_end.second,

@@ -17,9 +17,6 @@
 
 ///////////////////////////////////////////////////////////////////////////
 // fill [alg.fill]
-// Not to spec: spec requires T to be Semiregular.
-// See https://github.com/ericniebler/stl2/issues/121
-//
 STL2_OPEN_NAMESPACE {
   template <class T, OutputIterator<T> O, Sentinel<O> S>
   O fill(O first, S last, const T& value) {

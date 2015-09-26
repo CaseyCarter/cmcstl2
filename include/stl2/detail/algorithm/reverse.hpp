@@ -45,16 +45,16 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     // From EoP
     Permutable{I}
-    I reverse_n_with_buffer(I f_i, DifferenceType<I> n,
+    I reverse_n_with_buffer(I first, DifferenceType<I> n,
                             temporary_buffer<ValueType<I>>& buf) {
-      // Precondition: $\property{mutable\_counted\_range}(f_i, n)$
+      // Precondition: $\property{mutable\_counted\_range}(first, n)$
       STL2_ASSERT(n <= buf.size());
       auto&& vec = detail::make_temporary_vector(buf);
-      __stl2::move(__stl2::make_counted_iterator(f_i, n),
+      __stl2::move(__stl2::make_counted_iterator(first, n),
                    __stl2::default_sentinel{},
                    __stl2::back_inserter(vec));
       return __stl2::reverse_move(vec.begin(), vec.end(),
-                                  __stl2::move(f_i)).out();
+                                  __stl2::move(first)).out();
     }
 
     Permutable{I}
@@ -66,23 +66,23 @@ STL2_OPEN_NAMESPACE {
 
     // From EoP
     Permutable{I}
-    I reverse_n_adaptive(I f_i, const DifferenceType<I> n_i,
+    I reverse_n_adaptive(I first, const DifferenceType<I> n,
                          temporary_buffer<ValueType<I>>& buf) {
-      // Precondition: $\property{mutable\_counted\_range}(f_i, n_i)$
-      if (n_i < DifferenceType<I>(2)) {
-        return __stl2::next(__stl2::move(f_i), n_i);
+      // Precondition: $\property{mutable\_counted\_range}(first, n)$
+      if (n < DifferenceType<I>(2)) {
+        return __stl2::next(__stl2::move(first), n);
       }
-      if (n_i <= buf.size()) {
-        return detail::reverse_n_with_buffer(__stl2::move(f_i), n_i, buf);
+      if (n <= buf.size()) {
+        return detail::reverse_n_with_buffer(__stl2::move(first), n, buf);
       }
-      DifferenceType<I> h_i = n_i / 2;
-      I m_i = detail::reverse_n_adaptive(f_i, h_i, buf);
-      if (n_i % 2 != 0) {
-        ++m_i;
+      auto half_n = n / 2;
+      auto middle = detail::reverse_n_adaptive(first, half_n, buf);
+      if (n % 2 != 0) {
+        ++middle;
       }
-      I l_i = detail::reverse_n_adaptive(m_i, h_i, buf);
-      swap_ranges_n(__stl2::move(f_i), __stl2::move(m_i), h_i);
-      return l_i;
+      auto last = detail::reverse_n_adaptive(middle, half_n, buf);
+      swap_ranges_n(__stl2::move(first), __stl2::move(middle), half_n);
+      return last;
     }
 
     Permutable{I}
