@@ -49,9 +49,9 @@ STL2_OPEN_NAMESPACE {
       using buf_t = temporary_buffer<ValueType<I>>;
 
       Sortable{I, Comp, Proj}
-      I merge_n_with_buffer(I f0, DifferenceType<I> n0,
-                            I f1, DifferenceType<I> n1,
-                            buf_t<I>& buf, Comp& comp, Proj& proj) {
+      inline I merge_n_with_buffer(I f0, DifferenceType<I> n0,
+                                   I f1, DifferenceType<I> n1,
+                                   buf_t<I>& buf, Comp& comp, Proj& proj) {
         STL2_ASSERT(n0 <= buf.size());
         auto&& vec = make_temporary_vector(buf);
         __stl2::move(__stl2::make_counted_iterator(f0, n0),
@@ -67,13 +67,13 @@ STL2_OPEN_NAMESPACE {
       }
 
       Sortable{I, Comp, Proj}
-      void merge_n_step_0(I f0, DifferenceType<I> n0,
-                          I f1, DifferenceType<I> n1,
-                          Comp& comp, Proj& proj,
-                          I& f0_0, DifferenceType<I>& n0_0,
-                          I& f0_1, DifferenceType<I>& n0_1,
-                          I& f1_0, DifferenceType<I>& n1_0,
-                          I& f1_1, DifferenceType<I>& n1_1) {
+      inline void merge_n_step_0(I f0, DifferenceType<I> n0,
+                                 I f1, DifferenceType<I> n1,
+                                 Comp& comp, Proj& proj,
+                                 I& f0_0, DifferenceType<I>& n0_0,
+                                 I& f0_1, DifferenceType<I>& n0_1,
+                                 I& f1_0, DifferenceType<I>& n1_0,
+                                 I& f1_1, DifferenceType<I>& n1_1) {
         f0_0 = f0;
         n0_0 = n0 / 2;
         f0_1 = __stl2::next(f0_0, n0_0);
@@ -87,13 +87,13 @@ STL2_OPEN_NAMESPACE {
       }
 
       Sortable{I, Comp, Proj}
-      void merge_n_step_1(I f0, DifferenceType<I> n0,
-                          I f1, DifferenceType<I> n1,
-                          Comp& comp, Proj& proj,
-                          I& f0_0, DifferenceType<I>& n0_0,
-                          I& f0_1, DifferenceType<I>& n0_1,
-                          I& f1_0, DifferenceType<I>& n1_0,
-                          I& f1_1, DifferenceType<I>& n1_1) {
+      inline void merge_n_step_1(I f0, DifferenceType<I> n0,
+                                 I f1, DifferenceType<I> n1,
+                                 Comp& comp, Proj& proj,
+                                 I& f0_0, DifferenceType<I>& n0_0,
+                                 I& f0_1, DifferenceType<I>& n0_1,
+                                 I& f1_0, DifferenceType<I>& n1_0,
+                                 I& f1_1, DifferenceType<I>& n1_1) {
         f0_0 = f0;
         n0_1 = n1 / 2;
         f1_1 = __stl2::next(f1, n0_1);
@@ -110,10 +110,10 @@ STL2_OPEN_NAMESPACE {
       I merge_n_adaptive(I f0, DifferenceType<I> n0,
                          I f1, DifferenceType<I> n1,
                          buf_t<I>& buf, Comp& comp, Proj& proj) {
-        if (!n0 || !n1) {
-          return __stl2::next(f0, n0 + n1);
-        }
         if (n0 <= buf.size()) {
+          if (!n0 || !n1) {
+            return __stl2::next(f0, n0 + n1);
+          }
           return fsort::merge_n_with_buffer(f0, n0, f1, n1, buf, comp, proj);
         }
         I f0_0, f0_1, f1_0, f1_1;
@@ -148,7 +148,8 @@ STL2_OPEN_NAMESPACE {
 
       template <class I, class Comp = less<>, class Proj = identity>
         requires Sortable<I, Comp, Proj>()
-      I sort_n(I first, DifferenceType<I> n, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
+      inline I sort_n(I first, DifferenceType<I> n,
+                      Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
         auto&& comp = __stl2::as_function(comp_);
         auto&& proj = __stl2::as_function(proj_);
         detail::temporary_buffer<ValueType<I>> buf{n / 2};

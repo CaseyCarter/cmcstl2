@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
     }
 
     // 20150813: Extension.
-    friend auto iter_move(reverse_iterator i) {
+    friend decltype(auto) iter_move(reverse_iterator i) {
       return __stl2::iter_move(__stl2::prev(i.current));
     }
 
