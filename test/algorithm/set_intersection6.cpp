@@ -23,21 +23,7 @@ int main()
         int ir[] = {2, 4, 4};
         const int sr = sizeof(ir)/sizeof(ir[0]);
 
-        U * res = stl2::set_intersection(stl2::view::all(ia), stl2::view::all(ib), ic, std::less<int>(), &S::i, &T::j);
-        CHECK((res - ic) == sr);
-        CHECK(stl2::lexicographical_compare(ic, res, ir, ir+sr, std::less<int>(), &U::k) == 0);
-    }
-
-    // Test initializer lists
-    {
-        U ic[20];
-        int ir[] = {2, 4, 4};
-        const int sr = sizeof(ir)/sizeof(ir[0]);
-
-        U * res = stl2::set_intersection(
-            {S{1}, S{2}, S{2}, S{3}, S{3}, S{3}, S{4}, S{4}, S{4}, S{4}},
-            {T{2}, T{4}, T{4}, T{6}},
-            ic, std::less<int>(), &S::i, &T::j);
+        U* res = stl2::set_intersection(ia, ib, ic, std::less<int>(), &S::i, &T::j);
         CHECK((res - ic) == sr);
         CHECK(stl2::lexicographical_compare(ic, res, ir, ir+sr, std::less<int>(), &U::k) == 0);
     }

@@ -11,6 +11,7 @@
 //
 
 #include "set_symmetric_difference.hpp"
+#include <stl2/detail/algorithm/lexicographical_compare.hpp>
 
 int main()
 {
@@ -43,7 +44,7 @@ int main()
         const int sr = sizeof(ir)/sizeof(ir[0]);
 
         auto res1 =
-            stl2::set_symmetric_difference(stl2::view::all(ia), stl2::view::all(ib), ic, std::less<int>(), &S::i, &T::j);
+            stl2::set_symmetric_difference(std::move(ia), std::move(ib), ic, std::less<int>(), &S::i, &T::j);
         CHECK(std::get<0>(res1).get_unsafe() == stl2::end(ia));
         CHECK(std::get<1>(res1).get_unsafe() == stl2::end(ib));
         CHECK((std::get<2>(res1) - ic) == sr);
@@ -51,7 +52,7 @@ int main()
         stl2::fill(ic, U{0});
 
         auto res2 =
-            stl2::set_symmetric_difference(stl2::view::all(ib), stl2::view::all(ia), ic, std::less<int>(), &T::j, &S::i);
+            stl2::set_symmetric_difference(std::move(ib), std::move(ia), ic, std::less<int>(), &T::j, &S::i);
         CHECK(std::get<0>(res2).get_unsafe() == stl2::end(ib));
         CHECK(std::get<1>(res2).get_unsafe() == stl2::end(ia));
         CHECK((std::get<2>(res2) - ic) == sr);
