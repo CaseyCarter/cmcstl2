@@ -65,6 +65,7 @@
 #include <stl2/detail/algorithm/partition_move.hpp>
 #include <stl2/detail/algorithm/partition_point.hpp>
 #include <stl2/detail/algorithm/pop_heap.hpp>
+#include <stl2/detail/algorithm/prev_permutation.hpp>
 #include <stl2/detail/algorithm/push_heap.hpp>
 #include <stl2/detail/algorithm/remove.hpp>
 #include <stl2/detail/algorithm/remove_copy.hpp>

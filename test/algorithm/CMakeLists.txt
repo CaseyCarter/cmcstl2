@@ -180,6 +180,9 @@ add_test(test.alg.partition_point alg.partition_point)
 add_executable(alg.pop_heap pop_heap.cpp)
 add_test(test.alg.pop_heap alg.pop_heap)
 
+add_executable(alg.prev_permutation prev_permutation.cpp)
+add_test(test.alg.prev_permutation alg.prev_permutation)
+
 add_executable(alg.push_heap push_heap.cpp)
 add_test(test.alg.push_heap alg.push_heap)
 
