@@ -108,6 +108,9 @@ add_test(test.alg.is_sorted alg.is_sorted)
 add_executable(alg.is_sorted_until is_sorted_until.cpp)
 add_test(test.alg.is_sorted_until alg.is_sorted_until)
 
+add_executable(alg.lexicographical_compare lexicographical_compare.cpp)
+add_test(test.alg.lexicographical_compare alg.lexicographical_compare)
+
 add_executable(alg.lower_bound lower_bound.cpp)
 add_test(test.alg.lower_bound alg.lower_bound)
 
