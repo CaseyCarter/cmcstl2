@@ -150,6 +150,9 @@ add_test(test.alg.move alg.move)
 add_executable(alg.move_backward move_backward.cpp)
 add_test(test.alg.move_backward alg.move_backward)
 
+add_executable(alg.next_permutation next_permutation.cpp)
+add_test(test.alg.next_permutation alg.next_permutation)
+
 add_executable(alg.none_of none_of.cpp)
 add_test(test.alg.none_of alg.none_of)
 

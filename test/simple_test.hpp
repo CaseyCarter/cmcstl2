@@ -185,7 +185,7 @@ void check_equal_(Rng && actual, Rng2&& expected)
     CHECK(begin1 == end1);
 }
 
-template<typename Rng, typename Val>
+template<typename Val, typename Rng>
 void check_equal(Rng && actual, std::initializer_list<Val> expected)
 {
     check_equal_(actual, expected);

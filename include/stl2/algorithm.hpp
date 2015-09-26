@@ -55,6 +55,7 @@
 #include <stl2/detail/algorithm/mismatch.hpp>
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/move_backward.hpp>
+#include <stl2/detail/algorithm/next_permutation.hpp>
 #include <stl2/detail/algorithm/none_of.hpp>
 #include <stl2/detail/algorithm/nth_element.hpp>
 #include <stl2/detail/algorithm/partial_sort.hpp>
