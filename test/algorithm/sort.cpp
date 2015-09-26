@@ -95,22 +95,6 @@ test_sort_helper(RI f, RI l)
                 CHECK(std::is_sorted(save, save+len, std::greater<int>{}));
                 std::copy(f, l, save);
             });
-            std::copy(f, l, save);
-            sort(forward_iterator<value_type*>{save},
-                 forward_iterator<value_type*>{save+len}).check([&](auto res)
-            {
-                CHECK(base(res) == save+len);
-                CHECK(std::is_sorted(save, save+len));
-                std::copy(f, l, save);
-            });
-            sort(forward_iterator<value_type*>{save},
-                 forward_iterator<value_type*>{save+len},
-                 std::greater<int>{}).check([&](auto res)
-            {
-                CHECK(base(res) == save+len);
-                CHECK(std::is_sorted(save, save+len, std::greater<int>{}));
-                std::copy(f, l, save);
-            });
         } while (std::next_permutation(f, l));
         delete [] save;
     }
