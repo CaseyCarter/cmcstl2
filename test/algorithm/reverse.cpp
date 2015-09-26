@@ -101,10 +101,12 @@ void test()
 
 int main()
 {
+    test<forward_iterator<int *>>();
     test<bidirectional_iterator<int *>>();
     test<random_access_iterator<int *>>();
     test<int*>();
 
+    test<forward_iterator<int *>, sentinel<int*>>();
     test<bidirectional_iterator<int *>, sentinel<int*>>();
     test<random_access_iterator<int *>, sentinel<int*>>();
 
