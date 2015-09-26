@@ -152,10 +152,12 @@ STL2_OPEN_NAMESPACE {
                       Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
         auto&& comp = __stl2::as_function(comp_);
         auto&& proj = __stl2::as_function(proj_);
-        using buf_t = temporary_buffer<ValueType<I>>;
+        auto ufirst = ext::uncounted(first);
+        using buf_t = temporary_buffer<ValueType<decltype(ufirst)>>;
         // TODO: tune this threshold.
         auto buf = n / 2 >= 16 ? buf_t{n / 2} : buf_t{};
-        return detail::fsort::sort_n_adaptive(first, n, buf, comp, proj);
+        auto last = detail::fsort::sort_n_adaptive(ufirst, n, buf, comp, proj);
+        return ext::recounted(first, __stl2::move(last), n);
       }
     }
   }

@@ -87,13 +87,15 @@ STL2_OPEN_NAMESPACE {
 
     Permutable{I}
     I reverse_n(I first, DifferenceType<I> n) {
-      using buf_t = temporary_buffer<ValueType<I>>;
+      auto ufirst = ext::uncounted(first);
+      using buf_t = temporary_buffer<ValueType<decltype(ufirst)>>;
       buf_t buf{};
       // TODO: tune this threshold.
       if (n >= DifferenceType<I>(16)) {
         buf = buf_t{n};
       }
-      return detail::reverse_n_adaptive(__stl2::move(first), n, buf);
+      auto last = detail::reverse_n_adaptive(ufirst, n, buf);
+      return ext::recounted(first, __stl2::move(last), n);
     }
   }
 
