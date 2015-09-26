@@ -78,20 +78,36 @@ test_sort_helper(RI f, RI l)
     });
     if (f != l)
     {
-        long len = l - f;
+        auto len = stl2::distance(f, l);
         value_type* save(new value_type[len]);
         do
         {
             std::copy(f, l, save);
-            sort(save, save+len).check([&](int *res)
+            sort(save, save+len).check([&](auto res)
             {
-                CHECK(res == save+len);
+                CHECK(base(res) == save+len);
                 CHECK(std::is_sorted(save, save+len));
                 std::copy(f, l, save);
             });
-            sort(save, save+len, std::greater<int>{}).check([&](int *res)
+            sort(save, save+len, std::greater<int>{}).check([&](auto res)
             {
-                CHECK(res == save+len);
+                CHECK(base(res) == save+len);
+                CHECK(std::is_sorted(save, save+len, std::greater<int>{}));
+                std::copy(f, l, save);
+            });
+            std::copy(f, l, save);
+            sort(forward_iterator<value_type*>{save},
+                 forward_iterator<value_type*>{save+len}).check([&](auto res)
+            {
+                CHECK(base(res) == save+len);
+                CHECK(std::is_sorted(save, save+len));
+                std::copy(f, l, save);
+            });
+            sort(forward_iterator<value_type*>{save},
+                 forward_iterator<value_type*>{save+len},
+                 std::greater<int>{}).check([&](auto res)
+            {
+                CHECK(base(res) == save+len);
                 CHECK(std::is_sorted(save, save+len, std::greater<int>{}));
                 std::copy(f, l, save);
             });
