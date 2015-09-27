@@ -57,8 +57,8 @@ STL2_OPEN_NAMESPACE {
 
         auto&& vec = detail::make_temporary_vector(buf);
         vec.push_back(__stl2::iter_move(first));
-        auto counted =
-          __stl2::make_counted_iterator(__stl2::move(next), n - 1);
+        auto counted = __stl2::make_counted_iterator(
+          __stl2::ext::uncounted(next), n - 1);
         auto pp = __stl2::partition_move(
             __stl2::move(counted), default_sentinel{},
             __stl2::move(first), __stl2::back_inserter(vec),

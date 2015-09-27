@@ -58,8 +58,8 @@ add_executable(alg.find_if_not find_if_not.cpp)
 add_test(test.alg.find_if_not alg.find_if_not)
 
 add_executable(alg.for_each for_each.cpp)
-add_test(test.alg.for_each alg.for_each
-)
+add_test(test.alg.for_each alg.for_each)
+
 add_executable(alg.generate generate.cpp)
 add_test(test.alg.generate alg.generate)
 
@@ -73,28 +73,28 @@ add_executable(alg.inplace_merge inplace_merge.cpp)
 add_test(test.alg.inplace_merge alg.inplace_merge)
 
 add_executable(alg.is_heap1 is_heap1.cpp)
-add_test(test.alg.is_heap1, alg.is_heap1)
+add_test(test.alg.is_heap1 alg.is_heap1)
 
 add_executable(alg.is_heap2 is_heap2.cpp)
-add_test(test.alg.is_heap2, alg.is_heap2)
+add_test(test.alg.is_heap2 alg.is_heap2)
 
 add_executable(alg.is_heap3 is_heap3.cpp)
-add_test(test.alg.is_heap3, alg.is_heap3)
+add_test(test.alg.is_heap3 alg.is_heap3)
 
 add_executable(alg.is_heap4 is_heap4.cpp)
-add_test(test.alg.is_heap4, alg.is_heap4)
+add_test(test.alg.is_heap4 alg.is_heap4)
 
 add_executable(alg.is_heap_until1 is_heap_until1.cpp)
-add_test(test.alg.is_heap_until1, alg.is_heap_until1)
+add_test(test.alg.is_heap_until1 alg.is_heap_until1)
 
 add_executable(alg.is_heap_until2 is_heap_until2.cpp)
-add_test(test.alg.is_heap_until2, alg.is_heap_until2)
+add_test(test.alg.is_heap_until2 alg.is_heap_until2)
 
 add_executable(alg.is_heap_until3 is_heap_until3.cpp)
-add_test(test.alg.is_heap_until3, alg.is_heap_until3)
+add_test(test.alg.is_heap_until3 alg.is_heap_until3)
 
 add_executable(alg.is_heap_until4 is_heap_until4.cpp)
-add_test(test.alg.is_heap_until4, alg.is_heap_until4)
+add_test(test.alg.is_heap_until4 alg.is_heap_until4)
 
 add_executable(alg.is_partitioned is_partitioned.cpp)
 add_test(test.alg.is_partitioned alg.is_partitioned)
@@ -229,76 +229,76 @@ add_executable(alg.search_n search_n.cpp)
 add_test(test.alg.search_n alg.search_n)
 
 add_executable(alg.set_difference1 set_difference1.cpp)
-add_test(test.alg.set_difference1, alg.set_difference1)
+add_test(test.alg.set_difference1 alg.set_difference1)
 
 add_executable(alg.set_difference2 set_difference2.cpp)
-add_test(test.alg.set_difference2, alg.set_difference2)
+add_test(test.alg.set_difference2 alg.set_difference2)
 
 add_executable(alg.set_difference3 set_difference3.cpp)
-add_test(test.alg.set_difference3, alg.set_difference3)
+add_test(test.alg.set_difference3 alg.set_difference3)
 
 add_executable(alg.set_difference4 set_difference4.cpp)
-add_test(test.alg.set_difference4, alg.set_difference4)
+add_test(test.alg.set_difference4 alg.set_difference4)
 
 add_executable(alg.set_difference5 set_difference5.cpp)
-add_test(test.alg.set_difference5, alg.set_difference5)
+add_test(test.alg.set_difference5 alg.set_difference5)
 
 add_executable(alg.set_difference6 set_difference6.cpp)
-add_test(test.alg.set_difference6, alg.set_difference6)
+add_test(test.alg.set_difference6 alg.set_difference6)
 
 add_executable(alg.set_intersection1 set_intersection1.cpp)
-add_test(test.alg.set_intersection1, alg.set_intersection1)
+add_test(test.alg.set_intersection1 alg.set_intersection1)
 
 add_executable(alg.set_intersection2 set_intersection2.cpp)
-add_test(test.alg.set_intersection2, alg.set_intersection2)
+add_test(test.alg.set_intersection2 alg.set_intersection2)
 
 add_executable(alg.set_intersection3 set_intersection3.cpp)
-add_test(test.alg.set_intersection3, alg.set_intersection3)
+add_test(test.alg.set_intersection3 alg.set_intersection3)
 
 add_executable(alg.set_intersection4 set_intersection4.cpp)
-add_test(test.alg.set_intersection4, alg.set_intersection4)
+add_test(test.alg.set_intersection4 alg.set_intersection4)
 
 add_executable(alg.set_intersection5 set_intersection5.cpp)
-add_test(test.alg.set_intersection5, alg.set_intersection5)
+add_test(test.alg.set_intersection5 alg.set_intersection5)
 
 add_executable(alg.set_intersection6 set_intersection6.cpp)
-add_test(test.alg.set_intersection6, alg.set_intersection6)
+add_test(test.alg.set_intersection6 alg.set_intersection6)
 
 add_executable(alg.set_symmetric_difference1 set_symmetric_difference1.cpp)
-add_test(test.alg.set_symmetric_difference1, alg.set_symmetric_difference1)
+add_test(test.alg.set_symmetric_difference1 alg.set_symmetric_difference1)
 
 add_executable(alg.set_symmetric_difference2 set_symmetric_difference2.cpp)
-add_test(test.alg.set_symmetric_difference2, alg.set_symmetric_difference2)
+add_test(test.alg.set_symmetric_difference2 alg.set_symmetric_difference2)
 
 add_executable(alg.set_symmetric_difference3 set_symmetric_difference3.cpp)
-add_test(test.alg.set_symmetric_difference3, alg.set_symmetric_difference3)
+add_test(test.alg.set_symmetric_difference3 alg.set_symmetric_difference3)
 
 add_executable(alg.set_symmetric_difference4 set_symmetric_difference4.cpp)
-add_test(test.alg.set_symmetric_difference4, alg.set_symmetric_difference4)
+add_test(test.alg.set_symmetric_difference4 alg.set_symmetric_difference4)
 
 add_executable(alg.set_symmetric_difference5 set_symmetric_difference5.cpp)
-add_test(test.alg.set_symmetric_difference5, alg.set_symmetric_difference5)
+add_test(test.alg.set_symmetric_difference5 alg.set_symmetric_difference5)
 
 add_executable(alg.set_symmetric_difference6 set_symmetric_difference6.cpp)
-add_test(test.alg.set_symmetric_difference6, alg.set_symmetric_difference6)
+add_test(test.alg.set_symmetric_difference6 alg.set_symmetric_difference6)
 
 add_executable(alg.set_union1 set_union1.cpp)
-add_test(test.alg.set_union1, alg.set_union1)
+add_test(test.alg.set_union1 alg.set_union1)
 
 add_executable(alg.set_union2 set_union2.cpp)
-add_test(test.alg.set_union2, alg.set_union2)
+add_test(test.alg.set_union2 alg.set_union2)
 
 add_executable(alg.set_union3 set_union3.cpp)
-add_test(test.alg.set_union3, alg.set_union3)
+add_test(test.alg.set_union3 alg.set_union3)
 
 add_executable(alg.set_union4 set_union4.cpp)
-add_test(test.alg.set_union4, alg.set_union4)
+add_test(test.alg.set_union4 alg.set_union4)
 
 add_executable(alg.set_union5 set_union5.cpp)
-add_test(test.alg.set_union5, alg.set_union5)
+add_test(test.alg.set_union5 alg.set_union5)
 
 add_executable(alg.set_union6 set_union6.cpp)
-add_test(test.alg.set_union6, alg.set_union6)
+add_test(test.alg.set_union6 alg.set_union6)
 
 add_executable(alg.shuffle shuffle.cpp)
 add_test(test.alg.shuffle alg.shuffle)
