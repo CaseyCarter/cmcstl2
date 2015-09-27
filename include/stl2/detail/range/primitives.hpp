@@ -25,16 +25,19 @@ STL2_OPEN_NAMESPACE {
   // enumerate
   namespace ext {
     Range{R}
-    pair<DifferenceType<IteratorType<R>>, safe_iterator_t<R>>
-    enumerate(R&& r) {
-      return __stl2::ext::enumerate(__stl2::begin(r), __stl2::end(r));
-    }
+    auto enumerate(R&& r)
+    STL2_NOEXCEPT_RETURN(
+      __stl2::ext::enumerate(__stl2::begin(r), __stl2::end(r))
+    )
 
     SizedRange{R}
-    pair<DifferenceType<IteratorType<R>>, safe_iterator_t<R>>
-    enumerate(R&& r) {
-      return {__stl2::size(r), __stl2::next(__stl2::begin(r), __stl2::end(r))};
-    }
+    auto enumerate(R&& r)
+    STL2_NOEXCEPT_RETURN(
+      tagged_pair<tag::count(DifferenceType<IteratorType<R>>),
+                  tag::in(safe_iterator_t<R>)>{
+        __stl2::size(r), __stl2::next(__stl2::begin(r), __stl2::end(r))
+      }
+    )
   }
 
   // distance

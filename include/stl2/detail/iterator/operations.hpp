@@ -157,7 +157,8 @@ STL2_OPEN_NAMESPACE {
 
   namespace ext {
     Sentinel{S, I}
-    constexpr pair<DifferenceType<I>, I> enumerate(I first, S last)
+    constexpr tagged_pair<tag::count(DifferenceType<I>), tag::in(I)>
+    enumerate(I first, S last)
       noexcept(noexcept(bool(first != last), void(), ++first)) {
       DifferenceType<I> n = 0;
       while (first != last) {
@@ -172,8 +173,8 @@ STL2_OPEN_NAMESPACE {
       requires SizedIteratorRange<I, S>()
     constexpr auto enumerate(I first, S last)
     STL2_NOEXCEPT_RETURN(
-      pair<DifferenceType<I>, I>{
-        DifferenceType<I>(last - first),
+      tagged_pair<tag::count(DifferenceType<I>), tag::in(I)>{
+        last - first,
          __stl2::next(__stl2::move(first), __stl2::move(last))
       }
     )

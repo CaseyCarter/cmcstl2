@@ -222,6 +222,7 @@ STL2_OPEN_NAMESPACE {
     STL2_DEFINE_GETTER(max)
     STL2_DEFINE_GETTER(begin)
     STL2_DEFINE_GETTER(end)
+    STL2_DEFINE_GETTER(count) // Extension
   }
   
   #undef STL2_DEFINE_GETTER

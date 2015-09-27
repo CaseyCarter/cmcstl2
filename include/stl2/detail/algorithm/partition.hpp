@@ -38,7 +38,8 @@ STL2_OPEN_NAMESPACE {
   I partition(I first, S last, Pred pred_, Proj proj_ = Proj{}) {
     auto&& pred = __stl2::as_function(pred_);
     auto&& proj = __stl2::as_function(proj_);
-    first = __stl2::find_if_not(__stl2::move(first), last, pred, proj);
+    first = __stl2::find_if_not(__stl2::move(first), last,
+                                __stl2::ref(pred), __stl2::ref(proj));
     if (first != last) {
       for (auto m = first; ++m != last;) {
         if (pred(proj(*m))) {
