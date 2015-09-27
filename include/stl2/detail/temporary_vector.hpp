@@ -24,9 +24,7 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     struct temporary_buffer_deleter {
       void operator()(auto* ptr) const {
-        if (ptr) {
-          std::return_temporary_buffer(ptr);
-        }
+        std::return_temporary_buffer(ptr);
       }
     };
 

@@ -433,5 +433,13 @@ int main()
         CHECK(ap[9].p == P{4, 2});
     }
 
+    {
+        int some_ints[] = {1, 0};
+        auto first = some_ints + 0, last = some_ints + 2;
+        auto even = [](int i) { return i % 2 == 0; };
+        ranges::stable_partition(first, last, even);
+        CHECK(std::is_partitioned(first, last, even));
+    }
+
     return ::test_result();
 }

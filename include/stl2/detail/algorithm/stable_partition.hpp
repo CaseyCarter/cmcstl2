@@ -51,20 +51,20 @@ STL2_OPEN_NAMESPACE {
       forward_buffer(I first, I next, DifferenceType<I> n,
                      buf_t<I>& buf, Pred& pred, Proj& proj) {
         // Precondition: !pred(proj(*first)))
+        // Precondition: __stl2::next(first) == next
         STL2_ASSERT(n >= 2);
         STL2_ASSERT(n <= buf.size());
-        // Precondition: __stl2::next(first) == next
 
         auto&& vec = detail::make_temporary_vector(buf);
         vec.push_back(__stl2::iter_move(first));
         auto counted =
           __stl2::make_counted_iterator(__stl2::move(next), n - 1);
-        auto res = __stl2::partition_move(
+        auto pp = __stl2::partition_move(
             __stl2::move(counted), default_sentinel{},
             __stl2::move(first), __stl2::back_inserter(vec),
-            __stl2::ref(pred), __stl2::ref(proj));
-        auto last = __stl2::move(vec, res.out1()).out();
-        return {__stl2::move(res.out1()), __stl2::move(last)};
+            __stl2::ref(pred), __stl2::ref(proj)).out1();
+        auto last = __stl2::move(vec, pp).out();
+        return {__stl2::move(pp), __stl2::move(last)};
       }
 
       template <ForwardIterator I, class Proj,
@@ -80,9 +80,8 @@ STL2_OPEN_NAMESPACE {
       tagged_pair<tag::begin(I), tag::end(I)>
       forward(I first, DifferenceType<I> n,
               buf_t<I>& buf, Pred& pred, Proj& proj) {
-        STL2_ASSERT(n > 0);
-        // Can't assert this without violating complexity guarantee:
         // Precondition: !pred(proj(*first)))
+        STL2_ASSERT(n > 0);
 
         auto middle = __stl2::next(first);
         if (n == DifferenceType<I>(1)) {
@@ -97,9 +96,12 @@ STL2_OPEN_NAMESPACE {
         }
 
         const auto half_n = n / 2;
-        auto res1 = stable_part::forward(first, half_n, buf, pred, proj);
+        auto res1 = stable_part::forward(__stl2::move(first), half_n, buf, pred, proj);
         auto res2 = stable_part::forward_reduce(res1.end(), n - half_n, buf, pred, proj);
-        return __stl2::rotate(res1.begin(), res1.end(), res2.begin());
+        auto pp = __stl2::rotate(__stl2::move(res1.begin()),
+                                 __stl2::move(res1.end()),
+                                 __stl2::move(res2.begin())).begin();
+        return {__stl2::move(pp), __stl2::move(res2.end())};
       }
 
       template <ForwardIterator I, class Proj,
@@ -123,13 +125,12 @@ STL2_OPEN_NAMESPACE {
       void skip_false(I& last, DifferenceType<I>& n, Pred& pred, Proj& proj) {
         // Move last backward past values that do not satisfy pred.
         // Precondition: pred(proj(*(last - n)))
-        // Ensures: n == 1 || pred(proj(*last))
         STL2_ASSERT(n > 0);
-        if (n != DifferenceType<I>(1)) {
-          do {
-            --n;
-          } while (!pred(proj(*--last)) && n != DifferenceType<I>(1));
-        }
+        // Ensures: n == 0 || pred(proj(*last))
+
+        do {
+          --last;
+        } while (--n != 0 && !pred(proj(*last)));
       }
 
       template <BidirectionalIterator I, class Proj,
@@ -137,11 +138,11 @@ STL2_OPEN_NAMESPACE {
         requires Permutable<I>()
       I bidirectional_buffer(I first, I last, DifferenceType<I> n,
                              buf_t<I>& buf, Pred& pred, Proj& proj) {
-        STL2_ASSERT(n >= 2);
-        STL2_ASSERT(n <= buf.size());
         // Precondition: !pred(proj(*first))
         // Precondition: pred(proj(*last))
         // Precondition: n == distance(first, last)
+        STL2_ASSERT(n >= 2);
+        STL2_ASSERT(n <= buf.size());
 
         // Move the false values into the temporary buffer
         // and the true values to the front of the sequence.
@@ -229,7 +230,7 @@ STL2_OPEN_NAMESPACE {
         STL2_ASSERT(n >= DifferenceType<I>(1));
 
         stable_part::skip_false(last, n, pred, proj);
-        if (n == DifferenceType<I>(1)) {
+        if (n == DifferenceType<I>(0)) {
           return first;
         }
         return stable_part::bidirectional(first, last, n, buf, pred, proj);
@@ -273,14 +274,13 @@ STL2_OPEN_NAMESPACE {
 
       // Either prove all true or find first false
       detail::stable_part::skip_true(first, n, pred, proj);
-      STL2_ASSERT((n == DifferenceType<I>(0)) == (first == last));
       if (n == DifferenceType<I>(0)) {
         return first;
       }
 
       // Either prove (first, last) is all false or find last true
       detail::stable_part::skip_false(last, n, pred, proj);
-      if (n == DifferenceType<I>(1)) {
+      if (n == DifferenceType<I>(0)) {
         return first;
       }
       // We now have a reduced range [first, last]
