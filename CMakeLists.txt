@@ -29,7 +29,7 @@ else()
   set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
 endif()
 
-include_directories(include meta/include)
+include_directories(include)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -ftemplate-backtrace-limit=0")
