@@ -38,4 +38,5 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -g0 -DNDEBUG")
 endif()
 
+add_subdirectory(examples)
 add_subdirectory(test)
