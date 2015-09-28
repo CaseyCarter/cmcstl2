@@ -103,6 +103,16 @@ struct S
     int i;
 };
 
+struct U
+{
+    int i;
+    U & operator=(S s)
+    {
+        i = s.i;
+        return *this;
+    }
+};
+
 int main()
 {
     int i = 0;
@@ -120,15 +130,15 @@ int main()
         constexpr int N = 256;
         constexpr int M = N/2-1;
         S input[N];
-        S output[M];
+        U output[M];
         for (int i = 0; i < N; ++i)
             input[i].i = i;
         std::shuffle(input, input+N, gen);
-        S* r = stl2::partial_sort_copy(input, output, std::less<int>(), &S::i);
-        S* e = output + std::min(N, M);
+        U* r = stl2::partial_sort_copy(input, output, std::less<int>(), &S::i, &U::i);
+        U* e = output + std::min(N, M);
         CHECK(r == e);
         int i = 0;
-        for (S* x = output; x < e; ++x, ++i)
+        for (U* x = output; x < e; ++x, ++i)
             CHECK(x->i == i);
     }
 
@@ -137,15 +147,15 @@ int main()
         constexpr int N = 256;
         constexpr int M = N/2-1;
         S input[N];
-        S output[M];
+        U output[M];
         for (int i = 0; i < N; ++i)
             input[i].i = i;
         std::shuffle(input, input+N, gen);
-        auto r = stl2::partial_sort_copy(input, std::move(output), std::less<int>(), &S::i);
-        S* e = output + std::min(N, M);
+        auto r = stl2::partial_sort_copy(input, std::move(output), std::less<int>(), &S::i, &U::i);
+        U* e = output + std::min(N, M);
         CHECK(r.get_unsafe() == e);
         int i = 0;
-        for (S* x = output; x < e; ++x, ++i)
+        for (U* x = output; x < e; ++x, ++i)
             CHECK(x->i == i);
     }
 
