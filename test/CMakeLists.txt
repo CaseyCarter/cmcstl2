@@ -16,10 +16,8 @@ add_test(test.variant variant)
 add_executable(optional optional.cpp)
 add_test(test.optional optional)
 
-add_executable(raw_ptr raw_ptr.cpp)
-add_test(test.raw_ptr raw_ptr)
-
 add_subdirectory(concepts)
+add_subdirectory(detail)
 add_subdirectory(iterator)
 add_subdirectory(algorithm)
 add_subdirectory(view)

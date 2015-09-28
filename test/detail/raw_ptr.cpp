@@ -11,7 +11,7 @@
 //
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/concepts/object.hpp>
-#include "simple_test.hpp"
+#include "../simple_test.hpp"
 
 namespace stl2 = __stl2;
 

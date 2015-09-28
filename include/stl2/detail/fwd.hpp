@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   namespace ext {
-    // tags for manually specified overload ordereding
+    // tags for manually specified overload ordering
     template <unsigned N>
     struct priority_tag : priority_tag<N - 1> {};
     template <>

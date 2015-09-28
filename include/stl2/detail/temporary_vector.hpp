@@ -29,15 +29,57 @@ STL2_OPEN_NAMESPACE {
     };
 
     template <class T>
-    struct temporary_buffer {
+    class temporary_buffer {
       std::unique_ptr<T, temporary_buffer_deleter> alloc_;
       std::ptrdiff_t size_ = 0;
 
-      temporary_buffer() = default;
       temporary_buffer(pair<T*, std::ptrdiff_t> buf) :
         alloc_{buf.first}, size_{buf.second} {}
+
+    public:
+      temporary_buffer() = default;
       temporary_buffer(std::ptrdiff_t n) :
         temporary_buffer(std::get_temporary_buffer<T>(n)) {}
+
+      T* data() const {
+        return alloc_.get();
+      }
+
+      std::ptrdiff_t size() const {
+        return size_;
+      }
+    };
+
+    template <class T>
+      requires alignof(T) > alignof(std::max_align_t)
+    class temporary_buffer<T> {
+      std::unique_ptr<unsigned char, temporary_buffer_deleter> alloc_;
+      T* aligned_ = nullptr;
+      std::ptrdiff_t size_ = 0;
+
+      static_assert((alignof(T) & (alignof(T) - 1)) == 0,
+                    "Alignment must be a power of two.");
+
+      temporary_buffer(pair<unsigned char*, std::ptrdiff_t> buf) :
+        alloc_{buf.first} {
+        if (buf.second > 0 && static_cast<std::size_t>(buf.second) >= sizeof(T)) {
+          void* ptr = buf.first;
+          std::size_t n = buf.second;
+          aligned_ = static_cast<T*>(std::align(alignof(T), sizeof(T), ptr, n));
+          if (aligned_) {
+            size_ = n / sizeof(T);
+          }
+        }
+      }
+
+    public:
+      temporary_buffer() = default;
+      temporary_buffer(std::ptrdiff_t n) :
+        temporary_buffer(std::get_temporary_buffer<unsigned char>(n * sizeof(T) + alignof(T) - 1)) {}
+
+      T* data() const {
+        return aligned_;
+      }
 
       std::ptrdiff_t size() const {
         return size_;
@@ -63,7 +105,7 @@ STL2_OPEN_NAMESPACE {
 
       temporary_vector() = default;
       temporary_vector(temporary_buffer<T>& buf) :
-        begin_{buf.alloc_.get()}, end_{begin_},
+        begin_{buf.data()}, end_{begin_},
         alloc_{begin_ + buf.size_} {}
       temporary_vector(temporary_vector&&) = delete;
       temporary_vector& operator=(temporary_vector&& that) = delete;
