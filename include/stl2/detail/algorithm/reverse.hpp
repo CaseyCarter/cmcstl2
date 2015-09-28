@@ -43,25 +43,31 @@
 //
 STL2_OPEN_NAMESPACE {
   namespace detail {
-    // From EoP
+    // An adaptation of the EoP algorithm reverse_n_with_buffer
+    // Complexity: n moves + n / 2 swaps
     Permutable{I}
-    I reverse_n_with_buffer(I first, DifferenceType<I> n,
-                            temporary_buffer<ValueType<I>>& buf) {
+    I reverse_n_with_half_buffer(I first, const DifferenceType<I> n,
+                                 temporary_buffer<ValueType<I>>& buf) {
       // Precondition: $\property{mutable\_counted\_range}(first, n)$
-      STL2_ASSERT(n <= buf.size());
-      auto&& vec = detail::make_temporary_vector(buf);
-      __stl2::move(__stl2::make_counted_iterator(first, n),
-                   __stl2::default_sentinel{},
-                   __stl2::back_inserter(vec));
-      return __stl2::reverse_move(vec.begin(), vec.end(),
-                                  __stl2::move(first)).out();
-    }
+      STL2_ASSERT(n / 2 <= buf.size());
 
-    Permutable{I}
-    inline void swap_ranges_n(I first, I middle, DifferenceType<I> n) {
-      auto i = __stl2::make_counted_iterator(__stl2::move(first), n);
-      __stl2::swap_ranges(__stl2::move(i), __stl2::default_sentinel{},
-                          __stl2::move(middle));
+      auto&& vec = __stl2::detail::make_temporary_vector(buf);
+      auto ufirst = __stl2::ext::uncounted(first);
+      // Shift the first half of the input range into the buffer.
+      auto umiddle = __stl2::ext::uncounted(__stl2::move(
+        __stl2::make_counted_iterator(ufirst, n / 2),
+        __stl2::default_sentinel{},
+        __stl2::back_inserter(vec)).in());
+      if (n % 2 != 0) {
+        ++umiddle;
+      }
+      // Swap the buffered elements in reverse order with the second half of
+      // the input range.
+      auto ulast = __stl2::swap_ranges(__stl2::rbegin(vec), __stl2::rend(vec),
+                                       __stl2::move(umiddle)).in2();
+      // Shift the buffer contents into the first half of the input range.
+      __stl2::move(__stl2::begin(vec), __stl2::end(vec), __stl2::move(ufirst));
+      return __stl2::ext::recounted(first, __stl2::move(ulast), n);
     }
 
     // From EoP
@@ -72,28 +78,29 @@ STL2_OPEN_NAMESPACE {
       if (n < DifferenceType<I>(2)) {
         return __stl2::next(__stl2::move(first), n);
       }
-      if (n <= buf.size()) {
-        return detail::reverse_n_with_buffer(__stl2::move(first), n, buf);
+
+      const auto half_n = n / 2;
+      if (half_n <= buf.size()) {
+        return detail::reverse_n_with_half_buffer(__stl2::move(first), n, buf);
       }
-      auto half_n = n / 2;
-      auto middle = detail::reverse_n_adaptive(first, half_n, buf);
-      if (n % 2 != 0) {
-        ++middle;
+
+      auto last1 = detail::reverse_n_adaptive(first, half_n, buf);
+      auto first2 = last1;
+      if (2 * half_n != n) {
+        ++first2;
       }
-      auto last = detail::reverse_n_adaptive(middle, half_n, buf);
-      swap_ranges_n(__stl2::move(first), __stl2::move(middle), half_n);
-      return last;
+      detail::reverse_n_adaptive(first2, half_n, buf);
+      return __stl2::swap_ranges(__stl2::move(first), __stl2::move(last1),
+                                 __stl2::move(first2)).in2();
     }
 
     Permutable{I}
     I reverse_n(I first, DifferenceType<I> n) {
       auto ufirst = ext::uncounted(first);
       using buf_t = temporary_buffer<ValueType<decltype(ufirst)>>;
-      buf_t buf{};
       // TODO: tune this threshold.
-      if (n >= DifferenceType<I>(16)) {
-        buf = buf_t{n};
-      }
+      static constexpr auto alloc_threshold = DifferenceType<I>(8);
+      auto buf = n >= alloc_threshold ? buf_t{n / 2} : buf_t{};
       auto last = detail::reverse_n_adaptive(ufirst, n, buf);
       return ext::recounted(first, __stl2::move(last), n);
     }
