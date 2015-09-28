@@ -49,19 +49,14 @@ STL2_OPEN_NAMESPACE {
                             temporary_buffer<ValueType<I>>& buf) {
       // Precondition: $\property{mutable\_counted\_range}(first, n)$
       STL2_ASSERT(n <= buf.size());
-      auto&& vec = detail::make_temporary_vector(buf);
-      __stl2::move(__stl2::make_counted_iterator(first, n),
+      auto&& vec = __stl2::detail::make_temporary_vector(buf);
+      auto u = __stl2::ext::uncounted(first);
+      __stl2::move(__stl2::make_counted_iterator(u, n),
                    __stl2::default_sentinel{},
                    __stl2::back_inserter(vec));
-      return __stl2::reverse_move(vec.begin(), vec.end(),
-                                  __stl2::move(first)).out();
-    }
-
-    Permutable{I}
-    inline void swap_ranges_n(I first, I middle, DifferenceType<I> n) {
-      auto i = __stl2::make_counted_iterator(__stl2::move(first), n);
-      __stl2::swap_ranges(__stl2::move(i), __stl2::default_sentinel{},
-                          __stl2::move(middle));
+      auto ulast = __stl2::reverse_move(vec.begin(), vec.end(),
+                                        __stl2::move(u)).out();
+      return __stl2::ext::recounted(first, __stl2::move(ulast), n);
     }
 
     // From EoP
@@ -76,24 +71,23 @@ STL2_OPEN_NAMESPACE {
         return detail::reverse_n_with_buffer(__stl2::move(first), n, buf);
       }
       auto half_n = n / 2;
-      auto middle = detail::reverse_n_adaptive(first, half_n, buf);
-      if (n % 2 != 0) {
-        ++middle;
+      auto last1 = detail::reverse_n_adaptive(first, half_n, buf);
+      auto first2 = last1;
+      if (2 * half_n != n) {
+        ++first2;
       }
-      auto last = detail::reverse_n_adaptive(middle, half_n, buf);
-      swap_ranges_n(__stl2::move(first), __stl2::move(middle), half_n);
-      return last;
+      detail::reverse_n_adaptive(first2, half_n, buf);
+      return __stl2::swap_ranges(__stl2::move(first), __stl2::move(last1),
+                                 __stl2::move(first2)).in2();
     }
 
     Permutable{I}
     I reverse_n(I first, DifferenceType<I> n) {
       auto ufirst = ext::uncounted(first);
       using buf_t = temporary_buffer<ValueType<decltype(ufirst)>>;
-      buf_t buf{};
       // TODO: tune this threshold.
-      if (n >= DifferenceType<I>(16)) {
-        buf = buf_t{n};
-      }
+      static constexpr auto alloc_threshold = DifferenceType<I>(8);
+      auto buf = n >= alloc_threshold ? buf_t{n} : buf_t{};
       auto last = detail::reverse_n_adaptive(ufirst, n, buf);
       return ext::recounted(first, __stl2::move(last), n);
     }
