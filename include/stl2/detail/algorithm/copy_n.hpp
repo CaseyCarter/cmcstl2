@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
     requires IndirectlyCopyable<I, O>()
   tagged_pair<tag::in(I), tag::out(O)>
   copy_n(I first_, DifferenceType<I> n, O result) {
-    STL2_ASSERT(n >= 0);
+    STL2_ASSUME(n >= 0);
     auto norig = n;
     auto first = __stl2::ext::uncounted(first_);
     for(; n > 0; ++first, ++result, --n) {

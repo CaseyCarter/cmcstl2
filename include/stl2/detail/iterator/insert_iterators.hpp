@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
     back_insert_iterator&
     operator=(const value_type& value) &
       requires detail::back_insertable<Container, const value_type&> {
-      STL2_ASSERT(this->container);
+      STL2_ASSUME(this->container);
       this->container->push_back(value);
       return *this;
     }
@@ -81,7 +81,7 @@ STL2_OPEN_NAMESPACE {
     back_insert_iterator&
     operator=(value_type&& value) &
       requires detail::back_insertable<Container, value_type&&> {
-      STL2_ASSERT(this->container);
+      STL2_ASSUME(this->container);
       this->container->push_back(__stl2::move(value));
       return *this;
     }
@@ -115,7 +115,7 @@ STL2_OPEN_NAMESPACE {
     front_insert_iterator&
     operator=(const value_type& value) &
       requires detail::front_insertable<Container, const value_type&> {
-      STL2_ASSERT(this->container);
+      STL2_ASSUME(this->container);
       this->container->push_front(value);
       return *this;
     }
@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
     front_insert_iterator&
     operator=(value_type&& value) &
       requires detail::front_insertable<Container, value_type&&> {
-      STL2_ASSERT(this->container);
+      STL2_ASSUME(this->container);
       this->container->push_front(__stl2::move(value));
       return *this;
     }
@@ -165,7 +165,7 @@ STL2_OPEN_NAMESPACE {
     insert_iterator&
     operator=(const value_type& value) &
       requires detail::insertable<Container, const value_type&> {
-      STL2_ASSERT(this->container);
+      STL2_ASSUME(this->container);
       iter = this->container->insert(iter, value);
       ++iter;
       return *this;
@@ -174,7 +174,7 @@ STL2_OPEN_NAMESPACE {
     insert_iterator&
     operator=(value_type&& value) &
       requires detail::insertable<Container, value_type&&> {
-      STL2_ASSERT(this->container);
+      STL2_ASSUME(this->container);
       iter = this->container->insert(iter, __stl2::move(value));
       ++iter;
       return *this;

@@ -52,13 +52,13 @@ STL2_OPEN_NAMESPACE {
     //
     template <std::size_t I, Variant V, _IsNot<is_void> T>
     constexpr auto&& v_access::raw_get(meta::size_t<I> i, V&& v) noexcept {
-      STL2_BROKEN_ASSERT(I == v.index());
+      STL2_CONSTEXPR_ASSUME(I == v.index());
       return st_access::raw_get(i, __stl2::forward<V>(v).storage_);
     }
 
     template <std::size_t I, Variant V, _IsNot<is_void> T>
     constexpr auto&& v_access::cooked_get(meta::size_t<I> i, V&& v) noexcept {
-      STL2_BROKEN_ASSERT(I == v.index());
+      STL2_CONSTEXPR_ASSUME(I == v.index());
       return cook<T>(v_access::raw_get(i, __stl2::forward<V>(v)));
     }
 
@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
       requires I < VariantTypes<V>::size() &&
         _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
     constexpr auto&& get_unchecked(V&& v) {
-      STL2_BROKEN_ASSERT(v.index() == I);
+      STL2_CONSTEXPR_ASSUME(v.index() == I);
       return v_access::cooked_get(meta::size_t<I>{}, __stl2::forward<V>(v));
     }
 
@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
       requires I < VariantTypes<V>::size() &&
         _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
     constexpr auto&& get(V&& v) {
-      STL2_ASSERT(v.valid());
+      STL2_ASSUME(v.valid());
       // Odd syntax here to avoid
       // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67371
       v.index() == I || bad_access();
@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
         _IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
     constexpr auto get(V* v) noexcept ->
       decltype(&__variant::v_access::cooked_get(meta::size_t<I>{}, *v)) {
-      STL2_ASSERT(v);
+      STL2_ASSUME(v);
       if (v->index() == I) {
         return &__variant::v_access::cooked_get(meta::size_t<I>{}, *v);
       }
@@ -199,7 +199,7 @@ STL2_OPEN_NAMESPACE {
       template <class That>
         requires DerivedFrom<__uncvref<That>, base>()
       void copy_move_from(That&& that) {
-        STL2_ASSERT(!valid());
+        STL2_ASSUME(!valid());
         if (that.valid()) {
           raw_visit_with_index([this](auto i, auto&& from) {
             detail::construct(

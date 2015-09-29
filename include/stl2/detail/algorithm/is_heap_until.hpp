@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
               IndirectCallableStrictWeakOrder<Projected<I, Proj>> Comp = less<>>
     I is_heap_until_n(I first, const DifferenceType<I> n,
                       Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
-      STL2_ASSERT(0 <= n);
+      STL2_ASSUME(0 <= n);
       auto&& comp = __stl2::as_function(comp_);
       auto&& proj = __stl2::as_function(proj_);
       DifferenceType<I> p = 0, c = 1;

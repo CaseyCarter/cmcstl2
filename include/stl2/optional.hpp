@@ -116,7 +116,7 @@ STL2_OPEN_NAMESPACE {
 
       template <class U>
       static constexpr decltype(auto) get_unchecked(U&& v) noexcept {
-        STL2_BROKEN_ASSERT(!__stl2::holds_alternative<nil_>(v));
+        STL2_CONSTEXPR_ASSUME(__stl2::holds_alternative<T>(v));
         return __stl2::get_unchecked<T>(__stl2::forward<decltype(v)>(v));
       }
 

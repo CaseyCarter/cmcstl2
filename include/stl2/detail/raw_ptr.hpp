@@ -39,12 +39,12 @@ STL2_OPEN_NAMESPACE {
       }
 
       constexpr T& operator*() const noexcept {
-        STL2_ASSERT(ptr_);
+        STL2_ASSUME(ptr_);
         return *ptr_;
       }
 
       constexpr T* operator->() const noexcept {
-        STL2_ASSERT(ptr_);
+        STL2_ASSUME(ptr_);
         return ptr_;
       }
     private:

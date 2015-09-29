@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
       void skip_true(I& first, DifferenceType<I>& n, Pred& pred, Proj& proj) {
         // advance "first" past values that satisfy the predicate.
         // Ensures: n == 0 || !pred(proj(*first))
-        STL2_ASSERT(n >= 0);
+        STL2_ASSUME(n >= 0);
         while (n != 0 && pred(proj(*first))) {
           ++first;
           --n;
@@ -52,8 +52,8 @@ STL2_OPEN_NAMESPACE {
                      buf_t<I>& buf, Pred& pred, Proj& proj) {
         // Precondition: !pred(proj(*first)))
         // Precondition: __stl2::next(first) == next
-        STL2_ASSERT(n >= 2);
-        STL2_ASSERT(n <= buf.size());
+        STL2_ASSUME(n >= 2);
+        STL2_ASSUME(n <= buf.size());
 
         auto&& vec = detail::make_temporary_vector(buf);
         vec.push_back(__stl2::iter_move(first));
@@ -81,7 +81,7 @@ STL2_OPEN_NAMESPACE {
       forward(I first, DifferenceType<I> n,
               buf_t<I>& buf, Pred& pred, Proj& proj) {
         // Precondition: !pred(proj(*first)))
-        STL2_ASSERT(n > 0);
+        STL2_ASSUME(n > 0);
 
         auto middle = __stl2::next(first);
         if (n == DifferenceType<I>(1)) {
@@ -125,7 +125,7 @@ STL2_OPEN_NAMESPACE {
       void skip_false(I& last, DifferenceType<I>& n, Pred& pred, Proj& proj) {
         // Move last backward past values that do not satisfy pred.
         // Precondition: pred(proj(*(last - n)))
-        STL2_ASSERT(n > 0);
+        STL2_ASSUME(n > 0);
         // Ensures: n == 0 || pred(proj(*last))
 
         do {
@@ -141,8 +141,8 @@ STL2_OPEN_NAMESPACE {
         // Precondition: !pred(proj(*first))
         // Precondition: pred(proj(*last))
         // Precondition: n == distance(first, last)
-        STL2_ASSERT(n >= 2);
-        STL2_ASSERT(n <= buf.size());
+        STL2_ASSUME(n >= 2);
+        STL2_ASSUME(n <= buf.size());
 
         // Move the false values into the temporary buffer
         // and the true values to the front of the sequence.
@@ -180,7 +180,7 @@ STL2_OPEN_NAMESPACE {
         // Precondition: !pred(proj(*first))
         // Precondition: pred(proj(*last))
         // Precondition: n == distance(first, last)
-        STL2_ASSERT(n >= DifferenceType<I>(1));
+        STL2_ASSUME(n >= DifferenceType<I>(1));
 
         if (n == DifferenceType<I>(1)) {
           __stl2::iter_swap2(first, last);
@@ -211,7 +211,7 @@ STL2_OPEN_NAMESPACE {
                                    buf_t<I>& buf, Pred& pred, Proj& proj) {
         // Precondition: pred(proj(*last))
         // Precondition: n == distance(first, last)
-        STL2_ASSERT(n >= DifferenceType<I>(0));
+        STL2_ASSUME(n >= DifferenceType<I>(0));
 
         stable_part::skip_true(first, n, pred, proj);
         if (n == DifferenceType<I>(0)) {
@@ -227,7 +227,7 @@ STL2_OPEN_NAMESPACE {
                                   buf_t<I>& buf, Pred& pred, Proj& proj) {
         // Precondition: !pred(proj(*first))
         // Precondition: n == __stl2::distance(first, last)
-        STL2_ASSERT(n >= DifferenceType<I>(1));
+        STL2_ASSUME(n >= DifferenceType<I>(1));
 
         stable_part::skip_false(last, n, pred, proj);
         if (n == DifferenceType<I>(0)) {

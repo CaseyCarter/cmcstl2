@@ -63,12 +63,12 @@ public:
     constexpr It base() const { return it_; }
     constexpr friend bool operator==(const sentinel& x, const sentinel& y)
     {
-        STL2_ASSERT(x.it_ == y.it_); (void)x; (void)y;
+        STL2_ASSUME(x.it_ == y.it_); (void)x; (void)y;
         return true;
     }
     constexpr friend bool operator!=(const sentinel& x, const sentinel& y)
     {
-        STL2_ASSERT(x.it_ == y.it_); (void)x; (void)y;
+        STL2_ASSUME(x.it_ == y.it_); (void)x; (void)y;
         return false;
     }
     template<typename I>

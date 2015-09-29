@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
       inline I merge_n_with_buffer(I f0, DifferenceType<I> n0,
                                    I f1, DifferenceType<I> n1,
                                    buf_t<I>& buf, Comp& comp, Proj& proj) {
-        STL2_ASSERT(n0 <= buf.size());
+        STL2_ASSUME(n0 <= buf.size());
         auto&& vec = make_temporary_vector(buf);
         __stl2::move(__stl2::make_counted_iterator(f0, n0),
                      __stl2::default_sentinel{},

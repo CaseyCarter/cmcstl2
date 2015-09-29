@@ -16,6 +16,6 @@ int main() {
   rng::copy(v, out);
   std::cout << '\n';
   auto result = rng::reverse_copy(v, out);
-  assert(result.in() == rng::end(v));
   std::cout << '\n';
+  return !(result.in() == rng::end(v));
 }

@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
   min(Rng&& r, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
     auto first = __stl2::begin(r);
     auto last = __stl2::end(r);
-    STL2_ASSERT(first != last);
+    STL2_ASSUME(first != last);
     auto tmp = *first;
     auto&& comp = __stl2::as_function(comp_);
     auto&& proj = __stl2::as_function(proj_);

@@ -132,7 +132,8 @@ STL2_OPEN_NAMESPACE {
       constexpr const T* end() const noexcept { return end_; }
 
       constexpr T& operator[](std::ptrdiff_t i) noexcept {
-        STL2_ASSERT(0 <= i && i < end_ - begin_);
+        STL2_ASSUME(0 <= i);
+        STL2_ASSUME(i < end_ - begin_);
         return begin_[i];
       }
 
@@ -140,7 +141,7 @@ STL2_OPEN_NAMESPACE {
         requires Constructible<T, Args...>()
       void emplace_back(Args&&...args)
         noexcept(is_nothrow_constructible<T, Args...>::value) {
-        STL2_ASSERT(end_ < alloc_);
+        STL2_ASSUME(end_ < alloc_);
         __stl2::detail::construct(*end_, std::forward<Args>(args)...);
         ++end_;
       }

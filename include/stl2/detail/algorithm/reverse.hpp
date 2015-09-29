@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
     I reverse_n_with_half_buffer(I first, const DifferenceType<I> n,
                                  temporary_buffer<ValueType<I>>& buf) {
       // Precondition: $\property{mutable\_counted\_range}(first, n)$
-      STL2_ASSERT(n / 2 <= buf.size());
+      STL2_ASSUME(n / 2 <= buf.size());
 
       auto&& vec = __stl2::detail::make_temporary_vector(buf);
       auto ufirst = __stl2::ext::uncounted(first);

@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
     constexpr counted_iterator(I x, DifferenceType<I> n)
       noexcept(is_nothrow_move_constructible<I>::value) :
       box_t{__stl2::move(x)}, count_{n} {
-        STL2_ASSERT(0 <= n);
+        STL2_ASSUME(0 <= n);
       }
     template <ConvertibleTo<I> U>
     constexpr counted_iterator(const counted_iterator<U>& u)
@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
     constexpr counted_iterator& operator++() &
       noexcept(noexcept(++declval<I&>())) {
       ++current();
-      STL2_BROKEN_ASSERT(0 < count_);
+      STL2_CONSTEXPR_ASSUME(0 < count_);
       --count_;
       return *this;
     }
@@ -115,14 +115,14 @@ STL2_OPEN_NAMESPACE {
     constexpr counted_iterator operator+(DifferenceType<I> n) const
       requires RandomAccessIterator<I>()
     {
-      STL2_ASSERT(n <= count_);
+      STL2_ASSUME(n <= count_);
       return {current() + n, count_ - n};
     }
     constexpr counted_iterator& operator+=(DifferenceType<I> n) &
       noexcept(noexcept(declval<I&>() += n))
       requires RandomAccessIterator<I>()
     {
-      STL2_ASSERT(n <= count_);
+      STL2_ASSUME(n <= count_);
       current() += n;
       count_ -= n;
       return *this;
@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
       noexcept(noexcept(declval<const I&>()[n]))
       requires RandomAccessIterator<I>()
     {
-      STL2_ASSERT(n < count_);
+      STL2_ASSUME(n < count_);
       return current()[n];
     }
   };
@@ -302,7 +302,7 @@ STL2_OPEN_NAMESPACE {
   WeakIterator{I}
   constexpr void advance(counted_iterator<I>& i, DifferenceType<I> n)
     noexcept(noexcept(__stl2::advance(declval<I&>(), n))) {
-      STL2_ASSERT(n <= i.count());
+      STL2_ASSUME(n <= i.count());
       __stl2::advance(__counted_iterator_access::base(i), n);
       __counted_iterator_access::count(i) -= n;
     }
@@ -332,8 +332,8 @@ STL2_OPEN_NAMESPACE {
 
     WeakIterator{I}
     auto recounted(const counted_iterator<I>& o, I i, DifferenceType<I> n) {
-      // FIXME: Expensive assert
-      // STL2_ASSERT(!models::ForwardIterator<I> || i == __stl2::next(o.base(), n));
+      STL2_EXPENSIVE_ASSERT(!models::ForwardIterator<I> ||
+                            i == __stl2::next(o.base(), n));
       return counted_iterator<I>{__stl2::move(i), o.count() - n};
     }
   }

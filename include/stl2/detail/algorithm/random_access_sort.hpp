@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
       template <RandomAccessIterator I, class Comp, class Proj>
         requires Sortable<I, Comp, Proj>()
       I choose_pivot(I first, I last, Comp& comp, Proj& proj) {
-        STL2_ASSERT(first != last);
+        STL2_ASSUME(first != last);
         I mid = first + DifferenceType<I>(last - first) / 2;
         --last;
         // Find the median:

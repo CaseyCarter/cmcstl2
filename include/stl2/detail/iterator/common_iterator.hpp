@@ -98,13 +98,13 @@ STL2_OPEN_NAMESPACE {
     reference operator*() const
       noexcept(noexcept(*declval<const I&>()))
     {
-      STL2_ASSERT(holds_alternative<I>(v_));
+      STL2_ASSUME(holds_alternative<I>(v_));
       return *__stl2::get_unchecked<I>(v_);
     }
     common_iterator& operator++()
     noexcept(noexcept(++declval<I&>()))
     {
-      STL2_ASSERT(holds_alternative<I>(v_));
+      STL2_ASSUME(holds_alternative<I>(v_));
       ++__stl2::get_unchecked<I>(v_);
       return *this;
     }

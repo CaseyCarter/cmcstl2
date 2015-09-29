@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
     using value_type = ValueType<IteratorType<Rng>>;
     auto first = __stl2::begin(rng);
     auto last = __stl2::end(rng);
-    STL2_ASSERT(first != last);
+    STL2_ASSUME(first != last);
     auto result = tagged_pair<tag::min(value_type), tag::max(value_type)>{
       *first, *first
     };

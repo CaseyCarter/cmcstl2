@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
     auto&& proj = __stl2::as_function(proj_);
     auto first = __stl2::begin(r);
     auto last = __stl2::end(r);
-    STL2_ASSERT(first != last);
+    STL2_ASSUME(first != last);
     auto tmp = *first;
     while (++first != last) {
       if (comp(proj(tmp), proj(*first))) {

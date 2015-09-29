@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
       auto&& pred = __stl2::as_function(pred_);
       auto&& proj = __stl2::as_function(proj_);
 
-      STL2_ASSERT(0 <= n);
+      STL2_ASSUME(0 <= n);
       while (n != 0) {
         auto const half = n / 2;
         auto middle = __stl2::next(__stl2::ext::uncounted(first), half);
