@@ -182,14 +182,15 @@ STL2_OPEN_NAMESPACE {
                     Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     auto len1 = __stl2::distance(first, middle);
     auto len2_and_end = __stl2::ext::enumerate(middle, __stl2::move(last));
-    auto buf_size = std::min(len1, len2_and_end.first);
+    auto buf_size = std::min(len1, len2_and_end.count());
     detail::temporary_buffer<ValueType<I>> buf;
     if (is_trivially_move_assignable<ValueType<I>>() && 8 < buf_size) {
       buf = detail::temporary_buffer<ValueType<I>>{buf_size};
     }
-    detail::merge_adaptive(__stl2::move(first), __stl2::move(middle), len2_and_end.second,
-      len1, len2_and_end.first, buf, __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
-    return len2_and_end.second;
+    detail::merge_adaptive(__stl2::move(first), __stl2::move(middle), len2_and_end.end(),
+                           len1, len2_and_end.count(), buf, __stl2::forward<Comp>(comp),
+                           __stl2::forward<Proj>(proj));
+    return len2_and_end.end();
   }
 
   template <BidirectionalRange Rng, class Comp = less<>, class Proj = identity>

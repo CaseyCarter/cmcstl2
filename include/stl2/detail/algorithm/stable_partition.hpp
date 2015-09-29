@@ -323,7 +323,7 @@ STL2_OPEN_NAMESPACE {
   I stable_partition(I first, S last, Pred&& pred, Proj&& proj = Proj{}) {
     auto bound = __stl2::ext::enumerate(first, __stl2::move(last));
     return __stl2::ext::stable_partition_n(
-      __stl2::move(first), __stl2::move(bound.in()), bound.count(),
+      __stl2::move(first), __stl2::move(bound.end()), bound.count(),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 
@@ -344,7 +344,7 @@ STL2_OPEN_NAMESPACE {
   stable_partition(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
     auto bound = __stl2::ext::enumerate(rng);
     return __stl2::ext::stable_partition_n(
-      __stl2::begin(rng), __stl2::move(bound.in()), bound.count(),
+      __stl2::begin(rng), __stl2::move(bound.end()), bound.count(),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
