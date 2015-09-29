@@ -93,7 +93,7 @@ STL2_OPEN_NAMESPACE {
   bool equal(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     using C = CommonType<DifferenceType<I1>, DifferenceType<I2>>;
-    return C(last1 - first1) == C(last2 - first2) &&
+    return C(__stl2::distance(first1, last1)) == C(__stl2::distance(first2, last2)) &&
       __stl2::__equal_3(first1, last1, first2,
         __stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
         __stl2::forward<Proj2>(proj2));
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
   bool equal(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     using C = CommonType<DifferenceType<Rng1>, DifferenceType<Rng2>>;
-    return C(__stl2::size(rng1)) == C(__stl2::size(rng2)) &&
+    return C(__stl2::distance(rng1)) == C(__stl2::distance(rng2)) &&
       __stl2::__equal_3(
         __stl2::begin(rng1), __stl2::end(rng1), __stl2::begin(rng2),
         __stl2::forward<Pred>(pred),

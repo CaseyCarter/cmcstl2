@@ -32,6 +32,7 @@ STL2_OPEN_NAMESPACE {
                  Proj proj_ = Proj{}) {
     auto&& pred = __stl2::as_function(pred_);
     auto&& proj = __stl2::as_function(proj_);
+
     for (; first != last; ++first) {
       if (pred(proj(*first))) {
         *out_true = __stl2::iter_move(first);

@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
       auto ulast = __stl2::swap_ranges(__stl2::rbegin(vec), __stl2::rend(vec),
                                        __stl2::move(umiddle)).in2();
       // Shift the buffer contents into the first half of the input range.
-      __stl2::move(__stl2::begin(vec), __stl2::end(vec), __stl2::move(ufirst));
+      __stl2::move(vec, __stl2::move(ufirst));
       return __stl2::ext::recounted(first, __stl2::move(ulast), n);
     }
 

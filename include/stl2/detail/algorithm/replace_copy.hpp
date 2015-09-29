@@ -28,11 +28,13 @@ STL2_OPEN_NAMESPACE {
   replace_copy(I first, S last, O result, const T1& old_value,
                const T2& new_value, Proj proj_ = Proj{}) {
     auto&& proj = __stl2::as_function(proj_);
+
     for (; first != last; ++first, ++result) {
-      if (proj(*first) == old_value) {
+      auto&& v = *first;
+      if (proj(v) == old_value) {
         *result = new_value;
       } else {
-        *result = *first;
+        *result = __stl2::forward<decltype(v)>(v);
       }
     }
     return {__stl2::move(first), __stl2::move(result)};

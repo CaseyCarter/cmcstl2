@@ -34,6 +34,7 @@ STL2_OPEN_NAMESPACE {
     auto&& comp = __stl2::as_function(comp_);
     auto&& proj1 = __stl2::as_function(proj1_);
     auto&& proj2 = __stl2::as_function(proj2_);
+
     while (true) {
       if (first1 == last1) {
         __stl2::tie(first2, result) = __stl2::copy(
@@ -45,11 +46,13 @@ STL2_OPEN_NAMESPACE {
           __stl2::move(first1), __stl2::move(last1), __stl2::move(result));
         break;
       }
-      if (comp(proj1(*first1), proj2(*first2))) {
-        *result = *first1;
+      auto&& v1 = *first1;
+      auto&& v2 = *first2;
+      if (comp(proj1(v1), proj2(v2))) {
+        *result = __stl2::forward<decltype(v1)>(v1);
         ++first1;
       } else {
-        *result = *first2;
+        *result = __stl2::forward<decltype(v2)>(v2);
         ++first2;
       }
       ++result;

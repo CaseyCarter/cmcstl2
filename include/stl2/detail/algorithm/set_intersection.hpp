@@ -32,12 +32,16 @@ STL2_OPEN_NAMESPACE {
     auto&& proj2 = __stl2::as_function(proj2_);
 
     while (first1 != last1 && first2 != last2) {
-      if (comp(proj1(*first1), proj2(*first2))) {
+      auto&& v1 = *first1;
+      auto&& v2 = *first2;
+      auto&& p1 = proj1(v1);
+      auto&& p2 = proj2(v2);
+      if (comp(p1, p2)) {
         ++first1;
-      } else if (comp(proj2(*first2), proj1(*first1))) {
+      } else if (comp(p2, p1)) {
         ++first2;
       } else {
-        *result = *first1;
+        *result = __stl2::forward<decltype(v1)>(v1);
         ++result;
         ++first1;
         ++first2;

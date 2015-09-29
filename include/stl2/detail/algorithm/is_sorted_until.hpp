@@ -24,18 +24,18 @@ STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
             IndirectCallableStrictWeakOrder<Projected<I, Proj>> Comp = less<>>
   I is_sorted_until(I first, S last, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
-    if (first == last) {
-      return first;
-    }
-
-    auto&& comp = __stl2::as_function(comp_);
-    auto&& proj = __stl2::as_function(proj_);
-    while (true) {
-      auto prev = first;
-      if (++first == last || comp(proj(*first), proj(*prev))) {
-        return first;
+    if (first != last) {
+      auto&& comp = __stl2::as_function(comp_);
+      auto&& proj = __stl2::as_function(proj_);
+      while (true) {
+        auto prev = first;
+        if (++first == last || comp(proj(*first), proj(*prev))) {
+          break;
+        }
       }
     }
+    return first;
+
   }
 
   template <ForwardRange Rng, class Proj = identity,

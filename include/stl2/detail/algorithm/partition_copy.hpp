@@ -32,12 +32,14 @@ STL2_OPEN_NAMESPACE {
                  Proj proj_ = Proj{}) {
     auto&& pred = __stl2::as_function(pred_);
     auto&& proj = __stl2::as_function(proj_);
+
     for (; first != last; ++first) {
-      if (pred(proj(*first))) {
-        *out_true = *first;
+      auto&& v = *first;
+      if (pred(proj(v))) {
+        *out_true  = __stl2::forward<decltype(v)>(v);
         ++out_true;
       } else {
-        *out_false = *first;
+        *out_false = __stl2::forward<decltype(v)>(v);
         ++out_false;
       }
     }

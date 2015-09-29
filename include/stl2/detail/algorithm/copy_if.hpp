@@ -1,5 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
+//  Copyright Eric Niebler 2014
 //  Copyright Casey Carter 2015
 //
 //  Use, modification and distribution is subject to the
@@ -31,8 +32,9 @@ STL2_OPEN_NAMESPACE {
     auto&& proj = __stl2::as_function(proj_);
 
     for (; first != last; ++first) {
-      if (pred(proj(*first))) {
-        *result = *first;
+      auto&& v = *first;
+      if (pred(proj(v))) {
+        *result = __stl2::forward<decltype(v)>(v);
         ++result;
       }
     }

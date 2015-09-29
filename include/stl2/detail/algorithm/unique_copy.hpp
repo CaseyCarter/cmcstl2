@@ -32,8 +32,9 @@ STL2_OPEN_NAMESPACE {
       *result = saved;
       ++result;
       while (++first != last) {
-        if (!comp(proj(*first), proj(saved))) {
-          saved = *first;
+        auto&& v = *first;
+        if (!comp(proj(v), proj(saved))) {
+          saved = __stl2::forward<decltype(v)>(v);
           *result = saved;
           ++result;
         }
@@ -51,8 +52,9 @@ STL2_OPEN_NAMESPACE {
       *result = *first;
       auto m = result;
       while (++first != last) {
-        if (!comp(proj(*first), proj(*m))) {
-          *++result = *first;
+        auto&& v = *first;
+        if (!comp(proj(v), proj(*m))) {
+          *++result = __stl2::forward<decltype(v)>(v);
           m = result;
         }
       }
@@ -71,8 +73,9 @@ STL2_OPEN_NAMESPACE {
       ++result;
       auto m = first;
       while (++first != last) {
-        if (!comp(proj(*first), proj(*m))) {
-          *result = *first;
+        auto&& v = *first;
+        if (!comp(proj(v), proj(*m))) {
+          *result = __stl2::forward<decltype(v)>(v);
           ++result;
           m = first;
         }

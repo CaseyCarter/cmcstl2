@@ -21,6 +21,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 // equal_range [equal.range]
+// TODO: optimize this to perform the LB and UB probes simultaneously.
 //
 STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,

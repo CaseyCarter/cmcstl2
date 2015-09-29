@@ -43,14 +43,18 @@ STL2_OPEN_NAMESPACE {
         auto res = __stl2::copy(__stl2::move(first1), __stl2::move(last1), __stl2::move(result));
         return {__stl2::move(res.in()), __stl2::move(first2), __stl2::move(res.out())};
       }
-      if (comp(proj1(*first1), proj2(*first2))) {
-        *result = *first1;
+      auto&& v1 = *first1;
+      auto&& v2 = *first2;
+      auto&& p1 = proj1(v1);
+      auto&& p2 = proj2(v2);
+      if (comp(p1, p2)) {
+        *result = __stl2::forward<decltype(v1)>(v1);
         ++first1;
       } else {
-        if (!comp(proj2(*first2), proj1(*first1))) {
+        if (!comp(p2, p1)) {
           ++first1;
         }
-        *result = *first2;
+        *result = __stl2::forward<decltype(v2)>(v2);
         ++first2;
       }
       ++result;

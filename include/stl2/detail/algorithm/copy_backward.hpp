@@ -1,5 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
+//  Copyright Eric Niebler 2013-2014
 //  Copyright Casey Carter 2015
 //
 //  Use, modification and distribution is subject to the
@@ -21,23 +22,16 @@
 // copy_backward [alg.copy]
 //
 STL2_OPEN_NAMESPACE {
-  template <BidirectionalIterator I1, BidirectionalIterator I2>
-    requires IndirectlyCopyable<I1, I2>()
-  tagged_pair<tag::in(I1), tag::out(I2)>
-  copy_backward(I1 first, I1 last, I2 result) {
-    auto i = last;
-    while (i != first) {
-      *--result = *--i;
-    }
-    return {__stl2::move(last), __stl2::move(result)};
-  }
-
   template <BidirectionalIterator I1, Sentinel<I1> S1, BidirectionalIterator I2>
     requires IndirectlyCopyable<I1, I2>()
   tagged_pair<tag::in(I1), tag::out(I2)>
-  copy_backward(I1 first, S1 s, I2 out) {
-    return __stl2::copy_backward(
-      __stl2::move(first), __stl2::next(first, s), __stl2::move(out));
+  copy_backward(I1 first, S1 sent, I2 out) {
+    auto last = __stl2::next(first, __stl2::move(sent));
+    auto i = last;
+    while (i != first) {
+      *--out = *--i;
+    }
+    return {__stl2::move(last), __stl2::move(out)};
   }
 
   template<BidirectionalRange Rng, BidirectionalIterator I>

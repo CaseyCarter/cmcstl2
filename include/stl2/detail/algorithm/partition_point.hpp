@@ -10,6 +10,15 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
+//===-------------------------- algorithm ---------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is dual licensed under the MIT and the University of Illinois Open
+// Source Licenses. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+//
 #ifndef STL2_DETAIL_ALGORITHM_PARTITION_POINT_HPP
 #define STL2_DETAIL_ALGORITHM_PARTITION_POINT_HPP
 

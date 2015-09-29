@@ -29,9 +29,11 @@ STL2_OPEN_NAMESPACE {
   tagged_pair<tag::in(I), tag::out(O)>
   remove_copy(I first, S last, O result, const T& value, Proj proj_ = Proj{}) {
     auto&& proj = __stl2::as_function(proj_);
+
     for (; first != last; ++first) {
-      if (proj(*first) != value) {
-        *result = *first;
+      auto&& v = *first;
+      if (proj(v) != value) {
+        *result = __stl2::forward<decltype(v)>(v);
         ++result;
       }
     }

@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
   DifferenceType<I> count_if(I first, S last, Pred pred_, Proj proj_ = Proj{}) {
     auto&& proj = __stl2::as_function(proj_);
     auto&& pred = __stl2::as_function(pred_);
-    auto n = DifferenceType<I>{};
+    auto n = DifferenceType<I>(0);
     for (; first != last; ++first) {
       if (pred(proj(*first))) {
         ++n;

@@ -25,8 +25,8 @@ STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class Proj = identity,
             IndirectCallablePredicate<Projected<I, Proj>> Pred>
   bool none_of(I first, S last, Pred pred_, Proj proj_ = Proj{}) {
-    auto &&pred = __stl2::as_function(pred_);
-    auto &&proj = __stl2::as_function(proj_);
+    auto&& pred = __stl2::as_function(pred_);
+    auto&& proj = __stl2::as_function(proj_);
     for (; first != last; ++first) {
       if (pred(proj(*first))) {
         return false;

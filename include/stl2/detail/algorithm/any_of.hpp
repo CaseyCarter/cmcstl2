@@ -1,5 +1,7 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
+//  Copyright Andrew Sutton 2014
+//  Copyright Gonzalo Brito Gadeschi 2014
 //  Copyright Casey Carter 2015
 //
 //  Use, modification and distribution is subject to the
@@ -24,11 +26,11 @@
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class Proj = identity,
             IndirectCallablePredicate<Projected<I, Proj>> Pred>
-  bool any_of(I first, S last, Pred pred, Proj proj = Proj{}) {
-    auto &&ipred = __stl2::as_function(pred);
-    auto &&iproj = __stl2::as_function(proj);
+  bool any_of(I first, S last, Pred pred_, Proj proj_ = Proj{}) {
+    auto &&pred = __stl2::as_function(pred_);
+    auto &&proj = __stl2::as_function(proj_);
     for (; first != last; ++first) {
-      if (ipred(iproj(*first))) {
+      if (pred(proj(*first))) {
         return true;
       }
     }

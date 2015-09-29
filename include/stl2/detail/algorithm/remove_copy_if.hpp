@@ -29,9 +29,11 @@ STL2_OPEN_NAMESPACE {
   remove_copy_if(I first, S last, O result, Pred pred_, Proj proj_ = Proj{}) {
     auto&& pred = __stl2::as_function(pred_);
     auto&& proj = __stl2::as_function(proj_);
+
     for (; first != last; ++first) {
-      if (!pred(proj(*first))) {
-        *result = *first;
+      auto&& v = *first;
+      if (!pred(proj(v))) {
+        *result = __stl2::forward<decltype(v)>(v);
         ++result;
       }
     }
