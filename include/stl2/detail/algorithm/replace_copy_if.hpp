@@ -20,7 +20,7 @@
 // replace_copy_if [alg.replace]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I, Sentinel<I> S, Semiregular T,
+  template <InputIterator I, Sentinel<I> S, class T,
             WeakOutputIterator<T> O, class Proj = identity,
             IndirectCallablePredicate<Projected<I, Proj>> Pred>
     requires IndirectlyCopyable<I, O>()
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
     return {__stl2::move(first), __stl2::move(result)};
   }
 
-  template <InputRange Rng, Semiregular T, WeakOutputIterator<T> O,
+  template <InputRange Rng, class T, WeakOutputIterator<T> O,
             class Proj = identity,
             IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
     requires IndirectlyCopyable<IteratorType<Rng>, O>()

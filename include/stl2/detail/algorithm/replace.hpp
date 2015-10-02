@@ -20,9 +20,9 @@
 // replace [alg.replace]
 //
 STL2_OPEN_NAMESPACE {
-  template <ForwardIterator I, Sentinel<I> S, class T1, Semiregular T2, class Proj = identity>
+  template <ForwardIterator I, Sentinel<I> S, class T1, class T2, class Proj = identity>
     requires Writable<I, T2>() &&
-      IndirectCallableRelation<equal_to<>, Projected<I, Proj>, const T1 *>()
+      IndirectCallableRelation<equal_to<>, Projected<I, Proj>, const T1*>()
   I replace(I first, S last, const T1& old_value, const T2& new_value, Proj proj_ = Proj{}) {
     auto&& proj = __stl2::as_function(proj_);
     for (; first != last; ++first) {
@@ -33,9 +33,9 @@ STL2_OPEN_NAMESPACE {
     return first;
   }
 
-  template <ForwardRange Rng, class T1, Semiregular T2, class Proj = identity>
+  template <ForwardRange Rng, class T1, class T2, class Proj = identity>
     requires Writable<IteratorType<Rng>, T2>() &&
-      IndirectCallableRelation<equal_to<>, Projected<IteratorType<Rng>, Proj>, const T1 *>()
+      IndirectCallableRelation<equal_to<>, Projected<IteratorType<Rng>, Proj>, const T1*>()
   safe_iterator_t<Rng>
   replace(Rng&& rng, const T1& old_value, const T2& new_value, Proj&& proj = Proj{}) {
     return __stl2::replace(

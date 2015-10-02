@@ -20,7 +20,7 @@
 // replace_copy [alg.replace]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I, Sentinel<I> S, class T1, Semiregular T2,
+  template <InputIterator I, Sentinel<I> S, class T1, class T2,
             WeakOutputIterator<T2> O, class Proj = identity>
     requires IndirectlyCopyable<I, O>() &&
       IndirectCallableRelation<equal_to<>, Projected<I, Proj>, const T1*>()
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
     return {__stl2::move(first), __stl2::move(result)};
   }
 
-  template <InputRange Rng, class T1, Semiregular T2,
+  template <InputRange Rng, class T1, class T2,
             WeakOutputIterator<T2> O, class Proj = identity>
     requires IndirectlyCopyable<IteratorType<Rng>, O>() &&
       IndirectCallableRelation<equal_to<>, Projected<IteratorType<Rng>, Proj>, const T1 *>()

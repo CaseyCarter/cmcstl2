@@ -20,7 +20,7 @@
 // replace_if [alg.replace]
 //
 STL2_OPEN_NAMESPACE {
-  template<ForwardIterator I, Sentinel<I> S, Semiregular T, class Proj = identity,
+  template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
            IndirectCallablePredicate<Projected<I, Proj>> Pred>
     requires Writable<I, T>()
   I replace_if(I first, S last, Pred pred_, const T& new_value, Proj proj_ = Proj{}) {
@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
     return first;
   }
 
-  template<ForwardRange Rng, Semiregular T, class Proj = identity,
+  template<ForwardRange Rng, class T, class Proj = identity,
            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
     requires Writable<IteratorType<Rng>, T>()
   safe_iterator_t<Rng>
