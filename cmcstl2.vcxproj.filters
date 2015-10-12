@@ -16,20 +16,11 @@
     <Filter Include="Header Files\cmcstl2">
       <UniqueIdentifier>{cbb7e17e-f6d1-4f4b-ac10-464d80047e1b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\meta">
-      <UniqueIdentifier>{7d7b7db0-ebea-490f-8e5f-3cf887b52cfd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\cmcstl2\stl2">
       <UniqueIdentifier>{abd21d2b-e740-4586-9367-220a3be2824e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\cmcstl2\stl2\detail">
       <UniqueIdentifier>{fabeeb70-566b-4e3a-99f3-013462df0b62}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\meta\include">
-      <UniqueIdentifier>{1122ee4c-dd15-4e76-8367-bac685858231}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\meta\include\meta">
-      <UniqueIdentifier>{a1a9ea2c-d9c1-4215-9e12-38ecb8f0c710}</UniqueIdentifier>
     </Filter>
     <Filter Include="Test Files">
       <UniqueIdentifier>{1502d095-18e4-4d1b-b85b-aa8875cdbb6c}</UniqueIdentifier>
@@ -61,6 +52,27 @@
     <Filter Include="Header Files\cmcstl2\stl2\detail\iostream">
       <UniqueIdentifier>{828b5bb1-9cbd-4692-b759-759d23405123}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\view">
+      <UniqueIdentifier>{f8dab8e7-cb8e-44b4-b651-3435a5af09f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Files\view">
+      <UniqueIdentifier>{991495a8-e92c-45fc-8e09-1449416f88b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Example Files">
+      <UniqueIdentifier>{1ae3f4f0-82d9-4131-8316-c501a290ccbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\experimental">
+      <UniqueIdentifier>{c99cf7dc-639c-4e89-a890-5545c588344b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\experimental\ranges_v1">
+      <UniqueIdentifier>{a4e91c04-4565-4b8e-95d1-22b712259e53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\meta">
+      <UniqueIdentifier>{a6f362cf-3b8b-483c-bfdc-349297778915}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Files\detail">
+      <UniqueIdentifier>{ba137614-c2bb-4349-aeda-c35f0d91a608}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stl2\iterator.hpp">
@@ -77,12 +89,6 @@
     </ClInclude>
     <ClInclude Include="include\stl2\detail\tagged.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="meta\include\meta\meta.hpp">
-      <Filter>Header Files\meta\include\meta</Filter>
-    </ClInclude>
-    <ClInclude Include="meta\include\meta\meta_fwd.hpp">
-      <Filter>Header Files\meta\include\meta</Filter>
     </ClInclude>
     <ClInclude Include="test\simple_test.hpp">
       <Filter>Test Files</Filter>
@@ -219,6 +225,318 @@
     <ClInclude Include="include\stl2\detail\algorithm\any_of.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
     </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\adjacent_find.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\binary_search.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\copy.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\copy_backward.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\copy_if.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\copy_n.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\count.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\count_if.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\equal.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\equal_range.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\fill.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\fill_n.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\find.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\find_end.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\find_first_of.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\find_if.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\find_if_not.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\for_each.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\generate.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\generate_n.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\heap_sift.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\includes.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\inplace_merge.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\is_heap.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\is_heap_until.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\is_partitioned.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\is_permutation.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\is_sorted.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\is_sorted_until.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\lower_bound.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\make_heap.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\max.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\max_element.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\merge.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\merge_move.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\min.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\min_element.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\minmax.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\minmax_element.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\mismatch.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\move.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\move_backward.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\none_of.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\nth_element.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\partial_sort.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\partial_sort_copy.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\partition.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\partition_copy.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\partition_move.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\partition_point.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\pop_heap.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\push_heap.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\remove.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\remove_copy.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\remove_copy_if.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\remove_if.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\replace.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\replace_copy.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\replace_copy_if.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\replace_if.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\reverse.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\reverse_copy.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\rotate.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\rotate_copy.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\search.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\search_n.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\set_difference.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\set_intersection.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\set_symmetric_difference.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\set_union.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\shuffle.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\sort.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\sort_heap.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\stable_partition.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\stable_sort.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\swap_ranges.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\unique.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\unique_copy.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\upper_bound.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\urng.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\cheap_storage.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\temporary_vector.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\dangling.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\range.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\view\iota.hpp">
+      <Filter>Header Files\cmcstl2\stl2\view</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\view\repeat.hpp">
+      <Filter>Header Files\cmcstl2\stl2\view</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\view\repeat_n.hpp">
+      <Filter>Header Files\cmcstl2\stl2\view</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\random.hpp">
+      <Filter>Header Files\cmcstl2\stl2</Filter>
+    </ClInclude>
+    <ClInclude Include="test\algorithm\is_heap.hpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="test\algorithm\is_heap_until.hpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="test\algorithm\set_difference.hpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="test\algorithm\set_intersection.hpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="test\algorithm\set_symmetric_difference.hpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="test\algorithm\set_union.hpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="test\test_iterators.hpp">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="test\test_utils.hpp">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\meta\meta.hpp">
+      <Filter>Header Files\cmcstl2\meta</Filter>
+    </ClInclude>
+    <ClInclude Include="include\meta\meta_fwd.hpp">
+      <Filter>Header Files\cmcstl2\meta</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\forward_sort.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\lexicographical_compare.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\next_permutation.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\prev_permutation.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\random_access_sort.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\reverse_move.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\headers.cpp">
@@ -296,11 +614,347 @@
     <ClCompile Include="test\iterator\ostreambuf_iterator.cpp">
       <Filter>Test Files\iterator</Filter>
     </ClCompile>
-    <ClCompile Include="test\raw_ptr.cpp">
-      <Filter>Test Files</Filter>
-    </ClCompile>
     <ClCompile Include="test\algorithm\any_of.cpp">
       <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\adjacent_find.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\binary_search.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\copy.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\copy_backward.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\copy_if.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\copy_n.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\count.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\count_if.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\equal.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\equal_range.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\fill.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\fill_n.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\find.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\find_end.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\find_first_of.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\find_if.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\find_if_not.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\for_each.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\generate.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\generate_n.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\includes.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\inplace_merge.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_heap_until1.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_heap_until2.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_heap_until3.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_heap_until4.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_heap1.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_heap2.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_heap3.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_heap4.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_partitioned.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_permutation.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_sorted.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\is_sorted_until.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\lower_bound.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\make_heap.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\max_element.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\merge.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\merge_move.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\min_element.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\minmax_element.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\mismatch.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\move.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\move_backward.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\none_of.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\partition.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\partition_copy.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\partition_move.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\partition_point.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\pop_heap.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\push_heap.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\remove.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\remove_copy.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\remove_copy_if.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\remove_if.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\replace.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\replace_copy.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\replace_copy_if.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\replace_if.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\reverse.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\reverse_copy.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\rotate.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\rotate_copy.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\search.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\search_n.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_difference1.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_difference2.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_difference3.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_difference4.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_difference5.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_difference6.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_intersection1.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_intersection2.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_intersection3.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_intersection4.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_intersection5.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_intersection6.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_symmetric_difference1.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_symmetric_difference2.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_symmetric_difference3.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_symmetric_difference4.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_symmetric_difference5.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_symmetric_difference6.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_union1.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_union2.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_union3.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_union4.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_union5.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\set_union6.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\shuffle.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\sort_heap.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\swap_ranges.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\unique.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\unique_copy.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\upper_bound.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\make_range.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\view\repeat_n_view.cpp">
+      <Filter>Test Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="test\view\repeat_view.cpp">
+      <Filter>Test Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\simple.cpp">
+      <Filter>Example Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\lexicographical_compare.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\max.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\min.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\minmax.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\next_permutation.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\nth_element.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\partial_sort.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\partial_sort_copy.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\prev_permutation.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\sort.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\stable_partition.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\stable_sort.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\detail\raw_ptr.cpp">
+      <Filter>Test Files\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="test\detail\temporary_vector.cpp">
+      <Filter>Test Files\detail</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -314,12 +968,50 @@
       <Filter>Test Files\concepts</Filter>
     </Text>
     <Text Include="CMakeLists.txt" />
-    <Text Include="test\algorithm\CMakeLists.txt" />
-    <Text Include="test\iterator\CMakeLists.txt" />
     <Text Include="LICENSE.txt" />
+    <Text Include="test\view\CMakeLists.txt">
+      <Filter>Test Files\view</Filter>
+    </Text>
+    <Text Include="examples\CMakeLists.txt">
+      <Filter>Example Files</Filter>
+    </Text>
+    <Text Include="test\detail\CMakeLists.txt">
+      <Filter>Test Files\detail</Filter>
+    </Text>
+    <Text Include="test\iterator\CMakeLists.txt">
+      <Filter>Test Files\iterator</Filter>
+    </Text>
+    <Text Include="test\algorithm\CMakeLists.txt">
+      <Filter>Test Files\algorithm</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
-    <None Include=".gitmodules" />
+    <None Include=".gitattributes" />
+    <None Include="README.md" />
+    <None Include="include\experimental\ranges_v1\algorithm">
+      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    </None>
+    <None Include="include\experimental\ranges_v1\concepts">
+      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    </None>
+    <None Include="include\experimental\ranges_v1\functional">
+      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    </None>
+    <None Include="include\experimental\ranges_v1\iterator">
+      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    </None>
+    <None Include="include\experimental\ranges_v1\random">
+      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    </None>
+    <None Include="include\experimental\ranges_v1\tuple">
+      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    </None>
+    <None Include="include\experimental\ranges_v1\type_traits">
+      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    </None>
+    <None Include="include\experimental\ranges_v1\utility">
+      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    </None>
   </ItemGroup>
 </Project>
