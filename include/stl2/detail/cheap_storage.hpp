@@ -32,12 +32,12 @@ STL2_OPEN_NAMESPACE {
         noexcept(is_nothrow_move_constructible<T>::value)
         requires MoveConstructible<T>() : item_(__stl2::move(t)) {}
 
-      template <typename U>
-        requires !Same<ebo_box, decay_t<U>>() &&
-          Constructible<T, U>()
-      constexpr ebo_box(U&& u)
-        noexcept(is_nothrow_constructible<T, U>::value) :
-        item_(__stl2::forward<U>(u)) {}
+      template <typename First, typename...Rest>
+        requires !Same<ebo_box, decay_t<First>>() &&
+          Constructible<T, First, Rest...>()
+      constexpr ebo_box(First&& f, Rest&&...r)
+        noexcept(is_nothrow_constructible<T, First, Rest...>::value) :
+        item_(__stl2::forward<First>(f), __stl2::forward<Rest>(r)...) {}
 
       constexpr T& get() & noexcept { return item_; }
       constexpr const T& get() const& noexcept { return item_; }

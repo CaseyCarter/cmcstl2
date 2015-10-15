@@ -15,13 +15,11 @@
 #include <stl2/iterator.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/concepts/fundamental.hpp>
-
-// TODO:
-// * Relax to WeaklyIncrementable.
+#include <stl2/detail/concepts/compare.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-  Integral{I}
+  WeaklyIncrementable{I}
   class iota_view {
     I first_;
   public:
@@ -29,8 +27,18 @@ STL2_OPEN_NAMESPACE {
       I value_;
     public:
       using value_type = I;
-      using difference_type = make_signed_t<I>;
-      using iterator_category = random_access_iterator_tag;
+      using difference_type = DifferenceType<I>;
+      using iterator_category =
+        meta::if_c<
+          models::Incrementable<I>,
+          meta::if_c<
+            models::Decrementable<I>,
+            meta::if_c<
+              models::RandomAccessIncrementable<I>,
+              random_access_iterator_tag,
+              bidirectional_iterator_tag>,
+            forward_iterator_tag>,
+          weak_input_iterator_tag>;
 
       iterator() = default;
       constexpr iterator(const iota_view& v) noexcept :
@@ -41,74 +49,92 @@ STL2_OPEN_NAMESPACE {
       }
 
       constexpr iterator& operator++() & noexcept {
-        ++value_; return *this;
+        ++value_;
+        return *this;
       }
-      constexpr iterator& operator--() & noexcept {
-        --value_; return *this;
-      }
-
       constexpr iterator operator++(int) & noexcept {
         auto tmp = *this;
         ++*this;
         return tmp;
       }
-      constexpr iterator operator--(int) & noexcept {
+
+      constexpr iterator& operator--() & noexcept
+        requires ext::Decrementable<I>() {
+        --value_;
+        return *this;
+      }
+      constexpr iterator operator--(int) & noexcept
+        requires ext::Decrementable<I>() {
         auto tmp = *this;
         --*this;
         return tmp;
       }
 
-      constexpr I operator[](difference_type n) const noexcept {
+      constexpr I operator[](difference_type n) const noexcept
+        requires ext::RandomAccessIncrementable<I>() {
         return value_ + n;
       }
 
-      constexpr iterator& operator+=(difference_type n) & noexcept {
+      constexpr iterator& operator+=(difference_type n) & noexcept
+        requires ext::RandomAccessIncrementable<I>() {
         value_ += n;
         return *this;
       }
-      constexpr iterator& operator-=(difference_type n) & noexcept {
+      constexpr iterator& operator-=(difference_type n) & noexcept
+        requires ext::RandomAccessIncrementable<I>() {
         value_ -= n;
         return *this;
       }
 
-      constexpr iterator operator+(difference_type n) const noexcept {
+      constexpr iterator operator+(difference_type n) const noexcept
+        requires ext::RandomAccessIncrementable<I>() {
         return {value_ + n};
       }
-      constexpr iterator operator-(difference_type n) const noexcept {
+      constexpr iterator operator-(difference_type n) const noexcept
+        requires ext::RandomAccessIncrementable<I>() {
         return {value_ - n};
       }
       friend constexpr iterator
-      operator+(difference_type n, const iterator& i) noexcept {
+      operator+(difference_type n, const iterator& i) noexcept
+        requires ext::RandomAccessIncrementable<I>() {
         return i + n;
       }
 
       friend constexpr difference_type
-      operator-(const iterator& lhs, const iterator& rhs) noexcept {
+      operator-(const iterator& lhs, const iterator& rhs) noexcept
+        requires ext::RandomAccessIncrementable<I>() {
         return lhs.value_ - rhs.value_;
       }
 
       friend constexpr bool
-      operator==(const iterator& lhs, const iterator& rhs) noexcept {
+      operator==(const iterator& lhs, const iterator& rhs) noexcept
+        requires EqualityComparable<I>() {
         return lhs.value_ == rhs.value_;
       }
       friend constexpr bool
-      operator!=(const iterator& lhs, const iterator& rhs) noexcept {
+      operator!=(const iterator& lhs, const iterator& rhs) noexcept
+        requires EqualityComparable<I>() {
         return lhs.value_ != rhs.value_;
       }
+
       friend constexpr bool
-      operator<(const iterator& lhs, const iterator& rhs) noexcept {
+      operator<(const iterator& lhs, const iterator& rhs) noexcept
+        requires TotallyOrdered<I>() {
         return lhs.value_ < rhs.value_;
       }
       friend constexpr bool
-      operator>(const iterator& lhs, const iterator& rhs) noexcept {
+      operator>(const iterator& lhs, const iterator& rhs) noexcept
+        requires TotallyOrdered<I>() {
         return lhs.value_ > rhs.value_;
       }
       friend constexpr bool
-      operator<=(const iterator& lhs, const iterator& rhs) noexcept {
+      operator<=(const iterator& lhs, const iterator& rhs) noexcept
+        requires TotallyOrdered<I>() {
         return lhs.value_ <= rhs.value_;
       }
       friend constexpr bool
-      operator>=(const iterator& lhs, const iterator& rhs) noexcept {
+      operator>=(const iterator& lhs, const iterator& rhs) noexcept
+        requires TotallyOrdered<I>() {
         return lhs.value_ >= rhs.value_;
       }
     };

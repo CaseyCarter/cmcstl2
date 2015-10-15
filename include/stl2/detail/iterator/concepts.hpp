@@ -22,8 +22,8 @@
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
-#include <stl2/detail/concepts/function.hpp> // ???
 #include <stl2/detail/concepts/fundamental.hpp>
+#include <stl2/detail/concepts/increment.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -431,100 +431,6 @@ STL2_OPEN_NAMESPACE {
     is_nothrow_indirectly_swappable_t<R1, R2> {};
 
   ///////////////////////////////////////////////////////////////////////////
-  // DifferenceType [iterator.assoc]
-  // Extension: defaults to make_unsigned_t<decltype(t - t)> when
-  //     decltype(t - t) models Integral, in addition to doing so when T
-  // itself models Integral.
-  //
-  // Not to spec:
-  // * Strips cv-qualifiers before applying difference_type (see
-  //   ValueType for why)
-  // * Requires DifferenceType to model SignedIntegral
-  //
-  namespace detail {
-    template <class T>
-    concept bool MemberDifferenceType =
-      requires { typename T::difference_type; };
-  }
-
-  template <class> struct difference_type {};
-
-  template <> struct difference_type<void*> {};
-
-  template <> struct difference_type<std::nullptr_t> {
-    using type = std::ptrdiff_t;
-  };
-
-  template <detail::MemberDifferenceType T>
-  struct difference_type<T> {
-    using type = typename T::difference_type;
-  };
-
-  template <class T>
-    requires !detail::MemberDifferenceType<T> &&
-      requires (const T& a, const T& b) {
-        STL2_DEDUCTION_CONSTRAINT(a - b, Integral);
-      }
-  struct difference_type<T> :
-    make_signed<decltype(declval<const T&>() - declval<const T&>())> {};
-
-  template <class T>
-    requires SignedIntegral<meta::_t<difference_type<remove_cv_t<T>>>>()
-  using DifferenceType =
-    meta::_t<difference_type<remove_cv_t<T>>>;
-
-  ///////////////////////////////////////////////////////////////////////////
-  // WeaklyIncrementable [weaklyincrementable.iterators]
-  //
-  template <class I>
-  constexpr bool __weakly_incrementable = false;
-  template <class I>
-    requires requires (I& i) {
-      typename DifferenceType<I>;
-      STL2_EXACT_TYPE_CONSTRAINT(++i, I&);
-      i++;
-    }
-  constexpr bool __weakly_incrementable<I> = true;
-
-  template <class I>
-  concept bool WeaklyIncrementable() {
-    return Semiregular<I>() &&
-      __weakly_incrementable<I>;
-  }
-
-  namespace models {
-    template <class>
-    constexpr bool WeaklyIncrementable = false;
-    __stl2::WeaklyIncrementable{I}
-    constexpr bool WeaklyIncrementable<I> = true;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Incrementable [incrementable.iterators]
-  //
-  template <class I>
-  constexpr bool __incrementable = false;
-  template <class I>
-    requires requires (I& i) {
-      STL2_EXACT_TYPE_CONSTRAINT(i++, I);
-    }
-  constexpr bool __incrementable<I> = true;
-
-  template <class I>
-  concept bool Incrementable() {
-    return WeaklyIncrementable<I>() &&
-      EqualityComparable<I>() &&
-      __incrementable<I>;
-  }
-
-  namespace models {
-    template <class>
-    constexpr bool Incrementable = false;
-    __stl2::Incrementable{I}
-    constexpr bool Incrementable<I> = true;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
   // Iterator tags [std.iterator.tags]
   // Extension: contiguous_iterator_tag for denoting contiguous iterators.
   //
@@ -740,19 +646,10 @@ STL2_OPEN_NAMESPACE {
   // BidirectionalIterator [bidirectional.iterators]
   //
   template <class I>
-  constexpr bool __bidirectional_iterator = false;
-  template <class I>
-    requires requires (I& i) {
-      STL2_EXACT_TYPE_CONSTRAINT(--i, I&);
-      STL2_EXACT_TYPE_CONSTRAINT(i--, I);
-    }
-  constexpr bool __bidirectional_iterator<I> = true;
-
-  template <class I>
   concept bool BidirectionalIterator() {
     return ForwardIterator<I>() &&
       DerivedFrom<IteratorCategory<I>, bidirectional_iterator_tag>() &&
-      __bidirectional_iterator<I>;
+      ext::Decrementable<I>();
   }
 
   namespace models {
@@ -807,27 +704,22 @@ STL2_OPEN_NAMESPACE {
   template <class I>
   constexpr bool __random_access_iterator = false;
   template <class I>
-    requires requires (I& i, const I& j, const DifferenceType<I> n) {
-      STL2_EXACT_TYPE_CONSTRAINT(i += n, I&);
-      STL2_EXACT_TYPE_CONSTRAINT(j + n, I);
-      STL2_EXACT_TYPE_CONSTRAINT(n + j, I);
-      STL2_EXACT_TYPE_CONSTRAINT(i -= n, I&);
-      STL2_EXACT_TYPE_CONSTRAINT(j - n, I);
-      STL2_CONVERSION_CONSTRAINT(j[n], const ValueType<I>&);
+    requires requires (const I& ci, const DifferenceType<I> n) {
+      STL2_CONVERSION_CONSTRAINT(ci[n], const ValueType<I>&);
     } &&
       (!detail::MutableIterator<I> ||
-       requires (const I& i, const DifferenceType<I> n) {
-         i[n] = *i;
-         *i = i[n];
+       requires (const I& ci, const DifferenceType<I> n) {
+         ci[n] = *ci;
+         *ci = ci[n];
        })
   constexpr bool __random_access_iterator<I> = true;
 
   template <class I>
   concept bool RandomAccessIterator() {
     return BidirectionalIterator<I>() &&
-      TotallyOrdered<I>() &&
       DerivedFrom<IteratorCategory<I>, random_access_iterator_tag>() &&
-      SizedIteratorRange<I, I>() &&
+      TotallyOrdered<I>() &&
+      ext::RandomAccessIncrementable<I>() &&
       __random_access_iterator<I>;
   }
 
