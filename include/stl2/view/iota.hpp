@@ -21,7 +21,7 @@
 STL2_OPEN_NAMESPACE {
   WeaklyIncrementable{I}
   class iota_view {
-    I first_;
+    I first_{};
   public:
     class iterator {
       I value_;
@@ -139,7 +139,9 @@ STL2_OPEN_NAMESPACE {
       }
     };
 
-    constexpr iota_view(I first = 0) noexcept : first_{first} {}
+    constexpr iota_view() = default;
+    constexpr iota_view(I first) noexcept :
+      first_(__stl2::move(first)) {}
 
     constexpr iterator begin() const noexcept { return {*this}; }
     constexpr unreachable end() const noexcept { return {}; }
