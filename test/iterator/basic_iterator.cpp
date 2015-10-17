@@ -45,10 +45,9 @@ class repeat_view : stl2::view_base, stl2::detail::ebo_box<T> {
   class cursor : stl2::detail::cheap_reference_box_t<const T> {
     using storage_t = stl2::detail::cheap_reference_box_t<const T>;
   public:
-    using value_type = T;
     using difference_type = std::ptrdiff_t;
     using reference = meta::if_c<
-      stl2::detail::cheaply_copyable<T>, value_type, const value_type&>;
+      stl2::detail::cheaply_copyable<T>, T, const T&>;
 
     cursor() = default;
     constexpr cursor(const repeat_view& r)
@@ -113,8 +112,6 @@ class forward_list {
 
   class cursor {
   public:
-    using value_type = T;
-
     cursor() = default;
     constexpr cursor(node* ptr) noexcept :
       ptr_{ptr} {}
@@ -212,8 +209,6 @@ using ostream_iterator = stl2::basic_iterator<ostream_cursor<T>>;
 template <class T>
 class pointer_cursor {
 public:
-  using value_type = stl2::decay_t<T>;
-
   pointer_cursor() = default;
   constexpr pointer_cursor(T* ptr) noexcept :
     ptr_{ptr} {}
@@ -273,17 +268,9 @@ public:
   const_iterator end() const { return {elements_ + N}; }
 };
 
-template <class>
-struct maybe_value_type { using type = void; };
-stl2::WeakInputIterator{I}
-struct maybe_value_type<I> { using type = stl2::ValueType<I>; };
-template <class I>
-using maybe_value_t = meta::_t<maybe_value_type<I>>;
-
 stl2::WeakIterator{I}
 class my_counted_cursor {
 public:
-  using value_type = maybe_value_t<I>;
   using difference_type = stl2::DifferenceType<I>;
 
   my_counted_cursor() = default;
@@ -349,7 +336,6 @@ public:
 
 private:
   friend stl2::cursor_access;
-  using value_type = T;
   constexpr T current() const { return Value; }
   constexpr bool equal(always_cursor) const { return true; }
   constexpr void next() const {}

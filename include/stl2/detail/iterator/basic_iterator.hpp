@@ -12,7 +12,6 @@
 #ifndef STL2_DETAIL_ITERATOR_BASIC_ITERATOR_HPP
 #define STL2_DETAIL_ITERATOR_BASIC_ITERATOR_HPP
 
-#include <stl2/detail/cheap_storage.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -49,6 +48,14 @@ STL2_OPEN_NAMESPACE {
     template <detail::MemberValueType C>
     struct value_type<C> {
       using type = typename C::value_type;
+    };
+    template <class C>
+      requires !detail::MemberValueType<C> &&
+        requires (const C& c) {
+          STL2_DEDUCE_AUTO_REF_REF(c.current());
+        }
+    struct value_type<C> {
+      using type = decay_t<decltype(declval<const C&>().current())>;
     };
     template <class C>
     using ValueType = meta::_t<value_type<C>>;
