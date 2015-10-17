@@ -39,6 +39,7 @@ void test_pair() {
 }
 
 void test_constexpr_pair() {
+#if STL2_CONSTEXPR_EXTENSIONS
   constexpr auto t = tp(42, 3.14);
   static_assert(__stl2::models::Same<decltype(t), const TP>);
   constexpr int f = t.first;
@@ -53,6 +54,7 @@ void test_constexpr_pair() {
   CHECK(sg == 3.14);
   constexpr double sf = t.out();
   CHECK(sf == 3.14);
+#endif
 }
 
 void test_tuple() {
@@ -65,6 +67,7 @@ void test_tuple() {
 }
 
 void test_constexpr_tuple() {
+#if STL2_CONSTEXPR_EXTENSIONS
   constexpr auto t = tt(42, 3.14);
   static_assert(__stl2::models::Same<decltype(t), const TT>);
   constexpr int fg = __stl2::get<0>(t);
@@ -75,6 +78,7 @@ void test_constexpr_tuple() {
   CHECK(sg == 3.14);
   constexpr double sf = t.out();
   CHECK(sf == 3.14);
+#endif
 }
 
 void test_conversions() {

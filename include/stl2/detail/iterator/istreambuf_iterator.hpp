@@ -59,9 +59,9 @@ STL2_OPEN_NAMESPACE {
 
     constexpr istreambuf_iterator() noexcept :
       sbuf_{nullptr} {}
-    constexpr istreambuf_iterator(streambuf_type* s) noexcept :
+    STL2_CONSTEXPR_EXT istreambuf_iterator(streambuf_type* s) noexcept :
       sbuf_{s} {}
-    constexpr istreambuf_iterator(const __proxy& p) noexcept :
+    STL2_CONSTEXPR_EXT istreambuf_iterator(const __proxy& p) noexcept :
       istreambuf_iterator{p.sbuf_} {}
     istreambuf_iterator(istream_type& s) noexcept :
       istreambuf_iterator{s.rdbuf()} {}
@@ -85,15 +85,15 @@ STL2_OPEN_NAMESPACE {
       return __proxy{traits::to_char_type(advance()), sbuf_};
     }
 
-    constexpr bool equal(const istreambuf_iterator& b) const noexcept {
+    STL2_CONSTEXPR_EXT bool equal(const istreambuf_iterator& b) const noexcept {
       return (sbuf_ == nullptr) == (b.sbuf_ == nullptr);
     }
 
-    friend constexpr bool operator==(
+    friend STL2_CONSTEXPR_EXT bool operator==(
       const istreambuf_iterator& lhs, const istreambuf_iterator& rhs) noexcept {
         return lhs.equal(rhs);
     }
-    friend constexpr bool operator!=(
+    friend STL2_CONSTEXPR_EXT bool operator!=(
       const istreambuf_iterator& lhs, const istreambuf_iterator& rhs) noexcept {
         return !(lhs == rhs);
     }

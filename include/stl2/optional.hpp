@@ -59,8 +59,6 @@ STL2_OPEN_NAMESPACE {
   };
 
   namespace __optional {
-    using nil_ = monostate;
-
     [[noreturn]] inline bool bad_access() {
       throw bad_optional_access{};
     }
@@ -70,11 +68,10 @@ STL2_OPEN_NAMESPACE {
 
     struct access {
       template <class O>
-      static constexpr decltype(auto) v(O&& o) noexcept {
-        return (__stl2::forward<O>(o).v_);
+      static constexpr auto&& v(O&& o) noexcept {
+        return __stl2::forward<O>(o).v_;
       }
-      template <class T>
-      static constexpr decltype(auto) cv(const optional<T>& o) noexcept {
+      static constexpr decltype(auto) cv(const optional<auto>& o) noexcept {
         return access::v(o);
       }
     };
@@ -98,13 +95,13 @@ STL2_OPEN_NAMESPACE {
 
     template <class T>
     struct convert_visitor {
-      constexpr auto operator()(nil_) const noexcept {
-        return variant<nil_, T>{};
+      constexpr auto operator()(nullopt_t) const noexcept {
+        return variant<nullopt_t, T>{nullopt};
       }
       template <ConvertibleTo<T> U>
       constexpr auto operator()(U&& u) const
       STL2_NOEXCEPT_RETURN(
-        variant<nil_, T>{emplaced_type<T>,
+        variant<nullopt_t, T>{emplaced_type<T>,
           allow_narrowing_conversion(__stl2::forward<U>(u))}
       )
     };
@@ -112,17 +109,17 @@ STL2_OPEN_NAMESPACE {
     Destructible{T}
     class optional {
       friend struct access;
-      variant<nil_, T> v_;
+      variant<nullopt_t, T> v_ = nullopt;
 
       template <class U>
       static constexpr decltype(auto) get_unchecked(U&& v) noexcept {
-        STL2_CONSTEXPR_ASSUME(__stl2::holds_alternative<T>(v));
+        STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<T>(v));
         return __stl2::get_unchecked<T>(__stl2::forward<decltype(v)>(v));
       }
 
       template <class U>
       static constexpr decltype(auto) get(U&& v) {
-        __stl2::holds_alternative<nil_>(v) && bad_access();
+        __stl2::holds_alternative<T>(v) || bad_access();
         return __stl2::get_unchecked<T>(__stl2::forward<decltype(v)>(v));
       }
 
@@ -133,8 +130,6 @@ STL2_OPEN_NAMESPACE {
                     "optional cannot hold nullopt_t");
       static_assert(!is_same<__uncvref<T>, in_place_t>(),
                     "optional cannot hold in_place_t");
-      static_assert(!is_same<__uncvref<T>, monostate>(),
-                    "optional cannot hold monostate");
 
       constexpr optional() noexcept = default;
       constexpr optional(nullopt_t) noexcept :
@@ -163,6 +158,7 @@ STL2_OPEN_NAMESPACE {
           std::initializer_list<U>&, Args...>::value) :
         v_{emplaced_type<T>, il, __stl2::forward<Args>(args)...} {}
 
+      // Extensions: optional<U> converts to optional<T> if U converts to T.
       template <ConvertibleTo<T> U>
         requires Constructible<T, U>()
       constexpr optional(optional<U>&& that)
@@ -185,8 +181,9 @@ STL2_OPEN_NAMESPACE {
         noexcept(is_nothrow_constructible<T, const U&>::value) :
         v_{__stl2::visit(convert_visitor<T>{}, access::cv(that))} {}
 
-      optional& operator=(nullopt_t) & noexcept {
-        v_ = nil_{};
+      STL2_CONSTEXPR_EXT optional&
+      operator=(nullopt_t) & noexcept {
+        v_ = nullopt;
         return *this;
       }
 
@@ -194,19 +191,31 @@ STL2_OPEN_NAMESPACE {
         requires Same<decay_t<U>, T>() &&
           Constructible<T, U>() &&
           Assignable<T&, U>()
-      optional& operator=(U&& u) &
-        noexcept(is_nothrow_constructible<T, U>::value &&
-                 is_nothrow_assignable<T&, U>::value) {
-        if (__stl2::holds_alternative<nil_>(v_)) {
-          v_.emplace<T>(__stl2::forward<U>(u));
-        } else {
-          optional::get_unchecked(v_) = __stl2::forward<U>(u);
+      optional& operator=(U&& u) & {
+        try {
+          v_ = __stl2::forward<U>(u);
+        } catch(...) {
+          v_ = nullopt;
+          throw;
         }
         return *this;
       }
 
+      template <class U>
+        requires Same<decay_t<U>, T>() &&
+          Constructible<T, U>() &&
+          Assignable<T&, U>() &&
+          is_nothrow_move_constructible<T>::value
+      STL2_CONSTEXPR_EXT optional&
+      operator=(U&& u) &
+        noexcept(is_nothrow_assignable<T&, U>::value) {
+        v_ = __stl2::forward<U>(u);
+        return *this;
+      }
+
       template <ConvertibleTo<T> U>
-      optional& operator=(const optional<U>& that) &
+      STL2_CONSTEXPR_EXT optional&
+      operator=(const optional<U>& that) &
         noexcept(is_nothrow_constructible<T, const U&>::value &&
                  is_nothrow_assignable<T&, const U&>::value) {
         if (that) {
@@ -222,7 +231,8 @@ STL2_OPEN_NAMESPACE {
       }
 
       template <ConvertibleTo<T> U>
-      optional& operator=(optional<U>&& that) &
+      STL2_CONSTEXPR_EXT optional&
+      operator=(optional<U>&& that) &
         noexcept(is_nothrow_constructible<T, U>::value &&
                  is_nothrow_assignable<T&, U>::value) {
         if (that) {
@@ -239,13 +249,15 @@ STL2_OPEN_NAMESPACE {
 
       template <class...Args>
         requires Constructible<T, Args...>()
-      void emplace(Args&&...args)
+      STL2_CONSTEXPR_EXT void
+      emplace(Args&&...args)
         noexcept(is_nothrow_constructible<T, Args...>::value) {
         v_.emplace<T>(__stl2::forward<Args>(args)...);
       }
       template <class U, class... Args>
         requires Constructible<T, std::initializer_list<U>&, Args...>()
-      void emplace(std::initializer_list<U> il, Args&&...args)
+      STL2_CONSTEXPR_EXT void
+      emplace(std::initializer_list<U> il, Args&&...args)
         noexcept(is_nothrow_constructible<T,
           std::initializer_list<U>&, Args...>::value) {
         v_.emplace<T>(il, __stl2::forward<Args>(args)...);
@@ -255,7 +267,8 @@ STL2_OPEN_NAMESPACE {
         requires Swappable<T&, U&>() &&
           Constructible<T, U&&>() &&
           Constructible<U, T&&>()
-      void swap(optional<U>& that)
+      STL2_CONSTEXPR_EXT void
+      swap(optional<U>& that)
         noexcept(is_nothrow_move_constructible<T>::value &&
                  is_nothrow_move_constructible<U>::value &&
                  is_nothrow_swappable_v<T&, U&>) {
@@ -297,7 +310,7 @@ STL2_OPEN_NAMESPACE {
       }
 
       constexpr explicit operator bool() const noexcept {
-        return !__stl2::holds_alternative<nil_>(v_);
+        return !__stl2::holds_alternative<nullopt_t>(v_);
       }
 
       constexpr T const& value() const & {
@@ -331,7 +344,8 @@ STL2_OPEN_NAMESPACE {
 
     template <class T, class U>
       requires Swappable<T&, U&>()
-    void swap(optional<T>& lhs, optional<U>& rhs)
+    STL2_CONSTEXPR_EXT void
+    swap(optional<T>& lhs, optional<U>& rhs)
     STL2_NOEXCEPT_RETURN(
       lhs.swap(rhs)
     )
@@ -345,7 +359,7 @@ STL2_OPEN_NAMESPACE {
       constexpr bool operator()(const auto&, const auto&) const noexcept {
         return false;
       }
-      constexpr bool operator()(nil_, nil_) const noexcept {
+      constexpr bool operator()(nullopt_t, nullopt_t) const noexcept {
         return true;
       }
     };

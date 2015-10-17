@@ -160,11 +160,18 @@ STL2_OPEN_NAMESPACE {
 // interpreting constexpr functions.
 // (Probably https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66635)
 #ifdef NDEBUG
-#define STL2_CONSTEXPR_ASSERT(...) (void())
-#define STL2_CONSTEXPR_ASSUME(...) STL2_ASSUME(__VA_ARGS__)
+#define STL2_ASSERT_CONSTEXPR(...) (void())
+#define STL2_ASSUME_CONSTEXPR(...) STL2_ASSUME(__VA_ARGS__)
 #else
-#define STL2_CONSTEXPR_ASSERT(...) (void(!(__VA_ARGS__) && (std::terminate(), true)))
-#define STL2_CONSTEXPR_ASSUME(...) STL2_CONSTEXPR_ASSERT(__VA_ARGS__)
+#include <exception>
+#define STL2_ASSERT_CONSTEXPR(...) (void(!(__VA_ARGS__) && (std::terminate(), true)))
+#define STL2_ASSUME_CONSTEXPR(...) STL2_ASSERT_CONSTEXPR(__VA_ARGS__)
+#endif
+
+#if STL2_CONSTEXPR_EXTENSIONS
+#define STL2_CONSTEXPR_EXT constexpr
+#else
+#define STL2_CONSTEXPR_EXT
 #endif
 
 #endif

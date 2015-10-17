@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <Movable T, class U = T>
     requires Assignable<T&, U>()
-  constexpr T exchange(T& t, U&& u)
+  STL2_CONSTEXPR_EXT T exchange(T& t, U&& u)
     noexcept(is_nothrow_move_constructible<T>::value &&
              is_nothrow_assignable<T&, U>::value) {
     T tmp(__stl2::move(t));
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
     // Extension: less specialized than overloads on different Movable types.
     template <Movable T, Movable U>
       requires Same<T, U>()
-    constexpr void swap(T& a, U& b)
+    STL2_CONSTEXPR_EXT void swap(T& a, U& b)
       noexcept(noexcept(b = __stl2::exchange(a, __stl2::move(b)))) {
       b = __stl2::exchange(a, __stl2::move(b));
     }
@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
 
     template <class T, class U, std::size_t N>
       requires __array_swap_test<T, U>
-    constexpr void swap(T (&t)[N], U (&u)[N])
+    STL2_CONSTEXPR_EXT void swap(T (&t)[N], U (&u)[N])
       noexcept(noexcept(__try_swap(*t, *u)));
 
     template <class T, class U>
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
     struct fn {
       template <class T, class U>
         requires can_swap<T, U>
-      constexpr void operator()(T&& a, U&& b) const
+      STL2_CONSTEXPR_EXT void operator()(T&& a, U&& b) const
       STL2_NOEXCEPT_RETURN(
         (void)swap(__stl2::forward<T>(a), __stl2::forward<U>(b))
       )
@@ -113,7 +113,7 @@ STL2_OPEN_NAMESPACE {
   namespace __swap {
     template <class T, class U, std::size_t N>
       requires __array_swap_test<T, U>
-    constexpr void swap(T (&t)[N], U (&u)[N])
+    STL2_CONSTEXPR_EXT void swap(T (&t)[N], U (&u)[N])
       noexcept(noexcept(__try_swap(*t, *u))) {
       for (std::size_t i = 0; i < N; ++i) {
         __stl2::swap(t[i], u[i]);

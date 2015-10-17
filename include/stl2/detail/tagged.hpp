@@ -96,28 +96,27 @@ STL2_OPEN_NAMESPACE {
     tagged() = default;
   
     // 20150810: Extension, converting constructor from Base&&
-    constexpr tagged(Base&& that)
+    STL2_CONSTEXPR_EXT tagged(Base&& that)
       noexcept(is_nothrow_move_constructible<Base>::value)
       requires MoveConstructible<Base>()
       : Base(static_cast<Base&&>(that)) {}
   
     // 20150810: Extension, converting constructor from const Base&
-    constexpr tagged(const Base& that)
+    STL2_CONSTEXPR_EXT tagged(const Base& that)
       noexcept(is_nothrow_copy_constructible<Base>::value)
       requires CopyConstructible<Base>()
       : Base(static_cast<const Base&>(that)) {}
   
-    // 20150810: Not to spec: constexpr.
     template <class Other>
       requires Constructible<Base, Other>()
-    constexpr tagged(tagged<Other, Tags...>&& that)
+    STL2_CONSTEXPR_EXT tagged(tagged<Other, Tags...>&& that)
       noexcept(is_nothrow_constructible<Base, Other&&>::value)
       : Base(static_cast<Other&&>(that)) {}
   
-    // 20150810: Not to spec: constexpr. Extension: conditional noexcept.
+    // 20150810: Extension: conditional noexcept.
     template <class Other>
       requires Constructible<Base, const Other&>()
-    constexpr tagged(tagged<Other, Tags...> const& that)
+    STL2_CONSTEXPR_EXT tagged(tagged<Other, Tags...> const& that)
       noexcept(is_nothrow_constructible<Base, const Other&>::value)
       : Base(static_cast<const Other&>(that)) {}
   
@@ -159,9 +158,9 @@ STL2_OPEN_NAMESPACE {
     }
   
     // 20150819: Extension.
-    constexpr Base& base() & { return *this; }
-    constexpr const Base& base() const& { return *this; }
-    constexpr Base&& base() && { return __stl2::move(*this); }
+    STL2_CONSTEXPR_EXT Base& base() & { return *this; }
+    STL2_CONSTEXPR_EXT const Base& base() const& { return *this; }
+    STL2_CONSTEXPR_EXT Base&& base() && { return __stl2::move(*this); }
   };
   
   template <class Derived, std::size_t I>

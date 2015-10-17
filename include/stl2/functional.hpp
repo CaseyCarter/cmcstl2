@@ -231,16 +231,21 @@ STL2_OPEN_NAMESPACE {
   public:
     template <class FF>
       requires Constructible<F, FF>()
-    constexpr __not_fn(FF&& arg) :
+    constexpr __not_fn(FF&& arg)
+      noexcept(is_nothrow_constructible<F, FF>::value) :
       f_(__stl2::forward<decltype(arg)>(arg)) {}
 
-    constexpr bool operator()(auto&&...args) & {
+    // FIXME: should return !invoke(f_, args...)
+    constexpr bool operator()(auto&&...args) &
+      noexcept(noexcept(declval<F&>()(__stl2::forward<decltype(args)>(args)...))) {
       return !f_(__stl2::forward<decltype(args)>(args)...);
     }
-    constexpr bool operator()(auto&&...args) const& {
+    constexpr bool operator()(auto&&...args) const&
+      noexcept(noexcept(declval<const F&>()(__stl2::forward<decltype(args)>(args)...))) {
       return !f_(__stl2::forward<decltype(args)>(args)...);
     }
-    constexpr bool operator()(auto&&...args) && {
+    constexpr bool operator()(auto&&...args) &&
+      noexcept(noexcept(declval<F>()(__stl2::forward<decltype(args)>(args)...))) {
       return !__stl2::move(f_)(__stl2::forward<decltype(args)>(args)...);
     }
   };
@@ -248,7 +253,8 @@ STL2_OPEN_NAMESPACE {
   template <class F>
     requires MoveConstructible<F>() &&
       Constructible<decay_t<F>, F>()
-  __not_fn<decay_t<F>> not_fn(F&& f) {
+  STL2_CONSTEXPR_EXT __not_fn<decay_t<F>> not_fn(F&& f)
+    noexcept(is_nothrow_constructible<__not_fn<decay_t<F>>, F>::value) {
     return {__stl2::forward<F>(f)};
   }
 } STL2_CLOSE_NAMESPACE

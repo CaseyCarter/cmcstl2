@@ -36,10 +36,10 @@ STL2_OPEN_NAMESPACE {
 
     constexpr ostream_iterator() noexcept = default;
 
-    constexpr ostream_iterator(ostream_type& s) noexcept :
+    STL2_CONSTEXPR_EXT ostream_iterator(ostream_type& s) noexcept :
       stream_{&s} {}
 
-    constexpr ostream_iterator(ostream_type& s, const charT* delimiter) noexcept :
+    STL2_CONSTEXPR_EXT ostream_iterator(ostream_type& s, const charT* delimiter) noexcept :
       stream_{&s}, delimiter_{delimiter} {}
 
     ostream_iterator& operator=(const T& t) & {
@@ -50,15 +50,15 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
 
-    constexpr ostream_iterator& operator*() noexcept {
+    STL2_CONSTEXPR_EXT ostream_iterator& operator*() noexcept {
       return *this;
     }
 
-    constexpr ostream_iterator& operator++() & noexcept {
+    STL2_CONSTEXPR_EXT ostream_iterator& operator++() & noexcept {
       return *this;
     }
 
-    constexpr ostream_iterator& operator++(int) & noexcept {
+    STL2_CONSTEXPR_EXT ostream_iterator& operator++(int) & noexcept {
       return *this;
     }
 

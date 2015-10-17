@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
     using ostream_type = std::basic_ostream<charT, traits>;
 
     constexpr ostreambuf_iterator() noexcept = default;
-    constexpr ostreambuf_iterator(streambuf_type* s) noexcept :
+    STL2_CONSTEXPR_EXT ostreambuf_iterator(streambuf_type* s) noexcept :
       sbuf_{s} {}
     ostreambuf_iterator(ostream_type& s) noexcept :
       ostreambuf_iterator{s.rdbuf()} {}
@@ -46,13 +46,13 @@ STL2_OPEN_NAMESPACE {
     constexpr ostreambuf_iterator(default_sentinel) noexcept :
       ostreambuf_iterator{} {}
 
-    constexpr ostreambuf_iterator& operator*() {
+    STL2_CONSTEXPR_EXT ostreambuf_iterator& operator*() {
       return *this;
     }
-    constexpr ostreambuf_iterator& operator++() & {
+    STL2_CONSTEXPR_EXT ostreambuf_iterator& operator++() & {
       return *this;
     }
-    constexpr ostreambuf_iterator& operator++(int) & {
+    STL2_CONSTEXPR_EXT ostreambuf_iterator& operator++(int) & {
       return *this;
     }
 
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
 
-    constexpr bool failed() const noexcept {
+    STL2_CONSTEXPR_EXT bool failed() const noexcept {
       return sbuf_ == nullptr;
     }
 
