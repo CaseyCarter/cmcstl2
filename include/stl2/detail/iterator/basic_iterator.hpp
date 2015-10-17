@@ -20,7 +20,8 @@
 #include <stl2/detail/iterator/default_sentinel.hpp>
 
 // TODO:
-// * contiguous iterators?
+// * noexcept
+// * contiguous cursors
 
 STL2_OPEN_NAMESPACE {
   struct cursor_access {
@@ -52,6 +53,13 @@ STL2_OPEN_NAMESPACE {
     template <class C>
     using ValueType = meta::_t<value_type<C>>;
 
+    template <class I>
+      requires requires (I&& i) {
+        STL2_DEDUCE_AUTO_REF_REF(((I&&)i).cursor());
+      }
+    static auto&& cursor(I&& i)
+    STL2_NOEXCEPT_RETURN(__stl2::forward<I>(i).cursor())
+
     template <class Cursor>
       requires requires (Cursor& c) {
         c.current();
@@ -80,18 +88,11 @@ STL2_OPEN_NAMESPACE {
     static void prev(Cursor& c)
     STL2_NOEXCEPT_RETURN((void)c.prev())
 
-    template <class Cursor>
-      requires requires (const Cursor& c) {
-        { c.done() } -> bool;
-      }
-    static bool done(const Cursor& c)
-    STL2_NOEXCEPT_RETURN(bool(c.done()))
-
-    template <class Cursor>
-      requires requires (const Cursor& lhs, const Cursor& rhs) {
+    template <class Cursor, class Other>
+      requires requires (const Cursor& lhs, const Other& rhs) {
         { lhs.equal(rhs) } -> bool;
       }
-    static bool equal(const Cursor& lhs, const Cursor& rhs)
+    static bool equal(const Cursor& lhs, const Other& rhs)
     STL2_NOEXCEPT_RETURN(bool(lhs.equal(rhs)))
 
     template <class Cursor>
@@ -101,11 +102,11 @@ STL2_OPEN_NAMESPACE {
     static void advance(Cursor& c, DifferenceType<Cursor> n)
     STL2_NOEXCEPT_RETURN((void)c.advance(n))
 
-    template <class Cursor>
-      requires requires (const Cursor& lhs, const Cursor& rhs) {
+    template <class Cursor, class Other>
+      requires requires (const Cursor& lhs, const Other& rhs) {
         { lhs.distance_to(rhs) } -> DifferenceType<Cursor>;
       }
-    static DifferenceType<Cursor> distance(const Cursor& lhs, const Cursor& rhs)
+    static DifferenceType<Cursor> distance(const Cursor& lhs, const Other& rhs)
     STL2_NOEXCEPT_RETURN(DifferenceType<Cursor>(lhs.distance_to(rhs)))
   };
 
@@ -115,10 +116,6 @@ STL2_OPEN_NAMESPACE {
       cursor_access::current(c);
     };
     template <class C>
-    concept bool CursorDone = requires (const C& c) {
-      cursor_access::done(c);
-    };
-    template <class C>
     concept bool CursorNext = requires (C& c) {
       cursor_access::next(c);
     };
@@ -126,37 +123,42 @@ STL2_OPEN_NAMESPACE {
     concept bool CursorPrev = requires (C& c) {
       cursor_access::prev(c);
     };
+    template <class C, class O>
+    concept bool CursorEqual =
+      requires (const C& l, const O& r) {
+        cursor_access::equal(l, r);
+      };
     template <class C>
-    concept bool CursorEqual = requires (const C& l, const C& r) {
-      cursor_access::equal(l, r);
-    };
-    template <class C>
-    concept bool CursorAdvance = requires (C& c, cursor_access::DifferenceType<C> n) {
-      cursor_access::advance(c, n);
-    };
-    template <class C>
-    concept bool CursorDistance = requires (const C& l, const C& r) {
-      cursor_access::distance(l, r);
-    };
+    concept bool CursorAdvance =
+      requires (C& c, cursor_access::DifferenceType<C> n) {
+        cursor_access::advance(c, n);
+      };
+    template <class C, class O>
+    concept bool CursorDistance =
+      requires (const C& l, const O& r) {
+        cursor_access::distance(l, r);
+      };
     template <class C, class T>
-    concept bool CursorWrite = requires (C& c, T&& t) {
-      cursor_access::write(c, __stl2::forward<T>(t));
-    };
+    concept bool CursorWrite =
+      requires (C& c, T&& t) {
+        cursor_access::write(c, __stl2::forward<T>(t));
+      };
 
     template <class C>
     concept bool InputCursor =
-      Semiregular<C>() && CursorCurrent<C> && CursorNext<C> && requires {
+      Semiregular<C>() && CursorCurrent<C> &&
+      CursorNext<C> && requires {
         typename cursor_access::ValueType<C>;
       };
     template <class C>
     concept bool ForwardCursor =
-      InputCursor<C> && CursorEqual<C>;
+      InputCursor<C> && CursorEqual<C, C>;
     template <class C>
     concept bool BidirectionalCursor =
       ForwardCursor<C> && CursorPrev<C>;
     template <class C>
     concept bool RandomAccessCursor =
-      BidirectionalCursor<C> && CursorAdvance<C> && CursorDistance<C>;
+      BidirectionalCursor<C> && CursorAdvance<C> && CursorDistance<C, C>;
 
     template <class>
     struct cursor_category {};
@@ -191,102 +193,10 @@ STL2_OPEN_NAMESPACE {
       basic_iterator_base& operator=(const basic_iterator_base&) & = default;
       basic_iterator_base& operator=(basic_iterator_base&&) & = default;
 
-      friend bool operator==(const basic_iterator_base& i, default_sentinel)
-        noexcept(noexcept(cursor_access::done(i.cursor())))
-        requires detail::CursorDone<Cursor> {
-        return cursor_access::done(i.cursor());
-      }
-      friend bool operator==(default_sentinel, const basic_iterator_base& i)
-        noexcept(noexcept(cursor_access::done(i.cursor())))
-        requires detail::CursorDone<Cursor> {
-        return cursor_access::done(i.cursor());
-      }
-      friend bool operator!=(const basic_iterator_base& i, default_sentinel)
-        noexcept(noexcept(cursor_access::done(i.cursor())))
-        requires detail::CursorDone<Cursor> {
-        return !cursor_access::done(i.cursor());
-      }
-      friend bool operator!=(default_sentinel, const basic_iterator_base& i)
-        noexcept(noexcept(cursor_access::done(i.cursor())))
-        requires detail::CursorDone<Cursor> {
-        return !cursor_access::done(i.cursor());
-      }
-
-      friend bool operator<(const basic_iterator_base& i, default_sentinel)
-        noexcept(noexcept(cursor_access::done(i.cursor())))
-        requires detail::CursorDone<Cursor> {
-        return !cursor_access::done(i.cursor());
-      }
-      friend bool operator<(default_sentinel, const basic_iterator_base&)
-        noexcept requires detail::CursorDone<Cursor> {
-        return false;
-      }
-
-      friend bool operator>(default_sentinel, const basic_iterator_base& i)
-        noexcept(noexcept(cursor_access::done(i.cursor())))
-        requires detail::CursorDone<Cursor> {
-        return !cursor_access::done(i.cursor());
-      }
-      friend bool operator>(const basic_iterator_base&, default_sentinel)
-        noexcept requires detail::CursorDone<Cursor> {
-        return false;
-      }
-
-      friend bool operator<=(default_sentinel, const basic_iterator_base& i)
-        noexcept(noexcept(cursor_access::done(i.cursor())))
-        requires detail::CursorDone<Cursor> {
-        return cursor_access::done(i.cursor());
-      }
-      friend bool operator<=(const basic_iterator_base&, default_sentinel)
-        noexcept requires detail::CursorDone<Cursor> {
-        return true;
-      }
-
-      friend bool operator>=(const basic_iterator_base& i, default_sentinel)
-        noexcept(noexcept(cursor_access::done(i.cursor())))
-        requires detail::CursorDone<Cursor> {
-        return cursor_access::done(i.cursor());
-      }
-      friend bool operator>=(default_sentinel, const basic_iterator_base&)
-        noexcept requires detail::CursorDone<Cursor> {
-        return true;
-      }
-
-      friend bool operator==(const basic_iterator_base& lhs, const basic_iterator_base& rhs)
-        noexcept(noexcept(cursor_access::equal(lhs.cursor(), rhs.cursor())))
-        requires detail::CursorEqual<Cursor> {
-        return cursor_access::equal(lhs.cursor(), rhs.cursor());
-      }
-      friend bool operator!=(const basic_iterator_base& lhs, const basic_iterator_base& rhs)
-        noexcept(noexcept(cursor_access::equal(lhs.cursor(), rhs.cursor())))
-        requires detail::CursorEqual<Cursor> {
-        return !cursor_access::equal(lhs.cursor(), rhs.cursor());
-      }
-
-      friend bool operator<(const basic_iterator_base& lhs, const basic_iterator_base& rhs)
-        noexcept(noexcept(cursor_access::distance(rhs.cursor(), lhs.cursor())))
-        requires detail::CursorDistance<Cursor> {
-        return cursor_access::distance(rhs.cursor(), lhs.cursor()) > difference_type{0};
-      }
-      friend bool operator>(const basic_iterator_base& lhs, const basic_iterator_base& rhs)
-        noexcept(noexcept(rhs < lhs))
-        requires detail::CursorDistance<Cursor> {
-        return rhs < lhs;
-      }
-      friend bool operator<=(const basic_iterator_base& lhs, const basic_iterator_base& rhs)
-        noexcept(noexcept(rhs < lhs))
-        requires detail::CursorDistance<Cursor> {
-        return !(rhs < lhs);
-      }
-      friend bool operator>=(const basic_iterator_base& lhs, const basic_iterator_base& rhs)
-        noexcept(noexcept(lhs < rhs))
-        requires detail::CursorDistance<Cursor> {
-        return !(lhs < rhs);
-      }
-
     protected:
       ~basic_iterator_base() = default;
 
+      friend cursor_access;
       Cursor& cursor() & { return ebo_box<Cursor>::get(); }
       const Cursor& cursor() const& { return ebo_box<Cursor>::get(); }
       Cursor&& cursor() && { return ebo_box<Cursor>::get(); }
@@ -340,22 +250,31 @@ STL2_OPEN_NAMESPACE {
       return cursor_access::current(cursor());
     }
 
-    basic_iterator& operator++() & {
+    basic_iterator& operator++() &
+    noexcept(noexcept(cursor_access::next(declval<Cursor&>()))) {
       cursor_access::next(cursor());
       return *this;
     }
-    basic_iterator operator++(int) & {
+
+    basic_iterator operator++(int) &
+      noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
+               is_nothrow_move_constructible<basic_iterator>::value &&
+               noexcept(cursor_access::next(declval<Cursor&>()))) {
       auto tmp = *this;
       cursor_access::next(cursor());
       return tmp;
     }
 
     basic_iterator& operator--() &
+      noexcept(noexcept(cursor_access::prev(declval<Cursor&>())))
       requires detail::CursorPrev<Cursor> {
       cursor_access::prev(cursor());
       return *this;
     }
     basic_iterator operator--(int) &
+      noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
+               is_nothrow_move_constructible<basic_iterator>::value &&
+               noexcept(cursor_access::prev(declval<Cursor&>())))
       requires detail::CursorPrev<Cursor> {
       auto tmp = *this;
       cursor_access::prev(cursor());
@@ -388,16 +307,175 @@ STL2_OPEN_NAMESPACE {
       return i + -n;
     }
 
-    friend difference_type operator-(const basic_iterator& lhs, const basic_iterator& rhs)
-      requires detail::CursorDistance<Cursor> {
-      return cursor_access::distance(rhs.cursor(), lhs.cursor());
-    }
-
     decltype(auto) operator[](difference_type n) const
       requires detail::CursorAdvance<Cursor> {
       return *(*this + n);
     }
   };
+
+  template <class Cursor>
+    requires detail::CursorEqual<Cursor, Cursor>
+  constexpr bool operator==(const basic_iterator<Cursor>& lhs,
+                            const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    cursor_access::equal(cursor_access::cursor(lhs),
+                         cursor_access::cursor(rhs))
+  )
+
+  template <class Cursor, class Other>
+    requires detail::CursorEqual<Cursor, Other>
+  constexpr bool operator==(const basic_iterator<Cursor>& lhs, const Other& rhs)
+  STL2_NOEXCEPT_RETURN(
+    cursor_access::equal(cursor_access::cursor(lhs), rhs)
+  )
+
+  template <class Cursor, class Other>
+    requires detail::CursorEqual<Cursor, Other>
+  constexpr bool operator==(const Other& lhs, const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    cursor_access::equal(cursor_access::cursor(rhs), lhs)
+  )
+
+  template <class Cursor>
+    requires detail::CursorEqual<Cursor, Cursor>
+  constexpr bool operator!=(const basic_iterator<Cursor>& lhs,
+                            const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    !cursor_access::equal(cursor_access::cursor(lhs),
+                          cursor_access::cursor(rhs))
+  )
+
+  template <class Cursor, class Other>
+    requires detail::CursorEqual<Cursor, Other>
+  constexpr bool operator!=(const basic_iterator<Cursor>& lhs, const Other& rhs)
+  STL2_NOEXCEPT_RETURN(
+    !cursor_access::equal(cursor_access::cursor(lhs), rhs)
+  )
+
+  template <class Cursor, class Other>
+    requires detail::CursorEqual<Cursor, Other>
+  constexpr bool operator!=(const Other& lhs, const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    !cursor_access::equal(cursor_access::cursor(rhs), lhs)
+  )
+
+  template <class Cursor>
+    requires detail::CursorDistance<Cursor, Cursor>
+  constexpr cursor_access::DifferenceType<Cursor>
+  operator-(const basic_iterator<Cursor>& lhs, const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    cursor_access::distance(cursor_access::cursor(rhs),
+                            cursor_access::cursor(lhs))
+  )
+
+  template <class Cursor, class Other>
+    requires detail::CursorDistance<Cursor, Other>
+  constexpr cursor_access::DifferenceType<Cursor>
+  operator-(const basic_iterator<Cursor>& lhs, const Other& rhs)
+  STL2_NOEXCEPT_RETURN(
+    -cursor_access::distance(cursor_access::cursor(lhs), rhs)
+  )
+
+  template <class Cursor, class Other>
+    requires detail::CursorDistance<Cursor, Other>
+  constexpr cursor_access::DifferenceType<Cursor>
+  operator-(const Other& lhs, const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    cursor_access::distance(cursor_access::cursor(rhs), lhs)
+  )
+
+  template <class Cursor>
+    requires detail::CursorDistance<Cursor, Cursor>
+  constexpr bool operator<(const basic_iterator<Cursor>& lhs,
+                           const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    cursor_access::distance(cursor_access::cursor(rhs),
+                            cursor_access::cursor(lhs)) > 0
+  )
+
+  template <class Cursor>
+    requires detail::CursorEqual<Cursor, default_sentinel>
+  constexpr bool operator<(const basic_iterator<Cursor>& lhs,
+                           default_sentinel rhs)
+  STL2_NOEXCEPT_RETURN(
+    !cursor_access::equal(cursor_access::cursor(lhs), rhs)
+  )
+
+  template <class Cursor>
+    requires detail::CursorEqual<Cursor, default_sentinel>
+  constexpr bool operator<(default_sentinel,
+                           const basic_iterator<Cursor>&) noexcept {
+    return false;
+  }
+
+  template <class Cursor>
+    requires detail::CursorDistance<Cursor, Cursor>
+  constexpr bool operator>(const basic_iterator<Cursor>& lhs,
+                           const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    rhs < lhs
+  )
+
+  template <class Cursor>
+    requires detail::CursorEqual<Cursor, default_sentinel>
+  constexpr bool operator>(default_sentinel lhs,
+                           const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    !cursor_access::equal(cursor_access::cursor(rhs), lhs)
+  )
+
+  template <class Cursor>
+    requires detail::CursorEqual<Cursor, default_sentinel>
+  constexpr bool operator>(const basic_iterator<Cursor>&,
+                           default_sentinel) noexcept {
+    return false;
+  }
+
+  template <class Cursor>
+    requires detail::CursorDistance<Cursor, Cursor>
+  constexpr bool operator<=(const basic_iterator<Cursor>& lhs,
+                            const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    !(rhs < lhs)
+  )
+
+  template <class Cursor>
+    requires detail::CursorEqual<Cursor, default_sentinel>
+  constexpr bool operator<=(default_sentinel lhs,
+                            const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    cursor_access::equal(cursor_access::cursor(rhs), lhs)
+  )
+
+  template <class Cursor>
+    requires detail::CursorEqual<Cursor, default_sentinel>
+  constexpr bool operator<=(const basic_iterator<Cursor>&,
+                            default_sentinel) noexcept {
+    return true;
+  }
+
+  template <class Cursor>
+    requires detail::CursorDistance<Cursor, Cursor>
+  constexpr bool operator>=(const basic_iterator<Cursor>& lhs,
+                            const basic_iterator<Cursor>& rhs)
+  STL2_NOEXCEPT_RETURN(
+    !(lhs < rhs)
+  )
+
+  template <class Cursor>
+    requires detail::CursorEqual<Cursor, default_sentinel>
+  constexpr bool operator>=(default_sentinel,
+                            const basic_iterator<Cursor>&) noexcept {
+    return true;
+  }
+
+  template <class Cursor>
+    requires detail::CursorEqual<Cursor, default_sentinel>
+  constexpr bool operator>=(const basic_iterator<Cursor>& lhs,
+                            default_sentinel rhs)
+  STL2_NOEXCEPT_RETURN(
+    cursor_access::equal(cursor_access::cursor(lhs), rhs)
+  )
 } STL2_CLOSE_NAMESPACE
 
 #endif
