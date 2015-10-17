@@ -41,109 +41,140 @@ STL2_OPEN_NAMESPACE {
           weak_input_iterator_tag>;
 
       iterator() = default;
-      constexpr iterator(const iota_view& v) noexcept :
+      constexpr iterator(const iota_view& v)
+        noexcept(is_nothrow_copy_constructible<I>::value) :
         value_{v.first_} {}
 
-      constexpr I operator*() const noexcept {
+      constexpr I operator*() const
+        noexcept(is_nothrow_copy_constructible<I>::value) {
         return value_;
       }
 
-      constexpr iterator& operator++() & noexcept {
+      constexpr iterator& operator++() &
+        noexcept(noexcept(++declval<I&>())) {
         ++value_;
         return *this;
       }
-      constexpr iterator operator++(int) & noexcept {
+      constexpr iterator operator++(int) &
+        noexcept(is_nothrow_copy_constructible<I>::value &&
+                 is_nothrow_move_constructible<I>::value &&
+                 noexcept(++declval<I&>())) {
         auto tmp = *this;
         ++*this;
         return tmp;
       }
 
-      constexpr iterator& operator--() & noexcept
+      constexpr iterator& operator--() &
+        noexcept(noexcept(--declval<I&>()))
         requires ext::Decrementable<I>() {
         --value_;
         return *this;
       }
-      constexpr iterator operator--(int) & noexcept
+      constexpr iterator operator--(int) &
+        noexcept(is_nothrow_copy_constructible<I>::value &&
+                 is_nothrow_move_constructible<I>::value &&
+                 noexcept(--declval<I&>()))
         requires ext::Decrementable<I>() {
         auto tmp = *this;
         --*this;
         return tmp;
       }
 
-      constexpr I operator[](difference_type n) const noexcept
+      constexpr I operator[](difference_type n) const
+        noexcept(noexcept(declval<const I&>() + n))
         requires ext::RandomAccessIncrementable<I>() {
         return value_ + n;
       }
 
-      constexpr iterator& operator+=(difference_type n) & noexcept
+      constexpr iterator& operator+=(difference_type n) &
+        noexcept(noexcept(declval<I&>() += n))
         requires ext::RandomAccessIncrementable<I>() {
         value_ += n;
         return *this;
       }
-      constexpr iterator& operator-=(difference_type n) & noexcept
+      constexpr iterator& operator-=(difference_type n) &
+        noexcept(noexcept(declval<I&>() -= n))
         requires ext::RandomAccessIncrementable<I>() {
         value_ -= n;
         return *this;
       }
 
-      constexpr iterator operator+(difference_type n) const noexcept
+      constexpr iterator operator+(difference_type n) const
+        noexcept(noexcept(iterator{declval<const I&>() + n}))
         requires ext::RandomAccessIncrementable<I>() {
         return {value_ + n};
       }
-      constexpr iterator operator-(difference_type n) const noexcept
+      constexpr iterator operator-(difference_type n) const
+        noexcept(noexcept(iterator{declval<const I&>() - n}))
         requires ext::RandomAccessIncrementable<I>() {
         return {value_ - n};
       }
       friend constexpr iterator
-      operator+(difference_type n, const iterator& i) noexcept
+      operator+(difference_type n, const iterator& i)
+        noexcept(noexcept(i + n))
         requires ext::RandomAccessIncrementable<I>() {
         return i + n;
       }
 
       friend constexpr difference_type
-      operator-(const iterator& lhs, const iterator& rhs) noexcept
+      operator-(const iterator& lhs, const iterator& rhs)
+        noexcept(noexcept(lhs.value_ - rhs.value_))
         requires ext::RandomAccessIncrementable<I>() {
         return lhs.value_ - rhs.value_;
       }
 
       friend constexpr bool
-      operator==(const iterator& lhs, const iterator& rhs) noexcept
+      operator==(const iterator& lhs, const iterator& rhs)
+        noexcept(noexcept(lhs.value_ == rhs.value_))
         requires EqualityComparable<I>() {
         return lhs.value_ == rhs.value_;
       }
       friend constexpr bool
-      operator!=(const iterator& lhs, const iterator& rhs) noexcept
+      operator!=(const iterator& lhs, const iterator& rhs)
+        noexcept(noexcept(lhs.value_ != rhs.value_))
         requires EqualityComparable<I>() {
         return lhs.value_ != rhs.value_;
       }
 
       friend constexpr bool
-      operator<(const iterator& lhs, const iterator& rhs) noexcept
+      operator<(const iterator& lhs, const iterator& rhs)
+        noexcept(noexcept(lhs.value_ < rhs.value_))
         requires TotallyOrdered<I>() {
         return lhs.value_ < rhs.value_;
       }
       friend constexpr bool
-      operator>(const iterator& lhs, const iterator& rhs) noexcept
+      operator>(const iterator& lhs, const iterator& rhs)
+        noexcept(noexcept(lhs.value_ > rhs.value_))
         requires TotallyOrdered<I>() {
         return lhs.value_ > rhs.value_;
       }
       friend constexpr bool
-      operator<=(const iterator& lhs, const iterator& rhs) noexcept
+      operator<=(const iterator& lhs, const iterator& rhs)
+        noexcept(noexcept(lhs.value_ <= rhs.value_))
         requires TotallyOrdered<I>() {
         return lhs.value_ <= rhs.value_;
       }
       friend constexpr bool
-      operator>=(const iterator& lhs, const iterator& rhs) noexcept
+      operator>=(const iterator& lhs, const iterator& rhs)
+        noexcept(noexcept(lhs.value_ >= rhs.value_))
         requires TotallyOrdered<I>() {
         return lhs.value_ >= rhs.value_;
       }
     };
 
-    constexpr iota_view() = default;
-    constexpr iota_view(I first) noexcept :
+    constexpr iota_view()
+      noexcept(is_nothrow_default_constructible<I>::value) = default;
+    constexpr iota_view(I&& first)
+      noexcept(is_nothrow_move_constructible<I>::value) :
       first_(__stl2::move(first)) {}
+    constexpr iota_view(const I& first)
+      noexcept(is_nothrow_copy_constructible<I>::value) :
+      first_(first) {}
 
-    constexpr iterator begin() const noexcept { return {*this}; }
+    constexpr iterator begin() const
+      noexcept(noexcept(iterator{declval<iota_view&>()})) {
+      return {*this};
+    }
     constexpr unreachable end() const noexcept { return {}; }
   };
 } STL2_CLOSE_NAMESPACE
