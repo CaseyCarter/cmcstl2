@@ -180,38 +180,20 @@ STL2_OPEN_NAMESPACE {
     };
     template <class C>
     using CursorCategory = meta::_t<cursor_category<C>>;
-
-    template <Semiregular Cursor>
-    class basic_iterator_base : ebo_box<Cursor> {
-    public:
-      using difference_type = cursor_access::DifferenceType<Cursor>;
-      basic_iterator_base() = default;
-      using ebo_box<Cursor>::ebo_box;
-
-      basic_iterator_base(const basic_iterator_base&) = default;
-      basic_iterator_base(basic_iterator_base&&) = default;
-      basic_iterator_base& operator=(const basic_iterator_base&) & = default;
-      basic_iterator_base& operator=(basic_iterator_base&&) & = default;
-
-    protected:
-      ~basic_iterator_base() = default;
-
-      friend cursor_access;
-      Cursor& cursor() & { return ebo_box<Cursor>::get(); }
-      const Cursor& cursor() const& { return ebo_box<Cursor>::get(); }
-      Cursor&& cursor() && { return ebo_box<Cursor>::get(); }
-    };
   }
 
   template <Semiregular Cursor>
-  class basic_iterator :
-    public detail::basic_iterator_base<Cursor> {
-    using base_t = detail::basic_iterator_base<Cursor>;
-    using base_t::cursor;
+  class basic_iterator : public Cursor {
   public:
-    using difference_type = typename base_t::difference_type;
+    friend cursor_access;
+    using difference_type = cursor_access::DifferenceType<Cursor>;
 
-    using base_t::base_t;
+    basic_iterator() = default;
+    basic_iterator(Cursor c)
+      noexcept(is_nothrow_move_constructible<Cursor>::value) :
+      Cursor(__stl2::move(c)) {}
+
+    using Cursor::Cursor;
 
     basic_iterator& operator*() {
       return *this;
@@ -230,19 +212,27 @@ STL2_OPEN_NAMESPACE {
       cursor_access::write(cursor(), __stl2::forward<T>(t));
       return *this;
     }
+
+  private:
+    Cursor& cursor() & { return static_cast<Cursor&>(*this); }
+    const Cursor& cursor() const& { return static_cast<const Cursor&>(*this); }
+    Cursor&& cursor() && { return static_cast<Cursor&&>(*this); }
   };
 
   template <detail::InputCursor Cursor>
-  class basic_iterator<Cursor> :
-    public detail::basic_iterator_base<Cursor> {
-    using base_t = detail::basic_iterator_base<Cursor>;
-    using base_t::cursor;
+  class basic_iterator<Cursor> : public Cursor {
   public:
-    using difference_type = typename base_t::difference_type;
+    friend cursor_access;
+    using difference_type = cursor_access::DifferenceType<Cursor>;
     using value_type = cursor_access::ValueType<Cursor>;
     using iterator_category = detail::CursorCategory<Cursor>;
 
-    using base_t::base_t;
+    basic_iterator() = default;
+    basic_iterator(Cursor c)
+      noexcept(is_nothrow_move_constructible<Cursor>::value) :
+      Cursor(__stl2::move(c)) {}
+
+    using Cursor::Cursor;
 
     decltype(auto) operator*() const
       noexcept(noexcept(cursor_access::current(declval<const Cursor&>())))
@@ -311,6 +301,11 @@ STL2_OPEN_NAMESPACE {
       requires detail::CursorAdvance<Cursor> {
       return *(*this + n);
     }
+
+  private:
+    Cursor& cursor() & { return static_cast<Cursor&>(*this); }
+    const Cursor& cursor() const& { return static_cast<const Cursor&>(*this); }
+    Cursor&& cursor() && { return static_cast<Cursor&&>(*this); }
   };
 
   template <class Cursor>
