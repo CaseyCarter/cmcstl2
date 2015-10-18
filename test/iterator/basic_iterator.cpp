@@ -12,31 +12,68 @@ namespace stl2 = __stl2;
 template <class> class show_type;
 
 template <class Container>
-class front_insert_cursor {
+class insert_cursor_base {
 public:
-  front_insert_cursor() = default;
-  constexpr front_insert_cursor(Container& c) noexcept :
-    c_{&c} {}
+  using container_type = Container;
+
+  constexpr insert_cursor_base() noexcept = default;
+  constexpr explicit insert_cursor_base(Container& c) noexcept :
+    container{&c} {}
+
+protected:
+  Container* container = nullptr;
+};
+
+template <class Container>
+class back_insert_cursor : public insert_cursor_base<Container> {
+  using base_t = insert_cursor_base<Container>;
+public:
+  back_insert_cursor() = default;
+  using base_t::base_t;
 
 private:
-  stl2::detail::raw_ptr<Container> c_;
+  friend stl2::cursor_access;
+  template <class T>
+    requires requires(Container& c, T&& t) {
+      c.push_back(stl2::forward<T>(t));
+    }
+  constexpr void write(T&& t)
+    noexcept(noexcept(
+      stl2::declval<Container&>().push_back(stl2::forward<T>(t)))) {
+    base_t::container->push_back(stl2::forward<T>(t));
+  }
+};
+template <class Container>
+using back_insert_iterator = stl2::basic_iterator<back_insert_cursor<Container>>;
+template <class Container>
+constexpr auto back_inserter(Container& c)
+STL2_NOEXCEPT_RETURN(back_insert_iterator<Container>{c})
 
+template <class Container>
+class front_insert_cursor : public insert_cursor_base<Container> {
+  using base_t = insert_cursor_base<Container>;
+public:
+  front_insert_cursor() = default;
+  using base_t::base_t;
+
+private:
   friend stl2::cursor_access;
   template <class T>
     requires requires(Container& c, T&& t) {
       c.push_front(stl2::forward<T>(t));
     }
-  void write(T&& t) {
-    c_->push_front(stl2::forward<T>(t));
+  constexpr void write(T&& t)
+    noexcept(noexcept(
+      stl2::declval<Container&>().push_front(stl2::forward<T>(t)))) {
+    base_t::container->push_front(stl2::forward<T>(t));
   }
 };
 template <class Container>
 using front_insert_iterator = stl2::basic_iterator<front_insert_cursor<Container>>;
 
 template <class Container>
-front_insert_iterator<Container> front_inserter(Container& c) {
-  return {c};
-}
+constexpr auto front_inserter(Container& c)
+STL2_NOEXCEPT_RETURN(front_insert_iterator<Container>{c})
 
 template <stl2::Semiregular T>
 class repeat_view : stl2::view_base, stl2::detail::ebo_box<T> {
@@ -76,7 +113,7 @@ public:
   using value_type = T;
 
   repeat_view() = default;
-  repeat_view(T value)
+  constexpr repeat_view(T value)
     noexcept(stl2::is_nothrow_constructible<storage_t, T>::value) :
     storage_t{stl2::move(value)} {}
 
@@ -102,7 +139,7 @@ class forward_list {
 
     template <class...Args>
       requires stl2::Constructible<T, Args...>()
-    node(Args&&...args)
+    constexpr node(Args&&...args)
       noexcept(stl2::is_nothrow_constructible<T, Args...>::value) :
       data_(stl2::forward<Args>(args)...) {}
 
@@ -122,9 +159,9 @@ class forward_list {
     stl2::detail::raw_ptr<node> ptr_;
 
     friend stl2::cursor_access;
-    T& current() const noexcept { return ptr_->data_; }
-    void next() noexcept { ptr_ = ptr_->next_.get(); }
-    bool equal(const cursor& that) const noexcept { return ptr_ == that.ptr_; }
+    constexpr T& current() const noexcept { return ptr_->data_; }
+    constexpr void next() noexcept { ptr_ = ptr_->next_.get(); }
+    constexpr bool equal(const cursor& that) const noexcept { return ptr_ == that.ptr_; }
   };
 
   std::unique_ptr<node> head_ = nullptr;
@@ -139,8 +176,8 @@ public:
     stl2::copy(stl2::rbegin(il), stl2::rend(il), ::front_inserter(*this));
   }
 
-  iterator begin() noexcept { return {head_.get()}; }
-  stl2::default_sentinel end() const noexcept { return {}; }
+  constexpr iterator begin() noexcept { return {head_.get()}; }
+  constexpr stl2::default_sentinel end() const noexcept { return {}; }
 
   template <class...Args>
     requires stl2::Constructible<T, Args...>()
@@ -163,7 +200,8 @@ public:
 class ostream_cursor_base {
 public:
   ostream_cursor_base() = default;
-  ostream_cursor_base(std::ostream& os, const char* delimiter = nullptr) :
+  constexpr ostream_cursor_base(std::ostream& os, const char* delimiter = nullptr)
+    noexcept :
     os_{&os}, delimiter_{delimiter} {}
 
 protected:
@@ -222,33 +260,32 @@ private:
   T* ptr_;
 
   friend stl2::cursor_access;
-  auto& current() const noexcept {
-    STL2_ASSUME(ptr_);
+  constexpr auto& current() const noexcept {
+    STL2_ASSUME_CONSTEXPR(ptr_);
     return *ptr_;
   }
 
-  auto next() noexcept {
-    STL2_ASSUME(ptr_);
+  constexpr auto next() noexcept {
+    STL2_ASSUME_CONSTEXPR(ptr_);
     ++ptr_;
   }
 
-  auto equal(const pointer_cursor& that) const noexcept {
+  constexpr auto equal(const pointer_cursor& that) const noexcept {
     return ptr_ == that.ptr_;
   }
 
-  auto prev() noexcept {
-    STL2_ASSUME(ptr_);
+  constexpr auto prev() noexcept {
+    STL2_ASSUME_CONSTEXPR(ptr_);
     --ptr_;
   }
 
-  auto advance(std::ptrdiff_t n) noexcept {
-    STL2_ASSUME(ptr_);
+  constexpr auto advance(std::ptrdiff_t n) noexcept {
+    STL2_ASSUME_CONSTEXPR(ptr_);
     ptr_ += n;
   }
 
-  auto distance_to(const pointer_cursor& that) const noexcept {
-    STL2_ASSUME(that.ptr_);
-    STL2_ASSUME(ptr_);
+  constexpr auto distance_to(const pointer_cursor& that) const noexcept {
+    STL2_ASSUME_CONSTEXPR(!that.ptr_ == !ptr_);
     return that.ptr_ - ptr_;
   }
 };
@@ -262,10 +299,10 @@ public:
   using iterator = stl2::basic_iterator<pointer_cursor<T>>;
   using const_iterator = stl2::basic_iterator<pointer_cursor<const T>>;
 
-  iterator begin() { return {elements_ + 0}; }
-  iterator end() { return {elements_ + N}; }
-  const_iterator begin() const { return {elements_ + 0}; }
-  const_iterator end() const { return {elements_ + N}; }
+  constexpr iterator begin() noexcept { return {elements_ + 0}; }
+  constexpr iterator end() noexcept { return {elements_ + N}; }
+  constexpr const_iterator begin() const noexcept { return {elements_ + 0}; }
+  constexpr const_iterator end() const noexcept { return {elements_ + N}; }
 };
 
 stl2::WeakIterator{I}
@@ -281,24 +318,32 @@ public:
     noexcept(stl2::is_nothrow_default_constructible<I>::value) :
     it_{}, n_{0} {}
 
-  constexpr I base() const { return it_; }
-  constexpr difference_type count() const { return n_; }
+  constexpr I base() const
+    noexcept(stl2::is_nothrow_copy_constructible<I>::value) {
+    return it_;
+  }
+  constexpr difference_type count() const noexcept { return n_; }
 
 private:
   I it_;
   difference_type n_;
 
   friend stl2::cursor_access;
-  constexpr void next() {
+  constexpr void next()
+    noexcept(noexcept(++stl2::declval<I&>())) {
     ++it_;
     --n_;
   }
+
   template <class T>
     requires stl2::Writable<I, T>()
-  constexpr auto write(T&& t) {
+  constexpr auto write(T&& t)
+    noexcept(noexcept(*stl2::declval<I&>() = stl2::forward<T>(t))) {
     *it_ = stl2::forward<T>(t);
   }
+
   constexpr decltype(auto) current() const
+    noexcept(noexcept(*stl2::declval<const I&>()))
     requires stl2::WeakInputIterator<I>() {
     return *it_;
   }
@@ -309,11 +354,13 @@ private:
     return n_ == that.n_;
   }
   constexpr auto prev()
+    noexcept(noexcept(--stl2::declval<I&>()))
     requires stl2::BidirectionalIterator<I>() {
     ++n_;
     --it_;
   }
   constexpr auto advance(difference_type n)
+    noexcept(noexcept(stl2::declval<I&>() += n))
     requires stl2::RandomAccessIterator<I>() {
     it_ += n;
     n_ -= n;
@@ -332,47 +379,22 @@ using my_counted_iterator = stl2::basic_iterator<my_counted_cursor<I>>;
 template <class T, T Value>
 class always_cursor {
 public:
-  int foo() const { return 42; }
+  constexpr int foo() const noexcept { return 42; }
 
 private:
   friend stl2::cursor_access;
-  constexpr T current() const { return Value; }
-  constexpr bool equal(always_cursor) const { return true; }
-  constexpr void next() const {}
-  constexpr void prev() const {}
-  constexpr void advance(std::ptrdiff_t) const {}
-  constexpr std::ptrdiff_t distance_to(always_cursor) const { return 0; }
+  constexpr T current() const
+    noexcept(stl2::is_nothrow_copy_constructible<T>::value) {
+    return Value;
+  }
+  constexpr bool equal(always_cursor) const noexcept { return true; }
+  constexpr void next() const noexcept {}
+  constexpr void prev() const noexcept {}
+  constexpr void advance(std::ptrdiff_t) const noexcept {}
+  constexpr std::ptrdiff_t distance_to(always_cursor) const noexcept { return 0; }
 };
 template <class T, T Value>
 using always_iterator = stl2::basic_iterator<always_cursor<T, Value>>;
-
-template <class Container>
-class back_insert_cursor {
-public:
-  using container_type = Container;
-
-  constexpr back_insert_cursor() noexcept = default;
-  constexpr explicit back_insert_cursor(Container& c) noexcept :
-    container{&c} {}
-
-protected:
-  Container* container = nullptr;
-
-private:
-  friend stl2::cursor_access;
-  void write(typename Container::value_type&& v) {
-    container->push_back(stl2::move(v));
-  }
-  void write(const typename Container::value_type& v) {
-    container->push_back(v);
-  }
-};
-template <class Container>
-using back_insert_iterator = stl2::basic_iterator<back_insert_cursor<Container>>;
-template <class Container>
-auto back_inserter(Container& c) {
-  return back_insert_iterator<Container>{c};
-}
 
 std::ostream& operator<<(std::ostream& os, forward_list<int>& lst) {
   os << '{';
@@ -403,10 +425,16 @@ void test_fl() {
   *::front_inserter(list) = 3.14;
   std::cout << list << '\n';
   CHECK(list.begin() != list.end());
+  CHECK(noexcept(list.begin() != list.end()));
   CHECK(!(list.begin() == list.end()));
+  CHECK(noexcept(list.begin() == list.end()));
   CHECK(list.begin() != stl2::next(list.begin()));
+  CHECK(noexcept(list.begin() != stl2::next(list.begin())));
   CHECK(!(list.begin() == stl2::next(list.begin())));
-  CHECK(I{} == I{});
+  CHECK(noexcept(list.begin() == stl2::next(list.begin())));
+  static_assert(I{} == I{});
+  CHECK(noexcept(I{} == I{}));
+  CHECK(noexcept(::front_inserter(list)));
 }
 
 void test_rv() {

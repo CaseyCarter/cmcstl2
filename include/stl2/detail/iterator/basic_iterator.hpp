@@ -19,7 +19,6 @@
 #include <stl2/detail/iterator/default_sentinel.hpp>
 
 // TODO:
-// * noexcept
 // * contiguous cursors
 
 STL2_OPEN_NAMESPACE {
@@ -64,56 +63,57 @@ STL2_OPEN_NAMESPACE {
       requires requires (I&& i) {
         STL2_DEDUCE_AUTO_REF_REF(((I&&)i).cursor());
       }
-    static auto&& cursor(I&& i)
+    static constexpr auto&& cursor(I&& i)
     STL2_NOEXCEPT_RETURN(__stl2::forward<I>(i).cursor())
 
     template <class Cursor>
       requires requires (Cursor& c) {
         c.current();
       }
-    static decltype(auto) current(Cursor& c)
+    static constexpr decltype(auto) current(Cursor& c)
     STL2_NOEXCEPT_RETURN(c.current())
 
     template <class Cursor, class T>
       requires requires (Cursor& c, T&& t) {
         c.write(__stl2::forward<T>(t));
       }
-    static void write(Cursor& c, T&& t)
+    static constexpr void write(Cursor& c, T&& t)
     STL2_NOEXCEPT_RETURN((void)c.write(__stl2::forward<T>(t)))
 
     template <class Cursor>
       requires requires (Cursor& c) {
         c.next();
       }
-    static void next(Cursor& c)
+    static constexpr void next(Cursor& c)
     STL2_NOEXCEPT_RETURN((void)c.next())
 
     template <class Cursor>
       requires requires (Cursor& c) {
         c.prev();
       }
-    static void prev(Cursor& c)
+    static constexpr void prev(Cursor& c)
     STL2_NOEXCEPT_RETURN((void)c.prev())
 
     template <class Cursor, class Other>
       requires requires (const Cursor& lhs, const Other& rhs) {
         { lhs.equal(rhs) } -> bool;
       }
-    static bool equal(const Cursor& lhs, const Other& rhs)
+    static constexpr bool equal(const Cursor& lhs, const Other& rhs)
     STL2_NOEXCEPT_RETURN(bool(lhs.equal(rhs)))
 
     template <class Cursor>
       requires requires (Cursor& c, DifferenceType<Cursor> n) {
         c.advance(n);
       }
-    static void advance(Cursor& c, DifferenceType<Cursor> n)
+    static constexpr void advance(Cursor& c, DifferenceType<Cursor> n)
     STL2_NOEXCEPT_RETURN((void)c.advance(n))
 
     template <class Cursor, class Other>
       requires requires (const Cursor& lhs, const Other& rhs) {
         { lhs.distance_to(rhs) } -> DifferenceType<Cursor>;
       }
-    static DifferenceType<Cursor> distance(const Cursor& lhs, const Other& rhs)
+    static constexpr DifferenceType<Cursor>
+    distance(const Cursor& lhs, const Other& rhs)
     STL2_NOEXCEPT_RETURN(DifferenceType<Cursor>(lhs.distance_to(rhs)))
   };
 
@@ -196,34 +196,36 @@ STL2_OPEN_NAMESPACE {
     using difference_type = cursor_access::DifferenceType<Cursor>;
 
     basic_iterator() = default;
-    basic_iterator(Cursor c)
+    constexpr basic_iterator(Cursor c)
       noexcept(is_nothrow_move_constructible<Cursor>::value) :
       Cursor(__stl2::move(c)) {}
 
     using Cursor::Cursor;
 
-    basic_iterator& operator*() {
+    constexpr basic_iterator& operator*() noexcept {
       return *this;
     }
-    basic_iterator& operator++() & {
+    constexpr basic_iterator& operator++() & noexcept {
       return *this;
     }
-    basic_iterator operator++(int) & {
+    constexpr basic_iterator operator++(int) & noexcept {
       return *this;
     }
 
     template <class T>
       requires !Same<decay_t<T>, basic_iterator>() &&
         detail::CursorWrite<Cursor, T>
-    basic_iterator& operator=(T&& t) & {
+    constexpr basic_iterator& operator=(T&& t) &
+      noexcept(noexcept(
+        cursor_access::write(declval<Cursor&>(), __stl2::forward<T>(t)))) {
       cursor_access::write(cursor(), __stl2::forward<T>(t));
       return *this;
     }
 
   private:
-    Cursor& cursor() & { return static_cast<Cursor&>(*this); }
-    const Cursor& cursor() const& { return static_cast<const Cursor&>(*this); }
-    Cursor&& cursor() && { return static_cast<Cursor&&>(*this); }
+    constexpr Cursor& cursor() & noexcept { return static_cast<Cursor&>(*this); }
+    constexpr const Cursor& cursor() const& noexcept { return static_cast<const Cursor&>(*this); }
+    constexpr Cursor&& cursor() && noexcept { return static_cast<Cursor&&>(*this); }
   };
 
   template <detail::InputCursor Cursor>
@@ -235,25 +237,25 @@ STL2_OPEN_NAMESPACE {
     using iterator_category = detail::CursorCategory<Cursor>;
 
     basic_iterator() = default;
-    basic_iterator(Cursor c)
+    constexpr basic_iterator(Cursor c)
       noexcept(is_nothrow_move_constructible<Cursor>::value) :
       Cursor(__stl2::move(c)) {}
 
     using Cursor::Cursor;
 
-    decltype(auto) operator*() const
+    constexpr decltype(auto) operator*() const
       noexcept(noexcept(cursor_access::current(declval<const Cursor&>())))
       requires detail::CursorCurrent<const Cursor> {
       return cursor_access::current(cursor());
     }
 
-    basic_iterator& operator++() &
-    noexcept(noexcept(cursor_access::next(declval<Cursor&>()))) {
+    constexpr basic_iterator& operator++() &
+      noexcept(noexcept(cursor_access::next(declval<Cursor&>()))) {
       cursor_access::next(cursor());
       return *this;
     }
 
-    basic_iterator operator++(int) &
+    constexpr basic_iterator operator++(int) &
       noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
                is_nothrow_move_constructible<basic_iterator>::value &&
                noexcept(cursor_access::next(declval<Cursor&>()))) {
@@ -262,13 +264,13 @@ STL2_OPEN_NAMESPACE {
       return tmp;
     }
 
-    basic_iterator& operator--() &
+    constexpr basic_iterator& operator--() &
       noexcept(noexcept(cursor_access::prev(declval<Cursor&>())))
       requires detail::CursorPrev<Cursor> {
       cursor_access::prev(cursor());
       return *this;
     }
-    basic_iterator operator--(int) &
+    constexpr basic_iterator operator--(int) &
       noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
                is_nothrow_move_constructible<basic_iterator>::value &&
                noexcept(cursor_access::prev(declval<Cursor&>())))
@@ -278,41 +280,58 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
 
-    basic_iterator& operator+=(difference_type n) &
+    constexpr basic_iterator& operator+=(difference_type n) &
+      noexcept(noexcept(cursor_access::advance(declval<Cursor&>(), n)))
       requires detail::CursorAdvance<Cursor> {
       cursor_access::advance(cursor(), n);
       return *this;
     }
-    basic_iterator& operator-=(difference_type n) &
+    constexpr basic_iterator& operator-=(difference_type n) &
+      noexcept(noexcept(cursor_access::advance(declval<Cursor&>(), -n)))
       requires detail::CursorAdvance<Cursor> {
       cursor_access::advance(cursor(), -n);
       return *this;
     }
 
-    friend basic_iterator operator+(const basic_iterator& i, difference_type n)
+    friend constexpr basic_iterator
+    operator+(const basic_iterator& i, difference_type n)
+      noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
+               is_nothrow_move_constructible<basic_iterator>::value &&
+               noexcept(cursor_access::advance(declval<Cursor&>(), n)))
       requires detail::CursorAdvance<Cursor> {
       auto tmp = i;
       cursor_access::advance(tmp.cursor(), n);
       return tmp;
     }
-    friend basic_iterator operator+(difference_type n, const basic_iterator& i)
+    friend constexpr basic_iterator
+    operator+(difference_type n, const basic_iterator& i)
+      noexcept(noexcept(i + n))
       requires detail::CursorAdvance<Cursor> {
       return i + n;
     }
-    friend basic_iterator operator-(const basic_iterator& i, difference_type n)
+    friend constexpr basic_iterator
+    operator-(const basic_iterator& i, difference_type n)
+      noexcept(noexcept(i + -n))
       requires detail::CursorAdvance<Cursor> {
       return i + -n;
     }
 
-    decltype(auto) operator[](difference_type n) const
+    constexpr decltype(auto) operator[](difference_type n) const
+      noexcept(noexcept(*(declval<basic_iterator&>() + n)))
       requires detail::CursorAdvance<Cursor> {
       return *(*this + n);
     }
 
   private:
-    Cursor& cursor() & { return static_cast<Cursor&>(*this); }
-    const Cursor& cursor() const& { return static_cast<const Cursor&>(*this); }
-    Cursor&& cursor() && { return static_cast<Cursor&&>(*this); }
+    constexpr Cursor& cursor() & noexcept {
+      return static_cast<Cursor&>(*this);
+    }
+    constexpr const Cursor& cursor() const& noexcept {
+      return static_cast<const Cursor&>(*this);
+    }
+    constexpr Cursor&& cursor() && noexcept {
+      return static_cast<Cursor&&>(*this);
+    }
   };
 
   template <class Cursor>
