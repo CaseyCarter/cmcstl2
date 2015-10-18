@@ -11,70 +11,6 @@ namespace stl2 = __stl2;
 
 template <class> class show_type;
 
-template <class Container>
-class insert_cursor_base {
-public:
-  using container_type = Container;
-
-  constexpr insert_cursor_base() noexcept = default;
-  constexpr explicit insert_cursor_base(Container& c) noexcept :
-    container{&c} {}
-
-protected:
-  Container* container = nullptr;
-};
-
-template <class Container>
-class back_insert_cursor : public insert_cursor_base<Container> {
-  using base_t = insert_cursor_base<Container>;
-public:
-  back_insert_cursor() = default;
-  using base_t::base_t;
-
-private:
-  friend stl2::cursor_access;
-  template <class T>
-    requires requires(Container& c, T&& t) {
-      c.push_back(stl2::forward<T>(t));
-    }
-  constexpr void write(T&& t)
-    noexcept(noexcept(
-      stl2::declval<Container&>().push_back(stl2::forward<T>(t)))) {
-    base_t::container->push_back(stl2::forward<T>(t));
-  }
-};
-template <class Container>
-using back_insert_iterator = stl2::basic_iterator<back_insert_cursor<Container>>;
-template <class Container>
-constexpr auto back_inserter(Container& c)
-STL2_NOEXCEPT_RETURN(back_insert_iterator<Container>{c})
-
-template <class Container>
-class front_insert_cursor : public insert_cursor_base<Container> {
-  using base_t = insert_cursor_base<Container>;
-public:
-  front_insert_cursor() = default;
-  using base_t::base_t;
-
-private:
-  friend stl2::cursor_access;
-  template <class T>
-    requires requires(Container& c, T&& t) {
-      c.push_front(stl2::forward<T>(t));
-    }
-  constexpr void write(T&& t)
-    noexcept(noexcept(
-      stl2::declval<Container&>().push_front(stl2::forward<T>(t)))) {
-    base_t::container->push_front(stl2::forward<T>(t));
-  }
-};
-template <class Container>
-using front_insert_iterator = stl2::basic_iterator<front_insert_cursor<Container>>;
-
-template <class Container>
-constexpr auto front_inserter(Container& c)
-STL2_NOEXCEPT_RETURN(front_insert_iterator<Container>{c})
-
 template <stl2::Semiregular T>
 class repeat_view : stl2::view_base, stl2::detail::ebo_box<T> {
   using storage_t = stl2::detail::ebo_box<T>;
@@ -99,18 +35,15 @@ class repeat_view : stl2::view_base, stl2::detail::ebo_box<T> {
       return storage_t::get();
     }
 
+    constexpr bool equal(const cursor&) const noexcept { return true; }
     constexpr void next() const noexcept {}
     constexpr void prev() const noexcept {}
-
     constexpr void advance(difference_type) const noexcept {}
-    constexpr bool equal(const cursor&) const noexcept { return true; }
-
     constexpr difference_type distance_to(const cursor&) const noexcept { return 0; }
   };
 
 public:
   using iterator = stl2::basic_iterator<cursor>;
-  using value_type = T;
 
   repeat_view() = default;
   constexpr repeat_view(T value)
@@ -173,7 +106,7 @@ public:
   forward_list() = default;
   forward_list(std::initializer_list<T> il)
     requires stl2::CopyConstructible<T>() {
-    stl2::copy(stl2::rbegin(il), stl2::rend(il), ::front_inserter(*this));
+    stl2::copy(stl2::rbegin(il), stl2::rend(il), stl2::front_inserter(*this));
   }
 
   constexpr iterator begin() noexcept { return {head_.get()}; }
@@ -292,8 +225,6 @@ private:
 
 template <stl2::Semiregular T, std::size_t N>
 class array {
-  T elements_[N];
-
 public:
   using value_type = T;
   using iterator = stl2::basic_iterator<pointer_cursor<T>>;
@@ -303,6 +234,8 @@ public:
   constexpr iterator end() noexcept { return {elements_ + N}; }
   constexpr const_iterator begin() const noexcept { return {elements_ + 0}; }
   constexpr const_iterator end() const noexcept { return {elements_ + N}; }
+
+  T elements_[N];
 };
 
 stl2::WeakIterator{I}
@@ -378,10 +311,6 @@ using my_counted_iterator = stl2::basic_iterator<my_counted_cursor<I>>;
 
 template <class T, T Value>
 class always_cursor {
-public:
-  constexpr int foo() const noexcept { return 42; }
-
-private:
   friend stl2::cursor_access;
   constexpr T current() const
     noexcept(stl2::is_nothrow_copy_constructible<T>::value) {
@@ -396,13 +325,17 @@ private:
 template <class T, T Value>
 using always_iterator = stl2::basic_iterator<always_cursor<T, Value>>;
 
-std::ostream& operator<<(std::ostream& os, forward_list<int>& lst) {
+template <stl2::InputRange R>
+  requires stl2::ext::StreamInsertable<stl2::ValueType<stl2::IteratorType<R>>> &&
+    !stl2::Same<char, stl2::remove_cv_t<stl2::remove_all_extents_t<stl2::remove_reference_t<R>>>>()
+std::ostream& operator<<(std::ostream& os, R&& rng) {
   os << '{';
-  auto i = lst.begin();
-  if (i != lst.end()) {
+  auto i = rng.begin();
+  auto e = rng.end();
+  if (i != e) {
     for (;;) {
       os << *i;
-      if (++i == lst.end()) break;
+      if (++i == e) break;
       os << ", ";
     }
   }
@@ -422,7 +355,7 @@ void test_fl() {
   static_assert(stl2::models::EqualityComparable<I>);
   static_assert(stl2::models::ForwardIterator<I>);
   static_assert(stl2::models::ForwardRange<R>);
-  *::front_inserter(list) = 3.14;
+  *stl2::front_inserter(list) = 3.14;
   std::cout << list << '\n';
   CHECK(list.begin() != list.end());
   CHECK(noexcept(list.begin() != list.end()));
@@ -434,7 +367,7 @@ void test_fl() {
   CHECK(noexcept(list.begin() == stl2::next(list.begin())));
   static_assert(I{} == I{});
   CHECK(noexcept(I{} == I{}));
-  CHECK(noexcept(::front_inserter(list)));
+  CHECK(noexcept(stl2::front_inserter(list)));
 }
 
 void test_rv() {
@@ -476,10 +409,14 @@ void test_array() {
 
   using R = decltype(a);
   using I = decltype(a.begin());
+  CHECK(noexcept(a.begin()));
   static_assert(stl2::models::RandomAccessIterator<I>);
   static_assert(stl2::models::RandomAccessRange<R>);
   static_assert(stl2::models::RandomAccessRange<const R>);
+  static_assert(stl2::models::BoundedRange<R>);
+  static_assert(stl2::models::BoundedRange<const R>);
   CHECK(I{} == I{});
+  CHECK(noexcept(I{} == I{}));
 
   stl2::fill(a, 42);
 }
@@ -507,7 +444,7 @@ void test_counted() {
 }
 
 void test_always() {
-  // Iterates over life, the universe, and everything:
+  // Iterates over life, the universe, and everything.
   auto i = always_iterator<int, 42>{};
   using I = decltype(i);
   static_assert(stl2::models::RandomAccessIterator<I>);
@@ -524,15 +461,15 @@ void test_always() {
 
 void test_back_inserter() {
   auto vec = std::vector<int>{};
-  auto i = ::back_inserter(vec);
+  auto i = stl2::back_inserter(vec);
   using I = decltype(i);
   static_assert(stl2::models::WeakOutputIterator<I, int>);
   static_assert(stl2::models::Same<std::ptrdiff_t, stl2::DifferenceType<I>>);
   stl2::copy_n(always_iterator<int, 42>{}, 13, i);
   CHECK(vec.size() == 13u);
 
-  struct foo : ::back_insert_iterator<std::vector<int>> {
-    using base_t = ::back_insert_iterator<std::vector<int>>;
+  struct foo : stl2::back_insert_iterator<std::vector<int>> {
+    using base_t = stl2::back_insert_iterator<std::vector<int>>;
     using base_t::base_t;
 
     typename base_t::container_type* container() {
