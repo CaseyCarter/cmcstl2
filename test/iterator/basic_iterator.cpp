@@ -2,6 +2,7 @@
 #include <stl2/algorithm.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/raw_ptr.hpp>
+#include <stl2/view/repeat.hpp>
 #include <initializer_list>
 #include <iostream>
 #include <memory>
@@ -10,59 +11,6 @@
 namespace stl2 = __stl2;
 
 template <class> class show_type;
-
-template <stl2::Semiregular T>
-class repeat_view : stl2::view_base, stl2::detail::ebo_box<T> {
-  using storage_t = stl2::detail::ebo_box<T>;
-
-  class cursor : stl2::detail::cheap_reference_box_t<const T> {
-    using storage_t = stl2::detail::cheap_reference_box_t<const T>;
-  public:
-    using difference_type = std::ptrdiff_t;
-    using reference = meta::if_c<
-      stl2::detail::cheaply_copyable<T>, T, const T&>;
-
-    cursor() = default;
-    constexpr cursor(const repeat_view& r)
-      noexcept(stl2::is_nothrow_constructible<storage_t, const T&>::value) :
-      storage_t{r.value()} {}
-
-  private:
-    friend stl2::cursor_access;
-
-    constexpr reference current() const
-      noexcept(noexcept(stl2::declval<const storage_t&>().get())) {
-      return storage_t::get();
-    }
-
-    constexpr bool equal(const cursor&) const noexcept { return true; }
-    constexpr void next() const noexcept {}
-    constexpr void prev() const noexcept {}
-    constexpr void advance(difference_type) const noexcept {}
-    constexpr difference_type distance_to(const cursor&) const noexcept { return 0; }
-  };
-
-public:
-  using iterator = stl2::basic_iterator<cursor>;
-
-  repeat_view() = default;
-  constexpr repeat_view(T value)
-    noexcept(stl2::is_nothrow_constructible<storage_t, T>::value) :
-    storage_t{stl2::move(value)} {}
-
-  constexpr iterator begin() const
-    noexcept(noexcept(iterator{cursor{stl2::declval<const repeat_view&>()}})) {
-    return iterator{cursor{*this}};
-  }
-
-  constexpr stl2::unreachable end() const noexcept {
-    return {};
-  }
-
-  constexpr const T& value() const noexcept {
-    return storage_t::get();
-  }
-};
 
 template <stl2::Destructible T>
 class forward_list {
@@ -371,7 +319,7 @@ void test_fl() {
 }
 
 void test_rv() {
-  repeat_view<int> rv{42};
+  stl2::repeat_view<int> rv{42};
 
   using R = decltype(rv);
   using I = decltype(rv.begin());

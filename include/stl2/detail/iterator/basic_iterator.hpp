@@ -19,7 +19,9 @@
 #include <stl2/detail/iterator/default_sentinel.hpp>
 
 // TODO:
-// * contiguous cursors
+// * Single-pass
+// * Proxies
+// * Contiguous
 
 STL2_OPEN_NAMESPACE {
   struct cursor_access {

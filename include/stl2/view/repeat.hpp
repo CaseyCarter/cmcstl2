@@ -18,82 +18,45 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/iterator/basic_iterator.hpp>
 
 STL2_OPEN_NAMESPACE {
   template <Semiregular T>
   class repeat_view : view_base, detail::ebo_box<T> {
     using storage_t = detail::ebo_box<T>;
-  public:
-    class iterator : detail::cheap_reference_box_t<const T> {
+
+    class cursor : detail::cheap_reference_box_t<const T> {
       using storage_t = detail::cheap_reference_box_t<const T>;
     public:
-      using value_type = T;
-      using iterator_category = random_access_iterator_tag;
       using difference_type = std::ptrdiff_t;
-      using reference = meta::if_c<
-        detail::cheaply_copyable<T>, value_type, const value_type&>;
+      using reference =
+        meta::if_c<detail::cheaply_copyable<T>, T, const T&>;
 
-      iterator() = default;
-      constexpr iterator(const repeat_view& r)
+      cursor() = default;
+      constexpr cursor(const repeat_view& r)
         noexcept(is_nothrow_constructible<storage_t, const T&>::value) :
         storage_t{r.value()} {}
 
-      constexpr reference operator*() const
+    private:
+      friend cursor_access;
+
+      constexpr reference current() const
         noexcept(noexcept(declval<const storage_t&>().get())) {
         return storage_t::get();
       }
-      constexpr reference operator[](difference_type) const
-        noexcept(noexcept(declval<const storage_t&>().get())) {
-        return storage_t::get();
-      }
 
-      constexpr iterator& operator++() noexcept {
-        return *this;
-      }
-      constexpr iterator operator++(int)
-        noexcept(is_nothrow_copy_constructible<iterator>::value) {
-        return *this;
-      }
-
-      constexpr iterator& operator--() noexcept {
-        return *this;
-      }
-      constexpr iterator operator--(int)
-        noexcept(is_nothrow_copy_constructible<iterator>::value) {
-        return *this;
-      }
-
-      constexpr iterator& operator+=(difference_type) noexcept {
-        return *this;
-      }
-      constexpr iterator& operator-=(difference_type) noexcept {
-        return *this;
-      }
-
-      friend constexpr bool operator==(const iterator&, const iterator&) noexcept {
-        return true;
-      }
-      friend constexpr bool operator!=(const iterator&, const iterator&) noexcept {
-        return false;
-      }
-
-      friend constexpr iterator operator+(const iterator& i, difference_type)
-        noexcept(is_nothrow_copy_constructible<iterator>::value) {
-        return i;
-      }
-      friend constexpr iterator operator+(difference_type, const iterator& i)
-        noexcept(is_nothrow_copy_constructible<iterator>::value) {
-        return i;
-      }
-
-      friend constexpr iterator operator-(const iterator& i, difference_type)
-        noexcept(is_nothrow_copy_constructible<iterator>::value) {
-        return i;
-      }
+      constexpr bool equal(const cursor&) const noexcept { return true; }
+      constexpr void next() const noexcept {}
+      constexpr void prev() const noexcept {}
+      constexpr void advance(difference_type) const noexcept {}
+      constexpr difference_type distance_to(const cursor&) const noexcept { return 0; }
     };
 
+  public:
+    using iterator = basic_iterator<cursor>;
+
     repeat_view() = default;
-    repeat_view(T value)
+    constexpr repeat_view(T value)
       noexcept(is_nothrow_constructible<storage_t, T>::value) :
       storage_t{__stl2::move(value)} {}
 
