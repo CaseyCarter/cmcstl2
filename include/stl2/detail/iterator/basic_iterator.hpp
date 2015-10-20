@@ -15,13 +15,13 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
+#include <stl2/detail/concepts/fundamental.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/default_sentinel.hpp>
 
 // TODO:
 // * Proxies
-// * Contiguous
 
 STL2_OPEN_NAMESPACE {
   struct cursor_access {
@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
     template <class C>
       requires !detail::MemberDifferenceType<C> &&
         requires (const C& lhs, const C& rhs) {
-          rhs.distance_to(lhs);
+          STL2_DEDUCTION_CONSTRAINT(rhs.distance_to(lhs), SignedIntegral);
         }
     struct difference_type<C> {
       using type = decltype(declval<const C&>().distance_to(declval<const C&>()));
@@ -60,6 +60,30 @@ STL2_OPEN_NAMESPACE {
     };
     template <class C>
     using ValueType = meta::_t<value_type<C>>;
+
+    template <class>
+    struct single_pass : false_type {};
+    template <class C>
+      requires requires {
+        typename C::single_pass;
+        requires bool(C::single_pass::value);
+      }
+    struct single_pass<C> : true_type {};
+    template <class C>
+    using SinglePass = meta::_t<single_pass<C>>;
+
+    template <class>
+    struct contiguous : false_type {};
+    template <class C>
+      requires requires {
+        typename C::is_contiguous;
+        requires bool(C::is_contiguous::value);
+      } && requires (const C& c) {
+        requires _Is<decltype(c.current()), is_reference>;
+      }
+    struct contiguous<C> : true_type {};
+    template <class C>
+    using Contiguous = meta::_t<contiguous<C>>;
 
     template <class I>
       requires requires (I&& i) {
@@ -121,10 +145,11 @@ STL2_OPEN_NAMESPACE {
 
   namespace detail {
     template <class C>
-    concept bool CursorSinglepass = requires {
-      typename C::single_pass;
-      requires C::single_pass::value;
-    };
+    concept bool CursorSinglepass =
+      cursor_access::SinglePass<C>::value;
+    template <class C>
+    concept bool CursorContiguous =
+      cursor_access::Contiguous<C>::value;
     template <class C>
     concept bool CursorCurrent = requires (C& c) {
       cursor_access::current(c);
@@ -176,6 +201,9 @@ STL2_OPEN_NAMESPACE {
     template <class C>
     concept bool RandomAccessCursor =
       BidirectionalCursor<C> && CursorAdvance<C> && CursorDistance<C, C>;
+    template <class C>
+    concept bool ContiguousCursor =
+      RandomAccessCursor<C> && CursorContiguous<C>;
 
     template <class>
     struct cursor_category {};
@@ -198,6 +226,10 @@ STL2_OPEN_NAMESPACE {
     template <RandomAccessCursor C>
     struct cursor_category<C> {
       using type = random_access_iterator_tag;
+    };
+    template <ContiguousCursor C>
+    struct cursor_category<C> {
+      using type = ext::contiguous_iterator_tag;
     };
     template <class C>
     using CursorCategory = meta::_t<cursor_category<C>>;
@@ -266,8 +298,7 @@ STL2_OPEN_NAMESPACE {
     }
 
     auto operator->() const noexcept
-      requires _Is<reference, is_reference> &&
-        (_Is<value_type, is_class> || _Is<value_type, is_union>) {
+      requires _Is<reference, is_reference> {
       return std::addressof(cursor_access::current(cursor()));
     }
 

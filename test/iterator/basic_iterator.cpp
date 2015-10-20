@@ -141,6 +141,7 @@ private:
   T* ptr_;
 
   friend stl2::cursor_access;
+  using is_contiguous = stl2::true_type;
   constexpr auto& current() const noexcept {
     STL2_ASSUME_CONSTEXPR(ptr_);
     return *ptr_;
@@ -358,7 +359,7 @@ void test_array() {
   using R = decltype(a);
   using I = decltype(a.begin());
   CHECK(noexcept(a.begin()));
-  static_assert(stl2::models::RandomAccessIterator<I>);
+  static_assert(stl2::models::ContiguousIterator<I>);
   static_assert(stl2::models::RandomAccessRange<R>);
   static_assert(stl2::models::RandomAccessRange<const R>);
   static_assert(stl2::models::BoundedRange<R>);
