@@ -102,7 +102,7 @@ STL2_OPEN_NAMESPACE {
       constexpr auto operator()(U&& u) const
       STL2_NOEXCEPT_RETURN(
         variant<nullopt_t, T>{emplaced_type<T>,
-          allow_narrowing_conversion(__stl2::forward<U>(u))}
+          allow_narrowing_conversion<T>(__stl2::forward<U>(u))}
       )
     };
 

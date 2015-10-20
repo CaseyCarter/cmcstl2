@@ -1670,6 +1670,11 @@ void test_void_visit(VVV v) {
   visit(fn, v);
 }
 
+void test_simple_assign(variant<char, int>& v) {
+  // TODO: figure out how to eliminate the unnecessary branch generated here.
+  v = 'a';
+}
+
 void test_known() {
   test_void_visit(VVV{42LL});
 }

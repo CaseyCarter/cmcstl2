@@ -159,47 +159,41 @@ STL2_OPEN_NAMESPACE {
     protected:
       using storage_t = storage<element_t<Ts>...>;
       using index_t =
-    #if 1
+    #if 0
         std::size_t;
     #else
         meta::if_c<
-          (sizeof...(Ts) <= std::numeric_limits<std::int_fast8_t>::max()),
-          std::int_fast8_t,
+          (sizeof...(Ts) <= std::numeric_limits<std::int_least8_t>::max()),
+          std::int_least8_t,
           meta::if_c<
-            (sizeof...(Ts) <= std::numeric_limits<std::int_fast16_t>::max()),
-            std::int_fast16_t,
+            (sizeof...(Ts) <= std::numeric_limits<std::int_least16_t>::max()),
+            std::int_least16_t,
             meta::if_c<
-              (sizeof...(Ts) <= std::numeric_limits<std::int_fast32_t>::max()),
-              std::int_fast32_t,
-              meta::if_c<
-                (sizeof...(Ts) <= std::numeric_limits<std::int_fast64_t>::max()),
-                std::int_fast64_t,
-                std::size_t>>>>;
+              (sizeof...(Ts) <= std::numeric_limits<std::int_least32_t>::max()),
+              std::int_least32_t,
+              std::size_t>>>;
     #endif
       static_assert(sizeof...(Ts) - is_unsigned<index_t>::value <
                     std::numeric_limits<index_t>::max());
       static constexpr auto invalid_index = index_t(-1);
 
-      storage_t storage_;
       index_t index_;
+      storage_t storage_;
 
     protected:
-      void clear() noexcept {
+      void clear_() noexcept {
         if (valid()) {
           raw_visit(detail::destruct, *this);
-          index_ = invalid_index;
         }
       }
 
-      void clear() noexcept
-        requires ext::TriviallyDestructible<storage_t>() {
-        index_ = invalid_index;
-      }
+      void clear_() noexcept
+        requires ext::TriviallyDestructible<storage_t>() {}
 
       template <class That>
         requires DerivedFrom<__uncvref<That>, base>()
       void copy_move_from(That&& that) {
-        STL2_ASSUME(!valid());
+        //STL2_ASSUME(!valid());
         if (that.valid()) {
           raw_visit_with_index([this](auto i, auto&& from) {
             detail::construct(
@@ -219,8 +213,13 @@ STL2_OPEN_NAMESPACE {
             }, __stl2::move(that));
           }
         } else {
-          clear();
-          copy_move_from(__stl2::move(that));
+          clear_();
+          try {
+            copy_move_from(__stl2::move(that));
+          } catch(...) {
+            index_ = invalid_index;
+            throw;
+          }
         }
       }
 
@@ -233,15 +232,20 @@ STL2_OPEN_NAMESPACE {
           }
         } else {
           auto tmp = that;
-          clear();
-          copy_move_from(__stl2::move(tmp));
+          clear_();
+          try {
+            copy_move_from(__stl2::move(tmp));
+          } catch(...) {
+            index_ = invalid_index;
+            throw;
+          }
         }
       }
 
       template <class That>
         requires DerivedFrom<__uncvref<That>, base>()
       base(copy_move_tag, That&& that) :
-        storage_{empty_tag{}}, index_{invalid_index} {
+        index_{invalid_index}, storage_{empty_tag{}} {
         copy_move_from(__stl2::forward<That>(that));
       }
 
@@ -260,8 +264,8 @@ STL2_OPEN_NAMESPACE {
           Constructible<storage_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&&>()
       constexpr base(T&& t)
         noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&&>::value)
-        : storage_{emplaced_index<constructible_from<T&&, Ts...>::index>, __stl2::forward<T>(t)},
-          index_{constructible_from<T&&, Ts...>::index} {}
+        : index_{constructible_from<T&&, Ts...>::index},
+        storage_{emplaced_index<constructible_from<T&&, Ts...>::index>, __stl2::forward<T>(t)} {}
 
       template <class T>
         requires !Same<decay_t<T>, base>() &&
@@ -269,8 +273,8 @@ STL2_OPEN_NAMESPACE {
           !constructible_from<T&&, Ts...>::ambiguous
       constexpr base(T&& t)
         noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&>::value)
-        : storage_{emplaced_index<constructible_from<T&&, Ts...>::index>, t},
-          index_{constructible_from<T&&, Ts...>::index} {}
+        : index_{constructible_from<T&&, Ts...>::index},
+          storage_{emplaced_index<constructible_from<T&&, Ts...>::index>, t} {}
 
       template <class T>
         requires !Same<decay_t<T>, base>() &&
@@ -282,94 +286,124 @@ STL2_OPEN_NAMESPACE {
         requires Constructible<T, Args...>()
       explicit constexpr base(emplaced_index_t<I>, Args&&...args)
         noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, Args...>::value)
-        : storage_{emplaced_index<I>, __stl2::forward<Args>(args)...}, index_{I} {}
+        : index_{I}, storage_{emplaced_index<I>, __stl2::forward<Args>(args)...} {}
 
       template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
       explicit constexpr base(emplaced_index_t<I>, meta::id_t<T> t)
         noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, T&>::value)
-        : storage_{emplaced_index<I>, t}, index_{I} {}
+        : index_{I}, storage_{emplaced_index<I>, t} {}
 
       template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
         requires Constructible<T, Args...>()
       explicit constexpr base(emplaced_type_t<T>, Args&&...args)
         noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, Args...>::value)
-        : storage_{emplaced_index<I>, __stl2::forward<Args>(args)...}, index_{I} {}
+        : index_{I}, storage_{emplaced_index<I>, __stl2::forward<Args>(args)...} {}
 
       template <_Is<is_reference> T, std::size_t I = index_of_type<T, types>>
       explicit constexpr base(emplaced_type_t<T>, meta::id_t<T> t)
         noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, T&>::value)
-        : storage_{emplaced_index<I>, t}, index_{I} {}
+        : index_{I}, storage_{emplaced_index<I>, t} {}
 
       template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
         requires Constructible<T, Args...>()
       explicit constexpr base(emplaced_index_t<I>, std::initializer_list<E> il, Args&&...args)
         noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
-        : storage_{emplaced_index<I>, il, __stl2::forward<Args>(args)...}, index_{I} {}
+        : index_{I}, storage_{emplaced_index<I>, il, __stl2::forward<Args>(args)...} {}
 
       template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
         requires Constructible<T, Args...>()
       explicit constexpr base(emplaced_type_t<T>, std::initializer_list<E> il, Args&&...args)
         noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
-        : storage_{emplaced_index<I>, il, __stl2::forward<Args>(args)...}, index_{I} {}
+        : index_{I}, storage_{emplaced_index<I>, il, __stl2::forward<Args>(args)...} {}
 
       template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
         requires Constructible<T, Args...>()
       void emplace(Args&&...args)
         noexcept(is_nothrow_constructible<element_t<T>, Args...>::value) {
-        clear();
-        detail::construct(
-          strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
-            __stl2::forward<Args>(args)...);
-        index_ = I;
+        clear_();
+        try {
+          detail::construct(
+            strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+              __stl2::forward<Args>(args)...);
+          index_ = I;
+        } catch(...) {
+          index_ = invalid_index;
+          throw;
+        }
       }
 
       template <_Is<is_reference> T, std::size_t I = index_of_type<T, types>>
       void emplace(meta::id_t<T> t)
         noexcept(is_nothrow_constructible<element_t<T>, T&>::value) {
-        clear();
-        detail::construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
-        index_ = I;
+        clear_();
+        try {
+          detail::construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
+          index_ = I;
+        } catch(...) {
+          index_ = invalid_index;
+          throw;
+        }
       }
 
       template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
         requires Constructible<T, std::initializer_list<E>, Args...>()
       void emplace(std::initializer_list<E> il, Args&&...args)
         noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value) {
-        clear();
-        detail::construct(
-          strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
-            il, __stl2::forward<Args>(args)...);
-        index_ = I;
+        clear_();
+        try {
+          detail::construct(
+            strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+              il, __stl2::forward<Args>(args)...);
+          index_ = I;
+        } catch(...) {
+          index_ = invalid_index;
+          throw;
+        }
       }
 
       template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
         requires Constructible<T, Args...>()
       void emplace(Args&&...args)
         noexcept(is_nothrow_constructible<element_t<T>, Args...>::value) {
-        clear();
-        detail::construct(
-          strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
-            __stl2::forward<Args>(args)...);
-        index_ = I;
+        clear_();
+        try {
+          detail::construct(
+            strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+              __stl2::forward<Args>(args)...);
+          index_ = I;
+        } catch(...) {
+          index_ = invalid_index;
+          throw;
+        }
       }
 
       template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
       void emplace(meta::id_t<T> t)
         noexcept(is_nothrow_constructible<element_t<T>, T&>::value) {
-        clear();
-        detail::construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
-        index_ = I;
+        clear_();
+        try {
+          detail::construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
+          index_ = I;
+        } catch(...) {
+          index_ = invalid_index;
+          throw;
+        }
       }
 
       template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
         requires Constructible<T, std::initializer_list<E>, Args...>()
       void emplace(std::initializer_list<E> il, Args&&...args)
         noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value) {
-        clear();
-        detail::construct(
-          strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
-            il, __stl2::forward<Args>(args)...);
-        index_ = I;
+        clear_();
+        try {
+          detail::construct(
+            strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+              il, __stl2::forward<Args>(args)...);
+          index_ = I;
+        } catch(...) {
+          index_ = invalid_index;
+          throw;
+        }
       }
 
       constexpr std::size_t index() const noexcept {
@@ -399,7 +433,7 @@ STL2_OPEN_NAMESPACE {
       using base_t = base<Ts...>;
     public:
       ~destruct_base() noexcept {
-        this->clear();
+        base_t::clear_();
       }
 
       destruct_base() = default;

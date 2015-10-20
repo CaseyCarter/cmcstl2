@@ -37,23 +37,16 @@ STL2_OPEN_NAMESPACE {
   // Same [concepts.lib.corelang.same]
   // Extension: variadic.
   //
-  namespace detail {
-    template <class T, class U>
-    concept bool _Same =
-#if defined(__GNUC__)
-      __is_same_as(T, U);
-#else
-    _Is<T, is_same, U>;
-#endif
-  }
-
   namespace models {
     template <class...>
-    constexpr bool Same = false;
-    template <>
-    constexpr bool Same<> = true;
-    template <class T, detail::_Same<T>...Rest>
-    constexpr bool Same<T, Rest...> = true;
+    constexpr bool Same = true;
+    template <class T, class...Rest>
+    constexpr bool Same<T, Rest...> =
+#if defined(__GNUC__)
+      (true && ... && __is_same_as(T, Rest));
+#else
+      (true && ... && is_same<T, Rest>::value);
+#endif
   }
 
   template <class...Ts>
