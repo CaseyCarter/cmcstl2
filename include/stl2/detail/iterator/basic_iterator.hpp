@@ -1,6 +1,7 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
 //  Copyright Casey Carter 2015
+//  Copyright Eric Niebler 2014
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -19,7 +20,6 @@
 #include <stl2/detail/iterator/default_sentinel.hpp>
 
 // TODO:
-// * Single-pass
 // * Proxies
 // * Contiguous
 
@@ -121,6 +121,11 @@ STL2_OPEN_NAMESPACE {
 
   namespace detail {
     template <class C>
+    concept bool CursorSinglepass = requires {
+      typename C::single_pass;
+      requires C::single_pass::value;
+    };
+    template <class C>
     concept bool CursorCurrent = requires (C& c) {
       cursor_access::current(c);
     };
@@ -154,14 +159,17 @@ STL2_OPEN_NAMESPACE {
       };
 
     template <class C>
-    concept bool InputCursor =
+    concept bool WeakInputCursor =
       Semiregular<C>() && CursorCurrent<C> &&
       CursorNext<C> && requires {
         typename cursor_access::ValueType<C>;
       };
     template <class C>
     concept bool ForwardCursor =
-      InputCursor<C> && CursorEqual<C, C>;
+      WeakInputCursor<C> && CursorEqual<C, C>;
+    template <class C>
+    concept bool InputCursor =
+      WeakInputCursor<C> && CursorEqual<C, C> && CursorSinglepass<C>;
     template <class C>
     concept bool BidirectionalCursor =
       ForwardCursor<C> && CursorPrev<C>;
@@ -171,9 +179,13 @@ STL2_OPEN_NAMESPACE {
 
     template <class>
     struct cursor_category {};
-    template <InputCursor C>
+    template <WeakInputCursor C>
     struct cursor_category<C> {
       using type = weak_input_iterator_tag;
+    };
+    template <InputCursor C>
+    struct cursor_category<C> {
+      using type = input_iterator_tag;
     };
     template <ForwardCursor C>
     struct cursor_category<C> {
@@ -231,13 +243,14 @@ STL2_OPEN_NAMESPACE {
     constexpr Cursor&& cursor() && noexcept { return static_cast<Cursor&&>(*this); }
   };
 
-  template <detail::InputCursor Cursor>
+  template <detail::WeakInputCursor Cursor>
   class basic_iterator<Cursor> : public Cursor {
   public:
     friend cursor_access;
     using difference_type = cursor_access::DifferenceType<Cursor>;
     using value_type = cursor_access::ValueType<Cursor>;
     using iterator_category = detail::CursorCategory<Cursor>;
+    using reference = decltype(cursor_access::current(declval<const Cursor&>()));
 
     basic_iterator() = default;
     constexpr basic_iterator(Cursor c)
@@ -246,10 +259,16 @@ STL2_OPEN_NAMESPACE {
 
     using Cursor::Cursor;
 
-    constexpr decltype(auto) operator*() const
+    constexpr reference operator*() const
       noexcept(noexcept(cursor_access::current(declval<const Cursor&>())))
       requires detail::CursorCurrent<const Cursor> {
       return cursor_access::current(cursor());
+    }
+
+    auto operator->() const noexcept
+      requires _Is<reference, is_reference> &&
+        (_Is<value_type, is_class> || _Is<value_type, is_union>) {
+      return std::addressof(cursor_access::current(cursor()));
     }
 
     constexpr basic_iterator& operator++() &
