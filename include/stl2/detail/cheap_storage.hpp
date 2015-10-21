@@ -20,6 +20,10 @@
 
 STL2_OPEN_NAMESPACE {
   namespace detail {
+    template <class T>
+    constexpr bool empty_and_not_final =
+      is_empty<T>::value && !is_final<T>::value;
+
     template <class T, class Tag = void>
     class ebo_box {
       T item_;
@@ -45,7 +49,7 @@ STL2_OPEN_NAMESPACE {
     };
 
     template <class T, class Tag>
-      requires _Is<T, is_empty> && _IsNot<T, is_final>
+      requires empty_and_not_final<T>
     class ebo_box<T, Tag> : private T {
     public:
       using T::T;
