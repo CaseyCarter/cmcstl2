@@ -18,6 +18,7 @@ add_test(test.optional optional)
 
 add_subdirectory(concepts)
 add_subdirectory(detail)
+add_subdirectory(functional)
 add_subdirectory(iterator)
 add_subdirectory(algorithm)
 add_subdirectory(view)
