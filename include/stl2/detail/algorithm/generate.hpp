@@ -20,7 +20,7 @@
 // generate [alg.generate]
 //
 STL2_OPEN_NAMESPACE {
-  template <Function F, OutputIterator<ResultType<F>> O, Sentinel<O> S>
+  template <Function F, OutputIterator<result_t<F>> O, Sentinel<O> S>
   O generate(O first, S last, F gen) {
     for (; first != last; ++first) {
       *first = gen();
@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
     return first;
   }
 
-  template<Function F, OutputRange<ResultType<F>> Rng>
+  template <Function F, OutputRange<result_t<F>> Rng>
   safe_iterator_t<Rng>
   generate(Rng&& rng, F&& gen) {
     return __stl2::generate(__stl2::begin(rng), __stl2::end(rng), __stl2::forward<F>(gen));

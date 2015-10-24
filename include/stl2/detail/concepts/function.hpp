@@ -47,14 +47,10 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // ResultType [concepts.lib.functions.function]
-  // Not to spec:
-  // * Requires F, ...Args to satisfy Function
-  // * Uses result of calling F& since that's what the algorithms actually do
-  // * Use decltype instead of result_of_t for consistency with Function
+  // result_t [Extension]
   //
   Function{F, ...Args}
-  using ResultType =
+  using result_t =
     decltype(declval<F&>()(declval<Args>()...));
 
   ///////////////////////////////////////////////////////////////////////////
@@ -78,7 +74,7 @@ STL2_OPEN_NAMESPACE {
   template <class F, class...Args>
   concept bool Predicate() {
     return RegularFunction<F, Args...>() &&
-      Boolean<ResultType<F, Args...>>();
+      Boolean<result_t<F, Args...>>();
   }
 
   namespace models {

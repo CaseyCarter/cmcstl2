@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
       Function<FunctionType<F>, Args...>();
 
     Callable{F, ...Args}
-    using CallableResultType = ResultType<FunctionType<F>, Args...>;
+    using CallableResultType = result_t<FunctionType<F>, Args...>;
   }
 
   namespace models {
