@@ -9,7 +9,7 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#include <stl2/functional.hpp>
+#include <stl2/detail/functional/invoke.hpp>
 #include <memory>
 #include "../simple_test.hpp"
 

@@ -19,7 +19,9 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
-#include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/functional/callable_wrapper.hpp>
+#include <stl2/detail/functional/invoke.hpp>
+#include <stl2/detail/functional/not_fn.hpp>
 
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
@@ -80,69 +82,9 @@ STL2_OPEN_NAMESPACE {
     constexpr T&& operator()(T&& t) const noexcept {
       return __stl2::forward<T>(t);
     }
+
+    using is_transparent = true_type;
   };
-
-  ///////////////////////////////////////////////////////////////////////////
-  // invoke [C++ WP]
-  //
-  namespace __invoke {
-    template <_Is<is_function> F, class O, class T, class...Args>
-      requires DerivedFrom<decay_t<T>, decay_t<O>>() &&
-        requires (F (O::* pmf), T&& t, Args&&...args) {
-          (((T&&)t).*pmf)((Args&&)args...);
-        }
-    constexpr decltype(auto) impl(F (O::*pmf), T&& t, Args&&...args)
-    STL2_NOEXCEPT_RETURN(
-      (__stl2::forward<T>(t).*pmf)(__stl2::forward<Args>(args)...)
-    )
-
-    template <_Is<is_function> F, class O, class T, class...Args>
-      requires !DerivedFrom<decay_t<T>, decay_t<O>>() &&
-        requires (F (O::*pmf), T&& t, Args&&...args) {
-          ((*(T&&)t).*pmf)((Args&&)args...);
-        }
-    constexpr decltype(auto) impl(F (O::*pmf), T&& t, Args&&...args)
-    STL2_NOEXCEPT_RETURN(
-      ((*__stl2::forward<T>(t)).*pmf)(__stl2::forward<Args>(args)...)
-    )
-
-    template <_IsNot<is_function> M, class O, class T>
-      requires DerivedFrom<decay_t<T>, decay_t<O>>() &&
-        requires (M (O::*pmd), T&& t) {
-          ((T&&)t).*pmd;
-        }
-    constexpr auto&& impl(M (O::*pmd), T&& t)
-    STL2_NOEXCEPT_RETURN(
-      __stl2::forward<T>(t).*pmd
-    )
-
-    template <_IsNot<is_function> M, class O, class T>
-      requires !DerivedFrom<decay_t<T>, decay_t<O>>() &&
-        requires (M (O::*pmd), T&& t) {
-          (*((T&&)t)).*pmd;
-        }
-    constexpr auto&& impl(M (O::*pmd), T&& t)
-    STL2_NOEXCEPT_RETURN(
-      (*__stl2::forward<T>(t)).*pmd
-    )
-
-    template <class F, class...Args>
-      requires requires (F&& f, Args&&...args) {
-        ((F&&)f)((Args&&)args...);
-      }
-    constexpr decltype(auto) impl(F&& f, Args&&...args)
-    STL2_NOEXCEPT_RETURN(
-      __stl2::forward<F>(f)(__stl2::forward<Args>(args)...)
-    )
-  }
-  template <class F, class...Args>
-    requires requires (F&& f, Args&&...args) {
-      __invoke::impl((F&&)f, (Args&&)args...);
-    }
-  STL2_CONSTEXPR_EXT decltype(auto) invoke(F&& f, Args&&...args)
-  STL2_NOEXCEPT_RETURN(
-    __invoke::impl(__stl2::forward<F>(f), __stl2::forward<Args>(args)...)
-  )
 
   ///////////////////////////////////////////////////////////////////////////
   // equal_to [comparisons]
@@ -275,56 +217,6 @@ STL2_OPEN_NAMESPACE {
 
     using is_transparent = true_type;
   };
-
-  ///////////////////////////////////////////////////////////////////////////
-  // not_fn from N4336 Library Fundamentals v2
-  //
-  template <class F>
-  class __not_fn {
-    F f_;
-
-  public:
-    template <class FF>
-      requires Constructible<F, FF>()
-    constexpr __not_fn(FF&& arg)
-      noexcept(is_nothrow_constructible<F, FF>::value) :
-      f_(__stl2::forward<decltype(arg)>(arg)) {}
-
-    template <class...Args>
-      requires requires (F& f, Args&&...args) {
-        !__invoke::impl(f, __stl2::forward<Args>(args)...);
-      }
-    constexpr bool operator()(Args&&...args) &
-    STL2_NOEXCEPT_RETURN(
-      !__invoke::impl(f_, __stl2::forward<Args>(args)...)
-    )
-
-    template <class...Args>
-      requires requires (const F& f, Args&&...args) {
-        !__invoke::impl(f, __stl2::forward<Args>(args)...);
-      }
-    constexpr bool operator()(Args&&...args) const&
-    STL2_NOEXCEPT_RETURN(
-      !__invoke::impl(f_, __stl2::forward<Args>(args)...)
-    )
-
-    template <class...Args>
-      requires requires (F&& f, Args&&...args) {
-        !__invoke::impl((F&&)f, __stl2::forward<Args>(args)...);
-      }
-    constexpr bool operator()(Args&&...args) &&
-    STL2_NOEXCEPT_RETURN(
-      !__invoke::impl(__stl2::move(f_), __stl2::forward<Args>(args)...)
-    )
-  };
-
-  template <class F>
-    requires MoveConstructible<F>() &&
-      Constructible<decay_t<F>, F>()
-  STL2_CONSTEXPR_EXT __not_fn<decay_t<F>> not_fn(F&& f)
-    noexcept(is_nothrow_constructible<__not_fn<decay_t<F>>, F>::value) {
-    return {__stl2::forward<F>(f)};
-  }
 } STL2_CLOSE_NAMESPACE
 
 #endif
