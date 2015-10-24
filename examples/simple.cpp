@@ -2,12 +2,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <experimental/ranges_v1/algorithm>
-#include <experimental/ranges_v1/iterator>
+#include <experimental/ranges/algorithm>
+#include <experimental/ranges/iterator>
 
-// Qualify everything with "std::experimental::ranges_v1" if you like,
+// Qualify everything with "std::experimental::ranges" if you like,
 // I prefer to use a namespace alias:
-namespace rng = std::experimental::ranges_v1;
+namespace rng = std::experimental::ranges;
 
 int main() {
   auto v = std::vector<std::string>{"this", "is", "a", "test"};

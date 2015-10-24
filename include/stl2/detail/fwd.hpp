@@ -18,8 +18,9 @@
 
 #include <meta/meta.hpp>
 
-#define STL2_OPEN_NAMESPACE namespace std { namespace experimental { namespace ranges_v1
-#define STL2_CLOSE_NAMESPACE }}
+#define STL2_OPEN_NAMESPACE \
+  namespace std { namespace experimental { namespace ranges { inline namespace v1
+#define STL2_CLOSE_NAMESPACE }}}
 
 // General namespace structure:
 STL2_OPEN_NAMESPACE {
@@ -37,12 +38,14 @@ STL2_OPEN_NAMESPACE {
 } STL2_CLOSE_NAMESPACE
 
 // Used to qualify STL2 names
-namespace __stl2 = ::std::experimental::ranges_v1;
+namespace __stl2 = ::std::experimental::ranges;
 
 STL2_OPEN_NAMESPACE {
   using std::declval;
   using std::forward;
 
+  // Must implement move here instead of using std::move to avoid
+  // pulling in the move algorithm.
   template <class T>
     requires true
   constexpr std::remove_reference_t<T>&& move(T&& t) noexcept {
