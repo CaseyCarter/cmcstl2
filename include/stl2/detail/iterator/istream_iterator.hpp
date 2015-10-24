@@ -17,6 +17,7 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
+#include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iostream/concepts.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
@@ -27,11 +28,11 @@ STL2_OPEN_NAMESPACE {
   // Not to spec: Semiregular, SignedIntegral and StreamExtractable
   // requirements are implicit.
   namespace detail {
-    template <Semiregular T, class charT = char,
+    template <DefaultConstructible T, class charT = char,
               class traits = std::char_traits<charT>,
               SignedIntegral Distance = std::ptrdiff_t>
       requires ext::StreamExtractable<T>
-    class istream_cursor {
+    class istream_cursor : semiregular_box<T> {
     public:
       using difference_type = Distance;
       using value_type = T;
@@ -53,18 +54,18 @@ STL2_OPEN_NAMESPACE {
         istream_cursor() {}
 
     private:
-      detail::raw_ptr<istream_type> stream_ = nullptr;
-      T value_{};
-
+      using box_t = semiregular_box<T>;
       using single_pass = true_type;
+
+      detail::raw_ptr<istream_type> stream_ = nullptr;
 
       friend cursor_access;
       constexpr reference current() const noexcept {
-        return value_;
+        return box_t::get();
       }
 
       void next() {
-        *stream_ >> value_;
+        *stream_ >> box_t::get();
         if (!*stream_) {
           stream_ = nullptr;
         }
