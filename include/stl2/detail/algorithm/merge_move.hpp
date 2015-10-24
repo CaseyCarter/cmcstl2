@@ -30,10 +30,11 @@ STL2_OPEN_NAMESPACE {
     requires MergeMovable<I1, I2, O, Comp, Proj1, Proj2>()
   tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
   merge_move(I1 first1, S1 last1, I2 first2, S2 last2, O result,
-             Comp comp_ = Comp{}, Proj1 proj1_ = Proj1{}, Proj2 proj2_ = Proj2{}) {
-    auto&& comp = __stl2::as_function(comp_);
-    auto&& proj1 = __stl2::as_function(proj1_);
-    auto&& proj2 = __stl2::as_function(proj2_);
+             Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{},
+             Proj2&& proj2_ = Proj2{}) {
+    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+    auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
+    auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
     while (true) {
       if (first1 == last1) {
         __stl2::tie(first2, result) = __stl2::move(

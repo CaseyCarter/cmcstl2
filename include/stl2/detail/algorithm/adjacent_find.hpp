@@ -24,13 +24,13 @@
 STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
             IndirectCallableRelation<Projected<I, Proj>> Pred = equal_to<>>
-  I adjacent_find(I first, S last, Pred pred_ = Pred{}, Proj proj_ = Proj{}) {
+  I adjacent_find(I first, S last, Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{}) {
     if (first == last) {
       return first;
     }
 
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     auto next = first;
     for (; ++next != last; first = next) {

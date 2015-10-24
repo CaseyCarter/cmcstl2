@@ -35,9 +35,10 @@ STL2_OPEN_NAMESPACE {
   namespace ext {
     template <ForwardIterator I, class Proj = identity,
               IndirectCallablePredicate<Projected<I, Proj>> Pred>
-    I partition_point_n(I first, DifferenceType<I> n, Pred pred_, Proj proj_ = Proj{}) {
-      auto&& pred = __stl2::as_function(pred_);
-      auto&& proj = __stl2::as_function(proj_);
+    I partition_point_n(I first, DifferenceType<I> n,
+                        Pred&& pred_, Proj&& proj_ = Proj{}) {
+      auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+      auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
       STL2_ASSUME(0 <= n);
       while (n != 0) {
@@ -56,9 +57,9 @@ STL2_OPEN_NAMESPACE {
 
   template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
             IndirectCallablePredicate<Projected<I, Proj>> Pred>
-  I partition_point(I first, S last, Pred pred_, Proj proj_ = Proj{}) {
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+  I partition_point(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{}) {
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     // Probe exponentially for either end-of-range or an iterator
     // that is past the partition point (i.e., does not satisfy pred).
@@ -69,7 +70,8 @@ STL2_OPEN_NAMESPACE {
       if (m == last || !pred(proj(*m))) {
         n -= d;
         return __stl2::ext::partition_point_n(__stl2::move(first), n,
-                                              __stl2::ref(pred), __stl2::ref(proj));
+                                              __stl2::move(pred),
+                                              __stl2::move(proj));
       }
       first = __stl2::move(m);
       n *= 2;

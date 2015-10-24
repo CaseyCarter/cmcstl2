@@ -68,11 +68,11 @@ STL2_OPEN_NAMESPACE {
            class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
     requires models::IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
   bool is_permutation(I1 first1, S1 last1, I2 first2,
-                      Pred pred_ = Pred{},
-                      Proj1 proj1_ = Proj1{}, Proj2 proj2_ = Proj2{}) {
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj1 = __stl2::as_function(proj1_);
-    auto&& proj2 = __stl2::as_function(proj2_);
+                      Pred&& pred_ = Pred{},
+                      Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{}) {
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
+    auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
 
     // shorten sequences as much as possible by lopping of any equal parts
     for (; first1 != last1; ++first1, ++first2) {
@@ -109,11 +109,11 @@ STL2_OPEN_NAMESPACE {
            class Proj2 = identity>
     requires models::IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
   bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2,
-                      Pred pred_ = Pred{},
-                      Proj1 proj1_ = Proj1{}, Proj2 proj2_ = Proj2{}) {
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj1 = __stl2::as_function(proj1_);
-    auto&& proj2 = __stl2::as_function(proj2_);
+                      Pred&& pred_ = Pred{},
+                      Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{}) {
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
+    auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
 
     // shorten sequences as much as possible by lopping of any equal parts
     for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
@@ -141,15 +141,15 @@ STL2_OPEN_NAMESPACE {
     requires SizedIteratorRange<I1, S1>() && SizedIteratorRange<I2, S2>() &&
       models::IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
   bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2,
-                      Pred pred_ = Pred{},
-                      Proj1 proj1_ = Proj1{}, Proj2 proj2_ = Proj2{}) {
+                      Pred&& pred_ = Pred{},
+                      Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{}) {
     if (__stl2::distance(first1, last1) != __stl2::distance(first2, last2)) {
       return false;
     }
 
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj1 = __stl2::as_function(proj1_);
-    auto&& proj2 = __stl2::as_function(proj2_);
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
+    auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
     // shorten sequences as much as possible by lopping of any equal parts
     for (; first1 != last1; ++first1, ++first2) {
       if (!pred(proj1(*first1), proj2(*first2))) {

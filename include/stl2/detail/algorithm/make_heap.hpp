@@ -35,10 +35,11 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     template <RandomAccessIterator I, class Comp, class Proj>
       requires Sortable<I, Comp, Proj>()
-    void make_heap_n(I first, DifferenceType<I> n, Comp comp_, Proj proj_) {
+    void make_heap_n(I first, DifferenceType<I> n,
+                     Comp&& comp_, Proj&& proj_) {
       if (n > 1) {
-        auto&& comp = __stl2::as_function(comp_);
-        auto&& proj = __stl2::as_function(proj_);
+        auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+        auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
         // start from the first parent, there is no need to consider children
         for (auto start = (n - 2) / 2; start >= 0; --start) {
           detail::sift_down_n(first, n, first + start,

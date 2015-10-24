@@ -29,9 +29,9 @@ STL2_OPEN_NAMESPACE {
               Projected<IteratorType<Rng>, Proj>> Comp = less<>>
     requires Copyable<ValueType<IteratorType<Rng>>>()
   constexpr ValueType<IteratorType<Rng>>
-  __max(Rng&& r, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
-    auto&& comp = __stl2::as_function(comp_);
-    auto&& proj = __stl2::as_function(proj_);
+  __max(Rng&& r, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
+    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     auto first = __stl2::begin(r);
     auto last = __stl2::end(r);
     STL2_ASSUME(first != last);
@@ -48,9 +48,10 @@ STL2_OPEN_NAMESPACE {
             IndirectCallableStrictWeakOrder<
               Projected<const T*, Proj>> Comp = less<>>
   constexpr const T& max(const T& a, const T& b,
-                         Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
-    auto&& comp = __stl2::as_function(comp_);
-    auto&& proj = __stl2::as_function(proj_);
+                         Comp&& comp_ = Comp{},
+                         Proj&& proj_ = Proj{}) {
+    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     return !comp(proj(a), proj(b)) ? a : b;
   }
 

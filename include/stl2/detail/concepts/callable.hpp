@@ -22,6 +22,7 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/function.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/functional/invoke.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // Indirect callable requirements [indirectcallables]
@@ -30,28 +31,12 @@ STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // FunctionType [functiontype.indirectcallables]
   // Not to spec: Expects the adapted function to be an lvalue, since that's
-  //              how the algorithms use it. as_function is also exported so
-  //              that users can use Callables in their own algorithms with
-  //              guaranteed std-equivalent semantics.
+  //              how the algorithms use it.
   //
-  constexpr auto& as_function(auto& f) noexcept {
-    return f;
-  }
-
-  // auto as_function(auto (auto::*pm))
-  template <class T, class C>
-  auto as_function(T (C::*pm)) {
-    // TODO: constexpr implementation of mem_fn.
-    return std::mem_fn(pm);
-  }
-
-  template <class T>
-    requires CopyConstructible<decay_t<T>>() &&
-      // Given the current implementation of as_function, the prior
-      // requirement implies this requirement. Be paranoid anyway.
-      CopyConstructible<__uncvref<decltype(as_function(declval<decay_t<T>&>()))>>()
-  using FunctionType =
-    __uncvref<decltype(as_function(declval<decay_t<T>&>()))>;
+  template <class F>
+    requires CopyConstructible<decay_t<F>>() &&
+      Constructible<decay_t<F>, F&&>()
+  using FunctionType = decltype(ext::make_callable_wrapper(declval<F>()));
 
   ///////////////////////////////////////////////////////////////////////////
   // Callable [Extension]

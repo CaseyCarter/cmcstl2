@@ -25,9 +25,10 @@
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class Proj = identity,
             IndirectCallablePredicate<Projected<I, Proj>> Pred>
-  bool is_partitioned(I first, S last, Pred pred_, Proj proj_ = Proj{}) {
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+  bool is_partitioned(I first, S last,
+                      Pred&& pred_, Proj&& proj_ = Proj{}) {
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     first = __stl2::find_if_not(__stl2::move(first), last,
                                 __stl2::ref(pred), __stl2::ref(proj));
     return __stl2::none_of(__stl2::move(first), __stl2::move(last),

@@ -34,13 +34,13 @@ STL2_OPEN_NAMESPACE {
     requires __icr<Pred, I2, Projected<I1, Proj>>
   I1 find_end(I1 first1, const S1 last1,
               const I2 first2, const S2 last2,
-              Pred pred_ = Pred{}, Proj proj_ = Proj{}) {
+              Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{}) {
     if (first2 == last2) {
       return __stl2::next(first1, last1);
     }
 
-    auto &&pred = __stl2::as_function(pred_);
-    auto &&proj = __stl2::as_function(proj_);
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     optional<I1> res;
     for (; first1 != last1; ++first1) {
@@ -64,13 +64,14 @@ STL2_OPEN_NAMESPACE {
   template <BidirectionalIterator I1, BidirectionalIterator I2,
             class Pred = equal_to<>, class Proj = identity>
     requires __icr<Pred, I2, Projected<I1, Proj>>
-  I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2, Pred pred_, Proj proj_) {
+  I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2,
+              Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{}) {
     if (first2 == last2) {
       return last1;  // Everything matches an empty sequence
     }
 
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     --last2;
     auto l1 = last1;
@@ -95,7 +96,8 @@ STL2_OPEN_NAMESPACE {
   template <RandomAccessIterator I1, RandomAccessIterator I2,
             class Pred = equal_to<>, class Proj = identity>
     requires __icr<Pred, I2, Projected<I1, Proj>>
-  I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2, Pred pred_, Proj proj_) {
+  I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2,
+              Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{}) {
     // Take advantage of knowing source and pattern lengths.
     // Stop short when source is smaller than pattern
     const auto len2 = last2 - first2;
@@ -103,8 +105,8 @@ STL2_OPEN_NAMESPACE {
       return last1;
     }
 
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     const auto s = first1 + (len2 - 1);  // End of pattern match can't go before here
 
     for (auto l1 = last1; l1 != s; --l1) {
@@ -123,7 +125,7 @@ STL2_OPEN_NAMESPACE {
             BidirectionalIterator I2, Sentinel<I2> S2,
             class Pred = equal_to<>, class Proj = identity>
     requires __icr<Pred, I2, Projected<I1, Proj>>
-  I1 find_end(I1 first1, S1 s1, I2 first2, S2 s2, Pred&& pred, Proj&& proj = {}) {
+  I1 find_end(I1 first1, S1 s1, I2 first2, S2 s2, Pred&& pred = {}, Proj&& proj = {}) {
     return __stl2::find_end(
       first1, __stl2::next(first1, s1),
       first2, __stl2::next(first2, s2),

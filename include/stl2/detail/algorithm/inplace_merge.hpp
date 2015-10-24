@@ -47,9 +47,11 @@ STL2_OPEN_NAMESPACE {
     struct merge_adaptive_fn {
     private:
       template <BidirectionalIterator I, class C, class P>
-        requires Sortable<I, C, P>()
+      // requires Sortable<I, C, P>()
       static void impl(I begin, I middle, I end, DifferenceType<I> len1,
-                       DifferenceType<I> len2, temporary_buffer<ValueType<I>>& buf, C &pred, P &proj) {
+                       DifferenceType<I> len2, temporary_buffer<ValueType<I>>& buf, C& pred, P& proj) {
+        // Pre: len1 == distance(begin, midddle)
+        // Pre: len2 == distance(middle, end)
         temporary_vector<ValueType<I>> vec{buf};
         if(len1 <= len2)
           {
@@ -71,11 +73,13 @@ STL2_OPEN_NAMESPACE {
       template <BidirectionalIterator I, class C, class P>
         requires Sortable<I, C, P>()
       void operator()(I begin, I middle, I end, DifferenceType<I> len1, DifferenceType<I> len2,
-                      detail::temporary_buffer<ValueType<I>>& buf, C pred_, P proj_) const
+                      detail::temporary_buffer<ValueType<I>>& buf, C&& pred_, P&& proj_) const
       {
+        // Pre: len1 == distance(begin, midddle)
+        // Pre: len2 == distance(middle, end)
         using D = DifferenceType<I>;
-        auto&& pred = __stl2::as_function(pred_);
-        auto&& proj = __stl2::as_function(proj_);
+        auto pred = ext::make_callable_wrapper(__stl2::forward<C>(pred_));
+        auto proj = ext::make_callable_wrapper(__stl2::forward<P>(proj_));
         while (true) {
           // if middle == end, we're done
           if (len2 == 0) {
@@ -179,7 +183,7 @@ STL2_OPEN_NAMESPACE {
             class Proj = identity>
     requires Sortable<I, Comp, Proj>()
   I inplace_merge(I first, I middle, S last,
-                    Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+                  Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     auto len1 = __stl2::distance(first, middle);
     auto len2_and_end = __stl2::ext::enumerate(middle, __stl2::move(last));
     auto buf_size = std::min(len1, len2_and_end.count());

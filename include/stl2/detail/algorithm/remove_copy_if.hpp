@@ -26,9 +26,10 @@ STL2_OPEN_NAMESPACE {
             class Proj = identity, IndirectCallablePredicate<Projected<I, Proj>> Pred>
     requires IndirectlyCopyable<I, O>()
   tagged_pair<tag::in(I), tag::out(O)>
-  remove_copy_if(I first, S last, O result, Pred pred_, Proj proj_ = Proj{}) {
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+  remove_copy_if(I first, S last, O result,
+                 Pred&& pred_, Proj&& proj_ = Proj{}) {
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     for (; first != last; ++first) {
       auto&& v = *first;

@@ -149,9 +149,9 @@ STL2_OPEN_NAMESPACE {
       template <class I, class Comp = less<>, class Proj = identity>
         requires Sortable<I, Comp, Proj>()
       inline I sort_n(I first, const DifferenceType<I> n,
-                      Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
-        auto&& comp = __stl2::as_function(comp_);
-        auto&& proj = __stl2::as_function(proj_);
+                      Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
+        auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+        auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
         auto ufirst = ext::uncounted(first);
         using buf_t = temporary_buffer<ValueType<decltype(ufirst)>>;
         // TODO: tune this threshold.

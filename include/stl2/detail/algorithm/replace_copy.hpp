@@ -26,8 +26,8 @@ STL2_OPEN_NAMESPACE {
       IndirectCallableRelation<equal_to<>, Projected<I, Proj>, const T1*>()
   tagged_pair<tag::in(I), tag::out(O)>
   replace_copy(I first, S last, O result, const T1& old_value,
-               const T2& new_value, Proj proj_ = Proj{}) {
-    auto&& proj = __stl2::as_function(proj_);
+               const T2& new_value, Proj&& proj_ = Proj{}) {
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     for (; first != last; ++first, ++result) {
       auto&& v = *first;

@@ -35,7 +35,8 @@ STL2_OPEN_NAMESPACE {
   template <BidirectionalIterator I, Sentinel<I> S, class Comp = less<>,
             class Proj = identity>
     requires Sortable<I, Comp, Proj>()
-  bool prev_permutation(I first, S last, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
+  bool prev_permutation(I first, S last, Comp&& comp_ = Comp{},
+                        Proj&& proj_ = Proj{}) {
     if (first == last) {
       return false;
     }
@@ -43,8 +44,8 @@ STL2_OPEN_NAMESPACE {
     if (first == --i) {
       return false;
     }
-    auto&& comp = as_function(comp_);
-    auto&& proj = as_function(proj_);
+    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     while (true) {
       I ip1 = i;
       if (comp(proj(*ip1), proj(*--i))) {

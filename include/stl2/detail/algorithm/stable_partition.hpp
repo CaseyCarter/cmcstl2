@@ -243,9 +243,9 @@ STL2_OPEN_NAMESPACE {
               IndirectCallablePredicate<Projected<I, Proj>> Pred>
       requires Permutable<I>()
     I stable_partition_n(I first, DifferenceType<I> n,
-                         Pred pred_, Proj proj_ = Proj{}) {
-      auto&& pred = __stl2::as_function(pred_);
-      auto&& proj = __stl2::as_function(proj_);
+                         Pred&& pred_, Proj&& proj_ = Proj{}) {
+      auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+      auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
       // Either prove all true or find first false
       detail::stable_part::skip_true(first, n, pred, proj);
@@ -267,10 +267,10 @@ STL2_OPEN_NAMESPACE {
               IndirectCallablePredicate<Projected<I, Proj>> Pred>
       requires Permutable<I>()
     I stable_partition_n(I first, I last, DifferenceType<I> n,
-                         Pred pred_, Proj proj_ = Proj{}) {
+                         Pred&& pred_, Proj&& proj_ = Proj{}) {
       // Precondition: n == distance(first, last);
-      auto&& pred = __stl2::as_function(pred_);
-      auto&& proj = __stl2::as_function(proj_);
+      auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+      auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
       // Either prove all true or find first false
       detail::stable_part::skip_true(first, n, pred, proj);

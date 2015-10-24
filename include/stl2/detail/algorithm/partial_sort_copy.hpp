@@ -34,14 +34,14 @@ STL2_OPEN_NAMESPACE {
               Projected<I1, Proj1>, Projected<I2, Proj2>> Comp = less<>>
     requires IndirectlyCopyable<I1, I2>() && Sortable<I2, Comp, Proj2>()
   I2 partial_sort_copy(I1 first, S1 last, I2 result_first, S2 result_last,
-                       Comp comp_ = Comp{}, Proj1 proj1_ = Proj1{},
-                       Proj2 proj2_ = Proj2{})
+                       Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{},
+                       Proj2&& proj2_ = Proj2{})
   {
     auto r = result_first;
     if(r != result_last) {
-      auto&& comp = __stl2::as_function(comp_);
-      auto&& proj1 = __stl2::as_function(proj1_);
-      auto&& proj2 = __stl2::as_function(proj2_);
+      auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+      auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
+      auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
 
       for(; first != last && r != result_last; ++first, ++r) {
         *r = *first;
