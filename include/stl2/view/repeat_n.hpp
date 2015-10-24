@@ -14,7 +14,7 @@
 
 #include <stl2/iterator.hpp>
 #include <stl2/type_traits.hpp>
-#include <stl2/detail/cheap_storage.hpp>
+#include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/view/repeat.hpp>
