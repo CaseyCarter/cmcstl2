@@ -37,15 +37,15 @@ STL2_OPEN_NAMESPACE {
             ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
             class Proj1 = identity, class Proj2 = identity>
     requires models::IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-  I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred_ = Pred{},
-            Proj1 proj1_ = Proj1{}, Proj2 proj2_ = Proj2{}) {
+  I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred_ = Pred{},
+            Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{}) {
     if (first2 == last2) {
       return first1;
     }
 
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj1 = __stl2::as_function(proj1_);
-    auto&& proj2 = __stl2::as_function(proj2_);
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
+    auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
 
     for (; first1 != last1; ++first1) {
       if (pred(proj1(*first1), proj2(*first2))) {
@@ -74,14 +74,14 @@ STL2_OPEN_NAMESPACE {
     requires models::IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
   I1 __sized_search(const I1 first1_, S1 last1, const DifferenceType<I1> d1_,
                     I2 first2, S2 last2, const DifferenceType<I2> d2,
-                    Pred pred_, Proj1 proj1_, Proj2 proj2_) {
+                    Pred&& pred_, Proj1&& proj1_, Proj2&& proj2_) {
     if (d2 == 0) {
       return first1_;
     }
 
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj1 = __stl2::as_function(proj1_);
-    auto&& proj2 = __stl2::as_function(proj2_);
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
+    auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
 
     auto d1 = d1_;
     auto first1 = __stl2::ext::uncounted(first1_);

@@ -35,9 +35,9 @@
 STL2_OPEN_NAMESPACE {
   template <Permutable I, Sentinel<I> S, class Proj = identity,
             IndirectCallablePredicate<Projected<I, Proj>> Pred>
-  I partition(I first, S last, Pred pred_, Proj proj_ = Proj{}) {
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+  I partition(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{}) {
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     first = __stl2::find_if_not(__stl2::move(first), last,
                                 __stl2::ref(pred), __stl2::ref(proj));
     if (first != last) {
@@ -54,9 +54,9 @@ STL2_OPEN_NAMESPACE {
   template <Permutable I, Sentinel<I> S, class Proj = identity,
             IndirectCallablePredicate<Projected<I, Proj>> Pred>
     requires BidirectionalIterator<I>()
-  I partition(I first, S last_, Pred pred_, Proj proj_ = Proj{}) {
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+  I partition(I first, S last_, Pred&& pred_, Proj&& proj_ = Proj{}) {
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     auto last = __stl2::next(first, __stl2::move(last_));
 
     for (; first != last; ++first) {

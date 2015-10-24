@@ -88,7 +88,8 @@ STL2_OPEN_NAMESPACE {
       optional<T> o_;
     };
 
-    Semiregular{T}
+    template <class T>
+    requires Destructible<T>() && Semiregular<T>()
     class semiregular_box<T> : public ebo_box<T> {
     public:
       semiregular_box() = default;

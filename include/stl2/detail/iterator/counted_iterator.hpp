@@ -13,7 +13,7 @@
 #define STL2_DETAIL_ITERATOR_COUNTED_ITERATOR_HPP
 
 #include <stl2/type_traits.hpp>
-#include <stl2/detail/cheap_storage.hpp>
+#include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/default_sentinel.hpp>

@@ -28,10 +28,10 @@ STL2_OPEN_NAMESPACE {
             IndirectCallablePredicate<Projected<I, Proj>> Pred>
     requires IndirectlyCopyable<I, O1>() && IndirectlyCopyable<I, O2>()
   tagged_tuple<tag::in(I), tag::out1(O1), tag::out2(O2)>
-  partition_copy(I first, S last, O1 out_true, O2 out_false, Pred pred_,
-                 Proj proj_ = Proj{}) {
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+  partition_copy(I first, S last, O1 out_true, O2 out_false,
+                 Pred&& pred_, Proj&& proj_ = Proj{}) {
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     for (; first != last; ++first) {
       auto&& v = *first;

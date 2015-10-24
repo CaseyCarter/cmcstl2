@@ -24,10 +24,11 @@
 STL2_OPEN_NAMESPACE {
   template <class I, class S, class O, class Proj, class R>
   tagged_pair<tag::in(I), tag::out(O)>
-  __unique_copy(false_type, false_type, I first, S last, O result, R& comp_, Proj& proj_) {
+  __unique_copy(false_type, false_type, I first, S last, O result,
+                R&& comp_, Proj&& proj_) {
     if (first != last) {
-      auto&& comp = __stl2::as_function(comp_);
-      auto&& proj = __stl2::as_function(proj_);
+      auto comp = ext::make_callable_wrapper(__stl2::forward<R>(comp_));
+      auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
       ValueType<I> saved = *first;
       *result = saved;
       ++result;
@@ -45,10 +46,11 @@ STL2_OPEN_NAMESPACE {
 
   template <class I, class S, class O, class Proj, class R>
   tagged_pair<tag::in(I), tag::out(O)>
-  __unique_copy(false_type, true_type, I first, S last, O result, R& comp_, Proj& proj_) {
+  __unique_copy(false_type, true_type, I first, S last, O result,
+                R&& comp_, Proj&& proj_) {
     if (first != last) {
-      auto&& comp = __stl2::as_function(comp_);
-      auto&& proj = __stl2::as_function(proj_);
+      auto comp = ext::make_callable_wrapper(__stl2::forward<R>(comp_));
+      auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
       *result = *first;
       auto m = result;
       while (++first != last) {
@@ -65,10 +67,11 @@ STL2_OPEN_NAMESPACE {
 
   template <class I, class S, class O, class Proj, class R>
   tagged_pair<tag::in(I), tag::out(O)>
-  __unique_copy(true_type, auto, I first, S last, O result, R& comp_, Proj& proj_) {
+  __unique_copy(true_type, auto, I first, S last, O result,
+                R&& comp_, Proj&& proj_) {
     if (first != last) {
-      auto&& comp = __stl2::as_function(comp_);
-      auto&& proj = __stl2::as_function(proj_);
+      auto comp = ext::make_callable_wrapper(__stl2::forward<R>(comp_));
+      auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
       *result = *first;
       ++result;
       auto m = first;
@@ -101,7 +104,9 @@ STL2_OPEN_NAMESPACE {
        meta::bool_<models::ForwardIterator<I>>{},
        meta::bool_<models::ForwardIterator<O>>{},
        __stl2::move(first), __stl2::move(last),
-       __stl2::move(result), comp, proj);
+       __stl2::move(result),
+       __stl2::forward<R>(comp),
+       __stl2::forward<Proj>(proj));
   }
 
   template <InputRange Rng, WeaklyIncrementable O, class Proj = identity,
@@ -113,7 +118,9 @@ STL2_OPEN_NAMESPACE {
        meta::bool_<models::ForwardIterator<IteratorType<Rng>>>{},
        meta::bool_<models::ForwardIterator<O>>{},
        __stl2::begin(rng), __stl2::end(rng),
-       __stl2::move(result), comp, proj);
+       __stl2::move(result),
+       __stl2::forward<R>(comp),
+       __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
 

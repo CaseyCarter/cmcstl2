@@ -23,16 +23,18 @@
 // set_difference [set.difference]
 //
 STL2_OPEN_NAMESPACE {
-  template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
-           WeaklyIncrementable O, class Comp = less<>,
-           class Proj1 = identity, class Proj2 = identity>
+  template <InputIterator I1, Sentinel<I1> S1,
+            InputIterator I2, Sentinel<I2> S2,
+            WeaklyIncrementable O, class Comp = less<>,
+            class Proj1 = identity, class Proj2 = identity>
     requires Mergeable<I1, I2, O, Comp, Proj1, Proj2>()
   tagged_pair<tag::in1(I1), tag::out(O)>
   set_difference(I1 first1, S1 last1, I2 first2, S2 last2, O result,
-                 Comp comp_ = Comp{}, Proj1 proj1_ = Proj1{}, Proj2 proj2_ = Proj2{}) {
-    auto&& comp = __stl2::as_function(comp_);
-    auto&& proj1 = __stl2::as_function(proj1_);
-    auto&& proj2 = __stl2::as_function(proj2_);
+                 Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{},
+                 Proj2&& proj2_ = Proj2{}) {
+    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+    auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
+    auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
 
     while (first1 != last1 && first2 != last2) {
       auto&& v1 = *first1;

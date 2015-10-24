@@ -19,10 +19,9 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
-#include <stl2/detail/concepts/object.hpp>
-
-// TODO:
-// * invoke
+#include <stl2/detail/functional/callable_wrapper.hpp>
+#include <stl2/detail/functional/invoke.hpp>
+#include <stl2/detail/functional/not_fn.hpp>
 
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
@@ -66,10 +65,6 @@ STL2_OPEN_NAMESPACE {
   using std::function;
   using std::hash;
 
-#if 0 // NYI
-  using std::invoke;
-#endif
-
   template <class T>
   struct __unwrap_ : __unwrap_<decay_t<T>> {};
   template <_Decayed T>
@@ -87,6 +82,8 @@ STL2_OPEN_NAMESPACE {
     constexpr T&& operator()(T&& t) const noexcept {
       return __stl2::forward<T>(t);
     }
+
+    using is_transparent = true_type;
   };
 
   ///////////////////////////////////////////////////////////////////////////
@@ -220,43 +217,6 @@ STL2_OPEN_NAMESPACE {
 
     using is_transparent = true_type;
   };
-
-  ///////////////////////////////////////////////////////////////////////////
-  // not_fn from N4336 Library Fundamentals v2
-  //
-  template <class F>
-  class __not_fn {
-    F f_;
-
-  public:
-    template <class FF>
-      requires Constructible<F, FF>()
-    constexpr __not_fn(FF&& arg)
-      noexcept(is_nothrow_constructible<F, FF>::value) :
-      f_(__stl2::forward<decltype(arg)>(arg)) {}
-
-    // FIXME: should return !invoke(f_, args...)
-    constexpr bool operator()(auto&&...args) &
-      noexcept(noexcept(declval<F&>()(__stl2::forward<decltype(args)>(args)...))) {
-      return !f_(__stl2::forward<decltype(args)>(args)...);
-    }
-    constexpr bool operator()(auto&&...args) const&
-      noexcept(noexcept(declval<const F&>()(__stl2::forward<decltype(args)>(args)...))) {
-      return !f_(__stl2::forward<decltype(args)>(args)...);
-    }
-    constexpr bool operator()(auto&&...args) &&
-      noexcept(noexcept(declval<F>()(__stl2::forward<decltype(args)>(args)...))) {
-      return !__stl2::move(f_)(__stl2::forward<decltype(args)>(args)...);
-    }
-  };
-
-  template <class F>
-    requires MoveConstructible<F>() &&
-      Constructible<decay_t<F>, F>()
-  STL2_CONSTEXPR_EXT __not_fn<decay_t<F>> not_fn(F&& f)
-    noexcept(is_nothrow_constructible<__not_fn<decay_t<F>>, F>::value) {
-    return {__stl2::forward<F>(f)};
-  }
 } STL2_CLOSE_NAMESPACE
 
 #endif

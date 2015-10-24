@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
     requires Copyable<ValueType<IteratorType<Rng>>>()
   constexpr tagged_pair<tag::min(ValueType<IteratorType<Rng>>),
                         tag::max(ValueType<IteratorType<Rng>>)>
-  __minmax(Rng&& rng, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
+  __minmax(Rng&& rng, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
     using value_type = ValueType<IteratorType<Rng>>;
     auto first = __stl2::begin(rng);
     auto last = __stl2::end(rng);
@@ -39,8 +39,8 @@ STL2_OPEN_NAMESPACE {
       *first, *first
     };
     if (++first != last) {
-      auto&& comp = __stl2::as_function(comp_);
-      auto&& proj = __stl2::as_function(proj_);
+      auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+      auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
       if (comp(proj(*first), proj(result.first))) {
         result.first = *first;
       } else {
@@ -81,9 +81,9 @@ STL2_OPEN_NAMESPACE {
             IndirectCallableStrictWeakOrder<
               Projected<const T*, Proj>> Comp = less<>>
   constexpr tagged_pair<tag::min(const T&), tag::max(const T&)>
-  minmax(const T& a, const T& b, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
-    auto&& comp = __stl2::as_function(comp_);
-    auto&& proj = __stl2::as_function(proj_);
+  minmax(const T& a, const T& b, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
+    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     if (comp(proj(b), proj(a))) {
       return {b, a};
     } else {

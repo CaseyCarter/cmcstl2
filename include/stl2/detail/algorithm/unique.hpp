@@ -26,9 +26,9 @@ STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
             IndirectCallableRelation<Projected<I, Proj>> R = equal_to<>>
     requires Permutable<I>()
-  I unique(I first, S last, R comp_ = R{}, Proj proj_ = Proj{}) {
-    auto&& comp = __stl2::as_function(comp_);
-    auto&& proj = __stl2::as_function(proj_);
+  I unique(I first, S last, R&& comp_ = R{}, Proj&& proj_ = Proj{}) {
+    auto comp = ext::make_callable_wrapper(__stl2::forward<R>(comp_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     first = __stl2::adjacent_find(__stl2::move(first), last, comp, proj);
     if (first != last) {
       for (auto m = __stl2::next(first, 2); m != last; ++m) {

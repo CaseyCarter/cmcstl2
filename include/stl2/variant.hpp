@@ -180,6 +180,28 @@ STL2_OPEN_NAMESPACE {
       index_t index_;
       storage_t storage_;
 
+      struct index_guard {
+        base* target_;
+        index_t index_;
+
+        ~index_guard() {
+          if (target_) {
+            target_->index_ = index_;
+          }
+        }
+
+        index_guard() = default;
+        constexpr index_guard(base& target, index_t index = invalid_index) noexcept :
+          target_{&target}, index_{index} {}
+        constexpr index_guard(index_guard&& that) noexcept :
+          target_{__stl2::exchange(that.target_, nullptr)}, index_{that.index_} {}
+        constexpr index_guard& operator=(index_guard&& that) & noexcept {
+          target_ = __stl2::exchange(that.target_, nullptr);
+          index_ = that.index_;
+          return *this;
+        }
+      };
+
     protected:
       void clear_() noexcept {
         if (valid()) {
@@ -193,13 +215,14 @@ STL2_OPEN_NAMESPACE {
       template <class That>
         requires DerivedFrom<__uncvref<That>, base>()
       void copy_move_from(That&& that) {
-        //STL2_ASSUME(!valid());
+        // Pre: *this does not contain an object.
+        auto guard = index_guard{*this};
         if (that.valid()) {
-          raw_visit_with_index([this](auto i, auto&& from) {
+          raw_visit_with_index([this, &guard](auto i, auto&& from) {
             detail::construct(
               strip_cv(st_access::raw_get(i, storage_)),
                 __stl2::forward<decltype(from)>(from));
-            index_ = i;
+            guard.index_ = i;
           }, __stl2::forward<That>(that));
         }
       }
@@ -214,12 +237,7 @@ STL2_OPEN_NAMESPACE {
           }
         } else {
           clear_();
-          try {
-            copy_move_from(__stl2::move(that));
-          } catch(...) {
-            index_ = invalid_index;
-            throw;
-          }
+          copy_move_from(__stl2::move(that));
         }
       }
 
@@ -233,19 +251,14 @@ STL2_OPEN_NAMESPACE {
         } else {
           auto tmp = that;
           clear_();
-          try {
-            copy_move_from(__stl2::move(tmp));
-          } catch(...) {
-            index_ = invalid_index;
-            throw;
-          }
+          copy_move_from(__stl2::move(tmp));
         }
       }
 
       template <class That>
         requires DerivedFrom<__uncvref<That>, base>()
       base(copy_move_tag, That&& that) :
-        index_{invalid_index}, storage_{empty_tag{}} {
+        storage_{empty_tag{}} {
         copy_move_from(__stl2::forward<That>(that));
       }
 
@@ -320,90 +333,66 @@ STL2_OPEN_NAMESPACE {
         requires Constructible<T, Args...>()
       void emplace(Args&&...args)
         noexcept(is_nothrow_constructible<element_t<T>, Args...>::value) {
+        auto guard = index_guard{*this};
         clear_();
-        try {
-          detail::construct(
-            strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
-              __stl2::forward<Args>(args)...);
-          index_ = I;
-        } catch(...) {
-          index_ = invalid_index;
-          throw;
-        }
+        detail::construct(
+          strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+          __stl2::forward<Args>(args)...);
+        guard.index_ = I;
       }
 
       template <_Is<is_reference> T, std::size_t I = index_of_type<T, types>>
       void emplace(meta::id_t<T> t)
         noexcept(is_nothrow_constructible<element_t<T>, T&>::value) {
+        auto guard = index_guard{*this};
         clear_();
-        try {
-          detail::construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
-          index_ = I;
-        } catch(...) {
-          index_ = invalid_index;
-          throw;
-        }
+        detail::construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
+        guard.index_ = I;
       }
 
       template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
         requires Constructible<T, std::initializer_list<E>, Args...>()
       void emplace(std::initializer_list<E> il, Args&&...args)
         noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value) {
+        auto guard = index_guard{*this};
         clear_();
-        try {
-          detail::construct(
-            strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
-              il, __stl2::forward<Args>(args)...);
-          index_ = I;
-        } catch(...) {
-          index_ = invalid_index;
-          throw;
-        }
+        detail::construct(
+          strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+            il, __stl2::forward<Args>(args)...);
+        guard.index_ = I;
       }
 
       template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
         requires Constructible<T, Args...>()
       void emplace(Args&&...args)
         noexcept(is_nothrow_constructible<element_t<T>, Args...>::value) {
+        auto guard = index_guard{*this};
         clear_();
-        try {
-          detail::construct(
-            strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
-              __stl2::forward<Args>(args)...);
-          index_ = I;
-        } catch(...) {
-          index_ = invalid_index;
-          throw;
-        }
+        detail::construct(
+          strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+            __stl2::forward<Args>(args)...);
+        guard.index_ = I;
       }
 
       template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
       void emplace(meta::id_t<T> t)
         noexcept(is_nothrow_constructible<element_t<T>, T&>::value) {
+        auto guard = index_guard{*this};
         clear_();
-        try {
-          detail::construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
-          index_ = I;
-        } catch(...) {
-          index_ = invalid_index;
-          throw;
-        }
+        detail::construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
+        guard.index_ = I;
       }
 
       template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
         requires Constructible<T, std::initializer_list<E>, Args...>()
       void emplace(std::initializer_list<E> il, Args&&...args)
         noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value) {
+        auto guard = index_guard{*this};
         clear_();
-        try {
-          detail::construct(
-            strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
-              il, __stl2::forward<Args>(args)...);
-          index_ = I;
-        } catch(...) {
-          index_ = invalid_index;
-          throw;
-        }
+        detail::construct(
+          strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+            il, __stl2::forward<Args>(args)...);
+        guard.index_ = I;
       }
 
       constexpr std::size_t index() const noexcept {

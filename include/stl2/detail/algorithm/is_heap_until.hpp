@@ -35,10 +35,10 @@ STL2_OPEN_NAMESPACE {
     template <RandomAccessIterator I, class Proj = identity,
               IndirectCallableStrictWeakOrder<Projected<I, Proj>> Comp = less<>>
     I is_heap_until_n(I first, const DifferenceType<I> n,
-                      Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
+                      Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
       STL2_ASSUME(0 <= n);
-      auto&& comp = __stl2::as_function(comp_);
-      auto&& proj = __stl2::as_function(proj_);
+      auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+      auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
       DifferenceType<I> p = 0, c = 1;
       I pp = first;
       while (c < n) {

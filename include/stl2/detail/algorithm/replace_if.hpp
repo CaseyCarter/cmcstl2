@@ -23,9 +23,10 @@ STL2_OPEN_NAMESPACE {
   template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
            IndirectCallablePredicate<Projected<I, Proj>> Pred>
     requires Writable<I, T>()
-  I replace_if(I first, S last, Pred pred_, const T& new_value, Proj proj_ = Proj{}) {
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+  I replace_if(I first, S last, Pred&& pred_,
+               const T& new_value, Proj&& proj_ = Proj{}) {
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     for (; first != last; ++first) {
       if (pred(proj(*first))) {
         *first = new_value;

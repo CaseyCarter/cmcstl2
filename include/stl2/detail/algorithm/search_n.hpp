@@ -36,13 +36,13 @@ STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class T, class Pred, class Proj>
     requires models::IndirectlyComparable<I, const T*, Pred, Proj>
   I __unsized_search_n(I first, S last, DifferenceType<I> count,
-                       const T& value, Pred& pred_, Proj& proj_) {
+                       const T& value, Pred&& pred_, Proj&& proj_) {
     if (count <= 0) {
       return first;
     }
 
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     for (; first != last; ++first) {
       if (pred(proj(*first), value)) {
@@ -66,21 +66,23 @@ STL2_OPEN_NAMESPACE {
             class Pred = equal_to<>, class Proj = identity>
     requires models::IndirectlyComparable<I, const T*, Pred, Proj>
   I search_n(I first, S last, DifferenceType<I> count,
-             const T& value, Pred pred = Pred{}, Proj proj = Proj{}) {
+             const T& value, Pred&& pred = Pred{}, Proj&& proj = Proj{}) {
     return __stl2::__unsized_search_n(__stl2::move(first), __stl2::move(last),
-                                      count, value, pred, proj);
+                                      count, value,
+                                      __stl2::forward<Pred>(pred),
+                                      __stl2::forward<Proj>(proj));
   }
 
   template <ForwardIterator I, Sentinel<I> S, class T, class Pred, class Proj>
     requires models::IndirectlyComparable<I, const T*, Pred, Proj>
   I __sized_search_n(I first_, S last, DifferenceType<I> d_, DifferenceType<I> count,
-                     const T& value, Pred& pred_, Proj& proj_) {
+                     const T& value, Pred&& pred_, Proj&& proj_) {
     if (count <= 0) {
       return first_;
     }
 
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj = __stl2::as_function(proj_);
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     auto d = d_;
     auto first = __stl2::ext::uncounted(first_);
@@ -109,18 +111,21 @@ STL2_OPEN_NAMESPACE {
     requires models::IndirectlyComparable<I, const T*, Pred, Proj> &&
       SizedIteratorRange<I, S>()
   I search_n(I first, S last, DifferenceType<I> count,
-             const T& value, Pred pred = Pred{}, Proj proj = Proj{}) {
+             const T& value, Pred&& pred = Pred{}, Proj&& proj = Proj{}) {
     return __stl2::__sized_search_n(__stl2::move(first), __stl2::move(last),
                                     __stl2::distance(first, last),
-                                    count, value, pred, proj);
+                                    count, value,
+                                    __stl2::forward<Pred>(pred),
+                                    __stl2::forward<Proj>(proj));
   }
 
   template <ForwardRange Rng, class T, class Pred = equal_to<>, class Proj = identity>
     requires models::IndirectlyComparable<IteratorType<Rng>, const T*, Pred, Proj>
   safe_iterator_t<Rng> search_n(Rng&& rng, DifferenceType<IteratorType<Rng>> count,
                                 const T& value, Pred&& pred = Pred{}, Proj&& proj = Proj{}) {
-    return __stl2::__unsized_search_n(__stl2::begin(rng), __stl2::end(rng),
-                                      count, value, pred, proj);
+    return __stl2::__unsized_search_n(
+      __stl2::begin(rng), __stl2::end(rng), count, value,
+      __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 
   template <ForwardRange Rng, class T, class Pred = equal_to<>, class Proj = identity>
@@ -128,8 +133,10 @@ STL2_OPEN_NAMESPACE {
       models::IndirectlyComparable<IteratorType<Rng>, const T*, Pred, Proj>
   safe_iterator_t<Rng> search_n(Rng&& rng, DifferenceType<IteratorType<Rng>> count,
                                 const T& value, Pred&& pred = Pred{}, Proj&& proj = Proj{}) {
-    return __stl2::__sized_search_n(__stl2::begin(rng), __stl2::end(rng),
-                                    __stl2::distance(rng), count, value, pred, proj);
+    return __stl2::__sized_search_n(
+      __stl2::begin(rng), __stl2::end(rng),
+      __stl2::distance(rng), count, value,
+      __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
 

@@ -24,11 +24,11 @@
 STL2_OPEN_NAMESPACE {
   template <class C, class T>
   struct __upper_bound_fn {
-    FunctionType<C> comp_;
+    ext::callable_wrapper<decay_t<C>> comp_;
     const T& value_;
 
-    constexpr __upper_bound_fn(auto&& comp, const T& value) :
-      comp_(__stl2::as_function(comp)), value_(value) {}
+    constexpr __upper_bound_fn(C&& comp, const T& value) :
+      comp_(__stl2::forward<C>(comp)), value_(value) {}
 
     constexpr bool operator()(auto&& i) const {
       return !comp_(value_, i);

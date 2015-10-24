@@ -23,8 +23,8 @@
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class T, class Proj = identity>
     requires IndirectCallableRelation<equal_to<>, Projected<I, Proj>, const T*>()
-  DifferenceType<I> count(I first, S last, const T& value, Proj proj_ = Proj{}) {
-    auto&& proj = __stl2::as_function(proj_);
+  DifferenceType<I> count(I first, S last, const T& value, Proj&& proj_ = Proj{}) {
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     DifferenceType<I> n = 0;
     for (; first != last; ++first) {
       if (proj(*first) == value) {

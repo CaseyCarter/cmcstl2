@@ -25,14 +25,14 @@
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class Proj = identity,
             ext::Callable<ReferenceType<Projected<I, Proj>>> Fun>
-  tagged_pair<tag::in(I), tag::fun(Fun)>
-  for_each(I first, S last, Fun fun_, Proj proj_ = Proj{}) {
-    auto &&fun = __stl2::as_function(fun_);
-    auto &&proj = __stl2::as_function(proj_);
+  tagged_pair<tag::in(I), tag::fun(__uncvref<Fun>)>
+  for_each(I first, S last, Fun&& fun_, Proj&& proj_ = Proj{}) {
+    auto fun = ext::make_callable_wrapper(__stl2::forward<Fun>(fun_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     for (; first != last; ++first) {
       (void)fun(proj(*first));
     }
-    return {__stl2::move(first), __stl2::move(fun_)};
+    return {__stl2::move(first), __stl2::move(fun).base()};
   }
 
   template <InputRange Rng, class Proj = identity,

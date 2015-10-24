@@ -25,11 +25,12 @@ STL2_OPEN_NAMESPACE {
             class Proj1 = identity, class Proj2 = identity,
             IndirectCallablePredicate<Projected<I1, Proj1>,
                                       Projected<I2, Proj2>> Pred = equal_to<>>
-  I1 find_first_of(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred_ = Pred{},
-                   Proj1 proj1_ = Proj1{}, Proj2 proj2_ = Proj2{}) {
-    auto&& pred = __stl2::as_function(pred_);
-    auto&& proj1 = __stl2::as_function(proj1_);
-    auto&& proj2 = __stl2::as_function(proj2_);
+  I1 find_first_of(I1 first1, S1 last1, I2 first2, S2 last2,
+                   Pred&& pred_ = Pred{}, Proj1&& proj1_ = Proj1{},
+                   Proj2&& proj2_ = Proj2{}) {
+    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+    auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
+    auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
     for (; first1 != last1; ++first1) {
       for (auto pos = first2; pos != last2; ++pos) {
         if (pred(proj1(*first1), proj2(*pos))) {

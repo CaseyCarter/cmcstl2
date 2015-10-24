@@ -78,9 +78,9 @@ STL2_OPEN_NAMESPACE {
   template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
             class Proj = identity>
     requires Sortable<I, Comp, Proj>()
-  I nth_element(I first, I nth, S last, Comp comp_ = Comp{}, Proj proj_ = Proj{}) {
-    auto&& comp = __stl2::as_function(comp_);
-    auto&& proj = __stl2::as_function(proj_);
+  I nth_element(I first, I nth, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
+    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     I end = __stl2::next(nth, last), end_orig = end;
     static constexpr DifferenceType<I> limit = 7;
     while (true) {

@@ -14,7 +14,7 @@
 #define STL2_DETAIL_RANGE_RANGE_HPP
 
 #include <stl2/type_traits.hpp>
-#include <stl2/detail/cheap_storage.hpp>
+#include <stl2/detail/compressed_pair.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 
