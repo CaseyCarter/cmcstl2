@@ -34,9 +34,15 @@ STL2_OPEN_NAMESPACE {
   //              how the algorithms use it.
   //
   template <class F>
+  struct __as_callable_wrapper {
+    using type = ext::callable_wrapper<F>;
+  };
+
+  template <class F>
     requires CopyConstructible<decay_t<F>>() &&
       Constructible<decay_t<F>, F&&>()
-  using FunctionType = decltype(ext::make_callable_wrapper(declval<F>()));
+  using FunctionType = meta::_t<meta::if_<
+    is_member_pointer<decay_t<F>>, __as_callable_wrapper<decay_t<F>>, decay<F>>>;
 
   ///////////////////////////////////////////////////////////////////////////
   // Callable [Extension]

@@ -35,8 +35,9 @@ STL2_OPEN_NAMESPACE {
 
   template <class F, class...Args>
   concept bool Function() {
-    return CopyConstructible<F>() &&
-      __function<F, Args...>;
+    return CopyConstructible<decay_t<F>>() &&
+      Constructible<decay_t<F>, F&&>() &&
+      __function<decay_t<F>, Args...>;
   }
 
   namespace models {
@@ -51,7 +52,7 @@ STL2_OPEN_NAMESPACE {
   //
   Function{F, ...Args}
   using result_t =
-    decltype(declval<F&>()(declval<Args>()...));
+    decltype(declval<decay_t<F>&>()(declval<Args>()...));
 
   ///////////////////////////////////////////////////////////////////////////
   // RegularFunction [concepts.lib.functions.regularfunction]
