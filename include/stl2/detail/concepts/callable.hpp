@@ -29,7 +29,7 @@
 //
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
-  // FunctionType [functiontype.indirectcallables]
+  // as_function_t [indirectcallables.as_function_t]
   // Not to spec: Expects the adapted function to be an lvalue, since that's
   //              how the algorithms use it.
   //
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
   template <class F>
     requires CopyConstructible<decay_t<F>>() &&
       Constructible<decay_t<F>, F&&>()
-  using FunctionType = meta::_t<meta::if_<
+  using as_function_t = meta::_t<meta::if_<
     is_member_pointer<decay_t<F>>, __as_callable_wrapper<decay_t<F>>, decay<F>>>;
 
   ///////////////////////////////////////////////////////////////////////////
@@ -50,10 +50,10 @@ STL2_OPEN_NAMESPACE {
   namespace ext {
     template <class F, class...Args>
     concept bool Callable =
-      Function<FunctionType<F>, Args...>();
+      Function<as_function_t<F>, Args...>();
 
     Callable{F, ...Args}
-    using CallableResultType = result_t<FunctionType<F>, Args...>;
+    using CallableResultType = result_t<as_function_t<F>, Args...>;
   }
 
   namespace models {
@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
   namespace ext {
     template <class F, class...Args>
     concept bool RegularCallable =
-      RegularFunction<FunctionType<F>, Args...>();
+      RegularFunction<as_function_t<F>, Args...>();
 
     RegularCallable{F, ...Args}
     using RegularCallableResultType = CallableResultType<F, Args...>;
@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
   namespace ext {
     template <class F, class...Args>
     concept bool CallablePredicate =
-      Predicate<FunctionType<F>, Args...>();
+      Predicate<as_function_t<F>, Args...>();
   }
 
   namespace models {
@@ -104,12 +104,12 @@ STL2_OPEN_NAMESPACE {
   namespace ext {
     template <class F, class T>
     concept bool CallableRelation() {
-      return Relation<FunctionType<F>, T>();
+      return Relation<as_function_t<F>, T>();
     }
 
     template <class F, class T, class U>
     concept bool CallableRelation() {
-      return Relation<FunctionType<F>, T, U>();
+      return Relation<as_function_t<F>, T, U>();
     }
   }
 
@@ -128,12 +128,12 @@ STL2_OPEN_NAMESPACE {
   namespace ext {
     template <class F, class T>
     concept bool CallableStrictWeakOrder() {
-      return StrictWeakOrder<FunctionType<F>, T>();
+      return StrictWeakOrder<as_function_t<F>, T>();
     }
 
     template <class F, class T, class U>
     concept bool CallableStrictWeakOrder() {
-      return StrictWeakOrder<FunctionType<F>, T, U>();
+      return StrictWeakOrder<as_function_t<F>, T, U>();
     }
   }
 
@@ -236,7 +236,7 @@ STL2_OPEN_NAMESPACE {
       // redundantly checks the above 3 requirements
       meta::_v<meta::apply<
         __iter_map_reduce_fn<
-          meta::bind_front<meta::quote<__predicate>, FunctionType<F>>,
+          meta::bind_front<meta::quote<__predicate>, as_function_t<F>>,
           meta::quote<meta::fast_and>>,
         Is...>>;
   }
