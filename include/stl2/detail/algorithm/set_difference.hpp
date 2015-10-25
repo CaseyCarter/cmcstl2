@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng1, InputRange Rng2, WeaklyIncrementable O,
             class Comp = less<>, class Proj1 = identity, class Proj2 = identity>
-    requires Mergeable<IteratorType<Rng1>, IteratorType<Rng2>, O, Comp, Proj1, Proj2>()
+    requires Mergeable<iterator_t<Rng1>, iterator_t<Rng2>, O, Comp, Proj1, Proj2>()
   tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::out(O)>
   set_difference(Rng1&& rng1, Rng2&& rng2, O result, Comp&& comp = Comp{},
                  Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {

@@ -21,7 +21,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
-           IndirectCallablePredicate<Projected<I, Proj>> Pred>
+           IndirectCallablePredicate<projected<I, Proj>> Pred>
     requires Writable<I, T>()
   I replace_if(I first, S last, Pred&& pred_,
                const T& new_value, Proj&& proj_ = Proj{}) {
@@ -36,8 +36,8 @@ STL2_OPEN_NAMESPACE {
   }
 
   template<ForwardRange Rng, class T, class Proj = identity,
-           IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
-    requires Writable<IteratorType<Rng>, T>()
+           IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
+    requires Writable<iterator_t<Rng>, T>()
   safe_iterator_t<Rng>
   replace_if(Rng&& rng, Pred&& pred, const T& new_value, Proj&& proj = Proj{}) {
     return __stl2::replace_if(__stl2::begin(rng), __stl2::end(rng),

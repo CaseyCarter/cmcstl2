@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputRange Rng, WeaklyIncrementable O>
-    requires models::IndirectlyCopyable<IteratorType<Rng>, O>
+    requires models::IndirectlyCopyable<iterator_t<Rng>, O>
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
   copy(Rng&& rng, O result) {
     return __stl2::copy(__stl2::begin(rng), __stl2::end(rng), __stl2::move(result));

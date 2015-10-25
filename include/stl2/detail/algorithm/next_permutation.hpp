@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
         while (!comp(proj(*i), proj(*--j))) {
           ;
         }
-        __stl2::iter_swap2(i, j);
+        __stl2::iter_swap(i, j);
         __stl2::reverse(ip1, end);
         return true;
       }
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 
   template <BidirectionalRange Rng, class Comp = less<>,
             class Proj = identity>
-    requires Sortable<IteratorType<Rng>, Comp, Proj>()
+    requires Sortable<iterator_t<Rng>, Comp, Proj>()
   bool next_permutation(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::next_permutation(__stl2::begin(rng), __stl2::end(rng),
                                     __stl2::forward<Comp>(comp),

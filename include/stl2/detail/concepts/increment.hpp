@@ -22,15 +22,15 @@
 
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
-  // DifferenceType [iterator.assoc]
+  // difference_type_t [iterator.assoc]
   // Extension: defaults to make_unsigned_t<decltype(t - t)> when
   //     decltype(t - t) models Integral, in addition to doing so when T
   // itself models Integral.
   //
   // Not to spec:
   // * Strips cv-qualifiers before applying difference_type (see
-  //   ValueType for why)
-  // * Requires DifferenceType to model SignedIntegral
+  //   value_type_t for why)
+  // * Requires difference_type_t to model SignedIntegral
   //
   namespace detail {
     template <class T>
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class T>
     requires SignedIntegral<meta::_t<difference_type<remove_cv_t<T>>>>()
-  using DifferenceType =
+  using difference_type_t =
     meta::_t<difference_type<remove_cv_t<T>>>;
 
   ///////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
   constexpr bool __weakly_incrementable = false;
   template <class I>
     requires requires (I& i) {
-      typename DifferenceType<I>;
+      typename difference_type_t<I>;
       STL2_EXACT_TYPE_CONSTRAINT(++i, I&);
       i++;
     }
@@ -154,13 +154,13 @@ STL2_OPEN_NAMESPACE {
     template <class>
     constexpr bool __random_access_incrementable = false;
     template <class I>
-      requires requires (I& i, const I& ci, const DifferenceType<I> n) {
+      requires requires (I& i, const I& ci, const difference_type_t<I> n) {
         STL2_EXACT_TYPE_CONSTRAINT(i += n, I&);
         STL2_EXACT_TYPE_CONSTRAINT(i -= n, I&);
         STL2_EXACT_TYPE_CONSTRAINT(ci + n, I);
         STL2_EXACT_TYPE_CONSTRAINT(n + ci, I);
         STL2_EXACT_TYPE_CONSTRAINT(ci - n, I);
-        { ci - ci } -> DifferenceType<I>;
+        { ci - ci } -> difference_type_t<I>;
       }
     constexpr bool __random_access_incrementable<I> = true;
 

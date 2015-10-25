@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
   template <InputRange Rng1, InputRange Rng2,
             class O, class Comp = less<>,
             class Proj1 = identity, class Proj2 = identity>
-    requires MergeMovable<IteratorType<Rng1>, IteratorType<Rng2>,
+    requires MergeMovable<iterator_t<Rng1>, iterator_t<Rng2>,
                           O, Comp, Proj1, Proj2>()
   tagged_tuple<tag::in1(safe_iterator_t<Rng1>), tag::in2(safe_iterator_t<Rng2>),
                tag::out(O)>

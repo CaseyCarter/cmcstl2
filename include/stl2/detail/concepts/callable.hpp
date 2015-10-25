@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
       Function<as_function_t<F>, Args...>();
 
     Callable{F, ...Args}
-    using CallableResultType = result_t<as_function_t<F>, Args...>;
+    using callable_result_t = result_t<as_function_t<F>, Args...>;
   }
 
   namespace models {
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
       RegularFunction<as_function_t<F>, Args...>();
 
     RegularCallable{F, ...Args}
-    using RegularCallableResultType = CallableResultType<F, Args...>;
+    using regular_callable_result_t = callable_result_t<F, Args...>;
   }
 
   namespace models {
@@ -160,7 +160,7 @@ STL2_OPEN_NAMESPACE {
   using __iter_args_lists =
     meta::push_back<
       meta::cartesian_product<
-        meta::list<meta::list<ValueType<Is>, ReferenceType<Is>>...>>,
+        meta::list<meta::list<value_type_t<Is>, reference_t<Is>>...>>,
       meta::list<iter_common_reference_t<Is>...>>;
 
   template <typename MapFn, typename ReduceFn>
@@ -176,13 +176,13 @@ STL2_OPEN_NAMESPACE {
       models::AllReadable<Is...> &&
       // The following 3 are checked redundantly, but are called out
       // specifically for better error messages on concept check failure.
-      ext::Callable<F, ValueType<Is>...> &&
-      ext::Callable<F, ReferenceType<Is>...> &&
+      ext::Callable<F, value_type_t<Is>...> &&
+      ext::Callable<F, reference_t<Is>...> &&
       ext::Callable<F, iter_common_reference_t<Is>...> &&
       // redundantly checks the above 3 requirements
       meta::_v<meta::apply<
         __iter_map_reduce_fn<
-          meta::bind_front<meta::quote<ext::CallableResultType>, F>,
+          meta::bind_front<meta::quote<ext::callable_result_t>, F>,
           meta::quote<__common_reference>>,
         Is...>>;
   }
@@ -195,8 +195,8 @@ STL2_OPEN_NAMESPACE {
   }
 
   IndirectCallable{F, ...Is}
-  using IndirectCallableResultType =
-    ext::CallableResultType<F, ValueType<Is>...>;
+  using indirect_callable_result_t =
+    ext::callable_result_t<F, value_type_t<Is>...>;
 
   template <class F, class...Is>
   concept bool IndirectRegularCallable() {
@@ -205,13 +205,13 @@ STL2_OPEN_NAMESPACE {
       models::AllReadable<Is...> &&
       // The following 3 are checked redundantly, but are called out
       // specifically for better error messages on concept check failure.
-      ext::RegularCallable<F, ValueType<Is>...> &&
-      ext::RegularCallable<F, ReferenceType<Is>...> &&
+      ext::RegularCallable<F, value_type_t<Is>...> &&
+      ext::RegularCallable<F, reference_t<Is>...> &&
       ext::RegularCallable<F, iter_common_reference_t<Is>...> &&
       // redundantly checks the above 3 requirements
       meta::_v<meta::apply<
         __iter_map_reduce_fn<
-          meta::bind_front<meta::quote<ext::RegularCallableResultType>, F>,
+          meta::bind_front<meta::quote<ext::regular_callable_result_t>, F>,
           meta::quote<__common_reference>>,
         Is...>>;
   }
@@ -230,8 +230,8 @@ STL2_OPEN_NAMESPACE {
       models::AllReadable<Is...> &&
       // The following 3 are checked redundantly, but are called out
       // specifically for better error messages on concept check failure.
-      ext::CallablePredicate<F, ValueType<Is>...> &&
-      ext::CallablePredicate<F, ReferenceType<Is>...> &&
+      ext::CallablePredicate<F, value_type_t<Is>...> &&
+      ext::CallablePredicate<F, reference_t<Is>...> &&
       ext::CallablePredicate<F, iter_common_reference_t<Is>...> &&
       // redundantly checks the above 3 requirements
       meta::_v<meta::apply<
@@ -252,10 +252,10 @@ STL2_OPEN_NAMESPACE {
   concept bool IndirectCallableRelation() {
     return
       Readable<I1>() && Readable<I2>() &&
-      ext::CallableRelation<F, ValueType<I1>, ValueType<I2>>() &&
-      ext::CallableRelation<F, ValueType<I1>, ReferenceType<I2>>() &&
-      ext::CallableRelation<F, ReferenceType<I1>, ValueType<I2>>() &&
-      ext::CallableRelation<F, ReferenceType<I1>, ReferenceType<I2>>() &&
+      ext::CallableRelation<F, value_type_t<I1>, value_type_t<I2>>() &&
+      ext::CallableRelation<F, value_type_t<I1>, reference_t<I2>>() &&
+      ext::CallableRelation<F, reference_t<I1>, value_type_t<I2>>() &&
+      ext::CallableRelation<F, reference_t<I1>, reference_t<I2>>() &&
       ext::CallableRelation<F, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
   }
 
@@ -270,10 +270,10 @@ STL2_OPEN_NAMESPACE {
   concept bool IndirectCallableStrictWeakOrder() {
     return
       Readable<I1>() && Readable<I2>() &&
-      ext::CallableStrictWeakOrder<F, ValueType<I1>, ValueType<I2>>() &&
-      ext::CallableStrictWeakOrder<F, ValueType<I1>, ReferenceType<I2>>() &&
-      ext::CallableStrictWeakOrder<F, ReferenceType<I1>, ValueType<I2>>() &&
-      ext::CallableStrictWeakOrder<F, ReferenceType<I1>, ReferenceType<I2>>() &&
+      ext::CallableStrictWeakOrder<F, value_type_t<I1>, value_type_t<I2>>() &&
+      ext::CallableStrictWeakOrder<F, value_type_t<I1>, reference_t<I2>>() &&
+      ext::CallableStrictWeakOrder<F, reference_t<I1>, value_type_t<I2>>() &&
+      ext::CallableStrictWeakOrder<F, reference_t<I1>, reference_t<I2>>() &&
       ext::CallableStrictWeakOrder<F, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
   }
 
@@ -285,17 +285,17 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // Projected [projected.indirectcallables]
+  // projected [projected.indirectcallables]
   //
   template <Readable I, IndirectRegularCallable<I> Proj>
-  struct Projected {
-    using value_type = decay_t<IndirectCallableResultType<Proj, I>>;
+  struct projected {
+    using value_type = decay_t<indirect_callable_result_t<Proj, I>>;
     auto operator*() const ->
-      ext::CallableResultType<Proj, ReferenceType<I>>;
+      ext::callable_result_t<Proj, reference_t<I>>;
   };
 
   template <WeaklyIncrementable I, class Proj>
-  struct difference_type<Projected<I, Proj>> :
+  struct difference_type<projected<I, Proj>> :
     difference_type<I> {};
 } STL2_CLOSE_NAMESPACE
 

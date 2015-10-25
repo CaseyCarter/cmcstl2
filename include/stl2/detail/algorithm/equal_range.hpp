@@ -25,7 +25,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
-            IndirectCallableStrictWeakOrder<const T*, Projected<I, Proj>> Comp = less<>>
+            IndirectCallableStrictWeakOrder<const T*, projected<I, Proj>> Comp = less<>>
   tagged_pair<tag::begin(I), tag::end(I)>
   equal_range(I first, S last, const T& value,
               Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 
   template <ForwardRange Rng, class T, class Proj = identity,
             IndirectCallableStrictWeakOrder<const T*,
-              Projected<IteratorType<Rng>, Proj>> Comp = less<>>
+              projected<iterator_t<Rng>, Proj>> Comp = less<>>
   tagged_pair<tag::begin(safe_iterator_t<Rng>), tag::end(safe_iterator_t<Rng>)>
   equal_range(Rng&& rng, const T& value, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::equal_range(__stl2::begin(rng), __stl2::end(rng), value,

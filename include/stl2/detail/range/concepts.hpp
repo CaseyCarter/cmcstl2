@@ -28,14 +28,14 @@ STL2_OPEN_NAMESPACE {
   // Range [ranges.range]
   //
   template <class T>
-  using IteratorType = decltype(__stl2::begin(declval<T&>()));
+  using iterator_t = decltype(__stl2::begin(declval<T&>()));
 
   template <class T>
-  using SentinelType = decltype(__stl2::end(declval<T&>()));
+  using sentinel_t = decltype(__stl2::end(declval<T&>()));
 
   template <class T>
   concept bool Range() {
-    return requires { typename SentinelType<T>; };
+    return requires { typename sentinel_t<T>; };
   }
 
   namespace models {
@@ -45,11 +45,11 @@ STL2_OPEN_NAMESPACE {
     constexpr bool Range<R> = true;
   }
 
-  // 20150729: Extension: DifferenceType<Range>.
+  // 20150729: Extension: difference_type_t<Range>.
   template <Range T>
     requires !_Is<__uncvref<T>, is_array> && !detail::MemberDifferenceType<T>
   struct difference_type<T> :
-    difference_type<IteratorType<T>> {};
+    difference_type<iterator_t<T>> {};
 
   ///////////////////////////////////////////////////////////////////////////
   // SizedRange [ranges.sized]
@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
   template <class R>
     requires requires (const R& r) {
       STL2_DEDUCTION_CONSTRAINT(__stl2::size(r), Integral);
-      STL2_CONVERSION_CONSTRAINT(__stl2::size(r), DifferenceType<IteratorType<R>>);
+      STL2_CONVERSION_CONSTRAINT(__stl2::size(r), difference_type_t<iterator_t<R>>);
     }
   constexpr bool __sized_range<R> = true;
 
@@ -93,8 +93,8 @@ STL2_OPEN_NAMESPACE {
   template <class T>
   concept bool _ContainerLike =
     Range<T>() && Range<const T>() &&
-    !Same<ReferenceType<IteratorType<T>>,
-          ReferenceType<IteratorType<const T>>>();
+    !Same<reference_t<iterator_t<T>>,
+          reference_t<iterator_t<const T>>>();
 
   namespace models {
     template <class>
@@ -142,7 +142,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <class T>
   concept bool BoundedRange() {
-    return Range<T>() && Same<IteratorType<T>, SentinelType<T>>();
+    return Range<T>() && Same<iterator_t<T>, sentinel_t<T>>();
   }
 
   namespace models {
@@ -157,7 +157,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <class R, class T>
   concept bool OutputRange() {
-    return Range<R>() && OutputIterator<IteratorType<R>, T>();
+    return Range<R>() && OutputIterator<iterator_t<R>, T>();
   }
 
   namespace models {
@@ -172,7 +172,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <class T>
   concept bool InputRange() {
-    return Range<T>() && InputIterator<IteratorType<T>>();
+    return Range<T>() && InputIterator<iterator_t<T>>();
   }
 
   namespace models {
@@ -187,7 +187,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <class T>
   concept bool ForwardRange() {
-    return Range<T>() && ForwardIterator<IteratorType<T>>();
+    return Range<T>() && ForwardIterator<iterator_t<T>>();
   }
 
   namespace models {
@@ -202,7 +202,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <class T>
   concept bool BidirectionalRange() {
-    return Range<T>() && BidirectionalIterator<IteratorType<T>>();
+    return Range<T>() && BidirectionalIterator<iterator_t<T>>();
   }
 
   namespace models {
@@ -217,7 +217,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <class T>
   concept bool RandomAccessRange() {
-    return Range<T>() && RandomAccessIterator<IteratorType<T>>();
+    return Range<T>() && RandomAccessIterator<iterator_t<T>>();
   }
 
   namespace models {
@@ -232,13 +232,13 @@ STL2_OPEN_NAMESPACE {
     constexpr bool __contiguous_range = false;
     template <class R>
       requires requires (R& r) {
-        STL2_EXACT_TYPE_CONSTRAINT(__stl2::data(r), add_pointer_t<ReferenceType<IteratorType<R>>>);
+        STL2_EXACT_TYPE_CONSTRAINT(__stl2::data(r), add_pointer_t<reference_t<iterator_t<R>>>);
       }
     constexpr bool __contiguous_range<R> = true;
 
     template <class R>
     concept bool ContiguousRange() {
-      return SizedRange<R>() && ContiguousIterator<IteratorType<R>>() &&
+      return SizedRange<R>() && ContiguousIterator<iterator_t<R>>() &&
         __contiguous_range<remove_reference_t<R>>;
     }
   }

@@ -20,10 +20,10 @@ using namespace __stl2;
 int main() {
   {
     using I = istream_iterator<int>;
-    static_assert(is_same<DifferenceType<I>, std::ptrdiff_t>());
-    static_assert(is_same<ValueType<I>, int>());
-    static_assert(is_same<ReferenceType<I>, const int&>());
-    static_assert(is_same<RvalueReferenceType<I>, const int&&>());
+    static_assert(is_same<difference_type_t<I>, std::ptrdiff_t>());
+    static_assert(is_same<value_type_t<I>, int>());
+    static_assert(is_same<reference_t<I>, const int&>());
+    static_assert(is_same<rvalue_reference_t<I>, const int&&>());
     static_assert(models::InputIterator<I>);
 
     static_assert(models::Sentinel<default_sentinel, I>);

@@ -26,10 +26,10 @@ STL2_OPEN_NAMESPACE {
   class reverse_iterator {
   public:
     using iterator_type = I;
-    using difference_type = DifferenceType<I>;
-    using value_type = ValueType<I>;
+    using difference_type = difference_type_t<I>;
+    using value_type = value_type_t<I>;
     using iterator_category = IteratorCategory<I>;
-    using reference = ReferenceType<I>;
+    using reference = reference_t<I>;
     using pointer = I;
 
     reverse_iterator() = default;
@@ -135,7 +135,7 @@ STL2_OPEN_NAMESPACE {
                           const reverse_iterator<I2>&);
 
     SizedIteratorRange{I2, I1}
-    friend DifferenceType<I2> operator-(const reverse_iterator<I1>&,
+    friend difference_type_t<I2> operator-(const reverse_iterator<I1>&,
                                         const reverse_iterator<I2>&);
   protected:
     I current{};
@@ -178,13 +178,13 @@ STL2_OPEN_NAMESPACE {
   }
 
   SizedIteratorRange{I2, I1}
-  DifferenceType<I2> operator-(const reverse_iterator<I1>& x,
+  difference_type_t<I2> operator-(const reverse_iterator<I1>& x,
                                const reverse_iterator<I2>& y) {
     return y.current - x.current;
   }
 
   RandomAccessIterator{I}
-  reverse_iterator<I> operator+(DifferenceType<I> n,
+  reverse_iterator<I> operator+(difference_type_t<I> n,
                                 const reverse_iterator<I>& x) {
     return x + n;
   }

@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template<InputRange Rng, WeaklyIncrementable O>
-    requires IndirectlyMovable<IteratorType<Rng>, O>()
+    requires IndirectlyMovable<iterator_t<Rng>, O>()
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
   move(Rng&& rng, O result) {
     return __stl2::move(__stl2::begin(rng), __stl2::end(rng), __stl2::move(result));

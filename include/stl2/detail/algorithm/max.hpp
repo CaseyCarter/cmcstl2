@@ -26,9 +26,9 @@
 STL2_OPEN_NAMESPACE {
   template <InputRange Rng, class Proj = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<IteratorType<Rng>, Proj>> Comp = less<>>
-    requires Copyable<ValueType<IteratorType<Rng>>>()
-  constexpr ValueType<IteratorType<Rng>>
+              projected<iterator_t<Rng>, Proj>> Comp = less<>>
+    requires Copyable<value_type_t<iterator_t<Rng>>>()
+  constexpr value_type_t<iterator_t<Rng>>
   __max(Rng&& r, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
     auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class T, class Proj = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<const T*, Proj>> Comp = less<>>
+              projected<const T*, Proj>> Comp = less<>>
   constexpr const T& max(const T& a, const T& b,
                          Comp&& comp_ = Comp{},
                          Proj&& proj_ = Proj{}) {
@@ -57,9 +57,9 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng, class Proj = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<IteratorType<Rng>, Proj>> Comp = less<>>
-    requires Copyable<ValueType<IteratorType<Rng>>>()
-  STL2_CONSTEXPR_EXT ValueType<IteratorType<Rng>>
+              projected<iterator_t<Rng>, Proj>> Comp = less<>>
+    requires Copyable<value_type_t<iterator_t<Rng>>>()
+  STL2_CONSTEXPR_EXT value_type_t<iterator_t<Rng>>
   max(Rng&& r, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::__max(__stl2::forward<Rng>(r),
                          __stl2::forward<Comp>(comp),
@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 
   template <Copyable T, class Proj = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<const T*, Proj>> Comp = less<>>
+              projected<const T*, Proj>> Comp = less<>>
   constexpr T max(std::initializer_list<T>&& rng,
                   Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::__max(rng, __stl2::forward<Comp>(comp),

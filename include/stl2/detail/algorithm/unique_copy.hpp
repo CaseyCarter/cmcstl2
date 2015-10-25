@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
     if (first != last) {
       auto comp = ext::make_callable_wrapper(__stl2::forward<R>(comp_));
       auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-      ValueType<I> saved = *first;
+      value_type_t<I> saved = *first;
       *result = saved;
       ++result;
       while (++first != last) {
@@ -91,12 +91,12 @@ STL2_OPEN_NAMESPACE {
   constexpr bool __unique_copy_req = false;
   template <class I, class S, class O, class P, class R>
     requires IndirectlyCopyable<I, O>() &&
-      (models::ForwardIterator<I> || models::ForwardIterator<O> || Copyable<ValueType<I>>())
+      (models::ForwardIterator<I> || models::ForwardIterator<O> || Copyable<value_type_t<I>>())
   constexpr bool __unique_copy_req<I, S, O, P, R> = true;
 
   template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
             class Proj = identity,
-            IndirectCallableRelation<Projected<I, Proj>> R = equal_to<>>
+            IndirectCallableRelation<projected<I, Proj>> R = equal_to<>>
     requires __unique_copy_req<I, S, O, Proj, R>
   tagged_pair<tag::in(I), tag::out(O)>
   unique_copy(I first, S last, O result, R&& comp = R{}, Proj&& proj = Proj{}) {
@@ -110,12 +110,12 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputRange Rng, WeaklyIncrementable O, class Proj = identity,
-            IndirectCallableRelation<Projected<IteratorType<Rng>, Proj>> R = equal_to<>>
-    requires __unique_copy_req<IteratorType<Rng>, SentinelType<Rng>, O, Proj, R>
+            IndirectCallableRelation<projected<iterator_t<Rng>, Proj>> R = equal_to<>>
+    requires __unique_copy_req<iterator_t<Rng>, sentinel_t<Rng>, O, Proj, R>
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
   unique_copy(Rng&& rng, O result, R&& comp = R{}, Proj&& proj = Proj{}) {
     return __stl2::__unique_copy(
-       meta::bool_<models::ForwardIterator<IteratorType<Rng>>>{},
+       meta::bool_<models::ForwardIterator<iterator_t<Rng>>>{},
        meta::bool_<models::ForwardIterator<O>>{},
        __stl2::begin(rng), __stl2::end(rng),
        __stl2::move(result),

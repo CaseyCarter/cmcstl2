@@ -19,12 +19,12 @@
 namespace stl2 = __stl2;
 
 template <stl2::InputIterator I>
-  requires stl2::Regular<stl2::ValueType<I>>()
+  requires stl2::Regular<stl2::value_type_t<I>>()
 class delimiter {
-  stl2::ValueType<I> value_;
+  stl2::value_type_t<I> value_;
 public:
   delimiter() = default;
-  delimiter(stl2::ValueType<I> value) :
+  delimiter(stl2::value_type_t<I> value) :
     value_{value} {}
 
   friend bool operator==(const delimiter&, const delimiter&) {

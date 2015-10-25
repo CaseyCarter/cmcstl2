@@ -23,14 +23,14 @@
 //
 STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallableStrictWeakOrder<Projected<I, Proj>> Comp = less<>>
+            IndirectCallableStrictWeakOrder<projected<I, Proj>> Comp = less<>>
   bool is_sorted(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return last == __stl2::is_sorted_until(__stl2::move(first), last,
       __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
   }
 
   template<ForwardRange Rng, class Proj = identity,
-           IndirectCallableStrictWeakOrder<Projected<IteratorType<Rng>, Proj>> Comp = less<>>
+           IndirectCallableStrictWeakOrder<projected<iterator_t<Rng>, Proj>> Comp = less<>>
   bool is_sorted(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::is_sorted(__stl2::begin(rng), __stl2::end(rng),
       __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));

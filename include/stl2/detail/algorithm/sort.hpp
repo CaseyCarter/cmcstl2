@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
     I last = __stl2::next(first, __stl2::move(sent));
     auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    auto n = DifferenceType<I>(last - first);
+    auto n = difference_type_t<I>(last - first);
     detail::rsort::introsort_loop(first, last, detail::rsort::log2(n) * 2,
                                   comp, proj);
     detail::rsort::final_insertion_sort(first, last, comp, proj);
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<IteratorType<Rng>, Comp, Proj>()
+    requires Sortable<iterator_t<Rng>, Comp, Proj>()
   safe_iterator_t<Rng>
   sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return detail::fsort::sort_n(__stl2::begin(rng), __stl2::distance(rng),
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<IteratorType<Rng>, Comp, Proj>()
+    requires Sortable<iterator_t<Rng>, Comp, Proj>()
   safe_iterator_t<Rng>
   sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::sort(__stl2::begin(rng), __stl2::end(rng),

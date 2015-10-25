@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
       }
       {
         // Count number of *i in [f2, l2)
-        DifferenceType<I2> c2 = 0;
+        difference_type_t<I2> c2 = 0;
         for (I2 j = first2; j != last2; ++j) {
           if (pred(proj1(*i), proj2(*j))) {
             ++c2;
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
           return false;
         }
         // Count number of *i in [i, l1) (we can start with 1)
-        DifferenceType<I1> c1 = 1;
+        difference_type_t<I1> c1 = 1;
         for (I1 j = __stl2::next(i); j != last1; ++j) {
           if (pred(proj1(*i), proj1(*j))) {
             ++c1;
@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 
   template<ForwardRange Rng1, class I2, ForwardIterator = __uncvref<I2>,
            class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
-    requires models::IndirectlyComparable<IteratorType<Rng1>, I2, Pred, Proj1, Proj2>
+    requires models::IndirectlyComparable<iterator_t<Rng1>, I2, Pred, Proj1, Proj2>
   bool is_permutation(Rng1&& rng1, I2&& first2, Pred&& pred = Pred{},
                       Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     return __stl2::is_permutation(
@@ -165,7 +165,7 @@ STL2_OPEN_NAMESPACE {
 
   template<ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
            class Proj1 = identity, class Proj2 = identity>
-    requires models::IndirectlyComparable<IteratorType<Rng1>, IteratorType<Rng2>, Pred, Proj1, Proj2>
+    requires models::IndirectlyComparable<iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
   bool is_permutation(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
                       Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     return __stl2::is_permutation(
@@ -178,7 +178,7 @@ STL2_OPEN_NAMESPACE {
   template<ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
            class Proj1 = identity, class Proj2 = identity>
     requires SizedRange<Rng1>() && SizedRange<Rng2>() &&
-      models::IndirectlyComparable<IteratorType<Rng1>, IteratorType<Rng2>, Pred, Proj1, Proj2>
+      models::IndirectlyComparable<iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
   bool is_permutation(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
                       Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     if (__stl2::size(rng1) != __stl2::size(rng2)) {

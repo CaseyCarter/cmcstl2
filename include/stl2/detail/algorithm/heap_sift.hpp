@@ -34,9 +34,9 @@
 STL2_OPEN_NAMESPACE {
   namespace detail {
     template <RandomAccessIterator I, class Proj,
-              IndirectCallableStrictWeakOrder<Projected<I, Proj>,
-                                              Projected<I, Proj>> Comp>
-    void sift_up_n(I first, DifferenceType<I> n, Comp&& comp_, Proj&& proj_) {
+              IndirectCallableStrictWeakOrder<projected<I, Proj>,
+                                              projected<I, Proj>> Comp>
+    void sift_up_n(I first, difference_type_t<I> n, Comp&& comp_, Proj&& proj_) {
       if (n > 1) {
         auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
         auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
         n = (n - 2) / 2;
         I i = first + n;
         if (comp(proj(*i), proj(*--last))) {
-          ValueType<I> v = __stl2::iter_move(last);
+          value_type_t<I> v = __stl2::iter_move(last);
           do {
             *last = __stl2::iter_move(i);
             last = i;
@@ -60,9 +60,9 @@ STL2_OPEN_NAMESPACE {
     }
 
     template <RandomAccessIterator I, class Proj,
-              IndirectCallableStrictWeakOrder<Projected<I, Proj>,
-                                              Projected<I, Proj>> Comp>
-    void sift_down_n(I first, DifferenceType<I> n, I start, Comp&& comp_, Proj&& proj_)
+              IndirectCallableStrictWeakOrder<projected<I, Proj>,
+                                              projected<I, Proj>> Comp>
+    void sift_down_n(I first, difference_type_t<I> n, I start, Comp&& comp_, Proj&& proj_)
     {
       // left-child of start is at 2 * start + 1
       // right-child of start is at 2 * start + 2
@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
         return;
       }
 
-      ValueType<I> top = __stl2::iter_move(start);
+      value_type_t<I> top = __stl2::iter_move(start);
       do {
         // we are not in heap-order, swap the parent with it's largest child
         *start = __stl2::iter_move(child_i);

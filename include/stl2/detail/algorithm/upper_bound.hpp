@@ -38,8 +38,8 @@ STL2_OPEN_NAMESPACE {
   namespace ext {
     template <ForwardIterator I, class T, class Proj = identity,
               IndirectCallableStrictWeakOrder<const T*,
-                                              Projected<I, Proj>> Comp = less<>>
-    I upper_bound_n(I first, DifferenceType<I> n, const T& value,
+                                              projected<I, Proj>> Comp = less<>>
+    I upper_bound_n(I first, difference_type_t<I> n, const T& value,
                     Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
       return __stl2::ext::partition_point_n(__stl2::move(first), n,
         __upper_bound_fn<Comp, T>{__stl2::forward<Comp>(comp), value},
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
-            IndirectCallableStrictWeakOrder<const T*, Projected<I, Proj>> Comp = less<>>
+            IndirectCallableStrictWeakOrder<const T*, projected<I, Proj>> Comp = less<>>
   I upper_bound(I first, S last, const T& value, Comp&& comp = Comp{},
                 Proj&& proj = Proj{}) {
     return __stl2::partition_point(__stl2::move(first), __stl2::move(last),
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
-            IndirectCallableStrictWeakOrder<const T*, Projected<I, Proj>> Comp = less<>>
+            IndirectCallableStrictWeakOrder<const T*, projected<I, Proj>> Comp = less<>>
     requires SizedIteratorRange<I, S>()
   I upper_bound(I first, S last, const T& value, Comp&& comp = Comp{},
                 Proj&& proj = Proj{}) {
@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 
   template <ForwardRange Rng, class T, class Proj = identity,
             IndirectCallableStrictWeakOrder<const T*,
-              Projected<IteratorType<Rng>, Proj>> Comp = less<>>
+              projected<iterator_t<Rng>, Proj>> Comp = less<>>
   safe_iterator_t<Rng>
   upper_bound(Rng&& rng, const T& value, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::upper_bound(__stl2::begin(rng), __stl2::end(rng), value,
@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 
   template <ForwardRange Rng, class T, class Proj = identity,
             IndirectCallableStrictWeakOrder<const T*,
-              Projected<IteratorType<Rng>, Proj>> Comp = less<>>
+              projected<iterator_t<Rng>, Proj>> Comp = less<>>
     requires SizedRange<Rng>()
   safe_iterator_t<Rng>
   upper_bound(Rng&& rng, const T& value, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {

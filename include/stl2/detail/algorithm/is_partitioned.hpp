@@ -24,7 +24,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
+            IndirectCallablePredicate<projected<I, Proj>> Pred>
   bool is_partitioned(I first, S last,
                       Pred&& pred_, Proj&& proj_ = Proj{}) {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputRange Rng, class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
+            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
   bool is_partitioned(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
     return __stl2::is_partitioned(__stl2::begin(rng), __stl2::end(rng),
              __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));

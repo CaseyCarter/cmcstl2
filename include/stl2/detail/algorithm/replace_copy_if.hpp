@@ -22,7 +22,7 @@
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class T,
             WeakOutputIterator<T> O, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
+            IndirectCallablePredicate<projected<I, Proj>> Pred>
     requires IndirectlyCopyable<I, O>()
   tagged_pair<tag::in(I), tag::out(O)>
   replace_copy_if(I first, S last, O result, Pred&& pred_,
@@ -43,8 +43,8 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng, class T, WeakOutputIterator<T> O,
             class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
-    requires IndirectlyCopyable<IteratorType<Rng>, O>()
+            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
+    requires IndirectlyCopyable<iterator_t<Rng>, O>()
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
   replace_copy_if(Rng&& rng, O result, Pred&& pred, const T& new_value,
                   Proj&& proj = Proj{}) {

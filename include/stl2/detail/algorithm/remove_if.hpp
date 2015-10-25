@@ -23,7 +23,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
+            IndirectCallablePredicate<projected<I, Proj>> Pred>
     requires Permutable<I>()
   I remove_if(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{}) {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
@@ -41,8 +41,8 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng, class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
-    requires Permutable<IteratorType<Rng>>()
+            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
+    requires Permutable<iterator_t<Rng>>()
   safe_iterator_t<Rng>
   remove_if(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
     return __stl2::remove_if(

@@ -25,7 +25,7 @@
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O1,
             WeaklyIncrementable O2, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
+            IndirectCallablePredicate<projected<I, Proj>> Pred>
     requires IndirectlyCopyable<I, O1>() && IndirectlyCopyable<I, O2>()
   tagged_tuple<tag::in(I), tag::out1(O1), tag::out2(O2)>
   partition_copy(I first, S last, O1 out_true, O2 out_false,
@@ -48,9 +48,9 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng, WeaklyIncrementable O1, WeaklyIncrementable O2,
             class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
-    requires IndirectlyCopyable<IteratorType<Rng>, O1>() &&
-      IndirectlyCopyable<IteratorType<Rng>, O2>()
+            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
+    requires IndirectlyCopyable<iterator_t<Rng>, O1>() &&
+      IndirectlyCopyable<iterator_t<Rng>, O2>()
   tagged_tuple<tag::in(safe_iterator_t<Rng>), tag::out1(O1), tag::out2(O2)>
   partition_copy(Rng&& rng, O1 out_true, O2 out_false,
                  Pred&& pred, Proj&& proj = Proj{}) {

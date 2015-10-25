@@ -25,13 +25,13 @@ STL2_OPEN_NAMESPACE {
   tagged_pair<tag::in1(I1), tag::in2(I2)>
   swap_ranges(I1 first1, S1 last1, I2 first2) {
     for (; first1 != last1; ++first1, ++first2) {
-      __stl2::iter_swap2(first1, first2);
+      __stl2::iter_swap(first1, first2);
     }
     return {__stl2::move(first1), __stl2::move(first2)};
   }
 
   template <ForwardRange Rng, class I_, ForwardIterator I = __uncvref<I_>>
-    requires IndirectlySwappable<IteratorType<Rng>, I>()
+    requires IndirectlySwappable<iterator_t<Rng>, I>()
   tagged_pair<tag::in1(safe_iterator_t<Rng>), tag::in2(I)>
   swap_ranges(Rng&& rng1, I_&& first2) {
     return __stl2::swap_ranges(
@@ -43,13 +43,13 @@ STL2_OPEN_NAMESPACE {
   tagged_pair<tag::in1(I1), tag::in2(I2)>
   swap_ranges(I1 first1, S1 last1, I2 first2, S2 last2) {
     for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
-      __stl2::iter_swap2(first1, first2);
+      __stl2::iter_swap(first1, first2);
     }
     return {__stl2::move(first1), __stl2::move(first2)};
   }
 
   template <ForwardRange Rng1, ForwardRange Rng2>
-    requires IndirectlySwappable<IteratorType<Rng1>, IteratorType<Rng2>>()
+    requires IndirectlySwappable<iterator_t<Rng1>, iterator_t<Rng2>>()
   tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::in2(safe_iterator_t<Rng2>)>
   swap_ranges(Rng1&& rng1, Rng2&& rng2) {
     return __stl2::swap_ranges(

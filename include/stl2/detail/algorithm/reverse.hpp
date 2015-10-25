@@ -46,8 +46,8 @@ STL2_OPEN_NAMESPACE {
     // An adaptation of the EoP algorithm reverse_n_with_buffer
     // Complexity: n moves + n / 2 swaps
     Permutable{I}
-    I reverse_n_with_half_buffer(I first, const DifferenceType<I> n,
-                                 temporary_buffer<ValueType<I>>& buf) {
+    I reverse_n_with_half_buffer(I first, const difference_type_t<I> n,
+                                 temporary_buffer<value_type_t<I>>& buf) {
       // Precondition: $\property{mutable\_counted\_range}(first, n)$
       STL2_ASSUME(n / 2 <= buf.size());
 
@@ -72,10 +72,10 @@ STL2_OPEN_NAMESPACE {
 
     // From EoP
     Permutable{I}
-    I reverse_n_adaptive(I first, const DifferenceType<I> n,
-                         temporary_buffer<ValueType<I>>& buf) {
+    I reverse_n_adaptive(I first, const difference_type_t<I> n,
+                         temporary_buffer<value_type_t<I>>& buf) {
       // Precondition: $\property{mutable\_counted\_range}(first, n)$
-      if (n < DifferenceType<I>(2)) {
+      if (n < difference_type_t<I>(2)) {
         return __stl2::next(__stl2::move(first), n);
       }
 
@@ -95,11 +95,11 @@ STL2_OPEN_NAMESPACE {
     }
 
     Permutable{I}
-    I reverse_n(I first, DifferenceType<I> n) {
+    I reverse_n(I first, difference_type_t<I> n) {
       auto ufirst = ext::uncounted(first);
-      using buf_t = temporary_buffer<ValueType<decltype(ufirst)>>;
+      using buf_t = temporary_buffer<value_type_t<decltype(ufirst)>>;
       // TODO: tune this threshold.
-      static constexpr auto alloc_threshold = DifferenceType<I>(8);
+      static constexpr auto alloc_threshold = difference_type_t<I>(8);
       auto buf = n >= alloc_threshold ? buf_t{n / 2} : buf_t{};
       auto last = detail::reverse_n_adaptive(ufirst, n, buf);
       return ext::recounted(first, __stl2::move(last), n);
@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
   I reverse(I first, I last) {
     auto m = last;
     while (first != m && first != --m) {
-      __stl2::iter_swap2(first, m);
+      __stl2::iter_swap(first, m);
       ++first;
     }
     return last;
@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
     if (first != last) {
       auto m = last;
       while (first < --m) {
-        __stl2::iter_swap2(first, m);
+        __stl2::iter_swap(first, m);
         ++first;
       }
     }
@@ -146,13 +146,13 @@ STL2_OPEN_NAMESPACE {
 
   // Extension
   template <ForwardRange Rng>
-    requires Permutable<IteratorType<Rng>>()
+    requires Permutable<iterator_t<Rng>>()
   safe_iterator_t<Rng> reverse(Rng&& rng) {
     return detail::reverse_n(__stl2::begin(rng), __stl2::distance(rng));
   }
 
   template <BidirectionalRange Rng>
-    requires Permutable<IteratorType<Rng>>()
+    requires Permutable<iterator_t<Rng>>()
   safe_iterator_t<Rng> reverse(Rng&& rng) {
     return __stl2::reverse(__stl2::begin(rng), __stl2::end(rng));
   }

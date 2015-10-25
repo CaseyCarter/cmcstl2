@@ -23,7 +23,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallableRelation<Projected<I, Proj>> Pred = equal_to<>>
+            IndirectCallableRelation<projected<I, Proj>> Pred = equal_to<>>
   I adjacent_find(I first, S last, Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{}) {
     if (first == last) {
       return first;
@@ -42,8 +42,8 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng, class Proj = identity,
-            IndirectCallableRelation<Projected<
-              IteratorType<Rng>, Proj>> Pred = equal_to<>>
+            IndirectCallableRelation<projected<
+              iterator_t<Rng>, Proj>> Pred = equal_to<>>
   safe_iterator_t<Rng>
   adjacent_find(Rng&& rng, Pred pred = Pred{}, Proj proj = Proj{}) {
     return __stl2::adjacent_find(

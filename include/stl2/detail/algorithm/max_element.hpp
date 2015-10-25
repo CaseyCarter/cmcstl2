@@ -23,7 +23,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallableStrictWeakOrder<Projected<I, Proj>> Comp = less<>>
+            IndirectCallableStrictWeakOrder<projected<I, Proj>> Comp = less<>>
   I max_element(I first, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
     if (first != last) {
       auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng, class Proj = identity,
-            IndirectCallableStrictWeakOrder<Projected<IteratorType<Rng>, Proj>> Comp = less<>>
+            IndirectCallableStrictWeakOrder<projected<iterator_t<Rng>, Proj>> Comp = less<>>
   safe_iterator_t<Rng>
   max_element(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::max_element(__stl2::begin(rng), __stl2::end(rng),

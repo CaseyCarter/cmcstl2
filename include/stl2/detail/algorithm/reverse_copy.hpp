@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <BidirectionalRange Rng, WeaklyIncrementable O>
-    requires IndirectlyCopyable<IteratorType<Rng>, O>()
+    requires IndirectlyCopyable<iterator_t<Rng>, O>()
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
   reverse_copy(Rng&& rng, O result) {
     return __stl2::reverse_copy(__stl2::begin(rng), __stl2::end(rng),

@@ -18,14 +18,14 @@
 
 STL2_OPEN_NAMESPACE {
   template <WeakInputIterator I>
-    // requires Same<ReferenceType<I>, ValueType<I>&>()
+    // requires Same<reference_t<I>, value_type_t<I>&>()
   class move_iterator {
   public:
     using iterator_type = I;
-    using difference_type = DifferenceType<I>;
-    using value_type = ValueType<I>;
+    using difference_type = difference_type_t<I>;
+    using value_type = value_type_t<I>;
     using iterator_category = IteratorCategory<I>;
-    using reference = RvalueReferenceType<I>;
+    using reference = rvalue_reference_t<I>;
     using pointer = I;
   
     move_iterator() = default;
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
     }
   
     reference operator*() const
-      noexcept(is_nothrow_move_constructible<RvalueReferenceType<I>>::value &&
+      noexcept(is_nothrow_move_constructible<rvalue_reference_t<I>>::value &&
                noexcept(__stl2::iter_move(declval<I&>()))) {
       return __stl2::iter_move(current_);
     }
@@ -116,7 +116,7 @@ STL2_OPEN_NAMESPACE {
                           const move_iterator<I2>&);
   
     SizedIteratorRange{I1, I2}
-    friend DifferenceType<I2> operator-(const move_iterator<I1>&,
+    friend difference_type_t<I2> operator-(const move_iterator<I1>&,
                                         const move_iterator<I2>&);
   
   private:
@@ -160,13 +160,13 @@ STL2_OPEN_NAMESPACE {
   }
   
   SizedIteratorRange{I1, I2}
-  DifferenceType<I2> operator-(const move_iterator<I1>& a,
+  difference_type_t<I2> operator-(const move_iterator<I1>& a,
                                const move_iterator<I2>& b) {
     return a.current_ - b.current_;
   }
   
   RandomAccessIterator{I}
-  move_iterator<I> operator+(DifferenceType<I> n, const move_iterator<I>& x) {
+  move_iterator<I> operator+(difference_type_t<I> n, const move_iterator<I>& x) {
     return x + n;
   }
   

@@ -34,8 +34,8 @@
 STL2_OPEN_NAMESPACE {
   namespace ext {
     template <ForwardIterator I, class Proj = identity,
-              IndirectCallablePredicate<Projected<I, Proj>> Pred>
-    I partition_point_n(I first, DifferenceType<I> n,
+              IndirectCallablePredicate<projected<I, Proj>> Pred>
+    I partition_point_n(I first, difference_type_t<I> n,
                         Pred&& pred_, Proj&& proj_ = Proj{}) {
       auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
       auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
@@ -56,14 +56,14 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
+            IndirectCallablePredicate<projected<I, Proj>> Pred>
   I partition_point(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{}) {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     // Probe exponentially for either end-of-range or an iterator
     // that is past the partition point (i.e., does not satisfy pred).
-    auto n = DifferenceType<I>{1};
+    auto n = difference_type_t<I>{1};
     while (true) {
       auto m = first;
       auto d = __stl2::advance(m, n, last);
@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
+            IndirectCallablePredicate<projected<I, Proj>> Pred>
     requires SizedIteratorRange<I, S>()
   I partition_point(I first, S last, Pred&& pred, Proj&& proj = Proj{}) {
     auto n = __stl2::distance(first, last);
@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng, class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
+            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
   safe_iterator_t<Rng>
   partition_point(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
     return __stl2::partition_point(__stl2::begin(rng), __stl2::end(rng),
@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng, class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
+            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
     requires SizedRange<Rng>()
   safe_iterator_t<Rng>
   partition_point(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {

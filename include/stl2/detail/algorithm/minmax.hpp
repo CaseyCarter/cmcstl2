@@ -26,12 +26,12 @@
 STL2_OPEN_NAMESPACE {
   template <InputRange Rng, class Proj = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<IteratorType<Rng>, Proj>> Comp = less<>>
-    requires Copyable<ValueType<IteratorType<Rng>>>()
-  constexpr tagged_pair<tag::min(ValueType<IteratorType<Rng>>),
-                        tag::max(ValueType<IteratorType<Rng>>)>
+              projected<iterator_t<Rng>, Proj>> Comp = less<>>
+    requires Copyable<value_type_t<iterator_t<Rng>>>()
+  constexpr tagged_pair<tag::min(value_type_t<iterator_t<Rng>>),
+                        tag::max(value_type_t<iterator_t<Rng>>)>
   __minmax(Rng&& rng, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
-    using value_type = ValueType<IteratorType<Rng>>;
+    using value_type = value_type_t<iterator_t<Rng>>;
     auto first = __stl2::begin(rng);
     auto last = __stl2::end(rng);
     STL2_ASSUME(first != last);
@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 
   template<class T, class Proj = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<const T*, Proj>> Comp = less<>>
+              projected<const T*, Proj>> Comp = less<>>
   constexpr tagged_pair<tag::min(const T&), tag::max(const T&)>
   minmax(const T& a, const T& b, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
     auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
@@ -93,10 +93,10 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng, class Proj = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<IteratorType<Rng>, Proj>> Comp = less<>>
-    requires Copyable<ValueType<IteratorType<Rng>>>()
-  STL2_CONSTEXPR_EXT tagged_pair<tag::min(ValueType<IteratorType<Rng>>),
-                                 tag::max(ValueType<IteratorType<Rng>>)>
+              projected<iterator_t<Rng>, Proj>> Comp = less<>>
+    requires Copyable<value_type_t<iterator_t<Rng>>>()
+  STL2_CONSTEXPR_EXT tagged_pair<tag::min(value_type_t<iterator_t<Rng>>),
+                                 tag::max(value_type_t<iterator_t<Rng>>)>
   minmax(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::__minmax(__stl2::forward<Rng>(rng), __stl2::forward<Comp>(comp),
                             __stl2::forward<Proj>(proj));
@@ -104,7 +104,7 @@ STL2_OPEN_NAMESPACE {
 
   template <Copyable T, class Proj = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<const T*, Proj>> Comp = less<>>
+              projected<const T*, Proj>> Comp = less<>>
   constexpr tagged_pair<tag::min(T), tag::max(T)>
     minmax(std::initializer_list<T>&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::__minmax(rng, __stl2::forward<Comp>(comp),

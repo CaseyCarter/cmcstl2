@@ -35,9 +35,9 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     template <RandomAccessIterator I, class Proj, class Comp>
       requires Sortable<I, Comp, Proj>()
-    void pop_heap_n(I first, DifferenceType<I> n, Comp&& comp, Proj&& proj) {
+    void pop_heap_n(I first, difference_type_t<I> n, Comp&& comp, Proj&& proj) {
       if (n > 1) {
-        __stl2::iter_swap2(first, first + (n - 1));
+        __stl2::iter_swap(first, first + (n - 1));
         detail::sift_down_n(first, n - 1, first, __stl2::forward<Comp>(comp),
                             __stl2::forward<Proj>(proj));
       }
@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<IteratorType<Rng>, Comp, Proj>()
+    requires Sortable<iterator_t<Rng>, Comp, Proj>()
   safe_iterator_t<Rng>
   pop_heap(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     auto n = __stl2::distance(rng);

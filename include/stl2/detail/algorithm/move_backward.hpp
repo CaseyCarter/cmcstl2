@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template<BidirectionalRange Rng, BidirectionalIterator I>
-    requires IndirectlyMovable<IteratorType<Rng>, I>()
+    requires IndirectlyMovable<iterator_t<Rng>, I>()
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(I)>
   move_backward(Rng&& rng, I result) {
     return __stl2::move_backward(

@@ -24,7 +24,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class Proj = identity,
-            ext::Callable<ReferenceType<Projected<I, Proj>>> Fun>
+            ext::Callable<reference_t<projected<I, Proj>>> Fun>
   tagged_pair<tag::in(I), tag::fun(__uncvref<Fun>)>
   for_each(I first, S last, Fun&& fun_, Proj&& proj_ = Proj{}) {
     auto fun = ext::make_callable_wrapper(__stl2::forward<Fun>(fun_));
@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputRange Rng, class Proj = identity,
-            ext::Callable<ReferenceType<Projected<IteratorType<Rng>, Proj>>> Fun>
+            ext::Callable<reference_t<projected<iterator_t<Rng>, Proj>>> Fun>
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::fun(decay_t<Fun>)>
   for_each(Rng&& rng, Fun&& f, Proj&& proj = Proj{}) {
     return __stl2::for_each(__stl2::begin(rng), __stl2::end(rng),
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 
   // Extension
   template <class E, class Proj = identity,
-            ext::Callable<ReferenceType<Projected<const E*, Proj>>> Fun>
+            ext::Callable<reference_t<projected<const E*, Proj>>> Fun>
   tagged_pair<tag::in(dangling<const E*>), tag::fun(decay_t<Fun>)>
   for_each(std::initializer_list<E>&& il, Fun&& f, Proj&& proj = Proj{}) {
     return __stl2::for_each(il.begin(), il.end(),

@@ -23,8 +23,8 @@
 STL2_OPEN_NAMESPACE {
   template <InputIterator I1, Sentinel<I1> S1, ForwardIterator I2, Sentinel<I2> S2,
             class Proj1 = identity, class Proj2 = identity,
-            IndirectCallablePredicate<Projected<I1, Proj1>,
-                                      Projected<I2, Proj2>> Pred = equal_to<>>
+            IndirectCallablePredicate<projected<I1, Proj1>,
+                                      projected<I2, Proj2>> Pred = equal_to<>>
   I1 find_first_of(I1 first1, S1 last1, I2 first2, S2 last2,
                    Pred&& pred_ = Pred{}, Proj1&& proj1_ = Proj1{},
                    Proj2&& proj2_ = Proj2{}) {
@@ -43,8 +43,8 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng1, ForwardRange Rng2,
             class Proj1 = identity, class Proj2 = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng1>, Proj1>,
-                                      Projected<IteratorType<Rng2>, Proj2>> Pred = equal_to<>>
+            IndirectCallablePredicate<projected<iterator_t<Rng1>, Proj1>,
+                                      projected<iterator_t<Rng2>, Proj2>> Pred = equal_to<>>
   safe_iterator_t<Rng1> find_first_of(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
                                       Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     return __stl2::find_first_of(

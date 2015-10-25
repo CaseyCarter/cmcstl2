@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng1, InputRange Rng2, WeaklyIncrementable O,
             class Comp = less<>, class Proj1 = identity, class Proj2 = identity>
-    requires Mergeable<IteratorType<Rng1>, IteratorType<Rng2>, O, Comp, Proj1, Proj2>()
+    requires Mergeable<iterator_t<Rng1>, iterator_t<Rng2>, O, Comp, Proj1, Proj2>()
   O set_intersection(Rng1&& rng1, Rng2&& rng2, O result,
                      Comp&& comp = Comp{}, Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     return __stl2::set_intersection(__stl2::begin(rng1), __stl2::end(rng1),

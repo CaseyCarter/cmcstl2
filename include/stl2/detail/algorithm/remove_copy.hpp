@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O, class T,
             class Proj = identity>
     requires IndirectlyCopyable<I, O>() &&
-      IndirectCallableRelation<equal_to<>, Projected<I, Proj>, const T*>()
+      IndirectCallableRelation<equal_to<>, projected<I, Proj>, const T*>()
   tagged_pair<tag::in(I), tag::out(O)>
   remove_copy(I first, S last, O result, const T& value, Proj&& proj_ = Proj{}) {
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
@@ -41,8 +41,8 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputRange Rng, WeaklyIncrementable O, class T, class Proj = identity>
-    requires IndirectlyCopyable<IteratorType<Rng>, O>() &&
-      IndirectCallableRelation<equal_to<>, Projected<IteratorType<Rng>, Proj>, const T*>()
+    requires IndirectlyCopyable<iterator_t<Rng>, O>() &&
+      IndirectCallableRelation<equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>()
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
   remove_copy(Rng&& rng, O result, const T& value, Proj&& proj = Proj{}) {
     return __stl2::remove_copy(__stl2::begin(rng), __stl2::end(rng),

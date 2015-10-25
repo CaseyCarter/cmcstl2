@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class T1, class T2,
             WeakOutputIterator<T2> O, class Proj = identity>
     requires IndirectlyCopyable<I, O>() &&
-      IndirectCallableRelation<equal_to<>, Projected<I, Proj>, const T1*>()
+      IndirectCallableRelation<equal_to<>, projected<I, Proj>, const T1*>()
   tagged_pair<tag::in(I), tag::out(O)>
   replace_copy(I first, S last, O result, const T1& old_value,
                const T2& new_value, Proj&& proj_ = Proj{}) {
@@ -42,8 +42,8 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng, class T1, class T2,
             WeakOutputIterator<T2> O, class Proj = identity>
-    requires IndirectlyCopyable<IteratorType<Rng>, O>() &&
-      IndirectCallableRelation<equal_to<>, Projected<IteratorType<Rng>, Proj>, const T1 *>()
+    requires IndirectlyCopyable<iterator_t<Rng>, O>() &&
+      IndirectCallableRelation<equal_to<>, projected<iterator_t<Rng>, Proj>, const T1 *>()
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
   replace_copy(Rng&& rng, O result, const T1& old_value,
                const T2& new_value, Proj&& proj = Proj{}) {

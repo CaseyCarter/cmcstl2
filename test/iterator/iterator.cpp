@@ -299,14 +299,14 @@ template <__stl2::ext::ContiguousIterator I, __stl2::Sentinel<I> S,
           __stl2::ext::ContiguousIterator O>
   requires __stl2::IndirectlyCopyable<I, O>() &&
     __stl2::SizedIteratorRange<I, S>() &&
-    __stl2::Same<__stl2::ValueType<I>, __stl2::ValueType<O>>() &&
-    std::is_trivially_copyable<__stl2::ValueType<I>>::value
+    __stl2::Same<__stl2::value_type_t<I>, __stl2::value_type_t<O>>() &&
+    std::is_trivially_copyable<__stl2::value_type_t<I>>::value
 bool copy(I first, S last, O o) {
   auto n = last - first;
   STL2_ASSUME(n >= 0);
   if (n) {
     std::memmove(std::addressof(*o), std::addressof(*first),
-                 n * sizeof(__stl2::ValueType<I>));
+                 n * sizeof(__stl2::value_type_t<I>));
   }
   return true;
 }
@@ -344,10 +344,10 @@ void test_copy() {
 void test_iter_swap2() {
   {
     int a[] = { 42, 13 };
-    __stl2::iter_swap2(a + 0, a + 1);
+    __stl2::iter_swap(a + 0, a + 1);
     CHECK(a[0] == 13);
     CHECK(a[1] == 42);
-    __stl2::iter_swap2(a + 0, a + 1);
+    __stl2::iter_swap(a + 0, a + 1);
     CHECK(a[0] == 42);
     CHECK(a[1] == 13);
   }
@@ -358,18 +358,18 @@ void test_iter_swap2() {
     using I = decltype(a);
     static_assert(models::Same<I, decltype(b)>);
     static_assert(models::Readable<I>);
-    using R = __stl2::ReferenceType<I>;
+    using R = __stl2::reference_t<I>;
     static_assert(models::Same<int&, R>);
-    using RR = __stl2::RvalueReferenceType<I>;
+    using RR = __stl2::rvalue_reference_t<I>;
     static_assert(models::Same<int&&, RR>);
     static_assert(models::Swappable<R, R>);
 
     // Swappable<R, R>() is true, calls the first overload of
-    // iter_swap2 (which delegates to swap(*a, *b)):
-    __stl2::iter_swap2(a, b);
+    // iter_swap (which delegates to swap(*a, *b)):
+    __stl2::iter_swap(a, b);
     CHECK(*a == 13);
     CHECK(*b == 42);
-    __stl2::iter_swap2(a, b);
+    __stl2::iter_swap(a, b);
     CHECK(*a == 42);
     CHECK(*b == 13);
   }
@@ -378,11 +378,11 @@ void test_iter_swap2() {
     auto a = array<int, 4>{0,1,2,3};
     using I = decltype(a.begin());
     static_assert(models::Readable<I>);
-    using V = __stl2::ValueType<I>;
+    using V = __stl2::value_type_t<I>;
     static_assert(models::Same<int, V>);
-    using R = __stl2::ReferenceType<I>;
+    using R = __stl2::reference_t<I>;
     static_assert(models::Same<reference_wrapper<int>, R>);
-    using RR = __stl2::RvalueReferenceType<I>;
+    using RR = __stl2::rvalue_reference_t<I>;
     static_assert(models::Same<int&&, RR>);
 
     static_assert(models::Same<I, decltype(a.begin() + 2)>);
@@ -391,8 +391,8 @@ void test_iter_swap2() {
     static_assert(models::IndirectlyMovable<I, I>);
 
     // Swappable<R, R>() is not satisfied, and IndirectlyMovable<I, I>() is,
-    // so this should resolve to the second overload of iter_swap2.
-    __stl2::iter_swap2(a.begin() + 1, a.begin() + 3);
+    // so this should resolve to the second overload of iter_swap.
+    __stl2::iter_swap(a.begin() + 1, a.begin() + 3);
     CHECK(a[0] == 0);
     CHECK(a[1] == 3);
     CHECK(a[2] == 2);

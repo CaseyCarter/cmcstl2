@@ -23,7 +23,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
+            IndirectCallablePredicate<projected<I, Proj>> Pred>
   bool none_of(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{}) {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputRange Rng, class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
+            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
   bool none_of(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
     return __stl2::none_of(__stl2::begin(rng), __stl2::end(rng),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 
   // Extension
   template <class E, class Proj = identity,
-            IndirectCallablePredicate<Projected<const E*, Proj>> Pred>
+            IndirectCallablePredicate<projected<const E*, Proj>> Pred>
   bool none_of(std::initializer_list<E> il, Pred&& pred, Proj&& proj = Proj{}) {
     return __stl2::none_of(il.begin(), il.end(),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));

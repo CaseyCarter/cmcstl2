@@ -22,12 +22,12 @@
 //
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
-  DifferenceType<I> count_if(I first, S last,
+            IndirectCallablePredicate<projected<I, Proj>> Pred>
+  difference_type_t<I> count_if(I first, S last,
                              Pred&& pred_, Proj&& proj_ = Proj{}) {
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-    auto n = DifferenceType<I>(0);
+    auto n = difference_type_t<I>(0);
     for (; first != last; ++first) {
       if (pred(proj(*first))) {
         ++n;
@@ -37,8 +37,8 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputRange Rng, class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
-  DifferenceType<Rng> count_if(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
+            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
+  difference_type_t<Rng> count_if(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
     return __stl2::count_if(__stl2::begin(rng), __stl2::end(rng),
                             __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }

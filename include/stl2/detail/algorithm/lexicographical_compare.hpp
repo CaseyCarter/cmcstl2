@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
             InputIterator I2, Sentinel<I2> S2,
             class Proj1 = identity, class Proj2 = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<I1, Proj1>, Projected<I2, Proj2>> Comp = less<>>
+              projected<I1, Proj1>, projected<I2, Proj2>> Comp = less<>>
   bool lexicographical_compare(I1 first1, S1 last1, I2 first2, S2 last2,
                                Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{},
                                Proj2&& proj2_ = Proj2{}) {
@@ -46,8 +46,8 @@ STL2_OPEN_NAMESPACE {
   template <InputRange Rng1, InputRange Rng2,
             class Proj1 = identity, class Proj2 = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<IteratorType<Rng1>, Proj1>,
-              Projected<IteratorType<Rng2>, Proj2>> Comp = less<>>
+              projected<iterator_t<Rng1>, Proj1>,
+              projected<iterator_t<Rng2>, Proj2>> Comp = less<>>
   bool lexicographical_compare(Rng1&& rng1, Rng2&& rng2, Comp&& comp = Comp{},
                                Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     return __stl2::lexicographical_compare(

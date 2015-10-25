@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
       I value_;
     public:
       using value_type = I;
-      using difference_type = DifferenceType<I>;
+      using difference_type = difference_type_t<I>;
       using iterator_category =
         meta::if_c<
           models::Incrementable<I>,

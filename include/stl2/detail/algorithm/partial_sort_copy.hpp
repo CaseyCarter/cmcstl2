@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
             RandomAccessIterator I2, Sentinel<I2> S2,
             class Proj1 = identity, class Proj2 = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<I1, Proj1>, Projected<I2, Proj2>> Comp = less<>>
+              projected<I1, Proj1>, projected<I2, Proj2>> Comp = less<>>
     requires IndirectlyCopyable<I1, I2>() && Sortable<I2, Comp, Proj2>()
   I2 partial_sort_copy(I1 first, S1 last, I2 result_first, S2 result_last,
                        Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{},
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
         *r = *first;
       }
       __stl2::make_heap(result_first, r, __stl2::ref(comp), __stl2::ref(proj2));
-      const auto len = DifferenceType<I2>(r - result_first);
+      const auto len = difference_type_t<I2>(r - result_first);
       for(; first != last; ++first) {
         auto&& x = *first;
         if(comp(proj1(x), proj2(*result_first))) {
@@ -63,10 +63,10 @@ STL2_OPEN_NAMESPACE {
   template <InputRange Rng1, RandomAccessRange Rng2,
             class Proj1 = identity, class Proj2 = identity,
             IndirectCallableStrictWeakOrder<
-              Projected<IteratorType<Rng1>, Proj1>,
-              Projected<IteratorType<Rng2>, Proj2>> Comp = less<>>
-    requires IndirectlyCopyable<IteratorType<Rng1>, IteratorType<Rng2>>() &&
-      Sortable<IteratorType<Rng2>, Comp, Proj2>()
+              projected<iterator_t<Rng1>, Proj1>,
+              projected<iterator_t<Rng2>, Proj2>> Comp = less<>>
+    requires IndirectlyCopyable<iterator_t<Rng1>, iterator_t<Rng2>>() &&
+      Sortable<iterator_t<Rng2>, Comp, Proj2>()
   safe_iterator_t<Rng2>
   partial_sort_copy(Rng1&& rng, Rng2&& result_rng, Comp&& comp = Comp{},
                     Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {

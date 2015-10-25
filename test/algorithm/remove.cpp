@@ -78,16 +78,16 @@ test_iter_rvalue()
 #if 0
     using UPI = std::unique_ptr<int>;
     using I1 = decltype(Iter(ia));
-    using V1 = stl2::ValueType<I1>;
+    using V1 = stl2::value_type_t<I1>;
     static_assert(stl2::models::Same<V1, UPI>);
-    using R1 = stl2::ReferenceType<I1>;
+    using R1 = stl2::reference_t<I1>;
     static_assert(stl2::models::Same<R1, UPI&>);
     using ICR1 = stl2::iter_common_reference_t<I1>;
     static_assert(stl2::models::Same<ICR1, R1>);
     using I2 = const UPI*;
-    using V2 = stl2::ValueType<I2>;
+    using V2 = stl2::value_type_t<I2>;
     static_assert(stl2::models::Same<V1, V2>);
-    using R2 = stl2::ReferenceType<I2>;
+    using R2 = stl2::reference_t<I2>;
     static_assert(stl2::models::Same<R2, const UPI&>);
     using ICR2 = stl2::iter_common_reference_t<I2>;
     static_assert(stl2::models::Same<ICR2, R2>);

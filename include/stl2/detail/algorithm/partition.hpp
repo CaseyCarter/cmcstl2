@@ -34,7 +34,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template <Permutable I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
+            IndirectCallablePredicate<projected<I, Proj>> Pred>
   I partition(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{}) {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
     if (first != last) {
       for (auto m = first; ++m != last;) {
         if (pred(proj(*m))) {
-          __stl2::iter_swap2(first, m);
+          __stl2::iter_swap(first, m);
           ++first;
         }
       }
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <Permutable I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
+            IndirectCallablePredicate<projected<I, Proj>> Pred>
     requires BidirectionalIterator<I>()
   I partition(I first, S last_, Pred&& pred_, Proj&& proj_ = Proj{}) {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
             return first;
           }
           if (pred(proj(*last))) {
-            __stl2::iter_swap2(first, last);
+            __stl2::iter_swap(first, last);
             break;
           }
         }
@@ -76,8 +76,8 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng, class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
-    requires Permutable<IteratorType<Rng>>()
+            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
+    requires Permutable<iterator_t<Rng>>()
   safe_iterator_t<Rng> partition(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
     return __stl2::partition(__stl2::begin(rng), __stl2::end(rng),
              __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));

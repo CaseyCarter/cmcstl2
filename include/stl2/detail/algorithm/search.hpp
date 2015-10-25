@@ -72,8 +72,8 @@ STL2_OPEN_NAMESPACE {
             ForwardIterator I2, Sentinel<I2> S2,
             class Pred, class Proj1, class Proj2>
     requires models::IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-  I1 __sized_search(const I1 first1_, S1 last1, const DifferenceType<I1> d1_,
-                    I2 first2, S2 last2, const DifferenceType<I2> d2,
+  I1 __sized_search(const I1 first1_, S1 last1, const difference_type_t<I1> d1_,
+                    I2 first2, S2 last2, const difference_type_t<I2> d2,
                     Pred&& pred_, Proj1&& proj1_, Proj2&& proj2_) {
     if (d2 == 0) {
       return first1_;
@@ -117,7 +117,7 @@ STL2_OPEN_NAMESPACE {
 
   template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
             class Proj1 = identity, class Proj2 = identity>
-    requires models::IndirectlyComparable<IteratorType<Rng1>, IteratorType<Rng2>, Pred, Proj1, Proj2>
+    requires models::IndirectlyComparable<iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
   safe_iterator_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
                                Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     return __stl2::search(
@@ -132,7 +132,7 @@ STL2_OPEN_NAMESPACE {
   template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
             class Proj1 = identity, class Proj2 = identity>
     requires SizedRange<Rng1>() && SizedRange<Rng2>() &&
-    models::IndirectlyComparable<IteratorType<Rng1>, IteratorType<Rng2>, Pred, Proj1, Proj2>
+    models::IndirectlyComparable<iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
   safe_iterator_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
                                Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     return __stl2::__sized_search(

@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
     I i = middle;
     for(; i != last; ++i) {
       if(comp(proj(*i), proj(*first))) {
-        __stl2::iter_swap2(i, first);
+        __stl2::iter_swap(i, first);
         detail::sift_down_n(first, len, first, __stl2::ref(comp), __stl2::ref(proj));
       }
     }
@@ -47,9 +47,9 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<IteratorType<Rng>, Comp, Proj>()
+    requires Sortable<iterator_t<Rng>, Comp, Proj>()
   safe_iterator_t<Rng>
-  partial_sort(Rng&& rng, IteratorType<Rng> middle, Comp&& comp = Comp{},
+  partial_sort(Rng&& rng, iterator_t<Rng> middle, Comp&& comp = Comp{},
                Proj&& proj = Proj{}) {
     return __stl2::partial_sort(
       __stl2::begin(rng), __stl2::move(middle), __stl2::end(rng),

@@ -25,7 +25,7 @@
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O1,
             WeaklyIncrementable O2, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
+            IndirectCallablePredicate<projected<I, Proj>> Pred>
     requires IndirectlyMovable<I, O1>() && IndirectlyMovable<I, O2>()
   tagged_tuple<tag::in(I), tag::out1(O1), tag::out2(O2)>
   partition_move(I first, S last, O1 out_true, O2 out_false,
@@ -47,9 +47,9 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng, WeaklyIncrementable O1, WeaklyIncrementable O2,
             class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
-    requires IndirectlyMovable<IteratorType<Rng>, O1>() &&
-      IndirectlyMovable<IteratorType<Rng>, O2>()
+            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
+    requires IndirectlyMovable<iterator_t<Rng>, O1>() &&
+      IndirectlyMovable<iterator_t<Rng>, O2>()
   tagged_tuple<tag::in(safe_iterator_t<Rng>), tag::out1(O1), tag::out2(O2)>
   partition_move(Rng&& rng, O1 out_true, O2 out_false,
                  Pred&& pred, Proj&& proj = Proj{}) {

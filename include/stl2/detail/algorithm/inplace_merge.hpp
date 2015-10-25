@@ -48,11 +48,11 @@ STL2_OPEN_NAMESPACE {
     private:
       template <BidirectionalIterator I, class C, class P>
       // requires Sortable<I, C, P>()
-      static void impl(I begin, I middle, I end, DifferenceType<I> len1,
-                       DifferenceType<I> len2, temporary_buffer<ValueType<I>>& buf, C& pred, P& proj) {
+      static void impl(I begin, I middle, I end, difference_type_t<I> len1,
+                       difference_type_t<I> len2, temporary_buffer<value_type_t<I>>& buf, C& pred, P& proj) {
         // Pre: len1 == distance(begin, midddle)
         // Pre: len2 == distance(middle, end)
-        temporary_vector<ValueType<I>> vec{buf};
+        temporary_vector<value_type_t<I>> vec{buf};
         if(len1 <= len2)
           {
             __stl2::move(begin, middle, __stl2::back_inserter(vec));
@@ -72,12 +72,12 @@ STL2_OPEN_NAMESPACE {
     public:
       template <BidirectionalIterator I, class C, class P>
         requires Sortable<I, C, P>()
-      void operator()(I begin, I middle, I end, DifferenceType<I> len1, DifferenceType<I> len2,
-                      detail::temporary_buffer<ValueType<I>>& buf, C&& pred_, P&& proj_) const
+      void operator()(I begin, I middle, I end, difference_type_t<I> len1, difference_type_t<I> len2,
+                      detail::temporary_buffer<value_type_t<I>>& buf, C&& pred_, P&& proj_) const
       {
         // Pre: len1 == distance(begin, midddle)
         // Pre: len2 == distance(middle, end)
-        using D = DifferenceType<I>;
+        using D = difference_type_t<I>;
         auto pred = ext::make_callable_wrapper(__stl2::forward<C>(pred_));
         auto proj = ext::make_callable_wrapper(__stl2::forward<P>(proj_));
         while (true) {
@@ -122,7 +122,7 @@ STL2_OPEN_NAMESPACE {
             if (len1 == 1) {
               // len1 >= len2 && len2 > 0, therefore len2 == 1
               // It is known *begin > *middle
-              __stl2::iter_swap2(begin, middle);
+              __stl2::iter_swap(begin, middle);
               return;
             }
             // len1 >= 2, len2 >= 1
@@ -165,10 +165,10 @@ STL2_OPEN_NAMESPACE {
     {
       template <BidirectionalIterator I, class C = less<>, class P = identity>
         requires Sortable<I, C, P>()
-      void operator()(I begin, I middle, I end, DifferenceType<I> len1,
-                      DifferenceType<I> len2, C&& pred = C{}, P&& proj = P{}) const
+      void operator()(I begin, I middle, I end, difference_type_t<I> len1,
+                      difference_type_t<I> len2, C&& pred = C{}, P&& proj = P{}) const
       {
-        temporary_buffer<ValueType<I>> no_buffer;
+        temporary_buffer<value_type_t<I>> no_buffer;
         merge_adaptive(__stl2::move(begin), __stl2::move(middle), __stl2::move(end),
           len1, len2, no_buffer, __stl2::forward<C>(pred), __stl2::forward<P>(proj));
       }
@@ -187,9 +187,9 @@ STL2_OPEN_NAMESPACE {
     auto len1 = __stl2::distance(first, middle);
     auto len2_and_end = __stl2::ext::enumerate(middle, __stl2::move(last));
     auto buf_size = std::min(len1, len2_and_end.count());
-    detail::temporary_buffer<ValueType<I>> buf;
-    if (is_trivially_move_assignable<ValueType<I>>() && 8 < buf_size) {
-      buf = detail::temporary_buffer<ValueType<I>>{buf_size};
+    detail::temporary_buffer<value_type_t<I>> buf;
+    if (is_trivially_move_assignable<value_type_t<I>>() && 8 < buf_size) {
+      buf = detail::temporary_buffer<value_type_t<I>>{buf_size};
     }
     detail::merge_adaptive(__stl2::move(first), __stl2::move(middle), len2_and_end.end(),
                            len1, len2_and_end.count(), buf, __stl2::forward<Comp>(comp),
@@ -198,9 +198,9 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <BidirectionalRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<IteratorType<Rng>, Comp, Proj>()
+    requires Sortable<iterator_t<Rng>, Comp, Proj>()
   safe_iterator_t<Rng>
-  inplace_merge(Rng&& rng, IteratorType<Rng> middle, Comp&& comp = Comp{},
+  inplace_merge(Rng&& rng, iterator_t<Rng> middle, Comp&& comp = Comp{},
                 Proj&& proj = Proj{}) {
     return __stl2::inplace_merge(__stl2::begin(rng), __stl2::move(middle),
       __stl2::end(rng), __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));

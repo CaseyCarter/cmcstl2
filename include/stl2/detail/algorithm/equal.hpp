@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
   // Not to spec
   template <InputRange Rng1, class I2_, WeakInputIterator I2 = __uncvref<I2_>,
             class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
-    requires IndirectlyComparable<IteratorType<Rng1>, I2, Pred, Proj1, Proj2>()
+    requires IndirectlyComparable<iterator_t<Rng1>, I2, Pred, Proj1, Proj2>()
   bool equal(Rng1&& rng1, I2_&& first2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     return __stl2::__equal_3(__stl2::begin(rng1), __stl2::end(rng1),
@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
       SizedIteratorRange<I1, S1>() && SizedIteratorRange<I2, S2>()
   bool equal(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
-    using C = CommonType<DifferenceType<I1>, DifferenceType<I2>>;
+    using C = CommonType<difference_type_t<I1>, difference_type_t<I2>>;
     return C(__stl2::distance(first1, last1)) == C(__stl2::distance(first2, last2)) &&
       __stl2::__equal_3(first1, last1, first2,
         __stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
@@ -101,7 +101,7 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng1, InputRange Rng2, class Pred = equal_to<>,
             class Proj1 = identity, class Proj2 = identity>
-    requires IndirectlyComparable<IteratorType<Rng1>, IteratorType<Rng2>, Pred, Proj1, Proj2>()
+    requires IndirectlyComparable<iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>()
   bool equal(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     return __stl2::__equal_4(
@@ -114,12 +114,12 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng1, InputRange Rng2, class Pred = equal_to<>,
             class Proj1 = identity, class Proj2 = identity>
-    requires IndirectlyComparable<IteratorType<Rng1>,
-                                  IteratorType<Rng2>, Pred, Proj1, Proj2>() &&
+    requires IndirectlyComparable<iterator_t<Rng1>,
+                                  iterator_t<Rng2>, Pred, Proj1, Proj2>() &&
       SizedRange<Rng1>() && SizedRange<Rng2>()
   bool equal(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
-    using C = CommonType<DifferenceType<Rng1>, DifferenceType<Rng2>>;
+    using C = CommonType<difference_type_t<Rng1>, difference_type_t<Rng2>>;
     return C(__stl2::distance(rng1)) == C(__stl2::distance(rng2)) &&
       __stl2::__equal_3(
         __stl2::begin(rng1), __stl2::end(rng1), __stl2::begin(rng2),

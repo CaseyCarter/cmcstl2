@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<IteratorType<Rng>, Comp, Proj>()
+    requires Sortable<iterator_t<Rng>, Comp, Proj>()
   safe_iterator_t<Rng>
   push_heap(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     auto n = __stl2::distance(rng);

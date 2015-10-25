@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
         requires Sortable<I, Comp, Proj>()
       I choose_pivot(I first, I last, Comp& comp, Proj& proj) {
         STL2_ASSUME(first != last);
-        I mid = first + DifferenceType<I>(last - first) / 2;
+        I mid = first + difference_type_t<I>(last - first) / 2;
         --last;
         // Find the median:
         return [&](auto&& a, auto&& b, auto&& c) {
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
           if (!(first < last)) {
             return first;
           }
-          __stl2::iter_swap2(first, last);
+          __stl2::iter_swap(first, last);
           pivot_pnt = pivot_pnt == first ? last : (pivot_pnt == last ? first : pivot_pnt);
           ++first;
         }
@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 
       template <BidirectionalIterator I, class Comp, class Proj>
         requires Sortable<I, Comp, Proj>()
-      void unguarded_linear_insert(I last, ValueType<I> val, Comp& comp, Proj& proj) {
+      void unguarded_linear_insert(I last, value_type_t<I> val, Comp& comp, Proj& proj) {
         I next = __stl2::prev(last);
         while (comp(proj(val), proj(*next))) {
           *last = __stl2::iter_move(next);
@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
         requires Sortable<I, Comp, Proj>()
       void linear_insert(I first, I last, Comp& comp, Proj& proj)
       {
-        ValueType<I> val = __stl2::iter_move(last);
+        value_type_t<I> val = __stl2::iter_move(last);
         if (comp(proj(val), proj(*first))) {
           __stl2::move_backward(first, last, last + 1);
           *first = __stl2::move(val);
@@ -122,7 +122,7 @@ STL2_OPEN_NAMESPACE {
 
       template <RandomAccessIterator I, class Comp, class Proj>
         requires Sortable<I, Comp, Proj>()
-      void introsort_loop(I first, I last, DifferenceType<I> depth_limit,
+      void introsort_loop(I first, I last, difference_type_t<I> depth_limit,
                           Comp& comp, Proj& proj) {
         while (__stl2::distance(first, last) > introsort_threshold) {
           if (depth_limit == 0) {

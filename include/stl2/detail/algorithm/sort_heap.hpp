@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     template <RandomAccessIterator I, class Comp, class Proj>
       requires Sortable<I, Comp, Proj>()
-    void sort_heap_n(I first, DifferenceType<I> n,
+    void sort_heap_n(I first, difference_type_t<I> n,
                      Comp&& comp_, Proj&& proj_) {
       if (n > 1) {
         auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<IteratorType<Rng>, Comp, Proj>()
+    requires Sortable<iterator_t<Rng>, Comp, Proj>()
   safe_iterator_t<Rng>
   sort_heap(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     auto n = __stl2::distance(rng);

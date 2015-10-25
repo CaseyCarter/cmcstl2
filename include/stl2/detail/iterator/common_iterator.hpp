@@ -69,13 +69,13 @@ STL2_OPEN_NAMESPACE {
     using var_t = variant<I, S>;
     var_t v_;
   public:
-    using difference_type = DifferenceType<I>;
-    using value_type = ValueType<I>;
+    using difference_type = difference_type_t<I>;
+    using value_type = value_type_t<I>;
     using iterator_category = conditional_t<
       models::ForwardIterator<I>,
       __stl2::forward_iterator_tag,
       __stl2::input_iterator_tag>;
-    using reference = ReferenceType<I>;
+    using reference = reference_t<I>;
     constexpr common_iterator()
       noexcept(is_nothrow_default_constructible<var_t>::value) = default;
     constexpr common_iterator(I i)
@@ -181,13 +181,13 @@ STL2_OPEN_NAMESPACE {
 
   template <class I1, class S1, class I2, class S2>
     requires
-      __CompatibleSizedIteratorRange<I1, I2, DifferenceType<I2>> &&
-      __CompatibleSizedIteratorRange<I1, S2, DifferenceType<I2>> &&
-      __CompatibleSizedIteratorRange<I2, S1, DifferenceType<I2>>
-  constexpr DifferenceType<I2> operator-(
+      __CompatibleSizedIteratorRange<I1, I2, difference_type_t<I2>> &&
+      __CompatibleSizedIteratorRange<I1, S2, difference_type_t<I2>> &&
+      __CompatibleSizedIteratorRange<I2, S1, difference_type_t<I2>>
+  constexpr difference_type_t<I2> operator-(
     const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
   STL2_NOEXCEPT_RETURN(
-    __stl2::visit(__ci_difference_visitor<DifferenceType<I2>, S1, S2>{},
+    __stl2::visit(__ci_difference_visitor<difference_type_t<I2>, S1, S2>{},
                   __ci_access::v(x), __ci_access::v(y))
   )
 

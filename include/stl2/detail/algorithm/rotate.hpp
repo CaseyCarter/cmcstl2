@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 
   Permutable{I}
   __tagged_range<I> __rotate_left(I first, I last) {
-    ValueType<I> tmp = __stl2::iter_move(first);
+    value_type_t<I> tmp = __stl2::iter_move(first);
     I lm1 = __stl2::move(__stl2::next(first), last, first).second;
     *lm1 = __stl2::move(tmp);
     return {lm1, last};
@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
     requires Permutable<I>()
   __tagged_range<I> __rotate_right(I first, I last) {
     I lm1 = __stl2::prev(last);
-    ValueType<I> tmp = __stl2::iter_move(lm1);
+    value_type_t<I> tmp = __stl2::iter_move(lm1);
     I fp1 = __stl2::move_backward(first, lm1, last).second;
     *first = __stl2::move(tmp);
     return {fp1, last};
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
   __tagged_range<I> __rotate_forward(I first, I middle, S last) {
     I i = middle;
     while (true) {
-      __stl2::iter_swap2(first, i);
+      __stl2::iter_swap(first, i);
       ++first;
       if (++i == last) {
         break;
@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
     if (first != middle) {
       I j = middle;
       while (true) {
-        __stl2::iter_swap2(first, j);
+        __stl2::iter_swap(first, j);
         ++first;
         if (++j == last) {
           if (first == middle) {
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
     }
     auto const g = __stl2::__gcd(m1, m2);
     for (I p = first + g; p != first;) {
-      ValueType<I> t = __stl2::iter_move(--p);
+      value_type_t<I> t = __stl2::iter_move(--p);
       I p1 = p;
       I p2 = p1 + m1;
       do {
@@ -135,7 +135,7 @@ STL2_OPEN_NAMESPACE {
 
   ForwardIterator{I}
   __tagged_range<I> __rotate(I first, I middle, I last) {
-    if (is_trivially_move_assignable<ValueType<I>>()) {
+    if (is_trivially_move_assignable<value_type_t<I>>()) {
       if (__stl2::next(first) == middle) {
         return __stl2::__rotate_left(__stl2::move(first), __stl2::move(last));
       }
@@ -146,7 +146,7 @@ STL2_OPEN_NAMESPACE {
 
   BidirectionalIterator{I}
   __tagged_range<I> __rotate(I first, I middle, I last) {
-    if (is_trivially_move_assignable<ValueType<I>>()) {
+    if (is_trivially_move_assignable<value_type_t<I>>()) {
       if (__stl2::next(first) == middle) {
         return __stl2::__rotate_left(__stl2::move(first), __stl2::move(last));
       }
@@ -160,7 +160,7 @@ STL2_OPEN_NAMESPACE {
 
   RandomAccessIterator{I}
   __tagged_range<I> __rotate(I first, I middle, I last) {
-    if (is_trivially_move_assignable<ValueType<I>>()) {
+    if (is_trivially_move_assignable<value_type_t<I>>()) {
       if (__stl2::next(first) == middle) {
         return __stl2::__rotate_left(__stl2::move(first), __stl2::move(last));
       }
@@ -188,8 +188,8 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng>
-    requires Permutable<IteratorType<Rng>>()
-  __tagged_range<safe_iterator_t<Rng>> rotate(Rng&& rng, IteratorType<Rng> middle) {
+    requires Permutable<iterator_t<Rng>>()
+  __tagged_range<safe_iterator_t<Rng>> rotate(Rng&& rng, iterator_t<Rng> middle) {
     return __stl2::rotate(__stl2::begin(rng), __stl2::move(middle), __stl2::end(rng));
   }
 } STL2_CLOSE_NAMESPACE

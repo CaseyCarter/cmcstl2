@@ -33,9 +33,9 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng, WeaklyIncrementable O>
-    requires IndirectlyCopyable<IteratorType<Rng>, O>()
+    requires IndirectlyCopyable<iterator_t<Rng>, O>()
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
-  rotate_copy(Rng&& rng, IteratorType<Rng> middle, O result) {
+  rotate_copy(Rng&& rng, iterator_t<Rng> middle, O result) {
     return __stl2::rotate_copy(__stl2::begin(rng), __stl2::move(middle),
                                __stl2::end(rng), __stl2::move(result));
   }
