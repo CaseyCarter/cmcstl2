@@ -10,8 +10,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_CONCEPTS_INCREMENT_HPP
-#define STL2_DETAIL_CONCEPTS_INCREMENT_HPP
+#ifndef STL2_DETAIL_ITERATOR_INCREMENT_HPP
+#define STL2_DETAIL_ITERATOR_INCREMENT_HPP
 
 #include <cstddef>
 #include <stl2/type_traits.hpp>

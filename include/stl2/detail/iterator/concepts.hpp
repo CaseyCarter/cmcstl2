@@ -23,8 +23,8 @@
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
-#include <stl2/detail/concepts/increment.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/iterator/increment.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // Iterator concepts [iterator.requirements]
