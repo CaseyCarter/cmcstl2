@@ -42,9 +42,11 @@ STL2_OPEN_NAMESPACE {
 
     // Extension
     STL2_CONSTEXPR_EXT counted_iterator(default_sentinel)
-      noexcept(is_nothrow_default_constructible<I>::value)
-      requires !BidirectionalIterator<I>() :
+      noexcept(is_nothrow_default_constructible<I>::value) :
       counted_iterator() {}
+    STL2_CONSTEXPR_EXT counted_iterator(default_sentinel)
+      noexcept(is_nothrow_default_constructible<I>::value)
+      requires BidirectionalIterator<I>()  = delete;
 
     STL2_CONSTEXPR_EXT counted_iterator(I x, difference_type_t<I> n)
       noexcept(is_nothrow_move_constructible<I>::value) :
