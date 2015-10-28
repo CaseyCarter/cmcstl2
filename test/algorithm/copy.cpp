@@ -47,6 +47,17 @@ public:
   }
 };
 
+STL2_OPEN_NAMESPACE {
+template <class I>
+struct common_type<I, ::delimiter<I>> {
+  using type = common_iterator<I, ::delimiter<I>>;
+};
+template <class I>
+  struct common_type<::delimiter<I>, I> {
+  using type = common_iterator<I, ::delimiter<I>>;
+};
+} STL2_CLOSE_NAMESPACE
+
 int main()
 {
     using stl2::begin;

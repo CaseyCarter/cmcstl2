@@ -16,11 +16,11 @@
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/iterator/common_iterator.hpp>
 #include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/detail/iterator/operations.hpp>
 
 STL2_OPEN_NAMESPACE {
-  // Not to spec: No protected data members.
   WeakIterator{I}
   class counted_iterator : detail::ebo_box<I> {
     friend struct __counted_iterator_access;
@@ -39,14 +39,6 @@ STL2_OPEN_NAMESPACE {
     STL2_CONSTEXPR_EXT counted_iterator()
       noexcept(is_nothrow_default_constructible<I>::value) :
       box_t{}, count_{0} {}
-
-    // Extension
-    STL2_CONSTEXPR_EXT counted_iterator(default_sentinel)
-      noexcept(is_nothrow_default_constructible<I>::value) :
-      counted_iterator() {}
-    STL2_CONSTEXPR_EXT counted_iterator(default_sentinel)
-      noexcept(is_nothrow_default_constructible<I>::value)
-      requires BidirectionalIterator<I>()  = delete;
 
     STL2_CONSTEXPR_EXT counted_iterator(I x, difference_type_t<I> n)
       noexcept(is_nothrow_move_constructible<I>::value) :
@@ -340,6 +332,15 @@ STL2_OPEN_NAMESPACE {
       return counted_iterator<I>{__stl2::move(i), o.count() - n};
     }
   }
+
+  template <class I>
+  struct common_type<counted_iterator<I>, default_sentinel> {
+    using type = common_iterator<counted_iterator<I>, default_sentinel>;
+  };
+  template <class I>
+  struct common_type<default_sentinel, counted_iterator<I>> {
+    using type = common_iterator<counted_iterator<I>, default_sentinel>;
+  };
 } STL2_CLOSE_NAMESPACE
 
 #endif

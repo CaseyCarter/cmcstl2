@@ -32,7 +32,6 @@ int main()
 
         counted_iterator<forward_iterator<const int*>> j{i};
         using C = CommonType<decltype(i), default_sentinel>;
-        static_assert(is_same<C, decltype(i)>());
         CHECK(std::equal(C{i}, C{default_sentinel{}}, rgi));
     }
 
