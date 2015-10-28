@@ -130,7 +130,7 @@ STL2_OPEN_NAMESPACE {
     friend bool operator==(const reverse_iterator<I1>&,
                            const reverse_iterator<I2>&);
 
-    TotallyOrdered{I1, I2}
+    StrictTotallyOrdered{I1, I2}
     friend bool operator<(const reverse_iterator<I1>&,
                           const reverse_iterator<I2>&);
 
@@ -153,25 +153,25 @@ STL2_OPEN_NAMESPACE {
     return !(x == y);
   }
 
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator<(const reverse_iterator<I1>& x,
                  const reverse_iterator<I2>& y) {
     return y.current < x.current;
   }
 
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator>(const reverse_iterator<I1>& x,
                  const reverse_iterator<I2>& y) {
     return y < x;
   }
 
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator<=(const reverse_iterator<I1>& x,
                   const reverse_iterator<I2>& y) {
     return !(y < x);
   }
 
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator>=(const reverse_iterator<I1>& x,
                   const reverse_iterator<I2>& y) {
     return !(x < y);

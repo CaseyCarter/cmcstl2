@@ -139,25 +139,25 @@ STL2_OPEN_NAMESPACE {
       friend constexpr bool
       operator<(const iterator& lhs, const iterator& rhs)
         noexcept(noexcept(lhs.value_ < rhs.value_))
-        requires TotallyOrdered<I>() {
+        requires StrictTotallyOrdered<I>() {
         return lhs.value_ < rhs.value_;
       }
       friend constexpr bool
       operator>(const iterator& lhs, const iterator& rhs)
         noexcept(noexcept(lhs.value_ > rhs.value_))
-        requires TotallyOrdered<I>() {
+        requires StrictTotallyOrdered<I>() {
         return lhs.value_ > rhs.value_;
       }
       friend constexpr bool
       operator<=(const iterator& lhs, const iterator& rhs)
         noexcept(noexcept(lhs.value_ <= rhs.value_))
-        requires TotallyOrdered<I>() {
+        requires StrictTotallyOrdered<I>() {
         return lhs.value_ <= rhs.value_;
       }
       friend constexpr bool
       operator>=(const iterator& lhs, const iterator& rhs)
         noexcept(noexcept(lhs.value_ >= rhs.value_))
-        requires TotallyOrdered<I>() {
+        requires StrictTotallyOrdered<I>() {
         return lhs.value_ >= rhs.value_;
       }
     };

@@ -76,11 +76,11 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // MergeMovable [mergemovable.commmonalgoreq]
+  // MoveMergeable [mergemovable.commmonalgoreq]
   //
   template <class I1, class I2, class Out,
             class R = less<>, class P1 = identity, class P2 = identity>
-  concept bool MergeMovable() {
+  concept bool MoveMergeable() {
     return InputIterator<I1>() &&
       InputIterator<I2>() &&
       WeaklyIncrementable<Out>() &&
@@ -91,9 +91,9 @@ STL2_OPEN_NAMESPACE {
 
   namespace models {
     template <class, class, class, class, class, class>
-    constexpr bool MergeMovable = false;
-    __stl2::MergeMovable{I1, I2, Out, R, P1, P2}
-    constexpr bool MergeMovable<I1, I2, Out, R, P1, P2> = true;
+    constexpr bool MoveMergeable = false;
+    __stl2::MoveMergeable{I1, I2, Out, R, P1, P2}
+    constexpr bool MoveMergeable<I1, I2, Out, R, P1, P2> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////

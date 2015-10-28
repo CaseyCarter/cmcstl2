@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
     friend bool operator==(const move_iterator<I1>&,
                            const move_iterator<I2>&);
   
-    TotallyOrdered{I1, I2}
+    StrictTotallyOrdered{I1, I2}
     friend bool operator<(const move_iterator<I1>&,
                           const move_iterator<I2>&);
   
@@ -135,25 +135,25 @@ STL2_OPEN_NAMESPACE {
     return !(a == b);
   }
   
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator<(const move_iterator<I1>& a,
                  const move_iterator<I2>& b) {
     return a.current_ < b.current_;
   }
   
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator>(const move_iterator<I1>& a,
                  const move_iterator<I2>& b) {
     return b < a;
   }
   
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator<=(const move_iterator<I1>& a,
                   const move_iterator<I2>& b) {
     return !(b < a);
   }
   
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator>=(const move_iterator<I1>& a,
                   const move_iterator<I2>& b) {
     return !(a < b);

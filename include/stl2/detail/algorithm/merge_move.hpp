@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
             InputIterator I2, Sentinel<I2> S2,
             class O, class Comp = less<>,
             class Proj1 = identity, class Proj2 = identity>
-    requires MergeMovable<I1, I2, O, Comp, Proj1, Proj2>()
+    requires MoveMergeable<I1, I2, O, Comp, Proj1, Proj2>()
   tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
   merge_move(I1 first1, S1 last1, I2 first2, S2 last2, O result,
              Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{},
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
   template <InputRange Rng1, InputRange Rng2,
             class O, class Comp = less<>,
             class Proj1 = identity, class Proj2 = identity>
-    requires MergeMovable<iterator_t<Rng1>, iterator_t<Rng2>,
+    requires MoveMergeable<iterator_t<Rng1>, iterator_t<Rng2>,
                           O, Comp, Proj1, Proj2>()
   tagged_tuple<tag::in1(safe_iterator_t<Rng1>), tag::in2(safe_iterator_t<Rng2>),
                tag::out(O)>

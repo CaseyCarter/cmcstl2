@@ -22,8 +22,8 @@ constexpr bool EqualityComparable =
   ranges::EqualityComparable<T, U>();
 
 template <class T, class U = T>
-constexpr bool TotallyOrdered =
-  ranges::TotallyOrdered<T, U>();
+constexpr bool StrictTotallyOrdered =
+  ranges::StrictTotallyOrdered<T, U>();
 }
 
 #elif VALIDATE_STL2
@@ -66,14 +66,14 @@ CONCEPT_ASSERT(models::EqualityComparable<A, A>);
 CONCEPT_ASSERT(!models::EqualityComparable<void, void>);
 } // namespace equality_comparable_test
 
-CONCEPT_ASSERT(models::TotallyOrdered<int>);
-CONCEPT_ASSERT(models::TotallyOrdered<float>);
-CONCEPT_ASSERT(models::TotallyOrdered<std::nullptr_t>);
-CONCEPT_ASSERT(!models::TotallyOrdered<void>);
+CONCEPT_ASSERT(models::StrictTotallyOrdered<int>);
+CONCEPT_ASSERT(models::StrictTotallyOrdered<float>);
+CONCEPT_ASSERT(models::StrictTotallyOrdered<std::nullptr_t>);
+CONCEPT_ASSERT(!models::StrictTotallyOrdered<void>);
 
-CONCEPT_ASSERT(models::TotallyOrdered<int, int>);
-CONCEPT_ASSERT(models::TotallyOrdered<int, double>);
-CONCEPT_ASSERT(!models::TotallyOrdered<int, void>);
+CONCEPT_ASSERT(models::StrictTotallyOrdered<int, int>);
+CONCEPT_ASSERT(models::StrictTotallyOrdered<int, double>);
+CONCEPT_ASSERT(!models::StrictTotallyOrdered<int, void>);
 
 int main() {
   return ::test_result();

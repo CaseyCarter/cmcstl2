@@ -152,7 +152,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // TotallyOrdered [concepts.lib.compare.totallyordered]
+  // StrictTotallyOrdered [concepts.lib.compare.stricttotallyordered]
   //
   template <class T, class U>
   constexpr bool __totally_ordered = false;
@@ -167,20 +167,20 @@ STL2_OPEN_NAMESPACE {
 
   namespace ext {
     ///////////////////////////////////////////////////////////////////////////
-    // WeaklyTotallyOrdered
-    // Extension: Equivalent to TotallyOrdered, except that it doesn't
+    // WeaklyStrictTotallyOrdered
+    // Extension: Equivalent to StrictTotallyOrdered, except that it doesn't
     //            cause compile errors if common_type is unspecialized.
     //
     template <class T>
-    concept bool WeaklyTotallyOrdered() {
+    concept bool WeaklyStrictTotallyOrdered() {
       return WeaklyEqualityComparable<T>() &&
         __totally_ordered<T, T>;
     }
 
     template <class T, class U>
-    concept bool WeaklyTotallyOrdered() {
-      return WeaklyTotallyOrdered<T>() &&
-        WeaklyTotallyOrdered<U>() &&
+    concept bool WeaklyStrictTotallyOrdered() {
+      return WeaklyStrictTotallyOrdered<T>() &&
+        WeaklyStrictTotallyOrdered<U>() &&
         WeaklyEqualityComparable<T, U>() &&
         __totally_ordered<T, U> &&
         __totally_ordered<U, T>;
@@ -189,37 +189,37 @@ STL2_OPEN_NAMESPACE {
 
   namespace models {
     template <class T, class U = T>
-    constexpr bool WeaklyTotallyOrdered = false;
-    __stl2::ext::WeaklyTotallyOrdered{T}
-    constexpr bool WeaklyTotallyOrdered<T, T> = true;
-    __stl2::ext::WeaklyTotallyOrdered{T, U}
-    constexpr bool WeaklyTotallyOrdered<T, U> = true;
+    constexpr bool WeaklyStrictTotallyOrdered = false;
+    __stl2::ext::WeaklyStrictTotallyOrdered{T}
+    constexpr bool WeaklyStrictTotallyOrdered<T, T> = true;
+    __stl2::ext::WeaklyStrictTotallyOrdered{T, U}
+    constexpr bool WeaklyStrictTotallyOrdered<T, U> = true;
   }
 
   template <class T>
-  concept bool TotallyOrdered() {
-    return ext::WeaklyTotallyOrdered<T>();
+  concept bool StrictTotallyOrdered() {
+    return ext::WeaklyStrictTotallyOrdered<T>();
   }
 
   template <class T, class U>
-  concept bool TotallyOrdered() {
-    return ext::WeaklyTotallyOrdered<T, U>() &&
+  concept bool StrictTotallyOrdered() {
+    return ext::WeaklyStrictTotallyOrdered<T, U>() &&
       CommonReference<const T&, const U&>() &&
-      TotallyOrdered<CommonType<T, U>>();
+      StrictTotallyOrdered<CommonType<T, U>>();
   }
 
   namespace models {
     template <class T, class U = T>
-    constexpr bool TotallyOrdered = false;
-    __stl2::TotallyOrdered{T}
-    constexpr bool TotallyOrdered<T, T> = true;
-    __stl2::TotallyOrdered{T, U}
-    constexpr bool TotallyOrdered<T, U> = true;
+    constexpr bool StrictTotallyOrdered = false;
+    __stl2::StrictTotallyOrdered{T}
+    constexpr bool StrictTotallyOrdered<T, T> = true;
+    __stl2::StrictTotallyOrdered{T, U}
+    constexpr bool StrictTotallyOrdered<T, U> = true;
 
-    // TotallyOrdered<Ts>() && ...
+    // StrictTotallyOrdered<Ts>() && ...
     template <class...Ts>
     constexpr bool AllTotallyOrdered = false;
-    template <__stl2::TotallyOrdered...Ts>
+    template <__stl2::StrictTotallyOrdered...Ts>
     constexpr bool AllTotallyOrdered<Ts...> = true;
   }
 } STL2_CLOSE_NAMESPACE

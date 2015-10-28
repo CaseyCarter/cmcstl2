@@ -134,7 +134,7 @@ STL2_OPEN_NAMESPACE {
   // greater
   //
   template <class T = void>
-    requires Same<T, void>() || TotallyOrdered<T>()
+    requires Same<T, void>() || StrictTotallyOrdered<T>()
   struct greater {
     constexpr bool operator()(const T& a, const T& b) const {
       return bool(a > b);
@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
 
   template <>
   struct greater<void> {
-    TotallyOrdered{T, U}
+    StrictTotallyOrdered{T, U}
     constexpr auto operator()(const T& t, const U& u) const ->
       decltype(t > u) {
       return {t > u};
@@ -156,7 +156,7 @@ STL2_OPEN_NAMESPACE {
   // less
   //
   template <class T = void>
-    requires Same<T, void>() || TotallyOrdered<T>()
+    requires Same<T, void>() || StrictTotallyOrdered<T>()
   struct less {
     constexpr bool operator()(const T& a, const T& b) const {
       return bool(a < b);
@@ -165,7 +165,7 @@ STL2_OPEN_NAMESPACE {
 
   template <>
   struct less<void> {
-    TotallyOrdered{T, U}
+    StrictTotallyOrdered{T, U}
     constexpr auto operator()(const T& t, const U& u) const ->
       decltype(t < u) {
       return {t < u};
@@ -178,7 +178,7 @@ STL2_OPEN_NAMESPACE {
   // greater_equal
   //
   template <class T = void>
-    requires Same<T, void>() || TotallyOrdered<T>()
+    requires Same<T, void>() || StrictTotallyOrdered<T>()
   struct greater_equal {
     constexpr bool operator()(const T& a, const T& b) const {
       return bool(a >= b);
@@ -187,7 +187,7 @@ STL2_OPEN_NAMESPACE {
 
   template <>
   struct greater_equal<void> {
-    TotallyOrdered{T, U}
+    StrictTotallyOrdered{T, U}
     constexpr auto operator()(const T& t, const U& u) const ->
       decltype(t >= u) {
       return {t >= u};
@@ -200,7 +200,7 @@ STL2_OPEN_NAMESPACE {
   // less_equal
   //
   template <class T = void>
-    requires Same<T, void>() || TotallyOrdered<T>()
+    requires Same<T, void>() || StrictTotallyOrdered<T>()
   struct less_equal {
     constexpr bool operator()(const T& a, const T& b) const {
       return bool(a <= b);
@@ -209,7 +209,7 @@ STL2_OPEN_NAMESPACE {
 
   template <>
   struct less_equal<void> {
-    TotallyOrdered{T, U}
+    StrictTotallyOrdered{T, U}
     constexpr auto operator()(const T& t, const U& u) const ->
       decltype(t <= u) {
       return {t <= u};

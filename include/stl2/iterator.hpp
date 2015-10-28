@@ -39,7 +39,7 @@
 STL2_OPEN_NAMESPACE {
   using std::iterator;
 
-  // Extension: unreachable is WeaklyTotallyOrdered with *any* type.
+  // Extension: unreachable is WeaklyStrictTotallyOrdered with *any* type.
   class unreachable {};
 
   constexpr bool operator==(const auto&, unreachable) noexcept {

@@ -718,7 +718,7 @@ STL2_OPEN_NAMESPACE {
   concept bool RandomAccessIterator() {
     return BidirectionalIterator<I>() &&
       DerivedFrom<iterator_category_t<I>, random_access_iterator_tag>() &&
-      TotallyOrdered<I>() &&
+      StrictTotallyOrdered<I>() &&
       ext::RandomAccessIncrementable<I>() &&
       __random_access_iterator<I>;
   }

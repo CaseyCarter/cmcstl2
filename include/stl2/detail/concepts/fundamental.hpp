@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
   namespace ext {
     template <class T>
     concept bool Arithmetic() {
-      return _Is<T, is_arithmetic> && Scalar<T>() && TotallyOrdered<T>();
+      return _Is<T, is_arithmetic> && Scalar<T>() && StrictTotallyOrdered<T>();
     }
   }
 
