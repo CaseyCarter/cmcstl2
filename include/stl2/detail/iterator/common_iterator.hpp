@@ -191,15 +191,15 @@ STL2_OPEN_NAMESPACE {
                   __ci_access::v(x), __ci_access::v(y))
   )
 
-  // Not to spec: extension
+  // Not to spec: extension (see https://github.com/ericniebler/stl2/issues/17)
   template <class I, class S>
-    requires !_Valid<__cond, I, S> && InputIterator<I>() && __WeakSentinel<S, I>
+    requires !_Valid<__cond, I, S> && _Valid<common_iterator, I, S>
   struct common_type<I, S> {
     using type = common_iterator<I, S>;
   };
 
   template <class S, class I>
-    requires !_Valid<__cond, I, S> && InputIterator<I>() && __WeakSentinel<S, I>
+    requires !_Valid<__cond, I, S> && _Valid<common_iterator, I, S>
   struct common_type<S, I> {
     using type = common_iterator<I, S>;
   };
