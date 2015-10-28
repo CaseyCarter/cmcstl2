@@ -40,7 +40,12 @@ STL2_OPEN_NAMESPACE {
 
   template <class> struct difference_type {};
 
-  template <> struct difference_type<void*> {};
+  template <class T>
+  struct difference_type<T*> {
+    using type = std::ptrdiff_t;
+  };
+  template <_Is<is_void> T>
+  struct difference_type<T*> {};
 
   template <> struct difference_type<std::nullptr_t> {
     using type = std::ptrdiff_t;
@@ -53,6 +58,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class T>
     requires !detail::MemberDifferenceType<T> &&
+      _IsNot<T, is_pointer> &&
       requires (const T& a, const T& b) {
         STL2_DEDUCTION_CONSTRAINT(a - b, Integral);
       }

@@ -64,7 +64,7 @@ struct array {
 
   struct iterator {
     using iterator_category = __stl2::random_access_iterator_tag;
-    using difference_t = std::ptrdiff_t;
+    using difference_type = std::ptrdiff_t;
     using value_type = T;
 
     T* ptr_;
