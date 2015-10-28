@@ -451,7 +451,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // iterator_category and IteratorCategory [iterator.assoc]
+  // iterator_category and iterator_category_t [iterator.assoc]
   // Extension: Category for pointers is ext::contiguous_iterator_tag,
   //     which derives from random_access_iterator_tag.
   //
@@ -495,7 +495,7 @@ STL2_OPEN_NAMESPACE {
   };
 
   template <class T>
-  using IteratorCategory =
+  using iterator_category_t =
     meta::_t<iterator_category<remove_cv_t<T>>>;
 
   ///////////////////////////////////////////////////////////////////////////
@@ -586,8 +586,8 @@ STL2_OPEN_NAMESPACE {
   constexpr bool __weak_input_iterator = false;
   template <class I>
     requires requires (I& i, const I& ci) {
-      typename IteratorCategory<I>;
-      DerivedFrom<IteratorCategory<I>, weak_input_iterator_tag>();
+      typename iterator_category_t<I>;
+      DerivedFrom<iterator_category_t<I>, weak_input_iterator_tag>();
       STL2_DEDUCTION_CONSTRAINT(i++, Readable);
       requires Same<value_type_t<I>, value_type_t<decltype(i++)>>();
       { *ci } -> const value_type_t<I>&;
@@ -615,7 +615,7 @@ STL2_OPEN_NAMESPACE {
   concept bool InputIterator() {
     return WeakInputIterator<I>() &&
       Iterator<I>() &&
-      DerivedFrom<IteratorCategory<I>, input_iterator_tag>();
+      DerivedFrom<iterator_category_t<I>, input_iterator_tag>();
   }
 
   namespace models {
@@ -632,7 +632,7 @@ STL2_OPEN_NAMESPACE {
   concept bool ForwardIterator() {
     return InputIterator<I>() &&
       Incrementable<I>() &&
-      DerivedFrom<IteratorCategory<I>, forward_iterator_tag>();
+      DerivedFrom<iterator_category_t<I>, forward_iterator_tag>();
   }
 
   namespace models {
@@ -648,7 +648,7 @@ STL2_OPEN_NAMESPACE {
   template <class I>
   concept bool BidirectionalIterator() {
     return ForwardIterator<I>() &&
-      DerivedFrom<IteratorCategory<I>, bidirectional_iterator_tag>() &&
+      DerivedFrom<iterator_category_t<I>, bidirectional_iterator_tag>() &&
       ext::Decrementable<I>();
   }
 
@@ -717,7 +717,7 @@ STL2_OPEN_NAMESPACE {
   template <class I>
   concept bool RandomAccessIterator() {
     return BidirectionalIterator<I>() &&
-      DerivedFrom<IteratorCategory<I>, random_access_iterator_tag>() &&
+      DerivedFrom<iterator_category_t<I>, random_access_iterator_tag>() &&
       TotallyOrdered<I>() &&
       ext::RandomAccessIncrementable<I>() &&
       __random_access_iterator<I>;
@@ -737,7 +737,7 @@ STL2_OPEN_NAMESPACE {
     template <class I>
     concept bool ContiguousIterator() {
       return RandomAccessIterator<I>() &&
-        DerivedFrom<IteratorCategory<I>, contiguous_iterator_tag>() &&
+        DerivedFrom<iterator_category_t<I>, contiguous_iterator_tag>() &&
         _Is<reference_t<I>, is_reference> &&
         Same<value_type_t<I>, decay_t<reference_t<I>>>();
     }
@@ -784,7 +784,7 @@ STL2_OPEN_NAMESPACE {
     using value_type = value_type_t<I>;
     using reference = reference_t<I>;
     using pointer = meta::_t<__pointer_type<I>>;
-    using iterator_category = IteratorCategory<I>;
+    using iterator_category = iterator_category_t<I>;
   };
 
   template <class I>

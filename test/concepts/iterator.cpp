@@ -58,7 +58,7 @@ namespace ns {
   using difference_type_t = ranges::iterator_difference_t<I>;
 
   template <class I>
-  using IteratorCategory = ranges::iterator_category_t<I>;
+  using iterator_category_t = ranges::iterator_category_t<I>;
 
   template <class I>
   using reference_t = ranges::iterator_reference_t<I>;
@@ -145,13 +145,13 @@ namespace associated_type_test {
   CONCEPT_ASSERT(!meta::has_type<ns::difference_type<void*>>());
 
   CONCEPT_ASSERT(models::Same<int, ns::difference_type_t<int>>);
-  CONCEPT_ASSERT(models::Same<ns::IteratorCategory<D>, ns::forward_iterator_tag>);
+  CONCEPT_ASSERT(models::Same<ns::iterator_category_t<D>, ns::forward_iterator_tag>);
 #if VALIDATE_STL2
-  CONCEPT_ASSERT(models::Same<ns::IteratorCategory<int*>, __stl2::ext::contiguous_iterator_tag>);
-  CONCEPT_ASSERT(models::Same<ns::IteratorCategory<const int*>, __stl2::ext::contiguous_iterator_tag>);
+  CONCEPT_ASSERT(models::Same<ns::iterator_category_t<int*>, __stl2::ext::contiguous_iterator_tag>);
+  CONCEPT_ASSERT(models::Same<ns::iterator_category_t<const int*>, __stl2::ext::contiguous_iterator_tag>);
 #elif VALIDATE_RANGES
-  CONCEPT_ASSERT(models::Same<ns::IteratorCategory<int*>, ns::random_access_iterator_tag>);
-  CONCEPT_ASSERT(models::Same<ns::IteratorCategory<const int*>, ns::random_access_iterator_tag>);
+  CONCEPT_ASSERT(models::Same<ns::iterator_category_t<int*>, ns::random_access_iterator_tag>);
+  CONCEPT_ASSERT(models::Same<ns::iterator_category_t<const int*>, ns::random_access_iterator_tag>);
 #endif
 
   template <class T>
@@ -169,7 +169,7 @@ namespace associated_type_test {
         meta::list<int>>>;
 
   template <class T, bool B, class U>
-  using test = std::is_same<ns::IteratorCategory<iterator<T, B>>, U>;
+  using test = std::is_same<ns::iterator_category_t<iterator<T, B>>, U>;
 
   CONCEPT_ASSERT(!meta::has_type<ns::iterator_category<iterator<std::output_iterator_tag, false>>>());
   CONCEPT_ASSERT(!meta::has_type<ns::iterator_category<iterator<std::output_iterator_tag, true>>>());

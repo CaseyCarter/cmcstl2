@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
     using iterator_type = I;
     using difference_type = difference_type_t<I>;
     using value_type = value_type_t<I>;
-    using iterator_category = IteratorCategory<I>;
+    using iterator_category = iterator_category_t<I>;
     using reference = reference_t<I>;
     using pointer = I;
 
