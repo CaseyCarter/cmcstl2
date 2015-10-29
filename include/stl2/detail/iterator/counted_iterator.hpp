@@ -19,6 +19,7 @@
 #include <stl2/detail/iterator/common_iterator.hpp>
 #include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/detail/iterator/operations.hpp>
+#include <stl2/detail/iterator/common_iterator.hpp>
 
 STL2_OPEN_NAMESPACE {
   WeakIterator{I}
@@ -67,7 +68,7 @@ STL2_OPEN_NAMESPACE {
       requires detail::Dereferenceable<const I> {
       return *current();
     }
-    // Extension to support output iterators, since Writable
+    // Support output iterators, since Writable
     // allows * to be modifying.
     STL2_CONSTEXPR_EXT decltype(auto) operator*()
       noexcept(noexcept(*declval<I&>())) {

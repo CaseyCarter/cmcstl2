@@ -64,14 +64,20 @@
     <Filter Include="Header Files\cmcstl2\experimental">
       <UniqueIdentifier>{c99cf7dc-639c-4e89-a890-5545c588344b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\cmcstl2\experimental\ranges_v1">
-      <UniqueIdentifier>{a4e91c04-4565-4b8e-95d1-22b712259e53}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\cmcstl2\meta">
       <UniqueIdentifier>{a6f362cf-3b8b-483c-bfdc-349297778915}</UniqueIdentifier>
     </Filter>
     <Filter Include="Test Files\detail">
       <UniqueIdentifier>{ba137614-c2bb-4349-aeda-c35f0d91a608}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\experimental\ranges">
+      <UniqueIdentifier>{6bf8e2cb-cdfe-4438-a603-241d1b0810dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\detail\functional">
+      <UniqueIdentifier>{a1170bbb-dc13-498b-b9f7-05c78706c50a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Files\functional">
+      <UniqueIdentifier>{3bc769ff-68b9-4f2c-a6bf-1e580f2ee8b1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -537,6 +543,30 @@
     <ClInclude Include="include\stl2\detail\algorithm\reverse_move.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
     </ClInclude>
+    <ClInclude Include="include\stl2\detail\compressed_pair.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\ebo_box.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\increment.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\functional\callable_wrapper.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\functional\invoke.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\functional\not_fn.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\unreachable.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\increment.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\headers.cpp">
@@ -956,6 +986,15 @@
     <ClCompile Include="test\detail\temporary_vector.cpp">
       <Filter>Test Files\detail</Filter>
     </ClCompile>
+    <ClCompile Include="test\functional\invoke.cpp">
+      <Filter>Test Files\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="test\functional\not_fn.cpp">
+      <Filter>Test Files\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\incomplete.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="test\CMakeLists.txt">
@@ -984,34 +1023,37 @@
     <Text Include="test\algorithm\CMakeLists.txt">
       <Filter>Test Files\algorithm</Filter>
     </Text>
+    <Text Include="test\functional\CMakeLists.txt">
+      <Filter>Test Files\functional</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include=".gitattributes" />
     <None Include="README.md" />
-    <None Include="include\experimental\ranges_v1\algorithm">
-      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    <None Include="include\experimental\ranges\algorithm">
+      <Filter>Header Files\cmcstl2\experimental\ranges</Filter>
     </None>
-    <None Include="include\experimental\ranges_v1\concepts">
-      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    <None Include="include\experimental\ranges\concepts">
+      <Filter>Header Files\cmcstl2\experimental\ranges</Filter>
     </None>
-    <None Include="include\experimental\ranges_v1\functional">
-      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    <None Include="include\experimental\ranges\functional">
+      <Filter>Header Files\cmcstl2\experimental\ranges</Filter>
     </None>
-    <None Include="include\experimental\ranges_v1\iterator">
-      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    <None Include="include\experimental\ranges\iterator">
+      <Filter>Header Files\cmcstl2\experimental\ranges</Filter>
     </None>
-    <None Include="include\experimental\ranges_v1\random">
-      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    <None Include="include\experimental\ranges\random">
+      <Filter>Header Files\cmcstl2\experimental\ranges</Filter>
     </None>
-    <None Include="include\experimental\ranges_v1\tuple">
-      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    <None Include="include\experimental\ranges\tuple">
+      <Filter>Header Files\cmcstl2\experimental\ranges</Filter>
     </None>
-    <None Include="include\experimental\ranges_v1\type_traits">
-      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    <None Include="include\experimental\ranges\type_traits">
+      <Filter>Header Files\cmcstl2\experimental\ranges</Filter>
     </None>
-    <None Include="include\experimental\ranges_v1\utility">
-      <Filter>Header Files\cmcstl2\experimental\ranges_v1</Filter>
+    <None Include="include\experimental\ranges\utility">
+      <Filter>Header Files\cmcstl2\experimental\ranges</Filter>
     </None>
   </ItemGroup>
 </Project>

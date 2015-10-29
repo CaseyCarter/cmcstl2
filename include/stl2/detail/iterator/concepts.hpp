@@ -792,86 +792,84 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // Standard iterator traits [iterator.stdtraits]
-  // 20150802: Not to spec: Adds constraints to ::iterator_category so as to
-  //           apply only to STL2 iterators and avoid "partial specialization
-  //           after instantiation" errors.
-  //
-  template <__stl2::WeakIterator W>
-  struct __std_out_value_type {
-    using type = void;
-  };
-  template <__stl2::WeakIterator W>
-    requires detail::MemberValueType<W>
-  struct __std_out_value_type<W> {
-    using type = typename W::value_type;
-  };
-
-  template <__stl2::WeakIterator W, class Default = void>
-  struct __std_reference_type {
-    using type = Default;
-  };
-  template <__stl2::WeakIterator W, class Default>
-    requires requires { typename W::reference; }
-  struct __std_reference_type<W, Default> {
-    using type = typename W::reference;
-  };
-
-  template <__stl2::WeakIterator W, class Default = void>
-  struct __std_pointer_type {
-    using type = Default;
-  };
-  template <__stl2::WeakIterator W, class Default>
-    requires requires { typename W::pointer; }
-  struct __std_pointer_type<W, Default> {
-    using type = typename W::pointer;
-  };
-
   namespace detail {
     namespace stl2_to_std_iterator_category_ {
-      std::input_iterator_tag f(input_iterator_tag*);
-      std::forward_iterator_tag f(forward_iterator_tag*);
-      std::bidirectional_iterator_tag f(bidirectional_iterator_tag*);
-      std::random_access_iterator_tag f(random_access_iterator_tag*);
+      template<class Ref, class Cat> Cat g(std::input_iterator_tag*, Cat*);
+      template<class Ref, class Cat> Cat g(std::output_iterator_tag*, Cat*);
+      template<class Ref, class Cat> std::input_iterator_tag g(void*, Cat*, Ref* = 0);
+      template<class Ref> std::input_iterator_tag g(const void*, input_iterator_tag*);
+      template<class Ref> std::forward_iterator_tag g(const void*, forward_iterator_tag*);
+      template<class Ref> std::bidirectional_iterator_tag g(const void*, bidirectional_iterator_tag*);
+      template<class Ref> std::random_access_iterator_tag g(const void*, random_access_iterator_tag*);
     }
 
-    template <class T>
+    template <class Cat, class Ref>
     using stl2_to_std_iterator_category =
-      decltype(stl2_to_std_iterator_category_::f((T*)nullptr));
+      decltype(stl2_to_std_iterator_category_::g<Ref>((Cat*)0, (Cat*)0));
+
+    template <class T, class U = void>
+    struct value_type_with_a_default : meta::id<U> {};
+    template <class T, class U>
+      requires requires { typename T::value_type; }
+    struct value_type_with_a_default<T, U> : meta::id<typename T::value_type> {};
+
+    template <class T, class U = void>
+    struct reference_with_a_default : meta::id<U> {};
+    template <class T, class U>
+      requires requires { typename T::reference; }
+    struct reference_with_a_default<T, U> : meta::id<typename T::reference> {};
+
+    template <class T, class U = void>
+    struct pointer_with_a_default : meta::id<U> {};
+    template <class T, class U>
+      requires requires { typename T::pointer; }
+    struct pointer_with_a_default<T, U> : meta::id<typename T::pointer> {};
+
+    template <class I>
+    concept bool LooksLikeSTL1Iterator() {
+      return requires {
+        typename I::iterator_category;
+        requires DerivedFrom<typename I::iterator_category, std::input_iterator_tag>() ||
+                 DerivedFrom<typename I::iterator_category, std::output_iterator_tag>();
+      };
+    }
   }
 } STL2_CLOSE_NAMESPACE
 
 namespace std {
   template <::__stl2::WeakIterator Out>
-    requires !::__stl2::detail::MemberIteratorCategory<Out>
+    // HACKHACK to avoid partial specialization after instantiation errors. Platform
+    // vendors can avoid this hack by fixing up stdlib headers to fwd declare these
+    // partial specializations in the same place that std::iterator_traits is first
+    // defined.
+    requires !::__stl2::detail::LooksLikeSTL1Iterator<Out>()
   struct iterator_traits<Out> {
-    using difference_type = ::__stl2::difference_type_t<Out>;
-    using value_type = meta::_t<::__stl2::__std_out_value_type<Out>>;
-    using reference = meta::_t<::__stl2::__std_reference_type<Out>>;
-    using pointer = meta::_t<::__stl2::__std_pointer_type<Out>>;
+    using difference_type   = ::__stl2::difference_type_t<Out>;
+    using value_type        = meta::_t<::__stl2::detail::value_type_with_a_default<Out>>;
+    using reference         = meta::_t<::__stl2::detail::reference_with_a_default<Out>>;
+    using pointer           = meta::_t<::__stl2::detail::pointer_with_a_default<Out>>;
     using iterator_category = std::output_iterator_tag;
   };
 
-  template <::__stl2::WeakInputIterator WI>
-    requires ::__stl2::DerivedFrom<typename WI::iterator_category,
-                                   ::__stl2::weak_input_iterator_tag>() &&
-      !::__stl2::DerivedFrom<typename WI::iterator_category,
-                             ::__stl2::input_iterator_tag>()
-  struct iterator_traits<WI> {};
+  template <::__stl2::WeakInputIterator In>
+    requires !::__stl2::detail::LooksLikeSTL1Iterator<In>()
+  struct iterator_traits<In> { };
 
-  template <::__stl2::InputIterator I>
-    requires ::__stl2::DerivedFrom<typename I::iterator_category,
-                                   ::__stl2::input_iterator_tag>()
-  struct iterator_traits<I> {
-    using difference_type = ::__stl2::difference_type_t<I>;
-    using value_type = ::__stl2::value_type_t<I>;
-    using reference = meta::_t<
-      ::__stl2::__std_reference_type<I, ::__stl2::reference_t<I>>>;
-    using pointer = meta::_t<
-      ::__stl2::__std_pointer_type<I, typename ::__stl2::iterator_traits<I>::pointer>>;
-    using iterator_category = meta::if_<
-      is_reference<::__stl2::reference_t<I>>,
-      ::__stl2::detail::stl2_to_std_iterator_category<typename I::iterator_category>,
-      std::input_iterator_tag>;
+  template <::__stl2::InputIterator In>
+    requires !::__stl2::detail::LooksLikeSTL1Iterator<In>()
+  struct iterator_traits<In> {
+    using difference_type   = ::__stl2::difference_type_t<In>;
+    using value_type        = ::__stl2::value_type_t<In>;
+    using reference         =
+        meta::_t<::__stl2::detail::reference_with_a_default<
+            In, ::__stl2::reference_t<In>>>;
+    using pointer           =
+        meta::_t<::__stl2::detail::pointer_with_a_default<In,
+            typename ::__stl2::iterator_traits<In>::pointer>>;
+    using iterator_category =
+      ::__stl2::detail::stl2_to_std_iterator_category<
+          ::__stl2::iterator_category_t<In>,
+          ::__stl2::reference_t<In>>;
   };
 } // namespace std
 

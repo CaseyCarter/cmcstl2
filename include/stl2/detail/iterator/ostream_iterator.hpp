@@ -20,7 +20,6 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iostream/concepts.hpp>
-#include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
   namespace detail {
@@ -58,7 +57,7 @@ STL2_OPEN_NAMESPACE {
       }
 
       STL2_CONSTEXPR_EXT
-      Derived& operator++(int) & noexcept {
+      Derived operator++(int) & noexcept {
         return static_cast<Derived&>(*this);
       }
 
@@ -86,13 +85,16 @@ STL2_OPEN_NAMESPACE {
       ostream_iterator<T, charT, traits>, charT, traits>
   {
     using base_t = typename ostream_iterator::ostream_iterator_base;
+    using base_t::delimit;
+    using base_t::stream_;
+    using base_t::delimiter_;
   public:
-    ostream_iterator() = default;
+    constexpr ostream_iterator() = default;
     using base_t::base_t;
 
     ostream_iterator& operator=(const T& t) & {
-      *base_t::stream_ << t;
-      base_t::delimit();
+      *stream_ << t;
+      delimit();
       return *this;
     }
   };
@@ -106,13 +108,16 @@ STL2_OPEN_NAMESPACE {
       ostream_iterator<void, charT, traits>, charT, traits>
   {
     using base_t = typename ostream_iterator::ostream_iterator_base;
+    using base_t::delimit;
+    using base_t::stream_;
+    using base_t::delimiter_;
   public:
-    ostream_iterator() = default;
+    constexpr ostream_iterator() = default;
     using base_t::base_t;
 
     ostream_iterator& operator=(const ext::StreamInsertable& t) & {
-      *base_t::stream_ << t;
-      base_t::delimit();
+      *stream_ << t;
+      delimit();
       return *this;
     }
   };

@@ -47,10 +47,6 @@ STL2_OPEN_NAMESPACE {
   template <_Is<is_void> T>
   struct difference_type<T*> {};
 
-  template <> struct difference_type<std::nullptr_t> {
-    using type = std::ptrdiff_t;
-  };
-
   template <detail::MemberDifferenceType T>
   struct difference_type<T> {
     using type = typename T::difference_type;
@@ -70,6 +66,14 @@ STL2_OPEN_NAMESPACE {
   using difference_type_t =
     meta::_t<difference_type<remove_cv_t<T>>>;
 
+  //namespace detail {
+  //  template <class T, class...Us>
+  //  concept bool OneOf() {
+  //    //return Same<T, Us>() || ...;
+  //    return meta::_v<meta::any_of<meta::list<Us...>, meta::bind_front<meta::quote<std::is_same>, T>>>;
+  //  }
+  //}
+
   ///////////////////////////////////////////////////////////////////////////
   // WeaklyIncrementable [weaklyincrementable.iterators]
   //
@@ -79,6 +83,7 @@ STL2_OPEN_NAMESPACE {
     requires requires (I& i) {
       typename difference_type_t<I>;
       STL2_EXACT_TYPE_CONSTRAINT(++i, I&);
+      //STL2_BINARY_DEDUCTION_CONSTRAINT(++i, detail::OneOf, I&, const I&);
       i++;
     }
   constexpr bool __weakly_incrementable<I> = true;
@@ -104,6 +109,7 @@ STL2_OPEN_NAMESPACE {
   template <class I>
     requires requires (I& i) {
       STL2_EXACT_TYPE_CONSTRAINT(i++, I);
+      //STL2_BINARY_DEDUCTION_CONSTRAINT(i++, detail::OneOf, I, I&, const I&);
     }
   constexpr bool __incrementable<I> = true;
 

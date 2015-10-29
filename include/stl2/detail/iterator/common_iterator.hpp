@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
     )
   };
 
-  template <InputIterator I, __WeakSentinel<I> S>
+  template <Iterator I, __WeakSentinel<I> S>
     requires !Same<I, S>()
   class common_iterator {
     friend __ci_access;
@@ -71,11 +71,6 @@ STL2_OPEN_NAMESPACE {
   public:
     using difference_type = difference_type_t<I>;
     using value_type = value_type_t<I>;
-    using iterator_category = conditional_t<
-      models::ForwardIterator<I>,
-      __stl2::forward_iterator_tag,
-      __stl2::input_iterator_tag>;
-    using reference = reference_t<I>;
     constexpr common_iterator()
       noexcept(is_nothrow_default_constructible<var_t>::value) = default;
     constexpr common_iterator(I i)
@@ -95,7 +90,13 @@ STL2_OPEN_NAMESPACE {
         declval<var_t&>() = __stl2::visit(
           __ci_convert_visitor<I, S>{}, __ci_access::v(u))
       ));
-    reference operator*() const
+    decltype(auto) operator*()
+      noexcept(noexcept(*declval<I&>()))
+    {
+      STL2_ASSUME(holds_alternative<I>(v_));
+      return *__stl2::get_unchecked<I>(v_);
+    }
+    decltype(auto) operator*() const
       noexcept(noexcept(*declval<const I&>()))
     {
       STL2_ASSUME(holds_alternative<I>(v_));
@@ -116,6 +117,14 @@ STL2_OPEN_NAMESPACE {
       ++*this;
       return tmp;
     }
+  };
+
+  template<InputIterator I, class S>
+  struct iterator_category<common_iterator<I, S>> {
+    using type = conditional_t<
+      models::ForwardIterator<I>,
+        __stl2::forward_iterator_tag,
+        __stl2::input_iterator_tag>;
   };
 
   template <class I, class S>

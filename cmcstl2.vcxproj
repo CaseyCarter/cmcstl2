@@ -161,6 +161,7 @@
     <ClInclude Include="include\stl2\detail\algorithm\unique_copy.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\upper_bound.hpp" />
     <ClInclude Include="include\stl2\detail\cheap_storage.hpp" />
+    <ClInclude Include="include\stl2\detail\compressed_pair.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\algorithm.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\callable.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\compare.hpp" />
@@ -168,9 +169,14 @@
     <ClInclude Include="include\stl2\detail\concepts\fold_expressions.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\function.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\fundamental.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\increment.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\object.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\urng.hpp" />
     <ClInclude Include="include\stl2\detail\construct_destruct.hpp" />
+    <ClInclude Include="include\stl2\detail\ebo_box.hpp" />
+    <ClInclude Include="include\stl2\detail\functional\callable_wrapper.hpp" />
+    <ClInclude Include="include\stl2\detail\functional\invoke.hpp" />
+    <ClInclude Include="include\stl2\detail\functional\not_fn.hpp" />
     <ClInclude Include="include\stl2\detail\fwd.hpp" />
     <ClInclude Include="include\stl2\detail\hash.hpp" />
     <ClInclude Include="include\stl2\detail\iostream\concepts.hpp" />
@@ -178,10 +184,12 @@
     <ClInclude Include="include\stl2\detail\iterator\counted_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\dangling.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\default_sentinel.hpp" />
+    <ClInclude Include="include\stl2\detail\iterator\increment.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\istreambuf_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\istream_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\ostreambuf_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\ostream_iterator.hpp" />
+    <ClInclude Include="include\stl2\detail\iterator\unreachable.hpp" />
     <ClInclude Include="include\stl2\detail\meta.hpp" />
     <ClInclude Include="include\stl2\detail\range\range.hpp" />
     <ClInclude Include="include\stl2\detail\raw_ptr.hpp" />
@@ -345,9 +353,12 @@
     <ClCompile Include="test\concepts\swap.cpp" />
     <ClCompile Include="test\detail\raw_ptr.cpp" />
     <ClCompile Include="test\detail\temporary_vector.cpp" />
+    <ClCompile Include="test\functional\invoke.cpp" />
+    <ClCompile Include="test\functional\not_fn.cpp" />
     <ClCompile Include="test\headers.cpp" />
     <ClCompile Include="test\iterator\common_iterator.cpp" />
     <ClCompile Include="test\iterator\counted_iterator.cpp" />
+    <ClCompile Include="test\iterator\incomplete.cpp" />
     <ClCompile Include="test\iterator\istreambuf_iterator.cpp" />
     <ClCompile Include="test\iterator\istream_iterator.cpp" />
     <ClCompile Include="test\iterator\make_range.cpp" />
@@ -373,20 +384,21 @@
     <Text Include="test\concepts\CMakeLists.txt" />
     <Text Include="test\concept_select.txt" />
     <Text Include="test\detail\CMakeLists.txt" />
+    <Text Include="test\functional\CMakeLists.txt" />
     <Text Include="test\iterator\CMakeLists.txt" />
     <Text Include="test\view\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
-    <None Include="include\experimental\ranges_v1\algorithm" />
-    <None Include="include\experimental\ranges_v1\concepts" />
-    <None Include="include\experimental\ranges_v1\functional" />
-    <None Include="include\experimental\ranges_v1\iterator" />
-    <None Include="include\experimental\ranges_v1\random" />
-    <None Include="include\experimental\ranges_v1\tuple" />
-    <None Include="include\experimental\ranges_v1\type_traits" />
-    <None Include="include\experimental\ranges_v1\utility" />
+    <None Include="include\experimental\ranges\algorithm" />
+    <None Include="include\experimental\ranges\concepts" />
+    <None Include="include\experimental\ranges\functional" />
+    <None Include="include\experimental\ranges\iterator" />
+    <None Include="include\experimental\ranges\random" />
+    <None Include="include\experimental\ranges\tuple" />
+    <None Include="include\experimental\ranges\type_traits" />
+    <None Include="include\experimental\ranges\utility" />
     <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

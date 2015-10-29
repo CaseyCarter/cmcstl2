@@ -139,7 +139,6 @@ namespace associated_type_test {
   CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int*>>);
   CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int[]>>);
   CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int[4]>>);
-  CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<std::nullptr_t>>);
 
   CONCEPT_ASSERT(!meta::has_type<ns::difference_type<void>>());
   CONCEPT_ASSERT(!meta::has_type<ns::difference_type<void*>>());
@@ -186,6 +185,19 @@ namespace associated_type_test {
 
   struct foo {};
   CONCEPT_ASSERT(test<foo, false, foo>());
+
+  // Some sanity tests
+  struct my_wonky_tag : std::random_access_iterator_tag, ns::random_access_iterator_tag {};
+  struct my_wonky_tag2 : std::input_iterator_tag, ns::random_access_iterator_tag {};
+  static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag, int>, my_wonky_tag>::value, "");
+  static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag, int&>, my_wonky_tag>::value, "");
+  static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag2, int>, my_wonky_tag2>::value, "");
+  static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag2, int&>, my_wonky_tag2>::value, "");
+  struct my_wonky_tag3 : ns::random_access_iterator_tag {};
+  static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag3, int>, std::input_iterator_tag>::value, "");
+  static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag3, int&>, std::random_access_iterator_tag>::value, "");
+  static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<ns::input_iterator_tag, int>, std::input_iterator_tag>::value, "");
+  static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<ns::input_iterator_tag, int&>, std::input_iterator_tag>::value, "");
 } // namespace associated_type_test
 
 namespace readable_test {

@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
     // Extension
     using value_type = typename Container::value_type;
 
-    __insert_iterator_base() = default;
+    constexpr __insert_iterator_base() = default;
     explicit __insert_iterator_base(Container& x) :
       container{std::addressof(x)} {}
 
@@ -41,6 +41,7 @@ STL2_OPEN_NAMESPACE {
     Derived& operator++() & {
       return static_cast<Derived&>(*this);
     }
+
     Derived operator++(int) & {
       return static_cast<Derived&>(*this);
     }
@@ -65,24 +66,26 @@ STL2_OPEN_NAMESPACE {
   class back_insert_iterator :
     public __insert_iterator_base<back_insert_iterator<Container>, Container> {
     using __base_t = __insert_iterator_base<back_insert_iterator<Container>, Container>;
-
+    using __base_t::container;
   public:
     using typename __base_t::value_type;
+
     using __base_t::__base_t;
+    constexpr back_insert_iterator() = default;
 
     back_insert_iterator&
     operator=(const value_type& value) &
       requires detail::back_insertable<Container, const value_type&> {
-      STL2_ASSUME(this->container);
-      this->container->push_back(value);
+      STL2_ASSUME(container);
+      container->push_back(value);
       return *this;
     }
 
     back_insert_iterator&
     operator=(value_type&& value) &
       requires detail::back_insertable<Container, value_type&&> {
-      STL2_ASSUME(this->container);
-      this->container->push_back(__stl2::move(value));
+      STL2_ASSUME(container);
+      container->push_back(__stl2::move(value));
       return *this;
     }
   };
@@ -108,23 +111,26 @@ STL2_OPEN_NAMESPACE {
   class front_insert_iterator :
     public __insert_iterator_base<front_insert_iterator<Container>, Container> {
     using __base_t = __insert_iterator_base<front_insert_iterator<Container>, Container>;
+    using __base_t::container;
   public:
     using typename __base_t::value_type;
+
     using __base_t::__base_t;
+    constexpr front_insert_iterator() = default;
 
     front_insert_iterator&
     operator=(const value_type& value) &
       requires detail::front_insertable<Container, const value_type&> {
-      STL2_ASSUME(this->container);
-      this->container->push_front(value);
+      STL2_ASSUME(container);
+      container->push_front(value);
       return *this;
     }
 
     front_insert_iterator&
     operator=(value_type&& value) &
       requires detail::front_insertable<Container, value_type&&> {
-      STL2_ASSUME(this->container);
-      this->container->push_front(__stl2::move(value));
+      STL2_ASSUME(container);
+      container->push_front(__stl2::move(value));
       return *this;
     }
   };
@@ -153,6 +159,7 @@ STL2_OPEN_NAMESPACE {
   class insert_iterator :
     public __insert_iterator_base<insert_iterator<Container>, Container> {
     using __base_t = __insert_iterator_base<insert_iterator<Container>, Container>;
+    using __base_t::container;
   public:
     using typename __base_t::value_type;
     // Extension
@@ -165,8 +172,8 @@ STL2_OPEN_NAMESPACE {
     insert_iterator&
     operator=(const value_type& value) &
       requires detail::insertable<Container, const value_type&> {
-      STL2_ASSUME(this->container);
-      iter = this->container->insert(iter, value);
+      STL2_ASSUME(container);
+      iter = container->insert(iter, value);
       ++iter;
       return *this;
     }
@@ -174,13 +181,13 @@ STL2_OPEN_NAMESPACE {
     insert_iterator&
     operator=(value_type&& value) &
       requires detail::insertable<Container, value_type&&> {
-      STL2_ASSUME(this->container);
-      iter = this->container->insert(iter, __stl2::move(value));
+      STL2_ASSUME(container);
+      iter = container->insert(iter, __stl2::move(value));
       ++iter;
       return *this;
     }
 
-  protected:
+  private:
     iterator_type iter{};
   };
 

@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 // Workaround bugs in deduction constraints by replacing:
 // * { E } -> T with requires T<decltype(E)>()
 // * { E } -> Same<T> with requires Same<decltype(E), T>()
-// * { E } -> ConvertibleTo<T> with requires Convertible<decltype(E), T>()
+// * { E } -> ConvertibleTo<T> with requires ConvertibleTo<decltype(E), T>()
 #if 0
 #define STL2_DEDUCTION_CONSTRAINT(E, ...) \
   { E } -> __VA_ARGS__

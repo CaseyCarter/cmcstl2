@@ -72,10 +72,9 @@ void test2()
 {
     // Test stl2::generate with a genuine output range
     std::vector<int> v;
-    auto i = stl2::back_inserter(v);
     auto rng = stl2::ext::make_range(
-      stl2::make_counted_iterator(i, 5),
-      stl2::make_counted_iterator(decltype(i){}, 0));
+      stl2::make_counted_iterator(stl2::back_inserter(v), 5),
+      stl2::default_sentinel{});
     stl2::generate(rng, gen_test(1));
     CHECK(v.size() == 5u);
     CHECK(v[0] == 1);

@@ -194,6 +194,18 @@ STL2_OPEN_NAMESPACE {
     constexpr bool IndirectCallable<F, Is...> = true;
   }
 
+  template <class T>
+  struct indirect_result_of { };
+
+  IndirectCallable{F, ...Is}
+  struct indirect_result_of<F(Is...)> {
+    using type = ext::callable_result_t<F, value_type_t<Is>...>;
+  };
+
+  template <class T>
+  using indirect_result_of_t =
+    meta::_t<indirect_result_of<T>>;
+
   IndirectCallable{F, ...Is}
   using indirect_callable_result_t =
     ext::callable_result_t<F, value_type_t<Is>...>;
