@@ -15,11 +15,10 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/common_iterator.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/detail/iterator/operations.hpp>
-#include <stl2/detail/iterator/common_iterator.hpp>
 
 STL2_OPEN_NAMESPACE {
   WeakIterator{I}

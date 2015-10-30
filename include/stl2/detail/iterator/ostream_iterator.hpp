@@ -87,7 +87,6 @@ STL2_OPEN_NAMESPACE {
     using base_t = typename ostream_iterator::ostream_iterator_base;
     using base_t::delimit;
     using base_t::stream_;
-    using base_t::delimiter_;
   public:
     constexpr ostream_iterator() = default;
     using base_t::base_t;
@@ -110,7 +109,6 @@ STL2_OPEN_NAMESPACE {
     using base_t = typename ostream_iterator::ostream_iterator_base;
     using base_t::delimit;
     using base_t::stream_;
-    using base_t::delimiter_;
   public:
     constexpr ostream_iterator() = default;
     using base_t::base_t;

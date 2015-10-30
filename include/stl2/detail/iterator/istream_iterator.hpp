@@ -50,10 +50,10 @@ STL2_OPEN_NAMESPACE {
     constexpr istream_iterator(default_sentinel) :
       istream_iterator() {}
 
-    constexpr const T& operator*() const noexcept {
+    STL2_CONSTEXPR_EXT const T& operator*() const noexcept {
       return value_;
     }
-    constexpr const T* operator->() const noexcept {
+    STL2_CONSTEXPR_EXT const T* operator->() const noexcept {
       return &value_;
     }
 
@@ -71,12 +71,12 @@ STL2_OPEN_NAMESPACE {
       return tmp;
     }
 
-    friend constexpr bool operator==(
+    friend STL2_CONSTEXPR_EXT bool operator==(
       const istream_iterator& lhs, const istream_iterator& rhs) noexcept {
         return lhs.stream_ == rhs.stream_;
     }
 
-    friend constexpr bool operator!=(
+    friend STL2_CONSTEXPR_EXT bool operator!=(
       const istream_iterator& lhs, const istream_iterator& rhs) noexcept {
         return !(lhs == rhs);
     }

@@ -16,11 +16,11 @@
 #include <memory>
 
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-  template <class Derived, class Container>
-    requires requires { typename Container::value_type; }
+  template <class Derived, detail::MemberValueType Container>
   class __insert_iterator_base {
   public:
     using container_type = Container;
@@ -31,23 +31,23 @@ STL2_OPEN_NAMESPACE {
     using value_type = typename Container::value_type;
 
     constexpr __insert_iterator_base() = default;
-    explicit __insert_iterator_base(Container& x) :
-      container{std::addressof(x)} {}
+    STL2_CONSTEXPR_EXT explicit __insert_iterator_base(Container& x) noexcept :
+      container_{std::addressof(x)} {}
 
-    Derived& operator*() {
+    Derived& operator*() noexcept {
       return static_cast<Derived&>(*this);
     }
 
-    Derived& operator++() & {
+    Derived& operator++() & noexcept {
       return static_cast<Derived&>(*this);
     }
 
-    Derived operator++(int) & {
+    Derived operator++(int) & noexcept {
       return static_cast<Derived&>(*this);
     }
 
   protected:
-    Container* container = nullptr;
+    detail::raw_ptr<Container> container_ = nullptr;
   };
 
   ///////////////////////////////////////////////////////////////////////////
@@ -61,12 +61,11 @@ STL2_OPEN_NAMESPACE {
       };
   }
 
-  template <class Container>
-    requires requires { typename Container::value_type; }
+  template <detail::MemberValueType Container>
   class back_insert_iterator :
     public __insert_iterator_base<back_insert_iterator<Container>, Container> {
     using __base_t = __insert_iterator_base<back_insert_iterator<Container>, Container>;
-    using __base_t::container;
+    using __base_t::container_;
   public:
     using typename __base_t::value_type;
 
@@ -76,22 +75,20 @@ STL2_OPEN_NAMESPACE {
     back_insert_iterator&
     operator=(const value_type& value) &
       requires detail::back_insertable<Container, const value_type&> {
-      STL2_ASSUME(container);
-      container->push_back(value);
+      container_->push_back(value);
       return *this;
     }
 
     back_insert_iterator&
     operator=(value_type&& value) &
       requires detail::back_insertable<Container, value_type&&> {
-      STL2_ASSUME(container);
-      container->push_back(__stl2::move(value));
+      container_->push_back(__stl2::move(value));
       return *this;
     }
   };
 
-  template <class Container>
-  auto back_inserter(Container& x) {
+  template <detail::MemberValueType Container>
+  auto back_inserter(Container& x) noexcept {
     return back_insert_iterator<Container>{x};
   }
 
@@ -106,12 +103,11 @@ STL2_OPEN_NAMESPACE {
       };
   }
 
-  template <class Container>
-    requires requires { typename Container::value_type; }
+  template <detail::MemberValueType Container>
   class front_insert_iterator :
     public __insert_iterator_base<front_insert_iterator<Container>, Container> {
     using __base_t = __insert_iterator_base<front_insert_iterator<Container>, Container>;
-    using __base_t::container;
+    using __base_t::container_;
   public:
     using typename __base_t::value_type;
 
@@ -121,22 +117,20 @@ STL2_OPEN_NAMESPACE {
     front_insert_iterator&
     operator=(const value_type& value) &
       requires detail::front_insertable<Container, const value_type&> {
-      STL2_ASSUME(container);
-      container->push_front(value);
+      container_->push_front(value);
       return *this;
     }
 
     front_insert_iterator&
     operator=(value_type&& value) &
       requires detail::front_insertable<Container, value_type&&> {
-      STL2_ASSUME(container);
-      container->push_front(__stl2::move(value));
+      container_->push_front(__stl2::move(value));
       return *this;
     }
   };
 
-  template <class Container>
-  auto front_inserter(Container& x) {
+  template <detail::MemberValueType Container>
+  auto front_inserter(Container& x) noexcept {
     return front_insert_iterator<Container>{x};
   }
 
@@ -151,48 +145,45 @@ STL2_OPEN_NAMESPACE {
       };
   }
 
-  template <class Container>
-    requires requires {
-      typename Container::value_type;
-      typename Container::iterator;
-    }
+  template <detail::MemberValueType Container>
+    requires requires { typename Container::iterator; }
   class insert_iterator :
     public __insert_iterator_base<insert_iterator<Container>, Container> {
+  private:
     using __base_t = __insert_iterator_base<insert_iterator<Container>, Container>;
-    using __base_t::container;
+    using __base_t::container_;
+    using I = typename Container::iterator;
+    I iter_;
+
   public:
     using typename __base_t::value_type;
-    // Extension
-    using iterator_type = typename Container::iterator;
 
     insert_iterator() = default;
-    explicit insert_iterator(Container& x, iterator_type i):
-      __base_t{x}, iter{__stl2::move(i)} {}
+    STL2_CONSTEXPR_EXT explicit insert_iterator(Container& x, I i)
+      noexcept(is_nothrow_move_constructible<I>::value) :
+      __base_t{x}, iter_{__stl2::move(i)} {}
 
     insert_iterator&
     operator=(const value_type& value) &
       requires detail::insertable<Container, const value_type&> {
-      STL2_ASSUME(container);
-      iter = container->insert(iter, value);
-      ++iter;
+      iter_ = container_->insert(iter_, value);
+      ++iter_;
       return *this;
     }
 
     insert_iterator&
     operator=(value_type&& value) &
       requires detail::insertable<Container, value_type&&> {
-      STL2_ASSUME(container);
-      iter = container->insert(iter, __stl2::move(value));
-      ++iter;
+      iter_ = container_->insert(iter_, __stl2::move(value));
+      ++iter_;
       return *this;
     }
-
-  private:
-    iterator_type iter{};
   };
 
-  template <class Container>
-  auto inserter(Container& x, typename Container::iterator i) {
+  template <detail::MemberValueType Container,
+            class I = typename Container::iterator>
+  auto inserter(Container& x, I i)
+    noexcept(is_nothrow_move_constructible<I>::value) {
     return insert_iterator<Container>{x, __stl2::move(i)};
   }
 } STL2_CLOSE_NAMESPACE
