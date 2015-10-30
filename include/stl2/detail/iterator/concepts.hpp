@@ -689,29 +689,12 @@ STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // RandomAccessIterator [random.access.iterators]
   //
-  namespace detail {
-    template <class I>
-    constexpr bool MutableIterator = false;
-    template <class I>
-    requires Iterator<I>() &&
-      requires (const I& i) {
-        STL2_DEDUCE_AUTO_REF(*i);
-        *i = *i;
-      }
-    constexpr bool MutableIterator<I> = true;
-  }
-
   template <class I>
   constexpr bool __random_access_iterator = false;
   template <class I>
     requires requires (const I& ci, const difference_type_t<I> n) {
-      STL2_CONVERSION_CONSTRAINT(ci[n], const value_type_t<I>&);
-    } &&
-      (!detail::MutableIterator<I> ||
-       requires (const I& ci, const difference_type_t<I> n) {
-         ci[n] = *ci;
-         *ci = ci[n];
-       })
+      STL2_EXACT_TYPE_CONSTRAINT(ci[n], reference_t<I>);
+    }
   constexpr bool __random_access_iterator<I> = true;
 
   template <class I>
@@ -763,7 +746,7 @@ STL2_OPEN_NAMESPACE {
       STL2_DEDUCE_AUTO_REF_REF(i.operator->());
     }
   struct __pointer_type<I> {
-    using type = decltype(declval<I>().operator->());
+    using type = decltype(declval<I&>().operator->());
   };
 
   template <class>
