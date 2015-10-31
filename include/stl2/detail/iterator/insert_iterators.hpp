@@ -31,23 +31,39 @@ STL2_OPEN_NAMESPACE {
     using value_type = typename Container::value_type;
 
     constexpr __insert_iterator_base() = default;
-    STL2_CONSTEXPR_EXT explicit __insert_iterator_base(Container& x) noexcept :
+    STL2_CONSTEXPR_EXT explicit
+    __insert_iterator_base(Container& x) noexcept :
       container_{std::addressof(x)} {}
 
     Derived& operator*() noexcept {
-      return static_cast<Derived&>(*this);
+      return derived();
     }
 
     Derived& operator++() & noexcept {
-      return static_cast<Derived&>(*this);
+      return derived();
     }
 
-    Derived operator++(int) & noexcept {
-      return static_cast<Derived&>(*this);
+    Derived operator++(int) &
+      noexcept(is_nothrow_copy_constructible<Derived>::value)
+    {
+      return derived();
     }
 
   protected:
     detail::raw_ptr<Container> container_ = nullptr;
+
+  private:
+    static constexpr void check() noexcept {
+      static_assert(models::DerivedFrom<Derived, __insert_iterator_base>);
+    }
+    constexpr Derived& derived() noexcept {
+      check();
+      return static_cast<Derived&>(*this);
+    }
+    constexpr const Derived& derived() const noexcept {
+      check();
+      return static_cast<const Derived&>(*this);
+    }
   };
 
   ///////////////////////////////////////////////////////////////////////////

@@ -48,28 +48,36 @@ STL2_OPEN_NAMESPACE {
 
       STL2_CONSTEXPR_EXT
       Derived& operator*() noexcept {
-        return static_cast<Derived&>(*this);
+        return derived();
       }
 
       STL2_CONSTEXPR_EXT
       Derived& operator++() & noexcept {
-        return static_cast<Derived&>(*this);
+        return derived();
       }
 
       STL2_CONSTEXPR_EXT
-      Derived operator++(int) & noexcept {
-        return static_cast<Derived&>(*this);
+      Derived operator++(int) &
+        noexcept(is_nothrow_copy_constructible<Derived>::value)
+      {
+        return derived();
       }
 
     protected:
+      raw_ptr<ostream_type> stream_ = nullptr;
+      const char* delimiter_ = nullptr;
+
       void delimit() {
         if (delimiter_) {
           *stream_ << delimiter_;
         }
       }
 
-      raw_ptr<ostream_type> stream_ = nullptr;
-      const char* delimiter_ = nullptr;
+    private:
+      constexpr Derived& derived() noexcept {
+        static_assert(models::DerivedFrom<Derived, ostream_iterator_base>);
+        return static_cast<Derived&>(*this);
+      }
     };
   }
 

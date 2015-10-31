@@ -169,24 +169,25 @@ STL2_OPEN_NAMESPACE {
     ~tag_specifier_base() = default;
   
     constexpr auto&& get() & {
-      check();
       using __stl2::get;
-      return get<I>(static_cast<Derived&>(*this).base());
+      return get<I>(derived().base());
     }
     constexpr auto&& get() const& {
-      check();
       using __stl2::get;
-      return get<I>(static_cast<const Derived&>(*this).base());
+      return get<I>(derived().base());
     }
     constexpr auto&& get() && {
-      check();
       using __stl2::get;
-      return get<I>(static_cast<Derived&&>(*this).base());
+      return get<I>(__stl2::move(derived()).base());
     }
   private:
-    static constexpr void check() {
-      static_assert(DerivedFrom<Derived, tag_specifier_base>());
-      // FIXME: Require Derived to be a specialization of tagged?
+    constexpr Derived& derived() noexcept {
+      static_assert(models::DerivedFrom<Derived, tag_specifier_base>);
+      return static_cast<Derived&>(*this);
+    }
+    constexpr const Derived& derived() const noexcept {
+      static_assert(models::DerivedFrom<Derived, tag_specifier_base>);
+      return static_cast<const Derived&>(*this);
     }
   };
   
