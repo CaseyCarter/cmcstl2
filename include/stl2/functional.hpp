@@ -15,11 +15,12 @@
 
 #include <functional>
 
-#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/functional/callable_wrapper.hpp>
+#include <stl2/detail/functional/comparisons.hpp>
 #include <stl2/detail/functional/invoke.hpp>
 #include <stl2/detail/functional/not_fn.hpp>
 
@@ -81,138 +82,6 @@ STL2_OPEN_NAMESPACE {
     template <class T>
     constexpr T&& operator()(T&& t) const noexcept {
       return __stl2::forward<T>(t);
-    }
-
-    using is_transparent = true_type;
-  };
-
-  ///////////////////////////////////////////////////////////////////////////
-  // equal_to [comparisons]
-  //
-  template <class T = void>
-    requires Same<T, void>() || EqualityComparable<T>()
-  struct equal_to {
-    constexpr bool operator()(const T& a, const T& b) const {
-      return bool(a == b);
-    }
-  };
-
-  template <>
-  struct equal_to<void> {
-    EqualityComparable{T, U}
-    constexpr auto operator()(const T& t, const U& u) const ->
-      decltype(t == u) {
-      return {t == u};
-    }
-
-    using is_transparent = true_type;
-  };
-
-  ///////////////////////////////////////////////////////////////////////////
-  // not_equal_to
-  //
-  template <class T = void>
-    requires Same<T, void>() || EqualityComparable<T>()
-  struct not_equal_to {
-    constexpr bool operator()(const T& a, const T& b) const {
-      return bool(a != b);
-    }
-  };
-
-  template <>
-  struct not_equal_to<void> {
-    EqualityComparable{T, U}
-    constexpr auto operator()(const T& t, const U& u) const ->
-      decltype(t != u) {
-      return {t != u};
-    }
-
-    using is_transparent = true_type;
-  };
-
-  ///////////////////////////////////////////////////////////////////////////
-  // greater
-  //
-  template <class T = void>
-    requires Same<T, void>() || StrictTotallyOrdered<T>()
-  struct greater {
-    constexpr bool operator()(const T& a, const T& b) const {
-      return bool(a > b);
-    }
-  };
-
-  template <>
-  struct greater<void> {
-    StrictTotallyOrdered{T, U}
-    constexpr auto operator()(const T& t, const U& u) const ->
-      decltype(t > u) {
-      return {t > u};
-    }
-
-    using is_transparent = true_type;
-  };
-
-  ///////////////////////////////////////////////////////////////////////////
-  // less
-  //
-  template <class T = void>
-    requires Same<T, void>() || StrictTotallyOrdered<T>()
-  struct less {
-    constexpr bool operator()(const T& a, const T& b) const {
-      return bool(a < b);
-    }
-  };
-
-  template <>
-  struct less<void> {
-    StrictTotallyOrdered{T, U}
-    constexpr auto operator()(const T& t, const U& u) const ->
-      decltype(t < u) {
-      return {t < u};
-    }
-
-    using is_transparent = true_type;
-  };
-
-  ///////////////////////////////////////////////////////////////////////////
-  // greater_equal
-  //
-  template <class T = void>
-    requires Same<T, void>() || StrictTotallyOrdered<T>()
-  struct greater_equal {
-    constexpr bool operator()(const T& a, const T& b) const {
-      return bool(a >= b);
-    }
-  };
-
-  template <>
-  struct greater_equal<void> {
-    StrictTotallyOrdered{T, U}
-    constexpr auto operator()(const T& t, const U& u) const ->
-      decltype(t >= u) {
-      return {t >= u};
-    }
-
-    using is_transparent = true_type;
-  };
-
-  ///////////////////////////////////////////////////////////////////////////
-  // less_equal
-  //
-  template <class T = void>
-    requires Same<T, void>() || StrictTotallyOrdered<T>()
-  struct less_equal {
-    constexpr bool operator()(const T& a, const T& b) const {
-      return bool(a <= b);
-    }
-  };
-
-  template <>
-  struct less_equal<void> {
-    StrictTotallyOrdered{T, U}
-    constexpr auto operator()(const T& t, const U& u) const ->
-      decltype(t <= u) {
-      return {t <= u};
     }
 
     using is_transparent = true_type;

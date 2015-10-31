@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // iter_move [Extension]
-  // From the proxy iterator work.
+  // From the proxy iterator work (P0022).
   //
   namespace __iter_move {
     detail::Dereferenceable{R}
