@@ -16,6 +16,7 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/variant.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/operator_arrow.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/operations.hpp>
@@ -54,6 +55,7 @@ STL2_OPEN_NAMESPACE {
     friend __ci_access;
     using var_t = variant<I, S>;
     var_t v_;
+
   public:
     using difference_type = difference_type_t<I>;
     using value_type = value_type_t<I>;
@@ -87,6 +89,13 @@ STL2_OPEN_NAMESPACE {
     {
       STL2_ASSUME(holds_alternative<I>(v_));
       return *__stl2::get_unchecked<I>(v_);
+    }
+    STL2_CONSTEXPR_EXT decltype(auto) operator->() const
+      noexcept(noexcept(__stl2::__operator_arrow(declval<const I&>())))
+      requires Readable<I>()
+    {
+      STL2_ASSUME(holds_alternative<I>(v_));
+      return __stl2::__operator_arrow(__stl2::get_unchecked<I>(v_));
     }
     STL2_CONSTEXPR_EXT common_iterator& operator++()
     noexcept(noexcept(++declval<I&>()))
