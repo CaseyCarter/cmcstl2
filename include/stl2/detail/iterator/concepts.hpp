@@ -91,7 +91,7 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // rvalue_reference_t [Extension]
-  // From the proxy iterator work.
+  // From the proxy iterator work (P0022).
   //
   detail::Dereferenceable{R}
   using rvalue_reference_t =
@@ -161,7 +161,7 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // Readable [readable.iterators]
-  // Not to spec: Additional requirements from the proxy iterator work.
+  // Not to spec: Additional requirements from P0022.
   //
   template <class I>
   constexpr bool __readable = false;
@@ -326,7 +326,7 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // iter_swap [Extension]
-  // From the proxy iterator work.
+  // From the proxy iterator work (P0022).
   //
   namespace __iter_swap {
     template <class R1, class R2,
