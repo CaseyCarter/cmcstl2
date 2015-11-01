@@ -43,6 +43,11 @@ STL2_OPEN_NAMESPACE {
     constexpr auto impl(R& r, ext::priority_tag<1>)
     STL2_NOEXCEPT_RETURN(r.begin())
 
+    // Poison pill for std::begin. (See the detailed discussion at
+    // https://github.com/ericniebler/stl2/issues/139)
+    template <class R>
+    void begin(R&) = delete;
+
     // Use ADL if it returns Iterator.
     template <class R>
     constexpr bool has_non_member = false;
@@ -113,6 +118,11 @@ STL2_OPEN_NAMESPACE {
     STL2_NOEXCEPT_RETURN(
       r.end()
     )
+
+    // Poison pill for std::end. (See the detailed discussion at
+    // https://github.com/ericniebler/stl2/issues/139)
+    template <class R>
+    void end(R&) = delete;
 
     // Use ADL if it returns Sentinel.
     template <class R>
@@ -419,6 +429,11 @@ STL2_OPEN_NAMESPACE {
     STL2_NOEXCEPT_RETURN(
       r.size()
     )
+
+    // Poison pill for std::size. (See the detailed discussion at
+    // https://github.com/ericniebler/stl2/issues/139)
+    template <class R>
+    void size(R&) = delete;
 
     // Use non-member
     template <class R>

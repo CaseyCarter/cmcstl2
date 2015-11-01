@@ -329,11 +329,16 @@ STL2_OPEN_NAMESPACE {
   // From the proxy iterator work (P0022).
   //
   namespace __iter_swap {
+    // Poison pill for iter_swap. (See the detailed discussion at
+    // https://github.com/ericniebler/stl2/issues/139)
+    template <class R1, class R2>
+    void iter_swap(R1&&, R2&&) = delete;
+
     template <class R1, class R2,
       Readable _R1 = remove_reference_t<R1>,
       Readable _R2 = remove_reference_t<R2>>
         requires Swappable<reference_t<_R1>, reference_t<_R2>>()
-    void iter_swap(R1&& r1, R2&& r2)
+    STL2_CONSTEXPR_EXT void iter_swap(R1&& r1, R2&& r2)
       noexcept(is_nothrow_swappable_v<reference_t<_R1>, reference_t<_R2>>)
     {
       __stl2::swap(*r1, *r2);
@@ -342,8 +347,9 @@ STL2_OPEN_NAMESPACE {
     template <class R1, class R2,
       Readable _R1 = remove_reference_t<R1>,
       Readable _R2 = remove_reference_t<R2>>
-        requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>()
-    void iter_swap(R1&& r1, R2&& r2)
+        requires IndirectlyMovable<_R1, _R2>() &&
+          IndirectlyMovable<_R2, _R1>()
+    STL2_CONSTEXPR_EXT void iter_swap(R1&& r1, R2&& r2)
       noexcept(is_nothrow_indirectly_movable_v<_R1, _R2> &&
                is_nothrow_indirectly_movable_v<_R2, _R1>) {
       value_type_t<_R1> tmp = __stl2::iter_move(r1);
@@ -354,9 +360,10 @@ STL2_OPEN_NAMESPACE {
     template <class R1, class R2,
       Readable _R1 = remove_reference_t<R1>,
       Readable _R2 = remove_reference_t<R2>>
-        requires IndirectlyMovable<_R1, _R2>() && IndirectlyMovable<_R2, _R1>() &&
+        requires IndirectlyMovable<_R1, _R2>() &&
+          IndirectlyMovable<_R2, _R1>() &&
           Swappable<reference_t<_R1>, reference_t<_R2>>()
-    void iter_swap(R1&& r1, R2&& r2)
+    STL2_CONSTEXPR_EXT void iter_swap(R1&& r1, R2&& r2)
       noexcept(is_nothrow_swappable_v<reference_t<_R1>, reference_t<_R2>>)
     {
       __stl2::swap(*r1, *r2);

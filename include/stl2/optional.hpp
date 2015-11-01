@@ -350,6 +350,14 @@ STL2_OPEN_NAMESPACE {
       lhs.swap(rhs)
     )
 
+    template <class T>
+      requires Swappable<T&>()
+    STL2_CONSTEXPR_EXT void
+    swap(optional<T>& lhs, optional<T>& rhs)
+    STL2_NOEXCEPT_RETURN(
+      lhs.swap(rhs)
+    )
+
     struct eq_visitor {
       ext::WeaklyEqualityComparable{T, U}
       constexpr bool operator()(const T& l, const U& r) const

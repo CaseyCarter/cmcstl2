@@ -40,10 +40,18 @@ STL2_OPEN_NAMESPACE {
     // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2152
     // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
 
-    // Extension: less specialized than overloads on different Movable types.
-    template <Movable T, Movable U>
-      requires Same<T, U>()
-    STL2_CONSTEXPR_EXT void swap(T& a, U& b)
+    // Poison pill for std::swap. If ADL for "swap" finds std::swap and
+    // unqualified name lookup finds this overload, the ambiuguity causes
+    // overload resolution to fail unless the more-constrained
+    // swap(Movable&) overload below is viable. If ADL doesn't find any
+    // declarations of "swap", this deleted overload directly prevents
+    // unqualified name lookup from searching further up the namespace
+    // hierarchy and finding std::swap. (See the detailed discussion at
+    // https://github.com/ericniebler/stl2/issues/139)
+    template <class T> void swap(T&, T&) = delete;
+    template <class T, std::size_t N> void swap(T(&)[N], T(&)[N]) = delete;
+
+    STL2_CONSTEXPR_EXT void swap(Movable& a, Movable& b)
       noexcept(noexcept(b = __stl2::exchange(a, __stl2::move(b)))) {
       b = __stl2::exchange(a, __stl2::move(b));
     }
@@ -89,6 +97,11 @@ STL2_OPEN_NAMESPACE {
     STL2_CONSTEXPR_EXT void swap(T (&t)[N], U (&u)[N])
       noexcept(noexcept(__try_swap(*t, *u)));
 
+    template <class T, std::size_t N>
+      requires __array_swap_test<T, T>
+    STL2_CONSTEXPR_EXT void swap(T (&t)[N], T (&u)[N])
+      noexcept(noexcept(__try_swap(*t, *u)));
+
     template <class T, class U>
     constexpr bool can_swap = false;
     template <class T, class U>
@@ -114,6 +127,15 @@ STL2_OPEN_NAMESPACE {
     template <class T, class U, std::size_t N>
       requires __array_swap_test<T, U>
     STL2_CONSTEXPR_EXT void swap(T (&t)[N], U (&u)[N])
+      noexcept(noexcept(__try_swap(*t, *u))) {
+      for (std::size_t i = 0; i < N; ++i) {
+        __stl2::swap(t[i], u[i]);
+      }
+    }
+
+    template <class T, std::size_t N>
+      requires __array_swap_test<T, T>
+    STL2_CONSTEXPR_EXT void swap(T (&t)[N], T (&u)[N])
       noexcept(noexcept(__try_swap(*t, *u))) {
       for (std::size_t i = 0; i < N; ++i) {
         __stl2::swap(t[i], u[i]);
