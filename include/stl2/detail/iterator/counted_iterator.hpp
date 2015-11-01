@@ -268,7 +268,7 @@ STL2_OPEN_NAMESPACE {
     }
 
   Common{I1, I2}
-  STL2_CONSTEXPR_EXT difference_type_t<I2> operator-(
+  STL2_CONSTEXPR_EXT auto operator-(
     const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
       return y.count() - x.count();
     }
@@ -287,11 +287,9 @@ STL2_OPEN_NAMESPACE {
       STL2_NOEXCEPT_RETURN(x + n)
 
   WeakIterator{I}
-  STL2_CONSTEXPR_EXT counted_iterator<I>
-  make_counted_iterator(I i, difference_type_t<I> n)
-    noexcept(is_nothrow_constructible<
-               counted_iterator<I>, I, difference_type_t<I>>::value) {
-    return {i, n};
+  STL2_CONSTEXPR_EXT auto make_counted_iterator(I i, difference_type_t<I> n)
+  {
+    return counted_iterator<I>{__stl2::move(i), n};
   }
 
   WeakIterator{I}
@@ -304,7 +302,7 @@ STL2_OPEN_NAMESPACE {
 
   RandomAccessIterator{I}
   STL2_CONSTEXPR_EXT void advance(counted_iterator<I>& i, difference_type_t<I> n)
-  STL2_NOEXCEPT_RETURN(void(i += n))
+  STL2_NOEXCEPT_RETURN((void)(i += n))
 
   namespace ext {
     constexpr auto uncounted(const WeakIterator& i) {

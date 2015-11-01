@@ -16,9 +16,7 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/core.hpp>
-
-// FIXME: Do a full build time comparison.
-#define STL2_BOOLEAN_BICONVERTIBLE 1
+#include <stl2/detail/concepts/semiregular.hpp>
 
 /////////////////////////////////////////////
 // Comparison Concepts [concepts.lib.compare]
@@ -26,61 +24,47 @@
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // Boolean [concepts.lib.compare.boolean]
+  // Not to spec: Boolean requires MoveConstructible
   //
-  namespace detail {
-    template <class B>
-    concept bool Boolean_() {
-      return requires (const B& b1, const B& b2, const bool a) {
-        // Requirements common to both Boolean and BooleanTestable.
-#if STL2_BOOLEAN_BICONVERTIBLE
-        STL2_BINARY_DEDUCTION_CONSTRAINT(b1, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(!b1, ConvertibleTo, bool);
-#else
-        {b1} -> bool;
-        {!b1} -> bool;
-#endif
-        STL2_EXACT_TYPE_CONSTRAINT(b1 && a, bool);
-        STL2_EXACT_TYPE_CONSTRAINT(b1 || a, bool);
+  template <class>
+  constexpr bool __boolean = false;
+  template <class B>
+    requires requires (const B& b1, const B& b2, const bool a) {
+      // Requirements common to both Boolean and BooleanTestable.
+      STL2_BINARY_DEDUCTION_CONSTRAINT(b1, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(!b1, ConvertibleTo, bool);
+      STL2_EXACT_TYPE_CONSTRAINT(b1 && a, bool);
+      STL2_EXACT_TYPE_CONSTRAINT(b1 || a, bool);
 
-        // Requirements of Boolean that are also be valid for
-        // BooleanTestable, but for which BooleanTestable does not
-        // require validation.
-        STL2_EXACT_TYPE_CONSTRAINT(b1 && b2, bool);
-        STL2_EXACT_TYPE_CONSTRAINT(a && b2, bool);
-        STL2_EXACT_TYPE_CONSTRAINT(b1 || b2, bool);
-        STL2_EXACT_TYPE_CONSTRAINT(a || b2, bool);
+      // Requirements of Boolean that are also be valid for
+      // BooleanTestable, but for which BooleanTestable does not
+      // require validation.
+      STL2_EXACT_TYPE_CONSTRAINT(b1 && b2, bool);
+      STL2_EXACT_TYPE_CONSTRAINT(a && b2, bool);
+      STL2_EXACT_TYPE_CONSTRAINT(b1 || b2, bool);
+      STL2_EXACT_TYPE_CONSTRAINT(a || b2, bool);
 
-        // Requirements of Boolean that are not required by
-        // BooleanTestable.
-#if STL2_BOOLEAN_BICONVERTIBLE
-        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 == b2, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 == a, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(a == b2, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 != b2, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 != a, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(a != b2, ConvertibleTo, bool);
-#else
-        {b1 == b2} -> bool;
-        {b1 == a} -> bool;
-        {a == b2} -> bool;
-        {b1 != b2} -> bool;
-        {b1 != a} -> bool;
-        {a != b2} -> bool;
-#endif
-      };
+      // Requirements of Boolean that are not required by
+      // BooleanTestable.
+      STL2_BINARY_DEDUCTION_CONSTRAINT(b1 == b2, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(b1 == a, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(a == b2, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(b1 != b2, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(b1 != a, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(a != b2, ConvertibleTo, bool);
     }
+  constexpr bool __boolean<B> = true;
+
+  template <class B>
+  concept bool Boolean() {
+    return __boolean<B> && MoveConstructible<B>();
   }
 
   namespace models {
     template <class>
     constexpr bool Boolean = false;
-    __stl2::detail::Boolean_{T}
-    constexpr bool Boolean<T> = true;
-  }
-
-  template <class T>
-  concept bool Boolean() {
-    return models::Boolean<T>;
+    __stl2::Boolean{B}
+    constexpr bool Boolean<B> = true;
   }
 
   template <class T, class U>
@@ -224,5 +208,4 @@ STL2_OPEN_NAMESPACE {
   }
 } STL2_CLOSE_NAMESPACE
 
-#undef STL2_BOOLEAN_BICONVERTIBLE
 #endif
