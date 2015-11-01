@@ -46,8 +46,7 @@ STL2_OPEN_NAMESPACE {
       ++*this;
     }
 
-    // Extension
-    constexpr istream_iterator(default_sentinel) :
+    constexpr istream_iterator(default_sentinel) noexcept :
       istream_iterator() {}
 
     STL2_CONSTEXPR_EXT const T& operator*() const noexcept {
@@ -81,20 +80,19 @@ STL2_OPEN_NAMESPACE {
         return !(lhs == rhs);
     }
 
-    // Extension
-    friend constexpr bool operator==(
+    friend STL2_CONSTEXPR_EXT bool operator==(
       const istream_iterator& lhs, default_sentinel) noexcept {
         return lhs.stream_ == nullptr;
     }
-    friend constexpr bool operator==(
+    friend STL2_CONSTEXPR_EXT bool operator==(
       default_sentinel d, const istream_iterator& rhs) noexcept {
         return rhs == d;
     }
-    friend constexpr bool operator!=(
+    friend STL2_CONSTEXPR_EXT bool operator!=(
       const istream_iterator& lhs, default_sentinel d) noexcept {
         return !(lhs == d);
     }
-    friend constexpr bool operator!=(
+    friend STL2_CONSTEXPR_EXT bool operator!=(
       default_sentinel d, const istream_iterator& rhs) noexcept {
         return !(rhs == d);
     }

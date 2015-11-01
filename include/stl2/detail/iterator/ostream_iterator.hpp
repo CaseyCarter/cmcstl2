@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
       using traits_type = traits;
       using ostream_type = std::basic_ostream<charT, traits>;
 
-      ostream_iterator_base() = default;
+      ostream_iterator_base() noexcept = default;
 
       STL2_CONSTEXPR_EXT
       ostream_iterator_base(ostream_type& s) noexcept :
