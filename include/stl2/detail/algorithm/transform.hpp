@@ -47,9 +47,12 @@ STL2_OPEN_NAMESPACE {
 
   template <InputIterator I1, Sentinel<I1> S1, WeakInputIterator I2, WeaklyIncrementable O,
             class F, class Proj1 = identity, class Proj2 = identity>
-    requires Writable<O, indirect_callable_result_t<F, projected<I1, Proj1>, projected<I2, Proj2>>>()
-  auto transform(I1 first1, S1 last1, I2 first2, O result,
-                 F&& op_, Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{}) {
+  [[deprecated]] auto
+  transform(I1 first1, S1 last1, I2 first2, O result,
+            F&& op_, Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+    requires Writable<O, indirect_callable_result_t<F, projected<I1, Proj1>,
+                                                    projected<I2, Proj2>>>()
+  {
     auto op = ext::make_callable_wrapper(__stl2::forward<F>(op_));
     auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
     auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
@@ -61,16 +64,17 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng, WeakInputIterator I, WeaklyIncrementable O, class F,
             class Proj1 = identity, class Proj2 = identity>
+  [[deprecated]] tagged_tuple<tag::in1(safe_iterator_t<Rng>), tag::in2(I), tag::out(O)>
+  transform(Rng&& r1, I first2, O result, F&& op_,
+            Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
     requires Writable<O, indirect_callable_result_t<F,
       projected<iterator_t<Rng>, Proj1>, projected<I, Proj2>>>()
-  tagged_tuple<tag::in1(safe_iterator_t<Rng>), tag::in2(I), tag::out(O)>
-    transform(Rng&& r1, I first2, O result, F&& op_,
-              Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{}) {
-      return __stl2::transform(
-        __stl2::begin(r1), __stl2::end(r1), first2, result,
-        __stl2::forward<F>(op_), __stl2::forward<Proj1>(proj1_),
-        __stl2::forward<Proj2>(proj2_));
-    }
+  {
+    return __stl2::transform(
+      __stl2::begin(r1), __stl2::end(r1), first2, result,
+      __stl2::forward<F>(op_), __stl2::forward<Proj1>(proj1_),
+      __stl2::forward<Proj2>(proj2_));
+  }
 
   template <InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
             WeaklyIncrementable O, class F, class Proj1 = identity, class Proj2 = identity>

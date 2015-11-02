@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
             class Proj1 = identity, class Proj2 = identity,
             IndirectCallablePredicate<projected<I1, Proj1>,
                                       projected<I2, Proj2>> Pred = equal_to<>>
-  tagged_pair<tag::in1(I1), tag::in2(I2)>
+  [[deprecated]] tagged_pair<tag::in1(I1), tag::in2(I2)>
   mismatch(I1 first1, S1 last1, I2 first2, Pred&& pred_ = Pred{},
            Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{}) {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
             class Proj2 = identity, WeakInputIterator I2 = __uncvref<I2_>,
             IndirectCallablePredicate<projected<iterator_t<Rng1>, Proj1>,
                                       projected<I2, Proj2>> Pred = equal_to<>>
-  tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::in2(I2)>
+  [[deprecated]] tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::in2(I2)>
   mismatch(Rng1&& rng1, I2_&& first2, Pred&& pred = Pred{},
            Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
     return __stl2::mismatch(

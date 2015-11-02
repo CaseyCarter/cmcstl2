@@ -104,7 +104,7 @@ STL2_OPEN_NAMESPACE {
     auto const m1 = middle - first;
     auto const m2 = last - middle;
     if (m1 == m2) {
-      __stl2::swap_ranges(first, middle, middle);
+      __stl2::swap_ranges(first, middle, middle, unreachable{});
       return {middle, last};
     }
     auto const g = __stl2::__gcd(m1, m2);

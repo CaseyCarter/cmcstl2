@@ -21,9 +21,10 @@
 //
 STL2_OPEN_NAMESPACE {
   template <ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2>
+  [[deprecated]] tagged_pair<tag::in1(I1), tag::in2(I2)>
+  swap_ranges(I1 first1, S1 last1, I2 first2)
     requires IndirectlySwappable<I1, I2>()
-  tagged_pair<tag::in1(I1), tag::in2(I2)>
-  swap_ranges(I1 first1, S1 last1, I2 first2) {
+  {
     for (; first1 != last1; ++first1, ++first2) {
       __stl2::iter_swap(first1, first2);
     }
@@ -31,9 +32,10 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng, class I_, ForwardIterator I = __uncvref<I_>>
+  [[deprecated]] tagged_pair<tag::in1(safe_iterator_t<Rng>), tag::in2(I)>
+  swap_ranges(Rng&& rng1, I_&& first2)
     requires IndirectlySwappable<iterator_t<Rng>, I>()
-  tagged_pair<tag::in1(safe_iterator_t<Rng>), tag::in2(I)>
-  swap_ranges(Rng&& rng1, I_&& first2) {
+  {
     return __stl2::swap_ranges(
       __stl2::begin(rng1), __stl2::end(rng1), __stl2::forward<I_>(first2));
   }

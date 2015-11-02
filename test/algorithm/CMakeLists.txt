@@ -31,6 +31,7 @@ add_executable(alg.count_if count_if.cpp)
 add_test(test.alg.count_if alg.count_if)
 
 add_executable(alg.equal equal.cpp)
+target_compile_options(alg.equal PRIVATE -Wno-deprecated-declarations)
 add_test(test.alg.equal alg.equal)
 
 add_executable(alg.equal_range equal_range.cpp)
@@ -100,6 +101,7 @@ add_executable(alg.is_partitioned is_partitioned.cpp)
 add_test(test.alg.is_partitioned alg.is_partitioned)
 
 add_executable(alg.is_permutation is_permutation.cpp)
+target_compile_options(alg.is_permutation PRIVATE -Wno-deprecated-declarations)
 add_test(test.alg.is_permutation alg.is_permutation)
 
 add_executable(alg.is_sorted is_sorted.cpp)
@@ -142,6 +144,7 @@ add_executable(alg.minmax_element minmax_element.cpp)
 add_test(test.alg.minmax_element alg.minmax_element)
 
 add_executable(alg.mismatch mismatch.cpp)
+target_compile_options(alg.mismatch PRIVATE -Wno-deprecated-declarations)
 add_test(test.alg.mismatch alg.mismatch)
 
 add_executable(alg.move move.cpp)
@@ -316,9 +319,11 @@ add_executable(alg.stable_sort stable_sort.cpp)
 add_test(test.alg.stable_sort alg.stable_sort)
 
 add_executable(alg.swap_ranges swap_ranges.cpp)
+target_compile_options(alg.swap_ranges PRIVATE -Wno-deprecated-declarations)
 add_test(test.alg.swap_ranges alg.swap_ranges)
 
 add_executable(alg.transform transform.cpp)
+target_compile_options(alg.transform PRIVATE -Wno-deprecated-declarations)
 add_test(test.alg.transform alg.transform)
 
 add_executable(alg.unique unique.cpp)

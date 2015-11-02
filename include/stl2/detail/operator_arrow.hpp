@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
     class operator_arrow_proxy {
       value_type_t<I> value_;
     public:
-      constexpr operator_arrow_proxy(reference_t<I>&& x)
+      constexpr explicit operator_arrow_proxy(reference_t<I>&& x)
         noexcept(is_nothrow_constructible<value_type_t<I>, reference_t<I>>::value) :
         value_(__stl2::move(x)) {}
 
@@ -45,15 +45,14 @@ STL2_OPEN_NAMESPACE {
     Readable{I}
     auto operator_arrow(const I& i, ext::priority_tag<1>)
       noexcept(noexcept(*declval<const I&>()))
-      requires _Is<decltype(*declval<const I&>()), is_reference>
+      requires _Is<reference_t<const I>, is_reference>
     {
       return std::addressof(*i);
     }
 
     Readable{I}
-    operator_arrow_proxy<I> operator_arrow(const I& i, ext::priority_tag<0>)
-    {
-      return {*i};
+    auto operator_arrow(const I& i, ext::priority_tag<0>) {
+      return operator_arrow_proxy<I>{*i};
     }
   }
 

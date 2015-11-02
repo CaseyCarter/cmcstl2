@@ -57,9 +57,10 @@ STL2_OPEN_NAMESPACE {
 
   template <InputIterator I1, Sentinel<I1> S1, WeakInputIterator I2,
             class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
+  [[deprecated]] bool equal(I1 first1, S1 last1, I2 first2, Pred&& pred = Pred{},
+                            Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
     requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>()
-  bool equal(I1 first1, S1 last1, I2 first2, Pred&& pred = Pred{},
-             Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
+  {
     return __stl2::__equal_3(first1, last1, first2,
       __stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
       __stl2::forward<Proj2>(proj2));
@@ -68,9 +69,10 @@ STL2_OPEN_NAMESPACE {
   // Not to spec
   template <InputRange Rng1, class I2_, WeakInputIterator I2 = __uncvref<I2_>,
             class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
+  [[deprecated]] bool equal(Rng1&& rng1, I2_&& first2, Pred&& pred = Pred{},
+                            Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
     requires IndirectlyComparable<iterator_t<Rng1>, I2, Pred, Proj1, Proj2>()
-  bool equal(Rng1&& rng1, I2_&& first2, Pred&& pred = Pred{},
-             Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
+  {
     return __stl2::__equal_3(__stl2::begin(rng1), __stl2::end(rng1),
       __stl2::forward<I2_>(first2), __stl2::forward<Pred>(pred),
       __stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));

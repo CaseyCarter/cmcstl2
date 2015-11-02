@@ -66,10 +66,11 @@ STL2_OPEN_NAMESPACE {
 
   template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
            class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
+  [[deprecated]] bool
+  is_permutation(I1 first1, S1 last1, I2 first2, Pred&& pred_ = Pred{},
+                 Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
     requires models::IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-  bool is_permutation(I1 first1, S1 last1, I2 first2,
-                      Pred&& pred_ = Pred{},
-                      Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{}) {
+  {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
     auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
@@ -95,9 +96,11 @@ STL2_OPEN_NAMESPACE {
 
   template<ForwardRange Rng1, class I2, ForwardIterator = __uncvref<I2>,
            class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
+  [[deprecated]] bool
+  is_permutation(Rng1&& rng1, I2&& first2, Pred&& pred = Pred{},
+                 Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
     requires models::IndirectlyComparable<iterator_t<Rng1>, I2, Pred, Proj1, Proj2>
-  bool is_permutation(Rng1&& rng1, I2&& first2, Pred&& pred = Pred{},
-                      Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
+  {
     return __stl2::is_permutation(
       __stl2::begin(rng1), __stl2::end(rng1), first2,
       __stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
