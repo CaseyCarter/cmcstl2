@@ -171,6 +171,8 @@
     <ClInclude Include="include\stl2\detail\concepts\fundamental.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\increment.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\object.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\regular.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\semiregular.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\urng.hpp" />
     <ClInclude Include="include\stl2\detail\construct_destruct.hpp" />
     <ClInclude Include="include\stl2\detail\ebo_box.hpp" />

@@ -53,14 +53,6 @@ STL2_OPEN_NAMESPACE {
       noexcept(std::is_nothrow_copy_constructible<I>::value) {
       return current;
     }
-    // 20150802: Extension
-    explicit operator const I&() const& noexcept {
-      return current;
-    }
-    // 20150802: Extension
-    explicit operator I&&() && noexcept {
-      return __stl2::move(current);
-    }
 
     reference operator*() const {
       return *__stl2::prev(current);

@@ -567,6 +567,12 @@
     <ClInclude Include="include\stl2\detail\iterator\increment.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
     </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\regular.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\semiregular.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\headers.cpp">
