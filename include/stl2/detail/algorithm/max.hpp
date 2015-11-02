@@ -35,13 +35,14 @@ STL2_OPEN_NAMESPACE {
     auto first = __stl2::begin(r);
     auto last = __stl2::end(r);
     STL2_ASSUME(first != last);
-    auto tmp = *first;
+    value_type_t<iterator_t<Rng>> result = *first;
     while (++first != last) {
-      if (comp(proj(tmp), proj(*first))) {
-        tmp = *first;
+      auto && tmp = *first;
+      if (comp(proj(result), proj(tmp))) {
+        result = (decltype(tmp)&&)tmp;
       }
     }
-    return tmp;
+    return result;
   }
 
   template <class T, class Proj = identity,

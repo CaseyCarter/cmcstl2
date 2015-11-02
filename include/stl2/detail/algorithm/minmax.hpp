@@ -41,35 +41,39 @@ STL2_OPEN_NAMESPACE {
     if (++first != last) {
       auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
       auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-      if (comp(proj(*first), proj(result.first))) {
-        result.first = *first;
-      } else {
-        result.second = *first;
+      {
+        auto&& tmp = *first;
+        if (comp(proj(tmp), proj(result.first))) {
+          result.first = (decltype(tmp)&&)tmp;
+        } else {
+          result.second = (decltype(tmp)&&)tmp;
+        }
       }
       while (++first != last) {
-        auto tmp = value_type{*first};
+        auto tmp1 = value_type{*first};
         if (++first == last) {
-          if (comp(proj(tmp), proj(result.first))) {
-            result.first = __stl2::move(tmp);
-          } else if (!comp(proj(tmp), proj(result.second))) {
-            result.second = __stl2::move(tmp);
+          if (comp(proj(tmp1), proj(result.first))) {
+            result.first = __stl2::move(tmp1);
+          } else if (!comp(proj(tmp1), proj(result.second))) {
+            result.second = __stl2::move(tmp1);
           }
           break;
         }
 
-        if (comp(proj(*first), proj(tmp))) {
-          if (comp(proj(*first), proj(result.first))) {
-            result.first = *first;
+        auto&& tmp2 = *first;
+        if (comp(proj(tmp2), proj(tmp1))) {
+          if (comp(proj(tmp2), proj(result.first))) {
+            result.first = (decltype(tmp2)&&)tmp2;
           }
-          if (!comp(proj(tmp), proj(result.second))) {
-            result.second = __stl2::move(tmp);
+          if (!comp(proj(tmp1), proj(result.second))) {
+            result.second = __stl2::move(tmp1);
           }
         } else {
-          if (comp(proj(tmp), proj(result.first))) {
-            result.first = __stl2::move(tmp);
+          if (comp(proj(tmp1), proj(result.first))) {
+            result.first = __stl2::move(tmp1);
           }
-          if (!comp(proj(*first), proj(result.second))) {
-            result.second = *first;
+          if (!comp(proj(tmp2), proj(result.second))) {
+            result.second = (decltype(tmp2)&&)tmp2;
           }
         }
       }

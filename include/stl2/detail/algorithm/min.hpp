@@ -29,18 +29,19 @@ STL2_OPEN_NAMESPACE {
     requires Copyable<value_type_t<iterator_t<Rng>>>()
   constexpr value_type_t<iterator_t<Rng>>
   __min(Rng&& r, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
+    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     auto first = __stl2::begin(r);
     auto last = __stl2::end(r);
     STL2_ASSUME(first != last);
-    auto tmp = *first;
-    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+    value_type_t<iterator_t<Rng>> result = *first;
     while (++first != last) {
-      if (comp(proj(*first), proj(tmp))) {
-        tmp = *first;
+      auto&& tmp = *first;
+      if (comp(proj(tmp), proj(result))) {
+        result = (decltype(tmp)&&)tmp;
       }
     }
-    return tmp;
+    return result;
   }
 
   template<class T, class Proj = identity,
