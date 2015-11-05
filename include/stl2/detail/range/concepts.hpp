@@ -73,8 +73,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class R>
   concept bool SizedRange() {
-    return _IsNot<R, disable_sized_range> &&
-      Range<R>() &&
+    return Range<R>() && _IsNot<R, disable_sized_range> &&
       __sized_range<remove_reference_t<R>>;
   }
 
@@ -106,28 +105,24 @@ STL2_OPEN_NAMESPACE {
   template <class T>
   struct enable_view {};
 
-  // TODO: Convert __view_predicate to variable template
   template <class T>
-  struct __view_predicate :
-    true_type {};
+  constexpr bool __view_predicate = true;
 
   template <class T>
     requires _Valid<meta::_t, enable_view<T>>
-  struct __view_predicate<T> :
-    enable_view<T> {};
+  constexpr bool __view_predicate<T> = meta::_v<enable_view<T>>;
 
   // TODO: Be very certain that "!" here works as intended.
   template <_ContainerLike T>
     requires !(DerivedFrom<T, view_base>() ||
                _Valid<meta::_t, enable_view<T>>)
-  struct __view_predicate<T> :
-     false_type {};
+  constexpr bool __view_predicate<T> = false;
 
   template <class T>
   concept bool View() {
     return Range<T>() &&
-      Semiregular<T>() &&
-      __view_predicate<T>::value;
+      __view_predicate<T> &&
+      Semiregular<T>();
   }
 
   namespace models {
