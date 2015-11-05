@@ -621,8 +621,8 @@ STL2_OPEN_NAMESPACE {
   template <class I>
   concept bool InputIterator() {
     return WeakInputIterator<I>() &&
-      Iterator<I>() &&
-      DerivedFrom<iterator_category_t<I>, input_iterator_tag>();
+      DerivedFrom<iterator_category_t<I>, input_iterator_tag>() &&
+      Iterator<I>();
   }
 
   namespace models {
@@ -638,8 +638,8 @@ STL2_OPEN_NAMESPACE {
   template <class I>
   concept bool ForwardIterator() {
     return InputIterator<I>() &&
-      Incrementable<I>() &&
-      DerivedFrom<iterator_category_t<I>, forward_iterator_tag>();
+      DerivedFrom<iterator_category_t<I>, forward_iterator_tag>() &&
+      Incrementable<I>();
   }
 
   namespace models {
