@@ -17,6 +17,7 @@
 #include <stl2/detail/compressed_pair.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/iterator/operations.hpp>
 
 STL2_OPEN_NAMESPACE {
   namespace ext {
@@ -51,8 +52,21 @@ STL2_OPEN_NAMESPACE {
     template <Iterator I, Sentinel<I> S, class C = CommonType<I, S>>
     constexpr auto make_bounded_range(I i, S s)
     STL2_NOEXCEPT_RETURN(
-      __stl2::ext::make_range(C{__stl2::move(i)}, C{__stl2::move(s)})
+      range<C, C>{C{__stl2::move(i)}, C{__stl2::move(s)}}
     )
+
+    template <Iterator I>
+    constexpr auto make_bounded_range(I i, I s)
+    STL2_NOEXCEPT_RETURN(
+      range<I, I>{__stl2::move(i), __stl2::move(s)}
+    )
+
+    template <RandomAccessIterator I, Sentinel<I> S>
+      requires SizedIteratorRange<I, S>()
+    constexpr auto make_bounded_range(I i, S s) {
+      I end = __stl2::next(i, __stl2::move(s));
+      return range<I, I>{__stl2::move(i), __stl2::move(end)};
+    }
   }
 } STL2_CLOSE_NAMESPACE
 
