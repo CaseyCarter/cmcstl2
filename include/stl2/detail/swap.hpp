@@ -42,105 +42,57 @@ STL2_OPEN_NAMESPACE {
 
     // Poison pill for std::swap. If ADL for "swap" finds std::swap and
     // unqualified name lookup finds this overload, the ambiuguity causes
-    // overload resolution to fail unless the more-constrained
-    // swap(Movable&) overload below is viable. If ADL doesn't find any
-    // declarations of "swap", this deleted overload directly prevents
-    // unqualified name lookup from searching further up the namespace
-    // hierarchy and finding std::swap. (See the detailed discussion at
+    // overload resolution to fail. If ADL doesn't find any declarations
+    // of "swap", this deleted overload directly prevents unqualified
+    // name lookup from searching further up the namespace hierarchy and
+    // finding std::swap. (See the detailed discussion at
     // https://github.com/ericniebler/stl2/issues/139)
     template <class T> void swap(T&, T&) = delete;
     template <class T, std::size_t N> void swap(T(&)[N], T(&)[N]) = delete;
 
-    STL2_CONSTEXPR_EXT void swap(Movable& a, Movable& b)
-      noexcept(noexcept(b = __stl2::exchange(a, __stl2::move(b)))) {
-      b = __stl2::exchange(a, __stl2::move(b));
-    }
-
     template <class T, class U>
-    constexpr bool __lvalue_swappable = false;
+    constexpr bool has_customization = false;
     template <class T, class U>
-      requires requires (T& x, U& y) { swap(x, y); }
-    constexpr bool __lvalue_swappable<T, U> = true;
+      requires requires (T&& t, U&& u) { swap((T&&)t, (U&&)u); }
+    constexpr bool has_customization<T, U> = true;
 
-    template <class C, class T, class U>
-    constexpr bool __recursive_swap_test = false;
-    template <class C, class T, class U>
-      requires requires (T& x, U& y) { C{}(x, y); }
-    constexpr bool __recursive_swap_test<C, T, U> = true;
+    template <class F, class T, class U>
+    constexpr bool has_operator = false;
+    template <class F, class T, class U>
+      requires requires (const F& f, T& t, U& u) { f(t, u); }
+    constexpr bool has_operator<F, T, U> = true;
 
-    struct __try_swap_fn {
+    class fn {
+    public:
       template <class T, class U>
-        requires __lvalue_swappable<T, U>
-      void operator()(T& t, U& u) const
-        noexcept(noexcept(swap(t,u)));
-
-      template <class T, class U, std::size_t N, typename This = __try_swap_fn>
-        requires __recursive_swap_test<This, T, U>
-      void operator()(T (&t)[N], U (&u)[N]) const
-        noexcept(noexcept(This{}(*t, *u)));
-    };
-    // Workaround GCC PR66957 by declaring this unnamed namespace inline.
-    inline namespace {
-      constexpr auto& __try_swap = detail::static_const<__try_swap_fn>::value;
-    }
-
-    // 20150715: Conforming extension: can swap T(&)[N] with U(&)[N]
-    // if T& and U& are Swappable.
-    template <class T, class U>
-    constexpr bool __array_swap_test = false;
-    template <class T, class U>
-      requires requires (T &x, U &y) { __try_swap(x, y); }
-    constexpr bool __array_swap_test<T, U> = true;
-
-    template <class T, class U, std::size_t N>
-      requires __array_swap_test<T, U>
-    STL2_CONSTEXPR_EXT void swap(T (&t)[N], U (&u)[N])
-      noexcept(noexcept(__try_swap(*t, *u)));
-
-    template <class T, std::size_t N>
-      requires __array_swap_test<T, T>
-    STL2_CONSTEXPR_EXT void swap(T (&t)[N], T (&u)[N])
-      noexcept(noexcept(__try_swap(*t, *u)));
-
-    template <class T, class U>
-    constexpr bool can_swap = false;
-    template <class T, class U>
-      requires requires (T&& a, U&& b) { swap((T&&)a, (U&&)b); }
-    constexpr bool can_swap<T, U> = true;
-
-    struct fn {
-      template <class T, class U>
-        requires can_swap<T, U>
-      STL2_CONSTEXPR_EXT void operator()(T&& a, U&& b) const
+        requires has_customization<T, U>
+      constexpr void operator()(T&& t, U&& u) const
       STL2_NOEXCEPT_RETURN(
-        (void)swap(__stl2::forward<T>(a), __stl2::forward<U>(b))
+        (void)swap(__stl2::forward<T>(t), __stl2::forward<U>(u))
       )
+
+      template <Movable T>
+        requires !has_customization<T&, T&>
+      constexpr void operator()(T& a, T& b) const
+      STL2_NOEXCEPT_RETURN(
+        (void)(b = __stl2::exchange(a, __stl2::move(b)))
+      )
+
+      template <class T, class U, std::size_t N, class F = fn>
+        requires !has_customization<T(&)[N], U(&)[N]> && has_operator<F, T, U>
+      constexpr void operator()(T (&t)[N], U (&u)[N]) const
+        noexcept(noexcept(declval<const F&>()(t[0], u[0])))
+      {
+        for (std::size_t i = 0; i < N; ++i) {
+          (*this)(t[i], u[i]);
+        }
+      }
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
   inline namespace {
     // 20150805: Not to spec: swap is a N4381-style function object customization point.
     constexpr auto& swap = detail::static_const<__swap::fn>::value;
-  }
-
-  namespace __swap {
-    template <class T, class U, std::size_t N>
-      requires __array_swap_test<T, U>
-    STL2_CONSTEXPR_EXT void swap(T (&t)[N], U (&u)[N])
-      noexcept(noexcept(__try_swap(*t, *u))) {
-      for (std::size_t i = 0; i < N; ++i) {
-        __stl2::swap(t[i], u[i]);
-      }
-    }
-
-    template <class T, std::size_t N>
-      requires __array_swap_test<T, T>
-    STL2_CONSTEXPR_EXT void swap(T (&t)[N], T (&u)[N])
-      noexcept(noexcept(__try_swap(*t, *u))) {
-      for (std::size_t i = 0; i < N; ++i) {
-        __stl2::swap(t[i], u[i]);
-      }
-    }
   }
 
   ///////////////////////////////////////////////////////////////////////////
