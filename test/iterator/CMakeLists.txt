@@ -32,4 +32,4 @@ add_executable(make_range make_range.cpp)
 add_test(test.iterator.make_range make_range)
 
 add_executable(iter.incomplete incomplete.cpp)
-add_test(test.iterator.incomplet iter.incomplete)
+add_test(test.iterator.incomplete iter.incomplete)

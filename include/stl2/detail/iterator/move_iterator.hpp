@@ -12,54 +12,50 @@
 #ifndef STL2_DETAIL_ITERATOR_MOVE_ITERATOR_HPP
 #define STL2_DETAIL_ITERATOR_MOVE_ITERATOR_HPP
 
-#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
+#include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/compare.hpp>
+#include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
   template <WeakInputIterator I>
-    // requires Same<reference_t<I>, value_type_t<I>&>()
   class move_iterator {
   public:
     using iterator_type = I;
     using difference_type = difference_type_t<I>;
     using value_type = value_type_t<I>;
-    using iterator_category = iterator_category_t<I>;
+    using iterator_category = meta::if_c<
+      models::DerivedFrom<iterator_category_t<I>, input_iterator_tag>,
+      input_iterator_tag,
+      weak_input_iterator_tag>;
     using reference = rvalue_reference_t<I>;
-    using pointer = I;
-  
+
     move_iterator() = default;
-    explicit move_iterator(I i)
-      noexcept(is_nothrow_move_constructible<I>::value) :
-      current_{__stl2::move(i)} {}
-  
+
+    template <class II>
+      requires Constructible<I, II&&>()
+    explicit move_iterator(II&& i) :
+      current_{__stl2::forward<II>(i)} {}
+
     move_iterator(const move_iterator<ConvertibleTo<I> >& u) :
       current_{u.base()} {}
-  
+
     move_iterator& operator=(const move_iterator<ConvertibleTo<I> >& u) & {
       current_ = u.base();
       return *this;
     }
-  
-    iterator_type base() const
-      noexcept(is_nothrow_copy_constructible<I>::value) {
+
+    I base() const {
       return current_;
     }
-  
-    reference operator*() const
-      noexcept(is_nothrow_move_constructible<rvalue_reference_t<I>>::value &&
-               noexcept(__stl2::iter_move(declval<I&>()))) {
+
+    reference operator*() const {
       return __stl2::iter_move(current_);
     }
-  
-    // FIXME: constraints
-    pointer operator->() const
-      noexcept(is_nothrow_copy_constructible<I>::value) {
-      return current_;
-    }
-  
-    move_iterator& operator++() &
-      noexcept(noexcept(++declval<I&>())) {
+
+    move_iterator& operator++() & {
       ++current_;
       return *this;
     }
@@ -68,9 +64,8 @@ STL2_OPEN_NAMESPACE {
       ++*this;
       return tmp;
     }
-  
+
     move_iterator& operator--() &
-      noexcept(noexcept(--declval<I&>()))
       requires BidirectionalIterator<I>() {
       --current_;
       return *this;
@@ -81,7 +76,7 @@ STL2_OPEN_NAMESPACE {
       --*this;
       return tmp;
     }
-  
+
     move_iterator operator+(difference_type n) const
       requires RandomAccessIterator<I>() {
       return move_iterator{current_ + n};
@@ -91,7 +86,7 @@ STL2_OPEN_NAMESPACE {
       current_ += n;
       return *this;
     }
-  
+
     move_iterator operator-(difference_type n) const
       requires RandomAccessIterator<I>() {
       return move_iterator{current_ - n};
@@ -101,78 +96,81 @@ STL2_OPEN_NAMESPACE {
       current_ -= n;
       return *this;
     }
-  
+
     reference operator[](difference_type n) const
       requires RandomAccessIterator<I>() {
       return __stl2::iter_move(current_ + n);
     }
-  
+
     EqualityComparable{I1, I2}
     friend bool operator==(const move_iterator<I1>&,
                            const move_iterator<I2>&);
-  
+
     StrictTotallyOrdered{I1, I2}
     friend bool operator<(const move_iterator<I1>&,
                           const move_iterator<I2>&);
-  
+
     SizedIteratorRange{I1, I2}
     friend difference_type_t<I2> operator-(const move_iterator<I1>&,
-                                        const move_iterator<I2>&);
-  
+                                           const move_iterator<I2>&);
+
   private:
     I current_{};
   };
-  
+
   EqualityComparable{I1, I2}
   bool operator==(const move_iterator<I1>& a,
                   const move_iterator<I2>& b) {
     return a.current_ == b.current_;
   }
-  
+
   EqualityComparable{I1, I2}
   bool operator!=(const move_iterator<I1>& a,
                   const move_iterator<I2>& b) {
     return !(a == b);
   }
-  
+
   StrictTotallyOrdered{I1, I2}
   bool operator<(const move_iterator<I1>& a,
                  const move_iterator<I2>& b) {
     return a.current_ < b.current_;
   }
-  
+
   StrictTotallyOrdered{I1, I2}
   bool operator>(const move_iterator<I1>& a,
                  const move_iterator<I2>& b) {
     return b < a;
   }
-  
+
   StrictTotallyOrdered{I1, I2}
   bool operator<=(const move_iterator<I1>& a,
                   const move_iterator<I2>& b) {
     return !(b < a);
   }
-  
+
   StrictTotallyOrdered{I1, I2}
   bool operator>=(const move_iterator<I1>& a,
                   const move_iterator<I2>& b) {
     return !(a < b);
   }
-  
+
   SizedIteratorRange{I1, I2}
   difference_type_t<I2> operator-(const move_iterator<I1>& a,
-                               const move_iterator<I2>& b) {
+                                  const move_iterator<I2>& b) {
     return a.current_ - b.current_;
   }
-  
+
   RandomAccessIterator{I}
-  move_iterator<I> operator+(difference_type_t<I> n, const move_iterator<I>& x) {
+  move_iterator<I> operator+(difference_type_t<I> n,
+                             const move_iterator<I>& x) {
     return x + n;
   }
-  
-  WeakInputIterator{I}
-  auto make_move_iterator(I i) {
-    return move_iterator<I>{__stl2::move(i)};
+
+  template <class I>
+    requires WeakInputIterator<decay_t<I>>()
+      && Constructible<decay_t<I>, I&&>()
+  auto make_move_iterator(I&& i) {
+    return move_iterator<decay_t<I>>{__stl2::forward<I>(i)};
   }
 } STL2_CLOSE_NAMESPACE
 
