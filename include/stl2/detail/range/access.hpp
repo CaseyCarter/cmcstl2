@@ -18,9 +18,8 @@
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>
 
-// Backwards compatibility: rvalues are treated as const lvalues.
-// They should probably be ill-formed.
-#define STL2_TREAT_RVALUES_AS_CONST 1
+// TODO:
+// * constexpr specialization for data if iterator is a pointer.
 
 ///////////////////////////////////////////////////////////////////////////
 // Range access [iterator.range]
@@ -55,11 +54,6 @@ STL2_OPEN_NAMESPACE {
         return array;
       }
 
-      template <class E>
-      constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
-        return il.begin();
-      }
-
       // Prefer member if it returns Iterator.
       template <class R>
         requires has_member<R>
@@ -74,7 +68,6 @@ STL2_OPEN_NAMESPACE {
       operator()(R& r) const
       STL2_NOEXCEPT_RETURN(begin(r))
 
-#if STL2_TREAT_RVALUES_AS_CONST
       template <_IsNot<is_array> R>
       [[deprecated]] constexpr STL2_CONSTRAINED_RETURN(Iterator)
       operator()(const R&& r) const
@@ -83,7 +76,6 @@ STL2_OPEN_NAMESPACE {
       {
         return (*this)(r);
       }
-#endif
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -120,11 +112,6 @@ STL2_OPEN_NAMESPACE {
         return array + N;
       }
 
-      template <class E>
-      constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
-        return il.end();
-      }
-
       // Prefer member if it returns Sentinel.
       template <class R>
         requires has_member<R>
@@ -137,7 +124,6 @@ STL2_OPEN_NAMESPACE {
       constexpr auto operator()(R& r) const
       STL2_NOEXCEPT_RETURN(end(r))
 
-#if STL2_TREAT_RVALUES_AS_CONST
       template <_IsNot<is_array> R>
       [[deprecated]] constexpr auto operator()(const R&& r) const
         noexcept(noexcept(declval<const fn&>()(r)))
@@ -145,7 +131,6 @@ STL2_OPEN_NAMESPACE {
       {
         return (*this)(r);
       }
-#endif
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -161,10 +146,13 @@ STL2_OPEN_NAMESPACE {
       constexpr auto operator()(const R& r) const
       STL2_NOEXCEPT_RETURN(__stl2::begin(r))
 
-#if !STL2_TREAT_RVALUES_AS_CONST
       template <class R>
-      constexpr auto operator()(const R&&) const = delete;
-#endif
+      [[deprecated]] constexpr auto operator()(const R&& r) const
+        noexcept(noexcept(__stl2::begin(r)))
+        requires requires (const R& r) { __stl2::begin(r); }
+      {
+        return __stl2::begin(r);
+      }
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -180,10 +168,13 @@ STL2_OPEN_NAMESPACE {
       constexpr auto operator()(const R& r) const
       STL2_NOEXCEPT_RETURN(__stl2::end(r))
 
-#if !STL2_TREAT_RVALUES_AS_CONST
       template <class R>
-      constexpr auto operator()(const R&&) const = delete;
-#endif
+      [[deprecated]] constexpr auto operator()(const R&& r) const
+        noexcept(noexcept(__stl2::end(r)))
+        requires requires (const R& r) { __stl2::end(r); }
+      {
+        return __stl2::end(r);
+      }
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -215,13 +206,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool can_make_reverse<R> = true;
 
     struct fn {
-      template <class E>
-      constexpr reverse_iterator<const E*>
-      operator()(std::initializer_list<E> il) const
-      STL2_NOEXCEPT_RETURN(
-        reverse_iterator<const E*>{il.end()}
-      )
-
       template <class R>
         requires has_member<R>
       constexpr auto operator()(R& r) const
@@ -234,7 +218,6 @@ STL2_OPEN_NAMESPACE {
         make_reverse_iterator(__stl2::end(r))
       )
 
-#if STL2_TREAT_RVALUES_AS_CONST
       template <class R>
       [[deprecated]] constexpr auto operator()(const R&& r) const
         noexcept(noexcept(declval<const fn&>()(r)))
@@ -242,7 +225,6 @@ STL2_OPEN_NAMESPACE {
       {
         return (*this)(r);
       }
-#endif
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -271,12 +253,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool can_make_reverse<R> = true;
 
     struct fn {
-      template <class E>
-      constexpr reverse_iterator<const E*>
-      operator()(std::initializer_list<E> il) const noexcept {
-        return reverse_iterator<const E*>{il.begin()};
-      }
-
       // Prefer member if it returns Sentinel
       template <class R>
         requires has_member<R>
@@ -292,7 +268,6 @@ STL2_OPEN_NAMESPACE {
         __stl2::make_reverse_iterator(__stl2::begin(r))
       )
 
-#if STL2_TREAT_RVALUES_AS_CONST
       template <class R>
       [[deprecated]] constexpr auto operator()(const R&& r) const
         noexcept(noexcept(declval<const fn&>()(r)))
@@ -300,7 +275,6 @@ STL2_OPEN_NAMESPACE {
       {
         return (*this)(r);
       }
-#endif
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -318,10 +292,13 @@ STL2_OPEN_NAMESPACE {
         __stl2::rbegin(r)
       )
 
-#if !STL2_TREAT_RVALUES_AS_CONST
       template <class R>
-      constexpr auto operator()(const R&&) const = delete;
-#endif
+      [[deprecated]] constexpr auto operator()(const R&& r) const
+        noexcept(noexcept(__stl2::rbegin(r)))
+        requires requires (const R& r) { __stl2::rbegin(r); }
+      {
+        return __stl2::rbegin(r);
+      }
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -339,10 +316,13 @@ STL2_OPEN_NAMESPACE {
         __stl2::rend(r)
       )
 
-#if !STL2_TREAT_RVALUES_AS_CONST
       template <class R>
-      constexpr auto operator()(const R&&) const = delete;
-#endif
+      [[deprecated]] constexpr auto operator()(const R&& r) const
+        noexcept(noexcept(__stl2::rend(r)))
+        requires requires (const R& r) { __stl2::rend(r); }
+      {
+        return __stl2::rend(r);
+      }
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -427,6 +407,12 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_member<R> = true;
 
     template <class R>
+    constexpr bool has_size = false;
+    template <class R>
+      requires requires (const R& r) { __stl2::size(r); }
+    constexpr bool has_size<R> = true;
+
+    template <class R>
     constexpr bool has_begin_end = false;
     template <class R>
       requires requires (const R& r) {
@@ -438,16 +424,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_begin_end<R> = true;
 
     struct fn {
-      template <class T, std::size_t N>
-      constexpr bool operator()(T(&)[N]) const noexcept {
-        return N == 0;
-      }
-
-      template <class E>
-      constexpr bool operator()(std::initializer_list<E> il) const noexcept {
-        return il.size() == 0;
-      }
-
       // Prefer member
       template <class R>
         requires has_member<R>
@@ -456,9 +432,15 @@ STL2_OPEN_NAMESPACE {
         static_cast<bool>(r.empty())
       )
 
+      // Use size
+      template <class R>
+        requires !has_member<R> && has_size<R>
+      constexpr bool operator()(const R& r) const
+      STL2_NOEXCEPT_RETURN(__stl2::size(r) == 0)
+
       // Use begin == end
       template <class R>
-        requires !has_member<R> && has_begin_end<R>
+        requires !has_member<R> && !has_size<R> && has_begin_end<R>
       constexpr bool operator()(const R& r) const
       STL2_NOEXCEPT_RETURN(
         static_cast<bool>(__stl2::begin(r) == __stl2::end(r))
@@ -496,7 +478,7 @@ STL2_OPEN_NAMESPACE {
       }
 
       template <class E>
-      constexpr const E* operator()(std::initializer_list<E> il) const noexcept {
+      constexpr const E* operator()(const std::initializer_list<E>& il) const noexcept {
         return il.begin();
       }
 
@@ -518,7 +500,6 @@ STL2_OPEN_NAMESPACE {
         return i == __stl2::end(r) ? nullptr : std::addressof(*i);
       }
 
-#if STL2_TREAT_RVALUES_AS_CONST
       template <class R>
       [[deprecated]] constexpr auto operator()(const R&& r) const
         noexcept(noexcept(declval<const fn&>()(r)))
@@ -526,7 +507,6 @@ STL2_OPEN_NAMESPACE {
       {
         return (*this)(r);
       }
-#endif
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -543,10 +523,13 @@ STL2_OPEN_NAMESPACE {
         constexpr auto operator()(const R& r) const
         STL2_NOEXCEPT_RETURN(__stl2::data(r))
 
-#if !STL2_TREAT_RVALUES_AS_CONST
         template <class R>
-        constexpr auto operator()(const R&&) const = delete;
-#endif
+        [[deprecated]] constexpr auto operator()(const R&& r) const
+          noexcept(noexcept(__stl2::data(r)))
+          requires requires (const R& r) { __stl2::data(r); }
+        {
+          return __stl2::data(r);
+        }
       };
     }
     // Workaround GCC PR66957 by declaring this unnamed namespace inline.

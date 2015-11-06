@@ -134,10 +134,6 @@ void test() {
     // Valid: begin accepts lvalue initializer_list
     static_assert(models::Same<const int*, decltype(__stl2::begin(__stl2::declval<T&>()))>);
     static_assert(models::Same<const int*, decltype(__stl2::begin(__stl2::declval<const T&>()))>);
-
-    // Valid: begin accepts rvalue initializer_list
-    static_assert(models::Same<const int*, decltype(__stl2::begin(__stl2::declval<T>()))>);
-    static_assert(models::Same<const int*, decltype(__stl2::begin(__stl2::declval<const T>()))>);
   }
 }
 } // namespace begin_testing
