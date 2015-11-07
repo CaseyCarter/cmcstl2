@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
     // http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
 
     // Poison pill for std::swap. If ADL for "swap" finds std::swap and
-    // unqualified name lookup finds this overload, the ambiuguity causes
+    // unqualified name lookup finds this overload, the ambiguity causes
     // overload resolution to fail. If ADL doesn't find any declarations
     // of "swap", this deleted overload directly prevents unqualified
     // name lookup from searching further up the namespace hierarchy and
@@ -91,7 +91,6 @@ STL2_OPEN_NAMESPACE {
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
   inline namespace {
-    // 20150805: Not to spec: swap is a N4381-style function object customization point.
     constexpr auto& swap = detail::static_const<__swap::fn>::value;
   }
 
