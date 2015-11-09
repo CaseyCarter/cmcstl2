@@ -54,9 +54,9 @@ STL2_OPEN_NAMESPACE {
   tagged_pair<tag::in1(safe_iterator_t<Rng>), tag::in2(__f<I>)>
   swap_ranges(Rng&& rng1, I&& first2)
   requires
+    !is_array<remove_reference_t<I>>::value &&
     models::ForwardIterator<__f<I>> &&
-    !models::ForwardRange<I> && // FIXME
-    models::IndirectlySwappable<iterator_t<Rng>, I>
+    models::IndirectlySwappable<iterator_t<Rng>, __f<I>>
   {
     return __swap_ranges::impl(__stl2::begin(rng1), __stl2::end(rng1),
                                __stl2::forward<I>(first2));

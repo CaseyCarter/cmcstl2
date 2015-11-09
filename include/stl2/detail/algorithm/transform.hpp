@@ -100,6 +100,7 @@ STL2_OPEN_NAMESPACE {
   transform(Rng&& r1, I&& first2, O&& result, F&& op_,
             Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
   requires
+    !is_array<remove_reference_t<I>>::value &&
     models::WeakInputIterator<__f<I>> &&
     models::Writable<__f<O>,
       indirect_result_of_t<__f<F>&(

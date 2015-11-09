@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
   mismatch(Rng1&& rng1, I2&& first2, Pred&& pred = Pred{},
            Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
   requires
-    _IsNot<remove_reference_t<I2>, is_array> && // FIXME
+    !is_array<remove_reference_t<I2>>::value &&
     models::WeakInputIterator<__f<I2>> &&
     models::IndirectCallablePredicate<__f<Pred>,
       projected<iterator_t<Rng1>, __f<Proj1>>,

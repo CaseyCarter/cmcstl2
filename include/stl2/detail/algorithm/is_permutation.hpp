@@ -106,8 +106,8 @@ STL2_OPEN_NAMESPACE {
   is_permutation(Rng1&& rng1, I2&& first2, Pred&& pred = Pred{},
                  Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
   requires
+    !is_array<remove_reference_t<I2>>::value &&
     models::ForwardIterator<__f<I2>> &&
-    _IsNot<remove_reference_t<I2>, is_array> && // FIXME
     models::IndirectlyComparable<
       iterator_t<Rng1>, __f<I2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
   {
