@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
   requires
     IndirectCallablePredicate<
       __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>()
-  difference_type_t<Rng>
+  difference_type_t<iterator_t<Rng>>
   count_if(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
   {
     return __stl2::count_if(__stl2::begin(rng), __stl2::end(rng),

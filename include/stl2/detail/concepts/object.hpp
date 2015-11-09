@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
   // the decayed type can in fact be constructed from the actual type.
   //
   template <class T>
-    requires Constructible<decay_t<T>, T>()
+    requires models::Constructible<decay_t<T>, T>
   using __f = decay_t<T>;
 } STL2_CLOSE_NAMESPACE
 

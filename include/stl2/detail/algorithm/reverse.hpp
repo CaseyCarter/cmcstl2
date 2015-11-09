@@ -64,8 +64,8 @@ STL2_OPEN_NAMESPACE {
       }
       // Swap the buffered elements in reverse order with the second half of
       // the input range.
-      auto ulast = __stl2::swap_ranges(__stl2::rbegin(vec), __stl2::rend(vec),
-                                       __stl2::move(umiddle), unreachable{}).in2();
+      auto ulast = __swap_ranges::impl(__stl2::rbegin(vec), __stl2::rend(vec),
+                                       __stl2::move(umiddle)).in2();
       // Shift the buffer contents into the first half of the input range.
       __stl2::move(vec, __stl2::move(ufirst));
       return __stl2::ext::recounted(first, __stl2::move(ulast), n);
@@ -92,8 +92,8 @@ STL2_OPEN_NAMESPACE {
         ++first2;
       }
       detail::reverse_n_adaptive(first2, half_n, buf);
-      return __stl2::swap_ranges(__stl2::move(first), __stl2::move(last1),
-                                 __stl2::move(first2), unreachable{}).in2();
+      return __swap_ranges::impl(__stl2::move(first), __stl2::move(last1),
+                                 __stl2::move(first2)).in2();
     }
 
     Permutable{I}

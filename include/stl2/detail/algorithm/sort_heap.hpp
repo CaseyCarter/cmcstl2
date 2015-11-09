@@ -34,23 +34,27 @@
 STL2_OPEN_NAMESPACE {
   namespace detail {
     template <RandomAccessIterator I, class Comp, class Proj>
-      requires Sortable<I, Comp, Proj>()
+    requires models::Sortable<I, __f<Comp>, __f<Proj>>
     void sort_heap_n(I first, difference_type_t<I> n,
-                     Comp&& comp_, Proj&& proj_) {
-      if (n > 1) {
-        auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-        auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-        for (auto i = n; i > 1; --i) {
-          detail::pop_heap_n(first, i, __stl2::ref(comp), __stl2::ref(proj));
-        }
+                     Comp&& comp_, Proj&& proj_)
+    {
+      if (n < 2) {
+        return;
+      }
+
+      auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+      auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+      for (auto i = n; i > 1; --i) {
+        detail::pop_heap_n(first, i, __stl2::ref(comp), __stl2::ref(proj));
       }
     }
   }
 
-  template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
-            class Proj = identity>
-    requires Sortable<I, Comp, Proj>()
-  I sort_heap(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+  template <RandomAccessIterator I, Sentinel<I> S,
+            class Comp = less<>, class Proj = identity>
+  requires models::Sortable<I, __f<Comp>, __f<Proj>>
+  I sort_heap(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
     auto n = __stl2::distance(first, __stl2::move(last));
     detail::sort_heap_n(first, n, __stl2::forward<Comp>(comp),
                         __stl2::forward<Proj>(proj));
@@ -58,9 +62,10 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<iterator_t<Rng>, Comp, Proj>()
+  requires models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
   safe_iterator_t<Rng>
-  sort_heap(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+  sort_heap(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
     auto n = __stl2::distance(rng);
     detail::sort_heap_n(__stl2::begin(rng), n, __stl2::forward<Comp>(comp),
                         __stl2::forward<Proj>(proj));

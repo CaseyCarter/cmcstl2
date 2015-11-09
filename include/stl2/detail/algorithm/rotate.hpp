@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
     D const m1 = middle - first;
     D const m2 = last - middle;
     if (m1 == m2) {
-      __stl2::swap_ranges(first, middle, middle, unreachable{});
+      __swap_ranges::impl(first, middle, middle);
       return {__stl2::move(middle), __stl2::move(last)};
     }
     auto const g = __stl2::__gcd(m1, m2);

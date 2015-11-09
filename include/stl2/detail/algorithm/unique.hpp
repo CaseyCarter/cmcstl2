@@ -23,10 +23,13 @@
 // unique [alg.unique]
 //
 STL2_OPEN_NAMESPACE {
-  template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallableRelation<projected<I, Proj>> R = equal_to<>>
-    requires Permutable<I>()
-  I unique(I first, S last, R&& comp_ = R{}, Proj&& proj_ = Proj{}) {
+  template <ForwardIterator I, Sentinel<I> S,
+            class R = equal_to<>, class Proj = identity>
+  requires
+    models::Permutable<I> &&
+    models::IndirectCallableRelation<__f<R>, projected<I, __f<Proj>>>
+  I unique(I first, S last, R&& comp_ = R{}, Proj&& proj_ = Proj{})
+  {
     auto comp = ext::make_callable_wrapper(__stl2::forward<R>(comp_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     first = __stl2::adjacent_find(__stl2::move(first), last, comp, proj);
@@ -42,10 +45,15 @@ STL2_OPEN_NAMESPACE {
     return first;
   }
 
-  template<ForwardRange Rng, class Proj = identity,
-           IndirectCallableRelation<projected<iterator_t<Rng>, Proj>> R = equal_to<>>
-    requires Permutable<iterator_t<Rng>>()
-  safe_iterator_t<Rng> unique(Rng&& rng, R&& comp = R{}, Proj&& proj = Proj{}) {
+  template <ForwardRange Rng, class R = equal_to<>,
+            class Proj = identity>
+  requires
+    models::Permutable<iterator_t<Rng>> &&
+    models::IndirectCallableRelation<
+      __f<R>, projected<iterator_t<Rng>, __f<Proj>>>
+  safe_iterator_t<Rng>
+  unique(Rng&& rng, R&& comp = R{}, Proj&& proj = Proj{})
+  {
     return __stl2::unique(__stl2::begin(rng), __stl2::end(rng),
       __stl2::forward<R>(comp), __stl2::forward<Proj>(proj));
   }

@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
   requires
     IndirectCallableRelation<
       equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T*>()
-  difference_type_t<Rng>
+  difference_type_t<iterator_t<Rng>>
   count(Rng&& rng, const T& value, Proj&& proj = Proj{})
   {
     return __stl2::count(__stl2::begin(rng), __stl2::end(rng),

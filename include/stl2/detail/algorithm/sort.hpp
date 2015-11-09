@@ -26,8 +26,10 @@
 STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S,
             class Comp = less<>, class Proj = identity>
-    requires Sortable<I, Comp, Proj>()
-  I sort(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+  requires
+    models::Sortable<I, __f<Comp>, __f<Proj>>
+  I sort(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
     auto n = __stl2::distance(first, __stl2::move(last));
     return detail::fsort::sort_n(__stl2::move(first), n,
                                  __stl2::forward<Comp>(comp),
@@ -36,8 +38,10 @@ STL2_OPEN_NAMESPACE {
 
   template <RandomAccessIterator I, Sentinel<I> S,
             class Comp = less<>, class Proj = identity>
-    requires Sortable<I, Comp, Proj>()
-  I sort(I first, S sent, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
+  requires
+    models::Sortable<I, __f<Comp>, __f<Proj>>
+  I sort(I first, S sent, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+  {
     if (first == sent) {
       return first;
     }
@@ -52,18 +56,21 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<iterator_t<Rng>, Comp, Proj>()
+  requires
+    models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
   safe_iterator_t<Rng>
-  sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+  sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
     return detail::fsort::sort_n(__stl2::begin(rng), __stl2::distance(rng),
-                                 __stl2::forward<Comp>(comp),
-                                 __stl2::forward<Proj>(proj));
+      __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
   }
 
   template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<iterator_t<Rng>, Comp, Proj>()
+  requires
+    models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
   safe_iterator_t<Rng>
-  sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+  sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
     return __stl2::sort(__stl2::begin(rng), __stl2::end(rng),
       __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
   }
