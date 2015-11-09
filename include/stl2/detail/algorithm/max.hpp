@@ -24,56 +24,64 @@
 // max [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputRange Rng, class Proj = identity,
-            IndirectCallableStrictWeakOrder<
-              projected<iterator_t<Rng>, Proj>> Comp = less<>>
-    requires Copyable<value_type_t<iterator_t<Rng>>>()
-  constexpr value_type_t<iterator_t<Rng>>
-  __max(Rng&& r, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
-    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    auto first = __stl2::begin(r);
-    auto last = __stl2::end(r);
-    STL2_ASSUME(first != last);
-    value_type_t<iterator_t<Rng>> result = *first;
-    while (++first != last) {
-      auto && tmp = *first;
-      if (comp(proj(result), proj(tmp))) {
-        result = (decltype(tmp)&&)tmp;
+  namespace __max {
+    template <InputRange Rng, class Comp, class Proj>
+    requires
+      Copyable<value_type_t<iterator_t<Rng>>>() &&
+      models::IndirectCallableStrictWeakOrder<
+        __f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
+    constexpr value_type_t<iterator_t<Rng>>
+    impl(Rng&& rng, Comp&& comp_, Proj&& proj_)
+    {
+      auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+      auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+      auto first = __stl2::begin(rng);
+      auto last = __stl2::end(rng);
+      STL2_ASSUME(first != last);
+      value_type_t<iterator_t<Rng>> result = *first;
+      while (++first != last) {
+        auto&& tmp = *first;
+        if (comp(proj(result), proj(tmp))) {
+          result = (decltype(tmp)&&)tmp;
+        }
       }
+      return result;
     }
-    return result;
   }
 
-  template <class T, class Proj = identity,
-            IndirectCallableStrictWeakOrder<
-              projected<const T*, Proj>> Comp = less<>>
-  constexpr const T& max(const T& a, const T& b,
-                         Comp&& comp_ = Comp{},
-                         Proj&& proj_ = Proj{}) {
+  template <class T, class Comp = less<>, class Proj = identity>
+  requires
+    models::IndirectCallableStrictWeakOrder<
+      __f<Comp>, projected<const T*, __f<Proj>>>
+  constexpr const T& max(const T& a, const T& b, Comp&& comp_ = Comp{},
+                         Proj&& proj_ = Proj{})
+  {
     auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     return !comp(proj(a), proj(b)) ? a : b;
   }
 
-  template <InputRange Rng, class Proj = identity,
-            IndirectCallableStrictWeakOrder<
-              projected<iterator_t<Rng>, Proj>> Comp = less<>>
-    requires Copyable<value_type_t<iterator_t<Rng>>>()
+  template <InputRange Rng, class Comp = less<>, class Proj = identity>
+  requires
+    Copyable<value_type_t<iterator_t<Rng>>>() &&
+    models::IndirectCallableStrictWeakOrder<
+      __f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
   STL2_CONSTEXPR_EXT value_type_t<iterator_t<Rng>>
-  max(Rng&& r, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
-    return __stl2::__max(__stl2::forward<Rng>(r),
-                         __stl2::forward<Comp>(comp),
-                         __stl2::forward<Proj>(proj));
+  max(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
+    return __max::impl(rng, __stl2::forward<Comp>(comp),
+                       __stl2::forward<Proj>(proj));
   }
 
-  template <Copyable T, class Proj = identity,
-            IndirectCallableStrictWeakOrder<
-              projected<const T*, Proj>> Comp = less<>>
+  template <Copyable T, class Comp = less<>, class Proj = identity>
+  requires
+    models::IndirectCallableStrictWeakOrder<
+      __f<Comp>, projected<const T*, __f<Proj>>>
   constexpr T max(std::initializer_list<T>&& rng,
-                  Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
-    return __stl2::__max(rng, __stl2::forward<Comp>(comp),
-                         __stl2::forward<Proj>(proj));
+                  Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
+    return __max::impl(rng, __stl2::forward<Comp>(comp),
+                       __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
 

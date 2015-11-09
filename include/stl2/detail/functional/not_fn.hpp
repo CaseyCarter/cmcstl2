@@ -61,12 +61,11 @@ STL2_OPEN_NAMESPACE {
   };
 
   template <class F>
-    requires MoveConstructible<F>() &&
-      Constructible<decay_t<F>, F>()
-  STL2_CONSTEXPR_EXT __not_fn<decay_t<F>> not_fn(F&& f)
-    noexcept(is_nothrow_constructible<__not_fn<decay_t<F>>, F>::value) {
-    return {__stl2::forward<F>(f)};
-  }
+    requires MoveConstructible<__f<F>>()
+  STL2_CONSTEXPR_EXT auto not_fn(F&& f)
+  STL2_NOEXCEPT_RETURN(
+    __not_fn<__f<F>>{__stl2::forward<F>(f)}
+  )
 } STL2_CLOSE_NAMESPACE
 
 #endif

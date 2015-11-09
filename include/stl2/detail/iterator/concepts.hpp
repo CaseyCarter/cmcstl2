@@ -202,12 +202,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool Readable = false;
     __stl2::Readable{I}
     constexpr bool Readable<I> = true;
-
-    // Readable<Is>() && ...
-    template <class...Is>
-    constexpr bool AllReadable = false;
-    template <__stl2::Readable...Is>
-    constexpr bool AllReadable<Is...> = true;
   }
 
   // A generally useful dependent type
@@ -268,7 +262,7 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // IndirectlyMovable [indirectlymovable.iterators]
-  // Not to spec: Additional requirements from the proxy iterator work.
+  // Not to spec: Additional requirements from P0022.
   //
   template <class In, class Out>
   concept bool IndirectlyMovable() {

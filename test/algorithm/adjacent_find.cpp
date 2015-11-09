@@ -12,20 +12,23 @@
 #include <stl2/detail/algorithm/adjacent_find.hpp>
 #include "../simple_test.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 int main()
 {
     int v1[] = { 0, 2, 2, 4, 6 };
-    CHECK(stl2::adjacent_find(stl2::begin(v1), stl2::end(v1)) == &v1[1]);
-    CHECK(stl2::adjacent_find(v1) == &v1[1]);
+    CHECK(ranges::adjacent_find(ranges::begin(v1), ranges::end(v1)) == &v1[1]);
+    CHECK(ranges::adjacent_find(v1) == &v1[1]);
 
     std::pair<int, int> v2[] = {{0, 0}, {0, 2}, {0, 2}, {0, 4}, {0, 6}};
-    CHECK(stl2::adjacent_find(stl2::begin(v2), stl2::end(v2),
-            stl2::equal_to<>{}, &std::pair<int, int>::second) == &v2[1]);
-    CHECK(stl2::adjacent_find(v2, stl2::equal_to<>{}, &std::pair<int, int>::second) == &v2[1]);
+    CHECK(ranges::adjacent_find(ranges::begin(v2), ranges::end(v2),
+            ranges::equal_to<>{}, &std::pair<int, int>::second) == &v2[1]);
+    CHECK(ranges::adjacent_find(v2, ranges::equal_to<>{}, &std::pair<int, int>::second) == &v2[1]);
     static_assert(std::is_same<std::pair<int,int>*,
-                               decltype(stl2::adjacent_find(v2, stl2::equal_to<>{},
-                                    &std::pair<int, int>::second))>::value, "");
+                               decltype(ranges::adjacent_find(v2, ranges::equal_to<>{},
+                                    &std::pair<int, int>::second))>::value);
+
+    CHECK(ranges::adjacent_find({0, 2, 2, 4, 6}).get_unsafe()[2] == 4);
+
     return test_result();
 }

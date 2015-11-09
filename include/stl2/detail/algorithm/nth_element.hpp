@@ -35,7 +35,8 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     // stable, 2-3 compares, 0-2 swaps
     Sortable{I, C, P}
-    unsigned sort3(I x, I y, I z, C& comp, P& proj) {
+    unsigned sort3(I x, I y, I z, C& comp, P& proj)
+    {
       if (!comp(proj(*y), proj(*x))) {      // if x <= y
         if (!comp(proj(*z), proj(*y))) {    // if y <= z
           return 0;                         // x <= y && y <= z
@@ -62,8 +63,9 @@ STL2_OPEN_NAMESPACE {
     }
 
     template <BidirectionalIterator I, class C, class P>
-      requires Sortable<I, C, P>()
-    void selection_sort(I begin, I end, C &comp, P &proj) {
+    requires Sortable<I, C, P>()
+    void selection_sort(I begin, I end, C &comp, P &proj)
+    {
       STL2_ASSUME(begin != end);
       for (I lm1 = __stl2::prev(end); begin != lm1; ++begin) {
         I i = __stl2::min_element(begin, end, __stl2::ref(comp), __stl2::ref(proj));
@@ -77,8 +79,9 @@ STL2_OPEN_NAMESPACE {
   // TODO: refactor this monstrosity.
   template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
             class Proj = identity>
-    requires Sortable<I, Comp, Proj>()
-  I nth_element(I first, I nth, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
+  requires Sortable<I, __f<Comp>, __f<Proj>>()
+  I nth_element(I first, I nth, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+  {
     auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     I end = __stl2::next(nth, last), end_orig = end;
@@ -255,7 +258,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<iterator_t<Rng>, Comp, Proj>()
+  requires Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>()
   safe_iterator_t<Rng>
   nth_element(Rng&& rng, iterator_t<Rng> nth,
               Comp&& comp = Comp{}, Proj&& proj = Proj{}) {

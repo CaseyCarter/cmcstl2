@@ -49,29 +49,35 @@ STL2_OPEN_NAMESPACE {
       template <BidirectionalIterator I, class C, class P>
       // requires Sortable<I, C, P>()
       static void impl(I begin, I middle, I end, difference_type_t<I> len1,
-                       difference_type_t<I> len2, temporary_buffer<value_type_t<I>>& buf, C& pred, P& proj) {
+                       difference_type_t<I> len2,
+                       temporary_buffer<value_type_t<I>>& buf, C& pred, P& proj)
+      {
         // Pre: len1 == distance(begin, midddle)
         // Pre: len2 == distance(middle, end)
         temporary_vector<value_type_t<I>> vec{buf};
         if(len1 <= len2)
           {
             __stl2::move(begin, middle, __stl2::back_inserter(vec));
-            __stl2::merge_move(__stl2::begin(vec), __stl2::end(vec), __stl2::move(middle), __stl2::move(end),
-                               __stl2::move(begin), __stl2::ref(pred), __stl2::ref(proj), __stl2::ref(proj));
+            __stl2::merge_move(__stl2::begin(vec), __stl2::end(vec),
+                               __stl2::move(middle), __stl2::move(end),
+                               __stl2::move(begin), __stl2::ref(pred),
+                               __stl2::ref(proj), __stl2::ref(proj));
           }
         else
           {
             __stl2::move(middle, end, __stl2::back_inserter(vec));
             using RBi = __stl2::reverse_iterator<I>;
             __stl2::merge_move(RBi{__stl2::move(middle)}, RBi{__stl2::move(begin)},
-                               __stl2::rbegin(vec), __stl2::rend(vec), RBi{__stl2::move(end)},
-                               not_fn(__stl2::ref(pred)), __stl2::ref(proj), __stl2::ref(proj));
+                               __stl2::rbegin(vec), __stl2::rend(vec),
+                               RBi{__stl2::move(end)},
+                               __stl2::not_fn(__stl2::ref(pred)),
+                               __stl2::ref(proj), __stl2::ref(proj));
           }
       }
 
     public:
       template <BidirectionalIterator I, class C, class P>
-        requires Sortable<I, C, P>()
+      requires Sortable<I, __f<C>, __f<P>>()
       void operator()(I begin, I middle, I end, difference_type_t<I> len1, difference_type_t<I> len2,
                       detail::temporary_buffer<value_type_t<I>>& buf, C&& pred_, P&& proj_) const
       {
@@ -164,7 +170,7 @@ STL2_OPEN_NAMESPACE {
     struct inplace_merge_no_buffer_fn
     {
       template <BidirectionalIterator I, class C = less<>, class P = identity>
-        requires Sortable<I, C, P>()
+      requires Sortable<I, __f<C>, __f<P>>()
       void operator()(I begin, I middle, I end, difference_type_t<I> len1,
                       difference_type_t<I> len2, C&& pred = C{}, P&& proj = P{}) const
       {
@@ -179,11 +185,12 @@ STL2_OPEN_NAMESPACE {
     }
   }
 
-  template <BidirectionalIterator I, Sentinel<I> S, class Comp = less<>,
-            class Proj = identity>
-    requires Sortable<I, Comp, Proj>()
+  template <BidirectionalIterator I, Sentinel<I> S,
+            class Comp = less<>, class Proj = identity>
+  requires Sortable<I, __f<Comp>, __f<Proj>>()
   I inplace_merge(I first, I middle, S last,
-                  Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+                  Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
     auto len1 = __stl2::distance(first, middle);
     auto len2_and_end = __stl2::ext::enumerate(middle, __stl2::move(last));
     auto buf_size = std::min(len1, len2_and_end.count());
@@ -198,10 +205,11 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <BidirectionalRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<iterator_t<Rng>, Comp, Proj>()
+  requires Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>()
   safe_iterator_t<Rng>
   inplace_merge(Rng&& rng, iterator_t<Rng> middle, Comp&& comp = Comp{},
-                Proj&& proj = Proj{}) {
+                Proj&& proj = Proj{})
+  {
     return __stl2::inplace_merge(__stl2::begin(rng), __stl2::move(middle),
       __stl2::end(rng), __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
   }

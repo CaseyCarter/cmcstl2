@@ -21,13 +21,23 @@
 
 ///////////////////////////////////////////////////////////////////////////
 // for_each [alg.for_each]
+// Not to spec: with the proxy iterator changes in place, IndirectCallable
+//              is severely overconstraining for for_each:
+//              * functions that accept the reference type for a mutable
+//                "lvalue" sequence are rejected
+//              * functions that do accept all of IndirectCallable's
+//                required parameter types but don't return types with a
+//                common reference are rejected
+//              and this despite the fact that for_each is guaranteed to
+//              only ever call f(proj(*i)) and discard the return value.
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I, Sentinel<I> S, class Proj = identity,
-            ext::Callable<reference_t<projected<I, Proj>>> Fun>
-  tagged_pair<tag::in(I), tag::fun(__uncvref<Fun>)>
-  for_each(I first, S last, Fun&& fun_, Proj&& proj_ = Proj{}) {
-    auto fun = ext::make_callable_wrapper(__stl2::forward<Fun>(fun_));
+  template <InputIterator I, Sentinel<I> S, class F, class Proj = identity>
+  requires Function<__f<F>, reference_t<projected<I, __f<Proj>>>>()
+  tagged_pair<tag::in(I), tag::fun(__f<F>)>
+  for_each(I first, S last, F&& fun_, Proj&& proj_ = Proj{})
+  {
+    auto fun = ext::make_callable_wrapper(__stl2::forward<F>(fun_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     for (; first != last; ++first) {
       (void)fun(proj(*first));
@@ -35,21 +45,25 @@ STL2_OPEN_NAMESPACE {
     return {__stl2::move(first), __stl2::move(fun).base()};
   }
 
-  template <InputRange Rng, class Proj = identity,
-            ext::Callable<reference_t<projected<iterator_t<Rng>, Proj>>> Fun>
-  tagged_pair<tag::in(safe_iterator_t<Rng>), tag::fun(decay_t<Fun>)>
-  for_each(Rng&& rng, Fun&& f, Proj&& proj = Proj{}) {
+  template <InputRange Rng, class F, class Proj = identity>
+  requires Function<
+    __f<F>, reference_t<projected<iterator_t<Rng>, __f<Proj>>>>()
+  tagged_pair<tag::in(safe_iterator_t<Rng>), tag::fun(__f<F>)>
+  for_each(Rng&& rng, F&& f, Proj&& proj = Proj{})
+  {
     return __stl2::for_each(__stl2::begin(rng), __stl2::end(rng),
-      __stl2::forward<Fun>(f), __stl2::forward<Proj>(proj));
+      __stl2::forward<F>(f), __stl2::forward<Proj>(proj));
   }
 
   // Extension
-  template <class E, class Proj = identity,
-            ext::Callable<reference_t<projected<const E*, Proj>>> Fun>
-  tagged_pair<tag::in(dangling<const E*>), tag::fun(decay_t<Fun>)>
-  for_each(std::initializer_list<E>&& il, Fun&& f, Proj&& proj = Proj{}) {
+  template <class E, class F, class Proj = identity>
+  requires Function<
+    __f<F>, reference_t<projected<const E*, __f<Proj>>>>()
+  tagged_pair<tag::in(dangling<const E*>), tag::fun(__f<F>)>
+  for_each(std::initializer_list<E>&& il, F&& f, Proj&& proj = Proj{})
+  {
     return __stl2::for_each(il.begin(), il.end(),
-      __stl2::forward<Fun>(f), __stl2::forward<Proj>(proj));
+      __stl2::forward<F>(f), __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
 

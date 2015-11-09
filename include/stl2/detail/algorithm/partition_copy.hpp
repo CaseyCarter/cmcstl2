@@ -24,12 +24,15 @@
 //
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O1,
-            WeaklyIncrementable O2, class Proj = identity,
-            IndirectCallablePredicate<projected<I, Proj>> Pred>
-    requires IndirectlyCopyable<I, O1>() && IndirectlyCopyable<I, O2>()
+            WeaklyIncrementable O2, class Pred, class Proj = identity>
+  requires
+    IndirectlyCopyable<I, O1>() && IndirectlyCopyable<I, O2>() &&
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<I, __f<Proj>>>
   tagged_tuple<tag::in(I), tag::out1(O1), tag::out2(O2)>
   partition_copy(I first, S last, O1 out_true, O2 out_false,
-                 Pred&& pred_, Proj&& proj_ = Proj{}) {
+                 Pred&& pred_, Proj&& proj_ = Proj{})
+  {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
@@ -43,20 +46,53 @@ STL2_OPEN_NAMESPACE {
         ++out_false;
       }
     }
-    return {__stl2::move(first), __stl2::move(out_true), __stl2::move(out_false)};
+    return {__stl2::move(first),
+      __stl2::move(out_true), __stl2::move(out_false)};
   }
 
-  template <InputRange Rng, WeaklyIncrementable O1, WeaklyIncrementable O2,
-            class Proj = identity,
-            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
-    requires IndirectlyCopyable<iterator_t<Rng>, O1>() &&
-      IndirectlyCopyable<iterator_t<Rng>, O2>()
-  tagged_tuple<tag::in(safe_iterator_t<Rng>), tag::out1(O1), tag::out2(O2)>
-  partition_copy(Rng&& rng, O1 out_true, O2 out_false,
-                 Pred&& pred, Proj&& proj = Proj{}) {
+  template <InputRange Rng, class O1, class O2,
+            class Pred, class Proj = identity>
+  requires
+    WeaklyIncrementable<__f<O1>>() &&
+    WeaklyIncrementable<__f<O2>>() &&
+    IndirectlyCopyable<iterator_t<Rng>, __f<O1>>() &&
+    IndirectlyCopyable<iterator_t<Rng>, __f<O2>>() &&
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+  tagged_tuple<
+    tag::in(safe_iterator_t<Rng>),
+    tag::out1(__f<O1>),
+    tag::out2(__f<O2>)>
+  partition_copy(Rng&& rng, O1&& out_true, O2&& out_false,
+                 Pred&& pred, Proj&& proj = Proj{})
+  {
     return __stl2::partition_copy(
       __stl2::begin(rng), __stl2::end(rng),
-      __stl2::move(out_true), __stl2::move(out_false),
+      __stl2::forward<O1>(out_true), __stl2::forward<O2>(out_false),
+      __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+  }
+
+  // Extension
+  template <class E, class O1, class O2,
+            class Pred, class Proj = identity>
+  requires
+    WeaklyIncrementable<__f<O1>>() &&
+    WeaklyIncrementable<__f<O2>>() &&
+    IndirectlyCopyable<const E*, __f<O1>>() &&
+    IndirectlyCopyable<const E*, __f<O2>>() &&
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<const E*, __f<Proj>>>
+  tagged_tuple<
+    tag::in(dangling<const E*>),
+    tag::out1(__f<O1>),
+    tag::out2(__f<O2>)>
+  partition_copy(std::initializer_list<E>&& rng,
+                 O1&& out_true, O2&& out_false,
+                 Pred&& pred, Proj&& proj = Proj{})
+  {
+    return __stl2::partition_copy(
+      __stl2::begin(rng), __stl2::end(rng),
+      __stl2::forward<O1>(out_true), __stl2::forward<O2>(out_false),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE

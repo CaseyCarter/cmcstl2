@@ -23,12 +23,16 @@
 STL2_OPEN_NAMESPACE {
   template <InputIterator I1, Sentinel<I1> S1,
             InputIterator I2, Sentinel<I2> S2,
-            class Proj1 = identity, class Proj2 = identity,
-            IndirectCallableStrictWeakOrder<
-              projected<I1, Proj1>, projected<I2, Proj2>> Comp = less<>>
+            class Comp = less<>,
+            class Proj1 = identity, class Proj2 = identity>
+  requires
+    models::IndirectCallableStrictWeakOrder<__f<Comp>,
+      projected<I1, __f<Proj1>>, projected<I2, __f<Proj2>>>
   bool lexicographical_compare(I1 first1, S1 last1, I2 first2, S2 last2,
-                               Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{},
-                               Proj2&& proj2_ = Proj2{}) {
+                               Comp&& comp_ = Comp{},
+                               Proj1&& proj1_ = Proj1{},
+                               Proj2&& proj2_ = Proj2{})
+  {
     auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
     auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
     auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
@@ -43,13 +47,72 @@ STL2_OPEN_NAMESPACE {
     return first1 == last1 && first2 != last2;
   }
 
-  template <InputRange Rng1, InputRange Rng2,
-            class Proj1 = identity, class Proj2 = identity,
-            IndirectCallableStrictWeakOrder<
-              projected<iterator_t<Rng1>, Proj1>,
-              projected<iterator_t<Rng2>, Proj2>> Comp = less<>>
-  bool lexicographical_compare(Rng1&& rng1, Rng2&& rng2, Comp&& comp = Comp{},
-                               Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
+  template <InputRange Rng1, InputRange Rng2, class Comp = less<>,
+            class Proj1 = identity, class Proj2 = identity>
+  requires
+    models::IndirectCallableStrictWeakOrder<__f<Comp>,
+      projected<iterator_t<Rng1>, __f<Proj1>>,
+      projected<iterator_t<Rng2>, __f<Proj2>>>
+  bool lexicographical_compare(Rng1&& rng1, Rng2&& rng2,
+                               Comp&& comp = Comp{},
+                               Proj1&& proj1 = Proj1{},
+                               Proj2&& proj2 = Proj2{})
+  {
+    return __stl2::lexicographical_compare(
+      __stl2::begin(rng1), __stl2::end(rng1),
+      __stl2::begin(rng2), __stl2::end(rng2),
+      __stl2::forward<Comp>(comp),
+      __stl2::forward<Proj1>(proj1),
+      __stl2::forward<Proj2>(proj2));
+  }
+
+  // Extension
+  template <class E, InputRange Rng2, class Comp = less<>,
+            class Proj1 = identity, class Proj2 = identity>
+  requires
+    models::IndirectCallableStrictWeakOrder<__f<Comp>,
+      projected<const E*, __f<Proj1>>,
+      projected<iterator_t<Rng2>, __f<Proj2>>>
+  bool lexicographical_compare(std::initializer_list<E>&& rng1, Rng2&& rng2,
+    Comp&& comp = Comp{}, Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+  {
+    return __stl2::lexicographical_compare(
+      __stl2::begin(rng1), __stl2::end(rng1),
+      __stl2::begin(rng2), __stl2::end(rng2),
+      __stl2::forward<Comp>(comp),
+      __stl2::forward<Proj1>(proj1),
+      __stl2::forward<Proj2>(proj2));
+  }
+
+  // Extension
+  template <InputRange Rng1, class E, class Comp = less<>,
+            class Proj1 = identity, class Proj2 = identity>
+  requires
+    models::IndirectCallableStrictWeakOrder<__f<Comp>,
+      projected<iterator_t<Rng1>, __f<Proj1>>,
+      projected<const E*, __f<Proj2>>>
+  bool lexicographical_compare(Rng1&& rng1, std::initializer_list<E>&& rng2,
+    Comp&& comp = Comp{}, Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+  {
+    return __stl2::lexicographical_compare(
+      __stl2::begin(rng1), __stl2::end(rng1),
+      __stl2::begin(rng2), __stl2::end(rng2),
+      __stl2::forward<Comp>(comp),
+      __stl2::forward<Proj1>(proj1),
+      __stl2::forward<Proj2>(proj2));
+  }
+
+  // Extension
+  template <class E1, class E2, class Comp = less<>,
+            class Proj1 = identity, class Proj2 = identity>
+  requires
+    models::IndirectCallableStrictWeakOrder<__f<Comp>,
+      projected<const E1*, __f<Proj1>>,
+      projected<const E2*, __f<Proj2>>>
+  bool lexicographical_compare(
+    std::initializer_list<E1>&& rng1, std::initializer_list<E2>&& rng2,
+    Comp&& comp = Comp{}, Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+  {
     return __stl2::lexicographical_compare(
       __stl2::begin(rng1), __stl2::end(rng1),
       __stl2::begin(rng2), __stl2::end(rng2),

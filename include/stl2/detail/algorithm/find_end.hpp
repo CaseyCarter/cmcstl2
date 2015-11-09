@@ -24,17 +24,16 @@
 // find_end [alg.find.end]
 //
 STL2_OPEN_NAMESPACE {
-  template <class R, class I1, class I2>
-  constexpr bool __icr =
-    models::IndirectCallableRelation<__uncvref<R>, __uncvref<I1>, __uncvref<I2>>;
-  
   template <ForwardIterator I1, Sentinel<I1> S1,
             ForwardIterator I2, Sentinel<I2> S2,
             class Pred = equal_to<>, class Proj = identity>
-    requires __icr<Pred, I2, projected<I1, Proj>>
+  requires
+    models::IndirectCallableRelation<
+      __f<Pred>, I2, projected<I1, __f<Proj>>>
   I1 find_end(I1 first1, const S1 last1,
               const I2 first2, const S2 last2,
-              Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{}) {
+              Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{})
+  {
     if (first2 == last2) {
       return __stl2::next(first1, last1);
     }
@@ -63,9 +62,12 @@ STL2_OPEN_NAMESPACE {
 
   template <BidirectionalIterator I1, BidirectionalIterator I2,
             class Pred = equal_to<>, class Proj = identity>
-    requires __icr<Pred, I2, projected<I1, Proj>>
+  requires
+    models::IndirectCallableRelation<
+      __f<Pred>, I2, projected<I1, __f<Proj>>>
   I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2,
-              Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{}) {
+              Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{})
+  {
     if (first2 == last2) {
       return last1;  // Everything matches an empty sequence
     }
@@ -95,9 +97,12 @@ STL2_OPEN_NAMESPACE {
 
   template <RandomAccessIterator I1, RandomAccessIterator I2,
             class Pred = equal_to<>, class Proj = identity>
-    requires __icr<Pred, I2, projected<I1, Proj>>
+  requires
+    models::IndirectCallableRelation<
+      __f<Pred>, I2, projected<I1, __f<Proj>>>
   I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2,
-              Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{}) {
+              Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{})
+  {
     // Take advantage of knowing source and pattern lengths.
     // Stop short when source is smaller than pattern
     const auto len2 = last2 - first2;
@@ -107,7 +112,8 @@ STL2_OPEN_NAMESPACE {
 
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    const auto s = first1 + (len2 - 1);  // End of pattern match can't go before here
+    // End of pattern match can't go before here
+    const auto s = first1 + (len2 - 1);
 
     for (auto l1 = last1; l1 != s; --l1) {
       auto m1 = l1;
@@ -124,24 +130,37 @@ STL2_OPEN_NAMESPACE {
   template <BidirectionalIterator I1, Sentinel<I1> S1,
             BidirectionalIterator I2, Sentinel<I2> S2,
             class Pred = equal_to<>, class Proj = identity>
-    requires __icr<Pred, I2, projected<I1, Proj>>
-  I1 find_end(I1 first1, S1 s1, I2 first2, S2 s2, Pred&& pred = {}, Proj&& proj = {}) {
+  requires
+    models::IndirectCallableRelation<
+      __f<Pred>, I2, projected<I1, __f<Proj>>>
+  I1 find_end(I1 first1, S1 s1, I2 first2, S2 s2,
+              Pred&& pred = {}, Proj&& proj = {})
+  {
+    auto last1 = __stl2::next(first1, __stl2::move(s1));
+    auto last2 = __stl2::next(first2, __stl2::move(s2));
     return __stl2::find_end(
-      first1, __stl2::next(first1, s1),
-      first2, __stl2::next(first2, s2),
+      __stl2::move(first1), __stl2::move(last1),
+      __stl2::move(first2), __stl2::move(last2),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 
   template <ForwardRange Rng1, ForwardRange Rng2,
             class Pred = equal_to<>, class Proj = identity>
-    requires __icr<Pred, iterator_t<Rng2>, projected<iterator_t<Rng1>, Proj>>
+  requires
+    models::IndirectCallableRelation<
+      __f<Pred>, iterator_t<Rng2>, projected<iterator_t<Rng1>, __f<Proj>>>
   safe_iterator_t<Rng1>
-  find_end(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{}, Proj&& proj = Proj{}) {
+  find_end(Rng1&& rng1, Rng2&& rng2,
+           Pred&& pred = Pred{}, Proj&& proj = Proj{})
+  {
     return __stl2::find_end(
       __stl2::begin(rng1), __stl2::end(rng1),
       __stl2::begin(rng2), __stl2::end(rng2),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
+
+  // Holding off on initializer_list overloads for now; this
+  // overload set is already very fragile.
 } STL2_CLOSE_NAMESPACE
 
 #endif

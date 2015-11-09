@@ -28,11 +28,15 @@
 // minmax_element [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-  template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallableStrictWeakOrder<projected<I, Proj>> Comp = less<>>
+  template <ForwardIterator I, Sentinel<I> S,
+            class Comp = less<>, class Proj = identity>
+  requires
+    models::IndirectCallableStrictWeakOrder<
+      __f<Comp>, projected<I, __f<Proj>>>
   STL2_CONSTEXPR_EXT tagged_pair<tag::min(I), tag::max(I)>
-  minmax_element(I first, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
-    tagged_pair<tag::min(I), tag::max(I)> result{first, first};
+  minmax_element(I first, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+  {
+    auto result = tagged_pair<tag::min(I), tag::max(I)>{first, first};
     if (first == last || ++first == last) {
       return result;
     }
@@ -73,11 +77,29 @@ STL2_OPEN_NAMESPACE {
     return result;
   }
 
-  template <ForwardRange Rng, class Proj = identity,
-            IndirectCallableStrictWeakOrder<projected<iterator_t<Rng>, Proj>> Comp = less<>>
+  template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
+  requires
+    models::IndirectCallableStrictWeakOrder<
+      __f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
   STL2_CONSTEXPR_EXT tagged_pair<tag::min(safe_iterator_t<Rng>),
                                  tag::max(safe_iterator_t<Rng>)>
-  minmax_element(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+  minmax_element(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
+    return __stl2::minmax_element(__stl2::begin(rng), __stl2::end(rng),
+                                  __stl2::forward<Comp>(comp),
+                                  __stl2::forward<Proj>(proj));
+  }
+
+  // Extension
+  template <class E, class Comp = less<>, class Proj = identity>
+  requires
+    models::IndirectCallableStrictWeakOrder<
+      __f<Comp>, projected<const E*, __f<Proj>>>
+  STL2_CONSTEXPR_EXT tagged_pair<tag::min(dangling<const E*>),
+                                 tag::max(dangling<const E*>)>
+  minmax_element(std::initializer_list<E>&& rng,
+                 Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
     return __stl2::minmax_element(__stl2::begin(rng), __stl2::end(rng),
                                   __stl2::forward<Comp>(comp),
                                   __stl2::forward<Proj>(proj));

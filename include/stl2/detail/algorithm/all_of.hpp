@@ -25,9 +25,12 @@
 // all_of [alg.all_of]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<projected<I, Proj>> Pred>
-  bool all_of(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{}) {
+  template <InputIterator I, Sentinel<I> S,
+            class Pred, class Proj = identity>
+  requires
+    IndirectCallablePredicate<__f<Pred>, projected<I, __f<Proj>>>()
+  bool all_of(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
+  {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     for (; first != last; ++first) {
@@ -38,17 +41,24 @@ STL2_OPEN_NAMESPACE {
     return true;
   }
 
-  template <InputRange R, class Proj = identity,
-            IndirectCallablePredicate<projected<iterator_t<R>, Proj>> Pred>
-  bool all_of(R&& rng, Pred&& pred, Proj&& proj = Proj{}) {
+  template <InputRange R, class Pred, class Proj = identity>
+  requires
+    IndirectCallablePredicate<
+      __f<Pred>, projected<iterator_t<R>, __f<Proj>>>()
+  bool all_of(R&& rng, Pred&& pred, Proj&& proj = Proj{})
+  {
     return __stl2::all_of(__stl2::begin(rng), __stl2::end(rng),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 
   // Extension
-  template <class E, class Proj = identity,
-            IndirectCallablePredicate<projected<const E*, Proj>> Pred>
-  bool all_of(std::initializer_list<E> il, Pred&& pred, Proj&& proj = Proj{}) {
+  template <class E, class Pred, class Proj = identity>
+  requires
+    IndirectCallablePredicate<
+      __f<Pred>, projected<const E*, __f<Proj>>>()
+  bool all_of(std::initializer_list<E> il,
+              Pred&& pred, Proj&& proj = Proj{})
+  {
     return __stl2::all_of(il.begin(), il.end(),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }

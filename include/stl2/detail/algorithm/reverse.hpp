@@ -47,7 +47,8 @@ STL2_OPEN_NAMESPACE {
     // Complexity: n moves + n / 2 swaps
     Permutable{I}
     I reverse_n_with_half_buffer(I first, const difference_type_t<I> n,
-                                 temporary_buffer<value_type_t<I>>& buf) {
+                                 temporary_buffer<value_type_t<I>>& buf)
+    {
       // Precondition: $\property{mutable\_counted\_range}(first, n)$
       STL2_ASSUME(n / 2 <= buf.size());
 
@@ -73,7 +74,8 @@ STL2_OPEN_NAMESPACE {
     // From EoP
     Permutable{I}
     I reverse_n_adaptive(I first, const difference_type_t<I> n,
-                         temporary_buffer<value_type_t<I>>& buf) {
+                         temporary_buffer<value_type_t<I>>& buf)
+    {
       // Precondition: $\property{mutable\_counted\_range}(first, n)$
       if (n < difference_type_t<I>(2)) {
         return __stl2::next(__stl2::move(first), n);
@@ -95,7 +97,8 @@ STL2_OPEN_NAMESPACE {
     }
 
     Permutable{I}
-    I reverse_n(I first, difference_type_t<I> n) {
+    I reverse_n(I first, difference_type_t<I> n)
+    {
       auto ufirst = ext::uncounted(first);
       using buf_t = temporary_buffer<value_type_t<decltype(ufirst)>>;
       // TODO: tune this threshold.
@@ -107,8 +110,9 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <BidirectionalIterator I>
-    requires Permutable<I>()
-  I reverse(I first, I last) {
+  requires Permutable<I>()
+  I reverse(I first, I last)
+  {
     auto m = last;
     while (first != m && first != --m) {
       __stl2::iter_swap(first, m);
@@ -118,8 +122,9 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <RandomAccessIterator I>
-    requires Permutable<I>()
-  I reverse(I first, I last) {
+  requires Permutable<I>()
+  I reverse(I first, I last)
+  {
     if (first != last) {
       auto m = last;
       while (first < --m) {
@@ -132,14 +137,16 @@ STL2_OPEN_NAMESPACE {
   
   // Extension
   template <Permutable I, Sentinel<I> S>
-  I reverse(I first, S last) {
+  I reverse(I first, S last)
+  {
     auto n = __stl2::distance(first, __stl2::move(last));
     return detail::reverse_n(__stl2::move(first), n);
   }
   
   template <Permutable I, Sentinel<I> S>
-    requires BidirectionalIterator<I>()
-  I reverse(I first, S last) {
+  requires BidirectionalIterator<I>()
+  I reverse(I first, S last)
+  {
     auto bound = __stl2::next(first, __stl2::move(last));
     return __stl2::reverse(__stl2::move(first), __stl2::move(bound));
   }
@@ -147,13 +154,15 @@ STL2_OPEN_NAMESPACE {
   // Extension
   template <ForwardRange Rng>
     requires Permutable<iterator_t<Rng>>()
-  safe_iterator_t<Rng> reverse(Rng&& rng) {
+  safe_iterator_t<Rng> reverse(Rng&& rng)
+  {
     return detail::reverse_n(__stl2::begin(rng), __stl2::distance(rng));
   }
 
   template <BidirectionalRange Rng>
     requires Permutable<iterator_t<Rng>>()
-  safe_iterator_t<Rng> reverse(Rng&& rng) {
+  safe_iterator_t<Rng> reverse(Rng&& rng)
+  {
     return __stl2::reverse(__stl2::begin(rng), __stl2::end(rng));
   }
 } STL2_CLOSE_NAMESPACE

@@ -17,6 +17,7 @@
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/functional/invoke.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // Function Concepts [concepts.lib.function]
@@ -29,15 +30,22 @@ STL2_OPEN_NAMESPACE {
   constexpr bool __function = false;
   template <class F, class...Args>
     requires requires (F& f, Args&&...args) {
-      f((Args&&)args...);
+      __stl2::invoke(f, (Args&&)args...);
     }
   constexpr bool __function<F, Args...> = true;
 
+  // FIXME: remove this transitional paranoia check.
+  template <class T>
+  constexpr bool __force_non_reference() {
+    static_assert(!is_reference<T>::value);
+    return true;
+  }
+
   template <class F, class...Args>
   concept bool Function() {
-    return CopyConstructible<decay_t<F>>() &&
-      Constructible<decay_t<F>, F&&>() &&
-      __function<decay_t<F>, Args...>;
+    return __force_non_reference<F>() &&
+      CopyConstructible<F>() &&
+      __function<F, Args...>;
   }
 
   namespace models {
@@ -46,13 +54,6 @@ STL2_OPEN_NAMESPACE {
     __stl2::Function{F, ...Args}
     constexpr bool Function<F, Args...> = true;
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // result_t [Extension]
-  //
-  Function{F, ...Args}
-  using result_t =
-    decltype(declval<decay_t<F>&>()(declval<Args>()...));
 
   ///////////////////////////////////////////////////////////////////////////
   // RegularFunction [concepts.lib.functions.regularfunction]
@@ -75,7 +76,7 @@ STL2_OPEN_NAMESPACE {
   template <class F, class...Args>
   concept bool Predicate() {
     return RegularFunction<F, Args...>() &&
-      Boolean<result_t<F, Args...>>();
+      Boolean<result_of_t<F&(Args...)>>();
   }
 
   namespace models {

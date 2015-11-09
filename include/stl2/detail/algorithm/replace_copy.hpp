@@ -22,11 +22,14 @@
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class T1, class T2,
             WeakOutputIterator<T2> O, class Proj = identity>
-    requires IndirectlyCopyable<I, O>() &&
-      IndirectCallableRelation<equal_to<>, projected<I, Proj>, const T1*>()
+  requires
+    models::IndirectlyCopyable<I, O> &&
+    models::IndirectCallableRelation<
+      equal_to<>, projected<I, __f<Proj>>, const T1*>
   tagged_pair<tag::in(I), tag::out(O)>
   replace_copy(I first, S last, O result, const T1& old_value,
-               const T2& new_value, Proj&& proj_ = Proj{}) {
+               const T2& new_value, Proj&& proj_ = Proj{})
+  {
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     for (; first != last; ++first, ++result) {
@@ -41,14 +44,37 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputRange Rng, class T1, class T2,
-            WeakOutputIterator<T2> O, class Proj = identity>
-    requires IndirectlyCopyable<iterator_t<Rng>, O>() &&
-      IndirectCallableRelation<equal_to<>, projected<iterator_t<Rng>, Proj>, const T1 *>()
-  tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
-  replace_copy(Rng&& rng, O result, const T1& old_value,
-               const T2& new_value, Proj&& proj = Proj{}) {
-    return __stl2::replace_copy(__stl2::begin(rng), __stl2::end(rng),
-      __stl2::move(result), old_value, new_value, __stl2::forward<Proj>(proj));
+            class O, class Proj = identity>
+  requires
+    WeakOutputIterator<__f<O>, T2>() &&
+    models::IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
+    models::IndirectCallableRelation<
+      equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T1*>
+  tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
+  replace_copy(Rng&& rng, O&& result, const T1& old_value,
+               const T2& new_value, Proj&& proj = Proj{})
+  {
+    return __stl2::replace_copy(
+      __stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result),
+      old_value, new_value, __stl2::forward<Proj>(proj));
+  }
+
+  // Extension
+  template <class E, class T1, class T2,
+            class O, class Proj = identity>
+  requires
+    WeakOutputIterator<__f<O>, T2>() &&
+    models::IndirectlyCopyable<const E*, __f<O>> &&
+    models::IndirectCallableRelation<
+      equal_to<>, projected<const E*, __f<Proj>>, const T1*>
+  tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
+  replace_copy(std::initializer_list<E>&& rng,
+               O&& result, const T1& old_value,
+               const T2& new_value, Proj&& proj = Proj{})
+  {
+    return __stl2::replace_copy(
+      __stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result),
+      old_value, new_value, __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
 

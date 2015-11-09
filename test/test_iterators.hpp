@@ -112,8 +112,9 @@ std::ptrdiff_t operator-(I<It> end, sentinel<It, true> begin)
 
 template<typename It>
 inline constexpr
-std::ptrdiff_t operator-(sentinel<It, true>, sentinel<It, true>)
+std::ptrdiff_t operator-(sentinel<It, true> x, sentinel<It, true> y)
 {
+    STL2_ASSUME(x == y);
     return 0;
 }
 

@@ -33,10 +33,12 @@
 //
 STL2_OPEN_NAMESPACE {
   namespace detail {
-    template <RandomAccessIterator I, class Proj,
-              IndirectCallableStrictWeakOrder<projected<I, Proj>,
-                                              projected<I, Proj>> Comp>
-    void sift_up_n(I first, difference_type_t<I> n, Comp&& comp_, Proj&& proj_) {
+    template <RandomAccessIterator I, class Comp, class Proj>
+    requires
+      IndirectCallableStrictWeakOrder<__f<Comp>,
+          projected<I, __f<Proj>>, projected<I, __f<Proj>>>()
+    void sift_up_n(I first, difference_type_t<I> n, Comp&& comp_, Proj&& proj_)
+    {
       if (n > 1) {
         auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
         auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
@@ -59,10 +61,12 @@ STL2_OPEN_NAMESPACE {
       }
     }
 
-    template <RandomAccessIterator I, class Proj,
-              IndirectCallableStrictWeakOrder<projected<I, Proj>,
-                                              projected<I, Proj>> Comp>
-    void sift_down_n(I first, difference_type_t<I> n, I start, Comp&& comp_, Proj&& proj_)
+    template <RandomAccessIterator I, class Comp, class Proj>
+    requires
+      IndirectCallableStrictWeakOrder<__f<Comp>,
+        projected<I, __f<Proj>>, projected<I, __f<Proj>>>()
+    void sift_down_n(I first, difference_type_t<I> n, I start,
+                     Comp&& comp_, Proj&& proj_)
     {
       // left-child of start is at 2 * start + 1
       // right-child of start is at 2 * start + 2

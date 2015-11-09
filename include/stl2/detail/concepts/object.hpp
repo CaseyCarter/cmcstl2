@@ -13,7 +13,43 @@
 #ifndef STL2_DETAIL_CONCEPTS_OBJECT_HPP
 #define STL2_DETAIL_CONCEPTS_OBJECT_HPP
 
+#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/semiregular.hpp>
 #include <stl2/detail/concepts/regular.hpp>
+
+STL2_OPEN_NAMESPACE {
+  ///////////////////////////////////////////////////////////////////////////
+  // __f [Implementation detail, at least for now]
+  //
+  // Utility alias that simplifies the specification of forwarding functions
+  // whose target will eventually accept a parameter by value. E.g., the
+  // range overload of find:
+  //
+  //   template<InputRange Rng, class T, class Proj = identity>
+  //     requires IndirectCallableRelation<equal_to<>,
+  //                projected<iterator_t<Rng>, Proj>, const T*>()
+  //   safe_iterator_t<Rng>
+  //   find(Rng&& rng, const T& value, Proj proj = Proj{});
+  //
+  // can be implemented to perfect-forward to the iterator overload as:
+  //
+  //   template<InputRange Rng, class T, class Proj = identity>
+  //     requires IndirectCallableRelation<equal_to<>,
+  //                projected<iterator_t<Rng>, __f<Proj>>, // NW: __f<Proj>
+  //                const T*>()
+  //   safe_iterator_t<Rng>
+  //   find(Rng&& rng, const T& value, Proj&& proj = Proj{}) {
+  //     return find(begin(rng), end(rng), value, forward<Proj>(proj));
+  //   }
+  //
+  // __f<Proj> is an alias for the decayed type that will eventually
+  // be used in the target function, and its constraints ensure that
+  // the decayed type can in fact be constructed from the actual type.
+  //
+  template <class T>
+    requires Constructible<decay_t<T>, T>()
+  using __f = decay_t<T>;
+} STL2_CLOSE_NAMESPACE
 
 #endif

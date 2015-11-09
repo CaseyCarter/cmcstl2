@@ -33,9 +33,12 @@
 // partition [alg.partitions]
 //
 STL2_OPEN_NAMESPACE {
-  template <Permutable I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<projected<I, Proj>> Pred>
-  I partition(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{}) {
+  template <Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
+  requires
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<I, __f<Proj>>>
+  I partition(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
+  {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     first = __stl2::find_if_not(__stl2::move(first), last,
@@ -51,10 +54,13 @@ STL2_OPEN_NAMESPACE {
     return first;
   }
 
-  template <Permutable I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<projected<I, Proj>> Pred>
-    requires BidirectionalIterator<I>()
-  I partition(I first, S last_, Pred&& pred_, Proj&& proj_ = Proj{}) {
+  template <Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
+  requires
+    BidirectionalIterator<I>() &&
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<I, __f<Proj>>>
+  I partition(I first, S last_, Pred&& pred_, Proj&& proj_ = Proj{})
+  {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     auto last = __stl2::next(first, __stl2::move(last_));
@@ -75,10 +81,14 @@ STL2_OPEN_NAMESPACE {
     return first;
   }
 
-  template <ForwardRange Rng, class Proj = identity,
-            IndirectCallablePredicate<projected<iterator_t<Rng>, Proj>> Pred>
-    requires Permutable<iterator_t<Rng>>()
-  safe_iterator_t<Rng> partition(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
+  template <ForwardRange Rng, class Pred, class Proj = identity>
+  requires
+    Permutable<iterator_t<Rng>>() &&
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+  safe_iterator_t<Rng>
+  partition(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+  {
     return __stl2::partition(__stl2::begin(rng), __stl2::end(rng),
              __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }

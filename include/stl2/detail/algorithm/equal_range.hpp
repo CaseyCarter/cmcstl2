@@ -24,26 +24,50 @@
 // TODO: optimize this to perform the LB and UB probes simultaneously.
 //
 STL2_OPEN_NAMESPACE {
-  template <ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
-            IndirectCallableStrictWeakOrder<const T*, projected<I, Proj>> Comp = less<>>
+  template <ForwardIterator I, Sentinel<I> S, class T,
+            class Comp = less<>, class Proj = identity>
+  requires
+    IndirectCallableStrictWeakOrder<
+      __f<Comp>, const T*, projected<I, __f<Proj>>>()
   tagged_pair<tag::begin(I), tag::end(I)>
   equal_range(I first, S last, const T& value,
-              Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
+              Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+  {
     auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    auto lb = __stl2::lower_bound(__stl2::move(first), last, value,
+    auto ub = __stl2::upper_bound(first, __stl2::move(last), value,
                                   __stl2::ref(comp), __stl2::ref(proj));
-    auto ub = __stl2::upper_bound(lb, __stl2::move(last), value,
+    auto lb = __stl2::lower_bound(__stl2::move(first), ub, value,
                                   __stl2::ref(comp), __stl2::ref(proj));
     return {__stl2::move(lb), __stl2::move(ub)};
   }
 
-  template <ForwardRange Rng, class T, class Proj = identity,
-            IndirectCallableStrictWeakOrder<const T*,
-              projected<iterator_t<Rng>, Proj>> Comp = less<>>
-  tagged_pair<tag::begin(safe_iterator_t<Rng>), tag::end(safe_iterator_t<Rng>)>
-  equal_range(Rng&& rng, const T& value, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
-    return __stl2::equal_range(__stl2::begin(rng), __stl2::end(rng), value,
+  template <ForwardRange Rng, class T,
+            class Comp = less<>, class Proj = identity>
+  requires
+    IndirectCallableStrictWeakOrder<
+      __f<Comp>, const T*, projected<iterator_t<Rng>, __f<Proj>>>()
+  tagged_pair<tag::begin(safe_iterator_t<Rng>),
+              tag::end(safe_iterator_t<Rng>)>
+  equal_range(Rng&& rng, const T& value,
+              Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
+    return __stl2::equal_range(
+      __stl2::begin(rng), __stl2::end(rng), value,
+      __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+  }
+
+  // Extension
+  template <class E, class T, class Comp = less<>, class Proj = identity>
+  requires
+    IndirectCallableStrictWeakOrder<
+      __f<Comp>, const T*, projected<const E*, __f<Proj>>>()
+  tagged_pair<tag::begin(dangling<const E*>),
+              tag::end(dangling<const E*>)>
+  equal_range(std::initializer_list<E>&& rng, const T& value,
+              Comp&& comp = Comp{}, Proj&& proj = Proj{})
+  {
+    return __stl2::equal_range(rng, value,
       __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE
