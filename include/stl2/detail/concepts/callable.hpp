@@ -22,7 +22,6 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/function.hpp>
 #include <stl2/detail/concepts/object.hpp>
-#include <stl2/detail/functional/callable_wrapper.hpp>
 
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////

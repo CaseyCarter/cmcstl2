@@ -34,18 +34,12 @@
 //
 STL2_OPEN_NAMESPACE {
   namespace __search {
-#define STL2_DIRTY_SPEED_HACK 1
-#if STL2_DIRTY_SPEED_HACK
-    template <class I1, class S1, class I2, class S2, class Pred,
-              class Proj1, class Proj2>
-#else
     template <ForwardIterator I1, Sentinel<I1> S1,
               ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
               class Proj1 = identity, class Proj2 = identity>
     requires
       models::IndirectlyComparable<
         I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
-#endif
     I1 unsized(I1 first1, S1 last1, I2 first2, S2 last2,
                Pred&& pred_, Proj1&& proj1_, Proj2&& proj2_)
     {
@@ -78,17 +72,12 @@ STL2_OPEN_NAMESPACE {
       return first1;
     }
 
-#if STL2_DIRTY_SPEED_HACK
-    template <class I1, class S1, class I2, class S2,
-              class Pred, class Proj1, class Proj2>
-#else
     template <ForwardIterator I1, Sentinel<I1> S1,
               ForwardIterator I2, Sentinel<I2> S2,
               class Pred, class Proj1, class Proj2>
     requires
       models::IndirectlyComparable<
         I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
-#endif
     I1 sized(
       const I1 first1_, S1 last1, const difference_type_t<I1> d1_,
       I2 first2, S2 last2, const difference_type_t<I2> d2,
@@ -117,7 +106,6 @@ STL2_OPEN_NAMESPACE {
       }
       return __stl2::next(ext::recounted(first1_, first1, d1_ - d1), last1);
     }
-#undef STL2_DIRTY_SPEED_HACK
   }
 
   template <ForwardIterator I1, Sentinel<I1> S1,

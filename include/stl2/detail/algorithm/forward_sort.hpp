@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
                      __stl2::default_sentinel{},
                      __stl2::back_inserter(vec));
         return __stl2::merge_move(
-          vec,
+          __stl2::begin(vec), __stl2::end(vec),
           __stl2::make_counted_iterator(__stl2::move(f1), n1),
           __stl2::default_sentinel{},
           __stl2::move(f0), __stl2::ref(comp),
