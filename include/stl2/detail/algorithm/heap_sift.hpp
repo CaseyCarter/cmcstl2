@@ -35,8 +35,8 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     template <RandomAccessIterator I, class Comp, class Proj>
     requires
-      IndirectCallableStrictWeakOrder<__f<Comp>,
-          projected<I, __f<Proj>>, projected<I, __f<Proj>>>()
+      models::IndirectCallableStrictWeakOrder<__f<Comp>,
+        projected<I, __f<Proj>>, projected<I, __f<Proj>>>
     void sift_up_n(I first, difference_type_t<I> n, Comp&& comp_, Proj&& proj_)
     {
       if (n > 1) {
@@ -63,8 +63,8 @@ STL2_OPEN_NAMESPACE {
 
     template <RandomAccessIterator I, class Comp, class Proj>
     requires
-      IndirectCallableStrictWeakOrder<__f<Comp>,
-        projected<I, __f<Proj>>, projected<I, __f<Proj>>>()
+      models::IndirectCallableStrictWeakOrder<__f<Comp>,
+        projected<I, __f<Proj>>, projected<I, __f<Proj>>>
     void sift_down_n(I first, difference_type_t<I> n, I start,
                      Comp&& comp_, Proj&& proj_)
     {

@@ -26,9 +26,9 @@ STL2_OPEN_NAMESPACE {
   template <RandomAccessIterator I, Sentinel<I> S, class Gen,
             class D = difference_type_t<I>>
   requires
-    Permutable<I>() &&
-    ConvertibleTo<result_of_t<Gen&()>, D>() &&
-    UniformRandomNumberGenerator<remove_reference_t<Gen>>()
+    models::Permutable<I> &&
+    models::ConvertibleTo<result_of_t<Gen&()>, D> &&
+    models::UniformRandomNumberGenerator<remove_reference_t<Gen>>
   I shuffle(I first, S last_, Gen&& g)
   {
     I last = __stl2::next(first, last_);
@@ -51,9 +51,9 @@ STL2_OPEN_NAMESPACE {
   template <RandomAccessRange Rng, class Gen,
             class D = difference_type_t<iterator_t<Rng>>>
   requires
-    Permutable<iterator_t<Rng>>() &&
-    ConvertibleTo<result_of_t<Gen&()>, D>() &&
-    UniformRandomNumberGenerator<remove_reference_t<Gen>>()
+    models::Permutable<iterator_t<Rng>> &&
+    models::ConvertibleTo<result_of_t<Gen&()>, D> &&
+    models::UniformRandomNumberGenerator<remove_reference_t<Gen>>
   safe_iterator_t<Rng> shuffle(Rng&& rng, Gen&& g)
   {
     return  __stl2::shuffle(__stl2::begin(rng), __stl2::end(rng),

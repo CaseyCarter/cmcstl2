@@ -24,7 +24,8 @@
 STL2_OPEN_NAMESPACE {
   template <BidirectionalIterator I1, Sentinel<I1> S1,
             BidirectionalIterator I2>
-  requires IndirectlyCopyable<I1, I2>()
+  requires
+    models::IndirectlyCopyable<I1, I2>
   tagged_pair<tag::in(I1), tag::out(I2)>
   copy_backward(I1 first, S1 sent, I2 out)
   {
@@ -37,8 +38,9 @@ STL2_OPEN_NAMESPACE {
   }
 
   template<BidirectionalRange Rng, class I>
-  requires BidirectionalIterator<__f<I>>() &&
-    IndirectlyCopyable<iterator_t<Rng>, __f<I>>()
+  requires
+    models::BidirectionalIterator<__f<I>> &&
+    models::IndirectlyCopyable<iterator_t<Rng>, __f<I>>
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<I>)>
   copy_backward(Rng&& rng, I&& result)
   {
@@ -49,8 +51,9 @@ STL2_OPEN_NAMESPACE {
 
   // Extension
   template<class E, class I>
-  requires BidirectionalIterator<__f<I>>() &&
-    IndirectlyCopyable<const E*, __f<I>>()
+  requires
+    models::BidirectionalIterator<__f<I>> &&
+    models::IndirectlyCopyable<const E*, __f<I>>
   tagged_pair<tag::in(dangling<const E*>), tag::out(__f<I>)>
   copy_backward(std::initializer_list<E>&& rng, I&& result)
   {

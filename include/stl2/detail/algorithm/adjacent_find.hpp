@@ -25,7 +25,8 @@ STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class Pred = equal_to<>,
             class Proj = identity>
   requires
-    IndirectCallableRelation<__f<Pred>, projected<I, __f<Proj>>>()
+    models::IndirectCallableRelation<
+      __f<Pred>, projected<I, __f<Proj>>>
   I adjacent_find(I first, S last,
                   Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{})
   {
@@ -47,8 +48,8 @@ STL2_OPEN_NAMESPACE {
 
   template <ForwardRange Rng, class Pred = equal_to<>, class Proj = identity>
   requires
-    IndirectCallableRelation<
-      __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>()
+    models::IndirectCallableRelation<
+      __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
   safe_iterator_t<Rng>
   adjacent_find(Rng&& rng, Pred&& pred = Pred{}, Proj&& proj = Proj{})
   {
@@ -60,8 +61,8 @@ STL2_OPEN_NAMESPACE {
   // Extension
   template <class E, class Pred = equal_to<>, class Proj = identity>
   requires
-    IndirectCallableRelation<
-      __f<Pred>, projected<const E*, __f<Proj>>>()
+    models::IndirectCallableRelation<
+      __f<Pred>, projected<const E*, __f<Proj>>>
   dangling<const E*>
   adjacent_find(std::initializer_list<E>&& rng,
                 Pred&& pred = Pred{}, Proj&& proj = Proj{})

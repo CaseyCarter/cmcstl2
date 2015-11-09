@@ -22,7 +22,8 @@
 //
 STL2_OPEN_NAMESPACE {
   template <BidirectionalIterator I, Sentinel<I> S, WeaklyIncrementable O>
-  requires models::IndirectlyMovable<I, O>
+  requires
+    models::IndirectlyMovable<I, O>
   tagged_pair<tag::in(I), tag::out(O)>
   reverse_move(I first, S last, O result)
   {

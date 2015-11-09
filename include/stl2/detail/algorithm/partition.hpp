@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 
   template <Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
   requires
-    BidirectionalIterator<I>() &&
+    models::BidirectionalIterator<I> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<I, __f<Proj>>>
   I partition(I first, S last_, Pred&& pred_, Proj&& proj_ = Proj{})
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 
   template <ForwardRange Rng, class Pred, class Proj = identity>
   requires
-    Permutable<iterator_t<Rng>>() &&
+    models::Permutable<iterator_t<Rng>> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
   safe_iterator_t<Rng>

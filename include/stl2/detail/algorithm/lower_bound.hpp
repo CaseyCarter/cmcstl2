@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
   namespace ext {
     template <class I, class T, class Comp = less<>, class Proj = identity>
     requires
-      ForwardIterator<__f<I>>() &&
+      models::ForwardIterator<__f<I>> &&
       models::IndirectCallableStrictWeakOrder<
         __f<Comp>, const T*, projected<__f<I>, __f<Proj>>>
     __f<I> lower_bound_n(I&& first, difference_type_t<__f<I>> n,
@@ -54,8 +54,8 @@ STL2_OPEN_NAMESPACE {
   template <class I, class S, class T,
             class Comp = less<>, class Proj = identity>
   requires
-    ForwardIterator<__f<I>>() &&
-    Sentinel<__f<S>, __f<I>>() &&
+    models::ForwardIterator<__f<I>> &&
+    models::Sentinel<__f<S>, __f<I>> &&
     models::IndirectCallableStrictWeakOrder<
       __f<Comp>, const T*, projected<__f<I>, __f<Proj>>>
   __f<I> lower_bound(I&& first, S&& last, const T& value,
@@ -70,8 +70,9 @@ STL2_OPEN_NAMESPACE {
   template <class I, class S, class T,
             class Comp = less<>, class Proj = identity>
   requires
-    ForwardIterator<__f<I>>() &&
-    SizedIteratorRange<__f<I>, __f<S>>() &&
+    models::SizedIteratorRange<__f<I>, __f<S>> &&
+    models::ForwardIterator<__f<I>> &&
+    models::Sentinel<__f<S>, __f<I>> &&
     models::IndirectCallableStrictWeakOrder<
       __f<Comp>, const T*, projected<__f<I>, __f<Proj>>>
   __f<I> lower_bound(I&& first_, S&& last, const T& value,
@@ -99,7 +100,7 @@ STL2_OPEN_NAMESPACE {
   template <ForwardRange Rng, class T,
             class Comp = less<>, class Proj = identity>
   requires
-    SizedRange<Rng>() &&
+    models::SizedRange<Rng> &&
     models::IndirectCallableStrictWeakOrder<
       __f<Comp>, const T*, projected<iterator_t<Rng>, __f<Proj>>>
   safe_iterator_t<Rng>

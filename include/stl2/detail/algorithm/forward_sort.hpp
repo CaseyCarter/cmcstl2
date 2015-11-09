@@ -48,7 +48,9 @@ STL2_OPEN_NAMESPACE {
       template <class I>
       using buf_t = temporary_buffer<value_type_t<I>>;
 
-      Sortable{I, Comp, Proj}
+      template <class I, class Comp, class Proj>
+      requires
+        models::Sortable<I, Comp, Proj>
       inline I merge_n_with_buffer(I f0, difference_type_t<I> n0,
                                    I f1, difference_type_t<I> n1,
                                    buf_t<I>& buf, Comp& comp, Proj& proj)
@@ -66,7 +68,9 @@ STL2_OPEN_NAMESPACE {
           __stl2::ref(proj), __stl2::ref(proj)).out();
       }
 
-      Sortable{I, Comp, Proj}
+      template <class I, class Comp, class Proj>
+      requires
+        models::Sortable<I, Comp, Proj>
       inline void merge_n_step_0(I f0, difference_type_t<I> n0,
                                  I f1, difference_type_t<I> n1,
                                  Comp& comp, Proj& proj,
@@ -87,7 +91,9 @@ STL2_OPEN_NAMESPACE {
         n1_1 = n1 - n0_1;
       }
 
-      Sortable{I, Comp, Proj}
+      template <class I, class Comp, class Proj>
+      requires
+        models::Sortable<I, Comp, Proj>
       inline void merge_n_step_1(I f0, difference_type_t<I> n0,
                                  I f1, difference_type_t<I> n1,
                                  Comp& comp, Proj& proj,
@@ -108,7 +114,9 @@ STL2_OPEN_NAMESPACE {
         n1_1 = n1 - n0_1 - 1;
       }
 
-      Sortable{I, Comp, Proj}
+      template <class I, class Comp, class Proj>
+      requires
+        models::Sortable<I, Comp, Proj>
       I merge_n_adaptive(I f0, difference_type_t<I> n0,
                          I f1, difference_type_t<I> n1,
                          buf_t<I>& buf, Comp& comp, Proj& proj)
@@ -137,7 +145,9 @@ STL2_OPEN_NAMESPACE {
                                        buf, comp, proj);
       }
 
-      Sortable{I, Comp, Proj}
+      template <class I, class Comp, class Proj>
+      requires
+        models::Sortable<I, Comp, Proj>
       I sort_n_adaptive(I first, const difference_type_t<I> n, buf_t<I>& buf,
                         Comp& comp, Proj& proj)
       {
@@ -152,7 +162,8 @@ STL2_OPEN_NAMESPACE {
       }
 
       template <class I, class Comp = less<>, class Proj = identity>
-      requires Sortable<I, __f<Comp>, __f<Proj>>()
+      requires
+        models::Sortable<I, __f<Comp>, __f<Proj>>
       inline I sort_n(I first, const difference_type_t<I> n,
                       Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
       {

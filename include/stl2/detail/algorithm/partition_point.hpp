@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S,
             class Pred, class Proj = identity>
   requires
-    SizedIteratorRange<I, S>() &&
+    models::SizedIteratorRange<I, S> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<I, __f<Proj>>>
   I partition_point(I first, S last, Pred&& pred, Proj&& proj = Proj{})
@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
 
   template <ForwardRange Rng, class Pred, class Proj = identity>
   requires
-    SizedRange<Rng>() &&
+    models::SizedRange<Rng> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
   safe_iterator_t<Rng>

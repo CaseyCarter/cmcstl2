@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
             class T, class Proj = identity>
   requires
-    IndirectlyCopyable<I, O>() &&
+    models::IndirectlyCopyable<I, O> &&
     models::IndirectCallableRelation<
       equal_to<>, projected<I, __f<Proj>>, const T*>
   tagged_pair<tag::in(I), tag::out(O)>
@@ -45,8 +45,8 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng, class O, class T, class Proj = identity>
   requires
-    WeaklyIncrementable<__f<O>>() &&
-    IndirectlyCopyable<iterator_t<Rng>, __f<O>>() &&
+    models::WeaklyIncrementable<__f<O>> &&
+    models::IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
     models::IndirectCallableRelation<
       equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T*>
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
@@ -59,8 +59,8 @@ STL2_OPEN_NAMESPACE {
   // Extension
   template <class E, class O, class T, class Proj = identity>
   requires
-    WeaklyIncrementable<__f<O>>() &&
-    IndirectlyCopyable<const E*, __f<O>>() &&
+    models::WeaklyIncrementable<__f<O>> &&
+    models::IndirectlyCopyable<const E*, __f<O>> &&
     models::IndirectCallableRelation<
       equal_to<>, projected<const E*, __f<Proj>>, const T*>
   tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>

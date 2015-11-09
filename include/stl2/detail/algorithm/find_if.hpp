@@ -25,7 +25,8 @@ STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S,
             class Pred, class Proj = identity>
   requires
-    IndirectCallablePredicate<__f<Pred>, projected<I, __f<Proj>>>()
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<I, __f<Proj>>>
   I find_if(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
   {
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
@@ -40,8 +41,8 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng, class Pred, class Proj = identity>
   requires
-    IndirectCallablePredicate<
-      __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>()
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
   safe_iterator_t<Rng>
   find_if(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
   {
@@ -52,8 +53,8 @@ STL2_OPEN_NAMESPACE {
   // Extension
   template <class E, class Pred, class Proj = identity>
   requires
-    IndirectCallablePredicate<
-      __f<Pred>, projected<const E*, __f<Proj>>>()
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<const E*, __f<Proj>>>
   dangling<const E*>
   find_if(std::initializer_list<E>&& il, Pred&& pred, Proj&& proj = Proj{})
   {

@@ -27,8 +27,8 @@ STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class T,
             class Comp = less<>, class Proj = identity>
   requires
-    IndirectCallableStrictWeakOrder<
-      __f<Comp>, const T*, projected<I, __f<Proj>>>()
+    models::IndirectCallableStrictWeakOrder<
+      __f<Comp>, const T*, projected<I, __f<Proj>>>
   tagged_pair<tag::begin(I), tag::end(I)>
   equal_range(I first, S last, const T& value,
               Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
@@ -45,8 +45,8 @@ STL2_OPEN_NAMESPACE {
   template <ForwardRange Rng, class T,
             class Comp = less<>, class Proj = identity>
   requires
-    IndirectCallableStrictWeakOrder<
-      __f<Comp>, const T*, projected<iterator_t<Rng>, __f<Proj>>>()
+    models::IndirectCallableStrictWeakOrder<
+      __f<Comp>, const T*, projected<iterator_t<Rng>, __f<Proj>>>
   tagged_pair<tag::begin(safe_iterator_t<Rng>),
               tag::end(safe_iterator_t<Rng>)>
   equal_range(Rng&& rng, const T& value,
@@ -60,8 +60,8 @@ STL2_OPEN_NAMESPACE {
   // Extension
   template <class E, class T, class Comp = less<>, class Proj = identity>
   requires
-    IndirectCallableStrictWeakOrder<
-      __f<Comp>, const T*, projected<const E*, __f<Proj>>>()
+    models::IndirectCallableStrictWeakOrder<
+      __f<Comp>, const T*, projected<const E*, __f<Proj>>>
   tagged_pair<tag::begin(dangling<const E*>),
               tag::end(dangling<const E*>)>
   equal_range(std::initializer_list<E>&& rng, const T& value,

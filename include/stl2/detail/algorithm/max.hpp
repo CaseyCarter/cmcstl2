@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
   namespace __max {
     template <InputRange Rng, class Comp, class Proj>
     requires
-      Copyable<value_type_t<iterator_t<Rng>>>() &&
+      models::Copyable<value_type_t<iterator_t<Rng>>> &&
       models::IndirectCallableStrictWeakOrder<
         __f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
     constexpr value_type_t<iterator_t<Rng>>
@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 
   template <InputRange Rng, class Comp = less<>, class Proj = identity>
   requires
-    Copyable<value_type_t<iterator_t<Rng>>>() &&
+    models::Copyable<value_type_t<iterator_t<Rng>>> &&
     models::IndirectCallableStrictWeakOrder<
       __f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
   STL2_CONSTEXPR_EXT value_type_t<iterator_t<Rng>>

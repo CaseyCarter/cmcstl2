@@ -26,7 +26,8 @@ STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O1,
             WeaklyIncrementable O2, class Pred, class Proj = identity>
   requires
-    IndirectlyMovable<I, O1>() && IndirectlyMovable<I, O2>() &&
+    models::IndirectlyMovable<I, O1> &&
+    models::IndirectlyMovable<I, O2> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<I, __f<Proj>>>
   tagged_tuple<tag::in(I), tag::out1(O1), tag::out2(O2)>
@@ -52,10 +53,10 @@ STL2_OPEN_NAMESPACE {
   template <InputRange Rng, class O1, class O2,
             class Pred, class Proj = identity>
   requires
-    WeaklyIncrementable<__f<O1>>() &&
-    WeaklyIncrementable<__f<O2>>() &&
-    IndirectlyMovable<iterator_t<Rng>, __f<O1>>() &&
-    IndirectlyMovable<iterator_t<Rng>, __f<O2>>() &&
+    models::WeaklyIncrementable<__f<O1>> &&
+    models::WeaklyIncrementable<__f<O2>> &&
+    models::IndirectlyMovable<iterator_t<Rng>, __f<O1>> &&
+    models::IndirectlyMovable<iterator_t<Rng>, __f<O2>> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
   tagged_tuple<
@@ -75,10 +76,10 @@ STL2_OPEN_NAMESPACE {
   template <class E, class O1, class O2,
             class Pred, class Proj = identity>
   requires
-    WeaklyIncrementable<__f<O1>>() &&
-    WeaklyIncrementable<__f<O2>>() &&
-    IndirectlyMovable<const E*, __f<O1>>() &&
-    IndirectlyMovable<const E*, __f<O2>>() &&
+    models::WeaklyIncrementable<__f<O1>> &&
+    models::WeaklyIncrementable<__f<O2>> &&
+    models::IndirectlyMovable<const E*, __f<O1>> &&
+    models::IndirectlyMovable<const E*, __f<O2>> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<const E*, __f<Proj>>>
   tagged_tuple<

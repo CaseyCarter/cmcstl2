@@ -22,18 +22,19 @@
 ///////////////////////////////////////////////////////////////////////////
 // for_each [alg.for_each]
 // Not to spec: with the proxy iterator changes in place, IndirectCallable
-//              is severely overconstraining for for_each:
-//              * functions that accept the reference type for a mutable
-//                "lvalue" sequence are rejected
-//              * functions that do accept all of IndirectCallable's
-//                required parameter types but don't return types with a
-//                common reference are rejected
-//              and this despite the fact that for_each is guaranteed to
-//              only ever call f(proj(*i)) and discard the return value.
+//   is severely overconstraining for for_each:
+//   * functions that accept the reference type for a mutable "lvalue"
+//     sequence are rejected
+//   * functions that do accept all of IndirectCallable's required
+//     parameter types but don't return types with a common reference are
+//     rejected despite the fact that for_each is guaranteed to only ever
+//     call f(proj(*i)) and discard the return value.
 //
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class F, class Proj = identity>
-  requires Function<__f<F>, reference_t<projected<I, __f<Proj>>>>()
+  requires
+    models::Function<
+      __f<F>, reference_t<projected<I, __f<Proj>>>>
   tagged_pair<tag::in(I), tag::fun(__f<F>)>
   for_each(I first, S last, F&& fun_, Proj&& proj_ = Proj{})
   {
@@ -46,8 +47,9 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputRange Rng, class F, class Proj = identity>
-  requires Function<
-    __f<F>, reference_t<projected<iterator_t<Rng>, __f<Proj>>>>()
+  requires
+    models::Function<
+      __f<F>, reference_t<projected<iterator_t<Rng>, __f<Proj>>>>
   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::fun(__f<F>)>
   for_each(Rng&& rng, F&& f, Proj&& proj = Proj{})
   {
@@ -57,8 +59,9 @@ STL2_OPEN_NAMESPACE {
 
   // Extension
   template <class E, class F, class Proj = identity>
-  requires Function<
-    __f<F>, reference_t<projected<const E*, __f<Proj>>>>()
+  requires
+    models::Function<
+      __f<F>, reference_t<projected<const E*, __f<Proj>>>>
   tagged_pair<tag::in(dangling<const E*>), tag::fun(__f<F>)>
   for_each(std::initializer_list<E>&& il, F&& f, Proj&& proj = Proj{})
   {

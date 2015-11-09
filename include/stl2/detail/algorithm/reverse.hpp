@@ -45,7 +45,9 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     // An adaptation of the EoP algorithm reverse_n_with_buffer
     // Complexity: n moves + n / 2 swaps
-    Permutable{I}
+    template <class I>
+    requires
+      models::Permutable<I>
     I reverse_n_with_half_buffer(I first, const difference_type_t<I> n,
                                  temporary_buffer<value_type_t<I>>& buf)
     {
@@ -72,7 +74,9 @@ STL2_OPEN_NAMESPACE {
     }
 
     // From EoP
-    Permutable{I}
+    template <class I>
+    requires
+      models::Permutable<I>
     I reverse_n_adaptive(I first, const difference_type_t<I> n,
                          temporary_buffer<value_type_t<I>>& buf)
     {
@@ -96,7 +100,9 @@ STL2_OPEN_NAMESPACE {
                                  __stl2::move(first2)).in2();
     }
 
-    Permutable{I}
+    template <class I>
+    requires
+      models::Permutable<I>
     I reverse_n(I first, difference_type_t<I> n)
     {
       auto ufirst = ext::uncounted(first);
@@ -110,7 +116,8 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <BidirectionalIterator I>
-  requires Permutable<I>()
+  requires
+    models::Permutable<I>
   I reverse(I first, I last)
   {
     auto m = last;
@@ -122,7 +129,8 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <RandomAccessIterator I>
-  requires Permutable<I>()
+  requires
+    models::Permutable<I>
   I reverse(I first, I last)
   {
     if (first != last) {
@@ -144,7 +152,8 @@ STL2_OPEN_NAMESPACE {
   }
   
   template <Permutable I, Sentinel<I> S>
-  requires BidirectionalIterator<I>()
+  requires
+    models::BidirectionalIterator<I>
   I reverse(I first, S last)
   {
     auto bound = __stl2::next(first, __stl2::move(last));
@@ -153,14 +162,16 @@ STL2_OPEN_NAMESPACE {
 
   // Extension
   template <ForwardRange Rng>
-    requires Permutable<iterator_t<Rng>>()
+  requires
+    models::Permutable<iterator_t<Rng>>
   safe_iterator_t<Rng> reverse(Rng&& rng)
   {
     return detail::reverse_n(__stl2::begin(rng), __stl2::distance(rng));
   }
 
   template <BidirectionalRange Rng>
-    requires Permutable<iterator_t<Rng>>()
+  requires
+    models::Permutable<iterator_t<Rng>>
   safe_iterator_t<Rng> reverse(Rng&& rng)
   {
     return __stl2::reverse(__stl2::begin(rng), __stl2::end(rng));

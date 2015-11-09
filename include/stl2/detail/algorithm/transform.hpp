@@ -27,7 +27,9 @@ STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
             class F, class Proj = identity>
   requires
-    Writable<O, indirect_result_of_t<__f<F>&(projected<I, __f<Proj>>)>>()
+    models::Writable<O,
+      indirect_result_of_t<__f<F>&(
+        projected<I, __f<Proj>>)>>
   tagged_pair<tag::in(I), tag::out(O)>
   transform(I first, S last, O result, F&& op_, Proj&& proj_ = Proj{})
   {
@@ -40,10 +42,11 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputRange R, class O, class F, class Proj = identity>
-  requires WeaklyIncrementable<__f<O>>() &&
-    Writable<__f<O>,
+  requires
+    models::WeaklyIncrementable<__f<O>> &&
+    models::Writable<__f<O>,
       indirect_result_of_t<__f<F>&(
-        projected<iterator_t<R>, __f<Proj>>)>>()
+        projected<iterator_t<R>, __f<Proj>>)>>
   tagged_pair<tag::in(safe_iterator_t<R>), tag::out(__f<O>)>
   transform(R&& r, O&& result, F&& op_, Proj&& proj_ = Proj{})
   {
@@ -54,10 +57,11 @@ STL2_OPEN_NAMESPACE {
 
   // Extension
   template <class E, class O, class F, class Proj = identity>
-  requires WeaklyIncrementable<__f<O>>() &&
-    Writable<__f<O>,
+  requires
+    models::WeaklyIncrementable<__f<O>> &&
+    models::Writable<__f<O>,
       indirect_result_of_t<__f<F>&(
-        projected<const E*, __f<Proj>>)>>()
+        projected<const E*, __f<Proj>>)>>
   tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
   transform(std::initializer_list<E>&& r, O&& result,
             F&& op_, Proj&& proj_ = Proj{})
@@ -73,9 +77,11 @@ STL2_OPEN_NAMESPACE {
   [[deprecated]] tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
   transform(I1 first1, S1 last1, I2 first2, O result,
             F&& op_, Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
-  requires Writable<O, indirect_result_of_t<__f<F>&(
-                         projected<I1, __f<Proj1>>,
-                         projected<I2, __f<Proj2>>)>>()
+  requires
+    models::Writable<O,
+      indirect_result_of_t<__f<F>&(
+        projected<I1, __f<Proj1>>,
+        projected<I2, __f<Proj2>>)>>
   {
     auto op = ext::make_callable_wrapper(__stl2::forward<F>(op_));
     auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
@@ -94,10 +100,11 @@ STL2_OPEN_NAMESPACE {
   transform(Rng&& r1, I&& first2, O&& result, F&& op_,
             Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
   requires
-    WeakInputIterator<__f<I>>() &&
-    Writable<__f<O>, indirect_result_of_t<__f<F>&(
-                       projected<iterator_t<Rng>, __f<Proj1>>,
-                       projected<__f<I>, __f<Proj2>>)>>()
+    models::WeakInputIterator<__f<I>> &&
+    models::Writable<__f<O>,
+      indirect_result_of_t<__f<F>&(
+        projected<iterator_t<Rng>, __f<Proj1>>,
+        projected<__f<I>, __f<Proj2>>)>>
   {
     return __stl2::transform(
       __stl2::begin(r1), __stl2::end(r1),
@@ -111,9 +118,10 @@ STL2_OPEN_NAMESPACE {
             WeaklyIncrementable O, class F,
             class Proj1 = identity, class Proj2 = identity>
   requires
-    Writable<O, indirect_result_of_t<__f<F>&(
-                  projected<I1, __f<Proj1>>,
-                  projected<I2, __f<Proj2>>)>>()
+    models::Writable<O,
+      indirect_result_of_t<__f<F>&(
+        projected<I1, __f<Proj1>>,
+        projected<I2, __f<Proj2>>)>>
   tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
   transform(I1 first1, S1 last1, I2 first2, S2 last2, O result,
             F&& op_, Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
@@ -130,10 +138,11 @@ STL2_OPEN_NAMESPACE {
   template <InputRange Rng1, InputRange Rng2, class O, class F,
             class Proj1 = identity, class Proj2 = identity>
   requires
-    WeaklyIncrementable<__f<O>>() &&
-    Writable<__f<O>, indirect_result_of_t<__f<F>&(
-                       projected<iterator_t<Rng1>, __f<Proj1>>,
-                       projected<iterator_t<Rng2>, __f<Proj2>>)>>()
+    models::WeaklyIncrementable<__f<O>> &&
+    models::Writable<__f<O>,
+      indirect_result_of_t<__f<F>&(
+        projected<iterator_t<Rng1>, __f<Proj1>>,
+        projected<iterator_t<Rng2>, __f<Proj2>>)>>
   tagged_tuple<
     tag::in1(safe_iterator_t<Rng1>),
     tag::in2(safe_iterator_t<Rng2>),
@@ -153,10 +162,11 @@ STL2_OPEN_NAMESPACE {
   template <class E, InputRange Rng2, class O, class F,
             class Proj1 = identity, class Proj2 = identity>
   requires
-    WeaklyIncrementable<__f<O>>() &&
-    Writable<__f<O>, indirect_result_of_t<__f<F>&(
-                       projected<const E*, __f<Proj1>>,
-                       projected<iterator_t<Rng2>, __f<Proj2>>)>>()
+    models::WeaklyIncrementable<__f<O>> &&
+    models::Writable<__f<O>,
+      indirect_result_of_t<__f<F>&(
+        projected<const E*, __f<Proj1>>,
+        projected<iterator_t<Rng2>, __f<Proj2>>)>>
   tagged_tuple<
     tag::in1(dangling<const E*>),
     tag::in2(safe_iterator_t<Rng2>),
@@ -177,10 +187,11 @@ STL2_OPEN_NAMESPACE {
   template <InputRange Rng1, class E, class O, class F,
             class Proj1 = identity, class Proj2 = identity>
   requires
-    WeaklyIncrementable<__f<O>>() &&
-    Writable<__f<O>, indirect_result_of_t<__f<F>&(
-                       projected<iterator_t<Rng1>, __f<Proj1>>,
-                       projected<const E*, __f<Proj2>>)>>()
+    models::WeaklyIncrementable<__f<O>> &&
+    models::Writable<__f<O>,
+      indirect_result_of_t<__f<F>&(
+        projected<iterator_t<Rng1>, __f<Proj1>>,
+        projected<const E*, __f<Proj2>>)>>
   tagged_tuple<
     tag::in1(safe_iterator_t<Rng1>),
     tag::in2(dangling<const E*>),
@@ -201,10 +212,11 @@ STL2_OPEN_NAMESPACE {
   template <class E1, class E2, class O, class F,
             class Proj1 = identity, class Proj2 = identity>
   requires
-    WeaklyIncrementable<__f<O>>() &&
-    Writable<__f<O>, indirect_result_of_t<__f<F>&(
-                       projected<const E1*, __f<Proj1>>,
-                       projected<const E2*, __f<Proj2>>)>>()
+    models::WeaklyIncrementable<__f<O>> &&
+    models::Writable<__f<O>,
+      indirect_result_of_t<__f<F>&(
+        projected<const E1*, __f<Proj1>>,
+        projected<const E2*, __f<Proj2>>)>>
   tagged_tuple<
     tag::in1(dangling<const E1*>),
     tag::in2(dangling<const E2*>),

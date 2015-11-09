@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
   template <InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
             class Proj1 = identity, class Proj2 = identity>
   requires
-    WeaklyIncrementable<__f<O>>() &&
+    models::WeaklyIncrementable<__f<O>> &&
     models::Mergeable<
       iterator_t<Rng1>, iterator_t<Rng2>,
       __f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
@@ -99,7 +99,7 @@ STL2_OPEN_NAMESPACE {
   template <class E, InputRange Rng2, class O, class Comp = less<>,
             class Proj1 = identity, class Proj2 = identity>
   requires
-    WeaklyIncrementable<__f<O>>() &&
+    models::WeaklyIncrementable<__f<O>> &&
     models::Mergeable<
       const E*, iterator_t<Rng2>,
       __f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
@@ -121,7 +121,7 @@ STL2_OPEN_NAMESPACE {
   template <InputRange Rng1, class E, class O, class Comp = less<>,
             class Proj1 = identity, class Proj2 = identity>
   requires
-    WeaklyIncrementable<__f<O>>() &&
+    models::WeaklyIncrementable<__f<O>> &&
     models::Mergeable<
       iterator_t<Rng1>, const E*,
       __f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
   template <class E1, class E2, class O, class Comp = less<>,
             class Proj1 = identity, class Proj2 = identity>
   requires
-    WeaklyIncrementable<__f<O>>() &&
+    models::WeaklyIncrementable<__f<O>> &&
     models::Mergeable<
       const E1*, const E2*,
       __f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
