@@ -60,24 +60,29 @@ STL2_OPEN_NAMESPACE {
     using __iter_move_t =
       meta::if_<
         is_reference<reference_t<R>>,
-        remove_reference_t<reference_t<R>> &&,
+        remove_reference_t<reference_t<R>>&&,
         decay_t<reference_t<R>>>;
 
-    template <class R, detail::Dereferenceable _R = remove_reference_t<R>>
-    constexpr __iter_move_t<_R> iter_move(R&& r)
-      noexcept(noexcept(__iter_move_t<_R>(__stl2::move(*r)))) {
+    template <class R,
+      class Result = __iter_move_t<remove_reference_t<R>>>
+    constexpr Result iter_move(R&& r)
+      noexcept(noexcept(Result(__stl2::move(*r))))
+    {
       return __stl2::move(*r);
     }
 
     template <class R>
     constexpr bool can_iter_move = false;
     template <class R>
-      requires requires (R&& r) { { iter_move((R&&)r) } -> auto&&; }
+    requires
+      requires (R&& r) {
+        STL2_DEDUCE_AUTO_REF_REF(iter_move((R&&)r));
+      }
     constexpr bool can_iter_move<R> = true;
 
     struct fn {
       template <class R>
-        requires can_iter_move<R>
+      requires can_iter_move<R>
       constexpr decltype(auto) operator()(R&& r) const
       STL2_NOEXCEPT_RETURN(
         iter_move(__stl2::forward<R>(r))
@@ -172,10 +177,21 @@ STL2_OPEN_NAMESPACE {
       typename reference_t<I>;
       typename rvalue_reference_t<I>;
 
-      // Valid expressions
-      STL2_EXACT_TYPE_CONSTRAINT(*i, reference_t<I>);
-      STL2_EXACT_TYPE_CONSTRAINT(__stl2::iter_move(i), rvalue_reference_t<I>);
-    }
+      // Valid expressions (not checked as these are tautological)
+      // STL2_EXACT_TYPE_CONSTRAINT(*i, reference_t<I>);
+      // STL2_EXACT_TYPE_CONSTRAINT(__stl2::iter_move(i), rvalue_reference_t<I>);
+    } &&
+    // Relationships between associated types
+    models::CommonReference<reference_t<I>, value_type_t<I>&> &&
+    models::CommonReference<reference_t<I>, rvalue_reference_t<I>> &&
+    models::CommonReference<rvalue_reference_t<I>, const value_type_t<I>&> &&
+    // Extra sanity checks (not strictly needed)
+    models::Same<
+      CommonReferenceType<reference_t<I>, value_type_t<I>>,
+      value_type_t<I>> &&
+    models::Same<
+      CommonReferenceType<rvalue_reference_t<I>, value_type_t<I>>,
+      value_type_t<I>>
   constexpr bool __readable<I> = true;
 
   template <class I>
@@ -183,18 +199,7 @@ STL2_OPEN_NAMESPACE {
     return detail::Dereferenceable<I> &&
       Movable<I>() &&
       DefaultConstructible<I>() &&
-      __readable<I> &&
-      // Relationships between associated types
-      CommonReference<reference_t<I>, value_type_t<I>&>() &&
-      CommonReference<reference_t<I>, rvalue_reference_t<I>>() &&
-      CommonReference<rvalue_reference_t<I>, const value_type_t<I>&>() &&
-      // Extra sanity checks (not strictly needed)
-      Same<
-        CommonReferenceType<reference_t<I>, value_type_t<I>>,
-        value_type_t<I>>() &&
-      Same<
-        CommonReferenceType<rvalue_reference_t<I>, value_type_t<I>>,
-        value_type_t<I>>();
+      __readable<I>;
   }
 
   namespace models {
