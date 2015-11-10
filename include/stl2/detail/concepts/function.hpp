@@ -25,14 +25,15 @@
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // Function [concepts.lib.functions.function]
+  // Not to spec: Named callable, and accepts callables.
   //
   template <class F, class...Args>
-  constexpr bool __function = false;
+  constexpr bool __callable = false;
   template <class F, class...Args>
     requires requires (F& f, Args&&...args) {
       __stl2::invoke(f, (Args&&)args...);
     }
-  constexpr bool __function<F, Args...> = true;
+  constexpr bool __callable<F, Args...> = true;
 
   // FIXME: remove this transitional paranoia check.
   template <class T>
@@ -42,32 +43,33 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <class F, class...Args>
-  concept bool Function() {
+  concept bool Callable() {
     return __force_non_reference<F>() &&
       CopyConstructible<F>() &&
-      __function<F, Args...>;
+      __callable<F, Args...>;
   }
 
   namespace models {
     template <class, class...>
-    constexpr bool Function = false;
-    __stl2::Function{F, ...Args}
-    constexpr bool Function<F, Args...> = true;
+    constexpr bool Callable = false;
+    __stl2::Callable{F, ...Args}
+    constexpr bool Callable<F, Args...> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
   // RegularFunction [concepts.lib.functions.regularfunction]
+  // Not to spec: named RegularCallable
   //
   template <class F, class...Args>
-  concept bool RegularFunction() {
-    return Function<F, Args...>();
+  concept bool RegularCallable() {
+    return Callable<F, Args...>();
   }
 
   namespace models {
     template <class, class...>
-    constexpr bool RegularFunction = false;
-    __stl2::RegularFunction{F, ...Args}
-    constexpr bool RegularFunction<F, Args...> = true;
+    constexpr bool RegularCallable = false;
+    __stl2::RegularCallable{F, ...Args}
+    constexpr bool RegularCallable<F, Args...> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -75,7 +77,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <class F, class...Args>
   concept bool Predicate() {
-    return RegularFunction<F, Args...>() &&
+    return RegularCallable<F, Args...>() &&
       Boolean<result_of_t<F&(Args...)>>();
   }
 

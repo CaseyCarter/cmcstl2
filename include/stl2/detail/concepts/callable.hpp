@@ -44,8 +44,8 @@ STL2_OPEN_NAMESPACE {
       meta::uncurry<meta::on<ReduceFn, meta::uncurry<MapFn>>>,
       meta::quote<__iter_args_lists>>;
 
-  Function{F, ...Args}
-  using __function_result_t =
+  Callable{F, ...Args}
+  using __callable_result_t =
     result_of_t<F&(Args...)>;
 
   template <class F, class...Is>
@@ -54,13 +54,13 @@ STL2_OPEN_NAMESPACE {
       (Readable<Is>() &&...&& true) &&
       // The following 3 are checked redundantly, but are called out
       // specifically for better error messages on concept check failure.
-      Function<F, value_type_t<Is>...>() &&
-      Function<F, reference_t<Is>...>() &&
-      Function<F, iter_common_reference_t<Is>...>() &&
+      Callable<F, value_type_t<Is>...>() &&
+      Callable<F, reference_t<Is>...>() &&
+      Callable<F, iter_common_reference_t<Is>...>() &&
       // redundantly checks the above 3 requirements
       meta::_v<meta::apply<
         __iter_map_reduce_fn<
-          meta::bind_front<meta::quote<__function_result_t>, F>,
+          meta::bind_front<meta::quote<__callable_result_t>, F>,
           meta::quote<__common_reference>>,
         Is...>>;
   }
