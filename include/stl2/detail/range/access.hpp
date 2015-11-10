@@ -36,7 +36,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_member = false;
     template <class R>
       requires requires (R& r) {
-        // STL2_DEDUCTION_CONSTRAINT(r.begin(), Iterator);
         requires Iterator<__f<decltype(r.begin())>>();
       }
     constexpr bool has_member<R> = true;
@@ -45,7 +44,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_non_member = false;
     template <class R>
       requires requires (R& r) {
-        // STL2_DEDUCTION_CONSTRAINT(begin(r), Iterator);
         requires Iterator<__f<decltype(begin(r))>>();
       }
     constexpr bool has_non_member<R> = true;
@@ -104,7 +102,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_non_member = false;
     template <class R>
       requires requires (R& r) {
-        // { end(r) } -> Sentinel<decltype(__stl2::begin(r))>;
         requires Sentinel<__f<decltype(end(r))>,
                           decltype(__stl2::begin(r))>();
       }
@@ -193,9 +190,7 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_member = false;
     template <class R>
       requires requires (R& r) {
-        // { r.rbegin() } -> Iterator;
-        // STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
-        requires Iterator<__f<decltype(r.begin())>>();
+        requires Iterator<__f<decltype(r.rbegin())>>();
       }
     constexpr bool has_member<R> = true;
 
@@ -244,7 +239,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_member = false;
     template <class R>
       requires requires (R& r) {
-        // { r.rend() } -> Sentinel<decltype(__stl2::rbegin(r))>;
         requires Sentinel<__f<decltype(r.rend())>,
                           decltype(__stl2::rbegin(r))>();
       }
@@ -351,7 +345,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_member = false;
     template <class R>
       requires requires (const R& r) {
-        // STL2_DEDUCTION_CONSTRAINT(r.size(), Integral);
         requires Integral<__f<decltype(r.size())>>();
       }
     constexpr bool has_member<R> = true;
@@ -360,7 +353,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_non_member = false;
     template <class R>
       requires requires (const R& r) {
-        //STL2_DEDUCTION_CONSTRAINT(size(r), Integral);
         requires Integral<__f<decltype(size(r))>>();
       }
     constexpr bool has_non_member<R> = true;
@@ -464,7 +456,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_member = false;
     template <class R>
       requires requires (R& r) {
-        //{ r.data() } -> _Is<std::is_pointer>;
         requires _Is<__f<decltype(r.data())>, std::is_pointer>;
       }
     constexpr bool has_member<R> = true;

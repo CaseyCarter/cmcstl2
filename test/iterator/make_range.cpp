@@ -32,19 +32,6 @@ int main() {
     CHECK(!empty(r));
     CHECK(std::size_t(size(r)) == n);
     CHECK(data(r) == some_ints);
-
-    constexpr auto c = ext::make_range(some_ints, some_ints + n);
-    static_assert(begin(c) == begin(some_ints));
-    static_assert(end(c) == end(some_ints));
-    static_assert(!empty(c));
-    static_assert(size(c) == size(some_ints));
-    // static_assert(data(c) == data(some_ints)); // std::addressof is not constexpr.
-  }
-
-  {
-    int i;
-    auto r = ext::make_range(counted_iterator<int*>(&i, 1), default_sentinel{});
-    static_assert(sizeof(r) == sizeof(counted_iterator<int*>));
   }
 
   return test_result();

@@ -22,6 +22,7 @@
 #include <stl2/detail/algorithm/partition_move.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/range.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // stable_partition [alg.partitions]
@@ -49,7 +50,7 @@ STL2_OPEN_NAMESPACE {
                 IndirectCallablePredicate<projected<I, Proj>> Pred>
       requires
         models::Permutable<I>
-      tagged_pair<tag::begin(I), tag::end(I)>
+      ext::range<I>
       forward_buffer(I first, I next, difference_type_t<I> n,
                      buf_t<I>& buf, Pred& pred, Proj& proj)
       {
@@ -74,7 +75,7 @@ STL2_OPEN_NAMESPACE {
                 IndirectCallablePredicate<projected<I, Proj>> Pred>
       requires
         models::Permutable<I>
-      tagged_pair<tag::begin(I), tag::end(I)>
+      ext::range<I>
       forward_reduce(I first, difference_type_t<I> n,
                      buf_t<I>& buf, Pred& pred, Proj& proj);
 
@@ -82,7 +83,7 @@ STL2_OPEN_NAMESPACE {
                 IndirectCallablePredicate<projected<I, Proj>> Pred>
       requires
         models::Permutable<I>
-      tagged_pair<tag::begin(I), tag::end(I)>
+      ext::range<I>
       forward(I first, difference_type_t<I> n,
               buf_t<I>& buf, Pred& pred, Proj& proj)
       {
@@ -114,7 +115,7 @@ STL2_OPEN_NAMESPACE {
                 IndirectCallablePredicate<projected<I, Proj>> Pred>
       requires
         models::Permutable<I>
-      tagged_pair<tag::begin(I), tag::end(I)>
+      ext::range<I>
       forward_reduce(I first, difference_type_t<I> n,
                      buf_t<I>& buf, Pred& pred, Proj& proj)
       {

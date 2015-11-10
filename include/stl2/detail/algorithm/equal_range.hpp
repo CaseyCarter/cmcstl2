@@ -18,6 +18,7 @@
 #include <stl2/detail/algorithm/lower_bound.hpp>
 #include <stl2/detail/algorithm/upper_bound.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/range.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // equal_range [equal.range]
@@ -29,7 +30,7 @@ STL2_OPEN_NAMESPACE {
   requires
     models::IndirectCallableStrictWeakOrder<
       __f<Comp>, const T*, projected<I, __f<Proj>>>
-  tagged_pair<tag::begin(I), tag::end(I)>
+  ext::range<I>
   equal_range(I first, S last, const T& value,
               Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
   {
@@ -47,8 +48,7 @@ STL2_OPEN_NAMESPACE {
   requires
     models::IndirectCallableStrictWeakOrder<
       __f<Comp>, const T*, projected<iterator_t<Rng>, __f<Proj>>>
-  tagged_pair<tag::begin(safe_iterator_t<Rng>),
-              tag::end(safe_iterator_t<Rng>)>
+  ext::range<safe_iterator_t<Rng>>
   equal_range(Rng&& rng, const T& value,
               Comp&& comp = Comp{}, Proj&& proj = Proj{})
   {
@@ -62,8 +62,7 @@ STL2_OPEN_NAMESPACE {
   requires
     models::IndirectCallableStrictWeakOrder<
       __f<Comp>, const T*, projected<const E*, __f<Proj>>>
-  tagged_pair<tag::begin(dangling<const E*>),
-              tag::end(dangling<const E*>)>
+  ext::range<dangling<const E*>>
   equal_range(std::initializer_list<E>&& rng, const T& value,
               Comp&& comp = Comp{}, Proj&& proj = Proj{})
   {
