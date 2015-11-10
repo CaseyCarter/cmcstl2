@@ -74,14 +74,15 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // indirect_result_of [indirectcallables.indirectfunc]
-  // Not to spec: requires proper value category to be specified for F
-  //              for consistency with result_of_t.
-  template <class T>
+  //
+  template <class>
   struct indirect_result_of {};
 
-  IndirectCallable{F, ...Is}
-  struct indirect_result_of<F&(Is...)> :  // NW: F& instead of the specified F
-    result_of<F&(value_type_t<Is>...)> {};
+  // Not to spec: The function type must be decayed before being constrained.
+  template <class F, class...Is>
+    requires models::IndirectCallable<__f<F>, Is...>
+  struct indirect_result_of<F(Is...)> :
+    result_of<F(value_type_t<Is>...)> {};
 
   template <class T>
   using indirect_result_of_t =
