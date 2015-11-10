@@ -1,36 +1,37 @@
 #include <stl2/detail/temporary_vector.hpp>
 #include "../simple_test.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
-int main() {
-  using stl2::detail::temporary_buffer;
-  using stl2::detail::temporary_vector;
+namespace {
+  template <std::size_t alignment>
+  void test_single() {
+    using ranges::detail::temporary_buffer;
+    using ranges::detail::temporary_vector;
 
-  {
-    // test over-aligned buffer.
-    static constexpr std::size_t alignment = 2 * alignof(std::max_align_t);
     struct alignas(alignment) foo {
-      int stuff[alignment / sizeof(int) + 1];
+      char space[alignment + 1];
     };
     static_assert(alignof(foo) == alignment);
     static_assert(sizeof(foo) == 2 * alignment);
+
     auto buf = temporary_buffer<foo>{32};
     CHECK(buf.size() == 32);
-    auto address = reinterpret_cast<std::uintptr_t>(buf.data());
-    CHECK((address % alignment) == 0u);
+
+    // Verify alignment
+    void* const data = buf.data();
+    void* ptr = data;
+    std::size_t size = sizeof(foo);
+    CHECK(std::align(alignment, sizeof(foo), ptr, size) == data);
   }
 
-  {
-    // test REALLY over-aligned buffer.
-    static constexpr std::size_t alignment = 256;
-    struct alignas(alignment) foo { char c; };
-    static_assert(alignof(foo) == alignment);
-    auto buf = temporary_buffer<foo>{32};
-    CHECK(buf.size() == 32);
-    auto address = reinterpret_cast<std::uintptr_t>(buf.data());
-    CHECK((address % alignment) == 0u);
+  template <std::size_t...Sizes>
+  void test() {
+    (test_single<Sizes>(), ...);
   }
+}
 
+int main() {
+  test<1, 2, 4, 8, 16, 32, 64, 128>();
   return ::test_result();
 }
