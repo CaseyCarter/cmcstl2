@@ -328,55 +328,70 @@ STL2_OPEN_NAMESPACE {
     template <class R1, class R2>
     void iter_swap(R1&&, R2&&) = delete;
 
-    template <class R1, class R2,
-      Readable _R1 = remove_reference_t<R1>,
-      Readable _R2 = remove_reference_t<R2>>
-        requires Swappable<reference_t<_R1>, reference_t<_R2>>()
-    STL2_CONSTEXPR_EXT void iter_swap(R1&& r1, R2&& r2)
-      noexcept(is_nothrow_swappable_v<reference_t<_R1>, reference_t<_R2>>)
+    template <class R1, class R2>
+    constexpr bool has_customization = false;
+    template <class R1, class R2>
+    requires
+      requires (R1&& r1, R2&& r2) {
+        iter_swap((R1&&)r1, (R2&&)r2);
+      }
+    constexpr bool has_customization<R1, R2> = true;
+
+    template <class UR1, class UR2, class R1, class R2>
+    requires
+      has_customization<R1, R2>
+    constexpr void impl(R1&& r1, R2&& r2)
+    STL2_NOEXCEPT_RETURN(
+      (void)iter_swap(__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
+    )
+
+    template <class UR1, class UR2, class R1, class R2>
+    requires
+      !has_customization<R1, R2> &&
+      models::Swappable<reference_t<UR1>, reference_t<UR2>>
+    constexpr void impl(R1&& r1, R2&& r2)
+      noexcept(is_nothrow_swappable_v<reference_t<UR1>, reference_t<UR2>>)
     {
       __stl2::swap(*r1, *r2);
     }
 
-    template <class R1, class R2,
-      Readable _R1 = remove_reference_t<R1>,
-      Readable _R2 = remove_reference_t<R2>>
-        requires IndirectlyMovable<_R1, _R2>() &&
-          IndirectlyMovable<_R2, _R1>()
-    STL2_CONSTEXPR_EXT void iter_swap(R1&& r1, R2&& r2)
-      noexcept(is_nothrow_indirectly_movable_v<_R1, _R2> &&
-               is_nothrow_indirectly_movable_v<_R2, _R1>) {
-      value_type_t<_R1> tmp = __stl2::iter_move(r1);
+    template <class UR1, class UR2, class R1, class R2>
+    requires
+      !has_customization<R1, R2> &&
+      !models::Swappable<reference_t<UR1>, reference_t<UR2>> &&
+      models::IndirectlyMovable<UR1, UR2> &&
+      models::IndirectlyMovable<UR2, UR1>
+    constexpr void impl(R1&& r1, R2&& r2)
+      noexcept(is_nothrow_indirectly_movable_v<UR1, UR2> &&
+               is_nothrow_indirectly_movable_v<UR2, UR1>)
+    {
+      value_type_t<UR1> tmp = __stl2::iter_move(r1);
       *r1 = __stl2::iter_move(r2);
       *r2 = __stl2::move(tmp);
     }
 
-    template <class R1, class R2,
-      Readable _R1 = remove_reference_t<R1>,
-      Readable _R2 = remove_reference_t<R2>>
-        requires IndirectlyMovable<_R1, _R2>() &&
-          IndirectlyMovable<_R2, _R1>() &&
-          Swappable<reference_t<_R1>, reference_t<_R2>>()
-    STL2_CONSTEXPR_EXT void iter_swap(R1&& r1, R2&& r2)
-      noexcept(is_nothrow_swappable_v<reference_t<_R1>, reference_t<_R2>>)
-    {
-      __stl2::swap(*r1, *r2);
-    }
-
     template <class R1, class R2>
-    constexpr bool can_iter_swap2 = false;
+    constexpr bool has_impl = false;
     template <class R1, class R2>
-      requires requires (R1&& r1, R1&& r2) {
-        iter_swap((R1&&)r1, (R2&&)r2);
+    requires
+      requires (R1&& r1, R2&& r2) {
+        __iter_swap::impl<remove_reference_t<R1>,
+                          remove_reference_t<R2>>((R1&&)r1, (R2&&)r2);
       }
-    constexpr bool can_iter_swap2<R1, R2> = true;
+    constexpr bool has_impl<R1, R2> = true;
 
     struct fn {
-      template <class R1, class R2>
-        requires can_iter_swap2<R1, R2>
+      template <class R1, class R2,
+        class UR1 = remove_reference_t<R1>,
+        class UR2 = remove_reference_t<R2>>
+      requires
+        models::Readable<UR1> &&
+        models::Readable<UR2> &&
+        has_impl<R1, R2>
       constexpr void operator()(R1&& r1, R2&& r2) const
       STL2_NOEXCEPT_RETURN(
-        (void)iter_swap(__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
+        (void)__iter_swap::impl<UR1, UR2>(__stl2::forward<R1>(r1),
+                                          __stl2::forward<R2>(r2))
       )
     };
   }
@@ -387,30 +402,25 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // IndirectlySwappable [indirectlyswappable.iterators]
-  // Not to spec: Alternate formulation from the proxy iterator work.
+  // Not to spec: Alternate formulation from the proxy iterator work (P0022).
   //
-  template <class I1, class I2>
-  constexpr bool __indirectly_swappable = false;
-  template <class I1, class I2>
-    requires requires (I1 i1, I2 i2) {
-      __stl2::iter_swap(i1, i2);
-      __stl2::iter_swap(i2, i1);
-      __stl2::iter_swap(i1, i1);
-      __stl2::iter_swap(i2, i2);
-    }
-  constexpr bool __indirectly_swappable<I1, I2> = true;
-
-  template <class I1, class I2 = I1>
-  concept bool IndirectlySwappable() {
-    return Readable<I1>() && Readable<I2>() &&
-      __indirectly_swappable<I1, I2>;
-  }
-
   namespace models {
     template <class I1, class I2 = I1>
     constexpr bool IndirectlySwappable = false;
-    __stl2::IndirectlySwappable{I1, I2}
+    template <class I1, class I2>
+    requires
+      requires (I1 i1, I2 i2) {
+        __stl2::iter_swap(i1, i2);
+        __stl2::iter_swap(i2, i1);
+        __stl2::iter_swap(i1, i1);
+        __stl2::iter_swap(i2, i2);
+      }
     constexpr bool IndirectlySwappable<I1, I2> = true;
+  }
+
+  template <class I1, class I2 = I1>
+  concept bool IndirectlySwappable() {
+    return models::IndirectlySwappable<I1, I2>;
   }
 
   template <class R1, class R2>

@@ -45,6 +45,7 @@ STL2_OPEN_NAMESPACE {
     return ForwardIterator<I>() &&
       Movable<value_type_t<I>>() &&
       IndirectlyMovable<I, I>();
+      // FIXME: IndirectlySwappable<I, I>()?
   }
 
   namespace models {
