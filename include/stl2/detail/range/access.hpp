@@ -15,6 +15,7 @@
 #include <initializer_list>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>
 
@@ -35,7 +36,8 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_member = false;
     template <class R>
       requires requires (R& r) {
-        STL2_DEDUCTION_CONSTRAINT(r.begin(), Iterator);
+        // STL2_DEDUCTION_CONSTRAINT(r.begin(), Iterator);
+        requires Iterator<__f<decltype(r.begin())>>();
       }
     constexpr bool has_member<R> = true;
 
@@ -43,7 +45,8 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_non_member = false;
     template <class R>
       requires requires (R& r) {
-        STL2_DEDUCTION_CONSTRAINT(begin(r), Iterator);
+        // STL2_DEDUCTION_CONSTRAINT(begin(r), Iterator);
+        requires Iterator<__f<decltype(begin(r))>>();
       }
     constexpr bool has_non_member<R> = true;
 
@@ -92,7 +95,8 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_member = false;
     template <class R>
       requires requires (R& r) {
-        requires Sentinel<decltype(r.end()), decltype(__stl2::begin(r))>();
+        requires Sentinel<__f<decltype(r.end())>,
+                          decltype(__stl2::begin(r))>();
       }
     constexpr bool has_member<R> = true;
 
@@ -101,7 +105,8 @@ STL2_OPEN_NAMESPACE {
     template <class R>
       requires requires (R& r) {
         // { end(r) } -> Sentinel<decltype(__stl2::begin(r))>;
-        requires Sentinel<decltype(end(r)), decltype(__stl2::begin(r))>();
+        requires Sentinel<__f<decltype(end(r))>,
+                          decltype(__stl2::begin(r))>();
       }
     constexpr bool has_non_member<R> = true;
 
@@ -189,7 +194,8 @@ STL2_OPEN_NAMESPACE {
     template <class R>
       requires requires (R& r) {
         // { r.rbegin() } -> Iterator;
-        STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
+        // STL2_DEDUCTION_CONSTRAINT(r.rbegin(), Iterator);
+        requires Iterator<__f<decltype(r.begin())>>();
       }
     constexpr bool has_member<R> = true;
 
@@ -199,7 +205,8 @@ STL2_OPEN_NAMESPACE {
     constexpr bool can_make_reverse = false;
     template <class R>
       requires requires (R& r) {
-        requires Same<decltype(__stl2::begin(r)), decltype(__stl2::end(r))>();
+        requires Same<decltype(__stl2::begin(r)),
+                      decltype(__stl2::end(r))>();
         make_reverse_iterator(__stl2::end(r));
       }
     constexpr bool can_make_reverse<R> = true;
@@ -238,7 +245,8 @@ STL2_OPEN_NAMESPACE {
     template <class R>
       requires requires (R& r) {
         // { r.rend() } -> Sentinel<decltype(__stl2::rbegin(r))>;
-        requires Sentinel<decltype(r.rend()), decltype(__stl2::rbegin(r))>();
+        requires Sentinel<__f<decltype(r.rend())>,
+                          decltype(__stl2::rbegin(r))>();
       }
     constexpr bool has_member<R> = true;
 
@@ -246,7 +254,8 @@ STL2_OPEN_NAMESPACE {
     constexpr bool can_make_reverse = false;
     template <class R>
       requires requires (R& r) {
-        requires Same<decltype(__stl2::begin(r)), decltype(__stl2::end(r))>();
+        requires Same<decltype(__stl2::begin(r)),
+                      decltype(__stl2::end(r))>();
         make_reverse_iterator(__stl2::begin(r));
       }
     constexpr bool can_make_reverse<R> = true;
@@ -342,7 +351,8 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_member = false;
     template <class R>
       requires requires (const R& r) {
-        STL2_DEDUCTION_CONSTRAINT(r.size(), Integral);
+        // STL2_DEDUCTION_CONSTRAINT(r.size(), Integral);
+        requires Integral<__f<decltype(r.size())>>();
       }
     constexpr bool has_member<R> = true;
 
@@ -350,7 +360,8 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_non_member = false;
     template <class R>
       requires requires (const R& r) {
-        STL2_DEDUCTION_CONSTRAINT(size(r), Integral);
+        //STL2_DEDUCTION_CONSTRAINT(size(r), Integral);
+        requires Integral<__f<decltype(size(r))>>();
       }
     constexpr bool has_non_member<R> = true;
 
@@ -454,7 +465,7 @@ STL2_OPEN_NAMESPACE {
     template <class R>
       requires requires (R& r) {
         //{ r.data() } -> _Is<std::is_pointer>;
-        requires _Is<decltype(r.data()), std::is_pointer>;
+        requires _Is<__f<decltype(r.data())>, std::is_pointer>;
       }
     constexpr bool has_member<R> = true;
 
