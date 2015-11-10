@@ -45,9 +45,12 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     // An adaptation of the EoP algorithm reverse_n_with_buffer
     // Complexity: n moves + n / 2 swaps
-    Permutable{I}
-    I reverse_n_with_half_buffer(I first, const DifferenceType<I> n,
-                                 temporary_buffer<ValueType<I>>& buf) {
+    template <class I>
+    requires
+      models::Permutable<I>
+    I reverse_n_with_half_buffer(I first, const difference_type_t<I> n,
+                                 temporary_buffer<value_type_t<I>>& buf)
+    {
       // Precondition: $\property{mutable\_counted\_range}(first, n)$
       STL2_ASSUME(n / 2 <= buf.size());
 
@@ -63,7 +66,7 @@ STL2_OPEN_NAMESPACE {
       }
       // Swap the buffered elements in reverse order with the second half of
       // the input range.
-      auto ulast = __stl2::swap_ranges(__stl2::rbegin(vec), __stl2::rend(vec),
+      auto ulast = __swap_ranges::impl(__stl2::rbegin(vec), __stl2::rend(vec),
                                        __stl2::move(umiddle)).in2();
       // Shift the buffer contents into the first half of the input range.
       __stl2::move(vec, __stl2::move(ufirst));
@@ -71,11 +74,14 @@ STL2_OPEN_NAMESPACE {
     }
 
     // From EoP
-    Permutable{I}
-    I reverse_n_adaptive(I first, const DifferenceType<I> n,
-                         temporary_buffer<ValueType<I>>& buf) {
+    template <class I>
+    requires
+      models::Permutable<I>
+    I reverse_n_adaptive(I first, const difference_type_t<I> n,
+                         temporary_buffer<value_type_t<I>>& buf)
+    {
       // Precondition: $\property{mutable\_counted\_range}(first, n)$
-      if (n < DifferenceType<I>(2)) {
+      if (n < difference_type_t<I>(2)) {
         return __stl2::next(__stl2::move(first), n);
       }
 
@@ -90,16 +96,19 @@ STL2_OPEN_NAMESPACE {
         ++first2;
       }
       detail::reverse_n_adaptive(first2, half_n, buf);
-      return __stl2::swap_ranges(__stl2::move(first), __stl2::move(last1),
+      return __swap_ranges::impl(__stl2::move(first), __stl2::move(last1),
                                  __stl2::move(first2)).in2();
     }
 
-    Permutable{I}
-    I reverse_n(I first, DifferenceType<I> n) {
+    template <class I>
+    requires
+      models::Permutable<I>
+    I reverse_n(I first, difference_type_t<I> n)
+    {
       auto ufirst = ext::uncounted(first);
-      using buf_t = temporary_buffer<ValueType<decltype(ufirst)>>;
+      using buf_t = temporary_buffer<value_type_t<decltype(ufirst)>>;
       // TODO: tune this threshold.
-      static constexpr auto alloc_threshold = DifferenceType<I>(8);
+      static constexpr auto alloc_threshold = difference_type_t<I>(8);
       auto buf = n >= alloc_threshold ? buf_t{n / 2} : buf_t{};
       auto last = detail::reverse_n_adaptive(ufirst, n, buf);
       return ext::recounted(first, __stl2::move(last), n);
@@ -107,23 +116,27 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <BidirectionalIterator I>
-    requires Permutable<I>()
-  I reverse(I first, I last) {
+  requires
+    models::Permutable<I>
+  I reverse(I first, I last)
+  {
     auto m = last;
     while (first != m && first != --m) {
-      __stl2::iter_swap2(first, m);
+      __stl2::iter_swap(first, m);
       ++first;
     }
     return last;
   }
 
   template <RandomAccessIterator I>
-    requires Permutable<I>()
-  I reverse(I first, I last) {
+  requires
+    models::Permutable<I>
+  I reverse(I first, I last)
+  {
     if (first != last) {
       auto m = last;
       while (first < --m) {
-        __stl2::iter_swap2(first, m);
+        __stl2::iter_swap(first, m);
         ++first;
       }
     }
@@ -132,28 +145,35 @@ STL2_OPEN_NAMESPACE {
   
   // Extension
   template <Permutable I, Sentinel<I> S>
-  I reverse(I first, S last) {
+  I reverse(I first, S last)
+  {
     auto n = __stl2::distance(first, __stl2::move(last));
     return detail::reverse_n(__stl2::move(first), n);
   }
   
   template <Permutable I, Sentinel<I> S>
-    requires BidirectionalIterator<I>()
-  I reverse(I first, S last) {
+  requires
+    models::BidirectionalIterator<I>
+  I reverse(I first, S last)
+  {
     auto bound = __stl2::next(first, __stl2::move(last));
     return __stl2::reverse(__stl2::move(first), __stl2::move(bound));
   }
 
   // Extension
   template <ForwardRange Rng>
-    requires Permutable<IteratorType<Rng>>()
-  safe_iterator_t<Rng> reverse(Rng&& rng) {
+  requires
+    models::Permutable<iterator_t<Rng>>
+  safe_iterator_t<Rng> reverse(Rng&& rng)
+  {
     return detail::reverse_n(__stl2::begin(rng), __stl2::distance(rng));
   }
 
   template <BidirectionalRange Rng>
-    requires Permutable<IteratorType<Rng>>()
-  safe_iterator_t<Rng> reverse(Rng&& rng) {
+  requires
+    models::Permutable<iterator_t<Rng>>
+  safe_iterator_t<Rng> reverse(Rng&& rng)
+  {
     return __stl2::reverse(__stl2::begin(rng), __stl2::end(rng));
   }
 } STL2_CLOSE_NAMESPACE

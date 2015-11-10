@@ -22,9 +22,13 @@
 // none_of [alg.none_of]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
-  bool none_of(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{}) {
+  template <InputIterator I, Sentinel<I> S,
+            class Pred, class Proj = identity>
+  requires
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<I, __f<Proj>>>
+  bool none_of(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
+  {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     for (; first != last; ++first) {
@@ -35,18 +39,25 @@ STL2_OPEN_NAMESPACE {
     return true;
   }
 
-  template <InputRange Rng, class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
-  bool none_of(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
+  template <InputRange Rng, class Pred, class Proj = identity>
+  requires
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+  bool none_of(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+  {
     return __stl2::none_of(__stl2::begin(rng), __stl2::end(rng),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 
   // Extension
-  template <class E, class Proj = identity,
-            IndirectCallablePredicate<Projected<const E*, Proj>> Pred>
-  bool none_of(std::initializer_list<E> il, Pred&& pred, Proj&& proj = Proj{}) {
-    return __stl2::none_of(il.begin(), il.end(),
+  template <class E, class Pred, class Proj = identity>
+  requires
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<const E*, __f<Proj>>>
+  bool none_of(std::initializer_list<E>&& rng,
+               Pred&& pred, Proj&& proj = Proj{})
+  {
+    return __stl2::none_of(__stl2::begin(rng), __stl2::end(rng),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }
 } STL2_CLOSE_NAMESPACE

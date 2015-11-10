@@ -20,34 +20,42 @@
 #include <stl2/detail/concepts/core.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// copy [alg.copy]
+// shuffle [alg.random.shuffle]
 //
 STL2_OPEN_NAMESPACE {
-  template <RandomAccessIterator I, Sentinel<I> S, class Gen>
-    requires Permutable<I>() &&
-      ConvertibleTo<result_of_t<Gen&()>, DifferenceType<I>>() &&
-      UniformRandomNumberGenerator<remove_reference_t<Gen>>()
-  I shuffle(I first, S last_, Gen&& g) {
-    I last = __stl2::next(first, last_), orig = last;
-    DifferenceType<I> d = last - first;
+  template <RandomAccessIterator I, Sentinel<I> S, class Gen,
+            class D = difference_type_t<I>>
+  requires
+    models::Permutable<I> &&
+    models::ConvertibleTo<result_of_t<Gen&()>, D> &&
+    models::UniformRandomNumberGenerator<remove_reference_t<Gen>>
+  I shuffle(I first, S last_, Gen&& g)
+  {
+    I last = __stl2::next(first, last_);
+    I orig = last;
+    D d = last - first;
     if (d > 1) {
-      using param_t = typename uniform_int_distribution<DifferenceType<I>>::param_type;
-      uniform_int_distribution<DifferenceType<I>> uid;
+      using param_t =
+        typename uniform_int_distribution<D>::param_type;
+      uniform_int_distribution<D> uid;
       for (--last, --d; first < last; ++first, --d) {
         auto i = uid(g, param_t{0, d});
         if (i != 0) {
-          __stl2::iter_swap2(first, first + i);
+          __stl2::iter_swap(first, first + i);
         }
       }
     }
     return orig;
   }
 
-  template <RandomAccessRange Rng, class Gen>
-    requires Permutable<IteratorType<Rng>>() &&
-      ConvertibleTo<result_of_t<Gen&()>, DifferenceType<IteratorType<Rng>>>() &&
-      UniformRandomNumberGenerator<remove_reference_t<Gen>>()
-  safe_iterator_t<Rng> shuffle(Rng&& rng, Gen&& g) {
+  template <RandomAccessRange Rng, class Gen,
+            class D = difference_type_t<iterator_t<Rng>>>
+  requires
+    models::Permutable<iterator_t<Rng>> &&
+    models::ConvertibleTo<result_of_t<Gen&()>, D> &&
+    models::UniformRandomNumberGenerator<remove_reference_t<Gen>>
+  safe_iterator_t<Rng> shuffle(Rng&& rng, Gen&& g)
+  {
     return  __stl2::shuffle(__stl2::begin(rng), __stl2::end(rng),
                             __stl2::forward<Gen>(g));
   }

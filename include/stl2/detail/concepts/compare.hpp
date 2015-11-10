@@ -16,9 +16,7 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/core.hpp>
-
-// FIXME: Do a full build time comparison.
-#define STL2_BOOLEAN_BICONVERTIBLE 1
+#include <stl2/detail/concepts/semiregular.hpp>
 
 /////////////////////////////////////////////
 // Comparison Concepts [concepts.lib.compare]
@@ -26,61 +24,47 @@
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // Boolean [concepts.lib.compare.boolean]
+  // Not to spec: Boolean requires MoveConstructible
   //
-  namespace detail {
-    template <class B>
-    concept bool Boolean_() {
-      return requires (const B& b1, const B& b2, const bool a) {
-        // Requirements common to both Boolean and BooleanTestable.
-#if STL2_BOOLEAN_BICONVERTIBLE
-        STL2_BINARY_DEDUCTION_CONSTRAINT(b1, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(!b1, ConvertibleTo, bool);
-#else
-        {b1} -> bool;
-        {!b1} -> bool;
-#endif
-        STL2_EXACT_TYPE_CONSTRAINT(b1 && a, bool);
-        STL2_EXACT_TYPE_CONSTRAINT(b1 || a, bool);
+  template <class>
+  constexpr bool __boolean = false;
+  template <class B>
+    requires requires (const B& b1, const B& b2, const bool a) {
+      // Requirements common to both Boolean and BooleanTestable.
+      STL2_BINARY_DEDUCTION_CONSTRAINT(b1, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(!b1, ConvertibleTo, bool);
+      STL2_EXACT_TYPE_CONSTRAINT(b1 && a, bool);
+      STL2_EXACT_TYPE_CONSTRAINT(b1 || a, bool);
 
-        // Requirements of Boolean that are also be valid for
-        // BooleanTestable, but for which BooleanTestable does not
-        // require validation.
-        STL2_EXACT_TYPE_CONSTRAINT(b1 && b2, bool);
-        STL2_EXACT_TYPE_CONSTRAINT(a && b2, bool);
-        STL2_EXACT_TYPE_CONSTRAINT(b1 || b2, bool);
-        STL2_EXACT_TYPE_CONSTRAINT(a || b2, bool);
+      // Requirements of Boolean that are also be valid for
+      // BooleanTestable, but for which BooleanTestable does not
+      // require validation.
+      STL2_EXACT_TYPE_CONSTRAINT(b1 && b2, bool);
+      STL2_EXACT_TYPE_CONSTRAINT(a && b2, bool);
+      STL2_EXACT_TYPE_CONSTRAINT(b1 || b2, bool);
+      STL2_EXACT_TYPE_CONSTRAINT(a || b2, bool);
 
-        // Requirements of Boolean that are not required by
-        // BooleanTestable.
-#if STL2_BOOLEAN_BICONVERTIBLE
-        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 == b2, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 == a, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(a == b2, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 != b2, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(b1 != a, ConvertibleTo, bool);
-        STL2_BINARY_DEDUCTION_CONSTRAINT(a != b2, ConvertibleTo, bool);
-#else
-        {b1 == b2} -> bool;
-        {b1 == a} -> bool;
-        {a == b2} -> bool;
-        {b1 != b2} -> bool;
-        {b1 != a} -> bool;
-        {a != b2} -> bool;
-#endif
-      };
+      // Requirements of Boolean that are not required by
+      // BooleanTestable.
+      STL2_BINARY_DEDUCTION_CONSTRAINT(b1 == b2, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(b1 == a, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(a == b2, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(b1 != b2, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(b1 != a, ConvertibleTo, bool);
+      STL2_BINARY_DEDUCTION_CONSTRAINT(a != b2, ConvertibleTo, bool);
     }
+  constexpr bool __boolean<B> = true;
+
+  template <class B>
+  concept bool Boolean() {
+    return __boolean<B> && MoveConstructible<B>();
   }
 
   namespace models {
     template <class>
     constexpr bool Boolean = false;
-    __stl2::detail::Boolean_{T}
-    constexpr bool Boolean<T> = true;
-  }
-
-  template <class T>
-  concept bool Boolean() {
-    return models::Boolean<T>;
+    __stl2::Boolean{B}
+    constexpr bool Boolean<B> = true;
   }
 
   template <class T, class U>
@@ -152,7 +136,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // TotallyOrdered [concepts.lib.compare.totallyordered]
+  // StrictTotallyOrdered [concepts.lib.compare.stricttotallyordered]
   //
   template <class T, class U>
   constexpr bool __totally_ordered = false;
@@ -167,20 +151,20 @@ STL2_OPEN_NAMESPACE {
 
   namespace ext {
     ///////////////////////////////////////////////////////////////////////////
-    // WeaklyTotallyOrdered
-    // Extension: Equivalent to TotallyOrdered, except that it doesn't
+    // WeaklyStrictTotallyOrdered
+    // Extension: Equivalent to StrictTotallyOrdered, except that it doesn't
     //            cause compile errors if common_type is unspecialized.
     //
     template <class T>
-    concept bool WeaklyTotallyOrdered() {
+    concept bool WeaklyStrictTotallyOrdered() {
       return WeaklyEqualityComparable<T>() &&
         __totally_ordered<T, T>;
     }
 
     template <class T, class U>
-    concept bool WeaklyTotallyOrdered() {
-      return WeaklyTotallyOrdered<T>() &&
-        WeaklyTotallyOrdered<U>() &&
+    concept bool WeaklyStrictTotallyOrdered() {
+      return WeaklyStrictTotallyOrdered<T>() &&
+        WeaklyStrictTotallyOrdered<U>() &&
         WeaklyEqualityComparable<T, U>() &&
         __totally_ordered<T, U> &&
         __totally_ordered<U, T>;
@@ -189,40 +173,39 @@ STL2_OPEN_NAMESPACE {
 
   namespace models {
     template <class T, class U = T>
-    constexpr bool WeaklyTotallyOrdered = false;
-    __stl2::ext::WeaklyTotallyOrdered{T}
-    constexpr bool WeaklyTotallyOrdered<T, T> = true;
-    __stl2::ext::WeaklyTotallyOrdered{T, U}
-    constexpr bool WeaklyTotallyOrdered<T, U> = true;
+    constexpr bool WeaklyStrictTotallyOrdered = false;
+    __stl2::ext::WeaklyStrictTotallyOrdered{T}
+    constexpr bool WeaklyStrictTotallyOrdered<T, T> = true;
+    __stl2::ext::WeaklyStrictTotallyOrdered{T, U}
+    constexpr bool WeaklyStrictTotallyOrdered<T, U> = true;
   }
 
   template <class T>
-  concept bool TotallyOrdered() {
-    return ext::WeaklyTotallyOrdered<T>();
+  concept bool StrictTotallyOrdered() {
+    return ext::WeaklyStrictTotallyOrdered<T>();
   }
 
   template <class T, class U>
-  concept bool TotallyOrdered() {
-    return ext::WeaklyTotallyOrdered<T, U>() &&
+  concept bool StrictTotallyOrdered() {
+    return ext::WeaklyStrictTotallyOrdered<T, U>() &&
       CommonReference<const T&, const U&>() &&
-      TotallyOrdered<CommonType<T, U>>();
+      StrictTotallyOrdered<CommonType<T, U>>();
   }
 
   namespace models {
     template <class T, class U = T>
-    constexpr bool TotallyOrdered = false;
-    __stl2::TotallyOrdered{T}
-    constexpr bool TotallyOrdered<T, T> = true;
-    __stl2::TotallyOrdered{T, U}
-    constexpr bool TotallyOrdered<T, U> = true;
+    constexpr bool StrictTotallyOrdered = false;
+    __stl2::StrictTotallyOrdered{T}
+    constexpr bool StrictTotallyOrdered<T, T> = true;
+    __stl2::StrictTotallyOrdered{T, U}
+    constexpr bool StrictTotallyOrdered<T, U> = true;
 
-    // TotallyOrdered<Ts>() && ...
+    // StrictTotallyOrdered<Ts>() && ...
     template <class...Ts>
     constexpr bool AllTotallyOrdered = false;
-    template <__stl2::TotallyOrdered...Ts>
+    template <__stl2::StrictTotallyOrdered...Ts>
     constexpr bool AllTotallyOrdered<Ts...> = true;
   }
 } STL2_CLOSE_NAMESPACE
 
-#undef STL2_BOOLEAN_BICONVERTIBLE
 #endif

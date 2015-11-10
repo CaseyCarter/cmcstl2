@@ -32,11 +32,13 @@
 // next_permutation [alg.permutation.generators]
 //
 STL2_OPEN_NAMESPACE {
-  template <BidirectionalIterator I, Sentinel<I> S, class Comp = less<>,
-            class Proj = identity>
-    requires Sortable<I, Comp, Proj>()
+  template <BidirectionalIterator I, Sentinel<I> S,
+            class Comp = less<>, class Proj = identity>
+  requires
+    models::Sortable<I, __f<Comp>, __f<Proj>>
   bool next_permutation(I first, S last,
-                        Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
+                        Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+  {
     if (first == last) {
       return false;
     }
@@ -53,7 +55,7 @@ STL2_OPEN_NAMESPACE {
         while (!comp(proj(*i), proj(*--j))) {
           ;
         }
-        __stl2::iter_swap2(i, j);
+        __stl2::iter_swap(i, j);
         __stl2::reverse(ip1, end);
         return true;
       }
@@ -66,8 +68,11 @@ STL2_OPEN_NAMESPACE {
 
   template <BidirectionalRange Rng, class Comp = less<>,
             class Proj = identity>
-    requires Sortable<IteratorType<Rng>, Comp, Proj>()
-  bool next_permutation(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
+  requires
+    models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
+  bool next_permutation(Rng&& rng, Comp&& comp = Comp{},
+                        Proj&& proj = Proj{})
+  {
     return __stl2::next_permutation(__stl2::begin(rng), __stl2::end(rng),
                                     __stl2::forward<Comp>(comp),
                                     __stl2::forward<Proj>(proj));

@@ -78,5 +78,8 @@ int main()
     CHECK(count_if(make_range(input_iterator<T*>(ta),
                          sentinel<T*>(ta + size(ta))), &T::b) == 4);
 
+    CHECK(count_if({0, 1, 2, 2, 0, 1, 2, 3}, equals(2)) == 3);
+    CHECK(count_if({0, 1, 2, 2, 0, 1, 2, 3}, equals(42)) == 0);
+
     return ::test_result();
 }

@@ -18,7 +18,7 @@
 using namespace __stl2;
 
 namespace {
-  template <InputIterator I, Sentinel<I> S, WeakOutputIterator<ValueType<I>> O>
+  template <InputIterator I, Sentinel<I> S, WeakOutputIterator<value_type_t<I>> O>
   tagged_pair<tag::in(I), tag::out(O)>
   constexpr copy(I first, S last, O out) {
     for (; first != last; ++first, void(), ++out) {
@@ -27,7 +27,7 @@ namespace {
     return {first, out};
   }
 
-  template <InputRange R, class I = IteratorType<R>, WeakOutputIterator<ValueType<I>> O>
+  template <InputRange R, class I = iterator_t<R>, WeakOutputIterator<value_type_t<I>> O>
   constexpr tagged_pair<tag::in(safe_iterator_t<R>), tag::out(O)>
   copy(R&& range, O out) {
     return ::copy(__stl2::begin(range), __stl2::end(range), __stl2::move(out));

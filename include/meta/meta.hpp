@@ -104,6 +104,9 @@
 /// \defgroup lazy_list lazy
 /// \ingroup list
 
+/// \defgroup lazy_datatype lazy
+/// \ingroup datatype
+
 /// \defgroup lazy_math lazy
 /// \ingroup math
 
@@ -773,6 +776,7 @@ namespace meta
             using flip = defer<flip, F>;
         }
 
+        /// \cond
         namespace detail
         {
             template <typename...>
@@ -786,6 +790,7 @@ namespace meta
                 using apply = apply<F, apply<compose<Gs...>, Ts>...>;
             };
         }
+        /// \endcond
 
         /// Use as `on<F, Gs...>`. Creates an Alias Class that applies Alias Class \c F to the
         /// result of applying Alias Class `compose<Gs...>` to all the arguments.
@@ -895,9 +900,17 @@ namespace meta
 
         /// Logically and together all the Boolean parameters
         /// \ingroup logical
+#if (__GNUC__ == 5) && (__GNUC_MINOR__ == 1) && !defined(__clang__)
+        // Alternative formulation of and_c to workaround
+        // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66405
+        template <bool... Bools>
+        using and_c = std::is_same<integer_sequence<bool, true, Bools...>,
+                                   integer_sequence<bool, Bools..., true>>;
+#else
         template <bool... Bools>
         using and_c = std::is_same<integer_sequence<bool, Bools...>,
                                    integer_sequence<bool, (Bools || true)...>>;
+#endif
 
         /// Logically and together all the integral constant-wrapped Boolean parameters, \e without
         /// doing short-circuiting.
@@ -2255,26 +2268,51 @@ namespace meta
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////
+        // inherit
+        /// \cond
+        namespace detail
+        {
+            template<typename List>
+            struct inherit_
+            {
+            };
+
+            template<typename ...List>
+            struct inherit_<list<List...>> : List...
+            {
+                using type = inherit_;
+            };
+        }
+        /// \endcond
+
+        /// A type that inherits from all the types in the list
+        /// \pre The types in the list must be unique
+        /// \pre All the types in the list must be non-final class types
+        /// \ingroup datatype
+        template <typename List>
+        using inherit = meta::_t<detail::inherit_<List>>;
+
+        namespace lazy
+        {
+            /// \sa 'meta::inherit'
+            /// \ingroup lazy_datatype
+            template <typename List>
+            using inherit = defer<inherit, List>;
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
         // set
         // Used to improve the performance of \c meta::unique.
         /// \cond
         namespace detail
         {
-            template <typename... Nodes>
-            struct root_ : Nodes...
-            {
-            };
-
-            template <typename... Ts>
-            using set_ = root_<id<Ts>...>;
-
             template <typename Set, typename T>
             struct in_
             {
             };
 
             template <typename... Set, typename T>
-            struct in_<list<Set...>, T> : std::is_base_of<id<T>, set_<Set...>>
+            struct in_<list<Set...>, T> : std::is_base_of<id<T>, inherit<list<id<Set>...>>>
             {
             };
 

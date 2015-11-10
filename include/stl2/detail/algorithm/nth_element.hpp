@@ -34,41 +34,46 @@
 STL2_OPEN_NAMESPACE {
   namespace detail {
     // stable, 2-3 compares, 0-2 swaps
-    Sortable{I, C, P}
-    unsigned sort3(I x, I y, I z, C& comp, P& proj) {
+    template <class I, class C, class P>
+    requires
+      models::Sortable<I, C, P>
+    unsigned sort3(I x, I y, I z, C& comp, P& proj)
+    {
       if (!comp(proj(*y), proj(*x))) {      // if x <= y
         if (!comp(proj(*z), proj(*y))) {    // if y <= z
           return 0;                         // x <= y && y <= z
         }
                                             // x <= y && y > z
-        __stl2::iter_swap2(y, z);           // x <= z && y < z
+        __stl2::iter_swap(y, z);           // x <= z && y < z
         if (comp(proj(*y), proj(*x))) {     // if x > y
-          __stl2::iter_swap2(x, y);         // x < y && y <= z
+          __stl2::iter_swap(x, y);         // x < y && y <= z
           return 2;
         }
         return 1;                           // x <= y && y < z
       }
       if (comp(proj(*z), proj(*y))) {       // x > y, if y > z
-        __stl2::iter_swap2(x, z);           // x < y && y < z
+        __stl2::iter_swap(x, z);           // x < y && y < z
         return 1;
       }
-      __stl2::iter_swap2(x, y);             // x > y && y <= z
+      __stl2::iter_swap(x, y);             // x > y && y <= z
                                             // x < y && x <= z
       if (comp(proj(*z), proj(*y))) {       // if y > z
-        __stl2::iter_swap2(y, z);           // x <= y && y < z
+        __stl2::iter_swap(y, z);           // x <= y && y < z
         return 2;
       }
       return 1;
     }
 
     template <BidirectionalIterator I, class C, class P>
-      requires Sortable<I, C, P>()
-    void selection_sort(I begin, I end, C &comp, P &proj) {
+    requires
+      models::Sortable<I, C, P>
+    void selection_sort(I begin, I end, C &comp, P &proj)
+    {
       STL2_ASSUME(begin != end);
       for (I lm1 = __stl2::prev(end); begin != lm1; ++begin) {
         I i = __stl2::min_element(begin, end, __stl2::ref(comp), __stl2::ref(proj));
         if (i != begin) {
-          __stl2::iter_swap2(begin, i);
+          __stl2::iter_swap(begin, i);
         }
       }
     }
@@ -77,25 +82,27 @@ STL2_OPEN_NAMESPACE {
   // TODO: refactor this monstrosity.
   template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
             class Proj = identity>
-    requires Sortable<I, Comp, Proj>()
-  I nth_element(I first, I nth, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
+  requires
+    models::Sortable<I, __f<Comp>, __f<Proj>>
+  I nth_element(I first, I nth, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+  {
     auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     I end = __stl2::next(nth, last), end_orig = end;
-    static constexpr DifferenceType<I> limit = 7;
+    static constexpr difference_type_t<I> limit = 7;
     while (true) {
     restart:
       if (nth == end) {
         return end_orig;
       }
-      DifferenceType<I> len = end - first;
+      difference_type_t<I> len = end - first;
       switch (len) {
       case 0:
       case 1:
         return end_orig;
       case 2:
         if (comp(proj(*--end), proj(*first))) {
-          __stl2::iter_swap2(first, end);
+          __stl2::iter_swap(first, end);
         }
         return end_orig;
       case 3:
@@ -137,7 +144,7 @@ STL2_OPEN_NAMESPACE {
                   return end_orig;  // [first, end) all equivalent elements
                 }
                 if (comp(proj(*first), proj(*i))) {
-                  __stl2::iter_swap2(i, j);
+                  __stl2::iter_swap(i, j);
                   ++n_swaps;
                   ++i;
                   break;
@@ -156,7 +163,7 @@ STL2_OPEN_NAMESPACE {
                 ;
               if (i >= j)
                 break;
-              __stl2::iter_swap2(i, j);
+              __stl2::iter_swap(i, j);
               ++n_swaps;
               ++i;
             }
@@ -171,7 +178,7 @@ STL2_OPEN_NAMESPACE {
             goto restart;
           }
           if (comp(proj(*j), proj(*m))) {
-            __stl2::iter_swap2(i, j);
+            __stl2::iter_swap(i, j);
             ++n_swaps;
             break;  // found guard for downward moving j, now use unguarded partition
           }
@@ -194,7 +201,7 @@ STL2_OPEN_NAMESPACE {
           if (i >= j) {
             break;
           }
-          __stl2::iter_swap2(i, j);
+          __stl2::iter_swap(i, j);
           ++n_swaps;
           // It is known that m != j
           // If m just moved, follow it
@@ -206,7 +213,7 @@ STL2_OPEN_NAMESPACE {
       }
       // [first, i) < *m and *m <= [i, end)
       if (i != m && comp(proj(*m), proj(*i))) {
-        __stl2::iter_swap2(i, m);
+        __stl2::iter_swap(i, m);
         ++n_swaps;
       }
       // [first, i) < *i and *i <= [i+1, end)
@@ -255,9 +262,10 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-    requires Sortable<IteratorType<Rng>, Comp, Proj>()
+  requires
+    models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
   safe_iterator_t<Rng>
-  nth_element(Rng&& rng, IteratorType<Rng> nth,
+  nth_element(Rng&& rng, iterator_t<Rng> nth,
               Comp&& comp = Comp{}, Proj&& proj = Proj{}) {
     return __stl2::nth_element(
       __stl2::begin(rng), __stl2::move(nth), __stl2::end(rng),

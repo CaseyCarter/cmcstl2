@@ -20,8 +20,9 @@
 // generate_n [alg.generate]
 //
 STL2_OPEN_NAMESPACE {
-  template <Function F, WeakOutputIterator<ResultType<F>> O>
-  O generate_n(O first, DifferenceType<O> n, F gen) {
+  template <Callable F, WeakOutputIterator<result_of_t<F&()>> O>
+  O generate_n(O first, difference_type_t<O> n, F gen)
+  {
     for (; n > 0; ++first, --n) {
       *first = gen();
     }

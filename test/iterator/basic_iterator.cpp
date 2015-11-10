@@ -190,7 +190,7 @@ public:
 stl2::WeakIterator{I}
 class my_counted_cursor {
 public:
-  using difference_type = stl2::DifferenceType<I>;
+  using difference_type = stl2::difference_type_t<I>;
 
   my_counted_cursor() = default;
   constexpr my_counted_cursor(I it, difference_type n)
@@ -275,7 +275,7 @@ template <class T, T Value>
 using always_iterator = stl2::basic_iterator<always_cursor<T, Value>>;
 
 template <stl2::InputRange R>
-  requires stl2::ext::StreamInsertable<stl2::ValueType<stl2::IteratorType<R>>> &&
+  requires stl2::ext::StreamInsertable<stl2::value_type_t<stl2::iterator_t<R>>> &&
     !stl2::Same<char, stl2::remove_cv_t<stl2::remove_all_extents_t<stl2::remove_reference_t<R>>>>()
 std::ostream& operator<<(std::ostream& os, R&& rng) {
   os << '{';
@@ -413,22 +413,9 @@ void test_back_inserter() {
   auto i = stl2::back_inserter(vec);
   using I = decltype(i);
   static_assert(stl2::models::WeakOutputIterator<I, int>);
-  static_assert(stl2::models::Same<std::ptrdiff_t, stl2::DifferenceType<I>>);
+  static_assert(stl2::models::Same<std::ptrdiff_t, stl2::difference_type_t<I>>);
   stl2::copy_n(always_iterator<int, 42>{}, 13, i);
   CHECK(vec.size() == 13u);
-
-  struct foo : stl2::back_insert_iterator<std::vector<int>> {
-    using base_t = stl2::back_insert_iterator<std::vector<int>>;
-    using base_t::base_t;
-
-    typename base_t::container_type* container() {
-      return base_t::container;
-    }
-
-    base_t& base() & { return *this; }
-  };
-  auto j = foo{vec};
-  CHECK(j.container() == &vec);
 }
 
 int main() {

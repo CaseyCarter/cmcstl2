@@ -63,6 +63,31 @@ namespace swappable_test {
   CONCEPT_ASSERT(models::Swappable<int(&)[3][4][1][2], int(&)[3][4][1][2]>);
   CONCEPT_ASSERT(!models::Swappable<int(&)[3][4][1][2], int(&)[4][4][1][2]>);
   CONCEPT_ASSERT(ns::is_nothrow_swappable<int(&)[6][7], int(&)[6][7]>());
+
+  struct unswappable : std::string { // Has std:: as an associated namespace
+    unswappable() = default;
+    unswappable(const unswappable&) = delete;
+    unswappable(unswappable&&) = delete;
+  };
+  CONCEPT_ASSERT(!models::Swappable<unswappable&, unswappable&>);
+  namespace __constrained_swappable {
+    // Has a constrained swap findable via ADL:
+    struct constrained_swappable {
+      constrained_swappable() = default;
+      constrained_swappable(const constrained_swappable&) = default;
+      constrained_swappable(constrained_swappable&&) = default;
+    };
+    template <class T>
+    concept bool ConstrainedSwappable =
+      ns::Same<T, constrained_swappable>();
+    template <ConstrainedSwappable T, ConstrainedSwappable U>
+    void swap(T&, U&) {}
+    template<ConstrainedSwappable T>
+    void swap(T &, T &) {}
+  }
+  using __constrained_swappable::constrained_swappable;
+  CONCEPT_ASSERT(models::Swappable<constrained_swappable&, constrained_swappable&>);
+  CONCEPT_ASSERT(!models::Swappable<const volatile constrained_swappable&, const volatile constrained_swappable&>);
 #endif
 
   namespace {

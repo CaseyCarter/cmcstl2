@@ -57,5 +57,8 @@ int main()
     CHECK(count(make_range(input_iterator<const S*>(sa),
                       sentinel<const S*>(sa)), 2, &S::i) == 0);
 
+    CHECK(count({0, 1, 2, 2, 0, 1, 2, 3}, 2) == 3);
+    CHECK(count({0, 1, 2, 2, 0, 1, 2, 3}, 7) == 0);
+
     return ::test_result();
 }

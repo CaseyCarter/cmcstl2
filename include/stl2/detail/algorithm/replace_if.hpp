@@ -20,11 +20,15 @@
 // replace_if [alg.replace]
 //
 STL2_OPEN_NAMESPACE {
-  template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
-           IndirectCallablePredicate<Projected<I, Proj>> Pred>
-    requires Writable<I, T>()
+  template<ForwardIterator I, Sentinel<I> S, class Pred,
+           class T, class Proj = identity>
+  requires
+    models::Writable<I, T> &&
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<I, __f<Proj>>>
   I replace_if(I first, S last, Pred&& pred_,
-               const T& new_value, Proj&& proj_ = Proj{}) {
+               const T& new_value, Proj&& proj_ = Proj{})
+  {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
     for (; first != last; ++first) {
@@ -35,11 +39,15 @@ STL2_OPEN_NAMESPACE {
     return first;
   }
 
-  template<ForwardRange Rng, class T, class Proj = identity,
-           IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
-    requires Writable<IteratorType<Rng>, T>()
+  template<ForwardRange Rng, class Pred, class T, class Proj = identity>
+  requires
+    models::Writable<iterator_t<Rng>, T> &&
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
   safe_iterator_t<Rng>
-  replace_if(Rng&& rng, Pred&& pred, const T& new_value, Proj&& proj = Proj{}) {
+  replace_if(Rng&& rng, Pred&& pred,
+             const T& new_value, Proj&& proj = Proj{})
+  {
     return __stl2::replace_if(__stl2::begin(rng), __stl2::end(rng),
       __stl2::forward<Pred>(pred), new_value, __stl2::forward<Proj>(proj));
   }

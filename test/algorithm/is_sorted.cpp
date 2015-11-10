@@ -31,7 +31,7 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 /// Calls the iterator interface of the algorithm
 template <class Iter>
@@ -42,10 +42,10 @@ struct iter_call
 
     template <class B, class E, class... Args>
     auto operator()(B &&b, E &&e, Args &&... args)
-     -> decltype(stl2::is_sorted(begin_t{b}, sentinel_t{e},
+     -> decltype(ranges::is_sorted(begin_t{b}, sentinel_t{e},
                                    std::forward<Args>(args)...))
     {
-        return stl2::is_sorted(begin_t{b}, sentinel_t{e}, std::forward<Args>(args)...);
+        return ranges::is_sorted(begin_t{b}, sentinel_t{e}, std::forward<Args>(args)...);
     }
 };
 
@@ -58,10 +58,10 @@ struct range_call
 
     template <class B, class E, class... Args>
     auto operator()(B &&b, E &&e, Args &&... args)
-     -> decltype(stl2::is_sorted(stl2::ext::make_range(begin_t{b}, sentinel_t{e}),
+     -> decltype(ranges::is_sorted(ranges::ext::make_range(begin_t{b}, sentinel_t{e}),
                                    std::forward<Args>(args)...))
     {
-        return stl2::is_sorted(stl2::ext::make_range(begin_t{b}, sentinel_t{e}),
+        return ranges::is_sorted(ranges::ext::make_range(begin_t{b}, sentinel_t{e}),
                                  std::forward<Args>(args)...);
     }
 };
@@ -387,8 +387,8 @@ int main()
     /// Projection test:
     {
         A as[] = {{0}, {1}, {2}, {3}, {4}};
-        CHECK(stl2::is_sorted(as, std::less<int>{}, &A::a));
-        CHECK(!stl2::is_sorted(as, std::greater<int>{}, &A::a));
+        CHECK(ranges::is_sorted(as, std::less<int>{}, &A::a));
+        CHECK(!ranges::is_sorted(as, std::greater<int>{}, &A::a));
     }
 
     return ::test_result();

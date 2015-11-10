@@ -31,76 +31,10 @@
 #include <stl2/detail/iterator/operations.hpp>
 #include <stl2/detail/iterator/ostream_iterator.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>
+#include <stl2/detail/iterator/unreachable.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/range/primitives.hpp>
 #include <stl2/detail/range/range.hpp>
-
-STL2_OPEN_NAMESPACE {
-  using std::iterator;
-
-  // Extension: unreachable is WeaklyTotallyOrdered with *any* type.
-  class unreachable {};
-
-  constexpr bool operator==(const auto&, unreachable) noexcept {
-    return false;
-  }
-  constexpr bool operator==(unreachable, const auto&) noexcept {
-    return false;
-  }
-  constexpr bool operator==(unreachable, unreachable) noexcept {
-    return true;
-  }
-
-  constexpr bool operator!=(const auto&, unreachable) noexcept {
-    return true;
-  }
-  constexpr bool operator!=(unreachable, const auto&) noexcept {
-    return true;
-  }
-  constexpr bool operator!=(unreachable, unreachable) noexcept {
-    return false;
-  }
-
-  constexpr bool operator<(const auto&, unreachable) noexcept {
-    return true;
-  }
-  constexpr bool operator<(unreachable, const auto&) noexcept {
-    return false;
-  }
-  constexpr bool operator<(unreachable, unreachable) noexcept {
-    return false;
-  }
-
-  constexpr bool operator>(const auto&, unreachable) noexcept {
-    return false;
-  }
-  constexpr bool operator>(unreachable, const auto&) noexcept {
-    return true;
-  }
-  constexpr bool operator>(unreachable, unreachable) noexcept {
-    return false;
-  }
-
-  constexpr bool operator<=(const auto&, unreachable) noexcept {
-    return true;
-  }
-  constexpr bool operator<=(unreachable, const auto&) noexcept {
-    return false;
-  }
-  constexpr bool operator<=(unreachable, unreachable) noexcept {
-    return true;
-  }
-
-  constexpr bool operator>=(const auto&, unreachable) noexcept {
-    return false;
-  }
-  constexpr bool operator>=(unreachable, const auto&) noexcept {
-    return true;
-  }
-  constexpr bool operator>=(unreachable, unreachable) noexcept {
-    return true;
-  }
-} STL2_CLOSE_NAMESPACE
 
 #endif

@@ -22,7 +22,7 @@
 STL2_OPEN_NAMESPACE {
   WeaklyIncrementable{I}
   class iota_view {
-    I first_;
+    I first_{};
 
     class cursor {
     public:
@@ -57,13 +57,13 @@ STL2_OPEN_NAMESPACE {
         --value_;
       }
 
-      constexpr void advance(DifferenceType<I> n)
+      constexpr void advance(difference_type_t<I> n)
         noexcept(noexcept(declval<I&>() += n))
         requires ext::RandomAccessIncrementable<I>() {
         value_ += n;
       }
 
-      constexpr DifferenceType<I> distance_to(const cursor& that)
+      constexpr difference_type_t<I> distance_to(const cursor& that)
         noexcept(noexcept(that.value_ - declval<const I&>()))
         requires ext::RandomAccessIncrementable<I>() {
         return that.value_ - value_;

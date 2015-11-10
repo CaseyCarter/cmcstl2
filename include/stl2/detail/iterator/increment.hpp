@@ -10,8 +10,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_CONCEPTS_INCREMENT_HPP
-#define STL2_DETAIL_CONCEPTS_INCREMENT_HPP
+#ifndef STL2_DETAIL_ITERATOR_INCREMENT_HPP
+#define STL2_DETAIL_ITERATOR_INCREMENT_HPP
 
 #include <cstddef>
 #include <stl2/type_traits.hpp>
@@ -22,15 +22,15 @@
 
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
-  // DifferenceType [iterator.assoc]
+  // difference_type_t [iterator.assoc]
   // Extension: defaults to make_unsigned_t<decltype(t - t)> when
   //     decltype(t - t) models Integral, in addition to doing so when T
   // itself models Integral.
   //
   // Not to spec:
   // * Strips cv-qualifiers before applying difference_type (see
-  //   ValueType for why)
-  // * Requires DifferenceType to model SignedIntegral
+  //   value_type_t for why)
+  // * Requires difference_type_t to model SignedIntegral
   //
   namespace detail {
     template <class T>
@@ -40,11 +40,12 @@ STL2_OPEN_NAMESPACE {
 
   template <class> struct difference_type {};
 
-  template <> struct difference_type<void*> {};
-
-  template <> struct difference_type<std::nullptr_t> {
+  template <class T>
+  struct difference_type<T*> {
     using type = std::ptrdiff_t;
   };
+  template <_Is<is_void> T>
+  struct difference_type<T*> {};
 
   template <detail::MemberDifferenceType T>
   struct difference_type<T> {
@@ -53,6 +54,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class T>
     requires !detail::MemberDifferenceType<T> &&
+      _IsNot<T, is_pointer> &&
       requires (const T& a, const T& b) {
         STL2_DEDUCTION_CONSTRAINT(a - b, Integral);
       }
@@ -61,8 +63,16 @@ STL2_OPEN_NAMESPACE {
 
   template <class T>
     requires SignedIntegral<meta::_t<difference_type<remove_cv_t<T>>>>()
-  using DifferenceType =
+  using difference_type_t =
     meta::_t<difference_type<remove_cv_t<T>>>;
+
+  //namespace detail {
+  //  template <class T, class...Us>
+  //  concept bool OneOf() {
+  //    //return Same<T, Us>() || ...;
+  //    return meta::_v<meta::any_of<meta::list<Us...>, meta::bind_front<meta::quote<std::is_same>, T>>>;
+  //  }
+  //}
 
   ///////////////////////////////////////////////////////////////////////////
   // WeaklyIncrementable [weaklyincrementable.iterators]
@@ -71,8 +81,9 @@ STL2_OPEN_NAMESPACE {
   constexpr bool __weakly_incrementable = false;
   template <class I>
     requires requires (I& i) {
-      typename DifferenceType<I>;
+      typename difference_type_t<I>;
       STL2_EXACT_TYPE_CONSTRAINT(++i, I&);
+      //STL2_BINARY_DEDUCTION_CONSTRAINT(++i, detail::OneOf, I&, const I&);
       i++;
     }
   constexpr bool __weakly_incrementable<I> = true;
@@ -98,6 +109,7 @@ STL2_OPEN_NAMESPACE {
   template <class I>
     requires requires (I& i) {
       STL2_EXACT_TYPE_CONSTRAINT(i++, I);
+      //STL2_BINARY_DEDUCTION_CONSTRAINT(i++, detail::OneOf, I, I&, const I&);
     }
   constexpr bool __incrementable<I> = true;
 
@@ -154,13 +166,13 @@ STL2_OPEN_NAMESPACE {
     template <class>
     constexpr bool __random_access_incrementable = false;
     template <class I>
-      requires requires (I& i, const I& ci, const DifferenceType<I> n) {
+      requires requires (I& i, const I& ci, const difference_type_t<I> n) {
         STL2_EXACT_TYPE_CONSTRAINT(i += n, I&);
         STL2_EXACT_TYPE_CONSTRAINT(i -= n, I&);
         STL2_EXACT_TYPE_CONSTRAINT(ci + n, I);
         STL2_EXACT_TYPE_CONSTRAINT(n + ci, I);
         STL2_EXACT_TYPE_CONSTRAINT(ci - n, I);
-        { ci - ci } -> DifferenceType<I>;
+        { ci - ci } -> difference_type_t<I>;
       }
     constexpr bool __random_access_incrementable<I> = true;
 

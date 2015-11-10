@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
     SizedRange{R}
     auto enumerate(R&& r)
     STL2_NOEXCEPT_RETURN(
-      tagged_pair<tag::count(DifferenceType<IteratorType<R>>),
+      tagged_pair<tag::count(difference_type_t<iterator_t<R>>),
                   tag::end(safe_iterator_t<R>)>{
         __stl2::size(r),
         __stl2::next(__stl2::begin(r), __stl2::end(r))
@@ -43,12 +43,12 @@ STL2_OPEN_NAMESPACE {
 
   // distance
   Range{R}
-  DifferenceType<R> distance(R&& r) {
+  difference_type_t<iterator_t<R>> distance(R&& r) {
     return __stl2::distance(__stl2::begin(r), __stl2::end(r));
   }
 
   SizedRange{R}
-  DifferenceType<R> distance(R&& r) {
+  difference_type_t<iterator_t<R>> distance(R&& r) {
     return __stl2::size(r);
   }
 } STL2_CLOSE_NAMESPACE

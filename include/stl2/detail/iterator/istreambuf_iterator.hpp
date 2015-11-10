@@ -66,7 +66,6 @@ STL2_OPEN_NAMESPACE {
     istreambuf_iterator(istream_type& s) noexcept :
       istreambuf_iterator{s.rdbuf()} {}
 
-    // Extension
     constexpr istreambuf_iterator(default_sentinel) noexcept :
       istreambuf_iterator() {}
 
@@ -98,21 +97,20 @@ STL2_OPEN_NAMESPACE {
         return !(lhs == rhs);
     }
 
-    // Extensions:
-    friend constexpr bool operator==(
+    friend STL2_CONSTEXPR_EXT bool operator==(
       const istreambuf_iterator& lhs, default_sentinel) noexcept {
         return lhs.sbuf_ == nullptr;
     }
-    friend constexpr bool operator==(
+    friend STL2_CONSTEXPR_EXT bool operator==(
       default_sentinel lhs, const istreambuf_iterator& rhs) noexcept {
       return rhs == lhs;
     }
 
-    friend constexpr bool operator!=(
+    friend STL2_CONSTEXPR_EXT bool operator!=(
       const istreambuf_iterator& lhs, default_sentinel rhs) noexcept {
       return !(lhs == rhs);
     }
-    friend constexpr bool operator!=(
+    friend STL2_CONSTEXPR_EXT bool operator!=(
       default_sentinel lhs, const istreambuf_iterator& rhs) noexcept {
       return !(rhs == lhs);
     }

@@ -13,7 +13,7 @@
 #include <algorithm>
 #include "../simple_test.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 int main() {
   static const int source[] = {5,4,3,2,1,0};
@@ -35,7 +35,7 @@ int main() {
       return i % 2 == 0;
     };
 
-    auto res = stl2::copy_if(source, source + n, target, is_even);
+    auto res = ranges::copy_if(source, source + n, target, is_even);
     CHECK(res.in() == source + n);
     CHECK(res.out() == target + n / 2);
 
@@ -47,7 +47,7 @@ int main() {
     int target[n];
     std::fill_n(target, n, -1);
 
-    auto res = stl2::copy_if(source, target, is_even);
+    auto res = ranges::copy_if(source, target, is_even);
     CHECK(res.in() == source + n);
     CHECK(res.out() == target + n / 2);
 
@@ -59,7 +59,7 @@ int main() {
     int target[n];
     std::fill_n(target, n, -1);
 
-    auto res = stl2::copy_if(std::move(source), target, is_even);
+    auto res = ranges::copy_if(std::move(source), target, is_even);
     CHECK(res.in().get_unsafe() == source + n);
     CHECK(res.out() == target + n / 2);
 
@@ -78,7 +78,7 @@ int main() {
       target[i].value = -1;
     }
 
-    auto res = stl2::copy_if(source, target, is_even, &S::value);
+    auto res = ranges::copy_if(source, target, is_even, &S::value);
     CHECK(res.in() == source + n);
     CHECK(res.out() == target + n / 2);
 
@@ -88,6 +88,17 @@ int main() {
 
     CHECK(std::count_if(target + n / 2, target + n, [](const S& s){
           return s.value == -1; }) == n / 2);
+  }
+
+  {
+    int target[n];
+    std::fill_n(target, n, -1);
+
+    auto res = ranges::copy_if({5,4,3,2,1,0}, target, is_even);
+    CHECK(res.out() == target + n / 2);
+
+    CHECK(std::equal(target, target + n / 2, evens));
+    CHECK(std::count(target + n / 2, target + n, -1) == n / 2);
   }
 
   return test_result();

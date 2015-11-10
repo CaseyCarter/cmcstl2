@@ -16,6 +16,7 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/variant.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/operator_arrow.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/operations.hpp>
@@ -28,20 +29,6 @@ STL2_OPEN_NAMESPACE {
   concept bool __WeakSentinel =
     Iterator<I>() && Regular<S>() &&
     ext::WeaklyEqualityComparable<I, S>();
-
-  template <class I, class S, class D>
-  constexpr bool __compatible_sized_iterator_range = false;
-  template <class I, class S, class D>
-    requires requires (const I i, const S s) {
-      {i - s} -> D;
-      {s - i} -> D;
-    }
-  constexpr bool __compatible_sized_iterator_range<I, S, D> = true;
-
-  template <class I, class S, class D>
-  concept bool __CompatibleSizedIteratorRange =
-    SizedIteratorRange<I, S>() &&
-    __compatible_sized_iterator_range<I, S, D>;
 
   struct __ci_access {
     template <class T>
@@ -62,53 +49,62 @@ STL2_OPEN_NAMESPACE {
     )
   };
 
-  template <InputIterator I, __WeakSentinel<I> S>
+  template <Iterator I, __WeakSentinel<I> S>
     requires !Same<I, S>()
   class common_iterator {
     friend __ci_access;
     using var_t = variant<I, S>;
     var_t v_;
+
   public:
-    using difference_type = DifferenceType<I>;
-    using value_type = ValueType<I>;
-    using iterator_category = conditional_t<
-      models::ForwardIterator<I>,
-      __stl2::forward_iterator_tag,
-      __stl2::input_iterator_tag>;
-    using reference = ReferenceType<I>;
-    constexpr common_iterator()
-      noexcept(is_nothrow_default_constructible<var_t>::value) = default;
-    constexpr common_iterator(I i)
+    using difference_type = difference_type_t<I>;
+    using value_type = value_type_t<I>;
+    common_iterator() = default;
+    STL2_CONSTEXPR_EXT common_iterator(I i)
       noexcept(is_nothrow_constructible<var_t, I>::value) :
       v_{__stl2::move(i)} {}
-    constexpr common_iterator(S s)
+    STL2_CONSTEXPR_EXT common_iterator(S s)
       noexcept(is_nothrow_constructible<var_t, S>::value) :
       v_{__stl2::move(s)} {}
     template <ConvertibleTo<I> U, ConvertibleTo<S> V>
-    constexpr common_iterator(const common_iterator<U, V>& u)
+    STL2_CONSTEXPR_EXT common_iterator(const common_iterator<U, V>& u)
       noexcept(noexcept(
         var_t{__stl2::visit(__ci_convert_visitor<I, S>{}, __ci_access::v(u))}
       ));
     template <ConvertibleTo<I> U, ConvertibleTo<S> V>
-    constexpr common_iterator& operator=(const common_iterator<U, V>& u) &
+    STL2_CONSTEXPR_EXT common_iterator& operator=(const common_iterator<U, V>& u) &
       noexcept(noexcept(
         declval<var_t&>() = __stl2::visit(
           __ci_convert_visitor<I, S>{}, __ci_access::v(u))
       ));
-    reference operator*() const
-      noexcept(noexcept(*declval<const I&>()))
+    STL2_CONSTEXPR_EXT decltype(auto) operator*()
+      noexcept(noexcept(*declval<I&>()))
     {
       STL2_ASSUME(holds_alternative<I>(v_));
       return *__stl2::get_unchecked<I>(v_);
     }
-    common_iterator& operator++()
+    STL2_CONSTEXPR_EXT decltype(auto) operator*() const
+      noexcept(noexcept(*declval<const I&>()))
+      requires detail::Dereferenceable<const I>
+    {
+      STL2_ASSUME(holds_alternative<I>(v_));
+      return *__stl2::get_unchecked<I>(v_);
+    }
+    STL2_CONSTEXPR_EXT decltype(auto) operator->() const
+      noexcept(noexcept(__stl2::__operator_arrow(declval<const I&>())))
+      requires Readable<I>()
+    {
+      STL2_ASSUME(holds_alternative<I>(v_));
+      return __stl2::__operator_arrow(__stl2::get_unchecked<I>(v_));
+    }
+    STL2_CONSTEXPR_EXT common_iterator& operator++()
     noexcept(noexcept(++declval<I&>()))
     {
       STL2_ASSUME(holds_alternative<I>(v_));
       ++__stl2::get_unchecked<I>(v_);
       return *this;
     }
-    common_iterator operator++(int)
+    STL2_CONSTEXPR_EXT common_iterator operator++(int)
       noexcept(is_nothrow_copy_constructible<common_iterator>::value &&
                is_nothrow_move_constructible<common_iterator>::value &&
                noexcept(++declval<common_iterator&>())) {
@@ -118,16 +114,25 @@ STL2_OPEN_NAMESPACE {
     }
   };
 
+  template<InputIterator I, class S>
+  struct iterator_category<common_iterator<I, S>> {
+    using type = conditional_t<
+      models::ForwardIterator<I>,
+        forward_iterator_tag,
+        input_iterator_tag>;
+  };
+
   template <class I, class S>
   template <ConvertibleTo<I> U, ConvertibleTo<S> V>
-  constexpr common_iterator<I, S>::common_iterator(const common_iterator<U, V>& u)
+  STL2_CONSTEXPR_EXT
+  common_iterator<I, S>::common_iterator(const common_iterator<U, V>& u)
     noexcept(noexcept(var_t{
       __stl2::visit(__ci_convert_visitor<I, S>{}, __ci_access::v(u))})) :
     v_{__stl2::visit(__ci_convert_visitor<I, S>{}, __ci_access::v(u))} {}
 
   template <class I, class S>
   template <ConvertibleTo<I> U, ConvertibleTo<S> V>
-  constexpr common_iterator<I, S>&
+  STL2_CONSTEXPR_EXT common_iterator<I, S>&
     common_iterator<I, S>::operator=(const common_iterator<U, V>& u) &
       noexcept(noexcept(
         declval<var_t&>() =
@@ -152,7 +157,7 @@ STL2_OPEN_NAMESPACE {
     requires EqualityComparable<I1, I2>() &&
       ext::WeaklyEqualityComparable<I1, S2>() &&
       ext::WeaklyEqualityComparable<I2, S1>()
-  constexpr bool operator==(
+  STL2_CONSTEXPR_EXT bool operator==(
     const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
   STL2_NOEXCEPT_RETURN(
     __stl2::visit(__ci_equal_visitor<S1, S2>{}, __ci_access::v(x), __ci_access::v(y))
@@ -162,7 +167,7 @@ STL2_OPEN_NAMESPACE {
     requires EqualityComparable<I1, I2>() &&
       ext::WeaklyEqualityComparable<I1, S2>() &&
       ext::WeaklyEqualityComparable<I2, S1>()
-  constexpr bool operator!=(
+  STL2_CONSTEXPR_EXT bool operator!=(
     const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
   STL2_NOEXCEPT_RETURN(
     !(x == y)
@@ -179,30 +184,33 @@ STL2_OPEN_NAMESPACE {
     }
   };
 
+  template <WeaklyIncrementable I1, WeaklyIncrementable I2>
+  using __common_difference_type_t =
+    common_type_t<difference_type_t<I1>, difference_type_t<I2>>;
+
+  template <class, class, class, class>
+  constexpr bool __common_sized_iterator_range = false;
   template <class I1, class S1, class I2, class S2>
-    requires
-      __CompatibleSizedIteratorRange<I1, I2, DifferenceType<I2>> &&
-      __CompatibleSizedIteratorRange<I1, S2, DifferenceType<I2>> &&
-      __CompatibleSizedIteratorRange<I2, S1, DifferenceType<I2>>
-  constexpr DifferenceType<I2> operator-(
+    requires SizedIteratorRange<I1, I1>() && SizedIteratorRange<I2, I2>() &&
+      requires (const I1 i1, const S1 s1, const I2 i2, const S2 s2) {
+        { i1 - i2 } -> __common_difference_type_t<I1, I2>;
+        { i2 - i1 } -> __common_difference_type_t<I1, I2>;
+        { i1 - s2 } -> __common_difference_type_t<I1, I2>;
+        { s2 - i1 } -> __common_difference_type_t<I1, I2>;
+        { i2 - s1 } -> __common_difference_type_t<I1, I2>;
+        { s1 - i2 } -> __common_difference_type_t<I1, I2>;
+     }
+  constexpr bool __common_sized_iterator_range<I1, S1, I2, S2> = true;
+
+  template <class I1, class S1, class I2, class S2>
+    requires __common_sized_iterator_range<I1, S1, I2, S2>
+  STL2_CONSTEXPR_EXT __common_difference_type_t<I1, I2> operator-(
     const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
   STL2_NOEXCEPT_RETURN(
-    __stl2::visit(__ci_difference_visitor<DifferenceType<I2>, S1, S2>{},
+    __stl2::visit(__ci_difference_visitor<
+                    __common_difference_type_t<I1, I2>, S1, S2>{},
                   __ci_access::v(x), __ci_access::v(y))
   )
-
-  // Not to spec: extension
-  template <InputIterator I, class S>
-    requires !_Valid<__cond, I, S> && __WeakSentinel<S, I>
-  struct common_type<I, S> {
-    using type = common_iterator<I, S>;
-  };
-
-  template <class S, InputIterator I>
-    requires !_Valid<__cond, I, S> && __WeakSentinel<S, I>
-  struct common_type<S, I> {
-    using type = common_iterator<I, S>;
-  };
 } STL2_CLOSE_NAMESPACE
 
 #endif

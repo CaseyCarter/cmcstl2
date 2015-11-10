@@ -350,6 +350,14 @@ STL2_OPEN_NAMESPACE {
       lhs.swap(rhs)
     )
 
+    template <class T>
+      requires Swappable<T&>()
+    STL2_CONSTEXPR_EXT void
+    swap(optional<T>& lhs, optional<T>& rhs)
+    STL2_NOEXCEPT_RETURN(
+      lhs.swap(rhs)
+    )
+
     struct eq_visitor {
       ext::WeaklyEqualityComparable{T, U}
       constexpr bool operator()(const T& l, const U& r) const
@@ -376,7 +384,7 @@ STL2_OPEN_NAMESPACE {
     )
 
     struct lt_visitor {
-      ext::WeaklyTotallyOrdered{T, U}
+      ext::WeaklyStrictTotallyOrdered{T, U}
       constexpr bool operator()(const T& l, const U& r) const
       STL2_NOEXCEPT_RETURN(
         l < r
@@ -386,25 +394,25 @@ STL2_OPEN_NAMESPACE {
       }
     };
 
-    ext::WeaklyTotallyOrdered{T, U}
+    ext::WeaklyStrictTotallyOrdered{T, U}
     constexpr bool operator<(const optional<T>& lhs, const optional<U>& rhs)
     STL2_NOEXCEPT_RETURN(
       __stl2::visit(lt_visitor{}, access::cv(lhs), access::cv(rhs))
     )
 
-    ext::WeaklyTotallyOrdered{T, U}
+    ext::WeaklyStrictTotallyOrdered{T, U}
     constexpr bool operator>(const optional<T>& lhs, const optional<U>& rhs)
     STL2_NOEXCEPT_RETURN(
       rhs < lhs
     )
 
-    ext::WeaklyTotallyOrdered{T, U}
+    ext::WeaklyStrictTotallyOrdered{T, U}
     constexpr bool operator<=(const optional<T>& lhs, const optional<U>& rhs)
     STL2_NOEXCEPT_RETURN(
       !(rhs < lhs)
     )
 
-    ext::WeaklyTotallyOrdered{T, U}
+    ext::WeaklyStrictTotallyOrdered{T, U}
     constexpr bool operator>=(const optional<T>& lhs, const optional<U>& rhs)
     STL2_NOEXCEPT_RETURN(
       !(lhs < rhs)
@@ -474,45 +482,45 @@ STL2_OPEN_NAMESPACE {
       !(o == t)
     )
 
-    TotallyOrdered{T}
+    StrictTotallyOrdered{T}
     constexpr bool operator<(const optional<T>& o, const T& t)
     STL2_NOEXCEPT_RETURN(
       o ? *o < t : true
     )
-    TotallyOrdered{T}
+    StrictTotallyOrdered{T}
     constexpr bool operator<(const T& t, const optional<T>& o)
     STL2_NOEXCEPT_RETURN(
       o ? t < *o : false
     )
 
-    TotallyOrdered{T}
+    StrictTotallyOrdered{T}
     constexpr bool operator>(const optional<T>& o, const T& t)
     STL2_NOEXCEPT_RETURN(
       t < o
     )
-    TotallyOrdered{T}
+    StrictTotallyOrdered{T}
     constexpr bool operator>(const T& t, const optional<T>& o)
     STL2_NOEXCEPT_RETURN(
       o < t
     )
 
-    TotallyOrdered{T}
+    StrictTotallyOrdered{T}
     constexpr bool operator<=(const optional<T>& o, const T& t)
     STL2_NOEXCEPT_RETURN(
       !(t < o)
     )
-    TotallyOrdered{T}
+    StrictTotallyOrdered{T}
     constexpr bool operator<=(const T& t, const optional<T>& o)
     STL2_NOEXCEPT_RETURN(
       !(o < t)
     )
 
-    TotallyOrdered{T}
+    StrictTotallyOrdered{T}
     constexpr bool operator>=(const optional<T>& o, const T& t)
     STL2_NOEXCEPT_RETURN(
       !(o < t)
     )
-    TotallyOrdered{T}
+    StrictTotallyOrdered{T}
     constexpr bool operator>=(const T& t, const optional<T>& o)
     STL2_NOEXCEPT_RETURN(
       !(t < o)

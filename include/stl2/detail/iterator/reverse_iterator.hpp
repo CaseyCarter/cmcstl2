@@ -26,10 +26,10 @@ STL2_OPEN_NAMESPACE {
   class reverse_iterator {
   public:
     using iterator_type = I;
-    using difference_type = DifferenceType<I>;
-    using value_type = ValueType<I>;
-    using iterator_category = IteratorCategory<I>;
-    using reference = ReferenceType<I>;
+    using difference_type = difference_type_t<I>;
+    using value_type = value_type_t<I>;
+    using iterator_category = iterator_category_t<I>;
+    using reference = reference_t<I>;
     using pointer = I;
 
     reverse_iterator() = default;
@@ -52,14 +52,6 @@ STL2_OPEN_NAMESPACE {
     I base() const
       noexcept(std::is_nothrow_copy_constructible<I>::value) {
       return current;
-    }
-    // 20150802: Extension
-    explicit operator const I&() const& noexcept {
-      return current;
-    }
-    // 20150802: Extension
-    explicit operator I&&() && noexcept {
-      return __stl2::move(current);
     }
 
     reference operator*() const {
@@ -130,12 +122,12 @@ STL2_OPEN_NAMESPACE {
     friend bool operator==(const reverse_iterator<I1>&,
                            const reverse_iterator<I2>&);
 
-    TotallyOrdered{I1, I2}
+    StrictTotallyOrdered{I1, I2}
     friend bool operator<(const reverse_iterator<I1>&,
                           const reverse_iterator<I2>&);
 
     SizedIteratorRange{I2, I1}
-    friend DifferenceType<I2> operator-(const reverse_iterator<I1>&,
+    friend difference_type_t<I2> operator-(const reverse_iterator<I1>&,
                                         const reverse_iterator<I2>&);
   protected:
     I current{};
@@ -153,38 +145,38 @@ STL2_OPEN_NAMESPACE {
     return !(x == y);
   }
 
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator<(const reverse_iterator<I1>& x,
                  const reverse_iterator<I2>& y) {
     return y.current < x.current;
   }
 
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator>(const reverse_iterator<I1>& x,
                  const reverse_iterator<I2>& y) {
     return y < x;
   }
 
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator<=(const reverse_iterator<I1>& x,
                   const reverse_iterator<I2>& y) {
     return !(y < x);
   }
 
-  TotallyOrdered{I1, I2}
+  StrictTotallyOrdered{I1, I2}
   bool operator>=(const reverse_iterator<I1>& x,
                   const reverse_iterator<I2>& y) {
     return !(x < y);
   }
 
   SizedIteratorRange{I2, I1}
-  DifferenceType<I2> operator-(const reverse_iterator<I1>& x,
+  difference_type_t<I2> operator-(const reverse_iterator<I1>& x,
                                const reverse_iterator<I2>& y) {
     return y.current - x.current;
   }
 
   RandomAccessIterator{I}
-  reverse_iterator<I> operator+(DifferenceType<I> n,
+  reverse_iterator<I> operator+(difference_type_t<I> n,
                                 const reverse_iterator<I>& x) {
     return x + n;
   }

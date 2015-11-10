@@ -75,24 +75,25 @@ test_iter_rvalue()
     ia[4].reset(new int(4));
     ia[6].reset(new int(3));
     ia[7].reset(new int(4));
-#if 0
+
+#if 0 // FIXME: Why is this here?!?
     using UPI = std::unique_ptr<int>;
     using I1 = decltype(Iter(ia));
-    using V1 = stl2::ValueType<I1>;
+    using V1 = stl2::value_type_t<I1>;
     static_assert(stl2::models::Same<V1, UPI>);
-    using R1 = stl2::ReferenceType<I1>;
+    using R1 = stl2::reference_t<I1>;
     static_assert(stl2::models::Same<R1, UPI&>);
     using ICR1 = stl2::iter_common_reference_t<I1>;
     static_assert(stl2::models::Same<ICR1, R1>);
     using I2 = const UPI*;
-    using V2 = stl2::ValueType<I2>;
+    using V2 = stl2::value_type_t<I2>;
     static_assert(stl2::models::Same<V1, V2>);
-    using R2 = stl2::ReferenceType<I2>;
+    using R2 = stl2::reference_t<I2>;
     static_assert(stl2::models::Same<R2, const UPI&>);
     using ICR2 = stl2::iter_common_reference_t<I2>;
     static_assert(stl2::models::Same<ICR2, R2>);
 
-    static_assert(stl2::models::CallableRelation<stl2::equal_to<>, V1, V2>);
+    static_assert(stl2::models::Relation<stl2::equal_to<>, V1, V2>);
 
     static_assert(stl2::models::Same<stl2::common_type_t<V1, R2>, UPI>);
     using CTV1R2 = stl2::CommonType<V1, R2>;
@@ -100,19 +101,15 @@ test_iter_rvalue()
     static_assert(stl2::models::Common<V1, R2>);
     static_assert(stl2::models::EqualityComparable<V1, R2>);
     //static_assert(stl2::models::Relation<stl2::equal_to<>, V1, R2>);
-    //static_assert(stl2::models::CallableRelation<stl2::equal_to<>, V1, R2>);
 
     static_assert(stl2::models::Common<R1, V2>);
     //static_assert(stl2::models::Relation<stl2::equal_to<>, R1, V2>);
-    //static_assert(stl2::models::CallableRelation<stl2::equal_to<>, R1, V2>);
 
     static_assert(stl2::models::Common<R1, R2>);
     //static_assert(stl2::models::Relation<stl2::equal_to<>, R1, R2>);
-    //static_assert(stl2::models::CallableRelation<stl2::equal_to<>, R1, R2>);
 
     static_assert(stl2::models::Common<ICR1, ICR2>);
     //static_assert(stl2::models::Relation<stl2::equal_to<>, ICR1, ICR2>);
-    //static_assert(stl2::models::CallableRelation<stl2::equal_to<>, ICR1, ICR2>);
 
     //static_assert(stl2::models::IndirectCallableRelation<stl2::equal_to<>, I1, I2>);
 #endif

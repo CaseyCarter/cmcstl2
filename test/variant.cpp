@@ -1431,24 +1431,24 @@ void test_swap() {
 void test_comparisons() {
   {
     static_assert(models::EqualityComparable<variant<int, double>>);
-    static_assert(models::TotallyOrdered<variant<int, double>>);
+    static_assert(models::StrictTotallyOrdered<variant<int, double>>);
 
     static_assert(models::EqualityComparable<variant<int, void, double>>);
-    static_assert(models::TotallyOrdered<variant<int, void, double>>);
+    static_assert(models::StrictTotallyOrdered<variant<int, void, double>>);
 
     struct bar {
       bool operator==(const bar&) const;
       bool operator!=(const bar&) const;
     };
     static_assert(models::EqualityComparable<variant<int, bar>>);
-    static_assert(!models::TotallyOrdered<variant<int, bar>>);
+    static_assert(!models::StrictTotallyOrdered<variant<int, bar>>);
 
     struct foo {};
     static_assert(!models::EqualityComparable<variant<int, foo>>);
-    static_assert(!models::TotallyOrdered<variant<int, foo>>);
+    static_assert(!models::StrictTotallyOrdered<variant<int, foo>>);
 
     static_assert(models::EqualityComparable<variant<int&, int&&>>);
-    static_assert(models::TotallyOrdered<variant<int&, int&&>>);
+    static_assert(models::StrictTotallyOrdered<variant<int&, int&&>>);
   }
 
   {

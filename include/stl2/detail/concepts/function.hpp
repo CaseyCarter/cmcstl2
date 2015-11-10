@@ -17,6 +17,7 @@
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/functional/invoke.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // Function Concepts [concepts.lib.function]
@@ -24,52 +25,51 @@
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // Function [concepts.lib.functions.function]
+  // Not to spec: Named callable, and accepts callables.
   //
   template <class F, class...Args>
-  constexpr bool __function = false;
+  constexpr bool __callable = false;
   template <class F, class...Args>
     requires requires (F& f, Args&&...args) {
-      f((Args&&)args...);
+      __stl2::invoke(f, (Args&&)args...);
     }
-  constexpr bool __function<F, Args...> = true;
+  constexpr bool __callable<F, Args...> = true;
+
+  // FIXME: remove this transitional paranoia check.
+  template <class T>
+  constexpr bool __force_non_reference() {
+    static_assert(!is_reference<T>::value);
+    return true;
+  }
 
   template <class F, class...Args>
-  concept bool Function() {
-    return CopyConstructible<F>() &&
-      __function<F, Args...>;
+  concept bool Callable() {
+    return __force_non_reference<F>() &&
+      CopyConstructible<F>() &&
+      __callable<F, Args...>;
   }
 
   namespace models {
     template <class, class...>
-    constexpr bool Function = false;
-    __stl2::Function{F, ...Args}
-    constexpr bool Function<F, Args...> = true;
+    constexpr bool Callable = false;
+    __stl2::Callable{F, ...Args}
+    constexpr bool Callable<F, Args...> = true;
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // ResultType [concepts.lib.functions.function]
-  // Not to spec:
-  // * Requires F, ...Args to satisfy Function
-  // * Uses result of calling F& since that's what the algorithms actually do
-  // * Use decltype instead of result_of_t for consistency with Function
-  //
-  Function{F, ...Args}
-  using ResultType =
-    decltype(declval<F&>()(declval<Args>()...));
 
   ///////////////////////////////////////////////////////////////////////////
   // RegularFunction [concepts.lib.functions.regularfunction]
+  // Not to spec: named RegularCallable
   //
   template <class F, class...Args>
-  concept bool RegularFunction() {
-    return Function<F, Args...>();
+  concept bool RegularCallable() {
+    return Callable<F, Args...>();
   }
 
   namespace models {
     template <class, class...>
-    constexpr bool RegularFunction = false;
-    __stl2::RegularFunction{F, ...Args}
-    constexpr bool RegularFunction<F, Args...> = true;
+    constexpr bool RegularCallable = false;
+    __stl2::RegularCallable{F, ...Args}
+    constexpr bool RegularCallable<F, Args...> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -77,8 +77,8 @@ STL2_OPEN_NAMESPACE {
   //
   template <class F, class...Args>
   concept bool Predicate() {
-    return RegularFunction<F, Args...>() &&
-      Boolean<ResultType<F, Args...>>();
+    return RegularCallable<F, Args...>() &&
+      Boolean<result_of_t<F&(Args...)>>();
   }
 
   namespace models {

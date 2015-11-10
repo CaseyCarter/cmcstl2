@@ -46,33 +46,39 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     namespace fsort {
       template <class I>
-      using buf_t = temporary_buffer<ValueType<I>>;
+      using buf_t = temporary_buffer<value_type_t<I>>;
 
-      Sortable{I, Comp, Proj}
-      inline I merge_n_with_buffer(I f0, DifferenceType<I> n0,
-                                   I f1, DifferenceType<I> n1,
-                                   buf_t<I>& buf, Comp& comp, Proj& proj) {
+      template <class I, class Comp, class Proj>
+      requires
+        models::Sortable<I, Comp, Proj>
+      inline I merge_n_with_buffer(I f0, difference_type_t<I> n0,
+                                   I f1, difference_type_t<I> n1,
+                                   buf_t<I>& buf, Comp& comp, Proj& proj)
+      {
         STL2_ASSUME(n0 <= buf.size());
         auto&& vec = make_temporary_vector(buf);
         __stl2::move(__stl2::make_counted_iterator(f0, n0),
                      __stl2::default_sentinel{},
                      __stl2::back_inserter(vec));
         return __stl2::merge_move(
-          vec.begin(), vec.end(),
+          __stl2::begin(vec), __stl2::end(vec),
           __stl2::make_counted_iterator(__stl2::move(f1), n1),
           __stl2::default_sentinel{},
           __stl2::move(f0), __stl2::ref(comp),
           __stl2::ref(proj), __stl2::ref(proj)).out();
       }
 
-      Sortable{I, Comp, Proj}
-      inline void merge_n_step_0(I f0, DifferenceType<I> n0,
-                                 I f1, DifferenceType<I> n1,
+      template <class I, class Comp, class Proj>
+      requires
+        models::Sortable<I, Comp, Proj>
+      inline void merge_n_step_0(I f0, difference_type_t<I> n0,
+                                 I f1, difference_type_t<I> n1,
                                  Comp& comp, Proj& proj,
-                                 I& f0_0, DifferenceType<I>& n0_0,
-                                 I& f0_1, DifferenceType<I>& n0_1,
-                                 I& f1_0, DifferenceType<I>& n1_0,
-                                 I& f1_1, DifferenceType<I>& n1_1) {
+                                 I& f0_0, difference_type_t<I>& n0_0,
+                                 I& f0_1, difference_type_t<I>& n0_1,
+                                 I& f1_0, difference_type_t<I>& n1_0,
+                                 I& f1_1, difference_type_t<I>& n1_1)
+      {
         f0_0 = f0;
         n0_0 = n0 / 2;
         f0_1 = __stl2::next(f0_0, n0_0);
@@ -85,14 +91,17 @@ STL2_OPEN_NAMESPACE {
         n1_1 = n1 - n0_1;
       }
 
-      Sortable{I, Comp, Proj}
-      inline void merge_n_step_1(I f0, DifferenceType<I> n0,
-                                 I f1, DifferenceType<I> n1,
+      template <class I, class Comp, class Proj>
+      requires
+        models::Sortable<I, Comp, Proj>
+      inline void merge_n_step_1(I f0, difference_type_t<I> n0,
+                                 I f1, difference_type_t<I> n1,
                                  Comp& comp, Proj& proj,
-                                 I& f0_0, DifferenceType<I>& n0_0,
-                                 I& f0_1, DifferenceType<I>& n0_1,
-                                 I& f1_0, DifferenceType<I>& n1_0,
-                                 I& f1_1, DifferenceType<I>& n1_1) {
+                                 I& f0_0, difference_type_t<I>& n0_0,
+                                 I& f0_1, difference_type_t<I>& n0_1,
+                                 I& f1_0, difference_type_t<I>& n1_0,
+                                 I& f1_1, difference_type_t<I>& n1_1)
+      {
         f0_0 = f0;
         n0_1 = n1 / 2;
         f1_1 = __stl2::next(f1, n0_1);
@@ -105,10 +114,13 @@ STL2_OPEN_NAMESPACE {
         n1_1 = n1 - n0_1 - 1;
       }
 
-      Sortable{I, Comp, Proj}
-      I merge_n_adaptive(I f0, DifferenceType<I> n0,
-                         I f1, DifferenceType<I> n1,
-                         buf_t<I>& buf, Comp& comp, Proj& proj) {
+      template <class I, class Comp, class Proj>
+      requires
+        models::Sortable<I, Comp, Proj>
+      I merge_n_adaptive(I f0, difference_type_t<I> n0,
+                         I f1, difference_type_t<I> n1,
+                         buf_t<I>& buf, Comp& comp, Proj& proj)
+      {
         if (n0 <= buf.size()) {
           if (!n0 || !n1) {
             return __stl2::next(f0, n0 + n1);
@@ -116,7 +128,7 @@ STL2_OPEN_NAMESPACE {
           return fsort::merge_n_with_buffer(f0, n0, f1, n1, buf, comp, proj);
         }
         I f0_0, f0_1, f1_0, f1_1;
-        DifferenceType<I> n0_0, n0_1, n1_0, n1_1;
+        difference_type_t<I> n0_0, n0_1, n1_0, n1_1;
 
         if (n0 < n1) {
                  fsort::merge_n_step_0(f0, n0, f1, n1, comp, proj,
@@ -133,9 +145,12 @@ STL2_OPEN_NAMESPACE {
                                        buf, comp, proj);
       }
 
-      Sortable{I, Comp, Proj}
-      I sort_n_adaptive(I first, const DifferenceType<I> n, buf_t<I>& buf,
-                        Comp& comp, Proj& proj) {
+      template <class I, class Comp, class Proj>
+      requires
+        models::Sortable<I, Comp, Proj>
+      I sort_n_adaptive(I first, const difference_type_t<I> n, buf_t<I>& buf,
+                        Comp& comp, Proj& proj)
+      {
         auto half_n = n / 2;
         if (!half_n) {
           return __stl2::next(first, n);
@@ -147,16 +162,20 @@ STL2_OPEN_NAMESPACE {
       }
 
       template <class I, class Comp = less<>, class Proj = identity>
-        requires Sortable<I, Comp, Proj>()
-      inline I sort_n(I first, const DifferenceType<I> n,
-                      Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{}) {
+      requires
+        models::Sortable<I, __f<Comp>, __f<Proj>>
+      inline I sort_n(I first, const difference_type_t<I> n,
+                      Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+      {
         auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
         auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
         auto ufirst = ext::uncounted(first);
-        using buf_t = temporary_buffer<ValueType<decltype(ufirst)>>;
+        static_assert(models::Same<value_type_t<I>, value_type_t<decltype(ufirst)>>);
+        using buf_t = temporary_buffer<value_type_t<I>>;
         // TODO: tune this threshold.
         auto buf = n / 2 >= 16 ? buf_t{n / 2} : buf_t{};
-        auto last = detail::fsort::sort_n_adaptive(ufirst, n, buf, comp, proj);
+        auto last = detail::fsort::sort_n_adaptive(__stl2::move(ufirst), n,
+                                                   buf, comp, proj);
         return ext::recounted(first, __stl2::move(last), n);
       }
     }

@@ -1,6 +1,7 @@
 // Range v3 library
 //
 //  Copyright Eric Niebler 2014
+//  Copyright Casey Carter 2015
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -16,22 +17,22 @@
 #include <cstring>
 #include "../simple_test.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
-template <stl2::InputIterator I>
-  requires stl2::Regular<stl2::ValueType<I>>()
+template <ranges::InputIterator I>
+  requires ranges::Regular<ranges::value_type_t<I>>()
 class delimiter {
-  stl2::ValueType<I> value_;
+  ranges::value_type_t<I> value_;
 public:
   delimiter() = default;
-  delimiter(stl2::ValueType<I> value) :
-    value_{value} {}
+  delimiter(ranges::value_type_t<I> value) :
+    value_{ranges::move(value)} {}
 
-  friend bool operator==(const delimiter&, const delimiter&) {
-    return true;
+  friend bool operator==(const delimiter& lhs, const delimiter& rhs) {
+    return lhs.value_ == rhs.value_;
   }
-  friend bool operator!=(const delimiter&, const delimiter&) {
-    return false;
+  friend bool operator!=(const delimiter& lhs, const delimiter& rhs) {
+    return !(lhs == rhs);
   }
   friend bool operator==(const I& i, const delimiter& s) {
     return *i == s.value_;
@@ -47,17 +48,28 @@ public:
   }
 };
 
+STL2_OPEN_NAMESPACE {
+template <class I>
+struct common_type<I, ::delimiter<I>> {
+  using type = common_iterator<I, ::delimiter<I>>;
+};
+template <class I>
+  struct common_type<::delimiter<I>, I> {
+  using type = common_iterator<I, ::delimiter<I>>;
+};
+} STL2_CLOSE_NAMESPACE
+
 int main()
 {
-    using stl2::begin;
-    using stl2::end;
-    using stl2::size;
+    using ranges::begin;
+    using ranges::end;
+    using ranges::size;
 
-    stl2::pair<int, int> const a[] = {{0, 0}, {0, 1}, {1, 2}, {1, 3}, {3, 4}, {3, 5}};
+    ranges::pair<int, int> const a[] = {{0, 0}, {0, 1}, {1, 2}, {1, 3}, {3, 4}, {3, 5}};
     static_assert(size(a) == 6, "");
-    stl2::pair<int, int> out[size(a)] = {};
+    ranges::pair<int, int> out[size(a)] = {};
 
-    auto res = stl2::copy(begin(a), end(a), out);
+    auto res = ranges::copy(begin(a), end(a), out);
     CHECK(res.first == end(a));
     CHECK(res.second == out + size(out));
     CHECK(&res.first == &res.in());
@@ -67,7 +79,7 @@ int main()
     std::fill_n(out, size(out), std::make_pair(0, 0));
     CHECK(!std::equal(a, a + size(a), out));
 
-    res = stl2::copy(a, out);
+    res = ranges::copy(a, out);
     CHECK(res.first == a + size(a));
     CHECK(res.second == out + size(out));
     CHECK(std::equal(a, a + size(a), out));
@@ -77,10 +89,10 @@ int main()
     {
         char const *sz = "hello world";
         char buf[50];
-        auto str = stl2::ext::make_range(sz, delimiter<const char*>{'\0'});
+        auto str = ranges::ext::make_range(sz, delimiter<const char*>{'\0'});
         {
           std::fill_n(buf, sizeof(buf), '\0');
-          auto res3 = stl2::copy(str, buf);
+          auto res3 = ranges::copy(str, buf);
           *res3.second = '\0';
           CHECK(res3.first == std::next(begin(str), std::strlen(sz)));
           CHECK(res3.second == buf + std::strlen(sz));
@@ -88,12 +100,18 @@ int main()
         }
         {
           std::fill_n(buf, sizeof(buf), '\0');
-          auto res4 = stl2::copy(stl2::move(str), buf);
+          auto res4 = ranges::copy(ranges::move(str), buf);
           *res4.second = '\0';
           CHECK(res4.first.get_unsafe() == std::next(begin(str), std::strlen(sz)));
           CHECK(res4.second == buf + std::strlen(sz));
           CHECK(std::strcmp(sz, buf) == 0);
         }
+    }
+
+    {
+      int target[8]{};
+      CHECK(ranges::copy({1,2,3,4,5,6}, target + 1).out() == target + 7);
+      check_equal(target, {0,1,2,3,4,5,6,0});
     }
 
     return test_result();

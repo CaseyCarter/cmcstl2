@@ -25,13 +25,15 @@
 #include <stl2/detail/iterator/default_sentinel.hpp>
 
 STL2_OPEN_NAMESPACE {
-  // Not to spec: Semiregular, SignedIntegral and StreamExtractable
-  // requirements are implicit.
+  // Not to spec: DefaultConstructible, CopyConstructible,
+  // SignedIntegral and StreamExtractable requirements are implicit.
   namespace detail {
     template <DefaultConstructible T, class charT = char,
               class traits = std::char_traits<charT>,
               SignedIntegral Distance = std::ptrdiff_t>
-      requires ext::StreamExtractable<T>
+    requires
+      CopyConstructible<T>() &&
+      ext::StreamExtractable<T>
     class istream_cursor : semiregular_box<T> {
     public:
       using difference_type = Distance;
@@ -49,7 +51,6 @@ STL2_OPEN_NAMESPACE {
         next();
       }
 
-      // Extension
       constexpr istream_cursor(default_sentinel) :
         istream_cursor() {}
 
@@ -57,7 +58,7 @@ STL2_OPEN_NAMESPACE {
       using box_t = semiregular_box<T>;
       using single_pass = true_type;
 
-      detail::raw_ptr<istream_type> stream_ = nullptr;
+      raw_ptr<istream_type> stream_ = nullptr;
 
       friend cursor_access;
       constexpr reference current() const noexcept {
@@ -75,14 +76,17 @@ STL2_OPEN_NAMESPACE {
         return stream_ == that.stream_;
       }
 
-      // Extension
       constexpr bool equal(default_sentinel) const noexcept {
         return stream_ == nullptr;
       }
     };
   }
 
-  template <Semiregular T>
+  template <class T>
+  requires
+    DefaultConstructible<T>() &&
+    CopyConstructible<T>() &&
+    ext::StreamExtractable<T>
   using istream_iterator =
     basic_iterator<detail::istream_cursor<T>>;
 } STL2_CLOSE_NAMESPACE

@@ -27,11 +27,13 @@ STL2_OPEN_NAMESPACE {
             InputIterator I2, Sentinel<I2> S2,
             class O, class Comp = less<>,
             class Proj1 = identity, class Proj2 = identity>
-    requires Mergeable<I1, I2, O, Comp, Proj1, Proj2>()
+  requires
+    models::Mergeable<I1, I2, O, __f<Comp>, __f<Proj1>, __f<Proj2>>
   tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
   merge(I1 first1, S1 last1, I2 first2, S2 last2, O result,
         Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{},
-        Proj2&& proj2_ = Proj2{}) {
+        Proj2&& proj2_ = Proj2{})
+  {
     auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
     auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
     auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
@@ -58,20 +60,81 @@ STL2_OPEN_NAMESPACE {
       }
       ++result;
     }
-    return {__stl2::move(first1), __stl2::move(first2), __stl2::move(result)};
+    return {__stl2::move(first1), __stl2::move(first2),
+      __stl2::move(result)};
   }
 
   template <InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
             class Proj1 = identity, class Proj2 = identity>
-    requires Mergeable<IteratorType<Rng1>, IteratorType<Rng2>, O, Comp, Proj1, Proj2>()
+  requires
+    models::Mergeable<iterator_t<Rng1>, iterator_t<Rng2>, __f<O>,
+                      __f<Comp>, __f<Proj1>, __f<Proj2>>
   tagged_tuple<tag::in1(safe_iterator_t<Rng1>), tag::in2(safe_iterator_t<Rng2>),
-               tag::out(O)>
-  merge(Rng1&& rng1, Rng2&& rng2, O result, Comp&& comp = Comp{},
-        Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
+               tag::out(__f<O>)>
+  merge(Rng1&& rng1, Rng2&& rng2, O&& result, Comp&& comp = Comp{},
+        Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+  {
     return __stl2::merge(
       __stl2::begin(rng1), __stl2::end(rng1),
       __stl2::begin(rng2), __stl2::end(rng2),
-      __stl2::move(result), __stl2::forward<Comp>(comp),
+      __stl2::forward<O>(result), __stl2::forward<Comp>(comp),
+      __stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
+  }
+
+  // Extension
+  template <class E, InputRange Rng2, class O, class Comp = less<>,
+            class Proj1 = identity, class Proj2 = identity>
+  requires
+    models::Mergeable<const E*, iterator_t<Rng2>, __f<O>,
+                      __f<Comp>, __f<Proj1>, __f<Proj2>>
+  tagged_tuple<tag::in1(dangling<const E*>),
+               tag::in2(safe_iterator_t<Rng2>), tag::out(__f<O>)>
+  merge(std::initializer_list<E>&& rng1, Rng2&& rng2,
+        O&& result, Comp&& comp = Comp{},
+        Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+  {
+    return __stl2::merge(
+      __stl2::begin(rng1), __stl2::end(rng1),
+      __stl2::begin(rng2), __stl2::end(rng2),
+      __stl2::forward<O>(result), __stl2::forward<Comp>(comp),
+      __stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
+  }
+
+  // Extension
+  template <InputRange Rng1, class E, class O, class Comp = less<>,
+            class Proj1 = identity, class Proj2 = identity>
+  requires
+    models::Mergeable<iterator_t<Rng1>, const E*, __f<O>,
+                      __f<Comp>, __f<Proj1>, __f<Proj2>>
+  tagged_tuple<tag::in1(safe_iterator_t<Rng1>),
+               tag::in2(dangling<const E*>), tag::out(__f<O>)>
+  merge(Rng1&& rng1, std::initializer_list<E>&& rng2,
+        O&& result, Comp&& comp = Comp{},
+        Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+  {
+    return __stl2::merge(
+      __stl2::begin(rng1), __stl2::end(rng1),
+      __stl2::begin(rng2), __stl2::end(rng2),
+      __stl2::forward<O>(result), __stl2::forward<Comp>(comp),
+      __stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
+  }
+
+  // Extension
+  template <class E1, class E2, class O, class Comp = less<>,
+            class Proj1 = identity, class Proj2 = identity>
+  requires
+    models::Mergeable<const E1*, const E2*, __f<O>,
+                      __f<Comp>, __f<Proj1>, __f<Proj2>>
+  tagged_tuple<tag::in1(dangling<const E1*>),
+               tag::in2(dangling<const E2*>), tag::out(__f<O>)>
+  merge(std::initializer_list<E1>&& rng1, std::initializer_list<E2>&& rng2,
+        O&& result, Comp&& comp = Comp{},
+        Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+  {
+    return __stl2::merge(
+      __stl2::begin(rng1), __stl2::end(rng1),
+      __stl2::begin(rng2), __stl2::end(rng2),
+      __stl2::forward<O>(result), __stl2::forward<Comp>(comp),
       __stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
   }
 } STL2_CLOSE_NAMESPACE

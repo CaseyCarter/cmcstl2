@@ -22,13 +22,18 @@
 // remove [alg.remove]
 //
 STL2_OPEN_NAMESPACE {
-  template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
-            IndirectCallablePredicate<Projected<I, Proj>> Pred>
-    requires Permutable<I>()
-  I remove_if(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{}) {
+  template <ForwardIterator I, Sentinel<I> S,
+            class Pred, class Proj = identity>
+  requires
+    models::Permutable<I> &&
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<I, __f<Proj>>>
+  I remove_if(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
+  {
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    first = __stl2::find_if(__stl2::move(first), last, pred, proj);
+    first = __stl2::find_if(__stl2::move(first), last,
+                            __stl2::ref(pred), __stl2::ref(proj));
     if (first != last) {
       for (auto m = __stl2::next(first); m != last; ++m) {
         if (!pred(proj(*m))) {
@@ -40,11 +45,14 @@ STL2_OPEN_NAMESPACE {
     return first;
   }
 
-  template <ForwardRange Rng, class Proj = identity,
-            IndirectCallablePredicate<Projected<IteratorType<Rng>, Proj>> Pred>
-    requires Permutable<IteratorType<Rng>>()
+  template <ForwardRange Rng, class Pred, class Proj = identity>
+  requires
+    models::Permutable<iterator_t<Rng>> &&
+    models::IndirectCallablePredicate<
+      __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
   safe_iterator_t<Rng>
-  remove_if(Rng&& rng, Pred&& pred, Proj&& proj = Proj{}) {
+  remove_if(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+  {
     return __stl2::remove_if(
       __stl2::begin(rng), __stl2::end(rng),
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
