@@ -254,9 +254,17 @@ STL2_OPEN_NAMESPACE {
     constexpr basic_iterator& operator++() & noexcept {
       return *this;
     }
-    constexpr basic_iterator operator++(int) &
-      noexcept(is_nothrow_copy_constructible<Cursor>::value) {
+    constexpr basic_iterator& operator++() &
+    requires
+      detail::CursorNext<Cursor>
+    {
+      cursor_access::next(cursor());
       return *this;
+    }
+    constexpr basic_iterator operator++(int) & {
+      auto tmp = *this;
+      ++*this;
+      return tmp;
     }
 
     template <class T>
