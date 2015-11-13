@@ -17,14 +17,16 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
-#include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/concepts/object/move_constructible.hpp>
 
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // exchange [utility.exchange]
   //
-  template <Movable T, class U = T>
-    requires Assignable<T&, U>()
+  template <class T, class U = T>
+  requires
+    models::MoveConstructible<T> &&
+    models::Assignable<T&, U>
   STL2_CONSTEXPR_EXT T exchange(T& t, U&& u)
     noexcept(is_nothrow_move_constructible<T>::value &&
              is_nothrow_assignable<T&, U>::value) {
@@ -53,33 +55,41 @@ STL2_OPEN_NAMESPACE {
     template <class T, class U>
     constexpr bool has_customization = false;
     template <class T, class U>
-      requires requires (T&& t, U&& u) { swap((T&&)t, (U&&)u); }
+    requires
+      requires (T&& t, U&& u) { swap((T&&)t, (U&&)u); }
     constexpr bool has_customization<T, U> = true;
 
     template <class F, class T, class U>
     constexpr bool has_operator = false;
     template <class F, class T, class U>
-      requires requires (const F& f, T& t, U& u) { f(t, u); }
+    requires
+      requires (const F& f, T& t, U& u) { f(t, u); }
     constexpr bool has_operator<F, T, U> = true;
 
     class fn {
     public:
       template <class T, class U>
-        requires has_customization<T, U>
+      requires
+        has_customization<T, U>
       constexpr void operator()(T&& t, U&& u) const
       STL2_NOEXCEPT_RETURN(
         (void)swap(__stl2::forward<T>(t), __stl2::forward<U>(u))
       )
 
-      template <Movable T>
-        requires !has_customization<T&, T&>
+      template <class T>
+      requires
+        !has_customization<T&, T&> &&
+        models::MoveConstructible<T> &&
+        models::Assignable<T&, T&&>
       constexpr void operator()(T& a, T& b) const
       STL2_NOEXCEPT_RETURN(
         (void)(b = __stl2::exchange(a, __stl2::move(b)))
       )
 
       template <class T, class U, std::size_t N, class F = fn>
-        requires !has_customization<T(&)[N], U(&)[N]> && has_operator<F, T, U>
+      requires
+        !has_customization<T(&)[N], U(&)[N]> &&
+        has_operator<F, T, U>
       constexpr void operator()(T (&t)[N], U (&u)[N]) const
         noexcept(noexcept(declval<const F&>()(t[0], u[0])))
       {
