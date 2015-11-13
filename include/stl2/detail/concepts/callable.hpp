@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 
   // Not to spec: The function type must be decayed before being constrained.
   template <class F, class...Is>
-    requires models::IndirectCallable<__f<F>, Is...>
+    requires models::IndirectCallable<remove_reference_t<F>, Is...>
   struct indirect_result_of<F(Is...)> :
     result_of<F(value_type_t<Is>...)> {};
 
