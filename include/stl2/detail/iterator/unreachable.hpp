@@ -21,7 +21,6 @@
 // unreachable [unreachable.sentinel]
 //
 STL2_OPEN_NAMESPACE {
-  // Extension: unreachable is WeaklyStrictTotallyOrdered with *any* type.
   class unreachable {};
 
   constexpr bool operator==(const auto&, unreachable) noexcept {
@@ -30,9 +29,6 @@ STL2_OPEN_NAMESPACE {
   constexpr bool operator==(unreachable, const auto&) noexcept {
     return false;
   }
-  constexpr bool operator==(unreachable, unreachable) noexcept {
-    return true;
-  }
 
   constexpr bool operator!=(const auto&, unreachable) noexcept {
     return true;
@@ -40,58 +36,6 @@ STL2_OPEN_NAMESPACE {
   constexpr bool operator!=(unreachable, const auto&) noexcept {
     return true;
   }
-  constexpr bool operator!=(unreachable, unreachable) noexcept {
-    return false;
-  }
-
-  constexpr bool operator<(const auto&, unreachable) noexcept {
-    return true;
-  }
-  constexpr bool operator<(unreachable, const auto&) noexcept {
-    return false;
-  }
-  constexpr bool operator<(unreachable, unreachable) noexcept {
-    return false;
-  }
-
-  constexpr bool operator>(const auto&, unreachable) noexcept {
-    return false;
-  }
-  constexpr bool operator>(unreachable, const auto&) noexcept {
-    return true;
-  }
-  constexpr bool operator>(unreachable, unreachable) noexcept {
-    return false;
-  }
-
-  constexpr bool operator<=(const auto&, unreachable) noexcept {
-    return true;
-  }
-  constexpr bool operator<=(unreachable, const auto&) noexcept {
-    return false;
-  }
-  constexpr bool operator<=(unreachable, unreachable) noexcept {
-    return true;
-  }
-
-  constexpr bool operator>=(const auto&, unreachable) noexcept {
-    return false;
-  }
-  constexpr bool operator>=(unreachable, const auto&) noexcept {
-    return true;
-  }
-  constexpr bool operator>=(unreachable, unreachable) noexcept {
-    return true;
-  }
-
-  Iterator{I}
-  struct common_type<I, unreachable> {
-    using type = common_iterator<I, unreachable>;
-  };
-  Iterator{I}
-  struct common_type<unreachable, I> {
-    using type = common_iterator<I, unreachable>;
-  };
 } STL2_CLOSE_NAMESPACE
 
 #endif

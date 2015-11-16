@@ -48,13 +48,8 @@ STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // SizedRange [ranges.sized]
   //
-  template <class T>
-  struct disable_sized_range :
-    disable_sized_range<__uncvref<T>> {};
-
-  template <_Unqual T>
-  struct disable_sized_range<T> :
-    false_type {};
+  template <class R>
+  constexpr bool disable_sized_range = false;
 
   template <class R>
   constexpr bool __sized_range = false;
@@ -67,7 +62,8 @@ STL2_OPEN_NAMESPACE {
 
   template <class R>
   concept bool SizedRange() {
-    return Range<R>() && _IsNot<R, disable_sized_range> &&
+    return Range<R>() &&
+      !disable_sized_range<__uncvref<R>> &&
       __sized_range<remove_reference_t<R>>;
   }
 

@@ -244,23 +244,6 @@ CONCEPT_ASSERT(!models::Incrementable<void>);
 CONCEPT_ASSERT(models::Incrementable<int*>);
 CONCEPT_ASSERT(models::Incrementable<const int*>);
 
-namespace weak_terator_test {
-  struct A {
-    using difference_type = signed char;
-    using value_type = double;
-
-    A& operator++();
-    A operator++(int);
-    double operator*() const;
-  };
-
-  CONCEPT_ASSERT(models::WeakIterator<int*>);
-  CONCEPT_ASSERT(models::WeakIterator<const int*>);
-  CONCEPT_ASSERT(!models::WeakIterator<void*>);
-  CONCEPT_ASSERT(models::WeakIterator<A>);
-  CONCEPT_ASSERT(models::Same<ns::rvalue_reference_t<A>, double>);
-} // namespace weak_iterator_test
-
 namespace iterator_sentinel_test {
   struct A {
     using difference_type = signed char;

@@ -61,16 +61,6 @@ public:
     constexpr sentinel() : it_() {}
     constexpr explicit sentinel(It it) : it_(it) {}
     constexpr It base() const { return it_; }
-    constexpr friend bool operator==(const sentinel& x, const sentinel& y)
-    {
-        STL2_ASSUME(x.it_ == y.it_); (void)x; (void)y;
-        return true;
-    }
-    constexpr friend bool operator!=(const sentinel& x, const sentinel& y)
-    {
-        STL2_ASSUME(x.it_ == y.it_); (void)x; (void)y;
-        return false;
-    }
     template<typename I>
     constexpr friend bool operator==(const I& x, const sentinel& y)
     {
@@ -108,14 +98,6 @@ constexpr
 std::ptrdiff_t operator-(I<It> end, sentinel<It, true> begin)
 {
     return -(begin - end);
-}
-
-template<typename It>
-inline constexpr
-std::ptrdiff_t operator-(sentinel<It, true> x, sentinel<It, true> y)
-{
-    STL2_ASSUME(x == y);
-    return 0;
 }
 
 template <class It>
@@ -421,41 +403,5 @@ struct sentinel_type<I<It>, Sized>
 {
     using type = sentinel<It, Sized>;
 };
-
-STL2_OPEN_NAMESPACE {
-    template<typename I0, bool S, typename I1>
-    struct common_type<sentinel<I0, S>, I1>
-    {
-        using type = common_iterator<I1, sentinel<I0, S>>;
-    };
-    template<typename I0, typename I1, bool S>
-    struct common_type<I0, sentinel<I1, S>>
-    {
-        using type = common_iterator<I0, sentinel<I1, S>>;
-    };
-    template<typename I, bool B>
-    struct common_type<sentinel<I, B>, sentinel<I, B>>
-    {
-        using type = sentinel<I>;
-    };
-    template<typename I0, bool S, typename I1, template <class> class TQual,
-             template <class> class UQual>
-    struct basic_common_reference<sentinel<I0, S>, I1, TQual, UQual>
-    {
-        using type = common_iterator<I1, sentinel<I0, S>>;
-    };
-    template<typename I0, typename I1, bool S, template <class> class TQual,
-             template <class> class UQual>
-    struct basic_common_reference<I0, sentinel<I1, S>, TQual, UQual>
-    {
-        using type = common_iterator<I0, sentinel<I1, S>>;
-    };
-    template<typename I, bool B, template <class> class TQual,
-             template <class> class UQual>
-    struct basic_common_reference<sentinel<I, B>, sentinel<I, B>, TQual, UQual>
-    {
-        using type = sentinel<I>;
-    };
-} STL2_CLOSE_NAMESPACE
 
 #endif  // ITERATORS_H

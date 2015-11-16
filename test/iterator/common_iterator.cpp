@@ -31,54 +31,6 @@ int main() {
         "");
     static_assert(
       std::is_same<
-        __stl2::common_type<
-          bidirectional_iterator<const char *>,
-          sentinel<const char *>
-        >::type,
-        __stl2::common_iterator<
-          bidirectional_iterator<const char *>,
-          sentinel<const char *>
-        >
-      >::value, ""
-    );
-    static_assert(
-      std::is_same<
-        __stl2::common_type<
-          sentinel<const char *>,
-          bidirectional_iterator<const char *>
-        >::type,
-        __stl2::common_iterator<
-          bidirectional_iterator<const char *>,
-          sentinel<const char *>
-        >
-      >::value, ""
-    );
-    static_assert(
-      std::is_same<
-        __stl2::common_reference<
-          const bidirectional_iterator<const char *>&,
-          const sentinel<const char *>&
-        >::type,
-        __stl2::common_iterator<
-          bidirectional_iterator<const char *>,
-          sentinel<const char *>
-        >
-      >::value, ""
-    );
-    static_assert(
-      std::is_same<
-        __stl2::common_reference<
-          const sentinel<const char *>&,
-          const bidirectional_iterator<const char *>&
-        >::type,
-        __stl2::common_iterator<
-          bidirectional_iterator<const char *>,
-          sentinel<const char *>
-        >
-      >::value, ""
-    );
-    static_assert(
-      std::is_same<
         __stl2::common_reference<
           __stl2::common_iterator<
             bidirectional_iterator<const char *>,
@@ -95,14 +47,9 @@ int main() {
         >
       >::value, ""
     );
-    static_assert(
-        models::Common<
-          bidirectional_iterator<const char *>,
-          sentinel<const char *>>,
-        "");
     // Sized iterator range tests
     static_assert(
-      !models::SizedIteratorRange<
+      !models::SizedSentinel<
         __stl2::common_iterator<
           forward_iterator<int*>,
           sentinel<int*, true> >,
@@ -111,7 +58,7 @@ int main() {
           sentinel<int*, true> > >,
         "");
     static_assert(
-      models::SizedIteratorRange<
+      models::SizedSentinel<
         __stl2::common_iterator<
           random_access_iterator<int*>,
           sentinel<int*, true> >,
@@ -120,7 +67,7 @@ int main() {
           sentinel<int*, true> > >,
         "");
     static_assert(
-      !models::SizedIteratorRange<
+      !models::SizedSentinel<
         __stl2::common_iterator<
           random_access_iterator<int*>,
           sentinel<int*, false> >,

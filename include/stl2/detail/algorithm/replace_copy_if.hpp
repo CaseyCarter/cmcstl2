@@ -21,7 +21,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class Pred, class T,
-            WeakOutputIterator<T> O, class Proj = identity>
+            OutputIterator<T> O, class Proj = identity>
   requires
     models::IndirectlyCopyable<I, O> &&
     models::IndirectCallablePredicate<
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
   template <InputRange Rng, class Pred, class T,
             class O, class Proj = identity>
   requires
-    models::WeakOutputIterator<__f<O>, T> &&
+    models::OutputIterator<__f<O>, T> &&
     models::IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
   template <class E, class Pred, class T,
             class O, class Proj = identity>
   requires
-    models::WeakOutputIterator<__f<O>, T> &&
+    models::OutputIterator<__f<O>, T> &&
     models::IndirectlyCopyable<const E*, __f<O>> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<const E*, __f<Proj>>>

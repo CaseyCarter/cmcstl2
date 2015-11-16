@@ -17,6 +17,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
   template <class Derived, detail::MemberValueType Container>
@@ -34,16 +35,16 @@ STL2_OPEN_NAMESPACE {
     __insert_iterator_base(Container& x) noexcept :
       container_{__stl2::addressof(x)} {}
 
-    Derived& operator*() noexcept {
+    STL2_CONSTEXPR_EXT Derived& operator*() noexcept {
       return derived();
     }
 
-    Derived& operator++() & noexcept {
+    STL2_CONSTEXPR_EXT Derived& operator++() & noexcept {
       return derived();
     }
 
-    Derived operator++(int) &
-      noexcept(is_nothrow_copy_constructible<Derived>::value)
+    STL2_CONSTEXPR_EXT Derived operator++(int) &
+    noexcept(is_nothrow_copy_constructible<Derived>::value)
     {
       return derived();
     }
@@ -89,21 +90,23 @@ STL2_OPEN_NAMESPACE {
 
     back_insert_iterator&
     operator=(const value_type& value) &
-      requires detail::back_insertable<Container, const value_type&> {
+    requires detail::back_insertable<Container, const value_type&>
+    {
       container_->push_back(value);
       return *this;
     }
 
     back_insert_iterator&
     operator=(value_type&& value) &
-      requires detail::back_insertable<Container, value_type&&> {
+    requires detail::back_insertable<Container, value_type&&>
+    {
       container_->push_back(__stl2::move(value));
       return *this;
     }
   };
 
   template <detail::MemberValueType Container>
-  auto back_inserter(Container& x) noexcept {
+  STL2_CONSTEXPR_EXT auto back_inserter(Container& x) noexcept {
     return back_insert_iterator<Container>{x};
   }
 
@@ -131,21 +134,23 @@ STL2_OPEN_NAMESPACE {
 
     front_insert_iterator&
     operator=(const value_type& value) &
-      requires detail::front_insertable<Container, const value_type&> {
+    requires detail::front_insertable<Container, const value_type&>
+    {
       container_->push_front(value);
       return *this;
     }
 
     front_insert_iterator&
     operator=(value_type&& value) &
-      requires detail::front_insertable<Container, value_type&&> {
+    requires detail::front_insertable<Container, value_type&&>
+    {
       container_->push_front(__stl2::move(value));
       return *this;
     }
   };
 
   template <detail::MemberValueType Container>
-  auto front_inserter(Container& x) noexcept {
+  STL2_CONSTEXPR_EXT auto front_inserter(Container& x) noexcept {
     return front_insert_iterator<Container>{x};
   }
 
@@ -175,12 +180,14 @@ STL2_OPEN_NAMESPACE {
 
     insert_iterator() = default;
     STL2_CONSTEXPR_EXT explicit insert_iterator(Container& x, I i)
-      noexcept(is_nothrow_move_constructible<I>::value) :
-      __base_t{x}, iter_{__stl2::move(i)} {}
+    noexcept(is_nothrow_move_constructible<I>::value)
+    : __base_t{x}, iter_{__stl2::move(i)}
+    {}
 
     insert_iterator&
     operator=(const value_type& value) &
-      requires detail::insertable<Container, const value_type&> {
+    requires detail::insertable<Container, const value_type&>
+    {
       iter_ = container_->insert(iter_, value);
       ++iter_;
       return *this;
@@ -188,19 +195,19 @@ STL2_OPEN_NAMESPACE {
 
     insert_iterator&
     operator=(value_type&& value) &
-      requires detail::insertable<Container, value_type&&> {
+    requires detail::insertable<Container, value_type&&>
+    {
       iter_ = container_->insert(iter_, __stl2::move(value));
       ++iter_;
       return *this;
     }
   };
 
-  template <detail::MemberValueType Container,
-            class I = typename Container::iterator>
-  auto inserter(Container& x, I i)
-    noexcept(is_nothrow_move_constructible<I>::value) {
-    return insert_iterator<Container>{x, __stl2::move(i)};
-  }
+  template <detail::MemberValueType Container>
+  STL2_CONSTEXPR_EXT auto inserter(Container& x, iterator_t<Container> i)
+  STL2_NOEXCEPT_RETURN(
+    insert_iterator<Container>{x, __stl2::move(i)}
+  )
 } STL2_CLOSE_NAMESPACE
 
 #endif

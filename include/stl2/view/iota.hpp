@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
               random_access_iterator_tag,
               bidirectional_iterator_tag>,
             forward_iterator_tag>,
-          weak_input_iterator_tag>;
+          input_iterator_tag>;
 
       iterator() = default;
       constexpr iterator(const iota_view& v)

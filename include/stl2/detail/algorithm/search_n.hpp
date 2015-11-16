@@ -121,14 +121,14 @@ STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class T,
             class Pred = equal_to<>, class Proj = identity>
   requires
-    models::SizedIteratorRange<I, S> &&
+    models::SizedSentinel<S, I> &&
     models::IndirectlyComparable<I, const T*, __f<Pred>, __f<Proj>>
   I search_n(I first, S last, difference_type_t<I> count,
              const T& value, Pred&& pred = Pred{}, Proj&& proj = Proj{})
   {
+    auto n = __stl2::distance(first, last);
     return __search_n::sized(__stl2::move(first), __stl2::move(last),
-                             __stl2::distance(first, last),
-                             count, value,
+                             n, count, value,
                              __stl2::forward<Pred>(pred),
                              __stl2::forward<Proj>(proj));
   }

@@ -24,15 +24,14 @@ int main()
         int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         auto i = make_counted_iterator(forward_iterator<int*>{rgi}, size(rgi));
         static_assert(is_same<decltype(i),counted_iterator<forward_iterator<int*>>>());
-        static_assert(models::SizedIteratorRange<decltype(i), default_sentinel>);
+        static_assert(models::SizedSentinel<default_sentinel, decltype(i)>);
         CHECK(static_cast<std::size_t>(default_sentinel{} - i) == size(rgi));
         CHECK(&*i.base() == begin(rgi));
         CHECK(std::size_t(i.count()) == size(rgi));
         CHECK(std::size_t(distance(i, default_sentinel{})) == size(rgi));
 
         counted_iterator<forward_iterator<const int*>> j{i};
-        using C = common_type_t<decltype(i), default_sentinel>;
-        static_assert(is_same<C, common_iterator<decltype(i), default_sentinel>>());
+        using C = common_iterator<decltype(i), default_sentinel>;
         CHECK(std::equal(C{i}, C{default_sentinel{}}, rgi));
     }
 

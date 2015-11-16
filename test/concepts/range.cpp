@@ -144,14 +144,11 @@ struct immutable_badsized_range :
 #if VALIDATE_STL2
 STL2_OPEN_NAMESPACE {
 template <>
-struct disable_sized_range<mutable_badsized_range> :
-  std::true_type {};
+constexpr bool disable_sized_range<mutable_badsized_range> = true;
 template <>
-struct disable_sized_range<mutable_only_badsized_range> :
-  std::true_type {};
+constexpr bool disable_sized_range<mutable_only_badsized_range> = true;
 template <>
-struct disable_sized_range<immutable_badsized_range> :
-  std::true_type {};
+constexpr bool disable_sized_range<immutable_badsized_range> = true;
 } STL2_CLOSE_NAMESPACE
 
 #elif VALIDATE_RANGES

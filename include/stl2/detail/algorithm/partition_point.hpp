@@ -88,12 +88,12 @@ STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S,
             class Pred, class Proj = identity>
   requires
-    models::SizedIteratorRange<I, S> &&
+    models::SizedSentinel<S, I> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<I, __f<Proj>>>
   I partition_point(I first, S last, Pred&& pred, Proj&& proj = Proj{})
   {
-    auto n = __stl2::distance(first, last);
+    auto n = __stl2::distance(first, __stl2::move(last));
     return __stl2::ext::partition_point_n(__stl2::move(first), n,
       __stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
   }

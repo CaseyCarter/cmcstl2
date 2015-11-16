@@ -23,7 +23,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template <InputIterator I1, Sentinel<I1> S1,
-            WeakInputIterator I2, class Pred = equal_to<>,
+            InputIterator I2, class Pred = equal_to<>,
             class Proj1 = identity, class Proj2 = identity>
   [[deprecated]] tagged_pair<tag::in1(I1), tag::in2(I2)>
   mismatch(I1 first1, S1 last1, I2 first2, Pred&& pred_ = Pred{},
@@ -75,7 +75,7 @@ STL2_OPEN_NAMESPACE {
            Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
   requires
     !is_array<remove_reference_t<I2>>::value &&
-    models::WeakInputIterator<__f<I2>> &&
+    models::InputIterator<__f<I2>> &&
     models::IndirectCallablePredicate<__f<Pred>,
       projected<iterator_t<Rng1>, __f<Proj1>>,
       projected<__f<I2>, __f<Proj2>>>

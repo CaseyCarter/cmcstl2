@@ -21,7 +21,7 @@
 // equal [alg.equal]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I1, Sentinel<I1> S1, WeakInputIterator I2,
+  template <InputIterator I1, Sentinel<I1> S1, InputIterator I2,
             class Pred, class Proj1, class Proj2>
   requires
     models::IndirectlyComparable<
@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
   requires
     models::InputIterator<__f<I1>> &&
     models::Sentinel<__f<S1>, __f<I1>> &&
-    models::WeakInputIterator<__f<I2>> &&
+    models::InputIterator<__f<I2>> &&
     models::IndirectlyComparable<
       __f<I1>, __f<I2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
   {
@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
                             Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
   requires
     !is_array<remove_reference_t<I2>>::value &&
-    models::WeakInputIterator<__f<I2>> &&
+    models::InputIterator<__f<I2>> &&
     models::IndirectlyComparable<
       iterator_t<Rng1>, __f<I2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
   {
@@ -120,11 +120,11 @@ STL2_OPEN_NAMESPACE {
   template <class I1, class S1, class I2, class S2,
             class Pred = equal_to<>, class Proj1 = identity,
             class Proj2 = identity>
-  requires 
+  requires
     models::InputIterator<__f<I1>> &&
     models::InputIterator<__f<I2>> &&
-    SizedIteratorRange<__f<I1>, __f<S1>>() &&
-    SizedIteratorRange<__f<I2>, __f<S2>>() &&
+    SizedSentinel<__f<S1>, __f<I1>>() &&
+    SizedSentinel<__f<S2>, __f<I2>>() &&
     models::IndirectlyComparable<
       __f<I1>, __f<I2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
   bool equal(I1&& first1_, S1&& last1_, I2&& first2_, S2&& last2_,
@@ -134,14 +134,13 @@ STL2_OPEN_NAMESPACE {
     // This function is a bit weird: it takes first1...last2 by
     // forwarding reference, despite actually using them, so that the
     // compiler can tell this function is more constrained than the
-    // non-SizedIteratorRange overload which takes those arguments by
+    // non-SizedSentinel overload which takes those arguments by
     // forwarding reference for good reason.
     auto first1 = __stl2::forward<I1>(first1_);
     auto last1 = __stl2::forward<S1>(last1_);
     auto first2 = __stl2::forward<I2>(first2_);
-    using C = __common_difference_type_t<__f<I1>, __f<I2>>;
-    auto len1 = C{__stl2::distance(first1, last1)};
-    auto len2 = C{__stl2::distance(first2, __stl2::forward<S2>(last2_))};
+    auto len1 = __stl2::distance(first1, last1);
+    auto len2 = __stl2::distance(first2, __stl2::forward<S2>(last2_));
     return len1 == len2 &&
       __stl2::__equal_3(__stl2::move(first1), __stl2::move(last1),
                         __stl2::move(first2), __stl2::forward<Pred>(pred),
@@ -177,10 +176,8 @@ STL2_OPEN_NAMESPACE {
   bool equal(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
              Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
   {
-    using C = __common_difference_type_t<
-                iterator_t<Rng1>, iterator_t<Rng2>>;
-    auto len1 = C{__stl2::distance(rng1)};
-    auto len2 = C{__stl2::distance(rng2)};
+    auto len1 = __stl2::distance(rng1);
+    auto len2 = __stl2::distance(rng2);
     return len1 == len2 &&
       __stl2::__equal_3(
         __stl2::begin(rng1), __stl2::end(rng1),

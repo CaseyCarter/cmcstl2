@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <InputIterator I1, Sentinel<I1> S1,
-            WeakInputIterator I2, WeaklyIncrementable O,
+            InputIterator I2, WeaklyIncrementable O,
             class F, class Proj1 = identity, class Proj2 = identity>
   [[deprecated]] tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
   transform(I1 first1, S1 last1, I2 first2, O result,
@@ -101,7 +101,7 @@ STL2_OPEN_NAMESPACE {
             Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
   requires
     !is_array<remove_reference_t<I>>::value &&
-    models::WeakInputIterator<__f<I>> &&
+    models::InputIterator<__f<I>> &&
     models::Writable<__f<O>,
       indirect_result_of_t<__f<F>&(
         projected<iterator_t<Rng>, __f<Proj1>>,
