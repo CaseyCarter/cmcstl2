@@ -68,9 +68,10 @@ namespace test_impl
     {
     private:
         char const *filename_;
-        int lineno_;
         char const *expr_;
+        char const *func_;
         T t_;
+        int lineno_;
         bool dismissed_ = false;
 
         template<typename U>
@@ -78,7 +79,8 @@ namespace test_impl
         {
             std::cerr
                 << "> ERROR: CHECK failed \"" << expr_ << "\"\n"
-                << "> \t" << filename_ << '(' << lineno_ << ')' << '\n';
+                << "> \t" << filename_ << '(' << lineno_ << ')' << '\n'
+                << "> \t in function \"" << func_ << "\"\n";
             if(dismissed_)
                 std::cerr
                     << "> \tEXPECTED: " << stream(u) << "\n> \tACTUAL: " << stream(t_) << '\n';
@@ -98,9 +100,9 @@ namespace test_impl
             return true;
         }
     public:
-        R(char const *filename, int lineno, char const *expr, T && t)
-          : filename_(filename), lineno_(lineno), expr_(expr)
-          , t_(std::forward<T>(t))
+        R(char const *filename, int lineno, char const *expr, const char* func, T && t)
+          : filename_(filename), expr_(expr), func_(func)
+          , t_(std::forward<T>(t)), lineno_(lineno)
         {}
         ~R()
         {
@@ -149,16 +151,17 @@ namespace test_impl
     {
     private:
         char const *filename_;
-        int lineno_;
         char const *expr_;
+        char const *func_;
+        int lineno_;
     public:
-        S(char const *filename, int lineno, char const *expr)
-          : filename_(filename), lineno_(lineno), expr_(expr)
+        S(char const *filename, int lineno, char const *expr, char const *func)
+          : filename_(filename), expr_(expr), func_(func), lineno_(lineno)
         {}
         template<typename T>
         R<T> operator->*(T && t)
         {
-            return {filename_, lineno_, expr_, std::forward<T>(t)};
+            return {filename_, lineno_, expr_, func_, std::forward<T>(t)};
         }
     };
 }
@@ -169,7 +172,7 @@ inline int test_result()
 }
 
 #define CHECK(...)                                                                                  \
-    (void)(::test_impl::S{__FILE__, __LINE__, #__VA_ARGS__} ->* __VA_ARGS__)                        \
+    (void)(::test_impl::S{__FILE__, __LINE__, #__VA_ARGS__, __PRETTY_FUNCTION__} ->* __VA_ARGS__) \
     /**/
 
 template<typename Rng, typename Rng2>

@@ -95,25 +95,12 @@ STL2_OPEN_NAMESPACE {
     using Base::Base;
     tagged() = default;
   
-    // 20150810: Extension, converting constructor from Base&&
-    STL2_CONSTEXPR_EXT tagged(Base&& that)
-      noexcept(is_nothrow_move_constructible<Base>::value)
-      requires MoveConstructible<Base>()
-      : Base(static_cast<Base&&>(that)) {}
-  
-    // 20150810: Extension, converting constructor from const Base&
-    STL2_CONSTEXPR_EXT tagged(const Base& that)
-      noexcept(is_nothrow_copy_constructible<Base>::value)
-      requires CopyConstructible<Base>()
-      : Base(static_cast<const Base&>(that)) {}
-  
     template <class Other>
       requires Constructible<Base, Other>()
     STL2_CONSTEXPR_EXT tagged(tagged<Other, Tags...>&& that)
       noexcept(is_nothrow_constructible<Base, Other&&>::value)
       : Base(static_cast<Other&&>(that)) {}
   
-    // 20150810: Extension: conditional noexcept.
     template <class Other>
       requires Constructible<Base, const Other&>()
     STL2_CONSTEXPR_EXT tagged(tagged<Other, Tags...> const& that)
@@ -128,7 +115,6 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
   
-    // 20150810: Extension: conditional noexcept.
     template <class Other>
       requires Assignable<Base&, const Other&>()
     tagged& operator=(const tagged<Other, Tags...>& that)
@@ -138,7 +124,7 @@ STL2_OPEN_NAMESPACE {
     }
   
     template <class U>
-      requires Assignable<Base&, U>() && !Same<decay_t<U>, tagged>()
+      requires !Same<decay_t<U>, tagged>() && Assignable<Base&, U>()
     tagged& operator=(U&& u) &
       noexcept(is_nothrow_assignable<Base&, U&&>::value) {
       static_cast<Base&>(*this) = __stl2::forward<U>(u);

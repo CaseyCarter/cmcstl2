@@ -17,6 +17,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/object/assignable.hpp>
 #include <stl2/detail/concepts/object/movable.hpp>
 
 STL2_OPEN_NAMESPACE {

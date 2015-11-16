@@ -15,6 +15,7 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/swap.hpp>
+#include <stl2/detail/concepts/object/assignable.hpp>
 #include <stl2/detail/concepts/object/move_constructible.hpp>
 
 STL2_OPEN_NAMESPACE {
