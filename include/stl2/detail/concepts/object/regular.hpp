@@ -15,19 +15,15 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
-#include <stl2/detail/concepts/semiregular.hpp>
+#include <stl2/detail/concepts/object/semiregular.hpp>
 
-////////////////////////////////////////
-// Object Concepts [concepts.lib.object]
-//
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // Regular [concepts.lib.object.regular]
   //
   template <class T>
   concept bool Regular() {
-    return Semiregular<T>() &&
-      EqualityComparable<T>();
+    return Semiregular<T>() && EqualityComparable<T>();
   }
 
   namespace models {

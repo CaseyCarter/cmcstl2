@@ -16,7 +16,7 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/core.hpp>
-#include <stl2/detail/concepts/semiregular.hpp>
+#include <stl2/detail/concepts/object/move_constructible.hpp>
 
 /////////////////////////////////////////////
 // Comparison Concepts [concepts.lib.compare]
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class B>
   concept bool Boolean() {
-    return __boolean<B> && MoveConstructible<B>();
+    return MoveConstructible<B>() && __boolean<B>;
   }
 
   namespace models {

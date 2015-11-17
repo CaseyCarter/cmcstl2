@@ -153,22 +153,6 @@ STL2_OPEN_NAMESPACE {
     __stl2::ext::PubliclyDerivedFrom{T, U}
     constexpr bool PubliclyDerivedFrom<T, U> = true;
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Assignable [concepts.lib.corelang.assignable]
-  //
-  namespace models {
-    template <class, class>
-    constexpr bool Assignable = false;
-    template <class T, class U>
-      requires Same<decltype(declval<T>() = declval<U>()), T&>
-    constexpr bool Assignable<T, U> = true;
-  }
-
-  template <class T, class U>
-  concept bool Assignable() {
-    return models::Assignable<T, U>;
-  }
 } STL2_CLOSE_NAMESPACE
 
 #endif
