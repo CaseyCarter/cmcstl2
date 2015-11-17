@@ -42,9 +42,6 @@ STL2_OPEN_NAMESPACE {
     using is_transparent = true_type;
   };
 
-  template <class T>
-  struct equal_to<T*> : std::equal_to<T*> {};
-
   ///////////////////////////////////////////////////////////////////////////
   // not_equal_to
   //
@@ -66,9 +63,6 @@ STL2_OPEN_NAMESPACE {
 
     using is_transparent = true_type;
   };
-
-  template <class T>
-  struct not_equal_to<T*> : std::not_equal_to<T*> {};
 
   ///////////////////////////////////////////////////////////////////////////
   // greater
