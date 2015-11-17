@@ -13,6 +13,7 @@
 #ifndef STL2_DETAIL_FUNCTIONAL_COMPARISONS_HPP
 #define STL2_DETAIL_FUNCTIONAL_COMPARISONS_HPP
 
+#include <functional>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/compare.hpp>
@@ -22,9 +23,10 @@ STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // equal_to [comparisons]
   //
-  template <class T = void>
-    requires Same<T, void>() || EqualityComparable<T>()
-  struct equal_to {
+  template <class = void> struct equal_to;
+
+  EqualityComparable{T}
+  struct equal_to<T> {
     constexpr bool operator()(const T& a, const T& b) const {
       return a == b;
     }
@@ -40,14 +42,18 @@ STL2_OPEN_NAMESPACE {
     using is_transparent = true_type;
   };
 
+  template <class T>
+  struct equal_to<T*> : std::equal_to<T*> {};
+
   ///////////////////////////////////////////////////////////////////////////
   // not_equal_to
   //
-  template <class T = void>
-    requires Same<T, void>() || EqualityComparable<T>()
-  struct not_equal_to {
+  template <class = void> struct not_equal_to;
+
+  EqualityComparable{T}
+  struct not_equal_to<T> {
     constexpr bool operator()(const T& a, const T& b) const {
-      return bool(a != b);
+      return a != b;
     }
   };
 
@@ -61,14 +67,18 @@ STL2_OPEN_NAMESPACE {
     using is_transparent = true_type;
   };
 
+  template <class T>
+  struct not_equal_to<T*> : std::not_equal_to<T*> {};
+
   ///////////////////////////////////////////////////////////////////////////
   // greater
   //
-  template <class T = void>
-    requires Same<T, void>() || StrictTotallyOrdered<T>()
-  struct greater {
+  template <class = void> struct greater;
+
+  StrictTotallyOrdered{T}
+  struct greater<T> {
     constexpr bool operator()(const T& a, const T& b) const {
-      return bool(a > b);
+      return a > b;
     }
   };
 
@@ -82,14 +92,18 @@ STL2_OPEN_NAMESPACE {
     using is_transparent = true_type;
   };
 
+  template <class T>
+  struct greater<T*> : std::greater<T*> {};
+
   ///////////////////////////////////////////////////////////////////////////
   // less
   //
-  template <class T = void>
-    requires Same<T, void>() || StrictTotallyOrdered<T>()
-  struct less {
+  template <class = void> struct less;
+
+  StrictTotallyOrdered{T}
+  struct less<T> {
     constexpr bool operator()(const T& a, const T& b) const {
-      return bool(a < b);
+      return a < b;
     }
   };
 
@@ -103,14 +117,18 @@ STL2_OPEN_NAMESPACE {
     using is_transparent = true_type;
   };
 
+  template <class T>
+  struct less<T*> : std::less<T*> {};
+
   ///////////////////////////////////////////////////////////////////////////
   // greater_equal
   //
-  template <class T = void>
-    requires Same<T, void>() || StrictTotallyOrdered<T>()
-  struct greater_equal {
+  template <class = void> struct greater_equal;
+
+  StrictTotallyOrdered{T}
+  struct greater_equal<T> {
     constexpr bool operator()(const T& a, const T& b) const {
-      return bool(a >= b);
+      return a >= b;
     }
   };
 
@@ -124,14 +142,18 @@ STL2_OPEN_NAMESPACE {
     using is_transparent = true_type;
   };
 
+  template <class T>
+  struct greater_equal<T*> : std::greater_equal<T*> {};
+
   ///////////////////////////////////////////////////////////////////////////
   // less_equal
   //
-  template <class T = void>
-    requires Same<T, void>() || StrictTotallyOrdered<T>()
-  struct less_equal {
+  template <class = void> struct less_equal;
+  
+  StrictTotallyOrdered{T}
+  struct less_equal<T> {
     constexpr bool operator()(const T& a, const T& b) const {
-      return bool(a <= b);
+      return a <= b;
     }
   };
 
@@ -144,6 +166,9 @@ STL2_OPEN_NAMESPACE {
 
     using is_transparent = true_type;
   };
+
+  template <class T>
+  struct less_equal<T*> : std::less_equal<T*> {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
