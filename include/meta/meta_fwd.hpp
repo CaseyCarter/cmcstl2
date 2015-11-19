@@ -37,15 +37,29 @@ namespace meta
 {
     inline namespace v1
     {
-#ifdef __cpp_lib_integer_sequence
-        using std::integer_sequence;
-#else
-        template <typename T, T...>
-        struct integer_sequence;
-#endif
-
         template <typename... Ts>
         struct list;
+
+        namespace detail
+        {
+            template <template <typename...> class>
+            struct _is_alias_class {};
+
+            template <typename T>
+            constexpr bool _is_list = false;
+
+            template <typename... Ts>
+            constexpr bool _is_list<list<Ts...>> = true;
+        } // namespace detail
+
+        template <typename T>
+        concept bool AliasClass =
+            requires {
+                detail::_is_alias_class<T::template apply>{};
+            };
+
+        template <typename T>
+        concept bool List = detail::_is_list<T>;
 
         template <typename T>
         struct id;
@@ -56,7 +70,7 @@ namespace meta
         template <typename T, template <T...> class F>
         struct quote_i;
 
-        template <typename... Fs>
+        template <AliasClass... Fs>
         struct compose;
 
         template <typename T>
@@ -70,9 +84,16 @@ namespace meta
 
         namespace extension
         {
-            template <typename F, typename List>
+            template <AliasClass F, typename List_>
             struct apply_list;
         }
+
+#ifdef __cpp_lib_integer_sequence
+        using std::integer_sequence;
+#else
+        template <typename T, T...>
+        struct integer_sequence;
+#endif
 
     } // inline namespace v1
 } // namespace meta
