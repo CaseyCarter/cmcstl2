@@ -137,12 +137,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool Swappable<T, T> = true;
     __stl2::Swappable{T, U}
     constexpr bool Swappable<T, U> = true;
-
-    // Swappable<Ts>() && ...
-    template <class...Ts>
-    constexpr bool AllSwappable = false;
-    template <__stl2::Swappable...Ts>
-    constexpr bool AllSwappable<Ts...> = true;
   }
 
   template <class T, class U>

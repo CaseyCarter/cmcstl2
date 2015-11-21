@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <class...T> struct __common_reference : meta::bool_<sizeof...(T)==1> {};
   template <class T, class U, class...Rest> requires CommonReference<T,U>()
-  struct __common_reference<T,U,Rest...> : __common_reference<CommonReferenceType<T,U>,Rest...> {};
+  struct __common_reference<T,U,Rest...> : __common_reference<common_reference_t<T,U>,Rest...> {};
 
   template <Readable...Is>
   using __iter_args_lists =

@@ -46,8 +46,7 @@ static_assert(!meta::has_type<common_reference<int, short, int, char*>>(), "");
 
 STL2_OPEN_NAMESPACE {
 template <class...T, class...U, template <class> class TQual, template <class> class UQual>
-  requires meta::_v<meta::and_c<meta::_v<meta::has_type<common_reference<TQual<T>, UQual<U>>>>...>>
-  //requires _Valid<common_reference_t, TQual<T>, UQual<U>> &&...
+  requires (_Valid<common_reference_t, TQual<T>, UQual<U>> && ...)
 struct basic_common_reference<tuple<T...>, tuple<U...>, TQual, UQual> {
   using type = tuple<common_reference_t<TQual<T>, UQual<U>>...>;
 };
@@ -152,9 +151,9 @@ static_assert(is_same<
 >::value, "");
 
 static_assert(models::CommonReference<void, void>);
-static_assert(is_same<CommonReferenceType<void, void>, void>());
+static_assert(is_same<common_reference_t<void, void>, void>());
 static_assert(models::Common<void, void>);
-static_assert(is_same<CommonType<void, void>, void>());
+static_assert(is_same<common_type_t<void, void>, void>());
 
 int main() {
   return ::test_result();

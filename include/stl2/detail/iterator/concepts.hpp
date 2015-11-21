@@ -187,10 +187,10 @@ STL2_OPEN_NAMESPACE {
     models::CommonReference<rvalue_reference_t<I>, const value_type_t<I>&> &&
     // Extra sanity checks (not strictly needed)
     models::Same<
-      CommonReferenceType<reference_t<I>, value_type_t<I>>,
+      common_reference_t<reference_t<I>, value_type_t<I>>,
       value_type_t<I>> &&
     models::Same<
-      CommonReferenceType<rvalue_reference_t<I>, value_type_t<I>>,
+      common_reference_t<rvalue_reference_t<I>, value_type_t<I>>,
       value_type_t<I>>
   constexpr bool __readable<I> = true;
 

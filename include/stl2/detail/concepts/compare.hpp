@@ -15,6 +15,7 @@
 
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object/move_constructible.hpp>
 
@@ -117,7 +118,7 @@ STL2_OPEN_NAMESPACE {
   concept bool EqualityComparable() {
     return ext::WeaklyEqualityComparable<T, U>() &&
       CommonReference<const T&, const U&>() &&
-      EqualityComparable<CommonType<T, U>>();
+      EqualityComparable<common_reference_t<const T&, const U&>>();
   }
 
   namespace models {
@@ -127,12 +128,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool EqualityComparable<T, T> = true;
     __stl2::EqualityComparable{T, U}
     constexpr bool EqualityComparable<T, U> = true;
-
-    // EqualityComparable<Ts>() && ...
-    template <class...Ts>
-    constexpr bool AllEqualityComparable = false;
-    template <__stl2::EqualityComparable...Ts>
-    constexpr bool AllEqualityComparable<Ts...> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -189,7 +184,7 @@ STL2_OPEN_NAMESPACE {
   concept bool StrictTotallyOrdered() {
     return ext::WeaklyStrictTotallyOrdered<T, U>() &&
       CommonReference<const T&, const U&>() &&
-      StrictTotallyOrdered<CommonType<T, U>>();
+      StrictTotallyOrdered<common_reference_t<const T&, const U&>>();
   }
 
   namespace models {
@@ -199,12 +194,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool StrictTotallyOrdered<T, T> = true;
     __stl2::StrictTotallyOrdered{T, U}
     constexpr bool StrictTotallyOrdered<T, U> = true;
-
-    // StrictTotallyOrdered<Ts>() && ...
-    template <class...Ts>
-    constexpr bool AllTotallyOrdered = false;
-    template <__stl2::StrictTotallyOrdered...Ts>
-    constexpr bool AllTotallyOrdered<Ts...> = true;
   }
 } STL2_CLOSE_NAMESPACE
 

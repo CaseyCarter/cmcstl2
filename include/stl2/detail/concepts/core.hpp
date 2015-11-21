@@ -29,10 +29,6 @@ STL2_OPEN_NAMESPACE {
   template <class U, template <class...> class T, class... V>
   concept bool _IsNot = !_Is<U, T, V...>;
 
-  template <template <class...> class Trait, class...Ts>
-  concept bool _AllAre =
-    meta::_v<meta::all_of<meta::list<Ts...>, meta::quote_trait<Trait>>>;
-
   ///////////////////////////////////////////////////////////////////////////
   // Same [concepts.lib.corelang.same]
   // Extension: variadic.

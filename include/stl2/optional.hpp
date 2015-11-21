@@ -537,7 +537,7 @@ STL2_OPEN_NAMESPACE {
 
   Common{T, U}
   struct common_type<optional<T>, optional<U>> {
-    using type = optional<CommonType<T, U>>;
+    using type = optional<common_type_t<T, U>>;
   };
 } STL2_CLOSE_NAMESPACE
 

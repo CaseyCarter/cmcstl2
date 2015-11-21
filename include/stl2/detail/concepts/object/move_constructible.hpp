@@ -72,12 +72,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool Destructible = false;
     __stl2::Destructible{T}
     constexpr bool Destructible<T> = true;
-
-    // Destructible<Ts>() && ...
-    template <class...Ts>
-    constexpr bool AllDestructible = false;
-    template <__stl2::Destructible...Ts>
-    constexpr bool AllDestructible<Ts...> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -169,12 +163,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool MoveConstructible = false;
     __stl2::MoveConstructible{T}
     constexpr bool MoveConstructible<T> = true;
-
-    // MoveConstructible<Ts>() && ...
-    template <class...Ts>
-    constexpr bool AllMoveConstructible = false;
-    template <__stl2::MoveConstructible...Ts>
-    constexpr bool AllMoveConstructible<Ts...> = true;
   }
 } STL2_CLOSE_NAMESPACE
 

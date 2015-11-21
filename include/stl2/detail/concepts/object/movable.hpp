@@ -34,12 +34,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool Movable = false;
     __stl2::Movable{T}
     constexpr bool Movable<T> = true;
-
-    // Movable<Ts>() && ...
-    template <class...Ts>
-    constexpr bool AllMovable = false;
-    template <__stl2::Movable...Ts>
-    constexpr bool AllMovable<Ts...> = true;
   }
 } STL2_CLOSE_NAMESPACE
 

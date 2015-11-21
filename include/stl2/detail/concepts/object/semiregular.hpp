@@ -38,12 +38,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool CopyConstructible = false;
     __stl2::CopyConstructible{T}
     constexpr bool CopyConstructible<T> = true;
-
-    // CopyConstructible<Ts>() && ...
-    template <class...Ts>
-    constexpr bool AllCopyConstructible = false;
-    template <__stl2::CopyConstructible...Ts>
-    constexpr bool AllCopyConstructible<Ts...> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -60,12 +54,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool Copyable = false;
     __stl2::Copyable{T}
     constexpr bool Copyable<T> = true;
-
-    // Copyable<Ts>() && ...
-    template <class...Ts>
-    constexpr bool AllCopyable = false;
-    template <__stl2::Copyable...Ts>
-    constexpr bool AllCopyable<Ts...> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////

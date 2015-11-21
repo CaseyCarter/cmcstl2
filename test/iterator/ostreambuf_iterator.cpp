@@ -38,8 +38,8 @@ int main() {
   using I = ostreambuf_iterator<char>;
   static_assert(models::OutputIterator<I, char>);
   static_assert(models::Sentinel<default_sentinel, I>);
-  using C = CommonType<I, default_sentinel>;
-  static_assert(is_same<C, I>());
+  static_assert(models::Common<I, default_sentinel>);
+  static_assert(is_same<I, common_type_t<I, default_sentinel>>());
 
   {
     static const char hw[] = "Hello, world!";

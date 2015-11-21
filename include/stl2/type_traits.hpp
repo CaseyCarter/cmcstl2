@@ -160,7 +160,8 @@ STL2_OPEN_NAMESPACE {
     template <class, class>
     constexpr bool CommonReference = false;
     template <class T, class U>
-      requires requires (T (&t)(), U (&u)()) {
+    requires
+      requires (T (&t)(), U (&u)()) {
         typename common_reference_t<T, U>;
         typename common_reference_t<U, T>;
         requires Same<common_reference_t<T, U>,
@@ -176,15 +177,14 @@ STL2_OPEN_NAMESPACE {
     return models::CommonReference<T, U>;
   }
 
-  CommonReference{T, U}
-  using CommonReferenceType =
-    common_reference_t<T, U>;
-
   namespace models {
     template <class, class>
     constexpr bool Common = false;
     template <class T, class U>
-      requires requires (T (&t)(), U (&u)()) {
+    requires
+      CommonReference<add_lvalue_reference_t<const T>,
+                      add_lvalue_reference_t<const U>> &&
+      requires (T (&t)(), U (&u)()) {
         typename common_type_t<T, U>;
         typename common_type_t<U, T>;
         requires Same<common_type_t<T, U>,
@@ -192,21 +192,16 @@ STL2_OPEN_NAMESPACE {
         common_type_t<T, U>(t());
         common_type_t<T, U>(u());
         requires CommonReference<add_lvalue_reference_t<common_type_t<T, U>>,
-                                 CommonReferenceType<add_lvalue_reference_t<const T>,
-                                                     add_lvalue_reference_t<const U>>>;
+                                 common_reference_t<add_lvalue_reference_t<const T>,
+                                                    add_lvalue_reference_t<const U>>>;
       }
     constexpr bool Common<T, U> = true;
   }
 
-  // Casey strongly suspects that we want Same to subsume Common
-  // (See https://github.com/ericniebler/stl2/issues/50).
   template <class T, class U>
   concept bool Common() {
     return models::Common<T, U>;
   }
-
-  Common{T, U}
-  using CommonType = common_type_t<T, U>;
 } STL2_CLOSE_NAMESPACE
 
 #endif
