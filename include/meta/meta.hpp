@@ -124,11 +124,20 @@ namespace meta
             template <typename T>
             constexpr T *nullptr_v = nullptr;
 
+            template <typename...>
+            concept bool True_ = true;
+
             template <template <typename...> class C, typename... Ts>
-            concept bool Valid_ = requires { typename C<Ts...>; };
+            concept bool Valid_ = requires
+            {
+                typename C<Ts...>;
+            };
 
             template <typename T, template <T...> class C, T... Is>
-            concept bool ValidI_ = requires{ typename C<Is...>; };
+            concept bool Valid_I_ = requires
+            {
+                typename C<Is...>;
+            };
         } // namespace detail
 
         /// An empty type.
@@ -137,36 +146,21 @@ namespace meta
         {
         };
 
-        /// "Evaluate" the trait \p T by returning the nested \c T::type
-        /// alias.
-        /// \ingroup invocation
-        template <typename T>
-        using eval //META_DEPRECATED("Please replace meta::eval with meta::_t") =
-            = typename T::type;
-
         /// Type alias for \p T::type.
         /// \ingroup invocation
-        template <typename T>
+        template <Trait T>
         using _t = typename T::type;
 
-#if defined(__cpp_variable_templates) || defined(META_DOXYGEN_INVOKED)
         /// Variable alias for \c T::type::value
         /// \note Requires C++14 or greater.
         /// \ingroup invocation
-        template <typename T>
+        //template <Integral T> // BUGBUG https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68434
+        template <class T>
         constexpr typename T::type::value_type _v = T::type::value;
-#endif
 
         /// Lazy versions of meta actions
         namespace lazy
-        {
-            /// \sa `meta::eval`
-            /// \ingroup lazy_invocation
-            template <typename T>
-            using eval //META_DEPRECATED("Please replace meta::lazy::eval with meta::lazy::_t") =
-                = defer<eval, T>;
-
-            /// \sa `meta::_t`
+        { /// \sa `meta::_t`
             /// \ingroup lazy_invocation
             template <typename T>
             using _t = defer<_t, T>;
@@ -196,117 +190,109 @@ namespace meta
         // Math operations
         /// An integral constant wrapper around the result of incrementing the wrapped integer \c
         /// T::type::value.
-        template <typename T>
-        using inc = std::integral_constant<decltype(T::type::value + 1), T::type::value + 1>;
+        template <Integral T>
+        using inc = std::integral_constant<decltype(_v<T> + 1), _v<T> + 1>;
 
         /// An integral constant wrapper around the result of decrementing the wrapped integer \c
         /// T::type::value.
-        template <typename T>
-        using dec = std::integral_constant<decltype(T::type::value - 1), T::type::value - 1>;
+        template <Integral T>
+        using dec = std::integral_constant<decltype(_v<T> - 1), _v<T> - 1>;
 
         /// An integral constant wrapper around the result of adding the two wrapped integers
         /// \c T::type::value and \c U::type::value.
         /// \ingroup math
-        template <typename T, typename U>
-        using plus = std::integral_constant<decltype(T::type::value + U::type::value),
-                                            T::type::value + U::type::value>;
+        template <Integral T, Integral U>
+        using plus = std::integral_constant<decltype(_v<T> + _v<U>), _v<T> + _v<U>>;
 
         /// An integral constant wrapper around the result of subtracting the two wrapped integers
         /// \c T::type::value and \c U::type::value.
         /// \ingroup math
-        template <typename T, typename U>
-        using minus = std::integral_constant<decltype(T::type::value - U::type::value),
-                                             T::type::value - U::type::value>;
+        template <Integral T, Integral U>
+        using minus = std::integral_constant<decltype(_v<T> - _v<U>), _v<T> - _v<U>>;
 
         /// An integral constant wrapper around the result of multiplying the two wrapped integers
         /// \c T::type::value and \c U::type::value.
         /// \ingroup math
-        template <typename T, typename U>
-        using multiplies = std::integral_constant<decltype(T::type::value * U::type::value),
-                                                  T::type::value * U::type::value>;
+        template <Integral T, Integral U>
+        using multiplies = std::integral_constant<decltype(_v<T> * _v<U>), _v<T> * _v<U>>;
 
         /// An integral constant wrapper around the result of dividing the two wrapped integers \c
         /// T::type::value and \c U::type::value.
         /// \ingroup math
-        template <typename T, typename U>
-        using divides = std::integral_constant<decltype(T::type::value / U::type::value),
-                                               T::type::value / U::type::value>;
+        template <Integral T, Integral U>
+        using divides = std::integral_constant<decltype(_v<T> / _v<U>), _v<T> / _v<U>>;
 
         /// An integral constant wrapper around the result of negating the wrapped integer
         /// \c T::type::value.
         /// \ingroup math
-        template <typename T>
-        using negate = std::integral_constant<decltype(-T::type::value), -T::type::value>;
+        template <Integral T>
+        using negate = std::integral_constant<decltype(-_v<T>), -_v<T>>;
 
         /// An integral constant wrapper around the remainder of dividing the two wrapped integers
         /// \c T::type::value and \c U::type::value.
         /// \ingroup math
-        template <typename T, typename U>
-        using modulus = std::integral_constant<decltype(T::type::value % U::type::value),
-                                               T::type::value % U::type::value>;
+        template <Integral T, Integral U>
+        using modulus = std::integral_constant<decltype(_v<T> % _v<U>), _v<T> % _v<U>>;
 
         /// A Boolean integral constant wrapper around the result of comparing \c T::type::value and
         /// \c U::type::value for equality.
         /// \ingroup math
-        template <typename T, typename U>
-        using equal_to = bool_<T::type::value == U::type::value>;
+        template <Integral T, Integral U>
+        using equal_to = bool_<_v<T> == _v<U>>;
 
         /// A Boolean integral constant wrapper around the result of comparing \c T::type::value and
         /// \c U::type::value for inequality.
         /// \ingroup math
-        template <typename T, typename U>
-        using not_equal_to = bool_<T::type::value != U::type::value>;
+        template <Integral T, Integral U>
+        using not_equal_to = bool_<_v<T> != _v<U>>;
 
         /// A Boolean integral constant wrapper around \c true if \c T::type::value is greater than
         /// \c U::type::value; \c false, otherwise.
         /// \ingroup math
-        template <typename T, typename U>
-        using greater = bool_<(T::type::value > U::type::value)>;
+        template <Integral T, Integral U>
+        using greater = bool_<(_v<T>> _v<U>)>;
 
         /// A Boolean integral constant wrapper around \c true if \c T::type::value is less than \c
         /// U::type::value; \c false, otherwise.
         /// \ingroup math
-        template <typename T, typename U>
-        using less = bool_<(T::type::value < U::type::value)>;
+        template <Integral T, Integral U>
+        using less = bool_<(_v<T> < _v<U>)>;
 
         /// A Boolean integral constant wrapper around \c true if \c T::type::value is greater than
         /// or equal to \c U::type::value; \c false, otherwise.
         /// \ingroup math
-        template <typename T, typename U>
-        using greater_equal = bool_<(T::type::value >= U::type::value)>;
+        template <Integral T, Integral U>
+        using greater_equal = bool_<(_v<T> >= _v<U>)>;
 
         /// A Boolean integral constant wrapper around \c true if \c T::type::value is less than or
         /// equal to \c U::type::value; \c false, otherwise.
         /// \ingroup math
-        template <typename T, typename U>
-        using less_equal = bool_<(T::type::value <= U::type::value)>;
+        template <Integral T, Integral U>
+        using less_equal = bool_<(_v<T> <= _v<U>)>;
 
         /// An integral constant wrapper around the result of bitwise-and'ing the two wrapped
         /// integers \c T::type::value and \c U::type::value.
         /// \ingroup math
-        template <typename T, typename U>
-        using bit_and = std::integral_constant<decltype(T::type::value & U::type::value),
-                                               T::type::value & U::type::value>;
+        template <Integral T, Integral U>
+        using bit_and = std::integral_constant<decltype(_v<T> & _v<U>), _v<T> & _v<U>>;
 
         /// An integral constant wrapper around the result of bitwise-or'ing the two wrapped
         /// integers \c T::type::value and \c U::type::value.
         /// \ingroup math
-        template <typename T, typename U>
-        using bit_or = std::integral_constant<decltype(T::type::value | U::type::value),
-                                              T::type::value | U::type::value>;
+        template <Integral T, Integral U>
+        using bit_or = std::integral_constant<decltype(_v<T> | _v<U>), _v<T> | _v<U>>;
 
         /// An integral constant wrapper around the result of bitwise-exclusive-or'ing the two
         /// wrapped integers \c T::type::value and \c U::type::value.
         /// \ingroup math
-        template <typename T, typename U>
-        using bit_xor = std::integral_constant<decltype(T::type::value ^ U::type::value),
-                                               T::type::value ^ U::type::value>;
+        template <Integral T, Integral U>
+        using bit_xor = std::integral_constant<decltype(_v<T> ^ _v<U>), _v<T> ^ _v<U>>;
 
         /// An integral constant wrapper around the result of bitwise-complementing the wrapped
         /// integer \c T::type::value.
         /// \ingroup math
-        template <typename T>
-        using bit_not = std::integral_constant<decltype(~T::type::value), ~T::type::value>;
+        template <Integral T>
+        using bit_not = std::integral_constant<decltype(~_v<T>), ~_v<T>>;
 
         namespace lazy
         {
@@ -420,25 +406,14 @@ namespace meta
         template <typename T>
         struct always
         {
-        private:
-            // Redirect through a class template for compilers that have not
-            // yet implemented CWG 1558:
-            // <http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1558>
             template <typename...>
-            struct impl
-            {
-                using type = T;
-            };
-
-        public:
-            template <typename... Ts>
-            using apply = _t<impl<Ts...>>;
+            using apply = T;
         };
 
         /// An alias for `void`.
         /// \ingroup trait
-        template <typename... Ts>
-        using void_ = apply<always<void>, Ts...>;
+        template <typename...>
+        using void_ = void;
 
         namespace lazy
         {
@@ -452,17 +427,10 @@ namespace meta
         namespace detail
         {
             template <typename>
-            struct has_type_
-            {
-                using type = std::false_type;
-            };
+            constexpr bool has_type_ = false;
 
-            template <typename T>
-                requires detail::Valid_<_t, T>
-            struct has_type_<T>
-            {
-                using type = std::true_type;
-            };
+            template <Trait T>
+            constexpr bool has_type_<T> = true;
 
             template <template <typename...> class, typename>
             struct defer_
@@ -470,8 +438,7 @@ namespace meta
             };
 
             template <template <typename...> class C, typename... Ts>
-                requires detail::Valid_<C, Ts...>
-            struct defer_<C, list<Ts...>>
+            requires Valid_<C, Ts...> struct defer_<C, list<Ts...>>
             {
                 using type = C<Ts...>;
             };
@@ -482,8 +449,7 @@ namespace meta
             };
 
             template <typename T, template <T...> class C, T... Is>
-                requires detail::ValidI_<T, C, Is...>
-            struct defer_i_<T, C, integer_sequence<T, Is...>>
+            requires detail::Valid_I_<T, C, Is...> struct defer_i_<T, C, integer_sequence<T, Is...>>
             {
                 using type = C<Is...>;
             };
@@ -494,7 +460,7 @@ namespace meta
         /// alias for `std::false_type`.
         /// \ingroup trait
         template <typename T>
-        using has_type = _t<detail::has_type_<T>>;
+        using has_type = bool_<detail::has_type_<T>>;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // defer
@@ -642,8 +608,8 @@ namespace meta
         {
             // Indirection through defer_i here needed to avoid Core issue 1430
             // http://open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1430
-            template <typename... Ts>
-            using apply = _t<defer_i<T, C, Ts::type::value...>>;
+            template <Integral... Ts>
+            using apply = _t<defer_i<T, C, _v<Ts>...>>;
         };
 
         /// Turn a trait \p C into a Alias Class.
@@ -822,18 +788,18 @@ namespace meta
             {
             };
 
-            template <typename If>
-            struct _if_<If> : std::enable_if<If::type::value>
+            template <Integral If>
+            struct _if_<If> : std::enable_if<_v<If>>
             {
             };
 
-            template <typename If, typename Then>
-            struct _if_<If, Then> : std::enable_if<If::type::value, Then>
+            template <Integral If, typename Then>
+            struct _if_<If, Then> : std::enable_if<_v<If>, Then>
             {
             };
 
-            template <typename If, typename Then, typename Else>
-            struct _if_<If, Then, Else> : std::conditional<If::type::value, Then, Else>
+            template <Integral If, typename Then, typename Else>
+            struct _if_<If, Then, Else> : std::conditional<_v<If>, Then, Else>
             {
             };
         } // namespace detail
@@ -865,7 +831,7 @@ namespace meta
         /// \cond
         namespace detail
         {
-            template <typename... Bools>
+            template <Integral... Bs>
             struct _and_;
 
             template <>
@@ -873,13 +839,12 @@ namespace meta
             {
             };
 
-            template <typename Bool, typename... Bools>
-            struct _and_<Bool, Bools...>
-                : if_c<!Bool::type::value, std::false_type, _and_<Bools...>>
+            template <Integral B, Integral... Bs>
+            struct _and_<B, Bs...> : if_c<!_v<B>, std::false_type, _and_<Bs...>>
             {
             };
 
-            template <typename... Bools>
+            template <Integral... Bs>
             struct _or_;
 
             template <>
@@ -887,8 +852,8 @@ namespace meta
             {
             };
 
-            template <typename Bool, typename... Bools>
-            struct _or_<Bool, Bools...> : if_c<Bool::type::value, std::true_type, _or_<Bools...>>
+            template <Integral B, Integral... Bs>
+            struct _or_<B, Bs...> : if_c<_v<B>, std::true_type, _or_<Bs...>>
             {
             };
         } // namespace detail
@@ -896,84 +861,74 @@ namespace meta
 
         /// Logically negate the Boolean parameter
         /// \ingroup logical
-        template <bool Bool>
-        using not_c = bool_<!Bool>;
+        template <bool B>
+        using not_c = bool_<!B>;
 
         /// Logically negate the integral constant-wrapped Boolean parameter.
         /// \ingroup logical
-        template <typename Bool>
-        using not_ = not_c<Bool::type::value>;
+        template <Integral B>
+        using not_ = not_c<_v<B>>;
 
         /// Logically and together all the Boolean parameters
         /// \ingroup logical
-#if (__GNUC__ == 5) && (__GNUC_MINOR__ == 1) && !defined(__clang__)
-        // Alternative formulation of and_c to workaround
-        // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66405
-        template <bool... Bools>
-        using and_c = std::is_same<integer_sequence<bool, true, Bools...>,
-                                   integer_sequence<bool, Bools..., true>>;
-#else
-        template <bool... Bools>
-        using and_c = std::is_same<integer_sequence<bool, Bools...>,
-                                   integer_sequence<bool, (Bools || true)...>>;
-#endif
+        template <bool... Bs>
+        using and_c = bool_<(true && ... && Bs)>;
 
         /// Logically and together all the integral constant-wrapped Boolean parameters, \e without
         /// doing short-circuiting.
         /// \ingroup logical
-        template <typename... Bools>
-        using fast_and = and_c<Bools::type::value...>;
+        template <Integral... Bs>
+        using fast_and = and_c<_v<Bs>...>;
 
         /// Logically and together all the integral constant-wrapped Boolean parameters, \e with
         /// short-circuiting.
         /// \ingroup logical
-        template <typename... Bools>
-        using and_ = _t<detail::_and_<Bools...>>;
+        template <Integral... Bs>
+        using and_ = _t<detail::_and_<Bs...>>;
 
         /// Logically or together all the Boolean parameters
         /// \ingroup logical
-        template <bool... Bools>
-        using or_c = not_<std::is_same<integer_sequence<bool, Bools...>,
-                                       integer_sequence<bool, (Bools && false)...>>>;
+        template <bool... Bs>
+        using or_c = bool_<(false || ... || Bs)>;
 
         /// Logically or together all the integral constant-wrapped Boolean parameters, \e without
         /// doing short-circuiting.
         /// \ingroup logical
-        template <typename... Bools>
-        using fast_or = or_c<Bools::type::value...>;
+        template <Integral... Bs>
+        using fast_or = or_c<_v<Bs>...>;
 
         /// Logically or together all the integral constant-wrapped Boolean parameters, \e with
         /// short-circuiting.
         /// \ingroup logical
-        template <typename... Bools>
-        using or_ = _t<detail::_or_<Bools...>>;
+        template <Integral... Bs>
+        using or_ = _t<detail::_or_<Bs...>>;
 
         namespace lazy
         {
             /// \sa 'meta::and_'
             /// \ingroup lazy_logical
-            template <typename... Bools>
-            using and_ = defer<and_, Bools...>;
+            template <typename... Bs>
+            using and_ = defer<and_, Bs...>;
 
             /// \sa 'meta::or_'
             /// \ingroup lazy_logical
-            template <typename... Bools>
-            using or_ = defer<or_, Bools...>;
+            template <typename... Bs>
+            using or_ = defer<or_, Bs...>;
 
             /// \sa 'meta::not_'
             /// \ingroup lazy_logical
-            template <typename Bool>
-            using not_ = defer<not_, Bool>;
+            template <typename B>
+            using not_ = defer<not_, B>;
 
             /// \sa 'meta::fast_and'
             /// \ingroup lazy_logical
-            template <typename... Bools>
-            using fast_and = defer<fast_and, Bools...>;
+            template <typename... Bs>
+            using fast_and = defer<fast_and, Bs...>;
 
             /// \sa 'meta::fast_or'
             /// \ingroup lazy_logical
-            template <typename... Bools>
-            using fast_or = defer<fast_or, Bools...>;
+            template <typename... Bs>
+            using fast_or = defer<fast_or, Bs...>;
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -993,8 +948,7 @@ namespace meta
             };
 
             template <typename Head, typename... L, typename State, typename Fn>
-                requires detail::Valid_<apply, Fn, State, Head>
-            struct fold_<list<Head, L...>, State, Fn>
+            requires Valid_<apply, Fn, State, Head> struct fold_<list<Head, L...>, State, Fn>
                 : fold_<list<L...>, apply<Fn, State, Head>, Fn>
             {
             };
@@ -1047,8 +1001,8 @@ namespace meta
             };
 
             template <typename Head, typename... L, typename State, typename Fn>
-                requires detail::Valid_<_t, reverse_fold_<list<L...>, State, Fn>>
-            struct reverse_fold_<list<Head, L...>, State, Fn>
+            requires Valid_<_t, reverse_fold_<list<L...>, State, Fn>> struct reverse_fold_<
+                list<Head, L...>, State, Fn>
                 : lazy::apply<Fn, _t<reverse_fold_<list<L...>, State, Fn>>, Head>
             {
             };
@@ -1213,8 +1167,8 @@ namespace meta
         /// \par Complexity
         /// \f$ O(log N) \f$.
         /// \ingroup list
-        template <typename N, typename T = void>
-        using repeat_n = _t<detail::repeat_n_c_<N::type::value, T>>;
+        template <Integral N, typename T = void>
+        using repeat_n = _t<detail::repeat_n_c_<_v<N>, T>>;
 
         /// Generate `list<T,T,T...T>` of size \p N arguments.
         /// \par Complexity
@@ -1310,7 +1264,7 @@ namespace meta
             template <>
             struct drop_impl_<list<>>
             {
-                template <typename...Ts>
+                template <typename... Ts>
                 static id<list<Ts...>> eval(id<Ts> *...);
             };
 
@@ -1528,12 +1482,12 @@ namespace meta
 
         /// An integral constant wrapper around the minimum of `Ts::type::value...`
         /// \ingroup math
-        template <typename... Ts>
+        template <Integral... Ts>
         using min = fold<pop_front<list<Ts...>>, front<list<Ts...>>, quote<detail::min_>>;
 
         /// An integral constant wrapper around the maximum of `Ts::type::value...`
         /// \ingroup math
-        template <typename... Ts>
+        template <Integral... Ts>
         using max = fold<pop_front<list<Ts...>>, front<list<Ts...>>, quote<detail::max_>>;
 
         namespace lazy
@@ -1606,8 +1560,8 @@ namespace meta
             constexpr std::size_t find_index_i_(bool const *const first, bool const *const last,
                                                 std::size_t N = 0)
             {
-                return first == last ? npos::value : *first ? N
-                                                            : find_index_i_(first + 1, last, N + 1);
+                return first == last ? _v<npos> : *first ? N
+                                                         : find_index_i_(first + 1, last, N + 1);
             }
 
             template <typename L, typename T>
@@ -1624,7 +1578,7 @@ namespace meta
             template <typename... T, typename V>
             struct find_index_<list<T...>, V>
             {
-                static constexpr bool s_v[] = {std::is_same<T, V>::value...};
+                static constexpr bool s_v[] = {_v<std::is_same<T, V>>...};
                 using type = size_t<find_index_i_(s_v, s_v + sizeof...(T))>;
             };
         } // namespace detail
@@ -1656,9 +1610,8 @@ namespace meta
             constexpr std::size_t reverse_find_index_i_(bool const *const first,
                                                         bool const *const last, std::size_t N)
             {
-                return first == last
-                           ? npos::value
-                           : *(last - 1) ? N - 1 : reverse_find_index_i_(first, last - 1, N - 1);
+                return first == last ? _v<npos> : *(last - 1) ? N - 1 : reverse_find_index_i_(
+                                                                            first, last - 1, N - 1);
             }
 
             template <typename L, typename T>
@@ -1675,7 +1628,7 @@ namespace meta
             template <typename... T, typename V>
             struct reverse_find_index_<list<T...>, V>
             {
-                static constexpr bool s_v[] = {std::is_same<T, V>::value...};
+                static constexpr bool s_v[] = {_v<std::is_same<T, V>>...};
                 using type = size_t<reverse_find_index_i_(s_v, s_v + sizeof...(T), sizeof...(T))>;
             };
         } // namespace detail
@@ -1715,8 +1668,7 @@ namespace meta
             };
 
             template <typename Head, typename... L, typename T, typename State>
-            struct reverse_find_<list<Head, L...>, T, State>
-                : reverse_find_<list<L...>, T, State>
+            struct reverse_find_<list<Head, L...>, T, State> : reverse_find_<list<L...>, T, State>
             {
             };
 
@@ -1819,8 +1771,7 @@ namespace meta
 
             template <typename Head, typename... L, typename Fn, typename State>
             struct reverse_find_if_<list<Head, L...>, Fn, State>
-                : reverse_find_if_<list<L...>, Fn,
-                                   if_<apply<Fn, Head>, list<Head, L...>, State>>
+                : reverse_find_if_<list<L...>, Fn, if_<apply<Fn, Head>, list<Head, L...>, State>>
             {
             };
         }
@@ -1963,43 +1914,21 @@ namespace meta
         /// \cond
         namespace detail
         {
-            template <typename, typename>
-            struct transform1_
-            {
-            };
-
-            template <typename... L, typename Fn>
-                requires detail::Valid_<list, apply<Fn, L>...>
-            struct transform1_<list<L...>, Fn>
-            {
-                using type = list<apply<Fn, L>...>;
-            };
-
-            template <typename, typename, typename>
-            struct transform2_
-            {
-            };
-
-            template <typename... L0, typename... L1, typename Fn>
-                requires detail::Valid_<list, apply<Fn, L0, L1>...>
-            struct transform2_<list<L0...>, list<L1...>, Fn>
-            {
-                using type = list<apply<Fn, L0, L1>...>;
-            };
-
             template <typename... Args>
             struct transform_
             {
             };
 
-            template <List L, AliasClass Fn>
-            struct transform_<L, Fn> : transform1_<L, Fn>
+            template <typename... Ts, AliasClass Fn>
+            requires True_<apply<Fn, Ts>...> struct transform_<list<Ts...>, Fn>
             {
+                using type = list<apply<Fn, Ts>...>;
             };
 
-            template <List L0, List L1, AliasClass Fn>
-            struct transform_<L0, L1, Fn> : transform2_<L0, L1, Fn>
+            template <typename... Ts, typename... Us, AliasClass Fn>
+            requires True_<apply<Fn, Ts, Us>...> struct transform_<list<Ts...>, list<Us...>, Fn>
             {
+                using type = list<apply<Fn, Ts, Us>...>;
             };
         } // namespace detail
         /// \endcond
@@ -2111,7 +2040,7 @@ namespace meta
         /// \ingroup transformation
         template <List ListOfLists>
         using transpose = fold<ListOfLists, repeat_n<size<front<ListOfLists>>, list<>>,
-            bind_back<quote<transform>, quote<push_back>>>;
+                               bind_back<quote<transform>, quote<push_back>>>;
 
         namespace lazy
         {
@@ -2297,12 +2226,12 @@ namespace meta
         /// \cond
         namespace detail
         {
-            template<typename L>
+            template <typename L>
             struct inherit_
             {
             };
 
-            template<typename ...L>
+            template <typename... L>
             struct inherit_<list<L...>> : L...
             {
                 using type = inherit_;
@@ -2379,13 +2308,12 @@ namespace meta
             template <typename Fn>
             struct partition_
             {
-                template <typename, typename, typename = void>
+                template <typename, typename>
                 struct impl
                 {
                 };
                 template <typename... Yes, typename... No, typename A>
-                    requires Valid_<id, bool_<apply<Fn, A>::type::value>>
-                struct impl<pair<list<Yes...>, list<No...>>, A>
+                requires Integral<apply<Fn, A>> struct impl<pair<list<Yes...>, list<No...>>, A>
                 {
                     using type = if_<apply<Fn, A>, pair<list<Yes..., A>, list<No...>>,
                                      pair<list<Yes...>, list<No..., A>>>;
@@ -2418,7 +2346,9 @@ namespace meta
         /// \cond
         namespace detail
         {
-            template <typename, typename, typename = void>
+            template <AliasClass Fn, typename A, typename B, typename... Ts>
+            using part_ = partition<list<B, Ts...>, bind_back<Fn, A>>;
+            template <List L, AliasClass Fn>
             struct sort_
             {
             };
@@ -2433,10 +2363,10 @@ namespace meta
                 using type = list<A>;
             };
             template <typename A, typename B, typename... Ts, typename Fn>
-                requires Valid_<_t, sort_<first<partition<list<B, Ts...>, bind_back<Fn, A>>>, Fn>>
-            struct sort_<list<A, B, Ts...>, Fn>
+            requires Valid_<_t, sort_<first<part_<Fn, A, B, Ts...>>, Fn>> &&Valid_<
+                _t, sort_<second<part_<Fn, A, B, Ts...>>, Fn>> struct sort_<list<A, B, Ts...>, Fn>
             {
-                using P = partition<list<B, Ts...>, bind_back<Fn, A>>;
+                using P = part_<Fn, A, B, Ts...>;
                 using type = concat<_t<sort_<first<P>, Fn>>, list<A>, _t<sort_<second<P>, Fn>>>;
             };
         }
@@ -2543,14 +2473,12 @@ namespace meta
                 {
                 };
                 template <template <typename...> class C, typename... Ts, typename Args>
-                    requires Valid_<C, _t<impl<Ts, Args>>...>
-                struct subst_<defer<C, Ts...>, Args>
+                requires Valid_<C, _t<impl<Ts, Args>>...> struct subst_<defer<C, Ts...>, Args>
                 {
                     using type = C<_t<impl<Ts, Args>>...>;
                 };
                 template <typename T, template <T...> class C, T... Is, typename Args>
-                    requires ValidI_<T, C, Is...>
-                struct subst_<defer_i<T, C, Is...>, Args>
+                requires Valid_I_<T, C, Is...> struct subst_<defer_i<T, C, Is...>, Args>
                 {
                     using type = C<Is...>;
                 };
@@ -2574,18 +2502,18 @@ namespace meta
                     : impl<lazy_impl_<lazy_if_<If, Ts...>, Args>, Args>
                 {
                 };
-                template <typename Bool, typename... Ts, typename Args>
-                struct impl<defer<and_, Bool, Ts...>, Args> // Short-circuit and_
-                    : impl<lazy_impl_<lazy_if_<Bool, lazy::and_<Ts...>, protect_<std::false_type>>,
+                template <typename B, typename... Ts, typename Args>
+                struct impl<defer<and_, B, Ts...>, Args> // Short-circuit and_
+                    : impl<lazy_impl_<lazy_if_<B, lazy::and_<Ts...>, protect_<std::false_type>>,
                                       Args>,
                            Args>
                 {
                 };
-                template <typename Bool, typename... Ts, typename Args>
-                struct impl<defer<or_, Bool, Ts...>, Args> // Short-circuit or_
-                    : impl<lazy_impl_<lazy_if_<Bool, protect_<std::true_type>, lazy::or_<Ts...>>,
-                                      Args>,
-                           Args>
+                template <typename B, typename... Ts, typename Args>
+                struct impl<defer<or_, B, Ts...>, Args> // Short-circuit or_
+                    : impl<
+                          lazy_impl_<lazy_if_<B, protect_<std::true_type>, lazy::or_<Ts...>>, Args>,
+                          Args>
                 {
                 };
                 template <template <typename...> class C, typename... Ts, typename Args>
@@ -2641,14 +2569,13 @@ namespace meta
                 {
                 };
                 template <template <typename...> class C, typename... Ts, typename Args>
-                    requires Valid_<id, try_subst_<C, Args, list<Ts...>>>
-                struct subst_<defer<C, Ts...>, Args>
+                requires
+                    True_<try_subst_<C, Args, list<Ts...>>> struct subst_<defer<C, Ts...>, Args>
                 {
                     using type = list<try_subst_<C, Args, list<Ts...>>>;
                 };
                 template <typename T, template <T...> class C, T... Is, typename Args>
-                    requires ValidI_<T, C, Is...>
-                struct subst_<defer_i<T, C, Is...>, Args>
+                requires Valid_I_<T, C, Is...> struct subst_<defer_i<T, C, Is...>, Args>
                 {
                     using type = list<C<Is...>>;
                 };
@@ -2672,18 +2599,18 @@ namespace meta
                     : impl<lazy_impl_<lazy_if_<If, Ts...>, Args>, Args>
                 {
                 };
-                template <typename Bool, typename... Ts, typename Args>
-                struct impl<defer<and_, Bool, Ts...>, Args> // Short-circuit and_
-                    : impl<lazy_impl_<lazy_if_<Bool, lazy::and_<Ts...>, protect_<std::false_type>>,
+                template <typename B, typename... Ts, typename Args>
+                struct impl<defer<and_, B, Ts...>, Args> // Short-circuit and_
+                    : impl<lazy_impl_<lazy_if_<B, lazy::and_<Ts...>, protect_<std::false_type>>,
                                       Args>,
                            Args>
                 {
                 };
-                template <typename Bool, typename... Ts, typename Args>
-                struct impl<defer<or_, Bool, Ts...>, Args> // Short-circuit or_
-                    : impl<lazy_impl_<lazy_if_<Bool, protect_<std::true_type>, lazy::or_<Ts...>>,
-                                      Args>,
-                           Args>
+                template <typename B, typename... Ts, typename Args>
+                struct impl<defer<or_, B, Ts...>, Args> // Short-circuit or_
+                    : impl<
+                          lazy_impl_<lazy_if_<B, protect_<std::true_type>, lazy::or_<Ts...>>, Args>,
+                          Args>
                 {
                 };
                 template <template <typename...> class C, typename... Ts, typename Args>
@@ -2874,21 +2801,6 @@ namespace meta
         using add_const_if_c = if_c<If, quote_trait<std::add_const>, quote_trait<id>>;
         /// \endcond
 
-        ///////////////////////////////////////////////////////////////////////////////////////////////
-        // integer_sequence
-
-#ifndef __cpp_lib_integer_sequence
-        /// A container for a sequence of compile-time integer constants.
-        /// \ingroup integral
-        template <typename T, T... Is>
-        struct integer_sequence
-        {
-            using value_type = T;
-            /// \return `sizeof...(Is)`
-            static constexpr std::size_t size() noexcept { return sizeof...(Is); }
-        };
-#endif
-
         /// \cond
         namespace detail
         {
@@ -2950,9 +2862,9 @@ namespace meta
         namespace detail
         {
             template <typename State, typename Ch>
-            using atoi_ = if_c<(Ch::value >= '0' && Ch::value <= '9'),
+            using atoi_ = if_c<(_v<Ch> >= '0' && _v<Ch> <= '9'),
                                std::integral_constant<typename State::value_type,
-                                                      State::value * 10 + (Ch::value - '0')>>;
+                                                      _v<State> * 10 + (_v<Ch> - '0')>>;
         }
         /// \endcond
 
@@ -2985,7 +2897,7 @@ namespace meta
         /// Makes the integer sequence [from, to).
         /// \ingroup integral
         template <class T, T from, T to>
-        using integer_range = meta::_t< 
+        using integer_range = meta::_t<
             detail::offset_integer_sequence_<T, from, meta::make_integer_sequence<T, to - from>>>;
         /// \cond
     } // namespace v1
