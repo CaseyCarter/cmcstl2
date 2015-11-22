@@ -16,6 +16,7 @@
 #define META_FWD_HPP
 
 #include <utility>
+#include <type_traits>
 
 #ifndef META_DISABLE_DEPRECATED_WARNINGS
 #ifdef __cpp_attribute_deprecated
@@ -37,15 +38,64 @@ namespace meta
 {
     inline namespace v1
     {
-#ifdef __cpp_lib_integer_sequence
-        using std::integer_sequence;
-#else
-        template <typename T, T...>
-        struct integer_sequence;
-#endif
-
         template <typename... Ts>
         struct list;
+
+        namespace detail
+        {
+            template <template <typename...> class>
+            struct _is_alias_class {};
+
+            template <typename T>
+            constexpr bool _is_list = false;
+
+            template <typename... Ts>
+            constexpr bool _is_list<list<Ts...>> = true;
+        } // namespace detail
+
+        template <typename T, typename U>
+        concept bool Same = std::is_same<T, U>::value;
+
+        template <typename T>
+        concept bool Trait =
+            requires
+            {
+                typename T::type;
+            };
+
+        template <typename T>
+        concept bool AliasClass =
+            requires
+            {
+                detail::_is_alias_class<T::template apply>{};
+            };
+
+        template <typename T>
+        concept bool List =
+            detail::_is_list<T>;
+
+        template <typename T>
+        concept bool Integral =
+            requires
+            {
+                typename T::type;
+                typename T::value_type;
+                typename T::type::value_type;
+                requires Same<typename T::value_type, typename T::type::value_type>;
+                // \begin{BUGBUG} https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68434
+                //{ T::value } -> Same<typename T::value_type>;
+                //{ T::type::value } -> Same<typename T::value_type>;
+                T::value;
+                T::type::value;
+                //requires Same<decltype(T::value), typename T::value_type>;
+                //requires Same<decltype(T::type::value), typename T::value_type>;
+                // \end{BUGBUG}
+                { T{} } -> typename T::value_type;
+                { T{}() } -> Same<typename T::value_type>;
+            }
+            && std::is_integral<typename T::value_type>::value
+            && T::value == T::type::value
+            && T{}() == T::value;
 
         template <typename T>
         struct id;
@@ -56,7 +106,7 @@ namespace meta
         template <typename T, template <T...> class F>
         struct quote_i;
 
-        template <typename... Fs>
+        template <AliasClass... Fs>
         struct compose;
 
         template <typename T>
@@ -70,9 +120,11 @@ namespace meta
 
         namespace extension
         {
-            template <typename F, typename List>
+            template <AliasClass F, typename List_>
             struct apply_list;
         }
+
+        using std::integer_sequence;
 
     } // inline namespace v1
 } // namespace meta
