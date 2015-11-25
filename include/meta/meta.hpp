@@ -123,21 +123,6 @@ namespace meta
             /// Returns a \p T nullptr
             template <typename T>
             constexpr T *nullptr_v = nullptr;
-
-            template <typename...>
-            concept bool True_ = true;
-
-            template <template <typename...> class C, typename... Ts>
-            concept bool Valid_ = requires
-            {
-                typename C<Ts...>;
-            };
-
-            template <typename T, template <T...> class C, T... Is>
-            concept bool Valid_I_ = requires
-            {
-                typename C<Is...>;
-            };
         } // namespace detail
 
         /// An empty type.
@@ -160,7 +145,8 @@ namespace meta
 
         /// Lazy versions of meta actions
         namespace lazy
-        { /// \sa `meta::_t`
+        {
+            /// \sa `meta::_t`
             /// \ingroup lazy_invocation
             template <typename T>
             using _t = defer<_t, T>;
@@ -432,24 +418,24 @@ namespace meta
             template <Trait T>
             constexpr bool has_type_<T> = true;
 
-            template <template <typename...> class, typename>
+            template <template <typename...> class, typename...>
             struct defer_
             {
             };
 
             template <template <typename...> class C, typename... Ts>
-            requires Valid_<C, Ts...> struct defer_<C, list<Ts...>>
+            requires Valid<C, Ts...> struct defer_<C, Ts...>
             {
                 using type = C<Ts...>;
             };
 
-            template <typename T, template <T...> class C, typename>
+            template <typename T, template <T...> class C, T...>
             struct defer_i_
             {
             };
 
             template <typename T, template <T...> class C, T... Is>
-            requires detail::Valid_I_<T, C, Is...> struct defer_i_<T, C, integer_sequence<T, Is...>>
+            requires Valid_I<T, C, Is...> struct defer_i_<T, C, Is...>
             {
                 using type = C<Is...>;
             };
@@ -479,7 +465,7 @@ namespace meta
         ///
         /// \ingroup invocation
         template <template <typename...> class C, typename... Ts>
-        struct defer : detail::defer_<C, list<Ts...>>
+        struct defer : detail::defer_<C, Ts...>
         {
         };
 
@@ -490,7 +476,7 @@ namespace meta
         /// \sa `defer`
         /// \ingroup invocation
         template <typename T, template <T...> class C, T... Is>
-        struct defer_i : detail::defer_i_<T, C, integer_sequence<T, Is...>>
+        struct defer_i : detail::defer_i_<T, C, Is...>
         {
         };
 
@@ -767,7 +753,7 @@ namespace meta
         /// Use as `on<Fn, Gs...>`. Creates an Alias Class that applies Alias Class \c Fn to the
         /// result of applying Alias Class `compose<Gs...>` to all the arguments.
         /// \ingroup composition
-        template <typename... Fns>
+        template <AliasClass... Fns>
         using on = detail::on_<Fns...>;
 
         namespace lazy
@@ -832,28 +818,32 @@ namespace meta
         namespace detail
         {
             template <Integral... Bs>
-            struct _and_;
-
-            template <>
-            struct _and_<> : std::true_type
+            struct _and_ : std::true_type
             {
             };
 
             template <Integral B, Integral... Bs>
-            struct _and_<B, Bs...> : if_c<!_v<B>, std::false_type, _and_<Bs...>>
+            requires _v<B> struct _and_<B, Bs...> : _and_<Bs...>
+            {
+            };
+
+            template <Integral B, Integral... Bs>
+            requires !_v<B> struct _and_<B, Bs...> : std::false_type
             {
             };
 
             template <Integral... Bs>
-            struct _or_;
-
-            template <>
-            struct _or_<> : std::false_type
+            struct _or_ : std::false_type
             {
             };
 
             template <Integral B, Integral... Bs>
-            struct _or_<B, Bs...> : if_c<_v<B>, std::true_type, _or_<Bs...>>
+            requires !_v<B> struct _or_<B, Bs...> : _or_<Bs...>
+            {
+            };
+
+            template <Integral B, Integral... Bs>
+            requires _v<B> struct _or_<B, Bs...> : std::true_type
             {
             };
         } // namespace detail
@@ -948,7 +938,7 @@ namespace meta
             };
 
             template <typename Head, typename... L, typename State, typename Fn>
-            requires Valid_<apply, Fn, State, Head> struct fold_<list<Head, L...>, State, Fn>
+            requires Valid<apply, Fn, State, Head> struct fold_<list<Head, L...>, State, Fn>
                 : fold_<list<L...>, apply<Fn, State, Head>, Fn>
             {
             };
@@ -1001,7 +991,7 @@ namespace meta
             };
 
             template <typename Head, typename... L, typename State, typename Fn>
-            requires Valid_<_t, reverse_fold_<list<L...>, State, Fn>> struct reverse_fold_<
+            requires Valid<_t, reverse_fold_<list<L...>, State, Fn>> struct reverse_fold_<
                 list<Head, L...>, State, Fn>
                 : lazy::apply<Fn, _t<reverse_fold_<list<L...>, State, Fn>>, Head>
             {
@@ -1108,8 +1098,8 @@ namespace meta
         /// \par Complexity
         /// \f$ O(L) \f$ where \f$ L \f$ is the number of lists in the list of lists.
         /// \ingroup transformation
-        template <typename... Lists>
-        using concat = _t<detail::concat_<Lists...>>;
+        template <List... Ls>
+        using concat = _t<detail::concat_<Ls...>>;
 
         namespace lazy
         {
@@ -1221,7 +1211,7 @@ namespace meta
         /// \par Complexity
         /// Amortized \f$ O(1) \f$.
         /// \ingroup list
-        template <List L, typename N>
+        template <List L, Integral N>
         using at = _t<detail::at_<L, N>>;
 
         /// Return the \p N th element in the \c meta::list \p L.
@@ -1285,7 +1275,7 @@ namespace meta
         /// \par Complexity
         /// \f$ O(1) \f$.
         /// \ingroup transformation
-        template <List L, typename N>
+        template <List L, Integral N>
         using drop = _t<detail::drop_<L, N>>;
 
         /// Return a new \c meta::list by removing the first \p N elements from \p L.
@@ -1371,35 +1361,19 @@ namespace meta
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // push_front
-        /// \cond
-        namespace detail
-        {
-            template <typename L, typename T>
-            struct push_front_
-            {
-            };
-
-            template <typename... L, typename T>
-            struct push_front_<list<L...>, T>
-            {
-                using type = list<T, L...>;
-            };
-        } // namespace detail
-        /// \endcond
-
         /// Return a new \c meta::list by adding the element \c T to the front of \p L.
         /// \par Complexity
         /// \f$ O(1) \f$.
         /// \ingroup transformation
-        template <List L, typename T>
-        using push_front = _t<detail::push_front_<L, T>>;
+        template <List L, typename... Ts>
+        using push_front = apply_list<bind_front<quote<list>, Ts...>, L>;
 
         namespace lazy
         {
             /// \sa 'meta::push_front'
             /// \ingroup lazy_transformation
-            template <typename L, typename T>
-            using push_front = defer<push_front, L, T>;
+            template <typename... Ts>
+            using push_front = defer<push_front, Ts...>;
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1437,38 +1411,23 @@ namespace meta
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // push_back
-        /// \cond
-        namespace detail
-        {
-            template <typename L, typename T>
-            struct push_back_
-            {
-            };
-
-            template <typename... L, typename T>
-            struct push_back_<list<L...>, T>
-            {
-                using type = list<L..., T>;
-            };
-        } // namespace detail
-        /// \endcond
-
         /// Return a new \c meta::list by adding the element \c T to the back of \p L.
         /// \par Complexity
         /// \f$ O(1) \f$.
         /// \note \c pop_back not provided because it cannot be made to meet the
         /// complexity guarantees one would expect.
         /// \ingroup transformation
-        template <List L, typename T>
-        using push_back = _t<detail::push_back_<L, T>>;
+        template <List L, typename... Ts>
+        using push_back = apply_list<bind_back<quote<list>, Ts...>, L>;
 
         namespace lazy
         {
             /// \sa 'meta::push_back'
             /// \ingroup lazy_transformation
-            template <typename L, typename T>
-            using push_back = defer<push_back, L, T>;
+            template <typename... Ts>
+            using push_back = defer<push_back, Ts...>;
         }
+
         /// \cond
         namespace detail
         {
@@ -1511,7 +1470,7 @@ namespace meta
         /// \f$ O(1) \f$.
         /// \ingroup list
         template <List L>
-        using empty = bool_<0 == size<L>::type::value>;
+        using empty = bool_<0 == _v<size<L>>>;
 
         namespace lazy
         {
@@ -1729,7 +1688,7 @@ namespace meta
             };
 
             template <typename Head, typename... L, typename Fn>
-            struct find_if_<list<Head, L...>, Fn>
+            requires Integral<apply<Fn, Head>> struct find_if_<list<Head, L...>, Fn>
                 : if_<apply<Fn, Head>, id<list<Head, L...>>, find_if_<list<L...>, Fn>>
             {
             };
@@ -1770,7 +1729,7 @@ namespace meta
             };
 
             template <typename Head, typename... L, typename Fn, typename State>
-            struct reverse_find_if_<list<Head, L...>, Fn, State>
+            requires Integral<apply<Fn, Head>> struct reverse_find_if_<list<Head, L...>, Fn, State>
                 : reverse_find_if_<list<L...>, Fn, if_<apply<Fn, Head>, list<Head, L...>, State>>
             {
             };
@@ -1839,7 +1798,7 @@ namespace meta
             };
 
             template <typename... L, typename C, typename U>
-            struct replace_if_<list<L...>, C, U>
+            requires (Integral<apply<C, L>> && ...) struct replace_if_<list<L...>, C, U>
             {
                 using type = list<if_<apply<C, L>, U, L>...>;
             };
@@ -1920,13 +1879,13 @@ namespace meta
             };
 
             template <typename... Ts, AliasClass Fn>
-            requires True_<apply<Fn, Ts>...> struct transform_<list<Ts...>, Fn>
+            requires (Valid<apply, Fn, Ts> &&...) struct transform_<list<Ts...>, Fn>
             {
                 using type = list<apply<Fn, Ts>...>;
             };
 
             template <typename... Ts, typename... Us, AliasClass Fn>
-            requires True_<apply<Fn, Ts, Us>...> struct transform_<list<Ts...>, list<Us...>, Fn>
+            requires (Valid<apply, Fn, Ts, Us> &&...) struct transform_<list<Ts...>, list<Us...>, Fn>
             {
                 using type = list<apply<Fn, Ts, Us>...>;
             };
@@ -2363,7 +2322,7 @@ namespace meta
                 using type = list<A>;
             };
             template <typename A, typename B, typename... Ts, typename Fn>
-            requires Valid_<_t, sort_<first<part_<Fn, A, B, Ts...>>, Fn>> &&Valid_<
+            requires Valid<_t, sort_<first<part_<Fn, A, B, Ts...>>, Fn>> &&Valid<
                 _t, sort_<second<part_<Fn, A, B, Ts...>>, Fn>> struct sort_<list<A, B, Ts...>, Fn>
             {
                 using P = part_<Fn, A, B, Ts...>;
@@ -2437,7 +2396,7 @@ namespace meta
                     bind_back<quote_trait<subst1_>, back<As>, drop_c<Ts, size<As>{} - 2>>>>,
                 list<back<As>>>;
 
-            template <typename As, typename Ts>
+            template <List As, List Ts>
             using substitutions =
                 apply<if_c<(size<Ts>{} + 2 >= size<As>{}), quote<substitutions_>>, As, Ts>;
 
@@ -2450,10 +2409,10 @@ namespace meta
             {
             };
 
-            template <typename Tags>
+            template <List Tags>
             using is_variadic_ = is_vararg_<at<push_front<Tags, void>, dec<size<Tags>>>>;
 
-            template <typename Tags, bool IsVariadic = is_variadic_<Tags>::value>
+            template <List Tags, bool IsVariadic = _v<is_variadic_<Tags>>>
             struct lambda_;
 
             // Non-variadic lambda implementation
@@ -2464,25 +2423,25 @@ namespace meta
                 static constexpr std::size_t arity = sizeof...(As)-1;
                 using Tags = list<As...>; // Includes the lambda body as the last arg!
                 using Fn = back<Tags>;
-                template <typename T, typename Args>
+                template <typename T, List Args>
                 struct impl;
-                template <typename T, typename Args>
+                template <typename T, List Args>
                 using lazy_impl_ = lazy::_t<defer<impl, T, protect_<Args>>>;
-                template <typename, typename>
+                template <typename, List>
                 struct subst_
                 {
                 };
                 template <template <typename...> class C, typename... Ts, typename Args>
-                requires Valid_<C, _t<impl<Ts, Args>>...> struct subst_<defer<C, Ts...>, Args>
+                requires Valid<C, _t<impl<Ts, Args>>...> struct subst_<defer<C, Ts...>, Args>
                 {
                     using type = C<_t<impl<Ts, Args>>...>;
                 };
                 template <typename T, template <T...> class C, T... Is, typename Args>
-                requires Valid_I_<T, C, Is...> struct subst_<defer_i<T, C, Is...>, Args>
+                requires Valid_I<T, C, Is...> struct subst_<defer_i<T, C, Is...>, Args>
                 {
                     using type = C<Is...>;
                 };
-                template <typename T, typename Args>
+                template <typename T, List Args>
                 struct impl : if_c<(reverse_find_index<Tags, T>() != npos()),
                                    lazy::at<Args, reverse_find_index<Tags, T>>, id<T>>
                 {
@@ -2502,17 +2461,17 @@ namespace meta
                     : impl<lazy_impl_<lazy_if_<If, Ts...>, Args>, Args>
                 {
                 };
-                template <typename B, typename... Ts, typename Args>
-                struct impl<defer<and_, B, Ts...>, Args> // Short-circuit and_
-                    : impl<lazy_impl_<lazy_if_<B, lazy::and_<Ts...>, protect_<std::false_type>>,
+                template <typename B, typename... Bs, typename Args>
+                struct impl<defer<and_, B, Bs...>, Args> // Short-circuit and_
+                    : impl<lazy_impl_<lazy_if_<B, lazy::and_<Bs...>, protect_<std::false_type>>,
                                       Args>,
                            Args>
                 {
                 };
-                template <typename B, typename... Ts, typename Args>
-                struct impl<defer<or_, B, Ts...>, Args> // Short-circuit or_
+                template <typename B, typename... Bs, typename Args>
+                struct impl<defer<or_, B, Bs...>, Args> // Short-circuit or_
                     : impl<
-                          lazy_impl_<lazy_if_<B, protect_<std::true_type>, lazy::or_<Ts...>>, Args>,
+                          lazy_impl_<lazy_if_<B, protect_<std::true_type>, lazy::or_<Bs...>>, Args>,
                           Args>
                 {
                 };
@@ -2556,30 +2515,30 @@ namespace meta
                 template <typename T, bool IsVar>
                 friend struct lambda_;
                 using Tags = list<As...>; // Includes the lambda body as the last arg!
-                template <typename T, typename Args>
+                template <typename T, List Args>
                 struct impl;
-                template <typename Args>
+                template <List Args>
                 using eval_impl_ = bind_back<quote_trait<impl>, Args>;
-                template <typename T, typename Args>
+                template <typename T, List Args>
                 using lazy_impl_ = lazy::_t<defer<impl, T, protect_<Args>>>;
-                template <template <typename...> class C, typename Args, typename Ts>
+                template <template <typename...> class C, List Args, List Ts>
                 using try_subst_ = apply_list<quote<C>, join<transform<Ts, eval_impl_<Args>>>>;
-                template <typename, typename>
+                template <typename, List>
                 struct subst_
                 {
                 };
                 template <template <typename...> class C, typename... Ts, typename Args>
                 requires
-                    True_<try_subst_<C, Args, list<Ts...>>> struct subst_<defer<C, Ts...>, Args>
+                    True<try_subst_<C, Args, list<Ts...>>> struct subst_<defer<C, Ts...>, Args>
                 {
                     using type = list<try_subst_<C, Args, list<Ts...>>>;
                 };
                 template <typename T, template <T...> class C, T... Is, typename Args>
-                requires Valid_I_<T, C, Is...> struct subst_<defer_i<T, C, Is...>, Args>
+                requires Valid_I<T, C, Is...> struct subst_<defer_i<T, C, Is...>, Args>
                 {
                     using type = list<C<Is...>>;
                 };
-                template <typename T, typename Args>
+                template <typename T, List Args>
                 struct impl : if_c<(reverse_find_index<Tags, T>() != npos()),
                                    lazy::at<Args, reverse_find_index<Tags, T>>, id<list<T>>>
                 {
@@ -2599,17 +2558,17 @@ namespace meta
                     : impl<lazy_impl_<lazy_if_<If, Ts...>, Args>, Args>
                 {
                 };
-                template <typename B, typename... Ts, typename Args>
-                struct impl<defer<and_, B, Ts...>, Args> // Short-circuit and_
-                    : impl<lazy_impl_<lazy_if_<B, lazy::and_<Ts...>, protect_<std::false_type>>,
+                template <typename B, typename... Bs, typename Args>
+                struct impl<defer<and_, B, Bs...>, Args> // Short-circuit and_
+                    : impl<lazy_impl_<lazy_if_<B, lazy::and_<Bs...>, protect_<std::false_type>>,
                                       Args>,
                            Args>
                 {
                 };
-                template <typename B, typename... Ts, typename Args>
-                struct impl<defer<or_, B, Ts...>, Args> // Short-circuit or_
+                template <typename B, typename... Bs, typename Args>
+                struct impl<defer<or_, B, Bs...>, Args> // Short-circuit or_
                     : impl<
-                          lazy_impl_<lazy_if_<B, protect_<std::true_type>, lazy::or_<Ts...>>, Args>,
+                          lazy_impl_<lazy_if_<B, protect_<std::true_type>, lazy::or_<Bs...>>, Args>,
                           Args>
                 {
                 };
