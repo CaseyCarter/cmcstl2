@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
     // replace voids.
     template <class T>
     struct element_storage_ {
-      using type = T;
+      using type = T; // remove_cv_t<T>?
     };
     template <_Is<is_reference> T>
     struct element_storage_<T> {

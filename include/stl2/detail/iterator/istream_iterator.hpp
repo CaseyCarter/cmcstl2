@@ -39,15 +39,15 @@ STL2_OPEN_NAMESPACE {
     using traits_type = traits;
     using istream_type = std::basic_istream<charT, traits>;
 
-    constexpr istream_iterator() noexcept = default;
-    istream_iterator(istream_type& s)
+    constexpr istream_iterator()
+      noexcept(is_nothrow_default_constructible<T>::value) = default;
+    constexpr istream_iterator(default_sentinel)
       noexcept(is_nothrow_default_constructible<T>::value) :
+      istream_iterator() {}
+    istream_iterator(istream_type& s) :
       stream_{&s} {
       ++*this;
     }
-
-    constexpr istream_iterator(default_sentinel) noexcept :
-      istream_iterator() {}
 
     STL2_CONSTEXPR_EXT const T& operator*() const noexcept {
       return value_;

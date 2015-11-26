@@ -69,9 +69,10 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <class T, class U>
-    constexpr bool __equality_comparable = false;
+  constexpr bool __equality_comparable = false;
   template <class T, class U>
-    requires requires (const T& t, const U& u) {
+  requires
+    requires (const T& t, const U& u) {
       STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
       STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
     }
