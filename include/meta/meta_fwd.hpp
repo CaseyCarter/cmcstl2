@@ -112,7 +112,10 @@ namespace meta
             // requires Same<decltype(T::type::value), typename T::value_type>;
             // \end{BUGBUG}
             { T {} } -> typename T::value_type;
-            { T{}() } -> Same<typename T::value_type>;
+            // Again: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68434
+            //{ T{}() } -> Same<typename T::value_type>;
+            T{}();
+            requires Same<decltype(T{}()), typename T::value_type>;
         }
         && std::is_integral<typename T::value_type>::value
         && T::value == T::type::value
