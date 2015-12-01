@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
     for (; first != last; ++first) {
       (void)fun(proj(*first));
     }
-    return {__stl2::move(first), __stl2::move(fun).base()};
+    return {__stl2::move(first), ext::callable_unwrapper(__stl2::move(fun))};
   }
 
   template <InputRange Rng, class F, class Proj = identity>
