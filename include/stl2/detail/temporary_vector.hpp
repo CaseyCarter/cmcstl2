@@ -12,7 +12,7 @@
 #ifndef STL2_DETAIL_TEMPORARY_VECTOR_HPP
 #define STL2_DETAIL_TEMPORARY_VECTOR_HPP
 
-#include <memory>
+#include <stl2/memory.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/detail/construct_destruct.hpp>
@@ -24,13 +24,13 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     struct temporary_buffer_deleter {
       void operator()(auto* ptr) const {
-        std::return_temporary_buffer(ptr);
+        __stl2::return_temporary_buffer(ptr);
       }
     };
 
     template <class T>
     class temporary_buffer {
-      std::unique_ptr<T, temporary_buffer_deleter> alloc_;
+      unique_ptr<T, temporary_buffer_deleter> alloc_;
       std::ptrdiff_t size_ = 0;
 
       temporary_buffer(pair<T*, std::ptrdiff_t> buf) :
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
     public:
       temporary_buffer() = default;
       temporary_buffer(std::ptrdiff_t n) :
-        temporary_buffer(std::get_temporary_buffer<T>(n)) {}
+        temporary_buffer(__stl2::get_temporary_buffer<T>(n)) {}
 
       T* data() const {
         return alloc_.get();
@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
     template <class T>
       requires alignof(T) > alignof(std::max_align_t)
     class temporary_buffer<T> {
-      std::unique_ptr<unsigned char, temporary_buffer_deleter> alloc_;
+      unique_ptr<unsigned char, temporary_buffer_deleter> alloc_;
       T* aligned_ = nullptr;
       std::ptrdiff_t size_ = 0;
 
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
         if (buf.second > 0 && static_cast<std::size_t>(buf.second) >= sizeof(T)) {
           void* ptr = buf.first;
           std::size_t n = buf.second;
-          aligned_ = static_cast<T*>(std::align(alignof(T), sizeof(T), ptr, n));
+          aligned_ = static_cast<T*>(__stl2::align(alignof(T), sizeof(T), ptr, n));
           if (aligned_) {
             size_ = n / sizeof(T);
           }
@@ -75,7 +75,7 @@ STL2_OPEN_NAMESPACE {
     public:
       temporary_buffer() = default;
       temporary_buffer(std::ptrdiff_t n) :
-        temporary_buffer(std::get_temporary_buffer<unsigned char>(n * sizeof(T) + alignof(T) - 1)) {}
+        temporary_buffer(__stl2::get_temporary_buffer<unsigned char>(n * sizeof(T) + alignof(T) - 1)) {}
 
       T* data() const {
         return aligned_;
@@ -142,7 +142,7 @@ STL2_OPEN_NAMESPACE {
       void emplace_back(Args&&...args)
         noexcept(is_nothrow_constructible<T, Args...>::value) {
         STL2_ASSUME(end_ < alloc_);
-        __stl2::detail::construct(*end_, std::forward<Args>(args)...);
+        detail::construct(*end_, __stl2::forward<Args>(args)...);
         ++end_;
       }
       void push_back(const T& t)

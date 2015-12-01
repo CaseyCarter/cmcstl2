@@ -13,8 +13,7 @@
 #define STL2_DETAIL_ITERATOR_INSERT_ITERATORS_HPP
 
 #include <cstddef>
-#include <memory>
-
+#include <stl2/memory.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
@@ -33,7 +32,7 @@ STL2_OPEN_NAMESPACE {
     constexpr __insert_iterator_base() = default;
     STL2_CONSTEXPR_EXT explicit
     __insert_iterator_base(Container& x) noexcept :
-      container_{std::addressof(x)} {}
+      container_{__stl2::addressof(x)} {}
 
     Derived& operator*() noexcept {
       return derived();

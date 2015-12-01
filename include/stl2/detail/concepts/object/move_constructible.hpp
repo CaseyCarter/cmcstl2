@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
     requires requires (T& t, const T& ct) {
       STL2_EXACT_TYPE_CONSTRAINT(&t, T*);
       STL2_EXACT_TYPE_CONSTRAINT(&ct, const T*);
-      // Axiom: &ct == std::addressof(ct)
+      // Axiom: &ct == addressof(ct)
     }
   constexpr bool __addressable<T> = true;
 
