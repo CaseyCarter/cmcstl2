@@ -21,62 +21,77 @@ STL2_OPEN_NAMESPACE {
   // invoke [C++ WP]
   //
   namespace __invoke {
-    template <_Is<is_function> F, class O, class T, class...Args>
-      requires DerivedFrom<decay_t<T>, decay_t<O>>() &&
-        requires (F (O::* pmf), T&& t, Args&&...args) {
-          (((T&&)t).*pmf)((Args&&)args...);
-        }
-    constexpr decltype(auto) impl(F (O::*pmf), T&& t, Args&&...args)
+    template <class>
+    constexpr bool is_reference_wrapper = false;
+    template <class T>
+    constexpr bool is_reference_wrapper<reference_wrapper<T>> = true;
+
+    template <class, class T1>
+    constexpr decltype(auto) coerce(T1&& t1)
     STL2_NOEXCEPT_RETURN(
-      (__stl2::forward<T>(t).*pmf)(__stl2::forward<Args>(args)...)
+      *std::forward<T1>(t1)
     )
 
-    template <_Is<is_function> F, class O, class T, class...Args>
-      requires !DerivedFrom<decay_t<T>, decay_t<O>>() &&
-        requires (F (O::*pmf), T&& t, Args&&...args) {
-          ((*(T&&)t).*pmf)((Args&&)args...);
-        }
-    constexpr decltype(auto) impl(F (O::*pmf), T&& t, Args&&...args)
+    template <class T, class T1>
+    requires
+      DerivedFrom<decay_t<T1>, T>()
+    constexpr decltype(auto) coerce(T1&& t1)
     STL2_NOEXCEPT_RETURN(
-      ((*__stl2::forward<T>(t)).*pmf)(__stl2::forward<Args>(args)...)
+      std::forward<T1>(t1)
     )
 
-    template <_IsNot<is_function> M, class O, class T>
-      requires DerivedFrom<decay_t<T>, decay_t<O>>() &&
-        requires (M (O::*pmd), T&& t) {
-          ((T&&)t).*pmd;
-        }
-    constexpr auto&& impl(M (O::*pmd), T&& t)
+    template <class, class T1>
+    requires
+      is_reference_wrapper<decay_t<T1>>
+    constexpr decltype(auto) coerce(T1&& t1)
     STL2_NOEXCEPT_RETURN(
-      __stl2::forward<T>(t).*pmd
+      std::forward<T1>(t1).get()
     )
 
-    template <_IsNot<is_function> M, class O, class T>
-      requires !DerivedFrom<decay_t<T>, decay_t<O>>() &&
-        requires (M (O::*pmd), T&& t) {
-          (*((T&&)t)).*pmd;
-        }
-    constexpr auto&& impl(M (O::*pmd), T&& t)
+    template <_Is<is_function> F, class T, class T1, class...Args>
+    constexpr decltype(auto) impl(F (T::*f), T1&& t1, Args&&...args) = delete;
+
+    template <_Is<is_function> F, class T, class T1, class...Args>
+    requires
+      requires (F (T::*f), T1&& t1, Args&&...args) {
+        (coerce<T>(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...);
+      }
+    constexpr decltype(auto) impl(F (T::*f), T1&& t1, Args&&...args)
     STL2_NOEXCEPT_RETURN(
-      (*__stl2::forward<T>(t)).*pmd
+      (coerce<T>(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...)
+    )
+
+    template <_Is<is_object> D, class T, class T1>
+    constexpr decltype(auto) impl(D (T::*f), T1&& t1) = delete;
+
+    template <_Is<is_object> D, class T, class T1>
+    requires
+      requires (D (T::*f), T1&& t1) {
+        coerce<T>(std::forward<T1>(t1)).*f;
+      }
+    constexpr decltype(auto) impl(D (T::*f), T1&& t1)
+    STL2_NOEXCEPT_RETURN(
+      (coerce<T>(std::forward<T1>(t1)).*f)
     )
 
     template <class F, class...Args>
-      requires requires (F&& f, Args&&...args) {
-        ((F&&)f)((Args&&)args...);
+    requires
+      requires (F&& f, Args&&...args) {
+        std::forward<F>(f)(std::forward<Args>(args)...);
       }
     constexpr decltype(auto) impl(F&& f, Args&&...args)
     STL2_NOEXCEPT_RETURN(
-      __stl2::forward<F>(f)(__stl2::forward<Args>(args)...)
+      std::forward<F>(f)(std::forward<Args>(args)...)
     )
   }
   template <class F, class...Args>
-    requires requires (F&& f, Args&&...args) {
-      __invoke::impl((F&&)f, (Args&&)args...);
+  requires
+    requires (F&& f, Args&&...args) {
+      __invoke::impl(std::forward<F>(f), std::forward<Args>(args)...);
     }
   STL2_CONSTEXPR_EXT decltype(auto) invoke(F&& f, Args&&...args)
   STL2_NOEXCEPT_RETURN(
-    __invoke::impl(__stl2::forward<F>(f), __stl2::forward<Args>(args)...)
+    __invoke::impl(std::forward<F>(f), std::forward<Args>(args)...)
   )
 
   ///////////////////////////////////////////////////////////////////////////
@@ -86,7 +101,8 @@ STL2_OPEN_NAMESPACE {
     template <class F, class...Args>
     constexpr bool __invokable = false;
     template <class F, class...Args>
-      requires requires (F&& f, Args&&...args) {
+    requires
+      requires (F&& f, Args&&...args) {
         __invoke::impl((F&&)f, (Args&&)args...);
       }
     constexpr bool __invokable<F, Args...> = true;

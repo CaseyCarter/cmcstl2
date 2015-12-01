@@ -89,10 +89,10 @@ STL2_OPEN_NAMESPACE {
 
 #else
 #define STL2_DEDUCTION_CONSTRAINT(E, ...) \
-  requires __VA_ARGS__ <decltype(E)>()
+  E; requires __VA_ARGS__ <decltype(E)>()
 
 #define STL2_BINARY_DEDUCTION_CONSTRAINT(E, C, ...) \
-  requires C<decltype(E), __VA_ARGS__>()
+  E; requires C<decltype(E), __VA_ARGS__>()
 #endif
 
 #define STL2_EXACT_TYPE_CONSTRAINT(E, ...) \
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 // Workaround bugs in constrained return types
 // (e.g., Iterator begin(Range&&);) by simply disabling
 // the feature and using "auto"
-#if 0
+#if 1
 #define STL2_CONSTRAINED_RETURN(...) __VA_ARGS__
 #else
 #define STL2_CONSTRAINED_RETURN(...) auto
@@ -129,7 +129,7 @@ STL2_OPEN_NAMESPACE {
 // Workaround bugs in constrained variable definitions
 // (e.g., Iterator x = begin(r);) by simply disabling
 // the feature and using "auto"
-#if 0
+#if 1
 #define STL2_CONSTRAINED_VAR(...) __VA_ARGS__
 #else
 #define STL2_CONSTRAINED_VAR(...) auto
