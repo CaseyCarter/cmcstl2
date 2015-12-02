@@ -37,6 +37,14 @@ STL2_OPEN_NAMESPACE {
       raw_ptr<Container> container_{};
     };
 
+    template <class Cursor, class Container>
+    struct insert_cursor_mixin : protected ebo_box<Cursor> {
+      using container_type = Container;
+      using iterator_category = output_iterator_tag;
+      insert_cursor_mixin() = default;
+      using ebo_box<Cursor>::ebo_box;
+    };
+
     template <class T, class C>
     concept bool BackInsertableInto =
       requires (T&& t, C& c) {
@@ -44,14 +52,14 @@ STL2_OPEN_NAMESPACE {
       };
 
     template <MemberValueType Container>
-    class back_insert_cursor : public insert_cursor_base<Container> {
+    struct back_insert_cursor : insert_cursor_base<Container> {
       using base_t = insert_cursor_base<Container>;
-    public:
+
+      using mixin = insert_cursor_mixin<back_insert_cursor, Container>;
+
       back_insert_cursor() = default;
       using base_t::base_t;
 
-    private:
-      friend cursor_access;
       template <BackInsertableInto<Container> T>
       void write(T&& t) {
         base_t::container_->push_back(__stl2::forward<T>(t));
@@ -79,14 +87,13 @@ STL2_OPEN_NAMESPACE {
       };
 
     template <MemberValueType Container>
-    class front_insert_cursor : public insert_cursor_base<Container> {
+    struct front_insert_cursor : insert_cursor_base<Container> {
       using base_t = insert_cursor_base<Container>;
-    public:
       front_insert_cursor() = default;
       using base_t::base_t;
 
-    private:
-      friend cursor_access;
+      using mixin = insert_cursor_mixin<front_insert_cursor, Container>;
+
       template <FrontInsertableInto<Container> T>
       void write(T&& t) {
         base_t::container_->push_front(__stl2::forward<T>(t));
@@ -118,21 +125,22 @@ STL2_OPEN_NAMESPACE {
     class insert_cursor : public insert_cursor_base<Container> {
       using base_t = insert_cursor_base<Container>;
       using I = typename Container::iterator;
-    public:
+
+      using mixin = insert_cursor_mixin<insert_cursor, Container>;
 
       insert_cursor() = default;
       STL2_CONSTEXPR_EXT explicit insert_cursor(Container& x, I i)
         noexcept(is_nothrow_move_constructible<I>::value) :
         base_t{x}, iter_{__stl2::move(i)} {}
 
-    private:
-      I iter_{};
-
       template <InsertableInto<Container> T>
       void write(T&& t) {
         iter_ = base_t::container_->insert(iter_, __stl2::forward<T>(t));
         ++iter_;
       }
+
+    private:
+      I iter_{};
     };
   }
 

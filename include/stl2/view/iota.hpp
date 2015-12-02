@@ -31,10 +31,6 @@ STL2_OPEN_NAMESPACE {
         noexcept(is_nothrow_copy_constructible<I>::value) :
         value_{v.first_} {}
 
-    private:
-      I value_;
-
-      friend cursor_access;
       constexpr I current() const
         noexcept(is_nothrow_copy_constructible<I>::value) {
         return value_;
@@ -68,6 +64,9 @@ STL2_OPEN_NAMESPACE {
         requires ext::RandomAccessIncrementable<I>() {
         return that.value_ - value_;
       }
+
+    private:
+      I value_;
     };
 
   public:
@@ -79,7 +78,7 @@ STL2_OPEN_NAMESPACE {
     using iterator = basic_iterator<cursor>;
     constexpr iterator begin() const
       noexcept(noexcept(iterator{declval<const iota_view&>()})) {
-      return {*this};
+      return {cursor{*this}};
     }
     constexpr unreachable end() const noexcept { return {}; }
   };

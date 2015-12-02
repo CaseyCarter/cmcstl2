@@ -31,18 +31,26 @@ class forward_list {
   class cursor {
   public:
     cursor() = default;
-    constexpr cursor(node* ptr) noexcept :
-      ptr_{ptr} {}
-    constexpr cursor(stl2::default_sentinel) noexcept :
-      cursor{nullptr} {}
+
+    struct mixin : protected stl2::basic_mixin<cursor> {
+      mixin() = default;
+      using stl2::basic_mixin<cursor>::basic_mixin;
+      constexpr mixin(stl2::default_sentinel) noexcept
+      : mixin{}
+      {}
+    };
+
+    constexpr T& current() const noexcept { return ptr_->data_; }
+    constexpr void next() noexcept { ptr_ = ptr_->next_.get(); }
+    constexpr bool equal(stl2::default_sentinel) const noexcept { return !ptr_; }
+    constexpr bool equal(const cursor& that) const noexcept { return ptr_ == that.ptr_; }
 
   private:
     stl2::detail::raw_ptr<node> ptr_;
 
-    friend stl2::cursor_access;
-    constexpr T& current() const noexcept { return ptr_->data_; }
-    constexpr void next() noexcept { ptr_ = ptr_->next_.get(); }
-    constexpr bool equal(const cursor& that) const noexcept { return ptr_ == that.ptr_; }
+    friend forward_list;
+    constexpr cursor(node* ptr) noexcept :
+      ptr_{ptr} {}
   };
 
   std::unique_ptr<node> head_ = nullptr;
@@ -57,7 +65,7 @@ public:
     stl2::copy(stl2::rbegin(il), stl2::rend(il), stl2::front_inserter(*this));
   }
 
-  constexpr iterator begin() noexcept { return {head_.get()}; }
+  constexpr iterator begin() noexcept { return {cursor{head_.get()}}; }
   constexpr stl2::default_sentinel end() const noexcept { return {}; }
 
   template <class...Args>
@@ -78,15 +86,37 @@ public:
   }
 };
 
-class ostream_cursor_base {
+template <class T>
+  requires stl2::Same<T, void>() || stl2::ext::StreamInsertable<T>
+class ostream_cursor {
 public:
-  ostream_cursor_base() = default;
-  constexpr ostream_cursor_base(std::ostream& os, const char* delimiter = nullptr)
-    noexcept :
-    os_{&os}, delimiter_{delimiter} {}
+  struct mixin : protected stl2::detail::ebo_box<ostream_cursor> {
+    mixin() = default;
+    using mixin::ebo_box::ebo_box;
+  };
 
-protected:
-  stl2::detail::raw_ptr<std::ostream> os_;
+  constexpr ostream_cursor() noexcept = default;
+  constexpr ostream_cursor(std::ostream& os, const char* delimiter = nullptr)
+  noexcept
+  : os_{&os}, delimiter_{delimiter}
+  {}
+
+  template <class U = T>
+  void write(const U& t) {
+    *os_ << t;
+    delimit();
+  }
+
+  stl2::ext::StreamInsertable{U}
+  void write(const U& u)
+  requires stl2::Same<T, void>()
+  {
+    *os_ << u;
+    delimit();
+  }
+
+private:
+  stl2::detail::raw_ptr<std::ostream> os_ = nullptr;
   const char* delimiter_ = nullptr;
 
   void delimit() const {
@@ -96,38 +126,18 @@ protected:
   }
 };
 
-template <class T>
-  requires stl2::Same<T, void>() || stl2::ext::StreamInsertable<T>
-class ostream_cursor : public ostream_cursor_base {
-public:
-  using ostream_cursor_base::ostream_cursor_base;
-
-private:
-  friend stl2::cursor_access;
-  void write(const T& t) {
-    *os_ << t;
-    delimit();
-  }
-};
-template <>
-class ostream_cursor<void> : public ostream_cursor_base {
-public:
-  using ostream_cursor_base::ostream_cursor_base;
-
-private:
-  friend stl2::cursor_access;
-  stl2::ext::StreamInsertable{T}
-  void write(const T& t) {
-    *os_ << t;
-    delimit();
-  }
-};
 template <class T = void>
 using ostream_iterator = stl2::basic_iterator<ostream_cursor<T>>;
 
 template <class T>
 class pointer_cursor {
 public:
+  using is_contiguous = stl2::true_type;
+  struct mixin : protected stl2::detail::ebo_box<pointer_cursor> {
+    mixin() = default;
+    using mixin::ebo_box::ebo_box;
+  };
+
   pointer_cursor() = default;
   constexpr pointer_cursor(T* ptr) noexcept :
     ptr_{ptr} {}
@@ -137,14 +147,14 @@ public:
   constexpr pointer_cursor(const pointer_cursor<U>& that) noexcept :
     ptr_{that.ptr_} {}
 
-private:
-  T* ptr_;
-
-  friend stl2::cursor_access;
-  using is_contiguous = stl2::true_type;
   constexpr auto& current() const noexcept {
     STL2_ASSUME_CONSTEXPR(ptr_);
     return *ptr_;
+  }
+
+  constexpr auto arrow() const noexcept {
+    STL2_ASSUME_CONSTEXPR(ptr_);
+    return ptr_;
   }
 
   constexpr auto next() noexcept {
@@ -170,6 +180,9 @@ private:
     STL2_ASSUME_CONSTEXPR(!that.ptr_ == !ptr_);
     return that.ptr_ - ptr_;
   }
+
+private:
+  T* ptr_;
 };
 
 template <stl2::Semiregular T, std::size_t N>
@@ -193,75 +206,97 @@ class my_counted_cursor {
 public:
   using difference_type = stl2::difference_type_t<I>;
 
+  struct mixin : protected stl2::detail::ebo_box<my_counted_cursor> {
+    mixin() = default;
+    using mixin::ebo_box::ebo_box;
+
+    constexpr I base() const
+    noexcept(stl2::is_nothrow_copy_constructible<I>::value)
+    {
+      return mixin::ebo_box::get().it_;
+    }
+    constexpr difference_type count() const noexcept {
+      return mixin::ebo_box::get().n_;
+    }
+  };
+
   my_counted_cursor() = default;
-  constexpr my_counted_cursor(I it, difference_type n)
-    noexcept(stl2::is_nothrow_move_constructible<I>::value) :
-    it_(stl2::move(it)), n_{n} {}
+
+  constexpr my_counted_cursor(I&& it, difference_type n)
+  noexcept(stl2::is_nothrow_move_constructible<I>::value)
+  : it_(stl2::move(it)), n_{n} {}
+
+  constexpr my_counted_cursor(const I& it, difference_type n)
+  noexcept(stl2::is_nothrow_copy_constructible<I>::value)
+  : it_(it), n_{n} {}
+
   constexpr my_counted_cursor(stl2::default_sentinel)
-    noexcept(stl2::is_nothrow_default_constructible<I>::value) :
-    it_{}, n_{0} {}
+  noexcept(stl2::is_nothrow_default_constructible<I>::value)
+  requires !stl2::models::BidirectionalIterator<I>
+  : it_{}, n_{0} {}
 
-  constexpr I base() const
-    noexcept(stl2::is_nothrow_copy_constructible<I>::value) {
-    return it_;
-  }
-  constexpr difference_type count() const noexcept { return n_; }
-
-private:
-  I it_;
-  difference_type n_;
-
-  friend stl2::cursor_access;
   constexpr void next()
-    noexcept(noexcept(++stl2::declval<I&>())) {
+  noexcept(noexcept(++stl2::declval<I&>()))
+  {
     ++it_;
     --n_;
   }
 
   template <class T>
-    requires stl2::Writable<I, T>()
+  requires stl2::Writable<I, T>()
   constexpr auto write(T&& t)
-    noexcept(noexcept(*stl2::declval<I&>() = stl2::forward<T>(t))) {
+  noexcept(noexcept(*stl2::declval<I&>() = stl2::forward<T>(t)))
+  {
     *it_ = stl2::forward<T>(t);
   }
 
   constexpr decltype(auto) current() const
-    noexcept(noexcept(*stl2::declval<const I&>()))
-    requires stl2::WeakInputIterator<I>() {
+  noexcept(noexcept(*stl2::declval<const I&>()))
+  requires stl2::WeakInputIterator<I>()
+  {
     return *it_;
   }
+
   constexpr auto equal(stl2::default_sentinel) const noexcept {
     return n_ == 0;
   }
   constexpr auto equal(const my_counted_cursor& that) const noexcept {
     return n_ == that.n_;
   }
+
   constexpr auto prev()
-    noexcept(noexcept(--stl2::declval<I&>()))
-    requires stl2::BidirectionalIterator<I>() {
+  noexcept(noexcept(--stl2::declval<I&>()))
+  requires stl2::BidirectionalIterator<I>()
+  {
     ++n_;
     --it_;
   }
+
   constexpr auto advance(difference_type n)
-    noexcept(noexcept(stl2::declval<I&>() += n))
-    requires stl2::RandomAccessIterator<I>() {
+  noexcept(noexcept(stl2::declval<I&>() += n))
+  requires stl2::RandomAccessIterator<I>()
+  {
     it_ += n;
     n_ -= n;
   }
+
   constexpr auto distance_to(const my_counted_cursor& that) const noexcept {
     return n_ - that.n_;
   }
   constexpr auto distance_to(stl2::default_sentinel) const noexcept {
     return n_;
   }
+
+private:
+  I it_;
+  difference_type n_;
 };
 
 stl2::WeakIterator{I}
 using my_counted_iterator = stl2::basic_iterator<my_counted_cursor<I>>;
 
 template <class T, T Value>
-class always_cursor {
-  friend stl2::cursor_access;
+struct always_cursor {
   constexpr T current() const
     noexcept(stl2::is_nothrow_copy_constructible<T>::value) {
     return Value;
@@ -295,16 +330,22 @@ std::ostream& operator<<(std::ostream& os, R&& rng) {
 
 void test_fl() {
   ::forward_list<int> list = {0, 1, 2, 3};
-  std::cout << list << '\n';
   using R = decltype(list);
   using I = decltype(list.begin());
+  using S = decltype(list.end());
   static_assert(stl2::models::Copyable<I>);
   static_assert(stl2::models::DefaultConstructible<I>);
   static_assert(stl2::models::Semiregular<I>);
   static_assert(stl2::models::Incrementable<I>);
   static_assert(stl2::models::EqualityComparable<I>);
   static_assert(stl2::models::ForwardIterator<I>);
+  static_assert(stl2::models::Common<S, I>);
+  static_assert(stl2::models::Same<stl2::common_type_t<S, I>, I>);
+  static_assert(stl2::models::Regular<S>);
+  static_assert(stl2::models::EqualityComparable<S, I>);
+  static_assert(stl2::models::Sentinel<S, I>);
   static_assert(stl2::models::ForwardRange<R>);
+  std::cout << list << '\n';
   *stl2::front_inserter(list) = 3.14;
   std::cout << list << '\n';
   CHECK(list.begin() != list.end());
@@ -316,6 +357,7 @@ void test_fl() {
   static_assert(I{} == I{});
   CHECK(noexcept(I{} == I{}));
   CHECK(noexcept(stl2::front_inserter(list)));
+  CHECK(sizeof(I) == sizeof(void*));
 }
 
 void test_rv() {

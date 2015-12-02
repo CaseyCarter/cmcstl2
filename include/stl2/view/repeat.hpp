@@ -13,6 +13,7 @@
 #define STL2_DETAIL_VIEW_REPEAT_HPP
 
 #include <stl2/iterator.hpp>
+#include <stl2/memory.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/cheap_storage.hpp>
 #include <stl2/detail/ebo_box.hpp>
@@ -38,13 +39,13 @@ STL2_OPEN_NAMESPACE {
         noexcept(is_nothrow_constructible<storage_t, const T&>::value) :
         storage_t{r.value()} {}
 
-    private:
-      friend cursor_access;
-
-      constexpr reference current() const
-        noexcept(noexcept(declval<const storage_t&>().get())) {
+      constexpr reference current() const noexcept {
         return storage_t::get();
       }
+
+      constexpr auto arrow() const noexcept
+      requires !detail::cheaply_copyable<T>
+      { return __addressof::impl(storage_t::get()); }
 
       constexpr bool equal(const cursor&) const noexcept { return true; }
       constexpr void next() const noexcept {}
@@ -63,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 
     constexpr iterator begin() const
       noexcept(is_nothrow_constructible<iterator, const repeat_view&>::value) {
-      return {*this};
+      return {cursor{*this}};
     }
     constexpr unreachable end() const noexcept {
       return {};
