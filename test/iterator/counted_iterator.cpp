@@ -31,7 +31,7 @@ int main()
         CHECK(std::size_t(distance(i, default_sentinel{})) == size(rgi));
 
         counted_iterator<forward_iterator<const int*>> j{i};
-        using C = CommonType<decltype(i), default_sentinel>;
+        using C = common_type_t<decltype(i), default_sentinel>;
         static_assert(is_same<C, common_iterator<decltype(i), default_sentinel>>());
         CHECK(std::equal(C{i}, C{default_sentinel{}}, rgi));
     }
@@ -40,7 +40,7 @@ int main()
         std::list<int> l;
         auto a = make_counted_iterator(l.begin(), 0);
         auto b = make_counted_iterator(l.cbegin(), 0);
-        static_assert(is_same<CommonType<decltype(a), decltype(b)>, decltype(b)>());
+        static_assert(is_same<common_type_t<decltype(a), decltype(b)>, decltype(b)>());
         CHECK((a - a) == 0);
         CHECK((b - b) == 0);
         CHECK((a - b) == 0);

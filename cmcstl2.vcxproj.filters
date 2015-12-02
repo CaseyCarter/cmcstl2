@@ -79,6 +79,9 @@
     <Filter Include="Test Files\functional">
       <UniqueIdentifier>{3bc769ff-68b9-4f2c-a6bf-1e580f2ee8b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\detail\concepts\object">
+      <UniqueIdentifier>{e93dea29-c5f4-4c17-87a9-b370317ab2cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stl2\iterator.hpp">
@@ -172,9 +175,6 @@
       <Filter>Header Files\cmcstl2\stl2\detail</Filter>
     </ClInclude>
     <ClInclude Include="include\stl2\detail\concepts\fundamental.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\concepts\fold_expressions.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
     </ClInclude>
     <ClInclude Include="include\stl2\detail\iterator\counted_iterator.hpp">
@@ -549,9 +549,6 @@
     <ClInclude Include="include\stl2\detail\ebo_box.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\concepts\increment.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
-    </ClInclude>
     <ClInclude Include="include\stl2\detail\functional\callable_wrapper.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\functional</Filter>
     </ClInclude>
@@ -567,11 +564,20 @@
     <ClInclude Include="include\stl2\detail\iterator\increment.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\concepts\regular.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    <ClInclude Include="include\stl2\detail\concepts\object\assignable.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts\object</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\concepts\semiregular.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\concepts</Filter>
+    <ClInclude Include="include\stl2\detail\concepts\object\movable.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts\object</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\object\move_constructible.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts\object</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\object\regular.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts\object</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\concepts\object\semiregular.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\concepts\object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

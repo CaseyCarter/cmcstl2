@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
     // replace voids.
     template <class T>
     struct element_storage_ {
-      using type = T;
+      using type = T; // remove_cv_t<T>?
     };
     template <_Is<is_reference> T>
     struct element_storage_<T> {
@@ -90,7 +90,8 @@ STL2_OPEN_NAMESPACE {
     constexpr std::size_t index_of_type = I;
 
     template <class...Ts>
-      requires models::AllDestructible<element_t<Ts>...>
+    requires
+      (models::Destructible<element_t<Ts>> && ...)
     class base;
 
     // VariantTypes<T> is a list of the alternative types of T if
@@ -120,7 +121,8 @@ STL2_OPEN_NAMESPACE {
   } // namespace __variant
 
   template <class...Ts>
-    requires models::AllDestructible<__variant::element_t<Ts>...>
+  requires
+    (models::Destructible<__variant::element_t<Ts>> && ...)
   class variant;
 
   template <class>

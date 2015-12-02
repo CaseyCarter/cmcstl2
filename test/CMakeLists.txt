@@ -13,6 +13,9 @@ add_test(test.common common)
 add_executable(variant variant.cpp)
 add_test(test.variant variant)
 
+add_executable(meta meta.cpp)
+add_test(test.meta meta)
+
 add_executable(optional optional.cpp)
 add_test(test.optional optional)
 

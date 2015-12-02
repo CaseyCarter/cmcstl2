@@ -15,8 +15,9 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
-#include <stl2/detail/concepts/semiregular.hpp>
-#include <stl2/detail/concepts/regular.hpp>
+#include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/object/assignable.hpp>
+#include <stl2/detail/concepts/object/regular.hpp>
 
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
@@ -50,6 +51,58 @@ STL2_OPEN_NAMESPACE {
   template <class T>
     requires models::Constructible<decay_t<T>, T>
   using __f = decay_t<T>;
+
+
+  namespace ext {
+    ///////////////////////////////////////////////////////////////////////////
+    // TriviallyFoo concepts
+    //
+    template <class T>
+    concept bool TriviallyDestructible() {
+      return Destructible<T>() &&
+        _Is<T, is_trivially_destructible>;
+    }
+
+    template <class T, class...Args>
+    concept bool TriviallyConstructible() {
+      return Constructible<T, Args...>() &&
+        _Is<T, is_trivially_constructible, Args...>;
+    }
+
+    template <class T>
+    concept bool TriviallyDefaultConstructible() {
+      return DefaultConstructible<T>() &&
+        _Is<T, is_trivially_default_constructible>;
+    }
+
+    template <class T>
+    concept bool TriviallyMoveConstructible() {
+      return MoveConstructible<T>() &&
+        _Is<T, is_trivially_move_constructible>;
+    }
+
+    template <class T>
+    concept bool TriviallyCopyConstructible() {
+      return CopyConstructible<T>() &&
+        TriviallyMoveConstructible<T>() &&
+        _Is<T, is_trivially_copy_constructible>;
+    }
+
+    template <class T>
+    concept bool TriviallyMovable() {
+      return Movable<T>() &&
+        TriviallyMoveConstructible<T>() &&
+        _Is<T, is_trivially_move_assignable>;
+    }
+
+    template <class T>
+    concept bool TriviallyCopyable() {
+      return Copyable<T>() &&
+        TriviallyMovable<T>() &&
+        TriviallyCopyConstructible<T>() &&
+        _Is<T, is_trivially_copy_assignable>;
+    }
+  }
 } STL2_CLOSE_NAMESPACE
 
 #endif

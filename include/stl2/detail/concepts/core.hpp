@@ -29,10 +29,6 @@ STL2_OPEN_NAMESPACE {
   template <class U, template <class...> class T, class... V>
   concept bool _IsNot = !_Is<U, T, V...>;
 
-  template <template <class...> class Trait, class...Ts>
-  concept bool _AllAre =
-    meta::_v<meta::all_of<meta::list<Ts...>, meta::quote_trait<Trait>>>;
-
   ///////////////////////////////////////////////////////////////////////////
   // Same [concepts.lib.corelang.same]
   // Extension: variadic.
@@ -152,22 +148,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool PubliclyDerivedFrom = false;
     __stl2::ext::PubliclyDerivedFrom{T, U}
     constexpr bool PubliclyDerivedFrom<T, U> = true;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Assignable [concepts.lib.corelang.assignable]
-  //
-  namespace models {
-    template <class, class>
-    constexpr bool Assignable = false;
-    template <class T, class U>
-      requires Same<decltype(declval<T>() = declval<U>()), T&>
-    constexpr bool Assignable<T, U> = true;
-  }
-
-  template <class T, class U>
-  concept bool Assignable() {
-    return models::Assignable<T, U>;
   }
 } STL2_CLOSE_NAMESPACE
 

@@ -25,7 +25,7 @@ constexpr bool Common = ranges::Common<T, U>();
 
 namespace ns {
 template <class T, class U>
-using CommonType = ranges::common_type_t<T, U>;
+using common_type_t = ranges::common_type_t<T, U>;
 }
 
 #elif VALIDATE_STL2
@@ -33,7 +33,7 @@ using CommonType = ranges::common_type_t<T, U>;
 #include <stl2/utility.hpp>
 
 namespace ns {
-using __stl2::CommonType;
+using __stl2::common_type_t;
 }
 #endif
 
@@ -88,8 +88,8 @@ CONCEPT_ASSERT(models::ConvertibleTo<double, int>);
 }
 
 namespace common_test {
-CONCEPT_ASSERT(models::Same<ns::CommonType<int, int>, int>);
-//CONCEPT_ASSERT(models::Same<ns::CommonType<int, float, double>, double>);
+CONCEPT_ASSERT(models::Same<ns::common_type_t<int, int>, int>);
+//CONCEPT_ASSERT(models::Same<ns::common_type_t<int, float, double>, double>);
 
 CONCEPT_ASSERT(models::Common<int, int>);
 CONCEPT_ASSERT(models::Common<int, double>);
@@ -106,6 +106,9 @@ struct B {};
 struct C { C() = default; C(B) {} C(int) {} };
 CONCEPT_ASSERT(models::Common<B,C>);
 //CONCEPT_ASSERT(models::Common<int, C, B>);
+
+struct incomplete;
+CONCEPT_ASSERT(models::Common<void*, incomplete*>);
 }
 
 namespace {

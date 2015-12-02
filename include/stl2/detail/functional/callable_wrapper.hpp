@@ -100,6 +100,22 @@ STL2_OPEN_NAMESPACE {
     auto make_callable_wrapper(std::reference_wrapper<auto> r) {
       return r;
     }
+
+    decltype(auto) callable_unwrapper(callable_wrapper<auto>& w) noexcept {
+      return w.base();
+    }
+
+    decltype(auto) callable_unwrapper(const callable_wrapper<auto>& w) noexcept {
+      return w.base();
+    }
+
+    decltype(auto) callable_unwrapper(callable_wrapper<auto>&& w) noexcept {
+      return std::move(w).base();
+    }
+
+    auto callable_unwrapper(std::reference_wrapper<auto> r) {
+      return r;
+    }
   }
 } STL2_CLOSE_NAMESPACE
 

@@ -36,8 +36,7 @@ int main() {
     static_assert(!models::ForwardIterator<I>);
 
     static_assert(models::Sentinel<default_sentinel, I>);
-    using C = CommonType<I, default_sentinel>;
-    static_assert(is_same<C, I>());
+    static_assert(is_same<I, common_type_t<I, default_sentinel>>());
   }
   {
     std::istringstream is("5 4 3 2 1 0");

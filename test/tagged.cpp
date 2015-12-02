@@ -142,7 +142,8 @@ void test_noexcept() {
 // Why? Because we can.
 void test_array() {
   using T = __stl2::tagged<std::array<int, 3>, __stl2::tag::in, __stl2::tag::in1, __stl2::tag::in2>;
-  auto t = T{std::array<int, 3>{{0, 1, 2}}};
+  T t;
+  t = std::array<int, 3>{{0, 1, 2}};
   CHECK(t.in() == 0);
   CHECK(t.in1() == 1);
   CHECK(t.in2() == 2);

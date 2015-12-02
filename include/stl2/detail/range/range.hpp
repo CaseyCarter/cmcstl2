@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
       range<I, S>{__stl2::move(i), __stl2::move(s)}
     )
 
-    template <Iterator I, Sentinel<I> S, class C = CommonType<I, S>>
+    template <Iterator I, Sentinel<I> S, class C = common_type_t<I, S>>
     constexpr auto make_bounded_range(I i, S s)
     STL2_NOEXCEPT_RETURN(
       range<C>{__stl2::move(i), __stl2::move(s)}

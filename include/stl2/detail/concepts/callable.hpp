@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <class...T> struct __common_reference : meta::bool_<sizeof...(T)==1> {};
   template <class T, class U, class...Rest> requires CommonReference<T,U>()
-  struct __common_reference<T,U,Rest...> : __common_reference<CommonReferenceType<T,U>,Rest...> {};
+  struct __common_reference<T,U,Rest...> : __common_reference<common_reference_t<T,U>,Rest...> {};
 
   template <Readable...Is>
   using __iter_args_lists =
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 
   // Not to spec: The function type must be decayed before being constrained.
   template <class F, class...Is>
-    requires models::IndirectCallable<__f<F>, Is...>
+    requires models::IndirectCallable<remove_reference_t<F>, Is...>
   struct indirect_result_of<F(Is...)> :
     result_of<F(value_type_t<Is>...)> {};
 

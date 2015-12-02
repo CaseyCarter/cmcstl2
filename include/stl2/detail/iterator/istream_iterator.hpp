@@ -44,15 +44,16 @@ STL2_OPEN_NAMESPACE {
       using traits_type = traits;
       using istream_type = std::basic_istream<charT, traits>;
 
-      constexpr istream_cursor() noexcept = default;
+      constexpr istream_cursor()
+        noexcept(is_nothrow_default_constructible<T>::value) = default;
       istream_cursor(istream_type& s)
-        noexcept(is_nothrow_default_constructible<T>::value) :
-        stream_{&s} {
+        noexcept(is_nothrow_default_constructible<T>::value)
+      : stream_{&s} {
         next();
       }
-
-      constexpr istream_cursor(default_sentinel) :
-        istream_cursor() {}
+      constexpr istream_cursor(default_sentinel)
+        noexcept(is_nothrow_default_constructible<T>::value)
+      : istream_cursor() {}
 
     private:
       using box_t = semiregular_box<T>;

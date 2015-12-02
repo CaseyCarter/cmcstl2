@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -18,13 +18,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -166,13 +166,14 @@
     <ClInclude Include="include\stl2\detail\concepts\callable.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\compare.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\core.hpp" />
-    <ClInclude Include="include\stl2\detail\concepts\fold_expressions.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\function.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\fundamental.hpp" />
-    <ClInclude Include="include\stl2\detail\concepts\increment.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\object.hpp" />
-    <ClInclude Include="include\stl2\detail\concepts\regular.hpp" />
-    <ClInclude Include="include\stl2\detail\concepts\semiregular.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\object\assignable.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\object\movable.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\object\move_constructible.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\object\regular.hpp" />
+    <ClInclude Include="include\stl2\detail\concepts\object\semiregular.hpp" />
     <ClInclude Include="include\stl2\detail\concepts\urng.hpp" />
     <ClInclude Include="include\stl2\detail\construct_destruct.hpp" />
     <ClInclude Include="include\stl2\detail\ebo_box.hpp" />

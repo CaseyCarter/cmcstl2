@@ -20,21 +20,12 @@
 #include <stl2/detail/functional/invoke.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// Function Concepts [concepts.lib.function]
+// Callable Concepts [concepts.lib.callables]
 //
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
-  // Function [concepts.lib.functions.function]
-  // Not to spec: Named callable, and accepts callables.
+  // Callable [concepts.lib.callables.callable]
   //
-  template <class F, class...Args>
-  constexpr bool __callable = false;
-  template <class F, class...Args>
-    requires requires (F& f, Args&&...args) {
-      __stl2::invoke(f, (Args&&)args...);
-    }
-  constexpr bool __callable<F, Args...> = true;
-
   // FIXME: remove this transitional paranoia check.
   template <class T>
   constexpr bool __force_non_reference() {
@@ -46,7 +37,7 @@ STL2_OPEN_NAMESPACE {
   concept bool Callable() {
     return __force_non_reference<F>() &&
       CopyConstructible<F>() &&
-      __callable<F, Args...>;
+      ext::Invokable<F&, Args...>();
   }
 
   namespace models {
@@ -57,8 +48,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // RegularFunction [concepts.lib.functions.regularfunction]
-  // Not to spec: named RegularCallable
+  // RegularCallable [concepts.lib.callables.regularcallable]
   //
   template <class F, class...Args>
   concept bool RegularCallable() {
@@ -73,7 +63,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // Predicate [concepts.lib.functions.predicate]
+  // Predicate [concepts.lib.callables.predicate]
   //
   template <class F, class...Args>
   concept bool Predicate() {
@@ -118,7 +108,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // Relation [concepts.lib.functions.relation]
+  // Relation [concepts.lib.callables.relation]
   //
   template <class R, class T>
   concept bool Relation() {
@@ -129,7 +119,7 @@ STL2_OPEN_NAMESPACE {
   concept bool Relation() {
     return ext::WeakRelation<R, T, U>() &&
       CommonReference<const T&, const U&>() &&
-      ext::WeakRelation<R, CommonType<T, U>>();
+      ext::WeakRelation<R, common_reference_t<const T&, const U&>>();
   }
 
   namespace models {
@@ -142,7 +132,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // StrictWeakOrder [concepts.lib.functions.strictweakorder]
+  // StrictWeakOrder [concepts.lib.callables.strictweakorder]
   //
   template <class R, class T>
   concept bool StrictWeakOrder() {

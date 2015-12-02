@@ -32,7 +32,7 @@
 // 	.cfi_endproc
 
 int strlen_test(const char* p) noexcept {
-  using C = __stl2::CommonType<const char*, __stl2::unreachable>;
+  using C = __stl2::common_type_t<const char*, __stl2::unreachable>;
   return __stl2::distance(C{p}, std::find(C{p}, C{__stl2::unreachable{}}, '\0'));
 }
 

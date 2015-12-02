@@ -312,9 +312,7 @@ void test_fl() {
   CHECK(!(list.begin() == list.end()));
   CHECK(noexcept(list.begin() == list.end()));
   CHECK(list.begin() != stl2::next(list.begin()));
-  CHECK(noexcept(list.begin() != stl2::next(list.begin())));
   CHECK(!(list.begin() == stl2::next(list.begin())));
-  CHECK(noexcept(list.begin() == stl2::next(list.begin())));
   static_assert(I{} == I{});
   CHECK(noexcept(I{} == I{}));
   CHECK(noexcept(stl2::front_inserter(list)));
