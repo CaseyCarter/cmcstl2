@@ -179,10 +179,11 @@ public:
   using iterator = stl2::basic_iterator<pointer_cursor<T>>;
   using const_iterator = stl2::basic_iterator<pointer_cursor<const T>>;
 
-  constexpr iterator begin() noexcept { return {elements_ + 0}; }
-  constexpr iterator end() noexcept { return {elements_ + N}; }
-  constexpr const_iterator begin() const noexcept { return {elements_ + 0}; }
-  constexpr const_iterator end() const noexcept { return {elements_ + N}; }
+  // These should be constexpr, except for PR67376.
+  iterator begin() noexcept { return {elements_ + 0}; }
+  iterator end() noexcept { return {elements_ + N}; }
+  const_iterator begin() const noexcept { return {elements_ + 0}; }
+  const_iterator end() const noexcept { return {elements_ + N}; }
 
   T elements_[N];
 };
