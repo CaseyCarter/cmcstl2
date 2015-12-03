@@ -132,7 +132,7 @@ using ostream_iterator = stl2::basic_iterator<ostream_cursor<T>>;
 template <class T>
 class pointer_cursor {
 public:
-  using is_contiguous = stl2::true_type;
+  static constexpr bool contiguous = true;
   struct mixin : protected stl2::detail::ebo_box<pointer_cursor> {
     mixin() = default;
     using mixin::ebo_box::ebo_box;
