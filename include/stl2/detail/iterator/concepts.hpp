@@ -660,7 +660,6 @@ STL2_OPEN_NAMESPACE {
       DerivedFrom<iterator_category_t<I>, forward_iterator_tag>() &&
       Incrementable<I>() &&
       Sentinel<I, I>();
-      // && EqualityComparable<I>()
       // Axiom: I{} is equality-preserving and non-singular
       // Axiom: if i equals j then i and j denote the same element.
       // Axiom: if [i,s) denotes a range && bool(i != s) then [i,i+1) denotes
