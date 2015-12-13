@@ -171,6 +171,23 @@ STL2_OPEN_NAMESPACE {
       STL2_ASSUME(n < count_);
       return get()[n];
     }
+
+    // Extension
+    friend STL2_CONSTEXPR_EXT decltype(auto) iter_move(
+      const counted_iterator& i)
+    noexcept(noexcept(__stl2::iter_move(i.get())))
+    requires Readable<I>()
+    {
+      return __stl2::iter_move(i.get());
+    }
+    // Extension
+    friend STL2_CONSTEXPR_EXT void iter_swap(
+      const counted_iterator& x, const counted_iterator& y)
+    noexcept(noexcept(__stl2::iter_swap(x.get(), y.get())))
+    requires Readable<I>()
+    {
+      __stl2::iter_swap(x.get(), y.get());
+    }
   };
 
   Readable{I}

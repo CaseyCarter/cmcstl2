@@ -77,12 +77,6 @@ STL2_OPEN_NAMESPACE {
       __stl2::prev(current_)
     )
 
-    // 20150813: Extension.
-    friend STL2_CONSTEXPR_EXT decltype(auto) iter_move(reverse_iterator i)
-    STL2_NOEXCEPT_RETURN(
-      __stl2::iter_move(__stl2::prev(i.current_))
-    )
-
     STL2_CONSTEXPR_EXT reverse_iterator& operator++() &
     noexcept(noexcept(--current_))
     {
@@ -150,6 +144,19 @@ STL2_OPEN_NAMESPACE {
     {
       return current_[-n - 1];
     }
+
+    // Extension
+    friend STL2_CONSTEXPR_EXT decltype(auto) iter_move(
+      const reverse_iterator& i)
+    STL2_NOEXCEPT_RETURN(
+      __stl2::iter_move(__stl2::prev(i.current_))
+    )
+    // Extension
+    friend STL2_CONSTEXPR_EXT void iter_swap(
+      const reverse_iterator& x, const reverse_iterator& y)
+    STL2_NOEXCEPT_RETURN(
+      __stl2::iter_swap(__stl2::prev(x.current_), __stl2::prev(y.current_))
+    )
   };
 
   EqualityComparable{I1, I2}

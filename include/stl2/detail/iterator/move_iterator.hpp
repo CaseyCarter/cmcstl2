@@ -139,6 +139,18 @@ STL2_OPEN_NAMESPACE {
     {
       return __stl2::iter_move(current_ + n);
     }
+
+    // Extension
+    friend STL2_CONSTEXPR_EXT decltype(auto) iter_move(const move_iterator& i)
+    STL2_NOEXCEPT_RETURN(
+      __stl2::iter_move(i.current_)
+    )
+    // Extension
+    friend STL2_CONSTEXPR_EXT void iter_swap(
+      const move_iterator& x, const move_iterator& y)
+    STL2_NOEXCEPT_RETURN(
+      __stl2::iter_swap(x.current_, y.current_)
+    )
   };
 
   EqualityComparable{I1, I2}

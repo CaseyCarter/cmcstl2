@@ -90,27 +90,27 @@ STL2_OPEN_NAMESPACE {
     STL2_CONSTEXPR_EXT decltype(auto) operator*()
     noexcept(noexcept(*declval<I&>()))
     {
-      STL2_ASSUME(holds_alternative<I>(v_));
+      STL2_ASSUME(__stl2::holds_alternative<I>(v_));
       return *__stl2::get_unchecked<I>(v_);
     }
     STL2_CONSTEXPR_EXT decltype(auto) operator*() const
     noexcept(noexcept(*declval<const I&>()))
     requires detail::Dereferenceable<const I>
     {
-      STL2_ASSUME(holds_alternative<I>(v_));
+      STL2_ASSUME(__stl2::holds_alternative<I>(v_));
       return *__stl2::get_unchecked<I>(v_);
     }
     STL2_CONSTEXPR_EXT decltype(auto) operator->() const
     noexcept(noexcept(__stl2::__operator_arrow(declval<const I&>())))
     requires Readable<I>()
     {
-      STL2_ASSUME(holds_alternative<I>(v_));
+      STL2_ASSUME(__stl2::holds_alternative<I>(v_));
       return __stl2::__operator_arrow(__stl2::get_unchecked<I>(v_));
     }
     STL2_CONSTEXPR_EXT common_iterator& operator++()
     noexcept(noexcept(++declval<I&>()))
     {
-      STL2_ASSUME(holds_alternative<I>(v_));
+      STL2_ASSUME(__stl2::holds_alternative<I>(v_));
       ++__stl2::get_unchecked<I>(v_);
       return *this;
     }
@@ -122,6 +122,30 @@ STL2_OPEN_NAMESPACE {
       auto tmp = *this;
       ++*this;
       return tmp;
+    }
+    // Extension
+    friend STL2_CONSTEXPR_EXT decltype(auto) iter_move(
+      const common_iterator& i)
+    noexcept(noexcept(__stl2::iter_move(declval<const I&>())))
+    requires Readable<I>()
+    {
+      auto&& v = __ci_access::v(i);
+      STL2_CONSTEXPR_ASSUME(__stl2::holds_alternative<I>(v));
+      return __stl2::iter_move(__stl2::get_unchecked<I>(v));
+    }
+    // Extension
+    friend STL2_CONSTEXPR_EXT void iter_swap(
+      const common_iterator& x, const common_iterator& y)
+    noexcept(noexcept(
+      __stl2::iter_swap(declval<const I&>(), declval<const I&>())))
+    requires Readable<I>()
+    {
+      auto&& v_x = __ci_access::v(x);
+      auto&& v_y = __ci_access::v(y);
+      STL2_CONSTEXPR_ASSUME(__stl2::holds_alternative<I>(v_x));
+      STL2_CONSTEXPR_ASSUME(__stl2::holds_alternative<I>(v_y));
+      __stl2::iter_swap(__stl2::get_unchecked<I>(v_x),
+                        __stl2::get_unchecked<I>(v_y));
     }
   };
 
