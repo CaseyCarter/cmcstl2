@@ -24,9 +24,6 @@ namespace models {
   constexpr bool Readable = ranges::Readable<R>();
 
   template <class W, class T>
-  constexpr bool MoveWritable = ranges::MoveWritable<W, T>();
-
-  template <class W, class T>
   constexpr bool Writable = ranges::Writable<W, T>();
 
   template <class I>
@@ -219,8 +216,8 @@ namespace writable_test {
     int& operator*() const;
   };
 
-  CONCEPT_ASSERT(models::MoveWritable<std::unique_ptr<int>*, std::unique_ptr<int>>);
-  CONCEPT_ASSERT(!models::Writable<std::unique_ptr<int>*, std::unique_ptr<int>>);
+  CONCEPT_ASSERT(models::Writable<std::unique_ptr<int>*, std::unique_ptr<int>&&>);
+  CONCEPT_ASSERT(!models::Writable<std::unique_ptr<int>*, std::unique_ptr<int>&>);
   CONCEPT_ASSERT(!models::Writable<void, int>);
   CONCEPT_ASSERT(!models::Writable<void*, void>);
   CONCEPT_ASSERT(models::Writable<int*, int>);
@@ -229,7 +226,9 @@ namespace writable_test {
   CONCEPT_ASSERT(models::Writable<int*, const int>);
   CONCEPT_ASSERT(!models::Writable<const int*, int>);
   CONCEPT_ASSERT(models::Writable<A, int>);
+  CONCEPT_ASSERT(models::Writable<A, const int&>);
   CONCEPT_ASSERT(models::Writable<A, double>);
+  CONCEPT_ASSERT(models::Writable<A, const double&>);
 } // namespace writable_test
 
 CONCEPT_ASSERT(models::WeaklyIncrementable<int>);

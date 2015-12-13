@@ -215,54 +215,34 @@ STL2_OPEN_NAMESPACE {
     common_reference_t<reference_t<I>, value_type_t<I>&>;
 
   ///////////////////////////////////////////////////////////////////////////
-  // MoveWritable [movewritable.iterators]
-  // Not to spec: Additional requirements from the proxy iterator work.
+  // Writable [iterators.writable]
+  // Not to spec: is value category sensitive.
   //
-  template <class Out, class T>
-  constexpr bool __move_writable = false;
-  template <class Out, class T>
-    requires requires (Out& o, T&& t) {
-      *o = (T&&)t; // Maybe void(*o = (T&&)t) ?
-    }
-  constexpr bool __move_writable<Out, T> = true;
-
-  template <class Out, class T>
-  concept bool MoveWritable() {
-    return detail::Dereferenceable<Out> &&
-      Movable<Out>() &&
-      DefaultConstructible<Out>() &&
-      __move_writable<Out, T>;
-  }
-
-  namespace models {
-    template <class, class>
-    constexpr bool MoveWritable = false;
-    __stl2::MoveWritable{Out, T}
-    constexpr bool MoveWritable<Out, T> = true;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Writable [writable.iterators]
-  //
-  template <class Out, class T>
+  template <class, class>
   constexpr bool __writable = false;
-  template <class Out, class T>
-    requires requires (Out& o, const T& t) {
-      *o = t; // Maybe void(*o = t) ?
+  template <class Out, class R>
+  requires
+    requires(Out& o, R&& r) {
+      (void)(*o = (R&&)r);
+      // Handwaving: After the assignment, the value of the element denoted
+      //             by o "corresponds" to the value originally denoted by r.
+      // Axiom: If r equals foo && Readable<Out>() &&
+      //        Same<value_type_t<Out>, ????>() then
+      //        (*o = (R&&)r, *o equals foo)
     }
-  constexpr bool __writable<Out, T> = true;
+  constexpr bool __writable<Out, R> = true;
 
-  template <class Out, class T>
+  template <class Out, class R>
   concept bool Writable() {
-    return MoveWritable<Out, T>() &&
-      __writable<Out, T>;
+    return detail::Dereferenceable<Out> && Movable<Out>() &&
+      DefaultConstructible<Out>() && __writable<Out, R>;
   }
 
   namespace models {
     template <class, class>
     constexpr bool Writable = false;
-    __stl2::Writable{Out, T}
-    constexpr bool Writable<Out, T> = true;
+    __stl2::Writable{Out, R}
+    constexpr bool Writable<Out, R> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -271,11 +251,7 @@ STL2_OPEN_NAMESPACE {
   //
   template <class In, class Out>
   concept bool IndirectlyMovable() {
-    return Readable<In>() && Movable<value_type_t<In>>() &&
-      Constructible<value_type_t<In>, rvalue_reference_t<In>>() &&
-      Assignable<value_type_t<In>&, rvalue_reference_t<In>>() &&
-      MoveWritable<Out, rvalue_reference_t<In>>() &&
-      MoveWritable<Out, value_type_t<In>>();
+    return Readable<In>() && Writable<Out, rvalue_reference_t<In>>();
   }
 
   namespace models {
@@ -290,18 +266,36 @@ STL2_OPEN_NAMESPACE {
 
   IndirectlyMovable{In, Out}
   constexpr bool is_nothrow_indirectly_movable_v<In, Out> =
+    noexcept(noexcept(declval<reference_t<Out>>() = __stl2::iter_move(declval<In>())));
+
+  ///////////////////////////////////////////////////////////////////////////
+  // IndirectlyMovableTemporaries [Extension]
+  //
+  template <class In, class Out>
+  concept bool IndirectlyMovableTemporaries() {
+    return IndirectlyMovable<In, Out>() &&
+      Writable<Out, value_type_t<In>&&>() &&
+      Movable<value_type_t<In>>() &&
+      Constructible<value_type_t<In>, rvalue_reference_t<In>>() &&
+      Assignable<value_type_t<In>&, rvalue_reference_t<In>>();
+  }
+
+  namespace models {
+    template <class, class>
+    constexpr bool IndirectlyMovableTemporaries = false;
+    __stl2::IndirectlyMovableTemporaries{In, Out}
+    constexpr bool IndirectlyMovableTemporaries<In, Out> = true;
+  }
+
+  template <class In, class Out>
+  constexpr bool is_nothrow_indirectly_movable_temporaries_v = false;
+
+  IndirectlyMovableTemporaries{In, Out}
+  constexpr bool is_nothrow_indirectly_movable_temporaries_v<In, Out> =
+    is_nothrow_indirectly_movable_v<In, Out> &&
+    is_nothrow_assignable<reference_t<Out>, value_type_t<In>>::value &&
     is_nothrow_constructible<value_type_t<In>, rvalue_reference_t<In>>::value &&
-    is_nothrow_assignable<value_type_t<In> &, rvalue_reference_t<In>>::value &&
-    is_nothrow_assignable<reference_t<Out>, rvalue_reference_t<In>>::value &&
-    is_nothrow_assignable<reference_t<Out>, value_type_t<In>>::value;
-
-  template <class In, class Out>
-  using is_nothrow_indirectly_movable_t =
-    meta::bool_<is_nothrow_indirectly_movable_v<In, Out>>;
-
-  template <class In, class Out>
-  struct is_nothrow_indirectly_movable :
-    is_nothrow_indirectly_movable_t<In, Out> {};
+    is_nothrow_assignable<value_type_t<In>&, rvalue_reference_t<In>>::value;
 
   ///////////////////////////////////////////////////////////////////////////
   // IndirectlyCopyable [indirectlycopyable.iterators]
@@ -309,11 +303,8 @@ STL2_OPEN_NAMESPACE {
   //
   template <class In, class Out>
   concept bool IndirectlyCopyable() {
-    return IndirectlyMovable<In, Out>() && Copyable<value_type_t<In>>() &&
-      Constructible<value_type_t<In>, reference_t<In>>() &&
-      Assignable<value_type_t<In>&, reference_t<In>>() &&
-      Writable<Out, reference_t<In>>() &&
-      Writable<Out, value_type_t<In>>();
+    return Readable<In>() && Writable<Out, reference_t<In>>();
+    // IndirectlyMovable<In, Out>()?
   }
 
   namespace models {
@@ -321,6 +312,25 @@ STL2_OPEN_NAMESPACE {
     constexpr bool IndirectlyCopyable = false;
     __stl2::IndirectlyCopyable{In, Out}
     constexpr bool IndirectlyCopyable<In, Out> = true;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // IndirectlyCopyableTemporaries [Extension]
+  //
+  template <class In, class Out>
+  concept bool IndirectlyCopyableTemporaries() {
+    return IndirectlyCopyable<In, Out>() &&
+      Writable<Out, const value_type_t<In>&>() &&
+      Copyable<value_type_t<In>>() &&
+      Constructible<value_type_t<In>, reference_t<In>>() &&
+      Assignable<value_type_t<In>&, reference_t<In>>();
+  }
+
+  namespace models {
+    template <class, class>
+    constexpr bool IndirectlyCopyableTemporaries = false;
+    __stl2::IndirectlyCopyableTemporaries{In, Out}
+    constexpr bool IndirectlyCopyableTemporaries<In, Out> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -364,11 +374,11 @@ STL2_OPEN_NAMESPACE {
     requires
       !has_customization<R1, R2> &&
       !models::Swappable<reference_t<UR1>, reference_t<UR2>> &&
-      models::IndirectlyMovable<UR1, UR2> &&
-      models::IndirectlyMovable<UR2, UR1>
+      models::IndirectlyMovableTemporaries<UR1, UR2> &&
+      models::IndirectlyMovableTemporaries<UR2, UR1>
     constexpr void impl(R1&& r1, R2&& r2)
-      noexcept(is_nothrow_indirectly_movable_v<UR1, UR2> &&
-               is_nothrow_indirectly_movable_v<UR2, UR1>)
+      noexcept(is_nothrow_indirectly_movable_temporaries_v<UR1, UR2> &&
+               is_nothrow_indirectly_movable_temporaries_v<UR2, UR1>)
     {
       value_type_t<UR1> tmp = __stl2::iter_move(r1);
       *r1 = __stl2::iter_move(r2);
@@ -611,6 +621,7 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // OutputIterator [iterators.output]
+  // Not to spec: is value category sensitive.
   //
   template <class I, class T>
   concept bool OutputIterator() {

@@ -142,7 +142,7 @@ STL2_OPEN_NAMESPACE {
       __stl2::move(first), __stl2::move(middle), __stl2::move(last));
   }
 
-  ForwardIterator{I}
+  Permutable{I}
   ext::range<I> __rotate(I first, I middle, I last)
   {
     if (is_trivially_move_assignable<value_type_t<I>>()) {
@@ -154,7 +154,8 @@ STL2_OPEN_NAMESPACE {
       __stl2::move(first), __stl2::move(middle), __stl2::move(last));
   }
 
-  BidirectionalIterator{I}
+  template <BidirectionalIterator I>
+  requires Permutable<I>()
   ext::range<I> __rotate(I first, I middle, I last)
   {
     if (is_trivially_move_assignable<value_type_t<I>>()) {
@@ -169,7 +170,8 @@ STL2_OPEN_NAMESPACE {
       __stl2::move(first), __stl2::move(middle), __stl2::move(last));
   }
 
-  RandomAccessIterator{I}
+  template <RandomAccessIterator I>
+  requires Permutable<I>()
   ext::range<I> __rotate(I first, I middle, I last)
   {
     if (is_trivially_move_assignable<value_type_t<I>>()) {

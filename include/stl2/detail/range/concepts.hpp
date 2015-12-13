@@ -139,6 +139,7 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // OutputRange [ranges.output]
+  // Not to spec: value category sensitive.
   //
   template <class R, class T>
   concept bool OutputRange() {

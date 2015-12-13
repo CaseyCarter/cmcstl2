@@ -34,9 +34,9 @@ STL2_OPEN_NAMESPACE {
       *result = saved;
       ++result;
       while (++first != last) {
-        auto&& v = *first;
+        reference_t<I> v = *first;
         if (!comp(proj(v), proj(saved))) {
-          saved = __stl2::forward<decltype(v)>(v);
+          saved = __stl2::forward<reference_t<I>>(v);
           *result = saved;
           ++result;
         }
@@ -56,9 +56,9 @@ STL2_OPEN_NAMESPACE {
       *result = *first;
       auto m = result;
       while (++first != last) {
-        auto&& v = *first;
+        reference_t<I> v = *first;
         if (!comp(proj(v), proj(*m))) {
-          *++result = __stl2::forward<decltype(v)>(v);
+          *++result = __stl2::forward<reference_t<I>>(v);
           m = result;
         }
       }
@@ -79,9 +79,9 @@ STL2_OPEN_NAMESPACE {
       ++result;
       auto m = first;
       while (++first != last) {
-        auto&& v = *first;
+        reference_t<I> v = *first;
         if (!comp(proj(v), proj(*m))) {
-          *result = __stl2::forward<decltype(v)>(v);
+          *result = __stl2::forward<reference_t<I>>(v);
           ++result;
           m = first;
         }
@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
     models::IndirectlyCopyable<I, O> &&
       (models::ForwardIterator<I> ||
        models::ForwardIterator<O> ||
-       models::Copyable<value_type_t<I>>);
+       models::IndirectlyCopyableTemporaries<I, O>);
 
   template <class I, class S, class O,
             class R = equal_to<>, class Proj = identity>

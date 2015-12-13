@@ -21,7 +21,7 @@
 //
 STL2_OPEN_NAMESPACE {
   template <InputIterator I, Sentinel<I> S, class Pred, class T,
-            OutputIterator<T> O, class Proj = identity>
+            OutputIterator<const T&> O, class Proj = identity>
   requires
     models::IndirectlyCopyable<I, O> &&
     models::IndirectCallablePredicate<
@@ -34,11 +34,11 @@ STL2_OPEN_NAMESPACE {
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     for (; first != last; ++first, ++result) {
-      auto&& v = *first;
+      reference_t<I> v = *first;
       if (pred(proj(v))) {
         *result = new_value;
       } else {
-        *result = __stl2::forward<decltype(v)>(v);
+        *result = __stl2::forward<reference_t<I>>(v);
       }
     }
     return {__stl2::move(first), __stl2::move(result)};
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
   template <InputRange Rng, class Pred, class T,
             class O, class Proj = identity>
   requires
-    models::OutputIterator<__f<O>, T> &&
+    models::OutputIterator<__f<O>, const T&> &&
     models::IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
   template <class E, class Pred, class T,
             class O, class Proj = identity>
   requires
-    models::OutputIterator<__f<O>, T> &&
+    models::OutputIterator<__f<O>, const T&> &&
     models::IndirectlyCopyable<const E*, __f<O>> &&
     models::IndirectCallablePredicate<
       __f<Pred>, projected<const E*, __f<Proj>>>

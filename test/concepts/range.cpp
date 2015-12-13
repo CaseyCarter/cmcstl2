@@ -582,6 +582,7 @@ int main() {
     using T = int[2];
     CONCEPT_ASSERT(models::BoundedRange<T>);
     CONCEPT_ASSERT(models::OutputRange<T, int>);
+    CONCEPT_ASSERT(models::OutputRange<T, const int&>);
     CONCEPT_ASSERT(models::InputRange<T>);
     CONCEPT_ASSERT(models::ForwardRange<T>);
     CONCEPT_ASSERT(models::BidirectionalRange<T>);

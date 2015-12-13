@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
   template <ForwardIterator I, Sentinel<I> S, class T1,
             class T2, class Proj = identity>
   requires
-    models::Writable<I, T2> &&
+    models::Writable<I, const T2&> &&
     models::IndirectCallableRelation<
       equal_to<>, projected<I, __f<Proj>>, const T1*>
   I replace(I first, S last, const T1& old_value, const T2& new_value,
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 
   template <ForwardRange Rng, class T1, class T2, class Proj = identity>
   requires
-    models::Writable<iterator_t<Rng>, T2> &&
+    models::Writable<iterator_t<Rng>, const T2&> &&
     models::IndirectCallableRelation<
       equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T1*>
   safe_iterator_t<Rng>

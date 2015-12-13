@@ -43,9 +43,8 @@ STL2_OPEN_NAMESPACE {
   template <class I>
   concept bool Permutable() {
     return ForwardIterator<I>() &&
-      Movable<value_type_t<I>>() &&
-      IndirectlyMovable<I, I>();
-      // FIXME: IndirectlySwappable<I, I>()?
+      IndirectlyMovableTemporaries<I, I>() &&
+      IndirectlySwappable<I, I>();
   }
 
   namespace models {
