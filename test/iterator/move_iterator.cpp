@@ -208,10 +208,41 @@ void test_proxy_iterator() {
   }
 }
 
+template <class T>
+constexpr bool can_eq = false;
+template <class T>
+requires requires(const T a, const T b) { a == b; }
+constexpr bool can_eq<T> = true;
+
+template <class T>
+constexpr bool can_neq = false;
+template <class T>
+requires requires(const T a, const T b) { a != b; }
+constexpr bool can_neq<T> = true;
+
+void test_incomparable() {
+  struct I {
+    using value_type = int;
+    using difference_type = int;
+    using iterator_category = ranges::input_iterator_tag;
+
+    int operator*() const;
+    I& operator++() &;
+    I operator++(int) &;
+  };
+  static_assert(ranges::models::InputIterator<I>);
+
+  static_assert(can_eq<ranges::move_iterator<int*>>);
+  static_assert(can_neq<ranges::move_iterator<int*>>);
+  static_assert(!can_eq<ranges::move_iterator<I>>);
+  static_assert(!can_neq<ranges::move_iterator<I>>);
+}
+
 int main() {
   test_move_iterator();
   test_iter_move();
   test_both();
   test_proxy_iterator();
+  test_incomparable();
   return ::test_result();
 }
