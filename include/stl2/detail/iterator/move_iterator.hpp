@@ -169,6 +169,36 @@ STL2_OPEN_NAMESPACE {
     !(a == b)
   )
 
+  // Extension
+  Sentinel{S, I}
+  STL2_CONSTEXPR_EXT bool
+  operator==(const move_iterator<I>& i, const S& s)
+  STL2_NOEXCEPT_RETURN(
+    __mi_access::get(i) == s
+  )
+  // Extension
+  Sentinel{S, I}
+  STL2_CONSTEXPR_EXT bool
+  operator==(const S& s, const move_iterator<I>& i)
+  STL2_NOEXCEPT_RETURN(
+    i == s
+  )
+
+  // Extension
+  Sentinel{S, I}
+  STL2_CONSTEXPR_EXT bool
+  operator!=(const move_iterator<I>& i, const S& s)
+  STL2_NOEXCEPT_RETURN(
+    !(i == s)
+  )
+  // Extension
+  Sentinel{S, I}
+  STL2_CONSTEXPR_EXT bool
+  operator!=(const S& s, const move_iterator<I>& i)
+  STL2_NOEXCEPT_RETURN(
+    !(i == s)
+  )
+
   StrictTotallyOrdered{I1, I2}
   STL2_CONSTEXPR_EXT bool
   operator<(const move_iterator<I1>& a, const move_iterator<I2>& b)

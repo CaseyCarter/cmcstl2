@@ -130,7 +130,7 @@ STL2_OPEN_NAMESPACE {
     requires Readable<I>()
     {
       auto&& v = __ci_access::v(i);
-      STL2_CONSTEXPR_ASSUME(__stl2::holds_alternative<I>(v));
+      STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<I>(v));
       return __stl2::iter_move(__stl2::get_unchecked<I>(v));
     }
     // Extension
@@ -142,8 +142,8 @@ STL2_OPEN_NAMESPACE {
     {
       auto&& v_x = __ci_access::v(x);
       auto&& v_y = __ci_access::v(y);
-      STL2_CONSTEXPR_ASSUME(__stl2::holds_alternative<I>(v_x));
-      STL2_CONSTEXPR_ASSUME(__stl2::holds_alternative<I>(v_y));
+      STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<I>(v_x));
+      STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<I>(v_y));
       __stl2::iter_swap(__stl2::get_unchecked<I>(v_x),
                         __stl2::get_unchecked<I>(v_y));
     }
