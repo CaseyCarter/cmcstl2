@@ -184,7 +184,7 @@ STL2_OPEN_NAMESPACE {
     friend STL2_CONSTEXPR_EXT void iter_swap(
       const counted_iterator& x, const counted_iterator& y)
     noexcept(noexcept(__stl2::iter_swap(x.get(), y.get())))
-    requires Readable<I>()
+    requires IndirectlySwappable<I, I>()
     {
       __stl2::iter_swap(x.get(), y.get());
     }

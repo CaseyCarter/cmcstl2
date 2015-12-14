@@ -138,7 +138,7 @@ STL2_OPEN_NAMESPACE {
       const common_iterator& x, const common_iterator& y)
     noexcept(noexcept(
       __stl2::iter_swap(declval<const I&>(), declval<const I&>())))
-    requires Readable<I>()
+    requires IndirectlySwappable<I, I>()
     {
       auto&& v_x = __ci_access::v(x);
       auto&& v_y = __ci_access::v(y);

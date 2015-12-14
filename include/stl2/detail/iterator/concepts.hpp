@@ -247,7 +247,7 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // IndirectlyMovable [indirectlymovable.iterators]
-  // Not to spec: Additional requirements from P0022.
+  // Not to spec.
   //
   template <class In, class Out>
   concept bool IndirectlyMovable() {
@@ -365,10 +365,9 @@ STL2_OPEN_NAMESPACE {
       !has_customization<R1, R2> &&
       models::Swappable<reference_t<UR1>, reference_t<UR2>>
     constexpr void impl(R1&& r1, R2&& r2)
-      noexcept(is_nothrow_swappable_v<reference_t<UR1>, reference_t<UR2>>)
-    {
-      __stl2::swap(*r1, *r2);
-    }
+    STL2_NOEXCEPT_RETURN(
+      (void)__stl2::swap(*r1, *r2)
+    )
 
     template <class UR1, class UR2, class R1, class R2>
     requires
