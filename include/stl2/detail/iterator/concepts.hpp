@@ -56,6 +56,15 @@ STL2_OPEN_NAMESPACE {
   // From the proxy iterator work (P0022).
   //
   namespace __iter_move {
+    template <detail::Dereferenceable R>
+    constexpr bool has_customization = false;
+    template <detail::Dereferenceable R>
+    requires
+      requires(R&& r) {
+        STL2_DEDUCE_AUTO_REF_REF(iter_move(r));
+      }
+    constexpr bool has_customization<R> = true;
+
     detail::Dereferenceable{R}
     using __iter_move_t =
       meta::if_<
@@ -63,30 +72,25 @@ STL2_OPEN_NAMESPACE {
         remove_reference_t<reference_t<R>>&&,
         decay_t<reference_t<R>>>;
 
-    template <class R,
-      class Result = __iter_move_t<remove_reference_t<R>>>
-    constexpr Result iter_move(R&& r)
-      noexcept(noexcept(Result(__stl2::move(*r))))
-    {
-      return __stl2::move(*r);
-    }
-
-    template <class R>
-    constexpr bool can_iter_move = false;
-    template <class R>
-    requires
-      requires (R&& r) {
-        STL2_DEDUCE_AUTO_REF_REF(iter_move((R&&)r));
-      }
-    constexpr bool can_iter_move<R> = true;
-
     struct fn {
       template <class R>
-      requires can_iter_move<R>
+      requires
+        has_customization<R>
       constexpr decltype(auto) operator()(R&& r) const
       STL2_NOEXCEPT_RETURN(
         iter_move(__stl2::forward<R>(r))
       )
+
+
+      template <class R,
+        class Result = __iter_move_t<remove_reference_t<R>>>
+      requires
+        !has_customization<R>
+      constexpr Result operator()(R&& r) const
+        noexcept(noexcept(Result(__stl2::move(*r))))
+      {
+        return __stl2::move(*r);
+      }
     };
   }
   // Workaround GCC PR66957 by declaring this unnamed namespace inline.
