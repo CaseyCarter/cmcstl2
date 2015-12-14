@@ -22,8 +22,12 @@
 STL2_OPEN_NAMESPACE {
   struct __mi_access {
     template <class MI>
-    static constexpr auto&& get(MI&& mi) noexcept {
+    static constexpr auto&& current(MI&& mi) noexcept {
       return std::forward<MI>(mi).current_;
+    }
+    template <class MS>
+    static constexpr auto&& sent(MS&& ms) noexcept {
+      return std::forward<MS>(ms).get();
     }
   };
 
@@ -48,7 +52,7 @@ STL2_OPEN_NAMESPACE {
     template <ConvertibleTo<I> U>
     STL2_CONSTEXPR_EXT move_iterator(const move_iterator<U>& u)
     noexcept(is_nothrow_constructible<I, const U&>::value)
-    : current_{__mi_access::get(u)}
+    : current_{__mi_access::current(u)}
     {}
 
     template <ConvertibleTo<I> U>
@@ -56,7 +60,7 @@ STL2_OPEN_NAMESPACE {
     operator=(const move_iterator<U>& u) &
     noexcept(is_nothrow_assignable<I&, const U&>::value)
     {
-      current_ = __mi_access::get(u);
+      current_ = __mi_access::current(u);
       return *this;
     }
 
@@ -159,7 +163,7 @@ STL2_OPEN_NAMESPACE {
   STL2_CONSTEXPR_EXT bool
   operator==(const move_iterator<I1>& a, const move_iterator<I2>& b)
   STL2_NOEXCEPT_RETURN(
-    __mi_access::get(a) == __mi_access::get(b)
+    __mi_access::current(a) == __mi_access::current(b)
   )
 
   EqualityComparable{I1, I2}
@@ -169,41 +173,11 @@ STL2_OPEN_NAMESPACE {
     !(a == b)
   )
 
-  // Extension
-  Sentinel{S, I}
-  STL2_CONSTEXPR_EXT bool
-  operator==(const move_iterator<I>& i, const S& s)
-  STL2_NOEXCEPT_RETURN(
-    __mi_access::get(i) == s
-  )
-  // Extension
-  Sentinel{S, I}
-  STL2_CONSTEXPR_EXT bool
-  operator==(const S& s, const move_iterator<I>& i)
-  STL2_NOEXCEPT_RETURN(
-    i == s
-  )
-
-  // Extension
-  Sentinel{S, I}
-  STL2_CONSTEXPR_EXT bool
-  operator!=(const move_iterator<I>& i, const S& s)
-  STL2_NOEXCEPT_RETURN(
-    !(i == s)
-  )
-  // Extension
-  Sentinel{S, I}
-  STL2_CONSTEXPR_EXT bool
-  operator!=(const S& s, const move_iterator<I>& i)
-  STL2_NOEXCEPT_RETURN(
-    !(i == s)
-  )
-
   StrictTotallyOrdered{I1, I2}
   STL2_CONSTEXPR_EXT bool
   operator<(const move_iterator<I1>& a, const move_iterator<I2>& b)
   STL2_NOEXCEPT_RETURN(
-    __mi_access::get(a) < __mi_access::get(b)
+    __mi_access::current(a) < __mi_access::current(b)
   )
 
   StrictTotallyOrdered{I1, I2}
@@ -231,7 +205,7 @@ STL2_OPEN_NAMESPACE {
   STL2_CONSTEXPR_EXT difference_type_t<I2>
   operator-(const move_iterator<I1>& a, const move_iterator<I2>& b)
   STL2_NOEXCEPT_RETURN(
-    __mi_access::get(a) - __mi_access::get(b)
+    __mi_access::current(a) - __mi_access::current(b)
   )
 
   RandomAccessIterator{I}
@@ -246,6 +220,52 @@ STL2_OPEN_NAMESPACE {
   STL2_CONSTEXPR_EXT auto make_move_iterator(I&& i)
   STL2_NOEXCEPT_RETURN(
     move_iterator<__f<I>>{__stl2::forward<I>(i)}
+  )
+
+  // Extension
+  template <Semiregular S>
+  class move_sentinel : detail::ebo_box<S> {
+    friend __mi_access;
+  public:
+    using detail::ebo_box<S>::ebo_box;
+  };
+
+  // Extension
+  Sentinel{S, I}
+  STL2_CONSTEXPR_EXT bool
+  operator==(const move_iterator<I>& i, const move_sentinel<S>& s)
+  STL2_NOEXCEPT_RETURN(
+    __mi_access::current(i) == __mi_access::sent(s)
+  )
+  // Extension
+  Sentinel{S, I}
+  STL2_CONSTEXPR_EXT bool
+  operator==(const move_sentinel<S>& s, const move_iterator<I>& i)
+  STL2_NOEXCEPT_RETURN(
+    i == s
+  )
+
+  // Extension
+  Sentinel{S, I}
+  STL2_CONSTEXPR_EXT bool
+  operator!=(const move_iterator<I>& i, const move_sentinel<S>& s)
+  STL2_NOEXCEPT_RETURN(
+    !(i == s)
+  )
+  // Extension
+  Sentinel{S, I}
+  STL2_CONSTEXPR_EXT bool
+  operator!=(const move_sentinel<S>& s, const move_iterator<I>& i)
+  STL2_NOEXCEPT_RETURN(
+    !(i == s)
+  )
+
+  template <class S>
+  requires
+    models::Semiregular<__f<S>>
+  STL2_CONSTEXPR_EXT auto make_move_sentinel(S&& s)
+  STL2_NOEXCEPT_RETURN(
+    move_sentinel<__f<S>>(__stl2::forward<S>(s))
   )
 } STL2_CLOSE_NAMESPACE
 

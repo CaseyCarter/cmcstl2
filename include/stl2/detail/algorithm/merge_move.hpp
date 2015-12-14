@@ -16,6 +16,7 @@
 #include <stl2/iterator.hpp>
 #include <stl2/tuple.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 
@@ -34,6 +35,15 @@ STL2_OPEN_NAMESPACE {
              Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{},
              Proj2&& proj2_ = Proj2{})
   {
+#if 1
+    auto res = __stl2::merge(
+      __stl2::make_move_iterator(first1), __stl2::make_move_sentinel(last1),
+      __stl2::make_move_iterator(first2), __stl2::make_move_sentinel(last2),
+      result, __stl2::forward<Comp>(comp_),
+      __stl2::forward<Proj1>(proj1_),
+      __stl2::forward<Proj2>(proj2_));
+    return {res.in1().base(), res.in2().base(), res.out()};
+#else
     auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
     auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
     auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
@@ -58,6 +68,7 @@ STL2_OPEN_NAMESPACE {
       ++result;
     }
     return {__stl2::move(first1), __stl2::move(first2), __stl2::move(result)};
+#endif
   }
 
   template <InputRange Rng1, InputRange Rng2,

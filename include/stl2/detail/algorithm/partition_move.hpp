@@ -16,6 +16,7 @@
 #include <stl2/iterator.hpp>
 #include <stl2/tuple.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/partition_copy.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
@@ -34,6 +35,13 @@ STL2_OPEN_NAMESPACE {
   partition_move(I first, S last, O1 out_true, O2 out_false,
                  Pred&& pred_, Proj&& proj_ = Proj{})
   {
+#if 1
+    auto res = __stl2::partition_copy(
+      __stl2::make_move_iterator(first), __stl2::make_move_sentinel(last),
+      out_true, out_false, __stl2::forward<Pred>(pred_),
+      __stl2::forward<Proj>(proj_));
+    return {res.in().base(), res.out1(), res.out2()};
+#else
     auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
@@ -48,6 +56,7 @@ STL2_OPEN_NAMESPACE {
     }
     return {__stl2::move(first),
       __stl2::move(out_true), __stl2::move(out_false)};
+#endif
   }
 
   template <InputRange Rng, class O1, class O2,
