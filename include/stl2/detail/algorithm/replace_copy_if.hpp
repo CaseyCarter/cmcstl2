@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
     for (; first != last; ++first, ++result) {
-      reference_t<I> v = *first;
+      reference_t<I>&& v = *first;
       if (pred(proj(v))) {
         *result = new_value;
       } else {

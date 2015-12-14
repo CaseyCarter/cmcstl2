@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
       __stl2::make_heap(result_first, r, __stl2::ref(comp), __stl2::ref(proj2));
       const auto len = __stl2::distance(result_first, r);
       for(; first != last; ++first) {
-        reference_t<I1> x = *first;
+        reference_t<I1>&& x = *first;
         if(comp(proj1(x), proj2(*result_first))) {
           *result_first = __stl2::forward<reference_t<I1>>(x);
           detail::sift_down_n(result_first, len, result_first,

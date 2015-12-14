@@ -49,8 +49,8 @@ STL2_OPEN_NAMESPACE {
           __stl2::move(first1), __stl2::move(last1), __stl2::move(result));
         break;
       }
-      reference_t<I1> v1 = *first1;
-      reference_t<I2> v2 = *first2;
+      reference_t<I1>&& v1 = *first1;
+      reference_t<I2>&& v2 = *first2;
       if (comp(proj1(v1), proj2(v2))) {
         *result = __stl2::forward<reference_t<I1>>(v1);
         ++first1;

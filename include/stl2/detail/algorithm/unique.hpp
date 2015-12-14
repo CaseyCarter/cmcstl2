@@ -32,7 +32,8 @@ STL2_OPEN_NAMESPACE {
   {
     auto comp = ext::make_callable_wrapper(__stl2::forward<R>(comp_));
     auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    first = __stl2::adjacent_find(__stl2::move(first), last, comp, proj);
+    first = __stl2::adjacent_find(
+      __stl2::move(first), last, __stl2::ref(comp), __stl2::ref(proj));
     if (first != last) {
       for (auto m = __stl2::next(first, 2); m != last; ++m) {
         if (!comp(proj(*first), proj(*m))) {

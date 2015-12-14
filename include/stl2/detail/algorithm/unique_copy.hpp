@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
       *result = saved;
       ++result;
       while (++first != last) {
-        reference_t<I> v = *first;
+        reference_t<I>&& v = *first;
         if (!comp(proj(v), proj(saved))) {
           saved = __stl2::forward<reference_t<I>>(v);
           *result = saved;
@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
       *result = *first;
       auto m = result;
       while (++first != last) {
-        reference_t<I> v = *first;
+        reference_t<I>&& v = *first;
         if (!comp(proj(v), proj(*m))) {
           *++result = __stl2::forward<reference_t<I>>(v);
           m = result;
@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
       ++result;
       auto m = first;
       while (++first != last) {
-        reference_t<I> v = *first;
+        reference_t<I>&& v = *first;
         if (!comp(proj(v), proj(*m))) {
           *result = __stl2::forward<reference_t<I>>(v);
           ++result;
