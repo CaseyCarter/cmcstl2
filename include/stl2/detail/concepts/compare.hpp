@@ -125,7 +125,7 @@ STL2_OPEN_NAMESPACE {
       EqualityComparable<U>() &&
       WeaklyEqualityComparable<T, U>() &&
       CommonReference<const T&, const U&>() &&
-      EqualityComparable<common_reference_t<const T&, const U&>>();
+      EqualityComparable<__uncvref<common_reference_t<const T&, const U&>>>();
   }
 
   namespace models {
@@ -170,7 +170,7 @@ STL2_OPEN_NAMESPACE {
       __totally_ordered<T, U> &&
       __totally_ordered<U, T> &&
       CommonReference<const T&, const U&>() &&
-      StrictTotallyOrdered<common_reference_t<const T&, const U&>>();
+      StrictTotallyOrdered<__uncvref<common_reference_t<const T&, const U&>>>();
   }
 
   namespace models {
