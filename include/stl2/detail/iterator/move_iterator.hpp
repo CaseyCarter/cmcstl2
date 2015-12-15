@@ -226,8 +226,30 @@ STL2_OPEN_NAMESPACE {
   template <Semiregular S>
   class move_sentinel : detail::ebo_box<S> {
     friend __mi_access;
+    using box_t = detail::ebo_box<S>;
   public:
-    using detail::ebo_box<S>::ebo_box;
+    constexpr move_sentinel()
+    noexcept(is_nothrow_default_constructible<S>::value)
+    : box_t{}
+    {}
+    explicit STL2_CONSTEXPR_EXT move_sentinel(S s)
+    noexcept(is_nothrow_move_constructible<S>::value)
+    : box_t(__stl2::move(s))
+    {}
+    template <ConvertibleTo<S> T>
+    STL2_CONSTEXPR_EXT move_sentinel(const move_sentinel<T>& s)
+    noexcept(is_nothrow_constructible<S, const T&>::value)
+    : box_t{__mi_access::sent(s)}
+    {}
+
+    template <ConvertibleTo<S> T>
+    STL2_CONSTEXPR_EXT move_sentinel& operator=(const move_sentinel<T>& s) &
+    noexcept(is_nothrow_assignable<S&, const T&>::value)
+    { box_t::get() = __mi_access::sent(s); }
+
+    STL2_CONSTEXPR_EXT S base() const
+    noexcept(is_nothrow_copy_constructible<S>::value)
+    { return box_t::get(); }
   };
 
   // Extension
@@ -260,6 +282,7 @@ STL2_OPEN_NAMESPACE {
     !(i == s)
   )
 
+  // Extension
   template <class S>
   requires
     models::Semiregular<__f<S>>
