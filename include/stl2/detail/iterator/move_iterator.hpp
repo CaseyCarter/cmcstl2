@@ -283,6 +283,21 @@ STL2_OPEN_NAMESPACE {
   )
 
   // Extension
+  SizedSentinel{S, I}
+  STL2_CONSTEXPR_EXT difference_type_t<I>
+  operator-(const move_sentinel<S>& s, const move_iterator<I>& i)
+  STL2_NOEXCEPT_RETURN(
+    __mi_access::sent(s) - __mi_access::current(i)
+  )
+  // Extension
+  SizedSentinel{S, I}
+  STL2_CONSTEXPR_EXT difference_type_t<I>
+    operator-(const move_iterator<I>& i, const move_sentinel<S>& s)
+  STL2_NOEXCEPT_RETURN(
+    -(s - i)
+  )
+
+  // Extension
   template <class S>
   requires
     models::Semiregular<__f<S>>

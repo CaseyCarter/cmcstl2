@@ -200,11 +200,22 @@ void test_proxy_iterator() {
 
     vec2.clear();
     A::clear();
-    ranges::copy(first, ranges::make_move_sentinel(ranges::default_sentinel{}), out);
+    ranges::copy(first, ranges::move_sentinel<ranges::default_sentinel>{}, out);
 
     CHECK(ranges::size(vec2) == N);
     CHECK(A::copy_count == std::size_t{0});
     CHECK(A::move_count == N);
+  }
+
+  {
+    auto first = ranges::make_counted_iterator(vec.begin(), vec.size());
+    auto last = ranges::default_sentinel{};
+    static_assert(ranges::models::SizedSentinel<decltype(last), decltype(first)>);
+    CHECK((static_cast<std::size_t>(last - first) == vec.size()));
+    auto mfirst = ranges::make_move_iterator(first);
+    auto mlast = ranges::make_move_sentinel(last);
+    static_assert(ranges::models::SizedSentinel<decltype(mlast), decltype(mfirst)>);
+    CHECK((static_cast<std::size_t>(mlast - mfirst) == vec.size()));
   }
 }
 
