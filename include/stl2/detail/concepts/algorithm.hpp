@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
   template <class I>
   concept bool Permutable() {
     return ForwardIterator<I>() &&
-      IndirectlyMovableTemporaries<I, I>() &&
+      LazyIndirectlyMovable<I, I>() &&
       IndirectlySwappable<I, I>();
   }
 

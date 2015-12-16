@@ -273,10 +273,10 @@ STL2_OPEN_NAMESPACE {
     noexcept(noexcept(declval<reference_t<Out>>() = __stl2::iter_move(declval<In>())));
 
   ///////////////////////////////////////////////////////////////////////////
-  // IndirectlyMovableTemporaries [Extension]
+  // LazyIndirectlyMovable [Extension]
   //
   template <class In, class Out>
-  concept bool IndirectlyMovableTemporaries() {
+  concept bool LazyIndirectlyMovable() {
     return IndirectlyMovable<In, Out>() &&
       Writable<Out, value_type_t<In>&&>() &&
       Movable<value_type_t<In>>() &&
@@ -286,15 +286,15 @@ STL2_OPEN_NAMESPACE {
 
   namespace models {
     template <class, class>
-    constexpr bool IndirectlyMovableTemporaries = false;
-    __stl2::IndirectlyMovableTemporaries{In, Out}
-    constexpr bool IndirectlyMovableTemporaries<In, Out> = true;
+    constexpr bool LazyIndirectlyMovable = false;
+    __stl2::LazyIndirectlyMovable{In, Out}
+    constexpr bool LazyIndirectlyMovable<In, Out> = true;
   }
 
   template <class In, class Out>
   constexpr bool is_nothrow_indirectly_movable_temporaries_v = false;
 
-  IndirectlyMovableTemporaries{In, Out}
+  LazyIndirectlyMovable{In, Out}
   constexpr bool is_nothrow_indirectly_movable_temporaries_v<In, Out> =
     is_nothrow_indirectly_movable_v<In, Out> &&
     is_nothrow_assignable<reference_t<Out>, value_type_t<In>>::value &&
@@ -303,7 +303,7 @@ STL2_OPEN_NAMESPACE {
 
   ///////////////////////////////////////////////////////////////////////////
   // IndirectlyCopyable [indirectlycopyable.iterators]
-  // Not to spec: Additional requirements from the proxy iterator work.
+  // Not to spec.
   //
   template <class In, class Out>
   concept bool IndirectlyCopyable() {
@@ -318,12 +318,12 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // IndirectlyCopyableTemporaries [Extension]
+  // LazyIndirectlyCopyable [Extension]
   //
   template <class In, class Out>
-  concept bool IndirectlyCopyableTemporaries() {
+  concept bool LazyIndirectlyCopyable() {
     return IndirectlyCopyable<In, Out>() &&
-      IndirectlyMovableTemporaries<In, Out>() &&
+      LazyIndirectlyMovable<In, Out>() &&
       Writable<Out, const value_type_t<In>&>() &&
       Copyable<value_type_t<In>>() &&
       Constructible<value_type_t<In>, reference_t<In>>() &&
@@ -332,9 +332,9 @@ STL2_OPEN_NAMESPACE {
 
   namespace models {
     template <class, class>
-    constexpr bool IndirectlyCopyableTemporaries = false;
-    __stl2::IndirectlyCopyableTemporaries{In, Out}
-    constexpr bool IndirectlyCopyableTemporaries<In, Out> = true;
+    constexpr bool LazyIndirectlyCopyable = false;
+    __stl2::LazyIndirectlyCopyable{In, Out}
+    constexpr bool LazyIndirectlyCopyable<In, Out> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -377,8 +377,8 @@ STL2_OPEN_NAMESPACE {
     requires
       !has_customization<R1, R2> &&
       !models::Swappable<reference_t<UR1>, reference_t<UR2>> &&
-      models::IndirectlyMovableTemporaries<UR1, UR2> &&
-      models::IndirectlyMovableTemporaries<UR2, UR1>
+      models::LazyIndirectlyMovable<UR1, UR2> &&
+      models::LazyIndirectlyMovable<UR2, UR1>
     constexpr void impl(R1&& r1, R2&& r2)
       noexcept(is_nothrow_indirectly_movable_temporaries_v<UR1, UR2> &&
                is_nothrow_indirectly_movable_temporaries_v<UR2, UR1>)
