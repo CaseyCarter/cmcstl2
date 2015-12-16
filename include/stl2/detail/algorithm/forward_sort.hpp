@@ -32,7 +32,7 @@
 #include <stl2/iterator.hpp>
 #include <stl2/detail/temporary_vector.hpp>
 #include <stl2/detail/algorithm/lower_bound.hpp>
-#include <stl2/detail/algorithm/merge_move.hpp>
+#include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/rotate.hpp>
 #include <stl2/detail/algorithm/upper_bound.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
@@ -60,10 +60,11 @@ STL2_OPEN_NAMESPACE {
         __stl2::move(__stl2::make_counted_iterator(f0, n0),
                      __stl2::default_sentinel{},
                      __stl2::back_inserter(vec));
-        return __stl2::merge_move(
-          __stl2::begin(vec), __stl2::end(vec),
-          __stl2::make_counted_iterator(__stl2::move(f1), n1),
-          __stl2::default_sentinel{},
+        return __stl2::merge(
+          __stl2::make_move_iterator(__stl2::begin(vec)),
+          __stl2::make_move_iterator(__stl2::end(vec)),
+          __stl2::make_move_iterator(__stl2::make_counted_iterator(__stl2::move(f1), n1)),
+          move_sentinel<default_sentinel>{},
           __stl2::move(f0), __stl2::ref(comp),
           __stl2::ref(proj), __stl2::ref(proj)).out();
       }

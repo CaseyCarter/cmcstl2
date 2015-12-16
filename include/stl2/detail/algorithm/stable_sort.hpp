@@ -40,7 +40,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/forward_sort.hpp>
 #include <stl2/detail/algorithm/inplace_merge.hpp>
-#include <stl2/detail/algorithm/merge_move.hpp>
+#include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/min.hpp>
 #include <stl2/detail/algorithm/random_access_sort.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
@@ -81,14 +81,23 @@ STL2_OPEN_NAMESPACE {
       {
         auto two_step = difference_type_t<I>(2 * step_size);
         while (last - first >= two_step) {
-          result = __stl2::merge_move(first, first + step_size, first + step_size,
-                                      first + two_step, result, __stl2::ref(pred),
-                                      __stl2::ref(proj), __stl2::ref(proj)).out();
+          result = __stl2::merge(
+            __stl2::make_move_iterator(first),
+            __stl2::make_move_iterator(first + step_size),
+            __stl2::make_move_iterator(first + step_size),
+            __stl2::make_move_iterator(first + two_step),
+            result, __stl2::ref(pred),
+            __stl2::ref(proj), __stl2::ref(proj)).out();
           first += two_step;
         }
         step_size = __stl2::min(difference_type_t<I>(last - first), step_size);
-        __stl2::merge_move(first, first + step_size, first + step_size, last, result,
-                           __stl2::ref(pred), __stl2::ref(proj), __stl2::ref(proj));
+        __stl2::merge(
+          __stl2::make_move_iterator(first),
+          __stl2::make_move_iterator(first + step_size),
+          __stl2::make_move_iterator(first + step_size),
+          __stl2::make_move_iterator(last),
+          result, __stl2::ref(pred),
+          __stl2::ref(proj), __stl2::ref(proj));
       }
 
       template <RandomAccessIterator I, class C, class P>
