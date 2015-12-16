@@ -79,47 +79,21 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // WeakRelation
-  // Extension: Equivalent to Relation, but does not require common_type to
-  //            be specialized.
-  //
-  namespace ext {
-    template <class R, class T>
-    concept bool WeakRelation() {
-      return Predicate<R, T, T>();
-    }
-
-    template <class R, class T, class U>
-    concept bool WeakRelation() {
-      return WeakRelation<R, T>() &&
-        WeakRelation<R, U>() &&
-        Predicate<R, T, U>() &&
-        Predicate<R, U, T>();
-    }
-  }
-
-  namespace models {
-    template <class R, class T, class U = T>
-    constexpr bool WeakRelation = false;
-    __stl2::ext::WeakRelation{R, T}
-    constexpr bool WeakRelation<R, T, T> = true;
-    __stl2::ext::WeakRelation{R, T, U}
-    constexpr bool WeakRelation<R, T, U> = true;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
   // Relation [concepts.lib.callables.relation]
   //
   template <class R, class T>
   concept bool Relation() {
-    return ext::WeakRelation<R, T>();
+    return Predicate<R, T, T>();
   }
 
   template <class R, class T, class U>
   concept bool Relation() {
-    return ext::WeakRelation<R, T, U>() &&
+    return Relation<R, T>() &&
+      Relation<R, U>() &&
+      Predicate<R, T, U>() &&
+      Predicate<R, U, T>() &&
       CommonReference<const T&, const U&>() &&
-      ext::WeakRelation<R, common_reference_t<const T&, const U&>>();
+      Relation<R, common_reference_t<const T&, const U&>>();
   }
 
   namespace models {

@@ -362,8 +362,8 @@ STL2_OPEN_NAMESPACE {
     constexpr bool has_difference = false;
     template <class R>
       requires requires (const R& r) {
-        requires SizedIteratorRange<decltype(__stl2::begin(r)),
-                                    decltype(__stl2::end(r))>();
+        requires SizedSentinel<decltype(__stl2::end(r)),
+                               decltype(__stl2::begin(r))>();
       }
     constexpr bool has_difference<R> = true;
 

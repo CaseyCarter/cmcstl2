@@ -21,7 +21,7 @@
 // copy_n [alg.copy]
 //
 STL2_OPEN_NAMESPACE {
-  template <WeakInputIterator I, WeaklyIncrementable O>
+  template <InputIterator I, WeaklyIncrementable O>
   requires
     models::IndirectlyCopyable<I, O>
   tagged_pair<tag::in(I), tag::out(O)>

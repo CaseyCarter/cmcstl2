@@ -201,7 +201,7 @@ public:
   T elements_[N];
 };
 
-stl2::WeakIterator{I}
+stl2::Iterator{I}
 class my_counted_cursor {
 public:
   using difference_type = stl2::difference_type_t<I>;
@@ -252,7 +252,7 @@ public:
 
   constexpr decltype(auto) current() const
   noexcept(noexcept(*stl2::declval<const I&>()))
-  requires stl2::WeakInputIterator<I>()
+  requires stl2::InputIterator<I>()
   {
     return *it_;
   }
@@ -292,7 +292,7 @@ private:
   difference_type n_;
 };
 
-stl2::WeakIterator{I}
+stl2::Iterator{I}
 using my_counted_iterator = stl2::basic_iterator<my_counted_cursor<I>>;
 
 template <class T, T Value>
@@ -341,8 +341,9 @@ void test_fl() {
   static_assert(stl2::models::ForwardIterator<I>);
   static_assert(stl2::models::Common<S, I>);
   static_assert(stl2::models::Same<stl2::common_type_t<S, I>, I>);
-  static_assert(stl2::models::Regular<S>);
-  static_assert(stl2::models::EqualityComparable<S, I>);
+  static_assert(stl2::models::Same<
+    stl2::ext::range<I, I>,
+    decltype(stl2::ext::make_bounded_range(list.begin(), list.end()))>);
   static_assert(stl2::models::Sentinel<S, I>);
   static_assert(stl2::models::ForwardRange<R>);
   std::cout << list << '\n';
@@ -379,10 +380,6 @@ void test_rv() {
   std::cout << '\n';
   CHECK(rv.begin() != rv.end());
   CHECK(!(rv.begin() == rv.end()));
-  CHECK(rv.begin() < rv.end());
-  CHECK(!(rv.begin() > rv.end()));
-  CHECK(rv.begin() <= rv.end());
-  CHECK(!(rv.begin() >= rv.end()));
 
   CHECK(rv.begin() == rv.begin());
   CHECK(!(rv.begin() != rv.begin()));
@@ -422,9 +419,9 @@ void test_counted() {
   auto last = I{some_ints + 4, 0};
   CHECK(last.base() == some_ints + 4);
   CHECK(last.count() == 0);
-  static_assert(stl2::models::SizedIteratorRange<I, I>);
+  static_assert(stl2::models::SizedSentinel<I, I>);
   CHECK((last - first) == 4);
-  static_assert(stl2::models::SizedIteratorRange<I, stl2::default_sentinel>);
+  static_assert(stl2::models::SizedSentinel<stl2::default_sentinel, I>);
   CHECK((stl2::default_sentinel{} - first) == 4);
   auto out = ::ostream_iterator<>{std::cout, " "};
   stl2::copy(first, last, out);
@@ -453,7 +450,8 @@ void test_back_inserter() {
   auto vec = std::vector<int>{};
   auto i = stl2::back_inserter(vec);
   using I = decltype(i);
-  static_assert(stl2::models::WeakOutputIterator<I, int>);
+  static_assert(stl2::models::OutputIterator<I, int>);
+  static_assert(!stl2::models::EqualityComparable<I>);
   static_assert(stl2::models::Same<std::ptrdiff_t, stl2::difference_type_t<I>>);
   stl2::copy_n(always_iterator<int, 42>{}, 13, i);
   CHECK(vec.size() == 13u);

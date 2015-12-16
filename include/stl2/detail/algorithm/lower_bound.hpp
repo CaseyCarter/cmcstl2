@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
   template <class I, class S, class T,
             class Comp = less<>, class Proj = identity>
   requires
-    models::SizedIteratorRange<__f<I>, __f<S>> &&
+    models::SizedSentinel<__f<S>, __f<I>> &&
     models::ForwardIterator<__f<I>> &&
     models::Sentinel<__f<S>, __f<I>> &&
     models::IndirectCallableStrictWeakOrder<

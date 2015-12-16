@@ -75,36 +75,24 @@ STL2_OPEN_NAMESPACE {
     requires (const T& t, const U& u) {
       STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
       STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
+      // Axiom: t == u and t != u have the same definition space
+      // Axiom: bool(t != u) == !bool(t == u)
     }
   constexpr bool __equality_comparable<T, U> = true;
 
   ///////////////////////////////////////////////////////////////////////////
-  // WeaklyEqualityComparable
-  // Extension: Equivalent to EqualityComparable, except that it doesn't
-  //            cause compile errors if common_type is unspecialized.
+  // WeaklyEqualityComparable [concepts.lib.compare.equalitycomparable]
+  // Relaxation of EqualityComparable<T, U> that doesn't require
+  // EqualityComparable<T>, EqualityComparable<U>, Common<T, U>, or
+  // EqualityComparable<common_type_t<T, U>>. I.e., provides exactly the
+  // requirements for Sentinel's operator ==.
   //
-  namespace ext {
-    template <class T>
-    concept bool WeaklyEqualityComparable() {
-      return __equality_comparable<T, T>;
-    }
-
-    template <class T, class U>
-    concept bool WeaklyEqualityComparable() {
-      return WeaklyEqualityComparable<T>() &&
-        WeaklyEqualityComparable<U>() &&
-        __equality_comparable<T, U> &&
-        __equality_comparable<U, T>;
-    }
-  }
-
-  namespace models {
-    template <class T, class U = T>
-    constexpr bool WeaklyEqualityComparable = false;
-    __stl2::ext::WeaklyEqualityComparable{T}
-    constexpr bool WeaklyEqualityComparable<T, T> = true;
-    __stl2::ext::WeaklyEqualityComparable{T, U}
-    constexpr bool WeaklyEqualityComparable<T, U> = true;
+  template <class T, class U>
+  concept bool WeaklyEqualityComparable() {
+    return __equality_comparable<T, U> &&
+      __equality_comparable<U, T>;
+    // Axiom: u == t and t == u have the same definition space
+    // Axiom: bool(u == t) == bool(t == u)
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -112,14 +100,32 @@ STL2_OPEN_NAMESPACE {
   //
   template <class T>
   concept bool EqualityComparable() {
-    return ext::WeaklyEqualityComparable<T>();
+    return WeaklyEqualityComparable<T, T>();
+  }
+
+  // Transitional hack that makes it ill-formed to check
+  // satisfaction of EqualityComparable<Iterator, Sentinel>().
+  // Remove this - and its specializations in iterator/concepts.hpp - later.
+  template <class T, class U>
+  constexpr bool __hack_sentinel_check = true;
+  template <class T>
+  constexpr bool __hack_sentinel_check<T, T> = true;
+
+  template <class T, class U>
+  constexpr bool __EC_sentinel_hack() {
+    static_assert(__hack_sentinel_check<T, U>,
+      "Differing-type Iterators and Sentinels do NOT satisfy EqualityComparable");
+    return true;
   }
 
   template <class T, class U>
   concept bool EqualityComparable() {
-    return ext::WeaklyEqualityComparable<T, U>() &&
+    return __EC_sentinel_hack<T, U>() &&
+      EqualityComparable<T>() &&
+      EqualityComparable<U>() &&
+      WeaklyEqualityComparable<T, U>() &&
       CommonReference<const T&, const U&>() &&
-      EqualityComparable<common_reference_t<const T&, const U&>>();
+      EqualityComparable<__uncvref<common_reference_t<const T&, const U&>>>();
   }
 
   namespace models {
@@ -137,55 +143,34 @@ STL2_OPEN_NAMESPACE {
   template <class T, class U>
   constexpr bool __totally_ordered = false;
   template <class T, class U>
-    requires requires (const T& a, const U& b) {
-      STL2_DEDUCTION_CONSTRAINT(a < b, Boolean);
-      STL2_DEDUCTION_CONSTRAINT(a > b, Boolean);
-      STL2_DEDUCTION_CONSTRAINT(a <= b, Boolean);
-      STL2_DEDUCTION_CONSTRAINT(a >= b, Boolean);
+    requires requires (const T& t, const U& u) {
+      STL2_DEDUCTION_CONSTRAINT(t < u, Boolean);
+      STL2_DEDUCTION_CONSTRAINT(t > u, Boolean);
+      STL2_DEDUCTION_CONSTRAINT(t <= u, Boolean);
+      STL2_DEDUCTION_CONSTRAINT(t >= u, Boolean);
+      // Axiom: t < u, t > u, t <= u, t >= u have the same definition space.
+      // Axiom: If bool(t < u) then bool(t <= u)
+      // Axiom: If bool(t > u) then bool(t >= u)
+      // Axiom: Exactly one of bool(t < u), bool(t > u), or
+      //        (bool(t <= u) && bool(t >= u)) is true
     }
   constexpr bool __totally_ordered<T, U> = true;
 
-  namespace ext {
-    ///////////////////////////////////////////////////////////////////////////
-    // WeaklyStrictTotallyOrdered
-    // Extension: Equivalent to StrictTotallyOrdered, except that it doesn't
-    //            cause compile errors if common_type is unspecialized.
-    //
-    template <class T>
-    concept bool WeaklyStrictTotallyOrdered() {
-      return WeaklyEqualityComparable<T>() &&
-        __totally_ordered<T, T>;
-    }
-
-    template <class T, class U>
-    concept bool WeaklyStrictTotallyOrdered() {
-      return WeaklyStrictTotallyOrdered<T>() &&
-        WeaklyStrictTotallyOrdered<U>() &&
-        WeaklyEqualityComparable<T, U>() &&
-        __totally_ordered<T, U> &&
-        __totally_ordered<U, T>;
-    }
-  }
-
-  namespace models {
-    template <class T, class U = T>
-    constexpr bool WeaklyStrictTotallyOrdered = false;
-    __stl2::ext::WeaklyStrictTotallyOrdered{T}
-    constexpr bool WeaklyStrictTotallyOrdered<T, T> = true;
-    __stl2::ext::WeaklyStrictTotallyOrdered{T, U}
-    constexpr bool WeaklyStrictTotallyOrdered<T, U> = true;
-  }
-
   template <class T>
   concept bool StrictTotallyOrdered() {
-    return ext::WeaklyStrictTotallyOrdered<T>();
+    return EqualityComparable<T>() && __totally_ordered<T, T>;
   }
 
   template <class T, class U>
   concept bool StrictTotallyOrdered() {
-    return ext::WeaklyStrictTotallyOrdered<T, U>() &&
+    return
+      StrictTotallyOrdered<T>() &&
+      StrictTotallyOrdered<U>() &&
+      EqualityComparable<T, U>() &&
+      __totally_ordered<T, U> &&
+      __totally_ordered<U, T> &&
       CommonReference<const T&, const U&>() &&
-      StrictTotallyOrdered<common_reference_t<const T&, const U&>>();
+      StrictTotallyOrdered<__uncvref<common_reference_t<const T&, const U&>>>();
   }
 
   namespace models {

@@ -155,8 +155,8 @@ STL2_OPEN_NAMESPACE {
            Sentinel<I2> S2, class Pred = equal_to<>, class Proj1 = identity,
            class Proj2 = identity>
   requires
-    models::SizedIteratorRange<I1, S1> &&
-    models::SizedIteratorRange<I2, S2> &&
+    models::SizedSentinel<S1, I1> &&
+    models::SizedSentinel<S2, I2> &&
     models::IndirectlyComparable<I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
   bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2,
                       Pred&& pred_ = Pred{},
@@ -206,8 +206,7 @@ STL2_OPEN_NAMESPACE {
                                  __f<Pred>, __f<Proj1>, __f<Proj2>>
   bool is_permutation(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
                       Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{}) {
-    using C = __common_difference_type_t<iterator_t<Rng1>, iterator_t<Rng2>>;
-    if (C{__stl2::distance(rng1)} != C{__stl2::distance(rng2)}) {
+    if (__stl2::distance(rng1) != __stl2::distance(rng2)) {
       return false;
     }
     return __stl2::is_permutation(

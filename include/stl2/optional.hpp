@@ -359,7 +359,7 @@ STL2_OPEN_NAMESPACE {
     )
 
     struct eq_visitor {
-      ext::WeaklyEqualityComparable{T, U}
+      EqualityComparable{T, U}
       constexpr bool operator()(const T& l, const U& r) const
       STL2_NOEXCEPT_RETURN(
         l == r
@@ -372,19 +372,19 @@ STL2_OPEN_NAMESPACE {
       }
     };
 
-    ext::WeaklyEqualityComparable{T, U}
+    EqualityComparable{T, U}
     constexpr bool operator==(const optional<T>& lhs, const optional<U>& rhs)
     STL2_NOEXCEPT_RETURN(
       __stl2::visit(eq_visitor{}, access::cv(lhs), access::cv(rhs))
     )
-    ext::WeaklyEqualityComparable{T, U}
+    EqualityComparable{T, U}
     constexpr bool operator!=(const optional<T>& lhs, const optional<U>& rhs)
     STL2_NOEXCEPT_RETURN(
       !(lhs == rhs)
     )
 
     struct lt_visitor {
-      ext::WeaklyStrictTotallyOrdered{T, U}
+      StrictTotallyOrdered{T, U}
       constexpr bool operator()(const T& l, const U& r) const
       STL2_NOEXCEPT_RETURN(
         l < r
@@ -394,25 +394,25 @@ STL2_OPEN_NAMESPACE {
       }
     };
 
-    ext::WeaklyStrictTotallyOrdered{T, U}
+    StrictTotallyOrdered{T, U}
     constexpr bool operator<(const optional<T>& lhs, const optional<U>& rhs)
     STL2_NOEXCEPT_RETURN(
       __stl2::visit(lt_visitor{}, access::cv(lhs), access::cv(rhs))
     )
 
-    ext::WeaklyStrictTotallyOrdered{T, U}
+    StrictTotallyOrdered{T, U}
     constexpr bool operator>(const optional<T>& lhs, const optional<U>& rhs)
     STL2_NOEXCEPT_RETURN(
       rhs < lhs
     )
 
-    ext::WeaklyStrictTotallyOrdered{T, U}
+    StrictTotallyOrdered{T, U}
     constexpr bool operator<=(const optional<T>& lhs, const optional<U>& rhs)
     STL2_NOEXCEPT_RETURN(
       !(rhs < lhs)
     )
 
-    ext::WeaklyStrictTotallyOrdered{T, U}
+    StrictTotallyOrdered{T, U}
     constexpr bool operator>=(const optional<T>& lhs, const optional<U>& rhs)
     STL2_NOEXCEPT_RETURN(
       !(lhs < rhs)

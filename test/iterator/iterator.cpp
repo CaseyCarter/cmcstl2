@@ -118,18 +118,13 @@ struct array {
 };
 
 enum class category {
-  none, weak_output, output,
-    weak_input, input, forward, bidirectional, random_access, contiguous
+  none, output, input, forward, bidirectional, random_access, contiguous
 };
 
 std::ostream& operator<<(std::ostream& sout, category c) {
   switch(c) {
-  case category::weak_output:
-    return sout << "category::weak_output";
   case category::output:
     return sout << "category::output";
-  case category::weak_input:
-    return sout << "category::weak_input";
   case category::input:
     return sout << "category::input";
   case category::forward:
@@ -147,14 +142,9 @@ std::ostream& operator<<(std::ostream& sout, category c) {
 
 template <class>
 constexpr category iterator_dispatch() { return category::none; }
-template <__stl2::WeakOutputIterator<int> I>
-  requires !__stl2::WeakInputIterator<I>()
-constexpr category iterator_dispatch() { return category::weak_output; }
 template <__stl2::OutputIterator<int> I>
-  requires !__stl2::WeakInputIterator<I>()
+  requires !__stl2::InputIterator<I>()
 constexpr category iterator_dispatch() { return category::output; }
-template <__stl2::WeakInputIterator>
-constexpr category iterator_dispatch() { return category::weak_input; }
 template <__stl2::InputIterator>
 constexpr category iterator_dispatch() { return category::input; }
 template <__stl2::ForwardIterator>
@@ -166,7 +156,7 @@ constexpr category iterator_dispatch() { return category::random_access; }
 template <__stl2::ext::ContiguousIterator>
 constexpr category iterator_dispatch() { return category::contiguous; }
 
-template <class C, class R = int&>
+template <class C, bool EC, class R = int&>
 struct arbitrary_iterator {
   using difference_type = std::ptrdiff_t;
 
@@ -177,13 +167,13 @@ struct arbitrary_iterator {
   arbitrary_iterator& operator++(int);
 
   bool operator==(arbitrary_iterator) const
-    requires __stl2::DerivedFrom<C, __stl2::output_iterator_tag>();
+    requires EC;
   bool operator!=(arbitrary_iterator) const
-    requires __stl2::DerivedFrom<C, __stl2::output_iterator_tag>();
+    requires EC;
 };
 
-template <__stl2::DerivedFrom<__stl2::weak_input_iterator_tag> C, class R>
-struct arbitrary_iterator<C, R> {
+template <__stl2::DerivedFrom<__stl2::input_iterator_tag> C, bool EC, class R>
+struct arbitrary_iterator<C, EC, R> {
   using iterator_category = C;
   using value_type = std::remove_reference_t<R>;
   using difference_type = std::ptrdiff_t;
@@ -194,9 +184,9 @@ struct arbitrary_iterator<C, R> {
   arbitrary_iterator operator++(int);
 
   bool operator==(arbitrary_iterator) const
-    requires __stl2::DerivedFrom<C, __stl2::input_iterator_tag>();
+    requires EC || __stl2::DerivedFrom<C, __stl2::forward_iterator_tag>();
   bool operator!=(arbitrary_iterator) const
-    requires __stl2::DerivedFrom<C, __stl2::input_iterator_tag>();
+    requires EC || __stl2::DerivedFrom<C, __stl2::forward_iterator_tag>();
 
   arbitrary_iterator& operator--()
     requires __stl2::DerivedFrom<C, __stl2::bidirectional_iterator_tag>();
@@ -226,13 +216,13 @@ struct arbitrary_iterator<C, R> {
     requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>();
 };
 
-template <__stl2::DerivedFrom<__stl2::random_access_iterator_tag> C>
-arbitrary_iterator<C> operator+(arbitrary_iterator<C>,
-                                typename arbitrary_iterator<C>::difference_type);
+template <__stl2::DerivedFrom<__stl2::random_access_iterator_tag> C, bool B, class R>
+arbitrary_iterator<C, B, R> operator+(
+  arbitrary_iterator<C, B, R>, typename arbitrary_iterator<C, B, R>::difference_type);
 
-template <__stl2::DerivedFrom<__stl2::random_access_iterator_tag> C>
-arbitrary_iterator<C> operator+(typename arbitrary_iterator<C>::difference_type,
-                                arbitrary_iterator<C>);
+template <__stl2::DerivedFrom<__stl2::random_access_iterator_tag> C, bool B, class R>
+arbitrary_iterator<C, B, R> operator+(
+  typename arbitrary_iterator<C, B, R>::difference_type, arbitrary_iterator<C, B, R>);
 
 void test_iterator_dispatch() {
   CHECK(iterator_dispatch<void>() == category::none);
@@ -240,46 +230,48 @@ void test_iterator_dispatch() {
   CHECK(iterator_dispatch<int*>() == category::contiguous);
 
   {
-    using I = arbitrary_iterator<__stl2::weak_input_iterator_tag>;
-    static_assert(models::WeakInputIterator<I>);
-    CHECK(iterator_dispatch<I>() == category::weak_input);
-  }
-  {
-    using I = arbitrary_iterator<__stl2::input_iterator_tag>;
+    using I = arbitrary_iterator<__stl2::input_iterator_tag, false>;
     static_assert(models::InputIterator<I>);
     CHECK(iterator_dispatch<I>() == category::input);
   }
   {
-    using I = arbitrary_iterator<__stl2::forward_iterator_tag>;
+    using I = arbitrary_iterator<__stl2::input_iterator_tag, true>;
+    static_assert(models::InputIterator<I>);
+    static_assert(models::EqualityComparable<I>);
+    CHECK(iterator_dispatch<I>() == category::input);
+  }
+  {
+    using I = arbitrary_iterator<__stl2::forward_iterator_tag, true>;
     static_assert(models::ForwardIterator<I>);
     CHECK(iterator_dispatch<I>() == category::forward);
   }
   {
-    using I = arbitrary_iterator<__stl2::bidirectional_iterator_tag>;
+    using I = arbitrary_iterator<__stl2::bidirectional_iterator_tag, true>;
     static_assert(models::BidirectionalIterator<I>);
     CHECK(iterator_dispatch<I>() == category::bidirectional);
   }
   {
-    using I = arbitrary_iterator<__stl2::random_access_iterator_tag>;
+    using I = arbitrary_iterator<__stl2::random_access_iterator_tag, true>;
     static_assert(models::RandomAccessIterator<I>);
     CHECK(iterator_dispatch<I>() == category::random_access);
   }
   {
-    using I = arbitrary_iterator<__stl2::ext::contiguous_iterator_tag>;
+    using I = arbitrary_iterator<__stl2::ext::contiguous_iterator_tag, true>;
     static_assert(models::ContiguousIterator<I>);
     CHECK(iterator_dispatch<I>() == category::contiguous);
   }
 
   {
-    using I = arbitrary_iterator<void>;
-    static_assert(models::WeakOutputIterator<I, int>);
-    static_assert(!models::WeakInputIterator<I>);
-    CHECK(iterator_dispatch<I>() == category::weak_output);
+    using I = arbitrary_iterator<void, false>;
+    static_assert(models::OutputIterator<I, int>);
+    static_assert(!models::InputIterator<I>);
+    CHECK(iterator_dispatch<I>() == category::output);
   }
   {
-    using I = arbitrary_iterator<__stl2::output_iterator_tag>;
+    using I = arbitrary_iterator<void, true>;
     static_assert(models::OutputIterator<I, int>);
-    static_assert(!models::WeakInputIterator<I>);
+    static_assert(models::EqualityComparable<I>);
+    static_assert(!models::InputIterator<I>);
     CHECK(iterator_dispatch<I>() == category::output);
   }
 }
@@ -295,10 +287,9 @@ bool copy(I first, S last, O o) {
   return false;
 }
 
-template <__stl2::ext::ContiguousIterator I, __stl2::Sentinel<I> S,
+template <__stl2::ext::ContiguousIterator I, __stl2::SizedSentinel<I> S,
           __stl2::ext::ContiguousIterator O>
   requires __stl2::IndirectlyCopyable<I, O>() &&
-    __stl2::SizedIteratorRange<I, S>() &&
     __stl2::Same<__stl2::value_type_t<I>, __stl2::value_type_t<O>>() &&
     std::is_trivially_copyable<__stl2::value_type_t<I>>::value
 bool copy(I first, S last, O o) {
@@ -407,50 +398,50 @@ template <class T>
 constexpr bool has_category<T> = true;
 
 void test_std_traits() {
-  using WO = arbitrary_iterator<void>;
+  using WO = arbitrary_iterator<void, false>;
   static_assert(models::Same<std::iterator_traits<WO>::iterator_category,
                              std::output_iterator_tag>);
 
-  using O = arbitrary_iterator<__stl2::output_iterator_tag>;
+  using O = arbitrary_iterator<void, true>;
   static_assert(models::Same<std::iterator_traits<O>::iterator_category,
                              std::output_iterator_tag>);
 
-  using WI = arbitrary_iterator<__stl2::weak_input_iterator_tag>;
+  using WI = arbitrary_iterator<__stl2::input_iterator_tag, false>;
   static_assert(!has_category<std::iterator_traits<WI>>);
 
-  using I = arbitrary_iterator<__stl2::input_iterator_tag>;
+  using I = arbitrary_iterator<__stl2::input_iterator_tag, true>;
   static_assert(models::Same<std::iterator_traits<I>::iterator_category,
                              std::input_iterator_tag>);
 
-  using F = arbitrary_iterator<__stl2::forward_iterator_tag>;
+  using F = arbitrary_iterator<__stl2::forward_iterator_tag, true>;
   static_assert(models::Same<std::iterator_traits<F>::iterator_category,
                              std::forward_iterator_tag>);
 
-  using B = arbitrary_iterator<__stl2::bidirectional_iterator_tag>;
+  using B = arbitrary_iterator<__stl2::bidirectional_iterator_tag, true>;
   static_assert(models::Same<std::iterator_traits<B>::iterator_category,
                              std::bidirectional_iterator_tag>);
 
-  using R = arbitrary_iterator<__stl2::random_access_iterator_tag>;
+  using R = arbitrary_iterator<__stl2::random_access_iterator_tag, true>;
   static_assert(models::Same<std::iterator_traits<R>::iterator_category,
                              std::random_access_iterator_tag>);
 
-  using C = arbitrary_iterator<__stl2::ext::contiguous_iterator_tag>;
+  using C = arbitrary_iterator<__stl2::ext::contiguous_iterator_tag, true>;
   static_assert(models::Same<std::iterator_traits<C>::iterator_category,
                              std::random_access_iterator_tag>);
 
-  using IV = arbitrary_iterator<__stl2::input_iterator_tag, int>;
+  using IV = arbitrary_iterator<__stl2::input_iterator_tag, true, int>;
   static_assert(models::Same<std::iterator_traits<IV>::iterator_category,
                              std::input_iterator_tag>);
 
-  using FV = arbitrary_iterator<__stl2::forward_iterator_tag, int>;
+  using FV = arbitrary_iterator<__stl2::forward_iterator_tag, true, int>;
   static_assert(models::Same<std::iterator_traits<FV>::iterator_category,
                              std::input_iterator_tag>);
 
-  using BV = arbitrary_iterator<__stl2::bidirectional_iterator_tag, int>;
+  using BV = arbitrary_iterator<__stl2::bidirectional_iterator_tag, true, int>;
   static_assert(models::Same<std::iterator_traits<BV>::iterator_category,
                              std::input_iterator_tag>);
 
-  using RV = arbitrary_iterator<__stl2::random_access_iterator_tag, int>;
+  using RV = arbitrary_iterator<__stl2::random_access_iterator_tag, true, int>;
   static_assert(models::Same<std::iterator_traits<RV>::iterator_category,
                              std::input_iterator_tag>);
 }

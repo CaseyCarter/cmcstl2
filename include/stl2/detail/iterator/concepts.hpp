@@ -451,9 +451,7 @@ STL2_OPEN_NAMESPACE {
   // Extension: contiguous_iterator_tag for denoting contiguous iterators.
   //
   struct output_iterator_tag {};
-  struct weak_input_iterator_tag {};
-  struct input_iterator_tag :
-    weak_input_iterator_tag {};
+  struct input_iterator_tag {};
   struct forward_iterator_tag :
     input_iterator_tag {};
   struct bidirectional_iterator_tag :
@@ -501,42 +499,35 @@ STL2_OPEN_NAMESPACE {
   };
 
   template <detail::MemberIteratorCategory T>
-    requires DerivedFrom<typename T::iterator_category, std::output_iterator_tag>()
-  struct iterator_category<T> {};
-
-  template <detail::MemberIteratorCategory T>
-    requires DerivedFrom<typename T::iterator_category, std::input_iterator_tag>()
+  requires DerivedFrom<typename T::iterator_category, std::input_iterator_tag>()
   struct iterator_category<T> {
     using type = detail::std_to_stl2_iterator_category<typename T::iterator_category>;
   };
+
+  template <detail::MemberIteratorCategory T>
+  requires
+    DerivedFrom<typename T::iterator_category, std::output_iterator_tag>() &&
+    !DerivedFrom<typename T::iterator_category, std::input_iterator_tag>()
+  struct iterator_category<T> {};
 
   template <class T>
   using iterator_category_t =
     meta::_t<iterator_category<remove_cv_t<T>>>;
 
   ///////////////////////////////////////////////////////////////////////////
-  // WeakIterator [weakiterator.iterators]
+  // Iterator [iterators.iterator]
   //
-  template <class I>
-  concept bool WeakIterator() {
-    return WeaklyIncrementable<I>() &&
-      detail::Dereferenceable<I&>;
-  }
-
-  namespace models {
-    template <class>
-    constexpr bool WeakIterator = false;
-    __stl2::WeakIterator{I}
-    constexpr bool WeakIterator<I> = true;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Iterator [iterator.iterators]
+  // Denotes an element of a range, i.e., is a position.
   //
   template <class I>
   concept bool Iterator() {
-    return WeakIterator<I>() &&
-      EqualityComparable<I>();
+    return WeaklyIncrementable<I>() &&
+      detail::Dereferenceable<I&>;
+    // Axiom?: i is non-singular iff it denotes an element
+    // Axiom?: if i equals j then i and j denote equal elements
+    // Axiom?: I{} is in the domain of copy/move construction/assignment
+    //        (This should probably be a requirement of the object concepts,
+    //         or at least Semiregular.)
   }
 
   namespace models {
@@ -549,11 +540,20 @@ STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // Sentinel [sentinel.iterators]
   //
+  // A relationship between an Iterator and a Semiregular ("sentinel")
+  // that denote a range.
+  //
   template <class S, class I>
   concept bool Sentinel() {
-    return Iterator<I>() &&
-      Regular<S>() &&
-      EqualityComparable<I, S>();
+    return Iterator<I>() && Semiregular<S>() &&
+      WeaklyEqualityComparable<S, I>();
+      // Axiom: if [i,s) denotes a range then:
+      //        * i == s is well-defined
+      //        * if bool(i == s) then [i,s) is empty
+      //        * if bool(i != s) then:
+      //          * i is dereferenceable
+      //          * the element denoted by i is the first element of [i,s)
+      //          * [++i,s) denotes a range
   }
 
   namespace models {
@@ -563,29 +563,58 @@ STL2_OPEN_NAMESPACE {
     constexpr bool Sentinel<S, I> = true;
   }
 
+  // See EqualityComparable for an explanation of this.
+  template <Iterator I, Sentinel<I> S>
+  constexpr bool __hack_sentinel_check<I, S> = false;
+  template <Iterator I, Sentinel<I> S>
+  constexpr bool __hack_sentinel_check<S, I> = false;
+
   ///////////////////////////////////////////////////////////////////////////
-  // WeakOutputIterator [weakoutput.iterators]
+  // SizedSentinel [iterators.sizedsentinel]
   //
-  template <class I, class T>
-  concept bool WeakOutputIterator() {
-    return WeakIterator<I>() &&
-      Writable<I, T>();
+  // Refinement of Sentinel that provides the capability to compute the
+  // distance between a Iterator and Sentinel that denote a range in
+  // constant time.
+  //
+  template <class S, class I>
+  constexpr bool disable_sized_sentinel = false;
+
+  template <class, class>
+  constexpr bool __sized_sentinel = false;
+  template <class S, class I>
+    requires requires (const I i, const S s) {
+      STL2_EXACT_TYPE_CONSTRAINT(s - i, difference_type_t<I>);
+      STL2_EXACT_TYPE_CONSTRAINT(i - s, difference_type_t<I>);
+      // Axiom: If [i,s) denotes a range and N is the smallest
+      //        non-negative integer such that N applications of
+      //        ++i make bool(i == s) == true
+      //        * if N is representable by difference_type_t<I> then
+      //          s - i is well-defined and equal to N
+      //        * if -N is representable by difference_type_t<I> then
+      //          i - s is well-defined and equal to -N
+    }
+  constexpr bool __sized_sentinel<S, I> = true;
+
+  template <class S, class I>
+  concept bool SizedSentinel() {
+    return Sentinel<S, I>() &&
+      !disable_sized_sentinel<remove_cv_t<S>, remove_cv_t<I>> &&
+      __sized_sentinel<S, I>;
   }
 
   namespace models {
-    template <class, class>
-    constexpr bool WeakOutputIterator = false;
-    __stl2::WeakOutputIterator{I, T}
-    constexpr bool WeakOutputIterator<I, T> = true;
+    template <class S, class I>
+    constexpr bool SizedSentinel = false;
+    __stl2::SizedSentinel{S, I}
+    constexpr bool SizedSentinel<S, I> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // OutputIterator [output.iterators]
+  // OutputIterator [iterators.output]
   //
   template <class I, class T>
   concept bool OutputIterator() {
-    return WeakOutputIterator<I, T>() &&
-      EqualityComparable<I>();
+    return Iterator<I>() && Writable<I, T>();
   }
 
   namespace models {
@@ -596,42 +625,23 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // WeakInputIterator [weakinput.iterators]
+  // InputIterator [iterators.input]
   //
   template <class I>
-  constexpr bool __weak_input_iterator = false;
+  constexpr bool __input_iterator = false;
   template <class I>
     requires requires (I& i, const I& ci) {
       typename iterator_category_t<I>;
-      DerivedFrom<iterator_category_t<I>, weak_input_iterator_tag>();
+      DerivedFrom<iterator_category_t<I>, input_iterator_tag>();
       STL2_DEDUCTION_CONSTRAINT(i++, Readable);
       requires Same<value_type_t<I>, value_type_t<decltype(i++)>>();
       { *ci } -> const value_type_t<I>&;
     }
-  constexpr bool __weak_input_iterator<I> = true;
+  constexpr bool __input_iterator<I> = true;
 
-  template <class I>
-  concept bool WeakInputIterator() {
-    return WeakIterator<I>() &&
-      Readable<I>() &&
-      __weak_input_iterator<I>;
-  }
-
-  namespace models {
-    template <class>
-    constexpr bool WeakInputIterator = false;
-    __stl2::WeakInputIterator{I}
-    constexpr bool WeakInputIterator<I> = true;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // InputIterator [input.iterators]
-  //
   template <class I>
   concept bool InputIterator() {
-    return WeakInputIterator<I>() &&
-      DerivedFrom<iterator_category_t<I>, input_iterator_tag>() &&
-      Iterator<I>();
+    return Iterator<I>() && Readable<I>() && __input_iterator<I>;
   }
 
   namespace models {
@@ -642,13 +652,21 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // ForwardIterator [forward.iterators]
+  // ForwardIterator [iterators.forward]
   //
   template <class I>
   concept bool ForwardIterator() {
     return InputIterator<I>() &&
       DerivedFrom<iterator_category_t<I>, forward_iterator_tag>() &&
-      Incrementable<I>();
+      Incrementable<I>() &&
+      Sentinel<I, I>();
+      // Axiom: I{} is equality-preserving and non-singular
+      // Axiom: if i equals j then i and j denote the same element.
+      // Axiom: if [i,s) denotes a range && bool(i != s) then [i,i+1) denotes
+      //        a range and i == j has the same definition space as
+      //        i+1 == j
+      //        Note: intent is to require == et al to be well-defined over
+      //        all iterator values that participate in a range.
   }
 
   namespace models {
@@ -659,7 +677,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // BidirectionalIterator [bidirectional.iterators]
+  // BidirectionalIterator [iterators.bidirectional]
   //
   template <class I>
   concept bool BidirectionalIterator() {
@@ -676,34 +694,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // SizedIteratorRange [sizediteratorrange.iteratorranges]
-  //
-  template <class I, class S>
-  constexpr bool __sized_iterator_range = false;
-  template <class I, class S>
-    requires requires (const I& i, const S& s) {
-      { i - i } -> difference_type_t<I>;
-      { s - s } -> difference_type_t<I>;
-      { s - i } -> difference_type_t<I>;
-      { i - s } -> difference_type_t<I>;
-    }
-  constexpr bool __sized_iterator_range<I, S> = true;
-
-  template <class I, class S>
-  concept bool SizedIteratorRange() {
-    return Sentinel<S, I>() &&
-      __sized_iterator_range<I, S>;
-  }
-
-  namespace models {
-    template <class, class>
-    constexpr bool SizedIteratorRange = false;
-    __stl2::SizedIteratorRange{I, S}
-    constexpr bool SizedIteratorRange<I, S> = true;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // RandomAccessIterator [random.access.iterators]
+  // RandomAccessIterator [iterators.random.access]
   //
   template <class I>
   constexpr bool __random_access_iterator = false;
@@ -717,9 +708,16 @@ STL2_OPEN_NAMESPACE {
   concept bool RandomAccessIterator() {
     return BidirectionalIterator<I>() &&
       DerivedFrom<iterator_category_t<I>, random_access_iterator_tag>() &&
+      SizedSentinel<I, I>() &&
+      // Should ordering be in SizedSentinel and/or RandomAccessIncrementable?
       StrictTotallyOrdered<I>() &&
       ext::RandomAccessIncrementable<I>() &&
       __random_access_iterator<I>;
+    // FIXME: Axioms for definition space of ordering operations. Don't
+    // require them to be the same space as ==, since pointers can't meet
+    // that requirement. Formulation should be similar to that for == in
+    // ForwardIterator, e.g., "if [i,j) denotes a range, i < j et al are
+    // well-defined."
   }
 
   namespace models {
@@ -752,13 +750,14 @@ STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
   // iterator_traits [iterator.assoc]
   //
-  WeakInputIterator{I}
+  template <InputIterator I>
   struct __pointer_type {
     using type = add_pointer_t<reference_t<I>>;
   };
 
-  template <WeakInputIterator I>
-    requires requires (I i) {
+  template <InputIterator I>
+  requires
+    requires (I i) {
       STL2_DEDUCE_AUTO_REF_REF(i.operator->());
     }
   struct __pointer_type<I> {
@@ -768,7 +767,7 @@ STL2_OPEN_NAMESPACE {
   template <class>
   struct __iterator_traits {};
 
-  WeakIterator{I}
+  Iterator{I}
   struct __iterator_traits<I> {
     using difference_type = difference_type_t<I>;
     using value_type = void;
@@ -777,7 +776,7 @@ STL2_OPEN_NAMESPACE {
     using iterator_category = output_iterator_tag;
   };
 
-  WeakInputIterator{I}
+  InputIterator{I}
   struct __iterator_traits<I> {
     using difference_type = difference_type_t<I>;
     using value_type = value_type_t<I>;
@@ -836,7 +835,7 @@ STL2_OPEN_NAMESPACE {
 } STL2_CLOSE_NAMESPACE
 
 namespace std {
-  template <::__stl2::WeakIterator Out>
+  template <::__stl2::Iterator Out>
     // HACKHACK to avoid partial specialization after instantiation errors. Platform
     // vendors can avoid this hack by fixing up stdlib headers to fwd declare these
     // partial specializations in the same place that std::iterator_traits is first
@@ -850,12 +849,15 @@ namespace std {
     using iterator_category = std::output_iterator_tag;
   };
 
-  template <::__stl2::WeakInputIterator In>
-    requires !::__stl2::detail::LooksLikeSTL1Iterator<In>()
+  template <::__stl2::InputIterator In>
+  requires
+    !::__stl2::detail::LooksLikeSTL1Iterator<In>()
   struct iterator_traits<In> { };
 
   template <::__stl2::InputIterator In>
-    requires !::__stl2::detail::LooksLikeSTL1Iterator<In>()
+  requires
+    !::__stl2::detail::LooksLikeSTL1Iterator<In>() &&
+    ::__stl2::Sentinel<In, In>()
   struct iterator_traits<In> {
     using difference_type   = ::__stl2::difference_type_t<In>;
     using value_type        = ::__stl2::value_type_t<In>;
