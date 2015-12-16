@@ -116,7 +116,7 @@ STL2_OPEN_NAMESPACE {
       using type = decltype(declval<const C&>().distance_to(declval<const C&>()));
     };
     template <class C>
-    using DifferenceType = meta::_t<difference_type<C>>;
+    using difference_type_t = meta::_t<difference_type<C>>;
 
     template <class C>
     struct value_type {};
@@ -132,7 +132,7 @@ STL2_OPEN_NAMESPACE {
       using type = decay_t<decltype(declval<const C&>().current())>;
     };
     template <class C>
-    using ValueType = meta::_t<value_type<C>>;
+    using value_type_t = meta::_t<value_type<C>>;
 
     template <class I>
     requires
@@ -180,18 +180,18 @@ STL2_OPEN_NAMESPACE {
 
     template <class Cursor>
     requires
-      requires (Cursor& c, DifferenceType<Cursor> n) { c.advance(n); }
-    static constexpr void advance(Cursor& c, DifferenceType<Cursor> n)
+      requires (Cursor& c, difference_type_t<Cursor> n) { c.advance(n); }
+    static constexpr void advance(Cursor& c, difference_type_t<Cursor> n)
     STL2_NOEXCEPT_RETURN((void)c.advance(n))
 
     template <class Cursor, class Other>
     requires
       requires (const Cursor& lhs, const Other& rhs) {
-        { lhs.distance_to(rhs) } -> DifferenceType<Cursor>;
+        { lhs.distance_to(rhs) } -> difference_type_t<Cursor>;
       }
-    static constexpr DifferenceType<Cursor>
+    static constexpr difference_type_t<Cursor>
     distance(const Cursor& lhs, const Other& rhs)
-    STL2_NOEXCEPT_RETURN(DifferenceType<Cursor>(lhs.distance_to(rhs)))
+    STL2_NOEXCEPT_RETURN(difference_type_t<Cursor>(lhs.distance_to(rhs)))
   };
 
   namespace detail {
@@ -218,7 +218,7 @@ STL2_OPEN_NAMESPACE {
       };
     template <class C>
     concept bool CursorAdvance =
-      requires (C& c, cursor_access::DifferenceType<C> n) {
+      requires (C& c, cursor_access::difference_type_t<C> n) {
         cursor_access::advance(c, n);
       };
     template <class C, class O>
@@ -239,7 +239,7 @@ STL2_OPEN_NAMESPACE {
     concept bool InputCursor =
       Cursor<C> && CursorCurrent<C> &&
       CursorNext<C> && requires {
-        typename cursor_access::ValueType<C>;
+        typename cursor_access::value_type_t<C>;
       };
     template <class C>
     concept bool ForwardCursor =
@@ -290,7 +290,7 @@ STL2_OPEN_NAMESPACE {
     constexpr C&& pos() && noexcept { return base_t::get(); }
 
   public:
-    using difference_type = cursor_access::DifferenceType<C>;
+    using difference_type = cursor_access::difference_type_t<C>;
 
     basic_iterator() = default;
     using base_t::base_t;
@@ -344,8 +344,8 @@ STL2_OPEN_NAMESPACE {
     constexpr C&& pos() && noexcept { return base_t::get(); }
 
   public:
-    using difference_type = cursor_access::DifferenceType<C>;
-    using value_type = cursor_access::ValueType<C>;
+    using difference_type = cursor_access::difference_type_t<C>;
+    using value_type = cursor_access::value_type_t<C>;
     using iterator_category = detail::CursorCategory<C>;
     using reference = decltype(cursor_access::current(declval<const C&>()));
 
@@ -497,7 +497,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class C>
   requires detail::CursorDistance<C, C>
-  constexpr cursor_access::DifferenceType<C>
+  constexpr cursor_access::difference_type_t<C>
   operator-(const basic_iterator<C>& lhs, const basic_iterator<C>& rhs)
   STL2_NOEXCEPT_RETURN(
     cursor_access::distance(cursor_access::cursor(rhs),
@@ -506,7 +506,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class C, class Other>
   requires detail::CursorDistance<C, Other>
-  constexpr cursor_access::DifferenceType<C>
+  constexpr cursor_access::difference_type_t<C>
   operator-(const basic_iterator<C>& lhs, const Other& rhs)
   STL2_NOEXCEPT_RETURN(
     -cursor_access::distance(cursor_access::cursor(lhs), rhs)
@@ -514,7 +514,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class C, class Other>
   requires detail::CursorDistance<C, Other>
-  constexpr cursor_access::DifferenceType<C>
+  constexpr cursor_access::difference_type_t<C>
   operator-(const Other& lhs, const basic_iterator<C>& rhs)
   STL2_NOEXCEPT_RETURN(
     cursor_access::distance(cursor_access::cursor(rhs), lhs)
