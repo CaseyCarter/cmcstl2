@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
         noexcept(is_nothrow_copy_constructible<I>::value) :
         value_{v.first_} {}
 
-      constexpr I current() const
+      constexpr I read() const
         noexcept(is_nothrow_copy_constructible<I>::value) {
         return value_;
       }

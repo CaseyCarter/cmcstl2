@@ -36,11 +36,11 @@ class forward_list {
       mixin() = default;
       using stl2::basic_mixin<cursor>::basic_mixin;
       constexpr mixin(stl2::default_sentinel) noexcept
-      : mixin{}
+      : mixin{cursor{nullptr}}
       {}
     };
 
-    constexpr T& current() const noexcept { return ptr_->data_; }
+    constexpr T& read() const noexcept { return ptr_->data_; }
     constexpr void next() noexcept { ptr_ = ptr_->next_.get(); }
     constexpr bool equal(stl2::default_sentinel) const noexcept { return !ptr_; }
     constexpr bool equal(const cursor& that) const noexcept { return ptr_ == that.ptr_; }
@@ -102,6 +102,7 @@ public:
   {}
 
   template <class U = T>
+  requires stl2::Same<T, U>()
   void write(const U& t) {
     *os_ << t;
     delimit();
@@ -132,7 +133,7 @@ using ostream_iterator = stl2::basic_iterator<ostream_cursor<T>>;
 template <class T>
 class pointer_cursor {
 public:
-  static constexpr bool contiguous = true;
+  using contiguous = stl2::true_type;
   struct mixin : protected stl2::detail::ebo_box<pointer_cursor> {
     mixin() = default;
     using mixin::ebo_box::ebo_box;
@@ -147,36 +148,36 @@ public:
   constexpr pointer_cursor(const pointer_cursor<U>& that) noexcept :
     ptr_{that.ptr_} {}
 
-  constexpr auto& current() const noexcept {
+  constexpr T& read() const noexcept {
     STL2_ASSUME_CONSTEXPR(ptr_);
     return *ptr_;
   }
 
-  constexpr auto arrow() const noexcept {
+  constexpr T* arrow() const noexcept {
     STL2_ASSUME_CONSTEXPR(ptr_);
     return ptr_;
   }
 
-  constexpr auto next() noexcept {
+  constexpr void next() noexcept {
     STL2_ASSUME_CONSTEXPR(ptr_);
     ++ptr_;
   }
 
-  constexpr auto equal(const pointer_cursor& that) const noexcept {
+  constexpr bool equal(const pointer_cursor& that) const noexcept {
     return ptr_ == that.ptr_;
   }
 
-  constexpr auto prev() noexcept {
+  constexpr void prev() noexcept {
     STL2_ASSUME_CONSTEXPR(ptr_);
     --ptr_;
   }
 
-  constexpr auto advance(std::ptrdiff_t n) noexcept {
+  constexpr void advance(std::ptrdiff_t n) noexcept {
     STL2_ASSUME_CONSTEXPR(ptr_);
     ptr_ += n;
   }
 
-  constexpr auto distance_to(const pointer_cursor& that) const noexcept {
+  constexpr std::ptrdiff_t distance_to(const pointer_cursor& that) const noexcept {
     STL2_ASSUME_CONSTEXPR(!that.ptr_ == !ptr_);
     return that.ptr_ - ptr_;
   }
@@ -250,7 +251,7 @@ public:
     *it_ = stl2::forward<T>(t);
   }
 
-  constexpr decltype(auto) current() const
+  constexpr decltype(auto) read() const
   noexcept(noexcept(*stl2::declval<const I&>()))
   requires stl2::InputIterator<I>()
   {
@@ -287,6 +288,10 @@ public:
     return n_;
   }
 
+  // FIXME: test
+  constexpr decltype(auto) move() const
+  STL2_NOEXCEPT_RETURN(stl2::iter_move(it_))
+
 private:
   I it_;
   difference_type n_;
@@ -297,7 +302,7 @@ using my_counted_iterator = stl2::basic_iterator<my_counted_cursor<I>>;
 
 template <class T, T Value>
 struct always_cursor {
-  constexpr T current() const
+  constexpr T read() const
     noexcept(stl2::is_nothrow_copy_constructible<T>::value) {
     return Value;
   }
@@ -330,22 +335,28 @@ std::ostream& operator<<(std::ostream& os, R&& rng) {
 
 void test_fl() {
   ::forward_list<int> list = {0, 1, 2, 3};
-  using R = decltype(list);
+  using Rng = decltype(list);
   using I = decltype(list.begin());
   using S = decltype(list.end());
+  static_assert(stl2::models::WeaklyIncrementable<I>);
+  static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
+  static_assert(stl2::models::Readable<I>);
+  static_assert(stl2::models::Same<stl2::value_type_t<I>, int>);
+  static_assert(stl2::models::Same<stl2::reference_t<I>, int&>);
+  static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, int&&>);
   static_assert(stl2::models::Copyable<I>);
   static_assert(stl2::models::DefaultConstructible<I>);
   static_assert(stl2::models::Semiregular<I>);
   static_assert(stl2::models::Incrementable<I>);
   static_assert(stl2::models::EqualityComparable<I>);
   static_assert(stl2::models::ForwardIterator<I>);
+  static_assert(stl2::models::Sentinel<S, I>);
+  static_assert(stl2::models::ForwardRange<Rng>);
   static_assert(stl2::models::Common<S, I>);
   static_assert(stl2::models::Same<stl2::common_type_t<S, I>, I>);
   static_assert(stl2::models::Same<
     stl2::ext::range<I, I>,
     decltype(stl2::ext::make_bounded_range(list.begin(), list.end()))>);
-  static_assert(stl2::models::Sentinel<S, I>);
-  static_assert(stl2::models::ForwardRange<R>);
   std::cout << list << '\n';
   *stl2::front_inserter(list) = 3.14;
   std::cout << list << '\n';
@@ -364,10 +375,16 @@ void test_fl() {
 void test_rv() {
   stl2::repeat_view<int> rv{42};
 
-  using R = decltype(rv);
+  using Rng = decltype(rv);
   using I = decltype(rv.begin());
+  static_assert(stl2::models::WeaklyIncrementable<I>);
+  static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
+  static_assert(stl2::models::Readable<I>);
+  static_assert(stl2::models::Same<stl2::value_type_t<I>, int>);
+  static_assert(stl2::models::Same<stl2::reference_t<I>, int>);
+  static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, int>);
   static_assert(stl2::models::RandomAccessIterator<I>);
-  static_assert(stl2::models::RandomAccessRange<R>);
+  static_assert(stl2::models::RandomAccessRange<Rng>);
   CHECK(I{} == I{});
 
   auto i = rv.begin();
@@ -394,14 +411,20 @@ void test_rv() {
 void test_array() {
   ::array<int, 13> a;
 
-  using R = decltype(a);
+  using Rng = decltype(a);
   using I = decltype(a.begin());
   CHECK(noexcept(a.begin()));
+  static_assert(stl2::models::WeaklyIncrementable<I>);
+  static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
+  static_assert(stl2::models::Readable<I>);
+  static_assert(stl2::models::Same<stl2::value_type_t<I>, int>);
+  static_assert(stl2::models::Same<stl2::reference_t<I>, int&>);
+  static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, int&&>);
   static_assert(stl2::models::ContiguousIterator<I>);
-  static_assert(stl2::models::RandomAccessRange<R>);
-  static_assert(stl2::models::RandomAccessRange<const R>);
-  static_assert(stl2::models::BoundedRange<R>);
-  static_assert(stl2::models::BoundedRange<const R>);
+  static_assert(stl2::models::RandomAccessRange<Rng>);
+  static_assert(stl2::models::RandomAccessRange<const Rng>);
+  static_assert(stl2::models::BoundedRange<Rng>);
+  static_assert(stl2::models::BoundedRange<const Rng>);
   CHECK(I{} == I{});
   CHECK(noexcept(I{} == I{}));
 
@@ -411,6 +434,12 @@ void test_array() {
 void test_counted() {
   int some_ints[] = {0,1,2,3};
   using I = my_counted_iterator<const int*>;
+  static_assert(stl2::models::WeaklyIncrementable<I>);
+  static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
+  static_assert(stl2::models::Readable<I>);
+  static_assert(stl2::models::Same<stl2::value_type_t<I>, int>);
+  static_assert(stl2::models::Same<stl2::reference_t<I>, const int&>);
+  static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, const int&&>);
   static_assert(stl2::models::RandomAccessIterator<I>);
   CHECK(I{} == I{});
   auto first = I{some_ints, 4};
@@ -434,12 +463,18 @@ void test_always() {
   // Iterates over life, the universe, and everything.
   auto i = always_iterator<int, 42>{};
   using I = decltype(i);
+  static_assert(stl2::is_empty<I>());
+  static_assert(sizeof(I) == 1);
+  static_assert(stl2::models::WeaklyIncrementable<I>);
+  static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
+  static_assert(stl2::models::Readable<I>);
+  static_assert(stl2::models::Same<stl2::value_type_t<I>, int>);
+  static_assert(stl2::models::Same<stl2::reference_t<I>, int>);
+  static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, int>);
   static_assert(stl2::models::RandomAccessIterator<I>);
   CHECK(I{} == I{});
   stl2::copy_n(i, 13, ::ostream_iterator<>{std::cout, " "});
   std::cout << '\n';
-  static_assert(stl2::is_empty<I>());
-  static_assert(sizeof(I) == 1);
   CHECK(*i == 42);
   CHECK(*(i + 42) == 42);
   CHECK(*(i - 42) == 42);
@@ -450,9 +485,13 @@ void test_back_inserter() {
   auto vec = std::vector<int>{};
   auto i = stl2::back_inserter(vec);
   using I = decltype(i);
+  static_assert(stl2::models::WeaklyIncrementable<I>);
+  static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
+  // FIXME?: static_assert(!stl2::models::Readable<I>);
+  // FIXME: static_assert(stl2::models::Same<stl2::reference_t<I>, I&>);
   static_assert(stl2::models::OutputIterator<I, int>);
+  static_assert(!stl2::models::InputIterator<I>);
   static_assert(!stl2::models::EqualityComparable<I>);
-  static_assert(stl2::models::Same<std::ptrdiff_t, stl2::difference_type_t<I>>);
   stl2::copy_n(always_iterator<int, 42>{}, 13, i);
   CHECK(vec.size() == 13u);
 }

@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
       : istream_cursor{}
       {}
 
-      constexpr const T& current() const noexcept {
+      constexpr const T& read() const noexcept {
         return box_t::get();
       }
 
