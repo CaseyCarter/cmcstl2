@@ -23,6 +23,7 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 // TODO:
+// * Adapt the operator-> proxy from common_iterator.
 // * Determine if the code complexity incurred by not having basic_sentinel in the
 //   design is actually enabling anything useful.
 
@@ -90,7 +91,7 @@ STL2_OPEN_NAMESPACE {
         requires {
           typename C::contiguous;
           requires bool(C::contiguous::value);
-          requires _Is<reference_t<C>, is_reference>;
+          requires is_reference<reference_t<C>>::value;
         }
       struct contiguous<C> : true_type {};
 
@@ -117,7 +118,7 @@ STL2_OPEN_NAMESPACE {
         SignedIntegral<meta::_t<difference_type<C>>>()
       using difference_type_t = meta::_t<difference_type<C>>;
 
-      template <class C>
+      template <class>
       struct value_type {};
       template <detail::MemberValueType C>
       struct value_type<C> {
@@ -350,7 +351,7 @@ STL2_OPEN_NAMESPACE {
       {
         return *this;
       }
-      friend constexpr value_type&& iter_move( // FIXME
+      friend constexpr value_type&& iter_move(
         const writable_postfix_increment_proxy& ref)
       {
         return __stl2::move(ref.value_);
@@ -683,7 +684,7 @@ STL2_OPEN_NAMESPACE {
 
     constexpr basic_iterator& operator--() &
     noexcept(noexcept(cursor::access::prev(declval<C&>())))
-    requires cursor::Prev<C>()
+    requires cursor::Bidirectional<C>()
     {
       cursor::access::prev(pos());
       return *this;
@@ -692,7 +693,7 @@ STL2_OPEN_NAMESPACE {
     noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
              is_nothrow_move_constructible<basic_iterator>::value &&
              noexcept(--declval<basic_iterator&>()))
-    requires cursor::Prev<C>()
+    requires cursor::Bidirectional<C>()
     {
       auto tmp = *this;
       --*this;
@@ -701,14 +702,14 @@ STL2_OPEN_NAMESPACE {
 
     constexpr basic_iterator& operator+=(difference_type n) &
     noexcept(noexcept(cursor::access::advance(declval<C&>(), n)))
-    requires cursor::Advance<C>()
+    requires cursor::RandomAccess<C>()
     {
       cursor::access::advance(pos(), n);
       return *this;
     }
     constexpr basic_iterator& operator-=(difference_type n) &
     noexcept(noexcept(cursor::access::advance(declval<C&>(), -n)))
-    requires cursor::Advance<C>()
+    requires cursor::RandomAccess<C>()
     {
       cursor::access::advance(pos(), -n);
       return *this;
@@ -719,7 +720,7 @@ STL2_OPEN_NAMESPACE {
     noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
              is_nothrow_move_constructible<basic_iterator>::value &&
              noexcept(cursor::access::advance(declval<C&>(), n)))
-    requires cursor::Advance<C>()
+    requires cursor::RandomAccess<C>()
     {
       auto tmp = i;
       cursor::access::advance(tmp.pos(), n);
@@ -728,21 +729,21 @@ STL2_OPEN_NAMESPACE {
     friend constexpr basic_iterator
     operator+(difference_type n, const basic_iterator& i)
     noexcept(noexcept(i + n))
-    requires cursor::Advance<C>()
+    requires cursor::RandomAccess<C>()
     {
       return i + n;
     }
     friend constexpr basic_iterator
     operator-(const basic_iterator& i, difference_type n)
     noexcept(noexcept(i + -n))
-    requires cursor::Advance<C>()
+    requires cursor::RandomAccess<C>()
     {
       return i + -n;
     }
 
     constexpr decltype(auto) operator[](difference_type n) const
     noexcept(noexcept(*(declval<basic_iterator&>() + n)))
-    requires cursor::Advance<C>()
+    requires cursor::RandomAccess<C>()
     {
       return *(*this + n);
     }

@@ -207,6 +207,11 @@ class my_counted_cursor {
 public:
   using difference_type = stl2::difference_type_t<I>;
 
+private:
+  I it_;
+  difference_type n_;
+
+public:
   struct mixin : protected stl2::detail::ebo_box<my_counted_cursor> {
     mixin() = default;
     using mixin::ebo_box::ebo_box;
@@ -237,7 +242,7 @@ public:
   : it_{}, n_{0} {}
 
   constexpr void next()
-  noexcept(noexcept(++stl2::declval<I&>()))
+  noexcept(noexcept(++it_))
   {
     ++it_;
     --n_;
@@ -246,13 +251,12 @@ public:
   template <class T>
   requires stl2::Writable<I, T>()
   constexpr auto write(T&& t)
-  noexcept(noexcept(*stl2::declval<I&>() = stl2::forward<T>(t)))
-  {
-    *it_ = stl2::forward<T>(t);
-  }
+  STL2_NOEXCEPT_RETURN(
+    *it_ = stl2::forward<T>(t)
+  )
 
   constexpr decltype(auto) read() const
-  noexcept(noexcept(*stl2::declval<const I&>()))
+  noexcept(noexcept(*it_))
   requires stl2::InputIterator<I>()
   {
     return *it_;
@@ -266,7 +270,7 @@ public:
   }
 
   constexpr auto prev()
-  noexcept(noexcept(--stl2::declval<I&>()))
+  noexcept(noexcept(--it_))
   requires stl2::BidirectionalIterator<I>()
   {
     ++n_;
@@ -274,7 +278,7 @@ public:
   }
 
   constexpr auto advance(difference_type n)
-  noexcept(noexcept(stl2::declval<I&>() += n))
+  noexcept(noexcept(it_ += n))
   requires stl2::RandomAccessIterator<I>()
   {
     it_ += n;
@@ -290,11 +294,9 @@ public:
 
   // FIXME: test
   constexpr decltype(auto) move() const
-  STL2_NOEXCEPT_RETURN(stl2::iter_move(it_))
-
-private:
-  I it_;
-  difference_type n_;
+  STL2_NOEXCEPT_RETURN(
+    stl2::iter_move(it_)
+  )
 };
 
 stl2::Iterator{I}
