@@ -191,13 +191,13 @@ STL2_OPEN_NAMESPACE {
 
       template <class C>
       requires
-        requires(const C& c) { c.read(); }
+        requires(const C& c) { access::read(c); }
       static constexpr decltype(auto) move(const C& c)
-      STL2_NOEXCEPT_RETURN(__stl2::move(c.read()))
+      STL2_NOEXCEPT_RETURN(__stl2::move(access::read(c)))
 
       template <class C>
       requires
-        requires(const C& c) { c.read(); c.move(); }
+        requires(const C& c) { access::read(c); c.move(); }
       static constexpr decltype(auto) move(const C& c)
       STL2_NOEXCEPT_RETURN(c.move())
 
@@ -251,7 +251,7 @@ STL2_OPEN_NAMESPACE {
       };
     }
     template <class C, class O>
-    concept bool HasEqual() {
+    concept bool EqualityComparable() {
       return requires(const C& l, const O& r) {
         access::equal(l, r);
       };
@@ -274,7 +274,7 @@ STL2_OPEN_NAMESPACE {
     }
     template <class C>
     concept bool Forward() {
-      return Input<C>() && HasEqual<C, C>() &&
+      return Input<C>() && EqualityComparable<C, C>() &&
         !access::single_pass<C>::value;
     }
     template <class C>
@@ -773,7 +773,7 @@ STL2_OPEN_NAMESPACE {
   };
 
   template <class C>
-  requires cursor::HasEqual<C, C>()
+  requires cursor::EqualityComparable<C, C>()
   constexpr bool operator==(
     const basic_iterator<C>& lhs, const basic_iterator<C>& rhs)
   STL2_NOEXCEPT_RETURN(
@@ -782,7 +782,7 @@ STL2_OPEN_NAMESPACE {
   )
 
   template <class C, class Other>
-  requires cursor::HasEqual<C, Other>()
+  requires cursor::EqualityComparable<C, Other>()
   constexpr bool operator==(
     const basic_iterator<C>& lhs, const Other& rhs)
   STL2_NOEXCEPT_RETURN(
@@ -790,7 +790,7 @@ STL2_OPEN_NAMESPACE {
   )
 
   template <class C, class Other>
-  requires cursor::HasEqual<C, Other>()
+  requires cursor::EqualityComparable<C, Other>()
   constexpr bool operator==(
     const Other& lhs, const basic_iterator<C>& rhs)
   STL2_NOEXCEPT_RETURN(
@@ -798,7 +798,7 @@ STL2_OPEN_NAMESPACE {
   )
 
   template <class C>
-  requires cursor::HasEqual<C, C>()
+  requires cursor::EqualityComparable<C, C>()
   constexpr bool operator!=(
     const basic_iterator<C>& lhs, const basic_iterator<C>& rhs)
   STL2_NOEXCEPT_RETURN(
@@ -807,7 +807,7 @@ STL2_OPEN_NAMESPACE {
   )
 
   template <class C, class Other>
-  requires cursor::HasEqual<C, Other>()
+  requires cursor::EqualityComparable<C, Other>()
   constexpr bool operator!=(
     const basic_iterator<C>& lhs, const Other& rhs)
   STL2_NOEXCEPT_RETURN(
@@ -815,7 +815,7 @@ STL2_OPEN_NAMESPACE {
   )
 
   template <class C, class Other>
-  requires cursor::HasEqual<C, Other>()
+  requires cursor::EqualityComparable<C, Other>()
   constexpr bool operator!=(
     const Other& lhs, const basic_iterator<C>& rhs)
   STL2_NOEXCEPT_RETURN(

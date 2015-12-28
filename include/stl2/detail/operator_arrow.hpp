@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 
     Readable{I}
     STL2_CONSTEXPR_EXT auto operator_arrow(const I& i, ext::priority_tag<1>)
-      noexcept(noexcept(*declval<const I&>()))
+      noexcept(noexcept(*i))
     requires
       _Is<reference_t<const I>, is_reference>
     {
