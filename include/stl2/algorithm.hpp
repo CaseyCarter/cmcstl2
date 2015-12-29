@@ -47,7 +47,6 @@
 #include <stl2/detail/algorithm/max.hpp>
 #include <stl2/detail/algorithm/max_element.hpp>
 #include <stl2/detail/algorithm/merge.hpp>
-#include <stl2/detail/algorithm/merge_move.hpp>
 #include <stl2/detail/algorithm/min.hpp>
 #include <stl2/detail/algorithm/min_element.hpp>
 #include <stl2/detail/algorithm/minmax.hpp>
@@ -62,7 +61,6 @@
 #include <stl2/detail/algorithm/partial_sort_copy.hpp>
 #include <stl2/detail/algorithm/partition.hpp>
 #include <stl2/detail/algorithm/partition_copy.hpp>
-#include <stl2/detail/algorithm/partition_move.hpp>
 #include <stl2/detail/algorithm/partition_point.hpp>
 #include <stl2/detail/algorithm/pop_heap.hpp>
 #include <stl2/detail/algorithm/prev_permutation.hpp>

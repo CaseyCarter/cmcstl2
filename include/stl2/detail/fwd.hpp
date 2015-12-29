@@ -174,7 +174,7 @@ STL2_OPEN_NAMESPACE {
 #if STL2_CONSTEXPR_EXTENSIONS
 #define STL2_CONSTEXPR_EXT constexpr
 #else
-#define STL2_CONSTEXPR_EXT
+#define STL2_CONSTEXPR_EXT inline
 #endif
 
 #endif

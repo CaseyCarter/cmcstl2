@@ -128,9 +128,6 @@ add_test(test.alg.max_element alg.max_element)
 add_executable(alg.merge merge.cpp)
 add_test(test.alg.merge alg.merge)
 
-add_executable(alg.merge_move merge_move.cpp)
-add_test(test.alg.merge_move alg.merge_move)
-
 add_executable(alg.min min.cpp)
 add_test(test.alg.min alg.min)
 
@@ -173,9 +170,6 @@ add_test(test.alg.partition alg.partition)
 
 add_executable(alg.partition_copy partition_copy.cpp)
 add_test(test.alg.partition_copy alg.partition_copy)
-
-add_executable(alg.partition_move partition_move.cpp)
-add_test(test.alg.partition_move alg.partition_move)
 
 add_executable(alg.partition_point partition_point.cpp)
 add_test(test.alg.partition_point alg.partition_point)

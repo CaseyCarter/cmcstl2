@@ -28,7 +28,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/temporary_vector.hpp>
 #include <stl2/detail/algorithm/move.hpp>
-#include <stl2/detail/algorithm/merge_move.hpp>
+#include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/lower_bound.hpp>
 #include <stl2/detail/algorithm/upper_bound.hpp>
 #include <stl2/detail/algorithm/rotate.hpp>
@@ -53,27 +53,30 @@ STL2_OPEN_NAMESPACE {
                        difference_type_t<I> len2,
                        temporary_buffer<value_type_t<I>>& buf, C& pred, P& proj)
       {
-        // Pre: len1 == distance(begin, midddle)
-        // Pre: len2 == distance(middle, end)
+        STL2_EXPENSIVE_ASSERT(len1 == __stl2::distance(begin, midddle));
+        STL2_EXPENSIVE_ASSERT(len2 == __stl2::distance(middle, end));
         temporary_vector<value_type_t<I>> vec{buf};
-        if(len1 <= len2)
-          {
-            __stl2::move(begin, middle, __stl2::back_inserter(vec));
-            __stl2::merge_move(__stl2::begin(vec), __stl2::end(vec),
-                               __stl2::move(middle), __stl2::move(end),
-                               __stl2::move(begin), __stl2::ref(pred),
-                               __stl2::ref(proj), __stl2::ref(proj));
-          }
-        else
-          {
-            __stl2::move(middle, end, __stl2::back_inserter(vec));
-            using RBi = __stl2::reverse_iterator<I>;
-            __stl2::merge_move(RBi{__stl2::move(middle)}, RBi{__stl2::move(begin)},
-                               __stl2::rbegin(vec), __stl2::rend(vec),
-                               RBi{__stl2::move(end)},
-                               __stl2::not_fn(__stl2::ref(pred)),
-                               __stl2::ref(proj), __stl2::ref(proj));
-          }
+        if (len1 <= len2) {
+          __stl2::move(begin, middle, __stl2::back_inserter(vec));
+          __stl2::merge(
+            __stl2::make_move_iterator(__stl2::begin(vec)),
+            __stl2::make_move_iterator(__stl2::end(vec)),
+            __stl2::make_move_iterator(__stl2::move(middle)),
+            __stl2::make_move_iterator(__stl2::move(end)),
+            __stl2::move(begin), __stl2::ref(pred),
+            __stl2::ref(proj), __stl2::ref(proj));
+        } else {
+          __stl2::move(middle, end, __stl2::back_inserter(vec));
+          using RBi = __stl2::reverse_iterator<I>;
+          __stl2::merge(
+            __stl2::make_move_iterator(RBi{__stl2::move(middle)}),
+            __stl2::make_move_iterator(RBi{__stl2::move(begin)}),
+            __stl2::make_move_iterator(__stl2::rbegin(vec)),
+            __stl2::make_move_iterator(__stl2::rend(vec)),
+            RBi{__stl2::move(end)},
+            __stl2::not_fn(__stl2::ref(pred)),
+            __stl2::ref(proj), __stl2::ref(proj));
+        }
       }
 
     public:

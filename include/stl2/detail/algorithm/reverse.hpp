@@ -34,7 +34,6 @@
 #include <stl2/detail/tagged.hpp>
 #include <stl2/detail/temporary_vector.hpp>
 #include <stl2/detail/algorithm/move.hpp>
-#include <stl2/detail/algorithm/reverse_move.hpp>
 #include <stl2/detail/algorithm/swap_ranges.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 

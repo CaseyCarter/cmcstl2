@@ -22,10 +22,9 @@
 #include <stl2/detail/iterator/default_sentinel.hpp>
 
 STL2_OPEN_NAMESPACE {
-  // Not to spec: requirements are implicit; models OutputIterator<charT> in
-  // addition to the required WeakOutputIterator<charT>.
+  // Not to spec: MoveConstructible requirement is implicit
+  // Extension: models EqualityComparable and Sentinel<default_sentinel>
   template <MoveConstructible charT, class traits = std::char_traits<charT>>
-    requires Integral<typename traits::off_type>()
   class ostreambuf_iterator {
   public:
     using iterator_category = output_iterator_tag;
@@ -37,10 +36,12 @@ STL2_OPEN_NAMESPACE {
     using ostream_type = std::basic_ostream<charT, traits>;
 
     constexpr ostreambuf_iterator() noexcept = default;
-    STL2_CONSTEXPR_EXT ostreambuf_iterator(streambuf_type* s) noexcept :
-      sbuf_{s} {}
-    ostreambuf_iterator(ostream_type& s) noexcept :
-      ostreambuf_iterator{s.rdbuf()} {}
+    STL2_CONSTEXPR_EXT ostreambuf_iterator(streambuf_type* s) noexcept
+    : sbuf_{s}
+    {}
+    ostreambuf_iterator(ostream_type& s) noexcept
+    : ostreambuf_iterator{s.rdbuf()}
+    {}
 
     // Extension
     constexpr ostreambuf_iterator(default_sentinel) noexcept :
@@ -52,7 +53,7 @@ STL2_OPEN_NAMESPACE {
     STL2_CONSTEXPR_EXT ostreambuf_iterator& operator++() & {
       return *this;
     }
-    STL2_CONSTEXPR_EXT ostreambuf_iterator& operator++(int) & {
+    STL2_CONSTEXPR_EXT ostreambuf_iterator operator++(int) & {
       return *this;
     }
 
@@ -71,29 +72,35 @@ STL2_OPEN_NAMESPACE {
 
     // Extensions:
     friend constexpr bool operator==(
-      const ostreambuf_iterator& lhs, const ostreambuf_iterator& rhs) noexcept {
-        return lhs.sbuf_ == rhs.sbuf_;
+      const ostreambuf_iterator& lhs, const ostreambuf_iterator& rhs) noexcept
+    {
+      return lhs.sbuf_ == rhs.sbuf_;
     }
     friend constexpr bool operator!=(
-      const ostreambuf_iterator& lhs, const ostreambuf_iterator& rhs) noexcept {
-        return !(lhs == rhs);
+      const ostreambuf_iterator& lhs, const ostreambuf_iterator& rhs) noexcept
+    {
+      return !(lhs == rhs);
     }
 
     friend constexpr bool operator==(
-      const ostreambuf_iterator& lhs, default_sentinel) noexcept {
-        return lhs.sbuf_ == nullptr;
+      const ostreambuf_iterator& lhs, default_sentinel) noexcept
+    {
+      return lhs.failed();
     }
     friend constexpr bool operator==(
-      default_sentinel lhs, const ostreambuf_iterator& rhs) noexcept {
+      default_sentinel lhs, const ostreambuf_iterator& rhs) noexcept
+    {
       return rhs == lhs;
     }
 
     friend constexpr bool operator!=(
-      const ostreambuf_iterator& lhs, default_sentinel rhs) noexcept {
+      const ostreambuf_iterator& lhs, default_sentinel rhs) noexcept
+    {
       return !(lhs == rhs);
     }
     friend constexpr bool operator!=(
-      default_sentinel lhs, const ostreambuf_iterator& rhs) noexcept {
+      default_sentinel lhs, const ostreambuf_iterator& rhs) noexcept
+    {
       return !(rhs == lhs);
     }
 

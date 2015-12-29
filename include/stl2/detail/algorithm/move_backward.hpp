@@ -15,6 +15,7 @@
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/copy.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // move_backward [alg.move]
@@ -26,11 +27,19 @@ STL2_OPEN_NAMESPACE {
   tagged_pair<tag::in(I1), tag::out(I2)>
   move_backward(I1 first, I1 last, I2 result)
   {
+#if 1
+    auto res = __stl2::copy(
+      __stl2::make_move_iterator(__stl2::make_reverse_iterator(last)),
+      __stl2::make_move_iterator(__stl2::make_reverse_iterator(__stl2::move(first))),
+      __stl2::make_reverse_iterator(__stl2::move(result)));
+    return {__stl2::move(last), __stl2::move(res.out()).base()};
+#else
     auto i = last;
     while (i != first) {
       *--result = __stl2::iter_move(--i);
     }
     return {__stl2::move(last), __stl2::move(result)};
+#endif
   }
 
   template <BidirectionalIterator I1, Sentinel<I1> S1, class I2>

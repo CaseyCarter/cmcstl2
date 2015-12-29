@@ -18,7 +18,7 @@
 using namespace __stl2;
 
 namespace {
-  template <InputIterator I, Sentinel<I> S, OutputIterator<value_type_t<I>> O>
+  template <InputIterator I, Sentinel<I> S, OutputIterator<reference_t<I>> O>
   tagged_pair<tag::in(I), tag::out(O)>
   constexpr copy(I first, S last, O out) {
     for (; first != last; ++first, void(), ++out) {
@@ -30,7 +30,7 @@ namespace {
 
 int main() {
   using I = ostream_iterator<int>;
-  static_assert(models::OutputIterator<I, int>);
+  static_assert(models::OutputIterator<I, const int&>);
   std::stringstream ss;
   
   static constexpr int some_ints[] = {0, 7, 1, 6, 2, 5, 3, 4};

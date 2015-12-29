@@ -37,8 +37,8 @@ STL2_OPEN_NAMESPACE {
     auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
 
     while (first1 != last1 && first2 != last2) {
-      auto&& v1 = *first1;
-      auto&& v2 = *first2;
+      reference_t<I1>&& v1 = *first1;
+      reference_t<I2>&& v2 = *first2;
       auto&& p1 = proj1(v1);
       auto&& p2 = proj2(v2);
       if (comp(p1, p2)) {
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
       } else if (comp(p2, p1)) {
         ++first2;
       } else {
-        *result = __stl2::forward<decltype(v1)>(v1);
+        *result = __stl2::forward<reference_t<I1>>(v1);
         ++result;
         ++first1;
         ++first2;

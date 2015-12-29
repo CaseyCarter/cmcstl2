@@ -22,7 +22,7 @@
 //
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////
-  // IndirectlyComparable [indirectlycomparable.commmonalgoreq]
+  // IndirectlyComparable [commmonalgoreq.indirectlycomparable]
   //
   template <class I1, class I2,
             class R = equal_to<>, class P1 = identity, class P2 = identity>
@@ -38,14 +38,13 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // Permutable [permutable.commmonalgoreq]
+  // Permutable [commmonalgoreq.permutable]
   //
   template <class I>
   concept bool Permutable() {
     return ForwardIterator<I>() &&
-      Movable<value_type_t<I>>() &&
-      IndirectlyMovable<I, I>();
-      // FIXME: IndirectlySwappable<I, I>()?
+      IndirectlyMovableStorable<I, I>() &&
+      IndirectlySwappable<I, I>();
   }
 
   namespace models {
@@ -56,7 +55,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // Mergeable [mergeable.commmonalgoreq]
+  // Mergeable [commmonalgoreq.mergeable]
   //
   template <class I1, class I2, class Out,
             class R = less<>, class P1 = identity, class P2 = identity>
@@ -77,28 +76,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // MoveMergeable [mergemovable.commmonalgoreq]
-  //
-  template <class I1, class I2, class Out,
-            class R = less<>, class P1 = identity, class P2 = identity>
-  concept bool MoveMergeable() {
-    return InputIterator<I1>() &&
-      InputIterator<I2>() &&
-      WeaklyIncrementable<Out>() &&
-      IndirectlyMovable<I1, Out>() &&
-      IndirectlyMovable<I2, Out>() &&
-      IndirectCallableStrictWeakOrder<R, projected<I1, P1>, projected<I2, P2>>();
-  }
-
-  namespace models {
-    template <class, class, class, class, class, class>
-    constexpr bool MoveMergeable = false;
-    __stl2::MoveMergeable{I1, I2, Out, R, P1, P2}
-    constexpr bool MoveMergeable<I1, I2, Out, R, P1, P2> = true;
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Sortable [sortable.commmonalgoreq]
+  // Sortable [commmonalgoreq.sortable]
   //
   template <class I, class R = less<>, class P = identity>
   concept bool Sortable() {

@@ -19,7 +19,7 @@
 #include <stl2/detail/algorithm/find_if_not.hpp>
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/rotate.hpp>
-#include <stl2/detail/algorithm/partition_move.hpp>
+#include <stl2/detail/algorithm/partition_copy.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/range/range.hpp>
@@ -63,8 +63,9 @@ STL2_OPEN_NAMESPACE {
         vec.push_back(__stl2::iter_move(first));
         auto counted = __stl2::make_counted_iterator(
           ext::uncounted(next), n - 1);
-        auto pp = __stl2::partition_move(
-            __stl2::move(counted), default_sentinel{},
+        auto pp = __stl2::partition_copy(
+            __stl2::make_move_iterator(__stl2::move(counted)),
+            move_sentinel<default_sentinel>{},
             __stl2::move(first), __stl2::back_inserter(vec),
             __stl2::ref(pred), __stl2::ref(proj)).out1();
         auto last = __stl2::move(vec, pp).out();
@@ -161,11 +162,13 @@ STL2_OPEN_NAMESPACE {
         auto&& vec = detail::make_temporary_vector(buf);
         vec.push_back(__stl2::iter_move(first));
         auto middle = __stl2::next(first);
-        middle = __stl2::partition_move(__stl2::move(middle), last,
-                                        __stl2::move(first),
-                                        __stl2::back_inserter(vec),
-                                        __stl2::ref(pred),
-                                        __stl2::ref(proj)).out1();
+        middle = __stl2::partition_copy(
+          __stl2::make_move_iterator(__stl2::move(middle)),
+          __stl2::make_move_iterator(last),
+          __stl2::move(first),
+          __stl2::back_inserter(vec),
+          __stl2::ref(pred),
+          __stl2::ref(proj)).out1();
         *middle = __stl2::iter_move(last);
         ++middle;
         __stl2::move(vec, middle);

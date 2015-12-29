@@ -142,7 +142,7 @@ std::ostream& operator<<(std::ostream& sout, category c) {
 
 template <class>
 constexpr category iterator_dispatch() { return category::none; }
-template <__stl2::OutputIterator<int> I>
+template <__stl2::OutputIterator<const int&> I>
   requires !__stl2::InputIterator<I>()
 constexpr category iterator_dispatch() { return category::output; }
 template <__stl2::InputIterator>
@@ -263,13 +263,13 @@ void test_iterator_dispatch() {
 
   {
     using I = arbitrary_iterator<void, false>;
-    static_assert(models::OutputIterator<I, int>);
+    static_assert(models::OutputIterator<I, const int&>);
     static_assert(!models::InputIterator<I>);
     CHECK(iterator_dispatch<I>() == category::output);
   }
   {
     using I = arbitrary_iterator<void, true>;
-    static_assert(models::OutputIterator<I, int>);
+    static_assert(models::OutputIterator<I, const int&>);
     static_assert(models::EqualityComparable<I>);
     static_assert(!models::InputIterator<I>);
     CHECK(iterator_dispatch<I>() == category::output);
@@ -279,10 +279,8 @@ void test_iterator_dispatch() {
 template <__stl2::InputIterator I, __stl2::Sentinel<I> S, class O>
   requires __stl2::IndirectlyCopyable<I, O>()
 bool copy(I first, S last, O o) {
-  while (first != last) {
+  for (; first != last; ++first, ++o) {
     *o = *first;
-    ++first;
-    ++o;
   }
   return false;
 }
@@ -379,9 +377,10 @@ void test_iter_swap2() {
     static_assert(models::Same<I, decltype(a.begin() + 2)>);
     static_assert(models::CommonReference<const R&, const R&>);
     static_assert(!models::Swappable<R, R>);
-    static_assert(models::IndirectlyMovable<I, I>);
+    static_assert(models::IndirectlyMovableStorable<I, I>);
 
-    // Swappable<R, R>() is not satisfied, and IndirectlyMovable<I, I>() is,
+    // Swappable<R, R>() is not satisfied, and
+    // IndirectlyMovableStorable<I, I>() is satisfied,
     // so this should resolve to the second overload of iter_swap.
     __stl2::iter_swap(a.begin() + 1, a.begin() + 3);
     CHECK(a[0] == 0);

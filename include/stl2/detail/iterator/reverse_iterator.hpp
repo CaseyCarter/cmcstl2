@@ -154,9 +154,13 @@ STL2_OPEN_NAMESPACE {
     // Extension
     friend STL2_CONSTEXPR_EXT void iter_swap(
       const reverse_iterator& x, const reverse_iterator& y)
-    STL2_NOEXCEPT_RETURN(
-      __stl2::iter_swap(__stl2::prev(x.current_), __stl2::prev(y.current_))
-    )
+    noexcept(noexcept(__stl2::iter_swap(
+      __stl2::prev(x.current_), __stl2::prev(y.current_))))
+    requires IndirectlySwappable<I, I>()
+    {
+      return __stl2::iter_swap(
+        __stl2::prev(x.current_), __stl2::prev(y.current_));
+    }
   };
 
   EqualityComparable{I1, I2}
