@@ -377,10 +377,10 @@ void test_iter_swap2() {
     static_assert(models::Same<I, decltype(a.begin() + 2)>);
     static_assert(models::CommonReference<const R&, const R&>);
     static_assert(!models::Swappable<R, R>);
-    static_assert(models::LazyIndirectlyMovable<I, I>);
+    static_assert(models::IndirectlyMovableStorable<I, I>);
 
     // Swappable<R, R>() is not satisfied, and
-    // LazyIndirectlyMovable<I, I>() is satisfied,
+    // IndirectlyMovableStorable<I, I>() is satisfied,
     // so this should resolve to the second overload of iter_swap.
     __stl2::iter_swap(a.begin() + 1, a.begin() + 3);
     CHECK(a[0] == 0);

@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
     models::IndirectlyCopyable<I, O> &&
       (models::ForwardIterator<I> ||
        models::ForwardIterator<O> ||
-       models::LazyIndirectlyCopyable<I, O>);
+       models::IndirectlyCopyableStorable<I, O>);
 
   template <class I, class S, class O,
             class R = equal_to<>, class Proj = identity>
