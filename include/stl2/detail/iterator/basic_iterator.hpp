@@ -150,9 +150,9 @@ STL2_OPEN_NAMESPACE {
 
       template <class C, class T>
       requires
-        requires(C& c, T&& t) { c.write(__stl2::forward<T>(t)); }
+        requires(C& c, T&& t) { c.write(static_cast<T&&>(t)); }
       static constexpr void write(C& c, T&& t)
-      STL2_NOEXCEPT_RETURN((void)c.write(__stl2::forward<T>(t)))
+      STL2_NOEXCEPT_RETURN((void)c.write(static_cast<T&&>(t)))
 
       template <class C>
       requires
@@ -191,24 +191,37 @@ STL2_OPEN_NAMESPACE {
 
       template <class C>
       requires
-        requires(const C& c) { access::read(c); }
-      static constexpr decltype(auto) move(const C& c)
-      STL2_NOEXCEPT_RETURN(__stl2::move(access::read(c)))
-
-      template <class C>
-      requires
-        requires(const C& c) { access::read(c); c.move(); }
+        requires(const C& c) { c.move(); }
       static constexpr decltype(auto) move(const C& c)
       STL2_NOEXCEPT_RETURN(c.move())
 
+      template <class> struct rvalue_reference {};
       template <class C>
-      using rvalue_reference_t = decltype(access::move(declval<const C&>()));
+      requires
+        requires(const C& c) { access::read(c); }
+      struct rvalue_reference<C> {
+        using type = meta::if_<
+          is_reference<reference_t<C>>,
+          remove_reference_t<reference_t<C>>&&,
+          decay_t<reference_t<C>>>;
+      };
+      template <class C>
+      requires
+        requires(const C& c) { access::read(c); access::move(c); }
+      struct rvalue_reference<C> {
+        using type = decltype(access::move(declval<const C&>()));
+      };
+
+      template <class C>
+      using rvalue_reference_t = meta::_t<rvalue_reference<C>>;
 
       template <class I>
       requires
-        requires(I&& i) { STL2_DEDUCE_AUTO_REF_REF(((I&&)i).pos()); }
+        requires(I&& i) {
+          STL2_DEDUCE_AUTO_REF_REF(static_cast<I&&>(i).pos());
+        }
       static constexpr auto&& cursor(I&& i)
-      STL2_NOEXCEPT_RETURN(__stl2::forward<I>(i).pos())
+      STL2_NOEXCEPT_RETURN(static_cast<I&&>(i).pos())
     };
 
     template <class C>
@@ -231,6 +244,10 @@ STL2_OPEN_NAMESPACE {
     template <class C>
     concept bool Prev() {
       return requires(C& c) { access::prev(c); };
+    }
+    template <class C>
+    concept bool Move() {
+      return requires(const C& c) { access::move(c); };
     }
     template <class C>
     concept bool Advance() {
@@ -360,20 +377,11 @@ STL2_OPEN_NAMESPACE {
         return value_;
       }
       template <class T>
-      requires Writable<I, T>()
-      constexpr void operator=(const T& x) const {
-        *it_ = x;
-      }
-      template <class T>
-      requires Writable<I, T&>() // FIXME
-      constexpr void operator=(T &x) const {
-        *it_ = x;
-      }
-      template <class T>
-      requires MoveWritable<I, T>()
-      constexpr void operator=(T &&x) const {
-        *it_ = __stl2::move(x);
-      }
+      requires Writable<I, T&&>()
+      constexpr void operator=(T&& x) const
+      STL2_NOEXCEPT_RETURN(
+        (void)(*it_ = __stl2::forward<T>(x))
+      )
       constexpr operator const I&() const noexcept {
         return it_;
       }
@@ -458,10 +466,9 @@ STL2_OPEN_NAMESPACE {
                     "type trait.");
 
       constexpr reference_t_ get_() const
-      noexcept(noexcept(reference_t_(cursor::access::read(*cur_))))
-      {
-        return cursor::access::read(*cur_);
-      }
+      STL2_NOEXCEPT_RETURN(
+        reference_t_(cursor::access::read(*cur_))
+      )
       template <class T>
       constexpr void set_(T&& t)
       STL2_NOEXCEPT_RETURN(
@@ -748,12 +755,16 @@ STL2_OPEN_NAMESPACE {
       return *(*this + n);
     }
 
+    // iter_move must be a template to workaround
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
+    template <int=42>
     friend constexpr decltype(auto) iter_move(const basic_iterator& i)
     noexcept(noexcept(cursor::access::move(i.pos())))
-    requires cursor::Readable<C>()
+    requires cursor::Readable<C>() && cursor::Move<C>()
     {
       return cursor::access::move(i.pos());
     }
+
 #if 0
     // FIXME: I'd like for non-Readable cursors without next() to be
     // their own proxy reference type, e.g., for conforming insert
@@ -761,6 +772,7 @@ STL2_OPEN_NAMESPACE {
     template <class T>
     requires
       !Same<decay_t<T>, basic_iterator>() &&
+      !cursor::Next<C>() &&
       cursor::Writable<C, T>()
     constexpr basic_iterator& operator=(T&& t) &
     noexcept(noexcept(
