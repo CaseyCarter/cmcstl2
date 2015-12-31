@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
     template <detail::Dereferenceable R>
     requires
       requires(R&& r) {
-        STL2_DEDUCE_AUTO_REF_REF(iter_move(r));
+        STL2_DEDUCE_AUTO_REF_REF(iter_move(static_cast<R&&>(r)));
       }
     constexpr bool has_customization<R> = true;
 
@@ -78,9 +78,8 @@ STL2_OPEN_NAMESPACE {
         has_customization<R>
       constexpr decltype(auto) operator()(R&& r) const
       STL2_NOEXCEPT_RETURN(
-        iter_move(__stl2::forward<R>(r))
+        iter_move(static_cast<R&&>(r))
       )
-
 
       template <class R,
         class Result = __iter_move_t<remove_reference_t<R>>>
