@@ -28,9 +28,16 @@ class forward_list {
     node(const node&) = delete;
   };
 
+  template <bool IsConst>
   class cursor {
   public:
+    template <bool> friend class cursor;
+
     cursor() = default;
+    template <bool B>
+    requires IsConst && !B
+    cursor(cursor<B> that) noexcept
+    : ptr_{that.ptr_} {}
 
     struct mixin : protected stl2::basic_mixin<cursor> {
       mixin() = default;
@@ -40,7 +47,9 @@ class forward_list {
       {}
     };
 
-    constexpr T& read() const noexcept { return ptr_->data_; }
+    constexpr meta::if_c<IsConst, const T, T>& read() const noexcept {
+      return ptr_->data_;
+    }
     constexpr void next() noexcept { ptr_ = ptr_->next_.get(); }
     constexpr bool equal(stl2::default_sentinel) const noexcept { return !ptr_; }
     constexpr bool equal(const cursor& that) const noexcept { return ptr_ == that.ptr_; }
@@ -57,7 +66,8 @@ class forward_list {
 
 public:
   using value_type = T;
-  using iterator = stl2::basic_iterator<cursor>;
+  using iterator = stl2::basic_iterator<cursor<false>>;
+  using const_iterator = stl2::basic_iterator<cursor<true>>;
 
   forward_list() = default;
   forward_list(std::initializer_list<T> il)
@@ -65,7 +75,12 @@ public:
     stl2::copy(stl2::rbegin(il), stl2::rend(il), stl2::front_inserter(*this));
   }
 
-  constexpr iterator begin() noexcept { return {cursor{head_.get()}}; }
+  constexpr iterator begin() noexcept {
+    return {cursor<false>{head_.get()}};
+  }
+  constexpr const_iterator begin() const noexcept {
+    return {cursor<true>{head_.get()}};
+  }
   constexpr stl2::default_sentinel end() const noexcept { return {}; }
 
   template <class...Args>
@@ -103,15 +118,14 @@ public:
 
   template <class U = T>
   requires stl2::Same<T, U>()
-  void write(const U& t) {
-    *os_ << t;
+  void write(const U& u) {
+    *os_ << u;
     delimit();
   }
 
-  stl2::ext::StreamInsertable{U}
-  void write(const U& u)
+  template <stl2::ext::StreamInsertable U>
   requires stl2::Same<T, void>()
-  {
+  void write(const U& u) {
     *os_ << u;
     delimit();
   }
@@ -129,6 +143,9 @@ private:
 
 template <class T = void>
 using ostream_iterator = stl2::basic_iterator<ostream_cursor<T>>;
+static_assert(stl2::models::Same<
+  stl2::reference_t<ostream_iterator<>>,
+  ostream_iterator<>&>);
 
 template <class T>
 class pointer_cursor {
@@ -373,6 +390,7 @@ void test_fl() {
   CHECK(noexcept(I{} == I{}));
   CHECK(noexcept(stl2::front_inserter(list)));
   CHECK(sizeof(I) == sizeof(void*));
+  stl2::cbegin(list) = stl2::begin(list);
 }
 
 void test_rv() {
@@ -503,10 +521,10 @@ void test_back_inserter() {
   using I = decltype(i);
   static_assert(stl2::models::WeaklyIncrementable<I>);
   static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
-  // FIXME: static_assert(!stl2::models::Readable<I>);
-  // FIXME: static_assert(stl2::models::Same<stl2::reference_t<I>, I&>);
+  static_assert(stl2::models::Same<stl2::reference_t<I>, I&>);
+  static_assert(!stl2::models::Readable<I>);
   static_assert(stl2::models::OutputIterator<I, int>);
-  // FIXME: static_assert(!stl2::models::InputIterator<I>);
+  static_assert(!stl2::models::InputIterator<I>);
   static_assert(!stl2::models::EqualityComparable<I>);
   stl2::copy_n(always_iterator<int, 42>{}, 13, i);
   CHECK(vec.size() == 13u);

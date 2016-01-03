@@ -637,18 +637,27 @@ STL2_OPEN_NAMESPACE {
 
     constexpr decltype(auto) operator*() const
     noexcept(noexcept(cursor::access::read(declval<const C&>())))
+    requires cursor::Readable<C>() && !detail::is_writable<C>
     {
       return cursor::access::read(get());
     }
-    constexpr decltype(auto) operator*() noexcept
-    requires detail::is_writable<C>
+    constexpr decltype(auto) operator*()
+    noexcept(noexcept(reference_t{declval<mixin_t&>().get()}))
+    requires cursor::Next<C>() && detail::is_writable<C>
     {
       return reference_t{get()};
     }
-    constexpr decltype(auto) operator*() const noexcept
-    requires detail::is_writable<C>
+    constexpr decltype(auto) operator*() const
+    noexcept(noexcept(
+      const_reference_t{declval<const mixin_t&>().get()}))
+    requires cursor::Next<C>() && detail::is_writable<C>
     {
       return const_reference_t{get()};
+    }
+    constexpr basic_iterator& operator*() noexcept
+    requires !cursor::Next<C>()
+    {
+      return *this;
     }
 
     constexpr decltype(auto) operator->() const
@@ -658,15 +667,10 @@ STL2_OPEN_NAMESPACE {
       return cursor::access::arrow(get());
     }
 
-#if 0
-    // FIXME: I'd like for non-Readable cursors without next() to be
-    // their own proxy reference type, e.g., for conforming insert
-    // iterators.
     template <class T>
     requires
       !Same<decay_t<T>, basic_iterator>() &&
       !cursor::Next<C>() &&
-      !cursor::Readable<C>() &&
       cursor::Writable<C, T>()
     constexpr basic_iterator& operator=(T&& t) &
     noexcept(noexcept(
@@ -675,7 +679,6 @@ STL2_OPEN_NAMESPACE {
       cursor::access::write(get(), static_cast<T&&>(t));
       return *this;
     }
-#endif
 
     // iter_move must be a template to workaround
     // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
