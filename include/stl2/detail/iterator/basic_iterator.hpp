@@ -25,8 +25,10 @@
 
 // TODO:
 // * Adapt the operator-> proxy from common_iterator.
-// * Determine if the code complexity incurred by not having basic_sentinel in the
-//   design is actually enabling anything useful.
+// * Think long and hard about the various proxies and reference
+//   validity requirements.
+// * Determine if the code complexity incurred by not having
+//   basic_sentinel in the design is actually enabling anything useful.
 
 STL2_OPEN_NAMESPACE {
   template <Destructible T>

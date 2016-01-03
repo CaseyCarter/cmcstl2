@@ -38,14 +38,15 @@ int main() {
   static_assert(models::Iterator<I>);
   static_assert(models::Same<reference_t<I>, I&>);
   static_assert(models::OutputIterator<I, const int&>);
+  static_assert(!models::InputIterator<I>);
 
   I i{ss, " "};
   static_assert(models::Same<I::difference_type, std::ptrdiff_t>);
   static_assert(models::Same<I::char_type, char>);
   static_assert(models::Same<I::traits_type, std::char_traits<char>>);
   static_assert(models::Same<I::ostream_type, std::ostream>);
-  static_assert(models::Same<I&, decltype(*i)>);
 
+  static_assert(models::Same<I&, decltype(*i)>);
   static_assert(models::Same<I&, decltype(*i = 42)>);
   static_assert(models::Same<I&, decltype(++i)>);
   static_assert(models::Same<I, decltype(i++)>);

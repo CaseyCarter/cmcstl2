@@ -26,16 +26,17 @@
 #include <stl2/detail/iterator/default_sentinel.hpp>
 
 STL2_OPEN_NAMESPACE {
-  // Not to spec: DefaultConstructible, CopyConstructible,
-  // SignedIntegral and StreamExtractable requirements are implicit.
   namespace detail {
+    ///////////////////////////////////////////////////////////////////////////
+    // istream_cursor [Implementation detail]
+    //
     template <class T, class charT = char,
               class traits = std::char_traits<charT>,
               SignedIntegral Distance = std::ptrdiff_t>
     requires
       models::DefaultConstructible<T> &&
       models::CopyConstructible<T> &&
-      models::StreamExtractable<T>
+      models::StreamExtractable<T, std::basic_istream<charT, traits>>
     class istream_cursor : semiregular_box<T> {
       using box_t = semiregular_box<T>;
     public:
@@ -45,6 +46,8 @@ STL2_OPEN_NAMESPACE {
       using single_pass = true_type;
 
       struct mixin : protected ebo_box<istream_cursor> {
+        using difference_type = istream_cursor::difference_type;
+        using iterator_category = input_iterator_tag;
         using value_type = T;
         using reference = const T&;
         using pointer = const T*;
@@ -97,13 +100,20 @@ STL2_OPEN_NAMESPACE {
     };
   }
 
-  template <class T>
+  ///////////////////////////////////////////////////////////////////////////
+  // istream_iterator [iterator.istream]
+  // Not to spec:
+  // * DefaultConstructible, CopyConstructible, SignedIntegral and
+  //   StreamExtractable requirements are implicit.
+  // * operator++(int) returns a proxy type instead of istream_iterator.
+  //
+  template <class T, class charT = char, class traits = std::char_traits<charT>>
   requires
     models::DefaultConstructible<T> &&
     models::CopyConstructible<T> &&
-    models::StreamExtractable<T>
+    models::StreamExtractable<T, std::basic_istream<charT, traits>>
   using istream_iterator =
-    basic_iterator<detail::istream_cursor<T>>;
+    basic_iterator<detail::istream_cursor<T, charT, traits>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

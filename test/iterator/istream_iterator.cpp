@@ -28,15 +28,63 @@ struct Int {
 int main() {
   {
     using I = istream_iterator<int>;
-    static_assert(is_same<difference_type_t<I>, std::ptrdiff_t>());
-    static_assert(is_same<value_type_t<I>, int>());
-    static_assert(is_same<reference_t<I>, const int&>());
-    static_assert(is_same<rvalue_reference_t<I>, const int&&>());
+    static_assert(models::WeaklyIncrementable<I>);
+    static_assert(models::Same<difference_type_t<I>, std::ptrdiff_t>);
+    static_assert(models::Readable<I>);
+    static_assert(models::Same<value_type_t<I>, int>);
+    static_assert(models::Same<reference_t<I>, const int&>);
+    static_assert(models::Same<rvalue_reference_t<I>, const int&&>);
+    static_assert(models::Iterator<I>);
     static_assert(models::InputIterator<I>);
     static_assert(!models::ForwardIterator<I>);
 
+    static_assert(models::Sentinel<I, I>);
     static_assert(models::Sentinel<default_sentinel, I>);
-    static_assert(is_same<I, common_type_t<I, default_sentinel>>());
+    static_assert(models::Common<default_sentinel, I>);
+    static_assert(models::Same<I, common_type_t<I, default_sentinel>>);
+
+    static_assert(models::Same<I::difference_type, std::ptrdiff_t>);
+    static_assert(models::Same<I::iterator_category, input_iterator_tag>);
+    static_assert(models::Same<I::value_type, int>);
+    static_assert(models::Same<I::reference, const int&>);
+    static_assert(models::Same<I::pointer, const int*>);
+    static_assert(models::Same<I::char_type, char>);
+    static_assert(models::Same<I::traits_type, std::char_traits<char>>);
+    static_assert(models::Same<I::istream_type, std::istream>);
+
+    I{};
+    I{default_sentinel{}};
+    std::istringstream is("42 13");
+    I i{is};
+    I{i};
+    static_assert(is_trivially_copy_constructible<I>());
+
+    static_assert(models::Same<const int&, decltype(*i)>);
+    CHECK(*i == 42);
+    static_assert(models::Same<const int*, decltype(i.operator->())>);
+    CHECK(&*i == i.operator->());
+    static_assert(models::Same<I&, decltype(++i)>);
+    CHECK(&++i == &i);
+    CHECK(*i == 13);
+#if 0 // FIXME
+    static_assert(models::Same<I, decltype(i++)>);
+    { I j{i}; CHECK(j == i++); }
+#else
+    i++;
+#endif
+
+    static_assert(models::Same<bool, decltype(i == i)>);
+    CHECK(i == i);
+    static_assert(models::Same<bool, decltype(default_sentinel{} == i)>);
+    CHECK(default_sentinel{} == i);
+    static_assert(models::Same<bool, decltype(i == default_sentinel{})>);
+    CHECK(i == default_sentinel{});
+    static_assert(models::Same<bool, decltype(i != i)>);
+    CHECK(!(i != i));
+    static_assert(models::Same<bool, decltype(default_sentinel{} != i)>);
+    CHECK(!(default_sentinel{} != i));
+    static_assert(models::Same<bool, decltype(i != default_sentinel{})>);
+    CHECK(!(i != default_sentinel{}));
   }
   {
     std::istringstream is("5 4 3 2 1 0");
