@@ -102,52 +102,6 @@ public:
 };
 
 template <class T>
-  requires stl2::Same<T, void>() || stl2::ext::StreamInsertable<T>
-class ostream_cursor {
-public:
-  struct mixin : protected stl2::detail::ebo_box<ostream_cursor> {
-    mixin() = default;
-    using mixin::ebo_box::ebo_box;
-  };
-
-  constexpr ostream_cursor() noexcept = default;
-  constexpr ostream_cursor(std::ostream& os, const char* delimiter = nullptr)
-  noexcept
-  : os_{&os}, delimiter_{delimiter}
-  {}
-
-  template <class U = T>
-  requires stl2::Same<T, U>()
-  void write(const U& u) {
-    *os_ << u;
-    delimit();
-  }
-
-  template <stl2::ext::StreamInsertable U>
-  requires stl2::Same<T, void>()
-  void write(const U& u) {
-    *os_ << u;
-    delimit();
-  }
-
-private:
-  stl2::detail::raw_ptr<std::ostream> os_ = nullptr;
-  const char* delimiter_ = nullptr;
-
-  void delimit() const {
-    if (delimiter_) {
-      *os_ << delimiter_;
-    }
-  }
-};
-
-template <class T = void>
-using ostream_iterator = stl2::basic_iterator<ostream_cursor<T>>;
-static_assert(stl2::models::Same<
-  stl2::reference_t<ostream_iterator<>>,
-  ostream_iterator<>&>);
-
-template <class T>
 class pointer_cursor {
 public:
   using contiguous = stl2::true_type;
@@ -415,7 +369,7 @@ void test_rv() {
   }
   std::cout << '\n';
 
-  stl2::copy_n(rv.begin(), 13, ::ostream_iterator<>{std::cout, " "});
+  stl2::copy_n(rv.begin(), 13, stl2::ostream_iterator<>{std::cout, " "});
   std::cout << '\n';
   CHECK(rv.begin() != rv.end());
   CHECK(!(rv.begin() == rv.end()));
@@ -477,7 +431,7 @@ void test_counted() {
   CHECK((last - first) == 4);
   static_assert(stl2::models::SizedSentinel<stl2::default_sentinel, I>);
   CHECK((stl2::default_sentinel{} - first) == 4);
-  auto out = ::ostream_iterator<>{std::cout, " "};
+  auto out = stl2::ostream_iterator<>{std::cout, " "};
   stl2::copy(first, last, out);
   std::cout << '\n';
   stl2::copy(first, stl2::default_sentinel{}, out);
@@ -506,7 +460,7 @@ void test_always() {
   static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, int>);
   static_assert(stl2::models::RandomAccessIterator<I>);
   CHECK(I{} == I{});
-  stl2::copy_n(i, 13, ::ostream_iterator<>{std::cout, " "});
+  stl2::copy_n(i, 13, stl2::ostream_iterator<>{std::cout, " "});
   std::cout << '\n';
   CHECK(*i == 42);
   CHECK(*(i + 42) == 42);

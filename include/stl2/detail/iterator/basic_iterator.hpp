@@ -701,14 +701,10 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
 
-    constexpr basic_iterator& operator++(int) & noexcept {
-      return *this;
-    }
     constexpr postfix_increment_result_t operator++(int) &
     noexcept(is_nothrow_constructible<postfix_increment_result_t, basic_iterator&>::value &&
              is_nothrow_move_constructible<postfix_increment_result_t>::value &&
              noexcept(++declval<basic_iterator&>()))
-    requires cursor::Next<C>()
     {
       postfix_increment_result_t tmp(*this);
       ++*this;

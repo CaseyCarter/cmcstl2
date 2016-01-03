@@ -15,118 +15,77 @@
 #include <iosfwd>
 #include <string>
 #include <stl2/type_traits.hpp>
+#include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iostream/concepts.hpp>
+#include <stl2/detail/iterator/basic_iterator.hpp>
 
 STL2_OPEN_NAMESPACE {
   namespace detail {
     ///////////////////////////////////////////////////////////////////////////
-    // ostream_iterator_base
-    // Common base class for ostream_iterator<T> and ostream_iterator<void>
+    // ostream_cursor [Implementation detail]
     //
-    template <class Derived, class charT, class traits>
-    class ostream_iterator_base {
+    template <class T, class charT, class traits>
+    requires
+      models::Same<T, void> ||
+      models::StreamInsertable<T, std::basic_ostream<charT, traits>>
+    class ostream_cursor {
     public:
-      using iterator_category = output_iterator_tag;
-      using difference_type = std::ptrdiff_t;
-      using char_type = charT;
-      using traits_type = traits;
       using ostream_type = std::basic_ostream<charT, traits>;
+      struct mixin : protected ebo_box<ostream_cursor> {
+        using difference_type = std::ptrdiff_t;
+        using char_type = charT;
+        using traits_type = traits;
+        using ostream_type = ostream_cursor::ostream_type;
 
-      ostream_iterator_base() noexcept = default;
+        mixin() = default;
+        using ebo_box<ostream_cursor>::ebo_box;
+      };
 
-      STL2_CONSTEXPR_EXT
-      ostream_iterator_base(ostream_type& s) noexcept :
-        stream_{&s} {}
+      constexpr ostream_cursor() noexcept = default;
+      STL2_CONSTEXPR_EXT ostream_cursor(
+        ostream_type& os, const char* delimiter = nullptr)
+      noexcept
+      : os_{&os}, delimiter_{delimiter}
+      {}
 
-      STL2_CONSTEXPR_EXT
-      ostream_iterator_base(ostream_type& s, const charT* delimiter) noexcept :
-        stream_{&s}, delimiter_{delimiter} {}
-
-      STL2_CONSTEXPR_EXT
-      Derived& operator*() noexcept {
-        return derived();
+      template <class U = T>
+      requires Same<T, U>()
+      STL2_CONSTEXPR_EXT void write(const U& u) {
+        *os_ << u;
+        delimit();
       }
 
-      STL2_CONSTEXPR_EXT
-      Derived& operator++() & noexcept {
-        return derived();
-      }
-
-      STL2_CONSTEXPR_EXT
-      Derived operator++(int) &
-        noexcept(is_nothrow_copy_constructible<Derived>::value)
-      {
-        return derived();
-      }
-
-    protected:
-      raw_ptr<ostream_type> stream_ = nullptr;
-      const char* delimiter_ = nullptr;
-
-      void delimit() {
-        if (delimiter_) {
-          *stream_ << delimiter_;
-        }
+      template <ext::StreamInsertable<ostream_type> U>
+      requires Same<T, void>()
+      STL2_CONSTEXPR_EXT void write(const U& u) {
+        *os_ << u;
+        delimit();
       }
 
     private:
-      constexpr Derived& derived() noexcept {
-        static_assert(models::DerivedFrom<Derived, ostream_iterator_base>);
-        return static_cast<Derived&>(*this);
+      raw_ptr<ostream_type> os_ = nullptr;
+      const char* delimiter_ = nullptr;
+
+      STL2_CONSTEXPR_EXT void delimit() {
+        if (delimiter_) {
+          *os_ << delimiter_;
+        }
       }
     };
   }
 
   ///////////////////////////////////////////////////////////////////////////
   // ostream_iterator [ostream.iterator]
-  // Not to spec: StreamInsertable requirement is implicit.
+  // Extension: ostream_iterator<void> accepts any streamable type.
   //
   template <class T = void, class charT = char,
     class traits = std::char_traits<charT>>
-    requires Same<T, void>() || ext::StreamInsertable<T>
-  class ostream_iterator :
-    public detail::ostream_iterator_base<
-      ostream_iterator<T, charT, traits>, charT, traits>
-  {
-    using base_t = typename ostream_iterator::ostream_iterator_base;
-    using base_t::delimit;
-    using base_t::stream_;
-  public:
-    constexpr ostream_iterator() = default;
-    using base_t::base_t;
-
-    ostream_iterator& operator=(const T& t) & {
-      *stream_ << t;
-      delimit();
-      return *this;
-    }
-  };
-
-  ///////////////////////////////////////////////////////////////////////////
-  // ostream_iterator<void> [Extension]
-  //
-  template <class charT, class traits>
-  class ostream_iterator<void, charT, traits> :
-    public detail::ostream_iterator_base<
-      ostream_iterator<void, charT, traits>, charT, traits>
-  {
-    using base_t = typename ostream_iterator::ostream_iterator_base;
-    using base_t::delimit;
-    using base_t::stream_;
-  public:
-    constexpr ostream_iterator() = default;
-    using base_t::base_t;
-
-    ostream_iterator& operator=(const ext::StreamInsertable& t) & {
-      *stream_ << t;
-      delimit();
-      return *this;
-    }
-  };
+  using ostream_iterator =
+    basic_iterator<detail::ostream_cursor<T, charT, traits>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

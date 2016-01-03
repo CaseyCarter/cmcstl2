@@ -44,24 +44,24 @@ STL2_OPEN_NAMESPACE {
   // StreamInsertable [Extension]
   //
   namespace ext {
-    template <class T>
+    template <class T, class Stream = std::basic_ostream<char, std::char_traits<char>>>
     constexpr bool __stream_insertable = false;
-    template <class T>
-      requires requires (std::ostream& os, const T& t) {
-        STL2_EXACT_TYPE_CONSTRAINT(os << t, std::ostream&);
+    template <class T, class Stream>
+      requires requires (Stream& os, const T& t) {
+        STL2_EXACT_TYPE_CONSTRAINT(os << t, Stream&);
         // Axiom: &os == &(os << t)
       }
-    constexpr bool __stream_insertable<T> = true;
+    constexpr bool __stream_insertable<T, Stream> = true;
 
-    template <class T>
-    concept bool StreamInsertable = __stream_insertable<T>;
+    template <class T, class Stream = std::basic_ostream<char, std::char_traits<char>>>
+    concept bool StreamInsertable = __stream_insertable<T, Stream>;
   }
 
   namespace models {
-    template <class>
+    template <class, class Stream = std::basic_ostream<char, std::char_traits<char>>>
     constexpr bool StreamInsertable = false;
-    __stl2::ext::StreamInsertable{T}
-    constexpr bool StreamInsertable<T> = true;
+    __stl2::ext::StreamInsertable{T, Stream}
+    constexpr bool StreamInsertable<T, Stream> = true;
   }
 } STL2_CLOSE_NAMESPACE
 
