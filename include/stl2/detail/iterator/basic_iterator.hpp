@@ -722,7 +722,7 @@ STL2_OPEN_NAMESPACE {
     {
       auto tmp = *this;
       --*this;
-      return *this;
+      return tmp;
     }
 
     constexpr basic_iterator& operator+=(difference_type n) &

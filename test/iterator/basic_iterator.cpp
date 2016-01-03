@@ -336,6 +336,7 @@ std::ostream& operator<<(std::ostream& os, R&& rng) {
 }
 
 void test_fl() {
+  std::cout << "test_fl:\n";
   ::forward_list<int> list = {0, 1, 2, 3};
   using Rng = decltype(list);
   using I = decltype(list.begin());
@@ -375,6 +376,7 @@ void test_fl() {
 }
 
 void test_rv() {
+  std::cout << "test_rv:\n";
   stl2::repeat_view<int> rv{42};
 
   using Rng = decltype(rv);
@@ -411,6 +413,8 @@ void test_rv() {
 }
 
 void test_array() {
+  std::cout << "test_array:\n";
+
   ::array<int, 13> a;
 
   using Rng = decltype(a);
@@ -434,6 +438,7 @@ void test_array() {
 }
 
 void test_counted() {
+  std::cout << "test_counted:\n";
   int some_ints[] = {0,1,2,3};
   using I = my_counted_iterator<const int*>;
   static_assert(stl2::models::WeaklyIncrementable<I>);
@@ -459,9 +464,17 @@ void test_counted() {
   std::cout << '\n';
   stl2::copy(first, stl2::default_sentinel{}, out);
   std::cout << '\n';
-}
+
+  auto second = first + 1;
+  CHECK(*first == 0);
+  CHECK(*second == 1);
+  CHECK(*++first == 1);
+  CHECK(*first-- == 1);
+  CHECK(*first == 0);
+ }
 
 void test_always() {
+  std::cout << "test_always:\n";
   // Iterates over life, the universe, and everything.
   auto i = always_iterator<int, 42>{};
   using I = decltype(i);
@@ -484,6 +497,7 @@ void test_always() {
 }
 
 void test_back_inserter() {
+  std::cout << "test_back_inserter:\n";
   auto vec = std::vector<int>{};
   auto i = stl2::back_inserter(vec);
   using I = decltype(i);
