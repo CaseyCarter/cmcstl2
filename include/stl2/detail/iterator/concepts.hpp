@@ -110,8 +110,6 @@ STL2_OPEN_NAMESPACE {
   // 20150715: Not to spec for various reasons:
   // * Resolves the ambiguity for a class with both members value_type
   //   and element_type in favor of value_type.
-  // * Defaults to decay_t<reference_t<T>> when neither value_type
-  //   nor element_type are present.
   //
   namespace detail {
     template <class T>
@@ -132,21 +130,29 @@ STL2_OPEN_NAMESPACE {
   template <class>
   struct value_type {};
 
-  detail::MemberValueType{T}
+  template <class T>
+  requires
+    detail::IsValueType<remove_cv_t<T>>
+  struct value_type<T*> {
+    using type = remove_cv_t<T>;
+  };
+
+  template <_Is<is_array> T>
+  struct value_type<T> : value_type<decay_t<T>> {};
+
+  template <detail::MemberValueType T>
+  requires
+    detail::IsValueType<typename T::value_type>
   struct value_type<T> {
     using type = typename T::value_type;
   };
 
   template <detail::MemberElementType T>
-    requires !detail::MemberValueType<T>
+  requires
+    !detail::MemberValueType<T> &&
+    detail::IsValueType<typename T::element_type>
   struct value_type<T> {
     using type = typename T::element_type;
-  };
-
-  template <detail::Dereferenceable T>
-    requires !(detail::MemberElementType<T> || detail::MemberValueType<T>)
-  struct value_type<T> {
-    using type = decay_t<reference_t<T>>;
   };
 
   ///////////////////////////////////////////////////////////////////////////

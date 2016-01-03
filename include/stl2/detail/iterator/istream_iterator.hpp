@@ -40,6 +40,7 @@ STL2_OPEN_NAMESPACE {
       using box_t = semiregular_box<T>;
     public:
       using difference_type = Distance;
+      using value_type = T;
       using istream_type = std::basic_istream<charT, traits>;
       using single_pass = true_type;
 
