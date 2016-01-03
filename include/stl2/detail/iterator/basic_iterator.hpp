@@ -219,10 +219,10 @@ STL2_OPEN_NAMESPACE {
       template <class I>
       requires
         requires(I&& i) {
-          STL2_DEDUCE_AUTO_REF_REF(static_cast<I&&>(i).pos());
+          STL2_DEDUCE_AUTO_REF_REF(static_cast<I&&>(i).get());
         }
       static constexpr auto&& cursor(I&& i)
-      STL2_NOEXCEPT_RETURN(static_cast<I&&>(i).pos())
+      STL2_NOEXCEPT_RETURN(static_cast<I&&>(i).get())
     };
 
     template <class C>
@@ -499,6 +499,7 @@ STL2_OPEN_NAMESPACE {
         this->set_(that.get_());
         return *this;
       }
+
       template <class OtherCur>
       requires
         cursor::Readable<OtherCur>() &&
@@ -603,21 +604,12 @@ STL2_OPEN_NAMESPACE {
   {
     friend cursor::access;
     using mixin_t = cursor::access::mixin_t<C>;
+    using mixin_t::get;
 
     using assoc_t = detail::iterator_associated_types_base<C>;
     using typename assoc_t::postfix_increment_result_t;
     using typename assoc_t::reference_t;
     using typename assoc_t::const_reference_t;
-
-    constexpr C& pos() &
-    noexcept(noexcept(declval<mixin_t&>().get()))
-    { return mixin_t::get(); }
-    constexpr const C& pos() const&
-    noexcept(noexcept(declval<const mixin_t&>().get()))
-    { return mixin_t::get(); }
-    constexpr C&& pos() &&
-    noexcept(noexcept(declval<mixin_t&>().get()))
-    { return __stl2::move(mixin_t::get()); }
 
   public:
     using difference_type = cursor::difference_type_t<C>;
@@ -626,31 +618,31 @@ STL2_OPEN_NAMESPACE {
     template <ConvertibleTo<C> O>
     constexpr basic_iterator(basic_iterator<O> that)
     noexcept(is_nothrow_constructible<mixin_t, O&&>::value)
-    : mixin_t(__stl2::move(that).pos())
+      : mixin_t(cursor::access::cursor(__stl2::move(that)))
     {}
     using mixin_t::mixin_t;
 
     constexpr decltype(auto) operator*() const
     noexcept(noexcept(cursor::access::read(declval<const C&>())))
     {
-      return cursor::access::read(pos());
+      return cursor::access::read(get());
     }
     constexpr decltype(auto) operator*() noexcept
     requires detail::is_writable<C>
     {
-      return reference_t{pos()};
+      return reference_t{get()};
     }
     constexpr decltype(auto) operator*() const noexcept
     requires detail::is_writable<C>
     {
-      return const_reference_t{pos()};
+      return const_reference_t{get()};
     }
 
     constexpr decltype(auto) operator->() const
     noexcept(noexcept(cursor::access::arrow(declval<const C&>())))
     requires cursor::Arrow<const C>()
     {
-      return cursor::access::arrow(pos());
+      return cursor::access::arrow(get());
     }
 
 #if 0
@@ -667,7 +659,7 @@ STL2_OPEN_NAMESPACE {
     noexcept(noexcept(
       cursor::access::write(declval<C&>(), __stl2::forward<T>(t))))
     {
-      cursor::access::write(pos(), __stl2::forward<T>(t));
+      cursor::access::write(get(), __stl2::forward<T>(t));
       return *this;
     }
 #endif
@@ -676,10 +668,10 @@ STL2_OPEN_NAMESPACE {
     // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
     template <int=42>
     friend constexpr decltype(auto) iter_move(const basic_iterator& i)
-    noexcept(noexcept(cursor::access::move(i.pos())))
+    noexcept(noexcept(cursor::access::move(i.get())))
     requires cursor::Readable<C>() && cursor::Move<C>()
     {
-      return cursor::access::move(i.pos());
+      return cursor::access::move(i.get());
     }
 
     constexpr basic_iterator& operator++() & noexcept {
@@ -689,7 +681,7 @@ STL2_OPEN_NAMESPACE {
     noexcept(noexcept(cursor::access::next(declval<C&>())))
     requires cursor::Next<C>()
     {
-      cursor::access::next(pos());
+      cursor::access::next(get());
       return *this;
     }
 
@@ -711,7 +703,7 @@ STL2_OPEN_NAMESPACE {
     noexcept(noexcept(cursor::access::prev(declval<C&>())))
     requires cursor::Bidirectional<C>()
     {
-      cursor::access::prev(pos());
+      cursor::access::prev(get());
       return *this;
     }
     constexpr basic_iterator operator--(int) &
@@ -729,14 +721,14 @@ STL2_OPEN_NAMESPACE {
     noexcept(noexcept(cursor::access::advance(declval<C&>(), n)))
     requires cursor::RandomAccess<C>()
     {
-      cursor::access::advance(pos(), n);
+      cursor::access::advance(get(), n);
       return *this;
     }
     constexpr basic_iterator& operator-=(difference_type n) &
     noexcept(noexcept(cursor::access::advance(declval<C&>(), -n)))
     requires cursor::RandomAccess<C>()
     {
-      cursor::access::advance(pos(), -n);
+      cursor::access::advance(get(), -n);
       return *this;
     }
 
@@ -748,7 +740,7 @@ STL2_OPEN_NAMESPACE {
     requires cursor::RandomAccess<C>()
     {
       auto tmp = i;
-      cursor::access::advance(tmp.pos(), n);
+      cursor::access::advance(tmp.get(), n);
       return tmp;
     }
     friend constexpr basic_iterator
