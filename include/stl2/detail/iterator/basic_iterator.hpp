@@ -106,6 +106,8 @@ STL2_OPEN_NAMESPACE {
       template <detail::MemberDifferenceType C>
       struct difference_type<C> {
         using type = typename C::difference_type;
+        static_assert(models::SignedIntegral<type>,
+          "Cursor's member difference_type is not a signed integer type.");
       };
       template <class C>
       requires
@@ -113,6 +115,8 @@ STL2_OPEN_NAMESPACE {
         requires(const C& lhs, const C& rhs) { rhs.distance_to(lhs); }
       struct difference_type<C> {
         using type = decltype(declval<const C&>().distance_to(declval<const C&>()));
+        static_assert(models::SignedIntegral<type>,
+          "Return type of Cursor's member distance_to is not a signed integer type.");
       };
       template <class C>
       requires
@@ -124,6 +128,8 @@ STL2_OPEN_NAMESPACE {
       template <detail::MemberValueType C>
       struct value_type<C> {
         using type = typename C::value_type;
+        static_assert(detail::IsValueType<type>,
+          "Cursor's member value_type is not a value type.");
       };
       template <class C>
       requires
@@ -131,10 +137,12 @@ STL2_OPEN_NAMESPACE {
         requires { typename reference_t<C>; }
       struct value_type<C> {
         using type = decay_t<reference_t<C>>;
+        static_assert(detail::IsValueType<type>,
+          "Cursor's reference_t does not decay to a value type.");
       };
       template <class C>
       requires
-        Same<meta::_t<value_type<C>>, decay_t<meta::_t<value_type<C>>>>()
+        detail::IsValueType<meta::_t<value_type<C>>>
       using value_type_t = meta::_t<value_type<C>>;
 
       template <class C>
@@ -616,9 +624,14 @@ STL2_OPEN_NAMESPACE {
 
     basic_iterator() = default;
     template <ConvertibleTo<C> O>
-    constexpr basic_iterator(basic_iterator<O> that)
+    constexpr basic_iterator(basic_iterator<O>&& that)
     noexcept(is_nothrow_constructible<mixin_t, O&&>::value)
       : mixin_t(cursor::access::cursor(__stl2::move(that)))
+    {}
+    template <ConvertibleTo<C> O>
+    constexpr basic_iterator(const basic_iterator<O>& that)
+    noexcept(is_nothrow_constructible<mixin_t, const O&>::value)
+      : mixin_t(cursor::access::cursor(that))
     {}
     using mixin_t::mixin_t;
 
@@ -640,7 +653,7 @@ STL2_OPEN_NAMESPACE {
 
     constexpr decltype(auto) operator->() const
     noexcept(noexcept(cursor::access::arrow(declval<const C&>())))
-    requires cursor::Arrow<const C>()
+    requires cursor::Readable<C>() && cursor::Arrow<const C>()
     {
       return cursor::access::arrow(get());
     }
@@ -657,9 +670,9 @@ STL2_OPEN_NAMESPACE {
       cursor::Writable<C, T>()
     constexpr basic_iterator& operator=(T&& t) &
     noexcept(noexcept(
-      cursor::access::write(declval<C&>(), __stl2::forward<T>(t))))
+      cursor::access::write(declval<C&>(), static_cast<T&&>(t))))
     {
-      cursor::access::write(get(), __stl2::forward<T>(t));
+      cursor::access::write(get(), static_cast<T&&>(t));
       return *this;
     }
 #endif
