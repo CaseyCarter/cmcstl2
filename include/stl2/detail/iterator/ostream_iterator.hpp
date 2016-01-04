@@ -84,6 +84,9 @@ STL2_OPEN_NAMESPACE {
   //
   template <class T = void, class charT = char,
     class traits = std::char_traits<charT>>
+  requires
+    models::Same<T, void> ||
+    models::StreamInsertable<T, std::basic_ostream<charT, traits>>
   using ostream_iterator =
     basic_iterator<detail::ostream_cursor<T, charT, traits>>;
 } STL2_CLOSE_NAMESPACE

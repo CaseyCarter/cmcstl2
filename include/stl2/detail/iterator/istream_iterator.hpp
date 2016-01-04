@@ -62,8 +62,7 @@ STL2_OPEN_NAMESPACE {
       constexpr istream_cursor()
       noexcept(is_nothrow_default_constructible<T>::value) = default;
 
-      istream_cursor(istream_type& s)
-      noexcept(is_nothrow_default_constructible<T>::value)
+      STL2_CONSTEXPR_EXT istream_cursor(istream_type& s)
       : stream_{&s}
       { next(); }
 
@@ -72,26 +71,22 @@ STL2_OPEN_NAMESPACE {
       : istream_cursor{}
       {}
 
-      constexpr const T& read() const noexcept {
+      STL2_CONSTEXPR_EXT const T& read() const noexcept {
         return box_t::get();
       }
 
-      STL2_CONSTEXPR_EXT const T* arrow() const noexcept {
-        return __stl2::addressof(box_t::get());
-      }
-
-      void next() {
+      STL2_CONSTEXPR_EXT void next() {
         *stream_ >> box_t::get();
         if (!*stream_) {
           stream_ = nullptr;
         }
       }
 
-      constexpr bool equal(const istream_cursor& that) const noexcept {
+      STL2_CONSTEXPR_EXT bool equal(const istream_cursor& that) const noexcept {
         return stream_ == that.stream_;
       }
 
-      constexpr bool equal(default_sentinel) const noexcept {
+      STL2_CONSTEXPR_EXT bool equal(default_sentinel) const noexcept {
         return stream_ == nullptr;
       }
 

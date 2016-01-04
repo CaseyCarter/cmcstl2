@@ -17,6 +17,7 @@
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
+#include <stl2/detail/operator_arrow.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
@@ -662,11 +663,58 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
 
-    constexpr decltype(auto) operator->() const
-    noexcept(noexcept(cursor::access::arrow(declval<const C&>())))
-    requires cursor::Readable<C>() && cursor::Arrow<const C>()
+    // operator->: "Manual" override
+    constexpr decltype(auto) operator->()
+    noexcept(noexcept(cursor::access::arrow(declval<C&>())))
+    requires
+      cursor::Readable<C>() &&
+      cursor::Arrow<C>()
     {
       return cursor::access::arrow(get());
+    }
+    constexpr decltype(auto) operator->() const
+    noexcept(noexcept(cursor::access::arrow(declval<const C&>())))
+    requires
+      cursor::Readable<C>() &&
+      cursor::Arrow<const C>()
+    {
+      return cursor::access::arrow(get());
+    }
+    // operator->: Otherwise, if reference_t is an lvalue reference,
+    //   return the address of operator*()
+    constexpr auto operator->()
+    noexcept(noexcept(*declval<basic_iterator&>()))
+    requires
+      cursor::Readable<C>() &&
+      !cursor::Arrow<C>() &&
+      !cursor::Arrow<const C>() &&
+      is_lvalue_reference<reference_t>::value
+    {
+      return __addressof::impl(**this);
+    }
+    constexpr auto operator->() const
+    noexcept(noexcept(*declval<const basic_iterator&>()))
+    requires
+      cursor::Readable<C>() &&
+      !cursor::Arrow<C>() &&
+      !cursor::Arrow<const C>() &&
+      is_lvalue_reference<const_reference_t>::value
+    {
+      return __addressof::impl(**this);
+    }
+    // operator->: Otherwise, return a proxy
+    constexpr auto operator->() const
+    noexcept(is_nothrow_move_constructible<
+               detail::operator_arrow_proxy<basic_iterator>>::value &&
+             noexcept(detail::operator_arrow_proxy<basic_iterator>{
+                        *declval<const basic_iterator&>()}))
+    requires
+      cursor::Readable<C>() &&
+      !cursor::Arrow<C>() &&
+      !cursor::Arrow<const C>() &&
+      !is_reference<const_reference_t>::value
+    {
+      return detail::operator_arrow_proxy<basic_iterator>{**this};
     }
 
     template <class T>

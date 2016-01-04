@@ -42,11 +42,6 @@ STL2_OPEN_NAMESPACE {
       constexpr reference read() const noexcept {
         return storage_t::get();
       }
-
-      constexpr auto arrow() const noexcept
-      requires !detail::cheaply_copyable<T>
-      { return __addressof::impl(storage_t::get()); }
-
       constexpr bool equal(const cursor&) const noexcept { return true; }
       constexpr void next() const noexcept {}
       constexpr void prev() const noexcept {}
@@ -59,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 
     repeat_view() = default;
     constexpr repeat_view(T value)
-      noexcept(is_nothrow_constructible<storage_t, T>::value) :
+      noexcept(is_nothrow_constructible<storage_t, T&&>::value) :
       storage_t{__stl2::move(value)} {}
 
     constexpr iterator begin() const
