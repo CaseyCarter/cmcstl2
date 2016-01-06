@@ -173,112 +173,6 @@ public:
   T elements_[N];
 };
 
-stl2::Iterator{I}
-class my_counted_cursor {
-public:
-  using difference_type = stl2::difference_type_t<I>;
-  using single_pass = meta::bool_<!stl2::models::ForwardIterator<I>>;
-  using contiguous = meta::bool_<stl2::models::ContiguousIterator<I>>;
-
-private:
-  I it_;
-  difference_type n_;
-
-public:
-  struct mixin : protected stl2::detail::ebo_box<my_counted_cursor> {
-    mixin() = default;
-    using mixin::ebo_box::ebo_box;
-
-    constexpr I base() const
-    noexcept(stl2::is_nothrow_copy_constructible<I>::value)
-    {
-      return mixin::ebo_box::get().it_;
-    }
-    constexpr difference_type count() const noexcept {
-      return mixin::ebo_box::get().n_;
-    }
-  };
-
-  constexpr my_counted_cursor()
-  noexcept(stl2::is_nothrow_default_constructible<I>::value)
-  : it_{}, n_{0} {}
-
-  constexpr my_counted_cursor(I&& it, difference_type n)
-  noexcept(stl2::is_nothrow_move_constructible<I>::value)
-  : it_(stl2::move(it)), n_{n} {}
-
-  constexpr my_counted_cursor(const I& it, difference_type n)
-  noexcept(stl2::is_nothrow_copy_constructible<I>::value)
-  : it_(it), n_{n} {}
-
-  constexpr my_counted_cursor(stl2::default_sentinel)
-  noexcept(stl2::is_nothrow_default_constructible<I>::value)
-  requires !stl2::models::BidirectionalIterator<I>
-  : it_{}, n_{0} {}
-
-  constexpr void next()
-  noexcept(noexcept(++it_))
-  {
-    ++it_;
-    --n_;
-  }
-
-  template <class T>
-  requires stl2::Writable<I, T&&>()
-  constexpr auto write(T&& t)
-  STL2_NOEXCEPT_RETURN(
-    *it_ = stl2::forward<T>(t)
-  )
-
-  constexpr decltype(auto) read() const
-  noexcept(noexcept(*it_))
-  requires stl2::InputIterator<I>()
-  {
-    return *it_;
-  }
-
-  constexpr auto equal(stl2::default_sentinel) const noexcept {
-    return n_ == 0;
-  }
-  constexpr auto equal(const my_counted_cursor<stl2::Common<I> >& that) const noexcept {
-    return n_ == that.n_;
-  }
-
-  constexpr auto prev()
-  noexcept(noexcept(--it_))
-  requires stl2::BidirectionalIterator<I>()
-  {
-    ++n_;
-    --it_;
-  }
-
-  constexpr auto advance(difference_type n)
-  noexcept(noexcept(it_ += n))
-  requires stl2::RandomAccessIterator<I>()
-  {
-    it_ += n;
-    n_ -= n;
-  }
-
-  constexpr auto distance_to(const my_counted_cursor<stl2::Common<I> >& that) const noexcept {
-    return n_ - that.n_;
-  }
-  constexpr auto distance_to(stl2::default_sentinel) const noexcept {
-    return n_;
-  }
-
-  // FIXME: test
-  constexpr decltype(auto) move() const
-  noexcept(noexcept(stl2::iter_move(it_)))
-  requires stl2::InputIterator<I>()
-  {
-    return stl2::iter_move(it_);
-  }
-};
-
-stl2::Iterator{I}
-using my_counted_iterator = stl2::basic_iterator<my_counted_cursor<I>>;
-
 template <class T, T Value>
 struct always_cursor {
   constexpr T read() const
@@ -350,8 +244,10 @@ void test_fl() {
   CHECK(noexcept(I{} == I{}));
   CHECK(noexcept(stl2::front_inserter(list)));
   CHECK(sizeof(I) == sizeof(void*));
-  { auto i = stl2::cbegin(list); i = stl2::begin(list); }
   CHECK(stl2::begin(list) == stl2::cbegin(list));
+  { auto i = stl2::cbegin(list); i = stl2::begin(list); }
+  { auto i = stl2::begin(list); i = stl2::end(list); }
+  { auto i = stl2::cbegin(list); i = stl2::end(list); }
 }
 
 void test_rv() {
@@ -438,9 +334,10 @@ void test_array() {
 }
 
 void test_counted() {
+  using stl2::counted_iterator;
   std::cout << "test_counted:\n";
   int some_ints[] = {0,1,2,3};
-  using I = my_counted_iterator<const int*>;
+  using I = counted_iterator<const int*>;
   static_assert(stl2::models::WeaklyIncrementable<I>);
   static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
   static_assert(stl2::models::Readable<I>);
@@ -474,8 +371,8 @@ void test_counted() {
   CHECK(*first == 0);
 
   {
-    auto one = my_counted_iterator<const int*>{some_ints + 1, stl2::size(some_ints) - 1};
-    auto three = my_counted_iterator<int*>{some_ints + 3, stl2::size(some_ints) - 3};
+    auto one = counted_iterator<const int*>{some_ints + 1, stl2::size(some_ints) - 1};
+    auto three = counted_iterator<int*>{some_ints + 3, stl2::size(some_ints) - 3};
     CHECK(!(one == three));
     CHECK((one != three));
     CHECK((one < three));
