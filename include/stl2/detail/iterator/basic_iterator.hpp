@@ -149,14 +149,14 @@ STL2_OPEN_NAMESPACE {
 
       template <class C>
       requires
-        requires(C& c) { c.read(); }
-      static constexpr reference_t<C> read(C& c)
+        requires(const C& c) { c.read(); }
+      static constexpr reference_t<C> read(const C& c)
       STL2_NOEXCEPT_RETURN(c.read())
 
       template <class C>
       requires
-        requires(C& c) { c.arrow(); }
-      static constexpr decltype(auto) arrow(C& c)
+        requires(const C& c) { c.arrow(); }
+      static constexpr decltype(auto) arrow(const C& c)
       STL2_NOEXCEPT_RETURN(c.arrow())
 
       template <class C, class T>
@@ -246,7 +246,7 @@ STL2_OPEN_NAMESPACE {
 
     template <class C>
     concept bool Arrow() {
-      return requires(C& c) { access::arrow(c); };
+      return requires(const C& c) { access::arrow(c); };
     }
     template <class C>
     concept bool Next() {
@@ -274,8 +274,8 @@ STL2_OPEN_NAMESPACE {
     }
     template <class C>
     concept bool Readable() {
-      return requires(C& c) {
-        typename value_type_t<remove_cv_t<C>>;
+      return requires(const C& c) {
+        typename value_type_t<C>;
         access::read(c);
       };
     }
@@ -663,40 +663,21 @@ STL2_OPEN_NAMESPACE {
     }
 
     // operator->: "Manual" override
-    constexpr decltype(auto) operator->()
-    noexcept(noexcept(cursor::access::arrow(declval<C&>())))
+    constexpr decltype(auto) operator->() const
+    noexcept(noexcept(cursor::access::arrow(declval<const C&>())))
     requires
       cursor::Readable<C>() &&
       cursor::Arrow<C>()
     {
       return cursor::access::arrow(get());
     }
-    constexpr decltype(auto) operator->() const
-    noexcept(noexcept(cursor::access::arrow(declval<const C&>())))
-    requires
-      cursor::Readable<C>() &&
-      cursor::Arrow<const C>()
-    {
-      return cursor::access::arrow(get());
-    }
     // operator->: Otherwise, if reference_t is an lvalue reference,
     //   return the address of operator*()
-    constexpr auto operator->()
-    noexcept(noexcept(*declval<basic_iterator&>()))
-    requires
-      cursor::Readable<C>() &&
-      !cursor::Arrow<C>() &&
-      !cursor::Arrow<const C>() &&
-      is_lvalue_reference<reference_t>::value
-    {
-      return __addressof::impl(**this);
-    }
     constexpr auto operator->() const
     noexcept(noexcept(*declval<const basic_iterator&>()))
     requires
       cursor::Readable<C>() &&
       !cursor::Arrow<C>() &&
-      !cursor::Arrow<const C>() &&
       is_lvalue_reference<const_reference_t>::value
     {
       return __addressof::impl(**this);
@@ -710,7 +691,6 @@ STL2_OPEN_NAMESPACE {
     requires
       cursor::Readable<C>() &&
       !cursor::Arrow<C>() &&
-      !cursor::Arrow<const C>() &&
       !is_reference<const_reference_t>::value
     {
       return detail::operator_arrow_proxy<basic_iterator>{**this};
@@ -729,7 +709,7 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
 
-    // iter_move must be a template to workaround
+    // Must be a template to workaround
     // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
     template <int=42>
     friend constexpr decltype(auto) iter_move(const basic_iterator& i)
