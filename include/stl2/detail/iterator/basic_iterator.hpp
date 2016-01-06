@@ -788,32 +788,6 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
 
-    friend constexpr basic_iterator
-    operator+(const basic_iterator& i, difference_type n)
-    noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
-             is_nothrow_move_constructible<basic_iterator>::value &&
-             noexcept(cursor::access::advance(declval<C&>(), n)))
-    requires cursor::RandomAccess<C>()
-    {
-      auto tmp = i;
-      cursor::access::advance(tmp.get(), n);
-      return tmp;
-    }
-    friend constexpr basic_iterator
-    operator+(difference_type n, const basic_iterator& i)
-    noexcept(noexcept(i + n))
-    requires cursor::RandomAccess<C>()
-    {
-      return i + n;
-    }
-    friend constexpr basic_iterator
-    operator-(const basic_iterator& i, difference_type n)
-    noexcept(noexcept(i + -n))
-    requires cursor::RandomAccess<C>()
-    {
-      return i + -n;
-    }
-
     constexpr decltype(auto) operator[](difference_type n) const
     noexcept(noexcept(*(declval<basic_iterator&>() + n)))
     requires cursor::RandomAccess<C>()
@@ -910,6 +884,35 @@ STL2_OPEN_NAMESPACE {
   STL2_NOEXCEPT_RETURN(
     cursor::access::cursor(__stl2::move(i))
   )
+
+  template <class C>
+  constexpr basic_iterator<C> operator+(
+    const basic_iterator<C>& i, difference_type_t<basic_iterator<C>> n)
+  noexcept(is_nothrow_copy_constructible<basic_iterator<C>>::value &&
+           is_nothrow_move_constructible<basic_iterator<C>>::value &&
+           noexcept(cursor::access::advance(declval<C&>(), n)))
+  requires cursor::RandomAccess<C>()
+  {
+    auto tmp = i;
+    cursor::access::advance(get_cursor(tmp), n);
+    return tmp;
+  }
+  template <class C>
+  constexpr basic_iterator<C> operator+(
+    difference_type_t<basic_iterator<C>> n, const basic_iterator<C>& i)
+  noexcept(noexcept(i + n))
+  requires cursor::RandomAccess<C>()
+  {
+    return i + n;
+  }
+  template <class C>
+  constexpr basic_iterator<C> operator-(
+    const basic_iterator<C>& i, difference_type_t<basic_iterator<C>> n)
+  noexcept(noexcept(i + -n))
+  requires cursor::RandomAccess<C>()
+  {
+    return i + -n;
+  }
 
   template <class C1, class C2>
   requires cursor::Sentinel<C2, C1>()
