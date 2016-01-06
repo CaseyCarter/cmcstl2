@@ -637,6 +637,21 @@ STL2_OPEN_NAMESPACE {
     {}
     using mixin_t::mixin_t;
 
+    template <ConvertibleTo<C> O>
+    constexpr basic_iterator& operator=(basic_iterator<O>&& that) &
+    noexcept(is_nothrow_assignable<C&, O&&>::value)
+    {
+      get() = cursor::access::cursor(__stl2::move(that));
+      return *this;
+    }
+    template <ConvertibleTo<C> O>
+    constexpr basic_iterator& operator=(const basic_iterator<O>& that) &
+    noexcept(is_nothrow_assignable<C&, const O&>::value)
+    {
+      get() = cursor::access::cursor(that);
+      return *this;
+    }
+
     constexpr decltype(auto) operator*() const
     noexcept(noexcept(cursor::access::read(declval<const C&>())))
     requires cursor::Readable<C>() && !detail::is_writable<C>
