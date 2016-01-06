@@ -108,7 +108,7 @@ STL2_OPEN_NAMESPACE {
       noexcept(is_nothrow_constructible<I, const O&>::value)
         : box_t(access::base(that)), count_{access::count(that)}
       {}
-      // Possibly ill-conceived Extension
+      // Possibly ill-conceived Extension. Again.
       STL2_CONSTEXPR_EXT cursor(default_sentinel)
       noexcept(is_nothrow_default_constructible<I>::value)
       requires !models::BidirectionalIterator<I>
@@ -124,23 +124,22 @@ STL2_OPEN_NAMESPACE {
 
       // FIXME: test
       // Extension
-      STL2_CONSTEXPR_EXT decltype(auto) move() const
+      STL2_CONSTEXPR_EXT decltype(auto) imove() const
       noexcept(noexcept(__stl2::iter_move(declval<const I&>())))
       requires InputIterator<I>()
       {
         return __stl2::iter_move(get());
       }
 
-#if 0 // FIXME
+      // FIXME: test
       // Extension
-      friend STL2_CONSTEXPR_EXT void iter_swap(
-        const counted_iterator& x, const counted_iterator& y)
-      noexcept(noexcept(__stl2::iter_swap(x.get(), y.get())))
-      requires IndirectlySwappable<I, I>()
-      {
-        __stl2::iter_swap(x.get(), y.get());
-      }
-#endif
+      template <IndirectlySwappable<I> O>
+      friend STL2_CONSTEXPR_EXT void iswap(const cursor& x, const cursor<O>& y)
+      STL2_NOEXCEPT_RETURN(
+        __stl2::iter_swap(
+          x.get(),
+          __counted_iterator::access::base(y))
+      )
 
       template <class T>
       requires

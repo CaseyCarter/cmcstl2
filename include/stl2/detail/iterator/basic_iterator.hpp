@@ -202,9 +202,9 @@ STL2_OPEN_NAMESPACE {
 
       template <class C>
       requires
-        requires(const C& c) { c.move(); }
-      static constexpr decltype(auto) move(const C& c)
-      STL2_NOEXCEPT_RETURN(c.move())
+        requires(const C& c) { c.imove(); }
+      static constexpr decltype(auto) imove(const C& c)
+      STL2_NOEXCEPT_RETURN(c.imove())
 
       template <class> struct rvalue_reference {};
       template <class C>
@@ -218,13 +218,23 @@ STL2_OPEN_NAMESPACE {
       };
       template <class C>
       requires
-        requires(const C& c) { access::read(c); access::move(c); }
+        requires(const C& c) { access::read(c); access::imove(c); }
       struct rvalue_reference<C> {
-        using type = decltype(access::move(declval<const C&>()));
+        using type = decltype(access::imove(declval<const C&>()));
       };
 
       template <class C>
       using rvalue_reference_t = meta::_t<rvalue_reference<C>>;
+
+      template <class C, class O>
+      requires
+        requires(const C& c, const O& o) {
+          access::read(c);
+          access::read(o);
+          c.iswap(o);
+        }
+      static constexpr void iswap(const C& c, const O& o)
+      STL2_NOEXCEPT_RETURN((void)c.iswap(o))
 
       template <class I>
       requires
@@ -257,8 +267,12 @@ STL2_OPEN_NAMESPACE {
       return requires(C& c) { access::prev(c); };
     }
     template <class C>
-    concept bool Move() {
-      return requires(const C& c) { access::move(c); };
+    concept bool IndirectMove() {
+      return requires(const C& c) { access::imove(c); };
+    }
+    template <class C, class O>
+    concept bool IndirectSwap() {
+      return requires(const C& c, const O& o) { access::iswap(c, o); };
     }
     template <class C>
     concept bool Advance() {
@@ -728,11 +742,22 @@ STL2_OPEN_NAMESPACE {
     // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
     template <int=42>
     friend constexpr decltype(auto) iter_move(const basic_iterator& i)
-    noexcept(noexcept(cursor::access::move(i.get())))
-    requires cursor::Readable<C>() && cursor::Move<C>()
+    noexcept(noexcept(cursor::access::imove(i.get())))
+    requires cursor::Readable<C>() && cursor::IndirectMove<C>()
     {
-      return cursor::access::move(i.get());
+      return cursor::access::imove(i.get());
     }
+
+    template <class O>
+    requires
+      cursor::Readable<C>() &&
+      cursor::Readable<O>() &&
+      cursor::IndirectSwap<C, O>()
+    friend constexpr void iter_swap(
+      const basic_iterator& x, const basic_iterator<O>& y)
+    STL2_NOEXCEPT_RETURN(
+      cursor::access::iswap(x, y)
+    )
 
     constexpr basic_iterator& operator++() & noexcept {
       return *this;
