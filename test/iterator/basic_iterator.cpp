@@ -177,6 +177,8 @@ stl2::Iterator{I}
 class my_counted_cursor {
 public:
   using difference_type = stl2::difference_type_t<I>;
+  using single_pass = meta::bool_<!stl2::models::ForwardIterator<I>>;
+  using contiguous = meta::bool_<stl2::models::ContiguousIterator<I>>;
 
 private:
   I it_;
@@ -197,7 +199,9 @@ public:
     }
   };
 
-  my_counted_cursor() = default;
+  constexpr my_counted_cursor()
+  noexcept(stl2::is_nothrow_default_constructible<I>::value)
+  : it_{}, n_{0} {}
 
   constexpr my_counted_cursor(I&& it, difference_type n)
   noexcept(stl2::is_nothrow_move_constructible<I>::value)
@@ -236,7 +240,7 @@ public:
   constexpr auto equal(stl2::default_sentinel) const noexcept {
     return n_ == 0;
   }
-  constexpr auto equal(const my_counted_cursor& that) const noexcept {
+  constexpr auto equal(const my_counted_cursor<stl2::Common<I> >& that) const noexcept {
     return n_ == that.n_;
   }
 
@@ -256,7 +260,7 @@ public:
     n_ -= n;
   }
 
-  constexpr auto distance_to(const my_counted_cursor& that) const noexcept {
+  constexpr auto distance_to(const my_counted_cursor<stl2::Common<I> >& that) const noexcept {
     return n_ - that.n_;
   }
   constexpr auto distance_to(stl2::default_sentinel) const noexcept {
@@ -265,9 +269,11 @@ public:
 
   // FIXME: test
   constexpr decltype(auto) move() const
-  STL2_NOEXCEPT_RETURN(
-    stl2::iter_move(it_)
-  )
+  noexcept(noexcept(stl2::iter_move(it_)))
+  requires stl2::InputIterator<I>()
+  {
+    return stl2::iter_move(it_);
+  }
 };
 
 stl2::Iterator{I}
@@ -344,7 +350,8 @@ void test_fl() {
   CHECK(noexcept(I{} == I{}));
   CHECK(noexcept(stl2::front_inserter(list)));
   CHECK(sizeof(I) == sizeof(void*));
-  stl2::cbegin(list) = stl2::begin(list);
+  { auto i = stl2::cbegin(list); i = stl2::begin(list); }
+  CHECK(stl2::begin(list) == stl2::cbegin(list));
 }
 
 void test_rv() {
@@ -406,6 +413,27 @@ void test_array() {
   CHECK(I{} == I{});
   CHECK(noexcept(I{} == I{}));
 
+  {
+    auto first = a.begin();
+    auto last = a.end() - 1;
+    CHECK(!(first == last));
+    CHECK((first != last));
+    CHECK((first < last));
+    CHECK(!(first > last));
+    CHECK((first <= last));
+    CHECK(!(first >= last));
+  }
+  {
+    auto first = stl2::begin(a);
+    auto last = stl2::cend(a) - 1;
+    CHECK(!(first == last));
+    CHECK((first != last));
+    CHECK((first < last));
+    CHECK(!(first > last));
+    CHECK((first <= last));
+    CHECK(!(first >= last));
+  }
+
   stl2::fill(a, 42);
 }
 
@@ -420,6 +448,7 @@ void test_counted() {
   static_assert(stl2::models::Same<stl2::reference_t<I>, const int&>);
   static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, const int&&>);
   static_assert(stl2::models::RandomAccessIterator<I>);
+  static_assert(stl2::models::ContiguousIterator<I>);
   CHECK(I{} == I{});
   auto first = I{some_ints, 4};
   CHECK(first.base() == some_ints);
@@ -443,6 +472,17 @@ void test_counted() {
   CHECK(*++first == 1);
   CHECK(*first-- == 1);
   CHECK(*first == 0);
+
+  {
+    auto one = my_counted_iterator<const int*>{some_ints + 1, stl2::size(some_ints) - 1};
+    auto three = my_counted_iterator<int*>{some_ints + 3, stl2::size(some_ints) - 3};
+    CHECK(!(one == three));
+    CHECK((one != three));
+    CHECK((one < three));
+    CHECK(!(one > three));
+    CHECK((one <= three));
+    CHECK(!(one >= three));
+  }
  }
 
 void test_always() {

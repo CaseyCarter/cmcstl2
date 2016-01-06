@@ -25,7 +25,6 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 // TODO:
-// * Adapt the operator-> proxy from common_iterator.
 // * Think long and hard about the various proxies and reference
 //   validity requirements.
 // * Determine if the code complexity incurred by not having
@@ -826,6 +825,67 @@ STL2_OPEN_NAMESPACE {
     {
       return *(*this + n);
     }
+
+    // non-template type-symmetric operators to enable
+    // implicit conversions.
+    friend constexpr bool operator==(
+      const basic_iterator& x, const basic_iterator& y)
+    noexcept(noexcept(cursor::access::equal(x.get(), y.get())))
+    requires
+      cursor::Sentinel<C, C>()
+    {
+      return cursor::access::equal(x.get(), y.get());
+    }
+    friend constexpr bool operator!=(
+      const basic_iterator& x, const basic_iterator& y)
+    noexcept(noexcept(!(x == y)))
+    requires
+      cursor::Sentinel<C, C>()
+    {
+      return !(x == y);
+    }
+
+    friend constexpr difference_type operator-(
+      const basic_iterator& x, const basic_iterator& y)
+    noexcept(noexcept(cursor::access::distance(y.get(), x.get())))
+    requires
+      cursor::SizedSentinel<C, C>()
+    {
+      return cursor::access::distance(y.get(), x.get());
+    }
+
+    friend constexpr bool operator<(
+      const basic_iterator& x, const basic_iterator& y)
+    noexcept(noexcept(x - y))
+    requires
+      cursor::SizedSentinel<C, C>()
+    {
+      return x - y < 0;
+    }
+    friend constexpr bool operator>(
+      const basic_iterator& x, const basic_iterator& y)
+    noexcept(noexcept(x - y))
+    requires
+      cursor::SizedSentinel<C, C>()
+    {
+      return x - y > 0;
+    }
+    friend constexpr bool operator<=(
+      const basic_iterator& x, const basic_iterator& y)
+    noexcept(noexcept(x - y))
+    requires
+      cursor::SizedSentinel<C, C>()
+    {
+      return x - y <= 0;
+    }
+    friend constexpr bool operator>=(
+      const basic_iterator& x, const basic_iterator& y)
+    noexcept(noexcept(x - y))
+    requires
+      cursor::SizedSentinel<C, C>()
+    {
+      return x - y >= 0;
+    }
   };
 
   template <cursor::Input C>
@@ -856,10 +916,10 @@ STL2_OPEN_NAMESPACE {
     cursor::access::cursor(__stl2::move(i))
   )
 
-  template <class C>
-  requires cursor::Sentinel<C, C>()
+  template <class C1, class C2>
+  requires cursor::Sentinel<C2, C1>()
   constexpr bool operator==(
-    const basic_iterator<C>& lhs, const basic_iterator<C>& rhs)
+    const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
   STL2_NOEXCEPT_RETURN(
     cursor::access::equal(
       __stl2::get_cursor(lhs), __stl2::get_cursor(rhs))
@@ -881,10 +941,10 @@ STL2_OPEN_NAMESPACE {
     rhs == lhs
   )
 
-  template <class C>
-  requires cursor::Sentinel<C, C>()
+  template <class C1, class C2>
+  requires cursor::Sentinel<C2, C1>()
   constexpr bool operator!=(
-    const basic_iterator<C>& lhs, const basic_iterator<C>& rhs)
+    const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
   STL2_NOEXCEPT_RETURN(
     !(lhs == rhs)
   )
@@ -905,10 +965,10 @@ STL2_OPEN_NAMESPACE {
     !cursor::access::equal(__stl2::get_cursor(rhs), lhs)
   )
 
-  template <class C>
-  requires cursor::SizedSentinel<C, C>()
-  constexpr cursor::access::difference_type_t<C> operator-(
-    const basic_iterator<C>& lhs, const basic_iterator<C>& rhs)
+  template <class C1, class C2>
+  requires cursor::SizedSentinel<C1, C2>()
+  constexpr cursor::access::difference_type_t<C2> operator-(
+    const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
   STL2_NOEXCEPT_RETURN(
     cursor::access::distance(
       __stl2::get_cursor(rhs), __stl2::get_cursor(lhs))
@@ -930,37 +990,36 @@ STL2_OPEN_NAMESPACE {
     -(rhs - lhs)
   )
 
-  template <class C>
-  requires cursor::SizedSentinel<C, C>()
+  template <class C1, class C2>
+  requires cursor::SizedSentinel<C1, C2>()
   constexpr bool operator<(
-    const basic_iterator<C>& lhs, const basic_iterator<C>& rhs)
+    const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
   STL2_NOEXCEPT_RETURN(
-    0 < cursor::access::distance(
-      __stl2::get_cursor(rhs), __stl2::get_cursor(lhs))
+    lhs - rhs < 0
   )
 
-  template <class C>
-  requires cursor::SizedSentinel<C, C>()
+  template <class C1, class C2>
+  requires cursor::SizedSentinel<C1, C2>()
   constexpr bool operator>(
-    const basic_iterator<C>& lhs, const basic_iterator<C>& rhs)
+    const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
   STL2_NOEXCEPT_RETURN(
-    rhs < lhs
+    lhs - rhs > 0
   )
 
-  template <class C>
-  requires cursor::SizedSentinel<C, C>()
+  template <class C1, class C2>
+  requires cursor::SizedSentinel<C1, C2>()
   constexpr bool operator<=(
-    const basic_iterator<C>& lhs, const basic_iterator<C>& rhs)
+    const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
   STL2_NOEXCEPT_RETURN(
-    !(rhs < lhs)
+    lhs - rhs <= 0
   )
 
-  template <class C>
-  requires cursor::SizedSentinel<C, C>()
+  template <class C1, class C2>
+  requires cursor::SizedSentinel<C1, C2>()
   constexpr bool operator>=(
-    const basic_iterator<C>& lhs, const basic_iterator<C>& rhs)
+    const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
   STL2_NOEXCEPT_RETURN(
-    !(lhs < rhs)
+    lhs - rhs >= 0
   )
 } STL2_CLOSE_NAMESPACE
 
