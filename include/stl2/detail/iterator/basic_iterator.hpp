@@ -741,9 +741,11 @@ STL2_OPEN_NAMESPACE {
     // Must be a template to workaround
     // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
     template <int=42>
+    requires
+      cursor::Readable<C>() &&
+      cursor::IndirectMove<C>()
     friend constexpr decltype(auto) iter_move(const basic_iterator& i)
     noexcept(noexcept(cursor::access::imove(i.get())))
-    requires cursor::Readable<C>() && cursor::IndirectMove<C>()
     {
       return cursor::access::imove(i.get());
     }
@@ -892,22 +894,12 @@ STL2_OPEN_NAMESPACE {
     using type = cursor::value_type_t<C>;
   };
 
-  template <class C>
-  constexpr C& get_cursor(basic_iterator<C>& i)
+  template <class BI>
+  requires
+    meta::is<__uncvref<BI>, basic_iterator>::value
+  constexpr decltype(auto) get_cursor(BI&& i)
   STL2_NOEXCEPT_RETURN(
-    cursor::access::cursor(i)
-  )
-
-  template <class C>
-  constexpr const C& get_cursor(const basic_iterator<C>& i)
-  STL2_NOEXCEPT_RETURN(
-    cursor::access::cursor(i)
-  )
-
-  template <class C>
-  constexpr C&& get_cursor(basic_iterator<C>&& i)
-  STL2_NOEXCEPT_RETURN(
-    cursor::access::cursor(__stl2::move(i))
+    cursor::access::cursor(__stl2::forward<BI>(i))
   )
 
   template <class C>

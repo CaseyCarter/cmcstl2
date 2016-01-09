@@ -34,7 +34,8 @@ STL2_OPEN_NAMESPACE {
     template <class T>
     constexpr bool __dereferenceable = false;
     template <class T>
-      requires requires (T& t) {
+    requires
+      requires(T& t) {
         STL2_DEDUCE_AUTO_REF_REF(*t);
       }
     constexpr bool __dereferenceable<T> = true;
@@ -43,20 +44,26 @@ STL2_OPEN_NAMESPACE {
     concept bool Dereferenceable = __dereferenceable<T&>;
   }
 
+  namespace models {
+    template <class>
+    constexpr bool Dereferenceable = false;
+    detail::Dereferenceable{R}
+    constexpr bool Dereferenceable<R> = true;
+  }
+
   ///////////////////////////////////////////////////////////////////////////
   // reference_t [iterator.assoc]
   // Not to spec: forbids void.
   //
   detail::Dereferenceable{R}
-  using reference_t =
-    decltype(*declval<R&>());
+  using reference_t = decltype(*declval<R&>());
 
   ///////////////////////////////////////////////////////////////////////////
   // iter_move [Extension]
   // From the proxy iterator work (P0022).
   //
   namespace __iter_move {
-    template <detail::Dereferenceable R>
+    template <class>
     constexpr bool has_customization = false;
     template <detail::Dereferenceable R>
     requires
@@ -65,12 +72,9 @@ STL2_OPEN_NAMESPACE {
       }
     constexpr bool has_customization<R> = true;
 
-    detail::Dereferenceable{R}
+    template <detail::Dereferenceable R, class Ref = reference_t<R>>
     using __iter_move_t =
-      meta::if_<
-        is_reference<reference_t<R>>,
-        remove_reference_t<reference_t<R>>&&,
-        decay_t<reference_t<R>>>;
+      meta::if_<is_reference<Ref>, remove_reference_t<Ref>&&, decay_t<Ref>>;
 
     struct fn {
       template <class R>
@@ -86,7 +90,7 @@ STL2_OPEN_NAMESPACE {
       requires
         !has_customization<R>
       constexpr Result operator()(R&& r) const
-        noexcept(noexcept(Result(__stl2::move(*r))))
+      noexcept(noexcept(Result(__stl2::move(*r))))
       {
         return __stl2::move(*r);
       }
@@ -102,8 +106,7 @@ STL2_OPEN_NAMESPACE {
   // From the proxy iterator work (P0022).
   //
   detail::Dereferenceable{R}
-  using rvalue_reference_t =
-    decltype(__stl2::iter_move(declval<R&>()));
+  using rvalue_reference_t = decltype(__stl2::iter_move(declval<R&>()));
 
   ///////////////////////////////////////////////////////////////////////////
   // value_type [readable.iterators]
