@@ -635,9 +635,9 @@ STL2_OPEN_NAMESPACE {
     using typename assoc_t::reference_t;
     using typename assoc_t::const_reference_t;
 
-  public:
-    using difference_type = cursor::difference_type_t<C>;
+    using D = cursor::difference_type_t<C>;
 
+  public:
     basic_iterator() = default;
     template <ConvertibleTo<C> O>
     constexpr basic_iterator(basic_iterator<O>&& that)
@@ -800,14 +800,14 @@ STL2_OPEN_NAMESPACE {
       return tmp;
     }
 
-    constexpr basic_iterator& operator+=(difference_type n) &
+    constexpr basic_iterator& operator+=(D n) &
     noexcept(noexcept(cursor::access::advance(declval<C&>(), n)))
     requires cursor::RandomAccess<C>()
     {
       cursor::access::advance(get(), n);
       return *this;
     }
-    constexpr basic_iterator& operator-=(difference_type n) &
+    constexpr basic_iterator& operator-=(D n) &
     noexcept(noexcept(cursor::access::advance(declval<C&>(), -n)))
     requires cursor::RandomAccess<C>()
     {
@@ -815,7 +815,7 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
 
-    constexpr decltype(auto) operator[](difference_type n) const
+    constexpr decltype(auto) operator[](D n) const
     noexcept(noexcept(*(declval<basic_iterator&>() + n)))
     requires cursor::RandomAccess<C>()
     {
@@ -841,7 +841,7 @@ STL2_OPEN_NAMESPACE {
       return !(x == y);
     }
 
-    friend constexpr difference_type operator-(
+    friend constexpr D operator-(
       const basic_iterator& x, const basic_iterator& y)
     noexcept(noexcept(cursor::access::distance(y.get(), x.get())))
     requires
@@ -884,6 +884,11 @@ STL2_OPEN_NAMESPACE {
     }
   };
 
+  template <class C>
+  struct difference_type<basic_iterator<C>> {
+    using type = cursor::difference_type_t<C>;
+  };
+
   template <cursor::Input C>
   struct iterator_category<basic_iterator<C>> {
     using type = cursor::category_t<C>;
@@ -904,7 +909,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class C>
   constexpr basic_iterator<C> operator+(
-    const basic_iterator<C>& i, difference_type_t<basic_iterator<C>> n)
+    const basic_iterator<C>& i, cursor::difference_type_t<C> n)
   noexcept(is_nothrow_copy_constructible<basic_iterator<C>>::value &&
            is_nothrow_move_constructible<basic_iterator<C>>::value &&
            noexcept(cursor::access::advance(declval<C&>(), n)))
@@ -916,7 +921,7 @@ STL2_OPEN_NAMESPACE {
   }
   template <class C>
   constexpr basic_iterator<C> operator+(
-    difference_type_t<basic_iterator<C>> n, const basic_iterator<C>& i)
+    cursor::difference_type_t<C> n, const basic_iterator<C>& i)
   noexcept(noexcept(i + n))
   requires cursor::RandomAccess<C>()
   {
@@ -924,7 +929,7 @@ STL2_OPEN_NAMESPACE {
   }
   template <class C>
   constexpr basic_iterator<C> operator-(
-    const basic_iterator<C>& i, difference_type_t<basic_iterator<C>> n)
+    const basic_iterator<C>& i, cursor::difference_type_t<C> n)
   noexcept(noexcept(i + -n))
   requires cursor::RandomAccess<C>()
   {
@@ -982,7 +987,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class C1, class C2>
   requires cursor::SizedSentinel<C1, C2>()
-  constexpr cursor::access::difference_type_t<C2> operator-(
+  constexpr cursor::difference_type_t<C2> operator-(
     const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
   STL2_NOEXCEPT_RETURN(
     cursor::access::distance(
@@ -991,7 +996,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class C, class S>
   requires cursor::SizedSentinel<S, C>()
-  constexpr cursor::access::difference_type_t<C> operator-(
+  constexpr cursor::difference_type_t<C> operator-(
     const S& lhs, const basic_iterator<C>& rhs)
   STL2_NOEXCEPT_RETURN(
     cursor::access::distance(__stl2::get_cursor(rhs), lhs)
@@ -999,7 +1004,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class C, class S>
   requires cursor::SizedSentinel<S, C>()
-  constexpr cursor::access::difference_type_t<C> operator-(
+  constexpr cursor::difference_type_t<C> operator-(
     const basic_iterator<C>& lhs, const S& rhs)
   STL2_NOEXCEPT_RETURN(
     -(rhs - lhs)

@@ -34,9 +34,10 @@ STL2_OPEN_NAMESPACE {
       models::StreamInsertable<T, std::basic_ostream<charT, traits>>
     class ostream_cursor {
     public:
+      using difference_type = std::ptrdiff_t;
       using ostream_type = std::basic_ostream<charT, traits>;
       struct mixin : protected ebo_box<ostream_cursor> {
-        using difference_type = std::ptrdiff_t;
+        using difference_type = ostream_cursor::difference_type;
         using char_type = charT;
         using traits_type = traits;
         using ostream_type = ostream_cursor::ostream_type;

@@ -26,6 +26,8 @@ STL2_OPEN_NAMESPACE {
 
     class cursor {
     public:
+      using difference_type = difference_type_t<I>;
+
       cursor() = default;
       constexpr cursor(const iota_view& v)
         noexcept(is_nothrow_copy_constructible<I>::value) :
@@ -53,13 +55,13 @@ STL2_OPEN_NAMESPACE {
         --value_;
       }
 
-      constexpr void advance(difference_type_t<I> n)
+      constexpr void advance(difference_type n)
         noexcept(noexcept(declval<I&>() += n))
         requires ext::RandomAccessIncrementable<I>() {
         value_ += n;
       }
 
-      constexpr difference_type_t<I> distance_to(const cursor& that)
+      constexpr difference_type distance_to(const cursor& that)
         noexcept(noexcept(that.value_ - declval<const I&>()))
         requires ext::RandomAccessIncrementable<I>() {
         return that.value_ - value_;

@@ -39,6 +39,8 @@ STL2_OPEN_NAMESPACE {
 
     template <class Cursor, class Container>
     struct insert_cursor_mixin : protected ebo_box<Cursor> {
+      using difference_type =
+        typename insert_cursor_base<Container>::difference_type;
       using container_type = Container;
       using iterator_category = output_iterator_tag;
       insert_cursor_mixin() = default;
