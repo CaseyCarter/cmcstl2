@@ -97,16 +97,18 @@ STL2_OPEN_NAMESPACE {
       STL2_CONSTEXPR_EXT cursor(const I& i, difference_type n)
       noexcept(is_nothrow_copy_constructible<I>::value)
       : box_t(i), count_{n}
-      {}
+      {
+        STL2_ASSUME_CONSTEXPR(0 <= n);
+      }
       template <ConvertibleTo<I> O>
       STL2_CONSTEXPR_EXT cursor(cursor<O>&& that)
       noexcept(is_nothrow_constructible<I, O&&>::value)
-        : box_t(access::base(__stl2::move(that))), count_{access::count(that)}
+      : box_t(access::base(__stl2::move(that))), count_{access::count(that)}
       {}
       template <ConvertibleTo<I> O>
       STL2_CONSTEXPR_EXT cursor(const cursor<O>& that)
       noexcept(is_nothrow_constructible<I, const O&>::value)
-        : box_t(access::base(that)), count_{access::count(that)}
+      : box_t(access::base(that)), count_{access::count(that)}
       {}
       // Possibly ill-conceived Extension. Again.
       STL2_CONSTEXPR_EXT cursor(default_sentinel)
@@ -196,10 +198,12 @@ STL2_OPEN_NAMESPACE {
     };
   }
 
-  Iterator{I}
-  STL2_CONSTEXPR_EXT auto make_counted_iterator(I i, difference_type_t<I> n)
+  template <class I>
+  requires
+    models::Iterator<__f<I>>
+  STL2_CONSTEXPR_EXT auto make_counted_iterator(I&& i, difference_type_t<__f<I>> n)
   STL2_NOEXCEPT_RETURN(
-    counted_iterator<I>{__stl2::move(i), n}
+    counted_iterator<__f<I>>{__stl2::forward<I>(i), n}
   )
 
   Iterator{I}
