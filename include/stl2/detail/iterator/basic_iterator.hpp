@@ -621,6 +621,43 @@ STL2_OPEN_NAMESPACE {
     };
   } // namespace detail
 
+  // common_reference specializations for basic_proxy_reference
+  template <cursor::Readable Cur, class U,
+    template <class> class TQual, template <class> class UQual>
+  struct basic_common_reference<
+    detail::basic_proxy_reference<Cur>, U, TQual, UQual>
+  : basic_common_reference<cursor::reference_t<Cur>, U, TQual, UQual>
+  {};
+  template <class T, cursor::Readable Cur,
+    template <class> class TQual, template <class> class UQual>
+  struct basic_common_reference<
+    T, detail::basic_proxy_reference<Cur>, TQual, UQual>
+  : basic_common_reference<T, cursor::reference_t<Cur>, TQual, UQual>
+  {};
+  template <cursor::Readable Cur1, cursor::Readable Cur2,
+    template <class> class TQual, template <class> class UQual>
+  struct basic_common_reference<
+    detail::basic_proxy_reference<Cur1>, detail::basic_proxy_reference<Cur2>,
+    TQual, UQual>
+  : basic_common_reference<
+      cursor::reference_t<Cur1>, cursor::reference_t<Cur2>, TQual, UQual>
+  {};
+
+  // common_type specializations for basic_proxy_reference
+  template <cursor::Readable Cur, class U>
+  struct common_type<detail::basic_proxy_reference<Cur>, U>
+  : common_type<cursor::value_type_t<Cur>, U>
+  {};
+  template <class T, cursor::Readable Cur>
+  struct common_type<T, detail::basic_proxy_reference<Cur>>
+  : common_type<T, cursor::value_type_t<Cur>>
+  {};
+  template <cursor::Readable Cur1, cursor::Readable Cur2>
+  struct common_type<
+    detail::basic_proxy_reference<Cur1>, detail::basic_proxy_reference<Cur2>>
+  : common_type<cursor::value_type_t<Cur1>, cursor::value_type_t<Cur2>>
+  {};
+
   cursor::Cursor{C}
   class basic_iterator
   : public cursor::access::mixin_t<C>,

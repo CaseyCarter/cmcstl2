@@ -189,6 +189,8 @@ template <class T, T Value>
 using always_iterator = stl2::basic_iterator<always_cursor<T, Value>>;
 
 template <class T>
+requires
+  stl2::is_object<T>::value
 struct proxy_wrapper {
   stl2::detail::raw_ptr<T> ptr_ = nullptr;
 
@@ -212,6 +214,27 @@ struct proxy_wrapper {
 
   operator T&() const noexcept { return get(); }
 };
+
+STL2_OPEN_NAMESPACE {
+  template <class T, class U, template <class> class TQual,
+    template <class> class UQual>
+  struct basic_common_reference<::proxy_wrapper<T>, U, TQual, UQual>
+  : common_reference<T&, UQual<U>>
+  {};
+
+  template <class T, class U, template <class> class TQual,
+    template <class> class UQual>
+  struct basic_common_reference<T, ::proxy_wrapper<U>, TQual, UQual>
+  : common_reference<TQual<T>, U&>
+  {};
+
+  template <class T, class U, template <class> class TQual,
+    template <class> class UQual>
+  struct basic_common_reference<
+    ::proxy_wrapper<T>, ::proxy_wrapper<U>, TQual, UQual>
+  : common_reference<T&, U&>
+  {};
+} STL2_CLOSE_NAMESPACE
 
 // std::array-ish container with proxy iterators.
 template <class T, std::size_t N>
@@ -541,21 +564,26 @@ void test_proxy_array() {
   using CI = stl2::iterator_t<const Rng>;
   static_assert(stl2::models::WeaklyIncrementable<CI>);
   static_assert(stl2::models::Same<stl2::difference_type_t<CI>, std::ptrdiff_t>);
-  // FIXME: static_assert(stl2::models::Readable<CI>);
   using CR = stl2::reference_t<CI>;
   static_assert(stl2::models::Same<proxy_wrapper<const int>, CR>);
   using CV = stl2::value_type_t<CI>;
   static_assert(stl2::models::Same<int, CV>);
-  static_assert(stl2::models::Same<const int&&, decltype(iter_move(stl2::declval<const CI&>()))>);
-  static_assert(stl2::models::Same<const int&&, decltype(iter_move(stl2::declval<CI&>()))>);
 
   static_assert(stl2::__iter_move::has_customization<const CI&>);
   static_assert(stl2::__iter_move::has_customization<CI&>);
   using CRR = stl2::rvalue_reference_t<CI>;
   static_assert(stl2::models::Same<const int&&, CRR>);
-  // FIXME: static_assert(stl2::models::RandomAccessIterator<CI>);
+
+  static_assert(stl2::models::CommonReference<CR, CV&>);
+  static_assert(stl2::models::CommonReference<CR, CRR>);
+  static_assert(stl2::models::CommonReference<CRR, const CV&>);
+  static_assert(stl2::models::Readable<CI>);
+  static_assert(stl2::models::Same<const int&&, decltype(iter_move(stl2::declval<const CI&>()))>);
+  static_assert(stl2::models::Same<const int&&, decltype(iter_move(stl2::declval<CI&>()))>);
+
+  static_assert(stl2::models::RandomAccessIterator<CI>);
   static_assert(!stl2::models::ContiguousIterator<CI>);
-  // FIXME: static_assert(stl2::models::RandomAccessRange<const Rng>);
+  static_assert(stl2::models::RandomAccessRange<const Rng>);
   static_assert(stl2::models::BoundedRange<const Rng>);
 
   static_assert(stl2::models::Same<I, decltype(a.begin() + 2)>);
