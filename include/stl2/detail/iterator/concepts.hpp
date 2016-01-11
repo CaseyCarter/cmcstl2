@@ -63,36 +63,47 @@ STL2_OPEN_NAMESPACE {
   // From the proxy iterator work (P0022).
   //
   namespace __iter_move {
+    void iter_move(const auto&) = delete;
+
     template <class>
     constexpr bool has_customization = false;
     template <detail::Dereferenceable R>
     requires
       requires(R&& r) {
-        STL2_DEDUCE_AUTO_REF_REF(iter_move(static_cast<R&&>(r)));
+        STL2_DEDUCE_AUTO_REF_REF(iter_move(r));
       }
     constexpr bool has_customization<R> = true;
-
-    template <detail::Dereferenceable R, class Ref = reference_t<R>>
-    using __iter_move_t =
-      meta::if_<is_reference<Ref>, remove_reference_t<Ref>&&, decay_t<Ref>>;
 
     struct fn {
       template <class R>
       requires
+        models::Dereferenceable<R> &&
         has_customization<R>
       constexpr decltype(auto) operator()(R&& r) const
       STL2_NOEXCEPT_RETURN(
-        iter_move(static_cast<R&&>(r))
+        iter_move(r)
       )
 
-      template <class R,
-        class Result = __iter_move_t<remove_reference_t<R>>>
+      template <class R>
       requires
-        !has_customization<R>
-      constexpr Result operator()(R&& r) const
-      noexcept(noexcept(Result(__stl2::move(*r))))
+        models::Dereferenceable<R> &&
+        !has_customization<R> &&
+        is_reference<reference_t<R>>::value
+      constexpr decltype(auto) operator()(R&& r) const noexcept {
+        return static_cast<remove_reference_t<reference_t<R>>&&>(*r);
+      }
+
+      template <class R>
+      requires
+        models::Dereferenceable<R> &&
+        !has_customization<R> &&
+        !is_reference<reference_t<R>>::value &&
+        models::Constructible<decay_t<reference_t<R>>, reference_t<R>>
+      constexpr auto operator()(R&& r) const
+      noexcept(is_nothrow_constructible<
+        decay_t<reference_t<R>>, reference_t<R>>::value)
       {
-        return __stl2::move(*r);
+        return decay_t<reference_t<R>>(*r);
       }
     };
   }

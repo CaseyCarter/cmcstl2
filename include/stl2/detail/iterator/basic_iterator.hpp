@@ -202,7 +202,7 @@ STL2_OPEN_NAMESPACE {
 
       template <class C>
       requires
-        requires(const C& c) { c.imove(); }
+        requires(const C& c) { access::read(c); c.imove(); }
       static constexpr decltype(auto) imove(const C& c)
       STL2_NOEXCEPT_RETURN(c.imove())
 
@@ -358,7 +358,7 @@ STL2_OPEN_NAMESPACE {
     using category_t = meta::_t<category<C>>;
   }
 
-  cursor::Cursor{C}
+  template <cursor::Cursor>
   class basic_iterator;
 
   namespace detail {
@@ -738,14 +738,11 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
 
-    // Must be a template to workaround
-    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
-    template <int=42>
+    friend constexpr decltype(auto) iter_move(const basic_iterator& i)
+    noexcept(noexcept(cursor::access::imove(i.get())))
     requires
       cursor::Readable<C>() &&
       cursor::IndirectMove<C>()
-    friend constexpr decltype(auto) iter_move(const basic_iterator& i)
-    noexcept(noexcept(cursor::access::imove(i.get())))
     {
       return cursor::access::imove(i.get());
     }
