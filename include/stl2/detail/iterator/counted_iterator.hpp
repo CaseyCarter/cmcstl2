@@ -15,6 +15,7 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/default_sentinel.hpp>
@@ -30,24 +31,20 @@ STL2_OPEN_NAMESPACE {
 
   namespace __counted_iterator {
     struct access {
-      template <class CC>
-      requires meta::is<__uncvref<CC>, cursor>::value
+      template <_InstanceOf<cursor> CC>
       static constexpr decltype(auto) base(CC&& cc) noexcept {
         return __stl2::forward<CC>(cc).get();
       }
-      template <class CC>
-      requires meta::is<__uncvref<CC>, cursor>::value
+      template <_InstanceOf<cursor> CC>
       static constexpr decltype(auto) count(CC&& cc) noexcept {
         return (__stl2::forward<CC>(cc).count_);
       }
 
-      template <class CI>
-      requires meta::is<__uncvref<CI>, counted_iterator>::value
+      template <_InstanceOf<counted_iterator> CI>
       static constexpr decltype(auto) base(CI&& ci) noexcept {
         return access::base(__stl2::get_cursor(__stl2::forward<CI>(ci)));
       }
-      template <class CI>
-      requires meta::is<__uncvref<CI>, counted_iterator>::value
+      template <_InstanceOf<counted_iterator> CI>
       static constexpr decltype(auto) count(CI&& ci) noexcept {
         return access::count(__stl2::get_cursor(__stl2::forward<CI>(ci)));
       }

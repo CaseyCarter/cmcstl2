@@ -20,12 +20,15 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
+  InputIterator{I} class move_iterator;
+  Semiregular{S} class move_sentinel;
+
   struct __mi_access {
-    template <class MI>
+    template <_InstanceOf<move_iterator> MI>
     static constexpr auto&& current(MI&& mi) noexcept {
       return std::forward<MI>(mi).current_;
     }
-    template <class MS>
+    template <_InstanceOf<move_sentinel> MS>
     static constexpr auto&& sent(MS&& ms) noexcept {
       return std::forward<MS>(ms).get();
     }
@@ -222,8 +225,7 @@ STL2_OPEN_NAMESPACE {
     move_iterator<__f<I>>{__stl2::forward<I>(i)}
   )
 
-  // Extension
-  template <Semiregular S>
+  Semiregular{S}
   class move_sentinel : detail::ebo_box<S> {
     friend __mi_access;
     using box_t = detail::ebo_box<S>;
@@ -252,14 +254,12 @@ STL2_OPEN_NAMESPACE {
     { return box_t::get(); }
   };
 
-  // Extension
   Sentinel{S, I}
   STL2_CONSTEXPR_EXT bool
   operator==(const move_iterator<I>& i, const move_sentinel<S>& s)
   STL2_NOEXCEPT_RETURN(
     __mi_access::current(i) == __mi_access::sent(s)
   )
-  // Extension
   Sentinel{S, I}
   STL2_CONSTEXPR_EXT bool
   operator==(const move_sentinel<S>& s, const move_iterator<I>& i)
@@ -267,14 +267,12 @@ STL2_OPEN_NAMESPACE {
     i == s
   )
 
-  // Extension
   Sentinel{S, I}
   STL2_CONSTEXPR_EXT bool
   operator!=(const move_iterator<I>& i, const move_sentinel<S>& s)
   STL2_NOEXCEPT_RETURN(
     !(i == s)
   )
-  // Extension
   Sentinel{S, I}
   STL2_CONSTEXPR_EXT bool
   operator!=(const move_sentinel<S>& s, const move_iterator<I>& i)
@@ -282,14 +280,12 @@ STL2_OPEN_NAMESPACE {
     !(i == s)
   )
 
-  // Extension
   SizedSentinel{S, I}
   STL2_CONSTEXPR_EXT difference_type_t<I>
   operator-(const move_sentinel<S>& s, const move_iterator<I>& i)
   STL2_NOEXCEPT_RETURN(
     __mi_access::sent(s) - __mi_access::current(i)
   )
-  // Extension
   SizedSentinel{S, I}
   STL2_CONSTEXPR_EXT difference_type_t<I>
     operator-(const move_iterator<I>& i, const move_sentinel<S>& s)
@@ -297,7 +293,6 @@ STL2_OPEN_NAMESPACE {
     -(s - i)
   )
 
-  // Extension
   template <class S>
   requires
     models::Semiregular<__f<S>>

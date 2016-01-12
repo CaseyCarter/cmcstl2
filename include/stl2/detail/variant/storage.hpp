@@ -33,17 +33,10 @@ STL2_OPEN_NAMESPACE {
 
     template <Destructible...Ts>
     class storage;
-
-    template <class>
-    constexpr bool is_storage = false;
-    template <Destructible...Ts>
-    constexpr bool is_storage<storage<Ts...>> = true;
+    template <> class storage<> {};
 
     template <class T>
-    concept bool IsStorage = is_storage<decay_t<T>>;
-
-    template <>
-    class storage<> {};
+    concept bool IsStorage = _InstanceOf<T, storage>;
 
     ///////////////////////////////////////////////////////////////////////////
     // Specialization for non-trivially destructible element types, has a

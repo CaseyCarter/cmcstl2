@@ -15,6 +15,7 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
+#include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/operations.hpp>
 
@@ -22,8 +23,11 @@
 // reverse_iterator [reverse.iterator]
 //
 STL2_OPEN_NAMESPACE {
+  BidirectionalIterator{I}
+  class reverse_iterator;
+
   struct __ri_access {
-    template <class RI>
+    template <_InstanceOf<reverse_iterator> RI>
     static constexpr auto& current(RI&& ri) noexcept {
       return __stl2::forward<RI>(ri).current_;
     }

@@ -29,6 +29,10 @@ STL2_OPEN_NAMESPACE {
   template <class U, template <class...> class T, class... V>
   concept bool _IsNot = !_Is<U, T, V...>;
 
+  // U is a cv/ref-qualified specialization of class template T.
+  template <class U, template <class...> class T>
+  concept bool _InstanceOf = meta::is<__uncvref<U>, T>::value;
+
   ///////////////////////////////////////////////////////////////////////////
   // Same [concepts.lib.corelang.same]
   // Extension: variadic.
