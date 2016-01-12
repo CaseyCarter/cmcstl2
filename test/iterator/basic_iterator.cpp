@@ -43,7 +43,7 @@ class forward_list {
       mixin() = default;
       using stl2::basic_mixin<cursor>::basic_mixin;
       constexpr mixin(stl2::default_sentinel) noexcept
-      : mixin{cursor{nullptr}}
+      : mixin{cursor{}}
       {}
     };
 
@@ -55,7 +55,7 @@ class forward_list {
     constexpr bool equal(const cursor& that) const noexcept { return ptr_ == that.ptr_; }
 
   private:
-    stl2::detail::raw_ptr<node> ptr_;
+    stl2::detail::raw_ptr<node> ptr_ = nullptr;
 
     friend forward_list;
     constexpr cursor(node* ptr) noexcept :
@@ -71,8 +71,9 @@ public:
 
   forward_list() = default;
   forward_list(std::initializer_list<T> il)
-    requires stl2::CopyConstructible<T>() {
-    stl2::copy(stl2::rbegin(il), stl2::rend(il), stl2::front_inserter(*this));
+  requires stl2::CopyConstructible<T>()
+  {
+    stl2::reverse_copy(il, stl2::front_inserter(*this));
   }
 
   constexpr iterator begin() noexcept {

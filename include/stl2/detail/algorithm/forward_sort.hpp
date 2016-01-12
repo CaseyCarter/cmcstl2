@@ -55,6 +55,8 @@ STL2_OPEN_NAMESPACE {
                                    I f1, difference_type_t<I> n1,
                                    buf_t<I>& buf, Comp& comp, Proj& proj)
       {
+        STL2_ASSUME(0 <= n0);
+        STL2_ASSUME(0 <= n1);
         STL2_ASSUME(n0 <= buf.size());
         auto&& vec = make_temporary_vector(buf);
         __stl2::move(__stl2::make_counted_iterator(f0, n0),
@@ -80,6 +82,8 @@ STL2_OPEN_NAMESPACE {
                                  I& f1_0, difference_type_t<I>& n1_0,
                                  I& f1_1, difference_type_t<I>& n1_1)
       {
+        STL2_ASSUME(0 <= n0);
+        STL2_ASSUME(0 <= n1);
         f0_0 = f0;
         n0_0 = n0 / 2;
         f0_1 = __stl2::next(f0_0, n0_0);
@@ -103,6 +107,8 @@ STL2_OPEN_NAMESPACE {
                                  I& f1_0, difference_type_t<I>& n1_0,
                                  I& f1_1, difference_type_t<I>& n1_1)
       {
+        STL2_ASSUME(0 <= n0);
+        STL2_ASSUME(0 <= n1);
         f0_0 = f0;
         n0_1 = n1 / 2;
         f1_1 = __stl2::next(f1, n0_1);
@@ -122,10 +128,12 @@ STL2_OPEN_NAMESPACE {
                          I f1, difference_type_t<I> n1,
                          buf_t<I>& buf, Comp& comp, Proj& proj)
       {
+        STL2_ASSUME(0 <= n0);
+        STL2_ASSUME(0 <= n1);
+        if (!n0 || !n1) {
+          return __stl2::next(f0, n0 + n1);
+        }
         if (n0 <= buf.size()) {
-          if (!n0 || !n1) {
-            return __stl2::next(f0, n0 + n1);
-          }
           return fsort::merge_n_with_buffer(f0, n0, f1, n1, buf, comp, proj);
         }
         I f0_0, f0_1, f1_0, f1_1;
@@ -152,6 +160,7 @@ STL2_OPEN_NAMESPACE {
       I sort_n_adaptive(I first, const difference_type_t<I> n, buf_t<I>& buf,
                         Comp& comp, Proj& proj)
       {
+        STL2_ASSUME(0 <= n);
         auto half_n = n / 2;
         if (!half_n) {
           return __stl2::next(first, n);
@@ -168,6 +177,7 @@ STL2_OPEN_NAMESPACE {
       inline I sort_n(I first, const difference_type_t<I> n,
                       Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
       {
+        STL2_ASSUME(0 <= n);
         auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
         auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
         auto ufirst = ext::uncounted(first);
