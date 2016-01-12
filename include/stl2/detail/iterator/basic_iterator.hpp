@@ -25,6 +25,7 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 // TODO:
+// * Fix the noexcept clauses that assume that get() is noexcept.
 // * Think long and hard about the various proxies and reference
 //   validity requirements.
 // * Determine if the code complexity incurred by not having
@@ -52,272 +53,201 @@ STL2_OPEN_NAMESPACE {
     {}
   };
 
-  namespace cursor {
-    class access {
-      template <class T>
-      struct mixin_base {
-        using type = basic_mixin<T>;
-      };
-      template <class T>
-      requires requires { typename T::mixin; }
-      struct mixin_base<T> {
-        using type = typename T::mixin;
-      };
-
-    public:
-      template <class>
-      struct reference_type {};
-      template <class C>
-      requires
-        requires(const C& c) { STL2_DEDUCE_AUTO_REF_REF(c.read()); }
-      struct reference_type<C> {
-        using type = decltype(declval<const C&>().read());
-      };
-      template <class C>
-      using reference_t = meta::_t<reference_type<C>>;
-
-      // Not a bool variable template due to GCC PR68666.
-      template <class>
-      struct single_pass : false_type {};
-      template <class C>
-      requires
-        requires {
-          typename C::single_pass;
-          requires bool(C::single_pass::value);
-        }
-      struct single_pass<C> : true_type {};
-
-      // Not a bool variable template due to GCC PR68666.
-      template <class> struct contiguous : false_type {};
-      template <class C>
-      requires
-        requires {
-          typename C::contiguous;
-          requires bool(C::contiguous::value);
-          requires is_reference<reference_t<C>>::value;
-        }
-      struct contiguous<C> : true_type {};
-
-      template <class T>
-      using mixin_t = meta::_t<mixin_base<T>>;
-
-      template <class>
-      struct difference_type {
-        using type = std::ptrdiff_t;
-      };
-      template <detail::MemberDifferenceType C>
-      struct difference_type<C> {
-        using type = typename C::difference_type;
-        static_assert(models::SignedIntegral<type>,
-          "Cursor's member difference_type is not a signed integer type.");
-      };
-      template <class C>
-      requires
-        !detail::MemberDifferenceType<C> &&
-        requires(const C& lhs, const C& rhs) { rhs.distance_to(lhs); }
-      struct difference_type<C> {
-        using type = decltype(declval<const C&>().distance_to(declval<const C&>()));
-        static_assert(models::SignedIntegral<type>,
-          "Return type of Cursor's member distance_to is not a signed integer type.");
-      };
-      template <class C>
-      requires
-        SignedIntegral<meta::_t<difference_type<C>>>()
-      using difference_type_t = meta::_t<difference_type<C>>;
-
-      template <class>
-      struct value_type {};
-      template <detail::MemberValueType C>
-      struct value_type<C> {
-        using type = typename C::value_type;
-        static_assert(detail::IsValueType<type>,
-          "Cursor's member value_type is not a value type.");
-      };
-      template <class C>
-      requires
-        !detail::MemberValueType<C> &&
-        requires { typename reference_t<C>; }
-      struct value_type<C> {
-        using type = decay_t<reference_t<C>>;
-        static_assert(detail::IsValueType<type>,
-          "Cursor's reference_t does not decay to a value type.");
-      };
-      template <class C>
-      requires
-        detail::IsValueType<meta::_t<value_type<C>>>
-      using value_type_t = meta::_t<value_type<C>>;
-
-      template <class C>
-      requires
-        requires(const C& c) { c.read(); }
-      static constexpr reference_t<C> read(const C& c)
-      STL2_NOEXCEPT_RETURN(c.read())
-
-      template <class C>
-      requires
-        requires(const C& c) { c.arrow(); }
-      static constexpr decltype(auto) arrow(const C& c)
-      STL2_NOEXCEPT_RETURN(c.arrow())
-
-      template <class C, class T>
-      requires
-        requires(C& c, T&& t) { c.write(static_cast<T&&>(t)); }
-      static constexpr void write(C& c, T&& t)
-      STL2_NOEXCEPT_RETURN((void)c.write(static_cast<T&&>(t)))
-
-      template <class C>
-      requires
-        requires(C& c) { c.next(); }
-      static constexpr void next(C& c)
-      STL2_NOEXCEPT_RETURN((void)c.next())
-
-      template <class C>
-      requires
-        requires(C& c) { c.prev(); }
-      static constexpr void prev(C& c)
-      STL2_NOEXCEPT_RETURN((void)c.prev())
-
-      template <class C, class Other>
-      requires
-        requires(const C& lhs, const Other& rhs) {
-          { lhs.equal(rhs) } -> bool;
-        }
-      static constexpr bool equal(const C& lhs, const Other& rhs)
-      STL2_NOEXCEPT_RETURN(static_cast<bool>(lhs.equal(rhs)))
-
-      template <class C>
-      requires
-        requires(C& c, difference_type_t<C> n) { c.advance(n); }
-      static constexpr void advance(C& c, difference_type_t<C> n)
-      STL2_NOEXCEPT_RETURN((void)c.advance(n))
-
-      template <class C, class Other>
-      requires
-        requires(const C& lhs, const Other& rhs) {
-          STL2_EXACT_TYPE_CONSTRAINT(lhs.distance_to(rhs), difference_type_t<C>);
-        }
-      static constexpr difference_type_t<C>
-      distance(const C& lhs, const Other& rhs)
-      STL2_NOEXCEPT_RETURN(lhs.distance_to(rhs))
-
-      template <class C>
-      requires
-        requires(const C& c) { access::read(c); c.imove(); }
-      static constexpr decltype(auto) imove(const C& c)
-      STL2_NOEXCEPT_RETURN(c.imove())
-
-      template <class> struct rvalue_reference {};
-      template <class C>
-      requires
-        requires(const C& c) { access::read(c); }
-      struct rvalue_reference<C> {
-        using type = meta::if_<
-          is_reference<reference_t<C>>,
-          remove_reference_t<reference_t<C>>&&,
-          decay_t<reference_t<C>>>;
-      };
-      template <class C>
-      requires
-        requires(const C& c) { access::read(c); access::imove(c); }
-      struct rvalue_reference<C> {
-        using type = decltype(access::imove(declval<const C&>()));
-      };
-
-      template <class C>
-      using rvalue_reference_t = meta::_t<rvalue_reference<C>>;
-
-      template <class C, class O>
-      requires
-        requires(const C& c, const O& o) {
-          access::read(c);
-          access::read(o);
-          c.iswap(o);
-        }
-      static constexpr void iswap(const C& c, const O& o)
-      STL2_NOEXCEPT_RETURN((void)c.iswap(o))
-
-      template <class I>
-      requires
-        requires(I&& i) {
-          STL2_DEDUCE_AUTO_REF_REF(static_cast<I&&>(i).get());
-        }
-      static constexpr auto&& cursor(I&& i)
-      STL2_NOEXCEPT_RETURN(static_cast<I&&>(i).get())
+  namespace detail {
+    template <class T>
+    struct mixin_base {
+      using type = basic_mixin<T>;
     };
+    template <class T>
+    requires requires { typename T::mixin; }
+    struct mixin_base<T> {
+      using type = typename T::mixin;
+    };
+  }
+  template <class T>
+  using mixin_t = meta::_t<detail::mixin_base<T>>;
+
+  namespace cursor {
+    // This would perhaps more appropriately be named "disable_multi_pass." It
+    // is an opt-out trait that tells basic_iterator that an Input cursor is NOT
+    // Forward despite having equality.
+    template <class>
+    constexpr bool single_pass = false;
+    template <class C>
+    requires
+      requires {
+        typename C::single_pass;
+        requires bool(C::single_pass::value);
+      }
+    constexpr bool single_pass<C> = true;
+
+    // A RandomAccess cursor whose reference_t is a reference type and
+    // whose member type "contiguous" looks like true_type will generate
+    // a ContiguousIterator. i.e., this is an opt-in trait for contiguity.
+    template <class>
+    constexpr bool contiguous = false;
+    template <class C>
+    requires
+      requires {
+        typename C::contiguous;
+        requires bool(C::contiguous::value);
+      }
+    constexpr bool contiguous<C> =  true;
+
+    template <class>
+    struct difference_type {
+      using type = std::ptrdiff_t;
+    };
+    template <detail::MemberDifferenceType C>
+    struct difference_type<C> {
+      using type = typename C::difference_type;
+      static_assert(models::SignedIntegral<type>,
+        "Cursor's member difference_type is not a signed integer type.");
+    };
+    template <class C>
+    requires
+      !detail::MemberDifferenceType<C> &&
+      requires(const C& lhs, const C& rhs) { rhs.distance_to(lhs); }
+    struct difference_type<C> {
+      using type = decltype(declval<const C&>().distance_to(declval<const C&>()));
+      static_assert(models::SignedIntegral<type>,
+        "Return type of Cursor's member distance_to is not a signed integer type.");
+    };
+    template <class C>
+    requires
+      SignedIntegral<meta::_t<difference_type<C>>>()
+    using difference_type_t = meta::_t<difference_type<C>>;
+
+    template <class> struct reference_type {};
+    template <class C>
+    requires
+      requires(const C& c) { STL2_DEDUCE_AUTO_REF_REF(c.read()); }
+    struct reference_type<C> {
+      using type = decltype(declval<const C&>().read());
+    };
+    template <class C>
+    using reference_t = meta::_t<reference_type<C>>;
+
+    template <class> struct value_type {};
+    template <detail::MemberValueType C>
+    struct value_type<C> {
+      using type = typename C::value_type;
+      static_assert(detail::IsValueType<type>,
+        "Cursor's member \"value_type\" is not a value type.");
+    };
+    template <class C>
+    requires
+      !detail::MemberValueType<C> &&
+      requires { typename reference_t<C>; }
+    struct value_type<C> {
+      using type = decay_t<reference_t<C>>;
+      static_assert(detail::IsValueType<type>,
+        "Cursor's reference type does not decay to a value type.");
+    };
+    template <class C>
+    requires
+      detail::IsValueType<meta::_t<value_type<C>>>
+    using value_type_t = meta::_t<value_type<C>>;
 
     template <class C>
-    using reference_t = access::reference_t<C>;
-    template <class C>
-    using rvalue_reference_t = access::rvalue_reference_t<C>;
-    template <class C>
-    using value_type_t = access::value_type_t<C>;
-    template <class C>
-    using difference_type_t = access::difference_type_t<C>;
+    concept bool Cursor() {
+      return Semiregular<C>() && Semiregular<mixin_t<C>>() && requires {
+        typename difference_type_t<C>;
+      };
+    }
 
+    template <class C>
+    concept bool Readable() {
+      return Cursor<C>() && requires(const C& c) {
+        STL2_DEDUCE_AUTO_REF_REF(c.read());
+        typename reference_t<C>;
+        typename value_type_t<C>;
+      };
+    }
     template <class C>
     concept bool Arrow() {
-      return requires(const C& c) { access::arrow(c); };
-    }
-    template <class C>
-    concept bool Next() {
-      return requires(C& c) { access::next(c); };
-    }
-    template <class C>
-    concept bool Prev() {
-      return requires(C& c) { access::prev(c); };
-    }
-    template <class C>
-    concept bool IndirectMove() {
-      return requires(const C& c) { access::imove(c); };
-    }
-    template <class C, class O>
-    concept bool IndirectSwap() {
-      return requires(const C& c, const O& o) { access::iswap(c, o); };
-    }
-    template <class C>
-    concept bool Advance() {
-      return requires(C& c, difference_type_t<C> n) {
-        access::advance(c, n);
+      return Readable<C>() && requires(const C& c) {
+        STL2_DEDUCE_AUTO_REF_REF(c.arrow());
       };
     }
     template <class C, class T>
     concept bool Writable() {
-      return requires(C& c, T&& t) {
-        access::write(c, __stl2::forward<T>(t));
+      return Cursor<remove_cv_t<C>>() && requires(C& c, T&& t) {
+        c.write(__stl2::forward<T>(t)); // Not required to be equality-preserving
       };
     }
-    template <class C>
-    concept bool Readable() {
-      return requires(const C& c) {
-        typename value_type_t<C>;
-        access::read(c);
-      };
-    }
-    template <class C>
-    concept bool Cursor() {
-      return Semiregular<C>() && Semiregular<access::mixin_t<C>>();
-    }
+
     template <class S, class C>
     concept bool Sentinel() {
-      return Cursor<C>() && requires(const C& c, const S& s) {
-        access::equal(c, s);
-      };
+      return Cursor<C>() && Semiregular<S>() &&
+        requires(const C& c, const S& s) {
+          { c.equal(s) } -> bool;
+        };
     }
     template <class S, class C>
     concept bool SizedSentinel() {
       return Sentinel<S, C>() && requires(const C& c, const S& s) {
-        // Equivalent to: { access::distance(c, s) } -> Same<difference_type_t<C>;
-        STL2_EXACT_TYPE_CONSTRAINT(access::distance(c, s), difference_type_t<C>);
+        // Equivalent to: { c.distance_to(s) } -> Same<difference_type_t<C>;
+        STL2_EXACT_TYPE_CONSTRAINT(c.distance_to(s), difference_type_t<C>);
       };
     }
+
+    template <class C>
+    concept bool Next() {
+      return Cursor<C>() && requires(C& c) { c.next(); };
+    }
+    template <class C>
+    concept bool Prev() {
+      return Cursor<C>() && requires(C& c) { c.prev(); };
+    }
+    template <class C>
+    concept bool Advance() {
+      return Cursor<C>() && requires(C& c, difference_type_t<C> n) {
+        c.advance(n);
+      };
+    }
+
+    template <class C>
+    concept bool IndirectMove() {
+      return Readable<C>() && requires(const C& c) {
+        STL2_DEDUCE_AUTO_REF_REF(c.imove());
+      };
+    }
+
+    template <class> struct rvalue_reference {};
+    template <class C>
+    requires
+      Readable<C>()
+    struct rvalue_reference<C> {
+      using type = meta::if_<
+        is_reference<reference_t<C>>,
+        remove_reference_t<reference_t<C>>&&,
+        decay_t<reference_t<C>>>;
+    };
+    template <class C>
+    requires
+      IndirectMove<C>()
+    struct rvalue_reference<C> {
+      using type = decltype(declval<const C&>().imove());
+    };
+    template <class C>
+    using rvalue_reference_t = meta::_t<rvalue_reference<C>>;
+
+    template <class C1, class C2>
+    concept bool IndirectSwap() {
+      return Readable<C1>() && Readable<C2>() &&
+        requires(const C1& c1, const C2& c2) {
+          c1.iswap(c2);
+        };
+    }
+
     template <class C>
     concept bool Input() {
-      return Cursor<C>() && Readable<C>() && Next<C>();
+      return Readable<C>() && Next<C>();
     }
     template <class C>
     concept bool Forward() {
-      return Input<C>() && Sentinel<C, C>() &&
-        !access::single_pass<C>::value;
+      return Input<C>() && !single_pass<C> && Sentinel<C, C>();
     }
     template <class C>
     concept bool Bidirectional() {
@@ -329,31 +259,22 @@ STL2_OPEN_NAMESPACE {
     }
     template <class C>
     concept bool Contiguous() {
-      return RandomAccess<C>() && access::contiguous<C>::value;
+      return RandomAccess<C>() && contiguous<C> &&
+        is_reference<reference_t<C>>::value;
     }
 
     template <class>
     struct category {};
     template <Input C>
-    struct category<C> {
-      using type = input_iterator_tag;
-    };
+    struct category<C> { using type = input_iterator_tag; };
     template <Forward C>
-    struct category<C> {
-      using type = forward_iterator_tag;
-    };
+    struct category<C> { using type = forward_iterator_tag; };
     template <Bidirectional C>
-    struct category<C> {
-      using type = bidirectional_iterator_tag;
-    };
+    struct category<C> { using type = bidirectional_iterator_tag; };
     template <RandomAccess C>
-    struct category<C> {
-      using type = random_access_iterator_tag;
-    };
+    struct category<C> { using type = random_access_iterator_tag; };
     template <Contiguous C>
-    struct category<C> {
-      using type = ext::contiguous_iterator_tag;
-    };
+    struct category<C> { using type = ext::contiguous_iterator_tag; };
     template <class C>
     using category_t = meta::_t<category<C>>;
   }
@@ -492,12 +413,12 @@ STL2_OPEN_NAMESPACE {
 
       constexpr reference_t_ get_() const
       STL2_NOEXCEPT_RETURN(
-        reference_t_(cursor::access::read(*cur_))
+        reference_t_(cur_->read())
       )
       template <class T>
       constexpr void set_(T&& t)
       STL2_NOEXCEPT_RETURN(
-        cursor::access::write(*cur_, static_cast<T&&>(t))
+        (void)cur_->write(static_cast<T&&>(t))
       )
 
     public:
@@ -590,10 +511,14 @@ STL2_OPEN_NAMESPACE {
 
     template <class>
     constexpr bool is_writable = true;
-    template <cursor::Readable C>
+    template <class C>
+    requires
+      cursor::Readable<remove_cv_t<C>>()
     constexpr bool is_writable<C> = false;
-    template <cursor::Readable C>
-    requires cursor::Writable<C, cursor::value_type_t<C>&&>()
+    template <class C>
+    requires
+      cursor::Readable<remove_cv_t<C>>() &&
+      cursor::Writable<C, cursor::value_type_t<C>&&>()
     constexpr bool is_writable<C> = true;
 
     template <class Cur>
@@ -658,14 +583,26 @@ STL2_OPEN_NAMESPACE {
   : common_type<cursor::value_type_t<Cur1>, cursor::value_type_t<Cur2>>
   {};
 
+  template <class BI>
+  requires
+    meta::is<__uncvref<BI>, basic_iterator>::value
+  constexpr decltype(auto) get_cursor(BI&& i)
+  STL2_NOEXCEPT_RETURN(
+    __stl2::forward<BI>(i).get()
+  )
+
   cursor::Cursor{C}
   class basic_iterator
-  : public cursor::access::mixin_t<C>,
+  : public mixin_t<C>,
     private detail::iterator_associated_types_base<C>
   {
-    friend cursor::access;
-    using mixin_t = cursor::access::mixin_t<C>;
-    using mixin_t::get;
+    template <class BI>
+    requires
+      meta::is<__uncvref<BI>, basic_iterator>::value
+    friend constexpr decltype(auto) get_cursor(BI&& i);
+
+    using mixin = mixin_t<C>;
+    using mixin::get;
 
     using assoc_t = detail::iterator_associated_types_base<C>;
     using typename assoc_t::postfix_increment_result_t;
@@ -678,46 +615,46 @@ STL2_OPEN_NAMESPACE {
     basic_iterator() = default;
     template <ConvertibleTo<C> O>
     constexpr basic_iterator(basic_iterator<O>&& that)
-    noexcept(is_nothrow_constructible<mixin_t, O&&>::value)
-      : mixin_t(cursor::access::cursor(__stl2::move(that)))
+    noexcept(is_nothrow_constructible<mixin, O&&>::value)
+      : mixin(__stl2::get_cursor(__stl2::move(that)))
     {}
     template <ConvertibleTo<C> O>
     constexpr basic_iterator(const basic_iterator<O>& that)
-    noexcept(is_nothrow_constructible<mixin_t, const O&>::value)
-      : mixin_t(cursor::access::cursor(that))
+    noexcept(is_nothrow_constructible<mixin, const O&>::value)
+      : mixin(__stl2::get_cursor(that))
     {}
-    using mixin_t::mixin_t;
+    using mixin::mixin;
 
     template <ConvertibleTo<C> O>
     constexpr basic_iterator& operator=(basic_iterator<O>&& that) &
     noexcept(is_nothrow_assignable<C&, O&&>::value)
     {
-      get() = cursor::access::cursor(__stl2::move(that));
+      get() = __stl2::get_cursor(__stl2::move(that));
       return *this;
     }
     template <ConvertibleTo<C> O>
     constexpr basic_iterator& operator=(const basic_iterator<O>& that) &
     noexcept(is_nothrow_assignable<C&, const O&>::value)
     {
-      get() = cursor::access::cursor(that);
+      get() = __stl2::get_cursor(that);
       return *this;
     }
 
     constexpr decltype(auto) operator*() const
-    noexcept(noexcept(cursor::access::read(declval<const C&>())))
+    noexcept(noexcept(declval<const C&>().read()))
     requires cursor::Readable<C>() && !detail::is_writable<C>
     {
-      return cursor::access::read(get());
+      return get().read();
     }
     constexpr decltype(auto) operator*()
-    noexcept(noexcept(reference_t{declval<mixin_t&>().get()}))
+    noexcept(noexcept(reference_t{declval<mixin&>().get()}))
     requires cursor::Next<C>() && detail::is_writable<C>
     {
       return reference_t{get()};
     }
     constexpr decltype(auto) operator*() const
     noexcept(noexcept(
-      const_reference_t{declval<const mixin_t&>().get()}))
+      const_reference_t{declval<const mixin&>().get()}))
     requires cursor::Next<C>() && detail::is_writable<C>
     {
       return const_reference_t{get()};
@@ -730,12 +667,11 @@ STL2_OPEN_NAMESPACE {
 
     // operator->: "Manual" override
     constexpr decltype(auto) operator->() const
-    noexcept(noexcept(cursor::access::arrow(declval<const C&>())))
+    noexcept(noexcept(declval<const C&>().arrow()))
     requires
-      cursor::Readable<C>() &&
       cursor::Arrow<C>()
     {
-      return cursor::access::arrow(get());
+      return get().arrow();
     }
     // operator->: Otherwise, if reference_t is an lvalue reference,
     //   return the address of operator*()
@@ -769,40 +705,37 @@ STL2_OPEN_NAMESPACE {
       cursor::Writable<C, T>()
     constexpr basic_iterator& operator=(T&& t) &
     noexcept(noexcept(
-      cursor::access::write(declval<C&>(), static_cast<T&&>(t))))
+      declval<C&>().write(static_cast<T&&>(t))))
     {
-      cursor::access::write(get(), static_cast<T&&>(t));
+      get().write(static_cast<T&&>(t));
       return *this;
     }
 
     friend constexpr decltype(auto) iter_move(const basic_iterator& i)
-    noexcept(noexcept(cursor::access::imove(i.get())))
+    noexcept(noexcept(i.get().imove()))
     requires
-      cursor::Readable<C>() &&
       cursor::IndirectMove<C>()
     {
-      return cursor::access::imove(i.get());
+      return i.get().imove();
     }
 
     template <class O>
     requires
-      cursor::Readable<C>() &&
-      cursor::Readable<O>() &&
       cursor::IndirectSwap<C, O>()
     friend constexpr void iter_swap(
       const basic_iterator& x, const basic_iterator<O>& y)
     STL2_NOEXCEPT_RETURN(
-      cursor::access::iswap(x, y)
+      (void)x.iswap(y)
     )
 
     constexpr basic_iterator& operator++() & noexcept {
       return *this;
     }
     constexpr basic_iterator& operator++() &
-    noexcept(noexcept(cursor::access::next(declval<C&>())))
+    noexcept(noexcept(declval<C&>().next()))
     requires cursor::Next<C>()
     {
-      cursor::access::next(get());
+      get().next();
       return *this;
     }
 
@@ -817,10 +750,10 @@ STL2_OPEN_NAMESPACE {
     }
 
     constexpr basic_iterator& operator--() &
-    noexcept(noexcept(cursor::access::prev(declval<C&>())))
+    noexcept(noexcept(declval<C&>().prev()))
     requires cursor::Bidirectional<C>()
     {
-      cursor::access::prev(get());
+      get().prev();
       return *this;
     }
     constexpr basic_iterator operator--(int) &
@@ -835,17 +768,17 @@ STL2_OPEN_NAMESPACE {
     }
 
     constexpr basic_iterator& operator+=(D n) &
-    noexcept(noexcept(cursor::access::advance(declval<C&>(), n)))
+    noexcept(noexcept(declval<C&>().advance(n)))
     requires cursor::RandomAccess<C>()
     {
-      cursor::access::advance(get(), n);
+      get().advance(n);
       return *this;
     }
     constexpr basic_iterator& operator-=(D n) &
-    noexcept(noexcept(cursor::access::advance(declval<C&>(), -n)))
+    noexcept(noexcept(declval<C&>().advance(-n)))
     requires cursor::RandomAccess<C>()
     {
-      cursor::access::advance(get(), -n);
+      get().advance(-n);
       return *this;
     }
 
@@ -860,11 +793,11 @@ STL2_OPEN_NAMESPACE {
     // implicit conversions.
     friend constexpr bool operator==(
       const basic_iterator& x, const basic_iterator& y)
-    noexcept(noexcept(cursor::access::equal(x.get(), y.get())))
+    noexcept(noexcept(x.get().equal(y.get())))
     requires
       cursor::Sentinel<C, C>()
     {
-      return cursor::access::equal(x.get(), y.get());
+      return x.get().equal(y.get());
     }
     friend constexpr bool operator!=(
       const basic_iterator& x, const basic_iterator& y)
@@ -877,11 +810,11 @@ STL2_OPEN_NAMESPACE {
 
     friend constexpr D operator-(
       const basic_iterator& x, const basic_iterator& y)
-    noexcept(noexcept(cursor::access::distance(y.get(), x.get())))
+    noexcept(noexcept(y.get().distance_to(x.get())))
     requires
       cursor::SizedSentinel<C, C>()
     {
-      return cursor::access::distance(y.get(), x.get());
+      return y.get().distance_to(x.get());
     }
 
     friend constexpr bool operator<(
@@ -933,24 +866,16 @@ STL2_OPEN_NAMESPACE {
     using type = cursor::value_type_t<C>;
   };
 
-  template <class BI>
-  requires
-    meta::is<__uncvref<BI>, basic_iterator>::value
-  constexpr decltype(auto) get_cursor(BI&& i)
-  STL2_NOEXCEPT_RETURN(
-    cursor::access::cursor(__stl2::forward<BI>(i))
-  )
-
   template <class C>
   constexpr basic_iterator<C> operator+(
     const basic_iterator<C>& i, cursor::difference_type_t<C> n)
   noexcept(is_nothrow_copy_constructible<basic_iterator<C>>::value &&
            is_nothrow_move_constructible<basic_iterator<C>>::value &&
-           noexcept(cursor::access::advance(declval<C&>(), n)))
+           noexcept(declval<basic_iterator<C>&>() += n))
   requires cursor::RandomAccess<C>()
   {
     auto tmp = i;
-    cursor::access::advance(get_cursor(tmp), n);
+    tmp += n;
     return tmp;
   }
   template <class C>
@@ -975,8 +900,7 @@ STL2_OPEN_NAMESPACE {
   constexpr bool operator==(
     const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
   STL2_NOEXCEPT_RETURN(
-    cursor::access::equal(
-      __stl2::get_cursor(lhs), __stl2::get_cursor(rhs))
+    __stl2::get_cursor(lhs).equal(__stl2::get_cursor(rhs))
   )
 
   template <class C, class S>
@@ -984,7 +908,7 @@ STL2_OPEN_NAMESPACE {
   constexpr bool operator==(
     const basic_iterator<C>& lhs, const S& rhs)
   STL2_NOEXCEPT_RETURN(
-    cursor::access::equal(__stl2::get_cursor(lhs), rhs)
+    __stl2::get_cursor(lhs).equal(rhs)
   )
 
   template <class C, class S>
@@ -1008,7 +932,7 @@ STL2_OPEN_NAMESPACE {
   constexpr bool operator!=(
     const basic_iterator<C>& lhs, const S& rhs)
   STL2_NOEXCEPT_RETURN(
-    !cursor::access::equal(__stl2::get_cursor(lhs), rhs)
+    !__stl2::get_cursor(lhs).equal(rhs)
   )
 
   template <class C, class S>
@@ -1016,7 +940,7 @@ STL2_OPEN_NAMESPACE {
   constexpr bool operator!=(
     const S& lhs, const basic_iterator<C>& rhs)
   STL2_NOEXCEPT_RETURN(
-    !cursor::access::equal(__stl2::get_cursor(rhs), lhs)
+    !__stl2::get_cursor(rhs).equal(lhs)
   )
 
   template <class C1, class C2>
@@ -1024,8 +948,7 @@ STL2_OPEN_NAMESPACE {
   constexpr cursor::difference_type_t<C2> operator-(
     const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
   STL2_NOEXCEPT_RETURN(
-    cursor::access::distance(
-      __stl2::get_cursor(rhs), __stl2::get_cursor(lhs))
+    __stl2::get_cursor(rhs).distance_to(__stl2::get_cursor(lhs))
   )
 
   template <class C, class S>
@@ -1033,7 +956,7 @@ STL2_OPEN_NAMESPACE {
   constexpr cursor::difference_type_t<C> operator-(
     const S& lhs, const basic_iterator<C>& rhs)
   STL2_NOEXCEPT_RETURN(
-    cursor::access::distance(__stl2::get_cursor(rhs), lhs)
+    __stl2::get_cursor(rhs).distance_to(lhs)
   )
 
   template <class C, class S>
