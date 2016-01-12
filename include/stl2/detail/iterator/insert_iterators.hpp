@@ -16,192 +16,142 @@
 #include <stl2/memory.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
+#include <stl2/detail/iterator/basic_iterator.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-  template <class Derived, detail::MemberValueType Container>
-  class __insert_iterator_base {
-  public:
-    using container_type = Container;
-    using difference_type = std::ptrdiff_t;
-    using iterator_category = output_iterator_tag;
+  namespace detail {
+    template <MemberValueType Container>
+    class insert_cursor_base {
+    public:
+      using difference_type = std::ptrdiff_t;
 
-    // Extension
-    using value_type = typename Container::value_type;
+      constexpr insert_cursor_base() noexcept = default;
 
-    constexpr __insert_iterator_base() = default;
-    STL2_CONSTEXPR_EXT explicit
-    __insert_iterator_base(Container& x) noexcept :
-      container_{__stl2::addressof(x)} {}
+      STL2_CONSTEXPR_EXT explicit
+      insert_cursor_base(Container& x) noexcept
+      : container_{__stl2::addressof(x)} {}
 
-    STL2_CONSTEXPR_EXT Derived& operator*() noexcept {
-      return derived();
-    }
+    protected:
+      raw_ptr<Container> container_{};
+    };
 
-    STL2_CONSTEXPR_EXT Derived& operator++() & noexcept {
-      return derived();
-    }
+    template <class Cursor, class Container>
+    struct insert_cursor_mixin : protected ebo_box<Cursor> {
+      using difference_type =
+        typename insert_cursor_base<Container>::difference_type;
+      using container_type = Container;
+      using iterator_category = output_iterator_tag;
+      insert_cursor_mixin() = default;
+      using ebo_box<Cursor>::ebo_box;
+    };
 
-    STL2_CONSTEXPR_EXT Derived operator++(int) &
-    noexcept(is_nothrow_copy_constructible<Derived>::value)
-    {
-      return derived();
-    }
+    template <class T, class C>
+    concept bool BackInsertableInto =
+      requires (T&& t, C& c) {
+        c.push_back((T&&)t);
+      };
 
-  protected:
-    detail::raw_ptr<Container> container_ = nullptr;
+    template <MemberValueType Container>
+    struct back_insert_cursor : insert_cursor_base<Container> {
+      using base_t = insert_cursor_base<Container>;
+      using mixin = insert_cursor_mixin<back_insert_cursor, Container>;
 
-  private:
-    static constexpr void check() noexcept {
-      static_assert(models::DerivedFrom<Derived, __insert_iterator_base>);
-    }
-    constexpr Derived& derived() noexcept {
-      check();
-      return static_cast<Derived&>(*this);
-    }
-    constexpr const Derived& derived() const noexcept {
-      check();
-      return static_cast<const Derived&>(*this);
-    }
-  };
+      constexpr back_insert_cursor() = default;
+      using base_t::base_t;
+
+      template <BackInsertableInto<Container> T>
+      void write(T&& t) {
+        base_t::container_->push_back(__stl2::forward<T>(t));
+      }
+    };
+  }
 
   ///////////////////////////////////////////////////////////////////////////
   // back_insert_iterator [back.insert.iterator]
   //
-  namespace detail {
-    template <class C, class V>
-    concept bool back_insertable =
-      requires (C& c, V&& v) {
-        c.push_back((V&&)v);
-      };
+  template <detail::MemberValueType Container>
+  using back_insert_iterator =
+    basic_iterator<detail::back_insert_cursor<Container>>;
+
+  template <detail::MemberValueType Container>
+  STL2_CONSTEXPR_EXT auto back_inserter(Container& c) noexcept {
+    return back_insert_iterator<Container>{c};
   }
 
-  template <detail::MemberValueType Container>
-  class back_insert_iterator :
-    public __insert_iterator_base<back_insert_iterator<Container>, Container> {
-    using __base_t = __insert_iterator_base<back_insert_iterator<Container>, Container>;
-    using __base_t::container_;
-  public:
-    using typename __base_t::value_type;
+  namespace detail {
+    template <class T, class C>
+    concept bool FrontInsertableInto =
+      requires (T&& t, C& c) {
+        c.push_front((T&&)t);
+      };
 
-    using __base_t::__base_t;
-    constexpr back_insert_iterator() = default;
+    template <MemberValueType Container>
+    struct front_insert_cursor : insert_cursor_base<Container> {
+      using base_t = insert_cursor_base<Container>;
+      using mixin = insert_cursor_mixin<front_insert_cursor, Container>;
 
-    back_insert_iterator&
-    operator=(const value_type& value) &
-    requires detail::back_insertable<Container, const value_type&>
-    {
-      container_->push_back(value);
-      return *this;
-    }
+      constexpr front_insert_cursor() = default;
+      using base_t::base_t;
 
-    back_insert_iterator&
-    operator=(value_type&& value) &
-    requires detail::back_insertable<Container, value_type&&>
-    {
-      container_->push_back(__stl2::move(value));
-      return *this;
-    }
-  };
-
-  template <detail::MemberValueType Container>
-  STL2_CONSTEXPR_EXT auto back_inserter(Container& x) noexcept {
-    return back_insert_iterator<Container>{x};
+      template <FrontInsertableInto<Container> T>
+      void write(T&& t) {
+        base_t::container_->push_front(__stl2::forward<T>(t));
+      }
+    };
   }
 
   ///////////////////////////////////////////////////////////////////////////
   // front_insert_iterator [front.insert.iterator]
   //
-  namespace detail {
-    template <class C, class V>
-    concept bool front_insertable =
-      requires (C& c, V&& v) {
-        c.push_front((V&&)v);
-      };
-  }
-
   template <detail::MemberValueType Container>
-  class front_insert_iterator :
-    public __insert_iterator_base<front_insert_iterator<Container>, Container> {
-    using __base_t = __insert_iterator_base<front_insert_iterator<Container>, Container>;
-    using __base_t::container_;
-  public:
-    using typename __base_t::value_type;
-
-    using __base_t::__base_t;
-    constexpr front_insert_iterator() = default;
-
-    front_insert_iterator&
-    operator=(const value_type& value) &
-    requires detail::front_insertable<Container, const value_type&>
-    {
-      container_->push_front(value);
-      return *this;
-    }
-
-    front_insert_iterator&
-    operator=(value_type&& value) &
-    requires detail::front_insertable<Container, value_type&&>
-    {
-      container_->push_front(__stl2::move(value));
-      return *this;
-    }
-  };
+  using front_insert_iterator =
+    basic_iterator<detail::front_insert_cursor<Container>>;
 
   template <detail::MemberValueType Container>
   STL2_CONSTEXPR_EXT auto front_inserter(Container& x) noexcept {
     return front_insert_iterator<Container>{x};
   }
 
+  namespace detail {
+    template <class T, class C>
+    concept bool InsertableInto =
+      requires (T&& t, C& c, typename C::iterator i) {
+        {  c.insert(i, (T&&)t) } -> typename C::iterator;
+      };
+
+    template <MemberValueType Container>
+      requires requires { typename Container::iterator; }
+    class insert_cursor : public insert_cursor_base<Container> {
+      using base_t = insert_cursor_base<Container>;
+      using I = typename Container::iterator;
+
+      using mixin = insert_cursor_mixin<insert_cursor, Container>;
+
+      constexpr insert_cursor() = default;
+      STL2_CONSTEXPR_EXT explicit insert_cursor(Container& x, I i)
+        noexcept(is_nothrow_move_constructible<I>::value) :
+        base_t{x}, iter_{__stl2::move(i)} {}
+
+      template <InsertableInto<Container> T>
+      void write(T&& t) {
+        iter_ = base_t::container_->insert(iter_, __stl2::forward<T>(t));
+        ++iter_;
+      }
+
+    private:
+      I iter_{};
+    };
+  }
+
   ///////////////////////////////////////////////////////////////////////////
   // insert_iterator [insert.iterator]
   //
-  namespace detail {
-    template <class C, class V>
-    concept bool insertable =
-      requires (C& c, typename C::iterator i, V&& v) {
-        {  c.insert(i, (V&&)v) } -> typename C::iterator;
-      };
-  }
-
-  template <detail::MemberValueType Container>
-    requires requires { typename Container::iterator; }
-  class insert_iterator :
-    public __insert_iterator_base<insert_iterator<Container>, Container> {
-  private:
-    using __base_t = __insert_iterator_base<insert_iterator<Container>, Container>;
-    using __base_t::container_;
-    using I = typename Container::iterator;
-    I iter_;
-
-  public:
-    using typename __base_t::value_type;
-
-    insert_iterator() = default;
-    STL2_CONSTEXPR_EXT explicit insert_iterator(Container& x, I i)
-    noexcept(is_nothrow_move_constructible<I>::value)
-    : __base_t{x}, iter_{__stl2::move(i)}
-    {}
-
-    insert_iterator&
-    operator=(const value_type& value) &
-    requires detail::insertable<Container, const value_type&>
-    {
-      iter_ = container_->insert(iter_, value);
-      ++iter_;
-      return *this;
-    }
-
-    insert_iterator&
-    operator=(value_type&& value) &
-    requires detail::insertable<Container, value_type&&>
-    {
-      iter_ = container_->insert(iter_, __stl2::move(value));
-      ++iter_;
-      return *this;
-    }
-  };
+  template <detail::MemberValueType Container,
+            class I = typename Container::iterator>
+  using insert_iterator =
+    basic_iterator<detail::insert_cursor<Container>>;
 
   template <detail::MemberValueType Container>
   STL2_CONSTEXPR_EXT auto inserter(Container& x, iterator_t<Container> i)

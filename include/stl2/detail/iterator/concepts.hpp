@@ -34,7 +34,8 @@ STL2_OPEN_NAMESPACE {
     template <class T>
     constexpr bool __dereferenceable = false;
     template <class T>
-      requires requires (T& t) {
+    requires
+      requires(T& t) {
         STL2_DEDUCE_AUTO_REF_REF(*t);
       }
     constexpr bool __dereferenceable<T> = true;
@@ -43,52 +44,66 @@ STL2_OPEN_NAMESPACE {
     concept bool Dereferenceable = __dereferenceable<T&>;
   }
 
+  namespace models {
+    template <class>
+    constexpr bool Dereferenceable = false;
+    detail::Dereferenceable{R}
+    constexpr bool Dereferenceable<R> = true;
+  }
+
   ///////////////////////////////////////////////////////////////////////////
   // reference_t [iterator.assoc]
   // Not to spec: forbids void.
   //
   detail::Dereferenceable{R}
-  using reference_t =
-    decltype(*declval<R&>());
+  using reference_t = decltype(*declval<R&>());
 
   ///////////////////////////////////////////////////////////////////////////
   // iter_move [Extension]
   // From the proxy iterator work (P0022).
   //
   namespace __iter_move {
-    template <detail::Dereferenceable R>
+    void iter_move(const auto&) = delete;
+
+    template <class>
     constexpr bool has_customization = false;
     template <detail::Dereferenceable R>
     requires
       requires(R&& r) {
-        STL2_DEDUCE_AUTO_REF_REF(iter_move(static_cast<R&&>(r)));
+        STL2_DEDUCE_AUTO_REF_REF(iter_move(r));
       }
     constexpr bool has_customization<R> = true;
-
-    detail::Dereferenceable{R}
-    using __iter_move_t =
-      meta::if_<
-        is_reference<reference_t<R>>,
-        remove_reference_t<reference_t<R>>&&,
-        decay_t<reference_t<R>>>;
 
     struct fn {
       template <class R>
       requires
+        models::Dereferenceable<R> &&
         has_customization<R>
       constexpr decltype(auto) operator()(R&& r) const
       STL2_NOEXCEPT_RETURN(
-        iter_move(static_cast<R&&>(r))
+        iter_move(r)
       )
 
-      template <class R,
-        class Result = __iter_move_t<remove_reference_t<R>>>
+      template <class R>
       requires
-        !has_customization<R>
-      constexpr Result operator()(R&& r) const
-        noexcept(noexcept(Result(__stl2::move(*r))))
+        models::Dereferenceable<R> &&
+        !has_customization<R> &&
+        is_reference<reference_t<R>>::value
+      constexpr decltype(auto) operator()(R&& r) const noexcept {
+        return static_cast<remove_reference_t<reference_t<R>>&&>(*r);
+      }
+
+      template <class R>
+      requires
+        models::Dereferenceable<R> &&
+        !has_customization<R> &&
+        !is_reference<reference_t<R>>::value &&
+        models::Constructible<decay_t<reference_t<R>>, reference_t<R>>
+      constexpr auto operator()(R&& r) const
+      noexcept(is_nothrow_constructible<
+        decay_t<reference_t<R>>, reference_t<R>>::value)
       {
-        return __stl2::move(*r);
+        return decay_t<reference_t<R>>(*r);
       }
     };
   }
@@ -102,16 +117,13 @@ STL2_OPEN_NAMESPACE {
   // From the proxy iterator work (P0022).
   //
   detail::Dereferenceable{R}
-  using rvalue_reference_t =
-    decltype(__stl2::iter_move(declval<R&>()));
+  using rvalue_reference_t = decltype(__stl2::iter_move(declval<R&>()));
 
   ///////////////////////////////////////////////////////////////////////////
   // value_type [readable.iterators]
   // 20150715: Not to spec for various reasons:
   // * Resolves the ambiguity for a class with both members value_type
   //   and element_type in favor of value_type.
-  // * Defaults to decay_t<reference_t<T>> when neither value_type
-  //   nor element_type are present.
   //
   namespace detail {
     template <class T>
@@ -132,21 +144,29 @@ STL2_OPEN_NAMESPACE {
   template <class>
   struct value_type {};
 
-  detail::MemberValueType{T}
+  template <class T>
+  requires
+    detail::IsValueType<remove_cv_t<T>>
+  struct value_type<T*> {
+    using type = remove_cv_t<T>;
+  };
+
+  template <_Is<is_array> T>
+  struct value_type<T> : value_type<decay_t<T>> {};
+
+  template <detail::MemberValueType T>
+  requires
+    detail::IsValueType<typename T::value_type>
   struct value_type<T> {
     using type = typename T::value_type;
   };
 
   template <detail::MemberElementType T>
-    requires !detail::MemberValueType<T>
+  requires
+    !detail::MemberValueType<T> &&
+    detail::IsValueType<typename T::element_type>
   struct value_type<T> {
     using type = typename T::element_type;
-  };
-
-  template <detail::Dereferenceable T>
-    requires !(detail::MemberElementType<T> || detail::MemberValueType<T>)
-  struct value_type<T> {
-    using type = decay_t<reference_t<T>>;
   };
 
   ///////////////////////////////////////////////////////////////////////////

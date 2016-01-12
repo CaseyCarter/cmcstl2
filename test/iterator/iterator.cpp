@@ -33,13 +33,13 @@ struct reference_wrapper {
     return *ptr_;
   }
 
-  reference_wrapper& operator=(const T& t) &
+  reference_wrapper& operator=(const T& t)
     noexcept(std::is_nothrow_copy_assignable<T>::value) {
     get() = t;
     return *this;
   }
 
-  reference_wrapper& operator=(T&& t) // FIXME: &
+  reference_wrapper& operator=(T&& t)
     noexcept(std::is_nothrow_move_assignable<T>::value) {
     get() = __stl2::move(t);
     return *this;

@@ -23,13 +23,14 @@ STL2_OPEN_NAMESPACE {
   namespace detail {
     template <Readable I>
     requires
-      Constructible<value_type_t<I>, reference_t<I>>()
+      _IsNot<reference_t<I>, is_reference> &&
+      models::Constructible<value_type_t<I>, reference_t<I>>
     class operator_arrow_proxy {
       value_type_t<I> value_;
     public:
       constexpr explicit operator_arrow_proxy(reference_t<I>&& x)
-        noexcept(is_nothrow_constructible<value_type_t<I>, reference_t<I>>::value) :
-        value_(__stl2::move(x)) {}
+      noexcept(is_nothrow_constructible<value_type_t<I>, reference_t<I>>::value)
+      : value_(__stl2::move(x)) {}
 
       STL2_CONSTEXPR_EXT const value_type_t<I>* operator->() const noexcept {
         return __stl2::addressof(value_);
@@ -37,7 +38,8 @@ STL2_OPEN_NAMESPACE {
     };
 
     Readable{I}
-    constexpr auto operator_arrow(const I& i, ext::priority_tag<2>) noexcept
+    constexpr I operator_arrow(const I& i, ext::priority_tag<2>)
+    noexcept(is_nothrow_copy_constructible<I>::value)
     requires
       _Is<I, is_pointer> || requires { i.operator->(); }
     {
@@ -46,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 
     Readable{I}
     STL2_CONSTEXPR_EXT auto operator_arrow(const I& i, ext::priority_tag<1>)
-      noexcept(noexcept(*declval<const I&>()))
+    noexcept(noexcept(*i))
     requires
       _Is<reference_t<const I>, is_reference>
     {
@@ -54,7 +56,10 @@ STL2_OPEN_NAMESPACE {
     }
 
     Readable{I}
-    auto operator_arrow(const I& i, ext::priority_tag<0>) {
+    operator_arrow_proxy<I> operator_arrow(const I& i, ext::priority_tag<0>)
+    noexcept(is_nothrow_move_constructible<operator_arrow_proxy<I>>::value &&
+             noexcept(operator_arrow_proxy<I>{*i}))
+    {
       return operator_arrow_proxy<I>{*i};
     }
   }

@@ -20,48 +20,48 @@ STL2_OPEN_NAMESPACE {
   // StreamExtractable [Extension]
   //
   namespace ext {
-    template <class T>
+    template <class, class>
     constexpr bool __stream_extractable = false;
-    template <class T>
-      requires requires (std::istream& is, T& t) {
-        STL2_EXACT_TYPE_CONSTRAINT(is >> t, std::istream&);
+    template <class T, class Stream>
+      requires requires (Stream& is, T& t) {
+        STL2_EXACT_TYPE_CONSTRAINT(is >> t, Stream&);
         // Axiom: &is == &(is << t)
       }
-    constexpr bool __stream_extractable<T> = true;
+    constexpr bool __stream_extractable<T, Stream> = true;
 
-    template <class T>
-    concept bool StreamExtractable = __stream_extractable<T>;
+    template <class T, class Stream = std::istream>
+    concept bool StreamExtractable = __stream_extractable<T, Stream>;
   }
 
   namespace models {
-    template <class>
+    template <class, class Stream = std::istream>
     constexpr bool StreamExtractable = false;
-    __stl2::ext::StreamExtractable{T}
-    constexpr bool StreamExtractable<T> = true;
+    __stl2::ext::StreamExtractable{T, Stream}
+    constexpr bool StreamExtractable<T, Stream> = true;
   }
 
   ///////////////////////////////////////////////////////////////////////////
   // StreamInsertable [Extension]
   //
   namespace ext {
-    template <class T>
+    template <class T, class Stream>
     constexpr bool __stream_insertable = false;
-    template <class T>
-      requires requires (std::ostream& os, const T& t) {
-        STL2_EXACT_TYPE_CONSTRAINT(os << t, std::ostream&);
+    template <class T, class Stream>
+      requires requires (Stream& os, const T& t) {
+        STL2_EXACT_TYPE_CONSTRAINT(os << t, Stream&);
         // Axiom: &os == &(os << t)
       }
-    constexpr bool __stream_insertable<T> = true;
+    constexpr bool __stream_insertable<T, Stream> = true;
 
-    template <class T>
-    concept bool StreamInsertable = __stream_insertable<T>;
+    template <class T, class Stream = std::ostream>
+    concept bool StreamInsertable = __stream_insertable<T, Stream>;
   }
 
   namespace models {
-    template <class>
+    template <class, class Stream = std::ostream>
     constexpr bool StreamInsertable = false;
-    __stl2::ext::StreamInsertable{T}
-    constexpr bool StreamInsertable<T> = true;
+    __stl2::ext::StreamInsertable{T, Stream}
+    constexpr bool StreamInsertable<T, Stream> = true;
   }
 } STL2_CLOSE_NAMESPACE
 

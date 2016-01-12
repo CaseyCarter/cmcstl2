@@ -546,6 +546,28 @@ namespace meta
             using id = defer<id, T>;
         }
 
+        /// is
+        /// \cond
+        namespace detail
+        {
+            template <typename, template <typename...> class>
+            struct is_ : std::false_type
+            {
+            };
+
+            template <typename... Ts, template <typename...> class C>
+            struct is_<C<Ts...>, C> : std::true_type
+            {
+            };
+        }
+        /// \endcond
+
+        /// Test whether a type \c T is an instantiation of class
+        /// template \t C.
+        /// \ingroup trait
+        template <typename T, template <typename...> class C>
+        using is = _t<detail::is_<T, C>>;
+
         /// Compose the Alias Classes \p Fns in the parameter pack \p Ts.
         /// \ingroup composition
         template <AliasClass... Fns>

@@ -93,7 +93,7 @@ namespace ns = ::__stl2;
 #include "../simple_test.hpp"
 
 namespace associated_type_test {
-  struct A { int& operator*() const; };
+  struct A { using value_type = int; int& operator*() const; };
   struct B : A { using value_type = double; };
   struct C : A { using element_type = double; };
   struct D : A {
@@ -123,10 +123,10 @@ namespace associated_type_test {
   CONCEPT_ASSERT(models::Same<int, ns::value_type_t<int*>>);
   CONCEPT_ASSERT(models::Same<int, ns::value_type_t<int[]>>);
   CONCEPT_ASSERT(models::Same<int, ns::value_type_t<int[4]>>);
-  CONCEPT_ASSERT(models::Same<double, ns::value_type_t<B>>);
-  CONCEPT_ASSERT(models::Same<double, ns::value_type_t<C>>);
-#if VALIDATE_STL2
   CONCEPT_ASSERT(models::Same<int, ns::value_type_t<A>>);
+  CONCEPT_ASSERT(models::Same<double, ns::value_type_t<B>>);
+#if VALIDATE_STL2
+  CONCEPT_ASSERT(models::Same<int, ns::value_type_t<C>>);
   CONCEPT_ASSERT(models::Same<double, ns::value_type_t<D>>);
 #endif
   CONCEPT_ASSERT(models::Same<int, ns::value_type_t<const int*>>);

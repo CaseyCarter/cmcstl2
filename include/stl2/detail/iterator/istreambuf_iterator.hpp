@@ -135,6 +135,8 @@ STL2_OPEN_NAMESPACE {
 
     class __proxy {
     public:
+      using value_type = charT;
+
       constexpr charT operator*() const
         noexcept(is_nothrow_copy_constructible<charT>::value) {
         return keep_;

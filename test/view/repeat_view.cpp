@@ -36,6 +36,12 @@ int main() {
     static_assert(stl2::models::Same<decltype(*first), int>);
     auto second = first + 1;
     CHECK(*second == *first);
+
+    // operator-> returns a proxy
+    static_assert(
+      stl2::models::Same<
+        decltype(first.operator->()),
+        stl2::detail::operator_arrow_proxy<decltype(first)>>);
   }
   {
     using big_type = std::array<double, 128>;
@@ -54,6 +60,12 @@ int main() {
     static_assert(sizeof(first) == sizeof(void*));
     // and operator* returns a reference:
     CHECK(&*first == &v.value());
+
+    // operator-> returns a pointer
+    static_assert(
+      stl2::models::Same<
+        decltype(first.operator->()),
+        const big_type*>);
   }
   {
     auto v = stl2::repeat_view<std::vector<int>>{std::vector<int>((1 << 16), 42)};
@@ -61,7 +73,7 @@ int main() {
 
     CHECK(v.value() == std::vector<int>((1 << 16), 42));
     auto first = v.begin();
-    CHECK((*first).size() == (1U << 16));
+    CHECK((*first).size() == (1u << 16));
     CHECK(*first == v.value());
 
     // std::vector is small enough:
@@ -75,6 +87,13 @@ int main() {
     CHECK(&*first == &v.value());
     auto forty_second = first + 41;
     CHECK(&*forty_second == &v.value());
+
+    // operator-> again returns a pointer
+    static_assert(
+      stl2::models::Same<
+        decltype(first.operator->()),
+        const std::vector<int>*>);
+    CHECK(first->size() == (1u << 16));
   }
 
   return test_result();

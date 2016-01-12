@@ -29,13 +29,35 @@ namespace {
 }
 
 int main() {
-  using I = ostream_iterator<int>;
-  static_assert(models::OutputIterator<I, const int&>);
   std::stringstream ss;
-  
   static constexpr int some_ints[] = {0, 7, 1, 6, 2, 5, 3, 4};
 
-  ::copy(__stl2::begin(some_ints), __stl2::end(some_ints), I{ss, " "});
+  using I = ostream_iterator<int>;
+  static_assert(models::WeaklyIncrementable<I>);
+  static_assert(models::Same<difference_type_t<I>, std::ptrdiff_t>);
+  static_assert(models::Iterator<I>);
+  static_assert(models::Same<reference_t<I>, I&>);
+  static_assert(models::OutputIterator<I, const int&>);
+  static_assert(!models::InputIterator<I>);
+
+  I i{ss, " "};
+  static_assert(models::Same<I::difference_type, std::ptrdiff_t>);
+  static_assert(models::Same<I::char_type, char>);
+  static_assert(models::Same<I::traits_type, std::char_traits<char>>);
+  static_assert(models::Same<I::ostream_type, std::ostream>);
+
+  static_assert(models::Same<I&, decltype(*i)>);
+  static_assert(models::Same<I&, decltype(*i = 42)>);
+  static_assert(models::Same<I&, decltype(++i)>);
+  static_assert(models::Same<I, decltype(i++)>);
+
+  static_assert(noexcept(I{}));
+  static_assert(noexcept(I{ss}));
+  static_assert(noexcept(I{ss, "some text"}));
+  static_assert(noexcept(I{I{}}));
+  static_assert(noexcept(I{i}));
+
+  ::copy(__stl2::begin(some_ints), __stl2::end(some_ints), i);
   CHECK(ss.str() == "0 7 1 6 2 5 3 4 ");
   ::check_equal(
     ext::make_range(istream_iterator<int>{ss}, default_sentinel{}),

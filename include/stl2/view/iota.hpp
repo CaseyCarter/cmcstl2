@@ -16,164 +16,71 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
+#include <stl2/detail/iterator/basic_iterator.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
   WeaklyIncrementable{I}
   class iota_view {
     I first_{};
-  public:
-    class iterator {
-      I value_;
-    public:
-      using value_type = I;
-      using difference_type = difference_type_t<I>;
-      using iterator_category =
-        meta::if_c<
-          models::Incrementable<I>,
-          meta::if_c<
-            models::Decrementable<I>,
-            meta::if_c<
-              models::RandomAccessIncrementable<I>,
-              random_access_iterator_tag,
-              bidirectional_iterator_tag>,
-            forward_iterator_tag>,
-          input_iterator_tag>;
 
-      iterator() = default;
-      constexpr iterator(const iota_view& v)
+    class cursor {
+    public:
+      using difference_type = difference_type_t<I>;
+
+      cursor() = default;
+      constexpr cursor(const iota_view& v)
         noexcept(is_nothrow_copy_constructible<I>::value) :
         value_{v.first_} {}
 
-      constexpr I operator*() const
+      constexpr I read() const
         noexcept(is_nothrow_copy_constructible<I>::value) {
         return value_;
       }
 
-      constexpr iterator& operator++() &
-        noexcept(noexcept(++declval<I&>())) {
-        ++value_;
-        return *this;
-      }
-      constexpr iterator operator++(int) &
-        noexcept(is_nothrow_copy_constructible<I>::value &&
-                 is_nothrow_move_constructible<I>::value &&
-                 noexcept(++declval<I&>())) {
-        auto tmp = *this;
-        ++*this;
-        return tmp;
+      constexpr bool equal(const cursor& that) const
+        noexcept(noexcept(that.value_ == declval<const I&>()))
+        requires EqualityComparable<I>() {
+        return value_ == that.value_;
       }
 
-      constexpr iterator& operator--() &
+      constexpr void next()
+        noexcept(noexcept(++declval<I&>())) {
+        ++value_;
+      }
+
+      constexpr void prev()
         noexcept(noexcept(--declval<I&>()))
         requires ext::Decrementable<I>() {
         --value_;
-        return *this;
-      }
-      constexpr iterator operator--(int) &
-        noexcept(is_nothrow_copy_constructible<I>::value &&
-                 is_nothrow_move_constructible<I>::value &&
-                 noexcept(--declval<I&>()))
-        requires ext::Decrementable<I>() {
-        auto tmp = *this;
-        --*this;
-        return tmp;
       }
 
-      constexpr I operator[](difference_type n) const
-        noexcept(noexcept(declval<const I&>() + n))
-        requires ext::RandomAccessIncrementable<I>() {
-        return value_ + n;
-      }
-
-      constexpr iterator& operator+=(difference_type n) &
+      constexpr void advance(difference_type n)
         noexcept(noexcept(declval<I&>() += n))
         requires ext::RandomAccessIncrementable<I>() {
         value_ += n;
-        return *this;
-      }
-      constexpr iterator& operator-=(difference_type n) &
-        noexcept(noexcept(declval<I&>() -= n))
-        requires ext::RandomAccessIncrementable<I>() {
-        value_ -= n;
-        return *this;
       }
 
-      constexpr iterator operator+(difference_type n) const
-        noexcept(noexcept(iterator{declval<const I&>() + n}))
+      constexpr difference_type distance_to(const cursor& that)
+        noexcept(noexcept(that.value_ - declval<const I&>()))
         requires ext::RandomAccessIncrementable<I>() {
-        return {value_ + n};
-      }
-      constexpr iterator operator-(difference_type n) const
-        noexcept(noexcept(iterator{declval<const I&>() - n}))
-        requires ext::RandomAccessIncrementable<I>() {
-        return {value_ - n};
-      }
-      friend constexpr iterator
-      operator+(difference_type n, const iterator& i)
-        noexcept(noexcept(i + n))
-        requires ext::RandomAccessIncrementable<I>() {
-        return i + n;
+        return that.value_ - value_;
       }
 
-      friend constexpr difference_type
-      operator-(const iterator& lhs, const iterator& rhs)
-        noexcept(noexcept(lhs.value_ - rhs.value_))
-        requires ext::RandomAccessIncrementable<I>() {
-        return lhs.value_ - rhs.value_;
-      }
-
-      friend constexpr bool
-      operator==(const iterator& lhs, const iterator& rhs)
-        noexcept(noexcept(lhs.value_ == rhs.value_))
-        requires EqualityComparable<I>() {
-        return lhs.value_ == rhs.value_;
-      }
-      friend constexpr bool
-      operator!=(const iterator& lhs, const iterator& rhs)
-        noexcept(noexcept(lhs.value_ != rhs.value_))
-        requires EqualityComparable<I>() {
-        return lhs.value_ != rhs.value_;
-      }
-
-      friend constexpr bool
-      operator<(const iterator& lhs, const iterator& rhs)
-        noexcept(noexcept(lhs.value_ < rhs.value_))
-        requires StrictTotallyOrdered<I>() {
-        return lhs.value_ < rhs.value_;
-      }
-      friend constexpr bool
-      operator>(const iterator& lhs, const iterator& rhs)
-        noexcept(noexcept(lhs.value_ > rhs.value_))
-        requires StrictTotallyOrdered<I>() {
-        return lhs.value_ > rhs.value_;
-      }
-      friend constexpr bool
-      operator<=(const iterator& lhs, const iterator& rhs)
-        noexcept(noexcept(lhs.value_ <= rhs.value_))
-        requires StrictTotallyOrdered<I>() {
-        return lhs.value_ <= rhs.value_;
-      }
-      friend constexpr bool
-      operator>=(const iterator& lhs, const iterator& rhs)
-        noexcept(noexcept(lhs.value_ >= rhs.value_))
-        requires StrictTotallyOrdered<I>() {
-        return lhs.value_ >= rhs.value_;
-      }
+    private:
+      I value_;
     };
 
-    constexpr iota_view()
-      noexcept(is_nothrow_default_constructible<I>::value) = default;
-    constexpr iota_view(I&& first)
+  public:
+    iota_view() = default;
+    constexpr iota_view(I first)
       noexcept(is_nothrow_move_constructible<I>::value) :
       first_(__stl2::move(first)) {}
-    constexpr iota_view(const I& first)
-      noexcept(is_nothrow_copy_constructible<I>::value) :
-      first_(first) {}
 
+    using iterator = basic_iterator<cursor>;
     constexpr iterator begin() const
-      noexcept(noexcept(iterator{declval<iota_view&>()})) {
-      return {*this};
+      noexcept(noexcept(iterator{declval<const iota_view&>()})) {
+      return {cursor{*this}};
     }
     constexpr unreachable end() const noexcept { return {}; }
   };
