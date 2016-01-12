@@ -210,7 +210,7 @@ STL2_OPEN_NAMESPACE {
     template <class C>
     concept bool IndirectMove() {
       return Readable<C>() && requires(const C& c) {
-        STL2_DEDUCE_AUTO_REF_REF(c.imove());
+        STL2_DEDUCE_AUTO_REF_REF(c.indirect_move());
       };
     }
 
@@ -228,7 +228,7 @@ STL2_OPEN_NAMESPACE {
     requires
       IndirectMove<C>()
     struct rvalue_reference<C> {
-      using type = decltype(declval<const C&>().imove());
+      using type = decltype(declval<const C&>().indirect_move());
     };
     template <class C>
     using rvalue_reference_t = meta::_t<rvalue_reference<C>>;
@@ -237,7 +237,11 @@ STL2_OPEN_NAMESPACE {
     concept bool IndirectSwap() {
       return Readable<C1>() && Readable<C2>() &&
         requires(const C1& c1, const C2& c2) {
-          c1.iswap(c2);
+          c1.indirect_swap(c2);
+          c2.indirect_swap(c1);
+          // Axiom: If c1.read() == x and c2.read() == y then after either
+          //   c1.indirect_swap(c2) or c2.indirect_swap(c1), c1.read() == y
+          //   and c2.read() == x.
         };
     }
 
@@ -708,11 +712,11 @@ STL2_OPEN_NAMESPACE {
     }
 
     friend constexpr decltype(auto) iter_move(const basic_iterator& i)
-    noexcept(noexcept(i.get().imove()))
+    noexcept(noexcept(i.get().indirect_move()))
     requires
       cursor::IndirectMove<C>()
     {
-      return i.get().imove();
+      return i.get().indirect_move();
     }
 
     template <class O>
@@ -721,7 +725,7 @@ STL2_OPEN_NAMESPACE {
     friend constexpr void iter_swap(
       const basic_iterator& x, const basic_iterator<O>& y)
     STL2_NOEXCEPT_RETURN(
-      (void)x.iswap(y)
+      (void)x.indirect_swap(y)
     )
 
     constexpr basic_iterator& operator++() & noexcept {

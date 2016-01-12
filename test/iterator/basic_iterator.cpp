@@ -262,7 +262,7 @@ struct proxy_array {
     std::ptrdiff_t distance_to(const cursor<B>& that) const noexcept {
       return that.ptr_ - ptr_;
     }
-    O&& imove() const noexcept { return stl2::move(*ptr_); }
+    O&& indirect_move() const noexcept { return stl2::move(*ptr_); }
   };
 
   static_assert(stl2::cursor::Readable<cursor<false>>());

@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
 
       // FIXME: test
       // Extension
-      STL2_CONSTEXPR_EXT decltype(auto) imove() const
+      STL2_CONSTEXPR_EXT decltype(auto) indirect_move() const
       noexcept(noexcept(__stl2::iter_move(declval<const I&>())))
       requires InputIterator<I>()
       {
@@ -133,7 +133,8 @@ STL2_OPEN_NAMESPACE {
       // FIXME: test
       // Extension
       template <IndirectlySwappable<I> O>
-      friend STL2_CONSTEXPR_EXT void iswap(const cursor& x, const cursor<O>& y)
+      friend STL2_CONSTEXPR_EXT void indirect_swap(
+        const cursor& x, const cursor<O>& y)
       STL2_NOEXCEPT_RETURN(
         __stl2::iter_swap(
           x.get(),
