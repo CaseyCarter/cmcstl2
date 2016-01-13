@@ -45,6 +45,9 @@ void test_move_iterator() {
   {
     auto first = ranges::make_move_iterator(ranges::begin(vec)),
       last = ranges::make_move_iterator(ranges::end(vec));
+    static_assert(ranges::models::RandomAccessIterator<decltype(ranges::begin(vec))>);
+    static_assert(ranges::models::InputIterator<decltype(first)>);
+    static_assert(!ranges::models::ForwardIterator<decltype(first)>);
     auto out = ranges::back_inserter(vec2);
 
     for (; first != last; ++first, ++out) {
