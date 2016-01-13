@@ -151,9 +151,11 @@ STL2_OPEN_NAMESPACE {
 
     template <class C>
     concept bool Cursor() {
-      return Semiregular<C>() && Semiregular<mixin_t<C>>() && requires {
-        typename difference_type_t<C>;
-      };
+      return Semiregular<remove_cv_t<C>>() &&
+        Semiregular<mixin_t<remove_cv_t<C>>>() &&
+        requires {
+          typename difference_type_t<C>;
+        };
     }
 
     template <class C>
@@ -172,7 +174,7 @@ STL2_OPEN_NAMESPACE {
     }
     template <class C, class T>
     concept bool Writable() {
-      return Cursor<remove_cv_t<C>>() && requires(C& c, T&& t) {
+      return Cursor<C>() && requires(C& c, T&& t) {
         c.write(__stl2::forward<T>(t)); // Not required to be equality-preserving
       };
     }
