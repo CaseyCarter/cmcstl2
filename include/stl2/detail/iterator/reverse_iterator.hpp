@@ -16,6 +16,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/iterator/basic_iterator.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/operations.hpp>
 
@@ -23,169 +24,119 @@
 // reverse_iterator [reverse.iterator]
 //
 STL2_OPEN_NAMESPACE {
+  namespace __reverse_iterator {
+    BidirectionalIterator{I}
+    class cursor;
+
+    struct access {
+      template <_InstanceOf<cursor> C>
+      static constexpr decltype(auto) current(C&& c) noexcept {
+        return (__stl2::forward<C>(c).current_);
+      }
+    };
+
+    BidirectionalIterator{I}
+    class cursor {
+      friend access;
+      I current_{};
+
+    public:
+      using difference_type = difference_type_t<I>;
+      using value_type = value_type_t<I>;
+
+      class mixin : protected detail::ebo_box<cursor> {
+        using base_t = detail::ebo_box<cursor>;
+      public:
+        using iterator_type = I;
+        using difference_type = cursor::difference_type;
+        using value_type = cursor::value_type;
+        using iterator_category = iterator_category_t<I>;
+        using reference = reference_t<I>;
+        using pointer = I;
+
+        mixin() = default;
+        using base_t::base_t;
+
+        STL2_CONSTEXPR_EXT I base() const
+        noexcept(is_nothrow_copy_constructible<I>::value)
+        { return base_t::get().current_; }
+      };
+
+      cursor() = default;
+      STL2_CONSTEXPR_EXT explicit cursor(I x)
+      noexcept(is_nothrow_move_constructible<I>::value)
+      : current_{__stl2::move(x)}
+      {}
+      template <ConvertibleTo<I> U>
+      STL2_CONSTEXPR_EXT cursor(const cursor<U>& u)
+      noexcept(is_nothrow_constructible<I, const U&>::value)
+      : current_{access::current(u)}
+      {}
+
+      STL2_CONSTEXPR_EXT reference_t<I> read() const
+      STL2_NOEXCEPT_RETURN(
+        *__stl2::prev(current_)
+      )
+
+      STL2_CONSTEXPR_EXT I arrow() const
+      STL2_NOEXCEPT_RETURN(
+        __stl2::prev(current_)
+      )
+
+      STL2_CONSTEXPR_EXT void next()
+      STL2_NOEXCEPT_RETURN(
+        (void)--current_
+      )
+
+      STL2_CONSTEXPR_EXT void prev()
+      STL2_NOEXCEPT_RETURN(
+        (void)++current_
+      )
+
+      STL2_CONSTEXPR_EXT void advance(difference_type_t<I> n)
+      noexcept(noexcept(current_ -= n))
+      requires RandomAccessIterator<I>()
+      {
+        current_ -= n;
+      }
+
+      STL2_CONSTEXPR_EXT bool equal(
+        const cursor<EqualityComparable<I> >& that) const
+      STL2_NOEXCEPT_RETURN(
+        current_ == access::current(that)
+      )
+
+      STL2_CONSTEXPR_EXT difference_type_t<I> distance_to(
+        const cursor<SizedSentinel<I> >& that) const
+      STL2_NOEXCEPT_RETURN(
+        -(access::current(that) - current_)
+      )
+
+      // Extension
+      STL2_CONSTEXPR_EXT decltype(auto) indirect_move() const
+      STL2_NOEXCEPT_RETURN(
+        __stl2::iter_move(__stl2::prev(current_))
+      )
+
+      // Extension
+      STL2_CONSTEXPR_EXT void indirect_swap(
+        const cursor<IndirectlySwappable<I> >& that) const
+      STL2_NOEXCEPT_RETURN(
+        __stl2::iter_swap(
+          __stl2::prev(current_), __stl2::prev(access::current(that)))
+      )
+    };
+  }
+
   BidirectionalIterator{I}
-  class reverse_iterator;
-
-  struct __ri_access {
-    template <_InstanceOf<reverse_iterator> RI>
-    static constexpr auto& current(RI&& ri) noexcept {
-      return __stl2::forward<RI>(ri).current_;
-    }
-  };
-
-  BidirectionalIterator{I}
-  class reverse_iterator {
-    friend __ri_access;
-    I current_{};
-  public:
-    using iterator_type = I;
-    using difference_type = difference_type_t<I>;
-    using value_type = value_type_t<I>;
-    using iterator_category = iterator_category_t<I>;
-    using reference = reference_t<I>;
-    using pointer = I;
-
-    reverse_iterator() = default;
-    STL2_CONSTEXPR_EXT explicit reverse_iterator(I x)
-    noexcept(is_nothrow_move_constructible<I>::value)
-    : current_{__stl2::move(x)}
-    {}
-
-    template <ConvertibleTo<I> U>
-    STL2_CONSTEXPR_EXT reverse_iterator(const reverse_iterator<U>& u)
-    noexcept(is_nothrow_constructible<I, const U&>::value)
-    : current_{__ri_access::current(u)}
-    {}
-
-    template <ConvertibleTo<I> U>
-    STL2_CONSTEXPR_EXT reverse_iterator& operator=(const reverse_iterator<U>& u) &
-    noexcept(is_nothrow_assignable<I&, const U&>::value)
-    {
-      current_ = __ri_access::current(u);
-      return *this;
-    }
-
-    STL2_CONSTEXPR_EXT I base() const
-    noexcept(is_nothrow_copy_constructible<I>::value)
-    {
-      return current_;
-    }
-
-    STL2_CONSTEXPR_EXT reference operator*() const
-    STL2_NOEXCEPT_RETURN(
-      *__stl2::prev(current_)
-    )
-
-    STL2_CONSTEXPR_EXT pointer operator->() const
-    STL2_NOEXCEPT_RETURN(
-      __stl2::prev(current_)
-    )
-
-    STL2_CONSTEXPR_EXT reverse_iterator& operator++() &
-    noexcept(noexcept(--current_))
-    {
-      --current_;
-      return *this;
-    }
-    STL2_CONSTEXPR_EXT reverse_iterator operator++(int) &
-    noexcept(is_nothrow_copy_constructible<I>::value &&
-             is_nothrow_move_constructible<I>::value &&
-             noexcept(++declval<reverse_iterator&>()))
-    {
-      auto tmp = *this;
-      ++*this;
-      return tmp;
-    }
-
-    STL2_CONSTEXPR_EXT reverse_iterator& operator--() &
-    noexcept(noexcept(++current_))
-    {
-      ++current_;
-      return *this;
-    }
-    STL2_CONSTEXPR_EXT reverse_iterator operator--(int) &
-    noexcept(is_nothrow_copy_constructible<I>::value &&
-             is_nothrow_move_constructible<I>::value &&
-             noexcept(--declval<reverse_iterator&>()))
-    {
-      auto tmp = *this;
-      --*this;
-      return tmp;
-    }
-
-    STL2_CONSTEXPR_EXT reverse_iterator operator+(difference_type n) const
-    noexcept(is_nothrow_move_constructible<I>::value &&
-             noexcept(reverse_iterator{current_ - n}))
-    requires RandomAccessIterator<I>()
-    {
-      return reverse_iterator{current_ - n};
-    }
-    STL2_CONSTEXPR_EXT reverse_iterator& operator+=(difference_type n) &
-    noexcept(noexcept(current_ -= n))
-    requires RandomAccessIterator<I>()
-    {
-      current_ -= n;
-      return *this;
-    }
-    STL2_CONSTEXPR_EXT reverse_iterator operator-(difference_type n) const
-    noexcept(is_nothrow_move_constructible<I>::value &&
-             noexcept(reverse_iterator{current_ + n}))
-    requires RandomAccessIterator<I>()
-    {
-      return reverse_iterator{current_ + n};
-    }
-    STL2_CONSTEXPR_EXT reverse_iterator& operator-=(difference_type n) &
-    noexcept(noexcept(current_ += n))
-    requires RandomAccessIterator<I>()
-    {
-      current_ += n;
-      return *this;
-    }
-
-    STL2_CONSTEXPR_EXT decltype(auto) operator[](difference_type n) const
-    noexcept(noexcept(current_[-n - 1]))
-    requires RandomAccessIterator<I>()
-    {
-      return current_[-n - 1];
-    }
-
-    // Extension
-    friend STL2_CONSTEXPR_EXT decltype(auto) iter_move(
-      const reverse_iterator& i)
-    STL2_NOEXCEPT_RETURN(
-      __stl2::iter_move(__stl2::prev(i.current_))
-    )
-    // Extension
-    friend STL2_CONSTEXPR_EXT void iter_swap(
-      const reverse_iterator& x, const reverse_iterator& y)
-    noexcept(noexcept(__stl2::iter_swap(
-      __stl2::prev(x.current_), __stl2::prev(y.current_))))
-    requires IndirectlySwappable<I, I>()
-    {
-      return __stl2::iter_swap(
-        __stl2::prev(x.current_), __stl2::prev(y.current_));
-    }
-  };
-
-  EqualityComparable{I1, I2}
-  STL2_CONSTEXPR_EXT bool operator==(
-    const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
-  STL2_NOEXCEPT_RETURN(
-    __ri_access::current(x) == __ri_access::current(y)
-  )
-
-  EqualityComparable{I1, I2}
-  STL2_CONSTEXPR_EXT bool operator!=(
-    const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
-  STL2_NOEXCEPT_RETURN(
-    !(x == y)
-  )
+  using reverse_iterator = basic_iterator<__reverse_iterator::cursor<I>>;
 
   StrictTotallyOrdered{I1, I2}
   STL2_CONSTEXPR_EXT bool operator<(
     const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
   STL2_NOEXCEPT_RETURN(
-    __ri_access::current(x) > __ri_access::current(y)
+    __reverse_iterator::access::current(__stl2::get_cursor(x)) >
+      __reverse_iterator::access::current(__stl2::get_cursor(y))
   )
 
   StrictTotallyOrdered{I1, I2}
@@ -207,20 +158,6 @@ STL2_OPEN_NAMESPACE {
     const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
   STL2_NOEXCEPT_RETURN(
     !(x < y)
-  )
-
-  SizedSentinel{I1, I2}
-  STL2_CONSTEXPR_EXT difference_type_t<I2> operator-(
-    const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
-  STL2_NOEXCEPT_RETURN(
-    __ri_access::current(y) - __ri_access::current(x)
-  )
-
-  RandomAccessIterator{I}
-  STL2_CONSTEXPR_EXT reverse_iterator<I> operator+(
-    difference_type_t<I> n, const reverse_iterator<I>& x)
-  STL2_NOEXCEPT_RETURN(
-    x + n
   )
 
   template <class I>

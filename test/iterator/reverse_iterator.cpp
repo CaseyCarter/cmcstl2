@@ -456,5 +456,13 @@ int main() {
       test25(s+5, 5, s);
   }
 
+  {
+    // Verify that reverse_iterator's constructor that accepts a base iterator
+    // is explicit.
+    using RI = __stl2::reverse_iterator<char*>;
+    static_assert(__stl2::models::Constructible<RI, char*>);
+    static_assert(!__stl2::models::ConvertibleTo<char*, RI>);
+  }
+
   return test_result();
 }
