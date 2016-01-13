@@ -103,24 +103,9 @@ STL2_OPEN_NAMESPACE {
     return WeaklyEqualityComparable<T, T>();
   }
 
-  // Transitional hack that makes it ill-formed to check
-  // satisfaction of EqualityComparable<Iterator, Sentinel>().
-  // Remove this - and its specializations in iterator/concepts.hpp - later.
-  template <class T, class U>
-  constexpr bool __hack_sentinel_check = true;
-  template <class T>
-  constexpr bool __hack_sentinel_check<T, T> = true;
-
-  template <class T, class U>
-  constexpr bool __EC_sentinel_hack() {
-    static_assert(__hack_sentinel_check<T, U>,
-      "Differing-type Iterators and Sentinels do NOT satisfy EqualityComparable");
-    return true;
-  }
-
   template <class T, class U>
   concept bool EqualityComparable() {
-    return __EC_sentinel_hack<T, U>() &&
+    return
       EqualityComparable<T>() &&
       EqualityComparable<U>() &&
       WeaklyEqualityComparable<T, U>() &&

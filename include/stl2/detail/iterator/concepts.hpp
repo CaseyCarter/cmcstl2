@@ -593,12 +593,6 @@ STL2_OPEN_NAMESPACE {
     constexpr bool Sentinel<S, I> = true;
   }
 
-  // See EqualityComparable for an explanation of this.
-  template <Iterator I, Sentinel<I> S>
-  constexpr bool __hack_sentinel_check<I, S> = false;
-  template <Iterator I, Sentinel<I> S>
-  constexpr bool __hack_sentinel_check<S, I> = false;
-
   ///////////////////////////////////////////////////////////////////////////
   // SizedSentinel [iterators.sizedsentinel]
   //
