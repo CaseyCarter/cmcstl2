@@ -24,12 +24,7 @@
 STL2_OPEN_NAMESPACE {
   namespace __counted_iterator {
     Iterator{I} class cursor;
-  }
 
-  Iterator{I}
-  using counted_iterator = basic_iterator<__counted_iterator::cursor<I>>;
-
-  namespace __counted_iterator {
     struct access {
       template <_InstanceOf<cursor> CC>
       static constexpr decltype(auto) base(CC&& cc) noexcept {
@@ -38,15 +33,6 @@ STL2_OPEN_NAMESPACE {
       template <_InstanceOf<cursor> CC>
       static constexpr decltype(auto) count(CC&& cc) noexcept {
         return (__stl2::forward<CC>(cc).count_);
-      }
-
-      template <_InstanceOf<counted_iterator> CI>
-      static constexpr decltype(auto) base(CI&& ci) noexcept {
-        return access::base(__stl2::get_cursor(__stl2::forward<CI>(ci)));
-      }
-      template <_InstanceOf<counted_iterator> CI>
-      static constexpr decltype(auto) count(CI&& ci) noexcept {
-        return access::count(__stl2::get_cursor(__stl2::forward<CI>(ci)));
       }
     };
 
@@ -202,6 +188,9 @@ STL2_OPEN_NAMESPACE {
     };
   }
 
+  Iterator{I}
+  using counted_iterator = basic_iterator<__counted_iterator::cursor<I>>;
+
   template <class I>
   requires
     models::Iterator<__f<I>>
@@ -217,9 +206,9 @@ STL2_OPEN_NAMESPACE {
            noexcept(__stl2::next(declval<const I&>(), n)))
   {
     STL2_ASSUME_CONSTEXPR(n <= i.count());
-    __counted_iterator::access::base(i) =
-      __stl2::next(__counted_iterator::access::base(i), n);
-    __counted_iterator::access::count(i) -= n;
+    __counted_iterator::access::base(__stl2::get_cursor(i)) =
+      __stl2::next(__counted_iterator::access::base(__stl2::get_cursor(i)), n);
+    __counted_iterator::access::count(__stl2::get_cursor(i)) -= n;
   }
 
   RandomAccessIterator{I}
