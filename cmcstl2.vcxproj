@@ -183,6 +183,7 @@
     <ClInclude Include="include\stl2\detail\fwd.hpp" />
     <ClInclude Include="include\stl2\detail\hash.hpp" />
     <ClInclude Include="include\stl2\detail\iostream\concepts.hpp" />
+    <ClInclude Include="include\stl2\detail\iterator\basic_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\common_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\counted_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\dangling.hpp" />
@@ -359,6 +360,7 @@
     <ClCompile Include="test\functional\invoke.cpp" />
     <ClCompile Include="test\functional\not_fn.cpp" />
     <ClCompile Include="test\headers.cpp" />
+    <ClCompile Include="test\iterator\basic_iterator.cpp" />
     <ClCompile Include="test\iterator\common_iterator.cpp" />
     <ClCompile Include="test\iterator\counted_iterator.cpp" />
     <ClCompile Include="test\iterator\incomplete.cpp" />

@@ -579,6 +579,9 @@
     <ClInclude Include="include\stl2\detail\concepts\object\semiregular.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\concepts\object</Filter>
     </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\basic_iterator.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\headers.cpp">
@@ -1005,6 +1008,9 @@
       <Filter>Test Files\functional</Filter>
     </ClCompile>
     <ClCompile Include="test\iterator\incomplete.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\basic_iterator.cpp">
       <Filter>Test Files\iterator</Filter>
     </ClCompile>
   </ItemGroup>
