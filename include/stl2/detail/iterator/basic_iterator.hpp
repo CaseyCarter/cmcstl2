@@ -199,6 +199,12 @@ STL2_OPEN_NAMESPACE {
       return Cursor<C>() && requires(C& c) { c.next(); };
     }
     template <class C>
+    concept bool PostIncrement() {
+      return Cursor<C>() && requires(C& c) {
+        c.post_increment();
+      };
+    }
+    template <class C>
     concept bool Prev() {
       return Cursor<C>() && requires(C& c) { c.prev(); };
     }
@@ -550,6 +556,21 @@ STL2_OPEN_NAMESPACE {
           basic_iterator<Cur>, cursor::value_type_t<Cur>,
           reference_t, cursor::category_t<Cur>>;
     };
+
+    template <class C>
+    concept bool PostIncrementCursor() {
+      return cursor::PostIncrement<C>() &&
+        requires(C& c) {
+          STL2_EXACT_TYPE_CONSTRAINT(c.post_increment(), C);
+        };
+    }
+    template <class C>
+    concept bool PostIncrementNotCursor() {
+      return cursor::PostIncrement<C>() &&
+        requires(C& c) {
+          !STL2_EXACT_TYPE_CONSTRAINT(c.post_increment(), C);
+        };
+    }
   } // namespace detail
 
   // common_reference specializations for basic_proxy_reference
@@ -749,6 +770,27 @@ STL2_OPEN_NAMESPACE {
       postfix_increment_result_t tmp(*this);
       ++*this;
       return tmp;
+    }
+
+    constexpr decltype(auto) operator++(int) &
+    noexcept(noexcept(declval<C&>().post_increment()))
+    requires
+      // This would be simply "cursor::PostIncrement<C>()", except for
+      // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69288
+      detail::PostIncrementNotCursor<C>()
+    {
+      return get().post_increment();
+    }
+    constexpr basic_iterator operator++(int) &
+    noexcept(noexcept(basic_iterator{declval<C&>().post_increment()}))
+    requires
+      // This would be:
+      //   cursor::PostIncrement<C>() &&
+      //     Same<C, decltype(declval<C&>().post_increment())>()
+      // except for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69288
+      detail::PostIncrementCursor<C>()
+    {
+      return get().post_increment();
     }
 
     constexpr basic_iterator& operator--() &

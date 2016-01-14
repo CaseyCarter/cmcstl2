@@ -66,12 +66,8 @@ int main() {
     static_assert(models::Same<I&, decltype(++i)>);
     CHECK(&++i == &i);
     CHECK(*i == 13);
-#if 0 // FIXME
     static_assert(models::Same<I, decltype(i++)>);
     { I j{i}; CHECK(j == i++); }
-#else
-    i++;
-#endif
 
     static_assert(models::Same<bool, decltype(i == i)>);
     CHECK(i == i);

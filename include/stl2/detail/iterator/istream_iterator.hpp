@@ -81,6 +81,11 @@ STL2_OPEN_NAMESPACE {
           stream_ = nullptr;
         }
       }
+      STL2_CONSTEXPR_EXT istream_cursor post_increment() {
+        auto tmp = *this;
+        next();
+        return tmp;
+      }
 
       STL2_CONSTEXPR_EXT bool equal(const istream_cursor& that) const noexcept {
         return stream_ == that.stream_;
@@ -100,7 +105,6 @@ STL2_OPEN_NAMESPACE {
   // Not to spec:
   // * DefaultConstructible, CopyConstructible, SignedIntegral and
   //   StreamExtractable requirements are implicit.
-  // * operator++(int) returns a proxy type instead of istream_iterator.
   //
   template <class T, class charT = char, class traits = std::char_traits<charT>>
   requires
