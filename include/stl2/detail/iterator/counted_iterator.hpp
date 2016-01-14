@@ -51,33 +51,46 @@ STL2_OPEN_NAMESPACE {
     };
 
     Iterator{I}
-    class cursor : detail::ebo_box<I> {
-    public:
-      friend access;
-      using difference_type = difference_type_t<I>;
+    struct adaptor_box : protected detail::ebo_box<I> {
+      adaptor_box() = default;
+      using detail::ebo_box<I>::ebo_box;
+    };
+    InputIterator{I}
+    struct adaptor_box<I> : protected detail::ebo_box<I> {
+      using value_type = value_type_t<I>;
       using single_pass = meta::bool_<!models::ForwardIterator<I>>;
       using contiguous = meta::bool_<models::ContiguousIterator<I>>;
 
-    private:
-      using box_t = detail::ebo_box<I>;
+      adaptor_box() = default;
+      using detail::ebo_box<I>::ebo_box;
+    };
+
+    Iterator{I}
+    class cursor : public adaptor_box<I> {
+      friend access;
+      using box_t = adaptor_box<I>;
       using box_t::get;
-      difference_type count_;
+      difference_type_t<I> count_;
 
     public:
-      struct mixin : protected detail::ebo_box<cursor> {
+      using difference_type = difference_type_t<I>;
+
+      class mixin : protected detail::ebo_box<cursor> {
+        using box_t = detail::ebo_box<cursor>;
+      public:
         using iterator_type = I;
         using difference_type = cursor::difference_type;
 
         mixin() = default;
-        using mixin::ebo_box::ebo_box;
+        using box_t::box_t;
 
         STL2_CONSTEXPR_EXT I base() const
         noexcept(is_nothrow_copy_constructible<I>::value)
         {
-          return mixin::ebo_box::get().get();
+          return box_t::get().get();
         }
         STL2_CONSTEXPR_EXT difference_type count() const noexcept {
-          return mixin::ebo_box::get().count_;
+          return box_t::get().count_;
         }
       };
 
@@ -107,12 +120,6 @@ STL2_OPEN_NAMESPACE {
       noexcept(is_nothrow_constructible<I, const O&>::value)
       : box_t(access::base(that)), count_{access::count(that)}
       {}
-      // Possibly ill-conceived Extension. Again.
-      STL2_CONSTEXPR_EXT cursor(default_sentinel)
-      noexcept(is_nothrow_default_constructible<I>::value)
-      requires !models::BidirectionalIterator<I>
-      : cursor{}
-      {}
 
       STL2_CONSTEXPR_EXT decltype(auto) read() const
       noexcept(noexcept(*declval<const I&>()))
@@ -121,40 +128,20 @@ STL2_OPEN_NAMESPACE {
         return *get();
       }
 
-      // FIXME: test
-      // Extension
-      STL2_CONSTEXPR_EXT decltype(auto) indirect_move() const
-      noexcept(noexcept(__stl2::iter_move(declval<const I&>())))
-      requires InputIterator<I>()
-      {
-        return __stl2::iter_move(get());
-      }
-
-      // FIXME: test
-      // Extension
-      template <IndirectlySwappable<I> O>
-      friend STL2_CONSTEXPR_EXT void indirect_swap(
-        const cursor& x, const cursor<O>& y)
-      STL2_NOEXCEPT_RETURN(
-        __stl2::iter_swap(
-          x.get(),
-          __counted_iterator::access::base(y))
-      )
-
       template <class T>
       requires
         !InputIterator<I>() &&
         Writable<I, T&&>()
-      STL2_CONSTEXPR_EXT auto write(T&& t)
-      noexcept(noexcept(*declval<I&>() = static_cast<T&&>(t)))
+      STL2_CONSTEXPR_EXT void write(T&& t)
+      noexcept(noexcept(*declval<I&>() = __stl2::forward<T>(t)))
       {
-        return *get() = static_cast<T&&>(t);
+        *get() = __stl2::forward<T>(t);
       }
 
-      STL2_CONSTEXPR_EXT auto equal(default_sentinel) const noexcept {
+      STL2_CONSTEXPR_EXT bool equal(default_sentinel) const noexcept {
         return count_ == 0;
       }
-      STL2_CONSTEXPR_EXT auto equal(
+      STL2_CONSTEXPR_EXT bool equal(
         const cursor<Common<I> >& that) const noexcept
       {
         return count_ == access::count(that);
@@ -168,7 +155,7 @@ STL2_OPEN_NAMESPACE {
         --count_;
       }
 
-      STL2_CONSTEXPR_EXT auto prev()
+      STL2_CONSTEXPR_EXT void prev()
       noexcept(noexcept(--declval<I&>()))
       requires BidirectionalIterator<I>()
       {
@@ -176,7 +163,7 @@ STL2_OPEN_NAMESPACE {
         ++count_;
       }
 
-      STL2_CONSTEXPR_EXT auto advance(difference_type n)
+      STL2_CONSTEXPR_EXT void advance(difference_type n)
       noexcept(noexcept(declval<I&>() += n))
       requires RandomAccessIterator<I>()
       {
@@ -185,14 +172,33 @@ STL2_OPEN_NAMESPACE {
         count_ -= n;
       }
 
-      STL2_CONSTEXPR_EXT auto distance_to(
+      STL2_CONSTEXPR_EXT difference_type distance_to(
+        default_sentinel) const noexcept
+      {
+        return count_;
+      }
+      STL2_CONSTEXPR_EXT difference_type distance_to(
         const cursor<Common<I> >& that) const noexcept
       {
         return count_ - access::count(that);
       }
-      STL2_CONSTEXPR_EXT auto distance_to(default_sentinel) const noexcept {
-        return count_;
+
+      // FIXME: test
+      // Extension
+      STL2_CONSTEXPR_EXT decltype(auto) indirect_move() const
+      noexcept(noexcept(__stl2::iter_move(declval<const I&>())))
+      requires InputIterator<I>()
+      {
+        return __stl2::iter_move(get());
       }
+
+      // FIXME: test
+      // Extension
+      STL2_CONSTEXPR_EXT void indirect_swap(
+        const cursor<IndirectlySwappable<I> >& that) const
+      STL2_NOEXCEPT_RETURN(
+        __stl2::iter_swap(get(), access::base(that))
+      )
     };
   }
 
