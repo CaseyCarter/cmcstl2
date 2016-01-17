@@ -568,7 +568,7 @@ STL2_OPEN_NAMESPACE {
     concept bool PostIncrementNotCursor() {
       return cursor::PostIncrement<C>() &&
         requires(C& c) {
-          !STL2_EXACT_TYPE_CONSTRAINT(c.post_increment(), C);
+          requires !Same<decltype(c.post_increment()), C>();
         };
     }
   } // namespace detail
