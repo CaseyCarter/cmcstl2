@@ -139,8 +139,7 @@ namespace meta
         /// Variable alias for \c T::type::value
         /// \note Requires C++14 or greater.
         /// \ingroup invocation
-        //template <Integral T> // BUGBUG https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68434
-        template <class T>
+        template <Integral T>
         constexpr typename T::type::value_type _v = T::type::value;
 
         /// Lazy versions of meta actions
@@ -1847,8 +1846,16 @@ namespace meta
         // count
         namespace detail
         {
-            template <typename State, typename Val, typename T>
-            using count_fn = if_<std::is_same<Val, T>, inc<State>, State>;
+            template <typename, typename>
+            struct count_
+            {
+            };
+
+            template <typename... Ts, typename T>
+            struct count_<list<Ts...>, T>
+            {
+                using type = meta::size_t<((std::size_t)_v<std::is_same<T, Ts>> +...)>;
+            };
         }
 
         /// Count the number of times a type \p T appears in the list \p L.
@@ -1856,7 +1863,7 @@ namespace meta
         /// \f$ O(N) \f$.
         /// \ingroup query
         template <List L, typename T>
-        using count = fold<L, meta::size_t<0>, bind_back<quote<detail::count_fn>, T>>;
+        using count = _t<detail::count_<L, T>>;
 
         namespace lazy
         {
@@ -1870,8 +1877,16 @@ namespace meta
         // count_if
         namespace detail
         {
-            template <typename State, typename Val, AliasClass Fn>
-            using count_if_fn = if_<apply<Fn, Val>, inc<State>, State>;
+            template <typename, typename>
+            struct count_if_
+            {
+            };
+
+            template <typename... Ts, typename Fn>
+            requires (Integral<apply<Fn, Ts>> &&...) struct count_if_<list<Ts...>, Fn>
+            {
+                using type = meta::size_t<((std::size_t)(bool)_v<apply<Fn, Ts>> +...)>;
+            };
         }
 
         /// Count the number of times the predicate \p Fn evaluates to true for all the elements in
@@ -1880,7 +1895,7 @@ namespace meta
         /// \f$ O(N) \f$.
         /// \ingroup query
         template <List L, AliasClass Fn>
-        using count_if = fold<L, meta::size_t<0>, bind_back<quote<detail::count_if_fn>, Fn>>;
+        using count_if = _t<detail::count_if_<L, Fn>>;
 
         namespace lazy
         {
@@ -1989,8 +2004,8 @@ namespace meta
         {
             struct for_each_fn
             {
-                template <class UnaryFnction, class... Args>
-                constexpr auto operator()(list<Args...>, UnaryFnction f) const -> UnaryFnction
+                template <class Fn, class... Args>
+                constexpr auto operator()(list<Args...>, Fn f) const -> Fn
                 {
                     return (void)std::initializer_list<int>{((void)f(Args{}), 0)...}, f;
                 }
@@ -2003,7 +2018,7 @@ namespace meta
         {
             /// \endcond
 
-            /// `for_each(L, UnaryFnction)` calls the \p UnaryFnction for each
+            /// `for_each(L, Fn)` calls the \p Fn for each
             /// argument in the \p L.
             /// \ingroup runtime
             constexpr auto &&for_each = detail::static_const<detail::for_each_fn>::value;
@@ -2410,17 +2425,14 @@ namespace meta
                 using type = list<Ts>;
             };
 
-            template <typename As, typename Ts>
-            using substitutions_ = push_back<
+            template <List As, List Ts>
+                requires _v<size<Ts>> + 2 >= _v<size<As>>
+            using substitutions = push_back<
                 join<transform<
                     concat<As, repeat_n_c<size<Ts>{} + 2 - size<As>{}, back<As>>>,
                     concat<Ts, repeat_n_c<2, back<As>>>,
                     bind_back<quote_trait<subst1_>, back<As>, drop_c<Ts, size<As>{} - 2>>>>,
                 list<back<As>>>;
-
-            template <List As, List Ts>
-            using substitutions =
-                apply<if_c<(size<Ts>{} + 2 >= size<As>{}), quote<substitutions_>>, As, Ts>;
 
             template <typename T>
             struct is_vararg_ : std::false_type
@@ -2525,7 +2537,8 @@ namespace meta
 
             public:
                 template <typename... Ts>
-                using apply = _t<if_c<sizeof...(Ts) == arity, impl<Fn, list<Ts..., Fn>>>>;
+                    requires sizeof...(Ts) == arity
+                using apply = _t<impl<Fn, list<Ts..., Fn>>>;
             };
 
             // Lambda with variadic placeholder (broken out due to less efficient compile-time
@@ -2617,7 +2630,8 @@ namespace meta
                 struct thunk
                 {
                     template <typename S, typename R = _t<impl<back<Tags>, S>>>
-                    using apply = if_c<size<R>{} == 1, front<R>>;
+                        requires _v<size<R>> == 1
+                    using apply = front<R>;
                 };
 
             public:
@@ -2637,7 +2651,8 @@ namespace meta
         /// \endcode
         /// \ingroup trait
         template <typename... Ts>
-        using lambda = if_c<(sizeof...(Ts) > 0), detail::lambda_<list<Ts...>>>;
+            requires sizeof...(Ts) > 0
+        using lambda = detail::lambda_<list<Ts...>>;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // is_valid
@@ -2669,7 +2684,7 @@ namespace meta
         /// \cond
         namespace detail
         {
-            template <typename... As>
+            template <typename...>
             struct let_
             {
             };
@@ -2849,12 +2864,15 @@ namespace meta
         }
         /// \endcond
 
-        /// A user-defined literal that generates objects of type \c meta::size_t.
-        /// \ingroup integral
-        template <char... Chs>
-        constexpr fold<list<char_<Chs>...>, meta::size_t<0>, quote<detail::atoi_>> operator"" _z()
+        inline namespace literals
         {
-            return {};
+            /// A user-defined literal that generates objects of type \c meta::size_t.
+            /// \ingroup integral
+            template <char... Chs>
+            constexpr fold<list<char_<Chs>...>, meta::size_t<0>, quote<detail::atoi_>> operator"" _z()
+            {
+                return {};
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////

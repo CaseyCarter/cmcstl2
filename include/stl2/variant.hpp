@@ -695,7 +695,7 @@ STL2_OPEN_NAMESPACE {
       return *this;
     }
 
-    template <_IsNot<is_reference> T, class CF = constructible_from<const T&>>
+    template <class T, class CF = constructible_from<const T&>>
       requires CF::value && !CF::ambiguous &&
         Same<T, meta::at_c<types, CF::index>>() &&
         Copyable<T>()
