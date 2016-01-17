@@ -333,9 +333,6 @@
     <ClInclude Include="include\stl2\detail\algorithm\merge.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\algorithm\merge_move.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
-    </ClInclude>
     <ClInclude Include="include\stl2\detail\algorithm\min.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
     </ClInclude>
@@ -373,9 +370,6 @@
       <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
     </ClInclude>
     <ClInclude Include="include\stl2\detail\algorithm\partition_copy.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\algorithm\partition_move.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
     </ClInclude>
     <ClInclude Include="include\stl2\detail\algorithm\partition_point.hpp">
@@ -540,9 +534,6 @@
     <ClInclude Include="include\stl2\detail\algorithm\random_access_sort.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\algorithm\reverse_move.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
-    </ClInclude>
     <ClInclude Include="include\stl2\detail\compressed_pair.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail</Filter>
     </ClInclude>
@@ -581,6 +572,12 @@
     </ClInclude>
     <ClInclude Include="include\stl2\detail\iterator\basic_iterator.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\operator_arrow.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\semiregular_box.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -776,9 +773,6 @@
     <ClCompile Include="test\algorithm\merge.cpp">
       <Filter>Test Files\algorithm</Filter>
     </ClCompile>
-    <ClCompile Include="test\algorithm\merge_move.cpp">
-      <Filter>Test Files\algorithm</Filter>
-    </ClCompile>
     <ClCompile Include="test\algorithm\min_element.cpp">
       <Filter>Test Files\algorithm</Filter>
     </ClCompile>
@@ -801,9 +795,6 @@
       <Filter>Test Files\algorithm</Filter>
     </ClCompile>
     <ClCompile Include="test\algorithm\partition_copy.cpp">
-      <Filter>Test Files\algorithm</Filter>
-    </ClCompile>
-    <ClCompile Include="test\algorithm\partition_move.cpp">
       <Filter>Test Files\algorithm</Filter>
     </ClCompile>
     <ClCompile Include="test\algorithm\partition_point.cpp">

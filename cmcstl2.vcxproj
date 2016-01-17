@@ -110,7 +110,6 @@
     <ClInclude Include="include\stl2\detail\algorithm\max.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\max_element.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\merge.hpp" />
-    <ClInclude Include="include\stl2\detail\algorithm\merge_move.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\min.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\minmax.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\minmax_element.hpp" />
@@ -125,7 +124,6 @@
     <ClInclude Include="include\stl2\detail\algorithm\partial_sort_copy.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\partition.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\partition_copy.hpp" />
-    <ClInclude Include="include\stl2\detail\algorithm\partition_move.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\partition_point.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\pop_heap.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\prev_permutation.hpp" />
@@ -141,7 +139,6 @@
     <ClInclude Include="include\stl2\detail\algorithm\replace_if.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\reverse.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\reverse_copy.hpp" />
-    <ClInclude Include="include\stl2\detail\algorithm\reverse_move.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\rotate.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\rotate_copy.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\search.hpp" />
@@ -195,8 +192,10 @@
     <ClInclude Include="include\stl2\detail\iterator\ostream_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\unreachable.hpp" />
     <ClInclude Include="include\stl2\detail\meta.hpp" />
+    <ClInclude Include="include\stl2\detail\operator_arrow.hpp" />
     <ClInclude Include="include\stl2\detail\range\range.hpp" />
     <ClInclude Include="include\stl2\detail\raw_ptr.hpp" />
+    <ClInclude Include="include\stl2\detail\semiregular_box.hpp" />
     <ClInclude Include="include\stl2\detail\swap.hpp" />
     <ClInclude Include="include\stl2\detail\tagged.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\concepts.hpp" />
@@ -279,7 +278,6 @@
     <ClCompile Include="test\algorithm\max.cpp" />
     <ClCompile Include="test\algorithm\max_element.cpp" />
     <ClCompile Include="test\algorithm\merge.cpp" />
-    <ClCompile Include="test\algorithm\merge_move.cpp" />
     <ClCompile Include="test\algorithm\min.cpp" />
     <ClCompile Include="test\algorithm\minmax.cpp" />
     <ClCompile Include="test\algorithm\minmax_element.cpp" />
@@ -294,7 +292,6 @@
     <ClCompile Include="test\algorithm\partial_sort_copy.cpp" />
     <ClCompile Include="test\algorithm\partition.cpp" />
     <ClCompile Include="test\algorithm\partition_copy.cpp" />
-    <ClCompile Include="test\algorithm\partition_move.cpp" />
     <ClCompile Include="test\algorithm\partition_point.cpp" />
     <ClCompile Include="test\algorithm\pop_heap.cpp" />
     <ClCompile Include="test\algorithm\prev_permutation.cpp" />
