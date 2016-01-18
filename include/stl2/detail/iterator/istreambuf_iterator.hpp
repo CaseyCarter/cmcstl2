@@ -113,14 +113,12 @@ STL2_OPEN_NAMESPACE {
         constexpr mixin() noexcept = default;
         using box_t::box_t;
 
-        // Yuck. This can't be simply "istreambuf_iterator<charT, traits>".
-        // Since istreambuf_iterator derives from mixin, mixin must be
-        // instantiable before istreambuf_iterator<charT, traits> is complete.
-        template <class C = cursor>
-        requires Same<C, cursor>()
+        // Yuck. This can't be simply "basic_iterator<cursor>".
+        // Since basic_iterator<cursor> derives from mixin, mixin must be
+        // instantiable before basic_iterator<cursor> is complete.
         STL2_CONSTEXPR_EXT bool
-        equal(const basic_iterator<C>& that) const noexcept {
-          return box_t::get().eq(__stl2::get_cursor(that));
+        equal(const basic_iterator<Same<cursor> >& that) const noexcept {
+          return box_t::get().equal(__stl2::get_cursor(that));
         }
       };
 
@@ -153,7 +151,7 @@ STL2_OPEN_NAMESPACE {
       }
 
       STL2_CONSTEXPR_EXT bool equal(const cursor& that) const noexcept {
-        return eq(that);
+        return (sbuf_ == nullptr) == (that.sbuf_ == nullptr);
       }
       STL2_CONSTEXPR_EXT bool equal(default_sentinel) const noexcept {
         return sbuf_ == nullptr;
@@ -161,10 +159,6 @@ STL2_OPEN_NAMESPACE {
 
     private:
       detail::raw_ptr<streambuf_type> sbuf_ = nullptr;
-
-      constexpr bool eq(const cursor& that) const noexcept {
-        return (sbuf_ == nullptr) == (that.sbuf_ == nullptr);
-      }
 
       charT current() const {
         auto c = sbuf_->sgetc();
