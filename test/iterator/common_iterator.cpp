@@ -10,6 +10,7 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <algorithm>
+#include <numeric>
 #include <stl2/iterator.hpp>
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
