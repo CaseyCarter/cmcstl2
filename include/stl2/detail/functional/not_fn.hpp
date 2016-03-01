@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
   public:
     template <class FF>
       requires Constructible<F, FF>()
-    constexpr __not_fn(FF&& arg)
+    explicit constexpr __not_fn(FF&& arg)
       noexcept(is_nothrow_constructible<F, FF>::value) :
       f_(__stl2::forward<decltype(arg)>(arg)) {}
 
@@ -55,6 +55,15 @@ STL2_OPEN_NAMESPACE {
         !__invoke::impl((F&&)f, __stl2::forward<Args>(args)...);
       }
     constexpr bool operator()(Args&&...args) &&
+    STL2_NOEXCEPT_RETURN(
+      !__invoke::impl(__stl2::move(f_), __stl2::forward<Args>(args)...)
+    )
+
+    template <class...Args>
+      requires requires (F&& f, Args&&...args) {
+        !__invoke::impl((F&&)f, __stl2::forward<Args>(args)...);
+      }
+    constexpr bool operator()(Args&&...args) const&&
     STL2_NOEXCEPT_RETURN(
       !__invoke::impl(__stl2::move(f_), __stl2::forward<Args>(args)...)
     )

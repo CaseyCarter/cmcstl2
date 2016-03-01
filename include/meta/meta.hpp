@@ -2653,7 +2653,7 @@ namespace meta
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // lambda
-        /// Fnor creating anonymous Callables.
+        /// For creating anonymous Callables.
         /// \code
         /// using L = lambda<_a, _b, std::pair<_b, std::pair<_a, _a>>>;
         /// using P = invoke<L, int, short>;
@@ -2666,20 +2666,20 @@ namespace meta
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // is_valid
-        /// Fnor testing whether a deferred computation will succeed in a \c let or a \c lambda.
+        /// For testing whether a deferred computation will succeed in a \c let or a \c lambda.
         /// \ingroup trait
         template <typename T>
         using is_valid = detail::is_valid_<T>;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // vararg
-        /// Fnor defining variadic placeholders.
+        /// For defining variadic placeholders.
         template <typename T>
         using vararg = detail::vararg_<T>;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // protect
-        /// Fnor preventing the evaluation of a nested `defer`ed computation in a \c let or
+        /// For preventing the evaluation of a nested `defer`ed computation in a \c let or
         /// \c lambda expression.
         template <typename T>
         using protect = detail::protect_<T>;
