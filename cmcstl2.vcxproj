@@ -367,6 +367,7 @@
     <ClCompile Include="test\iterator\ostreambuf_iterator.cpp" />
     <ClCompile Include="test\iterator\ostream_iterator.cpp" />
     <ClCompile Include="test\iterator\unreachable.cpp" />
+    <ClCompile Include="test\meta.cpp" />
     <ClCompile Include="test\optional.cpp" />
     <ClCompile Include="test\range_access.cpp" />
     <ClCompile Include="test\tagged.cpp" />

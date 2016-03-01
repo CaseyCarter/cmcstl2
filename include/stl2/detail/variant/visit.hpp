@@ -104,14 +104,14 @@ STL2_OPEN_NAMESPACE {
     // type, which visit returns.
     template <class F, Variant...Vs>
     using VisitReturn =
-      meta::apply_list<meta::quote<common_type_t>, all_return_types<F, Vs...>>;
+      meta::apply<meta::quote<common_type_t>, all_return_types<F, Vs...>>;
 
     #else
     // Require the return type of all alternatives to have a common
     // reference type, which visit returns.
     template <class F, Variant...Vs>
     using VisitReturn =
-      meta::apply_list<meta::quote<common_reference_t>, all_return_types<F, Vs...>>;
+      meta::apply<meta::quote<common_reference_t>, all_return_types<F, Vs...>>;
     #endif
 
     template <class F, class...Vs>
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 
     RawVisitorWithIndices{F, ...Vs}
     constexpr bool VisitNothrow =
-      meta::_v<meta::apply_list<meta::quote<meta::fast_and>,
+      meta::_v<meta::apply<meta::quote<meta::strict_and>,
         meta::transform<all_visit_vectors<Vs...>,
           meta::bind_front<meta::quote<single_visit_noexcept>,
             F, meta::list<Vs...>>>>>;

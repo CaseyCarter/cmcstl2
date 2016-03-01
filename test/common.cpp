@@ -17,7 +17,7 @@ using std::tuple;
 using namespace __stl2;
 
 static_assert(is_same<common_type_t<int, short&, int, char>, int>(), "");
-static_assert(!meta::has_type<common_type<int, short, int, char*>>(), "");
+static_assert(!meta::is_trait<common_type<int, short, int, char*>>(), "");
 
 struct X {};
 struct Y { explicit Y(X){} };
@@ -42,7 +42,7 @@ static_assert(is_same<common_type_t<AA, BB>, AA>(), ""); // (C)
 
 static_assert(is_same<common_reference_t<int &&, int const &, int volatile &>, int const volatile &>(), "");
 static_assert(is_same<common_reference_t<int &&, int const &, float &>, float>(), "");
-static_assert(!meta::has_type<common_reference<int, short, int, char*>>(), "");
+static_assert(!meta::is_trait<common_reference<int, short, int, char*>>(), "");
 
 STL2_OPEN_NAMESPACE {
 template <class...T, class...U, template <class> class TQual, template <class> class UQual>
@@ -60,7 +60,7 @@ static_assert(is_same<
   common_reference_t<volatile tuple<int, short> &, const tuple<int,short>&>,
   const volatile tuple<int, short>&>(), "");
 
-static_assert(!meta::has_type<
+static_assert(!meta::is_trait<
   common_reference<volatile tuple<short> &, const tuple<int,short>&>>(), "");
 
 struct B {};

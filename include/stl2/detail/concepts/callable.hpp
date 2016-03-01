@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
       Callable<F, reference_t<Is>...>() &&
       Callable<F, iter_common_reference_t<Is>...>() &&
       // redundantly checks the above 3 requirements
-      meta::_v<meta::apply<
+      meta::_v<meta::invoke<
         __iter_map_reduce_fn<
           meta::bind_front<meta::quote<__callable_result_t>, F>,
           meta::quote<__common_reference>>,
@@ -113,10 +113,10 @@ STL2_OPEN_NAMESPACE {
       Predicate<F, reference_t<Is>...>() &&
       Predicate<F, iter_common_reference_t<Is>...>() &&
       // redundantly checks the above 3 requirements
-      meta::_v<meta::apply<
+      meta::_v<meta::invoke<
         __iter_map_reduce_fn<
           meta::bind_front<meta::quote<__predicate>, F>,
-          meta::quote<meta::fast_and>>,
+          meta::quote<meta::strict_and>>,
         Is...>>;
   }
 

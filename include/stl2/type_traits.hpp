@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
   template <class T>
   struct __unary {
     template <class U>
-    using apply = meta::apply<T, U>;
+    using apply = meta::invoke<T, U>;
   };
 
   template <class T, class X = remove_reference_t<T>>
@@ -140,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 
   template <class T, class U>
   struct __common_reference2
-    : meta::if_<meta::has_type<__basic_common_reference<T, U>>,
+    : meta::if_<meta::is_trait<__basic_common_reference<T, U>>,
         __basic_common_reference<T, U>, common_type<T, U>> { };
 
   template <class T, class U>

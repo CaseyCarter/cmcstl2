@@ -53,14 +53,11 @@ namespace meta
         template <typename T, template <T...> class C, T... Is>
         struct defer_i;
 
-        namespace detail
-        {
-            template <typename T>
-            constexpr bool _is_list = false;
+        template <typename T>
+        constexpr bool is_list_v = false;
 
-            template <typename... Ts>
-            constexpr bool _is_list<list<Ts...>> = true;
-        } // namespace detail
+        template <typename... Ts>
+        constexpr bool is_list_v<list<Ts...>> = true;
 
         template <typename...>
         concept bool True = true;
@@ -87,13 +84,13 @@ namespace meta
         };
 
         template <typename T>
-        concept bool AliasClass = requires
+        concept bool Callable = requires
         {
-            typename quote<T::template apply>;
+            typename quote<T::template invoke>;
         };
 
         template <typename T>
-        concept bool List = detail::_is_list<T>;
+        concept bool List = is_list_v<T>;
 
         // clang-format off
         template <typename T>
@@ -125,16 +122,13 @@ namespace meta
         template <typename T>
         struct id;
 
-        template <AliasClass... Fs>
+        template <Callable... Fs>
         struct compose;
-
-        template <typename T>
-        struct always;
 
         namespace extension
         {
-            template <AliasClass F, typename L>
-            struct apply_list;
+            template <Callable F, typename L>
+            struct apply;
         }
 
         using std::integer_sequence;

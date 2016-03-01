@@ -513,7 +513,7 @@ STL2_OPEN_NAMESPACE {
       move_assign_base(move_assign_base&&) = default;
       move_assign_base(const move_assign_base&) = default;
       move_assign_base& operator=(move_assign_base&& that) &
-        noexcept(meta::_v<meta::fast_and<
+        noexcept(meta::_v<meta::strict_and<
           meta::all_of<meta::list<element_t<Ts>...>,
             meta::quote_trait<is_nothrow_move_assignable>>,
           meta::all_of<meta::list<element_t<Ts>...>,
@@ -607,7 +607,7 @@ STL2_OPEN_NAMESPACE {
       copy_assign_base(const copy_assign_base&) = default;
       copy_assign_base& operator=(copy_assign_base&&) & = default;
       copy_assign_base& operator=(const copy_assign_base& that) &
-        noexcept(meta::_v<meta::fast_and<
+        noexcept(meta::_v<meta::strict_and<
           meta::all_of<meta::list<element_t<Ts>...>,
             meta::quote_trait<is_nothrow_copy_assignable>>,
           meta::all_of<meta::list<element_t<Ts>...>,

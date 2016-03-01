@@ -130,15 +130,15 @@ namespace associated_type_test {
   CONCEPT_ASSERT(models::Same<double, ns::value_type_t<D>>);
 #endif
   CONCEPT_ASSERT(models::Same<int, ns::value_type_t<const int*>>);
-  CONCEPT_ASSERT(!meta::has_type<ns::value_type<void>>());
-  CONCEPT_ASSERT(!meta::has_type<ns::value_type<void*>>());
+  CONCEPT_ASSERT(!meta::is_trait<ns::value_type<void>>());
+  CONCEPT_ASSERT(!meta::is_trait<ns::value_type<void*>>());
 
   CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int*>>);
   CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int[]>>);
   CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int[4]>>);
 
-  CONCEPT_ASSERT(!meta::has_type<ns::difference_type<void>>());
-  CONCEPT_ASSERT(!meta::has_type<ns::difference_type<void*>>());
+  CONCEPT_ASSERT(!meta::is_trait<ns::difference_type<void>>());
+  CONCEPT_ASSERT(!meta::is_trait<ns::difference_type<void*>>());
 
   CONCEPT_ASSERT(models::Same<int, ns::difference_type_t<int>>);
   CONCEPT_ASSERT(models::Same<ns::iterator_category_t<D>, ns::forward_iterator_tag>);
@@ -155,7 +155,7 @@ namespace associated_type_test {
 
   template <class T, bool Derive>
   using iterator =
-    meta::apply_list<
+    meta::apply<
       meta::bind_front<
         meta::quote<std::iterator>,
         meta::if_c<Derive, derive_from<T>, T>>,
@@ -167,8 +167,8 @@ namespace associated_type_test {
   template <class T, bool B, class U>
   using test = std::is_same<ns::iterator_category_t<iterator<T, B>>, U>;
 
-  CONCEPT_ASSERT(!meta::has_type<ns::iterator_category<iterator<std::output_iterator_tag, false>>>());
-  CONCEPT_ASSERT(!meta::has_type<ns::iterator_category<iterator<std::output_iterator_tag, true>>>());
+  CONCEPT_ASSERT(!meta::is_trait<ns::iterator_category<iterator<std::output_iterator_tag, false>>>());
+  CONCEPT_ASSERT(!meta::is_trait<ns::iterator_category<iterator<std::output_iterator_tag, true>>>());
 
   CONCEPT_ASSERT(test<std::input_iterator_tag, false, ns::input_iterator_tag>());
   CONCEPT_ASSERT(test<std::forward_iterator_tag, false, ns::forward_iterator_tag>());

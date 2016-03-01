@@ -1004,6 +1004,9 @@
     <ClCompile Include="test\iterator\basic_iterator.cpp">
       <Filter>Test Files\iterator</Filter>
     </ClCompile>
+    <ClCompile Include="test\meta.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="test\CMakeLists.txt">
