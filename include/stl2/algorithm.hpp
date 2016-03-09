@@ -16,6 +16,7 @@
 #include <stl2/detail/algorithm/adjacent_find.hpp>
 #include <stl2/detail/algorithm/all_of.hpp>
 #include <stl2/detail/algorithm/any_of.hpp>
+#include <stl2/detail/algorithm/binary_search.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
 #include <stl2/detail/algorithm/copy_backward.hpp>
 #include <stl2/detail/algorithm/copy_if.hpp>
