@@ -112,8 +112,6 @@ struct bad_overloaded_const_address {
   void operator&() const;
 };
 
-struct incomplete;
-
 struct semiregular {};
 
 struct regular {
@@ -146,7 +144,12 @@ CONCEPT_ASSERT(!models::Destructible<int(&)[2]>);
 CONCEPT_ASSERT(models::Destructible<moveonly>);
 CONCEPT_ASSERT(models::Destructible<nonmovable>);
 CONCEPT_ASSERT(!models::Destructible<indestructible>);
+
+#if 0
+// ill-formed (hard error)
+struct incomplete;
 CONCEPT_ASSERT(!models::Destructible<incomplete>);
+#endif
 
 CONCEPT_ASSERT(models::Destructible<partial_overloaded_address>);
 CONCEPT_ASSERT(models::Destructible<overloaded_address>);

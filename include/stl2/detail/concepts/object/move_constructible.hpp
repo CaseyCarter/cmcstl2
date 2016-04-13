@@ -46,6 +46,22 @@ STL2_OPEN_NAMESPACE {
     constexpr bool Addressable<T> = true;
   }
 
+  namespace detail {
+    template <class>
+    constexpr bool is_complete_object = false;
+
+    template <_Is<is_object> T>
+    requires
+      sizeof(T) > 0
+    constexpr bool is_complete_object<T> = true;
+
+    template <class T>
+    constexpr bool MustBeComplete() {
+      static_assert(is_complete_object<T>, "Concept check for incomplete type T.");
+      return true;
+    }
+  }
+
   ///////////////////////////////////////////////////////////////////////////
   // Destructible [concepts.lib.object.destructible]
   // Not to spec: is_object and accepting the parameters by reference are
@@ -55,11 +71,14 @@ STL2_OPEN_NAMESPACE {
   template <class>
   constexpr bool __destructible = false;
   template <class T>
-    requires _Is<T, is_object> && requires (T& t, T* const p) {
-      { t.~T() } noexcept;
-      delete p;
-      delete[] p;
-    }
+    requires _Is<T, is_object> &&
+      _IsNot<T, is_array> &&
+      detail::MustBeComplete<T>() &&
+      requires (T& t, T* const p) {
+        { t.~T() } noexcept;
+        delete p;
+        delete[] p;
+      }
   constexpr bool __destructible<T> = true;
 
   template <class T>
