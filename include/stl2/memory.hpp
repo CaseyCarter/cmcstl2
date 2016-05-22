@@ -117,19 +117,18 @@ STL2_OPEN_NAMESPACE {
     constexpr bool __user_defined_addressof<T> = true;
 
     template <class T>
-    constexpr T* impl(T& t) noexcept {
-      return &t;
-    }
-
-    template <class T>
     requires
       __user_defined_addressof<T>
     T* impl(T& t) noexcept {
       return std::addressof(t);
     }
+
+    constexpr auto impl(auto& t) noexcept {
+      return &t;
+    }
   }
   template <class T>
-  STL2_CONSTEXPR_EXT T* addressof(T& t) noexcept {
+  constexpr T* addressof(T& t) noexcept {
     return __addressof::impl(t);
   }
 } STL2_CLOSE_NAMESPACE
