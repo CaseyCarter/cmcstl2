@@ -54,12 +54,10 @@ STL2_OPEN_NAMESPACE {
       auto comp = ext::make_callable_wrapper(__stl2::forward<R>(comp_));
       auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
       *result = *first;
-      auto m = result;
       while (++first != last) {
         reference_t<I>&& v = *first;
-        if (!comp(proj(v), proj(*m))) {
+        if (!comp(proj(v), proj(*result)) {
           *++result = __stl2::forward<reference_t<I>>(v);
-          m = result;
         }
       }
       ++result;
