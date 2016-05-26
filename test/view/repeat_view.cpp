@@ -68,12 +68,13 @@ int main() {
         const big_type*>);
   }
   {
-    auto v = stl2::repeat_view<std::vector<int>>{std::vector<int>((1 << 16), 42)};
+    constexpr unsigned N = 1u << 16;
+    auto v = stl2::repeat_view<std::vector<int>>{std::vector<int>(N, 42)};
     static_assert(sizeof(v) == sizeof(std::vector<int>));
 
-    CHECK(v.value() == std::vector<int>((1 << 16), 42));
+    CHECK(v.value() == std::vector<int>(N, 42));
     auto first = v.begin();
-    CHECK((*first).size() == (1u << 16));
+    CHECK((*first).size() == N);
     CHECK(*first == v.value());
 
     // std::vector is small enough:
@@ -93,7 +94,7 @@ int main() {
       stl2::models::Same<
         decltype(first.operator->()),
         const std::vector<int>*>);
-    CHECK(first->size() == (1u << 16));
+    CHECK(first->size() == N);
   }
 
   return test_result();
