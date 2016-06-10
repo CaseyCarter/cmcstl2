@@ -67,12 +67,12 @@ STL2_OPEN_NAMESPACE {
     class optional;
 
     struct access {
-      template <class O>
+      template <_InstanceOf<optional> O>
       static constexpr auto&& v(O&& o) noexcept {
         return __stl2::forward<O>(o).v_;
       }
       static constexpr decltype(auto) cv(const optional<auto>& o) noexcept {
-        return access::v(o);
+        return o.v_;
       }
     };
 
@@ -112,15 +112,17 @@ STL2_OPEN_NAMESPACE {
       variant<nullopt_t, T> v_ = nullopt;
 
       template <class U>
+      requires Same<variant<nullopt_t, T>, decay_t<U>>()
       static constexpr decltype(auto) get_unchecked(U&& v) noexcept {
         STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<T>(v));
-        return __stl2::get_unchecked<T>(__stl2::forward<decltype(v)>(v));
+        return __stl2::get_unchecked<T>(__stl2::forward<U>(v));
       }
 
       template <class U>
+      requires Same<variant<nullopt_t, T>, decay_t<U>>()
       static constexpr decltype(auto) get(U&& v) {
         __stl2::holds_alternative<T>(v) || bad_access();
-        return __stl2::get_unchecked<T>(__stl2::forward<decltype(v)>(v));
+        return __stl2::get_unchecked<T>(__stl2::forward<U>(v));
       }
 
     public:
@@ -389,7 +391,13 @@ STL2_OPEN_NAMESPACE {
       STL2_NOEXCEPT_RETURN(
         l < r
       )
-      constexpr bool operator()(const auto&, const auto&) const noexcept {
+      constexpr bool operator()(const auto&, nullopt_t) const noexcept {
+        return false;
+      }
+      constexpr bool operator()(nullopt_t, const auto&) const noexcept {
+        return true;
+      }
+      constexpr bool operator()(nullopt_t, nullopt_t) const noexcept {
         return false;
       }
     };
@@ -460,68 +468,80 @@ STL2_OPEN_NAMESPACE {
       return o == nullopt;
     }
 
-    EqualityComparable{T}
-    constexpr bool operator==(const optional<T>& o, const T& t)
+    template <class T, class U>
+      requires !_InstanceOf<U, optional> && EqualityComparable<T, U>()
+    constexpr bool operator==(const optional<T>& o, const U& u)
     STL2_NOEXCEPT_RETURN(
-      o ? *o == t : false
+      o ? *o == u : false
     )
-    EqualityComparable{T}
-    constexpr bool operator==(const T& t, const optional<T>& o)
+    template <class T, class U>
+      requires !_InstanceOf<T, optional> && EqualityComparable<T, U>()
+    constexpr bool operator==(const T& t, const optional<U>& o)
     STL2_NOEXCEPT_RETURN(
       o == t
     )
 
-    EqualityComparable{T}
-    constexpr bool operator!=(const optional<T>& o, const T& t)
+    template <class T, class U>
+      requires !_InstanceOf<U, optional> && EqualityComparable<T, U>()
+    constexpr bool operator!=(const optional<T>& o, const U& u)
     STL2_NOEXCEPT_RETURN(
-      !(o == t)
+      !(o == u)
     )
-    EqualityComparable{T}
-    constexpr bool operator!=(const T& t, const optional<T>& o)
+    template <class T, class U>
+      requires !_InstanceOf<T, optional> && EqualityComparable<T, U>()
+    constexpr bool operator!=(const T& t, const optional<U>& o)
     STL2_NOEXCEPT_RETURN(
       !(o == t)
     )
 
-    StrictTotallyOrdered{T}
-    constexpr bool operator<(const optional<T>& o, const T& t)
+    template <class T, class U>
+      requires !_InstanceOf<U, optional> && StrictTotallyOrdered<T, U>()
+    constexpr bool operator<(const optional<T>& o, const U& u)
     STL2_NOEXCEPT_RETURN(
-      o ? *o < t : true
+      o ? *o < u : true
     )
-    StrictTotallyOrdered{T}
-    constexpr bool operator<(const T& t, const optional<T>& o)
+    template <class T, class U>
+      requires !_InstanceOf<T, optional> && StrictTotallyOrdered<T, U>()
+    constexpr bool operator<(const T& t, const optional<U>& o)
     STL2_NOEXCEPT_RETURN(
       o ? t < *o : false
     )
 
-    StrictTotallyOrdered{T}
-    constexpr bool operator>(const optional<T>& o, const T& t)
+    template <class T, class U>
+      requires !_InstanceOf<U, optional> && StrictTotallyOrdered<T, U>()
+    constexpr bool operator>(const optional<T>& o, const U& u)
     STL2_NOEXCEPT_RETURN(
-      t < o
+      u < o
     )
-    StrictTotallyOrdered{T}
-    constexpr bool operator>(const T& t, const optional<T>& o)
+    template <class T, class U>
+      requires !_InstanceOf<T, optional> && StrictTotallyOrdered<T, U>()
+    constexpr bool operator>(const T& t, const optional<U>& o)
     STL2_NOEXCEPT_RETURN(
       o < t
     )
 
-    StrictTotallyOrdered{T}
-    constexpr bool operator<=(const optional<T>& o, const T& t)
+    template <class T, class U>
+      requires !_InstanceOf<U, optional> && StrictTotallyOrdered<T, U>()
+    constexpr bool operator<=(const optional<T>& o, const U& u)
     STL2_NOEXCEPT_RETURN(
-      !(t < o)
+      !(u < o)
     )
-    StrictTotallyOrdered{T}
-    constexpr bool operator<=(const T& t, const optional<T>& o)
+    template <class T, class U>
+      requires !_InstanceOf<T, optional> && StrictTotallyOrdered<T, U>()
+    constexpr bool operator<=(const T& t, const optional<U>& o)
     STL2_NOEXCEPT_RETURN(
       !(o < t)
     )
 
-    StrictTotallyOrdered{T}
-    constexpr bool operator>=(const optional<T>& o, const T& t)
+    template <class T, class U>
+      requires !_InstanceOf<U, optional> && StrictTotallyOrdered<T, U>()
+    constexpr bool operator>=(const optional<T>& o, const U& u)
     STL2_NOEXCEPT_RETURN(
-      !(o < t)
+      !(o < u)
     )
-    StrictTotallyOrdered{T}
-    constexpr bool operator>=(const T& t, const optional<T>& o)
+    template <class T, class U>
+      requires !_InstanceOf<T, optional> && StrictTotallyOrdered<T, U>()
+    constexpr bool operator>=(const T& t, const optional<U>& o)
     STL2_NOEXCEPT_RETURN(
       !(t < o)
     )

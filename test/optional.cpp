@@ -14,50 +14,51 @@
 #include <stl2/utility.hpp>
 #include "simple_test.hpp"
 
-namespace models = ::__stl2::models;
+namespace ranges = ::std::experimental::ranges;
+namespace models = ranges::models;
 
 #if ASSEMBLY // Only for assembly inspection.
 using T = int;
 using U = double;
 
-T test_dereference(const __stl2::optional<T>& o) noexcept {
+T test_dereference(const ranges::optional<T>& o) noexcept {
   return *o;
 }
 
-int test_value(const __stl2::optional<T>& o) {
+int test_value(const ranges::optional<T>& o) {
   return o.value();
 }
 
-__stl2::optional<T> test_copy(const __stl2::optional<T>& o)
-  noexcept(__stl2::is_nothrow_copy_constructible<__stl2::optional<T>>::value) {
+ranges::optional<T> test_copy(const ranges::optional<T>& o)
+  noexcept(ranges::is_nothrow_copy_constructible<ranges::optional<T>>::value) {
   return o;
 }
 
-bool test_eq(const __stl2::optional<T>& l, const __stl2::optional<U>& r) {
+bool test_eq(const ranges::optional<T>& l, const ranges::optional<U>& r) {
   return l == r;
 }
 
-auto test_convert(__stl2::optional<U>&& o) {
-  return __stl2::optional<T>{__stl2::move(o)};
+auto test_convert(ranges::optional<U>&& o) {
+  return ranges::optional<T>{ranges::move(o)};
 }
 
-auto test_convert(const __stl2::optional<U>& o) {
-  return __stl2::optional<T>{o};
+auto test_convert(const ranges::optional<U>& o) {
+  return ranges::optional<T>{o};
 }
 
-auto test_convert(__stl2::optional<T>&& o) {
-  return __stl2::optional<U>{__stl2::move(o)};
+auto test_convert(ranges::optional<T>&& o) {
+  return ranges::optional<U>{ranges::move(o)};
 }
 
-auto test_convert(const __stl2::optional<T>& o) {
-  return __stl2::optional<U>{o};
+auto test_convert(const ranges::optional<T>& o) {
+  return ranges::optional<U>{o};
 }
 
 #endif
 
 int main() {
   {
-    __stl2::optional<int> o;
+    ranges::optional<int> o;
     CHECK(!o);
     o = 42;
     CHECK(o);
@@ -72,26 +73,26 @@ int main() {
     CHECK(o <= o);
     CHECK(o >= o);
 
-    CHECK(!(__stl2::nullopt == o));
-    CHECK(__stl2::nullopt != o);
-    CHECK(__stl2::nullopt < o);
-    CHECK(!(__stl2::nullopt > o));
-    CHECK(__stl2::nullopt <= o);
-    CHECK(!(__stl2::nullopt >= o));
+    CHECK(!(ranges::nullopt == o));
+    CHECK(ranges::nullopt != o);
+    CHECK(ranges::nullopt < o);
+    CHECK(!(ranges::nullopt > o));
+    CHECK(ranges::nullopt <= o);
+    CHECK(!(ranges::nullopt >= o));
 
-    CHECK(!(o == __stl2::nullopt));
-    CHECK(o != __stl2::nullopt);
-    CHECK(!(o < __stl2::nullopt));
-    CHECK(o > __stl2::nullopt);
-    CHECK(!(o <= __stl2::nullopt));
-    CHECK(o >= __stl2::nullopt);
+    CHECK(!(o == ranges::nullopt));
+    CHECK(o != ranges::nullopt);
+    CHECK(!(o < ranges::nullopt));
+    CHECK(o > ranges::nullopt);
+    CHECK(!(o <= ranges::nullopt));
+    CHECK(o >= ranges::nullopt);
 
-    CHECK(o == __stl2::optional<int>{42});
-    CHECK(o == __stl2::optional<double>{42});
-    CHECK(o != __stl2::optional<int>{13});
-    CHECK(o != __stl2::optional<double>{13});
+    CHECK(o == ranges::optional<int>{42});
+    CHECK(o == ranges::optional<double>{42});
+    CHECK(o != ranges::optional<int>{13});
+    CHECK(o != ranges::optional<double>{13});
     CHECK(o.value() == 42);
-    o = __stl2::nullopt;
+    o = ranges::nullopt;
     CHECK(!o);
     CHECK(o.value_or(42) == 42);
     o = 3.14;
@@ -100,45 +101,84 @@ int main() {
     o = {};
     CHECK(!o);
     {
-      auto oi = __stl2::make_optional(42);
-      static_assert(models::Swappable<__stl2::optional<int>&>);
-      __stl2::swap(o, oi);
+      auto oi = ranges::make_optional(42);
+      static_assert(models::Swappable<ranges::optional<int>&>);
+      ranges::swap(o, oi);
       CHECK(!oi);
       CHECK(o);
       CHECK(*o == 42);
       oi = 13;
-      __stl2::swap(o, oi);
+      ranges::swap(o, oi);
       CHECK(*o == 13);
       CHECK(*oi == 42);
     }
   }
 
   {
-    constexpr auto o = __stl2::make_optional(42);
+    constexpr auto o = ranges::make_optional(42);
     static_assert(o);
     static_assert(*o == 42);
     static_assert(o == 42);
     static_assert(o < 43);
     static_assert(o.value() == 42);
     static_assert(o.value_or(13) == 42);
-    static_assert(o == __stl2::optional<int>{42});
-    static_assert(o == __stl2::optional<double>{42});
-    static_assert(o != __stl2::optional<int>{13});
-    static_assert(o != __stl2::optional<double>{3.14});
+    static_assert(o == ranges::optional<int>{42});
+    static_assert(o == ranges::optional<double>{42});
+    static_assert(o != ranges::optional<int>{13});
+    static_assert(o != ranges::optional<double>{3.14});
   }
   {
-    constexpr __stl2::optional<int> o;
+    constexpr ranges::optional<int> o;
     static_assert(!o);
     static_assert(o.value_or(42) == 42);
-    static_assert(o != __stl2::optional<int>{13});
-    static_assert(o != __stl2::optional<double>{3.14});
+    static_assert(o != ranges::optional<int>{13});
+    static_assert(o != ranges::optional<double>{3.14});
   }
 
   {
-    using OI = __stl2::optional<int>;
-    using OD = __stl2::optional<double>;
+    using OI = ranges::optional<int>;
+    using OD = ranges::optional<double>;
     static_assert(models::StrictTotallyOrdered<OI, OD>);
     static_assert(!models::Swappable<OI&, OD&>);
+  }
+
+  {
+    using OI = ranges::optional<int>;
+    constexpr OI four{4};
+    constexpr OI empty;
+    static_assert(!(four == empty));
+    static_assert(four != empty);
+    static_assert(!(four < empty));
+    static_assert(four > empty);
+    static_assert(!(four <= empty));
+    static_assert(four >= empty);
+
+    static_assert(!(empty == four));
+    static_assert(empty != four);
+    static_assert(empty < four);
+    static_assert(!(empty > four));
+    static_assert(empty <= four);
+    static_assert(!(empty >= four));
+  }
+
+  {
+    using OI = ranges::optional<int>;
+    using OL = ranges::optional<long>;
+    constexpr OI four{4};
+    constexpr OL three{3};
+    static_assert(!(four == three));
+    static_assert(four != three);
+    static_assert(!(four < three));
+    static_assert(four > three);
+    static_assert(!(four <= three));
+    static_assert(four >= three);
+
+    static_assert(!(three == four));
+    static_assert(three != four);
+    static_assert(three < four);
+    static_assert(!(three > four));
+    static_assert(three <= four);
+    static_assert(!(three >= four));
   }
 
   return test_result();
