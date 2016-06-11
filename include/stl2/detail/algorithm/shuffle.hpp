@@ -16,6 +16,7 @@
 #include <stl2/iterator.hpp>
 #include <stl2/random.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/randutils.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/core.hpp>
 
@@ -23,42 +24,40 @@
 // shuffle [alg.random.shuffle]
 //
 STL2_OPEN_NAMESPACE {
-  template <RandomAccessIterator I, Sentinel<I> S, class Gen,
-            class D = difference_type_t<I>>
-  requires
-    models::Permutable<I> &&
-    models::ConvertibleTo<result_of_t<Gen&()>, D> &&
-    models::UniformRandomNumberGenerator<remove_reference_t<Gen>>
-  I shuffle(I first, S last_, Gen&& g)
-  {
-    I last = __stl2::next(first, last_);
-    I orig = last;
-    D d = last - first;
-    if (d > 1) {
-      using param_t =
-        typename uniform_int_distribution<D>::param_type;
-      uniform_int_distribution<D> uid;
-      for (--last, --d; first < last; ++first, --d) {
-        auto i = uid(g, param_t{0, d});
-        if (i != 0) {
-          __stl2::iter_swap(first, first + i);
-        }
-      }
-    }
-    return orig;
-  }
+	template <RandomAccessIterator I, Sentinel<I> S,
+		class Gen = detail::default_random_engine&, class D = difference_type_t<I>>
+	requires
+		models::Permutable<I> &&
+		models::UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
+		models::ConvertibleTo<result_of_t<Gen&()>, D>
+	I shuffle(I const first, S const last, Gen&& g = detail::get_random_engine())
+	{
+		auto mid = first;
+		if (mid == last) {
+			return mid;
+		}
+		auto dist = uniform_int_distribution<D>{};
+		using param_t = typename uniform_int_distribution<D>::param_type;
+		while (++mid != last) {
+			if (auto const i = dist(g, param_t{0, mid - first})) {
+				__stl2::iter_swap(mid - i, mid);
+			}
+		}
+		return mid;
+	}
 
-  template <RandomAccessRange Rng, class Gen,
-            class D = difference_type_t<iterator_t<Rng>>>
-  requires
-    models::Permutable<iterator_t<Rng>> &&
-    models::ConvertibleTo<result_of_t<Gen&()>, D> &&
-    models::UniformRandomNumberGenerator<remove_reference_t<Gen>>
-  safe_iterator_t<Rng> shuffle(Rng&& rng, Gen&& g)
-  {
-    return  __stl2::shuffle(__stl2::begin(rng), __stl2::end(rng),
-                            __stl2::forward<Gen>(g));
-  }
+	template <RandomAccessRange Rng, class Gen = detail::default_random_engine&,
+		class D = difference_type_t<iterator_t<Rng>>>
+	requires
+		models::Permutable<iterator_t<Rng>> &&
+		models::UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
+		models::ConvertibleTo<result_of_t<Gen&()>, D>
+	inline safe_iterator_t<Rng> shuffle(
+		Rng&& rng, Gen&& g = detail::get_random_engine())
+	{
+		return  __stl2::shuffle(__stl2::begin(rng), __stl2::end(rng),
+			__stl2::forward<Gen>(g));
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

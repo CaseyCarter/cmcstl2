@@ -20,37 +20,40 @@
 // replace_if [alg.replace]
 //
 STL2_OPEN_NAMESPACE {
-  template<ForwardIterator I, Sentinel<I> S, class Pred,
-           class T, class Proj = identity>
-  requires
-    models::Writable<I, const T&> &&
-    models::IndirectCallablePredicate<
-      __f<Pred>, projected<I, __f<Proj>>>
-  I replace_if(I first, S last, Pred&& pred_,
-               const T& new_value, Proj&& proj_ = Proj{})
-  {
-    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    for (; first != last; ++first) {
-      if (pred(proj(*first))) {
-        *first = new_value;
-      }
-    }
-    return first;
-  }
+	// Extension: Relax to InputIterator
+	template<InputIterator I, Sentinel<I> S, class Pred, class T,
+		class Proj = identity>
+	requires
+		models::Writable<I, const T&> &&
+		models::IndirectCallablePredicate<
+			__f<Pred>, projected<I, __f<Proj>>>
+	I replace_if(I first, S last, Pred&& pred_, const T& new_value,
+		Proj&& proj_ = Proj{})
+	{
+		if (first != last) {
+			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+			do {
+				if (pred(proj(*first))) {
+					*first = new_value;
+				}
+			} while (++first != last);
+		}
+		return first;
+	}
 
-  template<ForwardRange Rng, class Pred, class T, class Proj = identity>
-  requires
-    models::Writable<iterator_t<Rng>, const T&> &&
-    models::IndirectCallablePredicate<
-      __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
-  safe_iterator_t<Rng>
-  replace_if(Rng&& rng, Pred&& pred,
-             const T& new_value, Proj&& proj = Proj{})
-  {
-    return __stl2::replace_if(__stl2::begin(rng), __stl2::end(rng),
-      __stl2::forward<Pred>(pred), new_value, __stl2::forward<Proj>(proj));
-  }
+	// Extension: Relax to InputRange
+	template<InputRange Rng, class Pred, class T, class Proj = identity>
+	requires
+		models::Writable<iterator_t<Rng>, const T&> &&
+		models::IndirectCallablePredicate<
+			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+	safe_iterator_t<Rng> replace_if(Rng&& rng, Pred&& pred, const T& new_value,
+		Proj&& proj = Proj{})
+	{
+		return __stl2::replace_if(__stl2::begin(rng), __stl2::end(rng),
+			__stl2::forward<Pred>(pred), new_value, __stl2::forward<Proj>(proj));
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

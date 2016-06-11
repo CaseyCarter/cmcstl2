@@ -61,23 +61,27 @@ void test_rng()
 
 int main()
 {
-    test_iter<forward_iterator<int*> >();
-    test_iter<bidirectional_iterator<int*> >();
-    test_iter<random_access_iterator<int*> >();
+    test_iter<input_iterator<int*>>();
+    test_iter<forward_iterator<int*>>();
+    test_iter<bidirectional_iterator<int*>>();
+    test_iter<random_access_iterator<int*>>();
     test_iter<int*>();
 
-    test_iter<forward_iterator<int*>, sentinel<int*> >();
-    test_iter<bidirectional_iterator<int*>, sentinel<int*> >();
-    test_iter<random_access_iterator<int*>, sentinel<int*> >();
+    test_iter<input_iterator<int*>, sentinel<int*>>();
+    test_iter<forward_iterator<int*>, sentinel<int*>>();
+    test_iter<bidirectional_iterator<int*>, sentinel<int*>>();
+    test_iter<random_access_iterator<int*>, sentinel<int*>>();
 
-    test_rng<forward_iterator<int*> >();
-    test_rng<bidirectional_iterator<int*> >();
-    test_rng<random_access_iterator<int*> >();
+    test_rng<input_iterator<int*>>();
+    test_rng<forward_iterator<int*>>();
+    test_rng<bidirectional_iterator<int*>>();
+    test_rng<random_access_iterator<int*>>();
     test_rng<int*>();
 
-    test_rng<forward_iterator<int*>, sentinel<int*> >();
-    test_rng<bidirectional_iterator<int*>, sentinel<int*> >();
-    test_rng<random_access_iterator<int*>, sentinel<int*> >();
+    test_rng<input_iterator<int*>, sentinel<int*>>();
+    test_rng<forward_iterator<int*>, sentinel<int*>>();
+    test_rng<bidirectional_iterator<int*>, sentinel<int*>>();
+    test_rng<random_access_iterator<int*>, sentinel<int*>>();
 
     // test projection
     {

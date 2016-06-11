@@ -20,37 +20,41 @@
 // replace [alg.replace]
 //
 STL2_OPEN_NAMESPACE {
-  template <ForwardIterator I, Sentinel<I> S, class T1,
-            class T2, class Proj = identity>
-  requires
-    models::Writable<I, const T2&> &&
-    models::IndirectCallableRelation<
-      equal_to<>, projected<I, __f<Proj>>, const T1*>
-  I replace(I first, S last, const T1& old_value, const T2& new_value,
-            Proj&& proj_ = Proj{})
-  {
-    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    for (; first != last; ++first) {
-      if (proj(*first) == old_value) {
-        *first = new_value;
-      }
-    }
-    return first;
-  }
+	// Extension: Relax to InputIterator
+	template <InputIterator I, Sentinel<I> S, class T1, class T2,
+		class Proj = identity>
+	requires
+		models::Writable<I, const T2&> &&
+		models::IndirectCallableRelation<
+			equal_to<>, projected<I, __f<Proj>>, const T1*>
+	I replace(I first, S last, const T1& old_value, const T2& new_value,
+		Proj&& proj_ = Proj{})
+	{
+		if (first != last) {
+			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+			do {
+				if (proj(*first) == old_value) {
+					*first = new_value;
+				}
+			} while (++first != last);
+		}
+		return first;
+	}
 
-  template <ForwardRange Rng, class T1, class T2, class Proj = identity>
-  requires
-    models::Writable<iterator_t<Rng>, const T2&> &&
-    models::IndirectCallableRelation<
-      equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T1*>
-  safe_iterator_t<Rng>
-  replace(Rng&& rng, const T1& old_value,
-          const T2& new_value, Proj&& proj = Proj{})
-  {
-    return __stl2::replace(
-      __stl2::begin(rng), __stl2::end(rng),
-      old_value, new_value, __stl2::forward<Proj>(proj));
-  }
+	// Extension: Relax to InputRange
+	template <InputRange Rng, class T1, class T2, class Proj = identity>
+	requires
+		models::Writable<iterator_t<Rng>, const T2&> &&
+		models::IndirectCallableRelation<
+			equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T1*>
+	safe_iterator_t<Rng>
+	replace(Rng&& rng, const T1& old_value,	const T2& new_value,
+		Proj&& proj = Proj{})
+	{
+		return __stl2::replace(
+			__stl2::begin(rng), __stl2::end(rng),
+			old_value, new_value, __stl2::forward<Proj>(proj));
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

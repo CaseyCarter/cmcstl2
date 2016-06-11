@@ -50,8 +50,7 @@ STL2_OPEN_NAMESPACE {
   }
 
   template <ForwardRange Rng, class I>
-  [[deprecated]]
-  tagged_pair<tag::in1(safe_iterator_t<Rng>), tag::in2(__f<I>)>
+  [[deprecated]] tagged_pair<tag::in1(safe_iterator_t<Rng>), tag::in2(__f<I>)>
   swap_ranges(Rng&& rng1, I&& first2)
   requires
     !is_array<remove_reference_t<I>>::value &&
