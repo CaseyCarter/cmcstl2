@@ -44,29 +44,31 @@ void not_totally_ordered()
     ranges::equal_range(vec, my_int{10}, compare);
 }
 
-template <class Iter, class Sent, class T>
+template <class Iter, class Sent, class T, class Proj = ranges::identity>
 void
-test(Iter first, Sent last, const T& value)
+test(Iter first, Sent last, const T& value, Proj proj = Proj{})
 {
-    auto i = ranges::equal_range(first, last, value);
+    auto i = ranges::equal_range(first, last, value, ranges::less<>{}, proj);
+    auto p = ranges::ext::make_callable_wrapper(proj);
     for (Iter j = first; j != i.begin(); ++j)
-        CHECK(*j < value);
+        CHECK(p(*j) < value);
     for (Iter j = i.begin(); j != last; ++j)
-        CHECK(!(*j < value));
+        CHECK(!(p(*j) < value));
     for (Iter j = first; j != i.end(); ++j)
-        CHECK(!(value < *j));
+        CHECK(!(value < p(*j)));
     for (Iter j = i.end(); j != last; ++j)
-        CHECK(value < *j);
+        CHECK(value < p(*j));
 
-    auto res = ranges::equal_range(ranges::ext::make_range(first, last), value);
+    auto res = ranges::equal_range(
+        ranges::ext::make_range(first, last), value, ranges::less<>{}, proj);
     for (Iter j = first; j != res.begin().get_unsafe(); ++j)
-        CHECK(*j < value);
+        CHECK(p(*j) < value);
     for (Iter j = res.begin().get_unsafe(); j != last; ++j)
-        CHECK(!(*j < value));
+        CHECK(!(p(*j) < value));
     for (Iter j = first; j != res.end().get_unsafe(); ++j)
-        CHECK(!(value < *j));
+        CHECK(!(value < p(*j)));
     for (Iter j = res.end().get_unsafe(); j != last; ++j)
-        CHECK(value < *j);
+        CHECK(value < p(*j));
 }
 
 template <class Iter, class Sent = Iter>
@@ -75,11 +77,11 @@ test()
 {
 #if 0
     using namespace ranges::view;
-    static constexpr int M = 10;
+    static constexpr unsigned M = 10;
     std::vector<int> v;
     auto input = ints | take(100) | transform([](int i){return repeat_n(i,M);}) | join;
     ranges::copy(input, ranges::back_inserter(v));
-    for (int x = 0; x <= M; ++x)
+    for (int x = 0; x <= (int)M; ++x)
         test(Iter(v.data()), Sent(v.data()+v.size()), x);
 #endif
 }
@@ -100,10 +102,12 @@ int main()
     test<bidirectional_iterator<const int*>, sentinel<const int*> >();
     test<random_access_iterator<const int*>, sentinel<const int*> >();
 
-    auto lst = {0, 1, 2, 2, 2, 3};
-    auto result = ranges::equal_range(std::move(lst), 2);
-    CHECK(result.begin().get_unsafe() == lst.begin() + 2);
-    CHECK(result.end().get_unsafe() == lst.end() - 1);
+    {
+        struct foo { int i; };
+
+        foo some_foos[] = {{1}, {2}, {4}};
+        test(some_foos, some_foos + 3, 2, &foo::i);
+    }
 
     return ::test_result();
 }
