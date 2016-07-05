@@ -610,7 +610,7 @@ STL2_OPEN_NAMESPACE {
   : common_type<cursor::value_type_t<Cur1>, cursor::value_type_t<Cur2>>
   {};
 
-  template <_InstanceOf<basic_iterator> BI>
+  template <_SpecializationOf<basic_iterator> BI>
   constexpr decltype(auto) get_cursor(BI&& i)
   STL2_NOEXCEPT_RETURN(
     __stl2::forward<BI>(i).get()
@@ -621,7 +621,7 @@ STL2_OPEN_NAMESPACE {
   : public mixin_t<C>,
     private detail::iterator_associated_types_base<C>
   {
-    template <_InstanceOf<basic_iterator> BI>
+    template <_SpecializationOf<basic_iterator> BI>
     friend constexpr decltype(auto) get_cursor(BI&& i);
 
     using mixin = mixin_t<C>;

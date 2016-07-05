@@ -27,11 +27,11 @@ STL2_OPEN_NAMESPACE {
     InputIterator{I} class cursor;
 
     struct access {
-      template <_InstanceOf<cursor> C>
+      template <_SpecializationOf<cursor> C>
       static constexpr decltype(auto) current(C&& c) noexcept {
         return (__stl2::forward<C>(c).current_);
       }
-      template <_InstanceOf<move_sentinel> MS>
+      template <_SpecializationOf<move_sentinel> MS>
       static constexpr decltype(auto) sentinel(MS&& ms) noexcept {
         return __stl2::forward<MS>(ms).get();
       }

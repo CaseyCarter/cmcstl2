@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
     class cursor;
 
     struct access {
-      template <_InstanceOf<cursor> C>
+      template <_SpecializationOf<cursor> C>
       static constexpr decltype(auto) current(C&& c) noexcept {
         return (__stl2::forward<C>(c).current_);
       }

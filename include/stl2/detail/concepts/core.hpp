@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 
   // U is a cv/ref-qualified specialization of class template T.
   template <class U, template <class...> class T>
-  concept bool _InstanceOf = meta::is<__uncvref<U>, T>::value;
+  concept bool _SpecializationOf = meta::is<__uncvref<U>, T>::value;
 
   ///////////////////////////////////////////////////////////////////////////
   // Same [concepts.lib.corelang.same]

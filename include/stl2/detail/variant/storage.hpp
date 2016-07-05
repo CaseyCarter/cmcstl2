@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
     template <> class storage<> {};
 
     template <class T>
-    concept bool IsStorage = _InstanceOf<T, storage>;
+    concept bool IsStorage = _SpecializationOf<T, storage>;
 
     ///////////////////////////////////////////////////////////////////////////
     // Specialization for non-trivially destructible element types, has a

@@ -26,11 +26,11 @@ STL2_OPEN_NAMESPACE {
     Iterator{I} class cursor;
 
     struct access {
-      template <_InstanceOf<cursor> CC>
+      template <_SpecializationOf<cursor> CC>
       static constexpr decltype(auto) base(CC&& cc) noexcept {
         return __stl2::forward<CC>(cc).get();
       }
-      template <_InstanceOf<cursor> CC>
+      template <_SpecializationOf<cursor> CC>
       static constexpr decltype(auto) count(CC&& cc) noexcept {
         return (__stl2::forward<CC>(cc).count_);
       }
