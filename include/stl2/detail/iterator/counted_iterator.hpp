@@ -107,12 +107,24 @@ STL2_OPEN_NAMESPACE {
       : box_t(access::base(that)), count_{access::count(that)}
       {}
 
+#if 1
+      // Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
+      template <class II = I>
+      requires
+        InputIterator<II>() && Same<I, II>()
+      STL2_CONSTEXPR_EXT decltype(auto) read() const
+      noexcept(noexcept(*declval<const II&>()))
+      {
+        return *get();
+      }
+#else
       STL2_CONSTEXPR_EXT decltype(auto) read() const
       noexcept(noexcept(*declval<const I&>()))
       requires InputIterator<I>()
       {
         return *get();
       }
+#endif
 
       template <class T>
       requires
