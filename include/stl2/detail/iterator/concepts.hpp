@@ -200,9 +200,9 @@ STL2_OPEN_NAMESPACE {
       typename reference_t<I>;
       typename rvalue_reference_t<I>;
 
-      // Valid expressions (not checked as these are tautological)
-      // STL2_EXACT_TYPE_CONSTRAINT(*i, reference_t<I>);
-      // STL2_EXACT_TYPE_CONSTRAINT(__stl2::iter_move(i), rvalue_reference_t<I>);
+      // Valid expressions
+      STL2_EXACT_TYPE_CONSTRAINT(*i, reference_t<I>);
+      STL2_EXACT_TYPE_CONSTRAINT(__stl2::iter_move(i), rvalue_reference_t<I>);
     } &&
     // Relationships between associated types
     models::CommonReference<reference_t<I>, value_type_t<I>&> &&
