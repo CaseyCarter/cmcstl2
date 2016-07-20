@@ -17,6 +17,7 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/variant.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/in_place.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -25,41 +26,31 @@
 // Implementation of N4529 optional
 //
 // TODO:
+// * Update to N4606 + LWG2451
 // * Exception safety audit
 // * optional<T&>: Not forbidden since variant supports references, but I
 //   need to ensure the semantics are reasonable.
 //
 STL2_OPEN_NAMESPACE {
 	struct nullopt_t {
-		struct __tag {};
-		constexpr nullopt_t(__tag) {}
+		explicit constexpr nullopt_t(int) {}
 	};
+	template <class = void>
+	constexpr nullopt_t __nullopt{42};
 
-	namespace __optional {
-		template <class T>
-		struct static_const {
-			static constexpr T value{nullopt_t::__tag{}};
-		};
-		template <class T>
-		constexpr T static_const<T>::value;
-	}
 	namespace {
-		constexpr auto& nullopt = __optional::static_const<nullopt_t>::value;
-	}
-
-	struct in_place_t{};
-	namespace {
-		constexpr auto& in_place = detail::static_const<in_place_t>::value;
+		constexpr const nullopt_t& nullopt = __nullopt<>;
 	}
 
 	class bad_optional_access : public std::logic_error {
 	public:
-		bad_optional_access() :
-			logic_error{"Attempt to access disengaged optional"} {}
+		bad_optional_access()
+		: logic_error{"Attempt to access disengaged optional"} {}
 	};
 
 	namespace __optional {
-		[[noreturn]] inline bool bad_access() {
+		template <class = void>
+		[[noreturn]] bool bad_access() {
 			throw bad_optional_access{};
 		}
 
