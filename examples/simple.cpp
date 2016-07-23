@@ -10,12 +10,12 @@
 namespace rng = std::experimental::ranges;
 
 int main() {
-  auto v = std::vector<std::string>{"this", "is", "a", "test"};
-  auto out = rng::ostream_iterator<std::string>{std::cout, " "};
-  rng::sort(v);
-  rng::copy(v, out);
-  std::cout << '\n';
-  auto result = rng::reverse_copy(v, out);
-  std::cout << '\n';
-  return !(result.in() == rng::end(v));
+	auto v = std::vector<std::string>{"this", "is", "a", "test"};
+	auto out = rng::ostream_iterator<std::string>{std::cout, " "};
+	rng::sort(v);
+	rng::copy(v, out);
+	std::cout << '\n';
+	auto result = rng::reverse_copy(v, out);
+	std::cout << '\n';
+	return !(result.in() == rng::end(v));
 }

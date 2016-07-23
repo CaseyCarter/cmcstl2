@@ -22,46 +22,44 @@
 // binary_search [binary.search]
 //
 STL2_OPEN_NAMESPACE {
-  template <ForwardIterator I, Sentinel<I> S, class T,
-            class Comp = less<>, class Proj = identity>
-  requires
-    models::IndirectCallableStrictWeakOrder<
-      __f<Comp>, const T*, projected<I, __f<Proj>>>
-  bool binary_search(I first, S last, const T& value,
-                     Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
-  {
-    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    auto result = __stl2::lower_bound(__stl2::move(first), last, value,
-                                      __stl2::ref(comp), __stl2::ref(proj));
-    return result != last && !comp(value, proj(*result));
-  }
+	template <ForwardIterator I, Sentinel<I> S, class T,
+		class Comp = less<>, class Proj = identity>
+	requires
+		models::IndirectCallableStrictWeakOrder<
+			__f<Comp>, const T*, projected<I, __f<Proj>>>
+	bool binary_search(I first, S last, const T& value, Comp&& comp_ = Comp{},
+		Proj&& proj_ = Proj{})
+	{
+		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+		auto result = __stl2::lower_bound(__stl2::move(first), last, value,
+			__stl2::ref(comp), __stl2::ref(proj));
+		return result != last && !comp(value, proj(*result));
+	}
 
-  template <ForwardRange Rng, class T,
-            class Comp = less<>, class Proj = identity>
-  requires
-    models::IndirectCallableStrictWeakOrder<
-      __f<Comp>, const T*, projected<iterator_t<Rng>, __f<Proj>>>
-  bool binary_search(Rng&& rng, const T& value,
-                     Comp&& comp = Comp{}, Proj&& proj = Proj{})
-  {
-    return __stl2::binary_search(
-      __stl2::begin(rng), __stl2::end(rng), value,
-      __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
-  }
+	template <ForwardRange Rng, class T, class Comp = less<>, class Proj = identity>
+	requires
+		models::IndirectCallableStrictWeakOrder<
+			__f<Comp>, const T*, projected<iterator_t<Rng>, __f<Proj>>>
+	bool binary_search(Rng&& rng, const T& value, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	{
+		return __stl2::binary_search(
+			__stl2::begin(rng), __stl2::end(rng), value,
+			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+	}
 
-  // Extension
-  template <class E, class T, class Comp = less<>, class Proj = identity>
-  requires
-    models::IndirectCallableStrictWeakOrder<
-      __f<Comp>, const T*, projected<const E*, __f<Proj>>>
-  bool binary_search(std::initializer_list<E>&& rng, const T& value,
-                     Comp&& comp = Comp{}, Proj&& proj = Proj{})
-  {
-    return __stl2::binary_search(
-      __stl2::begin(rng), __stl2::end(rng), value,
-      __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
-  }
+	// Extension
+	template <class E, class T, class Comp = less<>, class Proj = identity>
+	requires
+		models::IndirectCallableStrictWeakOrder<
+			__f<Comp>, const T*, projected<const E*, __f<Proj>>>
+	bool binary_search(std::initializer_list<E>&& rng, const T& value,
+		Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	{
+		return __stl2::binary_search(
+			__stl2::begin(rng), __stl2::end(rng), value,
+			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

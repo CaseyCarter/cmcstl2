@@ -37,117 +37,117 @@ template <class Iter1, class Iter2>
 void
 test_iter()
 {
-    int ia[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
-    const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-    int ib[] = {2, 4};
-    const unsigned sb = sizeof(ib)/sizeof(ib[0]);
-    int ic[] = {1, 2};
-    int id[] = {3, 3, 3, 3};
+	int ia[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
+	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
+	int ib[] = {2, 4};
+	const unsigned sb = sizeof(ib)/sizeof(ib[0]);
+	int ic[] = {1, 2};
+	int id[] = {3, 3, 3, 3};
 
-    auto includes = make_testable_2<true, true>(includes_fn);
+	auto includes = make_testable_2<true, true>(includes_fn);
 
-    includes(Iter1(ia), Iter1(ia), Iter2(ib), Iter2(ib)).check(true_);
-    includes(Iter1(ia), Iter1(ia), Iter2(ib), Iter2(ib+1)).check(false_);
-    includes(Iter1(ia), Iter1(ia+1), Iter2(ib), Iter2(ib)).check(true_);
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(ia), Iter2(ia+sa)).check(true_);
+	includes(Iter1(ia), Iter1(ia), Iter2(ib), Iter2(ib)).check(true_);
+	includes(Iter1(ia), Iter1(ia), Iter2(ib), Iter2(ib+1)).check(false_);
+	includes(Iter1(ia), Iter1(ia+1), Iter2(ib), Iter2(ib)).check(true_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(ia), Iter2(ia+sa)).check(true_);
 
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb)).check(true_);
-    includes(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa)).check(false_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb)).check(true_);
+	includes(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa)).check(false_);
 
-    includes(Iter1(ia), Iter1(ia+2), Iter2(ic), Iter2(ic+2)).check(true_);
-    includes(Iter1(ia), Iter1(ia+2), Iter2(ib), Iter2(ib+2)).check(false_);
+	includes(Iter1(ia), Iter1(ia+2), Iter2(ic), Iter2(ic+2)).check(true_);
+	includes(Iter1(ia), Iter1(ia+2), Iter2(ib), Iter2(ib+2)).check(false_);
 
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+1)).check(true_);
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+2)).check(true_);
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+3)).check(true_);
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+4)).check(false_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+1)).check(true_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+2)).check(true_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+3)).check(true_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+4)).check(false_);
 }
 
 template <class Iter1, class Iter2>
 void
 test_comp()
 {
-    int ia[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
-    const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-    int ib[] = {2, 4};
-    const unsigned sb = sizeof(ib)/sizeof(ib[0]);
-    int ic[] = {1, 2};
-    int id[] = {3, 3, 3, 3};
+	int ia[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
+	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
+	int ib[] = {2, 4};
+	const unsigned sb = sizeof(ib)/sizeof(ib[0]);
+	int ic[] = {1, 2};
+	int id[] = {3, 3, 3, 3};
 
-    auto includes = make_testable_2<true, true>(includes_fn);
+	auto includes = make_testable_2<true, true>(includes_fn);
 
-    includes(Iter1(ia), Iter1(ia), Iter2(ib), Iter2(ib), std::less<int>()).check(true_);
-    includes(Iter1(ia), Iter1(ia), Iter2(ib), Iter2(ib+1), std::less<int>()).check(false_);
-    includes(Iter1(ia), Iter1(ia+1), Iter2(ib), Iter2(ib), std::less<int>()).check(true_);
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(ia), Iter2(ia+sa), std::less<int>()).check(true_);
+	includes(Iter1(ia), Iter1(ia), Iter2(ib), Iter2(ib), std::less<int>()).check(true_);
+	includes(Iter1(ia), Iter1(ia), Iter2(ib), Iter2(ib+1), std::less<int>()).check(false_);
+	includes(Iter1(ia), Iter1(ia+1), Iter2(ib), Iter2(ib), std::less<int>()).check(true_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(ia), Iter2(ia+sa), std::less<int>()).check(true_);
 
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), std::less<int>()).check(true_);
-    includes(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), std::less<int>()).check(false_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), std::less<int>()).check(true_);
+	includes(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), std::less<int>()).check(false_);
 
-    includes(Iter1(ia), Iter1(ia+2), Iter2(ic), Iter2(ic+2), std::less<int>()).check(true_);
-    includes(Iter1(ia), Iter1(ia+2), Iter2(ib), Iter2(ib+2), std::less<int>()).check(false_);
+	includes(Iter1(ia), Iter1(ia+2), Iter2(ic), Iter2(ic+2), std::less<int>()).check(true_);
+	includes(Iter1(ia), Iter1(ia+2), Iter2(ib), Iter2(ib+2), std::less<int>()).check(false_);
 
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+1), std::less<int>()).check(true_);
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+2), std::less<int>()).check(true_);
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+3), std::less<int>()).check(true_);
-    includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+4), std::less<int>()).check(false_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+1), std::less<int>()).check(true_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+2), std::less<int>()).check(true_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+3), std::less<int>()).check(true_);
+	includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+4), std::less<int>()).check(false_);
 }
 
 template <class Iter1, class Iter2>
 void test()
 {
-    test_iter<Iter1, Iter2>();
-    test_comp<Iter1, Iter2>();
+	test_iter<Iter1, Iter2>();
+	test_comp<Iter1, Iter2>();
 }
 
 struct S
 {
-    int i;
+	int i;
 };
 
 struct T
 {
-    int j;
+	int j;
 };
 
 int main()
 {
-    test<input_iterator<const int*>, input_iterator<const int*> >();
-    test<input_iterator<const int*>, forward_iterator<const int*> >();
-    test<input_iterator<const int*>, bidirectional_iterator<const int*> >();
-    test<input_iterator<const int*>, random_access_iterator<const int*> >();
-    test<input_iterator<const int*>, const int*>();
+	test<input_iterator<const int*>, input_iterator<const int*> >();
+	test<input_iterator<const int*>, forward_iterator<const int*> >();
+	test<input_iterator<const int*>, bidirectional_iterator<const int*> >();
+	test<input_iterator<const int*>, random_access_iterator<const int*> >();
+	test<input_iterator<const int*>, const int*>();
 
-    test<forward_iterator<const int*>, input_iterator<const int*> >();
-    test<forward_iterator<const int*>, forward_iterator<const int*> >();
-    test<forward_iterator<const int*>, bidirectional_iterator<const int*> >();
-    test<forward_iterator<const int*>, random_access_iterator<const int*> >();
-    test<forward_iterator<const int*>, const int*>();
+	test<forward_iterator<const int*>, input_iterator<const int*> >();
+	test<forward_iterator<const int*>, forward_iterator<const int*> >();
+	test<forward_iterator<const int*>, bidirectional_iterator<const int*> >();
+	test<forward_iterator<const int*>, random_access_iterator<const int*> >();
+	test<forward_iterator<const int*>, const int*>();
 
-    test<bidirectional_iterator<const int*>, input_iterator<const int*> >();
-    test<bidirectional_iterator<const int*>, forward_iterator<const int*> >();
-    test<bidirectional_iterator<const int*>, bidirectional_iterator<const int*> >();
-    test<bidirectional_iterator<const int*>, random_access_iterator<const int*> >();
-    test<bidirectional_iterator<const int*>, const int*>();
+	test<bidirectional_iterator<const int*>, input_iterator<const int*> >();
+	test<bidirectional_iterator<const int*>, forward_iterator<const int*> >();
+	test<bidirectional_iterator<const int*>, bidirectional_iterator<const int*> >();
+	test<bidirectional_iterator<const int*>, random_access_iterator<const int*> >();
+	test<bidirectional_iterator<const int*>, const int*>();
 
-    test<random_access_iterator<const int*>, input_iterator<const int*> >();
-    test<random_access_iterator<const int*>, forward_iterator<const int*> >();
-    test<random_access_iterator<const int*>, bidirectional_iterator<const int*> >();
-    test<random_access_iterator<const int*>, random_access_iterator<const int*> >();
-    test<random_access_iterator<const int*>, const int*>();
+	test<random_access_iterator<const int*>, input_iterator<const int*> >();
+	test<random_access_iterator<const int*>, forward_iterator<const int*> >();
+	test<random_access_iterator<const int*>, bidirectional_iterator<const int*> >();
+	test<random_access_iterator<const int*>, random_access_iterator<const int*> >();
+	test<random_access_iterator<const int*>, const int*>();
 
-    test<const int*, input_iterator<const int*> >();
-    test<const int*, forward_iterator<const int*> >();
-    test<const int*, bidirectional_iterator<const int*> >();
-    test<const int*, random_access_iterator<const int*> >();
-    test<const int*, const int*>();
+	test<const int*, input_iterator<const int*> >();
+	test<const int*, forward_iterator<const int*> >();
+	test<const int*, bidirectional_iterator<const int*> >();
+	test<const int*, random_access_iterator<const int*> >();
+	test<const int*, const int*>();
 
-    // Test projections
-    {
-        S ia[] = {{1}, {2}, {2}, {3}, {3}, {3}, {4}, {4}, {4}, {4}};
-        T id[] = {{3}, {3}, {3}};
-        CHECK(stl2::includes(ia, id, std::less<int>(), &S::i, &T::j));
-    }
+	// Test projections
+	{
+		S ia[] = {{1}, {2}, {2}, {3}, {3}, {3}, {4}, {4}, {4}, {4}};
+		T id[] = {{3}, {3}, {3}};
+		CHECK(stl2::includes(ia, id, std::less<int>(), &S::i, &T::j));
+	}
 
-    return ::test_result();
+	return ::test_result();
 }

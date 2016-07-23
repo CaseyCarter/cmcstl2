@@ -15,18 +15,18 @@
 
 int main()
 {
-    // Test projections
-    {
-        S ia[] = {S{1}, S{2}, S{2}, S{3}, S{3}, S{3}, S{4}, S{4}, S{4}, S{4}};
-        T ib[] = {T{2}, T{4}, T{4}, T{6}};
-        U ic[20];
-        int ir[] = {2, 4, 4};
-        const int sr = sizeof(ir)/sizeof(ir[0]);
+	// Test projections
+	{
+		S ia[] = {S{1}, S{2}, S{2}, S{3}, S{3}, S{3}, S{4}, S{4}, S{4}, S{4}};
+		T ib[] = {T{2}, T{4}, T{4}, T{6}};
+		U ic[20];
+		int ir[] = {2, 4, 4};
+		const int sr = sizeof(ir)/sizeof(ir[0]);
 
-        U* res = stl2::set_intersection(ia, ib, ic, std::less<int>(), &S::i, &T::j);
-        CHECK((res - ic) == sr);
-        CHECK(stl2::lexicographical_compare(ic, res, ir, ir+sr, std::less<int>(), &U::k) == 0);
-    }
+		U* res = stl2::set_intersection(ia, ib, ic, std::less<int>(), &S::i, &T::j);
+		CHECK((res - ic) == sr);
+		CHECK(stl2::lexicographical_compare(ic, res, ir, ir+sr, std::less<int>(), &U::k) == 0);
+	}
 
-    return ::test_result();
+	return ::test_result();
 }

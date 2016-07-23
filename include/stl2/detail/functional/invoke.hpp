@@ -17,108 +17,108 @@
 #include <stl2/detail/concepts/core.hpp>
 
 STL2_OPEN_NAMESPACE {
-  ///////////////////////////////////////////////////////////////////////////
-  // invoke [C++ WP]
-  //
-  namespace __invoke {
-    template <class>
-    constexpr bool is_reference_wrapper = false;
-    template <class T>
-    constexpr bool is_reference_wrapper<reference_wrapper<T>> = true;
+	///////////////////////////////////////////////////////////////////////////
+	// invoke [C++ WP]
+	//
+	namespace __invoke {
+		template <class>
+		constexpr bool is_reference_wrapper = false;
+		template <class T>
+		constexpr bool is_reference_wrapper<reference_wrapper<T>> = true;
 
-    template <class, class T1>
-    constexpr decltype(auto) coerce(T1&& t1)
-    STL2_NOEXCEPT_RETURN(
-      *std::forward<T1>(t1)
-    )
+		template <class, class T1>
+		constexpr decltype(auto) coerce(T1&& t1)
+		STL2_NOEXCEPT_RETURN(
+			*std::forward<T1>(t1)
+		)
 
-    template <class T, class T1>
-    requires
-      DerivedFrom<decay_t<T1>, T>()
-    constexpr decltype(auto) coerce(T1&& t1)
-    STL2_NOEXCEPT_RETURN(
-      std::forward<T1>(t1)
-    )
+		template <class T, class T1>
+		requires
+			DerivedFrom<decay_t<T1>, T>()
+		constexpr decltype(auto) coerce(T1&& t1)
+		STL2_NOEXCEPT_RETURN(
+			std::forward<T1>(t1)
+		)
 
-    template <class, class T1>
-    requires
-      is_reference_wrapper<decay_t<T1>>
-    constexpr decltype(auto) coerce(T1&& t1)
-    STL2_NOEXCEPT_RETURN(
-      std::forward<T1>(t1).get()
-    )
+		template <class, class T1>
+		requires
+			is_reference_wrapper<decay_t<T1>>
+		constexpr decltype(auto) coerce(T1&& t1)
+		STL2_NOEXCEPT_RETURN(
+			std::forward<T1>(t1).get()
+		)
 
-    template <_Is<is_function> F, class T, class T1, class...Args>
-    constexpr decltype(auto) impl(F (T::*f), T1&& t1, Args&&...args) = delete;
+		template <_Is<is_function> F, class T, class T1, class...Args>
+		constexpr decltype(auto) impl(F (T::*f), T1&& t1, Args&&...args) = delete;
 
-    template <_Is<is_function> F, class T, class T1, class...Args>
-    requires
-      requires (F (T::*f), T1&& t1, Args&&...args) {
-        (coerce<T>(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...);
-      }
-    constexpr decltype(auto) impl(F (T::*f), T1&& t1, Args&&...args)
-    STL2_NOEXCEPT_RETURN(
-      (coerce<T>(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...)
-    )
+		template <_Is<is_function> F, class T, class T1, class...Args>
+		requires
+			requires (F (T::*f), T1&& t1, Args&&...args) {
+				(coerce<T>(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...);
+			}
+		constexpr decltype(auto) impl(F (T::*f), T1&& t1, Args&&...args)
+		STL2_NOEXCEPT_RETURN(
+			(coerce<T>(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...)
+		)
 
-    template <_Is<is_object> D, class T, class T1>
-    constexpr decltype(auto) impl(D (T::*f), T1&& t1) = delete;
+		template <_Is<is_object> D, class T, class T1>
+		constexpr decltype(auto) impl(D (T::*f), T1&& t1) = delete;
 
-    template <_Is<is_object> D, class T, class T1>
-    requires
-      requires (D (T::*f), T1&& t1) {
-        coerce<T>(std::forward<T1>(t1)).*f;
-      }
-    constexpr decltype(auto) impl(D (T::*f), T1&& t1)
-    STL2_NOEXCEPT_RETURN(
-      (coerce<T>(std::forward<T1>(t1)).*f)
-    )
+		template <_Is<is_object> D, class T, class T1>
+		requires
+			requires (D (T::*f), T1&& t1) {
+				coerce<T>(std::forward<T1>(t1)).*f;
+			}
+		constexpr decltype(auto) impl(D (T::*f), T1&& t1)
+		STL2_NOEXCEPT_RETURN(
+			(coerce<T>(std::forward<T1>(t1)).*f)
+		)
 
-    template <class F, class...Args>
-    requires
-      requires (F&& f, Args&&...args) {
-        std::forward<F>(f)(std::forward<Args>(args)...);
-      }
-    constexpr decltype(auto) impl(F&& f, Args&&...args)
-    STL2_NOEXCEPT_RETURN(
-      std::forward<F>(f)(std::forward<Args>(args)...)
-    )
-  }
-  template <class F, class...Args>
-  requires
-    requires (F&& f, Args&&...args) {
-      __invoke::impl(std::forward<F>(f), std::forward<Args>(args)...);
-    }
-  STL2_CONSTEXPR_EXT decltype(auto) invoke(F&& f, Args&&...args)
-  STL2_NOEXCEPT_RETURN(
-    __invoke::impl(std::forward<F>(f), std::forward<Args>(args)...)
-  )
+		template <class F, class...Args>
+		requires
+			requires (F&& f, Args&&...args) {
+				std::forward<F>(f)(std::forward<Args>(args)...);
+			}
+		constexpr decltype(auto) impl(F&& f, Args&&...args)
+		STL2_NOEXCEPT_RETURN(
+			std::forward<F>(f)(std::forward<Args>(args)...)
+		)
+	}
+	template <class F, class...Args>
+	requires
+		requires (F&& f, Args&&...args) {
+			__invoke::impl(std::forward<F>(f), std::forward<Args>(args)...);
+		}
+	STL2_CONSTEXPR_EXT decltype(auto) invoke(F&& f, Args&&...args)
+	STL2_NOEXCEPT_RETURN(
+		__invoke::impl(std::forward<F>(f), std::forward<Args>(args)...)
+	)
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Invokable [Extension]
-  //
-  namespace ext {
-    template <class F, class...Args>
-    constexpr bool __invokable = false;
-    template <class F, class...Args>
-    requires
-      requires (F&& f, Args&&...args) {
-        __invoke::impl((F&&)f, (Args&&)args...);
-      }
-    constexpr bool __invokable<F, Args...> = true;
+	///////////////////////////////////////////////////////////////////////////
+	// Invokable [Extension]
+	//
+	namespace ext {
+		template <class F, class...Args>
+		constexpr bool __invokable = false;
+		template <class F, class...Args>
+		requires
+			requires (F&& f, Args&&...args) {
+				__invoke::impl((F&&)f, (Args&&)args...);
+			}
+		constexpr bool __invokable<F, Args...> = true;
 
-    template <class F, class...Args>
-    concept bool Invokable() {
-      return __invokable<F, Args...>;
-    }
-  }
+		template <class F, class...Args>
+		concept bool Invokable() {
+			return __invokable<F, Args...>;
+		}
+	}
 
-  namespace models {
-    template <class, class...>
-    constexpr bool Invokable = false;
-    ext::Invokable{F, ...Args}
-    constexpr bool Invokable<F, Args...> = true;
-  }
+	namespace models {
+		template <class, class...>
+		constexpr bool Invokable = false;
+		ext::Invokable{F, ...Args}
+		constexpr bool Invokable<F, Args...> = true;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

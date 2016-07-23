@@ -33,40 +33,40 @@ namespace stl2 = __stl2;
 
 int main()
 {
-    {
-        int ia[100];
-        constexpr unsigned s = sizeof(ia)/sizeof(ia[0]);
-        int ib[s];
-        int orig[s];
-        std::iota(ia, ia + s, 0);
-        std::iota(ib, ib + s, 0);
-        std::iota(orig, orig + s, 0);
-        stl2::minstd_rand g;
-        stl2::shuffle(random_access_iterator<int*>(ia), sentinel<int*>(ia+s), g);
-        CHECK(!stl2::equal(ia, orig));
-        CHECK(stl2::shuffle(ib, ib+s, g) == ib+s);
-        CHECK(!stl2::equal(ia, ib));
-    }
+	{
+		int ia[100];
+		constexpr unsigned s = sizeof(ia)/sizeof(ia[0]);
+		int ib[s];
+		int orig[s];
+		std::iota(ia, ia + s, 0);
+		std::iota(ib, ib + s, 0);
+		std::iota(orig, orig + s, 0);
+		stl2::minstd_rand g;
+		stl2::shuffle(random_access_iterator<int*>(ia), sentinel<int*>(ia+s), g);
+		CHECK(!stl2::equal(ia, orig));
+		CHECK(stl2::shuffle(ib, ib+s, g) == ib+s);
+		CHECK(!stl2::equal(ia, ib));
+	}
 
-    {
-        int ia[100];
-        constexpr unsigned s = sizeof(ia)/sizeof(ia[0]);
-        int ib[100];
-        int orig[100];
-        std::iota(ia, ia + s, 0);
-        std::iota(ib, ib + s, 0);
-        std::iota(orig, orig + s, 0);
-        std::minstd_rand g;
-        auto rng = stl2::ext::make_range(random_access_iterator<int*>(ia), sentinel<int*>(ia+s));
-        stl2::shuffle(rng, g);
-        CHECK(!stl2::equal(ia, orig));
-        CHECK(stl2::shuffle(ib, g) == stl2::end(ib));
-        CHECK(!stl2::equal(ia, ib));
+	{
+		int ia[100];
+		constexpr unsigned s = sizeof(ia)/sizeof(ia[0]);
+		int ib[100];
+		int orig[100];
+		std::iota(ia, ia + s, 0);
+		std::iota(ib, ib + s, 0);
+		std::iota(orig, orig + s, 0);
+		std::minstd_rand g;
+		auto rng = stl2::ext::make_range(random_access_iterator<int*>(ia), sentinel<int*>(ia+s));
+		stl2::shuffle(rng, g);
+		CHECK(!stl2::equal(ia, orig));
+		CHECK(stl2::shuffle(ib, g) == stl2::end(ib));
+		CHECK(!stl2::equal(ia, ib));
 
-        std::iota(ia, ia + s, 0);
-        CHECK(stl2::shuffle(stl2::move(rng), g).get_unsafe().base() == stl2::end(ia));
-        CHECK(!stl2::equal(ia, orig));
-    }
+		std::iota(ia, ia + s, 0);
+		CHECK(stl2::shuffle(stl2::move(rng), g).get_unsafe().base() == stl2::end(ia));
+		CHECK(!stl2::equal(ia, orig));
+	}
 
-    return ::test_result();
+	return ::test_result();
 }

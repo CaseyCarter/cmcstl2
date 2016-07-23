@@ -37,374 +37,374 @@ namespace stl2 = __stl2;
 template <class Iter>
 struct iter_call
 {
-    using begin_t = Iter;
-    using sentinel_t = typename sentinel_type<Iter>::type;
+	using begin_t = Iter;
+	using sentinel_t = typename sentinel_type<Iter>::type;
 
-    template <class B, class E, class... Args>
-    auto operator()(B &&It, E &&e, Args &&... args)
-     -> decltype(stl2::is_sorted_until(begin_t{It}, sentinel_t{e},
-                                         std::forward<Args>(args)...))
-    {
-        return stl2::is_sorted_until(begin_t{It}, sentinel_t{e},
-                                       std::forward<Args>(args)...);
-    }
+	template <class B, class E, class...Args>
+	auto operator()(B &&It, E &&e, Args &&... args)
+	 -> decltype(stl2::is_sorted_until(begin_t{It}, sentinel_t{e},
+										 std::forward<Args>(args)...))
+	{
+		return stl2::is_sorted_until(begin_t{It}, sentinel_t{e},
+									   std::forward<Args>(args)...);
+	}
 };
 
 /// Calls the range interface of the algorithm
 template <class Iter>
 struct range_call
 {
-    using begin_t = Iter;
-    using sentinel_t = typename sentinel_type<Iter>::type;
+	using begin_t = Iter;
+	using sentinel_t = typename sentinel_type<Iter>::type;
 
-    template <class B, class E, class... Args>
-    auto operator()(B &&It, E &&e, Args &&... args)
-     -> decltype(stl2::is_sorted_until(::as_lvalue(stl2::ext::make_range(begin_t{It}, sentinel_t{e})),
-                                         std::forward<Args>(args)...))
-    {
-        return stl2::is_sorted_until(::as_lvalue(stl2::ext::make_range(begin_t{It}, sentinel_t{e})),
-                                       std::forward<Args>(args)...);
-    }
+	template <class B, class E, class...Args>
+	auto operator()(B &&It, E &&e, Args &&... args)
+	 -> decltype(stl2::is_sorted_until(::as_lvalue(stl2::ext::make_range(begin_t{It}, sentinel_t{e})),
+										 std::forward<Args>(args)...))
+	{
+		return stl2::is_sorted_until(::as_lvalue(stl2::ext::make_range(begin_t{It}, sentinel_t{e})),
+									   std::forward<Args>(args)...);
+	}
 };
 
 template <class It, template <class> class FunT>
 void test()
 {
-    using Fun = FunT<It>;
+	using Fun = FunT<It>;
 
-    {
-        int a[] = {0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a) == It(a));
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
+	{
+		int a[] = {0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a) == It(a));
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
 
-    {
-        int a[] = {0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
-    {
-        int a[] = {0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
-    {
-        int a[] = {1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 1));
-    }
-    {
-        int a[] = {1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
+	{
+		int a[] = {0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
+	{
+		int a[] = {0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
+	{
+		int a[] = {1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 1));
+	}
+	{
+		int a[] = {1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
 
-    {
-        int a[] = {0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
-    {
-        int a[] = {0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
-    {
-        int a[] = {0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 2));
-    }
-    {
-        int a[] = {0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
-    {
-        int a[] = {1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 1));
-    }
-    {
-        int a[] = {1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 1));
-    }
-    {
-        int a[] = {1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 2));
-    }
-    {
-        int a[] = {1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
+	{
+		int a[] = {0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
+	{
+		int a[] = {0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
+	{
+		int a[] = {0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 2));
+	}
+	{
+		int a[] = {0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
+	{
+		int a[] = {1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 1));
+	}
+	{
+		int a[] = {1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 1));
+	}
+	{
+		int a[] = {1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 2));
+	}
+	{
+		int a[] = {1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
 
-    {
-        int a[] = {0, 0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
-    {
-        int a[] = {0, 0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
-    {
-        int a[] = {0, 0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 3));
-    }
-    {
-        int a[] = {0, 0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
-    {
-        int a[] = {0, 1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 2));
-    }
-    {
-        int a[] = {0, 1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 2));
-    }
-    {
-        int a[] = {0, 1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 3));
-    }
-    {
-        int a[] = {0, 1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
-    {
-        int a[] = {1, 0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 1));
-    }
-    {
-        int a[] = {1, 0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 1));
-    }
-    {
-        int a[] = {1, 0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 1));
-    }
-    {
-        int a[] = {1, 0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 1));
-    }
-    {
-        int a[] = {1, 1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 2));
-    }
-    {
-        int a[] = {1, 1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 2));
-    }
-    {
-        int a[] = {1, 1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + 3));
-    }
-    {
-        int a[] = {1, 1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa) == It(a + sa));
-    }
+	{
+		int a[] = {0, 0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
+	{
+		int a[] = {0, 0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
+	{
+		int a[] = {0, 0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 3));
+	}
+	{
+		int a[] = {0, 0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
+	{
+		int a[] = {0, 1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 2));
+	}
+	{
+		int a[] = {0, 1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 2));
+	}
+	{
+		int a[] = {0, 1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 3));
+	}
+	{
+		int a[] = {0, 1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
+	{
+		int a[] = {1, 0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 1));
+	}
+	{
+		int a[] = {1, 0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 1));
+	}
+	{
+		int a[] = {1, 0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 1));
+	}
+	{
+		int a[] = {1, 0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 1));
+	}
+	{
+		int a[] = {1, 1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 2));
+	}
+	{
+		int a[] = {1, 1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 2));
+	}
+	{
+		int a[] = {1, 1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + 3));
+	}
+	{
+		int a[] = {1, 1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa) == It(a + sa));
+	}
 
-    {
-        int a[] = {0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a, std::greater<int>()) == It(a));
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
-    {
-        int a[] = {0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
-    {
-        int a[] = {0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
-    }
-    {
-        int a[] = {1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
-    {
-        int a[] = {1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
+	{
+		int a[] = {0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a, std::greater<int>()) == It(a));
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
+	{
+		int a[] = {0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
+	{
+		int a[] = {0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
+	}
+	{
+		int a[] = {1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
+	{
+		int a[] = {1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
 
-    {
-        int a[] = {0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
-    {
-        int a[] = {0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
-    }
-    {
-        int a[] = {0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
-    }
-    {
-        int a[] = {0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
-    }
-    {
-        int a[] = {1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
-    {
-        int a[] = {1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
-    }
-    {
-        int a[] = {1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
-    {
-        int a[] = {1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
+	{
+		int a[] = {0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
+	{
+		int a[] = {0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
+	}
+	{
+		int a[] = {0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
+	}
+	{
+		int a[] = {0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
+	}
+	{
+		int a[] = {1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
+	{
+		int a[] = {1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
+	}
+	{
+		int a[] = {1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
+	{
+		int a[] = {1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
 
-    {
-        int a[] = {0, 0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
-    {
-        int a[] = {0, 0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 3));
-    }
-    {
-        int a[] = {0, 0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
-    }
-    {
-        int a[] = {0, 0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
-    }
-    {
-        int a[] = {0, 1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
-    }
-    {
-        int a[] = {0, 1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
-    }
-    {
-        int a[] = {0, 1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
-    }
-    {
-        int a[] = {0, 1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
-    }
-    {
-        int a[] = {1, 0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
-    {
-        int a[] = {1, 0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 3));
-    }
-    {
-        int a[] = {1, 0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
-    }
-    {
-        int a[] = {1, 0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
-    }
-    {
-        int a[] = {1, 1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
-    {
-        int a[] = {1, 1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 3));
-    }
-    {
-        int a[] = {1, 1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
-    {
-        int a[] = {1, 1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
-    }
+	{
+		int a[] = {0, 0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
+	{
+		int a[] = {0, 0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 3));
+	}
+	{
+		int a[] = {0, 0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
+	}
+	{
+		int a[] = {0, 0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
+	}
+	{
+		int a[] = {0, 1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
+	}
+	{
+		int a[] = {0, 1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
+	}
+	{
+		int a[] = {0, 1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
+	}
+	{
+		int a[] = {0, 1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 1));
+	}
+	{
+		int a[] = {1, 0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
+	{
+		int a[] = {1, 0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 3));
+	}
+	{
+		int a[] = {1, 0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
+	}
+	{
+		int a[] = {1, 0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 2));
+	}
+	{
+		int a[] = {1, 1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
+	{
+		int a[] = {1, 1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + 3));
+	}
+	{
+		int a[] = {1, 1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
+	{
+		int a[] = {1, 1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()) == It(a + sa));
+	}
 }
 
 struct A { int a; };
 
 int main()
 {
-    test<forward_iterator<const int*>, iter_call>();
-    test<bidirectional_iterator<const int*>, iter_call>();
-    test<random_access_iterator<const int*>, iter_call>();
-    test<const int*, iter_call>();
+	test<forward_iterator<const int*>, iter_call>();
+	test<bidirectional_iterator<const int*>, iter_call>();
+	test<random_access_iterator<const int*>, iter_call>();
+	test<const int*, iter_call>();
 
-    test<forward_iterator<const int*>, range_call>();
-    test<bidirectional_iterator<const int*>, range_call>();
-    test<random_access_iterator<const int*>, range_call>();
-    test<const int*, range_call>();
+	test<forward_iterator<const int*>, range_call>();
+	test<bidirectional_iterator<const int*>, range_call>();
+	test<random_access_iterator<const int*>, range_call>();
+	test<const int*, range_call>();
 
-    /// Initializer list test:
-    {
-        std::initializer_list<int> r = {0,1,2,3,4,5,6,7,8,9,10};
-        CHECK(stl2::is_sorted_until(r) == stl2::end(r));
-    }
+	/// Initializer list test:
+	{
+		std::initializer_list<int> r = {0,1,2,3,4,5,6,7,8,9,10};
+		CHECK(stl2::is_sorted_until(r) == stl2::end(r));
+	}
 
-    /// Projection test:
-    {
-        A as[] = {{0}, {1}, {2}, {3}, {4}};
-        CHECK(stl2::is_sorted_until(as, std::less<int>{}, &A::a) == stl2::end(as));
-        CHECK(stl2::is_sorted_until(as, std::greater<int>{}, &A::a) == stl2::next(stl2::begin(as),1));
-    }
+	/// Projection test:
+	{
+		A as[] = {{0}, {1}, {2}, {3}, {4}};
+		CHECK(stl2::is_sorted_until(as, std::less<int>{}, &A::a) == stl2::end(as));
+		CHECK(stl2::is_sorted_until(as, std::greater<int>{}, &A::a) == stl2::next(stl2::begin(as),1));
+	}
 
-    /// Rvalue range test:
-    {
-        A as[] = {{0}, {1}, {2}, {3}, {4}};
-        CHECK(stl2::is_sorted_until(stl2::move(as), std::less<int>{}, &A::a).get_unsafe() == stl2::end(as));
-        CHECK(stl2::is_sorted_until(stl2::move(as), std::greater<int>{}, &A::a).get_unsafe() == stl2::next(stl2::begin(as),1));
-    }
+	/// Rvalue range test:
+	{
+		A as[] = {{0}, {1}, {2}, {3}, {4}};
+		CHECK(stl2::is_sorted_until(stl2::move(as), std::less<int>{}, &A::a).get_unsafe() == stl2::end(as));
+		CHECK(stl2::is_sorted_until(stl2::move(as), std::greater<int>{}, &A::a).get_unsafe() == stl2::next(stl2::begin(as),1));
+	}
 
-    return ::test_result();
+	return ::test_result();
 }

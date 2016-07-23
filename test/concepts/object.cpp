@@ -18,11 +18,11 @@ constexpr bool Destructible = ranges::Destructible<T>();
 
 template<class T, class...Args>
 constexpr bool ConstructibleObject =
-  ranges::concepts::models<ranges::concepts::ConstructibleObject, T, Args...>();
+	ranges::concepts::models<ranges::concepts::ConstructibleObject, T, Args...>();
 
 template<class T, class...Args>
 constexpr bool BindableReference =
-  ranges::concepts::models<ranges::concepts::BindableReference, T, Args...>();
+	ranges::concepts::models<ranges::concepts::BindableReference, T, Args...>();
 
 template <class T, class...Args>
 constexpr bool Constructible = ranges::Constructible<T, Args...>();
@@ -56,78 +56,78 @@ constexpr bool Regular = ranges::Regular<T>();
 struct copyable {};
 
 struct moveonly {
-  moveonly() = default;
-  moveonly(moveonly&&) = default;
-  moveonly& operator=(moveonly&&) = default;
+	moveonly() = default;
+	moveonly(moveonly&&) = default;
+	moveonly& operator=(moveonly&&) = default;
 };
 
 struct copyonly {
-  copyonly() = default;
-  copyonly(const copyonly&) = default;
-  copyonly& operator=(const copyonly&) = default;
-  copyonly(copyonly&&) = delete;
-  copyonly& operator=(copyonly&&) = delete;
+	copyonly() = default;
+	copyonly(const copyonly&) = default;
+	copyonly& operator=(const copyonly&) = default;
+	copyonly(copyonly&&) = delete;
+	copyonly& operator=(copyonly&&) = delete;
 };
 
 struct nonmovable {
-  nonmovable() = default;
-  nonmovable(nonmovable&&) = delete;
+	nonmovable() = default;
+	nonmovable(nonmovable&&) = delete;
 };
 
 struct nondefaultconstructible {
-  nondefaultconstructible(int) {}
+	nondefaultconstructible(int) {}
 };
 
 struct indestructible {
-  ~indestructible() = delete;
+	~indestructible() = delete;
 };
 
 struct explicit_default {
-  explicit explicit_default() {}
+	explicit explicit_default() {}
 };
 
 struct explicit_move {
-  explicit_move() = default;
-  explicit explicit_move(explicit_move&&) = default;
+	explicit_move() = default;
+	explicit explicit_move(explicit_move&&) = default;
 };
 
 struct explicit_copy {
-  explicit_copy() = default;
-  explicit_copy(explicit_copy&&) = default;
-  explicit explicit_copy(const explicit_copy&) = default;
+	explicit_copy() = default;
+	explicit_copy(explicit_copy&&) = default;
+	explicit explicit_copy(const explicit_copy&) = default;
 };
 
 struct partial_overloaded_address {
-  partial_overloaded_address* operator&();
+	partial_overloaded_address* operator&();
 };
 struct overloaded_address {
-  overloaded_address* operator&();
-  const overloaded_address* operator&() const;
+	overloaded_address* operator&();
+	const overloaded_address* operator&() const;
 };
 struct bad_overloaded_address {
-  void operator&() const;
+	void operator&() const;
 };
 struct bad_overloaded_const_address {
-  bad_overloaded_const_address* operator&();
-  void operator&() const;
+	bad_overloaded_const_address* operator&();
+	void operator&() const;
 };
 
 struct semiregular {};
 
 struct regular {
-  friend constexpr bool operator==(const regular&, const regular&) {
-    return true;
-  }
-  friend constexpr bool operator!=(const regular&, const regular&) {
-    return false;
-  }
+	friend constexpr bool operator==(const regular&, const regular&) {
+		return true;
+	}
+	friend constexpr bool operator!=(const regular&, const regular&) {
+		return false;
+	}
 };
 
 struct XXX
 {
-    XXX() = default;
-    XXX(XXX&&) = delete;
-    explicit XXX(int) {}
+	XXX() = default;
+	XXX(XXX&&) = delete;
+	explicit XXX(int) {}
 };
 
 CONCEPT_ASSERT(models::Destructible<int>);

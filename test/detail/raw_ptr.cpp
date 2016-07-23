@@ -21,47 +21,47 @@ struct A { int i; };
 struct B : A { int j; };
 
 int main() {
-  using RA = raw_ptr<A>;
-  using RB = raw_ptr<B>;
+	using RA = raw_ptr<A>;
+	using RB = raw_ptr<B>;
 
-  static_assert(stl2::models::Regular<RA>);
-  static_assert(stl2::models::StrictTotallyOrdered<RA>);
-  static_assert(stl2::models::Regular<RB>);
-  static_assert(stl2::models::StrictTotallyOrdered<RB>);
+	static_assert(stl2::models::Regular<RA>);
+	static_assert(stl2::models::StrictTotallyOrdered<RA>);
+	static_assert(stl2::models::Regular<RB>);
+	static_assert(stl2::models::StrictTotallyOrdered<RB>);
 
-  CHECK(RA{} == RA{});
-  CHECK(!(RA{} != RA{}));
-  CHECK(RA{} == RB{});
-  CHECK(!(RA{} != RB{}));
+	CHECK(RA{} == RA{});
+	CHECK(!(RA{} != RA{}));
+	CHECK(RA{} == RB{});
+	CHECK(!(RA{} != RB{}));
 
-  RA ra{RB{}};
-  CHECK(ra == nullptr);
-  ra = RB{};
-  CHECK(ra == nullptr);
+	RA ra{RB{}};
+	CHECK(ra == nullptr);
+	ra = RB{};
+	CHECK(ra == nullptr);
 
-  A a{42};
-  ra = &a;
-  CHECK(ra == &a);
-  CHECK(ra->i == 42);
-  B b;
-  b.i = 13;
-  b.j = 42;
-  ra = &b;
-  CHECK(ra == &b);
-  CHECK(ra->i == 13);
+	A a{42};
+	ra = &a;
+	CHECK(ra == &a);
+	CHECK(ra->i == 42);
+	B b;
+	b.i = 13;
+	b.j = 42;
+	ra = &b;
+	CHECK(ra == &b);
+	CHECK(ra->i == 13);
 
-  B array[4]{};
-  RA r0 = &array[0];
-  RA r1 = &array[1];
-  CHECK(r0 != r1);
-  CHECK(r0 < r1);
-  CHECK(r0 <= r1);
-  CHECK(r1 > r0);
-  CHECK(r1 >= r0);
+	B array[4]{};
+	RA r0 = &array[0];
+	RA r1 = &array[1];
+	CHECK(r0 != r1);
+	CHECK(r0 < r1);
+	CHECK(r0 <= r1);
+	CHECK(r1 > r0);
+	CHECK(r1 >= r0);
 
-  CHECK(r0);
-  CHECK(!!r1);
-  CHECK((r0 ? true : false));
+	CHECK(r0);
+	CHECK(!!r1);
+	CHECK((r0 ? true : false));
 
-  return test_result();
+	return test_result();
 }

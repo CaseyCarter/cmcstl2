@@ -32,9 +32,9 @@ static_assert(is_same<common_type_t<X, Y, Y>, Y>(), ""); // (B)
 static_assert(is_same<common_type_t<X, X, Y>, Y>(), ""); // (C)
 
 struct AA {
-  AA() = default;
-  AA(AA &&) = delete;
-  AA(AA const &) = delete;
+	AA() = default;
+	AA(AA &&) = delete;
+	AA(AA const &) = delete;
 };
 struct BB : AA { };
 
@@ -46,33 +46,33 @@ static_assert(!meta::is_trait<common_reference<int, short, int, char*>>(), "");
 
 STL2_OPEN_NAMESPACE {
 template <class...T, class...U, template <class> class TQual, template <class> class UQual>
-  requires (_Valid<common_reference_t, TQual<T>, UQual<U>> && ...)
+	requires (_Valid<common_reference_t, TQual<T>, UQual<U>> && ...)
 struct basic_common_reference<tuple<T...>, tuple<U...>, TQual, UQual> {
-  using type = tuple<common_reference_t<TQual<T>, UQual<U>>...>;
+	using type = tuple<common_reference_t<TQual<T>, UQual<U>>...>;
 };
 } STL2_CLOSE_NAMESPACE
 
 static_assert(is_same<
-  common_reference_t<const tuple<int, short> &, tuple<int&,short volatile&>>,
-  tuple<const int&,const volatile short&>>(), "");
+	common_reference_t<const tuple<int, short> &, tuple<int&,short volatile&>>,
+	tuple<const int&,const volatile short&>>(), "");
 
 static_assert(is_same<
-  common_reference_t<volatile tuple<int, short> &, const tuple<int,short>&>,
-  const volatile tuple<int, short>&>(), "");
+	common_reference_t<volatile tuple<int, short> &, const tuple<int,short>&>,
+	const volatile tuple<int, short>&>(), "");
 
 static_assert(!meta::is_trait<
-  common_reference<volatile tuple<short> &, const tuple<int,short>&>>(), "");
+	common_reference<volatile tuple<short> &, const tuple<int,short>&>>(), "");
 
 struct B {};
 struct D : B {};
 
 struct noncopyable
 {
-    noncopyable() = default;
-    noncopyable(noncopyable const &) = delete;
-    noncopyable(noncopyable &&) = default;
-    noncopyable &operator=(noncopyable const &) = delete;
-    noncopyable &operator=(noncopyable &&) = default;
+	noncopyable() = default;
+	noncopyable(noncopyable const &) = delete;
+	noncopyable(noncopyable &&) = default;
+	noncopyable &operator=(noncopyable const &) = delete;
+	noncopyable &operator=(noncopyable &&) = default;
 };
 
 struct noncopyable2 : noncopyable
@@ -114,18 +114,18 @@ static_assert(is_same<common_reference_t<int (&)[10], int (&)[11]>, int *>::valu
 
 // Some tests with noncopyable types
 static_assert(is_same<
-    common_reference_t<noncopyable const &, noncopyable>,
-    noncopyable
+	common_reference_t<noncopyable const &, noncopyable>,
+	noncopyable
 >::value, "");
 
 static_assert(is_same<
-    common_reference_t<noncopyable2 const &, noncopyable>,
-    noncopyable
+	common_reference_t<noncopyable2 const &, noncopyable>,
+	noncopyable
 >::value, "");
 
 static_assert(is_same<
-    common_reference_t<noncopyable const &, noncopyable2>,
-    noncopyable
+	common_reference_t<noncopyable const &, noncopyable2>,
+	noncopyable
 >::value, "");
 
 struct X2 {};
@@ -136,18 +136,18 @@ STL2_OPEN_NAMESPACE {
 template<>
 struct common_type<X2, Y2>
 {
-    using type = Z2;
+	using type = Z2;
 };
 template<>
 struct common_type<Y2, X2>
 {
-    using type = Z2;
+	using type = Z2;
 };
 } STL2_CLOSE_NAMESPACE
 
 static_assert(is_same<
-    common_reference_t<X2 &, Y2 const &>,
-    Z2
+	common_reference_t<X2 &, Y2 const &>,
+	Z2
 >::value, "");
 
 static_assert(models::CommonReference<void, void>);
@@ -156,5 +156,5 @@ static_assert(models::Common<void, void>);
 static_assert(is_same<common_type_t<void, void>, void>());
 
 int main() {
-  return ::test_result();
+	return ::test_result();
 }

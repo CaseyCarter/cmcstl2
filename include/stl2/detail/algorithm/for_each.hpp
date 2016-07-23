@@ -31,43 +31,43 @@
 //     call f(proj(*i)) and discard the return value.
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I, Sentinel<I> S, class F, class Proj = identity>
-  requires
-    models::Callable<
-      __f<F>, reference_t<projected<I, __f<Proj>>>>
-  tagged_pair<tag::in(I), tag::fun(__f<F>)>
-  for_each(I first, S last, F&& fun_, Proj&& proj_ = Proj{})
-  {
-    auto fun = ext::make_callable_wrapper(__stl2::forward<F>(fun_));
-    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    for (; first != last; ++first) {
-      (void)fun(proj(*first));
-    }
-    return {__stl2::move(first), ext::callable_unwrapper(__stl2::move(fun))};
-  }
+	template <InputIterator I, Sentinel<I> S, class F, class Proj = identity>
+	requires
+		models::Callable<
+			__f<F>, reference_t<projected<I, __f<Proj>>>>
+	tagged_pair<tag::in(I), tag::fun(__f<F>)>
+	for_each(I first, S last, F&& fun_, Proj&& proj_ = Proj{})
+	{
+		auto fun = ext::make_callable_wrapper(__stl2::forward<F>(fun_));
+		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+		for (; first != last; ++first) {
+			(void)fun(proj(*first));
+		}
+		return {__stl2::move(first), ext::callable_unwrapper(__stl2::move(fun))};
+	}
 
-  template <InputRange Rng, class F, class Proj = identity>
-  requires
-    models::Callable<
-      __f<F>, reference_t<projected<iterator_t<Rng>, __f<Proj>>>>
-  tagged_pair<tag::in(safe_iterator_t<Rng>), tag::fun(__f<F>)>
-  for_each(Rng&& rng, F&& f, Proj&& proj = Proj{})
-  {
-    return __stl2::for_each(__stl2::begin(rng), __stl2::end(rng),
-      __stl2::forward<F>(f), __stl2::forward<Proj>(proj));
-  }
+	template <InputRange Rng, class F, class Proj = identity>
+	requires
+		models::Callable<
+			__f<F>, reference_t<projected<iterator_t<Rng>, __f<Proj>>>>
+	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::fun(__f<F>)>
+	for_each(Rng&& rng, F&& f, Proj&& proj = Proj{})
+	{
+		return __stl2::for_each(__stl2::begin(rng), __stl2::end(rng),
+			__stl2::forward<F>(f), __stl2::forward<Proj>(proj));
+	}
 
-  // Extension
-  template <class E, class F, class Proj = identity>
-  requires
-    models::Callable<
-      __f<F>, reference_t<projected<const E*, __f<Proj>>>>
-  tagged_pair<tag::in(dangling<const E*>), tag::fun(__f<F>)>
-  for_each(std::initializer_list<E>&& il, F&& f, Proj&& proj = Proj{})
-  {
-    return __stl2::for_each(il.begin(), il.end(),
-      __stl2::forward<F>(f), __stl2::forward<Proj>(proj));
-  }
+	// Extension
+	template <class E, class F, class Proj = identity>
+	requires
+		models::Callable<
+			__f<F>, reference_t<projected<const E*, __f<Proj>>>>
+	tagged_pair<tag::in(dangling<const E*>), tag::fun(__f<F>)>
+	for_each(std::initializer_list<E>&& il, F&& f, Proj&& proj = Proj{})
+	{
+		return __stl2::for_each(il.begin(), il.end(),
+			__stl2::forward<F>(f), __stl2::forward<Proj>(proj));
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -24,56 +24,55 @@
 // sort [sort]
 //
 STL2_OPEN_NAMESPACE {
-  template <ForwardIterator I, Sentinel<I> S,
-            class Comp = less<>, class Proj = identity>
-  requires
-    models::Sortable<I, __f<Comp>, __f<Proj>>
-  I sort(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
-  {
-    auto n = __stl2::distance(first, __stl2::move(last));
-    return detail::fsort::sort_n(__stl2::move(first), n,
-                                 __stl2::forward<Comp>(comp),
-                                 __stl2::forward<Proj>(proj));
-  }
+	template <ForwardIterator I, Sentinel<I> S, class Comp = less<>,
+		class Proj = identity>
+	requires
+		models::Sortable<I, __f<Comp>, __f<Proj>>
+	I sort(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	{
+		auto n = __stl2::distance(first, __stl2::move(last));
+		return detail::fsort::sort_n(__stl2::move(first), n,
+			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+	}
 
-  template <RandomAccessIterator I, Sentinel<I> S,
-            class Comp = less<>, class Proj = identity>
-  requires
-    models::Sortable<I, __f<Comp>, __f<Proj>>
-  I sort(I first, S sent, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
-  {
-    if (first == sent) {
-      return first;
-    }
-    I last = __stl2::next(first, __stl2::move(sent));
-    auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    auto n = difference_type_t<I>(last - first);
-    detail::rsort::introsort_loop(first, last, detail::rsort::log2(n) * 2,
-                                  comp, proj);
-    detail::rsort::final_insertion_sort(first, last, comp, proj);
-    return last;
-  }
+	template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
+		class Proj = identity>
+	requires
+		models::Sortable<I, __f<Comp>, __f<Proj>>
+	I sort(I first, S sent, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+	{
+		if (first == sent) {
+			return first;
+		}
+		I last = __stl2::next(first, __stl2::move(sent));
+		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
+		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+		auto n = difference_type_t<I>(last - first);
+		detail::rsort::introsort_loop(first, last, detail::rsort::log2(n) * 2,
+			comp, proj);
+		detail::rsort::final_insertion_sort(first, last, comp, proj);
+		return last;
+	}
 
-  template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
-  requires
-    models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
-  safe_iterator_t<Rng>
-  sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
-  {
-    return detail::fsort::sort_n(__stl2::begin(rng), __stl2::distance(rng),
-      __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
-  }
+	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
+	requires
+		models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
+	safe_iterator_t<Rng>
+	sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	{
+		return detail::fsort::sort_n(__stl2::begin(rng), __stl2::distance(rng),
+			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+	}
 
-  template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-  requires
-    models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
-  safe_iterator_t<Rng>
-  sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
-  {
-    return __stl2::sort(__stl2::begin(rng), __stl2::end(rng),
-      __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
-  }
+	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
+	requires
+		models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
+	safe_iterator_t<Rng>
+	sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	{
+		return __stl2::sort(__stl2::begin(rng), __stl2::end(rng),
+			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

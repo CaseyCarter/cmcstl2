@@ -21,23 +21,23 @@
 // copy_n [alg.copy]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I, WeaklyIncrementable O>
-  requires
-    models::IndirectlyCopyable<I, O>
-  tagged_pair<tag::in(I), tag::out(O)>
-  copy_n(I first_, difference_type_t<I> n, O result)
-  {
-    STL2_ASSUME(n >= 0);
-    auto norig = n;
-    auto first = __stl2::ext::uncounted(first_);
-    for(; n > 0; ++first, ++result, --n) {
-      *result = *first;
-    }
-    return {
-      __stl2::ext::recounted(first_, first, norig),
-      __stl2::move(result)
-    };
-  }
+	template <InputIterator I, WeaklyIncrementable O>
+	requires
+		models::IndirectlyCopyable<I, O>
+	tagged_pair<tag::in(I), tag::out(O)>
+	copy_n(I first_, difference_type_t<I> n, O result)
+	{
+		STL2_ASSUME(n >= 0);
+		auto norig = n;
+		auto first = __stl2::ext::uncounted(first_);
+		for(; n > 0; ++first, ++result, --n) {
+			*result = *first;
+		}
+		return {
+			__stl2::ext::recounted(first_, first, norig),
+			__stl2::move(result)
+		};
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

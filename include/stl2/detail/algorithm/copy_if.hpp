@@ -23,59 +23,59 @@
 // copy_if [alg.copy]
 //
 STL2_OPEN_NAMESPACE {
-  template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-            class Pred, class Proj = identity>
-  requires
-    models::IndirectlyCopyable<I, O> &&
-    models::IndirectCallablePredicate<
-      __f<Pred>, projected<I, __f<Proj>>>
-  tagged_pair<tag::in(I), tag::out(O)>
-  copy_if(I first, S last, O result, Pred&& pred_, Proj&& proj_ = Proj{})
-  {
-    auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
+		class Pred, class Proj = identity>
+	requires
+		models::IndirectlyCopyable<I, O> &&
+		models::IndirectCallablePredicate<
+			__f<Pred>, projected<I, __f<Proj>>>
+	tagged_pair<tag::in(I), tag::out(O)>
+	copy_if(I first, S last, O result, Pred&& pred_, Proj&& proj_ = Proj{})
+	{
+		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
-    for (; first != last; ++first) {
-      reference_t<I>&& v = *first;
-      if (pred(proj(v))) {
-        *result = __stl2::forward<reference_t<I>>(v);
-        ++result;
-      }
-    }
+		for (; first != last; ++first) {
+			reference_t<I>&& v = *first;
+			if (pred(proj(v))) {
+				*result = __stl2::forward<reference_t<I>>(v);
+				++result;
+			}
+		}
 
-    return {__stl2::move(first), __stl2::move(result)};
-  }
+		return {__stl2::move(first), __stl2::move(result)};
+	}
 
-  template<InputRange Rng, class O, class Pred, class Proj = identity>
-  requires
-    models::WeaklyIncrementable<__f<O>> &&
-    models::IndirectCallablePredicate<
-      __f<Pred>, projected<iterator_t<Rng>, __f<Proj>>> &&
-    models::IndirectlyCopyable<iterator_t<Rng>, __f<O>>
-  tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
-  copy_if(Rng&& rng, O&& result, Pred&& pred, Proj&& proj = Proj{})
-  {
-    return __stl2::copy_if(__stl2::begin(rng), __stl2::end(rng),
-                           __stl2::forward<O>(result),
-                           __stl2::forward<Pred>(pred),
-                           __stl2::forward<Proj>(proj));
-  }
+	template<InputRange Rng, class O, class Pred, class Proj = identity>
+	requires
+		models::WeaklyIncrementable<__f<O>> &&
+		models::IndirectCallablePredicate<
+			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>> &&
+		models::IndirectlyCopyable<iterator_t<Rng>, __f<O>>
+	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
+	copy_if(Rng&& rng, O&& result, Pred&& pred, Proj&& proj = Proj{})
+	{
+		return __stl2::copy_if(__stl2::begin(rng), __stl2::end(rng),
+													 __stl2::forward<O>(result),
+													 __stl2::forward<Pred>(pred),
+													 __stl2::forward<Proj>(proj));
+	}
 
-  // Extension
-  template<class E, class O, class Pred, class Proj = identity>
-  requires
-    models::WeaklyIncrementable<__f<O>> &&
-    models::IndirectCallablePredicate<
-      __f<Pred>, projected<const E*, __f<Proj>>> &&
-    models::IndirectlyCopyable<const E*, __f<O>>
-  tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-  copy_if(std::initializer_list<E>&& rng, O&& result,
-          Pred&& pred, Proj&& proj = Proj{})
-  {
-    return __stl2::copy_if(rng, __stl2::forward<O>(result),
-                           __stl2::forward<Pred>(pred),
-                           __stl2::forward<Proj>(proj));
-  }
+	// Extension
+	template<class E, class O, class Pred, class Proj = identity>
+	requires
+		models::WeaklyIncrementable<__f<O>> &&
+		models::IndirectCallablePredicate<
+			__f<Pred>, projected<const E*, __f<Proj>>> &&
+		models::IndirectlyCopyable<const E*, __f<O>>
+	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
+	copy_if(std::initializer_list<E>&& rng, O&& result,
+					Pred&& pred, Proj&& proj = Proj{})
+	{
+		return __stl2::copy_if(rng, __stl2::forward<O>(result),
+													 __stl2::forward<Pred>(pred),
+													 __stl2::forward<Proj>(proj));
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -22,35 +22,35 @@
 // Range primitives [range.primitives]
 //
 STL2_OPEN_NAMESPACE {
-  // enumerate
-  namespace ext {
-    Range{R}
-    auto enumerate(R&& r)
-    STL2_NOEXCEPT_RETURN(
-      __stl2::ext::enumerate(__stl2::begin(r), __stl2::end(r))
-    )
+	// enumerate
+	namespace ext {
+		Range{R}
+		auto enumerate(R&& r)
+		STL2_NOEXCEPT_RETURN(
+			__stl2::ext::enumerate(__stl2::begin(r), __stl2::end(r))
+		)
 
-    SizedRange{R}
-    auto enumerate(R&& r)
-    STL2_NOEXCEPT_RETURN(
-      tagged_pair<tag::count(difference_type_t<iterator_t<R>>),
-                  tag::end(safe_iterator_t<R>)>{
-        __stl2::size(r),
-        __stl2::next(__stl2::begin(r), __stl2::end(r))
-      }
-    )
-  }
+		SizedRange{R}
+		auto enumerate(R&& r)
+		STL2_NOEXCEPT_RETURN(
+			tagged_pair<tag::count(difference_type_t<iterator_t<R>>),
+				tag::end(safe_iterator_t<R>)>{
+				__stl2::size(r),
+				__stl2::next(__stl2::begin(r), __stl2::end(r))
+			}
+		)
+	}
 
-  // distance
-  Range{R}
-  difference_type_t<iterator_t<R>> distance(R&& r) {
-    return __stl2::distance(__stl2::begin(r), __stl2::end(r));
-  }
+	// distance
+	Range{R}
+	difference_type_t<iterator_t<R>> distance(R&& r) {
+		return __stl2::distance(__stl2::begin(r), __stl2::end(r));
+	}
 
-  SizedRange{R}
-  difference_type_t<iterator_t<R>> distance(R&& r) {
-    return __stl2::size(r);
-  }
+	SizedRange{R}
+	difference_type_t<iterator_t<R>> distance(R&& r) {
+		return __stl2::size(r);
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

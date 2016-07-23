@@ -23,39 +23,37 @@
 // remove [alg.remove]
 //
 STL2_OPEN_NAMESPACE {
-  template <ForwardIterator I, Sentinel<I> S,
-            class T, class Proj = identity>
-  requires
-    models::Permutable<I> &&
-    models::IndirectCallableRelation<
-      equal_to<>, projected<I, __f<Proj>>, const T*>
-  I remove(I first, S last, const T& value, Proj&& proj_ = Proj{})
-  {
-    auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-    first = __stl2::find(__stl2::move(first), last,
-                         value, __stl2::ref(proj));
-    if (first != last) {
-      for (auto m = __stl2::next(first); m != last; ++m) {
-        if (proj(*m) != value) {
-          *first = __stl2::iter_move(m);
-          ++first;
-        }
-      }
-    }
-    return first;
-  }
+	template <ForwardIterator I, Sentinel<I> S, class T, class Proj = identity>
+	requires
+		models::Permutable<I> &&
+		models::IndirectCallableRelation<
+			equal_to<>, projected<I, __f<Proj>>, const T*>
+	I remove(I first, S last, const T& value, Proj&& proj_ = Proj{})
+	{
+		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+		first = __stl2::find(__stl2::move(first), last, value, __stl2::ref(proj));
+		if (first != last) {
+			for (auto m = __stl2::next(first); m != last; ++m) {
+				if (proj(*m) != value) {
+					*first = __stl2::iter_move(m);
+					++first;
+				}
+			}
+		}
+		return first;
+	}
 
-  template <ForwardRange Rng, class T, class Proj = identity>
-  requires
-    models::Permutable<iterator_t<Rng>> &&
-    models::IndirectCallableRelation<
-      equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T*>
-  safe_iterator_t<Rng>
-  remove(Rng&& rng, const T& value, Proj&& proj = Proj{})
-  {
-    return __stl2::remove(__stl2::begin(rng), __stl2::end(rng),
-                          value, __stl2::forward<Proj>(proj));
-  }
+	template <ForwardRange Rng, class T, class Proj = identity>
+	requires
+		models::Permutable<iterator_t<Rng>> &&
+		models::IndirectCallableRelation<
+			equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T*>
+	safe_iterator_t<Rng>
+	remove(Rng&& rng, const T& value, Proj&& proj = Proj{})
+	{
+		return __stl2::remove(__stl2::begin(rng), __stl2::end(rng), value,
+			__stl2::forward<Proj>(proj));
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

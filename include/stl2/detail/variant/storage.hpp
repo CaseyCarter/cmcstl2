@@ -28,136 +28,146 @@
 //       positively with inlining.
 //
 STL2_OPEN_NAMESPACE {
-  namespace __variant {
-    struct empty_tag {};
+	namespace __variant {
+		struct empty_tag {};
 
-    template <Destructible...Ts>
-    class storage;
-    template <> class storage<> {};
+		template <Destructible...Ts>
+		class storage;
+		template <> class storage<> {};
 
-    template <class T>
-    concept bool IsStorage = _SpecializationOf<T, storage>;
+		template <class T>
+		concept bool IsStorage = _SpecializationOf<T, storage>;
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Specialization for non-trivially destructible element types, has a
-    // no-op nontrivial destructor.
-    //
-    template <class First, class...Rest>
-    class storage<First, Rest...> {
-      using head_t = First;
-      using tail_t = storage<Rest...>;
+		///////////////////////////////////////////////////////////////////////////
+		// Specialization for non-trivially destructible element types, has a
+		// no-op nontrivial destructor.
+		//
+		template <class First, class...Rest>
+		class storage<First, Rest...> {
+			using head_t = First;
+			using tail_t = storage<Rest...>;
 
-      static constexpr std::size_t size = 1 + sizeof...(Rest);
+			static constexpr std::size_t size = 1 + sizeof...(Rest);
 
-      union {
-        head_t head_;
-        tail_t tail_;
-      };
+			union {
+				head_t head_;
+				tail_t tail_;
+			};
 
-    public:
-      ~storage() {}
+		public:
+			~storage() {}
 
-      constexpr storage()
-        noexcept(is_nothrow_default_constructible<head_t>::value)
-        requires DefaultConstructible<head_t>() :
-        head_{} {}
+			constexpr storage()
+			noexcept(is_nothrow_default_constructible<head_t>::value)
+			requires DefaultConstructible<head_t>()
+			: head_{} {}
 
-      storage(empty_tag) noexcept {}
+			storage(empty_tag) noexcept {}
 
-      template <std::size_t N, class...Args>
-        requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, Args...>()
-      constexpr storage(meta::size_t<N>, Args&&...args)
-        noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, Args...>::value) :
-        tail_{meta::size_t<N - 1>{}, __stl2::forward<Args>(args)...} {}
+			template <std::size_t N, class...Args>
+			requires
+				N > 0 && Constructible<tail_t, meta::size_t<N - 1>, Args...>()
+			constexpr storage(meta::size_t<N>, Args&&...args)
+			noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, Args...>::value)
+			: tail_{meta::size_t<N - 1>{}, __stl2::forward<Args>(args)...} {}
 
-      template <class...Args>
-        requires Constructible<First, Args...>()
-      constexpr storage(meta::size_t<0>, Args&&...args)
-        noexcept(is_nothrow_constructible<head_t, Args...>::value) :
-        head_{__stl2::forward<Args>(args)...} {}
+			template <class...Args>
+			requires Constructible<First, Args...>()
+			constexpr storage(meta::size_t<0>, Args&&...args)
+			noexcept(is_nothrow_constructible<head_t, Args...>::value)
+			: head_{__stl2::forward<Args>(args)...} {}
 
-      template <std::size_t N, class E, class...Args>
-        requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>()
-      constexpr storage(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
-        noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>::value) :
-        tail_{meta::size_t<N - 1>{}, il, __stl2::forward<Args>(args)...} {}
+			template <std::size_t N, class E, class...Args>
+			requires
+				N > 0 &&
+				Constructible<tail_t, meta::size_t<N - 1>,
+					std::initializer_list<E>, Args...>()
+			constexpr storage(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
+			noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>,
+				std::initializer_list<E>, Args...>::value)
+			: tail_{meta::size_t<N - 1>{}, il, __stl2::forward<Args>(args)...} {}
 
-      template <class E, class...Args>
-        requires Constructible<First, std::initializer_list<E>, Args...>()
-      constexpr storage(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
-        noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value) :
-        head_{il, __stl2::forward<Args>(args)...} {}
-    };
+			template <class E, class...Args>
+			requires Constructible<First, std::initializer_list<E>, Args...>()
+			constexpr storage(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
+			noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value)
+			: head_{il, __stl2::forward<Args>(args)...} {}
+		};
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Specialization for trivially destructible element types, uses the
-    // implicitly-defined (trivial) destructor. Otherwise identical to the
-    // other specialization.
-    //
-    template <ext::TriviallyDestructible First, ext::TriviallyDestructible...Rest>
-    class storage<First, Rest...> {
-      using head_t = First;
-      using tail_t = storage<Rest...>;
+		///////////////////////////////////////////////////////////////////////////
+		// Specialization for trivially destructible element types, uses the
+		// implicitly-defined (trivial) destructor. Otherwise identical to the
+		// other specialization.
+		//
+		template <ext::TriviallyDestructible First, ext::TriviallyDestructible...Rest>
+		class storage<First, Rest...> {
+			using head_t = First;
+			using tail_t = storage<Rest...>;
 
-      static constexpr std::size_t size = 1 + sizeof...(Rest);
+			static constexpr std::size_t size = 1 + sizeof...(Rest);
 
-      union {
-        head_t head_;
-        tail_t tail_;
-      };
+			union {
+				head_t head_;
+				tail_t tail_;
+			};
 
-    public:
-      constexpr storage()
-        noexcept(is_nothrow_default_constructible<head_t>::value)
-        requires DefaultConstructible<head_t>() :
-        head_{} {}
+		public:
+			constexpr storage()
+			noexcept(is_nothrow_default_constructible<head_t>::value)
+			requires DefaultConstructible<head_t>()
+			: head_{} {}
 
-      storage(empty_tag) noexcept {}
+			storage(empty_tag) noexcept {}
 
-      template <std::size_t N, class...Args>
-        requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, Args...>()
-      constexpr storage(meta::size_t<N>, Args&&...args)
-        noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, Args...>::value) :
-        tail_{meta::size_t<N - 1>{}, __stl2::forward<Args>(args)...} {}
+			template <std::size_t N, class...Args>
+			requires
+				N > 0 && Constructible<tail_t, meta::size_t<N - 1>, Args...>()
+			constexpr storage(meta::size_t<N>, Args&&...args)
+			noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, Args...>::value)
+			: tail_{meta::size_t<N - 1>{}, __stl2::forward<Args>(args)...} {}
 
-      template <class...Args>
-        requires Constructible<First, Args...>()
-      constexpr storage(meta::size_t<0>, Args&&...args)
-        noexcept(is_nothrow_constructible<head_t, Args...>::value) :
-        head_{__stl2::forward<Args>(args)...} {}
+			template <class...Args>
+			requires Constructible<First, Args...>()
+			constexpr storage(meta::size_t<0>, Args&&...args)
+			noexcept(is_nothrow_constructible<head_t, Args...>::value)
+			: head_{__stl2::forward<Args>(args)...} {}
 
-      template <std::size_t N, class E, class...Args>
-        requires N > 0 && Constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>()
-      constexpr storage(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
-        noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, std::initializer_list<E>, Args...>::value) :
-        tail_{meta::size_t<N - 1>{}, il, __stl2::forward<Args>(args)...} {}
+			template <std::size_t N, class E, class...Args>
+			requires
+				N > 0 &&
+				Constructible<tail_t, meta::size_t<N - 1>,
+					std::initializer_list<E>, Args...>()
+			constexpr storage(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
+			noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>,
+				std::initializer_list<E>, Args...>::value)
+			: tail_{meta::size_t<N - 1>{}, il, __stl2::forward<Args>(args)...} {}
 
-      template <class E, class...Args>
-        requires Constructible<First, std::initializer_list<E>, Args...>()
-      constexpr storage(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
-        noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value) :
-        head_{il, __stl2::forward<Args>(args)...} {}
-    };
+			template <class E, class...Args>
+			requires Constructible<First, std::initializer_list<E>, Args...>()
+			constexpr storage(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
+			noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value)
+			: head_{il, __stl2::forward<Args>(args)...} {}
+		};
 
-    ///////////////////////////////////////////////////////////////////////////
-    // st_access::raw_get(meta::size_t<i>, s) returns a "perfect" reference to
-    // the element at index i in storage s. The complexity targets of the rest
-    // of the variant machinery assume the compiler optimizes the recursion in
-    // raw_get to O(1).
-    //
-    struct st_access {
-      template <IsStorage S>
-      static constexpr auto&& raw_get(meta::size_t<0>, S&& s) noexcept {
-        return __stl2::forward<S>(s).head_;
-      }
+		///////////////////////////////////////////////////////////////////////////
+		// st_access::raw_get(meta::size_t<i>, s) returns a "perfect" reference to
+		// the element at index i in storage s. The complexity targets of the rest
+		// of the variant machinery assume the compiler optimizes the recursion in
+		// raw_get to O(1).
+		//
+		struct st_access {
+			template <IsStorage S>
+			static constexpr auto&& raw_get(meta::size_t<0>, S&& s) noexcept {
+				return __stl2::forward<S>(s).head_;
+			}
 
-      template <std::size_t I, IsStorage S>
-      static constexpr auto&& raw_get(meta::size_t<I>, S&& s) noexcept {
-        static_assert(I < remove_reference_t<S>::size);
-        return st_access::raw_get(meta::size_t<I - 1>{}, __stl2::forward<S>(s).tail_);
-      }
-    };
-  }
+			template <std::size_t I, IsStorage S>
+			static constexpr auto&& raw_get(meta::size_t<I>, S&& s) noexcept {
+				static_assert(I < remove_reference_t<S>::size);
+				return st_access::raw_get(meta::size_t<I - 1>{}, __stl2::forward<S>(s).tail_);
+			}
+		};
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

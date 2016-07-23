@@ -25,48 +25,48 @@
 
 struct S
 {
-    int i_;
+	int i_;
 };
 
 int main()
 {
-    using namespace __stl2;
+	using namespace __stl2;
 
-    int ia[] = {0, 1, 2, 3, 4, 5};
-    constexpr unsigned s = size(ia);
-    input_iterator<const int*> r = find_if_not(input_iterator<const int*>(ia),
-                                               input_iterator<const int*>(ia + s),
-                                               [](int i){return i != 3;});
-    CHECK(*r == 3);
-    r = find_if_not(input_iterator<const int*>(ia),
-                    input_iterator<const int*>(ia+s),
-                    [](int i){return i != 10;});
-    CHECK(r == input_iterator<const int*>(ia+s));
+	int ia[] = {0, 1, 2, 3, 4, 5};
+	constexpr unsigned s = size(ia);
+	input_iterator<const int*> r = find_if_not(input_iterator<const int*>(ia),
+											   input_iterator<const int*>(ia + s),
+											   [](int i){return i != 3;});
+	CHECK(*r == 3);
+	r = find_if_not(input_iterator<const int*>(ia),
+					input_iterator<const int*>(ia+s),
+					[](int i){return i != 10;});
+	CHECK(r == input_iterator<const int*>(ia+s));
 
-    r = find_if_not(input_iterator<const int*>(ia),
-                    sentinel<const int*>(ia+s),
-                    [](int i){return i != 3;});
-    CHECK(*r == 3);
-    r = find_if_not(input_iterator<const int*>(ia),
-                    sentinel<const int*>(ia+s),
-                    [](int i){return i != 10;});
-    CHECK(r == input_iterator<const int*>(ia+s));
+	r = find_if_not(input_iterator<const int*>(ia),
+					sentinel<const int*>(ia+s),
+					[](int i){return i != 3;});
+	CHECK(*r == 3);
+	r = find_if_not(input_iterator<const int*>(ia),
+					sentinel<const int*>(ia+s),
+					[](int i){return i != 10;});
+	CHECK(r == input_iterator<const int*>(ia+s));
 
-    int *pi = find_if_not(ia, [](int i){return i != 3;});
-    CHECK(*pi == 3);
-    pi = find_if_not(ia, [](int i){return i != 10;});
-    CHECK(pi == ia+s);
+	int *pi = find_if_not(ia, [](int i){return i != 3;});
+	CHECK(*pi == 3);
+	pi = find_if_not(ia, [](int i){return i != 10;});
+	CHECK(pi == ia+s);
 
-    auto pj = find_if_not(move(ia), [](int i){return i != 3;});
-    CHECK(*pj.get_unsafe() == 3);
-    pj = find_if_not(move(ia), [](int i){return i != 10;});
-    CHECK(pj.get_unsafe() == ia+s);
+	auto pj = find_if_not(move(ia), [](int i){return i != 3;});
+	CHECK(*pj.get_unsafe() == 3);
+	pj = find_if_not(move(ia), [](int i){return i != 10;});
+	CHECK(pj.get_unsafe() == ia+s);
 
-    S sa[] = {{0}, {1}, {2}, {3}, {4}, {5}};
-    S *ps = find_if_not(sa, [](int i){return i != 3;}, &S::i_);
-    CHECK(ps->i_ == 3);
-    ps = find_if_not(sa, [](int i){return i != 10;}, &S::i_);
-    CHECK(ps == end(sa));
+	S sa[] = {{0}, {1}, {2}, {3}, {4}, {5}};
+	S *ps = find_if_not(sa, [](int i){return i != 3;}, &S::i_);
+	CHECK(ps->i_ == 3);
+	ps = find_if_not(sa, [](int i){return i != 10;}, &S::i_);
+	CHECK(ps == end(sa));
 
-    return ::test_result();
+	return ::test_result();
 }

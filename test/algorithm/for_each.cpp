@@ -18,46 +18,46 @@ namespace stl2 = __stl2;
 
 struct S
 {
-    void p() const { *p_ += i_; }
-    int *p_;
-    int i_;
+	void p() const { *p_ += i_; }
+	int *p_;
+	int i_;
 };
 
 int main()
 {
-    int sum = 0;
-    auto fun = [&](int i){ sum += i; };
-    std::vector<int> v1 { 0, 2, 4, 6 };
-    CHECK(stl2::for_each(v1.begin(), v1.end(), fun).in() == v1.end());
-    CHECK(stl2::for_each(v1, fun).in() == v1.end());
-    CHECK(sum == 24);
+	int sum = 0;
+	auto fun = [&](int i){ sum += i; };
+	std::vector<int> v1 { 0, 2, 4, 6 };
+	CHECK(stl2::for_each(v1.begin(), v1.end(), fun).in() == v1.end());
+	CHECK(stl2::for_each(v1, fun).in() == v1.end());
+	CHECK(sum == 24);
 
-    sum = 0;
-    auto rfun = [&](int& i){ sum += i; };
-    CHECK(stl2::for_each(v1.begin(), v1.end(), rfun).in() == v1.end());
-    CHECK(stl2::for_each(v1, rfun).in() == v1.end());
-    CHECK(sum == 24);
+	sum = 0;
+	auto rfun = [&](int& i){ sum += i; };
+	CHECK(stl2::for_each(v1.begin(), v1.end(), rfun).in() == v1.end());
+	CHECK(stl2::for_each(v1, rfun).in() == v1.end());
+	CHECK(sum == 24);
 
-    sum = 0;
-    std::vector<S> v2{{&sum, 0}, {&sum, 2}, {&sum, 4}, {&sum, 6}};
-    CHECK(stl2::for_each(v2.begin(), v2.end(), &S::p).in() == v2.end());
-    CHECK(stl2::for_each(v2, &S::p).in() == v2.end());
-    CHECK(sum == 24);
+	sum = 0;
+	std::vector<S> v2{{&sum, 0}, {&sum, 2}, {&sum, 4}, {&sum, 6}};
+	CHECK(stl2::for_each(v2.begin(), v2.end(), &S::p).in() == v2.end());
+	CHECK(stl2::for_each(v2, &S::p).in() == v2.end());
+	CHECK(sum == 24);
 
-    sum = 0;
-    CHECK(stl2::for_each(stl2::ext::make_range(v1.begin(), v1.end()), fun).in().get_unsafe() == v1.end());
-    CHECK(sum == 12);
+	sum = 0;
+	CHECK(stl2::for_each(stl2::ext::make_range(v1.begin(), v1.end()), fun).in().get_unsafe() == v1.end());
+	CHECK(sum == 12);
 
-    sum = 0;
-    stl2::for_each({0, 2, 4, 6}, fun);
-    auto il = {0, 2, 4, 6};
-    stl2::for_each(il, fun);
-    CHECK(sum == 24);
+	sum = 0;
+	stl2::for_each({0, 2, 4, 6}, fun);
+	auto il = {0, 2, 4, 6};
+	stl2::for_each(il, fun);
+	CHECK(sum == 24);
 
-    auto result = stl2::for_each({0, 2, 4, 6}, [sum = 0](int i) mutable -> int {
-        return sum += i;
-    });
-    CHECK(result.fun()(0) == 12);
+	auto result = stl2::for_each({0, 2, 4, 6}, [sum = 0](int i) mutable -> int {
+		return sum += i;
+	});
+	CHECK(result.fun()(0) == 12);
 
-    return ::test_result();
+	return ::test_result();
 }

@@ -19,61 +19,61 @@
 #include <meta/meta.hpp>
 
 #define STL2_OPEN_NAMESPACE \
-  namespace std { namespace experimental { namespace ranges { inline namespace v1
+	namespace std { namespace experimental { namespace ranges { inline namespace v1
 #define STL2_CLOSE_NAMESPACE }}}
 
 // General namespace structure:
 STL2_OPEN_NAMESPACE {
-  namespace detail {
-    // Implementation details, not to be accessed by user code.
-  }
-  namespace ext {
-    // Supported extensions beyond what is specified in C++ and
-    // the Ranges proposal, acceptable for user code to access.
-  }
-  namespace models {
-    // Concept-test predicates. E.g., models::ForwardIterator<I> is true iff
-    // I meets the syntactic requirements of ForwardIterator.
-  }
+	namespace detail {
+		// Implementation details, not to be accessed by user code.
+	}
+	namespace ext {
+		// Supported extensions beyond what is specified in C++ and
+		// the Ranges proposal, acceptable for user code to access.
+	}
+	namespace models {
+		// Concept-test predicates. E.g., models::ForwardIterator<I> is true iff
+		// I meets the syntactic requirements of ForwardIterator.
+	}
 } STL2_CLOSE_NAMESPACE
 
 // Used to qualify STL2 names
 namespace __stl2 = ::std::experimental::ranges;
 
 STL2_OPEN_NAMESPACE {
-  using std::declval;
-  using std::forward;
+	using std::declval;
+	using std::forward;
 
-  // Must implement move here instead of using std::move to avoid
-  // pulling in the move algorithm.
-  template <class T>
-    requires true
-  constexpr std::remove_reference_t<T>&& move(T&& t) noexcept {
-    return static_cast<std::remove_reference_t<T>&&>(t);
-  }
+	// Must implement move here instead of using std::move to avoid
+	// pulling in the move algorithm.
+	template <class T>
+		requires true
+	constexpr std::remove_reference_t<T>&& move(T&& t) noexcept {
+		return static_cast<std::remove_reference_t<T>&&>(t);
+	}
 
-  namespace detail {
-    // "constexpr object" ODR workaround from N4381.
-    template <class T>
-    struct static_const {
-      static constexpr T value{};
-    };
+	namespace detail {
+		// "constexpr object" ODR workaround from N4381.
+		template <class T>
+		struct static_const {
+			static constexpr T value{};
+		};
 
-    template <class T>
-    constexpr T static_const<T>::value;
-  }
+		template <class T>
+		constexpr T static_const<T>::value;
+	}
 
-  namespace ext {
-    // tags for manually specified overload ordering
-    template <unsigned N>
-    struct priority_tag : priority_tag<N - 1> {};
-    template <>
-    struct priority_tag<0> {};
-    // Workaround GCC PR66957 by declaring this unnamed namespace inline.
-    inline namespace {
-      constexpr auto& max_priority_tag = detail::static_const<priority_tag<4>>::value;
-    }
-  }
+	namespace ext {
+		// tags for manually specified overload ordering
+		template <unsigned N>
+		struct priority_tag : priority_tag<N - 1> {};
+		template <>
+		struct priority_tag<0> {};
+		// Workaround GCC PR66957 by declaring this unnamed namespace inline.
+		inline namespace {
+			constexpr auto& max_priority_tag = detail::static_const<priority_tag<4>>::value;
+		}
+	}
 } STL2_CLOSE_NAMESPACE
 
 // Workaround bugs in deduction constraints by replacing:
@@ -82,40 +82,40 @@ STL2_OPEN_NAMESPACE {
 // * { E } -> ConvertibleTo<T> with requires ConvertibleTo<decltype(E), T>()
 #if 0
 #define STL2_DEDUCTION_CONSTRAINT(E, ...) \
-  { E } -> __VA_ARGS__
+	{ E } -> __VA_ARGS__
 
 #define STL2_BINARY_DEDUCTION_CONSTRAINT(E, C, ...) \
-  STL2_DEDUCTION_CONSTRAINT(E, C<__VA_ARGS__>)
+	STL2_DEDUCTION_CONSTRAINT(E, C<__VA_ARGS__>)
 
 #else
 #define STL2_DEDUCTION_CONSTRAINT(E, ...) \
-  E; requires __VA_ARGS__ <decltype(E)>()
+	E; requires __VA_ARGS__ <decltype(E)>()
 
 #define STL2_BINARY_DEDUCTION_CONSTRAINT(E, C, ...) \
-  E; requires C<decltype(E), __VA_ARGS__>()
+	E; requires C<decltype(E), __VA_ARGS__>()
 #endif
 
 #define STL2_EXACT_TYPE_CONSTRAINT(E, ...) \
-  STL2_BINARY_DEDUCTION_CONSTRAINT(E, Same, __VA_ARGS__)
+	STL2_BINARY_DEDUCTION_CONSTRAINT(E, Same, __VA_ARGS__)
 
 #define STL2_CONVERSION_CONSTRAINT(E, ...) \
-  STL2_BINARY_DEDUCTION_CONSTRAINT(E, ConvertibleTo, __VA_ARGS__)
+	STL2_BINARY_DEDUCTION_CONSTRAINT(E, ConvertibleTo, __VA_ARGS__)
 
 // Workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67384
 // Use the expression constraint "deduce_auto_ref_ref(E);" in place
 // of the compound constraint "{ E } -> auto&&;"
 STL2_OPEN_NAMESPACE {
-  namespace detail {
-    void deduce_auto_ref(auto&);
-    void deduce_auto_ref_ref(auto&&);
-  }
+	namespace detail {
+		void deduce_auto_ref(auto&);
+		void deduce_auto_ref_ref(auto&&);
+	}
 } STL2_CLOSE_NAMESPACE
 
 #define STL2_DEDUCE_AUTO_REF(E) \
-  ::__stl2::detail::deduce_auto_ref(E)
+	::__stl2::detail::deduce_auto_ref(E)
 
 #define STL2_DEDUCE_AUTO_REF_REF(E) \
-  ::__stl2::detail::deduce_auto_ref_ref(E)
+	::__stl2::detail::deduce_auto_ref_ref(E)
 
 // Workaround bugs in constrained return types
 // (e.g., Iterator begin(Range&&);) by simply disabling
@@ -136,8 +136,8 @@ STL2_OPEN_NAMESPACE {
 #endif
 
 #define STL2_NOEXCEPT_RETURN(...) \
-  noexcept(noexcept(__VA_ARGS__)) \
-  { return __VA_ARGS__; }
+	noexcept(noexcept(__VA_ARGS__)) \
+	{ return __VA_ARGS__; }
 
 #ifdef NDEBUG
 #define STL2_ASSERT(...) (void())

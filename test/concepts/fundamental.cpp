@@ -55,8 +55,8 @@ CONCEPT_ASSERT(models::UnsignedIntegral<std::size_t>);
 #if VALIDATE_STL2
 namespace scalar_types {
 enum class t {
-  regular, scalar, arithmetic, floating_point,
-  integral, signed_integral, unsigned_integral, ull
+	regular, scalar, arithmetic, floating_point,
+	integral, signed_integral, unsigned_integral, ull
 };
 
 constexpr t f(__stl2::Regular) { return t::regular; }
@@ -69,28 +69,28 @@ constexpr t f(__stl2::UnsignedIntegral) { return t::unsigned_integral; }
 constexpr t f(unsigned long long) { return t::ull; }
 
 void test() {
-  CHECK(f(0.0f) == t::floating_point);
-  CHECK(f(0.0d) == t::floating_point);
-  CHECK(f(0) == t::signed_integral);
-  CHECK(f(0u) == t::unsigned_integral);
-  CHECK(f(nullptr) == t::scalar);
-  CHECK(f(0ull) == t::ull);
-  CHECK((f('a') == t::signed_integral || f('a') == t::unsigned_integral));
-  {
-    int i;
-    CHECK(f(&i) == t::scalar);
-  }
-  {
-    struct A { void foo() {} };
-    CHECK(f(&A::foo) == t::scalar);
-  }
+	CHECK(f(0.0f) == t::floating_point);
+	CHECK(f(0.0d) == t::floating_point);
+	CHECK(f(0) == t::signed_integral);
+	CHECK(f(0u) == t::unsigned_integral);
+	CHECK(f(nullptr) == t::scalar);
+	CHECK(f(0ull) == t::ull);
+	CHECK((f('a') == t::signed_integral || f('a') == t::unsigned_integral));
+	{
+		int i;
+		CHECK(f(&i) == t::scalar);
+	}
+	{
+		struct A { void foo() {} };
+		CHECK(f(&A::foo) == t::scalar);
+	}
 }
 }
 #endif
 
 int main() {
 #if VALIDATE_STL2
-  scalar_types::test();
+	scalar_types::test();
 #endif
-  return ::test_result();
+	return ::test_result();
 }

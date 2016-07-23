@@ -20,14 +20,14 @@
 // generate_n [alg.generate]
 //
 STL2_OPEN_NAMESPACE {
-  template <Callable F, OutputIterator<result_of_t<F&()>> O>
-  O generate_n(O first, difference_type_t<O> n, F gen)
-  {
-    for (; n > 0; ++first, --n) {
-      *first = gen();
-    }
-    return first;
-  }
+	template <Callable F, OutputIterator<result_of_t<F&()>> O>
+	O generate_n(O first, difference_type_t<O> n, F gen)
+	{
+		for (; n > 0; ++first, --n) {
+			*first = gen();
+		}
+		return first;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

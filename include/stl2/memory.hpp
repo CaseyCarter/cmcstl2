@@ -16,121 +16,120 @@
 #include <stl2/detail/fwd.hpp>
 
 STL2_OPEN_NAMESPACE {
-  // pointer traits
-  using std::pointer_traits;
+	// pointer traits
+	using std::pointer_traits;
 
-  // pointer safety
-  using std::pointer_safety;
-  using std::declare_reachable;
-  using std::undeclare_reachable;
-  using std::declare_no_pointers;
-  using std::undeclare_no_pointers;
-  using std::get_pointer_safety;
+	// pointer safety
+	using std::pointer_safety;
+	using std::declare_reachable;
+	using std::undeclare_reachable;
+	using std::declare_no_pointers;
+	using std::undeclare_no_pointers;
+	using std::get_pointer_safety;
 
-  // pointer alignment function
-  using std::align;
+	// pointer alignment function
+	using std::align;
 
-  // allocator argument tag
-  using std::allocator_arg;
+	// allocator argument tag
+	using std::allocator_arg;
 
-  // uses_allocator
-  using std::uses_allocator;
+	// uses_allocator
+	using std::uses_allocator;
 
-  // allocator traits
-  using std::allocator_traits;
+	// allocator traits
+	using std::allocator_traits;
 
-  // the default allocator
-  using std::allocator;
+	// the default allocator
+	using std::allocator;
 
-  // raw storage iterator
-  using std::raw_storage_iterator;
+	// raw storage iterator
+	using std::raw_storage_iterator;
 
-  // temporary buffers
-  using std::get_temporary_buffer;
-  using std::return_temporary_buffer;
+	// temporary buffers
+	using std::get_temporary_buffer;
+	using std::return_temporary_buffer;
 
-  // specialized algorithms
-  // addressof defined below
-  using std::uninitialized_copy;
-  using std::uninitialized_copy_n;
-  using std::uninitialized_fill;
-  using std::uninitialized_fill_n;
+	// specialized algorithms
+	// addressof defined below
+	using std::uninitialized_copy;
+	using std::uninitialized_copy_n;
+	using std::uninitialized_fill;
+	using std::uninitialized_fill_n;
 
-  // template class unique_ptr
-  using std::default_delete;
-  using std::unique_ptr;
-  using std::make_unique;
+	// template class unique_ptr
+	using std::default_delete;
+	using std::unique_ptr;
+	using std::make_unique;
 
-  // class bad_weak_ptr
-  using std::bad_weak_ptr;
+	// class bad_weak_ptr
+	using std::bad_weak_ptr;
 
-  // class template shared_ptr
-  using std::shared_ptr;
+	// class template shared_ptr
+	using std::shared_ptr;
 
-  // shared_ptr creation
-  using std::make_shared;
-  using std::allocate_shared;
+	// shared_ptr creation
+	using std::make_shared;
+	using std::allocate_shared;
 
-  // shared_ptr casts
-  using std::static_pointer_cast;
-  using std::dynamic_pointer_cast;
-  using std::const_pointer_cast;
+	// shared_ptr casts
+	using std::static_pointer_cast;
+	using std::dynamic_pointer_cast;
+	using std::const_pointer_cast;
 
-  // shared_ptr get_deleter
-  using std::get_deleter;
+	// shared_ptr get_deleter
+	using std::get_deleter;
 
-  // class template weak_ptr
-  using std::weak_ptr;
+	// class template weak_ptr
+	using std::weak_ptr;
 
-  // class template owner_less
-  using std::owner_less;
+	// class template owner_less
+	using std::owner_less;
 
-  // shared_ptr atomic access
-  using std::atomic_is_lock_free;
-  using std::atomic_load;
-  using std::atomic_load_explicit;
-  using std::atomic_store;
-  using std::atomic_store_explicit;
-  using std::atomic_exchange;
-  using std::atomic_exchange_explicit;
-  using std::atomic_compare_exchange_weak;
-  using std::atomic_compare_exchange_strong;
-  using std::atomic_compare_exchange_weak_explicit;
-  using std::atomic_compare_exchange_strong_explicit;
+	// shared_ptr atomic access
+	using std::atomic_is_lock_free;
+	using std::atomic_load;
+	using std::atomic_load_explicit;
+	using std::atomic_store;
+	using std::atomic_store_explicit;
+	using std::atomic_exchange;
+	using std::atomic_exchange_explicit;
+	using std::atomic_compare_exchange_weak;
+	using std::atomic_compare_exchange_strong;
+	using std::atomic_compare_exchange_weak_explicit;
+	using std::atomic_compare_exchange_strong_explicit;
 
-  // hash support
-  using std::hash;
+	// hash support
+	using std::hash;
 
-  // uses_allocator
-  //using std::uses_allocator_v;
-  template <class T, class A>
-  constexpr bool uses_allocator_v = uses_allocator<T, A>::value;
+	// uses_allocator
+	//using std::uses_allocator_v;
+	template <class T, class A>
+	constexpr bool uses_allocator_v = uses_allocator<T, A>::value;
 
-  // addressof
-  namespace __addressof {
-    template <class>
-    constexpr bool __user_defined_addressof = false;
-    template <class T>
-    requires
-      requires(T& t) { t.operator&(); } ||
-      requires(T& t) { operator&(t); }
-    constexpr bool __user_defined_addressof<T> = true;
+	// addressof
+	namespace __addressof {
+		template <class>
+		constexpr bool __user_defined_addressof = false;
+		template <class T>
+		requires
+			requires(T& t) { t.operator&(); } ||
+			requires(T& t) { operator&(t); }
+		constexpr bool __user_defined_addressof<T> = true;
 
-    template <class T>
-    requires
-      __user_defined_addressof<T>
-    T* impl(T& t) noexcept {
-      return std::addressof(t);
-    }
+		template <class T>
+		requires __user_defined_addressof<T>
+		T* impl(T& t) noexcept {
+			return std::addressof(t);
+		}
 
-    constexpr auto impl(auto& t) noexcept {
-      return &t;
-    }
-  }
-  template <class T>
-  constexpr T* addressof(T& t) noexcept {
-    return __addressof::impl(t);
-  }
+		constexpr auto impl(auto& t) noexcept {
+			return &t;
+		}
+	}
+	template <class T>
+	constexpr T* addressof(T& t) noexcept {
+		return __addressof::impl(t);
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

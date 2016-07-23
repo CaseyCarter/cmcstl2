@@ -21,55 +21,55 @@
 #include <stl2/detail/concepts/object/movable.hpp>
 
 STL2_OPEN_NAMESPACE {
-  ///////////////////////////////////////////////////////////////////////////
-  // CopyConstructible [concepts.lib.object.copyconstructible]
-  //
-  template <class T>
-  concept bool CopyConstructible() {
-    return MoveConstructible<T>() &&
-      Constructible<T, const remove_cv_t<T>&>() &&
-      ext::ImplicitlyConvertibleTo<remove_cv_t<T>&, T>() &&
-      ext::ImplicitlyConvertibleTo<const remove_cv_t<T>&, T>() &&
-      ext::ImplicitlyConvertibleTo<const remove_cv_t<T>&&, T>();
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// CopyConstructible [concepts.lib.object.copyconstructible]
+	//
+	template <class T>
+	concept bool CopyConstructible() {
+		return MoveConstructible<T>() &&
+			Constructible<T, const remove_cv_t<T>&>() &&
+			ext::ImplicitlyConvertibleTo<remove_cv_t<T>&, T>() &&
+			ext::ImplicitlyConvertibleTo<const remove_cv_t<T>&, T>() &&
+			ext::ImplicitlyConvertibleTo<const remove_cv_t<T>&&, T>();
+	}
 
-  namespace models {
-    template <class>
-    constexpr bool CopyConstructible = false;
-    __stl2::CopyConstructible{T}
-    constexpr bool CopyConstructible<T> = true;
-  }
+	namespace models {
+		template <class>
+		constexpr bool CopyConstructible = false;
+		__stl2::CopyConstructible{T}
+		constexpr bool CopyConstructible<T> = true;
+	}
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Copyable [concepts.lib.object.copyable]
-  //
-  template <class T>
-  concept bool Copyable() {
-    return CopyConstructible<T>() &&
-      Movable<T>() && Assignable<T&, const T&>();
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// Copyable [concepts.lib.object.copyable]
+	//
+	template <class T>
+	concept bool Copyable() {
+		return CopyConstructible<T>() &&
+			Movable<T>() && Assignable<T&, const T&>();
+	}
 
-  namespace models {
-    template <class>
-    constexpr bool Copyable = false;
-    __stl2::Copyable{T}
-    constexpr bool Copyable<T> = true;
-  }
+	namespace models {
+		template <class>
+		constexpr bool Copyable = false;
+		__stl2::Copyable{T}
+		constexpr bool Copyable<T> = true;
+	}
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Semiregular [concepts.lib.object.semiregular]
-  //
-  template <class T>
-  concept bool Semiregular() {
-    return Copyable<T>() && DefaultConstructible<T>();
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// Semiregular [concepts.lib.object.semiregular]
+	//
+	template <class T>
+	concept bool Semiregular() {
+		return Copyable<T>() && DefaultConstructible<T>();
+	}
 
-  namespace models {
-    template <class>
-    constexpr bool Semiregular = false;
-    __stl2::Semiregular{T}
-    constexpr bool Semiregular<T> = true;
-  }
+	namespace models {
+		template <class>
+		constexpr bool Semiregular = false;
+		__stl2::Semiregular{T}
+		constexpr bool Semiregular<T> = true;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

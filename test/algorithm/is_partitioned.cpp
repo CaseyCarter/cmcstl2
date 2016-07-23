@@ -33,97 +33,97 @@ namespace stl2 = __stl2;
 
 struct is_odd
 {
-    bool operator()(const int& i) const {return i & 1;}
+	bool operator()(const int& i) const {return i & 1;}
 };
 
 template <class Iter, class Sent = Iter>
 void
 test_iter()
 {
-    {
-        const int ia[] = {1, 2, 3, 4, 5, 6};
-        CHECK(!stl2::is_partitioned(Iter(stl2::begin(ia)),
-                                      Sent(stl2::end(ia)),
-                                      is_odd()));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6};
-        CHECK( stl2::is_partitioned(Iter(stl2::begin(ia)),
-                                      Sent(stl2::end(ia)),
-                                      is_odd()));
-    }
-    {
-        const int ia[] = {2, 4, 6, 1, 3, 5};
-        CHECK(!stl2::is_partitioned(Iter(stl2::begin(ia)),
-                                      Sent(stl2::end(ia)),
-                                      is_odd()));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6, 7};
-        CHECK(!stl2::is_partitioned(Iter(stl2::begin(ia)),
-                                      Sent(stl2::end(ia)),
-                                      is_odd()));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6, 7};
-        CHECK( stl2::is_partitioned(Iter(stl2::begin(ia)),
-                                      Sent(stl2::begin(ia)),
-                                      is_odd()));
-    }
+	{
+		const int ia[] = {1, 2, 3, 4, 5, 6};
+		CHECK(!stl2::is_partitioned(Iter(stl2::begin(ia)),
+									  Sent(stl2::end(ia)),
+									  is_odd()));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6};
+		CHECK( stl2::is_partitioned(Iter(stl2::begin(ia)),
+									  Sent(stl2::end(ia)),
+									  is_odd()));
+	}
+	{
+		const int ia[] = {2, 4, 6, 1, 3, 5};
+		CHECK(!stl2::is_partitioned(Iter(stl2::begin(ia)),
+									  Sent(stl2::end(ia)),
+									  is_odd()));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6, 7};
+		CHECK(!stl2::is_partitioned(Iter(stl2::begin(ia)),
+									  Sent(stl2::end(ia)),
+									  is_odd()));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6, 7};
+		CHECK( stl2::is_partitioned(Iter(stl2::begin(ia)),
+									  Sent(stl2::begin(ia)),
+									  is_odd()));
+	}
 }
 
 template <class Iter, class Sent = Iter>
 void
 test_range()
 {
-    {
-        const int ia[] = {1, 2, 3, 4, 5, 6};
-        CHECK(!stl2::is_partitioned(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                    Sent(stl2::end(ia))),
-                                      is_odd()));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6};
-        CHECK( stl2::is_partitioned(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                    Sent(stl2::end(ia))),
-                                      is_odd()));
-    }
-    {
-        const int ia[] = {2, 4, 6, 1, 3, 5};
-        CHECK(!stl2::is_partitioned(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                    Sent(stl2::end(ia))),
-                                      is_odd()));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6, 7};
-        CHECK(!stl2::is_partitioned(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                    Sent(stl2::end(ia))),
-                                      is_odd()));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6, 7};
-        CHECK( stl2::is_partitioned(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                    Sent(stl2::begin(ia))),
-                                      is_odd()));
-    }
+	{
+		const int ia[] = {1, 2, 3, 4, 5, 6};
+		CHECK(!stl2::is_partitioned(stl2::ext::make_range(Iter(stl2::begin(ia)),
+													Sent(stl2::end(ia))),
+									  is_odd()));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6};
+		CHECK( stl2::is_partitioned(stl2::ext::make_range(Iter(stl2::begin(ia)),
+													Sent(stl2::end(ia))),
+									  is_odd()));
+	}
+	{
+		const int ia[] = {2, 4, 6, 1, 3, 5};
+		CHECK(!stl2::is_partitioned(stl2::ext::make_range(Iter(stl2::begin(ia)),
+													Sent(stl2::end(ia))),
+									  is_odd()));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6, 7};
+		CHECK(!stl2::is_partitioned(stl2::ext::make_range(Iter(stl2::begin(ia)),
+													Sent(stl2::end(ia))),
+									  is_odd()));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6, 7};
+		CHECK( stl2::is_partitioned(stl2::ext::make_range(Iter(stl2::begin(ia)),
+													Sent(stl2::begin(ia))),
+									  is_odd()));
+	}
 }
 
 struct S
 {
-    int i;
+	int i;
 };
 
 int main()
 {
-    test_iter<input_iterator<const int*> >();
-    test_iter<input_iterator<const int*>, sentinel<const int*>>();
+	test_iter<input_iterator<const int*> >();
+	test_iter<input_iterator<const int*>, sentinel<const int*>>();
 
-    test_range<input_iterator<const int*> >();
-    test_range<input_iterator<const int*>, sentinel<const int*>>();
+	test_range<input_iterator<const int*> >();
+	test_range<input_iterator<const int*>, sentinel<const int*>>();
 
-    // Test projections
-    const S ia[] = {S{1}, S{3}, S{5}, S{2}, S{4}, S{6}};
-    CHECK( stl2::is_partitioned(ia, is_odd(), &S::i) );
+	// Test projections
+	const S ia[] = {S{1}, S{3}, S{5}, S{2}, S{4}, S{6}};
+	CHECK( stl2::is_partitioned(ia, is_odd(), &S::i) );
 
-    return ::test_result();
+	return ::test_result();
 }

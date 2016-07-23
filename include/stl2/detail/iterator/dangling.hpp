@@ -20,33 +20,34 @@
 #include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-  template <CopyConstructible T>
-  class dangling {
-  public:
-    constexpr dangling()
-      noexcept(is_nothrow_default_constructible<T>::value)
-      requires DefaultConstructible<T>()
-      : value{}
-    { }
-    constexpr dangling(T t)
-      noexcept(is_nothrow_move_constructible<T>::value)
-      : value(__stl2::move(t))
-    { }
-    constexpr T get_unsafe() const&
-      noexcept(is_nothrow_copy_constructible<T>::value) {
-      return value;
-    }
-    constexpr T get_unsafe() &&
-      noexcept(is_nothrow_move_constructible<T>::value) {
-      return __stl2::move(value);
-    }
-  private:
-    T value;
-  };
+	template <CopyConstructible T>
+	class dangling {
+		T value;
+	public:
+		constexpr dangling()
+		noexcept(is_nothrow_default_constructible<T>::value)
+		requires DefaultConstructible<T>()
+		: value{}
+		{}
+		constexpr dangling(T t)
+		noexcept(is_nothrow_move_constructible<T>::value)
+		: value(__stl2::move(t))
+		{}
+		constexpr T get_unsafe() const&
+		noexcept(is_nothrow_copy_constructible<T>::value)
+		{
+			return value;
+		}
+		constexpr T get_unsafe() &&
+		noexcept(is_nothrow_move_constructible<T>::value)
+		{
+			return __stl2::move(value);
+		}
+	};
 
-  template <Range R>
-  using safe_iterator_t =
-    meta::if_<is_lvalue_reference<R>, iterator_t<R>, dangling<iterator_t<R>>>;
+	template <Range R>
+	using safe_iterator_t =
+		meta::if_<is_lvalue_reference<R>, iterator_t<R>, dangling<iterator_t<R>>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

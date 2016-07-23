@@ -32,70 +32,70 @@ template <class Iter, class Sent = Iter>
 void
 test_char()
 {
-    const unsigned n = 4;
-    char ca[n] = {0};
-    auto i = stl2::fill(Iter(ca), Sent(ca+n), char(1));
-    CHECK(ca[0] == 1);
-    CHECK(ca[1] == 1);
-    CHECK(ca[2] == 1);
-    CHECK(ca[3] == 1);
-    CHECK(i == Iter(ca + 4));
+	const unsigned n = 4;
+	char ca[n] = {0};
+	auto i = stl2::fill(Iter(ca), Sent(ca+n), char(1));
+	CHECK(ca[0] == 1);
+	CHECK(ca[1] == 1);
+	CHECK(ca[2] == 1);
+	CHECK(ca[3] == 1);
+	CHECK(i == Iter(ca + 4));
 
-    auto rng = stl2::ext::make_range(Iter(ca), Sent(ca+n));
-    i = stl2::fill(rng, char(2));
-    CHECK(ca[0] == 2);
-    CHECK(ca[1] == 2);
-    CHECK(ca[2] == 2);
-    CHECK(ca[3] == 2);
-    CHECK(i == Iter(ca + 4));
+	auto rng = stl2::ext::make_range(Iter(ca), Sent(ca+n));
+	i = stl2::fill(rng, char(2));
+	CHECK(ca[0] == 2);
+	CHECK(ca[1] == 2);
+	CHECK(ca[2] == 2);
+	CHECK(ca[3] == 2);
+	CHECK(i == Iter(ca + 4));
 
-    auto j = stl2::fill(stl2::ext::make_range(Iter(ca), Sent(ca+n)), char(3));
-    CHECK(ca[0] == 3);
-    CHECK(ca[1] == 3);
-    CHECK(ca[2] == 3);
-    CHECK(ca[3] == 3);
-    CHECK(j.get_unsafe() == Iter(ca + 4));
+	auto j = stl2::fill(stl2::ext::make_range(Iter(ca), Sent(ca+n)), char(3));
+	CHECK(ca[0] == 3);
+	CHECK(ca[1] == 3);
+	CHECK(ca[2] == 3);
+	CHECK(ca[3] == 3);
+	CHECK(j.get_unsafe() == Iter(ca + 4));
 }
 
 template <class Iter, class Sent = Iter>
 void
 test_int()
 {
-    const unsigned n = 4;
-    int ia[n] = {0};
-    stl2::fill(Iter(ia), Sent(ia+n), 1);
-    CHECK(ia[0] == 1);
-    CHECK(ia[1] == 1);
-    CHECK(ia[2] == 1);
-    CHECK(ia[3] == 1);
+	const unsigned n = 4;
+	int ia[n] = {0};
+	stl2::fill(Iter(ia), Sent(ia+n), 1);
+	CHECK(ia[0] == 1);
+	CHECK(ia[1] == 1);
+	CHECK(ia[2] == 1);
+	CHECK(ia[3] == 1);
 
-    auto rng = stl2::ext::make_range(Iter(ia), Sent(ia+n));
-    stl2::fill(rng, 2);
-    CHECK(ia[0] == 2);
-    CHECK(ia[2] == 2);
-    CHECK(ia[2] == 2);
-    CHECK(ia[3] == 2);
+	auto rng = stl2::ext::make_range(Iter(ia), Sent(ia+n));
+	stl2::fill(rng, 2);
+	CHECK(ia[0] == 2);
+	CHECK(ia[2] == 2);
+	CHECK(ia[2] == 2);
+	CHECK(ia[3] == 2);
 }
 
 int main()
 {
-    test_char<forward_iterator<char*> >();
-    test_char<bidirectional_iterator<char*> >();
-    test_char<random_access_iterator<char*> >();
-    test_char<char*>();
+	test_char<forward_iterator<char*> >();
+	test_char<bidirectional_iterator<char*> >();
+	test_char<random_access_iterator<char*> >();
+	test_char<char*>();
 
-    test_char<forward_iterator<char*>, sentinel<char*> >();
-    test_char<bidirectional_iterator<char*>, sentinel<char*> >();
-    test_char<random_access_iterator<char*>, sentinel<char*> >();
+	test_char<forward_iterator<char*>, sentinel<char*> >();
+	test_char<bidirectional_iterator<char*>, sentinel<char*> >();
+	test_char<random_access_iterator<char*>, sentinel<char*> >();
 
-    test_int<forward_iterator<int*> >();
-    test_int<bidirectional_iterator<int*> >();
-    test_int<random_access_iterator<int*> >();
-    test_int<int*>();
+	test_int<forward_iterator<int*> >();
+	test_int<bidirectional_iterator<int*> >();
+	test_int<random_access_iterator<int*> >();
+	test_int<int*>();
 
-    test_int<forward_iterator<int*>, sentinel<int*> >();
-    test_int<bidirectional_iterator<int*>, sentinel<int*> >();
-    test_int<random_access_iterator<int*>, sentinel<int*> >();
+	test_int<forward_iterator<int*>, sentinel<int*> >();
+	test_int<bidirectional_iterator<int*>, sentinel<int*> >();
+	test_int<random_access_iterator<int*>, sentinel<int*> >();
 
-    return ::test_result();
+	return ::test_result();
 }

@@ -118,100 +118,100 @@ struct B : A {};
 struct C : B {};
 
 enum class result {
-  exact, publicly_derived, convertible,
-  explicitly_convertible, unrelated
+	exact, publicly_derived, convertible,
+	explicitly_convertible, unrelated
 };
 
 #if VALIDATE_STL2
 // Concepts version
 result f(A) {
-  std::cout << "exactly A\n";
-  return result::exact;
+	std::cout << "exactly A\n";
+	return result::exact;
 }
 
 result f(__stl2::ext::PubliclyDerivedFrom<A>) {
-  std::cout << "Publicly derived from A\n";
-  return result::publicly_derived;
+	std::cout << "Publicly derived from A\n";
+	return result::publicly_derived;
 }
 
 result f(__stl2::ConvertibleTo<A>) {
-  std::cout << "Implicitly convertible to A\n";
-  return result::convertible;
+	std::cout << "Implicitly convertible to A\n";
+	return result::convertible;
 }
 
-  result f(__stl2::ext::ExplicitlyConvertibleTo<A>) {
-  std::cout << "Explicitly convertible to A\n";
-  return result::explicitly_convertible;
+	result f(__stl2::ext::ExplicitlyConvertibleTo<A>) {
+	std::cout << "Explicitly convertible to A\n";
+	return result::explicitly_convertible;
 }
 
 result f(auto) {
-  std::cout << "Nothing to do with A\n";
-  return result::unrelated;
+	std::cout << "Nothing to do with A\n";
+	return result::unrelated;
 }
 
 #else
 // C++11 version
 result f(A) {
-  std::cout << "exactly A\n";
-  return result::exact;
+	std::cout << "exactly A\n";
+	return result::exact;
 }
 
 template <class T>
 meta::if_c<
-  std::is_base_of<A, T>::value &&
-    std::is_convertible<T,A>::value &&
-    !std::is_same<A,T>::value,
-   result>
+	std::is_base_of<A, T>::value &&
+		std::is_convertible<T,A>::value &&
+		!std::is_same<A,T>::value,
+	 result>
 f(T) {
-  std::cout << "Publicly derived from A\n";
-  return result::publicly_derived;
+	std::cout << "Publicly derived from A\n";
+	return result::publicly_derived;
 }
 
 template <class T>
 meta::if_c<
-  std::is_convertible<T,A>::value &&
-    !(std::is_base_of<A,T>::value ||
-      std::is_same<A,T>::value),
-  result>
+	std::is_convertible<T,A>::value &&
+		!(std::is_base_of<A,T>::value ||
+			std::is_same<A,T>::value),
+	result>
 f(T) {
-  std::cout << "Implicitly convertible to A\n";
-  return result::convertible;
+	std::cout << "Implicitly convertible to A\n";
+	return result::convertible;
 }
 
 template <class T>
 meta::if_c<
-  std::is_constructible<A,T>::value &&
-    !(std::is_convertible<T,A>::value ||
-      std::is_base_of<A,T>::value ||
-      std::is_same<A,T>::value),
-  result>
+	std::is_constructible<A,T>::value &&
+		!(std::is_convertible<T,A>::value ||
+			std::is_base_of<A,T>::value ||
+			std::is_same<A,T>::value),
+	result>
 f(T) {
-  std::cout << "Explicitly convertible to A\n";
-  return result::explicitly_convertible;
+	std::cout << "Explicitly convertible to A\n";
+	return result::explicitly_convertible;
 }
 
 template <class T>
 meta::if_c<
-  !(std::is_constructible<A,T>::value ||
-    std::is_convertible<T,A>::value ||
-    std::is_base_of<A,T>::value ||
-    std::is_same<A,T>::value),
-  result>
+	!(std::is_constructible<A,T>::value ||
+		std::is_convertible<T,A>::value ||
+		std::is_base_of<A,T>::value ||
+		std::is_same<A,T>::value),
+	result>
 f(T) {
-  std::cout << "Nothing to do with A\n";
-  return result::unrelated;
+	std::cout << "Nothing to do with A\n";
+	return result::unrelated;
 }
 #endif
 } // unnamed namespace
 
 int main() {
-  CHECK(f(A{}) == result::exact);
-  { const A a{}; CHECK(f(a) == result::exact); }
-  CHECK(f(B{}) == result::publicly_derived);
-  { const B b{}; CHECK(f(b) == result::publicly_derived); }
-  CHECK(f(42) == result::convertible);
-  CHECK(f(tag{}) == result::explicitly_convertible);
-  CHECK(f("foo") == result::unrelated);
+	CHECK(f(A{}) == result::exact);
+	{ const A a{}; CHECK(f(a) == result::exact); }
+	CHECK(f(B{}) == result::publicly_derived);
+	{ const B b{}; CHECK(f(b) == result::publicly_derived); }
+	CHECK(f(42) == result::convertible);
+	CHECK(f(tag{}) == result::explicitly_convertible);
+	CHECK(f("foo") == result::unrelated);
 
-  return ::test_result();
+	return ::test_result();
 }

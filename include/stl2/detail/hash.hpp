@@ -20,37 +20,36 @@
 // Hash machinery.
 //
 STL2_OPEN_NAMESPACE {
-  ///////////////////////////////////////////////////////////////////////////
-  // Hashable [Extension]
-  // Extremely limited since std::hash is not SFINAE-friendly.
-  //
-  namespace ext {
-    template <class T>
-    concept bool Hashable =
-      requires (const T& e) {
-        typename std::hash<T>;
-        { std::hash<T>{}(e) } -> std::size_t;
-      };
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// Hashable [Extension]
+	// Extremely limited since std::hash is not SFINAE-friendly.
+	//
+	namespace ext {
+		template <class T>
+		concept bool Hashable = requires (const T& e) {
+			typename std::hash<T>;
+			{ std::hash<T>{}(e) } -> std::size_t;
+		};
+	}
 
-  namespace models {
-    template <class>
-    constexpr bool Hashable = false;
-    __stl2::ext::Hashable{T}
-    constexpr bool Hashable<T> = true;
-  }
+	namespace models {
+		template <class>
+		constexpr bool Hashable = false;
+		__stl2::ext::Hashable{T}
+		constexpr bool Hashable<T> = true;
+	}
 
-  ///////////////////////////////////////////////////////////////////////////
-  // hash_combine [Extension]
-  // Stolen from Boost.
-  //
-  namespace ext {
-    Hashable{T}
-    inline void hash_combine(std::size_t& seed, const T& v) {
-      std::hash<T> hasher;
-      seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
-    }
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// hash_combine [Extension]
+	// Stolen from Boost.
+	//
+	namespace ext {
+		Hashable{T}
+		inline void hash_combine(std::size_t& seed, const T& v) {
+			std::hash<T> hasher;
+			seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+		}
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

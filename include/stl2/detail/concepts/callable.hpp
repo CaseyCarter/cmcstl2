@@ -24,152 +24,159 @@
 #include <stl2/detail/concepts/object.hpp>
 
 STL2_OPEN_NAMESPACE {
-  ///////////////////////////////////////////////////////////////////////////
-  // Indirect callables [indirectfunc.indirectcallables]
-  //
-  template <class...T> struct __common_reference : meta::bool_<sizeof...(T)==1> {};
-  template <class T, class U, class...Rest> requires CommonReference<T,U>()
-  struct __common_reference<T,U,Rest...> : __common_reference<common_reference_t<T,U>,Rest...> {};
+	///////////////////////////////////////////////////////////////////////////
+	// Indirect callables [indirectfunc.indirectcallables]
+	//
+	template <class...T>
+	struct __common_reference
+	: meta::bool_<sizeof...(T) == 1> {};
 
-  template <Readable...Is>
-  using __iter_args_lists =
-    meta::push_back<
-      meta::cartesian_product<
-        meta::list<meta::list<value_type_t<Is>, reference_t<Is>>...>>,
-      meta::list<iter_common_reference_t<Is>...>>;
+	template <class T, class U, class...Rest>
+	requires
+		CommonReference<T, U>()
+	struct __common_reference<T, U, Rest...>
+	: __common_reference<common_reference_t<T, U>, Rest...> {};
 
-  template <typename MapFn, typename ReduceFn>
-  using __iter_map_reduce_fn =
-    meta::compose<
-      meta::uncurry<meta::on<ReduceFn, meta::uncurry<MapFn>>>,
-      meta::quote<__iter_args_lists>>;
+	template <Readable...Is>
+	using __iter_args_lists =
+		meta::push_back<
+			meta::cartesian_product<
+				meta::list<meta::list<value_type_t<Is>, reference_t<Is>>...>>,
+			meta::list<iter_common_reference_t<Is>...>>;
 
-  Callable{F, ...Args}
-  using __callable_result_t =
-    result_of_t<F&(Args...)>;
+	template <typename MapFn, typename ReduceFn>
+	using __iter_map_reduce_fn =
+		meta::compose<
+			meta::uncurry<meta::on<ReduceFn, meta::uncurry<MapFn>>>,
+			meta::quote<__iter_args_lists>>;
 
-  template <class F, class...Is>
-  concept bool IndirectCallable() {
-    return
-      (Readable<Is>() &&...&& true) &&
-      // The following 3 are checked redundantly, but are called out
-      // specifically for better error messages on concept check failure.
-      Callable<F, value_type_t<Is>...>() &&
-      Callable<F, reference_t<Is>...>() &&
-      Callable<F, iter_common_reference_t<Is>...>() &&
-      // redundantly checks the above 3 requirements
-      meta::_v<meta::invoke<
-        __iter_map_reduce_fn<
-          meta::bind_front<meta::quote<__callable_result_t>, F>,
-          meta::quote<__common_reference>>,
-        Is...>>;
-  }
+	Callable{F, ...Args}
+	using __callable_result_t =
+		result_of_t<F&(Args...)>;
 
-  namespace models {
-    template <class, class...>
-    constexpr bool IndirectCallable = false;
-    __stl2::IndirectCallable{F, ...Is}
-    constexpr bool IndirectCallable<F, Is...> = true;
-  }
+	template <class F, class...Is>
+	concept bool IndirectCallable() {
+		return
+			(Readable<Is>() &&...&& true) &&
+			// The following 3 are checked redundantly, but are called out
+			// specifically for better error messages on concept check failure.
+			Callable<F, value_type_t<Is>...>() &&
+			Callable<F, reference_t<Is>...>() &&
+			Callable<F, iter_common_reference_t<Is>...>() &&
+			// redundantly checks the above 3 requirements
+			meta::_v<meta::invoke<
+				__iter_map_reduce_fn<
+					meta::bind_front<meta::quote<__callable_result_t>, F>,
+					meta::quote<__common_reference>>,
+				Is...>>;
+	}
 
-  ///////////////////////////////////////////////////////////////////////////
-  // indirect_result_of [indirectcallables.indirectfunc]
-  //
-  template <class>
-  struct indirect_result_of {};
+	namespace models {
+		template <class, class...>
+		constexpr bool IndirectCallable = false;
+		__stl2::IndirectCallable{F, ...Is}
+		constexpr bool IndirectCallable<F, Is...> = true;
+	}
 
-  // Not to spec: The function type must be decayed before being constrained.
-  template <class F, class...Is>
-    requires models::IndirectCallable<remove_reference_t<F>, Is...>
-  struct indirect_result_of<F(Is...)> :
-    result_of<F(value_type_t<Is>...)> {};
+	///////////////////////////////////////////////////////////////////////////
+	// indirect_result_of [indirectcallables.indirectfunc]
+	//
+	template <class>
+	struct indirect_result_of {};
 
-  template <class T>
-  using indirect_result_of_t =
-    meta::_t<indirect_result_of<T>>;
+	// Not to spec: The function type must be decayed before being constrained.
+	template <class F, class...Is>
+	requires
+		models::IndirectCallable<remove_reference_t<F>, Is...>
+	struct indirect_result_of<F(Is...)>
+	: result_of<F(value_type_t<Is>...)> {};
 
-  template <class F, class...Is>
-  concept bool IndirectRegularCallable() {
-    return IndirectCallable<F, Is...>();
-  }
+	template <class T>
+	using indirect_result_of_t =
+		meta::_t<indirect_result_of<T>>;
 
-  namespace models {
-    template <class, class...>
-    constexpr bool IndirectRegularCallable = false;
-    __stl2::IndirectRegularCallable{F, ...Is}
-    constexpr bool IndirectRegularCallable<F, Is...> = true;
-  }
+	template <class F, class...Is>
+	concept bool IndirectRegularCallable() {
+		return IndirectCallable<F, Is...>();
+	}
 
-  template <class, class...> struct __predicate : false_type {};
-  Predicate{F, ...Args} struct __predicate<F, Args...> : true_type {};
+	namespace models {
+		template <class, class...>
+		constexpr bool IndirectRegularCallable = false;
+		__stl2::IndirectRegularCallable{F, ...Is}
+		constexpr bool IndirectRegularCallable<F, Is...> = true;
+	}
 
-  template <class F, class...Is>
-  concept bool IndirectCallablePredicate() {
-    return
-      (Readable<Is>() &&...&& true) &&
-      // The following 3 are checked redundantly, but are called out
-      // specifically for better error messages on concept check failure.
-      Predicate<F, value_type_t<Is>...>() &&
-      Predicate<F, reference_t<Is>...>() &&
-      Predicate<F, iter_common_reference_t<Is>...>() &&
-      // redundantly checks the above 3 requirements
-      meta::_v<meta::invoke<
-        __iter_map_reduce_fn<
-          meta::bind_front<meta::quote<__predicate>, F>,
-          meta::quote<meta::strict_and>>,
-        Is...>>;
-  }
+	template <class, class...> struct __predicate : false_type {};
+	Predicate{F, ...Args} struct __predicate<F, Args...> : true_type {};
 
-  namespace models {
-    template <class, class...>
-    constexpr bool IndirectCallablePredicate = false;
-    __stl2::IndirectCallablePredicate{F, ...Is}
-    constexpr bool IndirectCallablePredicate<F, Is...> = true;
-  }
+	template <class F, class...Is>
+	concept bool IndirectCallablePredicate() {
+		return
+			(Readable<Is>() &&...&& true) &&
+			// The following 3 are checked redundantly, but are called out
+			// specifically for better error messages on concept check failure.
+			Predicate<F, value_type_t<Is>...>() &&
+			Predicate<F, reference_t<Is>...>() &&
+			Predicate<F, iter_common_reference_t<Is>...>() &&
+			// redundantly checks the above 3 requirements
+			meta::_v<meta::invoke<
+				__iter_map_reduce_fn<
+					meta::bind_front<meta::quote<__predicate>, F>,
+					meta::quote<meta::strict_and>>,
+				Is...>>;
+	}
 
-  template <class F, class I1, class I2 = I1>
-  concept bool IndirectCallableRelation() {
-    return
-      Readable<I1>() && Readable<I2>() &&
-      Relation<F, value_type_t<I1>, value_type_t<I2>>() &&
-      Relation<F, value_type_t<I1>, reference_t<I2>>() &&
-      Relation<F, reference_t<I1>, value_type_t<I2>>() &&
-      Relation<F, reference_t<I1>, reference_t<I2>>() &&
-      Relation<F, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
-  }
+	namespace models {
+		template <class, class...>
+		constexpr bool IndirectCallablePredicate = false;
+		__stl2::IndirectCallablePredicate{F, ...Is}
+		constexpr bool IndirectCallablePredicate<F, Is...> = true;
+	}
 
-  namespace models {
-    template <class F, class I1, class I2 = I1>
-    constexpr bool IndirectCallableRelation = false;
-    __stl2::IndirectCallableRelation{F, I1, I2}
-    constexpr bool IndirectCallableRelation<F, I1, I2> = true;
-  }
+	template <class F, class I1, class I2 = I1>
+	concept bool IndirectCallableRelation() {
+		return
+			Readable<I1>() && Readable<I2>() &&
+			Relation<F, value_type_t<I1>, value_type_t<I2>>() &&
+			Relation<F, value_type_t<I1>, reference_t<I2>>() &&
+			Relation<F, reference_t<I1>, value_type_t<I2>>() &&
+			Relation<F, reference_t<I1>, reference_t<I2>>() &&
+			Relation<F, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
+	}
 
-  template <class F, class I1, class I2 = I1>
-  concept bool IndirectCallableStrictWeakOrder() {
-    return IndirectCallableRelation<F, I1, I2>();
-  }
+	namespace models {
+		template <class F, class I1, class I2 = I1>
+		constexpr bool IndirectCallableRelation = false;
+		__stl2::IndirectCallableRelation{F, I1, I2}
+		constexpr bool IndirectCallableRelation<F, I1, I2> = true;
+	}
 
-  namespace models {
-    template <class F, class I1, class I2 = I1>
-    constexpr bool IndirectCallableStrictWeakOrder = false;
-    __stl2::IndirectCallableStrictWeakOrder{F, I1, I2}
-    constexpr bool IndirectCallableStrictWeakOrder<F, I1, I2> = true;
-  }
+	template <class F, class I1, class I2 = I1>
+	concept bool IndirectCallableStrictWeakOrder() {
+		return IndirectCallableRelation<F, I1, I2>();
+	}
 
-  ///////////////////////////////////////////////////////////////////////////
-  // projected [projected.indirectcallables]
-  //
-  template <Readable I, IndirectRegularCallable<I> Proj>
-  struct projected {
-    using value_type = decay_t<indirect_result_of_t<Proj&(I)>>;
-    auto operator*() const ->
-      result_of_t<Proj&(reference_t<I>)>;
-  };
+	namespace models {
+		template <class F, class I1, class I2 = I1>
+		constexpr bool IndirectCallableStrictWeakOrder = false;
+		__stl2::IndirectCallableStrictWeakOrder{F, I1, I2}
+		constexpr bool IndirectCallableStrictWeakOrder<F, I1, I2> = true;
+	}
 
-  template <WeaklyIncrementable I, class Proj>
-  struct difference_type<projected<I, Proj>> :
-    difference_type<I> {};
+	///////////////////////////////////////////////////////////////////////////
+	// projected [projected.indirectcallables]
+	//
+	template <Readable I, IndirectRegularCallable<I> Proj>
+	struct projected {
+		using value_type = decay_t<indirect_result_of_t<Proj&(I)>>;
+		auto operator*() const ->
+			result_of_t<Proj&(reference_t<I>)>;
+	};
+
+	template <WeaklyIncrementable I, class Proj>
+	struct difference_type<projected<I, Proj>> :
+		difference_type<I> {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

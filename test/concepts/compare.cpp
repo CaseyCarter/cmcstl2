@@ -15,15 +15,15 @@
 namespace models {
 template <class T>
 constexpr bool Boolean =
-  std::is_same<T, bool>(); // Obviously many tests will fail ;)
+	std::is_same<T, bool>(); // Obviously many tests will fail ;)
 
 template <class T, class U = T>
 constexpr bool EqualityComparable =
-  ranges::EqualityComparable<T, U>();
+	ranges::EqualityComparable<T, U>();
 
 template <class T, class U = T>
 constexpr bool StrictTotallyOrdered =
-  ranges::StrictTotallyOrdered<T, U>();
+	ranges::StrictTotallyOrdered<T, U>();
 }
 
 #elif VALIDATE_STL2
@@ -53,8 +53,8 @@ CONCEPT_ASSERT(models::Boolean<B>);
 
 namespace equality_comparable_test {
 struct A {
-  friend bool operator==(const A&, const A&);
-  friend bool operator!=(const A&, const A&);
+	friend bool operator==(const A&, const A&);
+	friend bool operator!=(const A&, const A&);
 };
 
 CONCEPT_ASSERT(models::EqualityComparable<int>);
@@ -76,5 +76,5 @@ CONCEPT_ASSERT(models::StrictTotallyOrdered<int, double>);
 CONCEPT_ASSERT(!models::StrictTotallyOrdered<int, void>);
 
 int main() {
-  return ::test_result();
+	return ::test_result();
 }

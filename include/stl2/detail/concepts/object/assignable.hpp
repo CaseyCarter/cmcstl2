@@ -19,30 +19,30 @@
 #include <stl2/detail/concepts/core.hpp>
 
 STL2_OPEN_NAMESPACE {
-  ///////////////////////////////////////////////////////////////////////////
-  // Assignable [concepts.lib.corelang.assignable]
-  //
-  template <class, class>
-  constexpr bool __assignable = false;
-  template <class T, class U>
-  requires
-    requires (T&& t, U&& u) {
-      STL2_EXACT_TYPE_CONSTRAINT((T&&)t = (U&&)u, T&);
-    }
-  constexpr bool __assignable<T, U> = true;
+	///////////////////////////////////////////////////////////////////////////
+	// Assignable [concepts.lib.corelang.assignable]
+	//
+	template <class, class>
+	constexpr bool __assignable = false;
+	template <class T, class U>
+	requires
+		requires (T&& t, U&& u) {
+			STL2_EXACT_TYPE_CONSTRAINT((T&&)t = (U&&)u, T&);
+		}
+	constexpr bool __assignable<T, U> = true;
 
-  template <class T, class U>
-  concept bool Assignable() {
-    return CommonReference<const T&, const U&>() &&
-      __assignable<T, U>;
-  }
+	template <class T, class U>
+	concept bool Assignable() {
+		return CommonReference<const T&, const U&>() &&
+			__assignable<T, U>;
+	}
 
-  namespace models {
-    template <class, class>
-    constexpr bool Assignable = false;
-    __stl2::Assignable{T, U}
-    constexpr bool Assignable<T, U> = true;
-  }
+	namespace models {
+		template <class, class>
+		constexpr bool Assignable = false;
+		__stl2::Assignable{T, U}
+		constexpr bool Assignable<T, U> = true;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

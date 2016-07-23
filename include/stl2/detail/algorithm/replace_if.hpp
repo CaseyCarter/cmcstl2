@@ -21,14 +21,12 @@
 //
 STL2_OPEN_NAMESPACE {
 	// Extension: Relax to InputIterator
-	template<InputIterator I, Sentinel<I> S, class Pred, class T,
-		class Proj = identity>
+	template<InputIterator I, Sentinel<I> S, class Pred, class T, class Proj = identity>
 	requires
 		models::Writable<I, const T&> &&
 		models::IndirectCallablePredicate<
 			__f<Pred>, projected<I, __f<Proj>>>
-	I replace_if(I first, S last, Pred&& pred_, const T& new_value,
-		Proj&& proj_ = Proj{})
+	I replace_if(I first, S last, Pred&& pred_, const T& new_value, Proj&& proj_ = Proj{})
 	{
 		if (first != last) {
 			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));

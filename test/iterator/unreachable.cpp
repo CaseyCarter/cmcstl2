@@ -32,12 +32,12 @@
 // 	.cfi_endproc
 
 int strlen_test(const char* p) noexcept {
-  using C = __stl2::common_iterator<const char*, __stl2::unreachable>;
-  return __stl2::distance(C{p}, std::find(C{p}, C{__stl2::unreachable{}}, '\0'));
+	using C = __stl2::common_iterator<const char*, __stl2::unreachable>;
+	return __stl2::distance(C{p}, std::find(C{p}, C{__stl2::unreachable{}}, '\0'));
 }
 
 int main() {
-  // Not yet: static_assert(strlen_test("Hello, world!") == 13);
-  CHECK(strlen_test("123This is a test, this is only a test.456") == 42);
-  return ::test_result();
+	// Not yet: static_assert(strlen_test("Hello, world!") == 13);
+	CHECK(strlen_test("123This is a test, this is only a test.456") == 42);
+	return ::test_result();
 }

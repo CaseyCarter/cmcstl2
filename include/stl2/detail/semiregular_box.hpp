@@ -19,90 +19,94 @@
 #include <stl2/detail/concepts/object.hpp>
 
 STL2_OPEN_NAMESPACE {
-  namespace detail {
-    Destructible{T}
-    class semiregular_box {
-    public:
-      semiregular_box() = default;
-      constexpr semiregular_box()
-        noexcept(is_nothrow_default_constructible<T>::value)
-        requires DefaultConstructible<T>() :
-        o_{in_place} {}
+	namespace detail {
+		Destructible{T}
+		class semiregular_box {
+		public:
+			semiregular_box() = default;
+			constexpr semiregular_box()
+			noexcept(is_nothrow_default_constructible<T>::value)
+			requires DefaultConstructible<T>()
+			: o_{in_place} {}
 
-      constexpr semiregular_box(T&& t)
-        noexcept(is_nothrow_move_constructible<T>::value)
-        requires MoveConstructible<T>() :
-        o_{__stl2::move(t)} {}
+			constexpr semiregular_box(T&& t)
+			noexcept(is_nothrow_move_constructible<T>::value)
+			requires MoveConstructible<T>()
+			: o_{__stl2::move(t)} {}
 
-      constexpr semiregular_box(const T& t)
-        noexcept(is_nothrow_copy_constructible<T>::value)
-        requires CopyConstructible<T>() :
-        o_{t} {}
+			constexpr semiregular_box(const T& t)
+			noexcept(is_nothrow_copy_constructible<T>::value)
+			requires CopyConstructible<T>()
+			: o_{t} {}
 
-      template <class...Args>
-        requires Constructible<T, Args...>()
-      constexpr semiregular_box(in_place_t, Args&&...args)
-        noexcept(is_nothrow_constructible<T, Args...>::value) :
-        o_{in_place, __stl2::forward<Args>(args)...} {}
+			template <class...Args>
+			requires Constructible<T, Args...>()
+			constexpr semiregular_box(in_place_t, Args&&...args)
+			noexcept(is_nothrow_constructible<T, Args...>::value)
+			: o_{in_place, __stl2::forward<Args>(args)...} {}
 
-      constexpr semiregular_box& operator=(T&& t) &
-        noexcept(is_nothrow_move_constructible<T>::value)
-        requires MoveConstructible<T>() {
-        o_.emplace(__stl2::move(t));
-        return *this;
-      }
-      constexpr semiregular_box& operator=(T&& t) &
-        noexcept(is_nothrow_move_assignable<T>::value)
-        requires Movable<T>() {
-        o_ = t;
-        return *this;
-      }
+			constexpr semiregular_box& operator=(T&& t) &
+			noexcept(is_nothrow_move_constructible<T>::value)
+			requires MoveConstructible<T>()
+			{
+				o_.emplace(__stl2::move(t));
+				return *this;
+			}
+			constexpr semiregular_box& operator=(T&& t) &
+			noexcept(is_nothrow_move_assignable<T>::value)
+			requires Movable<T>()
+			{
+				o_ = t;
+				return *this;
+			}
 
-      constexpr semiregular_box& operator=(const T& t) &
-        noexcept(is_nothrow_copy_constructible<T>::value)
-        requires CopyConstructible<T>() {
-        o_.emplace(t);
-        return *this;
-      }
-      constexpr semiregular_box& operator=(const T& t) &
-        noexcept(is_nothrow_copy_assignable<T>::value)
-        requires Copyable<T>() {
-        o_ = t;
-        return *this;
-      }
+			constexpr semiregular_box& operator=(const T& t) &
+			noexcept(is_nothrow_copy_constructible<T>::value)
+			requires CopyConstructible<T>()
+			{
+				o_.emplace(t);
+				return *this;
+			}
+			constexpr semiregular_box& operator=(const T& t) &
+			noexcept(is_nothrow_copy_assignable<T>::value)
+			requires Copyable<T>()
+			{
+				o_ = t;
+				return *this;
+			}
 
-      constexpr T& get() & noexcept {
-        STL2_ASSUME_CONSTEXPR(o_);
-        return *o_;
-      }
-      constexpr const T& get() const& noexcept {
-        STL2_ASSUME_CONSTEXPR(o_);
-        return *o_;
-      }
-      constexpr T&& get() && noexcept {
-        STL2_ASSUME_CONSTEXPR(o_);
-        return __stl2::move(*o_);
-      }
+			constexpr T& get() & noexcept {
+				STL2_ASSUME_CONSTEXPR(o_);
+				return *o_;
+			}
+			constexpr const T& get() const& noexcept {
+				STL2_ASSUME_CONSTEXPR(o_);
+				return *o_;
+			}
+			constexpr T&& get() && noexcept {
+				STL2_ASSUME_CONSTEXPR(o_);
+				return __stl2::move(*o_);
+			}
 
-    private:
-      optional<T> o_;
-    };
+		private:
+			optional<T> o_;
+		};
 
-    template <class T>
-    requires Destructible<T>() && Semiregular<T>()
-    class semiregular_box<T> : public ebo_box<T> {
-    public:
-      semiregular_box() = default;
+		template <class T>
+		requires Destructible<T>() && Semiregular<T>()
+		class semiregular_box<T> : public ebo_box<T> {
+		public:
+			semiregular_box() = default;
 
-      template <class...Args>
-        requires Constructible<T, Args...>()
-      constexpr semiregular_box(in_place_t, Args&&...args)
-        noexcept(is_nothrow_constructible<T, Args...>::value) :
-        ebo_box<T>{__stl2::forward<Args>(args)...} {}
+			template <class...Args>
+			requires Constructible<T, Args...>()
+			constexpr semiregular_box(in_place_t, Args&&...args)
+			noexcept(is_nothrow_constructible<T, Args...>::value)
+			: ebo_box<T>{__stl2::forward<Args>(args)...} {}
 
-      using ebo_box<T>::ebo_box;
-    };
-  }
+			using ebo_box<T>::ebo_box;
+		};
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

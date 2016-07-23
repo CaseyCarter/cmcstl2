@@ -16,75 +16,75 @@
 #include "../test_iterators.hpp"
 
 int main() {
-  {
-    namespace models = ::__stl2::models;
-    static_assert(
-        models::ForwardIterator<
-          __stl2::common_iterator<
-            bidirectional_iterator<const char *>,
-            sentinel<const char *>>>,
-        "");
-    static_assert(
-        !models::BidirectionalIterator<
-          __stl2::common_iterator<
-            bidirectional_iterator<const char *>,
-            sentinel<const char *>>>,
-        "");
-    static_assert(
-      std::is_same<
-        __stl2::common_reference<
-          __stl2::common_iterator<
-            bidirectional_iterator<const char *>,
-            sentinel<const char *>
-          >&,
-          __stl2::common_iterator<
-            bidirectional_iterator<const char *>,
-            sentinel<const char *>
-          >
-        >::type,
-        __stl2::common_iterator<
-          bidirectional_iterator<const char *>,
-          sentinel<const char *>
-        >
-      >::value, ""
-    );
-    // Sized iterator range tests
-    static_assert(
-      !models::SizedSentinel<
-        __stl2::common_iterator<
-          forward_iterator<int*>,
-          sentinel<int*, true> >,
-        __stl2::common_iterator<
-          forward_iterator<int*>,
-          sentinel<int*, true> > >,
-        "");
-    static_assert(
-      models::SizedSentinel<
-        __stl2::common_iterator<
-          random_access_iterator<int*>,
-          sentinel<int*, true> >,
-        __stl2::common_iterator<
-          random_access_iterator<int*>,
-          sentinel<int*, true> > >,
-        "");
-    static_assert(
-      !models::SizedSentinel<
-        __stl2::common_iterator<
-          random_access_iterator<int*>,
-          sentinel<int*, false> >,
-        __stl2::common_iterator<
-          random_access_iterator<int*>,
-          sentinel<int*, false> > >,
-        "");
-  }
-  {
-    int rgi[] {0,1,2,3,4,5,6,7,8,9};
-    using CI = __stl2::common_iterator<
-      random_access_iterator<int*>,
-      sentinel<int*>>;
-    CI first{random_access_iterator<int*>{rgi}};
-    CI last{sentinel<int*>{rgi+10}};
-    CHECK(std::accumulate(first, last, 0, std::plus<int>{}) == 45);
-  }
-  return test_result();
+	{
+		namespace models = ::__stl2::models;
+		static_assert(
+				models::ForwardIterator<
+					__stl2::common_iterator<
+						bidirectional_iterator<const char *>,
+						sentinel<const char *>>>,
+				"");
+		static_assert(
+				!models::BidirectionalIterator<
+					__stl2::common_iterator<
+						bidirectional_iterator<const char *>,
+						sentinel<const char *>>>,
+				"");
+		static_assert(
+			std::is_same<
+				__stl2::common_reference<
+					__stl2::common_iterator<
+						bidirectional_iterator<const char *>,
+						sentinel<const char *>
+					>&,
+					__stl2::common_iterator<
+						bidirectional_iterator<const char *>,
+						sentinel<const char *>
+					>
+				>::type,
+				__stl2::common_iterator<
+					bidirectional_iterator<const char *>,
+					sentinel<const char *>
+				>
+			>::value, ""
+		);
+		// Sized iterator range tests
+		static_assert(
+			!models::SizedSentinel<
+				__stl2::common_iterator<
+					forward_iterator<int*>,
+					sentinel<int*, true> >,
+				__stl2::common_iterator<
+					forward_iterator<int*>,
+					sentinel<int*, true> > >,
+				"");
+		static_assert(
+			models::SizedSentinel<
+				__stl2::common_iterator<
+					random_access_iterator<int*>,
+					sentinel<int*, true> >,
+				__stl2::common_iterator<
+					random_access_iterator<int*>,
+					sentinel<int*, true> > >,
+				"");
+		static_assert(
+			!models::SizedSentinel<
+				__stl2::common_iterator<
+					random_access_iterator<int*>,
+					sentinel<int*, false> >,
+				__stl2::common_iterator<
+					random_access_iterator<int*>,
+					sentinel<int*, false> > >,
+				"");
+	}
+	{
+		int rgi[] {0,1,2,3,4,5,6,7,8,9};
+		using CI = __stl2::common_iterator<
+			random_access_iterator<int*>,
+			sentinel<int*>>;
+		CI first{random_access_iterator<int*>{rgi}};
+		CI last{sentinel<int*>{rgi+10}};
+		CHECK(std::accumulate(first, last, 0, std::plus<int>{}) == 45);
+	}
+	return test_result();
 }

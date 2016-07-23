@@ -19,22 +19,22 @@
 #include <stl2/detail/concepts/object/move_constructible.hpp>
 
 STL2_OPEN_NAMESPACE {
-  ///////////////////////////////////////////////////////////////////////////
-  // Movable [concepts.lib.object.movable]
-  //
-  template <class T>
-  concept bool Movable() {
-    return MoveConstructible<T>() &&
-      Assignable<T&, T&&>() &&
-      Swappable<T&>();
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// Movable [concepts.lib.object.movable]
+	//
+	template <class T>
+	concept bool Movable() {
+		return MoveConstructible<T>() &&
+			Assignable<T&, T&&>() &&
+			Swappable<T&>();
+	}
 
-  namespace models {
-    template <class>
-    constexpr bool Movable = false;
-    __stl2::Movable{T}
-    constexpr bool Movable<T> = true;
-  }
+	namespace models {
+		template <class>
+		constexpr bool Movable = false;
+		__stl2::Movable{T}
+		constexpr bool Movable<T> = true;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

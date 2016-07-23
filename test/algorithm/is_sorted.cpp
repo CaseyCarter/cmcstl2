@@ -37,359 +37,359 @@ namespace ranges = __stl2;
 template <class Iter>
 struct iter_call
 {
-    using begin_t = Iter;
-    using sentinel_t = typename sentinel_type<Iter>::type;
+	using begin_t = Iter;
+	using sentinel_t = typename sentinel_type<Iter>::type;
 
-    template <class B, class E, class... Args>
-    auto operator()(B &&b, E &&e, Args &&... args)
-     -> decltype(ranges::is_sorted(begin_t{b}, sentinel_t{e},
-                                   std::forward<Args>(args)...))
-    {
-        return ranges::is_sorted(begin_t{b}, sentinel_t{e}, std::forward<Args>(args)...);
-    }
+	template <class B, class E, class...Args>
+	auto operator()(B &&b, E &&e, Args &&... args)
+	 -> decltype(ranges::is_sorted(begin_t{b}, sentinel_t{e},
+								   std::forward<Args>(args)...))
+	{
+		return ranges::is_sorted(begin_t{b}, sentinel_t{e}, std::forward<Args>(args)...);
+	}
 };
 
 /// Calls the range interface of the algorithm
 template <class Iter>
 struct range_call
 {
-    using begin_t = Iter;
-    using sentinel_t = typename sentinel_type<Iter>::type;
+	using begin_t = Iter;
+	using sentinel_t = typename sentinel_type<Iter>::type;
 
-    template <class B, class E, class... Args>
-    auto operator()(B &&b, E &&e, Args &&... args)
-     -> decltype(ranges::is_sorted(ranges::ext::make_range(begin_t{b}, sentinel_t{e}),
-                                   std::forward<Args>(args)...))
-    {
-        return ranges::is_sorted(ranges::ext::make_range(begin_t{b}, sentinel_t{e}),
-                                 std::forward<Args>(args)...);
-    }
+	template <class B, class E, class...Args>
+	auto operator()(B &&b, E &&e, Args &&... args)
+	 -> decltype(ranges::is_sorted(ranges::ext::make_range(begin_t{b}, sentinel_t{e}),
+								   std::forward<Args>(args)...))
+	{
+		return ranges::is_sorted(ranges::ext::make_range(begin_t{b}, sentinel_t{e}),
+								 std::forward<Args>(args)...);
+	}
 };
 
 template <class Fun>
 void test()
 {
-    {
-        int a[] = {0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a));
-        CHECK(Fun{}(a, a + sa));
-    }
+	{
+		int a[] = {0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a));
+		CHECK(Fun{}(a, a + sa));
+	}
 
-    {
-        int a[] = {0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
+	{
+		int a[] = {0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
 
-    {
-        int a[] = {0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
+	{
+		int a[] = {0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
 
-    {
-        int a[] = {0, 0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {0, 0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {0, 0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {0, 0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {0, 1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {0, 1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {0, 1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {0, 1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa));
-    }
-    {
-        int a[] = {1, 1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa));
-    }
+	{
+		int a[] = {0, 0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {0, 0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {0, 0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {0, 0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {0, 1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {0, 1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {0, 1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {0, 1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa));
+	}
+	{
+		int a[] = {1, 1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa));
+	}
 
-    {
-        int a[] = {0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a));
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
+	{
+		int a[] = {0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a));
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
 
-    {
-        int a[] = {0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
+	{
+		int a[] = {0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
 
-    {
-        int a[] = {0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
+	{
+		int a[] = {0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
 
-    {
-        int a[] = {0, 0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {0, 0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {0, 0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {0, 0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {0, 1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {0, 1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {0, 1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {0, 1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 0, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 0, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 0, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 0, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 1, 0, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 1, 0, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(!Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 1, 1, 0};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
-    {
-        int a[] = {1, 1, 1, 1};
-        unsigned sa = sizeof(a) / sizeof(a[0]);
-        CHECK(Fun{}(a, a + sa, std::greater<int>()));
-    }
+	{
+		int a[] = {0, 0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {0, 0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {0, 0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {0, 0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {0, 1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {0, 1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {0, 1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {0, 1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 0, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 0, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 0, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 0, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 1, 0, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 1, 0, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(!Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 1, 1, 0};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
+	{
+		int a[] = {1, 1, 1, 1};
+		unsigned sa = sizeof(a) / sizeof(a[0]);
+		CHECK(Fun{}(a, a + sa, std::greater<int>()));
+	}
 }
 
 struct A { int a; };
 
 int main()
 {
-    test<iter_call<forward_iterator<const int *>>>();
-    test<iter_call<bidirectional_iterator<const int *>>>();
-    test<iter_call<random_access_iterator<const int *>>>();
-    test<iter_call<const int *>>();
+	test<iter_call<forward_iterator<const int *>>>();
+	test<iter_call<bidirectional_iterator<const int *>>>();
+	test<iter_call<random_access_iterator<const int *>>>();
+	test<iter_call<const int *>>();
 
-    test<range_call<forward_iterator<const int *>>>();
-    test<range_call<bidirectional_iterator<const int *>>>();
-    test<range_call<random_access_iterator<const int *>>>();
-    test<range_call<const int *>>();
+	test<range_call<forward_iterator<const int *>>>();
+	test<range_call<bidirectional_iterator<const int *>>>();
+	test<range_call<random_access_iterator<const int *>>>();
+	test<range_call<const int *>>();
 
-    /// Projection test:
-    {
-        A as[] = {{0}, {1}, {2}, {3}, {4}};
-        CHECK(ranges::is_sorted(as, std::less<int>{}, &A::a));
-        CHECK(!ranges::is_sorted(as, std::greater<int>{}, &A::a));
-    }
+	/// Projection test:
+	{
+		A as[] = {{0}, {1}, {2}, {3}, {4}};
+		CHECK(ranges::is_sorted(as, std::less<int>{}, &A::a));
+		CHECK(!ranges::is_sorted(as, std::greater<int>{}, &A::a));
+	}
 
-    return ::test_result();
+	return ::test_result();
 }

@@ -20,41 +20,41 @@
 #include <stl2/detail/concepts/object.hpp>
 
 STL2_OPEN_NAMESPACE {
-  namespace detail {
-    constexpr std::size_t cheap_copy_size = 32;
+	namespace detail {
+		constexpr std::size_t cheap_copy_size = 32;
 
-    template <class T>
-    constexpr bool cheaply_copyable = false;
-    template <CopyConstructible T>
-      requires
-        ((_Is<T, is_empty> && !_Is<T, is_final>) ||
-         (sizeof(T) <= cheap_copy_size &&
-          ext::TriviallyCopyConstructible<T>()))
-    constexpr bool cheaply_copyable<T> = true;
+		template <class T>
+		constexpr bool cheaply_copyable = false;
+		template <CopyConstructible T>
+		requires
+			((_Is<T, is_empty> && !_Is<T, is_final>) ||
+				(sizeof(T) <= cheap_copy_size &&
+				ext::TriviallyCopyConstructible<T>()))
+		constexpr bool cheaply_copyable<T> = true;
 
-    template <ext::Addressable T>
-    class ref_box {
-    public:
-      ref_box() = default;
-      constexpr ref_box(T& t) noexcept :
-        ptr_{&t} {}
-      ref_box(T&&) = delete;
+		template <ext::Addressable T>
+		class ref_box {
+		public:
+			ref_box() = default;
+			constexpr ref_box(T& t) noexcept
+			: ptr_{&t} {}
+			ref_box(T&&) = delete;
 
-      constexpr T& get() const {
-        return *ptr_;
-      }
+			constexpr T& get() const {
+				return *ptr_;
+			}
 
-    private:
-      raw_ptr<T> ptr_;
-    };
+		private:
+			raw_ptr<T> ptr_;
+		};
 
-    // Note: promotes to CopyConstructible
-    template <ext::Addressable T>
-    using cheap_reference_box_t = meta::if_c<
-      cheaply_copyable<remove_cv_t<T>>,
-      ebo_box<remove_cv_t<T>>,
-      ref_box<T>>;
-  }
+		// Note: promotes to CopyConstructible
+		template <ext::Addressable T>
+		using cheap_reference_box_t = meta::if_c<
+			cheaply_copyable<remove_cv_t<T>>,
+			ebo_box<remove_cv_t<T>>,
+			ref_box<T>>;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

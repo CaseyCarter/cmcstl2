@@ -23,109 +23,109 @@
 // Callable Concepts [concepts.lib.callables]
 //
 STL2_OPEN_NAMESPACE {
-  ///////////////////////////////////////////////////////////////////////////
-  // Callable [concepts.lib.callables.callable]
-  //
-  // FIXME: remove this transitional paranoia check.
-  template <class T>
-  constexpr bool __force_non_reference() {
-    static_assert(!is_reference<T>::value);
-    return true;
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// Callable [concepts.lib.callables.callable]
+	//
+	// FIXME: remove this transitional paranoia check.
+	template <class T>
+	constexpr bool __force_non_reference() {
+		static_assert(!is_reference<T>::value);
+		return true;
+	}
 
-  template <class F, class...Args>
-  concept bool Callable() {
-    return __force_non_reference<F>() &&
-      CopyConstructible<F>() &&
-      ext::Invokable<F&, Args...>();
-  }
+	template <class F, class...Args>
+	concept bool Callable() {
+		return __force_non_reference<F>() &&
+			CopyConstructible<F>() &&
+			ext::Invokable<F&, Args...>();
+	}
 
-  namespace models {
-    template <class, class...>
-    constexpr bool Callable = false;
-    __stl2::Callable{F, ...Args}
-    constexpr bool Callable<F, Args...> = true;
-  }
+	namespace models {
+		template <class, class...>
+		constexpr bool Callable = false;
+		__stl2::Callable{F, ...Args}
+		constexpr bool Callable<F, Args...> = true;
+	}
 
-  ///////////////////////////////////////////////////////////////////////////
-  // RegularCallable [concepts.lib.callables.regularcallable]
-  //
-  template <class F, class...Args>
-  concept bool RegularCallable() {
-    return Callable<F, Args...>();
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// RegularCallable [concepts.lib.callables.regularcallable]
+	//
+	template <class F, class...Args>
+	concept bool RegularCallable() {
+		return Callable<F, Args...>();
+	}
 
-  namespace models {
-    template <class, class...>
-    constexpr bool RegularCallable = false;
-    __stl2::RegularCallable{F, ...Args}
-    constexpr bool RegularCallable<F, Args...> = true;
-  }
+	namespace models {
+		template <class, class...>
+		constexpr bool RegularCallable = false;
+		__stl2::RegularCallable{F, ...Args}
+		constexpr bool RegularCallable<F, Args...> = true;
+	}
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Predicate [concepts.lib.callables.predicate]
-  //
-  template <class F, class...Args>
-  concept bool Predicate() {
-    return RegularCallable<F, Args...>() &&
-      Boolean<result_of_t<F&(Args...)>>();
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// Predicate [concepts.lib.callables.predicate]
+	//
+	template <class F, class...Args>
+	concept bool Predicate() {
+		return RegularCallable<F, Args...>() &&
+			Boolean<result_of_t<F&(Args...)>>();
+	}
 
-  namespace models {
-    template <class, class...>
-    constexpr bool Predicate = false;
-    __stl2::Predicate{F, ...Args}
-    constexpr bool Predicate<F, Args...> = true;
-  }
+	namespace models {
+		template <class, class...>
+		constexpr bool Predicate = false;
+		__stl2::Predicate{F, ...Args}
+		constexpr bool Predicate<F, Args...> = true;
+	}
 
-  ///////////////////////////////////////////////////////////////////////////
-  // Relation [concepts.lib.callables.relation]
-  //
-  template <class R, class T>
-  concept bool Relation() {
-    return Predicate<R, T, T>();
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// Relation [concepts.lib.callables.relation]
+	//
+	template <class R, class T>
+	concept bool Relation() {
+		return Predicate<R, T, T>();
+	}
 
-  template <class R, class T, class U>
-  concept bool Relation() {
-    return Relation<R, T>() &&
-      Relation<R, U>() &&
-      Predicate<R, T, U>() &&
-      Predicate<R, U, T>() &&
-      CommonReference<const T&, const U&>() &&
-      Relation<R, common_reference_t<const T&, const U&>>();
-  }
+	template <class R, class T, class U>
+	concept bool Relation() {
+		return Relation<R, T>() &&
+			Relation<R, U>() &&
+			Predicate<R, T, U>() &&
+			Predicate<R, U, T>() &&
+			CommonReference<const T&, const U&>() &&
+			Relation<R, common_reference_t<const T&, const U&>>();
+	}
 
-  namespace models {
-    template <class R, class T, class U = T>
-    constexpr bool Relation = false;
-    __stl2::Relation{R, T}
-    constexpr bool Relation<R, T, T> = true;
-    __stl2::Relation{R, T, U}
-    constexpr bool Relation<R, T, U> = true;
-  }
+	namespace models {
+		template <class R, class T, class U = T>
+		constexpr bool Relation = false;
+		__stl2::Relation{R, T}
+		constexpr bool Relation<R, T, T> = true;
+		__stl2::Relation{R, T, U}
+		constexpr bool Relation<R, T, U> = true;
+	}
 
-  ///////////////////////////////////////////////////////////////////////////
-  // StrictWeakOrder [concepts.lib.callables.strictweakorder]
-  //
-  template <class R, class T>
-  concept bool StrictWeakOrder() {
-    return Relation<R, T>();
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// StrictWeakOrder [concepts.lib.callables.strictweakorder]
+	//
+	template <class R, class T>
+	concept bool StrictWeakOrder() {
+		return Relation<R, T>();
+	}
 
-  template <class R, class T, class U>
-  concept bool StrictWeakOrder() {
-    return Relation<R, T, U>();
-  }
+	template <class R, class T, class U>
+	concept bool StrictWeakOrder() {
+		return Relation<R, T, U>();
+	}
 
-  namespace models {
-    template <class R, class T, class U = T>
-    constexpr bool StrictWeakOrder = false;
-    __stl2::StrictWeakOrder{R, T}
-    constexpr bool StrictWeakOrder<R, T, T> = true;
-    __stl2::StrictWeakOrder{R, T, U}
-    constexpr bool StrictWeakOrder<R, T, U> = true;
-  }
+	namespace models {
+		template <class R, class T, class U = T>
+		constexpr bool StrictWeakOrder = false;
+		__stl2::StrictWeakOrder{R, T}
+		constexpr bool StrictWeakOrder<R, T, T> = true;
+		__stl2::StrictWeakOrder{R, T, U}
+		constexpr bool StrictWeakOrder<R, T, U> = true;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

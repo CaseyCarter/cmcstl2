@@ -21,21 +21,21 @@
 // unreachable [unreachable.sentinel]
 //
 STL2_OPEN_NAMESPACE {
-  class unreachable {};
+	class unreachable {};
 
-  constexpr bool operator==(const auto&, unreachable) noexcept {
-    return false;
-  }
-  constexpr bool operator==(unreachable, const auto&) noexcept {
-    return false;
-  }
+	constexpr bool operator==(const auto&, unreachable) noexcept {
+		return false;
+	}
+	constexpr bool operator==(unreachable, const auto&) noexcept {
+		return false;
+	}
 
-  constexpr bool operator!=(const auto&, unreachable) noexcept {
-    return true;
-  }
-  constexpr bool operator!=(unreachable, const auto&) noexcept {
-    return true;
-  }
+	constexpr bool operator!=(const auto&, unreachable) noexcept {
+		return true;
+	}
+	constexpr bool operator!=(unreachable, const auto&) noexcept {
+		return true;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

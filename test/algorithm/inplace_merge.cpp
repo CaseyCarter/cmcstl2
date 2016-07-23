@@ -34,105 +34,105 @@ template <class Iter, typename Sent = Iter>
 void
 test_one_iter(unsigned N, unsigned M)
 {
-    assert(M <= N);
-    int* ia = new int[N];
-    for (unsigned i = 0; i < N; ++i)
-        ia[i] = i;
-    std::shuffle(ia, ia+N, gen);
-    std::sort(ia, ia+M);
-    std::sort(ia+M, ia+N);
-    auto res = stl2::inplace_merge(Iter(ia), Iter(ia+M), Sent(ia+N));
-    CHECK(res == Iter(ia+N));
-    if(N > 0)
-    {
-        CHECK(ia[0] == 0);
-        CHECK(ia[N-1] == (int)N-1);
-        CHECK(std::is_sorted(ia, ia+N));
-    }
-    delete [] ia;
+	assert(M <= N);
+	int* ia = new int[N];
+	for (unsigned i = 0; i < N; ++i)
+		ia[i] = i;
+	std::shuffle(ia, ia+N, gen);
+	std::sort(ia, ia+M);
+	std::sort(ia+M, ia+N);
+	auto res = stl2::inplace_merge(Iter(ia), Iter(ia+M), Sent(ia+N));
+	CHECK(res == Iter(ia+N));
+	if(N > 0)
+	{
+		CHECK(ia[0] == 0);
+		CHECK(ia[N-1] == (int)N-1);
+		CHECK(std::is_sorted(ia, ia+N));
+	}
+	delete [] ia;
 }
 
 template <class Iter, typename Sent = Iter>
 void
 test_one_rng(unsigned N, unsigned M)
 {
-    assert(M <= N);
-    int* ia = new int[N];
-    for (unsigned i = 0; i < N; ++i)
-        ia[i] = i;
-    std::shuffle(ia, ia+N, gen);
-    std::sort(ia, ia+M);
-    std::sort(ia+M, ia+N);
-    auto res = stl2::inplace_merge(::as_lvalue(stl2::ext::make_range(Iter(ia), Sent(ia+N))), Iter(ia+M));
-    CHECK(res == Iter(ia+N));
-    if(N > 0)
-    {
-        CHECK(ia[0] == 0);
-        CHECK(ia[N-1] == (int)N-1);
-        CHECK(std::is_sorted(ia, ia+N));
-    }
+	assert(M <= N);
+	int* ia = new int[N];
+	for (unsigned i = 0; i < N; ++i)
+		ia[i] = i;
+	std::shuffle(ia, ia+N, gen);
+	std::sort(ia, ia+M);
+	std::sort(ia+M, ia+N);
+	auto res = stl2::inplace_merge(::as_lvalue(stl2::ext::make_range(Iter(ia), Sent(ia+N))), Iter(ia+M));
+	CHECK(res == Iter(ia+N));
+	if(N > 0)
+	{
+		CHECK(ia[0] == 0);
+		CHECK(ia[N-1] == (int)N-1);
+		CHECK(std::is_sorted(ia, ia+N));
+	}
 
-    std::shuffle(ia, ia+N, gen);
-    std::sort(ia, ia+M);
-    std::sort(ia+M, ia+N);
-    auto res2 = stl2::inplace_merge(stl2::ext::make_range(Iter(ia), Sent(ia+N)), Iter(ia+M));
-    CHECK(res2.get_unsafe() == Iter(ia+N));
-    if(N > 0)
-    {
-        CHECK(ia[0] == 0);
-        CHECK(ia[N-1] == (int)N-1);
-        CHECK(std::is_sorted(ia, ia+N));
-    }
+	std::shuffle(ia, ia+N, gen);
+	std::sort(ia, ia+M);
+	std::sort(ia+M, ia+N);
+	auto res2 = stl2::inplace_merge(stl2::ext::make_range(Iter(ia), Sent(ia+N)), Iter(ia+M));
+	CHECK(res2.get_unsafe() == Iter(ia+N));
+	if(N > 0)
+	{
+		CHECK(ia[0] == 0);
+		CHECK(ia[N-1] == (int)N-1);
+		CHECK(std::is_sorted(ia, ia+N));
+	}
 
-    delete [] ia;
+	delete [] ia;
 }
 
 template <class Iter>
 void
 test_one(unsigned N, unsigned M)
 {
-    test_one_iter<Iter>(N, M);
-    test_one_iter<Iter, typename sentinel_type<Iter>::type>(N, M);
-    test_one_rng<Iter>(N, M);
-    test_one_rng<Iter, typename sentinel_type<Iter>::type>(N, M);
+	test_one_iter<Iter>(N, M);
+	test_one_iter<Iter, typename sentinel_type<Iter>::type>(N, M);
+	test_one_rng<Iter>(N, M);
+	test_one_rng<Iter, typename sentinel_type<Iter>::type>(N, M);
 }
 
 template <class Iter>
 void
 test(unsigned N)
 {
-    test_one<Iter>(N, 0);
-    test_one<Iter>(N, N/4);
-    test_one<Iter>(N, N/2);
-    test_one<Iter>(N, 3*N/4);
-    test_one<Iter>(N, N);
+	test_one<Iter>(N, 0);
+	test_one<Iter>(N, N/4);
+	test_one<Iter>(N, N/2);
+	test_one<Iter>(N, 3*N/4);
+	test_one<Iter>(N, N);
 }
 
 template <class Iter>
 void
 test()
 {
-    test_one<Iter>(0, 0);
-    test_one<Iter>(1, 0);
-    test_one<Iter>(1, 1);
-    test_one<Iter>(2, 0);
-    test_one<Iter>(2, 1);
-    test_one<Iter>(2, 2);
-    test_one<Iter>(3, 0);
-    test_one<Iter>(3, 1);
-    test_one<Iter>(3, 2);
-    test_one<Iter>(3, 3);
-    test<Iter>(4);
-    test<Iter>(100);
-    test<Iter>(1000);
+	test_one<Iter>(0, 0);
+	test_one<Iter>(1, 0);
+	test_one<Iter>(1, 1);
+	test_one<Iter>(2, 0);
+	test_one<Iter>(2, 1);
+	test_one<Iter>(2, 2);
+	test_one<Iter>(3, 0);
+	test_one<Iter>(3, 1);
+	test_one<Iter>(3, 2);
+	test_one<Iter>(3, 3);
+	test<Iter>(4);
+	test<Iter>(100);
+	test<Iter>(1000);
 }
 
 int main()
 {
-    // test<forward_iterator<int*> >();
-    test<bidirectional_iterator<int*> >();
-    test<random_access_iterator<int*> >();
-    test<int*>();
+	// test<forward_iterator<int*> >();
+	test<bidirectional_iterator<int*> >();
+	test<random_access_iterator<int*> >();
+	test<int*>();
 
-    return ::test_result();
+	return ::test_result();
 }

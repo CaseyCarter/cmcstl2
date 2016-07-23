@@ -32,8 +32,7 @@ STL2_OPEN_NAMESPACE {
 			cursor() = default;
 			constexpr cursor(const iota_view& v)
 			noexcept(is_nothrow_copy_constructible<I>::value)
-			: value_{v.first_}
-			{}
+			: value_{v.first_} {}
 
 			constexpr I read() const
 			noexcept(is_nothrow_copy_constructible<I>::value)
@@ -45,7 +44,9 @@ STL2_OPEN_NAMESPACE {
 			{ return value_ == that.value_; }
 
 			constexpr void next()
-			STL2_NOEXCEPT_RETURN( (void)++value_ )
+			STL2_NOEXCEPT_RETURN(
+				(void)++value_
+			)
 
 			constexpr void prev()
 			noexcept(noexcept(--value_))
@@ -59,7 +60,8 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr difference_type distance_to(const cursor& that)
 			noexcept(noexcept(that.value_ - value_))
-			requires ext::RandomAccessIncrementable<I>() || SizedSentinel<I, I>()
+			requires
+				ext::RandomAccessIncrementable<I>() || SizedSentinel<I, I>()
 			{ return that.value_ - value_; }
 		};
 
@@ -67,13 +69,13 @@ STL2_OPEN_NAMESPACE {
 		iota_view() = default;
 		constexpr iota_view(I first)
 		noexcept(is_nothrow_move_constructible<I>::value)
-		: first_(__stl2::move(first))
-		{}
+		: first_(__stl2::move(first)) {}
 
 		using iterator = basic_iterator<cursor>;
 		constexpr iterator begin() const
 		noexcept(noexcept(iterator{declval<const iota_view&>()}))
 		{ return {cursor{*this}}; }
+
 		constexpr unreachable end() const noexcept { return {}; }
 	};
 } STL2_CLOSE_NAMESPACE

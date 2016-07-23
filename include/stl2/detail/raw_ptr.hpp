@@ -15,42 +15,42 @@
 #include <stl2/detail/fwd.hpp>
 
 STL2_OPEN_NAMESPACE {
-  namespace detail {
-    template <class T>
-    class raw_ptr {
-    public:
+	namespace detail {
+		template <class T>
+		class raw_ptr {
+		public:
 #ifdef NDEBUG
-      raw_ptr() = default;
+			raw_ptr() = default;
 #else
-      constexpr raw_ptr() noexcept :
-        raw_ptr(nullptr) {}
+			constexpr raw_ptr() noexcept
+			: raw_ptr(nullptr) {}
 #endif
 
-      constexpr raw_ptr(T* ptr) noexcept :
-        ptr_{ptr} {}
+			constexpr raw_ptr(T* ptr) noexcept
+			: ptr_{ptr} {}
 
-      constexpr raw_ptr& operator=(T* ptr) & noexcept {
-        ptr_ = ptr;
-        return *this;
-      }
+			constexpr raw_ptr& operator=(T* ptr) & noexcept {
+				ptr_ = ptr;
+				return *this;
+			}
 
-      constexpr operator T*() const noexcept {
-        return ptr_;
-      }
+			constexpr operator T*() const noexcept {
+				return ptr_;
+			}
 
-      constexpr T& operator*() const noexcept {
-        STL2_ASSUME_CONSTEXPR(ptr_);
-        return *ptr_;
-      }
+			constexpr T& operator*() const noexcept {
+				STL2_ASSUME_CONSTEXPR(ptr_);
+				return *ptr_;
+			}
 
-      constexpr T* operator->() const noexcept {
-        STL2_ASSUME_CONSTEXPR(ptr_);
-        return ptr_;
-      }
-    private:
-      T* ptr_;
-    };
-  }
+			constexpr T* operator->() const noexcept {
+				STL2_ASSUME_CONSTEXPR(ptr_);
+				return ptr_;
+			}
+		private:
+			T* ptr_;
+		};
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

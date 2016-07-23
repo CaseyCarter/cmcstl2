@@ -35,123 +35,123 @@ namespace stl2 = __stl2;
 
 struct is_odd
 {
-    bool operator()(const int& i) const {return i % 2 != 0;}
+	bool operator()(const int& i) const {return i % 2 != 0;}
 };
 
 template <class Iter, class Sent = Iter>
 void
 test_iter()
 {
-    {
-        const int ia[] = {2, 4, 6, 8, 10};
-        CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
-                                      Sent(stl2::end(ia)),
-                                      is_odd()) == Iter(ia));
-    }
-    {
-        const int ia[] = {1, 2, 4, 6, 8};
-        CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
-                                      Sent(stl2::end(ia)),
-                                      is_odd()) == Iter(ia + 1));
-    }
-    {
-        const int ia[] = {1, 3, 2, 4, 6};
-        CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
-                                      Sent(stl2::end(ia)),
-                                      is_odd()) == Iter(ia + 2));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6};
-        CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
-                                      Sent(stl2::end(ia)),
-                                      is_odd()) == Iter(ia + 3));
-    }
-    {
-        const int ia[] = {1, 3, 5, 7, 2, 4};
-        CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
-                                      Sent(stl2::end(ia)),
-                                      is_odd()) == Iter(ia + 4));
-    }
-    {
-        const int ia[] = {1, 3, 5, 7, 9, 2};
-        CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
-                                      Sent(stl2::end(ia)),
-                                      is_odd()) == Iter(ia + 5));
-    }
-    {
-        const int ia[] = {1, 3, 5, 7, 9, 11};
-        CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
-                                      Sent(stl2::end(ia)),
-                                      is_odd()) == Iter(ia + 6));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6, 7};
-        CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
-                                      Sent(stl2::begin(ia)),
-                                      is_odd()) == Iter(ia));
-    }
+	{
+		const int ia[] = {2, 4, 6, 8, 10};
+		CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
+									  Sent(stl2::end(ia)),
+									  is_odd()) == Iter(ia));
+	}
+	{
+		const int ia[] = {1, 2, 4, 6, 8};
+		CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
+									  Sent(stl2::end(ia)),
+									  is_odd()) == Iter(ia + 1));
+	}
+	{
+		const int ia[] = {1, 3, 2, 4, 6};
+		CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
+									  Sent(stl2::end(ia)),
+									  is_odd()) == Iter(ia + 2));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6};
+		CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
+									  Sent(stl2::end(ia)),
+									  is_odd()) == Iter(ia + 3));
+	}
+	{
+		const int ia[] = {1, 3, 5, 7, 2, 4};
+		CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
+									  Sent(stl2::end(ia)),
+									  is_odd()) == Iter(ia + 4));
+	}
+	{
+		const int ia[] = {1, 3, 5, 7, 9, 2};
+		CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
+									  Sent(stl2::end(ia)),
+									  is_odd()) == Iter(ia + 5));
+	}
+	{
+		const int ia[] = {1, 3, 5, 7, 9, 11};
+		CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
+									  Sent(stl2::end(ia)),
+									  is_odd()) == Iter(ia + 6));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6, 7};
+		CHECK(stl2::partition_point(Iter(stl2::begin(ia)),
+									  Sent(stl2::begin(ia)),
+									  is_odd()) == Iter(ia));
+	}
 }
 
 template <class Iter, class Sent = Iter>
 void
 test_range()
 {
-    {
-        const int ia[] = {2, 4, 6, 8, 10};
-        CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                                Sent(stl2::end(ia)))),
-                                      is_odd()) == Iter(ia));
-    }
-    {
-        const int ia[] = {1, 2, 4, 6, 8};
-        CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                                Sent(stl2::end(ia)))),
-                                      is_odd()) == Iter(ia + 1));
-    }
-    {
-        const int ia[] = {1, 3, 2, 4, 6};
-        CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                                Sent(stl2::end(ia)))),
-                                      is_odd()) == Iter(ia + 2));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6};
-        CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                                Sent(stl2::end(ia)))),
-                                      is_odd()) == Iter(ia + 3));
-    }
-    {
-        const int ia[] = {1, 3, 5, 7, 2, 4};
-        CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                                Sent(stl2::end(ia)))),
-                                      is_odd()) == Iter(ia + 4));
-    }
-    {
-        const int ia[] = {1, 3, 5, 7, 9, 2};
-        CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                                Sent(stl2::end(ia)))),
-                                      is_odd()) == Iter(ia + 5));
-    }
-    {
-        const int ia[] = {1, 3, 5, 7, 9, 11};
-        CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                                Sent(stl2::end(ia)))),
-                                      is_odd()) == Iter(ia + 6));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6, 7};
-        CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                                Sent(stl2::begin(ia)))),
-                                      is_odd()) == Iter(ia));
-    }
+	{
+		const int ia[] = {2, 4, 6, 8, 10};
+		CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
+																Sent(stl2::end(ia)))),
+									  is_odd()) == Iter(ia));
+	}
+	{
+		const int ia[] = {1, 2, 4, 6, 8};
+		CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
+																Sent(stl2::end(ia)))),
+									  is_odd()) == Iter(ia + 1));
+	}
+	{
+		const int ia[] = {1, 3, 2, 4, 6};
+		CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
+																Sent(stl2::end(ia)))),
+									  is_odd()) == Iter(ia + 2));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6};
+		CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
+																Sent(stl2::end(ia)))),
+									  is_odd()) == Iter(ia + 3));
+	}
+	{
+		const int ia[] = {1, 3, 5, 7, 2, 4};
+		CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
+																Sent(stl2::end(ia)))),
+									  is_odd()) == Iter(ia + 4));
+	}
+	{
+		const int ia[] = {1, 3, 5, 7, 9, 2};
+		CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
+																Sent(stl2::end(ia)))),
+									  is_odd()) == Iter(ia + 5));
+	}
+	{
+		const int ia[] = {1, 3, 5, 7, 9, 11};
+		CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
+																Sent(stl2::end(ia)))),
+									  is_odd()) == Iter(ia + 6));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6, 7};
+		CHECK(stl2::partition_point(::as_lvalue(stl2::ext::make_range(Iter(stl2::begin(ia)),
+																Sent(stl2::begin(ia)))),
+									  is_odd()) == Iter(ia));
+	}
 
-    // An rvalue range
-    {
-        const int ia[] = {1, 3, 5, 7, 9, 2};
-        CHECK(stl2::partition_point(stl2::ext::make_range(Iter(stl2::begin(ia)),
-                                                         Sent(stl2::end(ia))),
-                                      is_odd()).get_unsafe() == Iter(ia + 5));
-    }
+	// An rvalue range
+	{
+		const int ia[] = {1, 3, 5, 7, 9, 2};
+		CHECK(stl2::partition_point(stl2::ext::make_range(Iter(stl2::begin(ia)),
+														 Sent(stl2::end(ia))),
+									  is_odd()).get_unsafe() == Iter(ia + 5));
+	}
 }
 
 stl2::Iterator{I}
@@ -164,78 +164,78 @@ template <class Iter>
 void
 test_counted()
 {
-    {
-        const int ia[] = {2, 4, 6, 8, 10};
-        CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
-                                                                        stl2::size(ia))),
-                                      is_odd()) == stl2::counted_iterator<Iter>(Iter(ia), stl2::size(ia)));
-    }
-    {
-        const int ia[] = {1, 2, 4, 6, 8};
-        CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
-                                                                        stl2::size(ia))),
-                                      is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 1), stl2::size(ia) - 1));
-    }
-    {
-        const int ia[] = {1, 3, 2, 4, 6};
-        CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
-                                                                        stl2::size(ia))),
-                                      is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 2), stl2::size(ia) - 2));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6};
-        CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
-                                                                        stl2::size(ia))),
-                                      is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 3), stl2::size(ia) - 3));
-    }
-    {
-        const int ia[] = {1, 3, 5, 7, 2, 4};
-        CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
-                                                                        stl2::size(ia))),
-                                      is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 4), stl2::size(ia) - 4));
-    }
-    {
-        const int ia[] = {1, 3, 5, 7, 9, 2};
-        CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
-                                                                        stl2::size(ia))),
-                                      is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 5), stl2::size(ia) - 5));
-    }
-    {
-        const int ia[] = {1, 3, 5, 7, 9, 11};
-        CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
-                                                                        stl2::size(ia))),
-                                      is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 6), stl2::size(ia) - 6));
-    }
-    {
-        const int ia[] = {1, 3, 5, 2, 4, 6, 7};
-        CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
-                                                                        0)),
-                                      is_odd()) == stl2::counted_iterator<Iter>(Iter(ia), 0));
-    }
+	{
+		const int ia[] = {2, 4, 6, 8, 10};
+		CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
+																		stl2::size(ia))),
+									  is_odd()) == stl2::counted_iterator<Iter>(Iter(ia), stl2::size(ia)));
+	}
+	{
+		const int ia[] = {1, 2, 4, 6, 8};
+		CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
+																		stl2::size(ia))),
+									  is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 1), stl2::size(ia) - 1));
+	}
+	{
+		const int ia[] = {1, 3, 2, 4, 6};
+		CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
+																		stl2::size(ia))),
+									  is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 2), stl2::size(ia) - 2));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6};
+		CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
+																		stl2::size(ia))),
+									  is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 3), stl2::size(ia) - 3));
+	}
+	{
+		const int ia[] = {1, 3, 5, 7, 2, 4};
+		CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
+																		stl2::size(ia))),
+									  is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 4), stl2::size(ia) - 4));
+	}
+	{
+		const int ia[] = {1, 3, 5, 7, 9, 2};
+		CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
+																		stl2::size(ia))),
+									  is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 5), stl2::size(ia) - 5));
+	}
+	{
+		const int ia[] = {1, 3, 5, 7, 9, 11};
+		CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
+																		stl2::size(ia))),
+									  is_odd()) == stl2::counted_iterator<Iter>(Iter(ia + 6), stl2::size(ia) - 6));
+	}
+	{
+		const int ia[] = {1, 3, 5, 2, 4, 6, 7};
+		CHECK(stl2::partition_point(::as_lvalue(make_counted_view(Iter(stl2::begin(ia)),
+																		0)),
+									  is_odd()) == stl2::counted_iterator<Iter>(Iter(ia), 0));
+	}
 }
 
 struct S
 {
-    int i;
+	int i;
 };
 
 int main()
 {
-    test_iter<forward_iterator<const int*> >();
-    test_iter<forward_iterator<const int*>, sentinel<const int*>>();
+	test_iter<forward_iterator<const int*> >();
+	test_iter<forward_iterator<const int*>, sentinel<const int*>>();
 
-    test_range<forward_iterator<const int*> >();
-    test_range<forward_iterator<const int*>, sentinel<const int*>>();
+	test_range<forward_iterator<const int*> >();
+	test_range<forward_iterator<const int*>, sentinel<const int*>>();
 
-    test_counted<forward_iterator<const int*> >();
+	test_counted<forward_iterator<const int*> >();
 
-    // Test projections
-    const S ia[] = {S{1}, S{3}, S{5}, S{2}, S{4}, S{6}};
-    CHECK(stl2::partition_point(ia, is_odd(), &S::i) == ia + 3);
+	// Test projections
+	const S ia[] = {S{1}, S{3}, S{5}, S{2}, S{4}, S{6}};
+	CHECK(stl2::partition_point(ia, is_odd(), &S::i) == ia + 3);
 
-    // Test infinite range
-    CHECK(*stl2::partition_point(stl2::iota_view<int>{0},
-                                [](int i){ return i < 42; }).get_unsafe() == 42);
+	// Test infinite range
+	CHECK(*stl2::partition_point(stl2::iota_view<int>{0},
+								[](int i){ return i < 42; }).get_unsafe() == 42);
 
-    return ::test_result();
+	return ::test_result();
 }
