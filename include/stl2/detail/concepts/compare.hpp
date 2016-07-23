@@ -95,6 +95,13 @@ STL2_OPEN_NAMESPACE {
     // Axiom: bool(u == t) == bool(t == u)
   }
 
+  namespace models {
+    template <class, class>
+    constexpr bool WeaklyEqualityComparable = false;
+    __stl2::WeaklyEqualityComparable{T, U}
+    constexpr bool WeaklyEqualityComparable<T, U> = true;
+  }
+
   ///////////////////////////////////////////////////////////////////////////
   // EqualityComparable [concepts.lib.compare.equalitycomparable]
   //
