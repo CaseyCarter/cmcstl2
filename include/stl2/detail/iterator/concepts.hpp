@@ -77,8 +77,7 @@ STL2_OPEN_NAMESPACE {
 		struct fn {
 			template <class R>
 			requires
-				models::Dereferenceable<R> &&
-				has_customization<R>
+				models::Dereferenceable<R> && has_customization<R>
 			constexpr decltype(auto) operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
 				iter_move(r)
@@ -86,8 +85,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <class R>
 			requires
-				models::Dereferenceable<R> &&
-				!has_customization<R> &&
+				models::Dereferenceable<R> && !has_customization<R> &&
 				is_reference<reference_t<R>>::value
 			constexpr decltype(auto) operator()(R&& r) const noexcept {
 				return static_cast<remove_reference_t<reference_t<R>>&&>(*r);
@@ -95,8 +93,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <class R>
 			requires
-				models::Dereferenceable<R> &&
-				!has_customization<R> &&
+				models::Dereferenceable<R> && !has_customization<R> &&
 				!is_reference<reference_t<R>>::value &&
 				models::Constructible<decay_t<reference_t<R>>, reference_t<R>>
 			constexpr auto operator()(R&& r) const
@@ -425,8 +422,8 @@ STL2_OPEN_NAMESPACE {
 				has_impl<R1, R2>
 			constexpr void operator()(R1&& r1, R2&& r2) const
 			STL2_NOEXCEPT_RETURN(
-				(void)__iter_swap::impl<UR1, UR2>(__stl2::forward<R1>(r1),
-					__stl2::forward<R2>(r2))
+				(void)__iter_swap::impl<UR1, UR2>(
+					__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
 			)
 		};
 	}
@@ -482,16 +479,12 @@ STL2_OPEN_NAMESPACE {
 	//
 	struct output_iterator_tag {};
 	struct input_iterator_tag {};
-	struct forward_iterator_tag :
-		input_iterator_tag {};
-	struct bidirectional_iterator_tag :
-		forward_iterator_tag {};
-	struct random_access_iterator_tag :
-		bidirectional_iterator_tag {};
+	struct forward_iterator_tag : input_iterator_tag {};
+	struct bidirectional_iterator_tag : forward_iterator_tag {};
+	struct random_access_iterator_tag : bidirectional_iterator_tag {};
 
 	namespace ext {
-		struct contiguous_iterator_tag :
-			random_access_iterator_tag {};
+		struct contiguous_iterator_tag : random_access_iterator_tag {};
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -551,8 +544,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class I>
 	concept bool Iterator() {
-		return WeaklyIncrementable<I>() &&
-			detail::Dereferenceable<I&>;
+		return WeaklyIncrementable<I>() && detail::Dereferenceable<I&>;
 		// Axiom?: i is non-singular iff it denotes an element
 		// Axiom?: if i equals j then i and j denote equal elements
 		// Axiom?: I{} is in the domain of copy/move construction/assignment
@@ -575,8 +567,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class S, class I>
 	concept bool Sentinel() {
-		return Iterator<I>() && Semiregular<S>() &&
-			WeaklyEqualityComparable<S, I>();
+		return Iterator<I>() && Semiregular<S>() && WeaklyEqualityComparable<S, I>();
 			// Axiom: if [i,s) denotes a range then:
 			//        * i == s is well-defined
 			//        * if bool(i == s) then [i,s) is empty

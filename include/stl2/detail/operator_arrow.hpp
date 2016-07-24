@@ -70,7 +70,9 @@ STL2_OPEN_NAMESPACE {
 			detail::operator_arrow(i, ext::max_priority_tag);
 		}
 	decltype(auto) __operator_arrow(const I& i)
-	STL2_NOEXCEPT_RETURN(detail::operator_arrow(i, ext::max_priority_tag))
+	STL2_NOEXCEPT_RETURN(
+		detail::operator_arrow(i, ext::max_priority_tag)
+	)
 } STL2_CLOSE_NAMESPACE
 
 #endif

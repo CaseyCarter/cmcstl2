@@ -827,7 +827,8 @@ STL2_OPEN_NAMESPACE {
 
 namespace std {
 	template <::__stl2::__variant::Variant V>
-	struct tuple_size<V> : ::meta::size<::__stl2::__variant::VariantTypes<V>> {};
+	struct tuple_size<V>
+	: ::meta::size<::__stl2::__variant::VariantTypes<V>> {};
 
 	template <size_t I, ::__stl2::__variant::Variant V>
 	struct tuple_element<I, V>

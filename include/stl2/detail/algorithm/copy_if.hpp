@@ -56,9 +56,8 @@ STL2_OPEN_NAMESPACE {
 	copy_if(Rng&& rng, O&& result, Pred&& pred, Proj&& proj = Proj{})
 	{
 		return __stl2::copy_if(__stl2::begin(rng), __stl2::end(rng),
-													 __stl2::forward<O>(result),
-													 __stl2::forward<Pred>(pred),
-													 __stl2::forward<Proj>(proj));
+			__stl2::forward<O>(result), __stl2::forward<Pred>(pred),
+			__stl2::forward<Proj>(proj));
 	}
 
 	// Extension
@@ -69,12 +68,10 @@ STL2_OPEN_NAMESPACE {
 			__f<Pred>, projected<const E*, __f<Proj>>> &&
 		models::IndirectlyCopyable<const E*, __f<O>>
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-	copy_if(std::initializer_list<E>&& rng, O&& result,
-					Pred&& pred, Proj&& proj = Proj{})
+	copy_if(std::initializer_list<E>&& rng, O&& result, Pred&& pred, Proj&& proj = Proj{})
 	{
 		return __stl2::copy_if(rng, __stl2::forward<O>(result),
-													 __stl2::forward<Pred>(pred),
-													 __stl2::forward<Proj>(proj));
+			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

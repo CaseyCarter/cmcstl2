@@ -115,17 +115,14 @@ STL2_OPEN_NAMESPACE {
 			cursor() = default;
 			STL2_CONSTEXPR_EXT cursor(I i)
 			noexcept(is_nothrow_constructible<variant<I, S>, I>::value)
-			: v_{__stl2::move(i)}
-			{}
+			: v_{__stl2::move(i)} {}
 			STL2_CONSTEXPR_EXT cursor(S s)
 			noexcept(is_nothrow_constructible<variant<I, S>, S>::value)
-			: v_{__stl2::move(s)}
-			{}
+			: v_{__stl2::move(s)} {}
 			template <ConvertibleTo<I> II, ConvertibleTo<S> SS>
 			STL2_CONSTEXPR_EXT cursor(const cursor<II, SS>& i)
-			noexcept(noexcept(
-				variant<I, S>{__stl2::visit(
-					convert_visitor<I, S, II, SS>{}, access::v(i))}))
+			noexcept(noexcept(variant<I, S>{__stl2::visit(
+				convert_visitor<I, S, II, SS>{}, access::v(i))}))
 			: v_{__stl2::visit(convert_visitor<I, S, II, SS>{}, access::v(i))}
 			{}
 
@@ -139,8 +136,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <class T>
 			requires
-				!InputIterator<I>() &&
-				Writable<I, T>()
+				!InputIterator<I>() && Writable<I, T>()
 			STL2_CONSTEXPR_EXT void write(T&& t)
 			noexcept(noexcept(*declval<I&>() = __stl2::forward<T>(t)))
 			{
@@ -157,8 +153,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <class OI, class OS>
 			requires
-				Sentinel<S, OI>() &&
-				Sentinel<OS, I>()
+				Sentinel<S, OI>() && Sentinel<OS, I>()
 			STL2_CONSTEXPR_EXT bool equal(const cursor<OI, OS>& that) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::visit(equal_visitor<I, OI, S, OS>{}, access::v(that), v_)
@@ -166,9 +161,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <class OI, class OS>
 			requires
-				SizedSentinel<OS, I>() &&
-				SizedSentinel<OI, I>() &&
-				SizedSentinel<S, OI>()
+				SizedSentinel<OS, I>() && SizedSentinel<OI, I>() && SizedSentinel<S, OI>()
 			STL2_CONSTEXPR_EXT difference_type_t<I> distance_to(
 				const cursor<OI, OS>& that) const
 			STL2_NOEXCEPT_RETURN(

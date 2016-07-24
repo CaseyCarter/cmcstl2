@@ -85,8 +85,7 @@ STL2_OPEN_NAMESPACE {
 			)
 			template <class T, class U, std::size_t N, class F = fn>
 			requires
-				!has_customization<T(&)[N], U(&)[N]> &&
-				has_operator<F, T, U>
+				!has_customization<T(&)[N], U(&)[N]> && has_operator<F, T, U>
 			constexpr void operator()(T (&t)[N], U (&u)[N]) const
 			noexcept(noexcept(declval<const F&>()(t[0], u[0])))
 			{

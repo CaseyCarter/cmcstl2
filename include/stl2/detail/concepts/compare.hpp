@@ -25,7 +25,6 @@
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Boolean [concepts.lib.compare.boolean]
-	// Not to spec: Boolean requires MoveConstructible
 	//
 	template <class>
 	constexpr bool __boolean = false;

@@ -58,8 +58,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectCallablePredicate<
 			__f<Pred>, projected<const E*, __f<Proj>>>
-	bool all_of(std::initializer_list<E> il,
-							Pred&& pred, Proj&& proj = Proj{})
+	bool all_of(std::initializer_list<E> il, Pred&& pred, Proj&& proj = Proj{})
 	{
 		return __stl2::all_of(il.begin(), il.end(),
 			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));

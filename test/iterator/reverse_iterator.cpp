@@ -158,8 +158,7 @@ template <class It> void test19(It l, It r, bool x) {
 }
 
 template <class It>
-void test20(It i, __stl2::difference_type_t<It> n,
-						__stl2::value_type_t<It> x) {
+void test20(It i, __stl2::difference_type_t<It> n, __stl2::value_type_t<It> x) {
 	const __stl2::reverse_iterator<It> r(i);
 	__stl2::value_type_t<It> rr = r[n];
 	CHECK(rr == x);
@@ -173,66 +172,64 @@ template <class It> void test21(It l, It r, bool x) {
 
 template <class It>
 void
-test22(It l, It r, bool x)
-{
-		const __stl2::reverse_iterator<It> r1(l);
-		const __stl2::reverse_iterator<It> r2(r);
-		CHECK((r1 < r2) == x);
+test22(It l, It r, bool x) {
+	const __stl2::reverse_iterator<It> r1(l);
+	const __stl2::reverse_iterator<It> r2(r);
+	CHECK((r1 < r2) == x);
 }
 
 template <class It>
 void
-test23(It l, It r, bool x)
-{
-		const __stl2::reverse_iterator<It> r1(l);
-		const __stl2::reverse_iterator<It> r2(r);
-		CHECK((r1 <= r2) == x);
+test23(It l, It r, bool x) {
+	const __stl2::reverse_iterator<It> r1(l);
+	const __stl2::reverse_iterator<It> r2(r);
+	CHECK((r1 <= r2) == x);
 }
-
 
 class B
 {
-		int data_ = 1;
-	public:
-		B() = default;
+	int data_ = 1;
+public:
+	B() = default;
 
-		int get() const {return data_;}
+	int get() const { return data_; }
 
-		friend bool operator==(const B& x, const B& y)
-		{return x.data_ == y.data_;}
+	friend bool operator==(const B& x, const B& y) {
+		return x.data_ == y.data_;
+	}
 };
 
 template <class It>
 void
 test24(It i, __stl2::value_type_t<It> x)
 {
-		__stl2::reverse_iterator<It> r(i);
-		CHECK((*r).get() == x.get());
+	__stl2::reverse_iterator<It> r(i);
+	CHECK((*r).get() == x.get());
 }
-
 
 class C
 {
-		int data_ = 1;
-	public:
-		C(int d) : data_(d) {}
-		C() = default;
+	int data_ = 1;
+public:
+	C(int d) : data_(d) {}
+	C() = default;
 
-		int get() const {return data_;}
+	int get() const { return data_; }
 
-		friend bool operator==(const C& x, const C& y)
-		{return x.data_ == y.data_;}
-		const C *operator&() const { return nullptr; }
-		C       *operator&()       { return nullptr; }
+	friend bool operator==(const C& x, const C& y) {
+		return x.data_ == y.data_;
+	}
+	const C *operator&() const { return nullptr; }
+	C       *operator&()       { return nullptr; }
 };
 
 template <class It>
 void
 test25(It i, __stl2::difference_type_t<It> n, It x)
 {
-		const __stl2::reverse_iterator<It> r(i);
-		__stl2::reverse_iterator<It> rr = n + r;
-		CHECK(rr.base() == x);
+	const __stl2::reverse_iterator<It> r(i);
+	__stl2::reverse_iterator<It> rr = n + r;
+	CHECK(rr.base() == x);
 }
 
 int main() {
@@ -420,40 +417,40 @@ int main() {
 		test21(s + 1, s, true);
 	}
 	{
-			const char* s = "1234567890";
-			test22(random_access_iterator<const char*>(s), random_access_iterator<const char*>(s), false);
-			test22(random_access_iterator<const char*>(s), random_access_iterator<const char*>(s+1), false);
-			test22(random_access_iterator<const char*>(s+1), random_access_iterator<const char*>(s), true);
-			test22(s, s, false);
-			test22(s, s+1, false);
-			test22(s+1, s, true);
+		const char* s = "1234567890";
+		test22(random_access_iterator<const char*>(s), random_access_iterator<const char*>(s), false);
+		test22(random_access_iterator<const char*>(s), random_access_iterator<const char*>(s+1), false);
+		test22(random_access_iterator<const char*>(s+1), random_access_iterator<const char*>(s), true);
+		test22(s, s, false);
+		test22(s, s+1, false);
+		test22(s+1, s, true);
 	}
 	{
-			const char* s = "1234567890";
-			test23(random_access_iterator<const char*>(s), random_access_iterator<const char*>(s), true);
-			test23(random_access_iterator<const char*>(s), random_access_iterator<const char*>(s+1), false);
-			test23(random_access_iterator<const char*>(s+1), random_access_iterator<const char*>(s), true);
-			test23(s, s, true);
-			test23(s, s+1, false);
-			test23(s+1, s, true);
+		const char* s = "1234567890";
+		test23(random_access_iterator<const char*>(s), random_access_iterator<const char*>(s), true);
+		test23(random_access_iterator<const char*>(s), random_access_iterator<const char*>(s+1), false);
+		test23(random_access_iterator<const char*>(s+1), random_access_iterator<const char*>(s), true);
+		test23(s, s, true);
+		test23(s, s+1, false);
+		test23(s+1, s, true);
 	}
 	{
-			B a;
-			test24(&a+1, B());
+		B a;
+		test24(&a+1, B());
 	}
 	{
-			C l[3] = {C(0), C(1), C(2)};
+		C l[3] = {C(0), C(1), C(2)};
 
-			auto ri = __stl2::rbegin(l);
-			CHECK ( (*ri).get() == 2 );  ++ri;
-			CHECK ( (*ri).get() == 1 );  ++ri;
-			CHECK ( (*ri).get() == 0 );  ++ri;
-			CHECK ( ri == __stl2::rend(l));
+		auto ri = __stl2::rbegin(l);
+		CHECK ( (*ri).get() == 2 );  ++ri;
+		CHECK ( (*ri).get() == 1 );  ++ri;
+		CHECK ( (*ri).get() == 0 );  ++ri;
+		CHECK ( ri == __stl2::rend(l));
 	}
 	{
-			const char* s = "1234567890";
-			test25(random_access_iterator<const char*>(s+5), 5, random_access_iterator<const char*>(s));
-			test25(s+5, 5, s);
+		const char* s = "1234567890";
+		test25(random_access_iterator<const char*>(s+5), 5, random_access_iterator<const char*>(s));
+		test25(s+5, 5, s);
 	}
 
 	{

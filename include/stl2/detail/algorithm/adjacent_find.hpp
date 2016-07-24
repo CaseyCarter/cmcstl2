@@ -63,8 +63,7 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallableRelation<
 			__f<Pred>, projected<const E*, __f<Proj>>>
 	dangling<const E*>
-	adjacent_find(std::initializer_list<E>&& rng,
-								Pred&& pred = Pred{}, Proj&& proj = Proj{})
+	adjacent_find(std::initializer_list<E>&& rng, Pred&& pred = Pred{}, Proj&& proj = Proj{})
 	{
 		return __stl2::adjacent_find(
 			__stl2::begin(rng), __stl2::end(rng),

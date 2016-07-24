@@ -136,8 +136,7 @@ STL2_OPEN_NAMESPACE {
 		};
 		template <class C>
 		requires
-			!detail::MemberValueType<C> &&
-			requires { typename reference_t<C>; }
+			!detail::MemberValueType<C> && requires { typename reference_t<C>; }
 		struct value_type<C> {
 			using type = decay_t<reference_t<C>>;
 			static_assert(detail::IsValueType<type>,
@@ -418,9 +417,9 @@ STL2_OPEN_NAMESPACE {
 			using typename cursor_traits<Cur>::reference_t_;
 			using typename cursor_traits<Cur>::rvalue_reference_t_;
 			static_assert(models::CommonReference<value_t_&, reference_t_&&>,
-										"Your readable and writable cursor must have a value type and a reference "
-										"type that share a common reference type. See the ranges::common_reference "
-										"type trait.");
+				"Your readable and writable cursor must have a value type and a reference "
+				"type that share a common reference type. See the ranges::common_reference "
+				"type trait.");
 
 			constexpr reference_t_ get_() const
 			STL2_NOEXCEPT_RETURN(
@@ -617,8 +616,7 @@ STL2_OPEN_NAMESPACE {
 
 	cursor::Cursor{C}
 	class basic_iterator
-	: public mixin_t<C>,
-		private detail::iterator_associated_types_base<C>
+	: public mixin_t<C>, private detail::iterator_associated_types_base<C>
 	{
 		template <_SpecializationOf<basic_iterator> BI>
 		friend constexpr decltype(auto) get_cursor(BI&& i);
@@ -638,13 +636,11 @@ STL2_OPEN_NAMESPACE {
 		template <ConvertibleTo<C> O>
 		constexpr basic_iterator(basic_iterator<O>&& that)
 		noexcept(is_nothrow_constructible<mixin, O&&>::value)
-			: mixin(__stl2::get_cursor(__stl2::move(that)))
-		{}
+		: mixin(__stl2::get_cursor(__stl2::move(that))) {}
 		template <ConvertibleTo<C> O>
 		constexpr basic_iterator(const basic_iterator<O>& that)
 		noexcept(is_nothrow_constructible<mixin, const O&>::value)
-			: mixin(__stl2::get_cursor(that))
-		{}
+		: mixin(__stl2::get_cursor(that)) {}
 		using mixin::mixin;
 
 		template <ConvertibleTo<C> O>
@@ -700,8 +696,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto operator->() const
 		noexcept(noexcept(*declval<const basic_iterator&>()))
 		requires
-			cursor::Readable<C>() &&
-			!cursor::Arrow<C>() &&
+			cursor::Readable<C>() && !cursor::Arrow<C>() &&
 			is_lvalue_reference<const_reference_t>::value
 		{
 			return __addressof::impl(**this);
@@ -709,12 +704,11 @@ STL2_OPEN_NAMESPACE {
 		// operator->: Otherwise, return a proxy
 		constexpr auto operator->() const
 		noexcept(is_nothrow_move_constructible<
-							 detail::operator_arrow_proxy<basic_iterator>>::value &&
-						 noexcept(detail::operator_arrow_proxy<basic_iterator>{
-												*declval<const basic_iterator&>()}))
+			detail::operator_arrow_proxy<basic_iterator>>::value &&
+			noexcept(detail::operator_arrow_proxy<basic_iterator>{
+				*declval<const basic_iterator&>()}))
 		requires
-			cursor::Readable<C>() &&
-			!cursor::Arrow<C>() &&
+			cursor::Readable<C>() && !cursor::Arrow<C>() &&
 			!is_reference<const_reference_t>::value
 		{
 			return detail::operator_arrow_proxy<basic_iterator>{**this};
@@ -722,8 +716,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class T>
 		requires
-			!Same<decay_t<T>, basic_iterator>() &&
-			!cursor::Next<C>() &&
+			!Same<decay_t<T>, basic_iterator>() && !cursor::Next<C>() &&
 			cursor::Writable<C, T>()
 		constexpr basic_iterator& operator=(T&& t) &
 		noexcept(noexcept(
@@ -735,15 +728,13 @@ STL2_OPEN_NAMESPACE {
 
 		friend constexpr decltype(auto) iter_move(const basic_iterator& i)
 		noexcept(noexcept(i.get().indirect_move()))
-		requires
-			cursor::IndirectMove<C>()
+		requires cursor::IndirectMove<C>()
 		{
 			return i.get().indirect_move();
 		}
 
 		template <class O>
-		requires
-			cursor::IndirectSwap<C, O>()
+		requires cursor::IndirectSwap<C, O>()
 		friend constexpr void iter_swap(
 			const basic_iterator& x, const basic_iterator<O>& y)
 		STL2_NOEXCEPT_RETURN(
@@ -763,8 +754,8 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr postfix_increment_result_t operator++(int) &
 		noexcept(is_nothrow_constructible<postfix_increment_result_t, basic_iterator&>::value &&
-						 is_nothrow_move_constructible<postfix_increment_result_t>::value &&
-						 noexcept(++declval<basic_iterator&>()))
+			is_nothrow_move_constructible<postfix_increment_result_t>::value &&
+			noexcept(++declval<basic_iterator&>()))
 		{
 			postfix_increment_result_t tmp(*this);
 			++*this;
@@ -801,8 +792,8 @@ STL2_OPEN_NAMESPACE {
 		}
 		constexpr basic_iterator operator--(int) &
 		noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
-						 is_nothrow_move_constructible<basic_iterator>::value &&
-						 noexcept(--declval<basic_iterator&>()))
+			is_nothrow_move_constructible<basic_iterator>::value &&
+			noexcept(--declval<basic_iterator&>()))
 		requires cursor::Bidirectional<C>()
 		{
 			auto tmp = *this;
@@ -837,16 +828,14 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr bool operator==(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(x.get().equal(y.get())))
-		requires
-			cursor::Sentinel<C, C>()
+		requires cursor::Sentinel<C, C>()
 		{
 			return x.get().equal(y.get());
 		}
 		friend constexpr bool operator!=(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(!(x == y)))
-		requires
-			cursor::Sentinel<C, C>()
+		requires cursor::Sentinel<C, C>()
 		{
 			return !(x == y);
 		}
@@ -854,8 +843,7 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr D operator-(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(y.get().distance_to(x.get())))
-		requires
-			cursor::SizedSentinel<C, C>()
+		requires cursor::SizedSentinel<C, C>()
 		{
 			return y.get().distance_to(x.get());
 		}
@@ -863,32 +851,28 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr bool operator<(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(x - y))
-		requires
-			cursor::SizedSentinel<C, C>()
+		requires cursor::SizedSentinel<C, C>()
 		{
 			return x - y < 0;
 		}
 		friend constexpr bool operator>(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(x - y))
-		requires
-			cursor::SizedSentinel<C, C>()
+		requires cursor::SizedSentinel<C, C>()
 		{
 			return x - y > 0;
 		}
 		friend constexpr bool operator<=(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(x - y))
-		requires
-			cursor::SizedSentinel<C, C>()
+		requires cursor::SizedSentinel<C, C>()
 		{
 			return x - y <= 0;
 		}
 		friend constexpr bool operator>=(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(x - y))
-		requires
-			cursor::SizedSentinel<C, C>()
+		requires cursor::SizedSentinel<C, C>()
 		{
 			return x - y >= 0;
 		}
@@ -913,8 +897,8 @@ STL2_OPEN_NAMESPACE {
 	constexpr basic_iterator<C> operator+(
 		const basic_iterator<C>& i, cursor::difference_type_t<C> n)
 	noexcept(is_nothrow_copy_constructible<basic_iterator<C>>::value &&
-					 is_nothrow_move_constructible<basic_iterator<C>>::value &&
-					 noexcept(declval<basic_iterator<C>&>() += n))
+		is_nothrow_move_constructible<basic_iterator<C>>::value &&
+		noexcept(declval<basic_iterator<C>&>() += n))
 	requires cursor::RandomAccess<C>()
 	{
 		auto tmp = i;

@@ -105,8 +105,8 @@ STL2_OPEN_NAMESPACE {
 		template <class T, class U>
 		concept bool ImplicitlyConvertibleTo() {
 			// Q: Why not { t } -> U ?
-			// A: They do not have equivalent results as of 20150724,
-			//    which I think is a bug.
+			// A: They do not have equivalent results as of 20150724, which is
+			//    likely a bug.
 			return _Is<T, is_convertible, U>;
 		}
 	}

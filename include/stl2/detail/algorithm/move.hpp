@@ -25,8 +25,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyMovable<I, O>
 	tagged_pair<tag::in(I), tag::out(O)>
-	move(I first, S last, O result)
-	{
+	move(I first, S last, O result) {
 #if 1
 		auto res = __stl2::copy(__stl2::make_move_iterator(__stl2::move(first)),
 			__stl2::make_move_sentinel(__stl2::move(last)), __stl2::move(result));
@@ -44,8 +43,7 @@ STL2_OPEN_NAMESPACE {
 		models::WeaklyIncrementable<__f<O>> &&
 		models::IndirectlyMovable<iterator_t<Rng>, __f<O>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
-	move(Rng&& rng, O&& result)
-	{
+	move(Rng&& rng, O&& result) {
 		return __stl2::move(__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result));
 	}
 
@@ -55,8 +53,7 @@ STL2_OPEN_NAMESPACE {
 		models::WeaklyIncrementable<__f<O>> &&
 		models::IndirectlyMovable<const E*, __f<O>>
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-	move(std::initializer_list<E>&& rng, O&& result)
-	{
+	move(std::initializer_list<E>&& rng, O&& result) {
 		return __stl2::move(__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result));
 	}
 
@@ -66,8 +63,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			models::IndirectlyMovable<I1, I2>
 		tagged_pair<tag::in(I1), tag::out(I2)>
-		move(I1 first1, S1 last1, I2 first2, S2 last2)
-		{
+		move(I1 first1, S1 last1, I2 first2, S2 last2) {
 #if 1
 			auto res = ext::copy(
 				__stl2::make_move_iterator(__stl2::move(first1)),
@@ -90,8 +86,7 @@ STL2_OPEN_NAMESPACE {
 		tagged_pair<
 			tag::in(safe_iterator_t<Rng1>),
 			tag::out(safe_iterator_t<Rng2>)>
-		move(Rng1&& rng1, Rng2&& rng2)
-		{
+		move(Rng1&& rng1, Rng2&& rng2) {
 			return ext::move(__stl2::begin(rng1), __stl2::end(rng1),
 				__stl2::begin(rng2), __stl2::end(rng2));
 		}
@@ -103,8 +98,7 @@ STL2_OPEN_NAMESPACE {
 		tagged_pair<
 			tag::in(dangling<const E*>),
 			tag::out(safe_iterator_t<Rng2>)>
-		move(std::initializer_list<E>&& rng1, Rng2&& rng2)
-		{
+		move(std::initializer_list<E>&& rng1, Rng2&& rng2) {
 			return ext::move(__stl2::begin(rng1), __stl2::end(rng1),
 				__stl2::begin(rng2), __stl2::end(rng2));
 		}
