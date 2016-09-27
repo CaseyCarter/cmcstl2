@@ -40,3 +40,5 @@ endif()
 
 add_subdirectory(examples)
 add_subdirectory(test)
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include)
