@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::Mergeable<I1, I2, O, __f<Comp>, __f<Proj1>, __f<Proj2>>
-	tagged_pair<tag::in1(I1), tag::out(O)>
+	tagged_pair<tag::in(I1), tag::out(O)>
 	set_difference(I1 first1, S1 last1, I2 first2, S2 last2, O result,
 		Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
 	{
@@ -53,10 +53,8 @@ STL2_OPEN_NAMESPACE {
 				++first2;
 			}
 		}
-		// BUGBUG gcc-trunk weirdness?
-		auto ret = __stl2::copy(__stl2::move(first1), __stl2::move(last1),
+		return __stl2::copy(__stl2::move(first1), __stl2::move(last1),
 												__stl2::move(result));
-		return tagged_pair<tag::in1(I1), tag::out(O)>(ret.in(), ret.out());
 	}
 
 	template <InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
@@ -66,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 		models::Mergeable<
 			iterator_t<Rng1>, iterator_t<Rng2>,
 			__f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
-	tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::out(__f<O>)>
+	tagged_pair<tag::in(safe_iterator_t<Rng1>), tag::out(__f<O>)>
 	set_difference(Rng1&& rng1, Rng2&& rng2, O&& result, Comp&& comp = Comp{},
 		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	{
@@ -84,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 		models::Mergeable<
 			const E*, iterator_t<Rng2>,
 			__f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
-	tagged_pair<tag::in1(dangling<const E*>), tag::out(__f<O>)>
+	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
 	set_difference(std::initializer_list<E>&& rng1,
 		Rng2&& rng2, O&& result, Comp&& comp = Comp{},
 		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
@@ -103,7 +101,7 @@ STL2_OPEN_NAMESPACE {
 		models::Mergeable<
 			iterator_t<Rng1>, const E*,
 			__f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
-	tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::out(__f<O>)>
+	tagged_pair<tag::in(safe_iterator_t<Rng1>), tag::out(__f<O>)>
 	set_difference(Rng1&& rng1, std::initializer_list<E>&& rng2,
 								 O&& result, Comp&& comp = Comp{},
 								 Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
@@ -122,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 		models::Mergeable<
 			const E1*, const E2*,
 			__f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
-	tagged_pair<tag::in1(dangling<const E1*>), tag::out(__f<O>)>
+	tagged_pair<tag::in(dangling<const E1*>), tag::out(__f<O>)>
 	set_difference(std::initializer_list<E1>&& rng1,
 		std::initializer_list<E2>&& rng2,
 		O&& result, Comp&& comp = Comp{},
