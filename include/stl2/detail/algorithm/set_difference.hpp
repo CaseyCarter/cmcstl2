@@ -53,8 +53,10 @@ STL2_OPEN_NAMESPACE {
 				++first2;
 			}
 		}
-		return __stl2::copy(__stl2::move(first1), __stl2::move(last1),
+		// BUGBUG gcc-trunk weirdness?
+		auto ret = __stl2::copy(__stl2::move(first1), __stl2::move(last1),
 												__stl2::move(result));
+		return tagged_pair<tag::in1(I1), tag::out(O)>(ret.in(), ret.out());
 	}
 
 	template <InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
