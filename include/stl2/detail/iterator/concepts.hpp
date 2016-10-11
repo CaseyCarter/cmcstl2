@@ -318,7 +318,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class In, class Out>
 	concept bool IndirectlyCopyable() {
-		return IndirectlyMovable<In, Out>() && Writable<Out, reference_t<In>>();
+		return Readable<In>() && Writable<Out, reference_t<In>>();
 	}
 
 	namespace models {
@@ -334,7 +334,6 @@ STL2_OPEN_NAMESPACE {
 	template <class In, class Out>
 	concept bool IndirectlyCopyableStorable() {
 		return IndirectlyCopyable<In, Out>() &&
-			IndirectlyMovableStorable<In, Out>() &&
 			Writable<Out, const value_type_t<In>&>() &&
 			Copyable<value_type_t<In>>() &&
 			Constructible<value_type_t<In>, reference_t<In>>() &&
