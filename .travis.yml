@@ -1,0 +1,65 @@
+# Copyright Casey Carter 2015-2016
+
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE.txt or copy at http://boost.org/LICENSE_1_0.txt)
+
+language: cpp
+script: cmake
+
+cache:
+  directories:
+    - ${TRAVIS_BUILD_DIR}/deps/cmake
+
+matrix:
+  include:
+    - env: GCC_VERSION=6 BUILD_TYPE=Debug ASAN=Off
+      os: linux
+      addons: &gcc6
+        apt:
+          packages:
+            - g++-6
+          sources:
+            - ubuntu-toolchain-r-test
+
+    - env: GCC_VERSION=6 BUILD_TYPE=Release ASAN=Off
+      os: linux
+      addons: *gcc6
+
+    # - env: GCC_VERSION=6 BUILD_TYPE=Release ASAN=On
+    #   os: linux
+    #   addons: *gcc6
+
+# Install dependencies
+before_install:
+  - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
+  - which $CXX
+  - which $CC
+  - $CXX --version
+  - JOBS=2
+
+install:
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir -p "${DEPS_DIR}" && cd "${DEPS_DIR}"
+
+  ############################################################################
+  # Install a recent CMake (unless already installed on OS X)
+  ############################################################################
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      if [[ -z "$(ls -A ${DEPS_DIR}/cmake/bin)" ]]; then
+        CMAKE_URL="https://cmake.org/files/v3.6/cmake-3.6.2-Linux-x86_64.tar.gz"
+        mkdir -p cmake && travis_retry wget --no-check-certificate --quiet -O - "${CMAKE_URL}" | tar --strip-components=1 -xz -C cmake
+      fi
+      export PATH="${DEPS_DIR}/cmake/bin:${PATH}"
+    fi
+
+before_script:
+  - cd "${TRAVIS_BUILD_DIR}"
+  - mkdir -p build
+  - cd build
+  - if [ -n "$GCC_VERSION" -a "$ASAN" == "On" ]; then CXX_FLAGS="${CXX_FLAGS}"; fi
+  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS="${CXX_FLAGS}"
+  - make VERBOSE=1 -j${JOBS}
+
+script:
+  - ctest -VV -j${JOBS}

@@ -41,7 +41,13 @@ STL2_OPEN_NAMESPACE {
 		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
 		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
+		// HACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACK
+		// FIXME
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 		optional<I1> res;
+#pragma GCC diagnostic pop
+		// HACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACK
 		for (; first1 != last1; ++first1) {
 			if (pred(proj(*first1), *first2)) {
 				auto m1 = first1;
@@ -66,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallableRelation<
 			__f<Pred>, I2, projected<I1, __f<Proj>>>
 	I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2,
-							Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{})
+		Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{})
 	{
 		if (first2 == last2) {
 			return last1;  // Everything matches an empty sequence

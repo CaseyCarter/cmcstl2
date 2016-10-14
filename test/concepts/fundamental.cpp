@@ -70,7 +70,7 @@ constexpr t f(unsigned long long) { return t::ull; }
 
 void test() {
 	CHECK(f(0.0f) == t::floating_point);
-	CHECK(f(0.0d) == t::floating_point);
+	CHECK(f(0.0) == t::floating_point);
 	CHECK(f(0) == t::signed_integral);
 	CHECK(f(0u) == t::unsigned_integral);
 	CHECK(f(nullptr) == t::scalar);
