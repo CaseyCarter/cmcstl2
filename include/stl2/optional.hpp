@@ -105,7 +105,7 @@ STL2_OPEN_NAMESPACE {
 			template <class U>
 			requires Same<variant<nullopt_t, T>, decay_t<U>>()
 			static constexpr decltype(auto) get_unchecked(U&& v) noexcept {
-				STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<T>(v));
+				STL2_EXPECT(__stl2::holds_alternative<T>(v));
 				return __stl2::get_unchecked<T>(__stl2::forward<U>(v));
 			}
 

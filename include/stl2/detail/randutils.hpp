@@ -169,7 +169,7 @@ STL2_OPEN_NAMESPACE {
 				__stl2::random_device rd{};
 				__stl2::generate(it, seeds.end(), __stl2::ref(rd));
 
-				STL2_ASSERT(it <= seeds.end());
+				STL2_EXPECT(it <= seeds.end());
 
 				return seeds;
 			}

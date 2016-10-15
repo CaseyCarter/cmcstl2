@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 		while (true) {
 			auto mid = first;
 			auto d = __stl2::advance(mid, dist, last);
-			STL2_ASSUME(d >= 0);
+			STL2_EXPECT(d >= 0);
 			if (d || mid == last) {
 				// at the end of the input range
 				return ext::equal_range_n(

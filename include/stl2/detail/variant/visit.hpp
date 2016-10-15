@@ -171,8 +171,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(noexcept(declval<ON_dispatch&>().
 				find_indices(std::index_sequence<Is..., Last>{})))
 			{
-				STL2_ASSUME(n == Last);
-				(void)n;
+				STL2_EXPECT(n == Last);
 				return find_indices(std::index_sequence<Is..., Last>{});
 			}
 
@@ -182,7 +181,7 @@ STL2_OPEN_NAMESPACE {
 				declval<ON_dispatch&>().find_indices(std::index_sequence<Is..., First>{}),
 				declval<ON_dispatch&>().find_one_index(i, n, std::index_sequence<Rest...>{})))
 			{
-				STL2_ASSUME(n >= First);
+				STL2_EXPECT(n >= First);
 				if (n <= First) {
 					return find_indices(std::index_sequence<Is..., First>{});
 				} else {
@@ -199,7 +198,7 @@ STL2_OPEN_NAMESPACE {
 				.find_one_index(i, std::size_t{0}, NVI{})))
 			{
 				auto& v = __stl2::get<sizeof...(Is)>(vs_);
-				STL2_ASSUME_CONSTEXPR(v.valid());
+				STL2_EXPECT(v.valid());
 				return find_one_index(i, v.index(), NVI{});
 			}
 
@@ -277,7 +276,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr std::size_t
 		calc_index(const First& f, const Rest&...rest) noexcept
 		{
-			STL2_ASSUME_CONSTEXPR(f.valid());
+			STL2_EXPECT(f.valid());
 			constexpr std::size_t M = meta::_v<meta::fold<
 				meta::list<meta::size<VariantTypes<Rest>>...>,
 				meta::size_t<1>,
@@ -301,7 +300,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			using Dispatch = O1_dispatch<all_index_vectors<Vs...>, F, Vs...>;
 			std::size_t i = calc_index(vs...);
-			STL2_ASSUME_CONSTEXPR(Dispatch::table[i]);
+			STL2_EXPECT(Dispatch::table[i]);
 			return Dispatch::table[i](__stl2::forward<F>(f), __stl2::forward<Vs>(vs)...);
 		}
 

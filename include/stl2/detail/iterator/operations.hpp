@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 			models::Iterator<I>
 			// Pre: 0 <= n && [i,i+n)
 		constexpr void impl(I& i, difference_type_t<I> n) {
-			STL2_ASSUME(0 <= n);
+			STL2_EXPECT(0 <= n);
 			while (n != 0) {
 				--n;
 				++i;
@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 		// Pre: [i,bound)
 	STL2_CONSTEXPR_EXT void advance(I& i, S bound) {
 		difference_type_t<I> d = bound - i;
-		STL2_ASSUME(0 <= d);
+		STL2_EXPECT(0 <= d);
 		__stl2::advance(i, d);
 	}
 
@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 			// Pre: 0 == n || (0 < n && [i,bound))
 		constexpr difference_type_t<I>
 		impl(I& i, difference_type_t<I> n, const S& bound) {
-			STL2_ASSUME(0 <= n);
+			STL2_EXPECT(0 <= n);
 			while (n != 0 && i != bound) {
 				++i;
 				--n;
@@ -119,9 +119,9 @@ STL2_OPEN_NAMESPACE {
 		// Pre: 0 <= n && [i,bound)
 	STL2_CONSTEXPR_EXT difference_type_t<I>
 	advance(I& i, difference_type_t<I> n, S bound) {
-		STL2_ASSUME(0 <= n);
+		STL2_EXPECT(0 <= n);
 		auto d = difference_type_t<I>{bound - i};
-		STL2_ASSUME(0 <= d);
+		STL2_EXPECT(0 <= d);
 		if (d <= n) {
 			__stl2::advance(i, __stl2::move(bound));
 			return n - d;
@@ -154,7 +154,7 @@ STL2_OPEN_NAMESPACE {
 	STL2_CONSTEXPR_EXT difference_type_t<I>
 	advance(I& i, difference_type_t<I> n, I bound) {
 		auto d = difference_type_t<I>{bound - i};
-		STL2_ASSUME(0 <= n ? 0 <= d : 0 >= d);
+		STL2_EXPECT(0 <= n ? 0 <= d : 0 >= d);
 		if (0 <= n ? d <= n : d >= n) {
 			i = __stl2::move(bound);
 			return n - d;
@@ -217,7 +217,7 @@ STL2_OPEN_NAMESPACE {
 		STL2_CONSTEXPR_EXT tagged_pair<tag::count(difference_type_t<I>), tag::end(I)>
 		enumerate(I first, S last) {
 			auto d = last - first;
-			STL2_ASSUME((models::Same<I, S> || d >= 0));
+			STL2_EXPECT((models::Same<I, S> || d >= 0));
 			return {d, __stl2::next(__stl2::move(first), __stl2::move(last))};
 		}
 
@@ -243,7 +243,7 @@ STL2_OPEN_NAMESPACE {
 		// Pre: [first, last)
 	STL2_CONSTEXPR_EXT difference_type_t<I> distance(I first, S last) {
 		auto d = last - first;
-		STL2_ASSUME(d >= 0);
+		STL2_EXPECT(d >= 0);
 		return d;
 	}
 

@@ -16,13 +16,16 @@
 #include <memory>
 
 STL2_OPEN_NAMESPACE {
-#if STL2_HAS_BUILTIN(addressof)
+#if defined(__cpp_lib_addressof_constexpr) && __cpp_lib_addressof_constexpr >= 201603
+	using std::addressof;
+
+#elif STL2_HAS_BUILTIN(addressof)
 	template <class T>
 	constexpr T* addressof(T& t) noexcept {
 		return __builtin_addressof(t);
 	}
 
-#else // STL2_HAS_BUILTIN(addressof)
+#else
 
 	template <class>
 	constexpr bool __user_defined_addressof = false;
@@ -46,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr T* addressof(T& t) noexcept {
 		return __stl2::__addressof(t);
 	}
-#endif // STL2_HAS_BUILTIN(addressof)
+#endif // __cpp_lib_addressof_constexpr
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_ADDRESSOF_HPP

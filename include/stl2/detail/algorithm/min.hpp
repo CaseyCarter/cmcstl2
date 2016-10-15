@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 			auto first = __stl2::begin(rng);
 			auto last = __stl2::end(rng);
-			STL2_ASSUME(first != last);
+			STL2_EXPECT(first != last);
 			value_type_t<iterator_t<Rng>> result = *first;
 			while (++first != last) {
 				auto&& tmp = *first;

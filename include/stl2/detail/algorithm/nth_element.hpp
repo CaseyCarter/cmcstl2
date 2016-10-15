@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 			models::Sortable<I, C, P>
 		void selection_sort(I begin, I end, C &comp, P &proj)
 		{
-			STL2_ASSUME(begin != end);
+			STL2_EXPECT(begin != end);
 			for (I lm1 = __stl2::prev(end); begin != lm1; ++begin) {
 				I i = __stl2::min_element(begin, end, __stl2::ref(comp), __stl2::ref(proj));
 				if (i != begin) {

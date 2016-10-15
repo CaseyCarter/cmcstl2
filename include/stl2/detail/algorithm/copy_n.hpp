@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(I), tag::out(O)>
 	copy_n(I first_, difference_type_t<I> n, O result)
 	{
-		STL2_ASSUME(n >= 0);
+		STL2_EXPECT(n >= 0);
 		auto norig = n;
 		auto first = __stl2::ext::uncounted(first_);
 		for(; n > 0; ++first, ++result, --n) {

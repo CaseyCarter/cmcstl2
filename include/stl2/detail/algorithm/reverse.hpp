@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 			temporary_buffer<value_type_t<I>>& buf)
 		{
 			// Precondition: $\property{mutable\_counted\_range}(first, n)$
-			STL2_ASSUME(n / 2 <= buf.size());
+			STL2_EXPECT(n / 2 <= buf.size());
 
 			auto&& vec = __stl2::detail::make_temporary_vector(buf);
 			auto ufirst = __stl2::ext::uncounted(first);

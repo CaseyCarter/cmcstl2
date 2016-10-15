@@ -130,7 +130,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(noexcept(*declval<const I&>()))
 			requires InputIterator<I>()
 			{
-				STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<I>(v_));
+				STL2_EXPECT(__stl2::holds_alternative<I>(v_));
 				return *__stl2::get_unchecked<I>(v_);
 			}
 
@@ -140,14 +140,14 @@ STL2_OPEN_NAMESPACE {
 			STL2_CONSTEXPR_EXT void write(T&& t)
 			noexcept(noexcept(*declval<I&>() = __stl2::forward<T>(t)))
 			{
-				STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<I>(v_));
+				STL2_EXPECT(__stl2::holds_alternative<I>(v_));
 				*__stl2::get_unchecked<I>(v_) = __stl2::forward<T>(t);
 			}
 
 			STL2_CONSTEXPR_EXT void next()
 			noexcept(noexcept(++declval<I&>()))
 			{
-				STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<I>(v_));
+				STL2_EXPECT(__stl2::holds_alternative<I>(v_));
 				++__stl2::get_unchecked<I>(v_);
 			}
 
@@ -173,7 +173,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(noexcept(__stl2::iter_move(declval<const I&>())))
 			requires Readable<I>()
 			{
-				STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<I>(v_));
+				STL2_EXPECT(__stl2::holds_alternative<I>(v_));
 				return __stl2::iter_move(__stl2::get_unchecked<I>(v_));
 			}
 
@@ -184,8 +184,8 @@ STL2_OPEN_NAMESPACE {
 				__stl2::iter_swap(declval<const I&>(), declval<const OI&>())))
 			{
 				auto&& tv = access::v(that);
-				STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<I>(v_));
-				STL2_ASSUME_CONSTEXPR(__stl2::holds_alternative<OI>(tv));
+				STL2_EXPECT(__stl2::holds_alternative<I>(v_));
+				STL2_EXPECT(__stl2::holds_alternative<OI>(tv));
 				__stl2::iter_swap(__stl2::get_unchecked<I>(v_),
 					__stl2::get_unchecked<OI>(tv));
 			}
