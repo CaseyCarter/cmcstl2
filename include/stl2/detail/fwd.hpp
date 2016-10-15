@@ -1,6 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
-//  Copyright Casey Carter 2015
+//  Copyright Casey Carter 2015-2016
 //  Copyright Eric Niebler 2015
 //
 //  Use, modification and distribution is subject to the
@@ -17,6 +17,21 @@
 #include <utility>
 
 #include <meta/meta.hpp>
+
+#ifdef __clang__
+#define STL2_HAS_BUILTIN(X) __has_builtin(__builtin_ ## X)
+
+#else // __clang__
+
+#define STL2_HAS_BUILTIN(X) STL2_HAS_BUILTIN_ ## X
+
+#if defined(__GNUC__)
+#define STL2_HAS_BUILTIN_unreachable 1
+#if __GNUC__ >= 7
+#define STL2_HAS_BUILTIN_addressof 1
+#endif // __GNUC__ >= 7
+#endif // __GNUC__
+#endif // __clang__
 
 #define STL2_OPEN_NAMESPACE \
 	namespace std { namespace experimental { namespace ranges { inline namespace v1
@@ -177,4 +192,4 @@ STL2_OPEN_NAMESPACE {
 #define STL2_CONSTEXPR_EXT inline
 #endif
 
-#endif
+#endif // STL2_DETAIL_FWD_HPP

@@ -528,10 +528,10 @@ STL2_OPEN_NAMESPACE {
 				has_contiguous_iterator<R>
 			constexpr auto operator()(R& r) const
 			noexcept(noexcept(__stl2::begin(r) == __stl2::end(r)
-				? nullptr : __addressof::impl(*__stl2::begin(r))))
+				? nullptr : __stl2::addressof(*__stl2::begin(r))))
 			{
 				auto i = __stl2::begin(r);
-				return i == __stl2::end(r) ? nullptr : __addressof::impl(*i);
+				return i == __stl2::end(r) ? nullptr : __stl2::addressof(*i);
 			}
 
 			template <class R>
