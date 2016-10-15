@@ -98,6 +98,8 @@ STL2_OPEN_NAMESPACE {
 	// Extension: ConstructibleObject and BindableReference are user-visible.
 	//
 	namespace ext {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waddress"
 		template <class T, class...Args>
 		constexpr bool __constructible_object = false;
 		template <class T, class...Args>
@@ -110,6 +112,7 @@ STL2_OPEN_NAMESPACE {
 		template <class T, class...Args>
 		concept bool ConstructibleObject =
 			Destructible<T>() && __constructible_object<T, Args...>;
+#pragma GCC diagnostic pop
 
 		// 20150718: Not to spec: spec is broken.
 		// FIXME: Correct wording.

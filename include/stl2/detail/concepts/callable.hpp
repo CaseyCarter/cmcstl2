@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectCallable<remove_reference_t<F>, Is...>
 	struct indirect_result_of<F(Is...)>
-	: result_of<F(value_type_t<Is>...)> {};
+	: result_of<F(reference_t<Is>...)> {};
 
 	template <class T>
 	using indirect_result_of_t =
@@ -170,8 +170,7 @@ STL2_OPEN_NAMESPACE {
 	template <Readable I, IndirectRegularCallable<I> Proj>
 	struct projected {
 		using value_type = decay_t<indirect_result_of_t<Proj&(I)>>;
-		auto operator*() const ->
-			result_of_t<Proj&(reference_t<I>)>;
+		indirect_result_of_t<Proj&(I)> operator*() const;
 	};
 
 	template <WeaklyIncrementable I, class Proj>

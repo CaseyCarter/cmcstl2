@@ -67,12 +67,21 @@ STL2_OPEN_NAMESPACE {
 
 		template <class>
 		constexpr bool has_customization = false;
-		template <detail::Dereferenceable R>
+		template <class R>
 		requires
+			models::Dereferenceable<R> &&
 			requires(R&& r) {
 				STL2_DEDUCE_AUTO_REF_REF(iter_move(r));
 			}
 		constexpr bool has_customization<R> = true;
+
+		template <class R>
+		requires
+			models::Dereferenceable<R>
+		using Ret = meta::if_<
+			is_reference<reference_t<R>>,
+			remove_reference_t<reference_t<R>>&&,
+			reference_t<R>>;
 
 		struct fn {
 			template <class R>
@@ -85,23 +94,11 @@ STL2_OPEN_NAMESPACE {
 
 			template <class R>
 			requires
-				models::Dereferenceable<R> && !has_customization<R> &&
-				is_reference<reference_t<R>>::value
-			constexpr decltype(auto) operator()(R&& r) const noexcept {
-				return static_cast<remove_reference_t<reference_t<R>>&&>(*r);
-			}
-
-			template <class R>
-			requires
-				models::Dereferenceable<R> && !has_customization<R> &&
-				!is_reference<reference_t<R>>::value &&
-				models::Constructible<decay_t<reference_t<R>>, reference_t<R>>
-			constexpr auto operator()(R&& r) const
-			noexcept(is_nothrow_constructible<
-				decay_t<reference_t<R>>, reference_t<R>>::value)
-			{
-				return decay_t<reference_t<R>>(*r);
-			}
+				models::Dereferenceable<R>
+			constexpr decltype(auto) operator()(R&& r) const
+			STL2_NOEXCEPT_RETURN(
+				static_cast<Ret<R>>(*r)
+			)
 		};
 	}
 	// Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -321,7 +318,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class In, class Out>
 	concept bool IndirectlyCopyable() {
-		return IndirectlyMovable<In, Out>() && Writable<Out, reference_t<In>>();
+		return Readable<In>() && Writable<Out, reference_t<In>>();
 	}
 
 	namespace models {
@@ -337,7 +334,6 @@ STL2_OPEN_NAMESPACE {
 	template <class In, class Out>
 	concept bool IndirectlyCopyableStorable() {
 		return IndirectlyCopyable<In, Out>() &&
-			IndirectlyMovableStorable<In, Out>() &&
 			Writable<Out, const value_type_t<In>&>() &&
 			Copyable<value_type_t<In>>() &&
 			Constructible<value_type_t<In>, reference_t<In>>() &&
