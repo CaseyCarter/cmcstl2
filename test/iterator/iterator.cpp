@@ -73,14 +73,14 @@ struct array {
 		iterator(T* p) noexcept : ptr_{p} {}
 
 		reference operator*() const noexcept {
-			STL2_ASSUME(ptr_);
+			STL2_EXPECT(ptr_);
 			return {*ptr_};
 		}
 
 		T* operator->() const noexcept
 		requires std::is_class<T>::value || std::is_union<T>::value
 		{
-			STL2_ASSUME(ptr_);
+			STL2_EXPECT(ptr_);
 			return ptr_;
 		}
 
@@ -109,7 +109,7 @@ struct array {
 
 		friend T&& iter_move(iterator i) noexcept {
 			//std::cout << "iter_move(" << static_cast<void*>(i.ptr_) << ")\n";
-			STL2_ASSUME(i.ptr_);
+			STL2_EXPECT(i.ptr_);
 			return static_cast<T&&>(*i.ptr_);
 		}
 	};
@@ -294,7 +294,7 @@ requires
 	std::is_trivially_copyable<__stl2::value_type_t<I>>::value
 bool copy(I first, S last, O o) {
 	auto n = last - first;
-	STL2_ASSUME(n >= 0);
+	STL2_EXPECT(n >= 0);
 	if (n) {
 		std::memmove(__stl2::addressof(*o), __stl2::addressof(*first),
 			n * sizeof(__stl2::value_type_t<I>));

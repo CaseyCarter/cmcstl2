@@ -76,15 +76,15 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			constexpr T& get() & noexcept {
-				STL2_ASSUME_CONSTEXPR(o_);
+				STL2_EXPECT(o_);
 				return *o_;
 			}
 			constexpr const T& get() const& noexcept {
-				STL2_ASSUME_CONSTEXPR(o_);
+				STL2_EXPECT(o_);
 				return *o_;
 			}
 			constexpr T&& get() && noexcept {
-				STL2_ASSUME_CONSTEXPR(o_);
+				STL2_EXPECT(o_);
 				return __stl2::move(*o_);
 			}
 

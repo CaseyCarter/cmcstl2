@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 				models::Sortable<I, Comp, Proj>
 			I choose_pivot(I first, I last, Comp& comp, Proj& proj)
 			{
-				STL2_ASSUME(first != last);
+				STL2_EXPECT(first != last);
 				I mid = first + difference_type_t<I>(last - first) / 2;
 				--last;
 				// Find the median:

@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
 			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
-			STL2_ASSUME(0 <= n);
+			STL2_EXPECT(0 <= n);
 			while (n != 0) {
 				auto const half = n / 2;
 				auto middle = __stl2::next(__stl2::ext::uncounted(first), half);

@@ -119,12 +119,12 @@ struct array {
 	T elements_[N];
 
 	constexpr T& operator[](std::size_t i) noexcept {
-		STL2_ASSUME(i < N);
+		STL2_EXPECT(i < N);
 		return elements_[i];
 	}
 
 	constexpr const T& operator[](std::size_t i) const noexcept {
-		STL2_ASSUME(i < N);
+		STL2_EXPECT(i < N);
 		return elements_[i];
 	}
 };

@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 		I is_heap_until_n(I first, const difference_type_t<I> n,
 			Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
 		{
-			STL2_ASSUME(0 <= n);
+			STL2_EXPECT(0 <= n);
 			auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
 			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 			difference_type_t<I> p = 0, c = 1;

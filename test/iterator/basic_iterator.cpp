@@ -117,17 +117,17 @@ public:
 	: ptr_{that.ptr_} {}
 
 	constexpr T& read() const noexcept {
-		STL2_ASSUME_CONSTEXPR(ptr_);
+		STL2_EXPECT(ptr_);
 		return *ptr_;
 	}
 
 	constexpr T* arrow() const noexcept {
-		STL2_ASSUME_CONSTEXPR(ptr_);
+		STL2_EXPECT(ptr_);
 		return ptr_;
 	}
 
 	constexpr void next() noexcept {
-		STL2_ASSUME_CONSTEXPR(ptr_);
+		STL2_EXPECT(ptr_);
 		++ptr_;
 	}
 
@@ -136,17 +136,17 @@ public:
 	}
 
 	constexpr void prev() noexcept {
-		STL2_ASSUME_CONSTEXPR(ptr_);
+		STL2_EXPECT(ptr_);
 		--ptr_;
 	}
 
 	constexpr void advance(std::ptrdiff_t n) noexcept {
-		STL2_ASSUME_CONSTEXPR(ptr_);
+		STL2_EXPECT(ptr_);
 		ptr_ += n;
 	}
 
 	constexpr std::ptrdiff_t distance_to(const pointer_cursor& that) const noexcept {
-		STL2_ASSUME_CONSTEXPR(!that.ptr_ == !ptr_);
+		STL2_EXPECT(!that.ptr_ == !ptr_);
 		return that.ptr_ - ptr_;
 	}
 
