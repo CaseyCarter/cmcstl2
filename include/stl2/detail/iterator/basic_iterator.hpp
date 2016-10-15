@@ -699,7 +699,7 @@ STL2_OPEN_NAMESPACE {
 			cursor::Readable<C>() && !cursor::Arrow<C>() &&
 			is_lvalue_reference<const_reference_t>::value
 		{
-			return __addressof::impl(**this);
+			return __stl2::addressof(**this);
 		}
 		// operator->: Otherwise, return a proxy
 		constexpr auto operator->() const
