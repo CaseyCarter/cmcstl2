@@ -188,6 +188,62 @@ STL2_OPEN_NAMESPACE {
 			default_sentinel{}, __stl2::forward<O>(out));
 		return {result.in().base(), result.out()};
 	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// uninitialized_fill [Extension]
+	//
+	template <ForwardIterator I, Sentinel<I> S, CopyConstructible T>
+	requires
+		models::Constructible<value_type_t<T>, reference_t<I>>() &&
+		models::Same<value_type_t<T>&, reference_t<T>>
+	tag::in(__f<I>) __uninitialized_fill(I first, S last, const T& value)
+	{
+		auto i = first;
+		try {
+			for ( ; i != last; ++i)
+				::new(static_cast<void*>(&*i)) T(value);
+		}
+		catch (...) {
+			for ( ; first != last; ++first)
+				first->~T();
+			throw;
+		}
+
+		return i;
+	}
+
+	template <ForwardIterator I, Sentinel<I> S, CopyConstructible T>
+	requires
+		models::Constructible<value_type_t<T>, reference_t<I>>() &&
+		models::Same<value_type_t<T>&, reference_t<T>>
+	void uninitialized_fill(I&& first, S&& last, const T& value)
+	{
+		__uninitialized_fill(__stl2::forward<I>(first), __stl2::forward<S>(last), value);
+	}
+
+	template <ForwardRange Rng, CopyConstructible T>
+	requires
+		models::Constructible<value_type_t<__f<T>>, reference_t<iterator_t<Rng>>>() &&
+		models::Same<value_type_t<T>&, reference_t<T>>
+	void uninitialized_fill(Rng&& rng, const T& value)
+	{
+		__stl2::uninitialized_fill(
+			__stl2::begin(rng), __stl2::end(rng), result);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// uninitialized_fill_n [Extension]
+	//
+	template <ForwardIterator I, CopyConstructible T>
+	requires
+		models::Constructible<value_type_t<T>, reference_t<I>>() &&
+		models::Same<value_type_t<T>&, reference_t<T>>
+	tag::in(__f<I>)
+	uninitialized_fill_n(I&& first, const Integral size, const T& value)
+	{
+		auto counted = __stl2::make_counted_iterator(__stl2::forward<I>(first), n);
+		return __uninitialized_fill(__stl2::move(counted), default_sentinel{}, value);
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif
