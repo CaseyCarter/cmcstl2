@@ -8,13 +8,55 @@
 
 STL2_OPEN_NAMESPACE {
    ///////////////////////////////////////////////////////////////////////////
+   // destroy_at [Extension]
+   //
+   template <Destructible T>
+   inline void destroy_at(T* p) noexcept
+   {
+      detail::destroy_at(p);
+   }
+
+   ///////////////////////////////////////////////////////////////////////////
+   // destroy [Extension]
+   //
+   template <ForwardIterator I, Sentinel<I> S>
+   requires
+      models::Destructible<reference_t<I>>
+   inline void destroy(I&& first, S&& last) noexcept
+   {
+      detail::destroy(__stl2::forward<I>(first), __stl2::forward<S>(last));
+   }
+
+   template <ForwardRange Rng>
+   requires
+      models::Destructible<reference_t<Rng>>
+   inline void
+   destroy(Rng&& rng) noexcept
+   {
+      __stl2::destroy(__stl2::begin(rng), __stl2::end(rng));
+   }
+
+   ///////////////////////////////////////////////////////////////////////////
+   // destroy_n [Extension]
+   //
+   template <ForwardIterator I, Integral Size>
+   requires
+      models::Destructible<reference_t<I>>
+   inline __f<I>
+   destroy_n(I&& first, Size size) noexcept
+   {
+      auto counted = __stl2::make_counted_iterator(__stl2::forward<I>(first), size);
+      return detail::destroy(__stl2::move(counted), default_sentinel{});
+   }
+
+   ///////////////////////////////////////////////////////////////////////////
    // uninitialized_copy [Extension]
    //
    template <InputIterator I, Sentinel<I> S, ForwardIterator O>
    requires
       models::Constructible<value_type_t<O>, reference_t<I>> &&
       models::Same<value_type_t<O>&, reference_t<O>>
-   tagged_pair<tag::in(I), tag::out(O)>
+   inline tagged_pair<tag::in(I), tag::out(O)>
    uninitialized_copy(I first, S last, O result)
    {
       using T = value_type_t<O>;
@@ -24,9 +66,7 @@ STL2_OPEN_NAMESPACE {
             ::new(static_cast<void*>(&*result)) T(*first);
          }
       } catch(...) {
-         for (; saved != result; ++saved) {
-            (*saved).~T();
-         }
+         destroy(saved, result);
          throw;
       }
       return {__stl2::move(first), __stl2::move(result)};
@@ -37,7 +77,7 @@ STL2_OPEN_NAMESPACE {
       models::ForwardIterator<__f<O>> &&
       models::Constructible<value_type_t<__f<O>>, reference_t<iterator_t<Rng>>> &&
       models::Same<value_type_t<__f<O>>&, reference_t<__f<O>>>
-   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
+   inline tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
    uninitialized_copy(Rng&& rng, O&& result)
    {
       return __stl2::uninitialized_copy(
@@ -53,7 +93,7 @@ STL2_OPEN_NAMESPACE {
       models::ForwardIterator<__f<O>> &&
       models::Constructible<value_type_t<__f<O>>, reference_t<__f<I>>> &&
       models::Same<value_type_t<__f<O>>&, reference_t<__f<O>>>
-   tagged_pair<tag::in(__f<I>), tag::out(__f<O>)>
+   inline tagged_pair<tag::in(__f<I>), tag::out(__f<O>)>
    uninitialized_copy_n(I&& first, difference_type_t<__f<I>> n, O&& out)
    {
       auto counted = __stl2::make_counted_iterator(__stl2::forward<I>(first), n);
@@ -69,7 +109,7 @@ STL2_OPEN_NAMESPACE {
    requires
       models::Constructible<value_type_t<T>, reference_t<I>> &&
       models::Same<value_type_t<T>&, reference_t<T>>
-   void uninitialized_fill(I&& first, S&& last, const T& value)
+   inline void uninitialized_fill(I&& first, S&& last, const T& value)
    {
       detail::uninitialized_fill(__stl2::forward<I>(first), __stl2::forward<S>(last), value);
    }
@@ -78,7 +118,7 @@ STL2_OPEN_NAMESPACE {
    requires
       models::Constructible<value_type_t<__f<T>>, reference_t<iterator_t<Rng>>> &&
       models::Same<value_type_t<T>&, reference_t<T>>
-   void uninitialized_fill(Rng&& rng, const T& value)
+   inline void uninitialized_fill(Rng&& rng, const T& value)
    {
       __stl2::uninitialized_fill(
          __stl2::begin(rng), __stl2::end(rng), value);
@@ -91,7 +131,7 @@ STL2_OPEN_NAMESPACE {
    requires
       models::Constructible<value_type_t<T>, reference_t<I>> &&
       models::Same<value_type_t<T>&, reference_t<T>>
-   __f<I>
+   inline __f<I>
    uninitialized_fill_n(I&& first, const Integral size, const T& value)
    {
       auto counted = __stl2::make_counted_iterator(__stl2::forward<I>(first), size);
