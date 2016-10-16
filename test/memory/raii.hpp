@@ -1,6 +1,6 @@
 #ifndef RAII_HPP_INCLUDED
 #define RAII_HPP_INCLUDED
-#include <experimental/ranges/memory>
+#include <stl2/memory.hpp>
 
 // aliases for general use
 namespace ranges = std::experimental::ranges::v1;
@@ -12,7 +12,7 @@ namespace independent = std::experimental::ranges::v1;
 template <typename T>
 class raii {
 public:
-   raii(const std::size_t size)
+   raii(const auto size)
       : data_{allocator_.allocate(size)},
         size_{size}
    {

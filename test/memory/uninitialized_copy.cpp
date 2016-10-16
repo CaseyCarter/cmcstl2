@@ -10,15 +10,19 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <array>
+#include "Book.hpp"
 #include <cassert>
 #include <cstdint>
-#include <experimental/ranges/memory>
 #include <iostream>
+#include <stl2/algorithm.hpp>
+#include <stl2/concepts.hpp>
+#include <stl2/memory.hpp>
+#include <stl2/uninitialized_algorithms.hpp>
 
 #include "raii.hpp"
 
 template <typename T>
-void uninitialised_copy(const std::array<T, 64>& data)
+void uninitialised_copy(const std::array<T, 8>& data)
 {
    auto c = raii<T>{data.size()};
    control::uninitialized_copy(data.cbegin(), data.cend(), c.begin());
@@ -26,5 +30,29 @@ void uninitialised_copy(const std::array<T, 64>& data)
    auto i = raii<T>{data.size()};
    independent::uninitialized_copy(data.cbegin(), data.cend(), i.begin());
 
-   assert(ranges::equal(
+   assert(ranges::equal(c, i));
+
+//   independent::destroy(c.cbegin(), c.cend());
+//   independent::destroy(i);
+}
+
+/**
+ *    Testing framework:
+ *       - test an array of fundamentals
+ *       - test an array of standard containers
+ *       - test an array of non-standard structures
+ *
+ *       - initial array: using the default constructor
+ *       - second array:  using a non-default constructor
+ */
+void thorough_test()
+{
+   uninitialised_copy(std::array<int, 8>{});
+   uninitialised_copy(std::array<std::vector<double>, 8>{});
+   uninitialised_copy(std::array<Book, 8>{});
+}
+
+int main()
+{
+   thorough_test();
 }
