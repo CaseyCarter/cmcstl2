@@ -21,6 +21,8 @@
 
 #include "raii.hpp"
 
+#include <experimental/ranges/algorithm>
+
 template <typename T>
 void uninitialised_copy(const std::array<T, 8>& data)
 {
@@ -30,10 +32,15 @@ void uninitialised_copy(const std::array<T, 8>& data)
    auto i = raii<T>{data.size()};
    independent::uninitialized_copy(data.cbegin(), data.cend(), i.begin());
 
-   assert(ranges::equal(c, i));
+   assert(ranges::equal(c, i, std::equal_to<T>{}));
 
-//   independent::destroy(c.cbegin(), c.cend());
-//   independent::destroy(i);
+   independent::destroy(i.begin(), i.end());
+
+   independent::uninitialized_copy(data, i.begin());
+   assert(ranges::equal(c, i, std::equal_to<T>{}));
+
+   independent::destroy(c); // since std::[experimental::]destroy doesn't exist in gcc 6.2
+   independent::destroy(i);
 }
 
 /**
@@ -48,8 +55,8 @@ void uninitialised_copy(const std::array<T, 8>& data)
 void thorough_test()
 {
    uninitialised_copy(std::array<int, 8>{});
-   uninitialised_copy(std::array<std::vector<double>, 8>{});
-   uninitialised_copy(std::array<Book, 8>{});
+//   uninitialised_copy(std::array<std::vector<double>, 8>{});
+//   uninitialised_copy(std::array<Book, 8>{});
 }
 
 int main()

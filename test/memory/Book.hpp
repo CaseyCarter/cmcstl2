@@ -19,11 +19,6 @@ class Book {
 public:
    Book() = default;
 
-   ~Book()
-   {
-      std::cerr << "~Book()\n";
-   }
-
    bool operator==(const Book& b) const noexcept
    {
       return isbn_ == b.isbn_ &&
