@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr take_exactly_view(Base view, std::ptrdiff_t n)
 		noexcept(is_nothrow_move_constructible<Base>::value)
 		: Base{__stl2::move(view)}, n_{n}
-		{ STL2_ASSUME_CONSTEXPR(n >= 0); }
+		{ STL2_EXPECT(n >= 0); }
 
 		constexpr iterator begin() const
 		noexcept(noexcept(iterator{__stl2::begin(declval<Base const&>()), n_}))

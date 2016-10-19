@@ -1,6 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
-//  Copyright Casey Carter 2015
+//  Copyright Casey Carter 2015-2016
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/memory/addressof.hpp>
 
 STL2_OPEN_NAMESPACE {
 	// pointer traits
@@ -105,31 +106,6 @@ STL2_OPEN_NAMESPACE {
 	//using std::uses_allocator_v;
 	template <class T, class A>
 	constexpr bool uses_allocator_v = uses_allocator<T, A>::value;
-
-	// addressof
-	namespace __addressof {
-		template <class>
-		constexpr bool __user_defined_addressof = false;
-		template <class T>
-		requires
-			requires(T& t) { t.operator&(); } ||
-			requires(T& t) { operator&(t); }
-		constexpr bool __user_defined_addressof<T> = true;
-
-		template <class T>
-		requires __user_defined_addressof<T>
-		T* impl(T& t) noexcept {
-			return std::addressof(t);
-		}
-
-		constexpr auto impl(auto& t) noexcept {
-			return &t;
-		}
-	}
-	template <class T>
-	constexpr T* addressof(T& t) noexcept {
-		return __addressof::impl(t);
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

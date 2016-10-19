@@ -88,13 +88,13 @@ STL2_OPEN_NAMESPACE {
 			noexcept(is_nothrow_move_constructible<I>::value)
 			: box_t(__stl2::move(i)), count_{n}
 			{
-				STL2_ASSUME_CONSTEXPR(0 <= n);
+				STL2_EXPECT(0 <= n);
 			}
 			STL2_CONSTEXPR_EXT cursor(const I& i, difference_type n)
 			noexcept(is_nothrow_copy_constructible<I>::value)
 			: box_t(i), count_{n}
 			{
-				STL2_ASSUME_CONSTEXPR(0 <= n);
+				STL2_EXPECT(0 <= n);
 			}
 			template <ConvertibleTo<I> O>
 			STL2_CONSTEXPR_EXT cursor(cursor<O>&& that)
@@ -147,7 +147,7 @@ STL2_OPEN_NAMESPACE {
 			STL2_CONSTEXPR_EXT void next()
 			noexcept(noexcept(++declval<I&>()))
 			{
-				STL2_ASSUME_CONSTEXPR(0 < count_);
+				STL2_EXPECT(0 < count_);
 				++get();
 				--count_;
 			}
@@ -164,7 +164,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(noexcept(declval<I&>() += n))
 			requires RandomAccessIterator<I>()
 			{
-				STL2_ASSUME_CONSTEXPR(n <= count_);
+				STL2_EXPECT(n <= count_);
 				get() += n;
 				count_ -= n;
 			}
@@ -216,7 +216,7 @@ STL2_OPEN_NAMESPACE {
 					 is_nothrow_move_assignable<I>::value &&
 					 noexcept(__stl2::next(declval<const I&>(), n)))
 	{
-		STL2_ASSUME_CONSTEXPR(n <= i.count());
+		STL2_EXPECT(n <= i.count());
 		__counted_iterator::access::base(__stl2::get_cursor(i)) =
 			__stl2::next(__counted_iterator::access::base(__stl2::get_cursor(i)), n);
 		__counted_iterator::access::count(__stl2::get_cursor(i)) -= n;
@@ -225,7 +225,7 @@ STL2_OPEN_NAMESPACE {
 	RandomAccessIterator{I}
 	STL2_CONSTEXPR_EXT void advance(counted_iterator<I>& i, difference_type_t<I> n)
 	STL2_NOEXCEPT_RETURN(
-		(void)(STL2_ASSUME_CONSTEXPR(n <= i.count()), i += n)
+		(STL2_EXPECT(n <= i.count()), i += n)
 	)
 
 	namespace ext {
