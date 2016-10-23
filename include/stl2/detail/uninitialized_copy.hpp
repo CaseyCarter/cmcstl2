@@ -26,17 +26,17 @@ STL2_OPEN_NAMESPACE {
    requires
       models::Constructible<value_type_t<O>, reference_t<I>> &&
       models::Same<value_type_t<O>&, reference_t<O>>
-   inline tagged_pair<tag::in(I), tag::out(O)>
+   tagged_pair<tag::in(I), tag::out(O)>
    uninitialized_copy(I first, S last, O result)
    {
-      using T = value_type_t<O>;
       auto saved = result;
       try {
          for (; first != last; ++first, void(++result)) {
-            ::new(static_cast<void*>(&*result)) T(*first);
+            ::new(static_cast<void*>(__stl2::addressof(result))) value_type_t<I>(*first);
          }
       } catch(...) {
-         destroy(saved, result);
+         for (; saved != first; ++saved)
+            destroy_at(__stl2::addressof(*first));
          throw;
       }
       return {__stl2::move(first), __stl2::move(result)};
@@ -47,11 +47,12 @@ STL2_OPEN_NAMESPACE {
       models::ForwardIterator<__f<O>> &&
       models::Constructible<value_type_t<__f<O>>, reference_t<iterator_t<Rng>>> &&
       models::Same<value_type_t<__f<O>>&, reference_t<__f<O>>>
-   inline tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
+   auto //tagged_pair<tag::in(iterator_t<Rng>), tag::out(__f<O>)>
    uninitialized_copy(Rng&& rng, O&& result)
    {
-      return __stl2::uninitialized_copy(
-         __stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result));
+//      debug<tag::in(safe_iterator_t<Rng>)>{};
+      return __stl2::uninitialized_copy(__stl2::begin(rng), __stl2::end(rng),
+                                                 __stl2::forward<O>(result));
    }
 
    ///////////////////////////////////////////////////////////////////////////
@@ -63,7 +64,7 @@ STL2_OPEN_NAMESPACE {
       models::ForwardIterator<__f<O>> &&
       models::Constructible<value_type_t<__f<O>>, reference_t<__f<I>>> &&
       models::Same<value_type_t<__f<O>>&, reference_t<__f<O>>>
-   inline tagged_pair<tag::in(__f<I>), tag::out(__f<O>)>
+   tagged_pair<tag::in(__f<I>), tag::out(__f<O>)>
    uninitialized_copy_n(I&& first, difference_type_t<__f<I>> n, O&& out)
    {
       auto counted = __stl2::make_counted_iterator(__stl2::forward<I>(first), n);

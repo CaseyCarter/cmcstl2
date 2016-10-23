@@ -2,13 +2,6 @@
 #define RAII_HPP_INCLUDED
 #include <stl2/memory.hpp>
 
-// aliases for general use
-namespace ranges = std::experimental::ranges::v1;
-
-// aliases for tests only
-namespace control     = std;
-namespace independent = std::experimental::ranges::v1;
-
 template <typename T>
 class raii {
 public:
@@ -59,7 +52,7 @@ public:
       return end();
    }
 
-   ranges::Integral size() const noexcept
+   std::size_t size() const noexcept
    {
       return size_;
    }

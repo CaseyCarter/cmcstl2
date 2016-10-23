@@ -51,10 +51,10 @@ STL2_OPEN_NAMESPACE {
 
 	// specialized algorithms
 	// addressof defined below
-	using std::uninitialized_copy;
-	using std::uninitialized_copy_n;
-	using std::uninitialized_fill;
-	using std::uninitialized_fill_n;
+	//using std::uninitialized_copy;
+	//using std::uninitialized_copy_n;
+	//using std::uninitialized_fill;
+	//using std::uninitialized_fill_n;
 
 	// template class unique_ptr
 	using std::default_delete;

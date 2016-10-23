@@ -20,7 +20,7 @@ STL2_OPEN_NAMESPACE {
    // destroy_at [Extension]
    //
    template <Destructible T>
-   inline void destroy_at(T* p) noexcept
+   void destroy_at(T* p) noexcept
    {
       p->~T();
    }
@@ -31,10 +31,10 @@ STL2_OPEN_NAMESPACE {
    template <ForwardIterator I, Sentinel<I> S>
    requires
       models::Destructible<value_type_t<I>>
-   inline __f<I>
+   __f<I>
    destroy(I&& first, S&& last) noexcept
    {
-      for ( ; first != last; ++first)
+      for (; first != last; ++first)
          destroy_at(__stl2::addressof(*first));
 
       return first;
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
    template <ForwardRange Rng>
    requires
       models::Destructible<value_type_t<iterator_t<Rng>>>
-   inline __f<safe_iterator_t<Rng>>
+   __f<safe_iterator_t<Rng>>
    destroy(Rng&& rng) noexcept
    {
       return __stl2::destroy(__stl2::begin(rng), __stl2::end(rng));
@@ -52,11 +52,11 @@ STL2_OPEN_NAMESPACE {
    ///////////////////////////////////////////////////////////////////////////
    // destroy_n [Extension]
    //
-   template <ForwardIterator I, Integral Size>
+   template <ForwardIterator I>
    requires
       models::Destructible<value_type_t<I>>
-   inline __f<I>
-   destroy_n(I&& first, Size size) noexcept
+   __f<I>
+   destroy_n(I&& first, difference_type_t<I> size) noexcept
    {
       auto counted = __stl2::make_counted_iterator(__stl2::forward<I>(first), size);
       return __stl2::destroy(__stl2::move(counted), default_sentinel{});

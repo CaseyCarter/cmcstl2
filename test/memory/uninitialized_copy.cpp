@@ -22,24 +22,29 @@
 
 #include <experimental/ranges/algorithm>
 
+namespace ranges = std::experimental::ranges::v1;
+
 template <typename T>
 void uninitialised_copy(const std::array<T, 8>& data)
 {
    auto c = raii<T>{data.size()};
-   control::uninitialized_copy(data.cbegin(), data.cend(), c.begin());
+   std::uninitialized_copy(data.cbegin(), data.cend(), c.begin());
 
    auto i = raii<T>{data.size()};
-   independent::uninitialized_copy(data.cbegin(), data.cend(), i.begin());
+   ranges::uninitialized_copy(data.cbegin(), data.cend(), i.begin());
 
    assert(ranges::equal(c, i, std::equal_to<T>{}));
 
-   independent::destroy(i.begin(), i.end());
+   ranges::destroy(i.begin(), i.end());
 
-   independent::uninitialized_copy(data, i.begin());
+   ranges::uninitialized_copy(data, i.begin());
    assert(ranges::equal(c, i, std::equal_to<T>{}));
 
-   //independent::destroy(c); // since std::[experimental::]destroy doesn't exist in gcc 6.2
-   //independent::destroy(i);
+   ranges::destroy(c); // since std::[experimental::]destroy doesn't exist in gcc 6.2
+   ranges::destroy(i);
+
+   std::uninitialized_copy_n(data.cbegin(), data.size(), c.begin());
+   ranges::uninitialized_copy_n(data.cbegin(), data.size(), i.begin());
 }
 
 /**
