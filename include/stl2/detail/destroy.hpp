@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
    template <ForwardRange Rng>
    requires
       models::Destructible<value_type_t<iterator_t<Rng>>>
-   inline __f<I>
+   inline __f<safe_iterator_t<Rng>>
    destroy(Rng&& rng) noexcept
    {
       return __stl2::destroy(__stl2::begin(rng), __stl2::end(rng));
@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
    destroy_n(I&& first, Size size) noexcept
    {
       auto counted = __stl2::make_counted_iterator(__stl2::forward<I>(first), size);
-      return detail::destroy(__stl2::move(counted), default_sentinel{});
+      return __stl2::destroy(__stl2::move(counted), default_sentinel{});
    }
 } STL2_CLOSE_NAMESPACE
 #endif // STL2_DETAIL_ALGORITHM_DESTROY_HPP

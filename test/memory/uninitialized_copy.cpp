@@ -16,8 +16,7 @@
 #include <iostream>
 #include <stl2/algorithm.hpp>
 #include <stl2/concepts.hpp>
-#include <stl2/memory.hpp>
-#include <stl2/uninitialized_algorithms.hpp>
+#include <uninitialized_copy.hpp>
 
 #include "raii.hpp"
 
@@ -39,8 +38,8 @@ void uninitialised_copy(const std::array<T, 8>& data)
    independent::uninitialized_copy(data, i.begin());
    assert(ranges::equal(c, i, std::equal_to<T>{}));
 
-   independent::destroy(c); // since std::[experimental::]destroy doesn't exist in gcc 6.2
-   independent::destroy(i);
+   //independent::destroy(c); // since std::[experimental::]destroy doesn't exist in gcc 6.2
+   //independent::destroy(i);
 }
 
 /**
