@@ -169,7 +169,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <Readable I, IndirectRegularCallable<I> Proj>
 	struct projected {
-		using value_type = decay_t<indirect_result_of_t<Proj&(I)>>;
+		using value_type = __uncvref<indirect_result_of_t<Proj&(I)>>;
 		indirect_result_of_t<Proj&(I)> operator*() const;
 	};
 
