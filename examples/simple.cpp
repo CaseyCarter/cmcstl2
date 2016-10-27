@@ -7,15 +7,19 @@
 
 // Qualify everything with "std::experimental::ranges" if you like,
 // I prefer to use a namespace alias:
-namespace rng = std::experimental::ranges;
+namespace ranges = std::experimental::ranges;
+
+template <class...> class show_type;
+
+void foo(ranges::Readable&) {}
 
 int main() {
 	auto v = std::vector<std::string>{"this", "is", "a", "test"};
-	auto out = rng::ostream_iterator<std::string>{std::cout, " "};
-	rng::sort(v);
-	rng::copy(v, out);
+	ranges::sort(v);
+	auto out = ranges::ostream_iterator<std::string>{std::cout, " "};
+	ranges::copy(v, out);
 	std::cout << '\n';
-	auto result = rng::reverse_copy(v, out);
+	auto result = ranges::reverse_copy(v, out);
 	std::cout << '\n';
-	return !(result.in() == rng::end(v));
+	return !(result.in() == ranges::end(v));
 }
