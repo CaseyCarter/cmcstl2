@@ -160,6 +160,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Readable [readable.iterators]
 	// Not to spec: Disables the "Experimental additional tests"
+	// See https://github.com/ericniebler/stl2/issues/239
 	//
 	template <class I>
 	constexpr bool __readable = false;
