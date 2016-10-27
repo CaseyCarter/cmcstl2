@@ -174,7 +174,6 @@
     <ClInclude Include="include\stl2\detail\concepts\urng.hpp" />
     <ClInclude Include="include\stl2\detail\construct_destruct.hpp" />
     <ClInclude Include="include\stl2\detail\ebo_box.hpp" />
-    <ClInclude Include="include\stl2\detail\functional\callable_wrapper.hpp" />
     <ClInclude Include="include\stl2\detail\functional\invoke.hpp" />
     <ClInclude Include="include\stl2\detail\functional\not_fn.hpp" />
     <ClInclude Include="include\stl2\detail\fwd.hpp" />

@@ -163,23 +163,21 @@ STL2_OPEN_NAMESPACE {
 	template <class I, class S, class Comp = less<>, class Proj = identity>
 	requires
 		models::Sentinel<__f<S>, I> &&
-		models::Sortable<I, __f<Comp>, __f<Proj>>
-	I stable_sort(I first, S&& last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		models::Sortable<I, Comp, Proj>
+	I stable_sort(I first, S&& last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(first, __stl2::forward<S>(last));
 		return detail::fsort::sort_n(__stl2::move(first), n,
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	template <RandomAccessIterator I, class S, class Comp = less<>,
 						class Proj = identity>
 	requires
 		models::Sentinel<__f<S>, I> &&
-		models::Sortable<I, __f<Comp>, __f<Proj>>
-	I stable_sort(I first, S&& last_, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+		models::Sortable<I, Comp, Proj>
+	I stable_sort(I first, S&& last_, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		auto last = __stl2::next(first, __stl2::forward<S>(last_));
 		auto len = difference_type_t<I>(last - first);
 		using buf_t = detail::ssort::buf_t<I>;
@@ -195,22 +193,22 @@ STL2_OPEN_NAMESPACE {
 	// Extension: supports forward ranges.
 	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
+		models::Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
-	stable_sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	stable_sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return detail::fsort::sort_n(__stl2::begin(rng), __stl2::distance(rng),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
+		models::Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
-	stable_sort(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	stable_sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::stable_sort(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

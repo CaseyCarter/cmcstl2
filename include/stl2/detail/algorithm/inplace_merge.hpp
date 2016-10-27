@@ -84,13 +84,11 @@ STL2_OPEN_NAMESPACE {
 			requires
 				models::Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, difference_type_t<I> len1, difference_type_t<I> len2,
-				detail::temporary_buffer<value_type_t<I>>& buf, C&& pred_, P&& proj_) const
+				detail::temporary_buffer<value_type_t<I>>& buf, C pred, P proj) const
 			{
 				// Pre: len1 == distance(begin, midddle)
 				// Pre: len2 == distance(middle, end)
 				using D = difference_type_t<I>;
-				auto pred = ext::make_callable_wrapper(__stl2::forward<C>(pred_));
-				auto proj = ext::make_callable_wrapper(__stl2::forward<P>(proj_));
 				while (true) {
 					// if middle == end, we're done
 					if (len2 == 0) {
@@ -102,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 						if (len1 == 0) {
 							return;
 						}
-						if (pred(proj(*middle), proj(*begin))) {
+						if (__stl2::invoke(pred, __stl2::invoke(proj, *middle), __stl2::invoke(proj, *begin))) {
 							break;
 						}
 					}
@@ -128,7 +126,7 @@ STL2_OPEN_NAMESPACE {
 						// len >= 1, len2 >= 2
 						len21 = len2 / 2;
 						m2 = __stl2::next(middle, len21);
-						m1 = __stl2::upper_bound(begin, middle, proj(*m2),
+						m1 = __stl2::upper_bound(begin, middle, __stl2::invoke(proj, *m2),
 							__stl2::ref(pred), __stl2::ref(proj));
 						len11 = __stl2::distance(begin, m1);
 					} else {
@@ -141,7 +139,7 @@ STL2_OPEN_NAMESPACE {
 						// len1 >= 2, len2 >= 1
 						len11 = len1 / 2;
 						m1 = __stl2::next(begin, len11);
-						m2 = __stl2::lower_bound(middle, end, proj(*m1),
+						m2 = __stl2::lower_bound(middle, end, __stl2::invoke(proj, *m1),
 							__stl2::ref(pred), __stl2::ref(proj));
 						len21 = __stl2::distance(middle, m2);
 					}
@@ -181,11 +179,11 @@ STL2_OPEN_NAMESPACE {
 			requires
 				models::Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, difference_type_t<I> len1,
-				difference_type_t<I> len2, C&& pred = C{}, P&& proj = P{}) const
+				difference_type_t<I> len2, C pred = C{}, P proj = P{}) const
 			{
 				temporary_buffer<value_type_t<I>> no_buffer;
 				merge_adaptive(__stl2::move(begin), __stl2::move(middle), __stl2::move(end),
-					len1, len2, no_buffer, __stl2::forward<C>(pred), __stl2::forward<P>(proj));
+					len1, len2, no_buffer, __stl2::ref(pred), __stl2::ref(proj));
 			}
 		};
 
@@ -197,8 +195,8 @@ STL2_OPEN_NAMESPACE {
 	template <BidirectionalIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
-		models::Sortable<I, __f<Comp>, __f<Proj>>
-	I inplace_merge(I first, I middle, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		models::Sortable<I, Comp, Proj>
+	I inplace_merge(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto len1 = __stl2::distance(first, middle);
 		auto len2_and_end = __stl2::ext::enumerate(middle, __stl2::move(last));
@@ -208,18 +206,18 @@ STL2_OPEN_NAMESPACE {
 			buf = detail::temporary_buffer<value_type_t<I>>{buf_size};
 		}
 		detail::merge_adaptive(__stl2::move(first), __stl2::move(middle), len2_and_end.end(),
-			len1, len2_and_end.count(), buf, __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			len1, len2_and_end.count(), buf, __stl2::ref(comp), __stl2::ref(proj));
 		return len2_and_end.end();
 	}
 
 	template <BidirectionalRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
+		models::Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
-	inplace_merge(Rng&& rng, iterator_t<Rng> middle, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	inplace_merge(Rng&& rng, iterator_t<Rng> middle, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::inplace_merge(__stl2::begin(rng), __stl2::move(middle),
-			__stl2::end(rng), __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::end(rng), __stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -39,25 +39,25 @@ STL2_OPEN_NAMESPACE {
 			models::Sortable<I, C, P>
 		unsigned sort3(I x, I y, I z, C& comp, P& proj)
 		{
-			if (!comp(proj(*y), proj(*x))) {      // if x <= y
-				if (!comp(proj(*z), proj(*y))) {  // if y <= z
+			if (!__stl2::invoke(comp, __stl2::invoke(proj, *y), __stl2::invoke(proj, *x))) {      // if x <= y
+				if (!__stl2::invoke(comp, __stl2::invoke(proj, *z), __stl2::invoke(proj, *y))) {  // if y <= z
 					return 0;                     // x <= y && y <= z
 				}
 				                                  // x <= y && y > z
 				__stl2::iter_swap(y, z);          // x <= z && y < z
-				if (comp(proj(*y), proj(*x))) {   // if x > y
+				if (__stl2::invoke(comp, __stl2::invoke(proj, *y), __stl2::invoke(proj, *x))) {   // if x > y
 					__stl2::iter_swap(x, y);      // x < y && y <= z
 					return 2;
 				}
 				return 1;                         // x <= y && y < z
 			}
-			if (comp(proj(*z), proj(*y))) {       // x > y, if y > z
+			if (__stl2::invoke(comp, __stl2::invoke(proj, *z), __stl2::invoke(proj, *y))) {       // x > y, if y > z
 				__stl2::iter_swap(x, z);          // x < y && y < z
 				return 1;
 			}
 			__stl2::iter_swap(x, y);              // x > y && y <= z
 			                                      // x < y && x <= z
-			if (comp(proj(*z), proj(*y))) {       // if y > z
+			if (__stl2::invoke(comp, __stl2::invoke(proj, *z), __stl2::invoke(proj, *y))) {       // if y > z
 				__stl2::iter_swap(y, z);          // x <= y && y < z
 				return 2;
 			}
@@ -82,11 +82,9 @@ STL2_OPEN_NAMESPACE {
 	// TODO: refactor this monstrosity.
 	template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<I, __f<Comp>, __f<Proj>>
-	I nth_element(I first, I nth, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+		models::Sortable<I, Comp, Proj>
+	I nth_element(I first, I nth, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		I end = __stl2::next(nth, last), end_orig = end;
 		static constexpr difference_type_t<I> limit = 7;
 		while (true) {
@@ -100,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 			case 1:
 				return end_orig;
 			case 2:
-				if (comp(proj(*--end), proj(*first))) {
+				if (__stl2::invoke(comp, __stl2::invoke(proj, *--end), __stl2::invoke(proj, *first))) {
 					__stl2::iter_swap(first, end);
 				}
 				return end_orig;
@@ -128,7 +126,7 @@ STL2_OPEN_NAMESPACE {
 			// j points beyond range to be tested, *lm1 is known to be <= *m
 			// The search going up is known to be guarded but the search coming down isn't.
 			// Prime the downward search with a guard.
-			if (!comp(proj(*i), proj(*m))) {  // if *first == *m
+			if (!__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *m))) {  // if *first == *m
 				// *first == *m, *first doesn't go in first part
 				// manually guard downward moving j against i
 				while (true) {
@@ -137,12 +135,12 @@ STL2_OPEN_NAMESPACE {
 						// Parition instead into [first, i) == *first and *first < [i, end)
 						++i;  // first + 1
 						j = end;
-						if (!comp(proj(*first), proj(*--j))) {  // we need a guard if *first == *(end-1)
+						if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *--j))) {  // we need a guard if *first == *(end-1)
 							while (true) {
 								if (i == j) {
 									return end_orig;  // [first, end) all equivalent elements
 								}
-								if (comp(proj(*first), proj(*i))) {
+								if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *i))) {
 									__stl2::iter_swap(i, j);
 									++n_swaps;
 									++i;
@@ -156,9 +154,9 @@ STL2_OPEN_NAMESPACE {
 							return end_orig;
 						}
 						while (true) {
-							while (!comp(proj(*first), proj(*i)))
+							while (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *i)))
 								++i;
-							while (comp(proj(*first), proj(*--j)))
+							while (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *--j)))
 								;
 							if (i >= j)
 								break;
@@ -176,7 +174,7 @@ STL2_OPEN_NAMESPACE {
 						first = i;
 						goto restart;
 					}
-					if (comp(proj(*j), proj(*m))) {
+					if (__stl2::invoke(comp, __stl2::invoke(proj, *j), __stl2::invoke(proj, *m))) {
 						__stl2::iter_swap(i, j);
 						++n_swaps;
 						break;  // found guard for downward moving j, now use unguarded partition
@@ -190,11 +188,11 @@ STL2_OPEN_NAMESPACE {
 				// known that *(i - 1) < *m
 				while (true) {
 					// m still guards upward moving i
-					while (comp(proj(*i), proj(*m))) {
+					while (__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *m))) {
 						++i;
 					}
 					// It is now known that a guard exists for downward moving j
-					while (!comp(proj(*--j), proj(*m))) {
+					while (!__stl2::invoke(comp, __stl2::invoke(proj, *--j), __stl2::invoke(proj, *m))) {
 						;
 					}
 					if (i >= j) {
@@ -211,7 +209,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 			// [first, i) < *m and *m <= [i, end)
-			if (i != m && comp(proj(*m), proj(*i))) {
+			if (i != m && __stl2::invoke(comp, __stl2::invoke(proj, *m), __stl2::invoke(proj, *i))) {
 				__stl2::iter_swap(i, m);
 				++n_swaps;
 			}
@@ -225,7 +223,7 @@ STL2_OPEN_NAMESPACE {
 					// Check for [first, i) already sorted
 					j = m = first;
 					while (++j != i) {
-						if (comp(proj(*j), proj(*m))) {
+						if (__stl2::invoke(comp, __stl2::invoke(proj, *j), __stl2::invoke(proj, *m))) {
 							// not yet sorted, so sort
 							goto not_sorted;
 						}
@@ -237,7 +235,7 @@ STL2_OPEN_NAMESPACE {
 					// Check for [i, end) already sorted
 					j = m = i;
 					while (++j != end) {
-						if (comp(proj(*j), proj(*m))) {
+						if (__stl2::invoke(comp, __stl2::invoke(proj, *j), __stl2::invoke(proj, *m))) {
 							// not yet sorted, so sort
 							goto not_sorted;
 						}
@@ -262,13 +260,13 @@ STL2_OPEN_NAMESPACE {
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
+		models::Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
-	nth_element(Rng&& rng, iterator_t<Rng> nth, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	nth_element(Rng&& rng, iterator_t<Rng> nth, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::nth_element(
 			__stl2::begin(rng), __stl2::move(nth), __stl2::end(rng),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

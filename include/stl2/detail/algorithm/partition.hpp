@@ -36,16 +36,14 @@ STL2_OPEN_NAMESPACE {
 	template <Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I partition(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
+			Pred, projected<I, Proj>>
+	I partition(I first, S last, Pred pred, Proj proj = Proj{})
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		first = __stl2::find_if_not(__stl2::move(first), last,
 			__stl2::ref(pred), __stl2::ref(proj));
 		if (first != last) {
 			for (auto m = first; ++m != last;) {
-				if (pred(proj(*m))) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
 					__stl2::iter_swap(first, m);
 					++first;
 				}
@@ -58,20 +56,18 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::BidirectionalIterator<I> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I partition(I first, S last_, Pred&& pred_, Proj&& proj_ = Proj{})
+			Pred, projected<I, Proj>>
+	I partition(I first, S last_, Pred pred, Proj proj = Proj{})
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		auto last = __stl2::next(first, __stl2::move(last_));
 
 		for (; first != last; ++first) {
-			if (!pred(proj(*first))) {
+			if (!__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
 				while (true) {
 					if (--last == first) {
 						return first;
 					}
-					if (pred(proj(*last))) {
+					if (__stl2::invoke(pred, __stl2::invoke(proj, *last))) {
 						__stl2::iter_swap(first, last);
 						break;
 					}
@@ -85,12 +81,12 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Permutable<iterator_t<Rng>> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	partition(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+	partition(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::partition(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

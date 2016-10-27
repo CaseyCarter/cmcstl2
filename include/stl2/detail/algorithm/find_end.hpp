@@ -29,17 +29,14 @@ STL2_OPEN_NAMESPACE {
 		class Pred = equal_to<>, class Proj = identity>
 	requires
 		models::IndirectCallableRelation<
-			__f<Pred>, I2, projected<I1, __f<Proj>>>
+			Pred, I2, projected<I1, Proj>>
 	I1 find_end(I1 first1, const S1 last1,
 		const I2 first2, const S2 last2,
-		Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{})
+		Pred pred = Pred{}, Proj proj = Proj{})
 	{
 		if (first2 == last2) {
 			return __stl2::next(first1, last1);
 		}
-
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
 		// HACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACK
 		// FIXME
@@ -49,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 #pragma GCC diagnostic pop
 		// HACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACK
 		for (; first1 != last1; ++first1) {
-			if (pred(proj(*first1), *first2)) {
+			if (__stl2::invoke(pred, __stl2::invoke(proj, *first1), *first2)) {
 				auto m1 = first1;
 				auto m2 = first2;
 				do {
@@ -60,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 					if (++m1 == last1) {
 						return __stl2::move(res).value_or(__stl2::move(m1));
 					}
-				} while (pred(proj(*m1), *m2));
+				} while (__stl2::invoke(pred, __stl2::invoke(proj, *m1), *m2));
 			}
 		}
 		return __stl2::move(res).value_or(__stl2::move(first1));
@@ -70,21 +67,18 @@ STL2_OPEN_NAMESPACE {
 		class Pred = equal_to<>, class Proj = identity>
 	requires
 		models::IndirectCallableRelation<
-			__f<Pred>, I2, projected<I1, __f<Proj>>>
+			Pred, I2, projected<I1, Proj>>
 	I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2,
-		Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{})
+		Pred pred = Pred{}, Proj proj = Proj{})
 	{
 		if (first2 == last2) {
 			return last1;  // Everything matches an empty sequence
 		}
 
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 		--last2;
 		auto l1 = last1;
 		while (l1 != first1) {
-			if (pred(proj(*--l1), *last2)) {
+			if (__stl2::invoke(pred, __stl2::invoke(proj, *--l1), *last2)) {
 				auto m1 = l1;
 				auto m2 = last2;
 				do {
@@ -94,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 					if (m1 == first1) {
 						return last1;
 					}
-				} while (pred(proj(*--m1), *--m2));
+				} while (__stl2::invoke(pred, __stl2::invoke(proj, *--m1), *--m2));
 			}
 		}
 
@@ -105,9 +99,9 @@ STL2_OPEN_NAMESPACE {
 		class Pred = equal_to<>, class Proj = identity>
 	requires
 		models::IndirectCallableRelation<
-			__f<Pred>, I2, projected<I1, __f<Proj>>>
+			Pred, I2, projected<I1, Proj>>
 	I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2,
-		Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{})
+		Pred pred = Pred{}, Proj proj = Proj{})
 	{
 		// Take advantage of knowing source and pattern lengths.
 		// Stop short when source is smaller than pattern
@@ -116,15 +110,13 @@ STL2_OPEN_NAMESPACE {
 			return last1;
 		}
 
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		// End of pattern match can't go before here
 		const auto s = first1 + (len2 - 1);
 
 		for (auto l1 = last1; l1 != s; --l1) {
 			auto m1 = l1;
 			auto m2 = last2;
-			while (pred(proj(*--m1), *--m2)) {
+			while (__stl2::invoke(pred, __stl2::invoke(proj, *--m1), *--m2)) {
 				if (m2 == first2) {
 					return m1;
 				}
@@ -138,29 +130,29 @@ STL2_OPEN_NAMESPACE {
 		class Pred = equal_to<>, class Proj = identity>
 	requires
 		models::IndirectCallableRelation<
-			__f<Pred>, I2, projected<I1, __f<Proj>>>
-	I1 find_end(I1 first1, S1 s1, I2 first2, S2 s2, Pred&& pred = {}, Proj&& proj = {})
+			Pred, I2, projected<I1, Proj>>
+	I1 find_end(I1 first1, S1 s1, I2 first2, S2 s2, Pred pred = Pred{}, Proj proj = Proj{})
 	{
 		auto last1 = __stl2::next(first1, __stl2::move(s1));
 		auto last2 = __stl2::next(first2, __stl2::move(s2));
 		return __stl2::find_end(
 			__stl2::move(first1), __stl2::move(last1),
 			__stl2::move(first2), __stl2::move(last2),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template <ForwardRange Rng1, ForwardRange Rng2,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
 		models::IndirectCallableRelation<
-			__f<Pred>, iterator_t<Rng2>, projected<iterator_t<Rng1>, __f<Proj>>>
+			Pred, iterator_t<Rng2>, projected<iterator_t<Rng1>, Proj>>
 	safe_iterator_t<Rng1>
-	find_end(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{}, Proj&& proj = Proj{})
+	find_end(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{}, Proj proj = Proj{})
 	{
 		return __stl2::find_end(
 			__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	// Holding off on initializer_list overloads for now; this
