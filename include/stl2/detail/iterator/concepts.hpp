@@ -115,16 +115,10 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// value_type [readable.iterators]
-	// 20150715: Not to spec for various reasons:
-	// * Resolves the ambiguity for a class with both members value_type
-	//   and element_type in favor of value_type.
 	//
 	namespace detail {
 		template <class T>
-		constexpr bool IsValueType = false;
-		template <class T>
-			requires _Decayed<T> && _IsNot<T, is_void>
-		constexpr bool IsValueType<T> = true;
+		constexpr bool IsValueType = !is_void<T>::value;
 
 		template <class T>
 		concept bool MemberValueType =
@@ -139,47 +133,30 @@ STL2_OPEN_NAMESPACE {
 	struct value_type {};
 
 	template <class T>
-	requires
-		detail::IsValueType<remove_cv_t<T>>
-	struct value_type<T*> {
-		using type = remove_cv_t<T>;
-	};
+	struct value_type<T*> :
+		meta::lazy::if_<is_object<T>, remove_cv_t<T>> {};
 
 	template <_Is<is_array> T>
 	struct value_type<T> : value_type<decay_t<T>> {};
 
+	template <class I>
+	struct value_type<I const> : value_type<decay_t<I>> {};
+
 	template <detail::MemberValueType T>
-	requires
-		detail::IsValueType<typename T::value_type>
 	struct value_type<T> {
 		using type = typename T::value_type;
 	};
 
 	template <detail::MemberElementType T>
-	requires
-		!detail::MemberValueType<T> &&
-		detail::IsValueType<typename T::element_type>
 	struct value_type<T> {
 		using type = typename T::element_type;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
 	// value_type_t [readable.iterators]
-	// 20150715: Not to spec.
-	// * Strips cv-qualifiers before evaluating value_type. Someone out
-	//   there may think it's a good idea to have T, const T, and volatile T
-	//   be iterators with differing value types - I think they are insane.
-	// * Requires value_type_t to actually be a value type, i.e., non-void
-	//   and Same<T, decay_t<T>>. I don't think generic code can reasonably
-	//   be expected to work with an iterator whose value_type is a function
-	//   or array.
-	// The end result is that the logic is mostly in value_type_t, since
-	// value_type is subject to the depradations of user specialization.
 	//
 	template <class T>
-		requires detail::IsValueType<meta::_t<value_type<remove_cv_t<T>>>>
-	using value_type_t =
-		meta::_t<value_type<remove_cv_t<T>>>;
+	using value_type_t = meta::_t<value_type<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Readable [readable.iterators]

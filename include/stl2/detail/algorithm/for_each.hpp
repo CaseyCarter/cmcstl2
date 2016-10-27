@@ -21,14 +21,6 @@
 
 ///////////////////////////////////////////////////////////////////////////
 // for_each [alg.for_each]
-// Not to spec: with the proxy iterator changes in place, IndirectCallable
-//   is severely overconstraining for for_each:
-//   * functions that accept the reference type for a mutable "lvalue"
-//     sequence are rejected
-//   * functions that do accept all of IndirectCallable's required
-//     parameter types but don't return types with a common reference are
-//     rejected despite the fact that for_each is guaranteed to only ever
-//     call f(proj(*i)) and discard the return value.
 //
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class F, class Proj = identity>
