@@ -28,8 +28,8 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
-		models::Sortable<I, __f<Comp>, __f<Proj>>
-	I partial_sort(I first, I middle, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		models::Sortable<I, Comp, Proj>
+	I partial_sort(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		__stl2::make_heap(first, middle, __stl2::ref(comp), __stl2::ref(proj));
 		const auto len = __stl2::distance(first, middle);
@@ -46,13 +46,13 @@ STL2_OPEN_NAMESPACE {
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
+		models::Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
-	partial_sort(Rng&& rng, iterator_t<Rng> middle, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	partial_sort(Rng&& rng, iterator_t<Rng> middle, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::partial_sort(
 			__stl2::begin(rng), __stl2::move(middle), __stl2::end(rng),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

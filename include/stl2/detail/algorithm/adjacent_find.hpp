@@ -26,8 +26,8 @@ STL2_OPEN_NAMESPACE {
 		class Proj = identity>
 	requires
 		models::IndirectCallableRelation<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I adjacent_find(I first, S last, Pred&& pred = Pred{}, Proj&& proj = Proj{})
+			Pred, projected<I, Proj>>
+	I adjacent_find(I first, S last, Pred pred = Pred{}, Proj proj = Proj{})
 	{
 		if (first == last) {
 			return first;
@@ -45,26 +45,26 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class Pred = equal_to<>, class Proj = identity>
 	requires
 		models::IndirectCallableRelation<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	adjacent_find(Rng&& rng, Pred&& pred = Pred{}, Proj&& proj = Proj{})
+	adjacent_find(Rng&& rng, Pred pred = Pred{}, Proj proj = Proj{})
 	{
 		return __stl2::adjacent_find(
 			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	// Extension
 	template <class E, class Pred = equal_to<>, class Proj = identity>
 	requires
 		models::IndirectCallableRelation<
-			__f<Pred>, projected<const E*, __f<Proj>>>
+			Pred, projected<const E*, Proj>>
 	dangling<const E*>
-	adjacent_find(std::initializer_list<E>&& rng, Pred&& pred = Pred{}, Proj&& proj = Proj{})
+	adjacent_find(std::initializer_list<E>&& rng, Pred pred = Pred{}, Proj proj = Proj{})
 	{
 		return __stl2::adjacent_find(
 			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

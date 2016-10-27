@@ -27,8 +27,8 @@ STL2_OPEN_NAMESPACE {
 		class R = equal_to<>, class Proj = identity>
 	requires
 		models::Permutable<I> &&
-		models::IndirectCallableRelation<__f<R>, projected<I, __f<Proj>>>
-	I unique(I first, S last, R&& comp = R{}, Proj&& proj = Proj{})
+		models::IndirectCallableRelation<__f<R>, projected<I, Proj>>
+	I unique(I first, S last, R comp = R{}, Proj proj = Proj{})
 	{
 		first = __stl2::adjacent_find(
 			__stl2::move(first), last, __stl2::ref(comp), __stl2::ref(proj));
@@ -47,12 +47,12 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Permutable<iterator_t<Rng>> &&
 		models::IndirectCallableRelation<
-			__f<R>, projected<iterator_t<Rng>, __f<Proj>>>
+			__f<R>, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	unique(Rng&& rng, R&& comp = R{}, Proj&& proj = Proj{})
+	unique(Rng&& rng, R comp = R{}, Proj proj = Proj{})
 	{
 		return __stl2::unique(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<R>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -26,9 +26,9 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Writable<I, const T2&> &&
 		models::IndirectCallableRelation<
-			equal_to<>, projected<I, __f<Proj>>, const T1*>
+			equal_to<>, projected<I, Proj>, const T1*>
 	I replace(I first, S last, const T1& old_value, const T2& new_value,
-		Proj&& proj = Proj{})
+		Proj proj = Proj{})
 	{
 		if (first != last) {
 			do {
@@ -45,14 +45,14 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Writable<iterator_t<Rng>, const T2&> &&
 		models::IndirectCallableRelation<
-			equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T1*>
+			equal_to<>, projected<iterator_t<Rng>, Proj>, const T1*>
 	safe_iterator_t<Rng>
 	replace(Rng&& rng, const T1& old_value,	const T2& new_value,
-		Proj&& proj = Proj{})
+		Proj proj = Proj{})
 	{
 		return __stl2::replace(
 			__stl2::begin(rng), __stl2::end(rng),
-			old_value, new_value, __stl2::forward<Proj>(proj));
+			old_value, new_value, __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

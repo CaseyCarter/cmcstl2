@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 			requires
 				models::Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, difference_type_t<I> len1, difference_type_t<I> len2,
-				detail::temporary_buffer<value_type_t<I>>& buf, C&& pred, P&& proj) const
+				detail::temporary_buffer<value_type_t<I>>& buf, C pred, P proj) const
 			{
 				// Pre: len1 == distance(begin, midddle)
 				// Pre: len2 == distance(middle, end)
@@ -179,11 +179,11 @@ STL2_OPEN_NAMESPACE {
 			requires
 				models::Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, difference_type_t<I> len1,
-				difference_type_t<I> len2, C&& pred = C{}, P&& proj = P{}) const
+				difference_type_t<I> len2, C pred = C{}, P proj = P{}) const
 			{
 				temporary_buffer<value_type_t<I>> no_buffer;
 				merge_adaptive(__stl2::move(begin), __stl2::move(middle), __stl2::move(end),
-					len1, len2, no_buffer, __stl2::forward<C>(pred), __stl2::forward<P>(proj));
+					len1, len2, no_buffer, __stl2::ref(pred), __stl2::ref(proj));
 			}
 		};
 
@@ -195,8 +195,8 @@ STL2_OPEN_NAMESPACE {
 	template <BidirectionalIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
-		models::Sortable<I, __f<Comp>, __f<Proj>>
-	I inplace_merge(I first, I middle, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		models::Sortable<I, Comp, Proj>
+	I inplace_merge(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto len1 = __stl2::distance(first, middle);
 		auto len2_and_end = __stl2::ext::enumerate(middle, __stl2::move(last));
@@ -206,18 +206,18 @@ STL2_OPEN_NAMESPACE {
 			buf = detail::temporary_buffer<value_type_t<I>>{buf_size};
 		}
 		detail::merge_adaptive(__stl2::move(first), __stl2::move(middle), len2_and_end.end(),
-			len1, len2_and_end.count(), buf, __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			len1, len2_and_end.count(), buf, __stl2::ref(comp), __stl2::ref(proj));
 		return len2_and_end.end();
 	}
 
 	template <BidirectionalRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
+		models::Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
-	inplace_merge(Rng&& rng, iterator_t<Rng> middle, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	inplace_merge(Rng&& rng, iterator_t<Rng> middle, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::inplace_merge(__stl2::begin(rng), __stl2::move(middle),
-			__stl2::end(rng), __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::end(rng), __stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

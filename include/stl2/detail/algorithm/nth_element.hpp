@@ -82,8 +82,8 @@ STL2_OPEN_NAMESPACE {
 	// TODO: refactor this monstrosity.
 	template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<I, __f<Comp>, __f<Proj>>
-	I nth_element(I first, I nth, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		models::Sortable<I, Comp, Proj>
+	I nth_element(I first, I nth, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		I end = __stl2::next(nth, last), end_orig = end;
 		static constexpr difference_type_t<I> limit = 7;
@@ -260,13 +260,13 @@ STL2_OPEN_NAMESPACE {
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, __f<Comp>, __f<Proj>>
+		models::Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
-	nth_element(Rng&& rng, iterator_t<Rng> nth, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	nth_element(Rng&& rng, iterator_t<Rng> nth, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::nth_element(
 			__stl2::begin(rng), __stl2::move(nth), __stl2::end(rng),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

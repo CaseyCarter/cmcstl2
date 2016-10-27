@@ -171,9 +171,9 @@ STL2_OPEN_NAMESPACE {
 
 			template <class I, class Comp = less<>, class Proj = identity>
 			requires
-				models::Sortable<I, __f<Comp>, __f<Proj>>
+				models::Sortable<I, Comp, Proj>
 			inline I sort_n(I first, const difference_type_t<I> n,
-				Comp&& comp = Comp{}, Proj&& proj = Proj{})
+				Comp comp = Comp{}, Proj proj = Proj{})
 			{
 				STL2_EXPECT(0 <= n);
 				auto ufirst = ext::uncounted(first);

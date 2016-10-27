@@ -28,9 +28,9 @@ STL2_OPEN_NAMESPACE {
 		requires
 			models::Copyable<value_type_t<iterator_t<Rng>>> &&
 			models::IndirectCallableStrictWeakOrder<
-				__f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
+				Comp, projected<iterator_t<Rng>, Proj>>
 		constexpr value_type_t<iterator_t<Rng>>
-		impl(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		impl(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			auto first = __stl2::begin(rng);
 			auto last = __stl2::end(rng);
@@ -49,9 +49,9 @@ STL2_OPEN_NAMESPACE {
 	template<class T, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<const T*, __f<Proj>>>
-	constexpr const T& min(const T& a, const T& b, Comp&& comp = Comp{},
-		Proj&& proj = Proj{})
+			Comp, projected<const T*, Proj>>
+	constexpr const T& min(const T& a, const T& b, Comp comp = Comp{},
+		Proj proj = Proj{})
 	{
 		return __stl2::invoke(comp, __stl2::invoke(proj, b), __stl2::invoke(proj, a)) ? b : a;
 	}
@@ -60,23 +60,23 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Copyable<value_type_t<iterator_t<Rng>>> &&
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
+			Comp, projected<iterator_t<Rng>, Proj>>
 	STL2_CONSTEXPR_EXT value_type_t<iterator_t<Rng>>
-	min(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	min(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __min::impl(rng, __stl2::forward<Comp>(comp),
-			__stl2::forward<Proj>(proj));
+		return __min::impl(rng, __stl2::ref(comp),
+			__stl2::ref(proj));
 	}
 
 	template <Copyable T, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<const T*, __f<Proj>>>
+			Comp, projected<const T*, Proj>>
 	constexpr T min(std::initializer_list<T>&& rng,
-		Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __min::impl(rng, __stl2::forward<Comp>(comp),
-			__stl2::forward<Proj>(proj));
+		return __min::impl(rng, __stl2::ref(comp),
+			__stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

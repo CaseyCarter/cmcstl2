@@ -36,9 +36,9 @@ STL2_OPEN_NAMESPACE {
 		template <ForwardIterator I, class Pred, class Proj = identity>
 		requires
 			models::IndirectCallablePredicate<
-				__f<Pred>, projected<I, __f<Proj>>>
+				Pred, projected<I, Proj>>
 		I partition_point_n(I first, difference_type_t<I> n,
-			Pred&& pred, Proj&& proj = Proj{})
+			Pred pred, Proj proj = Proj{})
 		{
 			//auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
 			//auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
@@ -62,8 +62,8 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I partition_point(I first, S last, Pred&& pred, Proj&& proj = Proj{})
+			Pred, projected<I, Proj>>
+	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		//auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
 		//auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
@@ -88,47 +88,47 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::SizedSentinel<S, I> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I partition_point(I first, S last, Pred&& pred, Proj&& proj = Proj{})
+			Pred, projected<I, Proj>>
+	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(first, __stl2::move(last));
 		return __stl2::ext::partition_point_n(__stl2::move(first), n,
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
 	requires
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	partition_point(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::partition_point(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
 	requires
 		models::SizedRange<Rng> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	partition_point(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return ext::partition_point_n(__stl2::begin(rng), __stl2::distance(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	// Extension
 	template <class E, class Pred, class Proj = identity>
 	requires
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<const E*, __f<Proj>>>
+			Pred, projected<const E*, Proj>>
 	dangling<const E*>
-	partition_point(std::initializer_list<E>&& rng, Pred&& pred, Proj&& proj = Proj{})
+	partition_point(std::initializer_list<E>&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return ext::partition_point_n(__stl2::begin(rng), __stl2::distance(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -28,9 +28,9 @@ STL2_OPEN_NAMESPACE {
 		template<ForwardIterator I, class T, class Comp = less<>, class Proj = identity>
 		requires
 			models::IndirectCallableStrictWeakOrder<
-				__f<Comp>, const T*, projected<I, __f<Proj>>>
+				Comp, const T*, projected<I, Proj>>
 		ext::range<I> equal_range_n(I first, difference_type_t<I> dist, const T& value,
-			Comp&& comp = Comp{}, Proj&& proj = Proj{})
+			Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			if (0 < dist) {
 				do {
@@ -64,9 +64,9 @@ STL2_OPEN_NAMESPACE {
 		class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, const T*, projected<I, __f<Proj>>>
+			Comp, const T*, projected<I, Proj>>
 	ext::range<I> equal_range(I first, S last, const T& value,
-		Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		// Probe exponentially for either end-of-range, an iterator that
 		// is past the equal range (i.e., denotes an element greater
@@ -110,53 +110,53 @@ STL2_OPEN_NAMESPACE {
 		class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, const T*, projected<I, __f<Proj>>>
+			Comp, const T*, projected<I, Proj>>
 	ext::range<I> equal_range(I first, S last, const T& value,
-		Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto len = __stl2::distance(first, __stl2::move(last));
 		return ext::equal_range_n(__stl2::move(first), len, value,
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	template <ForwardRange Rng, class T,
 		class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, const T*, projected<iterator_t<Rng>, __f<Proj>>>
+			Comp, const T*, projected<iterator_t<Rng>, Proj>>
 	ext::range<safe_iterator_t<Rng>> equal_range(Rng&& rng, const T& value,
-		Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::equal_range(
 			__stl2::begin(rng), __stl2::end(rng), value,
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	template <ForwardRange Rng, class T, class Comp = less<>,
 		class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, const T*, projected<iterator_t<Rng>, __f<Proj>>> &&
+			Comp, const T*, projected<iterator_t<Rng>, Proj>> &&
 		models::SizedRange<Rng>
 	ext::range<safe_iterator_t<Rng>> equal_range(Rng&& rng, const T& value,
-		Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return ext::equal_range_n(
 			__stl2::begin(rng), __stl2::size(rng), value,
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	// Extension
 	template <class E, class T, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, const T*, projected<const E*, __f<Proj>>>
+			Comp, const T*, projected<const E*, Proj>>
 	ext::range<dangling<const E*>>
 	equal_range(std::initializer_list<E>&& rng, const T& value,
-		Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return ext::equal_range_n(rng.begin(), rng.size(), value,
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

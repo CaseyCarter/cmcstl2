@@ -25,8 +25,8 @@ STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I find_if(I first, S last, Pred&& pred, Proj&& proj = Proj{})
+			Pred, projected<I, Proj>>
+	I find_if(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		for (; first != last; ++first) {
 			if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
@@ -39,24 +39,24 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng, class Pred, class Proj = identity>
 	requires
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	find_if(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+	find_if(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::find_if(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	// Extension
 	template <class E, class Pred, class Proj = identity>
 	requires
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<const E*, __f<Proj>>>
+			Pred, projected<const E*, Proj>>
 	dangling<const E*>
-	find_if(std::initializer_list<E>&& il, Pred&& pred, Proj&& proj = Proj{})
+	find_if(std::initializer_list<E>&& il, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::find_if(il.begin(), il.end(),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

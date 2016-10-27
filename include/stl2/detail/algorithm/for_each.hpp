@@ -26,9 +26,9 @@ STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class F, class Proj = identity>
 	requires
 		models::IndirectCallable<
-			__f<F>, projected<I, __f<Proj>>>
+			__f<F>, projected<I, Proj>>
 	tagged_pair<tag::in(I), tag::fun(__f<F>)>
-	for_each(I first, S last, F&& fun, Proj&& proj = Proj{})
+	for_each(I first, S last, F fun, Proj proj = Proj{})
 	{
 		for (; first != last; ++first) {
 			static_cast<void>(__stl2::invoke(fun, __stl2::invoke(proj, *first)));
@@ -39,24 +39,24 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng, class F, class Proj = identity>
 	requires
 		models::IndirectCallable<
-			__f<F>, projected<iterator_t<Rng>, __f<Proj>>>
+			__f<F>, projected<iterator_t<Rng>, Proj>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::fun(__f<F>)>
-	for_each(Rng&& rng, F&& f, Proj&& proj = Proj{})
+	for_each(Rng&& rng, F&& f, Proj proj = Proj{})
 	{
 		return __stl2::for_each(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<F>(f), __stl2::forward<Proj>(proj));
+			__stl2::forward<F>(f), __stl2::ref(proj));
 	}
 
 	// Extension
 	template <class E, class F, class Proj = identity>
 	requires
 		models::IndirectCallable<
-			__f<F>, projected<const E*, __f<Proj>>>
+			__f<F>, projected<const E*, Proj>>
 	tagged_pair<tag::in(dangling<const E*>), tag::fun(__f<F>)>
-	for_each(std::initializer_list<E>&& il, F&& f, Proj&& proj = Proj{})
+	for_each(std::initializer_list<E>&& il, F&& f, Proj proj = Proj{})
 	{
 		return __stl2::for_each(il.begin(), il.end(),
-			__stl2::forward<F>(f), __stl2::forward<Proj>(proj));
+			__stl2::forward<F>(f), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

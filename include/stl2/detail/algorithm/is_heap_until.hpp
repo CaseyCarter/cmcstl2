@@ -35,9 +35,9 @@ STL2_OPEN_NAMESPACE {
 		template <RandomAccessIterator I, class Comp = less<>, class Proj = identity>
 		requires
 			models::IndirectCallableStrictWeakOrder<
-				__f<Comp>, projected<I, __f<Proj>>>
+				Comp, projected<I, Proj>>
 		I is_heap_until_n(I first, const difference_type_t<I> n,
-			Comp&& comp = Comp{}, Proj&& proj = Proj{})
+			Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			STL2_EXPECT(0 <= n);
 			difference_type_t<I> p = 0, c = 1;
@@ -64,23 +64,23 @@ STL2_OPEN_NAMESPACE {
 		class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<I, __f<Proj>>>
-	I is_heap_until(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+			Comp, projected<I, Proj>>
+	I is_heap_until(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(first, __stl2::move(last));
 		return detail::is_heap_until_n(__stl2::move(first), n,
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
+			Comp, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	is_heap_until(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	is_heap_until(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return detail::is_heap_until_n(__stl2::begin(rng), __stl2::distance(rng),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -29,10 +29,10 @@ STL2_OPEN_NAMESPACE {
 		requires
 			models::Copyable<value_type_t<iterator_t<Rng>>> &&
 			models::IndirectCallableStrictWeakOrder<
-				__f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
+				Comp, projected<iterator_t<Rng>, Proj>>
 		constexpr tagged_pair<tag::min(value_type_t<iterator_t<Rng>>),
 			tag::max(value_type_t<iterator_t<Rng>>)>
-		impl(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		impl(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			using V = value_type_t<iterator_t<Rng>>;
 			auto first = __stl2::begin(rng);
@@ -86,9 +86,9 @@ STL2_OPEN_NAMESPACE {
 	template<class T, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<const T*, __f<Proj>>>
+			Comp, projected<const T*, Proj>>
 	constexpr tagged_pair<tag::min(const T&), tag::max(const T&)>
-	minmax(const T& a, const T& b, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	minmax(const T& a, const T& b, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		if (__stl2::invoke(comp, __stl2::invoke(proj, b), __stl2::invoke(proj, a))) {
 			return {b, a};
@@ -101,22 +101,22 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Copyable<value_type_t<iterator_t<Rng>>> &&
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
+			Comp, projected<iterator_t<Rng>, Proj>>
 	STL2_CONSTEXPR_EXT tagged_pair<tag::min(value_type_t<iterator_t<Rng>>),
 		tag::max(value_type_t<iterator_t<Rng>>)>
-	minmax(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	minmax(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __minmax::impl(rng, __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+		return __minmax::impl(rng, __stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	template <Copyable T, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<const T*, __f<Proj>>>
+			Comp, projected<const T*, Proj>>
 	constexpr tagged_pair<tag::min(T), tag::max(T)>
-	minmax(std::initializer_list<T>&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	minmax(std::initializer_list<T>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __minmax::impl(rng, __stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+		return __minmax::impl(rng, __stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

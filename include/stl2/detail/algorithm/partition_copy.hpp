@@ -29,10 +29,10 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectlyCopyable<I, O1> &&
 		models::IndirectlyCopyable<I, O2> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
+			Pred, projected<I, Proj>>
 	tagged_tuple<tag::in(I), tag::out1(O1), tag::out2(O2)>
-	partition_copy(I first, S last, O1 out_true, O2 out_false, Pred&& pred,
-		Proj&& proj = Proj{})
+	partition_copy(I first, S last, O1 out_true, O2 out_false, Pred pred,
+		Proj proj = Proj{})
 	{
 		for (; first != last; ++first) {
 			reference_t<I>&& v = *first;
@@ -55,18 +55,18 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectlyCopyable<iterator_t<Rng>, __f<O1>> &&
 		models::IndirectlyCopyable<iterator_t<Rng>, __f<O2>> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	tagged_tuple<
 		tag::in(safe_iterator_t<Rng>),
 		tag::out1(__f<O1>),
 		tag::out2(__f<O2>)>
-	partition_copy(Rng&& rng, O1&& out_true, O2&& out_false, Pred&& pred,
-		Proj&& proj = Proj{})
+	partition_copy(Rng&& rng, O1&& out_true, O2&& out_false, Pred pred,
+		Proj proj = Proj{})
 	{
 		return __stl2::partition_copy(
 			__stl2::begin(rng), __stl2::end(rng),
 			__stl2::forward<O1>(out_true), __stl2::forward<O2>(out_false),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	// Extension
@@ -77,19 +77,19 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectlyCopyable<const E*, __f<O1>> &&
 		models::IndirectlyCopyable<const E*, __f<O2>> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<const E*, __f<Proj>>>
+			Pred, projected<const E*, Proj>>
 	tagged_tuple<
 		tag::in(dangling<const E*>),
 		tag::out1(__f<O1>),
 		tag::out2(__f<O2>)>
 	partition_copy(std::initializer_list<E>&& rng,
 		O1&& out_true, O2&& out_false,
-		Pred&& pred, Proj&& proj = Proj{})
+		Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::partition_copy(
 			__stl2::begin(rng), __stl2::end(rng),
 			__stl2::forward<O1>(out_true), __stl2::forward<O2>(out_false),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

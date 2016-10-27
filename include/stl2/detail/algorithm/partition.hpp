@@ -36,8 +36,8 @@ STL2_OPEN_NAMESPACE {
 	template <Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I partition(I first, S last, Pred&& pred, Proj&& proj = Proj{})
+			Pred, projected<I, Proj>>
+	I partition(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		first = __stl2::find_if_not(__stl2::move(first), last,
 			__stl2::ref(pred), __stl2::ref(proj));
@@ -56,8 +56,8 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::BidirectionalIterator<I> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I partition(I first, S last_, Pred&& pred, Proj&& proj = Proj{})
+			Pred, projected<I, Proj>>
+	I partition(I first, S last_, Pred pred, Proj proj = Proj{})
 	{
 		auto last = __stl2::next(first, __stl2::move(last_));
 
@@ -81,12 +81,12 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Permutable<iterator_t<Rng>> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	partition(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+	partition(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::partition(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

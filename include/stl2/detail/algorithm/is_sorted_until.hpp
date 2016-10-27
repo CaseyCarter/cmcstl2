@@ -25,8 +25,8 @@ STL2_OPEN_NAMESPACE {
 		class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<I, __f<Proj>>>
-	I is_sorted_until(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+			Comp, projected<I, Proj>>
+	I is_sorted_until(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		if (first != last) {
 			while (true) {
@@ -43,25 +43,25 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
+			Comp, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	is_sorted_until(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	is_sorted_until(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::is_sorted_until(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	// Extension
 	template <class E, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<const E*, __f<Proj>>>
+			Comp, projected<const E*, Proj>>
 	dangling<const E*>
 	is_sorted_until(std::initializer_list<E>&& rng,
-		Comp&& comp = Comp{}, Proj&& proj = Proj{})
+		Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::is_sorted_until(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

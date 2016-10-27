@@ -28,10 +28,10 @@ STL2_OPEN_NAMESPACE {
 		WeaklyIncrementable O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::Mergeable<I1, I2, O, __f<Comp>, __f<Proj1>, __f<Proj2>>
+		models::Mergeable<I1, I2, O, Comp, Proj1, Proj2>
 	tagged_pair<tag::in(I1), tag::out(O)>
 	set_difference(I1 first1, S1 last1, I2 first2, S2 last2, O result,
-		Comp&& comp = Comp{}, Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+		Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		while (first1 != last1 && first2 != last2) {
 			reference_t<I1>&& v1 = *first1;
@@ -59,15 +59,15 @@ STL2_OPEN_NAMESPACE {
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Mergeable<
 			iterator_t<Rng1>, iterator_t<Rng2>,
-			__f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
+			__f<O>, Comp, Proj1, Proj2>
 	tagged_pair<tag::in(safe_iterator_t<Rng1>), tag::out(__f<O>)>
-	set_difference(Rng1&& rng1, Rng2&& rng2, O&& result, Comp&& comp = Comp{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+	set_difference(Rng1&& rng1, Rng2&& rng2, O&& result, Comp comp = Comp{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::set_difference(__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(comp), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	// Extension
@@ -77,16 +77,16 @@ STL2_OPEN_NAMESPACE {
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Mergeable<
 			const E*, iterator_t<Rng2>,
-			__f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
+			__f<O>, Comp, Proj1, Proj2>
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
 	set_difference(std::initializer_list<E>&& rng1,
-		Rng2&& rng2, O&& result, Comp&& comp = Comp{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+		Rng2&& rng2, O&& result, Comp comp = Comp{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::set_difference(__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(comp), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	// Extension
@@ -96,16 +96,16 @@ STL2_OPEN_NAMESPACE {
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Mergeable<
 			iterator_t<Rng1>, const E*,
-			__f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
+			__f<O>, Comp, Proj1, Proj2>
 	tagged_pair<tag::in(safe_iterator_t<Rng1>), tag::out(__f<O>)>
 	set_difference(Rng1&& rng1, std::initializer_list<E>&& rng2,
-								 O&& result, Comp&& comp = Comp{},
-								 Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+								 O&& result, Comp comp = Comp{},
+								 Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::set_difference(__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(comp), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	// Extension
@@ -115,17 +115,17 @@ STL2_OPEN_NAMESPACE {
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Mergeable<
 			const E1*, const E2*,
-			__f<O>, __f<Comp>, __f<Proj1>, __f<Proj2>>
+			__f<O>, Comp, Proj1, Proj2>
 	tagged_pair<tag::in(dangling<const E1*>), tag::out(__f<O>)>
 	set_difference(std::initializer_list<E1>&& rng1,
 		std::initializer_list<E2>&& rng2,
-		O&& result, Comp&& comp = Comp{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+		O&& result, Comp comp = Comp{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::set_difference(__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(comp), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

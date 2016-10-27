@@ -69,10 +69,10 @@ STL2_OPEN_NAMESPACE {
 	template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
 		class Pred = equal_to<>, class Proj1 = identity,
 		class Proj2 = identity>
-	[[deprecated]] bool is_permutation(I1 first1, S1 last1, I2 first2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+	[[deprecated]] bool is_permutation(I1 first1, S1 last1, I2 first2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		models::IndirectlyComparable<I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
+		models::IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
 	{
 		// shorten sequences as much as possible by lopping off any equal parts
 		for (; first1 != last1; ++first1, ++first2) {
@@ -97,18 +97,18 @@ STL2_OPEN_NAMESPACE {
 	//   overload with the range overloads.
 	template<ForwardRange Rng1, class I2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
-	[[deprecated]] bool is_permutation(Rng1&& rng1, I2&& first2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+	[[deprecated]] bool is_permutation(Rng1&& rng1, I2&& first2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
 		!is_array<remove_reference_t<I2>>::value &&
 		models::ForwardIterator<__f<I2>> &&
 		models::IndirectlyComparable<
-			iterator_t<Rng1>, __f<I2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
+			iterator_t<Rng1>, __f<I2>, Pred, Proj1, Proj2>
 	{
 		return __stl2::is_permutation(
 			__stl2::begin(rng1), __stl2::end(rng1), __stl2::forward<I2>(first2),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(pred), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
@@ -116,9 +116,9 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::IndirectlyComparable<
-			I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+			I1, I2, Pred, Proj1, Proj2>
+	bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		// shorten sequences as much as possible by lopping off any equal parts
 		for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
@@ -146,9 +146,9 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::SizedSentinel<S1, I1> &&
 		models::SizedSentinel<S2, I2> &&
-		models::IndirectlyComparable<I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+		models::IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
+	bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		if (__stl2::distance(first1, last1) != __stl2::distance(first2, last2)) {
 			return false;
@@ -172,15 +172,15 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyComparable<
 			iterator_t<Rng1>, iterator_t<Rng2>,
-			__f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool is_permutation(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+			Pred, Proj1, Proj2>
+	bool is_permutation(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::is_permutation(
 			__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(pred), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	template<ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
@@ -190,17 +190,17 @@ STL2_OPEN_NAMESPACE {
 		models::SizedRange<Rng2> &&
 		models::IndirectlyComparable<
 			iterator_t<Rng1>, iterator_t<Rng2>,
-			__f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool is_permutation(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+			Pred, Proj1, Proj2>
+	bool is_permutation(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		if (__stl2::distance(rng1) != __stl2::distance(rng2)) {
 			return false;
 		}
 		return __stl2::is_permutation(
 			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::forward<Pred>(pred),
-			__stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
+			__stl2::begin(rng2), __stl2::ref(pred),
+			__stl2::ref(proj1), __stl2::ref(proj2));
 	}
 
 	// Extension
@@ -209,13 +209,13 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyComparable<
 			const E*, iterator_t<Rng2>,
-			__f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool is_permutation(std::initializer_list<E>&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+			Pred, Proj1, Proj2>
+	bool is_permutation(std::initializer_list<E>&& rng1, Rng2&& rng2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::is_permutation(rng1, rng2,
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(pred), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	// Extension
@@ -224,13 +224,13 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyComparable<
 			iterator_t<Rng1>, const E*,
-			__f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool is_permutation(Rng1&& rng1, std::initializer_list<E>&& rng2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+			Pred, Proj1, Proj2>
+	bool is_permutation(Rng1&& rng1, std::initializer_list<E>&& rng2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::is_permutation(rng1, rng2,
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(pred), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	// Extension
@@ -239,13 +239,13 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyComparable<
 			const E1*, const E2*,
-			__f<Pred>, __f<Proj1>, __f<Proj2>>
+			Pred, Proj1, Proj2>
 	bool is_permutation(std::initializer_list<E1>&& rng1, std::initializer_list<E2>&& rng2,
-		Pred&& pred = Pred{}, Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+		Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::is_permutation(rng1, rng2,
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(pred), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 
