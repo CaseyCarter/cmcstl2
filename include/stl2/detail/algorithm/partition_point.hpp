@@ -40,9 +40,6 @@ STL2_OPEN_NAMESPACE {
 		I partition_point_n(I first, difference_type_t<I> n,
 			Pred pred, Proj proj = Proj{})
 		{
-			//auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-			//auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 			STL2_EXPECT(0 <= n);
 			while (n != 0) {
 				auto const half = n / 2;
@@ -65,9 +62,6 @@ STL2_OPEN_NAMESPACE {
 			Pred, projected<I, Proj>>
 	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
 	{
-		//auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		//auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 		// Probe exponentially for either end-of-range or an iterator
 		// that is past the partition point (i.e., does not satisfy pred).
 		auto n = difference_type_t<I>{1};
