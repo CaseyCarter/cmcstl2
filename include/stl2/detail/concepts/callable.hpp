@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 	using __iter_args_lists =
 		meta::push_back<
 			meta::cartesian_product<
-				meta::list<meta::list<value_type_t<Is>, reference_t<Is>>...>>,
+				meta::list<meta::list<value_type_t<Is>&, reference_t<Is>>...>>,
 			meta::list<iter_common_reference_t<Is>...>>;
 
 	template <typename MapFn, typename ReduceFn>
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 			(Readable<Is>() &&...&& true) &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
-			Callable<F, value_type_t<Is>...>() &&
+			Callable<F, value_type_t<Is>&...>() &&
 			Callable<F, reference_t<Is>...>() &&
 			Callable<F, iter_common_reference_t<Is>...>() &&
 			// redundantly checks the above 3 requirements
@@ -116,7 +116,7 @@ STL2_OPEN_NAMESPACE {
 			(Readable<Is>() &&...&& true) &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
-			Predicate<F, value_type_t<Is>...>() &&
+			Predicate<F, value_type_t<Is>&...>() &&
 			Predicate<F, reference_t<Is>...>() &&
 			Predicate<F, iter_common_reference_t<Is>...>() &&
 			// redundantly checks the above 3 requirements
@@ -138,9 +138,9 @@ STL2_OPEN_NAMESPACE {
 	concept bool IndirectCallableRelation() {
 		return
 			Readable<I1>() && Readable<I2>() &&
-			Relation<F, value_type_t<I1>, value_type_t<I2>>() &&
-			Relation<F, value_type_t<I1>, reference_t<I2>>() &&
-			Relation<F, reference_t<I1>, value_type_t<I2>>() &&
+			Relation<F, value_type_t<I1>&, value_type_t<I2>&>() &&
+			Relation<F, value_type_t<I1>&, reference_t<I2>>() &&
+			Relation<F, reference_t<I1>, value_type_t<I2>&>() &&
 			Relation<F, reference_t<I1>, reference_t<I2>>() &&
 			Relation<F, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
 	}
