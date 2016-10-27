@@ -52,21 +52,22 @@ STL2_OPEN_NAMESPACE {
 
 	Callable{F, ...Args}
 	using __callable_result_t =
-		result_of_t<F&(Args...)>;
+		result_of_t<F(Args...)>;
 
 	template <class F, class...Is>
 	concept bool IndirectCallable() {
 		return
 			(Readable<Is>() &&...&& true) &&
+			CopyConstructible<F>() &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
-			Callable<F, value_type_t<Is>&...>() &&
-			Callable<F, reference_t<Is>...>() &&
-			Callable<F, iter_common_reference_t<Is>...>() &&
+			Callable<F&, value_type_t<Is>&...>() &&
+			Callable<F&, reference_t<Is>...>() &&
+			Callable<F&, iter_common_reference_t<Is>...>() &&
 			// redundantly checks the above 3 requirements
 			meta::_v<meta::invoke<
 				__iter_map_reduce_fn<
-					meta::bind_front<meta::quote<__callable_result_t>, F>,
+					meta::bind_front<meta::quote<__callable_result_t>, F&>,
 					meta::quote<__common_reference>>,
 				Is...>>;
 	}
@@ -114,15 +115,16 @@ STL2_OPEN_NAMESPACE {
 	concept bool IndirectCallablePredicate() {
 		return
 			(Readable<Is>() &&...&& true) &&
+			CopyConstructible<F>() &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
-			Predicate<F, value_type_t<Is>&...>() &&
-			Predicate<F, reference_t<Is>...>() &&
-			Predicate<F, iter_common_reference_t<Is>...>() &&
+			Predicate<F&, value_type_t<Is>&...>() &&
+			Predicate<F&, reference_t<Is>...>() &&
+			Predicate<F&, iter_common_reference_t<Is>...>() &&
 			// redundantly checks the above 3 requirements
 			meta::_v<meta::invoke<
 				__iter_map_reduce_fn<
-					meta::bind_front<meta::quote<__predicate>, F>,
+					meta::bind_front<meta::quote<__predicate>, F&>,
 					meta::quote<meta::strict_and>>,
 				Is...>>;
 	}
@@ -138,11 +140,12 @@ STL2_OPEN_NAMESPACE {
 	concept bool IndirectCallableRelation() {
 		return
 			Readable<I1>() && Readable<I2>() &&
-			Relation<F, value_type_t<I1>&, value_type_t<I2>&>() &&
-			Relation<F, value_type_t<I1>&, reference_t<I2>>() &&
-			Relation<F, reference_t<I1>, value_type_t<I2>&>() &&
-			Relation<F, reference_t<I1>, reference_t<I2>>() &&
-			Relation<F, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
+			CopyConstructible<F>() &&
+			Relation<F&, value_type_t<I1>&, value_type_t<I2>&>() &&
+			Relation<F&, value_type_t<I1>&, reference_t<I2>>() &&
+			Relation<F&, reference_t<I1>, value_type_t<I2>&>() &&
+			Relation<F&, reference_t<I1>, reference_t<I2>>() &&
+			Relation<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>();
 	}
 
 	namespace models {
