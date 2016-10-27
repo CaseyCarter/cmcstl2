@@ -178,14 +178,7 @@ STL2_OPEN_NAMESPACE {
 		// Relationships between associated types
 		models::CommonReference<reference_t<I>, value_type_t<I>&> &&
 		models::CommonReference<reference_t<I>, rvalue_reference_t<I>> &&
-		models::CommonReference<rvalue_reference_t<I>, const value_type_t<I>&> &&
-		// Extra sanity checks (not strictly needed)
-		models::Same<
-			common_reference_t<reference_t<I>, value_type_t<I>>,
-			value_type_t<I>> &&
-		models::Same<
-			common_reference_t<rvalue_reference_t<I>, value_type_t<I>>,
-			value_type_t<I>>
+		models::CommonReference<rvalue_reference_t<I>, const value_type_t<I>&>
 	constexpr bool __readable<I> = true;
 
 	template <class I>

@@ -59,5 +59,9 @@ int main()
 	});
 	CHECK(result.fun()(0) == 12);
 
+	// Should compile
+	int matrix[3][4] = {};
+	stl2::for_each(matrix, [](int(&)[4]){});
+
 	return ::test_result();
 }
