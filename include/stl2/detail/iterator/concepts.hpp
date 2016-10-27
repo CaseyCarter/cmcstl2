@@ -205,6 +205,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Writable [iterators.writable]
 	// Not to spec, but getting closer.
+	// See https://github.com/ericniebler/stl2/issues/240
 	//
 	template <class, class>
 	constexpr bool __writable = false;
@@ -342,7 +343,7 @@ STL2_OPEN_NAMESPACE {
 			has_customization<R1, R2>
 		constexpr void impl(R1&& r1, R2&& r2)
 		STL2_NOEXCEPT_RETURN(
-			(void)iter_swap(__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
+			iter_swap(__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
 		)
 
 		template <class UR1, class UR2, class R1, class R2>
@@ -351,7 +352,7 @@ STL2_OPEN_NAMESPACE {
 			models::Swappable<reference_t<UR1>, reference_t<UR2>>
 		constexpr void impl(R1&& r1, R2&& r2)
 		STL2_NOEXCEPT_RETURN(
-			(void)__stl2::swap(*r1, *r2)
+			__stl2::swap(*r1, *r2)
 		)
 
 		template <class UR1, class UR2, class R1, class R2>
@@ -389,7 +390,7 @@ STL2_OPEN_NAMESPACE {
 				has_impl<R1, R2>
 			constexpr void operator()(R1&& r1, R2&& r2) const
 			STL2_NOEXCEPT_RETURN(
-				(void)__iter_swap::impl<UR1, UR2>(
+				__iter_swap::impl<UR1, UR2>(
 					__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
 			)
 		};
@@ -401,7 +402,8 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlySwappable [commonalgoreq.indirectlyswappable]
-	// Not to spec: Alternate formulation from the proxy iterator work (P0022).
+	// Not to spec: I1 and I2 are const in P022R2
+	// FIXME: issue?
 	//
 	namespace models {
 		template <class I1, class I2 = I1>
