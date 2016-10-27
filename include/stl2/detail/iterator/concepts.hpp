@@ -53,7 +53,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// reference_t [iterator.assoc]
-	// Not to spec: forbids void.
 	//
 	detail::Dereferenceable{R}
 	using reference_t = decltype(*declval<R&>());
@@ -160,33 +159,34 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// Readable [readable.iterators]
-	// Not to spec: Additional requirements from P0022.
+	// Not to spec: Disables the "Experimental additional tests"
 	//
 	template <class I>
 	constexpr bool __readable = false;
 	template <class I>
-		requires requires (const I& i) {
+		requires requires(const I& i) {
 			// Associated types
 			typename value_type_t<I>;
 			typename reference_t<I>;
 			typename rvalue_reference_t<I>;
-
 			// Valid expressions
 			STL2_EXACT_TYPE_CONSTRAINT(*i, reference_t<I>);
 			STL2_EXACT_TYPE_CONSTRAINT(__stl2::iter_move(i), rvalue_reference_t<I>);
-		} &&
+		}
 		// Relationships between associated types
-		models::CommonReference<reference_t<I>, value_type_t<I>&> &&
-		models::CommonReference<reference_t<I>, rvalue_reference_t<I>> &&
-		models::CommonReference<rvalue_reference_t<I>, const value_type_t<I>&>
+		&& models::CommonReference<reference_t<I>, value_type_t<I>&>
+		&& models::CommonReference<reference_t<I>, rvalue_reference_t<I>>
+		&& models::CommonReference<rvalue_reference_t<I>, const value_type_t<I>&>
+#if 0
+		// Experimental additional tests
+		&& models::Same<common_reference_t<reference_t<I>, value_t<I>>, value_t<I>>
+		&& models::Same<common_reference_t<rvalue_reference_t<I>, value_t<I>>, value_t<I>>
+#endif
 	constexpr bool __readable<I> = true;
 
 	template <class I>
 	concept bool Readable() {
-		return detail::Dereferenceable<I> &&
-			Movable<I>() &&
-			DefaultConstructible<I>() &&
-			__readable<I>;
+		return Movable<I>() && DefaultConstructible<I>() && __readable<I>;
 	}
 
 	namespace models {
