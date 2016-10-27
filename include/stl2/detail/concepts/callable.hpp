@@ -86,6 +86,7 @@ STL2_OPEN_NAMESPACE {
 	struct indirect_result_of {};
 
 	// Not to spec: The function type must be decayed before being constrained.
+	// See https://github.com/ericniebler/stl2/issues/238
 	template <class F, class...Is>
 	requires
 		models::IndirectCallable<decay_t<F>, Is...>
