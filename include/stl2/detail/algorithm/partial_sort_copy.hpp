@@ -38,22 +38,18 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallableStrictWeakOrder<
 			__f<Comp>, projected<I1, __f<Proj1>>, projected<I2, __f<Proj2>>>
 	I2 partial_sort_copy(I1 first, S1 last, I2 result_first, S2 result_last,
-		Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+		Comp&& comp = Comp{}, Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	{
 		auto r = result_first;
 		if(r != result_last) {
 			__stl2::tie(first, r) =
 				ext::copy(__stl2::move(first), last, __stl2::move(r), result_last);
 
-			auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-			auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-			auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
-
 			__stl2::make_heap(result_first, r, __stl2::ref(comp), __stl2::ref(proj2));
 			const auto len = __stl2::distance(result_first, r);
 			for(; first != last; ++first) {
 				reference_t<I1>&& x = *first;
-				if(comp(proj1(x), proj2(*result_first))) {
+				if(__stl2::invoke(comp, __stl2::invoke(proj1, x), __stl2::invoke(proj2, *result_first))) {
 					*result_first = __stl2::forward<reference_t<I1>>(x);
 					detail::sift_down_n(result_first, len, result_first,
 						__stl2::ref(comp), __stl2::ref(proj2));

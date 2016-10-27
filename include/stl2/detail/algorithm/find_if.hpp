@@ -26,12 +26,10 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectCallablePredicate<
 			__f<Pred>, projected<I, __f<Proj>>>
-	I find_if(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
+	I find_if(I first, S last, Pred&& pred, Proj&& proj = Proj{})
 	{
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
 		for (; first != last; ++first) {
-			if (pred(proj(*first))) {
+			if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
 				break;
 			}
 		}

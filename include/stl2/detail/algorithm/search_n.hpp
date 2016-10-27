@@ -38,17 +38,14 @@ STL2_OPEN_NAMESPACE {
 		requires
 			models::IndirectlyComparable<I, const T*, __f<Pred>, __f<Proj>>
 		I unsized(I first, S last, difference_type_t<I> count,
-			const T& value, Pred&& pred_, Proj&& proj_)
+			const T& value, Pred&& pred, Proj&& proj)
 		{
 			if (count <= 0) {
 				return first;
 			}
 
-			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 			for (; first != last; ++first) {
-				if (pred(proj(*first), value)) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj, *first), value)) {
 					auto saved = first;
 					difference_type_t<I> n = 0;
 					do {
@@ -58,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 						if (++first == last) {
 							return first;
 						}
-					} while(pred(proj(*first), value));
+					} while(__stl2::invoke(pred, __stl2::invoke(proj, *first), value));
 				}
 			}
 
@@ -70,20 +67,17 @@ STL2_OPEN_NAMESPACE {
 			models::IndirectlyComparable<I, const T*, __f<Pred>, __f<Proj>>
 		I sized(I first_, S last, difference_type_t<I> d_,
 			difference_type_t<I> count,
-			const T& value, Pred&& pred_, Proj&& proj_)
+			const T& value, Pred&& pred, Proj&& proj)
 		{
 			if (count <= 0) {
 				return first_;
 			}
 
-			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 			auto d = d_;
 			auto first = ext::uncounted(first_);
 
 			for (; d >= count; ++first, --d) {
-				if (pred(proj(*first), value)) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj, *first), value)) {
 					// *first matches val, now match elements after here
 					auto saved = first;
 					difference_type_t<I> n = 0;
@@ -93,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 							// (works for 1 element pattern)
 							return ext::recounted(first_, __stl2::move(saved), d_ - d);
 						}
-					} while (pred(proj(*++first), value));
+					} while (__stl2::invoke(pred, __stl2::invoke(proj, *++first), value));
 					d -= n;
 				}
 			}

@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 				f0_0 = f0;
 				n0_0 = n0 / 2;
 				f0_1 = __stl2::next(f0_0, n0_0);
-				f1_1 = __stl2::ext::lower_bound_n(f1, n1, proj(*f0_1),
+				f1_1 = __stl2::ext::lower_bound_n(f1, n1, __stl2::invoke(proj, *f0_1),
 					__stl2::ref(comp), __stl2::ref(proj));
 				f1_0 = __stl2::rotate(f0_1, f1, f1_1).begin();
 				n0_1 = __stl2::distance(f0_1, f1_0);
@@ -112,7 +112,7 @@ STL2_OPEN_NAMESPACE {
 				f0_0 = f0;
 				n0_1 = n1 / 2;
 				f1_1 = __stl2::next(f1, n0_1);
-				f0_1 = __stl2::ext::upper_bound_n(f0, n0, proj(*f1_1),
+				f0_1 = __stl2::ext::upper_bound_n(f0, n0, __stl2::invoke(proj, *f1_1),
 					__stl2::ref(comp), __stl2::ref(proj));
 				f1_1 = __stl2::next(f1_1);
 				f1_0 = __stl2::rotate(f0_1, f1, f1_1).begin();
@@ -173,11 +173,9 @@ STL2_OPEN_NAMESPACE {
 			requires
 				models::Sortable<I, __f<Comp>, __f<Proj>>
 			inline I sort_n(I first, const difference_type_t<I> n,
-				Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+				Comp&& comp = Comp{}, Proj&& proj = Proj{})
 			{
 				STL2_EXPECT(0 <= n);
-				auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-				auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 				auto ufirst = ext::uncounted(first);
 				static_assert(models::Same<value_type_t<I>, value_type_t<decltype(ufirst)>>);
 				using buf_t = temporary_buffer<value_type_t<I>>;

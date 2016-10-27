@@ -26,15 +26,11 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyComparable<
 			I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool __equal_3(I1 first1, S1 last1, I2 first2, Pred&& pred_,
-		Proj1&& proj1_, Proj2&& proj2_)
+	bool __equal_3(I1 first1, S1 last1, I2 first2, Pred&& pred,
+		Proj1&& proj1, Proj2&& proj2)
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-		auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
-
 		for (; first1 != last1; ++first1, ++first2) {
-			if (!pred(proj1(*first1), proj2(*first2))) {
+			if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 				return false;
 			}
 		}
@@ -47,15 +43,11 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyComparable<
 			I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool __equal_4(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred_,
-		Proj1&& proj1_, Proj2&& proj2_)
+	bool __equal_4(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred,
+		Proj1&& proj1, Proj2&& proj2)
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-		auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
-
 		for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
-			if (!pred(proj1(*first1), proj2(*first2))) {
+			if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 				return false;
 			}
 		}

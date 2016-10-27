@@ -30,21 +30,19 @@ STL2_OPEN_NAMESPACE {
 			models::IndirectCallableStrictWeakOrder<
 				__f<Comp>, const T*, projected<I, __f<Proj>>>
 		ext::range<I> equal_range_n(I first, difference_type_t<I> dist, const T& value,
-			Comp comp_ = Comp{}, Proj proj_ = Proj{})
+			Comp&& comp = Comp{}, Proj&& proj = Proj{})
 		{
 			if (0 < dist) {
-				auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-				auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 				do {
 					auto half = dist / 2;
 					auto middle = __stl2::next(first, half);
 					auto&& v = *middle;
-					auto&& pv = proj(__stl2::forward<decltype(v)>(v));
-					if (comp(pv, value)) {
+					auto&& pv = __stl2::invoke(proj, __stl2::forward<decltype(v)>(v));
+					if (__stl2::invoke(comp, pv, value)) {
 						first = __stl2::move(middle);
 						++first;
 						dist -= half + 1;
-					} else if (comp(value, pv)) {
+					} else if (__stl2::invoke(comp, value, pv)) {
 						dist = half;
 					} else {
 						return {
@@ -68,14 +66,12 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallableStrictWeakOrder<
 			__f<Comp>, const T*, projected<I, __f<Proj>>>
 	ext::range<I> equal_range(I first, S last, const T& value,
-		Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+		Comp&& comp = Comp{}, Proj&& proj = Proj{})
 	{
 		// Probe exponentially for either end-of-range, an iterator that
 		// is past the equal range (i.e., denotes an element greater
 		// than value), or is in the equal range (denotes an element equal
 		// to value).
-		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		auto dist = difference_type_t<I>{1};
 		while (true) {
 			auto mid = first;
@@ -88,13 +84,13 @@ STL2_OPEN_NAMESPACE {
 					__stl2::ref(comp), __stl2::ref(proj));
 			}
 			auto&& v = *mid;
-			auto&& pv = proj(__stl2::forward<decltype(v)>(v));
+			auto&& pv = __stl2::invoke(proj, __stl2::forward<decltype(v)>(v));
 			// if value < *mid, mid is after the target range.
-			if (comp(value, pv)) {
+			if (__stl2::invoke(comp, value, pv)) {
 				return ext::equal_range_n(
 					__stl2::move(first), dist, value,
 					__stl2::ref(comp), __stl2::ref(proj));
-			} else if (!comp(pv, value)) {
+			} else if (!__stl2::invoke(comp, pv, value)) {
 				// *mid == value: the lower bound is <= mid, and the upper bound is > mid.
 				return {
 					ext::lower_bound_n(__stl2::move(first), dist, value,

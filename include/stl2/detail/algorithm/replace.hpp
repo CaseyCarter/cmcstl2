@@ -28,12 +28,11 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallableRelation<
 			equal_to<>, projected<I, __f<Proj>>, const T1*>
 	I replace(I first, S last, const T1& old_value, const T2& new_value,
-		Proj&& proj_ = Proj{})
+		Proj&& proj = Proj{})
 	{
 		if (first != last) {
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 			do {
-				if (proj(*first) == old_value) {
+				if (__stl2::invoke(proj, *first) == old_value) {
 					*first = new_value;
 				}
 			} while (++first != last);

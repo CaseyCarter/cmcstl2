@@ -29,13 +29,11 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallableRelation<
 			equal_to<>, projected<I, __f<Proj>>, const T*>
 	tagged_pair<tag::in(I), tag::out(O)>
-	remove_copy(I first, S last, O result, const T& value, Proj&& proj_ = Proj{})
+	remove_copy(I first, S last, O result, const T& value, Proj&& proj = Proj{})
 	{
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 		for (; first != last; ++first) {
 			reference_t<I>&& v = *first;
-			if (proj(v) != value) {
+			if (__stl2::invoke(proj, v) != value) {
 				*result = __stl2::forward<reference_t<I>>(v);
 				++result;
 			}

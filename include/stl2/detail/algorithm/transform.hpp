@@ -31,12 +31,10 @@ STL2_OPEN_NAMESPACE {
 			indirect_result_of_t<__f<F>&(
 				projected<I, __f<Proj>>)>>
 	tagged_pair<tag::in(I), tag::out(O)>
-	transform(I first, S last, O result, F&& op_, Proj&& proj_ = Proj{})
+	transform(I first, S last, O result, F&& op, Proj&& proj = Proj{})
 	{
-		auto op = ext::make_callable_wrapper(__stl2::forward<F>(op_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		for (; first != last; ++first, ++result) {
-			*result = op(proj(*first));
+			*result = __stl2::invoke(op, __stl2::invoke(proj, *first));
 		}
 		return {__stl2::move(first), __stl2::move(result)};
 	}
@@ -48,11 +46,11 @@ STL2_OPEN_NAMESPACE {
 			indirect_result_of_t<__f<F>&(
 				projected<iterator_t<R>, __f<Proj>>)>>
 	tagged_pair<tag::in(safe_iterator_t<R>), tag::out(__f<O>)>
-	transform(R&& r, O&& result, F&& op_, Proj&& proj_ = Proj{})
+	transform(R&& r, O&& result, F&& op, Proj&& proj = Proj{})
 	{
 		return __stl2::transform(
 			__stl2::begin(r), __stl2::end(r), __stl2::forward<O>(result),
-			__stl2::forward<F>(op_), __stl2::forward<Proj>(proj_));
+			__stl2::forward<F>(op), __stl2::forward<Proj>(proj));
 	}
 
 	// Extension
@@ -64,11 +62,11 @@ STL2_OPEN_NAMESPACE {
 				projected<const E*, __f<Proj>>)>>
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
 	transform(std::initializer_list<E>&& r, O&& result,
-						F&& op_, Proj&& proj_ = Proj{})
+						F&& op, Proj&& proj = Proj{})
 	{
 		return __stl2::transform(
 			__stl2::begin(r), __stl2::end(r), __stl2::forward<O>(result),
-			__stl2::forward<F>(op_), __stl2::forward<Proj>(proj_));
+			__stl2::forward<F>(op), __stl2::forward<Proj>(proj));
 	}
 
 	template <InputIterator I1, Sentinel<I1> S1,
@@ -76,18 +74,15 @@ STL2_OPEN_NAMESPACE {
 		class F, class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]] tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
 	transform(I1 first1, S1 last1, I2 first2, O result,
-		F&& op_, Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+		F&& op, Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	requires
 		models::Writable<O,
 			indirect_result_of_t<__f<F>&(
 				projected<I1, __f<Proj1>>,
 				projected<I2, __f<Proj2>>)>>
 	{
-		auto op = ext::make_callable_wrapper(__stl2::forward<F>(op_));
-		auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-		auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
 		for (; first1 != last1; ++first1, ++first2, ++result) {
-			*result = op(proj1(*first1), proj2(*first2));
+			*result = __stl2::invoke(op, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2));
 		}
 		return {__stl2::move(first1), __stl2::move(first2), __stl2::move(result)};
 	}
@@ -97,8 +92,8 @@ STL2_OPEN_NAMESPACE {
 	[[deprecated]]
 	tagged_tuple<tag::in1(safe_iterator_t<Rng>),
 		tag::in2(__f<I>), tag::out(__f<O>)>
-	transform(Rng&& r1, I&& first2, O&& result, F&& op_,
-		Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+	transform(Rng&& r1, I&& first2, O&& result, F&& op,
+		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	requires
 		!is_array<remove_reference_t<I>>::value &&
 		models::InputIterator<__f<I>> &&
@@ -110,8 +105,8 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::transform(
 			__stl2::begin(r1), __stl2::end(r1),
 			__stl2::forward<I>(first2), __stl2::forward<O>(result),
-			__stl2::forward<F>(op_), __stl2::forward<Proj1>(proj1_),
-			__stl2::forward<Proj2>(proj2_));
+			__stl2::forward<F>(op), __stl2::forward<Proj1>(proj1),
+			__stl2::forward<Proj2>(proj2));
 	}
 
 	template <InputIterator I1, Sentinel<I1> S1,
@@ -125,13 +120,10 @@ STL2_OPEN_NAMESPACE {
 				projected<I2, __f<Proj2>>)>>
 	tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
 	transform(I1 first1, S1 last1, I2 first2, S2 last2, O result,
-		F&& op_, Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+		F&& op, Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	{
-		auto op = ext::make_callable_wrapper(__stl2::forward<F>(op_));
-		auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-		auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
 		for (; first1 != last1 && first2 != last2; ++first1, ++first2, ++result) {
-			*result = op(proj1(*first1), proj2(*first2));
+			*result = __stl2::invoke(op, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2));
 		}
 		return {__stl2::move(first1), __stl2::move(first2), __stl2::move(result)};
 	}
@@ -148,15 +140,15 @@ STL2_OPEN_NAMESPACE {
 		tag::in1(safe_iterator_t<Rng1>),
 		tag::in2(safe_iterator_t<Rng2>),
 		tag::out(__f<O>)>
-	transform(Rng1&& r1, Rng2&& r2, O&& result, F&& op_,
-		Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+	transform(Rng1&& r1, Rng2&& r2, O&& result, F&& op,
+		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	{
 		return __stl2::transform(
 			__stl2::begin(r1), __stl2::end(r1),
 			__stl2::begin(r2), __stl2::end(r2),
-			__stl2::forward<O>(result), __stl2::forward<F>(op_),
-			__stl2::forward<Proj1>(proj1_),
-			__stl2::forward<Proj2>(proj2_));
+			__stl2::forward<O>(result), __stl2::forward<F>(op),
+			__stl2::forward<Proj1>(proj1),
+			__stl2::forward<Proj2>(proj2));
 	}
 
 	// Extension
@@ -172,15 +164,15 @@ STL2_OPEN_NAMESPACE {
 		tag::in1(dangling<const E*>),
 		tag::in2(safe_iterator_t<Rng2>),
 		tag::out(__f<O>)>
-	transform(std::initializer_list<E>&& r1, Rng2&& r2, O&& result, F&& op_,
-		Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+	transform(std::initializer_list<E>&& r1, Rng2&& r2, O&& result, F&& op,
+		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	{
 		return __stl2::transform(
 			__stl2::begin(r1), __stl2::end(r1),
 			__stl2::begin(r2), __stl2::end(r2),
-			__stl2::forward<O>(result), __stl2::forward<F>(op_),
-			__stl2::forward<Proj1>(proj1_),
-			__stl2::forward<Proj2>(proj2_));
+			__stl2::forward<O>(result), __stl2::forward<F>(op),
+			__stl2::forward<Proj1>(proj1),
+			__stl2::forward<Proj2>(proj2));
 	}
 
 	// Extension
@@ -196,15 +188,15 @@ STL2_OPEN_NAMESPACE {
 		tag::in1(safe_iterator_t<Rng1>),
 		tag::in2(dangling<const E*>),
 		tag::out(__f<O>)>
-	transform(Rng1&& r1, std::initializer_list<E>&& r2, O&& result, F&& op_,
-		Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+	transform(Rng1&& r1, std::initializer_list<E>&& r2, O&& result, F&& op,
+		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	{
 		return __stl2::transform(
 			__stl2::begin(r1), __stl2::end(r1),
 			__stl2::begin(r2), __stl2::end(r2),
-			__stl2::forward<O>(result), __stl2::forward<F>(op_),
-			__stl2::forward<Proj1>(proj1_),
-			__stl2::forward<Proj2>(proj2_));
+			__stl2::forward<O>(result), __stl2::forward<F>(op),
+			__stl2::forward<Proj1>(proj1),
+			__stl2::forward<Proj2>(proj2));
 	}
 
 	// Extension
@@ -221,15 +213,15 @@ STL2_OPEN_NAMESPACE {
 		tag::in2(dangling<const E2*>),
 		tag::out(__f<O>)>
 	transform(std::initializer_list<E1>&& r1,
-		std::initializer_list<E2>&& r2, O&& result, F&& op_,
-		Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+		std::initializer_list<E2>&& r2, O&& result, F&& op,
+		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	{
 		return __stl2::transform(
 			__stl2::begin(r1), __stl2::end(r1),
 			__stl2::begin(r2), __stl2::end(r2),
-			__stl2::forward<O>(result), __stl2::forward<F>(op_),
-			__stl2::forward<Proj1>(proj1_),
-			__stl2::forward<Proj2>(proj2_));
+			__stl2::forward<O>(result), __stl2::forward<F>(op),
+			__stl2::forward<Proj1>(proj1),
+			__stl2::forward<Proj2>(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

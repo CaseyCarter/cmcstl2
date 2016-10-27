@@ -38,16 +38,16 @@ STL2_OPEN_NAMESPACE {
 			models::IndirectCallablePredicate<
 				__f<Pred>, projected<I, __f<Proj>>>
 		I partition_point_n(I first, difference_type_t<I> n,
-			Pred&& pred_, Proj&& proj_ = Proj{})
+			Pred&& pred, Proj&& proj = Proj{})
 		{
-			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+			//auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+			//auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
 			STL2_EXPECT(0 <= n);
 			while (n != 0) {
 				auto const half = n / 2;
 				auto middle = __stl2::next(__stl2::ext::uncounted(first), half);
-				if (pred(proj(*middle))) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj, *middle))) {
 					first = __stl2::ext::recounted(
 										 first, __stl2::move(++middle), half + 1);
 					n -= half + 1;
@@ -63,10 +63,10 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectCallablePredicate<
 			__f<Pred>, projected<I, __f<Proj>>>
-	I partition_point(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
+	I partition_point(I first, S last, Pred&& pred, Proj&& proj = Proj{})
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
+		//auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
+		//auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 
 		// Probe exponentially for either end-of-range or an iterator
 		// that is past the partition point (i.e., does not satisfy pred).
@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 		while (true) {
 			auto m = first;
 			auto d = __stl2::advance(m, n, last);
-			if (m == last || !pred(proj(*m))) {
+			if (m == last || !__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
 				n -= d;
 				return ext::partition_point_n(__stl2::move(first), n,
 					__stl2::move(pred), __stl2::move(proj));

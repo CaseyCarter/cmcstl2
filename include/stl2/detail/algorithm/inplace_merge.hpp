@@ -84,13 +84,11 @@ STL2_OPEN_NAMESPACE {
 			requires
 				models::Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, difference_type_t<I> len1, difference_type_t<I> len2,
-				detail::temporary_buffer<value_type_t<I>>& buf, C&& pred_, P&& proj_) const
+				detail::temporary_buffer<value_type_t<I>>& buf, C&& pred, P&& proj) const
 			{
 				// Pre: len1 == distance(begin, midddle)
 				// Pre: len2 == distance(middle, end)
 				using D = difference_type_t<I>;
-				auto pred = ext::make_callable_wrapper(__stl2::forward<C>(pred_));
-				auto proj = ext::make_callable_wrapper(__stl2::forward<P>(proj_));
 				while (true) {
 					// if middle == end, we're done
 					if (len2 == 0) {
@@ -102,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 						if (len1 == 0) {
 							return;
 						}
-						if (pred(proj(*middle), proj(*begin))) {
+						if (__stl2::invoke(pred, __stl2::invoke(proj, *middle), __stl2::invoke(proj, *begin))) {
 							break;
 						}
 					}
@@ -128,7 +126,7 @@ STL2_OPEN_NAMESPACE {
 						// len >= 1, len2 >= 2
 						len21 = len2 / 2;
 						m2 = __stl2::next(middle, len21);
-						m1 = __stl2::upper_bound(begin, middle, proj(*m2),
+						m1 = __stl2::upper_bound(begin, middle, __stl2::invoke(proj, *m2),
 							__stl2::ref(pred), __stl2::ref(proj));
 						len11 = __stl2::distance(begin, m1);
 					} else {
@@ -141,7 +139,7 @@ STL2_OPEN_NAMESPACE {
 						// len1 >= 2, len2 >= 1
 						len11 = len1 / 2;
 						m1 = __stl2::next(begin, len11);
-						m2 = __stl2::lower_bound(middle, end, proj(*m1),
+						m2 = __stl2::lower_bound(middle, end, __stl2::invoke(proj, *m1),
 							__stl2::ref(pred), __stl2::ref(proj));
 						len21 = __stl2::distance(middle, m2);
 					}

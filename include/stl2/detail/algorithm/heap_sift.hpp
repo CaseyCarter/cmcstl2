@@ -37,15 +37,13 @@ STL2_OPEN_NAMESPACE {
 		requires
 			models::IndirectCallableStrictWeakOrder<__f<Comp>,
 				projected<I, __f<Proj>>, projected<I, __f<Proj>>>
-		void sift_up_n(I first, difference_type_t<I> n, Comp&& comp_, Proj&& proj_)
+		void sift_up_n(I first, difference_type_t<I> n, Comp&& comp, Proj&& proj)
 		{
 			if (n > 1) {
-				auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-				auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 				I last = first + n;
 				n = (n - 2) / 2;
 				I i = first + n;
-				if (comp(proj(*i), proj(*--last))) {
+				if (__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *--last))) {
 					value_type_t<I> v = __stl2::iter_move(last);
 					do {
 						*last = __stl2::iter_move(i);
@@ -55,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 						}
 						n = (n - 1) / 2;
 						i = first + n;
-					} while(comp(proj(*i), proj(v)));
+					} while(__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, v)));
 					*last = std::move(v);
 				}
 			}
@@ -66,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 			models::IndirectCallableStrictWeakOrder<__f<Comp>,
 				projected<I, __f<Proj>>, projected<I, __f<Proj>>>
 		void sift_down_n(I first, difference_type_t<I> n, I start,
-			Comp&& comp_, Proj&& proj_)
+			Comp&& comp, Proj&& proj)
 		{
 			// left-child of start is at 2 * start + 1
 			// right-child of start is at 2 * start + 2
@@ -79,17 +77,14 @@ STL2_OPEN_NAMESPACE {
 			child = 2 * child + 1;
 			I child_i = first + child;
 
-			auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
-			if ((child + 1) < n && comp(proj(*child_i), proj(*(child_i + 1)))) {
+			if ((child + 1) < n && __stl2::invoke(comp, __stl2::invoke(proj, *child_i), __stl2::invoke(proj, *(child_i + 1)))) {
 				// right-child exists and is greater than left-child
 				++child_i;
 				++child;
 			}
 
 			// check if we are in heap-order
-			if (comp(proj(*child_i), proj(*start))) {
+			if (__stl2::invoke(comp, __stl2::invoke(proj, *child_i), __stl2::invoke(proj, *start))) {
 				// we are, start is larger than its largest child
 				return;
 			}
@@ -108,14 +103,14 @@ STL2_OPEN_NAMESPACE {
 				child = 2 * child + 1;
 				child_i = first + child;
 
-				if ((child + 1) < n && comp(proj(*child_i), proj(*(child_i + 1)))) {
+				if ((child + 1) < n && __stl2::invoke(comp, __stl2::invoke(proj, *child_i), __stl2::invoke(proj, *(child_i + 1)))) {
 					// right-child exists and is greater than left-child
 					++child_i;
 					++child;
 				}
 
 				// check if we are in heap-order
-			} while (!comp(proj(*child_i), proj(top)));
+			} while (!__stl2::invoke(comp, __stl2::invoke(proj, *child_i), __stl2::invoke(proj, top)));
 			*start = std::move(top);
 		}
 	}

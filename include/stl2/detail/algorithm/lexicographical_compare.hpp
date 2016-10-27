@@ -27,16 +27,13 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallableStrictWeakOrder<__f<Comp>,
 			projected<I1, __f<Proj1>>, projected<I2, __f<Proj2>>>
 	bool lexicographical_compare(I1 first1, S1 last1, I2 first2, S2 last2,
-		Comp&& comp_ = Comp{}, Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+		Comp&& comp = Comp{}, Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	{
-		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-		auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-		auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
 		for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
-			if (comp(proj1(*first1), proj2(*first2))) {
+			if (__stl2::invoke(comp, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 				return true;
 			}
-			if (comp(proj2(*first2), proj1(*first1))) {
+			if (__stl2::invoke(comp, __stl2::invoke(proj2, *first2), __stl2::invoke(proj1, *first1))) {
 				return false;
 			}
 		}

@@ -37,22 +37,20 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Sortable<I, __f<Comp>, __f<Proj>>
 	bool next_permutation(I first, S last,
-		Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+		Comp&& comp = Comp{}, Proj&& proj = Proj{})
 	{
 		if (first == last) {
 			return false;
 		}
-		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		I end = __stl2::next(first, __stl2::move(last)), i = end;
 		if (first == --i) {
 			return false;
 		}
 		while (true) {
 			I ip1 = i;
-			if (comp(proj(*--i), proj(*ip1))) {
+			if (__stl2::invoke(comp, __stl2::invoke(proj, *--i), __stl2::invoke(proj, *ip1))) {
 				I j = end;
-				while (!comp(proj(*i), proj(*--j))) {
+				while (!__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *--j))) {
 					;
 				}
 				__stl2::iter_swap(i, j);

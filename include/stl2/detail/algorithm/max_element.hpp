@@ -26,13 +26,11 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectCallableStrictWeakOrder<
 			__f<Comp>, projected<I, __f<Proj>>>
-	I max_element(I first, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+	I max_element(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
 	{
 		if (first != last) {
-			auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 			for (auto i = __stl2::next(first); i != last; ++i) {
-				if (!comp(proj(*i), proj(*first))) {
+				if (!__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {
 					first = i;
 				}
 			}

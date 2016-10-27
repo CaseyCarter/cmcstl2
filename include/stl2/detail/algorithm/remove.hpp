@@ -28,13 +28,12 @@ STL2_OPEN_NAMESPACE {
 		models::Permutable<I> &&
 		models::IndirectCallableRelation<
 			equal_to<>, projected<I, __f<Proj>>, const T*>
-	I remove(I first, S last, const T& value, Proj&& proj_ = Proj{})
+	I remove(I first, S last, const T& value, Proj&& proj = Proj{})
 	{
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		first = __stl2::find(__stl2::move(first), last, value, __stl2::ref(proj));
 		if (first != last) {
 			for (auto m = __stl2::next(first); m != last; ++m) {
-				if (proj(*m) != value) {
+				if (__stl2::invoke(proj, *m) != value) {
 					*first = __stl2::iter_move(m);
 					++first;
 				}

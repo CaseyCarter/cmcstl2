@@ -27,18 +27,15 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectCallableRelation<
 			__f<Pred>, projected<I, __f<Proj>>>
-	I adjacent_find(I first, S last, Pred&& pred_ = Pred{}, Proj&& proj_ = Proj{})
+	I adjacent_find(I first, S last, Pred&& pred = Pred{}, Proj&& proj = Proj{})
 	{
 		if (first == last) {
 			return first;
 		}
 
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 		auto next = first;
 		for (; ++next != last; first = next) {
-			if (pred(proj(*first), proj(*next))) {
+			if (__stl2::invoke(pred, __stl2::invoke(proj, *first), __stl2::invoke(proj, *next))) {
 				return first;
 			}
 		}

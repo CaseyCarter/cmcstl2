@@ -36,14 +36,12 @@ STL2_OPEN_NAMESPACE {
 		template <RandomAccessIterator I, class Comp, class Proj>
 		requires
 			models::Sortable<I, __f<Comp>, __f<Proj>>
-		void sort_heap_n(I first, difference_type_t<I> n, Comp&& comp_, Proj&& proj_)
+		void sort_heap_n(I first, difference_type_t<I> n, Comp&& comp, Proj&& proj)
 		{
 			if (n < 2) {
 				return;
 			}
 
-			auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 			for (auto i = n; i > 1; --i) {
 				detail::pop_heap_n(first, i, __stl2::ref(comp), __stl2::ref(proj));
 			}

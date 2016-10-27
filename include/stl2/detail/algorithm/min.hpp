@@ -30,17 +30,15 @@ STL2_OPEN_NAMESPACE {
 			models::IndirectCallableStrictWeakOrder<
 				__f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
 		constexpr value_type_t<iterator_t<Rng>>
-		impl(Rng&& rng, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+		impl(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
 		{
-			auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 			auto first = __stl2::begin(rng);
 			auto last = __stl2::end(rng);
 			STL2_EXPECT(first != last);
 			value_type_t<iterator_t<Rng>> result = *first;
 			while (++first != last) {
 				auto&& tmp = *first;
-				if (comp(proj(tmp), proj(result))) {
+				if (__stl2::invoke(comp, __stl2::invoke(proj, tmp), __stl2::invoke(proj, result))) {
 					result = (decltype(tmp)&&)tmp;
 				}
 			}
@@ -52,12 +50,10 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectCallableStrictWeakOrder<
 			__f<Comp>, projected<const T*, __f<Proj>>>
-	constexpr const T& min(const T& a, const T& b, Comp&& comp_ = Comp{},
-		Proj&& proj_ = Proj{})
+	constexpr const T& min(const T& a, const T& b, Comp&& comp = Comp{},
+		Proj&& proj = Proj{})
 	{
-		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-		return comp(proj(b), proj(a)) ? b : a;
+		return __stl2::invoke(comp, __stl2::invoke(proj, b), __stl2::invoke(proj, a)) ? b : a;
 	}
 
 	template <InputRange Rng, class Comp = less<>, class Proj = identity>

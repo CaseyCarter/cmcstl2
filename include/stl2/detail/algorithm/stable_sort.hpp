@@ -176,10 +176,8 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Sentinel<__f<S>, I> &&
 		models::Sortable<I, __f<Comp>, __f<Proj>>
-	I stable_sort(I first, S&& last_, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+	I stable_sort(I first, S&& last_, Comp&& comp = Comp{}, Proj&& proj = Proj{})
 	{
-		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		auto last = __stl2::next(first, __stl2::forward<S>(last_));
 		auto len = difference_type_t<I>(last - first);
 		using buf_t = detail::ssort::buf_t<I>;

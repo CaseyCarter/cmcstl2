@@ -33,15 +33,13 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallableStrictWeakOrder<
 			__f<Comp>, projected<I, __f<Proj>>>
 	STL2_CONSTEXPR_EXT tagged_pair<tag::min(I), tag::max(I)>
-	minmax_element(I first, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+	minmax_element(I first, S last, Comp&& comp = Comp{}, Proj&& proj = Proj{})
 	{
 		auto result = tagged_pair<tag::min(I), tag::max(I)>{first, first};
 		if (first == last || ++first == last) {
 			return result;
 		}
-		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-		if (comp(proj(*first), proj(*result.first))) {
+		if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.first))) {
 			result.first = first;
 		} else {
 			result.second = first;
@@ -49,26 +47,26 @@ STL2_OPEN_NAMESPACE {
 		while (++first != last) {
 			I tmp = first;
 			if (++first == last) {
-				if (comp(proj(*tmp), proj(*result.first))) {
+				if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.first))) {
 					result.first = tmp;
-				} else if (!comp(proj(*tmp), proj(*result.second))) {
+				} else if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.second))) {
 					result.second = tmp;
 				}
 				break;
 			}
 
-			if (comp(proj(*first), proj(*tmp))) {
-				if (comp(proj(*first), proj(*result.first))) {
+			if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *tmp))) {
+				if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.first))) {
 					result.first = first;
 				}
-				if (!comp(proj(*tmp), proj(*result.second))) {
+				if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.second))) {
 					result.second = tmp;
 				}
 			} else {
-				if (comp(proj(*tmp), proj(*result.first))) {
+				if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.first))) {
 					result.first = tmp;
 				}
-				if (!comp(proj(*first), proj(*result.second))) {
+				if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.second))) {
 					result.second = first;
 				}
 			}

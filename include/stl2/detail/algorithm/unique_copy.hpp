@@ -24,18 +24,16 @@
 STL2_OPEN_NAMESPACE {
 	template <class I, class S, class O, class Proj, class R>
 	tagged_pair<tag::in(I), tag::out(O)>
-	__unique_copy(false_type, false_type, I first, S last, O result, R&& comp_,
-		Proj&& proj_)
+	__unique_copy(false_type, false_type, I first, S last, O result, R&& comp,
+		Proj&& proj)
 	{
 		if (first != last) {
-			auto comp = ext::make_callable_wrapper(__stl2::forward<R>(comp_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 			value_type_t<I> saved = *first;
 			*result = saved;
 			++result;
 			while (++first != last) {
 				reference_t<I>&& v = *first;
-				if (!comp(proj(v), proj(saved))) {
+				if (!__stl2::invoke(comp, __stl2::invoke(proj, v), __stl2::invoke(proj, saved))) {
 					saved = __stl2::forward<reference_t<I>>(v);
 					*result = saved;
 					++result;
@@ -47,16 +45,14 @@ STL2_OPEN_NAMESPACE {
 
 	template <class I, class S, class O, class Proj, class R>
 	tagged_pair<tag::in(I), tag::out(O)>
-	__unique_copy(false_type, true_type, I first, S last, O result, R&& comp_,
-		Proj&& proj_)
+	__unique_copy(false_type, true_type, I first, S last, O result, R&& comp,
+		Proj&& proj)
 	{
 		if (first != last) {
-			auto comp = ext::make_callable_wrapper(__stl2::forward<R>(comp_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 			*result = *first;
 			while (++first != last) {
 				reference_t<I>&& v = *first;
-				if (!comp(proj(v), proj(*result))) {
+				if (!__stl2::invoke(comp, __stl2::invoke(proj, v), __stl2::invoke(proj, *result))) {
 					*++result = __stl2::forward<reference_t<I>>(v);
 				}
 			}
@@ -67,18 +63,16 @@ STL2_OPEN_NAMESPACE {
 
 	template <class I, class S, class O, class Proj, class R>
 	tagged_pair<tag::in(I), tag::out(O)>
-	__unique_copy(true_type, auto, I first, S last, O result, R&& comp_,
-		Proj&& proj_)
+	__unique_copy(true_type, auto, I first, S last, O result, R&& comp,
+		Proj&& proj)
 	{
 		if (first != last) {
-			auto comp = ext::make_callable_wrapper(__stl2::forward<R>(comp_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 			*result = *first;
 			++result;
 			auto m = first;
 			while (++first != last) {
 				reference_t<I>&& v = *first;
-				if (!comp(proj(v), proj(*m))) {
+				if (!__stl2::invoke(comp, __stl2::invoke(proj, v), __stl2::invoke(proj, *m))) {
 					*result = __stl2::forward<reference_t<I>>(v);
 					++result;
 					m = first;

@@ -29,14 +29,11 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallablePredicate<
 			__f<Pred>, projected<I, __f<Proj>>>
 	tagged_pair<tag::in(I), tag::out(O)>
-	remove_copy_if(I first, S last, O result, Pred&& pred_, Proj&& proj_ = Proj{})
+	remove_copy_if(I first, S last, O result, Pred&& pred, Proj&& proj = Proj{})
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 		for (; first != last; ++first) {
 			reference_t<I>&& v = *first;
-			if (!pred(proj(v))) {
+			if (!__stl2::invoke(pred, __stl2::invoke(proj, v))) {
 				*result = __stl2::forward<reference_t<I>>(v);
 				++result;
 			}

@@ -27,14 +27,12 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectCallableStrictWeakOrder<
 			__f<Comp>, const T*, projected<I, __f<Proj>>>
-	bool binary_search(I first, S last, const T& value, Comp&& comp_ = Comp{},
-		Proj&& proj_ = Proj{})
+	bool binary_search(I first, S last, const T& value, Comp&& comp = Comp{},
+		Proj&& proj = Proj{})
 	{
-		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		auto result = __stl2::lower_bound(__stl2::move(first), last, value,
 			__stl2::ref(comp), __stl2::ref(proj));
-		return result != last && !comp(value, proj(*result));
+		return result != last && !__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
 	}
 
 	template <ForwardRange Rng, class T, class Comp = less<>, class Proj = identity>

@@ -24,14 +24,14 @@
 STL2_OPEN_NAMESPACE {
 	template <class C, class T>
 	struct __lower_bound_fn {
-		ext::callable_wrapper<decay_t<C>> comp_;
+		decay_t<C> comp_;
 		const T& value_;
 
 		constexpr __lower_bound_fn(C&& comp, const T& value) :
 			comp_(__stl2::forward<C>(comp)), value_(value) {}
 
 		constexpr bool operator()(auto&& i) const {
-			return comp_(i, value_);
+			return __stl2::invoke(comp_, i, value_);
 		}
 	};
 

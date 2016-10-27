@@ -41,18 +41,14 @@ STL2_OPEN_NAMESPACE {
 			models::IndirectlyComparable<
 				I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
 		I1 unsized(I1 first1, S1 last1, I2 first2, S2 last2,
-			Pred&& pred_, Proj1&& proj1_, Proj2&& proj2_)
+			Pred&& pred, Proj1&& proj1, Proj2&& proj2)
 		{
 			if (first2 == last2) {
 				return first1;
 			}
 
-			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-			auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-			auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
-
 			for (; first1 != last1; ++first1) {
-				if (pred(proj1(*first1), proj2(*first2))) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 					// *first1 matches *first2, now match elements after here
 					auto m1 = first1;
 					auto m2 = first2;
@@ -65,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 						if (++m1 == last1) {
 							return m1;
 						}
-					} while (pred(proj1(*m1), proj2(*m2)));
+					} while (__stl2::invoke(pred, __stl2::invoke(proj1, *m1), __stl2::invoke(proj2, *m2)));
 				}
 			}
 
@@ -81,27 +77,23 @@ STL2_OPEN_NAMESPACE {
 		I1 sized(
 			const I1 first1_, S1 last1, const difference_type_t<I1> d1_,
 			I2 first2, S2 last2, const difference_type_t<I2> d2,
-			Pred&& pred_, Proj1&& proj1_, Proj2&& proj2_)
+			Pred&& pred, Proj1&& proj1, Proj2&& proj2)
 		{
 			if (d2 == 0) {
 				return first1_;
 			}
 
-			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-			auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-			auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
-
 			auto d1 = d1_;
 			auto first1 = ext::uncounted(first1_);
 			for(; d1 >= d2; ++first1, --d1) {
-				if (pred(proj1(*first1), proj2(*first2))) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 					auto m1 = first1;
 					auto m2 = first2;
 					do {
 						if (++m2 == last2) {
 							return ext::recounted(first1_, first1, d1_ - d1);
 						}
-					} while (pred(proj1(*++m1), proj2(*m2)));
+					} while (__stl2::invoke(pred, __stl2::invoke(proj1, *++m1), __stl2::invoke(proj2, *m2)));
 				}
 			}
 			return __stl2::next(ext::recounted(first1_, first1, d1_ - d1), last1);
@@ -114,12 +106,12 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyComparable<
 			I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred_ = Pred{},
-						Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+	I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred = Pred{},
+						Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	{
 		return __search::unsized(first1, last1, first2, last2,
-			__stl2::forward<Pred>(pred_), __stl2::forward<Proj1>(proj1_),
-			__stl2::forward<Proj2>(proj2_));
+			__stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
+			__stl2::forward<Proj2>(proj2));
 	}
 
 	// Extension

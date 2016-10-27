@@ -26,11 +26,10 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectCallableRelation<
 			equal_to<>, projected<I, __f<Proj>>, const T*>
-	I find(I first, S last, const T& value, Proj&& proj_ = Proj{})
+	I find(I first, S last, const T& value, Proj&& proj = Proj{})
 	{
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		for (; first != last; ++first) {
-			if (proj(*first) == value) {
+			if (__stl2::invoke(proj, *first) == value) {
 				break;
 			}
 		}

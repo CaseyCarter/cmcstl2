@@ -37,21 +37,19 @@ STL2_OPEN_NAMESPACE {
 			models::IndirectCallableStrictWeakOrder<
 				__f<Comp>, projected<I, __f<Proj>>>
 		I is_heap_until_n(I first, const difference_type_t<I> n,
-			Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+			Comp&& comp = Comp{}, Proj&& proj = Proj{})
 		{
 			STL2_EXPECT(0 <= n);
-			auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 			difference_type_t<I> p = 0, c = 1;
 			I pp = first;
 			while (c < n) {
 				I cp = first + c;
-				if (comp(proj(*pp), proj(*cp))) {
+				if (__stl2::invoke(comp, __stl2::invoke(proj, *pp), __stl2::invoke(proj, *cp))) {
 					return cp;
 				}
 				++c;
 				++cp;
-				if (c == n || comp(proj(*pp), proj(*cp))) {
+				if (c == n || __stl2::invoke(comp, __stl2::invoke(proj, *pp), __stl2::invoke(proj, *cp))) {
 					return cp;
 				}
 				++p;

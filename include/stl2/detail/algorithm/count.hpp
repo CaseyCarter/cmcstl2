@@ -26,12 +26,11 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallableRelation<
 			equal_to<>, projected<I, __f<Proj>>, const T*>
 	difference_type_t<I>
-	count(I first, S last, const T& value, Proj&& proj_ = Proj{})
+	count(I first, S last, const T& value, Proj&& proj = Proj{})
 	{
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		difference_type_t<I> n = 0;
 		for (; first != last; ++first) {
-			if (proj(*first) == value) {
+			if (__stl2::invoke(proj, *first) == value) {
 				++n;
 			}
 		}

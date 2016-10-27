@@ -27,15 +27,13 @@ STL2_OPEN_NAMESPACE {
 		models::Permutable<I> &&
 		models::IndirectCallablePredicate<
 			__f<Pred>, projected<I, __f<Proj>>>
-	I remove_if(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
+	I remove_if(I first, S last, Pred&& pred, Proj&& proj = Proj{})
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		first = __stl2::find_if(__stl2::move(first), last,
 			__stl2::ref(pred), __stl2::ref(proj));
 		if (first != last) {
 			for (auto m = __stl2::next(first); m != last; ++m) {
-				if (!pred(proj(*m))) {
+				if (!__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
 					*first = __stl2::iter_move(m);
 					++first;
 				}

@@ -28,14 +28,12 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallable<
 			__f<F>, projected<I, __f<Proj>>>
 	tagged_pair<tag::in(I), tag::fun(__f<F>)>
-	for_each(I first, S last, F&& fun_, Proj&& proj_ = Proj{})
+	for_each(I first, S last, F&& fun, Proj&& proj = Proj{})
 	{
-		auto fun = ext::make_callable_wrapper(__stl2::forward<F>(fun_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		for (; first != last; ++first) {
-			static_cast<void>(fun(proj(*first)));
+			static_cast<void>(__stl2::invoke(fun, __stl2::invoke(proj, *first)));
 		}
-		return {__stl2::move(first), ext::callable_unwrapper(__stl2::move(fun))};
+		return {__stl2::move(first), fun};//ext::callable_unwrapper(__stl2::move(fun))};
 	}
 
 	template <InputRange Rng, class F, class Proj = identity>

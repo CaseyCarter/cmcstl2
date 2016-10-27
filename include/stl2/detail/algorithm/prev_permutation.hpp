@@ -36,8 +36,8 @@ STL2_OPEN_NAMESPACE {
 		class Proj = identity>
 	requires
 		models::Sortable<I, __f<Comp>, __f<Proj>>
-	bool prev_permutation(I first, S last, Comp&& comp_ = Comp{},
-		Proj&& proj_ = Proj{})
+	bool prev_permutation(I first, S last, Comp&& comp = Comp{},
+		Proj&& proj = Proj{})
 	{
 		if (first == last) {
 			return false;
@@ -46,13 +46,11 @@ STL2_OPEN_NAMESPACE {
 		if (first == --i) {
 			return false;
 		}
-		auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		while (true) {
 			I ip1 = i;
-			if (comp(proj(*ip1), proj(*--i))) {
+			if (__stl2::invoke(comp, __stl2::invoke(proj, *ip1), __stl2::invoke(proj, *--i))) {
 				I j = end;
-				while (!comp(proj(*--j), proj(*i))) {
+				while (!__stl2::invoke(comp, __stl2::invoke(proj, *--j), __stl2::invoke(proj, *i))) {
 					;
 				}
 				__stl2::iter_swap(i, j);

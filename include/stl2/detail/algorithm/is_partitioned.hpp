@@ -27,10 +27,8 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectCallablePredicate<
 			__f<Pred>, projected<I, __f<Proj>>>
-	bool is_partitioned(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
+	bool is_partitioned(I first, S last, Pred&& pred, Proj&& proj = Proj{})
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		first = __stl2::find_if_not(__stl2::move(first), last,
 			__stl2::ref(pred), __stl2::ref(proj));
 		return __stl2::none_of(__stl2::move(first), __stl2::move(last),

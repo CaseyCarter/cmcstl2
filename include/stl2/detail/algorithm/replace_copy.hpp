@@ -28,13 +28,11 @@ STL2_OPEN_NAMESPACE {
 			equal_to<>, projected<I, __f<Proj>>, const T1*>
 	tagged_pair<tag::in(I), tag::out(O)>
 	replace_copy(I first, S last, O result, const T1& old_value,
-		const T2& new_value, Proj&& proj_ = Proj{})
+		const T2& new_value, Proj&& proj = Proj{})
 	{
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 		for (; first != last; ++first, ++result) {
 			reference_t<I>&& v = *first;
-			if (proj(v) == old_value) {
+			if (__stl2::invoke(proj, v) == old_value) {
 				*result = new_value;
 			} else {
 				*result = __stl2::forward<reference_t<I>>(v);

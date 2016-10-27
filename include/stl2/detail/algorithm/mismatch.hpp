@@ -26,19 +26,15 @@ STL2_OPEN_NAMESPACE {
 		InputIterator I2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]] tagged_pair<tag::in1(I1), tag::in2(I2)>
-	mismatch(I1 first1, S1 last1, I2 first2, Pred&& pred_ = Pred{},
-		Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+	mismatch(I1 first1, S1 last1, I2 first2, Pred&& pred = Pred{},
+		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	requires
 		models::IndirectCallablePredicate<__f<Pred>,
 			projected<I1, __f<Proj1>>,
 			projected<I2, __f<Proj2>>>
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-		auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
-
 		for (; first1 != last1; ++first1, ++first2) {
-			if (!pred(proj1(*first1), proj2(*first2))) {
+			if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 				break;
 			}
 		}
@@ -52,15 +48,11 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallablePredicate<
 			__f<Pred>, projected<I1, __f<Proj1>>, projected<I2, __f<Proj2>>>
 	tagged_pair<tag::in1(I1), tag::in2(I2)>
-	mismatch(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred_ = Pred{},
-		Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+	mismatch(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred = Pred{},
+		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-		auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
-
 		for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
-			if (!pred(proj1(*first1), proj2(*first2))) {
+			if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 				break;
 			}
 		}
