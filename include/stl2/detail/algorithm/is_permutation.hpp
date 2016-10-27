@@ -93,8 +93,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::next(first2, l1), pred, proj1, proj2);
 	}
 
-	// Not to spec: _IsNot<I2, is_array> is needed to disambiguate this
-	//   overload with the range overloads.
 	template<ForwardRange Rng1, class I2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]] bool is_permutation(Rng1&& rng1, I2&& first2, Pred pred = Pred{},
