@@ -20,7 +20,10 @@
 // generate_n [alg.generate]
 //
 STL2_OPEN_NAMESPACE {
-	template <Callable F, OutputIterator<result_of_t<F&()>> O>
+	template <class F, Iterator O>
+	requires
+		models::Callable<F&> &&
+		models::Writable<O, result_of_t<F&()>>
 	O generate_n(O first, difference_type_t<O> n, F gen)
 	{
 		for (; n > 0; ++first, --n) {
