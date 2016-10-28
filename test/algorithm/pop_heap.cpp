@@ -213,10 +213,10 @@ void test_9(int N)
 	delete [] ia;
 }
 
-template<typename T>
+template <typename T>
 struct construct
 {
-	template<typename ...Us>
+	template <typename ...Us>
 	T operator()(Us &&... us) const
 	{
 		return T{((Us &&)us)...};

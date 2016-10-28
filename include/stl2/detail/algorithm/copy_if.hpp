@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 		return {__stl2::move(first), __stl2::move(result)};
 	}
 
-	template<InputRange Rng, class O, class Pred, class Proj = identity>
+	template <InputRange Rng, class O, class Pred, class Proj = identity>
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::IndirectCallablePredicate<
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template<class E, class O, class Pred, class Proj = identity>
+	template <class E, class O, class Pred, class Proj = identity>
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::IndirectCallablePredicate<

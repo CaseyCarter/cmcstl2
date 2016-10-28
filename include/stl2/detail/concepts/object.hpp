@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	// whose target will eventually accept a parameter by value. E.g., the
 	// range overload of find:
 	//
-	//   template<InputRange Rng, class T, class Proj = identity>
+	//   template <InputRange Rng, class T, class Proj = identity>
 	//     requires IndirectCallableRelation<equal_to<>,
 	//                projected<iterator_t<Rng>, Proj>, const T*>()
 	//   safe_iterator_t<Rng>
@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	// can be implemented to perfect-forward to the iterator overload as:
 	//
-	//   template<InputRange Rng, class T, class Proj = identity>
+	//   template <InputRange Rng, class T, class Proj = identity>
 	//     requires IndirectCallableRelation<equal_to<>,
 	//                projected<iterator_t<Rng>, __f<Proj>>, // NW: __f<Proj>
 	//                const T*>()

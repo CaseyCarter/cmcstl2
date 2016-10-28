@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template<class T, class Comp = less<>, class Proj = identity>
+	template <class T, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
 			Comp, projected<const T*, Proj>>

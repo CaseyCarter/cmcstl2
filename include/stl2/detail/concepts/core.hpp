@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
 		template <class, class>
 		constexpr bool ExplicitlyConvertibleTo = false;
 		template <class T, class U>
-			requires requires (T (&t)()) { static_cast<U>(t()); }
+			requires requires(T (&t)()) { static_cast<U>(t()); }
 		constexpr bool ExplicitlyConvertibleTo<T, U> = true;
 	}
 

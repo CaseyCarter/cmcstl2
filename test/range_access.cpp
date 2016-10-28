@@ -70,7 +70,7 @@ void test_array(std::integer_sequence<T, Is...>) {
 namespace begin_testing {
 template <class R>
 concept bool CanBegin =
-	requires (R&& r) {
+	requires(R&& r) {
 		__stl2::begin((R&&)r);
 	};
 

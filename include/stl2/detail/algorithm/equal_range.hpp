@@ -25,7 +25,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<ForwardIterator I, class T, class Comp = less<>, class Proj = identity>
+		template <ForwardIterator I, class T, class Comp = less<>, class Proj = identity>
 		requires
 			models::IndirectCallableStrictWeakOrder<
 				Comp, const T*, projected<I, Proj>>

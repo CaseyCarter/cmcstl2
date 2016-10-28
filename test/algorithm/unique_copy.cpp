@@ -229,7 +229,7 @@ test_range()
 	CHECK(count_equal::count == si-1);
 }
 
-template<class InIter, class OutIter>
+template <class InIter, class OutIter>
 void test()
 {
 	using Sent = typename sentinel_type<InIter>::type;

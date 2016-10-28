@@ -20,7 +20,7 @@
 STL2_OPEN_NAMESPACE {
 	template <class G>
 	concept bool __urng =
-		requires (G&& g) {
+		requires(G&& g) {
 			g();
 			requires UnsignedIntegral<decltype(g())>();
 			STL2_EXACT_TYPE_CONSTRAINT(G::min(), decltype(g()));

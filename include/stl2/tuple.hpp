@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 		tagged<tuple<__tag_elem<Types>...>, __tag_spec<Types>...>;
 
 	// make_tagged_tuple
-	template<TagSpecifier...Tags, class...Types>
+	template <TagSpecifier...Tags, class...Types>
 	constexpr auto make_tagged_tuple(Types&&...ts) {
 		return tagged_tuple<Tags(__unwrap<Types>)...>{
 			__stl2::forward<Types>(ts)...

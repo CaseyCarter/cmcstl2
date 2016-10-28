@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Args>
 		requires
-			requires (F& f, Args&&...args) {
+			requires(F& f, Args&&...args) {
 				!__invoke::impl(f, __stl2::forward<Args>(args)...);
 			}
 		constexpr bool operator()(Args&&...args) &
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Args>
 		requires
-			requires (const F& f, Args&&...args) {
+			requires(const F& f, Args&&...args) {
 				!__invoke::impl(f, __stl2::forward<Args>(args)...);
 			}
 		constexpr bool operator()(Args&&...args) const&
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Args>
 		requires
-			requires (F&& f, Args&&...args) {
+			requires(F&& f, Args&&...args) {
 				!__invoke::impl((F&&)f, __stl2::forward<Args>(args)...);
 			}
 		constexpr bool operator()(Args&&...args) &&
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Args>
 		requires
-			requires (F&& f, Args&&...args) {
+			requires(F&& f, Args&&...args) {
 				!__invoke::impl((F&&)f, __stl2::forward<Args>(args)...);
 			}
 		constexpr bool operator()(Args&&...args) const&&

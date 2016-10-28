@@ -386,7 +386,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool IndirectlySwappable = false;
 		template <class I1, class I2>
 		requires
-			requires (I1 i1, I2 i2) {
+			requires(I1 i1, I2 i2) {
 				__stl2::iter_swap(i1, i2);
 				__stl2::iter_swap(i2, i1);
 				__stl2::iter_swap(i1, i1);
@@ -542,7 +542,7 @@ STL2_OPEN_NAMESPACE {
 	template <class, class>
 	constexpr bool __sized_sentinel = false;
 	template <class S, class I>
-		requires requires (const I i, const S s) {
+		requires requires(const I i, const S s) {
 			STL2_EXACT_TYPE_CONSTRAINT(s - i, difference_type_t<I>);
 			STL2_EXACT_TYPE_CONSTRAINT(i - s, difference_type_t<I>);
 			// Axiom: If [i,s) denotes a range and N is the smallest
@@ -591,7 +591,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 	constexpr bool __input_iterator = false;
 	template <class I>
-		requires requires (I& i, const I& ci) {
+		requires requires(I& i, const I& ci) {
 			typename iterator_category_t<I>;
 			DerivedFrom<iterator_category_t<I>, input_iterator_tag>();
 			STL2_DEDUCTION_CONSTRAINT(i++, Readable);
@@ -660,7 +660,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 	constexpr bool __random_access_iterator = false;
 	template <class I>
-		requires requires (const I& ci, const difference_type_t<I> n) {
+		requires requires(const I& ci, const difference_type_t<I> n) {
 			STL2_EXACT_TYPE_CONSTRAINT(ci[n], reference_t<I>);
 		}
 	constexpr bool __random_access_iterator<I> = true;
@@ -718,7 +718,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputIterator I>
 	requires
-		requires (I i) {
+		requires(I i) {
 			STL2_DEDUCE_AUTO_REF_REF(i.operator->());
 		}
 	struct __pointer_type<I> {
@@ -753,13 +753,13 @@ STL2_OPEN_NAMESPACE {
 	// Standard iterator traits [iterator.stdtraits]
 	namespace detail {
 		namespace stl2_to_std_iterator_category_ {
-			template<class Ref, class Cat> Cat g(std::input_iterator_tag*, Cat*);
-			template<class Ref, class Cat> Cat g(std::output_iterator_tag*, Cat*);
-			template<class Ref, class Cat> std::input_iterator_tag g(void*, Cat*, Ref* = 0);
-			template<class Ref> std::input_iterator_tag g(const void*, input_iterator_tag*);
-			template<class Ref> std::forward_iterator_tag g(const void*, forward_iterator_tag*);
-			template<class Ref> std::bidirectional_iterator_tag g(const void*, bidirectional_iterator_tag*);
-			template<class Ref> std::random_access_iterator_tag g(const void*, random_access_iterator_tag*);
+			template <class Ref, class Cat> Cat g(std::input_iterator_tag*, Cat*);
+			template <class Ref, class Cat> Cat g(std::output_iterator_tag*, Cat*);
+			template <class Ref, class Cat> std::input_iterator_tag g(void*, Cat*, Ref* = 0);
+			template <class Ref> std::input_iterator_tag g(const void*, input_iterator_tag*);
+			template <class Ref> std::forward_iterator_tag g(const void*, forward_iterator_tag*);
+			template <class Ref> std::bidirectional_iterator_tag g(const void*, bidirectional_iterator_tag*);
+			template <class Ref> std::random_access_iterator_tag g(const void*, random_access_iterator_tag*);
 		}
 
 		template <class Cat, class Ref>

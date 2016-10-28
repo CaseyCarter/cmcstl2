@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 	template <class>
 	constexpr bool __boolean = false;
 	template <class B>
-		requires requires (const B& b1, const B& b2, const bool a) {
+		requires requires(const B& b1, const B& b2, const bool a) {
 			// Requirements common to both Boolean and BooleanTestable.
 			STL2_BINARY_DEDUCTION_CONSTRAINT(b1, ConvertibleTo, bool);
 			STL2_BINARY_DEDUCTION_CONSTRAINT(!b1, ConvertibleTo, bool);
@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool __equality_comparable = false;
 	template <class T, class U>
 	requires
-		requires (const T& t, const U& u) {
+		requires(const T& t, const U& u) {
 			STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
 			STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
 			// Axiom: t == u and t != u have the same definition space
@@ -134,7 +134,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class U>
 	constexpr bool __totally_ordered = false;
 	template <class T, class U>
-		requires requires (const T& t, const U& u) {
+		requires requires(const T& t, const U& u) {
 			STL2_DEDUCTION_CONSTRAINT(t < u, Boolean);
 			STL2_DEDUCTION_CONSTRAINT(t > u, Boolean);
 			STL2_DEDUCTION_CONSTRAINT(t <= u, Boolean);

@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 		return true;
 	}
 
-	template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
+	template <ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
 		class Pred = equal_to<>, class Proj1 = identity,
 		class Proj2 = identity>
 	[[deprecated]] bool is_permutation(I1 first1, S1 last1, I2 first2, Pred pred = Pred{},
@@ -93,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 			__stl2::next(first2, l1), pred, proj1, proj2);
 	}
 
-	template<ForwardRange Rng1, class I2, class Pred = equal_to<>,
+	template <ForwardRange Rng1, class I2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]] bool is_permutation(Rng1&& rng1, I2&& first2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 			__stl2::ref(proj2));
 	}
 
-	template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
+	template <ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
 		Sentinel<I2> S2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
@@ -138,7 +138,7 @@ STL2_OPEN_NAMESPACE {
 			pred, proj1, proj2);
 	}
 
-	template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
+	template <ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
 		Sentinel<I2> S2, class Pred = equal_to<>, class Proj1 = identity,
 		class Proj2 = identity>
 	requires
@@ -165,7 +165,7 @@ STL2_OPEN_NAMESPACE {
 			pred, proj1, proj2);
 	}
 
-	template<ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
+	template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::IndirectlyComparable<
@@ -181,7 +181,7 @@ STL2_OPEN_NAMESPACE {
 			__stl2::ref(proj2));
 	}
 
-	template<ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
+	template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::SizedRange<Rng1> &&
@@ -202,7 +202,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template<class E, ForwardRange Rng2, class Pred = equal_to<>,
+	template <class E, ForwardRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::IndirectlyComparable<
@@ -217,7 +217,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template<ForwardRange Rng1, class E, class Pred = equal_to<>,
+	template <ForwardRange Rng1, class E, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::IndirectlyComparable<
@@ -232,7 +232,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template<class E1, class E2, class Pred = equal_to<>,
+	template <class E1, class E2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::IndirectlyComparable<

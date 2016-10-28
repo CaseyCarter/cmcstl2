@@ -16,11 +16,11 @@ namespace models {
 template <class T>
 constexpr bool Destructible = ranges::Destructible<T>();
 
-template<class T, class...Args>
+template <class T, class...Args>
 constexpr bool ConstructibleObject =
 	ranges::concepts::models<ranges::concepts::ConstructibleObject, T, Args...>();
 
-template<class T, class...Args>
+template <class T, class...Args>
 constexpr bool BindableReference =
 	ranges::concepts::models<ranges::concepts::BindableReference, T, Args...>();
 

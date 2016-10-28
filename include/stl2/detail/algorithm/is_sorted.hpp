@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
-	template<ForwardRange Rng, class Comp = less<>, class Proj = identity>
+	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template<class E, class Comp = less<>, class Proj = identity>
+	template <class E, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
 			Comp, projected<const E*, Proj>>

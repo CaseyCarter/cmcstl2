@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool __callable = false;
 	template <class F, class...Args>
 	requires
-		requires (F&& f, Args&&...args) {
+		requires(F&& f, Args&&...args) {
 			__invoke::impl((F&&)f, (Args&&)args...);
 		}
 	constexpr bool __callable<F, Args...> = true;

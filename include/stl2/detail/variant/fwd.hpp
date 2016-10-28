@@ -91,7 +91,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr std::size_t index_of_type = I;
 
 		template <class...Ts>
-		requires (models::Destructible<element_t<Ts>> && ...)
+		requires(models::Destructible<element_t<Ts>> && ...)
 		class base;
 
 		// VariantTypes<T> is a list of the alternative types of T if
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 	} // namespace __variant
 
 	template <class...Ts>
-	requires (models::Destructible<__variant::element_t<Ts>> && ...)
+	requires(models::Destructible<__variant::element_t<Ts>> && ...)
 	class variant;
 
 	template <class>

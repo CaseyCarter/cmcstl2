@@ -61,24 +61,24 @@ public:
 	constexpr sentinel() : it_() {}
 	constexpr explicit sentinel(It it) : it_(it) {}
 	constexpr It base() const { return it_; }
-	template<typename I>
+	template <typename I>
 	constexpr friend bool operator==(const I& x, const sentinel& y)
 	{
 		using ::base;
 		return base(x) == y.it_;
 	}
-	template<typename I>
+	template <typename I>
 	constexpr friend bool operator!=(const I& x, const sentinel& y)
 	{
 		return !(x == y);
 	}
-	template<typename I>
+	template <typename I>
 	constexpr friend bool operator==(const sentinel& x, const I& y)
 	{
 		using ::base;
 		return x.it_ == base(y);
 	}
-	template<typename I>
+	template <typename I>
 	constexpr friend bool operator!=(const sentinel& x, const I& y)
 	{
 		return !(x == y);
@@ -86,14 +86,14 @@ public:
 };
 
 // For making sized iterator ranges:
-template<template<typename> class I, typename It>
+template <template <typename> class I, typename It>
 constexpr
 std::ptrdiff_t operator-(sentinel<It, true> end, I<It> begin)
 {
 	return base(end) - base(begin);
 }
 
-template<typename It, template<typename> class I>
+template <typename It, template <typename> class I>
 constexpr
 std::ptrdiff_t operator-(I<It> end, sentinel<It, true> begin)
 {
@@ -386,19 +386,19 @@ operator-(const random_access_iterator<T>& x, const random_access_iterator<U>& y
 	return x.base() - y.base();
 }
 
-template<typename It, bool Sized = false>
+template <typename It, bool Sized = false>
 struct sentinel_type
 {
 	using type = It;
 };
 
-template<typename T, bool Sized>
+template <typename T, bool Sized>
 struct sentinel_type<T*, Sized>
 {
 	using type = sentinel<T*, Sized>;
 };
 
-template<template<typename> class I, typename It, bool Sized>
+template <template <typename> class I, typename It, bool Sized>
 struct sentinel_type<I<It>, Sized>
 {
 	using type = sentinel<It, Sized>;

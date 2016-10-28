@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	template <class>
 	constexpr bool __addressable = false;
 	template <class T>
-		requires requires (T& t, const T& ct) {
+		requires requires(T& t, const T& ct) {
 			STL2_EXACT_TYPE_CONSTRAINT(&t, T*);
 			STL2_EXACT_TYPE_CONSTRAINT(&ct, const T*);
 			// Axiom: &ct == addressof(ct)
@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 		requires _Is<T, is_object> &&
 			_IsNot<T, is_array> &&
 			detail::MustBeComplete<T>() &&
-			requires (T& t, T* const p) {
+			requires(T& t, T* const p) {
 				{ t.~T() } noexcept;
 				delete p;
 				delete[] p;
@@ -103,7 +103,7 @@ STL2_OPEN_NAMESPACE {
 		template <class T, class...Args>
 		constexpr bool __constructible_object = false;
 		template <class T, class...Args>
-			requires requires (Args&&...args) {
+			requires requires(Args&&...args) {
 				T{ (Args&&)args... };
 				new T{ (Args&&)args... };
 			}
@@ -119,8 +119,8 @@ STL2_OPEN_NAMESPACE {
 		template <class T, class...Args>
 		concept bool BindableReference =
 			_Is<T, is_reference> &&
-			// requires (Args&&...args) { T{ (Args&&)args... }; };
-			// requires (Args&&...args) { T( (Args&&)args... ); };
+			// requires(Args&&...args) { T{ (Args&&)args... }; };
+			// requires(Args&&...args) { T( (Args&&)args... ); };
 			_Is<T, is_constructible, Args...>;
 	}
 
@@ -154,7 +154,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T>
 	constexpr bool __default_constructible = false;
 	template <class T>
-		requires requires (const std::size_t n) {
+		requires requires(const std::size_t n) {
 			new T[n]{}; // not required to be equality preserving
 		}
 	constexpr bool __default_constructible<T> = true;

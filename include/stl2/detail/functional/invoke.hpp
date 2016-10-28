@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <_Is<is_function> F, class T, class T1, class...Args>
 		requires
-			requires (F (T::*f), T1&& t1, Args&&...args) {
+			requires(F (T::*f), T1&& t1, Args&&...args) {
 				(coerce<T>(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...);
 			}
 		constexpr decltype(auto) impl(F (T::*f), T1&& t1, Args&&...args)
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <_Is<is_object> D, class T, class T1>
 		requires
-			requires (D (T::*f), T1&& t1) {
+			requires(D (T::*f), T1&& t1) {
 				coerce<T>(std::forward<T1>(t1)).*f;
 			}
 		constexpr decltype(auto) impl(D (T::*f), T1&& t1)
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class F, class...Args>
 		requires
-			requires (F&& f, Args&&...args) {
+			requires(F&& f, Args&&...args) {
 				std::forward<F>(f)(std::forward<Args>(args)...);
 			}
 		constexpr decltype(auto) impl(F&& f, Args&&...args)
@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
 	}
 	template <class F, class...Args>
 	requires
-		requires (F&& f, Args&&...args) {
+		requires(F&& f, Args&&...args) {
 			__invoke::impl(std::forward<F>(f), std::forward<Args>(args)...);
 		}
 	STL2_CONSTEXPR_EXT decltype(auto) invoke(F&& f, Args&&...args)

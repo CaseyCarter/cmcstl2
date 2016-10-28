@@ -21,7 +21,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	// Extension: Relax to InputIterator
-	template<InputIterator I, Sentinel<I> S, class Pred, class T, class Proj = identity>
+	template <InputIterator I, Sentinel<I> S, class Pred, class T, class Proj = identity>
 	requires
 		models::Writable<I, const T&> &&
 		models::IndirectCallablePredicate<
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension: Relax to InputRange
-	template<InputRange Rng, class Pred, class T, class Proj = identity>
+	template <InputRange Rng, class Pred, class T, class Proj = identity>
 	requires
 		models::Writable<iterator_t<Rng>, const T&> &&
 		models::IndirectCallablePredicate<
