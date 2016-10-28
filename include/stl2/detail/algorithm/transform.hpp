@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		class F, class Proj = identity>
 	requires
 		models::Writable<O,
-			indirect_result_of_t<__f<F>&(
+			indirect_result_of_t<F&(
 				projected<I, Proj>)>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	transform(I first, S last, O result, F op, Proj proj = Proj{})
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Writable<__f<O>,
-			indirect_result_of_t<__f<F>&(
+			indirect_result_of_t<F&(
 				projected<iterator_t<R>, Proj>)>>
 	tagged_pair<tag::in(safe_iterator_t<R>), tag::out(__f<O>)>
 	transform(R&& r, O&& result, F op, Proj proj = Proj{})
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Writable<__f<O>,
-			indirect_result_of_t<__f<F>&(
+			indirect_result_of_t<F&(
 				projected<const E*, Proj>)>>
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
 	transform(std::initializer_list<E>&& r, O&& result,
@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 		F op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
 		models::Writable<O,
-			indirect_result_of_t<__f<F>&(
+			indirect_result_of_t<F&(
 				projected<I1, Proj1>,
 				projected<I2, Proj2>)>>
 	{
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 		!is_array<remove_reference_t<I>>::value &&
 		models::InputIterator<__f<I>> &&
 		models::Writable<__f<O>,
-			indirect_result_of_t<__f<F>&(
+			indirect_result_of_t<F&(
 				projected<iterator_t<Rng>, Proj1>,
 				projected<__f<I>, Proj2>)>>
 	{
@@ -115,7 +115,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::Writable<O,
-			indirect_result_of_t<__f<F>&(
+			indirect_result_of_t<F&(
 				projected<I1, Proj1>,
 				projected<I2, Proj2>)>>
 	tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
@@ -133,7 +133,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Writable<__f<O>,
-			indirect_result_of_t<__f<F>&(
+			indirect_result_of_t<F&(
 				projected<iterator_t<Rng1>, Proj1>,
 				projected<iterator_t<Rng2>, Proj2>)>>
 	tagged_tuple<
@@ -157,7 +157,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Writable<__f<O>,
-			indirect_result_of_t<__f<F>&(
+			indirect_result_of_t<F&(
 				projected<const E*, Proj1>,
 				projected<iterator_t<Rng2>, Proj2>)>>
 	tagged_tuple<
@@ -181,7 +181,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Writable<__f<O>,
-			indirect_result_of_t<__f<F>&(
+			indirect_result_of_t<F&(
 				projected<iterator_t<Rng1>, Proj1>,
 				projected<const E*, Proj2>)>>
 	tagged_tuple<
@@ -205,7 +205,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Writable<__f<O>,
-			indirect_result_of_t<__f<F>&(
+			indirect_result_of_t<F&(
 				projected<const E1*, Proj1>,
 				projected<const E2*, Proj2>)>>
 	tagged_tuple<

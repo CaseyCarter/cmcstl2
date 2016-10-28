@@ -20,7 +20,10 @@
 // generate [alg.generate]
 //
 STL2_OPEN_NAMESPACE {
-	template <Callable F, OutputIterator<result_of_t<F&()>> O, Sentinel<O> S>
+	template <class F, Iterator O, Sentinel<O> S>
+	requires
+		models::Callable<F&> &&
+		models::Writable<O, result_of_t<F&()>>
 	O generate(O first, S last, F gen)
 	{
 		for (; first != last; ++first) {
@@ -31,13 +34,13 @@ STL2_OPEN_NAMESPACE {
 
 	template <class Rng, class F>
 	requires
-		models::Callable<__f<F>> &&
-		models::OutputRange<Rng, result_of_t<__f<F>&()>>
+		models::Callable<F&> &&
+		models::OutputRange<Rng, result_of_t<F&()>>
 	safe_iterator_t<Rng>
-	generate(Rng&& rng, F&& gen)
+	generate(Rng&& rng, F gen)
 	{
 		return __stl2::generate(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<F>(gen));
+			__stl2::ref(gen));
 	}
 } STL2_CLOSE_NAMESPACE
 
