@@ -329,39 +329,24 @@ STL2_OPEN_NAMESPACE {
 		template <class R1, class R2>
 		void iter_swap(R1&&, R2&&) = delete;
 
-		template <class R1, class R2>
-		constexpr bool has_customization = false;
-		template <class R1, class R2>
+		template <class R1, class R2,
+			class UR1 = remove_reference_t<R1>,
+			class UR2 = remove_reference_t<R2>>
 		requires
-			requires (R1&& r1, R2&& r2) {
-				iter_swap((R1&&)r1, (R2&&)r2);
-			}
-		constexpr bool has_customization<R1, R2> = true;
-
-		template <class UR1, class UR2, class R1, class R2>
-		requires
-			has_customization<R1, R2>
-		constexpr void impl(R1&& r1, R2&& r2)
-		STL2_NOEXCEPT_RETURN(
-			iter_swap(__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
-		)
-
-		template <class UR1, class UR2, class R1, class R2>
-		requires
-			!has_customization<R1, R2> &&
 			models::Swappable<reference_t<UR1>, reference_t<UR2>>
-		constexpr void impl(R1&& r1, R2&& r2)
+		constexpr void iter_swap(R1&& r1, R2&& r2)
 		STL2_NOEXCEPT_RETURN(
-			__stl2::swap(*r1, *r2)
+			__stl2::swap(*(R1&&)r1, *(R2&&)r2)
 		)
 
-		template <class UR1, class UR2, class R1, class R2>
+		template <class R1, class R2,
+			class UR1 = remove_reference_t<R1>,
+			class UR2 = remove_reference_t<R2>>
 		requires
-			!has_customization<R1, R2> &&
 			!models::Swappable<reference_t<UR1>, reference_t<UR2>> &&
 			models::IndirectlyMovableStorable<UR1, UR2> &&
 			models::IndirectlyMovableStorable<UR2, UR1>
-		constexpr void impl(R1&& r1, R2&& r2)
+		constexpr void iter_swap(R1&& r1, R2&& r2)
 			noexcept(is_nothrow_indirectly_movable_storable_v<UR1, UR2> &&
 				is_nothrow_indirectly_movable_storable_v<UR2, UR1>)
 		{
@@ -370,16 +355,6 @@ STL2_OPEN_NAMESPACE {
 			*r2 = __stl2::move(tmp);
 		}
 
-		template <class R1, class R2>
-		constexpr bool has_impl = false;
-		template <class R1, class R2>
-		requires
-			requires (R1&& r1, R2&& r2) {
-				__iter_swap::impl<remove_reference_t<R1>,
-					remove_reference_t<R2>>((R1&&)r1, (R2&&)r2);
-			}
-		constexpr bool has_impl<R1, R2> = true;
-
 		struct fn {
 			template <class R1, class R2,
 				class UR1 = remove_reference_t<R1>,
@@ -387,11 +362,12 @@ STL2_OPEN_NAMESPACE {
 			requires
 				models::Readable<UR1> &&
 				models::Readable<UR2> &&
-				has_impl<R1, R2>
+				requires(R1&& r1, R2&& r2) {
+					iter_swap((R1&&)r1, (R2&&)r2);
+				}
 			constexpr void operator()(R1&& r1, R2&& r2) const
 			STL2_NOEXCEPT_RETURN(
-				__iter_swap::impl<UR1, UR2>(
-					__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
+				iter_swap((R1&&)r1, (R2&&)r2)
 			)
 		};
 	}
