@@ -738,7 +738,7 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr void iter_swap(
 			const basic_iterator& x, const basic_iterator<O>& y)
 		STL2_NOEXCEPT_RETURN(
-			(void)x.indirect_swap(y)
+			(void)x.get().indirect_swap(y.get())
 		)
 
 		constexpr basic_iterator& operator++() & noexcept {
