@@ -321,7 +321,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// iter_swap [Extension]
-	// From the proxy iterator work (P0022).
 	//
 	namespace __iter_swap {
 		// Poison pill for iter_swap. (See the detailed discussion at
@@ -329,25 +328,24 @@ STL2_OPEN_NAMESPACE {
 		template <class R1, class R2>
 		void iter_swap(R1&&, R2&&) = delete;
 
-		template <class R1, class R2,
-			class UR1 = remove_reference_t<R1>,
-			class UR2 = remove_reference_t<R2>>
+		template <class R1, class R2>
 		requires
-			models::Swappable<reference_t<UR1>, reference_t<UR2>>
+			models::Swappable<reference_t<R1>, reference_t<R2>>
 		constexpr void iter_swap(R1&& r1, R2&& r2)
 		STL2_NOEXCEPT_RETURN(
-			__stl2::swap(*(R1&&)r1, *(R2&&)r2)
+			static_cast<void>(__stl2::swap(*r1, *r2))
 		)
 
 		template <class R1, class R2,
 			class UR1 = remove_reference_t<R1>,
 			class UR2 = remove_reference_t<R2>>
 		requires
-			!models::Swappable<reference_t<UR1>, reference_t<UR2>> &&
+			!models::Swappable<reference_t<R1>, reference_t<R2>> &&
 			models::IndirectlyMovableStorable<UR1, UR2> &&
 			models::IndirectlyMovableStorable<UR2, UR1>
 		constexpr void iter_swap(R1&& r1, R2&& r2)
-			noexcept(is_nothrow_indirectly_movable_storable_v<UR1, UR2> &&
+			noexcept(
+				is_nothrow_indirectly_movable_storable_v<UR1, UR2> &&
 				is_nothrow_indirectly_movable_storable_v<UR2, UR1>)
 		{
 			value_type_t<UR1> tmp = __stl2::iter_move(r1);
@@ -356,18 +354,16 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		struct fn {
-			template <class R1, class R2,
-				class UR1 = remove_reference_t<R1>,
-				class UR2 = remove_reference_t<R2>>
+			template <class R1, class R2>
 			requires
-				models::Readable<UR1> &&
-				models::Readable<UR2> &&
+				models::Readable<remove_reference_t<R1>> &&
+				models::Readable<remove_reference_t<R2>> &&
 				requires(R1&& r1, R2&& r2) {
 					iter_swap((R1&&)r1, (R2&&)r2);
 				}
 			constexpr void operator()(R1&& r1, R2&& r2) const
 			STL2_NOEXCEPT_RETURN(
-				iter_swap((R1&&)r1, (R2&&)r2)
+				static_cast<void>(iter_swap((R1&&)r1, (R2&&)r2))
 			)
 		};
 	}
@@ -378,19 +374,19 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlySwappable [commonalgoreq.indirectlyswappable]
-	// Not to spec: I1 and I2 are const in P022R2
-	// FIXME: issue?
+	// Not to spec
+	// See https://github.com/ericniebler/stl2/issues/241
 	//
 	namespace models {
 		template <class I1, class I2 = I1>
 		constexpr bool IndirectlySwappable = false;
 		template <class I1, class I2>
 		requires
-			requires(I1 i1, I2 i2) {
-				__stl2::iter_swap(i1, i2);
-				__stl2::iter_swap(i2, i1);
-				__stl2::iter_swap(i1, i1);
-				__stl2::iter_swap(i2, i2);
+			requires(I1&& i1, I2&& i2) {
+				__stl2::iter_swap((I1&&)i1, (I2&&)i2);
+				__stl2::iter_swap((I2&&)i2, (I1&&)i1);
+				__stl2::iter_swap((I1&&)i1, (I1&&)i1);
+				__stl2::iter_swap((I2&&)i2, (I2&&)i2);
 			}
 		constexpr bool IndirectlySwappable<I1, I2> = true;
 	}
