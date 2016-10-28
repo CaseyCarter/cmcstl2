@@ -26,18 +26,18 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Callable [concepts.lib.callables.callable]
 	//
-	// FIXME: remove this transitional paranoia check.
-	template <class T>
-	constexpr bool __force_non_reference() {
-		static_assert(!is_reference<T>::value);
-		return true;
-	}
+	template <class F, class...Args>
+	constexpr bool __callable = false;
+	template <class F, class...Args>
+	requires
+		requires (F&& f, Args&&...args) {
+			__invoke::impl((F&&)f, (Args&&)args...);
+		}
+	constexpr bool __callable<F, Args...> = true;
 
 	template <class F, class...Args>
 	concept bool Callable() {
-		return __force_non_reference<F>() &&
-			CopyConstructible<F>() &&
-			ext::Invokable<F&, Args...>();
+		return __callable<F, Args...>;
 	}
 
 	namespace models {
@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 	template <class F, class...Args>
 	concept bool Predicate() {
 		return RegularCallable<F, Args...>() &&
-			Boolean<result_of_t<F&(Args...)>>();
+			Boolean<result_of_t<F(Args...)>>();
 	}
 
 	namespace models {

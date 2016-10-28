@@ -93,32 +93,6 @@ STL2_OPEN_NAMESPACE {
 	STL2_NOEXCEPT_RETURN(
 		__invoke::impl(std::forward<F>(f), std::forward<Args>(args)...)
 	)
-
-	///////////////////////////////////////////////////////////////////////////
-	// Invokable [Extension]
-	//
-	namespace ext {
-		template <class F, class...Args>
-		constexpr bool __invokable = false;
-		template <class F, class...Args>
-		requires
-			requires (F&& f, Args&&...args) {
-				__invoke::impl((F&&)f, (Args&&)args...);
-			}
-		constexpr bool __invokable<F, Args...> = true;
-
-		template <class F, class...Args>
-		concept bool Invokable() {
-			return __invokable<F, Args...>;
-		}
-	}
-
-	namespace models {
-		template <class, class...>
-		constexpr bool Invokable = false;
-		ext::Invokable{F, ...Args}
-		constexpr bool Invokable<F, Args...> = true;
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif
