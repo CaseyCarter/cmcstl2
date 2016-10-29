@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 			__stl2::move(first), __stl2::move(last), __stl2::forward<I2>(out));
 	}
 
-	template<BidirectionalRange Rng, class I>
+	template <BidirectionalRange Rng, class I>
 	requires
 		models::BidirectionalIterator<__f<I>> &&
 		models::IndirectlyMovable<iterator_t<Rng>, __f<I>>
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template<class E, class I>
+	template <class E, class I>
 	requires
 		models::BidirectionalIterator<__f<I>> &&
 		models::IndirectlyMovable<const E*, __f<I>>

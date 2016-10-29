@@ -25,16 +25,12 @@ STL2_OPEN_NAMESPACE {
 		class Pred, class Proj1, class Proj2>
 	requires
 		models::IndirectlyComparable<
-			I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool __equal_3(I1 first1, S1 last1, I2 first2, Pred&& pred_,
-		Proj1&& proj1_, Proj2&& proj2_)
+			I1, I2, Pred, Proj1, Proj2>
+	bool __equal_3(I1 first1, S1 last1, I2 first2, Pred pred,
+		Proj1 proj1, Proj2 proj2)
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-		auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
-
 		for (; first1 != last1; ++first1, ++first2) {
-			if (!pred(proj1(*first1), proj2(*first2))) {
+			if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 				return false;
 			}
 		}
@@ -46,16 +42,12 @@ STL2_OPEN_NAMESPACE {
 		class Pred, class Proj1, class Proj2>
 	requires
 		models::IndirectlyComparable<
-			I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool __equal_4(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred_,
-		Proj1&& proj1_, Proj2&& proj2_)
+			I1, I2, Pred, Proj1, Proj2>
+	bool __equal_4(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred,
+		Proj1 proj1, Proj2 proj2)
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-		auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
-
 		for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
-			if (!pred(proj1(*first1), proj2(*first2))) {
+			if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 				return false;
 			}
 		}
@@ -65,34 +57,34 @@ STL2_OPEN_NAMESPACE {
 	template <class I1, class S1, class I2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]] bool
-	equal(I1&& first1, S1&& last1, I2&& first2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+	equal(I1&& first1, S1&& last1, I2&& first2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
 		models::InputIterator<__f<I1>> &&
 		models::Sentinel<__f<S1>, __f<I1>> &&
 		models::InputIterator<__f<I2>> &&
 		models::IndirectlyComparable<
-			__f<I1>, __f<I2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
+			__f<I1>, __f<I2>, Pred, Proj1, Proj2>
 	{
 		return __stl2::__equal_3(
 			__stl2::forward<I1>(first1), __stl2::forward<S1>(last1),
-			__stl2::forward<I2>(first2), __stl2::forward<Pred>(pred),
-			__stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
+			__stl2::forward<I2>(first2), __stl2::ref(pred),
+			__stl2::ref(proj1), __stl2::ref(proj2));
 	}
 
 	template <InputRange Rng1, class I2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
-	[[deprecated]] bool equal(Rng1&& rng1, I2&& first2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+	[[deprecated]] bool equal(Rng1&& rng1, I2&& first2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
 		!is_array<remove_reference_t<I2>>::value &&
 		models::InputIterator<__f<I2>> &&
 		models::IndirectlyComparable<
-			iterator_t<Rng1>, __f<I2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
+			iterator_t<Rng1>, __f<I2>, Pred, Proj1, Proj2>
 	{
 		return __stl2::__equal_3(__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::forward<I2>(first2), __stl2::forward<Pred>(pred),
-			__stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
+			__stl2::forward<I2>(first2), __stl2::ref(pred),
+			__stl2::ref(proj1), __stl2::ref(proj2));
 	}
 
 	template <class I1, class S1, class I2, class S2, class Pred = equal_to<>,
@@ -103,15 +95,15 @@ STL2_OPEN_NAMESPACE {
 		Sentinel<__f<S1>, __f<I1>>() &&
 		Sentinel<__f<S2>, __f<I2>>() &&
 		models::IndirectlyComparable<
-			__f<I1>, __f<I2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool equal(I1&& first1, S1&& last1, I2&& first2, S2&& last2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+			__f<I1>, __f<I2>, Pred, Proj1, Proj2>
+	bool equal(I1&& first1, S1&& last1, I2&& first2, S2&& last2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::__equal_4(
 			__stl2::forward<I1>(first1), __stl2::forward<S1>(last1),
 			__stl2::forward<I2>(first2), __stl2::forward<S2>(last2),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(pred), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	template <class I1, class S1, class I2, class S2, class Pred = equal_to<>,
@@ -122,9 +114,9 @@ STL2_OPEN_NAMESPACE {
 		SizedSentinel<__f<S1>, __f<I1>>() &&
 		SizedSentinel<__f<S2>, __f<I2>>() &&
 		models::IndirectlyComparable<
-			__f<I1>, __f<I2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool equal(I1&& first1_, S1&& last1_, I2&& first2_, S2&& last2_, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+			__f<I1>, __f<I2>, Pred, Proj1, Proj2>
+	bool equal(I1&& first1_, S1&& last1_, I2&& first2_, S2&& last2_, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		// This function is a bit weird: it takes first1...last2 by
 		// forwarding reference, despite actually using them, so that the
@@ -138,8 +130,8 @@ STL2_OPEN_NAMESPACE {
 		auto len2 = __stl2::distance(first2, __stl2::forward<S2>(last2_));
 		return len1 == len2 &&
 			__stl2::__equal_3(__stl2::move(first1), __stl2::move(last1),
-				__stl2::move(first2), __stl2::forward<Pred>(pred),
-				__stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
+				__stl2::move(first2), __stl2::ref(pred),
+				__stl2::ref(proj1), __stl2::ref(proj2));
 	}
 
 	template <InputRange Rng1, InputRange Rng2, class Pred = equal_to<>,
@@ -147,16 +139,16 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyComparable<
 			iterator_t<Rng1>, iterator_t<Rng2>,
-			__f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool equal(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+			Pred, Proj1, Proj2>
+	bool equal(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::__equal_4(
 			__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::forward<Pred>(pred),
-			__stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(pred),
+			__stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	template <InputRange Rng1, InputRange Rng2, class Pred = equal_to<>,
@@ -166,18 +158,18 @@ STL2_OPEN_NAMESPACE {
 		models::SizedRange<Rng2> &&
 		models::IndirectlyComparable<
 			iterator_t<Rng1>, iterator_t<Rng2>,
-		__f<Pred>, __f<Proj1>, __f<Proj2>>
-	bool equal(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+		Pred, Proj1, Proj2>
+	bool equal(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		auto len1 = __stl2::distance(rng1);
 		auto len2 = __stl2::distance(rng2);
 		return len1 == len2 &&
 			__stl2::__equal_3(
 				__stl2::begin(rng1), __stl2::end(rng1),
-				__stl2::begin(rng2), __stl2::forward<Pred>(pred),
-				__stl2::forward<Proj1>(proj1),
-				__stl2::forward<Proj2>(proj2));
+				__stl2::begin(rng2), __stl2::ref(pred),
+				__stl2::ref(proj1),
+				__stl2::ref(proj2));
 	}
 
 	// Extension

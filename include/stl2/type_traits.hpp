@@ -164,7 +164,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool CommonReference = false;
 		template <class T, class U>
 		requires
-			requires (T (&t)(), U (&u)()) {
+			requires(T (&t)(), U (&u)()) {
 				typename common_reference_t<T, U>;
 				typename common_reference_t<U, T>;
 				requires Same<common_reference_t<T, U>,
@@ -201,7 +201,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			CommonReference<add_lvalue_reference_t<const T>,
 				add_lvalue_reference_t<const U>> &&
-			requires (T (&t)(), U (&u)()) {
+			requires(T (&t)(), U (&u)()) {
 				typename common_type_t<T, U>;
 				typename common_type_t<U, T>;
 				requires Same<common_type_t<T, U>, common_type_t<U, T>>;

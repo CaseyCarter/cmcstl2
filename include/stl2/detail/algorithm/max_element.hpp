@@ -25,14 +25,12 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<I, __f<Proj>>>
-	I max_element(I first, S last, Comp&& comp_ = Comp{}, Proj&& proj_ = Proj{})
+			Comp, projected<I, Proj>>
+	I max_element(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		if (first != last) {
-			auto comp = ext::make_callable_wrapper(__stl2::forward<Comp>(comp_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 			for (auto i = __stl2::next(first); i != last; ++i) {
-				if (!comp(proj(*i), proj(*first))) {
+				if (!__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {
 					first = i;
 				}
 			}
@@ -43,24 +41,24 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<iterator_t<Rng>, __f<Proj>>>
+			Comp, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	max_element(Rng&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	max_element(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::max_element(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	// Extension
 	template <class E, class Comp = less<>, class Proj = identity>
 	requires
 		models::IndirectCallableStrictWeakOrder<
-			__f<Comp>, projected<const E*, __f<Proj>>>
+			Comp, projected<const E*, Proj>>
 	dangling<const E*>
-	max_element(std::initializer_list<E>&& rng, Comp&& comp = Comp{}, Proj&& proj = Proj{})
+	max_element(std::initializer_list<E>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::max_element(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Comp>(comp), __stl2::forward<Proj>(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

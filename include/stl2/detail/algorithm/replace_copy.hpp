@@ -25,16 +25,14 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyCopyable<I, O> &&
 		models::IndirectCallableRelation<
-			equal_to<>, projected<I, __f<Proj>>, const T1*>
+			equal_to<>, projected<I, Proj>, const T1*>
 	tagged_pair<tag::in(I), tag::out(O)>
 	replace_copy(I first, S last, O result, const T1& old_value,
-		const T2& new_value, Proj&& proj_ = Proj{})
+		const T2& new_value, Proj proj = Proj{})
 	{
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 		for (; first != last; ++first, ++result) {
 			reference_t<I>&& v = *first;
-			if (proj(v) == old_value) {
+			if (__stl2::invoke(proj, v) == old_value) {
 				*result = new_value;
 			} else {
 				*result = __stl2::forward<reference_t<I>>(v);
@@ -48,14 +46,14 @@ STL2_OPEN_NAMESPACE {
 		models::OutputIterator<__f<O>, const T2&> &&
 		models::IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
 		models::IndirectCallableRelation<
-			equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T1*>
+			equal_to<>, projected<iterator_t<Rng>, Proj>, const T1*>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	replace_copy(Rng&& rng, O&& result, const T1& old_value,
-		const T2& new_value, Proj&& proj = Proj{})
+		const T2& new_value, Proj proj = Proj{})
 	{
 		return __stl2::replace_copy(
 			__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result),
-			old_value, new_value, __stl2::forward<Proj>(proj));
+			old_value, new_value, __stl2::ref(proj));
 	}
 
 	// Extension
@@ -64,15 +62,15 @@ STL2_OPEN_NAMESPACE {
 		models::OutputIterator<__f<O>, const T2&> &&
 		models::IndirectlyCopyable<const E*, __f<O>> &&
 		models::IndirectCallableRelation<
-			equal_to<>, projected<const E*, __f<Proj>>, const T1*>
+			equal_to<>, projected<const E*, Proj>, const T1*>
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
 	replace_copy(std::initializer_list<E>&& rng,
 		O&& result, const T1& old_value,
-		const T2& new_value, Proj&& proj = Proj{})
+		const T2& new_value, Proj proj = Proj{})
 	{
 		return __stl2::replace_copy(
 			__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result),
-			old_value, new_value, __stl2::forward<Proj>(proj));
+			old_value, new_value, __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

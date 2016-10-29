@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <Readable I>
 	requires
-		requires (const I i) {
+		requires(const I i) {
 			detail::operator_arrow(i, ext::max_priority_tag);
 		}
 	decltype(auto) __operator_arrow(const I& i)

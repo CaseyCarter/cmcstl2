@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool __stream_extractable = false;
 		template <class T, class Stream>
 		requires
-			requires (Stream& is, T& t) {
+			requires(Stream& is, T& t) {
 				STL2_EXACT_TYPE_CONSTRAINT(is >> t, Stream&);
 				// Axiom: &is == &(is << t)
 			}
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool __stream_insertable = false;
 		template <class T, class Stream>
 		requires
-			requires (Stream& os, const T& t) {
+			requires(Stream& os, const T& t) {
 				STL2_EXACT_TYPE_CONSTRAINT(os << t, Stream&);
 				// Axiom: &os == &(os << t)
 			}

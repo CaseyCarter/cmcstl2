@@ -614,9 +614,24 @@ STL2_OPEN_NAMESPACE {
 		__stl2::forward<BI>(i).get()
 	)
 
+	namespace basic_iterator_adl {
+		template <class>
+		struct hook {};
+
+		template <class C1, class C2>
+		requires cursor::IndirectSwap<C1, C2>()
+		constexpr void iter_swap(
+			const basic_iterator<C1>& x, const basic_iterator<C2>& y)
+		noexcept(noexcept(x.get().indirect_swap(y.get())))
+		{
+			x.get().indirect_swap(y.get());
+		}
+	} // namespace basic_iterator_adl
+
 	cursor::Cursor{C}
 	class basic_iterator
 	: public mixin_t<C>, private detail::iterator_associated_types_base<C>
+	, basic_iterator_adl::hook<C>
 	{
 		template <_SpecializationOf<basic_iterator> BI>
 		friend constexpr decltype(auto) get_cursor(BI&& i);
@@ -732,14 +747,6 @@ STL2_OPEN_NAMESPACE {
 		{
 			return i.get().indirect_move();
 		}
-
-		template <class O>
-		requires cursor::IndirectSwap<C, O>()
-		friend constexpr void iter_swap(
-			const basic_iterator& x, const basic_iterator<O>& y)
-		STL2_NOEXCEPT_RETURN(
-			(void)x.indirect_swap(y)
-		)
 
 		constexpr basic_iterator& operator++() & noexcept {
 			return *this;

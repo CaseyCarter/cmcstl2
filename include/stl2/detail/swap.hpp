@@ -57,14 +57,14 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_customization = false;
 		template <class T, class U>
 		requires
-			requires (T&& t, U&& u) { swap((T&&)t, (U&&)u); }
+			requires(T&& t, U&& u) { swap((T&&)t, (U&&)u); }
 		constexpr bool has_customization<T, U> = true;
 
 		template <class F, class T, class U>
 		constexpr bool has_operator = false;
 		template <class F, class T, class U>
 		requires
-			requires (const F& f, T& t, U& u) { f(t, u); }
+			requires(const F& f, T& t, U& u) { f(t, u); }
 		constexpr bool has_operator<F, T, U> = true;
 
 		class fn {
@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool __swappable = false;
 	template <class T, class U>
 	requires
-		requires (T&& t, U&&u) {
+		requires(T&& t, U&&u) {
 			__stl2::swap((T&&)t, (U&&)u);
 		}
 	constexpr bool __swappable<T, U> = true;

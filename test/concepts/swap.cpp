@@ -81,7 +81,7 @@ namespace swappable_test {
 			ns::Same<T, constrained_swappable>();
 		template <ConstrainedSwappable T, ConstrainedSwappable U>
 		void swap(T&, U&) {}
-		template<ConstrainedSwappable T>
+		template <ConstrainedSwappable T>
 		void swap(T &, T &) {}
 	}
 	using __constrained_swappable::constrained_swappable;

@@ -41,7 +41,7 @@ constexpr auto factorial(ranges::Integral x)
 	return r;
 }
 
-template<typename Iter, typename Sent = Iter>
+template <typename Iter, typename Sent = Iter>
 void test_iter()
 {
 	int ia[] = {6, 5, 4, 3, 2, 1};
@@ -68,7 +68,7 @@ void test_iter()
 	}
 }
 
-template<typename Iter, typename Sent = Iter>
+template <typename Iter, typename Sent = Iter>
 void test_range()
 {
 	int ia[] = {6, 5, 4, 3, 2, 1};
@@ -95,7 +95,7 @@ void test_range()
 	}
 }
 
-template<typename Iter, typename Sent = Iter>
+template <typename Iter, typename Sent = Iter>
 void test_iter_comp()
 {
 	typedef std::greater<int> C;
@@ -123,7 +123,7 @@ void test_iter_comp()
 	}
 }
 
-template<typename Iter, typename Sent = Iter>
+template <typename Iter, typename Sent = Iter>
 void test_range_comp()
 {
 	typedef std::greater<int> C;

@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool __assignable = false;
 	template <class T, class U>
 	requires
-		requires (T&& t, U&& u) {
+		requires(T&& t, U&& u) {
 			STL2_EXACT_TYPE_CONSTRAINT((T&&)t = (U&&)u, T&);
 		}
 	constexpr bool __assignable<T, U> = true;

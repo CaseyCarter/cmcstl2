@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			static constexpr std::size_t seed_count = 19;
-			template<class = void>
+			template <class = void>
 			std::array<std::uint32_t, seed_count> local_entropy(std::uint32_t s1, std::uint32_t s2)
 			{
 				static_assert(seed_count >= 11);
@@ -248,7 +248,7 @@ STL2_OPEN_NAMESPACE {
 			*     http://www.pcg-random.org/posts/developing-a-seed_seq-alternative.html
 			*/
 
-			template<std::size_t count = 4, UnsignedIntegral IntRep = std::uint32_t,
+			template <std::size_t count = 4, UnsignedIntegral IntRep = std::uint32_t,
 				std::size_t mix_rounds = 1 + (count <= 2)>
 			struct seed_seq_fe {
 			public:
@@ -267,7 +267,7 @@ STL2_OPEN_NAMESPACE {
 
 				std::array<IntRep, count> mixer_;
 
-				template<InputIterator I, Sentinel<I> S>
+				template <InputIterator I, Sentinel<I> S>
 				requires
 					ConvertibleTo<reference_t<I>, IntRep>()
 				void mix_entropy(I begin, S end)

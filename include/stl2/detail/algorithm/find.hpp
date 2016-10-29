@@ -25,12 +25,11 @@ STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class T, class Proj = identity>
 	requires
 		models::IndirectCallableRelation<
-			equal_to<>, projected<I, __f<Proj>>, const T*>
-	I find(I first, S last, const T& value, Proj&& proj_ = Proj{})
+			equal_to<>, projected<I, Proj>, const T*>
+	I find(I first, S last, const T& value, Proj proj = Proj{})
 	{
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		for (; first != last; ++first) {
-			if (proj(*first) == value) {
+			if (__stl2::invoke(proj, *first) == value) {
 				break;
 			}
 		}
@@ -40,20 +39,20 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng, class T, class Proj = identity>
 	requires
 		models::IndirectCallableRelation<
-			equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T*>
-	safe_iterator_t<Rng> find(Rng&& rng, const T& value, Proj&& proj = Proj{}) {
+			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
+	safe_iterator_t<Rng> find(Rng&& rng, const T& value, Proj proj = Proj{}) {
 		return __stl2::find(__stl2::begin(rng), __stl2::end(rng), value,
-												__stl2::forward<Proj>(proj));
+												__stl2::ref(proj));
 	}
 
 	// Extension
 	template <class E, class T, class Proj = identity>
 	requires
 		models::IndirectCallableRelation<
-			equal_to<>, projected<const E*, __f<Proj>>, const T*>
+			equal_to<>, projected<const E*, Proj>, const T*>
 	dangling<const E*>
-	find(std::initializer_list<E>&& il, const T& value, Proj&& proj = Proj{}) {
-		return __stl2::find(il.begin(), il.end(), value, __stl2::forward<Proj>(proj));
+	find(std::initializer_list<E>&& il, const T& value, Proj proj = Proj{}) {
+		return __stl2::find(il.begin(), il.end(), value, __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

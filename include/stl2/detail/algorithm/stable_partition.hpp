@@ -38,9 +38,9 @@ STL2_OPEN_NAMESPACE {
 			void skip_true(I& first, difference_type_t<I>& n, Pred& pred, Proj& proj)
 			{
 				// advance "first" past values that satisfy the predicate.
-				// Ensures: n == 0 || !pred(proj(*first))
+				// Ensures: n == 0 || !__stl2::invoke(pred, __stl2::invoke(proj, *first))
 				STL2_EXPECT(n >= 0);
-				while (n != 0 && pred(proj(*first))) {
+				while (n != 0 && __stl2::invoke(pred, __stl2::invoke(proj, *first))) {
 					++first;
 					--n;
 				}
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 			forward_buffer(I first, I next, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
 			{
-				// Precondition: !pred(proj(*first)))
+				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first)))
 				// Precondition: __stl2::next(first) == next
 				STL2_EXPECT(n >= 2);
 				STL2_EXPECT(n <= buf.size());
@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 			forward(I first, difference_type_t<I> n, buf_t<I>& buf, Pred& pred,
 				Proj& proj)
 			{
-				// Precondition: !pred(proj(*first)))
+				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first)))
 				STL2_EXPECT(n > 0);
 
 				auto middle = __stl2::next(first);
@@ -134,13 +134,13 @@ STL2_OPEN_NAMESPACE {
 			void skip_false(I& last, difference_type_t<I>& n, Pred& pred, Proj& proj)
 			{
 				// Move last backward past values that do not satisfy pred.
-				// Precondition: pred(proj(*(last - n)))
+				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *(last - n)))
 				STL2_EXPECT(n > 0);
-				// Ensures: n == 0 || pred(proj(*last))
+				// Ensures: n == 0 || __stl2::invoke(pred, __stl2::invoke(proj, *last))
 
 				do {
 					--last;
-				} while (--n != 0 && !pred(proj(*last)));
+				} while (--n != 0 && !__stl2::invoke(pred, __stl2::invoke(proj, *last)));
 			}
 
 			template <BidirectionalIterator I, class Proj,
@@ -150,8 +150,8 @@ STL2_OPEN_NAMESPACE {
 			I bidirectional_buffer(I first, I last, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
 			{
-				// Precondition: !pred(proj(*first))
-				// Precondition: pred(proj(*last))
+				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
+				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *last))
 				// Precondition: n == distance(first, last)
 				STL2_EXPECT(n >= 2);
 				STL2_EXPECT(n <= buf.size());
@@ -195,8 +195,8 @@ STL2_OPEN_NAMESPACE {
 			I bidirectional(I first, I last, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
 			{
-				// Precondition: !pred(proj(*first))
-				// Precondition: pred(proj(*last))
+				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
+				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *last))
 				// Precondition: n == distance(first, last)
 				STL2_EXPECT(n >= difference_type_t<I>(1));
 
@@ -229,7 +229,7 @@ STL2_OPEN_NAMESPACE {
 			I bidirectional_reduce_front(I first, I last, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
 			{
-				// Precondition: pred(proj(*last))
+				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *last))
 				// Precondition: n == distance(first, last)
 				STL2_EXPECT(n >= difference_type_t<I>(0));
 
@@ -247,7 +247,7 @@ STL2_OPEN_NAMESPACE {
 			I bidirectional_reduce_back(I first, I last, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
 			{
-				// Precondition: !pred(proj(*first))
+				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
 				// Precondition: n == __stl2::distance(first, last)
 				STL2_EXPECT(n >= difference_type_t<I>(1));
 
@@ -265,13 +265,10 @@ STL2_OPEN_NAMESPACE {
 		requires
 			models::Permutable<I> &&
 			models::IndirectCallablePredicate<
-				__f<Pred>, projected<I, __f<Proj>>>
+				Pred, projected<I, Proj>>
 		I stable_partition_n(I first, difference_type_t<I> n,
-			Pred&& pred_, Proj&& proj_ = Proj{})
+			Pred pred, Proj proj = Proj{})
 		{
-			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 			// Either prove all true or find first false
 			detail::stable_part::skip_true(first, n, pred, proj);
 			if (n < difference_type_t<I>(2)) {
@@ -292,14 +289,11 @@ STL2_OPEN_NAMESPACE {
 		requires
 			models::Permutable<I> &&
 			models::IndirectCallablePredicate<
-				__f<Pred>, projected<I, __f<Proj>>>
+				Pred, projected<I, Proj>>
 		I stable_partition_n(I first, I last, difference_type_t<I> n,
-			Pred&& pred_, Proj&& proj_ = Proj{})
+			Pred pred, Proj proj = Proj{})
 		{
 			// Precondition: n == distance(first, last);
-			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 			// Either prove all true or find first false
 			detail::stable_part::skip_true(first, n, pred, proj);
 			if (n == difference_type_t<I>(0)) {
@@ -327,14 +321,14 @@ STL2_OPEN_NAMESPACE {
 		requires
 			models::Permutable<I> &&
 			models::IndirectCallablePredicate<
-				__f<Pred>, projected<I, __f<Proj>>>
+				Pred, projected<I, Proj>>
 		I stable_partition_n(I first, difference_type_t<I> n,
-			Pred&& pred, Proj&& proj = Proj{})
+			Pred pred, Proj proj = Proj{})
 		{
 			auto bound = __stl2::next(first, n);
 			return ext::stable_partition_n(
 				__stl2::move(first), __stl2::move(bound), n,
-				__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+				__stl2::ref(pred), __stl2::ref(proj));
 		}
 	}
 
@@ -342,13 +336,13 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Permutable<I> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I stable_partition(I first, S last, Pred&& pred, Proj&& proj = Proj{})
+			Pred, projected<I, Proj>>
+	I stable_partition(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(first, __stl2::move(last));
 		return ext::stable_partition_n(
 			__stl2::move(first), n,
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template <BidirectionalIterator I, Sentinel<I> S, class Pred,
@@ -356,40 +350,40 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Permutable<I> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I stable_partition(I first, S last, Pred&& pred, Proj&& proj = Proj{})
+			Pred, projected<I, Proj>>
+	I stable_partition(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		auto bound = ext::enumerate(first, __stl2::move(last));
 		return ext::stable_partition_n(
 			__stl2::move(first), __stl2::move(bound.end()), bound.count(),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
 	requires
 		models::Permutable<iterator_t<Rng>> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	stable_partition(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+	stable_partition(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return ext::stable_partition_n(
 			__stl2::begin(rng), __stl2::distance(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template <BidirectionalRange Rng, class Pred, class Proj = identity>
 	requires
 		models::Permutable<iterator_t<Rng>> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	stable_partition(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+	stable_partition(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		auto bound = ext::enumerate(rng);
 		return ext::stable_partition_n(
 			__stl2::begin(rng), __stl2::move(bound.end()), bound.count(),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

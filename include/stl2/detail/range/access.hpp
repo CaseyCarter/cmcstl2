@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
-			requires requires (R& r) {
+			requires requires(R& r) {
 				requires Iterator<__f<decltype(r.begin())>>();
 			}
 		constexpr bool has_member<R> = true;
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_non_member = false;
 		template <class R>
 		requires
-			requires (R& r) {
+			requires(R& r) {
 				requires Iterator<__f<decltype(begin(r))>>();
 			}
 		constexpr bool has_non_member<R> = true;
@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_member = false;
 		template <class R>
 		requires
-			requires (R& r) {
+			requires(R& r) {
 				requires Sentinel<__f<decltype(r.end())>, decltype(__stl2::begin(r))>();
 			}
 		constexpr bool has_member<R> = true;
@@ -105,7 +105,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_non_member = false;
 		template <class R>
 		requires
-			requires (R& r) {
+			requires(R& r) {
 				requires Sentinel<__f<decltype(end(r))>, decltype(__stl2::begin(r))>();
 			}
 		constexpr bool has_non_member<R> = true;
@@ -148,7 +148,7 @@ STL2_OPEN_NAMESPACE {
 		struct fn {
 			template <class R>
 			requires
-				requires (const R& r) { __stl2::begin(r); }
+				requires(const R& r) { __stl2::begin(r); }
 			constexpr auto operator()(const R& r) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::begin(r)
@@ -157,7 +157,7 @@ STL2_OPEN_NAMESPACE {
 			[[deprecated]] constexpr auto operator()(const R&& r) const
 			noexcept(noexcept(__stl2::begin(r)))
 			requires
-				requires (const R& r) { __stl2::begin(r); }
+				requires(const R& r) { __stl2::begin(r); }
 			{
 				return __stl2::begin(r);
 			}
@@ -173,7 +173,7 @@ STL2_OPEN_NAMESPACE {
 		struct fn {
 			template <class R>
 			requires
-				requires (const R& r) { __stl2::end(r); }
+				requires(const R& r) { __stl2::end(r); }
 			constexpr auto operator()(const R& r) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::end(r)
@@ -182,7 +182,7 @@ STL2_OPEN_NAMESPACE {
 			[[deprecated]] constexpr auto operator()(const R&& r) const
 			noexcept(noexcept(__stl2::end(r)))
 			requires
-				requires (const R& r) { __stl2::end(r); }
+				requires(const R& r) { __stl2::end(r); }
 			{
 				return __stl2::end(r);
 			}
@@ -200,7 +200,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_member = false;
 		template <class R>
 		requires
-			requires (R& r) {
+			requires(R& r) {
 				requires Iterator<__f<decltype(r.rbegin())>>();
 			}
 		constexpr bool has_member<R> = true;
@@ -211,7 +211,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool can_make_reverse = false;
 		template <class R>
 		requires
-			requires (R& r) {
+			requires(R& r) {
 				requires Same<decltype(__stl2::begin(r)), decltype(__stl2::end(r))>();
 				make_reverse_iterator(__stl2::end(r));
 			}
@@ -250,7 +250,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_member = false;
 		template <class R>
 		requires
-			requires (R& r) {
+			requires(R& r) {
 				requires Sentinel<__f<decltype(r.rend())>, decltype(__stl2::rbegin(r))>();
 			}
 		constexpr bool has_member<R> = true;
@@ -259,7 +259,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool can_make_reverse = false;
 		template <class R>
 		requires
-			requires (R& r) {
+			requires(R& r) {
 				requires Same<decltype(__stl2::begin(r)), decltype(__stl2::end(r))>();
 				make_reverse_iterator(__stl2::begin(r));
 			}
@@ -299,7 +299,7 @@ STL2_OPEN_NAMESPACE {
 		struct fn {
 			template <class R>
 			requires
-				requires (const R& r) { __stl2::rbegin(r); }
+				requires(const R& r) { __stl2::rbegin(r); }
 			constexpr auto operator()(const R& r) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::rbegin(r)
@@ -308,7 +308,7 @@ STL2_OPEN_NAMESPACE {
 			[[deprecated]] constexpr auto operator()(const R&& r) const
 			noexcept(noexcept(__stl2::rbegin(r)))
 			requires
-				requires (const R& r) { __stl2::rbegin(r); }
+				requires(const R& r) { __stl2::rbegin(r); }
 			{
 				return __stl2::rbegin(r);
 			}
@@ -324,7 +324,7 @@ STL2_OPEN_NAMESPACE {
 		struct fn {
 			template <class R>
 			requires
-				requires (const R& r) { __stl2::rend(r); }
+				requires(const R& r) { __stl2::rend(r); }
 			constexpr auto operator()(const R& r) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::rend(r)
@@ -333,7 +333,7 @@ STL2_OPEN_NAMESPACE {
 			[[deprecated]] constexpr auto operator()(const R&& r) const
 			noexcept(noexcept(__stl2::rend(r)))
 			requires
-				requires (const R& r) { __stl2::rend(r); }
+				requires(const R& r) { __stl2::rend(r); }
 			{
 				return __stl2::rend(r);
 			}
@@ -357,7 +357,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_member = false;
 		template <class R>
 		requires
-			requires (const R& r) {
+			requires(const R& r) {
 				requires Integral<__f<decltype(r.size())>>();
 			}
 		constexpr bool has_member<R> = true;
@@ -366,7 +366,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_non_member = false;
 		template <class R>
 		requires
-			requires (const R& r) {
+			requires(const R& r) {
 				requires Integral<__f<decltype(size(r))>>();
 			}
 		constexpr bool has_non_member<R> = true;
@@ -375,7 +375,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_difference = false;
 		template <class R>
 		requires
-			requires (const R& r) {
+			requires(const R& r) {
 				requires SizedSentinel<decltype(__stl2::end(r)), decltype(__stl2::begin(r))>();
 			}
 		constexpr bool has_difference<R> = true;
@@ -418,7 +418,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_member = false;
 		template <class R>
 		requires
-			requires (const R& r) {
+			requires(const R& r) {
 				STL2_CONVERSION_CONSTRAINT(r.empty(), bool);
 			}
 		constexpr bool has_member<R> = true;
@@ -427,14 +427,14 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_size = false;
 		template <class R>
 		requires
-			requires (const R& r) { __stl2::size(r); }
+			requires(const R& r) { __stl2::size(r); }
 		constexpr bool has_size<R> = true;
 
 		template <class R>
 		constexpr bool has_begin_end = false;
 		template <class R>
 		requires
-			requires (const R& r) {
+			requires(const R& r) {
 				__stl2::end(r);
 			}
 		constexpr bool has_begin_end<R> = true;
@@ -477,7 +477,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_member = false;
 		template <class R>
 		requires
-			requires (R& r) {
+			requires(R& r) {
 				requires _Is<__f<decltype(r.data())>, std::is_pointer>;
 			}
 		constexpr bool has_member<R> = true;
@@ -486,7 +486,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_pointer_iterator = false;
 		template <class R>
 		requires
-			requires (R& r) {
+			requires(R& r) {
 				requires is_pointer<decltype(__stl2::begin(r))>::value;
 			}
 		constexpr bool has_pointer_iterator<R> = true;
@@ -495,7 +495,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_contiguous_iterator = false;
 		template <class R>
 		requires
-			requires (R& r) {
+			requires(R& r) {
 				requires ext::ContiguousIterator<decltype(__stl2::begin(r))>();
 			}
 		constexpr bool has_contiguous_iterator<R> = true;
@@ -556,14 +556,14 @@ STL2_OPEN_NAMESPACE {
 		namespace __cdata {
 			struct fn {
 				template <class R>
-					requires requires (const R& r) { __stl2::data(r); }
+					requires requires(const R& r) { __stl2::data(r); }
 				constexpr auto operator()(const R& r) const
 				STL2_NOEXCEPT_RETURN(__stl2::data(r))
 
 				template <class R>
 				[[deprecated]] constexpr auto operator()(const R&& r) const
 					noexcept(noexcept(__stl2::data(r)))
-					requires requires (const R& r) { __stl2::data(r); }
+					requires requires(const R& r) { __stl2::data(r); }
 				{
 					return __stl2::data(r);
 				}

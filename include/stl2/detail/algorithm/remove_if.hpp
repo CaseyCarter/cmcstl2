@@ -26,16 +26,14 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Permutable<I> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I remove_if(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
+			Pred, projected<I, Proj>>
+	I remove_if(I first, S last, Pred pred, Proj proj = Proj{})
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
 		first = __stl2::find_if(__stl2::move(first), last,
 			__stl2::ref(pred), __stl2::ref(proj));
 		if (first != last) {
 			for (auto m = __stl2::next(first); m != last; ++m) {
-				if (!pred(proj(*m))) {
+				if (!__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
 					*first = __stl2::iter_move(m);
 					++first;
 				}
@@ -48,13 +46,13 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Permutable<iterator_t<Rng>> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	remove_if(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+	remove_if(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::remove_if(
 			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

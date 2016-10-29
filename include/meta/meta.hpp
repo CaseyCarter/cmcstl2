@@ -460,7 +460,7 @@ namespace meta
         /// follows:
         ///
         /// \code
-        /// template<typename L>
+        /// template <typename L>
         /// using reverse = reverse_fold<L, list<>, lambda<_a, _b, defer<push_back, _a, _b>>>;
         /// \endcode
         ///
@@ -1827,7 +1827,7 @@ namespace meta
             };
 
             template <typename... L, typename C, typename U>
-            requires (Integral<invoke<C, L>> && ...) struct replace_if_<list<L...>, C, U>
+            requires(Integral<invoke<C, L>> && ...) struct replace_if_<list<L...>, C, U>
             {
                 using type = list<if_<invoke<C, L>, U, L>...>;
             };
@@ -1891,7 +1891,7 @@ namespace meta
             };
 
             template <typename... Ts, typename Fn>
-            requires (Integral<invoke<Fn, Ts>> &&...) struct count_if_<list<Ts...>, Fn>
+            requires(Integral<invoke<Fn, Ts>> &&...) struct count_if_<list<Ts...>, Fn>
             {
                 using type = meta::size_t<((std::size_t)(bool)_v<invoke<Fn, Ts>> +...)>;
             };
@@ -1924,13 +1924,13 @@ namespace meta
             };
 
             template <typename... Ts, Callable Fn>
-            requires (Valid<invoke, Fn, Ts> &&...) struct transform_<list<Ts...>, Fn>
+            requires(Valid<invoke, Fn, Ts> &&...) struct transform_<list<Ts...>, Fn>
             {
                 using type = list<invoke<Fn, Ts>...>;
             };
 
             template <typename... Ts, typename... Us, Callable Fn>
-            requires (Valid<invoke, Fn, Ts, Us> &&...) struct transform_<list<Ts...>, list<Us...>, Fn>
+            requires(Valid<invoke, Fn, Ts, Us> &&...) struct transform_<list<Ts...>, list<Us...>, Fn>
             {
                 using type = list<invoke<Fn, Ts, Us>...>;
             };
@@ -2717,7 +2717,7 @@ namespace meta
         /// A lexically scoped expression with local variables.
         ///
         /// \code
-        /// template<typename T, typename L>
+        /// template <typename T, typename L>
         /// using find_index_ = let<
         ///     var<_a, L>,
         ///     var<_b, lazy::find<_a, T>>,

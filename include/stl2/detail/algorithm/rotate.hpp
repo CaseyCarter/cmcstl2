@@ -102,7 +102,7 @@ STL2_OPEN_NAMESPACE {
 		return x;
 	}
 
-	template<RandomAccessIterator I>
+	template <RandomAccessIterator I>
 	requires
 		models::Permutable<I>
 	ext::range<I> __rotate_gcd(I first, I middle, I last)

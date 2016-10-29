@@ -39,20 +39,16 @@ STL2_OPEN_NAMESPACE {
 			class Proj1 = identity, class Proj2 = identity>
 		requires
 			models::IndirectlyComparable<
-				I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
+				I1, I2, Pred, Proj1, Proj2>
 		I1 unsized(I1 first1, S1 last1, I2 first2, S2 last2,
-			Pred&& pred_, Proj1&& proj1_, Proj2&& proj2_)
+			Pred pred, Proj1 proj1, Proj2 proj2)
 		{
 			if (first2 == last2) {
 				return first1;
 			}
 
-			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-			auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-			auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
-
 			for (; first1 != last1; ++first1) {
-				if (pred(proj1(*first1), proj2(*first2))) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 					// *first1 matches *first2, now match elements after here
 					auto m1 = first1;
 					auto m2 = first2;
@@ -65,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 						if (++m1 == last1) {
 							return m1;
 						}
-					} while (pred(proj1(*m1), proj2(*m2)));
+					} while (__stl2::invoke(pred, __stl2::invoke(proj1, *m1), __stl2::invoke(proj2, *m2)));
 				}
 			}
 
@@ -77,31 +73,27 @@ STL2_OPEN_NAMESPACE {
 			class Pred, class Proj1, class Proj2>
 		requires
 			models::IndirectlyComparable<
-				I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
+				I1, I2, Pred, Proj1, Proj2>
 		I1 sized(
 			const I1 first1_, S1 last1, const difference_type_t<I1> d1_,
 			I2 first2, S2 last2, const difference_type_t<I2> d2,
-			Pred&& pred_, Proj1&& proj1_, Proj2&& proj2_)
+			Pred pred, Proj1 proj1, Proj2 proj2)
 		{
 			if (d2 == 0) {
 				return first1_;
 			}
 
-			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-			auto proj1 = ext::make_callable_wrapper(__stl2::forward<Proj1>(proj1_));
-			auto proj2 = ext::make_callable_wrapper(__stl2::forward<Proj2>(proj2_));
-
 			auto d1 = d1_;
 			auto first1 = ext::uncounted(first1_);
 			for(; d1 >= d2; ++first1, --d1) {
-				if (pred(proj1(*first1), proj2(*first2))) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 					auto m1 = first1;
 					auto m2 = first2;
 					do {
 						if (++m2 == last2) {
 							return ext::recounted(first1_, first1, d1_ - d1);
 						}
-					} while (pred(proj1(*++m1), proj2(*m2)));
+					} while (__stl2::invoke(pred, __stl2::invoke(proj1, *++m1), __stl2::invoke(proj2, *m2)));
 				}
 			}
 			return __stl2::next(ext::recounted(first1_, first1, d1_ - d1), last1);
@@ -113,13 +105,13 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::IndirectlyComparable<
-			I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred_ = Pred{},
-						Proj1&& proj1_ = Proj1{}, Proj2&& proj2_ = Proj2{})
+			I1, I2, Pred, Proj1, Proj2>
+	I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
+						Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::unsized(first1, last1, first2, last2,
-			__stl2::forward<Pred>(pred_), __stl2::forward<Proj1>(proj1_),
-			__stl2::forward<Proj2>(proj2_));
+			__stl2::ref(pred), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	// Extension
@@ -130,30 +122,30 @@ STL2_OPEN_NAMESPACE {
 		models::SizedSentinel<S1, I1> &&
 		models::SizedSentinel<S2, I2> &&
 		models::IndirectlyComparable<
-			I1, I2, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+			I1, I2, Pred, Proj1, Proj2>
+	I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::sized(
 			first1, last1, __stl2::distance(first1, last1),
 			first2, last2, __stl2::distance(first2, last2),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(pred), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::IndirectlyComparable<
-			iterator_t<Rng1>, iterator_t<Rng2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	safe_iterator_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
+	safe_iterator_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::unsized(
 			__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(pred), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	// Extension
@@ -162,15 +154,15 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::SizedRange<Rng1> && models::SizedRange<Rng2> &&
 		models::IndirectlyComparable<
-			iterator_t<Rng1>, iterator_t<Rng2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
-	safe_iterator_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
+	safe_iterator_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::sized(
 			__stl2::begin(rng1), __stl2::end(rng1), __stl2::distance(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2), __stl2::distance(rng2),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj1>(proj1),
-			__stl2::forward<Proj2>(proj2));
+			__stl2::ref(pred), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	// Extension
@@ -178,13 +170,13 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::IndirectlyComparable<
-			const E*, iterator_t<Rng2>, __f<Pred>, __f<Proj1>, __f<Proj2>>
+			const E*, iterator_t<Rng2>, Pred, Proj1, Proj2>
 	dangling<const E*>
-	search(std::initializer_list<E>&& rng1, Rng2&& rng2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+	search(std::initializer_list<E>&& rng1, Rng2&& rng2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
-		return __stl2::search(rng1, rng2, __stl2::forward<Pred>(pred),
-			__stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
+		return __stl2::search(rng1, rng2, __stl2::ref(pred),
+			__stl2::ref(proj1), __stl2::ref(proj2));
 	}
 
 	// Extension
@@ -192,13 +184,13 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::IndirectlyComparable<
-			iterator_t<Rng1>, const E*, __f<Pred>, __f<Proj1>, __f<Proj2>>
+			iterator_t<Rng1>, const E*, Pred, Proj1, Proj2>
 	safe_iterator_t<Rng1>
-	search(Rng1&& rng1, std::initializer_list<E>&& rng2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+	search(Rng1&& rng1, std::initializer_list<E>&& rng2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
-		return __stl2::search(rng1, rng2, __stl2::forward<Pred>(pred),
-			__stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
+		return __stl2::search(rng1, rng2, __stl2::ref(pred),
+			__stl2::ref(proj1), __stl2::ref(proj2));
 	}
 
 	// Extension
@@ -206,14 +198,14 @@ STL2_OPEN_NAMESPACE {
 						class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::IndirectlyComparable<
-			const E1*, const E2*, __f<Pred>, __f<Proj1>, __f<Proj2>>
+			const E1*, const E2*, Pred, Proj1, Proj2>
 	dangling<const E1*>
 	search(std::initializer_list<E1>&& rng1,
-		std::initializer_list<E2>&& rng2, Pred&& pred = Pred{},
-		Proj1&& proj1 = Proj1{}, Proj2&& proj2 = Proj2{})
+		std::initializer_list<E2>&& rng2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
-		return __stl2::search(rng1, rng2, __stl2::forward<Pred>(pred),
-			__stl2::forward<Proj1>(proj1), __stl2::forward<Proj2>(proj2));
+		return __stl2::search(rng1, rng2, __stl2::ref(pred),
+			__stl2::ref(proj1), __stl2::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

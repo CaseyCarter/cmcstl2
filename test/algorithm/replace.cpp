@@ -30,7 +30,7 @@
 
 namespace stl2 = __stl2;
 
-template<typename Iter, typename Sent = Iter>
+template <typename Iter, typename Sent = Iter>
 void test_iter()
 {
 	int ia[] = {0, 1, 2, 3, 4};
@@ -44,7 +44,7 @@ void test_iter()
 	CHECK(base(i) == ia + sa);
 }
 
-template<typename Iter, typename Sent = Iter>
+template <typename Iter, typename Sent = Iter>
 void test_rng()
 {
 	int ia[] = {0, 1, 2, 3, 4};

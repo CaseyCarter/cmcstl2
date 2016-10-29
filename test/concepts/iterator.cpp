@@ -74,6 +74,8 @@ namespace ns {
 	using ranges::forward_iterator_tag;
 	using ranges::bidirectional_iterator_tag;
 	using ranges::random_access_iterator_tag;
+
+	using ranges::indirect_result_of_t;
 }
 
 #elif VALIDATE_STL2
@@ -95,20 +97,12 @@ namespace ns = ::__stl2;
 namespace associated_type_test {
 	struct A { using value_type = int; int& operator*() const; };
 	struct B : A { using value_type = double; };
-	struct C : A { using element_type = double; };
-	struct D : A {
-		using value_type = double;
-		using element_type = char;
-		using iterator_category = ns::forward_iterator_tag;
-	};
 
 	CONCEPT_ASSERT(models::Same<int&, ns::reference_t<int*>>);
 	CONCEPT_ASSERT(models::Same<int&, ns::reference_t<int[]>>);
 	CONCEPT_ASSERT(models::Same<int&, ns::reference_t<int[4]>>);
 	CONCEPT_ASSERT(models::Same<int&, ns::reference_t<A>>);
 	CONCEPT_ASSERT(models::Same<int&, ns::reference_t<B>>);
-	CONCEPT_ASSERT(models::Same<int&, ns::reference_t<C>>);
-	CONCEPT_ASSERT(models::Same<int&, ns::reference_t<D>>);
 	CONCEPT_ASSERT(models::Same<const int&, ns::reference_t<const int*>>);
 
 	CONCEPT_ASSERT(models::Same<int&&, ns::rvalue_reference_t<int*>>);
@@ -116,8 +110,6 @@ namespace associated_type_test {
 	CONCEPT_ASSERT(models::Same<int&&, ns::rvalue_reference_t<int[4]>>);
 	CONCEPT_ASSERT(models::Same<int&&, ns::rvalue_reference_t<A>>);
 	CONCEPT_ASSERT(models::Same<int&&, ns::rvalue_reference_t<B>>);
-	CONCEPT_ASSERT(models::Same<int&&, ns::rvalue_reference_t<C>>);
-	CONCEPT_ASSERT(models::Same<int&&, ns::rvalue_reference_t<D>>);
 	CONCEPT_ASSERT(models::Same<const int&&, ns::rvalue_reference_t<const int*>>);
 
 	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<int*>>);
@@ -125,13 +117,11 @@ namespace associated_type_test {
 	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<int[4]>>);
 	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<A>>);
 	CONCEPT_ASSERT(models::Same<double, ns::value_type_t<B>>);
-#if VALIDATE_STL2
-	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<C>>);
-	CONCEPT_ASSERT(models::Same<double, ns::value_type_t<D>>);
-#endif
 	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<const int*>>);
 	CONCEPT_ASSERT(!meta::is_trait<ns::value_type<void>>());
 	CONCEPT_ASSERT(!meta::is_trait<ns::value_type<void*>>());
+	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<const int* const>>);
+	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<const int[2]>>);
 
 	CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int*>>);
 	CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int[]>>);
@@ -141,7 +131,6 @@ namespace associated_type_test {
 	CONCEPT_ASSERT(!meta::is_trait<ns::difference_type<void*>>());
 
 	CONCEPT_ASSERT(models::Same<int, ns::difference_type_t<int>>);
-	CONCEPT_ASSERT(models::Same<ns::iterator_category_t<D>, ns::forward_iterator_tag>);
 #if VALIDATE_STL2
 	CONCEPT_ASSERT(models::Same<ns::iterator_category_t<int*>, __stl2::ext::contiguous_iterator_tag>);
 	CONCEPT_ASSERT(models::Same<ns::iterator_category_t<const int*>, __stl2::ext::contiguous_iterator_tag>);
@@ -273,6 +262,12 @@ namespace iterator_sentinel_test {
 
 namespace indirectly_callable_test {
 	CONCEPT_ASSERT(models::IndirectCallable<std::plus<int>, int*, int*>);
+}
+
+namespace indirect_result_of_test {
+	template <class R, class... Args>
+	using fn_t = R(Args...);
+	CONCEPT_ASSERT(models::Same<ns::indirect_result_of_t<fn_t<void, int>&(const int*)>, void>);
 }
 
 int main() {

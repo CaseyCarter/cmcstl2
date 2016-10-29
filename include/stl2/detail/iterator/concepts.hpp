@@ -53,24 +53,26 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// reference_t [iterator.assoc]
-	// Not to spec: forbids void.
 	//
 	detail::Dereferenceable{R}
 	using reference_t = decltype(*declval<R&>());
 
 	///////////////////////////////////////////////////////////////////////////
-	// iter_move [Extension]
-	// From the proxy iterator work (P0022).
+	// iter_move
+	// Not to spec: Uses a two-step dispatch instead of requiring user overloads
+	// to compete with the default overloads in overload resolution.
+	// See https://github.com/ericniebler/stl2/issues/242
 	//
 	namespace __iter_move {
-		void iter_move(const auto&) = delete;
+		// Not a poison pill, simply a non-ADL block.
+		void iter_move(); // undefined
 
 		template <class>
 		constexpr bool has_customization = false;
 		template <class R>
 		requires
 			models::Dereferenceable<R> &&
-			requires(R&& r) {
+			requires(R& r) {
 				STL2_DEDUCE_AUTO_REF_REF(iter_move(r));
 			}
 		constexpr bool has_customization<R> = true;
@@ -95,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 			template <class R>
 			requires
 				models::Dereferenceable<R>
-			constexpr decltype(auto) operator()(R&& r) const
+			constexpr Ret<R> operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
 				static_cast<Ret<R>>(*r)
 			)
@@ -115,16 +117,10 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// value_type [readable.iterators]
-	// 20150715: Not to spec for various reasons:
-	// * Resolves the ambiguity for a class with both members value_type
-	//   and element_type in favor of value_type.
 	//
 	namespace detail {
 		template <class T>
-		constexpr bool IsValueType = false;
-		template <class T>
-			requires _Decayed<T> && _IsNot<T, is_void>
-		constexpr bool IsValueType<T> = true;
+		constexpr bool IsValueType = !is_void<T>::value;
 
 		template <class T>
 		concept bool MemberValueType =
@@ -139,84 +135,62 @@ STL2_OPEN_NAMESPACE {
 	struct value_type {};
 
 	template <class T>
-	requires
-		detail::IsValueType<remove_cv_t<T>>
-	struct value_type<T*> {
-		using type = remove_cv_t<T>;
-	};
+	struct value_type<T*> :
+		meta::lazy::if_<is_object<T>, remove_cv_t<T>> {};
 
 	template <_Is<is_array> T>
 	struct value_type<T> : value_type<decay_t<T>> {};
 
+	template <class I>
+	struct value_type<I const> : value_type<decay_t<I>> {};
+
 	template <detail::MemberValueType T>
-	requires
-		detail::IsValueType<typename T::value_type>
 	struct value_type<T> {
 		using type = typename T::value_type;
 	};
 
 	template <detail::MemberElementType T>
-	requires
-		!detail::MemberValueType<T> &&
-		detail::IsValueType<typename T::element_type>
 	struct value_type<T> {
 		using type = typename T::element_type;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
 	// value_type_t [readable.iterators]
-	// 20150715: Not to spec.
-	// * Strips cv-qualifiers before evaluating value_type. Someone out
-	//   there may think it's a good idea to have T, const T, and volatile T
-	//   be iterators with differing value types - I think they are insane.
-	// * Requires value_type_t to actually be a value type, i.e., non-void
-	//   and Same<T, decay_t<T>>. I don't think generic code can reasonably
-	//   be expected to work with an iterator whose value_type is a function
-	//   or array.
-	// The end result is that the logic is mostly in value_type_t, since
-	// value_type is subject to the depradations of user specialization.
 	//
 	template <class T>
-		requires detail::IsValueType<meta::_t<value_type<remove_cv_t<T>>>>
-	using value_type_t =
-		meta::_t<value_type<remove_cv_t<T>>>;
+	using value_type_t = meta::_t<value_type<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Readable [readable.iterators]
-	// Not to spec: Additional requirements from P0022.
+	// Not to spec: Disables the "Experimental additional tests"
+	// See https://github.com/ericniebler/stl2/issues/239
 	//
 	template <class I>
 	constexpr bool __readable = false;
 	template <class I>
-		requires requires (const I& i) {
+		requires requires(const I& i) {
 			// Associated types
 			typename value_type_t<I>;
 			typename reference_t<I>;
 			typename rvalue_reference_t<I>;
-
 			// Valid expressions
 			STL2_EXACT_TYPE_CONSTRAINT(*i, reference_t<I>);
 			STL2_EXACT_TYPE_CONSTRAINT(__stl2::iter_move(i), rvalue_reference_t<I>);
-		} &&
+		}
 		// Relationships between associated types
-		models::CommonReference<reference_t<I>, value_type_t<I>&> &&
-		models::CommonReference<reference_t<I>, rvalue_reference_t<I>> &&
-		models::CommonReference<rvalue_reference_t<I>, const value_type_t<I>&> &&
-		// Extra sanity checks (not strictly needed)
-		models::Same<
-			common_reference_t<reference_t<I>, value_type_t<I>>,
-			value_type_t<I>> &&
-		models::Same<
-			common_reference_t<rvalue_reference_t<I>, value_type_t<I>>,
-			value_type_t<I>>
+		&& models::CommonReference<reference_t<I>, value_type_t<I>&>
+		&& models::CommonReference<reference_t<I>, rvalue_reference_t<I>>
+		&& models::CommonReference<rvalue_reference_t<I>, const value_type_t<I>&>
+#if 0
+		// Experimental additional tests
+		&& models::Same<common_reference_t<reference_t<I>, value_t<I>>, value_t<I>>
+		&& models::Same<common_reference_t<rvalue_reference_t<I>, value_t<I>>, value_t<I>>
+#endif
 	constexpr bool __readable<I> = true;
 
 	template <class I>
 	concept bool Readable() {
-		return detail::Dereferenceable<I> &&
-			Movable<I>() &&
-			DefaultConstructible<I>() &&
-			__readable<I>;
+		return Movable<I>() && DefaultConstructible<I>() && __readable<I>;
 	}
 
 	namespace models {
@@ -234,6 +208,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Writable [iterators.writable]
 	// Not to spec, but getting closer.
+	// See https://github.com/ericniebler/stl2/issues/240
 	//
 	template <class, class>
 	constexpr bool __writable = false;
@@ -348,78 +323,69 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
-	// iter_swap [Extension]
-	// From the proxy iterator work (P0022).
+	// iter_swap
+	// Not to spec
+	// See https://github.com/ericniebler/stl2/issues/242
 	//
 	namespace __iter_swap {
 		// Poison pill for iter_swap. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
-		template <class R1, class R2>
-		void iter_swap(R1&&, R2&&) = delete;
+		void iter_swap(auto, auto) = delete;
 
-		template <class R1, class R2>
+		template <class, class>
 		constexpr bool has_customization = false;
 		template <class R1, class R2>
 		requires
-			requires (R1&& r1, R2&& r2) {
-				iter_swap((R1&&)r1, (R2&&)r2);
+			requires(R1& r1, R2& r2) {
+				iter_swap(r1, r2);
 			}
 		constexpr bool has_customization<R1, R2> = true;
 
-		template <class UR1, class UR2, class R1, class R2>
+		template <class R1, class R2>
 		requires
-			has_customization<R1, R2>
-		constexpr void impl(R1&& r1, R2&& r2)
+			models::Swappable<reference_t<R1>, reference_t<R2>>
+		constexpr void impl(R1& r1, R2& r2)
 		STL2_NOEXCEPT_RETURN(
-			(void)iter_swap(__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
+			static_cast<void>(__stl2::swap(*r1, *r2))
 		)
 
-		template <class UR1, class UR2, class R1, class R2>
+		template <class R1, class R2>
 		requires
-			!has_customization<R1, R2> &&
-			models::Swappable<reference_t<UR1>, reference_t<UR2>>
-		constexpr void impl(R1&& r1, R2&& r2)
-		STL2_NOEXCEPT_RETURN(
-			(void)__stl2::swap(*r1, *r2)
-		)
-
-		template <class UR1, class UR2, class R1, class R2>
-		requires
-			!has_customization<R1, R2> &&
-			!models::Swappable<reference_t<UR1>, reference_t<UR2>> &&
-			models::IndirectlyMovableStorable<UR1, UR2> &&
-			models::IndirectlyMovableStorable<UR2, UR1>
-		constexpr void impl(R1&& r1, R2&& r2)
-			noexcept(is_nothrow_indirectly_movable_storable_v<UR1, UR2> &&
-				is_nothrow_indirectly_movable_storable_v<UR2, UR1>)
+			!models::Swappable<reference_t<R1>, reference_t<R2>> &&
+			models::IndirectlyMovableStorable<R1, R2> &&
+			models::IndirectlyMovableStorable<R2, R1>
+		constexpr void impl(R1& r1, R2& r2)
+			noexcept(
+				is_nothrow_indirectly_movable_storable_v<R1, R2> &&
+				is_nothrow_indirectly_movable_storable_v<R2, R1>)
 		{
-			value_type_t<UR1> tmp = __stl2::iter_move(r1);
+			value_type_t<R1> tmp = __stl2::iter_move(r1);
 			*r1 = __stl2::iter_move(r2);
 			*r2 = __stl2::move(tmp);
 		}
 
-		template <class R1, class R2>
-		constexpr bool has_impl = false;
-		template <class R1, class R2>
-		requires
-			requires (R1&& r1, R2&& r2) {
-				__iter_swap::impl<remove_reference_t<R1>,
-					remove_reference_t<R2>>((R1&&)r1, (R2&&)r2);
-			}
-		constexpr bool has_impl<R1, R2> = true;
-
 		struct fn {
-			template <class R1, class R2,
-				class UR1 = remove_reference_t<R1>,
-				class UR2 = remove_reference_t<R2>>
+			template <class R1, class R2>
 			requires
-				models::Readable<UR1> &&
-				models::Readable<UR2> &&
-				has_impl<R1, R2>
+				models::Readable<remove_reference_t<R1>> &&
+				models::Readable<remove_reference_t<R2>> &&
+				has_customization<R1&, R2&>
 			constexpr void operator()(R1&& r1, R2&& r2) const
 			STL2_NOEXCEPT_RETURN(
-				(void)__iter_swap::impl<UR1, UR2>(
-					__stl2::forward<R1>(r1), __stl2::forward<R2>(r2))
+				static_cast<void>(iter_swap(r1, r2))
+			)
+
+			template <class R1, class R2>
+			requires
+				models::Readable<remove_reference_t<R1>> &&
+				models::Readable<remove_reference_t<R2>> &&
+				!has_customization<R1&, R2&> &&
+				requires(R1& r1, R2& r2) {
+					__iter_swap::impl(r1, r2);
+				}
+			constexpr void operator()(R1&& r1, R2&& r2) const
+			STL2_NOEXCEPT_RETURN(
+				static_cast<void>(__iter_swap::impl(r1, r2))
 			)
 		};
 	}
@@ -430,18 +396,19 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlySwappable [commonalgoreq.indirectlyswappable]
-	// Not to spec: Alternate formulation from the proxy iterator work (P0022).
+	// Not to spec
+	// See https://github.com/ericniebler/stl2/issues/241
 	//
 	namespace models {
 		template <class I1, class I2 = I1>
 		constexpr bool IndirectlySwappable = false;
 		template <class I1, class I2>
 		requires
-			requires (I1 i1, I2 i2) {
-				__stl2::iter_swap(i1, i2);
-				__stl2::iter_swap(i2, i1);
-				__stl2::iter_swap(i1, i1);
-				__stl2::iter_swap(i2, i2);
+			requires(I1&& i1, I2&& i2) {
+				__stl2::iter_swap((I1&&)i1, (I2&&)i2);
+				__stl2::iter_swap((I2&&)i2, (I1&&)i1);
+				__stl2::iter_swap((I1&&)i1, (I1&&)i1);
+				__stl2::iter_swap((I2&&)i2, (I2&&)i2);
 			}
 		constexpr bool IndirectlySwappable<I1, I2> = true;
 	}
@@ -593,7 +560,7 @@ STL2_OPEN_NAMESPACE {
 	template <class, class>
 	constexpr bool __sized_sentinel = false;
 	template <class S, class I>
-		requires requires (const I i, const S s) {
+		requires requires(const I i, const S s) {
 			STL2_EXACT_TYPE_CONSTRAINT(s - i, difference_type_t<I>);
 			STL2_EXACT_TYPE_CONSTRAINT(i - s, difference_type_t<I>);
 			// Axiom: If [i,s) denotes a range and N is the smallest
@@ -642,7 +609,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 	constexpr bool __input_iterator = false;
 	template <class I>
-		requires requires (I& i, const I& ci) {
+		requires requires(I& i, const I& ci) {
 			typename iterator_category_t<I>;
 			DerivedFrom<iterator_category_t<I>, input_iterator_tag>();
 			STL2_DEDUCTION_CONSTRAINT(i++, Readable);
@@ -711,7 +678,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 	constexpr bool __random_access_iterator = false;
 	template <class I>
-		requires requires (const I& ci, const difference_type_t<I> n) {
+		requires requires(const I& ci, const difference_type_t<I> n) {
 			STL2_EXACT_TYPE_CONSTRAINT(ci[n], reference_t<I>);
 		}
 	constexpr bool __random_access_iterator<I> = true;
@@ -769,7 +736,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputIterator I>
 	requires
-		requires (I i) {
+		requires(I i) {
 			STL2_DEDUCE_AUTO_REF_REF(i.operator->());
 		}
 	struct __pointer_type<I> {
@@ -804,13 +771,13 @@ STL2_OPEN_NAMESPACE {
 	// Standard iterator traits [iterator.stdtraits]
 	namespace detail {
 		namespace stl2_to_std_iterator_category_ {
-			template<class Ref, class Cat> Cat g(std::input_iterator_tag*, Cat*);
-			template<class Ref, class Cat> Cat g(std::output_iterator_tag*, Cat*);
-			template<class Ref, class Cat> std::input_iterator_tag g(void*, Cat*, Ref* = 0);
-			template<class Ref> std::input_iterator_tag g(const void*, input_iterator_tag*);
-			template<class Ref> std::forward_iterator_tag g(const void*, forward_iterator_tag*);
-			template<class Ref> std::bidirectional_iterator_tag g(const void*, bidirectional_iterator_tag*);
-			template<class Ref> std::random_access_iterator_tag g(const void*, random_access_iterator_tag*);
+			template <class Ref, class Cat> Cat g(std::input_iterator_tag*, Cat*);
+			template <class Ref, class Cat> Cat g(std::output_iterator_tag*, Cat*);
+			template <class Ref, class Cat> std::input_iterator_tag g(void*, Cat*, Ref* = 0);
+			template <class Ref> std::input_iterator_tag g(const void*, input_iterator_tag*);
+			template <class Ref> std::forward_iterator_tag g(const void*, forward_iterator_tag*);
+			template <class Ref> std::bidirectional_iterator_tag g(const void*, bidirectional_iterator_tag*);
+			template <class Ref> std::random_access_iterator_tag g(const void*, random_access_iterator_tag*);
 		}
 
 		template <class Cat, class Ref>

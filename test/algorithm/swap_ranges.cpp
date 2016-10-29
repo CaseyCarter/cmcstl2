@@ -27,7 +27,7 @@
 
 namespace stl2 = __stl2;
 
-template<class Iter1, class Iter2>
+template <class Iter1, class Iter2>
 void test_iter_3()
 {
 	int i[3] = {1, 2, 3};
@@ -54,7 +54,7 @@ void test_iter_3()
 	CHECK(j[2] == 6);
 }
 
-template<class Iter1, class Iter2>
+template <class Iter1, class Iter2>
 void test_iter_4()
 {
 	int i[3] = {1, 2, 3};
@@ -84,7 +84,7 @@ void test_iter_4()
 	CHECK(j[3] == 7);
 }
 
-template<class Iter1, class Iter2>
+template <class Iter1, class Iter2>
 void test_rng_3()
 {
 	int i[3] = {1, 2, 3};
@@ -111,7 +111,7 @@ void test_rng_3()
 	CHECK(j[2] == 6);
 }
 
-template<class Iter1, class Iter2>
+template <class Iter1, class Iter2>
 void test_rng_4()
 {
 	int i[3] = {1, 2, 3};
@@ -158,7 +158,7 @@ void test_rng_4()
 	CHECK(j[3] == 7);
 }
 
-template<class Iter1, class Iter2>
+template <class Iter1, class Iter2>
 void test_move_only()
 {
 	std::unique_ptr<int> i[3];
@@ -178,7 +178,7 @@ void test_move_only()
 	CHECK(*j[2] == 3);
 }
 
-template<class Iter1, class Iter2>
+template <class Iter1, class Iter2>
 void test()
 {
 	test_iter_3<Iter1, Iter2>();

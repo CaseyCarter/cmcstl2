@@ -36,18 +36,15 @@ STL2_OPEN_NAMESPACE {
 		template <ForwardIterator I, class Pred, class Proj = identity>
 		requires
 			models::IndirectCallablePredicate<
-				__f<Pred>, projected<I, __f<Proj>>>
+				Pred, projected<I, Proj>>
 		I partition_point_n(I first, difference_type_t<I> n,
-			Pred&& pred_, Proj&& proj_ = Proj{})
+			Pred pred, Proj proj = Proj{})
 		{
-			auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-			auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 			STL2_EXPECT(0 <= n);
 			while (n != 0) {
 				auto const half = n / 2;
 				auto middle = __stl2::next(__stl2::ext::uncounted(first), half);
-				if (pred(proj(*middle))) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj, *middle))) {
 					first = __stl2::ext::recounted(
 										 first, __stl2::move(++middle), half + 1);
 					n -= half + 1;
@@ -62,19 +59,16 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I partition_point(I first, S last, Pred&& pred_, Proj&& proj_ = Proj{})
+			Pred, projected<I, Proj>>
+	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
 	{
-		auto pred = ext::make_callable_wrapper(__stl2::forward<Pred>(pred_));
-		auto proj = ext::make_callable_wrapper(__stl2::forward<Proj>(proj_));
-
 		// Probe exponentially for either end-of-range or an iterator
 		// that is past the partition point (i.e., does not satisfy pred).
 		auto n = difference_type_t<I>{1};
 		while (true) {
 			auto m = first;
 			auto d = __stl2::advance(m, n, last);
-			if (m == last || !pred(proj(*m))) {
+			if (m == last || !__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
 				n -= d;
 				return ext::partition_point_n(__stl2::move(first), n,
 					__stl2::move(pred), __stl2::move(proj));
@@ -88,47 +82,47 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::SizedSentinel<S, I> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<I, __f<Proj>>>
-	I partition_point(I first, S last, Pred&& pred, Proj&& proj = Proj{})
+			Pred, projected<I, Proj>>
+	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(first, __stl2::move(last));
 		return __stl2::ext::partition_point_n(__stl2::move(first), n,
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
 	requires
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	partition_point(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::partition_point(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
 	requires
 		models::SizedRange<Rng> &&
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<iterator_t<Rng>, __f<Proj>>>
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	partition_point(Rng&& rng, Pred&& pred, Proj&& proj = Proj{})
+	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return ext::partition_point_n(__stl2::begin(rng), __stl2::distance(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	// Extension
 	template <class E, class Pred, class Proj = identity>
 	requires
 		models::IndirectCallablePredicate<
-			__f<Pred>, projected<const E*, __f<Proj>>>
+			Pred, projected<const E*, Proj>>
 	dangling<const E*>
-	partition_point(std::initializer_list<E>&& rng, Pred&& pred, Proj&& proj = Proj{})
+	partition_point(std::initializer_list<E>&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return ext::partition_point_n(__stl2::begin(rng), __stl2::distance(rng),
-			__stl2::forward<Pred>(pred), __stl2::forward<Proj>(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

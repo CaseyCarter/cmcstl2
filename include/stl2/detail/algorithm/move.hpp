@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 #endif
 	}
 
-	template<InputRange Rng, class O>
+	template <InputRange Rng, class O>
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::IndirectlyMovable<iterator_t<Rng>, __f<O>>
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template<class E, class O>
+	template <class E, class O>
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::IndirectlyMovable<const E*, __f<O>>

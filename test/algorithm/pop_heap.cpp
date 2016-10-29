@@ -194,7 +194,7 @@ void test_8(int N)
 struct indirect_less
 {
 	template <class P>
-	bool operator()(const P& x, const P& y)
+	bool operator()(const P& x, const P& y) const
 		{return *x < *y;}
 };
 
@@ -213,10 +213,10 @@ void test_9(int N)
 	delete [] ia;
 }
 
-template<typename T>
+template <typename T>
 struct construct
 {
-	template<typename ...Us>
+	template <typename ...Us>
 	T operator()(Us &&... us) const
 	{
 		return T{((Us &&)us)...};

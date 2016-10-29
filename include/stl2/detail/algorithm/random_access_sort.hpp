@@ -38,10 +38,10 @@ STL2_OPEN_NAMESPACE {
 				--last;
 				// Find the median:
 				return [&](auto&& a, auto&& b, auto&& c) {
-					return comp(a, b)
-						? (comp(b, c) ? mid   : (comp(a, c) ? last : first))
-						: (comp(a, c) ? first : (comp(b, c) ? last : mid  ));
-				}(proj(*first), proj(*mid), proj(*last));
+					return __stl2::invoke(comp, a, b)
+						? (__stl2::invoke(comp, b, c) ? mid   : (__stl2::invoke(comp, a, c) ? last : first))
+						: (__stl2::invoke(comp, a, c) ? first : (__stl2::invoke(comp, b, c) ? last : mid  ));
+				}(__stl2::invoke(proj, *first), __stl2::invoke(proj, *mid), __stl2::invoke(proj, *last));
 			}
 
 			template <RandomAccessIterator I, class Comp, class Proj>
@@ -54,11 +54,11 @@ STL2_OPEN_NAMESPACE {
 				// Do the partition:
 				while (true) {
 					auto &&v = *pivot_pnt;
-					auto &&pivot = proj((decltype(v) &&)v);
-					while (comp(proj(*first), pivot)) {
+					auto &&pivot = __stl2::invoke(proj, (decltype(v) &&)v);
+					while (__stl2::invoke(comp, __stl2::invoke(proj, *first), pivot)) {
 						++first;
 					}
-					while (comp(pivot, proj(*--last))) {
+					while (__stl2::invoke(comp, pivot, __stl2::invoke(proj, *--last))) {
 						;
 					}
 					if (!(first < last)) {
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 			void unguarded_linear_insert(I last, value_type_t<I> val, Comp& comp, Proj& proj)
 			{
 				I next = __stl2::prev(last);
-				while (comp(proj(val), proj(*next))) {
+				while (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *next))) {
 					*last = __stl2::iter_move(next);
 					last = next;
 					--next;
@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 			void linear_insert(I first, I last, Comp& comp, Proj& proj)
 			{
 				value_type_t<I> val = __stl2::iter_move(last);
-				if (comp(proj(val), proj(*first))) {
+				if (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *first))) {
 					__stl2::move_backward(first, last, last + 1);
 					*first = __stl2::move(val);
 				} else {

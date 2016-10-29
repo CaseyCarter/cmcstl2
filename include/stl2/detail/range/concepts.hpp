@@ -27,10 +27,10 @@ namespace std {
 #ifndef __GLIBCXX__
 #pragma message "These forward declarations will likely only work with libstdc++."
 #endif
-	template<class, class, class> class set;
-	template<class, class, class> class multiset;
-	template<class, class, class, class> class unordered_set;
-	template<class, class, class, class> class unordered_multiset;
+	template <class, class, class> class set;
+	template <class, class, class> class multiset;
+	template <class, class, class, class> class unordered_set;
+	template <class, class, class, class> class unordered_multiset;
 }
 
 STL2_OPEN_NAMESPACE {
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 	template <class R>
 	constexpr bool __sized_range = false;
 	template <class R>
-		requires requires (const R& r) {
+		requires requires(const R& r) {
 			STL2_DEDUCTION_CONSTRAINT(__stl2::size(r), Integral);
 			STL2_CONVERSION_CONSTRAINT(__stl2::size(r), difference_type_t<iterator_t<R>>);
 		}
@@ -237,7 +237,7 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		constexpr bool __contiguous_range = false;
 		template <class R>
-			requires requires (R& r) {
+			requires requires(R& r) {
 				STL2_EXACT_TYPE_CONSTRAINT(__stl2::data(r), add_pointer_t<reference_t<iterator_t<R>>>);
 			}
 		constexpr bool __contiguous_range<R> = true;

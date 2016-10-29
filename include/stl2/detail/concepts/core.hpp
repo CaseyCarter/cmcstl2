@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
 		template <class, class>
 		constexpr bool ExplicitlyConvertibleTo = false;
 		template <class T, class U>
-			requires requires (T (&t)()) { static_cast<U>(t()); }
+			requires requires(T (&t)()) { static_cast<U>(t()); }
 		constexpr bool ExplicitlyConvertibleTo<T, U> = true;
 	}
 
@@ -122,6 +122,7 @@ STL2_OPEN_NAMESPACE {
 	// ConvertibleTo [concepts.lib.corelang.convertibleto]
 	// Not to spec: Requires both implicit and explicit conversion with
 	//              equal results.
+	// See https://github.com/ericniebler/stl2/issues/167
 	//
 	template <class T, class U>
 	concept bool ConvertibleTo() {

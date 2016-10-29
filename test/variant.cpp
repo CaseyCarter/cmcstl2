@@ -993,7 +993,7 @@ void test_pointer_get() {
 
 template <class T, std::size_t I, class...Args>
 concept bool Emplaceable() {
-	return requires (T& t, Args&&...args) {
+	return requires(T& t, Args&&...args) {
 		t.template emplace<I>((Args&&)args...);
 	};
 }
@@ -1005,7 +1005,7 @@ constexpr bool emplaceable() { return true; }
 
 template <class T, class U, class...Args>
 concept bool Emplaceable() {
-	return requires (T& t, Args&&...args) {
+	return requires(T& t, Args&&...args) {
 		t.template emplace<U>((Args&&)args...);
 	};
 }

@@ -88,7 +88,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// SignedIntegral [concepts.lib.corelang.signedintegral]
-	// Not to spec.
 	//
 	template <class T>
 	concept bool SignedIntegral() {

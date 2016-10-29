@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T>
 		requires !detail::MemberDifferenceType<T> &&
 			_IsNot<T, is_pointer> &&
-			requires (const T& a, const T& b) {
+			requires(const T& a, const T& b) {
 				STL2_DEDUCTION_CONSTRAINT(a - b, Integral);
 			}
 	struct difference_type<T> :
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 	constexpr bool __weakly_incrementable = false;
 	template <class I>
-		requires requires (I& i) {
+		requires requires(I& i) {
 			typename difference_type_t<I>;
 			STL2_EXACT_TYPE_CONSTRAINT(++i, I&);
 			//STL2_BINARY_DEDUCTION_CONSTRAINT(++i, detail::OneOf, I&, const I&);
@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 	constexpr bool __incrementable = false;
 	template <class I>
-		requires requires (I& i) {
+		requires requires(I& i) {
 			STL2_EXACT_TYPE_CONSTRAINT(i++, I);
 			//STL2_BINARY_DEDUCTION_CONSTRAINT(i++, detail::OneOf, I, I&, const I&);
 		}
@@ -134,7 +134,7 @@ STL2_OPEN_NAMESPACE {
 		template <class I>
 		constexpr bool __decrementable = false;
 		template <class I>
-			requires requires (I& i) {
+			requires requires(I& i) {
 				STL2_EXACT_TYPE_CONSTRAINT(--i, I&);
 				STL2_EXACT_TYPE_CONSTRAINT(i--, I);
 			}
@@ -166,7 +166,7 @@ STL2_OPEN_NAMESPACE {
 		template <class>
 		constexpr bool __random_access_incrementable = false;
 		template <class I>
-			requires requires (I& i, const I& ci, const difference_type_t<I> n) {
+			requires requires(I& i, const I& ci, const difference_type_t<I> n) {
 				STL2_EXACT_TYPE_CONSTRAINT(i += n, I&);
 				STL2_EXACT_TYPE_CONSTRAINT(i -= n, I&);
 				STL2_EXACT_TYPE_CONSTRAINT(ci + n, I);

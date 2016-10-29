@@ -146,7 +146,7 @@ void test_8(int N)
 struct indirect_less
 {
 	template <class P>
-	bool operator()(const P& x, const P& y)
+	bool operator()(const P& x, const P& y) const
 		{return *x < *y;}
 };
 
