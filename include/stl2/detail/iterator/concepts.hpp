@@ -58,18 +58,21 @@ STL2_OPEN_NAMESPACE {
 	using reference_t = decltype(*declval<R&>());
 
 	///////////////////////////////////////////////////////////////////////////
-	// iter_move [Extension]
-	// From the proxy iterator work (P0022).
+	// iter_move
+	// Not to spec: Uses a two-step dispatch instead of requiring user overloads
+	// to compete with the default overloads in overload resolution.
+	// See https://github.com/ericniebler/stl2/issues/242
 	//
 	namespace __iter_move {
-		void iter_move(const auto&) = delete;
+		// Not a poison pill, simply a non-ADL block.
+		void iter_move(); // undefined
 
 		template <class>
 		constexpr bool has_customization = false;
 		template <class R>
 		requires
 			models::Dereferenceable<R> &&
-			requires(R&& r) {
+			requires(R& r) {
 				STL2_DEDUCE_AUTO_REF_REF(iter_move(r));
 			}
 		constexpr bool has_customization<R> = true;
@@ -94,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 			template <class R>
 			requires
 				models::Dereferenceable<R>
-			constexpr decltype(auto) operator()(R&& r) const
+			constexpr Ret<R> operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
 				static_cast<Ret<R>>(*r)
 			)
@@ -320,35 +323,43 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
-	// iter_swap [Extension]
+	// iter_swap
+	// Not to spec
+	// See https://github.com/ericniebler/stl2/issues/242
 	//
 	namespace __iter_swap {
 		// Poison pill for iter_swap. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
+		void iter_swap(auto, auto) = delete;
+
+		template <class, class>
+		constexpr bool has_customization = false;
 		template <class R1, class R2>
-		void iter_swap(R1&&, R2&&) = delete;
+		requires
+			requires(R1& r1, R2& r2) {
+				iter_swap(r1, r2);
+			}
+		constexpr bool has_customization<R1, R2> = true;
 
 		template <class R1, class R2>
 		requires
 			models::Swappable<reference_t<R1>, reference_t<R2>>
-		constexpr void iter_swap(R1&& r1, R2&& r2)
+		constexpr void impl(R1& r1, R2& r2)
 		STL2_NOEXCEPT_RETURN(
 			static_cast<void>(__stl2::swap(*r1, *r2))
 		)
 
-		template <class R1, class R2,
-			class UR1 = remove_reference_t<R1>,
-			class UR2 = remove_reference_t<R2>>
+		template <class R1, class R2>
 		requires
 			!models::Swappable<reference_t<R1>, reference_t<R2>> &&
-			models::IndirectlyMovableStorable<UR1, UR2> &&
-			models::IndirectlyMovableStorable<UR2, UR1>
-		constexpr void iter_swap(R1&& r1, R2&& r2)
+			models::IndirectlyMovableStorable<R1, R2> &&
+			models::IndirectlyMovableStorable<R2, R1>
+		constexpr void impl(R1& r1, R2& r2)
 			noexcept(
-				is_nothrow_indirectly_movable_storable_v<UR1, UR2> &&
-				is_nothrow_indirectly_movable_storable_v<UR2, UR1>)
+				is_nothrow_indirectly_movable_storable_v<R1, R2> &&
+				is_nothrow_indirectly_movable_storable_v<R2, R1>)
 		{
-			value_type_t<UR1> tmp = __stl2::iter_move(r1);
+			value_type_t<R1> tmp = __stl2::iter_move(r1);
 			*r1 = __stl2::iter_move(r2);
 			*r2 = __stl2::move(tmp);
 		}
@@ -358,12 +369,23 @@ STL2_OPEN_NAMESPACE {
 			requires
 				models::Readable<remove_reference_t<R1>> &&
 				models::Readable<remove_reference_t<R2>> &&
-				requires(R1&& r1, R2&& r2) {
-					iter_swap((R1&&)r1, (R2&&)r2);
+				has_customization<R1&, R2&>
+			constexpr void operator()(R1&& r1, R2&& r2) const
+			STL2_NOEXCEPT_RETURN(
+				static_cast<void>(iter_swap(r1, r2))
+			)
+
+			template <class R1, class R2>
+			requires
+				models::Readable<remove_reference_t<R1>> &&
+				models::Readable<remove_reference_t<R2>> &&
+				!has_customization<R1&, R2&> &&
+				requires(R1& r1, R2& r2) {
+					__iter_swap::impl(r1, r2);
 				}
 			constexpr void operator()(R1&& r1, R2&& r2) const
 			STL2_NOEXCEPT_RETURN(
-				static_cast<void>(iter_swap((R1&&)r1, (R2&&)r2))
+				static_cast<void>(__iter_swap::impl(r1, r2))
 			)
 		};
 	}
