@@ -336,7 +336,7 @@ STL2_OPEN_NAMESPACE {
 			requires Writable<I, T&&>()
 			constexpr void operator=(T&& x) const
 			STL2_NOEXCEPT_RETURN(
-				(void)(*it_ = __stl2::forward<T>(x))
+				static_cast<void>(*it_ = __stl2::forward<T>(x))
 			)
 			constexpr operator const I&() const noexcept {
 				return it_;
@@ -428,7 +428,7 @@ STL2_OPEN_NAMESPACE {
 			template <class T>
 			constexpr void set_(T&& t)
 			STL2_NOEXCEPT_RETURN(
-				(void)cur_->write(static_cast<T&&>(t))
+				static_cast<void>(cur_->write(static_cast<T&&>(t)))
 			)
 
 		public:
@@ -618,14 +618,20 @@ STL2_OPEN_NAMESPACE {
 		template <class>
 		struct hook {};
 
+		template <class C>
+		requires cursor::IndirectMove<C>()
+		constexpr decltype(auto) iter_move(const basic_iterator<C>& i)
+		STL2_NOEXCEPT_RETURN(
+			i.get().indirect_move()
+		)
+
 		template <class C1, class C2>
 		requires cursor::IndirectSwap<C1, C2>()
 		constexpr void iter_swap(
 			const basic_iterator<C1>& x, const basic_iterator<C2>& y)
-		noexcept(noexcept(x.get().indirect_swap(y.get())))
-		{
-			x.get().indirect_swap(y.get());
-		}
+		STL2_NOEXCEPT_RETURN(
+			static_cast<void>(x.get().indirect_swap(y.get()))
+		)
 	} // namespace basic_iterator_adl
 
 	cursor::Cursor{C}
@@ -739,13 +745,6 @@ STL2_OPEN_NAMESPACE {
 		{
 			get().write(static_cast<T&&>(t));
 			return *this;
-		}
-
-		friend constexpr decltype(auto) iter_move(const basic_iterator& i)
-		noexcept(noexcept(i.get().indirect_move()))
-		requires cursor::IndirectMove<C>()
-		{
-			return i.get().indirect_move();
 		}
 
 		constexpr basic_iterator& operator++() & noexcept {
