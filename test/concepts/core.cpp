@@ -52,29 +52,6 @@ CONCEPT_ASSERT(!models::Same<int, double>);
 CONCEPT_ASSERT(models::Same<int, int, int, int>);
 CONCEPT_ASSERT(!models::Same<int, int, double, int>);
 
-#if VALIDATE_STL2
-namespace publicly_derived_from_test {
-
-struct A {};
-struct B : A {};
-struct C : A {};
-struct D : B, C {};
-
-CONCEPT_ASSERT(models::PubliclyDerivedFrom<int,int>);
-CONCEPT_ASSERT(models::PubliclyDerivedFrom<A,A>);
-CONCEPT_ASSERT(models::PubliclyDerivedFrom<B,B>);
-CONCEPT_ASSERT(models::PubliclyDerivedFrom<C,C>);
-CONCEPT_ASSERT(models::PubliclyDerivedFrom<D,D>);
-CONCEPT_ASSERT(models::PubliclyDerivedFrom<B,A>);
-CONCEPT_ASSERT(models::PubliclyDerivedFrom<C,A>);
-CONCEPT_ASSERT(!models::PubliclyDerivedFrom<A,B>);
-CONCEPT_ASSERT(!models::PubliclyDerivedFrom<A,C>);
-CONCEPT_ASSERT(!models::PubliclyDerivedFrom<A,D>);
-CONCEPT_ASSERT(!models::PubliclyDerivedFrom<D,A>);
-CONCEPT_ASSERT(!models::PubliclyDerivedFrom<int,void>);
-}
-#endif
-
 namespace convertible_to_test {
 struct A {};
 struct B : A {};
@@ -114,12 +91,9 @@ CONCEPT_ASSERT(models::Common<void*, incomplete*>);
 namespace {
 struct tag {};
 struct A { A() = default; A(int) {} explicit A(tag) {} };
-struct B : A {};
-struct C : B {};
 
 enum class result {
-	exact, publicly_derived, convertible,
-	explicitly_convertible, unrelated
+	exact, convertible, explicitly_convertible, unrelated
 };
 
 #if VALIDATE_STL2
@@ -129,17 +103,12 @@ result f(A) {
 	return result::exact;
 }
 
-result f(__stl2::ext::PubliclyDerivedFrom<A>) {
-	std::cout << "Publicly derived from A\n";
-	return result::publicly_derived;
-}
-
 result f(__stl2::ConvertibleTo<A>) {
 	std::cout << "Implicitly convertible to A\n";
 	return result::convertible;
 }
 
-	result f(__stl2::ext::ExplicitlyConvertibleTo<A>) {
+result f(__stl2::ext::ExplicitlyConvertibleTo<A>) {
 	std::cout << "Explicitly convertible to A\n";
 	return result::explicitly_convertible;
 }
@@ -158,20 +127,8 @@ result f(A) {
 
 template <class T>
 meta::if_c<
-	std::is_base_of<A, T>::value &&
-		std::is_convertible<T,A>::value &&
-		!std::is_same<A,T>::value,
-	 result>
-f(T) {
-	std::cout << "Publicly derived from A\n";
-	return result::publicly_derived;
-}
-
-template <class T>
-meta::if_c<
 	std::is_convertible<T,A>::value &&
-		!(std::is_base_of<A,T>::value ||
-			std::is_same<A,T>::value),
+		!std::is_same<A,T>::value,
 	result>
 f(T) {
 	std::cout << "Implicitly convertible to A\n";
@@ -182,7 +139,6 @@ template <class T>
 meta::if_c<
 	std::is_constructible<A,T>::value &&
 		!(std::is_convertible<T,A>::value ||
-			std::is_base_of<A,T>::value ||
 			std::is_same<A,T>::value),
 	result>
 f(T) {
@@ -194,7 +150,6 @@ template <class T>
 meta::if_c<
 	!(std::is_constructible<A,T>::value ||
 		std::is_convertible<T,A>::value ||
-		std::is_base_of<A,T>::value ||
 		std::is_same<A,T>::value),
 	result>
 f(T) {
@@ -207,8 +162,6 @@ f(T) {
 int main() {
 	CHECK(f(A{}) == result::exact);
 	{ const A a{}; CHECK(f(a) == result::exact); }
-	CHECK(f(B{}) == result::publicly_derived);
-	{ const B b{}; CHECK(f(b) == result::publicly_derived); }
 	CHECK(f(42) == result::convertible);
 	CHECK(f(tag{}) == result::explicitly_convertible);
 	CHECK(f("foo") == result::unrelated);

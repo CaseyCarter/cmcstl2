@@ -137,23 +137,6 @@ STL2_OPEN_NAMESPACE {
 		__stl2::ConvertibleTo{T, U}
 		constexpr bool ConvertibleTo<T, U> = true;
 	}
-
-	///////////////////////////////////////////////////////////////////////////
-	// PubliclyDerivedFrom [Extension]
-	//
-	namespace ext {
-		template <class T, class U>
-		concept bool PubliclyDerivedFrom() {
-			return ConvertibleTo<T, U>() && (Same<T, U>() || DerivedFrom<T, U>());
-		}
-	}
-
-	namespace models {
-		template <class, class>
-		constexpr bool PubliclyDerivedFrom = false;
-		__stl2::ext::PubliclyDerivedFrom{T, U}
-		constexpr bool PubliclyDerivedFrom<T, U> = true;
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif
