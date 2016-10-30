@@ -14,20 +14,20 @@
 
 #include <new>
 #include <stl2/iterator.hpp>
-#include <stl2/detail/destroy.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/memory/destroy.hpp>
+#include <stl2/detail/memory/reference_to.hpp>
 #include <stl2/detail/tagged.hpp>
 
 STL2_OPEN_NAMESPACE {
    ///////////////////////////////////////////////////////////////////////////
    // uninitialized_fill [Extension]
    //
-   template <ForwardIterator I, Sentinel<I> S, CopyConstructible T>
+   template <ForwardIterator I, Sentinel<I> S, typename T>
    requires
-      models::Constructible<value_type_t<T>, reference_t<I>> &&
-      models::Same<value_type_t<T>&, reference_t<T>>
-   inline tag::in(I)
-   uninitialized_fill(I&& first, S last, const T& value)
+      Constructible<value_type_t<T>, reference_t<I>>() &&
+      __ReferenceTo<I, value_type_t<T>>()
+   I uninitialized_fill(I first, S last, const T& value)
    {
       auto i = first;
       try {
@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
             ::new(static_cast<void*>(&*i)) T(value);
       }
       catch (...) {
-         destroy(__stl2::forward<I>(first), __stl2::move(i));
+         destroy(__stl2::move<I>(first), __stl2::move(i));
          throw;
       }
 
