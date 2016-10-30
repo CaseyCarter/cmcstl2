@@ -159,6 +159,9 @@ STL2_OPEN_NAMESPACE {
 	struct common_reference<T, U, V, W...>
 	: common_reference<common_reference_t<T, U>, V, W...> {};
 
+	template <typename T>
+	constexpr auto is_lvalue_reference_v = is_lvalue_reference<T>::value;
+
 	namespace models {
 		template <class, class>
 		constexpr bool CommonReference = false;
