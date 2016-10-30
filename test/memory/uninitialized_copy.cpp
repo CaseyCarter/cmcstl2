@@ -13,40 +13,34 @@
 #include "Book.hpp"
 #include <cassert>
 #include <cstdint>
-#include <iostream>
 #include <stl2/algorithm.hpp>
 #include <stl2/concepts.hpp>
 #include <stl2/detail/memory/uninitialized_copy.hpp>
 #include <stl2/detail/memory/destroy.hpp>
+#include <typeinfo>
 
 #include "raii.hpp"
 
 #include <experimental/ranges/algorithm>
-
-namespace ranges = std::experimental::ranges::v1;
+#include <iostream>
+namespace ranges = __stl2;
 
 template <typename T>
-void uninitialised_copy(const std::array<T, 8>& data)
+void uninitialized_copy_test(const std::array<T, 8>& control)
 {
-   auto c = raii<T>{data.size()};
-   std::uninitialized_copy(data.cbegin(), data.cend(), c.begin());
+   const auto independent = raii<T>{control.size()};
+   auto test = [&control, &independent](const auto& p){
+      assert(ranges::equal(control, independent, std::equal_to<T>{}));
+      assert(ranges::equal(control.begin(), p.in(), independent.begin(), p.out(), std::equal_to<T>{}));
+      ranges::destroy(independent);
+   };
 
-   auto i = raii<T>{data.size()};
-   ranges::uninitialized_copy(data.cbegin(), data.cend(), i.begin());
-
-   assert(ranges::equal(c, i, std::equal_to<T>{}));
-
-   ranges::destroy(i.begin(), i.end());
-
-   ranges::uninitialized_copy(data, i.begin());
-   assert(ranges::equal(c, i, std::equal_to<T>{}));
-
-   ranges::destroy(c); // since std::[experimental::]destroy doesn't exist in gcc 6.2
-   ranges::destroy(i);
-
-   std::uninitialized_copy_n(data.cbegin(), data.size(), c.begin());
-   ranges::uninitialized_copy_n(data.cbegin(), data.size(), i.begin());
-   assert(ranges::equal(c, i, std::equal_to<T>{}));
+   test(ranges::uninitialized_copy(control.begin(), control.end(), independent.begin()));
+   test(ranges::uninitialized_copy(control.cbegin(), control.cend(), independent.cbegin()));
+   test(ranges::uninitialized_copy(control, independent.begin()));
+   test(ranges::uninitialized_copy(control, independent.cbegin()));
+   test(ranges::uninitialized_copy_n(control.begin(), control.size(), independent.begin()));
+   test(ranges::uninitialized_copy_n(control.cbegin(), control.size(), independent.cbegin()));
 }
 
 /**
@@ -58,11 +52,29 @@ void uninitialised_copy(const std::array<T, 8>& data)
  *       - initial array: using the default constructor
  *       - second array:  using a non-default constructor
  */
+template <typename T>
+using Array = std::array<T, 8>;
+
+using Test_type_one = Array<int>;
+using Test_type_two = Array<std::vector<double>>;
+
 void thorough_test()
 {
-   uninitialised_copy(std::array<int, 8>{});
-   uninitialised_copy(std::array<std::vector<double>, 8>{});
-//   uninitialised_copy(std::array<Book, 8>{});
+   
+
+   uninitialized_copy_test(Test_type_one{});
+   uninitialized_copy_test(Test_type_two{});
+   uninitialized_copy_test(Array<Book>{});
+
+   uninitialized_copy_test(Test_type_one{0, 1, 2, 3, 4, 5, 6, 7});
+   uninitialized_copy_test(Test_type_two{{{0.0, 0.1, 0.2},
+                                                       {1.0, 1.1, 1.2, 1.3, 1.4},
+                                                       {2.0, 2.1, 2.2, 2.3},
+                                                       {3.01, 3.20, 3.33, 3.4},
+                                                       {4.101, 4.102, 4.201, 4.202, 4.311},
+                                                       {5.},
+                                                       {6.1, 3.02, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9},
+                                                       {7.3, 7.4, 7.5}}});
 }
 
 int main()
