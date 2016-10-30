@@ -89,11 +89,10 @@ CONCEPT_ASSERT(models::Common<void*, incomplete*>);
 }
 
 namespace {
-struct tag {};
-struct A { A() = default; A(int) {} explicit A(tag) {} };
+struct A { A() = default; A(int) {} };
 
 enum class result {
-	exact, convertible, explicitly_convertible, unrelated
+	exact, convertible, unrelated
 };
 
 #if VALIDATE_STL2
@@ -104,13 +103,8 @@ result f(A) {
 }
 
 result f(__stl2::ConvertibleTo<A>) {
-	std::cout << "Implicitly convertible to A\n";
+	std::cout << "Convertible to A\n";
 	return result::convertible;
-}
-
-result f(__stl2::ext::ExplicitlyConvertibleTo<A>) {
-	std::cout << "Explicitly convertible to A\n";
-	return result::explicitly_convertible;
 }
 
 result f(auto) {
@@ -125,31 +119,26 @@ result f(A) {
 	return result::exact;
 }
 
+template <class, class, class = void>
+constexpr bool ConvertibleTo = false;
+template <class T, class U>
+constexpr bool ConvertibleTo<T, U, std::enable_if_t<
+	std::is_convertible<T, U>::value,
+	decltype(static_cast<U>(std::declval<T>()))>> = true;
+
 template <class T>
 meta::if_c<
-	std::is_convertible<T,A>::value &&
+	ConvertibleTo<T,A> &&
 		!std::is_same<A,T>::value,
 	result>
 f(T) {
-	std::cout << "Implicitly convertible to A\n";
+	std::cout << "Convertible to A\n";
 	return result::convertible;
 }
 
 template <class T>
 meta::if_c<
-	std::is_constructible<A,T>::value &&
-		!(std::is_convertible<T,A>::value ||
-			std::is_same<A,T>::value),
-	result>
-f(T) {
-	std::cout << "Explicitly convertible to A\n";
-	return result::explicitly_convertible;
-}
-
-template <class T>
-meta::if_c<
-	!(std::is_constructible<A,T>::value ||
-		std::is_convertible<T,A>::value ||
+	!(ConvertibleTo<T, A> ||
 		std::is_same<A,T>::value),
 	result>
 f(T) {
@@ -163,7 +152,6 @@ int main() {
 	CHECK(f(A{}) == result::exact);
 	{ const A a{}; CHECK(f(a) == result::exact); }
 	CHECK(f(42) == result::convertible);
-	CHECK(f(tag{}) == result::explicitly_convertible);
 	CHECK(f("foo") == result::unrelated);
 
 	return ::test_result();

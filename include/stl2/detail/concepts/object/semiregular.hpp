@@ -28,9 +28,9 @@ STL2_OPEN_NAMESPACE {
 	concept bool CopyConstructible() {
 		return MoveConstructible<T>() &&
 			Constructible<T, const remove_cv_t<T>&>() &&
-			ext::ImplicitlyConvertibleTo<remove_cv_t<T>&, T>() &&
-			ext::ImplicitlyConvertibleTo<const remove_cv_t<T>&, T>() &&
-			ext::ImplicitlyConvertibleTo<const remove_cv_t<T>&&, T>();
+			ConvertibleTo<remove_cv_t<T>&, T>() &&
+			ConvertibleTo<const remove_cv_t<T>&, T>() &&
+			ConvertibleTo<const remove_cv_t<T>&&, T>();
 	}
 
 	namespace models {

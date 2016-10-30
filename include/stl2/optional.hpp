@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		ext::ExplicitlyConvertibleTo{From, To}
+		ConvertibleTo{From, To}
 		struct narrowing_converter {
 			static_assert(is_reference<From>());
 			From from_;
@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class To, class From>
-		requires ext::ExplicitlyConvertibleTo<From, To>()
+		requires ConvertibleTo<From, To>()
 		constexpr auto allow_narrowing_conversion(From&& f) noexcept {
 			return narrowing_converter<From&&, To>{__stl2::forward<From>(f)};
 		}
@@ -322,14 +322,14 @@ STL2_OPEN_NAMESPACE {
 				return optional::get(__stl2::move(v_));
 			}
 
-			template <ext::ExplicitlyConvertibleTo<T> U>
+			template <ConvertibleTo<T> U>
 			requires CopyConstructible<T>()
 			constexpr T value_or(U&& u) const & {
 				return *this
 					? **this
 					: static_cast<T>(__stl2::forward<U>(u));
 			}
-			template <ext::ExplicitlyConvertibleTo<T> U>
+			template <ConvertibleTo<T> U>
 			requires CopyConstructible<T>()
 			constexpr T value_or(U&& u) && {
 				return *this
