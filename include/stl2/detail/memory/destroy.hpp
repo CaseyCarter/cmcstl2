@@ -14,6 +14,7 @@
 #include <stl2/concepts.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/memory/reference_to.hpp>
 
 STL2_OPEN_NAMESPACE {
    ///////////////////////////////////////////////////////////////////////////
@@ -28,11 +29,11 @@ STL2_OPEN_NAMESPACE {
    ///////////////////////////////////////////////////////////////////////////
    // destroy [Extension]
    //
-   template <ForwardIterator I, Sentinel<I> S>
+   template <InputIterator I, Sentinel<I> S>
    requires
-      models::Destructible<value_type_t<I>>
-   __f<I>
-   destroy(I&& first, S&& last) noexcept
+      Destructible<value_type_t<I>>() &&
+      __ReferenceTo<I, value_type_t<I>>()
+   I destroy(I&& first, S&& last) noexcept
    {
       for (; first != last; ++first)
          destroy_at(__stl2::addressof(*first));
@@ -40,11 +41,11 @@ STL2_OPEN_NAMESPACE {
       return first;
    }
 
-   template <ForwardRange Rng>
+   template <InputRange Rng>
    requires
-      models::Destructible<value_type_t<iterator_t<Rng>>>
-   __f<safe_iterator_t<Rng>>
-   destroy(Rng&& rng) noexcept
+      Destructible<value_type_t<iterator_t<Rng>>>() &&
+      __ReferenceTo<iterator_t<Rng>, value_type_t<iterator_t<Rng>>>()
+   safe_iterator_t<Rng> destroy(Rng&& rng) noexcept
    {
       return __stl2::destroy(__stl2::begin(rng), __stl2::end(rng));
    }
@@ -52,14 +53,13 @@ STL2_OPEN_NAMESPACE {
    ///////////////////////////////////////////////////////////////////////////
    // destroy_n [Extension]
    //
-   template <ForwardIterator I>
+   template <InputIterator I>
    requires
-      models::Destructible<value_type_t<I>>
-   __f<I>
-   destroy_n(I&& first, difference_type_t<I> size) noexcept
+      Destructible<value_type_t<I>>() &&
+      __ReferenceTo<I, value_type_t<I>>()
+   I destroy_n(I first, difference_type_t<I> n) noexcept
    {
-      auto counted = __stl2::make_counted_iterator(__stl2::forward<I>(first), size);
-      return __stl2::destroy(__stl2::move(counted), default_sentinel{});
+      return __stl2::destroy(make_counted_iterator(first, n), default_sentinel{});
    }
 } STL2_CLOSE_NAMESPACE
 #endif // STL2_DETAIL_ALGORITHM_DESTROY_HPP
