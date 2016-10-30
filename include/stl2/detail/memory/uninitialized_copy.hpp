@@ -14,9 +14,9 @@
 
 #include <new>
 #include <stl2/iterator.hpp>
-#include <stl2/detail/destroy.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/tagged.hpp>
+#include <stl2/detail/memory/destroy.hpp>
 
 STL2_OPEN_NAMESPACE {
    ///////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,8 @@ STL2_OPEN_NAMESPACE {
    template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O>
    requires
       models::Constructible<value_type_t<O>, reference_t<I>> &&
-      models::Same<value_type_t<O>&, reference_t<O>>
+      models::Same<value_type_t<O>&, reference_t<O>> &&
+      __stl2::CopyConstructible<value_type_t<O>>()
    tagged_pair<tag::in(I), tag::out(O)>
    uninitialized_copy(I first, S last, O result)
    {
@@ -35,8 +36,8 @@ STL2_OPEN_NAMESPACE {
             ::new(static_cast<void*>(__stl2::addressof(result))) value_type_t<I>(*first);
          }
       } catch(...) {
-         for (; saved != first; ++saved)
-            destroy_at(__stl2::addressof(*first));
+         for (; saved != result; ++saved)
+            destroy_at(__stl2::addressof(*result));
          throw;
       }
       return {__stl2::move(first), __stl2::move(result)};
@@ -50,7 +51,6 @@ STL2_OPEN_NAMESPACE {
    auto //tagged_pair<tag::in(iterator_t<Rng>), tag::out(__f<O>)>
    uninitialized_copy(Rng&& rng, O&& result)
    {
-//      debug<tag::in(safe_iterator_t<Rng>)>{};
       return __stl2::uninitialized_copy(__stl2::begin(rng), __stl2::end(rng),
                                                  __stl2::forward<O>(result));
    }

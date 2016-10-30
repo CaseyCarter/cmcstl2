@@ -16,7 +16,8 @@
 #include <iostream>
 #include <stl2/algorithm.hpp>
 #include <stl2/concepts.hpp>
-#include <uninitialized_copy.hpp>
+#include <stl2/detail/memory/uninitialized_copy.hpp>
+#include <stl2/detail/memory/destroy.hpp>
 
 #include "raii.hpp"
 
@@ -45,6 +46,7 @@ void uninitialised_copy(const std::array<T, 8>& data)
 
    std::uninitialized_copy_n(data.cbegin(), data.size(), c.begin());
    ranges::uninitialized_copy_n(data.cbegin(), data.size(), i.begin());
+   assert(ranges::equal(c, i, std::equal_to<T>{}));
 }
 
 /**
@@ -59,7 +61,7 @@ void uninitialised_copy(const std::array<T, 8>& data)
 void thorough_test()
 {
    uninitialised_copy(std::array<int, 8>{});
-//   uninitialised_copy(std::array<std::vector<double>, 8>{});
+   uninitialised_copy(std::array<std::vector<double>, 8>{});
 //   uninitialised_copy(std::array<Book, 8>{});
 }
 
