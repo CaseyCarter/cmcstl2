@@ -145,9 +145,31 @@ int main() {
 
 	{
 		using OI = ranges::optional<int>;
-		using OD = ranges::optional<double>;
-		static_assert(models::StrictTotallyOrdered<OI, OD>);
-		static_assert(!models::Swappable<OI&, OD&>);
+		using OL = ranges::optional<long>;
+
+		static_assert(models::StrictTotallyOrdered<int>);
+		static_assert(models::StrictTotallyOrdered<OI>);
+		static_assert(models::StrictTotallyOrdered<int, OI>);
+
+		static_assert(models::StrictTotallyOrdered<long>);
+		static_assert(models::StrictTotallyOrdered<OL>);
+		static_assert(models::StrictTotallyOrdered<long, OL>);
+
+		static_assert(models::StrictTotallyOrdered<int, long>);
+		static_assert(models::StrictTotallyOrdered<OI, OL>);
+
+		static_assert(models::Constructible<long, int>);
+		static_assert(models::ConvertibleTo<int, long>);
+		static_assert(models::Constructible<OL, OI>);
+		static_assert(models::ConvertibleTo<OI, OL>);
+
+		static_assert(!models::ConvertibleTo<OL, OI>);
+		static_assert(!models::Constructible<OI, OL>);
+
+		static_assert(models::ConvertibleTo<long, int>);
+		static_assert(!models::Constructible<int, long>); // narrowing
+
+		static_assert(!models::Swappable<OI&, OL&>);
 	}
 
 	{
