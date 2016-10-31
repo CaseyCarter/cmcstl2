@@ -589,7 +589,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// OutputIterator [iterators.output]
-	// Not to spec: is value category sensitive.
 	//
 	template <class I, class T>
 	concept bool OutputIterator() {

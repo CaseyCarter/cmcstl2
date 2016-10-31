@@ -1,6 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
-//  Copyright Casey Carter 2015
+//  Copyright Casey Carter 2015-2016
 //  Copyright Eric Niebler 2015
 //
 //  Use, modification and distribution is subject to the
@@ -23,14 +23,12 @@
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// difference_type_t [iterator.assoc]
-	// Extension: defaults to make_unsigned_t<decltype(t - t)> when
-	//     decltype(t - t) models Integral, in addition to doing so when T
-	// itself models Integral.
-	//
 	// Not to spec:
-	// * Strips cv-qualifiers before applying difference_type (see
-	//   value_type_t for why)
-	// * Requires difference_type_t to model SignedIntegral
+	// * it is necessary to guard the requires clause of the "fallback"
+	//   specialization to prevent hard errors in the requires clause for pointers
+	//   to incomplete types. See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78173
+	// * Omits the extraneous is_array specialization.
+	//   See https://github.com/ericniebler/stl2/issues/243
 	//
 	namespace detail {
 		template <class T>
@@ -41,11 +39,12 @@ STL2_OPEN_NAMESPACE {
 	template <class> struct difference_type {};
 
 	template <class T>
-	struct difference_type<T*> {
-		using type = std::ptrdiff_t;
-	};
-	template <_Is<is_void> T>
-	struct difference_type<T*> {};
+	struct difference_type<T*>
+	: meta::lazy::if_<std::is_object<T>, std::ptrdiff_t> {};
+
+	template <class T>
+	struct difference_type<const T>
+	: difference_type<std::decay_t<T>> {};
 
 	template <detail::MemberDifferenceType T>
 	struct difference_type<T> {
@@ -54,25 +53,15 @@ STL2_OPEN_NAMESPACE {
 
 	template <class T>
 		requires !detail::MemberDifferenceType<T> &&
-			_IsNot<T, is_pointer> &&
+			_IsNot<T, is_pointer> && // Avoid GCC PR 78173 (See above)
 			requires(const T& a, const T& b) {
 				STL2_DEDUCTION_CONSTRAINT(a - b, Integral);
 			}
-	struct difference_type<T> :
-		make_signed<decltype(declval<const T&>() - declval<const T&>())> {};
+	struct difference_type<T>
+	: make_signed<decltype(declval<const T>() - declval<const T>())> {};
 
 	template <class T>
-		requires SignedIntegral<meta::_t<difference_type<remove_cv_t<T>>>>()
-	using difference_type_t =
-		meta::_t<difference_type<remove_cv_t<T>>>;
-
-	//namespace detail {
-	//  template <class T, class...Us>
-	//  concept bool OneOf() {
-	//    //return Same<T, Us>() || ...;
-	//    return meta::_v<meta::any_of<meta::list<Us...>, meta::bind_front<meta::quote<std::is_same>, T>>>;
-	//  }
-	//}
+	using difference_type_t = meta::_t<difference_type<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// WeaklyIncrementable [weaklyincrementable.iterators]
@@ -83,7 +72,6 @@ STL2_OPEN_NAMESPACE {
 		requires requires(I& i) {
 			typename difference_type_t<I>;
 			STL2_EXACT_TYPE_CONSTRAINT(++i, I&);
-			//STL2_BINARY_DEDUCTION_CONSTRAINT(++i, detail::OneOf, I&, const I&);
 			i++;
 		}
 	constexpr bool __weakly_incrementable<I> = true;
@@ -109,7 +97,6 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 		requires requires(I& i) {
 			STL2_EXACT_TYPE_CONSTRAINT(i++, I);
-			//STL2_BINARY_DEDUCTION_CONSTRAINT(i++, detail::OneOf, I, I&, const I&);
 		}
 	constexpr bool __incrementable<I> = true;
 
