@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
    requires
       Destructible<value_type_t<I>>() &&
       __ReferenceTo<I, value_type_t<I>>()
-   I destroy(I&& first, S&& last) noexcept
+   I destroy(I first, S last) noexcept
    {
       for (; first != last; ++first)
          destroy_at(__stl2::addressof(*first));
@@ -59,7 +59,8 @@ STL2_OPEN_NAMESPACE {
       __ReferenceTo<I, value_type_t<I>>()
    I destroy_n(I first, difference_type_t<I> n) noexcept
    {
-      return __stl2::destroy(make_counted_iterator(first, n), default_sentinel{});
+      return __stl2::destroy(make_counted_iterator(first, n),
+                             default_sentinel{}).base();
    }
 } STL2_CLOSE_NAMESPACE
 #endif // STL2_DETAIL_ALGORITHM_DESTROY_HPP
