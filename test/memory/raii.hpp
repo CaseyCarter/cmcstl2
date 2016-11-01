@@ -5,7 +5,7 @@
 template <typename T>
 class raii {
 public:
-   raii(const auto size)
+   raii(const std::ptrdiff_t size)
       : data_{allocator_.allocate(size)},
         size_{size}
    {
@@ -52,13 +52,13 @@ public:
       return end();
    }
 
-   std::size_t size() const noexcept
+   std::ptrdiff_t size() const noexcept
    {
       return size_;
    }
 private:
    std::allocator<T> allocator_;
    T* data_;
-   std::size_t size_;
+   std::ptrdiff_t size_;
 };
 #endif // RAII_HPP_INCLUDED

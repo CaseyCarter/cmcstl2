@@ -17,14 +17,22 @@
 
 class Book {
 public:
-   Book() = default;
-
    bool operator==(const Book& b) const noexcept
    {
       return isbn_ == b.isbn_ &&
              price_ == b.price_ &&
              title_ == b.title_ &&
              author_ == b.author_;
+   }
+
+   bool operator!=(const Book& b) const noexcept
+   {
+      return !(*this == b);
+   }
+
+   bool empty() const noexcept
+   {
+      return title_.empty() && author_.empty();
    }
 private:
    std::int64_t isbn_{1248163264128-256};
