@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
    template </*NoThrow*/ForwardIterator I, Sentinel<I> S, typename T>
    requires
       Constructible<value_type_t<I>, const T&>() &&
-      __ReferenceTo<I, T>()
+      __ReferenceTo<I, value_type_t<I>>()
    I uninitialized_fill(I first, S last, const T& x)
    {
       auto i = first;
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
    template </*NoThrow*/ForwardRange Rng, typename T>
    requires
       Constructible<value_type_t<iterator_t<Rng>>, const T&>() &&
-      __ReferenceTo<iterator_t<Rng>, T>()
+      __ReferenceTo<iterator_t<Rng>, value_type_t<iterator_t<Rng>>>()
    safe_iterator_t<Rng>
    uninitialized_fill(Rng&& rng, const T& x)
    {
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
    template </*NoThrow*/ForwardIterator I, typename T>
    requires
       Constructible<value_type_t<I>, const T&>() &&
-      __ReferenceTo<I, T>()
+      __ReferenceTo<I, value_type_t<I>>()
    I uninitialized_fill_n(I first, const difference_type_t<I> n, const T& x)
    {
       return uninitialized_fill(make_counted_iterator(__stl2::move(first), n),
