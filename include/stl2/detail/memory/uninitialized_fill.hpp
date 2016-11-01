@@ -23,49 +23,48 @@ STL2_OPEN_NAMESPACE {
    ///////////////////////////////////////////////////////////////////////////
    // uninitialized_fill [Extension]
    //
-   template <ForwardIterator I, Sentinel<I> S, typename T>
+   template </*NoThrow*/ForwardIterator I, Sentinel<I> S, typename T>
    requires
-      Constructible<value_type_t<T>, reference_t<I>>() &&
-      __ReferenceTo<I, value_type_t<T>>()
-   I uninitialized_fill(I first, S last, const T& value)
+      Constructible<value_type_t<I>, const T&>() &&
+      __ReferenceTo<I, T>()
+   I uninitialized_fill(I first, S last, const T& x)
    {
       auto i = first;
       try {
-         for ( ; i != last; ++i)
-            ::new(static_cast<void*>(&*i)) T(value);
+         for (; i != last; ++i)
+            ::new (const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(*i))))
+               value_type_t<I>(x);
       }
       catch (...) {
-         destroy(__stl2::move<I>(first), __stl2::move(i));
+         destroy(__stl2::move(first), __stl2::move(i));
          throw;
       }
 
       return __stl2::move(first);
    }
 
-   template <ForwardRange Rng, CopyConstructible T>
+   template </*NoThrow*/ForwardRange Rng, typename T>
    requires
-      models::Constructible<value_type_t<__f<T>>, reference_t<iterator_t<Rng>>> &&
-      models::Same<value_type_t<T>&, reference_t<T>>
-   inline tag::in(I)
-   uninitialized_fill(Rng&& rng, const T& value)
+      Constructible<value_type_t<iterator_t<Rng>>, const T&>() &&
+      __ReferenceTo<iterator_t<Rng>, T>()
+   safe_iterator_t<Rng>
+   uninitialized_fill(Rng&& rng, const T& x)
    {
       return __stl2::uninitialized_fill(__stl2::begin(rng),
-         __stl2::end(rng), value);
+         __stl2::end(rng), x);
    }
 
    ///////////////////////////////////////////////////////////////////////////
    // uninitialized_fill_n [Extension]
    //
-   template <ForwardIterator I, CopyConstructible T>
+   template </*NoThrow*/ForwardIterator I, typename T>
    requires
-      models::Constructible<value_type_t<T>, reference_t<I>> &&
-      models::Same<value_type_t<T>&, reference_t<T>>
-   inline __f<I>
-   uninitialized_fill_n(I&& first, const Integral size, const T& value)
+      Constructible<value_type_t<I>, const T&>() &&
+      __ReferenceTo<I, T>()
+   I uninitialized_fill_n(I first, const difference_type_t<I> n, const T& x)
    {
-      auto counted = __stl2::make_counted_iterator(__stl2::forward<I>(first), size);
-      return uninitialized_fill(__stl2::move(counted),
-         default_sentinel{}, value).in().base();
+      return uninitialized_fill(make_counted_iterator(__stl2::move(first), n),
+                                default_sentinel{}, x).base();
    }
 } STL2_CLOSE_NAMESPACE
 
