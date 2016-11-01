@@ -1,6 +1,7 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
 //  Copyright Casey Carter 2015
+//  Copyright Christopher Di Bella 2016
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -24,6 +25,15 @@ STL2_OPEN_NAMESPACE {
    void destroy_at(T* p) noexcept
    {
       p->~T();
+   }
+
+   ///////////////////////////////////////////////////////////////////////////
+   // destroy_at [Extension]
+   //
+   template <Destructible T>
+   void destroy_at(T& p) noexcept
+   {
+      p.~T();
    }
 
    ///////////////////////////////////////////////////////////////////////////
