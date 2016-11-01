@@ -1,6 +1,7 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
 //  Copyright Casey Carter 2016
+//  Copyright Christopher Di Bella 2016
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -24,21 +25,22 @@ STL2_OPEN_NAMESPACE {
    // uninitialized_value_construct [Extension]
    //
    template </*NoThrow*/ForwardIterator I, Sentinel<I> S>
-      requires DefaultConstructible<value_type_t<I>>() &&
-               __ReferenceTo<I, value_type_t<I>>()
+   requires DefaultConstructible<value_type_t<I>>() &&
+            __ReferenceTo<I, value_type_t<I>>()
    I uninitialized_value_construct(I first, S last)
    {
       for (; first != last; ++first)
-         ::new (const_cast<void*>(static_cast<const volatile void*>(addressof(*first))))
+         ::new (const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(*first))))
             value_type_t<I>();
+      return first;
    }
 
    ///////////////////////////////////////////////////////////////////////////
    // uninitialized_value_construct [Extension]
    //
    template </*NoThrow*/ForwardRange Rng>
-      requires DefaultConstructible<value_type_t<iterator_t<Rng>>>() &&
-               __ReferenceTo<iterator_t<Rng>, value_type_t<iterator_t<Rng>>>()
+   requires DefaultConstructible<value_type_t<iterator_t<Rng>>>() &&
+            __ReferenceTo<iterator_t<Rng>, value_type_t<iterator_t<Rng>>>()
    safe_iterator_t<Rng> uninitialized_value_construct(Rng&& rng)
    {
       return uninitialized_value_construct(begin(rng), end(rng));
@@ -48,12 +50,12 @@ STL2_OPEN_NAMESPACE {
    // uninitialized_value_construct_n [Extension]
    //
    template </*NoThrow*/ForwardIterator I>
-      requires DefaultConstructible<value_type_t<I>>() &&
-               __ReferenceTo<I, value_type_t<I>>()
+   requires DefaultConstructible<value_type_t<I>>() &&
+            __ReferenceTo<I, value_type_t<I>>()
    I uninitialized_value_construct_n(I first, difference_type_t<I> n)
    {
       return uninitialized_value_construct(make_counted_iterator(first, n),
-                                             value_sentinel{}).base();
+                                           default_sentinel{}).base();
    }
 } STL2_CLOSE_NAMESPACE
 #endif // STL2_DETAIL_ALGORITHM_UNINITIALIZED_VALUE_CONSTRUCT_HPP
