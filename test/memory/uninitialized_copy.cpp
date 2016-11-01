@@ -25,10 +25,14 @@
 #include <iostream>
 namespace ranges = __stl2;
 
+
 template <typename T>
-void uninitialized_copy_test(const std::array<T, 8>& control)
+using Array = std::array<T, 8>;
+
+template <typename T>
+void uninitialized_copy_test(Array<T>&& control)
 {
-   const auto independent = raii<T>{control.size()};
+   auto independent = raii<T>{static_cast<std::ptrdiff_t>(control.size())};
    auto test = [&control, &independent](const auto& p){
       assert(ranges::equal(control, independent, std::equal_to<T>{}));
       assert(ranges::equal(control.begin(), p.in(), independent.begin(), p.out(), std::equal_to<T>{}));
@@ -52,8 +56,6 @@ void uninitialized_copy_test(const std::array<T, 8>& control)
  *       - initial array: using the default constructor
  *       - second array:  using a non-default constructor
  */
-template <typename T>
-using Array = std::array<T, 8>;
 
 using Test_type_one = Array<int>;
 using Test_type_two = Array<std::vector<double>>;
@@ -68,13 +70,13 @@ void thorough_test()
 
    uninitialized_copy_test(Test_type_one{0, 1, 2, 3, 4, 5, 6, 7});
    uninitialized_copy_test(Test_type_two{{{0.0, 0.1, 0.2},
-                                                       {1.0, 1.1, 1.2, 1.3, 1.4},
-                                                       {2.0, 2.1, 2.2, 2.3},
-                                                       {3.01, 3.20, 3.33, 3.4},
-                                                       {4.101, 4.102, 4.201, 4.202, 4.311},
-                                                       {5.},
-                                                       {6.1, 3.02, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9},
-                                                       {7.3, 7.4, 7.5}}});
+                                          {1.0, 1.1, 1.2, 1.3, 1.4},
+                                          {2.0, 2.1, 2.2, 2.3},
+                                          {3.01, 3.20, 3.33, 3.4},
+                                          {4.101, 4.102, 4.201, 4.202, 4.311},
+                                          {5.},
+                                          {6.1, 3.02, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9},
+                                          std::vector<double>(1 << 26, 7.0)}});
 }
 
 int main()

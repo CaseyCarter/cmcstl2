@@ -37,8 +37,7 @@ STL2_OPEN_NAMESPACE {
                value_type_t<I>(*first);
          }
       } catch(...) {
-         for (; saved != result; ++saved)
-            destroy_at(__stl2::addressof(*result));
+         destroy(__stl2::move(saved), __stl2::move(result));
          throw;
       }
       return {__stl2::move(first), __stl2::move(result)};
