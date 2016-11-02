@@ -46,9 +46,9 @@ STL2_OPEN_NAMESPACE {
 			using single_pass = true_type;
 
 			struct mixin : protected ebo_box<istream_cursor> {
-				using difference_type = istream_cursor::difference_type;
 				using iterator_category = input_iterator_tag;
-				using value_type = T;
+				using difference_type = istream_cursor::difference_type;
+				using value_type = istream_cursor::value_type;
 				using reference = const T&;
 				using pointer = const T*;
 				using char_type = charT;
@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(is_nothrow_default_constructible<T>::value) = default;
 
 			STL2_CONSTEXPR_EXT istream_cursor(istream_type& s)
-			: stream_{&s}
+			: stream_{__stl2::addressof(s)}
 			{ next(); }
 
 			constexpr istream_cursor(default_sentinel)
@@ -105,14 +105,16 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec:
 	// * DefaultConstructible, CopyConstructible, SignedIntegral and
 	//   StreamExtractable requirements are implicit.
+	//   See https://github.com/ericniebler/stl2/issues/246
 	//
-	template <class T, class charT = char, class traits = std::char_traits<charT>>
+	template <class T, class charT = char, class traits = std::char_traits<charT>,
+		SignedIntegral Distance = std::ptrdiff_t>
 	requires
 		models::DefaultConstructible<T> &&
 		models::CopyConstructible<T> &&
 		models::StreamExtractable<T, std::basic_istream<charT, traits>>
 	using istream_iterator =
-		basic_iterator<detail::istream_cursor<T, charT, traits>>;
+		basic_iterator<detail::istream_cursor<T, charT, traits, Distance>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif
