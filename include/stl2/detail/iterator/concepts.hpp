@@ -604,6 +604,8 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// InputIterator [iterators.input]
+	// Not to spec: No requirements on i++
+	// See http://github.com/ericniebler/stl2/issues/232
 	//
 	template <class I>
 	constexpr bool __input_iterator = false;
@@ -611,8 +613,7 @@ STL2_OPEN_NAMESPACE {
 		requires requires(I& i, const I& ci) {
 			typename iterator_category_t<I>;
 			DerivedFrom<iterator_category_t<I>, input_iterator_tag>();
-			STL2_DEDUCTION_CONSTRAINT(i++, Readable);
-			requires Same<value_type_t<I>, value_type_t<decltype(i++)>>();
+			i++;
 			{ *ci } -> const value_type_t<I>&;
 		}
 	constexpr bool __input_iterator<I> = true;

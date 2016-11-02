@@ -293,72 +293,6 @@ STL2_OPEN_NAMESPACE {
 	class basic_iterator;
 
 	namespace detail {
-		template <class I>
-		struct postfix_increment_proxy {
-			using value_type = value_type_t<I>;
-		private:
-			mutable value_type value_;
-		public:
-			postfix_increment_proxy() = default;
-			constexpr explicit postfix_increment_proxy(I const& x)
-			noexcept(noexcept(value_type(*x)))
-			: value_(*x) {}
-
-			constexpr value_type& operator*() const noexcept {
-				return value_;
-			}
-		};
-
-		template <class I>
-		struct writable_postfix_increment_proxy {
-			using value_type = value_type_t<I>;
-		private:
-			mutable value_type value_;
-			I it_;
-		public:
-			writable_postfix_increment_proxy() = default;
-			constexpr explicit writable_postfix_increment_proxy(I x)
-			: value_(*x), it_(__stl2::move(x)) {}
-
-			constexpr const writable_postfix_increment_proxy&
-			operator*() const noexcept {
-				return *this;
-			}
-			friend constexpr value_type&& iter_move(
-				const writable_postfix_increment_proxy& ref)
-			{
-				return __stl2::move(ref.value_);
-			}
-			constexpr operator value_type&() const noexcept {
-				return value_;
-			}
-			template <class T>
-			requires Writable<I, T&&>()
-			constexpr void operator=(T&& x) const
-			STL2_NOEXCEPT_RETURN(
-				static_cast<void>(*it_ = __stl2::forward<T>(x))
-			)
-			constexpr operator const I&() const noexcept {
-				return it_;
-			}
-		};
-
-		template <class Ref, class Val>
-		using is_non_proxy_reference =
-			is_convertible<
-				const volatile remove_reference_t<Ref>*,
-				const volatile Val*>;
-
-		template <class I, class Val, class Ref, class Cat>
-		using postfix_increment_result =
-			meta::if_c<
-				models::DerivedFrom<Cat, forward_iterator_tag>,
-				I,
-				meta::if_<
-					is_non_proxy_reference<Ref, Val>,
-					postfix_increment_proxy<I>,
-					writable_postfix_increment_proxy<I>>>;
-
 		template <class Derived, class Head>
 		struct proxy_reference_conversion {
 			operator Head() const
@@ -535,7 +469,6 @@ STL2_OPEN_NAMESPACE {
 		struct iterator_associated_types_base {
 			using reference_t = basic_proxy_reference<Cur>;
 			using const_reference_t = basic_proxy_reference<const Cur>;
-			using postfix_increment_result_t = basic_iterator<Cur>;
 		};
 
 		cursor::Readable{Cur}
@@ -549,25 +482,13 @@ STL2_OPEN_NAMESPACE {
 						basic_proxy_reference<Cur>,
 						cursor::reference_t<Cur>>>;
 			using const_reference_t = reference_t;
-			using postfix_increment_result_t =
-				postfix_increment_result<
-					basic_iterator<Cur>, cursor::value_type_t<Cur>,
-					reference_t, cursor::category_t<Cur>>;
 		};
 
 		template <class C>
 		concept bool PostIncrementCursor() {
-			return cursor::PostIncrement<C>() &&
-				requires(C& c) {
-					STL2_EXACT_TYPE_CONSTRAINT(c.post_increment(), C);
-				};
-		}
-		template <class C>
-		concept bool PostIncrementNotCursor() {
-			return cursor::PostIncrement<C>() &&
-				requires(C& c) {
-					requires !Same<decltype(c.post_increment()), C>();
-				};
+			return requires(C& c) {
+				STL2_EXACT_TYPE_CONSTRAINT(c.post_increment(), C);
+			};
 		}
 	} // namespace detail
 
@@ -646,7 +567,6 @@ STL2_OPEN_NAMESPACE {
 		using mixin::get;
 
 		using assoc_t = detail::iterator_associated_types_base<C>;
-		using typename assoc_t::postfix_increment_result_t;
 		using typename assoc_t::reference_t;
 		using typename assoc_t::const_reference_t;
 
@@ -656,7 +576,7 @@ STL2_OPEN_NAMESPACE {
 		basic_iterator() = default;
 		template <ConvertibleTo<C> O>
 		constexpr basic_iterator(basic_iterator<O>&& that)
-		noexcept(is_nothrow_constructible<mixin, O&&>::value)
+		noexcept(is_nothrow_constructible<mixin, O>::value)
 		: mixin(__stl2::get_cursor(__stl2::move(that))) {}
 		template <ConvertibleTo<C> O>
 		constexpr basic_iterator(const basic_iterator<O>& that)
@@ -666,7 +586,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <ConvertibleTo<C> O>
 		constexpr basic_iterator& operator=(basic_iterator<O>&& that) &
-		noexcept(is_nothrow_assignable<C&, O&&>::value)
+		noexcept(is_nothrow_assignable<C&, O>::value)
 		{
 			get() = __stl2::get_cursor(__stl2::move(that));
 			return *this;
@@ -758,32 +678,34 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
-		constexpr postfix_increment_result_t operator++(int) &
-		noexcept(is_nothrow_constructible<postfix_increment_result_t, basic_iterator&>::value &&
-			is_nothrow_move_constructible<postfix_increment_result_t>::value &&
+		constexpr basic_iterator operator++(int) &
+		noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
+			is_nothrow_move_constructible<basic_iterator>::value &&
 			noexcept(++declval<basic_iterator&>()))
 		{
-			postfix_increment_result_t tmp(*this);
+			auto tmp(*this);
 			++*this;
 			return tmp;
 		}
 
+		constexpr void operator++(int) &
+		noexcept(noexcept(++declval<basic_iterator&>()))
+		requires cursor::Input<C>() && !cursor::Forward<C>()
+			&& !cursor::PostIncrement<C>()
+		{
+			++*this;
+		}
+
 		constexpr decltype(auto) operator++(int) &
 		noexcept(noexcept(declval<C&>().post_increment()))
-		requires
-			// This would be simply "cursor::PostIncrement<C>()", except for
-			// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69288
-			detail::PostIncrementNotCursor<C>()
+		requires cursor::PostIncrement<C>()
 		{
 			return get().post_increment();
 		}
 		constexpr basic_iterator operator++(int) &
-		noexcept(noexcept(basic_iterator{declval<C&>().post_increment()}))
+		noexcept(noexcept(basic_iterator{__stl2::declval<C&>().post_increment()}))
 		requires
-			// This would be:
-			//   cursor::PostIncrement<C>() &&
-			//     Same<C, decltype(declval<C&>().post_increment())>()
-			// except for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69288
+			cursor::PostIncrement<C>() &&
 			detail::PostIncrementCursor<C>()
 		{
 			return get().post_increment();
