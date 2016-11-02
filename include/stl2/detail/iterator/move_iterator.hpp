@@ -51,9 +51,9 @@ STL2_OPEN_NAMESPACE {
 				using box_t = detail::ebo_box<cursor>;
 			public:
 				using iterator_type = I;
-				using iterator_category = input_iterator_tag;
 				using difference_type = cursor::difference_type;
 				using value_type = cursor::value_type;
+				using iterator_category = input_iterator_tag;
 				using reference = rvalue_reference_t<I>;
 
 				mixin() = default;
@@ -81,14 +81,14 @@ STL2_OPEN_NAMESPACE {
 			: current_{access::current(u)}
 			{}
 
-			STL2_CONSTEXPR_EXT decltype(auto) read() const
+			STL2_CONSTEXPR_EXT rvalue_reference_t<I> read() const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::iter_move(current_)
 			)
 
 			STL2_CONSTEXPR_EXT void next()
 			STL2_NOEXCEPT_RETURN(
-				(void)++current_
+				static_cast<void>(++current_)
 			)
 
 			STL2_CONSTEXPR_EXT void prev()
@@ -144,6 +144,9 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
+	// Not to spec:
+	// * uses iter_move in operator* (See https://github.com/ericniebler/stl2/issues/244)
+	// * hooks iter_move and iter_swap (See https://github.com/ericniebler/stl2/issues/245)
 	InputIterator{I}
 	using move_iterator = basic_iterator<__move_iterator::cursor<I>>;
 
