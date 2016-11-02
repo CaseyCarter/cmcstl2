@@ -32,7 +32,10 @@ STL2_OPEN_NAMESPACE {
 		class cursor;
 	}
 
-	// Not to spec: requirements are implicit.
+	// Not to spec:
+	// * requirements are implicit.
+	//   See https://github.com/ericniebler/stl2/issues/246)
+	//
 	template <class charT, class traits = std::char_traits<charT>>
 	requires
 		MoveConstructible<charT>() &&
@@ -99,14 +102,14 @@ STL2_OPEN_NAMESPACE {
 			class mixin : protected detail::ebo_box<cursor> {
 				using box_t = detail::ebo_box<cursor>;
 			public:
+				using iterator_category = input_iterator_tag;
 				using value_type = cursor::value_type;
 				using difference_type = cursor::difference_type;
-				using iterator_category = input_iterator_tag;
 				using reference = charT;
 				using pointer = cursor::pointer;
 				using char_type = charT;
-				using int_type = cursor::int_type;
 				using traits_type = traits;
+				using int_type = cursor::int_type;
 				using streambuf_type = cursor::streambuf_type;
 				using istream_type = cursor::istream_type;
 
