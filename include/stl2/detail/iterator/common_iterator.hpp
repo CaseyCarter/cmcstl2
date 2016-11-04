@@ -192,6 +192,9 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
+
+	// Not to spec:
+	// * hooks iter_move and iter_swap (See https://github.com/ericniebler/stl2/issues/245)
 	template <Iterator I, Sentinel<I> S>
 	requires
 		!Same<I, S>()

@@ -128,6 +128,10 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
+	// Not to spec:
+	// * Customizes iter_move and iter_swap.
+	//   See https://github.com/ericniebler/stl2/issues/245.
+	//
 	BidirectionalIterator{I}
 	using reverse_iterator = basic_iterator<__reverse_iterator::cursor<I>>;
 
