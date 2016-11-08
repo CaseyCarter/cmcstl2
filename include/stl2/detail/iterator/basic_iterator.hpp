@@ -598,6 +598,18 @@ STL2_OPEN_NAMESPACE {
 			get() = __stl2::get_cursor(that);
 			return *this;
 		}
+		// Not to spec: This operator= needs to be proposed for
+		// http://wg21.link/P0186
+		template <class O>
+		requires
+			__assignable<mixin&, O> && !models::Same<decay_t<O>, mixin> &&
+			!models::Same<decay_t<O>, basic_iterator>
+		constexpr basic_iterator& operator=(O&& o) &
+		noexcept(is_nothrow_assignable<mixin&, O>::value)
+		{
+			static_cast<mixin&>(*this) = forward<O>(o);
+			return *this;
+		}
 
 		constexpr decltype(auto) operator*() const
 		noexcept(noexcept(declval<const C&>().read()))
