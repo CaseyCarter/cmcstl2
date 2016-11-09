@@ -1,0 +1,14 @@
+add_executable(uninitialized_default_construct uninitialized_default_construct.cpp)
+add_test(memory.uninitialized_default_construct uninitialized_default_construct)
+
+add_executable(uninitialized_value_construct uninitialized_value_construct.cpp)
+add_test(memory.uninitialized_value_construct uninitialized_value_construct)
+
+add_executable(uninitialized_move uninitialized_move.cpp)
+add_test(memory.uninitialized_move uninitialized_move)
+
+add_executable(uninitialized_fill uninitialized_fill.cpp)
+add_test(memory.uninitialized_fill uninitialized_fill)
+
+add_executable(destroy destroy.cpp)
+add_test(memory.destroy destroy)
