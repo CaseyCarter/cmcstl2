@@ -15,21 +15,21 @@
 #include <stl2/memory.hpp>
 
 template <typename T>
-class raii {
+class raw_buffer {
 public:
-   raii(const std::ptrdiff_t size)
+   raw_buffer(const std::ptrdiff_t size)
       : data_{allocator_.allocate(size)},
         size_{size}
    {
    }
 
-   raii(const raii&) = delete;
-   raii(raii&&) = default;
+   raw_buffer(const raw_buffer&) = delete;
+   raw_buffer(raw_buffer&&) = default;
 
-   raii& operator=(const raii&) = delete;
-   raii& operator=(raii&&) = default;
+   raw_buffer& operator=(const raw_buffer&) = delete;
+   raw_buffer& operator=(raw_buffer&&) = default;
 
-   ~raii()
+   ~raw_buffer()
    {
       allocator_.deallocate(data_, size());
    }
@@ -73,4 +73,13 @@ private:
    T* data_;
    std::ptrdiff_t size_;
 };
+
+template <typename T>
+using Array = std::array<T, 8>;
+
+template <typename T>
+raw_buffer<T> make_buffer(const std::size_t size)
+{
+   return {static_cast<std::ptrdiff_t>(size)};
+}
 #endif // RAII_HPP_INCLUDED
