@@ -10,8 +10,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_ALGORITHM_DESTROY_HPP
-#define STL2_DETAIL_ALGORITHM_DESTROY_HPP
+#ifndef STL2_DETAIL_MEMORY_DESTROY_HPP
+#define STL2_DETAIL_MEMORY_DESTROY_HPP
 #include <stl2/concepts.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
    I destroy(I first, S last) noexcept
    {
       for (; first != last; ++first)
-         destroy_at(__stl2::addressof(*first));
+         __stl2::destroy_at(__stl2::addressof(*first));
 
       return first;
    }
@@ -69,8 +69,8 @@ STL2_OPEN_NAMESPACE {
       __ReferenceTo<I, value_type_t<I>>()
    I destroy_n(I first, difference_type_t<I> n) noexcept
    {
-      return __stl2::destroy(make_counted_iterator(first, n),
+      return __stl2::destroy(__stl2::make_counted_iterator(first, n),
                              default_sentinel{}).base();
    }
 } STL2_CLOSE_NAMESPACE
-#endif // STL2_DETAIL_ALGORITHM_DESTROY_HPP
+#endif // STL2_DETAIL_MEMORY_DESTROY_HPP

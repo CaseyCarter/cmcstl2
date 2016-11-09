@@ -10,13 +10,15 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_ALGORITHM_UNINITIALIZED_FILL_HPP
-#define STL2_ALGORITHM_UNINITIALIZED_FILL_HPP
+#ifndef STL2_DETAIL_MEMORY_UNINITIALIZED_FILL_HPP
+#define STL2_DETAIL_MEMORY_UNINITIALIZED_FILL_HPP
 
 #include <new>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/memory/construct_at.hpp>
 #include <stl2/detail/memory/destroy.hpp>
+#include <stl2/detail/memory/nothrow_forward_iterator.hpp>
 #include <stl2/detail/memory/reference_to.hpp>
 #include <stl2/detail/tagged.hpp>
 
@@ -24,27 +26,26 @@ STL2_OPEN_NAMESPACE {
    ///////////////////////////////////////////////////////////////////////////
    // uninitialized_fill [Extension]
    //
-   template </*NoThrow*/ForwardIterator I, Sentinel<I> S, typename T>
+   template <__NoThrowForwardIterator I, Sentinel<I> S, typename T>
    requires
       Constructible<value_type_t<I>, const T&>() &&
       __ReferenceTo<I, value_type_t<I>>()
    I uninitialized_fill(I first, S last, const T& x)
    {
-      auto i = first;
+      auto saved = first;
       try {
-         for (; i != last; ++i)
-            ::new (const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(*i))))
-               value_type_t<I>(x);
+         for (; first != last; ++first)
+            __stl2::__construct_at(*first, x);
       }
       catch (...) {
-         destroy(__stl2::move(first), __stl2::move(i));
+         __stl2::destroy(__stl2::move(saved), __stl2::move(first));
          throw;
       }
 
       return __stl2::move(first);
    }
 
-   template </*NoThrow*/ForwardRange Rng, typename T>
+   template <__NoThrowForwardRange Rng, typename T>
    requires
       Constructible<value_type_t<iterator_t<Rng>>, const T&>() &&
       __ReferenceTo<iterator_t<Rng>, value_type_t<iterator_t<Rng>>>()
@@ -58,15 +59,15 @@ STL2_OPEN_NAMESPACE {
    ///////////////////////////////////////////////////////////////////////////
    // uninitialized_fill_n [Extension]
    //
-   template </*NoThrow*/ForwardIterator I, typename T>
+   template <__NoThrowForwardIterator I, typename T>
    requires
       Constructible<value_type_t<I>, const T&>() &&
       __ReferenceTo<I, value_type_t<I>>()
    I uninitialized_fill_n(I first, const difference_type_t<I> n, const T& x)
    {
-      return uninitialized_fill(make_counted_iterator(__stl2::move(first), n),
-                                default_sentinel{}, x).base();
+      return __stl2::uninitialized_fill(__stl2::make_counted_iterator(__stl2::move(first), n),
+                                        default_sentinel{}, x).base();
    }
 } STL2_CLOSE_NAMESPACE
 
-#endif // STL2_ALGORITHM_UNINITIALIZED_FILL_HPP
+#endif // STL2_DETAIL_MEMORY_UNINITIALIZED_FILL_HPP

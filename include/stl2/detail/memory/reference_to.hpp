@@ -9,8 +9,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL___REFERENCE_TO_UNINITIALIZED_COPY_HPP
-#define STL2_DETAIL___REFERENCE_TO_UNINITIALIZED_COPY_HPP
+#ifndef STL2_DETAIL_MEMORY_REFERENCE_TO_UNINITIALIZED_COPY_HPP
+#define STL2_DETAIL_MEMORY_REFERENCE_TO_UNINITIALIZED_COPY_HPP
 
 #include <stl2/concepts.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
   concept bool __ReferenceTo() { // exposition only
     return InputIterator<I>() &&
            is_lvalue_reference_v<reference_t<I>> &&
-           __stl2::Same<remove_cv_t<remove_reference_t<reference_t<I>>>, T>();
+           Same<remove_cv_t<remove_reference_t<reference_t<I>>>, T>();
   }
 } STL2_CLOSE_NAMESPACE
-#endif // STL2_DETAIL___REFERENCE_TO_UNINITIALIZED_COPY_HPP
+#endif // STL2_DETAIL_MEMORY_REFERENCE_TO_UNINITIALIZED_COPY_HPP
