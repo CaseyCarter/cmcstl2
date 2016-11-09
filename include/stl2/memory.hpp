@@ -49,13 +49,6 @@ STL2_OPEN_NAMESPACE {
 	using std::get_temporary_buffer;
 	using std::return_temporary_buffer;
 
-	// specialized algorithms
-	// addressof defined below
-	//using std::uninitialized_copy;
-	//using std::uninitialized_copy_n;
-	//using std::uninitialized_fill;
-	//using std::uninitialized_fill_n;
-
 	// template class unique_ptr
 	using std::default_delete;
 	using std::unique_ptr;
