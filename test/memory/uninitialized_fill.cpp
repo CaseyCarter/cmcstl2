@@ -10,20 +10,16 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
+#include <stl2/detail/memory/uninitialized_fill.hpp>
 #include <array>
 #include "Book.hpp"
 #include <cassert>
 #include <cstdint>
 #include <stl2/algorithm.hpp>
 #include <stl2/concepts.hpp>
-#include <stl2/detail/memory/uninitialized_fill.hpp>
 #include <stl2/detail/memory/destroy.hpp>
-#include <typeinfo>
+#include "raw_buffer.hpp"
 
-#include "raii.hpp"
-
-#include <experimental/ranges/algorithm>
-#include <iostream>
 namespace ranges = __stl2;
 
 constexpr auto test_size{1 << 10};
@@ -31,10 +27,10 @@ constexpr auto test_size{1 << 10};
 template <typename T>
 void uninitialized_fill_test(const T& x)
 {
-   const auto independent = raii<T>{test_size};
+   const auto independent = make_buffer<T>(test_size);
    auto test = [&independent, &x](const auto& p){
       assert(ranges::find_if(independent, [&x](const auto& i){ return i != x; }) == independent.end());
-      assert(ranges::find_if(independent.begin(), p, [&x](const auto& i){ return i != x; }) == p);
+      assert(p == independent.end());
       ranges::destroy(independent);
    };
 

@@ -10,53 +10,42 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
+#include <stl2/detail/memory/uninitialized_move.hpp>
 #include <array>
 #include "Book.hpp"
 #include <cassert>
 #include <cstdint>
 #include <stl2/algorithm.hpp>
 #include <stl2/concepts.hpp>
-#include <stl2/detail/memory/uninitialized_move.hpp>
 #include <stl2/detail/memory/destroy.hpp>
-#include <typeinfo>
+#include "raw_buffer.hpp"
 
-#include "raii.hpp"
-
-#include <experimental/ranges/algorithm>
-#include <iostream>
 namespace ranges = __stl2;
 
 template <typename T>
-using Array = std::array<T, 8>;
-
-template <typename T, bool Fundamental = ranges::is_fundamental<T>::value>
-struct Assert {
-   static void empty(const Array<T>& a)
-   {
-      for(const auto& i : a)
-         assert(i.empty());
-   }
-};
-
-template <typename T>
-struct Assert<T, true>
+void assert_empty(const Array<T>& a)
 {
-   static void empty(const Array<T>&)
-   {
-   }
-};
+   for (const auto& i : a)
+      assert(i.empty());
+}
 
 template <typename T>
+requires ranges::is_fundamental<T>::value
+void assert_empty(const Array<T>&)
+{
+}
+
+template <ranges::Copyable T>
 void uninitialized_move_test(const Array<T>& control)
 {
-   const auto independent = raii<T>{static_cast<std::ptrdiff_t>(control.size())};
+   auto independent = make_buffer<T>(control.size());
    auto to_move = control;
-   auto test = [&control, &to_move, &independent](const auto& p){
-      Assert<T>::empty(to_move);
+   auto test = [&control, &to_move, &independent](const auto& p) {
+      assert_empty(to_move);
       assert(p.in() == to_move.end());
 
       assert(ranges::equal(control, independent, std::equal_to<T>{}));
-      assert(ranges::equal(control.begin(), control.end(), independent.begin(), p.out(), std::equal_to<T>{}));
+      assert(independent.end() == p.out());
       ranges::destroy(independent);
    };
 
@@ -76,6 +65,25 @@ void uninitialized_move_test(const Array<T>& control)
 
    to_move = control;        // note to_move.begin(), not to_move.cbegin()
    test(ranges::uninitialized_move_n(to_move.begin(), to_move.size(), independent.cbegin()));
+}
+
+using Move_only_t = Array<std::unique_ptr<std::string>>;
+void uninitialized_move_test(Move_only_t first, const ranges::value_type_t<Move_only_t>& t)
+{
+   auto test = [&t](const auto& s, const auto& d, const auto& p) {
+      assert(static_cast<decltype(s.size())>(ranges::count_if(s.begin(), s.end(), [](const auto& i){ return !i; })) == s.size());
+      assert(ranges::count_if(d.begin(), d.end(), [&t](const auto& i){ return !i; }) == 0);
+      assert(p.in() == s.end());
+      assert(p.out() == d.end());
+   };
+
+   auto second = make_buffer<Move_only_t::value_type>(first.size());
+   test(first, second, ranges::uninitialized_move(first.begin(), first.end(), second.begin()));
+   test(second, first, ranges::uninitialized_move(second.begin(), second.end(), first.cbegin()));
+   test(first, second, ranges::uninitialized_move(first, second.begin()));
+   test(second, first, ranges::uninitialized_move(second, first.cbegin()));
+   test(first, second, ranges::uninitialized_move_n(first.begin(), first.size(), second.cbegin()));
+   test(second, first, ranges::uninitialized_move_n(second.begin(), second.size(), first.begin()));
 }
 
 /**
@@ -104,4 +112,14 @@ int main()
                                           {5.},
                                           {6.1, 3.02, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9},
                                           std::vector<double>(1 << 26, 7.0)}});
+
+   uninitialized_move_test(Move_only_t{std::make_unique<std::string>("0"),
+                                       std::make_unique<std::string>("0"),
+                                       std::make_unique<std::string>("0"),
+                                       std::make_unique<std::string>("0"),
+                                       std::make_unique<std::string>("0"),
+                                       std::make_unique<std::string>("0"),
+                                       std::make_unique<std::string>("0"),
+                                       std::make_unique<std::string>("0")},
+                           std::make_unique<std::string>("0"));
 }

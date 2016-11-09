@@ -10,6 +10,7 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
+#include <stl2/detail/memory/uninitialized_value_construct.hpp>
 #include "Book.hpp"
 #include <cassert>
 #include <cstdint>
@@ -18,27 +19,20 @@
 #include <list>
 #include <stl2/algorithm.hpp>
 #include <stl2/concepts.hpp>
-#include <stl2/detail/memory/uninitialized_value_construct.hpp>
 #include <stl2/detail/memory/destroy.hpp>
 #include <string>
-#include <typeinfo>
+#include "raw_buffer.hpp"
 
-#include "raii.hpp"
-
-#include <experimental/ranges/algorithm>
-#include <iostream>
 namespace ranges = __stl2;
 
 template <typename T>
 void uninitialized_value_construct_test()
 {
-   auto independent = raii<T>{1 << 20};
+   auto independent = make_buffer<T>(1 << 20);
    auto test = [&independent](const auto& p) {
       auto t = T();
-      for (const auto& i : independent)
-         assert(i == t);
-      for (auto i = independent.begin(); i != p; ++i)
-         assert(*i == t);
+      assert(ranges::find_if(independent, [&t](const auto& i){ return i != t; }) == independent.end());
+      assert(p == independent.end());
       ranges::destroy(independent);
    };
 

@@ -10,33 +10,26 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
+#include <stl2/detail/memory/uninitialized_copy.hpp>
 #include <array>
 #include "Book.hpp"
 #include <cassert>
 #include <cstdint>
 #include <stl2/algorithm.hpp>
 #include <stl2/concepts.hpp>
-#include <stl2/detail/memory/uninitialized_copy.hpp>
 #include <stl2/detail/memory/destroy.hpp>
-#include <typeinfo>
+#include "raw_buffer.hpp"
 
-#include "raii.hpp"
-
-#include <experimental/ranges/algorithm>
-#include <iostream>
 namespace ranges = __stl2;
-
-
-template <typename T>
-using Array = std::array<T, 8>;
 
 template <typename T>
 void uninitialized_copy_test(Array<T>&& control)
 {
-   auto independent = raii<T>{static_cast<std::ptrdiff_t>(control.size())};
+   auto independent = make_buffer<T>(control.size());
    auto test = [&control, &independent](const auto& p){
       assert(ranges::equal(control, independent, std::equal_to<T>{}));
-      assert(ranges::equal(control.begin(), p.in(), independent.begin(), p.out(), std::equal_to<T>{}));
+      assert(p.in() == control.end());
+      assert(p.out() == independent.end());
       ranges::destroy(independent);
    };
 
@@ -58,12 +51,10 @@ void uninitialized_copy_test(Array<T>&& control)
  *       - second array:  using a non-default constructor
  */
 
-using Test_type_one = Array<int>;
-using Test_type_two = Array<std::vector<double>>;
-
-void thorough_test()
+int main()
 {
-   
+   using Test_type_one = Array<int>;
+   using Test_type_two = Array<std::vector<double>>;
 
    uninitialized_copy_test(Test_type_one{});
    uninitialized_copy_test(Test_type_two{});
@@ -78,9 +69,4 @@ void thorough_test()
                                           {5.},
                                           {6.1, 3.02, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9},
                                           std::vector<double>(1 << 26, 7.0)}});
-}
-
-int main()
-{
-   thorough_test();
 }

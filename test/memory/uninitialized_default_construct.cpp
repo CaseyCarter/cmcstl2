@@ -10,6 +10,7 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
+#include <stl2/detail/memory/uninitialized_default_construct.hpp>
 #include "Book.hpp"
 #include <cassert>
 #include <cstdint>
@@ -18,50 +19,58 @@
 #include <list>
 #include <stl2/algorithm.hpp>
 #include <stl2/concepts.hpp>
-#include <stl2/detail/memory/uninitialized_default_construct.hpp>
 #include <stl2/detail/memory/destroy.hpp>
 #include <string>
-#include <typeinfo>
+#include "raw_buffer.hpp"
 
-#include "raii.hpp"
-
-#include <experimental/ranges/algorithm>
-#include <iostream>
 namespace ranges = __stl2;
+
+template <typename T>
+void test(const raw_buffer<T>& independent, const auto& p)
+{
+      T t;
+      assert(ranges::find_if(independent, [&t](const auto& i){ return i != t; }) == independent.cend());
+      assert(p == independent.end());
+      ranges::destroy(independent);
+}
 
 template <typename T>
 void uninitialized_default_construct_test()
 {
-   auto independent = raii<T>{1 << 20};
-   auto test = [&independent](const auto& p) {
-      T t;
-      for (const auto& i : independent)
-         assert(i == t);
-      for (auto i = independent.begin(); i != p; ++i)
-         assert(*i == t);
-      ranges::destroy(independent);
-   };
+   auto independent = make_buffer<T>(1 << 20);
 
-   test(ranges::uninitialized_default_construct(independent.begin(), independent.end()));
-   test(ranges::uninitialized_default_construct(independent.cbegin(), independent.cend()));
-   test(ranges::uninitialized_default_construct(independent));
-   test(ranges::uninitialized_default_construct_n(independent.begin(), independent.size()));
-   test(ranges::uninitialized_default_construct_n(independent.cbegin(), independent.size()));
+   test(independent, ranges::uninitialized_default_construct(independent.begin(), independent.end()));
+   test(independent, ranges::uninitialized_default_construct(independent.cbegin(), independent.cend()));
+   test(independent, ranges::uninitialized_default_construct(independent));
+   test(independent, ranges::uninitialized_default_construct_n(independent.begin(), independent.size()));
+   test(independent, ranges::uninitialized_default_construct_n(independent.cbegin(), independent.size()));
+}
+
+template <typename T>
+requires ranges::is_fundamental<T>::value
+void uninitialized_default_construct_test()
+{
+   std::cerr << "Warning, this test may fail, as default construction does not initialise "
+                "fundamental objects.\n";
+   auto independent = make_buffer<T>(1 << 20);
+
+   test(independent, ranges::uninitialized_default_construct(independent.begin(), independent.end()));
+   test(independent, ranges::uninitialized_default_construct(independent));
+   test(independent, ranges::uninitialized_default_construct_n(independent.begin(), independent.size()));
 }
 
 int main()
 {
-   using namespace std;
-   /*uninitialized_default_construct_test<char>();
+   uninitialized_default_construct_test<char>();
    uninitialized_default_construct_test<short>();
-   uninitialized_default_construct_test<int>();
-   uninitialized_default_construct_test<float>();
-   uninitialized_default_construct_test<long>();
-   uninitialized_default_construct_test<double>();
-   uninitialized_default_construct_test<long long>();*/
-   uninitialized_default_construct_test<vector<char>>();
-   uninitialized_default_construct_test<string>();
-   uninitialized_default_construct_test<deque<double>>();
-   uninitialized_default_construct_test<list<vector<deque<double>>>>();
-   uninitialized_default_construct_test<unique_ptr<string>>();
+   //uninitialized_default_construct_test<int>();
+   //uninitialized_default_construct_test<float>();
+   //uninitialized_default_construct_test<long>();
+   //uninitialized_default_construct_test<double>();
+   //uninitialized_default_construct_test<long long>();
+   uninitialized_default_construct_test<std::vector<char>>();
+   uninitialized_default_construct_test<std::string>();
+   uninitialized_default_construct_test<std::deque<double>>();
+   uninitialized_default_construct_test<std::list<std::vector<std::deque<double>>>>();
+   uninitialized_default_construct_test<std::unique_ptr<std::string>>();
 }
