@@ -159,33 +159,45 @@ STL2_OPEN_NAMESPACE {
                 deref_ = &deref_big<Reference, I>;
                 exec_ = &exec_big<RValueReference, I>;
             }
+            void reset() noexcept {
+                exec_(op::nuke, &data_, nullptr);
+                deref_ = &uninit_deref<Reference>;
+                exec_ = &uninit_noop<RValueReference>;
+            }
+            void copy_from(cursor const &that) {
+                // Pre: *this is empty
+                that.exec_(op::copy, const_cast<blob *>(&that.data_), &data_);
+                deref_ = that.deref_;
+                exec_ = that.exec_;
+            }
+            void move_from(cursor &that) {
+                // Pre: *this is empty
+                that.exec_(op::move, &that.data_, &data_);
+                swap(deref_, that.deref_);
+                swap(exec_, that.exec_);
+            }
         public:
             using value_type = ValueType;
             using single_pass = std::true_type;
             struct mixin;
             cursor() = default;
             cursor(cursor &&that) {
-                that.exec_(op::move, &that.data_, &data_);
-                swap(deref_, that.deref_);
-                swap(exec_, that.exec_);
+                move_from(that);
             }
             cursor(cursor const &that) {
-                that.exec_(op::copy, const_cast<blob *>(&that.data_), &data_);
-                deref_ = that.deref_;
-                exec_ = that.exec_;
+                copy_from(that);
             }
             cursor &operator=(cursor &&that) {
                 if (&that != this) {
-                    this->~cursor();
-                    ::new (static_cast<void *>(this))
-                        cursor(std::move(that));
+                    reset();
+                    move_from(that);
                 }
                 return *this;
             }
             cursor &operator=(cursor const &that) {
                 if (&that != this) {
-                    this->~cursor();
-                    ::new (static_cast<void *>(this)) cursor(that);
+                    reset();
+                    copy_from(that);
                 }
                 return *this;
             }
