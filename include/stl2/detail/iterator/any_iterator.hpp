@@ -58,13 +58,23 @@ STL2_OPEN_NAMESPACE {
         }
 
         template <class Reference, InputIterator I>
-        static Reference deref_small(blob const &src) {
+        Reference deref_small(blob const &src) {
             return **static_cast<I const *>(static_cast<void const *>(&src.tiny));
         }
 
         template <class Reference, InputIterator I>
-        static Reference deref_big(blob const &src) {
+        Reference deref_big(blob const &src) {
             return *static_cast<shared_iterator<I> const *>(src.big)->it;
+        }
+
+        template <class I, class J>
+        constexpr bool iter_equal(I const &, J const &) {
+            return true;
+        }
+
+        Sentinel{I, J}
+        constexpr bool iter_equal(I const &i, J const &j) {
+            return i == j;
         }
 
         template <class RValueReference, InputIterator I>
@@ -85,8 +95,9 @@ STL2_OPEN_NAMESPACE {
                 ++*static_cast<I *>(static_cast<void *>(&src->tiny));
                 break;
             case op::comp:
-                if (*static_cast<I const *>(static_cast<void *>(&src->tiny)) ==
-                    *static_cast<I const *>(static_cast<void *>(&dst->tiny))) {
+                if (__any_iterator::iter_equal(
+                    *static_cast<I const *>(static_cast<void *>(&src->tiny)),
+                    *static_cast<I const *>(static_cast<void *>(&dst->tiny)))) {
                     // fallthrough
             case op::rval:
                     return +[](blob const &src) -> RValueReference {
@@ -115,8 +126,9 @@ STL2_OPEN_NAMESPACE {
                 ++static_cast<shared_iterator<I> *>(src->big)->it;
                 break;
             case op::comp:
-                if (static_cast<shared_iterator<I> const *>(src->big)->it ==
-                    static_cast<shared_iterator<I> const *>(dst->big)->it) {
+                if (__any_iterator::iter_equal(
+                    static_cast<shared_iterator<I> const *>(src->big)->it,
+                    static_cast<shared_iterator<I> const *>(dst->big)->it)) {
                     // fallthrough
             case op::rval:
                     return +[](blob const &src) -> RValueReference {
