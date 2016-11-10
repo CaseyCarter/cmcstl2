@@ -159,6 +159,9 @@ STL2_OPEN_NAMESPACE {
                 deref_ = &deref_big<Reference, I>;
                 exec_ = &exec_big<RValueReference, I>;
             }
+            InputIterator{I} cursor(I i)
+            : cursor{std::move(i), is_small<I>{}}
+            {}
             void reset() noexcept {
                 exec_(op::nuke, &data_, nullptr);
                 deref_ = &uninit_deref<Reference>;
@@ -179,7 +182,6 @@ STL2_OPEN_NAMESPACE {
         public:
             using value_type = ValueType;
             using single_pass = std::true_type;
-            struct mixin;
             cursor() = default;
             cursor(cursor &&that) {
                 move_from(that);
@@ -218,30 +220,7 @@ STL2_OPEN_NAMESPACE {
                 return exec_(op::rval, nullptr, nullptr)(data_);
             }
         };
-
-        template<class Reference, class ValueType, class RValueReference>
-        struct cursor<Reference, ValueType, RValueReference>::mixin
-        : basic_mixin<cursor> {
-            mixin() = default;
-            using mixin::basic_mixin::basic_mixin;
-            InputIterator{I} mixin(I i)
-            requires
-                ConvertibleTo<reference_t<I>, Reference>() &&
-                ConvertibleTo<rvalue_reference_t<I>, RValueReference>()
-            : basic_mixin<cursor>(cursor{std::move(i), is_small<I>{}}) {
-            }
-            template <class I, class C = cursor,
-                class = meta::if_c<!is_same<I, mixin>::value>>
-            requires
-                !Same<I, basic_iterator<C>>() && InputIterator<I>() &&
-                ConvertibleTo<reference_t<I>, Reference>() &&
-                ConvertibleTo<rvalue_reference_t<I>, RValueReference>()
-            mixin &operator=(I i) & {
-                this->get() = cursor{i, is_small<I>{}};
-                return *this;
-            }
-        };
-	}
+    }
 
     template<class Reference,
         class ValueType = __uncvref<Reference>,

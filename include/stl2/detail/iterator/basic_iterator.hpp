@@ -602,12 +602,12 @@ STL2_OPEN_NAMESPACE {
 		// http://wg21.link/P0186
 		template <class O>
 		requires
-			__assignable<mixin&, O> && !models::Same<decay_t<O>, mixin> &&
-			!models::Same<decay_t<O>, basic_iterator>
+			!models::Same<decay_t<O>, basic_iterator> &&
+			models::Assignable<C&, O>
 		constexpr basic_iterator& operator=(O&& o) &
-		noexcept(is_nothrow_assignable<mixin&, O>::value)
+		noexcept(is_nothrow_assignable<C&, O>::value)
 		{
-			static_cast<mixin&>(*this) = forward<O>(o);
+			get() = __stl2::forward<O>(o);
 			return *this;
 		}
 
