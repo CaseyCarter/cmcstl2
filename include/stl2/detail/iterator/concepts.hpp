@@ -78,12 +78,8 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_customization<R> = true;
 
 		template <class R>
-		requires
-			models::Dereferenceable<R>
-		using Ret = meta::if_<
-			is_reference<reference_t<R>>,
-			remove_reference_t<reference_t<R>>&&,
-			reference_t<R>>;
+		using rvalue =
+			meta::if_<is_reference<R>, remove_reference_t<R>&&, decay_t<R>>;
 
 		struct fn {
 			template <class R>
@@ -97,9 +93,9 @@ STL2_OPEN_NAMESPACE {
 			template <class R>
 			requires
 				models::Dereferenceable<R>
-			constexpr Ret<R> operator()(R&& r) const
+			constexpr rvalue<reference_t<R>> operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				static_cast<Ret<R>>(*r)
+				static_cast<rvalue<reference_t<R>>>(*r)
 			)
 		};
 	}
