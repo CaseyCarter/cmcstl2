@@ -25,7 +25,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-		class F, class Proj = identity>
+		CopyConstructible F, class Proj = identity>
 	requires
 		models::Writable<O,
 			indirect_result_of_t<F&(
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 		return {__stl2::move(first), __stl2::move(result)};
 	}
 
-	template <InputRange R, class O, class F, class Proj = identity>
+	template <InputRange R, class O, CopyConstructible F, class Proj = identity>
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Writable<__f<O>,
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template <class E, class O, class F, class Proj = identity>
+	template <class E, class O, CopyConstructible F, class Proj = identity>
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::Writable<__f<O>,
@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputIterator I1, Sentinel<I1> S1,
 		InputIterator I2, WeaklyIncrementable O,
-		class F, class Proj1 = identity, class Proj2 = identity>
+		CopyConstructible F, class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]] tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
 	transform(I1 first1, S1 last1, I2 first2, O result,
 		F op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 		return {__stl2::move(first1), __stl2::move(first2), __stl2::move(result)};
 	}
 
-	template <InputRange Rng, class I, class O, class F,
+	template <InputRange Rng, class I, class O, CopyConstructible F,
 		class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]]
 	tagged_tuple<tag::in1(safe_iterator_t<Rng>),
@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputIterator I1, Sentinel<I1> S1,
 		InputIterator I2, Sentinel<I2> S2,
-		WeaklyIncrementable O, class F,
+		WeaklyIncrementable O, CopyConstructible F,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::Writable<O,
@@ -128,7 +128,7 @@ STL2_OPEN_NAMESPACE {
 		return {__stl2::move(first1), __stl2::move(first2), __stl2::move(result)};
 	}
 
-	template <InputRange Rng1, InputRange Rng2, class O, class F,
+	template <InputRange Rng1, InputRange Rng2, class O, CopyConstructible F,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
@@ -152,7 +152,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template <class E, InputRange Rng2, class O, class F,
+	template <class E, InputRange Rng2, class O, CopyConstructible F,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
@@ -176,7 +176,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template <InputRange Rng1, class E, class O, class F,
+	template <InputRange Rng1, class E, class O, CopyConstructible F,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
@@ -200,7 +200,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template <class E1, class E2, class O, class F,
+	template <class E1, class E2, class O, CopyConstructible F,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
