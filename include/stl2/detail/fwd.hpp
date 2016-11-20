@@ -85,8 +85,8 @@ namespace __stl2 = ::std::experimental::ranges;
 // of the compound constraint "{ E } -> auto&&;"
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		void deduce_auto_ref(auto&);
-		void deduce_auto_ref_ref(auto&&);
+		void deduce_auto_ref(auto&); // undefined
+		void deduce_auto_ref_ref(auto&&); // undefined
 	}
 } STL2_CLOSE_NAMESPACE
 

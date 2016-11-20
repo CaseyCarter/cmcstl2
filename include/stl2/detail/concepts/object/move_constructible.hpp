@@ -177,7 +177,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T>
 	concept bool MoveConstructible() {
 		return Constructible<T, remove_cv_t<T>&&>() &&
-			ext::ImplicitlyConvertibleTo<remove_cv_t<T>&&, T>();
+			ConvertibleTo<remove_cv_t<T>&&, T>();
 	}
 
 	namespace models {

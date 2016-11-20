@@ -87,6 +87,10 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(o_);
 				return __stl2::move(*o_);
 			}
+			constexpr const T&& get() const&& noexcept {
+				STL2_EXPECT(o_);
+				return __stl2::move(*o_);
+			}
 
 		private:
 			optional<T> o_;

@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 			class mixin : protected detail::ebo_box<cursor> {
 				using box_t = detail::ebo_box<cursor>;
 			public:
-				using difference_type = __stl2::cursor::difference_type_t<cursor>;
+				using difference_type = std::ptrdiff_t;
 				using char_type = charT;
 				using traits_type = traits;
 				using ostream_type = cursor::ostream_type;
@@ -72,7 +72,6 @@ STL2_OPEN_NAMESPACE {
 			bool equal(const cursor& that) const noexcept {
 				return sbuf_ == that.sbuf_;
 			}
-
 			// Extension
 			bool equal(default_sentinel) const noexcept {
 				return sbuf_ == nullptr;
@@ -80,8 +79,10 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
-	// Not to spec: MoveConstructible requirement is implicit
-	// Extension: satisfies EqualityComparable and Sentinel<default_sentinel>
+	// Not to spec:
+	// * MoveConstructible requirement is implicit
+	//   See https://github.com/ericniebler/stl2/issues/246)
+	// * Extension: satisfies EqualityComparable and Sentinel<default_sentinel>
 	template <MoveConstructible charT, class traits = std::char_traits<charT>>
 	using ostreambuf_iterator =
 		basic_iterator<__ostreambuf_iterator::cursor<charT, traits>>;

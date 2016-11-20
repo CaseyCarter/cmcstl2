@@ -22,6 +22,7 @@
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iostream/concepts.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
+#include <stl2/detail/memory/addressof.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
@@ -50,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 			STL2_CONSTEXPR_EXT ostream_cursor(
 				ostream_type& os, const char* delimiter = nullptr)
 			noexcept
-			: os_{&os}, delimiter_{delimiter}
+			: os_{__stl2::addressof(os)}, delimiter_{delimiter}
 			{}
 
 			template <class U = T>
@@ -82,9 +83,11 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// ostream_iterator [ostream.iterator]
 	// Extension: ostream_iterator<void> accepts any streamable type.
+	// Not to spec:
+	// * StreamInsertable constraint is implicit
+	//   See https://github.com/ericniebler/stl2/issues/246
 	//
-	template <class T = void, class charT = char,
-		class traits = std::char_traits<charT>>
+	template <class T = void, class charT = char, class traits = std::char_traits<charT>>
 	requires
 		models::Same<T, void> ||
 		models::StreamInsertable<T, std::basic_ostream<charT, traits>>

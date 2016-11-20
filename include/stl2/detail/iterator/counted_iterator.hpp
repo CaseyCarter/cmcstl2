@@ -199,6 +199,9 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
+	// Not to spec:
+	// * hooks iter_move and iter_swap
+	//   See https://github.com/ericniebler/stl2/245
 	Iterator{I}
 	using counted_iterator = basic_iterator<__counted_iterator::cursor<I>>;
 

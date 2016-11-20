@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		ext::ExplicitlyConvertibleTo{From, To}
+		ConvertibleTo{From, To}
 		struct narrowing_converter {
 			static_assert(is_reference<From>());
 			From from_;
@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class To, class From>
-		requires ext::ExplicitlyConvertibleTo<From, To>()
+		requires ConvertibleTo<From, To>()
 		constexpr auto allow_narrowing_conversion(From&& f) noexcept {
 			return narrowing_converter<From&&, To>{__stl2::forward<From>(f)};
 		}
@@ -137,6 +137,17 @@ STL2_OPEN_NAMESPACE {
 			requires MoveConstructible<T>()
 			: v_{__stl2::move(t)} {}
 
+			template <ConvertibleTo<T> U>
+			requires Constructible<T, U>()
+			constexpr optional(U&& u)
+			noexcept(is_nothrow_constructible<T, U>::value)
+			: v_{emplaced_type<T>, __stl2::forward<U>(u)} {}
+			template <class U>
+			requires Constructible<T, U>()
+			constexpr explicit optional(U&& u)
+			noexcept(is_nothrow_constructible<T, U>::value)
+			: v_{emplaced_type<T>, __stl2::forward<U>(u)} {}
+
 			template <class...Args>
 			requires Constructible<T, Args...>()
 			constexpr explicit optional(in_place_t, Args&&...args)
@@ -160,7 +171,8 @@ STL2_OPEN_NAMESPACE {
 				access::v(__stl2::move(that)))}
 			{}
 
-			template <ConvertibleTo<T> U>
+			template <class U>
+			requires Constructible<T, U>()
 			explicit constexpr optional(optional<U>&& that)
 			noexcept(is_nothrow_constructible<T, U>::value)
 			: v_{__stl2::visit(convert_visitor<T>{},
@@ -173,7 +185,8 @@ STL2_OPEN_NAMESPACE {
 			noexcept(is_nothrow_constructible<T, const U&>::value)
 			: v_{__stl2::visit(convert_visitor<T>{}, access::cv(that))} {}
 
-			template <ConvertibleTo<T> U>
+			template <class U>
+			requires Constructible<T, const U&>()
 			explicit constexpr optional(const optional<U>& that)
 			noexcept(is_nothrow_constructible<T, const U&>::value)
 			: v_{__stl2::visit(convert_visitor<T>{}, access::cv(that))} {}
@@ -261,8 +274,9 @@ STL2_OPEN_NAMESPACE {
 
 			template <class U>
 			requires
-				Swappable<T&, U&>() && Constructible<T, U&&>() &&
-				Constructible<U, T&&>()
+				Swappable<T&, U&>() &&
+				Constructible<T, U>() &&
+				Constructible<U, T>()
 			STL2_CONSTEXPR_EXT void swap(optional<U>& that)
 			noexcept(is_nothrow_move_constructible<T>::value &&
 				is_nothrow_move_constructible<U>::value &&
@@ -322,14 +336,14 @@ STL2_OPEN_NAMESPACE {
 				return optional::get(__stl2::move(v_));
 			}
 
-			template <ext::ExplicitlyConvertibleTo<T> U>
+			template <ConvertibleTo<T> U>
 			requires CopyConstructible<T>()
 			constexpr T value_or(U&& u) const & {
 				return *this
 					? **this
 					: static_cast<T>(__stl2::forward<U>(u));
 			}
-			template <ext::ExplicitlyConvertibleTo<T> U>
+			template <ConvertibleTo<T> U>
 			requires CopyConstructible<T>()
 			constexpr T value_or(U&& u) && {
 				return *this

@@ -72,18 +72,14 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		requires
 			models::Dereferenceable<R> &&
-			requires(R& r) {
-				STL2_DEDUCE_AUTO_REF_REF(iter_move(r));
+			requires(R&& r) {
+				STL2_DEDUCE_AUTO_REF_REF(iter_move((R&&)r));
 			}
 		constexpr bool has_customization<R> = true;
 
 		template <class R>
-		requires
-			models::Dereferenceable<R>
-		using Ret = meta::if_<
-			is_reference<reference_t<R>>,
-			remove_reference_t<reference_t<R>>&&,
-			reference_t<R>>;
+		using rvalue =
+			meta::if_<is_reference<R>, remove_reference_t<R>&&, decay_t<R>>;
 
 		struct fn {
 			template <class R>
@@ -91,15 +87,15 @@ STL2_OPEN_NAMESPACE {
 				models::Dereferenceable<R> && has_customization<R>
 			constexpr decltype(auto) operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				iter_move(r)
+				iter_move((R&&)r)
 			)
 
 			template <class R>
 			requires
 				models::Dereferenceable<R>
-			constexpr Ret<R> operator()(R&& r) const
+			constexpr rvalue<reference_t<R>> operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				static_cast<Ret<R>>(*r)
+				static_cast<rvalue<reference_t<R>>>(*r)
 			)
 		};
 	}
@@ -336,17 +332,17 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_customization = false;
 		template <class R1, class R2>
 		requires
-			requires(R1& r1, R2& r2) {
-				iter_swap(r1, r2);
+			requires(R1&& r1, R2&& r2) {
+				iter_swap((R1&&)r1, (R2&&)r2);
 			}
 		constexpr bool has_customization<R1, R2> = true;
 
 		template <class R1, class R2>
 		requires
 			models::Swappable<reference_t<R1>, reference_t<R2>>
-		constexpr void impl(R1& r1, R2& r2)
+		constexpr void impl(R1&& r1, R2&& r2)
 		STL2_NOEXCEPT_RETURN(
-			static_cast<void>(__stl2::swap(*r1, *r2))
+			__stl2::swap(*r1, *r2)
 		)
 
 		template <class R1, class R2>
@@ -369,10 +365,10 @@ STL2_OPEN_NAMESPACE {
 			requires
 				models::Readable<remove_reference_t<R1>> &&
 				models::Readable<remove_reference_t<R2>> &&
-				has_customization<R1&, R2&>
+				has_customization<R1, R2>
 			constexpr void operator()(R1&& r1, R2&& r2) const
 			STL2_NOEXCEPT_RETURN(
-				static_cast<void>(iter_swap(r1, r2))
+				static_cast<void>(iter_swap((R1&&)r1, (R2&&)r2))
 			)
 
 			template <class R1, class R2>
@@ -385,7 +381,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			constexpr void operator()(R1&& r1, R2&& r2) const
 			STL2_NOEXCEPT_RETURN(
-				static_cast<void>(__iter_swap::impl(r1, r2))
+				__iter_swap::impl(r1, r2)
 			)
 		};
 	}
@@ -589,7 +585,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// OutputIterator [iterators.output]
-	// Not to spec: is value category sensitive.
 	//
 	template <class I, class T>
 	concept bool OutputIterator() {
@@ -605,6 +600,8 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// InputIterator [iterators.input]
+	// Not to spec: No requirements on i++
+	// See http://github.com/ericniebler/stl2/issues/232
 	//
 	template <class I>
 	constexpr bool __input_iterator = false;
@@ -612,8 +609,7 @@ STL2_OPEN_NAMESPACE {
 		requires requires(I& i, const I& ci) {
 			typename iterator_category_t<I>;
 			DerivedFrom<iterator_category_t<I>, input_iterator_tag>();
-			STL2_DEDUCTION_CONSTRAINT(i++, Readable);
-			requires Same<value_type_t<I>, value_type_t<decltype(i++)>>();
+			i++;
 			{ *ci } -> const value_type_t<I>&;
 		}
 	constexpr bool __input_iterator<I> = true;

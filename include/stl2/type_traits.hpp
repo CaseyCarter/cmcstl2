@@ -27,8 +27,11 @@ STL2_OPEN_NAMESPACE {
 		using apply = meta::invoke<T, U>;
 	};
 
+	template <class T>
+	using __ref = add_lvalue_reference_t<T>;
+
 	template <class T, class X = remove_reference_t<T>>
-	using __cref = add_lvalue_reference_t<add_const_t<X>>;
+	using __cref = __ref<add_const_t<X>>;
 
 	template <class T, class U>
 	using __cond = decltype(true ? declval<T>() : declval<U>());
@@ -92,6 +95,10 @@ STL2_OPEN_NAMESPACE {
 
 	template <_Decayed T, _Decayed U>
 	struct __common_type2<T, U> : __builtin_common<T, U> {};
+
+	template <_Decayed T, _Decayed U>
+		requires requires { typename __cond<T, U>; }
+	struct __common_type2<T, U> : meta::id<decay_t<__cond<T, U>>> {};
 
 	template <class T, class U>
 	struct common_type<T, U> : __common_type2<T, U> {};
