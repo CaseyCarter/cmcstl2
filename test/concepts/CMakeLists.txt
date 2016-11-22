@@ -1,5 +1,8 @@
 include("../concept_select.txt")
 
+add_executable(concepts.arithmetic arithmetic.cpp)
+add_test(test.concepts.arithmetic concepts.arithmetic)
+
 add_executable(concepts.core core.cpp)
 add_test(test.concepts.core concepts.core)
 
