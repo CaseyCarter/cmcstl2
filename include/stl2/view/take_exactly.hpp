@@ -21,10 +21,10 @@ STL2_OPEN_NAMESPACE {
 	template <View Base>
 	class take_exactly_view : Base {
 		using iterator = counted_iterator<iterator_t<Base>>;
-		std::ptrdiff_t n_ = 0;
+		difference_type_t<iterator_t<Base>> n_ = 0;
 	public:
 		take_exactly_view() = default;
-		constexpr take_exactly_view(Base view, std::ptrdiff_t n)
+		constexpr take_exactly_view(Base view, difference_type_t<iterator_t<Base>> n)
 		noexcept(is_nothrow_move_constructible<Base>::value)
 		: Base{__stl2::move(view)}, n_{n}
 		{ STL2_EXPECT(n >= 0); }
@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 		noexcept(noexcept(iterator{__stl2::begin(declval<Base const&>()), n_}))
 		{ return {__stl2::begin(static_cast<Base const&>(*this)), n_}; }
 		constexpr default_sentinel end() const noexcept { return {}; }
-		constexpr std::ptrdiff_t size() const noexcept { return n_; }
+		constexpr difference_type_t<iterator_t<Base>> size() const noexcept { return n_; }
 	};
 } STL2_CLOSE_NAMESPACE
 
