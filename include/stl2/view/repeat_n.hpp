@@ -9,8 +9,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_VIEW_REPEAT_N_HPP
-#define STL2_DETAIL_VIEW_REPEAT_N_HPP
+#ifndef STL2_VIEW_REPEAT_N_HPP
+#define STL2_VIEW_REPEAT_N_HPP
 
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>

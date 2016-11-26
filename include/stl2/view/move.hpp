@@ -9,8 +9,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_VIEW_MOVE_HPP
-#define STL2_DETAIL_VIEW_MOVE_HPP
+#ifndef STL2_VIEW_MOVE_HPP
+#define STL2_VIEW_MOVE_HPP
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>
