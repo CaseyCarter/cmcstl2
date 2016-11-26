@@ -12,72 +12,65 @@
 #ifndef STL2_VIEW_MOVE_HPP
 #define STL2_VIEW_MOVE_HPP
 
+#include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/move_iterator.hpp>
+#include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <InputRange Rng>
-	class move_view {
-		Rng rng_;
-	public:
-		move_view() requires DefaultConstructible<Rng>() = default;
-		template <class... Args>
-		move_view(Args&&... args)
-		requires Constructible<Rng, Args...>()
-		: rng_{static_cast<Args&&>(args)...} {}
+	namespace ext {
+		template <View Rng>
+		requires InputRange<Rng>()
+		class move_view : detail::ebo_box<Rng, move_view<Rng>> {
+			using base_t = detail::ebo_box<Rng, move_view<Rng>>;
+			using base_t::get;
+		public:
+			move_view() requires DefaultConstructible<Rng>() = default;
 
-		move_iterator<iterator_t<Rng>> begin() const
-		requires Range<const Rng>()
-		{
-			return __stl2::make_move_iterator(__stl2::begin(rng_));
-		}
-		move_sentinel<sentinel_t<Rng>> end() const
-		requires Range<const Rng>()
-		{
-			return __stl2::make_move_sentinel(__stl2::end(rng_));
-		}
-		move_iterator<iterator_t<Rng>> end() const
-		requires Range<const Rng>() && BoundedRange<Rng>()
-		{
-			return __stl2::make_move_iterator(__stl2::end(rng_));
-		}
-		auto size() const
-		requires SizedRange<const Rng>()
-		{
-			return __stl2::size(rng_);
-		}
-		bool empty() const
-		requires
-			requires(const Rng& r) { __stl2::empty(r); }
-		{
-			return __stl2::empty(rng_);
-		}
+			constexpr move_view(Rng rng)
+			noexcept(std::is_nothrow_move_constructible<Rng>::value)
+			: base_t{std::move(rng)} {}
 
-		move_iterator<iterator_t<Rng>> begin()
-		{
-			return __stl2::make_move_iterator(__stl2::begin(rng_));
-		}
-		move_sentinel<sentinel_t<Rng>> end()
-		{
-			return __stl2::make_move_sentinel(__stl2::end(rng_));
-		}
-		move_iterator<iterator_t<Rng>> end()
-		requires BoundedRange<Rng>()
-		{
-			return __stl2::make_move_iterator(__stl2::end(rng_));
-		}
-		auto size()
-		requires SizedRange<Rng>()
-		{
-			return __stl2::size(rng_);
-		}
-		bool empty()
-		{
-			return __stl2::empty(rng_);
-		}
-	};
+			move_iterator<iterator_t<Rng>> begin() const
+			requires Range<const Rng>()
+			{ return __stl2::make_move_iterator(__stl2::begin(get())); }
+			move_sentinel<sentinel_t<Rng>> end() const
+			requires Range<const Rng>()
+			{ return __stl2::make_move_sentinel(__stl2::end(get())); }
+			move_iterator<iterator_t<Rng>> end() const
+			requires Range<const Rng>() && BoundedRange<const Rng>()
+			{ return __stl2::make_move_iterator(__stl2::end(get())); }
+
+			auto size() const
+			requires Range<const Rng>() && SizedRange<const Rng>()
+			{ return __stl2::size(get()); }
+			bool empty() const
+			requires Range<const Rng>() && requires(const Rng& r) { __stl2::empty(r); }
+			{ return __stl2::empty(get()); }
+
+			move_iterator<iterator_t<Rng>> begin()
+			requires !Range<const Rng>()
+			{ return __stl2::make_move_iterator(__stl2::begin(get())); }
+			move_sentinel<sentinel_t<Rng>> end()
+			requires !Range<const Rng>()
+			{ return __stl2::make_move_sentinel(__stl2::end(get())); }
+			move_iterator<iterator_t<Rng>> end()
+			requires !Range<const Rng>() && BoundedRange<Rng>()
+			{ return __stl2::make_move_iterator(__stl2::end(get())); }
+
+			auto size()
+			requires !Range<const Rng>() && SizedRange<Rng>()
+			{ return __stl2::size(get()); }
+			bool empty()
+			requires !Range<const Rng>()
+			{ return __stl2::empty(get()); }
+		};
+	} // namespace ext
+
+	template <class V>
+	struct enable_view<ext::move_view<V>> : std::true_type {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

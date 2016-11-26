@@ -18,7 +18,7 @@ namespace stl2 = __stl2;
 
 int main() {
 	{
-		auto v = stl2::repeat_view<int>(42);
+		auto v = stl2::ext::repeat_view<int>(42);
 		static_assert(sizeof(v) == sizeof(int));
 
 		CHECK(v.value() == 42);
@@ -45,7 +45,7 @@ int main() {
 	}
 	{
 		using big_type = std::array<double, 128>;
-		auto v = stl2::repeat_view<big_type>(big_type{});
+		auto v = stl2::ext::repeat_view<big_type>(big_type{});
 		static_assert(sizeof(v) == sizeof(big_type));
 
 		CHECK(v.value() == big_type{});
@@ -69,7 +69,7 @@ int main() {
 	}
 	{
 		constexpr unsigned N = 1u << 16;
-		auto v = stl2::repeat_view<std::vector<int>>{std::vector<int>(N, 42)};
+		auto v = stl2::ext::repeat_view<std::vector<int>>{std::vector<int>(N, 42)};
 		static_assert(sizeof(v) == sizeof(std::vector<int>));
 
 		CHECK(v.value() == std::vector<int>(N, 42));
