@@ -19,7 +19,7 @@ namespace stl2 = __stl2;
 int main() {
 	static constexpr int N = 13;
 	static constexpr int value = 42;
-	auto v = stl2::repeat_n_view<int>(value, N);
+	auto v = stl2::ext::repeat_n_view<int>(value, N);
 	using V = decltype(v);
 	static_assert(stl2::models::View<V>);
 	static_assert(stl2::models::SizedRange<V>);
@@ -32,7 +32,7 @@ int main() {
 
 	{
 		struct empty {};
-		auto v = stl2::repeat_n_view<empty>{{}, (1ULL << 20)};
+		auto v = stl2::ext::repeat_n_view<empty>{{}, (1ULL << 20)};
 		static_assert(sizeof(decltype(v.begin())) == sizeof(std::ptrdiff_t));
 	}
 

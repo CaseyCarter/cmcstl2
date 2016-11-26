@@ -10,34 +10,62 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <stl2/view/move.hpp>
+#include <stl2/view/iota.hpp>
+#include <stl2/view/ref.hpp>
+#include <stl2/view/take_exactly.hpp>
 #include <stl2/detail/algorithm/count.hpp>
-#include <stl2/detail/range/range.hpp>
-#include <array>
+#include <stl2/detail/algorithm/transform.hpp>
+#include <stl2/detail/iterator/insert_iterators.hpp>
 #include <memory>
 #include <vector>
 #include "../simple_test.hpp"
 
 namespace ranges = __stl2;
 
-int main() {
-	std::unique_ptr<int> some_ints[] = {
-		std::make_unique<int>(0), std::make_unique<int>(1),
-		std::make_unique<int>(2), std::make_unique<int>(3),
-	};
-	auto rng2 = ranges::move_view<decltype((some_ints))>{some_ints};
-	CHECK(ranges::size(rng2) == ranges::size(some_ints));
-	CHECK(!ranges::empty(rng2));
-	auto last = ranges::end(rng2);
-	auto first = ranges::begin(rng2);
-	int count = 0;
-	for (; first != last; ++first) {
-		std::unique_ptr<int> tmp = *first;
-		std::cout << *tmp << ' ';
-		CHECK(count == *tmp);
-		++count;
+namespace {
+	template <ranges::Range Rng>
+	auto make_move_view(Rng&& rng) {
+		return ranges::ext::move_view<ranges::ext::as_view_t<Rng>>{
+			ranges::ext::as_view(std::forward<Rng>(rng))};
 	}
-	std::cout << '\n';
-	CHECK(ranges::count(some_ints, std::unique_ptr<int>{}) == ranges::distance(some_ints));
+
+	ranges::Integral{I}
+	auto make_interval(I from, I to) {
+		return ranges::ext::take_exactly_view<ranges::ext::iota_view<I>>{{from}, to - from};
+	}
+
+	void test(ranges::Range&& base) {
+		auto rng = make_move_view(base);
+		CHECK(static_cast<std::size_t>(ranges::size(rng)) == ranges::size(base));
+		CHECK(!ranges::empty(rng));
+		int count = 0;
+		for (auto i : rng) {
+			CHECK(count++ == *i);
+		}
+		CHECK(ranges::count(base, std::unique_ptr<int>{}) == ranges::distance(base));
+	}
+}
+
+int main() {
+	auto rng = make_interval(0, 4);
+	auto as_unique_ptr = [](auto&& i) {
+		using I = decltype(i);
+		return std::make_unique<std::decay_t<I>>(std::forward<I>(i));
+	};
+	{
+		std::unique_ptr<int> some_ints[] = {
+			std::make_unique<int>(0), std::make_unique<int>(1),
+			std::make_unique<int>(2), std::make_unique<int>(3),
+		};
+		ranges::transform(rng, ranges::begin(some_ints), as_unique_ptr);
+		test(some_ints);
+	}
+
+	{
+		std::vector<std::unique_ptr<int>> some_ints;
+		ranges::transform(rng, ranges::back_inserter(some_ints), as_unique_ptr);
+		test(some_ints);
+	}
 
 	return test_result();
 }

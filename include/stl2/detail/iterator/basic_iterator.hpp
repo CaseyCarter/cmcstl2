@@ -33,8 +33,8 @@
 
 STL2_OPEN_NAMESPACE {
 	template <Destructible T>
-	class basic_mixin : protected detail::ebo_box<T> {
-		using box_t = detail::ebo_box<T>;
+	class basic_mixin : protected detail::ebo_box<T, basic_mixin<T>> {
+		using box_t = detail::ebo_box<T, basic_mixin<T>>;
 	public:
 		constexpr basic_mixin()
 		noexcept(is_nothrow_default_constructible<T>::value)
