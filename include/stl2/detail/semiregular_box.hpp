@@ -98,7 +98,8 @@ STL2_OPEN_NAMESPACE {
 
 		template <class T>
 		requires Destructible<T>() && Semiregular<T>()
-		class semiregular_box<T> : public ebo_box<T> {
+		class semiregular_box<T> : public ebo_box<T, semiregular_box<T>> {
+			using base_t = ebo_box<T, semiregular_box<T>>;
 		public:
 			semiregular_box() = default;
 
@@ -106,9 +107,9 @@ STL2_OPEN_NAMESPACE {
 			requires Constructible<T, Args...>()
 			constexpr semiregular_box(in_place_t, Args&&...args)
 			noexcept(is_nothrow_constructible<T, Args...>::value)
-			: ebo_box<T>{__stl2::forward<Args>(args)...} {}
+			: base_t{__stl2::forward<Args>(args)...} {}
 
-			using ebo_box<T>::ebo_box;
+			using base_t::base_t;
 		};
 	}
 } STL2_CLOSE_NAMESPACE

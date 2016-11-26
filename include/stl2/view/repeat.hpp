@@ -25,8 +25,8 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <Semiregular T>
-		class repeat_view : detail::ebo_box<T> {
-			using storage_t = detail::ebo_box<T>;
+		class repeat_view : detail::ebo_box<T, repeat_view<T>> {
+			using storage_t = detail::ebo_box<T, repeat_view<T>>;
 			using storage_t::get;
 
 			class cursor : detail::cheap_reference_box_t<const T> {

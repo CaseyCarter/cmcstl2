@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 				ext::TriviallyCopyConstructible<T>()))
 		constexpr bool cheaply_copyable<T> = true;
 
-		template <ext::Addressable T>
+		template <ext::Addressable T, class Tag = void>
 		class ref_box {
 		public:
 			ref_box() = default;
@@ -49,11 +49,11 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		// Note: promotes to CopyConstructible
-		template <ext::Addressable T>
+		template <ext::Addressable T, class Tag = void>
 		using cheap_reference_box_t = meta::if_c<
 			cheaply_copyable<remove_cv_t<T>>,
-			ebo_box<remove_cv_t<T>>,
-			ref_box<T>>;
+			ebo_box<remove_cv_t<T>, Tag>,
+			ref_box<T, Tag>>;
 	}
 } STL2_CLOSE_NAMESPACE
 

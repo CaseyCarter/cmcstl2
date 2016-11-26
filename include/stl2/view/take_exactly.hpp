@@ -24,9 +24,9 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <View Base>
-		class take_exactly_view : detail::ebo_box<Base>
+		class take_exactly_view : detail::ebo_box<Base, take_exactly_view<Base>>
 		{
-			using base_t = detail::ebo_box<Base>;
+			using base_t = detail::ebo_box<Base, take_exactly_view<Base>>;
 			using base_t::get;
 
 			difference_type_t<iterator_t<Base>> n_;
