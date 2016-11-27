@@ -43,7 +43,6 @@ STL2_OPEN_NAMESPACE {
 				: storage_t{r.value()} {}
 
 				constexpr reference read() const noexcept { return get(); }
-				constexpr bool done() const noexcept { return false; }
 				constexpr bool equal(const cursor&) const noexcept { return true; }
 				constexpr void next() const noexcept {}
 				constexpr void prev() const noexcept {}
