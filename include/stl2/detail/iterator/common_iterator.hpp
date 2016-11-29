@@ -44,11 +44,11 @@ STL2_OPEN_NAMESPACE {
 		struct convert_visitor {
 			constexpr auto operator()(const II& i) const
 			STL2_NOEXCEPT_RETURN(
-				variant<I, S>{emplaced_index<0>, i}
+				variant<I, S>{in_place_index<0>, i}
 			)
 			constexpr auto operator()(const SS& s) const
 			STL2_NOEXCEPT_RETURN(
-				variant<I, S>{emplaced_index<1>, s}
+				variant<I, S>{in_place_index<1>, s}
 			)
 		};
 
