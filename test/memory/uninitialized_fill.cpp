@@ -11,13 +11,13 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <stl2/detail/memory/uninitialized_fill.hpp>
-#include <array>
-#include "Book.hpp"
-#include <cassert>
 #include <cstdint>
-#include <stl2/algorithm.hpp>
 #include <stl2/concepts.hpp>
+#include <stl2/detail/algorithm/find_if.hpp>
 #include <stl2/detail/memory/destroy.hpp>
+#include <vector>
+#include "../simple_test.hpp"
+#include "Book.hpp"
 #include "raw_buffer.hpp"
 
 namespace ranges = __stl2;
@@ -25,13 +25,14 @@ namespace ranges = __stl2;
 constexpr auto test_size{1 << 10};
 
 template <typename T>
+requires ranges::CopyConstructible<T>() && ranges::EqualityComparable<T>()
 void uninitialized_fill_test(const T& x)
 {
    const auto independent = make_buffer<T>(test_size);
    auto test = [&independent, &x](const auto& p){
-      assert(ranges::find_if(independent, [&x](const auto& i){ return i != x; }) == independent.end());
-      assert(p == independent.end());
-      ranges::destroy(independent);
+      CHECK(p == independent.end());
+      CHECK(ranges::find_if(independent.begin(), p, [&x](const T& i){ return i != x; }) == p);
+      ranges::destroy(independent.begin(), p);
    };
 
    test(ranges::uninitialized_fill(independent.begin(), independent.end(), x));
@@ -47,6 +48,8 @@ int main()
    uninitialized_fill_test(0.0);
    uninitialized_fill_test('a');
    uninitialized_fill_test(std::vector<int>{});
-   uninitialized_fill_test(std::vector<int>(1 << 20, 0));
+   uninitialized_fill_test(std::vector<int>(1 << 10, 0));
    uninitialized_fill_test(Book{});
+
+   return ::test_result();
 }

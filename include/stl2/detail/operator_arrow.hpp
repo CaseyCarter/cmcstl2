@@ -12,7 +12,6 @@
 #ifndef STL2_DETAIL_OPERATOR_ARROW_HPP
 #define STL2_DETAIL_OPERATOR_ARROW_HPP
 
-#include <stl2/memory.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
@@ -20,7 +19,11 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-	namespace detail {
+	// FIXME: Remove after merge and #include <stl2/detail/memory/addressof.hpp>
+	template <class T>
+	constexpr T* addressof(T& t) noexcept;
+
+		namespace detail {
 		template <Readable I>
 		requires
 			_IsNot<reference_t<I>, is_reference> &&

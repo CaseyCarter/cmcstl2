@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
    I uninitialized_value_construct(I first, S last)
    {
       for (; first != last; ++first)
-         __stl2::__value_construct_at(*first);
+         __stl2::__construct_at(*first);
       return first;
    }
 

@@ -13,7 +13,6 @@
 #define STL2_DETAIL_RANGE_ACCESS_HPP
 
 #include <initializer_list>
-#include <stl2/memory.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -27,6 +26,10 @@
 // Range access [iterator.range]
 //
 STL2_OPEN_NAMESPACE {
+	// FIXME: Remove after merge and #include <stl2/detail/memory/addressof.hpp>
+	template <class T>
+	constexpr T* addressof(T& t) noexcept;
+
 	// begin
 	namespace __begin {
 		// Poison pill for std::begin. (See the detailed discussion at
@@ -528,10 +531,10 @@ STL2_OPEN_NAMESPACE {
 				has_contiguous_iterator<R>
 			constexpr auto operator()(R& r) const
 			noexcept(noexcept(__stl2::begin(r) == __stl2::end(r)
-				? nullptr : __addressof::impl(*__stl2::begin(r))))
+				? nullptr : __stl2::addressof(*__stl2::begin(r))))
 			{
 				auto i = __stl2::begin(r);
-				return i == __stl2::end(r) ? nullptr : __addressof::impl(*i);
+				return i == __stl2::end(r) ? nullptr : __stl2::addressof(*i);
 			}
 
 			template <class R>

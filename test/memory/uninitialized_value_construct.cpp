@@ -11,29 +11,34 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <stl2/detail/memory/uninitialized_value_construct.hpp>
-#include "Book.hpp"
-#include <cassert>
 #include <cstdint>
 #include <deque>
-#include <iostream>
 #include <list>
-#include <stl2/algorithm.hpp>
-#include <stl2/concepts.hpp>
-#include <stl2/detail/memory/destroy.hpp>
+#include <memory>
 #include <string>
+#include <vector>
+#include <stl2/concepts.hpp>
+#include <stl2/detail/algorithm/find_if.hpp>
+#include <stl2/detail/memory/destroy.hpp>
+#include "../simple_test.hpp"
 #include "raw_buffer.hpp"
 
 namespace ranges = __stl2;
 
+constexpr auto N = 1 << 10;
+
 template <typename T>
+requires
+   ranges::DefaultConstructible<T>() &&
+   ranges::EqualityComparable<T>()
 void uninitialized_value_construct_test()
 {
-   auto independent = make_buffer<T>(1 << 20);
+   auto independent = make_buffer<T>(N);
    auto test = [&independent](const auto& p) {
-      auto t = T();
-      assert(ranges::find_if(independent, [&t](const auto& i){ return i != t; }) == independent.end());
-      assert(p == independent.end());
-      ranges::destroy(independent);
+      auto t = T{};
+      CHECK(p == independent.end());
+      CHECK(ranges::find_if(independent.begin(), p, [&t](const T& i){ return i != t; }) == p);
+      ranges::destroy(independent.begin(), p);
    };
 
    test(ranges::uninitialized_value_construct(independent.begin(), independent.end()));
@@ -46,6 +51,7 @@ void uninitialized_value_construct_test()
 int main()
 {
    using namespace std;
+
    uninitialized_value_construct_test<char>();
    uninitialized_value_construct_test<short>();
    uninitialized_value_construct_test<int>();
@@ -58,4 +64,6 @@ int main()
    uninitialized_value_construct_test<deque<double>>();
    uninitialized_value_construct_test<list<vector<deque<double>>>>();
    uninitialized_value_construct_test<unique_ptr<string>>();
+
+   return ::test_result();
 }

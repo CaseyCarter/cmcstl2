@@ -10,12 +10,12 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_MEMORY_CONSTRUCT_AT_UNINITIALIZED_COPY_HPP
-#define STL2_DETAIL_MEMORY_CONSTRUCT_AT_UNINITIALIZED_COPY_HPP
-#include <stl2/concepts.hpp>
-#include <stl2/iterator.hpp>
+#ifndef STL2_DETAIL_MEMORY_CONSTRUCT_AT_HPP
+#define STL2_DETAIL_MEMORY_CONSTRUCT_AT_HPP
+
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/memory/reference_to.hpp>
+#include <stl2/detail/concepts/object.hpp>
+// #include <stl2/detail/memory/addressof.hpp> // FIXME: after merge
 
 STL2_OPEN_NAMESPACE {
    template <class T, class... Args>
@@ -31,13 +31,6 @@ STL2_OPEN_NAMESPACE {
       ::new(const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(t))))
          T;
    }
-
-   template <DefaultConstructible T>
-   void __value_construct_at(T& t)
-   {
-      ::new(const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(t))))
-         T();
-   }
 } STL2_CLOSE_NAMESPACE
 
-#endif // STL2_DETAIL_MEMORY_CONSTRUCT_AT_UNINITIALIZED_COPY_HPP
+#endif // STL2_DETAIL_MEMORY_CONSTRUCT_AT_HPP

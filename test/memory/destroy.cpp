@@ -11,11 +11,9 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <stl2/detail/memory/destroy.hpp>
-#include "Book.hpp"
-#include <cassert>
-#include "raw_buffer.hpp"
-#include <stl2/algorithm.hpp>
 #include <stl2/detail/memory/uninitialized_default_construct.hpp>
+#include "../simple_test.hpp"
+#include "raw_buffer.hpp"
 
 namespace ranges = __stl2;
 
@@ -57,8 +55,8 @@ int main()
 {
    auto independent = make_buffer<Construct>(1 << 20);
    auto test = [&independent](const auto& p) {
-      assert(Construct::get_instantiated() == 0);
-      assert(p == independent.end());
+      CHECK(Construct::get_instantiated() == 0);
+      CHECK(p == independent.end());
    };
 
    ranges::uninitialized_default_construct(independent);
@@ -75,4 +73,6 @@ int main()
 
    ranges::uninitialized_default_construct(independent);
    test(ranges::destroy_n(independent.cbegin(), independent.size()));
+
+   return ::test_result();
 }

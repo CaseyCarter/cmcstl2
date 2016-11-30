@@ -12,9 +12,15 @@
 //
 #ifndef STL2_DETAIL_MEMORY_DESTROY_HPP
 #define STL2_DETAIL_MEMORY_DESTROY_HPP
-#include <stl2/concepts.hpp>
-#include <stl2/iterator.hpp>
+
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/iterator/counted_iterator.hpp>
+#include <stl2/detail/iterator/dangling.hpp>
+#include <stl2/detail/range/access.hpp>
+#include <stl2/detail/range/concepts.hpp>
+//#include <stl2/detail/memory/addressof.hpp> // FIXME: after merge
 #include <stl2/detail/memory/reference_to.hpp>
 
 STL2_OPEN_NAMESPACE {
@@ -73,4 +79,5 @@ STL2_OPEN_NAMESPACE {
                              default_sentinel{}).base();
    }
 } STL2_CLOSE_NAMESPACE
+
 #endif // STL2_DETAIL_MEMORY_DESTROY_HPP

@@ -12,11 +12,10 @@
 #ifndef STL2_DETAIL_MEMORY_REFERENCE_TO_UNINITIALIZED_COPY_HPP
 #define STL2_DETAIL_MEMORY_REFERENCE_TO_UNINITIALIZED_COPY_HPP
 
-#include <stl2/concepts.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/type_traits.hpp>
+#include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
   ///////////////////////////////////////////////////////////////////////////

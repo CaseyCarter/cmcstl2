@@ -11,27 +11,29 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <stl2/detail/memory/uninitialized_move.hpp>
-#include <array>
-#include "Book.hpp"
-#include <cassert>
-#include <cstdint>
-#include <stl2/algorithm.hpp>
 #include <stl2/concepts.hpp>
+#include <stl2/detail/algorithm/count_if.hpp>
+#include <stl2/detail/algorithm/equal.hpp>
 #include <stl2/detail/memory/destroy.hpp>
+#include <cstdint>
+#include <memory>
+#include <vector>
+#include "../simple_test.hpp"
+#include "Book.hpp"
 #include "raw_buffer.hpp"
 
 namespace ranges = __stl2;
 
 template <typename T>
-void assert_empty(const Array<T>& a)
+void CHECK_empty(const Array<T>& a)
 {
    for (const auto& i : a)
-      assert(i.empty());
+      CHECK(i.empty());
 }
 
 template <typename T>
 requires ranges::is_fundamental<T>::value
-void assert_empty(const Array<T>&)
+void CHECK_empty(const Array<T>&)
 {
 }
 
@@ -41,12 +43,13 @@ void uninitialized_move_test(const Array<T>& control)
    auto independent = make_buffer<T>(control.size());
    auto to_move = control;
    auto test = [&control, &to_move, &independent](const auto& p) {
-      assert_empty(to_move);
-      assert(p.in() == to_move.end());
+      CHECK_empty(to_move);
+      CHECK(p.in() == to_move.end());
+      CHECK(p.out() == independent.end());
 
-      assert(ranges::equal(control, independent, std::equal_to<T>{}));
-      assert(independent.end() == p.out());
-      ranges::destroy(independent);
+      CHECK(ranges::equal(control.begin(), control.begin() + (p.in() - to_move.begin()),
+            independent.begin(), p.out()));
+      ranges::destroy(independent.begin(), p.out());
    };
 
    test(ranges::uninitialized_move(to_move.begin(), to_move.end(), independent.begin()));
@@ -68,13 +71,13 @@ void uninitialized_move_test(const Array<T>& control)
 }
 
 using Move_only_t = Array<std::unique_ptr<std::string>>;
-void uninitialized_move_test(Move_only_t first, const ranges::value_type_t<Move_only_t>& t)
+void uninitialized_move_test(Move_only_t first)
 {
-   auto test = [&t](const auto& s, const auto& d, const auto& p) {
-      assert(static_cast<decltype(s.size())>(ranges::count_if(s.begin(), s.end(), [](const auto& i){ return !i; })) == s.size());
-      assert(ranges::count_if(d.begin(), d.end(), [&t](const auto& i){ return !i; }) == 0);
-      assert(p.in() == s.end());
-      assert(p.out() == d.end());
+   auto test = [](const auto& s, const auto& d, const auto& p) {
+      CHECK(p.in() == s.end());
+      CHECK(p.out() == d.end());
+      auto n = ranges::count_if(s.begin(), p.in(), [](const auto& i){ return !i; });
+      CHECK(static_cast<std::size_t>(n) == static_cast<std::size_t>(s.size()));
    };
 
    auto second = make_buffer<Move_only_t::value_type>(first.size());
@@ -111,7 +114,7 @@ int main()
                                           {4.101, 4.102, 4.201, 4.202, 4.311},
                                           {5.},
                                           {6.1, 3.02, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9},
-                                          std::vector<double>(1 << 26, 7.0)}});
+                                          std::vector<double>(1 << 12, 7.0)}});
 
    uninitialized_move_test(Move_only_t{std::make_unique<std::string>("0"),
                                        std::make_unique<std::string>("0"),
@@ -120,6 +123,7 @@ int main()
                                        std::make_unique<std::string>("0"),
                                        std::make_unique<std::string>("0"),
                                        std::make_unique<std::string>("0"),
-                                       std::make_unique<std::string>("0")},
-                           std::make_unique<std::string>("0"));
+                                       std::make_unique<std::string>("0")});
+
+   return ::test_result();
 }

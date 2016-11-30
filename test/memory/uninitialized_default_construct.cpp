@@ -11,33 +11,40 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <stl2/detail/memory/uninitialized_default_construct.hpp>
-#include "Book.hpp"
-#include <cassert>
+#include <stl2/concepts.hpp>
+#include <stl2/detail/algorithm/find_if.hpp>
+#include <stl2/detail/memory/destroy.hpp>
 #include <cstdint>
+#include <cstring>
 #include <deque>
 #include <iostream>
 #include <list>
-#include <stl2/algorithm.hpp>
-#include <stl2/concepts.hpp>
-#include <stl2/detail/memory/destroy.hpp>
 #include <string>
+#include <vector>
+#include "../simple_test.hpp"
 #include "raw_buffer.hpp"
 
 namespace ranges = __stl2;
 
+constexpr int N = 1 << 12;
+
 template <typename T>
-void test(const raw_buffer<T>& independent, const auto& p)
+requires ranges::DefaultConstructible<T>() && ranges::EqualityComparable<T>()
+void test(const raw_buffer<T>& independent, ranges::iterator_t<const raw_buffer<T>> p)
 {
-      T t;
-      assert(ranges::find_if(independent, [&t](const auto& i){ return i != t; }) == independent.cend());
-      assert(p == independent.end());
-      ranges::destroy(independent);
+      T t{};
+      CHECK(p == independent.cend());
+      CHECK(ranges::find_if(independent.begin(), p, [&t](const T& i){ return i != t; }) == p);
+      ranges::destroy(independent.begin(), p);
 }
 
 template <typename T>
+requires
+   ranges::DefaultConstructible<T>() &&
+   ranges::EqualityComparable<T>()
 void uninitialized_default_construct_test()
 {
-   auto independent = make_buffer<T>(1 << 20);
+   auto independent = make_buffer<T>(N);
 
    test(independent, ranges::uninitialized_default_construct(independent.begin(), independent.end()));
    test(independent, ranges::uninitialized_default_construct(independent.cbegin(), independent.cend()));
@@ -47,12 +54,29 @@ void uninitialized_default_construct_test()
 }
 
 template <typename T>
-requires ranges::is_fundamental<T>::value
+requires
+   ranges::DefaultConstructible<T>() &&
+   ranges::EqualityComparable<T>() &&
+   ranges::is_fundamental<T>::value
+void test(const raw_buffer<T>& independent, ranges::iterator_t<const raw_buffer<T>> p)
+{
+      T t;
+      std::memset(&t, 0xCC, sizeof(T));
+      CHECK(p == independent.cend());
+      CHECK(ranges::find_if(independent.begin(), p, [&t](const T& i){ return i != t; }) == p);
+      ranges::destroy(independent.begin(), p);
+}
+
+template <typename T>
+requires
+   ranges::DefaultConstructible<T>() &&
+   ranges::EqualityComparable<T>() &&
+   ranges::is_fundamental<T>::value
 void uninitialized_default_construct_test()
 {
-   std::cerr << "Warning, this test may fail, as default construction does not initialise "
-                "fundamental objects.\n";
-   auto independent = make_buffer<T>(1 << 20);
+   auto independent = make_buffer<T>(N);
+
+   std::memset(independent.begin(), 0xCC, independent.size() * sizeof(T));
 
    test(independent, ranges::uninitialized_default_construct(independent.begin(), independent.end()));
    test(independent, ranges::uninitialized_default_construct(independent));
@@ -62,15 +86,15 @@ void uninitialized_default_construct_test()
 int main()
 {
    uninitialized_default_construct_test<char>();
-   uninitialized_default_construct_test<short>();
-   //uninitialized_default_construct_test<int>();
-   //uninitialized_default_construct_test<float>();
-   //uninitialized_default_construct_test<long>();
-   //uninitialized_default_construct_test<double>();
-   //uninitialized_default_construct_test<long long>();
+   uninitialized_default_construct_test<int>();
+   uninitialized_default_construct_test<long long>();
+   uninitialized_default_construct_test<float>();
+   uninitialized_default_construct_test<double>();
    uninitialized_default_construct_test<std::vector<char>>();
    uninitialized_default_construct_test<std::string>();
    uninitialized_default_construct_test<std::deque<double>>();
    uninitialized_default_construct_test<std::list<std::vector<std::deque<double>>>>();
    uninitialized_default_construct_test<std::unique_ptr<std::string>>();
+
+   return ::test_result();
 }

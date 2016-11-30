@@ -12,8 +12,8 @@
 //
 #ifndef BOOK_HPP_INCLUDED
 #define BOOK_HPP_INCLUDED
+
 #include <cstdint>
-#include <iostream>
 #include <string>
 
 class Book {

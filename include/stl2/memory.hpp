@@ -125,4 +125,12 @@ STL2_OPEN_NAMESPACE {
 	}
 } STL2_CLOSE_NAMESPACE
 
+#include <stl2/detail/memory/construct_at.hpp>
+#include <stl2/detail/memory/destroy.hpp>
+#include <stl2/detail/memory/uninitialized_copy.hpp>
+#include <stl2/detail/memory/uninitialized_default_construct.hpp>
+#include <stl2/detail/memory/uninitialized_fill.hpp>
+#include <stl2/detail/memory/uninitialized_move.hpp>
+#include <stl2/detail/memory/uninitialized_value_construct.hpp>
+
 #endif
