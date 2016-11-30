@@ -32,12 +32,12 @@ STL2_OPEN_NAMESPACE {
 			constexpr semiregular_box(T&& t)
 			noexcept(is_nothrow_move_constructible<T>::value)
 			requires MoveConstructible<T>()
-			: o_{__stl2::move(t)} {}
+			: o_{in_place, __stl2::move(t)} {}
 
 			constexpr semiregular_box(const T& t)
 			noexcept(is_nothrow_copy_constructible<T>::value)
 			requires CopyConstructible<T>()
-			: o_{t} {}
+			: o_{in_place, t} {}
 
 			template <class...Args>
 			requires Constructible<T, Args...>()
