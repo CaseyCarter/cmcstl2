@@ -18,19 +18,19 @@
 // #include <stl2/detail/memory/addressof.hpp> // FIXME: after merge
 
 STL2_OPEN_NAMESPACE {
-   template <class T, class... Args>
-   requires Constructible<T, Args...>()
-   void __construct_at(T& t, Args&&... args) {
-     ::new(const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(t))))
-       T{__stl2::forward<Args>(args)...};
-   }
+	template <class T, class... Args>
+	requires Constructible<T, Args...>()
+	void __construct_at(T& t, Args&&... args) {
+		::new(const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(t))))
+			T{__stl2::forward<Args>(args)...};
+	}
 
-   template <DefaultConstructible T>
-   void __default_construct_at(T& t)
-   {
-      ::new(const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(t))))
-         T;
-   }
+	template <DefaultConstructible T>
+	void __default_construct_at(T& t)
+	{
+		::new(const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(t))))
+			T;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_CONSTRUCT_AT_HPP

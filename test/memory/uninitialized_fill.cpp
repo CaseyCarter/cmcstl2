@@ -22,34 +22,36 @@
 
 namespace ranges = __stl2;
 
-constexpr auto test_size{1 << 10};
+namespace {
+	constexpr auto test_size{1 << 10};
 
-template <typename T>
-requires ranges::CopyConstructible<T>() && ranges::EqualityComparable<T>()
-void uninitialized_fill_test(const T& x)
-{
-   const auto independent = make_buffer<T>(test_size);
-   auto test = [&independent, &x](const auto& p){
-      CHECK(p == independent.end());
-      CHECK(ranges::find_if(independent.begin(), p, [&x](const T& i){ return i != x; }) == p);
-      ranges::destroy(independent.begin(), p);
-   };
+	template <typename T>
+	requires ranges::CopyConstructible<T>() && ranges::EqualityComparable<T>()
+	void uninitialized_fill_test(const T& x)
+	{
+		const auto independent = make_buffer<T>(test_size);
+		auto test = [&independent, &x](const auto& p){
+			CHECK(p == independent.end());
+			CHECK(ranges::find_if(independent.begin(), p, [&x](const T& i){ return i != x; }) == p);
+			ranges::destroy(independent.begin(), p);
+		};
 
-   test(ranges::uninitialized_fill(independent.begin(), independent.end(), x));
-   test(ranges::uninitialized_fill(independent.cbegin(), independent.cend(), x));
-   test(ranges::uninitialized_fill(independent, x));
-   test(ranges::uninitialized_fill_n(independent.begin(), independent.size(), x));
-   test(ranges::uninitialized_fill_n(independent.cbegin(), independent.size(), x));
+		test(ranges::uninitialized_fill(independent.begin(), independent.end(), x));
+		test(ranges::uninitialized_fill(independent.cbegin(), independent.cend(), x));
+		test(ranges::uninitialized_fill(independent, x));
+		test(ranges::uninitialized_fill_n(independent.begin(), independent.size(), x));
+		test(ranges::uninitialized_fill_n(independent.cbegin(), independent.size(), x));
+	}
 }
 
 int main()
 {
-   uninitialized_fill_test(0);
-   uninitialized_fill_test(0.0);
-   uninitialized_fill_test('a');
-   uninitialized_fill_test(std::vector<int>{});
-   uninitialized_fill_test(std::vector<int>(1 << 10, 0));
-   uninitialized_fill_test(Book{});
+	uninitialized_fill_test(0);
+	uninitialized_fill_test(0.0);
+	uninitialized_fill_test('a');
+	uninitialized_fill_test(std::vector<int>{});
+	uninitialized_fill_test(std::vector<int>(1 << 10, 0));
+	uninitialized_fill_test(Book{});
 
-   return ::test_result();
+	return ::test_result();
 }

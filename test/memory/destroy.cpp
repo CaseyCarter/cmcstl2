@@ -17,62 +17,65 @@
 
 namespace ranges = __stl2;
 
-class Construct {
-public:
-   Construct()
-   {
-      ++instantiated;
-   }
+namespace {
+	class Construct {
+	public:
+		Construct()
+		{
+			++instantiated;
+		}
 
-   Construct(const Construct&)
-   {
-      ++instantiated;
-   }
+		Construct(const Construct&)
+		{
+			++instantiated;
+		}
 
-   Construct(Construct&&) noexcept
-   {
-      ++instantiated;
-   }
+		Construct(Construct&&) noexcept
+		{
+			++instantiated;
+		}
 
-   ~Construct()
-   {
-      --instantiated;
-   }
+		~Construct()
+		{
+			--instantiated;
+		}
 
-   static int get_instantiated()
-   {
-      return instantiated;
-   }
+		static int get_instantiated()
+		{
+			return instantiated;
+		}
 
-   Construct& operator=(Construct&&) noexcept = default;
-private:
-   static int instantiated;
-};
+		Construct& operator=(Construct&&) noexcept = default;
+		Construct& operator=(const Construct&) noexcept = default;
+	private:
+		static int instantiated;
+	};
 
-int Construct::instantiated{0};
+	int Construct::instantiated{0};
+}
 
 int main()
 {
-   auto independent = make_buffer<Construct>(1 << 20);
-   auto test = [&independent](const auto& p) {
-      CHECK(Construct::get_instantiated() == 0);
-      CHECK(p == independent.end());
-   };
+	auto independent = make_buffer<Construct>(1 << 20);
+	auto test = [&independent](const auto& p) {
+		CHECK(Construct::get_instantiated() == 0);
+		CHECK(p == independent.end());
+	};
 
-   ranges::uninitialized_default_construct(independent);
-   test(ranges::destroy(independent.begin(), independent.end()));
+	ranges::uninitialized_default_construct(independent);
+	test(ranges::destroy(independent.begin(), independent.end()));
 
-   ranges::uninitialized_default_construct(independent);
-   test(ranges::destroy(independent.cbegin(), independent.cend()));
+	ranges::uninitialized_default_construct(independent);
+	test(ranges::destroy(independent.cbegin(), independent.cend()));
 
-   ranges::uninitialized_default_construct(independent);
-   test(ranges::destroy(independent));
+	ranges::uninitialized_default_construct(independent);
+	test(ranges::destroy(independent));
 
-   ranges::uninitialized_default_construct(independent);
-   test(ranges::destroy_n(independent.begin(), independent.size()));
+	ranges::uninitialized_default_construct(independent);
+	test(ranges::destroy_n(independent.begin(), independent.size()));
 
-   ranges::uninitialized_default_construct(independent);
-   test(ranges::destroy_n(independent.cbegin(), independent.size()));
+	ranges::uninitialized_default_construct(independent);
+	test(ranges::destroy_n(independent.cbegin(), independent.size()));
 
-   return ::test_result();
+	return ::test_result();
 }

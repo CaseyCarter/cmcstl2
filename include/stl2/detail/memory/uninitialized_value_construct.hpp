@@ -23,40 +23,47 @@
 #include <stl2/detail/tagged.hpp>
 
 STL2_OPEN_NAMESPACE {
-   ///////////////////////////////////////////////////////////////////////////
-   // uninitialized_value_construct [Extension]
-   //
-   template <__NoThrowForwardIterator I, Sentinel<I> S>
-   requires DefaultConstructible<value_type_t<I>>() &&
-            __ReferenceTo<I, value_type_t<I>>()
-   I uninitialized_value_construct(I first, S last)
-   {
-      for (; first != last; ++first)
-         __stl2::__construct_at(*first);
-      return first;
-   }
+	///////////////////////////////////////////////////////////////////////////
+	// uninitialized_value_construct [Extension]
+	//
+	template <__NoThrowForwardIterator I, Sentinel<I> S>
+	requires
+		DefaultConstructible<value_type_t<I>>() &&
+		__ReferenceTo<I, value_type_t<I>>()
+	I uninitialized_value_construct(I first, S last)
+	{
+		for (; first != last; ++first) {
+			__stl2::__construct_at(*first);
+		}
 
-   ///////////////////////////////////////////////////////////////////////////
-   // uninitialized_value_construct [Extension]
-   //
-   template <__NoThrowForwardRange Rng>
-   requires DefaultConstructible<value_type_t<iterator_t<Rng>>>() &&
-            __ReferenceTo<iterator_t<Rng>, value_type_t<iterator_t<Rng>>>()
-   safe_iterator_t<Rng> uninitialized_value_construct(Rng&& rng)
-   {
-      return __stl2::uninitialized_value_construct(__stl2::begin(rng), __stl2::end(rng));
-   }
+		return first;
+	}
 
-   ///////////////////////////////////////////////////////////////////////////
-   // uninitialized_value_construct_n [Extension]
-   //
-   template <__NoThrowForwardIterator I>
-   requires DefaultConstructible<value_type_t<I>>() &&
-            __ReferenceTo<I, value_type_t<I>>()
-   I uninitialized_value_construct_n(I first, difference_type_t<I> n)
-   {
-      return __stl2::uninitialized_value_construct(__stl2::make_counted_iterator(first, n),
-                                                   default_sentinel{}).base();
-   }
+	///////////////////////////////////////////////////////////////////////////
+	// uninitialized_value_construct [Extension]
+	//
+	template <__NoThrowForwardRange Rng>
+	requires
+		DefaultConstructible<value_type_t<iterator_t<Rng>>>() &&
+		__ReferenceTo<iterator_t<Rng>, value_type_t<iterator_t<Rng>>>()
+	safe_iterator_t<Rng> uninitialized_value_construct(Rng&& rng)
+	{
+		return __stl2::uninitialized_value_construct(__stl2::begin(rng), __stl2::end(rng));
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// uninitialized_value_construct_n [Extension]
+	//
+	template <__NoThrowForwardIterator I>
+	requires
+		DefaultConstructible<value_type_t<I>>() &&
+		__ReferenceTo<I, value_type_t<I>>()
+	I uninitialized_value_construct_n(I first, difference_type_t<I> n)
+	{
+		return __stl2::uninitialized_value_construct(
+			__stl2::make_counted_iterator(first, n),
+			default_sentinel{}).base();
+	}
 } STL2_CLOSE_NAMESPACE
+
 #endif // STL2_DETAIL_MEMORY_UNINITIALIZED_VALUE_CONSTRUCT_HPP

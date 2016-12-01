@@ -23,54 +23,58 @@
 #include <stl2/detail/tagged.hpp>
 
 STL2_OPEN_NAMESPACE {
-   ///////////////////////////////////////////////////////////////////////////
-   // uninitialized_move [Extension]
-   //
-   template <InputIterator I, Sentinel<I> S, __NoThrowForwardIterator O>
-   requires
-      Constructible<value_type_t<O>, rvalue_reference_t<I>>() &&
-      __ReferenceTo<I, value_type_t<O>>()
-   tagged_pair<tag::in(I), tag::out(O)> uninitialized_move(I first, S last, O result)
-   {
-      auto i = result;
-      try {
-         for (; first != last; (void)++result, ++first)
-            __stl2::__construct_at(*result, __stl2::move(*first));
-      }
-      catch (...) {
-         __stl2::destroy(__stl2::move(i), __stl2::move(result));
-         throw;
-      }
+	///////////////////////////////////////////////////////////////////////////
+	// uninitialized_move [Extension]
+	//
+	template <InputIterator I, Sentinel<I> S, __NoThrowForwardIterator O>
+	requires
+		Constructible<value_type_t<O>, rvalue_reference_t<I>>() &&
+		__ReferenceTo<I, value_type_t<O>>()
+	tagged_pair<tag::in(I), tag::out(O)> uninitialized_move(I first, S last, O result)
+	{
+		auto i = result;
+		try {
+			for (; first != last; (void)++result, ++first) {
+				__stl2::__construct_at(*result, __stl2::move(*first));
+			}
+		}
+		catch (...) {
+			__stl2::destroy(__stl2::move(i), __stl2::move(result));
+			throw;
+		}
 
-      return {first, result};
-   }
+		return {first, result};
+	}
 
-   ///////////////////////////////////////////////////////////////////////////
-   // uninitialized_move [Extension]
-   //
-   template <InputRange Rng, __NoThrowForwardIterator O>
-   requires
-      Constructible<value_type_t<O>, rvalue_reference_t<iterator_t<Rng>>>() &&
-      __ReferenceTo<iterator_t<Rng>, value_type_t<O>>()
-   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)> uninitialized_move(Rng&& rng, O result)
-   {
-      return __stl2::uninitialized_move(__stl2::begin(rng), __stl2::end(rng), __stl2::move(result));
-   }
+	///////////////////////////////////////////////////////////////////////////
+	// uninitialized_move [Extension]
+	//
+	template <InputRange Rng, __NoThrowForwardIterator O>
+	requires
+		Constructible<value_type_t<O>, rvalue_reference_t<iterator_t<Rng>>>() &&
+		__ReferenceTo<iterator_t<Rng>, value_type_t<O>>()
+	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
+	uninitialized_move(Rng&& rng, O result)
+	{
+		return __stl2::uninitialized_move(
+			__stl2::begin(rng), __stl2::end(rng), __stl2::move(result));
+	}
 
-   ///////////////////////////////////////////////////////////////////////////
-   // uninitialized_move_n [Extension]
-   //
-   template <InputIterator I, __NoThrowForwardIterator O>
-   requires
-      Constructible<value_type_t<O>, rvalue_reference_t<I>>() &&
-      __ReferenceTo<I, value_type_t<I>>()
-   tagged_pair<tag::in(I), tag::out(O)>
-   uninitialized_move_n(I first, difference_type_t<I> n, O result)
-   {
-      auto r = __stl2::uninitialized_move(__stl2::make_counted_iterator(first, n),
-                                          default_sentinel{}, __stl2::move(result));
-      return {r.in().base(), r.out()};
-   }
+	///////////////////////////////////////////////////////////////////////////
+	// uninitialized_move_n [Extension]
+	//
+	template <InputIterator I, __NoThrowForwardIterator O>
+	requires
+		Constructible<value_type_t<O>, rvalue_reference_t<I>>() &&
+		__ReferenceTo<I, value_type_t<I>>()
+	tagged_pair<tag::in(I), tag::out(O)>
+	uninitialized_move_n(I first, difference_type_t<I> n, O result)
+	{
+		auto r = __stl2::uninitialized_move(
+			__stl2::make_counted_iterator(first, n),
+			default_sentinel{}, __stl2::move(result));
+		return {r.in().base(), r.out()};
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_UNINITIALIZED_MOVE_HPP

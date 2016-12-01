@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectCallableRelation<
 			equal_to<>, projected<iterator_t<Rng>, __f<Proj>>, const T1*>
 	safe_iterator_t<Rng>
-	replace(Rng&& rng, const T1& old_value,	const T2& new_value,
+	replace(Rng&& rng, const T1& old_value, const T2& new_value,
 		Proj&& proj = Proj{})
 	{
 		return __stl2::replace(

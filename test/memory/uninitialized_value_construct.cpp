@@ -25,45 +25,47 @@
 
 namespace ranges = __stl2;
 
-constexpr auto N = 1 << 10;
+namespace {
+	constexpr auto N = 1 << 10;
 
-template <typename T>
-requires
-   ranges::DefaultConstructible<T>() &&
-   ranges::EqualityComparable<T>()
-void uninitialized_value_construct_test()
-{
-   auto independent = make_buffer<T>(N);
-   auto test = [&independent](const auto& p) {
-      auto t = T{};
-      CHECK(p == independent.end());
-      CHECK(ranges::find_if(independent.begin(), p, [&t](const T& i){ return i != t; }) == p);
-      ranges::destroy(independent.begin(), p);
-   };
+	template <typename T>
+	requires
+		ranges::DefaultConstructible<T>() &&
+		ranges::EqualityComparable<T>()
+	void uninitialized_value_construct_test()
+	{
+		auto independent = make_buffer<T>(N);
+		auto test = [&independent](const auto& p) {
+			auto t = T{};
+			CHECK(p == independent.end());
+			CHECK(ranges::find_if(independent.begin(), p, [&t](const T& i){ return i != t; }) == p);
+			ranges::destroy(independent.begin(), p);
+		};
 
-   test(ranges::uninitialized_value_construct(independent.begin(), independent.end()));
-   test(ranges::uninitialized_value_construct(independent.cbegin(), independent.cend()));
-   test(ranges::uninitialized_value_construct(independent));
-   test(ranges::uninitialized_value_construct_n(independent.begin(), independent.size()));
-   test(ranges::uninitialized_value_construct_n(independent.cbegin(), independent.size()));
+		test(ranges::uninitialized_value_construct(independent.begin(), independent.end()));
+		test(ranges::uninitialized_value_construct(independent.cbegin(), independent.cend()));
+		test(ranges::uninitialized_value_construct(independent));
+		test(ranges::uninitialized_value_construct_n(independent.begin(), independent.size()));
+		test(ranges::uninitialized_value_construct_n(independent.cbegin(), independent.size()));
+	}
 }
 
 int main()
 {
-   using namespace std;
+	using namespace std;
 
-   uninitialized_value_construct_test<char>();
-   uninitialized_value_construct_test<short>();
-   uninitialized_value_construct_test<int>();
-   uninitialized_value_construct_test<float>();
-   uninitialized_value_construct_test<long>();
-   uninitialized_value_construct_test<double>();
-   uninitialized_value_construct_test<long long>();
-   uninitialized_value_construct_test<vector<char>>();
-   uninitialized_value_construct_test<string>();
-   uninitialized_value_construct_test<deque<double>>();
-   uninitialized_value_construct_test<list<vector<deque<double>>>>();
-   uninitialized_value_construct_test<unique_ptr<string>>();
+	uninitialized_value_construct_test<char>();
+	uninitialized_value_construct_test<short>();
+	uninitialized_value_construct_test<int>();
+	uninitialized_value_construct_test<float>();
+	uninitialized_value_construct_test<long>();
+	uninitialized_value_construct_test<double>();
+	uninitialized_value_construct_test<long long>();
+	uninitialized_value_construct_test<vector<char>>();
+	uninitialized_value_construct_test<string>();
+	uninitialized_value_construct_test<deque<double>>();
+	uninitialized_value_construct_test<list<vector<deque<double>>>>();
+	uninitialized_value_construct_test<unique_ptr<string>>();
 
-   return ::test_result();
+	return ::test_result();
 }
