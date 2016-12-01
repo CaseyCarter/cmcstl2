@@ -10,11 +10,13 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#include <stl2/memory.hpp> // FIXME: remove post-merge
-#include <stl2/detail/memory/uninitialized_copy.hpp>
-#include <stl2/detail/algorithm/equal.hpp>
 #include <stl2/concepts.hpp>
+#include <stl2/memory.hpp> // FIXME: remove post-merge
+#include <stl2/detail/algorithm/equal.hpp>
+#include <stl2/detail/memory/uninitialized_copy.hpp>
 #include <stl2/detail/memory/destroy.hpp>
+#include <stl2/view/repeat.hpp>
+#include <stl2/view/take_exactly.hpp>
 #include <cstdint>
 #include <vector>
 #include "../simple_test.hpp"
@@ -44,6 +46,54 @@ namespace {
 		test(ranges::uninitialized_copy(control, independent.cbegin()));
 		test(ranges::uninitialized_copy_n(control.begin(), control.size(), independent.begin()));
 		test(ranges::uninitialized_copy_n(control.cbegin(), control.size(), independent.cbegin()));
+	}
+
+	struct S {
+		static constexpr int throw_after = 42;
+		static int count;
+
+		static void increment() {
+			if (++count >= throw_after) {
+				throw exception{};
+			}
+		}
+
+		struct exception {};
+
+		S() = default;
+		S(const S&) { increment(); }
+		S& operator=(const S&) & {
+			increment();
+			return *this;
+		}
+		S(S&&) = default;
+		S& operator=(S&&) & = default;
+	};
+	constexpr int S::throw_after;
+	int S::count;
+
+	void throw_test() {
+		constexpr int n = 2 * S::throw_after;
+		auto control = ranges::repeat_view<S>{S{}};
+		auto independent = make_buffer<S>(n);
+		S::count = 0;
+		try {
+			ranges::uninitialized_copy_n(control.begin(), n, independent.begin());
+			CHECK(false);
+		} catch(S::exception&) {
+			CHECK(S::count == S::throw_after);
+		}
+
+		auto control2 = ranges::take_exactly_view<ranges::repeat_view<S>>{
+			std::move(control), n
+		};
+		S::count = 0;
+		try {
+			ranges::uninitialized_copy(control2, independent.begin());
+			CHECK(false);
+		} catch(S::exception&) {
+			CHECK(S::count == S::throw_after);
+		}
 	}
 }
 
@@ -76,6 +126,8 @@ int main()
 		{5.},
 		{6.1, 3.02, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9},
 		std::vector<double>(1 << 12, 7.0)}});
+
+	throw_test();
 
 	return ::test_result();
 }

@@ -14,7 +14,7 @@
 #define RAW_BUFFER_HPP
 
 #include <stl2/memory.hpp>
-#include <stl2/utility.hpp>
+#include <stl2/detail/swap.hpp>
 
 template <typename T>
 class raw_buffer {

@@ -32,17 +32,11 @@ STL2_OPEN_NAMESPACE {
 		__ReferenceTo<I, value_type_t<O>>()
 	tagged_pair<tag::in(I), tag::out(O)> uninitialized_move(I first, S last, O result)
 	{
-		auto i = result;
-		try {
-			for (; first != last; (void)++result, ++first) {
-				__stl2::__construct_at(*result, __stl2::move(*first));
-			}
+		auto guard = detail::destroy_guard<O>{result};
+		for (; first != last; (void)++result, ++first) {
+			__stl2::__construct_at(*result, __stl2::iter_move(first));
 		}
-		catch (...) {
-			__stl2::destroy(__stl2::move(i), __stl2::move(result));
-			throw;
-		}
-
+		guard.release();
 		return {first, result};
 	}
 

@@ -32,18 +32,12 @@ STL2_OPEN_NAMESPACE {
 		__ReferenceTo<I, value_type_t<I>>()
 	I uninitialized_fill(I first, S last, const T& x)
 	{
-		auto saved = first;
-		try {
-			for (; first != last; ++first) {
-				__stl2::__construct_at(*first, x);
-			}
+		auto guard = detail::destroy_guard<I>{first};
+		for (; first != last; ++first) {
+			__stl2::__construct_at(*first, x);
 		}
-		catch (...) {
-			__stl2::destroy(__stl2::move(saved), __stl2::move(first));
-			throw;
-		}
-
-		return __stl2::move(first);
+		guard.release();
+		return first;
 	}
 
 	template <__NoThrowForwardRange Rng, typename T>

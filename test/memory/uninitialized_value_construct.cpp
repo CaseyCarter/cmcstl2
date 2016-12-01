@@ -48,6 +48,44 @@ namespace {
 		test(ranges::uninitialized_value_construct_n(independent.begin(), independent.size()));
 		test(ranges::uninitialized_value_construct_n(independent.cbegin(), independent.size()));
 	}
+
+	struct S {
+		static constexpr int throw_after = 42;
+		static int count;
+
+		static void increment() {
+			if (++count >= throw_after) {
+				throw exception{};
+			}
+		}
+
+		struct exception {};
+
+		S() { increment(); }
+	};
+	constexpr int S::throw_after;
+	int S::count;
+
+	void throw_test() {
+		constexpr int n = 2 * S::throw_after;
+		auto independent = make_buffer<S>(n);
+		S::count = 0;
+		try {
+			ranges::uninitialized_value_construct_n(independent.begin(), n);
+			CHECK(false);
+		} catch(S::exception&) {
+			CHECK(S::count == S::throw_after);
+		}
+		S::count = 0;
+
+		try {
+			ranges::uninitialized_value_construct(independent);
+			CHECK(false);
+		} catch(S::exception&) {
+			CHECK(S::count == S::throw_after);
+		}
+		S::count = 0;
+	}
 }
 
 int main()
@@ -66,6 +104,8 @@ int main()
 	uninitialized_value_construct_test<deque<double>>();
 	uninitialized_value_construct_test<list<vector<deque<double>>>>();
 	uninitialized_value_construct_test<unique_ptr<string>>();
+
+	throw_test();
 
 	return ::test_result();
 }

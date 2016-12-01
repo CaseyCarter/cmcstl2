@@ -14,6 +14,8 @@
 #define STL2_DETAIL_MEMORY_DESTROY_HPP
 
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/raw_ptr.hpp>
+#include <stl2/detail/swap.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/counted_iterator.hpp>
@@ -22,6 +24,7 @@
 #include <stl2/detail/range/concepts.hpp>
 //#include <stl2/detail/memory/addressof.hpp> // FIXME: after merge
 #include <stl2/detail/memory/reference_to.hpp>
+#include <stl2/detail/memory/nothrow_forward_iterator.hpp>
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
@@ -78,6 +81,29 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::destroy(__stl2::make_counted_iterator(std::move(first), n),
 			default_sentinel{}).base();
+	}
+
+	namespace detail {
+		template <__NoThrowForwardIterator I>
+		class destroy_guard {
+			I first_;
+			detail::raw_ptr<I> last_;
+		public:
+			~destroy_guard() {
+				if (last_) {
+					__stl2::destroy(std::move(first_), *last_);
+				}
+			}
+
+			explicit destroy_guard(I& it)
+			: first_{it}, last_{__stl2::addressof(it)} {}
+
+			destroy_guard(destroy_guard&& that)
+			: first_{std::move(that.first_)}
+			, last_{__stl2::exchange(that.last_, nullptr)} {}
+
+			void release() noexcept { last_ = nullptr; }
+		};
 	}
 } STL2_CLOSE_NAMESPACE
 

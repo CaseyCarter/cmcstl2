@@ -33,15 +33,11 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(I), tag::out(O)>
 	uninitialized_copy(I first, S last, O result)
 	{
-		auto saved = result;
-		try {
-			for (; first != last; ++result, (void)++first) {
-				__stl2::__construct_at(*result, *first);
-			}
-		} catch(...) {
-			__stl2::destroy(__stl2::move(saved), __stl2::move(result));
-			throw;
+		auto guard = detail::destroy_guard<O>{result};
+		for (; first != last; ++result, (void)++first) {
+			__stl2::__construct_at(*result, *first);
 		}
+		guard.release();
 		return {__stl2::move(first), __stl2::move(result)};
 	}
 

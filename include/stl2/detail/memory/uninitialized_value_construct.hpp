@@ -32,10 +32,11 @@ STL2_OPEN_NAMESPACE {
 		__ReferenceTo<I, value_type_t<I>>()
 	I uninitialized_value_construct(I first, S last)
 	{
+		auto guard = detail::destroy_guard<I>{first};
 		for (; first != last; ++first) {
 			__stl2::__construct_at(*first);
 		}
-
+		guard.release();
 		return first;
 	}
 

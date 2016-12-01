@@ -16,6 +16,8 @@
 #include <stl2/detail/algorithm/count_if.hpp>
 #include <stl2/detail/algorithm/equal.hpp>
 #include <stl2/detail/memory/destroy.hpp>
+#include <stl2/view/repeat.hpp>
+#include <stl2/view/take_exactly.hpp>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -88,6 +90,56 @@ namespace {
 		test(first, second, ranges::uninitialized_move_n(first.begin(), first.size(), second.cbegin()));
 		test(second, first, ranges::uninitialized_move_n(second.begin(), second.size(), first.begin()));
 	}
+
+	struct S {
+		static constexpr int throw_after = 42;
+		static int count;
+
+		static void increment() {
+			if (++count >= throw_after) {
+				throw exception{};
+			}
+		}
+
+		struct exception {};
+
+		S() = default;
+		S(const S&) = default;
+		S& operator=(const S&) & = default;
+		S(const S&&) { increment(); }
+		S& operator=(const S&&) & {
+			increment();
+			return *this;
+		}
+	};
+	constexpr int S::throw_after;
+	int S::count;
+
+	void throw_test() {
+		constexpr int n = 2 * S::throw_after;
+		auto control = ranges::repeat_view<S>{S{}};
+		auto independent = make_buffer<S>(n);
+		S::count = 0;
+		try {
+			ranges::uninitialized_move_n(control.begin(), n, independent.begin());
+			CHECK(false);
+		} catch(S::exception&) {
+			CHECK(S::count == S::throw_after);
+		}
+		S::count = 0;
+
+		auto control2 = ranges::take_exactly_view<ranges::repeat_view<S>>{
+			std::move(control), n
+		};
+		S::count = 0;
+		try {
+			ranges::uninitialized_move(control2, independent.begin());
+			CHECK(false);
+		} catch(S::exception&) {
+			CHECK(S::count == S::throw_after);
+		}
+		S::count = 0;
+	}
 }
 
 /**
@@ -127,6 +179,8 @@ int main()
 		std::make_unique<std::string>("0"),
 		std::make_unique<std::string>("0"),
 		std::make_unique<std::string>("0")});
+
+	throw_test();
 
 	return ::test_result();
 }

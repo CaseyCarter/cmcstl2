@@ -83,6 +83,44 @@ namespace {
 		test(independent, ranges::uninitialized_default_construct(independent));
 		test(independent, ranges::uninitialized_default_construct_n(independent.begin(), independent.size()));
 	}
+
+	struct S {
+		static constexpr int throw_after = 42;
+		static int count;
+
+		static void increment() {
+			if (++count >= throw_after) {
+				throw exception{};
+			}
+		}
+
+		struct exception {};
+
+		S() { increment(); }
+	};
+	constexpr int S::throw_after;
+	int S::count;
+
+	void throw_test() {
+		constexpr int n = 2 * S::throw_after;
+		auto independent = make_buffer<S>(n);
+		S::count = 0;
+		try {
+			ranges::uninitialized_default_construct_n(independent.begin(), n);
+			CHECK(false);
+		} catch(S::exception&) {
+			CHECK(S::count == S::throw_after);
+		}
+		S::count = 0;
+
+		try {
+			ranges::uninitialized_default_construct(independent);
+			CHECK(false);
+		} catch(S::exception&) {
+			CHECK(S::count == S::throw_after);
+		}
+		S::count = 0;
+	}
 }
 
 int main()
@@ -97,6 +135,8 @@ int main()
 	uninitialized_default_construct_test<std::deque<double>>();
 	uninitialized_default_construct_test<std::list<std::vector<std::deque<double>>>>();
 	uninitialized_default_construct_test<std::unique_ptr<std::string>>();
+
+	throw_test();
 
 	return ::test_result();
 }
