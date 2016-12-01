@@ -9,8 +9,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_OPERATOR_ARROW_HPP
-#define STL2_DETAIL_OPERATOR_ARROW_HPP
+#ifndef STL2_DETAIL_ITERATOR_OPERATOR_ARROW_HPP
+#define STL2_DETAIL_ITERATOR_OPERATOR_ARROW_HPP
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
