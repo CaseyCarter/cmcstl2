@@ -20,11 +20,10 @@
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/counted_iterator.hpp>
 #include <stl2/detail/iterator/dangling.hpp>
+//#include <stl2/detail/memory/addressof.hpp> // FIXME: after merge
+#include <stl2/detail/memory/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-//#include <stl2/detail/memory/addressof.hpp> // FIXME: after merge
-#include <stl2/detail/memory/reference_to.hpp>
-#include <stl2/detail/memory/nothrow_forward_iterator.hpp>
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
