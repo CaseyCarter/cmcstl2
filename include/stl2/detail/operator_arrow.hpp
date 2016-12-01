@@ -12,12 +12,12 @@
 #ifndef STL2_DETAIL_OPERATOR_ARROW_HPP
 #define STL2_DETAIL_OPERATOR_ARROW_HPP
 
-#include <stl2/memory.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/memory/addressof.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {

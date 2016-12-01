@@ -7,3 +7,4 @@ a.out
 .#*
 build*/
 .vscode/
+*.*.swp

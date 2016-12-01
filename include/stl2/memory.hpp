@@ -50,13 +50,6 @@ STL2_OPEN_NAMESPACE {
 	using std::get_temporary_buffer;
 	using std::return_temporary_buffer;
 
-	// specialized algorithms
-	// addressof defined below
-	using std::uninitialized_copy;
-	using std::uninitialized_copy_n;
-	using std::uninitialized_fill;
-	using std::uninitialized_fill_n;
-
 	// template class unique_ptr
 	using std::default_delete;
 	using std::unique_ptr;
@@ -107,5 +100,13 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class A>
 	constexpr bool uses_allocator_v = uses_allocator<T, A>::value;
 } STL2_CLOSE_NAMESPACE
+
+#include <stl2/detail/memory/construct_at.hpp>
+#include <stl2/detail/memory/destroy.hpp>
+#include <stl2/detail/memory/uninitialized_copy.hpp>
+#include <stl2/detail/memory/uninitialized_default_construct.hpp>
+#include <stl2/detail/memory/uninitialized_fill.hpp>
+#include <stl2/detail/memory/uninitialized_move.hpp>
+#include <stl2/detail/memory/uninitialized_value_construct.hpp>
 
 #endif

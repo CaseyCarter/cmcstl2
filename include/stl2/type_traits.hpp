@@ -225,6 +225,9 @@ STL2_OPEN_NAMESPACE {
 	concept bool Common() {
 		return models::Common<T, U>;
 	}
+
+	template <typename T>
+	constexpr auto is_lvalue_reference_v = is_lvalue_reference<T>::value;
 } STL2_CLOSE_NAMESPACE
 
 #endif

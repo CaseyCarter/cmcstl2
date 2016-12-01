@@ -42,7 +42,9 @@ STL2_OPEN_NAMESPACE {
 				noexcept(is_nothrow_constructible<storage_t, const T&>::value)
 				: storage_t{r.value()} {}
 
-				constexpr reference read() const noexcept { return get(); }
+				constexpr reference read() const
+				noexcept(std::is_nothrow_constructible<reference, const T&>::value)
+				{ return get(); }
 				constexpr bool equal(const cursor&) const noexcept { return true; }
 				constexpr void next() const noexcept {}
 				constexpr void prev() const noexcept {}
