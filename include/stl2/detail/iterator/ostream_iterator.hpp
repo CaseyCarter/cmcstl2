@@ -42,8 +42,6 @@ STL2_OPEN_NAMESPACE {
 				using char_type = charT;
 				using traits_type = traits;
 				using ostream_type = ostream_cursor::ostream_type;
-
-				mixin() = default;
 				using ebo_box<ostream_cursor>::ebo_box;
 			};
 

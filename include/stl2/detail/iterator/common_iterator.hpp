@@ -107,8 +107,6 @@ STL2_OPEN_NAMESPACE {
 				using box_t = detail::ebo_box<cursor>;
 			public:
 				using difference_type = cursor::difference_type;
-
-				mixin() = default;
 				using box_t::box_t;
 			};
 

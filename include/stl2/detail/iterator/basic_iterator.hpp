@@ -28,8 +28,6 @@
 // * Fix the noexcept clauses that assume that get() is noexcept.
 // * Think long and hard about the various proxies and reference
 //   validity requirements.
-// * Determine if the code complexity incurred by not having
-//   basic_sentinel in the design is actually enabling anything useful.
 
 STL2_OPEN_NAMESPACE {
 	template <Destructible T>
@@ -598,6 +596,17 @@ STL2_OPEN_NAMESPACE {
 			get() = __stl2::get_cursor(that);
 			return *this;
 		}
+		template <class T>
+		requires
+			!Same<decay_t<T>, basic_iterator>() && !cursor::Next<C>() &&
+			cursor::Writable<C, T>()
+		constexpr basic_iterator& operator=(T&& t) &
+		noexcept(noexcept(
+			declval<C&>().write(static_cast<T&&>(t))))
+		{
+			get().write(static_cast<T&&>(t));
+			return *this;
+		}
 		// Not to spec: This operator= needs to be proposed for
 		// http://wg21.link/P0186
 		template <class O>
@@ -665,18 +674,6 @@ STL2_OPEN_NAMESPACE {
 			!is_reference<const_reference_t>::value
 		{
 			return detail::operator_arrow_proxy<basic_iterator>{**this};
-		}
-
-		template <class T>
-		requires
-			!Same<decay_t<T>, basic_iterator>() && !cursor::Next<C>() &&
-			cursor::Writable<C, T>()
-		constexpr basic_iterator& operator=(T&& t) &
-		noexcept(noexcept(
-			declval<C&>().write(static_cast<T&&>(t))))
-		{
-			get().write(static_cast<T&&>(t));
-			return *this;
 		}
 
 		constexpr basic_iterator& operator++() & noexcept {
