@@ -17,18 +17,72 @@
 #include <stl2/variant.hpp>
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/iterator/operator_arrow.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/operations.hpp>
+#include <stl2/detail/memory/addressof.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // common_iterator [common.iterators]
 //
 STL2_OPEN_NAMESPACE {
 	namespace __common_iterator {
+		template <class I>
+		requires
+			models::Readable<I> &&
+			!std::is_reference<reference_t<I>>::value &&
+			models::Constructible<value_type_t<I>, reference_t<I>>
+		class operator_arrow_proxy {
+			value_type_t<I> value_;
+		public:
+			constexpr explicit operator_arrow_proxy(reference_t<I>&& x)
+			noexcept(std::is_nothrow_constructible<value_type_t<I>, reference_t<I>>::value)
+			: value_(std::forward<reference_t<I>>(x)) {}
+
+			STL2_CONSTEXPR_EXT const value_type_t<I>* operator->() const noexcept {
+				return __stl2::addressof(value_);
+			}
+		};
+
+		Readable{I}
+		constexpr I operator_arrow_(const I& i, ext::priority_tag<2>)
+		noexcept(std::is_nothrow_copy_constructible<I>::value)
+		requires
+			_Is<I, std::is_pointer> || requires { i.operator->(); }
+		{
+			return i;
+		}
+
+		Readable{I}
+		STL2_CONSTEXPR_EXT auto operator_arrow_(const I& i, ext::priority_tag<1>)
+		noexcept(noexcept(*i))
+		requires
+			_Is<reference_t<const I>, std::is_reference>
+		{
+			return __stl2::addressof(*i);
+		}
+
+		Readable{I}
+		operator_arrow_proxy<I> operator_arrow_(const I& i, ext::priority_tag<0>)
+		noexcept(std::is_nothrow_move_constructible<operator_arrow_proxy<I>>::value &&
+			noexcept(operator_arrow_proxy<I>{*i}))
+		{
+			return operator_arrow_proxy<I>{*i};
+		}
+
+		template <Readable I>
+		requires
+			requires(const I i) {
+				__common_iterator::operator_arrow_(i, ext::max_priority_tag);
+			}
+		decltype(auto) operator_arrow(const I& i)
+		STL2_NOEXCEPT_RETURN(
+			__common_iterator::operator_arrow_(i, ext::max_priority_tag)
+		)
+
 		template <Iterator I, Sentinel<I> S>
 		requires !Same<I, S>()
 		class cursor;
@@ -130,6 +184,14 @@ STL2_OPEN_NAMESPACE {
 			{
 				STL2_EXPECT(__stl2::holds_alternative<I>(v_));
 				return *__stl2::get_unchecked<I>(v_);
+			}
+
+			STL2_CONSTEXPR_EXT auto arrow() const
+			noexcept(noexcept(__common_iterator::operator_arrow(std::declval<I const&>())))
+			requires InputIterator<I>()
+			{
+				STL2_EXPECT(__stl2::holds_alternative<I>(v_));
+				return __common_iterator::operator_arrow(__stl2::get_unchecked<I>(v_));
 			}
 
 			template <class T>

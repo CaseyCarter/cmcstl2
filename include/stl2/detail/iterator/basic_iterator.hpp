@@ -17,12 +17,12 @@
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
-#include <stl2/detail/iterator/operator_arrow.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/memory/addressof.hpp>
 
 // TODO:
 // * Fix the noexcept clauses that assume that get() is noexcept.
@@ -678,35 +678,23 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
-		// operator->: "Manual" override
+		// Use cursor's arrow() member, if any.
 		constexpr decltype(auto) operator->() const
-		noexcept(noexcept(declval<const C&>().arrow()))
-		requires
-			cursor::Arrow<C>()
+		noexcept(noexcept(std::declval<const C&>().arrow()))
+		requires cursor::Arrow<C>()
 		{
 			return get().arrow();
 		}
-		// operator->: Otherwise, if reference_t is an lvalue reference,
-		//   return the address of operator*()
+		// Otherwise, if reference_t is an lvalue reference to cv-qualified
+		// value_type_t, return the address of **this.
 		constexpr auto operator->() const
-		noexcept(noexcept(*declval<const basic_iterator&>()))
+		noexcept(noexcept(*std::declval<const basic_iterator&>()))
 		requires
-			cursor::Readable<C>() && !cursor::Arrow<C>() &&
-			is_lvalue_reference<const_reference_t>::value
+			!cursor::Arrow<C>() && cursor::Readable<C>() &&
+			std::is_lvalue_reference<const_reference_t>::value &&
+			models::Same<cursor::value_type_t<C>, __uncvref<const_reference_t>>
 		{
 			return __stl2::addressof(**this);
-		}
-		// operator->: Otherwise, return a proxy
-		constexpr auto operator->() const
-		noexcept(is_nothrow_move_constructible<
-			detail::operator_arrow_proxy<basic_iterator>>::value &&
-			noexcept(detail::operator_arrow_proxy<basic_iterator>{
-				*declval<const basic_iterator&>()}))
-		requires
-			cursor::Readable<C>() && !cursor::Arrow<C>() &&
-			!is_reference<const_reference_t>::value
-		{
-			return detail::operator_arrow_proxy<basic_iterator>{**this};
 		}
 
 		constexpr basic_iterator& operator++() & noexcept {
