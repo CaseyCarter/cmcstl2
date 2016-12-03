@@ -145,13 +145,38 @@ STL2_OPEN_NAMESPACE {
 			detail::IsValueType<meta::_t<value_type<C>>>
 		using value_type_t = meta::_t<value_type<C>>;
 
+		template <class M>
+		struct _MixinTestWrapper : protected M {
+			decltype(auto) g() & { return (*this).get(); }
+			decltype(auto) g() const& { return (*this).getz(); }
+			decltype(auto) g() && { return std::move(*this).get(); }
+			decltype(auto) g() const&& { return std::move(*this).get(); }
+		};
+
+		template <class C, class M>
+		concept bool _Cursor() {
+			return Semiregular<C>() &&
+				std::is_class<M>::value && !std::is_final<M>::value &&
+				Semiregular<M>() &&
+				Constructible<M, C&&>() &&
+				Constructible<M, const C&>();
+#if 0
+				// FIXME: Failures cause hard errors in _MixinTestWrapper<M>::g
+				&& requires(_MixinTestWrapper<M>& w, const _MixinTestWrapper<M>& cw) {
+					STL2_EXACT_TYPE_CONSTRAINT(w.g(), C&);
+					STL2_EXACT_TYPE_CONSTRAINT(cw.g(), const C&);
+					STL2_EXACT_TYPE_CONSTRAINT(std::move(w).g(), C&&);
+					STL2_EXACT_TYPE_CONSTRAINT(std::move(cw).g(), const C&&);
+				};
+#endif
+		}
+
 		template <class C>
 		concept bool Cursor() {
-			return Semiregular<remove_cv_t<C>>() &&
-				Semiregular<mixin_t<remove_cv_t<C>>>() &&
-				requires {
-					typename difference_type_t<C>;
-				};
+			return requires {
+				typename difference_type_t<C>;
+				typename mixin_t<remove_cv_t<C>>;
+			} && _Cursor<remove_cv_t<C>, mixin_t<remove_cv_t<C>>>();
 		}
 
 		template <class C>
@@ -269,6 +294,14 @@ STL2_OPEN_NAMESPACE {
 		concept bool Contiguous() {
 			return RandomAccess<C>() && contiguous<C> &&
 				is_reference<reference_t<C>>::value;
+		}
+
+		template <class From, class To>
+		concept bool ConvertibleTo() {
+			return Cursor<From>() && Cursor<To>() &&
+				__stl2::ConvertibleTo<From, To>() &&
+				Constructible<mixin_t<To>, From>() &&
+				Constructible<mixin_t<To>, const From&>();
 		}
 
 		template <class>
@@ -572,24 +605,24 @@ STL2_OPEN_NAMESPACE {
 
 	public:
 		basic_iterator() = default;
-		template <ConvertibleTo<C> O>
+		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator(basic_iterator<O>&& that)
 		noexcept(is_nothrow_constructible<mixin, O>::value)
 		: mixin(__stl2::get_cursor(__stl2::move(that))) {}
-		template <ConvertibleTo<C> O>
+		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator(const basic_iterator<O>& that)
 		noexcept(is_nothrow_constructible<mixin, const O&>::value)
 		: mixin(__stl2::get_cursor(that)) {}
 		using mixin::mixin;
 
-		template <ConvertibleTo<C> O>
+		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator& operator=(basic_iterator<O>&& that) &
 		noexcept(is_nothrow_assignable<C&, O>::value)
 		{
 			get() = __stl2::get_cursor(__stl2::move(that));
 			return *this;
 		}
-		template <ConvertibleTo<C> O>
+		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator& operator=(const basic_iterator<O>& that) &
 		noexcept(is_nothrow_assignable<C&, const O&>::value)
 		{
