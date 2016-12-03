@@ -37,11 +37,11 @@ int main() {
 		auto second = first + 1;
 		CHECK(*second == *first);
 
-		// operator-> returns a proxy
+		// operator-> returns a pointer
 		static_assert(
 			stl2::models::Same<
 				decltype(first.operator->()),
-				stl2::detail::operator_arrow_proxy<decltype(first)>>);
+				const int*>);
 	}
 	{
 		using big_type = std::array<double, 128>;
@@ -66,6 +66,7 @@ int main() {
 			stl2::models::Same<
 				decltype(first.operator->()),
 				const big_type*>);
+		CHECK(&*first == first.operator->());
 	}
 	{
 		constexpr unsigned N = 1u << 16;

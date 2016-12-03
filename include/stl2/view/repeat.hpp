@@ -39,12 +39,14 @@ STL2_OPEN_NAMESPACE {
 
 				cursor() = default;
 				constexpr cursor(const repeat_view& r)
-				noexcept(is_nothrow_constructible<storage_t, const T&>::value)
+				noexcept(std::is_nothrow_constructible<storage_t, const T&>::value)
 				: storage_t{r.value()} {}
 
 				constexpr reference read() const
 				noexcept(std::is_nothrow_constructible<reference, const T&>::value)
 				{ return get(); }
+				constexpr const T* arrow() const noexcept
+				{ return __stl2::addressof(get()); }
 				constexpr bool equal(const cursor&) const noexcept { return true; }
 				constexpr void next() const noexcept {}
 				constexpr void prev() const noexcept {}
@@ -58,11 +60,11 @@ STL2_OPEN_NAMESPACE {
 
 			repeat_view() = default;
 			constexpr repeat_view(T value)
-			noexcept(is_nothrow_constructible<storage_t, T>::value)
+			noexcept(std::is_nothrow_constructible<storage_t, T>::value)
 			: storage_t{std::move(value)} {}
 
 			constexpr iterator begin() const
-			noexcept(is_nothrow_constructible<iterator, const repeat_view&>::value)
+			noexcept(std::is_nothrow_constructible<iterator, const repeat_view&>::value)
 			{ return {cursor{*this}}; }
 			constexpr unreachable end() const noexcept { return {}; }
 			constexpr const T& value() const noexcept { return get(); }
