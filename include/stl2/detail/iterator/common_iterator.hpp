@@ -30,52 +30,62 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace __common_iterator {
+		template <class T>
+		class operator_arrow_proxy {
+			T value_;
+		public:
+			template <class U>
+			constexpr explicit operator_arrow_proxy(U&& u)
+			noexcept(std::is_nothrow_constructible<T, U>::value)
+			requires models::Constructible<T, U>
+			: value_(std::forward<U>(u)) {}
+
+			STL2_CONSTEXPR_EXT const T* operator->() const noexcept {
+				return __stl2::addressof(value_);
+			}
+		};
+
+		template <class I>
+		requires
+			models::Readable<I> &&
+			(std::is_pointer<I>::value ||
+				requires(const I& i) { i.operator->(); })
+		constexpr I operator_arrow_(const I& i, ext::priority_tag<2>)
+		noexcept(std::is_nothrow_copy_constructible<I>::value)
+		{
+			return i;
+		}
+
+		template <class I>
+		requires
+			models::Readable<I> &&
+			_Is<reference_t<const I>, std::is_reference>
+		STL2_CONSTEXPR_EXT auto operator_arrow_(const I& i, ext::priority_tag<1>)
+		noexcept(noexcept(*i))
+		{
+			auto&& tmp = *i;
+			return __stl2::addressof(tmp);
+		}
+
 		template <class I>
 		requires
 			models::Readable<I> &&
 			!std::is_reference<reference_t<I>>::value &&
 			models::Constructible<value_type_t<I>, reference_t<I>>
-		class operator_arrow_proxy {
-			value_type_t<I> value_;
-		public:
-			constexpr explicit operator_arrow_proxy(reference_t<I>&& x)
-			noexcept(std::is_nothrow_constructible<value_type_t<I>, reference_t<I>>::value)
-			: value_(std::forward<reference_t<I>>(x)) {}
-
-			STL2_CONSTEXPR_EXT const value_type_t<I>* operator->() const noexcept {
-				return __stl2::addressof(value_);
-			}
-		};
-
-		Readable{I}
-		constexpr I operator_arrow_(const I& i, ext::priority_tag<2>)
-		noexcept(std::is_nothrow_copy_constructible<I>::value)
-		requires
-			_Is<I, std::is_pointer> || requires { i.operator->(); }
+		auto operator_arrow_(const I& i, ext::priority_tag<0>)
+		noexcept(
+			std::is_nothrow_move_constructible<
+				operator_arrow_proxy<value_type_t<I>>>::value &&
+			std::is_nothrow_constructible<
+				operator_arrow_proxy<value_type_t<I>>, reference_t<I>>::value)
 		{
-			return i;
+			return operator_arrow_proxy<value_type_t<I>>{*i};
 		}
 
-		Readable{I}
-		STL2_CONSTEXPR_EXT auto operator_arrow_(const I& i, ext::priority_tag<1>)
-		noexcept(noexcept(*i))
+		template <class I>
 		requires
-			_Is<reference_t<const I>, std::is_reference>
-		{
-			return __stl2::addressof(*i);
-		}
-
-		Readable{I}
-		operator_arrow_proxy<I> operator_arrow_(const I& i, ext::priority_tag<0>)
-		noexcept(std::is_nothrow_move_constructible<operator_arrow_proxy<I>>::value &&
-			noexcept(operator_arrow_proxy<I>{*i}))
-		{
-			return operator_arrow_proxy<I>{*i};
-		}
-
-		template <Readable I>
-		requires
-			requires(const I i) {
+			models::Readable<I> &&
+			requires(const I& i) {
 				__common_iterator::operator_arrow_(i, ext::max_priority_tag);
 			}
 		decltype(auto) operator_arrow(const I& i)
