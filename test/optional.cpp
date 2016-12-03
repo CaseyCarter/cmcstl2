@@ -88,9 +88,9 @@ namespace X {
 
 
 namespace std::experimental::ranges {
-	template<>
+	template <>
 	struct common_type<::X::A, ::X::B> { using type = ::X::C; };
-	template<>
+	template <>
 	struct common_type<::X::B, ::X::A> { using type = ::X::C; };
 }
 

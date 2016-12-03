@@ -1,6 +1,7 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
 //  Copyright Casey Carter 2015
+//  Copyright Eric Niebler 2015
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -52,29 +53,20 @@ STL2_OPEN_NAMESPACE {
 			: os_{__stl2::addressof(os)}, delimiter_{delimiter}
 			{}
 
-			template <class U = T>
-			requires Same<T, U>()
-			STL2_CONSTEXPR_EXT void write(const U& u) {
-				*os_ << u;
-				delimit();
-			}
-
-			template <ext::StreamInsertable<ostream_type> U>
-			requires Same<T, void>()
-			STL2_CONSTEXPR_EXT void write(const U& u) {
-				*os_ << u;
-				delimit();
+			template <class U, class V = meta::if_<std::is_void<T>, U, T>>
+			requires
+				ConvertibleTo<U, V const&>() &&
+				ext::StreamInsertable<V, ostream_type>
+			STL2_CONSTEXPR_EXT void write(U&& u) {
+				*os_ << static_cast<V const &>(std::forward<U>(u));
+				if (delimiter_) {
+					*os_ << delimiter_;
+				}
 			}
 
 		private:
 			raw_ptr<ostream_type> os_ = nullptr;
 			const char* delimiter_ = nullptr;
-
-			STL2_CONSTEXPR_EXT void delimit() {
-				if (delimiter_) {
-					*os_ << delimiter_;
-				}
-			}
 		};
 	}
 

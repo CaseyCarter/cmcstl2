@@ -281,10 +281,10 @@ STL2_OPEN_NAMESPACE {
 
 namespace libstdcpp_tests
 {
-	template<typename T, typename Expected>
+	template <typename T, typename Expected>
 	struct is_type : std::false_type {};
 
-	template<meta::Trait T, typename Expected>
+	template <meta::Trait T, typename Expected>
 		requires Same<meta::_t<T>, Expected>()
 	struct is_type<T, Expected> : std::true_type {};
 
@@ -301,19 +301,19 @@ namespace libstdcpp_tests
 	struct G1 { operator const void*(); };
 	struct G2 { operator volatile void*(); };
 
-	template<typename T>
+	template <typename T>
 	struct ImplicitTo
 	{
 		operator T();
 	};
 
-	template<typename T>
+	template <typename T>
 	struct ExplicitTo
 	{
 		explicit operator T();
 	};
 
-	template<typename T>
+	template <typename T>
 	struct PrivateImplicitTo
 	{
 	private:
@@ -365,37 +365,37 @@ namespace libstdcpp_tests
 }
 
 STL2_OPEN_NAMESPACE {
-	template<>
+	template <>
 	struct common_type<libstdcpp_tests::X1, libstdcpp_tests::X2>
 	{
 		typedef libstdcpp_tests::RX12 type;
 	};
 
-	template<>
+	template <>
 	struct common_type<libstdcpp_tests::X2, libstdcpp_tests::X1>
 	{
 		typedef libstdcpp_tests::RX21 type;
 	};
 
-	template<>
+	template <>
 	struct common_type<libstdcpp_tests::RX12, libstdcpp_tests::X1>
 	{
 		typedef libstdcpp_tests::Y1 type;
 	};
 
-	template<>
+	template <>
 	struct common_type<libstdcpp_tests::X1, libstdcpp_tests::RX12>
 	{
 		typedef libstdcpp_tests::Y2 type;
 	};
 
-	template<>
+	template <>
 	struct common_type<libstdcpp_tests::RX21, libstdcpp_tests::X1>
 	{
 		typedef libstdcpp_tests::Y3 type;
 	};
 
-	template<>
+	template <>
 	struct common_type<libstdcpp_tests::X1, libstdcpp_tests::RX21>
 	{
 		typedef libstdcpp_tests::Y4 type;
@@ -585,7 +585,7 @@ namespace libstdcpp_tests
 				decltype(local_lmd2)&>>(), "");
 	}
 
-	template<typename... Args>
+	template <typename... Args>
 	constexpr
 	std::array<typename common_type<Args...>::type,
 		sizeof...(Args)>

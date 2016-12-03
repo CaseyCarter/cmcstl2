@@ -140,7 +140,7 @@ STL2_OPEN_NAMESPACE {
             return nullptr;
         }
 
-        template<class Reference, class ValueType, class RValueReference>
+        template <class Reference, class ValueType, class RValueReference>
         struct cursor {
         private:
             blob data_ = { nullptr };
@@ -222,7 +222,7 @@ STL2_OPEN_NAMESPACE {
         };
     }
 
-    template<class Reference,
+    template <class Reference,
         class ValueType = __uncvref<Reference>,
         class RValueReference = __iter_move::rvalue<Reference>>
     using any_input_iterator =

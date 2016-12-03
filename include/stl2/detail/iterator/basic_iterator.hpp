@@ -633,7 +633,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			!Same<decay_t<T>, basic_iterator>() && !cursor::Next<C>() &&
 			cursor::Writable<C, T>()
-		constexpr basic_iterator& operator=(T&& t) &
+		constexpr basic_iterator& operator=(T&& t)
 		noexcept(noexcept(
 			declval<C&>().write(static_cast<T&&>(t))))
 		{
