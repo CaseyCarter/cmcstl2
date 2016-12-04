@@ -24,7 +24,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<Range Rng>
+		template <Range Rng>
 		requires
 			!(_Is<Rng, std::is_reference> || View<Rng>())
 		class ref_view : view_base {
