@@ -13,14 +13,19 @@
 #include <stl2/concepts.hpp>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
+#include <stl2/memory.hpp>
 #include <stl2/optional.hpp>
 #include <stl2/random.hpp>
 #include <stl2/tuple.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/variant.hpp>
+#include <stl2/view/indirect.hpp>
 #include <stl2/view/iota.hpp>
+#include <stl2/view/move.hpp>
+#include <stl2/view/ref.hpp>
 #include <stl2/view/repeat.hpp>
 #include <stl2/view/repeat_n.hpp>
+#include <stl2/view/take_exactly.hpp>
 
 int main() {}

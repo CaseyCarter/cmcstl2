@@ -60,10 +60,10 @@ STL2_OPEN_NAMESPACE {
 		{
 			using type =
 				decltype(declval<F>()(std::index_sequence<Is...>{},
-					v_access::raw_get(meta::size_t<Is>{}, declval<Variants>())...));
+					v_access::raw_get(in_place_index<Is>, declval<Variants>())...));
 			static constexpr bool nothrow =
 				noexcept(declval<F>()(std::index_sequence<Is...>{},
-					v_access::raw_get(meta::size_t<Is>{}, declval<Variants>())...));
+					v_access::raw_get(in_place_index<Is>, declval<Variants>())...));
 		};
 		template <class F, class Variants, class Indices>
 		using single_visit_return_t =
@@ -133,7 +133,7 @@ STL2_OPEN_NAMESPACE {
 		visit_handler(std::index_sequence<Is...> indices, F&& f, Vs&&...vs)
 		STL2_NOEXCEPT_RETURN(
 			__stl2::forward<F>(f)(indices,
-				v_access::raw_get(meta::size_t<Is>{}, __stl2::forward<Vs>(vs))...)
+				v_access::raw_get(in_place_index<Is>, __stl2::forward<Vs>(vs))...)
 		)
 
 		///////////////////////////////////////////////////////////////////////////
@@ -306,7 +306,7 @@ STL2_OPEN_NAMESPACE {
 
 		///////////////////////////////////////////////////////////////////////////
 		// Adapt a visitor that accepts a single integral_constant index
-		// to the variadic visitor model that accepts a integer_sequence of indices.
+		// to the variadic visitor model that accepts an integer_sequence of indices.
 		//
 		template <class F>
 		struct single_index_visitor {

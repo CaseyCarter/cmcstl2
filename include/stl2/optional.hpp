@@ -1,6 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
-//  Copyright Casey Carter 2015
+//  Copyright Casey Carter 2015-2016
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -17,29 +17,26 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/variant.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/in_place.hpp>
 #include <stl2/detail/meta.hpp>
+#include <stl2/detail/smf_control.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/memory/addressof.hpp>
+#include <stl2/detail/utility/in_place.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// Implementation of N4529 optional
-//
-// TODO:
-// * Update to N4606 + LWG2451
-// * Exception safety audit
-// * optional<T&>: Not forbidden since variant supports references, but I
-//   need to ensure the semantics are reasonable.
+// Implementation of C++17 optional
 //
 STL2_OPEN_NAMESPACE {
 	struct nullopt_t {
-		explicit constexpr nullopt_t(int) {}
+		struct secret_tag {};
+		explicit constexpr nullopt_t(secret_tag) {}
 	};
-	template <class = void>
-	constexpr nullopt_t __nullopt{42};
+	template <class>
+	extern constexpr nullopt_t __nullopt{nullopt_t::secret_tag{}};
 
 	namespace {
-		constexpr const nullopt_t& nullopt = __nullopt<>;
+		constexpr const nullopt_t& nullopt = __nullopt<void>;
 	}
 
 	class bad_optional_access : public std::logic_error {
@@ -48,387 +45,554 @@ STL2_OPEN_NAMESPACE {
 		: logic_error{"Attempt to access disengaged optional"} {}
 	};
 
+	template <class T>
+	requires models::Destructible<T>
+	class optional;
+
 	namespace __optional {
 		template <class = void>
 		[[noreturn]] bool bad_access() {
 			throw bad_optional_access{};
 		}
 
-		Destructible{T}
-		class optional;
-
-		struct access {
-			template <_SpecializationOf<optional> O>
-			static constexpr auto&& v(O&& o) noexcept {
-				return __stl2::forward<O>(o).v_;
-			}
-			static constexpr decltype(auto) cv(const optional<auto>& o) noexcept {
-				return o.v_;
-			}
-		};
-
-		ConvertibleTo{From, To}
-		struct narrowing_converter {
-			static_assert(is_reference<From>());
-			From from_;
-
-			constexpr operator To() &&
-			STL2_NOEXCEPT_RETURN(
-				static_cast<To>(std::forward<From>(from_))
-			)
-		};
-
-		template <class To, class From>
-		requires ConvertibleTo<From, To>()
-		constexpr auto allow_narrowing_conversion(From&& f) noexcept {
-			return narrowing_converter<From&&, To>{__stl2::forward<From>(f)};
-		}
+		template <class T, class U>
+		requires
+			models::Swappable<T&, U&> &&
+			models::Constructible<T, U> &&
+			models::Constructible<U, T>
+		void swap(optional<T>& lhs, optional<U>& rhs)
+		STL2_NOEXCEPT_RETURN(
+			lhs.swap(rhs)
+		)
+		template <class T>
+		requires
+			models::Swappable<T&> &&
+			models::MoveConstructible<T>
+		void swap(optional<T>& lhs, optional<T>& rhs)
+		STL2_NOEXCEPT_RETURN(
+			lhs.swap(rhs)
+		)
 
 		template <class T>
-		struct convert_visitor {
-			constexpr auto operator()(nullopt_t) const noexcept {
-				return variant<nullopt_t, T>{nullopt};
+		requires models::Destructible<T>
+		class storage_destruct_layer {
+		public:
+			~storage_destruct_layer() { if (engaged_) clear(); }
+
+			constexpr storage_destruct_layer() noexcept {}
+			template <class... Args>
+			requires models::Constructible<T, Args...>
+			constexpr explicit storage_destruct_layer(in_place_t, Args&&... args)
+			noexcept(std::is_nothrow_constructible<T, Args...>::value)
+			: item_(std::forward<Args>(args)...), engaged_{true} {}
+
+			void clear() noexcept {
+				STL2_EXPECT(engaged_);
+				item_.~T();
 			}
-			template <ConvertibleTo<T> U>
-			constexpr auto operator()(U&& u) const
-			STL2_NOEXCEPT_RETURN(
-				variant<nullopt_t, T>{emplaced_type<T>,
-					allow_narrowing_conversion<T>(__stl2::forward<U>(u))}
-			)
+		protected:
+			union {
+				char dummy_ = {};
+				T item_;
+			};
+			bool engaged_ = false;
 		};
 
-		Destructible{T}
-		class optional {
-			friend struct access;
-			variant<nullopt_t, T> v_ = nullopt;
-
-			template <class U>
-			requires Same<variant<nullopt_t, T>, decay_t<U>>()
-			static constexpr decltype(auto) get_unchecked(U&& v) noexcept {
-				STL2_EXPECT(__stl2::holds_alternative<T>(v));
-				return __stl2::get_unchecked<T>(__stl2::forward<U>(v));
-			}
-
-			template <class U>
-			requires Same<variant<nullopt_t, T>, decay_t<U>>()
-			static constexpr decltype(auto) get(U&& v) {
-				__stl2::holds_alternative<T>(v) || bad_access();
-				return __stl2::get_unchecked<T>(__stl2::forward<U>(v));
-			}
-
+		template <class T>
+		requires
+			models::Destructible<T> &&
+			std::is_trivially_destructible<T>::value
+		class storage_destruct_layer<T> {
 		public:
-			using value_type = T;
+			constexpr storage_destruct_layer() noexcept {}
+			template <class... Args>
+			requires models::Constructible<T, Args...>
+			constexpr explicit storage_destruct_layer(in_place_t, Args&&... args)
+			noexcept(std::is_nothrow_constructible<T, Args...>::value)
+			: item_(std::forward<Args>(args)...), engaged_{true} {}
 
-			static_assert(!is_same<__uncvref<T>, nullopt_t>(),
-				"optional cannot hold nullopt_t");
-			static_assert(!is_same<__uncvref<T>, in_place_t>(),
-				"optional cannot hold in_place_t");
-
-			constexpr optional() noexcept = default;
-			constexpr optional(nullopt_t) noexcept
-			: optional() {}
-
-			constexpr optional(const T& t)
-			noexcept(is_nothrow_copy_constructible<T>::value)
-			requires CopyConstructible<T>()
-			: v_{t} {}
-			constexpr optional(T&& t)
-			noexcept(is_nothrow_move_constructible<T>::value)
-			requires MoveConstructible<T>()
-			: v_{__stl2::move(t)} {}
-
-			template <ConvertibleTo<T> U>
-			requires Constructible<T, U>()
-			constexpr optional(U&& u)
-			noexcept(is_nothrow_constructible<T, U>::value)
-			: v_{emplaced_type<T>, __stl2::forward<U>(u)} {}
-			template <class U>
-			requires Constructible<T, U>()
-			constexpr explicit optional(U&& u)
-			noexcept(is_nothrow_constructible<T, U>::value)
-			: v_{emplaced_type<T>, __stl2::forward<U>(u)} {}
-
-			template <class...Args>
-			requires Constructible<T, Args...>()
-			constexpr explicit optional(in_place_t, Args&&...args)
-			noexcept(is_nothrow_constructible<T, Args...>::value)
-			: v_{emplaced_type<T>, __stl2::forward<Args>(args)...} {}
-
-			template <class U, class...Args>
-			requires Constructible<T, std::initializer_list<U>&, Args...>()
-			constexpr explicit optional(
-				in_place_t, std::initializer_list<U> il, Args&&...args)
-			noexcept(is_nothrow_constructible<T,
-				std::initializer_list<U>&, Args...>::value)
-			: v_{emplaced_type<T>, il, __stl2::forward<Args>(args)...} {}
-
-			// Extensions: optional<U> converts to optional<T> if U converts to T.
-			template <ConvertibleTo<T> U>
-			requires Constructible<T, U>()
-			constexpr optional(optional<U>&& that)
-			noexcept(is_nothrow_constructible<T, U>::value)
-			: v_{__stl2::visit(convert_visitor<T>{},
-				access::v(__stl2::move(that)))}
-			{}
-
-			template <class U>
-			requires Constructible<T, U>()
-			explicit constexpr optional(optional<U>&& that)
-			noexcept(is_nothrow_constructible<T, U>::value)
-			: v_{__stl2::visit(convert_visitor<T>{},
-				access::v(__stl2::move(that)))}
-			{}
-
-			template <ConvertibleTo<T> U>
-			requires Constructible<T, const U&>()
-			constexpr optional(const optional<U>& that)
-			noexcept(is_nothrow_constructible<T, const U&>::value)
-			: v_{__stl2::visit(convert_visitor<T>{}, access::cv(that))} {}
-
-			template <class U>
-			requires Constructible<T, const U&>()
-			explicit constexpr optional(const optional<U>& that)
-			noexcept(is_nothrow_constructible<T, const U&>::value)
-			: v_{__stl2::visit(convert_visitor<T>{}, access::cv(that))} {}
-
-			STL2_CONSTEXPR_EXT optional&
-			operator=(nullopt_t) & noexcept {
-				v_ = nullopt;
-				return *this;
+			void clear() noexcept {
+				STL2_EXPECT(engaged_);
 			}
+		protected:
+			union {
+				char dummy_ = {};
+				T item_;
+			};
+			bool engaged_ = false;
+		};
 
-			template <class U>
-			requires Same<decay_t<U>, T>() && Constructible<T, U>() &&
-				Assignable<T&, U>()
-			optional& operator=(U&& u) & {
-				try {
-					v_ = __stl2::forward<U>(u);
-				} catch(...) {
-					v_ = nullopt;
-					throw;
-				}
-				return *this;
-			}
+		template <class T>
+		class storage_construct_layer : public storage_destruct_layer<T> {
+		public:
+			using storage_destruct_layer<T>::storage_destruct_layer;
 
-			template <class U>
-			requires Same<decay_t<U>, T>() && Constructible<T, U>() &&
-				Assignable<T&, U>() && is_nothrow_move_constructible<T>::value
-			STL2_CONSTEXPR_EXT optional&
-			operator=(U&& u) &
-			noexcept(is_nothrow_assignable<T&, U>::value)
+			template <class... Args>
+			requires models::Constructible<T, Args...>
+			void construct(Args&&... args)
+			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			{
-				v_ = __stl2::forward<U>(u);
-				return *this;
+				::new(const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(this->item_)))) T{std::forward<Args>(args)...};
+				this->engaged_ = true;
 			}
 
-			template <ConvertibleTo<T> U>
-			STL2_CONSTEXPR_EXT optional&
-			operator=(const optional<U>& that) &
-			noexcept(is_nothrow_constructible<T, const U&>::value &&
-				is_nothrow_assignable<T&, const U&>::value)
-			{
-				if (that) {
-					if (*this) {
-						**this = *that;
-					} else {
-						v_.template emplace<T>(*that);
-					}
-				} else {
-					*this = {};
+			void reset() noexcept {
+				if (this->engaged_) {
+					this->clear();
 				}
-				return *this;
+				this->engaged_ = false;
 			}
 
-			template <ConvertibleTo<T> U>
-			STL2_CONSTEXPR_EXT optional&
-			operator=(optional<U>&& that) &
-			noexcept(is_nothrow_constructible<T, U>::value &&
-				is_nothrow_assignable<T&, U>::value)
-			{
-				if (that) {
-					if (*this) {
-						**this = __stl2::move(*that);
-					} else {
-						v_.template emplace<T>(__stl2::move(*that));
-					}
-				} else {
-					*this = {};
-				}
-				return *this;
-			}
+			constexpr bool has_value() const noexcept { return this->engaged_; }
+			constexpr explicit operator bool() const noexcept { return this->engaged_; }
 
-			template <class...Args>
-			requires Constructible<T, Args...>()
-			STL2_CONSTEXPR_EXT void
-			emplace(Args&&...args)
-			noexcept(is_nothrow_constructible<T, Args...>::value)
-			{ v_.template emplace<T>(__stl2::forward<Args>(args)...); }
-
-			template <class U, class...Args>
-			requires Constructible<T, std::initializer_list<U>&, Args...>()
-			STL2_CONSTEXPR_EXT void
-			emplace(std::initializer_list<U> il, Args&&...args)
-			noexcept(is_nothrow_constructible<T,
-				std::initializer_list<U>&, Args...>::value)
-			{ v_.template emplace<T>(il, __stl2::forward<Args>(args)...); }
-
-			template <class U>
-			requires
-				Swappable<T&, U&>() &&
-				Constructible<T, U>() &&
-				Constructible<U, T>()
-			STL2_CONSTEXPR_EXT void swap(optional<U>& that)
-			noexcept(is_nothrow_move_constructible<T>::value &&
-				is_nothrow_move_constructible<U>::value &&
-				is_nothrow_swappable_v<T&, U&>)
-			{
-				if (*this) {
-					if (that) {
-						__stl2::swap(**this, *that);
-					} else {
-						access::v(that).template emplace<U>(__stl2::move(**this));
-						*this = {};
-					}
-				} else {
-					if (that) {
-						v_.template emplace<T>(__stl2::move(*that));
-						that = {};
-					} else {
-						// Nothing to do.
-					}
-				}
-			}
-
-			constexpr const T* operator->() const {
-				return &optional::get_unchecked(v_);
-			}
-			constexpr T* operator->() {
-				return &optional::get_unchecked(v_);
-			}
-
-			constexpr T const& operator*() const & noexcept {
-				return optional::get_unchecked(v_);
-			}
 			constexpr T& operator*() & noexcept {
-				return optional::get_unchecked(v_);
+				STL2_EXPECT(has_value());
+				return this->item_;
+			}
+			constexpr const T& operator*() const& noexcept {
+				STL2_EXPECT(has_value());
+				return this->item_;
 			}
 			constexpr T&& operator*() && noexcept {
-				return optional::get_unchecked(__stl2::move(v_));
+				STL2_EXPECT(has_value());
+				return std::move(this->item_);
 			}
-			constexpr const T&& operator*() const && {
-				return optional::get_unchecked(__stl2::move(v_));
-			}
-
-			constexpr explicit operator bool() const noexcept {
-				return !__stl2::holds_alternative<nullopt_t>(v_);
-			}
-
-			constexpr T const& value() const & {
-				return optional::get(v_);
-			}
-			constexpr T& value() & {
-				return optional::get(v_);
-			}
-			constexpr T&& value() && {
-				return optional::get(__stl2::move(v_));
-			}
-			constexpr const T&& value() const && {
-				return optional::get(__stl2::move(v_));
-			}
-
-			template <ConvertibleTo<T> U>
-			requires CopyConstructible<T>()
-			constexpr T value_or(U&& u) const & {
-				return *this
-					? **this
-					: static_cast<T>(__stl2::forward<U>(u));
-			}
-			template <ConvertibleTo<T> U>
-			requires CopyConstructible<T>()
-			constexpr T value_or(U&& u) && {
-				return *this
-					? __stl2::move(**this)
-					: static_cast<T>(__stl2::forward<U>(u));
+			constexpr const T&& operator*() const&& noexcept {
+				STL2_EXPECT(has_value());
+				return std::move(this->item_);
 			}
 		};
+
+		template <class T>
+		class smf_layer : public storage_construct_layer<T> {
+		public:
+			using storage_construct_layer<T>::storage_construct_layer;
+
+			smf_layer() = default;
+
+			smf_layer(const smf_layer& that)
+			noexcept(std::is_nothrow_copy_constructible<T>::value)
+			{ construct_from(that); }
+			smf_layer(smf_layer&& that)
+			noexcept(std::is_nothrow_copy_constructible<T>::value)
+			{ construct_from(std::move(that)); }
+
+			smf_layer& operator=(const smf_layer& that) &
+			noexcept(std::is_nothrow_copy_constructible<T>::value &&
+				std::is_nothrow_copy_assignable<T>::value)
+			{ return assign(that); }
+			smf_layer& operator=(smf_layer&& that) &
+			noexcept(std::is_nothrow_move_constructible<T>::value &&
+				std::is_nothrow_move_assignable<T>::value)
+			{ return assign(std::move(that)); }
+		private:
+			template <class That>
+			requires models::Same<smf_layer, __uncvref<That>>
+			void construct_from(That&& that) &
+			noexcept(std::is_nothrow_constructible<T, That>::value)
+			{
+				if (that.has_value()) {
+					this->construct(*std::forward<That>(that));
+				}
+			}
+			template <class That>
+			requires models::Same<smf_layer, __uncvref<That>>
+			smf_layer& assign(That&& that) &
+			noexcept(std::is_nothrow_constructible<T, That>::value &&
+				std::is_nothrow_assignable<T&, That>::value)
+			{
+				if (this->has_value()) {
+					if (that.has_value()) {
+						**this = *std::forward<That>(that);
+					} else {
+						this->reset();
+					}
+				} else {
+					construct_from(std::forward<That>(that));
+				}
+				return *this;
+			}
+		};
+
+		template <class T>
+		requires std::is_trivially_copyable<T>::value
+		struct smf_layer<T> : storage_construct_layer<T> {
+			using storage_construct_layer<T>::storage_construct_layer;
+		};
+	} // namespace __optional
+
+	namespace ext {
+		template <class> struct optional_storage {};
+
+		template <class T>
+		requires models::Destructible<T>
+		struct optional_storage<T> {
+			using type = __optional::smf_layer<T>;
+		};
+	}
+
+	template <class T>
+	requires models::Destructible<T>
+	class optional
+	: public meta::_t<ext::optional_storage<T>>
+	, detail::smf_control::copy<models::CopyConstructible<T>>
+	, detail::smf_control::move<models::MoveConstructible<T>>
+	, detail::smf_control::copy_assign<models::Copyable<T>>
+	, detail::smf_control::move_assign<models::Movable<T>>
+	{
+		using base_t = meta::_t<ext::optional_storage<T>>;
+
+		template <class U>
+		static constexpr bool should_unwrap_construct =
+			!(models::Constructible<T, optional<U>&> ||
+			  models::Constructible<T, optional<U>&&> ||
+			  models::Constructible<T, const optional<U>&> ||
+			  models::Constructible<T, const optional<U>&&> ||
+			  models::ConvertibleTo<optional<U>&, T> ||
+			  models::ConvertibleTo<optional<U>&&, T> ||
+			  models::ConvertibleTo<const optional<U>&, T> ||
+			  models::ConvertibleTo<const optional<U>&&, T>);
+
+		template <class U>
+		static constexpr bool should_unwrap_assign =
+			should_unwrap_construct<U> &&
+			!(models::Assignable<T&, optional<U>&> ||
+			  models::Assignable<T&, optional<U>&&> ||
+			  models::Assignable<T&, const optional<U>&> ||
+			  models::Assignable<T&, const optional<U>&&>);
+
+	public:
+		static_assert(!models::Same<__uncvref<T>, nullopt_t>,
+			"optional cannot hold nullopt_t");
+		static_assert(!models::Same<__uncvref<T>, in_place_t>,
+			"optional cannot hold in_place_t");
+
+		using value_type = T;
+
+		constexpr optional() noexcept {}
+		constexpr optional(nullopt_t) noexcept
+		: optional{} {}
+
+		optional(const optional&) = default;
+		optional(optional&&) = default;
+
+		template <class... Args>
+		requires models::Constructible<T, Args...>
+		constexpr explicit optional(in_place_t, Args&&... args)
+		: base_t{in_place, std::forward<Args>(args)...} {}
+		template <class E, class... Args>
+		requires models::Constructible<T, std::initializer_list<E>&, Args...>
+		constexpr explicit optional(in_place_t, std::initializer_list<E> il, Args&&... args)
+		: base_t{in_place, il, std::forward<Args>(args)...} {}
+
+		template <class U = T>
+		requires
+			!models::Same<U, in_place_t> &&
+			!models::Same<optional, std::decay_t<U>> &&
+			models::Constructible<T, U>
+		constexpr explicit optional(U&& u)
+		noexcept(std::is_nothrow_constructible<T, U>::value)
+		: base_t{in_place, std::forward<U>(u)} {}
+		template <class U = T>
+		requires
+			!models::Same<U, in_place_t> &&
+			!models::Same<optional, std::decay_t<U>> &&
+			models::Constructible<T, U> &&
+			models::ConvertibleTo<U, T>
+		constexpr optional(U&& u)
+		noexcept(std::is_nothrow_constructible<T, U>::value)
+		: base_t{in_place, std::forward<U>(u)} {}
+
+		template <class U>
+		requires
+			models::Constructible<T, const U&> &&
+			should_unwrap_construct<U>
+		explicit optional(const optional<U>& that)
+		noexcept(std::is_nothrow_constructible<T, const U&>::value)
+		{ if (that) this->construct(*that); }
+		template <class U>
+		requires
+			models::Constructible<T, const U&> &&
+			should_unwrap_construct<U> &&
+			models::ConvertibleTo<U, T>
+		optional(const optional<U>& that)
+		noexcept(std::is_nothrow_constructible<T, const U&>::value)
+		{ if (that) this->construct(*that); }
+
+		template <class U>
+		requires
+			models::Constructible<T, U>
+		explicit optional(optional<U>&& that)
+		noexcept(std::is_nothrow_constructible<T, U>::value)
+		{ if (that) this->construct(std::move(*that)); }
+		template <class U>
+		requires
+			models::Constructible<T, U> &&
+			models::ConvertibleTo<U, T>
+		optional(optional<U>&& that)
+		noexcept(std::is_nothrow_constructible<T, U>::value)
+		{ if (that) this->construct(std::move(*that)); }
+
+		~optional() = default;
+
+		optional& operator=(nullopt_t) & noexcept {
+			this->reset();
+			return *this;
+		}
+		optional& operator=(const optional&) & = default;
+		optional& operator=(optional&&) & = default;
+
+		template <class U = T>
+		requires
+			!models::Same<optional, std::decay_t<U>> &&
+			!(std::is_scalar<T>::value && models::Same<T, std::decay_t<U>>) &&
+			models::Constructible<T, U> &&
+			models::Assignable<T&, U>
+		optional& operator=(U&& u) &
+		noexcept(std::is_nothrow_assignable<T&, U>::value &&
+			std::is_nothrow_constructible<T, U>::value)
+		{
+			if (*this) {
+				**this = std::forward<U>(u);
+			} else {
+				this->construct(std::forward<U>(u));
+			}
+			return *this;
+		}
+
+		template <class U>
+		requires
+			models::Constructible<T, const U&> &&
+			models::Assignable<T, const U&> &&
+			should_unwrap_assign<U>
+		optional& operator=(const optional<U>& that) &
+		noexcept(std::is_nothrow_constructible<T, const U&>::value &&
+			std::is_nothrow_assignable<T&, const U&>::value)
+		{
+			if (that) {
+				if (*this) {
+					**this = *that;
+				} else {
+					this->construct(*that);
+				}
+			} else {
+				this->reset();
+			}
+			return *this;
+		}
+
+		template <class U>
+		requires
+			models::Constructible<T, U> &&
+			models::Assignable<T, U> &&
+			should_unwrap_assign<U>
+		optional& operator=(optional<U>&& that) &
+		noexcept(std::is_nothrow_constructible<T, U>::value &&
+			std::is_nothrow_assignable<T&, U>::value)
+		{
+			if (that) {
+				if (*this) {
+					**this = std::move(*that);
+				} else {
+					this->construct(std::move(*that));
+				}
+			} else {
+				this->reset();
+			}
+			return *this;
+		}
+
+		template <class...Args>
+		requires models::Constructible<T, Args...>
+		void emplace(Args&&...args)
+		noexcept(std::is_nothrow_constructible<T, Args...>::value)
+		{
+			this->reset();
+			this->construct(std::forward<Args>(args)...);
+		}
+		template <class U, class...Args>
+		requires models::Constructible<T, std::initializer_list<U>&, Args...>
+		void emplace(std::initializer_list<U> il, Args&&...args)
+		noexcept(std::is_nothrow_constructible<T,
+			std::initializer_list<U>&, Args...>::value)
+		{
+			this->reset();
+			this->construct(il, std::forward<Args>(args)...);
+		}
+
+		template <class U>
+		requires
+			models::Swappable<T&, U&> &&
+			models::Constructible<T, U> &&
+			models::Constructible<U, T>
+		void swap(optional<U>& that)
+		noexcept(is_nothrow_swappable_v<T&, U&> &&
+			std::is_nothrow_constructible<T, U>::value &&
+			std::is_nothrow_constructible<U, T>::value)
+		{
+			if (*this) {
+				if (that) {
+					__stl2::swap(**this, *that);
+				} else {
+					that.construct(std::move(**this));
+					this->reset();
+				}
+			} else {
+				if (that) {
+					this->construct(std::move(*that));
+					that.reset();
+				} else {
+					// Nothing to do.
+				}
+			}
+		}
+
+		constexpr const T* operator->() const {
+			return __stl2::addressof(**this);
+		}
+		constexpr T* operator->() {
+			return __stl2::addressof(**this);
+		}
+
+		using base_t::operator*;
+
+		using base_t::operator bool;
+		using base_t::has_value;
+
+		constexpr T const& value() const & {
+			if (!*this) __optional::bad_access();
+			return **this;
+		}
+		constexpr T& value() & {
+			if (!*this) __optional::bad_access();
+			return **this;
+		}
+		constexpr T&& value() && {
+			if (!*this) __optional::bad_access();
+			return std::move(**this);
+		}
+		constexpr const T&& value() const && {
+			if (!*this) __optional::bad_access();
+			return std::move(**this);
+		}
+
+		template <ConvertibleTo<T> U>
+		requires
+			models::ConvertibleTo<U, T> &&
+			models::CopyConstructible<T>
+		constexpr T value_or(U&& u) const & {
+			return *this
+				? **this
+				: static_cast<T>(std::forward<U>(u));
+		}
+		template <class U>
+		requires
+			models::ConvertibleTo<U, T> &&
+			models::MoveConstructible<T>
+		constexpr T value_or(U&& u) && {
+			return *this
+				? std::move(**this)
+				: static_cast<T>(std::forward<U>(u));
+		}
+
+		using base_t::reset;
+	};
+
+	namespace __optional {
+		template <class, class>
+		constexpr bool can_eq = false;
+		template <class T, class U>
+		requires
+			requires(const T& t, const U& u) {
+				STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
+			}
+		constexpr bool can_eq<T, U> = true;
+
+		template <class, class>
+		constexpr bool can_neq = false;
+		template <class T, class U>
+		requires
+			requires(const T& t, const U& u) {
+				STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
+			}
+		constexpr bool can_neq<T, U> = true;
+
+		template <class, class>
+		constexpr bool can_lt = false;
+		template <class T, class U>
+		requires
+			requires(const T& t, const U& u) {
+				STL2_DEDUCTION_CONSTRAINT(t < u, Boolean);
+			}
+		constexpr bool can_lt<T, U> = true;
+
+		template <class, class>
+		constexpr bool can_gt = false;
+		template <class T, class U>
+		requires
+			requires(const T& t, const U& u) {
+				STL2_DEDUCTION_CONSTRAINT(t > u, Boolean);
+			}
+		constexpr bool can_gt<T, U> = true;
+
+		template <class, class>
+		constexpr bool can_lte = false;
+		template <class T, class U>
+		requires
+			requires(const T& t, const U& u) {
+				STL2_DEDUCTION_CONSTRAINT(t <= u, Boolean);
+			}
+		constexpr bool can_lte<T, U> = true;
+
+		template <class, class>
+		constexpr bool can_gte = false;
+		template <class T, class U>
+		requires
+			requires(const T& t, const U& u) {
+				STL2_DEDUCTION_CONSTRAINT(t >= u, Boolean);
+			}
+		constexpr bool can_gte<T, U> = true;
 
 		template <class T, class U>
-		requires Swappable<T&, U&>()
-		STL2_CONSTEXPR_EXT void swap(optional<T>& lhs, optional<U>& rhs)
-		STL2_NOEXCEPT_RETURN(
-			lhs.swap(rhs)
-		)
-		template <class T>
-		requires Swappable<T&>()
-		STL2_CONSTEXPR_EXT void swap(optional<T>& lhs, optional<T>& rhs)
-		STL2_NOEXCEPT_RETURN(
-			lhs.swap(rhs)
-		)
-
-		struct eq_visitor {
-			EqualityComparable{T, U}
-			constexpr bool operator()(const T& l, const U& r) const
-			STL2_NOEXCEPT_RETURN(
-				l == r
-			)
-			constexpr bool operator()(const auto&, const auto&) const noexcept {
-				return false;
-			}
-			constexpr bool operator()(nullopt_t, nullopt_t) const noexcept {
-				return true;
-			}
-		};
-
-		EqualityComparable{T, U}
+		requires can_eq<T, U>
 		constexpr bool operator==(const optional<T>& lhs, const optional<U>& rhs)
 		STL2_NOEXCEPT_RETURN(
-			__stl2::visit(eq_visitor{}, access::cv(lhs), access::cv(rhs))
+			bool(lhs) == bool(rhs) && (!lhs || *lhs == *rhs)
 		)
-		EqualityComparable{T, U}
+		template <class T, class U>
+		requires can_neq<T, U>
 		constexpr bool operator!=(const optional<T>& lhs, const optional<U>& rhs)
 		STL2_NOEXCEPT_RETURN(
-			!(lhs == rhs)
+			bool(lhs) != bool(rhs) || (lhs && *lhs != *rhs)
 		)
 
-		struct lt_visitor {
-			StrictTotallyOrdered{T, U}
-			constexpr bool operator()(const T& l, const U& r) const
-			STL2_NOEXCEPT_RETURN(
-				l < r
-			)
-			constexpr bool operator()(const auto&, nullopt_t) const noexcept {
-				return false;
-			}
-			constexpr bool operator()(nullopt_t, const auto&) const noexcept {
-				return true;
-			}
-			constexpr bool operator()(nullopt_t, nullopt_t) const noexcept {
-				return false;
-			}
-		};
-
-		StrictTotallyOrdered{T, U}
+		template <class T, class U>
+		requires can_lt<T, U>
 		constexpr bool operator<(const optional<T>& lhs, const optional<U>& rhs)
 		STL2_NOEXCEPT_RETURN(
-			__stl2::visit(lt_visitor{}, access::cv(lhs), access::cv(rhs))
+			rhs && (!lhs || *lhs < *rhs)
 		)
 
-		StrictTotallyOrdered{T, U}
+		template <class T, class U>
+		requires can_gt<T, U>
 		constexpr bool operator>(const optional<T>& lhs, const optional<U>& rhs)
 		STL2_NOEXCEPT_RETURN(
-			rhs < lhs
+			lhs && (!rhs || *lhs > *rhs)
 		)
 
-		StrictTotallyOrdered{T, U}
+		template <class T, class U>
+		requires can_lte<T, U>
 		constexpr bool operator<=(const optional<T>& lhs, const optional<U>& rhs)
 		STL2_NOEXCEPT_RETURN(
-			!(rhs < lhs)
+			!lhs || (rhs && *lhs <= *rhs)
 		)
 
-		StrictTotallyOrdered{T, U}
+		template <class T, class U>
+		requires can_gte<T, U>
 		constexpr bool operator>=(const optional<T>& lhs, const optional<U>& rhs)
 		STL2_NOEXCEPT_RETURN(
-			!(lhs < rhs)
+			!rhs || (lhs && *lhs >= *rhs)
 		)
 
 		constexpr bool operator==(const optional<auto>& o, nullopt_t) noexcept {
@@ -474,90 +638,116 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template <class T, class U>
-		requires !_SpecializationOf<U, optional> && EqualityComparable<T, U>()
+		requires
+			!_SpecializationOf<U, optional> &&
+			can_eq<T, U>
 		constexpr bool operator==(const optional<T>& o, const U& u)
 		STL2_NOEXCEPT_RETURN(
-			o ? *o == u : false
+			o ? bool(*o == u) : false
 		)
 		template <class T, class U>
-		requires !_SpecializationOf<T, optional> && EqualityComparable<T, U>()
+		requires
+			!_SpecializationOf<T, optional> &&
+			can_eq<T, U>
 		constexpr bool operator==(const T& t, const optional<U>& o)
 		STL2_NOEXCEPT_RETURN(
-			o == t
+			o ? bool(t == *o) : false
 		)
 
 		template <class T, class U>
-		requires !_SpecializationOf<U, optional> && EqualityComparable<T, U>()
+		requires
+			!_SpecializationOf<U, optional> &&
+			can_neq<T, U>
 		constexpr bool operator!=(const optional<T>& o, const U& u)
 		STL2_NOEXCEPT_RETURN(
-			!(o == u)
+			o ? bool(*o != u) : true
 		)
 		template <class T, class U>
-		requires !_SpecializationOf<T, optional> && EqualityComparable<T, U>()
+		requires
+			!_SpecializationOf<T, optional> &&
+			can_neq<T, U>
 		constexpr bool operator!=(const T& t, const optional<U>& o)
 		STL2_NOEXCEPT_RETURN(
-			!(o == t)
+			o ? bool(t != *o) : true
 		)
 
 		template <class T, class U>
-		requires !_SpecializationOf<U, optional> && StrictTotallyOrdered<T, U>()
+		requires
+			!_SpecializationOf<U, optional> &&
+			can_lt<T, U>
 		constexpr bool operator<(const optional<T>& o, const U& u)
 		STL2_NOEXCEPT_RETURN(
-			o ? *o < u : true
+			o ? bool(*o < u) : true
 		)
 		template <class T, class U>
-		requires !_SpecializationOf<T, optional> && StrictTotallyOrdered<T, U>()
+		requires
+			!_SpecializationOf<T, optional> &&
+			can_lt<T, U>
 		constexpr bool operator<(const T& t, const optional<U>& o)
 		STL2_NOEXCEPT_RETURN(
-			o ? t < *o : false
+			o ? bool(t < *o) : false
 		)
 
 		template <class T, class U>
-		requires !_SpecializationOf<U, optional> && StrictTotallyOrdered<T, U>()
+		requires
+			!_SpecializationOf<U, optional> &&
+			can_gt<T, U>
 		constexpr bool operator>(const optional<T>& o, const U& u)
 		STL2_NOEXCEPT_RETURN(
-			u < o
+			o ? bool(*o > u) : false
 		)
 		template <class T, class U>
-		requires !_SpecializationOf<T, optional> && StrictTotallyOrdered<T, U>()
+		requires
+			!_SpecializationOf<T, optional> &&
+			can_gt<T, U>
 		constexpr bool operator>(const T& t, const optional<U>& o)
 		STL2_NOEXCEPT_RETURN(
-			o < t
+			o ? bool(t > *o) : true
 		)
 
 		template <class T, class U>
-		requires !_SpecializationOf<U, optional> && StrictTotallyOrdered<T, U>()
+		requires
+			!_SpecializationOf<U, optional> &&
+			can_lte<T, U>
 		constexpr bool operator<=(const optional<T>& o, const U& u)
 		STL2_NOEXCEPT_RETURN(
-			!(u < o)
+			o ? bool(*o <= u) : true
 		)
 		template <class T, class U>
-		requires !_SpecializationOf<T, optional> && StrictTotallyOrdered<T, U>()
+		requires
+			!_SpecializationOf<T, optional> &&
+			can_lte<T, U>
 		constexpr bool operator<=(const T& t, const optional<U>& o)
 		STL2_NOEXCEPT_RETURN(
-			!(o < t)
+			o ? bool(t <= *o) : false
 		)
 
 		template <class T, class U>
-		requires !_SpecializationOf<U, optional> && StrictTotallyOrdered<T, U>()
+		requires
+			!_SpecializationOf<U, optional> &&
+			can_gte<T, U>
 		constexpr bool operator>=(const optional<T>& o, const U& u)
 		STL2_NOEXCEPT_RETURN(
-			!(o < u)
+			o ? bool(*o >= u) : false
 		)
 		template <class T, class U>
-		requires !_SpecializationOf<T, optional> && StrictTotallyOrdered<T, U>()
+		requires
+			!_SpecializationOf<T, optional> &&
+			can_gte<T, U>
 		constexpr bool operator>=(const T& t, const optional<U>& o)
 		STL2_NOEXCEPT_RETURN(
-			!(t < o)
+			o ? bool(t >= *o) : true
 		)
-	} // namespace __optional
+	}
 
-	using __optional::optional;
-
-	template <class T>
-	constexpr optional<decay_t<T>> make_optional(T&& t)
-	noexcept(is_nothrow_constructible<optional<decay_t<T>>, T>::value)
-	{ return optional<decay_t<T>>(__stl2::forward<T>(t)); }
+	template <class T, class... Args>
+	constexpr optional<T> make_optional(Args&&... args)
+	noexcept(std::is_nothrow_constructible<optional<T>, Args...>::value)
+	{ return optional<T>{in_place, std::forward<Args>(args)...}; }
+	template <class T, class E, class... Args>
+	constexpr optional<T> make_optional(std::initializer_list<E> il, Args&&... args)
+	noexcept(std::is_nothrow_constructible<optional<T>, std::initializer_list<E>&, Args...>::value)
+	{ return optional<T>{in_place, il, std::forward<Args>(args)...}; }
 
 	Common{T, U}
 	struct common_type<optional<T>, optional<U>> {
@@ -571,11 +761,9 @@ namespace std {
 		using result_type = size_t;
 		using argument_type = ::__stl2::optional<T>;
 
-		constexpr size_t operator()(const argument_type& o) const {
+		constexpr size_t operator()(const ::__stl2::optional<T>& o) const {
 			if (o) {
-				size_t seed = 0;
-				::__stl2::ext::hash_combine(seed, *o);
-				return seed;
+				return hash<T>{}(*o);
 			} else {
 				return 42;
 			}

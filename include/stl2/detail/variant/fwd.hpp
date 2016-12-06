@@ -13,6 +13,7 @@
 #define STL2_DETAIL_VARIANT_FWD_HPP
 
 #include <stl2/functional.hpp>
+#include <stl2/detail/utility/in_place.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -111,35 +112,17 @@ STL2_OPEN_NAMESPACE {
 		struct v_access {
 			template <std::size_t I, Variant V,
 				_IsNot<is_void> T = meta::at_c<VariantTypes<V>, I>>
-			static constexpr auto&& raw_get(meta::size_t<I> i, V&& v) noexcept;
+			static constexpr auto&& raw_get(in_place_index_t<I> i, V&& v) noexcept;
 
 			template <std::size_t I, Variant V,
 				_IsNot<is_void> T = meta::at_c<VariantTypes<V>, I>>
-			static constexpr auto&& cooked_get(meta::size_t<I> i, V&& v) noexcept;
+			static constexpr auto&& cooked_get(in_place_index_t<I> i, V&& v) noexcept;
 		};
 	} // namespace __variant
 
 	template <class...Ts>
 	requires(models::Destructible<__variant::element_t<Ts>> && ...)
 	class variant;
-
-	template <class>
-	struct emplaced_type_t {};
-
-	namespace {
-		template <class T>
-		constexpr auto& emplaced_type =
-			detail::static_const<emplaced_type_t<T>>::value;
-	}
-
-	template <std::size_t I>
-	using emplaced_index_t = meta::size_t<I>;
-
-	namespace {
-		template <std::size_t I>
-		constexpr auto& emplaced_index =
-			detail::static_const<emplaced_index_t<I>>::value;
-	}
 
 	class bad_variant_access : public std::logic_error {
 	public:

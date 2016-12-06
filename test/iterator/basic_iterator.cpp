@@ -356,7 +356,7 @@ void test_fl() {
 
 void test_rv() {
 	std::cout << "test_rv:\n";
-	stl2::repeat_view<int> rv{42};
+	stl2::ext::repeat_view<int> rv{42};
 
 	using Rng = decltype(rv);
 	using I = decltype(rv.begin());

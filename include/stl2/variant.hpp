@@ -25,6 +25,7 @@
 #include <stl2/detail/tuple_like.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/utility/in_place.hpp>
 #include <stl2/detail/variant/fwd.hpp>
 #include <stl2/detail/variant/storage.hpp>
 #include <stl2/detail/variant/visit.hpp>
@@ -51,13 +52,13 @@ STL2_OPEN_NAMESPACE {
 		// Variant access
 		//
 		template <std::size_t I, Variant V, _IsNot<is_void> T>
-		constexpr auto&& v_access::raw_get(meta::size_t<I> i, V&& v) noexcept {
+		constexpr auto&& v_access::raw_get(in_place_index_t<I> i, V&& v) noexcept {
 			STL2_EXPECT(I == v.index());
 			return st_access::raw_get(i, __stl2::forward<V>(v).storage_);
 		}
 
 		template <std::size_t I, Variant V, _IsNot<is_void> T>
-		constexpr auto&& v_access::cooked_get(meta::size_t<I> i, V&& v) noexcept {
+		constexpr auto&& v_access::cooked_get(in_place_index_t<I> i, V&& v) noexcept {
 			STL2_EXPECT(I == v.index());
 			return cook<T>(v_access::raw_get(i, __stl2::forward<V>(v)));
 		}
@@ -76,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 			_IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 		constexpr auto&& get_unchecked(V&& v) {
 			STL2_EXPECT(v.index() == I);
-			return v_access::cooked_get(meta::size_t<I>{}, __stl2::forward<V>(v));
+			return v_access::cooked_get(in_place_index<I>, __stl2::forward<V>(v));
 		}
 
 		template <std::size_t I, Variant V>
@@ -88,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 			// Odd syntax here to avoid
 			// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67371
 			v.index() == I || bad_access();
-			return v_access::cooked_get(meta::size_t<I>{}, __stl2::forward<V>(v));
+			return v_access::cooked_get(in_place_index<I>, __stl2::forward<V>(v));
 		}
 
 		template <_IsNot<is_void> T, Variant V,
@@ -108,11 +109,11 @@ STL2_OPEN_NAMESPACE {
 			I < VariantTypes<V>::size() &&
 			_IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 		constexpr auto get(V* v) noexcept ->
-			decltype(&__variant::v_access::cooked_get(meta::size_t<I>{}, *v))
+			decltype(&__variant::v_access::cooked_get(in_place_index<I>, *v))
 		{
 			STL2_EXPECT(v);
 			if (v->index() == I) {
-				return &__variant::v_access::cooked_get(meta::size_t<I>{}, *v);
+				return &__variant::v_access::cooked_get(in_place_index<I>, *v);
 			}
 			return nullptr;
 		}
@@ -224,7 +225,7 @@ STL2_OPEN_NAMESPACE {
 				if (that.valid()) {
 					raw_visit_with_index([this, &guard](auto i, auto&& from) {
 						detail::construct(
-							strip_cv(st_access::raw_get(i, storage_)),
+							strip_cv(st_access::raw_get(in_place_index<i>, storage_)),
 								__stl2::forward<decltype(from)>(from));
 						guard.index_ = i;
 					}, __stl2::forward<That>(that));
@@ -235,7 +236,7 @@ STL2_OPEN_NAMESPACE {
 				if (index_ == that.index_) {
 					if (valid()) {
 						raw_visit_with_index([this](auto i, auto&& from) {
-							st_access::raw_get(i, storage_) =
+							st_access::raw_get(in_place_index<i>, storage_) =
 								__stl2::forward<decltype(from)>(from);
 						}, __stl2::move(that));
 					}
@@ -249,7 +250,7 @@ STL2_OPEN_NAMESPACE {
 				if (index_ == that.index_) {
 					if (valid()) {
 						raw_visit_with_index([this](auto i, const auto& from) {
-							st_access::raw_get(i, storage_) = from;
+							st_access::raw_get(in_place_index<i>, storage_) = from;
 						}, that);
 					}
 				} else {
@@ -277,12 +278,12 @@ STL2_OPEN_NAMESPACE {
 			requires
 				!Same<decay_t<T>, base>() && constructible_from<T&&, Ts...>::value &&
 				!constructible_from<T&&, Ts...>::ambiguous &&
-				Constructible<storage_t, emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&&>()
+				Constructible<storage_t, in_place_index_t<constructible_from<T&&, Ts...>::index>, T&&>()
 			constexpr base(T&& t)
 			noexcept(is_nothrow_constructible<storage_t,
-				emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&&>::value)
+				in_place_index_t<constructible_from<T&&, Ts...>::index>, T&&>::value)
 			: index_{constructible_from<T&&, Ts...>::index}
-			, storage_{emplaced_index<constructible_from<T&&, Ts...>::index>, __stl2::forward<T>(t)}
+			, storage_{in_place_index<constructible_from<T&&, Ts...>::index>, __stl2::forward<T>(t)}
 			{}
 
 			template <class T>
@@ -291,9 +292,9 @@ STL2_OPEN_NAMESPACE {
 				!constructible_from<T&&, Ts...>::ambiguous
 			constexpr base(T&& t)
 			noexcept(is_nothrow_constructible<storage_t,
-				emplaced_index_t<constructible_from<T&&, Ts...>::index>, T&>::value)
+				in_place_index_t<constructible_from<T&&, Ts...>::index>, T&>::value)
 			: index_{constructible_from<T&&, Ts...>::index}
-			, storage_{emplaced_index<constructible_from<T&&, Ts...>::index>, t}
+			, storage_{in_place_index<constructible_from<T&&, Ts...>::index>, t}
 			{}
 
 			template <class T>
@@ -304,37 +305,37 @@ STL2_OPEN_NAMESPACE {
 
 			template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
 			requires Constructible<T, Args...>()
-			explicit constexpr base(emplaced_index_t<I>, Args&&...args)
-			noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, Args...>::value)
-			: index_{I}, storage_{emplaced_index<I>, __stl2::forward<Args>(args)...} {}
+			explicit constexpr base(in_place_index_t<I>, Args&&...args)
+			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, Args...>::value)
+			: index_{I}, storage_{in_place_index<I>, __stl2::forward<Args>(args)...} {}
 
 			template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
-			explicit constexpr base(emplaced_index_t<I>, meta::id_t<T> t)
-			noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, T&>::value)
-			: index_{I}, storage_{emplaced_index<I>, t} {}
+			explicit constexpr base(in_place_index_t<I>, meta::id_t<T> t)
+			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, T&>::value)
+			: index_{I}, storage_{in_place_index<I>, t} {}
 
 			template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
 			requires Constructible<T, Args...>()
-			explicit constexpr base(emplaced_type_t<T>, Args&&...args)
-			noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, Args...>::value)
-			: index_{I}, storage_{emplaced_index<I>, __stl2::forward<Args>(args)...} {}
+			explicit constexpr base(in_place_type_t<T>, Args&&...args)
+			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, Args...>::value)
+			: index_{I}, storage_{in_place_index<I>, __stl2::forward<Args>(args)...} {}
 
 			template <_Is<is_reference> T, std::size_t I = index_of_type<T, types>>
-			explicit constexpr base(emplaced_type_t<T>, meta::id_t<T> t)
-			noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, T&>::value)
-			: index_{I}, storage_{emplaced_index<I>, t} {}
+			explicit constexpr base(in_place_type_t<T>, meta::id_t<T> t)
+			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, T&>::value)
+			: index_{I}, storage_{in_place_index<I>, t} {}
 
 			template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
 			requires Constructible<T, Args...>()
-			explicit constexpr base(emplaced_index_t<I>, std::initializer_list<E> il, Args&&...args)
-			noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
-			: index_{I}, storage_{emplaced_index<I>, il, __stl2::forward<Args>(args)...} {}
+			explicit constexpr base(in_place_index_t<I>, std::initializer_list<E> il, Args&&...args)
+			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, std::initializer_list<E>, Args...>::value)
+			: index_{I}, storage_{in_place_index<I>, il, __stl2::forward<Args>(args)...} {}
 
 			template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
 			requires Constructible<T, Args...>()
-			explicit constexpr base(emplaced_type_t<T>, std::initializer_list<E> il, Args&&...args)
-			noexcept(is_nothrow_constructible<storage_t, emplaced_index_t<I>, std::initializer_list<E>, Args...>::value)
-			: index_{I}, storage_{emplaced_index<I>, il, __stl2::forward<Args>(args)...} {}
+			explicit constexpr base(in_place_type_t<T>, std::initializer_list<E> il, Args&&...args)
+			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, std::initializer_list<E>, Args...>::value)
+			: index_{I}, storage_{in_place_index<I>, il, __stl2::forward<Args>(args)...} {}
 
 			template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
 			requires Constructible<T, Args...>()
@@ -344,7 +345,7 @@ STL2_OPEN_NAMESPACE {
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
-					strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
 					__stl2::forward<Args>(args)...);
 				guard.index_ = I;
 			}
@@ -355,7 +356,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				auto guard = index_guard{*this};
 				clear_();
-				detail::construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
+				detail::construct(st_access::raw_get(in_place_index<I>, storage_), t);
 				guard.index_ = I;
 			}
 
@@ -367,7 +368,7 @@ STL2_OPEN_NAMESPACE {
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
-					strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
 						il, __stl2::forward<Args>(args)...);
 				guard.index_ = I;
 			}
@@ -380,7 +381,7 @@ STL2_OPEN_NAMESPACE {
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
-					strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
 						__stl2::forward<Args>(args)...);
 				guard.index_ = I;
 			}
@@ -391,7 +392,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				auto guard = index_guard{*this};
 				clear_();
-				detail::construct(st_access::raw_get(meta::size_t<I>{}, storage_), t);
+				detail::construct(st_access::raw_get(in_place_index<I>, storage_), t);
 				guard.index_ = I;
 			}
 
@@ -403,7 +404,7 @@ STL2_OPEN_NAMESPACE {
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
-					strip_cv(st_access::raw_get(meta::size_t<I>{}, storage_)),
+					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
 						il, __stl2::forward<Args>(args)...);
 				guard.index_ = I;
 			}
@@ -658,7 +659,7 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr void operator()(auto i, auto& from)
 			noexcept(is_nothrow_swappable_v<decltype((from)), decltype((from))>)
-			{ __stl2::swap(__variant::v_access::raw_get(i, self_), from); }
+			{ __stl2::swap(__variant::v_access::raw_get(in_place_index<i>, self_), from); }
 		};
 
 		struct equal_to_visitor {
@@ -667,7 +668,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr bool operator()(auto i, const auto& o) const
 			noexcept(noexcept(o == o))
 			{
-				const auto& s = __variant::v_access::cooked_get(i, self_);
+				const auto& s = __variant::v_access::cooked_get(in_place_index<i>, self_);
 				static_assert(is_same<decltype(o), decltype(s)>());
 				return s == o;
 			}
@@ -679,7 +680,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr bool operator()(auto i, const auto& o) const
 			noexcept(noexcept(o < o))
 			{
-				const auto& s = __variant::v_access::cooked_get(i, self_);
+				const auto& s = __variant::v_access::cooked_get(in_place_index<i>, self_);
 				static_assert(is_same<decltype(o), decltype(s)>());
 				return s < o;
 			}
@@ -699,7 +700,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			constexpr auto I = CF::index;
 			if (this->index_ == I) {
-				auto& target = __variant::v_access::raw_get(meta::size_t<I>{}, *this);
+				auto& target = __variant::v_access::raw_get(in_place_index<I>, *this);
 				target = __stl2::move(t);
 			} else {
 				this->template emplace<T>(__stl2::move(t));
@@ -718,7 +719,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			constexpr auto I = CF::index;
 			if (this->index_ == I) {
-				auto& target = __variant::v_access::raw_get(meta::size_t<I>{}, *this);
+				auto& target = __variant::v_access::raw_get(in_place_index<I>, *this);
 				target = t;
 			} else {
 				this->template emplace<T>(T{t});

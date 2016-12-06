@@ -17,24 +17,22 @@
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
-#include <stl2/detail/operator_arrow.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/memory/addressof.hpp>
 
 // TODO:
 // * Fix the noexcept clauses that assume that get() is noexcept.
 // * Think long and hard about the various proxies and reference
 //   validity requirements.
-// * Determine if the code complexity incurred by not having
-//   basic_sentinel in the design is actually enabling anything useful.
 
 STL2_OPEN_NAMESPACE {
 	template <Destructible T>
-	class basic_mixin : protected detail::ebo_box<T> {
-		using box_t = detail::ebo_box<T>;
+	class basic_mixin : protected detail::ebo_box<T, basic_mixin<T>> {
+		using box_t = detail::ebo_box<T, basic_mixin<T>>;
 	public:
 		constexpr basic_mixin()
 		noexcept(is_nothrow_default_constructible<T>::value)
@@ -147,13 +145,38 @@ STL2_OPEN_NAMESPACE {
 			detail::IsValueType<meta::_t<value_type<C>>>
 		using value_type_t = meta::_t<value_type<C>>;
 
+		template <class M>
+		struct _MixinTestWrapper : protected M {
+			decltype(auto) g() & { return (*this).get(); }
+			decltype(auto) g() const& { return (*this).getz(); }
+			decltype(auto) g() && { return std::move(*this).get(); }
+			decltype(auto) g() const&& { return std::move(*this).get(); }
+		};
+
+		template <class C, class M>
+		concept bool _Cursor() {
+			return Semiregular<C>() &&
+				std::is_class<M>::value && !std::is_final<M>::value &&
+				Semiregular<M>() &&
+				Constructible<M, C&&>() &&
+				Constructible<M, const C&>();
+#if 0
+				// FIXME: Failures cause hard errors in _MixinTestWrapper<M>::g
+				&& requires(_MixinTestWrapper<M>& w, const _MixinTestWrapper<M>& cw) {
+					STL2_EXACT_TYPE_CONSTRAINT(w.g(), C&);
+					STL2_EXACT_TYPE_CONSTRAINT(cw.g(), const C&);
+					STL2_EXACT_TYPE_CONSTRAINT(std::move(w).g(), C&&);
+					STL2_EXACT_TYPE_CONSTRAINT(std::move(cw).g(), const C&&);
+				};
+#endif
+		}
+
 		template <class C>
 		concept bool Cursor() {
-			return Semiregular<remove_cv_t<C>>() &&
-				Semiregular<mixin_t<remove_cv_t<C>>>() &&
-				requires {
-					typename difference_type_t<C>;
-				};
+			return requires {
+				typename difference_type_t<C>;
+				typename mixin_t<remove_cv_t<C>>;
+			} && _Cursor<remove_cv_t<C>, mixin_t<remove_cv_t<C>>>();
 		}
 
 		template <class C>
@@ -271,6 +294,14 @@ STL2_OPEN_NAMESPACE {
 		concept bool Contiguous() {
 			return RandomAccess<C>() && contiguous<C> &&
 				is_reference<reference_t<C>>::value;
+		}
+
+		template <class From, class To>
+		concept bool ConvertibleTo() {
+			return Cursor<From>() && Cursor<To>() &&
+				__stl2::ConvertibleTo<From, To>() &&
+				Constructible<mixin_t<To>, From>() &&
+				Constructible<mixin_t<To>, const From&>();
 		}
 
 		template <class>
@@ -574,28 +605,39 @@ STL2_OPEN_NAMESPACE {
 
 	public:
 		basic_iterator() = default;
-		template <ConvertibleTo<C> O>
+		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator(basic_iterator<O>&& that)
 		noexcept(is_nothrow_constructible<mixin, O>::value)
 		: mixin(__stl2::get_cursor(__stl2::move(that))) {}
-		template <ConvertibleTo<C> O>
+		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator(const basic_iterator<O>& that)
 		noexcept(is_nothrow_constructible<mixin, const O&>::value)
 		: mixin(__stl2::get_cursor(that)) {}
 		using mixin::mixin;
 
-		template <ConvertibleTo<C> O>
+		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator& operator=(basic_iterator<O>&& that) &
 		noexcept(is_nothrow_assignable<C&, O>::value)
 		{
 			get() = __stl2::get_cursor(__stl2::move(that));
 			return *this;
 		}
-		template <ConvertibleTo<C> O>
+		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator& operator=(const basic_iterator<O>& that) &
 		noexcept(is_nothrow_assignable<C&, const O&>::value)
 		{
 			get() = __stl2::get_cursor(that);
+			return *this;
+		}
+		template <class T>
+		requires
+			!Same<decay_t<T>, basic_iterator>() && !cursor::Next<C>() &&
+			cursor::Writable<C, T>()
+		constexpr basic_iterator& operator=(T&& t)
+		noexcept(noexcept(
+			declval<C&>().write(static_cast<T&&>(t))))
+		{
+			get().write(static_cast<T&&>(t));
 			return *this;
 		}
 		// Not to spec: This operator= needs to be proposed for
@@ -636,47 +678,23 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
-		// operator->: "Manual" override
+		// Use cursor's arrow() member, if any.
 		constexpr decltype(auto) operator->() const
-		noexcept(noexcept(declval<const C&>().arrow()))
-		requires
-			cursor::Arrow<C>()
+		noexcept(noexcept(std::declval<const C&>().arrow()))
+		requires cursor::Arrow<C>()
 		{
 			return get().arrow();
 		}
-		// operator->: Otherwise, if reference_t is an lvalue reference,
-		//   return the address of operator*()
+		// Otherwise, if reference_t is an lvalue reference to cv-qualified
+		// value_type_t, return the address of **this.
 		constexpr auto operator->() const
-		noexcept(noexcept(*declval<const basic_iterator&>()))
+		noexcept(noexcept(*std::declval<const basic_iterator&>()))
 		requires
-			cursor::Readable<C>() && !cursor::Arrow<C>() &&
-			is_lvalue_reference<const_reference_t>::value
+			!cursor::Arrow<C>() && cursor::Readable<C>() &&
+			std::is_lvalue_reference<const_reference_t>::value &&
+			models::Same<cursor::value_type_t<C>, __uncvref<const_reference_t>>
 		{
 			return __stl2::addressof(**this);
-		}
-		// operator->: Otherwise, return a proxy
-		constexpr auto operator->() const
-		noexcept(is_nothrow_move_constructible<
-			detail::operator_arrow_proxy<basic_iterator>>::value &&
-			noexcept(detail::operator_arrow_proxy<basic_iterator>{
-				*declval<const basic_iterator&>()}))
-		requires
-			cursor::Readable<C>() && !cursor::Arrow<C>() &&
-			!is_reference<const_reference_t>::value
-		{
-			return detail::operator_arrow_proxy<basic_iterator>{**this};
-		}
-
-		template <class T>
-		requires
-			!Same<decay_t<T>, basic_iterator>() && !cursor::Next<C>() &&
-			cursor::Writable<C, T>()
-		constexpr basic_iterator& operator=(T&& t) &
-		noexcept(noexcept(
-			declval<C&>().write(static_cast<T&&>(t))))
-		{
-			get().write(static_cast<T&&>(t));
-			return *this;
 		}
 
 		constexpr basic_iterator& operator++() & noexcept {

@@ -9,8 +9,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_VIEW_REPEAT_HPP
-#define STL2_DETAIL_VIEW_REPEAT_HPP
+#ifndef STL2_VIEW_REPEAT_HPP
+#define STL2_VIEW_REPEAT_HPP
 
 #include <stl2/iterator.hpp>
 #include <stl2/memory.hpp>
@@ -23,47 +23,56 @@
 #include <stl2/detail/iterator/basic_iterator.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <Semiregular T>
-	class repeat_view : view_base, detail::ebo_box<T> {
-		using storage_t = detail::ebo_box<T>;
+	namespace ext {
+		template <Semiregular T>
+		class repeat_view : detail::ebo_box<T, repeat_view<T>> {
+			using storage_t = detail::ebo_box<T, repeat_view<T>>;
+			using storage_t::get;
 
-		class cursor : detail::cheap_reference_box_t<const T> {
-			using storage_t = detail::cheap_reference_box_t<const T>;
+			class cursor : detail::cheap_reference_box_t<const T> {
+				using storage_t = detail::cheap_reference_box_t<const T>;
+				using storage_t::get;
+			public:
+				using difference_type = std::ptrdiff_t;
+				using reference =
+					meta::if_c<detail::cheaply_copyable<T>, T, const T&>;
+
+				cursor() = default;
+				constexpr cursor(const repeat_view& r)
+				noexcept(std::is_nothrow_constructible<storage_t, const T&>::value)
+				: storage_t{r.value()} {}
+
+				constexpr reference read() const
+				noexcept(std::is_nothrow_constructible<reference, const T&>::value)
+				{ return get(); }
+				constexpr const T* arrow() const noexcept
+				{ return __stl2::addressof(get()); }
+				constexpr bool equal(const cursor&) const noexcept { return true; }
+				constexpr void next() const noexcept {}
+				constexpr void prev() const noexcept {}
+				constexpr void advance(difference_type) const noexcept {}
+				constexpr difference_type distance_to(const cursor&) const noexcept
+				{ return 0; }
+			};
+
 		public:
-			using difference_type = std::ptrdiff_t;
-			using reference =
-				meta::if_c<detail::cheaply_copyable<T>, T, const T&>;
+			using iterator = basic_iterator<cursor>;
 
-			cursor() = default;
-			constexpr cursor(const repeat_view& r)
-			noexcept(is_nothrow_constructible<storage_t, const T&>::value)
-			: storage_t{r.value()} {}
+			repeat_view() = default;
+			constexpr repeat_view(T value)
+			noexcept(std::is_nothrow_constructible<storage_t, T>::value)
+			: storage_t{std::move(value)} {}
 
-			constexpr reference read() const noexcept
-			{ return storage_t::get(); }
-			constexpr bool done() const noexcept { return false; }
-			constexpr bool equal(const cursor&) const noexcept { return true; }
-			constexpr void next() const noexcept {}
-			constexpr void prev() const noexcept {}
-			constexpr void advance(difference_type) const noexcept {}
-			constexpr difference_type distance_to(const cursor&) const noexcept
-			{ return 0; }
+			constexpr iterator begin() const
+			noexcept(std::is_nothrow_constructible<iterator, const repeat_view&>::value)
+			{ return {cursor{*this}}; }
+			constexpr unreachable end() const noexcept { return {}; }
+			constexpr const T& value() const noexcept { return get(); }
 		};
+	} // namespace ext
 
-	public:
-		using iterator = basic_iterator<cursor>;
-
-		repeat_view() = default;
-		constexpr repeat_view(T value)
-		noexcept(is_nothrow_constructible<storage_t, T>::value)
-		: storage_t{__stl2::move(value)} {}
-
-		constexpr iterator begin() const
-		noexcept(is_nothrow_constructible<iterator, const repeat_view&>::value)
-		{ return {cursor{*this}}; }
-		constexpr unreachable end() const noexcept { return {}; }
-		constexpr const T& value() const noexcept { return storage_t::get(); }
-	};
+	template <class T>
+	struct enable_view<ext::repeat_view<T>> : std::true_type {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
