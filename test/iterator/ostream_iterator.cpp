@@ -49,7 +49,7 @@ int main() {
 	static_assert(models::Same<I&, decltype(*i)>);
 	static_assert(models::Same<I&, decltype(*i = 42)>);
 	static_assert(models::Same<I&, decltype(++i)>);
-	static_assert(models::Same<I, decltype(i++)>);
+	static_assert(models::Same<I&, decltype(i++)>);
 
 	static_assert(noexcept(I{}));
 	static_assert(noexcept(I{ss}));
