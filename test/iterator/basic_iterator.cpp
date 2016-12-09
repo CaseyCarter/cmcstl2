@@ -312,15 +312,44 @@ std::ostream& operator<<(std::ostream& os, R&& rng) {
 
 template <stl2::Iterator I>
 class output_cursor {
+	class post_increment_proxy {
+	public:
+		post_increment_proxy(output_cursor& self) noexcept
+		: self_(self) {}
+
+		post_increment_proxy& operator*() noexcept {
+			return *this;
+		}
+
+		template <class T>
+		requires stl2::OutputIterator<I, const T&>()
+		post_increment_proxy& operator=(const T &t)
+		{
+			self_.write(t);
+			return *this;
+		}
+
+		output_cursor& self_;
+	};
+
 public:
 	struct mixin : protected stl2::detail::ebo_box<output_cursor> {
 		mixin() = default;
+		mixin(const post_increment_proxy &p)
+		: mixin(p.self_) {}
 		using mixin::ebo_box::ebo_box;
 	};
 
 	output_cursor() = default;
 	constexpr output_cursor(I i) noexcept
 	: i_{i} {}
+
+	void next() noexcept {
+	}
+
+	post_increment_proxy post_increment() noexcept {
+		return post_increment_proxy{*this};
+	}
 
 	template <class T>
 	requires stl2::OutputIterator<I, const T&>()
@@ -644,7 +673,8 @@ void test_output() {
 	I i{wi};
 	*i++ = 1;
 	*i++ = 2;
-	*i++ = 3;
+	I i2 = i++;
+	*i2 = 3;
 	CHECK(vec[0] == 1);
 	CHECK(vec[1] == 2);
 	CHECK(vec[2] == 3);
