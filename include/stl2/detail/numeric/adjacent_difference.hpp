@@ -15,17 +15,20 @@
 
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/number.hpp>
 #include <stl2/detail/concepts/object/movable.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
    template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
              class Proj = identity,
-             IndirectRegularCallable<projected<I, Proj>, projected<I, Proj>> BinaryOp = minus<value_type_t<I>>>
+             class Arg = projected<I, Proj>,
+             IndirectRegularCallable<Arg, Arg> BinaryOp = minus<value_type_t<I>>>
    requires models::IndirectlyCopyable<I, O> &&
-      models::Movable<value_type_t<I>>// &&
+      models::Movable<value_type_t<I>> &&
       //Constructible<value_type_t<I>, value_type_t<I>>()
-   tagged_pair<tag::in(__f<I>), tag::out(__f<O>)>
+      models::RegularNumber<value_type_t<O>, value_type_t<I>>
+   tagged_pair<tag::in(I), tag::out(O)>
    adjacent_difference(I first, S last, O result, BinaryOp binary_op = BinaryOp{}, Proj proj = Proj{})
    {
       
@@ -41,6 +44,20 @@ STL2_OPEN_NAMESPACE {
       }
 
       return {first, result};
+   }
+
+   template <InputRange Rng, WeaklyIncrementable O,
+             class Proj = identity,
+             class Arg = projected<iterator_t<Rng>, Proj>,
+             IndirectRegularCallable<Arg, Arg> BinaryOp = minus<value_type_t<iterator_t<Rng>>>>
+   requires models::IndirectlyCopyable<iterator_t<Rng>, O> &&
+      models::Movable<value_type_t<iterator_t<Rng>>> &&
+      models::RegularNumber<value_type_t<O>, value_type_t<iterator_t<Rng>>>
+   tagged_pair<tag::in(__f<safe_iterator_t<Rng>>), tag::out(__f<O>)>
+   adjacent_difference(Rng&& rng, O result, BinaryOp binary_op = BinaryOp{}, Proj proj = Proj{})
+   {
+      return adjacent_difference(__stl2::begin(rng), __stl2::end(rng), __stl2::move(result),
+                                 __stl2::move(binary_op), __stl2::move(proj));
    }
 } STL2_CLOSE_NAMESPACE
 #endif // STL2_DETAIL_NUMERIC_ADJACENT_DIFFERENCE_HPP
