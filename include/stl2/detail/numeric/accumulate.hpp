@@ -1,5 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
+//  Copyright Eric Niebler 2013-2014 (range-v3/include/numeric/accumulate.hpp)
 //  Copyright Casey Carter 2016
 //  Copyright Christopher Di Bella 2016
 //
@@ -21,19 +22,22 @@
 STL2_OPEN_NAMESPACE {
    template <InputIterator I, Sentinel<I> S,
              Copyable T = value_type_t<I>,
-             RegularCallable<value_type_t<I>, T> B = plus<T>>
-   T accumulate(I first, S last, T init = T{}, B binary_op = B{})
+             RegularCallable<T, value_type_t<I>> BinaryOp = plus<T>>
+             // class Proj = identity,
+             // IndirectRegularCallable<T, projected<I, Proj>> BinaryOp = plus<T>>
+      requires Assignable<T&, result_of_t<BinaryOp&(T, value_type_t<I>)>>()
+   T accumulate(I first, S last, T init = T{}, BinaryOp binary_op = BinaryOp{})
    {
       T acc = init;
       for (; first != last; ++first)
-         acc = binary_op(acc, *first);
-
+         acc = __stl2::invoke(binary_op, acc, *first);
       return acc;
    }
 
    template <InputRange Rng, Copyable T = value_type_t<iterator_t<Rng>>,
-             RegularCallable<value_type_t<iterator_t<Rng>>, T> B = plus<T>>
-   T accumulate(Rng&& rng, T init = T{}, B binary_op = B{})
+             RegularCallable<T, value_type_t<iterator_t<Rng>>> BinaryOp = plus<T>>
+      requires Assignable<T&, result_of_t<BinaryOp&(T, value_type_t<iterator_t<Rng>>)>>()
+   T accumulate(Rng&& rng, T init = T{}, BinaryOp binary_op = BinaryOp{})
    {
       return accumulate(__stl2::begin(rng), __stl2::end(rng),
                         __stl2::move(init), __stl2::move(binary_op));
