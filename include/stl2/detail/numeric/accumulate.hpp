@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
              RegularCallable<T, value_type_t<I>> BinaryOp = plus<T>>
              // class Proj = identity,
              // IndirectRegularCallable<T, projected<I, Proj>> BinaryOp = plus<T>>
-      requires Assignable<T&, result_of_t<BinaryOp&(T, value_type_t<I>)>>()
+   requires Assignable<T&, result_of_t<BinaryOp&(T, value_type_t<I>)>>()
    T accumulate(I first, S last, T init = T{}, BinaryOp binary_op = BinaryOp{})
    {
       T acc = init;
@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 
    template <InputRange Rng, Copyable T = value_type_t<iterator_t<Rng>>,
              RegularCallable<T, value_type_t<iterator_t<Rng>>> BinaryOp = plus<T>>
-      requires Assignable<T&, result_of_t<BinaryOp&(T, value_type_t<iterator_t<Rng>>)>>()
+   requires Assignable<T&, result_of_t<BinaryOp&(T, value_type_t<iterator_t<Rng>>)>>()
    T accumulate(Rng&& rng, T init = T{}, BinaryOp binary_op = BinaryOp{})
    {
       return accumulate(__stl2::begin(rng), __stl2::end(rng),
