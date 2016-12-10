@@ -653,17 +653,6 @@ CONCEPT_ASSERT(!models::Number<Fixed_point, std::complex<double>> &&
                !models::StrictNumber<Fixed_point, std::complex<double>> &&
                !models::RegularStrictNumber<Fixed_point, std::complex<double>>);
 
-STL2_OPEN_NAMESPACE {
-template <>
-struct common_type<Uint128, std::uint64_t> {
-   using type = Uint128;
-};
-
-template <>
-struct common_type<std::uint64_t, Uint128> : public common_type<Uint128, std::uint64_t> {
-};
-} STL2_CLOSE_NAMESPACE
-
 CONCEPT_ASSERT(models::Number<Uint128> &&
                models::RegularNumber<Uint128> &&
                models::StrictNumber<Uint128> &&

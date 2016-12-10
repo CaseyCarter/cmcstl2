@@ -2,6 +2,7 @@
 #define STL2_TEST_DETAIL_INT128_HPP
 
 #include <cstdint>
+#include <stl2/detail/fwd.hpp>
 
 namespace cmcstl2 {
    class Uint128;
@@ -14,7 +15,7 @@ namespace cmcstl2 {
          : lower_{static_cast<std::uint64_t>(b)}
       {}
 
-      explicit Uint128(const std::uint64_t l, const std::uint64_t u = 0) noexcept
+      Uint128(const std::uint64_t l, const std::uint64_t u = 0) noexcept
          : lower_{l}, upper_{u}
       {}
 
@@ -296,5 +297,17 @@ namespace cmcstl2 {
       return b >= a;
    }
 } // namespace cmcstl2
+
+STL2_OPEN_NAMESPACE {
+   template <>
+   struct common_type<cmcstl2::Uint128, std::uint64_t> {
+      using type = cmcstl2::Uint128;
+   };
+
+   template <>
+   struct common_type<std::uint64_t, cmcstl2::Uint128> {
+      using type = cmcstl2::Uint128;
+   };
+} STL2_CLOSE_NAMESPACE
 
 #endif // STL2_TEST_DETAIL_INT128_HPP
