@@ -22,12 +22,17 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-   template <InputIterator I1, Sentinel<I1> S, InputIterator I2, Copyable T = value_type_t<I1>,
+   // notes:
+   // size of I2 range be at least as large as (S - I1)
+   template <InputIterator I1, Sentinel<I1> S, InputIterator I2,
+             class T = value_type_t<I1>,
              class Proj1 = identity, class Proj2 = identity,
              IndirectRegularCallable<projected<I1, Proj1>, projected<I2, Proj2>> BinaryOp1 = plus<value_type_t<I1>>,
              class Result = indirect_result_of_t<BinaryOp1&(projected<I1, Proj1>, projected<I2, Proj2>)>,
              RegularCallable<T, Result> BinaryOp2 = multiplies<T>>
-   requires models::Assignable<T&, Result>
+   requires models::Assignable<T&, Result> &&
+      models::Number<value_type_t<I1>, value_type_t<I2>> &&
+      models::Number<T, Result>
    T inner_product(I1 first1,
                    S last1,
                    I2 first2,
@@ -52,7 +57,9 @@ STL2_OPEN_NAMESPACE {
              IndirectRegularCallable<projected<iterator_t<Rng>, Proj1>, projected<I, Proj2>> BinaryOp1 = plus<value_type_t<iterator_t<Rng>>>,
              class Result = indirect_result_of_t<BinaryOp1&(projected<iterator_t<Rng>, Proj1>, projected<I, Proj2>)>,
              RegularCallable<T, Result> BinaryOp2 = multiplies<T>>
-   requires models::Assignable<T&, Result>
+   requires models::Assignable<T&, Result> &&
+      models::Number<value_type_t<iterator_t<Rng>>, value_type_t<I>> &&
+      models::Number<T, Result>
    T inner_product(Rng&& rng, I first2, T init = T{}, BinaryOp1 binary_op1 = BinaryOp1{},
                    BinaryOp2 binary_op2 = BinaryOp2{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
    {
