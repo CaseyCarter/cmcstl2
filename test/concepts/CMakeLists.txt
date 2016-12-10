@@ -1,8 +1,5 @@
 include("../concept_select.txt")
 
-add_executable(concepts.arithmetic arithmetic.cpp)
-add_test(test.concepts.arithmetic concepts.arithmetic)
-
 add_executable(concepts.core core.cpp)
 add_test(test.concepts.core concepts.core)
 
@@ -14,6 +11,9 @@ add_test(test.concepts.fundamental concepts.fundamental)
 
 add_executable(concepts.iterator iterator.cpp)
 add_test(test.concepts.iterator concepts.iterator)
+
+add_executable(concepts.number number.cpp)
+add_test(test.concepts.number concepts.number)
 
 add_executable(concepts.object object.cpp)
 add_test(test.concepts.object concepts.object)
