@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
    template <InputIterator I, Sentinel<I> S, OutputIterator<value_type_t<I>&> O,
              class Proj = identity,
              class Arg = projected<I, Proj>,
-             IndirectRegularCallable<Arg, Arg> BinaryOp = plus<value_type_t<I>>>
+             IndirectRegularCallable<Arg, Arg> BinaryOp = plus<>>
       tagged_pair<tag::in(I), tag::out(O)> // I don't think these need to be wrapped in __f
    partial_sum(I first, S last, O result, BinaryOp binary_op = BinaryOp{}, Proj proj = Proj{})
    requires models::Constructible<value_type_t<I>, decltype(*first)> &&
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
    template <InputRange Rng, OutputIterator<value_type_t<iterator_t<Rng>>&> O,
              class Proj = identity,
              class Arg = projected<Proj, iterator_t<Rng>>,
-             IndirectRegularCallable<Arg, Arg> BinaryOp = plus<value_type_t<iterator_t<Rng>>>>
+             IndirectRegularCallable<Arg, Arg> BinaryOp = plus<>>
       tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
    partial_sum(Rng&& rng, O result, BinaryOp binary_op = BinaryOp{}, Proj proj = Proj{})
    requires models::Constructible<value_type_t<iterator_t<Rng>>, decltype(*__stl2::begin(rng))> &&
