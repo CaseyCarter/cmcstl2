@@ -22,12 +22,12 @@
 STL2_OPEN_NAMESPACE {
    template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
              class Proj = identity,
-             class Arg = projected<I, Proj>,
-             IndirectRegularCallable<Arg, Arg> BinaryOp = minus<value_type_t<I>>>
+             class __Arg = projected<I, Proj>,
+             IndirectRegularCallable<__Arg, __Arg> BinaryOp = minus<>>
    requires models::IndirectlyCopyable<I, O> &&
       models::Movable<value_type_t<I>> &&
       //Constructible<value_type_t<I>, value_type_t<I>>()
-      models::RegularNumber<value_type_t<O>, value_type_t<I>>
+      models::RegularNumber<value_type_t<O>, value_type_t<__Arg>>
    tagged_pair<tag::in(I), tag::out(O)>
    adjacent_difference(I first, S last, O result, BinaryOp binary_op = BinaryOp{}, Proj proj = Proj{})
    {
@@ -48,11 +48,11 @@ STL2_OPEN_NAMESPACE {
 
    template <InputRange Rng, WeaklyIncrementable O,
              class Proj = identity,
-             class Arg = projected<iterator_t<Rng>, Proj>,
-             IndirectRegularCallable<Arg, Arg> BinaryOp = minus<value_type_t<iterator_t<Rng>>>>
+             class __Arg = projected<iterator_t<Rng>, Proj>,
+             IndirectRegularCallable<__Arg, __Arg> BinaryOp = minus<>>
    requires models::IndirectlyCopyable<iterator_t<Rng>, O> &&
       models::Movable<value_type_t<iterator_t<Rng>>> &&
-      models::RegularNumber<value_type_t<O>, value_type_t<iterator_t<Rng>>>
+      models::RegularNumber<value_type_t<O>, value_type_t<__Arg>>
    tagged_pair<tag::in(__f<safe_iterator_t<Rng>>), tag::out(__f<O>)>
    adjacent_difference(Rng&& rng, O result, BinaryOp binary_op = BinaryOp{}, Proj proj = Proj{})
    {

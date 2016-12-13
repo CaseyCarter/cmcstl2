@@ -35,7 +35,7 @@ void CHECK_algorithm(const T& v)
    CHECK(result.in() == v.end());
    CHECK(result.out() == r.end());
 
-   r.clear();
+   r = T(v.size());
    result = ranges::adjacent_difference(v, r.begin());
    CHECK(s == r);
    CHECK(result.in() == v.end());
