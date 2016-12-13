@@ -20,6 +20,8 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
+   // notes
+   //    back_inserter currently incompatible with value_type_t
    template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
              class Proj = identity,
              class __Arg = projected<I, Proj>,

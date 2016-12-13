@@ -19,6 +19,7 @@
 #include <numeric>
 #include <stl2/detail/concepts/number.hpp>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace ranges = __stl2;
@@ -42,6 +43,12 @@ void CHECK_algorithm(const T& v)
    CHECK(result.out() == r.end());
 }
 
+template <typename Proj>
+void CHECK_projection(const std::unordered_map<int, int>& h, Proj proj)
+{
+   // TODO
+}
+
 int main()
 {
    CHECK_algorithm(std::vector<int>{});
@@ -56,8 +63,6 @@ int main()
    CHECK_algorithm(std::vector<double>{0, 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9});
    CHECK_algorithm(std::list<cmcstl2::Uint128>{{}, {0xdeadbeef, 0xf00d5a1e}, {0, 1},
                                                    {0xfeedfeedfeedfeed, 0xbeefbeefbeefbeef}});
-
-   // TODO: try to make this work with back_inserter
 
    return test_result();
 }
