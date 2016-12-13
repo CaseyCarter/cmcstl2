@@ -97,55 +97,55 @@ void test_raw() {
 	__variant::storage<int, double, nontrivial, reference_wrapper<int>> v;
 	static_assert(sizeof(v) == sizeof(double));
 	{
-		int& i = __variant::st_access::raw_get(meta::size_t<0>{}, v);
+		int& i = __variant::st_access::raw_get(in_place_index<0>, v);
 		{
-			const int& i = __variant::st_access::raw_get(meta::size_t<0>{}, v);
+			const int& i = __variant::st_access::raw_get(in_place_index<0>, v);
 			(void)i;
 		}
 		{
-			const int& i = __variant::st_access::raw_get(meta::size_t<0>{}, const_cast<const decltype(v)&>(v));
+			const int& i = __variant::st_access::raw_get(in_place_index<0>, const_cast<const decltype(v)&>(v));
 			(void)i;
 		}
 		{
-			int&& i = __variant::st_access::raw_get(meta::size_t<0>{}, move(v));
+			int&& i = __variant::st_access::raw_get(in_place_index<0>, move(v));
 			(void)i;
 		}
 		i = 42;
-		CHECK(__variant::st_access::raw_get(meta::size_t<0>{}, v) == 42);
+		CHECK(__variant::st_access::raw_get(in_place_index<0>, v) == 42);
 	}
 
 	{
-		double& d = __variant::st_access::raw_get(meta::size_t<1>{}, v);
+		double& d = __variant::st_access::raw_get(in_place_index<1>, v);
 		::new(&d) double;
 		{
-			const double& d = __variant::st_access::raw_get(meta::size_t<1>{}, v);
+			const double& d = __variant::st_access::raw_get(in_place_index<1>, v);
 			(void)d;
 		}
 		{
-			const double& d = __variant::st_access::raw_get(meta::size_t<1>{}, const_cast<const decltype(v)&>(v));
+			const double& d = __variant::st_access::raw_get(in_place_index<1>, const_cast<const decltype(v)&>(v));
 			(void)d;
 		}
 		{
-			double&& d = __variant::st_access::raw_get(meta::size_t<1>{}, move(v));
+			double&& d = __variant::st_access::raw_get(in_place_index<1>, move(v));
 			(void)d;
 		}
 		d = 3.14;
-		CHECK(__variant::st_access::raw_get(meta::size_t<1>{}, v) == 3.14);
+		CHECK(__variant::st_access::raw_get(in_place_index<1>, v) == 3.14);
 	}
 
 	{
-		nontrivial& n = __variant::st_access::raw_get(meta::size_t<2>{}, v);
+		nontrivial& n = __variant::st_access::raw_get(in_place_index<2>, v);
 		::new(&n) nontrivial;
 		{
-			const nontrivial& n = __variant::st_access::raw_get(meta::size_t<2>{}, v);
+			const nontrivial& n = __variant::st_access::raw_get(in_place_index<2>, v);
 			(void)n;
 		}
 		{
-			const nontrivial& n = __variant::st_access::raw_get(meta::size_t<2>{}, const_cast<const decltype(v)&>(v));
+			const nontrivial& n = __variant::st_access::raw_get(in_place_index<2>, const_cast<const decltype(v)&>(v));
 			(void)n;
 		}
 		{
-			nontrivial&& n = __variant::st_access::raw_get(meta::size_t<2>{}, move(v));
+			nontrivial&& n = __variant::st_access::raw_get(in_place_index<2>, move(v));
 			(void)n;
 		}
 		n.~nontrivial();
@@ -153,123 +153,123 @@ void test_raw() {
 
 	{
 		int value = 42;
-		reference_wrapper<int>& r = __variant::st_access::raw_get(meta::size_t<3>{}, v);
+		reference_wrapper<int>& r = __variant::st_access::raw_get(in_place_index<3>, v);
 		::new(&r) reference_wrapper<int>{value};
 		int& i = __variant::cook<int&>(r);
 		CHECK(i == 42);
 		CHECK(&i == &value);
-		reference_wrapper<int>&& rr = __variant::st_access::raw_get(meta::size_t<3>{}, move(v));
+		reference_wrapper<int>&& rr = __variant::st_access::raw_get(in_place_index<3>, move(v));
 		int&& ii = __variant::cook<int&&>(move(rr));
 		CHECK(&ii == &value);
 		r.~reference_wrapper();
 	}
 }
 
-void test_emplaced_index() {
+void test_in_place_index() {
 	{
 		using V = variant<int, int&, int&&, const int, const int&, const int&&>;
 		int i = 42;
 		const int& ci = i;
 
 		{
-			V v{emplaced_index<0>, i};
+			V v{in_place_index<0>, i};
 			CHECK(v.index() == 0u);
 		}
 		{
-			V v{emplaced_index<0>, ci};
+			V v{in_place_index<0>, ci};
 			CHECK(v.index() == 0u);
 		}
 		{
-			V v{emplaced_index<0>, move(i)};
+			V v{in_place_index<0>, move(i)};
 			CHECK(v.index() == 0u);
 		}
 		{
-			V v{emplaced_index<0>, move(ci)};
+			V v{in_place_index<0>, move(ci)};
 			CHECK(v.index() == 0u);
 		}
 
 		{
-			V v{emplaced_index<1>, i};
+			V v{in_place_index<1>, i};
 			CHECK(v.index() == 1u);
 		}
 		{
-			// V v{emplaced_index<1>, ci}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_index_t<1>, const int&>);
+			// V v{in_place_index<1>, ci}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_index_t<1>, const int&>);
 		}
 		{
-			// V v{emplaced_index<1>, move(i)}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_index_t<1>, int&&>);
+			// V v{in_place_index<1>, move(i)}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_index_t<1>, int&&>);
 		}
 		{
-			// V v{emplaced_index<1>, move(ci)}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_index_t<1>, const int&&>);
+			// V v{in_place_index<1>, move(ci)}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_index_t<1>, const int&&>);
 		}
 
 		{
-			// V v{emplaced_index<2>, i}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_index_t<2>, int&>);
+			// V v{in_place_index<2>, i}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_index_t<2>, int&>);
 		}
 		{
-			// V v{emplaced_index<2>, ci}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_index_t<2>, const int&>);
+			// V v{in_place_index<2>, ci}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_index_t<2>, const int&>);
 		}
 		{
-			V v{emplaced_index<2>, move(i)};
+			V v{in_place_index<2>, move(i)};
 			CHECK(v.index() == 2u);
 		}
 		{
-			// V v{emplaced_index<2>, move(ci)}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_index_t<2>, const int&&>);
+			// V v{in_place_index<2>, move(ci)}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_index_t<2>, const int&&>);
 		}
 
 		{
-			V v{emplaced_index<3>, i};
+			V v{in_place_index<3>, i};
 			CHECK(v.index() == 3u);
 		}
 		{
-			V v{emplaced_index<3>, ci};
+			V v{in_place_index<3>, ci};
 			CHECK(v.index() == 3u);
 		}
 		{
-			V v{emplaced_index<3>, move(i)};
+			V v{in_place_index<3>, move(i)};
 			CHECK(v.index() == 3u);
 		}
 		{
-			V v{emplaced_index<3>, move(ci)};
+			V v{in_place_index<3>, move(ci)};
 			CHECK(v.index() == 3u);
 		}
 
 		{
-			V v{emplaced_index<4>, i};
+			V v{in_place_index<4>, i};
 			CHECK(v.index() == 4u);
 		}
 		{
-			V v{emplaced_index<4>, ci};
+			V v{in_place_index<4>, ci};
 			CHECK(v.index() == 4u);
 		}
 		{
-			V v{emplaced_index<4>, move(i)};
+			V v{in_place_index<4>, move(i)};
 			CHECK(v.index() == 4u);
 		}
 		{
-			V v{emplaced_index<4>, move(ci)};
+			V v{in_place_index<4>, move(ci)};
 			CHECK(v.index() == 4u);
 		}
 
 		{
-			// V v{emplaced_index<5>, i}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_index_t<5>, int&>);
+			// V v{in_place_index<5>, i}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_index_t<5>, int&>);
 		}
 		{
-			// V v{emplaced_index<5>, ci}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_index_t<5>, const int&>);
+			// V v{in_place_index<5>, ci}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_index_t<5>, const int&>);
 		}
 		{
-			V v{emplaced_index<5>, move(i)};
+			V v{in_place_index<5>, move(i)};
 			CHECK(v.index() == 5u);
 		}
 		{
-			V v{emplaced_index<5>, move(ci)};
+			V v{in_place_index<5>, move(ci)};
 			CHECK(v.index() == 5u);
 		}
 	}
@@ -278,7 +278,7 @@ void test_emplaced_index() {
 		nontrivial::zero();
 		{
 			using V = variant<std::vector<nontrivial>>;
-			V v{emplaced_index<0>, 4u};
+			V v{in_place_index<0>, 4u};
 			CHECK(v.index() == 0u);
 			CHECK(get<0>(v).size() == 4u);
 			CHECK(nontrivial::count.create == 4u);
@@ -295,118 +295,118 @@ void test_emplaced_index() {
 
 	{
 		using V = variant<std::vector<int>>;
-		V v{emplaced_index<0>, {1,2,3,4}};
+		V v{in_place_index<0>, {1,2,3,4}};
 		CHECK(v.index() == 0u);
 		CHECK(get<0>(v).size() == 4u);
 		CHECK(get<0>(v)[2] == 3);
 	}
 }
 
-void test_emplaced_type() {
+void test_in_place_type() {
 	{
 		using V = variant<int, int&, int&&, const int, const int&, const int&&>;
 		int i = 42;
 		const int& ci = i;
 
 		{
-			V v{emplaced_type<int>, i};
+			V v{in_place_type<int>, i};
 			CHECK(holds_alternative<int>(v));
 		}
 		{
-			V v{emplaced_type<int>, ci};
+			V v{in_place_type<int>, ci};
 			CHECK(holds_alternative<int>(v));
 		}
 		{
-			V v{emplaced_type<int>, move(i)};
+			V v{in_place_type<int>, move(i)};
 			CHECK(holds_alternative<int>(v));
 		}
 		{
-			V v{emplaced_type<int>, move(ci)};
+			V v{in_place_type<int>, move(ci)};
 			CHECK(holds_alternative<int>(v));
 		}
 
 		{
-			V v{emplaced_type<int&>, i};
+			V v{in_place_type<int&>, i};
 			CHECK(holds_alternative<int&>(v));
 		}
 		{
-			// V v{emplaced_type<int&>, ci}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_type_t<int&>, const int&>);
+			// V v{in_place_type<int&>, ci}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_type_t<int&>, const int&>);
 		}
 		{
-			// V v{emplaced_type<int&>, move(i)}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_type_t<int&>, int&&>);
+			// V v{in_place_type<int&>, move(i)}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_type_t<int&>, int&&>);
 		}
 		{
-			// V v{emplaced_type<int&>, move(ci)}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_type_t<int&>, const int&&>);
+			// V v{in_place_type<int&>, move(ci)}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_type_t<int&>, const int&&>);
 		}
 
 		{
-			// V v{emplaced_type<int&&>, i}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_type_t<int&&>, int&>);
+			// V v{in_place_type<int&&>, i}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_type_t<int&&>, int&>);
 		}
 		{
-			// V v{emplaced_type<int&&>, ci}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_type_t<int&&>, const int&>);
+			// V v{in_place_type<int&&>, ci}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_type_t<int&&>, const int&>);
 		}
 		{
-			V v{emplaced_type<int&&>, move(i)};
+			V v{in_place_type<int&&>, move(i)};
 			CHECK(holds_alternative<int&&>(v));
 		}
 		{
-			// V v{emplaced_type<int&&>, move(ci)}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_type_t<int&&>, const int&&>);
+			// V v{in_place_type<int&&>, move(ci)}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_type_t<int&&>, const int&&>);
 		}
 
 		{
-			V v{emplaced_type<const int>, i};
+			V v{in_place_type<const int>, i};
 			CHECK(holds_alternative<const int>(v));
 		}
 		{
-			V v{emplaced_type<const int>, ci};
+			V v{in_place_type<const int>, ci};
 			CHECK(holds_alternative<const int>(v));
 		}
 		{
-			V v{emplaced_type<const int>, move(i)};
+			V v{in_place_type<const int>, move(i)};
 			CHECK(holds_alternative<const int>(v));
 		}
 		{
-			V v{emplaced_type<const int>, move(ci)};
+			V v{in_place_type<const int>, move(ci)};
 			CHECK(holds_alternative<const int>(v));
 		}
 
 		{
-			V v{emplaced_type<const int&>, i};
+			V v{in_place_type<const int&>, i};
 			CHECK(holds_alternative<const int&>(v));
 		}
 		{
-			V v{emplaced_type<const int&>, ci};
+			V v{in_place_type<const int&>, ci};
 			CHECK(holds_alternative<const int&>(v));
 		}
 		{
-			V v{emplaced_type<const int&>, move(i)};
+			V v{in_place_type<const int&>, move(i)};
 			CHECK(holds_alternative<const int&>(v));
 		}
 		{
-			V v{emplaced_type<const int&>, move(ci)};
+			V v{in_place_type<const int&>, move(ci)};
 			CHECK(holds_alternative<const int&>(v));
 		}
 
 		{
-			// V v{emplaced_type<const int&&>, i}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_type_t<const int&&>, int&>);
+			// V v{in_place_type<const int&&>, i}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_type_t<const int&&>, int&>);
 		}
 		{
-			// V v{emplaced_type<const int&&>, ci}; // ill-formed
-			static_assert(!models::Constructible<V, emplaced_type_t<const int&&>, const int&>);
+			// V v{in_place_type<const int&&>, ci}; // ill-formed
+			static_assert(!models::Constructible<V, in_place_type_t<const int&&>, const int&>);
 		}
 		{
-			V v{emplaced_type<const int&&>, move(i)};
+			V v{in_place_type<const int&&>, move(i)};
 			CHECK(holds_alternative<const int&&>(v));
 		}
 		{
-			V v{emplaced_type<const int&&>, move(ci)};
+			V v{in_place_type<const int&&>, move(ci)};
 			CHECK(holds_alternative<const int&&>(v));
 		}
 	}
@@ -415,7 +415,7 @@ void test_emplaced_type() {
 		nontrivial::zero();
 		{
 			using V = variant<std::vector<nontrivial>>;
-			V v{emplaced_type<std::vector<nontrivial>>, 4u};
+			V v{in_place_type<std::vector<nontrivial>>, 4u};
 			CHECK(holds_alternative<std::vector<nontrivial>>(v));
 			CHECK(get<0>(v).size() == 4u);
 			CHECK(nontrivial::count.create == 4u);
@@ -432,7 +432,7 @@ void test_emplaced_type() {
 
 	{
 		using V = variant<std::vector<int>>;
-		V v{emplaced_type<std::vector<int>>, {1,2,3,4}};
+		V v{in_place_type<std::vector<int>>, {1,2,3,4}};
 		CHECK(holds_alternative<std::vector<int>>(v));
 		CHECK(get<0>(v).size() == 4u);
 		CHECK(get<0>(v)[2] == 3);
@@ -440,10 +440,10 @@ void test_emplaced_type() {
 
 	{
 		using V = variant<int, int>;
-		// V v1{emplaced_type<int>}; // ill-formed: ambiguous
-		static_assert(!models::Constructible<V, emplaced_type_t<int>>);
-		// V v2{emplaced_type<int>, 42}; // ill-formed: ambiguous
-		static_assert(!models::Constructible<V, emplaced_type_t<int>, int>);
+		// V v1{in_place_type<int>}; // ill-formed: ambiguous
+		static_assert(!models::Constructible<V, in_place_type_t<int>>);
+		// V v2{in_place_type<int>, 42}; // ill-formed: ambiguous
+		static_assert(!models::Constructible<V, in_place_type_t<int>, int>);
 	}
 }
 
@@ -486,7 +486,7 @@ void test_construction() {
 	{
 		//variant<int, int> v{42}; // ill-formed: ambiguous.
 		static_assert(!models::Constructible<variant<int,int>, int&&>);
-		variant<int, int> v{emplaced_index<1>, 42};
+		variant<int, int> v{in_place_index<1>, 42};
 		CHECK(v.index() == 1u);
 		//get<int>(v); // ill-formed: ambiguous.
 		//CHECK(holds_alternative<int>(v)); // ill-formed: ambiguous.
@@ -536,16 +536,16 @@ void test_construction() {
 	}
 
 	{
-		variant<int&&> v{emplaced_index<0>, 42};
+		variant<int&&> v{in_place_index<0>, 42};
 		CHECK(holds_alternative<int&&>(v));
-		variant<int, int, int, int&&> v2{emplaced_index<3>, 42};
+		variant<int, int, int, int&&> v2{in_place_index<3>, 42};
 		CHECK(holds_alternative<int&&>(v2));
-		variant<int&&, int&&, int&&, int&&> v3{emplaced_index<2>, 42};
+		variant<int&&, int&&, int&&, int&&> v3{in_place_index<2>, 42};
 		CHECK(v3.index() == 2u);
 	}
 
-	test_emplaced_index();
-	test_emplaced_type();
+	test_in_place_index();
+	test_in_place_type();
 }
 
 void test_get() {
@@ -568,7 +568,7 @@ void test_get() {
 		CHECK(get<double>(v) == 1.414);
 	}
 	{
-		variant<int, int> v{emplaced_index<1>, 42};
+		variant<int, int> v{in_place_index<1>, 42};
 		CHECK(v.index() == 1u);
 		CHECK(get<1>(v) == 42);
 		//get<int>(v); // ill-formed: not unique.
@@ -601,12 +601,12 @@ void test_move_assignment() {
 		CHECK(holds_alternative<int>(v));
 		CHECK(get<int>(v) == 42);
 		int i = 42;
-		v = V{emplaced_type<int&>, i};
+		v = V{in_place_type<int&>, i};
 		CHECK(holds_alternative<int&>(v));
 		CHECK(get<int&>(v) == 42);
 		CHECK(&get<int&>(v) == &i);
 		int j = 13;
-		v = V{emplaced_type<int&>, j};
+		v = V{in_place_type<int&>, j};
 		CHECK(holds_alternative<int&>(v));
 		CHECK(get<int&>(v) == 13);
 		CHECK(&get<int&>(v) == &j);
@@ -628,22 +628,22 @@ void test_move_assignment() {
 		CHECK(holds_alternative<int>(v));
 		CHECK(get<int>(v) == 42);
 		int i = 42;
-		v = V{emplaced_type<int&>, i};
+		v = V{in_place_type<int&>, i};
 		CHECK(holds_alternative<int&>(v));
 		CHECK(get<int&>(v) == 42);
 		CHECK(&get<int&>(v) == &i);
 		int j = 13;
-		v = V{emplaced_type<int&>, j};
+		v = V{in_place_type<int&>, j};
 		CHECK(holds_alternative<int&>(v));
 		CHECK(get<int&>(v) == 13);
 		CHECK(&get<int&>(v) == &j);
 
 		nontrivial::zero();
-		v = V{emplaced_type<nontrivial>};
+		v = V{in_place_type<nontrivial>};
 		CHECK(holds_alternative<nontrivial>(v));
 		CHECK(nontrivial::count.move == 1u);
 		CHECK(nontrivial::count.move_assign == 0u);
-		v = V{emplaced_type<nontrivial>};
+		v = V{in_place_type<nontrivial>};
 		CHECK(holds_alternative<nontrivial>(v));
 		CHECK(nontrivial::count.move == 1u);
 		CHECK(nontrivial::count.move_assign == 1u);
@@ -654,7 +654,7 @@ void test_move_assignment() {
 		using V = variant<int, double, std::vector<nontrivial>>;
 		constexpr auto N = std::size_t{42};
 		nontrivial::zero();
-		V v{emplaced_index<2>, N};
+		V v{in_place_index<2>, N};
 		CHECK(v.index() == 2u);
 		CHECK(get<2>(v).size() == N);
 		CHECK(nontrivial::count.create == N);
@@ -689,12 +689,12 @@ void test_copy_assignment() {
 		CHECK(holds_alternative<int>(v));
 		CHECK(get<int>(v) == 42);
 		int i = 42;
-		v = CV{emplaced_type<int&>, i};
+		v = CV{in_place_type<int&>, i};
 		CHECK(holds_alternative<int&>(v));
 		CHECK(get<int&>(v) == 42);
 		CHECK(&get<int&>(v) == &i);
 		int j = 13;
-		v = CV{emplaced_type<int&>, j};
+		v = CV{in_place_type<int&>, j};
 		CHECK(holds_alternative<int&>(v));
 		CHECK(get<int&>(v) == 13);
 		CHECK(&get<int&>(v) == &j);
@@ -717,22 +717,22 @@ void test_copy_assignment() {
 		CHECK(holds_alternative<int>(v));
 		CHECK(get<int>(v) == 42);
 		int i = 42;
-		v = CV{emplaced_type<int&>, i};
+		v = CV{in_place_type<int&>, i};
 		CHECK(holds_alternative<int&>(v));
 		CHECK(get<int&>(v) == 42);
 		CHECK(&get<int&>(v) == &i);
 		int j = 13;
-		v = CV{emplaced_type<int&>, j};
+		v = CV{in_place_type<int&>, j};
 		CHECK(holds_alternative<int&>(v));
 		CHECK(get<int&>(v) == 13);
 		CHECK(&get<int&>(v) == &j);
 
 		nontrivial::zero();
-		v = CV{emplaced_type<nontrivial>};
+		v = CV{in_place_type<nontrivial>};
 		CHECK(holds_alternative<nontrivial>(v));
 		CHECK(nontrivial::count.copy == 1u);
 		CHECK(nontrivial::count.copy_assign == 0u);
-		v = CV{emplaced_type<nontrivial>};
+		v = CV{in_place_type<nontrivial>};
 		CHECK(holds_alternative<nontrivial>(v));
 		CHECK(nontrivial::count.copy == 1u);
 		CHECK(nontrivial::count.copy_assign == 1u);
@@ -743,7 +743,7 @@ void test_copy_assignment() {
 		using V = variant<int, double, std::vector<nontrivial>>;
 		constexpr auto N = std::size_t{42};
 		nontrivial::zero();
-		V v{emplaced_index<2>, N};
+		V v{in_place_index<2>, N};
 		CHECK(v.index() == 2u);
 		CHECK(get<2>(v).size() == N);
 		CHECK(nontrivial::count.create == N);
@@ -785,8 +785,8 @@ void test_copy_assignment() {
 		};
 		using V = variant<target, source>;
 		{
-			V v1{emplaced_type<target>};
-			V v2{emplaced_type<source>};
+			V v1{in_place_type<target>};
+			V v2{in_place_type<source>};
 			v1 = v2;
 		}
 		CHECK(state == 8);
@@ -803,12 +803,12 @@ void test_void() {
 		static_assert(is_trivially_copy_assignable<V>());
 		V v1{42};
 		V{3.14};
-		V{emplaced_index<0>};
-		V{emplaced_index<2>};
-		// V{emplaced_type<void>}; // ill-formed
-		static_assert(!models::Constructible<V, emplaced_type_t<void>>);
-		// V{emplaced_index<1>}; // ill-formed
-		static_assert(!models::Constructible<V, emplaced_index_t<1>>);
+		V{in_place_index<0>};
+		V{in_place_index<2>};
+		// V{in_place_type<void>}; // ill-formed
+		static_assert(!models::Constructible<V, in_place_type_t<void>>);
+		// V{in_place_index<1>}; // ill-formed
+		static_assert(!models::Constructible<V, in_place_index_t<1>>);
 
 		static_assert(sizeof(variant<char>) == sizeof(variant<char, void>));
 	}
@@ -1411,7 +1411,7 @@ void test_swap() {
 
 	{
 		using V = variant<int,nontrivial>;
-		V v1{emplaced_type<nontrivial>};
+		V v1{in_place_type<nontrivial>};
 		V v2{v1};
 		nontrivial::zero();
 		__stl2::swap(v1, v2);
@@ -1464,7 +1464,7 @@ void test_comparisons() {
 
 	{
 		using V = variant<int, int>;
-		CHECK(V{emplaced_index<0>, 42} != V{emplaced_index<1>, 42});
+		CHECK(V{in_place_index<0>, 42} != V{in_place_index<1>, 42});
 	}
 
 	{
@@ -1535,7 +1535,7 @@ int main() {
 
 	{
 		int i = 42;
-		variant<int&> vir{meta::size_t<0>{}, i};
+		variant<int&> vir{in_place_index<0>, i};
 		CHECK(vir.index() == 0u);
 		CHECK(holds_alternative<int&>(vir));
 		CHECK(&get<0>(vir) == &i);
@@ -1544,7 +1544,7 @@ int main() {
 	}
 
 	{
-		constexpr variant<int> vi{meta::size_t<0>{}, 42};
+		constexpr variant<int> vi{in_place_index<0>, 42};
 		static_assert(vi.index() == 0u);
 		static_assert(holds_alternative<int>(vi));
 		CHECK(get<0>(vi) == 42);
@@ -1552,7 +1552,7 @@ int main() {
 		CHECK(&get<0>(vi) == &get<int>(vi));
 	}
 	{
-		constexpr variant<double, int> vdi{meta::size_t<1>{}, 42};
+		constexpr variant<double, int> vdi{in_place_index<1>, 42};
 		static_assert(vdi.index() == 1);
 		static_assert(holds_alternative<int>(vdi));
 		static_assert(is_trivially_destructible<variant<int, double>>());
@@ -1581,7 +1581,7 @@ int main() {
 	}
 
 	{
-		constexpr variant<int> v{meta::size_t<0>{}, 42};
+		constexpr variant<int> v{in_place_index<0>, 42};
 		CHECK(v.index() == 0u);
 		CHECK(holds_alternative<int>(v));
 		constexpr variant<int> c = v;

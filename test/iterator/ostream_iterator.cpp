@@ -63,5 +63,11 @@ int main() {
 		ext::make_range(istream_iterator<int>{ss}, default_sentinel{}),
 			some_ints);
 
+	static_assert(models::Same<
+		ostream_iterator<int>&,
+		decltype(*std::declval<ostream_iterator<int>&>())>);
+
+	ostream_iterator<std::string>{std::cout} = "Hello, World!\n";
+
 	return ::test_result();
 }

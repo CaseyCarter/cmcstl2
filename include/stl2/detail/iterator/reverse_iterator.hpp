@@ -54,7 +54,6 @@ STL2_OPEN_NAMESPACE {
 				using reference = reference_t<I>;
 				using pointer = I;
 
-				mixin() = default;
 				using base_t::base_t;
 
 				STL2_CONSTEXPR_EXT I base() const

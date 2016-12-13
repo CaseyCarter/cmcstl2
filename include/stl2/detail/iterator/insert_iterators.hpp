@@ -38,12 +38,11 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class Cursor, class Container>
-		struct insert_cursor_mixin : protected ebo_box<Cursor> {
+		struct insert_cursor_mixin : protected ebo_box<Cursor, insert_cursor_mixin<Cursor, Container>> {
 			using difference_type =
 				typename insert_cursor_base<Container>::difference_type;
 			using container_type = Container;
-			insert_cursor_mixin() = default;
-			using ebo_box<Cursor>::ebo_box;
+			using insert_cursor_mixin::ebo_box::ebo_box;
 		};
 
 		template <class T, class C>

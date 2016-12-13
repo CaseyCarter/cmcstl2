@@ -67,7 +67,6 @@ STL2_OPEN_NAMESPACE {
 				using iterator_type = I;
 				using difference_type = cursor::difference_type;
 
-				mixin() = default;
 				using box_t::box_t;
 
 				STL2_CONSTEXPR_EXT I base() const

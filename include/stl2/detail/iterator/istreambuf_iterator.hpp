@@ -113,7 +113,6 @@ STL2_OPEN_NAMESPACE {
 				using streambuf_type = cursor::streambuf_type;
 				using istream_type = cursor::istream_type;
 
-				constexpr mixin() noexcept = default;
 				using box_t::box_t;
 
 				// Yuck. This can't be simply "basic_iterator<cursor>".

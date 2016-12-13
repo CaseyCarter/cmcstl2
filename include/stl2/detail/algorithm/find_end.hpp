@@ -38,13 +38,7 @@ STL2_OPEN_NAMESPACE {
 			return __stl2::next(first1, last1);
 		}
 
-		// HACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACK
-		// FIXME
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 		optional<I1> res;
-#pragma GCC diagnostic pop
-		// HACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACK
 		for (; first1 != last1; ++first1) {
 			if (__stl2::invoke(pred, __stl2::invoke(proj, *first1), *first2)) {
 				auto m1 = first1;
