@@ -23,20 +23,18 @@
 
 STL2_OPEN_NAMESPACE {
    // notes:
-   // size of I2 range be at least as large as (S - I1)
+   //    size of I2 range be at least as large as (S - I1)
+   //    doesn't seem to work with back_inserter (ie back_insert_iterator) because of Number requirement
    template <InputIterator I1, Sentinel<I1> S, InputIterator I2,
              class T = value_type_t<I1>,
              class Proj1 = identity, class Proj2 = identity,
-             IndirectRegularCallable<projected<I1, Proj1>, projected<I2, Proj2>> BinaryOp1 = plus<value_type_t<I1>>,
-             class Result = indirect_result_of_t<BinaryOp1&(projected<I1, Proj1>, projected<I2, Proj2>)>,
-             RegularCallable<T, Result> BinaryOp2 = multiplies<T>>
-   requires models::Assignable<T&, Result> &&
-      models::Number<value_type_t<I1>, value_type_t<I2>> &&
-      models::Number<T, Result>
-   T inner_product(I1 first1,
-                   S last1,
-                   I2 first2,
-                   T init = T{},
+             IndirectRegularCallable<projected<I1, Proj1>, projected<I2, Proj2>> BinaryOp1 = plus<>,
+             class __Result = indirect_result_of_t<BinaryOp1&(projected<I1, Proj1>, projected<I2, Proj2>)>,
+             RegularCallable<T, __Result> BinaryOp2 = multiplies<>>
+   requires models::Assignable<T&, __Result> &&
+      models::Number<value_type_t<projected<I1, Proj1>>, value_type_t<projected<I2, Proj2>>> &&
+      models::Number<T, __Result>
+   T inner_product(I1 first1, S last1, I2 first2, T init = T{},
                    BinaryOp1 binary_op1 = BinaryOp1{},
                    BinaryOp2 binary_op2 = BinaryOp2{},
                    Proj1 proj1 = Proj1{},
@@ -52,14 +50,15 @@ STL2_OPEN_NAMESPACE {
       return init;
    }
 
-   template <InputRange Rng, InputIterator I, Copyable T = value_type_t<iterator_t<Rng>>,
+   template <InputRange Rng, InputIterator I,
+             class T = value_type_t<iterator_t<Rng>>,
              class Proj1 = identity, class Proj2 = identity,
-             IndirectRegularCallable<projected<iterator_t<Rng>, Proj1>, projected<I, Proj2>> BinaryOp1 = plus<value_type_t<iterator_t<Rng>>>,
-             class Result = indirect_result_of_t<BinaryOp1&(projected<iterator_t<Rng>, Proj1>, projected<I, Proj2>)>,
-             RegularCallable<T, Result> BinaryOp2 = multiplies<T>>
-   requires models::Assignable<T&, Result> &&
-      models::Number<value_type_t<iterator_t<Rng>>, value_type_t<I>> &&
-      models::Number<T, Result>
+             IndirectRegularCallable<projected<iterator_t<Rng>, Proj1>, projected<I, Proj2>> BinaryOp1 = plus<>,
+             class __Result = indirect_result_of_t<BinaryOp1&(projected<iterator_t<Rng>, Proj1>, projected<I, Proj2>)>,
+             RegularCallable<T, __Result> BinaryOp2 = multiplies<>>
+   requires models::Assignable<T&, __Result> &&
+      models::Number<value_type_t<projected<iterator_t<Rng>, Proj1>>, value_type_t<projected<I, Proj2>>> &&
+      models::Number<T, __Result>
    T inner_product(Rng&& rng, I first2, T init = T{}, BinaryOp1 binary_op1 = BinaryOp1{},
                    BinaryOp2 binary_op2 = BinaryOp2{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
    {
