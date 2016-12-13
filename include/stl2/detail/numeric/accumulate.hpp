@@ -22,7 +22,7 @@
 STL2_OPEN_NAMESPACE {
    template <InputIterator I, Sentinel<I> S,
              Copyable T = value_type_t<I>,
-             RegularCallable<T, value_type_t<I>> BinaryOp = plus<T>>
+             RegularCallable<T, value_type_t<I>> BinaryOp = plus<>>
              // class Proj = identity,
              // IndirectRegularCallable<T, projected<I, Proj>> BinaryOp = plus<T>>
    requires Assignable<T&, result_of_t<BinaryOp&(T, value_type_t<I>)>>()
@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
    }
 
    template <InputRange Rng, Copyable T = value_type_t<iterator_t<Rng>>,
-             RegularCallable<T, value_type_t<iterator_t<Rng>>> BinaryOp = plus<T>>
+             RegularCallable<T, value_type_t<iterator_t<Rng>>> BinaryOp = plus<>>
    requires Assignable<T&, result_of_t<BinaryOp&(T, value_type_t<iterator_t<Rng>>)>>()
    T accumulate(Rng&& rng, T init = T{}, BinaryOp binary_op = BinaryOp{})
    {
