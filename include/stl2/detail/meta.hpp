@@ -169,6 +169,9 @@ STL2_OPEN_NAMESPACE {
 	}
 	template <class T>
 	using __as_integer_sequence = meta::_t<detail::__as_integer_sequence<T>>;
+
+	template <bool IsConst, class T>
+	using __maybe_const = meta::if_c<IsConst, T const, T>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -66,30 +66,30 @@ STL2_OPEN_NAMESPACE {
 
 			template <std::size_t N, class...Args>
 			requires
-				N > 0 && Constructible<tail_t, meta::size_t<N - 1>, Args...>()
-			constexpr storage(meta::size_t<N>, Args&&...args)
-			noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, Args...>::value)
-			: tail_{meta::size_t<N - 1>{}, __stl2::forward<Args>(args)...} {}
+				N > 0 && Constructible<tail_t, in_place_index_t<N - 1>, Args...>()
+			constexpr storage(in_place_index_t<N>, Args&&...args)
+			noexcept(is_nothrow_constructible<tail_t, in_place_index_t<N - 1>, Args...>::value)
+			: tail_{in_place_index<N - 1>, __stl2::forward<Args>(args)...} {}
 
 			template <class...Args>
 			requires Constructible<First, Args...>()
-			constexpr storage(meta::size_t<0>, Args&&...args)
+			constexpr storage(in_place_index_t<0>, Args&&...args)
 			noexcept(is_nothrow_constructible<head_t, Args...>::value)
 			: head_{__stl2::forward<Args>(args)...} {}
 
 			template <std::size_t N, class E, class...Args>
 			requires
 				N > 0 &&
-				Constructible<tail_t, meta::size_t<N - 1>,
+				Constructible<tail_t, in_place_index_t<N - 1>,
 					std::initializer_list<E>, Args...>()
-			constexpr storage(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
-			noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>,
+			constexpr storage(in_place_index_t<N>, std::initializer_list<E> il, Args&&...args)
+			noexcept(is_nothrow_constructible<tail_t, in_place_index_t<N - 1>,
 				std::initializer_list<E>, Args...>::value)
-			: tail_{meta::size_t<N - 1>{}, il, __stl2::forward<Args>(args)...} {}
+			: tail_{in_place_index<N - 1>, il, __stl2::forward<Args>(args)...} {}
 
 			template <class E, class...Args>
 			requires Constructible<First, std::initializer_list<E>, Args...>()
-			constexpr storage(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
+			constexpr storage(in_place_index_t<0>, std::initializer_list<E> il, Args&&...args)
 			noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value)
 			: head_{il, __stl2::forward<Args>(args)...} {}
 		};
@@ -121,50 +121,50 @@ STL2_OPEN_NAMESPACE {
 
 			template <std::size_t N, class...Args>
 			requires
-				N > 0 && Constructible<tail_t, meta::size_t<N - 1>, Args...>()
-			constexpr storage(meta::size_t<N>, Args&&...args)
-			noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>, Args...>::value)
-			: tail_{meta::size_t<N - 1>{}, __stl2::forward<Args>(args)...} {}
+				N > 0 && Constructible<tail_t, in_place_index_t<N - 1>, Args...>()
+			constexpr storage(in_place_index_t<N>, Args&&...args)
+			noexcept(is_nothrow_constructible<tail_t, in_place_index_t<N - 1>, Args...>::value)
+			: tail_{in_place_index<N - 1>, __stl2::forward<Args>(args)...} {}
 
 			template <class...Args>
 			requires Constructible<First, Args...>()
-			constexpr storage(meta::size_t<0>, Args&&...args)
+			constexpr storage(in_place_index_t<0>, Args&&...args)
 			noexcept(is_nothrow_constructible<head_t, Args...>::value)
 			: head_{__stl2::forward<Args>(args)...} {}
 
 			template <std::size_t N, class E, class...Args>
 			requires
 				N > 0 &&
-				Constructible<tail_t, meta::size_t<N - 1>,
+				Constructible<tail_t, in_place_index_t<N - 1>,
 					std::initializer_list<E>, Args...>()
-			constexpr storage(meta::size_t<N>, std::initializer_list<E> il, Args&&...args)
-			noexcept(is_nothrow_constructible<tail_t, meta::size_t<N - 1>,
+			constexpr storage(in_place_index_t<N>, std::initializer_list<E> il, Args&&...args)
+			noexcept(is_nothrow_constructible<tail_t, in_place_index_t<N - 1>,
 				std::initializer_list<E>, Args...>::value)
-			: tail_{meta::size_t<N - 1>{}, il, __stl2::forward<Args>(args)...} {}
+			: tail_{in_place_index<N - 1>, il, __stl2::forward<Args>(args)...} {}
 
 			template <class E, class...Args>
 			requires Constructible<First, std::initializer_list<E>, Args...>()
-			constexpr storage(meta::size_t<0>, std::initializer_list<E> il, Args&&...args)
+			constexpr storage(in_place_index_t<0>, std::initializer_list<E> il, Args&&...args)
 			noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value)
 			: head_{il, __stl2::forward<Args>(args)...} {}
 		};
 
 		///////////////////////////////////////////////////////////////////////////
-		// st_access::raw_get(meta::size_t<i>, s) returns a "perfect" reference to
+		// st_access::raw_get(in_place_index<i>, s) returns a "perfect" reference to
 		// the element at index i in storage s. The complexity targets of the rest
 		// of the variant machinery assume the compiler optimizes the recursion in
 		// raw_get to O(1).
 		//
 		struct st_access {
 			template <IsStorage S>
-			static constexpr auto&& raw_get(meta::size_t<0>, S&& s) noexcept {
+			static constexpr auto&& raw_get(in_place_index_t<0>, S&& s) noexcept {
 				return __stl2::forward<S>(s).head_;
 			}
 
 			template <std::size_t I, IsStorage S>
-			static constexpr auto&& raw_get(meta::size_t<I>, S&& s) noexcept {
+			static constexpr auto&& raw_get(in_place_index_t<I>, S&& s) noexcept {
 				static_assert(I < remove_reference_t<S>::size);
-				return st_access::raw_get(meta::size_t<I - 1>{}, __stl2::forward<S>(s).tail_);
+				return st_access::raw_get(in_place_index<I - 1>, __stl2::forward<S>(s).tail_);
 			}
 		};
 	}

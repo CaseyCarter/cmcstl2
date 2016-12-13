@@ -18,7 +18,7 @@ namespace stl2 = __stl2;
 
 int main() {
 	{
-		auto v = stl2::repeat_view<int>(42);
+		auto v = stl2::ext::repeat_view<int>(42);
 		static_assert(sizeof(v) == sizeof(int));
 
 		CHECK(v.value() == 42);
@@ -37,15 +37,15 @@ int main() {
 		auto second = first + 1;
 		CHECK(*second == *first);
 
-		// operator-> returns a proxy
+		// operator-> returns a pointer
 		static_assert(
 			stl2::models::Same<
 				decltype(first.operator->()),
-				stl2::detail::operator_arrow_proxy<decltype(first)>>);
+				const int*>);
 	}
 	{
 		using big_type = std::array<double, 128>;
-		auto v = stl2::repeat_view<big_type>(big_type{});
+		auto v = stl2::ext::repeat_view<big_type>(big_type{});
 		static_assert(sizeof(v) == sizeof(big_type));
 
 		CHECK(v.value() == big_type{});
@@ -66,10 +66,11 @@ int main() {
 			stl2::models::Same<
 				decltype(first.operator->()),
 				const big_type*>);
+		CHECK(&*first == first.operator->());
 	}
 	{
 		constexpr unsigned N = 1u << 16;
-		auto v = stl2::repeat_view<std::vector<int>>{std::vector<int>(N, 42)};
+		auto v = stl2::ext::repeat_view<std::vector<int>>{std::vector<int>(N, 42)};
 		static_assert(sizeof(v) == sizeof(std::vector<int>));
 
 		CHECK(v.value() == std::vector<int>(N, 42));

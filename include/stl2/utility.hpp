@@ -16,11 +16,11 @@
 
 #include <stl2/functional.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/in_place.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/swap.hpp>
 #include <stl2/detail/tagged.hpp>
 #include <stl2/detail/tuple_like.hpp>
+#include <stl2/detail/utility/in_place.hpp>
 
 STL2_OPEN_NAMESPACE {
 	using std::initializer_list;

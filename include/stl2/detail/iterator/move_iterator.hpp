@@ -56,7 +56,6 @@ STL2_OPEN_NAMESPACE {
 				using iterator_category = input_iterator_tag;
 				using reference = rvalue_reference_t<I>;
 
-				mixin() = default;
 				using box_t::box_t;
 
 				STL2_CONSTEXPR_EXT I base() const

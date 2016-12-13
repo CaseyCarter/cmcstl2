@@ -13,15 +13,12 @@
 #define STL2_DETAIL_RANGE_ACCESS_HPP
 
 #include <initializer_list>
-#include <stl2/memory.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>
-
-// TODO:
-// * constexpr specialization for data if iterator is a pointer.
+#include <stl2/detail/memory/addressof.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // Range access [iterator.range]

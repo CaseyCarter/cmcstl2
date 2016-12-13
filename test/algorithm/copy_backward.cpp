@@ -22,7 +22,7 @@ namespace ranges = __stl2;
 namespace {
 	void test_repeat_view() {
 		{
-			auto v = ranges::repeat_view<int>(42);
+			auto v = ranges::ext::repeat_view<int>(42);
 			int target[8]{};
 			auto result = ranges::copy_backward(ranges::make_counted_iterator(v.begin(), 4),
 				ranges::make_counted_iterator(v.begin(), 0), ranges::end(target));
@@ -33,7 +33,7 @@ namespace {
 			CHECK(std::count(target + 4, target + 8, 42) == 4);
 		}
 		{
-			auto v = ranges::repeat_view<int>(42);
+			auto v = ranges::ext::repeat_view<int>(42);
 			int target[8]{};
 			auto result = ranges::copy_backward(ranges::make_counted_iterator(v.begin(), 4),
 				ranges::default_sentinel{}, ranges::end(target));
