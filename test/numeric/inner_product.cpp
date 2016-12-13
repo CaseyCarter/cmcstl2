@@ -18,6 +18,7 @@
 #include <list>
 #include <numeric>
 #include <stl2/detail/concepts/number.hpp>
+#include <stl2/detail/fwd.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -31,32 +32,45 @@ void CHECK_algorithm(const U& u, const V& v)
 {
    auto s = std::inner_product(u.begin(), u.end(), v.begin(), ranges::value_type_t<U>{});
 
-   CHECK(s == ranges::inner_product(u.begin(), u.end(), v.begin(), ranges::value_type_t<U>{}));
+   CHECK(s == ranges::inner_product(u.begin(), u.end(), v.begin()));
    CHECK(s == ranges::inner_product(u, v.begin()));
 }
+
+template <typename T, typename U, ranges::Callable<T, U> F1, ranges::Callable<T, U> F2>
+void CHECK_callable(const std::vector<T>& a, const std::vector<U>& b, F1 f1, F2 f2)
+{
+   using ranges::value_type_t;
+   auto s = std::inner_product(a.begin(), a.end(), b.begin(), T{}, f1, f2);
+
+   CHECK(s == ranges::inner_product(a.begin(), a.end(), b.begin(), T{}, f1, f2));
+   CHECK(s == ranges::inner_product(a, b.begin(), T{}, f1, f2));
+}
+
+// not sure where (or if) I should sneak this into the headers...
+template <typename T>
+using mapped_type_t = typename T::mapped_type;
 
 template <typename U, typename V, typename Proj1, typename Proj2>
 void CHECK_projection(U u, V v, Proj1 proj1, Proj2 proj2)
 {
-   using Value_type = ranges::value_type_t<U>;
-   auto s = std::inner_product(u.begin(), u.end(), v.begin(), Value_type{},
+   using ranges::value_type_t;
+   auto s = std::inner_product(u.begin(), u.end(), v.begin(), mapped_type_t<U>{},
                            [](const auto& i, const auto& j) {
-                              return std::plus<Value_type>{}(i, j);
+                              return std::plus<mapped_type_t<U>>{}(i, j);
                            },
                            [](const auto& i, const auto& j) {
-                              return std::multiplies<Value_type>{}(i, j.second);
+                              return std::multiplies<mapped_type_t<U>>{}(i.first, j.second);
                            });
-   auto r = ranges::inner_product(u.begin(), u.end(), v.begin(), Value_type{},
-                                  ranges::plus<Value_type>{},
-                                  ranges::multiplies<Value_type>{},
-                                  ranges::move(proj1),
-                                  ranges::move(proj2));
-   CHECK(s == r);
-   CHECK(r == ranges::inner_product(u, v.begin(), Value_type{},
-                                    ranges::plus<Value_type>{},
-                                    ranges::multiplies<Value_type>{},
-                                    ranges::move(proj1),
-                                    ranges::move(proj2)));
+   CHECK(s == ranges::inner_product(u.begin(), u.end(), v.begin(), mapped_type_t<U>{},
+                                    ranges::plus<>{},
+                                    ranges::multiplies<>{},
+                                    proj1,
+                                    proj2));
+   CHECK(s == ranges::inner_product(u, v.begin(), mapped_type_t<U>{},
+                                    ranges::plus<>{},
+                                    ranges::multiplies<>{},
+                                    proj1,
+                                    proj2));
 }
 
 int main()
@@ -70,6 +84,7 @@ int main()
    CHECK_algorithm(std::vector<double>{}, std::vector<int>{1});
 
    // CHECK_algorithm(std::vector<int>{1, 2, 3}, std::vector<int>{});
+
    CHECK_algorithm(std::vector<int>{1}, std::vector<int>{2});
    CHECK_algorithm(std::vector<int>{10}, std::deque<float>{3.0f});
    CHECK_algorithm(std::list<double>{4.0}, std::list<int>{7});
@@ -81,14 +96,39 @@ int main()
    CHECK_algorithm(std::vector<double>{-7.0, 5.3, 3.1415965},
                    std::list<int>{0xa, 0xb, 0xc, 0xd});
 
-   CHECK_projection(std::vector<int>{0, 1, 2, 3, 4, 5},
+   CHECK_callable<int, int>({0, 1, 2, 3, 4, 5, 6, 7, 8}, {8, 1, 5, 3, 4, 2, 7, 0},
+                            [](const auto a, const auto b) {
+                              return a < b || b == 0 ? a * b : a / b;
+                            },
+                            [](const auto a, const auto b) {
+                               return a < b ? a + b : a - b;
+                            });
+   CHECK_callable<int, double>({0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
+                               {0, 0.000'01, 0.000'2, 0.003, 0.04, 0.5, 6.0, 70.0, 800.0, 9'000.0},
+                               [](const auto a, const auto b) {
+                                  return 300 * a * b;
+                               },
+                               ranges::plus<>{});
+   CHECK_callable<double, int>({0, 0.000'01, 0.000'2, 0.003, 0.04, 0.5, 6.0, 70.0, 800.0, 9'000.0},
+                               {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
+                               [](const auto a, const auto b) {
+                                  return 300 * a * b;
+                               },
+                               ranges::plus<>{});
+
+   CHECK_projection(std::unordered_map<int, int>{{0, 0},
+                                                 {1, 1},
+                                                 {2, 2},
+                                                 {3, 3},
+                                                 {4, 4},
+                                                 {5, 5}},
                     std::unordered_map<std::string, int>{{"hello", 15},
                                                          {"world", 20},
                                                          {"first", 25},
                                                          {"last", 30},
                                                          {"begin", 35},
                                                          {"end", 40}},
-                    ranges::identity{},
-                    [](const auto& i){ return i.second; });
+                    [](const auto& i) { return i.first; },
+                    [](const auto& i) { return i.second; });
    return test_result();
 }
