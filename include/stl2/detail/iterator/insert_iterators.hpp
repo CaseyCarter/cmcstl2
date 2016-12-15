@@ -26,6 +26,7 @@ STL2_OPEN_NAMESPACE {
 		class insert_cursor_base {
 		public:
 			using difference_type = std::ptrdiff_t;
+         using value_type = typename Container::value_type;
 
 			constexpr insert_cursor_base() noexcept = default;
 

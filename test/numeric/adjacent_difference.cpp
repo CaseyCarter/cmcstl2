@@ -17,7 +17,7 @@
 #include <deque>
 #include <list>
 #include <numeric>
-#include <stl2/detail/concepts/number.hpp>
+#include <stl2/detail/fwd.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -43,10 +43,26 @@ void CHECK_algorithm(const T& v)
    CHECK(result.out() == r.end());
 }
 
+void CHECK_irregular()
+{
+   const auto v = std::vector<int>{100, 200, 300, 400, 5600};
+   auto s = std::vector<int>{};
+   std::adjacent_difference(v.begin(), v.end(), std::back_inserter(s));
+
+   auto r = std::vector<int>{};
+   ranges::adjacent_difference(v.begin(), v.end(), ranges::back_inserter(r));
+   CHECK(r == s);
+
+   r.clear();
+   CHECK(r != s);
+   ranges::adjacent_difference(v, ranges::back_inserter(r));
+   CHECK(r == s);
+}
+
 template <typename Proj>
 void CHECK_projection(const std::unordered_map<int, int>& h, Proj proj)
 {
-   // TODO
+   // TODO identify a suitable data structure and projection to test
 }
 
 int main()
@@ -63,6 +79,6 @@ int main()
    CHECK_algorithm(std::vector<double>{0, 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9});
    CHECK_algorithm(std::list<cmcstl2::Uint128>{{}, {0xdeadbeef, 0xf00d5a1e}, {0, 1},
                                                    {0xfeedfeedfeedfeed, 0xbeefbeefbeefbeef}});
-
+   CHECK_irregular();
    return test_result();
 }

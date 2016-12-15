@@ -20,32 +20,28 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-   // notes
-   //    back_inserter currently incompatible with value_type_t
    template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-             class Proj = identity,
-             class __Arg = projected<I, Proj>,
-             IndirectRegularCallable<__Arg, __Arg> BinaryOp = minus<>>
-   requires models::IndirectlyCopyable<I, O> &&
+      class Proj = identity,
+      class __Arg = projected<I, Proj>,
+      IndirectRegularCallable<__Arg, __Arg> BinaryOp = minus<>>
+   requires
+      models::IndirectlyCopyable<I, O> &&
       models::Movable<value_type_t<I>> &&
-      //Constructible<value_type_t<I>, value_type_t<I>>()
       models::RegularNumber<value_type_t<O>, value_type_t<__Arg>>
    tagged_pair<tag::in(I), tag::out(O)>
    adjacent_difference(I first, S last, O result, BinaryOp binary_op = BinaryOp{}, Proj proj = Proj{})
    {
-      
       if (first != last) {
          auto acc = *first++;
          *result++ = acc;
          for (; first != last; ++first, (void)++result) {
             auto val = *first;
-            *result = __stl2::invoke(binary_op, __stl2::invoke(proj, val),
-                                     __stl2::invoke(proj, acc));
+            *result = __stl2::invoke(binary_op, __stl2::invoke(proj, val), __stl2::invoke(proj, acc));
             acc = __stl2::move(val);
          }
       }
 
-      return {first, result};
+      return {__stl2::move(first), __stl2::move(result)};
    }
 
    template <InputRange Rng, WeaklyIncrementable O,
