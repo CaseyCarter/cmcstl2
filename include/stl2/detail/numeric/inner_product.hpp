@@ -23,8 +23,8 @@
 
 STL2_OPEN_NAMESPACE {
    // notes:
-   //    size of I2 range be at least as large as (S - I1)
-   //    doesn't seem to work with back_inserter (ie back_insert_iterator) because of Number requirement
+   //    size(I2 range) be at least as large as (S - I1)
+   //       this is possibly a requirement enforceable by contracts (if at all)
    template <InputIterator I1, Sentinel<I1> S, InputIterator I2,
              class T = value_type_t<I1>,
              class Proj1 = identity, class Proj2 = identity,
