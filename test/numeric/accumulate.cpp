@@ -19,6 +19,7 @@
 #include <numeric>
 #include <stl2/detail/concepts/number.hpp>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace ranges = __stl2;
@@ -61,6 +62,23 @@ void CHECK_many(const std::string& i)
    CHECK(ranges::accumulate(l) == std::accumulate(l.cbegin(), l.cend(), i));
 }
 
+template <typename T>
+using mapped_type_t = typename T::mapped_type;
+
+template <typename Container, typename Proj>
+requires
+   ranges::models::Callable<Proj, ranges::value_type_t<Container>>
+void CHECK_projection(const Container& t, const Proj& proj)
+{
+   auto a = std::accumulate(t.begin(), t.end(), mapped_type_t<Container>{},
+                            [&proj](const std::string& i, const ranges::value_type_t<Container>& j) {
+                               return std::plus<>{}(i, proj(j));
+                            });
+   CHECK(a == ranges::accumulate(t.begin(), t.end(), mapped_type_t<Container>{},
+                                 ranges::plus<>{}, proj));
+   CHECK(a == ranges::accumulate(t, mapped_type_t<Container>{}, ranges::plus<>{}, proj));
+}
+
 int main()
 {
    CHECK_empty<int>();
@@ -82,6 +100,17 @@ int main()
    CHECK_one<cmcstl2::Uint128>();
    CHECK_many<cmcstl2::Uint128>(cmcstl2::Uint128{0xdeadbeef, 0xf00d4b0b});
    CHECK_many<std::uint64_t, cmcstl2::Uint128>();
+
+   std::unordered_map<int, std::string> indexed_strings{{1, "hello"},
+                                                        {2, "world"},
+                                                        {3, "this"},
+                                                        {4, "that"},
+                                                        {5, "begin"},
+                                                        {-34, "end"}};
+   CHECK_projection(indexed_strings,
+                    [](const ranges::value_type_t<decltype(indexed_strings)>& i) {
+                       return i.second;
+                    });
 
    return test_result();
 }

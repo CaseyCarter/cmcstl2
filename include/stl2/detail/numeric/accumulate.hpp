@@ -20,28 +20,32 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-   template <InputIterator I, Sentinel<I> S,
-             Copyable T = value_type_t<I>,
-             RegularCallable<T, value_type_t<I>> BinaryOp = plus<>>
-             // class Proj = identity,
-             // IndirectRegularCallable<T, projected<I, Proj>> BinaryOp = plus<T>>
-   requires Assignable<T&, result_of_t<BinaryOp&(T, value_type_t<I>)>>()
-   T accumulate(I first, S last, T init = T{}, BinaryOp binary_op = BinaryOp{})
-   {
-      T acc = init;
-      for (; first != last; ++first)
-         acc = __stl2::invoke(binary_op, acc, *first);
-      return acc;
-   }
+	template <InputIterator I, Sentinel<I> S,
+				 Copyable T = value_type_t<I>,
+				 class Proj = identity,
+				 class __Arg2 = value_type_t<projected<I, Proj>>,
+				 RegularCallable<T, __Arg2> Op = plus<>>
+	requires
+		models::Assignable<T&, result_of_t<Op&(T, __Arg2)>>
+	T accumulate(I first, S last, T init = T{}, Op op = Op{}, Proj proj = Proj{})
+	{
+		T acc = init;
+		for (; first != last; ++first)
+			acc = __stl2::invoke(op, acc, __stl2::invoke(proj, *first));
+		return acc;
+	}
 
-   template <InputRange Rng, Copyable T = value_type_t<iterator_t<Rng>>,
-             RegularCallable<T, value_type_t<iterator_t<Rng>>> BinaryOp = plus<>>
-   requires Assignable<T&, result_of_t<BinaryOp&(T, value_type_t<iterator_t<Rng>>)>>()
-   T accumulate(Rng&& rng, T init = T{}, BinaryOp binary_op = BinaryOp{})
-   {
-      return accumulate(__stl2::begin(rng), __stl2::end(rng),
-                        __stl2::move(init), __stl2::move(binary_op));
-   }
+	template <InputRange Rng, Copyable T = value_type_t<iterator_t<Rng>>,
+				 class Proj = identity,
+				 class __Arg2 = value_type_t<projected<iterator_t<Rng>, Proj>>,
+				 RegularCallable<T, __Arg2> Op = plus<>>
+	requires
+		models::Assignable<T&, result_of_t<Op&(T, __Arg2)>>
+	T accumulate(Rng&& rng, T init = T{}, Op op = Op{}, Proj proj = Proj{})
+	{
+		return accumulate(__stl2::begin(rng), __stl2::end(rng),
+								__stl2::move(init), __stl2::move(op), __stl2::move(proj));
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_NUMERIC_ACCUMULATE_HPP
