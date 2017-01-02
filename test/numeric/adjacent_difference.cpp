@@ -13,37 +13,78 @@
 //
 #include <stl2/detail/numeric/adjacent_difference.hpp>
 #include "../detail/int128.hpp"
+#include "../detail/test_interface.hpp"
 #include "../simple_test.hpp"
 #include <deque>
 #include <list>
 #include <numeric>
+#include <stl2/detail/concepts/container.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace ranges = __stl2;
 
-template <typename T>
-void CHECK_algorithm(const T& v)
+int main()
 {
-   auto s = T(v.size());
+   auto stdcall =
+   [](ranges::InputIterator a, ranges::Sentinel<decltype(a)> b, ranges::WeaklyIncrementable c) {
+      std::adjacent_difference(ranges::move(a), ranges::move(b), ranges::move(c));
+   };
+   auto stl2_call =
+   [](ranges::InputIterator a, ranges::Sentinel<decltype(a)> b, ranges::WeaklyIncrementable c) {
+      return ranges::adjacent_difference(ranges::move(a), ranges::move(b), ranges::move(c));
+   };
+   auto range_call =
+   [](ranges::InputRange&& a, ranges::WeaklyIncrementable b) {
+      return ranges::adjacent_difference(ranges::forward<decltype(a)>(a), ranges::move(b));
+   };
+   
+   CHECK_empty<std::vector<int>>(stdcall, stl2_call, range_call);
+   CHECK_empty<std::deque<double>>(stdcall, stl2_call, range_call);
+   CHECK_empty<std::list<cmcstl2::Uint128>>(stdcall, stl2_call, range_call);
+
+   CHECK_single_element<std::vector<int>>(stdcall, stl2_call, range_call);
+   CHECK_single_element<std::deque<double>>(stdcall, stl2_call, range_call);
+   CHECK_single_element<std::list<cmcstl2::Uint128>>(stdcall, stl2_call, range_call);
+
+   CHECK_many<std::vector>(stdcall, stl2_call, range_call,
+                           0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+   CHECK_many<std::deque>(stdcall, stl2_call, range_call,
+                          0.0, 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9);
+   CHECK_many<std::list>(stdcall, stl2_call, range_call,
+                         cmcstl2::Uint128{},
+                         cmcstl2::Uint128{0xdeadbeef, 0xf00d5a1e},
+                         cmcstl2::Uint128{0, 1},
+                         cmcstl2::Uint128{0xfeedfeedfeedfeed, 0xbeefbeefbeefbeef});
+   CHECK_projection();
+   CHECK_insert_iterator();
+   return test_result();
+}
+
+void CHECK_projection() noexcept
+{
+   const auto v = std::vector<int>{100, 200, 400, 600};
+   auto s = std::vector<int>(v.size());
    std::adjacent_difference(v.begin(), v.end(), s.begin());
 
-   auto r = T(v.size());
-   auto result = ranges::adjacent_difference(v.begin(), v.end(), r.begin());
-   CHECK(s == r);
-   CHECK(result.in() == v.end());
-   CHECK(result.out() == r.end());
+   auto u = std::vector<std::pair<int, int>>{};
+   for (const auto& i : v)
+      u.push_back({i, 0});
 
-   r = T(v.size());
-   result = ranges::adjacent_difference(v, r.begin());
-   CHECK(s == r);
-   CHECK(result.in() == v.end());
+   auto r = std::vector<int>(u.size());
+   auto result = ranges::adjacent_difference(u,
+                                             r.begin(),
+                                             ranges::minus<>{},
+                                             [](const auto i) {
+                                                return i.first;
+                                             });
+   CHECK(r == s);
+   CHECK(result.in() == u.end());
    CHECK(result.out() == r.end());
 }
 
-void CHECK_irregular()
+void CHECK_insert_iterator() noexcept
 {
    const auto v = std::vector<int>{100, 200, 300, 400, 5600};
    auto s = std::vector<int>{};
@@ -57,28 +98,4 @@ void CHECK_irregular()
    CHECK(r != s);
    ranges::adjacent_difference(v, ranges::back_inserter(r));
    CHECK(r == s);
-}
-
-template <typename Proj>
-void CHECK_projection(const std::unordered_map<int, int>& h, Proj proj)
-{
-   // TODO identify a suitable data structure and projection to test
-}
-
-int main()
-{
-   CHECK_algorithm(std::vector<int>{});
-   CHECK_algorithm(std::deque<double>{});
-   CHECK_algorithm(std::list<cmcstl2::Uint128>{});
-
-   CHECK_algorithm(std::vector<int>{1});
-   CHECK_algorithm(std::deque<double>{1.0});
-   CHECK_algorithm(std::list<cmcstl2::Uint128>{{0xdeadbeef, 0xf00d5a1e}});
-
-   CHECK_algorithm(std::vector<int>{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
-   CHECK_algorithm(std::vector<double>{0, 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9});
-   CHECK_algorithm(std::list<cmcstl2::Uint128>{{}, {0xdeadbeef, 0xf00d5a1e}, {0, 1},
-                                                   {0xfeedfeedfeedfeed, 0xbeefbeefbeefbeef}});
-   CHECK_irregular();
-   return test_result();
 }

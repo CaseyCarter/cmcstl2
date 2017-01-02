@@ -23,20 +23,21 @@ STL2_OPEN_NAMESPACE {
    template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
       class Proj = identity,
       class __Arg = projected<I, Proj>,
-      IndirectRegularCallable<__Arg, __Arg> BinaryOp = minus<>>
+      IndirectRegularCallable<__Arg, __Arg> Op = minus<>>
    requires
-      models::IndirectlyCopyable<I, O> &&
-      models::Movable<value_type_t<I>> &&
+      models::IndirectlyCopyable<__Arg, O> &&
+      models::Movable<value_type_t<__Arg>> &&
+      models::CopyConstructible<value_type_t<__Arg>> &&
       models::RegularNumber<value_type_t<O>, value_type_t<__Arg>>
    tagged_pair<tag::in(I), tag::out(O)>
-   adjacent_difference(I first, S last, O result, BinaryOp binary_op = BinaryOp{}, Proj proj = Proj{})
+   adjacent_difference(I first, S last, O result, Op op = Op{}, Proj proj = Proj{})
    {
       if (first != last) {
-         auto acc = *first++;
+         auto acc = __stl2::invoke(proj, *first++);
          *result++ = acc;
          for (; first != last; ++first, (void)++result) {
-            auto val = *first;
-            *result = __stl2::invoke(binary_op, __stl2::invoke(proj, val), __stl2::invoke(proj, acc));
+            auto val = __stl2::invoke(proj, *first);
+            *result = __stl2::invoke(op, val, acc);
             acc = __stl2::move(val);
          }
       }
@@ -47,15 +48,17 @@ STL2_OPEN_NAMESPACE {
    template <InputRange Rng, WeaklyIncrementable O,
              class Proj = identity,
              class __Arg = projected<iterator_t<Rng>, Proj>,
-             IndirectRegularCallable<__Arg, __Arg> BinaryOp = minus<>>
-   requires models::IndirectlyCopyable<iterator_t<Rng>, O> &&
-      models::Movable<value_type_t<iterator_t<Rng>>> &&
+             IndirectRegularCallable<__Arg, __Arg> Op = minus<>>
+   requires
+      models::IndirectlyCopyable<__Arg, O> &&
+      models::Movable<value_type_t<__Arg>> &&
+      models::CopyConstructible<value_type_t<__Arg>> &&
       models::RegularNumber<value_type_t<O>, value_type_t<__Arg>>
-   tagged_pair<tag::in(__f<safe_iterator_t<Rng>>), tag::out(__f<O>)>
-   adjacent_difference(Rng&& rng, O result, BinaryOp binary_op = BinaryOp{}, Proj proj = Proj{})
+   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
+   adjacent_difference(Rng&& rng, O result, Op op = Op{}, Proj proj = Proj{})
    {
       return adjacent_difference(__stl2::begin(rng), __stl2::end(rng), __stl2::move(result),
-                                 __stl2::move(binary_op), __stl2::move(proj));
+                                 __stl2::move(op), __stl2::move(proj));
    }
 } STL2_CLOSE_NAMESPACE
 #endif // STL2_DETAIL_NUMERIC_ADJACENT_DIFFERENCE_HPP
