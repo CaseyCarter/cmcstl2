@@ -22,38 +22,44 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-   template <InputIterator I, Sentinel<I> S, OutputIterator<value_type_t<I>&> O,
+   template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
              class Proj = identity,
-             class Arg = projected<I, Proj>,
-             IndirectRegularCallable<Arg, Arg> BinaryOp = plus<>>
-      tagged_pair<tag::in(I), tag::out(O)> // I don't think these need to be wrapped in __f
-   partial_sum(I first, S last, O result, BinaryOp binary_op = BinaryOp{}, Proj proj = Proj{})
-   requires models::Constructible<value_type_t<I>, decltype(*first)> &&
-      models::ConvertibleTo<indirect_result_of_t<BinaryOp&(Arg, Arg)>, value_type_t<I>> &&
-      models::Writable<O, value_type_t<I>> //&&
-      //models::RegularNumber<value_type_t<I>, value_type_t<O>>
+             class __Arg = projected<I, Proj>,
+             IndirectRegularCallable<__Arg, __Arg> Op = plus<>>
+   requires
+      models::IndirectlyCopyable<__Arg, O> &&
+      models::Writable<O, value_type_t<__Arg>> &&
+      models::MoveConstructible<value_type_t<__Arg>> && // formally necessary, but are these two
+      models::CopyConstructible<value_type_t<__Arg>> && // actually necessary?
+      models::Constructible<value_type_t<__Arg>, indirect_result_of_t<Op&(__Arg, __Arg)>> &&
+      models::RegularNumber<value_type_t<O>, value_type_t<__Arg>>
+   tagged_pair<tag::in(I), tag::out(O)>
+   partial_sum(I first, S last, O result, Op op = Op{}, Proj proj = Proj{})
    {
-      for (auto acc = value_type_t<I>{}; first != last; ++first, (void)++result) {
-         acc = __stl2::invoke(binary_op, __stl2::invoke(proj, acc), __stl2::invoke(proj, *first));
+      for (auto acc = value_type_t<__Arg>{}; first != last; ++first, (void)++result) {
+         acc = __stl2::invoke(op, acc, __stl2::invoke(proj, *first));
          *result = acc;
       }
 
       return {__stl2::move(first), __stl2::move(result)};
    }
 
-   template <InputRange Rng, OutputIterator<value_type_t<iterator_t<Rng>>&> O,
+   template <InputRange Rng, WeaklyIncrementable O,
              class Proj = identity,
-             class Arg = projected<Proj, iterator_t<Rng>>,
-             IndirectRegularCallable<Arg, Arg> BinaryOp = plus<>>
-      tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
-   partial_sum(Rng&& rng, O result, BinaryOp binary_op = BinaryOp{}, Proj proj = Proj{})
-   requires models::Constructible<value_type_t<iterator_t<Rng>>, decltype(*__stl2::begin(rng))> &&
-      models::ConvertibleTo<indirect_result_of_t<BinaryOp&(Arg, Arg)>, value_type_t<iterator_t<Rng>>> &&
-      models::Writable<O, value_type_t<iterator_t<Rng>>> //&&
-      //models::RegularNumber<value_type_t<iterator_t<Rng>>, value_type_t<O>>
+             class __Arg = projected<iterator_t<Rng>, Proj>,
+             IndirectRegularCallable<__Arg, __Arg> Op = plus<>>
+   requires
+      models::IndirectlyCopyable<__Arg, O> &&
+      models::Writable<O, value_type_t<__Arg>> &&
+      models::MoveConstructible<value_type_t<__Arg>> && // formally necessary, but are these two
+      models::CopyConstructible<value_type_t<__Arg>> && // actually necessary?
+      models::Constructible<value_type_t<__Arg>, indirect_result_of_t<Op&(__Arg, __Arg)>> &&
+      models::RegularNumber<value_type_t<O>, value_type_t<__Arg>>
+   tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
+   partial_sum(Rng&& rng, O result, Op op = Op{}, Proj proj = Proj{})
    {
-      return __stl2::partial_sum(__stl2::begin(rng), __stl2::end(rng), __stl2::move(binary_op),
-                                 __stl2::move(proj));
+      return __stl2::partial_sum(__stl2::begin(rng), __stl2::end(rng), __stl2::move(result),
+                                 __stl2::move(op), __stl2::move(proj));
    }
 } STL2_CLOSE_NAMESPACE
 #endif // STL2_DETAIL_NUMERIC_PARTIAL_SUM_HPP
