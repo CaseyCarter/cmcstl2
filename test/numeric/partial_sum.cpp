@@ -13,12 +13,12 @@
 //
 #include <stl2/detail/numeric/partial_sum.hpp>
 #include "../detail/int128.hpp"
-#include "../detail/test_interface.hpp"
 #include "../simple_test.hpp"
 #include <deque>
 #include <list>
 #include <numeric>
 #include <stl2/detail/concepts/container.hpp>
+#include "test_interface.hpp"
 #include <utility>
 #include <vector>
 
@@ -55,6 +55,13 @@ int main()
                          cmcstl2::Uint128{0xdeadbeef, 0xf00d5a1e},
                          cmcstl2::Uint128{0, 1},
                          cmcstl2::Uint128{0xfeedfeedfeedfeed, 0xbeefbeefbeefbeef});
+   CHECK_custom_op(
+   [](auto a, auto b, auto c, auto op) {
+      std::partial_sum(ranges::move(a), ranges::move(b), ranges::move(c), ranges::move(op));
+   },
+   [](ranges::InputRange&& a, ranges::WeaklyIncrementable b, auto op) {
+      return ranges::partial_sum(ranges::forward<decltype(a)>(a), ranges::move(b), ranges::move(op));
+   });
    CHECK_projection();
    CHECK_insert_iterator();
    return test_result();
@@ -83,5 +90,16 @@ void CHECK_projection() noexcept
 
 void CHECK_insert_iterator() noexcept
 {
-   
+   const auto v = std::vector<int>{1, 2, 4, 8};
+   auto s = std::vector<int>{};
+   std::partial_sum(v.begin(), v.end(), std::back_inserter(s));
+
+   auto r = std::vector<int>{};
+   ranges::partial_sum(v.begin(), v.end(), ranges::back_inserter(r));
+   CHECK(r == s);
+
+   r.clear();
+   CHECK(r.empty());
+   ranges::partial_sum(v, ranges::back_inserter(r));
+   CHECK(r == s);
 }

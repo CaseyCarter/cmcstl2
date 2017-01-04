@@ -13,13 +13,13 @@
 //
 #include <stl2/detail/numeric/adjacent_difference.hpp>
 #include "../detail/int128.hpp"
-#include "../detail/test_interface.hpp"
 #include "../simple_test.hpp"
 #include <deque>
 #include <list>
 #include <numeric>
 #include <stl2/detail/concepts/container.hpp>
 #include <stl2/detail/fwd.hpp>
+#include "test_interface.hpp"
 #include <unordered_map>
 #include <vector>
 
@@ -28,7 +28,7 @@ namespace ranges = __stl2;
 int main()
 {
    auto stdcall =
-   [](ranges::InputIterator a, ranges::Sentinel<decltype(a)> b, ranges::WeaklyIncrementable c) {
+   [](auto a, auto b, auto c) {
       std::adjacent_difference(ranges::move(a), ranges::move(b), ranges::move(c));
    };
    auto stl2_call =
@@ -57,6 +57,13 @@ int main()
                          cmcstl2::Uint128{0xdeadbeef, 0xf00d5a1e},
                          cmcstl2::Uint128{0, 1},
                          cmcstl2::Uint128{0xfeedfeedfeedfeed, 0xbeefbeefbeefbeef});
+   CHECK_custom_op(
+   [](auto a, auto b, auto c, auto op) {
+      std::adjacent_difference(ranges::move(a), ranges::move(b), ranges::move(c), ranges::move(op));
+   },
+   [](ranges::InputRange&& a, ranges::WeaklyIncrementable b, auto op) {
+      return ranges::adjacent_difference(ranges::forward<decltype(a)>(a), ranges::move(b), ranges::move(op));
+   });
    CHECK_projection();
    CHECK_insert_iterator();
    return test_result();

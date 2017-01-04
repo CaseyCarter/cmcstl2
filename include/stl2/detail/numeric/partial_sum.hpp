@@ -24,15 +24,15 @@
 STL2_OPEN_NAMESPACE {
    template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
              class Proj = identity,
-             class __Arg = projected<I, Proj>,
-             IndirectRegularCallable<__Arg, __Arg> Op = plus<>>
+             class Op = plus<>,
+             class __Arg = projected<I, Proj>>
    requires
       models::IndirectlyCopyable<__Arg, O> &&
       models::Writable<O, value_type_t<__Arg>> &&
-      models::MoveConstructible<value_type_t<__Arg>> && // formally necessary, but are these two
-      models::CopyConstructible<value_type_t<__Arg>> && // actually necessary?
+      models::MoveConstructible<value_type_t<__Arg>> &&
+      models::CopyConstructible<value_type_t<__Arg>> &&
       models::Constructible<value_type_t<__Arg>, indirect_result_of_t<Op&(__Arg, __Arg)>> &&
-      models::RegularNumber<value_type_t<O>, value_type_t<__Arg>>
+      models::IndirectRegularCallable<Op, __Arg, __Arg>
    tagged_pair<tag::in(I), tag::out(O)>
    partial_sum(I first, S last, O result, Op op = Op{}, Proj proj = Proj{})
    {
@@ -46,15 +46,15 @@ STL2_OPEN_NAMESPACE {
 
    template <InputRange Rng, WeaklyIncrementable O,
              class Proj = identity,
-             class __Arg = projected<iterator_t<Rng>, Proj>,
-             IndirectRegularCallable<__Arg, __Arg> Op = plus<>>
+             class Op = plus<>,
+             class __Arg = projected<iterator_t<Rng>, Proj>>
    requires
       models::IndirectlyCopyable<__Arg, O> &&
       models::Writable<O, value_type_t<__Arg>> &&
-      models::MoveConstructible<value_type_t<__Arg>> && // formally necessary, but are these two
-      models::CopyConstructible<value_type_t<__Arg>> && // actually necessary?
+      models::MoveConstructible<value_type_t<__Arg>> &&
+      models::CopyConstructible<value_type_t<__Arg>> &&
       models::Constructible<value_type_t<__Arg>, indirect_result_of_t<Op&(__Arg, __Arg)>> &&
-      models::RegularNumber<value_type_t<O>, value_type_t<__Arg>>
+      models::IndirectRegularCallable<Op, __Arg, __Arg>
    tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
    partial_sum(Rng&& rng, O result, Op op = Op{}, Proj proj = Proj{})
    {
