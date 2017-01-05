@@ -31,7 +31,7 @@ void CHECK_algorithm(const U& u, const V& v)
    auto s = std::inner_product(u.begin(), u.end(), v.begin(), ranges::value_type_t<U>{});
 
    CHECK(s == ranges::inner_product(u.begin(), u.end(), v.begin(), ranges::value_type_t<U>{}));
-   //CHECK(s == ranges::inner_product(u, v.begin(), ranges::value_type_t<U>{}));
+   CHECK(s == ranges::inner_product(u, v.begin(), ranges::value_type_t<U>{}));
 }
 
 template <typename T, typename U, ranges::Callable<T, U> F1, ranges::Callable<T, U> F2>
@@ -40,7 +40,7 @@ void CHECK_callable(const std::vector<T>& a, const std::vector<U>& b, F1 f1, F2 
    auto s = std::inner_product(a.begin(), a.end(), b.begin(), T{}, f1, f2);
 
    CHECK(s == ranges::inner_product(a.begin(), a.end(), b.begin(), T{}, f1, f2));
-   //CHECK(s == ranges::inner_product(a, b.begin(), T{}, f1, f2));
+   CHECK(s == ranges::inner_product(a, b.begin(), T{}, f1, f2));
 }
 
 // not sure where (or if) I should sneak this into the headers...
@@ -63,11 +63,11 @@ void CHECK_projection(U u, V v, Proj1 proj1, Proj2 proj2)
                                     ranges::multiplies<>{},
                                     proj1,
                                     proj2));
-   //CHECK(s == ranges::inner_product(u, v.begin(), mapped_type_t<U>{},
-   //                                 ranges::plus<>{},
-   //                                 ranges::multiplies<>{},
-   //                                 proj1,
-   //                                 proj2));
+   CHECK(s == ranges::inner_product(u, v.begin(), mapped_type_t<U>{},
+                                    ranges::plus<>{},
+                                    ranges::multiplies<>{},
+                                    proj1,
+                                    proj2));
 }
 
 int main()
