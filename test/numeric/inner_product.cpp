@@ -30,14 +30,13 @@ void CHECK_algorithm(const U& u, const V& v)
 {
    auto s = std::inner_product(u.begin(), u.end(), v.begin(), ranges::value_type_t<U>{});
 
-   CHECK(s == ranges::inner_product(u.begin(), u.end(), v.begin()));
-   CHECK(s == ranges::inner_product(u, v.begin()));
+   CHECK(s == ranges::inner_product(u.begin(), u.end(), v.begin(), ranges::value_type_t<U>{}));
+   CHECK(s == ranges::inner_product(u, v.begin(), ranges::value_type_t<U>{}));
 }
 
 template <typename T, typename U, ranges::Callable<T, U> F1, ranges::Callable<T, U> F2>
 void CHECK_callable(const std::vector<T>& a, const std::vector<U>& b, F1 f1, F2 f2)
 {
-   using ranges::value_type_t;
    auto s = std::inner_product(a.begin(), a.end(), b.begin(), T{}, f1, f2);
 
    CHECK(s == ranges::inner_product(a.begin(), a.end(), b.begin(), T{}, f1, f2));
@@ -81,8 +80,6 @@ int main()
    CHECK_algorithm(std::vector<int>{}, std::vector<double>{1});
    CHECK_algorithm(std::vector<double>{}, std::vector<int>{1});
 
-   // CHECK_algorithm(std::vector<int>{1, 2, 3}, std::vector<int>{});
-
    CHECK_algorithm(std::vector<int>{1}, std::vector<int>{2});
    CHECK_algorithm(std::vector<int>{10}, std::deque<float>{3.0f});
    CHECK_algorithm(std::list<double>{4.0}, std::list<int>{7});
@@ -113,6 +110,25 @@ int main()
                                   return 300 * a * b;
                                },
                                ranges::plus<>{});
+
+   CHECK_callable<std::pair<int, int>,
+                  std::pair<int, int>>({{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 7}, {7, 8}, {8, 9}},
+                                       {{9, 8}, {8, 7}, {7, 6}, {6, 5}, {5, 4}, {4, 3}, {3, 2}, {2, 1}},
+                                       [](const auto& a, const auto& b) {
+                                          return std::make_pair(a.first * b.first, a.second * b.second);
+                                       },
+                                       [](const auto& a, const auto& b) {
+                                          return std::make_pair(a.first + b.first, a.second + b.second);
+                                       });
+    CHECK_callable<std::pair<int, int>,
+                   std::pair<int, double>>({{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 7}, {7, 8}, {8, 9}},
+                                           {{9, 8.}, {8, 7.}, {7, 6.}, {6, 5.}, {5, 4.}, {4, 3.}, {3, 2.}, {2, 1.}},
+                                           [](const auto& a, const auto& b) {
+                                             return std::make_pair(a.first * b.first, a.second * b.second);
+                                           },
+                                           [](const auto& a, const auto& b) {
+                                              return std::make_pair(a.first + b.first, a.second + b.second);
+                                           });
 
    CHECK_projection(std::unordered_map<int, int>{{0, 0},
                                                  {1, 1},
