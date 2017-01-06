@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I, Sentinel<I> S,
 		class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectInvocableStrictWeakOrder<
 			Comp, projected<I, Proj>>
 	bool is_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectInvocableStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
 	bool is_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectInvocableStrictWeakOrder<
 			Comp, projected<const E*, Proj>>
 	bool is_heap(std::initializer_list<E>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{

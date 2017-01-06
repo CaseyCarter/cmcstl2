@@ -25,7 +25,7 @@
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class F, class Proj = identity>
 	requires
-		models::IndirectCallable<
+		models::IndirectInvocable<
 			F, projected<I, Proj>>
 	tagged_pair<tag::in(I), tag::fun(F)>
 	for_each(I first, S last, F fun, Proj proj = Proj{})
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class F, class Proj = identity>
 	requires
-		models::IndirectCallable<
+		models::IndirectInvocable<
 			F, projected<iterator_t<Rng>, Proj>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::fun(F)>
 	for_each(Rng&& rng, F fun, Proj proj = Proj{})
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class F, class Proj = identity>
 	requires
-		models::IndirectCallable<
+		models::IndirectInvocable<
 			F, projected<const E*, Proj>>
 	tagged_pair<tag::in(dangling<const E*>), tag::fun(F)>
 	for_each(std::initializer_list<E>&& il, F fun, Proj proj = Proj{})

@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 		template <class I, class T, class Comp = less<>, class Proj = identity>
 		requires
 			models::ForwardIterator<__f<I>> &&
-			models::IndirectCallableStrictWeakOrder<
+			models::IndirectInvocableStrictWeakOrder<
 				Comp, const T*, projected<__f<I>, Proj>>
 		__f<I> lower_bound_n(I&& first, difference_type_t<__f<I>> n,
 			const T& value, Comp comp = Comp{}, Proj proj = Proj{})
@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::ForwardIterator<__f<I>> &&
 		models::Sentinel<__f<S>, __f<I>> &&
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectInvocableStrictWeakOrder<
 			Comp, const T*, projected<__f<I>, Proj>>
 	__f<I> lower_bound(I&& first, S&& last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 		models::SizedSentinel<__f<S>, __f<I>> &&
 		models::ForwardIterator<__f<I>> &&
 		models::Sentinel<__f<S>, __f<I>> &&
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectInvocableStrictWeakOrder<
 			Comp, const T*, projected<__f<I>, Proj>>
 	__f<I> lower_bound(I&& first_, S&& last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class T, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectInvocableStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	lower_bound(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class T, class Comp = less<>, class Proj = identity>
 	requires
 		models::SizedRange<Rng> &&
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectInvocableStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	lower_bound(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class T, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectInvocableStrictWeakOrder<
 			Comp, const T*, projected<const E*, Proj>>
 	dangling<const E*>
 	lower_bound(std::initializer_list<E>&& rng, const T& value,

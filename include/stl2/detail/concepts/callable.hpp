@@ -50,20 +50,20 @@ STL2_OPEN_NAMESPACE {
 			meta::uncurry<meta::on<ReduceFn, meta::uncurry<MapFn>>>,
 			meta::quote<__iter_args_lists>>;
 
-	Callable{F, ...Args}
+	Invocable{F, ...Args}
 	using __callable_result_t =
 		result_of_t<F(Args...)>;
 
 	template <class F, class...Is>
-	concept bool IndirectCallable() {
+	concept bool IndirectInvocable() {
 		return
 			(Readable<Is>() &&...&& true) &&
 			CopyConstructible<F>() &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
-			Callable<F&, value_type_t<Is>&...>() &&
-			Callable<F&, reference_t<Is>...>() &&
-			Callable<F&, iter_common_reference_t<Is>...>() &&
+			Invocable<F&, value_type_t<Is>&...>() &&
+			Invocable<F&, reference_t<Is>...>() &&
+			Invocable<F&, iter_common_reference_t<Is>...>() &&
 			// redundantly checks the above 3 requirements
 			meta::_v<meta::invoke<
 				__iter_map_reduce_fn<
@@ -74,9 +74,9 @@ STL2_OPEN_NAMESPACE {
 
 	namespace models {
 		template <class, class...>
-		constexpr bool IndirectCallable = false;
-		__stl2::IndirectCallable{F, ...Is}
-		constexpr bool IndirectCallable<F, Is...> = true;
+		constexpr bool IndirectInvocable = false;
+		__stl2::IndirectInvocable{F, ...Is}
+		constexpr bool IndirectInvocable<F, Is...> = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 	// See https://github.com/ericniebler/stl2/issues/238
 	template <class F, class...Is>
 	requires
-		models::Callable<F, reference_t<Is>...>
+		models::Invocable<F, reference_t<Is>...>
 	struct indirect_result_of<F(Is...)>
 	: result_of<F(reference_t<Is>...)> {};
 
@@ -98,22 +98,22 @@ STL2_OPEN_NAMESPACE {
 		meta::_t<indirect_result_of<T>>;
 
 	template <class F, class...Is>
-	concept bool IndirectRegularCallable() {
-		return IndirectCallable<F, Is...>();
+	concept bool IndirectRegularInvocable() {
+		return IndirectInvocable<F, Is...>();
 	}
 
 	namespace models {
 		template <class, class...>
-		constexpr bool IndirectRegularCallable = false;
-		__stl2::IndirectRegularCallable{F, ...Is}
-		constexpr bool IndirectRegularCallable<F, Is...> = true;
+		constexpr bool IndirectRegularInvocable = false;
+		__stl2::IndirectRegularInvocable{F, ...Is}
+		constexpr bool IndirectRegularInvocable<F, Is...> = true;
 	}
 
 	template <class, class...> struct __predicate : false_type {};
 	Predicate{F, ...Args} struct __predicate<F, Args...> : true_type {};
 
 	template <class F, class...Is>
-	concept bool IndirectCallablePredicate() {
+	concept bool IndirectInvocablePredicate() {
 		return
 			(Readable<Is>() &&...&& true) &&
 			CopyConstructible<F>() &&
@@ -132,13 +132,13 @@ STL2_OPEN_NAMESPACE {
 
 	namespace models {
 		template <class, class...>
-		constexpr bool IndirectCallablePredicate = false;
-		__stl2::IndirectCallablePredicate{F, ...Is}
-		constexpr bool IndirectCallablePredicate<F, Is...> = true;
+		constexpr bool IndirectInvocablePredicate = false;
+		__stl2::IndirectInvocablePredicate{F, ...Is}
+		constexpr bool IndirectInvocablePredicate<F, Is...> = true;
 	}
 
 	template <class F, class I1, class I2 = I1>
-	concept bool IndirectCallableRelation() {
+	concept bool IndirectInvocableRelation() {
 		return
 			Readable<I1>() && Readable<I2>() &&
 			CopyConstructible<F>() &&
@@ -151,27 +151,27 @@ STL2_OPEN_NAMESPACE {
 
 	namespace models {
 		template <class F, class I1, class I2 = I1>
-		constexpr bool IndirectCallableRelation = false;
-		__stl2::IndirectCallableRelation{F, I1, I2}
-		constexpr bool IndirectCallableRelation<F, I1, I2> = true;
+		constexpr bool IndirectInvocableRelation = false;
+		__stl2::IndirectInvocableRelation{F, I1, I2}
+		constexpr bool IndirectInvocableRelation<F, I1, I2> = true;
 	}
 
 	template <class F, class I1, class I2 = I1>
-	concept bool IndirectCallableStrictWeakOrder() {
-		return IndirectCallableRelation<F, I1, I2>();
+	concept bool IndirectInvocableStrictWeakOrder() {
+		return IndirectInvocableRelation<F, I1, I2>();
 	}
 
 	namespace models {
 		template <class F, class I1, class I2 = I1>
-		constexpr bool IndirectCallableStrictWeakOrder = false;
-		__stl2::IndirectCallableStrictWeakOrder{F, I1, I2}
-		constexpr bool IndirectCallableStrictWeakOrder<F, I1, I2> = true;
+		constexpr bool IndirectInvocableStrictWeakOrder = false;
+		__stl2::IndirectInvocableStrictWeakOrder{F, I1, I2}
+		constexpr bool IndirectInvocableStrictWeakOrder<F, I1, I2> = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// projected [projected.indirectcallables]
 	//
-	template <Readable I, IndirectRegularCallable<I> Proj>
+	template <Readable I, IndirectRegularInvocable<I> Proj>
 	struct projected {
 		using value_type = __uncvref<indirect_result_of_t<Proj&(I)>>;
 		indirect_result_of_t<Proj&(I)> operator*() const;

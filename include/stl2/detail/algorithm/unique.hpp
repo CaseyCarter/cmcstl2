@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 		class R = equal_to<>, class Proj = identity>
 	requires
 		models::Permutable<I> &&
-		models::IndirectCallableRelation<__f<R>, projected<I, Proj>>
+		models::IndirectInvocableRelation<__f<R>, projected<I, Proj>>
 	I unique(I first, S last, R comp = R{}, Proj proj = Proj{})
 	{
 		first = __stl2::adjacent_find(
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class R = equal_to<>, class Proj = identity>
 	requires
 		models::Permutable<iterator_t<Rng>> &&
-		models::IndirectCallableRelation<
+		models::IndirectInvocableRelation<
 			__f<R>, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	unique(Rng&& rng, R comp = R{}, Proj proj = Proj{})

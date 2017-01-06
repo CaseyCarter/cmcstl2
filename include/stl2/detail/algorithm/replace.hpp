@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj = identity>
 	requires
 		models::Writable<I, const T2&> &&
-		models::IndirectCallableRelation<
+		models::IndirectInvocableRelation<
 			equal_to<>, projected<I, Proj>, const T1*>
 	I replace(I first, S last, const T1& old_value, const T2& new_value,
 		Proj proj = Proj{})
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng, class T1, class T2, class Proj = identity>
 	requires
 		models::Writable<iterator_t<Rng>, const T2&> &&
-		models::IndirectCallableRelation<
+		models::IndirectInvocableRelation<
 			equal_to<>, projected<iterator_t<Rng>, Proj>, const T1*>
 	safe_iterator_t<Rng>
 	replace(Rng&& rng, const T1& old_value, const T2& new_value,

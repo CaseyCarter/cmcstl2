@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class T, class Proj = identity>
 	requires
 		models::Permutable<I> &&
-		models::IndirectCallableRelation<
+		models::IndirectInvocableRelation<
 			equal_to<>, projected<I, Proj>, const T*>
 	I remove(I first, S last, const T& value, Proj proj = Proj{})
 	{
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class T, class Proj = identity>
 	requires
 		models::Permutable<iterator_t<Rng>> &&
-		models::IndirectCallableRelation<
+		models::IndirectInvocableRelation<
 			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
 	safe_iterator_t<Rng>
 	remove(Rng&& rng, const T& value, Proj proj = Proj{})

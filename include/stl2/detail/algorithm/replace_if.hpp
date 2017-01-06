@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class Pred, class T, class Proj = identity>
 	requires
 		models::Writable<I, const T&> &&
-		models::IndirectCallablePredicate<
+		models::IndirectInvocablePredicate<
 			Pred, projected<I, Proj>>
 	I replace_if(I first, S last, Pred pred, const T& new_value, Proj proj = Proj{})
 	{
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng, class Pred, class T, class Proj = identity>
 	requires
 		models::Writable<iterator_t<Rng>, const T&> &&
-		models::IndirectCallablePredicate<
+		models::IndirectInvocablePredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng> replace_if(Rng&& rng, Pred pred, const T& new_value,
 		Proj proj = Proj{})
