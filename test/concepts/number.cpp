@@ -665,10 +665,10 @@ CONCEPT_ASSERT(models::Number<Uint128, Uint128, Uint128> &&
                models::RegularNumber<Uint128, Uint128, Uint128> &&
                models::StrictNumber<Uint128, Uint128, Uint128> &&
                models::RegularStrictNumber<Uint128, Uint128, Uint128>);
-CONCEPT_ASSERT(!models::Number<Uint128, std::int64_t> &&
-               !models::RegularNumber<Uint128, std::int64_t> &&
-               !models::StrictNumber<Uint128, std::int64_t> &&
-               !models::RegularStrictNumber<Uint128, std::int64_t>);
+CONCEPT_ASSERT(models::Number<Uint128, std::int64_t> &&
+               models::RegularNumber<Uint128, std::int64_t> &&
+               models::StrictNumber<Uint128, std::int64_t> &&
+               models::RegularStrictNumber<Uint128, std::int64_t>);
 CONCEPT_ASSERT(!models::Number<std::int64_t, Uint128> &&
                !models::RegularNumber<std::int64_t, Uint128> &&
                !models::StrictNumber<std::int64_t, Uint128> &&

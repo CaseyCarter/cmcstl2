@@ -6,27 +6,40 @@
 
 namespace cmcstl2 {
    class Uint128;
-   inline bool operator>(const Uint128&, std::uint64_t) noexcept;
+   constexpr bool operator==(const Uint128& a, const Uint128& b) noexcept;
+   constexpr bool operator!=(const Uint128& a, const Uint128& b) noexcept;
+   constexpr bool operator<(const Uint128& a, const Uint128& b) noexcept;
+   constexpr bool operator>(const Uint128& a, const Uint128& b) noexcept;
+   constexpr bool operator<=(const Uint128& a, const Uint128& b) noexcept;
+   constexpr bool operator>=(const Uint128& a, const Uint128& b) noexcept;
+   constexpr bool operator==(const Uint128& a, const std::uint64_t b) noexcept;
+   constexpr bool operator!=(const Uint128& a, const std::uint64_t b) noexcept;
+   constexpr bool operator<(const Uint128& a, const std::uint64_t b) noexcept;
+   constexpr bool operator<(const std::uint64_t a, const Uint128& b) noexcept;
+   constexpr bool operator>(const Uint128& a, const std::uint64_t b) noexcept;
+   constexpr bool operator<=(const Uint128& a, std::uint64_t b) noexcept;
+   constexpr bool operator>=(const Uint128& a, const std::uint64_t b) noexcept;
+   constexpr bool operator==(const std::uint64_t a, const Uint128& b) noexcept;
+   constexpr bool operator!=(const std::uint64_t a, const Uint128& b) noexcept;
+   constexpr bool operator>(const std::uint64_t a, const Uint128& b) noexcept;
+   constexpr bool operator<=(const std::uint64_t a, const Uint128& b) noexcept;
+   constexpr bool operator>=(const std::uint64_t a, const Uint128& b) noexcept;
 
    class Uint128 {
    public:
-      Uint128() noexcept = default;
-      explicit Uint128(const bool b) noexcept
-         : lower_{static_cast<std::uint64_t>(b)}
+      constexpr Uint128() noexcept = default;
+      constexpr Uint128(const __stl2::Integral l, const std::uint64_t u = 0) noexcept
+         : lower_{static_cast<std::uint64_t>(l)}, upper_{u}
       {}
 
-      Uint128(const std::uint64_t l, const std::uint64_t u = 0) noexcept
-         : lower_{l}, upper_{u}
-      {}
-
-      Uint128& operator=(const std::uint64_t o) noexcept
+      constexpr Uint128& operator=(const std::uint64_t o) noexcept
       {
          upper_ = 0;
          lower_ = o;
          return *this;
       }
 
-      Uint128& operator+=(const Uint128& i) noexcept
+      constexpr Uint128& operator+=(const Uint128& i) noexcept
       {
          auto c = lower() + i.lower();
          if (c < lower() || c < i.lower())
@@ -46,12 +59,12 @@ namespace cmcstl2 {
          return *this;
       }
 
-      Uint128& operator-=(const Uint128&) noexcept
+      constexpr Uint128& operator-=(const Uint128&) noexcept
       {
          return *this;
       }
 
-      Uint128& operator*=(Uint128 i) noexcept
+      constexpr Uint128& operator*=(Uint128 i) noexcept
       {
          // speed not an issue, so naive is all I care about
          for (; i > 0; --i)
@@ -59,12 +72,19 @@ namespace cmcstl2 {
          return *this;
       }
 
-      Uint128& operator/=(const Uint128&) noexcept
+      constexpr Uint128& operator/=(const Uint128&) noexcept
       {
          return *this;
       }
 
-      Uint128& operator+=(const std::uint64_t i) noexcept
+      constexpr Uint128& operator%=(const Uint128& i) noexcept
+      {
+         while (*this > i)
+            *this -= i;
+         return *this;
+      }
+
+      constexpr Uint128& operator+=(const std::uint64_t i) noexcept
       {
          auto c = lower() + i;
          if (c < lower() || c < i)
@@ -73,7 +93,7 @@ namespace cmcstl2 {
          return *this;
       }
 
-      Uint128& operator-=(const std::uint64_t i) noexcept
+      constexpr Uint128& operator-=(const std::uint64_t i) noexcept
       {
          auto c = lower() - i;
          if (c > lower() || c > i)
@@ -82,53 +102,60 @@ namespace cmcstl2 {
          return *this;
       }
 
-      Uint128& operator*=(std::uint64_t i) noexcept
+      constexpr Uint128& operator*=(std::uint64_t i) noexcept
       {
          // speed not an issue, so naive is all I care about
-         for (; i > 0; --i)
-            *this += *this;
+         for (const auto a = *this; i > 0; --i)
+            *this += a;
          return *this;
       }
 
-      Uint128& operator/=(const std::uint64_t) noexcept
+      constexpr Uint128& operator/=(const std::uint64_t) noexcept
       {
          return *this;
       }
 
-      Uint128& operator++() noexcept
+      constexpr Uint128& operator%=(const std::uint64_t i) noexcept
+      {
+         while (*this > i)
+            *this -= i;
+         return *this;
+      }
+
+      constexpr Uint128& operator++() noexcept
       {
          if (++lower_ == 0)
             ++upper_;
          return *this;
       }
 
-      Uint128& operator--() noexcept
+      constexpr Uint128& operator--() noexcept
       {
          if (--lower_ == ~std::uint64_t{0})
             --upper_;
          return *this;
       }
 
-      Uint128 operator++(int) noexcept
+      constexpr Uint128 operator++(int) noexcept
       {
          auto i = *this;
          operator++();
          return i;
       }
 
-      Uint128 operator--(int) noexcept
+      constexpr Uint128 operator--(int) noexcept
       {
          auto i = *this;
          operator--();
          return i;
       }
 
-      std::uint64_t lower() const noexcept
+      constexpr std::uint64_t lower() const noexcept
       {
          return lower_;
       }
 
-      std::uint64_t upper() const noexcept
+      constexpr std::uint64_t upper() const noexcept
       {
          return upper_;
       }
@@ -137,162 +164,177 @@ namespace cmcstl2 {
       std::uint64_t upper_{0};
    };
 
-   Uint128 operator+(const Uint128& a) noexcept
+   constexpr Uint128 operator+(const Uint128& a) noexcept
    {
       return a;
    }
 
-   Uint128 operator-(const Uint128& a) noexcept
+   constexpr Uint128 operator-(const Uint128& a) noexcept
    {
       return Uint128{~a.upper() + 1, ~a.lower() + 1};
    }
 
-   inline Uint128 operator+(const Uint128& a, const Uint128& b) noexcept
+   constexpr Uint128 operator+(const Uint128& a, const Uint128& b) noexcept
    {
       return Uint128{a} += b;
    }
 
-   inline Uint128 operator-(const Uint128& a, const Uint128& b) noexcept
+   constexpr Uint128 operator-(const Uint128& a, const Uint128& b) noexcept
    {
       return Uint128{a} -= b;
    }
 
-   inline Uint128 operator*(const Uint128& a, const Uint128& b) noexcept
+   constexpr Uint128 operator*(const Uint128& a, const Uint128& b) noexcept
    {
       return Uint128{a} *= b;
    }
 
-   inline Uint128 operator/(const Uint128& a, const Uint128& b) noexcept
+   constexpr Uint128 operator/(const Uint128& a, const Uint128& b) noexcept
    {
       return Uint128{a} /= b;
    }
 
-   inline Uint128 operator+(const Uint128& a, const std::uint64_t b) noexcept
+   constexpr Uint128 operator%(const Uint128& a, const Uint128& b) noexcept
+   {
+      return Uint128{a} %= b;
+   }
+
+   constexpr Uint128 operator+(const Uint128& a, const std::uint64_t b) noexcept
    {
       return Uint128{a} += b;
    }
 
-   inline Uint128 operator-(const Uint128& a, const std::uint64_t b) noexcept
+   constexpr Uint128 operator-(const Uint128& a, const std::uint64_t b) noexcept
    {
       return Uint128{a} -= b;
    }
 
-   inline Uint128 operator*(const Uint128& a, const std::uint64_t b) noexcept
+   constexpr Uint128 operator*(const Uint128& a, const std::uint64_t b) noexcept
    {
       return Uint128{a} *= b;
    }
 
-   inline Uint128 operator/(const Uint128& a, const std::uint64_t b) noexcept
+   constexpr Uint128 operator/(const Uint128& a, const std::uint64_t b) noexcept
    {
       return Uint128{a} /= b;
    }
 
-   inline Uint128 operator+(const std::uint64_t a, const Uint128& b) noexcept
+   constexpr Uint128 operator%(const Uint128& a, const std::uint64_t b) noexcept
+   {
+      return Uint128{a} %= b;
+   }
+
+   constexpr Uint128 operator+(const std::uint64_t a, const Uint128& b) noexcept
    {
       return b + a;
    }
 
-   inline Uint128 operator-(const std::uint64_t a, const Uint128& b) noexcept
+   constexpr Uint128 operator-(const std::uint64_t a, const Uint128& b) noexcept
    {
       return b - a;
    }
 
-   inline Uint128 operator*(const std::uint64_t a, const Uint128& b) noexcept
+   constexpr Uint128 operator*(const std::uint64_t a, const Uint128& b) noexcept
    {
       return b * a;
    }
 
-   inline Uint128 operator/(const std::uint64_t a, const Uint128& b) noexcept
+   constexpr Uint128 operator/(const std::uint64_t a, const Uint128& b) noexcept
    {
       return b / a;
    }
 
-   inline bool operator==(const Uint128& a, const Uint128& b) noexcept
+   constexpr Uint128 operator%(const std::uint64_t a, const Uint128& b) noexcept
+   {
+      return b % a;
+   }
+
+   constexpr bool operator==(const Uint128& a, const Uint128& b) noexcept
    {
       return a.upper() == b.upper() && a.lower() == b.lower();
    }
 
-   inline bool operator!=(const Uint128& a, const Uint128& b) noexcept
+   constexpr bool operator!=(const Uint128& a, const Uint128& b) noexcept
    {
       return !(a == b);
    }
 
-   inline bool operator<(const Uint128& a, const Uint128& b) noexcept
+   constexpr bool operator<(const Uint128& a, const Uint128& b) noexcept
    {
       return a.upper() < b.upper() || (a.upper() == b.upper() && a.lower() == b.lower());
    }
 
-   inline bool operator>(const Uint128& a, const Uint128& b) noexcept
+   constexpr bool operator>(const Uint128& a, const Uint128& b) noexcept
    {
       return b < a;
    }
 
-   inline bool operator<=(const Uint128& a, const Uint128& b) noexcept
+   constexpr bool operator<=(const Uint128& a, const Uint128& b) noexcept
    {
       return !(a > b);
    }
 
-   inline bool operator>=(const Uint128& a, const Uint128& b) noexcept
+   constexpr bool operator>=(const Uint128& a, const Uint128& b) noexcept
    {
       return !(a < b);
    }
 
-   inline bool operator==(const Uint128& a, const std::uint64_t b) noexcept
+   constexpr bool operator==(const Uint128& a, const std::uint64_t b) noexcept
    {
       return !a.upper() && a.lower() == b;
    }
 
-   inline bool operator!=(const Uint128& a, const std::uint64_t b) noexcept
+   constexpr bool operator!=(const Uint128& a, const std::uint64_t b) noexcept
    {
       return !(a == b);
    }
 
-   inline bool operator<(const Uint128& a, const std::uint64_t b) noexcept
+   constexpr bool operator<(const Uint128& a, const std::uint64_t b) noexcept
    {
       return !a.upper() && a.lower() < b;
    }
 
-   inline bool operator<(const std::uint64_t a, const Uint128& b) noexcept
+   constexpr bool operator<(const std::uint64_t a, const Uint128& b) noexcept
    {
       return b < a;
    }
 
-   inline bool operator>(const Uint128& a, const std::uint64_t b) noexcept
+   constexpr bool operator>(const Uint128& a, const std::uint64_t b) noexcept
    {
       return b < a;
    }
 
-   inline bool operator<=(const Uint128& a, std::uint64_t b) noexcept
+   constexpr bool operator<=(const Uint128& a, std::uint64_t b) noexcept
    {
       return !(a > b);
    }
 
-   inline bool operator>=(const Uint128& a, const std::uint64_t b) noexcept
+   constexpr bool operator>=(const Uint128& a, const std::uint64_t b) noexcept
    {
       return !(a < b);
    }
 
-   inline bool operator==(const std::uint64_t a, const Uint128& b) noexcept
+   constexpr bool operator==(const std::uint64_t a, const Uint128& b) noexcept
    {
       return b == a;
    }
 
-   inline bool operator!=(const std::uint64_t a, const Uint128& b) noexcept
+   constexpr bool operator!=(const std::uint64_t a, const Uint128& b) noexcept
    {
       return b != a;
    }
 
-   inline bool operator>(const std::uint64_t a, const Uint128& b) noexcept
+   constexpr bool operator>(const std::uint64_t a, const Uint128& b) noexcept
    {
       return b > a;
    }
 
-   inline bool operator<=(const std::uint64_t a, const Uint128& b) noexcept
+   constexpr bool operator<=(const std::uint64_t a, const Uint128& b) noexcept
    {
       return b <= a;
    }
 
-   inline bool operator>=(const std::uint64_t a, const Uint128& b) noexcept
+   constexpr bool operator>=(const std::uint64_t a, const Uint128& b) noexcept
    {
       return b >= a;
    }
