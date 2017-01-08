@@ -7,8 +7,8 @@ add_test(test.numeric.adjacent_difference numeric.adjacent_difference)
 #add_executable(numeric.exclusive_scan exclusive_scan.cpp)
 #add_test(test.numeric.exclusive_scan numeric.exclusive_scan)
 
-#add_executable(numeric.gcd gcd.cpp)
-#add_test(test.numeric.gcd numeric.gcd)
+add_executable(numeric.gcd gcd.cpp)
+add_test(test.numeric.gcd numeric.gcd)
 
 #add_executable(numeric.inclusive_scan inclusive_scan.cpp)
 #add_test(test.numeric.inclusive_scan numeric.inclusive_scan)
