@@ -6,8 +6,7 @@ namespace ranges = __stl2;
 
 template <typename M, typename N = M>
 requires
-   ranges::Number<M, N>() &&
-   ranges::Number<N, M>()
+   ranges::Number<M, N>()
 void CHECK_gcd(M m, N n, std::common_type_t<M, N> expected) noexcept
 {
    CHECK(ranges::gcd(m, n) == expected);
@@ -78,7 +77,7 @@ int main()
    CHECK_gcd(280ull, 511ul, 7);
    CHECK_gcd(975ull, 231ull, 3);
 
-   //CHECK_gcd(cmcstl2::Uint128{612}, cmcstl2::Uint128{605}, cmcstl2::Uint128{1});
+   CHECK_gcd(612, 605ull, 1);
    CHECK_gcd(724, 580, 4);
    CHECK_gcd(554, 219, 1);
    CHECK_gcd(440, 372, 4);

@@ -8,9 +8,8 @@
 STL2_OPEN_NAMESPACE {
 template <class M, class N, class __CommonType = common_type_t<M, N>>
    requires
-      models::Number<M, N> &&
-      models::Number<N, M> &&
       models::Same<__CommonType, common_type_t<M, N>> &&
+      models::Number<__CommonType, M, N> &&
       requires(__CommonType t) {
          {t % t}  -> __CommonType;
       }

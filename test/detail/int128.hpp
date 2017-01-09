@@ -6,6 +6,23 @@
 
 namespace cmcstl2 {
    class Uint128;
+   constexpr Uint128 operator+(const Uint128& a) noexcept;
+   constexpr Uint128 operator-(const Uint128& a) noexcept;
+   constexpr Uint128 operator+(const Uint128& a, const Uint128& b) noexcept;
+   constexpr Uint128 operator-(const Uint128& a, const Uint128& b) noexcept;
+   constexpr Uint128 operator*(const Uint128& a, const Uint128& b) noexcept;
+   constexpr Uint128 operator/(const Uint128& a, const Uint128& b) noexcept;
+   constexpr Uint128 operator%(const Uint128& a, const Uint128& b) noexcept;
+   constexpr Uint128 operator+(const Uint128& a, const std::uint64_t b) noexcept;
+   constexpr Uint128 operator-(const Uint128& a, const std::uint64_t b) noexcept;
+   constexpr Uint128 operator*(const Uint128& a, const std::uint64_t b) noexcept;
+   constexpr Uint128 operator/(const Uint128& a, const std::uint64_t b) noexcept;
+   constexpr Uint128 operator%(const Uint128& a, const std::uint64_t b) noexcept;
+   constexpr Uint128 operator+(const std::uint64_t a, const Uint128& b) noexcept;
+   constexpr Uint128 operator-(const std::uint64_t a, const Uint128& b) noexcept;
+   constexpr Uint128 operator*(const std::uint64_t a, const Uint128& b) noexcept;
+   constexpr Uint128 operator/(const std::uint64_t a, const Uint128& b) noexcept;
+   constexpr Uint128 operator%(const std::uint64_t a, const Uint128& b) noexcept;
    constexpr bool operator==(const Uint128& a, const Uint128& b) noexcept;
    constexpr bool operator!=(const Uint128& a, const Uint128& b) noexcept;
    constexpr bool operator<(const Uint128& a, const Uint128& b) noexcept;
@@ -59,9 +76,9 @@ namespace cmcstl2 {
          return *this;
       }
 
-      constexpr Uint128& operator-=(const Uint128&) noexcept
+      constexpr Uint128& operator-=(const Uint128& i) noexcept
       {
-         return *this;
+         return *this += -i;
       }
 
       constexpr Uint128& operator*=(Uint128 i) noexcept
