@@ -17,13 +17,12 @@ constexpr __CommonType gcd(M m, N n)
 {
    constexpr auto zero = __CommonType{0};
    // TODO: replace with structured bindings when compiler support exists
-   __CommonType a{};
-   __CommonType b{};
+   __CommonType a{static_cast<__CommonType>(m < 0 ? -m : m)};
+   __CommonType b{static_cast<__CommonType>(n < 0 ? -n : n)};
    {
-      auto p = __stl2::minmax(static_cast<__CommonType>(m < 0 ? -m : m),
-                              static_cast<__CommonType>(n < 0 ? -n : n));
-      a = p.first;
-      b = p.second;
+      auto p = __stl2::minmax(a, b);
+      a = p.min();
+      b = p.max();
    }
    // end TODO
 
