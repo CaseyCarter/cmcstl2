@@ -6,25 +6,22 @@
 #include <stl2/detail/concepts/number.hpp>
 
 STL2_OPEN_NAMESPACE {
-template <class M, class N, class __CommonType = common_type_t<M, N>>
+template <class M, class N, class T = common_type_t<M, N>>
    requires
-      models::Same<__CommonType, common_type_t<M, N>> &&
-      models::Number<__CommonType, M, N> &&
-      requires(__CommonType t) {
-         {t % t}  -> __CommonType;
+      models::Same<T, common_type_t<M, N>> &&
+      models::Number<T, M, N> &&
+      requires(T t) {
+         {t % t}  -> T;
       }
-constexpr __CommonType gcd(M m, N n)
+constexpr T gcd(M m, N n)
 {
-   constexpr auto zero = __CommonType{0};
+   constexpr auto zero = T{0};
    // TODO: replace with structured bindings when compiler support exists
-   __CommonType a{};
-   __CommonType b{};
-   {
-      auto p = __stl2::minmax(static_cast<__CommonType>(m < 0 ? -m : m),
-                              static_cast<__CommonType>(n < 0 ? -n : n));
-      a = p.first;
-      b = p.second;
-   }
+   T a{static_cast<T>(m < 0 ? -m : m)};
+   T b{static_cast<T>(n < 0 ? -n : n)};
+   std::pair<T, T> p = __stl2::minmax(a, b);
+   a = p.first;
+   b = p.second;
    // end TODO
 
    if (a == zero || b == zero)
