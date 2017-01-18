@@ -95,12 +95,13 @@ STL2_OPEN_NAMESPACE {
 			using __post_inc_t = decltype(current_++);
 			Readable{R}
 			struct __proxy {
+				using value_type = __stl2::value_type_t<R>;
 				R __tmp;
-				decltype(auto) operator*()
+				STL2_CONSTEXPR_EXT decltype(auto) operator*()
 				STL2_NOEXCEPT_RETURN(
 					__stl2::iter_move(__tmp)
 				)
-				friend decltype(auto) iter_move(const __proxy& that)
+				friend STL2_CONSTEXPR_EXT decltype(auto) iter_move(const __proxy& that)
 				STL2_NOEXCEPT_RETURN(
 					__stl2::iter_move(that.__tmp)
 				)
