@@ -18,6 +18,7 @@
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
+#include <stl2/detail/iterator/operations.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
@@ -89,6 +90,33 @@ STL2_OPEN_NAMESPACE {
 			STL2_NOEXCEPT_RETURN(
 				static_cast<void>(++current_)
 			)
+
+			// Experimental support for move_iterator post-increment
+			using __post_inc_t = decltype(current_++);
+			Readable{R}
+			struct __proxy {
+				R __tmp;
+				decltype(auto) operator*()
+				STL2_NOEXCEPT_RETURN(
+					__stl2::iter_move(__tmp)
+				)
+				friend decltype(auto) iter_move(const __proxy& that)
+				STL2_NOEXCEPT_RETURN(
+					__stl2::iter_move(that.__tmp)
+				)
+			};
+
+			STL2_CONSTEXPR_EXT cursor post_increment()
+			noexcept(noexcept(cursor{cursor{__stl2::exchange(current_, __stl2::next(current_))}}))
+			requires Same<__post_inc_t, I>() {
+				return cursor{__stl2::exchange(current_, __stl2::next(current_))};
+			}
+
+			STL2_CONSTEXPR_EXT auto post_increment()
+			noexcept(noexcept(current_++) && std::is_nothrow_move_constructible<__post_inc_t>::value)
+			requires !Same<__post_inc_t, I>() && Readable<__post_inc_t>() {
+				return __proxy<__post_inc_t>{current_++};
+			}
 
 			STL2_CONSTEXPR_EXT void prev()
 			noexcept(noexcept(--current_))
