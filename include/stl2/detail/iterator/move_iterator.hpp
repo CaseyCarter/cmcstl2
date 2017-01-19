@@ -18,7 +18,6 @@
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
-#include <stl2/detail/iterator/operations.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
