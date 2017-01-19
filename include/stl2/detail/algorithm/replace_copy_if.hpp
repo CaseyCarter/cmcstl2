@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 		OutputIterator<const T&> O, class Proj = identity>
 	requires
 		models::IndirectlyCopyable<I, O> &&
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<I, Proj>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	replace_copy_if(I first, S last, O result, Pred pred,
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::OutputIterator<__f<O>, const T&> &&
 		models::IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	replace_copy_if(Rng&& rng, O&& result, Pred pred, const T& new_value,
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::OutputIterator<__f<O>, const T&> &&
 		models::IndirectlyCopyable<const E*, __f<O>> &&
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<const E*, Proj>>
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
 	replace_copy_if(std::initializer_list<E>&& rng, O&& result, Pred pred,

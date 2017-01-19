@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyCopyable<I, O1> &&
 		models::IndirectlyCopyable<I, O2> &&
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<I, Proj>>
 	tagged_tuple<tag::in(I), tag::out1(O1), tag::out2(O2)>
 	partition_copy(I first, S last, O1 out_true, O2 out_false, Pred pred,
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 		models::WeaklyIncrementable<__f<O2>> &&
 		models::IndirectlyCopyable<iterator_t<Rng>, __f<O1>> &&
 		models::IndirectlyCopyable<iterator_t<Rng>, __f<O2>> &&
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	tagged_tuple<
 		tag::in(safe_iterator_t<Rng>),
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 		models::WeaklyIncrementable<__f<O2>> &&
 		models::IndirectlyCopyable<const E*, __f<O1>> &&
 		models::IndirectlyCopyable<const E*, __f<O2>> &&
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<const E*, Proj>>
 	tagged_tuple<
 		tag::in(dangling<const E*>),

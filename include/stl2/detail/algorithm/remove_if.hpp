@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		models::Permutable<I> &&
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<I, Proj>>
 	I remove_if(I first, S last, Pred pred, Proj proj = Proj{})
 	{
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class Pred, class Proj = identity>
 	requires
 		models::Permutable<iterator_t<Rng>> &&
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	remove_if(Rng&& rng, Pred pred, Proj proj = Proj{})

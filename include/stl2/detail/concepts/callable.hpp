@@ -113,7 +113,7 @@ STL2_OPEN_NAMESPACE {
 	Predicate{F, ...Args} struct __predicate<F, Args...> : true_type {};
 
 	template <class F, class...Is>
-	concept bool IndirectInvocablePredicate() {
+	concept bool IndirectPredicate() {
 		return
 			(Readable<Is>() &&...&& true) &&
 			CopyConstructible<F>() &&
@@ -132,13 +132,13 @@ STL2_OPEN_NAMESPACE {
 
 	namespace models {
 		template <class, class...>
-		constexpr bool IndirectInvocablePredicate = false;
-		__stl2::IndirectInvocablePredicate{F, ...Is}
-		constexpr bool IndirectInvocablePredicate<F, Is...> = true;
+		constexpr bool IndirectPredicate = false;
+		__stl2::IndirectPredicate{F, ...Is}
+		constexpr bool IndirectPredicate<F, Is...> = true;
 	}
 
 	template <class F, class I1, class I2 = I1>
-	concept bool IndirectInvocableRelation() {
+	concept bool IndirectRelation() {
 		return
 			Readable<I1>() && Readable<I2>() &&
 			CopyConstructible<F>() &&
@@ -151,21 +151,21 @@ STL2_OPEN_NAMESPACE {
 
 	namespace models {
 		template <class F, class I1, class I2 = I1>
-		constexpr bool IndirectInvocableRelation = false;
-		__stl2::IndirectInvocableRelation{F, I1, I2}
-		constexpr bool IndirectInvocableRelation<F, I1, I2> = true;
+		constexpr bool IndirectRelation = false;
+		__stl2::IndirectRelation{F, I1, I2}
+		constexpr bool IndirectRelation<F, I1, I2> = true;
 	}
 
 	template <class F, class I1, class I2 = I1>
-	concept bool IndirectInvocableStrictWeakOrder() {
-		return IndirectInvocableRelation<F, I1, I2>();
+	concept bool IndirectStrictWeakOrder() {
+		return IndirectRelation<F, I1, I2>();
 	}
 
 	namespace models {
 		template <class F, class I1, class I2 = I1>
-		constexpr bool IndirectInvocableStrictWeakOrder = false;
-		__stl2::IndirectInvocableStrictWeakOrder{F, I1, I2}
-		constexpr bool IndirectInvocableStrictWeakOrder<F, I1, I2> = true;
+		constexpr bool IndirectStrictWeakOrder = false;
+		__stl2::IndirectStrictWeakOrder{F, I1, I2}
+		constexpr bool IndirectStrictWeakOrder<F, I1, I2> = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////

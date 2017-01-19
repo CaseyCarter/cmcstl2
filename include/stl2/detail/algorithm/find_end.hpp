@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		ForwardIterator I2, Sentinel<I2> S2,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
-		models::IndirectInvocableRelation<
+		models::IndirectRelation<
 			Pred, I2, projected<I1, Proj>>
 	I1 find_end(I1 first1, const S1 last1,
 		const I2 first2, const S2 last2,
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 	template <BidirectionalIterator I1, BidirectionalIterator I2,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
-		models::IndirectInvocableRelation<
+		models::IndirectRelation<
 			Pred, I2, projected<I1, Proj>>
 	I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2,
 		Pred pred = Pred{}, Proj proj = Proj{})
@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I1, RandomAccessIterator I2,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
-		models::IndirectInvocableRelation<
+		models::IndirectRelation<
 			Pred, I2, projected<I1, Proj>>
 	I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2,
 		Pred pred = Pred{}, Proj proj = Proj{})
@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
 		BidirectionalIterator I2, Sentinel<I2> S2,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
-		models::IndirectInvocableRelation<
+		models::IndirectRelation<
 			Pred, I2, projected<I1, Proj>>
 	I1 find_end(I1 first1, S1 s1, I2 first2, S2 s2, Pred pred = Pred{}, Proj proj = Proj{})
 	{
@@ -138,7 +138,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng1, ForwardRange Rng2,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
-		models::IndirectInvocableRelation<
+		models::IndirectRelation<
 			Pred, iterator_t<Rng2>, projected<iterator_t<Rng1>, Proj>>
 	safe_iterator_t<Rng1>
 	find_end(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{}, Proj proj = Proj{})

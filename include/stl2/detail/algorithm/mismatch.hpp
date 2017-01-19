@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 	mismatch(I1 first1, S1 last1, I2 first2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		models::IndirectInvocablePredicate<Pred,
+		models::IndirectPredicate<Pred,
 			projected<I1, Proj1>,
 			projected<I2, Proj2>>
 	{
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		InputIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<I1, Proj1>, projected<I2, Proj2>>
 	tagged_pair<tag::in1(I1), tag::in2(I2)>
 	mismatch(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		!is_array<remove_reference_t<I2>>::value &&
 		models::InputIterator<__f<I2>> &&
-		models::IndirectInvocablePredicate<Pred,
+		models::IndirectPredicate<Pred,
 			projected<iterator_t<Rng1>, Proj1>,
 			projected<__f<I2>, Proj2>>
 	{
@@ -81,7 +81,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, InputRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::IndirectInvocablePredicate<Pred,
+		models::IndirectPredicate<Pred,
 			projected<iterator_t<Rng1>, Proj1>,
 			projected<iterator_t<Rng2>, Proj2>>
 	tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::in2(safe_iterator_t<Rng2>)>
@@ -100,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 	template <class E, InputRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::IndirectInvocablePredicate<Pred,
+		models::IndirectPredicate<Pred,
 			projected<const E*, Proj1>,
 			projected<iterator_t<Rng2>, Proj2>>
 	tagged_pair<tag::in1(dangling<const E*>), tag::in2(safe_iterator_t<Rng2>)>
@@ -119,7 +119,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, class E, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::IndirectInvocablePredicate<Pred,
+		models::IndirectPredicate<Pred,
 			projected<iterator_t<Rng1>, Proj1>,
 			projected<const E*, Proj2>>
 	tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::in2(dangling<const E*>)>
@@ -138,7 +138,7 @@ STL2_OPEN_NAMESPACE {
 	template <class E1, class E2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::IndirectInvocablePredicate<Pred,
+		models::IndirectPredicate<Pred,
 			projected<const E1*, Proj1>,
 			projected<const E2*, Proj2>>
 	tagged_pair<tag::in1(dangling<const E1*>), tag::in2(dangling<const E2*>)>

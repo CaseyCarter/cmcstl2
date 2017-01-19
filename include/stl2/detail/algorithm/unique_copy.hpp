@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 		models::Sentinel<__f<S>, __f<I>> &&
 		models::WeaklyIncrementable<__f<O>> &&
 		__unique_copy_req<__f<I>, __f<O>> &&
-		models::IndirectInvocableRelation<
+		models::IndirectRelation<
 			__f<R>, projected<__f<I>, Proj>>
 	tagged_pair<tag::in(__f<I>), tag::out(__f<O>)>
 	unique_copy(I&& first, S&& last, O&& result, R comp = R{},
@@ -116,7 +116,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		__unique_copy_req<iterator_t<Rng>, __f<O>> &&
-		models::IndirectInvocableRelation<
+		models::IndirectRelation<
 			__f<R>, projected<iterator_t<Rng>, Proj>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	unique_copy(Rng&& rng, O&& result, R comp = R{}, Proj proj = Proj{})
@@ -135,7 +135,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		__unique_copy_req<const E*, __f<O>> &&
-		models::IndirectInvocableRelation<
+		models::IndirectRelation<
 			__f<R>, projected<const E*, Proj>>
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
 	unique_copy(std::initializer_list<E>&& rng, O&& result, R comp = R{},

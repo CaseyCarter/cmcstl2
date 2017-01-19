@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj = identity>
 	requires
 		models::IndirectlyCopyable<I, O> &&
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<I, Proj>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	remove_copy_if(I first, S last, O result, Pred pred, Proj proj = Proj{})
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	remove_copy_if(Rng&& rng, O&& result, Pred pred, Proj proj = Proj{})
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::WeaklyIncrementable<__f<O>> &&
 		models::IndirectlyCopyable<const E*, __f<O>> &&
-		models::IndirectInvocablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<const E*, Proj>>
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
 	remove_copy_if(std::initializer_list<E>&& rng, O&& result,

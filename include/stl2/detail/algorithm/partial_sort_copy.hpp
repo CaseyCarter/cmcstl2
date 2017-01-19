@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyCopyable<I1, I2> &&
 		models::Sortable<I2, Comp, Proj2> &&
-		models::IndirectInvocableStrictWeakOrder<
+		models::IndirectStrictWeakOrder<
 			Comp, projected<I1, Proj1>, projected<I2, Proj2>>
 	I2 partial_sort_copy(I1 first, S1 last, I2 result_first, S2 result_last,
 		Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyCopyable<iterator_t<Rng1>, iterator_t<Rng2>> &&
 		models::Sortable<iterator_t<Rng2>, Comp, Proj2> &&
-		models::IndirectInvocableStrictWeakOrder<Comp,
+		models::IndirectStrictWeakOrder<Comp,
 			projected<iterator_t<Rng1>, Proj1>,
 			projected<iterator_t<Rng2>, Proj2>>
 	safe_iterator_t<Rng2>
@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::IndirectlyCopyable<const E*, iterator_t<Rng2>> &&
 		models::Sortable<iterator_t<Rng2>, Comp, Proj2> &&
-		models::IndirectInvocableStrictWeakOrder<Comp,
+		models::IndirectStrictWeakOrder<Comp,
 			projected<const E*, Proj1>,
 			projected<iterator_t<Rng2>, Proj2>>
 	safe_iterator_t<Rng2>

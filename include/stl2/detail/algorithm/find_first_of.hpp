@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 		class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::IndirectInvocablePredicate<Pred,
+		models::IndirectPredicate<Pred,
 			projected<I1, Proj1>,
 			projected<I2, Proj2>>
 	I1 find_first_of(I1 first1, S1 last1, I2 first2, S2 last2,
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::IndirectInvocablePredicate<Pred,
+		models::IndirectPredicate<Pred,
 			projected<iterator_t<Rng1>, Proj1>,
 			projected<iterator_t<Rng2>, Proj2>>
 	safe_iterator_t<Rng1>
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 	template <class E, ForwardRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::IndirectInvocablePredicate<Pred,
+		models::IndirectPredicate<Pred,
 			projected<const E*, Proj1>,
 			projected<iterator_t<Rng2>, Proj2>>
 	dangling<const E*>
@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, class E, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::IndirectInvocablePredicate<Pred,
+		models::IndirectPredicate<Pred,
 			projected<iterator_t<Rng1>, Proj1>,
 			projected<const E*, Proj2>>
 	safe_iterator_t<Rng1>
@@ -100,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 	template <class E1, class E2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::IndirectInvocablePredicate<Pred,
+		models::IndirectPredicate<Pred,
 			projected<const E1*, Proj1>,
 			projected<const E2*, Proj2>>
 	dangling<const E1*>
