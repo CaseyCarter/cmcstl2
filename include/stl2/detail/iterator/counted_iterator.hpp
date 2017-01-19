@@ -37,18 +37,40 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		Iterator{I}
-		struct adaptor_box : protected detail::ebo_box<I> {
+		struct adaptor_box : protected detail::ebo_box<I, adaptor_box<I>> {
+			using base_t = detail::ebo_box<I, adaptor_box<I>>;
 			adaptor_box() = default;
-			using detail::ebo_box<I>::ebo_box;
+#if STL2_WORKAROUND_GCC_79143
+			template <class First, class... Rest>
+			requires
+				!models::Same<adaptor_box, std::decay_t<First>> &&
+				models::Constructible<I, First, Rest...>
+			constexpr adaptor_box(First&& f, Rest&&...r)
+			noexcept(std::is_nothrow_constructible<I, First, Rest...>::value)
+			: base_t(std::forward<First>(f), std::forward<Rest>(r)...) {}
+#else  // STL2_WORKAROUND_GCC_79143
+			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 		InputIterator{I}
-		struct adaptor_box<I> : protected detail::ebo_box<I> {
+		struct adaptor_box<I> : protected detail::ebo_box<I, adaptor_box<I>> {
+			using base_t = detail::ebo_box<I, adaptor_box<I>>;
 			using value_type = value_type_t<I>;
 			using single_pass = meta::bool_<!models::ForwardIterator<I>>;
 			using contiguous = meta::bool_<models::ContiguousIterator<I>>;
 
 			adaptor_box() = default;
-			using detail::ebo_box<I>::ebo_box;
+#if STL2_WORKAROUND_GCC_79143
+			template <class First, class... Rest>
+			requires
+				!models::Same<adaptor_box, std::decay_t<First>> &&
+				models::Constructible<I, First, Rest...>
+			constexpr adaptor_box(First&& f, Rest&&...r)
+			noexcept(std::is_nothrow_constructible<I, First, Rest...>::value)
+			: base_t(std::forward<First>(f), std::forward<Rest>(r)...) {}
+#else  // STL2_WORKAROUND_GCC_79143
+			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		Iterator{I}
@@ -56,33 +78,51 @@ STL2_OPEN_NAMESPACE {
 			friend access;
 			using box_t = adaptor_box<I>;
 			using box_t::get;
-			difference_type_t<I> count_;
+			difference_type_t<I> count_ = 0;
 
 		public:
 			using difference_type = difference_type_t<I>;
 
-			class mixin : protected detail::ebo_box<cursor> {
-				using box_t = detail::ebo_box<cursor>;
+			class mixin : protected basic_mixin<cursor> {
+				using base_t = basic_mixin<cursor>;
+				using base_t::get;
 			public:
 				using iterator_type = I;
 				using difference_type = cursor::difference_type;
 
-				using box_t::box_t;
+				mixin() = default;
+				STL2_CONSTEXPR_EXT mixin(I&& i, difference_type n)
+				noexcept(std::is_nothrow_move_constructible<I>::value)
+				: base_t(cursor{std::move(i), n})
+				{}
+				STL2_CONSTEXPR_EXT mixin(const I& i, difference_type n)
+				noexcept(std::is_nothrow_copy_constructible<I>::value)
+				: base_t(cursor{i, n})
+				{}
+#if STL2_WORKAROUND_GCC_79143
+				constexpr explicit mixin(const cursor& c)
+				noexcept(std::is_nothrow_copy_constructible<cursor>::value)
+				: base_t{c}
+				{}
+				constexpr explicit mixin(cursor&& c)
+				noexcept(std::is_nothrow_move_constructible<cursor>::value)
+				: base_t{std::move(c)}
+				{}
+#else  // STL2_WORKAROUND_GCC_79143
+				using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 
 				STL2_CONSTEXPR_EXT I base() const
 				noexcept(is_nothrow_copy_constructible<I>::value)
 				{
-					return box_t::get().get();
+					return get().get();
 				}
 				STL2_CONSTEXPR_EXT difference_type count() const noexcept {
-					return box_t::get().count_;
+					return get().count_;
 				}
 			};
 
-			STL2_CONSTEXPR_EXT cursor()
-			noexcept(is_nothrow_default_constructible<I>::value)
-			: box_t{}, count_{0}
-			{}
+			cursor() = default;
 			STL2_CONSTEXPR_EXT cursor(I&& i, difference_type n)
 			noexcept(is_nothrow_move_constructible<I>::value)
 			: box_t(__stl2::move(i)), count_{n}
@@ -106,7 +146,7 @@ STL2_OPEN_NAMESPACE {
 			: box_t(access::base(that)), count_{access::count(that)}
 			{}
 
-#if 1 // Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
+#if STL2_WORKAROUND_GCC_69096
 			template <class II = I>
 			requires
 				InputIterator<II>() && Same<I, II>()
@@ -115,14 +155,14 @@ STL2_OPEN_NAMESPACE {
 			{
 				return *get();
 			}
-#else
+#else  // STL2_WORKAROUND_GCC_69096
 			STL2_CONSTEXPR_EXT decltype(auto) read() const
 			noexcept(noexcept(*declval<const I&>()))
 			requires InputIterator<I>()
 			{
 				return *get();
 			}
-#endif
+#endif // STL2_WORKAROUND_GCC_69096
 
 			template <class T>
 			requires

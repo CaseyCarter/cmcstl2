@@ -44,8 +44,8 @@ STL2_OPEN_NAMESPACE {
 			using difference_type = difference_type_t<I>;
 			using value_type = value_type_t<I>;
 
-			class mixin : protected detail::ebo_box<cursor> {
-				using base_t = detail::ebo_box<cursor>;
+			class mixin : protected basic_mixin<cursor> {
+				using base_t = basic_mixin<cursor>;
 			public:
 				using iterator_type = I;
 				using difference_type = cursor::difference_type;
@@ -54,7 +54,23 @@ STL2_OPEN_NAMESPACE {
 				using reference = reference_t<I>;
 				using pointer = I;
 
+				mixin() = default;
+				STL2_CONSTEXPR_EXT explicit mixin(I x)
+				noexcept(std::is_nothrow_move_constructible<I>::value)
+				: base_t{cursor{std::move(x)}}
+				{}
+#if STL2_WORKAROUND_GCC_79143
+				constexpr explicit mixin(const cursor& c)
+				noexcept(std::is_nothrow_copy_constructible<cursor>::value)
+				: base_t{c}
+				{}
+				constexpr explicit mixin(cursor&& c)
+				noexcept(std::is_nothrow_move_constructible<cursor>::value)
+				: base_t{std::move(c)}
+				{}
+#else  // STL2_WORKAROUND_GCC_79143
 				using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 
 				STL2_CONSTEXPR_EXT I base() const
 				noexcept(is_nothrow_copy_constructible<I>::value)

@@ -12,6 +12,7 @@
 #ifndef STL2_DETAIL_ITERATOR_MOVE_ITERATOR_HPP
 #define STL2_DETAIL_ITERATOR_MOVE_ITERATOR_HPP
 
+#include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
@@ -47,8 +48,8 @@ STL2_OPEN_NAMESPACE {
 			using single_pass = meta::bool_<!models::ForwardIterator<I>>;
 			using contiguous = meta::bool_<models::ContiguousIterator<I>>;
 
-			class mixin : protected detail::ebo_box<cursor> {
-				using box_t = detail::ebo_box<cursor>;
+			class mixin : protected basic_mixin<cursor> {
+				using base_t = basic_mixin<cursor>;
 			public:
 				using iterator_type = I;
 				using difference_type = cursor::difference_type;
@@ -56,21 +57,41 @@ STL2_OPEN_NAMESPACE {
 				using iterator_category = input_iterator_tag;
 				using reference = rvalue_reference_t<I>;
 
-				using box_t::box_t;
+				mixin() = default;
+				STL2_CONSTEXPR_EXT explicit mixin(I&& i)
+				noexcept(std::is_nothrow_move_constructible<I>::value)
+				: base_t{cursor{std::move(i)}}
+				{}
+				STL2_CONSTEXPR_EXT explicit mixin(const I& i)
+				noexcept(std::is_nothrow_copy_constructible<I>::value)
+				: base_t{cursor{i}}
+				{}
+#if STL2_WORKAROUND_GCC_79143
+				constexpr explicit mixin(const cursor& c)
+				noexcept(std::is_nothrow_copy_constructible<cursor>::value)
+				: base_t{c}
+				{}
+				constexpr explicit mixin(cursor&& c)
+				noexcept(std::is_nothrow_move_constructible<cursor>::value)
+				: base_t{std::move(c)}
+				{}
+#else  // STL2_WORKAROUND_GCC_79143
+				using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 
 				STL2_CONSTEXPR_EXT I base() const
 				noexcept(is_nothrow_copy_constructible<I>::value)
 				{
-					return box_t::get().current_;
+					return base_t::get().current_;
 				}
 			};
 
 			cursor() = default;
-			explicit STL2_CONSTEXPR_EXT cursor(I&& i)
+			STL2_CONSTEXPR_EXT explicit cursor(I&& i)
 			noexcept(is_nothrow_move_constructible<I>::value)
 			: current_{__stl2::move(i)}
 			{}
-			explicit STL2_CONSTEXPR_EXT cursor(const I& i)
+			STL2_CONSTEXPR_EXT explicit cursor(const I& i)
 			noexcept(is_nothrow_copy_constructible<I>::value)
 			: current_{i}
 			{}
@@ -217,9 +238,9 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	Semiregular{S}
-	class move_sentinel : detail::ebo_box<S> {
+	class move_sentinel : detail::ebo_box<S, move_sentinel<S>> {
 		friend __move_iterator::access;
-		using box_t = detail::ebo_box<S>;
+		using box_t = detail::ebo_box<S, move_sentinel<S>>;
 	public:
 		constexpr move_sentinel()
 		noexcept(is_nothrow_default_constructible<S>::value)

@@ -41,7 +41,20 @@ class forward_list {
 
 		struct mixin : protected stl2::basic_mixin<cursor> {
 			mixin() = default;
+#if STL2_WORKAROUND_GCC_79143
+		private:
+			using base_t = stl2::basic_mixin<cursor>;
+		public:
+			template <class First, class... Rest>
+			requires
+				!stl2::Same<mixin, std::decay_t<First>>() &&
+				stl2::Constructible<base_t, First, Rest...>()
+			constexpr mixin(First&& f, Rest&&...r)
+			noexcept(std::is_nothrow_constructible<base_t, First, Rest...>::value)
+			: base_t(std::forward<First>(f), std::forward<Rest>(r)...) {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using stl2::basic_mixin<cursor>::basic_mixin;
+#endif // STL2_WORKAROUND_GCC_79143
 			constexpr mixin(stl2::default_sentinel) noexcept
 			: mixin{cursor{}}
 			{}
@@ -75,10 +88,10 @@ public:
 	{ stl2::reverse_copy(il, stl2::front_inserter(*this)); }
 
 	constexpr iterator begin() noexcept {
-		return {cursor<false>{head_.get()}};
+		return iterator{cursor<false>{head_.get()}};
 	}
 	constexpr const_iterator begin() const noexcept {
-		return {cursor<true>{head_.get()}};
+		return const_iterator{cursor<true>{head_.get()}};
 	}
 	constexpr stl2::default_sentinel end() const noexcept { return {}; }
 
@@ -102,9 +115,25 @@ template <class T>
 class pointer_cursor {
 public:
 	using contiguous = stl2::true_type;
-	struct mixin : protected stl2::detail::ebo_box<pointer_cursor> {
+	class mixin : protected stl2::basic_mixin<pointer_cursor> {
+		using base_t = stl2::basic_mixin<pointer_cursor>;
+	public:
 		mixin() = default;
-		using mixin::ebo_box::ebo_box;
+		constexpr mixin(T* ptr) noexcept
+		: base_t{pointer_cursor{ptr}}
+		{}
+#if STL2_WORKAROUND_GCC_79143
+		constexpr explicit mixin(const pointer_cursor& c)
+		noexcept(std::is_nothrow_copy_constructible<pointer_cursor>::value)
+		: base_t{c}
+		{}
+		constexpr explicit mixin(pointer_cursor&& c)
+		noexcept(std::is_nothrow_move_constructible<pointer_cursor>::value)
+		: base_t{std::move(c)}
+		{}
+#else  // STL2_WORKAROUND_GCC_79143
+		using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 	};
 
 	pointer_cursor() = default;
@@ -274,13 +303,13 @@ struct proxy_array {
 
 	T e_[N];
 
-	iterator begin() { return {&e_[0]}; }
-	iterator end() { return {&e_[0] + N}; }
+	auto begin() { return iterator{&e_[0]}; }
+	auto end() { return iterator{&e_[0] + N}; }
 
-	const_iterator begin() const { return {&e_[0]}; }
-	const_iterator end() const { return {&e_[0] + N}; }
-	const_iterator cbegin() const { return begin(); }
-	const_iterator cend() const { return end(); }
+	auto begin() const { return const_iterator{&e_[0]}; }
+	auto end() const { return const_iterator{&e_[0] + N}; }
+	auto cbegin() const { return begin(); }
+	auto cend() const { return end(); }
 
 	reference operator[](const std::size_t n) noexcept {
 		return {e_[n]};
@@ -475,8 +504,8 @@ void test_counted() {
 	CHECK(*first == 0);
 
 	{
-		auto one = counted_iterator<const int*>{some_ints + 1, stl2::size(some_ints) - 1};
-		auto three = counted_iterator<int*>{some_ints + 3, stl2::size(some_ints) - 3};
+		auto one = counted_iterator<const int*>{some_ints + 1, stl2::distance(some_ints) - 1};
+		auto three = counted_iterator<int*>{some_ints + 3, stl2::distance(some_ints) - 3};
 		CHECK(!(one == three));
 		CHECK((one != three));
 		CHECK((one < three));

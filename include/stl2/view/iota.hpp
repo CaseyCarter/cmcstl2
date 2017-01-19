@@ -31,12 +31,12 @@ STL2_OPEN_NAMESPACE {
 				using difference_type = difference_type_t<I>;
 
 				cursor() = default;
-				constexpr cursor(const iota_view& v)
-				noexcept(is_nothrow_copy_constructible<I>::value)
+				constexpr explicit cursor(const iota_view& v)
+				noexcept(std::is_nothrow_copy_constructible<I>::value)
 				: value_{v.first_} {}
 
 				constexpr I read() const
-				noexcept(is_nothrow_copy_constructible<I>::value)
+				noexcept(std::is_nothrow_copy_constructible<I>::value)
 				{ return value_; }
 
 				constexpr void next()
@@ -69,13 +69,13 @@ STL2_OPEN_NAMESPACE {
 		public:
 			iota_view() = default;
 			constexpr iota_view(I first)
-			noexcept(is_nothrow_move_constructible<I>::value)
-			: first_(__stl2::move(first)) {}
+			noexcept(std::is_nothrow_move_constructible<I>::value)
+			: first_(std::move(first)) {}
 
 			using iterator = basic_iterator<cursor>;
 			constexpr iterator begin() const
-			noexcept(noexcept(iterator{declval<const iota_view&>()}))
-			{ return {cursor{*this}}; }
+			noexcept(noexcept(iterator{cursor{std::declval<const iota_view&>()}}))
+			{ return iterator{cursor{*this}}; }
 
 			constexpr unreachable end() const noexcept { return {}; }
 		};

@@ -16,7 +16,6 @@
 #include <iosfwd>
 #include <string>
 #include <stl2/type_traits.hpp>
-#include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/concepts/core.hpp>
@@ -38,12 +37,30 @@ STL2_OPEN_NAMESPACE {
 		public:
 			using difference_type = std::ptrdiff_t;
 			using ostream_type = std::basic_ostream<charT, traits>;
-			struct mixin : protected ebo_box<ostream_cursor> {
+			class mixin : protected basic_mixin<ostream_cursor> {
+				using base_t = basic_mixin<ostream_cursor>;
+			public:
 				using difference_type = ostream_cursor::difference_type;
 				using char_type = charT;
 				using traits_type = traits;
 				using ostream_type = ostream_cursor::ostream_type;
-				using ebo_box<ostream_cursor>::ebo_box;
+
+				mixin() = default;
+				STL2_CONSTEXPR_EXT mixin(ostream_type& os, const char* delimiter = nullptr) noexcept
+				: base_t{ostream_cursor{os, delimiter}}
+				{}
+#if STL2_WORKAROUND_GCC_79143
+				constexpr explicit mixin(const ostream_cursor& c)
+				noexcept(std::is_nothrow_copy_constructible<ostream_cursor>::value)
+				: base_t{c}
+				{}
+				constexpr explicit mixin(ostream_cursor&& c)
+				noexcept(std::is_nothrow_move_constructible<ostream_cursor>::value)
+				: base_t{std::move(c)}
+				{}
+#else  // STL2_WORKAROUND_GCC_79143
+				using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 			};
 
 			constexpr ostream_cursor() noexcept = default;

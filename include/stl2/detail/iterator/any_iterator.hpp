@@ -159,9 +159,6 @@ STL2_OPEN_NAMESPACE {
                 deref_ = &deref_big<Reference, I>;
                 exec_ = &exec_big<RValueReference, I>;
             }
-            InputIterator{I} cursor(I i)
-            : cursor{std::move(i), is_small<I>{}}
-            {}
             void reset() noexcept {
                 exec_(op::nuke, &data_, nullptr);
                 deref_ = &uninit_deref<Reference>;
@@ -182,6 +179,24 @@ STL2_OPEN_NAMESPACE {
         public:
             using value_type = ValueType;
             using single_pass = std::true_type;
+
+            struct mixin : basic_mixin<cursor> {
+            private:
+                using base_t = basic_mixin<cursor>;
+            public:
+                mixin() = default;
+                InputIterator{I} explicit mixin(I i)
+                : base_t(cursor{std::move(i)})
+                {}
+#if STL2_WORKAROUND_GCC_79143
+                explicit mixin(cursor c)
+                : base_t(std::move(c))
+                {}
+#else  // STL2_WORKAROUND_GCC_79143
+                using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
+            };
+
             cursor() = default;
             cursor(cursor &&that) {
                 move_from(that);
@@ -189,6 +204,9 @@ STL2_OPEN_NAMESPACE {
             cursor(cursor const &that) {
                 copy_from(that);
             }
+            InputIterator{I} cursor(I i)
+            : cursor{std::move(i), is_small<I>{}}
+            {}
             cursor &operator=(cursor &&that) {
                 if (&that != this) {
                     reset();

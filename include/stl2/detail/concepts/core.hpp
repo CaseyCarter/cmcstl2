@@ -60,6 +60,14 @@ STL2_OPEN_NAMESPACE {
 	template <class T>
 	concept bool _Unqual = Same<T, __uncvref<T>>();
 
+	namespace models {
+		template <class T, class... Args>
+		constexpr bool _OneOf = (Same<T, Args> || ...);
+	}
+
+	template <class T, class... Args>
+	concept bool _OneOf = models::_OneOf<T, Args...>;
+
 	///////////////////////////////////////////////////////////////////////////
 	// DerivedFrom [concepts.lib.corelang.derived]
 	//

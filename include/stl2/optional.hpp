@@ -15,8 +15,8 @@
 #include <ostream>
 #include <stdexcept>
 #include <stl2/type_traits.hpp>
-#include <stl2/variant.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/hash.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/smf_control.hpp>
 #include <stl2/detail/concepts/core.hpp>
@@ -125,14 +125,25 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		class storage_construct_layer : public storage_destruct_layer<T> {
 		public:
+#if STL2_WORKAROUND_GCC_79143
+			storage_construct_layer() = default;
+			template <class... Args>
+			requires models::Constructible<T, Args...>
+			constexpr explicit storage_construct_layer(in_place_t, Args&&... args)
+			noexcept(std::is_nothrow_constructible<T, Args...>::value)
+			: storage_destruct_layer<T>(in_place, std::forward<Args>(args)...)
+			{}
+#else  // STL2_WORKAROUND_GCC_79143
 			using storage_destruct_layer<T>::storage_destruct_layer;
+#endif // STL2_WORKAROUND_GCC_79143
 
 			template <class... Args>
 			requires models::Constructible<T, Args...>
 			void construct(Args&&... args)
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			{
-				::new(const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(this->item_)))) T{std::forward<Args>(args)...};
+				const volatile void* as_void = __stl2::addressof(this->item_);
+				::new(const_cast<void*>(as_void)) T{std::forward<Args>(args)...};
 				this->engaged_ = true;
 			}
 
@@ -167,7 +178,16 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		class smf_layer : public storage_construct_layer<T> {
 		public:
+#if STL2_WORKAROUND_GCC_79143
+			template <class... Args>
+			requires models::Constructible<T, Args...>
+			constexpr explicit smf_layer(in_place_t, Args&&... args)
+			noexcept(std::is_nothrow_constructible<T, Args...>::value)
+			: storage_construct_layer<T>(in_place, std::forward<Args>(args)...)
+			{}
+#else  // STL2_WORKAROUND_GCC_79143
 			using storage_construct_layer<T>::storage_construct_layer;
+#endif // STL2_WORKAROUND_GCC_79143
 
 			smf_layer() = default;
 
@@ -218,7 +238,18 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		requires std::is_trivially_copyable<T>::value
 		struct smf_layer<T> : storage_construct_layer<T> {
+#if STL2_WORKAROUND_GCC_79143
+			smf_layer() = default;
+
+			template <class... Args>
+			requires models::Constructible<T, Args...>
+			constexpr explicit smf_layer(in_place_t, Args&&... args)
+			noexcept(std::is_nothrow_constructible<T, Args...>::value)
+			: storage_construct_layer<T>(in_place, std::forward<Args>(args)...)
+			{}
+#else  // STL2_WORKAROUND_GCC_79143
 			using storage_construct_layer<T>::storage_construct_layer;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 	} // namespace __optional
 
@@ -230,7 +261,7 @@ STL2_OPEN_NAMESPACE {
 		struct optional_storage<T> {
 			using type = __optional::smf_layer<T>;
 		};
-	}
+	} // namespace ext
 
 	template <class T>
 	requires models::Destructible<T>
@@ -285,7 +316,6 @@ STL2_OPEN_NAMESPACE {
 		requires models::Constructible<T, std::initializer_list<E>&, Args...>
 		constexpr explicit optional(in_place_t, std::initializer_list<E> il, Args&&... args)
 		: base_t{in_place, il, std::forward<Args>(args)...} {}
-
 		template <class U = T>
 		requires
 			!models::Same<U, in_place_t> &&
@@ -303,7 +333,6 @@ STL2_OPEN_NAMESPACE {
 		constexpr optional(U&& u)
 		noexcept(std::is_nothrow_constructible<T, U>::value)
 		: base_t{in_place, std::forward<U>(u)} {}
-
 		template <class U>
 		requires
 			models::Constructible<T, const U&> &&
@@ -738,7 +767,7 @@ STL2_OPEN_NAMESPACE {
 		STL2_NOEXCEPT_RETURN(
 			o ? bool(t >= *o) : true
 		)
-	}
+	} // namespace __optional
 
 	template <class T, class... Args>
 	constexpr optional<T> make_optional(Args&&... args)
