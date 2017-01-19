@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 			)
 
 			// Experimental support for move_iterator post-increment
-			using __post_inc_t = decltype(current_++);
+			using __postinc_t = std::decay_t<decltype(current_++)>;
 			Readable{R}
 			struct __proxy {
 				using value_type = __stl2::value_type_t<R>;
@@ -107,16 +107,11 @@ STL2_OPEN_NAMESPACE {
 				)
 			};
 
-			STL2_CONSTEXPR_EXT cursor post_increment()
-			noexcept(noexcept(cursor{cursor{__stl2::exchange(current_, __stl2::next(current_))}}))
-			requires Same<__post_inc_t, I>() {
-				return cursor{__stl2::exchange(current_, __stl2::next(current_))};
-			}
-
+			template <class = void> // BUGBUG why is this necessary?
 			STL2_CONSTEXPR_EXT auto post_increment()
-			noexcept(noexcept(current_++) && std::is_nothrow_move_constructible<__post_inc_t>::value)
-			requires !Same<__post_inc_t, I>() && Readable<__post_inc_t>() {
-				return __proxy<__post_inc_t>{current_++};
+			noexcept(noexcept(__proxy<__postinc_t>{current_++}))
+			requires !ForwardIterator<I>() && Readable<__postinc_t>() {
+				return __proxy<__postinc_t>{current_++};
 			}
 
 			STL2_CONSTEXPR_EXT void prev()
