@@ -90,6 +90,31 @@ STL2_OPEN_NAMESPACE {
 				static_cast<void>(++current_)
 			)
 
+			// Not to spec
+			// Experimental support for move_iterator post-increment
+			using __postinc_t = std::decay_t<decltype(current_++)>;
+			Readable{R}
+			struct __proxy {
+				using value_type = __stl2::value_type_t<R>;
+				R __tmp;
+				STL2_CONSTEXPR_EXT decltype(auto) operator*()
+				STL2_NOEXCEPT_RETURN(
+					__stl2::iter_move(__tmp)
+				)
+				friend STL2_CONSTEXPR_EXT decltype(auto) iter_move(const __proxy& that)
+				STL2_NOEXCEPT_RETURN(
+					__stl2::iter_move(that.__tmp)
+				)
+			};
+
+			// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
+			template <class = void>
+			STL2_CONSTEXPR_EXT auto post_increment()
+			noexcept(noexcept(__proxy<__postinc_t>{current_++}))
+			requires !ForwardIterator<I>() && Readable<__postinc_t>() {
+				return __proxy<__postinc_t>{current_++};
+			}
+
 			STL2_CONSTEXPR_EXT void prev()
 			noexcept(noexcept(--current_))
 			requires BidirectionalIterator<I>()
