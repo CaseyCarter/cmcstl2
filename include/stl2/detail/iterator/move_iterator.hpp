@@ -91,6 +91,7 @@ STL2_OPEN_NAMESPACE {
 				static_cast<void>(++current_)
 			)
 
+			// Not to spec
 			// Experimental support for move_iterator post-increment
 			using __postinc_t = std::decay_t<decltype(current_++)>;
 			Readable{R}
@@ -107,7 +108,8 @@ STL2_OPEN_NAMESPACE {
 				)
 			};
 
-			template <class = void> // BUGBUG why is this necessary?
+			// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
+			template <class = void>
 			STL2_CONSTEXPR_EXT auto post_increment()
 			noexcept(noexcept(__proxy<__postinc_t>{current_++}))
 			requires !ForwardIterator<I>() && Readable<__postinc_t>() {
