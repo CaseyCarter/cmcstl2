@@ -16,8 +16,8 @@ add_test(test.numeric.gcd numeric.gcd)
 add_executable(numeric.inner_product inner_product.cpp)
 add_test(test.numeric.inner_product numeric.inner_product)
 
-#add_executable(numeric.iota iota.cpp)
-#add_test(test.numeric.iota numeric.iota)
+add_executable(numeric.iota iota.cpp)
+add_test(test.numeric.iota numeric.iota)
 
 #add_executable(numeric.lcm lcm.cpp)
 #add_test(test.numeric.lcm numeric.lcm)
