@@ -1,8 +1,8 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
-//  Copyright Eric Niebler 2013-2014 (range-v3/include/numeric/accumulate.hpp)
-//  Copyright Casey Carter 2016
-//  Copyright Christopher Di Bella 2016
+//  Copyright Eric Niebler 2013 -- 2017 (range-v3/include/numeric/accumulate.hpp)
+//  Copyright Casey Carter 2015 -- 2017
+//  Copyright Christopher Di Bella 2016 -- 2017
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -17,7 +17,7 @@
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/concepts/object/semiregular.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/iterator.hpp>
 
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S,
