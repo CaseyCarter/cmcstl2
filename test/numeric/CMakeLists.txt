@@ -19,8 +19,8 @@ add_test(test.numeric.inner_product numeric.inner_product)
 add_executable(numeric.iota iota.cpp)
 add_test(test.numeric.iota numeric.iota)
 
-#add_executable(numeric.lcm lcm.cpp)
-#add_test(test.numeric.lcm numeric.lcm)
+add_executable(numeric.lcm lcm.cpp)
+add_test(test.numeric.lcm numeric.lcm)
 
 add_executable(numeric.partial_sum partial_sum.cpp)
 add_test(test.numeric.partial_sum numeric.partial_sum)
