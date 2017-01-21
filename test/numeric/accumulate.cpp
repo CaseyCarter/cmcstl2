@@ -112,5 +112,5 @@ int main()
                        return i.second;
                     });
 
-   return test_result();
+   return ::test_result();
 }

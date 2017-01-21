@@ -23,28 +23,30 @@ STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S,
 				 Copyable T = value_type_t<I>,
 				 class Proj = identity,
-				 class __Arg2 = value_type_t<projected<I, Proj>>,
-				 RegularCallable<T, __Arg2> Op = plus<>>
+				 class BOp = plus<>,
+				 class __Arg = value_type_t<projected<I, Proj>>>
 	requires
-		models::Assignable<T&, result_of_t<Op&(T, __Arg2)>>
-	T accumulate(I first, S last, T init = T{}, Op op = Op{}, Proj proj = Proj{})
+		models::RegularCallable<BOp, T, __Arg> &&
+		models::Assignable<T&, result_of_t<BOp&(T, __Arg)>>
+	T accumulate(I first, S last, T init = T{}, BOp bop = BOp{}, Proj proj = Proj{})
 	{
 		T acc = init;
 		for (; first != last; ++first)
-			acc = __stl2::invoke(op, acc, __stl2::invoke(proj, *first));
+			acc = __stl2::invoke(bop, acc, __stl2::invoke(proj, *first));
 		return acc;
 	}
 
 	template <InputRange Rng, Copyable T = value_type_t<iterator_t<Rng>>,
 				 class Proj = identity,
-				 class __Arg2 = value_type_t<projected<iterator_t<Rng>, Proj>>,
-				 RegularCallable<T, __Arg2> Op = plus<>>
+				 class BOp = plus<>,
+				 class __Arg = value_type_t<projected<iterator_t<Rng>, Proj>>>
 	requires
-		models::Assignable<T&, result_of_t<Op&(T, __Arg2)>>
-	T accumulate(Rng&& rng, T init = T{}, Op op = Op{}, Proj proj = Proj{})
+		models::RegularCallable<BOp, T, __Arg> &&
+		models::Assignable<T&, result_of_t<BOp&(T, __Arg)>>
+	T accumulate(Rng&& rng, T init = T{}, BOp bop = BOp{}, Proj proj = Proj{})
 	{
 		return accumulate(__stl2::begin(rng), __stl2::end(rng),
-								__stl2::move(init), __stl2::ref(op), __stl2::ref(proj));
+								__stl2::move(init), __stl2::ref(bop), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 
