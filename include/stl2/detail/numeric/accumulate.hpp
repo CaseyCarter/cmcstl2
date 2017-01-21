@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 	T accumulate(Rng&& rng, T init = T{}, Op op = Op{}, Proj proj = Proj{})
 	{
 		return accumulate(__stl2::begin(rng), __stl2::end(rng),
-								__stl2::move(init), __stl2::move(op), __stl2::move(proj));
+								__stl2::move(init), __stl2::ref(op), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 	adjacent_difference(Rng&& rng, O result, Op op = Op{}, Proj proj = Proj{})
 	{
 		return adjacent_difference(__stl2::begin(rng), __stl2::end(rng), __stl2::move(result),
-											__stl2::move(op), __stl2::move(proj));
+											__stl2::ref(op), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 #endif // STL2_DETAIL_NUMERIC_ADJACENT_DIFFERENCE_HPP

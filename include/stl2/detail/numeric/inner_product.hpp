@@ -78,10 +78,10 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::inner_product(__stl2::begin(rng), __stl2::end(rng), __stl2::move(first2),
 											  __stl2::move(init),
-											  __stl2::move(binary_op1),
-											  __stl2::move(binary_op2),
-											  __stl2::move(proj1),
-											  __stl2::move(proj2));
+											  __stl2::ref(binary_op1),
+											  __stl2::ref(binary_op2),
+											  __stl2::ref(proj1),
+											  __stl2::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 
