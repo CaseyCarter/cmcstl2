@@ -310,6 +310,25 @@ std::ostream& operator<<(std::ostream& os, R&& rng) {
 	return os;
 }
 
+template <stl2::Iterator I>
+class output_cursor {
+public:
+	output_cursor() = default;
+	constexpr output_cursor(I i) noexcept
+	: i_{i} {}
+
+	template <class T>
+	requires stl2::OutputIterator<I, const T&>()
+	constexpr void write(const T& t) noexcept {
+		*i_++ = t;
+	}
+
+private:
+	I i_;
+};
+template <stl2::Iterator I>
+using output_iterator = stl2::basic_iterator<output_cursor<I>>;
+
 void test_fl() {
 	std::cout << "test_fl:\n";
 	::forward_list<int> list = {0, 1, 2, 3};
@@ -484,7 +503,7 @@ void test_counted() {
 		CHECK((one <= three));
 		CHECK(!(one >= three));
 	}
- }
+}
 
 void test_always() {
 	std::cout << "test_always:\n";
@@ -598,6 +617,35 @@ void test_proxy_array() {
 	CHECK(a[3] == 1);
 }
 
+void test_output() {
+	std::cout << "test_output:\n";
+
+	auto vec = std::vector<int>{0,0,0};
+	auto wi = vec.begin();
+
+	using I = ::output_iterator<decltype(wi)>;
+	static_assert(stl2::models::WeaklyIncrementable<I>);
+	static_assert(!stl2::models::Incrementable<I>);
+	static_assert(!stl2::models::Decrementable<I>);
+	static_assert(!stl2::models::Readable<I>);
+	static_assert(stl2::models::Writable<I, int>);
+	static_assert(stl2::models::DefaultConstructible<I>);
+	static_assert(stl2::models::Copyable<I>);
+	static_assert(stl2::models::Semiregular<I>);
+	static_assert(stl2::models::Iterator<I>);
+	static_assert(!stl2::models::InputIterator<I>);
+	static_assert(stl2::models::OutputIterator<I, int>);
+
+	I i{wi};
+	*i++ = 1;
+	*i++ = 2;
+	I i2 = i++;
+	*i2 = 3;
+	CHECK(vec[0] == 1);
+	CHECK(vec[1] == 2);
+	CHECK(vec[2] == 3);
+}
+
 int main() {
 	test_rv();
 	test_fl();
@@ -606,5 +654,6 @@ int main() {
 	test_always();
 	test_back_inserter();
 	test_proxy_array();
+	test_output();
 	return ::test_result();
 }

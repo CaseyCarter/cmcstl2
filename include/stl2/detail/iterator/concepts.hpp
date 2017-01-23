@@ -588,7 +588,11 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class I, class T>
 	concept bool OutputIterator() {
-		return Iterator<I>() && Writable<I, T>();
+		return Iterator<I>() &&
+			Writable<I, T>() &&
+			requires(I& i) {
+				{ i++ } -> const I&;
+			};
 	}
 
 	namespace models {
