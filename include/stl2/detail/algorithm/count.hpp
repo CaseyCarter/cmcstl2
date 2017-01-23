@@ -23,7 +23,7 @@
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class T, class Proj = identity>
 	requires
-		models::IndirectCallableRelation<
+		models::IndirectRelation<
 			equal_to<>, projected<I, Proj>, const T*>
 	difference_type_t<I>
 	count(I first, S last, const T& value, Proj proj = Proj{})
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class T, class Proj = identity>
 	requires
-		models::IndirectCallableRelation<
+		models::IndirectRelation<
 			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
 	difference_type_t<iterator_t<Rng>>
 	count(Rng&& rng, const T& value, Proj proj = Proj{})
@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class T, class Proj = identity>
 	requires
-		models::IndirectCallableRelation<
+		models::IndirectRelation<
 			equal_to<>, projected<const E*, Proj>, const T*>
 	std::ptrdiff_t
 	count(std::initializer_list<E>&& rng,

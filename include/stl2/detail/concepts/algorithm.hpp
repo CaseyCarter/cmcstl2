@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I1, class I2, class R = equal_to<>, class P1 = identity,
 		class P2 = identity>
 	concept bool IndirectlyComparable() {
-		return IndirectCallableRelation<R, projected<I1, P1>, projected<I2, P2>>();
+		return IndirectRelation<R, projected<I1, P1>, projected<I2, P2>>();
 	}
 
 	namespace models {
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 			WeaklyIncrementable<Out>() &&
 			IndirectlyCopyable<I1, Out>() &&
 			IndirectlyCopyable<I2, Out>() &&
-			IndirectCallableStrictWeakOrder<R, projected<I1, P1>, projected<I2, P2>>();
+			IndirectStrictWeakOrder<R, projected<I1, P1>, projected<I2, P2>>();
 	}
 
 	namespace models {
@@ -81,7 +81,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I, class R = less<>, class P = identity>
 	concept bool Sortable() {
 		return Permutable<I>() &&
-			IndirectCallableStrictWeakOrder<R, projected<I, P>>();
+			IndirectStrictWeakOrder<R, projected<I, P>>();
 	}
 
 	namespace models {

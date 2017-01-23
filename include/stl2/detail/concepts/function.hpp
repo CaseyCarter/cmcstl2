@@ -20,11 +20,11 @@
 #include <stl2/detail/functional/invoke.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// Callable Concepts [concepts.lib.callables]
+// Invocable Concepts [concepts.lib.callables]
 //
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// Callable [concepts.lib.callables.callable]
+	// Invocable [concepts.lib.callables.callable]
 	//
 	template <class F, class...Args>
 	constexpr bool __callable = false;
@@ -36,30 +36,30 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool __callable<F, Args...> = true;
 
 	template <class F, class...Args>
-	concept bool Callable() {
+	concept bool Invocable() {
 		return __callable<F, Args...>;
 	}
 
 	namespace models {
 		template <class, class...>
-		constexpr bool Callable = false;
-		__stl2::Callable{F, ...Args}
-		constexpr bool Callable<F, Args...> = true;
+		constexpr bool Invocable = false;
+		__stl2::Invocable{F, ...Args}
+		constexpr bool Invocable<F, Args...> = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
-	// RegularCallable [concepts.lib.callables.regularcallable]
+	// RegularInvocable [concepts.lib.callables.regularcallable]
 	//
 	template <class F, class...Args>
-	concept bool RegularCallable() {
-		return Callable<F, Args...>();
+	concept bool RegularInvocable() {
+		return Invocable<F, Args...>();
 	}
 
 	namespace models {
 		template <class, class...>
-		constexpr bool RegularCallable = false;
-		__stl2::RegularCallable{F, ...Args}
-		constexpr bool RegularCallable<F, Args...> = true;
+		constexpr bool RegularInvocable = false;
+		__stl2::RegularInvocable{F, ...Args}
+		constexpr bool RegularInvocable<F, Args...> = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class F, class...Args>
 	concept bool Predicate() {
-		return RegularCallable<F, Args...>() &&
+		return RegularInvocable<F, Args...>() &&
 			Boolean<result_of_t<F(Args...)>>();
 	}
 

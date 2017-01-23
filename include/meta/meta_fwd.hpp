@@ -84,7 +84,7 @@ namespace meta
         };
 
         template <typename T>
-        concept bool Callable = requires
+        concept bool Invocable = requires
         {
             typename quote<T::template invoke>;
         };
@@ -122,12 +122,12 @@ namespace meta
         template <typename T>
         struct id;
 
-        template <Callable... Fs>
+        template <Invocable... Fs>
         struct compose;
 
         namespace extension
         {
-            template <Callable F, typename L>
+            template <Invocable F, typename L>
             struct apply;
         }
 

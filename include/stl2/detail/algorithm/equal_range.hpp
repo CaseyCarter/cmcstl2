@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <ForwardIterator I, class T, class Comp = less<>, class Proj = identity>
 		requires
-			models::IndirectCallableStrictWeakOrder<
+			models::IndirectStrictWeakOrder<
 				Comp, const T*, projected<I, Proj>>
 		ext::range<I> equal_range_n(I first, difference_type_t<I> dist, const T& value,
 			Comp comp = Comp{}, Proj proj = Proj{})
@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class T,
 		class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectStrictWeakOrder<
 			Comp, const T*, projected<I, Proj>>
 	ext::range<I> equal_range(I first, S last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, SizedSentinel<I> S, class T,
 		class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectStrictWeakOrder<
 			Comp, const T*, projected<I, Proj>>
 	ext::range<I> equal_range(I first, S last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
@@ -122,7 +122,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class T,
 		class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>>
 	ext::range<safe_iterator_t<Rng>> equal_range(Rng&& rng, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
@@ -135,7 +135,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class T, class Comp = less<>,
 		class Proj = identity>
 	requires
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>> &&
 		models::SizedRange<Rng>
 	ext::range<safe_iterator_t<Rng>> equal_range(Rng&& rng, const T& value,
@@ -149,7 +149,7 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class T, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectCallableStrictWeakOrder<
+		models::IndirectStrictWeakOrder<
 			Comp, const T*, projected<const E*, Proj>>
 	ext::range<dangling<const E*>>
 	equal_range(std::initializer_list<E>&& rng, const T& value,
