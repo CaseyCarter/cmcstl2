@@ -45,6 +45,12 @@ namespace {
 		int read() const { return 42; }
 		void next();
 	};
+	struct sz {
+		friend bool operator==(const char* p, sz) { return !*p;	}
+		friend bool operator!=(const char* p, sz) { return *p; }
+		friend bool operator==(sz, const char* p) { return !*p; }
+		friend bool operator!=(sz, const char* p) {	return *p; }
+	};
 
 	void test_operator_arrow() {
 		// I is a pointer type
@@ -150,7 +156,16 @@ int main() {
 		CI last{sentinel<int*>{rgi+10}};
 		CHECK(std::accumulate(first, last, 0, std::plus<int>{}) == 45);
 	}
-
+	// Check conversions:
+	{
+		char buff[] = "abcd";
+		__stl2::common_iterator<char*, sz> ci(buff);
+		__stl2::common_iterator<const char*, sz> ci2(ci);
+		ci2 = ci;
+		CHECK(ci2 == ci);
+		++ci2;
+		CHECK(ci2 != ci);
+	}
 	test_operator_arrow();
 
 	return test_result();

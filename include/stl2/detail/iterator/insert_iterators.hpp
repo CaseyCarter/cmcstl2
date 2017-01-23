@@ -141,41 +141,53 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		template <class T, class C>
 		concept bool InsertableInto =
-			requires(T&& t, C& c, typename C::iterator i) {
-				{  c.insert(i, (T&&)t) } -> typename C::iterator;
+			requires(T&& t, C& c, iterator_t<C> i) {
+				{  c.insert(i, (T&&)t) } -> iterator_t<C>;
 			};
-
-		template <MemberValueType Container>
-			requires requires { typename Container::iterator; }
-		class insert_cursor : public insert_cursor_base<Container> {
-			using base_t = insert_cursor_base<Container>;
-			using I = typename Container::iterator;
-
-			using mixin = insert_cursor_mixin<insert_cursor, Container>;
-
-			constexpr insert_cursor() = default;
-			STL2_CONSTEXPR_EXT explicit insert_cursor(Container& x, I i)
-				noexcept(is_nothrow_move_constructible<I>::value) :
-				base_t{x}, iter_{__stl2::move(i)} {}
-
-			template <InsertableInto<Container> T>
-			void write(T&& t) {
-				iter_ = base_t::container_->insert(iter_, __stl2::forward<T>(t));
-				++iter_;
-			}
-
-		private:
-			I iter_{};
-		};
 	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// insert_iterator [insert.iterator]
 	//
-	template <detail::MemberValueType Container,
-		class I = typename Container::iterator>
-	using insert_iterator =
-		basic_iterator<detail::insert_cursor<Container>>;
+	template <detail::MemberValueType Container>
+	requires requires { typename iterator_t<Container>; }
+	class insert_iterator {
+	public:
+		using container_type = Container;
+		using difference_type = ptrdiff_t;
+
+		insert_iterator() = default;
+		insert_iterator(Container& x, iterator_t<Container> i)
+		: container(std::addressof(x)), iter(__stl2::move(i)) {}
+		insert_iterator& operator=(const value_type_t<Container>& value)
+		requires detail::InsertableInto<const value_type_t<Container>&, Container>
+		{
+			iter = container->insert(iter, value);
+			++iter;
+			return *this;
+		}
+		insert_iterator& operator=(value_type_t<Container>&& value)
+		requires detail::InsertableInto<value_type_t<Container>&&, Container>
+		{
+			iter = container->insert(iter, __stl2::move(value));
+			++iter;
+			return *this;
+		}
+		insert_iterator& operator*() {
+			return *this;
+		}
+		insert_iterator& operator++() {
+			return *this;
+		}
+		// Not to spec:
+		// https://github.com/ericniebler/stl2/issues/232
+		insert_iterator& operator++(int) {
+			return *this;
+		}
+	private:
+		detail::raw_ptr<Container> container{nullptr};
+		iterator_t<Container> iter{};
+	};
 
 	template <detail::MemberValueType Container>
 	STL2_CONSTEXPR_EXT auto inserter(Container& x, iterator_t<Container> i)

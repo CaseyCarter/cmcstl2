@@ -113,6 +113,8 @@ STL2_OPEN_NAMESPACE {
 
 			// Not to spec
 			// Experimental support for move_iterator post-increment
+			// BUGBUG doesn't correctly handle when decltype(current_++)
+			// is a reference.
 			using __postinc_t = std::decay_t<decltype(current_++)>;
 			Readable{R}
 			struct __proxy {
@@ -128,8 +130,9 @@ STL2_OPEN_NAMESPACE {
 				)
 			};
 
-			// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
+#if STL2_WORKAROUND_GCC_69096
 			template <class = void>
+#endif // STL2_WORKAROUND_GCC_69096
 			STL2_CONSTEXPR_EXT auto post_increment()
 			noexcept(noexcept(__proxy<__postinc_t>{current_++}))
 			requires !ForwardIterator<I>() && Readable<__postinc_t>() {
