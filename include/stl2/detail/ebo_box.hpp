@@ -24,6 +24,7 @@ STL2_OPEN_NAMESPACE {
 			std::is_class<T>::value && !std::is_final<T>::value;
 
 		template <Destructible T, class Tag = void>
+		requires _Is<T, is_object>
 		class ebo_box {
 		public:
 			ebo_box() = default;
@@ -62,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <Destructible T, class Tag>
-		requires __non_final_class<T>
+		requires _Is<T, is_object> && __non_final_class<T>
 		class ebo_box<T, Tag> : private T {
 		public:
 			ebo_box() = default;

@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	concept bool _Is = _Valid<T, U, V...> && T<U, V...>::value;
 
 	template <class U, template <class...> class T, class...V>
-	concept bool _IsNot = !_Is<U, T, V...>;
+	concept bool _IsNot = _Valid<T, U, V...> && !T<U, V...>::value;
 
 	// U is a cv/ref-qualified specialization of class template T.
 	template <class U, template <class...> class T>
