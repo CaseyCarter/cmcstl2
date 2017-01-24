@@ -639,7 +639,7 @@ void test_output() {
 	I i{wi};
 	*i++ = 1;
 	*i++ = 2;
-	I i2 = i++;
+	I i2 = i++; // Increment affect is ignored.
 	*i2 = 3;
 	CHECK(vec[0] == 1);
 	CHECK(vec[1] == 2);
