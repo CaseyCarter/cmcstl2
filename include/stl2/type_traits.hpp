@@ -171,14 +171,13 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool CommonReference = false;
 		template <class T, class U>
 		requires
-			requires(T (&t)(), U (&u)()) {
+			requires {
 				typename common_reference_t<T, U>;
 				typename common_reference_t<U, T>;
-				requires Same<common_reference_t<T, U>,
-					common_reference_t<U, T>>;
-				common_reference_t<T, U>(t());
-				common_reference_t<T, U>(u());
-			}
+			} &&
+			Same<common_reference_t<T, U>, common_reference_t<U, T>> &&
+			ConvertibleTo<T, common_reference_t<T, U>> &&
+			ConvertibleTo<U, common_reference_t<T, U>>
 		constexpr bool CommonReference<T, U> = true;
 	}
 
@@ -206,18 +205,18 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool Common = false;
 		template <class T, class U>
 		requires
-			CommonReference<add_lvalue_reference_t<const T>,
-				add_lvalue_reference_t<const U>> &&
-			requires(T (&t)(), U (&u)()) {
+			requires {
 				typename common_type_t<T, U>;
 				typename common_type_t<U, T>;
-				requires Same<common_type_t<T, U>, common_type_t<U, T>>;
-				common_type_t<T, U>(t());
-				common_type_t<T, U>(u());
-				requires CommonReference<add_lvalue_reference_t<common_type_t<T, U>>,
-					common_reference_t<add_lvalue_reference_t<const T>,
-						add_lvalue_reference_t<const U>>>;
-			}
+			} &&
+			Same<common_type_t<T, U>, common_type_t<U, T>> &&
+			ConvertibleTo<T, common_type_t<T, U>> &&
+			ConvertibleTo<U, common_type_t<T, U>> &&
+			CommonReference<add_lvalue_reference_t<const T>,
+				add_lvalue_reference_t<const U>> &&
+			CommonReference<add_lvalue_reference_t<common_type_t<T, U>>,
+				common_reference_t<add_lvalue_reference_t<const T>,
+					add_lvalue_reference_t<const U>>>
 		constexpr bool Common<T, U> = true;
 	}
 
