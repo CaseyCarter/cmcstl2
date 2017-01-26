@@ -23,14 +23,18 @@
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// CopyConstructible [concepts.lib.object.copyconstructible]
-	//
+	// Not to spec
+	// https://github.com/ericniebler/stl2/issues/301
+	// https://github.com/ericniebler/stl2/issues/313
 	template <class T>
 	concept bool CopyConstructible() {
 		return MoveConstructible<T>() &&
-			Constructible<T, const remove_cv_t<T>&>() &&
-			ConvertibleTo<remove_cv_t<T>&, T>() &&
-			ConvertibleTo<const remove_cv_t<T>&, T>() &&
-			ConvertibleTo<const remove_cv_t<T>&&, T>();
+			Constructible<T, T&>() &&
+			Constructible<T, const T&>() &&
+			Constructible<T, const T&&>() &&
+			ConvertibleTo<T&, T>() &&
+			ConvertibleTo<const T&, T>() &&
+			ConvertibleTo<const T&&, T>();
 	}
 
 	namespace models {

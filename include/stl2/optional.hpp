@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template <class T>
-	requires models::Destructible<T>
+	requires models::Destructible<T> && _Is<T, is_object>
 	class optional;
 
 	namespace __optional {
@@ -264,7 +264,7 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	template <class T>
-	requires models::Destructible<T>
+	requires models::Destructible<T> && _Is<T, is_object>
 	class optional
 	: public meta::_t<ext::optional_storage<T>>
 	, detail::smf_control::copy<models::CopyConstructible<T>>
