@@ -123,8 +123,8 @@ public:
 	constexpr reference operator*() const {return *it_;}
 
 	constexpr output_iterator& operator++() {++it_; return *this;}
-	constexpr output_iterator operator++(int)
-	{output_iterator tmp(*this); ++(*this); return tmp;}
+	constexpr decltype(auto) operator++(int)
+	{return it_++;}
 };
 
 template <class It>

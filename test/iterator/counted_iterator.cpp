@@ -12,6 +12,7 @@
 //
 #include <stl2/iterator.hpp>
 #include <stl2/type_traits.hpp>
+#include <stl2/algorithm.hpp>
 #include <list>
 #include "../test_iterators.hpp"
 #include "../simple_test.hpp"
@@ -54,6 +55,18 @@ int main()
 		CHECK((d - d) == 0);
 		CHECK((c - d) == 0);
 		CHECK((d - c) == 0);
+	}
+
+	{
+		int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+		counted_iterator<output_iterator<int*>> e{output_iterator<int*>{rgi}, 10};
+		fill(e, default_sentinel{}, 0);
+		int expected[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+		CHECK(std::equal(rgi, rgi + size(rgi), expected));
+		// Make sure advance compiles
+		advance(e, 4);
+		CHECK(e.base().base() == rgi + 4);
+		CHECK(e.count() == 10 - 4);
 	}
 
 	return ::test_result();

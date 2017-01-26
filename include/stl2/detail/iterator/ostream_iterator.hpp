@@ -25,68 +25,6 @@
 #include <stl2/detail/memory/addressof.hpp>
 
 STL2_OPEN_NAMESPACE {
-	namespace detail {
-		///////////////////////////////////////////////////////////////////////////
-		// ostream_cursor [Implementation detail]
-		//
-		template <class T, class charT, class traits>
-		requires
-			models::Same<T, void> ||
-			models::StreamInsertable<T, std::basic_ostream<charT, traits>>
-		class ostream_cursor {
-		public:
-			using difference_type = std::ptrdiff_t;
-			using ostream_type = std::basic_ostream<charT, traits>;
-			class mixin : protected basic_mixin<ostream_cursor> {
-				using base_t = basic_mixin<ostream_cursor>;
-			public:
-				using difference_type = ostream_cursor::difference_type;
-				using char_type = charT;
-				using traits_type = traits;
-				using ostream_type = ostream_cursor::ostream_type;
-
-				mixin() = default;
-				STL2_CONSTEXPR_EXT mixin(ostream_type& os, const char* delimiter = nullptr) noexcept
-				: base_t{ostream_cursor{os, delimiter}}
-				{}
-#if STL2_WORKAROUND_GCC_79143
-				constexpr explicit mixin(const ostream_cursor& c)
-				noexcept(std::is_nothrow_copy_constructible<ostream_cursor>::value)
-				: base_t{c}
-				{}
-				constexpr explicit mixin(ostream_cursor&& c)
-				noexcept(std::is_nothrow_move_constructible<ostream_cursor>::value)
-				: base_t{std::move(c)}
-				{}
-#else  // STL2_WORKAROUND_GCC_79143
-				using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
-			};
-
-			constexpr ostream_cursor() noexcept = default;
-			STL2_CONSTEXPR_EXT ostream_cursor(
-				ostream_type& os, const char* delimiter = nullptr)
-			noexcept
-			: os_{__stl2::addressof(os)}, delimiter_{delimiter}
-			{}
-
-			template <class U, class V = meta::if_<std::is_void<T>, U, T>>
-			requires
-				ConvertibleTo<U, V const&>() &&
-				ext::StreamInsertable<V, ostream_type>
-			STL2_CONSTEXPR_EXT void write(U&& u) {
-				*os_ << static_cast<V const &>(std::forward<U>(u));
-				if (delimiter_) {
-					*os_ << delimiter_;
-				}
-			}
-
-		private:
-			raw_ptr<ostream_type> os_ = nullptr;
-			const char* delimiter_ = nullptr;
-		};
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// ostream_iterator [ostream.iterator]
 	// Extension: ostream_iterator<void> accepts any streamable type.
@@ -98,8 +36,47 @@ STL2_OPEN_NAMESPACE {
 	requires
 		models::Same<T, void> ||
 		models::StreamInsertable<T, std::basic_ostream<charT, traits>>
-	using ostream_iterator =
-		basic_iterator<detail::ostream_cursor<T, charT, traits>>;
+	class ostream_iterator {
+	public:
+		using difference_type = ptrdiff_t;
+		using char_type = charT;
+		using traits_type = traits;
+		using ostream_type = std::basic_ostream<charT, traits>;
+
+		constexpr ostream_iterator() noexcept = default;
+
+		STL2_CONSTEXPR_EXT ostream_iterator(
+			ostream_type& os, const charT* delimiter = nullptr) noexcept
+		: out_stream_(__stl2::addressof(os)), delim_(delimiter) {}
+
+		template <class U, class V = meta::if_<std::is_void<T>, U, T>>
+		requires
+			ConvertibleTo<U, V const&>() &&
+			ext::StreamInsertable<V, ostream_type>
+		ostream_iterator& operator=(U&& u) {
+			*out_stream_ << static_cast<V const &>(std::forward<U>(u));
+			if (delim_ != nullptr) {
+				*out_stream_ << delim_;
+			}
+			return *this;
+		}
+
+		ostream_iterator& operator*() noexcept {
+			return *this;
+		}
+		ostream_iterator& operator++() noexcept {
+			return *this;
+		}
+		// Not to spec:
+		// https://github.com/ericniebler/stl2/issues/232
+		ostream_iterator& operator++(int) noexcept {
+			return *this;
+		}
+	private:
+		detail::raw_ptr<basic_ostream<charT, traits>> out_stream_{nullptr};
+		const charT* delim_{nullptr};
+	};
+
 } STL2_CLOSE_NAMESPACE
 
 #endif
