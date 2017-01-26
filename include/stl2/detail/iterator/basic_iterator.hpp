@@ -752,6 +752,14 @@ STL2_OPEN_NAMESPACE {
 			++*this;
 		}
 
+		constexpr basic_iterator& operator++(int) & noexcept
+		requires !cursor::Input<C>()
+			&& !cursor::Next<C>()
+			&& !cursor::PostIncrement<C>()
+		{
+			return *this;
+		}
+
 		constexpr decltype(auto) operator++(int) &
 		noexcept(noexcept(declval<C&>().post_increment()))
 		requires cursor::PostIncrement<C>()
