@@ -15,7 +15,6 @@
 
 #include <stl2/type_traits.hpp>
 #include <stl2/variant.hpp>
-#include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
@@ -167,11 +166,29 @@ STL2_OPEN_NAMESPACE {
 		public:
 			using difference_type = difference_type_t<I>;
 
-			class mixin : public detail::ebo_box<cursor> {
-				using box_t = detail::ebo_box<cursor>;
+			class mixin : public basic_mixin<cursor> {
+				using base_t = basic_mixin<cursor>;
 			public:
 				using difference_type = cursor::difference_type;
-				using box_t::box_t;
+				mixin() = default;
+				STL2_CONSTEXPR_EXT mixin(I i)
+				noexcept(std::is_nothrow_constructible<variant<I, S>, I>::value)
+				: base_t{cursor{std::move(i)}} {}
+				STL2_CONSTEXPR_EXT mixin(S s)
+				noexcept(std::is_nothrow_constructible<variant<I, S>, S>::value)
+				: base_t{cursor{std::move(s)}} {}
+#if STL2_WORKAROUND_GCC_79143
+				constexpr explicit mixin(const cursor& c)
+				noexcept(std::is_nothrow_copy_constructible<cursor>::value)
+				: base_t{c}
+				{}
+				constexpr explicit mixin(cursor&& c)
+				noexcept(std::is_nothrow_move_constructible<cursor>::value)
+				: base_t{std::move(c)}
+				{}
+#else  // STL2_WORKAROUND_GCC_79143
+				using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 			};
 
 			cursor() = default;

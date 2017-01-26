@@ -45,7 +45,9 @@ STL2_OPEN_NAMESPACE {
 			using istream_type = std::basic_istream<charT, traits>;
 			using single_pass = true_type;
 
-			struct mixin : protected ebo_box<istream_cursor> {
+			class mixin : protected basic_mixin<istream_cursor> {
+				using base_t = basic_mixin<istream_cursor>;
+			public:
 				using iterator_category = input_iterator_tag;
 				using difference_type = istream_cursor::difference_type;
 				using value_type = istream_cursor::value_type;
@@ -54,7 +56,26 @@ STL2_OPEN_NAMESPACE {
 				using char_type = charT;
 				using traits_type = traits;
 				using istream_type = istream_cursor::istream_type;
-				using ebo_box<istream_cursor>::ebo_box;
+
+				mixin() = default;
+				STL2_CONSTEXPR_EXT mixin(istream_type& s)
+				: base_t{istream_cursor{s}}
+				{}
+				constexpr mixin(default_sentinel)
+				: base_t{}
+				{}
+#if STL2_WORKAROUND_GCC_79143
+				constexpr explicit mixin(const istream_cursor& c)
+				noexcept(std::is_nothrow_copy_constructible<istream_cursor>::value)
+				: base_t{c}
+				{}
+				constexpr explicit mixin(istream_cursor&& c)
+				noexcept(std::is_nothrow_move_constructible<istream_cursor>::value)
+				: base_t{std::move(c)}
+				{}
+#else  // STL2_WORKAROUND_GCC_79143
+				using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 			};
 
 			constexpr istream_cursor()

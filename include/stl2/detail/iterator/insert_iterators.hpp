@@ -42,7 +42,19 @@ STL2_OPEN_NAMESPACE {
 			using difference_type =
 				typename insert_cursor_base<Container>::difference_type;
 			using container_type = Container;
+#if STL2_WORKAROUND_GCC_79143
+			using base_t = ebo_box<Cursor, insert_cursor_mixin>;
+			insert_cursor_mixin() = default;
+			template <class First, class... Rest>
+			requires
+				!models::Same<insert_cursor_mixin, std::decay_t<First>> &&
+				models::Constructible<base_t, First, Rest...>
+			constexpr insert_cursor_mixin(First&& f, Rest&&...r)
+			noexcept(std::is_nothrow_constructible<base_t, First, Rest...>::value)
+			: base_t(std::forward<First>(f), std::forward<Rest>(r)...) {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using insert_cursor_mixin::ebo_box::ebo_box;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		template <class T, class C>
@@ -57,7 +69,14 @@ STL2_OPEN_NAMESPACE {
 			using mixin = insert_cursor_mixin<back_insert_cursor, Container>;
 
 			constexpr back_insert_cursor() = default;
+#if STL2_WORKAROUND_GCC_79143
+			STL2_CONSTEXPR_EXT explicit
+			back_insert_cursor(Container& x) noexcept
+			: insert_cursor_base<Container>{x}
+			{}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 
 			template <BackInsertableInto<Container> T>
 			void write(T&& t) {
@@ -91,7 +110,14 @@ STL2_OPEN_NAMESPACE {
 			using mixin = insert_cursor_mixin<front_insert_cursor, Container>;
 
 			constexpr front_insert_cursor() = default;
+#if STL2_WORKAROUND_GCC_79143
+			STL2_CONSTEXPR_EXT explicit
+			front_insert_cursor(Container& x) noexcept
+			: insert_cursor_base<Container>{x}
+			{}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 
 			template <FrontInsertableInto<Container> T>
 			void write(T&& t) {

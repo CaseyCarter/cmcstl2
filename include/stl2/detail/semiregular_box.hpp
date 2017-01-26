@@ -20,7 +20,8 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		Destructible{T}
+		template <Destructible T>
+		requires _Is<T, is_object>
 		class semiregular_box {
 		public:
 			semiregular_box() = default;

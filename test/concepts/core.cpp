@@ -62,6 +62,7 @@ CONCEPT_ASSERT(!models::ConvertibleTo<A, B>);
 CONCEPT_ASSERT(models::ConvertibleTo<B, A>);
 CONCEPT_ASSERT(models::ConvertibleTo<int, double>);
 CONCEPT_ASSERT(models::ConvertibleTo<double, int>);
+CONCEPT_ASSERT(models::ConvertibleTo<void, void>);
 }
 
 namespace common_test {
@@ -76,6 +77,7 @@ CONCEPT_ASSERT(!models::Common<void, int>);
 CONCEPT_ASSERT(!models::Common<int*, int>);
 CONCEPT_ASSERT(models::Common<void*, int*>);
 CONCEPT_ASSERT(models::Common<double,long long>);
+CONCEPT_ASSERT(models::Common<void, void>);
 //CONCEPT_ASSERT(models::Common<int, float, double>);
 //CONCEPT_ASSERT(!models::Common<int, float, double, void>);
 
