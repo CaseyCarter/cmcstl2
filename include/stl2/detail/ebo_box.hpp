@@ -21,58 +21,84 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		template <class T>
 		constexpr bool __non_final_class =
-			is_class<T>::value && !is_final<T>::value;
+			std::is_class<T>::value && !std::is_final<T>::value;
 
 		template <Destructible T, class Tag = void>
+		requires _Is<T, is_object>
 		class ebo_box {
 		public:
-			ebo_box() requires DefaultConstructible<T>() = default;
+			ebo_box() = default;
 			constexpr ebo_box(const T& t)
-			noexcept(is_nothrow_copy_constructible<T>::value)
-			requires CopyConstructible<T>()
+			noexcept(std::is_nothrow_copy_constructible<T>::value)
+			requires models::CopyConstructible<T>
 			: item_(t) {}
 			constexpr ebo_box(T&& t)
-			noexcept(is_nothrow_move_constructible<T>::value)
-			requires MoveConstructible<T>()
-			: item_(__stl2::move(t)) {}
+			noexcept(std::is_nothrow_move_constructible<T>::value)
+			requires models::MoveConstructible<T>
+			: item_(std::move(t)) {}
 
-			template <typename First, typename...Rest>
+			template <class First>
 			requires
-				!Same<ebo_box, decay_t<First>>() &&
-				Constructible<T, First, Rest...>()
-			constexpr ebo_box(First&& f, Rest&&...r)
-			noexcept(is_nothrow_constructible<T, First, Rest...>::value)
-			: item_(__stl2::forward<First>(f), __stl2::forward<Rest>(r)...) {}
+				!models::_OneOf<std::decay_t<First>, ebo_box, T> &&
+				models::Constructible<T, First> &&
+				models::ConvertibleTo<First, T>
+			constexpr ebo_box(First&& f)
+			noexcept(std::is_nothrow_constructible<T, First>::value)
+			: item_(std::forward<First>(f)) {}
+			template <class First, class... Rest>
+			requires
+				(sizeof...(Rest) > 0 || !models::_OneOf<std::decay_t<First>, ebo_box, T>) &&
+				models::Constructible<T, First, Rest...>
+			constexpr explicit ebo_box(First&& f, Rest&&...r)
+			noexcept(std::is_nothrow_constructible<T, First, Rest...>::value)
+			: item_(std::forward<First>(f), std::forward<Rest>(r)...) {}
 
 			constexpr T& get() & noexcept { return item_; }
 			constexpr const T& get() const& noexcept { return item_; }
-			constexpr T&& get() && noexcept { return __stl2::move(item_); }
-			constexpr const T&& get() const&& noexcept { return __stl2::move(item_); }
+			constexpr T&& get() && noexcept { return std::move(item_); }
+			constexpr const T&& get() const&& noexcept { return std::move(item_); }
 
 		private:
 			T item_;
 		};
 
 		template <Destructible T, class Tag>
-		requires __non_final_class<T>
+		requires _Is<T, is_object> && __non_final_class<T>
 		class ebo_box<T, Tag> : private T {
 		public:
-			using T::T;
-
-			ebo_box() requires DefaultConstructible<T>() = default;
+			ebo_box() = default;
 			constexpr ebo_box(const T& t)
-			noexcept(is_nothrow_copy_constructible<T>::value)
+			noexcept(std::is_nothrow_copy_constructible<T>::value)
 			requires CopyConstructible<T>()
 			: T(t) {}
 			constexpr ebo_box(T&& t)
-			noexcept(is_nothrow_move_constructible<T>::value)
+			noexcept(std::is_nothrow_move_constructible<T>::value)
 			requires MoveConstructible<T>()
-			: T(__stl2::move(t)) {}
+			: T(std::move(t)) {}
+#if STL2_WORKAROUND_GCC_79143
+			template <class First>
+			requires
+				!models::_OneOf<std::decay_t<First>, ebo_box, T> &&
+				models::Constructible<T, First> &&
+				models::ConvertibleTo<First, T>
+			constexpr ebo_box(First&& f)
+			noexcept(std::is_nothrow_constructible<T, First>::value)
+			: T(std::forward<First>(f)) {}
+			template <class First, class... Rest>
+			requires
+				(sizeof...(Rest) > 0 || !models::_OneOf<std::decay_t<First>, ebo_box, T>) &&
+				models::Constructible<T, First, Rest...>
+			constexpr explicit ebo_box(First&& f, Rest&&...r)
+			noexcept(std::is_nothrow_constructible<T, First, Rest...>::value)
+			: T(std::forward<First>(f), std::forward<Rest>(r)...) {}
+#else  // STL2_WORKAROUND_GCC_79143
+			using T::T;
+#endif //  STL2_WORKAROUND_GCC_79143
 
 			constexpr T& get() & noexcept { return *this; }
 			constexpr const T& get() const& noexcept { return *this; }
-			constexpr T&& get() && noexcept { return __stl2::move(*this); }
-			constexpr const T&& get() const&& noexcept { return __stl2::move(*this); }
+			constexpr T&& get() && noexcept { return std::move(*this); }
+			constexpr const T&& get() const&& noexcept { return std::move(*this); }
 		};
 	}
 } STL2_CLOSE_NAMESPACE

@@ -99,8 +99,8 @@ STL2_OPEN_NAMESPACE {
 				detail::raw_ptr<streambuf_type> sbuf_;
 			};
 
-			class mixin : protected detail::ebo_box<cursor> {
-				using box_t = detail::ebo_box<cursor>;
+			class mixin : protected basic_mixin<cursor> {
+				using base_t = basic_mixin<cursor>;
 			public:
 				using iterator_category = input_iterator_tag;
 				using value_type = cursor::value_type;
@@ -113,14 +113,38 @@ STL2_OPEN_NAMESPACE {
 				using streambuf_type = cursor::streambuf_type;
 				using istream_type = cursor::istream_type;
 
-				using box_t::box_t;
+				mixin() = default;
+				constexpr mixin(default_sentinel) noexcept
+				: base_t{}
+				{}
+				STL2_CONSTEXPR_EXT mixin(streambuf_type* s) noexcept
+				: base_t{cursor{s}}
+				{}
+				STL2_CONSTEXPR_EXT mixin(const __proxy& p) noexcept
+				: base_t{cursor{p}}
+				{}
+				mixin(istream_type& s) noexcept
+				: base_t{cursor{s}}
+				{}
+#if STL2_WORKAROUND_GCC_79143
+				constexpr explicit mixin(const cursor& c)
+				noexcept(std::is_nothrow_copy_constructible<cursor>::value)
+				: base_t{c}
+				{}
+				constexpr explicit mixin(cursor&& c)
+				noexcept(std::is_nothrow_move_constructible<cursor>::value)
+				: base_t{std::move(c)}
+				{}
+#else  // STL2_WORKAROUND_GCC_79143
+				using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 
 				// Yuck. This can't be simply "basic_iterator<cursor>".
 				// Since basic_iterator<cursor> derives from mixin, mixin must be
 				// instantiable before basic_iterator<cursor> is complete.
 				STL2_CONSTEXPR_EXT bool
 				equal(const basic_iterator<Same<cursor> >& that) const noexcept {
-					return box_t::get().equal(__stl2::get_cursor(that));
+					return base_t::get().equal(__stl2::get_cursor(that));
 				}
 			};
 

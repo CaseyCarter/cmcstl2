@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	concept bool _Is = _Valid<T, U, V...> && T<U, V...>::value;
 
 	template <class U, template <class...> class T, class...V>
-	concept bool _IsNot = !_Is<U, T, V...>;
+	concept bool _IsNot = _Valid<T, U, V...> && !T<U, V...>::value;
 
 	// U is a cv/ref-qualified specialization of class template T.
 	template <class U, template <class...> class T>
@@ -59,6 +59,14 @@ STL2_OPEN_NAMESPACE {
 
 	template <class T>
 	concept bool _Unqual = Same<T, __uncvref<T>>();
+
+	namespace models {
+		template <class T, class... Args>
+		constexpr bool _OneOf = (Same<T, Args> || ...);
+	}
+
+	template <class T, class... Args>
+	concept bool _OneOf = models::_OneOf<T, Args...>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// DerivedFrom [concepts.lib.corelang.derived]

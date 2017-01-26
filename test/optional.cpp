@@ -226,11 +226,11 @@ int main() {
 		static_assert(models::Constructible<OL, OI>);
 		static_assert(models::ConvertibleTo<OI, OL>);
 
-		static_assert(!models::ConvertibleTo<OL, OI>);
-		static_assert(!models::Constructible<OI, OL>);
+		static_assert(models::ConvertibleTo<OL, OI>);
+		static_assert(models::Constructible<OI, OL>);
 
 		static_assert(models::ConvertibleTo<long, int>);
-		static_assert(!models::Constructible<int, long>); // narrowing
+		static_assert(models::Constructible<int, long>);
 
 		static_assert(!models::Swappable<OI&, OL&>);
 	}

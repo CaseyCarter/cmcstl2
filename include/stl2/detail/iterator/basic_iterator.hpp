@@ -14,7 +14,6 @@
 #define STL2_DETAIL_ITERATOR_BASIC_ITERATOR_HPP
 
 #include <stl2/type_traits.hpp>
-#include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/raw_ptr.hpp>
@@ -31,23 +30,26 @@
 
 STL2_OPEN_NAMESPACE {
 	template <Destructible T>
-	class basic_mixin : protected detail::ebo_box<T, basic_mixin<T>> {
-		using box_t = detail::ebo_box<T, basic_mixin<T>>;
+	requires std::is_class<T>::value && !std::is_final<T>::value
+	class basic_mixin : T {
 	public:
-		constexpr basic_mixin()
-		noexcept(is_nothrow_default_constructible<T>::value)
-		requires DefaultConstructible<T>()
-		: box_t{} {}
+		basic_mixin() = default;
 
-		constexpr basic_mixin(const T& t)
-		noexcept(is_nothrow_copy_constructible<T>::value)
+		constexpr explicit basic_mixin(const T& t)
+		noexcept(std::is_nothrow_copy_constructible<T>::value)
 		requires CopyConstructible<T>()
-		: box_t(t) {}
+		: T(t) {}
 
-		constexpr basic_mixin(T&& t)
-		noexcept(is_nothrow_move_constructible<T>::value)
+		constexpr explicit basic_mixin(T&& t)
+		noexcept(std::is_nothrow_move_constructible<T>::value)
 		requires MoveConstructible<T>()
-		: box_t(__stl2::move(t)) {}
+		: T(std::move(t)) {}
+
+	protected:
+		constexpr T& get() & noexcept { return *this; }
+		constexpr const T& get() const& noexcept { return *this; }
+		constexpr T&& get() && noexcept { return std::move(*this); }
+		constexpr const T&& get() const&& noexcept { return std::move(*this); }
 	};
 
 	namespace detail {
@@ -607,13 +609,37 @@ STL2_OPEN_NAMESPACE {
 		basic_iterator() = default;
 		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator(basic_iterator<O>&& that)
-		noexcept(is_nothrow_constructible<mixin, O>::value)
-		: mixin(__stl2::get_cursor(__stl2::move(that))) {}
+		noexcept(std::is_nothrow_constructible<mixin, O>::value)
+		: mixin(__stl2::get_cursor(std::move(that))) {}
 		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator(const basic_iterator<O>& that)
-		noexcept(is_nothrow_constructible<mixin, const O&>::value)
+		noexcept(std::is_nothrow_constructible<mixin, const O&>::value)
 		: mixin(__stl2::get_cursor(that)) {}
+		constexpr explicit basic_iterator(const C& c)
+		noexcept(std::is_nothrow_constructible<mixin, const C&>::value)
+		: mixin(c) {}
+		constexpr explicit basic_iterator(C&& c)
+		noexcept(std::is_nothrow_constructible<mixin, C>::value)
+		: mixin(std::move(c)) {}
+#if  STL2_WORKAROUND_GCC_79143
+		template <class First>
+		requires
+			!models::_OneOf<std::decay_t<First>, basic_iterator, mixin, C> &&
+			models::Constructible<mixin, First> &&
+			models::ConvertibleTo<First, mixin>
+		constexpr basic_iterator(First&& f)
+		noexcept(std::is_nothrow_constructible<mixin, First>::value)
+		: mixin(std::forward<First>(f)) {}
+		template <class First, class... Rest>
+		requires
+			!models::_OneOf<std::decay_t<First>, basic_iterator, mixin, C> &&
+			models::Constructible<mixin, First, Rest...>
+		constexpr explicit basic_iterator(First&& f, Rest&&...r)
+		noexcept(std::is_nothrow_constructible<mixin, First, Rest...>::value)
+		: mixin(std::forward<First>(f), std::forward<Rest>(r)...) {}
+#else  // STL2_WORKAROUND_GCC_79143
 		using mixin::mixin;
+#endif // STL2_WORKAROUND_GCC_79143
 
 		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator& operator=(basic_iterator<O>&& that) &
@@ -738,7 +764,7 @@ STL2_OPEN_NAMESPACE {
 			cursor::PostIncrement<C>() &&
 			detail::PostIncrementCursor<C>()
 		{
-			return get().post_increment();
+			return basic_iterator{get().post_increment()};
 		}
 
 		constexpr basic_iterator& operator--() &

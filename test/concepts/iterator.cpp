@@ -46,8 +46,8 @@ namespace models {
 	constexpr bool Sentinel = ranges::IteratorRange<I, S>();
 
 	template <class F, class...Is>
-	constexpr bool IndirectCallable =
-		ranges::IndirectCallable<F, Is...>();
+	constexpr bool IndirectInvocable =
+		ranges::IndirectInvocable<F, Is...>();
 }
 
 namespace ns {
@@ -261,7 +261,7 @@ namespace iterator_sentinel_test {
 } // namespace iterator_sentinel_test
 
 namespace indirectly_callable_test {
-	CONCEPT_ASSERT(models::IndirectCallable<std::plus<int>, int*, int*>);
+	CONCEPT_ASSERT(models::IndirectInvocable<std::plus<int>, int*, int*>);
 }
 
 namespace indirect_result_of_test {

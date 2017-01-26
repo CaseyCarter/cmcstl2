@@ -325,18 +325,6 @@ STL2_OPEN_NAMESPACE {
 			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, T&>::value)
 			: index_{I}, storage_{in_place_index<I>, t} {}
 
-			template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
-			requires Constructible<T, Args...>()
-			explicit constexpr base(in_place_index_t<I>, std::initializer_list<E> il, Args&&...args)
-			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, std::initializer_list<E>, Args...>::value)
-			: index_{I}, storage_{in_place_index<I>, il, __stl2::forward<Args>(args)...} {}
-
-			template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
-			requires Constructible<T, Args...>()
-			explicit constexpr base(in_place_type_t<T>, std::initializer_list<E> il, Args&&...args)
-			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, std::initializer_list<E>, Args...>::value)
-			: index_{I}, storage_{in_place_index<I>, il, __stl2::forward<Args>(args)...} {}
-
 			template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
 			requires Constructible<T, Args...>()
 			void emplace(Args&&...args)
@@ -446,7 +434,14 @@ STL2_OPEN_NAMESPACE {
 			destruct_base& operator=(destruct_base&&) & = default;
 			destruct_base& operator=(const destruct_base&) & = default;
 
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr destruct_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		template <class...Ts>
@@ -454,7 +449,14 @@ STL2_OPEN_NAMESPACE {
 		class destruct_base<Ts...> : public base<Ts...> {
 			using base_t = base<Ts...>;
 		public:
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr destruct_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		///////////////////////////////////////////////////////////////////////////
@@ -470,7 +472,14 @@ STL2_OPEN_NAMESPACE {
 			move_base& operator=(move_base&&) & = default;
 			move_base& operator=(const move_base&) & = default;
 
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr move_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		template <class...Ts>
@@ -483,11 +492,19 @@ STL2_OPEN_NAMESPACE {
 			noexcept(meta::_v<meta::all_of<meta::list<element_t<Ts>...>,
 				meta::quote_trait<is_nothrow_move_constructible>>>)
 			: base_t{copy_move_tag{}, __stl2::move(that)} {}
+
 			move_base(const move_base&) = default;
 			move_base& operator=(move_base&&) & = default;
 			move_base& operator=(const move_base&) & = default;
 
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr move_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		template <class...Ts>
@@ -497,7 +514,14 @@ STL2_OPEN_NAMESPACE {
 		class move_base<Ts...> : public destruct_base<Ts...> {
 			using base_t = destruct_base<Ts...>;
 		public:
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr move_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		///////////////////////////////////////////////////////////////////////////
@@ -513,7 +537,14 @@ STL2_OPEN_NAMESPACE {
 			move_assign_base& operator=(move_assign_base&&) & = delete;
 			move_assign_base& operator=(const move_assign_base&) & = default;
 
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr move_assign_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		template <class...Ts>
@@ -536,7 +567,14 @@ STL2_OPEN_NAMESPACE {
 			}
 			move_assign_base& operator=(const move_assign_base&) & = default;
 
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr move_assign_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		template <class...Ts>
@@ -546,7 +584,14 @@ STL2_OPEN_NAMESPACE {
 		class move_assign_base<Ts...> : public move_base<Ts...> {
 			using base_t = move_base<Ts...>;
 		public:
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr move_assign_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		///////////////////////////////////////////////////////////////////////////
@@ -562,7 +607,14 @@ STL2_OPEN_NAMESPACE {
 			copy_base& operator=(copy_base&&) & = default;
 			copy_base& operator=(const copy_base&) & = default;
 
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr copy_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		template <class...Ts>
@@ -576,10 +628,18 @@ STL2_OPEN_NAMESPACE {
 			noexcept(meta::_v<meta::all_of<meta::list<element_t<Ts>...>,
 				meta::quote_trait<is_nothrow_copy_constructible>>>)
 			: base_t{copy_move_tag{}, that} {}
+
 			copy_base& operator=(copy_base&&) & = default;
 			copy_base& operator=(const copy_base&) & = default;
 
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr copy_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		template <class...Ts>
@@ -589,7 +649,14 @@ STL2_OPEN_NAMESPACE {
 		class copy_base<Ts...> : public move_assign_base<Ts...> {
 			using base_t = move_assign_base<Ts...>;
 		public:
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr copy_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		///////////////////////////////////////////////////////////////////////////
@@ -605,7 +672,14 @@ STL2_OPEN_NAMESPACE {
 			copy_assign_base& operator=(copy_assign_base&&) & = default;
 			copy_assign_base& operator=(const copy_assign_base&) & = delete;
 
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr copy_assign_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		template <class...Ts>
@@ -628,7 +702,14 @@ STL2_OPEN_NAMESPACE {
 				return *this;
 			}
 
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr copy_assign_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		template <class...Ts>
@@ -638,7 +719,14 @@ STL2_OPEN_NAMESPACE {
 		class copy_assign_base<Ts...> : public copy_base<Ts...> {
 			using base_t = copy_base<Ts...>;
 		public:
+#if STL2_WORKAROUND_GCC_79143
+			template<class... Args>
+			requires models::Constructible<base_t, Args...>
+			constexpr copy_assign_base(Args&&... args)
+			: base_t{std::forward<Args>(args)...} {}
+#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
 		};
 	} // namespace __variant
 
@@ -688,7 +776,41 @@ STL2_OPEN_NAMESPACE {
 
 	public:
 		using types = meta::list<Ts...>;
+#if STL2_WORKAROUND_GCC_79143
+		template <class First>
+		requires
+			!models::Same<variant, std::decay_t<First>> &&
+			models::Constructible<base_t, First> &&
+			models::ConvertibleTo<First, base_t>
+		constexpr variant(First&& f)
+		noexcept(std::is_nothrow_constructible<base_t, First>::value)
+		: base_t(std::forward<First>(f)) {}
+		template <class First, class... Rest>
+		requires
+			!models::Same<variant, decay_t<First>> &&
+			models::Constructible<base_t, First, Rest...>
+		constexpr explicit variant(First&& f, Rest&&...r)
+		noexcept(std::is_nothrow_constructible<base_t, First, Rest...>::value)
+		: base_t(__stl2::forward<First>(f), __stl2::forward<Rest>(r)...) {}
+#else  // STL2_WORKAROUND_GCC_79143
 		using base_t::base_t;
+#endif // STL2_WORKAROUND_GCC_79143
+
+		variant() = default;
+		template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+		requires Constructible<T, std::initializer_list<E>&, Args...>()
+		explicit constexpr variant(in_place_index_t<I>, std::initializer_list<E>&& il, Args&&...args)
+		noexcept(is_nothrow_constructible<__variant::storage<__variant::element_t<Ts>...>,
+			in_place_index_t<I>, std::initializer_list<E>&, Args...>::value)
+		: base_t{in_place_index<I>, il, __stl2::forward<Args>(args)...} {}
+
+		template <_IsNot<is_reference> T, class E, class...Args,
+			std::size_t I = __variant::index_of_type<T, types>>
+		requires Constructible<T, std::initializer_list<E>&, Args...>()
+		explicit constexpr variant(in_place_type_t<T>, std::initializer_list<E>&& il, Args&&...args)
+		noexcept(is_nothrow_constructible<__variant::storage<__variant::element_t<Ts>...>,
+			in_place_index_t<I>, std::initializer_list<E>&, Args...>::value)
+		: base_t{in_place_index<I>, il, __stl2::forward<Args>(args)...} {}
 
 		template <_IsNot<is_reference> T, class CF = constructible_from<T&&>>
 		requires

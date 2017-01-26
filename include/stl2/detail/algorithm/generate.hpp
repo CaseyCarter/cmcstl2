@@ -22,7 +22,7 @@
 STL2_OPEN_NAMESPACE {
 	template <class F, Iterator O, Sentinel<O> S>
 	requires
-		models::Callable<F&> &&
+		models::Invocable<F&> &&
 		models::Writable<O, result_of_t<F&()>>
 	O generate(O first, S last, F gen)
 	{
@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class Rng, class F>
 	requires
-		models::Callable<F&> &&
+		models::Invocable<F&> &&
 		models::OutputRange<Rng, result_of_t<F&()>>
 	safe_iterator_t<Rng>
 	generate(Rng&& rng, F gen)

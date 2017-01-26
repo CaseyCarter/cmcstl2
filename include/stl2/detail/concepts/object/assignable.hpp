@@ -22,18 +22,21 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Assignable [concepts.lib.corelang.assignable]
 	//
+	// Not to spec
+	// See https://github.com/ericniebler/stl2/issues/229
 	template <class, class>
 	constexpr bool __assignable = false;
 	template <class T, class U>
 	requires
-		requires(T&& t, U&& u) {
-			STL2_EXACT_TYPE_CONSTRAINT((T&&)t = (U&&)u, T&);
+		requires(T& t, U&& u) {
+			STL2_EXACT_TYPE_CONSTRAINT(t = (U&&)u, T&);
 		}
-	constexpr bool __assignable<T, U> = true;
+	constexpr bool __assignable<T&, U> = true;
 
 	template <class T, class U>
 	concept bool Assignable() {
-		return CommonReference<const T&, const U&>() &&
+		return Same<T, decay_t<T>&>() &&
+		    CommonReference<T, const U&>() &&
 			__assignable<T, U>;
 	}
 

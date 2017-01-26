@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 					meta::if_c<detail::cheaply_copyable<T>, T, const T&>;
 
 				cursor() = default;
-				constexpr cursor(const repeat_view& r)
+				constexpr explicit cursor(const repeat_view& r)
 				noexcept(std::is_nothrow_constructible<storage_t, const T&>::value)
 				: storage_t{r.value()} {}
 
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr iterator begin() const
 			noexcept(std::is_nothrow_constructible<iterator, const repeat_view&>::value)
-			{ return {cursor{*this}}; }
+			{ return iterator{cursor{*this}}; }
 			constexpr unreachable end() const noexcept { return {}; }
 			constexpr const T& value() const noexcept { return get(); }
 		};

@@ -372,9 +372,9 @@ namespace meta
             using bit_not = defer<bit_not, T>;
         }
 
-        /// Evaluate the Callable \p Fn with the arguments \p Args.
+        /// Evaluate the Invocable \p Fn with the arguments \p Args.
         /// \ingroup invocation
-        template <Callable Fn, typename... Args>
+        template <Invocable Fn, typename... Args>
         using invoke = typename Fn::template invoke<Args...>;
 
         /// Lazy versions of meta actions
@@ -440,7 +440,7 @@ namespace meta
         template <typename>
         constexpr bool is_callable_v = false;
 
-        Callable{T}
+        Invocable{T}
         constexpr bool is_callable_v<T> = true;
 
         /// An alias for `std::true_type` if `T::invoke` exists and names a class template;
@@ -526,7 +526,7 @@ namespace meta
             using alignof_ = defer<alignof_, T>;
         }
 
-        /// A Trait that always returns its argument \p T. It is also a Callable
+        /// A Trait that always returns its argument \p T. It is also an Invocable
         /// that always returns \p T.
         /// \ingroup trait
         /// \ingroup invocation
@@ -575,21 +575,21 @@ namespace meta
         template <typename T, template <typename...> class C>
         using is = _t<detail::is_<T, C>>;
 
-        /// Compose the Callables \p Fns in the parameter pack \p Ts.
+        /// Compose the Invocables \p Fns in the parameter pack \p Ts.
         /// \ingroup composition
-        template <Callable... Fns>
+        template <Invocable... Fns>
         struct compose
         {
         };
 
-        template <Callable Fn0>
+        template <Invocable Fn0>
         struct compose<Fn0>
         {
             template <typename... Ts>
             using invoke = invoke<Fn0, Ts...>;
         };
 
-        template <Callable Fn0, Callable... Fns>
+        template <Invocable Fn0, Invocable... Fns>
         struct compose<Fn0, Fns...>
         {
             template <typename... Ts>
@@ -604,7 +604,7 @@ namespace meta
             using compose = defer<compose, Fns...>;
         }
 
-        /// Turn a template \p C into a Callable.
+        /// Turn a template \p C into an Invocable.
         /// \ingroup composition
         template <template <typename...> class C>
         struct quote
@@ -616,7 +616,7 @@ namespace meta
         };
 
         /// Turn a template \p C taking literals of type \p T into a
-        /// Callable.
+        /// Invocable.
         /// \ingroup composition
         template <typename T, template <T...> class C>
         struct quote_i
@@ -627,30 +627,30 @@ namespace meta
             using invoke = _t<defer_i<T, C, _v<Ts>...>>;
         };
 
-        /// Turn a trait template \p C into a Callable.
+        /// Turn a trait template \p C into an Invocable.
         /// \ingroup composition
         template <template <typename...> class C>
         using quote_trait = compose<quote<_t>, quote<C>>;
 
-        /// Turn a trait template \p C taking literals of type \p T into a Callable.
+        /// Turn a trait template \p C taking literals of type \p T into an Invocable.
         /// \ingroup composition
         template <typename T, template <T...> class C>
         using quote_trait_i = compose<quote<_t>, quote_i<T, C>>;
 
-        /// A Callable that partially applies the Callable
+        /// A Invocable that partially applies the Invocable
         /// \p Fn by binding the arguments \p Ts to the \e front of \p Fn.
         /// \ingroup composition
-        template <Callable Fn, typename... Ts>
+        template <Invocable Fn, typename... Ts>
         struct bind_front
         {
             template <typename... Us>
             using invoke = invoke<Fn, Ts..., Us...>;
         };
 
-        /// A Callable that partially applies the Callable \p Fn by binding the
+        /// A Invocable that partially applies the Invocable \p Fn by binding the
         /// arguments \p Us to the \e back of \p Fn.
         /// \ingroup composition
-        template <Callable Fn, typename... Us>
+        template <Invocable Fn, typename... Us>
         struct bind_back
         {
             template <typename... Ts>
@@ -673,35 +673,35 @@ namespace meta
         /// Extend meta with your own datatypes.
         namespace extension
         {
-            /// A trait that unpacks the types in the type list \p L into the Callable
+            /// A trait that unpacks the types in the type list \p L into the Invocable
             /// \p Fn.
             /// \ingroup extension
-            template <Callable Fn, typename L>
+            template <Invocable Fn, typename L>
             struct apply
             {
             };
 
-            template <Callable Fn, typename Ret, typename... Args>
+            template <Invocable Fn, typename Ret, typename... Args>
             struct apply<Fn, Ret(Args...)> : lazy::invoke<Fn, Ret, Args...>
             {
             };
 
-            template <Callable Fn, template <typename...> class T, typename... Ts>
+            template <Invocable Fn, template <typename...> class T, typename... Ts>
             struct apply<Fn, T<Ts...>> : lazy::invoke<Fn, Ts...>
             {
             };
 
-            template <Callable Fn, typename T, T... Is>
+            template <Invocable Fn, typename T, T... Is>
             struct apply<Fn, integer_sequence<T, Is...>>
                 : lazy::invoke<Fn, std::integral_constant<T, Is>...>
             {
             };
         }
 
-        /// Applies the Callable \p C using the types in the type list \p L as
+        /// Applies the Invocable \p C using the types in the type list \p L as
         /// arguments.
         /// \ingroup invocation
-        template <Callable Fn, typename L>
+        template <Invocable Fn, typename L>
         using apply = _t<extension::apply<Fn, L>>;
 
         namespace lazy
@@ -710,16 +710,16 @@ namespace meta
             using apply = defer<apply, Fn, L>;
         }
 
-        /// A Callable that takes a bunch of arguments, bundles them into a type list, and
-        /// then calls the Callable \p Fn with the type list \p Q.
+        /// A Invocable that takes a bunch of arguments, bundles them into a type list, and
+        /// then calls the Invocable \p Fn with the type list \p Q.
         /// \ingroup composition
-        template <Callable P, Callable Q = quote<list>>
+        template <Invocable P, Invocable Q = quote<list>>
         using curry = compose<P, Q>;
 
-        /// A Callable that takes a type list, unpacks the types, and then calls the
-        /// Callable \p Fn with the types.
+        /// A Invocable that takes a type list, unpacks the types, and then calls the
+        /// Invocable \p Fn with the types.
         /// \ingroup composition
-        template <Callable Fn>
+        template <Invocable Fn>
         using uncurry = bind_front<quote<apply>, Fn>;
 
         namespace lazy
@@ -735,9 +735,9 @@ namespace meta
             using uncurry = defer<uncurry, Fn>;
         }
 
-        /// A Callable that reverses the order of the first two arguments.
+        /// A Invocable that reverses the order of the first two arguments.
         /// \ingroup composition
-        template <Callable Fn>
+        template <Invocable Fn>
         struct flip
         {
         private:
@@ -779,10 +779,10 @@ namespace meta
         }
         /// \endcond
 
-        /// Use as `on<Fn, Gs...>`. Creates an Callable that applies Callable \c Fn to the
-        /// result of applying Callable `compose<Gs...>` to all the arguments.
+        /// Use as `on<Fn, Gs...>`. Creates an Invocable that applies Invocable \c Fn to the
+        /// result of applying Invocable `compose<Gs...>` to all the arguments.
         /// \ingroup composition
-        template <Callable... Fns>
+        template <Invocable... Fns>
         using on = detail::on_<Fns...>;
 
         namespace lazy
@@ -975,19 +975,19 @@ namespace meta
         /// \endcond
 
         /// Return a new \c meta::list constructed by doing a left fold of the list \p L using
-        /// binary Callable \p Fn and initial state \p State. That is, the \c State_N for
+        /// binary Invocable \p Fn and initial state \p State. That is, the \c State_N for
         /// the list element \c A_N is computed by `Fn(State_N-1, A_N) -> State_N`.
         /// \par Complexity
         /// \f$ O(N) \f$.
         /// \ingroup transformation
-        template <List L, typename State, Callable Fn>
+        template <List L, typename State, Invocable Fn>
         using fold = _t<detail::fold_<L, State, Fn>>;
 
         /// An alias for `meta::fold`.
         /// \par Complexity
         /// \f$ O(N) \f$.
         /// \ingroup transformation
-        template <List L, typename State, Callable Fn>
+        template <List L, typename State, Invocable Fn>
         using accumulate = fold<L, State, Fn>;
 
         namespace lazy
@@ -1029,12 +1029,12 @@ namespace meta
         /// \endcond
 
         /// Return a new \c meta::list constructed by doing a right fold of the list \p L using
-        /// binary Callable \p Fn and initial state \p State. That is, the \c State_N for
+        /// binary Invocable \p Fn and initial state \p State. That is, the \c State_N for
         /// the list element \c A_N is computed by `Fn(A_N, State_N+1) -> State_N`.
         /// \par Complexity
         /// \f$ O(N) \f$.
         /// \ingroup transformation
-        template <List L, typename State, Callable Fn>
+        template <List L, typename State, Invocable Fn>
         using reverse_fold = _t<detail::reverse_fold_<L, State, Fn>>;
 
         namespace lazy
@@ -1730,7 +1730,7 @@ namespace meta
         /// \par Complexity
         /// \f$ O(N) \f$.
         /// \ingroup query
-        template <List L, Callable Fn>
+        template <List L, Invocable Fn>
         using find_if = _t<detail::find_if_<L, Fn>>;
 
         namespace lazy
@@ -1771,7 +1771,7 @@ namespace meta
         /// \par Complexity
         /// \f$ O(N) \f$.
         /// \ingroup query
-        template <List L, Callable Fn>
+        template <List L, Invocable Fn>
         using reverse_find_if = _t<detail::reverse_find_if_<L, Fn>>;
 
         namespace lazy
@@ -1902,7 +1902,7 @@ namespace meta
         /// \par Complexity
         /// \f$ O(N) \f$.
         /// \ingroup query
-        template <List L, Callable Fn>
+        template <List L, Invocable Fn>
         using count_if = _t<detail::count_if_<L, Fn>>;
 
         namespace lazy
@@ -1923,13 +1923,13 @@ namespace meta
             {
             };
 
-            template <typename... Ts, Callable Fn>
+            template <typename... Ts, Invocable Fn>
             requires(Valid<invoke, Fn, Ts> &&...) struct transform_<list<Ts...>, Fn>
             {
                 using type = list<invoke<Fn, Ts>...>;
             };
 
-            template <typename... Ts, typename... Us, Callable Fn>
+            template <typename... Ts, typename... Us, Invocable Fn>
             requires(Valid<invoke, Fn, Ts, Us> &&...) struct transform_<list<Ts...>, list<Us...>, Fn>
             {
                 using type = list<invoke<Fn, Ts, Us>...>;
@@ -1938,8 +1938,8 @@ namespace meta
         /// \endcond
 
         /// Return a new \c meta::list constructed by transforming all the elements in \p L with
-        /// the unary Callable \p Fn. \c transform can also be called with two lists of
-        /// the same length and a binary Callable, in which case it returns a new list
+        /// the unary Invocable \p Fn. \c transform can also be called with two lists of
+        /// the same length and a binary Invocable, in which case it returns a new list
         /// constructed with the results of calling \c Fn with each element in the lists,
         /// pairwise.
         /// \par Complexity
@@ -1971,12 +1971,12 @@ namespace meta
         /// \endcond
 
         /// Returns a new meta::list where only those elements of \p L that satisfy the
-        /// Callable \p Fn such that `invoke<Fn,A>::%value` is \c true are present.
+        /// Invocable \p Fn such that `invoke<Fn,A>::%value` is \c true are present.
         /// That is, those elements that don't satisfy the \p Fn are "removed".
         /// \par Complexity
         /// \f$ O(N) \f$.
         /// \ingroup transformation
-        template <List L, Callable Fn>
+        template <List L, Invocable Fn>
         using filter = fold<L, list<>, detail::filter_<Fn>>;
 
         namespace lazy
@@ -2056,13 +2056,13 @@ namespace meta
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // zip_with
-        /// Given a list of lists of types \p ListOfLists and a Callable \p Fn, construct
+        /// Given a list of lists of types \p ListOfLists and an Invocable \p Fn, construct
         /// a new list by calling \p Fn with the elements from the lists pairwise.
         /// \par Complexity
         /// \f$ O(N \times M) \f$, where \f$ N \f$ is the size of the outer list, and
         /// \f$ M \f$ is the size of the inner lists.
         /// \ingroup transformation
-        template <Callable Fn, List ListOfLists>
+        template <Invocable Fn, List ListOfLists>
         using zip_with = transform<transpose<ListOfLists>, uncurry<Fn>>;
 
         namespace lazy
@@ -2140,9 +2140,9 @@ namespace meta
             using reverse = defer<reverse, L>;
         }
 
-        /// Logically negate the result of Callable \p Fn.
+        /// Logically negate the result of Invocable \p Fn.
         /// \ingroup trait
-        template <Callable Fn>
+        template <Invocable Fn>
         using not_fn = compose<quote<not_>, Fn>;
 
         namespace lazy
@@ -2160,7 +2160,7 @@ namespace meta
         /// \par Complexity
         /// \f$ O(N) \f$.
         /// \ingroup query
-        template <List L, Callable Fn>
+        template <List L, Invocable Fn>
         using all_of = empty<find_if<L, not_fn<Fn>>>;
 
         namespace lazy
@@ -2178,7 +2178,7 @@ namespace meta
         /// \par Complexity
         /// \f$ O(N) \f$.
         /// \ingroup query
-        template <List L, Callable Fn>
+        template <List L, Invocable Fn>
         using any_of = not_<empty<find_if<L, Fn>>>;
 
         namespace lazy
@@ -2196,14 +2196,14 @@ namespace meta
         /// \par Complexity
         /// \f$ O(N) \f$.
         /// \ingroup query
-        template <List L, Callable Fn>
+        template <List L, Invocable Fn>
         using none_of = empty<find_if<L, Fn>>;
 
         namespace lazy
         {
             /// \sa 'meta::none_of'
             /// \ingroup lazy_query
-            template <typename L, Callable Fn>
+            template <typename L, Invocable Fn>
             using none_of = defer<none_of, L, Fn>;
         }
 
@@ -2329,12 +2329,12 @@ namespace meta
         /// \endcond
 
         /// Returns a pair of lists, where the elements of \p L that satisfy the
-        /// Callable \p Fn such that `invoke<Fn,A>::%value` is \c true are present in the
+        /// Invocable \p Fn such that `invoke<Fn,A>::%value` is \c true are present in the
         /// first list and the rest are in the second.
         /// \par Complexity
         /// \f$ O(N) \f$.
         /// \ingroup transformation
-        template <List L, Callable Fn>
+        template <List L, Invocable Fn>
         using partition = fold<L, pair<list<>, list<>>, detail::partition_<Fn>>;
 
         namespace lazy
@@ -2350,10 +2350,10 @@ namespace meta
         /// \cond
         namespace detail
         {
-            template <Callable Fn, typename A, typename B, typename... Ts>
+            template <Invocable Fn, typename A, typename B, typename... Ts>
             using part_ = partition<list<B, Ts...>, bind_back<Fn, A>>;
 
-            template <List L, Callable Fn>
+            template <List L, Invocable Fn>
             struct sort_
             {
             };
@@ -2382,7 +2382,7 @@ namespace meta
         /// \endcond
 
         // clang-format off
-        /// Return a new \c meta::list that is sorted according to Callable predicate \p Fn.
+        /// Return a new \c meta::list that is sorted according to Invocable predicate \p Fn.
         /// \par Complexity
         /// Expected: \f$ O(N log N) \f$
         /// Worst case: \f$ O(N^2) \f$.
@@ -2393,7 +2393,7 @@ namespace meta
         /// \endcode
         /// \ingroup transformation
         // clang-format on
-        template <List L, Callable Fn>
+        template <List L, Invocable Fn>
         using sort = _t<detail::sort_<L, Fn>>;
 
         namespace lazy
@@ -2656,7 +2656,7 @@ namespace meta
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // lambda
-        /// For creating anonymous Callables.
+        /// For creating anonymous Invocables.
         /// \code
         /// using L = lambda<_a, _b, std::pair<_b, std::pair<_a, _a>>>;
         /// using P = invoke<L, int, short>;

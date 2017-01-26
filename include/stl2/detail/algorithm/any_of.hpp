@@ -26,7 +26,7 @@
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
-		models::IndirectCallablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<I, Proj>>
 	bool any_of(I first, S last, Pred pred, Proj proj = Proj{})
 	{
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange R, class Pred, class Proj = identity>
 	requires
-		models::IndirectCallablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<iterator_t<R>, Proj>>
 	bool any_of(R&& rng, Pred pred, Proj proj = Proj{})
 	{
@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class Pred, class Proj = identity>
 	requires
-		models::IndirectCallablePredicate<
+		models::IndirectPredicate<
 			Pred, projected<const E*, Proj>>
 	bool any_of(std::initializer_list<E> il, Pred pred, Proj proj = Proj{})
 	{

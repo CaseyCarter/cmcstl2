@@ -33,6 +33,26 @@
 #endif // __GNUC__
 #endif // __clang__
 
+#ifndef STL2_WORKAROUND_GCC_79143
+#if defined(__GNUC__) && __GNUC__ >= 7
+// Inheriting constructors don't work with list initialization in GCC 7.
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79143
+#define STL2_WORKAROUND_GCC_79143 1
+#else
+#define STL2_WORKAROUND_GCC_79143 0
+#endif
+#endif
+
+#ifndef STL2_WORKAROUND_GCC_69096
+#if defined(__GNUC__) && __GNUC__ >= 6
+// Return type deduction performed *before* checking constraints.
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
+#define STL2_WORKAROUND_GCC_69096 1
+#else
+#define STL2_WORKAROUND_GCC_69096 0
+#endif
+#endif
+
 #define STL2_OPEN_NAMESPACE \
 	namespace std { namespace experimental { namespace ranges { inline namespace v1
 #define STL2_CLOSE_NAMESPACE }}}
