@@ -181,6 +181,8 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool CommonReference<T, U> = true;
 	}
 
+	// Not to spec
+	// See https://github.com/ericniebler/stl2/issues/311
 	template <class T, class U>
 	concept bool CommonReference() {
 		return models::CommonReference<T, U>;
@@ -220,6 +222,8 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool Common<T, U> = true;
 	}
 
+	// Not to spec
+	// See https://github.com/ericniebler/stl2/issues/311
 	template <class T, class U>
 	concept bool Common() {
 		return models::Common<T, U>;
