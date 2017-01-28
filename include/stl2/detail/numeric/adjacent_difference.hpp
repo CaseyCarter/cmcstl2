@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 		models::Writable<O, value_type_t<__Arg>> &&
 		models::Movable<value_type_t<__Arg>> &&
 		models::CopyConstructible<value_type_t<__Arg>> &&
-		models::IndirectRegularCallable<Op, __Arg, __Arg>
+		models::IndirectRegularInvocable<Op, __Arg, __Arg>
 	tagged_pair<tag::in(I), tag::out(O)>
 	adjacent_difference(I first, S last, O result, Op op = Op{}, Proj proj = Proj{})
 	{
@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 		models::Writable<O, value_type_t<__Arg>> &&
 		models::Movable<value_type_t<__Arg>> &&
 		models::CopyConstructible<value_type_t<__Arg>> &&
-		models::IndirectRegularCallable<Op, __Arg, __Arg>
+		models::IndirectRegularInvocable<Op, __Arg, __Arg>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	adjacent_difference(Rng&& rng, O result, Op op = Op{}, Proj proj = Proj{})
 	{

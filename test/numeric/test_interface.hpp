@@ -29,9 +29,9 @@ template <typename... Ts>
 using First_of_t = typename First_of<Ts...>::type;
 
 template <__stl2::ext::Container C,
-          __stl2::RegularCallable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F1,
-          __stl2::RegularCallable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F2,
-          __stl2::RegularCallable<C&&, __stl2::iterator_t<C>> F3>
+          __stl2::RegularInvocable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F1,
+          __stl2::RegularInvocable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F2,
+          __stl2::RegularInvocable<C&&, __stl2::iterator_t<C>> F3>
 void CHECK_algorithm(const C& v, F1 stdcall, F2 stl2_call, F3 range_call) noexcept
 {
    auto s = C(v.size());
@@ -51,9 +51,9 @@ void CHECK_algorithm(const C& v, F1 stdcall, F2 stl2_call, F3 range_call) noexce
 }
 
 template <__stl2::ext::Container C,
-          __stl2::RegularCallable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F1,
-          __stl2::RegularCallable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F2,
-          __stl2::RegularCallable<C&&, __stl2::iterator_t<C>> F3>
+          __stl2::RegularInvocable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F1,
+          __stl2::RegularInvocable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F2,
+          __stl2::RegularInvocable<C&&, __stl2::iterator_t<C>> F3>
 void CHECK_empty(F1&& stdcall, F2&& stl2_call, F3&& range_call) noexcept
 {
    CHECK_algorithm(C{},
@@ -63,9 +63,9 @@ void CHECK_empty(F1&& stdcall, F2&& stl2_call, F3&& range_call) noexcept
 }
 
 template <__stl2::ext::Container C,
-          __stl2::RegularCallable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F1,
-          __stl2::RegularCallable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F2,
-          __stl2::RegularCallable<C&&, __stl2::iterator_t<C>> F3>
+          __stl2::RegularInvocable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F1,
+          __stl2::RegularInvocable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> F2,
+          __stl2::RegularInvocable<C&&, __stl2::iterator_t<C>> F3>
 void CHECK_single_element(F1&& stdcall, F2&& stl2_call, F3&& range_call) noexcept
 {
    CHECK_algorithm(C{__stl2::value_type_t<C>{}},
@@ -80,9 +80,9 @@ template <template <typename Z, typename = std::allocator<Z>> class T,
           __stl2::ext::Container C = T<First_of_t<Args...>>>
 requires
    __stl2::Same<Args...>() &&
-   __stl2::RegularCallable<F1, __stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>>() &&
-   __stl2::RegularCallable<F2, __stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>>() &&
-   __stl2::RegularCallable<F3, C&&, __stl2::iterator_t<C>>()
+   __stl2::RegularInvocable<F1, __stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>>() &&
+   __stl2::RegularInvocable<F2, __stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>>() &&
+   __stl2::RegularInvocable<F3, C&&, __stl2::iterator_t<C>>()
 void CHECK_many(F1&& stdcall, F2&& stl2_call, F3&& range_call, Args&&... args) noexcept
 {
    CHECK_algorithm(C{__stl2::forward<Args>(args)...},
@@ -101,8 +101,8 @@ struct Minus_pair {
 
 template <__stl2::ext::Container C = std::vector<std::pair<int, int>>,
           class Op = Minus_pair<__stl2::value_type_t<C>>,
-          __stl2::RegularCallable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>, Op> F1,
-          __stl2::RegularCallable<C&&, __stl2::iterator_t<C>, Op> F2>
+          __stl2::RegularInvocable<__stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>, Op> F1,
+          __stl2::RegularInvocable<C&&, __stl2::iterator_t<C>, Op> F2>
 void CHECK_custom_op(F1 stdcall, F2 range_call) noexcept
 {
    const auto c = C{{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 7}, {7, 8}, {8, 9}};

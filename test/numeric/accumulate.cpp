@@ -67,7 +67,7 @@ using mapped_type_t = typename T::mapped_type;
 
 template <typename Container, typename Proj>
 requires
-   ranges::models::Callable<Proj, ranges::value_type_t<Container>>
+   ranges::models::Invocable<Proj, ranges::value_type_t<Container>>
 void CHECK_projection(const Container& t, const Proj& proj)
 {
    auto a = std::accumulate(t.begin(), t.end(), mapped_type_t<Container>{},

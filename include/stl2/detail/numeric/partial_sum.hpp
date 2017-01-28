@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 		models::MoveConstructible<value_type_t<__Arg>> &&
 		models::CopyConstructible<value_type_t<__Arg>> &&
 		models::Constructible<value_type_t<__Arg>, indirect_result_of_t<Op&(__Arg, __Arg)>> &&
-		models::IndirectRegularCallable<Op, __Arg, __Arg>
+		models::IndirectRegularInvocable<Op, __Arg, __Arg>
 	tagged_pair<tag::in(I), tag::out(O)>
 	partial_sum(I first, S last, O result, Op op = Op{}, Proj proj = Proj{})
 	{
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 		models::MoveConstructible<value_type_t<__Arg>> &&
 		models::CopyConstructible<value_type_t<__Arg>> &&
 		models::Constructible<value_type_t<__Arg>, indirect_result_of_t<Op&(__Arg, __Arg)>> &&
-		models::IndirectRegularCallable<Op, __Arg, __Arg>
+		models::IndirectRegularInvocable<Op, __Arg, __Arg>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	partial_sum(Rng&& rng, O result, Op op = Op{}, Proj proj = Proj{})
 	{

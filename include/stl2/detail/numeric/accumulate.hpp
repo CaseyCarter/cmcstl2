@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 				 class BOp = plus<>,
 				 class __Arg = value_type_t<projected<I, Proj>>>
 	requires
-		models::RegularCallable<BOp, T, __Arg> &&
+		models::RegularInvocable<BOp, T, __Arg> &&
 		models::Assignable<T&, result_of_t<BOp&(T, __Arg)>>
 	T accumulate(I first, S last, T init = T{}, BOp bop = BOp{}, Proj proj = Proj{})
 	{
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 				 class BOp = plus<>,
 				 class __Arg = value_type_t<projected<iterator_t<Rng>, Proj>>>
 	requires
-		models::RegularCallable<BOp, T, __Arg> &&
+		models::RegularInvocable<BOp, T, __Arg> &&
 		models::Assignable<T&, result_of_t<BOp&(T, __Arg)>>
 	T accumulate(Rng&& rng, T init = T{}, BOp bop = BOp{}, Proj proj = Proj{})
 	{
