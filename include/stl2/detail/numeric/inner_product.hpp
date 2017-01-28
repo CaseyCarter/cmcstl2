@@ -32,9 +32,9 @@ STL2_OPEN_NAMESPACE {
 				 class __Result1 = result_of_t<BinaryOp1&(T, __Result2)>>
 	requires
 		models::Assignable<T&, const T&> &&
-		models::IndirectRegularCallable<BinaryOp2, __Arg1, __Arg2> &&
-		models::RegularCallable<BinaryOp1, T, __Result2>
-		//models::Assignable<T&, __Result2>
+		models::IndirectRegularInvocable<BinaryOp2, __Arg1, __Arg2> &&
+		models::RegularInvocable<BinaryOp1, T, __Result2> &&
+		models::Assignable<T&, __Result2>
 		//models::Number<value_type_t<__Arg1>, value_type_t<__Arg2>> &&
 		//models::Number<T, __Result2>
 	T inner_product(I1 first1, S last1, I2 first2, T init,
@@ -65,9 +65,9 @@ STL2_OPEN_NAMESPACE {
 				 class __Result2 = result_of_t<BinaryOp1&(T, __Result1)>>
 	requires
 		models::Assignable<T&, const T&> &&
-		models::IndirectRegularCallable<BinaryOp2, __Arg1, __Arg2> &&
-		models::RegularCallable<BinaryOp1, T, __Result2>
-		//models::Assignable<T&, __Result2>
+		models::IndirectRegularInvocable<BinaryOp2, __Arg1, __Arg2> &&
+		models::RegularInvocable<BinaryOp1, T, __Result2> &&
+		models::Assignable<T&, __Result2>
 		//models::Number<value_type_t<__Arg1>, value_type_t<__Arg2>> &&
 		//models::Number<T, __Result2>
 	T inner_product(Rng&& rng, I first2, T init,
