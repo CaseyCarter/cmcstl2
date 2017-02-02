@@ -569,7 +569,6 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	namespace basic_iterator_adl {
-		template <class>
 		struct hook {};
 
 		template <class C>
@@ -590,8 +589,9 @@ STL2_OPEN_NAMESPACE {
 
 	cursor::Cursor{C}
 	class basic_iterator
-	: public mixin_t<C>, private detail::iterator_associated_types_base<C>
-	, basic_iterator_adl::hook<C>
+	: public mixin_t<C>
+	, detail::iterator_associated_types_base<C>
+	, basic_iterator_adl::hook
 	{
 		template <_SpecializationOf<basic_iterator> BI>
 		friend constexpr decltype(auto) get_cursor(BI&& i);
@@ -621,7 +621,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr explicit basic_iterator(C&& c)
 		noexcept(std::is_nothrow_constructible<mixin, C>::value)
 		: mixin(std::move(c)) {}
-#if  STL2_WORKAROUND_GCC_79143
+#if STL2_WORKAROUND_GCC_79143
 		template <class First>
 		requires
 			!models::_OneOf<std::decay_t<First>, basic_iterator, mixin, C> &&
