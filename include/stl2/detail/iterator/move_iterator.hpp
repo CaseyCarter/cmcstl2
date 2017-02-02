@@ -57,12 +57,12 @@ STL2_OPEN_NAMESPACE {
 				using iterator_category = input_iterator_tag;
 				using reference = rvalue_reference_t<I>;
 
-				mixin() = default;
-				STL2_CONSTEXPR_EXT explicit mixin(I&& i)
+				constexpr mixin() = default;
+				constexpr explicit mixin(I&& i)
 				noexcept(std::is_nothrow_move_constructible<I>::value)
 				: base_t{cursor{std::move(i)}}
 				{}
-				STL2_CONSTEXPR_EXT explicit mixin(const I& i)
+				constexpr explicit mixin(const I& i)
 				noexcept(std::is_nothrow_copy_constructible<I>::value)
 				: base_t{cursor{i}}
 				{}
@@ -79,34 +79,34 @@ STL2_OPEN_NAMESPACE {
 				using base_t::base_t;
 #endif // STL2_WORKAROUND_GCC_79143
 
-				STL2_CONSTEXPR_EXT I base() const
+				constexpr I base() const
 				noexcept(is_nothrow_copy_constructible<I>::value)
 				{
 					return base_t::get().current_;
 				}
 			};
 
-			cursor() = default;
-			STL2_CONSTEXPR_EXT explicit cursor(I&& i)
+			constexpr cursor() = default;
+			constexpr explicit cursor(I&& i)
 			noexcept(is_nothrow_move_constructible<I>::value)
 			: current_{__stl2::move(i)}
 			{}
-			STL2_CONSTEXPR_EXT explicit cursor(const I& i)
+			constexpr explicit cursor(const I& i)
 			noexcept(is_nothrow_copy_constructible<I>::value)
 			: current_{i}
 			{}
 			template <ConvertibleTo<I> U>
-			STL2_CONSTEXPR_EXT cursor(const cursor<U>& u)
+			constexpr cursor(const cursor<U>& u)
 			noexcept(is_nothrow_constructible<I, const U&>::value)
 			: current_{access::current(u)}
 			{}
 
-			STL2_CONSTEXPR_EXT rvalue_reference_t<I> read() const
+			constexpr rvalue_reference_t<I> read() const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::iter_move(current_)
 			)
 
-			STL2_CONSTEXPR_EXT void next()
+			constexpr void next()
 			STL2_NOEXCEPT_RETURN(
 				static_cast<void>(++current_)
 			)
@@ -120,11 +120,11 @@ STL2_OPEN_NAMESPACE {
 			struct __proxy {
 				using value_type = __stl2::value_type_t<R>;
 				R __tmp;
-				STL2_CONSTEXPR_EXT decltype(auto) operator*()
+				constexpr decltype(auto) operator*()
 				STL2_NOEXCEPT_RETURN(
 					__stl2::iter_move(__tmp)
 				)
-				friend STL2_CONSTEXPR_EXT decltype(auto) iter_move(const __proxy& that)
+				friend constexpr decltype(auto) iter_move(const __proxy& that)
 				STL2_NOEXCEPT_RETURN(
 					__stl2::iter_move(that.__tmp)
 				)
@@ -133,58 +133,58 @@ STL2_OPEN_NAMESPACE {
 #if STL2_WORKAROUND_GCC_69096
 			template <class = void>
 #endif // STL2_WORKAROUND_GCC_69096
-			STL2_CONSTEXPR_EXT auto post_increment()
+			constexpr auto post_increment()
 			noexcept(noexcept(__proxy<__postinc_t>{current_++}))
 			requires !ForwardIterator<I>() && Readable<__postinc_t>() {
 				return __proxy<__postinc_t>{current_++};
 			}
 
-			STL2_CONSTEXPR_EXT void prev()
+			constexpr void prev()
 			noexcept(noexcept(--current_))
 			requires BidirectionalIterator<I>()
 			{
 				--current_;
 			}
 
-			STL2_CONSTEXPR_EXT void advance(difference_type_t<I> n)
+			constexpr void advance(difference_type_t<I> n)
 			noexcept(noexcept(current_ += n))
 			requires RandomAccessIterator<I>()
 			{
 				current_ += n;
 			}
 
-			STL2_CONSTEXPR_EXT bool equal(
+			constexpr bool equal(
 				const cursor<EqualityComparable<I> >& that) const
 			STL2_NOEXCEPT_RETURN(
 				current_ == access::current(that)
 			)
 
-			STL2_CONSTEXPR_EXT bool equal(
+			constexpr bool equal(
 				const move_sentinel<Sentinel<I> >& that) const
 			STL2_NOEXCEPT_RETURN(
 				current_ == access::sentinel(that)
 			)
 
-			STL2_CONSTEXPR_EXT difference_type_t<I>
+			constexpr difference_type_t<I>
 			distance_to(const cursor<SizedSentinel<I> >& that) const
 			STL2_NOEXCEPT_RETURN(
 				access::current(that) - current_
 			)
 
-			STL2_CONSTEXPR_EXT difference_type_t<I>
+			constexpr difference_type_t<I>
 			distance_to(const move_sentinel<SizedSentinel<I> >& that) const
 			STL2_NOEXCEPT_RETURN(
 				access::sentinel(that) - current_
 			)
 
 			// Extension
-			STL2_CONSTEXPR_EXT decltype(auto) indirect_move() const
+			constexpr decltype(auto) indirect_move() const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::iter_move(current_)
 			)
 
 			// Extension
-			STL2_CONSTEXPR_EXT void indirect_swap(
+			constexpr void indirect_swap(
 				const cursor<IndirectlySwappable<I> >& that) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::iter_swap(current_, access::current(that))
@@ -204,7 +204,7 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	StrictTotallyOrdered{I1, I2}
-	STL2_CONSTEXPR_EXT bool
+	constexpr bool
 	operator<(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
 		__move_iterator::access::current(__stl2::get_cursor(a)) <
@@ -212,21 +212,21 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	StrictTotallyOrdered{I1, I2}
-	STL2_CONSTEXPR_EXT bool
+	constexpr bool
 	operator>(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
 		b < a
 	)
 
 	StrictTotallyOrdered{I1, I2}
-	STL2_CONSTEXPR_EXT bool
+	constexpr bool
 	operator<=(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
 		!(b < a)
 	)
 
 	StrictTotallyOrdered{I1, I2}
-	STL2_CONSTEXPR_EXT bool
+	constexpr bool
 	operator>=(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
 		!(a < b)
@@ -235,7 +235,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 	requires
 		InputIterator<__f<I>>()
-	STL2_CONSTEXPR_EXT auto make_move_iterator(I&& i)
+	constexpr auto make_move_iterator(I&& i)
 	STL2_NOEXCEPT_RETURN(
 		move_iterator<__f<I>>{__stl2::forward<I>(i)}
 	)
@@ -249,22 +249,25 @@ STL2_OPEN_NAMESPACE {
 		noexcept(is_nothrow_default_constructible<S>::value)
 		: box_t{}
 		{}
-		explicit STL2_CONSTEXPR_EXT move_sentinel(S s)
+		explicit constexpr move_sentinel(S s)
 		noexcept(is_nothrow_move_constructible<S>::value)
 		: box_t(__stl2::move(s))
 		{}
 		template <ConvertibleTo<S> T>
-		STL2_CONSTEXPR_EXT move_sentinel(const move_sentinel<T>& s)
+		constexpr move_sentinel(const move_sentinel<T>& s)
 		noexcept(is_nothrow_constructible<S, const T&>::value)
 		: box_t{__move_iterator::access::sentinel(s)}
 		{}
 
 		template <ConvertibleTo<S> T>
-		STL2_CONSTEXPR_EXT move_sentinel& operator=(const move_sentinel<T>& s) &
+		constexpr move_sentinel& operator=(const move_sentinel<T>& s) &
 		noexcept(is_nothrow_assignable<S&, const T&>::value)
-		{ box_t::get() = __move_iterator::access::sentinel(s); }
+		{
+			box_t::get() = __move_iterator::access::sentinel(s);
+			return *this;
+		}
 
-		STL2_CONSTEXPR_EXT S base() const
+		constexpr S base() const
 		noexcept(is_nothrow_copy_constructible<S>::value)
 		{ return box_t::get(); }
 	};
@@ -272,7 +275,7 @@ STL2_OPEN_NAMESPACE {
 	template <class S>
 	requires
 		models::Semiregular<__f<S>>
-	STL2_CONSTEXPR_EXT auto make_move_sentinel(S&& s)
+	constexpr auto make_move_sentinel(S&& s)
 	STL2_NOEXCEPT_RETURN(
 		move_sentinel<__f<S>>(__stl2::forward<S>(s))
 	)

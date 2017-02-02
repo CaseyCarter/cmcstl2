@@ -140,10 +140,8 @@ STL2_OPEN_NAMESPACE {
 
 #if STL2_CONSTEXPR_EXTENSIONS
 #define STL2_CONSTEXPR_EXT constexpr
-#define STL2_CONSTEXPR_EXT_FWD constexpr
 #else
 #define STL2_CONSTEXPR_EXT inline
-#define STL2_CONSTEXPR_EXT_FWD
 #endif
 
 #ifndef STL2_ASSERT

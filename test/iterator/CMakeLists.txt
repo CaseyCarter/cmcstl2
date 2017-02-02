@@ -39,3 +39,6 @@ add_test(test.iterator.make_range make_range)
 
 add_executable(iter.incomplete incomplete.cpp)
 add_test(test.iterator.incomplete iter.incomplete)
+
+add_executable(iter.operations operations.cpp)
+add_test(test.iterator.operations iter.operations)

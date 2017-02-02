@@ -89,6 +89,21 @@ namespace {
 			CHECK(*ci.operator->().operator->() == 42);
 		}
 	}
+
+	void test_constexpr() {
+		static int i = 42;
+
+		using ranges::common_iterator;
+		using ranges::counted_iterator;
+		using ranges::default_sentinel;
+
+		using CI = common_iterator<counted_iterator<int*>, default_sentinel>;
+		constexpr CI foo{ranges::make_counted_iterator(&i, 1)}; (void)foo;
+		constexpr CI bar{default_sentinel{}}; (void)bar;
+		using CCI = common_iterator<counted_iterator<const int*>, default_sentinel>;
+		constexpr CCI baz{foo};
+		constexpr CCI bang{bar};
+	}
 }
 
 int main() {
@@ -167,6 +182,7 @@ int main() {
 		CHECK(ci2 != ci);
 	}
 	test_operator_arrow();
+	test_constexpr();
 
 	return test_result();
 }

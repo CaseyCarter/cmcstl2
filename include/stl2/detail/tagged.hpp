@@ -99,19 +99,19 @@ STL2_OPEN_NAMESPACE {
 
 		template <class Other>
 		requires Constructible<Base, Other>()
-		STL2_CONSTEXPR_EXT tagged(tagged<Other, Tags...>&& that)
+		constexpr tagged(tagged<Other, Tags...>&& that)
 		noexcept(is_nothrow_constructible<Base, Other&&>::value)
 		: Base(static_cast<Other&&>(that)) {}
 
 		template <class Other>
 		requires Constructible<Base, const Other&>()
-		STL2_CONSTEXPR_EXT tagged(tagged<Other, Tags...> const& that)
+		constexpr tagged(tagged<Other, Tags...> const& that)
 		noexcept(is_nothrow_constructible<Base, const Other&>::value)
 		: Base(static_cast<const Other&>(that)) {}
 
 		template <class Other>
 		requires Assignable<Base&, Other>()
-		tagged& operator=(tagged<Other, Tags...>&& that)
+		constexpr tagged& operator=(tagged<Other, Tags...>&& that)
 		noexcept(is_nothrow_assignable<Base&, Other&&>::value)
 		{
 			static_cast<Base&>(*this) = static_cast<Other&&>(that);
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class Other>
 		requires Assignable<Base&, const Other&>()
-		tagged& operator=(const tagged<Other, Tags...>& that)
+		constexpr tagged& operator=(const tagged<Other, Tags...>& that)
 		noexcept(is_nothrow_assignable<Base&, const Other&>::value)
 		{
 			static_cast<Base&>(*this) = static_cast<const Other&>(that);
@@ -129,7 +129,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class U>
 		requires !Same<decay_t<U>, tagged>() && Assignable<Base&, U>()
-		tagged& operator=(U&& u) &
+		constexpr tagged& operator=(U&& u) &
 		noexcept(is_nothrow_assignable<Base&, U&&>::value)
 		{
 			static_cast<Base&>(*this) = __stl2::forward<U>(u);
@@ -151,9 +151,9 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		// 20150819: Extension.
-		STL2_CONSTEXPR_EXT Base& base() & { return *this; }
-		STL2_CONSTEXPR_EXT const Base& base() const& { return *this; }
-		STL2_CONSTEXPR_EXT Base&& base() && { return __stl2::move(*this); }
+		constexpr Base& base() & { return *this; }
+		constexpr const Base& base() const& { return *this; }
+		constexpr Base&& base() && { return __stl2::move(*this); }
 	};
 
 	template <class Derived, std::size_t I>

@@ -26,49 +26,49 @@ STL2_OPEN_NAMESPACE {
 	Iterator{I}
 	class counted_iterator {
 		Iterator{O} friend class counted_iterator;
-		Iterator{O} friend STL2_CONSTEXPR_EXT_FWD
+		Iterator{O} friend constexpr
 		void advance(counted_iterator<O>& i, difference_type_t<O> n);
 
 		ext::compressed_pair<I, difference_type_t<I>> data_{};
 
-		I& current() noexcept { return data_.first(); };
-		const I& current() const noexcept { return data_.first(); };
-		difference_type_t<I>& cnt() noexcept { return data_.second(); }
-		const difference_type_t<I>& cnt() const noexcept {
+		constexpr I& current() noexcept { return data_.first(); };
+		constexpr const I& current() const noexcept { return data_.first(); };
+		constexpr difference_type_t<I>& cnt() noexcept { return data_.second(); }
+		constexpr const difference_type_t<I>& cnt() const noexcept {
 			return data_.second();
 		}
 	public:
 		using iterator_type = I;
 		using difference_type = difference_type_t<I>;
 
-		counted_iterator() = default;
-		counted_iterator(I x, difference_type_t<I> n)
+		constexpr counted_iterator() = default;
+		constexpr counted_iterator(I x, difference_type_t<I> n)
 		: data_{__stl2::move(x), n} {
 			STL2_EXPECT(n >= 0);
 		}
 		template <ConvertibleTo<I> U>
-		counted_iterator(const counted_iterator<U>& i)
+		constexpr counted_iterator(const counted_iterator<U>& i)
 		: data_{i.current(), i.count()} {}
 		template <ConvertibleTo<I> U>
-		counted_iterator& operator=(const counted_iterator<U>& i) {
+		constexpr counted_iterator& operator=(const counted_iterator<U>& i) {
 			current() = i.current();
 			cnt() = i.cnt();
 			return *this;
 		}
-		I base() const {
+		constexpr I base() const {
 			return current();
 		}
-		difference_type_t<I> count() const {
+		constexpr difference_type_t<I> count() const {
 			return cnt();
 		}
-		decltype(auto) operator*() noexcept(noexcept(*std::declval<I&>())) {
+		constexpr decltype(auto) operator*() noexcept(noexcept(*std::declval<I&>())) {
 			return *current();
 		}
 		decltype(auto) operator*() const
 			noexcept(noexcept(*std::declval<const I&>())) {
 			return *current();
 		}
-		counted_iterator& operator++() {
+		constexpr counted_iterator& operator++() {
 			STL2_EXPECT(cnt() > 0);
 			++current();
 			--cnt();
@@ -76,52 +76,52 @@ STL2_OPEN_NAMESPACE {
 		}
 		// Not to spec:
 		// https://github.com/ericniebler/stl2/issues/232
-		decltype(auto) operator++(int) {
+		constexpr decltype(auto) operator++(int) {
 			STL2_EXPECT(cnt() > 0);
 			--cnt();
 			return current()++;
 		}
-		counted_iterator operator++(int) requires ForwardIterator<I>() {
+		constexpr counted_iterator operator++(int) requires ForwardIterator<I>() {
 			STL2_EXPECT(cnt() > 0);
 			auto tmp(*this);
 			++*this;
 			return tmp;
 		}
-		counted_iterator& operator--() requires BidirectionalIterator<I>() {
+		constexpr counted_iterator& operator--() requires BidirectionalIterator<I>() {
 			--current();
 			++cnt();
 			return *this;
 		}
-		counted_iterator operator--(int) requires BidirectionalIterator<I>() {
+		constexpr counted_iterator operator--(int) requires BidirectionalIterator<I>() {
 			auto tmp(*this);
 			--*this;
 			return tmp;
 		}
-		counted_iterator operator+(difference_type n) const
+		constexpr counted_iterator operator+(difference_type n) const
 			requires RandomAccessIterator<I>() {
 			STL2_EXPECT(n <= cnt());
 			return counted_iterator(current() + n, cnt() - n);
 		}
-		counted_iterator& operator+=(difference_type n)
+		constexpr counted_iterator& operator+=(difference_type n)
 			requires RandomAccessIterator<I>() {
 			STL2_EXPECT(n <= cnt());
 			current() += n;
 			cnt() -= n;
 			return *this;
 		}
-		counted_iterator operator- (difference_type n) const
+		constexpr counted_iterator operator- (difference_type n) const
 			requires RandomAccessIterator<I>() {
 			STL2_EXPECT(-n <= cnt());
 			return counted_iterator(current() - n, cnt() + n);
 		}
-		counted_iterator& operator-=(difference_type n)
+		constexpr counted_iterator& operator-=(difference_type n)
 			requires RandomAccessIterator<I>() {
 			STL2_EXPECT(-n <= cnt());
 			current() -= n;
 			cnt() += n;
 			return *this;
 		}
-		decltype(auto) operator[](difference_type n) const
+		constexpr decltype(auto) operator[](difference_type n) const
 			requires RandomAccessIterator<I>() {
 			STL2_EXPECT(n <= cnt());
 			return current()[n];
@@ -136,7 +136,7 @@ STL2_OPEN_NAMESPACE {
 			return __stl2::iter_move(i.current());
 		}
 		template <IndirectlySwappable<I> I2>
-		friend void iter_swap(
+		friend constexpr void iter_swap(
 			const counted_iterator& x, const counted_iterator<I2>& y)
 			noexcept(noexcept(__stl2::iter_swap(x.current(), y.current()))) {
 			__stl2::iter_swap(x.current(), y.current());
@@ -154,96 +154,98 @@ STL2_OPEN_NAMESPACE {
 
 	template <class I1, class I2>
 		requires Common<I1, I2>()
-	bool operator==(
-		const counted_iterator<I1>& x, const counted_iterator<I2>& y) {
+	constexpr bool operator==(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return x.count() == y.count();
 	}
-	bool operator==(
-		const counted_iterator<auto>& x, default_sentinel) {
+	constexpr bool operator==(
+		const counted_iterator<auto>& x, default_sentinel) noexcept {
 		return x.count() == 0;
 	}
-	bool operator==(
-		default_sentinel, const counted_iterator<auto>& x) {
+	constexpr bool operator==(
+		default_sentinel, const counted_iterator<auto>& x) noexcept {
 		return x.count() == 0;
 	}
 	template <class I1, class I2>
 		requires Common<I1, I2>()
-	bool operator!=(
-		const counted_iterator<I1>& x, const counted_iterator<I2>& y) {
+	constexpr bool operator!=(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return !(x == y);
 	}
-	bool operator!=(
-		const counted_iterator<auto>& x, default_sentinel y) {
+	constexpr bool operator!=(
+		const counted_iterator<auto>& x, default_sentinel y) noexcept {
 		return !(x == y);
 	}
-	bool operator!=(
-		default_sentinel x, const counted_iterator<auto>& y) {
+	constexpr bool operator!=(
+		default_sentinel x, const counted_iterator<auto>& y) noexcept {
 		return !(x == y);
 	}
 	template <class I1, class I2>
 		requires Common<I1, I2>()
-	bool operator<(
-		const counted_iterator<I1>& x, const counted_iterator<I2>& y) {
+	constexpr bool operator<(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return y.count() < x.count();
 	}
 	template <class I1, class I2>
 		requires Common<I1, I2>()
-	bool operator<=(
-		const counted_iterator<I1>& x, const counted_iterator<I2>& y) {
+	constexpr bool operator<=(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return !(y < x);
 	}
 	template <class I1, class I2>
 		requires Common<I1, I2>()
-	bool operator>(
-		const counted_iterator<I1>& x, const counted_iterator<I2>& y) {
+	constexpr bool operator>(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return y < x;
 	}
 	template <class I1, class I2>
 		requires Common<I1, I2>()
-	bool operator>=(
-		const counted_iterator<I1>& x, const counted_iterator<I2>& y) {
+	constexpr bool operator>=(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return !(x < y);
 	}
 	template <class I1, class I2>
 		requires Common<I1, I2>()
-	difference_type_t<I2> operator-(
-		const counted_iterator<I1>& x, const counted_iterator<I2>& y) {
+	constexpr difference_type_t<I2> operator-(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return y.count() - x.count();
 	}
 	template <class I>
-	difference_type_t<I> operator-(
-		const counted_iterator<I>& x, default_sentinel) {
+	constexpr difference_type_t<I> operator-(
+		const counted_iterator<I>& x, default_sentinel) noexcept {
 		return -x.count();
 	}
 	template <class I>
-	difference_type_t<I> operator-(
-		default_sentinel, const counted_iterator<I>& y) {
+	constexpr difference_type_t<I> operator-(
+		default_sentinel, const counted_iterator<I>& y) noexcept {
 		return y.count();
 	}
 	template <RandomAccessIterator I>
-	counted_iterator<I>
-	operator+(difference_type_t<I> n, const counted_iterator<I>& x) {
+	constexpr counted_iterator<I>
+	operator+(difference_type_t<I> n, const counted_iterator<I>& x) noexcept {
 		STL2_EXPECT(n <= x.count());
 		return x + n;
 	}
 
 	template <Iterator I>
-	STL2_CONSTEXPR_EXT auto make_counted_iterator(I i, difference_type_t<I> n)
+	constexpr auto make_counted_iterator(I i, difference_type_t<I> n)
 	STL2_NOEXCEPT_RETURN(
 		counted_iterator<I>{__stl2::move(i), n}
 	)
 
 	Iterator{I}
-	STL2_CONSTEXPR_EXT void advance(counted_iterator<I>& i, difference_type_t<I> n)	{
+	constexpr void advance(counted_iterator<I>& i, difference_type_t<I> n)
+	noexcept(noexcept(__stl2::advance(std::declval<I&>(), n)))
+	{
 		STL2_EXPECT(n <= i.count());
 		__stl2::advance(i.current(), n);
 		i.cnt() -= n;
 	}
 
 	RandomAccessIterator{I}
-	STL2_CONSTEXPR_EXT void advance(counted_iterator<I>& i, difference_type_t<I> n)
+	constexpr void advance(counted_iterator<I>& i, difference_type_t<I> n)
 	STL2_NOEXCEPT_RETURN(
-		(STL2_EXPECT(n <= i.count()), i += n)
+		(STL2_EXPECT(n <= i.count()), i += n, void())
 	)
 
 	namespace ext {
