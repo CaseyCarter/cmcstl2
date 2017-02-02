@@ -24,14 +24,14 @@ STL2_OPEN_NAMESPACE {
 	concept bool _Valid = requires { typename T<U...>; };
 
 	template <class U, template <class...> class T, class...V>
-	concept bool _Is = _Valid<T, U, V...> && T<U, V...>::value;
+	concept bool _Is = _Valid<T, U, V...> && !!T<U, V...>::value;
 
 	template <class U, template <class...> class T, class...V>
 	concept bool _IsNot = _Valid<T, U, V...> && !T<U, V...>::value;
 
 	// U is a cv/ref-qualified specialization of class template T.
 	template <class U, template <class...> class T>
-	concept bool _SpecializationOf = meta::is<__uncvref<U>, T>::value;
+	concept bool _SpecializationOf = !!meta::is<__uncvref<U>, T>::value;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Same [concepts.lib.corelang.same]
@@ -43,9 +43,9 @@ STL2_OPEN_NAMESPACE {
 		template <class T, class...Rest>
 		constexpr bool Same<T, Rest...> =
 #if defined(__GNUC__)
-			(true && ... && __is_same_as(T, Rest));
+			(... && __is_same_as(T, Rest));
 #else
-			(true && ... && is_same<T, Rest>::value);
+			(... && !!is_same<T, Rest>::value);
 #endif
 	}
 

@@ -63,7 +63,7 @@ namespace meta
         concept bool True = true;
 
         template <typename T, typename U>
-        concept bool Same = std::is_same<T, U>::value;
+        concept bool Same = !!std::is_same<T, U>::value;
 
         template <template <typename...> class C, typename... Ts>
         concept bool Valid = requires
