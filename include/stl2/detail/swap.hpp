@@ -23,11 +23,12 @@
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// exchange [utility.exchange]
-	//
+	// Not to spec: constexpr
+	// See https://github.com/ericniebler/stl2/322
 	template <class T, class U = T>
 	requires
 		models::MoveConstructible<T> && models::Assignable<T&, U>
-	STL2_CONSTEXPR_EXT T exchange(T& t, U&& u)
+	constexpr T exchange(T& t, U&& u)
 	noexcept(is_nothrow_move_constructible<T>::value &&
 		is_nothrow_assignable<T&, U>::value)
 	{
