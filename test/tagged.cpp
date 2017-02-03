@@ -39,7 +39,6 @@ void test_pair() {
 }
 
 void test_constexpr_pair() {
-#if STL2_CONSTEXPR_EXTENSIONS
 	constexpr auto t = tp(42, 3.14);
 	static_assert(__stl2::models::Same<decltype(t), const TP>);
 	constexpr int f = t.first;
@@ -54,7 +53,6 @@ void test_constexpr_pair() {
 	CHECK(sg == 3.14);
 	constexpr double sf = t.out();
 	CHECK(sf == 3.14);
-#endif
 }
 
 void test_tuple() {
@@ -67,7 +65,6 @@ void test_tuple() {
 }
 
 void test_constexpr_tuple() {
-#if STL2_CONSTEXPR_EXTENSIONS
 	constexpr auto t = tt(42, 3.14);
 	static_assert(__stl2::models::Same<decltype(t), const TT>);
 	constexpr int fg = __stl2::get<0>(t);
@@ -78,7 +75,6 @@ void test_constexpr_tuple() {
 	CHECK(sg == 3.14);
 	constexpr double sf = t.out();
 	CHECK(sf == 3.14);
-#endif
 }
 
 void test_conversions() {
@@ -214,6 +210,9 @@ struct foo {
 		constexpr decltype(auto) foo() && {
 			return __stl2::move(*this).B::get();
 		}
+		constexpr decltype(auto) foo() const&& {
+			return __stl2::move(*this).B::get();
+		}
 	};
 };
 
@@ -226,6 +225,50 @@ void test_tag_extension() {
 	CHECK(p.in() == 42);
 	CHECK(p.foo() == 13);
 }
+
+template <class T>
+struct im_a_tuple {
+	T i = 42;
+};
+
+template <int I>
+concept bool Zero = I == 0;
+
+Zero{I} constexpr auto&
+get(im_a_tuple<auto>& f) { return f.i; }
+
+Zero{I} constexpr auto&
+get(const im_a_tuple<auto>& f) { return f.i; }
+
+Zero{I} constexpr auto&&
+get(im_a_tuple<auto>&& f) { return std::move(f).i; }
+
+Zero{I} constexpr auto&&
+get(const im_a_tuple<auto>&& f) { return std::move(f).i; }
+
+namespace std {
+	template <class T>
+	struct tuple_size<::im_a_tuple<T>> : meta::size_t<1> {};
+	template <class T>
+	struct tuple_element<0, ::im_a_tuple<T>> { using type = T; };
+}
+
+constexpr bool test_constexpr() {
+	using T = __stl2::tagged<im_a_tuple<int>, __stl2::tag::in>;
+	T t1, t2;
+	if (t1.in() != 42) return false;
+	if (t2.in() != 42) return false;
+	t2.in() = 13;
+	if (t2.in() != 13) return false;
+	__stl2::swap(t1, t2);
+	if (t1.in() != 13) return false;
+	if (t2.in() != 42) return false;
+	t1.swap(t2);
+	if (t1.in() != 42) return false;
+	if (t2.in() != 13) return false;
+	return true;
+}
+static_assert(test_constexpr());
 
 int main() {
 	test_pair();
