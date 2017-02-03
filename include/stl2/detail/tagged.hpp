@@ -136,14 +136,14 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
-		void swap(tagged& that)
+		constexpr void swap(tagged& that)
 		noexcept(is_nothrow_swappable_v<Base&, Base&>)
 		requires Swappable<Base&>()
 		{
 			__stl2::swap(static_cast<Base&>(*this), static_cast<Base&>(that));
 		}
 
-		friend void swap(tagged& a, tagged& b)
+		friend constexpr void swap(tagged& a, tagged& b)
 		noexcept(noexcept(a.swap(b)))
 		requires Swappable<Base&>()
 		{
@@ -154,6 +154,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr Base& base() & { return *this; }
 		constexpr const Base& base() const& { return *this; }
 		constexpr Base&& base() && { return __stl2::move(*this); }
+		constexpr const Base&& base() const&& { return __stl2::move(*this); }
 	};
 
 	template <class Derived, std::size_t I>
@@ -170,6 +171,10 @@ STL2_OPEN_NAMESPACE {
 			return get<I>(derived().base());
 		}
 		constexpr auto&& get() && {
+			using __stl2::get;
+			return get<I>(__stl2::move(derived()).base());
+		}
+		constexpr auto&& get() const&& {
 			using __stl2::get;
 			return get<I>(__stl2::move(derived()).base());
 		}
@@ -191,10 +196,13 @@ STL2_OPEN_NAMESPACE {
 				constexpr decltype(auto) name() & {         \
 					return Base::get();                     \
 				}                                           \
-				constexpr decltype(auto) name() const & {   \
+				constexpr decltype(auto) name() const& {    \
 					return Base::get();                     \
 				}                                           \
 				constexpr decltype(auto) name() && {        \
+					return __stl2::move(*this).Base::get(); \
+				}                                           \
+				constexpr decltype(auto) name() const&& {   \
 					return __stl2::move(*this).Base::get(); \
 				}                                           \
 			protected:                                      \
