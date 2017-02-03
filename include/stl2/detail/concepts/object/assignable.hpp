@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class T, class U>
 	concept bool Assignable() {
-		return Same<T, decay_t<T>&>() &&
+		return _Is<T, is_lvalue_reference> &&
 		    CommonReference<T, const U&>() &&
 			__assignable<T, U>;
 	}
