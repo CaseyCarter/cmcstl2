@@ -25,9 +25,9 @@ STL2_OPEN_NAMESPACE {
 	template <class>
 	constexpr bool __addressable = false;
 	template <class T>
-		requires requires(T& t, const T& ct) {
-			STL2_EXACT_TYPE_CONSTRAINT(&t, add_pointer_t<T>);
-			STL2_EXACT_TYPE_CONSTRAINT(&ct, add_pointer_t<const T>);
+		requires requires(T& t, const remove_reference_t<T>& ct) {
+			STL2_EXACT_TYPE_CONSTRAINT(&t, remove_reference_t<T>*);
+			STL2_EXACT_TYPE_CONSTRAINT(&ct, const remove_reference_t<T>*);
 			// Axiom: &ct == addressof(ct)
 		}
 	constexpr bool __addressable<T> = true;
@@ -50,15 +50,16 @@ STL2_OPEN_NAMESPACE {
 	// Destructible [concepts.lib.object.destructible]
 	// Not to spec
 	// https://github.com/ericniebler/stl2/issues/301
-	namespace models {
-		template <class T>
-		constexpr bool Destructible =
-			is_nothrow_destructible<T>::value && __addressable<T>;
-	}
-
 	template <class T>
 	concept bool Destructible() {
-		return models::Destructible<T>;
+		return _Is<T, is_nothrow_destructible> && __addressable<T>;
+	}
+
+	namespace models {
+		template <class T>
+		constexpr bool Destructible = false;
+		__stl2::Destructible{T}
+		constexpr bool Destructible<T> = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
