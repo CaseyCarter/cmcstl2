@@ -23,6 +23,7 @@
 #include <stl2/detail/iterator/operations.hpp>
 
 STL2_OPEN_NAMESPACE {
+	// Not to spec: All members constexpr per P0579
 	Iterator{I}
 	class counted_iterator {
 		Iterator{O} friend class counted_iterator;
@@ -152,6 +153,7 @@ STL2_OPEN_NAMESPACE {
 		using type = iterator_category_t<I>;
 	};
 
+	// Not to spec: All operators constexpr per P0579
 	template <class I1, class I2>
 		requires Common<I1, I2>()
 	constexpr bool operator==(
@@ -227,12 +229,14 @@ STL2_OPEN_NAMESPACE {
 		return x + n;
 	}
 
+	// Not to spec: constexpr per P0579
 	template <Iterator I>
 	constexpr auto make_counted_iterator(I i, difference_type_t<I> n)
 	STL2_NOEXCEPT_RETURN(
 		counted_iterator<I>{__stl2::move(i), n}
 	)
 
+	// Not to spec: constexpr per P0579
 	Iterator{I}
 	constexpr void advance(counted_iterator<I>& i, difference_type_t<I> n)
 	noexcept(noexcept(__stl2::advance(std::declval<I&>(), n)))
@@ -242,6 +246,7 @@ STL2_OPEN_NAMESPACE {
 		i.cnt() -= n;
 	}
 
+	// Not to spec: constexpr per P0579
 	RandomAccessIterator{I}
 	constexpr void advance(counted_iterator<I>& i, difference_type_t<I> n)
 	STL2_NOEXCEPT_RETURN(

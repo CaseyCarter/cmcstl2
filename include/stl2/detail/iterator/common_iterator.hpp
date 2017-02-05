@@ -172,16 +172,20 @@ STL2_OPEN_NAMESPACE {
 	public:
 		using difference_type = difference_type_t<I>;
 
+		// Not to spec: constexpr per P0579
 		constexpr common_iterator() = default;
 
+		// Not to spec: constexpr per P0579
 		constexpr common_iterator(I i)
 		noexcept(is_nothrow_constructible<variant<I, S>, I>::value)
 		: v_{__stl2::move(i)} {}
 
+		// Not to spec: constexpr per P0579
 		constexpr common_iterator(S s)
 		noexcept(is_nothrow_constructible<variant<I, S>, S>::value)
 		: v_{__stl2::move(s)} {}
 
+		// Not to spec: constexpr per P0579
 		template <ConvertibleTo<I> II, ConvertibleTo<S> SS>
 		constexpr common_iterator(const common_iterator<II, SS>& i)
 		noexcept(

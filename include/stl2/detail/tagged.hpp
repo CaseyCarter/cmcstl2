@@ -97,18 +97,21 @@ STL2_OPEN_NAMESPACE {
 		using Base::Base;
 		tagged() = default;
 
+		// Not to spec: constexpr per P0579
 		template <class Other>
 		requires Constructible<Base, Other>()
 		constexpr tagged(tagged<Other, Tags...>&& that)
 		noexcept(is_nothrow_constructible<Base, Other&&>::value)
 		: Base(static_cast<Other&&>(that)) {}
 
+		// Not to spec: constexpr per P0579
 		template <class Other>
 		requires Constructible<Base, const Other&>()
 		constexpr tagged(tagged<Other, Tags...> const& that)
 		noexcept(is_nothrow_constructible<Base, const Other&>::value)
 		: Base(static_cast<const Other&>(that)) {}
 
+		// Not to spec: constexpr per P0579
 		template <class Other>
 		requires Assignable<Base&, Other>()
 		constexpr tagged& operator=(tagged<Other, Tags...>&& that)
@@ -118,6 +121,7 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
+		// Not to spec: constexpr per P0579
 		template <class Other>
 		requires Assignable<Base&, const Other&>()
 		constexpr tagged& operator=(const tagged<Other, Tags...>& that)
@@ -127,6 +131,7 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
+		// Not to spec: constexpr per P0579
 		template <class U>
 		requires !Same<decay_t<U>, tagged>() && Assignable<Base&, U>()
 		constexpr tagged& operator=(U&& u) &
@@ -136,6 +141,7 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
+		// Not to spec: constexpr per P0579
 		constexpr void swap(tagged& that)
 		noexcept(is_nothrow_swappable_v<Base&, Base&>)
 		requires Swappable<Base&>()
@@ -143,6 +149,7 @@ STL2_OPEN_NAMESPACE {
 			__stl2::swap(static_cast<Base&>(*this), static_cast<Base&>(that));
 		}
 
+		// Not to spec: constexpr per P0579
 		friend constexpr void swap(tagged& a, tagged& b)
 		noexcept(noexcept(a.swap(b)))
 		requires Swappable<Base&>()
@@ -150,7 +157,7 @@ STL2_OPEN_NAMESPACE {
 			a.swap(b);
 		}
 
-		// 20150819: Extension.
+		// Not to spec: Extension
 		constexpr Base& base() & { return *this; }
 		constexpr const Base& base() const& { return *this; }
 		constexpr Base&& base() && { return __stl2::move(*this); }
@@ -202,6 +209,7 @@ STL2_OPEN_NAMESPACE {
 				constexpr decltype(auto) name() && {        \
 					return __stl2::move(*this).Base::get(); \
 				}                                           \
+				/* Not to spec: Extension */                \
 				constexpr decltype(auto) name() const&& {   \
 					return __stl2::move(*this).Base::get(); \
 				}                                           \

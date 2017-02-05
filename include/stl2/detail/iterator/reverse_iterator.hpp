@@ -146,10 +146,11 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec:
 	// * Customizes iter_move and iter_swap.
 	//   See https://github.com/ericniebler/stl2/issues/245.
-	//
+	// * constexpr per P0579
 	BidirectionalIterator{I}
 	using reverse_iterator = basic_iterator<__reverse_iterator::cursor<I>>;
 
+	// Not to spec: constexpr per P0579
 	StrictTotallyOrdered{I1, I2}
 	constexpr bool operator<(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
@@ -158,6 +159,7 @@ STL2_OPEN_NAMESPACE {
 			__reverse_iterator::access::current(__stl2::get_cursor(y))
 	)
 
+	// Not to spec: constexpr per P0579
 	StrictTotallyOrdered{I1, I2}
 	constexpr bool operator>(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
@@ -165,6 +167,7 @@ STL2_OPEN_NAMESPACE {
 		y < x
 	)
 
+	// Not to spec: constexpr per P0579
 	StrictTotallyOrdered{I1, I2}
 	constexpr bool operator<=(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
@@ -172,6 +175,7 @@ STL2_OPEN_NAMESPACE {
 		!(y < x)
 	)
 
+	// Not to spec: constexpr per P0579
 	StrictTotallyOrdered{I1, I2}
 	constexpr bool operator>=(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
@@ -179,6 +183,7 @@ STL2_OPEN_NAMESPACE {
 		!(x < y)
 	)
 
+	// Not to spec: constexpr per P0579
 	template <class I>
 	requires BidirectionalIterator<__f<I>>()
 	constexpr auto make_reverse_iterator(I&& i)
