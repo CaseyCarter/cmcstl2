@@ -73,14 +73,15 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// DerivedFrom [concepts.lib.corelang.derived]
-	//
+	// Not to spec: https://github.com/ericniebler/stl2/issues/255
 	template <class T, class U>
 	concept bool DerivedFrom() {
 #if defined(__GNUC__)
-		return __is_base_of(U, T);
+		return __is_base_of(U, T) &&
 #else
-		return _Is<U, is_base_of, T>;
+		return _Is<U, is_base_of, T> &&
 #endif
+			std::is_convertible<T*, U*>::value;
 	}
 
 	namespace models {
