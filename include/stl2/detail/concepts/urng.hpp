@@ -23,8 +23,8 @@ STL2_OPEN_NAMESPACE {
 		requires(G&& g) {
 			g();
 			requires UnsignedIntegral<decltype(g())>();
-			STL2_EXACT_TYPE_CONSTRAINT(G::min(), decltype(g()));
-			STL2_EXACT_TYPE_CONSTRAINT(G::max(), decltype(g()));
+			{ G::min() } -> Same<decltype(g())>&&;
+			{ G::max() } -> Same<decltype(g())>&&;
 		};
 
 	namespace models {

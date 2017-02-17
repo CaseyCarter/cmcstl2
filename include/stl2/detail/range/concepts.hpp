@@ -62,19 +62,13 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool disable_sized_range = false;
 
 	template <class R>
-	constexpr bool __sized_range = false;
-	template <class R>
-		requires requires(const R& r) {
-			STL2_DEDUCTION_CONSTRAINT(__stl2::size(r), Integral);
-			STL2_CONVERSION_CONSTRAINT(__stl2::size(r), difference_type_t<iterator_t<R>>);
-		}
-	constexpr bool __sized_range<R> = true;
-
-	template <class R>
 	concept bool SizedRange() {
 		return Range<R>() &&
 			!disable_sized_range<__uncvref<R>> &&
-			__sized_range<remove_reference_t<R>>;
+			requires(const remove_reference_t<R>& r) {
+				{ __stl2::size(r) } -> Integral;
+				{ __stl2::size(r) } -> difference_type_t<iterator_t<R>>;
+			};
 	}
 
 	namespace models {
@@ -235,17 +229,11 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template <class R>
-		constexpr bool __contiguous_range = false;
-		template <class R>
-			requires requires(R& r) {
-				STL2_EXACT_TYPE_CONSTRAINT(__stl2::data(r), add_pointer_t<reference_t<iterator_t<R>>>);
-			}
-		constexpr bool __contiguous_range<R> = true;
-
-		template <class R>
 		concept bool ContiguousRange() {
 			return SizedRange<R>() && ContiguousIterator<iterator_t<R>>() &&
-				__contiguous_range<remove_reference_t<R>>;
+				requires(R& r) {
+				    { __stl2::data(r) } -> Same<add_pointer_t<reference_t<iterator_t<R>>>>&&;
+				};
 		}
 	}
 

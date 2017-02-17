@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <RandomAccessIterator I, class C, class P>
 			requires
-				models::Sortable<I, C, P>
+				Sortable<I, C, P>()
 			void inplace_stable_sort(I first, I last, C &pred, P &proj)
 			{
 				if (last - first < 15) {
@@ -75,7 +75,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <RandomAccessIterator I, WeaklyIncrementable O, class C, class P>
 			requires
-				models::Sortable<I, C, P>
+				Sortable<I, C, P>()
 			void merge_sort_loop(I first, I last, O result,
 				difference_type_t<I> step_size, C &pred, P &proj)
 			{
@@ -102,7 +102,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <RandomAccessIterator I, class C, class P>
 			requires
-				models::Sortable<I, C, P>
+				Sortable<I, C, P>()
 			void chunk_insertion_sort(I first, I last, difference_type_t<I> chunk_size,
 				C &comp, P &proj)
 			{
@@ -115,7 +115,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <RandomAccessIterator I, class C, class P>
 			requires
-				models::Sortable<I, C, P>
+				Sortable<I, C, P>()
 			void merge_sort_with_buffer(I first, I last, buf_t<I>& buf, C &comp, P &proj)
 			{
 				auto len = difference_type_t<I>(last - first);
@@ -140,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <RandomAccessIterator I, class C, class P>
 			requires
-				models::Sortable<I, C, P>
+				Sortable<I, C, P>()
 			void stable_sort_adaptive(I first, I last, buf_t<I>& buf, C &comp, P &proj)
 			{
 				auto len = difference_type_t<I>((last - first + 1) / 2);
@@ -162,8 +162,8 @@ STL2_OPEN_NAMESPACE {
 	// Extension: Supports forward iterators.
 	template <class I, class S, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sentinel<__f<S>, I> &&
-		models::Sortable<I, Comp, Proj>
+		Sentinel<__f<S>, I>() &&
+		Sortable<I, Comp, Proj>()
 	I stable_sort(I first, S&& last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(first, __stl2::forward<S>(last));
@@ -174,8 +174,8 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I, class S, class Comp = less<>,
 						class Proj = identity>
 	requires
-		models::Sentinel<__f<S>, I> &&
-		models::Sortable<I, Comp, Proj>
+		Sentinel<__f<S>, I>() &&
+		Sortable<I, Comp, Proj>()
 	I stable_sort(I first, S&& last_, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto last = __stl2::next(first, __stl2::forward<S>(last_));
@@ -193,7 +193,7 @@ STL2_OPEN_NAMESPACE {
 	// Extension: supports forward ranges.
 	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, Comp, Proj>
+		Sortable<iterator_t<Rng>, Comp, Proj>()
 	safe_iterator_t<Rng>
 	stable_sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
@@ -203,7 +203,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, Comp, Proj>
+		Sortable<iterator_t<Rng>, Comp, Proj>()
 	safe_iterator_t<Rng>
 	stable_sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{

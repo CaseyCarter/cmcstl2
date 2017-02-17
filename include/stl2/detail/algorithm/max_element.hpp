@@ -24,8 +24,8 @@
 STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
-			Comp, projected<I, Proj>>
+		IndirectStrictWeakOrder<
+			Comp, projected<I, Proj>>()
 	I max_element(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		if (first != last) {
@@ -40,8 +40,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
-			Comp, projected<iterator_t<Rng>, Proj>>
+		IndirectStrictWeakOrder<
+			Comp, projected<iterator_t<Rng>, Proj>>()
 	safe_iterator_t<Rng>
 	max_element(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
@@ -52,8 +52,8 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
-			Comp, projected<const E*, Proj>>
+		IndirectStrictWeakOrder<
+			Comp, projected<const E*, Proj>>()
 	dangling<const E*>
 	max_element(std::initializer_list<E>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{

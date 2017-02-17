@@ -75,65 +75,6 @@ STL2_OPEN_NAMESPACE {
 // Used to qualify STL2 names
 namespace __stl2 = ::std::experimental::ranges;
 
-// Workaround bugs in deduction constraints by replacing:
-// * { E } -> T with requires T<decltype(E)>()
-// * { E } -> Same<T> with requires Same<decltype(E), T>()
-// * { E } -> ConvertibleTo<T> with requires ConvertibleTo<decltype(E), T>()
-#if 0
-#define STL2_DEDUCTION_CONSTRAINT(E, ...) \
-	{ E } -> __VA_ARGS__
-
-#define STL2_BINARY_DEDUCTION_CONSTRAINT(E, C, ...) \
-	STL2_DEDUCTION_CONSTRAINT(E, C<__VA_ARGS__>)
-
-#else
-#define STL2_DEDUCTION_CONSTRAINT(E, ...) \
-	E; requires __VA_ARGS__ <decltype(E)>()
-
-#define STL2_BINARY_DEDUCTION_CONSTRAINT(E, C, ...) \
-	E; requires C<decltype(E), __VA_ARGS__>()
-#endif
-
-#define STL2_EXACT_TYPE_CONSTRAINT(E, ...) \
-	STL2_BINARY_DEDUCTION_CONSTRAINT(E, Same, __VA_ARGS__)
-
-#define STL2_CONVERSION_CONSTRAINT(E, ...) \
-	STL2_BINARY_DEDUCTION_CONSTRAINT(E, ConvertibleTo, __VA_ARGS__)
-
-// Workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67384
-// Use the expression constraint "deduce_auto_ref_ref(E);" in place
-// of the compound constraint "{ E } -> auto&&;"
-STL2_OPEN_NAMESPACE {
-	namespace detail {
-		void deduce_auto_ref(auto&); // undefined
-		void deduce_auto_ref_ref(auto&&); // undefined
-	}
-} STL2_CLOSE_NAMESPACE
-
-#define STL2_DEDUCE_AUTO_REF(E) \
-	::__stl2::detail::deduce_auto_ref(E)
-
-#define STL2_DEDUCE_AUTO_REF_REF(E) \
-	::__stl2::detail::deduce_auto_ref_ref(E)
-
-// Workaround bugs in constrained return types
-// (e.g., Iterator begin(Range&&);) by simply disabling
-// the feature and using "auto"
-#if 1
-#define STL2_CONSTRAINED_RETURN(...) __VA_ARGS__
-#else
-#define STL2_CONSTRAINED_RETURN(...) auto
-#endif
-
-// Workaround bugs in constrained variable definitions
-// (e.g., Iterator x = begin(r);) by simply disabling
-// the feature and using "auto"
-#if 1
-#define STL2_CONSTRAINED_VAR(...) __VA_ARGS__
-#else
-#define STL2_CONSTRAINED_VAR(...) auto
-#endif
-
 #define STL2_NOEXCEPT_RETURN(...) \
 	noexcept(noexcept(__VA_ARGS__)) \
 	{ return __VA_ARGS__; }

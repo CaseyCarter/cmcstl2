@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 		template <class> struct reference_type {};
 		template <class C>
 		requires
-			requires(const C& c) { STL2_DEDUCE_AUTO_REF_REF(c.read()); }
+			requires(const C& c) { { c.read() } -> auto&&; }
 		struct reference_type<C> {
 			using type = decltype(declval<const C&>().read());
 		};
@@ -150,7 +150,7 @@ STL2_OPEN_NAMESPACE {
 		template <class M>
 		struct _MixinTestWrapper : protected M {
 			decltype(auto) g() & { return (*this).get(); }
-			decltype(auto) g() const& { return (*this).getz(); }
+			decltype(auto) g() const& { return (*this).get(); }
 			decltype(auto) g() && { return std::move(*this).get(); }
 			decltype(auto) g() const&& { return std::move(*this).get(); }
 		};
@@ -184,7 +184,7 @@ STL2_OPEN_NAMESPACE {
 		template <class C>
 		concept bool Readable() {
 			return Cursor<C>() && requires(const C& c) {
-				STL2_DEDUCE_AUTO_REF_REF(c.read());
+				{ c.read() } -> auto&&;
 				typename reference_t<C>;
 				typename value_type_t<C>;
 			};
@@ -192,7 +192,7 @@ STL2_OPEN_NAMESPACE {
 		template <class C>
 		concept bool Arrow() {
 			return Readable<C>() && requires(const C& c) {
-				STL2_DEDUCE_AUTO_REF_REF(c.arrow());
+				{ c.arrow() } -> auto&&;
 			};
 		}
 		template <class C, class T>
@@ -212,8 +212,7 @@ STL2_OPEN_NAMESPACE {
 		template <class S, class C>
 		concept bool SizedSentinel() {
 			return Sentinel<S, C>() && requires(const C& c, const S& s) {
-				// Equivalent to: { c.distance_to(s) } -> Same<difference_type_t<C>;
-				STL2_EXACT_TYPE_CONSTRAINT(c.distance_to(s), difference_type_t<C>);
+				{ c.distance_to(s) } -> Same<difference_type_t<C>>&&;
 			};
 		}
 
@@ -241,7 +240,7 @@ STL2_OPEN_NAMESPACE {
 		template <class C>
 		concept bool IndirectMove() {
 			return Readable<C>() && requires(const C& c) {
-				STL2_DEDUCE_AUTO_REF_REF(c.indirect_move());
+				{ c.indirect_move() } -> auto&&;
 			};
 		}
 
@@ -520,7 +519,7 @@ STL2_OPEN_NAMESPACE {
 		template <class C>
 		concept bool PostIncrementCursor() {
 			return requires(C& c) {
-				STL2_EXACT_TYPE_CONSTRAINT(c.post_increment(), C);
+				{ c.post_increment() } -> Same<C>&&;
 			};
 		}
 	} // namespace detail
@@ -621,7 +620,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr explicit basic_iterator(C&& c)
 		noexcept(std::is_nothrow_constructible<mixin, C>::value)
 		: mixin(std::move(c)) {}
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 		template <class First>
 		requires
 			!models::_OneOf<std::decay_t<First>, basic_iterator, mixin, C> &&
@@ -670,8 +669,8 @@ STL2_OPEN_NAMESPACE {
 		// http://wg21.link/P0186
 		template <class O>
 		requires
-			!models::Same<decay_t<O>, basic_iterator> &&
-			models::Assignable<C&, O>
+			!Same<decay_t<O>, basic_iterator>() &&
+			Assignable<C&, O>()
 		constexpr basic_iterator& operator=(O&& o) &
 		noexcept(is_nothrow_assignable<C&, O>::value)
 		{
@@ -718,6 +717,8 @@ STL2_OPEN_NAMESPACE {
 		requires
 			!cursor::Arrow<C>() && cursor::Readable<C>() &&
 			std::is_lvalue_reference<const_reference_t>::value &&
+			// BUGBUG causes a strange failure. Tested with gcc trunk Feb 17 2017:
+			//Same<cursor::value_type_t<C>, __uncvref<const_reference_t>>()
 			models::Same<cursor::value_type_t<C>, __uncvref<const_reference_t>>
 		{
 			return __stl2::addressof(**this);

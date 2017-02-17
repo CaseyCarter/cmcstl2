@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 	namespace __advance {
 		template <class I>
 		requires
-			models::Iterator<I>
+			Iterator<I>()
 			// Pre: 0 <= n && [i,i+n)
 		constexpr void impl(I& i, difference_type_t<I> n)
 		noexcept(noexcept(++std::declval<I&>()))
@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class I, class S>
 	requires
-		models::Sentinel<S, I>
+		Sentinel<S, I>()
 		// Pre: [i,bound)
 	constexpr void advance(I& i, S bound)
 	noexcept(noexcept(++i != bound))
@@ -81,7 +81,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class I, class S>
 	requires
-		models::Sentinel<S, I> && models::Assignable<I&, S&&>
+		Sentinel<S, I>() && Assignable<I&, S&&>()
 	constexpr void advance(I& i, S bound)
 	STL2_NOEXCEPT_RETURN(
 		(void)(i = std::move(bound))
@@ -89,8 +89,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <class I, class S>
 	requires
-		models::Sentinel<S, I> && !models::Assignable<I&, S&&> &&
-		models::SizedSentinel<S, I>
+		Sentinel<S, I>() && !Assignable<I&, S&&>() &&
+		SizedSentinel<S, I>()
 		// Pre: [i,bound)
 	constexpr void advance(I& i, S bound)
 	noexcept(noexcept(__stl2::advance(i, bound - i)))
@@ -103,7 +103,7 @@ STL2_OPEN_NAMESPACE {
 	namespace __advance {
 		template <class I, class S>
 		requires
-			models::Sentinel<S, I>
+			Sentinel<S, I>()
 			// Pre: 0 == n || (0 < n && [i,bound))
 		constexpr difference_type_t<I>
 		impl(I& i, difference_type_t<I> n, const S& bound)
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class I, class S>
 	requires
-		models::Sentinel<S, I>
+		Sentinel<S, I>()
 		// Pre: 0 == n || (0 < n && [i,bound))
 	constexpr difference_type_t<I>
 	advance(I& i, difference_type_t<I> n, S bound)
@@ -130,7 +130,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class I, class S>
 	requires
-		models::Sentinel<S, I> && models::SizedSentinel<S, I>
+		Sentinel<S, I>() && SizedSentinel<S, I>()
 		// Pre: 0 <= n && [i,bound)
 	constexpr difference_type_t<I>
 	advance(I& i, difference_type_t<I> n, S bound)
@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class I>
 	requires
-		models::BidirectionalIterator<I>
+		BidirectionalIterator<I>()
 		// Pre: 0 == n || (0 < n ? [i,bound) : [bound,i))
 	constexpr difference_type_t<I>
 	advance(I& i, difference_type_t<I> n, I bound)
@@ -172,7 +172,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class I>
 	requires
-		models::BidirectionalIterator<I> && models::SizedSentinel<I, I>
+		BidirectionalIterator<I>() && SizedSentinel<I, I>()
 		// Pre: 0 == n ? ([i,bound) || [bound,i)) : (0 < n ? [i,bound) : [bound,i))
 	constexpr difference_type_t<I>
 	advance(I& i, difference_type_t<I> n, I bound)
@@ -200,7 +200,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class S, class I>
 	requires
-		models::Sentinel<__f<S>, I>
+		Sentinel<__f<S>, I>()
 	constexpr I next(I x, S&& bound)
 	STL2_NOEXCEPT_RETURN(
 		__stl2::advance(x, std::forward<S>(bound)),
@@ -209,7 +209,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class S, class I>
 	requires
-		models::Sentinel<__f<S>, I>
+		Sentinel<__f<S>, I>()
 	constexpr I next(I x, difference_type_t<I> n, S&& bound)
 	STL2_NOEXCEPT_RETURN(
 		__stl2::advance(x, n, std::forward<S>(bound)),

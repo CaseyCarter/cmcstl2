@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 			// Prefer member if it returns Iterator.
 			template <class R>
 			requires has_member<R>
-			constexpr STL2_CONSTRAINED_RETURN(Iterator)
+			constexpr Iterator
 			operator()(R& r) const
 			STL2_NOEXCEPT_RETURN(
 				r.begin()
@@ -63,13 +63,13 @@ STL2_OPEN_NAMESPACE {
 			// Use ADL if it returns Iterator.
 			template <class R>
 			requires !has_member<R> && has_non_member<R>
-			constexpr STL2_CONSTRAINED_RETURN(Iterator)
+			constexpr Iterator
 			operator()(R& r) const
 			STL2_NOEXCEPT_RETURN(
 				begin(r)
 			)
 			template <_IsNot<is_array> R>
-			[[deprecated]] constexpr STL2_CONSTRAINED_RETURN(Iterator)
+			[[deprecated]] constexpr Iterator
 			operator()(const R&& r) const
 			noexcept(noexcept(declval<const fn&>()(r)))
 			requires has_member<const R> || has_non_member<const R>
@@ -416,7 +416,7 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		requires
 			requires(const R& r) {
-				STL2_CONVERSION_CONSTRAINT(r.empty(), bool);
+				{ r.empty() } -> bool;
 			}
 		constexpr bool has_member<R> = true;
 

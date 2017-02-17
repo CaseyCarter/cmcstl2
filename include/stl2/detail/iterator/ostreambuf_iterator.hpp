@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 		friend bool operator!=(ostreambuf_iterator a, default_sentinel b) noexcept {
 			return !(a == b);
 		}
-		friend bool operator==(default_sentinel a, ostreambuf_iterator b) noexcept {
+		friend bool operator==(default_sentinel, ostreambuf_iterator b) noexcept {
 			return b.sbuf_ == nullptr;
 		}
 		friend bool operator!=(default_sentinel a, ostreambuf_iterator b) noexcept {

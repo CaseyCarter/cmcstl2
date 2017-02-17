@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
-		models::Sortable<I, Comp, Proj>
+		Sortable<I, Comp, Proj>()
 	I partial_sort(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		__stl2::make_heap(first, middle, __stl2::ref(comp), __stl2::ref(proj));
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, Comp, Proj>
+		Sortable<iterator_t<Rng>, Comp, Proj>()
 	safe_iterator_t<Rng>
 	partial_sort(Rng&& rng, iterator_t<Rng> middle, Comp comp = Comp{}, Proj proj = Proj{})
 	{

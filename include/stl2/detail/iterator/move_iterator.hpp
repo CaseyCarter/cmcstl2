@@ -282,7 +282,7 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec: constexpr per P0579
 	template <class S>
 	requires
-		models::Semiregular<__f<S>>
+		Semiregular<__f<S>>()
 	constexpr auto make_move_sentinel(S&& s)
 	STL2_NOEXCEPT_RETURN(
 		move_sentinel<__f<S>>(__stl2::forward<S>(s))
