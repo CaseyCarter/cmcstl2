@@ -89,13 +89,14 @@ STL2_OPEN_NAMESPACE {
 			return false;
 		}
 
-		return __stl2::__is_permutation_tail(first1, last1, first2,
-			__stl2::next(first2, l1), pred, proj1, proj2);
+		auto last2 = __stl2::next(first2, l1);
+		return __stl2::__is_permutation_tail(std::move(first1), std::move(last1),
+			std::move(first2), std::move(last2), pred, proj1, proj2);
 	}
 
 	template <ForwardRange Rng1, class I2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
-	[[deprecated]] bool is_permutation(Rng1&& rng1, I2&& first2, Pred pred = Pred{},
+	[[deprecated]] bool is_permutation(Rng1&& rng1, I2&& first2_, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
 		!is_array<remove_reference_t<I2>>::value &&
@@ -103,8 +104,9 @@ STL2_OPEN_NAMESPACE {
 		models::IndirectlyComparable<
 			iterator_t<Rng1>, __f<I2>, Pred, Proj1, Proj2>
 	{
+		auto first2 = __stl2::forward<I2>(first2_);
 		return __stl2::is_permutation(
-			__stl2::begin(rng1), __stl2::end(rng1), __stl2::forward<I2>(first2),
+			__stl2::begin(rng1), __stl2::end(rng1), std::move(first2),
 			__stl2::ref(pred), __stl2::ref(proj1),
 			__stl2::ref(proj2));
 	}
@@ -134,8 +136,8 @@ STL2_OPEN_NAMESPACE {
 			return false;
 		}
 
-		return __stl2::__is_permutation_tail(first1, last1, first2, last2,
-			pred, proj1, proj2);
+		return __stl2::__is_permutation_tail(std::move(first1), std::move(last1),
+			std::move(first2), std::move(last2), pred, proj1, proj2);
 	}
 
 	template <ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
@@ -161,8 +163,8 @@ STL2_OPEN_NAMESPACE {
 		return true;
 	not_done:
 
-		return __stl2::__is_permutation_tail(first1, last1, first2, last2,
-			pred, proj1, proj2);
+		return __stl2::__is_permutation_tail(std::move(first1), std::move(last1),
+			std::move(first2), std::move(last2), pred, proj1, proj2);
 	}
 
 	template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
@@ -199,51 +201,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::ref(pred),
 			__stl2::ref(proj1), __stl2::ref(proj2));
-	}
-
-	// Extension
-	template <class E, ForwardRange Rng2, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		models::IndirectlyComparable<
-			const E*, iterator_t<Rng2>,
-			Pred, Proj1, Proj2>
-	bool is_permutation(std::initializer_list<E>&& rng1, Rng2&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::is_permutation(rng1, rng2,
-			__stl2::ref(pred), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	// Extension
-	template <ForwardRange Rng1, class E, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		models::IndirectlyComparable<
-			iterator_t<Rng1>, const E*,
-			Pred, Proj1, Proj2>
-	bool is_permutation(Rng1&& rng1, std::initializer_list<E>&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::is_permutation(rng1, rng2,
-			__stl2::ref(pred), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	// Extension
-	template <class E1, class E2, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		models::IndirectlyComparable<
-			const E1*, const E2*,
-			Pred, Proj1, Proj2>
-	bool is_permutation(std::initializer_list<E1>&& rng1, std::initializer_list<E2>&& rng2,
-		Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::is_permutation(rng1, rng2,
-			__stl2::ref(pred), __stl2::ref(proj1),
-			__stl2::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

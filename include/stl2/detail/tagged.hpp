@@ -97,63 +97,71 @@ STL2_OPEN_NAMESPACE {
 		using Base::Base;
 		tagged() = default;
 
+		// Not to spec: constexpr per P0579
 		template <class Other>
 		requires Constructible<Base, Other>()
-		STL2_CONSTEXPR_EXT tagged(tagged<Other, Tags...>&& that)
+		constexpr tagged(tagged<Other, Tags...>&& that)
 		noexcept(is_nothrow_constructible<Base, Other&&>::value)
 		: Base(static_cast<Other&&>(that)) {}
 
+		// Not to spec: constexpr per P0579
 		template <class Other>
 		requires Constructible<Base, const Other&>()
-		STL2_CONSTEXPR_EXT tagged(tagged<Other, Tags...> const& that)
+		constexpr tagged(tagged<Other, Tags...> const& that)
 		noexcept(is_nothrow_constructible<Base, const Other&>::value)
 		: Base(static_cast<const Other&>(that)) {}
 
+		// Not to spec: constexpr per P0579
 		template <class Other>
 		requires Assignable<Base&, Other>()
-		tagged& operator=(tagged<Other, Tags...>&& that)
+		constexpr tagged& operator=(tagged<Other, Tags...>&& that)
 		noexcept(is_nothrow_assignable<Base&, Other&&>::value)
 		{
 			static_cast<Base&>(*this) = static_cast<Other&&>(that);
 			return *this;
 		}
 
+		// Not to spec: constexpr per P0579
 		template <class Other>
 		requires Assignable<Base&, const Other&>()
-		tagged& operator=(const tagged<Other, Tags...>& that)
+		constexpr tagged& operator=(const tagged<Other, Tags...>& that)
 		noexcept(is_nothrow_assignable<Base&, const Other&>::value)
 		{
 			static_cast<Base&>(*this) = static_cast<const Other&>(that);
 			return *this;
 		}
 
+		// Not to spec: constexpr per P0579
 		template <class U>
 		requires !Same<decay_t<U>, tagged>() && Assignable<Base&, U>()
-		tagged& operator=(U&& u) &
+		constexpr tagged& operator=(U&& u) &
 		noexcept(is_nothrow_assignable<Base&, U&&>::value)
 		{
 			static_cast<Base&>(*this) = __stl2::forward<U>(u);
 			return *this;
 		}
 
-		void swap(tagged& that)
+		// Not to spec: constexpr per P0579
+		constexpr void swap(tagged& that)
 		noexcept(is_nothrow_swappable_v<Base&, Base&>)
 		requires Swappable<Base&>()
 		{
 			__stl2::swap(static_cast<Base&>(*this), static_cast<Base&>(that));
 		}
 
-		friend void swap(tagged& a, tagged& b)
+		// Not to spec: constexpr per P0579
+		friend constexpr void swap(tagged& a, tagged& b)
 		noexcept(noexcept(a.swap(b)))
 		requires Swappable<Base&>()
 		{
 			a.swap(b);
 		}
 
-		// 20150819: Extension.
-		STL2_CONSTEXPR_EXT Base& base() & { return *this; }
-		STL2_CONSTEXPR_EXT const Base& base() const& { return *this; }
-		STL2_CONSTEXPR_EXT Base&& base() && { return __stl2::move(*this); }
+		// Not to spec: Extension
+		constexpr Base& base() & { return *this; }
+		constexpr const Base& base() const& { return *this; }
+		constexpr Base&& base() && { return __stl2::move(*this); }
+		constexpr const Base&& base() const&& { return __stl2::move(*this); }
 	};
 
 	template <class Derived, std::size_t I>
@@ -170,6 +178,10 @@ STL2_OPEN_NAMESPACE {
 			return get<I>(derived().base());
 		}
 		constexpr auto&& get() && {
+			using __stl2::get;
+			return get<I>(__stl2::move(derived()).base());
+		}
+		constexpr auto&& get() const&& {
 			using __stl2::get;
 			return get<I>(__stl2::move(derived()).base());
 		}
@@ -191,10 +203,14 @@ STL2_OPEN_NAMESPACE {
 				constexpr decltype(auto) name() & {         \
 					return Base::get();                     \
 				}                                           \
-				constexpr decltype(auto) name() const & {   \
+				constexpr decltype(auto) name() const& {    \
 					return Base::get();                     \
 				}                                           \
 				constexpr decltype(auto) name() && {        \
+					return __stl2::move(*this).Base::get(); \
+				}                                           \
+				/* Not to spec: Extension */                \
+				constexpr decltype(auto) name() const&& {   \
 					return __stl2::move(*this).Base::get(); \
 				}                                           \
 			protected:                                      \

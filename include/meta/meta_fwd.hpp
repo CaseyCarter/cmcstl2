@@ -38,6 +38,12 @@ namespace meta
 {
     inline namespace v1
     {
+        namespace detail
+        {
+            template <bool B>
+            constexpr bool bool_ = B;
+        }
+
         template <typename... Ts>
         struct list;
 
@@ -63,7 +69,7 @@ namespace meta
         concept bool True = true;
 
         template <typename T, typename U>
-        concept bool Same = std::is_same<T, U>::value;
+        concept bool Same = detail::bool_<std::is_same<T, U>::value>;
 
         template <template <typename...> class C, typename... Ts>
         concept bool Valid = requires

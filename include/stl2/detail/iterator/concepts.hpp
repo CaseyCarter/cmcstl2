@@ -585,10 +585,14 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// OutputIterator [iterators.output]
-	//
+	// Not to spec:
+	// adds requirement on *i++ from P0541.
 	template <class I, class T>
 	concept bool OutputIterator() {
-		return Iterator<I>() && Writable<I, T>();
+		return Iterator<I>() && Writable<I, T>() &&
+			requires(I i, T&& t) {
+				*i++ = std::forward<T>(t);
+			};
 	}
 
 	namespace models {

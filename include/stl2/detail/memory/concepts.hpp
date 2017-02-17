@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I, class T>
 	concept bool __ReferenceTo() { // exposition only
 		return InputIterator<I>() &&
-			std::is_lvalue_reference<reference_t<I>>::value &&
+			_Is<reference_t<I>, std::is_lvalue_reference> &&
 			Same<__uncvref<reference_t<I>>, T>();
 	}
 } STL2_CLOSE_NAMESPACE

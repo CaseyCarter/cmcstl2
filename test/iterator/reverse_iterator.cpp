@@ -232,6 +232,52 @@ test25(It i, __stl2::difference_type_t<It> n, It x)
 	CHECK(rr.base() == x);
 }
 
+
+constexpr bool test_constexpr() {
+	int rng[] = {0,1,2,3};
+	auto const first = __stl2::make_reverse_iterator(__stl2::end(rng));
+	auto const last = __stl2::make_reverse_iterator(__stl2::begin(rng));
+	if (!(first == first)) return false;
+	if (first != first) return false;
+	if (last < first) return false;
+	if (!(last > first)) return false;
+	if (last <= first) return false;
+	if (!(last >= first)) return false;
+	if (*(first + 2) != 1) return false;
+	if (*(last - 2) != 1) return false;
+	if (first[3] != 0) return false;
+	if (first - last != -4) return false;
+	{
+		__stl2::reverse_iterator<int const*> foo{first};
+		foo = first;
+		if (!(foo == first)) return false;
+		if (foo != first) return false;
+		if (last < foo) return false;
+		if (!(last > foo)) return false;
+		if (last <= foo) return false;
+		if (!(last >= foo)) return false;
+		if (*(foo + 2) != 1) return false;
+		if (*(last - 2) != 1) return false;
+		if (foo[3] != 0) return false;
+		if (foo - last != -4) return false;
+	}
+	auto pos = first;
+	++pos;
+	if (pos.base() != rng + 3) return false;
+	if (pos + 3 != last) return false;
+	if (*pos != 2) return false;
+	if (pos.operator->() != rng + 2) return false;
+	--pos;
+	if (pos != first) return false;
+	pos += 2;
+	if (*pos != 1) return false;
+	pos -= -1;
+	if (*pos != 0) return false;
+
+	return true;
+}
+static_assert(test_constexpr());
+
 int main() {
 	{
 		namespace models = __stl2::models;
