@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 	// See https://github.com/ericniebler/stl2/issues/238
 	template <class F, class...Is>
 	requires
-		models::Invocable<F, reference_t<Is>...>
+		Invocable<F, reference_t<Is>...>()
 	struct indirect_result_of<F(Is...)>
 	: result_of<F(reference_t<Is>...)> {};
 

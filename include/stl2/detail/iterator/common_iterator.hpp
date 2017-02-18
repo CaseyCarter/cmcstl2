@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 			template <class U>
 			constexpr explicit operator_arrow_proxy(U&& u)
 			noexcept(std::is_nothrow_constructible<T, U>::value)
-			requires models::Constructible<T, U>
+			requires Constructible<T, U>()
 			: value_(std::forward<U>(u)) {}
 
 			constexpr const T* operator->() const noexcept {
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class I>
 		requires
-			models::Readable<I> &&
+			Readable<I>() &&
 			(std::is_pointer<I>::value ||
 				requires(const I& i) { i.operator->(); })
 		constexpr I operator_arrow_(const I& i, ext::priority_tag<2>)
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class I>
 		requires
-			models::Readable<I> &&
+			Readable<I>() &&
 			_Is<reference_t<const I>, std::is_reference>
 		constexpr auto operator_arrow_(const I& i, ext::priority_tag<1>)
 		noexcept(noexcept(*i)) {
@@ -70,9 +70,9 @@ STL2_OPEN_NAMESPACE {
 
 		template <class I>
 		requires
-			models::Readable<I> &&
+			Readable<I>() &&
 			!std::is_reference<reference_t<I>>::value &&
-			models::Constructible<value_type_t<I>, reference_t<I>>
+			Constructible<value_type_t<I>, reference_t<I>>()
 		constexpr auto operator_arrow_(const I& i, ext::priority_tag<0>)
 		noexcept(
 			std::is_nothrow_move_constructible<
@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class I>
 		requires
-			models::Readable<I> &&
+			Readable<I>() &&
 			requires(const I& i) {
 				__common_iterator::operator_arrow_(i, ext::max_priority_tag);
 			}

@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 			template <ForwardIterator I, class Proj,
 				IndirectPredicate<projected<I, Proj>> Pred>
 			requires
-				models::Permutable<I>
+				Permutable<I>()
 			ext::range<I>
 			forward_buffer(I first, I next, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
@@ -75,7 +75,7 @@ STL2_OPEN_NAMESPACE {
 			template <ForwardIterator I, class Proj,
 				IndirectPredicate<projected<I, Proj>> Pred>
 			requires
-				models::Permutable<I>
+				Permutable<I>()
 			ext::range<I>
 			forward_reduce(I first, difference_type_t<I> n, buf_t<I>& buf,
 				Pred& pred, Proj& proj);
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 			template <ForwardIterator I, class Proj,
 				IndirectPredicate<projected<I, Proj>> Pred>
 			requires
-				models::Permutable<I>
+				Permutable<I>()
 			ext::range<I>
 			forward(I first, difference_type_t<I> n, buf_t<I>& buf, Pred& pred,
 				Proj& proj)
@@ -114,7 +114,7 @@ STL2_OPEN_NAMESPACE {
 			template <ForwardIterator I, class Proj,
 				IndirectPredicate<projected<I, Proj>> Pred>
 			requires
-				models::Permutable<I>
+				Permutable<I>()
 			ext::range<I>
 			forward_reduce(I first, difference_type_t<I> n, buf_t<I>& buf,
 				Pred& pred, Proj& proj)
@@ -146,7 +146,7 @@ STL2_OPEN_NAMESPACE {
 			template <BidirectionalIterator I, class Proj,
 				IndirectPredicate<projected<I, Proj>> Pred>
 			requires
-				models::Permutable<I>
+				Permutable<I>()
 			I bidirectional_buffer(I first, I last, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
 			{
@@ -177,21 +177,21 @@ STL2_OPEN_NAMESPACE {
 			template <BidirectionalIterator I, class Proj,
 				IndirectPredicate<projected<I, Proj>> Pred>
 			requires
-				models::Permutable<I>
+				Permutable<I>()
 			I bidirectional_reduce_front(I first, I last, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj);
 
 			template <BidirectionalIterator I, class Proj,
 				IndirectPredicate<projected<I, Proj>> Pred>
 			requires
-				models::Permutable<I>
+				Permutable<I>()
 			I bidirectional_reduce_back(I first, I last, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj);
 
 			template <BidirectionalIterator I, class Proj,
 				IndirectPredicate<projected<I, Proj>> Pred>
 			requires
-				models::Permutable<I>
+				Permutable<I>()
 			I bidirectional(I first, I last, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
 			{
@@ -225,7 +225,7 @@ STL2_OPEN_NAMESPACE {
 			template <BidirectionalIterator I, class Proj,
 				IndirectPredicate<projected<I, Proj>> Pred>
 			requires
-				models::Permutable<I>
+				Permutable<I>()
 			I bidirectional_reduce_front(I first, I last, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
 			{
@@ -243,7 +243,7 @@ STL2_OPEN_NAMESPACE {
 			template <BidirectionalIterator I, class Proj,
 				IndirectPredicate<projected<I, Proj>> Pred>
 			requires
-				models::Permutable<I>
+				Permutable<I>()
 			I bidirectional_reduce_back(I first, I last, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
 			{
@@ -263,9 +263,9 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <ForwardIterator I, class Pred, class Proj = identity>
 		requires
-			models::Permutable<I> &&
-			models::IndirectPredicate<
-				Pred, projected<I, Proj>>
+			Permutable<I>() &&
+			IndirectPredicate<
+				Pred, projected<I, Proj>>()
 		I stable_partition_n(I first, difference_type_t<I> n,
 			Pred pred, Proj proj = Proj{})
 		{
@@ -287,9 +287,9 @@ STL2_OPEN_NAMESPACE {
 
 		template <BidirectionalIterator I, class Pred, class Proj = identity>
 		requires
-			models::Permutable<I> &&
-			models::IndirectPredicate<
-				Pred, projected<I, Proj>>
+			Permutable<I>() &&
+			IndirectPredicate<
+				Pred, projected<I, Proj>>()
 		I stable_partition_n(I first, I last, difference_type_t<I> n,
 			Pred pred, Proj proj = Proj{})
 		{
@@ -319,9 +319,9 @@ STL2_OPEN_NAMESPACE {
 
 		template <BidirectionalIterator I, class Pred, class Proj = identity>
 		requires
-			models::Permutable<I> &&
-			models::IndirectPredicate<
-				Pred, projected<I, Proj>>
+			Permutable<I>() &&
+			IndirectPredicate<
+				Pred, projected<I, Proj>>()
 		I stable_partition_n(I first, difference_type_t<I> n,
 			Pred pred, Proj proj = Proj{})
 		{
@@ -334,9 +334,9 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
-		models::Permutable<I> &&
-		models::IndirectPredicate<
-			Pred, projected<I, Proj>>
+		Permutable<I>() &&
+		IndirectPredicate<
+			Pred, projected<I, Proj>>()
 	I stable_partition(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(first, __stl2::move(last));
@@ -348,9 +348,9 @@ STL2_OPEN_NAMESPACE {
 	template <BidirectionalIterator I, Sentinel<I> S, class Pred,
 		class Proj = identity>
 	requires
-		models::Permutable<I> &&
-		models::IndirectPredicate<
-			Pred, projected<I, Proj>>
+		Permutable<I>() &&
+		IndirectPredicate<
+			Pred, projected<I, Proj>>()
 	I stable_partition(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		auto bound = ext::enumerate(first, __stl2::move(last));
@@ -361,9 +361,9 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
 	requires
-		models::Permutable<iterator_t<Rng>> &&
-		models::IndirectPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
+		Permutable<iterator_t<Rng>>() &&
+		IndirectPredicate<
+			Pred, projected<iterator_t<Rng>, Proj>>()
 	safe_iterator_t<Rng>
 	stable_partition(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
@@ -374,9 +374,9 @@ STL2_OPEN_NAMESPACE {
 
 	template <BidirectionalRange Rng, class Pred, class Proj = identity>
 	requires
-		models::Permutable<iterator_t<Rng>> &&
-		models::IndirectPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
+		Permutable<iterator_t<Rng>>() &&
+		IndirectPredicate<
+			Pred, projected<iterator_t<Rng>, Proj>>()
 	safe_iterator_t<Rng>
 	stable_partition(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{

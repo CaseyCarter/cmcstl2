@@ -30,25 +30,25 @@ STL2_OPEN_NAMESPACE {
 			ebo_box() = default;
 			constexpr ebo_box(const T& t)
 			noexcept(std::is_nothrow_copy_constructible<T>::value)
-			requires models::CopyConstructible<T>
+			requires CopyConstructible<T>()
 			: item_(t) {}
 			constexpr ebo_box(T&& t)
 			noexcept(std::is_nothrow_move_constructible<T>::value)
-			requires models::MoveConstructible<T>
+			requires MoveConstructible<T>()
 			: item_(std::move(t)) {}
 
 			template <class First>
 			requires
-				!models::_OneOf<std::decay_t<First>, ebo_box, T> &&
-				models::Constructible<T, First> &&
-				models::ConvertibleTo<First, T>
+				!_OneOf<std::decay_t<First>, ebo_box, T> &&
+				Constructible<T, First>() &&
+				ConvertibleTo<First, T>()
 			constexpr ebo_box(First&& f)
 			noexcept(std::is_nothrow_constructible<T, First>::value)
 			: item_(std::forward<First>(f)) {}
 			template <class First, class... Rest>
 			requires
-				(sizeof...(Rest) > 0 || !models::_OneOf<std::decay_t<First>, ebo_box, T>) &&
-				models::Constructible<T, First, Rest...>
+				(sizeof...(Rest) > 0 || !_OneOf<std::decay_t<First>, ebo_box, T>) &&
+				Constructible<T, First, Rest...>()
 			constexpr explicit ebo_box(First&& f, Rest&&...r)
 			noexcept(std::is_nothrow_constructible<T, First, Rest...>::value)
 			: item_(std::forward<First>(f), std::forward<Rest>(r)...) {}
@@ -75,7 +75,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(std::is_nothrow_move_constructible<T>::value)
 			requires MoveConstructible<T>()
 			: T(std::move(t)) {}
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template <class First>
 			requires
 				!models::_OneOf<std::decay_t<First>, ebo_box, T> &&

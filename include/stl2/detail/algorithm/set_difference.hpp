@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		WeaklyIncrementable O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::Mergeable<I1, I2, O, Comp, Proj1, Proj2>
+		Mergeable<I1, I2, O, Comp, Proj1, Proj2>()
 	tagged_pair<tag::in(I1), tag::out(O)>
 	set_difference(I1 first1, S1 last1, I2 first2, S2 last2, O result,
 		Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
@@ -56,10 +56,10 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::WeaklyIncrementable<__f<O>> &&
-		models::Mergeable<
+		WeaklyIncrementable<__f<O>>() &&
+		Mergeable<
 			iterator_t<Rng1>, iterator_t<Rng2>,
-			__f<O>, Comp, Proj1, Proj2>
+			__f<O>, Comp, Proj1, Proj2>()
 	tagged_pair<tag::in(safe_iterator_t<Rng1>), tag::out(__f<O>)>
 	set_difference(Rng1&& rng1, Rng2&& rng2, O&& result, Comp comp = Comp{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
@@ -74,10 +74,10 @@ STL2_OPEN_NAMESPACE {
 	template <class E, InputRange Rng2, class O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::WeaklyIncrementable<__f<O>> &&
-		models::Mergeable<
+		WeaklyIncrementable<__f<O>>() &&
+		Mergeable<
 			const E*, iterator_t<Rng2>,
-			__f<O>, Comp, Proj1, Proj2>
+			__f<O>, Comp, Proj1, Proj2>()
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
 	set_difference(std::initializer_list<E>&& rng1,
 		Rng2&& rng2, O&& result, Comp comp = Comp{},
@@ -93,10 +93,10 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, class E, class O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::WeaklyIncrementable<__f<O>> &&
-		models::Mergeable<
+		WeaklyIncrementable<__f<O>>() &&
+		Mergeable<
 			iterator_t<Rng1>, const E*,
-			__f<O>, Comp, Proj1, Proj2>
+			__f<O>, Comp, Proj1, Proj2>()
 	tagged_pair<tag::in(safe_iterator_t<Rng1>), tag::out(__f<O>)>
 	set_difference(Rng1&& rng1, std::initializer_list<E>&& rng2,
 								 O&& result, Comp comp = Comp{},
@@ -112,10 +112,10 @@ STL2_OPEN_NAMESPACE {
 	template <class E1, class E2, class O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::WeaklyIncrementable<__f<O>> &&
-		models::Mergeable<
+		WeaklyIncrementable<__f<O>>() &&
+		Mergeable<
 			const E1*, const E2*,
-			__f<O>, Comp, Proj1, Proj2>
+			__f<O>, Comp, Proj1, Proj2>()
 	tagged_pair<tag::in(dangling<const E1*>), tag::out(__f<O>)>
 	set_difference(std::initializer_list<E1>&& rng1,
 		std::initializer_list<E2>&& rng2,

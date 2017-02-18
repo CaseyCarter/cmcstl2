@@ -38,7 +38,7 @@
 STL2_OPEN_NAMESPACE {
 	template <class I>
 	requires
-		models::Permutable<I>
+		Permutable<I>()
 	ext::range<I> __rotate_left(I first, I last)
 	{
 		value_type_t<I> tmp = __stl2::iter_move(first);
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <BidirectionalIterator I>
 	requires
-		models::Permutable<I>
+		Permutable<I>()
 	ext::range<I> __rotate_right(I first, I last)
 	{
 		I lm1 = __stl2::prev(last);
@@ -104,7 +104,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <RandomAccessIterator I>
 	requires
-		models::Permutable<I>
+		Permutable<I>()
 	ext::range<I> __rotate_gcd(I first, I middle, I last)
 	{
 		using D = difference_type_t<I>;
@@ -204,7 +204,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng>
 	requires
-		models::Permutable<iterator_t<Rng>>
+		Permutable<iterator_t<Rng>>()
 	ext::range<safe_iterator_t<Rng>> rotate(Rng&& rng, iterator_t<Rng> middle)
 	{
 		return __stl2::rotate(__stl2::begin(rng), __stl2::move(middle), __stl2::end(rng));

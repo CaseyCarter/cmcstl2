@@ -34,8 +34,8 @@
 STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I, class S, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sentinel<__f<S>, I> &&
-		models::Sortable<I, Comp, Proj>
+		Sentinel<__f<S>, I>() &&
+		Sortable<I, Comp, Proj>()
 	I push_heap(I first, S&& last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(first, __stl2::forward<S>(last));
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, Comp, Proj>
+		Sortable<iterator_t<Rng>, Comp, Proj>()
 	safe_iterator_t<Rng>
 	push_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{

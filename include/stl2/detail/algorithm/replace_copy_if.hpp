@@ -23,9 +23,9 @@ STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class Pred, class T,
 		OutputIterator<const T&> O, class Proj = identity>
 	requires
-		models::IndirectlyCopyable<I, O> &&
-		models::IndirectPredicate<
-			Pred, projected<I, Proj>>
+		IndirectlyCopyable<I, O>() &&
+		IndirectPredicate<
+			Pred, projected<I, Proj>>()
 	tagged_pair<tag::in(I), tag::out(O)>
 	replace_copy_if(I first, S last, O result, Pred pred,
 		const T& new_value, Proj proj = Proj{})
@@ -43,10 +43,10 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class Pred, class T, class O, class Proj = identity>
 	requires
-		models::OutputIterator<__f<O>, const T&> &&
-		models::IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
-		models::IndirectPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
+		OutputIterator<__f<O>, const T&>() &&
+		IndirectlyCopyable<iterator_t<Rng>, __f<O>>() &&
+		IndirectPredicate<
+			Pred, projected<iterator_t<Rng>, Proj>>()
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	replace_copy_if(Rng&& rng, O&& result, Pred pred, const T& new_value,
 		Proj proj = Proj{})
@@ -59,10 +59,10 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class Pred, class T, class O, class Proj = identity>
 	requires
-		models::OutputIterator<__f<O>, const T&> &&
-		models::IndirectlyCopyable<const E*, __f<O>> &&
-		models::IndirectPredicate<
-			Pred, projected<const E*, Proj>>
+		OutputIterator<__f<O>, const T&>() &&
+		IndirectlyCopyable<const E*, __f<O>>() &&
+		IndirectPredicate<
+			Pred, projected<const E*, Proj>>()
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
 	replace_copy_if(std::initializer_list<E>&& rng, O&& result, Pred pred,
 		const T& new_value, Proj proj = Proj{})

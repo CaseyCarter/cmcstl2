@@ -25,10 +25,10 @@
 STL2_OPEN_NAMESPACE {
 	template <class I, class S, class Pred, class Proj = identity>
 	requires
-		models::InputIterator<__f<I>> &&
-		models::Sentinel<__f<S>, __f<I>> &&
-		models::IndirectPredicate<
-			Pred, projected<__f<I>, Proj>>
+		InputIterator<__f<I>>() &&
+		Sentinel<__f<S>, __f<I>>() &&
+		IndirectPredicate<
+			Pred, projected<__f<I>, Proj>>()
 	__f<I> find_if_not(I&& first, S&& last, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::find_if(__stl2::forward<I>(first), __stl2::forward<S>(last),
@@ -37,8 +37,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
+		IndirectPredicate<
+			Pred, projected<iterator_t<Rng>, Proj>>()
 	safe_iterator_t<Rng>
 	find_if_not(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
@@ -49,8 +49,8 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
-			Pred, projected<const E*, Proj>>
+		IndirectPredicate<
+			Pred, projected<const E*, Proj>>()
 	dangling<const E*>
 	find_if_not(std::initializer_list<E>&& il, Pred pred, Proj proj = Proj{})
 	{
