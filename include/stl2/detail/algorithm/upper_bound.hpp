@@ -105,19 +105,6 @@ STL2_OPEN_NAMESPACE {
 		return ext::upper_bound_n(__stl2::begin(rng), __stl2::distance(rng),
 			value, __stl2::ref(comp), __stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class T, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, const T*, projected<const E*, Proj>>()
-	dangling<const E*>
-	upper_bound(std::initializer_list<E>&& rng, const T& value,
-		Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return ext::upper_bound_n(__stl2::begin(rng), __stl2::distance(rng),
-			value, __stl2::ref(comp), __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

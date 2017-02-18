@@ -14,7 +14,6 @@
 #ifndef STL2_DETAIL_ALGORITHM_ANY_OF_HPP
 #define STL2_DETAIL_ALGORITHM_ANY_OF_HPP
 
-#include <initializer_list>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -47,17 +46,6 @@ STL2_OPEN_NAMESPACE {
 	bool any_of(R&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::any_of(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class Pred, class Proj = identity>
-	requires
-		IndirectPredicate<
-			Pred, projected<const E*, Proj>>()
-	bool any_of(std::initializer_list<E> il, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::any_of(il.begin(), il.end(),
 			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

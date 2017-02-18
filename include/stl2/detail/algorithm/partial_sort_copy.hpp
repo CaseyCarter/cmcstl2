@@ -78,27 +78,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::ref(comp),
 			__stl2::ref(proj1), __stl2::ref(proj2));
 	}
-
-	// Extension
-	template <class E, RandomAccessRange Rng2, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectlyCopyable<const E*, iterator_t<Rng2>>() &&
-		Sortable<iterator_t<Rng2>, Comp, Proj2>() &&
-		IndirectStrictWeakOrder<Comp,
-			projected<const E*, Proj1>,
-			projected<iterator_t<Rng2>, Proj2>>()
-	safe_iterator_t<Rng2>
-	partial_sort_copy(std::initializer_list<E>&& rng,
-		Rng2&& result_rng, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::partial_sort_copy(
-			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::begin(result_rng), __stl2::end(result_rng),
-			__stl2::ref(comp),
-			__stl2::ref(proj1), __stl2::ref(proj2));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

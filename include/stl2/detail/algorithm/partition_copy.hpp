@@ -68,29 +68,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::forward<O1>(out_true), __stl2::forward<O2>(out_false),
 			__stl2::ref(pred), __stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class O1, class O2, class Pred, class Proj = identity>
-	requires
-		WeaklyIncrementable<__f<O1>>() &&
-		WeaklyIncrementable<__f<O2>>() &&
-		IndirectlyCopyable<const E*, __f<O1>>() &&
-		IndirectlyCopyable<const E*, __f<O2>> ()&&
-		IndirectPredicate<
-			Pred, projected<const E*, Proj>>()
-	tagged_tuple<
-		tag::in(dangling<const E*>),
-		tag::out1(__f<O1>),
-		tag::out2(__f<O2>)>
-	partition_copy(std::initializer_list<E>&& rng,
-		O1&& out_true, O2&& out_false,
-		Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::partition_copy(
-			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<O1>(out_true), __stl2::forward<O2>(out_false),
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

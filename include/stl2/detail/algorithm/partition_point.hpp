@@ -112,18 +112,6 @@ STL2_OPEN_NAMESPACE {
 		return ext::partition_point_n(__stl2::begin(rng), __stl2::distance(rng),
 			__stl2::ref(pred), __stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class Pred, class Proj = identity>
-	requires
-		IndirectPredicate<
-			Pred, projected<const E*, Proj>>()
-	dangling<const E*>
-	partition_point(std::initializer_list<E>&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return ext::partition_point_n(__stl2::begin(rng), __stl2::distance(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

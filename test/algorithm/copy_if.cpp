@@ -94,8 +94,11 @@ int main() {
 		int target[n];
 		std::fill_n(target, n, -1);
 
-		auto res = ranges::copy_if({5,4,3,2,1,0}, target, is_even);
-		CHECK(res.out() == target + n / 2);
+		{
+			auto l = {5,4,3,2,1,0};
+			auto res = ranges::copy_if(std::move(l), target, is_even);
+			CHECK(res.out() == target + n / 2);
+		}
 
 		CHECK(std::equal(target, target + n / 2, evens));
 		CHECK(std::count(target + n / 2, target + n, -1) == n / 2);

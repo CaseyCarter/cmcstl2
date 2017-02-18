@@ -53,21 +53,6 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::remove_copy(__stl2::begin(rng), __stl2::end(rng),
 			__stl2::forward<O>(result), value, __stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class O, class T, class Proj = identity>
-	requires
-		WeaklyIncrementable<__f<O>>() &&
-		IndirectlyCopyable<const E*, __f<O>>() &&
-		IndirectRelation<
-			equal_to<>, projected<const E*, Proj>, const T*>()
-	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-	remove_copy(std::initializer_list<E>&& rng, O&& result,
-		const T& value, Proj proj = Proj{})
-	{
-		return __stl2::remove_copy(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<O>(result), value, __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

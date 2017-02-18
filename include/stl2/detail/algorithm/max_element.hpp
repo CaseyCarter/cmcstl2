@@ -12,7 +12,6 @@
 #ifndef STL2_DETAIL_ALGORITHM_MAX_ELEMENT_HPP
 #define STL2_DETAIL_ALGORITHM_MAX_ELEMENT_HPP
 
-#include <initializer_list>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -44,18 +43,6 @@ STL2_OPEN_NAMESPACE {
 			Comp, projected<iterator_t<Rng>, Proj>>()
 	safe_iterator_t<Rng>
 	max_element(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::max_element(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<const E*, Proj>>()
-	dangling<const E*>
-	max_element(std::initializer_list<E>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::max_element(__stl2::begin(rng), __stl2::end(rng),
 			__stl2::ref(comp), __stl2::ref(proj));

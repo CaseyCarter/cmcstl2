@@ -12,7 +12,6 @@
 #ifndef STL2_DETAIL_ALGORITHM_FOR_EACH_HPP
 #define STL2_DETAIL_ALGORITHM_FOR_EACH_HPP
 
-#include <initializer_list>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
@@ -44,18 +43,6 @@ STL2_OPEN_NAMESPACE {
 	for_each(Rng&& rng, F fun, Proj proj = Proj{})
 	{
 		return {__stl2::for_each(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(fun), __stl2::ref(proj)).in(), __stl2::move(fun)};
-	}
-
-	// Extension
-	template <class E, class F, class Proj = identity>
-	requires
-		IndirectInvocable<
-			F, projected<const E*, Proj>>()
-	tagged_pair<tag::in(dangling<const E*>), tag::fun(F)>
-	for_each(std::initializer_list<E>&& il, F fun, Proj proj = Proj{})
-	{
-		return {__stl2::for_each(il.begin(), il.end(),
 			__stl2::ref(fun), __stl2::ref(proj)).in(), __stl2::move(fun)};
 	}
 } STL2_CLOSE_NAMESPACE

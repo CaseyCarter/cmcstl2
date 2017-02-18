@@ -59,61 +59,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::ref(pred), __stl2::ref(proj1),
 			__stl2::ref(proj2));
 	}
-
-	// Extension
-	template <class E, ForwardRange Rng2, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectPredicate<Pred,
-			projected<const E*, Proj1>,
-			projected<iterator_t<Rng2>, Proj2>>()
-	dangling<const E*>
-	find_first_of(std::initializer_list<E>&& rng1, Rng2&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::find_first_of(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::ref(pred), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	// Extension
-	template <InputRange Rng1, class E, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectPredicate<Pred,
-			projected<iterator_t<Rng1>, Proj1>,
-			projected<const E*, Proj2>>()
-	safe_iterator_t<Rng1>
-	find_first_of(Rng1&& rng1, std::initializer_list<E>&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::find_first_of(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::ref(pred), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	// Extension
-	template <class E1, class E2, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectPredicate<Pred,
-			projected<const E1*, Proj1>,
-			projected<const E2*, Proj2>>()
-	dangling<const E1*>
-	find_first_of(std::initializer_list<E1>&& rng1,
-		std::initializer_list<E2>&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::find_first_of(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::ref(pred), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -45,15 +45,6 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::count_if(__stl2::begin(rng), __stl2::end(rng),
 			__stl2::ref(pred), __stl2::ref(proj));
 	}
-
-	template <class E, class Pred, class Proj = identity>
-	requires
-		IndirectPredicate<
-			Pred, projected<const E*, Proj>>()
-	std::ptrdiff_t count_if(std::initializer_list<E>&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::count_if(rng, __stl2::ref(pred), __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

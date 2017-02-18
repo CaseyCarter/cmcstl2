@@ -45,18 +45,6 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::reverse_copy(__stl2::begin(rng), __stl2::end(rng),
 			__stl2::forward<O>(result));
 	}
-
-	// Extension
-	template <class E, class O>
-	requires
-		WeaklyIncrementable<__f<O>>() &&
-		IndirectlyCopyable<const E*, __f<O>>()
-	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-	reverse_copy(std::initializer_list<E>&& rng, O&& result)
-	{
-		return __stl2::reverse_copy(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<O>(result));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -53,19 +53,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::begin(rng), __stl2::end(rng),
 			__stl2::ref(pred), __stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class Pred = equal_to<>, class Proj = identity>
-	requires
-		IndirectRelation<
-			Pred, projected<const E*, Proj>>()
-	dangling<const E*>
-	adjacent_find(std::initializer_list<E>&& rng, Pred pred = Pred{}, Proj proj = Proj{})
-	{
-		return __stl2::adjacent_find(
-			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

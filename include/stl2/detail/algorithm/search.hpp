@@ -164,49 +164,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::ref(pred), __stl2::ref(proj1),
 			__stl2::ref(proj2));
 	}
-
-	// Extension
-	template <class E, ForwardRange Rng2, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectlyComparable<
-			const E*, iterator_t<Rng2>, Pred, Proj1, Proj2>()
-	dangling<const E*>
-	search(std::initializer_list<E>&& rng1, Rng2&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::search(rng1, rng2, __stl2::ref(pred),
-			__stl2::ref(proj1), __stl2::ref(proj2));
-	}
-
-	// Extension
-	template <ForwardRange Rng1, class E, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectlyComparable<
-			iterator_t<Rng1>, const E*, Pred, Proj1, Proj2>()
-	safe_iterator_t<Rng1>
-	search(Rng1&& rng1, std::initializer_list<E>&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::search(rng1, rng2, __stl2::ref(pred),
-			__stl2::ref(proj1), __stl2::ref(proj2));
-	}
-
-	// Extension
-	template <class E1, class E2, class Pred = equal_to<>,
-						class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectlyComparable<
-			const E1*, const E2*, Pred, Proj1, Proj2>()
-	dangling<const E1*>
-	search(std::initializer_list<E1>&& rng1,
-		std::initializer_list<E2>&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::search(rng1, rng2, __stl2::ref(pred),
-			__stl2::ref(proj1), __stl2::ref(proj2));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -53,18 +53,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::is_heap_until(rng, __stl2::ref(comp),
 				__stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<const E*, Proj>>()
-	bool is_heap(std::initializer_list<E>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::end(rng) ==
-			__stl2::is_heap_until(rng, __stl2::ref(comp),
-				__stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

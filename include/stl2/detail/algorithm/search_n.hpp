@@ -148,20 +148,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::distance(rng), count, value,
 			__stl2::ref(pred), __stl2::ref(proj));
 	}
-
-	template <class E, class T, class Pred = equal_to<>, class Proj = identity>
-	requires
-		IndirectlyComparable<
-			const E*, const T*, Pred, Proj>()
-	dangling<const E*>
-	search_n(std::initializer_list<E>&& rng, std::ptrdiff_t count,
-		const T& value, Pred pred = Pred{}, Proj proj = Proj{})
-	{
-		return __search_n::sized(
-			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::distance(rng), count, value,
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif
