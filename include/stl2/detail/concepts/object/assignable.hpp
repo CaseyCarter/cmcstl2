@@ -27,7 +27,9 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class U>
 	concept bool Assignable() {
 		return _Is<T, is_lvalue_reference> &&
-		    CommonReference<T, const U&>() &&
+		    CommonReference<
+				const remove_reference_t<T>&,
+				const remove_reference_t<U>&>() &&
 			requires(T t, U&& u) {
 				{ t = (U&&)u } -> Same<T>&&;
 			};
