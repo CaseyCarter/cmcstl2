@@ -124,6 +124,7 @@ STL2_OPEN_NAMESPACE {
 
 			Integral{I}
 			constexpr auto log2(I n) {
+				STL2_EXPECT(n > 0);
 				I k = 0;
 				for (; n != 1; n /= 2) {
 					++k;
