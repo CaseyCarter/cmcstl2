@@ -104,27 +104,24 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Swappable [concepts.lib.corelang.swappable]
 	//
-	template <class T, class U>
-	constexpr bool __swappable = false;
-	template <class T, class U>
-	requires
-		requires(T&& t, U&&u) {
-			__stl2::swap((T&&)t, (U&&)u);
-		}
-	constexpr bool __swappable<T, U> = true;
-
 	template <class T>
 	concept bool Swappable() {
-		return __swappable<T, T>;
+		return requires(T&& a, T&& b) {
+			__stl2::swap((T&&)a, (T&&)b);
+		};
 	}
 
 	template <class T, class U>
 	concept bool Swappable() {
 		return Swappable<T>() &&
 			Swappable<U>() &&
-			CommonReference<const T&, const U&>() &&
-			__swappable<T, U> &&
-			__swappable<U, T>;
+			CommonReference<
+				const remove_reference_t<T>&,
+				const remove_reference_t<U>&>() &&
+			requires(T&& t, U&&u) {
+				__stl2::swap((T&&)t, (U&&)u);
+				__stl2::swap((U&&)u, (T&&)t);
+			};
 	}
 
 	namespace models {

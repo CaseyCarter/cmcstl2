@@ -27,17 +27,10 @@ STL2_OPEN_NAMESPACE {
 	// Invocable [concepts.lib.callables.callable]
 	//
 	template <class F, class...Args>
-	constexpr bool __callable = false;
-	template <class F, class...Args>
-	requires
-		requires(F&& f, Args&&...args) {
-			__invoke::impl((F&&)f, (Args&&)args...);
-		}
-	constexpr bool __callable<F, Args...> = true;
-
-	template <class F, class...Args>
 	concept bool Invocable() {
-		return __callable<F, Args...>;
+		return requires(F&& f, Args&&...args) {
+			__invoke::impl((F&&)f, (Args&&)args...);
+		};
 	}
 
 	namespace models {
@@ -68,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 	template <class F, class...Args>
 	concept bool Predicate() {
 		return RegularInvocable<F, Args...>() &&
-			Boolean<result_of_t<F(Args...)>>();
+			Boolean<result_of_t<F&&(Args&&...)>>();
 	}
 
 	namespace models {
@@ -92,8 +85,14 @@ STL2_OPEN_NAMESPACE {
 			Relation<R, U>() &&
 			Predicate<R, T, U>() &&
 			Predicate<R, U, T>() &&
-			CommonReference<const T&, const U&>() &&
-			Relation<R, common_reference_t<const T&, const U&>>();
+			CommonReference<
+				const remove_reference_t<T>&,
+				const remove_reference_t<U>&>() &&
+			Relation<
+				R,
+				common_reference_t<
+					const remove_reference_t<T>&,
+					const remove_reference_t<U>&>>();
 	}
 
 	namespace models {
