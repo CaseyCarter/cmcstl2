@@ -75,25 +75,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(std::is_nothrow_move_constructible<T>::value)
 			requires MoveConstructible<T>()
 			: T(std::move(t)) {}
-#if 0 //STL2_WORKAROUND_GCC_79143
-			template <class First>
-			requires
-				!models::_OneOf<std::decay_t<First>, ebo_box, T> &&
-				models::Constructible<T, First> &&
-				models::ConvertibleTo<First, T>
-			constexpr ebo_box(First&& f)
-			noexcept(std::is_nothrow_constructible<T, First>::value)
-			: T(std::forward<First>(f)) {}
-			template <class First, class... Rest>
-			requires
-				(sizeof...(Rest) > 0 || !models::_OneOf<std::decay_t<First>, ebo_box, T>) &&
-				models::Constructible<T, First, Rest...>
-			constexpr explicit ebo_box(First&& f, Rest&&...r)
-			noexcept(std::is_nothrow_constructible<T, First, Rest...>::value)
-			: T(std::forward<First>(f), std::forward<Rest>(r)...) {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using T::T;
-#endif //  STL2_WORKAROUND_GCC_79143
 
 			constexpr T& get() & noexcept { return *this; }
 			constexpr const T& get() const& noexcept { return *this; }

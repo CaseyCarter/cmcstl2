@@ -147,14 +147,6 @@ STL2_OPEN_NAMESPACE {
 			detail::IsValueType<meta::_t<value_type<C>>>
 		using value_type_t = meta::_t<value_type<C>>;
 
-		template <class M>
-		struct _MixinTestWrapper : protected M {
-			decltype(auto) g() & { return (*this).get(); }
-			decltype(auto) g() const& { return (*this).get(); }
-			decltype(auto) g() && { return std::move(*this).get(); }
-			decltype(auto) g() const&& { return std::move(*this).get(); }
-		};
-
 		template <class C, class M>
 		concept bool _Cursor() {
 			return Semiregular<C>() &&
@@ -162,15 +154,6 @@ STL2_OPEN_NAMESPACE {
 				Semiregular<M>() &&
 				Constructible<M, C&&>() &&
 				Constructible<M, const C&>();
-#if 0
-				// FIXME: Failures cause hard errors in _MixinTestWrapper<M>::g
-				&& requires(_MixinTestWrapper<M>& w, const _MixinTestWrapper<M>& cw) {
-					STL2_EXACT_TYPE_CONSTRAINT(w.g(), C&);
-					STL2_EXACT_TYPE_CONSTRAINT(cw.g(), const C&);
-					STL2_EXACT_TYPE_CONSTRAINT(std::move(w).g(), C&&);
-					STL2_EXACT_TYPE_CONSTRAINT(std::move(cw).g(), const C&&);
-				};
-#endif
 		}
 
 		template <class C>
@@ -620,25 +603,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr explicit basic_iterator(C&& c)
 		noexcept(std::is_nothrow_constructible<mixin, C>::value)
 		: mixin(std::move(c)) {}
-#if 0 //STL2_WORKAROUND_GCC_79143
-		template <class First>
-		requires
-			!models::_OneOf<std::decay_t<First>, basic_iterator, mixin, C> &&
-			models::Constructible<mixin, First> &&
-			models::ConvertibleTo<First, mixin>
-		constexpr basic_iterator(First&& f)
-		noexcept(std::is_nothrow_constructible<mixin, First>::value)
-		: mixin(std::forward<First>(f)) {}
-		template <class First, class... Rest>
-		requires
-			!models::_OneOf<std::decay_t<First>, basic_iterator, mixin, C> &&
-			models::Constructible<mixin, First, Rest...>
-		constexpr explicit basic_iterator(First&& f, Rest&&...r)
-		noexcept(std::is_nothrow_constructible<mixin, First, Rest...>::value)
-		: mixin(std::forward<First>(f), std::forward<Rest>(r)...) {}
-#else  // STL2_WORKAROUND_GCC_79143
 		using mixin::mixin;
-#endif // STL2_WORKAROUND_GCC_79143
 
 		template <cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator& operator=(basic_iterator<O>&& that) &

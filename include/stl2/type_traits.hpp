@@ -189,18 +189,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// Common [concepts.lib.corelang.common]
-	//
-	// Common<T, U> is a purely semantic concept with a single axiom:
-	//   For some type C, there exist total injective functions f: T -> C
-	//   and g: U -> C. (In other words, values of T and U correspond to values
-	//   of C.)
-	//
-	// That axiom is obviously satisfied if T and U are the same type, since
-	// T is a common type with f and g both identity functions.
-	//
-	// This concept augments the axiom with added syntax requirements to
-	// provide "SomewhatVerifiablyCommon."
-	//
 	// Not to spec
 	// See https://github.com/ericniebler/stl2/issues/311
 	template <class T, class U>

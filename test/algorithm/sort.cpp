@@ -20,15 +20,6 @@
 
 #include <stl2/detail/algorithm/sort.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
-#if 0
-#include <range/v3/view/for_each.hpp>
-#include <range/v3/view/iota.hpp>
-#include <range/v3/view/repeat_n.hpp>
-#include <range/v3/view/reverse.hpp>
-#include <range/v3/view/zip.hpp>
-#include <range/v3/view/transform.hpp>
-#include <range/v3/to_container.hpp>
-#endif
 #include <algorithm>
 #include <cassert>
 #include <memory>

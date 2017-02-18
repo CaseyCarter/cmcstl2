@@ -125,17 +125,7 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		class storage_construct_layer : public storage_destruct_layer<T> {
 		public:
-#if 0 //STL2_WORKAROUND_GCC_79143
-			storage_construct_layer() = default;
-			template <class... Args>
-			requires models::Constructible<T, Args...>
-			constexpr explicit storage_construct_layer(in_place_t, Args&&... args)
-			noexcept(std::is_nothrow_constructible<T, Args...>::value)
-			: storage_destruct_layer<T>(in_place, std::forward<Args>(args)...)
-			{}
-#else  // STL2_WORKAROUND_GCC_79143
 			using storage_destruct_layer<T>::storage_destruct_layer;
-#endif // STL2_WORKAROUND_GCC_79143
 
 			template <class... Args>
 			requires Constructible<T, Args...>()
@@ -178,16 +168,7 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		class smf_layer : public storage_construct_layer<T> {
 		public:
-#if 0 //STL2_WORKAROUND_GCC_79143
-			template <class... Args>
-			requires models::Constructible<T, Args...>
-			constexpr explicit smf_layer(in_place_t, Args&&... args)
-			noexcept(std::is_nothrow_constructible<T, Args...>::value)
-			: storage_construct_layer<T>(in_place, std::forward<Args>(args)...)
-			{}
-#else  // STL2_WORKAROUND_GCC_79143
 			using storage_construct_layer<T>::storage_construct_layer;
-#endif // STL2_WORKAROUND_GCC_79143
 
 			smf_layer() = default;
 
@@ -238,18 +219,7 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		requires std::is_trivially_copyable<T>::value
 		struct smf_layer<T> : storage_construct_layer<T> {
-#if 0 //STL2_WORKAROUND_GCC_79143
-			smf_layer() = default;
-
-			template <class... Args>
-			requires models::Constructible<T, Args...>
-			constexpr explicit smf_layer(in_place_t, Args&&... args)
-			noexcept(std::is_nothrow_constructible<T, Args...>::value)
-			: storage_construct_layer<T>(in_place, std::forward<Args>(args)...)
-			{}
-#else  // STL2_WORKAROUND_GCC_79143
 			using storage_construct_layer<T>::storage_construct_layer;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 	} // namespace __optional
 
