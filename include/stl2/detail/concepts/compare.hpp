@@ -42,18 +42,18 @@ STL2_OPEN_NAMESPACE {
 				// BooleanTestable, but for which BooleanTestable does not
 				// require validation.
 				{ b1 && b2 } -> Same<bool>&&;
-				{ a && b2  } -> Same<bool>&&;
+				{  a && b2 } -> Same<bool>&&;
 				{ b1 || b2 } -> Same<bool>&&;
-				{ a || b2  } -> Same<bool>&&;
+				{  a || b2 } -> Same<bool>&&;
 
 				// Requirements of Boolean that are not required by
 				// BooleanTestable.
 				{ b1 == b2 } -> ConvertibleTo<bool>&&;
 				{ b1 == a  } -> ConvertibleTo<bool>&&;
-				{ a == b2  } -> ConvertibleTo<bool>&&;
+				{  a == b2 } -> ConvertibleTo<bool>&&;
 				{ b1 != b2 } -> ConvertibleTo<bool>&&;
 				{ b1 != a  } -> ConvertibleTo<bool>&&;
-				{ a != b2  } -> ConvertibleTo<bool>&&;
+				{  a != b2 } -> ConvertibleTo<bool>&&;
 			};
 	}
 
@@ -79,8 +79,6 @@ STL2_OPEN_NAMESPACE {
 			{ t != u } -> Boolean&&;
 			{ u == t } -> Boolean&&;
 			{ u != t } -> Boolean&&;
-			// Axiom: t == u and t != u have the same definition space
-			// Axiom: bool(t != u) == !bool(t == u)
 		};
 	}
 
@@ -130,8 +128,8 @@ STL2_OPEN_NAMESPACE {
 	concept bool __totally_ordered =
 		requires(const remove_reference_t<T>& t,
 		         const remove_reference_t<U>& u) {
-			{ t < u  } -> Boolean&&;
-			{ t > u  } -> Boolean&&;
+			{ t <  u } -> Boolean&&;
+			{ t >  u } -> Boolean&&;
 			{ t <= u } -> Boolean&&;
 			{ t >= u } -> Boolean&&;
 			// Axiom: t < u, t > u, t <= u, t >= u have the same definition space.
@@ -144,6 +142,8 @@ STL2_OPEN_NAMESPACE {
 	template <class T>
 	concept bool StrictTotallyOrdered() {
 		return EqualityComparable<T>() && __totally_ordered<T, T>;
+		// Axiom: t1 == t2 and t1 < t2 have the same definition space.
+		// Axiom: bool(t <= t)
 	}
 
 	template <class T, class U>

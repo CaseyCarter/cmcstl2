@@ -232,7 +232,7 @@ STL2_OPEN_NAMESPACE {
 		concept bool ContiguousRange() {
 			return SizedRange<R>() && ContiguousIterator<iterator_t<R>>() &&
 				requires(R& r) {
-				    { __stl2::data(r) } -> Same<add_pointer_t<reference_t<iterator_t<R>>>>&&;
+					{ __stl2::data(r) } -> Same<add_pointer_t<reference_t<iterator_t<R>>>>&&;
 				};
 		}
 	}

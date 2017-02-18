@@ -27,6 +27,7 @@ STL2_OPEN_NAMESPACE {
 		requires(T& t, const remove_reference_t<T>& ct) {
 			{ &t } -> Same<remove_reference_t<T>*>&&;
 			{ &ct } -> Same<const remove_reference_t<T>*>&&;
+			// Axiom: &t == addressof(t)
 			// Axiom: &ct == addressof(ct)
 		};
 
