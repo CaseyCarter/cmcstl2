@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	// See https://github.com/ericniebler/stl2/322
 	template <class T, class U = T>
 	requires
-		models::MoveConstructible<T> && models::Assignable<T&, U>
+		MoveConstructible<T>() && Assignable<T&, U>()
 	constexpr T exchange(T& t, U&& u)
 	noexcept(is_nothrow_move_constructible<T>::value &&
 		is_nothrow_assignable<T&, U>::value)
@@ -78,8 +78,8 @@ STL2_OPEN_NAMESPACE {
 			)
 			template <class T>
 			requires
-				!has_customization<T&, T&> && models::MoveConstructible<T> &&
-				models::Assignable<T&, T&&>
+				!has_customization<T&, T&> && MoveConstructible<T>() &&
+				Assignable<T&, T&&>()
 			constexpr void operator()(T& a, T& b) const
 			STL2_NOEXCEPT_RETURN(
 				(void)(b = __stl2::exchange(a, __stl2::move(b)))

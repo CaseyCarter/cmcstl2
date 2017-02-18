@@ -157,7 +157,7 @@ STL2_OPEN_NAMESPACE {
 		// __variant::base: lowest layer of the variant implementation.
 		//
 		template <class...Ts>
-		requires(models::Destructible<element_t<Ts>> && ...)
+		requires(Destructible<element_t<Ts>>() && ...)
 		class base {
 			friend v_access;
 		protected:
@@ -434,7 +434,7 @@ STL2_OPEN_NAMESPACE {
 			destruct_base& operator=(destruct_base&&) & = default;
 			destruct_base& operator=(const destruct_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr destruct_base(Args&&... args)
@@ -449,7 +449,7 @@ STL2_OPEN_NAMESPACE {
 		class destruct_base<Ts...> : public base<Ts...> {
 			using base_t = base<Ts...>;
 		public:
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr destruct_base(Args&&... args)
@@ -472,7 +472,7 @@ STL2_OPEN_NAMESPACE {
 			move_base& operator=(move_base&&) & = default;
 			move_base& operator=(const move_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr move_base(Args&&... args)
@@ -483,7 +483,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class...Ts>
-		requires(models::MoveConstructible<element_t<Ts>> && ...)
+		requires(MoveConstructible<element_t<Ts>>() && ...)
 		class move_base<Ts...> : public destruct_base<Ts...> {
 			using base_t = destruct_base<Ts...>;
 		public:
@@ -497,7 +497,7 @@ STL2_OPEN_NAMESPACE {
 			move_base& operator=(move_base&&) & = default;
 			move_base& operator=(const move_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr move_base(Args&&... args)
@@ -509,12 +509,12 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Ts>
 		requires
-			(models::MoveConstructible<element_t<Ts>> && ...) &&
+			(MoveConstructible<element_t<Ts>>() && ...) &&
 			ext::TriviallyMoveConstructible<storage<element_t<Ts>...>>()
 		class move_base<Ts...> : public destruct_base<Ts...> {
 			using base_t = destruct_base<Ts...>;
 		public:
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr move_base(Args&&... args)
@@ -537,7 +537,7 @@ STL2_OPEN_NAMESPACE {
 			move_assign_base& operator=(move_assign_base&&) & = delete;
 			move_assign_base& operator=(const move_assign_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr move_assign_base(Args&&... args)
@@ -548,7 +548,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class...Ts>
-		requires(models::Movable<element_t<Ts>> && ...)
+		requires(Movable<element_t<Ts>>() && ...)
 		class move_assign_base<Ts...> : public move_base<Ts...> {
 			using base_t = move_base<Ts...>;
 		public:
@@ -567,7 +567,7 @@ STL2_OPEN_NAMESPACE {
 			}
 			move_assign_base& operator=(const move_assign_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr move_assign_base(Args&&... args)
@@ -579,12 +579,12 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Ts>
 		requires
-			(models::Movable<element_t<Ts>> && ...) &&
+			(Movable<element_t<Ts>>() && ...) &&
 			ext::TriviallyMovable<storage<element_t<Ts>...>>()
 		class move_assign_base<Ts...> : public move_base<Ts...> {
 			using base_t = move_base<Ts...>;
 		public:
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr move_assign_base(Args&&... args)
@@ -607,7 +607,7 @@ STL2_OPEN_NAMESPACE {
 			copy_base& operator=(copy_base&&) & = default;
 			copy_base& operator=(const copy_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr copy_base(Args&&... args)
@@ -618,7 +618,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class...Ts>
-		requires(models::CopyConstructible<element_t<Ts>> && ...)
+		requires(CopyConstructible<element_t<Ts>>() && ...)
 		class copy_base<Ts...> : public move_assign_base<Ts...> {
 			using base_t = move_assign_base<Ts...>;
 		public:
@@ -632,7 +632,7 @@ STL2_OPEN_NAMESPACE {
 			copy_base& operator=(copy_base&&) & = default;
 			copy_base& operator=(const copy_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr copy_base(Args&&... args)
@@ -644,12 +644,12 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Ts>
 		requires
-			(models::CopyConstructible<element_t<Ts>> && ...) &&
+			(CopyConstructible<element_t<Ts>>() && ...) &&
 			ext::TriviallyCopyConstructible<storage<element_t<Ts>...>>()
 		class copy_base<Ts...> : public move_assign_base<Ts...> {
 			using base_t = move_assign_base<Ts...>;
 		public:
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr copy_base(Args&&... args)
@@ -672,7 +672,7 @@ STL2_OPEN_NAMESPACE {
 			copy_assign_base& operator=(copy_assign_base&&) & = default;
 			copy_assign_base& operator=(const copy_assign_base&) & = delete;
 
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr copy_assign_base(Args&&... args)
@@ -683,7 +683,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class...Ts>
-		requires(models::Copyable<element_t<Ts>> && ...)
+		requires(Copyable<element_t<Ts>>() && ...)
 		class copy_assign_base<Ts...> : public copy_base<Ts...> {
 			using base_t = copy_base<Ts...>;
 		public:
@@ -702,7 +702,7 @@ STL2_OPEN_NAMESPACE {
 				return *this;
 			}
 
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr copy_assign_base(Args&&... args)
@@ -714,12 +714,12 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Ts>
 		requires
-			(models::Copyable<element_t<Ts>> && ...) &&
+			(Copyable<element_t<Ts>>() && ...) &&
 			ext::TriviallyCopyable<storage<element_t<Ts>...>>()
 		class copy_assign_base<Ts...> : public copy_base<Ts...> {
 			using base_t = copy_base<Ts...>;
 		public:
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 			template<class... Args>
 			requires models::Constructible<base_t, Args...>
 			constexpr copy_assign_base(Args&&... args)
@@ -735,7 +735,7 @@ STL2_OPEN_NAMESPACE {
 	// operators, and converting assignments.
 	//
 	template <class...Ts>
-	requires(models::Destructible<__variant::element_t<Ts>> && ...)
+	requires(Destructible<__variant::element_t<Ts>>() && ...)
 	class variant : public __variant::copy_assign_base<Ts...> {
 		using base_t = __variant::copy_assign_base<Ts...>;
 
@@ -776,7 +776,7 @@ STL2_OPEN_NAMESPACE {
 
 	public:
 		using types = meta::list<Ts...>;
-#if STL2_WORKAROUND_GCC_79143
+#if 0 //STL2_WORKAROUND_GCC_79143
 		template <class First>
 		requires
 			!models::Same<variant, std::decay_t<First>> &&
@@ -866,7 +866,7 @@ STL2_OPEN_NAMESPACE {
 				__variant::element_t<Ts>&, __variant::element_t<Ts>&>...>>)
 		requires
 			Movable<base_t>() && // Movable<variant>() explodes here.
-			(models::Swappable<__variant::element_t<Ts>&> && ...)
+			(Swappable<__variant::element_t<Ts>&>() && ...)
 		{
 			if (this->index_ == that.index_) {
 				if (this->valid()) {
@@ -886,7 +886,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator==(const variant& lhs, const variant& rhs)
-		requires(models::EqualityComparable<__variant::element_t<Ts>> && ...)
+		requires(EqualityComparable<__variant::element_t<Ts>>() && ...)
 		{
 			if (lhs.index_ != rhs.index_) {
 				return false;
@@ -895,13 +895,13 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator!=(const variant& lhs, const variant& rhs)
-		requires(models::EqualityComparable<__variant::element_t<Ts>> && ...)
+		requires(EqualityComparable<__variant::element_t<Ts>>() && ...)
 		{
 			return !(lhs == rhs);
 		}
 
 		friend constexpr bool operator<(const variant& lhs, const variant& rhs)
-		requires(models::StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>>() && ...)
 		{
 			if (lhs.index_ < rhs.index_) {
 				return true;
@@ -913,19 +913,19 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator>(const variant& lhs, const variant& rhs)
-		requires(models::StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>>() && ...)
 		{
 			return rhs < lhs;
 		}
 
 		friend constexpr bool operator<=(const variant& lhs, const variant& rhs)
-		requires(models::StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>>() && ...)
 		{
 			return !(rhs < lhs);
 		}
 
 		friend constexpr bool operator>=(const variant& lhs, const variant& rhs)
-		requires(models::StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>>() && ...)
 		{
 			return !(lhs < rhs);
 		}

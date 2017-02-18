@@ -24,10 +24,10 @@
 STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, class F, class S, class O>
 	requires
-		models::Same<I, __f<F>> &&
-		models::Sentinel<__f<S>, I> &&
-		models::WeaklyIncrementable<__f<O>> &&
-		models::IndirectlyCopyable<I, __f<O>>
+		Same<I, __f<F>>() &&
+		Sentinel<__f<S>, I>() &&
+		WeaklyIncrementable<__f<O>>() &&
+		IndirectlyCopyable<I, __f<O>>()
 	tagged_pair<tag::in(I), tag::out(__f<O>)>
 	rotate_copy(F&& first, I middle, S&& last, O&& out)
 	{
@@ -39,9 +39,9 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class M, class O>
 	requires
-		models::Same<iterator_t<Rng>, __f<M>> &&
-		models::WeaklyIncrementable<__f<O>> &&
-		models::IndirectlyCopyable<iterator_t<Rng>, __f<O>>
+		Same<iterator_t<Rng>, __f<M>>() &&
+		WeaklyIncrementable<__f<O>>() &&
+		IndirectlyCopyable<iterator_t<Rng>, __f<O>>()
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	rotate_copy(Rng&& rng, M&& middle, O&& result)
 	{
@@ -52,8 +52,8 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class O>
 	requires
-		models::WeaklyIncrementable<__f<O>> &&
-		models::IndirectlyCopyable<const E*, __f<O>>
+		WeaklyIncrementable<__f<O>>() &&
+		IndirectlyCopyable<const E*, __f<O>>()
 	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
 	rotate_copy(std::initializer_list<E>&& rng, const E* middle, O&& result)
 	{

@@ -22,15 +22,13 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Addressable [Extension]
 	//
-	template <class>
-	constexpr bool __addressable = false;
 	template <class T>
-		requires requires(T& t, const remove_reference_t<T>& ct) {
-			STL2_EXACT_TYPE_CONSTRAINT(&t, remove_reference_t<T>*);
-			STL2_EXACT_TYPE_CONSTRAINT(&ct, const remove_reference_t<T>*);
+	concept bool __addressable =
+		requires(T& t, const remove_reference_t<T>& ct) {
+			{ &t } -> Same<remove_reference_t<T>*>&&;
+			{ &ct } -> Same<const remove_reference_t<T>*>&&;
 			// Axiom: &ct == addressof(ct)
-		}
-	constexpr bool __addressable<T> = true;
+		};
 
 	namespace ext {
 		template <class T>

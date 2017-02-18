@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
-		models::Sortable<I, Comp, Proj>
+		Sortable<I, Comp, Proj>()
 	I sort(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(first, __stl2::move(last));
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
-		models::Sortable<I, Comp, Proj>
+		Sortable<I, Comp, Proj>()
 	I sort(I first, S sent, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		if (first == sent) {
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, Comp, Proj>
+		Sortable<iterator_t<Rng>, Comp, Proj>()
 	safe_iterator_t<Rng>
 	sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, Comp, Proj>
+		Sortable<iterator_t<Rng>, Comp, Proj>()
 	safe_iterator_t<Rng>
 	sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{

@@ -24,20 +24,15 @@ STL2_OPEN_NAMESPACE {
 	//
 	// Not to spec
 	// See https://github.com/ericniebler/stl2/issues/229
-	template <class, class>
-	constexpr bool __assignable = false;
-	template <class T, class U>
-	requires
-		requires(T& t, U&& u) {
-			STL2_EXACT_TYPE_CONSTRAINT(t = (U&&)u, T&);
-		}
-	constexpr bool __assignable<T&, U> = true;
-
 	template <class T, class U>
 	concept bool Assignable() {
 		return _Is<T, is_lvalue_reference> &&
-		    CommonReference<T, const U&>() &&
-			__assignable<T, U>;
+		    CommonReference<
+				const remove_reference_t<T>&,
+				const remove_reference_t<U>&>() &&
+			requires(T t, U&& u) {
+				{ t = (U&&)u } -> Same<T>&&;
+			};
 	}
 
 	namespace models {

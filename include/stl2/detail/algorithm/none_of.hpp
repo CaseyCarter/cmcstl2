@@ -24,8 +24,8 @@
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
-			Pred, projected<I, Proj>>
+		IndirectPredicate<
+			Pred, projected<I, Proj>>()
 	bool none_of(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		for (; first != last; ++first) {
@@ -38,8 +38,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
+		IndirectPredicate<
+			Pred, projected<iterator_t<Rng>, Proj>>()
 	bool none_of(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::none_of(__stl2::begin(rng), __stl2::end(rng),
@@ -49,8 +49,8 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
-			Pred, projected<const E*, Proj>>
+		IndirectPredicate<
+			Pred, projected<const E*, Proj>>()
 	bool none_of(std::initializer_list<E>&& rng,
 							 Pred pred, Proj proj = Proj{})
 	{

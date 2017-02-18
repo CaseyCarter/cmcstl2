@@ -35,8 +35,8 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <ForwardIterator I, class Pred, class Proj = identity>
 		requires
-			models::IndirectPredicate<
-				Pred, projected<I, Proj>>
+			IndirectPredicate<
+				Pred, projected<I, Proj>>()
 		I partition_point_n(I first, difference_type_t<I> n,
 			Pred pred, Proj proj = Proj{})
 		{
@@ -58,8 +58,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
-			Pred, projected<I, Proj>>
+		IndirectPredicate<
+			Pred, projected<I, Proj>>()
 	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		// Probe exponentially for either end-of-range or an iterator
@@ -80,9 +80,9 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
-		models::SizedSentinel<S, I> &&
-		models::IndirectPredicate<
-			Pred, projected<I, Proj>>
+		SizedSentinel<S, I>() &&
+		IndirectPredicate<
+			Pred, projected<I, Proj>>()
 	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(first, __stl2::move(last));
@@ -92,8 +92,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
+		IndirectPredicate<
+			Pred, projected<iterator_t<Rng>, Proj>>()
 	safe_iterator_t<Rng>
 	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
@@ -103,9 +103,9 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
 	requires
-		models::SizedRange<Rng> &&
-		models::IndirectPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
+		SizedRange<Rng>() &&
+		IndirectPredicate<
+			Pred, projected<iterator_t<Rng>, Proj>>()
 	safe_iterator_t<Rng>
 	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
@@ -116,8 +116,8 @@ STL2_OPEN_NAMESPACE {
 	// Extension
 	template <class E, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
-			Pred, projected<const E*, Proj>>
+		IndirectPredicate<
+			Pred, projected<const E*, Proj>>()
 	dangling<const E*>
 	partition_point(std::initializer_list<E>&& rng, Pred pred, Proj proj = Proj{})
 	{
