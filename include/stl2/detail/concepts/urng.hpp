@@ -23,8 +23,10 @@ STL2_OPEN_NAMESPACE {
 		requires(G&& g) {
 			g();
 			requires UnsignedIntegral<decltype(g())>();
-			{ G::min() } -> Same<decltype(g())>;
-			{ G::max() } -> Same<decltype(g())>;
+			{ G::min() } -> Same<decltype(g())>&&;
+			{ G::max() } -> Same<decltype(g())>&&;
+			requires (G::min(), true);
+			requires (G::max(), true);
 		};
 
 	namespace models {
@@ -35,6 +37,8 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool UniformRandomNumberGenerator<G> = true;
 	}
 
+	// Not to spec: requires G::min() and G::max() to be constant expressions
+	// See https://github.com/ericniebler/stl2/issues/334
 	template <class G>
 	concept bool UniformRandomNumberGenerator() {
 		return models::UniformRandomNumberGenerator<G>;
