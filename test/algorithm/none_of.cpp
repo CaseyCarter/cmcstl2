@@ -43,9 +43,18 @@ int main()
 	CHECK(!ranges::none_of(one_even, even));
 	CHECK(ranges::none_of(none_even, even));
 
-	CHECK(!ranges::none_of({0, 2, 4, 6}, [](int n) { return n % 2 == 0; }));
-	CHECK(!ranges::none_of({1, 3, 4, 7}, [](int n) { return n % 2 == 0; }));
-	CHECK(ranges::none_of({1, 3, 5, 7}, [](int n) { return n % 2 == 0; }));
+	{
+		auto il = {0, 2, 4, 6};
+		CHECK(!ranges::none_of(std::move(il), [](int n) { return n % 2 == 0; }));
+	}
+	{
+		auto il = {1, 3, 4, 7};
+		CHECK(!ranges::none_of(std::move(il), [](int n) { return n % 2 == 0; }));
+	}
+	{
+		auto il = {1, 3, 5, 7};
+		CHECK(ranges::none_of(std::move(il), [](int n) { return n % 2 == 0; }));
+	}
 
 	std::vector<S> all_true { true, true, true };
 	std::vector<S> one_true { false, false, true };
@@ -58,9 +67,18 @@ int main()
 	CHECK(!ranges::none_of(one_true, &S::p));
 	CHECK(ranges::none_of(none_true, &S::p));
 
-	CHECK(!ranges::none_of({S(true), S(true), S(true)}, &S::p));
-	CHECK(!ranges::none_of({S(false), S(true), S(false)}, &S::p));
-	CHECK(ranges::none_of({S(false), S(false), S(false)}, &S::p));
+	{
+		auto il = {S(true), S(true), S(true)};
+		CHECK(!ranges::none_of(std::move(il), &S::p));
+	}
+	{
+		auto il = {S(false), S(true), S(false)};
+		CHECK(!ranges::none_of(std::move(il), &S::p));
+	}
+	{
+		auto il = {S(false), S(false), S(false)};
+		CHECK(ranges::none_of(std::move(il), &S::p));
+	}
 
 	return ::test_result();
 }

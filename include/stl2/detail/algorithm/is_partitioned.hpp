@@ -44,17 +44,6 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::is_partitioned(__stl2::begin(rng), __stl2::end(rng),
 			__stl2::ref(pred), __stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class Pred, class Proj = identity>
-	requires
-		IndirectPredicate<
-			Pred, projected<const E*, Proj>>()
-	bool is_partitioned(std::initializer_list<E>&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::is_partitioned(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

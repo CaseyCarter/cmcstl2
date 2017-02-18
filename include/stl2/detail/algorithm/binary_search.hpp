@@ -45,19 +45,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::begin(rng), __stl2::end(rng), value,
 			__stl2::ref(comp), __stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class T, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, const T*, projected<const E*, Proj>>()
-	bool binary_search(std::initializer_list<E>&& rng, const T& value,
-		Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::binary_search(
-			__stl2::begin(rng), __stl2::end(rng), value,
-			__stl2::ref(comp), __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

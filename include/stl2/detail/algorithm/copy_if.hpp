@@ -56,20 +56,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::forward<O>(result), __stl2::ref(pred),
 			__stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class O, class Pred, class Proj = identity>
-	requires
-		WeaklyIncrementable<__f<O>>() &&
-		IndirectPredicate<
-			Pred, projected<const E*, Proj>>() &&
-		IndirectlyCopyable<const E*, __f<O>>()
-	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-	copy_if(std::initializer_list<E>&& rng, O&& result, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::copy_if(rng, __stl2::forward<O>(result),
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

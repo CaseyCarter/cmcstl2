@@ -48,16 +48,20 @@ int main()
 	CHECK(stl2::for_each(stl2::ext::make_range(v1.begin(), v1.end()), fun).in().get_unsafe() == v1.end());
 	CHECK(sum == 12);
 
-	sum = 0;
-	stl2::for_each({0, 2, 4, 6}, fun);
-	auto il = {0, 2, 4, 6};
-	stl2::for_each(il, fun);
-	CHECK(sum == 24);
-
-	auto result = stl2::for_each({0, 2, 4, 6}, [sum = 0](int i) mutable -> int {
-		return sum += i;
-	});
-	CHECK(result.fun()(0) == 12);
+	{
+		sum = 0;
+		auto il = {0, 2, 4, 6};
+		stl2::for_each(il, fun);
+		stl2::for_each(std::move(il), fun);
+		CHECK(sum == 24);
+	}
+	{
+		auto il = {0, 2, 4, 6};
+		auto result = stl2::for_each(std::move(il), [sum = 0](int i) mutable -> int {
+			return sum += i;
+		});
+		CHECK(result.fun()(0) == 12);
+	}
 
 	// Should compile
 	int matrix[3][4] = {};

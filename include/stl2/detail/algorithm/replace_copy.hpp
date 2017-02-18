@@ -55,23 +55,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result),
 			old_value, new_value, __stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class T1, class T2, class O, class Proj = identity>
-	requires
-		OutputIterator<__f<O>, const T2&>() &&
-		IndirectlyCopyable<const E*, __f<O>>() &&
-		IndirectRelation<
-			equal_to<>, projected<const E*, Proj>, const T1*>()
-	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-	replace_copy(std::initializer_list<E>&& rng,
-		O&& result, const T1& old_value,
-		const T2& new_value, Proj proj = Proj{})
-	{
-		return __stl2::replace_copy(
-			__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result),
-			old_value, new_value, __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

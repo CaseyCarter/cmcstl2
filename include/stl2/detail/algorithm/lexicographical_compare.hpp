@@ -56,61 +56,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::ref(proj1),
 			__stl2::ref(proj2));
 	}
-
-	// Extension
-	template <class E, InputRange Rng2, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectStrictWeakOrder<Comp,
-			projected<const E*, Proj1>,
-			projected<iterator_t<Rng2>, Proj2>>()
-	bool lexicographical_compare(std::initializer_list<E>&& rng1, Rng2&& rng2,
-		Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::lexicographical_compare(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::ref(comp),
-			__stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	// Extension
-	template <InputRange Rng1, class E, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectStrictWeakOrder<Comp,
-			projected<iterator_t<Rng1>, Proj1>,
-			projected<const E*, Proj2>>()
-	bool lexicographical_compare(Rng1&& rng1, std::initializer_list<E>&& rng2,
-		Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::lexicographical_compare(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::ref(comp),
-			__stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	// Extension
-	template <class E1, class E2, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectStrictWeakOrder<Comp,
-			projected<const E1*, Proj1>,
-			projected<const E2*, Proj2>>()
-	bool lexicographical_compare(
-		std::initializer_list<E1>&& rng1, std::initializer_list<E2>&& rng2,
-		Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::lexicographical_compare(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::ref(comp),
-			__stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

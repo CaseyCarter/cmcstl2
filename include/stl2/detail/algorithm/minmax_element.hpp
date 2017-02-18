@@ -16,7 +16,6 @@
 #ifndef STL2_DETAIL_ALGORITHM_MINMAX_ELEMENT_HPP
 #define STL2_DETAIL_ALGORITHM_MINMAX_ELEMENT_HPP
 
-#include <initializer_list>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
@@ -81,18 +80,6 @@ STL2_OPEN_NAMESPACE {
 	STL2_CONSTEXPR_EXT tagged_pair<tag::min(safe_iterator_t<Rng>),
 		tag::max(safe_iterator_t<Rng>)>
 	minmax_element(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::minmax_element(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<const E*, Proj>>()
-	STL2_CONSTEXPR_EXT tagged_pair<tag::min(dangling<const E*>), tag::max(dangling<const E*>)>
-	minmax_element(std::initializer_list<E>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::minmax_element(__stl2::begin(rng), __stl2::end(rng),
 			__stl2::ref(comp), __stl2::ref(proj));

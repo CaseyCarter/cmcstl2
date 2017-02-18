@@ -50,19 +50,6 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::is_sorted_until(__stl2::begin(rng), __stl2::end(rng),
 			__stl2::ref(comp), __stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<const E*, Proj>>()
-	dangling<const E*>
-	is_sorted_until(std::initializer_list<E>&& rng,
-		Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::is_sorted_until(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

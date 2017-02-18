@@ -69,64 +69,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::ref(comp), __stl2::ref(proj1),
 			__stl2::ref(proj2));
 	}
-
-	// Extension
-	template <class E, InputRange Rng2, class O, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		WeaklyIncrementable<__f<O>>() &&
-		Mergeable<
-			const E*, iterator_t<Rng2>,
-			__f<O>, Comp, Proj1, Proj2>()
-	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-	set_difference(std::initializer_list<E>&& rng1,
-		Rng2&& rng2, O&& result, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::set_difference(__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::ref(comp), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	// Extension
-	template <InputRange Rng1, class E, class O, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		WeaklyIncrementable<__f<O>>() &&
-		Mergeable<
-			iterator_t<Rng1>, const E*,
-			__f<O>, Comp, Proj1, Proj2>()
-	tagged_pair<tag::in(safe_iterator_t<Rng1>), tag::out(__f<O>)>
-	set_difference(Rng1&& rng1, std::initializer_list<E>&& rng2,
-								 O&& result, Comp comp = Comp{},
-								 Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::set_difference(__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::ref(comp), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	// Extension
-	template <class E1, class E2, class O, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		WeaklyIncrementable<__f<O>>() &&
-		Mergeable<
-			const E1*, const E2*,
-			__f<O>, Comp, Proj1, Proj2>()
-	tagged_pair<tag::in(dangling<const E1*>), tag::out(__f<O>)>
-	set_difference(std::initializer_list<E1>&& rng1,
-		std::initializer_list<E2>&& rng2,
-		O&& result, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::set_difference(__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::ref(comp), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

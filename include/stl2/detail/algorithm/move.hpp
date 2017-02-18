@@ -47,16 +47,6 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::move(__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result));
 	}
 
-	// Extension
-	template <class E, class O>
-	requires
-		WeaklyIncrementable<__f<O>>() &&
-		IndirectlyMovable<const E*, __f<O>>()
-	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-	move(std::initializer_list<E>&& rng, O&& result) {
-		return __stl2::move(__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result));
-	}
-
 	namespace ext {
 		// Extension
 		template <InputIterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
@@ -87,18 +77,6 @@ STL2_OPEN_NAMESPACE {
 			tag::in(safe_iterator_t<Rng1>),
 			tag::out(safe_iterator_t<Rng2>)>
 		move(Rng1&& rng1, Rng2&& rng2) {
-			return ext::move(__stl2::begin(rng1), __stl2::end(rng1),
-				__stl2::begin(rng2), __stl2::end(rng2));
-		}
-
-		// Extension
-		template <class E, Range Rng2>
-		requires
-			IndirectlyMovable<const E*, iterator_t<Rng2>>()
-		tagged_pair<
-			tag::in(dangling<const E*>),
-			tag::out(safe_iterator_t<Rng2>)>
-		move(std::initializer_list<E>&& rng1, Rng2&& rng2) {
 			return ext::move(__stl2::begin(rng1), __stl2::end(rng1),
 				__stl2::begin(rng2), __stl2::end(rng2));
 		}

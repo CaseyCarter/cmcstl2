@@ -54,8 +54,14 @@ int main()
 
 	CHECK(ranges::binary_search(ranges::ext::iota_view<int>{0}, 42));
 
-	CHECK(ranges::binary_search({0, 3, 5, 7, 9, 11, 13}, 11));
-	CHECK(!ranges::binary_search({0, 3, 5, 7, 9, 11, 13}, 8));
+	{
+		auto il = {0, 3, 5, 7, 9, 11, 13};
+		CHECK(ranges::binary_search(std::move(il), 11));
+	}
+	{
+		auto il = {0, 3, 5, 7, 9, 11, 13};
+		CHECK(!ranges::binary_search(std::move(il), 8));
+	}
 
 	return test_result();
 }

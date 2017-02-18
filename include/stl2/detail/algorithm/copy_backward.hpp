@@ -47,17 +47,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::begin(rng), __stl2::end(rng),
 			__stl2::forward<I>(result));
 	}
-
-	// Extension
-	template <class E, class I>
-	requires
-		BidirectionalIterator<__f<I>>() &&
-		IndirectlyCopyable<const E*, __f<I>>()
-	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<I>)>
-	copy_backward(std::initializer_list<E>&& rng, I&& result)
-	{
-		return __stl2::copy_backward(rng, __stl2::forward<I>(result));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

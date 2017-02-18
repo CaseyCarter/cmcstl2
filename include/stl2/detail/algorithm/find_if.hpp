@@ -12,7 +12,6 @@
 #ifndef STL2_DETAIL_ALGORITHM_FIND_IF_HPP
 #define STL2_DETAIL_ALGORITHM_FIND_IF_HPP
 
-#include <initializer_list>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -44,18 +43,6 @@ STL2_OPEN_NAMESPACE {
 	find_if(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::find_if(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class Pred, class Proj = identity>
-	requires
-		IndirectPredicate<
-			Pred, projected<const E*, Proj>>()
-	dangling<const E*>
-	find_if(std::initializer_list<E>&& il, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::find_if(il.begin(), il.end(),
 			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

@@ -43,17 +43,6 @@ STL2_OPEN_NAMESPACE {
 												__stl2::forward<O>(result));
 	}
 
-	// Extension
-	template <class E, class O>
-	requires
-		WeaklyIncrementable<__f<O>>() &&
-		IndirectlyCopyable<const E*, __f<O>>()
-	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-	copy(std::initializer_list<E>&& rng, O&& result)
-	{
-		return __stl2::copy(rng, __stl2::forward<O>(result));
-	}
-
 	// Extension: two-range copy
 	namespace ext {
 		template <InputIterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
@@ -76,15 +65,6 @@ STL2_OPEN_NAMESPACE {
 		{
 			return ext::copy(__stl2::begin(rng1), __stl2::end(rng1),
 											 __stl2::begin(rng2), __stl2::end(rng2));
-		}
-
-		template <class E, Range Rng2>
-		requires
-			IndirectlyCopyable<const E*, iterator_t<Rng2>>()
-		tagged_pair<tag::in(dangling<const E*>), tag::out(safe_iterator_t<Rng2>)>
-		copy(std::initializer_list<E>&& rng1, Rng2&& rng2)
-		{
-			return ext::copy(rng1, rng2);
 		}
 	}
 } STL2_CLOSE_NAMESPACE

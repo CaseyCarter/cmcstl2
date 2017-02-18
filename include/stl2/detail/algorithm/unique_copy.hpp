@@ -129,26 +129,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::ref(comp),
 			__stl2::ref(proj));
 	}
-
-	// Extension
-	template <class E, class O, class R = equal_to<>, class Proj = identity>
-	requires
-		WeaklyIncrementable<__f<O>>() &&
-		__unique_copy_req<const E*, __f<O>> &&
-		IndirectRelation<
-			__f<R>, projected<const E*, Proj>>()
-	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-	unique_copy(std::initializer_list<E>&& rng, O&& result, R comp = R{},
-		Proj proj = Proj{})
-	{
-		return __stl2::__unique_copy(
-			true_type{},
-			false_type{}, // Don't care.
-			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<O>(result),
-			__stl2::ref(comp),
-			__stl2::ref(proj));
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif
