@@ -81,8 +81,8 @@ int main()
 	{
 		auto l = {0, 1, 2, 2, 0, 1, 2, 3};
 		CHECK(count_if(std::move(l), equals(2)) == 3);
-   }
-   {
+		}
+		{
 		auto l = {0, 1, 2, 2, 0, 1, 2, 3};
 		CHECK(count_if(std::move(l), equals(42)) == 0);
 	}
