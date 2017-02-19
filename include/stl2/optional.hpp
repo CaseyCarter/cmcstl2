@@ -29,15 +29,20 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct nullopt_t {
-		struct secret_tag {};
-		explicit constexpr nullopt_t(secret_tag) {}
+		struct __secret_tag {};
+		explicit constexpr nullopt_t(__secret_tag) {}
 	};
+
+#if defined(__cpp_inline_variables)
+	inline constexpr nullopt_t nullopt{nullopt_t::__secret_tag{}};
+#else
 	template <class>
-	extern constexpr nullopt_t __nullopt{nullopt_t::secret_tag{}};
+	extern constexpr nullopt_t __nullopt{nullopt_t::__secret_tag{}};
 
 	namespace {
 		constexpr const nullopt_t& nullopt = __nullopt<void>;
 	}
+#endif
 
 	class bad_optional_access : public std::logic_error {
 	public:
@@ -51,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace __optional {
 		template <class = void>
-		[[noreturn]] bool bad_access() {
+		[[noreturn]] void bad_access() {
 			throw bad_optional_access{};
 		}
 

@@ -53,21 +53,18 @@ STL2_OPEN_NAMESPACE {
 		//
 		template <std::size_t I, Variant V, _IsNot<is_void> T>
 		constexpr auto&& v_access::raw_get(in_place_index_t<I> i, V&& v) noexcept {
-			STL2_EXPECT(I == v.index());
+			STL2_EXPECT(v.index() == I);
 			return st_access::raw_get(i, __stl2::forward<V>(v).storage_);
 		}
 
 		template <std::size_t I, Variant V, _IsNot<is_void> T>
 		constexpr auto&& v_access::cooked_get(in_place_index_t<I> i, V&& v) noexcept {
-			STL2_EXPECT(I == v.index());
+			STL2_EXPECT(v.index() == I);
 			return cook<T>(v_access::raw_get(i, __stl2::forward<V>(v)));
 		}
 
-		// "inline" is here for the ODR; we do not actually
-		// want bad_access to be inlined into get. Having it
-		// be a separate function results in better generated
-		// code.
-		[[noreturn]] inline bool bad_access() {
+		template <class=void>
+		[[noreturn]] void bad_access() {
 			throw bad_variant_access{};
 		}
 
@@ -86,9 +83,7 @@ STL2_OPEN_NAMESPACE {
 			_IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 		constexpr auto&& get(V&& v) {
 			STL2_EXPECT(v.valid());
-			// Odd syntax here to avoid
-			// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67371
-			v.index() == I || bad_access();
+			if (v.index() != I) bad_access();
 			return v_access::cooked_get(in_place_index<I>, __stl2::forward<V>(v));
 		}
 
