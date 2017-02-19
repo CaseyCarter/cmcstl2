@@ -85,13 +85,13 @@ STL2_OPEN_NAMESPACE {
 	template <class>
 	struct indirect_result_of {};
 
-	// Not to spec: The function type must be decayed before being constrained.
-	// See https://github.com/ericniebler/stl2/issues/238
+	// Not to spec:
+	// and https://github.com/ericniebler/stl2/issues/286
 	template <class F, class...Is>
 	requires
 		Invocable<F, reference_t<Is>...>()
 	struct indirect_result_of<F(Is...)>
-	: result_of<F(reference_t<Is>...)> {};
+	: result_of<F(reference_t<Is>&&...)> {};
 
 	template <class T>
 	using indirect_result_of_t =
