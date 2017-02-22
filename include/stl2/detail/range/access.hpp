@@ -210,7 +210,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			requires(R& r) {
 				requires Same<decltype(__stl2::begin(r)), decltype(__stl2::end(r))>();
-				make_reverse_iterator(__stl2::end(r));
+				__stl2::make_reverse_iterator(__stl2::end(r));
 			}
 		constexpr bool can_make_reverse<R> = true;
 
@@ -225,7 +225,7 @@ STL2_OPEN_NAMESPACE {
 			requires !has_member<R> && can_make_reverse<R>
 			constexpr auto operator()(R& r) const
 			STL2_NOEXCEPT_RETURN(
-				make_reverse_iterator(__stl2::end(r))
+				__stl2::make_reverse_iterator(__stl2::end(r))
 			)
 			template <class R>
 			[[deprecated]] constexpr auto operator()(const R&& r) const
@@ -258,7 +258,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			requires(R& r) {
 				requires Same<decltype(__stl2::begin(r)), decltype(__stl2::end(r))>();
-				make_reverse_iterator(__stl2::begin(r));
+				__stl2::make_reverse_iterator(__stl2::begin(r));
 			}
 		constexpr bool can_make_reverse<R> = true;
 
