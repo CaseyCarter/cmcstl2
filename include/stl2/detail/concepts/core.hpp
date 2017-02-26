@@ -81,7 +81,7 @@ STL2_OPEN_NAMESPACE {
 #else
 		return _Is<U, is_base_of, T> &&
 #endif
-			std::is_convertible<T*, U*>::value;
+			std::is_convertible<std::remove_cv_t<T>*, std::remove_cv_t<U>*>::value;
 	}
 
 	namespace models {
