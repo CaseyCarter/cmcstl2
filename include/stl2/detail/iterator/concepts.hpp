@@ -154,18 +154,16 @@ STL2_OPEN_NAMESPACE {
 	// Readable [readable.iterators]
 	// Not to spec: Disables the "Experimental additional tests"
 	// See https://github.com/ericniebler/stl2/issues/239
+	// Additional changes from P0547
 	//
 	template <class I>
 	concept bool Readable() {
-		return Movable<I>() && DefaultConstructible<I>() &&
-			requires(const I& i) {
+		return
+			requires {
 				// Associated types
 				typename value_type_t<I>;
 				typename reference_t<I>;
 				typename rvalue_reference_t<I>;
-				// Valid expressions
-				{ *i } -> auto&&;
-				{ __stl2::iter_move(i) } -> auto&&;
 			} &&
 			// Relationships between associated types
 			CommonReference<reference_t<I>, value_type_t<I>&>() &&
@@ -189,6 +187,7 @@ STL2_OPEN_NAMESPACE {
 	// Writable [iterators.writable]
 	// Not to spec, but getting closer.
 	// See https://github.com/ericniebler/stl2/issues/240
+	// Additional changes from P0547
 	//
 	template <class, class>
 	constexpr bool __writable = false;
@@ -206,8 +205,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class Out, class R>
 	concept bool Writable() {
-		return detail::Dereferenceable<Out> && Movable<Out>() &&
-			DefaultConstructible<Out>() && __writable<Out, R>;
+		return detail::Dereferenceable<Out> && __writable<Out, R>;
 	}
 
 	namespace models {
