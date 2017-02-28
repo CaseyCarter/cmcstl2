@@ -189,23 +189,16 @@ STL2_OPEN_NAMESPACE {
 	// See https://github.com/ericniebler/stl2/issues/240
 	// Additional changes from P0547
 	//
-	template <class, class>
-	constexpr bool __writable = false;
 	template <class Out, class R>
-	requires
-		requires(Out& o, R&& r) {
+	concept bool Writable() {
+		return detail::Dereferenceable<Out> && requires(Out& o, R&& r) {
 			(void)(*o = (R&&)r);
 			// Handwaving: After the assignment, the value of the element denoted
 			//             by o "corresponds" to the value originally denoted by r.
 			// Axiom: If r equals foo && Readable<Out>() &&
 			//        Same<value_type_t<Out>, ????>() then
 			//        (*o = (R&&)r, *o equals foo)
-		}
-	constexpr bool __writable<Out, R> = true;
-
-	template <class Out, class R>
-	concept bool Writable() {
-		return detail::Dereferenceable<Out> && __writable<Out, R>;
+		};
 	}
 
 	namespace models {
