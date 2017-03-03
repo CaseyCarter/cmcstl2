@@ -22,15 +22,13 @@
 
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-				 class Proj = identity,
-				 class Op = minus<>,
-				 class __Arg = projected<I, Proj>>
+		class Proj = identity,
+		IndirectRegularInvocable<projected<I, Proj>, projected<I, Proj>> Op = minus<>>
 	requires
-		models::IndirectlyCopyable<__Arg, O> &&
-		models::Writable<O, value_type_t<__Arg>> &&
-		models::Movable<value_type_t<__Arg>> &&
-		models::CopyConstructible<value_type_t<__Arg>> &&
-		models::IndirectRegularInvocable<Op, __Arg, __Arg>
+		IndirectlyCopyable<projected<I, Proj>, O>() &&
+		Writable<O, value_type_t<projected<I, Proj>>>() &&
+		Movable<value_type_t<projected<I, Proj>>>() &&
+		CopyConstructible<value_type_t<projected<I, Proj>>>()
 	tagged_pair<tag::in(I), tag::out(O)>
 	adjacent_difference(I first, S last, O result, Op op = Op{}, Proj proj = Proj{})
 	{
@@ -43,20 +41,19 @@ STL2_OPEN_NAMESPACE {
 				acc = __stl2::move(val);
 			}
 		}
-
 		return {__stl2::move(first), __stl2::move(result)};
 	}
 
 	template <InputRange Rng, WeaklyIncrementable O,
-				 class Proj = identity,
-				 class Op = minus<>,
-				 class __Arg = projected<iterator_t<Rng>, Proj>>
+		class Proj = identity,
+		IndirectRegularInvocable<
+			projected<iterator_t<Rng>, Proj>,
+			projected<iterator_t<Rng>, Proj>> Op = minus<>>
 	requires
-		models::IndirectlyCopyable<__Arg, O> &&
-		models::Writable<O, value_type_t<__Arg>> &&
-		models::Movable<value_type_t<__Arg>> &&
-		models::CopyConstructible<value_type_t<__Arg>> &&
-		models::IndirectRegularInvocable<Op, __Arg, __Arg>
+		IndirectlyCopyable<projected<iterator_t<Rng>, Proj>, O>() &&
+		Writable<O, value_type_t<projected<iterator_t<Rng>, Proj>>>() &&
+		Movable<value_type_t<projected<iterator_t<Rng>, Proj>>>() &&
+		CopyConstructible<value_type_t<projected<iterator_t<Rng>, Proj>>>()
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	adjacent_difference(Rng&& rng, O result, Op op = Op{}, Proj proj = Proj{})
 	{

@@ -1,29 +1,30 @@
 add_executable(numeric.accumulate accumulate.cpp)
 add_test(test.numeric.accumulate numeric.accumulate)
 
-add_executable(numeric.adjacent_difference adjacent_difference.cpp)
-add_test(test.numeric.adjacent_difference numeric.adjacent_difference)
+add_executable(adjacent.difference adjacent_difference.cpp)
+add_test(test.adjacent_difference adjacent.difference)
 
 #add_executable(numeric.exclusive_scan exclusive_scan.cpp)
 #add_test(test.numeric.exclusive_scan numeric.exclusive_scan)
 
-add_executable(numeric.gcd gcd.cpp)
-add_test(test.numeric.gcd numeric.gcd)
+add_executable(numeric.ops.gcd gcd.cpp)
+add_test(test.numeric.ops.gcd numeric.ops.gcd)
 
 #add_executable(numeric.inclusive_scan inclusive_scan.cpp)
 #add_test(test.numeric.inclusive_scan numeric.inclusive_scan)
 
-add_executable(numeric.inner_product inner_product.cpp)
-add_test(test.numeric.inner_product numeric.inner_product)
+add_executable(inner.product inner_product.cpp)
+target_compile_options(inner.product PRIVATE -Wno-deprecated-declarations)
+add_test(test.inner.product inner.product)
 
 add_executable(numeric.iota iota.cpp)
 add_test(test.numeric.iota numeric.iota)
 
-add_executable(numeric.lcm lcm.cpp)
-add_test(test.numeric.lcm numeric.lcm)
+add_executable(numeric.ops.lcm lcm.cpp)
+add_test(test.numeric.ops.lcm numeric.ops.lcm)
 
-add_executable(numeric.partial_sum partial_sum.cpp)
-add_test(test.numeric.partial_sum numeric.partial_sum)
+add_executable(partial.sum partial_sum.cpp)
+add_test(test.partial.sum partial.sum)
 
 # add_executable(numeric.reduce reduce.cpp)
 # add_test(test.numeric.reduce numeric.reduce)

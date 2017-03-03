@@ -22,66 +22,78 @@
 
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I1, Sentinel<I1> S, InputIterator I2, CopyConstructible T,
-				 class Proj1 = identity,
-				 class Proj2 = identity,
-				 class BinaryOp1 = plus<>,
-				 class BinaryOp2 = multiplies<>,
-				 class __Arg1 = projected<I1, Proj1>,
-				 class __Arg2 = projected<I2, Proj2>,
-				 class __Result2 = indirect_result_of_t<BinaryOp2&(__Arg1, __Arg2)>,
-				 class __Result1 = result_of_t<BinaryOp1&(T, __Result2)>>
+		class Op1 = plus<>, class Op2 = multiplies<>,
+		class Proj1 = identity, class Proj2 = identity,
+		class __X = projected<I1, Proj1>, class __Y = projected<I2, Proj2>>
+	[[deprecated]] T
+	inner_product(I1 first1, S last1, I2 first2, T init, Op1 op1 = Op1{}, Op2 op2 = Op2{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		models::Assignable<T&, const T&> &&
-		models::IndirectRegularInvocable<BinaryOp2, __Arg1, __Arg2> &&
-		models::RegularInvocable<BinaryOp1, T, __Result2> &&
-		models::Assignable<T&, __Result2>
-		//models::Number<value_type_t<__Arg1>, value_type_t<__Arg2>> &&
-		//models::Number<T, __Result2>
-	T inner_product(I1 first1, S last1, I2 first2, T init,
-						 BinaryOp1 binary_op1 = BinaryOp1{},
-						 BinaryOp2 binary_op2 = BinaryOp2{},
-						 Proj1 proj1 = Proj1{},
-						 Proj2 proj2 = Proj2{})
+		Assignable<T&, const T&>() &&
+		IndirectRegularInvocable<Op2, __X, __Y>() &&
+		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>>() &&
+		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>()
 	{
 		for (; first1 != last1; ++first1, (void)++first2) {
-			init = __stl2::invoke(binary_op1,
-										 __stl2::move(init),
-										 __stl2::invoke(binary_op2,
-															 __stl2::invoke(proj1, *first1),
-															 __stl2::invoke(proj2, *first2)));
+			init = __stl2::invoke(op1, __stl2::move(init), __stl2::invoke(op2,
+				__stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2)));
 		}
-
 		return init;
 	}
 
-	template <InputRange Rng, InputIterator I, CopyConstructible T,
-				 class Proj1 = identity,
-				 class Proj2 = identity,
-				 class BinaryOp1 = plus<>,
-				 class BinaryOp2 = multiplies<>,
-				 class __Arg1 = projected<iterator_t<Rng>, Proj1>,
-				 class __Arg2 = projected<iterator_t<Rng>, Proj2>,
-				 class __Result1 = indirect_result_of_t<BinaryOp2&(__Arg1, __Arg2)>,
-				 class __Result2 = result_of_t<BinaryOp1&(T, __Result1)>>
+	template <InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
+		CopyConstructible T,
+		class Op1 = plus<>, class Op2 = multiplies<>,
+		class Proj1 = identity, class Proj2 = identity,
+		class __X = projected<I1, Proj1>, class __Y = projected<I2, Proj2>>
 	requires
-		models::Assignable<T&, const T&> &&
-		models::IndirectRegularInvocable<BinaryOp2, __Arg1, __Arg2> &&
-		models::RegularInvocable<BinaryOp1, T, __Result2> &&
-		models::Assignable<T&, __Result2>
-		//models::Number<value_type_t<__Arg1>, value_type_t<__Arg2>> &&
-		//models::Number<T, __Result2>
-	T inner_product(Rng&& rng, I first2, T init,
-						 BinaryOp1 binary_op1 = BinaryOp1{},
-						 BinaryOp2 binary_op2 = BinaryOp2{},
-						 Proj1 proj1 = Proj1{},
-						 Proj2 proj2 = Proj2{})
+		Assignable<T&, const T&>() &&
+		IndirectRegularInvocable<Op2, __X, __Y>() &&
+		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>>() &&
+		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>()
+	T inner_product(I1 first1, S1 last1, I2 first2, S2 last2, T init, Op1 op1 = Op1{},
+		Op2 op2 = Op2{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
-		return __stl2::inner_product(__stl2::begin(rng), __stl2::end(rng), __stl2::move(first2),
-											  __stl2::move(init),
-											  __stl2::ref(binary_op1),
-											  __stl2::ref(binary_op2),
-											  __stl2::ref(proj1),
-											  __stl2::ref(proj2));
+		for (; first1 != last1 && first2 != last2; ++first1, (void)++first2) {
+			init = __stl2::invoke(op1, __stl2::move(init), __stl2::invoke(op2,
+				__stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2)));
+		}
+		return init;
+	}
+
+	template <InputRange Rng, InputIterator I2, CopyConstructible T,
+		class Op1 = plus<>, class Op2 = multiplies<>,
+		class Proj1 = identity, class Proj2 = identity,
+		class __X = projected<iterator_t<Rng>, Proj1>, class __Y = projected<I2, Proj2>>
+	[[deprecated]] T
+	inner_product(Rng&& rng, I2 first2, T init, Op1 op1 = Op1{}, Op2 op2 = Op2{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+	requires
+		Assignable<T&, const T&>() &&
+		IndirectRegularInvocable<Op2, __X, __Y>() &&
+		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>>() &&
+		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>()
+	{
+		return inner_product(__stl2::begin(rng), __stl2::end(rng), __stl2::move(first2),
+			__stl2::move(init), __stl2::ref(op1), __stl2::ref(op2),
+			__stl2::ref(proj1), __stl2::ref(proj2));
+	}
+
+	template <InputRange Rng1, InputRange Rng2, CopyConstructible T,
+		class Op1 = plus<>, class Op2 = multiplies<>,
+		class Proj1 = identity, class Proj2 = identity,
+		class __X = projected<iterator_t<Rng1>, Proj1>, class __Y = projected<iterator_t<Rng2>, Proj2>>
+	requires
+		Assignable<T&, const T&>() &&
+		IndirectRegularInvocable<Op2, __X, __Y>() &&
+		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>>() &&
+		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>()
+	T inner_product(Rng1&& rng1, Rng2&& rng2, T init, Op1 op1 = Op1{}, Op2 op2 = Op2{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+	{
+		return inner_product(__stl2::begin(rng1), __stl2::end(rng1), __stl2::begin(rng2),
+			__stl2::end(rng2), __stl2::move(init), __stl2::ref(op1), __stl2::ref(op2),
+			__stl2::ref(proj1), __stl2::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 
