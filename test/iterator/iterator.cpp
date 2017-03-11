@@ -231,6 +231,10 @@ void test_iterator_dispatch() {
 	CHECK(iterator_dispatch<int*>() == category::contiguous);
 
 	{
+		static_assert(models::Readable<int*const>);
+	}
+
+	{
 		using I = arbitrary_iterator<__stl2::input_iterator_tag, false>;
 		static_assert(models::InputIterator<I>);
 		CHECK(iterator_dispatch<I>() == category::input);

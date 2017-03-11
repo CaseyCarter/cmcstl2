@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	concept bool Movable() {
 		return _Is<T, is_object> &&
 			MoveConstructible<T>() &&
-			Assignable<T&, T&&>() &&
+			Assignable<T&, T>() &&
 			Swappable<T&>();
 	}
 
