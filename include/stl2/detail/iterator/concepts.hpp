@@ -186,8 +186,8 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Writable [iterators.writable]
 	// Not to spec, but getting closer.
-	// See https://github.com/ericniebler/stl2/issues/240
-	// Additional changes from P0547
+	// See https://github.com/ericniebler/stl2/issues/339
+	// and https://github.com/ericniebler/stl2/issues/381
 	//
 	template <class Out, class R>
 	concept bool Writable() {
@@ -198,6 +198,8 @@ STL2_OPEN_NAMESPACE {
 			// Axiom: If r equals foo && Readable<Out>() &&
 			//        Same<value_type_t<Out>, ????>() then
 			//        (*o = (R&&)r, *o equals foo)
+			(void)(const_cast<const reference_t<Out>&&>(*o) = (R&&)r);
+			// Axiom: This expression is equivalent to the previous expression.
 		};
 	}
 

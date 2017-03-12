@@ -239,6 +239,20 @@ struct proxy_wrapper {
 		return *this;
 	}
 
+	proxy_wrapper const& operator=(const T& t) const
+	noexcept(std::is_nothrow_copy_assignable<T>::value)
+	{
+		get() = t;
+		return *this;
+	}
+
+	proxy_wrapper const& operator=(T&& t) const
+	noexcept(std::is_nothrow_move_assignable<T>::value)
+	{
+		get() = stl2::move(t);
+		return *this;
+	}
+
 	operator T&() const noexcept { return get(); }
 };
 

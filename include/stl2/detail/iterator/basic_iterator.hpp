@@ -375,7 +375,7 @@ STL2_OPEN_NAMESPACE {
 				reference_t_(cur_->read())
 			)
 			template <class T>
-			constexpr void set_(T&& t)
+			constexpr void set_(T&& t) const
 			STL2_NOEXCEPT_RETURN(
 				static_cast<void>(cur_->write(static_cast<T&&>(t)))
 			)
@@ -403,6 +403,17 @@ STL2_OPEN_NAMESPACE {
 				this->set_(that.get_());
 				return *this;
 			}
+			constexpr const basic_proxy_reference& operator=(basic_proxy_reference&& that) const
+			requires cursor::Readable<Cur>()
+			{
+				return *this = that;
+			}
+			constexpr const basic_proxy_reference& operator=(const basic_proxy_reference& that) const
+			requires cursor::Readable<Cur>()
+			{
+				this->set_(that.get_());
+				return *this;
+			}
 
 			template <class OtherCur>
 			requires
@@ -423,9 +434,35 @@ STL2_OPEN_NAMESPACE {
 				this->set_(that.get_());
 				return *this;
 			}
+			template <class OtherCur>
+			requires
+				cursor::Readable<OtherCur>() &&
+				cursor::Writable<Cur, cursor::reference_t<OtherCur>>()
+			constexpr const basic_proxy_reference& operator=(
+				basic_proxy_reference<OtherCur>&& that) const
+			{
+				return *this = that;
+			}
+			template <class OtherCur>
+			requires
+				cursor::Readable<OtherCur>() &&
+				cursor::Writable<Cur, cursor::reference_t<OtherCur>>()
+			constexpr const basic_proxy_reference& operator=(
+				const basic_proxy_reference<OtherCur>& that) const
+			{
+				this->set_(that.get_());
+				return *this;
+			}
 			template <class T>
 			requires cursor::Writable<Cur, T&&>()
 			constexpr basic_proxy_reference& operator=(T&& t)
+			{
+				this->set_(static_cast<T&&>(t));
+				return *this;
+			}
+			template <class T>
+			requires cursor::Writable<Cur, T&&>()
+			constexpr const basic_proxy_reference& operator=(T&& t) const
 			{
 				this->set_(static_cast<T&&>(t));
 				return *this;
@@ -496,7 +533,11 @@ STL2_OPEN_NAMESPACE {
 						is_writable<Cur>,
 						basic_proxy_reference<Cur>,
 						cursor::reference_t<Cur>>>;
-			using const_reference_t = reference_t;
+			using const_reference_t =
+				meta::if_c<
+					is_writable<const Cur>,
+					basic_proxy_reference<const Cur>,
+					cursor::reference_t<Cur>>;
 		};
 
 		template <class C>
