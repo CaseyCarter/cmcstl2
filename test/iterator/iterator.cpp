@@ -33,13 +33,23 @@ struct reference_wrapper {
 		return *ptr_;
 	}
 
-	reference_wrapper& operator=(const T& t)
+	reference_wrapper & operator=(const T& t)
 		noexcept(std::is_nothrow_copy_assignable<T>::value) {
 		get() = t;
 		return *this;
 	}
+	reference_wrapper & operator=(T&& t)
+		noexcept(std::is_nothrow_move_assignable<T>::value) {
+		get() = __stl2::move(t);
+		return *this;
+	}
 
-	reference_wrapper& operator=(T&& t)
+	reference_wrapper const& operator=(const T& t) const
+		noexcept(std::is_nothrow_copy_assignable<T>::value) {
+		get() = t;
+		return *this;
+	}
+	reference_wrapper const& operator=(T&& t) const
 		noexcept(std::is_nothrow_move_assignable<T>::value) {
 		get() = __stl2::move(t);
 		return *this;
@@ -447,6 +457,18 @@ void test_std_traits() {
 	static_assert(models::Same<std::iterator_traits<RV>::iterator_category,
 		std::input_iterator_tag>);
 }
+
+struct MakeString {
+	using value_type = std::string;
+	std::string operator*() const;
+};
+
+static_assert(models::Readable<MakeString>);
+static_assert(!models::Writable<MakeString, std::string>);
+static_assert(!models::Writable<MakeString, const std::string &>);
+static_assert(!models::IndirectlyMovable<MakeString, MakeString>);
+static_assert(!models::IndirectlyCopyable<MakeString, MakeString>);
+static_assert(!models::IndirectlySwappable<MakeString, MakeString>);
 
 int main() {
 	test_iter_swap2();
