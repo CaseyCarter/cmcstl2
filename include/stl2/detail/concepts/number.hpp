@@ -23,79 +23,55 @@
 #include <type_traits>
 
 STL2_OPEN_NAMESPACE {
-   template <class T>
+   template <class N>
    concept bool Number() {
-      return !models::Same<bool, T> && // not a fan of these, but I dont' know a better way at
-         !models::Same<char, T> &&     // present
-         !models::Same<wchar_t, T> &&
-         !models::Same<char16_t, T> &&
-         !models::Same<char32_t, T> &&
-         models::Regular<T> &&
-         models::Copyable<T> &&
-         requires(T t, bool b) {
-            {+t} -> T;
-            {-t} -> T;
-            {t + t} -> T; // not required to be associative or commutative
-            {t - t} -> T;
-            {t * t} -> T; // not requried to be associative, commutative, or distributive
-            {t / t} -> T;
-            {t += t} -> T&;
-            {t -= t} -> T&;
-            {t *= t} -> T&;
-            {t /= t} -> T&;
-            {&t} -> Same<T*>;
-            // Constructible<T, bool> as an alternative? I think not, but commentary welcome
-            {static_cast<T>(b)} -> T;
-         };
+     return !Same<bool, N>() &&
+       !Same<char, N>() &&
+       !Same<wchar_t, N>() &&
+       !Same<char16_t, N>() &&
+       !Same<char32_t, N>() &&
+       Regular<N>() &&
+       requires(N n, const N cn) {
+         {N{0}};
+         {+cn} -> N;
+         {-cn} -> N;
+         {cn + cn} -> N; // not required to be associative or commutative
+         {cn - cn} -> N;
+         {cn * cn} -> N; // not required to be associative, commutative, or distributive
+         {cn / cn} -> N;
+         {n += cn} -> N&; // not required to be associative or commutative
+         {n -= cn} -> N&;
+         {n *= cn} -> N&; // not required to be associative, commutative, or distributive
+         {n /= cn} -> N&;
+       };
    }
 
-   namespace models {
-      template <class...>
-      constexpr bool Number = false;
-      __stl2::Number{T}
-      constexpr bool Number<T> = true;
-   }
-
-   template <class T, class U>
+   template <class N1, class N2>
    concept bool Number() {
-      return models::Number<T> &&
-         models::Number<U> &&
-         models::Common<T, U> &&
-         requires(T t, U u) {
-            {t + u} -> common_type_t<T, U>; // not required to be associative or commutative
-            {t - u} -> common_type_t<T, U>;
-            {t * u} -> common_type_t<T, U>; // not required to be associative, commutative, or distributive
-            {t / u} -> common_type_t<T, U>;
-            {u + t} -> common_type_t<U, T>; // not required to be associative or commutative
-            {u - t} -> common_type_t<U, T>;
-            {u * t} -> common_type_t<U, T>; // not required to be associative, commutative, or distributive
-            {u / t} -> common_type_t<U, T>;
-            {t = u} -> T&;
-            {t += u} -> T&;
-            {t -= u} -> T&;
-            {t *= u} -> T&;
-            {t /= u} -> T&;
-            {static_cast<T>(u)} -> T;
-         };
+     return Number<N1>() &&
+       Number<N2>() &&
+       Assignable<N1&, const N2&>() &&
+       requires(N1 n1, const N1 cn, const N2 n2) {
+         {cn + n2} -> common_type_t<N1, N2>; // not required to be associative or commutative
+         {cn - n2} -> common_type_t<N1, N2>;
+         {cn * n2} -> common_type_t<N1, N2>; // not required to be associative, commutative, or distributive
+         {cn / n2} -> common_type_t<N1, N2>;
+         {n2 + cn} -> common_type_t<N1, N2>; // not required to be associative or commutative
+         {n2 - cn} -> common_type_t<N1, N2>;
+         {n2 * cn} -> common_type_t<N1, N2>; // not required to be associative, commutative, or distributive
+         {n2 / cn} -> common_type_t<N1, N2>;
+         {n1 += n2} -> N1&;
+         {n1 -= n2} -> N1&;
+         {n1 *= n2} -> N1&;
+         {n1 /= n2} -> N1&;
+       };
    }
 
-   namespace models {
-      template <class T, class U>
-      requires __stl2::Number<T, U>()
-      constexpr bool Number<T, U> = true;
-   }
-
-   template <class A1, class A2, class A3, class... As>
+   template <class N1, class N2, class N3, class... Ns>
    concept bool Number() {
-      return models::Number<A1, A2> &&
-         models::Number<A1, A3> &&
-         Number<A1, As...>();
-   }
-
-   namespace models {
-      template <class N1, class N2, class N3, class... Ns>
-      requires __stl2::Number<N1, N2, N3, Ns...>()
-      constexpr bool Number<N1, N2, N3, Ns...> = true;
+     return Number<N1, N2>() &&
+       Number<N1, N3>() &&
+       Number<N1, Ns...>();
    }
 
    // operator+ required to be associative and commutative
@@ -104,65 +80,46 @@ STL2_OPEN_NAMESPACE {
    // Alternative names: IrregularNumber, WeakNumber, GeneralizedNumber
    //       These names would flip the meaning of Number and RegularNumber'
    // This concept is a product of reduce, transform_reduce, etc. not requiring commutivity
-   template <class... Ts>
+   template <class N>
    concept bool RegularNumber() {
-      return models::Number<Ts...>;
+     return Number<N>();
    }
 
-   namespace models {
-      template <class...>
-      constexpr bool RegularNumber = false;
-      template <class... Ts>
-         requires __stl2::RegularNumber<Ts...>()
-      constexpr bool RegularNumber<Ts...> = true;
+   template <class N1, class N2>
+   concept bool RegularNumber() {
+     return Number<N1, N2>();
    }
 
-   template <class T>
-   concept bool StrictNumber() {
-      return models::Number<T> &&
-         models::StrictTotallyOrdered<T> &&
-         requires(T t) {
-            {++t} -> T&;
-            {--t} -> T&;
-            {t++} -> T;
-            {t--} -> T;
-            // here for commentary... this is actually a problematic requirement!
-            //{static_cast<bool>(t)} -> bool;
-          };
+   template <class N1, class N2, class N3, class... Ns>
+   concept bool RegularNumber() {
+     return Number<N1, N2, N3, Ns...>();
    }
 
-   namespace models {
-      template <class...>
-      constexpr bool StrictNumber = false;
-      __stl2::StrictNumber{T}
-      constexpr bool StrictNumber<T> = true;
+   template <class N>
+   concept bool OrderedNumber() {
+     return Number<N>() &&
+       StrictTotallyOrdered<N>() &&
+       requires(N n) {
+         {++n} -> N&;
+         {--n} -> N&;
+         {n++} -> N;
+         {n--} -> N;
+       };
    }
 
-   template <class T, class U>
-   concept bool StrictNumber() {
-      return models::StrictNumber<T> &&
-         models::StrictNumber<U> &&
-         models::Number<T, U> &&
-         models::StrictTotallyOrdered<T, U>;
+   template <class N1, class N2>
+   concept bool OrderedNumber() {
+     return OrderedNumber<N1>() &&
+       OrderedNumber<N2>() &&
+       Number<N1, N2>() &&
+       StrictTotallyOrdered<N1, N2>();
    }
 
-   namespace models {
-      template <class T, class U>
-      requires __stl2::StrictNumber<T, U>()
-      constexpr bool StrictNumber<T, U> = true;
-   }
-
-   template <class A1, class A2, class A3, class... As>
-   concept bool StrictNumber() {
-      return models::StrictNumber<A1, A2> &&
-         models::StrictNumber<A1, A3> &&
-         StrictNumber<A1, As...>();
-   }
-
-   namespace models {
-      template <class N1, class N2, class N3, class... Ns>
-      requires __stl2::StrictNumber<N1, N2, N3, Ns...>()
-      constexpr bool StrictNumber<N1, N2, N3, Ns...> = true;
+   template <class N1, class N2, class N3, class... Ns>
+   concept bool OrderedNumber() {
+     return OrderedNumber<N1, N2>() &&
+       OrderedNumber<N1, N3>() &&
+       OrderedNumber<N1, Ns...>();
    }
 
    // operator+ required to be associative and commutative
@@ -171,17 +128,42 @@ STL2_OPEN_NAMESPACE {
    // Alternative names: IrregularStrictNumber, WeakStrictNumber, GeneralizedStrictNumber
    //       These names would flip the meaning of Number and RegularStrictNumber'
    // This concept is a product of reduce, transform_reduce, etc. not requiring commutivity
-   template <class... Ts>
-   concept bool RegularStrictNumber() {
-      return models::StrictNumber<Ts...>;
+   template <class N>
+   concept bool RegularOrderedNumber() {
+     return RegularNumber<N>() &&
+       OrderedNumber<N>();
    }
 
-   namespace models {
-      template <class...>
-      constexpr bool RegularStrictNumber = false;
-      template <class... Ts>
-      requires __stl2::RegularStrictNumber<Ts...>()
-      constexpr bool RegularStrictNumber<Ts...> = true;
-   } // namespace models
+   template <class N1, class N2>
+   concept bool RegularOrderedNumber() {
+     return RegularNumber<N1, N2>() &&
+       OrderedNumber<N1, N2>();
+   }
+
+   template <class N1, class N2, class N3, class... Ns>
+   concept bool RegularOrderedNumber() {
+     return RegularNumber<N1, N2, N3, Ns...>() &&
+       OrderedNumber<N1, N2, N3, Ns...>();
+   }
+
+   template <class N, class I>
+   concept bool BitwiseNumber() {
+     return UnsignedIntegral<I>() &&
+       RegularOrderedNumber<N>() &&
+       sizeof(I) <= sizeof(N) &&
+       requires(N n, const N cn, const I i) {
+         {cn & i} -> N;
+         {cn | i} -> N;
+         {cn ^ i} -> N;
+         {~cn} -> N;
+         {cn >> i} -> N;
+         {cn << i} -> N;
+         {n &= i} -> N&;
+         {n |= i} -> N&;
+         {n ^= i} -> N&;
+         {n >>= i} -> N&;
+         {n <<= i} -> N&;
+       };
+   }
 } STL2_CLOSE_NAMESPACE
 #endif // STL2_DETAIL_CONCEPTS_NUMBER_HPP

@@ -39,7 +39,7 @@ void CHECK_one()
 }
 
 template <typename T, typename U = T>
-	requires ranges::models::RegularStrictNumber<U, T>
+	requires ranges::RegularOrderedNumber<U, T>()
 void CHECK_many(const U i = U{})
 {
 	auto v = std::vector<T>{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -58,7 +58,7 @@ void CHECK_many(const std::string& i)
 {
 	using namespace std::string_literals;
 	auto l = std::list<std::string>{"hello"s, "how are you"s, "foo"s, "bar"s, "this"s, "that"s,
-											  "tit"s, "for"s, "tat"s};
+		"tit"s, "for"s, "tat"s};
 	CHECK(ranges::accumulate(l) == std::accumulate(l.cbegin(), l.cend(), i));
 }
 
@@ -67,15 +67,15 @@ using mapped_type_t = typename T::mapped_type;
 
 template <typename Container, typename Proj>
 requires
-	ranges::models::Invocable<Proj, ranges::value_type_t<Container>>
+	ranges::Invocable<Proj, ranges::value_type_t<Container>>()
 void CHECK_projection(const Container& t, const Proj& proj)
 {
 	auto a = std::accumulate(t.begin(), t.end(), mapped_type_t<Container>{},
-									 [&proj](const std::string& i, const ranges::value_type_t<Container>& j) {
-										 return std::plus<>{}(i, proj(j));
-									 });
-	CHECK(a == ranges::accumulate(t.begin(), t.end(), mapped_type_t<Container>{},
-											ranges::plus<>{}, proj));
+		[&proj](const std::string& i, const ranges::value_type_t<Container>& j) {
+			return std::plus<>{}(i, proj(j));
+		});
+	CHECK(a == ranges::accumulate(t.begin(), t.end(), mapped_type_t<Container>{}, ranges::plus<>{},
+		proj));
 	CHECK(a == ranges::accumulate(t, mapped_type_t<Container>{}, ranges::plus<>{}, proj));
 }
 
@@ -101,16 +101,11 @@ int main()
 	CHECK_many<cmcstl2::Uint128>(cmcstl2::Uint128{0xdeadbeef, 0xf00d4b0b});
 	CHECK_many<std::uint64_t, cmcstl2::Uint128>();
 
-	std::unordered_map<int, std::string> indexed_strings{{1, "hello"},
-																		  {2, "world"},
-																		  {3, "this"},
-																		  {4, "that"},
-																		  {5, "begin"},
-																		  {-34, "end"}};
-	CHECK_projection(indexed_strings,
-						  [](const ranges::value_type_t<decltype(indexed_strings)>& i) {
-							  return i.second;
-						  });
+	std::unordered_map<int, std::string> indexed_strings{{1, "hello"}, {2, "world"}, {3, "this"},
+		{4, "that"}, {5, "begin"}, {-34, "end"}};
+	CHECK_projection(indexed_strings, [](const ranges::value_type_t<decltype(indexed_strings)>& i) {
+			return i.second;
+		});
 
 	return ::test_result();
 }
