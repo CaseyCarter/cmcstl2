@@ -166,9 +166,9 @@ STL2_OPEN_NAMESPACE {
 				typename rvalue_reference_t<I>;
 			} &&
 			// Relationships between associated types
-			CommonReference<reference_t<I>, value_type_t<I>&>() &&
-			CommonReference<reference_t<I>, rvalue_reference_t<I>>() &&
-			CommonReference<rvalue_reference_t<I>, const value_type_t<I>&>();
+			CommonReference<reference_t<I>&&, value_type_t<I>&>() &&
+			CommonReference<reference_t<I>&&, rvalue_reference_t<I>&&>() &&
+			CommonReference<rvalue_reference_t<I>&&, const value_type_t<I>&>();
 	}
 
 	namespace models {

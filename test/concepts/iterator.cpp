@@ -198,6 +198,14 @@ namespace readable_test {
 	CONCEPT_ASSERT(models::Readable<const int*>);
 	CONCEPT_ASSERT(models::Readable<A>);
 	CONCEPT_ASSERT(models::Same<ns::value_type_t<A>,int>);
+
+	struct MoveOnlyReadable
+	{
+		using value_type = std::unique_ptr<int>;
+		value_type operator*() const;
+	};
+
+	CONCEPT_ASSERT(models::Readable<MoveOnlyReadable>);
 }
 
 namespace writable_test {
