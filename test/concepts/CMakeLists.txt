@@ -1,22 +1,20 @@
+# cmcstl2 - A concept-enabled C++ standard library
+#
+#  Copyright Casey Carter 2015, 2017
+#
+#  Use, modification and distribution is subject to the
+#  Boost Software License, Version 1.0. (See accompanying
+#  file LICENSE_1_0.txt or copy at
+#  http://www.boost.org/LICENSE_1_0.txt)
+#
+# Project home: https://github.com/caseycarter/cmcstl2
+#
 include("../concept_select.txt")
 
-add_executable(concepts.core core.cpp)
-add_test(test.concepts.core concepts.core)
-
-add_executable(concepts.compare compare.cpp)
-add_test(test.concepts.compare concepts.compare)
-
-add_executable(concepts.fundamental fundamental.cpp)
-add_test(test.concepts.fundamental concepts.fundamental)
-
-add_executable(concepts.iterator iterator.cpp)
-add_test(test.concepts.iterator concepts.iterator)
-
-add_executable(concepts.object object.cpp)
-add_test(test.concepts.object concepts.object)
-
-add_executable(concepts.range range.cpp)
-add_test(test.concepts.range concepts.range)
-
-add_executable(concepts.swap swap.cpp)
-add_test(test.concepts.swap concepts.swap)
+add_stl2_test(test.concepts.core concepts.core core.cpp)
+add_stl2_test(test.concepts.compare concepts.compare compare.cpp)
+add_stl2_test(test.concepts.fundamental concepts.fundamental fundamental.cpp)
+add_stl2_test(test.concepts.iterator concepts.iterator iterator.cpp)
+add_stl2_test(test.concepts.object concepts.object object.cpp)
+add_stl2_test(test.concepts.range concepts.range range.cpp)
+add_stl2_test(test.concepts.swap concepts.swap swap.cpp)

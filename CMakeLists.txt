@@ -1,7 +1,7 @@
 # cmcstl2 - A concept-enabled C++ standard library
 #
 #  Copyright Eric Niebler 2015
-#  Copyright Casey Carter 2015
+#  Copyright Casey Carter 2015, 2017
 #
 #  Use, modification and distribution is subject to the
 #  Boost Software License, Version 1.0. (See accompanying
@@ -10,33 +10,23 @@
 #
 # Project home: https://github.com/caseycarter/cmcstl2
 #
-# "Adapted" from Range-v3's top-level CMakeLists.txt
-#
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.8)
 
-project(CMCSTL2 CXX)
+project(cmcstl2 CXX)
 
-enable_testing()
-include(CTest)
+add_library(stl2 INTERFACE)
+target_include_directories(stl2 INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
+target_compile_features(stl2 INTERFACE cxx_std_17)
+target_compile_options(stl2 INTERFACE
+    $<$<CXX_COMPILER_ID:GNU>:-fconcepts>)
 
-find_program(MEMORYCHECK_COMMAND valgrind)
-if(MEMORYCHECK_COMMAND-NOTFOUND)
-  message("[W] Valgrind not found")
-else()
-  message("Valgrind: ${MEMORYCHECK_COMMAND}")
-  set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
-endif()
-
-include_directories(include)
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -fconcepts -ftemplate-backtrace-limit=0")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Werror -march=native")
-  set(CMAKE_CXX_FLAGS_DEBUG "-O0 -fno-inline -g3 -fstack-protector-all")
-  set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -g0 -DNDEBUG")
-endif()
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    DESTINATION include)
+install(TARGETS stl2 EXPORT cmcstl2)
+install(EXPORT cmcstl2 DESTINATION cmcstl2)
 
 add_subdirectory(examples)
 add_subdirectory(test)
-
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION include)
