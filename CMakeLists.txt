@@ -29,4 +29,7 @@ install(TARGETS stl2 EXPORT cmcstl2)
 install(EXPORT cmcstl2 DESTINATION cmcstl2)
 
 add_subdirectory(examples)
+
+enable_testing()
+include(CTest)
 add_subdirectory(test)

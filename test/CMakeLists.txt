@@ -9,8 +9,6 @@
 #
 # Project home: https://github.com/caseycarter/cmcstl2
 #
-enable_testing()
-include(CTest)
 
 add_library(stl2_test_config INTERFACE)
 target_link_libraries(stl2_test_config INTERFACE stl2)
@@ -27,17 +25,13 @@ function(add_stl2_test TESTNAME EXENAME SOURCES...)
   add_test(${TESTNAME} ${EXENAME})
 endfunction(add_stl2_test)
 
-function(add_simple_stl2_test NAME)
-  add_stl2_test(test.${NAME} ${NAME} ${NAME}.cpp)
-endfunction(add_simple_stl2_test)
-
-add_simple_stl2_test(headers)
-add_simple_stl2_test(range_access)
-add_simple_stl2_test(tagged)
-add_simple_stl2_test(common)
-add_simple_stl2_test(variant)
-add_simple_stl2_test(meta)
-add_simple_stl2_test(optional)
+add_stl2_test(test.headers headers headers.cpp)
+add_stl2_test(test.range_access range_access range_access.cpp)
+add_stl2_test(test.tagged tagged tagged.cpp)
+add_stl2_test(test.common common common.cpp)
+add_stl2_test(test.variant variant variant.cpp)
+add_stl2_test(test.meta meta meta.cpp)
+add_stl2_test(test.optional optional optional.cpp)
 
 add_subdirectory(concepts)
 add_subdirectory(detail)
