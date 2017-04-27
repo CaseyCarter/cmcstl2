@@ -9,8 +9,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_ALGORITHM_REMOVE_HPP
-#define STL2_DETAIL_ALGORITHM_REMOVE_HPP
+#ifndef STL2_DETAIL_ALGORITHM_REMOVE_IF_HPP
+#define STL2_DETAIL_ALGORITHM_REMOVE_IF_HPP
 
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
