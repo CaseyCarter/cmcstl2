@@ -40,16 +40,6 @@
  #endif
 #endif
 
-#ifndef STL2_WORKAROUND_GCC_79143
- #if defined(__GNUC__) && __GNUC__ >= 7
-  // Inheriting constructors don't work with list initialization in GCC 7.
-  // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79143
-  #define STL2_WORKAROUND_GCC_79143 1
- #else
-  #define STL2_WORKAROUND_GCC_79143 0
- #endif
-#endif
-
 #ifndef STL2_WORKAROUND_GCC_79591
  #if defined(__GNUC__) && __GNUC__ >= 6
   // Overloading function template declarations that differ only in their

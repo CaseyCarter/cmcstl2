@@ -126,18 +126,7 @@ STL2_OPEN_NAMESPACE {
 				mixin(istream_type& s) noexcept
 				: base_t{cursor{s}}
 				{}
-#if STL2_WORKAROUND_GCC_79143
-				constexpr explicit mixin(const cursor& c)
-				noexcept(std::is_nothrow_copy_constructible<cursor>::value)
-				: base_t{c}
-				{}
-				constexpr explicit mixin(cursor&& c)
-				noexcept(std::is_nothrow_move_constructible<cursor>::value)
-				: base_t{std::move(c)}
-				{}
-#else  // STL2_WORKAROUND_GCC_79143
 				using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 
 				// Yuck. This can't be simply "basic_iterator<cursor>".
 				// Since basic_iterator<cursor> derives from mixin, mixin must be

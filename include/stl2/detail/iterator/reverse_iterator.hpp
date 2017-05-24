@@ -59,18 +59,7 @@ STL2_OPEN_NAMESPACE {
 				noexcept(std::is_nothrow_move_constructible<I>::value)
 				: base_t{cursor{std::move(x)}}
 				{}
-#if STL2_WORKAROUND_GCC_79143
-				constexpr explicit mixin(const cursor& c)
-				noexcept(std::is_nothrow_copy_constructible<cursor>::value)
-				: base_t{c}
-				{}
-				constexpr explicit mixin(cursor&& c)
-				noexcept(std::is_nothrow_move_constructible<cursor>::value)
-				: base_t{std::move(c)}
-				{}
-#else  // STL2_WORKAROUND_GCC_79143
 				using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 
 				constexpr I base() const
 				noexcept(is_nothrow_copy_constructible<I>::value)

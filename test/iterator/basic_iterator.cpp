@@ -41,20 +41,7 @@ class forward_list {
 
 		struct mixin : protected stl2::basic_mixin<cursor> {
 			mixin() = default;
-#if STL2_WORKAROUND_GCC_79143
-		private:
-			using base_t = stl2::basic_mixin<cursor>;
-		public:
-			template <class First, class... Rest>
-			requires
-				!stl2::Same<mixin, std::decay_t<First>>() &&
-				stl2::Constructible<base_t, First, Rest...>()
-			constexpr mixin(First&& f, Rest&&...r)
-			noexcept(std::is_nothrow_constructible<base_t, First, Rest...>::value)
-			: base_t(std::forward<First>(f), std::forward<Rest>(r)...) {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using stl2::basic_mixin<cursor>::basic_mixin;
-#endif // STL2_WORKAROUND_GCC_79143
 			constexpr mixin(stl2::default_sentinel) noexcept
 			: mixin{cursor{}}
 			{}
@@ -122,18 +109,7 @@ public:
 		constexpr mixin(T* ptr) noexcept
 		: base_t{pointer_cursor{ptr}}
 		{}
-#if STL2_WORKAROUND_GCC_79143
-		constexpr explicit mixin(const pointer_cursor& c)
-		noexcept(std::is_nothrow_copy_constructible<pointer_cursor>::value)
-		: base_t{c}
-		{}
-		constexpr explicit mixin(pointer_cursor&& c)
-		noexcept(std::is_nothrow_move_constructible<pointer_cursor>::value)
-		: base_t{std::move(c)}
-		{}
-#else  // STL2_WORKAROUND_GCC_79143
 		using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 	};
 
 	pointer_cursor() = default;

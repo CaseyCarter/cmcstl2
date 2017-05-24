@@ -64,18 +64,7 @@ STL2_OPEN_NAMESPACE {
 				constexpr mixin(default_sentinel)
 				: base_t{}
 				{}
-#if STL2_WORKAROUND_GCC_79143
-				constexpr explicit mixin(const istream_cursor& c)
-				noexcept(std::is_nothrow_copy_constructible<istream_cursor>::value)
-				: base_t{c}
-				{}
-				constexpr explicit mixin(istream_cursor&& c)
-				noexcept(std::is_nothrow_move_constructible<istream_cursor>::value)
-				: base_t{std::move(c)}
-				{}
-#else  // STL2_WORKAROUND_GCC_79143
 				using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 			};
 
 			constexpr istream_cursor()

@@ -188,13 +188,12 @@ STL2_OPEN_NAMESPACE {
 				InputIterator{I} explicit mixin(I i)
 				: base_t(cursor{std::move(i)})
 				{}
-#if STL2_WORKAROUND_GCC_79143
+				using base_t::base_t;
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 7
 				explicit mixin(cursor c)
 				: base_t(std::move(c))
 				{}
-#else  // STL2_WORKAROUND_GCC_79143
-				using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
+#endif // unknown gcc7 bug
 			};
 
 			cursor() = default;
