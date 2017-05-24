@@ -23,3 +23,5 @@ add_stl2_test(test.iterator.ostreambuf ostreambuf_iterator ostreambuf_iterator.c
 add_stl2_test(test.iterator.make_range make_range make_range.cpp)
 add_stl2_test(test.iterator.incomplete iter.incomplete incomplete.cpp)
 add_stl2_test(test.iterator.operations iter.operations operations.cpp)
+# any_iterator disabled (See https://github.com/CaseyCarter/cmcstl2/issues/63)
+# add_stl2_test(test.iterator.any iter.any any_iterator.cpp)
