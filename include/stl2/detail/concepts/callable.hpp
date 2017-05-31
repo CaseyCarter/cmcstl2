@@ -194,7 +194,14 @@ STL2_OPEN_NAMESPACE {
 
 	template <class F, class I1, class I2 = I1>
 	concept bool IndirectStrictWeakOrder =
-		IndirectRelation<F, I1, I2>;
+		Readable<I1> &&
+		Readable<I2> &&
+		CopyConstructible<F> &&
+		StrictWeakOrder<F&, value_type_t<I1>&, value_type_t<I2>&> &&
+		StrictWeakOrder<F&, value_type_t<I1>&, reference_t<I2>> &&
+		StrictWeakOrder<F&, reference_t<I1>, value_type_t<I2>&> &&
+		StrictWeakOrder<F&, reference_t<I1>, reference_t<I2>> &&
+		StrictWeakOrder<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
 	namespace models {
 		template <class F, class I1, class I2 = I1>
