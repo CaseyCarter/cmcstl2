@@ -124,26 +124,26 @@ STL2_OPEN_NAMESPACE {
 #endif // STL2_WORKAROUND_GCC_69096
 			constexpr auto post_increment()
 			noexcept(noexcept(__proxy<__postinc_t>{current_++}))
-			requires !ForwardIterator<I>() && Readable<__postinc_t>() {
+			requires !ForwardIterator<I> && Readable<__postinc_t> {
 				return __proxy<__postinc_t>{current_++};
 			}
 
 			constexpr void prev()
 			noexcept(noexcept(--current_))
-			requires BidirectionalIterator<I>()
+			requires BidirectionalIterator<I>
 			{
 				--current_;
 			}
 
 			constexpr void advance(difference_type_t<I> n)
 			noexcept(noexcept(current_ += n))
-			requires RandomAccessIterator<I>()
+			requires RandomAccessIterator<I>
 			{
 				current_ += n;
 			}
 
 			constexpr bool equal(
-				const cursor<EqualityComparable<I> >& that) const
+				const cursor<EqualityComparableWith<I> >& that) const
 			STL2_NOEXCEPT_RETURN(
 				current_ == access::current(that)
 			)
@@ -194,7 +194,7 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	// Not to spec: constexpr per P0579
-	StrictTotallyOrdered{I1, I2}
+	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool
 	operator<(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
@@ -203,7 +203,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	// Not to spec: constexpr per P0579
-	StrictTotallyOrdered{I1, I2}
+	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool
 	operator>(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
@@ -211,7 +211,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	// Not to spec: constexpr per P0579
-	StrictTotallyOrdered{I1, I2}
+	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool
 	operator<=(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
@@ -219,7 +219,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	// Not to spec: constexpr per P0579
-	StrictTotallyOrdered{I1, I2}
+	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool
 	operator>=(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
@@ -229,7 +229,7 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec: constexpr per P0579
 	template <class I>
 	requires
-		InputIterator<__f<I>>()
+		InputIterator<__f<I>>
 	constexpr auto make_move_iterator(I&& i)
 	STL2_NOEXCEPT_RETURN(
 		move_iterator<__f<I>>{__stl2::forward<I>(i)}
@@ -271,7 +271,7 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec: constexpr per P0579
 	template <class S>
 	requires
-		Semiregular<__f<S>>()
+		Semiregular<__f<S>>
 	constexpr auto make_move_sentinel(S&& s)
 	STL2_NOEXCEPT_RETURN(
 		move_sentinel<__f<S>>(__stl2::forward<S>(s))

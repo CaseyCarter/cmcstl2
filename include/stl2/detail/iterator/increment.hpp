@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 			requires(const T& a, const T& b) {
 				// Avoid gcc ICE (TODO file bug):
 				a - b;
-				requires Integral<decltype(a - b)>();
+				requires Integral<decltype(a - b)>;
 			 	// { a - b } -> Integral;
 			}
 	struct difference_type<T>
@@ -70,14 +70,13 @@ STL2_OPEN_NAMESPACE {
 	// WeaklyIncrementable [weaklyincrementable.iterators]
 	//
 	template <class I>
-	concept bool WeaklyIncrementable() {
-		return Semiregular<I>() &&
-			requires(I& i) {
-				typename difference_type_t<I>;
-				{ ++i } -> Same<I&>&&;
-				i++;
-			};
-	}
+	concept bool WeaklyIncrementable =
+		Semiregular<I> &&
+		requires(I& i) {
+			typename difference_type_t<I>;
+			{ ++i } -> Same<I&>&&;
+			i++;
+		};
 
 	namespace models {
 		template <class>
@@ -90,13 +89,12 @@ STL2_OPEN_NAMESPACE {
 	// Incrementable [incrementable.iterators]
 	//
 	template <class I>
-	concept bool Incrementable() {
-		return WeaklyIncrementable<I>() &&
-			EqualityComparable<I>() &&
-			requires(I& i) {
-				{ i++ } -> Same<I>&&;
-			};
-	}
+	concept bool Incrementable =
+		WeaklyIncrementable<I> &&
+		EqualityComparable<I> &&
+		requires(I& i) {
+			{ i++ } -> Same<I>&&;
+		};
 
 	namespace models {
 		template <class>
@@ -110,8 +108,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	namespace ext {
 		template <class I>
-		concept bool Decrementable() {
-			return Incrementable<I>() &&
+		concept bool Decrementable =
+			Incrementable<I> &&
 			requires(I& i) {
 				{ --i } -> Same<I&>&&;
 				{ i-- } -> Same<I>&&;
@@ -122,7 +120,6 @@ STL2_OPEN_NAMESPACE {
 			// Axiom: bool(a == b) implies bool((a--, a) == --b)
 			// Axiom: bool(a == b) implies bool(--(++a) == b)
 			// Axiom: bool(a == b) implies bool(++(--a) == b)
-		}
 	}
 
 	namespace models {
@@ -137,18 +134,17 @@ STL2_OPEN_NAMESPACE {
 	//
 	namespace ext {
 		template <class I>
-		concept bool RandomAccessIncrementable() {
-			return Decrementable<I>() &&
-				requires(I& i, const I& ci, const difference_type_t<I> n) {
-					{ i += n } -> Same<I&>&&;
-					{ i -= n } -> Same<I&>&&;
-					{ ci + n } -> Same<I>&&;
-					{ n + ci } -> Same<I>&&;
-					{ ci - n } -> Same<I>&&;
-					{ ci - ci } -> difference_type_t<I>;
-				};
+		concept bool RandomAccessIncrementable =
+			Decrementable<I> &&
+			requires(I& i, const I& ci, const difference_type_t<I> n) {
+				{ i += n } -> Same<I&>&&;
+				{ i -= n } -> Same<I&>&&;
+				{ ci + n } -> Same<I>&&;
+				{ n + ci } -> Same<I>&&;
+				{ ci - n } -> Same<I>&&;
+				{ ci - ci } -> difference_type_t<I>;
+			};
 			// FIXME: Axioms
-		}
 	}
 
 	namespace models {

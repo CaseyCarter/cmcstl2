@@ -83,48 +83,48 @@ STL2_OPEN_NAMESPACE {
 			--cnt();
 			return current()++;
 		}
-		constexpr counted_iterator operator++(int) requires ForwardIterator<I>() {
+		constexpr counted_iterator operator++(int) requires ForwardIterator<I> {
 			STL2_EXPECT(cnt() > 0);
 			auto tmp(*this);
 			++*this;
 			return tmp;
 		}
-		constexpr counted_iterator& operator--() requires BidirectionalIterator<I>() {
+		constexpr counted_iterator& operator--() requires BidirectionalIterator<I> {
 			--current();
 			++cnt();
 			return *this;
 		}
-		constexpr counted_iterator operator--(int) requires BidirectionalIterator<I>() {
+		constexpr counted_iterator operator--(int) requires BidirectionalIterator<I> {
 			auto tmp(*this);
 			--*this;
 			return tmp;
 		}
 		constexpr counted_iterator operator+(difference_type n) const
-			requires RandomAccessIterator<I>() {
+			requires RandomAccessIterator<I> {
 			STL2_EXPECT(n <= cnt());
 			return counted_iterator(current() + n, cnt() - n);
 		}
 		constexpr counted_iterator& operator+=(difference_type n)
-			requires RandomAccessIterator<I>() {
+			requires RandomAccessIterator<I> {
 			STL2_EXPECT(n <= cnt());
 			current() += n;
 			cnt() -= n;
 			return *this;
 		}
 		constexpr counted_iterator operator- (difference_type n) const
-			requires RandomAccessIterator<I>() {
+			requires RandomAccessIterator<I> {
 			STL2_EXPECT(-n <= cnt());
 			return counted_iterator(current() - n, cnt() + n);
 		}
 		constexpr counted_iterator& operator-=(difference_type n)
-			requires RandomAccessIterator<I>() {
+			requires RandomAccessIterator<I> {
 			STL2_EXPECT(-n <= cnt());
 			current() -= n;
 			cnt() += n;
 			return *this;
 		}
 		constexpr decltype(auto) operator[](difference_type n) const
-			requires RandomAccessIterator<I>() {
+			requires RandomAccessIterator<I> {
 			STL2_EXPECT(n <= cnt());
 			return current()[n];
 		}
@@ -134,7 +134,7 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr rvalue_reference_t<I>
 		iter_move(const counted_iterator& i)
 			noexcept(noexcept(__stl2::iter_move(i.current())))
-			requires InputIterator<I>() {
+			requires InputIterator<I> {
 			return __stl2::iter_move(i.current());
 		}
 		template <IndirectlySwappable<I> I2>
@@ -156,7 +156,7 @@ STL2_OPEN_NAMESPACE {
 
 	// Not to spec: All operators constexpr per P0579
 	template <class I1, class I2>
-		requires Common<I1, I2>()
+		requires Common<I1, I2>
 	constexpr bool operator==(
 		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return x.count() == y.count();
@@ -170,7 +170,7 @@ STL2_OPEN_NAMESPACE {
 		return x.count() == 0;
 	}
 	template <class I1, class I2>
-		requires Common<I1, I2>()
+		requires Common<I1, I2>
 	constexpr bool operator!=(
 		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return !(x == y);
@@ -184,31 +184,31 @@ STL2_OPEN_NAMESPACE {
 		return !(x == y);
 	}
 	template <class I1, class I2>
-		requires Common<I1, I2>()
+		requires Common<I1, I2>
 	constexpr bool operator<(
 		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return y.count() < x.count();
 	}
 	template <class I1, class I2>
-		requires Common<I1, I2>()
+		requires Common<I1, I2>
 	constexpr bool operator<=(
 		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return !(y < x);
 	}
 	template <class I1, class I2>
-		requires Common<I1, I2>()
+		requires Common<I1, I2>
 	constexpr bool operator>(
 		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return y < x;
 	}
 	template <class I1, class I2>
-		requires Common<I1, I2>()
+		requires Common<I1, I2>
 	constexpr bool operator>=(
 		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return !(x < y);
 	}
 	template <class I1, class I2>
-		requires Common<I1, I2>()
+		requires Common<I1, I2>
 	constexpr difference_type_t<I2> operator-(
 		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return y.count() - x.count();

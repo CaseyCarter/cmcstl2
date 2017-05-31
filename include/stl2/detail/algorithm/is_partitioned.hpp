@@ -25,8 +25,8 @@
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
-		IndirectPredicate<
-			Pred, projected<I, Proj>>()
+		IndirectUnaryPredicate<
+			Pred, projected<I, Proj>>
 	bool is_partitioned(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		first = __stl2::find_if_not(__stl2::move(first), last,
@@ -37,8 +37,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class Pred, class Proj = identity>
 	requires
-		IndirectPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>()
+		IndirectUnaryPredicate<
+			Pred, projected<iterator_t<Rng>, Proj>>
 	bool is_partitioned(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::is_partitioned(__stl2::begin(rng), __stl2::end(rng),

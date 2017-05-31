@@ -99,13 +99,13 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr void advance(difference_type_t<I> n)
 			noexcept(noexcept(current_ -= n))
-			requires RandomAccessIterator<I>()
+			requires RandomAccessIterator<I>
 			{
 				current_ -= n;
 			}
 
 			constexpr bool equal(
-				const cursor<EqualityComparable<I> >& that) const
+				const cursor<EqualityComparableWith<I> >& that) const
 			STL2_NOEXCEPT_RETURN(
 				current_ == access::current(that)
 			)
@@ -140,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 	using reverse_iterator = basic_iterator<__reverse_iterator::cursor<I>>;
 
 	// Not to spec: constexpr per P0579
-	StrictTotallyOrdered{I1, I2}
+	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool operator<(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
 	STL2_NOEXCEPT_RETURN(
@@ -149,7 +149,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	// Not to spec: constexpr per P0579
-	StrictTotallyOrdered{I1, I2}
+	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool operator>(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
 	STL2_NOEXCEPT_RETURN(
@@ -157,7 +157,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	// Not to spec: constexpr per P0579
-	StrictTotallyOrdered{I1, I2}
+	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool operator<=(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
 	STL2_NOEXCEPT_RETURN(
@@ -165,7 +165,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	// Not to spec: constexpr per P0579
-	StrictTotallyOrdered{I1, I2}
+	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool operator>=(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
 	STL2_NOEXCEPT_RETURN(
@@ -174,7 +174,7 @@ STL2_OPEN_NAMESPACE {
 
 	// Not to spec: constexpr per P0579
 	template <class I>
-	requires BidirectionalIterator<__f<I>>()
+	requires BidirectionalIterator<__f<I>>
 	constexpr auto make_reverse_iterator(I&& i)
 	STL2_NOEXCEPT_RETURN(
 		reverse_iterator<__f<I>>{__stl2::forward<I>(i)}

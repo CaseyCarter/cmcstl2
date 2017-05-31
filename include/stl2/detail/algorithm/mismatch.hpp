@@ -29,9 +29,9 @@ STL2_OPEN_NAMESPACE {
 	mismatch(I1 first1, S1 last1, I2 first2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		IndirectPredicate<Pred,
+		IndirectBinaryPredicate<Pred,
 			projected<I1, Proj1>,
-			projected<I2, Proj2>>()
+			projected<I2, Proj2>>
 	{
 		for (; first1 != last1; ++first1, ++first2) {
 			if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
@@ -45,8 +45,8 @@ STL2_OPEN_NAMESPACE {
 		InputIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		IndirectPredicate<
-			Pred, projected<I1, Proj1>, projected<I2, Proj2>>()
+		IndirectBinaryPredicate<
+			Pred, projected<I1, Proj1>, projected<I2, Proj2>>
 	tagged_pair<tag::in1(I1), tag::in2(I2)>
 	mismatch(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
@@ -67,10 +67,10 @@ STL2_OPEN_NAMESPACE {
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
 		!is_array<remove_reference_t<I2>>::value &&
-		InputIterator<__f<I2>>() &&
-		IndirectPredicate<Pred,
+		InputIterator<__f<I2>> &&
+		IndirectBinaryPredicate<Pred,
 			projected<iterator_t<Rng1>, Proj1>,
-			projected<__f<I2>, Proj2>>()
+			projected<__f<I2>, Proj2>>
 	{
 		auto first2 = std::forward<I2>(first2_);
 		return __stl2::mismatch(
@@ -82,9 +82,9 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, InputRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		IndirectPredicate<Pred,
+		IndirectBinaryPredicate<Pred,
 			projected<iterator_t<Rng1>, Proj1>,
-			projected<iterator_t<Rng2>, Proj2>>()
+			projected<iterator_t<Rng2>, Proj2>>
 	tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::in2(safe_iterator_t<Rng2>)>
 	mismatch(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})

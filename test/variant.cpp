@@ -992,28 +992,26 @@ void test_pointer_get() {
 }
 
 template <class T, std::size_t I, class...Args>
-concept bool Emplaceable() {
-	return requires(T& t, Args&&...args) {
+concept bool EmplaceableIndex =
+	requires(T& t, Args&&...args) {
 		t.template emplace<I>((Args&&)args...);
 	};
-}
 
 template <class, std::size_t, class...>
 constexpr bool emplaceable() { return false; }
-Emplaceable{T, I, ...Args}
+EmplaceableIndex{T, I, ...Args}
 constexpr bool emplaceable() { return true; }
 
 template <class T, class U, class...Args>
-concept bool Emplaceable() {
-	return requires(T& t, Args&&...args) {
+concept bool EmplaceableType =
+	requires(T& t, Args&&...args) {
 		t.template emplace<U>((Args&&)args...);
 	};
-}
 
 template <class, class, class...>
 constexpr bool emplaceable() { return false; }
 template <class T, class U, class...Args>
-	requires Emplaceable<T, U, Args...>()
+	requires EmplaceableType<T, U, Args...>
 constexpr bool emplaceable() { return true; }
 
 void test_emplace() {

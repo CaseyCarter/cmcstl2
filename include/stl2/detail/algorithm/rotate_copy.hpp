@@ -24,10 +24,10 @@
 STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, class F, class S, class O>
 	requires
-		Same<I, __f<F>>() &&
-		Sentinel<__f<S>, I>() &&
-		WeaklyIncrementable<__f<O>>() &&
-		IndirectlyCopyable<I, __f<O>>()
+		Same<I, __f<F>> &&
+		Sentinel<__f<S>, I> &&
+		WeaklyIncrementable<__f<O>> &&
+		IndirectlyCopyable<I, __f<O>>
 	tagged_pair<tag::in(I), tag::out(__f<O>)>
 	rotate_copy(F&& first, I middle, S&& last, O&& out)
 	{
@@ -39,9 +39,9 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class M, class O>
 	requires
-		Same<iterator_t<Rng>, __f<M>>() &&
-		WeaklyIncrementable<__f<O>>() &&
-		IndirectlyCopyable<iterator_t<Rng>, __f<O>>()
+		Same<iterator_t<Rng>, __f<M>> &&
+		WeaklyIncrementable<__f<O>> &&
+		IndirectlyCopyable<iterator_t<Rng>, __f<O>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	rotate_copy(Rng&& rng, M&& middle, O&& result)
 	{

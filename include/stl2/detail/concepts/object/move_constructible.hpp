@@ -33,9 +33,8 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template <class T>
-		concept bool Addressable() {
-			return _Is<T, is_object> && __addressable<T>;
-		}
+		concept bool Addressable =
+			_Is<T, is_object> && __addressable<T>;
 	}
 
 	namespace models {
@@ -50,9 +49,8 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec
 	// https://github.com/ericniebler/stl2/issues/301
 	template <class T>
-	concept bool Destructible() {
-		return _Is<T, is_nothrow_destructible> && __addressable<T>;
-	}
+	concept bool Destructible =
+		_Is<T, is_nothrow_destructible> && __addressable<T>;
 
 	namespace models {
 		template <class T>
@@ -66,9 +64,8 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec
 	// See https://github.com/ericniebler/stl2/issues/301
 	template <class T, class... Args>
-	concept bool Constructible() {
-		return Destructible<T>() && _Is<T, is_constructible, Args...>;
-	}
+	concept bool Constructible =
+		Destructible<T> && _Is<T, is_constructible, Args...>;
 
 	namespace models {
 		template <class, class...>
@@ -82,9 +79,8 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec
 	// https://github.com/ericniebler/stl2/issues/301
 	template <class T>
-	concept bool DefaultConstructible() {
-		return Constructible<T>();
-	}
+	concept bool DefaultConstructible =
+		Constructible<T>;
 
 	namespace models {
 		template <class>
@@ -98,10 +94,8 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec
 	// https://github.com/ericniebler/stl2/issues/313
 	template <class T>
-	concept bool MoveConstructible() {
-		return Constructible<T, T>() &&
-			ConvertibleTo<T, T>();
-	}
+	concept bool MoveConstructible =
+		Constructible<T, T> && ConvertibleTo<T, T>;
 
 	namespace models {
 		template <class>

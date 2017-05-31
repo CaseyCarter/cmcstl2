@@ -53,15 +53,13 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <class...Ts>
-	concept bool Same() {
-		return models::Same<Ts...>;
-	}
+	concept bool Same = models::Same<Ts...>;
 
 	template <class T>
-	concept bool _Decayed = Same<T, decay_t<T>>();
+	concept bool _Decayed = Same<T, decay_t<T>>;
 
 	template <class T>
-	concept bool _Unqual = Same<T, __uncvref<T>>();
+	concept bool _Unqual = Same<T, __uncvref<T>>;
 
 	namespace models {
 		template <class T, class... Args>
@@ -75,14 +73,13 @@ STL2_OPEN_NAMESPACE {
 	// DerivedFrom [concepts.lib.corelang.derived]
 	// Not to spec: https://github.com/ericniebler/stl2/issues/255
 	template <class T, class U>
-	concept bool DerivedFrom() {
+	concept bool DerivedFrom =
 #if defined(__GNUC__)
-		return __is_base_of(U, T) &&
+		__is_base_of(U, T) &&
 #else
-		return _Is<U, is_base_of, T> &&
+		_Is<U, is_base_of, T> &&
 #endif
 			std::is_convertible<std::remove_cv_t<T>*, std::remove_cv_t<U>*>::value;
-	}
 
 	namespace models {
 		template <class, class>
@@ -98,12 +95,11 @@ STL2_OPEN_NAMESPACE {
 	// See https://github.com/ericniebler/stl2/issues/167
 	//
 	template <class T, class U>
-	concept bool ConvertibleTo() {
-		return _Is<T, is_convertible, U> && requires(T (&t)()) {
+	concept bool ConvertibleTo =
+		_Is<T, is_convertible, U> && requires(T (&t)()) {
 			static_cast<U>(t());
 		};
 		// Axiom: implicit and explicit conversion have equal results.
-	}
 
 	namespace models {
 		template <class, class>

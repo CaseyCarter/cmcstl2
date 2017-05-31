@@ -62,8 +62,8 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class U>
 	requires
 		_Valid<__builtin_common_t, T &, U &> &&
-		ConvertibleTo<T &&, __rref_res<T, U>>() &&
-		ConvertibleTo<U &&, __rref_res<T, U>>()
+		ConvertibleTo<T &&, __rref_res<T, U>> &&
+		ConvertibleTo<U &&, __rref_res<T, U>>
 	struct __builtin_common<T &&, U &&> : meta::id<__rref_res<T, U>> {};
 
 	template <class T, class U>
@@ -75,7 +75,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class U>
 	requires
 		_Valid<__builtin_common_t, T &, U const &> &&
-		ConvertibleTo<U &&, __builtin_common_t<T &, U const &>>()
+		ConvertibleTo<U &&, __builtin_common_t<T &, U const &>>
 	struct __builtin_common<T &, U &&> : __builtin_common<T &, U const &> {};
 	template <class T, class U>
 	struct __builtin_common<T &&, U &> : __builtin_common<U &, T &&> {};
@@ -169,16 +169,14 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec
 	// See https://github.com/ericniebler/stl2/issues/311
 	template <class T, class U>
-	concept bool CommonReference() {
-		return
-			requires {
-				typename common_reference_t<T, U>;
-				typename common_reference_t<U, T>;
-			} &&
-			Same<common_reference_t<T, U>, common_reference_t<U, T>>() &&
-			ConvertibleTo<T, common_reference_t<T, U>>() &&
-			ConvertibleTo<U, common_reference_t<T, U>>();
-	}
+	concept bool CommonReference =
+		requires {
+			typename common_reference_t<T, U>;
+			typename common_reference_t<U, T>;
+		} &&
+		Same<common_reference_t<T, U>, common_reference_t<U, T>> &&
+		ConvertibleTo<T, common_reference_t<T, U>> &&
+		ConvertibleTo<U, common_reference_t<T, U>>;
 
 	namespace models {
 		template <class, class>
@@ -192,21 +190,19 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec
 	// See https://github.com/ericniebler/stl2/issues/311
 	template <class T, class U>
-	concept bool Common() {
-		return
-			requires {
-				typename common_type_t<T, U>;
-				typename common_type_t<U, T>;
-			} &&
-			Same<common_type_t<T, U>, common_type_t<U, T>>() &&
-			ConvertibleTo<T, common_type_t<T, U>>() &&
-			ConvertibleTo<U, common_type_t<T, U>>() &&
-			CommonReference<add_lvalue_reference_t<const T>,
-				add_lvalue_reference_t<const U>>() &&
-			CommonReference<add_lvalue_reference_t<common_type_t<T, U>>,
-				common_reference_t<add_lvalue_reference_t<const T>,
-					add_lvalue_reference_t<const U>>>();
-	}
+	concept bool Common =
+		requires {
+			typename common_type_t<T, U>;
+			typename common_type_t<U, T>;
+		} &&
+		Same<common_type_t<T, U>, common_type_t<U, T>> &&
+		ConvertibleTo<T, common_type_t<T, U>> &&
+		ConvertibleTo<U, common_type_t<T, U>> &&
+		CommonReference<add_lvalue_reference_t<const T>,
+			add_lvalue_reference_t<const U>> &&
+		CommonReference<add_lvalue_reference_t<common_type_t<T, U>>,
+			common_reference_t<add_lvalue_reference_t<const T>,
+				add_lvalue_reference_t<const U>>>;
 
 	namespace models {
 		template <class, class>

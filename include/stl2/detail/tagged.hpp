@@ -45,24 +45,22 @@ STL2_OPEN_NAMESPACE {
 	requires
 		DerivedFrom<
 			typename T::template tagged_getter<tag_specifier_base<D, I>>,
-				tag_specifier_base<D, I>>()
+			tag_specifier_base<D, I>>
 	using __tag_specifier_getter =
 		typename T::template tagged_getter<tag_specifier_base<D, I>>;
 
 	template <class T>
-	concept bool TagSpecifier() {
-		return requires {
+	concept bool TagSpecifier =
+		requires {
 			typename __tag_specifier_getter<T, std::tuple<int>, 0>;
 		};
-	}
 
 	template <class T>
-	concept bool TaggedType() {
-		return requires {
+	concept bool TaggedType =
+		requires {
 			typename __tag_spec<T>;
-			requires TagSpecifier<__tag_spec<T>>();
+			requires TagSpecifier<__tag_spec<T>>;
 		};
-	}
 
 	template <class Base, TagSpecifier...Tags>
 	requires sizeof...(Tags) <= tuple_size<Base>::value
@@ -99,21 +97,21 @@ STL2_OPEN_NAMESPACE {
 
 		// Not to spec: constexpr per P0579
 		template <class Other>
-		requires Constructible<Base, Other>()
+		requires Constructible<Base, Other>
 		constexpr tagged(tagged<Other, Tags...>&& that)
 		noexcept(is_nothrow_constructible<Base, Other&&>::value)
 		: Base(static_cast<Other&&>(that)) {}
 
 		// Not to spec: constexpr per P0579
 		template <class Other>
-		requires Constructible<Base, const Other&>()
+		requires Constructible<Base, const Other&>
 		constexpr tagged(tagged<Other, Tags...> const& that)
 		noexcept(is_nothrow_constructible<Base, const Other&>::value)
 		: Base(static_cast<const Other&>(that)) {}
 
 		// Not to spec: constexpr per P0579
 		template <class Other>
-		requires Assignable<Base&, Other>()
+		requires Assignable<Base&, Other>
 		constexpr tagged& operator=(tagged<Other, Tags...>&& that)
 		noexcept(is_nothrow_assignable<Base&, Other&&>::value)
 		{
@@ -123,7 +121,7 @@ STL2_OPEN_NAMESPACE {
 
 		// Not to spec: constexpr per P0579
 		template <class Other>
-		requires Assignable<Base&, const Other&>()
+		requires Assignable<Base&, const Other&>
 		constexpr tagged& operator=(const tagged<Other, Tags...>& that)
 		noexcept(is_nothrow_assignable<Base&, const Other&>::value)
 		{
@@ -133,7 +131,7 @@ STL2_OPEN_NAMESPACE {
 
 		// Not to spec: constexpr per P0579
 		template <class U>
-		requires !Same<decay_t<U>, tagged>() && Assignable<Base&, U>()
+		requires !Same<decay_t<U>, tagged> && Assignable<Base&, U>
 		constexpr tagged& operator=(U&& u) &
 		noexcept(is_nothrow_assignable<Base&, U&&>::value)
 		{
@@ -144,7 +142,7 @@ STL2_OPEN_NAMESPACE {
 		// Not to spec: constexpr per P0579
 		constexpr void swap(tagged& that)
 		noexcept(is_nothrow_swappable_v<Base&, Base&>)
-		requires Swappable<Base&>()
+		requires Swappable<Base&>
 		{
 			__stl2::swap(static_cast<Base&>(*this), static_cast<Base&>(that));
 		}
@@ -152,7 +150,7 @@ STL2_OPEN_NAMESPACE {
 		// Not to spec: constexpr per P0579
 		friend constexpr void swap(tagged& a, tagged& b)
 		noexcept(noexcept(a.swap(b)))
-		requires Swappable<Base&>()
+		requires Swappable<Base&>
 		{
 			a.swap(b);
 		}

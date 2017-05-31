@@ -35,8 +35,8 @@
 STL2_OPEN_NAMESPACE {
 	template <Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
-		IndirectPredicate<
-			Pred, projected<I, Proj>>()
+		IndirectUnaryPredicate<
+			Pred, projected<I, Proj>>
 	I partition(I first, S last, Pred pred, Proj proj = Proj{})
 	{
 		first = __stl2::find_if_not(__stl2::move(first), last,
@@ -54,9 +54,9 @@ STL2_OPEN_NAMESPACE {
 
 	template <Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
-		BidirectionalIterator<I>() &&
-		IndirectPredicate<
-			Pred, projected<I, Proj>>()
+		BidirectionalIterator<I> &&
+		IndirectUnaryPredicate<
+			Pred, projected<I, Proj>>
 	I partition(I first, S last_, Pred pred, Proj proj = Proj{})
 	{
 		auto last = __stl2::next(first, __stl2::move(last_));
@@ -79,9 +79,9 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
 	requires
-		Permutable<iterator_t<Rng>>() &&
-		IndirectPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>()
+		Permutable<iterator_t<Rng>> &&
+		IndirectUnaryPredicate<
+			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	partition(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{

@@ -127,7 +127,7 @@ STL2_OPEN_NAMESPACE {
 		//
 		template <class From, class To>
 		concept bool ViableAlternative =
-			Same<decay_t<From>, decay_t<To>>() && Constructible<To, From>();
+			Same<decay_t<From>, decay_t<To>> && Constructible<To, From>;
 
 		template <class T, std::size_t I, class...Types>
 		struct constructible_from_ : false_type {};
@@ -152,7 +152,7 @@ STL2_OPEN_NAMESPACE {
 		// __variant::base: lowest layer of the variant implementation.
 		//
 		template <class...Ts>
-		requires(Destructible<element_t<Ts>>() && ...)
+		requires(Destructible<element_t<Ts>> && ...)
 		class base {
 			friend v_access;
 		protected:
@@ -205,11 +205,11 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			void clear_() noexcept
-			requires ext::TriviallyDestructible<storage_t>()
+			requires ext::TriviallyDestructible<storage_t>
 			{}
 
 			template <class That>
-			requires DerivedFrom<__uncvref<That>, base>()
+			requires DerivedFrom<__uncvref<That>, base>
 			void copy_move_from(That&& that) {
 				// Pre: *this does not contain an object.
 				auto guard = index_guard{*this};
@@ -252,7 +252,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template <class That>
-			requires DerivedFrom<__uncvref<That>, base>()
+			requires DerivedFrom<__uncvref<That>, base>
 			base(copy_move_tag, That&& that)
 			: storage_{empty_tag{}}
 			{ copy_move_from(__stl2::forward<That>(that)); }
@@ -262,14 +262,14 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr base()
 			noexcept(is_nothrow_default_constructible<storage_t>::value)
-			requires DefaultConstructible<storage_t>()
+			requires DefaultConstructible<storage_t>
 			: index_{0} {}
 
 			template <class T>
 			requires
-				!Same<decay_t<T>, base>() && constructible_from<T&&, Ts...>::value &&
+				!Same<decay_t<T>, base> && constructible_from<T&&, Ts...>::value &&
 				!constructible_from<T&&, Ts...>::ambiguous &&
-				Constructible<storage_t, in_place_index_t<constructible_from<T&&, Ts...>::index>, T&&>()
+				Constructible<storage_t, in_place_index_t<constructible_from<T&&, Ts...>::index>, T&&>
 			constexpr base(T&& t)
 			noexcept(is_nothrow_constructible<storage_t,
 				in_place_index_t<constructible_from<T&&, Ts...>::index>, T&&>::value)
@@ -279,7 +279,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <class T>
 			requires
-				!Same<decay_t<T>, base>() && constructible_from<T&&, Ts...>::value &&
+				!Same<decay_t<T>, base> && constructible_from<T&&, Ts...>::value &&
 				!constructible_from<T&&, Ts...>::ambiguous
 			constexpr base(T&& t)
 			noexcept(is_nothrow_constructible<storage_t,
@@ -290,12 +290,12 @@ STL2_OPEN_NAMESPACE {
 
 			template <class T>
 			requires
-				!Same<decay_t<T>, base>() && constructible_from<T&&, Ts...>::value &&
+				!Same<decay_t<T>, base> && constructible_from<T&&, Ts...>::value &&
 				constructible_from<T&&, Ts...>::ambiguous
 			base(T&&) = delete; // Conversion from T is ambiguous.
 
 			template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
-			requires Constructible<T, Args...>()
+			requires Constructible<T, Args...>
 			explicit constexpr base(in_place_index_t<I>, Args&&...args)
 			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, Args...>::value)
 			: index_{I}, storage_{in_place_index<I>, __stl2::forward<Args>(args)...} {}
@@ -306,7 +306,7 @@ STL2_OPEN_NAMESPACE {
 			: index_{I}, storage_{in_place_index<I>, t} {}
 
 			template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
-			requires Constructible<T, Args...>()
+			requires Constructible<T, Args...>
 			explicit constexpr base(in_place_type_t<T>, Args&&...args)
 			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, Args...>::value)
 			: index_{I}, storage_{in_place_index<I>, __stl2::forward<Args>(args)...} {}
@@ -317,7 +317,7 @@ STL2_OPEN_NAMESPACE {
 			: index_{I}, storage_{in_place_index<I>, t} {}
 
 			template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
-			requires Constructible<T, Args...>()
+			requires Constructible<T, Args...>
 			void emplace(Args&&...args)
 			noexcept(is_nothrow_constructible<element_t<T>, Args...>::value)
 			{
@@ -340,7 +340,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
-			requires Constructible<T, std::initializer_list<E>, Args...>()
+			requires Constructible<T, std::initializer_list<E>, Args...>
 			void emplace(std::initializer_list<E> il, Args&&...args)
 			noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value)
 			{
@@ -353,7 +353,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
-			requires Constructible<T, Args...>()
+			requires Constructible<T, Args...>
 			void emplace(Args&&...args)
 			noexcept(is_nothrow_constructible<element_t<T>, Args...>::value)
 			{
@@ -376,7 +376,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
-			requires Constructible<T, std::initializer_list<E>, Args...>()
+			requires Constructible<T, std::initializer_list<E>, Args...>
 			void emplace(std::initializer_list<E> il, Args&&...args)
 			noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value)
 			{
@@ -429,7 +429,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class...Ts>
-		requires ext::TriviallyDestructible<storage<element_t<Ts>...>>()
+		requires ext::TriviallyDestructible<storage<element_t<Ts>...>>
 		class destruct_base<Ts...> : public base<Ts...> {
 			using base_t = base<Ts...>;
 		public:
@@ -453,7 +453,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class...Ts>
-		requires(MoveConstructible<element_t<Ts>>() && ...)
+		requires(MoveConstructible<element_t<Ts>> && ...)
 		class move_base<Ts...> : public destruct_base<Ts...> {
 			using base_t = destruct_base<Ts...>;
 		public:
@@ -472,8 +472,8 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Ts>
 		requires
-			(MoveConstructible<element_t<Ts>>() && ...) &&
-			ext::TriviallyMoveConstructible<storage<element_t<Ts>...>>()
+			(MoveConstructible<element_t<Ts>> && ...) &&
+			ext::TriviallyMoveConstructible<storage<element_t<Ts>...>>
 		class move_base<Ts...> : public destruct_base<Ts...> {
 			using base_t = destruct_base<Ts...>;
 		public:
@@ -497,7 +497,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class...Ts>
-		requires(Movable<element_t<Ts>>() && ...)
+		requires(Movable<element_t<Ts>> && ...)
 		class move_assign_base<Ts...> : public move_base<Ts...> {
 			using base_t = move_base<Ts...>;
 		public:
@@ -521,8 +521,8 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Ts>
 		requires
-			(Movable<element_t<Ts>>() && ...) &&
-			ext::TriviallyMovable<storage<element_t<Ts>...>>()
+			(Movable<element_t<Ts>> && ...) &&
+			ext::TriviallyMovable<storage<element_t<Ts>...>>
 		class move_assign_base<Ts...> : public move_base<Ts...> {
 			using base_t = move_base<Ts...>;
 		public:
@@ -546,7 +546,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class...Ts>
-		requires(CopyConstructible<element_t<Ts>>() && ...)
+		requires(CopyConstructible<element_t<Ts>> && ...)
 		class copy_base<Ts...> : public move_assign_base<Ts...> {
 			using base_t = move_assign_base<Ts...>;
 		public:
@@ -565,8 +565,8 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Ts>
 		requires
-			(CopyConstructible<element_t<Ts>>() && ...) &&
-			ext::TriviallyCopyConstructible<storage<element_t<Ts>...>>()
+			(CopyConstructible<element_t<Ts>> && ...) &&
+			ext::TriviallyCopyConstructible<storage<element_t<Ts>...>>
 		class copy_base<Ts...> : public move_assign_base<Ts...> {
 			using base_t = move_assign_base<Ts...>;
 		public:
@@ -590,7 +590,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class...Ts>
-		requires(Copyable<element_t<Ts>>() && ...)
+		requires(Copyable<element_t<Ts>> && ...)
 		class copy_assign_base<Ts...> : public copy_base<Ts...> {
 			using base_t = copy_base<Ts...>;
 		public:
@@ -614,8 +614,8 @@ STL2_OPEN_NAMESPACE {
 
 		template <class...Ts>
 		requires
-			(Copyable<element_t<Ts>>() && ...) &&
-			ext::TriviallyCopyable<storage<element_t<Ts>...>>()
+			(Copyable<element_t<Ts>> && ...) &&
+			ext::TriviallyCopyable<storage<element_t<Ts>...>>
 		class copy_assign_base<Ts...> : public copy_base<Ts...> {
 			using base_t = copy_base<Ts...>;
 		public:
@@ -628,7 +628,7 @@ STL2_OPEN_NAMESPACE {
 	// operators, and converting assignments.
 	//
 	template <class...Ts>
-	requires(Destructible<__variant::element_t<Ts>>() && ...)
+	requires(Destructible<__variant::element_t<Ts>> && ...)
 	class variant : public __variant::copy_assign_base<Ts...> {
 		using base_t = __variant::copy_assign_base<Ts...>;
 
@@ -673,7 +673,7 @@ STL2_OPEN_NAMESPACE {
 
 		variant() = default;
 		template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
-		requires Constructible<T, std::initializer_list<E>&, Args...>()
+		requires Constructible<T, std::initializer_list<E>&, Args...>
 		explicit constexpr variant(in_place_index_t<I>, std::initializer_list<E>&& il, Args&&...args)
 		noexcept(is_nothrow_constructible<__variant::storage<__variant::element_t<Ts>...>,
 			in_place_index_t<I>, std::initializer_list<E>&, Args...>::value)
@@ -681,7 +681,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <_IsNot<is_reference> T, class E, class...Args,
 			std::size_t I = __variant::index_of_type<T, types>>
-		requires Constructible<T, std::initializer_list<E>&, Args...>()
+		requires Constructible<T, std::initializer_list<E>&, Args...>
 		explicit constexpr variant(in_place_type_t<T>, std::initializer_list<E>&& il, Args&&...args)
 		noexcept(is_nothrow_constructible<__variant::storage<__variant::element_t<Ts>...>,
 			in_place_index_t<I>, std::initializer_list<E>&, Args...>::value)
@@ -690,7 +690,7 @@ STL2_OPEN_NAMESPACE {
 		template <_IsNot<is_reference> T, class CF = constructible_from<T&&>>
 		requires
 			CF::value && !CF::ambiguous &&
-			Same<T, meta::at_c<types, CF::index>>() && Movable<T>()
+			Same<T, meta::at_c<types, CF::index>> && Movable<T>
 		variant& operator=(T&& t) &
 		noexcept(is_nothrow_move_constructible<T>::value &&
 			is_nothrow_move_assignable<T>::value)
@@ -708,7 +708,7 @@ STL2_OPEN_NAMESPACE {
 		template <class T, class CF = constructible_from<const T&>>
 		requires
 			CF::value && !CF::ambiguous &&
-			Same<T, meta::at_c<types, CF::index>>() && Copyable<T>()
+			Same<T, meta::at_c<types, CF::index>> && Copyable<T>
 		variant& operator=(const T& t) &
 		noexcept(is_nothrow_copy_constructible<T>::value &&
 			is_nothrow_copy_assignable<T>::value &&
@@ -740,8 +740,8 @@ STL2_OPEN_NAMESPACE {
 			meta::_v<meta::and_c<is_nothrow_swappable_v<
 				__variant::element_t<Ts>&, __variant::element_t<Ts>&>...>>)
 		requires
-			Movable<base_t>() && // Movable<variant>() explodes here.
-			(Swappable<__variant::element_t<Ts>&>() && ...)
+			Movable<base_t> && // Movable<variant> explodes here.
+			(Swappable<__variant::element_t<Ts>&> && ...)
 		{
 			if (this->index_ == that.index_) {
 				if (this->valid()) {
@@ -761,7 +761,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator==(const variant& lhs, const variant& rhs)
-		requires(EqualityComparable<__variant::element_t<Ts>>() && ...)
+		requires(EqualityComparable<__variant::element_t<Ts>> && ...)
 		{
 			if (lhs.index_ != rhs.index_) {
 				return false;
@@ -770,13 +770,13 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator!=(const variant& lhs, const variant& rhs)
-		requires(EqualityComparable<__variant::element_t<Ts>>() && ...)
+		requires(EqualityComparable<__variant::element_t<Ts>> && ...)
 		{
 			return !(lhs == rhs);
 		}
 
 		friend constexpr bool operator<(const variant& lhs, const variant& rhs)
-		requires(StrictTotallyOrdered<__variant::element_t<Ts>>() && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
 		{
 			if (lhs.index_ < rhs.index_) {
 				return true;
@@ -788,19 +788,19 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator>(const variant& lhs, const variant& rhs)
-		requires(StrictTotallyOrdered<__variant::element_t<Ts>>() && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
 		{
 			return rhs < lhs;
 		}
 
 		friend constexpr bool operator<=(const variant& lhs, const variant& rhs)
-		requires(StrictTotallyOrdered<__variant::element_t<Ts>>() && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
 		{
 			return !(rhs < lhs);
 		}
 
 		friend constexpr bool operator>=(const variant& lhs, const variant& rhs)
-		requires(StrictTotallyOrdered<__variant::element_t<Ts>>() && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
 		{
 			return !(lhs < rhs);
 		}

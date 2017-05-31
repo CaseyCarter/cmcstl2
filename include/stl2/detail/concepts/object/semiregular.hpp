@@ -27,15 +27,14 @@ STL2_OPEN_NAMESPACE {
 	// https://github.com/ericniebler/stl2/issues/301
 	// https://github.com/ericniebler/stl2/issues/313
 	template <class T>
-	concept bool CopyConstructible() {
-		return MoveConstructible<T>() &&
-			Constructible<T, T&>() &&
-			Constructible<T, const T&>() &&
-			Constructible<T, const T&&>() &&
-			ConvertibleTo<T&, T>() &&
-			ConvertibleTo<const T&, T>() &&
-			ConvertibleTo<const T&&, T>();
-	}
+	concept bool CopyConstructible =
+		MoveConstructible<T> &&
+		Constructible<T, T&> &&
+		Constructible<T, const T&> &&
+		Constructible<T, const T&&> &&
+		ConvertibleTo<T&, T> &&
+		ConvertibleTo<const T&, T> &&
+		ConvertibleTo<const T&&, T>;
 
 	namespace models {
 		template <class>
@@ -48,10 +47,10 @@ STL2_OPEN_NAMESPACE {
 	// Copyable [concepts.lib.object.copyable]
 	//
 	template <class T>
-	concept bool Copyable() {
-		return CopyConstructible<T>() &&
-			Movable<T>() && Assignable<T&, const T&>();
-	}
+	concept bool Copyable =
+		CopyConstructible<T> &&
+		Movable<T> &&
+		Assignable<T&, const T&>;
 
 	namespace models {
 		template <class>
@@ -64,9 +63,8 @@ STL2_OPEN_NAMESPACE {
 	// Semiregular [concepts.lib.object.semiregular]
 	//
 	template <class T>
-	concept bool Semiregular() {
-		return Copyable<T>() && DefaultConstructible<T>();
-	}
+	concept bool Semiregular =
+		Copyable<T> && DefaultConstructible<T>;
 
 	namespace models {
 		template <class>

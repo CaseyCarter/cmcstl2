@@ -22,7 +22,7 @@
 STL2_OPEN_NAMESPACE {
 	template <BidirectionalIterator I1, BidirectionalIterator I2>
 	requires
-		IndirectlyMovable<I1, I2>()
+		IndirectlyMovable<I1, I2>
 	tagged_pair<tag::in(I1), tag::out(I2)>
 	move_backward(I1 first, I1 last, I2 result)
 	{
@@ -35,8 +35,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <BidirectionalIterator I1, Sentinel<I1> S1, class I2>
 	requires
-		BidirectionalIterator<__f<I2>>() &&
-		IndirectlyMovable<I1, __f<I2>>()
+		BidirectionalIterator<__f<I2>> &&
+		IndirectlyMovable<I1, __f<I2>>
 	tagged_pair<tag::in(I1), tag::out(__f<I2>)>
 	move_backward(I1 first, S1 s, I2&& out)
 	{
@@ -47,8 +47,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <BidirectionalRange Rng, class I>
 	requires
-		BidirectionalIterator<__f<I>>() &&
-		IndirectlyMovable<iterator_t<Rng>, __f<I>>()
+		BidirectionalIterator<__f<I>> &&
+		IndirectlyMovable<iterator_t<Rng>, __f<I>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<I>)>
 	move_backward(Rng&& rng, I&& result)
 	{

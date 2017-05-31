@@ -30,25 +30,25 @@ STL2_OPEN_NAMESPACE {
 			ebo_box() = default;
 			constexpr ebo_box(const T& t)
 			noexcept(std::is_nothrow_copy_constructible<T>::value)
-			requires CopyConstructible<T>()
+			requires CopyConstructible<T>
 			: item_(t) {}
 			constexpr ebo_box(T&& t)
 			noexcept(std::is_nothrow_move_constructible<T>::value)
-			requires MoveConstructible<T>()
+			requires MoveConstructible<T>
 			: item_(std::move(t)) {}
 
 			template <class First>
 			requires
 				!_OneOf<std::decay_t<First>, ebo_box, T> &&
-				Constructible<T, First>() &&
-				ConvertibleTo<First, T>()
+				Constructible<T, First> &&
+				ConvertibleTo<First, T>
 			constexpr ebo_box(First&& f)
 			noexcept(std::is_nothrow_constructible<T, First>::value)
 			: item_(std::forward<First>(f)) {}
 			template <class First, class... Rest>
 			requires
 				(sizeof...(Rest) > 0 || !_OneOf<std::decay_t<First>, ebo_box, T>) &&
-				Constructible<T, First, Rest...>()
+				Constructible<T, First, Rest...>
 			constexpr explicit ebo_box(First&& f, Rest&&...r)
 			noexcept(std::is_nothrow_constructible<T, First, Rest...>::value)
 			: item_(std::forward<First>(f), std::forward<Rest>(r)...) {}
@@ -69,11 +69,11 @@ STL2_OPEN_NAMESPACE {
 			ebo_box() = default;
 			constexpr ebo_box(const T& t)
 			noexcept(std::is_nothrow_copy_constructible<T>::value)
-			requires CopyConstructible<T>()
+			requires CopyConstructible<T>
 			: T(t) {}
 			constexpr ebo_box(T&& t)
 			noexcept(std::is_nothrow_move_constructible<T>::value)
-			requires MoveConstructible<T>()
+			requires MoveConstructible<T>
 			: T(std::move(t)) {}
 			using T::T;
 

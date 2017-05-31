@@ -29,7 +29,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	template <Iterator I, Sentinel<I> S>
-		requires !Same<I, S>()
+		requires !Same<I, S>
 	class common_iterator;
 
 	namespace __common_iterator {
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 			template <class U>
 			constexpr explicit operator_arrow_proxy(U&& u)
 			noexcept(std::is_nothrow_constructible<T, U>::value)
-			requires Constructible<T, U>()
+			requires Constructible<T, U>
 			: value_(std::forward<U>(u)) {}
 
 			constexpr const T* operator->() const noexcept {
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class I>
 		requires
-			Readable<I>() &&
+			Readable<const I> &&
 			(std::is_pointer<I>::value ||
 				requires(const I& i) { i.operator->(); })
 		constexpr I operator_arrow_(const I& i, ext::priority_tag<2>)
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class I>
 		requires
-			Readable<I>() &&
+			Readable<const I> &&
 			_Is<reference_t<const I>, std::is_reference>
 		constexpr auto operator_arrow_(const I& i, ext::priority_tag<1>)
 		noexcept(noexcept(*i)) {
@@ -70,9 +70,9 @@ STL2_OPEN_NAMESPACE {
 
 		template <class I>
 		requires
-			Readable<I>() &&
+			Readable<const I> &&
 			!std::is_reference<reference_t<I>>::value &&
-			Constructible<value_type_t<I>, reference_t<I>>()
+			Constructible<value_type_t<I>, reference_t<I>>
 		constexpr auto operator_arrow_(const I& i, ext::priority_tag<0>)
 		noexcept(
 			std::is_nothrow_move_constructible<
@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class I>
 		requires
-			Readable<I>() &&
+			Readable<const I> &&
 			requires(const I& i) {
 				__common_iterator::operator_arrow_(i, ext::max_priority_tag);
 			}
@@ -132,7 +132,7 @@ STL2_OPEN_NAMESPACE {
 			}
 			constexpr bool operator()(const I1& i1, const I2& i2) const
 			noexcept(noexcept(bool(i1 == i2)))
-			requires EqualityComparable<I1, I2>()
+			requires EqualityComparableWith<I1, I2>
 			{
 				return i1 == i2;
 			}
@@ -162,10 +162,10 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <Iterator I, Sentinel<I> S>
-		requires !Same<I, S>()
+		requires !Same<I, S>
 	class common_iterator {
 		template <Iterator II, Sentinel<II> SS>
-			requires !Same<II, SS>()
+			requires !Same<II, SS>
 		friend class common_iterator;
 		friend __common_iterator::access;
 		variant<I, S> v_;
@@ -218,7 +218,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		decltype(auto) operator->() const
 		noexcept(noexcept(__common_iterator::operator_arrow(std::declval<const I&>())))
-		requires Readable<const I>() {
+		requires Readable<const I> {
 			STL2_EXPECT(__stl2::holds_alternative<I>(v_));
 			return __common_iterator::operator_arrow(__stl2::get_unchecked<I>(v_));
 		}
@@ -238,7 +238,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		common_iterator operator++(int)
 		noexcept(noexcept(common_iterator(common_iterator(++declval<common_iterator&>()))))
-		requires ForwardIterator<I>() {
+		requires ForwardIterator<I> {
 			STL2_EXPECT(__stl2::holds_alternative<I>(v_));
 			auto tmp(*this);
 			++__stl2::get_unchecked<I>(v_);
@@ -250,7 +250,7 @@ STL2_OPEN_NAMESPACE {
 		friend rvalue_reference_t<I> iter_move(
 			const common_iterator& i)
 			noexcept(noexcept(__stl2::iter_move(std::declval<const I&>())))
-			requires InputIterator<I>() {
+			requires InputIterator<I> {
 			STL2_EXPECT(__stl2::holds_alternative<I>(i.v_));
 			return __stl2::iter_move(__stl2::get_unchecked<I>(i.v_));
 		}

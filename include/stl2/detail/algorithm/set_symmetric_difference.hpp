@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		WeaklyIncrementable O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		Mergeable<I1, I2, O, Comp, Proj1, Proj2>()
+		Mergeable<I1, I2, O, Comp, Proj1, Proj2>
 	tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
 	set_symmetric_difference(
 		I1 first1, S1 last1, I2 first2, S2 last2, O result,
@@ -73,10 +73,10 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		WeaklyIncrementable<__f<O>>() &&
+		WeaklyIncrementable<__f<O>> &&
 		Mergeable<
 			iterator_t<Rng1>, iterator_t<Rng2>,
-			__f<O>, Comp, Proj1, Proj2>()
+			__f<O>, Comp, Proj1, Proj2>
 	tagged_tuple<tag::in1(safe_iterator_t<Rng1>),
 							 tag::in2(safe_iterator_t<Rng2>), tag::out(__f<O>)>
 	set_symmetric_difference(Rng1&& rng1, Rng2&& rng2, O&& result,

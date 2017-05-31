@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 	// the decayed type can in fact be constructed from the actual type.
 	//
 	template <class T>
-		requires Constructible<decay_t<T>, T>()
+		requires Constructible<decay_t<T>, T>
 	using __f = decay_t<T>;
 
 
@@ -58,50 +58,41 @@ STL2_OPEN_NAMESPACE {
 		// TriviallyFoo concepts
 		//
 		template <class T>
-		concept bool TriviallyDestructible() {
-			return Destructible<T>() &&
-				_Is<T, is_trivially_destructible>;
-		}
+		concept bool TriviallyDestructible =
+			Destructible<T> && _Is<T, is_trivially_destructible>;
 
 		template <class T, class...Args>
-		concept bool TriviallyConstructible() {
-			return Constructible<T, Args...>() &&
-				_Is<T, is_trivially_constructible, Args...>;
-		}
+		concept bool TriviallyConstructible =
+			Constructible<T, Args...> &&
+			_Is<T, is_trivially_constructible, Args...>;
 
 		template <class T>
-		concept bool TriviallyDefaultConstructible() {
-			return DefaultConstructible<T>() &&
-				_Is<T, is_trivially_default_constructible>;
-		}
+		concept bool TriviallyDefaultConstructible =
+			DefaultConstructible<T> &&
+			_Is<T, is_trivially_default_constructible>;
 
 		template <class T>
-		concept bool TriviallyMoveConstructible() {
-			return MoveConstructible<T>() &&
-				_Is<T, is_trivially_move_constructible>;
-		}
+		concept bool TriviallyMoveConstructible =
+			MoveConstructible<T> && _Is<T, is_trivially_move_constructible>;
 
 		template <class T>
-		concept bool TriviallyCopyConstructible() {
-			return CopyConstructible<T>() &&
-				TriviallyMoveConstructible<T>() &&
-				_Is<T, is_trivially_copy_constructible>;
-		}
+		concept bool TriviallyCopyConstructible =
+			CopyConstructible<T> &&
+			TriviallyMoveConstructible<T> &&
+			_Is<T, is_trivially_copy_constructible>;
 
 		template <class T>
-		concept bool TriviallyMovable() {
-			return Movable<T>() &&
-				TriviallyMoveConstructible<T>() &&
-				_Is<T, is_trivially_move_assignable>;
-		}
+		concept bool TriviallyMovable =
+			Movable<T> &&
+			TriviallyMoveConstructible<T> &&
+			_Is<T, is_trivially_move_assignable>;
 
 		template <class T>
-		concept bool TriviallyCopyable() {
-			return Copyable<T>() &&
-				TriviallyMovable<T>() &&
-				TriviallyCopyConstructible<T>() &&
-				_Is<T, is_trivially_copy_assignable>;
-		}
+		concept bool TriviallyCopyable =
+			Copyable<T> &&
+			TriviallyMovable<T> &&
+			TriviallyCopyConstructible<T> &&
+			_Is<T, is_trivially_copy_assignable>;
 	}
 } STL2_CLOSE_NAMESPACE
 

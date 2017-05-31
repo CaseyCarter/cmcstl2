@@ -26,9 +26,9 @@ STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
 		class Pred, class Proj = identity>
 	requires
-		IndirectlyCopyable<I, O>() &&
-		IndirectPredicate<
-			Pred, projected<I, Proj>>()
+		IndirectlyCopyable<I, O> &&
+		IndirectUnaryPredicate<
+			Pred, projected<I, Proj>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	copy_if(I first, S last, O result, Pred pred, Proj proj = Proj{})
 	{
@@ -45,10 +45,10 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class O, class Pred, class Proj = identity>
 	requires
-		WeaklyIncrementable<__f<O>>() &&
-		IndirectPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>() &&
-		IndirectlyCopyable<iterator_t<Rng>, __f<O>>()
+		WeaklyIncrementable<__f<O>> &&
+		IndirectUnaryPredicate<
+			Pred, projected<iterator_t<Rng>, Proj>> &&
+		IndirectlyCopyable<iterator_t<Rng>, __f<O>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	copy_if(Rng&& rng, O&& result, Pred pred, Proj proj = Proj{})
 	{

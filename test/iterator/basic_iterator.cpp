@@ -19,7 +19,7 @@ class forward_list {
 		T data_;
 
 		template <class...Args>
-		requires stl2::Constructible<T, Args...>()
+		requires stl2::Constructible<T, Args...>
 		constexpr node(Args&&...args)
 		noexcept(stl2::is_nothrow_constructible<T, Args...>::value)
 		: data_(stl2::forward<Args>(args)...) {}
@@ -71,7 +71,7 @@ public:
 
 	forward_list() = default;
 	forward_list(std::initializer_list<T> il)
-	requires stl2::CopyConstructible<T>()
+	requires stl2::CopyConstructible<T>
 	{ stl2::reverse_copy(il, stl2::front_inserter(*this)); }
 
 	constexpr iterator begin() noexcept {
@@ -83,7 +83,7 @@ public:
 	constexpr stl2::default_sentinel end() const noexcept { return {}; }
 
 	template <class...Args>
-	requires stl2::Constructible<T, Args...>()
+	requires stl2::Constructible<T, Args...>
 	void emplace(Args&&...args) {
 		auto p = std::make_unique<node>(stl2::forward<Args>(args)...);
 		p->next_ = stl2::move(head_);
@@ -91,10 +91,10 @@ public:
 	}
 
 	void push_front(T&& t)
-	requires stl2::MoveConstructible<T>()
+	requires stl2::MoveConstructible<T>
 	{ emplace(stl2::move(t)); }
 	void push_front(const T& t)
-	requires stl2::CopyConstructible<T>()
+	requires stl2::CopyConstructible<T>
 	{ emplace(t); }
 };
 
@@ -117,7 +117,7 @@ public:
 	: ptr_{ptr} {}
 
 	template <class U>
-	requires stl2::ConvertibleTo<U*, T*>()
+	requires stl2::ConvertibleTo<U*, T*>
 	constexpr pointer_cursor(const pointer_cursor<U>& that) noexcept
 	: ptr_{that.ptr_} {}
 
@@ -278,12 +278,12 @@ struct proxy_array {
 		O&& indirect_move() const noexcept { return stl2::move(*ptr_); }
 	};
 
-	static_assert(stl2::cursor::Readable<cursor<false>>());
-	static_assert(stl2::cursor::IndirectMove<cursor<false>>());
+	static_assert(stl2::cursor::Readable<cursor<false>>);
+	static_assert(stl2::cursor::IndirectMove<cursor<false>>);
 	static_assert(stl2::models::Same<T&&, stl2::cursor::rvalue_reference_t<cursor<false>>>);
 
-	static_assert(stl2::cursor::Readable<cursor<true>>());
-	static_assert(stl2::cursor::IndirectMove<cursor<true>>());
+	static_assert(stl2::cursor::Readable<cursor<true>>);
+	static_assert(stl2::cursor::IndirectMove<cursor<true>>);
 	static_assert(stl2::models::Same<const T&&, stl2::cursor::rvalue_reference_t<cursor<true>>>);
 
 	using iterator = stl2::basic_iterator<cursor<false>>;
@@ -313,7 +313,7 @@ template <stl2::InputRange R>
 requires
 	stl2::ext::StreamInsertable<stl2::value_type_t<stl2::iterator_t<R>>> &&
 	!stl2::Same<char, stl2::remove_cv_t<
-		stl2::remove_all_extents_t<stl2::remove_reference_t<R>>>>()
+		stl2::remove_all_extents_t<stl2::remove_reference_t<R>>>>
 std::ostream& operator<<(std::ostream& os, R&& rng) {
 	os << '{';
 	auto i = rng.begin();
@@ -607,8 +607,8 @@ void test_proxy_array() {
 	static_assert(!stl2::models::Swappable<R, R>);
 	static_assert(stl2::models::IndirectlyMovableStorable<I, I>);
 
-	// Swappable<R, R>() is not satisfied, and
-	// IndirectlyMovableStorable<I, I>() is satisfied,
+	// Swappable<R, R> is not satisfied, and
+	// IndirectlyMovableStorable<I, I> is satisfied,
 	// so this should resolve to the second overload of iter_swap.
 	stl2::iter_swap(a.begin() + 1, a.begin() + 3);
 	CHECK(a[0] == 0);

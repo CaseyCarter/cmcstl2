@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 
 			difference_type_t<iterator_t<Base>> n_;
 		public:
-			take_exactly_view() requires DefaultConstructible<Base>() = default;
+			take_exactly_view() requires DefaultConstructible<Base> = default;
 
 			constexpr take_exactly_view(Base view, difference_type_t<iterator_t<Base>> n)
 			noexcept(std::is_nothrow_move_constructible<Base>::value)
@@ -40,21 +40,21 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr auto begin()
 			noexcept(noexcept(__stl2::make_counted_iterator(__stl2::begin(std::declval<Base&>()), n_)))
-			requires !Range<Base const>()
+			requires !Range<Base const>
 			{ return __stl2::make_counted_iterator(__stl2::begin(get()), n_); }
 
 	#if 0 // FIXME: Untagged bug workaround
 			constexpr auto data()
 			noexcept(noexcept(__stl2::data(std::declval<Base&>())))
 			requires
-				!Range<Base const>() &&
+				!Range<Base const> &&
 				requires(Base& b) { __stl2::data(b); }
 			{ return __stl2::data(get()); }
 	#else
 			template <class B = Base>
 			requires
-				Same<B, Base>() &&
-				!Range<B const>() &&
+				Same<B, Base> &&
+				!Range<B const> &&
 				requires(B& b) { __stl2::data(b); }
 			constexpr auto data()
 			noexcept(noexcept(__stl2::data(std::declval<B&>())))
@@ -63,21 +63,21 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr auto begin() const
 			noexcept(noexcept(__stl2::make_counted_iterator(__stl2::begin(std::declval<Base const&>()), n_)))
-			requires Range<Base const>()
+			requires Range<Base const>
 			{ return __stl2::make_counted_iterator(__stl2::begin(get()), n_); }
 
 	#if 0 // FIXME: Untagged bug workaround
 			constexpr auto data() const
 			noexcept(noexcept(__stl2::data(std::declval<Base const&>())))
 			requires
-				!Range<Base const>() &&
+				!Range<Base const> &&
 				requires(Base const& b) { __stl2::data(b); }
 			{ return __stl2::data(get()); }
 	#else
 			template <class B = Base>
 			requires
-				Same<B, Base>() &&
-				Range<B const>() &&
+				Same<B, Base> &&
+				Range<B const> &&
 				requires(B const& b) { __stl2::data(b); }
 			constexpr auto data() const
 			noexcept(noexcept(__stl2::data(std::declval<B const&>())))

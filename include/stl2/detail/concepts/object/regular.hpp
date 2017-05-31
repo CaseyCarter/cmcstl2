@@ -22,9 +22,8 @@ STL2_OPEN_NAMESPACE {
 	// Regular [concepts.lib.object.regular]
 	//
 	template <class T>
-	concept bool Regular() {
-		return Semiregular<T>() && EqualityComparable<T>();
-	}
+	concept bool Regular =
+		Semiregular<T> && EqualityComparable<T>;
 
 	namespace models {
 		template <class>

@@ -23,8 +23,8 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <View Rng>
 		requires
-			InputRange<Rng>() &&
-			Readable<reference_t<iterator_t<Rng>>>()
+			InputRange<Rng> &&
+			Readable<reference_t<iterator_t<Rng>>>
 		class indirect_view : detail::ebo_box<Rng, indirect_view<Rng>> {
 			using base_t = detail::ebo_box<Rng, indirect_view<Rng>>;
 			using base_t::get;
@@ -45,59 +45,59 @@ STL2_OPEN_NAMESPACE {
 				decltype(auto) read() const { return **it_; }
 				void next() { ++it_; }
 				void prev()
-				requires BidirectionalIterator<iterator_t<IsConst>>()
+				requires BidirectionalIterator<iterator_t<IsConst>>
 				{ --it_; }
 
 				bool equal(const cursor& that) const
-				requires Sentinel<iterator_t<IsConst>, iterator_t<IsConst>>()
+				requires Sentinel<iterator_t<IsConst>, iterator_t<IsConst>>
 				{ return it_ == that.it_; }
 				bool equal(const sentinel<IsConst>& s) const
 				{ return it_ == s.s_; }
 
 				difference_type_t<iterator_t<IsConst>> distance_to(const cursor& that) const
-				requires SizedSentinel<iterator_t<IsConst>, iterator_t<IsConst>>()
+				requires SizedSentinel<iterator_t<IsConst>, iterator_t<IsConst>>
 				{ return that.it_ - it_; }
 				difference_type_t<iterator_t<IsConst>>
 				distance_to(const sentinel<IsConst>& that) const
-				requires SizedSentinel<sentinel_t<IsConst>, iterator_t<IsConst>>()
+				requires SizedSentinel<sentinel_t<IsConst>, iterator_t<IsConst>>
 				{ return that.s_ - it_; }
 
 				void advance(difference_type_t<iterator_t<IsConst>> n)
-				requires RandomAccessIterator<iterator_t<IsConst>>()
+				requires RandomAccessIterator<iterator_t<IsConst>>
 				{ it_ += n; }
 			};
 		public:
-			indirect_view() requires DefaultConstructible<Rng>() = default;
+			indirect_view() requires DefaultConstructible<Rng> = default;
 			indirect_view(Rng rng) : base_t{std::move(rng)} {}
 
 			basic_iterator<cursor<false>> begin()
-			requires !Range<Rng const>()
+			requires !Range<Rng const>
 			{ return {cursor<false>{__stl2::begin(get())}}; }
 
 			sentinel<false> end()
-			requires !Range<Rng const>()
+			requires !Range<Rng const>
 			{ return {__stl2::end(get())}; }
 			basic_iterator<cursor<false>> end()
-			requires !Range<Rng const>() && BoundedRange<Rng>()
+			requires !Range<Rng const> && BoundedRange<Rng>
 			{ return {cursor<false>{__stl2::end(get())}}; }
 
 			auto size()
-			requires !Range<Rng const>() && SizedRange<Rng>()
+			requires !Range<Rng const> && SizedRange<Rng>
 			{ return __stl2::size(get()); }
 
 			basic_iterator<cursor<true>> begin() const
-			requires Range<Rng const>()
+			requires Range<Rng const>
 			{ return {cursor<true>{__stl2::begin(get())}}; }
 
 			sentinel<true> end() const
-			requires Range<Rng const>()
+			requires Range<Rng const>
 			{ return {__stl2::end(get())}; }
 			basic_iterator<cursor<true>> end() const
-			requires BoundedRange<Rng const>()
+			requires BoundedRange<Rng const>
 			{ return {cursor<true>{__stl2::end(get())}}; }
 
 			auto size() const
-			requires SizedRange<Rng const>()
+			requires SizedRange<Rng const>
 			{ return __stl2::size(get()); }
 		};
 	} // namespace ext

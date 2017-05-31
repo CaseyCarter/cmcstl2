@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 		class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
-			Comp, projected<I, Proj>>()
+			Comp, projected<I, Proj>>
 	I min_element(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		if (first != last) {
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
-			Comp, projected<iterator_t<Rng>, Proj>>()
+			Comp, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	min_element(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{

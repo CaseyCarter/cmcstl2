@@ -18,36 +18,36 @@
 
 namespace models {
 	template <class...Ts>
-	constexpr bool Same = ranges::Same<Ts...>();
+	constexpr bool Same = ranges::Same<Ts...>;
 
 	template <class R>
-	constexpr bool Readable = ranges::Readable<R>();
+	constexpr bool Readable = ranges::Readable<R>;
 
 	template <class W, class T>
-	constexpr bool Writable = ranges::Writable<W, T>();
+	constexpr bool Writable = ranges::Writable<W, T>;
 
 	template <class I>
 	constexpr bool WeaklyIncrementable =
-		ranges::WeaklyIncrementable<I>();
+		ranges::WeaklyIncrementable<I>;
 
 	template <class I>
-	constexpr bool Incrementable = ranges::Incrementable<I>();
+	constexpr bool Incrementable = ranges::Incrementable<I>;
 
 	template <class I>
-	constexpr bool WeakIterator = ranges::WeakIterator<I>();
+	constexpr bool WeakIterator = ranges::WeakIterator<I>;
 
 	template <class I>
-	constexpr bool Iterator = ranges::Iterator<I>();
+	constexpr bool Iterator = ranges::Iterator<I>;
 
 	template <class I>
-	constexpr bool InputIterator = ranges::InputIterator<I>();
+	constexpr bool InputIterator = ranges::InputIterator<I>;
 
 	template <class S, class I>
-	constexpr bool Sentinel = ranges::IteratorRange<I, S>();
+	constexpr bool Sentinel = ranges::IteratorRange<I, S>;
 
 	template <class F, class...Is>
 	constexpr bool IndirectInvocable =
-		ranges::IndirectInvocable<F, Is...>();
+		ranges::IndirectInvocable<F, Is...>;
 }
 
 namespace ns {

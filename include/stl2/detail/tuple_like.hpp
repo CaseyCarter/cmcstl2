@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr std::size_t tuple_find = tuple_not_found;
 
 	template <class T, class U>
-	requires !Same<U, __uncvref<U>>()
+	requires !Same<U, __uncvref<U>>
 	constexpr std::size_t tuple_find<T, U> =
 		tuple_find<T, __uncvref<U>>;
 } STL2_CLOSE_NAMESPACE

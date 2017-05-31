@@ -88,11 +88,11 @@ STL2_OPEN_NAMESPACE {
 			std::size_t I = meta::_v<meta::find_index<Types, T>>>
 		requires
 			I != meta::_v<meta::npos> &&
-			Same<meta::find_index<meta::drop_c<Types, I + 1>, T>, meta::npos>()
+			Same<meta::find_index<meta::drop_c<Types, I + 1>, T>, meta::npos>
 		constexpr std::size_t index_of_type = I;
 
 		template <class...Ts>
-		requires (Destructible<element_t<Ts>>() && ...)
+		requires (Destructible<element_t<Ts>> && ...)
 		class base;
 
 		// VariantTypes<T> is a list of the alternative types of T if
@@ -121,7 +121,7 @@ STL2_OPEN_NAMESPACE {
 	} // namespace __variant
 
 	template <class...Ts>
-	requires (Destructible<__variant::element_t<Ts>>() && ...)
+	requires (Destructible<__variant::element_t<Ts>> && ...)
 	class variant;
 
 	class bad_variant_access : public std::logic_error {

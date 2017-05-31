@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class T, class Proj = identity>
 	requires
 		IndirectRelation<
-			equal_to<>, projected<I, Proj>, const T*>()
+			equal_to<>, projected<I, Proj>, const T*>
 	I find(I first, S last, const T& value, Proj proj = Proj{})
 	{
 		for (; first != last; ++first) {
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng, class T, class Proj = identity>
 	requires
 		IndirectRelation<
-			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>()
+			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
 	safe_iterator_t<Rng> find(Rng&& rng, const T& value, Proj proj = Proj{}) {
 		return __stl2::find(__stl2::begin(rng), __stl2::end(rng), value,
 												__stl2::ref(proj));

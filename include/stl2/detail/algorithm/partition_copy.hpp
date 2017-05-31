@@ -26,10 +26,10 @@ STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O1,
 		WeaklyIncrementable O2, class Pred, class Proj = identity>
 	requires
-		IndirectlyCopyable<I, O1>() &&
-		IndirectlyCopyable<I, O2>() &&
-		IndirectPredicate<
-			Pred, projected<I, Proj>>()
+		IndirectlyCopyable<I, O1> &&
+		IndirectlyCopyable<I, O2> &&
+		IndirectUnaryPredicate<
+			Pred, projected<I, Proj>>
 	tagged_tuple<tag::in(I), tag::out1(O1), tag::out2(O2)>
 	partition_copy(I first, S last, O1 out_true, O2 out_false, Pred pred,
 		Proj proj = Proj{})
@@ -50,12 +50,12 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class O1, class O2, class Pred, class Proj = identity>
 	requires
-		WeaklyIncrementable<__f<O1>>() &&
-		WeaklyIncrementable<__f<O2>>() &&
-		IndirectlyCopyable<iterator_t<Rng>, __f<O1>>() &&
-		IndirectlyCopyable<iterator_t<Rng>, __f<O2>>() &&
-		IndirectPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>()
+		WeaklyIncrementable<__f<O1>> &&
+		WeaklyIncrementable<__f<O2>> &&
+		IndirectlyCopyable<iterator_t<Rng>, __f<O1>> &&
+		IndirectlyCopyable<iterator_t<Rng>, __f<O2>> &&
+		IndirectUnaryPredicate<
+			Pred, projected<iterator_t<Rng>, Proj>>
 	tagged_tuple<
 		tag::in(safe_iterator_t<Rng>),
 		tag::out1(__f<O1>),
