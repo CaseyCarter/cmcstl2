@@ -211,13 +211,14 @@ STL2_OPEN_NAMESPACE {
 			return *__stl2::get_unchecked<I>(v_);
 		}
 		decltype(auto) operator*() const
-		noexcept(noexcept(*std::declval<const I&>())) {
+		noexcept(noexcept(*std::declval<const I&>()))
+		requires detail::Dereferenceable<const I> {
 			STL2_EXPECT(__stl2::holds_alternative<I>(v_));
 			return *__stl2::get_unchecked<I>(v_);
 		}
 		decltype(auto) operator->() const
 		noexcept(noexcept(__common_iterator::operator_arrow(std::declval<const I&>())))
-		requires Readable<I>() {
+		requires Readable<const I>() {
 			STL2_EXPECT(__stl2::holds_alternative<I>(v_));
 			return __common_iterator::operator_arrow(__stl2::get_unchecked<I>(v_));
 		}
