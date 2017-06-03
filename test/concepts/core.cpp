@@ -14,13 +14,13 @@
 #if VALIDATE_RANGES
 namespace models {
 template <class...Ts>
-constexpr bool Same = ranges::Same<Ts...>();
+constexpr bool Same = ranges::Same<Ts...>;
 
 template <class T, class U>
-constexpr bool ConvertibleTo = ranges::ConvertibleTo<T, U>();
+constexpr bool ConvertibleTo = ranges::ConvertibleTo<T, U>;
 
 template <class T, class U>
-constexpr bool Common = ranges::Common<T, U>();
+constexpr bool Common = ranges::Common<T, U>;
 }
 
 namespace ns {

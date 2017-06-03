@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 		private:
 			template <BidirectionalIterator I, class C, class P>
 			requires
-				Sortable<I, C, P>()
+				Sortable<I, C, P>
 			static void impl(I begin, I middle, I end, difference_type_t<I> len1,
 				difference_type_t<I> len2, temporary_buffer<value_type_t<I>>& buf,
 				C& pred, P& proj)
@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 		public:
 			template <BidirectionalIterator I, class C, class P>
 			requires
-				Sortable<I, __f<C>, __f<P>>()
+				Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, difference_type_t<I> len1, difference_type_t<I> len2,
 				detail::temporary_buffer<value_type_t<I>>& buf, C pred, P proj) const
 			{
@@ -177,7 +177,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			template <BidirectionalIterator I, class C = less<>, class P = identity>
 			requires
-				Sortable<I, __f<C>, __f<P>>()
+				Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, difference_type_t<I> len1,
 				difference_type_t<I> len2, C pred = C{}, P proj = P{}) const
 			{
@@ -195,14 +195,14 @@ STL2_OPEN_NAMESPACE {
 	template <BidirectionalIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
-		Sortable<I, Comp, Proj>()
+		Sortable<I, Comp, Proj>
 	I inplace_merge(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto len1 = __stl2::distance(first, middle);
 		auto len2_and_end = __stl2::ext::enumerate(middle, __stl2::move(last));
 		auto buf_size = std::min(len1, len2_and_end.count());
 		detail::temporary_buffer<value_type_t<I>> buf;
-		if (is_trivially_move_assignable<value_type_t<I>>() && 8 < buf_size) {
+		if (is_trivially_move_assignable<value_type_t<I>>{} && 8 < buf_size) {
 			buf = detail::temporary_buffer<value_type_t<I>>{buf_size};
 		}
 		detail::merge_adaptive(__stl2::move(first), __stl2::move(middle), len2_and_end.end(),
@@ -212,7 +212,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <BidirectionalRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		Sortable<iterator_t<Rng>, Comp, Proj>()
+		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
 	inplace_merge(Rng&& rng, iterator_t<Rng> middle, Comp comp = Comp{}, Proj proj = Proj{})
 	{

@@ -16,7 +16,7 @@
 
 namespace models {
 	template <class T, class U = T>
-	constexpr bool Swappable = ranges::Swappable<T, U>();
+	constexpr bool Swappable = ranges::SwappableWith<T, U>;
 }
 
 namespace ns {
@@ -78,7 +78,7 @@ namespace swappable_test {
 		};
 		template <class T>
 		concept bool ConstrainedSwappable =
-			ns::Same<T, constrained_swappable>();
+			ns::Same<T, constrained_swappable>;
 		template <ConstrainedSwappable T, ConstrainedSwappable U>
 		void swap(T&, U&) {}
 		template <ConstrainedSwappable T>
@@ -130,21 +130,21 @@ struct array {
 };
 
 template <class T, class U, std::size_t N>
-	requires stl2::Swappable<T&, U&>()
+	requires stl2::SwappableWith<T&, U&>
 void swap(array<T, N>& a, array<U, N>& b)
 	noexcept(noexcept(ns::swap(a.elements_, b.elements_))) {
 	ns::swap(a.elements_, b.elements_);
 }
 
 template <class T, class U, std::size_t N>
-	requires stl2::Swappable<T&, U&>()
+	requires stl2::SwappableWithT&, U&>()
 void swap(array<T, N>& a, U (&b)[N])
 	noexcept(noexcept(ns::swap(a.elements_, b))) {
 	ns::swap(a.elements_, b);
 }
 
 template <class T, class U, std::size_t N>
-	requires stl2::Swappable<T&, U&>()
+	requires stl2::SwappableWith<T&, U&>
 void swap(T (&b)[N], array<U, N>& a)
 	noexcept(noexcept(ns::swap(a.elements_, b))) {
 	ns::swap(a.elements_, b);

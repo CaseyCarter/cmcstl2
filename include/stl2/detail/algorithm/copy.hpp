@@ -22,7 +22,7 @@
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O>
 	requires
-		IndirectlyCopyable<I, O>()
+		IndirectlyCopyable<I, O>
 	tagged_pair<tag::in(I), tag::out(O)>
 	copy(I first, S last, O result)
 	{
@@ -34,8 +34,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class O>
 	requires
-		WeaklyIncrementable<__f<O>>() &&
-		IndirectlyCopyable<iterator_t<Rng>, __f<O>>()
+		WeaklyIncrementable<__f<O>> &&
+		IndirectlyCopyable<iterator_t<Rng>, __f<O>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	copy(Rng&& rng, O&& result)
 	{
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <InputIterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
 		requires
-			IndirectlyCopyable<I1, I2>()
+			IndirectlyCopyable<I1, I2>
 		tagged_pair<tag::in(I1), tag::out(I2)>
 		copy(I1 first, S1 last, I2 result_first, S2 result_last)
 		{
@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <InputRange Rng1, Range Rng2>
 		requires
-			IndirectlyCopyable<iterator_t<Rng1>, iterator_t<Rng2>>()
+			IndirectlyCopyable<iterator_t<Rng1>, iterator_t<Rng2>>
 		tagged_pair<tag::in(safe_iterator_t<Rng1>), tag::out(safe_iterator_t<Rng2>)>
 		copy(Rng1&& rng1, Rng2&& rng2)
 		{

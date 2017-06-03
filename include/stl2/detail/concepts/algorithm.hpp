@@ -26,9 +26,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class I1, class I2, class R = equal_to<>, class P1 = identity,
 		class P2 = identity>
-	concept bool IndirectlyComparable() {
-		return IndirectRelation<R, projected<I1, P1>, projected<I2, P2>>();
-	}
+	concept bool IndirectlyComparable =
+		IndirectRelation<R, projected<I1, P1>, projected<I2, P2>>;
 
 	namespace models {
 		template <class, class, class = equal_to<>, class = identity, class = identity>
@@ -41,11 +40,10 @@ STL2_OPEN_NAMESPACE {
 	// Permutable [commmonalgoreq.permutable]
 	//
 	template <class I>
-	concept bool Permutable() {
-		return ForwardIterator<I>() &&
-			IndirectlyMovableStorable<I, I>() &&
-			IndirectlySwappable<I, I>();
-	}
+	concept bool Permutable =
+		ForwardIterator<I> &&
+		IndirectlyMovableStorable<I, I> &&
+		IndirectlySwappable<I, I>;
 
 	namespace models {
 		template <class>
@@ -59,14 +57,13 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class I1, class I2, class Out, class R = less<>,
 		class P1 = identity, class P2 = identity>
-	concept bool Mergeable() {
-		return InputIterator<I1>() &&
-			InputIterator<I2>() &&
-			WeaklyIncrementable<Out>() &&
-			IndirectlyCopyable<I1, Out>() &&
-			IndirectlyCopyable<I2, Out>() &&
-			IndirectStrictWeakOrder<R, projected<I1, P1>, projected<I2, P2>>();
-	}
+	concept bool Mergeable =
+		InputIterator<I1> &&
+		InputIterator<I2> &&
+		WeaklyIncrementable<Out> &&
+		IndirectlyCopyable<I1, Out> &&
+		IndirectlyCopyable<I2, Out> &&
+		IndirectStrictWeakOrder<R, projected<I1, P1>, projected<I2, P2>>;
 
 	namespace models {
 		template <class, class, class, class, class, class>
@@ -79,10 +76,9 @@ STL2_OPEN_NAMESPACE {
 	// Sortable [commmonalgoreq.sortable]
 	//
 	template <class I, class R = less<>, class P = identity>
-	concept bool Sortable() {
-		return Permutable<I>() &&
-			IndirectStrictWeakOrder<R, projected<I, P>>();
-	}
+	concept bool Sortable =
+		Permutable<I> &&
+		IndirectStrictWeakOrder<R, projected<I, P>>;
 
 	namespace models {
 		template <class, class, class>

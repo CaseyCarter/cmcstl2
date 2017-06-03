@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 		ForwardIterator I2, Sentinel<I2> S2,
 		class Pred, class Proj1, class Proj2>
 	requires
-		IndirectlyComparable<I1, I2, __f<Pred&>, __f<Proj1&>, __f<Proj2&>>()
+		IndirectlyComparable<I1, I2, __f<Pred&>, __f<Proj1&>, __f<Proj2&>>
 	bool __is_permutation_tail(I1 first1, S1 last1, I2 first2, S2 last2,
 		Pred& pred, Proj1& proj1, Proj2& proj2)
 	{
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 	[[deprecated]] bool is_permutation(I1 first1, S1 last1, I2 first2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>()
+		IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
 	{
 		// shorten sequences as much as possible by lopping off any equal parts
 		for (; first1 != last1; ++first1, ++first2) {
@@ -100,9 +100,9 @@ STL2_OPEN_NAMESPACE {
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
 		!is_array<remove_reference_t<I2>>::value &&
-		ForwardIterator<__f<I2>>() &&
+		ForwardIterator<__f<I2>> &&
 		IndirectlyComparable<
-			iterator_t<Rng1>, __f<I2>, Pred, Proj1, Proj2>()
+			iterator_t<Rng1>, __f<I2>, Pred, Proj1, Proj2>
 	{
 		auto first2 = __stl2::forward<I2>(first2_);
 		return __stl2::is_permutation(
@@ -116,7 +116,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		IndirectlyComparable<
-			I1, I2, Pred, Proj1, Proj2>()
+			I1, I2, Pred, Proj1, Proj2>
 	bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
@@ -144,9 +144,9 @@ STL2_OPEN_NAMESPACE {
 		Sentinel<I2> S2, class Pred = equal_to<>, class Proj1 = identity,
 		class Proj2 = identity>
 	requires
-		SizedSentinel<S1, I1>() &&
-		SizedSentinel<S2, I2>() &&
-		IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>()
+		SizedSentinel<S1, I1> &&
+		SizedSentinel<S2, I2> &&
+		IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
 	bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
@@ -172,7 +172,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectlyComparable<
 			iterator_t<Rng1>, iterator_t<Rng2>,
-			Pred, Proj1, Proj2>()
+			Pred, Proj1, Proj2>
 	bool is_permutation(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
@@ -186,11 +186,11 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		SizedRange<Rng1>() &&
-		SizedRange<Rng2>() &&
+		SizedRange<Rng1> &&
+		SizedRange<Rng2> &&
 		IndirectlyComparable<
 			iterator_t<Rng1>, iterator_t<Rng2>,
-			Pred, Proj1, Proj2>()
+			Pred, Proj1, Proj2>
 	bool is_permutation(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{

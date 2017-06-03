@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template <class T>
-	requires Destructible<T>() && _Is<T, is_object>
+	requires Destructible<T> && _Is<T, is_object>
 	class optional;
 
 	namespace __optional {
@@ -62,31 +62,31 @@ STL2_OPEN_NAMESPACE {
 
 		template <class T, class U>
 		requires
-			Swappable<T&, U&>() &&
-			Constructible<T, U>() &&
-			Constructible<U, T>()
+			SwappableWith<T&, U&> &&
+			Constructible<T, U> &&
+			Constructible<U, T>
 		void swap(optional<T>& lhs, optional<U>& rhs)
 		STL2_NOEXCEPT_RETURN(
 			lhs.swap(rhs)
 		)
 		template <class T>
 		requires
-			Swappable<T&>() &&
-			MoveConstructible<T>()
+			Swappable<T&> &&
+			MoveConstructible<T>
 		void swap(optional<T>& lhs, optional<T>& rhs)
 		STL2_NOEXCEPT_RETURN(
 			lhs.swap(rhs)
 		)
 
 		template <class T>
-		requires Destructible<T>()
+		requires Destructible<T>
 		class storage_destruct_layer {
 		public:
 			~storage_destruct_layer() { if (engaged_) clear(); }
 
 			constexpr storage_destruct_layer() noexcept {}
 			template <class... Args>
-			requires Constructible<T, Args...>()
+			requires Constructible<T, Args...>
 			constexpr explicit storage_destruct_layer(in_place_t, Args&&... args)
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			: item_(std::forward<Args>(args)...), engaged_{true} {}
@@ -105,13 +105,13 @@ STL2_OPEN_NAMESPACE {
 
 		template <class T>
 		requires
-			Destructible<T>() &&
+			Destructible<T> &&
 			std::is_trivially_destructible<T>::value
 		class storage_destruct_layer<T> {
 		public:
 			constexpr storage_destruct_layer() noexcept {}
 			template <class... Args>
-			requires Constructible<T, Args...>()
+			requires Constructible<T, Args...>
 			constexpr explicit storage_destruct_layer(in_place_t, Args&&... args)
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			: item_(std::forward<Args>(args)...), engaged_{true} {}
@@ -133,7 +133,7 @@ STL2_OPEN_NAMESPACE {
 			using storage_destruct_layer<T>::storage_destruct_layer;
 
 			template <class... Args>
-			requires Constructible<T, Args...>()
+			requires Constructible<T, Args...>
 			void construct(Args&&... args)
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			{
@@ -194,7 +194,7 @@ STL2_OPEN_NAMESPACE {
 			{ return assign(std::move(that)); }
 		private:
 			template <class That>
-			requires Same<smf_layer, __uncvref<That>>()
+			requires Same<smf_layer, __uncvref<That>>
 			void construct_from(That&& that) &
 			noexcept(std::is_nothrow_constructible<T, That>::value)
 			{
@@ -203,7 +203,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 			template <class That>
-			requires Same<smf_layer, __uncvref<That>>()
+			requires Same<smf_layer, __uncvref<That>>
 			smf_layer& assign(That&& that) &
 			noexcept(std::is_nothrow_constructible<T, That>::value &&
 				std::is_nothrow_assignable<T&, That>::value)
@@ -232,14 +232,14 @@ STL2_OPEN_NAMESPACE {
 		template <class> struct optional_storage {};
 
 		template <class T>
-		requires Destructible<T>()
+		requires Destructible<T>
 		struct optional_storage<T> {
 			using type = __optional::smf_layer<T>;
 		};
 	} // namespace ext
 
 	template <class T>
-	requires Destructible<T>() && _Is<T, is_object>
+	requires Destructible<T> && _Is<T, is_object>
 	class optional
 	: public meta::_t<ext::optional_storage<T>>
 	, detail::smf_control::copy<models::CopyConstructible<T>>
@@ -284,56 +284,56 @@ STL2_OPEN_NAMESPACE {
 		optional(optional&&) = default;
 
 		template <class... Args>
-		requires Constructible<T, Args...>()
+		requires Constructible<T, Args...>
 		constexpr explicit optional(in_place_t, Args&&... args)
 		: base_t{in_place, std::forward<Args>(args)...} {}
 		template <class E, class... Args>
-		requires Constructible<T, std::initializer_list<E>&, Args...>()
+		requires Constructible<T, std::initializer_list<E>&, Args...>
 		constexpr explicit optional(in_place_t, std::initializer_list<E> il, Args&&... args)
 		: base_t{in_place, il, std::forward<Args>(args)...} {}
 		template <class U = T>
 		requires
-			!Same<U, in_place_t>() &&
-			!Same<optional, std::decay_t<U>>() &&
-			Constructible<T, U>()
+			!Same<U, in_place_t> &&
+			!Same<optional, std::decay_t<U>> &&
+			Constructible<T, U>
 		constexpr explicit optional(U&& u)
 		noexcept(std::is_nothrow_constructible<T, U>::value)
 		: base_t{in_place, std::forward<U>(u)} {}
 		template <class U = T>
 		requires
-			!Same<U, in_place_t>() &&
-			!Same<optional, std::decay_t<U>>() &&
-			Constructible<T, U>() &&
-			ConvertibleTo<U, T>()
+			!Same<U, in_place_t> &&
+			!Same<optional, std::decay_t<U>> &&
+			Constructible<T, U> &&
+			ConvertibleTo<U, T>
 		constexpr optional(U&& u)
 		noexcept(std::is_nothrow_constructible<T, U>::value)
 		: base_t{in_place, std::forward<U>(u)} {}
 		template <class U>
 		requires
-			Constructible<T, const U&>() &&
+			Constructible<T, const U&> &&
 			should_unwrap_construct<U>
 		explicit optional(const optional<U>& that)
 		noexcept(std::is_nothrow_constructible<T, const U&>::value)
 		{ if (that) this->construct(*that); }
 		template <class U>
 		requires
-			Constructible<T, const U&>() &&
+			Constructible<T, const U&> &&
 			should_unwrap_construct<U> &&
-			ConvertibleTo<U, T>()
+			ConvertibleTo<U, T>
 		optional(const optional<U>& that)
 		noexcept(std::is_nothrow_constructible<T, const U&>::value)
 		{ if (that) this->construct(*that); }
 
 		template <class U>
 		requires
-			Constructible<T, U>()
+			Constructible<T, U>
 		explicit optional(optional<U>&& that)
 		noexcept(std::is_nothrow_constructible<T, U>::value)
 		{ if (that) this->construct(std::move(*that)); }
 		template <class U>
 		requires
-			Constructible<T, U>() &&
-			ConvertibleTo<U, T>()
+			Constructible<T, U> &&
+			ConvertibleTo<U, T>
 		optional(optional<U>&& that)
 		noexcept(std::is_nothrow_constructible<T, U>::value)
 		{ if (that) this->construct(std::move(*that)); }
@@ -349,10 +349,10 @@ STL2_OPEN_NAMESPACE {
 
 		template <class U = T>
 		requires
-			!Same<optional, std::decay_t<U>>() &&
-			!(std::is_scalar<T>::value && Same<T, std::decay_t<U>>()) &&
-			Constructible<T, U>() &&
-			Assignable<T&, U>()
+			!Same<optional, std::decay_t<U>> &&
+			!(std::is_scalar<T>::value && Same<T, std::decay_t<U>>) &&
+			Constructible<T, U> &&
+			Assignable<T&, U>
 		optional& operator=(U&& u) &
 		noexcept(std::is_nothrow_assignable<T&, U>::value &&
 			std::is_nothrow_constructible<T, U>::value)
@@ -367,8 +367,8 @@ STL2_OPEN_NAMESPACE {
 
 		template <class U>
 		requires
-			Constructible<T, const U&>() &&
-			Assignable<T, const U&>() &&
+			Constructible<T, const U&> &&
+			Assignable<T, const U&> &&
 			should_unwrap_assign<U>
 		optional& operator=(const optional<U>& that) &
 		noexcept(std::is_nothrow_constructible<T, const U&>::value &&
@@ -388,8 +388,8 @@ STL2_OPEN_NAMESPACE {
 
 		template <class U>
 		requires
-			Constructible<T, U>() &&
-			Assignable<T, U>() &&
+			Constructible<T, U> &&
+			Assignable<T, U> &&
 			should_unwrap_assign<U>
 		optional& operator=(optional<U>&& that) &
 		noexcept(std::is_nothrow_constructible<T, U>::value &&
@@ -408,7 +408,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template <class...Args>
-		requires Constructible<T, Args...>()
+		requires Constructible<T, Args...>
 		void emplace(Args&&...args)
 		noexcept(std::is_nothrow_constructible<T, Args...>::value)
 		{
@@ -416,7 +416,7 @@ STL2_OPEN_NAMESPACE {
 			this->construct(std::forward<Args>(args)...);
 		}
 		template <class U, class...Args>
-		requires Constructible<T, std::initializer_list<U>&, Args...>()
+		requires Constructible<T, std::initializer_list<U>&, Args...>
 		void emplace(std::initializer_list<U> il, Args&&...args)
 		noexcept(std::is_nothrow_constructible<T,
 			std::initializer_list<U>&, Args...>::value)
@@ -427,9 +427,9 @@ STL2_OPEN_NAMESPACE {
 
 		template <class U>
 		requires
-			Swappable<T&, U&>() &&
-			Constructible<T, U>() &&
-			Constructible<U, T>()
+			SwappableWith<T&, U&> &&
+			Constructible<T, U> &&
+			Constructible<U, T>
 		void swap(optional<U>& that)
 		noexcept(is_nothrow_swappable_v<T&, U&> &&
 			std::is_nothrow_constructible<T, U>::value &&
@@ -483,8 +483,8 @@ STL2_OPEN_NAMESPACE {
 
 		template <ConvertibleTo<T> U>
 		requires
-			ConvertibleTo<U, T>() &&
-			CopyConstructible<T>()
+			ConvertibleTo<U, T> &&
+			CopyConstructible<T>
 		constexpr T value_or(U&& u) const & {
 			return *this
 				? **this
@@ -492,8 +492,8 @@ STL2_OPEN_NAMESPACE {
 		}
 		template <class U>
 		requires
-			ConvertibleTo<U, T>() &&
-			MoveConstructible<T>()
+			ConvertibleTo<U, T> &&
+			MoveConstructible<T>
 		constexpr T value_or(U&& u) && {
 			return *this
 				? std::move(**this)

@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
 	namespace __swap_ranges {
 		template <ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2>
 		requires
-			IndirectlySwappable<I1, I2>()
+			IndirectlySwappable<I1, I2>
 		constexpr tagged_pair<tag::in1(I1), tag::in2(I2)>
 		impl(I1 first1, S1 last1, I2 first2)
 		{
@@ -38,10 +38,10 @@ STL2_OPEN_NAMESPACE {
 	[[deprecated]] tagged_pair<tag::in1(__f<I1>), tag::in2(__f<I2>)>
 	swap_ranges(I1&& first1, S1&& last1, I2&& first2)
 	requires
-		ForwardIterator<__f<I1>>() &&
-		Sentinel<__f<S1>, __f<I1>>() &&
-		ForwardIterator<__f<I2>>() &&
-		IndirectlySwappable<__f<I1>, __f<I2>>()
+		ForwardIterator<__f<I1>> &&
+		Sentinel<__f<S1>, __f<I1>> &&
+		ForwardIterator<__f<I2>> &&
+		IndirectlySwappable<__f<I1>, __f<I2>>
 	{
 		return __swap_ranges::impl(
 			std::forward<I1>(first1), std::forward<S1>(last1),
@@ -53,8 +53,8 @@ STL2_OPEN_NAMESPACE {
 	swap_ranges(Rng&& rng1, I&& first2_)
 	requires
 		!is_array<remove_reference_t<I>>::value &&
-		ForwardIterator<__f<I>>() &&
-		IndirectlySwappable<iterator_t<Rng>, __f<I>>()
+		ForwardIterator<__f<I>> &&
+		IndirectlySwappable<iterator_t<Rng>, __f<I>>
 	{
 		auto first2 = std::forward<I>(first2_);
 		return __swap_ranges::impl(__stl2::begin(rng1), __stl2::end(rng1), std::move(first2));
@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I1, Sentinel<I1> S1,
 		ForwardIterator I2, Sentinel<I2> S2>
 	requires
-		IndirectlySwappable<I1, I2>()
+		IndirectlySwappable<I1, I2>
 	tagged_pair<tag::in1(I1), tag::in2(I2)>
 	swap_ranges(I1 first1, S1 last1, I2 first2, S2 last2)
 	{
@@ -75,7 +75,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng1, ForwardRange Rng2>
 	requires
-		IndirectlySwappable<iterator_t<Rng1>, iterator_t<Rng2>>()
+		IndirectlySwappable<iterator_t<Rng1>, iterator_t<Rng2>>
 	tagged_pair<tag::in1(safe_iterator_t<Rng1>),
 							tag::in2(safe_iterator_t<Rng2>)>
 	swap_ranges(Rng1&& rng1, Rng2&& rng2)

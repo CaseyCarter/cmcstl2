@@ -22,8 +22,8 @@
 STL2_OPEN_NAMESPACE {
 	template <class F, Iterator O, Sentinel<O> S>
 	requires
-		Invocable<F&>() &&
-		Writable<O, result_of_t<F&()>>()
+		Invocable<F&> &&
+		Writable<O, result_of_t<F&()>>
 	O generate(O first, S last, F gen)
 	{
 		for (; first != last; ++first) {
@@ -34,8 +34,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <class Rng, class F>
 	requires
-		Invocable<F&>() &&
-		OutputRange<Rng, result_of_t<F&()>>()
+		Invocable<F&> &&
+		OutputRange<Rng, result_of_t<F&()>>
 	safe_iterator_t<Rng>
 	generate(Rng&& rng, F gen)
 	{

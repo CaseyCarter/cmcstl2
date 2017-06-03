@@ -46,23 +46,23 @@ STL2_OPEN_NAMESPACE {
 
 				constexpr bool equal(const cursor& that) const
 				noexcept(noexcept(value_ == that.value_))
-				requires EqualityComparable<I>()
+				requires EqualityComparable<I>
 				{ return value_ == that.value_; }
 
 				constexpr void prev()
 				noexcept(noexcept(--value_))
-				requires ext::Decrementable<I>()
+				requires ext::Decrementable<I>
 				{ --value_; }
 
 				constexpr void advance(difference_type n)
 				noexcept(noexcept(value_ += n))
-				requires ext::RandomAccessIncrementable<I>()
+				requires ext::RandomAccessIncrementable<I>
 				{ value_ += n; }
 
 				constexpr difference_type distance_to(const cursor& that) const
 				noexcept(noexcept(that.value_ - value_))
 				requires
-					ext::RandomAccessIncrementable<I>() || SizedSentinel<I, I>()
+					ext::RandomAccessIncrementable<I> || SizedSentinel<I, I>
 				{ return that.value_ - value_; }
 			};
 

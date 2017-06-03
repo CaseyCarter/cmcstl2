@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		template <ForwardIterator I, class T, class Comp = less<>, class Proj = identity>
 		requires
 			IndirectStrictWeakOrder<
-				Comp, const T*, projected<I, Proj>>()
+				Comp, const T*, projected<I, Proj>>
 		ext::range<I> equal_range_n(I first, difference_type_t<I> dist, const T& value,
 			Comp comp = Comp{}, Proj proj = Proj{})
 		{
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 		class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
-			Comp, const T*, projected<I, Proj>>()
+			Comp, const T*, projected<I, Proj>>
 	ext::range<I> equal_range(I first, S last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{
@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 		class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
-			Comp, const T*, projected<I, Proj>>()
+			Comp, const T*, projected<I, Proj>>
 	ext::range<I> equal_range(I first, S last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{
@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
 		class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
-			Comp, const T*, projected<iterator_t<Rng>, Proj>>()
+			Comp, const T*, projected<iterator_t<Rng>, Proj>>
 	ext::range<safe_iterator_t<Rng>> equal_range(Rng&& rng, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{
@@ -136,8 +136,8 @@ STL2_OPEN_NAMESPACE {
 		class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
-			Comp, const T*, projected<iterator_t<Rng>, Proj>>() &&
-		SizedRange<Rng>()
+			Comp, const T*, projected<iterator_t<Rng>, Proj>> &&
+		SizedRange<Rng>
 	ext::range<safe_iterator_t<Rng>> equal_range(Rng&& rng, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{

@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 		class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
-			Comp, const T*, projected<I, Proj>>()
+			Comp, const T*, projected<I, Proj>>
 	bool binary_search(I first, S last, const T& value, Comp comp = Comp{},
 		Proj proj = Proj{})
 	{
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class T, class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
-			Comp, const T*, projected<iterator_t<Rng>, Proj>>()
+			Comp, const T*, projected<iterator_t<Rng>, Proj>>
 	bool binary_search(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::binary_search(

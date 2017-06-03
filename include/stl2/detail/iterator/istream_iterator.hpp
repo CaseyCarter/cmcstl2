@@ -34,8 +34,8 @@ STL2_OPEN_NAMESPACE {
 			class traits = std::char_traits<charT>,
 			SignedIntegral Distance = std::ptrdiff_t>
 		requires
-			DefaultConstructible<T>() &&
-			CopyConstructible<T>() &&
+			DefaultConstructible<T> &&
+			CopyConstructible<T> &&
 			ext::StreamExtractable<T, std::basic_istream<charT, traits>>
 		class istream_cursor : semiregular_box<T> {
 			using box_t = semiregular_box<T>;
@@ -118,8 +118,8 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class charT = char, class traits = std::char_traits<charT>,
 		SignedIntegral Distance = std::ptrdiff_t>
 	requires
-		DefaultConstructible<T>() &&
-		CopyConstructible<T>() &&
+		DefaultConstructible<T> &&
+		CopyConstructible<T> &&
 		ext::StreamExtractable<T, std::basic_istream<charT, traits>>
 	using istream_iterator =
 		basic_iterator<detail::istream_cursor<T, charT, traits, Distance>>;

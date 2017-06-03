@@ -25,15 +25,14 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec
 	// See https://github.com/ericniebler/stl2/issues/229
 	template <class T, class U>
-	concept bool Assignable() {
-		return _Is<T, is_lvalue_reference> &&
-			CommonReference<
-				const remove_reference_t<T>&,
-				const remove_reference_t<U>&>() &&
-			requires(T t, U&& u) {
-				{ t = (U&&)u } -> Same<T>&&;
-			};
-	}
+	concept bool Assignable =
+		_Is<T, is_lvalue_reference> &&
+		CommonReference<
+			const remove_reference_t<T>&,
+			const remove_reference_t<U>&> &&
+		requires(T t, U&& u) {
+			{ t = (U&&)u } -> Same<T>&&;
+		};
 
 	namespace models {
 		template <class, class>

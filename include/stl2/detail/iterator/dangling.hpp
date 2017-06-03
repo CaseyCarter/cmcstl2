@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	public:
 		constexpr dangling()
 		noexcept(is_nothrow_default_constructible<T>::value)
-		requires DefaultConstructible<T>()
+		requires DefaultConstructible<T>
 		: value{}
 		{}
 		constexpr dangling(T t)

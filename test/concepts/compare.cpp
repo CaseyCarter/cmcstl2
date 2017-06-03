@@ -19,11 +19,11 @@ constexpr bool Boolean =
 
 template <class T, class U = T>
 constexpr bool EqualityComparable =
-	ranges::EqualityComparable<T, U>();
+	ranges::EqualityComparableWith<T, U>;
 
 template <class T, class U = T>
 constexpr bool StrictTotallyOrdered =
-	ranges::StrictTotallyOrdered<T, U>();
+	ranges::StrictTotallyOrderedWith<T, U>;
 }
 
 #elif VALIDATE_STL2

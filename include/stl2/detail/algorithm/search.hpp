@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 			class Proj1 = identity, class Proj2 = identity>
 		requires
 			IndirectlyComparable<
-				I1, I2, Pred, Proj1, Proj2>()
+				I1, I2, Pred, Proj1, Proj2>
 		I1 unsized(I1 first1, S1 last1, I2 first2, S2 last2,
 			Pred pred, Proj1 proj1, Proj2 proj2)
 		{
@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 			class Pred, class Proj1, class Proj2>
 		requires
 			IndirectlyComparable<
-				I1, I2, Pred, Proj1, Proj2>()
+				I1, I2, Pred, Proj1, Proj2>
 		I1 sized(
 			const I1 first1_, S1 last1, const difference_type_t<I1> d1_,
 			I2 first2, S2 last2, const difference_type_t<I2> d2,
@@ -105,7 +105,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		IndirectlyComparable<
-			I1, I2, Pred, Proj1, Proj2>()
+			I1, I2, Pred, Proj1, Proj2>
 	I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
 						Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
@@ -119,10 +119,10 @@ STL2_OPEN_NAMESPACE {
 		ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		SizedSentinel<S1, I1>() &&
-		SizedSentinel<S2, I2>() &&
+		SizedSentinel<S1, I1> &&
+		SizedSentinel<S2, I2> &&
 		IndirectlyComparable<
-			I1, I2, Pred, Proj1, Proj2>()
+			I1, I2, Pred, Proj1, Proj2>
 	I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
@@ -137,7 +137,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		IndirectlyComparable<
-			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>()
+			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
 	safe_iterator_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
@@ -152,9 +152,9 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
 						class Proj1 = identity, class Proj2 = identity>
 	requires
-		SizedRange<Rng1>() && SizedRange<Rng2>() &&
+		SizedRange<Rng1> && SizedRange<Rng2> &&
 		IndirectlyComparable<
-			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>()
+			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
 	safe_iterator_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{

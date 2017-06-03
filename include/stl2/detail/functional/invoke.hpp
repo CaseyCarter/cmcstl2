@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class T, class T1>
 		requires
-			DerivedFrom<decay_t<T1>, T>()
+			DerivedFrom<decay_t<T1>, T>
 		constexpr decltype(auto) coerce(T1&& t1)
 		STL2_NOEXCEPT_RETURN(
 			std::forward<T1>(t1)

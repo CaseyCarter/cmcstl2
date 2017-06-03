@@ -285,7 +285,7 @@ namespace libstdcpp_tests
 	struct is_type : std::false_type {};
 
 	template <meta::Trait T, typename Expected>
-		requires Same<meta::_t<T>, Expected>()
+		requires Same<meta::_t<T>, Expected>
 	struct is_type<T, Expected> : std::true_type {};
 
 	// Inspection types:
@@ -453,13 +453,13 @@ namespace libstdcpp_tests
 			void(*)()>(), "");
 	static_assert(is_type<common_type<void(&&)(), void(&&)()>,
 			void(*)()>(), "");
-	static_assert(is_type<common_type<ImplicitTo<int>, int>, int>(), "");
+	static_assert(is_type<common_type<ImplicitTo<int>, int>, int>{}, "");
 	static_assert(is_type<common_type<ImplicitTo<int>, ImplicitTo<int>>,
-			ImplicitTo<int>>(), "");
+			ImplicitTo<int>>{}, "");
 	static_assert(is_type<common_type<ImplicitTo<int>, int,
-			ImplicitTo<int>>, int>(), "");
+			ImplicitTo<int>>, int>{}, "");
 	static_assert(is_type<common_type<ExplicitTo<int>, ExplicitTo<int>>,
-			ExplicitTo<int>>(), "");
+			ExplicitTo<int>>{}, "");
 	static_assert(is_type<common_type<decltype(lmd1), decltype(lmd1)>,
 			decltype(lmd1)>(), "");
 	static_assert(is_type<common_type<decltype(lmd1)&, decltype(lmd1)&>,
@@ -480,12 +480,12 @@ namespace libstdcpp_tests
 			const int B::*>(), "");
 	static_assert(is_type<common_type<Abstract&, Abstract&>, Abstract>(), "");
 	static_assert(is_type<common_type<Ukn&, Ukn&>, Ukn>(), "");
-	static_assert(is_type<common_type<ImplicitTo<B&>, B&>, B>(), "");
-	static_assert(is_type<common_type<ImplicitTo<B&>&, B&&>, B>(), "");
+	static_assert(is_type<common_type<ImplicitTo<B&>, B&>, B>{}, "");
+	static_assert(is_type<common_type<ImplicitTo<B&>&, B&&>, B>{}, "");
 	static_assert(is_type<common_type<UConv1, const Abstract*&>,
 			const Abstract*>(), "");
-	static_assert(is_type<common_type<UConv1, UConv2>, Abstract*>(), "");
-	static_assert(is_type<common_type<UConv1&, UConv2&>, Abstract*>(), "");
+	static_assert(is_type<common_type<UConv1, UConv2>, Abstract*>{}, "");
+	static_assert(is_type<common_type<UConv1&, UConv2&>, Abstract*>{}, "");
 
 	static_assert(is_type<common_type<Abstract&&, Abstract&&>,
 			Abstract>(), "");
@@ -513,9 +513,9 @@ namespace libstdcpp_tests
 	static_assert(!meta::is_trait<common_type<U, S>>(), "");
 	static_assert(!meta::is_trait<common_type<U, U2>>(), "");
 	// See https://cplusplus.github.io/LWG/lwg-active.html#2763 and P0435
-	//static_assert(!meta::is_trait<common_type<const ImplicitTo<int>, int>>(), "");
+	//static_assert(!meta::is_trait<common_type<const ImplicitTo<int>, int>>{}, "");
 	// Unsure about these two:
-	//static_assert(!meta::is_trait<common_type<PrivateImplicitTo<int>, int>>(), "");
+	//static_assert(!meta::is_trait<common_type<PrivateImplicitTo<int>, int>>{}, "");
 	//static_assert(!meta::is_trait<common_type<const PrivateImplicitTo<int>,
 	//		int>>(), "");
 	static_assert(!meta::is_trait<common_type<int, Ukn>>(), "");
@@ -552,9 +552,9 @@ namespace libstdcpp_tests
 			int (D::*)() const>>(), "");
 	static_assert(!meta::is_trait<common_type<int (B::*)() const,
 			int (D::*)()>>(), "");
-	static_assert(!meta::is_trait<common_type<int, ExplicitTo<int>>>(), "");
+	static_assert(!meta::is_trait<common_type<int, ExplicitTo<int>>>{}, "");
 	static_assert(!meta::is_trait<common_type<ImplicitTo<int>,
-						ExplicitTo<int>>>(), "");
+						ExplicitTo<int>>>{}, "");
 	static_assert(!meta::is_trait<common_type<ScEn, int>>(), "");
 	static_assert(!meta::is_trait<common_type<ScEn, UnscEn>>(), "");
 	static_assert(!meta::is_trait<common_type<U, S, Abstract, void, D,

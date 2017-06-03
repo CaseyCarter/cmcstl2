@@ -27,8 +27,8 @@ namespace ranges = __stl2;
 namespace {
 	template <typename T>
 	requires
-		ranges::CopyConstructible<T>() &&
-		ranges::EqualityComparable<T>()
+		ranges::CopyConstructible<T> &&
+		ranges::EqualityComparable<T>
 	void uninitialized_copy_test(const Array<T>& control)
 	{
 		auto independent = make_buffer<T>(control.size());

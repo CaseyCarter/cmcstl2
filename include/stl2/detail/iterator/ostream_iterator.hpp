@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class T = void, class charT = char, class traits = std::char_traits<charT>>
 	requires
-		Same<T, void>() ||
+		Same<T, void> ||
 		ext::StreamInsertable<T, std::basic_ostream<charT, traits>>
 	class ostream_iterator {
 	public:
@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class U, class V = meta::if_<std::is_void<T>, U, T>>
 		requires
-			ConvertibleTo<U, V const&>() &&
+			ConvertibleTo<U, V const&> &&
 			ext::StreamInsertable<V, ostream_type>
 		ostream_iterator& operator=(U&& u) {
 			*out_stream_ << static_cast<V const &>(std::forward<U>(u));

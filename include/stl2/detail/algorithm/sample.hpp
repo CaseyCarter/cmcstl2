@@ -24,10 +24,10 @@ STL2_OPEN_NAMESPACE {
 	namespace __sample {
 		template <class I, class S, class O, class Gen>
 		concept bool constraint =
-			InputIterator<I>() && Sentinel<S, I>() && WeaklyIncrementable<O>() &&
-			IndirectlyCopyable<I, O>() &&
-			UniformRandomNumberGenerator<remove_reference_t<Gen>>() &&
-			ConvertibleTo<result_of_t<Gen&()>, difference_type_t<I>>();
+			InputIterator<I> && Sentinel<S, I> && WeaklyIncrementable<O> &&
+			IndirectlyCopyable<I, O> &&
+			UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
+			ConvertibleTo<result_of_t<Gen&()>, difference_type_t<I>>;
 
 		template <class I, class S, class O, class Gen>
 		requires
@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I, class S, class O,
 		class Gen = detail::default_random_engine&>
 	requires
-		(ForwardIterator<I>() || SizedSentinel<S, I>()) &&
+		(ForwardIterator<I> || SizedSentinel<S, I>) &&
 		__sample::constraint<I, S, O, Gen>
 	tagged_pair<tag::in(I), tag::out(O)>
 	inline sample(I first, S last, O out, difference_type_t<I> n,
@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I, class S, RandomAccessIterator O,
 		class Gen = detail::default_random_engine&>
 	requires
-		!(ForwardIterator<I>() || SizedSentinel<S, I>()) &&
+		!(ForwardIterator<I> || SizedSentinel<S, I>) &&
 		__sample::constraint<I, S, O, Gen>
 	tagged_pair<tag::in(I), tag::out(O)>
 	sample(I first, S last, O out, difference_type_t<I> n,
@@ -100,8 +100,8 @@ STL2_OPEN_NAMESPACE {
 	template <class I, class S, class ORng,
 		class Gen = detail::default_random_engine&>
 	requires
-		(ForwardIterator<I>() || SizedSentinel<S, I>()) &&
-		(ForwardRange<ORng>() || SizedRange<ORng>()) &&
+		(ForwardIterator<I> || SizedSentinel<S, I>) &&
+		(ForwardRange<ORng> || SizedRange<ORng>) &&
 		__sample::constraint<I, S, iterator_t<ORng>, Gen>
 	inline tagged_pair<tag::in(I), tag::out(safe_iterator_t<ORng>)>
 	sample(I first, S last, ORng&& out,
@@ -115,9 +115,9 @@ STL2_OPEN_NAMESPACE {
 	template <class I, class S, class ORng,
 		class Gen = detail::default_random_engine&>
 	requires
-		RandomAccessIterator<iterator_t<ORng>>() &&
-		!(ForwardIterator<I>() || SizedSentinel<S, I>()) &&
-		(ForwardRange<ORng>() || SizedRange<ORng>()) &&
+		RandomAccessIterator<iterator_t<ORng>> &&
+		!(ForwardIterator<I> || SizedSentinel<S, I>) &&
+		(ForwardRange<ORng> || SizedRange<ORng>) &&
 		__sample::constraint<I, S, iterator_t<ORng>, Gen>
 	inline tagged_pair<tag::in(I), tag::out(safe_iterator_t<ORng>)>
 	sample(I first, S last, ORng&& out,
@@ -130,7 +130,7 @@ STL2_OPEN_NAMESPACE {
 	template <class Rng, RandomAccessIterator O,
 		class Gen = detail::default_random_engine&>
 	requires
-		!(ForwardRange<Rng>() || SizedRange<Rng>()) &&
+		!(ForwardRange<Rng> || SizedRange<Rng>) &&
 		__sample::constraint<iterator_t<Rng>, sentinel_t<Rng>, O, Gen>
 	inline tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
 	sample(Rng&& rng, O out, difference_type_t<iterator_t<Rng>> n,
@@ -142,7 +142,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class Rng, class O, class Gen = detail::default_random_engine&>
 	requires
-		(ForwardRange<Rng>() || SizedRange<Rng>()) &&
+		(ForwardRange<Rng> || SizedRange<Rng>) &&
 		__sample::constraint<iterator_t<Rng>, sentinel_t<Rng>, O, Gen>
 	inline tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
 	sample(Rng&& rng, O out, difference_type_t<iterator_t<Rng>> n,
@@ -154,9 +154,9 @@ STL2_OPEN_NAMESPACE {
 
 	template <class IRng, class ORng, class Gen = detail::default_random_engine&>
 	requires
-		RandomAccessIterator<iterator_t<ORng>>() &&
-		!(ForwardRange<IRng>() || SizedRange<IRng>()) &&
-		(ForwardRange<ORng>() || SizedRange<ORng>()) &&
+		RandomAccessIterator<iterator_t<ORng>> &&
+		!(ForwardRange<IRng> || SizedRange<IRng>) &&
+		(ForwardRange<ORng> || SizedRange<ORng>) &&
 		__sample::constraint<iterator_t<IRng>, sentinel_t<IRng>, iterator_t<ORng>, Gen>
 	inline tagged_pair<
 		tag::in(safe_iterator_t<IRng>),
@@ -169,8 +169,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <class IRng, class ORng, class Gen = detail::default_random_engine&>
 	requires
-		(ForwardRange<IRng>() || SizedRange<IRng>()) &&
-		(ForwardRange<ORng>() || SizedRange<ORng>()) &&
+		(ForwardRange<IRng> || SizedRange<IRng>) &&
+		(ForwardRange<ORng> || SizedRange<ORng>) &&
 		__sample::constraint<iterator_t<IRng>, sentinel_t<IRng>,
 			iterator_t<ORng>, Gen>
 	inline tagged_pair<

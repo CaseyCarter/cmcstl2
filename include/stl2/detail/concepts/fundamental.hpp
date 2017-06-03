@@ -25,9 +25,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	namespace ext {
 		template <class T>
-		concept bool Scalar() {
-			return _Is<T, is_scalar> && Regular<T>();
-		}
+		concept bool Scalar =
+			_Is<T, is_scalar> && Regular<T>;
 	}
 
 	namespace models {
@@ -42,9 +41,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	namespace ext {
 		template <class T>
-		concept bool Arithmetic() {
-			return _Is<T, is_arithmetic> && Scalar<T>() && StrictTotallyOrdered<T>();
-		}
+		concept bool Arithmetic =
+			_Is<T, is_arithmetic> && Scalar<T> && StrictTotallyOrdered<T>;
 	}
 
 	namespace models {
@@ -59,9 +57,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	namespace ext {
 		template <class T>
-		concept bool FloatingPoint() {
-			return _Is<T, is_floating_point> && Arithmetic<T>();
-		}
+		concept bool FloatingPoint =
+			_Is<T, is_floating_point> && Arithmetic<T>;
 	}
 
 	namespace models {
@@ -75,9 +72,8 @@ STL2_OPEN_NAMESPACE {
 	// Integral [concepts.lib.corelang.integral]
 	//
 	template <class T>
-	concept bool Integral() {
-		return _Is<T, is_integral> && ext::Arithmetic<T>();
-	}
+	concept bool Integral =
+		_Is<T, is_integral> && ext::Arithmetic<T>;
 
 	namespace models {
 		template <class>
@@ -90,9 +86,8 @@ STL2_OPEN_NAMESPACE {
 	// SignedIntegral [concepts.lib.corelang.signedintegral]
 	//
 	template <class T>
-	concept bool SignedIntegral() {
-		return Integral<T>() && (T(-1) < T(0));
-	}
+	concept bool SignedIntegral =
+		Integral<T> && (T(-1) < T(0));
 
 	namespace models {
 		template <class>
@@ -105,9 +100,8 @@ STL2_OPEN_NAMESPACE {
 	// UnsignedIntegral [concepts.lib.corelang.unsignedintegral]
 	//
 	template <class T>
-	concept bool UnsignedIntegral() {
-		return Integral<T>() && !SignedIntegral<T>();
-	}
+	concept bool UnsignedIntegral =
+		Integral<T> && !SignedIntegral<T>;
 
 	namespace models {
 		template <class>

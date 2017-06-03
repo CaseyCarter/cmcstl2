@@ -26,9 +26,9 @@ STL2_OPEN_NAMESPACE {
 		class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		IndirectPredicate<Pred,
+		IndirectBinaryPredicate<Pred,
 			projected<I1, Proj1>,
-			projected<I2, Proj2>>()
+			projected<I2, Proj2>>
 	I1 find_first_of(I1 first1, S1 last1, I2 first2, S2 last2,
 		Pred pred = Pred{}, Proj1 proj1 = Proj1{},
 		Proj2 proj2 = Proj2{})
@@ -46,9 +46,9 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		IndirectPredicate<Pred,
+		IndirectBinaryPredicate<Pred,
 			projected<iterator_t<Rng1>, Proj1>,
-			projected<iterator_t<Rng2>, Proj2>>()
+			projected<iterator_t<Rng2>, Proj2>>
 	safe_iterator_t<Rng1>
 	find_first_of(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})

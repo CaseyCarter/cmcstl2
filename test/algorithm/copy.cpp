@@ -20,7 +20,7 @@
 namespace ranges = __stl2;
 
 template <ranges::InputIterator I>
-	requires ranges::Regular<ranges::value_type_t<I>>()
+	requires ranges::Regular<ranges::value_type_t<I>>
 class delimiter {
 	ranges::value_type_t<I> value_;
 public:
