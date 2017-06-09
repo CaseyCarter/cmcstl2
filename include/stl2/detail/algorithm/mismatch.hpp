@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 	mismatch(I1 first1, S1 last1, I2 first2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		IndirectBinaryPredicate<Pred,
+		IndirectRelation<Pred,
 			projected<I1, Proj1>,
 			projected<I2, Proj2>>
 	{
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		InputIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		IndirectBinaryPredicate<
+		IndirectRelation<
 			Pred, projected<I1, Proj1>, projected<I2, Proj2>>
 	tagged_pair<tag::in1(I1), tag::in2(I2)>
 	mismatch(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		!is_array<remove_reference_t<I2>>::value &&
 		InputIterator<__f<I2>> &&
-		IndirectBinaryPredicate<Pred,
+		IndirectRelation<Pred,
 			projected<iterator_t<Rng1>, Proj1>,
 			projected<__f<I2>, Proj2>>
 	{
@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, InputRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		IndirectBinaryPredicate<Pred,
+		IndirectRelation<Pred,
 			projected<iterator_t<Rng1>, Proj1>,
 			projected<iterator_t<Rng2>, Proj2>>
 	tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::in2(safe_iterator_t<Rng2>)>
