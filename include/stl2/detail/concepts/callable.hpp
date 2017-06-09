@@ -153,10 +153,6 @@ STL2_OPEN_NAMESPACE {
 	concept bool IndirectUnaryPredicate =
 		ext::IndirectPredicate<F, I>;
 
-	template <class F, class I1, class I2>
-	concept bool IndirectBinaryPredicate =
-		ext::IndirectPredicate<F, I1, I2>;
-
 	namespace models {
 		template <class, class...>
 		constexpr bool IndirectPredicate = false;
@@ -167,11 +163,6 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool IndirectUnaryPredicate = false;
 		__stl2::IndirectUnaryPredicate{F, I}
 		constexpr bool IndirectUnaryPredicate<F, I> = true;
-
-		template <class, class, class>
-		constexpr bool IndirectBinaryPredicate = false;
-		__stl2::IndirectBinaryPredicate{F, I1, I2}
-		constexpr bool IndirectPredicate<F, I1, I2> = true;
 	}
 
 	template <class F, class I1, class I2 = I1>
