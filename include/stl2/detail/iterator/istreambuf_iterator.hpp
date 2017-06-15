@@ -26,8 +26,6 @@ STL2_OPEN_NAMESPACE {
 	namespace __istreambuf_iterator {
 		template <class charT, class traits = std::char_traits<charT>>
 		requires
-			MoveConstructible<charT> &&
-			DefaultConstructible<charT> &&
 			SignedIntegral<typename traits::off_type>
 		class cursor;
 	}
@@ -47,8 +45,6 @@ STL2_OPEN_NAMESPACE {
 	namespace __istreambuf_iterator {
 		template <class charT, class traits>
 		requires
-			MoveConstructible<charT> &&
-			DefaultConstructible<charT> &&
 			SignedIntegral<typename traits::off_type>
 		class cursor {
 		public:

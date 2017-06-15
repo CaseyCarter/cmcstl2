@@ -311,7 +311,7 @@ struct proxy_array {
 
 template <stl2::InputRange R>
 requires
-	stl2::ext::StreamInsertable<stl2::value_type_t<stl2::iterator_t<R>>> &&
+	stl2::StreamInsertable<stl2::value_type_t<stl2::iterator_t<R>>> &&
 	!stl2::Same<char, stl2::remove_cv_t<
 		stl2::remove_all_extents_t<stl2::remove_reference_t<R>>>>
 std::ostream& operator<<(std::ostream& os, R&& rng) {

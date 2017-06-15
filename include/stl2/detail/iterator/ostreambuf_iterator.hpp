@@ -24,10 +24,8 @@
 
 STL2_OPEN_NAMESPACE {
 	// Not to spec:
-	// * MoveConstructible requirement is implicit
-	//   See https://github.com/ericniebler/stl2/issues/246)
 	// * Extension: satisfies EqualityComparable and Sentinel<default_sentinel>
-	template <MoveConstructible charT, class traits = std::char_traits<charT>>
+	template <class charT, class traits = std::char_traits<charT>>
 	class ostreambuf_iterator {
 	public:
 		using difference_type = ptrdiff_t;
