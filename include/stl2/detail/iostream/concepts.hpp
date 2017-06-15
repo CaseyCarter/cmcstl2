@@ -19,39 +19,35 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// StreamExtractable [Extension]
 	//
-	namespace ext {
-		template <class T, class Stream = std::istream>
-		concept bool StreamExtractable =
-			requires(Stream& is, T& t) {
-				{ is >> t } -> Same<Stream&>&&;
-				// Axiom: &is == &(is << t)
-			};
-	}
+	template <class T, class charT = char, class traits = std::char_traits<charT>>
+	concept bool StreamExtractable =
+		requires(std::basic_istream<charT, traits>& is, T& t) {
+			{ is >> t } -> Same<std::basic_istream<charT, traits>>&;
+			// Axiom: &is == &(is << t)
+		};
 
 	namespace models {
-		template <class, class Stream = std::istream>
+		template <class, class charT = char, class traits = std::char_traits<charT>>
 		constexpr bool StreamExtractable = false;
-		__stl2::ext::StreamExtractable{T, Stream}
-		constexpr bool StreamExtractable<T, Stream> = true;
+		__stl2::StreamExtractable{T, charT, traits}
+		constexpr bool StreamExtractable<T, charT, traits> = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// StreamInsertable [Extension]
 	//
-	namespace ext {
-		template <class T, class Stream = std::ostream>
-		concept bool StreamInsertable =
-			requires(Stream& os, const T& t) {
-				{ os << t } -> Same<Stream&>&&;
-				// Axiom: &os == &(os << t)
-			};
-	}
+	template <class T, class charT = char, class traits = std::char_traits<charT>>
+	concept bool StreamInsertable =
+		requires(std::basic_ostream<charT, traits>& os, const T& t) {
+			{ os << t } -> Same<std::basic_ostream<charT, traits>>&;
+			// Axiom: &os == &(os << t)
+		};
 
 	namespace models {
-		template <class, class Stream = std::ostream>
+		template <class, class charT = char, class traits = std::char_traits<charT>>
 		constexpr bool StreamInsertable = false;
-		__stl2::ext::StreamInsertable{T, Stream}
-		constexpr bool StreamInsertable<T, Stream> = true;
+		__stl2::StreamInsertable{T, charT, traits}
+		constexpr bool StreamInsertable<T, charT, traits> = true;
 	}
 } STL2_CLOSE_NAMESPACE
 
