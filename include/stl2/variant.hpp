@@ -741,7 +741,7 @@ STL2_OPEN_NAMESPACE {
 				__variant::element_t<Ts>&, __variant::element_t<Ts>&>...>>)
 		requires
 			Movable<base_t> && // Movable<variant> explodes here.
-			(Swappable<__variant::element_t<Ts>&> && ...)
+			(Swappable<__variant::element_t<Ts>> && ...)
 		{
 			if (this->index_ == that.index_) {
 				if (this->valid()) {

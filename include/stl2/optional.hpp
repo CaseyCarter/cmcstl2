@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 		)
 		template <class T>
 		requires
-			Swappable<T&> &&
+			Swappable<T> &&
 			MoveConstructible<T>
 		void swap(optional<T>& lhs, optional<T>& rhs)
 		STL2_NOEXCEPT_RETURN(

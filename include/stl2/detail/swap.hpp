@@ -106,29 +106,31 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class T>
 	concept bool Swappable =
-		requires(T&& a, T&& b) {
-			__stl2::swap((T&&)a, (T&&)b);
+		requires(T& a, T& b) {
+			__stl2::swap(a, b);
 		};
 
 	template <class T, class U>
 	concept bool SwappableWith =
-		Swappable<T> &&
-		Swappable<U> &&
 		CommonReference<
 			const remove_reference_t<T>&,
 			const remove_reference_t<U>&> &&
 		requires(T&& t, U&&u) {
+			__stl2::swap((T&&)t, (T&&)t);
+			__stl2::swap((U&&)u, (U&&)u);
 			__stl2::swap((T&&)t, (U&&)u);
 			__stl2::swap((U&&)u, (T&&)t);
 		};
 
 	namespace models {
-		template <class T, class U = T>
+		template <class T>
 		constexpr bool Swappable = false;
 		__stl2::Swappable{T}
-		constexpr bool Swappable<T, T> = true;
+		constexpr bool Swappable<T> = true;
+		template <class T, class U>
+		constexpr bool SwappableWith = false;
 		__stl2::SwappableWith{T, U}
-		constexpr bool Swappable<T, U> = true;
+		constexpr bool SwappableWith<T, U> = true;
 	}
 
 	template <class T, class U>

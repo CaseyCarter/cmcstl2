@@ -363,7 +363,7 @@ void test_iter_swap2() {
 		static_assert(models::Same<int&, R>);
 		using RR = __stl2::rvalue_reference_t<I>;
 		static_assert(models::Same<int&&, RR>);
-		static_assert(models::Swappable<R, R>);
+		static_assert(models::SwappableWith<R, R>);
 
 		// Swappable<R, R> is true, calls the first overload of
 		// iter_swap (which delegates to swap(*a, *b)):
@@ -388,7 +388,7 @@ void test_iter_swap2() {
 
 		static_assert(models::Same<I, decltype(a.begin() + 2)>);
 		static_assert(models::CommonReference<const R&, const R&>);
-		static_assert(!models::Swappable<R, R>);
+		static_assert(!models::SwappableWith<R, R>);
 		static_assert(models::IndirectlyMovableStorable<I, I>);
 
 		// Swappable<R, R> is not satisfied, and

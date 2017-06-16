@@ -142,7 +142,7 @@ STL2_OPEN_NAMESPACE {
 		// Not to spec: constexpr per P0579
 		constexpr void swap(tagged& that)
 		noexcept(is_nothrow_swappable_v<Base&, Base&>)
-		requires Swappable<Base&>
+		requires Swappable<Base>
 		{
 			__stl2::swap(static_cast<Base&>(*this), static_cast<Base&>(that));
 		}
@@ -150,7 +150,7 @@ STL2_OPEN_NAMESPACE {
 		// Not to spec: constexpr per P0579
 		friend constexpr void swap(tagged& a, tagged& b)
 		noexcept(noexcept(a.swap(b)))
-		requires Swappable<Base&>
+		requires Swappable<Base>
 		{
 			a.swap(b);
 		}
