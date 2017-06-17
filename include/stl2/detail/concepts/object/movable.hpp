@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		_Is<T, is_object> &&
 		MoveConstructible<T> &&
 		Assignable<T&, T&&> &&
-		Swappable<T&>;
+		Swappable<T>;
 
 	namespace models {
 		template <class>

@@ -108,12 +108,14 @@ STL2_OPEN_NAMESPACE {
 				const remove_reference_t<U>&>>;
 
 	namespace models {
-		template <class T, class U = T>
+		template <class T>
 		constexpr bool EqualityComparable = false;
 		__stl2::EqualityComparable{T}
-		constexpr bool EqualityComparable<T, T> = true;
+		constexpr bool EqualityComparable<T> = true;
+		template <class T, class U>
+		constexpr bool EqualityComparableWith = false;
 		__stl2::EqualityComparableWith{T, U}
-		constexpr bool EqualityComparable<T, U> = true;
+		constexpr bool EqualityComparableWith<T, U> = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -156,12 +158,14 @@ STL2_OPEN_NAMESPACE {
 				const remove_reference_t<U>&>>;
 
 	namespace models {
-		template <class T, class U = T>
+		template <class T>
 		constexpr bool StrictTotallyOrdered = false;
 		__stl2::StrictTotallyOrdered{T}
-		constexpr bool StrictTotallyOrdered<T, T> = true;
+		constexpr bool StrictTotallyOrdered<T> = true;
+		template <class T, class U>
+		constexpr bool StrictTotallyOrderedWith = false;
 		__stl2::StrictTotallyOrderedWith{T, U}
-		constexpr bool StrictTotallyOrdered<T, U> = true;
+		constexpr bool StrictTotallyOrderedWith<T, U> = true;
 	}
 } STL2_CLOSE_NAMESPACE
 

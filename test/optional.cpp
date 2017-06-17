@@ -95,10 +95,10 @@ namespace std::experimental::ranges {
 }
 
 static_assert(ranges::models::Common<::X::A, ::X::B>);
-static_assert(ranges::models::Swappable<::X::A&>);
-static_assert(ranges::models::Swappable<::X::B&>);
-static_assert(ranges::models::Swappable<::X::C&>);
-static_assert(ranges::models::Swappable<::X::A&, ::X::B&>);
+static_assert(ranges::models::Swappable<::X::A>);
+static_assert(ranges::models::Swappable<::X::B>);
+static_assert(ranges::models::Swappable<::X::C>);
+static_assert(ranges::models::SwappableWith<::X::A&, ::X::B&>);
 
 void test_cross_type_swap() {
 	ranges::optional<::X::A> oa{ranges::in_place};
@@ -173,7 +173,7 @@ int main() {
 		CHECK(!o);
 		{
 			auto oi = ranges::make_optional<int>(42);
-			static_assert(models::Swappable<ranges::optional<int>&>);
+			static_assert(models::Swappable<ranges::optional<int>>);
 			ranges::swap(o, oi);
 			CHECK(!oi);
 			CHECK(o);
@@ -212,14 +212,14 @@ int main() {
 
 		static_assert(models::StrictTotallyOrdered<int>);
 		static_assert(models::StrictTotallyOrdered<OI>);
-		static_assert(models::StrictTotallyOrdered<int, OI>);
+		static_assert(models::StrictTotallyOrderedWith<int, OI>);
 
 		static_assert(models::StrictTotallyOrdered<long>);
 		static_assert(models::StrictTotallyOrdered<OL>);
-		static_assert(models::StrictTotallyOrdered<long, OL>);
+		static_assert(models::StrictTotallyOrderedWith<long, OL>);
 
-		static_assert(models::StrictTotallyOrdered<int, long>);
-		static_assert(models::StrictTotallyOrdered<OI, OL>);
+		static_assert(models::StrictTotallyOrderedWith<int, long>);
+		static_assert(models::StrictTotallyOrderedWith<OI, OL>);
 
 		static_assert(models::Constructible<long, int>);
 		static_assert(models::ConvertibleTo<int, long>);
@@ -232,7 +232,7 @@ int main() {
 		static_assert(models::ConvertibleTo<long, int>);
 		static_assert(models::Constructible<int, long>);
 
-		static_assert(!models::Swappable<OI&, OL&>);
+		static_assert(!models::SwappableWith<OI&, OL&>);
 	}
 
 	{

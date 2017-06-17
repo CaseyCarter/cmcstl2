@@ -62,10 +62,10 @@ CONCEPT_ASSERT(models::EqualityComparable<A>);
 CONCEPT_ASSERT(!models::EqualityComparable<void>);
 CONCEPT_ASSERT(models::EqualityComparable<int&>);
 
-CONCEPT_ASSERT(models::EqualityComparable<int, int>);
-CONCEPT_ASSERT(models::EqualityComparable<A, A>);
-CONCEPT_ASSERT(!models::EqualityComparable<void, void>);
-CONCEPT_ASSERT(models::EqualityComparable<int&, int>);
+CONCEPT_ASSERT(models::EqualityComparableWith<int, int>);
+CONCEPT_ASSERT(models::EqualityComparableWith<A, A>);
+CONCEPT_ASSERT(!models::EqualityComparableWith<void, void>);
+CONCEPT_ASSERT(models::EqualityComparableWith<int&, int>);
 } // namespace equality_comparable_test
 
 CONCEPT_ASSERT(models::StrictTotallyOrdered<int>);
@@ -74,10 +74,10 @@ CONCEPT_ASSERT(models::StrictTotallyOrdered<std::nullptr_t>);
 CONCEPT_ASSERT(!models::StrictTotallyOrdered<void>);
 CONCEPT_ASSERT(models::StrictTotallyOrdered<int&>);
 
-CONCEPT_ASSERT(models::StrictTotallyOrdered<int, int>);
-CONCEPT_ASSERT(models::StrictTotallyOrdered<int, double>);
-CONCEPT_ASSERT(!models::StrictTotallyOrdered<int, void>);
-CONCEPT_ASSERT(models::StrictTotallyOrdered<int&, int>);
+CONCEPT_ASSERT(models::StrictTotallyOrderedWith<int, int>);
+CONCEPT_ASSERT(models::StrictTotallyOrderedWith<int, double>);
+CONCEPT_ASSERT(!models::StrictTotallyOrderedWith<int, void>);
+CONCEPT_ASSERT(models::StrictTotallyOrderedWith<int&, int>);
 
 int main() {
 	return ::test_result();

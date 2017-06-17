@@ -1383,7 +1383,7 @@ void test_conversion_assign() {
 void test_swap() {
 	{
 		using V = variant<int, float>;
-		static_assert(models::Swappable<V&>);
+		static_assert(models::Swappable<V>);
 		V v1{42};
 		V v2{3.14f};
 		__stl2::swap(v1, v2);
@@ -1393,11 +1393,11 @@ void test_swap() {
 		CHECK(get<int>(v2) == 42);
 	}
 
-	static_assert(!models::Swappable<variant<const int>&>);
+	static_assert(!models::Swappable<variant<const int>>);
 
 	{
 		using V = variant<int&>;
-		static_assert(models::Swappable<V&>);
+		static_assert(models::Swappable<V>);
 		int i = 42;
 		int j = 13;
 		V v1{i};
@@ -1476,7 +1476,7 @@ void test_comparisons() {
 	}
 
 	{
-		static_assert(!models::EqualityComparable<variant<int>, variant<long>>);
+		static_assert(!models::EqualityComparableWith<variant<int>, variant<long>>);
 	}
 }
 

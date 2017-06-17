@@ -604,7 +604,7 @@ void test_proxy_array() {
 
 	static_assert(stl2::models::Same<I, decltype(a.begin() + 2)>);
 	static_assert(stl2::models::CommonReference<const R&, const R&>);
-	static_assert(!stl2::models::Swappable<R, R>);
+	static_assert(!stl2::models::SwappableWith<R, R>);
 	static_assert(stl2::models::IndirectlyMovableStorable<I, I>);
 
 	// Swappable<R, R> is not satisfied, and
