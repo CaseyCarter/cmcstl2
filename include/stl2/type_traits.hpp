@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 	using __cref = __ref<add_const_t<X>>;
 
 	template <class T, class U>
-	using __cond = decltype(true ? declval<T>() : declval<U>());
+	using __cond = decltype(true ? declval<T(&)()>()() : declval<U(&)()>()());
 
 	template <class From, class To>
 	struct __copy_cv_ : meta::id<To> {};
@@ -148,11 +148,23 @@ STL2_OPEN_NAMESPACE {
 	struct common_reference<T> : meta::id<T> {};
 
 	template <class T, class U>
-	struct __common_reference2
-		: meta::if_<meta::is_trait<__basic_common_reference<T, U>>,
-			__basic_common_reference<T, U>, common_type<T, U>> {};
+	struct __common_reference2_2_ : common_type<T, U> {};
 
 	template <class T, class U>
+	requires requires { typename __cond<T, U>; }
+	struct __common_reference2_2_<T, U> : meta::id<__cond<T, U>> {};
+
+	template <class T, class U>
+	struct __common_reference2_1_ : __common_reference2_2_<T, U> {};
+
+	template <class T, class U>
+	requires _Valid<meta::_t, __basic_common_reference<T, U>>
+	struct __common_reference2_1_<T, U> : __basic_common_reference<T, U> {};
+
+	template <class T, class U>
+	struct __common_reference2 : __common_reference2_1_<T, U> {};
+
+	template <_Is<std::is_reference> T, _Is<std::is_reference> U>
 	requires
 		_Valid<__builtin_common_t, T, U> &&
 		_Is<__builtin_common_t<T, U>, is_reference>

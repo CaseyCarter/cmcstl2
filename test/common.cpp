@@ -756,6 +756,16 @@ namespace libstdcpp_tests
 				"common_type<const volatile void, const volatile void>" );
 }
 
+// https://github.com/ericniebler/stl2/issues/338
+struct MyIntRef {
+  MyIntRef(int &);
+};
+using T = common_reference_t<int&, MyIntRef>;
+static_assert( is_same<common_reference<int&, MyIntRef>::type, MyIntRef>(),
+	"common_reference<int&, MyIntRef>");
+static_assert( is_same<common_reference<int, int, int>::type, int>(),
+    "common_reference<int, int, int>");
+
 int main() {
 	::libstdcpp_tests::typedefs_1();
 	return ::test_result();
