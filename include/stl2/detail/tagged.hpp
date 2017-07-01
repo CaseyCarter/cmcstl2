@@ -81,6 +81,7 @@ STL2_OPEN_NAMESPACE {
 	concept bool TaggedType =
 		requires {
 			typename __tagged::specifier<T>;
+			typename __tagged::element<T>;
 			requires TagSpecifier<__tagged::specifier<T>>;
 		};
 
@@ -173,26 +174,22 @@ STL2_OPEN_NAMESPACE {
 				constexpr decltype(auto) name() &                                                   \
 				noexcept(noexcept(::__stl2::detail::adl_get<I>(::std::declval<Untagged&>())))       \
 				{                                                                                   \
-					Untagged& self = *this;                                                         \
-					return ::__stl2::detail::adl_get<I>(self);                                      \
+					return ::__stl2::detail::adl_get<I>(static_cast<Untagged&>(*this));             \
 				}                                                                                   \
 				constexpr decltype(auto) name() const&                                              \
 				noexcept(noexcept(::__stl2::detail::adl_get<I>(::std::declval<const Untagged&>()))) \
 				{                                                                                   \
-					const Untagged& self = *this;                                                   \
-					return ::__stl2::detail::adl_get<I>(self);                                      \
+					return ::__stl2::detail::adl_get<I>(static_cast<const Untagged&>(*this));       \
 				}                                                                                   \
 				constexpr decltype(auto) name() &&                                                  \
 				noexcept(noexcept(::__stl2::detail::adl_get<I>(::std::declval<Untagged>())))        \
 				{                                                                                   \
-					Untagged& self = *this;                                                         \
-					return ::__stl2::detail::adl_get<I>(::std::move(self));                         \
+					return ::__stl2::detail::adl_get<I>(static_cast<Untagged&&>(*this));            \
 				}                                                                                   \
 				constexpr decltype(auto) name() const&&                                             \
 				noexcept(noexcept(::__stl2::detail::adl_get<I>(::std::declval<const Untagged>())))  \
 				{                                                                                   \
-					const Untagged& self = *this;                                                   \
-					return ::__stl2::detail::adl_get<I>(::std::move(self));                         \
+					return ::__stl2::detail::adl_get<I>(static_cast<Untagged const&&>(*this));      \
 				}                                                                                   \
 			protected:                                                                              \
 				~tagged_getter() = default;                                                         \
