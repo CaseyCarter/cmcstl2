@@ -198,23 +198,7 @@ void test_tagged_tuple_creation_para_4_example() {
 	CHECK(&t.out() == &j);
 }
 
-struct foo {
-	template <class B>
-	struct tagged_getter : B {
-		constexpr decltype(auto) foo() & {
-			return B::get();
-		}
-		constexpr decltype(auto) foo() const& {
-			return B::get();
-		}
-		constexpr decltype(auto) foo() && {
-			return __stl2::move(*this).B::get();
-		}
-		constexpr decltype(auto) foo() const&& {
-			return __stl2::move(*this).B::get();
-		}
-	};
-};
+STL2_DEFINE_GETTER(foo)
 
 void test_tag_extension() {
 	auto p = __stl2::make_tagged_pair<__stl2::tag::in, foo>(42, 13);
@@ -229,6 +213,8 @@ void test_tag_extension() {
 template <class T>
 struct im_a_tuple {
 	T i = 42;
+
+	void out();
 };
 
 template <int I>
@@ -251,6 +237,12 @@ namespace std {
 	struct tuple_size<::im_a_tuple<T>> : meta::size_t<1> {};
 	template <class T>
 	struct tuple_element<0, ::im_a_tuple<T>> { using type = T; };
+}
+
+void test_chain_inheritance() {
+	using T = __stl2::tagged<im_a_tuple<int>, __stl2::tag::out>;
+	T t{};
+	CHECK(t.out(), 42);
 }
 
 constexpr bool test_constexpr() {
@@ -286,5 +278,6 @@ int main() {
 	test_tagged_tuple_para_3_example();
 	test_tagged_tuple_creation_para_4_example();
 	test_tag_extension();
+	test_chain_inheritance();
 	return ::test_result();
 }

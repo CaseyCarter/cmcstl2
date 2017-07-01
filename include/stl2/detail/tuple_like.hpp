@@ -31,6 +31,21 @@ STL2_OPEN_NAMESPACE {
 	requires !Same<U, __uncvref<U>>
 	constexpr std::size_t tuple_find<T, U> =
 		tuple_find<T, __uncvref<U>>;
+
+	namespace detail {
+		namespace adl {
+			using std::get;
+
+			template <std::size_t I, class T>
+			constexpr auto adl_get(T&& t)
+			noexcept(noexcept(get<I>(static_cast<T&&>(t))))
+			-> decltype(get<I>(static_cast<T&&>(t)))
+			{
+				return get<I>(static_cast<T&&>(t));
+			}
+		} // namespace adl
+		using adl::adl_get;
+	} // namespace detail
 } STL2_CLOSE_NAMESPACE
 
 #endif

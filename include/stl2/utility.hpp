@@ -51,8 +51,8 @@ STL2_OPEN_NAMESPACE {
 	// tagged_pair
 	template <TaggedType F, TaggedType S>
 	using tagged_pair =
-		tagged<pair<__tag_elem<F>, __tag_elem<S>>,
-			__tag_spec<F>, __tag_spec<S>>;
+		tagged<pair<__tagged::element<F>, __tagged::element<S>>,
+			__tagged::specifier<F>, __tagged::specifier<S>>;
 
 	// make_tagged_pair
 	template <TagSpecifier Tag1, TagSpecifier Tag2, class T1, class T2>

@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 	// tagged_tuple
 	template <TaggedType...Types>
 	using tagged_tuple =
-		tagged<tuple<__tag_elem<Types>...>, __tag_spec<Types>...>;
+		tagged<tuple<__tagged::element<Types>...>, __tagged::specifier<Types>...>;
 
 	// make_tagged_tuple
 	template <TagSpecifier...Tags, class...Types>
