@@ -39,41 +39,6 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		using element = meta::_t<properties<T>>;
 
-		template <class Untagged, std::size_t I, class Next>
-		struct specifier_link : Next {
-			using Next::Next;
-			specifier_link() = default;
-			constexpr specifier_link(Untagged&& that)
-			noexcept(std::is_nothrow_move_constructible<Untagged>::value)
-			requires MoveConstructible<Untagged>
-			: Next(std::move(that))
-			{}
-			constexpr specifier_link(const Untagged& that)
-			noexcept(std::is_nothrow_copy_constructible<Untagged>::value)
-			requires CopyConstructible<Untagged>
-			: Next(that)
-			{}
-		protected:
-			~specifier_link() = default;
-
-			constexpr auto&& get() & {
-				Untagged& self = *this;
-				return detail::adl_get<I>(self);
-			}
-			constexpr auto&& get() const& {
-				const Untagged& self = *this;
-				return detail::adl_get<I>(self);
-			}
-			constexpr auto&& get() && {
-				Untagged& self = *this;
-				return detail::adl_get<I>(std::move(self));
-			}
-			constexpr auto&& get() const&& {
-				const Untagged& self = *this;
-				return detail::adl_get<I>(std::move(self));
-			}
-		};
-
 		template <class Untagged, std::size_t, class...>
 		struct chain {
 			using type = Untagged;
@@ -81,15 +46,14 @@ STL2_OPEN_NAMESPACE {
 		template <class Untagged, std::size_t I, class First, class... Rest>
 		struct chain<Untagged, I, First, Rest...>
 		{
-			using type = typename First::template tagged_getter<
-				specifier_link<Untagged, I, meta::_t<chain<Untagged, I + 1, Rest...>>>>;
+			using type = typename First::template tagged_getter<Untagged, I,
+				meta::_t<chain<Untagged, I + 1, Rest...>>>;
 		};
 	} // namespace __tagged
 
 	template <class T>
 	concept bool TagSpecifier =
-		DerivedFrom<typename T::template tagged_getter<
-			__tagged::specifier_link<std::tuple<int>, 0, std::tuple<int>>>,
+		DerivedFrom<typename T::template tagged_getter<std::tuple<int>, 0, std::tuple<int>>,
 			std::tuple<int>>;
 
 	template <class T>
@@ -184,40 +148,55 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	#define STL2_DEFINE_GETTER(name)                                            \
-		struct name {                                                           \
-			template <class Next>                                               \
-			struct tagged_getter : Next {                                       \
-				using Next::Next;                                               \
-				tagged_getter() = default;                                      \
-				tagged_getter(const tagged_getter&) = default;                  \
-				tagged_getter(tagged_getter&&) = default;                       \
-				tagged_getter& operator=(tagged_getter&&) = default;            \
-				tagged_getter& operator=(const tagged_getter&) = default;       \
-				                                                                \
-				constexpr decltype(auto) name() &                               \
-				noexcept(noexcept(std::declval<Next&>().get()))                 \
-				{                                                               \
-					return Next::get();                                         \
-				}                                                               \
-				constexpr decltype(auto) name() const&                          \
-				noexcept(noexcept(std::declval<const Next&>().get()))           \
-				{                                                               \
-					return Next::get();                                         \
-				}                                                               \
-				constexpr decltype(auto) name() &&                              \
-				noexcept(noexcept(std::declval<Next>().get()))                  \
-				{                                                               \
-					return std::move(*this).Next::get();                        \
-				}                                                               \
-				constexpr decltype(auto) name() const&&                         \
-				noexcept(noexcept(std::declval<const Next>().get()))            \
-				{                                                               \
-					return std::move(*this).Next::get();                        \
-				}                                                               \
-			protected:                                                          \
-				~tagged_getter() = default;                                     \
-			};                                                                  \
+	#define STL2_DEFINE_GETTER(name)                                                                \
+		struct name {                                                                               \
+			template <class Untagged, std::size_t I, class Next>                                    \
+			struct tagged_getter : Next {                                                           \
+				using Next::Next;                                                                   \
+				tagged_getter() = default;                                                          \
+				tagged_getter(const tagged_getter&) = default;                                      \
+				tagged_getter(tagged_getter&&) = default;                                           \
+				constexpr tagged_getter(Untagged&& that)                                            \
+				noexcept(std::is_nothrow_move_constructible<Untagged>::value)                       \
+				requires __stl2::MoveConstructible<Untagged>                                        \
+				: Next(std::move(that))                                                             \
+				{}                                                                                  \
+				constexpr tagged_getter(const Untagged& that)                                       \
+				noexcept(std::is_nothrow_copy_constructible<Untagged>::value)                       \
+				requires __stl2::CopyConstructible<Untagged>                                        \
+				: Next(that)                                                                        \
+				{}                                                                                  \
+				                                                                                    \
+				tagged_getter& operator=(tagged_getter&&) = default;                                \
+				tagged_getter& operator=(const tagged_getter&) = default;                           \
+				                                                                                    \
+				constexpr decltype(auto) name() &                                                   \
+				noexcept(noexcept(::__stl2::detail::adl_get<I>(std::declval<Untagged&>())))         \
+				{                                                                                   \
+					Untagged& self = *this;                                                         \
+					return ::__stl2::detail::adl_get<I>(self);                                      \
+				}                                                                                   \
+				constexpr decltype(auto) name() const&                                              \
+				noexcept(noexcept(::__stl2::detail::adl_get<I>(std::declval<const Untagged&>())))   \
+				{                                                                                   \
+					const Untagged& self = *this;                                                   \
+					return ::__stl2::detail::adl_get<I>(self);                                      \
+				}                                                                                   \
+				constexpr decltype(auto) name() &&                                                  \
+				noexcept(noexcept(::__stl2::detail::adl_get<I>(std::declval<Untagged>())))          \
+				{                                                                                   \
+					Untagged& self = *this;                                                         \
+					return ::__stl2::detail::adl_get<I>(std::move(self));                           \
+				}                                                                                   \
+				constexpr decltype(auto) name() const&&                                             \
+				noexcept(noexcept(::__stl2::detail::adl_get<I>(std::declval<const Untagged>())))    \
+				{                                                                                   \
+					const Untagged& self = *this;                                                   \
+					return ::__stl2::detail::adl_get<I>(std::move(self));                           \
+				}                                                                                   \
+			protected:                                                                              \
+				~tagged_getter() = default;                                                         \
+			};                                                                                      \
 		};
 
 	// tag specifiers [algorithm.general]
