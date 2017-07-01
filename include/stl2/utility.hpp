@@ -44,10 +44,6 @@ STL2_OPEN_NAMESPACE {
 	using std::make_index_sequence;
 	using std::index_sequence_for;
 
-	template <class T, class T1, class T2>
-	constexpr std::size_t tuple_find<T, pair<T1, T2>> =
-		meta::_v<meta::find_index<meta::list<T1, T2>, T>>;
-
 	// tagged_pair
 	template <TaggedType F, TaggedType S>
 	using tagged_pair =

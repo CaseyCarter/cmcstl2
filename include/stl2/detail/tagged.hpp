@@ -214,10 +214,6 @@ STL2_OPEN_NAMESPACE {
 		STL2_DEFINE_GETTER(end)
 		STL2_DEFINE_GETTER(count) // Extension
 	}
-
-	template <class T, class Base, class...Tags>
-	constexpr std::size_t tuple_find<T, tagged<Base, Tags...>> =
-		tuple_find<T, Base>;
 } STL2_CLOSE_NAMESPACE
 
 namespace std {
