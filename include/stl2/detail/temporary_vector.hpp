@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			temporary_vector() = default;
-			explicit temporary_vector(temporary_buffer<T>& buf)
+			temporary_vector(temporary_buffer<T>& buf)
 			: begin_{buf.data()}, end_{begin_}
 			, alloc_{begin_ + buf.size_}
 			{}
@@ -161,8 +161,8 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		ext::DestructibleObject{T}
-		auto make_temporary_vector(temporary_buffer<T>& buf) {
-			return temporary_vector<T>{buf};
+		temporary_vector<T> make_temporary_vector(temporary_buffer<T>& buf) {
+			return {buf};
 		}
 	}
 } STL2_CLOSE_NAMESPACE
