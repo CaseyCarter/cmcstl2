@@ -50,9 +50,7 @@ STL2_OPEN_NAMESPACE {
 		: logic_error{"Attempt to access disengaged optional"} {}
 	};
 
-	template <class T>
-	requires Destructible<T> && _Is<T, is_object>
-	class optional;
+	ext::DestructibleObject{T} class optional;
 
 	namespace __optional {
 		template <class = void>
@@ -238,8 +236,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	} // namespace ext
 
-	template <class T>
-	requires Destructible<T> && _Is<T, is_object>
+	ext::DestructibleObject{T}
 	class optional
 	: public meta::_t<ext::optional_storage<T>>
 	, detail::smf_control::copy<models::CopyConstructible<T>>
