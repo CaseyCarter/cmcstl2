@@ -29,7 +29,7 @@
 //   validity requirements.
 
 STL2_OPEN_NAMESPACE {
-	template <Destructible T>
+	template <ext::DestructibleObject T>
 	requires std::is_class<T>::value && !std::is_final<T>::value
 	class basic_mixin : T {
 	public:
@@ -67,6 +67,13 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool IsValueType = !is_void<T>::value;
 	} // namespace detail
 	template <class T>
+	requires
+		requires {
+			typename meta::_t<detail::mixin_base<T>>;
+			requires ext::DestructibleObject<meta::_t<detail::mixin_base<T>>>;
+			requires std::is_class<meta::_t<detail::mixin_base<T>>>::value;
+			requires !std::is_final<meta::_t<detail::mixin_base<T>>>::value;
+		}
 	using mixin_t = meta::_t<detail::mixin_base<T>>;
 
 	namespace cursor {
@@ -153,10 +160,8 @@ STL2_OPEN_NAMESPACE {
 		template <class C, class M>
 		concept bool _Cursor =
 			Semiregular<C> &&
-			std::is_class<M>::value &&
-			!std::is_final<M>::value &&
 			Semiregular<M> &&
-			Constructible<M, C&&> &&
+			Constructible<M, C> &&
 			Constructible<M, const C&>;
 
 		template <class C>
