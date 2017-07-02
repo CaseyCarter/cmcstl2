@@ -189,12 +189,12 @@ STL2_OPEN_NAMESPACE {
 				: base_t(cursor{std::move(i)})
 				{}
 				using base_t::base_t;
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 7
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 7 && __GNUC_MINOR__ < 2
 				explicit mixin(cursor c)
 				: base_t(std::move(c))
 				{}
 #endif // unknown gcc7 bug
-			};
+		};
 
 			cursor() = default;
 			cursor(cursor &&that) {

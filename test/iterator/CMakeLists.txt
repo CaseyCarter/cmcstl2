@@ -23,6 +23,8 @@ add_stl2_test(test.iterator.ostreambuf ostreambuf_iterator ostreambuf_iterator.c
 add_stl2_test(test.iterator.make_range make_range make_range.cpp)
 add_stl2_test(test.iterator.incomplete iter.incomplete incomplete.cpp)
 add_stl2_test(test.iterator.operations iter.operations operations.cpp)
-
 add_stl2_test(test.iterator.any iter.any any_iterator.cpp)
-target_compile_options(iter.any PRIVATE -Wno-error=strict-aliasing)
+# silence -Wstrict-aliasing false positives from GCC 7.1
+target_compile_options(iter.any PRIVATE
+    $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,7.0>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,7.2>>:
+    -Wno-error=strict-aliasing>)
