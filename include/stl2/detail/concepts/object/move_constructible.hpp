@@ -20,6 +20,21 @@
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
+	// Object [Extension]
+	//
+	namespace ext {
+		template <class T>
+		concept bool Object = _Is<T, std::is_object>;
+	} // namespace ext
+
+	namespace models {
+		template <class>
+		constexpr bool Object = false;
+		__stl2::ext::Object{T}
+		constexpr bool Object<T> = true;
+	} // namespace models
+
+	///////////////////////////////////////////////////////////////////////////
 	// Addressable [Extension]
 	//
 	template <class T>
@@ -34,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <class T>
 		concept bool Addressable =
-			_Is<T, is_object> && __addressable<T>;
+			Object<T> && __addressable<T>;
 	}
 
 	namespace models {

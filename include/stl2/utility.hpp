@@ -44,18 +44,20 @@ STL2_OPEN_NAMESPACE {
 	using std::make_index_sequence;
 	using std::index_sequence_for;
 
-	template <class T, class T1, class T2>
-	constexpr std::size_t tuple_find<T, pair<T1, T2>> =
-		meta::_v<meta::find_index<meta::list<T1, T2>, T>>;
-
 	// tagged_pair
 	template <TaggedType F, TaggedType S>
 	using tagged_pair =
-		tagged<pair<__tag_elem<F>, __tag_elem<S>>,
-			__tag_spec<F>, __tag_spec<S>>;
+		tagged<pair<__tagged::element<F>, __tagged::element<S>>,
+			__tagged::specifier<F>, __tagged::specifier<S>>;
 
 	// make_tagged_pair
+	// Not to spec: forms the tagged_pair type in a requires-expression for
+	// better diagnostics.
 	template <TagSpecifier Tag1, TagSpecifier Tag2, class T1, class T2>
+	requires
+		requires {
+			typename tagged_pair<Tag1(__unwrap<T1>), Tag2(__unwrap<T2>)>;
+		}
 	constexpr auto make_tagged_pair(T1&& x, T2&& y) {
 		return tagged_pair<Tag1(__unwrap<T1>), Tag2(__unwrap<T2>)>{
 			__stl2::forward<T1>(x), __stl2::forward<T2>(y)

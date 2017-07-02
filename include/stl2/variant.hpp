@@ -816,11 +816,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <TaggedType...Ts>
 	using tagged_variant =
-		tagged<variant<__tag_elem<Ts>...>, __tag_spec<Ts>...>;
-
-	template <class T, __variant::Variant V>
-	constexpr std::size_t tuple_find<T, V> =
-		__variant::index_of_type<T, __variant::VariantTypes<V>>;
+		tagged<variant<__tagged::element<Ts>...>, __tagged::specifier<Ts>...>;
 } STL2_CLOSE_NAMESPACE
 
 namespace std {

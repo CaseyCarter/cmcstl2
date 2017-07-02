@@ -15,6 +15,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/object.hpp>
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
@@ -61,10 +62,10 @@ STL2_OPEN_NAMESPACE {
 			(coerce<T>(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...)
 		)
 
-		template <_Is<is_object> D, class T, class T1>
+		template <ext::Object D, class T, class T1>
 		constexpr decltype(auto) impl(D (T::*f), T1&& t1) = delete;
 
-		template <_Is<is_object> D, class T, class T1>
+		template <ext::Object D, class T, class T1>
 		requires
 			requires(D (T::*f), T1&& t1) {
 				coerce<T>(std::forward<T1>(t1)).*f;

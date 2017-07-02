@@ -190,19 +190,19 @@ struct always_cursor {
 template <class T, T Value>
 using always_iterator = stl2::basic_iterator<always_cursor<T, Value>>;
 
-template <class T>
-requires stl2::is_object<T>::value
+template <stl2::ext::Object T>
 struct proxy_wrapper {
 	stl2::detail::raw_ptr<T> ptr_ = nullptr;
 
 	proxy_wrapper() = default;
 	proxy_wrapper(T& t) noexcept : ptr_{stl2::addressof(t)} {}
-	proxy_wrapper(T&&) = delete;
+	proxy_wrapper(T&&) = delete; // LWG 2993?
 
 	T& get() const noexcept { return *ptr_; }
 
 	proxy_wrapper& operator=(const T& t)
 	noexcept(std::is_nothrow_copy_assignable<T>::value)
+	requires stl2::CopyConstructible<T>
 	{
 		get() = t;
 		return *this;
@@ -210,6 +210,7 @@ struct proxy_wrapper {
 
 	proxy_wrapper& operator=(T&& t)
 	noexcept(std::is_nothrow_move_assignable<T>::value)
+	requires stl2::MoveConstructible<T>
 	{
 		get() = stl2::move(t);
 		return *this;
@@ -217,6 +218,7 @@ struct proxy_wrapper {
 
 	proxy_wrapper const& operator=(const T& t) const
 	noexcept(std::is_nothrow_copy_assignable<T>::value)
+	requires stl2::Copyable<T>
 	{
 		get() = t;
 		return *this;
@@ -224,6 +226,7 @@ struct proxy_wrapper {
 
 	proxy_wrapper const& operator=(T&& t) const
 	noexcept(std::is_nothrow_move_assignable<T>::value)
+	requires stl2::Movable<T>
 	{
 		get() = stl2::move(t);
 		return *this;

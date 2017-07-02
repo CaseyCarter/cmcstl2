@@ -38,9 +38,10 @@ STL2_OPEN_NAMESPACE {
 
 	template <class> struct difference_type {};
 
-	template <class T>
-	struct difference_type<T*>
-	: meta::lazy::if_<std::is_object<T>, std::ptrdiff_t> {};
+	template <ext::Object T>
+	struct difference_type<T*> {
+		using type = std::ptrdiff_t;
+	};
 
 	template <class T>
 	struct difference_type<const T>

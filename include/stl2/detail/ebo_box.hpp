@@ -19,8 +19,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template <Destructible T, class Tag = void>
-		requires std::is_object<T>::value
+		template <ext::DestructibleObject T, class Tag = void>
 		struct ebo_box {
 			ebo_box() = default;
 			constexpr ebo_box(const T& t)
@@ -58,9 +57,8 @@ STL2_OPEN_NAMESPACE {
 			T item_;
 		};
 
-		template <Destructible T, class Tag>
-		requires std::is_object<T>::value &&
-			std::is_empty<T>::value && !std::is_final<T>::value
+		template <ext::DestructibleObject T, class Tag>
+		requires std::is_empty<T>::value && !std::is_final<T>::value
 		struct ebo_box<T, Tag> : private T {
 			ebo_box() = default;
 			constexpr ebo_box(const T& t)
