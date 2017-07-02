@@ -62,7 +62,10 @@ STL2_OPEN_NAMESPACE {
 		struct mixin_base<T> {
 			using type = typename T::mixin;
 		};
-	}
+
+		template <class T>
+		constexpr bool IsValueType = !is_void<T>::value;
+	} // namespace detail
 	template <class T>
 	using mixin_t = meta::_t<detail::mixin_base<T>>;
 

@@ -107,11 +107,11 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// value_type [readable.iterators]
+	// Not to spec:
+	// * Implements #299
+	// * Implements #423
 	//
 	namespace detail {
-		template <class T>
-		constexpr bool IsValueType = !is_void<T>::value;
-
 		template <class T>
 		concept bool MemberValueType =
 			requires { typename T::value_type; };
@@ -148,9 +148,18 @@ STL2_OPEN_NAMESPACE {
 	struct value_type<T> {};
 
 	template <detail::MemberElementType T>
-	requires ext::Object<std::remove_cv_t<typename T::element_type>>
+	requires ext::Object<typename T::element_type>
 	struct value_type<T> {
 		using type = std::remove_cv_t<typename T::element_type>;
+	};
+
+	template <class T>
+	requires
+		detail::MemberValueType<T> && ext::Object<typename T::value_type> &&
+		detail::MemberElementType<T> && ext::Object<typename T::element_type> &&
+		Same<typename T::value_type, std::remove_cv_t<typename T::element_type>>
+	struct value_type<T> {
+		using type = typename T::value_type;
 	};
 
 	///////////////////////////////////////////////////////////////////////////

@@ -122,6 +122,8 @@ namespace associated_type_test {
 	CONCEPT_ASSERT(!meta::is_trait<ns::value_type<void*>>());
 	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<const int* const>>);
 	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<const int[2]>>);
+	struct S { using value_type = int; using element_type = int const; };
+	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<S>>);
 
 	CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int*>>);
 	CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int[]>>);
