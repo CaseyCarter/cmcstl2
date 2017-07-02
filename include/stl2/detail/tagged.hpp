@@ -60,22 +60,16 @@ STL2_OPEN_NAMESPACE {
 		protected:
 			~base() = default;
 		};
-
-		template <class Untagged, std::size_t, class...>
-		struct chain {
-			using type = base<Untagged>;
-		};
-		template <class Untagged, std::size_t I, class First, class... Rest>
-		struct chain<Untagged, I, First, Rest...> {
-			using type = typename First::template tagged_getter<Untagged, I,
-				meta::_t<chain<Untagged, I + 1, Rest...>>>;
-		};
 	} // namespace __tagged
 
 	template <class T>
 	concept bool TagSpecifier =
-		DerivedFrom<typename T::template tagged_getter<std::tuple<int>, 0, std::tuple<int>>,
-			std::tuple<int>>;
+		requires {
+			typename T::template tagged_getter<std::tuple<int>, 0, __tagged::base<std::tuple<int>>>;
+			requires DerivedFrom<
+				typename T::template tagged_getter<std::tuple<int>, 0, __tagged::base<std::tuple<int>>>,
+				std::tuple<int>>;
+		};
 
 	template <class T>
 	concept bool TaggedType =
@@ -84,6 +78,18 @@ STL2_OPEN_NAMESPACE {
 			typename __tagged::element<T>;
 			requires TagSpecifier<__tagged::specifier<T>>;
 		};
+
+	namespace __tagged {
+		template <ext::DestructibleObject Untagged, std::size_t, TagSpecifier...>
+		struct chain {
+			using type = base<Untagged>;
+		};
+		template <ext::DestructibleObject Untagged, std::size_t I, TagSpecifier First, TagSpecifier... Rest>
+		struct chain<Untagged, I, First, Rest...> {
+			using type = typename First::template tagged_getter<Untagged, I,
+				meta::_t<chain<Untagged, I + 1, Rest...>>>;
+		};
+	} // namespace __tagged
 
 	///////////////////////////////////////////////////////////////////////////
 	// tagged [taggedtup.tagged]
@@ -94,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 	// * Implements https://github.com/ericniebler/stl2/issues/364
 	// * Implements https://github.com/ericniebler/stl2/issues/418
 	//
-	template <class Base, TagSpecifier...Tags>
+	template <ext::DestructibleObject Base, TagSpecifier... Tags>
 	requires sizeof...(Tags) <= tuple_size<Base>::value
 	struct tagged : meta::_t<__tagged::chain<Base, 0, Tags...>>	{
 	private:
@@ -161,7 +167,7 @@ STL2_OPEN_NAMESPACE {
 
 	#define STL2_DEFINE_GETTER(name)                                                                \
 		struct name {                                                                               \
-			template <class Untagged, ::std::size_t I, class Next>                                  \
+			template <::__stl2::ext::DestructibleObject Untagged, ::std::size_t I, class Next>      \
 			struct tagged_getter : Next {                                                           \
 				using Next::Next;                                                                   \
 				tagged_getter() = default;                                                          \
