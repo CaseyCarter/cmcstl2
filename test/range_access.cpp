@@ -47,7 +47,7 @@ void test_initializer_list() {
 	CHECK(__stl2::empty(il) == false);
 }
 
-template <class T, T...Is>
+template <class T, T... Is>
 void test_array(std::integer_sequence<T, Is...>) {
 	T a[sizeof...(Is)] = { Is... };
 	{
@@ -200,8 +200,8 @@ int main() {
 	if (output) std::cout << "}\n";
 
 	test_initializer_list();
-	test_array(__stl2::make_integer_sequence<int, 3>{});
-	test_array(__stl2::make_integer_sequence<const int, 3>{});
+	test_array(std::make_integer_sequence<int, 3>{});
+	test_array(std::make_integer_sequence<const int, 3>{});
 	begin_testing::test();
 
 	return ::test_result();

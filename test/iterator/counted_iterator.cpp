@@ -90,7 +90,7 @@ int main()
 	{
 		int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 		auto i = make_counted_iterator(forward_iterator<int*>{rgi}, size(rgi));
-		static_assert(is_same<decltype(i),counted_iterator<forward_iterator<int*>>>());
+		static_assert(std::is_same<decltype(i),counted_iterator<forward_iterator<int*>>>());
 		static_assert(models::SizedSentinel<default_sentinel, decltype(i)>);
 		CHECK(static_cast<std::size_t>(default_sentinel{} - i) == size(rgi));
 		CHECK(&*i.base() == begin(rgi));
@@ -106,7 +106,7 @@ int main()
 		std::list<int> l;
 		auto a = make_counted_iterator(l.begin(), 0);
 		auto b = make_counted_iterator(l.cbegin(), 0);
-		static_assert(is_same<common_type_t<decltype(a), decltype(b)>, decltype(b)>());
+		static_assert(std::is_same<common_type_t<decltype(a), decltype(b)>, decltype(b)>());
 		CHECK((a - a) == 0);
 		CHECK((b - b) == 0);
 		CHECK((a - b) == 0);

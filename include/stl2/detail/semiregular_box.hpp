@@ -32,24 +32,24 @@ STL2_OPEN_NAMESPACE {
 			constexpr semiregular_box(T&& t)
 			noexcept(is_nothrow_move_constructible<T>::value)
 			requires MoveConstructible<T>
-			: o_{in_place, __stl2::move(t)} {}
+			: o_{in_place, std::move(t)} {}
 
 			constexpr semiregular_box(const T& t)
 			noexcept(is_nothrow_copy_constructible<T>::value)
 			requires CopyConstructible<T>
 			: o_{in_place, t} {}
 
-			template <class...Args>
+			template <class... Args>
 			requires Constructible<T, Args...>
-			constexpr semiregular_box(in_place_t, Args&&...args)
+			constexpr semiregular_box(in_place_t, Args&&... args)
 			noexcept(is_nothrow_constructible<T, Args...>::value)
-			: o_{in_place, __stl2::forward<Args>(args)...} {}
+			: o_{in_place, std::forward<Args>(args)...} {}
 
 			constexpr semiregular_box& operator=(T&& t) &
 			noexcept(is_nothrow_move_constructible<T>::value)
 			requires MoveConstructible<T>
 			{
-				o_.emplace(__stl2::move(t));
+				o_.emplace(std::move(t));
 				return *this;
 			}
 			constexpr semiregular_box& operator=(T&& t) &
@@ -85,11 +85,11 @@ STL2_OPEN_NAMESPACE {
 			}
 			constexpr T&& get() && noexcept {
 				STL2_EXPECT(o_);
-				return __stl2::move(*o_);
+				return std::move(*o_);
 			}
 			constexpr const T&& get() const&& noexcept {
 				STL2_EXPECT(o_);
-				return __stl2::move(*o_);
+				return std::move(*o_);
 			}
 
 		private:
@@ -103,11 +103,11 @@ STL2_OPEN_NAMESPACE {
 		public:
 			semiregular_box() = default;
 
-			template <class...Args>
+			template <class... Args>
 			requires Constructible<T, Args...>
-			constexpr semiregular_box(in_place_t, Args&&...args)
+			constexpr semiregular_box(in_place_t, Args&&... args)
 			noexcept(is_nothrow_constructible<T, Args...>::value)
-			: base_t{__stl2::forward<Args>(args)...} {}
+			: base_t{std::forward<Args>(args)...} {}
 
 			using base_t::base_t;
 		};

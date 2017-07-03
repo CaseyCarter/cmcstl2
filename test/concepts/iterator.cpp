@@ -17,7 +17,7 @@
 #include <range/v3/utility/iterator_traits.hpp>
 
 namespace models {
-	template <class...Ts>
+	template <class... Ts>
 	constexpr bool Same = ranges::Same<Ts...>;
 
 	template <class R>
@@ -45,7 +45,7 @@ namespace models {
 	template <class S, class I>
 	constexpr bool Sentinel = ranges::IteratorRange<I, S>;
 
-	template <class F, class...Is>
+	template <class F, class... Is>
 	constexpr bool IndirectInvocable =
 		ranges::IndirectInvocable<F, Is...>;
 }

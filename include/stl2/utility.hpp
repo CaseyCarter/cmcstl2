@@ -23,27 +23,6 @@
 #include <stl2/detail/utility/in_place.hpp>
 
 STL2_OPEN_NAMESPACE {
-	using std::initializer_list;
-
-	namespace rel_ops = std::rel_ops;
-
-	using std::forward;
-	using std::move_if_noexcept;
-	using std::declval;
-
-	using std::pair;
-	using std::make_pair;
-	using std::piecewise_construct_t;
-	using std::tuple_size;
-	using std::tuple_element;
-	using std::get;
-
-	using std::integer_sequence;
-	using std::index_sequence;
-	using std::make_integer_sequence;
-	using std::make_index_sequence;
-	using std::index_sequence_for;
-
 	// tagged_pair
 	template <TaggedType F, TaggedType S>
 	using tagged_pair =
@@ -60,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	constexpr auto make_tagged_pair(T1&& x, T2&& y) {
 		return tagged_pair<Tag1(__unwrap<T1>), Tag2(__unwrap<T2>)>{
-			__stl2::forward<T1>(x), __stl2::forward<T2>(y)
+			std::forward<T1>(x), std::forward<T2>(y)
 		};
 	}
 } STL2_CLOSE_NAMESPACE

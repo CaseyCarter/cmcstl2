@@ -32,7 +32,7 @@ int test_value(const ranges::optional<T>& o) {
 }
 
 ranges::optional<T> test_copy(const ranges::optional<T>& o)
-noexcept(ranges::is_nothrow_copy_constructible<ranges::optional<T>>::value)
+noexcept(std::is_nothrow_copy_constructible<ranges::optional<T>>::value)
 {
 	return o;
 }
@@ -126,7 +126,7 @@ int main() {
 			static int foo(ranges::nullopt_t);
 			static void foo(int);
 		};
-		static_assert(ranges::is_same<void, decltype(S::foo({}))>());
+		static_assert(std::is_same<void, decltype(S::foo({}))>());
 	}
 	{
 		ranges::optional<int> o;

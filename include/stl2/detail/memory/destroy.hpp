@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 	I destroy(I first, S last) noexcept
 	{
 		for (; first != last; ++first) {
-			__stl2::destroy_at(__stl2::addressof(*first));
+			__stl2::destroy_at(detail::addressof(*first));
 		}
 
 		return first;
@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			explicit destroy_guard(I& it)
-			: first_{it}, last_{__stl2::addressof(it)} {}
+			: first_{it}, last_{detail::addressof(it)} {}
 
 			destroy_guard(destroy_guard&& that)
 			: first_{std::move(that.first_)}

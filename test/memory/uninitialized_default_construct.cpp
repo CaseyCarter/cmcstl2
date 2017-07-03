@@ -58,7 +58,7 @@ namespace {
 	requires
 		ranges::DefaultConstructible<T> &&
 		ranges::EqualityComparable<T> &&
-		ranges::is_fundamental<T>::value
+		std::is_fundamental<T>::value
 	void test(const raw_buffer<T>& independent, ranges::iterator_t<const raw_buffer<T>> p)
 	{
 		T t;
@@ -72,7 +72,7 @@ namespace {
 	requires
 		ranges::DefaultConstructible<T> &&
 		ranges::EqualityComparable<T> &&
-		ranges::is_fundamental<T>::value
+		std::is_fundamental<T>::value
 	void uninitialized_default_construct_test()
 	{
 		auto independent = make_buffer<T>(N);

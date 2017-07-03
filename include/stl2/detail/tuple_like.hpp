@@ -13,14 +13,8 @@
 #define STL2_DETAIL_TUPLE_LIKE_HPP
 
 #include <tuple>
-#include <stl2/detail/meta.hpp>
-#include <stl2/detail/concepts/core.hpp>
 
 STL2_OPEN_NAMESPACE {
-	using std::tuple_size;
-	using std::tuple_element;
-	using std::get;
-
 	namespace detail {
 		namespace adl {
 			using std::get;

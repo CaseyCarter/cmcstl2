@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 	uninitialized_move(Rng&& rng, O result)
 	{
 		return __stl2::uninitialized_move(
-			__stl2::begin(rng), __stl2::end(rng), __stl2::move(result));
+			__stl2::begin(rng), __stl2::end(rng), std::move(result));
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		auto r = __stl2::uninitialized_move(
 			__stl2::make_counted_iterator(first, n),
-			default_sentinel{}, __stl2::move(result));
+			default_sentinel{}, std::move(result));
 		return {r.in().base(), r.out()};
 	}
 } STL2_CLOSE_NAMESPACE

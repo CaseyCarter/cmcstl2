@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			STL2_EXPECT(begin != end);
 			for (I lm1 = __stl2::prev(end); begin != lm1; ++begin) {
-				I i = __stl2::min_element(begin, end, __stl2::ref(comp), __stl2::ref(proj));
+				I i = __stl2::min_element(begin, end, std::ref(comp), std::ref(proj));
 				if (i != begin) {
 					__stl2::iter_swap(begin, i);
 				}
@@ -265,8 +265,8 @@ STL2_OPEN_NAMESPACE {
 	nth_element(Rng&& rng, iterator_t<Rng> nth, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::nth_element(
-			__stl2::begin(rng), __stl2::move(nth), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
+			__stl2::begin(rng), std::move(nth), __stl2::end(rng),
+			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

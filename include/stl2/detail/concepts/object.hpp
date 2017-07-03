@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 		concept bool TriviallyDestructible =
 			Destructible<T> && _Is<T, is_trivially_destructible>;
 
-		template <class T, class...Args>
+		template <class T, class... Args>
 		concept bool TriviallyConstructible =
 			Constructible<T, Args...> &&
 			_Is<T, is_trivially_constructible, Args...>;

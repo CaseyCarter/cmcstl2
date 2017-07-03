@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::adjacent_find(
 			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

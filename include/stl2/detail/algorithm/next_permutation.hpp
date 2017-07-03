@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		if (first == last) {
 			return false;
 		}
-		I end = __stl2::next(first, __stl2::move(last)), i = end;
+		I end = __stl2::next(first, std::move(last)), i = end;
 		if (first == --i) {
 			return false;
 		}
@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 	bool next_permutation(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::next_permutation(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
+			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

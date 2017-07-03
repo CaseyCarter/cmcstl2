@@ -23,13 +23,13 @@ STL2_OPEN_NAMESPACE {
 	template <bool B>
 	constexpr bool __bool = B;
 
-	template <template <class...> class T, class...U>
+	template <template <class...> class T, class... U>
 	concept bool _Valid = requires { typename T<U...>; };
 
-	template <class U, template <class...> class T, class...V>
+	template <class U, template <class...> class T, class... V>
 	concept bool _Is = _Valid<T, U, V...> && __bool<T<U, V...>::value>;
 
-	template <class U, template <class...> class T, class...V>
+	template <class U, template <class...> class T, class... V>
 	concept bool _IsNot = _Valid<T, U, V...> && __bool<!T<U, V...>::value>;
 
 	// U is a cv/ref-qualified specialization of class template T.
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 	namespace models {
 		template <class...>
 		constexpr bool Same = true;
-		template <class T, class...Rest>
+		template <class T, class... Rest>
 		constexpr bool Same<T, Rest...> =
 #if defined(__GNUC__)
 			(... && __is_same_as(T, Rest));
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 #endif
 	}
 
-	template <class...Ts>
+	template <class... Ts>
 	concept bool Same = models::Same<Ts...>;
 
 	template <class T>

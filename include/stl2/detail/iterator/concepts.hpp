@@ -347,7 +347,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			value_type_t<R1> tmp = __stl2::iter_move(r1);
 			*r1 = __stl2::iter_move(r2);
-			*r2 = __stl2::move(tmp);
+			*r2 = std::move(tmp);
 		}
 
 		struct fn {

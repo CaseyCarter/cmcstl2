@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		struct temporary_buffer_deleter {
 			void operator()(auto* ptr) const {
-				__stl2::return_temporary_buffer(ptr);
+				std::return_temporary_buffer(ptr);
 			}
 		};
 
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 		public:
 			temporary_buffer() = default;
 			temporary_buffer(std::ptrdiff_t n)
-			: temporary_buffer(__stl2::get_temporary_buffer<T>(n)) {}
+			: temporary_buffer(std::get_temporary_buffer<T>(n)) {}
 
 			T* data() const {
 				return alloc_.get();
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 				if (buf.second > 0 && static_cast<std::size_t>(buf.second) >= sizeof(T)) {
 					void* ptr = buf.first;
 					std::size_t n = buf.second;
-					aligned_ = static_cast<T*>(__stl2::align(alignof(T), sizeof(T), ptr, n));
+					aligned_ = static_cast<T*>(std::align(alignof(T), sizeof(T), ptr, n));
 					if (aligned_) {
 						size_ = n / sizeof(T);
 					}
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 		public:
 			temporary_buffer() = default;
 			temporary_buffer(std::ptrdiff_t n)
-			: temporary_buffer(__stl2::get_temporary_buffer<unsigned char>(
+			: temporary_buffer(std::get_temporary_buffer<unsigned char>(
 				n * sizeof(T) + alignof(T) - 1))
 			{}
 
@@ -141,13 +141,13 @@ STL2_OPEN_NAMESPACE {
 				return begin_[i];
 			}
 
-			template <class...Args>
+			template <class... Args>
 			requires Constructible<T, Args...>
-			void emplace_back(Args&&...args)
+			void emplace_back(Args&&... args)
 			noexcept(is_nothrow_constructible<T, Args...>::value)
 			{
 				STL2_EXPECT(end_ < alloc_);
-				detail::construct(*end_, __stl2::forward<Args>(args)...);
+				detail::construct(*end_, std::forward<Args>(args)...);
 				++end_;
 			}
 			void push_back(const T& t)
@@ -157,7 +157,7 @@ STL2_OPEN_NAMESPACE {
 			void push_back(T&& t)
 			noexcept(is_nothrow_move_constructible<T>::value)
 			requires MoveConstructible<T>
-			{ emplace_back(__stl2::move(t)); }
+			{ emplace_back(std::move(t)); }
 		};
 
 		ext::DestructibleObject{T}

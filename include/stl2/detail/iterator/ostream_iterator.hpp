@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 
 		STL2_CONSTEXPR_EXT ostream_iterator(
 			ostream_type& os, const charT* delimiter = nullptr) noexcept
-		: out_stream_(__stl2::addressof(os)), delim_(delimiter) {}
+		: out_stream_(detail::addressof(os)), delim_(delimiter) {}
 
 		template <class U, class V = meta::if_<std::is_void<T>, U, T>>
 		requires

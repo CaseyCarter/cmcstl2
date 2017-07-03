@@ -22,11 +22,11 @@ namespace {
 // variants of trivially {destructible,move constructible,copy constructible} types
 // are trivially {destructible,move constructible,copy constructible}.
 using VDI = variant<char, short, int, long, long long, float, double>;
-static_assert(is_trivially_destructible<VDI>());
-static_assert(is_trivially_move_constructible<VDI>());
-static_assert(is_trivially_copy_constructible<VDI>());
-static_assert(is_trivially_move_assignable<VDI>());
-static_assert(is_trivially_copy_assignable<VDI>());
+static_assert(std::is_trivially_destructible<VDI>());
+static_assert(std::is_trivially_move_constructible<VDI>());
+static_assert(std::is_trivially_copy_constructible<VDI>());
+static_assert(std::is_trivially_move_assignable<VDI>());
+static_assert(std::is_trivially_copy_assignable<VDI>());
 
 struct nontrivial {
 	struct counts {
@@ -94,7 +94,7 @@ struct nonmovable {
 };
 
 void test_raw() {
-	__variant::storage<int, double, nontrivial, reference_wrapper<int>> v;
+	__variant::storage<int, double, nontrivial, std::reference_wrapper<int>> v;
 	static_assert(sizeof(v) == sizeof(double));
 	{
 		int& i = __variant::st_access::raw_get(in_place_index<0>, v);
@@ -107,7 +107,7 @@ void test_raw() {
 			(void)i;
 		}
 		{
-			int&& i = __variant::st_access::raw_get(in_place_index<0>, move(v));
+			int&& i = __variant::st_access::raw_get(in_place_index<0>, std::move(v));
 			(void)i;
 		}
 		i = 42;
@@ -126,7 +126,7 @@ void test_raw() {
 			(void)d;
 		}
 		{
-			double&& d = __variant::st_access::raw_get(in_place_index<1>, move(v));
+			double&& d = __variant::st_access::raw_get(in_place_index<1>, std::move(v));
 			(void)d;
 		}
 		d = 3.14;
@@ -145,7 +145,7 @@ void test_raw() {
 			(void)n;
 		}
 		{
-			nontrivial&& n = __variant::st_access::raw_get(in_place_index<2>, move(v));
+			nontrivial&& n = __variant::st_access::raw_get(in_place_index<2>, std::move(v));
 			(void)n;
 		}
 		n.~nontrivial();
@@ -153,13 +153,13 @@ void test_raw() {
 
 	{
 		int value = 42;
-		reference_wrapper<int>& r = __variant::st_access::raw_get(in_place_index<3>, v);
-		::new(&r) reference_wrapper<int>{value};
+		std::reference_wrapper<int>& r = __variant::st_access::raw_get(in_place_index<3>, v);
+		::new(&r) std::reference_wrapper<int>{value};
 		int& i = __variant::cook<int&>(r);
 		CHECK(i == 42);
 		CHECK(&i == &value);
-		reference_wrapper<int>&& rr = __variant::st_access::raw_get(in_place_index<3>, move(v));
-		int&& ii = __variant::cook<int&&>(move(rr));
+		std::reference_wrapper<int>&& rr = __variant::st_access::raw_get(in_place_index<3>, std::move(v));
+		int&& ii = __variant::cook<int&&>(std::move(rr));
 		CHECK(&ii == &value);
 		r.~reference_wrapper();
 	}
@@ -180,11 +180,11 @@ void test_in_place_index() {
 			CHECK(v.index() == 0u);
 		}
 		{
-			V v{in_place_index<0>, move(i)};
+			V v{in_place_index<0>, std::move(i)};
 			CHECK(v.index() == 0u);
 		}
 		{
-			V v{in_place_index<0>, move(ci)};
+			V v{in_place_index<0>, std::move(ci)};
 			CHECK(v.index() == 0u);
 		}
 
@@ -214,7 +214,7 @@ void test_in_place_index() {
 			static_assert(!models::Constructible<V, in_place_index_t<2>, const int&>);
 		}
 		{
-			V v{in_place_index<2>, move(i)};
+			V v{in_place_index<2>, std::move(i)};
 			CHECK(v.index() == 2u);
 		}
 		{
@@ -231,11 +231,11 @@ void test_in_place_index() {
 			CHECK(v.index() == 3u);
 		}
 		{
-			V v{in_place_index<3>, move(i)};
+			V v{in_place_index<3>, std::move(i)};
 			CHECK(v.index() == 3u);
 		}
 		{
-			V v{in_place_index<3>, move(ci)};
+			V v{in_place_index<3>, std::move(ci)};
 			CHECK(v.index() == 3u);
 		}
 
@@ -248,11 +248,11 @@ void test_in_place_index() {
 			CHECK(v.index() == 4u);
 		}
 		{
-			V v{in_place_index<4>, move(i)};
+			V v{in_place_index<4>, std::move(i)};
 			CHECK(v.index() == 4u);
 		}
 		{
-			V v{in_place_index<4>, move(ci)};
+			V v{in_place_index<4>, std::move(ci)};
 			CHECK(v.index() == 4u);
 		}
 
@@ -265,11 +265,11 @@ void test_in_place_index() {
 			static_assert(!models::Constructible<V, in_place_index_t<5>, const int&>);
 		}
 		{
-			V v{in_place_index<5>, move(i)};
+			V v{in_place_index<5>, std::move(i)};
 			CHECK(v.index() == 5u);
 		}
 		{
-			V v{in_place_index<5>, move(ci)};
+			V v{in_place_index<5>, std::move(ci)};
 			CHECK(v.index() == 5u);
 		}
 	}
@@ -317,11 +317,11 @@ void test_in_place_type() {
 			CHECK(holds_alternative<int>(v));
 		}
 		{
-			V v{in_place_type<int>, move(i)};
+			V v{in_place_type<int>, std::move(i)};
 			CHECK(holds_alternative<int>(v));
 		}
 		{
-			V v{in_place_type<int>, move(ci)};
+			V v{in_place_type<int>, std::move(ci)};
 			CHECK(holds_alternative<int>(v));
 		}
 
@@ -334,11 +334,11 @@ void test_in_place_type() {
 			static_assert(!models::Constructible<V, in_place_type_t<int&>, const int&>);
 		}
 		{
-			// V v{in_place_type<int&>, move(i)}; // ill-formed
+			// V v{in_place_type<int&>, std::move(i)}; // ill-formed
 			static_assert(!models::Constructible<V, in_place_type_t<int&>, int&&>);
 		}
 		{
-			// V v{in_place_type<int&>, move(ci)}; // ill-formed
+			// V v{in_place_type<int&>, std::move(ci)}; // ill-formed
 			static_assert(!models::Constructible<V, in_place_type_t<int&>, const int&&>);
 		}
 
@@ -351,11 +351,11 @@ void test_in_place_type() {
 			static_assert(!models::Constructible<V, in_place_type_t<int&&>, const int&>);
 		}
 		{
-			V v{in_place_type<int&&>, move(i)};
+			V v{in_place_type<int&&>, std::move(i)};
 			CHECK(holds_alternative<int&&>(v));
 		}
 		{
-			// V v{in_place_type<int&&>, move(ci)}; // ill-formed
+			// V v{in_place_type<int&&>, std::move(ci)}; // ill-formed
 			static_assert(!models::Constructible<V, in_place_type_t<int&&>, const int&&>);
 		}
 
@@ -368,11 +368,11 @@ void test_in_place_type() {
 			CHECK(holds_alternative<const int>(v));
 		}
 		{
-			V v{in_place_type<const int>, move(i)};
+			V v{in_place_type<const int>, std::move(i)};
 			CHECK(holds_alternative<const int>(v));
 		}
 		{
-			V v{in_place_type<const int>, move(ci)};
+			V v{in_place_type<const int>, std::move(ci)};
 			CHECK(holds_alternative<const int>(v));
 		}
 
@@ -385,11 +385,11 @@ void test_in_place_type() {
 			CHECK(holds_alternative<const int&>(v));
 		}
 		{
-			V v{in_place_type<const int&>, move(i)};
+			V v{in_place_type<const int&>, std::move(i)};
 			CHECK(holds_alternative<const int&>(v));
 		}
 		{
-			V v{in_place_type<const int&>, move(ci)};
+			V v{in_place_type<const int&>, std::move(ci)};
 			CHECK(holds_alternative<const int&>(v));
 		}
 
@@ -402,11 +402,11 @@ void test_in_place_type() {
 			static_assert(!models::Constructible<V, in_place_type_t<const int&&>, const int&>);
 		}
 		{
-			V v{in_place_type<const int&&>, move(i)};
+			V v{in_place_type<const int&&>, std::move(i)};
 			CHECK(holds_alternative<const int&&>(v));
 		}
 		{
-			V v{in_place_type<const int&&>, move(ci)};
+			V v{in_place_type<const int&&>, std::move(ci)};
 			CHECK(holds_alternative<const int&&>(v));
 		}
 	}
@@ -452,8 +452,8 @@ void test_construction() {
 	static_assert(models::MoveConstructible<variant<const int>>);
 	static_assert(models::CopyConstructible<variant<int>>);
 	static_assert(models::CopyConstructible<variant<const int>>);
-	static_assert(is_trivially_copy_constructible<variant<int>>());
-	static_assert(is_trivially_copy_constructible<variant<const int>>());
+	static_assert(std::is_trivially_copy_constructible<variant<int>>());
+	static_assert(std::is_trivially_copy_constructible<variant<const int>>());
 
 	static_assert(models::Movable<variant<int>>);
 	static_assert(!models::Movable<variant<const int>>);
@@ -474,7 +474,7 @@ void test_construction() {
 		variant<nontrivial, int, double> vnid;
 		CHECK(vnid.index() == 0u);
 		CHECK(holds_alternative<nontrivial>(vnid));
-		static_assert(!is_trivially_destructible<variant<int, double, nontrivial>>());
+		static_assert(!std::is_trivially_destructible<variant<int, double, nontrivial>>());
 	}
 	{
 		nontrivial::zero();
@@ -510,13 +510,13 @@ void test_construction() {
 			CHECK(holds_alternative<int>(vi));
 			variant<int&> vir{i};
 			CHECK(holds_alternative<int&>(vir));
-			variant<int&&> virr{move(i)};
+			variant<int&&> virr{std::move(i)};
 			CHECK(holds_alternative<int&&>(virr));
 		}
 		// variant<int, int&> v1{i}; // ill-formed: ambiguous
 		static_assert(!models::Constructible<variant<int,int&>, int&>);
-		variant<int, int&> v2{move(i)};
-		// variant<int, int&&> v3{move(i)}; // ill-formed: ambiguous
+		variant<int, int&> v2{std::move(i)};
+		// variant<int, int&&> v3{std::move(i)}; // ill-formed: ambiguous
 		static_assert(!models::Constructible<variant<int,int&&>, int&&>);
 		variant<int, int&&> v4{i};
 	}
@@ -587,7 +587,7 @@ void test_move_assignment() {
 	{
 		// trivial
 		using V = variant<int, double, int&>;
-		static_assert(is_trivially_move_assignable<V>());
+		static_assert(std::is_trivially_move_assignable<V>());
 		V v;
 		CHECK(holds_alternative<int>(v));
 		CHECK(get<int>(v) == 0);
@@ -614,7 +614,7 @@ void test_move_assignment() {
 	{
 		// nontrivial
 		using V = variant<int, double, int&, nontrivial>;
-		static_assert(!is_trivially_move_assignable<V>());
+		static_assert(!std::is_trivially_move_assignable<V>());
 		V v;
 		CHECK(holds_alternative<int>(v));
 		CHECK(get<int>(v) == 0);
@@ -675,7 +675,7 @@ void test_copy_assignment() {
 		// trivial
 		using V = variant<int, double, int&>;
 		using CV = const V;
-		static_assert(is_trivially_copy_assignable<V>());
+		static_assert(std::is_trivially_copy_assignable<V>());
 		V v;
 		CHECK(holds_alternative<int>(v));
 		CHECK(get<int>(v) == 0);
@@ -703,7 +703,7 @@ void test_copy_assignment() {
 		// nontrivial
 		using V = variant<int, double, int&, nontrivial>;
 		using CV = const V;
-		static_assert(!is_trivially_move_assignable<V>());
+		static_assert(!std::is_trivially_move_assignable<V>());
 		V v;
 		CHECK(holds_alternative<int>(v));
 		CHECK(get<int>(v) == 0);
@@ -796,11 +796,11 @@ void test_copy_assignment() {
 void test_void() {
 	{
 		using V = variant<int, void, double>;
-		static_assert(is_trivially_destructible<V>());
-		static_assert(is_trivially_move_constructible<V>());
-		static_assert(is_trivially_copy_constructible<V>());
-		static_assert(is_trivially_move_assignable<V>());
-		static_assert(is_trivially_copy_assignable<V>());
+		static_assert(std::is_trivially_destructible<V>());
+		static_assert(std::is_trivially_move_constructible<V>());
+		static_assert(std::is_trivially_copy_constructible<V>());
+		static_assert(std::is_trivially_move_assignable<V>());
+		static_assert(std::is_trivially_copy_assignable<V>());
 		V v1{42};
 		V{3.14};
 		V{in_place_index<0>};
@@ -815,7 +815,7 @@ void test_void() {
 }
 
 struct print_fn {
-	reference_wrapper<std::ostream> os_;
+	std::reference_wrapper<std::ostream> os_;
 
 	std::ostream& os() const noexcept {
 		return os_.get();
@@ -827,21 +827,21 @@ struct print_fn {
 		return 0;
 	}
 
-	int print(false_type, const auto& first, const auto&...rest) const {
+	int print(std::false_type, const auto& first, const auto&... rest) const {
 		os() << first;
-		return 1 + print(true_type{}, rest...);
+		return 1 + print(std::true_type{}, rest...);
 	}
 
-	int print(true_type, const auto&...args) const
+	int print(std::true_type, const auto&... args) const
 		requires sizeof...(args) > 0
 	{
 		os() << ", ";
-		return print(false_type{}, args...);
+		return print(std::false_type{}, args...);
 	}
 
-	int operator()(const auto&...args) const {
+	int operator()(const auto&... args) const {
 		os() << '(';
-		return print(false_type{}, args...);
+		return print(std::false_type{}, args...);
 	}
 };
 
@@ -881,7 +881,7 @@ void test_visit() {
 	{
 		using V = variant<int, unsigned, long, unsigned long,
 			long long, unsigned long long>;
-		auto f = plus<>{};
+		auto f = std::plus<>{};
 		static_assert(visit(f, V{42}, V{42}) == 84ull);
 		static_assert(visit(f, V{42}, V{42u}) == 84ull);
 		static_assert(visit(f, V{42}, V{42l}) == 84ull);
@@ -928,9 +928,9 @@ void test_visit() {
 
 void test_tagged() {
 	using V = tagged_variant<tag::in(int), tag::out(double)>;
-	static_assert(is_trivially_destructible<V>());
-	static_assert(is_trivially_move_constructible<V>());
-	static_assert(is_trivially_copy_constructible<V>());
+	static_assert(std::is_trivially_destructible<V>());
+	static_assert(std::is_trivially_move_constructible<V>());
+	static_assert(std::is_trivially_copy_constructible<V>());
 	V v1{42};
 	CHECK(get<0>(v1) == 42);
 	CHECK(v1.in() == 42);
@@ -954,7 +954,7 @@ void test_pointer_get() {
 
 		auto const& cv = v;
 		auto cp = __stl2::get<0>(&cv);
-		CHECK(is_same<decltype(cp), const char*>());
+		CHECK(std::is_same<decltype(cp), const char*>());
 		CHECK(p == cp);
 	}
 	{
@@ -970,7 +970,7 @@ void test_pointer_get() {
 
 		auto const& cv = v;
 		auto cp = __stl2::get<1>(&cv);
-		CHECK(is_same<decltype(cp), const int*>());
+		CHECK(std::is_same<decltype(cp), const int*>());
 		CHECK(p == cp);
 	}
 	{
@@ -986,14 +986,14 @@ void test_pointer_get() {
 
 		auto const& cv = v;
 		auto cp = __stl2::get<2>(&cv);
-		CHECK(is_same<decltype(cp), const double*>());
+		CHECK(std::is_same<decltype(cp), const double*>());
 		CHECK(p == cp);
 	}
 }
 
-template <class T, std::size_t I, class...Args>
+template <class T, std::size_t I, class... Args>
 concept bool EmplaceableIndex =
-	requires(T& t, Args&&...args) {
+	requires(T& t, Args&&... args) {
 		t.template emplace<I>((Args&&)args...);
 	};
 
@@ -1002,15 +1002,15 @@ constexpr bool emplaceable() { return false; }
 EmplaceableIndex{T, I, ...Args}
 constexpr bool emplaceable() { return true; }
 
-template <class T, class U, class...Args>
+template <class T, class U, class... Args>
 concept bool EmplaceableType =
-	requires(T& t, Args&&...args) {
+	requires(T& t, Args&&... args) {
 		t.template emplace<U>((Args&&)args...);
 	};
 
 template <class, class, class...>
 constexpr bool emplaceable() { return false; }
-template <class T, class U, class...Args>
+template <class T, class U, class... Args>
 	requires EmplaceableType<T, U, Args...>
 constexpr bool emplaceable() { return true; }
 
@@ -1538,7 +1538,7 @@ int main() {
 		CHECK(holds_alternative<int&>(vir));
 		CHECK(&get<0>(vir) == &i);
 		CHECK(&get<int&>(vir) == &i);
-		static_assert(is_trivially_destructible<variant<int&>>());
+		static_assert(std::is_trivially_destructible<variant<int&>>());
 	}
 
 	{
@@ -1553,19 +1553,19 @@ int main() {
 		constexpr variant<double, int> vdi{in_place_index<1>, 42};
 		static_assert(vdi.index() == 1);
 		static_assert(holds_alternative<int>(vdi));
-		static_assert(is_trivially_destructible<variant<int, double>>());
+		static_assert(std::is_trivially_destructible<variant<int, double>>());
 	}
 
 	{
-		static_assert(is_trivially_copyable<variant<int, double>>());
-		static_assert(is_trivially_move_constructible<variant<int, double>>());
+		static_assert(std::is_trivially_copyable<variant<int, double>>());
+		static_assert(std::is_trivially_move_constructible<variant<int, double>>());
 		variant<int, double>{variant<int, double>{}};
 	}
 
 	{
-		static_assert(!is_trivially_copyable<variant<int, double, nontrivial>>());
-		static_assert(is_copy_constructible<variant<int, double, nontrivial>>());
-		static_assert(!is_trivially_move_constructible<variant<int, double, nontrivial>>());
+		static_assert(!std::is_trivially_copyable<variant<int, double, nontrivial>>());
+		static_assert(std::is_copy_constructible<variant<int, double, nontrivial>>());
+		static_assert(!std::is_trivially_move_constructible<variant<int, double, nontrivial>>());
 		nontrivial::count.copy = 0;
 		variant<int, double, nontrivial> v{};
 		CHECK(v.index() == 0u);
@@ -1619,7 +1619,7 @@ int main() {
 }
 
 #if 0
-void f(auto...args);
+void f(auto... args);
 
 // The triviality goal ensures that trivial variants are passed by value in
 // registers on x64. This function optimizes to two register moves:
@@ -1662,7 +1662,7 @@ using VVV = variant<int, void, const int, void, void, void, char, void, double, 
 void test_void_visit(VVV v) {
 	auto fn = [](auto&& t) -> auto&& {
 		f(t);
-		return __stl2::forward<decltype(t)>(t);
+		return std::forward<decltype(t)>(t);
 	};
 	visit(fn, v);
 }

@@ -40,7 +40,7 @@ test()
 	int ir[] = {2, 4, 4};
 	const int sr = sizeof(ir)/sizeof(ir[0]);
 
-	auto set_intersection = ::make_testable_2<true, true>([](auto&&...args) {
+	auto set_intersection = ::make_testable_2<true, true>([](auto&&... args) {
 		return stl2::set_intersection(stl2::forward<decltype(args)>(args)...);
 	});
 

@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		for (; first != last; ++first) {
 			static_cast<void>(__stl2::invoke(fun, __stl2::invoke(proj, *first)));
 		}
-		return {__stl2::move(first), __stl2::move(fun)};
+		return {std::move(first), std::move(fun)};
 	}
 
 	template <InputRange Rng, class F, class Proj = identity>
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 	for_each(Rng&& rng, F fun, Proj proj = Proj{})
 	{
 		return {__stl2::for_each(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(fun), __stl2::ref(proj)).in(), __stl2::move(fun)};
+			std::ref(fun), std::ref(proj)).in(), std::move(fun)};
 	}
 } STL2_CLOSE_NAMESPACE
 

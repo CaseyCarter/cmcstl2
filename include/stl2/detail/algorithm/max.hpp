@@ -64,8 +64,7 @@ STL2_OPEN_NAMESPACE {
 	STL2_CONSTEXPR_EXT value_type_t<iterator_t<Rng>>
 	max(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __max::impl(rng, __stl2::ref(comp),
-			__stl2::ref(proj));
+		return __max::impl(rng, std::ref(comp), std::ref(proj));
 	}
 
 	template <Copyable T, class Comp = less<>, class Proj = identity>
@@ -74,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 			Comp, projected<const T*, Proj>>
 	constexpr T max(std::initializer_list<T>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __max::impl(rng, __stl2::ref(comp), __stl2::ref(proj));
+		return __max::impl(rng, std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

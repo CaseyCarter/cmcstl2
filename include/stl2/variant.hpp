@@ -34,10 +34,7 @@
 // N4542 Variant implementation
 //
 // TODO:
-// * Verify that visitation functions handle reference_wrapper correctly
-// * Requiring that visitor invocations _have_ a common_type /
-//   common_reference is fine, but we need to perform conversion to that
-//   return type after invoking the visitor.
+// * Replace with C++17 variant
 //
 STL2_OPEN_NAMESPACE {
 	namespace __variant {
@@ -54,13 +51,13 @@ STL2_OPEN_NAMESPACE {
 		template <std::size_t I, Variant V, _IsNot<is_void> T>
 		constexpr auto&& v_access::raw_get(in_place_index_t<I> i, V&& v) noexcept {
 			STL2_EXPECT(v.index() == I);
-			return st_access::raw_get(i, __stl2::forward<V>(v).storage_);
+			return st_access::raw_get(i, std::forward<V>(v).storage_);
 		}
 
 		template <std::size_t I, Variant V, _IsNot<is_void> T>
 		constexpr auto&& v_access::cooked_get(in_place_index_t<I> i, V&& v) noexcept {
 			STL2_EXPECT(v.index() == I);
-			return cook<T>(v_access::raw_get(i, __stl2::forward<V>(v)));
+			return cook<T>(v_access::raw_get(i, std::forward<V>(v)));
 		}
 
 		template <class=void>
@@ -74,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 			_IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 		constexpr auto&& get_unchecked(V&& v) {
 			STL2_EXPECT(v.index() == I);
-			return v_access::cooked_get(in_place_index<I>, __stl2::forward<V>(v));
+			return v_access::cooked_get(in_place_index<I>, std::forward<V>(v));
 		}
 
 		template <std::size_t I, Variant V>
@@ -84,7 +81,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto&& get(V&& v) {
 			STL2_EXPECT(v.valid());
 			if (v.index() != I) bad_access();
-			return v_access::cooked_get(in_place_index<I>, __stl2::forward<V>(v));
+			return v_access::cooked_get(in_place_index<I>, std::forward<V>(v));
 		}
 
 		template <_IsNot<is_void> T, Variant V,
@@ -129,14 +126,14 @@ STL2_OPEN_NAMESPACE {
 		concept bool ViableAlternative =
 			Same<decay_t<From>, decay_t<To>> && Constructible<To, From>;
 
-		template <class T, std::size_t I, class...Types>
+		template <class T, std::size_t I, class... Types>
 		struct constructible_from_ : false_type {};
 
-		template <class T, std::size_t I, class First, class...Rest>
+		template <class T, std::size_t I, class First, class... Rest>
 		struct constructible_from_<T, I, First, Rest...>
 		: constructible_from_<T, I + 1, Rest...> {};
 
-		template <class T, std::size_t I, class First, class...Rest>
+		template <class T, std::size_t I, class First, class... Rest>
 		requires ViableAlternative<T, First>
 		struct constructible_from_<T, I, First, Rest...> : true_type {
 			static constexpr bool ambiguous =
@@ -144,14 +141,14 @@ STL2_OPEN_NAMESPACE {
 			static constexpr std::size_t index = I;
 		};
 
-		template <class T, class...Types>
+		template <class T, class... Types>
 		using constructible_from =
 			constructible_from_<T, 0u, Types...>;
 
 		///////////////////////////////////////////////////////////////////////////
 		// __variant::base: lowest layer of the variant implementation.
 		//
-		template <class...Ts>
+		template <class... Ts>
 		requires(Destructible<element_t<Ts>> && ...)
 		class base {
 			friend v_access;
@@ -217,9 +214,9 @@ STL2_OPEN_NAMESPACE {
 					raw_visit_with_index([this, &guard](auto i, auto&& from) {
 						detail::construct(
 							strip_cv(st_access::raw_get(in_place_index<i>, storage_)),
-								__stl2::forward<decltype(from)>(from));
+								std::forward<decltype(from)>(from));
 						guard.index_ = i;
-					}, __stl2::forward<That>(that));
+					}, std::forward<That>(that));
 				}
 			}
 
@@ -228,12 +225,12 @@ STL2_OPEN_NAMESPACE {
 					if (valid()) {
 						raw_visit_with_index([this](auto i, auto&& from) {
 							st_access::raw_get(in_place_index<i>, storage_) =
-								__stl2::forward<decltype(from)>(from);
-						}, __stl2::move(that));
+								std::forward<decltype(from)>(from);
+						}, std::move(that));
 					}
 				} else {
 					clear_();
-					copy_move_from(__stl2::move(that));
+					copy_move_from(std::move(that));
 				}
 			}
 
@@ -247,7 +244,7 @@ STL2_OPEN_NAMESPACE {
 				} else {
 					auto tmp = that;
 					clear_();
-					copy_move_from(__stl2::move(tmp));
+					copy_move_from(std::move(tmp));
 				}
 			}
 
@@ -255,7 +252,7 @@ STL2_OPEN_NAMESPACE {
 			requires DerivedFrom<__uncvref<That>, base>
 			base(copy_move_tag, That&& that)
 			: storage_{empty_tag{}}
-			{ copy_move_from(__stl2::forward<That>(that)); }
+			{ copy_move_from(std::forward<That>(that)); }
 
 		public:
 			using types = meta::list<Ts...>;
@@ -274,7 +271,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(is_nothrow_constructible<storage_t,
 				in_place_index_t<constructible_from<T&&, Ts...>::index>, T&&>::value)
 			: index_{constructible_from<T&&, Ts...>::index}
-			, storage_{in_place_index<constructible_from<T&&, Ts...>::index>, __stl2::forward<T>(t)}
+			, storage_{in_place_index<constructible_from<T&&, Ts...>::index>, std::forward<T>(t)}
 			{}
 
 			template <class T>
@@ -294,38 +291,38 @@ STL2_OPEN_NAMESPACE {
 				constructible_from<T&&, Ts...>::ambiguous
 			base(T&&) = delete; // Conversion from T is ambiguous.
 
-			template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+			template <std::size_t I, class... Args, _IsNot<is_reference> T = meta::at_c<types, I>>
 			requires Constructible<T, Args...>
-			explicit constexpr base(in_place_index_t<I>, Args&&...args)
+			explicit constexpr base(in_place_index_t<I>, Args&&... args)
 			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, Args...>::value)
-			: index_{I}, storage_{in_place_index<I>, __stl2::forward<Args>(args)...} {}
+			: index_{I}, storage_{in_place_index<I>, std::forward<Args>(args)...} {}
 
-			template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
+			template <std::size_t I, class... Args, _Is<is_reference> T = meta::at_c<types, I>>
 			explicit constexpr base(in_place_index_t<I>, meta::id_t<T> t)
 			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, T&>::value)
 			: index_{I}, storage_{in_place_index<I>, t} {}
 
-			template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
+			template <_IsNot<is_reference> T, class... Args, std::size_t I = index_of_type<T, types>>
 			requires Constructible<T, Args...>
-			explicit constexpr base(in_place_type_t<T>, Args&&...args)
+			explicit constexpr base(in_place_type_t<T>, Args&&... args)
 			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, Args...>::value)
-			: index_{I}, storage_{in_place_index<I>, __stl2::forward<Args>(args)...} {}
+			: index_{I}, storage_{in_place_index<I>, std::forward<Args>(args)...} {}
 
 			template <_Is<is_reference> T, std::size_t I = index_of_type<T, types>>
 			explicit constexpr base(in_place_type_t<T>, meta::id_t<T> t)
 			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, T&>::value)
 			: index_{I}, storage_{in_place_index<I>, t} {}
 
-			template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
+			template <_IsNot<is_reference> T, class... Args, std::size_t I = index_of_type<T, types>>
 			requires Constructible<T, Args...>
-			void emplace(Args&&...args)
+			void emplace(Args&&... args)
 			noexcept(is_nothrow_constructible<element_t<T>, Args...>::value)
 			{
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
 					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
-					__stl2::forward<Args>(args)...);
+					std::forward<Args>(args)...);
 				guard.index_ = I;
 			}
 
@@ -339,33 +336,33 @@ STL2_OPEN_NAMESPACE {
 				guard.index_ = I;
 			}
 
-			template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
+			template <_IsNot<is_reference> T, class E, class... Args, std::size_t I = index_of_type<T, types>>
 			requires Constructible<T, std::initializer_list<E>, Args...>
-			void emplace(std::initializer_list<E> il, Args&&...args)
+			void emplace(std::initializer_list<E> il, Args&&... args)
 			noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value)
 			{
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
 					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
-						il, __stl2::forward<Args>(args)...);
+						il, std::forward<Args>(args)...);
 				guard.index_ = I;
 			}
 
-			template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+			template <std::size_t I, class... Args, _IsNot<is_reference> T = meta::at_c<types, I>>
 			requires Constructible<T, Args...>
-			void emplace(Args&&...args)
+			void emplace(Args&&... args)
 			noexcept(is_nothrow_constructible<element_t<T>, Args...>::value)
 			{
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
 					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
-						__stl2::forward<Args>(args)...);
+						std::forward<Args>(args)...);
 				guard.index_ = I;
 			}
 
-			template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
+			template <std::size_t I, class... Args, _Is<is_reference> T = meta::at_c<types, I>>
 			void emplace(meta::id_t<T> t)
 			noexcept(is_nothrow_constructible<element_t<T>, T&>::value)
 			{
@@ -375,16 +372,16 @@ STL2_OPEN_NAMESPACE {
 				guard.index_ = I;
 			}
 
-			template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+			template <std::size_t I, class E, class... Args, _IsNot<is_reference> T = meta::at_c<types, I>>
 			requires Constructible<T, std::initializer_list<E>, Args...>
-			void emplace(std::initializer_list<E> il, Args&&...args)
+			void emplace(std::initializer_list<E> il, Args&&... args)
 			noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value)
 			{
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
 					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
-						il, __stl2::forward<Args>(args)...);
+						il, std::forward<Args>(args)...);
 				guard.index_ = I;
 			}
 
@@ -411,7 +408,7 @@ STL2_OPEN_NAMESPACE {
 		///////////////////////////////////////////////////////////////////////////
 		// destruct_base: adds nontrival destruction onto base if necessary.
 		//
-		template <class...Ts>
+		template <class... Ts>
 		class destruct_base : public base<Ts...> {
 			using base_t = base<Ts...>;
 		public:
@@ -428,7 +425,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t::base_t;
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires ext::TriviallyDestructible<storage<element_t<Ts>...>>
 		class destruct_base<Ts...> : public base<Ts...> {
 			using base_t = base<Ts...>;
@@ -439,7 +436,7 @@ STL2_OPEN_NAMESPACE {
 		///////////////////////////////////////////////////////////////////////////
 		// move_base: Adds nontrivial or disables move construction.
 		//
-		template <class...Ts>
+		template <class... Ts>
 		class move_base : public destruct_base<Ts...> {
 			using base_t = destruct_base<Ts...>;
 		public:
@@ -452,7 +449,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t::base_t;
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires(MoveConstructible<element_t<Ts>> && ...)
 		class move_base<Ts...> : public destruct_base<Ts...> {
 			using base_t = destruct_base<Ts...>;
@@ -461,7 +458,7 @@ STL2_OPEN_NAMESPACE {
 			move_base(move_base&& that)
 			noexcept(meta::_v<meta::all_of<meta::list<element_t<Ts>...>,
 				meta::quote_trait<is_nothrow_move_constructible>>>)
-			: base_t{copy_move_tag{}, __stl2::move(that)} {}
+			: base_t{copy_move_tag{}, std::move(that)} {}
 
 			move_base(const move_base&) = default;
 			move_base& operator=(move_base&&) & = default;
@@ -470,7 +467,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t::base_t;
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires
 			(MoveConstructible<element_t<Ts>> && ...) &&
 			ext::TriviallyMoveConstructible<storage<element_t<Ts>...>>
@@ -483,7 +480,7 @@ STL2_OPEN_NAMESPACE {
 		///////////////////////////////////////////////////////////////////////////
 		// move_assign_base: adds nontrivial or disables move assignment.
 		//
-		template <class...Ts>
+		template <class... Ts>
 		class move_assign_base : public move_base<Ts...> {
 			using base_t = move_base<Ts...>;
 		public:
@@ -496,7 +493,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t::base_t;
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires(Movable<element_t<Ts>> && ...)
 		class move_assign_base<Ts...> : public move_base<Ts...> {
 			using base_t = move_base<Ts...>;
@@ -511,7 +508,7 @@ STL2_OPEN_NAMESPACE {
 				meta::all_of<meta::list<element_t<Ts>...>,
 					meta::quote_trait<is_nothrow_move_constructible>>>>)
 			{
-				this->move_assign_from(__stl2::move(that));
+				this->move_assign_from(std::move(that));
 				return *this;
 			}
 			move_assign_base& operator=(const move_assign_base&) & = default;
@@ -519,7 +516,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t::base_t;
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires
 			(Movable<element_t<Ts>> && ...) &&
 			ext::TriviallyMovable<storage<element_t<Ts>...>>
@@ -532,7 +529,7 @@ STL2_OPEN_NAMESPACE {
 		///////////////////////////////////////////////////////////////////////////
 		// copy_base: Adds nontrivial or disables copy construction.
 		//
-		template <class...Ts>
+		template <class... Ts>
 		class copy_base : public move_assign_base<Ts...> {
 			using base_t = move_assign_base<Ts...>;
 		public:
@@ -545,7 +542,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t::base_t;
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires(CopyConstructible<element_t<Ts>> && ...)
 		class copy_base<Ts...> : public move_assign_base<Ts...> {
 			using base_t = move_assign_base<Ts...>;
@@ -563,7 +560,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t::base_t;
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires
 			(CopyConstructible<element_t<Ts>> && ...) &&
 			ext::TriviallyCopyConstructible<storage<element_t<Ts>...>>
@@ -576,7 +573,7 @@ STL2_OPEN_NAMESPACE {
 		///////////////////////////////////////////////////////////////////////////
 		// copy_assign_base: Adds nontrivial or disables copy assignment.
 		//
-		template <class...Ts>
+		template <class... Ts>
 		class copy_assign_base : public copy_base<Ts...> {
 			using base_t = copy_base<Ts...>;
 		public:
@@ -589,7 +586,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t::base_t;
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires(Copyable<element_t<Ts>> && ...)
 		class copy_assign_base<Ts...> : public copy_base<Ts...> {
 			using base_t = copy_base<Ts...>;
@@ -612,7 +609,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t::base_t;
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires
 			(Copyable<element_t<Ts>> && ...) &&
 			ext::TriviallyCopyable<storage<element_t<Ts>...>>
@@ -627,7 +624,7 @@ STL2_OPEN_NAMESPACE {
 	// variant: top layer of the variant implementation. Adds swap, comparison
 	// operators, and converting assignments.
 	//
-	template <class...Ts>
+	template <class... Ts>
 	requires(Destructible<__variant::element_t<Ts>> && ...)
 	class variant : public __variant::copy_assign_base<Ts...> {
 		using base_t = __variant::copy_assign_base<Ts...>;
@@ -672,20 +669,20 @@ STL2_OPEN_NAMESPACE {
 		using base_t::base_t;
 
 		variant() = default;
-		template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+		template <std::size_t I, class E, class... Args, _IsNot<is_reference> T = meta::at_c<types, I>>
 		requires Constructible<T, std::initializer_list<E>&, Args...>
-		explicit constexpr variant(in_place_index_t<I>, std::initializer_list<E>&& il, Args&&...args)
+		explicit constexpr variant(in_place_index_t<I>, std::initializer_list<E>&& il, Args&&... args)
 		noexcept(is_nothrow_constructible<__variant::storage<__variant::element_t<Ts>...>,
 			in_place_index_t<I>, std::initializer_list<E>&, Args...>::value)
-		: base_t{in_place_index<I>, il, __stl2::forward<Args>(args)...} {}
+		: base_t{in_place_index<I>, il, std::forward<Args>(args)...} {}
 
-		template <_IsNot<is_reference> T, class E, class...Args,
+		template <_IsNot<is_reference> T, class E, class... Args,
 			std::size_t I = __variant::index_of_type<T, types>>
 		requires Constructible<T, std::initializer_list<E>&, Args...>
-		explicit constexpr variant(in_place_type_t<T>, std::initializer_list<E>&& il, Args&&...args)
+		explicit constexpr variant(in_place_type_t<T>, std::initializer_list<E>&& il, Args&&... args)
 		noexcept(is_nothrow_constructible<__variant::storage<__variant::element_t<Ts>...>,
 			in_place_index_t<I>, std::initializer_list<E>&, Args...>::value)
-		: base_t{in_place_index<I>, il, __stl2::forward<Args>(args)...} {}
+		: base_t{in_place_index<I>, il, std::forward<Args>(args)...} {}
 
 		template <_IsNot<is_reference> T, class CF = constructible_from<T&&>>
 		requires
@@ -698,9 +695,9 @@ STL2_OPEN_NAMESPACE {
 			constexpr auto I = CF::index;
 			if (this->index_ == I) {
 				auto& target = __variant::v_access::raw_get(in_place_index<I>, *this);
-				target = __stl2::move(t);
+				target = std::move(t);
 			} else {
-				this->template emplace<T>(__stl2::move(t));
+				this->template emplace<T>(std::move(t));
 			}
 			return *this;
 		}

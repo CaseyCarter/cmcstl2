@@ -43,8 +43,8 @@ STL2_OPEN_NAMESPACE {
 	{
 		value_type_t<I> tmp = __stl2::iter_move(first);
 		I lm1 = __stl2::move(__stl2::next(first), last, first).second;
-		*lm1 = __stl2::move(tmp);
-		return {__stl2::move(lm1), __stl2::move(last)};
+		*lm1 = std::move(tmp);
+		return {std::move(lm1), std::move(last)};
 	}
 
 	template <BidirectionalIterator I>
@@ -54,9 +54,9 @@ STL2_OPEN_NAMESPACE {
 	{
 		I lm1 = __stl2::prev(last);
 		value_type_t<I> tmp = __stl2::iter_move(lm1);
-		I fp1 = __stl2::move_backward(first, __stl2::move(lm1), last).second;
-		*first = __stl2::move(tmp);
-		return {__stl2::move(fp1), __stl2::move(last)};
+		I fp1 = __stl2::move_backward(first, std::move(lm1), last).second;
+		*first = std::move(tmp);
+		return {std::move(fp1), std::move(last)};
 	}
 
 	template <Permutable I, Sentinel<I> S>
@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 		}
-		return {__stl2::move(r), __stl2::move(i)};
+		return {std::move(r), std::move(i)};
 	}
 
 	constexpr Integral __gcd(Integral x, Integral y)
@@ -112,7 +112,7 @@ STL2_OPEN_NAMESPACE {
 		D const m2 = last - middle;
 		if (m1 == m2) {
 			__swap_ranges::impl(first, middle, middle);
-			return {__stl2::move(middle), __stl2::move(last)};
+			return {std::move(middle), std::move(last)};
 		}
 		auto const g = __stl2::__gcd(m1, m2);
 		for (I p = first + g; p != first;) {
@@ -129,17 +129,17 @@ STL2_OPEN_NAMESPACE {
 					p2 = first + D{m1 - d};
 				}
 			} while(p2 != p);
-			*p1 = __stl2::move(t);
+			*p1 = std::move(t);
 		}
 		first += m2;
-		return {__stl2::move(first), __stl2::move(last)};
+		return {std::move(first), std::move(last)};
 	}
 
 	template <Permutable I, Sentinel<I> S>
 	ext::range<I> __rotate(I first, I middle, S last)
 	{
 		return __stl2::__rotate_forward(
-			__stl2::move(first), __stl2::move(middle), __stl2::move(last));
+			std::move(first), std::move(middle), std::move(last));
 	}
 
 	Permutable{I}
@@ -147,11 +147,11 @@ STL2_OPEN_NAMESPACE {
 	{
 		if (is_trivially_move_assignable<value_type_t<I>>()) {
 			if (__stl2::next(first) == middle) {
-				return __stl2::__rotate_left(__stl2::move(first), __stl2::move(last));
+				return __stl2::__rotate_left(std::move(first), std::move(last));
 			}
 		}
 		return __stl2::__rotate_forward(
-			__stl2::move(first), __stl2::move(middle), __stl2::move(last));
+			std::move(first), std::move(middle), std::move(last));
 	}
 
 	template <BidirectionalIterator I>
@@ -160,14 +160,14 @@ STL2_OPEN_NAMESPACE {
 	{
 		if (is_trivially_move_assignable<value_type_t<I>>()) {
 			if (__stl2::next(first) == middle) {
-				return __stl2::__rotate_left(__stl2::move(first), __stl2::move(last));
+				return __stl2::__rotate_left(std::move(first), std::move(last));
 			}
 			if (__stl2::next(middle) == last) {
-				return __stl2::__rotate_right(__stl2::move(first), __stl2::move(last));
+				return __stl2::__rotate_right(std::move(first), std::move(last));
 			}
 		}
 		return __stl2::__rotate_forward(
-			__stl2::move(first), __stl2::move(middle), __stl2::move(last));
+			std::move(first), std::move(middle), std::move(last));
 	}
 
 	template <RandomAccessIterator I>
@@ -176,30 +176,30 @@ STL2_OPEN_NAMESPACE {
 	{
 		if (is_trivially_move_assignable<value_type_t<I>>()) {
 			if (__stl2::next(first) == middle) {
-				return __stl2::__rotate_left(__stl2::move(first), __stl2::move(last));
+				return __stl2::__rotate_left(std::move(first), std::move(last));
 			}
 			if (__stl2::next(middle) == last) {
-				return __stl2::__rotate_right(__stl2::move(first), __stl2::move(last));
+				return __stl2::__rotate_right(std::move(first), std::move(last));
 			}
 			return __stl2::__rotate_gcd(
-				__stl2::move(first), __stl2::move(middle), __stl2::move(last));
+				std::move(first), std::move(middle), std::move(last));
 		}
 		return __stl2::__rotate_forward(
-			__stl2::move(first), __stl2::move(middle), __stl2::move(last));
+			std::move(first), std::move(middle), std::move(last));
 	}
 
 	template <Permutable I, Sentinel<I> S>
 	ext::range<I> rotate(I first, I middle, S last)
 	{
 		if (first == middle) {
-			first = __stl2::next(__stl2::move(first), __stl2::move(last));
-			return {first, __stl2::move(first)};
+			first = __stl2::next(std::move(first), std::move(last));
+			return {first, std::move(first)};
 		}
 		if (middle == last) {
-			return {__stl2::move(first), __stl2::move(middle)};
+			return {std::move(first), std::move(middle)};
 		}
 		return __stl2::__rotate(
-			__stl2::move(first), __stl2::move(middle), __stl2::move(last));
+			std::move(first), std::move(middle), std::move(last));
 	}
 
 	template <ForwardRange Rng>
@@ -207,7 +207,7 @@ STL2_OPEN_NAMESPACE {
 		Permutable<iterator_t<Rng>>
 	ext::range<safe_iterator_t<Rng>> rotate(Rng&& rng, iterator_t<Rng> middle)
 	{
-		return __stl2::rotate(__stl2::begin(rng), __stl2::move(middle), __stl2::end(rng));
+		return __stl2::rotate(__stl2::begin(rng), std::move(middle), __stl2::end(rng));
 	}
 } STL2_CLOSE_NAMESPACE
 

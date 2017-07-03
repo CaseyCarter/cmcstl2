@@ -13,7 +13,7 @@
 
 #if VALIDATE_RANGES
 namespace models {
-template <class...Ts>
+template <class... Ts>
 constexpr bool Same = ranges::Same<Ts...>;
 
 template <class T, class U>

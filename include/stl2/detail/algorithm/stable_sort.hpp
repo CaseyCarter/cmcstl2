@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 					ssort::inplace_stable_sort(middle, last, pred, proj);
 					detail::inplace_merge_no_buffer(first, middle, last,
 						middle - first, last - middle,
-						__stl2::ref(pred), __stl2::ref(proj));
+						std::ref(pred), std::ref(proj));
 				}
 			}
 
@@ -86,8 +86,8 @@ STL2_OPEN_NAMESPACE {
 						__stl2::make_move_iterator(first + step_size),
 						__stl2::make_move_iterator(first + step_size),
 						__stl2::make_move_iterator(first + two_step),
-						result, __stl2::ref(pred),
-						__stl2::ref(proj), __stl2::ref(proj)).out();
+						result, std::ref(pred),
+						std::ref(proj), std::ref(proj)).out();
 					first += two_step;
 				}
 				step_size = __stl2::min(difference_type_t<I>(last - first), step_size);
@@ -96,8 +96,8 @@ STL2_OPEN_NAMESPACE {
 					__stl2::make_move_iterator(first + step_size),
 					__stl2::make_move_iterator(first + step_size),
 					__stl2::make_move_iterator(last),
-					result, __stl2::ref(pred),
-					__stl2::ref(proj), __stl2::ref(proj));
+					result, std::ref(pred),
+					std::ref(proj), std::ref(proj));
 			}
 
 			template <RandomAccessIterator I, class C, class P>
@@ -154,7 +154,7 @@ STL2_OPEN_NAMESPACE {
 				}
 				detail::merge_adaptive(first, middle, last,
 					middle - first, last - middle, buf,
-					__stl2::ref(comp), __stl2::ref(proj));
+					std::ref(comp), std::ref(proj));
 			}
 		}
 	}
@@ -166,9 +166,9 @@ STL2_OPEN_NAMESPACE {
 		Sortable<I, Comp, Proj>
 	I stable_sort(I first, S&& last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		auto n = __stl2::distance(first, __stl2::forward<S>(last));
-		return detail::fsort::sort_n(__stl2::move(first), n,
-			__stl2::ref(comp), __stl2::ref(proj));
+		auto n = __stl2::distance(first, std::forward<S>(last));
+		return detail::fsort::sort_n(std::move(first), n,
+			std::ref(comp), std::ref(proj));
 	}
 
 	template <RandomAccessIterator I, class S, class Comp = less<>,
@@ -178,7 +178,7 @@ STL2_OPEN_NAMESPACE {
 		Sortable<I, Comp, Proj>
 	I stable_sort(I first, S&& last_, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		auto last = __stl2::next(first, __stl2::forward<S>(last_));
+		auto last = __stl2::next(first, std::forward<S>(last_));
 		auto len = difference_type_t<I>(last - first);
 		using buf_t = detail::ssort::buf_t<I>;
 		auto buf = len > 256 ? buf_t{len} : buf_t{};
@@ -198,7 +198,7 @@ STL2_OPEN_NAMESPACE {
 	stable_sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return detail::fsort::sort_n(__stl2::begin(rng), __stl2::distance(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
+			std::ref(comp), std::ref(proj));
 	}
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
@@ -208,7 +208,7 @@ STL2_OPEN_NAMESPACE {
 	stable_sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::stable_sort(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
+			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

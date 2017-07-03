@@ -42,20 +42,20 @@ STL2_OPEN_NAMESPACE {
 	{
 		auto r = result_first;
 		if(r != result_last) {
-			__stl2::tie(first, r) =
-				ext::copy(__stl2::move(first), last, __stl2::move(r), result_last);
+			std::tie(first, r) =
+				ext::copy(std::move(first), last, std::move(r), result_last);
 
-			__stl2::make_heap(result_first, r, __stl2::ref(comp), __stl2::ref(proj2));
+			__stl2::make_heap(result_first, r, std::ref(comp), std::ref(proj2));
 			const auto len = __stl2::distance(result_first, r);
 			for(; first != last; ++first) {
 				reference_t<I1>&& x = *first;
 				if(__stl2::invoke(comp, __stl2::invoke(proj1, x), __stl2::invoke(proj2, *result_first))) {
-					*result_first = __stl2::forward<reference_t<I1>>(x);
+					*result_first = std::forward<reference_t<I1>>(x);
 					detail::sift_down_n(result_first, len, result_first,
-						__stl2::ref(comp), __stl2::ref(proj2));
+						std::ref(comp), std::ref(proj2));
 				}
 			}
-			__stl2::sort_heap(result_first, r, __stl2::ref(comp), __stl2::ref(proj2));
+			__stl2::sort_heap(result_first, r, std::ref(comp), std::ref(proj2));
 		}
 		return r;
 	}
@@ -75,8 +75,8 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::partial_sort_copy(
 			__stl2::begin(rng), __stl2::end(rng),
 			__stl2::begin(result_rng), __stl2::end(result_rng),
-			__stl2::ref(comp),
-			__stl2::ref(proj1), __stl2::ref(proj2));
+			std::ref(comp),
+			std::ref(proj1), std::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

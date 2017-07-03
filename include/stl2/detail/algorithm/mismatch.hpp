@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 				break;
 			}
 		}
-		return {__stl2::move(first1), __stl2::move(first2)};
+		return {std::move(first1), std::move(first2)};
 	}
 
 	template <InputIterator I1, Sentinel<I1> S1,
@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 				break;
 			}
 		}
-		return {__stl2::move(first1), __stl2::move(first2)};
+		return {std::move(first1), std::move(first2)};
 	}
 
 	template <InputRange Rng1, class I2, class Pred = equal_to<>,
@@ -75,8 +75,8 @@ STL2_OPEN_NAMESPACE {
 		auto first2 = std::forward<I2>(first2_);
 		return __stl2::mismatch(
 			__stl2::begin(rng1), __stl2::end(rng1),
-			std::move(first2), __stl2::ref(pred),
-			__stl2::ref(proj1), __stl2::ref(proj2));
+			std::move(first2), std::ref(pred),
+			std::ref(proj1), std::ref(proj2));
 	}
 
 	template <InputRange Rng1, InputRange Rng2, class Pred = equal_to<>,
@@ -92,9 +92,9 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::mismatch(
 			__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::ref(pred),
-			__stl2::ref(proj1),
-			__stl2::ref(proj2));
+			std::ref(pred),
+			std::ref(proj1),
+			std::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

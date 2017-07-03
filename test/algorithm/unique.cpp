@@ -39,7 +39,7 @@ struct iter_call
 	using begin_t = Iter;
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
-	template <class B, class E, class...Args>
+	template <class B, class E, class... Args>
 	auto operator()(B &&It, E &&e, Args &&... args) const
 	{
 		return stl2::unique(begin_t{It}, sentinel_t{e}, std::forward<Args>(args)...);
@@ -53,7 +53,7 @@ struct range_call
 	using begin_t = Iter;
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
-	template <class B, class E, class...Args>
+	template <class B, class E, class... Args>
 	auto operator()(B &&It, E &&e, Args &&... args) const
 	{
 		auto rng = stl2::ext::make_range(begin_t{It}, sentinel_t{e});

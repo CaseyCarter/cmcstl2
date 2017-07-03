@@ -41,7 +41,7 @@ int main()
 		std::iota(ia, ia + s, 0);
 		std::iota(ib, ib + s, 0);
 		std::iota(orig, orig + s, 0);
-		stl2::minstd_rand g;
+		std::minstd_rand g;
 		stl2::shuffle(random_access_iterator<int*>(ia), sentinel<int*>(ia+s), g);
 		CHECK(!stl2::equal(ia, orig));
 		CHECK(stl2::shuffle(ib, ib+s, g) == ib+s);

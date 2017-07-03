@@ -26,7 +26,7 @@ class delimiter {
 public:
 	delimiter() = default;
 	delimiter(ranges::value_type_t<I> value) :
-		value_{ranges::move(value)} {}
+		value_{std::move(value)} {}
 
 	friend bool operator==(const delimiter& lhs, const delimiter& rhs) {
 		return lhs.value_ == rhs.value_;
@@ -65,9 +65,9 @@ int main()
 	using ranges::end;
 	using ranges::size;
 
-	ranges::pair<int, int> const a[] = {{0, 0}, {0, 1}, {1, 2}, {1, 3}, {3, 4}, {3, 5}};
+	std::pair<int, int> const a[] = {{0, 0}, {0, 1}, {1, 2}, {1, 3}, {3, 4}, {3, 5}};
 	static_assert(size(a) == 6, "");
-	ranges::pair<int, int> out[size(a)] = {};
+	std::pair<int, int> out[size(a)] = {};
 
 	auto res = ranges::copy(begin(a), end(a), out);
 	CHECK(res.first == end(a));
@@ -100,7 +100,7 @@ int main()
 		}
 		{
 			std::fill_n(buf, sizeof(buf), '\0');
-			auto res4 = ranges::copy(ranges::move(str), buf);
+			auto res4 = ranges::copy(std::move(str), buf);
 			*res4.second = '\0';
 			CHECK(res4.first.get_unsafe() == std::next(begin(str), std::strlen(sz)));
 			CHECK(res4.second == buf + std::strlen(sz));

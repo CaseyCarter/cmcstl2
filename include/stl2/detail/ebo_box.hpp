@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 			template <class First, class... Rest>
 			requires (sizeof...(Rest) > 0 || !_OneOf<std::decay_t<First>, ebo_box, T>) &&
 				Constructible<T, First, Rest...>
-			constexpr explicit ebo_box(First&& f, Rest&&...r)
+			constexpr explicit ebo_box(First&& f, Rest&&... r)
 			noexcept(std::is_nothrow_constructible<T, First, Rest...>::value)
 			: item_(std::forward<First>(f), std::forward<Rest>(r)...)
 			{}

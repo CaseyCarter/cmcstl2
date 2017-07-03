@@ -220,11 +220,11 @@ STL2_OPEN_NAMESPACE {
 } STL2_CLOSE_NAMESPACE
 
 namespace std {
-	template <class Base, ::__stl2::TagSpecifier...Tags>
+	template <class Base, ::__stl2::TagSpecifier... Tags>
 	struct tuple_size<::__stl2::tagged<Base, Tags...>>
 	: tuple_size<Base> { };
 
-	template <size_t N, class Base, ::__stl2::TagSpecifier...Tags>
+	template <size_t N, class Base, ::__stl2::TagSpecifier... Tags>
 	struct tuple_element<N, ::__stl2::tagged<Base, Tags...>>
 	: tuple_element<N, Base> { };
 }

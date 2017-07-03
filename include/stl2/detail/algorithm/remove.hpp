@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 			equal_to<>, projected<I, Proj>, const T*>
 	I remove(I first, S last, const T& value, Proj proj = Proj{})
 	{
-		first = __stl2::find(__stl2::move(first), last, value, __stl2::ref(proj));
+		first = __stl2::find(std::move(first), last, value, std::ref(proj));
 		if (first != last) {
 			for (auto m = __stl2::next(first); m != last; ++m) {
 				if (__stl2::invoke(proj, *m) != value) {
@@ -50,8 +50,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	remove(Rng&& rng, const T& value, Proj proj = Proj{})
 	{
-		return __stl2::remove(__stl2::begin(rng), __stl2::end(rng), value,
-			__stl2::ref(proj));
+		return __stl2::remove(__stl2::begin(rng), __stl2::end(rng), value, std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 
