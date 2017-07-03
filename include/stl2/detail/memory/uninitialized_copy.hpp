@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 			__stl2::__construct_at(*result, *first);
 		}
 		guard.release();
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
 	template <InputRange Rng, __NoThrowForwardIterator O>

@@ -13,6 +13,7 @@
 #ifndef STL2_TYPE_TRAITS
 #define STL2_TYPE_TRAITS
 
+#include <type_traits>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
@@ -84,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 	template <class...>
 	struct common_type {};
 
-	template <class...Ts>
+	template <class... Ts>
 	using common_type_t = meta::_t<common_type<Ts...>>;
 
 	template <class T>
@@ -103,7 +104,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class U>
 	struct common_type<T, U> : __common_type2<T, U> {};
 
-	template <class T, class U, class V, class...W>
+	template <class T, class U, class V, class...  W>
 	requires _Valid<common_type_t, T, U>
 	struct common_type<T, U, V, W...>
 	: common_type<common_type_t<T, U>, V, W...> {};
@@ -141,7 +142,7 @@ STL2_OPEN_NAMESPACE {
 	template <class...>
 	struct common_reference {};
 
-	template <class...Ts>
+	template <class... Ts>
 	using common_reference_t = meta::_t<common_reference<Ts...>>;
 
 	template <class T>
@@ -173,7 +174,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class U>
 	struct common_reference<T, U> : __common_reference2<T, U> {};
 
-	template <class T, class U, class V, class...W>
+	template <class T, class U, class V, class... W>
 	requires _Valid<common_reference_t, T, U>
 	struct common_reference<T, U, V, W...>
 	: common_reference<common_reference_t<T, U>, V, W...> {};

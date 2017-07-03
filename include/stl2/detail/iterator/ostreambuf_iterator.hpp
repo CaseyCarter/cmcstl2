@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		: sbuf_(s) {}
 		ostreambuf_iterator& operator=(charT c) {
 			if (sbuf_) {
-				if (traits::eq_int_type(sbuf_->sputc(__stl2::move(c)), traits::eof())) {
+				if (traits::eq_int_type(sbuf_->sputc(std::move(c)), traits::eof())) {
 					sbuf_ = nullptr;
 				}
 			}

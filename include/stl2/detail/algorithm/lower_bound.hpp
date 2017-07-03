@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		const T& value_;
 
 		constexpr __lower_bound_fn(C comp, const T& value) :
-			comp_(__stl2::ref(comp)), value_(value) {}
+			comp_(std::ref(comp)), value_(value) {}
 
 		constexpr bool operator()(auto&& i) const {
 			return __stl2::invoke(comp_, i, value_);
@@ -45,9 +45,9 @@ STL2_OPEN_NAMESPACE {
 			const T& value, Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			return __stl2::ext::partition_point_n(
-				__stl2::forward<I>(first), n,
-				__lower_bound_fn<Comp, T>{__stl2::ref(comp), value},
-				__stl2::ref(proj));
+				std::forward<I>(first), n,
+				__lower_bound_fn<Comp, T>{std::ref(comp), value},
+				std::ref(proj));
 		}
 	}
 
@@ -61,9 +61,9 @@ STL2_OPEN_NAMESPACE {
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::partition_point(
-			__stl2::forward<I>(first), __stl2::forward<S>(last),
-			__lower_bound_fn<Comp, T>{__stl2::ref(comp), value},
-			__stl2::ref(proj));
+			std::forward<I>(first), std::forward<S>(last),
+			__lower_bound_fn<Comp, T>{std::ref(comp), value},
+			std::ref(proj));
 	}
 
 	template <class I, class S, class T, class Comp = less<>, class Proj = identity>
@@ -76,10 +76,10 @@ STL2_OPEN_NAMESPACE {
 	__f<I> lower_bound(I&& first_, S&& last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		auto first = __stl2::forward<I>(first_);
-		auto n = __stl2::distance(first, __stl2::forward<S>(last));
-		return __stl2::ext::lower_bound_n(__stl2::move(first), n, value,
-			__stl2::ref(comp), __stl2::ref(proj));
+		auto first = std::forward<I>(first_);
+		auto n = __stl2::distance(first, std::forward<S>(last));
+		return __stl2::ext::lower_bound_n(std::move(first), n, value,
+			std::ref(comp), std::ref(proj));
 	}
 
 	template <ForwardRange Rng, class T, class Comp = less<>, class Proj = identity>
@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 	lower_bound(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::lower_bound(__stl2::begin(rng), __stl2::end(rng), value,
-			__stl2::ref(comp), __stl2::ref(proj));
+			std::ref(comp), std::ref(proj));
 	}
 
 	template <ForwardRange Rng, class T, class Comp = less<>, class Proj = identity>
@@ -103,7 +103,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::ext::lower_bound_n(
 			__stl2::begin(rng), __stl2::distance(rng), value,
-			__stl2::ref(comp), __stl2::ref(proj));
+			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

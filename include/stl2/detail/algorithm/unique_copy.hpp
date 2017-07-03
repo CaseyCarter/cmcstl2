@@ -34,15 +34,15 @@ STL2_OPEN_NAMESPACE {
 			while (++first != last) {
 				reference_t<I>&& v = *first;
 				if (!__stl2::invoke(comp,
-					__stl2::invoke(proj, __stl2::forward<reference_t<I>>(v)),
+					__stl2::invoke(proj, std::forward<reference_t<I>>(v)),
 					__stl2::invoke(proj, saved))) {
-					saved = __stl2::forward<reference_t<I>>(v);
+					saved = std::forward<reference_t<I>>(v);
 					*result = saved;
 					++result;
 				}
 			}
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
 	template <class I, class S, InputIterator O, class R, class Proj>
@@ -55,14 +55,14 @@ STL2_OPEN_NAMESPACE {
 			while (++first != last) {
 				reference_t<I>&& v = *first;
 				if (!__stl2::invoke(comp,
-					__stl2::invoke(proj, __stl2::forward<reference_t<I>>(v)),
+					__stl2::invoke(proj, std::forward<reference_t<I>>(v)),
 					__stl2::invoke(proj, *result))) {
-					*++result = __stl2::forward<reference_t<I>>(v);
+					*++result = std::forward<reference_t<I>>(v);
 				}
 			}
 			++result;
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
 	template <ForwardIterator I, class S, class O, class R, class Proj>
@@ -76,15 +76,15 @@ STL2_OPEN_NAMESPACE {
 			while (++first != last) {
 				reference_t<I>&& v = *first;
 				if (!__stl2::invoke(comp,
-					__stl2::invoke(proj, __stl2::forward<reference_t<I>>(v)),
+					__stl2::invoke(proj, std::forward<reference_t<I>>(v)),
 					__stl2::invoke(proj, *m))) {
-					*result = __stl2::forward<reference_t<I>>(v);
+					*result = std::forward<reference_t<I>>(v);
 					++result;
 					m = first;
 				}
 			}
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
 	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
@@ -101,10 +101,10 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::__unique_copy(
 			ext::priority_tag<2>{},
-			__stl2::move(first), __stl2::move(last),
-			__stl2::move(result),
-			__stl2::ref(comp),
-			__stl2::ref(proj));
+			std::move(first), std::move(last),
+			std::move(result),
+			std::ref(comp),
+			std::ref(proj));
 	}
 
 	template <InputRange Rng, WeaklyIncrementable O, class R = equal_to<>,
@@ -121,9 +121,9 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::__unique_copy(
 			ext::priority_tag<2>{},
 			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::move(result),
-			__stl2::ref(comp),
-			__stl2::ref(proj));
+			std::move(result),
+			std::ref(comp),
+			std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

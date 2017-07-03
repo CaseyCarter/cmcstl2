@@ -33,7 +33,7 @@ namespace {
 	}
 
 	template <typename T>
-	requires ranges::is_fundamental<T>::value
+	requires std::is_fundamental<T>::value
 	bool empty(const Array<T>&) {
 		return true;
 	}

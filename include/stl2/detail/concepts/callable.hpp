@@ -27,17 +27,17 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Indirect callables [indirectfunc.indirectcallables]
 	//
-	template <class...T>
+	template <class... T>
 	struct __common_reference
 	: meta::bool_<sizeof...(T) == 1> {};
 
-	template <class T, class U, class...Rest>
+	template <class T, class U, class... Rest>
 	requires
 		CommonReference<T, U>
 	struct __common_reference<T, U, Rest...>
 	: __common_reference<common_reference_t<T, U>, Rest...> {};
 
-	template <Readable...Is>
+	template <Readable... Is>
 	using __iter_args_lists =
 		meta::push_back<
 			meta::cartesian_product<
@@ -55,9 +55,9 @@ STL2_OPEN_NAMESPACE {
 		result_of_t<F(Args...)>;
 
 	namespace ext {
-		template <class F, class...Is>
+		template <class F, class... Is>
 		concept bool IndirectInvocable =
-			(Readable<Is> &&...&& true) &&
+			(Readable<Is> && ... && true) &&
 			CopyConstructible<F> &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 
 	// Not to spec:
 	// and https://github.com/ericniebler/stl2/issues/286
-	template <class F, class...Is>
+	template <class F, class... Is>
 	requires
 		Invocable<F, reference_t<Is>...>
 	struct indirect_result_of<F(Is...)>
@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 		meta::_t<indirect_result_of<T>>;
 
 	namespace ext {
-		template <class F, class...Is>
+		template <class F, class... Is>
 		concept bool IndirectRegularInvocable =
 			IndirectInvocable<F, Is...>;
 	}
@@ -132,9 +132,9 @@ STL2_OPEN_NAMESPACE {
 	Predicate{F, ...Args} struct __predicate<F, Args...> : true_type {};
 
 	namespace ext {
-		template <class F, class...Is>
+		template <class F, class... Is>
 		concept bool IndirectPredicate =
-			(Readable<Is> &&...&& true) &&
+			(Readable<Is> && ... && true) &&
 			CopyConstructible<F> &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.

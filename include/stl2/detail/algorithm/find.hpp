@@ -40,8 +40,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectRelation<
 			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
 	safe_iterator_t<Rng> find(Rng&& rng, const T& value, Proj proj = Proj{}) {
-		return __stl2::find(__stl2::begin(rng), __stl2::end(rng), value,
-												__stl2::ref(proj));
+		return __stl2::find(__stl2::begin(rng), __stl2::end(rng), value, std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

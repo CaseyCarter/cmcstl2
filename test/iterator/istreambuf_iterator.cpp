@@ -78,7 +78,7 @@ namespace {
 		static_assert(models::Constructible<I, decltype(i++)>);
 	}
 
-	template <class...Cs>
+	template <class... Cs>
 	void validate() {
 		(validate_one<Cs>(), ...);
 	}

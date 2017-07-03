@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr counted_iterator() = default;
 		constexpr counted_iterator(I x, difference_type_t<I> n)
-		: data_{__stl2::move(x), n} {
+		: data_{std::move(x), n} {
 			STL2_EXPECT(n >= 0);
 		}
 		template <ConvertibleTo<I> U>
@@ -234,7 +234,7 @@ STL2_OPEN_NAMESPACE {
 	template <Iterator I>
 	constexpr auto make_counted_iterator(I i, difference_type_t<I> n)
 	STL2_NOEXCEPT_RETURN(
-		counted_iterator<I>{__stl2::move(i), n}
+		counted_iterator<I>{std::move(i), n}
 	)
 
 	// Not to spec: constexpr per P0579
@@ -277,17 +277,17 @@ STL2_OPEN_NAMESPACE {
 		template <class I>
 		constexpr auto recounted(const counted_iterator<I>& o, I i)
 		STL2_NOEXCEPT_RETURN(
-			counted_iterator<I>{__stl2::move(i), o.count()}
+			counted_iterator<I>{std::move(i), o.count()}
 		)
 
 		template <class I>
 		constexpr auto recounted(
 			const counted_iterator<I>& o, I i, difference_type_t<I> n)
-		noexcept(noexcept(counted_iterator<I>{__stl2::move(i), o.count() - n}))
+		noexcept(noexcept(counted_iterator<I>{std::move(i), o.count() - n}))
 		{
 			STL2_EXPENSIVE_ASSERT(!models::ForwardIterator<I> ||
 				i == __stl2::next(o.base(), n));
-			return counted_iterator<I>{__stl2::move(i), o.count() - n};
+			return counted_iterator<I>{std::move(i), o.count() - n};
 		}
 	}
 } STL2_CLOSE_NAMESPACE

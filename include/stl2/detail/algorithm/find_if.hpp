@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 	find_if(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::find_if(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

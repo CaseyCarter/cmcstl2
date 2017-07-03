@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		template <Iterator I, Sentinel<I> S>
 		constexpr auto make_range(I i, S s)
 		STL2_NOEXCEPT_RETURN(
-			range<I, S>{__stl2::move(i), __stl2::move(s)}
+			range<I, S>{std::move(i), std::move(s)}
 		)
 
 		namespace __make_bounded_range {
@@ -37,26 +37,26 @@ STL2_OPEN_NAMESPACE {
 			requires ConvertibleTo<S, I>
 			constexpr auto impl(ext::priority_tag<3>, I i, S s)
 			STL2_NOEXCEPT_RETURN(
-				range<I>{__stl2::move(i), I{__stl2::move(s)}}
+				range<I>{std::move(i), I{std::move(s)}}
 			)
 
 			template <RandomAccessIterator I, SizedSentinel<I> S>
 			constexpr auto impl(ext::priority_tag<2>, I i, S s) {
-				I end = __stl2::next(i, __stl2::move(s));
-				return range<I>{__stl2::move(i), __stl2::move(end)};
+				I end = __stl2::next(i, std::move(s));
+				return range<I>{std::move(i), std::move(end)};
 			}
 
 			template <Iterator I, Sentinel<I> S>
 			requires Common<I, S>
 			constexpr auto impl(ext::priority_tag<1>, I i, S s)
 			STL2_NOEXCEPT_RETURN(
-				range<common_type_t<I, S>>{__stl2::move(i), __stl2::move(s)}
+				range<common_type_t<I, S>>{std::move(i), std::move(s)}
 			)
 
 			template <Iterator I, Sentinel<I> S>
 			constexpr auto impl(ext::priority_tag<0>, I i, S s)
 			STL2_NOEXCEPT_RETURN(
-				range<common_iterator<I, S>>{__stl2::move(i), __stl2::move(s)}
+				range<common_iterator<I, S>>{std::move(i), std::move(s)}
 			)
 		}
 
@@ -64,14 +64,14 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto make_bounded_range(I i, S s)
 		STL2_NOEXCEPT_RETURN(
 			__make_bounded_range::impl(
-				ext::max_priority_tag, __stl2::move(i), __stl2::move(s))
+				ext::max_priority_tag, std::move(i), std::move(s))
 		)
 
 		template <Iterator I>
 		requires Sentinel<I, I>
 		constexpr auto make_bounded_range(I i, I s)
 		STL2_NOEXCEPT_RETURN(
-			range<I>{__stl2::move(i), __stl2::move(s)}
+			range<I>{std::move(i), std::move(s)}
 		)
 	}
 } STL2_CLOSE_NAMESPACE

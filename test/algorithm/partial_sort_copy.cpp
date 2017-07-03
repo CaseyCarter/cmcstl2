@@ -36,7 +36,7 @@ template <class Iter>
 void
 test_larger_sorts(int N, int M)
 {
-    auto partial_sort_copy = ::make_testable_2<true, false>([](auto&&...args) {
+    auto partial_sort_copy = ::make_testable_2<true, false>([](auto&&... args) {
         return stl2::partial_sort_copy(std::forward<decltype(args)>(args)...);
     });
     int* input = new int[N];

@@ -35,29 +35,25 @@ STL2_OPEN_NAMESPACE {
 	{
 		while (true) {
 			if (first1 == last1) {
-				auto res = __stl2::copy(__stl2::move(first2), __stl2::move(last2),
-					__stl2::move(result));
-				return {__stl2::move(first1), __stl2::move(res.in()),
-					__stl2::move(res.out())};
+				auto res = __stl2::copy(std::move(first2), std::move(last2), std::move(result));
+				return {std::move(first1), std::move(res.in()), std::move(res.out())};
 			}
 			if (first2 == last2) {
-				auto res = __stl2::copy(__stl2::move(first1), __stl2::move(last1),
-					__stl2::move(result));
-				return {__stl2::move(res.in()), __stl2::move(first2),
-					__stl2::move(res.out())};
+				auto res = __stl2::copy(std::move(first1), std::move(last1), std::move(result));
+				return {std::move(res.in()), std::move(first2), std::move(res.out())};
 			}
 			reference_t<I1>&& v1 = *first1;
 			reference_t<I2>&& v2 = *first2;
 			auto&& p1 = __stl2::invoke(proj1, v1);
 			auto&& p2 = __stl2::invoke(proj2, v2);
 			if (__stl2::invoke(comp, p1, p2)) {
-				*result = __stl2::forward<reference_t<I1>>(v1);
+				*result = std::forward<reference_t<I1>>(v1);
 				++first1;
 			} else {
 				if (!__stl2::invoke(comp, p2, p1)) {
 					++first1;
 				}
-				*result = __stl2::forward<reference_t<I2>>(v2);
+				*result = std::forward<reference_t<I2>>(v2);
 				++first2;
 			}
 			++result;
@@ -79,8 +75,8 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::set_union(
 			__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::forward<O>(result), __stl2::ref(comp),
-			__stl2::ref(proj1), __stl2::ref(proj2));
+			std::forward<O>(result), std::ref(comp),
+			std::ref(proj1), std::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

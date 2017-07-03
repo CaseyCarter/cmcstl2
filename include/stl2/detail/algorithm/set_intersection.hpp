@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 			} else if (__stl2::invoke(comp, p2, p1)) {
 				++first2;
 			} else {
-				*result = __stl2::forward<reference_t<I1>>(v1);
+				*result = std::forward<reference_t<I1>>(v1);
 				++result;
 				++first1;
 				++first2;
@@ -63,9 +63,8 @@ STL2_OPEN_NAMESPACE {
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::set_intersection(__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::ref(comp), __stl2::ref(proj1),
-			__stl2::ref(proj2));
+			__stl2::begin(rng2), __stl2::end(rng2), std::forward<O>(result),
+			std::ref(comp), std::ref(proj1), std::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

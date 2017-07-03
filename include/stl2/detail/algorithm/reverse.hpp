@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 			// Shift the first half of the input range into the buffer.
 			auto umiddle = __stl2::ext::uncounted(__stl2::move(
 				__stl2::make_counted_iterator(ufirst, n / 2),
-				__stl2::default_sentinel{},
+				default_sentinel{},
 				__stl2::back_inserter(vec)).in());
 			if (n % 2 != 0) {
 				++umiddle;
@@ -66,10 +66,10 @@ STL2_OPEN_NAMESPACE {
 			// Swap the buffered elements in reverse order with the second half of
 			// the input range.
 			auto ulast = __swap_ranges::impl(__stl2::rbegin(vec), __stl2::rend(vec),
-				__stl2::move(umiddle)).in2();
+				std::move(umiddle)).in2();
 			// Shift the buffer contents into the first half of the input range.
-			__stl2::move(vec, __stl2::move(ufirst));
-			return __stl2::ext::recounted(first, __stl2::move(ulast), n);
+			__stl2::move(vec, std::move(ufirst));
+			return __stl2::ext::recounted(first, std::move(ulast), n);
 		}
 
 		// From EoP
@@ -81,12 +81,12 @@ STL2_OPEN_NAMESPACE {
 		{
 			// Precondition: $\property{mutable\_counted\_range}(first, n)$
 			if (n < difference_type_t<I>(2)) {
-				return __stl2::next(__stl2::move(first), n);
+				return __stl2::next(std::move(first), n);
 			}
 
 			const auto half_n = n / 2;
 			if (half_n <= buf.size()) {
-				return detail::reverse_n_with_half_buffer(__stl2::move(first), n, buf);
+				return detail::reverse_n_with_half_buffer(std::move(first), n, buf);
 			}
 
 			auto last1 = detail::reverse_n_adaptive(first, half_n, buf);
@@ -95,8 +95,8 @@ STL2_OPEN_NAMESPACE {
 				++first2;
 			}
 			detail::reverse_n_adaptive(first2, half_n, buf);
-			return __swap_ranges::impl(__stl2::move(first), __stl2::move(last1),
-				__stl2::move(first2)).in2();
+			return __swap_ranges::impl(std::move(first), std::move(last1),
+				std::move(first2)).in2();
 		}
 
 		template <class I>
@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 			static constexpr auto alloc_threshold = difference_type_t<I>(8);
 			auto buf = n >= alloc_threshold ? buf_t{n / 2} : buf_t{};
 			auto last = detail::reverse_n_adaptive(ufirst, n, buf);
-			return ext::recounted(first, __stl2::move(last), n);
+			return ext::recounted(first, std::move(last), n);
 		}
 	}
 
@@ -146,8 +146,8 @@ STL2_OPEN_NAMESPACE {
 	template <Permutable I, Sentinel<I> S>
 	I reverse(I first, S last)
 	{
-		auto n = __stl2::distance(first, __stl2::move(last));
-		return detail::reverse_n(__stl2::move(first), n);
+		auto n = __stl2::distance(first, std::move(last));
+		return detail::reverse_n(std::move(first), n);
 	}
 
 	template <Permutable I, Sentinel<I> S>
@@ -155,8 +155,8 @@ STL2_OPEN_NAMESPACE {
 		BidirectionalIterator<I>
 	I reverse(I first, S last)
 	{
-		auto bound = __stl2::next(first, __stl2::move(last));
-		return __stl2::reverse(__stl2::move(first), __stl2::move(bound));
+		auto bound = __stl2::next(first, std::move(last));
+		return __stl2::reverse(std::move(first), std::move(bound));
 	}
 
 	// Extension

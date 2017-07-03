@@ -37,9 +37,9 @@ STL2_OPEN_NAMESPACE {
 					auto half = dist / 2;
 					auto middle = __stl2::next(first, half);
 					auto&& v = *middle;
-					auto&& pv = __stl2::invoke(proj, __stl2::forward<decltype(v)>(v));
+					auto&& pv = __stl2::invoke(proj, std::forward<decltype(v)>(v));
 					if (__stl2::invoke(comp, pv, value)) {
-						first = __stl2::move(middle);
+						first = std::move(middle);
 						++first;
 						dist -= half + 1;
 					} else if (__stl2::invoke(comp, value, pv)) {
@@ -47,11 +47,11 @@ STL2_OPEN_NAMESPACE {
 					} else {
 						return {
 							ext::lower_bound_n(
-								__stl2::move(first), half, value,
-								__stl2::ref(comp), __stl2::ref(proj)),
+								std::move(first), half, value,
+								std::ref(comp), std::ref(proj)),
 							ext::upper_bound_n(__stl2::next(middle),
 								dist - (half + 1), value,
-								__stl2::ref(comp), __stl2::ref(proj))
+								std::ref(comp), std::ref(proj))
 						};
 					}
 				} while (0 != dist);
@@ -80,27 +80,27 @@ STL2_OPEN_NAMESPACE {
 			if (d || mid == last) {
 				// at the end of the input range
 				return ext::equal_range_n(
-					__stl2::move(first), dist - d, value,
-					__stl2::ref(comp), __stl2::ref(proj));
+					std::move(first), dist - d, value,
+					std::ref(comp), std::ref(proj));
 			}
 			auto&& v = *mid;
-			auto&& pv = __stl2::invoke(proj, __stl2::forward<decltype(v)>(v));
+			auto&& pv = __stl2::invoke(proj, std::forward<decltype(v)>(v));
 			// if value < *mid, mid is after the target range.
 			if (__stl2::invoke(comp, value, pv)) {
 				return ext::equal_range_n(
-					__stl2::move(first), dist, value,
-					__stl2::ref(comp), __stl2::ref(proj));
+					std::move(first), dist, value,
+					std::ref(comp), std::ref(proj));
 			} else if (!__stl2::invoke(comp, pv, value)) {
 				// *mid == value: the lower bound is <= mid, and the upper bound is > mid.
 				return {
-					ext::lower_bound_n(__stl2::move(first), dist, value,
-						__stl2::ref(comp), __stl2::ref(proj)),
-					__stl2::upper_bound(__stl2::move(mid), __stl2::move(last),
-						value, __stl2::ref(comp), __stl2::ref(proj))
+					ext::lower_bound_n(std::move(first), dist, value,
+						std::ref(comp), std::ref(proj)),
+					__stl2::upper_bound(std::move(mid), std::move(last),
+						value, std::ref(comp), std::ref(proj))
 				};
 			}
 			// *mid < value, mid is before the target range.
-			first = __stl2::move(mid);
+			first = std::move(mid);
 			++first;
 			dist *= 2;
 		}
@@ -114,9 +114,9 @@ STL2_OPEN_NAMESPACE {
 	ext::range<I> equal_range(I first, S last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		auto len = __stl2::distance(first, __stl2::move(last));
-		return ext::equal_range_n(__stl2::move(first), len, value,
-			__stl2::ref(comp), __stl2::ref(proj));
+		auto len = __stl2::distance(first, std::move(last));
+		return ext::equal_range_n(std::move(first), len, value,
+			std::ref(comp), std::ref(proj));
 	}
 
 	template <ForwardRange Rng, class T,
@@ -129,7 +129,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::equal_range(
 			__stl2::begin(rng), __stl2::end(rng), value,
-			__stl2::ref(comp), __stl2::ref(proj));
+			std::ref(comp), std::ref(proj));
 	}
 
 	template <ForwardRange Rng, class T, class Comp = less<>,
@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return ext::equal_range_n(
 			__stl2::begin(rng), __stl2::size(rng), value,
-			__stl2::ref(comp), __stl2::ref(proj));
+			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

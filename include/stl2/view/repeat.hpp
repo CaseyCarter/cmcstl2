@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 				noexcept(std::is_nothrow_constructible<reference, const T&>::value)
 				{ return get(); }
 				constexpr const T* arrow() const noexcept
-				{ return __stl2::addressof(get()); }
+				{ return detail::addressof(get()); }
 				constexpr bool equal(const cursor&) const noexcept { return true; }
 				constexpr void next() const noexcept {}
 				constexpr void prev() const noexcept {}

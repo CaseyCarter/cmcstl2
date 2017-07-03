@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 	namespace __variant {
 		struct empty_tag {};
 
-		template <Destructible...Ts>
+		template <Destructible... Ts>
 		class storage;
 		template <> class storage<> {};
 
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		// Specialization for non-trivially destructible element types, has a
 		// no-op nontrivial destructor.
 		//
-		template <class First, class...Rest>
+		template <class First, class... Rest>
 		class storage<First, Rest...> {
 			using head_t = First;
 			using tail_t = storage<Rest...>;
@@ -64,34 +64,34 @@ STL2_OPEN_NAMESPACE {
 
 			storage(empty_tag) noexcept {}
 
-			template <std::size_t N, class...Args>
+			template <std::size_t N, class... Args>
 			requires
 				N > 0 && Constructible<tail_t, in_place_index_t<N - 1>, Args...>
-			constexpr storage(in_place_index_t<N>, Args&&...args)
+			constexpr storage(in_place_index_t<N>, Args&&... args)
 			noexcept(is_nothrow_constructible<tail_t, in_place_index_t<N - 1>, Args...>::value)
-			: tail_{in_place_index<N - 1>, __stl2::forward<Args>(args)...} {}
+			: tail_{in_place_index<N - 1>, std::forward<Args>(args)...} {}
 
-			template <class...Args>
+			template <class... Args>
 			requires Constructible<First, Args...>
-			constexpr storage(in_place_index_t<0>, Args&&...args)
+			constexpr storage(in_place_index_t<0>, Args&&... args)
 			noexcept(is_nothrow_constructible<head_t, Args...>::value)
-			: head_{__stl2::forward<Args>(args)...} {}
+			: head_{std::forward<Args>(args)...} {}
 
-			template <std::size_t N, class E, class...Args>
+			template <std::size_t N, class E, class... Args>
 			requires
 				N > 0 &&
 				Constructible<tail_t, in_place_index_t<N - 1>,
 					std::initializer_list<E>, Args...>
-			constexpr storage(in_place_index_t<N>, std::initializer_list<E> il, Args&&...args)
+			constexpr storage(in_place_index_t<N>, std::initializer_list<E> il, Args&&... args)
 			noexcept(is_nothrow_constructible<tail_t, in_place_index_t<N - 1>,
 				std::initializer_list<E>, Args...>::value)
-			: tail_{in_place_index<N - 1>, il, __stl2::forward<Args>(args)...} {}
+			: tail_{in_place_index<N - 1>, il, std::forward<Args>(args)...} {}
 
-			template <class E, class...Args>
+			template <class E, class... Args>
 			requires Constructible<First, std::initializer_list<E>, Args...>
-			constexpr storage(in_place_index_t<0>, std::initializer_list<E> il, Args&&...args)
+			constexpr storage(in_place_index_t<0>, std::initializer_list<E> il, Args&&... args)
 			noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value)
-			: head_{il, __stl2::forward<Args>(args)...} {}
+			: head_{il, std::forward<Args>(args)...} {}
 		};
 
 		///////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ STL2_OPEN_NAMESPACE {
 		// implicitly-defined (trivial) destructor. Otherwise identical to the
 		// other specialization.
 		//
-		template <ext::TriviallyDestructible First, ext::TriviallyDestructible...Rest>
+		template <ext::TriviallyDestructible First, ext::TriviallyDestructible... Rest>
 		class storage<First, Rest...> {
 			using head_t = First;
 			using tail_t = storage<Rest...>;
@@ -119,34 +119,34 @@ STL2_OPEN_NAMESPACE {
 
 			storage(empty_tag) noexcept {}
 
-			template <std::size_t N, class...Args>
+			template <std::size_t N, class... Args>
 			requires
 				N > 0 && Constructible<tail_t, in_place_index_t<N - 1>, Args...>
-			constexpr storage(in_place_index_t<N>, Args&&...args)
+			constexpr storage(in_place_index_t<N>, Args&&... args)
 			noexcept(is_nothrow_constructible<tail_t, in_place_index_t<N - 1>, Args...>::value)
-			: tail_{in_place_index<N - 1>, __stl2::forward<Args>(args)...} {}
+			: tail_{in_place_index<N - 1>, std::forward<Args>(args)...} {}
 
-			template <class...Args>
+			template <class... Args>
 			requires Constructible<First, Args...>
-			constexpr storage(in_place_index_t<0>, Args&&...args)
+			constexpr storage(in_place_index_t<0>, Args&&... args)
 			noexcept(is_nothrow_constructible<head_t, Args...>::value)
-			: head_{__stl2::forward<Args>(args)...} {}
+			: head_{std::forward<Args>(args)...} {}
 
-			template <std::size_t N, class E, class...Args>
+			template <std::size_t N, class E, class... Args>
 			requires
 				N > 0 &&
 				Constructible<tail_t, in_place_index_t<N - 1>,
 					std::initializer_list<E>, Args...>
-			constexpr storage(in_place_index_t<N>, std::initializer_list<E> il, Args&&...args)
+			constexpr storage(in_place_index_t<N>, std::initializer_list<E> il, Args&&... args)
 			noexcept(is_nothrow_constructible<tail_t, in_place_index_t<N - 1>,
 				std::initializer_list<E>, Args...>::value)
-			: tail_{in_place_index<N - 1>, il, __stl2::forward<Args>(args)...} {}
+			: tail_{in_place_index<N - 1>, il, std::forward<Args>(args)...} {}
 
-			template <class E, class...Args>
+			template <class E, class... Args>
 			requires Constructible<First, std::initializer_list<E>, Args...>
-			constexpr storage(in_place_index_t<0>, std::initializer_list<E> il, Args&&...args)
+			constexpr storage(in_place_index_t<0>, std::initializer_list<E> il, Args&&... args)
 			noexcept(is_nothrow_constructible<head_t, std::initializer_list<E>, Args...>::value)
-			: head_{il, __stl2::forward<Args>(args)...} {}
+			: head_{il, std::forward<Args>(args)...} {}
 		};
 
 		///////////////////////////////////////////////////////////////////////////
@@ -158,13 +158,13 @@ STL2_OPEN_NAMESPACE {
 		struct st_access {
 			template <IsStorage S>
 			static constexpr auto&& raw_get(in_place_index_t<0>, S&& s) noexcept {
-				return __stl2::forward<S>(s).head_;
+				return std::forward<S>(s).head_;
 			}
 
 			template <std::size_t I, IsStorage S>
 			static constexpr auto&& raw_get(in_place_index_t<I>, S&& s) noexcept {
 				static_assert(I < remove_reference_t<S>::size);
-				return st_access::raw_get(in_place_index<I - 1>, __stl2::forward<S>(s).tail_);
+				return st_access::raw_get(in_place_index<I - 1>, std::forward<S>(s).tail_);
 			}
 		};
 	}

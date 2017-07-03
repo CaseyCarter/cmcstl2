@@ -85,15 +85,15 @@ STL2_OPEN_NAMESPACE {
 						if (++n == count) {
 							// Pattern exhausted, saved is the answer
 							// (works for 1 element pattern)
-							return ext::recounted(first_, __stl2::move(saved), d_ - d);
+							return ext::recounted(first_, std::move(saved), d_ - d);
 						}
 					} while (__stl2::invoke(pred, __stl2::invoke(proj, *++first), value));
 					d -= n;
 				}
 			}
 
-			return __stl2::next(ext::recounted(first_, __stl2::move(first), d_ - d),
-			__stl2::move(last));
+			return __stl2::next(ext::recounted(first_, std::move(first), d_ - d),
+				std::move(last));
 		}
 	}
 
@@ -104,8 +104,8 @@ STL2_OPEN_NAMESPACE {
 	I search_n(I first, S last, difference_type_t<I> count,
 						 const T& value, Pred pred = Pred{}, Proj proj = Proj{})
 	{
-		return __search_n::unsized(__stl2::move(first), __stl2::move(last),
-			count, value, __stl2::ref(pred), __stl2::ref(proj));
+		return __search_n::unsized(std::move(first), std::move(last),
+			count, value, std::ref(pred), std::ref(proj));
 	}
 
 	template <ForwardIterator I, Sentinel<I> S, class T,
@@ -117,8 +117,8 @@ STL2_OPEN_NAMESPACE {
 						 const T& value, Pred pred = Pred{}, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(first, last);
-		return __search_n::sized(__stl2::move(first), __stl2::move(last),
-			n, count, value, __stl2::ref(pred), __stl2::ref(proj));
+		return __search_n::sized(std::move(first), std::move(last),
+			n, count, value, std::ref(pred), std::ref(proj));
 	}
 
 	template <ForwardRange Rng, class T, class Pred = equal_to<>, class Proj = identity>
@@ -131,7 +131,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __search_n::unsized(
 			__stl2::begin(rng), __stl2::end(rng), count, value,
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 
 	template <ForwardRange Rng, class T, class Pred = equal_to<>, class Proj = identity>
@@ -146,7 +146,7 @@ STL2_OPEN_NAMESPACE {
 		return __search_n::sized(
 			__stl2::begin(rng), __stl2::end(rng),
 			__stl2::distance(rng), count, value,
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

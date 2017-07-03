@@ -16,7 +16,7 @@ namespace models {
 template <class T>
 constexpr bool Destructible = ranges::Destructible<T>;
 
-template <class T, class...Args>
+template <class T, class... Args>
 constexpr bool Constructible = ranges::Constructible<T, Args...>;
 
 template <class T>

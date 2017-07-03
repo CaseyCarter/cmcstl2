@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	bool none_of(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::none_of(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -16,6 +16,9 @@
 #include "simple_test.hpp"
 
 using std::tuple;
+using std::is_same;
+using std::false_type;
+using std::true_type;
 using namespace __stl2;
 
 static_assert(is_same<common_type_t<int, short&, int, char>, int>(), "");
@@ -47,7 +50,7 @@ static_assert(is_same<common_reference_t<int &&, int const &, float &>, float>()
 static_assert(!meta::is_trait<common_reference<int, short, int, char*>>(), "");
 
 STL2_OPEN_NAMESPACE {
-template <class...T, class...U, template <class> class TQual, template <class> class UQual>
+template <class... T, class... U, template <class> class TQual, template <class> class UQual>
 	requires(_Valid<common_reference_t, TQual<T>, UQual<U>> && ...)
 struct basic_common_reference<tuple<T...>, tuple<U...>, TQual, UQual> {
 	using type = tuple<common_reference_t<TQual<T>, UQual<U>>...>;

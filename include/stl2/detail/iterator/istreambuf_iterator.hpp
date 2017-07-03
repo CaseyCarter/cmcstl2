@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 				constexpr __proxy() noexcept = default;
 				constexpr __proxy(charT c, streambuf_type* sbuf)
 				noexcept(is_nothrow_move_constructible<charT>::value)
-				: keep_{__stl2::move(c)}, sbuf_{sbuf}
+				: keep_{std::move(c)}, sbuf_{sbuf}
 				{}
 
 				charT keep_;
@@ -174,7 +174,7 @@ STL2_OPEN_NAMESPACE {
 			charT current() const {
 				auto c = sbuf_->sgetc();
 				STL2_ASSERT(!traits::eq_int_type(c, traits::eof()));
-				return traits::to_char_type(__stl2::move(c));
+				return traits::to_char_type(std::move(c));
 			}
 
 			int_type advance() {

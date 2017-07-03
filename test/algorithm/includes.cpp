@@ -29,7 +29,7 @@ namespace stl2 = __stl2;
 auto const true_  = [](bool b){CHECK(b);};
 auto const false_ = [](bool b){CHECK(!b);};
 
-auto includes_fn = [](auto&&...args) {
+auto includes_fn = [](auto&&... args) {
   return stl2::includes(stl2::forward<decltype(args)>(args)...);
 };
 

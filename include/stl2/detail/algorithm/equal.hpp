@@ -65,8 +65,8 @@ STL2_OPEN_NAMESPACE {
 			__f<I1>, __f<I2>, Pred, Proj1, Proj2>
 	{
 		return __stl2::__equal_3(
-			__stl2::forward<I1>(first1), __stl2::forward<S1>(last1),
-			__stl2::forward<I2>(first2), pred, proj1, proj2);
+			std::forward<I1>(first1), std::forward<S1>(last1),
+			std::forward<I2>(first2), pred, proj1, proj2);
 	}
 
 	template <InputRange Rng1, class I2, class Pred = equal_to<>,
@@ -97,8 +97,8 @@ STL2_OPEN_NAMESPACE {
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::__equal_4(
-			__stl2::forward<I1>(first1), __stl2::forward<S1>(last1),
-			__stl2::forward<I2>(first2), __stl2::forward<S2>(last2),
+			std::forward<I1>(first1), std::forward<S1>(last1),
+			std::forward<I2>(first2), std::forward<S2>(last2),
 			pred, proj1, proj2);
 	}
 
@@ -119,15 +119,15 @@ STL2_OPEN_NAMESPACE {
 		// compiler can tell this function is more constrained than the
 		// non-SizedSentinel overload which takes those arguments by
 		// forwarding reference for good reason.
-		auto first1 = __stl2::forward<I1>(first1_);
-		auto last1 = __stl2::forward<S1>(last1_);
-		auto first2 = __stl2::forward<I2>(first2_);
-		auto last2 = __stl2::forward<S2>(last2_);
+		auto first1 = std::forward<I1>(first1_);
+		auto last1 = std::forward<S1>(last1_);
+		auto first2 = std::forward<I2>(first2_);
+		auto last2 = std::forward<S2>(last2_);
 		auto len1 = __stl2::distance(first1, last1);
 		auto len2 = __stl2::distance(first2, std::move(last2));
 		return len1 == len2 &&
-			__stl2::__equal_3(__stl2::move(first1), __stl2::move(last1),
-				__stl2::move(first2), pred, proj1, proj2);
+			__stl2::__equal_3(std::move(first1), std::move(last1),
+				std::move(first2), pred, proj1, proj2);
 	}
 
 	template <InputRange Rng1, InputRange Rng2, class Pred = equal_to<>,

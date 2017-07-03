@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		return {
 			__stl2::ext::recounted(first_, first, norig),
-			__stl2::move(result)
+			std::move(result)
 		};
 	}
 } STL2_CLOSE_NAMESPACE
