@@ -14,8 +14,7 @@
 #define STL2_DETAIL_ALGORITHM_REVERSE_COPY_HPP
 
 #include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/tagged.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////

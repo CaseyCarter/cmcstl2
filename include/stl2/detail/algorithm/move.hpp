@@ -14,8 +14,8 @@
 
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/tagged.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // move [alg.move]

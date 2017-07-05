@@ -18,6 +18,7 @@
 #include <stl2/tuple.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
