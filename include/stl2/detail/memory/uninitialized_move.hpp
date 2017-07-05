@@ -16,6 +16,7 @@
 #include <new>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/memory/concepts.hpp>
 #include <stl2/detail/memory/construct_at.hpp>
 #include <stl2/detail/memory/destroy.hpp>

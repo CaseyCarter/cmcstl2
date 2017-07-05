@@ -13,6 +13,7 @@
 #define STL2_DETAIL_ITERATOR_OPERATIONS_HPP
 
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/concepts/object.hpp>
 

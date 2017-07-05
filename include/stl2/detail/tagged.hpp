@@ -195,28 +195,12 @@ STL2_OPEN_NAMESPACE {
 				constexpr decltype(auto) name() const&&                                             \
 				noexcept(noexcept(::__stl2::detail::adl_get<I>(::std::declval<const Untagged>())))  \
 				{                                                                                   \
-					return ::__stl2::detail::adl_get<I>(static_cast<Untagged const&&>(*this));      \
+					return ::__stl2::detail::adl_get<I>(static_cast<const Untagged&&>(*this));      \
 				}                                                                                   \
 			protected:                                                                              \
 				~tagged_getter() = default;                                                         \
 			};                                                                                      \
 		};
-
-	// tag specifiers [algorithm.general]
-	namespace tag {
-		STL2_DEFINE_GETTER(in)
-		STL2_DEFINE_GETTER(in1)
-		STL2_DEFINE_GETTER(in2)
-		STL2_DEFINE_GETTER(out)
-		STL2_DEFINE_GETTER(out1)
-		STL2_DEFINE_GETTER(out2)
-		STL2_DEFINE_GETTER(fun)
-		STL2_DEFINE_GETTER(min)
-		STL2_DEFINE_GETTER(max)
-		STL2_DEFINE_GETTER(begin)
-		STL2_DEFINE_GETTER(end)
-		STL2_DEFINE_GETTER(count) // Extension
-	}
 } STL2_CLOSE_NAMESPACE
 
 namespace std {
