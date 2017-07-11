@@ -34,27 +34,21 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <class I1, class S1, class I2>
-	[[deprecated]] tagged_pair<tag::in1(__f<I1>), tag::in2(__f<I2>)>
-	swap_ranges(I1&& first1, S1&& last1, I2&& first2)
-	requires
-		ForwardIterator<__f<I1>> &&
-		Sentinel<__f<S1>, __f<I1>> &&
-		ForwardIterator<__f<I2>> &&
-		IndirectlySwappable<__f<I1>, __f<I2>>
+	template <ForwardIterator I1, Sentinel<I1> S1, class I2>
+	[[deprecated]] tagged_pair<tag::in1(I1), tag::in2(std::decay_t<I2>)>
+	swap_ranges(I1 first1, S1 last1, I2&& first2_)
+	requires ForwardIterator<std::decay_t<I2>> && !Range<I2> &&
+		IndirectlySwappable<I1, std::decay_t<I2>>
 	{
 		return __swap_ranges::impl(
-			std::forward<I1>(first1), std::forward<S1>(last1),
-			std::forward<I2>(first2));
+			std::move(first1), std::move(last1), std::forward<I2>(first2_));
 	}
 
 	template <ForwardRange Rng, class I>
-	[[deprecated]] tagged_pair<tag::in1(safe_iterator_t<Rng>), tag::in2(__f<I>)>
+	[[deprecated]] tagged_pair<tag::in1(safe_iterator_t<Rng>), tag::in2(std::decay_t<I>)>
 	swap_ranges(Rng&& rng1, I&& first2_)
-	requires
-		!is_array<remove_reference_t<I>>::value &&
-		ForwardIterator<__f<I>> &&
-		IndirectlySwappable<iterator_t<Rng>, __f<I>>
+	requires ForwardIterator<std::decay_t<I>> && !Range<I> &&
+		IndirectlySwappable<iterator_t<Rng>, std::decay_t<I>>
 	{
 		auto first2 = std::forward<I>(first2_);
 		return __swap_ranges::impl(__stl2::begin(rng1), __stl2::end(rng1), std::move(first2));

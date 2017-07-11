@@ -51,18 +51,19 @@ STL2_OPEN_NAMESPACE {
 			std::ref(op), std::ref(proj));
 	}
 
-	template <InputIterator I1, Sentinel<I1> S1,
-		InputIterator I2, WeaklyIncrementable O,
+	template <InputIterator I1, Sentinel<I1> S1, class I2, WeaklyIncrementable O,
 		CopyConstructible F, class Proj1 = identity, class Proj2 = identity>
-	[[deprecated]] tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
-	transform(I1 first1, S1 last1, I2 first2, O result,
+	[[deprecated]] tagged_tuple<tag::in1(I1), tag::in2(std::decay_t<I2>), tag::out(O)>
+	transform(I1 first1, S1 last1, I2&& first2_, O result,
 		F op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
+		InputIterator<std::decay_t<I2>> && !Range<I2> &&
 		Writable<O,
 			indirect_result_of_t<F&(
 				projected<I1, Proj1>,
-				projected<I2, Proj2>)>>
+				projected<std::decay_t<I2>, Proj2>)>>
 	{
+		auto first2 = std::forward<I2>(first2_);
 		for (; first1 != last1; ++first1, ++first2, ++result) {
 			*result = __stl2::invoke(op, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2));
 		}
@@ -73,16 +74,15 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]]
 	tagged_tuple<tag::in1(safe_iterator_t<Rng>),
-		tag::in2(__f<I>), tag::out(O)>
+		tag::in2(std::decay_t<I>), tag::out(O)>
 	transform(Rng&& r1, I&& first2_, O result, F op,
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		!is_array<remove_reference_t<I>>::value &&
-		InputIterator<__f<I>> &&
+		InputIterator<std::decay_t<I>> && !Range<I> &&
 		Writable<O,
 			indirect_result_of_t<F&(
 				projected<iterator_t<Rng>, Proj1>,
-				projected<__f<I>, Proj2>)>>
+				projected<std::decay_t<I>, Proj2>)>>
 	{
 		auto first2 = std::forward<I>(first2_);
 		return __stl2::transform(

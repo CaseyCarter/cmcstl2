@@ -126,16 +126,32 @@ int main()
 	// Works with projections?
 	S s1[] = {S{1},S{2},S{3},S{4},S{-4},S{5},S{6},S{40},S{7},S{8},S{9}};
 	int const i1[] = {1,2,3,4,5,6,7,8,9};
-	std::pair<S const *, int const *> ps1
-		= ranges::mismatch(s1, i1, std::equal_to<int>(), &S::i);
-	CHECK(ps1.first->i == -4);
-	CHECK(*ps1.second == 5);
+	{
+		std::pair<S const *, int const *> ps1
+			= ranges::mismatch(s1, i1, std::equal_to<int>(), &S::i);
+		CHECK(ps1.first->i == -4);
+		CHECK(*ps1.second == 5);
+	}
+	{
+		std::pair<S const *, int const *> ps1
+			= ranges::mismatch(ranges::begin(s1), ranges::end(s1), i1, std::equal_to<int>(), &S::i);
+		CHECK(ps1.first->i == -4);
+		CHECK(*ps1.second == 5);
+	}
 
 	S s2[] = {S{1},S{2},S{3},S{4},S{5},S{6},S{40},S{7},S{8},S{9}};
-	std::pair<S const *, S const *> ps2
-		= ranges::mismatch(s1, s2, std::equal_to<int>(), &S::i, &S::i);
-	CHECK(ps2.first->i == -4);
-	CHECK(ps2.second->i == 5);
+	{
+		std::pair<S const *, S const *> ps2
+			= ranges::mismatch(s1, s2, std::equal_to<int>(), &S::i, &S::i);
+		CHECK(ps2.first->i == -4);
+		CHECK(ps2.second->i == 5);
+	}
+	{
+		std::pair<S const *, S const *> ps2
+			= ranges::mismatch(ranges::begin(s1), ranges::end(s2), s2, std::equal_to<int>(), &S::i, &S::i);
+		CHECK(ps2.first->i == -4);
+		CHECK(ps2.second->i == 5);
+	}
 
 	return test_result();
 }

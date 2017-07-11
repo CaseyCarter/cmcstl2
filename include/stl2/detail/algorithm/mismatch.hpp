@@ -22,17 +22,17 @@
 // mismatch [mismatch]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I1, Sentinel<I1> S1,
-		InputIterator I2, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	[[deprecated]] tagged_pair<tag::in1(I1), tag::in2(I2)>
-	mismatch(I1 first1, S1 last1, I2 first2, Pred pred = Pred{},
+	template <InputIterator I1, Sentinel<I1> S1, class I2,
+		class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
+	[[deprecated]] tagged_pair<tag::in1(I1), tag::in2(std::decay_t<I2>)>
+	mismatch(I1 first1, S1 last1, I2&& first2_, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
 		IndirectRelation<Pred,
 			projected<I1, Proj1>,
-			projected<I2, Proj2>>
+			projected<std::decay_t<I2>, Proj2>>
 	{
+		auto first2 = std::forward<I2>(first2_);
 		for (; first1 != last1; ++first1, ++first2) {
 			if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
 				break;
@@ -66,11 +66,11 @@ STL2_OPEN_NAMESPACE {
 	mismatch(Rng1&& rng1, I2&& first2_, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		!is_array<remove_reference_t<I2>>::value &&
-		InputIterator<__f<I2>> &&
+		InputIterator<std::decay_t<I2>> &&
+		!Range<I2> &&
 		IndirectRelation<Pred,
 			projected<iterator_t<Rng1>, Proj1>,
-			projected<__f<I2>, Proj2>>
+			projected<std::decay_t<I2>, Proj2>>
 	{
 		auto first2 = std::forward<I2>(first2_);
 		return __stl2::mismatch(
