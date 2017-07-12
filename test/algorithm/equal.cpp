@@ -281,5 +281,12 @@ int main()
 	::test_pred();
 	::test_rng_pred();
 
+	{
+		int const a[] = {1,2,3};
+		int const b[] = {1,2,3};
+		CHECK(ranges::equal(a, ranges::begin(b)));
+		CHECK(ranges::equal(ranges::begin(a), ranges::end(a), ranges::begin(b)));
+	}
+
 	return ::test_result();
 }
