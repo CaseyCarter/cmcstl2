@@ -32,6 +32,7 @@ add_stl2_test(test.common common common.cpp)
 add_stl2_test(test.variant variant variant.cpp)
 add_stl2_test(test.meta meta meta.cpp)
 add_stl2_test(test.optional optional optional.cpp)
+add_stl2_test(test.span span span.cpp)
 
 add_subdirectory(concepts)
 add_subdirectory(detail)
