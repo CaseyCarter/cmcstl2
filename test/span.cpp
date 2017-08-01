@@ -554,11 +554,21 @@ void test_case_from_std_array_const_constructor()
 	}
 }
 
-template<bool Dependent = false,
-	class = std::enable_if_t<Dependent ||
-		std::is_same<char*, decltype(std::declval<std::string&>().data())>::value>>
-void from_container_constructor_string_test(int) {
-	std::string str = "Hello, World!";
+void test_case_from_container_constructor()
+{
+	std::vector<int> v = {1, 2, 3};
+	const std::vector<int> cv = v;
+
+	{
+		span<int> s{v};
+		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(v.size()) && s.data() == v.data()));
+
+		span<const int> cs{v};
+		CHECK((cs.size() == narrow_cast<std::ptrdiff_t>(v.size()) && cs.data() == v.data()));
+	}
+
+	std::string str = "hello";
+	const std::string cstr = "hello";
 
 	{
 		span<char> s{str};
@@ -591,35 +601,6 @@ void from_container_constructor_string_test(int) {
 #endif
 		use_span(span<const char>(get_temp_string()));
 	}
-}
-
-template<bool Dependent = false>
-void from_container_constructor_string_test(long) {
-	std::string str = "Hello, World!";
-#ifdef CONFIRM_COMPILATION_ERRORS
-	span<char> s{str};
-#else
-	static_assert(Dependent || !std::is_constructible<span<char>, std::string&>::value);
-#endif
-}
-
-void test_case_from_container_constructor()
-{
-	std::vector<int> v = {1, 2, 3};
-	const std::vector<int> cv = v;
-
-	{
-		span<int> s{v};
-		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(v.size()) && s.data() == v.data()));
-
-		span<const int> cs{v};
-		CHECK((cs.size() == narrow_cast<std::ptrdiff_t>(v.size()) && cs.data() == v.data()));
-	}
-
-	from_container_constructor_string_test(42);
-
-	std::string str = "hello";
-	const std::string cstr = "hello";
 
 	{
 #ifdef CONFIRM_COMPILATION_ERRORS
