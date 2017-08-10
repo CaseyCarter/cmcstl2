@@ -278,7 +278,7 @@ STL2_OPEN_NAMESPACE {
 		concept bool Contiguous =
 			RandomAccess<C> &&
 			contiguous<C> &&
-			is_reference<reference_t<C>>::value;
+			is_lvalue_reference<reference_t<C>>::value;
 
 		template <class From, class To>
 		concept bool ConvertibleTo =
