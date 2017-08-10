@@ -220,29 +220,18 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template <class R>
-		concept bool ContiguousLikeRange =
-			SizedRange<R> &&
+		concept bool ContiguousRange =
 			_Is<reference_t<iterator_t<R>>, is_reference> &&
-			Same<value_type_t<iterator_t<R>>, decay_t<reference_t<iterator_t<R>>>> &&
+			Same<value_type_t<iterator_t<R>>, __uncvref<reference_t<iterator_t<R>>>> &&
 			requires(R& r) {
 				{ __stl2::data(r) } -> Same<add_pointer_t<reference_t<iterator_t<R>>>>&&;
 			};
-
-		template <class R>
-		concept bool ContiguousRange =
-			ContiguousLikeRange<R> &&
-			ContiguousIterator<iterator_t<R>>;
 
 		template <class R>
 		concept bool ContiguousView = ContiguousRange<R> && View<R>;
 	}
 
 	namespace models {
-		template <class>
-		constexpr bool ContiguousLikeRange = false;
-		__stl2::ext::ContiguousLikeRange{R}
-		constexpr bool ContiguousLikeRange<R> = true;
-
 		template <class>
 		constexpr bool ContiguousRange = false;
 		__stl2::ext::ContiguousRange{R}
