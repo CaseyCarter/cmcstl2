@@ -16,6 +16,7 @@
 
 #include <stl2/detail/span.hpp>
 
+#include <array>
 #include <iostream>
 #include <list>
 #include <map>
@@ -56,11 +57,8 @@ void test_case_default_constructor()
 	}
 
 	{
-#ifdef CONFIRM_COMPILATION_ERRORS
 		span<int, 1> s;
-#else
-		static_assert(!std::is_default_constructible<span<int, 1>>::value);
-#endif
+		CHECK((s.size() == 1 && s.data() == nullptr));
 	}
 
 	{
@@ -76,7 +74,7 @@ void test_case_size_optimization()
 {
 	{
 		span<int> s;
-		CHECK(sizeof(s) == sizeof(int*) + sizeof(ptrdiff_t));
+		CHECK(sizeof(s) == sizeof(int*) + sizeof(std::ptrdiff_t));
 	}
 
 	{
@@ -199,6 +197,15 @@ void test_case_from_pointer_size_constructor()
 		CHECK_THROWS_AS(workaround_macro(), fail_fast);
 	}
 #endif
+
+	{
+		int i = 42;
+		span<int> s{&i, 0};
+		CHECK((s.size() == 0 && s.data() == &i));
+
+		span<const int> cs{&i, 0};
+		CHECK((s.size() == 0 && s.data() == &i));
+	}
 }
 
 void test_case_from_pointer_pointer_constructor()
@@ -385,18 +392,18 @@ void test_case_from_std_array_constructor()
 
 	{
 		span<int> s{arr};
-		CHECK((s.size() == narrow_cast<ptrdiff_t>(arr.size()) && s.data() == arr.data()));
+		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 
 		span<const int> cs{arr};
-		CHECK((cs.size() == narrow_cast<ptrdiff_t>(arr.size()) && cs.data() == arr.data()));
+		CHECK((cs.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && cs.data() == arr.data()));
 	}
 
 	{
 		span<int, 4> s{arr};
-		CHECK((s.size() == narrow_cast<ptrdiff_t>(arr.size()) && s.data() == arr.data()));
+		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 
 		span<const int, 4> cs{arr};
-		CHECK((cs.size() == narrow_cast<ptrdiff_t>(arr.size()) && cs.data() == arr.data()));
+		CHECK((cs.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && cs.data() == arr.data()));
 	}
 
 #ifdef CONFIRM_COMPILATION_ERRORS
@@ -430,30 +437,18 @@ void test_case_from_std_array_constructor()
 	{
 		auto get_an_array = []() -> std::array<int, 4> { return {1, 2, 3, 4}; };
 		auto take_a_span = [](span<int>) {};
-#ifdef CONFIRM_COMPILATION_ERRORS
-		// try to take a temporary std::array
 		take_a_span(get_an_array());
-#else
-		static_assert(!std::is_convertible<std::array<int, 4>, span<int>>::value);
-#endif
-		take_a_span(span<int>(get_an_array()));
 	}
 
 	{
 		auto get_an_array = []() -> std::array<int, 4> { return {1, 2, 3, 4}; };
 		auto take_a_span = [](span<const int>) {};
-#ifdef CONFIRM_COMPILATION_ERRORS
-		// try to take a temporary std::array
 		take_a_span(get_an_array());
-#else
-		static_assert(!std::is_convertible<std::array<int, 4>, span<const int>>::value);
-#endif
-		take_a_span(span<const int>(get_an_array()));
 	}
 
 	{
 		auto s = make_span(arr);
-		CHECK((s.size() == narrow_cast<ptrdiff_t>(arr.size()) && s.data() == arr.data()));
+		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 }
 
@@ -463,12 +458,12 @@ void test_case_from_const_std_array_constructor()
 
 	{
 		span<const int> s{arr};
-		CHECK((s.size() == narrow_cast<ptrdiff_t>(arr.size()) && s.data() == arr.data()));
+		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 
 	{
 		span<const int, 4> s{arr};
-		CHECK((s.size() == narrow_cast<ptrdiff_t>(arr.size()) && s.data() == arr.data()));
+		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 
 #ifdef CONFIRM_COMPILATION_ERRORS
@@ -494,18 +489,12 @@ void test_case_from_const_std_array_constructor()
 	{
 		auto get_an_array = []() -> const std::array<int, 4> { return {1, 2, 3, 4}; };
 		auto take_a_span = [](span<const int>) {};
-#ifdef CONFIRM_COMPILATION_ERRORS
-		// try to take a temporary std::array
 		take_a_span(get_an_array());
-#else
-		static_assert(!std::is_convertible<const std::array<int, 4>, span<const int>>::value);
-#endif
-		take_a_span(span<const int>(get_an_array()));
 	}
 
 	{
 		auto s = make_span(arr);
-		CHECK((s.size() == narrow_cast<ptrdiff_t>(arr.size()) && s.data() == arr.data()));
+		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 }
 
@@ -515,12 +504,12 @@ void test_case_from_std_array_const_constructor()
 
 	{
 		span<const int> s{arr};
-		CHECK((s.size() == narrow_cast<ptrdiff_t>(arr.size()) && s.data() == arr.data()));
+		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 
 	{
 		span<const int, 4> s{arr};
-		CHECK((s.size() == narrow_cast<ptrdiff_t>(arr.size()) && s.data() == arr.data()));
+		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 
 #ifdef CONFIRM_COMPILATION_ERRORS
@@ -550,7 +539,7 @@ void test_case_from_std_array_const_constructor()
 
 	{
 		auto s = make_span(arr);
-		CHECK((s.size() == narrow_cast<ptrdiff_t>(arr.size()) && s.data() == arr.data()));
+		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 }
 
@@ -578,12 +567,7 @@ void test_case_from_container_constructor()
 	{
 		auto get_temp_string = []() -> std::string { return {}; };
 		auto use_span = [](span<char>) {};
-#ifdef CONFIRM_COMPILATION_ERRORS
 		use_span(get_temp_string());
-#else
-		static_assert(!std::is_convertible<std::string, span<char>>::value);
-#endif
-		use_span(span<char>(get_temp_string()));
 	}
 
 	{
@@ -594,12 +578,7 @@ void test_case_from_container_constructor()
 	{
 		auto get_temp_string = []() -> std::string { return {}; };
 		auto use_span = [](span<const char>) {};
-#ifdef CONFIRM_COMPILATION_ERRORS
 		use_span(get_temp_string());
-#else
-		static_assert(!std::is_convertible<std::string, span<const char>>::value);
-#endif
-		use_span(span<const char>(get_temp_string()));
 	}
 
 	{
@@ -616,23 +595,13 @@ void test_case_from_container_constructor()
 	{
 		auto get_temp_vector = []() -> std::vector<int> { return {}; };
 		auto use_span = [](span<int>) {};
-#ifdef CONFIRM_COMPILATION_ERRORS
 		use_span(get_temp_vector());
-#else
-		static_assert(!std::is_convertible<std::vector<int>, span<int>>::value);
-#endif
-		use_span(span<int>(get_temp_vector()));
 	}
 
 	{
 		auto get_temp_vector = []() -> std::vector<int> { return {}; };
 		auto use_span = [](span<const int>) {};
-#ifdef CONFIRM_COMPILATION_ERRORS
 		use_span(get_temp_vector());
-#else
-		static_assert(!std::is_convertible<std::vector<int>, span<const int>>::value);
-#endif
-		use_span(span<const int>(get_temp_vector()));
 	}
 
 	{
@@ -648,11 +617,7 @@ void test_case_from_container_constructor()
 	{
 		auto get_temp_string = []() -> const std::string { return {}; };
 		auto use_span = [](span<const char> s) { static_cast<void>(s); };
-#ifdef CONFIRM_COMPILATION_ERRORS
 		use_span(get_temp_string());
-#else
-		static_assert(!std::is_convertible<const std::string, span<const char>>::value);
-#endif
 		use_span(span<const char>(get_temp_string()));
 	}
 
@@ -742,23 +707,48 @@ void test_case_copy_move_and_assignment()
 	CHECK((s1.size() == 2 && s1.data() == &arr[1]));
 }
 
-#ifdef __cpp_deduction_guides
 void test_case_class_template_argument_deduction()
 {
+#ifdef __cpp_deduction_guides
 	{
-		int arr[5] = {1, 2, 3, 4, 5};
+		int arr[] = {1, 2, 3, 4, 5};
 		{
 			span s{arr};
-			static_assert(std::is_same<span<int>, decltype(s)>::value);
+			static_assert(ranges::models::Same<span<int, 5>, decltype(s)>);
 		}
 		{
-			span s{+arr, 5};
-			static_assert(std::is_same<span<int>, decltype(s)>::value);
+			span s{ranges::begin(arr), ranges::size(arr)};
+			static_assert(ranges::models::Same<span<int>, decltype(s)>);
+		}
+		{
+			span s{ranges::begin(arr), ranges::end(arr)};
+			static_assert(ranges::models::Same<span<int>, decltype(s)>);
 		}
 	}
-	// FIXME: complete
-}
+	{
+		std::array<int, 5> arr = {1, 2, 3, 4, 5};
+		{
+			span s{arr};
+			static_assert(ranges::models::Same<span<int, 5>, decltype(s)>);
+		}
+		{
+			span s{ranges::begin(arr), ranges::size(arr)};
+			static_assert(ranges::models::Same<span<int>, decltype(s)>);
+		}
+		{
+			span s{ranges::begin(arr), ranges::end(arr)};
+			static_assert(ranges::models::Same<span<int>, decltype(s)>);
+		}
+	}
+	{
+		std::vector<int> vec = {1, 2, 3, 4, 5};
+		{
+			span s{vec};
+			static_assert(ranges::models::Same<span<int>, decltype(s)>);
+		}
+	}
 #endif
+}
 
 void test_case_first()
 {
@@ -1504,7 +1494,7 @@ void test_case_default_constructible()
 {
 	CHECK((std::is_default_constructible<span<int>>::value));
 	CHECK((std::is_default_constructible<span<int, 0>>::value));
-	CHECK((!std::is_default_constructible<span<int, 42>>::value));
+	CHECK((std::is_default_constructible<span<int, 42>>::value));
 }
 
 int main() {
@@ -1521,6 +1511,7 @@ int main() {
 	test_case_from_container_constructor();
 	test_case_from_convertible_span_constructor();
 	test_case_copy_move_and_assignment();
+	test_case_class_template_argument_deduction();
 	test_case_first();
 	test_case_last();
 	test_case_subspan();
@@ -1539,9 +1530,6 @@ int main() {
 	test_case_interop_with_std_regex();
 	test_case_default_constructible();
 
-#ifdef __cpp_deduction_guides
-	test_case_class_template_argument_deduction();
-#endif
-
 	static_assert(ranges::models::ContiguousView<span<int>>);
+	static_assert(ranges::models::ContiguousView<span<int, 42>>);
 }
