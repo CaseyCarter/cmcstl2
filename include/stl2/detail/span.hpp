@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 #if defined(__cpp_inline_variables)
 		inline
 #endif
-		constexpr __span::index_t dynamic_extent = static_cast<__span::index_t>(-1);
+		constexpr auto dynamic_extent = static_cast<__span::index_t>(-1);
 
 		template <_Is<std::is_object> ElementType, __span::index_t Extent = dynamic_extent>
 		requires Extent >= dynamic_extent
@@ -49,18 +49,18 @@ STL2_OPEN_NAMESPACE {
 		namespace __span {
 			template <index_t Extent>
 			requires Extent >= dynamic_extent
-			struct base {
-				constexpr base() noexcept = default;
-				constexpr base(index_t size) noexcept
+			struct extent {
+				constexpr extent() noexcept = default;
+				constexpr extent(index_t size) noexcept
 				{
 					STL2_EXPECT(size == Extent);
 				}
 				constexpr index_t size() const noexcept { return Extent; }
 			};
 			template <>
-			struct base<dynamic_extent> {
-				constexpr base() noexcept = default;
-				constexpr base(index_t size) noexcept
+			struct extent<dynamic_extent> {
+				constexpr extent() noexcept = default;
+				constexpr extent(index_t size) noexcept
 				: size_{size}
 				{
 					STL2_EXPECT(size >= 0);
@@ -128,7 +128,7 @@ STL2_OPEN_NAMESPACE {
 		// [span], class template span
 		template <_Is<std::is_object> ElementType, __span::index_t Extent>
 		requires Extent >= dynamic_extent
-		struct span : private __span::base<Extent> {
+		struct span : private __span::extent<Extent> {
 			// constants and types
 			using element_type = ElementType;
 			using value_type = std::remove_cv_t<ElementType>;
@@ -137,19 +137,16 @@ STL2_OPEN_NAMESPACE {
 			using pointer = element_type*;
 			using reference = element_type&;
 			using iterator = pointer;
-			using const_iterator = iterator;
 			using reverse_iterator = __stl2::reverse_iterator<iterator>;
-			using const_reverse_iterator = reverse_iterator;
+
 			static constexpr index_type extent = Extent;
 
 			// [span.cons], span constructors
-			span() = default;
+			constexpr span() noexcept = default;
 			constexpr span(pointer ptr, index_type count) noexcept
-			requires true // disambiguates span{ptr, 0}
-			: __span::base<Extent>{count}, data_{ptr}
+			requires true // HACK: disambiguates span{ptr, 0}
+			: __span::extent<Extent>{count}, data_{ptr}
 			{
-				STL2_EXPECT(count >= 0);
-				STL2_EXPECT(Extent == dynamic_extent || count == Extent);
 				STL2_EXPECT(count == 0 || ptr != nullptr);
 			}
 			constexpr span(pointer first, pointer last) noexcept
@@ -160,24 +157,24 @@ STL2_OPEN_NAMESPACE {
 			requires Extent == __span::static_extent<Range>::value
 			constexpr span(Range&& rng)
 			noexcept(noexcept(__stl2::data(rng)))
-			: span(__stl2::data(rng), Extent)
+			: span{__stl2::data(rng), Extent}
 			{}
 
 			template <__span::compatible<ElementType> Range>
 			requires (Extent == dynamic_extent || !__span::has_static_extent<Range>)
 			constexpr span(Range&& rng)
 			noexcept(noexcept(__stl2::data(rng), __stl2::size(rng)))
-			: span(__stl2::data(rng), __span::narrow_cast<index_type>(__stl2::size(rng)))
+			: span{__stl2::data(rng), __span::narrow_cast<index_type>(__stl2::size(rng))}
 			{}
 
 			// [span.sub], span subviews
 			template <index_type Count>
 			constexpr span<element_type, Count> first() const noexcept
 			{
-                static_assert(Count >= 0,
-                    "Count of elements to extract cannot be negative.");
-                static_assert(Extent == dynamic_extent || Count <= Extent,
-                    "Count of elements to extract must be less than the static span extent.");
+				static_assert(Count >= 0,
+					"Count of elements to extract cannot be negative.");
+				static_assert(Extent == dynamic_extent || Count <= Extent,
+					"Count of elements to extract must be less than the static span extent.");
 				STL2_EXPECT(size() >= Count);
 				STL2_EXPECT(Count == 0 || data_ != nullptr);
 				return {data_, Count};
@@ -193,52 +190,52 @@ STL2_OPEN_NAMESPACE {
 			template <index_type Count>
 			constexpr span<element_type, Count> last() const noexcept
 			{
-                static_assert(Count >= 0,
-                    "Count of elements to extract cannot be negative.");
-                static_assert(Extent == dynamic_extent || Count <= Extent,
-                    "Count of elements to extract must be less than the static span extent.");
+				static_assert(Count >= 0,
+					"Count of elements to extract cannot be negative.");
+				static_assert(Extent == dynamic_extent || Count <= Extent,
+					"Count of elements to extract must be less than the static span extent.");
 				STL2_EXPECT(size() >= Count);
-                STL2_EXPECT((Count == 0 && size() == 0) || data_ != nullptr);
+				STL2_EXPECT((Count == 0 && size() == 0) || data_ != nullptr);
 				return {data_ + size() - Count, Count};
 			}
 			constexpr span<element_type> last(index_type count) const noexcept
 			{
 				STL2_EXPECT(count >= 0);
 				STL2_EXPECT(size() >= count);
-                STL2_EXPECT((count == 0 && size() == 0) || data_ != nullptr);
+				STL2_EXPECT((count == 0 && size() == 0) || data_ != nullptr);
 				return {data_ + size() - count, count};
 			}
 
 			template <index_type Offset, index_type Count>
 			constexpr span<element_type, Count> subspan() const noexcept
 			{
-                static_assert(Offset >= 0,
-                    "Offset of first element to extract cannot be negative.");
-                static_assert(Count >= 0,
-                    "Count of elements to extract cannot be negative.");
-                static_assert(Extent == dynamic_extent || Extent >= Offset + Count,
-                    "Sequence of elements to extract must be within the static span extent.");
+				static_assert(Offset >= 0,
+					"Offset of first element to extract cannot be negative.");
+				static_assert(Count >= 0,
+					"Count of elements to extract cannot be negative.");
+				static_assert(Extent == dynamic_extent || Extent >= Offset + Count,
+					"Sequence of elements to extract must be within the static span extent.");
 				STL2_EXPECT(size() >= Offset + Count);
-                STL2_EXPECT((Offset == 0 && Count == 0) || data_ != nullptr);
+				STL2_EXPECT((Offset == 0 && Count == 0) || data_ != nullptr);
 				return {data_ + Offset, Count};
 			}
 			template <index_type Offset>
 			requires Offset >= 0 && (Extent == dynamic_extent || Extent >= Offset)
 			constexpr span<element_type, Extent >= Offset ? Extent - Offset : dynamic_extent> subspan() const noexcept
 			{
-                static_assert(Offset >= 0,
-                    "Offset of first element to extract cannot be negative.");
-                static_assert(Extent == dynamic_extent || Offset <= Extent,
-                    "Offset of first element to extract must be less than the static span extent.");
+				static_assert(Offset >= 0,
+					"Offset of first element to extract cannot be negative.");
+				static_assert(Extent == dynamic_extent || Offset <= Extent,
+					"Offset of first element to extract must be less than the static span extent.");
 				STL2_EXPECT(size() >= Offset);
-                STL2_EXPECT((Offset == 0 && size() == 0) || data_ != nullptr);
+				STL2_EXPECT((Offset == 0 && size() == 0) || data_ != nullptr);
 				return {data_ + Offset, size() - Offset};
 			}
 			constexpr span<element_type, dynamic_extent> subspan(index_type offset) const noexcept
 			{
 				STL2_EXPECT(offset >= 0);
 				STL2_EXPECT(size() >= offset);
-                STL2_EXPECT((offset == 0 && size() == 0) || data_ != nullptr);
+				STL2_EXPECT((offset == 0 && size() == 0) || data_ != nullptr);
 				return {data_ + offset, size() - offset};
 			}
 			constexpr span<element_type, dynamic_extent> subspan(index_type offset, index_type count) const noexcept
@@ -246,12 +243,12 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(offset >= 0);
 				STL2_EXPECT(count >= 0);
 				STL2_EXPECT(size() >= offset + count);
-                STL2_EXPECT((offset == 0 && count == 0) || data_ != nullptr);
+				STL2_EXPECT((offset == 0 && count == 0) || data_ != nullptr);
 				return {data_ + offset, count};
 			}
 
 			// [span.obs], span observers
-			using __span::base<Extent>::size;
+			using __span::extent<Extent>::size;
 			constexpr index_type size_bytes() const noexcept
 			{
 				return __span::byte_extent<ElementType>(size());
@@ -274,12 +271,8 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(!size() || data_);
 				return data_ + size();
 			}
-			constexpr iterator cbegin() const noexcept { return begin(); }
-			constexpr iterator cend() const noexcept { return end(); }
 			constexpr reverse_iterator rbegin() const noexcept { return reverse_iterator{end()}; }
 			constexpr reverse_iterator rend() const noexcept { return reverse_iterator{begin()}; }
-			constexpr reverse_iterator crbegin() const noexcept { return rbegin(); }
-			constexpr reverse_iterator crend() const noexcept { return rend(); }
 
 			// [span.comparison], span comparison operators
 			template <EqualityComparableWith<ElementType> U, index_type UExtent>
@@ -323,10 +316,11 @@ STL2_OPEN_NAMESPACE {
 
 #ifdef __cpp_deduction_guides
 		template <SizedContiguousRange Rng>
-		span(Rng&& rng) -> span<std::remove_pointer_t<decltype(__stl2::data(rng))>>;
+		span(Rng&& rng) -> span<std::remove_pointer_t<data_pointer_t<Rng>>>;
 
 		template <__span::StaticSizedContiguousRange Rng>
-		span(Rng&& rng) -> span<std::remove_pointer_t<decltype(__stl2::data(rng))>, __span::static_extent<Rng>::value>;
+		span(Rng&& rng) -> span<std::remove_pointer_t<data_pointer_t<Rng>>,
+			__span::static_extent<Rng>::value>;
 #endif
 
 		// [span.objectrep], views of object representation
@@ -357,14 +351,14 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto make_span(Rng&& rng)
 		noexcept(noexcept(__stl2::data(rng), __stl2::size(rng)))
 		{
-			using S = span<std::remove_pointer_t<decltype(__stl2::data(rng))>>;
+			using S = span<std::remove_pointer_t<data_pointer_t<Rng>>>;
 			return S{__stl2::data(rng), __span::narrow_cast<__span::index_t>(__stl2::size(rng))};
 		}
 		template <__span::StaticSizedContiguousRange Rng>
 		constexpr auto make_span(Rng&& rng)
 		noexcept(noexcept(__stl2::data(rng)))
 		{
-			using S = span<std::remove_pointer_t<decltype(__stl2::data(rng))>,
+			using S = span<std::remove_pointer_t<data_pointer_t<Rng>>,
 				__span::static_extent<Rng>::value>;
 			return S{__stl2::data(rng), __span::static_extent<Rng>::value};
 		}

@@ -114,31 +114,6 @@ void test_case_from_nullptr_size_constructor()
 		CHECK((cs.size() == 0 && cs.data() == nullptr));
 	}
 
-#if 0
-	{
-		auto workaround_macro = []() {
-			span<int, 1> s{nullptr, static_cast<span<int>::index_type>(0)};
-		};
-		CHECK_THROWS_AS(workaround_macro(), fail_fast);
-	}
-
-	{
-		auto workaround_macro = []() { span<int> s{nullptr, 1}; };
-		CHECK_THROWS_AS(workaround_macro(), fail_fast);
-
-		auto const_workaround_macro = []() { span<const int> cs{nullptr, 1}; };
-		CHECK_THROWS_AS(const_workaround_macro(), fail_fast);
-	}
-
-	{
-		auto workaround_macro = []() { span<int, 0> s{nullptr, 1}; };
-		CHECK_THROWS_AS(workaround_macro(), fail_fast);
-
-		auto const_workaround_macro = []() { span<const int, 0> s{nullptr, 1}; };
-		CHECK_THROWS_AS(const_workaround_macro(), fail_fast);
-	}
-#endif
-
 	{
 		span<int*> s{nullptr, static_cast<span<int>::index_type>(0)};
 		CHECK((s.size() == 0 && s.data() == nullptr));
@@ -170,14 +145,6 @@ void test_case_from_pointer_size_constructor()
 		CHECK((s.size() == 0 && s.data() == nullptr));
 	}
 
-#if 0
-	{
-		int* p = nullptr;
-		auto workaround_macro = [=]() { span<int> s{p, 2}; };
-		CHECK_THROWS_AS(workaround_macro(), fail_fast);
-	}
-#endif
-
 	{
 		auto s = make_span(&arr[0], 2);
 		CHECK((s.size() == 2 && s.data() == &arr[0]));
@@ -189,14 +156,6 @@ void test_case_from_pointer_size_constructor()
 		auto s = make_span(p, static_cast<span<int>::index_type>(0));
 		CHECK((s.size() == 0 && s.data() == nullptr));
 	}
-
-#if 0
-	{
-		int* p = nullptr;
-		auto workaround_macro = [=] { make_span(p, 2); };
-		CHECK_THROWS_AS(workaround_macro(), fail_fast);
-	}
-#endif
 
 	{
 		int i = 42;
@@ -300,37 +259,12 @@ void test_case_from_array_constructor()
 
 	int arr2d[2][3] = {1, 2, 3, 4, 5, 6};
 
-#ifdef CONFIRM_COMPILATION_ERRORS
-	{
-		span<int, 6> s{arr};
-	}
-
-	{
-		span<int, 0> s{arr};
-		CHECK((s.size() == 0 && s.data() == &arr[0]));
-	}
-
-	{
-		span<int> s{arr2d};
-		CHECK((s.size() == 6 && s.data() == &arr2d[0][0]));
-		CHECK((s[0] == 1 && s[5] == 6));
-	}
-
-	{
-		span<int, 0> s{arr2d};
-		CHECK((s.size() == 0 && s.data() == &arr2d[0][0]));
-	}
-
-	{
-		span<int, 6> s{arr2d};
-	}
-#else
 	static_assert(!std::is_constructible<span<int, 6>, int(&)[5]>::value);
 	static_assert(!std::is_constructible<span<int, 0>, int(&)[5]>::value);
-	static_assert(!std::is_constructible<span<int>, int(&)[2][3]>::value);
-	static_assert(!std::is_constructible<span<int, 0>, int(&)[2][3]>::value);
-	static_assert(!std::is_constructible<span<int, 6>, int(&)[2][3]>::value);
-#endif
+	static_assert(!std::is_constructible<span<int>, decltype((arr2d))>::value);
+	static_assert(!std::is_constructible<span<int, 0>, decltype((arr2d))>::value);
+	static_assert(!std::is_constructible<span<int, 6>, decltype((arr2d))>::value);
+
 	{
 		span<int[3]> s{&(arr2d[0]), 1};
 		CHECK((s.size() == 1 && s.data() == &arr2d[0]));
@@ -338,33 +272,11 @@ void test_case_from_array_constructor()
 
 	int arr3d[2][3][2] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 
-#ifdef CONFIRM_COMPILATION_ERRORS
-	{
-		span<int> s{arr3d};
-		CHECK((s.size() == 12 && s.data() == &arr3d[0][0][0]));
-		CHECK((s[0] == 1 && s[11] == 12));
-	}
+	static_assert(!std::is_constructible<span<int>, decltype((arr3d))>::value);
+	static_assert(!std::is_constructible<span<int, 0>, decltype((arr3d))>::value);
+	static_assert(!std::is_constructible<span<int, 11>, decltype((arr3d))>::value);
+	static_assert(!std::is_constructible<span<int, 12>, decltype((arr3d))>::value);
 
-	{
-		span<int, 0> s{arr3d};
-		CHECK((s.size() == 0 && s.data() == &arr3d[0][0][0]));
-	}
-
-	{
-		span<int, 11> s{arr3d};
-	}
-
-	{
-		span<int, 12> s{arr3d};
-		CHECK((s.size() == 12 && s.data() == &arr3d[0][0][0]));
-		CHECK((s[0] == 1 && s[5] == 6));
-	}
-#else
-	static_assert(!std::is_constructible<span<int>, int(&)[2][3][2]>::value);
-	static_assert(!std::is_constructible<span<int, 0>, int(&)[2][3][2]>::value);
-	static_assert(!std::is_constructible<span<int, 11>, int(&)[2][3][2]>::value);
-	static_assert(!std::is_constructible<span<int, 12>, int(&)[2][3][2]>::value);
-#endif
 	{
 		span<int[3][2]> s{&arr3d[0], 1};
 		CHECK((s.size() == 1 && s.data() == &arr3d[0]));
@@ -406,33 +318,11 @@ void test_case_from_std_array_constructor()
 		CHECK((cs.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && cs.data() == arr.data()));
 	}
 
-#ifdef CONFIRM_COMPILATION_ERRORS
-	{
-		span<int, 2> s{arr};
-		CHECK((s.size() == 2 && s.data() == arr.data()));
-
-		span<const int, 2> cs{arr};
-		CHECK((cs.size() == 2 && cs.data() == arr.data()));
-	}
-
-	{
-		span<int, 0> s{arr};
-		CHECK((s.size() == 0 && s.data() == arr.data()));
-
-		span<const int, 0> cs{arr};
-		CHECK((cs.size() == 0 && cs.data() == arr.data()));
-	}
-
-	{
-		span<int, 5> s{arr};
-	}
-#else
 	static_assert(!std::is_constructible<span<int, 2>, decltype((arr))>::value);
 	static_assert(!std::is_constructible<span<const int, 2>, decltype((arr))>::value);
 	static_assert(!std::is_constructible<span<int, 0>, decltype((arr))>::value);
 	static_assert(!std::is_constructible<span<const int, 0>, decltype((arr))>::value);
 	static_assert(!std::is_constructible<span<int, 5>, decltype((arr))>::value);
-#endif
 
 	{
 		auto get_an_array = []() -> std::array<int, 4> { return {1, 2, 3, 4}; };
@@ -466,25 +356,9 @@ void test_case_from_const_std_array_constructor()
 		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 
-#ifdef CONFIRM_COMPILATION_ERRORS
-	{
-		span<const int, 2> s{arr};
-		CHECK((s.size() == 2 && s.data() == arr.data()));
-	}
-
-	{
-		span<const int, 0> s{arr};
-		CHECK((s.size() == 0 && s.data() == arr.data()));
-	}
-
-	{
-		span<const int, 5> s{arr};
-	}
-#else
-	static_assert(!std::is_constructible<span<const int, 2>, const std::array<int, 4>&>::value);
-	static_assert(!std::is_constructible<span<const int, 0>, const std::array<int, 4>&>::value);
-	static_assert(!std::is_constructible<span<const int, 5>, const std::array<int, 4>&>::value);
-#endif
+	static_assert(!std::is_constructible<span<const int, 2>, decltype((arr))>::value);
+	static_assert(!std::is_constructible<span<const int, 0>, decltype((arr))>::value);
+	static_assert(!std::is_constructible<span<const int, 5>, decltype((arr))>::value);
 
 	{
 		auto get_an_array = []() -> const std::array<int, 4> { return {1, 2, 3, 4}; };
@@ -512,30 +386,10 @@ void test_case_from_std_array_const_constructor()
 		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 
-#ifdef CONFIRM_COMPILATION_ERRORS
-	{
-		span<const int, 2> s{arr};
-		CHECK((s.size() == 2 && s.data() == arr.data()));
-	}
-
-	{
-		span<const int, 0> s{arr};
-		CHECK((s.size() == 0 && s.data() == arr.data()));
-	}
-
-	{
-		span<const int, 5> s{arr};
-	}
-
-	{
-		span<int, 4> s{arr};
-	}
-#else
-	static_assert(!std::is_constructible<span<const int, 2>, std::array<const int, 4>&>::value);
-	static_assert(!std::is_constructible<span<const int, 0>, std::array<const int, 4>&>::value);
-	static_assert(!std::is_constructible<span<const int, 5>, std::array<const int, 4>&>::value);
-	static_assert(!std::is_constructible<span<int, 4>, std::array<const int, 4>&>::value);
-#endif
+	static_assert(!std::is_constructible<span<const int, 2>, decltype((arr))>::value);
+	static_assert(!std::is_constructible<span<const int, 0>, decltype((arr))>::value);
+	static_assert(!std::is_constructible<span<const int, 5>, decltype((arr))>::value);
+	static_assert(!std::is_constructible<span<int, 4>, decltype((arr))>::value);
 
 	{
 		auto s = make_span(arr);
@@ -582,11 +436,7 @@ void test_case_from_container_constructor()
 	}
 
 	{
-#ifdef CONFIRM_COMPILATION_ERRORS
-		span<char> s{cstr};
-#else
-		static_assert(!std::is_constructible<span<char>, const std::string&>::value);
-#endif
+		static_assert(!std::is_constructible<span<char>, decltype((cstr))>::value);
 		span<const char> cs{cstr};
 		CHECK((cs.size() == narrow_cast<std::ptrdiff_t>(cstr.size()) &&
 			  cs.data() == cstr.data()));
@@ -604,15 +454,7 @@ void test_case_from_container_constructor()
 		use_span(get_temp_vector());
 	}
 
-	{
-#ifdef CONFIRM_COMPILATION_ERRORS
-		auto get_temp_vector = []() -> const std::vector<int> { return {}; };
-		auto use_span = [](span<const char> s) { static_cast<void>(s); };
-		use_span(get_temp_vector());
-#else
-		static_assert(!std::is_convertible<const std::vector<int>, span<const char>>::value);
-#endif
-	}
+	static_assert(!std::is_convertible<const std::vector<int>, span<const char>>::value);
 
 	{
 		auto get_temp_string = []() -> const std::string { return {}; };
@@ -621,14 +463,7 @@ void test_case_from_container_constructor()
 		use_span(span<const char>(get_temp_string()));
 	}
 
-	{
-#ifdef CONFIRM_COMPILATION_ERRORS
-		std::map<int, int> m;
-		span<int> s{m};
-#else
-		static_assert(!std::is_constructible<span<int>, std::map<int, int>&>::value);
-#endif
-	}
+	static_assert(!std::is_constructible<span<int>, std::map<int, int>&>::value);
 
 	{
 		auto s = make_span(v);
@@ -647,43 +482,11 @@ void test_case_from_convertible_span_constructor()
 		static_cast<void>(avcd);
 	}
 
-#ifdef CONFIRM_COMPILATION_ERRORS
-	{
-		span<DerivedClass> avd;
-		span<BaseClass> avb = avd;
-		static_cast<void>(avb);
-	}
-
-	{
-		span<BaseClass> avb;
-		span<DerivedClass> avd = avb;
-		static_cast<void>(avd);
-	}
-
-	{
-		span<int> s;
-		span<unsigned int> s2 = s;
-		static_cast<void>(s2);
-	}
-
-	{
-		span<int> s;
-		span<const unsigned int> s2 = s;
-		static_cast<void>(s2);
-	}
-
-	{
-		span<int> s;
-		span<short> s2 = s;
-		static_cast<void>(s2);
-	}
-#else
 	static_assert(!std::is_constructible<span<BaseClass>, span<DerivedClass>>::value);
 	static_assert(!std::is_constructible<span<DerivedClass>, span<BaseClass>>::value);
 	static_assert(!std::is_constructible<span<unsigned int>, span<int>>::value);
 	static_assert(!std::is_constructible<span<const unsigned int>, span<int>>::value);
 	static_assert(!std::is_constructible<span<short>, span<int>>::value);
-#endif
 }
 
 void test_case_copy_move_and_assignment()
@@ -772,17 +575,6 @@ void test_case_first()
 		CHECK(av.first(5).size() == 5);
 	}
 
-#if 0
-	{
-		span<int, 5> av = arr;
-#ifdef CONFIRM_COMPILATION_ERRORS
-		CHECK(av.first<6>().size() == 6);
-		CHECK(av.first<-1>().size() == -1);
-#endif
-		CHECK_THROWS_AS(av.first(6).size(), fail_fast);
-	}
-#endif
-
 	{
 		span<int> av;
 		CHECK(av.first<0>().size() == 0);
@@ -812,16 +604,6 @@ void test_case_last()
 		CHECK(av.last(5).size() == 5);
 	}
 
-#if 0
-	{
-		span<int, 5> av = arr;
-#ifdef CONFIRM_COMPILATION_ERRORS
-		CHECK(av.last<6>().size() == 6);
-#endif
-		CHECK_THROWS_AS(av.last(6).size(), fail_fast);
-	}
-#endif
-
 	{
 		span<int> av;
 		CHECK(av.last<0>().size() == 0);
@@ -850,10 +632,6 @@ void test_case_subspan()
 		span<int, 5> av = arr;
 		CHECK((av.subspan<0, 5>().size() == 5));
 		CHECK(av.subspan(0, 5).size() == 5);
-#if 0
-		CHECK_THROWS_AS(av.subspan(0, 6).size(), fail_fast);
-		CHECK_THROWS_AS(av.subspan(1, 5).size(), fail_fast);
-#endif
 	}
 
 	{
@@ -861,26 +639,17 @@ void test_case_subspan()
 		CHECK((av.subspan<4, 0>().size() == 0));
 		CHECK(av.subspan(4, 0).size() == 0);
 		CHECK(av.subspan(5, 0).size() == 0);
-#if 0
-		CHECK_THROWS_AS(av.subspan(6, 0).size(), fail_fast);
-#endif
 	}
 
 	{
 		span<int> av;
 		CHECK((av.subspan<0, 0>().size() == 0));
 		CHECK(av.subspan(0, 0).size() == 0);
-#if 0
-		CHECK_THROWS_AS((av.subspan<1, 0>().size()), fail_fast);
-#endif
 	}
 
 	{
 		span<int> av;
 		CHECK(av.subspan(0).size() == 0);
-#if 0
-		CHECK_THROWS_AS(av.subspan(1).size(), fail_fast);
-#endif
 	}
 
 	{
@@ -889,9 +658,6 @@ void test_case_subspan()
 		CHECK(av.subspan(1).size() == 4);
 		CHECK(av.subspan(4).size() == 1);
 		CHECK(av.subspan(5).size() == 0);
-#if 0
-		CHECK_THROWS_AS(av.subspan(6).size(), fail_fast);
-#endif
 		const auto av2 = av.subspan(1);
 		for (int i = 0; i < 4; ++i) CHECK(av2[i] == i + 2);
 	}
@@ -902,9 +668,6 @@ void test_case_subspan()
 		CHECK(av.subspan(1).size() == 4);
 		CHECK(av.subspan(4).size() == 1);
 		CHECK(av.subspan(5).size() == 0);
-#if 0
-		CHECK_THROWS_AS(av.subspan(6).size(), fail_fast);
-#endif
 		const auto av2 = av.subspan(1);
 		for (int i = 0; i < 4; ++i) CHECK(av2[i] == i + 2);
 	}
@@ -917,35 +680,6 @@ void test_case_iterator_value_init()
 	CHECK(it1 == it2);
 }
 
-void test_case_const_iterator_value_init()
-{
-	span<int>::const_iterator it1{};
-	span<int>::const_iterator it2{};
-	CHECK(it1 == it2);
-}
-
-void test_case_iterator_conversions()
-{
-	span<int>::iterator badIt{};
-	span<int>::const_iterator badConstIt{};
-	CHECK(badIt == badConstIt);
-
-	int a[] = {1, 2, 3, 4};
-	span<int> s = a;
-
-	auto it = s.begin();
-	auto cit = s.cbegin();
-
-	CHECK(it == cit);
-	CHECK(cit == it);
-
-	span<int>::const_iterator cit2 = it;
-	CHECK(cit2 == cit);
-
-	span<int>::const_iterator cit3 = it + 4;
-	CHECK(cit3 == s.cend());
-}
-
 void test_case_iterator_comparisons()
 {
 	int a[] = {1, 2, 3, 4};
@@ -953,15 +687,8 @@ void test_case_iterator_comparisons()
 		span<int> s = a;
 		span<int>::iterator it = s.begin();
 		auto it2 = it + 1;
-		span<int>::const_iterator cit = s.cbegin();
 
-		CHECK(it == cit);
-		CHECK(cit == it);
 		CHECK(it == it);
-		CHECK(cit == cit);
-		CHECK(cit == s.begin());
-		CHECK(s.begin() == cit);
-		CHECK(s.cbegin() == cit);
 		CHECK(it == s.begin());
 		CHECK(s.begin() == it);
 
@@ -970,26 +697,16 @@ void test_case_iterator_comparisons()
 		CHECK(it != s.end());
 		CHECK(it2 != s.end());
 		CHECK(s.end() != it);
-		CHECK(it2 != cit);
-		CHECK(cit != it2);
 
 		CHECK(it < it2);
 		CHECK(it <= it2);
 		CHECK(it2 <= s.end());
 		CHECK(it < s.end());
-		CHECK(it <= cit);
-		CHECK(cit <= it);
-		CHECK(cit < it2);
-		CHECK(cit <= it2);
-		CHECK(cit < s.end());
-		CHECK(cit <= s.end());
 
 		CHECK(it2 > it);
 		CHECK(it2 >= it);
 		CHECK(s.end() > it2);
 		CHECK(s.end() >= it2);
-		CHECK(it2 > cit);
-		CHECK(it2 >= cit);
 	}
 }
 
@@ -1019,9 +736,6 @@ void test_case_begin_end()
 
 		auto beyond = s.end();
 		CHECK(it != beyond);
-#if 0
-		CHECK_THROWS_AS(*beyond, fail_fast);
-#endif
 
 		CHECK((beyond - first) == 4);
 		CHECK((first - first) == 0);
@@ -1050,60 +764,6 @@ void test_case_begin_end()
 	}
 }
 
-void test_case_cbegin_cend()
-{
-	{
-		int a[] = {1, 2, 3, 4};
-		span<int> s = a;
-
-		span<int>::const_iterator cit = s.cbegin();
-		span<int>::const_iterator cit2 = std::cbegin(s);
-		CHECK(cit == cit2);
-
-		cit = s.cend();
-		cit2 = std::cend(s);
-		CHECK(cit == cit2);
-	}
-
-	{
-		int a[] = {1, 2, 3, 4};
-		span<int> s = a;
-
-		auto it = s.cbegin();
-		auto first = it;
-		CHECK(it == first);
-		CHECK(*it == 1);
-
-		auto beyond = s.cend();
-		CHECK(it != beyond);
-#if 0
-		CHECK_THROWS_AS(*beyond, fail_fast);
-#endif
-
-		CHECK((beyond - first) == 4);
-		CHECK((first - first) == 0);
-		CHECK((beyond - beyond) == 0);
-
-		++it;
-		CHECK((it - first) == 1);
-		CHECK(*it == 2);
-		CHECK((beyond - it) == 3);
-
-		int last = 0;
-		it = first;
-		CHECK(it == first);
-		while (it != s.cend()) {
-			CHECK(*it == last + 1);
-
-			last = *it;
-			++it;
-		}
-
-		CHECK(it == beyond);
-		CHECK((it - beyond) == 0);
-	}
-}
-
 void test_case_rbegin_rend()
 {
 	{
@@ -1117,9 +777,6 @@ void test_case_rbegin_rend()
 
 		auto beyond = s.rend();
 		CHECK(it != beyond);
-#if 0
-		CHECK_THROWS_AS(*beyond, fail_fast);
-#endif
 
 		CHECK((beyond - first) == 4);
 		CHECK((first - first) == 0);
@@ -1145,47 +802,6 @@ void test_case_rbegin_rend()
 		for (const auto& n : s) {
 			CHECK(n == 5);
 		}
-	}
-}
-
-void test_case_crbegin_crend()
-{
-	{
-		int a[] = {1, 2, 3, 4};
-		span<int> s = a;
-
-		auto it = s.crbegin();
-		auto first = it;
-		CHECK(it == first);
-		CHECK(*it == 4);
-
-		auto beyond = s.crend();
-		CHECK(it != beyond);
-#if 0
-		CHECK_THROWS_AS(*beyond, fail_fast);
-#endif
-
-		CHECK((beyond - first) == 4);
-		CHECK((first - first) == 0);
-		CHECK((beyond - beyond) == 0);
-
-		++it;
-		CHECK((it - first) == 1);
-		CHECK(*it == 3);
-		CHECK((beyond - it) == 3);
-
-		it = first;
-		CHECK(it == first);
-		int last = 5;
-		while (it != s.crend()) {
-			CHECK(*it == last - 1);
-			last = *it;
-
-			++it;
-		}
-
-		CHECK(it == beyond);
-		CHECK((it - beyond) == 0);
 	}
 }
 
@@ -1344,17 +960,6 @@ void test_case_as_writeable_bytes()
 	int a[] = {1, 2, 3, 4};
 
 	{
-#ifdef CONFIRM_COMPILATION_ERRORS
-		// you should not be able to get writeable bytes for const objects
-		span<const int> s = a;
-		CHECK(s.size() == 4);
-		span<const byte> bs = as_writeable_bytes(s);
-		CHECK(static_cast<void*>(bs.data()) == static_cast<void*>(s.data()));
-		CHECK(bs.size() == s.size_bytes());
-#endif
-	}
-
-	{
 		span<int> s;
 		const auto bs = as_writeable_bytes(s);
 		CHECK(bs.size() == s.size());
@@ -1387,30 +992,9 @@ void test_case_fixed_size_conversions()
 		static_cast<void>(s);
 	}
 
-// initialization or assignment to static span that REDUCES size is NOT ok
-#ifdef CONFIRM_COMPILATION_ERRORS
-	{
-		span<int, 2> s = arr;
-	}
-	{
-		span<int, 2> s2 = s4;
-		static_cast<void>(s2);
-	}
-#endif
-
-	// even when done dynamically
-#if 0
-	{
-		span<int> s = arr;
-		auto f = [&]() {
-			span<int, 2> s2 = s;
-			static_cast<void>(s2);
-		};
-		CHECK_THROWS_AS(f(), fail_fast);
-	}
-#endif
-
-	// but doing so explicitly is ok
+	// initialization or assignment to static span that REDUCES size is NOT ok
+	static_assert(!std::is_convertible<decltype((arr)), span<int, 2>>::value);
+	static_assert(!std::is_convertible<span<int, 4>, span<int, 2>>::value);
 
 	// you can convert statically
 	{
@@ -1433,38 +1017,8 @@ void test_case_fixed_size_conversions()
 	int arr2[2] = {1, 2};
 	(void)arr2;
 
-#ifdef CONFIRM_COMPILATION_ERRORS
-	{
-		span<int, 4> s3 = arr2;
-	}
-	{
-		span<int, 2> s2 = arr2;
-		span<int, 4> s4a = s2;
-	}
-#else
 	static_assert(!std::is_constructible<span<int, 4>, decltype((arr2))>::value);
 	static_assert(!std::is_constructible<span<int, 4>, span<int, 2>>::value);
-#endif
-
-#if 0
-	{
-		auto f = [&]() {
-			span<int, 4> _s4 = {arr2, 2};
-			static_cast<void>(_s4);
-		};
-		CHECK_THROWS_AS(f(), fail_fast);
-	}
-#endif
-
-	// this should fail - we are trying to assign a small dynamic span to a fixed_size larger one
-#if 0
-	span<int> av = arr2;
-	auto f = [&]() {
-		span<int, 4> _s4 = av;
-		static_cast<void>(_s4);
-	};
-	CHECK_THROWS_AS(f(), fail_fast);
-#endif
 }
 
 void test_case_interop_with_std_regex()
@@ -1516,13 +1070,9 @@ int main() {
 	test_case_last();
 	test_case_subspan();
 	test_case_iterator_value_init();
-	test_case_const_iterator_value_init();
-	test_case_iterator_conversions();
 	test_case_iterator_comparisons();
 	test_case_begin_end();
-	test_case_cbegin_cend();
 	test_case_rbegin_rend();
-	test_case_crbegin_crend();
 	test_case_comparison_operators();
 	test_case_as_bytes();
 	test_case_as_writeable_bytes();
