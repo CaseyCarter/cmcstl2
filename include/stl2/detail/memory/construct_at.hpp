@@ -22,7 +22,7 @@ STL2_OPEN_NAMESPACE {
 	requires Constructible<T, Args...>
 	void __construct_at(T& t, Args&&... args) {
 		::new(const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(t))))
-			T{__stl2::forward<Args>(args)...};
+			T(__stl2::forward<Args>(args)...);
 	}
 
 	template <DefaultConstructible T>
