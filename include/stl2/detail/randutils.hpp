@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr std::uint32_t hash(T&& value)
 			{
 				auto hasher = std::hash<__uncvref<T>>{};
-				return randutils::crushto32(hasher(__stl2::forward<T>(value)));
+				return randutils::crushto32(hasher(std::forward<T>(value)));
 			}
 
 			constexpr std::uint32_t fnv(std::uint32_t hash, const char* pos)
@@ -166,8 +166,8 @@ STL2_OPEN_NAMESPACE {
 				*it++ = randutils::crushto32(STL2_CPU_ENTROPY);
 
 				// Hopefully high-quality entropy from random_device.
-				__stl2::random_device rd{};
-				__stl2::generate(it, seeds.end(), __stl2::ref(rd));
+				std::random_device rd{};
+				__stl2::generate(it, seeds.end(), std::ref(rd));
 
 				STL2_EXPECT(it <= seeds.end());
 
@@ -465,7 +465,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		using default_random_engine =
-			meta::if_c<sizeof(void*) >= 8, __stl2::mt19937_64, __stl2::mt19937>;
+			meta::if_c<sizeof(void*) >= 8, std::mt19937_64, std::mt19937>;
 		inline default_random_engine& get_random_engine()
 		{
 			thread_local default_random_engine engine{

@@ -14,7 +14,7 @@
 
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/tagged.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // copy [alg.copy]
@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		for (; first != last; ++first, ++result) {
 			*result = *first;
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
 	template <InputRange Rng, class O>
@@ -39,8 +39,7 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	copy(Rng&& rng, O&& result)
 	{
-		return __stl2::copy(__stl2::begin(rng), __stl2::end(rng),
-												__stl2::forward<O>(result));
+		return __stl2::copy(__stl2::begin(rng), __stl2::end(rng), std::forward<O>(result));
 	}
 
 	// Extension: two-range copy
@@ -54,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 			for (; first != last && result_first != result_last; ++first, ++result_first) {
 				*result_first = *first;
 			}
-			return {__stl2::move(first), __stl2::move(result_first)};
+			return {std::move(first), std::move(result_first)};
 		}
 
 		template <InputRange Rng1, Range Rng2>
@@ -64,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 		copy(Rng1&& rng1, Rng2&& rng2)
 		{
 			return ext::copy(__stl2::begin(rng1), __stl2::end(rng1),
-											 __stl2::begin(rng2), __stl2::end(rng2));
+				__stl2::begin(rng2), __stl2::end(rng2));
 		}
 	}
 } STL2_CLOSE_NAMESPACE

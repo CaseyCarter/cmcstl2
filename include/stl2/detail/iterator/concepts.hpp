@@ -107,11 +107,11 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// value_type [readable.iterators]
+	// Not to spec:
+	// * Implements #299
+	// * Implements #423
 	//
 	namespace detail {
-		template <class T>
-		constexpr bool IsValueType = !is_void<T>::value;
-
 		template <class T>
 		concept bool MemberValueType =
 			requires { typename T::value_type; };
@@ -124,9 +124,10 @@ STL2_OPEN_NAMESPACE {
 	template <class>
 	struct value_type {};
 
-	template <class T>
-	struct value_type<T*> :
-		meta::lazy::if_<is_object<T>, remove_cv_t<T>> {};
+	template <ext::Object T>
+	struct value_type<T*> {
+		using type = std::remove_cv_t<T>;
+	};
 
 	template <_Is<is_array> T>
 	struct value_type<T> : value_type<decay_t<T>> {};
@@ -135,13 +136,30 @@ STL2_OPEN_NAMESPACE {
 	struct value_type<I const> : value_type<decay_t<I>> {};
 
 	template <detail::MemberValueType T>
+	struct value_type<T> {};
+
+	template <detail::MemberValueType T>
+	requires ext::Object<typename T::value_type>
 	struct value_type<T> {
 		using type = typename T::value_type;
 	};
 
 	template <detail::MemberElementType T>
+	struct value_type<T> {};
+
+	template <detail::MemberElementType T>
+	requires ext::Object<typename T::element_type>
 	struct value_type<T> {
-		using type = typename T::element_type;
+		using type = std::remove_cv_t<typename T::element_type>;
+	};
+
+	template <class T>
+	requires
+		detail::MemberValueType<T> && ext::Object<typename T::value_type> &&
+		detail::MemberElementType<T> && ext::Object<typename T::element_type> &&
+		Same<typename T::value_type, std::remove_cv_t<typename T::element_type>>
+	struct value_type<T> {
+		using type = typename T::value_type;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -329,7 +347,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			value_type_t<R1> tmp = __stl2::iter_move(r1);
 			*r1 = __stl2::iter_move(r2);
-			*r2 = __stl2::move(tmp);
+			*r2 = std::move(tmp);
 		}
 
 		struct fn {

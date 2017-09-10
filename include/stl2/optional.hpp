@@ -50,9 +50,7 @@ STL2_OPEN_NAMESPACE {
 		: logic_error{"Attempt to access disengaged optional"} {}
 	};
 
-	template <class T>
-	requires Destructible<T> && _Is<T, is_object>
-	class optional;
+	ext::DestructibleObject{T} class optional;
 
 	namespace __optional {
 		template <class = void>
@@ -71,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 		)
 		template <class T>
 		requires
-			Swappable<T&> &&
+			Swappable<T> &&
 			MoveConstructible<T>
 		void swap(optional<T>& lhs, optional<T>& rhs)
 		STL2_NOEXCEPT_RETURN(
@@ -137,7 +135,7 @@ STL2_OPEN_NAMESPACE {
 			void construct(Args&&... args)
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			{
-				const volatile void* as_void = __stl2::addressof(this->item_);
+				const volatile void* as_void = detail::addressof(this->item_);
 				::new(const_cast<void*>(as_void)) T{std::forward<Args>(args)...};
 				this->engaged_ = true;
 			}
@@ -238,8 +236,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	} // namespace ext
 
-	template <class T>
-	requires Destructible<T> && _Is<T, is_object>
+	ext::DestructibleObject{T}
 	class optional
 	: public meta::_t<ext::optional_storage<T>>
 	, detail::smf_control::copy<models::CopyConstructible<T>>
@@ -407,17 +404,17 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
-		template <class...Args>
+		template <class... Args>
 		requires Constructible<T, Args...>
-		void emplace(Args&&...args)
+		void emplace(Args&&... args)
 		noexcept(std::is_nothrow_constructible<T, Args...>::value)
 		{
 			this->reset();
 			this->construct(std::forward<Args>(args)...);
 		}
-		template <class U, class...Args>
+		template <class U, class... Args>
 		requires Constructible<T, std::initializer_list<U>&, Args...>
-		void emplace(std::initializer_list<U> il, Args&&...args)
+		void emplace(std::initializer_list<U> il, Args&&... args)
 		noexcept(std::is_nothrow_constructible<T,
 			std::initializer_list<U>&, Args...>::value)
 		{
@@ -453,10 +450,10 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr const T* operator->() const {
-			return __stl2::addressof(**this);
+			return detail::addressof(**this);
 		}
 		constexpr T* operator->() {
-			return __stl2::addressof(**this);
+			return detail::addressof(**this);
 		}
 
 		using base_t::operator*;

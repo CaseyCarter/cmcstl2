@@ -15,6 +15,7 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
@@ -34,11 +35,11 @@ STL2_OPEN_NAMESPACE {
 		for (; first != last; ++first) {
 			reference_t<I>&& v = *first;
 			if (!__stl2::invoke(pred, __stl2::invoke(proj, v))) {
-				*result = __stl2::forward<reference_t<I>>(v);
+				*result = std::forward<reference_t<I>>(v);
 				++result;
 			}
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
 	template <InputRange Rng, class O, class Pred, class Proj = identity>
@@ -51,8 +52,8 @@ STL2_OPEN_NAMESPACE {
 	remove_copy_if(Rng&& rng, O&& result, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::remove_copy_if(
-			__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result),
-			__stl2::ref(pred), __stl2::ref(proj));
+			__stl2::begin(rng), __stl2::end(rng), std::forward<O>(result),
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

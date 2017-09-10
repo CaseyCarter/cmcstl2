@@ -17,6 +17,7 @@
 #include <stl2/tuple.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -37,15 +38,13 @@ STL2_OPEN_NAMESPACE {
 	{
 		while (true) {
 			if (first1 == last1) {
-				__stl2::tie(first2, result) =
-					__stl2::copy(__stl2::move(first2), __stl2::move(last2),
-						__stl2::move(result));
+				std::tie(first2, result) =
+					__stl2::copy(std::move(first2), std::move(last2), std::move(result));
 				break;
 			}
 			if (first2 == last2) {
-				__stl2::tie(first1, result) =
-					__stl2::copy(__stl2::move(first1), __stl2::move(last1),
-						__stl2::move(result));
+				std::tie(first1, result) =
+					__stl2::copy(std::move(first1), std::move(last1), std::move(result));
 				break;
 			}
 			reference_t<I1>&& v1 = *first1;
@@ -53,12 +52,12 @@ STL2_OPEN_NAMESPACE {
 			auto&& p1 = __stl2::invoke(proj1, v1);
 			auto&& p2 = __stl2::invoke(proj2, v2);
 			if (__stl2::invoke(comp, p1, p2)) {
-				*result = __stl2::forward<reference_t<I1>>(v1);
+				*result = std::forward<reference_t<I1>>(v1);
 				++result;
 				++first1;
 			} else {
 				if (__stl2::invoke(comp, p2, p1)) {
-					*result = __stl2::forward<reference_t<I2>>(v2);
+					*result = std::forward<reference_t<I2>>(v2);
 					++result;
 				} else {
 					++first1;
@@ -67,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 		return {
-			__stl2::move(first1), __stl2::move(first2), __stl2::move(result)};
+			std::move(first1), std::move(first2), std::move(result)};
 	}
 
 	template <InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
@@ -83,9 +82,8 @@ STL2_OPEN_NAMESPACE {
 		Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::set_symmetric_difference(__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::ref(comp), __stl2::ref(proj1),
-			__stl2::ref(proj2));
+			__stl2::begin(rng2), __stl2::end(rng2), std::forward<O>(result),
+			std::ref(comp), std::ref(proj1), std::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

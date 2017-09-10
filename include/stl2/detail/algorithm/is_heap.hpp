@@ -39,8 +39,8 @@ STL2_OPEN_NAMESPACE {
 			Comp, projected<I, Proj>>
 	bool is_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return last == __stl2::is_heap_until(__stl2::move(first), last,
-			__stl2::ref(comp), __stl2::ref(proj));
+		return last == __stl2::is_heap_until(std::move(first), last,
+			std::ref(comp), std::ref(proj));
 	}
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
@@ -50,8 +50,7 @@ STL2_OPEN_NAMESPACE {
 	bool is_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::end(rng) ==
-			__stl2::is_heap_until(rng, __stl2::ref(comp),
-				__stl2::ref(proj));
+			__stl2::is_heap_until(rng, std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

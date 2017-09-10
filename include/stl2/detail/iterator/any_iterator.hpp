@@ -12,8 +12,9 @@
 #ifndef STL2_DETAIL_ITERATOR_ANY_ITERATOR_HPP
 #define STL2_DETAIL_ITERATOR_ANY_ITERATOR_HPP
 
-#include <new>
 #include <atomic>
+#include <exception>
+#include <new>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/swap.hpp>
@@ -101,7 +102,7 @@ STL2_OPEN_NAMESPACE {
 					// fallthrough
 			case op::rval:
 					return +[](blob const &src) -> RValueReference {
-						return iter_move(
+						return __stl2::iter_move(
 							*static_cast<I const *>(static_cast<void const *>(&src.tiny)));
 					};
 				}
@@ -116,7 +117,7 @@ STL2_OPEN_NAMESPACE {
 				++(dst->big = src->big)->cnt;
 				break;
 			case op::move:
-				dst->big = std::exchange(src->big, nullptr);
+				dst->big = __stl2::exchange(src->big, nullptr);
 				break;
 			case op::nuke:
 				if (0 == --src->big->cnt)
@@ -132,7 +133,7 @@ STL2_OPEN_NAMESPACE {
 					// fallthrough
 			case op::rval:
 					return +[](blob const &src) -> RValueReference {
-						return iter_move(
+						return __stl2::iter_move(
 							static_cast<shared_iterator<I> const *>(src.big)->it);
 					};
 				}
@@ -173,8 +174,8 @@ STL2_OPEN_NAMESPACE {
 			void move_from(cursor &that) {
 				// Pre: *this is empty
 				that.exec_(op::move, &that.data_, &data_);
-				swap(deref_, that.deref_);
-				swap(exec_, that.exec_);
+				__stl2::swap(deref_, that.deref_);
+				__stl2::swap(exec_, that.exec_);
 			}
 		public:
 			using value_type = ValueType;
@@ -189,7 +190,7 @@ STL2_OPEN_NAMESPACE {
 				: base_t(cursor{std::move(i)})
 				{}
 				using base_t::base_t;
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 7
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 7 && __GNUC_MINOR__ < 2
 				explicit mixin(cursor c)
 				: base_t(std::move(c))
 				{}

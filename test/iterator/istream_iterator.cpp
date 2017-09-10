@@ -57,7 +57,7 @@ int main() {
 		std::istringstream is("42 13");
 		I i{is};
 		I{i};
-		static_assert(is_trivially_copy_constructible<I>());
+		static_assert(std::is_trivially_copy_constructible<I>());
 
 		static_assert(models::Same<const int&, decltype(*i)>);
 		CHECK(*i == 42);

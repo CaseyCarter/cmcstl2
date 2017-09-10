@@ -13,6 +13,7 @@
 #ifndef STL2_TYPE_TRAITS
 #define STL2_TYPE_TRAITS
 
+#include <type_traits>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
@@ -34,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 	using __cref = __ref<add_const_t<X>>;
 
 	template <class T, class U>
-	using __cond = decltype(true ? declval<T>() : declval<U>());
+	using __cond = decltype(true ? declval<T(&)()>()() : declval<U(&)()>()());
 
 	template <class From, class To>
 	struct __copy_cv_ : meta::id<To> {};
@@ -84,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 	template <class...>
 	struct common_type {};
 
-	template <class...Ts>
+	template <class... Ts>
 	using common_type_t = meta::_t<common_type<Ts...>>;
 
 	template <class T>
@@ -103,7 +104,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class U>
 	struct common_type<T, U> : __common_type2<T, U> {};
 
-	template <class T, class U, class V, class...W>
+	template <class T, class U, class V, class...  W>
 	requires _Valid<common_type_t, T, U>
 	struct common_type<T, U, V, W...>
 	: common_type<common_type_t<T, U>, V, W...> {};
@@ -141,18 +142,30 @@ STL2_OPEN_NAMESPACE {
 	template <class...>
 	struct common_reference {};
 
-	template <class...Ts>
+	template <class... Ts>
 	using common_reference_t = meta::_t<common_reference<Ts...>>;
 
 	template <class T>
 	struct common_reference<T> : meta::id<T> {};
 
 	template <class T, class U>
-	struct __common_reference2
-		: meta::if_<meta::is_trait<__basic_common_reference<T, U>>,
-			__basic_common_reference<T, U>, common_type<T, U>> {};
+	struct __common_reference2_2_ : common_type<T, U> {};
 
 	template <class T, class U>
+	requires requires { typename __cond<T, U>; }
+	struct __common_reference2_2_<T, U> : meta::id<__cond<T, U>> {};
+
+	template <class T, class U>
+	struct __common_reference2_1_ : __common_reference2_2_<T, U> {};
+
+	template <class T, class U>
+	requires _Valid<meta::_t, __basic_common_reference<T, U>>
+	struct __common_reference2_1_<T, U> : __basic_common_reference<T, U> {};
+
+	template <class T, class U>
+	struct __common_reference2 : __common_reference2_1_<T, U> {};
+
+	template <_Is<std::is_reference> T, _Is<std::is_reference> U>
 	requires
 		_Valid<__builtin_common_t, T, U> &&
 		_Is<__builtin_common_t<T, U>, is_reference>
@@ -161,7 +174,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class U>
 	struct common_reference<T, U> : __common_reference2<T, U> {};
 
-	template <class T, class U, class V, class...W>
+	template <class T, class U, class V, class... W>
 	requires _Valid<common_reference_t, T, U>
 	struct common_reference<T, U, V, W...>
 	: common_reference<common_reference_t<T, U>, V, W...> {};

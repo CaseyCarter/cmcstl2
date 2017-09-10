@@ -17,6 +17,7 @@
 #include <stl2/random.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/randutils.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/core.hpp>
 
@@ -36,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 		sized_impl(I first, S last, difference_type_t<I> pop_size,
 			O out, difference_type_t<I> n, Gen& gen)
 		{
-			__stl2::uniform_int_distribution<difference_type_t<I>> dist;
+			uniform_int_distribution<difference_type_t<I>> dist;
 			using param_t = typename decltype(dist)::param_type;
 			if (n > pop_size) {
 				n = pop_size;
@@ -48,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 					++out;
 				}
 			}
-			return {__stl2::move(first), __stl2::move(out)};
+			return {std::move(first), std::move(out)};
 		}
 	}
 
@@ -62,8 +63,8 @@ STL2_OPEN_NAMESPACE {
 		Gen&& gen = detail::get_random_engine())
 	{
 		auto k = __stl2::distance(first, last);
-		return __sample::sized_impl(__stl2::move(first), __stl2::move(last),
-			k, __stl2::move(out), n, gen);
+		return __sample::sized_impl(std::move(first), std::move(last),
+			k, std::move(out), n, gen);
 	}
 
 	template <class I, class S, RandomAccessIterator O,
@@ -84,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 			}
 			out[i] = *first;
 		}
-		__stl2::uniform_int_distribution<difference_type_t<I>> dist;
+		uniform_int_distribution<difference_type_t<I>> dist;
 		using param_t = typename decltype(dist)::param_type;
 		for (auto pop_size = n; first != last; (void)++first, ++pop_size) {
 			auto const i = dist(gen, param_t{0, pop_size});
@@ -94,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		out += n;
 	done:
-		return {__stl2::move(first), __stl2::move(out)};
+		return {std::move(first), std::move(out)};
 	}
 
 	template <class I, class S, class ORng,
@@ -108,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 		Gen&& gen = detail::get_random_engine())
 	{
 		auto k = __stl2::distance(first, last);
-		return __sample::sized_impl(__stl2::move(first), __stl2::move(last),
+		return __sample::sized_impl(std::move(first), std::move(last),
 			k, __stl2::begin(out), __stl2::distance(out), gen);
 	}
 
@@ -123,8 +124,8 @@ STL2_OPEN_NAMESPACE {
 	sample(I first, S last, ORng&& out,
 		Gen&& gen = detail::get_random_engine())
 	{
-		return __stl2::sample(__stl2::move(first), __stl2::move(last),
-			__stl2::begin(out), __stl2::distance(out), __stl2::forward<Gen>(gen));
+		return __stl2::sample(std::move(first), std::move(last),
+			__stl2::begin(out), __stl2::distance(out), std::forward<Gen>(gen));
 	}
 
 	template <class Rng, RandomAccessIterator O,
@@ -137,7 +138,7 @@ STL2_OPEN_NAMESPACE {
 		Gen&& gen = detail::get_random_engine())
 	{
 		return __stl2::sample(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::move(out), n, __stl2::forward<Gen>(gen));
+			std::move(out), n, std::forward<Gen>(gen));
 	}
 
 	template <class Rng, class O, class Gen = detail::default_random_engine&>
@@ -149,7 +150,7 @@ STL2_OPEN_NAMESPACE {
 		Gen&& gen = detail::get_random_engine())
 	{
 		return __sample::sized_impl(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::distance(rng), __stl2::move(out), n, __stl2::forward<Gen>(gen));
+			__stl2::distance(rng), std::move(out), n, std::forward<Gen>(gen));
 	}
 
 	template <class IRng, class ORng, class Gen = detail::default_random_engine&>
@@ -164,7 +165,7 @@ STL2_OPEN_NAMESPACE {
 	sample(IRng&& rng, ORng&& out, Gen&& gen = detail::get_random_engine())
 	{
 		return __stl2::sample(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::begin(out), __stl2::distance(out), __stl2::forward<Gen>(gen));
+			__stl2::begin(out), __stl2::distance(out), std::forward<Gen>(gen));
 	}
 
 	template <class IRng, class ORng, class Gen = detail::default_random_engine&>
@@ -180,7 +181,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __sample::sized_impl(__stl2::begin(rng), __stl2::end(rng),
 			__stl2::distance(rng), __stl2::begin(out), __stl2::distance(out),
-			__stl2::forward<Gen>(gen));
+			std::forward<Gen>(gen));
 	}
 } STL2_CLOSE_NAMESPACE
 

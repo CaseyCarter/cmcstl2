@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 			: value_(std::forward<U>(u)) {}
 
 			constexpr const T* operator->() const noexcept {
-				return __stl2::addressof(value_);
+				return detail::addressof(value_);
 			}
 		};
 
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto operator_arrow_(const I& i, ext::priority_tag<1>)
 		noexcept(noexcept(*i)) {
 			auto&& tmp = *i;
-			return __stl2::addressof(tmp);
+			return detail::addressof(tmp);
 		}
 
 		template <class I>
@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 		struct access {
 			template <_SpecializationOf<common_iterator> C>
 			static constexpr decltype(auto) v(C&& c) noexcept {
-				return (__stl2::forward<C>(c).v_);
+				return (std::forward<C>(c).v_);
 			}
 		};
 
@@ -178,12 +178,12 @@ STL2_OPEN_NAMESPACE {
 		// Not to spec: constexpr per P0579
 		constexpr common_iterator(I i)
 		noexcept(is_nothrow_constructible<variant<I, S>, I>::value)
-		: v_{__stl2::move(i)} {}
+		: v_{std::move(i)} {}
 
 		// Not to spec: constexpr per P0579
 		constexpr common_iterator(S s)
 		noexcept(is_nothrow_constructible<variant<I, S>, S>::value)
-		: v_{__stl2::move(s)} {}
+		: v_{std::move(s)} {}
 
 		// Not to spec: constexpr per P0579
 		template <ConvertibleTo<I> II, ConvertibleTo<S> SS>

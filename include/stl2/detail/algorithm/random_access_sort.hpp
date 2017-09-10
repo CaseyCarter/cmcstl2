@@ -81,7 +81,7 @@ STL2_OPEN_NAMESPACE {
 					last = next;
 					--next;
 				}
-				*last = __stl2::move(val);
+				*last = std::move(val);
 			}
 
 			template <BidirectionalIterator I, class Comp, class Proj>
@@ -92,9 +92,9 @@ STL2_OPEN_NAMESPACE {
 				value_type_t<I> val = __stl2::iter_move(last);
 				if (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *first))) {
 					__stl2::move_backward(first, last, last + 1);
-					*first = __stl2::move(val);
+					*first = std::move(val);
 				} else {
-					rsort::unguarded_linear_insert(last, __stl2::move(val), comp, proj);
+					rsort::unguarded_linear_insert(last, std::move(val), comp, proj);
 				}
 			}
 
@@ -140,8 +140,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				while (__stl2::distance(first, last) > introsort_threshold) {
 					if (depth_limit == 0) {
-						__stl2::partial_sort(first, last, last, __stl2::ref(comp),
-							__stl2::ref(proj));
+						__stl2::partial_sort(first, last, last, std::ref(comp), std::ref(proj));
 						return;
 					}
 					I cut = rsort::unguarded_partition(first, last, comp, proj);

@@ -30,11 +30,11 @@ STL2_OPEN_NAMESPACE {
 		struct access {
 			template <_SpecializationOf<cursor> C>
 			static constexpr decltype(auto) current(C&& c) noexcept {
-				return (__stl2::forward<C>(c).current_);
+				return (std::forward<C>(c).current_);
 			}
 			template <_SpecializationOf<move_sentinel> MS>
 			static constexpr decltype(auto) sentinel(MS&& ms) noexcept {
-				return __stl2::forward<MS>(ms).get();
+				return std::forward<MS>(ms).get();
 			}
 		};
 
@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr cursor() = default;
 			constexpr explicit cursor(I&& i)
 			noexcept(is_nothrow_move_constructible<I>::value)
-			: current_{__stl2::move(i)}
+			: current_{std::move(i)}
 			{}
 			constexpr explicit cursor(const I& i)
 			noexcept(is_nothrow_copy_constructible<I>::value)
@@ -232,7 +232,7 @@ STL2_OPEN_NAMESPACE {
 		InputIterator<__f<I>>
 	constexpr auto make_move_iterator(I&& i)
 	STL2_NOEXCEPT_RETURN(
-		move_iterator<__f<I>>{__stl2::forward<I>(i)}
+		move_iterator<__f<I>>{std::forward<I>(i)}
 	)
 
 	// Not to spec: constexpr per P0579
@@ -247,7 +247,7 @@ STL2_OPEN_NAMESPACE {
 		{}
 		explicit constexpr move_sentinel(S s)
 		noexcept(is_nothrow_move_constructible<S>::value)
-		: box_t(__stl2::move(s))
+		: box_t(std::move(s))
 		{}
 		template <ConvertibleTo<S> T>
 		constexpr move_sentinel(const move_sentinel<T>& s)
@@ -274,7 +274,7 @@ STL2_OPEN_NAMESPACE {
 		Semiregular<__f<S>>
 	constexpr auto make_move_sentinel(S&& s)
 	STL2_NOEXCEPT_RETURN(
-		move_sentinel<__f<S>>(__stl2::forward<S>(s))
+		move_sentinel<__f<S>>(std::forward<S>(s))
 	)
 } STL2_CLOSE_NAMESPACE
 

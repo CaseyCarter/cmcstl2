@@ -14,8 +14,7 @@
 #define STL2_DETAIL_ALGORITHM_REVERSE_COPY_HPP
 
 #include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/tagged.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -28,11 +27,11 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(I), tag::out(O)>
 	reverse_copy(I first, S last, O result)
 	{
-		auto bound = __stl2::next(first, __stl2::move(last));
+		auto bound = __stl2::next(first, std::move(last));
 		for (auto m = bound; m != first; ++result) {
 			*result = *--m;
 		}
-		return {__stl2::move(bound), __stl2::move(result)};
+		return {std::move(bound), std::move(result)};
 	}
 
 	template <BidirectionalRange Rng, class O>
@@ -43,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	reverse_copy(Rng&& rng, O&& result)
 	{
 		return __stl2::reverse_copy(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<O>(result));
+			std::forward<O>(result));
 	}
 } STL2_CLOSE_NAMESPACE
 

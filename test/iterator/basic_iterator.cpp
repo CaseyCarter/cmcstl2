@@ -18,11 +18,11 @@ class forward_list {
 		std::unique_ptr<node> next_;
 		T data_;
 
-		template <class...Args>
+		template <class... Args>
 		requires stl2::Constructible<T, Args...>
-		constexpr node(Args&&...args)
-		noexcept(stl2::is_nothrow_constructible<T, Args...>::value)
-		: data_(stl2::forward<Args>(args)...) {}
+		constexpr node(Args&&... args)
+		noexcept(std::is_nothrow_constructible<T, Args...>::value)
+		: data_(std::forward<Args>(args)...) {}
 
 		node(node&&) = delete;
 		node(const node&) = delete;
@@ -82,17 +82,17 @@ public:
 	}
 	constexpr stl2::default_sentinel end() const noexcept { return {}; }
 
-	template <class...Args>
+	template <class... Args>
 	requires stl2::Constructible<T, Args...>
-	void emplace(Args&&...args) {
-		auto p = std::make_unique<node>(stl2::forward<Args>(args)...);
-		p->next_ = stl2::move(head_);
-		head_ = stl2::move(p);
+	void emplace(Args&&... args) {
+		auto p = std::make_unique<node>(std::forward<Args>(args)...);
+		p->next_ = std::move(head_);
+		head_ = std::move(p);
 	}
 
 	void push_front(T&& t)
 	requires stl2::MoveConstructible<T>
-	{ emplace(stl2::move(t)); }
+	{ emplace(std::move(t)); }
 	void push_front(const T& t)
 	requires stl2::CopyConstructible<T>
 	{ emplace(t); }
@@ -101,7 +101,7 @@ public:
 template <class T>
 class pointer_cursor {
 public:
-	using contiguous = stl2::true_type;
+	using contiguous = std::true_type;
 	class mixin : protected stl2::basic_mixin<pointer_cursor> {
 		using base_t = stl2::basic_mixin<pointer_cursor>;
 	public:
@@ -178,7 +178,7 @@ public:
 template <class T, T Value>
 struct always_cursor {
 	constexpr T read() const
-		noexcept(stl2::is_nothrow_copy_constructible<T>::value) {
+		noexcept(std::is_nothrow_copy_constructible<T>::value) {
 		return Value;
 	}
 	constexpr bool equal(always_cursor) const noexcept { return true; }
@@ -190,19 +190,19 @@ struct always_cursor {
 template <class T, T Value>
 using always_iterator = stl2::basic_iterator<always_cursor<T, Value>>;
 
-template <class T>
-requires stl2::is_object<T>::value
+template <stl2::ext::Object T>
 struct proxy_wrapper {
 	stl2::detail::raw_ptr<T> ptr_ = nullptr;
 
 	proxy_wrapper() = default;
-	proxy_wrapper(T& t) noexcept : ptr_{stl2::addressof(t)} {}
-	proxy_wrapper(T&&) = delete;
+	proxy_wrapper(T& t) noexcept : ptr_{std::addressof(t)} {}
+	proxy_wrapper(T&&) = delete; // LWG 2993?
 
 	T& get() const noexcept { return *ptr_; }
 
 	proxy_wrapper& operator=(const T& t)
 	noexcept(std::is_nothrow_copy_assignable<T>::value)
+	requires stl2::CopyConstructible<T>
 	{
 		get() = t;
 		return *this;
@@ -210,13 +210,15 @@ struct proxy_wrapper {
 
 	proxy_wrapper& operator=(T&& t)
 	noexcept(std::is_nothrow_move_assignable<T>::value)
+	requires stl2::MoveConstructible<T>
 	{
-		get() = stl2::move(t);
+		get() = std::move(t);
 		return *this;
 	}
 
 	proxy_wrapper const& operator=(const T& t) const
 	noexcept(std::is_nothrow_copy_assignable<T>::value)
+	requires stl2::Copyable<T>
 	{
 		get() = t;
 		return *this;
@@ -224,8 +226,9 @@ struct proxy_wrapper {
 
 	proxy_wrapper const& operator=(T&& t) const
 	noexcept(std::is_nothrow_move_assignable<T>::value)
+	requires stl2::Movable<T>
 	{
-		get() = stl2::move(t);
+		get() = std::move(t);
 		return *this;
 	}
 
@@ -275,7 +278,7 @@ struct proxy_array {
 		std::ptrdiff_t distance_to(const cursor<B>& that) const noexcept {
 			return that.ptr_ - ptr_;
 		}
-		O&& indirect_move() const noexcept { return stl2::move(*ptr_); }
+		O&& indirect_move() const noexcept { return std::move(*ptr_); }
 	};
 
 	static_assert(stl2::cursor::Readable<cursor<false>>);
@@ -311,9 +314,9 @@ struct proxy_array {
 
 template <stl2::InputRange R>
 requires
-	stl2::ext::StreamInsertable<stl2::value_type_t<stl2::iterator_t<R>>> &&
-	!stl2::Same<char, stl2::remove_cv_t<
-		stl2::remove_all_extents_t<stl2::remove_reference_t<R>>>>
+	stl2::StreamInsertable<stl2::value_type_t<stl2::iterator_t<R>>> &&
+	!stl2::Same<char, std::remove_cv_t<
+		std::remove_all_extents_t<std::remove_reference_t<R>>>>
 std::ostream& operator<<(std::ostream& os, R&& rng) {
 	os << '{';
 	auto i = rng.begin();
@@ -510,7 +513,7 @@ void test_always() {
 	// Iterates over life, the universe, and everything.
 	auto i = always_iterator<int, 42>{};
 	using I = decltype(i);
-	static_assert(stl2::is_empty<I>());
+	static_assert(std::is_empty<I>());
 	static_assert(sizeof(I) == 1);
 	static_assert(stl2::models::WeaklyIncrementable<I>);
 	static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
@@ -565,8 +568,8 @@ void test_proxy_array() {
 	static_assert(stl2::models::Same<proxy_wrapper<int>, R>);
 	using V = stl2::value_type_t<I>;
 	static_assert(stl2::models::Same<int, V>);
-	static_assert(stl2::models::Same<int&&, decltype(iter_move(stl2::declval<const I&>()))>);
-	static_assert(stl2::models::Same<int&&, decltype(iter_move(stl2::declval<I&>()))>);
+	static_assert(stl2::models::Same<int&&, decltype(iter_move(std::declval<const I&>()))>);
+	static_assert(stl2::models::Same<int&&, decltype(iter_move(std::declval<I&>()))>);
 
 	static_assert(stl2::__iter_move::has_customization<const I&>);
 	static_assert(stl2::__iter_move::has_customization<I&>);
@@ -594,8 +597,8 @@ void test_proxy_array() {
 	static_assert(stl2::models::CommonReference<CR, CRR>);
 	static_assert(stl2::models::CommonReference<CRR, const CV&>);
 	static_assert(stl2::models::Readable<CI>);
-	static_assert(stl2::models::Same<const int&&, decltype(iter_move(stl2::declval<const CI&>()))>);
-	static_assert(stl2::models::Same<const int&&, decltype(iter_move(stl2::declval<CI&>()))>);
+	static_assert(stl2::models::Same<const int&&, decltype(iter_move(std::declval<const CI&>()))>);
+	static_assert(stl2::models::Same<const int&&, decltype(iter_move(std::declval<CI&>()))>);
 
 	static_assert(stl2::models::RandomAccessIterator<CI>);
 	static_assert(!stl2::models::ContiguousIterator<CI>);
@@ -604,7 +607,7 @@ void test_proxy_array() {
 
 	static_assert(stl2::models::Same<I, decltype(a.begin() + 2)>);
 	static_assert(stl2::models::CommonReference<const R&, const R&>);
-	static_assert(!stl2::models::Swappable<R, R>);
+	static_assert(!stl2::models::SwappableWith<R, R>);
 	static_assert(stl2::models::IndirectlyMovableStorable<I, I>);
 
 	// Swappable<R, R> is not satisfied, and

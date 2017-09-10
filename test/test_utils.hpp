@@ -57,7 +57,7 @@ public:
 	explicit test_range_algo_1(Algo algo)
 	  : algo_(algo)
 	{}
-	template <typename I, typename...Rest>
+	template <typename I, typename... Rest>
 	auto operator()(I begin, I end, Rest &&... rest) const ->
 		checker<decltype(algo_(begin, end, rest...))>
 	{
@@ -88,7 +88,7 @@ public:
 	explicit test_range_algo_2(Algo algo)
 	  : algo_(algo)
 	{}
-	template <typename I1, typename I2, typename...Rest>
+	template <typename I1, typename I2, typename... Rest>
 	auto operator()(I1 begin1, I1 end1, I2 begin2, I2 end2, Rest &&... rest) const ->
 		checker<decltype(algo_(begin1, end1, begin2, end2, rest...))>
 	{

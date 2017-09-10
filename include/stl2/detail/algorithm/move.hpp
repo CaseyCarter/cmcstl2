@@ -14,8 +14,8 @@
 
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/tagged.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // move [alg.move]
@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		for (; first != last; ++first, ++result) {
 			*result = __stl2::iter_move(first);
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
 	template <InputRange Rng, class O>
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectlyMovable<iterator_t<Rng>, __f<O>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	move(Rng&& rng, O&& result) {
-		return __stl2::move(__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result));
+		return __stl2::move(__stl2::begin(rng), __stl2::end(rng), std::forward<O>(result));
 	}
 
 	namespace ext {
@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 			for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
 				*first2 = __stl2::iter_move(first1);
 			}
-			return {__stl2::move(first1), __stl2::move(first2)};
+			return {std::move(first1), std::move(first2)};
 		}
 
 		// Extension

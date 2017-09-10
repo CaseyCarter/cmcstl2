@@ -14,7 +14,7 @@
 
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
-#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // move_backward [alg.move]
@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 		while (i != first) {
 			*--result = __stl2::iter_move(--i);
 		}
-		return {__stl2::move(last), __stl2::move(result)};
+		return {std::move(last), std::move(result)};
 	}
 
 	template <BidirectionalIterator I1, Sentinel<I1> S1, class I2>
@@ -40,9 +40,9 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(I1), tag::out(__f<I2>)>
 	move_backward(I1 first, S1 s, I2&& out)
 	{
-		auto last = __stl2::next(first, __stl2::move(s));
+		auto last = __stl2::next(first, std::move(s));
 		return __stl2::move_backward(
-			__stl2::move(first), __stl2::move(last), __stl2::forward<I2>(out));
+			std::move(first), std::move(last), std::forward<I2>(out));
 	}
 
 	template <BidirectionalRange Rng, class I>
@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 	move_backward(Rng&& rng, I&& result)
 	{
 		return __stl2::move_backward(
-			__stl2::begin(rng), __stl2::end(rng), __stl2::forward<I>(result));
+			__stl2::begin(rng), __stl2::end(rng), std::forward<I>(result));
 	}
 } STL2_CLOSE_NAMESPACE
 

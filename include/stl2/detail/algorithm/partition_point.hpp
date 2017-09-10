@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 				auto middle = __stl2::next(__stl2::ext::uncounted(first), half);
 				if (__stl2::invoke(pred, __stl2::invoke(proj, *middle))) {
 					first = __stl2::ext::recounted(
-										 first, __stl2::move(++middle), half + 1);
+										 first, std::move(++middle), half + 1);
 					n -= half + 1;
 				} else {
 					n = half;
@@ -70,10 +70,10 @@ STL2_OPEN_NAMESPACE {
 			auto d = __stl2::advance(m, n, last);
 			if (m == last || !__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
 				n -= d;
-				return ext::partition_point_n(__stl2::move(first), n,
-					__stl2::move(pred), __stl2::move(proj));
+				return ext::partition_point_n(std::move(first), n,
+					std::move(pred), std::move(proj));
 			}
-			first = __stl2::move(m);
+			first = std::move(m);
 			n *= 2;
 		}
 	}
@@ -85,9 +85,9 @@ STL2_OPEN_NAMESPACE {
 			Pred, projected<I, Proj>>
 	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
 	{
-		auto n = __stl2::distance(first, __stl2::move(last));
-		return __stl2::ext::partition_point_n(__stl2::move(first), n,
-			__stl2::ref(pred), __stl2::ref(proj));
+		auto n = __stl2::distance(first, std::move(last));
+		return __stl2::ext::partition_point_n(std::move(first), n,
+			std::ref(pred), std::ref(proj));
 	}
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::partition_point(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return ext::partition_point_n(__stl2::begin(rng), __stl2::distance(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

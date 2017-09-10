@@ -15,7 +15,7 @@
 
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
-#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // copy_n [alg.copy]
@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		return {
 			__stl2::ext::recounted(first_, first, norig),
-			__stl2::move(result)
+			std::move(result)
 		};
 	}
 } STL2_CLOSE_NAMESPACE

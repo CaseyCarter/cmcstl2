@@ -26,17 +26,17 @@ STL2_OPEN_NAMESPACE {
 	// https://github.com/ericniebler/stl2/issues/310
 	template <class T>
 	concept bool Movable =
-		_Is<T, is_object> &&
+		ext::Object<T> &&
 		MoveConstructible<T> &&
 		Assignable<T&, T&&> &&
-		Swappable<T&>;
+		Swappable<T>;
 
 	namespace models {
 		template <class>
 		constexpr bool Movable = false;
 		__stl2::Movable{T}
 		constexpr bool Movable<T> = true;
-	}
+	} // namespace models
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 
 			STL2_CONSTEXPR_EXT explicit
 			insert_cursor_base(Container& x) noexcept
-			: container_{__stl2::addressof(x)}
+			: container_{detail::addressof(x)}
 			{}
 		protected:
 			raw_ptr<Container> container_{};
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <BackInsertableInto<Container> T>
 			void write(T&& t) {
-				base_t::container_->push_back(__stl2::forward<T>(t));
+				base_t::container_->push_back(std::forward<T>(t));
 			}
 		};
 	}
@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <FrontInsertableInto<Container> T>
 			void write(T&& t) {
-				base_t::container_->push_front(__stl2::forward<T>(t));
+				base_t::container_->push_front(std::forward<T>(t));
 			}
 		};
 	}
@@ -132,7 +132,7 @@ STL2_OPEN_NAMESPACE {
 
 		insert_iterator() = default;
 		insert_iterator(Container& x, iterator_t<Container> i)
-		: container(std::addressof(x)), iter(__stl2::move(i)) {}
+		: container(std::addressof(x)), iter(std::move(i)) {}
 		insert_iterator& operator=(const value_type_t<Container>& value)
 		requires detail::InsertableInto<const value_type_t<Container>&, Container>
 		{
@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
 		insert_iterator& operator=(value_type_t<Container>&& value)
 		requires detail::InsertableInto<value_type_t<Container>&&, Container>
 		{
-			iter = container->insert(iter, __stl2::move(value));
+			iter = container->insert(iter, std::move(value));
 			++iter;
 			return *this;
 		}
@@ -166,7 +166,7 @@ STL2_OPEN_NAMESPACE {
 	template <detail::MemberValueType Container>
 	STL2_CONSTEXPR_EXT auto inserter(Container& x, iterator_t<Container> i)
 	STL2_NOEXCEPT_RETURN(
-		insert_iterator<Container>{x, __stl2::move(i)}
+		insert_iterator<Container>{x, std::move(i)}
 	)
 } STL2_CLOSE_NAMESPACE
 

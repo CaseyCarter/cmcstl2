@@ -16,6 +16,7 @@
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -28,12 +29,12 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(I1), tag::out(I2)>
 	copy_backward(I1 first, S1 sent, I2 out)
 	{
-		auto last = __stl2::next(first, __stl2::move(sent));
+		auto last = __stl2::next(first, std::move(sent));
 		auto i = last;
 		while (i != first) {
 			*--out = *--i;
 		}
-		return {__stl2::move(last), __stl2::move(out)};
+		return {std::move(last), std::move(out)};
 	}
 
 	template <BidirectionalRange Rng, class I>
@@ -45,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::copy_backward(
 			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<I>(result));
+			std::forward<I>(result));
 	}
 } STL2_CLOSE_NAMESPACE
 

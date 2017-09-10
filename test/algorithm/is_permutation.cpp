@@ -849,5 +849,12 @@ int main()
 								   std::equal_to<int const>(), &S::i, &T::i) == false);
 	}
 
+	{
+		int const a[] = {0,1,2,3};
+		int const b[] = {2,3,1,0};
+		CHECK(stl2::is_permutation(a, stl2::begin(b)));
+		CHECK(stl2::is_permutation(stl2::begin(a), stl2::end(a), stl2::begin(b)));
+	}
+
 	return ::test_result();
 }

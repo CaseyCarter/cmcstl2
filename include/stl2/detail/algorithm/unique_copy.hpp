@@ -15,6 +15,7 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
@@ -22,10 +23,10 @@
 // unique_copy [alg.unique]
 //
 STL2_OPEN_NAMESPACE {
-	template <class I, class S, class O, class Proj, class R>
+	template <class I, class S, class O, class R, class Proj>
+	requires IndirectlyCopyableStorable<I, O>
 	tagged_pair<tag::in(I), tag::out(O)>
-	__unique_copy(false_type, false_type, I first, S last, O result, R comp,
-		Proj proj)
+	__unique_copy(ext::priority_tag<0>, I first, S last, O result, R comp, Proj proj)
 	{
 		if (first != last) {
 			value_type_t<I> saved = *first;
@@ -33,38 +34,41 @@ STL2_OPEN_NAMESPACE {
 			++result;
 			while (++first != last) {
 				reference_t<I>&& v = *first;
-				if (!__stl2::invoke(comp, __stl2::invoke(proj, v), __stl2::invoke(proj, saved))) {
-					saved = __stl2::forward<reference_t<I>>(v);
+				if (!__stl2::invoke(comp,
+					__stl2::invoke(proj, std::forward<reference_t<I>>(v)),
+					__stl2::invoke(proj, saved))) {
+					saved = std::forward<reference_t<I>>(v);
 					*result = saved;
 					++result;
 				}
 			}
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
-	template <class I, class S, class O, class Proj, class R>
+	template <class I, class S, InputIterator O, class R, class Proj>
+	requires Same<value_type_t<I>, value_type_t<O>>
 	tagged_pair<tag::in(I), tag::out(O)>
-	__unique_copy(false_type, true_type, I first, S last, O result, R comp,
-		Proj proj)
+	__unique_copy(ext::priority_tag<1>, I first, S last, O result, R comp, Proj proj)
 	{
 		if (first != last) {
 			*result = *first;
 			while (++first != last) {
 				reference_t<I>&& v = *first;
-				if (!__stl2::invoke(comp, __stl2::invoke(proj, v), __stl2::invoke(proj, *result))) {
-					*++result = __stl2::forward<reference_t<I>>(v);
+				if (!__stl2::invoke(comp,
+					__stl2::invoke(proj, std::forward<reference_t<I>>(v)),
+					__stl2::invoke(proj, *result))) {
+					*++result = std::forward<reference_t<I>>(v);
 				}
 			}
 			++result;
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
-	template <class I, class S, class O, class Proj, class R>
+	template <ForwardIterator I, class S, class O, class R, class Proj>
 	tagged_pair<tag::in(I), tag::out(O)>
-	__unique_copy(true_type, auto, I first, S last, O result, R comp,
-		Proj proj)
+	__unique_copy(ext::priority_tag<2>, I first, S const last, O result, R comp, Proj proj)
 	{
 		if (first != last) {
 			*result = *first;
@@ -72,62 +76,55 @@ STL2_OPEN_NAMESPACE {
 			auto m = first;
 			while (++first != last) {
 				reference_t<I>&& v = *first;
-				if (!__stl2::invoke(comp, __stl2::invoke(proj, v), __stl2::invoke(proj, *m))) {
-					*result = __stl2::forward<reference_t<I>>(v);
+				if (!__stl2::invoke(comp,
+					__stl2::invoke(proj, std::forward<reference_t<I>>(v)),
+					__stl2::invoke(proj, *m))) {
+					*result = std::forward<reference_t<I>>(v);
 					++result;
 					m = first;
 				}
 			}
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
-	template <class I, class O>
-	constexpr bool __unique_copy_req =
-		IndirectlyCopyable<I, O> &&
-			(ForwardIterator<I> ||
-			 ForwardIterator<O> ||
-			 IndirectlyCopyableStorable<I, O>);
-
-	template <class I, class S, class O, class R = equal_to<>,
-		class Proj = identity>
+	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
+		class R = equal_to<>, class Proj = identity>
 	requires
-		InputIterator<__f<I>> &&
-		Sentinel<__f<S>, __f<I>> &&
-		WeaklyIncrementable<__f<O>> &&
-		__unique_copy_req<__f<I>, __f<O>> &&
-		IndirectRelation<
-			__f<R>, projected<__f<I>, Proj>>
-	tagged_pair<tag::in(__f<I>), tag::out(__f<O>)>
-	unique_copy(I&& first, S&& last, O&& result, R comp = R{},
+		IndirectlyCopyable<I, O> &&
+		IndirectRelation<R, projected<I, Proj>> &&
+		(ForwardIterator<I> ||
+		 InputIterator<O> && Same<value_type_t<I>, value_type_t<O>> ||
+		 IndirectlyCopyableStorable<I, O>)
+	tagged_pair<tag::in(I), tag::out(O)>
+	unique_copy(I first, S last, O result, R comp = R{},
 		Proj proj = Proj{})
 	{
 		return __stl2::__unique_copy(
-			meta::bool_<models::ForwardIterator<__f<I>>>{},
-			meta::bool_<models::ForwardIterator<__f<O>>>{},
-			__stl2::forward<I>(first), __stl2::forward<S>(last),
-			__stl2::forward<O>(result),
-			__stl2::ref(comp),
-			__stl2::ref(proj));
+			ext::priority_tag<2>{},
+			std::move(first), std::move(last),
+			std::move(result),
+			std::ref(comp),
+			std::ref(proj));
 	}
 
-	template <InputRange Rng, class O, class R = equal_to<>,
+	template <InputRange Rng, WeaklyIncrementable O, class R = equal_to<>,
 		class Proj = identity>
 	requires
-		WeaklyIncrementable<__f<O>> &&
-		__unique_copy_req<iterator_t<Rng>, __f<O>> &&
-		IndirectRelation<
-			__f<R>, projected<iterator_t<Rng>, Proj>>
-	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
-	unique_copy(Rng&& rng, O&& result, R comp = R{}, Proj proj = Proj{})
+		IndirectlyCopyable<iterator_t<Rng>, O> &&
+		IndirectRelation<R, projected<iterator_t<Rng>, Proj>> &&
+		(ForwardIterator<iterator_t<Rng>> ||
+		 InputIterator<O> && Same<value_type_t<iterator_t<Rng>>, value_type_t<O>> ||
+		 IndirectlyCopyableStorable<iterator_t<Rng>, O>)
+	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
+	unique_copy(Rng&& rng, O result, R comp = R{}, Proj proj = Proj{})
 	{
 		return __stl2::__unique_copy(
-			meta::bool_<models::ForwardIterator<iterator_t<Rng>>>{},
-			meta::bool_<models::ForwardIterator<__f<O>>>{},
+			ext::priority_tag<2>{},
 			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<O>(result),
-			__stl2::ref(comp),
-			__stl2::ref(proj));
+			std::move(result),
+			std::ref(comp),
+			std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

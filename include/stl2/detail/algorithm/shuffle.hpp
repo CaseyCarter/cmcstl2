@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 		Rng&& rng, Gen&& g = detail::get_random_engine())
 	{
 		return  __stl2::shuffle(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Gen>(g));
+			std::forward<Gen>(g));
 	}
 } STL2_CLOSE_NAMESPACE
 

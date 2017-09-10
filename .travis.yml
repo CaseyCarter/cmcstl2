@@ -30,6 +30,19 @@ matrix:
     #   os: linux
     #   addons: *gcc6
 
+    - env: GCC_VERSION=7 BUILD_TYPE=Debug ASAN=Off
+      os: linux
+      addons: &gcc7
+        apt:
+          packages:
+            - g++-7
+          sources:
+            - ubuntu-toolchain-r-test
+
+    - env: GCC_VERSION=7 BUILD_TYPE=Release ASAN=Off
+      os: linux
+      addons: *gcc7
+
 before_install:
   - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
   - which $CXX
@@ -46,7 +59,7 @@ install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       if [[ -z "$(ls -A ${DEPS_DIR}/cmake/bin)" ]]; then
-        CMAKE_URL="https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.tar.gz"
+        CMAKE_URL="https://cmake.org/files/v3.8/cmake-3.8.2-Linux-x86_64.tar.gz"
         mkdir -p cmake && travis_retry wget --no-check-certificate --quiet -O - "${CMAKE_URL}" | tar --strip-components=1 -xz -C cmake
       fi
       export PATH="${DEPS_DIR}/cmake/bin:${PATH}"

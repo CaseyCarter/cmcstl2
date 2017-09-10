@@ -18,6 +18,7 @@
 #include <stl2/tuple.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -47,21 +48,22 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::transform(
 			__stl2::begin(r), __stl2::end(r), std::move(result),
-			__stl2::ref(op), __stl2::ref(proj));
+			std::ref(op), std::ref(proj));
 	}
 
-	template <InputIterator I1, Sentinel<I1> S1,
-		InputIterator I2, WeaklyIncrementable O,
+	template <InputIterator I1, Sentinel<I1> S1, class I2, WeaklyIncrementable O,
 		CopyConstructible F, class Proj1 = identity, class Proj2 = identity>
-	[[deprecated]] tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
-	transform(I1 first1, S1 last1, I2 first2, O result,
+	[[deprecated]] tagged_tuple<tag::in1(I1), tag::in2(std::decay_t<I2>), tag::out(O)>
+	transform(I1 first1, S1 last1, I2&& first2_, O result,
 		F op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
+		InputIterator<std::decay_t<I2>> && !Range<I2> &&
 		Writable<O,
 			indirect_result_of_t<F&(
 				projected<I1, Proj1>,
-				projected<I2, Proj2>)>>
+				projected<std::decay_t<I2>, Proj2>)>>
 	{
+		auto first2 = std::forward<I2>(first2_);
 		for (; first1 != last1; ++first1, ++first2, ++result) {
 			*result = __stl2::invoke(op, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2));
 		}
@@ -72,23 +74,22 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]]
 	tagged_tuple<tag::in1(safe_iterator_t<Rng>),
-		tag::in2(__f<I>), tag::out(O)>
+		tag::in2(std::decay_t<I>), tag::out(O)>
 	transform(Rng&& r1, I&& first2_, O result, F op,
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		!is_array<remove_reference_t<I>>::value &&
-		InputIterator<__f<I>> &&
+		InputIterator<std::decay_t<I>> && !Range<I> &&
 		Writable<O,
 			indirect_result_of_t<F&(
 				projected<iterator_t<Rng>, Proj1>,
-				projected<__f<I>, Proj2>)>>
+				projected<std::decay_t<I>, Proj2>)>>
 	{
 		auto first2 = std::forward<I>(first2_);
 		return __stl2::transform(
 			__stl2::begin(r1), __stl2::end(r1),
 			std::move(first2), std::move(result),
-			__stl2::ref(op), __stl2::ref(proj1),
-			__stl2::ref(proj2));
+			std::ref(op), std::ref(proj1),
+			std::ref(proj2));
 	}
 
 	template <InputIterator I1, Sentinel<I1> S1,
@@ -127,9 +128,9 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::transform(
 			__stl2::begin(r1), __stl2::end(r1),
 			__stl2::begin(r2), __stl2::end(r2),
-			std::move(result), __stl2::ref(op),
-			__stl2::ref(proj1),
-			__stl2::ref(proj2));
+			std::move(result), std::ref(op),
+			std::ref(proj1),
+			std::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

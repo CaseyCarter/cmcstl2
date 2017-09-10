@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 				// start from the first parent, there is no need to consider children
 				for (auto start = (n - 2) / 2; start >= 0; --start) {
 					detail::sift_down_n(first, n, first + start,
-						__stl2::ref(comp), __stl2::ref(proj));
+						std::ref(comp), std::ref(proj));
 				}
 			}
 		}
@@ -54,9 +54,8 @@ STL2_OPEN_NAMESPACE {
 		Sortable<I, Comp, Proj>
 	I make_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		auto n = __stl2::distance(first, __stl2::move(last));
-		detail::make_heap_n(first, n, __stl2::ref(comp),
-			__stl2::ref(proj));
+		auto n = __stl2::distance(first, std::move(last));
+		detail::make_heap_n(first, n, std::ref(comp), std::ref(proj));
 		return first + n;
 	}
 
@@ -67,8 +66,7 @@ STL2_OPEN_NAMESPACE {
 	make_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(rng);
-		detail::make_heap_n(__stl2::begin(rng), n, __stl2::ref(comp),
-			__stl2::ref(proj));
+		detail::make_heap_n(__stl2::begin(rng), n, std::ref(comp), std::ref(proj));
 		return __stl2::begin(rng) + n;
 	}
 } STL2_CLOSE_NAMESPACE

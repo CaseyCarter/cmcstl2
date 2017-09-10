@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		struct access {
 			template <_SpecializationOf<cursor> C>
 			static constexpr decltype(auto) current(C&& c) noexcept {
-				return (__stl2::forward<C>(c).current_);
+				return (std::forward<C>(c).current_);
 			}
 		};
 
@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr cursor() = default;
 			constexpr explicit cursor(I x)
 			noexcept(is_nothrow_move_constructible<I>::value)
-			: current_{__stl2::move(x)}
+			: current_{std::move(x)}
 			{}
 			template <ConvertibleTo<I> U>
 			constexpr cursor(const cursor<U>& u)
@@ -177,7 +177,7 @@ STL2_OPEN_NAMESPACE {
 	requires BidirectionalIterator<__f<I>>
 	constexpr auto make_reverse_iterator(I&& i)
 	STL2_NOEXCEPT_RETURN(
-		reverse_iterator<__f<I>>{__stl2::forward<I>(i)}
+		reverse_iterator<__f<I>>{std::forward<I>(i)}
 	)
 } STL2_CLOSE_NAMESPACE
 

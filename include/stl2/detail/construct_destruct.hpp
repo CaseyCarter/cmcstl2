@@ -39,11 +39,11 @@ STL2_OPEN_NAMESPACE {
 
 		struct construct_fn {
 			Constructible{T, ...Args}
-			void operator()(T& t, Args&&...args) const
+			void operator()(T& t, Args&&... args) const
 			noexcept(is_nothrow_constructible<T, Args...>::value)
 			{
 				::new(static_cast<void*>(&t))
-					T{__stl2::forward<Args>(args)...};
+					T{std::forward<Args>(args)...};
 			}
 		};
 		namespace {

@@ -21,7 +21,7 @@
 // unreachable [unreachable.sentinel]
 //
 STL2_OPEN_NAMESPACE {
-	class unreachable {};
+	struct unreachable {};
 
 	constexpr bool operator==(const auto&, unreachable) noexcept {
 		return false;

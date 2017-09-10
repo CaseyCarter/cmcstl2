@@ -16,6 +16,7 @@
 #include <stl2/iterator.hpp>
 #include <stl2/tuple.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
@@ -37,15 +38,15 @@ STL2_OPEN_NAMESPACE {
 		for (; first != last; ++first) {
 			reference_t<I>&& v = *first;
 			if (__stl2::invoke(pred, __stl2::invoke(proj, v))) {
-				*out_true  = __stl2::forward<reference_t<I>>(v);
+				*out_true  = std::forward<reference_t<I>>(v);
 				++out_true;
 			} else {
-				*out_false = __stl2::forward<reference_t<I>>(v);
+				*out_false = std::forward<reference_t<I>>(v);
 				++out_false;
 			}
 		}
-		return {__stl2::move(first),
-			__stl2::move(out_true), __stl2::move(out_false)};
+		return {std::move(first),
+			std::move(out_true), std::move(out_false)};
 	}
 
 	template <InputRange Rng, class O1, class O2, class Pred, class Proj = identity>
@@ -65,8 +66,8 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::partition_copy(
 			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<O1>(out_true), __stl2::forward<O2>(out_false),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::forward<O1>(out_true), std::forward<O2>(out_false),
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

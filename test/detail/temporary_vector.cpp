@@ -25,7 +25,7 @@ namespace {
 		CHECK(std::align(Alignment, sizeof(foo), ptr, size) == data);
 	}
 
-	template <std::size_t...Alignments>
+	template <std::size_t... Alignments>
 	void test_alignments() {
 		(test_single_alignment<Alignments>(), ...);
 	}

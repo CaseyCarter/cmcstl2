@@ -36,8 +36,8 @@ STL2_OPEN_NAMESPACE {
 			constexpr compressed_pair(TT&& t, UU&& u)
 			noexcept(is_nothrow_constructible<first_t, TT&&>::value &&
 				is_nothrow_constructible<second_t, UU&&>::value)
-			: first_t(__stl2::forward<TT>(t))
-			, second_t(__stl2::forward<UU>(u)) {}
+			: first_t(std::forward<TT>(t))
+			, second_t(std::forward<UU>(u)) {}
 
 			constexpr T& first() & noexcept {
 				return first_t::get();
@@ -46,10 +46,10 @@ STL2_OPEN_NAMESPACE {
 				return first_t::get();
 			}
 			constexpr T&& first() && noexcept {
-				return __stl2::move(*this).first_t::get();
+				return std::move(*this).first_t::get();
 			}
 			constexpr const T&& first() const&& noexcept {
-				return __stl2::move(*this).first_t::get();
+				return std::move(*this).first_t::get();
 			}
 
 			constexpr U& second() & noexcept {
@@ -59,10 +59,10 @@ STL2_OPEN_NAMESPACE {
 				return second_t::get();
 			}
 			constexpr U&& second() && noexcept {
-				return __stl2::move(*this).second_t::get();
+				return std::move(*this).second_t::get();
 			}
 			constexpr const U&& second() const&& noexcept {
-				return __stl2::move(*this).second_t::get();
+				return std::move(*this).second_t::get();
 			}
 		};
 	}

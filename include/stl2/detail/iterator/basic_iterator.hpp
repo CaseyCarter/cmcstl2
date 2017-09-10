@@ -29,7 +29,7 @@
 //   validity requirements.
 
 STL2_OPEN_NAMESPACE {
-	template <Destructible T>
+	template <ext::DestructibleObject T>
 	requires std::is_class<T>::value && !std::is_final<T>::value
 	class basic_mixin : T {
 	public:
@@ -62,8 +62,18 @@ STL2_OPEN_NAMESPACE {
 		struct mixin_base<T> {
 			using type = typename T::mixin;
 		};
-	}
+
+		template <class T>
+		constexpr bool IsValueType = !is_void<T>::value;
+	} // namespace detail
 	template <class T>
+	requires
+		requires {
+			typename meta::_t<detail::mixin_base<T>>;
+			requires ext::DestructibleObject<meta::_t<detail::mixin_base<T>>>;
+			requires std::is_class<meta::_t<detail::mixin_base<T>>>::value;
+			requires !std::is_final<meta::_t<detail::mixin_base<T>>>::value;
+		}
 	using mixin_t = meta::_t<detail::mixin_base<T>>;
 
 	namespace cursor {
@@ -150,10 +160,8 @@ STL2_OPEN_NAMESPACE {
 		template <class C, class M>
 		concept bool _Cursor =
 			Semiregular<C> &&
-			std::is_class<M>::value &&
-			!std::is_final<M>::value &&
 			Semiregular<M> &&
-			Constructible<M, C&&> &&
+			Constructible<M, C> &&
 			Constructible<M, const C&>;
 
 		template <class C>
@@ -182,7 +190,7 @@ STL2_OPEN_NAMESPACE {
 		concept bool Writable =
 			Cursor<C> &&
 			requires(C& c, T&& t) {
-				c.write(__stl2::forward<T>(t)); // Not required to be equality-preserving
+				c.write(std::forward<T>(t)); // Not required to be equality-preserving
 			};
 
 		template <class S, class C>
@@ -579,7 +587,7 @@ STL2_OPEN_NAMESPACE {
 	template <_SpecializationOf<basic_iterator> BI>
 	constexpr decltype(auto) get_cursor(BI&& i)
 	STL2_NOEXCEPT_RETURN(
-		__stl2::forward<BI>(i).get()
+		std::forward<BI>(i).get()
 	)
 
 	namespace basic_iterator_adl {
@@ -641,7 +649,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr basic_iterator& operator=(basic_iterator<O>&& that) &
 		noexcept(is_nothrow_assignable<C&, O>::value)
 		{
-			get() = __stl2::get_cursor(__stl2::move(that));
+			get() = __stl2::get_cursor(std::move(that));
 			return *this;
 		}
 		template <cursor::ConvertibleTo<C> O>
@@ -671,7 +679,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr basic_iterator& operator=(O&& o) &
 		noexcept(is_nothrow_assignable<C&, O>::value)
 		{
-			get() = __stl2::forward<O>(o);
+			get() = std::forward<O>(o);
 			return *this;
 		}
 
@@ -718,7 +726,7 @@ STL2_OPEN_NAMESPACE {
 			//Same<cursor::value_type_t<C>, __uncvref<const_reference_t>>
 			models::Same<cursor::value_type_t<C>, __uncvref<const_reference_t>>
 		{
-			return __stl2::addressof(**this);
+			return detail::addressof(**this);
 		}
 
 		constexpr basic_iterator& operator++() & noexcept {
@@ -757,7 +765,7 @@ STL2_OPEN_NAMESPACE {
 			return get().post_increment();
 		}
 		constexpr basic_iterator operator++(int) &
-		noexcept(noexcept(basic_iterator{__stl2::declval<C&>().post_increment()}))
+		noexcept(noexcept(basic_iterator{std::declval<C&>().post_increment()}))
 		requires
 			cursor::PostIncrement<C> &&
 			detail::PostIncrementCursor<C>

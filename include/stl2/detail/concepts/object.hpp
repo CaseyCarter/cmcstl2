@@ -55,13 +55,31 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		///////////////////////////////////////////////////////////////////////////
+		// 'structible object concepts
+		//
+		template <class T>
+		concept bool DestructibleObject = Object<T> && Destructible<T>;
+
+		template <class T, class... Args>
+		concept bool ConstructibleObject = Object<T> && Constructible<T, Args...>;
+
+		template <class T>
+		concept bool DefaultConstructibleObject = Object<T> && DefaultConstructible<T>;
+
+		template <class T>
+		concept bool MoveConstructibleObject = Object<T> && MoveConstructible<T>;
+
+		template <class T>
+		concept bool CopyConstructibleObject = Object<T> && CopyConstructible<T>;
+
+		///////////////////////////////////////////////////////////////////////////
 		// TriviallyFoo concepts
 		//
 		template <class T>
 		concept bool TriviallyDestructible =
 			Destructible<T> && _Is<T, is_trivially_destructible>;
 
-		template <class T, class...Args>
+		template <class T, class... Args>
 		concept bool TriviallyConstructible =
 			Constructible<T, Args...> &&
 			_Is<T, is_trivially_constructible, Args...>;

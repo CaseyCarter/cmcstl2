@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 		Proj proj = Proj{})
 	{
 		return __stl2::replace_if(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), new_value, __stl2::ref(proj));
+			std::ref(pred), new_value, std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

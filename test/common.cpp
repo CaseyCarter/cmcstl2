@@ -16,6 +16,9 @@
 #include "simple_test.hpp"
 
 using std::tuple;
+using std::is_same;
+using std::false_type;
+using std::true_type;
 using namespace __stl2;
 
 static_assert(is_same<common_type_t<int, short&, int, char>, int>(), "");
@@ -47,7 +50,7 @@ static_assert(is_same<common_reference_t<int &&, int const &, float &>, float>()
 static_assert(!meta::is_trait<common_reference<int, short, int, char*>>(), "");
 
 STL2_OPEN_NAMESPACE {
-template <class...T, class...U, template <class> class TQual, template <class> class UQual>
+template <class... T, class... U, template <class> class TQual, template <class> class UQual>
 	requires(_Valid<common_reference_t, TQual<T>, UQual<U>> && ...)
 struct basic_common_reference<tuple<T...>, tuple<U...>, TQual, UQual> {
 	using type = tuple<common_reference_t<TQual<T>, UQual<U>>...>;
@@ -755,6 +758,16 @@ namespace libstdcpp_tests
 				void>(),
 				"common_type<const volatile void, const volatile void>" );
 }
+
+// https://github.com/ericniebler/stl2/issues/338
+struct MyIntRef {
+  MyIntRef(int &);
+};
+using T = common_reference_t<int&, MyIntRef>;
+static_assert( is_same<common_reference<int&, MyIntRef>::type, MyIntRef>(),
+	"common_reference<int&, MyIntRef>");
+static_assert( is_same<common_reference<int, int, int>::type, int>(),
+    "common_reference<int, int, int>");
 
 int main() {
 	::libstdcpp_tests::typedefs_1();

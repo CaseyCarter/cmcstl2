@@ -56,8 +56,8 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::find_first_of(
 			__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::ref(pred), __stl2::ref(proj1),
-			__stl2::ref(proj2));
+			std::ref(pred), std::ref(proj1),
+			std::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

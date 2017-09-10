@@ -30,8 +30,8 @@ STL2_OPEN_NAMESPACE {
 			Pred, projected<__f<I>, Proj>>
 	__f<I> find_if_not(I&& first, S&& last, Pred pred, Proj proj = Proj{})
 	{
-		return __stl2::find_if(__stl2::forward<I>(first), __stl2::forward<S>(last),
-			__stl2::not_fn(__stl2::ref(pred)), __stl2::ref(proj));
+		return __stl2::find_if(std::forward<I>(first), std::forward<S>(last),
+			__stl2::not_fn(std::ref(pred)), std::ref(proj));
 	}
 
 	template <InputRange Rng, class Pred, class Proj = identity>
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	find_if_not(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::find_if(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::not_fn(__stl2::ref(pred)), __stl2::ref(proj));
+			__stl2::not_fn(std::ref(pred)), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

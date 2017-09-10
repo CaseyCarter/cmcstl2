@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	template <DefaultConstructible T>
 	void __default_construct_at(T& t)
 	{
-		::new(const_cast<void*>(static_cast<const volatile void*>(__stl2::addressof(t))))
+		::new(const_cast<void*>(static_cast<const volatile void*>(detail::addressof(t))))
 			T;
 	}
 } STL2_CLOSE_NAMESPACE

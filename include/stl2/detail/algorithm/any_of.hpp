@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	bool any_of(R&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::any_of(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

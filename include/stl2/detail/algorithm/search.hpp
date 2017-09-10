@@ -110,8 +110,8 @@ STL2_OPEN_NAMESPACE {
 						Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::unsized(first1, last1, first2, last2,
-			__stl2::ref(pred), __stl2::ref(proj1),
-			__stl2::ref(proj2));
+			std::ref(pred), std::ref(proj1),
+			std::ref(proj2));
 	}
 
 	// Extension
@@ -129,8 +129,8 @@ STL2_OPEN_NAMESPACE {
 		return __search::sized(
 			first1, last1, __stl2::distance(first1, last1),
 			first2, last2, __stl2::distance(first2, last2),
-			__stl2::ref(pred), __stl2::ref(proj1),
-			__stl2::ref(proj2));
+			std::ref(pred), std::ref(proj1),
+			std::ref(proj2));
 	}
 
 	template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
@@ -144,8 +144,8 @@ STL2_OPEN_NAMESPACE {
 		return __search::unsized(
 			__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::ref(pred), __stl2::ref(proj1),
-			__stl2::ref(proj2));
+			std::ref(pred), std::ref(proj1),
+			std::ref(proj2));
 	}
 
 	// Extension
@@ -161,8 +161,8 @@ STL2_OPEN_NAMESPACE {
 		return __search::sized(
 			__stl2::begin(rng1), __stl2::end(rng1), __stl2::distance(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2), __stl2::distance(rng2),
-			__stl2::ref(pred), __stl2::ref(proj1),
-			__stl2::ref(proj2));
+			std::ref(pred), std::ref(proj1),
+			std::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

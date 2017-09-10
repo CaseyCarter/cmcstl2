@@ -18,8 +18,6 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
-#define __cpp_lib_variant 20150524
-
 STL2_OPEN_NAMESPACE {
 	struct monostate {};
 
@@ -79,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class T>
 		constexpr T&& cook(element_t<meta::id_t<T>>&& t) noexcept {
-			return __stl2::move(cook<T>(t));
+			return std::move(cook<T>(t));
 		}
 
 		// Obtain the index of T in Types; substitution failure if T
@@ -91,13 +89,13 @@ STL2_OPEN_NAMESPACE {
 			Same<meta::find_index<meta::drop_c<Types, I + 1>, T>, meta::npos>
 		constexpr std::size_t index_of_type = I;
 
-		template <class...Ts>
+		template <class... Ts>
 		requires (Destructible<element_t<Ts>> && ...)
 		class base;
 
 		// VariantTypes<T> is a list of the alternative types of T if
 		// T is derived from __variant::base.
-		template <class...Types>
+		template <class... Types>
 		meta::list<Types...> types_(base<Types...>& b); // not defined
 
 		template <class T>
@@ -120,7 +118,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	} // namespace __variant
 
-	template <class...Ts>
+	template <class... Ts>
 	requires (Destructible<__variant::element_t<Ts>> && ...)
 	class variant;
 

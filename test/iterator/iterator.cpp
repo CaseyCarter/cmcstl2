@@ -26,7 +26,7 @@ struct reference_wrapper {
 	__stl2::detail::raw_ptr<T> ptr_;
 
 	reference_wrapper() = default;
-	reference_wrapper(T& t) noexcept : ptr_{__stl2::addressof(t)} {}
+	reference_wrapper(T& t) noexcept : ptr_{std::addressof(t)} {}
 	reference_wrapper(T&&) = delete;
 
 	T& get() const noexcept {
@@ -306,7 +306,7 @@ bool copy(I first, S last, O o) {
 	auto n = last - first;
 	STL2_EXPECT(n >= 0);
 	if (n) {
-		std::memmove(__stl2::addressof(*o), __stl2::addressof(*first),
+		std::memmove(std::addressof(*o), std::addressof(*first),
 			n * sizeof(__stl2::value_type_t<I>));
 	}
 	return true;
@@ -363,7 +363,7 @@ void test_iter_swap2() {
 		static_assert(models::Same<int&, R>);
 		using RR = __stl2::rvalue_reference_t<I>;
 		static_assert(models::Same<int&&, RR>);
-		static_assert(models::Swappable<R, R>);
+		static_assert(models::SwappableWith<R, R>);
 
 		// Swappable<R, R> is true, calls the first overload of
 		// iter_swap (which delegates to swap(*a, *b)):
@@ -388,7 +388,7 @@ void test_iter_swap2() {
 
 		static_assert(models::Same<I, decltype(a.begin() + 2)>);
 		static_assert(models::CommonReference<const R&, const R&>);
-		static_assert(!models::Swappable<R, R>);
+		static_assert(!models::SwappableWith<R, R>);
 		static_assert(models::IndirectlyMovableStorable<I, I>);
 
 		// Swappable<R, R> is not satisfied, and

@@ -13,7 +13,7 @@
 #define STL2_DETAIL_ALGORITHM_REPLACE_COPY_IF_HPP
 
 #include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -35,10 +35,10 @@ STL2_OPEN_NAMESPACE {
 			if (__stl2::invoke(pred, __stl2::invoke(proj, v))) {
 				*result = new_value;
 			} else {
-				*result = __stl2::forward<reference_t<I>>(v);
+				*result = std::forward<reference_t<I>>(v);
 			}
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
 	template <InputRange Rng, class Pred, class T, class O, class Proj = identity>
@@ -52,8 +52,8 @@ STL2_OPEN_NAMESPACE {
 		Proj proj = Proj{})
 	{
 		return __stl2::replace_copy_if(
-			__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result),
-			__stl2::ref(pred), new_value, __stl2::ref(proj));
+			__stl2::begin(rng), __stl2::end(rng), std::forward<O>(result),
+			std::ref(pred), new_value, std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

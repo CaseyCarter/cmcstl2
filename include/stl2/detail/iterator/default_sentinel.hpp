@@ -15,7 +15,7 @@
 #include <stl2/detail/fwd.hpp>
 
 STL2_OPEN_NAMESPACE {
-	class default_sentinel {};
+	struct default_sentinel {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
