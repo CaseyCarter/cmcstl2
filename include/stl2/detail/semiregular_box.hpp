@@ -20,7 +20,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template <ext::DestructibleObject T>
+		template <CopyConstructible T>
 		class semiregular_box {
 		public:
 			semiregular_box() = default;
@@ -31,12 +31,10 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr semiregular_box(T&& t)
 			noexcept(is_nothrow_move_constructible<T>::value)
-			requires MoveConstructible<T>
 			: o_{in_place, std::move(t)} {}
 
 			constexpr semiregular_box(const T& t)
 			noexcept(is_nothrow_copy_constructible<T>::value)
-			requires CopyConstructible<T>
 			: o_{in_place, t} {}
 
 			template <class... Args>
@@ -45,31 +43,79 @@ STL2_OPEN_NAMESPACE {
 			noexcept(is_nothrow_constructible<T, Args...>::value)
 			: o_{in_place, std::forward<Args>(args)...} {}
 
+			constexpr semiregular_box(const semiregular_box& that)
+			noexcept(is_nothrow_copy_constructible<T>::value)
+			{
+				if (that.o_)
+					o_.emplace(*that.o_);
+			}
+			constexpr semiregular_box(semiregular_box&& that)
+			noexcept(is_nothrow_move_constructible<T>::value)
+			{
+				if (that.o_)
+					o_.emplace(std::move(*that.o_));
+			}
+
+			constexpr semiregular_box& operator=(const semiregular_box& that) &
+			noexcept(is_nothrow_copy_constructible<T>::value)
+			{
+				if (that.o_)
+					o_.emplace(*that.o_);
+				else
+					o_.reset();
+				return *this;
+			}
+			constexpr semiregular_box& operator=(const semiregular_box& that) &
+			noexcept(is_nothrow_copy_constructible<T>::value &&
+				is_nothrow_copy_assignable<T>::value)
+			requires Assignable<T&, const T&>
+			{
+				o_ = that.o_;
+				return *this;
+			}
+			constexpr semiregular_box& operator=(semiregular_box&& that) &
+			noexcept(is_nothrow_move_constructible<T>::value)
+			{
+				if (that.o_)
+					o_.emplace(std::move(*that.o_));
+				else
+					o_.reset();
+				return *this;
+			}
+			constexpr semiregular_box& operator=(semiregular_box&& that) &
+			noexcept(is_nothrow_move_constructible<T>::value &&
+				is_nothrow_move_assignable<T>::value)
+			requires Assignable<T&, T>
+			{
+				o_ = std::move(that.o_);
+				return *this;
+			}
+
 			constexpr semiregular_box& operator=(T&& t) &
 			noexcept(is_nothrow_move_constructible<T>::value)
-			requires MoveConstructible<T>
 			{
 				o_.emplace(std::move(t));
 				return *this;
 			}
 			constexpr semiregular_box& operator=(T&& t) &
-			noexcept(is_nothrow_move_assignable<T>::value)
-			requires Movable<T>
+			noexcept(is_nothrow_move_constructible<T>::value &&
+				is_nothrow_move_assignable<T>::value)
+			requires Assignable<T&, T>
 			{
-				o_ = t;
+				o_ = std::move(t);
 				return *this;
 			}
 
 			constexpr semiregular_box& operator=(const T& t) &
 			noexcept(is_nothrow_copy_constructible<T>::value)
-			requires CopyConstructible<T>
 			{
 				o_.emplace(t);
 				return *this;
 			}
 			constexpr semiregular_box& operator=(const T& t) &
-			noexcept(is_nothrow_copy_assignable<T>::value)
-			requires Copyable<T>
+			noexcept(is_nothrow_copy_constructible<T>::value &&
+				is_nothrow_copy_assignable<T>::value)
+			requires Assignable<T&, const T&>
 			{
 				o_ = t;
 				return *this;

@@ -47,14 +47,14 @@ test()
 	set_intersection(Iter1(ia), Iter1(ia+sa),
 					 Iter2(ib), Iter2(ib+sb), OutIter(ic)).check([&](OutIter ce)
 		{
-			CHECK((base(ce) - ic) == sr);
+			CHECK(bool((base(ce) - ic) == sr));
 			CHECK(std::lexicographical_compare(ic, base(ce), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		});
 	set_intersection(Iter1(ib), Iter1(ib+sb),
 					 Iter2(ia), Iter2(ia+sa), OutIter(ic)).check([&](OutIter ce)
 		{
-			CHECK((base(ce) - ic) == sr);
+			CHECK(bool((base(ce) - ic) == sr));
 			CHECK(std::lexicographical_compare(ic, base(ce), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		});
@@ -63,14 +63,14 @@ test()
 	set_intersection(Iter1(ia), Iter1(ia+sa),
 					 Iter2(ib), Iter2(ib+sb), OutIter(ic), std::less<int>()).check([&](OutIter ce)
 		{
-			CHECK((base(ce) - ic) == sr);
+			CHECK(bool((base(ce) - ic) == sr));
 			CHECK(std::lexicographical_compare(ic, base(ce), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		});
 	set_intersection(Iter1(ib), Iter1(ib+sb),
 					 Iter2(ia), Iter2(ia+sa), OutIter(ic), std::less<int>()).check([&](OutIter ce)
 		{
-			CHECK((base(ce) - ic) == sr);
+			CHECK(bool((base(ce) - ic) == sr));
 			CHECK(std::lexicographical_compare(ic, base(ce), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		});

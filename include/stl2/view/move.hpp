@@ -18,12 +18,15 @@
 #include <stl2/detail/iterator/move_iterator.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/view/all.hpp>
+#include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <View Rng>
 		requires InputRange<Rng>
-		class move_view : detail::ebo_box<Rng, move_view<Rng>> {
+		class move_view : detail::ebo_box<Rng, move_view<Rng>>
+		                , view_interface<move_view<Rng>> {
 			using base_t = detail::ebo_box<Rng, move_view<Rng>>;
 			using base_t::get;
 		public:
@@ -71,6 +74,27 @@ STL2_OPEN_NAMESPACE {
 
 	template <class V>
 	struct enable_view<ext::move_view<V>> : std::true_type {};
+
+	namespace __move {
+		struct fn {
+			template <InputRange Rng>
+			requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
+			constexpr ext::move_view<ext::all_view<Rng>> operator()(Rng&& rng) const {
+				return ext::move_view<ext::all_view<Rng>>{
+					view::all(std::forward<Rng>(rng))};
+			}
+
+			template <InputRange Rng>
+			requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
+			friend constexpr decltype(auto) operator|(Rng&& rng, fn move) {
+				return move(std::forward<Rng>(rng));
+			}
+		};
+	} // namespace __move
+
+	namespace view {
+		inline constexpr __move::fn move {};
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

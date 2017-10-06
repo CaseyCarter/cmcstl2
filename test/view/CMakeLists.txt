@@ -12,3 +12,5 @@
 add_stl2_test(view.repeat view.repeat repeat_view.cpp)
 add_stl2_test(view.repeat_n view.repeat_n repeat_n_view.cpp)
 add_stl2_test(view.move view.move move_view.cpp)
+add_stl2_test(view.filter view.filter filter_view.cpp)
+add_stl2_test(view.transform view.transform transform_view.cpp)

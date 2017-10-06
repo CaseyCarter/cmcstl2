@@ -97,34 +97,41 @@ STL2_OPEN_NAMESPACE {
 	struct enable_view {};
 
 	template <class T>
-	constexpr bool __view_predicate = true;
+	struct __view_predicate3 : std::true_type {};
+
+	template <_ContainerLike T>
+	struct __view_predicate3<T> : std::false_type {};
+
+	template <class T>
+	struct __view_predicate2 : __view_predicate3<T> {};
+
+	template <class T>
+		requires meta::_v<std::is_base_of<view_base, T>>
+	struct __view_predicate2<T> : std::true_type {};
+
+	template <class T>
+	struct __view_predicate : __view_predicate2<T> {};
 
 	template <class T>
 		requires _Valid<meta::_t, enable_view<T>>
-	constexpr bool __view_predicate<T> = meta::_v<enable_view<T>>;
-
-	// TODO: Be very certain that "!" here works as intended.
-	template <_ContainerLike T>
-		requires !(DerivedFrom<T, view_base> ||
-			_Valid<meta::_t, enable_view<T>>)
-	constexpr bool __view_predicate<T> = false;
+	struct __view_predicate<T> : enable_view<T> {};
 
 	template <class T>
-	constexpr bool __view_predicate<std::initializer_list<T>> = false;
+	struct __view_predicate<std::initializer_list<T>> : std::false_type {};
 	template <class Key, class Compare, class Alloc>
-	constexpr bool __view_predicate<std::set<Key, Compare, Alloc>> = false;
+	struct __view_predicate<std::set<Key, Compare, Alloc>> : std::false_type {};
 	template <class Key, class Compare, class Alloc>
-	constexpr bool __view_predicate<std::multiset<Key, Compare, Alloc>> = false;
+	struct __view_predicate<std::multiset<Key, Compare, Alloc>> : std::false_type {};
 	template <class Key, class Hash, class Pred, class Alloc>
-	constexpr bool __view_predicate<std::unordered_set<Key, Hash, Pred, Alloc>> = false;
+	struct __view_predicate<std::unordered_set<Key, Hash, Pred, Alloc>> : std::false_type {};
 	template <class Key, class Hash, class Pred, class Alloc>
-	constexpr bool __view_predicate<std::unordered_multiset<Key, Hash, Pred, Alloc>> = false;
+	struct __view_predicate<std::unordered_multiset<Key, Hash, Pred, Alloc>> : std::false_type {};
 
 	template <class T>
 	concept bool View =
 		Range<T> &&
-		__view_predicate<T> &&
-		Semiregular<T>;
+		Semiregular<T> &&
+		__view_predicate<T>::value;
 
 	namespace models {
 		template <class>
