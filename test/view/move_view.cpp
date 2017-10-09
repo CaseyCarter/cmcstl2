@@ -31,7 +31,7 @@ namespace {
 
 	ranges::Integral{I}
 	auto make_interval(I from, I to) {
-		return ranges::ext::take_exactly_view<ranges::ext::iota_view<I>>{{from}, to - from};
+		return ranges::view::iota(from, to);
 	}
 
 	void test(ranges::Range&& base) {

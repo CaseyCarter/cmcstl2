@@ -13,6 +13,7 @@
 #define STL2_VIEW_TRANSFORM_HPP
 
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
@@ -54,19 +55,18 @@ STL2_OPEN_NAMESPACE {
 
             constexpr iterator begin()
             { return {*this, __stl2::begin(base_)}; }
-            constexpr const_iterator begin() const
-            requires View<const R> && Invocable<const F&, reference_t<iterator_t<const R>>>
+            constexpr const_iterator begin() const requires Range<const R> &&
+                Invocable<const F&, reference_t<iterator_t<const R>>>
             { return {*this, __stl2::begin(base_)}; }
 
             constexpr sentinel end()
             { return sentinel{__stl2::end(base_)}; }
-            constexpr const_sentinel end() const
-            requires View<const R> && Invocable<const F&, reference_t<iterator_t<const R>>>
+            constexpr const_sentinel end() const requires Range<const R> &&
+                Invocable<const F&, reference_t<iterator_t<const R>>>
             { return const_sentinel{__stl2::end(base_)}; }
             constexpr iterator end() requires BoundedRange<R>
             { return {*this, __stl2::end(base_)}; }
-            constexpr const_iterator end() const
-            requires BoundedRange<R> && View<const R> &&
+            constexpr const_iterator end() const requires BoundedRange<const R> &&
                 Invocable<const F&, reference_t<iterator_t<const R>>>
             { return {*this, __stl2::end(base_)}; }
 
@@ -83,8 +83,8 @@ STL2_OPEN_NAMESPACE {
         template <bool Const>
         class transform_view<R, F>::__iterator {
         private:
-            using Parent = meta::if_c<Const, const transform_view, transform_view>;
-            using Base = meta::if_c<Const, const R, R>;
+            using Parent = __maybe_const<Const, transform_view>;
+            using Base = __maybe_const<Const, R>;
             iterator_t<Base> current_ {};
             Parent* parent_ = nullptr;
             friend __iterator<!Const>;
@@ -99,7 +99,7 @@ STL2_OPEN_NAMESPACE {
             constexpr __iterator(Parent& parent, iterator_t<Base> current)
             : current_(current), parent_(&parent) {}
             constexpr __iterator(__iterator<!Const> i)
-            requires Const && View<R> && ConvertibleTo<iterator_t<R>, iterator_t<const R>>
+            requires Const && ConvertibleTo<iterator_t<R>, iterator_t<Base>>
             : current_(i.current_), parent_(i.parent_) {}
 
             constexpr iterator_t<Base> base() const
@@ -209,7 +209,7 @@ STL2_OPEN_NAMESPACE {
             explicit constexpr __sentinel(sentinel_t<Base> end)
             : end_(end) {}
             constexpr __sentinel(__sentinel<!Const> i)
-            requires Const && View<R> && ConvertibleTo<sentinel_t<R>, sentinel_t<const R>>
+            requires Const && ConvertibleTo<sentinel_t<R>, sentinel_t<const R>>
             : end_(i.end_) {}
 
             constexpr sentinel_t<Base> base() const
