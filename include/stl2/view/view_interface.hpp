@@ -61,6 +61,7 @@ STL2_OPEN_NAMESPACE {
             constexpr bool operator!() const requires ForwardRange<const D> {
                 return empty();
             }
+            // Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
             template <ForwardRange R = const D>
             constexpr auto size() const
             requires SizedSentinel<sentinel_t<R>, iterator_t<R>> {
@@ -102,6 +103,8 @@ STL2_OPEN_NAMESPACE {
                     ? throw std::out_of_range{}
                     : (*this)[n];
             }
+            // Not to spec: `InputRange R = const D` to work around
+            // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
             template <ForwardRange C, InputRange R = const D>
             requires !View<C> && MoveConstructible<C> &&
                 ConvertibleTo<value_type_t<iterator_t<R>>, value_type_t<iterator_t<C>>> &&

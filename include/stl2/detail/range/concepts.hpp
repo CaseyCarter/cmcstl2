@@ -45,7 +45,10 @@ STL2_OPEN_NAMESPACE {
 
 	template <class T>
 	concept bool Range =
-		requires { typename sentinel_t<T>; };
+		requires(T&& t) {
+			__stl2::begin(t); // not necessarily equality-preserving
+			__stl2::end(t);
+		};
 
 	namespace models {
 		template <class>

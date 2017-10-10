@@ -39,10 +39,13 @@ STL2_OPEN_NAMESPACE {
             template <bool Const> struct __sentinel;
         public:
             transform_view() = default;
+
             constexpr transform_view(R base, F fun)
             : base_(std::move(base)), fun_(std::move(fun)) {}
+
             template <InputRange O>
-            requires Constructible<R, all_view<O>>
+            requires (std::is_lvalue_reference_v<O> || View<__f<O>>) &&
+                Constructible<R, all_view<O>>
             constexpr transform_view(O&& o, F fun)
             : base_(view::all(std::forward<O>(o))), fun_(std::move(fun)) {}
 
@@ -51,27 +54,39 @@ STL2_OPEN_NAMESPACE {
             using sentinel = __sentinel<false>;
             using const_sentinel = __sentinel<true>;
 
-            R base() const;
+            constexpr R base() const
+            { return base_; }
 
             constexpr iterator begin()
             { return {*this, __stl2::begin(base_)}; }
-            constexpr const_iterator begin() const requires Range<const R> &&
-                Invocable<const F&, reference_t<iterator_t<const R>>>
+
+            // Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
+            template <class ConstR = const R>
+            constexpr const_iterator begin() const requires Range<ConstR> &&
+                Invocable<const F&, reference_t<iterator_t<ConstR>>>
             { return {*this, __stl2::begin(base_)}; }
 
             constexpr sentinel end()
             { return sentinel{__stl2::end(base_)}; }
-            constexpr const_sentinel end() const requires Range<const R> &&
-                Invocable<const F&, reference_t<iterator_t<const R>>>
+
+            // Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
+            template <class ConstR = const R>
+            constexpr const_sentinel end() const requires Range<ConstR> &&
+                Invocable<const F&, reference_t<iterator_t<ConstR>>>
             { return const_sentinel{__stl2::end(base_)}; }
+
             constexpr iterator end() requires BoundedRange<R>
             { return {*this, __stl2::end(base_)}; }
-            constexpr const_iterator end() const requires BoundedRange<const R> &&
-                Invocable<const F&, reference_t<iterator_t<const R>>>
+
+            // Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
+            template <class ConstR = const R>
+            constexpr const_iterator end() const requires BoundedRange<ConstR> &&
+                Invocable<const F&, reference_t<iterator_t<ConstR>>>
             { return {*this, __stl2::end(base_)}; }
 
             constexpr auto size() requires SizedRange<R>
             { return __stl2::size(base_); }
+
             constexpr auto size() const requires SizedRange<const R>
             { return __stl2::size(base_); }
         };
@@ -96,8 +111,10 @@ STL2_OPEN_NAMESPACE {
             using difference_type = difference_type_t<iterator_t<Base>>;
 
             __iterator() = default;
+
             constexpr __iterator(Parent& parent, iterator_t<Base> current)
             : current_(current), parent_(&parent) {}
+
             constexpr __iterator(__iterator<!Const> i)
             requires Const && ConvertibleTo<iterator_t<R>, iterator_t<Base>>
             : current_(i.current_), parent_(i.parent_) {}
@@ -152,6 +169,7 @@ STL2_OPEN_NAMESPACE {
             friend constexpr bool operator==(const __iterator& x, const __iterator& y)
             requires EqualityComparable<iterator_t<Base>>
             { return x.current_ == y.current_; }
+
             friend constexpr bool operator!=(const __iterator& x, const __iterator& y)
             requires EqualityComparable<iterator_t<Base>>
             { return !(x == y); }
@@ -159,12 +177,15 @@ STL2_OPEN_NAMESPACE {
             friend constexpr bool operator<(const __iterator& x, const __iterator& y)
             requires RandomAccessRange<Base>
             { return x.current_ < y.current_; }
+
             friend constexpr bool operator>(const __iterator& x, const __iterator& y)
             requires RandomAccessRange<Base>
             { return y < x; }
+
             friend constexpr bool operator<=(const __iterator& x, const __iterator& y)
             requires RandomAccessRange<Base>
             { return !(y < x); }
+
             friend constexpr bool operator>=(const __iterator& x, const __iterator& y)
             requires RandomAccessRange<Base>
             { return !(x < y); }
@@ -172,6 +193,7 @@ STL2_OPEN_NAMESPACE {
             friend constexpr __iterator operator+(__iterator i, difference_type n)
             requires RandomAccessRange<Base>
             { return __iterator{*i.parent_, i.current_ + n}; }
+
             friend constexpr __iterator operator+(difference_type n, __iterator i)
             requires RandomAccessRange<Base>
             { return __iterator{*i.parent_, i.current_ + n}; }
@@ -179,6 +201,7 @@ STL2_OPEN_NAMESPACE {
             friend constexpr __iterator operator-(__iterator i, difference_type n)
             requires RandomAccessRange<Base>
             { return __iterator{*i.parent_, i.current_ - n}; }
+
             friend constexpr difference_type operator-(const __iterator& x, const __iterator& y)
             requires RandomAccessRange<Base>
             { return x.current_ - y.current_; }
@@ -191,6 +214,7 @@ STL2_OPEN_NAMESPACE {
                 else
                     return *i;
             }
+
             friend constexpr void iter_swap(const __iterator& x, const __iterator& y)
                 noexcept(noexcept(__stl2::iter_swap(x.current_, y.current_)))
             { __stl2::iter_swap(x.current_, y.current_); }
@@ -217,10 +241,13 @@ STL2_OPEN_NAMESPACE {
 
             friend constexpr bool operator==(const __iterator<Const>& x, const __sentinel& y)
             { return x.current_ == y.end_; }
+
             friend constexpr bool operator==(const __sentinel& x, const __iterator<Const>& y)
             { return y == x; }
+
             friend constexpr bool operator!=(const __iterator<Const>& x, const __sentinel& y)
             { return !(x == y); }
+
             friend constexpr bool operator!=(const __sentinel& x, const __iterator<Const>& y)
             { return !(y == x); }
 
@@ -228,6 +255,7 @@ STL2_OPEN_NAMESPACE {
             operator-(const __iterator<Const>& x, const __sentinel& y)
             requires SizedSentinel<sentinel_t<Base>, iterator_t<Base>>
             { return x.current_ - y.end_; }
+
             friend constexpr difference_type_t<iterator_t<Base>>
             operator-(const __sentinel& y, const __iterator<Const>& x)
             requires SizedSentinel<sentinel_t<Base>, iterator_t<Base>>

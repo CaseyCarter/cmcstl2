@@ -23,7 +23,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
         template <Iterator I, Sentinel<I> S = I>
-        class iterator_range
+        struct iterator_range
             : tagged_pair<tag::begin(I), tag::end(S)>,
               view_interface<iterator_range<I, S>> {
         public:
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
         };
 
         template <Iterator I, Sentinel<I> S = I>
-        class sized_iterator_range
+        struct sized_iterator_range
             : view_interface<sized_iterator_range<I, S>> {
         private:
             iterator_range<I, S> rng_; // exposition only
