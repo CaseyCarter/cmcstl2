@@ -25,6 +25,25 @@
 #include <stl2/detail/semiregular_box.hpp>
 
 STL2_OPEN_NAMESPACE {
+    namespace detail {
+        template <InputRange R>
+        struct begin_iterator_cache_ {
+            mutable detail::non_propagating_cache<iterator_t<R>> value_;
+            constexpr decltype(auto) get() const noexcept
+            { return (value_); }
+        };
+        template <InputRange R>
+        requires InputRange<const R> && !Same<iterator_t<R>, iterator_t<const R>>
+        struct begin_iterator_cache_<R> {
+            mutable detail::non_propagating_cache<iterator_t<R>> value_;
+            mutable detail::non_propagating_cache<iterator_t<const R>> cvalue_;
+            constexpr decltype(auto) get() noexcept
+            { return (value_); }
+            constexpr decltype(auto) get() const noexcept
+            { return (cvalue_); }
+        };
+    } // namespace detail
+
     namespace ext {
         template <InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
         requires View<R>
@@ -32,7 +51,7 @@ STL2_OPEN_NAMESPACE {
         private:
             R base_;
             detail::semiregular_box<Pred> pred_;
-            mutable detail::non_propagating_cache<iterator_t<R>> begin_;
+            detail::begin_iterator_cache_<R> cache_;
             template <bool Const>
             class __iterator;
             template <bool Const>
@@ -59,18 +78,18 @@ STL2_OPEN_NAMESPACE {
 
             constexpr iterator begin()
             {
-                if(!begin_)
-                    begin_ = find_if(base_, std::ref(pred_.get()));
-                return {*this, *begin_};
+                if(!cache_.get())
+                    cache_.get() = find_if(base_, std::ref(pred_.get()));
+                return {*this, *cache_.get()};
             }
 
             constexpr const_iterator begin() const
             requires InputRange<const R> &&
                 IndirectUnaryPredicate<const Pred, iterator_t<const R>>
             {
-                if(!begin_)
-                    begin_ = find_if(base_, std::ref(pred_.get()));
-                return {*this, *begin_};
+                if(!cache_.get())
+                    cache_.get() = find_if(base_, std::ref(pred_.get()));
+                return {*this, *cache_.get()};
             }
 
             constexpr sentinel end()
@@ -116,7 +135,7 @@ STL2_OPEN_NAMESPACE {
             : current_(current), parent_(&parent) {}
 
             constexpr __iterator(__iterator<!Const> i) requires Const &&
-                ConvertibleTo<iterator_t<Rng>, iterator_t<Base>>
+                ConvertibleTo<iterator_t<R>, iterator_t<Base>>
             : current_(i.current_), parent_(i.parent_) {}
 
             constexpr iterator_t<Base> base() const
