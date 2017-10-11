@@ -47,10 +47,12 @@ namespace {
 
 	void test_initializer_list() {
 		int target[8]{};
-		auto result = ranges::copy_backward({1, 2, 3, 4}, ranges::end(target));
+		auto l1 = {1, 2, 3, 4};
+		auto result = ranges::copy_backward(std::move(l1), ranges::end(target));
 		CHECK(result.out() == target + 4);
 		CHECK(std::count(target, target + 4, 0) == 4);
-		check_equal(ranges::ext::make_range(target + 4, target + 8), {1, 2, 3, 4});
+		auto l2 = {1, 2, 3, 4};
+		check_equal(ranges::ext::make_range(target + 4, target + 8), std::move(l2));
 	}
 }
 

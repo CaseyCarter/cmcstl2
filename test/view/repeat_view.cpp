@@ -26,7 +26,7 @@ int main() {
 		CHECK(*first == v.value());
 
 		// Sentinel (unreachable) is empty:
-		static_assert(stl2::is_empty<decltype(v.end())>());
+		static_assert(std::is_empty<decltype(v.end())>());
 
 		// int is "cheap" to copy:
 		static_assert(stl2::detail::cheaply_copyable<int>);
@@ -81,7 +81,7 @@ int main() {
 		// std::vector is small enough:
 		static_assert(sizeof(std::vector<int>) <= stl2::detail::cheap_copy_size);
 		// but not trivially destructible / copyable due to memory allocation:
-		static_assert(!stl2::is_trivially_destructible<std::vector<int>>());
+		static_assert(!std::is_trivially_destructible<std::vector<int>>());
 		// ...and therefore not cheap to copy:
 		static_assert(!stl2::detail::cheaply_copyable<std::vector<int>>);
 		// So the iterators again hold references instead of copies:

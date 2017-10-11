@@ -45,6 +45,12 @@ namespace {
 		int read() const { return 42; }
 		void next();
 	};
+	struct sz {
+		friend bool operator==(const char* p, sz) { return !*p;	}
+		friend bool operator!=(const char* p, sz) { return *p; }
+		friend bool operator==(sz, const char* p) { return !*p; }
+		friend bool operator!=(sz, const char* p) {	return *p; }
+	};
 
 	void test_operator_arrow() {
 		// I is a pointer type
@@ -82,6 +88,21 @@ namespace {
 			static_assert(!std::is_same<I, A>::value);
 			CHECK(*ci.operator->().operator->() == 42);
 		}
+	}
+
+	void test_constexpr() {
+		static int i = 42;
+
+		using ranges::common_iterator;
+		using ranges::counted_iterator;
+		using ranges::default_sentinel;
+
+		using CI = common_iterator<counted_iterator<int*>, default_sentinel>;
+		constexpr CI foo{ranges::make_counted_iterator(&i, 1)}; (void)foo;
+		constexpr CI bar{default_sentinel{}}; (void)bar;
+		using CCI = common_iterator<counted_iterator<const int*>, default_sentinel>;
+		constexpr CCI baz{foo};
+		constexpr CCI bang{bar};
 	}
 }
 
@@ -150,8 +171,18 @@ int main() {
 		CI last{sentinel<int*>{rgi+10}};
 		CHECK(std::accumulate(first, last, 0, std::plus<int>{}) == 45);
 	}
-
+	// Check conversions:
+	{
+		char buff[] = "abcd";
+		__stl2::common_iterator<char*, sz> ci(buff);
+		__stl2::common_iterator<const char*, sz> ci2(ci);
+		ci2 = ci;
+		CHECK(ci2 == ci);
+		++ci2;
+		CHECK(ci2 != ci);
+	}
 	test_operator_arrow();
+	test_constexpr();
 
 	return test_result();
 }

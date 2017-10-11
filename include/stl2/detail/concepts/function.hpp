@@ -26,19 +26,11 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Invocable [concepts.lib.callables.callable]
 	//
-	template <class F, class...Args>
-	constexpr bool __callable = false;
-	template <class F, class...Args>
-	requires
-		requires(F&& f, Args&&...args) {
+	template <class F, class... Args>
+	concept bool Invocable =
+		requires(F&& f, Args&&... args) {
 			__invoke::impl((F&&)f, (Args&&)args...);
-		}
-	constexpr bool __callable<F, Args...> = true;
-
-	template <class F, class...Args>
-	concept bool Invocable() {
-		return __callable<F, Args...>;
-	}
+		};
 
 	namespace models {
 		template <class, class...>
@@ -50,10 +42,9 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// RegularInvocable [concepts.lib.callables.regularcallable]
 	//
-	template <class F, class...Args>
-	concept bool RegularInvocable() {
-		return Invocable<F, Args...>();
-	}
+	template <class F, class... Args>
+	concept bool RegularInvocable =
+		Invocable<F, Args...>;
 
 	namespace models {
 		template <class, class...>
@@ -65,11 +56,10 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Predicate [concepts.lib.callables.predicate]
 	//
-	template <class F, class...Args>
-	concept bool Predicate() {
-		return RegularInvocable<F, Args...>() &&
-			Boolean<result_of_t<F(Args...)>>();
-	}
+	template <class F, class... Args>
+	concept bool Predicate =
+		RegularInvocable<F, Args...> &&
+			Boolean<result_of_t<F&&(Args&&...)>>;
 
 	namespace models {
 		template <class, class...>
@@ -81,26 +71,27 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Relation [concepts.lib.callables.relation]
 	//
-	template <class R, class T>
-	concept bool Relation() {
-		return Predicate<R, T, T>();
-	}
-
 	template <class R, class T, class U>
-	concept bool Relation() {
-		return Relation<R, T>() &&
-			Relation<R, U>() &&
-			Predicate<R, T, U>() &&
-			Predicate<R, U, T>() &&
-			CommonReference<const T&, const U&>() &&
-			Relation<R, common_reference_t<const T&, const U&>>();
-	}
+	concept bool Relation =
+		Predicate<R, T, T> &&
+		Predicate<R, U, U> &&
+		Predicate<R, T, U> &&
+		Predicate<R, U, T> &&
+		CommonReference<
+			const remove_reference_t<T>&,
+			const remove_reference_t<U>&> &&
+		Predicate<
+			R,
+			common_reference_t<
+				const remove_reference_t<T>&,
+				const remove_reference_t<U>&>,
+			common_reference_t<
+				const remove_reference_t<T>&,
+				const remove_reference_t<U>&>>;
 
 	namespace models {
-		template <class R, class T, class U = T>
+		template <class R, class T, class U>
 		constexpr bool Relation = false;
-		__stl2::Relation{R, T}
-		constexpr bool Relation<R, T, T> = true;
 		__stl2::Relation{R, T, U}
 		constexpr bool Relation<R, T, U> = true;
 	}
@@ -108,21 +99,13 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// StrictWeakOrder [concepts.lib.callables.strictweakorder]
 	//
-	template <class R, class T>
-	concept bool StrictWeakOrder() {
-		return Relation<R, T>();
-	}
-
 	template <class R, class T, class U>
-	concept bool StrictWeakOrder() {
-		return Relation<R, T, U>();
-	}
+	concept bool StrictWeakOrder =
+		Relation<R, T, U>;
 
 	namespace models {
-		template <class R, class T, class U = T>
+		template <class R, class T, class U>
 		constexpr bool StrictWeakOrder = false;
-		__stl2::StrictWeakOrder{R, T}
-		constexpr bool StrictWeakOrder<R, T, T> = true;
 		__stl2::StrictWeakOrder{R, T, U}
 		constexpr bool StrictWeakOrder<R, T, U> = true;
 	}

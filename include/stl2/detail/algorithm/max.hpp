@@ -16,7 +16,6 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/algorithm/max_element.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
@@ -27,8 +26,8 @@ STL2_OPEN_NAMESPACE {
 	namespace __max {
 		template <InputRange Rng, class Comp, class Proj>
 		requires
-			models::Copyable<value_type_t<iterator_t<Rng>>> &&
-			models::IndirectStrictWeakOrder<
+			Copyable<value_type_t<iterator_t<Rng>>> &&
+			IndirectStrictWeakOrder<
 				Comp, projected<iterator_t<Rng>, Proj>>
 		constexpr value_type_t<iterator_t<Rng>>
 		impl(Rng&& rng, Comp comp, Proj proj)
@@ -49,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class T, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<const T*, Proj>>
 	constexpr const T& max(const T& a, const T& b, Comp comp = Comp{},
 		Proj proj = Proj{})
@@ -59,23 +58,22 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Copyable<value_type_t<iterator_t<Rng>>> &&
-		models::IndirectStrictWeakOrder<
+		Copyable<value_type_t<iterator_t<Rng>>> &&
+		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
 	STL2_CONSTEXPR_EXT value_type_t<iterator_t<Rng>>
 	max(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __max::impl(rng, __stl2::ref(comp),
-			__stl2::ref(proj));
+		return __max::impl(rng, std::ref(comp), std::ref(proj));
 	}
 
 	template <Copyable T, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<const T*, Proj>>
 	constexpr T max(std::initializer_list<T>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __max::impl(rng, __stl2::ref(comp), __stl2::ref(proj));
+		return __max::impl(rng, std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -13,6 +13,7 @@
 #define STL2_DETAIL_RANGE_PRIMITIVES_HPP
 
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/iterator/dangling.hpp>
 #include <stl2/detail/iterator/operations.hpp>
 #include <stl2/detail/range/access.hpp>
@@ -25,13 +26,13 @@ STL2_OPEN_NAMESPACE {
 	// enumerate
 	namespace ext {
 		Range{R}
-		auto enumerate(R&& r)
+		constexpr auto enumerate(R&& r)
 		STL2_NOEXCEPT_RETURN(
 			__stl2::ext::enumerate(__stl2::begin(r), __stl2::end(r))
 		)
 
 		SizedRange{R}
-		auto enumerate(R&& r)
+		constexpr auto enumerate(R&& r)
 		STL2_NOEXCEPT_RETURN(
 			tagged_pair<tag::count(difference_type_t<iterator_t<R>>),
 				tag::end(safe_iterator_t<R>)>{
@@ -41,16 +42,19 @@ STL2_OPEN_NAMESPACE {
 		)
 	}
 
-	// distance
+	// Not to spec: constexpr per P0579
 	Range{R}
-	difference_type_t<iterator_t<R>> distance(R&& r) {
-		return __stl2::distance(__stl2::begin(r), __stl2::end(r));
-	}
+	constexpr difference_type_t<iterator_t<R>> distance(R&& r)
+	STL2_NOEXCEPT_RETURN(
+		__stl2::distance(__stl2::begin(r), __stl2::end(r))
+	)
 
+	// Not to spec: constexpr per P0579
 	SizedRange{R}
-	difference_type_t<iterator_t<R>> distance(R&& r) {
-		return __stl2::size(r);
-	}
+	constexpr difference_type_t<iterator_t<R>> distance(R&& r)
+	STL2_NOEXCEPT_RETURN(
+		static_cast<difference_type_t<iterator_t<R>>>(__stl2::size(r))
+	)
 } STL2_CLOSE_NAMESPACE
 
 #endif

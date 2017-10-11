@@ -12,11 +12,10 @@
 #ifndef STL2_DETAIL_ALGORITHM_FOR_EACH_HPP
 #define STL2_DETAIL_ALGORITHM_FOR_EACH_HPP
 
-#include <initializer_list>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
-#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -25,38 +24,24 @@
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class F, class Proj = identity>
 	requires
-		models::IndirectInvocable<
-			F, projected<I, Proj>>
+		IndirectUnaryInvocable<F, projected<I, Proj>>
 	tagged_pair<tag::in(I), tag::fun(F)>
 	for_each(I first, S last, F fun, Proj proj = Proj{})
 	{
 		for (; first != last; ++first) {
 			static_cast<void>(__stl2::invoke(fun, __stl2::invoke(proj, *first)));
 		}
-		return {__stl2::move(first), __stl2::move(fun)};
+		return {std::move(first), std::move(fun)};
 	}
 
 	template <InputRange Rng, class F, class Proj = identity>
 	requires
-		models::IndirectInvocable<
-			F, projected<iterator_t<Rng>, Proj>>
+		IndirectUnaryInvocable<F, projected<iterator_t<Rng>, Proj>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::fun(F)>
 	for_each(Rng&& rng, F fun, Proj proj = Proj{})
 	{
 		return {__stl2::for_each(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(fun), __stl2::ref(proj)).in(), __stl2::move(fun)};
-	}
-
-	// Extension
-	template <class E, class F, class Proj = identity>
-	requires
-		models::IndirectInvocable<
-			F, projected<const E*, Proj>>
-	tagged_pair<tag::in(dangling<const E*>), tag::fun(F)>
-	for_each(std::initializer_list<E>&& il, F fun, Proj proj = Proj{})
-	{
-		return {__stl2::for_each(il.begin(), il.end(),
-			__stl2::ref(fun), __stl2::ref(proj)).in(), __stl2::move(fun)};
+			std::ref(fun), std::ref(proj)).in(), std::move(fun)};
 	}
 } STL2_CLOSE_NAMESPACE
 

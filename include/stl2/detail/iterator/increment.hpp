@@ -38,15 +38,16 @@ STL2_OPEN_NAMESPACE {
 
 	template <class> struct difference_type {};
 
-	template <class T>
-	struct difference_type<T*>
-	: meta::lazy::if_<std::is_object<T>, std::ptrdiff_t> {};
+	template <ext::Object T>
+	struct difference_type<T*> {
+		using type = std::ptrdiff_t;
+	};
 
 	template <class T>
 	struct difference_type<const T>
 	: difference_type<std::decay_t<T>> {};
 
-	template <detail::MemberDifferenceType T>
+	detail::MemberDifferenceType{T}
 	struct difference_type<T> {
 		using type = typename T::difference_type;
 	};
@@ -55,7 +56,10 @@ STL2_OPEN_NAMESPACE {
 		requires !detail::MemberDifferenceType<T> &&
 			_IsNot<T, is_pointer> && // Avoid GCC PR 78173 (See above)
 			requires(const T& a, const T& b) {
-				STL2_DEDUCTION_CONSTRAINT(a - b, Integral);
+				// Avoid gcc ICE (TODO file bug):
+				a - b;
+				requires Integral<decltype(a - b)>;
+			 	// { a - b } -> Integral;
 			}
 	struct difference_type<T>
 	: make_signed<decltype(declval<const T>() - declval<const T>())> {};
@@ -67,20 +71,13 @@ STL2_OPEN_NAMESPACE {
 	// WeaklyIncrementable [weaklyincrementable.iterators]
 	//
 	template <class I>
-	constexpr bool __weakly_incrementable = false;
-	template <class I>
-		requires requires(I& i) {
+	concept bool WeaklyIncrementable =
+		Semiregular<I> &&
+		requires(I& i) {
 			typename difference_type_t<I>;
-			STL2_EXACT_TYPE_CONSTRAINT(++i, I&);
+			{ ++i } -> Same<I&>&&;
 			i++;
-		}
-	constexpr bool __weakly_incrementable<I> = true;
-
-	template <class I>
-	concept bool WeaklyIncrementable() {
-		return Semiregular<I>() &&
-			__weakly_incrementable<I>;
-	}
+		};
 
 	namespace models {
 		template <class>
@@ -93,19 +90,12 @@ STL2_OPEN_NAMESPACE {
 	// Incrementable [incrementable.iterators]
 	//
 	template <class I>
-	constexpr bool __incrementable = false;
-	template <class I>
-		requires requires(I& i) {
-			STL2_EXACT_TYPE_CONSTRAINT(i++, I);
-		}
-	constexpr bool __incrementable<I> = true;
-
-	template <class I>
-	concept bool Incrementable() {
-		return WeaklyIncrementable<I>() &&
-			EqualityComparable<I>() &&
-			__incrementable<I>;
-	}
+	concept bool Incrementable =
+		WeaklyIncrementable<I> &&
+		EqualityComparable<I> &&
+		requires(I& i) {
+			{ i++ } -> Same<I>&&;
+		};
 
 	namespace models {
 		template <class>
@@ -119,24 +109,18 @@ STL2_OPEN_NAMESPACE {
 	//
 	namespace ext {
 		template <class I>
-		constexpr bool __decrementable = false;
-		template <class I>
-			requires requires(I& i) {
-				STL2_EXACT_TYPE_CONSTRAINT(--i, I&);
-				STL2_EXACT_TYPE_CONSTRAINT(i--, I);
-			}
-		constexpr bool __decrementable<I> = true;
-
-		template <class I>
-		concept bool Decrementable() {
-			return Incrementable<I>() && __decrementable<I>;
+		concept bool Decrementable =
+			Incrementable<I> &&
+			requires(I& i) {
+				{ --i } -> Same<I&>&&;
+				{ i-- } -> Same<I>&&;
+			};
 			// Let a and b be objects of type I.
 			// Axiom: &--a == &a
 			// Axiom: bool(a == b) implies bool(a-- == b)
 			// Axiom: bool(a == b) implies bool((a--, a) == --b)
 			// Axiom: bool(a == b) implies bool(--(++a) == b)
 			// Axiom: bool(a == b) implies bool(++(--a) == b)
-		}
 	}
 
 	namespace models {
@@ -150,25 +134,18 @@ STL2_OPEN_NAMESPACE {
 	// RandomAccessIncrementable [Extension]
 	//
 	namespace ext {
-		template <class>
-		constexpr bool __random_access_incrementable = false;
 		template <class I>
-			requires requires(I& i, const I& ci, const difference_type_t<I> n) {
-				STL2_EXACT_TYPE_CONSTRAINT(i += n, I&);
-				STL2_EXACT_TYPE_CONSTRAINT(i -= n, I&);
-				STL2_EXACT_TYPE_CONSTRAINT(ci + n, I);
-				STL2_EXACT_TYPE_CONSTRAINT(n + ci, I);
-				STL2_EXACT_TYPE_CONSTRAINT(ci - n, I);
+		concept bool RandomAccessIncrementable =
+			Decrementable<I> &&
+			requires(I& i, const I& ci, const difference_type_t<I> n) {
+				{ i += n } -> Same<I&>&&;
+				{ i -= n } -> Same<I&>&&;
+				{ ci + n } -> Same<I>&&;
+				{ n + ci } -> Same<I>&&;
+				{ ci - n } -> Same<I>&&;
 				{ ci - ci } -> difference_type_t<I>;
-			}
-		constexpr bool __random_access_incrementable<I> = true;
-
-		template <class I>
-		concept bool RandomAccessIncrementable() {
-			return Decrementable<I>() &&
-				__random_access_incrementable<I>;
+			};
 			// FIXME: Axioms
-		}
 	}
 
 	namespace models {

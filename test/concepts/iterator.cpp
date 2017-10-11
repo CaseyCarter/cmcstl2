@@ -17,37 +17,37 @@
 #include <range/v3/utility/iterator_traits.hpp>
 
 namespace models {
-	template <class...Ts>
-	constexpr bool Same = ranges::Same<Ts...>();
+	template <class... Ts>
+	constexpr bool Same = ranges::Same<Ts...>;
 
 	template <class R>
-	constexpr bool Readable = ranges::Readable<R>();
+	constexpr bool Readable = ranges::Readable<R>;
 
 	template <class W, class T>
-	constexpr bool Writable = ranges::Writable<W, T>();
+	constexpr bool Writable = ranges::Writable<W, T>;
 
 	template <class I>
 	constexpr bool WeaklyIncrementable =
-		ranges::WeaklyIncrementable<I>();
+		ranges::WeaklyIncrementable<I>;
 
 	template <class I>
-	constexpr bool Incrementable = ranges::Incrementable<I>();
+	constexpr bool Incrementable = ranges::Incrementable<I>;
 
 	template <class I>
-	constexpr bool WeakIterator = ranges::WeakIterator<I>();
+	constexpr bool WeakIterator = ranges::WeakIterator<I>;
 
 	template <class I>
-	constexpr bool Iterator = ranges::Iterator<I>();
+	constexpr bool Iterator = ranges::Iterator<I>;
 
 	template <class I>
-	constexpr bool InputIterator = ranges::InputIterator<I>();
+	constexpr bool InputIterator = ranges::InputIterator<I>;
 
 	template <class S, class I>
-	constexpr bool Sentinel = ranges::IteratorRange<I, S>();
+	constexpr bool Sentinel = ranges::IteratorRange<I, S>;
 
-	template <class F, class...Is>
+	template <class F, class... Is>
 	constexpr bool IndirectInvocable =
-		ranges::IndirectInvocable<F, Is...>();
+		ranges::IndirectInvocable<F, Is...>;
 }
 
 namespace ns {
@@ -122,6 +122,8 @@ namespace associated_type_test {
 	CONCEPT_ASSERT(!meta::is_trait<ns::value_type<void*>>());
 	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<const int* const>>);
 	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<const int[2]>>);
+	struct S { using value_type = int; using element_type = int const; };
+	CONCEPT_ASSERT(models::Same<int, ns::value_type_t<S>>);
 
 	CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int*>>);
 	CONCEPT_ASSERT(models::Same<std::ptrdiff_t, ns::difference_type_t<int[]>>);
@@ -198,6 +200,30 @@ namespace readable_test {
 	CONCEPT_ASSERT(models::Readable<const int*>);
 	CONCEPT_ASSERT(models::Readable<A>);
 	CONCEPT_ASSERT(models::Same<ns::value_type_t<A>,int>);
+
+	struct MoveOnlyReadable {
+		using value_type = std::unique_ptr<int>;
+		value_type operator*() const;
+	};
+
+	CONCEPT_ASSERT(models::Readable<MoveOnlyReadable>);
+
+	struct ArrayReadable {
+		using value_type = int[2];
+		value_type& operator*() const;
+	};
+
+	CONCEPT_ASSERT(models::Readable<ArrayReadable>);
+
+	struct Abstract {
+		virtual void foo() = 0;
+	};
+	struct AbstractReadable {
+		using value_type = Abstract;
+		Abstract& operator*() const;
+	};
+
+	CONCEPT_ASSERT(models::Readable<AbstractReadable>);
 }
 
 namespace writable_test {

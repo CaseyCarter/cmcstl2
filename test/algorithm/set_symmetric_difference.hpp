@@ -40,7 +40,7 @@ test_iter()
 	int ir[] = {1, 2, 3, 3, 3, 4, 4, 6};
 	const int sr = sizeof(ir)/sizeof(ir[0]);
 
-	auto set_symmetric_difference = ::make_testable_2([](auto&&...args) {
+	auto set_symmetric_difference = ::make_testable_2([](auto&&... args) {
 		return stl2::set_symmetric_difference(stl2::forward<decltype(args)>(args)...);
 	});
 
@@ -75,7 +75,7 @@ test_comp()
 	int ir[] = {1, 2, 3, 3, 3, 4, 4, 6};
 	const int sr = sizeof(ir)/sizeof(ir[0]);
 
-	auto set_symmetric_difference = ::make_testable_2([](auto&&...args) {
+	auto set_symmetric_difference = ::make_testable_2([](auto&&... args) {
 		return stl2::set_symmetric_difference(stl2::forward<decltype(args)>(args)...);
 	});
 

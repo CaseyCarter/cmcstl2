@@ -23,8 +23,8 @@ STL2_OPEN_NAMESPACE {
 	// Extension: Relax to InputIterator
 	template <InputIterator I, Sentinel<I> S, class Pred, class T, class Proj = identity>
 	requires
-		models::Writable<I, const T&> &&
-		models::IndirectPredicate<
+		Writable<I, const T&> &&
+		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
 	I replace_if(I first, S last, Pred pred, const T& new_value, Proj proj = Proj{})
 	{
@@ -41,14 +41,14 @@ STL2_OPEN_NAMESPACE {
 	// Extension: Relax to InputRange
 	template <InputRange Rng, class Pred, class T, class Proj = identity>
 	requires
-		models::Writable<iterator_t<Rng>, const T&> &&
-		models::IndirectPredicate<
+		Writable<iterator_t<Rng>, const T&> &&
+		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng> replace_if(Rng&& rng, Pred pred, const T& new_value,
 		Proj proj = Proj{})
 	{
 		return __stl2::replace_if(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), new_value, __stl2::ref(proj));
+			std::ref(pred), new_value, std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

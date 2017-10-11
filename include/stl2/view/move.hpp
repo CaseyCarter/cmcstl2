@@ -22,49 +22,49 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <View Rng>
-		requires InputRange<Rng>()
+		requires InputRange<Rng>
 		class move_view : detail::ebo_box<Rng, move_view<Rng>> {
 			using base_t = detail::ebo_box<Rng, move_view<Rng>>;
 			using base_t::get;
 		public:
-			move_view() requires DefaultConstructible<Rng>() = default;
+			move_view() requires DefaultConstructible<Rng> = default;
 
 			constexpr move_view(Rng rng)
 			noexcept(std::is_nothrow_move_constructible<Rng>::value)
 			: base_t{std::move(rng)} {}
 
 			move_iterator<iterator_t<Rng>> begin() const
-			requires Range<const Rng>()
+			requires Range<const Rng>
 			{ return __stl2::make_move_iterator(__stl2::begin(get())); }
 			move_sentinel<sentinel_t<Rng>> end() const
-			requires Range<const Rng>()
+			requires Range<const Rng>
 			{ return __stl2::make_move_sentinel(__stl2::end(get())); }
 			move_iterator<iterator_t<Rng>> end() const
-			requires Range<const Rng>() && BoundedRange<const Rng>()
+			requires Range<const Rng> && BoundedRange<const Rng>
 			{ return __stl2::make_move_iterator(__stl2::end(get())); }
 
 			auto size() const
-			requires Range<const Rng>() && SizedRange<const Rng>()
+			requires Range<const Rng> && SizedRange<const Rng>
 			{ return __stl2::size(get()); }
 			bool empty() const
-			requires Range<const Rng>() && requires(const Rng& r) { __stl2::empty(r); }
+			requires Range<const Rng> && requires(const Rng& r) { __stl2::empty(r); }
 			{ return __stl2::empty(get()); }
 
 			move_iterator<iterator_t<Rng>> begin()
-			requires !Range<const Rng>()
+			requires !Range<const Rng>
 			{ return __stl2::make_move_iterator(__stl2::begin(get())); }
 			move_sentinel<sentinel_t<Rng>> end()
-			requires !Range<const Rng>()
+			requires !Range<const Rng>
 			{ return __stl2::make_move_sentinel(__stl2::end(get())); }
 			move_iterator<iterator_t<Rng>> end()
-			requires !Range<const Rng>() && BoundedRange<Rng>()
+			requires !Range<const Rng> && BoundedRange<Rng>
 			{ return __stl2::make_move_iterator(__stl2::end(get())); }
 
 			auto size()
-			requires !Range<const Rng>() && SizedRange<Rng>()
+			requires !Range<const Rng> && SizedRange<Rng>
 			{ return __stl2::size(get()); }
 			bool empty()
-			requires !Range<const Rng>()
+			requires !Range<const Rng>
 			{ return __stl2::empty(get()); }
 		};
 	} // namespace ext

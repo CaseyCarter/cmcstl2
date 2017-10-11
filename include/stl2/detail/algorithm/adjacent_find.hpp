@@ -25,8 +25,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class Pred = equal_to<>,
 		class Proj = identity>
 	requires
-		models::IndirectRelation<
-			Pred, projected<I, Proj>>
+		IndirectRelation<Pred, projected<I, Proj>>
 	I adjacent_find(I first, S last, Pred pred = Pred{}, Proj proj = Proj{})
 	{
 		if (first == last) {
@@ -44,27 +43,13 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class Pred = equal_to<>, class Proj = identity>
 	requires
-		models::IndirectRelation<
-			Pred, projected<iterator_t<Rng>, Proj>>
+		IndirectRelation<Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	adjacent_find(Rng&& rng, Pred pred = Pred{}, Proj proj = Proj{})
 	{
 		return __stl2::adjacent_find(
 			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class Pred = equal_to<>, class Proj = identity>
-	requires
-		models::IndirectRelation<
-			Pred, projected<const E*, Proj>>
-	dangling<const E*>
-	adjacent_find(std::initializer_list<E>&& rng, Pred pred = Pred{}, Proj proj = Proj{})
-	{
-		return __stl2::adjacent_find(
-			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

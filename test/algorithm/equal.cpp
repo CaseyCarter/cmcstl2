@@ -281,10 +281,12 @@ int main()
 	::test_pred();
 	::test_rng_pred();
 
-	int *p = nullptr;
-	static_assert(std::is_same<bool, decltype(ranges::equal({1, 2, 3, 4}, p))>::value, "");
-	static_assert(std::is_same<bool, decltype(ranges::equal({1, 2, 3, 4}, {1, 2, 3, 4}))>::value, "");
-	static_assert(std::is_same<bool, decltype(ranges::equal({1, 2, 3, 4}, ranges::ext::make_range(p, ranges::unreachable{})))>::value, "");
+	{
+		int const a[] = {1,2,3};
+		int const b[] = {1,2,3};
+		CHECK(ranges::equal(a, ranges::begin(b)));
+		CHECK(ranges::equal(ranges::begin(a), ranges::end(a), ranges::begin(b)));
+	}
 
 	return ::test_result();
 }

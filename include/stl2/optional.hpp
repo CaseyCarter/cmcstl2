@@ -29,15 +29,20 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct nullopt_t {
-		struct secret_tag {};
-		explicit constexpr nullopt_t(secret_tag) {}
+		struct __secret_tag {};
+		explicit constexpr nullopt_t(__secret_tag) {}
 	};
+
+#if defined(__cpp_inline_variables)
+	inline constexpr nullopt_t nullopt{nullopt_t::__secret_tag{}};
+#else
 	template <class>
-	extern constexpr nullopt_t __nullopt{nullopt_t::secret_tag{}};
+	extern constexpr nullopt_t __nullopt{nullopt_t::__secret_tag{}};
 
 	namespace {
 		constexpr const nullopt_t& nullopt = __nullopt<void>;
 	}
+#endif
 
 	class bad_optional_access : public std::logic_error {
 	public:
@@ -45,43 +50,41 @@ STL2_OPEN_NAMESPACE {
 		: logic_error{"Attempt to access disengaged optional"} {}
 	};
 
-	template <class T>
-	requires models::Destructible<T> && _Is<T, is_object>
-	class optional;
+	ext::DestructibleObject{T} class optional;
 
 	namespace __optional {
 		template <class = void>
-		[[noreturn]] bool bad_access() {
+		[[noreturn]] void bad_access() {
 			throw bad_optional_access{};
 		}
 
 		template <class T, class U>
 		requires
-			models::Swappable<T&, U&> &&
-			models::Constructible<T, U> &&
-			models::Constructible<U, T>
+			SwappableWith<T&, U&> &&
+			Constructible<T, U> &&
+			Constructible<U, T>
 		void swap(optional<T>& lhs, optional<U>& rhs)
 		STL2_NOEXCEPT_RETURN(
 			lhs.swap(rhs)
 		)
 		template <class T>
 		requires
-			models::Swappable<T&> &&
-			models::MoveConstructible<T>
+			Swappable<T> &&
+			MoveConstructible<T>
 		void swap(optional<T>& lhs, optional<T>& rhs)
 		STL2_NOEXCEPT_RETURN(
 			lhs.swap(rhs)
 		)
 
 		template <class T>
-		requires models::Destructible<T>
+		requires Destructible<T>
 		class storage_destruct_layer {
 		public:
 			~storage_destruct_layer() { if (engaged_) clear(); }
 
 			constexpr storage_destruct_layer() noexcept {}
 			template <class... Args>
-			requires models::Constructible<T, Args...>
+			requires Constructible<T, Args...>
 			constexpr explicit storage_destruct_layer(in_place_t, Args&&... args)
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			: item_(std::forward<Args>(args)...), engaged_{true} {}
@@ -100,13 +103,13 @@ STL2_OPEN_NAMESPACE {
 
 		template <class T>
 		requires
-			models::Destructible<T> &&
+			Destructible<T> &&
 			std::is_trivially_destructible<T>::value
 		class storage_destruct_layer<T> {
 		public:
 			constexpr storage_destruct_layer() noexcept {}
 			template <class... Args>
-			requires models::Constructible<T, Args...>
+			requires Constructible<T, Args...>
 			constexpr explicit storage_destruct_layer(in_place_t, Args&&... args)
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			: item_(std::forward<Args>(args)...), engaged_{true} {}
@@ -125,24 +128,14 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		class storage_construct_layer : public storage_destruct_layer<T> {
 		public:
-#if STL2_WORKAROUND_GCC_79143
-			storage_construct_layer() = default;
-			template <class... Args>
-			requires models::Constructible<T, Args...>
-			constexpr explicit storage_construct_layer(in_place_t, Args&&... args)
-			noexcept(std::is_nothrow_constructible<T, Args...>::value)
-			: storage_destruct_layer<T>(in_place, std::forward<Args>(args)...)
-			{}
-#else  // STL2_WORKAROUND_GCC_79143
 			using storage_destruct_layer<T>::storage_destruct_layer;
-#endif // STL2_WORKAROUND_GCC_79143
 
 			template <class... Args>
-			requires models::Constructible<T, Args...>
+			requires Constructible<T, Args...>
 			void construct(Args&&... args)
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			{
-				const volatile void* as_void = __stl2::addressof(this->item_);
+				const volatile void* as_void = detail::addressof(this->item_);
 				::new(const_cast<void*>(as_void)) T{std::forward<Args>(args)...};
 				this->engaged_ = true;
 			}
@@ -178,16 +171,7 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		class smf_layer : public storage_construct_layer<T> {
 		public:
-#if STL2_WORKAROUND_GCC_79143
-			template <class... Args>
-			requires models::Constructible<T, Args...>
-			constexpr explicit smf_layer(in_place_t, Args&&... args)
-			noexcept(std::is_nothrow_constructible<T, Args...>::value)
-			: storage_construct_layer<T>(in_place, std::forward<Args>(args)...)
-			{}
-#else  // STL2_WORKAROUND_GCC_79143
 			using storage_construct_layer<T>::storage_construct_layer;
-#endif // STL2_WORKAROUND_GCC_79143
 
 			smf_layer() = default;
 
@@ -208,7 +192,7 @@ STL2_OPEN_NAMESPACE {
 			{ return assign(std::move(that)); }
 		private:
 			template <class That>
-			requires models::Same<smf_layer, __uncvref<That>>
+			requires Same<smf_layer, __uncvref<That>>
 			void construct_from(That&& that) &
 			noexcept(std::is_nothrow_constructible<T, That>::value)
 			{
@@ -217,7 +201,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 			template <class That>
-			requires models::Same<smf_layer, __uncvref<That>>
+			requires Same<smf_layer, __uncvref<That>>
 			smf_layer& assign(That&& that) &
 			noexcept(std::is_nothrow_constructible<T, That>::value &&
 				std::is_nothrow_assignable<T&, That>::value)
@@ -238,18 +222,7 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		requires std::is_trivially_copyable<T>::value
 		struct smf_layer<T> : storage_construct_layer<T> {
-#if STL2_WORKAROUND_GCC_79143
-			smf_layer() = default;
-
-			template <class... Args>
-			requires models::Constructible<T, Args...>
-			constexpr explicit smf_layer(in_place_t, Args&&... args)
-			noexcept(std::is_nothrow_constructible<T, Args...>::value)
-			: storage_construct_layer<T>(in_place, std::forward<Args>(args)...)
-			{}
-#else  // STL2_WORKAROUND_GCC_79143
 			using storage_construct_layer<T>::storage_construct_layer;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 	} // namespace __optional
 
@@ -257,14 +230,13 @@ STL2_OPEN_NAMESPACE {
 		template <class> struct optional_storage {};
 
 		template <class T>
-		requires models::Destructible<T>
+		requires Destructible<T>
 		struct optional_storage<T> {
 			using type = __optional::smf_layer<T>;
 		};
 	} // namespace ext
 
-	template <class T>
-	requires models::Destructible<T> && _Is<T, is_object>
+	ext::DestructibleObject{T}
 	class optional
 	: public meta::_t<ext::optional_storage<T>>
 	, detail::smf_control::copy<models::CopyConstructible<T>>
@@ -309,56 +281,56 @@ STL2_OPEN_NAMESPACE {
 		optional(optional&&) = default;
 
 		template <class... Args>
-		requires models::Constructible<T, Args...>
+		requires Constructible<T, Args...>
 		constexpr explicit optional(in_place_t, Args&&... args)
 		: base_t{in_place, std::forward<Args>(args)...} {}
 		template <class E, class... Args>
-		requires models::Constructible<T, std::initializer_list<E>&, Args...>
+		requires Constructible<T, std::initializer_list<E>&, Args...>
 		constexpr explicit optional(in_place_t, std::initializer_list<E> il, Args&&... args)
 		: base_t{in_place, il, std::forward<Args>(args)...} {}
 		template <class U = T>
 		requires
-			!models::Same<U, in_place_t> &&
-			!models::Same<optional, std::decay_t<U>> &&
-			models::Constructible<T, U>
+			!Same<U, in_place_t> &&
+			!Same<optional, std::decay_t<U>> &&
+			Constructible<T, U>
 		constexpr explicit optional(U&& u)
 		noexcept(std::is_nothrow_constructible<T, U>::value)
 		: base_t{in_place, std::forward<U>(u)} {}
 		template <class U = T>
 		requires
-			!models::Same<U, in_place_t> &&
-			!models::Same<optional, std::decay_t<U>> &&
-			models::Constructible<T, U> &&
-			models::ConvertibleTo<U, T>
+			!Same<U, in_place_t> &&
+			!Same<optional, std::decay_t<U>> &&
+			Constructible<T, U> &&
+			ConvertibleTo<U, T>
 		constexpr optional(U&& u)
 		noexcept(std::is_nothrow_constructible<T, U>::value)
 		: base_t{in_place, std::forward<U>(u)} {}
 		template <class U>
 		requires
-			models::Constructible<T, const U&> &&
+			Constructible<T, const U&> &&
 			should_unwrap_construct<U>
 		explicit optional(const optional<U>& that)
 		noexcept(std::is_nothrow_constructible<T, const U&>::value)
 		{ if (that) this->construct(*that); }
 		template <class U>
 		requires
-			models::Constructible<T, const U&> &&
+			Constructible<T, const U&> &&
 			should_unwrap_construct<U> &&
-			models::ConvertibleTo<U, T>
+			ConvertibleTo<U, T>
 		optional(const optional<U>& that)
 		noexcept(std::is_nothrow_constructible<T, const U&>::value)
 		{ if (that) this->construct(*that); }
 
 		template <class U>
 		requires
-			models::Constructible<T, U>
+			Constructible<T, U>
 		explicit optional(optional<U>&& that)
 		noexcept(std::is_nothrow_constructible<T, U>::value)
 		{ if (that) this->construct(std::move(*that)); }
 		template <class U>
 		requires
-			models::Constructible<T, U> &&
-			models::ConvertibleTo<U, T>
+			Constructible<T, U> &&
+			ConvertibleTo<U, T>
 		optional(optional<U>&& that)
 		noexcept(std::is_nothrow_constructible<T, U>::value)
 		{ if (that) this->construct(std::move(*that)); }
@@ -374,10 +346,10 @@ STL2_OPEN_NAMESPACE {
 
 		template <class U = T>
 		requires
-			!models::Same<optional, std::decay_t<U>> &&
-			!(std::is_scalar<T>::value && models::Same<T, std::decay_t<U>>) &&
-			models::Constructible<T, U> &&
-			models::Assignable<T&, U>
+			!Same<optional, std::decay_t<U>> &&
+			!(std::is_scalar<T>::value && Same<T, std::decay_t<U>>) &&
+			Constructible<T, U> &&
+			Assignable<T&, U>
 		optional& operator=(U&& u) &
 		noexcept(std::is_nothrow_assignable<T&, U>::value &&
 			std::is_nothrow_constructible<T, U>::value)
@@ -392,8 +364,8 @@ STL2_OPEN_NAMESPACE {
 
 		template <class U>
 		requires
-			models::Constructible<T, const U&> &&
-			models::Assignable<T, const U&> &&
+			Constructible<T, const U&> &&
+			Assignable<T, const U&> &&
 			should_unwrap_assign<U>
 		optional& operator=(const optional<U>& that) &
 		noexcept(std::is_nothrow_constructible<T, const U&>::value &&
@@ -413,8 +385,8 @@ STL2_OPEN_NAMESPACE {
 
 		template <class U>
 		requires
-			models::Constructible<T, U> &&
-			models::Assignable<T, U> &&
+			Constructible<T, U> &&
+			Assignable<T, U> &&
 			should_unwrap_assign<U>
 		optional& operator=(optional<U>&& that) &
 		noexcept(std::is_nothrow_constructible<T, U>::value &&
@@ -432,17 +404,17 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
-		template <class...Args>
-		requires models::Constructible<T, Args...>
-		void emplace(Args&&...args)
+		template <class... Args>
+		requires Constructible<T, Args...>
+		void emplace(Args&&... args)
 		noexcept(std::is_nothrow_constructible<T, Args...>::value)
 		{
 			this->reset();
 			this->construct(std::forward<Args>(args)...);
 		}
-		template <class U, class...Args>
-		requires models::Constructible<T, std::initializer_list<U>&, Args...>
-		void emplace(std::initializer_list<U> il, Args&&...args)
+		template <class U, class... Args>
+		requires Constructible<T, std::initializer_list<U>&, Args...>
+		void emplace(std::initializer_list<U> il, Args&&... args)
 		noexcept(std::is_nothrow_constructible<T,
 			std::initializer_list<U>&, Args...>::value)
 		{
@@ -452,9 +424,9 @@ STL2_OPEN_NAMESPACE {
 
 		template <class U>
 		requires
-			models::Swappable<T&, U&> &&
-			models::Constructible<T, U> &&
-			models::Constructible<U, T>
+			SwappableWith<T&, U&> &&
+			Constructible<T, U> &&
+			Constructible<U, T>
 		void swap(optional<U>& that)
 		noexcept(is_nothrow_swappable_v<T&, U&> &&
 			std::is_nothrow_constructible<T, U>::value &&
@@ -478,10 +450,10 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr const T* operator->() const {
-			return __stl2::addressof(**this);
+			return detail::addressof(**this);
 		}
 		constexpr T* operator->() {
-			return __stl2::addressof(**this);
+			return detail::addressof(**this);
 		}
 
 		using base_t::operator*;
@@ -508,8 +480,8 @@ STL2_OPEN_NAMESPACE {
 
 		template <ConvertibleTo<T> U>
 		requires
-			models::ConvertibleTo<U, T> &&
-			models::CopyConstructible<T>
+			ConvertibleTo<U, T> &&
+			CopyConstructible<T>
 		constexpr T value_or(U&& u) const & {
 			return *this
 				? **this
@@ -517,8 +489,8 @@ STL2_OPEN_NAMESPACE {
 		}
 		template <class U>
 		requires
-			models::ConvertibleTo<U, T> &&
-			models::MoveConstructible<T>
+			ConvertibleTo<U, T> &&
+			MoveConstructible<T>
 		constexpr T value_or(U&& u) && {
 			return *this
 				? std::move(**this)
@@ -529,59 +501,41 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	namespace __optional {
-		template <class, class>
-		constexpr bool can_eq = false;
 		template <class T, class U>
-		requires
+		concept bool can_eq =
 			requires(const T& t, const U& u) {
-				STL2_DEDUCTION_CONSTRAINT(t == u, Boolean);
-			}
-		constexpr bool can_eq<T, U> = true;
+				{ t == u } -> Boolean;
+			};
 
-		template <class, class>
-		constexpr bool can_neq = false;
 		template <class T, class U>
-		requires
+		concept bool can_neq =
 			requires(const T& t, const U& u) {
-				STL2_DEDUCTION_CONSTRAINT(t != u, Boolean);
-			}
-		constexpr bool can_neq<T, U> = true;
+				{ t != u } -> Boolean;
+			};
 
-		template <class, class>
-		constexpr bool can_lt = false;
 		template <class T, class U>
-		requires
+		concept bool can_lt =
 			requires(const T& t, const U& u) {
-				STL2_DEDUCTION_CONSTRAINT(t < u, Boolean);
-			}
-		constexpr bool can_lt<T, U> = true;
+				{ t < u } -> Boolean;
+			};
 
-		template <class, class>
-		constexpr bool can_gt = false;
 		template <class T, class U>
-		requires
+		concept bool can_gt =
 			requires(const T& t, const U& u) {
-				STL2_DEDUCTION_CONSTRAINT(t > u, Boolean);
-			}
-		constexpr bool can_gt<T, U> = true;
+				{ t > u } -> Boolean;
+			};
 
-		template <class, class>
-		constexpr bool can_lte = false;
 		template <class T, class U>
-		requires
+		concept bool can_lte =
 			requires(const T& t, const U& u) {
-				STL2_DEDUCTION_CONSTRAINT(t <= u, Boolean);
-			}
-		constexpr bool can_lte<T, U> = true;
+				{ t <= u } -> Boolean;
+			};
 
-		template <class, class>
-		constexpr bool can_gte = false;
 		template <class T, class U>
-		requires
+		concept bool can_gte =
 			requires(const T& t, const U& u) {
-				STL2_DEDUCTION_CONSTRAINT(t >= u, Boolean);
-			}
-		constexpr bool can_gte<T, U> = true;
+				{ t >= u } -> Boolean;
+			};
 
 		template <class T, class U>
 		requires can_eq<T, U>

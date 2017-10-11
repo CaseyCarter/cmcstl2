@@ -26,8 +26,8 @@ STL2_OPEN_NAMESPACE {
 	namespace __min {
 		template <InputRange Rng, class Comp = less<>, class Proj = identity>
 		requires
-			models::Copyable<value_type_t<iterator_t<Rng>>> &&
-			models::IndirectStrictWeakOrder<
+			Copyable<value_type_t<iterator_t<Rng>>> &&
+			IndirectStrictWeakOrder<
 				Comp, projected<iterator_t<Rng>, Proj>>
 		constexpr value_type_t<iterator_t<Rng>>
 		impl(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class T, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<const T*, Proj>>
 	constexpr const T& min(const T& a, const T& b, Comp comp = Comp{},
 		Proj proj = Proj{})
@@ -58,25 +58,23 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Copyable<value_type_t<iterator_t<Rng>>> &&
-		models::IndirectStrictWeakOrder<
+		Copyable<value_type_t<iterator_t<Rng>>> &&
+		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
 	STL2_CONSTEXPR_EXT value_type_t<iterator_t<Rng>>
 	min(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __min::impl(rng, __stl2::ref(comp),
-			__stl2::ref(proj));
+		return __min::impl(rng, std::ref(comp), std::ref(proj));
 	}
 
 	template <Copyable T, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<const T*, Proj>>
 	constexpr T min(std::initializer_list<T>&& rng,
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __min::impl(rng, __stl2::ref(comp),
-			__stl2::ref(proj));
+		return __min::impl(rng, std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

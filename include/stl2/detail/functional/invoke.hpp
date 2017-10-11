@@ -15,6 +15,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/object.hpp>
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
@@ -24,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 		template <class>
 		constexpr bool is_reference_wrapper = false;
 		template <class T>
-		constexpr bool is_reference_wrapper<reference_wrapper<T>> = true;
+		constexpr bool is_reference_wrapper<std::reference_wrapper<T>> = true;
 
 		template <class, class T1>
 		constexpr decltype(auto) coerce(T1&& t1)
@@ -34,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class T, class T1>
 		requires
-			DerivedFrom<decay_t<T1>, T>()
+			DerivedFrom<std::decay_t<T1>, T>
 		constexpr decltype(auto) coerce(T1&& t1)
 		STL2_NOEXCEPT_RETURN(
 			std::forward<T1>(t1)
@@ -42,29 +43,29 @@ STL2_OPEN_NAMESPACE {
 
 		template <class, class T1>
 		requires
-			is_reference_wrapper<decay_t<T1>>
+			is_reference_wrapper<std::decay_t<T1>>
 		constexpr decltype(auto) coerce(T1&& t1)
 		STL2_NOEXCEPT_RETURN(
 			std::forward<T1>(t1).get()
 		)
 
-		template <_Is<is_function> F, class T, class T1, class...Args>
-		constexpr decltype(auto) impl(F (T::*f), T1&& t1, Args&&...args) = delete;
+		template <_Is<std::is_function> F, class T, class T1, class... Args>
+		constexpr decltype(auto) impl(F (T::*f), T1&& t1, Args&&... args) = delete;
 
-		template <_Is<is_function> F, class T, class T1, class...Args>
+		template <_Is<std::is_function> F, class T, class T1, class... Args>
 		requires
-			requires(F (T::*f), T1&& t1, Args&&...args) {
+			requires(F (T::*f), T1&& t1, Args&&... args) {
 				(coerce<T>(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...);
 			}
-		constexpr decltype(auto) impl(F (T::*f), T1&& t1, Args&&...args)
+		constexpr decltype(auto) impl(F (T::*f), T1&& t1, Args&&... args)
 		STL2_NOEXCEPT_RETURN(
 			(coerce<T>(std::forward<T1>(t1)).*f)(std::forward<Args>(args)...)
 		)
 
-		template <_Is<is_object> D, class T, class T1>
+		template <ext::Object D, class T, class T1>
 		constexpr decltype(auto) impl(D (T::*f), T1&& t1) = delete;
 
-		template <_Is<is_object> D, class T, class T1>
+		template <ext::Object D, class T, class T1>
 		requires
 			requires(D (T::*f), T1&& t1) {
 				coerce<T>(std::forward<T1>(t1)).*f;
@@ -74,25 +75,34 @@ STL2_OPEN_NAMESPACE {
 			(coerce<T>(std::forward<T1>(t1)).*f)
 		)
 
-		template <class F, class...Args>
+		template <class F, class... Args>
 		requires
-			requires(F&& f, Args&&...args) {
+			requires(F&& f, Args&&... args) {
 				std::forward<F>(f)(std::forward<Args>(args)...);
 			}
-		constexpr decltype(auto) impl(F&& f, Args&&...args)
+		constexpr decltype(auto) impl(F&& f, Args&&... args)
 		STL2_NOEXCEPT_RETURN(
 			std::forward<F>(f)(std::forward<Args>(args)...)
 		)
 	}
-	template <class F, class...Args>
+	template <class F, class... Args>
 	requires
-		requires(F&& f, Args&&...args) {
+		requires(F&& f, Args&&... args) {
 			__invoke::impl(std::forward<F>(f), std::forward<Args>(args)...);
 		}
-	STL2_CONSTEXPR_EXT decltype(auto) invoke(F&& f, Args&&...args)
+	STL2_CONSTEXPR_EXT decltype(auto) invoke(F&& f, Args&&... args)
 	STL2_NOEXCEPT_RETURN(
 		__invoke::impl(std::forward<F>(f), std::forward<Args>(args)...)
 	)
+
+	template<class> struct result_of {};
+	template<class R, class... Args>
+	requires requires { __stl2::invoke(std::declval<R>(), std::declval<Args>()...); }
+	struct result_of<R(Args...)> {
+		using type = decltype(__stl2::invoke(std::declval<R>(), std::declval<Args>()...));
+	};
+	template<class T>
+	using result_of_t = meta::_t<result_of<T>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

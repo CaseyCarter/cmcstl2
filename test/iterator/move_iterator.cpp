@@ -11,6 +11,9 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <numeric>
+#include <memory>
+#include <utility>
+#include <vector>
 #include <stl2/iterator.hpp>
 #include <stl2/functional.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
@@ -18,8 +21,6 @@
 #include <stl2/view/iota.hpp>
 #include <stl2/view/take_exactly.hpp>
 #include <stl2/view/repeat_n.hpp>
-#include <vector>
-#include <memory>
 #include "../simple_test.hpp"
 
 namespace ranges = __stl2;
@@ -147,8 +148,8 @@ public:
 		}
 	};
 
-	ranges::reference_wrapper<T> operator*() const {
-		return ranges::reference_wrapper<T>{**ptr_};
+	std::reference_wrapper<T> operator*() const {
+		return std::reference_wrapper<T>{**ptr_};
 	}
 
 	bool operator==(const proxy_iterator& that) const {
@@ -187,11 +188,11 @@ void test_proxy_iterator() {
 	static_assert(
 		ranges::models::Same<
 			ranges::reference_t<proxy_iterator<A>>,
-			ranges::reference_wrapper<A>>);
+			std::reference_wrapper<A>>);
 	static_assert(
 		ranges::models::Same<
 			ranges::reference_t<const proxy_iterator<A>>,
-			ranges::reference_wrapper<A>>);
+			std::reference_wrapper<A>>);
 	static_assert(
 		ranges::models::Same<
 			ranges::rvalue_reference_t<proxy_iterator<A>>,
@@ -270,6 +271,96 @@ void test_proxy_iterator() {
 		CHECK((static_cast<std::size_t>(mlast - mfirst) == vec.size()));
 	}
 }
+
+constexpr bool test_constexpr() {
+	struct Int {
+		int i_;
+		constexpr Int(int i) noexcept
+		: i_{i}
+		{}
+		constexpr Int(const Int&) noexcept = default;
+		constexpr Int& operator=(const Int&) & noexcept = default;
+		constexpr Int(Int&& that) noexcept
+		: i_{that.i_}
+		{ that.i_ = -1; }
+		constexpr Int& operator=(Int&& that) & noexcept {
+			i_ = that.i_;
+			that.i_ = -1;
+			return *this;
+		}
+		constexpr operator int() const { return i_; }
+	};
+	Int some_ints[] = {0,1,2,3};
+
+	{ constexpr ranges::move_iterator<int*> unused{}; (void)unused; }
+
+	auto const first = ranges::make_move_iterator(ranges::begin(some_ints));
+	if (first.base() != ranges::begin(some_ints)) return false;
+	auto const last = ranges::make_move_iterator(ranges::end(some_ints));
+	if (last.base() != ranges::end(some_ints)) return false;
+
+	if (first == last) return false;
+	if (!(first != last)) return false;
+	if (!(first < last)) return false;
+	if (first > last) return false;
+	if (!(first <= last)) return false;
+	if (first >= last) return false;
+	if (last - first != 4) return false;
+	if (first - last != -4) return false;
+	if (Int{*(first + 2)} != 2) return false;
+	if (*(first + 2) != -1) return false;
+
+	{
+		ranges::move_iterator<Int const*> tmp{first};
+		tmp = first;
+		if (tmp == last) return false;
+		if (!(tmp != last)) return false;
+		if (!(tmp < last)) return false;
+		if (tmp > last) return false;
+		if (!(tmp <= last)) return false;
+		if (tmp >= last) return false;
+		if (last - tmp != 4) return false;
+		if (tmp - last != -4) return false;
+		if (Int{*(tmp + 3)} != 3) return false;
+		if (*(tmp + 3) != 3) return false;
+	}
+
+	auto end = ranges::make_move_sentinel(ranges::end(some_ints));
+
+	if (first == end) return false;
+	if (end == first) return false;
+	if (last != end) return false;
+	if (end != last) return false;
+	if (end - first != 4) return false;
+	if (first - end != -4) return false;
+	{
+		ranges::move_sentinel<Int const*> tmp{end};
+		tmp = end;
+		if (first == tmp) return false;
+		if (tmp == first) return false;
+		if (last != tmp) return false;
+		if (tmp != last) return false;
+		if (tmp - first != 4) return false;
+		if (first - tmp != -4) return false;
+	}
+
+	auto pos = first;
+	++pos;
+	if (pos != first + 1) return false;
+	--pos;
+	if (pos != last - 4) return false;
+	pos += 4;
+	if (pos != last) return false;
+	pos -= 4;
+	if (pos != first) return false;
+	if (pos + 2 != 2 + pos) return false;
+
+	if (Int{first[3]} != 3) return false;
+	if (first[3] != -1) return false;
+
+	return true;
+}
+static_assert(test_constexpr());
 
 int main() {
 	test_move_iterator();

@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<I, Proj>>
 	I is_sorted_until(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
@@ -42,26 +42,13 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	is_sorted_until(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::is_sorted_until(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class Comp = less<>, class Proj = identity>
-	requires
-		models::IndirectStrictWeakOrder<
-			Comp, projected<const E*, Proj>>
-	dangling<const E*>
-	is_sorted_until(std::initializer_list<E>&& rng,
-		Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::is_sorted_until(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
+			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -16,11 +16,10 @@
 #ifndef STL2_DETAIL_ALGORITHM_MINMAX_ELEMENT_HPP
 #define STL2_DETAIL_ALGORITHM_MINMAX_ELEMENT_HPP
 
-#include <initializer_list>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
-#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
@@ -30,7 +29,7 @@
 STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<I, Proj>>
 	STL2_CONSTEXPR_EXT tagged_pair<tag::min(I), tag::max(I)>
 	minmax_element(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
@@ -76,26 +75,14 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
 	STL2_CONSTEXPR_EXT tagged_pair<tag::min(safe_iterator_t<Rng>),
 		tag::max(safe_iterator_t<Rng>)>
 	minmax_element(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::minmax_element(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class Comp = less<>, class Proj = identity>
-	requires
-		models::IndirectStrictWeakOrder<
-			Comp, projected<const E*, Proj>>
-	STL2_CONSTEXPR_EXT tagged_pair<tag::min(dangling<const E*>), tag::max(dangling<const E*>)>
-	minmax_element(std::initializer_list<E>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::minmax_element(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
+			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

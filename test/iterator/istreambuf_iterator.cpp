@@ -21,17 +21,17 @@ namespace {
 	template <class charT, class traits = std::char_traits<charT>>
 	void validate_one() {
 		using C = __istreambuf_iterator::cursor<charT, traits>;
-		static_assert(cursor::Cursor<C>());
+		static_assert(cursor::Cursor<C>);
 		static_assert(models::Same<typename traits::off_type, cursor::difference_type_t<C>>);
-		static_assert(cursor::Next<C>());
+		static_assert(cursor::Next<C>);
 		static_assert(models::Same<charT, cursor::value_type_t<C>>);
-		static_assert(cursor::Readable<C>());
+		static_assert(cursor::Readable<C>);
 		static_assert(models::Same<charT, cursor::reference_t<C>>);
-		static_assert(cursor::Input<C>());
-		static_assert(cursor::Sentinel<C, C>());
-		static_assert(cursor::Sentinel<default_sentinel, C>());
-		static_assert(!cursor::Forward<C>());
-		static_assert(cursor::PostIncrement<C>());
+		static_assert(cursor::Input<C>);
+		static_assert(cursor::Sentinel<C, C>);
+		static_assert(cursor::Sentinel<default_sentinel, C>);
+		static_assert(!cursor::Forward<C>);
+		static_assert(cursor::PostIncrement<C>);
 
 		using I = istreambuf_iterator<charT, traits>;
 		static_assert(models::WeaklyIncrementable<I>);
@@ -78,7 +78,7 @@ namespace {
 		static_assert(models::Constructible<I, decltype(i++)>);
 	}
 
-	template <class...Cs>
+	template <class... Cs>
 	void validate() {
 		(validate_one<Cs>(), ...);
 	}

@@ -34,10 +34,7 @@
 // N4542 Variant implementation
 //
 // TODO:
-// * Verify that visitation functions handle reference_wrapper correctly
-// * Requiring that visitor invocations _have_ a common_type /
-//   common_reference is fine, but we need to perform conversion to that
-//   return type after invoking the visitor.
+// * Replace with C++17 variant
 //
 STL2_OPEN_NAMESPACE {
 	namespace __variant {
@@ -53,21 +50,18 @@ STL2_OPEN_NAMESPACE {
 		//
 		template <std::size_t I, Variant V, _IsNot<is_void> T>
 		constexpr auto&& v_access::raw_get(in_place_index_t<I> i, V&& v) noexcept {
-			STL2_EXPECT(I == v.index());
-			return st_access::raw_get(i, __stl2::forward<V>(v).storage_);
+			STL2_EXPECT(v.index() == I);
+			return st_access::raw_get(i, std::forward<V>(v).storage_);
 		}
 
 		template <std::size_t I, Variant V, _IsNot<is_void> T>
 		constexpr auto&& v_access::cooked_get(in_place_index_t<I> i, V&& v) noexcept {
-			STL2_EXPECT(I == v.index());
-			return cook<T>(v_access::raw_get(i, __stl2::forward<V>(v)));
+			STL2_EXPECT(v.index() == I);
+			return cook<T>(v_access::raw_get(i, std::forward<V>(v)));
 		}
 
-		// "inline" is here for the ODR; we do not actually
-		// want bad_access to be inlined into get. Having it
-		// be a separate function results in better generated
-		// code.
-		[[noreturn]] inline bool bad_access() {
+		template <class=void>
+		[[noreturn]] void bad_access() {
 			throw bad_variant_access{};
 		}
 
@@ -77,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 			_IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 		constexpr auto&& get_unchecked(V&& v) {
 			STL2_EXPECT(v.index() == I);
-			return v_access::cooked_get(in_place_index<I>, __stl2::forward<V>(v));
+			return v_access::cooked_get(in_place_index<I>, std::forward<V>(v));
 		}
 
 		template <std::size_t I, Variant V>
@@ -86,10 +80,8 @@ STL2_OPEN_NAMESPACE {
 			_IsNot<meta::at_c<VariantTypes<V>, I>, is_void>
 		constexpr auto&& get(V&& v) {
 			STL2_EXPECT(v.valid());
-			// Odd syntax here to avoid
-			// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67371
-			v.index() == I || bad_access();
-			return v_access::cooked_get(in_place_index<I>, __stl2::forward<V>(v));
+			if (v.index() != I) bad_access();
+			return v_access::cooked_get(in_place_index<I>, std::forward<V>(v));
 		}
 
 		template <_IsNot<is_void> T, Variant V,
@@ -132,16 +124,16 @@ STL2_OPEN_NAMESPACE {
 		//
 		template <class From, class To>
 		concept bool ViableAlternative =
-			Same<decay_t<From>, decay_t<To>>() && Constructible<To, From>();
+			Same<decay_t<From>, decay_t<To>> && Constructible<To, From>;
 
-		template <class T, std::size_t I, class...Types>
+		template <class T, std::size_t I, class... Types>
 		struct constructible_from_ : false_type {};
 
-		template <class T, std::size_t I, class First, class...Rest>
+		template <class T, std::size_t I, class First, class... Rest>
 		struct constructible_from_<T, I, First, Rest...>
 		: constructible_from_<T, I + 1, Rest...> {};
 
-		template <class T, std::size_t I, class First, class...Rest>
+		template <class T, std::size_t I, class First, class... Rest>
 		requires ViableAlternative<T, First>
 		struct constructible_from_<T, I, First, Rest...> : true_type {
 			static constexpr bool ambiguous =
@@ -149,23 +141,20 @@ STL2_OPEN_NAMESPACE {
 			static constexpr std::size_t index = I;
 		};
 
-		template <class T, class...Types>
+		template <class T, class... Types>
 		using constructible_from =
 			constructible_from_<T, 0u, Types...>;
 
 		///////////////////////////////////////////////////////////////////////////
 		// __variant::base: lowest layer of the variant implementation.
 		//
-		template <class...Ts>
-		requires(models::Destructible<element_t<Ts>> && ...)
+		template <class... Ts>
+		requires(Destructible<element_t<Ts>> && ...)
 		class base {
 			friend v_access;
 		protected:
 			using storage_t = storage<element_t<Ts>...>;
 			using index_t =
-		#if 0
-				std::size_t;
-		#else
 				meta::if_c<
 					(sizeof...(Ts) <= std::numeric_limits<std::int_least8_t>::max()),
 					std::int_least8_t,
@@ -176,7 +165,6 @@ STL2_OPEN_NAMESPACE {
 							(sizeof...(Ts) <= std::numeric_limits<std::int_least32_t>::max()),
 							std::int_least32_t,
 							std::size_t>>>;
-		#endif
 			static_assert(sizeof...(Ts) - is_unsigned<index_t>::value <
 				std::numeric_limits<index_t>::max());
 			static constexpr auto invalid_index = index_t(-1);
@@ -214,11 +202,11 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			void clear_() noexcept
-			requires ext::TriviallyDestructible<storage_t>()
+			requires ext::TriviallyDestructible<storage_t>
 			{}
 
 			template <class That>
-			requires DerivedFrom<__uncvref<That>, base>()
+			requires DerivedFrom<__uncvref<That>, base>
 			void copy_move_from(That&& that) {
 				// Pre: *this does not contain an object.
 				auto guard = index_guard{*this};
@@ -226,9 +214,9 @@ STL2_OPEN_NAMESPACE {
 					raw_visit_with_index([this, &guard](auto i, auto&& from) {
 						detail::construct(
 							strip_cv(st_access::raw_get(in_place_index<i>, storage_)),
-								__stl2::forward<decltype(from)>(from));
+								std::forward<decltype(from)>(from));
 						guard.index_ = i;
-					}, __stl2::forward<That>(that));
+					}, std::forward<That>(that));
 				}
 			}
 
@@ -237,12 +225,12 @@ STL2_OPEN_NAMESPACE {
 					if (valid()) {
 						raw_visit_with_index([this](auto i, auto&& from) {
 							st_access::raw_get(in_place_index<i>, storage_) =
-								__stl2::forward<decltype(from)>(from);
-						}, __stl2::move(that));
+								std::forward<decltype(from)>(from);
+						}, std::move(that));
 					}
 				} else {
 					clear_();
-					copy_move_from(__stl2::move(that));
+					copy_move_from(std::move(that));
 				}
 			}
 
@@ -256,39 +244,39 @@ STL2_OPEN_NAMESPACE {
 				} else {
 					auto tmp = that;
 					clear_();
-					copy_move_from(__stl2::move(tmp));
+					copy_move_from(std::move(tmp));
 				}
 			}
 
 			template <class That>
-			requires DerivedFrom<__uncvref<That>, base>()
+			requires DerivedFrom<__uncvref<That>, base>
 			base(copy_move_tag, That&& that)
 			: storage_{empty_tag{}}
-			{ copy_move_from(__stl2::forward<That>(that)); }
+			{ copy_move_from(std::forward<That>(that)); }
 
 		public:
 			using types = meta::list<Ts...>;
 
 			constexpr base()
 			noexcept(is_nothrow_default_constructible<storage_t>::value)
-			requires DefaultConstructible<storage_t>()
+			requires DefaultConstructible<storage_t>
 			: index_{0} {}
 
 			template <class T>
 			requires
-				!Same<decay_t<T>, base>() && constructible_from<T&&, Ts...>::value &&
+				!Same<decay_t<T>, base> && constructible_from<T&&, Ts...>::value &&
 				!constructible_from<T&&, Ts...>::ambiguous &&
-				Constructible<storage_t, in_place_index_t<constructible_from<T&&, Ts...>::index>, T&&>()
+				Constructible<storage_t, in_place_index_t<constructible_from<T&&, Ts...>::index>, T&&>
 			constexpr base(T&& t)
 			noexcept(is_nothrow_constructible<storage_t,
 				in_place_index_t<constructible_from<T&&, Ts...>::index>, T&&>::value)
 			: index_{constructible_from<T&&, Ts...>::index}
-			, storage_{in_place_index<constructible_from<T&&, Ts...>::index>, __stl2::forward<T>(t)}
+			, storage_{in_place_index<constructible_from<T&&, Ts...>::index>, std::forward<T>(t)}
 			{}
 
 			template <class T>
 			requires
-				!Same<decay_t<T>, base>() && constructible_from<T&&, Ts...>::value &&
+				!Same<decay_t<T>, base> && constructible_from<T&&, Ts...>::value &&
 				!constructible_from<T&&, Ts...>::ambiguous
 			constexpr base(T&& t)
 			noexcept(is_nothrow_constructible<storage_t,
@@ -299,42 +287,42 @@ STL2_OPEN_NAMESPACE {
 
 			template <class T>
 			requires
-				!Same<decay_t<T>, base>() && constructible_from<T&&, Ts...>::value &&
+				!Same<decay_t<T>, base> && constructible_from<T&&, Ts...>::value &&
 				constructible_from<T&&, Ts...>::ambiguous
 			base(T&&) = delete; // Conversion from T is ambiguous.
 
-			template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
-			requires Constructible<T, Args...>()
-			explicit constexpr base(in_place_index_t<I>, Args&&...args)
+			template <std::size_t I, class... Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+			requires Constructible<T, Args...>
+			explicit constexpr base(in_place_index_t<I>, Args&&... args)
 			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, Args...>::value)
-			: index_{I}, storage_{in_place_index<I>, __stl2::forward<Args>(args)...} {}
+			: index_{I}, storage_{in_place_index<I>, std::forward<Args>(args)...} {}
 
-			template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
+			template <std::size_t I, class... Args, _Is<is_reference> T = meta::at_c<types, I>>
 			explicit constexpr base(in_place_index_t<I>, meta::id_t<T> t)
 			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, T&>::value)
 			: index_{I}, storage_{in_place_index<I>, t} {}
 
-			template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
-			requires Constructible<T, Args...>()
-			explicit constexpr base(in_place_type_t<T>, Args&&...args)
+			template <_IsNot<is_reference> T, class... Args, std::size_t I = index_of_type<T, types>>
+			requires Constructible<T, Args...>
+			explicit constexpr base(in_place_type_t<T>, Args&&... args)
 			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, Args...>::value)
-			: index_{I}, storage_{in_place_index<I>, __stl2::forward<Args>(args)...} {}
+			: index_{I}, storage_{in_place_index<I>, std::forward<Args>(args)...} {}
 
 			template <_Is<is_reference> T, std::size_t I = index_of_type<T, types>>
 			explicit constexpr base(in_place_type_t<T>, meta::id_t<T> t)
 			noexcept(is_nothrow_constructible<storage_t, in_place_index_t<I>, T&>::value)
 			: index_{I}, storage_{in_place_index<I>, t} {}
 
-			template <_IsNot<is_reference> T, class...Args, std::size_t I = index_of_type<T, types>>
-			requires Constructible<T, Args...>()
-			void emplace(Args&&...args)
+			template <_IsNot<is_reference> T, class... Args, std::size_t I = index_of_type<T, types>>
+			requires Constructible<T, Args...>
+			void emplace(Args&&... args)
 			noexcept(is_nothrow_constructible<element_t<T>, Args...>::value)
 			{
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
 					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
-					__stl2::forward<Args>(args)...);
+					std::forward<Args>(args)...);
 				guard.index_ = I;
 			}
 
@@ -348,33 +336,33 @@ STL2_OPEN_NAMESPACE {
 				guard.index_ = I;
 			}
 
-			template <_IsNot<is_reference> T, class E, class...Args, std::size_t I = index_of_type<T, types>>
-			requires Constructible<T, std::initializer_list<E>, Args...>()
-			void emplace(std::initializer_list<E> il, Args&&...args)
+			template <_IsNot<is_reference> T, class E, class... Args, std::size_t I = index_of_type<T, types>>
+			requires Constructible<T, std::initializer_list<E>, Args...>
+			void emplace(std::initializer_list<E> il, Args&&... args)
 			noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value)
 			{
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
 					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
-						il, __stl2::forward<Args>(args)...);
+						il, std::forward<Args>(args)...);
 				guard.index_ = I;
 			}
 
-			template <std::size_t I, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
-			requires Constructible<T, Args...>()
-			void emplace(Args&&...args)
+			template <std::size_t I, class... Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+			requires Constructible<T, Args...>
+			void emplace(Args&&... args)
 			noexcept(is_nothrow_constructible<element_t<T>, Args...>::value)
 			{
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
 					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
-						__stl2::forward<Args>(args)...);
+						std::forward<Args>(args)...);
 				guard.index_ = I;
 			}
 
-			template <std::size_t I, class...Args, _Is<is_reference> T = meta::at_c<types, I>>
+			template <std::size_t I, class... Args, _Is<is_reference> T = meta::at_c<types, I>>
 			void emplace(meta::id_t<T> t)
 			noexcept(is_nothrow_constructible<element_t<T>, T&>::value)
 			{
@@ -384,16 +372,16 @@ STL2_OPEN_NAMESPACE {
 				guard.index_ = I;
 			}
 
-			template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
-			requires Constructible<T, std::initializer_list<E>, Args...>()
-			void emplace(std::initializer_list<E> il, Args&&...args)
+			template <std::size_t I, class E, class... Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+			requires Constructible<T, std::initializer_list<E>, Args...>
+			void emplace(std::initializer_list<E> il, Args&&... args)
 			noexcept(is_nothrow_constructible<element_t<T>, std::initializer_list<E>, Args...>::value)
 			{
 				auto guard = index_guard{*this};
 				clear_();
 				detail::construct(
 					strip_cv(st_access::raw_get(in_place_index<I>, storage_)),
-						il, __stl2::forward<Args>(args)...);
+						il, std::forward<Args>(args)...);
 				guard.index_ = I;
 			}
 
@@ -420,7 +408,7 @@ STL2_OPEN_NAMESPACE {
 		///////////////////////////////////////////////////////////////////////////
 		// destruct_base: adds nontrival destruction onto base if necessary.
 		//
-		template <class...Ts>
+		template <class... Ts>
 		class destruct_base : public base<Ts...> {
 			using base_t = base<Ts...>;
 		public:
@@ -434,35 +422,21 @@ STL2_OPEN_NAMESPACE {
 			destruct_base& operator=(destruct_base&&) & = default;
 			destruct_base& operator=(const destruct_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr destruct_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
-		template <class...Ts>
-		requires ext::TriviallyDestructible<storage<element_t<Ts>...>>()
+		template <class... Ts>
+		requires ext::TriviallyDestructible<storage<element_t<Ts>...>>
 		class destruct_base<Ts...> : public base<Ts...> {
 			using base_t = base<Ts...>;
 		public:
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr destruct_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		///////////////////////////////////////////////////////////////////////////
 		// move_base: Adds nontrivial or disables move construction.
 		//
-		template <class...Ts>
+		template <class... Ts>
 		class move_base : public destruct_base<Ts...> {
 			using base_t = destruct_base<Ts...>;
 		public:
@@ -472,18 +446,11 @@ STL2_OPEN_NAMESPACE {
 			move_base& operator=(move_base&&) & = default;
 			move_base& operator=(const move_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr move_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
-		template <class...Ts>
-		requires(models::MoveConstructible<element_t<Ts>> && ...)
+		template <class... Ts>
+		requires(MoveConstructible<element_t<Ts>> && ...)
 		class move_base<Ts...> : public destruct_base<Ts...> {
 			using base_t = destruct_base<Ts...>;
 		public:
@@ -491,43 +458,29 @@ STL2_OPEN_NAMESPACE {
 			move_base(move_base&& that)
 			noexcept(meta::_v<meta::all_of<meta::list<element_t<Ts>...>,
 				meta::quote_trait<is_nothrow_move_constructible>>>)
-			: base_t{copy_move_tag{}, __stl2::move(that)} {}
+			: base_t{copy_move_tag{}, std::move(that)} {}
 
 			move_base(const move_base&) = default;
 			move_base& operator=(move_base&&) & = default;
 			move_base& operator=(const move_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr move_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires
-			(models::MoveConstructible<element_t<Ts>> && ...) &&
-			ext::TriviallyMoveConstructible<storage<element_t<Ts>...>>()
+			(MoveConstructible<element_t<Ts>> && ...) &&
+			ext::TriviallyMoveConstructible<storage<element_t<Ts>...>>
 		class move_base<Ts...> : public destruct_base<Ts...> {
 			using base_t = destruct_base<Ts...>;
 		public:
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr move_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		///////////////////////////////////////////////////////////////////////////
 		// move_assign_base: adds nontrivial or disables move assignment.
 		//
-		template <class...Ts>
+		template <class... Ts>
 		class move_assign_base : public move_base<Ts...> {
 			using base_t = move_base<Ts...>;
 		public:
@@ -537,18 +490,11 @@ STL2_OPEN_NAMESPACE {
 			move_assign_base& operator=(move_assign_base&&) & = delete;
 			move_assign_base& operator=(const move_assign_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr move_assign_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
-		template <class...Ts>
-		requires(models::Movable<element_t<Ts>> && ...)
+		template <class... Ts>
+		requires(Movable<element_t<Ts>> && ...)
 		class move_assign_base<Ts...> : public move_base<Ts...> {
 			using base_t = move_base<Ts...>;
 		public:
@@ -562,42 +508,28 @@ STL2_OPEN_NAMESPACE {
 				meta::all_of<meta::list<element_t<Ts>...>,
 					meta::quote_trait<is_nothrow_move_constructible>>>>)
 			{
-				this->move_assign_from(__stl2::move(that));
+				this->move_assign_from(std::move(that));
 				return *this;
 			}
 			move_assign_base& operator=(const move_assign_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr move_assign_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires
-			(models::Movable<element_t<Ts>> && ...) &&
-			ext::TriviallyMovable<storage<element_t<Ts>...>>()
+			(Movable<element_t<Ts>> && ...) &&
+			ext::TriviallyMovable<storage<element_t<Ts>...>>
 		class move_assign_base<Ts...> : public move_base<Ts...> {
 			using base_t = move_base<Ts...>;
 		public:
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr move_assign_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		///////////////////////////////////////////////////////////////////////////
 		// copy_base: Adds nontrivial or disables copy construction.
 		//
-		template <class...Ts>
+		template <class... Ts>
 		class copy_base : public move_assign_base<Ts...> {
 			using base_t = move_assign_base<Ts...>;
 		public:
@@ -607,18 +539,11 @@ STL2_OPEN_NAMESPACE {
 			copy_base& operator=(copy_base&&) & = default;
 			copy_base& operator=(const copy_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr copy_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
-		template <class...Ts>
-		requires(models::CopyConstructible<element_t<Ts>> && ...)
+		template <class... Ts>
+		requires(CopyConstructible<element_t<Ts>> && ...)
 		class copy_base<Ts...> : public move_assign_base<Ts...> {
 			using base_t = move_assign_base<Ts...>;
 		public:
@@ -632,37 +557,23 @@ STL2_OPEN_NAMESPACE {
 			copy_base& operator=(copy_base&&) & = default;
 			copy_base& operator=(const copy_base&) & = default;
 
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr copy_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires
-			(models::CopyConstructible<element_t<Ts>> && ...) &&
-			ext::TriviallyCopyConstructible<storage<element_t<Ts>...>>()
+			(CopyConstructible<element_t<Ts>> && ...) &&
+			ext::TriviallyCopyConstructible<storage<element_t<Ts>...>>
 		class copy_base<Ts...> : public move_assign_base<Ts...> {
 			using base_t = move_assign_base<Ts...>;
 		public:
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr copy_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
 		///////////////////////////////////////////////////////////////////////////
 		// copy_assign_base: Adds nontrivial or disables copy assignment.
 		//
-		template <class...Ts>
+		template <class... Ts>
 		class copy_assign_base : public copy_base<Ts...> {
 			using base_t = copy_base<Ts...>;
 		public:
@@ -672,18 +583,11 @@ STL2_OPEN_NAMESPACE {
 			copy_assign_base& operator=(copy_assign_base&&) & = default;
 			copy_assign_base& operator=(const copy_assign_base&) & = delete;
 
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr copy_assign_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
-		template <class...Ts>
-		requires(models::Copyable<element_t<Ts>> && ...)
+		template <class... Ts>
+		requires(Copyable<element_t<Ts>> && ...)
 		class copy_assign_base<Ts...> : public copy_base<Ts...> {
 			using base_t = copy_base<Ts...>;
 		public:
@@ -702,31 +606,17 @@ STL2_OPEN_NAMESPACE {
 				return *this;
 			}
 
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr copy_assign_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 
-		template <class...Ts>
+		template <class... Ts>
 		requires
-			(models::Copyable<element_t<Ts>> && ...) &&
-			ext::TriviallyCopyable<storage<element_t<Ts>...>>()
+			(Copyable<element_t<Ts>> && ...) &&
+			ext::TriviallyCopyable<storage<element_t<Ts>...>>
 		class copy_assign_base<Ts...> : public copy_base<Ts...> {
 			using base_t = copy_base<Ts...>;
 		public:
-#if STL2_WORKAROUND_GCC_79143
-			template<class... Args>
-			requires models::Constructible<base_t, Args...>
-			constexpr copy_assign_base(Args&&... args)
-			: base_t{std::forward<Args>(args)...} {}
-#else  // STL2_WORKAROUND_GCC_79143
 			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 		};
 	} // namespace __variant
 
@@ -734,8 +624,8 @@ STL2_OPEN_NAMESPACE {
 	// variant: top layer of the variant implementation. Adds swap, comparison
 	// operators, and converting assignments.
 	//
-	template <class...Ts>
-	requires(models::Destructible<__variant::element_t<Ts>> && ...)
+	template <class... Ts>
+	requires(Destructible<__variant::element_t<Ts>> && ...)
 	class variant : public __variant::copy_assign_base<Ts...> {
 		using base_t = __variant::copy_assign_base<Ts...>;
 
@@ -776,46 +666,28 @@ STL2_OPEN_NAMESPACE {
 
 	public:
 		using types = meta::list<Ts...>;
-#if STL2_WORKAROUND_GCC_79143
-		template <class First>
-		requires
-			!models::Same<variant, std::decay_t<First>> &&
-			models::Constructible<base_t, First> &&
-			models::ConvertibleTo<First, base_t>
-		constexpr variant(First&& f)
-		noexcept(std::is_nothrow_constructible<base_t, First>::value)
-		: base_t(std::forward<First>(f)) {}
-		template <class First, class... Rest>
-		requires
-			!models::Same<variant, decay_t<First>> &&
-			models::Constructible<base_t, First, Rest...>
-		constexpr explicit variant(First&& f, Rest&&...r)
-		noexcept(std::is_nothrow_constructible<base_t, First, Rest...>::value)
-		: base_t(__stl2::forward<First>(f), __stl2::forward<Rest>(r)...) {}
-#else  // STL2_WORKAROUND_GCC_79143
 		using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 
 		variant() = default;
-		template <std::size_t I, class E, class...Args, _IsNot<is_reference> T = meta::at_c<types, I>>
-		requires Constructible<T, std::initializer_list<E>&, Args...>()
-		explicit constexpr variant(in_place_index_t<I>, std::initializer_list<E>&& il, Args&&...args)
+		template <std::size_t I, class E, class... Args, _IsNot<is_reference> T = meta::at_c<types, I>>
+		requires Constructible<T, std::initializer_list<E>&, Args...>
+		explicit constexpr variant(in_place_index_t<I>, std::initializer_list<E>&& il, Args&&... args)
 		noexcept(is_nothrow_constructible<__variant::storage<__variant::element_t<Ts>...>,
 			in_place_index_t<I>, std::initializer_list<E>&, Args...>::value)
-		: base_t{in_place_index<I>, il, __stl2::forward<Args>(args)...} {}
+		: base_t{in_place_index<I>, il, std::forward<Args>(args)...} {}
 
-		template <_IsNot<is_reference> T, class E, class...Args,
+		template <_IsNot<is_reference> T, class E, class... Args,
 			std::size_t I = __variant::index_of_type<T, types>>
-		requires Constructible<T, std::initializer_list<E>&, Args...>()
-		explicit constexpr variant(in_place_type_t<T>, std::initializer_list<E>&& il, Args&&...args)
+		requires Constructible<T, std::initializer_list<E>&, Args...>
+		explicit constexpr variant(in_place_type_t<T>, std::initializer_list<E>&& il, Args&&... args)
 		noexcept(is_nothrow_constructible<__variant::storage<__variant::element_t<Ts>...>,
 			in_place_index_t<I>, std::initializer_list<E>&, Args...>::value)
-		: base_t{in_place_index<I>, il, __stl2::forward<Args>(args)...} {}
+		: base_t{in_place_index<I>, il, std::forward<Args>(args)...} {}
 
 		template <_IsNot<is_reference> T, class CF = constructible_from<T&&>>
 		requires
 			CF::value && !CF::ambiguous &&
-			Same<T, meta::at_c<types, CF::index>>() && Movable<T>()
+			Same<T, meta::at_c<types, CF::index>> && Movable<T>
 		variant& operator=(T&& t) &
 		noexcept(is_nothrow_move_constructible<T>::value &&
 			is_nothrow_move_assignable<T>::value)
@@ -823,9 +695,9 @@ STL2_OPEN_NAMESPACE {
 			constexpr auto I = CF::index;
 			if (this->index_ == I) {
 				auto& target = __variant::v_access::raw_get(in_place_index<I>, *this);
-				target = __stl2::move(t);
+				target = std::move(t);
 			} else {
-				this->template emplace<T>(__stl2::move(t));
+				this->template emplace<T>(std::move(t));
 			}
 			return *this;
 		}
@@ -833,7 +705,7 @@ STL2_OPEN_NAMESPACE {
 		template <class T, class CF = constructible_from<const T&>>
 		requires
 			CF::value && !CF::ambiguous &&
-			Same<T, meta::at_c<types, CF::index>>() && Copyable<T>()
+			Same<T, meta::at_c<types, CF::index>> && Copyable<T>
 		variant& operator=(const T& t) &
 		noexcept(is_nothrow_copy_constructible<T>::value &&
 			is_nothrow_copy_assignable<T>::value &&
@@ -865,8 +737,8 @@ STL2_OPEN_NAMESPACE {
 			meta::_v<meta::and_c<is_nothrow_swappable_v<
 				__variant::element_t<Ts>&, __variant::element_t<Ts>&>...>>)
 		requires
-			Movable<base_t>() && // Movable<variant>() explodes here.
-			(models::Swappable<__variant::element_t<Ts>&> && ...)
+			Movable<base_t> && // Movable<variant> explodes here.
+			(Swappable<__variant::element_t<Ts>> && ...)
 		{
 			if (this->index_ == that.index_) {
 				if (this->valid()) {
@@ -886,7 +758,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator==(const variant& lhs, const variant& rhs)
-		requires(models::EqualityComparable<__variant::element_t<Ts>> && ...)
+		requires(EqualityComparable<__variant::element_t<Ts>> && ...)
 		{
 			if (lhs.index_ != rhs.index_) {
 				return false;
@@ -895,13 +767,13 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator!=(const variant& lhs, const variant& rhs)
-		requires(models::EqualityComparable<__variant::element_t<Ts>> && ...)
+		requires(EqualityComparable<__variant::element_t<Ts>> && ...)
 		{
 			return !(lhs == rhs);
 		}
 
 		friend constexpr bool operator<(const variant& lhs, const variant& rhs)
-		requires(models::StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
 		{
 			if (lhs.index_ < rhs.index_) {
 				return true;
@@ -913,19 +785,19 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator>(const variant& lhs, const variant& rhs)
-		requires(models::StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
 		{
 			return rhs < lhs;
 		}
 
 		friend constexpr bool operator<=(const variant& lhs, const variant& rhs)
-		requires(models::StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
 		{
 			return !(rhs < lhs);
 		}
 
 		friend constexpr bool operator>=(const variant& lhs, const variant& rhs)
-		requires(models::StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
+		requires(StrictTotallyOrdered<__variant::element_t<Ts>> && ...)
 		{
 			return !(lhs < rhs);
 		}
@@ -941,11 +813,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <TaggedType...Ts>
 	using tagged_variant =
-		tagged<variant<__tag_elem<Ts>...>, __tag_spec<Ts>...>;
-
-	template <class T, __variant::Variant V>
-	constexpr std::size_t tuple_find<T, V> =
-		__variant::index_of_type<T, __variant::VariantTypes<V>>;
+		tagged<variant<__tagged::element<Ts>...>, __tagged::specifier<Ts>...>;
 } STL2_CLOSE_NAMESPACE
 
 namespace std {

@@ -22,9 +22,9 @@ STL2_OPEN_NAMESPACE {
 	concept bool __urng =
 		requires(G&& g) {
 			g();
-			requires UnsignedIntegral<decltype(g())>();
-			STL2_EXACT_TYPE_CONSTRAINT(G::min(), decltype(g()));
-			STL2_EXACT_TYPE_CONSTRAINT(G::max(), decltype(g()));
+			requires UnsignedIntegral<decltype(g())>;
+			{ G::min() } -> Same<decltype(g())>&&;
+			{ G::max() } -> Same<decltype(g())>&&;
 		};
 
 	namespace models {
@@ -36,9 +36,8 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <class G>
-	concept bool UniformRandomNumberGenerator() {
-		return models::UniformRandomNumberGenerator<G>;
-	}
+	concept bool UniformRandomNumberGenerator =
+		models::UniformRandomNumberGenerator<G>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

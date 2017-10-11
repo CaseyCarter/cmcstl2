@@ -49,11 +49,16 @@ int main() {
 	static_assert(models::Same<I&, decltype(*i)>);
 	static_assert(models::Same<I&, decltype(*i = 42)>);
 	static_assert(models::Same<I&, decltype(++i)>);
-	static_assert(models::Same<I, decltype(i++)>);
+	static_assert(models::Same<I&, decltype(i++)>);
 
 	static_assert(noexcept(I{}));
+#if 1 // workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80633
+	static_assert(noexcept(I{std::declval<decltype((ss))>()}));
+	static_assert(noexcept(I{std::declval<decltype((ss))>(), "some text"}));
+#else
 	static_assert(noexcept(I{ss}));
 	static_assert(noexcept(I{ss, "some text"}));
+#endif
 	static_assert(noexcept(I{I{}}));
 	static_assert(noexcept(I{i}));
 

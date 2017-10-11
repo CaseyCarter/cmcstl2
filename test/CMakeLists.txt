@@ -1,23 +1,37 @@
-add_executable(headers headers.cpp)
-add_test(test.headers headers)
+# cmcstl2 - A concept-enabled C++ standard library
+#
+#  Copyright Casey Carter 2015, 2017
+#
+#  Use, modification and distribution is subject to the
+#  Boost Software License, Version 1.0. (See accompanying
+#  file LICENSE_1_0.txt or copy at
+#  http://www.boost.org/LICENSE_1_0.txt)
+#
+# Project home: https://github.com/caseycarter/cmcstl2
+#
 
-add_executable(range_access range_access.cpp)
-add_test(test.range_access range_access)
+add_library(stl2_test_config INTERFACE)
+target_link_libraries(stl2_test_config INTERFACE stl2)
+target_compile_definitions(stl2_test_config INTERFACE $<$<CONFIG:Release>:NDEBUG>)
+target_compile_options(stl2_test_config INTERFACE
+    $<$<CXX_COMPILER_ID:GNU>:
+        -ftemplate-backtrace-limit=0 -Wall -Wextra -pedantic -Werror -march=native
+        $<$<CONFIG:Debug>:-O0 -fno-inline -g3 -fstack-protector-all>
+        $<$<CONFIG:Release>:-Ofast -g0>>)
 
-add_executable(tagged tagged.cpp)
-add_test(test.tagged tagged)
+function(add_stl2_test TESTNAME EXENAME SOURCES...)
+  add_executable(${EXENAME} ${SOURCES...})
+  target_link_libraries(${EXENAME} stl2_test_config)
+  add_test(${TESTNAME} ${EXENAME})
+endfunction(add_stl2_test)
 
-add_executable(common common.cpp)
-add_test(test.common common)
-
-add_executable(variant variant.cpp)
-add_test(test.variant variant)
-
-add_executable(meta meta.cpp)
-add_test(test.meta meta)
-
-add_executable(optional optional.cpp)
-add_test(test.optional optional)
+add_stl2_test(test.headers headers headers.cpp)
+add_stl2_test(test.range_access range_access range_access.cpp)
+add_stl2_test(test.tagged tagged tagged.cpp)
+add_stl2_test(test.common common common.cpp)
+add_stl2_test(test.variant variant variant.cpp)
+add_stl2_test(test.meta meta meta.cpp)
+add_stl2_test(test.optional optional optional.cpp)
 
 add_subdirectory(concepts)
 add_subdirectory(detail)

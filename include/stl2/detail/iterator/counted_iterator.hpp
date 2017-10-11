@@ -15,6 +15,7 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/compressed_pair.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
@@ -22,252 +23,235 @@
 #include <stl2/detail/iterator/operations.hpp>
 
 STL2_OPEN_NAMESPACE {
-	namespace __counted_iterator {
-		Iterator{I} class cursor;
+	// Not to spec: All members constexpr per P0579
+	Iterator{I}
+	class counted_iterator {
+		Iterator{O} friend class counted_iterator;
+		Iterator{O} friend constexpr
+		void advance(counted_iterator<O>& i, difference_type_t<O> n);
 
-		struct access {
-			template <_SpecializationOf<cursor> CC>
-			static constexpr decltype(auto) base(CC&& cc) noexcept {
-				return __stl2::forward<CC>(cc).get();
-			}
-			template <_SpecializationOf<cursor> CC>
-			static constexpr decltype(auto) count(CC&& cc) noexcept {
-				return (__stl2::forward<CC>(cc).count_);
-			}
-		};
+		ext::compressed_pair<I, difference_type_t<I>> data_{};
 
-		Iterator{I}
-		struct adaptor_box : protected detail::ebo_box<I, adaptor_box<I>> {
-			using base_t = detail::ebo_box<I, adaptor_box<I>>;
-			adaptor_box() = default;
-#if STL2_WORKAROUND_GCC_79143
-			template <class First, class... Rest>
-			requires
-				!models::Same<adaptor_box, std::decay_t<First>> &&
-				models::Constructible<I, First, Rest...>
-			constexpr adaptor_box(First&& f, Rest&&...r)
-			noexcept(std::is_nothrow_constructible<I, First, Rest...>::value)
-			: base_t(std::forward<First>(f), std::forward<Rest>(r)...) {}
-#else  // STL2_WORKAROUND_GCC_79143
-			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
-		};
-		InputIterator{I}
-		struct adaptor_box<I> : protected detail::ebo_box<I, adaptor_box<I>> {
-			using base_t = detail::ebo_box<I, adaptor_box<I>>;
-			using value_type = value_type_t<I>;
-			using single_pass = meta::bool_<!models::ForwardIterator<I>>;
-			using contiguous = meta::bool_<models::ContiguousIterator<I>>;
+		constexpr I& current() noexcept { return data_.first(); };
+		constexpr const I& current() const noexcept { return data_.first(); };
+		constexpr difference_type_t<I>& cnt() noexcept { return data_.second(); }
+		constexpr const difference_type_t<I>& cnt() const noexcept {
+			return data_.second();
+		}
+	public:
+		using iterator_type = I;
+		using difference_type = difference_type_t<I>;
 
-			adaptor_box() = default;
-#if STL2_WORKAROUND_GCC_79143
-			template <class First, class... Rest>
-			requires
-				!models::Same<adaptor_box, std::decay_t<First>> &&
-				models::Constructible<I, First, Rest...>
-			constexpr adaptor_box(First&& f, Rest&&...r)
-			noexcept(std::is_nothrow_constructible<I, First, Rest...>::value)
-			: base_t(std::forward<First>(f), std::forward<Rest>(r)...) {}
-#else  // STL2_WORKAROUND_GCC_79143
-			using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
-		};
+		constexpr counted_iterator() = default;
+		constexpr counted_iterator(I x, difference_type_t<I> n)
+		: data_{std::move(x), n} {
+			STL2_EXPECT(n >= 0);
+		}
+		template <ConvertibleTo<I> U>
+		constexpr counted_iterator(const counted_iterator<U>& i)
+		: data_{i.current(), i.count()} {}
+		template <ConvertibleTo<I> U>
+		constexpr counted_iterator& operator=(const counted_iterator<U>& i) {
+			current() = i.current();
+			cnt() = i.cnt();
+			return *this;
+		}
+		constexpr I base() const {
+			return current();
+		}
+		constexpr difference_type_t<I> count() const {
+			return cnt();
+		}
+		constexpr decltype(auto) operator*() noexcept(noexcept(*std::declval<I&>())) {
+			return *current();
+		}
+		decltype(auto) operator*() const
+		noexcept(noexcept(*std::declval<const I&>()))
+		requires detail::Dereferenceable<const I> {
+			return *current();
+		}
+		constexpr counted_iterator& operator++() {
+			STL2_EXPECT(cnt() > 0);
+			++current();
+			--cnt();
+			return *this;
+		}
+		// Not to spec:
+		// https://github.com/ericniebler/stl2/issues/232
+		constexpr decltype(auto) operator++(int) {
+			STL2_EXPECT(cnt() > 0);
+			--cnt();
+			return current()++;
+		}
+		constexpr counted_iterator operator++(int) requires ForwardIterator<I> {
+			STL2_EXPECT(cnt() > 0);
+			auto tmp(*this);
+			++*this;
+			return tmp;
+		}
+		constexpr counted_iterator& operator--() requires BidirectionalIterator<I> {
+			--current();
+			++cnt();
+			return *this;
+		}
+		constexpr counted_iterator operator--(int) requires BidirectionalIterator<I> {
+			auto tmp(*this);
+			--*this;
+			return tmp;
+		}
+		constexpr counted_iterator operator+(difference_type n) const
+			requires RandomAccessIterator<I> {
+			STL2_EXPECT(n <= cnt());
+			return counted_iterator(current() + n, cnt() - n);
+		}
+		constexpr counted_iterator& operator+=(difference_type n)
+			requires RandomAccessIterator<I> {
+			STL2_EXPECT(n <= cnt());
+			current() += n;
+			cnt() -= n;
+			return *this;
+		}
+		constexpr counted_iterator operator- (difference_type n) const
+			requires RandomAccessIterator<I> {
+			STL2_EXPECT(-n <= cnt());
+			return counted_iterator(current() - n, cnt() + n);
+		}
+		constexpr counted_iterator& operator-=(difference_type n)
+			requires RandomAccessIterator<I> {
+			STL2_EXPECT(-n <= cnt());
+			current() -= n;
+			cnt() += n;
+			return *this;
+		}
+		constexpr decltype(auto) operator[](difference_type n) const
+			requires RandomAccessIterator<I> {
+			STL2_EXPECT(n <= cnt());
+			return current()[n];
+		}
 
-		Iterator{I}
-		class cursor : public adaptor_box<I> {
-			friend access;
-			using box_t = adaptor_box<I>;
-			using box_t::get;
-			difference_type_t<I> count_ = 0;
+		// Not to spec
+		// https://github.com/ericniebler/stl2/issues/245
+		friend constexpr rvalue_reference_t<I>
+		iter_move(const counted_iterator& i)
+			noexcept(noexcept(__stl2::iter_move(i.current())))
+			requires InputIterator<I> {
+			return __stl2::iter_move(i.current());
+		}
+		template <IndirectlySwappable<I> I2>
+		friend constexpr void iter_swap(
+			const counted_iterator& x, const counted_iterator<I2>& y)
+			noexcept(noexcept(__stl2::iter_swap(x.current(), y.current()))) {
+			__stl2::iter_swap(x.current(), y.current());
+		}
+	};
 
-		public:
-			using difference_type = difference_type_t<I>;
+	template <Readable I>
+	struct value_type<counted_iterator<I>> {
+		using type = value_type_t<I>;
+	};
+	template <InputIterator I>
+	struct iterator_category<counted_iterator<I>> {
+		using type = iterator_category_t<I>;
+	};
 
-			class mixin : protected basic_mixin<cursor> {
-				using base_t = basic_mixin<cursor>;
-				using base_t::get;
-			public:
-				using iterator_type = I;
-				using difference_type = cursor::difference_type;
-
-				mixin() = default;
-				STL2_CONSTEXPR_EXT mixin(I&& i, difference_type n)
-				noexcept(std::is_nothrow_move_constructible<I>::value)
-				: base_t(cursor{std::move(i), n})
-				{}
-				STL2_CONSTEXPR_EXT mixin(const I& i, difference_type n)
-				noexcept(std::is_nothrow_copy_constructible<I>::value)
-				: base_t(cursor{i, n})
-				{}
-#if STL2_WORKAROUND_GCC_79143
-				constexpr explicit mixin(const cursor& c)
-				noexcept(std::is_nothrow_copy_constructible<cursor>::value)
-				: base_t{c}
-				{}
-				constexpr explicit mixin(cursor&& c)
-				noexcept(std::is_nothrow_move_constructible<cursor>::value)
-				: base_t{std::move(c)}
-				{}
-#else  // STL2_WORKAROUND_GCC_79143
-				using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
-
-				STL2_CONSTEXPR_EXT I base() const
-				noexcept(is_nothrow_copy_constructible<I>::value)
-				{
-					return get().get();
-				}
-				STL2_CONSTEXPR_EXT difference_type count() const noexcept {
-					return get().count_;
-				}
-			};
-
-			cursor() = default;
-			STL2_CONSTEXPR_EXT cursor(I&& i, difference_type n)
-			noexcept(is_nothrow_move_constructible<I>::value)
-			: box_t(__stl2::move(i)), count_{n}
-			{
-				STL2_EXPECT(0 <= n);
-			}
-			STL2_CONSTEXPR_EXT cursor(const I& i, difference_type n)
-			noexcept(is_nothrow_copy_constructible<I>::value)
-			: box_t(i), count_{n}
-			{
-				STL2_EXPECT(0 <= n);
-			}
-			template <ConvertibleTo<I> O>
-			STL2_CONSTEXPR_EXT cursor(cursor<O>&& that)
-			noexcept(is_nothrow_constructible<I, O&&>::value)
-			: box_t(access::base(__stl2::move(that))), count_{access::count(that)}
-			{}
-			template <ConvertibleTo<I> O>
-			STL2_CONSTEXPR_EXT cursor(const cursor<O>& that)
-			noexcept(is_nothrow_constructible<I, const O&>::value)
-			: box_t(access::base(that)), count_{access::count(that)}
-			{}
-
-#if STL2_WORKAROUND_GCC_69096
-			template <class II = I>
-			requires
-				InputIterator<II>() && Same<I, II>()
-			STL2_CONSTEXPR_EXT decltype(auto) read() const
-			noexcept(noexcept(*declval<const II&>()))
-			{
-				return *get();
-			}
-#else  // STL2_WORKAROUND_GCC_69096
-			STL2_CONSTEXPR_EXT decltype(auto) read() const
-			noexcept(noexcept(*declval<const I&>()))
-			requires InputIterator<I>()
-			{
-				return *get();
-			}
-#endif // STL2_WORKAROUND_GCC_69096
-
-			template <class T>
-			requires
-				!InputIterator<I>() &&
-				Writable<I, T&&>()
-			STL2_CONSTEXPR_EXT void write(T&& t)
-			noexcept(noexcept(*declval<I&>() = __stl2::forward<T>(t)))
-			{
-				*get() = __stl2::forward<T>(t);
-			}
-
-			STL2_CONSTEXPR_EXT bool equal(default_sentinel) const noexcept {
-				return count_ == 0;
-			}
-			STL2_CONSTEXPR_EXT bool equal(
-				const cursor<Common<I> >& that) const noexcept
-			{
-				return count_ == access::count(that);
-			}
-
-			STL2_CONSTEXPR_EXT void next()
-			noexcept(noexcept(++declval<I&>()))
-			{
-				STL2_EXPECT(0 < count_);
-				++get();
-				--count_;
-			}
-
-			STL2_CONSTEXPR_EXT void prev()
-			noexcept(noexcept(--declval<I&>()))
-			requires BidirectionalIterator<I>()
-			{
-				--get();
-				++count_;
-			}
-
-			STL2_CONSTEXPR_EXT void advance(difference_type n)
-			noexcept(noexcept(declval<I&>() += n))
-			requires RandomAccessIterator<I>()
-			{
-				STL2_EXPECT(n <= count_);
-				get() += n;
-				count_ -= n;
-			}
-
-			STL2_CONSTEXPR_EXT difference_type distance_to(
-				default_sentinel) const noexcept
-			{
-				return count_;
-			}
-			STL2_CONSTEXPR_EXT difference_type distance_to(
-				const cursor<Common<I> >& that) const noexcept
-			{
-				return count_ - access::count(that);
-			}
-
-			// FIXME: test
-			// Extension
-			STL2_CONSTEXPR_EXT decltype(auto) indirect_move() const
-			noexcept(noexcept(__stl2::iter_move(declval<const I&>())))
-			requires InputIterator<I>()
-			{
-				return __stl2::iter_move(get());
-			}
-
-			// FIXME: test
-			// Extension
-			STL2_CONSTEXPR_EXT void indirect_swap(
-				const cursor<IndirectlySwappable<I> >& that) const
-			STL2_NOEXCEPT_RETURN(
-				__stl2::iter_swap(get(), access::base(that))
-			)
-		};
+	// Not to spec: All operators constexpr per P0579
+	template <class I1, class I2>
+		requires Common<I1, I2>
+	constexpr bool operator==(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
+		return x.count() == y.count();
+	}
+	constexpr bool operator==(
+		const counted_iterator<auto>& x, default_sentinel) noexcept {
+		return x.count() == 0;
+	}
+	constexpr bool operator==(
+		default_sentinel, const counted_iterator<auto>& x) noexcept {
+		return x.count() == 0;
+	}
+	template <class I1, class I2>
+		requires Common<I1, I2>
+	constexpr bool operator!=(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
+		return !(x == y);
+	}
+	constexpr bool operator!=(
+		const counted_iterator<auto>& x, default_sentinel y) noexcept {
+		return !(x == y);
+	}
+	constexpr bool operator!=(
+		default_sentinel x, const counted_iterator<auto>& y) noexcept {
+		return !(x == y);
+	}
+	template <class I1, class I2>
+		requires Common<I1, I2>
+	constexpr bool operator<(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
+		return y.count() < x.count();
+	}
+	template <class I1, class I2>
+		requires Common<I1, I2>
+	constexpr bool operator<=(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
+		return !(y < x);
+	}
+	template <class I1, class I2>
+		requires Common<I1, I2>
+	constexpr bool operator>(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
+		return y < x;
+	}
+	template <class I1, class I2>
+		requires Common<I1, I2>
+	constexpr bool operator>=(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
+		return !(x < y);
+	}
+	template <class I1, class I2>
+		requires Common<I1, I2>
+	constexpr difference_type_t<I2> operator-(
+		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
+		return y.count() - x.count();
+	}
+	template <class I>
+	constexpr difference_type_t<I> operator-(
+		const counted_iterator<I>& x, default_sentinel) noexcept {
+		return -x.count();
+	}
+	template <class I>
+	constexpr difference_type_t<I> operator-(
+		default_sentinel, const counted_iterator<I>& y) noexcept {
+		return y.count();
+	}
+	template <RandomAccessIterator I>
+	constexpr counted_iterator<I>
+	operator+(difference_type_t<I> n, const counted_iterator<I>& x) noexcept {
+		STL2_EXPECT(n <= x.count());
+		return x + n;
 	}
 
-	// Not to spec:
-	// * hooks iter_move and iter_swap
-	//   See https://github.com/ericniebler/stl2/245
-	Iterator{I}
-	using counted_iterator = basic_iterator<__counted_iterator::cursor<I>>;
-
-	template <class I>
-	requires
-		models::Iterator<__f<I>>
-	STL2_CONSTEXPR_EXT auto make_counted_iterator(I&& i, difference_type_t<__f<I>> n)
+	// Not to spec: constexpr per P0579
+	template <Iterator I>
+	constexpr auto make_counted_iterator(I i, difference_type_t<I> n)
 	STL2_NOEXCEPT_RETURN(
-		counted_iterator<__f<I>>{__stl2::forward<I>(i), n}
+		counted_iterator<I>{std::move(i), n}
 	)
 
+	// Not to spec: constexpr per P0579
 	Iterator{I}
-	STL2_CONSTEXPR_EXT void advance(counted_iterator<I>& i, difference_type_t<I> n)
-	noexcept(is_nothrow_copy_constructible<I>::value &&
-					 is_nothrow_move_assignable<I>::value &&
-					 noexcept(__stl2::next(declval<const I&>(), n)))
+	constexpr void advance(counted_iterator<I>& i, difference_type_t<I> n)
+	noexcept(noexcept(__stl2::advance(std::declval<I&>(), n)))
 	{
 		STL2_EXPECT(n <= i.count());
-		__counted_iterator::access::base(__stl2::get_cursor(i)) =
-			__stl2::next(__counted_iterator::access::base(__stl2::get_cursor(i)), n);
-		__counted_iterator::access::count(__stl2::get_cursor(i)) -= n;
+		__stl2::advance(i.current(), n);
+		i.cnt() -= n;
 	}
 
+	// Not to spec: constexpr per P0579
 	RandomAccessIterator{I}
-	STL2_CONSTEXPR_EXT void advance(counted_iterator<I>& i, difference_type_t<I> n)
+	constexpr void advance(counted_iterator<I>& i, difference_type_t<I> n)
 	STL2_NOEXCEPT_RETURN(
-		(STL2_EXPECT(n <= i.count()), i += n)
+		(STL2_EXPECT(n <= i.count()), i += n, void())
 	)
 
 	namespace ext {
@@ -293,17 +277,17 @@ STL2_OPEN_NAMESPACE {
 		template <class I>
 		constexpr auto recounted(const counted_iterator<I>& o, I i)
 		STL2_NOEXCEPT_RETURN(
-			counted_iterator<I>{__stl2::move(i), o.count()}
+			counted_iterator<I>{std::move(i), o.count()}
 		)
 
 		template <class I>
 		constexpr auto recounted(
 			const counted_iterator<I>& o, I i, difference_type_t<I> n)
-		noexcept(noexcept(counted_iterator<I>{__stl2::move(i), o.count() - n}))
+		noexcept(noexcept(counted_iterator<I>{std::move(i), o.count() - n}))
 		{
 			STL2_EXPENSIVE_ASSERT(!models::ForwardIterator<I> ||
 				i == __stl2::next(o.base(), n));
-			return counted_iterator<I>{__stl2::move(i), o.count() - n};
+			return counted_iterator<I>{std::move(i), o.count() - n};
 		}
 	}
 } STL2_CLOSE_NAMESPACE

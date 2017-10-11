@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr std::uint32_t hash(T&& value)
 			{
 				auto hasher = std::hash<__uncvref<T>>{};
-				return randutils::crushto32(hasher(__stl2::forward<T>(value)));
+				return randutils::crushto32(hasher(std::forward<T>(value)));
 			}
 
 			constexpr std::uint32_t fnv(std::uint32_t hash, const char* pos)
@@ -166,8 +166,8 @@ STL2_OPEN_NAMESPACE {
 				*it++ = randutils::crushto32(STL2_CPU_ENTROPY);
 
 				// Hopefully high-quality entropy from random_device.
-				__stl2::random_device rd{};
-				__stl2::generate(it, seeds.end(), __stl2::ref(rd));
+				std::random_device rd{};
+				__stl2::generate(it, seeds.end(), std::ref(rd));
 
 				STL2_EXPECT(it <= seeds.end());
 
@@ -269,7 +269,7 @@ STL2_OPEN_NAMESPACE {
 
 				template <InputIterator I, Sentinel<I> S>
 				requires
-					ConvertibleTo<reference_t<I>, IntRep>()
+					ConvertibleTo<reference_t<I>, IntRep>
 				void mix_entropy(I begin, S end)
 				{
 					auto hash_const = INIT_A;
@@ -308,7 +308,7 @@ STL2_OPEN_NAMESPACE {
 
 				template <class T>
 				requires
-					ConvertibleTo<T const&, IntRep>()
+					ConvertibleTo<T const&, IntRep>
 				seed_seq_fe(std::initializer_list<T> init)
 				{
 					seed(init.begin(), init.end());
@@ -316,7 +316,7 @@ STL2_OPEN_NAMESPACE {
 
 				template <InputIterator I, Sentinel<I> S>
 				requires
-					ConvertibleTo<reference_t<I>, IntRep>()
+					ConvertibleTo<reference_t<I>, IntRep>
 				seed_seq_fe(I begin, S end)
 				{
 					seed(begin, end);
@@ -325,7 +325,7 @@ STL2_OPEN_NAMESPACE {
 				// generating functions
 				template <RandomAccessIterator I, Sentinel<I> S>
 				requires
-					IndirectlyCopyable<IntRep const*, I>()
+					IndirectlyCopyable<IntRep const*, I>
 				void generate(I dest_begin, S dest_end) const
 				{
 					auto src_begin = mixer_.begin();
@@ -351,7 +351,7 @@ STL2_OPEN_NAMESPACE {
 
 				template <WeaklyIncrementable O>
 				requires
-					IndirectlyCopyable<IntRep const*, O>()
+					IndirectlyCopyable<IntRep const*, O>
 				void param(O dest) const
 				{
 					const IntRep INV_A = randutils::fast_exp(MULT_A, IntRep(-1));
@@ -391,7 +391,7 @@ STL2_OPEN_NAMESPACE {
 
 				template <InputIterator I, Sentinel<I> S>
 				requires
-					ConvertibleTo<reference_t<I>, IntRep>()
+					ConvertibleTo<reference_t<I>, IntRep>
 				void seed(I begin, S end)
 				{
 					mix_entropy(begin, end);
@@ -465,7 +465,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		using default_random_engine =
-			meta::if_c<sizeof(void*) >= 8, __stl2::mt19937_64, __stl2::mt19937>;
+			meta::if_c<sizeof(void*) >= 8, std::mt19937_64, std::mt19937>;
 		inline default_random_engine& get_random_engine()
 		{
 			thread_local default_random_engine engine{

@@ -41,9 +41,9 @@ STL2_OPEN_NAMESPACE {
 					meta::compose<non_void_predicate, meta::quote<meta::second>>>,
 				meta::quote<meta::first>>;
 
-		template <Variant...Variants>
+		template <Variant... Variants>
 		constexpr std::size_t total_alternatives = 1;
-		template <Variant First, Variant...Rest>
+		template <Variant First, Variant... Rest>
 		constexpr std::size_t total_alternatives<First, Rest...> =
 			non_void_types<VariantTypes<First>>::size() *
 			total_alternatives<Rest...>;
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 		//
 		template <class F, class Variants, class Indices>
 		struct single_visit_properties {};
-		template <class F, Variant...Variants, std::size_t...Is>
+		template <class F, Variant... Variants, std::size_t... Is>
 		struct single_visit_properties<F,
 			meta::list<Variants...>, meta::list<meta::size_t<Is>...>>
 		{
@@ -72,14 +72,14 @@ STL2_OPEN_NAMESPACE {
 		using single_visit_noexcept =
 			meta::bool_<single_visit_properties<F, Variants, Indices>::nothrow>;
 
-		template <Variant...Vs>
+		template <Variant... Vs>
 		using all_visit_vectors =
 			meta::cartesian_product<meta::list<non_void_indices<VariantTypes<Vs>>...>>;
 
 		///////////////////////////////////////////////////////////////////////////
 		// Create a list of all possible return types from F visiting Vs
 		//
-		template <class F, Variant...Vs>
+		template <class F, Variant... Vs>
 		using all_return_types =
 			meta::transform<
 				all_visit_vectors<Vs...>,
@@ -91,7 +91,7 @@ STL2_OPEN_NAMESPACE {
 		//
 		#if 0
 		// Require visitation to return the same type for all alternatives.
-		template <class F, Variant...Vs>
+		template <class F, Variant... Vs>
 			requires meta::_v<meta::all_of<
 				meta::pop_front<all_return_types<F, Vs...>>,
 				meta::bind_front<
@@ -102,19 +102,19 @@ STL2_OPEN_NAMESPACE {
 		#elif 0
 		// Require the return type of all alternatives to have a common
 		// type, which visit returns.
-		template <class F, Variant...Vs>
+		template <class F, Variant... Vs>
 		using VisitReturn =
 			meta::apply<meta::quote<common_type_t>, all_return_types<F, Vs...>>;
 
 		#else
 		// Require the return type of all alternatives to have a common
 		// reference type, which visit returns.
-		template <class F, Variant...Vs>
+		template <class F, Variant... Vs>
 		using VisitReturn =
 			meta::apply<meta::quote<common_reference_t>, all_return_types<F, Vs...>>;
 		#endif
 
-		template <class F, class...Vs>
+		template <class F, class... Vs>
 		concept bool RawVisitorWithIndices =
 			sizeof...(Vs) > 0 && requires { typename VisitReturn<F, Vs...>; };
 
@@ -128,12 +128,12 @@ STL2_OPEN_NAMESPACE {
 		// TODO: Tune.
 		constexpr std::size_t O1_visit_threshold = 5;
 
-		template <std::size_t...Is, Variant...Vs, RawVisitorWithIndices<Vs...> F>
+		template <std::size_t... Is, Variant... Vs, RawVisitorWithIndices<Vs...> F>
 		constexpr VisitReturn<F, Vs...>
-		visit_handler(std::index_sequence<Is...> indices, F&& f, Vs&&...vs)
+		visit_handler(std::index_sequence<Is...> indices, F&& f, Vs&&... vs)
 		STL2_NOEXCEPT_RETURN(
-			__stl2::forward<F>(f)(indices,
-				v_access::raw_get(in_place_index<Is>, __stl2::forward<Vs>(vs))...)
+			std::forward<F>(f)(indices,
+				v_access::raw_get(in_place_index<Is>, std::forward<Vs>(vs))...)
 		)
 
 		///////////////////////////////////////////////////////////////////////////
@@ -147,17 +147,17 @@ STL2_OPEN_NAMESPACE {
 			F&& f_;
 			tuple<Vs&&...> vs_;
 
-			template <std::size_t...Is, std::size_t...Js>
+			template <std::size_t... Is, std::size_t... Js>
 			requires sizeof...(Is) == N && sizeof...(Js) == N
 			constexpr R invoke(std::index_sequence<Is...> i, std::index_sequence<Js...>)
-			noexcept(noexcept(visit_handler(i, __stl2::forward<F>(f_),
-				__stl2::get<Js>(__stl2::move(vs_))...)))
+			noexcept(noexcept(visit_handler(i, std::forward<F>(f_),
+				get<Js>(std::move(vs_))...)))
 			{
-				return visit_handler(i, __stl2::forward<F>(f_),
-					__stl2::get<Js>(__stl2::move(vs_))...);
+				return visit_handler(i, std::forward<F>(f_),
+					get<Js>(std::move(vs_))...);
 			}
 
-			template <std::size_t...Is>
+			template <std::size_t... Is>
 			requires sizeof...(Is) == N
 			constexpr R find_indices(std::index_sequence<Is...> i)
 			noexcept(noexcept(declval<ON_dispatch&>().
@@ -166,7 +166,7 @@ STL2_OPEN_NAMESPACE {
 				return invoke(i, std::make_index_sequence<N>{});
 			}
 
-			template <std::size_t...Is, std::size_t Last>
+			template <std::size_t... Is, std::size_t Last>
 			constexpr R find_one_index(std::index_sequence<Is...>, std::size_t n, std::index_sequence<Last>)
 			noexcept(noexcept(declval<ON_dispatch&>().
 				find_indices(std::index_sequence<Is..., Last>{})))
@@ -175,7 +175,7 @@ STL2_OPEN_NAMESPACE {
 				return find_indices(std::index_sequence<Is..., Last>{});
 			}
 
-			template <std::size_t...Is, std::size_t First, std::size_t...Rest>
+			template <std::size_t... Is, std::size_t First, std::size_t... Rest>
 			constexpr R find_one_index(std::index_sequence<Is...> i, std::size_t n, std::index_sequence<First, Rest...>)
 			noexcept(noexcept(
 				declval<ON_dispatch&>().find_indices(std::index_sequence<Is..., First>{}),
@@ -189,7 +189,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			template <std::size_t...Is,
+			template <std::size_t... Is,
 				class NVI = __as_integer_sequence<non_void_indices<
 					VariantTypes<meta::at_c<meta::list<Vs...>, sizeof...(Is)>>>>>
 			requires sizeof...(Is) < N
@@ -197,14 +197,14 @@ STL2_OPEN_NAMESPACE {
 			noexcept(noexcept(declval<ON_dispatch&>()
 				.find_one_index(i, std::size_t{0}, NVI{})))
 			{
-				auto& v = __stl2::get<sizeof...(Is)>(vs_);
+				auto& v = get<sizeof...(Is)>(vs_);
 				STL2_EXPECT(v.valid());
 				return find_one_index(i, v.index(), NVI{});
 			}
 
 		public:
-			constexpr ON_dispatch(F&& f, Vs&&...vs) noexcept
-			: f_(__stl2::forward<F>(f)), vs_{__stl2::forward<Vs>(vs)...} {}
+			constexpr ON_dispatch(F&& f, Vs&&... vs) noexcept
+			: f_(std::forward<F>(f)), vs_{std::forward<Vs>(vs)...} {}
 
 			constexpr R visit() &&
 			noexcept(VisitNothrow<F, Vs...>)
@@ -215,35 +215,35 @@ STL2_OPEN_NAMESPACE {
 
 		RawVisitorWithIndices{F, ...Vs}
 		constexpr VisitReturn<F, Vs...>
-		raw_visit_with_indices(F&& f, Vs&&...vs)
+		raw_visit_with_indices(F&& f, Vs&&... vs)
 		noexcept(VisitNothrow<F, Vs...>)
 		requires total_alternatives<Vs...> < O1_visit_threshold
 		{
 			return ON_dispatch<F, Vs...>{
-				__stl2::forward<F>(f), __stl2::forward<Vs>(vs)...
+				std::forward<F>(f), std::forward<Vs>(vs)...
 			}.visit();
 		}
 
 		///////////////////////////////////////////////////////////////////////////
 		// O(1) visitor implementation
 		//
-		template <class I, class F, Variant...Vs>
+		template <class I, class F, Variant... Vs>
 		requires RawVisitorWithIndices<F, Vs...>
 		constexpr VisitReturn<F, Vs...>
-		o1_visit_handler(F&& f, Vs&&...vs)
+		o1_visit_handler(F&& f, Vs&&... vs)
 		STL2_NOEXCEPT_RETURN(
-			visit_handler(I{}, __stl2::forward<F>(f),
-				__stl2::forward<Vs>(vs)...)
+			visit_handler(I{}, std::forward<F>(f),
+				std::forward<Vs>(vs)...)
 		)
 
 		RawVisitorWithIndices{F, ...Vs}
 		using visit_handler_ptr =
 			VisitReturn<F, Vs...>(*)(F&&, Vs&&...);
 
-		template <class Indices, class F, Variant...Vs>
+		template <class Indices, class F, Variant... Vs>
 		requires RawVisitorWithIndices<F, Vs...>
 		constexpr visit_handler_ptr<F, Vs...> visit_handler_for = {};
-		template <std::size_t...Is, class F, Variant...Vs>
+		template <std::size_t... Is, class F, Variant... Vs>
 		requires RawVisitorWithIndices<F, Vs...> &&
 			meta::_v<meta::all_of<
 				meta::list<meta::at_c<VariantTypes<Vs>, Is>...>,
@@ -252,10 +252,10 @@ STL2_OPEN_NAMESPACE {
 			visit_handler_for<std::index_sequence<Is...>, F, Vs...> =
 				&o1_visit_handler<std::index_sequence<Is...>, F, Vs...>;
 
-		template <class Indices, class F, Variant...Vs>
+		template <class Indices, class F, Variant... Vs>
 		requires RawVisitorWithIndices<F, Vs...>
 		struct O1_dispatch;
-		template <class...Is, class F, Variant...Vs>
+		template <class... Is, class F, Variant... Vs>
 		requires RawVisitorWithIndices<F, Vs...>
 		struct O1_dispatch<meta::list<Is...>, F, Vs...> {
 			static constexpr visit_handler_ptr<F, Vs...> table[] = {
@@ -263,7 +263,7 @@ STL2_OPEN_NAMESPACE {
 			};
 		};
 
-		template <class...Is, class F, Variant...Vs>
+		template <class... Is, class F, Variant... Vs>
 		requires RawVisitorWithIndices<F, Vs...>
 		constexpr visit_handler_ptr<F, Vs...>
 			O1_dispatch<meta::list<Is...>, F, Vs...>::table[];
@@ -272,9 +272,9 @@ STL2_OPEN_NAMESPACE {
 			return 0;
 		}
 
-		template <Variant First, Variant...Rest>
+		template <Variant First, Variant... Rest>
 		constexpr std::size_t
-		calc_index(const First& f, const Rest&...rest) noexcept
+		calc_index(const First& f, const Rest&... rest) noexcept
 		{
 			STL2_EXPECT(f.valid());
 			constexpr std::size_t M = meta::_v<meta::fold<
@@ -284,7 +284,7 @@ STL2_OPEN_NAMESPACE {
 			return f.index() * M + calc_index(rest...);
 		}
 
-		template <Variant...Vs>
+		template <Variant... Vs>
 		using all_index_vectors =
 			meta::transform<
 				meta::cartesian_product<meta::list<
@@ -294,14 +294,14 @@ STL2_OPEN_NAMESPACE {
 
 		RawVisitorWithIndices{F, ...Vs}
 		constexpr VisitReturn<F, Vs...>
-		raw_visit_with_indices(F&& f, Vs&&...vs)
+		raw_visit_with_indices(F&& f, Vs&&... vs)
 		noexcept(VisitNothrow<F, Vs...>)
 		requires total_alternatives<Vs...> >= O1_visit_threshold
 		{
 			using Dispatch = O1_dispatch<all_index_vectors<Vs...>, F, Vs...>;
 			std::size_t i = calc_index(vs...);
 			STL2_EXPECT(Dispatch::table[i]);
-			return Dispatch::table[i](__stl2::forward<F>(f), __stl2::forward<Vs>(vs)...);
+			return Dispatch::table[i](std::forward<F>(f), std::forward<Vs>(vs)...);
 		}
 
 		///////////////////////////////////////////////////////////////////////////
@@ -314,7 +314,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <std::size_t I, class T>
 			constexpr decltype(auto) operator()(std::index_sequence<I>, T&& t) && {
-				return __stl2::forward<F>(f_)(meta::size_t<I>{}, __stl2::forward<T>(t));
+				return std::forward<F>(f_)(meta::size_t<I>{}, std::forward<T>(t));
 			}
 		};
 
@@ -328,36 +328,34 @@ STL2_OPEN_NAMESPACE {
 		noexcept(VisitNothrow<single_index_visitor<F>, V>)
 		{
 			return raw_visit_with_indices(
-				single_index_visitor<F>{__stl2::forward<F>(f)},
-				__stl2::forward<V>(v));
+				single_index_visitor<F>{std::forward<F>(f)}, std::forward<V>(v));
 		}
 
 		///////////////////////////////////////////////////////////////////////////
 		// Adapt a visitor that doesn't care about the indices of the alternatives
 		// to the variadic visitor model.
 		//
-		template <class F, Variant...Vs>
+		template <class F, Variant... Vs>
 		struct no_index_visitor {
 			F&& f_;
 
-			template <class I, class...Args>
-			constexpr decltype(auto) operator()(I, Args&&...args) && {
-				return __stl2::forward<F>(f_)(__stl2::forward<Args>(args)...);
+			template <class I, class... Args>
+			constexpr decltype(auto) operator()(I, Args&&... args) && {
+				return std::forward<F>(f_)(std::forward<Args>(args)...);
 			}
 		};
 
-		template <class F, class...Vs>
+		template <class F, class... Vs>
 		concept bool RawVisitor =
 			RawVisitorWithIndices<no_index_visitor<F>, Vs...>;
 
 		RawVisitor{F, ...Vs}
 		constexpr VisitReturn<no_index_visitor<F>, Vs...>
-		raw_visit(F&& f, Vs&&...vs)
+		raw_visit(F&& f, Vs&&... vs)
 		noexcept(VisitNothrow<no_index_visitor<F>, Vs...>)
 		{
 			return raw_visit_with_indices(
-				no_index_visitor<F>{__stl2::forward<F>(f)},
-				__stl2::forward<Vs>(vs)...);
+				no_index_visitor<F>{std::forward<F>(f)}, std::forward<Vs>(vs)...);
 		}
 
 		///////////////////////////////////////////////////////////////////////////
@@ -366,33 +364,33 @@ STL2_OPEN_NAMESPACE {
 		// "cooked" visit functions are exposed to users, the "raw" forms are
 		// internal-only.
 		//
-		template <class F, Variant...Vs>
+		template <class F, Variant... Vs>
 		struct cooked_visitor {
 			F&& f_;
 
-			template <std::size_t...Is, class...Args>
-			constexpr decltype(auto) operator()(std::index_sequence<Is...> i, Args&&...args) &&
-			noexcept(noexcept(__stl2::forward<F>(f_)(i,
-				cook<meta::at_c<VariantTypes<Vs>, Is>>(__stl2::forward<Args>(args))...)))
+			template <std::size_t... Is, class... Args>
+			constexpr decltype(auto) operator()(std::index_sequence<Is...> i, Args&&... args) &&
+			noexcept(noexcept(std::forward<F>(f_)(i,
+				cook<meta::at_c<VariantTypes<Vs>, Is>>(std::forward<Args>(args))...)))
 			{
-				return __stl2::forward<F>(f_)(i,
+				return std::forward<F>(f_)(i,
 					cook<meta::at_c<VariantTypes<Vs>, Is>>(
-						__stl2::forward<Args>(args))...);
+						std::forward<Args>(args))...);
 			}
 		};
 
-		template <class F, class...Vs>
+		template <class F, class... Vs>
 		concept bool VisitorWithIndices =
 			RawVisitorWithIndices<cooked_visitor<F, Vs...>, Vs...>;
 
 		VisitorWithIndices{F, ...Vs}
 		constexpr VisitReturn<cooked_visitor<F, Vs...>, Vs...>
-		visit_with_indices(F&& f, Vs&&...vs)
+		visit_with_indices(F&& f, Vs&&...  vs)
 		noexcept(VisitNothrow<cooked_visitor<F, Vs...>, Vs...>)
 		{
 			return raw_visit_with_indices(
-				cooked_visitor<F, Vs...>{__stl2::forward<F>(f)},
-				__stl2::forward<Vs>(vs)...);
+				cooked_visitor<F, Vs...>{std::forward<F>(f)},
+				std::forward<Vs>(vs)...);
 		}
 
 		template <class F, class V>
@@ -405,22 +403,22 @@ STL2_OPEN_NAMESPACE {
 		noexcept(VisitNothrow<cooked_visitor<single_index_visitor<F>, V>, V>)
 		{
 			return visit_with_indices(
-				single_index_visitor<F>{__stl2::forward<F>(f)},
-				__stl2::forward<V>(v));
+				single_index_visitor<F>{std::forward<F>(f)},
+				std::forward<V>(v));
 		}
 
-		template <class F, class...Vs>
+		template <class F, class... Vs>
 		concept bool Visitor =
 			VisitorWithIndices<no_index_visitor<F>, Vs...>;
 
 		Visitor{F, ...Vs}
 		constexpr VisitReturn<cooked_visitor<no_index_visitor<F>, Vs...>, Vs...>
-		visit(F&& f, Vs&&...vs)
+		visit(F&& f, Vs&&... vs)
 		noexcept(VisitNothrow<cooked_visitor<no_index_visitor<F>, Vs...>, Vs...>)
 		{
 			return visit_with_indices(
-				no_index_visitor<F>{__stl2::forward<F>(f)},
-				__stl2::forward<Vs>(vs)...);
+				no_index_visitor<F>{std::forward<F>(f)},
+				std::forward<Vs>(vs)...);
 		}
 
 		template <class>
@@ -433,7 +431,7 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		using hashable_element_t = meta::_t<hashable_element<T>>;
 
-		template <class...Ts>
+		template <class... Ts>
 		constexpr bool HashableVariant =
 			meta::all_of<meta::list<Ts...>, meta::quote<hashable_element_t>>::value;
 	}
@@ -447,7 +445,7 @@ STL2_OPEN_NAMESPACE {
 // std::hash specialization for variants
 //
 namespace std {
-	template <class...Ts>
+	template <class... Ts>
 	requires ::__stl2::__variant::HashableVariant<Ts...>
 	struct hash<::__stl2::variant<Ts...>> {
 	private:

@@ -26,9 +26,7 @@ STL2_OPEN_NAMESPACE {
 	namespace __istreambuf_iterator {
 		template <class charT, class traits = std::char_traits<charT>>
 		requires
-			MoveConstructible<charT>() &&
-			DefaultConstructible<charT>() &&
-			SignedIntegral<typename traits::off_type>()
+			SignedIntegral<typename traits::off_type>
 		class cursor;
 	}
 
@@ -38,18 +36,16 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class charT, class traits = std::char_traits<charT>>
 	requires
-		MoveConstructible<charT>() &&
-		DefaultConstructible<charT>() &&
-		SignedIntegral<typename traits::off_type>()
+		MoveConstructible<charT> &&
+		DefaultConstructible<charT> &&
+		SignedIntegral<typename traits::off_type>
 	using istreambuf_iterator =
 		basic_iterator<__istreambuf_iterator::cursor<charT, traits>>;
 
 	namespace __istreambuf_iterator {
 		template <class charT, class traits>
 		requires
-			MoveConstructible<charT>() &&
-			DefaultConstructible<charT>() &&
-			SignedIntegral<typename traits::off_type>()
+			SignedIntegral<typename traits::off_type>
 		class cursor {
 		public:
 			using value_type = charT;
@@ -92,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 				constexpr __proxy() noexcept = default;
 				constexpr __proxy(charT c, streambuf_type* sbuf)
 				noexcept(is_nothrow_move_constructible<charT>::value)
-				: keep_{__stl2::move(c)}, sbuf_{sbuf}
+				: keep_{std::move(c)}, sbuf_{sbuf}
 				{}
 
 				charT keep_;
@@ -126,18 +122,7 @@ STL2_OPEN_NAMESPACE {
 				mixin(istream_type& s) noexcept
 				: base_t{cursor{s}}
 				{}
-#if STL2_WORKAROUND_GCC_79143
-				constexpr explicit mixin(const cursor& c)
-				noexcept(std::is_nothrow_copy_constructible<cursor>::value)
-				: base_t{c}
-				{}
-				constexpr explicit mixin(cursor&& c)
-				noexcept(std::is_nothrow_move_constructible<cursor>::value)
-				: base_t{std::move(c)}
-				{}
-#else  // STL2_WORKAROUND_GCC_79143
 				using base_t::base_t;
-#endif // STL2_WORKAROUND_GCC_79143
 
 				// Yuck. This can't be simply "basic_iterator<cursor>".
 				// Since basic_iterator<cursor> derives from mixin, mixin must be
@@ -189,7 +174,7 @@ STL2_OPEN_NAMESPACE {
 			charT current() const {
 				auto c = sbuf_->sgetc();
 				STL2_ASSERT(!traits::eq_int_type(c, traits::eof()));
-				return traits::to_char_type(__stl2::move(c));
+				return traits::to_char_type(std::move(c));
 			}
 
 			int_type advance() {

@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		ForwardIterator I2, Sentinel<I2> S2,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
-		models::IndirectRelation<
+		IndirectRelation<
 			Pred, I2, projected<I1, Proj>>
 	I1 find_end(I1 first1, const S1 last1,
 		const I2 first2, const S2 last2,
@@ -49,18 +49,18 @@ STL2_OPEN_NAMESPACE {
 						break;
 					}
 					if (++m1 == last1) {
-						return __stl2::move(res).value_or(__stl2::move(m1));
+						return std::move(res).value_or(std::move(m1));
 					}
 				} while (__stl2::invoke(pred, __stl2::invoke(proj, *m1), *m2));
 			}
 		}
-		return __stl2::move(res).value_or(__stl2::move(first1));
+		return std::move(res).value_or(std::move(first1));
 	}
 
 	template <BidirectionalIterator I1, BidirectionalIterator I2,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
-		models::IndirectRelation<
+		IndirectRelation<
 			Pred, I2, projected<I1, Proj>>
 	I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2,
 		Pred pred = Pred{}, Proj proj = Proj{})
@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I1, RandomAccessIterator I2,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
-		models::IndirectRelation<
+		IndirectRelation<
 			Pred, I2, projected<I1, Proj>>
 	I1 find_end(I1 first1, I1 last1, I2 first2, I2 last2,
 		Pred pred = Pred{}, Proj proj = Proj{})
@@ -123,22 +123,22 @@ STL2_OPEN_NAMESPACE {
 		BidirectionalIterator I2, Sentinel<I2> S2,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
-		models::IndirectRelation<
+		IndirectRelation<
 			Pred, I2, projected<I1, Proj>>
 	I1 find_end(I1 first1, S1 s1, I2 first2, S2 s2, Pred pred = Pred{}, Proj proj = Proj{})
 	{
-		auto last1 = __stl2::next(first1, __stl2::move(s1));
-		auto last2 = __stl2::next(first2, __stl2::move(s2));
+		auto last1 = __stl2::next(first1, std::move(s1));
+		auto last2 = __stl2::next(first2, std::move(s2));
 		return __stl2::find_end(
-			__stl2::move(first1), __stl2::move(last1),
-			__stl2::move(first2), __stl2::move(last2),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::move(first1), std::move(last1),
+			std::move(first2), std::move(last2),
+			std::ref(pred), std::ref(proj));
 	}
 
 	template <ForwardRange Rng1, ForwardRange Rng2,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
-		models::IndirectRelation<
+		IndirectRelation<
 			Pred, iterator_t<Rng2>, projected<iterator_t<Rng1>, Proj>>
 	safe_iterator_t<Rng1>
 	find_end(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{}, Proj proj = Proj{})
@@ -146,7 +146,7 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::find_end(
 			__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 
 	// Holding off on initializer_list overloads for now; this

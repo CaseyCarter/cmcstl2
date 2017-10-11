@@ -22,8 +22,8 @@
 STL2_OPEN_NAMESPACE {
 	template <class F, Iterator O>
 	requires
-		models::Invocable<F&> &&
-		models::Writable<O, result_of_t<F&()>>
+		Invocable<F&> &&
+		Writable<O, result_of_t<F&()>>
 	O generate_n(O first, difference_type_t<O> n, F gen)
 	{
 		for (; n > 0; ++first, --n) {

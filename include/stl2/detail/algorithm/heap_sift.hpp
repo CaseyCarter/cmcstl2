@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		template <RandomAccessIterator I, class Comp, class Proj>
 		requires
-			models::IndirectStrictWeakOrder<Comp,
+			IndirectStrictWeakOrder<Comp,
 				projected<I, Proj>, projected<I, Proj>>
 		void sift_up_n(I first, difference_type_t<I> n, Comp comp, Proj proj)
 		{
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <RandomAccessIterator I, class Comp, class Proj>
 		requires
-			models::IndirectStrictWeakOrder<Comp,
+			IndirectStrictWeakOrder<Comp,
 				projected<I, Proj>, projected<I, Proj>>
 		void sift_down_n(I first, difference_type_t<I> n, I start,
 			Comp comp, Proj proj)

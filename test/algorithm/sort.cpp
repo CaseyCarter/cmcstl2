@@ -20,15 +20,6 @@
 
 #include <stl2/detail/algorithm/sort.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
-#if 0
-#include <range/v3/view/for_each.hpp>
-#include <range/v3/view/iota.hpp>
-#include <range/v3/view/repeat_n.hpp>
-#include <range/v3/view/reverse.hpp>
-#include <range/v3/view/zip.hpp>
-#include <range/v3/view/transform.hpp>
-#include <range/v3/to_container.hpp>
-#endif
 #include <algorithm>
 #include <cassert>
 #include <memory>
@@ -73,7 +64,7 @@ void
 test_sort_helper(RI f, RI l)
 {
 	using value_type = stl2::value_type_t<RI>;
-	auto sort = make_testable_1<false>([](auto&&...args) {
+	auto sort = make_testable_1<false>([](auto&&... args) {
 		return stl2::sort(std::forward<decltype(args)>(args)...);
 	});
 	if (f != l)

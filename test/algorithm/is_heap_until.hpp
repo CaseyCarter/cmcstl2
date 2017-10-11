@@ -35,7 +35,7 @@ namespace stl2 = __stl2;
 void test()
 {
 #ifdef IS_HEAP_UNTIL_1
-	auto is_heap_until = make_testable_1([](auto&&...args) {
+	auto is_heap_until = make_testable_1([](auto&&... args) {
 		return stl2::is_heap_until(stl2::forward<decltype(args)>(args)...);
 	});
 	int i1[] = {0, 0};
@@ -282,7 +282,7 @@ void test()
 	is_heap_until(i119, i119+6).check([&](int *r){ CHECK(r == i119+6); });
 #endif
 #ifdef IS_HEAP_UNTIL_2
-	auto is_heap_until = make_testable_1([](auto&&...args) {
+	auto is_heap_until = make_testable_1([](auto&&... args) {
 		return stl2::is_heap_until(stl2::forward<decltype(args)>(args)...);
 	});
 	int i120[] = {0, 0, 0, 0, 0, 0, 0};
@@ -545,7 +545,7 @@ void test()
 void test_pred()
 {
 #ifdef IS_HEAP_UNTIL_3
-	auto is_heap_until = make_testable_1([](auto&&...args) {
+	auto is_heap_until = make_testable_1([](auto&&... args) {
 		return stl2::is_heap_until(stl2::forward<decltype(args)>(args)...);
 	});
 	int i1[] = {0, 0};
@@ -790,7 +790,7 @@ void test_pred()
 	is_heap_until(i119, i119+6, std::greater<int>()).check([&](int *r){ CHECK(r == i119+5); });
 #endif
 #ifdef IS_HEAP_UNTIL_4
-	auto is_heap_until = make_testable_1([](auto&&...args) {
+	auto is_heap_until = make_testable_1([](auto&&... args) {
 		return stl2::is_heap_until(stl2::forward<decltype(args)>(args)...);
 	});
 	int i120[] = {0, 0, 0, 0, 0, 0, 0};
@@ -1062,7 +1062,7 @@ int main()
 
 	// Test projections:
 	S i185[] = {S{1}, S{0}, S{0}, S{0}, S{0}, S{0}, S{1}};
-	auto is_heap_until = make_testable_1([](auto&&...args) {
+	auto is_heap_until = make_testable_1([](auto&&... args) {
 		return stl2::is_heap_until(stl2::forward<decltype(args)>(args)...);
 	});
 	is_heap_until(i185, i185+7, std::greater<int>(), &S::i)

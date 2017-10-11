@@ -15,6 +15,7 @@
 
 #include <new>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/memory/concepts.hpp>
 #include <stl2/detail/memory/construct_at.hpp>
 #include <stl2/detail/memory/destroy.hpp>
@@ -27,8 +28,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <InputIterator I, Sentinel<I> S, __NoThrowForwardIterator O>
 	requires
-		Constructible<value_type_t<O>, reference_t<I>>() &&
-		__ReferenceTo<O, value_type_t<O>>()
+		Constructible<value_type_t<O>, reference_t<I>> &&
+		__ReferenceTo<O, value_type_t<O>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	uninitialized_copy(I first, S last, O result)
 	{
@@ -37,13 +38,13 @@ STL2_OPEN_NAMESPACE {
 			__stl2::__construct_at(*result, *first);
 		}
 		guard.release();
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
 	template <InputRange Rng, __NoThrowForwardIterator O>
 	requires
-		Constructible<value_type_t<O>, reference_t<iterator_t<Rng>>>() &&
-		__ReferenceTo<O, value_type_t<O>>()
+		Constructible<value_type_t<O>, reference_t<iterator_t<Rng>>> &&
+		__ReferenceTo<O, value_type_t<O>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
 	uninitialized_copy(Rng&& rng, O result)
 	{
@@ -56,8 +57,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <InputIterator I, __NoThrowForwardIterator O>
 	requires
-		Constructible<value_type_t<O>, reference_t<I>>() &&
-		__ReferenceTo<O, value_type_t<O>>()
+		Constructible<value_type_t<O>, reference_t<I>> &&
+		__ReferenceTo<O, value_type_t<O>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	uninitialized_copy_n(I first, difference_type_t<I> n, O out)
 	{

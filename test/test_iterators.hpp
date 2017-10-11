@@ -116,15 +116,15 @@ public:
 	constexpr output_iterator () {}
 	constexpr explicit output_iterator(It it) : it_(it) {}
 	template <class U>
-	  requires __stl2::ConvertibleTo<U, It>()
+	  requires __stl2::ConvertibleTo<U, It>
 	constexpr
 	output_iterator(const output_iterator<U>& u) :it_(u.it_) {}
 
 	constexpr reference operator*() const {return *it_;}
 
 	constexpr output_iterator& operator++() {++it_; return *this;}
-	constexpr output_iterator operator++(int)
-	{output_iterator tmp(*this); ++(*this); return tmp;}
+	constexpr decltype(auto) operator++(int)
+	{return it_++;}
 };
 
 template <class It>
@@ -145,7 +145,7 @@ public:
 	constexpr input_iterator() : it_() {}
 	constexpr explicit input_iterator(It it) : it_(it) {}
 	template <class U>
-	  requires __stl2::ConvertibleTo<U, It>()
+	  requires __stl2::ConvertibleTo<U, It>
 	constexpr input_iterator(const input_iterator<U>& u) :it_(u.it_) {}
 
 	constexpr reference operator*() const {return *it_;}
@@ -197,7 +197,7 @@ public:
 	constexpr forward_iterator() : it_() {}
 	constexpr explicit forward_iterator(It it) : it_(it) {}
 	template <class U>
-	  requires __stl2::ConvertibleTo<U, It>()
+	  requires __stl2::ConvertibleTo<U, It>
 	constexpr forward_iterator(const forward_iterator<U>& u) :it_(u.it_) {}
 
 	constexpr reference operator*() const {return *it_;}
@@ -249,7 +249,7 @@ public:
 	constexpr bidirectional_iterator() : it_() {}
 	constexpr explicit bidirectional_iterator(It it) : it_(it) {}
 	template <class U>
-	  requires __stl2::ConvertibleTo<U, It>()
+	  requires __stl2::ConvertibleTo<U, It>
 	constexpr bidirectional_iterator(const bidirectional_iterator<U>& u) :it_(u.it_) {}
 
 	constexpr reference operator*() const {return *it_;}
@@ -298,7 +298,7 @@ public:
 	constexpr random_access_iterator() : it_() {}
 	constexpr explicit random_access_iterator(It it) : it_(it) {}
 	template <class U>
-	  requires __stl2::ConvertibleTo<U, It>()
+	  requires __stl2::ConvertibleTo<U, It>
 	constexpr random_access_iterator(const random_access_iterator<U>& u) :it_(u.it_) {}
 
 	constexpr reference operator*() const {return *it_;}

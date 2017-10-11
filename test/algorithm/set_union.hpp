@@ -41,7 +41,7 @@ test()
 	const int sr = sizeof(ir)/sizeof(ir[0]);
 
 	using R = std::tuple<Iter1, Iter2, OutIter>;
-	auto set_union = make_testable_2([](auto&&...args) {
+	auto set_union = make_testable_2([](auto&&... args) {
 		return stl2::set_union(stl2::forward<decltype(args)>(args)...);
 	});
 

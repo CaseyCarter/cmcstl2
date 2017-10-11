@@ -12,7 +12,6 @@
 #ifndef STL2_DETAIL_ALGORITHM_NONE_OF_HPP
 #define STL2_DETAIL_ALGORITHM_NONE_OF_HPP
 
-#include <initializer_list>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -24,7 +23,7 @@
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
+		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
 	bool none_of(I first, S last, Pred pred, Proj proj = Proj{})
 	{
@@ -38,24 +37,12 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
+		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	bool none_of(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::none_of(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class Pred, class Proj = identity>
-	requires
-		models::IndirectPredicate<
-			Pred, projected<const E*, Proj>>
-	bool none_of(std::initializer_list<E>&& rng,
-							 Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::none_of(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

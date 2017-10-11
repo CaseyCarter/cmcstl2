@@ -26,20 +26,30 @@ struct reference_wrapper {
 	__stl2::detail::raw_ptr<T> ptr_;
 
 	reference_wrapper() = default;
-	reference_wrapper(T& t) noexcept : ptr_{__stl2::addressof(t)} {}
+	reference_wrapper(T& t) noexcept : ptr_{std::addressof(t)} {}
 	reference_wrapper(T&&) = delete;
 
 	T& get() const noexcept {
 		return *ptr_;
 	}
 
-	reference_wrapper& operator=(const T& t)
+	reference_wrapper & operator=(const T& t)
 		noexcept(std::is_nothrow_copy_assignable<T>::value) {
 		get() = t;
 		return *this;
 	}
+	reference_wrapper & operator=(T&& t)
+		noexcept(std::is_nothrow_move_assignable<T>::value) {
+		get() = __stl2::move(t);
+		return *this;
+	}
 
-	reference_wrapper& operator=(T&& t)
+	reference_wrapper const& operator=(const T& t) const
+		noexcept(std::is_nothrow_copy_assignable<T>::value) {
+		get() = t;
+		return *this;
+	}
+	reference_wrapper const& operator=(T&& t) const
 		noexcept(std::is_nothrow_move_assignable<T>::value) {
 		get() = __stl2::move(t);
 		return *this;
@@ -144,7 +154,7 @@ std::ostream& operator<<(std::ostream& sout, category c) {
 template <class>
 constexpr category iterator_dispatch() { return category::none; }
 template <__stl2::OutputIterator<const int&> I>
-requires !__stl2::InputIterator<I>()
+requires !__stl2::InputIterator<I>
 constexpr category iterator_dispatch() { return category::output; }
 template <__stl2::InputIterator>
 constexpr category iterator_dispatch() { return category::input; }
@@ -185,36 +195,36 @@ struct arbitrary_iterator<C, EC, R> {
 	arbitrary_iterator operator++(int);
 
 	bool operator==(arbitrary_iterator) const
-	requires EC || __stl2::DerivedFrom<C, __stl2::forward_iterator_tag>();
+	requires EC || __stl2::DerivedFrom<C, __stl2::forward_iterator_tag>;
 	bool operator!=(arbitrary_iterator) const
-	requires EC || __stl2::DerivedFrom<C, __stl2::forward_iterator_tag>();
+	requires EC || __stl2::DerivedFrom<C, __stl2::forward_iterator_tag>;
 
 	arbitrary_iterator& operator--()
-	requires __stl2::DerivedFrom<C, __stl2::bidirectional_iterator_tag>();
+	requires __stl2::DerivedFrom<C, __stl2::bidirectional_iterator_tag>;
 	arbitrary_iterator operator--(int)
-	requires __stl2::DerivedFrom<C, __stl2::bidirectional_iterator_tag>();
+	requires __stl2::DerivedFrom<C, __stl2::bidirectional_iterator_tag>;
 
 	bool operator<(arbitrary_iterator) const
-	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>();
+	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>;
 	bool operator>(arbitrary_iterator) const
-	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>();
+	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>;
 	bool operator<=(arbitrary_iterator) const
-	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>();
+	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>;
 	bool operator>=(arbitrary_iterator) const
-	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>();
+	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>;
 
 	arbitrary_iterator& operator+=(difference_type)
-	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>();
+	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>;
 	arbitrary_iterator& operator-=(difference_type)
-	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>();
+	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>;
 
 	arbitrary_iterator operator-(difference_type) const
-	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>();
+	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>;
 	difference_type operator-(arbitrary_iterator) const
-	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>();
+	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>;
 
 	value_type& operator[](difference_type) const
-	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>();
+	requires __stl2::DerivedFrom<C, __stl2::random_access_iterator_tag>;
 };
 
 template <__stl2::DerivedFrom<__stl2::random_access_iterator_tag> C, bool B, class R>
@@ -278,7 +288,7 @@ void test_iterator_dispatch() {
 }
 
 template <__stl2::InputIterator I, __stl2::Sentinel<I> S, class O>
-requires __stl2::IndirectlyCopyable<I, O>()
+requires __stl2::IndirectlyCopyable<I, O>
 bool copy(I first, S last, O o) {
 	for (; first != last; ++first, ++o) {
 		*o = *first;
@@ -289,14 +299,14 @@ bool copy(I first, S last, O o) {
 template <__stl2::ext::ContiguousIterator I, __stl2::SizedSentinel<I> S,
 	__stl2::ext::ContiguousIterator O>
 requires
-	__stl2::IndirectlyCopyable<I, O>() &&
-	__stl2::Same<__stl2::value_type_t<I>, __stl2::value_type_t<O>>() &&
+	__stl2::IndirectlyCopyable<I, O> &&
+	__stl2::Same<__stl2::value_type_t<I>, __stl2::value_type_t<O>> &&
 	std::is_trivially_copyable<__stl2::value_type_t<I>>::value
 bool copy(I first, S last, O o) {
 	auto n = last - first;
 	STL2_EXPECT(n >= 0);
 	if (n) {
-		std::memmove(__stl2::addressof(*o), __stl2::addressof(*first),
+		std::memmove(std::addressof(*o), std::addressof(*first),
 			n * sizeof(__stl2::value_type_t<I>));
 	}
 	return true;
@@ -353,9 +363,9 @@ void test_iter_swap2() {
 		static_assert(models::Same<int&, R>);
 		using RR = __stl2::rvalue_reference_t<I>;
 		static_assert(models::Same<int&&, RR>);
-		static_assert(models::Swappable<R, R>);
+		static_assert(models::SwappableWith<R, R>);
 
-		// Swappable<R, R>() is true, calls the first overload of
+		// Swappable<R, R> is true, calls the first overload of
 		// iter_swap (which delegates to swap(*a, *b)):
 		__stl2::iter_swap(a, b);
 		CHECK(*a == 13);
@@ -378,11 +388,11 @@ void test_iter_swap2() {
 
 		static_assert(models::Same<I, decltype(a.begin() + 2)>);
 		static_assert(models::CommonReference<const R&, const R&>);
-		static_assert(!models::Swappable<R, R>);
+		static_assert(!models::SwappableWith<R, R>);
 		static_assert(models::IndirectlyMovableStorable<I, I>);
 
-		// Swappable<R, R>() is not satisfied, and
-		// IndirectlyMovableStorable<I, I>() is satisfied,
+		// Swappable<R, R> is not satisfied, and
+		// IndirectlyMovableStorable<I, I> is satisfied,
 		// so this should resolve to the second overload of iter_swap.
 		__stl2::iter_swap(a.begin() + 1, a.begin() + 3);
 		CHECK(a[0] == 0);
@@ -447,6 +457,18 @@ void test_std_traits() {
 	static_assert(models::Same<std::iterator_traits<RV>::iterator_category,
 		std::input_iterator_tag>);
 }
+
+struct MakeString {
+	using value_type = std::string;
+	std::string operator*() const;
+};
+
+static_assert(models::Readable<MakeString>);
+static_assert(!models::Writable<MakeString, std::string>);
+static_assert(!models::Writable<MakeString, const std::string &>);
+static_assert(!models::IndirectlyMovable<MakeString, MakeString>);
+static_assert(!models::IndirectlyCopyable<MakeString, MakeString>);
+static_assert(!models::IndirectlySwappable<MakeString, MakeString>);
 
 int main() {
 	test_iter_swap2();

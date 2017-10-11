@@ -16,7 +16,7 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
-#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
@@ -27,8 +27,8 @@ STL2_OPEN_NAMESPACE {
 	namespace __minmax {
 		template <InputRange Rng, class Comp = less<>, class Proj = identity>
 		requires
-			models::Copyable<value_type_t<iterator_t<Rng>>> &&
-			models::IndirectStrictWeakOrder<
+			Copyable<value_type_t<iterator_t<Rng>>> &&
+			IndirectStrictWeakOrder<
 				Comp, projected<iterator_t<Rng>, Proj>>
 		constexpr tagged_pair<tag::min(value_type_t<iterator_t<Rng>>),
 			tag::max(value_type_t<iterator_t<Rng>>)>
@@ -54,9 +54,9 @@ STL2_OPEN_NAMESPACE {
 					auto tmp1 = V{*first};
 					if (++first == last) {
 						if (__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.first))) {
-							result.first = __stl2::move(tmp1);
+							result.first = std::move(tmp1);
 						} else if (!__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.second))) {
-							result.second = __stl2::move(tmp1);
+							result.second = std::move(tmp1);
 						}
 						break;
 					}
@@ -67,11 +67,11 @@ STL2_OPEN_NAMESPACE {
 							result.first = (decltype(tmp2)&&)tmp2;
 						}
 						if (!__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.second))) {
-							result.second = __stl2::move(tmp1);
+							result.second = std::move(tmp1);
 						}
 					} else {
 						if (__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.first))) {
-							result.first = __stl2::move(tmp1);
+							result.first = std::move(tmp1);
 						}
 						if (!__stl2::invoke(comp, __stl2::invoke(proj, tmp2), __stl2::invoke(proj, result.second))) {
 							result.second = (decltype(tmp2)&&)tmp2;
@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class T, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<const T*, Proj>>
 	constexpr tagged_pair<tag::min(const T&), tag::max(const T&)>
 	minmax(const T& a, const T& b, Comp comp = Comp{}, Proj proj = Proj{})
@@ -99,24 +99,24 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Copyable<value_type_t<iterator_t<Rng>>> &&
-		models::IndirectStrictWeakOrder<
+		Copyable<value_type_t<iterator_t<Rng>>> &&
+		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
 	STL2_CONSTEXPR_EXT tagged_pair<tag::min(value_type_t<iterator_t<Rng>>),
 		tag::max(value_type_t<iterator_t<Rng>>)>
 	minmax(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __minmax::impl(rng, __stl2::ref(comp), __stl2::ref(proj));
+		return __minmax::impl(rng, std::ref(comp), std::ref(proj));
 	}
 
 	template <Copyable T, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<const T*, Proj>>
 	constexpr tagged_pair<tag::min(T), tag::max(T)>
 	minmax(std::initializer_list<T>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return __minmax::impl(rng, __stl2::ref(comp), __stl2::ref(proj));
+		return __minmax::impl(rng, std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

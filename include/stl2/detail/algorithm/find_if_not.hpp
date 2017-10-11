@@ -12,7 +12,6 @@
 #ifndef STL2_DETAIL_ALGORITHM_FIND_IF_NOT_HPP
 #define STL2_DETAIL_ALGORITHM_FIND_IF_NOT_HPP
 
-#include <initializer_list>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -25,37 +24,25 @@
 STL2_OPEN_NAMESPACE {
 	template <class I, class S, class Pred, class Proj = identity>
 	requires
-		models::InputIterator<__f<I>> &&
-		models::Sentinel<__f<S>, __f<I>> &&
-		models::IndirectPredicate<
+		InputIterator<__f<I>> &&
+		Sentinel<__f<S>, __f<I>> &&
+		IndirectUnaryPredicate<
 			Pred, projected<__f<I>, Proj>>
 	__f<I> find_if_not(I&& first, S&& last, Pred pred, Proj proj = Proj{})
 	{
-		return __stl2::find_if(__stl2::forward<I>(first), __stl2::forward<S>(last),
-			__stl2::not_fn(__stl2::ref(pred)), __stl2::ref(proj));
+		return __stl2::find_if(std::forward<I>(first), std::forward<S>(last),
+			__stl2::not_fn(std::ref(pred)), std::ref(proj));
 	}
 
 	template <InputRange Rng, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
+		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	find_if_not(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::find_if(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::not_fn(__stl2::ref(pred)), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class Pred, class Proj = identity>
-	requires
-		models::IndirectPredicate<
-			Pred, projected<const E*, Proj>>
-	dangling<const E*>
-	find_if_not(std::initializer_list<E>&& il, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::find_if(il.begin(), il.end(),
-			__stl2::not_fn(__stl2::ref(pred)), __stl2::ref(proj));
+			__stl2::not_fn(std::ref(pred)), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -14,31 +14,31 @@
 #if VALIDATE_RANGES
 namespace models {
 template <class T>
-constexpr bool Destructible = ranges::Destructible<T>();
+constexpr bool Destructible = ranges::Destructible<T>;
 
-template <class T, class...Args>
-constexpr bool Constructible = ranges::Constructible<T, Args...>();
-
-template <class T>
-constexpr bool DefaultConstructible = ranges::DefaultConstructible<T>();
+template <class T, class... Args>
+constexpr bool Constructible = ranges::Constructible<T, Args...>;
 
 template <class T>
-constexpr bool MoveConstructible = ranges::MoveConstructible<T>();
+constexpr bool DefaultConstructible = ranges::DefaultConstructible<T>;
 
 template <class T>
-constexpr bool CopyConstructible = ranges::CopyConstructible<T>();
+constexpr bool MoveConstructible = ranges::MoveConstructible<T>;
 
 template <class T>
-constexpr bool Movable = ranges::Movable<T>();
+constexpr bool CopyConstructible = ranges::CopyConstructible<T>;
 
 template <class T>
-constexpr bool Copyable = ranges::Copyable<T>();
+constexpr bool Movable = ranges::Movable<T>;
 
 template <class T>
-constexpr bool Semiregular = ranges::SemiRegular<T>();
+constexpr bool Copyable = ranges::Copyable<T>;
 
 template <class T>
-constexpr bool Regular = ranges::Regular<T>();
+constexpr bool Semiregular = ranges::SemiRegular<T>;
+
+template <class T>
+constexpr bool Regular = ranges::Regular<T>;
 } // namespace models
 
 #elif VALIDATE_STL2

@@ -13,24 +13,22 @@
 #define STL2_DETAIL_TUPLE_LIKE_HPP
 
 #include <tuple>
-#include <stl2/detail/meta.hpp>
-#include <stl2/detail/concepts/core.hpp>
 
 STL2_OPEN_NAMESPACE {
-	using std::tuple_size;
-	using std::tuple_element;
-	using std::get;
+	namespace detail {
+		namespace adl {
+			using std::get;
 
-	constexpr std::size_t tuple_not_found = -1;
-	static_assert(tuple_not_found == meta::_v<meta::npos>);
-
-	template <class T, class U>
-	constexpr std::size_t tuple_find = tuple_not_found;
-
-	template <class T, class U>
-	requires !Same<U, __uncvref<U>>()
-	constexpr std::size_t tuple_find<T, U> =
-		tuple_find<T, __uncvref<U>>;
+			template <std::size_t I, class T>
+			constexpr auto adl_get(T&& t)
+			noexcept(noexcept(get<I>(static_cast<T&&>(t))))
+			-> decltype(get<I>(static_cast<T&&>(t)))
+			{
+				return get<I>(static_cast<T&&>(t));
+			}
+		} // namespace adl
+		using adl::adl_get;
+	} // namespace detail
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -26,12 +26,12 @@ STL2_OPEN_NAMESPACE {
 	public:
 		constexpr dangling()
 		noexcept(is_nothrow_default_constructible<T>::value)
-		requires DefaultConstructible<T>()
+		requires DefaultConstructible<T>
 		: value{}
 		{}
 		constexpr dangling(T t)
 		noexcept(is_nothrow_move_constructible<T>::value)
-		: value(__stl2::move(t))
+		: value(std::move(t))
 		{}
 		constexpr T get_unsafe() const&
 		noexcept(is_nothrow_copy_constructible<T>::value)
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr T get_unsafe() &&
 		noexcept(is_nothrow_move_constructible<T>::value)
 		{
-			return __stl2::move(value);
+			return std::move(value);
 		}
 	};
 

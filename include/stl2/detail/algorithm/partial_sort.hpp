@@ -28,31 +28,31 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
-		models::Sortable<I, Comp, Proj>
+		Sortable<I, Comp, Proj>
 	I partial_sort(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		__stl2::make_heap(first, middle, __stl2::ref(comp), __stl2::ref(proj));
+		__stl2::make_heap(first, middle, std::ref(comp), std::ref(proj));
 		const auto len = __stl2::distance(first, middle);
 		I i = middle;
 		for(; i != last; ++i) {
 			if(__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {
 				__stl2::iter_swap(i, first);
-				detail::sift_down_n(first, len, first, __stl2::ref(comp), __stl2::ref(proj));
+				detail::sift_down_n(first, len, first, std::ref(comp), std::ref(proj));
 			}
 		}
-		__stl2::sort_heap(first, middle, __stl2::ref(comp), __stl2::ref(proj));
+		__stl2::sort_heap(first, middle, std::ref(comp), std::ref(proj));
 		return i;
 	}
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, Comp, Proj>
+		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
 	partial_sort(Rng&& rng, iterator_t<Rng> middle, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::partial_sort(
-			__stl2::begin(rng), __stl2::move(middle), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
+			__stl2::begin(rng), std::move(middle), __stl2::end(rng),
+			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

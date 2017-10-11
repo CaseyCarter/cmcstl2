@@ -30,7 +30,7 @@ namespace {
 	constexpr int N = 1 << 12;
 
 	template <typename T>
-	requires ranges::DefaultConstructible<T>() && ranges::EqualityComparable<T>()
+	requires ranges::DefaultConstructible<T> && ranges::EqualityComparable<T>
 	void test(const raw_buffer<T>& independent, ranges::iterator_t<const raw_buffer<T>> p)
 	{
 		T t{};
@@ -41,8 +41,8 @@ namespace {
 
 	template <typename T>
 	requires
-		ranges::DefaultConstructible<T>() &&
-		ranges::EqualityComparable<T>()
+		ranges::DefaultConstructible<T> &&
+		ranges::EqualityComparable<T>
 	void uninitialized_default_construct_test()
 	{
 		auto independent = make_buffer<T>(N);
@@ -56,9 +56,9 @@ namespace {
 
 	template <typename T>
 	requires
-		ranges::DefaultConstructible<T>() &&
-		ranges::EqualityComparable<T>() &&
-		ranges::is_fundamental<T>::value
+		ranges::DefaultConstructible<T> &&
+		ranges::EqualityComparable<T> &&
+		std::is_fundamental<T>::value
 	void test(const raw_buffer<T>& independent, ranges::iterator_t<const raw_buffer<T>> p)
 	{
 		T t;
@@ -70,9 +70,9 @@ namespace {
 
 	template <typename T>
 	requires
-		ranges::DefaultConstructible<T>() &&
-		ranges::EqualityComparable<T>() &&
-		ranges::is_fundamental<T>::value
+		ranges::DefaultConstructible<T> &&
+		ranges::EqualityComparable<T> &&
+		std::is_fundamental<T>::value
 	void uninitialized_default_construct_test()
 	{
 		auto independent = make_buffer<T>(N);

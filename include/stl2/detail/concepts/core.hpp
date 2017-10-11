@@ -20,18 +20,21 @@
 // Core Concepts [concepts.lib.corelang]
 //
 STL2_OPEN_NAMESPACE {
-	template <template <class...> class T, class...U>
+	template <bool B>
+	constexpr bool __bool = B;
+
+	template <template <class...> class T, class... U>
 	concept bool _Valid = requires { typename T<U...>; };
 
-	template <class U, template <class...> class T, class...V>
-	concept bool _Is = _Valid<T, U, V...> && T<U, V...>::value;
+	template <class U, template <class...> class T, class... V>
+	concept bool _Is = _Valid<T, U, V...> && __bool<T<U, V...>::value>;
 
-	template <class U, template <class...> class T, class...V>
-	concept bool _IsNot = _Valid<T, U, V...> && !T<U, V...>::value;
+	template <class U, template <class...> class T, class... V>
+	concept bool _IsNot = _Valid<T, U, V...> && __bool<!T<U, V...>::value>;
 
 	// U is a cv/ref-qualified specialization of class template T.
 	template <class U, template <class...> class T>
-	concept bool _SpecializationOf = meta::is<__uncvref<U>, T>::value;
+	concept bool _SpecializationOf = __bool<meta::is<__uncvref<U>, T>::value>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Same [concepts.lib.corelang.same]
@@ -40,25 +43,23 @@ STL2_OPEN_NAMESPACE {
 	namespace models {
 		template <class...>
 		constexpr bool Same = true;
-		template <class T, class...Rest>
+		template <class T, class... Rest>
 		constexpr bool Same<T, Rest...> =
 #if defined(__GNUC__)
-			(true && ... && __is_same_as(T, Rest));
+			(... && __is_same_as(T, Rest));
 #else
-			(true && ... && is_same<T, Rest>::value);
+			(... && __bool<is_same<T, Rest>::value>);
 #endif
 	}
 
-	template <class...Ts>
-	concept bool Same() {
-		return models::Same<Ts...>;
-	}
+	template <class... Ts>
+	concept bool Same = models::Same<Ts...>;
 
 	template <class T>
-	concept bool _Decayed = Same<T, decay_t<T>>();
+	concept bool _Decayed = Same<T, decay_t<T>>;
 
 	template <class T>
-	concept bool _Unqual = Same<T, __uncvref<T>>();
+	concept bool _Unqual = Same<T, __uncvref<T>>;
 
 	namespace models {
 		template <class T, class... Args>
@@ -70,15 +71,15 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// DerivedFrom [concepts.lib.corelang.derived]
-	//
+	// Not to spec: https://github.com/ericniebler/stl2/issues/255
 	template <class T, class U>
-	concept bool DerivedFrom() {
+	concept bool DerivedFrom =
 #if defined(__GNUC__)
-		return __is_base_of(U, T);
+		__is_base_of(U, T) &&
 #else
-		return _Is<U, is_base_of, T>;
+		_Is<U, is_base_of, T> &&
 #endif
-	}
+			std::is_convertible<std::remove_cv_t<T>*, std::remove_cv_t<U>*>::value;
 
 	namespace models {
 		template <class, class>
@@ -94,12 +95,11 @@ STL2_OPEN_NAMESPACE {
 	// See https://github.com/ericniebler/stl2/issues/167
 	//
 	template <class T, class U>
-	concept bool ConvertibleTo() {
-		return _Is<T, is_convertible, U> && requires(T (&t)()) {
+	concept bool ConvertibleTo =
+		_Is<T, is_convertible, U> && requires(T (&t)()) {
 			static_cast<U>(t());
 		};
 		// Axiom: implicit and explicit conversion have equal results.
-	}
 
 	namespace models {
 		template <class, class>

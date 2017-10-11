@@ -16,6 +16,7 @@
 #include <new>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/memory/concepts.hpp>
 #include <stl2/detail/memory/construct_at.hpp>
 #include <stl2/detail/memory/destroy.hpp>
@@ -27,8 +28,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <InputIterator I, Sentinel<I> S, __NoThrowForwardIterator O>
 	requires
-		Constructible<value_type_t<O>, rvalue_reference_t<I>>() &&
-		__ReferenceTo<I, value_type_t<O>>()
+		Constructible<value_type_t<O>, rvalue_reference_t<I>> &&
+		__ReferenceTo<I, value_type_t<O>>
 	tagged_pair<tag::in(I), tag::out(O)> uninitialized_move(I first, S last, O result)
 	{
 		auto guard = detail::destroy_guard<O>{result};
@@ -44,13 +45,13 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <InputRange Rng, __NoThrowForwardIterator O>
 	requires
-		Constructible<value_type_t<O>, rvalue_reference_t<iterator_t<Rng>>>() &&
-		__ReferenceTo<iterator_t<Rng>, value_type_t<O>>()
+		Constructible<value_type_t<O>, rvalue_reference_t<iterator_t<Rng>>> &&
+		__ReferenceTo<iterator_t<Rng>, value_type_t<O>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
 	uninitialized_move(Rng&& rng, O result)
 	{
 		return __stl2::uninitialized_move(
-			__stl2::begin(rng), __stl2::end(rng), __stl2::move(result));
+			__stl2::begin(rng), __stl2::end(rng), std::move(result));
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -58,14 +59,14 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <InputIterator I, __NoThrowForwardIterator O>
 	requires
-		Constructible<value_type_t<O>, rvalue_reference_t<I>>() &&
-		__ReferenceTo<I, value_type_t<I>>()
+		Constructible<value_type_t<O>, rvalue_reference_t<I>> &&
+		__ReferenceTo<I, value_type_t<I>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	uninitialized_move_n(I first, difference_type_t<I> n, O result)
 	{
 		auto r = __stl2::uninitialized_move(
 			__stl2::make_counted_iterator(first, n),
-			default_sentinel{}, __stl2::move(result));
+			default_sentinel{}, std::move(result));
 		return {r.in().base(), r.out()};
 	}
 } STL2_CLOSE_NAMESPACE

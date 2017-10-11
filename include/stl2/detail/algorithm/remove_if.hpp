@@ -9,8 +9,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_ALGORITHM_REMOVE_HPP
-#define STL2_DETAIL_ALGORITHM_REMOVE_HPP
+#ifndef STL2_DETAIL_ALGORITHM_REMOVE_IF_HPP
+#define STL2_DETAIL_ALGORITHM_REMOVE_IF_HPP
 
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -24,13 +24,13 @@
 STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
-		models::Permutable<I> &&
-		models::IndirectPredicate<
+		Permutable<I> &&
+		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
 	I remove_if(I first, S last, Pred pred, Proj proj = Proj{})
 	{
-		first = __stl2::find_if(__stl2::move(first), last,
-			__stl2::ref(pred), __stl2::ref(proj));
+		first = __stl2::find_if(std::move(first), last,
+			std::ref(pred), std::ref(proj));
 		if (first != last) {
 			for (auto m = __stl2::next(first); m != last; ++m) {
 				if (!__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
@@ -44,15 +44,15 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class Pred, class Proj = identity>
 	requires
-		models::Permutable<iterator_t<Rng>> &&
-		models::IndirectPredicate<
+		Permutable<iterator_t<Rng>> &&
+		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	remove_if(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::remove_if(
 			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

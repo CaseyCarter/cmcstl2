@@ -44,9 +44,8 @@ STL2_OPEN_NAMESPACE {
 	using sentinel_t = decltype(__stl2::end(declval<T&>()));
 
 	template <class T>
-	concept bool Range() {
-		return requires { typename sentinel_t<T>; };
-	}
+	concept bool Range =
+		requires { typename sentinel_t<T>; };
 
 	namespace models {
 		template <class>
@@ -62,20 +61,13 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool disable_sized_range = false;
 
 	template <class R>
-	constexpr bool __sized_range = false;
-	template <class R>
-		requires requires(const R& r) {
-			STL2_DEDUCTION_CONSTRAINT(__stl2::size(r), Integral);
-			STL2_CONVERSION_CONSTRAINT(__stl2::size(r), difference_type_t<iterator_t<R>>);
-		}
-	constexpr bool __sized_range<R> = true;
-
-	template <class R>
-	concept bool SizedRange() {
-		return Range<R>() &&
-			!disable_sized_range<__uncvref<R>> &&
-			__sized_range<remove_reference_t<R>>;
-	}
+	concept bool SizedRange =
+		Range<R> &&
+		!disable_sized_range<__uncvref<R>> &&
+		requires(const remove_reference_t<R>& r) {
+			{ __stl2::size(r) } -> Integral;
+			{ __stl2::size(r) } -> difference_type_t<iterator_t<R>>;
+		};
 
 	namespace models {
 		template <class>
@@ -91,8 +83,8 @@ STL2_OPEN_NAMESPACE {
 
 	template <class T>
 	concept bool _ContainerLike =
-		Range<T>() && Range<const T>() &&
-		!Same<reference_t<iterator_t<T>>, reference_t<iterator_t<const T>>>();
+		Range<T> && Range<const T> &&
+		!Same<reference_t<iterator_t<T>>, reference_t<iterator_t<const T>>>;
 
 	namespace models {
 		template <class>
@@ -113,7 +105,7 @@ STL2_OPEN_NAMESPACE {
 
 	// TODO: Be very certain that "!" here works as intended.
 	template <_ContainerLike T>
-		requires !(DerivedFrom<T, view_base>() ||
+		requires !(DerivedFrom<T, view_base> ||
 			_Valid<meta::_t, enable_view<T>>)
 	constexpr bool __view_predicate<T> = false;
 
@@ -129,11 +121,10 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool __view_predicate<std::unordered_multiset<Key, Hash, Pred, Alloc>> = false;
 
 	template <class T>
-	concept bool View() {
-		return Range<T>() &&
-			__view_predicate<T> &&
-			Semiregular<T>();
-	}
+	concept bool View =
+		Range<T> &&
+		__view_predicate<T> &&
+		Semiregular<T>;
 
 	namespace models {
 		template <class>
@@ -146,9 +137,8 @@ STL2_OPEN_NAMESPACE {
 	// BoundedRange [ranges.bounded]
 	//
 	template <class T>
-	concept bool BoundedRange() {
-		return Range<T>() && Same<iterator_t<T>, sentinel_t<T>>();
-	}
+	concept bool BoundedRange =
+		Range<T> && Same<iterator_t<T>, sentinel_t<T>>;
 
 	namespace models {
 		template <class>
@@ -162,9 +152,8 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec: value category sensitive.
 	//
 	template <class R, class T>
-	concept bool OutputRange() {
-		return Range<R>() && OutputIterator<iterator_t<R>, T>();
-	}
+	concept bool OutputRange =
+		Range<R> && OutputIterator<iterator_t<R>, T>;
 
 	namespace models {
 		template <class, class>
@@ -177,9 +166,8 @@ STL2_OPEN_NAMESPACE {
 	// InputRange [ranges.input]
 	//
 	template <class T>
-	concept bool InputRange() {
-		return Range<T>() && InputIterator<iterator_t<T>>();
-	}
+	concept bool InputRange =
+		Range<T> && InputIterator<iterator_t<T>>;
 
 	namespace models {
 		template <class>
@@ -192,9 +180,8 @@ STL2_OPEN_NAMESPACE {
 	// ForwardRange [ranges.forward]
 	//
 	template <class T>
-	concept bool ForwardRange() {
-		return Range<T>() && ForwardIterator<iterator_t<T>>();
-	}
+	concept bool ForwardRange =
+		Range<T> && ForwardIterator<iterator_t<T>>;
 
 	namespace models {
 		template <class>
@@ -207,9 +194,8 @@ STL2_OPEN_NAMESPACE {
 	// BidirectionalRange [ranges.bidirectional]
 	//
 	template <class T>
-	concept bool BidirectionalRange() {
-		return Range<T>() && BidirectionalIterator<iterator_t<T>>();
-	}
+	concept bool BidirectionalRange =
+		Range<T> && BidirectionalIterator<iterator_t<T>>;
 
 	namespace models {
 		template <class>
@@ -222,9 +208,8 @@ STL2_OPEN_NAMESPACE {
 	// RandomAccessRange [ranges.random.access]
 	//
 	template <class T>
-	concept bool RandomAccessRange() {
-		return Range<T>() && RandomAccessIterator<iterator_t<T>>();
-	}
+	concept bool RandomAccessRange =
+		Range<T> && RandomAccessIterator<iterator_t<T>>;
 
 	namespace models {
 		template <class>
@@ -235,18 +220,12 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template <class R>
-		constexpr bool __contiguous_range = false;
-		template <class R>
-			requires requires(R& r) {
-				STL2_EXACT_TYPE_CONSTRAINT(__stl2::data(r), add_pointer_t<reference_t<iterator_t<R>>>);
-			}
-		constexpr bool __contiguous_range<R> = true;
-
-		template <class R>
-		concept bool ContiguousRange() {
-			return SizedRange<R>() && ContiguousIterator<iterator_t<R>>() &&
-				__contiguous_range<remove_reference_t<R>>;
-		}
+		concept bool ContiguousRange =
+			SizedRange<R> &&
+			ContiguousIterator<iterator_t<R>> &&
+			requires(R& r) {
+				{ __stl2::data(r) } -> Same<add_pointer_t<reference_t<iterator_t<R>>>>&&;
+			};
 	}
 
 	namespace models {

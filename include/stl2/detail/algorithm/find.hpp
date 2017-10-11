@@ -12,7 +12,6 @@
 #ifndef STL2_DETAIL_ALGORITHM_FIND_HPP
 #define STL2_DETAIL_ALGORITHM_FIND_HPP
 
-#include <initializer_list>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -24,7 +23,7 @@
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class T, class Proj = identity>
 	requires
-		models::IndirectRelation<
+		IndirectRelation<
 			equal_to<>, projected<I, Proj>, const T*>
 	I find(I first, S last, const T& value, Proj proj = Proj{})
 	{
@@ -38,21 +37,10 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class T, class Proj = identity>
 	requires
-		models::IndirectRelation<
+		IndirectRelation<
 			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
 	safe_iterator_t<Rng> find(Rng&& rng, const T& value, Proj proj = Proj{}) {
-		return __stl2::find(__stl2::begin(rng), __stl2::end(rng), value,
-												__stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class T, class Proj = identity>
-	requires
-		models::IndirectRelation<
-			equal_to<>, projected<const E*, Proj>, const T*>
-	dangling<const E*>
-	find(std::initializer_list<E>&& il, const T& value, Proj proj = Proj{}) {
-		return __stl2::find(il.begin(), il.end(), value, __stl2::ref(proj));
+		return __stl2::find(__stl2::begin(rng), __stl2::end(rng), value, std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

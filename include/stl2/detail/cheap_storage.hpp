@@ -27,14 +27,14 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool cheaply_copyable = false;
 		template <class T>
 		requires
-			models::CopyConstructible<T> &&
+			CopyConstructible<T> &&
 			std::is_trivially_copyable<T>::value &&
 			((_Is<T, std::is_empty> && !_Is<T, std::is_final>) ||
 				sizeof(T) <= cheap_copy_size)
 		constexpr bool cheaply_copyable<T> = true;
 
 		template <class T, class Tag = void>
-		requires models::Addressable<T>
+		requires ext::Addressable<T>
 		class ref_box {
 		public:
 			ref_box() = default;
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 
 		// Note: promotes to CopyConstructible
 		template <class T, class Tag = void>
-		requires models::Addressable<T>
+		requires ext::Addressable<T>
 		using cheap_reference_box_t = meta::if_c<
 			cheaply_copyable<remove_cv_t<T>>,
 			ebo_box<remove_cv_t<T>, Tag>,

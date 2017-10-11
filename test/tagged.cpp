@@ -31,54 +31,50 @@ void test_pair() {
 	auto t = tp(42, 3.14);
 	static_assert(__stl2::models::Same<decltype(t), TP>);
 	CHECK(t.first == 42);
-	CHECK(__stl2::get<0>(t) == 42);
+	CHECK(std::get<0>(t) == 42);
 	CHECK(t.in() == 42);
 	CHECK(t.second == 3.14);
-	CHECK(__stl2::get<1>(t) == 3.14);
+	CHECK(std::get<1>(t) == 3.14);
 	CHECK(t.out() == 3.14);
 }
 
 void test_constexpr_pair() {
-#if STL2_CONSTEXPR_EXTENSIONS
 	constexpr auto t = tp(42, 3.14);
 	static_assert(__stl2::models::Same<decltype(t), const TP>);
 	constexpr int f = t.first;
 	CHECK(f == 42);
-	constexpr int fg = __stl2::get<0>(t);
+	constexpr int fg = std::get<0>(t);
 	CHECK(fg == 42);
 	constexpr int ff = t.in();
 	CHECK(ff == 42);
 	constexpr double s = t.second;
 	CHECK(s == 3.14);
-	constexpr double sg = __stl2::get<1>(t);
+	constexpr double sg = std::get<1>(t);
 	CHECK(sg == 3.14);
 	constexpr double sf = t.out();
 	CHECK(sf == 3.14);
-#endif
 }
 
 void test_tuple() {
 	auto t = tt(42, 3.14);
 	static_assert(__stl2::models::Same<decltype(t), TT>);
-	CHECK(__stl2::get<0>(t) == 42);
+	CHECK(std::get<0>(t) == 42);
 	CHECK(t.in() == 42);
-	CHECK(__stl2::get<1>(t) == 3.14);
+	CHECK(std::get<1>(t) == 3.14);
 	CHECK(t.out() == 3.14);
 }
 
 void test_constexpr_tuple() {
-#if STL2_CONSTEXPR_EXTENSIONS
 	constexpr auto t = tt(42, 3.14);
 	static_assert(__stl2::models::Same<decltype(t), const TT>);
-	constexpr int fg = __stl2::get<0>(t);
+	constexpr int fg = std::get<0>(t);
 	CHECK(fg == 42);
 	constexpr int ff = t.in();
 	CHECK(ff == 42);
-	constexpr double sg = __stl2::get<1>(t);
+	constexpr double sg = std::get<1>(t);
 	CHECK(sg == 3.14);
 	constexpr double sf = t.out();
 	CHECK(sf == 3.14);
-#endif
 }
 
 void test_conversions() {
@@ -88,9 +84,9 @@ void test_conversions() {
 	CHECK(t == tt(13, 1.414));
 	t = tp(42, 3.14);
 	CHECK(t == tt(42, 3.14));
-	t = __stl2::make_tuple(13, 1.414);
+	t = std::make_tuple(13, 1.414);
 	CHECK(t == tt(13, 1.414));
-	t = __stl2::make_pair(42, 3.14);
+	t = std::make_pair(42, 3.14);
 	CHECK(t == tt(42, 3.14));
 }
 
@@ -98,7 +94,7 @@ void test_swap() {
 	auto t1 = tt(42, 3.14);
 	decltype(t1) t2{};
 
-	__stl2::pair<int, double> stdp;
+	std::pair<int, double> stdp;
 	__stl2::swap(t1, t2);
 
 	CHECK(t1.in() == 0);
@@ -128,11 +124,11 @@ namespace std {
 
 void test_noexcept() {
 	using T = __stl2::tagged<nothrow_pair, __stl2::tag::in1, __stl2::tag::in2>;
-	CHECK(__stl2::is_nothrow_default_constructible<T>());
-	CHECK(__stl2::is_nothrow_move_constructible<T>());
-	CHECK(__stl2::is_nothrow_copy_constructible<T>());
-	CHECK(__stl2::is_nothrow_move_assignable<T>());
-	CHECK(__stl2::is_nothrow_copy_assignable<T>());
+	CHECK(std::is_nothrow_default_constructible<T>());
+	CHECK(std::is_nothrow_move_constructible<T>());
+	CHECK(std::is_nothrow_copy_constructible<T>());
+	CHECK(std::is_nothrow_move_assignable<T>());
+	CHECK(std::is_nothrow_copy_assignable<T>());
 	CHECK(noexcept(T{1, 2}));
 	// Force to rvalue to workaround
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67185
@@ -155,7 +151,7 @@ void test_make_pair() {
 	CHECK(tp(42, 3.14) == MAKE(42, 3.14));
 	CHECK(MAKE(42, 3.14).in() == 42);
 	CHECK(MAKE(42, 3.14).out() == 3.14);
-	CHECK(__stl2::pair<int, double>(42, 3.14) == MAKE(42, 3.14));
+	CHECK(std::pair<int, double>(42, 3.14) == MAKE(42, 3.14));
 #undef MAKE
 }
 
@@ -166,7 +162,7 @@ void test_make_tuple() {
 	CHECK(t.in() == 1);
 	CHECK(t.out() == 2);
 	CHECK(t.max() == 3);
-	CHECK(t == __stl2::make_tuple(1,2,3));
+	CHECK(t == std::make_tuple(1,2,3));
 }
 
 void test_tagged_pairs_para_2_example() {
@@ -195,37 +191,76 @@ void test_tagged_tuple_creation_para_4_example() {
 	using namespace __stl2;
 	int i;
 	float j;
-	auto t = make_tagged_tuple<tag::in1, tag::in2, tag::out>(1, ref(i), cref(j));
+	auto t = __stl2::make_tagged_tuple<tag::in1, tag::in2, tag::out>(1, std::ref(i), std::cref(j));
 	static_assert(models::Same<decltype(t), tagged_tuple<tag::in1(int), tag::in2(int&), tag::out(const float&)>>);
 	CHECK(t.in1() == 1);
 	CHECK(&t.in2() == &i);
 	CHECK(&t.out() == &j);
 }
 
-struct foo {
-	template <class B>
-	struct tagged_getter : B {
-		constexpr decltype(auto) foo() & {
-			return B::get();
-		}
-		constexpr decltype(auto) foo() const& {
-			return B::get();
-		}
-		constexpr decltype(auto) foo() && {
-			return __stl2::move(*this).B::get();
-		}
-	};
-};
+STL2_DEFINE_GETTER(foo)
 
 void test_tag_extension() {
 	auto p = __stl2::make_tagged_pair<__stl2::tag::in, foo>(42, 13);
-	static_assert(__stl2::is_same<int&, decltype(p.foo())>());
+	static_assert(std::is_same<int&, decltype(p.foo())>());
 	const auto& cp = p;
-	static_assert(__stl2::is_same<const int&, decltype(cp.foo())>());
-	static_assert(__stl2::is_same<int&&, decltype(__stl2::move(p).foo())>());
+	static_assert(std::is_same<const int&, decltype(cp.foo())>());
+	static_assert(std::is_same<int&&, decltype(__stl2::move(p).foo())>());
 	CHECK(p.in() == 42);
 	CHECK(p.foo() == 13);
 }
+
+template <class T>
+struct im_a_tuple {
+	T i = 42;
+
+	void out();
+};
+
+template <int I>
+concept bool Zero = I == 0;
+
+Zero{I} constexpr auto&
+get(im_a_tuple<auto>& f) { return f.i; }
+
+Zero{I} constexpr auto&
+get(const im_a_tuple<auto>& f) { return f.i; }
+
+Zero{I} constexpr auto&&
+get(im_a_tuple<auto>&& f) { return std::move(f).i; }
+
+Zero{I} constexpr auto&&
+get(const im_a_tuple<auto>&& f) { return std::move(f).i; }
+
+namespace std {
+	template <class T>
+	struct tuple_size<::im_a_tuple<T>> : meta::size_t<1> {};
+	template <class T>
+	struct tuple_element<0, ::im_a_tuple<T>> { using type = T; };
+}
+
+void test_chain_inheritance() {
+	using T = __stl2::tagged<im_a_tuple<int>, __stl2::tag::out>;
+	T t{};
+	CHECK(t.out(), 42);
+}
+
+constexpr bool test_constexpr() {
+	using T = __stl2::tagged<im_a_tuple<int>, __stl2::tag::in>;
+	T t1, t2;
+	if (t1.in() != 42) return false;
+	if (t2.in() != 42) return false;
+	t2.in() = 13;
+	if (t2.in() != 13) return false;
+	__stl2::swap(t1, t2);
+	if (t1.in() != 13) return false;
+	if (t2.in() != 42) return false;
+	t1.swap(t2);
+	if (t1.in() != 42) return false;
+	if (t2.in() != 13) return false;
+	return true;
+}
+static_assert(test_constexpr());
 
 int main() {
 	test_pair();
@@ -243,5 +278,6 @@ int main() {
 	test_tagged_tuple_para_3_example();
 	test_tagged_tuple_creation_para_4_example();
 	test_tag_extension();
+	test_chain_inheritance();
 	return ::test_result();
 }

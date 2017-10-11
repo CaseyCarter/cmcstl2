@@ -25,35 +25,23 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<I, Proj>>
 	bool is_sorted(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		return last == __stl2::is_sorted_until(__stl2::move(first), last,
-			__stl2::ref(comp), __stl2::ref(proj));
+		return last == __stl2::is_sorted_until(std::move(first), last,
+			std::ref(comp), std::ref(proj));
 	}
 
 	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::IndirectStrictWeakOrder<
+		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
 	bool is_sorted(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::end(rng) ==
 			__stl2::is_sorted_until(__stl2::begin(rng), __stl2::end(rng),
-				__stl2::ref(comp), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class Comp = less<>, class Proj = identity>
-	requires
-		models::IndirectStrictWeakOrder<
-			Comp, projected<const E*, Proj>>
-	bool is_sorted(std::initializer_list<E>&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::end(rng) ==
-			__stl2::is_sorted_until(__stl2::begin(rng), __stl2::end(rng),
-				__stl2::ref(comp), __stl2::ref(proj));
+				std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

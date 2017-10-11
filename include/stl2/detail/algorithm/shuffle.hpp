@@ -27,9 +27,9 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I, Sentinel<I> S,
 		class Gen = detail::default_random_engine&, class D = difference_type_t<I>>
 	requires
-		models::Permutable<I> &&
-		models::UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
-		models::ConvertibleTo<result_of_t<Gen&()>, D>
+		Permutable<I> &&
+		UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
+		ConvertibleTo<result_of_t<Gen&()>, D>
 	I shuffle(I const first, S const last, Gen&& g = detail::get_random_engine())
 	{
 		auto mid = first;
@@ -49,14 +49,14 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessRange Rng, class Gen = detail::default_random_engine&,
 		class D = difference_type_t<iterator_t<Rng>>>
 	requires
-		models::Permutable<iterator_t<Rng>> &&
-		models::UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
-		models::ConvertibleTo<result_of_t<Gen&()>, D>
+		Permutable<iterator_t<Rng>> &&
+		UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
+		ConvertibleTo<result_of_t<Gen&()>, D>
 	inline safe_iterator_t<Rng> shuffle(
 		Rng&& rng, Gen&& g = detail::get_random_engine())
 	{
 		return  __stl2::shuffle(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::forward<Gen>(g));
+			std::forward<Gen>(g));
 	}
 } STL2_CLOSE_NAMESPACE
 

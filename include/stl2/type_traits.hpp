@@ -13,6 +13,7 @@
 #ifndef STL2_TYPE_TRAITS
 #define STL2_TYPE_TRAITS
 
+#include <type_traits>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
@@ -34,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 	using __cref = __ref<add_const_t<X>>;
 
 	template <class T, class U>
-	using __cond = decltype(true ? declval<T>() : declval<U>());
+	using __cond = decltype(true ? declval<T(&)()>()() : declval<U(&)()>()());
 
 	template <class From, class To>
 	struct __copy_cv_ : meta::id<To> {};
@@ -62,8 +63,8 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class U>
 	requires
 		_Valid<__builtin_common_t, T &, U &> &&
-		ConvertibleTo<T &&, __rref_res<T, U>>() &&
-		ConvertibleTo<U &&, __rref_res<T, U>>()
+		ConvertibleTo<T &&, __rref_res<T, U>> &&
+		ConvertibleTo<U &&, __rref_res<T, U>>
 	struct __builtin_common<T &&, U &&> : meta::id<__rref_res<T, U>> {};
 
 	template <class T, class U>
@@ -75,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class U>
 	requires
 		_Valid<__builtin_common_t, T &, U const &> &&
-		ConvertibleTo<U &&, __builtin_common_t<T &, U const &>>()
+		ConvertibleTo<U &&, __builtin_common_t<T &, U const &>>
 	struct __builtin_common<T &, U &&> : __builtin_common<T &, U const &> {};
 	template <class T, class U>
 	struct __builtin_common<T &&, U &> : __builtin_common<U &, T &&> {};
@@ -84,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 	template <class...>
 	struct common_type {};
 
-	template <class...Ts>
+	template <class... Ts>
 	using common_type_t = meta::_t<common_type<Ts...>>;
 
 	template <class T>
@@ -97,13 +98,13 @@ STL2_OPEN_NAMESPACE {
 	struct __common_type2<T, U> : __builtin_common<T, U> {};
 
 	template <_Decayed T, _Decayed U>
-		requires requires { typename __cond<T, U>; }
-	struct __common_type2<T, U> : meta::id<decay_t<__cond<T, U>>> {};
+		requires requires { typename std::common_type_t<T, U>; }
+	struct __common_type2<T, U> : std::common_type<T, U> {};
 
 	template <class T, class U>
 	struct common_type<T, U> : __common_type2<T, U> {};
 
-	template <class T, class U, class V, class...W>
+	template <class T, class U, class V, class...  W>
 	requires _Valid<common_type_t, T, U>
 	struct common_type<T, U, V, W...>
 	: common_type<common_type_t<T, U>, V, W...> {};
@@ -141,18 +142,30 @@ STL2_OPEN_NAMESPACE {
 	template <class...>
 	struct common_reference {};
 
-	template <class...Ts>
+	template <class... Ts>
 	using common_reference_t = meta::_t<common_reference<Ts...>>;
 
 	template <class T>
 	struct common_reference<T> : meta::id<T> {};
 
 	template <class T, class U>
-	struct __common_reference2
-		: meta::if_<meta::is_trait<__basic_common_reference<T, U>>,
-			__basic_common_reference<T, U>, common_type<T, U>> {};
+	struct __common_reference2_2_ : common_type<T, U> {};
 
 	template <class T, class U>
+	requires requires { typename __cond<T, U>; }
+	struct __common_reference2_2_<T, U> : meta::id<__cond<T, U>> {};
+
+	template <class T, class U>
+	struct __common_reference2_1_ : __common_reference2_2_<T, U> {};
+
+	template <class T, class U>
+	requires _Valid<meta::_t, __basic_common_reference<T, U>>
+	struct __common_reference2_1_<T, U> : __basic_common_reference<T, U> {};
+
+	template <class T, class U>
+	struct __common_reference2 : __common_reference2_1_<T, U> {};
+
+	template <_Is<std::is_reference> T, _Is<std::is_reference> U>
 	requires
 		_Valid<__builtin_common_t, T, U> &&
 		_Is<__builtin_common_t<T, U>, is_reference>
@@ -161,72 +174,54 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class U>
 	struct common_reference<T, U> : __common_reference2<T, U> {};
 
-	template <class T, class U, class V, class...W>
+	template <class T, class U, class V, class... W>
 	requires _Valid<common_reference_t, T, U>
 	struct common_reference<T, U, V, W...>
 	: common_reference<common_reference_t<T, U>, V, W...> {};
 
-	namespace models {
-		template <class, class>
-		constexpr bool CommonReference = false;
-		template <class T, class U>
-		requires
-			requires {
-				typename common_reference_t<T, U>;
-				typename common_reference_t<U, T>;
-			} &&
-			Same<common_reference_t<T, U>, common_reference_t<U, T>> &&
-			ConvertibleTo<T, common_reference_t<T, U>> &&
-			ConvertibleTo<U, common_reference_t<T, U>>
-		constexpr bool CommonReference<T, U> = true;
-	}
-
 	// Not to spec
 	// See https://github.com/ericniebler/stl2/issues/311
 	template <class T, class U>
-	concept bool CommonReference() {
-		return models::CommonReference<T, U>;
+	concept bool CommonReference =
+		requires {
+			typename common_reference_t<T, U>;
+			typename common_reference_t<U, T>;
+		} &&
+		Same<common_reference_t<T, U>, common_reference_t<U, T>> &&
+		ConvertibleTo<T, common_reference_t<T, U>> &&
+		ConvertibleTo<U, common_reference_t<T, U>>;
+
+	namespace models {
+		template <class, class>
+		constexpr bool CommonReference = false;
+		__stl2::CommonReference{T, U}
+		constexpr bool CommonReference<T, U> = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// Common [concepts.lib.corelang.common]
-	//
-	// Common<T, U> is a purely semantic concept with a single axiom:
-	//   For some type C, there exist total injective functions f: T -> C
-	//   and g: U -> C. (In other words, values of T and U correspond to values
-	//   of C.)
-	//
-	// That axiom is obviously satisfied if T and U are the same type, since
-	// T is a common type with f and g both identity functions.
-	//
-	// This concept augments the axiom with added syntax requirements to
-	// provide "SomewhatVerifiablyCommon."
-	//
-	namespace models {
-		template <class, class>
-		constexpr bool Common = false;
-		template <class T, class U>
-		requires
-			requires {
-				typename common_type_t<T, U>;
-				typename common_type_t<U, T>;
-			} &&
-			Same<common_type_t<T, U>, common_type_t<U, T>> &&
-			ConvertibleTo<T, common_type_t<T, U>> &&
-			ConvertibleTo<U, common_type_t<T, U>> &&
-			CommonReference<add_lvalue_reference_t<const T>,
-				add_lvalue_reference_t<const U>> &&
-			CommonReference<add_lvalue_reference_t<common_type_t<T, U>>,
-				common_reference_t<add_lvalue_reference_t<const T>,
-					add_lvalue_reference_t<const U>>>
-		constexpr bool Common<T, U> = true;
-	}
-
 	// Not to spec
 	// See https://github.com/ericniebler/stl2/issues/311
 	template <class T, class U>
-	concept bool Common() {
-		return models::Common<T, U>;
+	concept bool Common =
+		requires {
+			typename common_type_t<T, U>;
+			typename common_type_t<U, T>;
+		} &&
+		Same<common_type_t<T, U>, common_type_t<U, T>> &&
+		ConvertibleTo<T, common_type_t<T, U>> &&
+		ConvertibleTo<U, common_type_t<T, U>> &&
+		CommonReference<add_lvalue_reference_t<const T>,
+			add_lvalue_reference_t<const U>> &&
+		CommonReference<add_lvalue_reference_t<common_type_t<T, U>>,
+			common_reference_t<add_lvalue_reference_t<const T>,
+				add_lvalue_reference_t<const U>>>;
+
+	namespace models {
+		template <class, class>
+		constexpr bool Common = false;
+		__stl2::Common{T, U}
+		constexpr bool Common<T, U> = true;
 	}
 
 	template <typename T>

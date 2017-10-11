@@ -39,7 +39,7 @@ int main() {
 	static_assert(models::OutputIterator<I, const char&>);
 	static_assert(models::Sentinel<default_sentinel, I>);
 	static_assert(models::Common<I, default_sentinel>);
-	static_assert(is_same<I, common_type_t<I, default_sentinel>>());
+	static_assert(std::is_same<I, common_type_t<I, default_sentinel>>());
 
 	{
 		static const char hw[] = "Hello, world!";

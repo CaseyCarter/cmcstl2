@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 		namespace rsort {
 			template <RandomAccessIterator I, class Comp, class Proj>
 			requires
-				models::Sortable<I, Comp, Proj>
+				Sortable<I, Comp, Proj>
 			I choose_pivot(I first, I last, Comp& comp, Proj& proj)
 			{
 				STL2_EXPECT(first != last);
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <RandomAccessIterator I, class Comp, class Proj>
 			requires
-				models::Sortable<I, Comp, Proj>
+				Sortable<I, Comp, Proj>
 			I unguarded_partition(I first, I last, Comp& comp, Proj& proj)
 			{
 				I pivot_pnt = rsort::choose_pivot(first, last, comp, proj);
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <BidirectionalIterator I, class Comp, class Proj>
 			requires
-				models::Sortable<I, Comp, Proj>
+				Sortable<I, Comp, Proj>
 			void unguarded_linear_insert(I last, value_type_t<I> val, Comp& comp, Proj& proj)
 			{
 				I next = __stl2::prev(last);
@@ -81,26 +81,26 @@ STL2_OPEN_NAMESPACE {
 					last = next;
 					--next;
 				}
-				*last = __stl2::move(val);
+				*last = std::move(val);
 			}
 
 			template <BidirectionalIterator I, class Comp, class Proj>
 			requires
-				models::Sortable<I, Comp, Proj>
+				Sortable<I, Comp, Proj>
 			void linear_insert(I first, I last, Comp& comp, Proj& proj)
 			{
 				value_type_t<I> val = __stl2::iter_move(last);
 				if (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *first))) {
 					__stl2::move_backward(first, last, last + 1);
-					*first = __stl2::move(val);
+					*first = std::move(val);
 				} else {
-					rsort::unguarded_linear_insert(last, __stl2::move(val), comp, proj);
+					rsort::unguarded_linear_insert(last, std::move(val), comp, proj);
 				}
 			}
 
 			template <BidirectionalIterator I, class Comp, class Proj>
 			requires
-				models::Sortable<I, Comp, Proj>
+				Sortable<I, Comp, Proj>
 			void insertion_sort(I first, I last, Comp& comp, Proj& proj)
 			{
 				if (first != last) {
@@ -112,7 +112,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <BidirectionalIterator I, class Comp, class Proj>
 			requires
-				models::Sortable<I, Comp, Proj>
+				Sortable<I, Comp, Proj>
 			void unguarded_insertion_sort(I first, I last, Comp& comp, Proj& proj)
 			{
 				for (I i = first; i != last; ++i) {
@@ -124,6 +124,7 @@ STL2_OPEN_NAMESPACE {
 
 			Integral{I}
 			constexpr auto log2(I n) {
+				STL2_EXPECT(n > 0);
 				I k = 0;
 				for (; n != 1; n /= 2) {
 					++k;
@@ -133,14 +134,13 @@ STL2_OPEN_NAMESPACE {
 
 			template <RandomAccessIterator I, class Comp, class Proj>
 			requires
-				models::Sortable<I, Comp, Proj>
+				Sortable<I, Comp, Proj>
 			void introsort_loop(I first, I last, difference_type_t<I> depth_limit,
 				Comp& comp, Proj& proj)
 			{
 				while (__stl2::distance(first, last) > introsort_threshold) {
 					if (depth_limit == 0) {
-						__stl2::partial_sort(first, last, last, __stl2::ref(comp),
-							__stl2::ref(proj));
+						__stl2::partial_sort(first, last, last, std::ref(comp), std::ref(proj));
 						return;
 					}
 					I cut = rsort::unguarded_partition(first, last, comp, proj);
@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <RandomAccessIterator I, class Comp, class Proj>
 			requires
-				models::Sortable<I, Comp, Proj>
+				Sortable<I, Comp, Proj>
 			void final_insertion_sort(I first, I last, Comp &comp, Proj &proj)
 			{
 				if (__stl2::distance(first, last) > introsort_threshold) {

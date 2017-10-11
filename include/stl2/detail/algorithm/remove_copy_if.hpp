@@ -15,6 +15,7 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
@@ -25,8 +26,8 @@ STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O, class Pred,
 		class Proj = identity>
 	requires
-		models::IndirectlyCopyable<I, O> &&
-		models::IndirectPredicate<
+		IndirectlyCopyable<I, O> &&
+		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	remove_copy_if(I first, S last, O result, Pred pred, Proj proj = Proj{})
@@ -34,41 +35,25 @@ STL2_OPEN_NAMESPACE {
 		for (; first != last; ++first) {
 			reference_t<I>&& v = *first;
 			if (!__stl2::invoke(pred, __stl2::invoke(proj, v))) {
-				*result = __stl2::forward<reference_t<I>>(v);
+				*result = std::forward<reference_t<I>>(v);
 				++result;
 			}
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
 	template <InputRange Rng, class O, class Pred, class Proj = identity>
 	requires
-		models::WeaklyIncrementable<__f<O>> &&
-		models::IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
-		models::IndirectPredicate<
+		WeaklyIncrementable<__f<O>> &&
+		IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
+		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	remove_copy_if(Rng&& rng, O&& result, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::remove_copy_if(
-			__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result),
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class O, class Pred, class Proj = identity>
-	requires
-		models::WeaklyIncrementable<__f<O>> &&
-		models::IndirectlyCopyable<const E*, __f<O>> &&
-		models::IndirectPredicate<
-			Pred, projected<const E*, Proj>>
-	tagged_pair<tag::in(dangling<const E*>), tag::out(__f<O>)>
-	remove_copy_if(std::initializer_list<E>&& rng, O&& result,
-								 Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::remove_copy_if(
-			__stl2::begin(rng), __stl2::end(rng), __stl2::forward<O>(result),
-			__stl2::ref(pred), __stl2::ref(proj));
+			__stl2::begin(rng), __stl2::end(rng), std::forward<O>(result),
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

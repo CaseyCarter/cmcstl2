@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 		WeaklyIncrementable O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::Mergeable<I1, I2, O, Comp, Proj1, Proj2>
+		Mergeable<I1, I2, O, Comp, Proj1, Proj2>
 	O set_intersection(I1 first1, S1 last1, I2 first2, S2 last2, O result,
 		Comp comp = Comp{}, Proj1 proj1 = Proj1{},
 		Proj2 proj2 = Proj2{})
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 			} else if (__stl2::invoke(comp, p2, p1)) {
 				++first2;
 			} else {
-				*result = __stl2::forward<reference_t<I1>>(v1);
+				*result = std::forward<reference_t<I1>>(v1);
 				++result;
 				++first1;
 				++first2;
@@ -54,8 +54,8 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		models::WeaklyIncrementable<__f<O>> &&
-		models::Mergeable<
+		WeaklyIncrementable<__f<O>> &&
+		Mergeable<
 			iterator_t<Rng1>, iterator_t<Rng2>, __f<O>,
 			Comp, Proj1, Proj2>
 	__f<O>
@@ -63,66 +63,8 @@ STL2_OPEN_NAMESPACE {
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __stl2::set_intersection(__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::ref(comp), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	// Extension
-	template <class E, InputRange Rng2, class O, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		models::WeaklyIncrementable<__f<O>> &&
-		models::Mergeable<
-			const E*, iterator_t<Rng2>, __f<O>,
-			Comp, Proj1, Proj2>
-	__f<O>
-	set_intersection(std::initializer_list<E>&& rng1, Rng2&& rng2,
-		O&& result, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::set_intersection(__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::ref(comp), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	// Extension
-	template <InputRange Rng1, class E, class O, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		models::WeaklyIncrementable<__f<O>> &&
-		models::Mergeable<
-			iterator_t<Rng1>, const E*, __f<O>,
-			Comp, Proj1, Proj2>
-	__f<O>
-	set_intersection(Rng1&& rng1, std::initializer_list<E>&& rng2,
-		O&& result, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::set_intersection(__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::ref(comp), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	// Extension
-	template <class E1, class E2, class O, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		models::WeaklyIncrementable<__f<O>> &&
-		models::Mergeable<
-			const E1*, const E2*, __f<O>,
-			Comp, Proj1, Proj2>
-	__f<O>
-	set_intersection(std::initializer_list<E1>&& rng1,
-		std::initializer_list<E2>&& rng2, O&& result, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::set_intersection(__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2), __stl2::forward<O>(result),
-			__stl2::ref(comp), __stl2::ref(proj1),
-			__stl2::ref(proj2));
+			__stl2::begin(rng2), __stl2::end(rng2), std::forward<O>(result),
+			std::ref(comp), std::ref(proj1), std::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

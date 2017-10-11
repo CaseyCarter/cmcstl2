@@ -25,35 +25,24 @@
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
+		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
 	bool is_partitioned(I first, S last, Pred pred, Proj proj = Proj{})
 	{
-		first = __stl2::find_if_not(__stl2::move(first), last,
-			__stl2::ref(pred), __stl2::ref(proj));
-		return __stl2::none_of(__stl2::move(first), __stl2::move(last),
-			__stl2::ref(pred), __stl2::ref(proj));
+		first = __stl2::find_if_not(std::move(first), last,
+			std::ref(pred), std::ref(proj));
+		return __stl2::none_of(std::move(first), std::move(last),
+			std::ref(pred), std::ref(proj));
 	}
 
 	template <InputRange Rng, class Pred, class Proj = identity>
 	requires
-		models::IndirectPredicate<
+		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	bool is_partitioned(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::is_partitioned(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
-	}
-
-	// Extension
-	template <class E, class Pred, class Proj = identity>
-	requires
-		models::IndirectPredicate<
-			Pred, projected<const E*, Proj>>
-	bool is_partitioned(std::initializer_list<E>&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::is_partitioned(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(pred), __stl2::ref(proj));
+			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

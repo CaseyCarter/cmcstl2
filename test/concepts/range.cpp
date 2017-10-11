@@ -33,49 +33,49 @@ namespace ns {
 
 namespace models {
 	template <class T, class U>
-	constexpr bool Same = ranges::Same<T, U>();
+	constexpr bool Same = ranges::Same<T, U>;
 
 	template <class I>
-	constexpr bool Iterator = ranges::Iterator<I>();
+	constexpr bool Iterator = ranges::Iterator<I>;
 
 	template <class S, class I>
-	constexpr bool Sentinel = ranges::IteratorRange<I, S>();
+	constexpr bool Sentinel = ranges::IteratorRange<I, S>;
 
 	template <class I>
-	constexpr bool InputIterator = ranges::InputIterator<I>();
+	constexpr bool InputIterator = ranges::InputIterator<I>;
 
 	template <class R>
-	constexpr bool Range = ranges::Range<R>();
+	constexpr bool Range = ranges::Range<R>;
 
 	template <class R>
-	constexpr bool SizedRange = ranges::SizedRange<R>();
+	constexpr bool SizedRange = ranges::SizedRange<R>;
 
 	template <class R>
-	constexpr bool SizedRangeLike = ranges::SizedRangeLike_<R>();
+	constexpr bool SizedRangeLike = ranges::SizedRangeLike_<R>;
 
 	template <class R>
-	constexpr bool _ContainerLike = ranges::ContainerLike_<R>();
+	constexpr bool _ContainerLike = ranges::ContainerLike_<R>;
 
 	template <class R>
-	constexpr bool View = ranges::View<R>();
+	constexpr bool View = ranges::View<R>;
 
 	template <class R>
-	constexpr bool BoundedRange = ranges::BoundedRange<R>();
+	constexpr bool BoundedRange = ranges::BoundedRange<R>;
 
 	template <class R, class T>
-	constexpr bool OutputRange = ranges::OutputRange<R, T>();
+	constexpr bool OutputRange = ranges::OutputRange<R, T>;
 
 	template <class R>
-	constexpr bool InputRange = ranges::InputRange<R>();
+	constexpr bool InputRange = ranges::InputRange<R>;
 
 	template <class R>
-	constexpr bool ForwardRange = ranges::ForwardRange<R>();
+	constexpr bool ForwardRange = ranges::ForwardRange<R>;
 
 	template <class R>
-	constexpr bool BidirectionalRange = ranges::BidirectionalRange<R>();
+	constexpr bool BidirectionalRange = ranges::BidirectionalRange<R>;
 
 	template <class R>
-	constexpr bool RandomAccessRange = ranges::RandomAccessRange<R>();
+	constexpr bool RandomAccessRange = ranges::RandomAccessRange<R>;
 }
 
 template <bool allow_nonconst, bool allow_const, bool allow_size>

@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		template <RandomAccessIterator I, class Comp, class Proj>
 		requires
-			models::Sortable<I, Comp, Proj>
+			Sortable<I, Comp, Proj>
 		void sort_heap_n(I first, difference_type_t<I> n, Comp comp, Proj proj)
 		{
 			if (n < 2) {
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			for (auto i = n; i > 1; --i) {
-				detail::pop_heap_n(first, i, __stl2::ref(comp), __stl2::ref(proj));
+				detail::pop_heap_n(first, i, std::ref(comp), std::ref(proj));
 			}
 		}
 	}
@@ -51,23 +51,22 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I, Sentinel<I> S,
 						class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<I, Comp, Proj>
+		Sortable<I, Comp, Proj>
 	I sort_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		auto n = __stl2::distance(first, __stl2::move(last));
-		detail::sort_heap_n(first, n, __stl2::ref(comp), __stl2::ref(proj));
+		auto n = __stl2::distance(first, std::move(last));
+		detail::sort_heap_n(first, n, std::ref(comp), std::ref(proj));
 		return first + n;
 	}
 
 	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		models::Sortable<iterator_t<Rng>, Comp, Proj>
+		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
 	sort_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto n = __stl2::distance(rng);
-		detail::sort_heap_n(__stl2::begin(rng), n, __stl2::ref(comp),
-			__stl2::ref(proj));
+		detail::sort_heap_n(__stl2::begin(rng), n, std::ref(comp), std::ref(proj));
 		return __stl2::begin(rng) + n;
 	}
 } STL2_CLOSE_NAMESPACE

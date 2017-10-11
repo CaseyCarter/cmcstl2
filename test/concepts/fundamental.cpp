@@ -14,13 +14,13 @@
 #if VALIDATE_RANGES
 namespace models {
 template <class T>
-constexpr bool Integral = ranges::Integral<T>();
+constexpr bool Integral = ranges::Integral<T>;
 
 template <class T>
-constexpr bool SignedIntegral = ranges::SignedIntegral<T>();
+constexpr bool SignedIntegral = ranges::SignedIntegral<T>;
 
 template <class T>
-constexpr bool UnsignedIntegral = ranges::UnsignedIntegral<T>();
+constexpr bool UnsignedIntegral = ranges::UnsignedIntegral<T>;
 } // namespace models
 
 #elif VALIDATE_STL2

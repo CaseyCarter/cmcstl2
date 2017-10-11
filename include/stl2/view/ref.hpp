@@ -26,13 +26,13 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <Range Rng>
 		requires
-			!(_Is<Rng, std::is_reference> || View<Rng>())
+			!(_Is<Rng, std::is_reference> || View<Rng>)
 		class ref_view : view_base {
 			detail::raw_ptr<Rng> rng_;
 		public:
 			ref_view() = default;
 			constexpr ref_view(Rng& rng) noexcept
-			: rng_{__stl2::addressof(rng)} {}
+			: rng_{detail::addressof(rng)} {}
 
 			constexpr iterator_t<Rng> begin() const
 			STL2_NOEXCEPT_RETURN(
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr auto size() const
 			noexcept(noexcept(__stl2::size(*rng_)))
-			requires SizedRange<Rng>()
+			requires SizedRange<Rng>
 			{ return __stl2::size(*rng_); }
 
 			constexpr auto data() const
@@ -60,12 +60,12 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <Range Rng>
-		requires !View<Rng>()
+		requires !View<Rng>
 		constexpr ref_view<Rng> as_view(Rng& rng) noexcept
 		{ return ref_view<Rng>{rng}; }
 
 		template <class T, View V = __uncvref<T>>
-		requires Constructible<V, T>()
+		requires Constructible<V, T>
 		constexpr T&& as_view(T&& t) noexcept
 		{ return std::forward<T>(t); }
 

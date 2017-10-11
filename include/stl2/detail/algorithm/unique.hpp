@@ -26,12 +26,12 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardIterator I, Sentinel<I> S,
 		class R = equal_to<>, class Proj = identity>
 	requires
-		models::Permutable<I> &&
-		models::IndirectRelation<__f<R>, projected<I, Proj>>
+		Permutable<I> &&
+		IndirectRelation<__f<R>, projected<I, Proj>>
 	I unique(I first, S last, R comp = R{}, Proj proj = Proj{})
 	{
 		first = __stl2::adjacent_find(
-			__stl2::move(first), last, __stl2::ref(comp), __stl2::ref(proj));
+			std::move(first), last, std::ref(comp), std::ref(proj));
 		if (first != last) {
 			for (auto m = __stl2::next(first, 2); m != last; ++m) {
 				if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *m))) {
@@ -45,14 +45,14 @@ STL2_OPEN_NAMESPACE {
 
 	template <ForwardRange Rng, class R = equal_to<>, class Proj = identity>
 	requires
-		models::Permutable<iterator_t<Rng>> &&
-		models::IndirectRelation<
+		Permutable<iterator_t<Rng>> &&
+		IndirectRelation<
 			__f<R>, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	unique(Rng&& rng, R comp = R{}, Proj proj = Proj{})
 	{
 		return __stl2::unique(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
+			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 
