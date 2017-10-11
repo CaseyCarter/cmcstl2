@@ -142,7 +142,10 @@ STL2_OPEN_NAMESPACE {
             constexpr decltype(auto) update_cache_()
             {
                 if constexpr (!std::is_reference_v<reference_t<iterator_t<Base>>>)
-                    return (parent_->inner_ = view::all(*outer_));
+                {
+                    auto&& inner = *outer_;
+                    return (parent_->inner_ = view::all(inner));
+                }
                 else
                     return *outer_;
             }
@@ -157,15 +160,14 @@ STL2_OPEN_NAMESPACE {
 
             constexpr void satisfy_()
             {
-                for (; outer_ != __stl2::end(parent_->base_); ++outer_)
-                {
-                    auto& inner = update_cache_();
+                for (; outer_ != __stl2::end(parent_->base_); ++outer_) {
+                    auto&& inner = update_cache_();
                     inner_ = __stl2::begin(inner);
                     if (inner_ != __stl2::end(inner))
                         return;
                 }
                 // needed for symmetric iterator comparison:
-                if constexpr (std::is_reference_v<InnerRng>)
+                if constexpr (std::is_reference_v<reference_t<iterator_t<Base>>>)
                     inner_ = iterator_t<reference_t<iterator_t<Base>>>{};
             }
         public:
@@ -180,9 +182,7 @@ STL2_OPEN_NAMESPACE {
 
             constexpr __iterator(Parent& parent, iterator_t<Rng> outer)
             : outer_(outer), parent_(&parent)
-            {
-                satisfy_();
-            }
+            { satisfy_(); }
 
             constexpr __iterator(__iterator<!Const> i) requires Const &&
                 ConvertibleTo<iterator_t<Rng>, iterator_t<Base>> &&
@@ -244,17 +244,21 @@ STL2_OPEN_NAMESPACE {
             requires std::is_reference_v<reference_t<iterator_t<Base>>> &&
                 EqualityComparable<iterator_t<Base>> &&
                 EqualityComparable<iterator_t<reference_t<iterator_t<Base>>>>
-            {
-                return x.outer_ == y.outer_ && x.inner_ == y.inner_;
-            }
+            { return x.outer_ == y.outer_ && x.inner_ == y.inner_; }
 
             friend constexpr bool operator!=(const __iterator& x, const __iterator& y)
             requires std::is_reference_v<reference_t<iterator_t<Base>>> &&
                 EqualityComparable<iterator_t<Base>> &&
                 EqualityComparable<iterator_t<reference_t<iterator_t<Base>>>>
-            {
-                return !(x == y);
-            }
+            { return !(x == y); }
+
+            friend constexpr decltype(auto) iter_move(const __iterator& i)
+                noexcept(noexcept(__stl2::iter_move(i.inner_)))
+            { return __stl2::iter_move(i.inner_); }
+
+            friend constexpr void iter_swap(const __iterator& x, const __iterator& y)
+                noexcept(noexcept(__stl2::iter_swap(x.inner_, y.inner_)))
+            { __stl2::iter_swap(x.inner_, y.inner_); }
         };
 
         template <class Rng>

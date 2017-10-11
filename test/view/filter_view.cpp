@@ -42,22 +42,31 @@ int main() {
     int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     static_assert(size(view::all(rgi))==10);
 
-    auto && rng = rgi | view::filter(is_odd());
+    auto rng = rgi | view::filter(is_odd());
     static_assert(models::Same<int &, decltype(*begin(rgi))>);
     static_assert(models::Same<int &, decltype(*begin(rng))>);
-    static_assert(models::View<__f<decltype(rng)>>);
-    static_assert(models::InputRange<__f<decltype(rng)>>);
-    static_assert(models::BoundedRange<__f<decltype(rng)>>);
-    static_assert(!models::SizedRange<__f<decltype(rng)>>);
-    static_assert(models::BidirectionalRange<__f<decltype(rng)>>);
-    static_assert(!models::RandomAccessRange<__f<decltype(rng)>>);
+    static_assert(models::View<decltype(rng)>);
+    static_assert(models::InputRange<decltype(rng)>);
+    static_assert(models::BoundedRange<decltype(rng)>);
+    static_assert(!models::SizedRange<decltype(rng)>);
+    static_assert(models::BidirectionalRange<decltype(rng)>);
+    static_assert(!models::RandomAccessRange<decltype(rng)>);
     ::check_equal(rng, {1,3,5,7,9});
+
+    auto const crng = rng;
+    static_assert(models::Same<int &, decltype(*begin(crng))>);
+    static_assert(!models::View<decltype(crng)>);
+    static_assert(models::InputRange<decltype(crng)>);
+    static_assert(models::BoundedRange<decltype(crng)>);
+    static_assert(!models::SizedRange<decltype(crng)>);
+    static_assert(!models::ForwardRange<decltype(crng)>);
+    ::check_equal(crng, {1,3,5,7,9});
 
     //::check_equal(rng | view::reverse, {9,7,5,3,1});
     //auto tmp = rng | view::reverse;
     //CHECK(&*begin(tmp) == &rgi[8]);
 
-    // auto && rng2 = view::counted(rgi, 10) | view::remove_if(not_fn(is_odd()));
+    // auto rng2 = view::counted(rgi, 10) | view::remove_if(not_fn(is_odd()));
     // static_assert(models::Same<int &, decltype(*begin(rng2))>);
     // static_assert(models::BidirectionalView<__f<decltype(rng2)>>);
     // static_assert(!models::RandomAccessView<__f<decltype(rng2)>>);
@@ -66,7 +75,7 @@ int main() {
     // ::check_equal(rng2, {1,3,5,7,9});
     // CHECK(&*begin(rng2) == &rgi[0]);
 
-    // auto && rng3 = view::counted(bidirectional_iterator<int*>{rgi}, 10) | view::remove_if(is_even());
+    // auto rng3 = view::counted(bidirectional_iterator<int*>{rgi}, 10) | view::remove_if(is_even());
     // static_assert(models::Same<int &, decltype(*begin(rng3))>);
     // static_assert(models::BidirectionalView<__f<decltype(rng3)>>);
     // static_assert(!models::RandomAccessView<__f<decltype(rng3)>>);
