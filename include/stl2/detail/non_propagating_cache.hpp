@@ -18,34 +18,34 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-        template<typename T, typename Tag = void, bool Enable = true>
-        struct non_propagating_cache : optional<T>
-        {
-            non_propagating_cache() = default;
-            constexpr non_propagating_cache(nullopt_t) noexcept
-            {}
-            constexpr non_propagating_cache(non_propagating_cache const &) noexcept
-            : optional<T>{}
-            {}
-            constexpr non_propagating_cache(non_propagating_cache &&that) noexcept
-            : optional<T>{}
-            { that.optional<T>::reset(); }
-            constexpr non_propagating_cache &operator=(non_propagating_cache const &) noexcept {
-                optional<T>::reset();
-                return *this;
-            }
-            constexpr non_propagating_cache &operator=(non_propagating_cache &&that) noexcept {
-                that.optional<T>::reset();
-                optional<T>::reset();
-                return *this;
-            }
-            using optional<T>::operator=;
-        };
+		template<typename T, typename Tag = void, bool Enable = true>
+		struct non_propagating_cache : optional<T>
+		{
+			non_propagating_cache() = default;
+			constexpr non_propagating_cache(nullopt_t) noexcept
+			{}
+			constexpr non_propagating_cache(non_propagating_cache const &) noexcept
+			: optional<T>{}
+			{}
+			constexpr non_propagating_cache(non_propagating_cache &&that) noexcept
+			: optional<T>{}
+			{ that.optional<T>::reset(); }
+			constexpr non_propagating_cache &operator=(non_propagating_cache const &) noexcept {
+				optional<T>::reset();
+				return *this;
+			}
+			constexpr non_propagating_cache &operator=(non_propagating_cache &&that) noexcept {
+				that.optional<T>::reset();
+				optional<T>::reset();
+				return *this;
+			}
+			using optional<T>::operator=;
+		};
 
-        template<typename T, typename Tag>
-        struct non_propagating_cache<T, Tag, false>
-        {};
-    }
+		template<typename T, typename Tag>
+		struct non_propagating_cache<T, Tag, false>
+		{};
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

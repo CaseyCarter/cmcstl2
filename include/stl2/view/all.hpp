@@ -26,21 +26,18 @@ STL2_OPEN_NAMESPACE {
                 template <Range Rng>
                 requires View<__f<Rng>>
                 constexpr __f<Rng> operator()(Rng&& rng) const {
-                    return (Rng&&) rng;
-                }
-                template <SizedRange Rng>
-                requires View<__f<Rng>>
-                constexpr __f<Rng> operator()(Rng&& rng) const {
-                    return (Rng&&) rng;
+                    return std::forward<Rng>(rng);
                 }
                 template <Range Rng>
+                requires std::is_lvalue_reference_v<Rng> && !View<decay_t<Rng>>
                 constexpr ext::iterator_range<iterator_t<Rng>, sentinel_t<Rng>>
-                operator()(Rng& rng) const {
+                operator()(Rng&& rng) const {
                     return {__stl2::begin(rng), __stl2::end(rng)};
                 }
                 template <SizedRange Rng>
+                requires std::is_lvalue_reference_v<Rng> && !View<decay_t<Rng>>
                 constexpr ext::sized_iterator_range<iterator_t<Rng>, sentinel_t<Rng>>
-                operator()(Rng& rng) const {
+                operator()(Rng&& rng) const {
                     using D = __stl2::difference_type_t<__stl2::iterator_t<Rng>>;
                     return {__stl2::begin(rng), __stl2::end(rng), (D)__stl2::size(rng)};
                 }
