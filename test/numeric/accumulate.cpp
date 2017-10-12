@@ -17,7 +17,6 @@
 #include <deque>
 #include <list>
 #include <numeric>
-#include <stl2/detail/concepts/number.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -39,7 +38,6 @@ void CHECK_one()
 }
 
 template <typename T, typename U = T>
-	requires ranges::RegularOrderedNumber<U, T>()
 void CHECK_many(const U i = U{})
 {
 	auto v = std::vector<T>{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -67,16 +65,16 @@ using mapped_type_t = typename T::mapped_type;
 
 template <typename Container, typename Proj>
 requires
-	ranges::Invocable<Proj, ranges::value_type_t<Container>>()
+	ranges::Invocable<Proj, ranges::value_type_t<Container>>
 void CHECK_projection(const Container& t, const Proj& proj)
 {
 	auto a = std::accumulate(t.begin(), t.end(), mapped_type_t<Container>{},
 		[&proj](const std::string& i, const ranges::value_type_t<Container>& j) {
 			return std::plus<>{}(i, proj(j));
 		});
-	CHECK(a == ranges::accumulate(t.begin(), t.end(), mapped_type_t<Container>{}, ranges::plus<>{},
+	CHECK(a == ranges::accumulate(t.begin(), t.end(), mapped_type_t<Container>{}, std::plus<>{},
 		proj));
-	CHECK(a == ranges::accumulate(t, mapped_type_t<Container>{}, ranges::plus<>{}, proj));
+	CHECK(a == ranges::accumulate(t, mapped_type_t<Container>{}, std::plus<>{}, proj));
 }
 
 int main()

@@ -79,10 +79,10 @@ template <template <typename Z, typename = std::allocator<Z>> class T,
           __stl2::Regular... Args,
           __stl2::ext::Container C = T<First_of_t<Args...>>>
 requires
-   __stl2::Same<Args...>() &&
-   __stl2::RegularInvocable<F1, __stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>>() &&
-   __stl2::RegularInvocable<F2, __stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>>() &&
-   __stl2::RegularInvocable<F3, C&&, __stl2::iterator_t<C>>()
+   __stl2::Same<Args...> &&
+   __stl2::RegularInvocable<F1, __stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> &&
+   __stl2::RegularInvocable<F2, __stl2::iterator_t<C>, __stl2::sentinel_t<C>, __stl2::iterator_t<C>> &&
+   __stl2::RegularInvocable<F3, C&&, __stl2::iterator_t<C>>
 void CHECK_many(F1&& stdcall, F2&& stl2_call, F3&& range_call, Args&&... args) noexcept
 {
    CHECK_algorithm(C{__stl2::forward<Args>(args)...},

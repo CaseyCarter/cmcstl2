@@ -39,18 +39,18 @@ STL2_OPEN_NAMESPACE {
       // both MoveAssignable _and_ CopyAssignable be true
       template <class C>
       concept bool Container() {
-         return Regular<C>() &&
+         return Regular<C> &&
             //CopyInsertable<C, value_type_t<C>, typename C::allocator_type>() &&
-            Same<typename C::reference, value_type_t<C>&>() &&
-            Same<typename C::const_reference, const typename C::value_type&>() &&
-            Same<const_iterator_t<C>, iterator_t<const C>>() &&
-            Same<const_sentinel_t<C>, sentinel_t<const C>>() &&
-            UnsignedIntegral<size_type_t<C>>() && 
-            SignedIntegral<difference_type_t<C>>() &&
+            Same<typename C::reference, value_type_t<C>&> &&
+            Same<typename C::const_reference, const typename C::value_type&> &&
+            Same<const_iterator_t<C>, iterator_t<const C>> &&
+            Same<const_sentinel_t<C>, sentinel_t<const C>> &&
+            UnsignedIntegral<size_type_t<C>> &&
+            SignedIntegral<difference_type_t<C>> &&
             sizeof(size_type_t<C>) >= sizeof(difference_type_t<C>) &&
-            ForwardIterator<iterator_t<C>>() &&
-            ForwardRange<C>() &&
-            Constructible<const_iterator_t<C>, iterator_t<C>>() &&
+            ForwardIterator<iterator_t<C>> &&
+            ForwardRange<C> &&
+            Constructible<const_iterator_t<C>, iterator_t<C>> &&
             requires(C a, C b, const C& c) {
                typename value_type_t<C>;
                typename C::reference;

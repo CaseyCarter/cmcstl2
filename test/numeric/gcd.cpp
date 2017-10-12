@@ -13,19 +13,24 @@
 #include <stl2/detail/numeric/gcd.hpp>
 #include "../detail/int128.hpp"
 #include "../simple_test.hpp"
+#include <limits>
 
 namespace ranges = __stl2;
 
 int main()
 {
 	// TODO: once constexpr lambdas are supported, change CHECK to static_assert
+	CHECK(ranges::gcd(0, 0) == 0);
 	CHECK(ranges::gcd(10, 12) == 2);
 	CHECK(ranges::gcd(10, 13) == 1);
 	CHECK(ranges::gcd(-20, -40) == 20);
 	CHECK(ranges::gcd(-24, 24) == 24);
 	CHECK(ranges::gcd(24, -8) ==  8);
-	CHECK(ranges::gcd(17,  0) ==  0);
-	CHECK(ranges::gcd( 0, 17) ==  0);
+	CHECK(ranges::gcd(17, 0) == 17);
+	CHECK(ranges::gcd(0, 17) == 17);
+	CHECK(ranges::gcd(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()) == std::numeric_limits<int>::max());
+	CHECK(ranges::gcd(std::numeric_limits<int>::max(), std::numeric_limits<int>::min()) == 1);
+	CHECK(ranges::gcd(std::numeric_limits<int>::min(), std::numeric_limits<int>::max()) == 1);
 
 	CHECK(ranges::gcd(126, 2) == 2);
 	CHECK(ranges::gcd(123, 456u) == std::common_type_t<int, unsigned int>{3});

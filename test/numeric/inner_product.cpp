@@ -17,7 +17,6 @@
 #include <deque>
 #include <list>
 #include <numeric>
-#include <stl2/detail/concepts/number.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <string>
 #include <unordered_map>
@@ -63,13 +62,13 @@ void CHECK_projection(U u, V v, Proj1 proj1, Proj2 proj2)
 			return std::multiplies<mapped_type_t<U>>{}(i.first, j.second);
 		});
 	CHECK(s == ranges::inner_product(u.begin(), u.end(), v.begin(), mapped_type_t<U>{},
-		ranges::plus<>{}, ranges::multiplies<>{}, proj1, proj2));
+		std::plus<>{}, std::multiplies<>{}, proj1, proj2));
 	CHECK(s == ranges::inner_product(u.begin(), u.end(), v.begin(), v.end(), mapped_type_t<U>{},
-		ranges::plus<>{}, ranges::multiplies<>{}, proj1, proj2));
+		std::plus<>{}, std::multiplies<>{}, proj1, proj2));
 	CHECK(s == ranges::inner_product(u, v.begin(), mapped_type_t<U>{},
-		ranges::plus<>{}, ranges::multiplies<>{}, proj1, proj2));
-	CHECK(s == ranges::inner_product(u, v, mapped_type_t<U>{}, ranges::plus<>{},
-		ranges::multiplies<>{}, proj1, proj2));
+		std::plus<>{}, std::multiplies<>{}, proj1, proj2));
+	CHECK(s == ranges::inner_product(u, v, mapped_type_t<U>{}, std::plus<>{},
+		std::multiplies<>{}, proj1, proj2));
 }
 
 int main()
@@ -107,14 +106,14 @@ int main()
 		[](const auto a, const auto b) {
 			return 300 * a * b;
 		},
-		ranges::plus<>{});
+		std::plus<>{});
 	CHECK_callable<double, int>(
 		{0, 0.000'01, 0.000'2, 0.003, 0.04, 0.5, 6.0, 70.0, 800.0, 9'000.0},
 		{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
 		[](const auto a, const auto b) {
 			return 300 * a * b;
 		},
-		ranges::plus<>{});
+		std::plus<>{});
 
 	CHECK_callable<std::pair<int, int>, std::pair<int, int>>(
 		{{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 7}, {7, 8}, {8, 9}},

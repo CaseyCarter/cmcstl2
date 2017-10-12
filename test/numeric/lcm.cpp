@@ -18,7 +18,10 @@ namespace ranges = __stl2;
 
 int main()
 {
-	// TODO: once constexpr lambdas are supported, change CHECK to static_assert
+   // TODO: once constexpr lambdas are supported, change CHECK to static_assert
+   CHECK(ranges::lcm(0, 0) == 0);
+   CHECK(ranges::lcm(0, 1) == 1);
+   CHECK(ranges::lcm(1, 0) == 1);
    CHECK(ranges::lcm(79436, 6230) == 35349020);
    CHECK(ranges::lcm(64780, 3209) == 207879020);
    CHECK(ranges::lcm(45445, 8771) == 398598095);

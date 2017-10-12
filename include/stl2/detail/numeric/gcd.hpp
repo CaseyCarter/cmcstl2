@@ -12,38 +12,40 @@
 //
 #ifndef STL2_DETAIL_NUMERIC_GCD_HPP
 #define STL2_DETAIL_NUMERIC_GCD_HPP
-#include <stl2/tuple.hpp>
+
+#include <stl2/detail/concepts/fundamental.hpp>
 #include <stl2/type_traits.hpp>
-#include <stl2/detail/algorithm/minmax.hpp>
-#include <stl2/detail/concepts/number.hpp>
+#include "divisor_common.hpp"
 
 STL2_OPEN_NAMESPACE {
-	template <class M, class N, class T = common_type_t<M, N>>
-		requires
-			Same<T, common_type_t<M, N>>() &&
-			Number<T, M, N>() &&
-			requires(T t) {
-				{t % t} -> T;
-			}
-	constexpr T gcd(M m, N n)
+	template <class T>
+	requires
+		detail::ProtoNumber<T>
+	constexpr T gcd(T a, T b) noexcept
 	{
-		constexpr auto zero = T{0};
-		// TODO: replace with structured bindings when compiler support exists
-		std::pair<T, T> p = __stl2::minmax(static_cast<T>(m < 0 ? -m : m), static_cast<T>(n < 0 ? -n : n));
-		T a = p.first;
-		T b = p.second;
-		// end TODO
+		using detail::zero;
+		if (a == zero<T> && b == zero<T>)
+			return zero<T>;
 
-		if (a == zero || b == zero)
-			return zero;
-
-		// b = ac + r
-		for (auto r = b % a; r != zero; r = b % a) {
-			b = a;
-			a = r;
+		// algorithm Copyright Alexander Stepanov, Paul McJones 2009
+		// Elements of Programming
+		while (true) {
+			if (b == zero<T>)
+				return detail::abs(a);
+			a = detail::remainder(a, b);
+			if (a == zero<T>)
+				return detail::abs(b);
+			b = detail::remainder(b, a);
 		}
+	}
 
-		return a;
+	template <class M, class N, class T = common_type_t<M, N>>
+	requires
+		Same<T, common_type_t<M, N>> &&
+		detail::ProtoNumber<T>
+	constexpr T gcd(M m, N n) noexcept
+	{
+		return __stl2::gcd(T(m), T(n));
 	}
 } STL2_CLOSE_NAMESPACE
 #endif // STL2_DETAIL_NUMERIC_GCD_HPP

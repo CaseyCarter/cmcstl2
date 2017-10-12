@@ -79,7 +79,7 @@ void CHECK_projection() noexcept
 
    auto r = std::vector<int>(u.size());
    auto result = ranges::partial_sum(u, r.begin(),
-                                     ranges::plus<>{},
+                                     std::plus<>{},
                                      [](const auto i) {
                                         return i.first;
                                      });

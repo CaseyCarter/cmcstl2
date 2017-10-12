@@ -29,14 +29,14 @@ STL2_OPEN_NAMESPACE {
 	inner_product(I1 first1, S last1, I2 first2, T init, Op1 op1 = Op1{}, Op2 op2 = Op2{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		Assignable<T&, const T&>() &&
-		IndirectRegularInvocable<Op2, __X, __Y>() &&
-		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>>() &&
-		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>()
+		Assignable<T&, const T&> &&
+		ext::IndirectRegularInvocable<Op2, __X, __Y> &&
+		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>> &&
+		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>
 	{
 		for (; first1 != last1; ++first1, (void)++first2) {
-			init = __stl2::invoke(op1, __stl2::move(init), __stl2::invoke(op2,
-				__stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2)));
+			init = std::invoke(op1, std::move(init), std::invoke(op2,
+				std::invoke(proj1, *first1), std::invoke(proj2, *first2)));
 		}
 		return init;
 	}
@@ -47,16 +47,16 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity,
 		class __X = projected<I1, Proj1>, class __Y = projected<I2, Proj2>>
 	requires
-		Assignable<T&, const T&>() &&
-		IndirectRegularInvocable<Op2, __X, __Y>() &&
-		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>>() &&
-		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>()
+		Assignable<T&, const T&> &&
+		ext::IndirectRegularInvocable<Op2, __X, __Y> &&
+		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>> &&
+		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>
 	T inner_product(I1 first1, S1 last1, I2 first2, S2 last2, T init, Op1 op1 = Op1{},
 		Op2 op2 = Op2{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		for (; first1 != last1 && first2 != last2; ++first1, (void)++first2) {
-			init = __stl2::invoke(op1, __stl2::move(init), __stl2::invoke(op2,
-				__stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2)));
+			init = std::invoke(op1, std::move(init), std::invoke(op2,
+				std::invoke(proj1, *first1), std::invoke(proj2, *first2)));
 		}
 		return init;
 	}
@@ -69,14 +69,14 @@ STL2_OPEN_NAMESPACE {
 	inner_product(Rng&& rng, I2 first2, T init, Op1 op1 = Op1{}, Op2 op2 = Op2{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		Assignable<T&, const T&>() &&
-		IndirectRegularInvocable<Op2, __X, __Y>() &&
-		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>>() &&
-		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>()
+		Assignable<T&, const T&> &&
+		ext::IndirectRegularInvocable<Op2, __X, __Y> &&
+		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>> &&
+		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>
 	{
-		return inner_product(__stl2::begin(rng), __stl2::end(rng), __stl2::move(first2),
-			__stl2::move(init), __stl2::ref(op1), __stl2::ref(op2),
-			__stl2::ref(proj1), __stl2::ref(proj2));
+		return inner_product(__stl2::begin(rng), __stl2::end(rng), std::move(first2),
+			std::move(init), std::ref(op1), std::ref(op2),
+			std::ref(proj1), std::ref(proj2));
 	}
 
 	template <InputRange Rng1, InputRange Rng2, CopyConstructible T,
@@ -84,16 +84,16 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity,
 		class __X = projected<iterator_t<Rng1>, Proj1>, class __Y = projected<iterator_t<Rng2>, Proj2>>
 	requires
-		Assignable<T&, const T&>() &&
-		IndirectRegularInvocable<Op2, __X, __Y>() &&
-		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>>() &&
-		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>()
+		Assignable<T&, const T&> &&
+		ext::IndirectRegularInvocable<Op2, __X, __Y> &&
+		RegularInvocable<Op1, T, indirect_result_of_t<Op2&(__X, __Y)>> &&
+		Assignable<T&, result_of_t<Op1&(T, indirect_result_of_t<Op2&(__X, __Y)>)>>
 	T inner_product(Rng1&& rng1, Rng2&& rng2, T init, Op1 op1 = Op1{}, Op2 op2 = Op2{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return inner_product(__stl2::begin(rng1), __stl2::end(rng1), __stl2::begin(rng2),
-			__stl2::end(rng2), __stl2::move(init), __stl2::ref(op1), __stl2::ref(op2),
-			__stl2::ref(proj1), __stl2::ref(proj2));
+			__stl2::end(rng2), std::move(init), std::ref(op1), std::ref(op2),
+			std::ref(proj1), std::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

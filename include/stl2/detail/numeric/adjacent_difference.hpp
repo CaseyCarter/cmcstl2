@@ -23,42 +23,42 @@
 STL2_OPEN_NAMESPACE {
 	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
 		class Proj = identity,
-		IndirectRegularInvocable<projected<I, Proj>, projected<I, Proj>> Op = minus<>>
+		ext::IndirectRegularInvocable<projected<I, Proj>, projected<I, Proj>> Op = minus<>>
 	requires
-		IndirectlyCopyable<projected<I, Proj>, O>() &&
-		Writable<O, value_type_t<projected<I, Proj>>>() &&
-		Movable<value_type_t<projected<I, Proj>>>() &&
-		CopyConstructible<value_type_t<projected<I, Proj>>>()
+		IndirectlyCopyable<projected<I, Proj>, O> &&
+		Writable<O, value_type_t<projected<I, Proj>>> &&
+		Movable<value_type_t<projected<I, Proj>>> &&
+		CopyConstructible<value_type_t<projected<I, Proj>>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	adjacent_difference(I first, S last, O result, Op op = Op{}, Proj proj = Proj{})
 	{
 		if (first != last) {
-			auto acc = __stl2::invoke(proj, *first++);
+			auto acc = std::invoke(proj, *first++);
 			*result++ = acc;
 			for (; first != last; ++first, (void)++result) {
-				auto val = __stl2::invoke(proj, *first);
-				*result = __stl2::invoke(op, val, acc);
-				acc = __stl2::move(val);
+				auto val = std::invoke(proj, *first);
+				*result = std::invoke(op, val, acc);
+				acc = std::move(val);
 			}
 		}
-		return {__stl2::move(first), __stl2::move(result)};
+		return {std::move(first), std::move(result)};
 	}
 
 	template <InputRange Rng, WeaklyIncrementable O,
 		class Proj = identity,
-		IndirectRegularInvocable<
+		ext::IndirectRegularInvocable<
 			projected<iterator_t<Rng>, Proj>,
 			projected<iterator_t<Rng>, Proj>> Op = minus<>>
 	requires
-		IndirectlyCopyable<projected<iterator_t<Rng>, Proj>, O>() &&
-		Writable<O, value_type_t<projected<iterator_t<Rng>, Proj>>>() &&
-		Movable<value_type_t<projected<iterator_t<Rng>, Proj>>>() &&
-		CopyConstructible<value_type_t<projected<iterator_t<Rng>, Proj>>>()
-	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
+		IndirectlyCopyable<projected<iterator_t<Rng>, Proj>, O> &&
+		Writable<O, value_type_t<projected<iterator_t<Rng>, Proj>>> &&
+		Movable<value_type_t<projected<iterator_t<Rng>, Proj>>> &&
+		CopyConstructible<value_type_t<projected<iterator_t<Rng>, Proj>>>
+	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
 	adjacent_difference(Rng&& rng, O result, Op op = Op{}, Proj proj = Proj{})
 	{
-		return adjacent_difference(__stl2::begin(rng), __stl2::end(rng), __stl2::move(result),
-											__stl2::ref(op), __stl2::ref(proj));
+		return adjacent_difference(__stl2::begin(rng), __stl2::end(rng), std::move(result),
+											std::ref(op), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 #endif // STL2_DETAIL_NUMERIC_ADJACENT_DIFFERENCE_HPP

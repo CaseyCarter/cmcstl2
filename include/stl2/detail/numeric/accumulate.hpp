@@ -26,13 +26,13 @@ STL2_OPEN_NAMESPACE {
 				 class BOp = plus<>,
 				 class __Arg = value_type_t<projected<I, Proj>>>
 	requires
-		models::RegularInvocable<BOp, T, __Arg> &&
-		models::Assignable<T&, result_of_t<BOp&(T, __Arg)>>
+		RegularInvocable<BOp, T, __Arg> &&
+		Assignable<T&, result_of_t<BOp&(T, __Arg)>>
 	T accumulate(I first, S last, T init = T{}, BOp bop = BOp{}, Proj proj = Proj{})
 	{
 		T acc = init;
 		for (; first != last; ++first)
-			acc = __stl2::invoke(bop, acc, __stl2::invoke(proj, *first));
+			acc = std::invoke(bop, acc, std::invoke(proj, *first));
 		return acc;
 	}
 
@@ -41,12 +41,12 @@ STL2_OPEN_NAMESPACE {
 				 class BOp = plus<>,
 				 class __Arg = value_type_t<projected<iterator_t<Rng>, Proj>>>
 	requires
-		models::RegularInvocable<BOp, T, __Arg> &&
-		models::Assignable<T&, result_of_t<BOp&(T, __Arg)>>
+		RegularInvocable<BOp, T, __Arg> &&
+		Assignable<T&, result_of_t<BOp&(T, __Arg)>>
 	T accumulate(Rng&& rng, T init = T{}, BOp bop = BOp{}, Proj proj = Proj{})
 	{
 		return accumulate(__stl2::begin(rng), __stl2::end(rng),
-								__stl2::move(init), __stl2::ref(bop), __stl2::ref(proj));
+								std::move(init), std::ref(bop), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

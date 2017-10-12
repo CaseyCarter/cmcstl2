@@ -82,7 +82,7 @@ void CHECK_projection() noexcept
    auto r = std::vector<int>(u.size());
    auto result = ranges::adjacent_difference(u,
                                              r.begin(),
-                                             ranges::minus<>{},
+                                             std::minus<>{},
                                              [](const auto i) {
                                                 return i.first;
                                              });

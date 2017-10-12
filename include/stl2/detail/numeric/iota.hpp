@@ -21,8 +21,7 @@
 STL2_OPEN_NAMESPACE {
    template <ForwardIterator I, Sentinel<I> S, class T>
    requires
-      models::ConvertibleTo<T, value_type_t<I>> && // is this necessary with line 25? I think not
-      models::Writable<I, T> &&
+      Writable<I, T> &&
       requires(T t) {
          {++t} -> T&;
       }
@@ -34,8 +33,7 @@ STL2_OPEN_NAMESPACE {
 
    template <ForwardRange Rng, class T>
    requires
-      models::ConvertibleTo<T, value_type_t<iterator_t<Rng>>> && // ditto :24
-      models::Writable<iterator_t<Rng>, T> &&
+      Writable<iterator_t<Rng>, T> &&
       requires(T t) {
          {++t} -> T&;
       }
