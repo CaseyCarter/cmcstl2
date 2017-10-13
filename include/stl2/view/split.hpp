@@ -355,7 +355,8 @@ STL2_OPEN_NAMESPACE {
 
 				template <InputRange Rng>
 				requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-					IndirectlyComparable<iterator_t<Rng>, const value_type_t<iterator_t<Rng>>*>
+                    IndirectlyComparable<iterator_t<Rng>, const value_type_t<iterator_t<Rng>>*> &&
+                    CopyConstructible<value_type_t<iterator_t<Rng>>>
 				constexpr auto operator()(Rng&& rng, value_type_t<iterator_t<Rng>> value) const
 				{ return ext::split_view{std::forward<Rng>(rng), std::move(value)}; }
 

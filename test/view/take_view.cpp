@@ -39,7 +39,7 @@ int main()
 	{
 		auto rng = view::iota(0) | view::take(10);
 		static_assert(models::View<decltype(rng)>);
-		static_assert(!models::SizedRange<ext::iota_view<int, false>>);
+		static_assert(!models::SizedRange<ext::iota_view<int>>);
 		static_assert(models::Range<const decltype(rng)>);
 		::check_equal(rng, {0,1,2,3,4,5,6,7,8,9});
 		decltype(rng)::const_iterator i{};

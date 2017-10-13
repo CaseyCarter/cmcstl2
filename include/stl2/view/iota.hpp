@@ -22,12 +22,6 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template <WeaklyIncrementable I, bool Bounded = false>
-		struct iota_view_base {};
-		template <Incrementable I>
-		struct iota_view_base<I, true> {
-			I bound_ {};
-		};
 		template <WeaklyIncrementable I>
 		struct iota_view_itertor_base {
 			using iterator_category = __stl2::input_iterator_tag;
@@ -46,43 +40,50 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 	namespace ext {
-		template <WeaklyIncrementable I, bool Bounded = false>
-		requires !Bounded || Incrementable<I>
-		struct iota_view : view_interface<iota_view<I, Bounded>>
-						 , private detail::iota_view_base<I, Bounded> {
+		template <WeaklyIncrementable I, Semiregular Bound = unreachable>
+		requires WeaklyEqualityComparable<I, Bound>
+		struct iota_view : view_interface<iota_view<I, Bound>> {
 		private:
 			I value_ {}; // \expos
+			Bound bound_ {}; // \expos
 		public:
 			iota_view() = default;
-			constexpr explicit iota_view(I value) requires !Bounded
-			: value_(value) {}
-			constexpr iota_view(I value, I bound) requires Bounded
-			: detail::iota_view_base<I, Bounded>{bound}, value_(value) {}
+			constexpr explicit iota_view(I value) requires Same<Bound, unreachable>
+			: value_(value), bound_{} {}
+			constexpr iota_view(I value, Bound bound)
+			: value_(value), bound_(bound) {}
 
 			struct iterator;
+			struct sentinel;
 
 			constexpr iterator begin() const
 			{ return iterator{value_}; }
-			constexpr unreachable end() const requires !Bounded
-			{ return {}; }
-			constexpr iterator end() const requires Bounded
-			{ return iterator{this->bound_}; }
+			constexpr sentinel end() const
+			{ return sentinel{bound_}; }
+			constexpr iterator end() const requires Same<I, Bound>
+			{ return iterator{bound_}; }
 
 			constexpr auto size() const
-			requires Bounded && ext::RandomAccessIncrementable<I>
+			requires (Same<I, Bound> && ext::RandomAccessIncrementable<I>) ||
+				(Integral<I> && Integral<Bound>) ||
+				SizedSentinel<Bound, I>
 			{
 				return this->bound_ - value_;
 			}
 		};
 
 		template <WeaklyIncrementable I>
-		explicit iota_view(I value) -> iota_view<I, false>;
+		explicit iota_view(I value) -> iota_view<I>;
 
 		template <Incrementable I>
-		iota_view(I value, I bound) -> iota_view<I, true>;
+		iota_view(I value, I bound) -> iota_view<I, I>;
 
-		template <class I, bool Bounded>
-		struct iota_view<I, Bounded>::iterator
+		template <WeaklyIncrementable I, Semiregular Bound>
+		requires WeaklyEqualityComparable<I, Bound> && !ConvertibleTo<Bound, I>
+		iota_view(I value, Bound bound) -> iota_view<I, Bound>;
+
+		template <class I, class Bound>
+		struct iota_view<I, Bound>::iterator
 		: detail::iota_view_itertor_base<I> {
 		private:
 			I value_ {};
@@ -173,6 +174,25 @@ STL2_OPEN_NAMESPACE {
 			requires ext::RandomAccessIncrementable<I>
 			{ return *x - *y; }
 		};
+
+		template <class I, class Bound>
+		struct iota_view<I, Bound>::sentinel {
+		private:
+			Bound bound_;
+		public:
+			sentinel() = default;
+			constexpr explicit sentinel(Bound bound)
+			: bound_(bound) {}
+
+			friend constexpr bool operator==(const iterator& x, const sentinel& y)
+			{ return x.value_ == y.bound_; }
+			friend constexpr bool operator==(const sentinel& x, const iterator& y)
+			{ return y == x; }
+			friend constexpr bool operator!=(const iterator& x, const sentinel& y)
+			{ return !(x == y); }
+			friend constexpr bool operator!=(const sentinel& x, const iterator& y)
+			{ return !(y == x); }
+		};
 	} // namespace ext
 
 	namespace view {
@@ -183,8 +203,14 @@ STL2_OPEN_NAMESPACE {
 					return ext::iota_view{value};
 				}
 
-				template <WeaklyIncrementable I>
+				template <Incrementable I>
 				constexpr auto operator()(I value, I bound) const {
+					return ext::iota_view{value, bound};
+				}
+
+				template <WeaklyIncrementable I, Semiregular Bound>
+				requires WeaklyEqualityComparable<I, Bound> && !ConvertibleTo<Bound, I>
+				constexpr auto operator()(I value, Bound bound) const {
 					return ext::iota_view{value, bound};
 				}
 			};
