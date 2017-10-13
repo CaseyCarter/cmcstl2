@@ -112,7 +112,7 @@ int main() {
 		auto rng = ext::iterator_range{
 			istreambuf_iterator<char>{sin},
 			istreambuf_iterator<char>{}};
-		ext::split_view sv{rng, ','};
+		auto sv = rng | view::split(',');
 		auto i = sv.begin();
 		CHECK(i != sv.end());
 		check_equal(*i, {'e','g','g','s'});
@@ -157,7 +157,7 @@ int main() {
 		auto rng = ext::iterator_range{
 			istreambuf_iterator<char>{sin},
 			istreambuf_iterator<char>{}};
-		ext::split_view sv{rng, view::empty<char>};
+		auto sv = view::split(rng, view::empty<char>);
 		auto i = sv.begin();
 		CHECK(i != sv.end());
 		check_equal(*i, ext::single_view{'h'});

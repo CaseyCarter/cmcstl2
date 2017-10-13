@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 			{ return nullptr; }
 			constexpr static T* end() noexcept
 			{ return nullptr; }
-			constexpr static ptrdiff_t size()
+			constexpr static ptrdiff_t size() noexcept
 			{ return 0; }
 			constexpr static T* data() noexcept
 			{ return nullptr; }
