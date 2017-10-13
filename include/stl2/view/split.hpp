@@ -119,11 +119,12 @@ STL2_OPEN_NAMESPACE {
 			Parent* parent_ = nullptr;
 			friend __outer_sentinel<Const>;
 			friend __outer_iterator<!Const>;
-			constexpr decltype(auto) current() const
+			friend __inner_iterator<Const>;
+			constexpr decltype(auto) current() const noexcept
 			{ return (parent_->current_); }
-			constexpr decltype(auto) current() requires ForwardRange<Base>
+			constexpr decltype(auto) current() noexcept requires ForwardRange<Base>
 			{ return (current_); }
-			constexpr decltype(auto) current() const requires ForwardRange<Base>
+			constexpr decltype(auto) current() const noexcept requires ForwardRange<Base>
 			{ return (current_); }
 		public:
 			using iterator_category = meta::if_c<models::ForwardRange<Base>,
@@ -263,12 +264,19 @@ STL2_OPEN_NAMESPACE {
 				return tmp;
 			}
 
-			friend bool operator==(const __inner_iterator& x, const __inner_iterator& y)
+			constexpr friend bool operator==(const __inner_iterator& x, const __inner_iterator& y)
 			requires ForwardRange<Base>
 			{ return x.i_.current_ == y.i_.current_; }
-			friend bool operator!=(const __inner_iterator& x, const __inner_iterator& y)
+			constexpr friend bool operator!=(const __inner_iterator& x, const __inner_iterator& y)
 			requires ForwardRange<Base>
 			{ return !(x == y); }
+
+			friend constexpr decltype(auto) iter_move(const __inner_iterator& i)
+			noexcept(noexcept(ranges::iter_move(i.i_.current())))
+			{ return ranges::iter_move(i.i_.current()); }
+			friend constexpr void iter_swap(const __inner_iterator& x, const __inner_iterator& y)
+			noexcept(noexcept(ranges::iter_swap(x.i_.current(), y.i_.current())))
+			{ ranges::iter_swap(x.i_.current(), y.i_.current()); }
 		};
 
 		template <class Rng, class Pattern>
@@ -355,8 +363,8 @@ STL2_OPEN_NAMESPACE {
 
 				template <InputRange Rng>
 				requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-                    IndirectlyComparable<iterator_t<Rng>, const value_type_t<iterator_t<Rng>>*> &&
-                    CopyConstructible<value_type_t<iterator_t<Rng>>>
+					IndirectlyComparable<iterator_t<Rng>, const value_type_t<iterator_t<Rng>>*> &&
+					CopyConstructible<value_type_t<iterator_t<Rng>>>
 				constexpr auto operator()(Rng&& rng, value_type_t<iterator_t<Rng>> value) const
 				{ return ext::split_view{std::forward<Rng>(rng), std::move(value)}; }
 
