@@ -23,19 +23,19 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		template <WeaklyIncrementable I>
-		struct iota_view_itertor_base {
+		struct iota_view_iterator_base {
 			using iterator_category = __stl2::input_iterator_tag;
 		};
 		template <Incrementable I>
-		struct iota_view_itertor_base<I> {
+		struct iota_view_iterator_base<I> {
 			using iterator_category = __stl2::forward_iterator_tag;
 		};
 		template <ext::Decrementable I>
-		struct iota_view_itertor_base<I> {
+		struct iota_view_iterator_base<I> {
 			using iterator_category = __stl2::bidirectional_iterator_tag;
 		};
 		template <ext::RandomAccessIncrementable I>
-		struct iota_view_itertor_base<I> {
+		struct iota_view_iterator_base<I> {
 			using iterator_category = __stl2::random_access_iterator_tag;
 		};
 	}
@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class I, class Bound>
 		struct iota_view<I, Bound>::iterator
-		: detail::iota_view_itertor_base<I> {
+		: detail::iota_view_iterator_base<I> {
 		private:
 			I value_ {};
 		public:
