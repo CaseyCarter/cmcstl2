@@ -120,8 +120,8 @@ namespace __stl2 = ::std::experimental::ranges;
  #endif
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)
 #define STL2_PRAGMA(X) _Pragma(#X)
+#if defined(__GNUC__) || defined(__clang__)
 #define STL2_DIAGNOSTIC_PUSH STL2_PRAGMA(GCC diagnostic push)
 #define STL2_DIAGNOSTIC_POP STL2_PRAGMA(GCC diagnostic pop)
 #define STL2_DIAGNOSTIC_IGNORE(X) STL2_PRAGMA(GCC diagnostic ignored X)
