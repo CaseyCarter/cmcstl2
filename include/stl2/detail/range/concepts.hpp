@@ -108,15 +108,14 @@ STL2_OPEN_NAMESPACE {
 	template <class T>
 	struct __view_predicate2 : __view_predicate3<T> {};
 
-	template <class T>
-		requires meta::_v<std::is_base_of<view_base, T>>
+	template <DerivedFrom<view_base> T>
 	struct __view_predicate2<T> : std::true_type {};
 
 	template <class T>
 	struct __view_predicate : __view_predicate2<T> {};
 
 	template <class T>
-		requires _Valid<meta::_t, enable_view<T>>
+		requires meta::Trait<enable_view<T>>
 	struct __view_predicate<T> : enable_view<T> {};
 
 	template <class T>
