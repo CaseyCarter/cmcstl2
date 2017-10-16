@@ -61,6 +61,7 @@ CONCEPT_ASSERT(models::EqualityComparable<int>);
 CONCEPT_ASSERT(models::EqualityComparable<A>);
 CONCEPT_ASSERT(!models::EqualityComparable<void>);
 CONCEPT_ASSERT(models::EqualityComparable<int&>);
+CONCEPT_ASSERT(models::EqualityComparable<std::nullptr_t>);
 
 CONCEPT_ASSERT(models::EqualityComparableWith<int, int>);
 CONCEPT_ASSERT(models::EqualityComparableWith<A, A>);
@@ -70,7 +71,6 @@ CONCEPT_ASSERT(models::EqualityComparableWith<int&, int>);
 
 CONCEPT_ASSERT(models::StrictTotallyOrdered<int>);
 CONCEPT_ASSERT(models::StrictTotallyOrdered<float>);
-CONCEPT_ASSERT(models::StrictTotallyOrdered<std::nullptr_t>);
 CONCEPT_ASSERT(!models::StrictTotallyOrdered<void>);
 CONCEPT_ASSERT(models::StrictTotallyOrdered<int&>);
 
