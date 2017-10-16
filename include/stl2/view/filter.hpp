@@ -23,6 +23,7 @@
 #include <stl2/detail/functional/invoke.hpp>
 #include <stl2/detail/algorithm/find_if.hpp>
 #include <stl2/detail/semiregular_box.hpp>
+#include <stl2/detail/view/view_closure.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
@@ -45,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	} // namespace detail
 
 	namespace ext {
-		template <InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
+		template </*InputRange*/ class R, IndirectUnaryPredicate<iterator_t<R>> Pred>
 		requires View<R>
 		class filter_view : view_interface<filter_view<R, Pred>> {
 		private:
@@ -234,26 +235,14 @@ STL2_OPEN_NAMESPACE {
 	namespace view {
 		namespace __filter {
 			struct fn {
-			private:
-				template <class Pred>
-				struct curry {
-					Pred pred_;
-
-					template <InputRange R>
-					requires IndirectUnaryPredicate<Pred, iterator_t<R>> &&
-					  (std::is_lvalue_reference_v<R> || View<__f<R>>)
-					friend constexpr auto operator|(R&& rng, curry&& c)
-					{ return fn{}(std::forward<R>(rng), std::move(c.pred_)); }
-				};
-			public:
 				template <InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
 				requires std::is_lvalue_reference_v<R> || View<__f<R>>
 				constexpr auto operator()(R&& rng, Pred pred) const
-				{ return ext::filter_view{std::forward<R>(rng), std::move(pred)}; }
+				{ return ext::filter_view<ext::all_view<R>, Pred>{std::forward<R>(rng), std::move(pred)}; }
 
 				template <CopyConstructible Pred>
-				constexpr curry<Pred> operator()(Pred pred) const
-				{ return {std::move(pred)}; }
+				constexpr auto operator()(Pred pred) const
+				{ return detail::view_closure{*this, std::move(pred)}; }
 			};
 		}
 

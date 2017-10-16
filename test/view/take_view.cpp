@@ -57,11 +57,24 @@ int main()
 		auto evens = [](int i){return i%2 == 0;};
 		std::stringstream sin{"0 1 2 3 4 5 6 7 8 9"};
 		my_iterator_range is{istream_iterator<int>{sin}, istream_iterator<int>{}};
+		static_assert(models::InputRange<decltype(is)>);
 		auto rng = is | view::filter(evens) | view::take(3);
 		static_assert(models::View<decltype(rng)>);
 		static_assert(!models::Range<const decltype(rng)>);
 		decltype(rng)::iterator i{};
 		::check_equal(rng, {0,2,4});
+	}
+
+	{
+		auto odds = [](int i){return i%2 == 1;};
+		std::stringstream sin{"0 1 2 3 4 5 6 7 8 9"};
+		my_iterator_range is{istream_iterator<int>{sin}, istream_iterator<int>{}};
+		auto pipe = view::filter(odds) | view::take(3);
+		auto rng = is | pipe;
+		static_assert(models::View<decltype(rng)>);
+		static_assert(!models::Range<const decltype(rng)>);
+		decltype(rng)::iterator i{};
+		::check_equal(rng, {1,3,5});
 	}
 
 	return ::test_result();

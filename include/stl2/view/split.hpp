@@ -20,6 +20,7 @@
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
 #include <stl2/view/single.hpp>
+#include <stl2/detail/view/view_closure.hpp>
 
 #include <type_traits>
 
@@ -96,18 +97,26 @@ STL2_OPEN_NAMESPACE {
 			{ return {*this, __stl2::end(base_)}; }
 		};
 
-		template <InputRange O, ForwardRange P>
-		requires
+		template <class O, class P>
+		concept bool SplittableWithRange =
+			InputRange<O> && ForwardRange<P> &&
 			(std::is_lvalue_reference_v<O> || View<__f<O>>) &&
 			(std::is_lvalue_reference_v<P> || View<__f<P>>) &&
 			IndirectlyComparable<iterator_t<O>, iterator_t<P>> &&
-			(ForwardRange<O> || _TinyRange<P>)
-		split_view(O&&, P&&) -> split_view<all_view<O>, all_view<P>>;
+			(ForwardRange<O> || _TinyRange<P>);
 
-		template <InputRange O>
-		requires std::is_lvalue_reference_v<O> || View<__f<O>>
-		split_view(O&&, value_type_t<iterator_t<O>>)
-			-> split_view<all_view<O>, single_view<value_type_t<iterator_t<O>>>>;
+		template <class O>
+		concept bool SplittableWithElement =
+			InputRange<O> && Semiregular<value_type_t<iterator_t<O>>> &&
+			(std::is_lvalue_reference_v<O> || View<__f<O>>) &&
+			IndirectlyComparable<iterator_t<O>, const value_type_t<iterator_t<O>>*>;
+
+		SplittableWithRange{Rng, Pattern}
+		split_view(Rng&&, Pattern&&) -> split_view<all_view<Rng>, all_view<Pattern>>;
+
+		SplittableWithElement{Rng}
+		split_view(Rng&&, value_type_t<iterator_t<Rng>>)
+			-> split_view<all_view<Rng>, single_view<value_type_t<iterator_t<Rng>>>>;
 
 		template <class Rng, class Pattern>
 		template <bool Const>
@@ -264,10 +273,10 @@ STL2_OPEN_NAMESPACE {
 				return tmp;
 			}
 
-			constexpr friend bool operator==(const __inner_iterator& x, const __inner_iterator& y)
+			friend constexpr bool operator==(const __inner_iterator& x, const __inner_iterator& y)
 			requires ForwardRange<Base>
 			{ return x.i_.current_ == y.i_.current_; }
-			constexpr friend bool operator!=(const __inner_iterator& x, const __inner_iterator& y)
+			friend constexpr bool operator!=(const __inner_iterator& x, const __inner_iterator& y)
 			requires ForwardRange<Base>
 			{ return !(x == y); }
 
@@ -316,61 +325,22 @@ STL2_OPEN_NAMESPACE {
 				return !(y == x);
 			}
 		};
-
-		template <InputRange Rng, ForwardRange Pattern>
-		requires
-			(std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-			(std::is_lvalue_reference_v<Pattern> || View<__f<Pattern>>) &&
-			IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>> &&
-			(ForwardRange<Rng> || _TinyRange<Pattern>)
-		split_view(Rng&&, Pattern&&) -> split_view<all_view<Rng>, all_view<Pattern>>;
-
-		template <InputRange Rng>
-		requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-			IndirectlyComparable<iterator_t<Rng>, const value_type_t<iterator_t<Rng>>*> &&
-			CopyConstructible<value_type_t<iterator_t<Rng>>>
-		split_view(Rng&&, value_type_t<iterator_t<Rng>>)
-			-> split_view<all_view<Rng>, single_view<value_type_t<iterator_t<Rng>>>>;
 	}
 
 	namespace view {
 		namespace __split {
 			struct fn {
-			private:
-				template <CopyConstructible T>
-				struct curry {
-					T t_;
-
-					template <InputRange Rng>
-					requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-						(ForwardRange<T> &&
-						(std::is_lvalue_reference_v<T> || View<__f<T>>) &&
-						IndirectlyComparable<iterator_t<Rng>, iterator_t<T>> &&
-						(ForwardRange<Rng> || ext::_TinyRange<T>)) ||
-						(ConvertibleTo<T, value_type_t<iterator_t<Rng>>> &&
-						IndirectlyComparable<iterator_t<Rng>, const value_type_t<iterator_t<Rng>>*>)
-					friend constexpr auto operator|(Rng&& rng, curry&& c)
-					{ return fn{}(std::forward<Rng>(rng), std::forward<T>(c.t_)); }
-				};
-			public:
-				template <InputRange Rng, ForwardRange Pattern>
-				requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-					(std::is_lvalue_reference_v<Pattern> || View<__f<Pattern>>) &&
-					IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>> &&
-					(ForwardRange<Rng> || ext::_TinyRange<Pattern>)
+				ext::SplittableWithRange{Rng, Pattern}
 				constexpr auto operator()(Rng&& rng, Pattern&& pattern) const
 				{ return ext::split_view{std::forward<Rng>(rng), std::forward<Pattern>(pattern)}; }
 
-				template <InputRange Rng>
-				requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-					IndirectlyComparable<iterator_t<Rng>, const value_type_t<iterator_t<Rng>>*> &&
-					CopyConstructible<value_type_t<iterator_t<Rng>>>
+				ext::SplittableWithElement{Rng}
 				constexpr auto operator()(Rng&& rng, value_type_t<iterator_t<Rng>> value) const
 				{ return ext::split_view{std::forward<Rng>(rng), std::move(value)}; }
 
 				template <CopyConstructible T>
 				constexpr auto operator()(T&& t) const
-				{ return curry<T>{std::forward<T>(t)}; }
+				{ return detail::view_closure{*this, std::forward<T>(t)}; }
 			};
 		} // namespace __split
 

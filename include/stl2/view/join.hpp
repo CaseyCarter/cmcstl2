@@ -18,6 +18,7 @@
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
+#include <stl2/detail/view/view_closure.hpp>
 
 #include <type_traits>
 
@@ -297,7 +298,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		namespace __join
 		{
-			struct fn
+			struct fn : detail::__pipeable<fn>
 			{
 				template <InputRange Rng>
 				requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
@@ -305,19 +306,7 @@ STL2_OPEN_NAMESPACE {
 					(std::is_reference_v<reference_t<iterator_t<Rng>>> ||
 						View<value_type_t<iterator_t<Rng>>>)
 				constexpr auto operator()(Rng&& rng) const
-				{
-					return ext::join_view{std::forward<Rng>(rng)};
-				}
-
-				template <InputRange Rng>
-				requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-					InputRange<reference_t<iterator_t<Rng>>> &&
-					(std::is_reference_v<reference_t<iterator_t<Rng>>> ||
-						View<value_type_t<iterator_t<Rng>>>)
-				friend constexpr auto operator|(Rng&& rng, fn join)
-				{
-					return join(std::forward<Rng>(rng));
-				}
+				{ return ext::join_view{std::forward<Rng>(rng)}; }
 			};
 		}
 

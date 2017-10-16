@@ -20,6 +20,7 @@
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
+#include <stl2/detail/view/view_closure.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
@@ -76,18 +77,12 @@ STL2_OPEN_NAMESPACE {
 	struct enable_view<ext::move_view<V>> : std::true_type {};
 
 	namespace __move {
-		struct fn {
+		struct fn : detail::__pipeable<fn> {
 			template <InputRange Rng>
 			requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
 			constexpr ext::move_view<ext::all_view<Rng>> operator()(Rng&& rng) const {
 				return ext::move_view<ext::all_view<Rng>>{
 					view::all(std::forward<Rng>(rng))};
-			}
-
-			template <InputRange Rng>
-			requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
-			friend constexpr decltype(auto) operator|(Rng&& rng, fn move) {
-				return move(std::forward<Rng>(rng));
 			}
 		};
 	} // namespace __move

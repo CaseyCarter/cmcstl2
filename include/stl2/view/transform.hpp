@@ -23,6 +23,7 @@
 #include <stl2/detail/functional/invoke.hpp>
 #include <stl2/detail/algorithm/find_if.hpp>
 #include <stl2/detail/semiregular_box.hpp>
+#include <stl2/detail/view/view_closure.hpp>
 
 #include <functional>
 
@@ -265,19 +266,6 @@ STL2_OPEN_NAMESPACE {
 	namespace view {
 		namespace __transform {
 			struct fn {
-			private:
-				template <class F>
-				struct curry {
-					F fun_;
-
-					template <InputRange Rng>
-					requires Invocable<F&, reference_t<iterator_t<Rng>>> &&
-						(std::is_lvalue_reference_v<Rng> || View<__f<Rng>>)
-					friend constexpr auto operator|(Rng&& rng, curry&& c) {
-						return fn{}(std::forward<Rng>(rng), std::move(c.fun_));
-					}
-				};
-			public:
 				template <InputRange Rng, CopyConstructible F>
 				requires Invocable<F&, reference_t<iterator_t<Rng>>> &&
 					(std::is_lvalue_reference_v<Rng> || View<__f<Rng>>)
@@ -286,8 +274,8 @@ STL2_OPEN_NAMESPACE {
 				}
 
 				template <CopyConstructible F>
-				constexpr curry<F> operator()(F fun) const {
-					return {std::move(fun)};
+				constexpr auto operator()(F fun) const {
+					return detail::view_closure{*this, std::move(fun)};
 				}
 			};
 		}

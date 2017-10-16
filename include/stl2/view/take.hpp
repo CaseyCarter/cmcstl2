@@ -24,6 +24,7 @@
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/iterator/counted_iterator.hpp>
 #include <stl2/detail/algorithm/min.hpp>
+#include <stl2/detail/view/view_closure.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
@@ -155,25 +156,14 @@ STL2_OPEN_NAMESPACE {
 	namespace view {
 		namespace __take {
 			struct fn {
-			private:
-				template <Integral D>
-				struct curry {
-					D count_;
-
-					template <InputRange Rng>
-					requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
-					friend constexpr auto operator|(Rng&& rng, curry c)
-					{ return fn{}(std::forward<Rng>(rng), c.count_); }
-				};
-			public:
 				template <InputRange Rng>
 				requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
 				constexpr auto operator()(Rng&& rng, difference_type_t<iterator_t<Rng>> count) const
 				{ return ext::take_view{std::forward<Rng>(rng), count}; }
 
 				template <Integral D>
-				constexpr curry<D> operator()(D count) const
-				{ return {count}; }
+				constexpr auto operator()(D count) const
+				{ return detail::view_closure{*this, (D)count}; }
 			};
 		}
 
