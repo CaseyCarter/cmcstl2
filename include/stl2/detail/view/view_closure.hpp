@@ -14,7 +14,6 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
-#include <stl2/detail/meta.hpp>
 #include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
@@ -23,7 +22,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class T>
 		concept bool Pipeable =
-			std::is_base_of_v<__pipeable_base, T> &&
+			DerivedFrom<T, __pipeable_base> &&
 			CopyConstructible<T>;
 
 		template <std::size_t N, std::size_t M>
@@ -67,9 +66,6 @@ STL2_OPEN_NAMESPACE {
 		template <std::size_t... Is, class Fn, class... Ts>
 		struct __view_closure<std::index_sequence<Is...>, Fn, Ts...>
 		: private __box<Is, Ts>... {
-		private:
-			using __box<Is, Ts>::get...;
-		public:
 			__view_closure() = default;
 			constexpr explicit __view_closure(Fn, Ts&&... ts)
 			: __box<Is, Ts>{std::forward<Ts>(ts)}... {}
@@ -96,16 +92,15 @@ STL2_OPEN_NAMESPACE {
 		template <Semiregular Fn, CopyConstructible... Ts>
 		struct view_closure
 		: __pipeable<view_closure<Fn, Ts...>>
-		, __view_closure<std::make_index_sequence<sizeof...(Ts)>, Fn, Ts...> {
-			view_closure() = default;
-			using __view_closure<std::make_index_sequence<sizeof...(Ts)>, Fn, Ts...>::__view_closure;
+		, __view_closure<std::index_sequence_for<Ts...>, Fn, Ts...> {
+			using __view_closure<std::index_sequence_for<Ts...>, Fn, Ts...>::__view_closure;
 		};
 
 		template <Semiregular Fn, CopyConstructible... Ts>
 		view_closure(Fn, Ts&&...) -> view_closure<Fn, Ts...>;
 
 		template <Pipeable A, Pipeable B>
-		struct __view_pipeline : private __pipeable<__view_pipeline<A, B>> {
+		struct __view_pipeline : __pipeable<__view_pipeline<A, B>> {
 		private:
 			A left_;
 			B right_;
@@ -116,8 +111,8 @@ STL2_OPEN_NAMESPACE {
 
 			template <Range R>
 			requires (std::is_lvalue_reference_v<R> || View<__f<R>>) &&
-				Invocable<A&&, R> &&
-				Invocable<B&&, std::invoke_result_t<A&&, R>>
+				Invocable<A, R> &&
+				Invocable<B, std::invoke_result_t<A, R>>
 			constexpr decltype(auto) operator()(R&& r) &&
 			{ return std::move(right_)(std::move(left_)(std::forward<R>(r))); }
 
