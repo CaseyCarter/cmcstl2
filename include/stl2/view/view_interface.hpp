@@ -13,11 +13,11 @@
 #define STL2_VIEW_INTERFACE_HPP
 
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/iterator/common_iterator.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/iterator/common_iterator.hpp>
-#include <stl2/detail/concepts/callable.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
@@ -43,12 +43,12 @@ STL2_OPEN_NAMESPACE {
 			Constructible<Cont, __range_common_iterator<Rng>, __range_common_iterator<Rng>>;
 
 		template <class D>
-		class view_interface : __stl2::view_base {
+		class view_interface : public view_base {
 		private:
 			constexpr D& derived() noexcept {
 				return static_cast<D&>(*this);
 			}
-			constexpr const D& derived() const noexcept { // exposition only
+			constexpr const D& derived() const noexcept {
 				return static_cast<const D&>(*this);
 			}
 		public:
@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 				return *__stl2::prev(__stl2::end(derived()));
 			}
 			constexpr decltype(auto) back() const
-			requires BidirectionalRange<const D>  && BoundedRange<const D>{
+			requires BidirectionalRange<const D> && BoundedRange<const D>{
 				return *__stl2::prev(__stl2::end(derived()));
 			}
 			template <RandomAccessRange R = D>
@@ -94,14 +94,14 @@ STL2_OPEN_NAMESPACE {
 			constexpr decltype(auto) at(difference_type_t<iterator_t<R>> n) {
 				return n < 0 || n >= __stl2::size(derived())
 					? throw std::out_of_range{}
-					: (*this)[n];
+					: derived()[n];
 			}
 			template <RandomAccessRange R = const D>
 			requires SizedRange<R>
 			constexpr decltype(auto) at(difference_type_t<iterator_t<R>> n) const {
 				return n < 0 || n >= __stl2::size(derived())
 					? throw std::out_of_range{}
-					: (*this)[n];
+					: derived()[n];
 			}
 			// Not to spec: `InputRange R = const D` to work around
 			// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
 				Constructible<C, __range_common_iterator<R>, __range_common_iterator<R>>
 			operator C () const {
 				using I = __range_common_iterator<R>;
-				return C{I{__stl2::begin(derived())}, I{__stl2::end(derived())}};
+				return C(I{__stl2::begin(derived())}, I{__stl2::end(derived())});
 			}
 		};
 	}

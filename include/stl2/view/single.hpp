@@ -20,7 +20,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <CopyConstructible T>
-		class single_view : view_interface<single_view<T>> {
+		class single_view : public view_interface<single_view<T>> {
 		private:
 			detail::semiregular_box<T> value_;
 		public:

@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template </*InputRange*/ class R, IndirectUnaryPredicate<iterator_t<R>> Pred>
 		requires View<R>
-		class filter_view : view_interface<filter_view<R, Pred>> {
+		class filter_view : public view_interface<filter_view<R, Pred>> {
 		private:
 			R base_;
 			detail::semiregular_box<Pred> pred_;

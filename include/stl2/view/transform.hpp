@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <InputRange R, CopyConstructible F>
 		requires View<R> && Invocable<F&, reference_t<iterator_t<R>>>
-		class transform_view : view_interface<transform_view<R, F>> {
+		class transform_view : public view_interface<transform_view<R, F>> {
 		private:
 			R base_;
 			detail::semiregular_box<F> fun_;
