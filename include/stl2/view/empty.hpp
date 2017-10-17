@@ -18,11 +18,9 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <class T>
-		requires ext::Addressable<T>
+		template <_Is<std::is_object> T>
 		class empty_view : view_interface<empty_view<T>> {
 		public:
-			empty_view() = default;
 			using iterator = T*;
 			using const_iterator = T*;
 			using sentinel = T*;
