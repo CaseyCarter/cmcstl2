@@ -28,21 +28,20 @@ STL2_OPEN_NAMESPACE {
 					return std::forward<Rng>(rng);
 				}
 				template <Range Rng>
-				requires std::is_lvalue_reference_v<Rng> && !View<decay_t<Rng>>
+				requires std::is_lvalue_reference_v<Rng> && !View<std::decay_t<Rng>>
 				constexpr ext::iterator_range<iterator_t<Rng>, sentinel_t<Rng>>
 				operator()(Rng&& rng) const {
 					return {__stl2::begin(rng), __stl2::end(rng)};
 				}
 				template <SizedRange Rng>
-				requires std::is_lvalue_reference_v<Rng> && !View<decay_t<Rng>>
+				requires std::is_lvalue_reference_v<Rng> && !View<std::decay_t<Rng>>
 				constexpr ext::sized_iterator_range<iterator_t<Rng>, sentinel_t<Rng>>
 				operator()(Rng&& rng) const {
-					using D = __stl2::difference_type_t<__stl2::iterator_t<Rng>>;
-					return {__stl2::begin(rng), __stl2::end(rng), (D)__stl2::size(rng)};
+					return {__stl2::begin(rng), __stl2::end(rng), __stl2::distance(rng)};
 				}
 
 				template <Range Rng>
-				requires std::is_lvalue_reference_v<Rng> || View<decay_t<Rng>>
+				requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
 				friend constexpr decltype(auto) operator|(Rng&& rng, fn all) {
 					return all(std::forward<Rng>(rng));
 				}
@@ -53,9 +52,8 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	namespace ext {
-		template <Range Rng>
-		requires std::is_lvalue_reference_v<Rng> || View<decay_t<Rng>>
-		using all_view = std::decay_t<decltype(view::all(std::declval<Rng>()))>;
+		template <class Rng>
+		using all_view = decltype(view::all(std::declval<Rng>()));
 	}
 } STL2_CLOSE_NAMESPACE
 
