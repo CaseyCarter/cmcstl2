@@ -52,7 +52,8 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	namespace ext {
-		template <class Rng>
+		template <Range Rng>
+		requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
 		using all_view = decltype(view::all(std::declval<Rng>()));
 	}
 } STL2_CLOSE_NAMESPACE
