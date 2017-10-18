@@ -244,6 +244,21 @@ STL2_OPEN_NAMESPACE {
 		__stl2::ext::ContiguousRange{R}
 		constexpr bool ContiguousRange<R> = true;
 	}
+
+	namespace ext {
+		template <class R>
+		concept bool SimpleView =
+			View<R> && View<const R> &&
+			Same<iterator_t<R>, iterator_t<const R>> &&
+			Same<sentinel_t<R>, sentinel_t<const R>>;
+	}
+
+	namespace models {
+		template <class R>
+		constexpr bool SimpleView = false;
+		__stl2::ext::SimpleView{R}
+		constexpr bool SimpleView<R> = true;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

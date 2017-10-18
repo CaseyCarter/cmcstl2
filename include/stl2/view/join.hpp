@@ -76,9 +76,9 @@ STL2_OPEN_NAMESPACE {
 			constexpr explicit join_view(O&& o)
 			: base_(view::all(std::forward<O>(o))) {}
 
-			using iterator = __iterator<false>;
+			using iterator = __iterator<models::SimpleView<Rng>>;
+			using sentinel = __sentinel<models::SimpleView<Rng>>;
 			using const_iterator = __iterator<true>;
-			using sentinel = __sentinel<false>;
 			using const_sentinel = __sentinel<true>;
 
 			constexpr iterator begin()

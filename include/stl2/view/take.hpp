@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 			{ return __stl2::begin(base_); }
 
 			constexpr auto end()
-			{ return __sentinel<false>{ranges::end(base_)}; }
+			{ return __sentinel<models::SimpleView<R>>{ranges::end(base_)}; }
 
 			constexpr auto end() const requires Range<const R>
 			{ return __sentinel<true>{ranges::end(base_)}; }

@@ -67,8 +67,8 @@ STL2_OPEN_NAMESPACE {
 			constexpr split_view(O&& o, value_type_t<iterator_t<O>> e)
 			: split_view{view::all(std::forward<O>(o)), single_view{std::move(e)}} {}
 
-			using iterator = __outer_iterator<false>;
-			using sentinel = __outer_sentinel<false>;
+			using iterator = __outer_iterator<models::SimpleView<Rng>>;
+			using sentinel = __outer_sentinel<models::SimpleView<Rng>>;
 			using const_iterator = __outer_iterator<true>;
 			using const_sentinel = __outer_sentinel<true>;
 
@@ -81,19 +81,20 @@ STL2_OPEN_NAMESPACE {
 			constexpr iterator begin() requires ForwardRange<Rng>
 			{ return {*this, __stl2::begin(base_)}; }
 
-			constexpr const_iterator begin() const requires ForwardRange<Rng>
+			constexpr const_iterator begin() const requires ForwardRange<const Rng>
 			{ return {*this, __stl2::begin(base_)}; }
 
 			constexpr sentinel end()
 			{ return sentinel{*this}; }
 
-			constexpr const_sentinel end() const requires ForwardRange<Rng>
+			constexpr const_sentinel end() const requires ForwardRange<const Rng>
 			{ return const_sentinel{*this}; }
 
 			constexpr iterator end() requires ForwardRange<Rng> && BoundedRange<Rng>
 			{ return {*this, __stl2::end(base_)}; }
 
-			constexpr const_iterator end() const requires ForwardRange<Rng> && BoundedRange<Rng>
+            constexpr const_iterator end() const
+            requires ForwardRange<const Rng> && BoundedRange<const Rng>
 			{ return {*this, __stl2::end(base_)}; }
 		};
 
@@ -311,19 +312,13 @@ STL2_OPEN_NAMESPACE {
 			}
 			friend constexpr bool operator==(
 				const __inner_sentinel& x, const __inner_iterator<Const>& y)
-			{
-				return y == x;
-			}
+			{ return y == x; }
 			friend constexpr bool operator!=(
 				const __inner_iterator<Const>& x, const __inner_sentinel& y)
-			{
-				return !(x == y);
-			}
+			{ return !(x == y); }
 			friend constexpr bool operator!=(
 				const __inner_sentinel& x, const __inner_iterator<Const>& y)
-			{
-				return !(y == x);
-			}
+			{ return !(y == x); }
 		};
 	}
 

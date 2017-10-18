@@ -72,8 +72,8 @@ STL2_OPEN_NAMESPACE {
 			constexpr R base() const
 			{ return base_; }
 
-			using iterator = __iterator<false>;
-			using sentinel = __sentinel<false>;
+			using iterator = __iterator<models::SimpleView<R>>;
+			using sentinel = __sentinel<models::SimpleView<R>>;
 			using const_iterator = __iterator<true>;
 			using const_sentinel = __sentinel<true>;
 

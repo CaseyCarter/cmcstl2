@@ -49,9 +49,9 @@ STL2_OPEN_NAMESPACE {
 			constexpr transform_view(O&& o, F fun)
 			: base_(view::all(std::forward<O>(o))), fun_(std::move(fun)) {}
 
-			using iterator = __iterator<false>;
+			using iterator = __iterator<models::SimpleView<R>>;
+			using sentinel = __sentinel<models::SimpleView<R>>;
 			using const_iterator = __iterator<true>;
-			using sentinel = __sentinel<false>;
 			using const_sentinel = __sentinel<true>;
 
 			constexpr R base() const
