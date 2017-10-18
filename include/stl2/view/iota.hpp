@@ -72,9 +72,6 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template <Incrementable I, ConvertibleTo<I> Bound>
-		iota_view(I value, Bound) -> iota_view<I, I>;
-
 		template <class I, class Bound>
 		struct iota_view<I, Bound>::iterator
 		: detail::iota_view_iterator_base<I> {
