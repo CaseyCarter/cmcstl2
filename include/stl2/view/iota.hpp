@@ -44,8 +44,8 @@ STL2_OPEN_NAMESPACE {
 		requires WeaklyEqualityComparable<I, Bound>
 		struct iota_view : view_interface<iota_view<I, Bound>> {
 		private:
-			I value_ {}; // \expos
-			Bound bound_ {}; // \expos
+			I value_ {};
+			Bound bound_ {};
 		public:
 			iota_view() = default;
 			constexpr explicit iota_view(I value) requires Same<Bound, unreachable>
@@ -68,19 +68,12 @@ STL2_OPEN_NAMESPACE {
 				(Integral<I> && Integral<Bound>) ||
 				SizedSentinel<Bound, I>
 			{
-				return this->bound_ - value_;
+				return bound_ - value_;
 			}
 		};
 
-		template <WeaklyIncrementable I>
-		explicit iota_view(I value) -> iota_view<I>;
-
-		template <Incrementable I>
-		iota_view(I value, I bound) -> iota_view<I, I>;
-
-		template <WeaklyIncrementable I, Semiregular Bound>
-		requires WeaklyEqualityComparable<I, Bound> && !ConvertibleTo<Bound, I>
-		iota_view(I value, Bound bound) -> iota_view<I, Bound>;
+		template <Incrementable I, ConvertibleTo<I> Bound>
+		iota_view(I value, Bound) -> iota_view<I, I>;
 
 		template <class I, class Bound>
 		struct iota_view<I, Bound>::iterator
@@ -95,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr explicit iterator(I value)
 			: value_(value) {}
 
-			constexpr I operator*() const noexcept(is_nothrow_copy_constructible_v<I>)
+			constexpr I operator*() const noexcept(std::is_nothrow_copy_constructible_v<I>)
 			{ return value_; }
 
 			constexpr iterator& operator++()
