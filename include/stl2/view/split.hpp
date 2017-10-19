@@ -1,6 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
-//  Copyright Casey Carter 2016
+//  Copyright Eric Niebler 2017
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -18,7 +18,6 @@
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/view/all.hpp>
-#include <stl2/view/view_interface.hpp>
 #include <stl2/view/single.hpp>
 #include <stl2/detail/view/view_closure.hpp>
 

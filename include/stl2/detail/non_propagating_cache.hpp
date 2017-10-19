@@ -13,14 +13,14 @@
 #ifndef STL2_DETAIL_NON_PROPAGATING_CACHE_HPP
 #define STL2_DETAIL_NON_PROPAGATING_CACHE_HPP
 
-#include <stl2/detail/fwd.hpp>
 #include <stl2/optional.hpp>
+#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/concepts/object.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template<typename T, typename Tag = void, bool Enable = true>
-		struct non_propagating_cache : optional<T>
-		{
+		template <ext::DestructibleObject T, class Tag = void, bool Enable = true>
+		struct non_propagating_cache : optional<T> {
 			non_propagating_cache() = default;
 			constexpr non_propagating_cache(nullopt_t) noexcept
 			{}
@@ -42,9 +42,8 @@ STL2_OPEN_NAMESPACE {
 			using optional<T>::operator=;
 		};
 
-		template<typename T, typename Tag>
-		struct non_propagating_cache<T, Tag, false>
-		{};
+		template <ext::DestructibleObject T, class Tag>
+		struct non_propagating_cache<T, Tag, false> {};
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -1,6 +1,7 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
 //  Copyright Casey Carter 2015-2016
+//  Copyright Eric Niebler 2017
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -23,19 +24,19 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		template <WeaklyIncrementable I>
-		struct iota_view_itertor_base {
+		struct iota_view_iterator_base {
 			using iterator_category = __stl2::input_iterator_tag;
 		};
 		template <Incrementable I>
-		struct iota_view_itertor_base<I> {
+		struct iota_view_iterator_base<I> {
 			using iterator_category = __stl2::forward_iterator_tag;
 		};
 		template <ext::Decrementable I>
-		struct iota_view_itertor_base<I> {
+		struct iota_view_iterator_base<I> {
 			using iterator_category = __stl2::bidirectional_iterator_tag;
 		};
 		template <ext::RandomAccessIncrementable I>
-		struct iota_view_itertor_base<I> {
+		struct iota_view_iterator_base<I> {
 			using iterator_category = __stl2::random_access_iterator_tag;
 		};
 	}
@@ -44,13 +45,14 @@ STL2_OPEN_NAMESPACE {
 		requires WeaklyEqualityComparable<I, Bound>
 		struct iota_view : view_interface<iota_view<I, Bound>> {
 		private:
-			I value_ {}; // \expos
-			Bound bound_ {}; // \expos
+			I value_ {};
+			Bound bound_ {};
 		public:
 			iota_view() = default;
 			constexpr explicit iota_view(I value) requires Same<Bound, unreachable>
 			: value_(value), bound_{} {}
-			constexpr iota_view(I value, Bound bound)
+			template <class II = I, class BB = Bound>
+			constexpr iota_view(meta::id_t<II> value, meta::id_t<BB> bound)
 			: value_(value), bound_(bound) {}
 
 			struct iterator;
@@ -68,23 +70,23 @@ STL2_OPEN_NAMESPACE {
 				(Integral<I> && Integral<Bound>) ||
 				SizedSentinel<Bound, I>
 			{
-				return this->bound_ - value_;
+				return bound_ - value_;
 			}
 		};
 
 		template <WeaklyIncrementable I>
-		explicit iota_view(I value) -> iota_view<I>;
+		iota_view(I) -> iota_view<I>;
 
 		template <Incrementable I>
-		iota_view(I value, I bound) -> iota_view<I, I>;
+		iota_view(I, I) -> iota_view<I, I>;
 
 		template <WeaklyIncrementable I, Semiregular Bound>
 		requires WeaklyEqualityComparable<I, Bound> && !ConvertibleTo<Bound, I>
-		iota_view(I value, Bound bound) -> iota_view<I, Bound>;
+		iota_view(I, Bound) -> iota_view<I, Bound>;
 
 		template <class I, class Bound>
 		struct iota_view<I, Bound>::iterator
-		: detail::iota_view_itertor_base<I> {
+		: detail::iota_view_iterator_base<I> {
 		private:
 			I value_ {};
 		public:
@@ -95,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr explicit iterator(I value)
 			: value_(value) {}
 
-			constexpr I operator*() const noexcept(is_nothrow_copy_constructible_v<I>)
+			constexpr I operator*() const noexcept(std::is_nothrow_copy_constructible_v<I>)
 			{ return value_; }
 
 			constexpr iterator& operator++()

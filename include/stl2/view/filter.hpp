@@ -13,42 +13,41 @@
 #define STL2_VIEW_FILTER_HPP
 
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/non_propagating_cache.hpp>
+#include <stl2/detail/semiregular_box.hpp>
+#include <stl2/detail/algorithm/find_if.hpp>
+#include <stl2/detail/functional/invoke.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
-#include <stl2/optional.hpp>
-#include <stl2/detail/non_propagating_cache.hpp>
-#include <stl2/detail/functional/invoke.hpp>
-#include <stl2/detail/algorithm/find_if.hpp>
-#include <stl2/detail/semiregular_box.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		template <InputRange R>
 		struct begin_iterator_cache_ {
 			mutable detail::non_propagating_cache<iterator_t<R>> value_;
-			constexpr decltype(auto) get() const noexcept
-			{ return (value_); }
+			constexpr auto& get() const noexcept
+			{ return value_; }
 		};
 		template <InputRange R>
 		requires InputRange<const R> && !Same<iterator_t<R>, iterator_t<const R>>
 		struct begin_iterator_cache_<R> {
 			mutable detail::non_propagating_cache<iterator_t<R>> value_;
 			mutable detail::non_propagating_cache<iterator_t<const R>> cvalue_;
-			constexpr decltype(auto) get() noexcept
-			{ return (value_); }
-			constexpr decltype(auto) get() const noexcept
-			{ return (cvalue_); }
+			constexpr auto& get() noexcept
+			{ return value_; }
+			constexpr auto& get() const noexcept
+			{ return cvalue_; }
 		};
 	} // namespace detail
 
 	namespace ext {
 		template </*InputRange*/ class R, IndirectUnaryPredicate<iterator_t<R>> Pred>
 		requires View<R>
-		class filter_view : view_interface<filter_view<R, Pred>> {
+		class filter_view : public view_interface<filter_view<R, Pred>> {
 		private:
 			R base_;
 			detail::semiregular_box<Pred> pred_;
@@ -79,9 +78,10 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr iterator begin()
 			{
-				if(!cache_.get())
-					cache_.get() = find_if(base_, std::ref(pred_.get()));
-				return iterator{*this, *cache_.get()};
+				optional<iterator_t<R>>& opt = cache_.get();
+				if(!opt)
+					opt = __stl2::find_if(base_, std::ref(pred_.get()));
+				return iterator{*this, *opt};
 			}
 
 			// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
@@ -90,9 +90,10 @@ STL2_OPEN_NAMESPACE {
 			requires InputRange<const R> &&
 				IndirectUnaryPredicate<const Pred, iterator_t<ConstR>>
 			{
-				if(!cache_.get())
-					cache_.get() = find_if(base_, std::ref(pred_.get()));
-				return const_iterator{*this, *cache_.get()};
+				optional<iterator_t<const R>>& opt = cache_.get();
+				if(!opt)
+					opt = __stl2::find_if(base_, std::ref(pred_.get()));
+				return const_iterator{*this, *opt};
 			}
 
 			constexpr sentinel end()
@@ -153,8 +154,9 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr __iterator& operator++()
 			{
-				current_ = find_if(
-					++current_, __stl2::end(parent_->base_), std::ref(parent_->pred_.get()));
+				const auto last = __stl2::end(parent_->base_);
+				STL2_ASSERT(current_ != last);
+				current_ = __stl2::find_if(++current_, last, std::ref(parent_->pred_.get()));
 				return *this;
 			}
 
@@ -172,7 +174,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				do
 					--current_;
-				while(invoke(parent_->pred_.get(), *current_));
+				while(__stl2::invoke(parent_->pred_.get(), *current_));
 				return *this;
 			}
 

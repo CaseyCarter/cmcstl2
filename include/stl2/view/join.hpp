@@ -1,6 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
-//  Copyright Casey Carter 2016
+//  Copyright Eric Niebler 2017
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 			(std::is_reference_v<reference_t<iterator_t<Rng>>> ||
 				View<value_type_t<iterator_t<Rng>>>)
 		class join_view
-		: view_interface<join_view<Rng>>
+		: public view_interface<join_view<Rng>>
 		, detail::join_view_base<reference_t<iterator_t<Rng>>> {
 		private:
 			Rng base_ {};
