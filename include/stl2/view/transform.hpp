@@ -44,8 +44,7 @@ STL2_OPEN_NAMESPACE {
 			: base_(std::move(base)), fun_(std::move(fun)) {}
 
 			template <InputRange O>
-			requires (std::is_lvalue_reference_v<O> || View<__f<O>>) &&
-				Constructible<R, all_view<O>>
+			requires ext::ViewableRange<O> && Constructible<R, all_view<O>>
 			constexpr transform_view(O&& o, F fun)
 			: base_(view::all(std::forward<O>(o))), fun_(std::move(fun)) {}
 
@@ -267,8 +266,7 @@ STL2_OPEN_NAMESPACE {
 		namespace __transform {
 			struct fn {
 				template <InputRange Rng, CopyConstructible F>
-				requires Invocable<F&, reference_t<iterator_t<Rng>>> &&
-					(std::is_lvalue_reference_v<Rng> || View<__f<Rng>>)
+				requires ext::ViewableRange<Rng> && Invocable<F&, reference_t<iterator_t<Rng>>>
 				constexpr auto operator()(Rng&& rng, F fun) const {
 					return ext::transform_view{std::forward<Rng>(rng), std::move(fun)};
 				}

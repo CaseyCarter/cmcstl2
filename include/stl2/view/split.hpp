@@ -51,16 +51,14 @@ STL2_OPEN_NAMESPACE {
 			{}
 
 			template <InputRange O, ForwardRange P>
-			requires
-				(std::is_lvalue_reference_v<O> || View<__f<O>>) &&
-				(std::is_lvalue_reference_v<P> || View<__f<P>>) &&
+			requires ext::ViewableRange<O> && ext::ViewableRange<P> &&
 				Constructible<Rng, all_view<O>> &&
 				Constructible<Pattern, all_view<P>>
 			constexpr split_view(O&& o, P&& p)
 			: split_view{view::all(std::forward<O>(o)), view::all(std::forward<P>(p))} {}
 
 			template <InputRange O>
-			requires (std::is_lvalue_reference_v<O> || View<__f<O>>) &&
+			requires ext::ViewableRange<O> &&
 				Constructible<Rng, all_view<O>> &&
 				Constructible<Pattern, single_view<value_type_t<iterator_t<O>>>>
 			constexpr split_view(O&& o, value_type_t<iterator_t<O>> e)
@@ -100,15 +98,14 @@ STL2_OPEN_NAMESPACE {
 		template <class O, class P>
 		concept bool SplittableWithRange =
 			InputRange<O> && ForwardRange<P> &&
-			(std::is_lvalue_reference_v<O> || View<__f<O>>) &&
-			(std::is_lvalue_reference_v<P> || View<__f<P>>) &&
+			ext::ViewableRange<O> && ext::ViewableRange<P> &&
 			IndirectlyComparable<iterator_t<O>, iterator_t<P>> &&
 			(ForwardRange<O> || _TinyRange<P>);
 
 		template <class O>
 		concept bool SplittableWithElement =
 			InputRange<O> && Semiregular<value_type_t<iterator_t<O>>> &&
-			(std::is_lvalue_reference_v<O> || View<__f<O>>) &&
+			ext::ViewableRange<O> &&
 			IndirectlyComparable<iterator_t<O>, const value_type_t<iterator_t<O>>*>;
 
 		SplittableWithRange{Rng, Pattern}

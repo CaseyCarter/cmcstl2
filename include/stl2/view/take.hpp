@@ -48,8 +48,7 @@ STL2_OPEN_NAMESPACE {
 			: base_(std::move(base)), count_(count) {}
 
 			template <InputRange O>
-			requires (std::is_lvalue_reference_v<O> || View<__f<O>>) &&
-				Constructible<R, all_view<O>>
+			requires ext::ViewableRange<O> && Constructible<R, all_view<O>>
 			constexpr __take_view(O&& o, D count)
 			: base_(view::all(std::forward<O>(o))), count_(count) {}
 
@@ -157,7 +156,7 @@ STL2_OPEN_NAMESPACE {
 		namespace __take {
 			struct fn {
 				template <InputRange Rng>
-				requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
+				requires ext::ViewableRange<Rng>
 				constexpr auto operator()(Rng&& rng, difference_type_t<iterator_t<Rng>> count) const
 				{ return ext::take_view{std::forward<Rng>(rng), count}; }
 

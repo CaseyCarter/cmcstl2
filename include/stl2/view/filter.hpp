@@ -42,8 +42,7 @@ STL2_OPEN_NAMESPACE {
 			: base_(std::move(base)), pred_(std::move(pred)) {}
 
 			template <InputRange O>
-			requires (std::is_lvalue_reference_v<O> || View<__f<O>>) &&
-				Constructible<R, all_view<O>>
+			requires ext::ViewableRange<O> && Constructible<R, all_view<O>>
 			constexpr filter_view(O&& o, Pred pred)
 			: base_(view::all(std::forward<O>(o))), pred_(std::move(pred)) {}
 
@@ -165,8 +164,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <InputRange R, CopyConstructible Pred>
-		requires IndirectUnaryPredicate<Pred, iterator_t<R>> &&
-			(std::is_lvalue_reference_v<R> || View<__f<R>>)
+		requires IndirectUnaryPredicate<Pred, iterator_t<R>> && ext::ViewableRange<R>
 		filter_view(R&&, Pred) -> filter_view<all_view<R>, Pred>;
 	} // namespace ext
 
@@ -174,7 +172,7 @@ STL2_OPEN_NAMESPACE {
 		namespace __filter {
 			struct fn {
 				template <InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
-				requires std::is_lvalue_reference_v<R> || View<__f<R>>
+				requires ext::ViewableRange<R>
 				constexpr auto operator()(R&& rng, Pred pred) const
 				{ return ext::filter_view<ext::all_view<R>, Pred>{std::forward<R>(rng), std::move(pred)}; }
 

@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 	namespace __move {
 		struct fn : detail::__pipeable<fn> {
 			template <InputRange Rng>
-			requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
+			requires ext::ViewableRange<Rng>
 			constexpr ext::move_view<ext::all_view<Rng>> operator()(Rng&& rng) const {
 				return ext::move_view<ext::all_view<Rng>>{
 					view::all(std::forward<Rng>(rng))};

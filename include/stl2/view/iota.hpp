@@ -49,7 +49,8 @@ STL2_OPEN_NAMESPACE {
 			Bound bound_ {};
 		public:
 			iota_view() = default;
-			constexpr explicit iota_view(I value) requires Same<Bound, unreachable>
+			/// \pre: `Bound{}` is reachable from `value`
+			constexpr explicit iota_view(I value)
 			: value_(value), bound_{} {}
 			template <class II = I, class BB = Bound>
 			constexpr iota_view(meta::id_t<II> value, meta::id_t<BB> bound)

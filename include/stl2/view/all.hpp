@@ -40,8 +40,7 @@ STL2_OPEN_NAMESPACE {
 					return {__stl2::begin(rng), __stl2::end(rng), __stl2::distance(rng)};
 				}
 
-				template <Range Rng>
-				requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
+				template <ext::ViewableRange Rng>
 				friend constexpr decltype(auto) operator|(Rng&& rng, fn all) {
 					return all(std::forward<Rng>(rng));
 				}

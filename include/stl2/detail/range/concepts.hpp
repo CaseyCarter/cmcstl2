@@ -258,6 +258,20 @@ STL2_OPEN_NAMESPACE {
 		__stl2::ext::SimpleView{R}
 		constexpr bool SimpleView<R> = true;
 	}
+
+	namespace ext {
+		template<class Rng>
+		concept bool ViewableRange =
+			Range<Rng> &&
+			(std::is_lvalue_reference_v<Rng> || View<__f<Rng>>);
+	}
+
+	namespace models {
+		template <class R>
+		constexpr bool ViewableRange = false;
+		__stl2::ext::ViewableRange{R}
+		constexpr bool ViewableRange<R> = true;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

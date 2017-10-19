@@ -71,8 +71,7 @@ STL2_OPEN_NAMESPACE {
 			: base_(std::move(base)) {}
 
 			template <InputRange O>
-			requires (std::is_lvalue_reference_v<O> || View<__f<O>>) &&
-				Constructible<Rng, all_view<O>>
+			requires ext::ViewableRange<O> && Constructible<Rng, all_view<O>>
 			constexpr explicit join_view(O&& o)
 			: base_(view::all(std::forward<O>(o))) {}
 
@@ -301,8 +300,7 @@ STL2_OPEN_NAMESPACE {
 			struct fn : detail::__pipeable<fn>
 			{
 				template <InputRange Rng>
-				requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-					InputRange<reference_t<iterator_t<Rng>>> &&
+				requires ext::ViewableRange<Rng> && InputRange<reference_t<iterator_t<Rng>>> &&
 					(std::is_reference_v<reference_t<iterator_t<Rng>>> ||
 						View<value_type_t<iterator_t<Rng>>>)
 				constexpr auto operator()(Rng&& rng) const

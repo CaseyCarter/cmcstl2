@@ -23,20 +23,21 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		concept bool Pipeable =
 			DerivedFrom<T, __pipeable_base> &&
-			CopyConstructible<T>;
+			ext::CopyConstructibleObject<T>;
 
 		template <std::size_t N, std::size_t M>
-		concept bool Index = (N == M);
+		concept bool EqualValue = (N == M);
 
 		template <std::size_t N, class T>
 		struct __box {
 			T value_;
-			template <Index<N> M> constexpr T&& get() && noexcept
+			template <EqualValue<N> M> constexpr T&& get() && noexcept
 			{ return static_cast<T&&>(value_); }
-			template <Index<N> M> constexpr T& get() & noexcept
+			template <EqualValue<N> M> constexpr T& get() & noexcept
 			{ return value_; }
-			template <Index<N> M> constexpr const T& get() const & noexcept
+			template <EqualValue<N> M> constexpr const T& get() const & noexcept
 			{ return value_; }
+			template <EqualValue<N> M> constexpr const T&& get() const && noexcept = delete;
 		};
 
 		template <class Derived>
@@ -58,6 +59,11 @@ STL2_OPEN_NAMESPACE {
 				// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68093
 				-> decltype(c(std::forward<Rng>(rng)))
 			{ return c(std::forward<Rng>(rng)); }
+
+			template <class Rng>
+			friend constexpr auto operator|(Rng&& rng, const Derived&& c)
+				// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68093
+				-> decltype(c(std::forward<Rng>(rng))) = delete;
 		};
 
 		template <class Indices, class Fn, class... Ts>
@@ -71,22 +77,27 @@ STL2_OPEN_NAMESPACE {
 			: __box<Is, Ts>{std::forward<Ts>(ts)}... {}
 
 			template <InputRange Rng>
-			requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-				Invocable<Fn, Rng, Ts...> && View<std::invoke_result_t<Fn, Rng, Ts...>>
+			requires ext::ViewableRange<Rng> && Invocable<Fn, Rng, Ts...> &&
+				View<std::invoke_result_t<Fn, Rng, Ts...>>
 			constexpr auto operator()(Rng&& rng) &&
 			{ return Fn{}(std::forward<Rng>(rng), std::move(*this).template get<Is>()...); }
 
 			template <InputRange Rng>
-			requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-				Invocable<Fn, Rng, Ts &...> && View<std::invoke_result_t<Fn, Rng, Ts &...>>
+			requires ext::ViewableRange<Rng> && Invocable<Fn, Rng, Ts &...> &&
+				View<std::invoke_result_t<Fn, Rng, Ts &...>>
 			constexpr auto operator()(Rng&& rng) &
 			{ return Fn{}(std::forward<Rng>(rng), this->template get<Is>()...); }
 
 			template <InputRange Rng>
-			requires (std::is_lvalue_reference_v<Rng> || View<__f<Rng>>) &&
-				Invocable<Fn, Rng, const Ts &...> && View<std::invoke_result_t<Fn, Rng, const Ts &...>>
+			requires ext::ViewableRange<Rng> && Invocable<Fn, Rng, const Ts &...> &&
+				View<std::invoke_result_t<Fn, Rng, const Ts &...>>
 			constexpr auto operator()(Rng&& rng) const &
 			{ return Fn{}(std::forward<Rng>(rng), this->template get<Is>()...); }
+
+			template <InputRange Rng>
+			requires ext::ViewableRange<Rng> && Invocable<Fn, Rng, const Ts &...> &&
+				View<std::invoke_result_t<Fn, Rng, const Ts &...>>
+			constexpr auto operator()(Rng&& rng) const && = delete;
 		};
 
 		template <Semiregular Fn, CopyConstructible... Ts>
@@ -109,30 +120,22 @@ STL2_OPEN_NAMESPACE {
 			constexpr __view_pipeline(A&& left, B&& right)
 			: left_(std::move(left)), right_(std::move(right)) {}
 
-			template <Range R>
-			requires (std::is_lvalue_reference_v<R> || View<__f<R>>) &&
-				Invocable<A, R> &&
-				Invocable<B, std::invoke_result_t<A, R>>
+			template <ext::ViewableRange R>
+			requires Invocable<A, R> && Invocable<B, std::invoke_result_t<A, R>>
 			constexpr decltype(auto) operator()(R&& r) &&
 			{ return std::move(right_)(std::move(left_)(std::forward<R>(r))); }
 
-			template <Range R>
-			requires (std::is_lvalue_reference_v<R> || View<__f<R>>) &&
-				Invocable<A&, R> &&
-				Invocable<B&, std::invoke_result_t<A&, R>>
+			template <ext::ViewableRange R>
+			requires Invocable<A&, R> && Invocable<B&, std::invoke_result_t<A&, R>>
 			constexpr decltype(auto) operator()(R&& r) &
 			{ return right_(left_(std::forward<R>(r))); }
 
-			template <Range R>
-			requires (std::is_lvalue_reference_v<R> || View<__f<R>>) &&
-				Invocable<const A&, R> &&
+			template <ext::ViewableRange R>
+			requires Invocable<const A&, R> &&
 				Invocable<const B&, std::invoke_result_t<const A&, R>>
 			constexpr decltype(auto) operator()(R&& r) const &
 			{ return right_(left_(std::forward<R>(r))); }
 		};
-
-		template <Pipeable A, Pipeable B>
-		__view_pipeline(A, B) -> __view_pipeline<A, B>;
 
 		template <Pipeable A, Pipeable B>
 		constexpr auto operator|(A left, B right)
