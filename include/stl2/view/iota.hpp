@@ -52,8 +52,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr explicit iota_view(I value) requires Same<Bound, unreachable>
 			: value_(value), bound_{} {}
 			template <class II = I, class BB = Bound>
-			requires Same<I, II> && Same<Bound, BB>
-			constexpr iota_view(II value, BB bound)
+			constexpr iota_view(meta::id_t<II> value, meta::id_t<BB> bound)
 			: value_(value), bound_(bound) {}
 
 			struct iterator;
