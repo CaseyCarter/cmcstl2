@@ -50,7 +50,9 @@ STL2_OPEN_NAMESPACE {
 			iota_view() = default;
 			constexpr explicit iota_view(I value) requires Same<Bound, unreachable>
 			: value_(value), bound_{} {}
-			constexpr iota_view(I value, Bound bound)
+			template <class II = I, class BB = Bound>
+			requires Same<I, II> && Same<Bound, BB>
+			constexpr iota_view(II value, BB bound)
 			: value_(value), bound_(bound) {}
 
 			struct iterator;
@@ -71,6 +73,16 @@ STL2_OPEN_NAMESPACE {
 				return bound_ - value_;
 			}
 		};
+
+		template <WeaklyIncrementable I>
+		iota_view(I) -> iota_view<I>;
+
+		template <Incrementable I>
+		iota_view(I, I) -> iota_view<I, I>;
+
+		template <WeaklyIncrementable I, Semiregular Bound>
+		requires WeaklyEqualityComparable<I, Bound> && !ConvertibleTo<Bound, I>
+		iota_view(I, Bound) -> iota_view<I, Bound>;
 
 		template <class I, class Bound>
 		struct iota_view<I, Bound>::iterator
