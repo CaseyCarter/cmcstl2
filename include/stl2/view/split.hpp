@@ -92,8 +92,8 @@ STL2_OPEN_NAMESPACE {
 			constexpr iterator end() requires ForwardRange<Rng> && BoundedRange<Rng>
 			{ return {*this, __stl2::end(base_)}; }
 
-            constexpr const_iterator end() const
-            requires ForwardRange<const Rng> && BoundedRange<const Rng>
+			constexpr const_iterator end() const
+			requires ForwardRange<const Rng> && BoundedRange<const Rng>
 			{ return {*this, __stl2::end(base_)}; }
 		};
 

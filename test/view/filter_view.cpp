@@ -53,15 +53,6 @@ int main() {
 	static_assert(!models::RandomAccessRange<decltype(rng)>);
 	::check_equal(rng, {1,3,5,7,9});
 
-	auto const crng = rng;
-	static_assert(models::Same<int &, decltype(*begin(crng))>);
-	static_assert(!models::View<decltype(crng)>);
-	static_assert(models::InputRange<decltype(crng)>);
-	static_assert(models::BoundedRange<decltype(crng)>);
-	static_assert(!models::SizedRange<decltype(crng)>);
-	static_assert(!models::ForwardRange<decltype(crng)>);
-	::check_equal(crng, {1,3,5,7,9});
-
 	//::check_equal(rng | view::reverse, {9,7,5,3,1});
 	//auto tmp = rng | view::reverse;
 	//CHECK(&*begin(tmp) == &rgi[8]);

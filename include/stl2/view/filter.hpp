@@ -25,36 +25,15 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	namespace detail {
-		template <InputRange R>
-		struct begin_iterator_cache_ {
-			mutable detail::non_propagating_cache<iterator_t<R>> value_;
-			constexpr auto& get() const noexcept
-			{ return value_; }
-		};
-		template <InputRange R>
-		requires InputRange<const R> && !Same<iterator_t<R>, iterator_t<const R>>
-		struct begin_iterator_cache_<R> {
-			mutable detail::non_propagating_cache<iterator_t<R>> value_;
-			mutable detail::non_propagating_cache<iterator_t<const R>> cvalue_;
-			constexpr auto& get() noexcept
-			{ return value_; }
-			constexpr auto& get() const noexcept
-			{ return cvalue_; }
-		};
-	} // namespace detail
-
 	namespace ext {
-		template </*InputRange*/ class R, IndirectUnaryPredicate<iterator_t<R>> Pred>
+		template <InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
 		requires View<R>
 		class filter_view : public view_interface<filter_view<R, Pred>> {
 		private:
 			R base_;
 			detail::semiregular_box<Pred> pred_;
-			detail::begin_iterator_cache_<R> cache_;
-			template <bool Const>
+			optional<iterator_t<R>> begin_;
 			class __iterator;
-			template <bool Const>
 			class __sentinel;
 		public:
 			filter_view() = default;
@@ -71,85 +50,45 @@ STL2_OPEN_NAMESPACE {
 			constexpr R base() const
 			{ return base_; }
 
-			using iterator = __iterator<models::SimpleView<R>>;
-			using sentinel = __sentinel<models::SimpleView<R>>;
-			using const_iterator = __iterator<true>;
-			using const_sentinel = __sentinel<true>;
-
-			constexpr iterator begin()
+			constexpr __iterator begin()
 			{
-				optional<iterator_t<R>>& opt = cache_.get();
-				if(!opt)
-					opt = __stl2::find_if(base_, std::ref(pred_.get()));
-				return iterator{*this, *opt};
+				if(!begin_)
+					begin_ = __stl2::find_if(base_, std::ref(pred_.get()));
+				return __iterator{*this, *begin_};
 			}
 
-			// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-			template <class ConstR = const R>
-			constexpr const_iterator begin() const
-			requires InputRange<const R> &&
-				IndirectUnaryPredicate<const Pred, iterator_t<ConstR>>
-			{
-				optional<iterator_t<const R>>& opt = cache_.get();
-				if(!opt)
-					opt = __stl2::find_if(base_, std::ref(pred_.get()));
-				return const_iterator{*this, *opt};
-			}
+			constexpr __sentinel end()
+			{ return __sentinel{*this}; }
 
-			constexpr sentinel end()
-			{ return sentinel{*this}; }
-
-			// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-			template <class ConstR = const R>
-			constexpr const_sentinel end() const
-			requires InputRange<const R> &&
-				IndirectUnaryPredicate<const Pred, iterator_t<ConstR>>
-			{ return const_sentinel{*this}; }
-
-			constexpr iterator end() requires BoundedRange<R>
-			{ return iterator{*this, __stl2::end(base_)}; }
-
-			// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-			template <class ConstR = const R>
-			constexpr const_iterator end() const
-			requires InputRange<const R> && BoundedRange<ConstR> &&
-				IndirectUnaryPredicate<const Pred, iterator_t<ConstR>>
-			{ return const_iterator{*this, __stl2::end(base_)}; }
+			constexpr __iterator end() requires BoundedRange<R>
+			{ return __iterator{*this, __stl2::end(base_)}; }
 		};
 
 		template <class R, class Pred>
-		template <bool Const>
 		class filter_view<R, Pred>::__iterator {
 		private:
-			using Base = __maybe_const<Const, R>;
-			using Parent = __maybe_const<Const, filter_view>;
-			iterator_t<Base> current_ {};
-			Parent* parent_ = nullptr;
-			friend __sentinel<Const>;
-			friend __iterator<!Const>;
+			iterator_t<R> current_ {};
+			filter_view* parent_ = nullptr;
+			friend __sentinel;
 		public:
 			using iterator_category =
-				meta::if_c<models::BidirectionalIterator<iterator_t<Base>> && !Const,
+				meta::if_c<models::BidirectionalIterator<iterator_t<R>>,
 					__stl2::bidirectional_iterator_tag,
-				meta::if_c<models::ForwardIterator<iterator_t<Base>> && !Const,
+				meta::if_c<models::ForwardIterator<iterator_t<R>>,
 					__stl2::forward_iterator_tag,
 					__stl2::input_iterator_tag>>;
-			using value_type = value_type_t<iterator_t<Base>>;
-			using difference_type = difference_type_t<iterator_t<Base>>;
+			using value_type = value_type_t<iterator_t<R>>;
+			using difference_type = difference_type_t<iterator_t<R>>;
 
 			__iterator() = default;
 
-			constexpr __iterator(Parent& parent, iterator_t<Base> current)
+			constexpr __iterator(filter_view& parent, iterator_t<R> current)
 			: current_(current), parent_(&parent) {}
 
-			constexpr __iterator(__iterator<!Const> i) requires Const &&
-				ConvertibleTo<iterator_t<R>, iterator_t<Base>>
-			: current_(i.current_), parent_(i.parent_) {}
-
-			constexpr iterator_t<Base> base() const
+			constexpr iterator_t<R> base() const
 			{ return current_; }
 
-			constexpr reference_t<iterator_t<Base>> operator*() const
+			constexpr reference_t<iterator_t<R>> operator*() const
 			{ return *current_; }
 
 			constexpr __iterator& operator++()
@@ -163,14 +102,14 @@ STL2_OPEN_NAMESPACE {
 			constexpr void operator++(int)
 			{ (void)++*this; }
 
-			constexpr __iterator operator++(int) requires ForwardRange<Base> && !Const
+			constexpr __iterator operator++(int) requires ForwardRange<R>
 			{
 				auto tmp = *this;
 				++*this;
 				return tmp;
 			}
 
-			constexpr __iterator& operator--() requires BidirectionalRange<Base> && !Const
+			constexpr __iterator& operator--() requires BidirectionalRange<R>
 			{
 				do
 					--current_;
@@ -178,7 +117,7 @@ STL2_OPEN_NAMESPACE {
 				return *this;
 			}
 
-			constexpr __iterator operator--(int) requires BidirectionalRange<Base> && !Const
+			constexpr __iterator operator--(int) requires BidirectionalRange<R>
 			{
 				auto tmp = *this;
 				--*this;
@@ -186,14 +125,14 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			friend constexpr bool operator==(const __iterator& x, const __iterator& y)
-			requires EqualityComparable<iterator_t<Base>>
+			requires EqualityComparable<iterator_t<R>>
 			{ return x.current_ == y.current_; }
 
 			friend constexpr bool operator!=(const __iterator& x, const __iterator& y)
-			requires EqualityComparable<iterator_t<Base>>
+			requires EqualityComparable<iterator_t<R>>
 			{ return !(x == y); }
 
-			friend constexpr rvalue_reference_t<iterator_t<Base>>
+			friend constexpr rvalue_reference_t<iterator_t<R>>
 			iter_move(const __iterator& i)
 			noexcept(noexcept(__stl2::iter_move(i.current_)))
 			{ return __stl2::iter_move(i.current_); }
@@ -204,27 +143,24 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class R, class Pred>
-		template <bool Const>
 		class filter_view<R, Pred>::__sentinel {
 		private:
-			using Base = __maybe_const<Const, R>;
-			using Parent = __maybe_const<Const, filter_view>;
-			sentinel_t<Base> end_;
+			sentinel_t<R> end_;
 		public:
 			__sentinel() = default;
-			explicit constexpr __sentinel(Parent& parent)
+			explicit constexpr __sentinel(filter_view& parent)
 			: end_(__stl2::end(parent)) {}
 
-			constexpr sentinel_t<Base> base() const
+			constexpr sentinel_t<R> base() const
 			{ return end_; }
 
-			friend constexpr bool operator==(const __iterator<Const>& x, const __sentinel& y)
+			friend constexpr bool operator==(const __iterator& x, const __sentinel& y)
 			{ return x.current_ == y.end_; }
-			friend constexpr bool operator==(const __sentinel& x, const __iterator<Const>& y)
+			friend constexpr bool operator==(const __sentinel& x, const __iterator& y)
 			{ return y == x; }
-			friend constexpr bool operator!=(const __iterator<Const>& x, const __sentinel& y)
+			friend constexpr bool operator!=(const __iterator& x, const __sentinel& y)
 			{ return !(x == y); }
-			friend constexpr bool operator!=(const __sentinel& x, const __iterator<Const>& y)
+			friend constexpr bool operator!=(const __sentinel& x, const __iterator& y)
 			{ return !(y == x); }
 		};
 
