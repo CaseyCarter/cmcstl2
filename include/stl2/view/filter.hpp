@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 		private:
 			R base_;
 			detail::semiregular_box<Pred> pred_;
-			optional<iterator_t<R>> begin_;
+			detail::non_propagating_cache<iterator_t<R>> begin_;
 			class __iterator;
 			class __sentinel;
 		public:
