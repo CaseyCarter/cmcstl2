@@ -24,26 +24,22 @@ STL2_OPEN_NAMESPACE {
 			struct fn {
 				template <Range Rng>
 				requires View<__f<Rng>>
-				constexpr __f<Rng> operator()(Rng&& rng) const {
-					return std::forward<Rng>(rng);
-				}
+				constexpr __f<Rng> operator()(Rng&& rng) const
+				{ return std::forward<Rng>(rng); }
+
 				template <Range Rng>
 				requires std::is_lvalue_reference_v<Rng> && !View<std::decay_t<Rng>>
-				constexpr ext::iterator_range<iterator_t<Rng>, sentinel_t<Rng>>
-				operator()(Rng&& rng) const {
-					return {__stl2::begin(rng), __stl2::end(rng)};
-				}
+				constexpr auto operator()(Rng&& rng) const
+				{ return ext::iterator_range{rng}; }
+
 				template <SizedRange Rng>
 				requires std::is_lvalue_reference_v<Rng> && !View<std::decay_t<Rng>>
-				constexpr ext::sized_iterator_range<iterator_t<Rng>, sentinel_t<Rng>>
-				operator()(Rng&& rng) const {
-					return {__stl2::begin(rng), __stl2::end(rng), __stl2::distance(rng)};
-				}
+				constexpr auto operator()(Rng&& rng) const
+				{ return ext::sized_iterator_range{rng}; }
 
 				template <ext::ViewableRange Rng>
-				friend constexpr decltype(auto) operator|(Rng&& rng, fn all) {
-					return all(std::forward<Rng>(rng));
-				}
+				friend constexpr decltype(auto) operator|(Rng&& rng, fn all)
+				{ return all(std::forward<Rng>(rng)); }
 			};
 		}
 
@@ -51,8 +47,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	namespace ext {
-		template <Range Rng>
-		requires std::is_lvalue_reference_v<Rng> || View<__f<Rng>>
+		template <ViewableRange Rng>
 		using all_view = decltype(view::all(std::declval<Rng>()));
 	}
 } STL2_CLOSE_NAMESPACE
