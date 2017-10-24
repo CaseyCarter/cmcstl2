@@ -16,6 +16,7 @@
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/iterator/dangling.hpp>
 #include <stl2/view/view_interface.hpp>
 #include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/utility.hpp>
@@ -223,6 +224,12 @@ STL2_OPEN_NAMESPACE {
 		template <Iterator I, Sentinel<I> S>
 		using sized_subrange = subrange<I, S, true>;
 
+		template <Range R>
+		using safe_subrange_t =	meta::if_<
+			std::is_lvalue_reference<R>,
+			ext::subrange<iterator_t<R>>,
+			tagged_pair<tag::begin(safe_iterator_t<R>), tag::end(safe_iterator_t<R>)>>;
+
 		template <Iterator I, Sentinel<I> S>
 		subrange(I, S, difference_type_t<I>) -> subrange<I, S, true>;
 
@@ -245,7 +252,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <std::size_t N, class I, class S, bool Sized>
 		requires N < 2
-		constexpr decltype(auto) get(subrange<I, S, Sized>&& r) noexcept(!Sized) {
+		constexpr decltype(auto) get(subrange<I, S, Sized>&& r) {
 			if constexpr (N == 0)
 				return std::move(r).begin();
 			else
@@ -253,7 +260,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		template <std::size_t N, class I, class S, bool Sized>
 		requires N < 2
-		constexpr decltype(auto) get(subrange<I, S, Sized>& r) noexcept(!Sized) {
+		constexpr decltype(auto) get(subrange<I, S, Sized>& r) {
 			if constexpr (N == 0)
 				return r.begin();
 			else
@@ -261,7 +268,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		template <std::size_t N, class I, class S, bool Sized>
 		requires N < 2
-		constexpr decltype(auto) get(const subrange<I, S, Sized>& r) noexcept(!Sized) {
+		constexpr decltype(auto) get(const subrange<I, S, Sized>& r) {
 			if constexpr (N == 0)
 				return r.begin();
 			else

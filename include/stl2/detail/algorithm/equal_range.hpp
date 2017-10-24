@@ -124,9 +124,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>>
-	meta::if_<std::is_lvalue_reference<Rng>,
-		ext::subrange<iterator_t<Rng>>,
-		tagged_pair<tag::begin(safe_iterator_t<Rng>), tag::end(safe_iterator_t<Rng>)>>
+	ext::safe_subrange_t<Rng>
 	equal_range(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::equal_range(
@@ -140,9 +138,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>> &&
 		SizedRange<Rng>
-	meta::if_<std::is_lvalue_reference<Rng>,
-		ext::subrange<iterator_t<Rng>>,
-		tagged_pair<tag::begin(safe_iterator_t<Rng>), tag::end(safe_iterator_t<Rng>)>>
+	ext::safe_subrange_t<Rng>
 	equal_range(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return ext::equal_range_n(

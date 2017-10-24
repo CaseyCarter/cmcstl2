@@ -51,6 +51,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <Range R>
 	using safe_iterator_t = __maybe_dangling<R, iterator_t<R>>;
+
 } STL2_CLOSE_NAMESPACE
 
 #endif
