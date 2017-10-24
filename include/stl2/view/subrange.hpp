@@ -25,34 +25,29 @@
 
 STL2_OPEN_NAMESPACE {
 	// __uncvref here is needed because of a libstdc++ bug.
-	template <class T, class U, class V>
-	concept bool _PairLikeConvertibleTo =
-		!Range<T> &&
+	template <class T>
+	concept bool _PairLike =
 		meta::Integral<std::tuple_size<__uncvref<T>>> &&
 		std::tuple_size<__uncvref<T>>::value == 2 &&
 		meta::Trait<std::tuple_element<0, __uncvref<T>>> &&
-		meta::Trait<std::tuple_element<1, __uncvref<T>>> &&
+		meta::Trait<std::tuple_element<1, __uncvref<T>>>;
+
+	template <class T, class U, class V>
+	concept bool _PairLikeConvertibleTo =
+		_PairLike<T> && !Range<T> &&
 		ConvertibleTo<meta::_t<std::tuple_element<0, __uncvref<T>>>, U> &&
 		ConvertibleTo<meta::_t<std::tuple_element<1, __uncvref<T>>>, V>;
 
 	template <class T, class U, class V>
 	concept bool _PairLikeConvertibleFrom =
-		!Range<T> &&
+		_PairLike<T> && !Range<T> &&
 		Constructible<T, U, V> &&
-		meta::Integral<std::tuple_size<__uncvref<T>>> &&
-		std::tuple_size<__uncvref<T>>::value == 2 &&
-		meta::Trait<std::tuple_element<0, __uncvref<T>>> &&
-		meta::Trait<std::tuple_element<1, __uncvref<T>>> &&
 		ConvertibleTo<U, meta::_t<std::tuple_element<0, __uncvref<T>>>> &&
 		ConvertibleTo<V, meta::_t<std::tuple_element<1, __uncvref<T>>>>;
 
 	template <class T>
 	concept bool _IteratorSentinelPair =
-		!Range<T> &&
-		meta::Integral<std::tuple_size<__uncvref<T>>> &&
-		std::tuple_size<__uncvref<T>>::value == 2 &&
-		meta::Trait<std::tuple_element<0, __uncvref<T>>> &&
-		meta::Trait<std::tuple_element<1, __uncvref<T>>> &&
+		_PairLike<T> && !Range<T> &&
 		Sentinel<
 			meta::_t<std::tuple_element<1, __uncvref<T>>>,
 			meta::_t<std::tuple_element<0, __uncvref<T>>>>;
@@ -63,7 +58,8 @@ STL2_OPEN_NAMESPACE {
 		: view_interface<subrange<I, S, Sized>>
 		{
 		private:
-			std::tuple<I, S> rng_;
+			std::tuple<I, S> rng_ {};
+			friend subrange<I, S, true>;
 		public:
 			using iterator = I;
 			using sentinel = S;
@@ -216,7 +212,10 @@ STL2_OPEN_NAMESPACE {
 				return tmp;
 			}
 			constexpr subrange& advance(difference_type_t<I> n) {
-				size_ -= n - __stl2::advance(rng_.begin(), n, end());
+				auto b = begin();
+				auto count = n - __stl2::advance(b, n, end());
+				std::get<0>(rng_.rng_) = b;
+				size_ -= count;
 				return *this;
 			}
 		};
@@ -252,23 +251,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <std::size_t N, class I, class S, bool Sized>
 		requires N < 2
-		constexpr decltype(auto) get(subrange<I, S, Sized>&& r) {
-			if constexpr (N == 0)
-				return std::move(r).begin();
-			else
-				return std::move(r).end();
-		}
-		template <std::size_t N, class I, class S, bool Sized>
-		requires N < 2
-		constexpr decltype(auto) get(subrange<I, S, Sized>& r) {
-			if constexpr (N == 0)
-				return r.begin();
-			else
-				return r.end();
-		}
-		template <std::size_t N, class I, class S, bool Sized>
-		requires N < 2
-		constexpr decltype(auto) get(const subrange<I, S, Sized>& r) {
+		constexpr auto get(const subrange<I, S, Sized>& r) {
 			if constexpr (N == 0)
 				return r.begin();
 			else
