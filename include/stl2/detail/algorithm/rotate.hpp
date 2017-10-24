@@ -205,11 +205,12 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng>
 	requires
 		Permutable<iterator_t<Rng>>
-	tagged_pair<tag::begin(safe_iterator_t<Rng>), tag::end(safe_iterator_t<Rng>)>
+	meta::if_<std::is_lvalue_reference<Rng>,
+		ext::subrange<iterator_t<Rng>>,
+		tagged_pair<tag::begin(safe_iterator_t<Rng>), tag::end(safe_iterator_t<Rng>)>>
 	rotate(Rng&& rng, iterator_t<Rng> middle)
 	{
-		auto [b,e] = __stl2::rotate(__stl2::begin(rng), std::move(middle), __stl2::end(rng));
-		return {b, e};
+		return __stl2::rotate(__stl2::begin(rng), std::move(middle), __stl2::end(rng));
 	}
 } STL2_CLOSE_NAMESPACE
 

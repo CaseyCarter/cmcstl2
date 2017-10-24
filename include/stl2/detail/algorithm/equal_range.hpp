@@ -124,13 +124,14 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>>
-	tagged_pair<tag::begin(safe_iterator_t<Rng>), tag::end(safe_iterator_t<Rng>)>
+	meta::if_<std::is_lvalue_reference<Rng>,
+		ext::subrange<iterator_t<Rng>>,
+		tagged_pair<tag::begin(safe_iterator_t<Rng>), tag::end(safe_iterator_t<Rng>)>>
 	equal_range(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		auto [b,e] = __stl2::equal_range(
+		return __stl2::equal_range(
 			__stl2::begin(rng), __stl2::end(rng), value,
 			std::ref(comp), std::ref(proj));
-		return {b,e};
 	}
 
 	template <ForwardRange Rng, class T, class Comp = less<>,
@@ -139,13 +140,14 @@ STL2_OPEN_NAMESPACE {
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>> &&
 		SizedRange<Rng>
-	tagged_pair<tag::begin(safe_iterator_t<Rng>), tag::end(safe_iterator_t<Rng>)>
+	meta::if_<std::is_lvalue_reference<Rng>,
+		ext::subrange<iterator_t<Rng>>,
+		tagged_pair<tag::begin(safe_iterator_t<Rng>), tag::end(safe_iterator_t<Rng>)>>
 	equal_range(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
 	{
-		auto [b,e] = ext::equal_range_n(
+		return ext::equal_range_n(
 			__stl2::begin(rng), __stl2::size(rng), value,
 			std::ref(comp), std::ref(proj));
-		return {b,e};
 	}
 } STL2_CLOSE_NAMESPACE
 
