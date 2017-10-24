@@ -158,7 +158,7 @@ STL2_OPEN_NAMESPACE {
 				auto const end = __stl2::end(parent_->base_);
 				if (cur == end)
 					return *this;
-				auto const [pbegin, pend] = iterator_range{parent_->pattern_};
+				auto const [pbegin, pend] = subrange{parent_->pattern_};
 				do
 				{
 					auto [b,p] = mismatch(cur, end, pbegin, pend);
@@ -295,7 +295,7 @@ STL2_OPEN_NAMESPACE {
 				auto end = __stl2::end(x.i_.parent_->base_);
 				if (cur == end)
 					return true;
-				auto [pcur, pend] = iterator_range{x.i_.parent_->pattern_};
+				auto [pcur, pend] = subrange{x.i_.parent_->pattern_};
 				if (pcur == pend)
 					return x.zero_;
 				do {

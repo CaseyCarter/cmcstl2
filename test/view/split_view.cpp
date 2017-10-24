@@ -66,7 +66,7 @@ int main() {
 
 	{
 		std::stringstream sin{greeting};
-		auto rng = ext::iterator_range{
+		auto rng = ext::subrange{
 			istreambuf_iterator<char>{sin},
 			istreambuf_iterator<char>{}};
 
@@ -109,7 +109,7 @@ int main() {
 	{
 		std::string list{"eggs,milk,,butter"};
 		std::stringstream sin{list};
-		auto rng = ext::iterator_range{
+		auto rng = ext::subrange{
 			istreambuf_iterator<char>{sin},
 			istreambuf_iterator<char>{}};
 		auto sv = rng | view::split(',');
@@ -154,7 +154,7 @@ int main() {
 	{
 		std::string hello{"hello"};
 		std::stringstream sin{hello};
-		auto rng = ext::iterator_range{
+		auto rng = ext::subrange{
 			istreambuf_iterator<char>{sin},
 			istreambuf_iterator<char>{}};
 		auto sv = view::split(rng, view::empty<char>);

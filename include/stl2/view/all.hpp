@@ -16,7 +16,7 @@
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/view/iterator_range.hpp>
+#include <stl2/view/subrange.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace view {
@@ -30,12 +30,7 @@ STL2_OPEN_NAMESPACE {
 				template <Range Rng>
 				requires std::is_lvalue_reference_v<Rng> && !View<std::decay_t<Rng>>
 				constexpr auto operator()(Rng&& rng) const
-				{ return ext::iterator_range{rng}; }
-
-				template <SizedRange Rng>
-				requires std::is_lvalue_reference_v<Rng> && !View<std::decay_t<Rng>>
-				constexpr auto operator()(Rng&& rng) const
-				{ return ext::sized_iterator_range{rng}; }
+				{ return ext::subrange{rng}; }
 
 				template <ext::ViewableRange Rng>
 				friend constexpr decltype(auto) operator|(Rng&& rng, fn all)

@@ -12,7 +12,7 @@
 #include <stl2/view/take.hpp>
 #include <stl2/view/iota.hpp>
 #include <stl2/view/filter.hpp>
-#include <stl2/view/iterator_range.hpp>
+#include <stl2/view/subrange.hpp>
 #include <stl2/detail/iterator/istream_iterator.hpp>
 #include <memory>
 #include <vector>
@@ -23,12 +23,12 @@ namespace ranges = __stl2;
 
 namespace {
 	template <class I, class S>
-	struct my_iterator_range : __stl2::ext::iterator_range<I, S> {
-		my_iterator_range() = default;
-		my_iterator_range(I i, S s)
-		: __stl2::ext::iterator_range<I, S>{i, s} {}
-		I begin() { return this->first; }
-		S end() { return this->second; }
+	struct my_subrange : __stl2::ext::subrange<I, S> {
+		my_subrange() = default;
+		my_subrange(I i, S s)
+		: __stl2::ext::subrange<I, S>{i, s} {}
+		I begin() { return this->my_subrange::subrange::begin(); }
+		S end() { return this->my_subrange::subrange::end(); }
 	};
 }
 
@@ -56,7 +56,7 @@ int main()
 	{
 		auto evens = [](int i){return i%2 == 0;};
 		std::stringstream sin{"0 1 2 3 4 5 6 7 8 9"};
-		my_iterator_range is{istream_iterator<int>{sin}, istream_iterator<int>{}};
+		my_subrange is{istream_iterator<int>{sin}, istream_iterator<int>{}};
 		static_assert(models::InputRange<decltype(is)>);
 		auto rng = is | view::filter(evens) | view::take(3);
 		static_assert(models::View<decltype(rng)>);
@@ -68,7 +68,7 @@ int main()
 	{
 		auto odds = [](int i){return i%2 == 1;};
 		std::stringstream sin{"0 1 2 3 4 5 6 7 8 9"};
-		my_iterator_range is{istream_iterator<int>{sin}, istream_iterator<int>{}};
+		my_subrange is{istream_iterator<int>{sin}, istream_iterator<int>{}};
 		auto pipe = view::filter(odds) | view::take(3);
 		auto rng = is | pipe;
 		static_assert(models::View<decltype(rng)>);

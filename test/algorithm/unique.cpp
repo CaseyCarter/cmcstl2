@@ -56,7 +56,7 @@ struct range_call
 	template <class B, class E, class... Args>
 	auto operator()(B &&It, E &&e, Args &&... args) const
 	{
-		auto rng = stl2::ext::make_range(begin_t{It}, sentinel_t{e});
+		auto rng = stl2::ext::subrange(begin_t{It}, sentinel_t{e});
 		return stl2::unique(rng, std::forward<Args>(args)...);
 	}
 };

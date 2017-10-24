@@ -5,8 +5,8 @@ using namespace __stl2;
 
 int main() {
 	{
-		using I = ext::range<int*, int*>;
-		using CI = ext::range<const int*, const int*>;
+		using I = ext::subrange<int*, int*>;
+		using CI = ext::subrange<const int*, const int*>;
 		static_assert(models::View<I>);
 		static_assert(models::SizedRange<I>);
 		static_assert(models::ContiguousRange<I>);
@@ -20,7 +20,7 @@ int main() {
 	{
 		static constexpr int some_ints[] = {2, 3, 5, 7, 11, 13};
 		static constexpr std::size_t n = size(some_ints);
-		auto r = ext::make_range(some_ints + 0, some_ints + n);
+		auto r = ext::subrange(some_ints + 0, some_ints + n);
 		using R = decltype(r);
 		static_assert(models::View<R>);
 		static_assert(models::SizedRange<R>);

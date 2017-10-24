@@ -50,7 +50,7 @@ test()
 	CHECK(res1 == Iter(ia + n));
 	CHECK(f.i_ == 5);
 
-	auto rng = stl2::ext::make_range(Iter(ia), Sent(ia + n));
+	auto rng = stl2::ext::subrange(Iter(ia), Sent(ia + n));
 	auto res2 = stl2::generate(rng, std::ref(f));
 	CHECK(ia[0] == 5);
 	CHECK(ia[1] == 6);
@@ -72,7 +72,7 @@ void test2()
 {
 	// Test stl2::generate with a genuine output range
 	std::vector<int> v;
-	auto rng = stl2::ext::make_range(
+	auto rng = stl2::ext::subrange(
 		stl2::make_counted_iterator(stl2::back_inserter(v), 5),
 		stl2::default_sentinel{});
 	stl2::generate(rng, gen_test(1));

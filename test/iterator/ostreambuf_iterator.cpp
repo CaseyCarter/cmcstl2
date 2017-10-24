@@ -43,7 +43,7 @@ int main() {
 
 	{
 		static const char hw[] = "Hello, world!";
-		auto hw_range = ext::make_range(__stl2::begin(hw), __stl2::end(hw) - 1);
+		auto hw_range = ext::subrange(__stl2::begin(hw), __stl2::end(hw) - 1);
 		std::ostringstream os;
 		auto r = ::copy(hw_range, I{os});
 		CHECK(r.out() != default_sentinel{});

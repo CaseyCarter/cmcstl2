@@ -37,6 +37,6 @@
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/range/primitives.hpp>
-#include <stl2/detail/range/range.hpp>
+#include <stl2/view/subrange.hpp>
 
 #endif

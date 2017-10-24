@@ -354,9 +354,10 @@ void test_fl() {
 	static_assert(stl2::models::ForwardRange<Rng>);
 	static_assert(stl2::models::Common<S, I>);
 	static_assert(stl2::models::Same<stl2::common_type_t<S, I>, I>);
-	static_assert(stl2::models::Same<
-		stl2::ext::range<I, I>,
-		decltype(stl2::ext::make_bounded_range(list.begin(), list.end()))>);
+	// TODO replace with view::bounded:
+	// static_assert(stl2::models::Same<
+	// 	stl2::ext::subrange<I, I>,
+	// 	decltype(stl2::ext::make_bounded_range(list.begin(), list.end()))>);
 	std::cout << list << '\n';
 	*stl2::front_inserter(list) = 3.14;
 	std::cout << list << '\n';

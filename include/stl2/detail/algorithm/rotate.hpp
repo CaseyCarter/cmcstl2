@@ -30,7 +30,7 @@
 #include <stl2/detail/algorithm/swap_ranges.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
-#include <stl2/detail/range/range.hpp>
+#include <stl2/view/subrange.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // rotate [alg.rotate]
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 	requires
 		Permutable<I>
-	ext::range<I> __rotate_left(I first, I last)
+	ext::subrange<I> __rotate_left(I first, I last)
 	{
 		value_type_t<I> tmp = __stl2::iter_move(first);
 		I lm1 = __stl2::move(__stl2::next(first), last, first).second;
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 	template <BidirectionalIterator I>
 	requires
 		Permutable<I>
-	ext::range<I> __rotate_right(I first, I last)
+	ext::subrange<I> __rotate_right(I first, I last)
 	{
 		I lm1 = __stl2::prev(last);
 		value_type_t<I> tmp = __stl2::iter_move(lm1);
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <Permutable I, Sentinel<I> S>
-	ext::range<I> __rotate_forward(I first, I middle, S last)
+	ext::subrange<I> __rotate_forward(I first, I middle, S last)
 	{
 		I i = middle;
 		while (true) {
@@ -105,7 +105,7 @@ STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I>
 	requires
 		Permutable<I>
-	ext::range<I> __rotate_gcd(I first, I middle, I last)
+	ext::subrange<I> __rotate_gcd(I first, I middle, I last)
 	{
 		using D = difference_type_t<I>;
 		D const m1 = middle - first;
@@ -136,14 +136,14 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <Permutable I, Sentinel<I> S>
-	ext::range<I> __rotate(I first, I middle, S last)
+	ext::subrange<I> __rotate(I first, I middle, S last)
 	{
 		return __stl2::__rotate_forward(
 			std::move(first), std::move(middle), std::move(last));
 	}
 
 	Permutable{I}
-	ext::range<I> __rotate(I first, I middle, I last)
+	ext::subrange<I> __rotate(I first, I middle, I last)
 	{
 		if (is_trivially_move_assignable<value_type_t<I>>()) {
 			if (__stl2::next(first) == middle) {
@@ -156,7 +156,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <BidirectionalIterator I>
 	requires Permutable<I>
-	ext::range<I> __rotate(I first, I middle, I last)
+	ext::subrange<I> __rotate(I first, I middle, I last)
 	{
 		if (is_trivially_move_assignable<value_type_t<I>>()) {
 			if (__stl2::next(first) == middle) {
@@ -172,7 +172,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <RandomAccessIterator I>
 	requires Permutable<I>
-	ext::range<I> __rotate(I first, I middle, I last)
+	ext::subrange<I> __rotate(I first, I middle, I last)
 	{
 		if (is_trivially_move_assignable<value_type_t<I>>()) {
 			if (__stl2::next(first) == middle) {
@@ -189,7 +189,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <Permutable I, Sentinel<I> S>
-	ext::range<I> rotate(I first, I middle, S last)
+	ext::subrange<I> rotate(I first, I middle, S last)
 	{
 		if (first == middle) {
 			first = __stl2::next(std::move(first), std::move(last));
@@ -205,9 +205,11 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng>
 	requires
 		Permutable<iterator_t<Rng>>
-	ext::range<safe_iterator_t<Rng>> rotate(Rng&& rng, iterator_t<Rng> middle)
+	tagged_pair<tag::begin(safe_iterator_t<Rng>), tag::end(safe_iterator_t<Rng>)>
+	rotate(Rng&& rng, iterator_t<Rng> middle)
 	{
-		return __stl2::rotate(__stl2::begin(rng), std::move(middle), __stl2::end(rng));
+		auto [b,e] = __stl2::rotate(__stl2::begin(rng), std::move(middle), __stl2::end(rng));
+		return {b, e};
 	}
 } STL2_CLOSE_NAMESPACE
 
