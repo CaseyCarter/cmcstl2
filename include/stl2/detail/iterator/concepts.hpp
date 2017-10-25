@@ -681,8 +681,8 @@ STL2_OPEN_NAMESPACE {
 		concept bool ContiguousIterator =
 			RandomAccessIterator<I> &&
 			DerivedFrom<iterator_category_t<I>, contiguous_iterator_tag> &&
-			_Is<reference_t<I>, is_reference> &&
-			Same<value_type_t<I>, decay_t<reference_t<I>>>;
+			_Is<reference_t<I>, is_lvalue_reference> &&
+			Same<value_type_t<I>, __uncvref<reference_t<I>>>;
 	}
 
 	namespace models {

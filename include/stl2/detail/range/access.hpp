@@ -13,6 +13,7 @@
 #define STL2_DETAIL_RANGE_ACCESS_HPP
 
 #include <initializer_list>
+#include <string>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -529,6 +530,14 @@ STL2_OPEN_NAMESPACE {
 			{
 				auto i = __stl2::begin(r);
 				return i == __stl2::end(r) ? nullptr : detail::addressof(*i);
+			}
+
+			// Extension: return pointer-to-mutable for string even before C++17.
+			template <class CharT, class Traits>
+			CharT* operator()(std::basic_string<CharT, Traits>& str) const
+			noexcept(noexcept(str.data()))
+			{
+				return const_cast<CharT*>(str.data());
 			}
 
 			template <class R>

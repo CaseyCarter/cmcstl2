@@ -98,8 +98,8 @@ STL2_OPEN_NAMESPACE {
 	struct __common_type2<T, U> : __builtin_common<T, U> {};
 
 	template <_Decayed T, _Decayed U>
-		requires requires { typename __cond<T, U>; }
-	struct __common_type2<T, U> : meta::id<decay_t<__cond<T, U>>> {};
+		requires requires { typename std::common_type_t<T, U>; }
+	struct __common_type2<T, U> : std::common_type<T, U> {};
 
 	template <class T, class U>
 	struct common_type<T, U> : __common_type2<T, U> {};
