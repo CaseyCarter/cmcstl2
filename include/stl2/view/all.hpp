@@ -16,12 +16,13 @@
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/subrange.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace view {
 		namespace __all {
-			struct fn {
+			struct fn : detail::__pipeable<fn> {
 				template <Range Rng>
 				requires View<__f<Rng>>
 				constexpr __f<Rng> operator()(Rng&& rng) const
@@ -31,10 +32,6 @@ STL2_OPEN_NAMESPACE {
 				requires std::is_lvalue_reference_v<Rng> && !View<std::decay_t<Rng>>
 				constexpr auto operator()(Rng&& rng) const
 				{ return ext::subrange{rng}; }
-
-				template <ext::ViewableRange Rng>
-				friend constexpr decltype(auto) operator|(Rng&& rng, fn all)
-				{ return all(std::forward<Rng>(rng)); }
 			};
 		}
 
