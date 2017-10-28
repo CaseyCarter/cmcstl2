@@ -212,10 +212,7 @@ STL2_OPEN_NAMESPACE {
 				return tmp;
 			}
 			constexpr subrange& advance(difference_type_t<I> n) {
-				auto b = begin();
-				auto count = n - __stl2::advance(b, n, end());
-				std::get<0>(rng_.rng_) = b;
-				size_ -= count;
+				size_ -= n - __stl2::advance(std::get<0>(rng_.rng_), n, end());
 				return *this;
 			}
 		};
