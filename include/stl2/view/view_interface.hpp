@@ -43,18 +43,25 @@ STL2_OPEN_NAMESPACE {
 		concept bool ContainerConvertible = InputRange<R> && ForwardRange<C> && !View<C> &&
 			ConvertibleTo<reference_t<iterator_t<R>>, value_type_t<iterator_t<C>>> &&
 			Constructible<C, ext::__range_common_iterator<R>, ext::__range_common_iterator<R>>;
+
+		template <Range R>
+		constexpr bool is_in_range(R& r, difference_type_t<iterator_t<R>> n) noexcept {
+			return 0 <= n;
+		}
+
+		template <SizedRange R>
+		constexpr bool is_in_range(R& r, difference_type_t<iterator_t<R>> n)
+			noexcept(noexcept(__stl2::size(r)))
+		{
+			auto sz = __stl2::size(r);
+			using T = std::make_unsigned_t<common_type_t<
+				difference_type_t<iterator_t<R>>,
+				decltype(sz)>>;
+			return static_cast<T>(n) < static_cast<T>(sz);
+		}
 	}
 
 	namespace ext {
-		// \expos
-		template <class Rng, class Cont>
-		concept bool _ConvertibleToContainer =
-			Range<Cont> &&
-			!View<Cont> &&
-			MoveConstructible<Cont> &&
-			ConvertibleTo<value_type_t<iterator_t<Rng>>, value_type_t<iterator_t<Cont>>> &&
-			Constructible<Cont, __range_common_iterator<Rng>, __range_common_iterator<Rng>>;
-
 		template <class D>
 		requires std::is_class_v<D>
 		class view_interface : public view_base {
@@ -69,57 +76,80 @@ STL2_OPEN_NAMESPACE {
 			}
 		public:
 			constexpr bool empty() const requires ForwardRange<const D> {
-				return __stl2::begin(derived()) == __stl2::end(derived());
+				auto& d = derived();
+				return __stl2::begin(d) == __stl2::end(d);
 			}
 			constexpr explicit operator bool() const
 			// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82740
 			requires detail::CanEmpty<const D> {
 				return !__stl2::empty(derived());
 			}
+			template <RandomAccessRange R = const D>
+			requires std::is_pointer_v<iterator_t<R>>
+			constexpr auto data() const {
+				return __stl2::begin(derived());
+			}
 			constexpr auto size() const
 			// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 			requires detail::SizedSentinelForwardRange<const D> {
-				return __stl2::end(derived()) - __stl2::begin(derived());
+				auto& d = derived();
+				return __stl2::end(d) - __stl2::begin(d);
 			}
 			constexpr decltype(auto) front() requires ForwardRange<D> {
-				return *__stl2::begin(derived());
+				auto& d = derived();
+				const auto first = __stl2::begin(d);
+				STL2_EXPECT(first != __stl2::end(d));
+				return *first;
 			}
 			constexpr decltype(auto) front() const requires ForwardRange<const D> {
-				return *__stl2::begin(derived());
+				auto& d = derived();
+				const auto first = __stl2::begin(d);
+				STL2_EXPECT(first != __stl2::end(d));
+				return *first;
 			}
 			constexpr decltype(auto) back()
 			requires BidirectionalRange<D> && BoundedRange<D> {
-				return *__stl2::prev(__stl2::end(derived()));
+				auto& d = derived();
+				auto last = __stl2::end(d);
+				STL2_EXPECT(__stl2::begin(d) != last);
+				return *--last;
 			}
 			constexpr decltype(auto) back() const
 			requires BidirectionalRange<const D> && BoundedRange<const D> {
-				return *__stl2::prev(__stl2::end(derived()));
+				auto& d = derived();
+				auto last = __stl2::end(d);
+				STL2_EXPECT(__stl2::begin(d) != last);
+				return *--last;
 			}
 			template <RandomAccessRange R = D>
 			constexpr decltype(auto) operator[](difference_type_t<iterator_t<R>> n) {
 				auto& d = derived();
-				STL2_EXPECT(!models::SizedRange<R> || n < __stl2::distance(d));
+				STL2_EXPECT(detail::is_in_range(d, n));
 				return __stl2::begin(d)[n];
 			}
 			template <RandomAccessRange R = const D>
 			constexpr decltype(auto) operator[](difference_type_t<iterator_t<R>> n) const {
 				auto& d = derived();
-				STL2_EXPECT(!models::SizedRange<R> || n < __stl2::distance(d));
+				STL2_EXPECT(detail::is_in_range(d, n));
 				return __stl2::begin(d)[n];
 			}
 			template <RandomAccessRange R = D>
 			requires SizedRange<R>
 			constexpr decltype(auto) at(difference_type_t<iterator_t<R>> n) {
-				return n < 0 || n >= __stl2::size(derived())
-					? throw std::out_of_range{}
-					: derived()[n];
+				auto& d = derived();
+				if (!detail::is_in_range(d, n)) {
+					throw std::out_of_range{};
+				}
+				return d[n];
 			}
 			template <RandomAccessRange R = const D>
 			requires SizedRange<R>
 			constexpr decltype(auto) at(difference_type_t<iterator_t<R>> n) const {
-				return n < 0 || n >= __stl2::size(derived())
-					? throw std::out_of_range{}
-					: derived()[n];
+				auto& d = derived();
+				if (!detail::is_in_range(d, n)) {
+					throw std::out_of_range{};
+				}
+				return d[n];
 			}
 			// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 			template <detail::ContainerConvertible<const D> C>
