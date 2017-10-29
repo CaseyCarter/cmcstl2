@@ -34,6 +34,11 @@ STL2_OPEN_NAMESPACE {
 			constexpr bounded_view(Rng rng)
 			: rng_(std::move(rng)) {}
 
+			template <ViewableRange O>
+			requires !BoundedRange<O> && _ConstructibleFromRange<Rng, O>
+			constexpr bounded_view(O&& o)
+			: rng_(view::all(std::forward<O>(o))) {}
+
 			constexpr Rng base() const { return rng_; }
 
 			constexpr auto begin()
@@ -67,6 +72,10 @@ STL2_OPEN_NAMESPACE {
 			constexpr auto size() const requires SizedRange<const Rng>
 			{ return __stl2::size(rng_); }
 		};
+
+		template <ViewableRange O>
+		requires !BoundedRange<O>
+		bounded_view(O&&) -> bounded_view<all_view<O>>;
 	} // namespace ext
 
 	namespace view {
@@ -79,9 +88,7 @@ STL2_OPEN_NAMESPACE {
 
 				template <ext::ViewableRange R>
 				constexpr auto operator()(R&& r) const
-				{
-					return ext::bounded_view{view::all(std::forward<R>(r))};
-				}
+				{ return ext::bounded_view{std::forward<R>(r)}; }
 			};
 		} // namespace __bounded
 

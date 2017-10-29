@@ -42,6 +42,11 @@ STL2_OPEN_NAMESPACE {
 		template <ViewableRange Rng>
 		using all_view = decltype(view::all(std::declval<Rng>()));
 	}
+
+	// Work-around for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
+	template <class V, class R>
+	concept bool _ConstructibleFromRange =
+		View<V> && ext::ViewableRange<R> && Constructible<V, ext::all_view<R>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

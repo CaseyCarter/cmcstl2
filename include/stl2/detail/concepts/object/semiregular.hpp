@@ -31,10 +31,10 @@ STL2_OPEN_NAMESPACE {
 		MoveConstructible<T> &&
 		Constructible<T, T&> &&
 		Constructible<T, const T&> &&
-		Constructible<T, const T&&> &&
+		Constructible<T, const T> &&
 		ConvertibleTo<T&, T> &&
 		ConvertibleTo<const T&, T> &&
-		ConvertibleTo<const T&&, T>;
+		ConvertibleTo<const T, T>;
 
 	namespace models {
 		template <class>

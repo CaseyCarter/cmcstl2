@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 			: base_(std::move(base)), pred_(std::move(pred)) {}
 
 			template <InputRange O>
-			requires ext::ViewableRange<O> && Constructible<R, all_view<O>>
+			requires ext::ViewableRange<O> && _ConstructibleFromRange<R, O>
 			constexpr filter_view(O&& o, Pred pred)
 			: base_(view::all(std::forward<O>(o))), pred_(std::move(pred)) {}
 

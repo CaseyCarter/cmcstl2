@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 			: base_(std::move(base)) {}
 
 			template <InputRange O>
-			requires ext::ViewableRange<O> && Constructible<Rng, all_view<O>>
+			requires ext::ViewableRange<O> && _ConstructibleFromRange<Rng, O>
 			constexpr explicit join_view(O&& o)
 			: base_(view::all(std::forward<O>(o))) {}
 

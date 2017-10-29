@@ -52,14 +52,14 @@ STL2_OPEN_NAMESPACE {
 
 			template <InputRange O, ForwardRange P>
 			requires ext::ViewableRange<O> && ext::ViewableRange<P> &&
-				Constructible<Rng, all_view<O>> &&
-				Constructible<Pattern, all_view<P>>
+				_ConstructibleFromRange<Rng, O> &&
+				_ConstructibleFromRange<Pattern, P>
 			constexpr split_view(O&& o, P&& p)
 			: split_view{view::all(std::forward<O>(o)), view::all(std::forward<P>(p))} {}
 
 			template <InputRange O>
 			requires ext::ViewableRange<O> &&
-				Constructible<Rng, all_view<O>> &&
+				_ConstructibleFromRange<Rng, O> &&
 				Constructible<Pattern, single_view<value_type_t<iterator_t<O>>>>
 			constexpr split_view(O&& o, value_type_t<iterator_t<O>> e)
 			: split_view{view::all(std::forward<O>(o)), single_view{std::move(e)}} {}

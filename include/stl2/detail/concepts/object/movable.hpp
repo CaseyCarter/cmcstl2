@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	concept bool Movable =
 		ext::Object<T> &&
 		MoveConstructible<T> &&
-		Assignable<T&, T&&> &&
+		Assignable<T&, T> &&
 		Swappable<T>;
 
 	namespace models {
