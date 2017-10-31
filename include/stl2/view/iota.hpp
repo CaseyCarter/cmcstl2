@@ -70,9 +70,7 @@ STL2_OPEN_NAMESPACE {
 			requires (Same<I, Bound> && ext::RandomAccessIncrementable<I>) ||
 				(Integral<I> && Integral<Bound>) ||
 				SizedSentinel<Bound, I>
-			{
-				return bound_ - value_;
-			}
+			{ return bound_ - value_; }
 		};
 
 		template <WeaklyIncrementable I>
