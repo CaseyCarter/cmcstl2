@@ -24,201 +24,187 @@
 #include <tuple>
 
 STL2_OPEN_NAMESPACE {
-	// __uncvref here is needed because of a libstdc++ bug.
 	template <class T>
 	concept bool _PairLike =
-		meta::Integral<std::tuple_size<__uncvref<T>>> &&
-		std::tuple_size<__uncvref<T>>::value == 2 &&
-		meta::Trait<std::tuple_element<0, __uncvref<T>>> &&
-		meta::Trait<std::tuple_element<1, __uncvref<T>>>;
+		meta::Integral<std::tuple_size<T>> &&
+		std::tuple_size<T>::value == 2 &&
+		meta::Trait<std::tuple_element<0, T>> &&
+		meta::Trait<std::tuple_element<1, T>> &&
+		requires(T t) {
+			{ std::get<0>(t) } -> const meta::_t<std::tuple_element<0, T>>&;
+			{ std::get<1>(t) } -> const meta::_t<std::tuple_element<1, T>>&;
+		};
 
 	template <class T, class U, class V>
 	concept bool _PairLikeConvertibleTo =
-		_PairLike<T> && !Range<T> &&
-		ConvertibleTo<meta::_t<std::tuple_element<0, __uncvref<T>>>, U> &&
-		ConvertibleTo<meta::_t<std::tuple_element<1, __uncvref<T>>>, V>;
+		!Range<T> && _PairLike<__uncvref<T>> &&
+		requires(T&& t) {
+			{ std::get<0>(static_cast<T&&>(t)) } -> ConvertibleTo<U>;
+			{ std::get<1>(static_cast<T&&>(t)) } -> ConvertibleTo<V>;
+		};
 
 	template <class T, class U, class V>
 	concept bool _PairLikeConvertibleFrom =
-		_PairLike<T> && !Range<T> &&
-		Constructible<T, U, V> &&
-		ConvertibleTo<U, meta::_t<std::tuple_element<0, __uncvref<T>>>> &&
-		ConvertibleTo<V, meta::_t<std::tuple_element<1, __uncvref<T>>>>;
+		!Range<T> && Same<T, __uncvref<T>> && _PairLike<T> &&
+		Constructible<T, U, V>;
 
 	template <class T>
 	concept bool _IteratorSentinelPair =
-		_PairLike<T> && !Range<T> &&
+		!Range<T> && Same<T, __uncvref<T>> && _PairLike<T> &&
 		Sentinel<
-			meta::_t<std::tuple_element<1, __uncvref<T>>>,
-			meta::_t<std::tuple_element<0, __uncvref<T>>>>;
+			meta::_t<std::tuple_element<1, T>>,
+			meta::_t<std::tuple_element<0, T>>>;
 
 	namespace ext {
-		template <Iterator I, Sentinel<I> S = I, bool Sized = models::SizedSentinel<S, I>>
-		struct subrange
-		: view_interface<subrange<I, S, Sized>>
+		enum subrange_kind : bool { unsized, sized };
+
+		template <Iterator I, Sentinel<I> S = I,
+			subrange_kind K = static_cast<subrange_kind>(models::SizedSentinel<S, I>)>
+		requires K == subrange_kind::sized || !SizedSentinel<S, I>
+		class subrange
+		: public view_interface<subrange<I, S, K>>
 		{
-		private:
-			std::tuple<I, S> rng_ {};
-			friend subrange<I, S, true>;
+			template <class, class, subrange_kind>
+			friend class subrange;
+
+			static constexpr bool StoreSize =
+				K == subrange_kind::sized && !models::SizedSentinel<S, I>;
+
+			meta::if_c<StoreSize,
+				std::tuple<I, S, difference_type_t<I>>,
+				std::tuple<I, S>> data_;
+
+			constexpr I& first_() noexcept {
+				return std::get<0>(data_);
+			}
+			constexpr const I& first_() const noexcept {
+				return std::get<0>(data_);
+			}
+			constexpr S& last_() noexcept {
+				return std::get<1>(data_);
+			}
+			constexpr const S& last_() const noexcept {
+				return std::get<1>(data_);
+			}
+			constexpr difference_type_t<I>& size_() noexcept requires StoreSize {
+				return std::get<2>(data_);
+			}
+			constexpr const difference_type_t<I>& size_() const noexcept requires StoreSize {
+				return std::get<2>(data_);
+			}
 		public:
 			using iterator = I;
 			using sentinel = S;
 
 			subrange() = default;
 
-			constexpr subrange(I i, S s)
-			: rng_{i, s} {}
-
-			constexpr subrange(I i, S s, difference_type_t<I> n) requires Sized
-			: subrange{i, s} {
-				STL2_EXPECT(n == s - i);
-			}
-
-			template <ConvertibleTo<I> X, ConvertibleTo<S> Y, bool B>
-			constexpr subrange(subrange<X, Y, B> r)
-			: subrange{r.begin(), r.end()} {}
-
-			template <ConvertibleTo<I> X, ConvertibleTo<S> Y, bool B>
-			constexpr subrange(subrange<X, Y, B> r, difference_type_t<I> n)
-			requires __bool<Sized> // strange GCC bug, not yet reported
-			: subrange{r.begin(), r.end(), n} {}
-
-			template <_PairLikeConvertibleTo<I, S> PairLike>
-			constexpr subrange(PairLike r)
-			: subrange{std::get<0>(std::move(r)), std::get<1>(std::move(r))} {}
-
-			template <_PairLikeConvertibleTo<I, S> PairLike>
-			constexpr subrange(PairLike r, difference_type_t<I> n)
-			requires __bool<Sized> // strange GCC bug, not yet reported
-			: subrange{std::get<0>(std::move(r)), std::get<1>(std::move(r)), n} {}
-
-			template <Range R>
-			requires ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
-			constexpr subrange(R& r)
-			: subrange{__stl2::begin(r), __stl2::end(r)} {}
-
-			template <_PairLikeConvertibleFrom<const I&, const S&> PairLike>
-			constexpr operator PairLike() const {
-				return PairLike{begin(), end()};
-			}
-
-			constexpr I begin() const {
-				return std::get<0>(rng_);
-			}
-			constexpr S end() const {
-				return std::get<1>(rng_);
-			}
-			constexpr bool empty() const {
-				return begin() == end();
-			}
-			constexpr explicit operator bool() const {
-				return !empty();
-			}
-			constexpr bool operator!() const {
-				return empty();
-			}
-			constexpr auto size() const requires Sized {
-				return end() - begin();
-			}
-			[[nodiscard]] constexpr subrange next(difference_type_t<I> n = 1) const {
-				auto tmp = *this;
-				tmp.advance(n);
-				return tmp;
-			}
-			[[nodiscard]] constexpr subrange prev(difference_type_t<I> n = 1) const {
-				auto tmp = *this;
-				tmp.advance(-n);
-				return tmp;
-			}
-			constexpr subrange& advance(difference_type_t<I> n) {
-				__stl2::advance(rng_.begin(), n, end());
-				return *this;
-			}
-		};
-
-		template <Iterator I, Sentinel<I> S>
-		requires !SizedSentinel<S, I>
-		struct subrange<I, S, true>
-		: view_interface<subrange<I, S, true>>
-		{
-		private:
-			subrange<I, S> rng_ {};
-			difference_type_t<I> size_ = 0;
-		public:
-			using iterator = I;
-			using sentinel = S;
-
-			subrange() = default;
+			constexpr subrange(I i, S s) requires !StoreSize
+			: data_{std::move(i), std::move(s)} {}
 
 			constexpr subrange(I i, S s, difference_type_t<I> n)
-			: rng_{i, s}, size_{n} {}
+			requires StoreSize
+			: data_{std::move(i), std::move(s), n} {
+				if constexpr (models::RandomAccessIterator<I>) {
+					STL2_ASSERT(first_() + n == last_());
+				}
+			}
+			constexpr subrange(I i, S s, difference_type_t<I> n)
+			requires SizedSentinel<S, I>
+			: data_{std::move(i), std::move(s)} {
+				STL2_ASSERT(last_() - first_() == n);
+			}
+
+			template <ConvertibleTo<I> X, ConvertibleTo<S> Y, subrange_kind Z>
+			requires !StoreSize
+			constexpr subrange(subrange<X, Y, Z> r)
+			: subrange{r.first_(), r.last_()} {}
 
 			template <ConvertibleTo<I> X, ConvertibleTo<S> Y>
-			constexpr subrange(subrange<X, Y, true> r)
-			: subrange{r.begin(), r.end(), r.size()} {}
+			requires StoreSize
+			constexpr subrange(subrange<X, Y, subrange_kind::sized> r)
+			: subrange{r.first_(), r.last_(), r.size()} {}
 
-			template <ConvertibleTo<I> X, ConvertibleTo<S> Y, bool B>
-			constexpr subrange(subrange<X, Y, B> r, difference_type_t<I> n)
-			: subrange{r.begin(), r.end(), n} {
-				if constexpr (B) {
-					STL2_EXPECT(n == r.size());
+			template <ConvertibleTo<I> X, ConvertibleTo<S> Y, subrange_kind Z>
+			requires K == subrange_kind::sized
+			constexpr subrange(subrange<X, Y, Z> r, difference_type_t<I> n)
+			: subrange{r.first_(), r.last_(), n} {
+				if constexpr (Z == subrange_kind::sized) {
+					STL2_ASSERT(n == r.size());
 				}
 			}
 
 			template <_PairLikeConvertibleTo<I, S> PairLike>
-			constexpr subrange(PairLike r, difference_type_t<I> n)
-			: subrange{std::get<0>(std::move(r)), std::get<1>(std::move(r)), n} {}
+			requires !StoreSize
+			constexpr subrange(PairLike&& r)
+			: subrange{std::get<0>(static_cast<PairLike&&>(r)),
+				std::get<1>(static_cast<PairLike&&>(r))}
+			{}
+
+			template <_PairLikeConvertibleTo<I, S> PairLike>
+			requires K == subrange_kind::sized
+			constexpr subrange(PairLike&& r, difference_type_t<I> n)
+			: subrange{std::get<0>(static_cast<PairLike&&>(r)),
+				std::get<1>(static_cast<PairLike&&>(r)), n}
+			{}
+
+			template <Range R>
+			requires !StoreSize &&
+				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
+			constexpr subrange(R& r)
+			: subrange{__stl2::begin(r), __stl2::end(r)} {}
 
 			template <SizedRange R>
-			requires Constructible<subrange<I, S>, R&>
+			requires StoreSize &&
+				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
 			constexpr subrange(R& r)
-			: subrange{__stl2::begin(r), __stl2::end(r), __stl2::size(r)} {}
+			: subrange{__stl2::begin(r), __stl2::end(r), __stl2::distance(r)} {}
 
 			template <_PairLikeConvertibleFrom<const I&, const S&> PairLike>
 			constexpr operator PairLike() const {
-				return PairLike{rng_.begin(), rng_.end()};
+				return PairLike{first_(), last_()};
 			}
 
-			constexpr operator subrange<I, S> const &() const & noexcept {
-				return rng_;
+			constexpr I begin() const noexcept(std::is_nothrow_copy_constructible_v<I>) {
+				return first_();
 			}
-
-			constexpr I begin() const {
-				return rng_.begin();
-			}
-			constexpr S end() const {
-				return rng_.end();
+			constexpr S end() const noexcept(std::is_nothrow_copy_constructible_v<S>) {
+				return last_();
 			}
 			constexpr bool empty() const {
-				return begin() == end();
+				return first_() == last_();
 			}
-			constexpr explicit operator bool() const {
-				return !empty();
+
+			constexpr difference_type_t<I> size() const requires K == subrange_kind::sized {
+				if constexpr (StoreSize) {
+					return size_();
+				} else {
+					return last_() - first_();
+				}
 			}
-			constexpr bool operator!() const {
-				return empty();
-			}
-			constexpr difference_type_t<I> size() const noexcept {
-				return size_;
-			}
-			[[nodiscard]] constexpr subrange next(difference_type_t<I> n = 1) const {
+
+			[[nodiscard]] constexpr subrange next(difference_type_t<I> n = 1) const
+			requires ForwardIterator<I> {
 				auto tmp = *this;
 				tmp.advance(n);
 				return tmp;
 			}
-			[[nodiscard]] constexpr subrange prev(difference_type_t<I> n = 1) const {
+			[[nodiscard]] constexpr subrange prev(difference_type_t<I> n = 1) const
+			requires BidirectionalIterator<I> {
 				auto tmp = *this;
 				tmp.advance(-n);
 				return tmp;
 			}
 			constexpr subrange& advance(difference_type_t<I> n) {
-				size_ -= n - __stl2::advance(std::get<0>(rng_.rng_), n, end());
+				auto remainder = __stl2::advance(first_(), n, last_());
+				if constexpr (StoreSize) {
+					size_() -= n - remainder;
+				}
 				return *this;
 			}
 		};
 
 		template <Iterator I, Sentinel<I> S>
-		using sized_subrange = subrange<I, S, true>;
+		using sized_subrange = subrange<I, S, subrange_kind::sized>;
 
 		template <Range R>
 		using safe_subrange_t =	meta::if_<
@@ -227,7 +213,7 @@ STL2_OPEN_NAMESPACE {
 			tagged_pair<tag::begin(safe_iterator_t<R>), tag::end(safe_iterator_t<R>)>>;
 
 		template <Iterator I, Sentinel<I> S>
-		subrange(I, S, difference_type_t<I>) -> subrange<I, S, true>;
+		subrange(I, S, difference_type_t<I>) -> subrange<I, S, subrange_kind::sized>;
 
 		template <_IteratorSentinelPair P>
 		subrange(P) ->
@@ -235,37 +221,38 @@ STL2_OPEN_NAMESPACE {
 
 		template <_IteratorSentinelPair P>
 		subrange(P, difference_type_t<std::tuple_element_t<0, P>>) ->
-			subrange<std::tuple_element_t<0, P>, std::tuple_element_t<1, P>, true>;
+			subrange<std::tuple_element_t<0, P>, std::tuple_element_t<1, P>, subrange_kind::sized>;
 
-		template <Iterator I, Sentinel<I> S, bool B>
-		subrange(subrange<I, S, B>, difference_type_t<I>) -> subrange<I, S, true>;
+		template <Iterator I, Sentinel<I> S, subrange_kind K>
+		subrange(subrange<I, S, K>, difference_type_t<I>) -> subrange<I, S, subrange_kind::sized>;
 
 		template <Range R>
 		subrange(R&) -> subrange<iterator_t<R>, sentinel_t<R>>;
 
 		template <SizedRange R>
-		subrange(R&) -> subrange<iterator_t<R>, sentinel_t<R>, true>;
+		subrange(R&) -> subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
 
-		template <std::size_t N, class I, class S, bool Sized>
+		template <std::size_t N, class I, class S, subrange_kind K>
 		requires N < 2
-		constexpr auto get(const subrange<I, S, Sized>& r) {
-			if constexpr (N == 0)
+		constexpr auto get(const subrange<I, S, K>& r) {
+			if constexpr (N == 0) {
 				return r.begin();
-			else
+			} else {
 				return r.end();
+			}
 		}
 	}
 } STL2_CLOSE_NAMESPACE
 
 namespace std {
-	template <class I, class S, bool Sized>
-	struct tuple_size<::__stl2::ext::subrange<I, S, Sized>>
+	template <class I, class S, ::__stl2::ext::subrange_kind K>
+	struct tuple_size<::__stl2::ext::subrange<I, S, K>>
 	  : std::integral_constant<size_t, 2> {};
-	template <class I, class S, bool Sized>
-	struct tuple_element<0, ::__stl2::ext::subrange<I, S, Sized>>
+	template <class I, class S, ::__stl2::ext::subrange_kind K>
+	struct tuple_element<0, ::__stl2::ext::subrange<I, S, K>>
 	{ using type = I; };
-	template <class I, class S, bool Sized>
-	struct tuple_element<1, ::__stl2::ext::subrange<I, S, Sized>>
+	template <class I, class S, ::__stl2::ext::subrange_kind K>
+	struct tuple_element<1, ::__stl2::ext::subrange<I, S, K>>
 	{ using type = S; };
 }
 
