@@ -182,8 +182,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			[[nodiscard]] constexpr subrange next(difference_type_t<I> n = 1) const
-			requires ForwardIterator<I> {
+			[[nodiscard]] constexpr subrange next(difference_type_t<I> n = 1) const {
 				auto tmp = *this;
 				tmp.advance(n);
 				return tmp;
