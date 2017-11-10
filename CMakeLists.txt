@@ -22,11 +22,15 @@ target_compile_features(stl2 INTERFACE cxx_std_17)
 target_compile_options(stl2 INTERFACE
     $<$<CXX_COMPILER_ID:GNU>:-fconcepts>)
 
+install(DIRECTORY include/ DESTINATION include)
+install(TARGETS stl2 EXPORT cmcstl2-targets)
+install(EXPORT cmcstl2-targets DESTINATION lib/cmake/cmcstl2)
+file(
+    WRITE ${PROJECT_BINARY_DIR}/cmcstl2-config.cmake
+    "include(\${CMAKE_CURRENT_LIST_DIR}/cmcstl2-targets.cmake)")
 install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-    DESTINATION include)
-install(TARGETS stl2 EXPORT cmcstl2)
-install(EXPORT cmcstl2 DESTINATION cmcstl2)
+    FILES ${PROJECT_BINARY_DIR}/cmcstl2-config.cmake
+    DESTINATION lib/cmake/cmcstl2)
 
 add_subdirectory(examples)
 
