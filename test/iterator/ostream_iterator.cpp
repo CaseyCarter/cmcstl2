@@ -52,7 +52,8 @@ int main() {
 	static_assert(models::Same<I&, decltype(i++)>);
 
 	static_assert(noexcept(I{}));
-#if 1 // workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80633
+#if defined(__GNUC__) && __GNUC__ < 8 || (__GNUC__ == 7 && __GNUC_MINOR__ >= 2)
+	// workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80633
 	static_assert(noexcept(I{std::declval<decltype((ss))>()}));
 	static_assert(noexcept(I{std::declval<decltype((ss))>(), "some text"}));
 #else
