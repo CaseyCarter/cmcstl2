@@ -223,9 +223,6 @@ STL2_OPEN_NAMESPACE {
 		__stl2::Common{T, U}
 		constexpr bool Common<T, U> = true;
 	}
-
-	template <typename T>
-	constexpr auto is_lvalue_reference_v = is_lvalue_reference<T>::value;
 } STL2_CLOSE_NAMESPACE
 
 #endif

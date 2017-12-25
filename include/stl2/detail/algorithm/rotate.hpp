@@ -203,8 +203,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <ForwardRange Rng>
-	requires
-		Permutable<iterator_t<Rng>>
+	requires Permutable<iterator_t<Rng>>
 	ext::safe_subrange_t<Rng> rotate(Rng&& rng, iterator_t<Rng> middle)
 	{
 		return __stl2::rotate(__stl2::begin(rng), std::move(middle), __stl2::end(rng));
