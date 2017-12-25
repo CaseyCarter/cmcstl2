@@ -100,7 +100,7 @@ int main()
 		}
 		{
 			std::fill_n(buf, sizeof(buf), '\0');
-			auto res4 = ranges::copy(std::move(str), buf);
+			auto res4 = ranges::copy(unref_view{str}, buf);
 			*res4.second = '\0';
 			CHECK(res4.first.get_unsafe() == std::next(begin(str), std::strlen(sz)));
 			CHECK(res4.second == buf + std::strlen(sz));

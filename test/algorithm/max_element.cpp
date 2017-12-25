@@ -54,7 +54,7 @@ test_iter(Iter first, Sent last)
 	else
 		CHECK(i == last);
 
-	auto j = stl2::max_element(std::move(rng));
+	auto j = stl2::max_element(unref_view{rng});
 	if (first != last)
 	{
 		for (Iter k = first; k != last; ++k)
@@ -109,7 +109,7 @@ test_iter_comp(Iter first, Sent last)
 	else
 		CHECK(i == last);
 
-	auto res = stl2::max_element(std::move(rng), std::greater<int>());
+	auto res = stl2::max_element(unref_view{rng}, std::greater<int>());
 	if (first != last)
 	{
 		for (Iter j = first; j != last; ++j)

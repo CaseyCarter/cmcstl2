@@ -12,28 +12,29 @@
 #ifndef STL2_VIEW_ITERATOR_RANGE_HPP
 #define STL2_VIEW_ITERATOR_RANGE_HPP
 
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/range/access.hpp>
-#include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/iterator/dangling.hpp>
-#include <stl2/view/view_interface.hpp>
-#include <stl2/detail/algorithm/tagspec.hpp>
-#include <stl2/utility.hpp>
-
 #include <tuple>
+#include <stl2/utility.hpp>
+#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/tagspec.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/iterator/dangling.hpp>
+#include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/primitives.hpp>
+#include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
 	template <class T>
-	concept bool _PairLike =
-		meta::Integral<std::tuple_size<T>> &&
-		std::tuple_size<T>::value == 2 &&
-		meta::Trait<std::tuple_element<0, T>> &&
-		meta::Trait<std::tuple_element<1, T>> &&
-		requires(T t) {
-			{ std::get<0>(t) } -> const meta::_t<std::tuple_element<0, T>>&;
-			{ std::get<1>(t) } -> const meta::_t<std::tuple_element<1, T>>&;
-		};
+	concept bool _PairLike = requires(T t) {
+		typename std::tuple_size<T>;
+		requires meta::Integral<std::tuple_size<T>>;
+		requires std::tuple_size<T>::value == 2;
+		typename std::tuple_element<0, T>;
+		typename std::tuple_element<1, T>;
+		requires meta::Trait<std::tuple_element<0, T>>;
+		requires meta::Trait<std::tuple_element<1, T>>;
+		{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
+		{ std::get<1>(t) } -> const std::tuple_element_t<1, T>&;
+	};
 
 	template <class T, class U, class V>
 	concept bool _PairLikeConvertibleTo =
@@ -51,9 +52,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T>
 	concept bool _IteratorSentinelPair =
 		!Range<T> && Same<T, __uncvref<T>> && _PairLike<T> &&
-		Sentinel<
-			meta::_t<std::tuple_element<1, T>>,
-			meta::_t<std::tuple_element<0, T>>>;
+		Sentinel<std::tuple_element_t<1, T>, std::tuple_element_t<0, T>>;
 
 	namespace ext {
 		enum subrange_kind : bool { unsized, sized };
@@ -64,9 +63,6 @@ STL2_OPEN_NAMESPACE {
 		class subrange
 		: public view_interface<subrange<I, S, K>>
 		{
-			template <class, class, subrange_kind>
-			friend class subrange;
-
 			static constexpr bool StoreSize =
 				K == subrange_kind::sized && !models::SizedSentinel<S, I>;
 
@@ -105,31 +101,37 @@ STL2_OPEN_NAMESPACE {
 			requires StoreSize
 			: data_{std::move(i), std::move(s), n} {
 				if constexpr (models::RandomAccessIterator<I>) {
-					STL2_ASSERT(first_() + n == last_());
+					STL2_EXPECT(first_() + n == last_());
 				}
 			}
 			constexpr subrange(I i, S s, difference_type_t<I> n)
 			requires SizedSentinel<S, I>
 			: data_{std::move(i), std::move(s)} {
-				STL2_ASSERT(last_() - first_() == n);
+				STL2_EXPECT(last_() - first_() == n);
 			}
 
-			template <ConvertibleTo<I> X, ConvertibleTo<S> Y, subrange_kind Z>
-			requires !StoreSize
-			constexpr subrange(subrange<X, Y, Z> r)
-			: subrange{r.first_(), r.last_()} {}
+			// Not to spec
+			template <ReferenceableRange R>
+			requires !StoreSize &&
+				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
+			constexpr subrange(R&& r)
+			: subrange{__stl2::begin(r), __stl2::end(r)} {}
 
-			template <ConvertibleTo<I> X, ConvertibleTo<S> Y>
-			requires StoreSize
-			constexpr subrange(subrange<X, Y, subrange_kind::sized> r)
-			: subrange{r.first_(), r.last_(), r.size()} {}
+			// Not to spec
+			template <ReferenceableRange R>
+			requires StoreSize && SizedRange<R> &&
+				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
+			constexpr subrange(R&& r)
+			: subrange{__stl2::begin(r), __stl2::end(r), __stl2::distance(r)} {}
 
-			template <ConvertibleTo<I> X, ConvertibleTo<S> Y, subrange_kind Z>
-			requires K == subrange_kind::sized
-			constexpr subrange(subrange<X, Y, Z> r, difference_type_t<I> n)
-			: subrange{r.first_(), r.last_(), n} {
-				if constexpr (Z == subrange_kind::sized) {
-					STL2_ASSERT(n == r.size());
+			// Not to spec
+			template <ReferenceableRange R>
+			requires K == subrange_kind::sized &&
+				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
+			constexpr subrange(R&& r, difference_type_t<I> n)
+			: subrange{__stl2::begin(r), __stl2::end(r), n} {
+				if constexpr (SizedRange<R>) {
+					STL2_EXPECT(n == __stl2::distance(r));
 				}
 			}
 
@@ -147,21 +149,9 @@ STL2_OPEN_NAMESPACE {
 				std::get<1>(static_cast<PairLike&&>(r)), n}
 			{}
 
-			template <Range R>
-			requires !StoreSize &&
-				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
-			constexpr subrange(R& r)
-			: subrange{__stl2::begin(r), __stl2::end(r)} {}
-
-			template <SizedRange R>
-			requires StoreSize &&
-				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
-			constexpr subrange(R& r)
-			: subrange{__stl2::begin(r), __stl2::end(r), __stl2::distance(r)} {}
-
 			template <_PairLikeConvertibleFrom<const I&, const S&> PairLike>
 			constexpr operator PairLike() const {
-				return PairLike{first_(), last_()};
+				return PairLike(first_(), last_());
 			}
 
 			constexpr I begin() const noexcept(std::is_nothrow_copy_constructible_v<I>) {
@@ -195,21 +185,13 @@ STL2_OPEN_NAMESPACE {
 			}
 			constexpr subrange& advance(difference_type_t<I> n) {
 				auto remainder = __stl2::advance(first_(), n, last_());
+				(void)remainder;
 				if constexpr (StoreSize) {
 					size_() -= n - remainder;
 				}
 				return *this;
 			}
 		};
-
-		template <Iterator I, Sentinel<I> S>
-		using sized_subrange = subrange<I, S, subrange_kind::sized>;
-
-		template <Range R>
-		using safe_subrange_t =	meta::if_<
-			std::is_lvalue_reference<R>,
-			ext::subrange<iterator_t<R>>,
-			tagged_pair<tag::begin(safe_iterator_t<R>), tag::end(safe_iterator_t<R>)>>;
 
 		template <Iterator I, Sentinel<I> S>
 		subrange(I, S, difference_type_t<I>) -> subrange<I, S, subrange_kind::sized>;
@@ -222,14 +204,23 @@ STL2_OPEN_NAMESPACE {
 		subrange(P, difference_type_t<std::tuple_element_t<0, P>>) ->
 			subrange<std::tuple_element_t<0, P>, std::tuple_element_t<1, P>, subrange_kind::sized>;
 
-		template <Iterator I, Sentinel<I> S, subrange_kind K>
-		subrange(subrange<I, S, K>, difference_type_t<I>) -> subrange<I, S, subrange_kind::sized>;
+		// Not to spec
+		template <ReferenceableRange R>
+		subrange(R&&) -> subrange<iterator_t<R>, sentinel_t<R>>;
 
-		template <Range R>
-		subrange(R&) -> subrange<iterator_t<R>, sentinel_t<R>>;
+		// Not to spec
+		template <ReferenceableRange R>
+		requires SizedRange<R>
+		subrange(R&&) -> subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
 
-		template <SizedRange R>
-		subrange(R&) -> subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
+		// Not to spec
+		template <ReferenceableRange R>
+		subrange(R&&, difference_type_t<iterator_t<R>>) ->
+			subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
+
+		// Not to spec
+		template <Iterator I, Sentinel<I> S = I>
+		using sized_subrange = subrange<I, S, subrange_kind::sized>;
 
 		template <std::size_t N, class I, class S, subrange_kind K>
 		requires N < 2
@@ -240,6 +231,14 @@ STL2_OPEN_NAMESPACE {
 				return r.end();
 			}
 		}
+
+		// Not to spec
+		template <class I, class S, subrange_kind K>
+		inline constexpr bool is_referenceable_range<subrange<I, S, K>> = true;
+
+		// Not to spec
+		template <Range R>
+		using safe_subrange_t =	__maybe_dangling<R, subrange<iterator_t<R>>>;
 	}
 } STL2_CLOSE_NAMESPACE
 

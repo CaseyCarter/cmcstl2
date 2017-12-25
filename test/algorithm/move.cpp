@@ -53,7 +53,7 @@ test()
 			ia[i] = i;
 		int ib[N] = {0};
 
-		std::pair<InIter, OutIter> r = stl2::move(as_lvalue(stl2::ext::subrange(InIter(ia), Sent(ia+N))), OutIter(ib));
+		std::pair<InIter, OutIter> r = stl2::move(stl2::ext::subrange(InIter(ia), Sent(ia+N)), OutIter(ib));
 		CHECK(base(r.first) == ia+N);
 		CHECK(base(r.second) == ib+N);
 		for(int i = 0; i < N; ++i)
@@ -94,7 +94,7 @@ test1()
 			ia[i].reset(new int(i));
 		std::unique_ptr<int> ib[N];
 
-		std::pair<InIter, OutIter> r = stl2::move(as_lvalue(stl2::ext::subrange(InIter(ia), Sent(ia+N))), OutIter(ib));
+		std::pair<InIter, OutIter> r = stl2::move(stl2::ext::subrange(InIter(ia), Sent(ia+N)), OutIter(ib));
 		CHECK(base(r.first) == ia+N);
 		CHECK(base(r.second) == ib+N);
 		for(int i = 0; i < N; ++i)
@@ -105,7 +105,7 @@ test1()
 
 		stl2::move(ib, ib+N, ia);
 
-		auto r2 = stl2::move(stl2::ext::subrange(InIter(ia), Sent(ia+N)), OutIter(ib));
+		auto r2 = stl2::move(unref_view{stl2::ext::subrange(InIter(ia), Sent(ia+N))}, OutIter(ib));
 		CHECK(base(r2.first.get_unsafe()) == ia+N);
 		CHECK(base(r2.second) == ib+N);
 		for(int i = 0; i < N; ++i)

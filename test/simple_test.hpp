@@ -18,10 +18,61 @@
 
 #if VALIDATE_RANGES
 #include <range/v3/begin_end.hpp>
+#include <range/v3/view/all.hpp>
 namespace NS = ::ranges;
+
+template <class Rng>
+struct not_ref_view : ranges::ref_view<Rng> {
+	using ranges::ref_view::ref_view;
+};
 #else
 #include <stl2/iterator.hpp>
+#include <stl2/view/ref.hpp>
+#include <stl2/view/view_interface.hpp>
+
 namespace NS = ::__stl2;
+
+template<__stl2::View Rng>
+struct unref_view : __stl2::ext::view_interface<unref_view<Rng>> {
+private:
+	Rng rng_;
+public:
+	unref_view() = default;
+	explicit unref_view(Rng rng)
+	noexcept(std::is_nothrow_move_constructible_v<Rng>)
+	: rng_{std::move(rng)} {}
+
+	constexpr auto begin()
+	STL2_NOEXCEPT_RETURN(
+		__stl2::begin(rng_)
+	)
+	constexpr auto end()
+	STL2_NOEXCEPT_RETURN(
+		__stl2::end(rng_)
+	)
+
+	constexpr bool empty() const
+	noexcept(noexcept(__stl2::empty(rng_)))
+	requires __stl2::detail::CanEmpty<Rng>
+	{ return __stl2::empty(rng_); }
+
+	constexpr auto size() const
+	noexcept(noexcept(__stl2::size(rng_)))
+	requires __stl2::SizedRange<Rng>
+	{ return __stl2::size(rng_); }
+
+	constexpr auto data() const
+	noexcept(noexcept(__stl2::data(rng_)))
+	requires __stl2::ext::ContiguousRange<Rng>
+	{ return __stl2::data(rng_); }
+};
+
+template<__stl2::Range R>
+unref_view(R&) -> unref_view<__stl2::ext::ref_view<R>>;
+
+template<__stl2::View R>
+unref_view(R) -> unref_view<R>;
+
 #endif
 
 namespace test_impl

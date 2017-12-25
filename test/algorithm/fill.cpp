@@ -49,7 +49,7 @@ test_char()
 	CHECK(ca[3] == 2);
 	CHECK(i == Iter(ca + 4));
 
-	auto j = stl2::fill(stl2::ext::subrange(Iter(ca), Sent(ca+n)), char(3));
+	auto j = stl2::fill(unref_view{rng}, char(3));
 	CHECK(ca[0] == 3);
 	CHECK(ca[1] == 3);
 	CHECK(ca[2] == 3);

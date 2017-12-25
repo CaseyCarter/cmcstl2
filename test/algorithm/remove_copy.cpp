@@ -56,7 +56,7 @@ test_range()
 	int ia[] = {0, 1, 2, 3, 4, 2, 3, 4, 2};
 	constexpr unsigned sa = stl2::size(ia);
 	int ib[sa];
-	std::pair<InIter, OutIter> r = stl2::remove_copy(::as_lvalue(stl2::ext::subrange(InIter(ia), Sent(ia+sa))), OutIter(ib), 2);
+	std::pair<InIter, OutIter> r = stl2::remove_copy(stl2::ext::subrange(InIter(ia), Sent(ia+sa)), OutIter(ib), 2);
 	CHECK(base(r.first) == ia + sa);
 	CHECK(base(r.second) == ib + sa-3);
 	CHECK(ib[0] == 0);
@@ -157,7 +157,7 @@ int main()
 		S ia[] = {S{0}, S{1}, S{2}, S{3}, S{4}, S{2}, S{3}, S{4}, S{2}};
 		constexpr unsigned sa = stl2::size(ia);
 		S ib[sa];
-		auto r = stl2::remove_copy(stl2::move(ia), ib, 2, &S::i);
+		auto r = stl2::remove_copy(std::move(ia), ib, 2, &S::i);
 		CHECK(r.first.get_unsafe() == ia + sa);
 		CHECK(r.second == ib + sa-3);
 		CHECK(ib[0].i == 0);

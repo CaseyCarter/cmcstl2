@@ -29,6 +29,7 @@ STL2_OPEN_NAMESPACE {
 				noexcept(std::is_nothrow_constructible_v<__f<Rng>, Rng>)
 				{ return std::forward<Rng>(rng); }
 
+				// Not to spec: ref_view
 				template <Range Rng>
 				requires !View<std::remove_cv_t<Rng>>
 				constexpr auto operator()(Rng& rng) const noexcept
@@ -47,6 +48,7 @@ STL2_OPEN_NAMESPACE {
 	// Work-around for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 	template <class V, class R>
 	concept bool _ConstructibleFromRange =
+		requires { typename ext::all_view<R>; } &&
 		View<V> && Constructible<V, ext::all_view<R>>;
 } STL2_CLOSE_NAMESPACE
 

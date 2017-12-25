@@ -57,6 +57,9 @@ STL2_OPEN_NAMESPACE {
 			{ return __stl2::data(*rng_); }
 		};
 
+		template <class Rng>
+		inline constexpr bool is_referenceable_range<ref_view<Rng>> = true;
+
 		template <Range Rng>
 		requires !View<std::remove_cv_t<Rng>>
 		constexpr ref_view<Rng> as_view(Rng& rng) noexcept

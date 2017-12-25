@@ -66,7 +66,7 @@ test_iter(Iter first, Sent last)
 		CHECK(p.second == last);
 	}
 
-	auto res = stl2::minmax_element(std::move(rng));
+	auto res = stl2::minmax_element(unref_view{rng});
 	if (first != last)
 	{
 		for (Iter j = first; j != last; ++j)

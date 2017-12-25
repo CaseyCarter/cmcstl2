@@ -43,10 +43,10 @@ test_one(unsigned N, unsigned M)
 	CHECK(stl2::nth_element(array.get(), array.get()+M, array.get()+N) == array.get()+N);
 	CHECK((unsigned)array[M] == M);
 	std::shuffle(array.get(), array.get()+N, gen);
-	CHECK(stl2::nth_element(::as_lvalue(stl2::ext::subrange(array.get(), array.get()+N)), array.get()+M) == array.get()+N);
+	CHECK(stl2::nth_element(stl2::ext::subrange(array.get(), array.get()+N), array.get()+M) == array.get()+N);
 	CHECK((unsigned)array[M] == M);
 	std::shuffle(array.get(), array.get()+N, gen);
-	CHECK(stl2::nth_element(stl2::ext::subrange(array.get(), array.get()+N), array.get()+M).get_unsafe() == array.get()+N);
+	CHECK(stl2::nth_element(unref_view{stl2::ext::subrange(array.get(), array.get()+N)}, array.get()+M).get_unsafe() == array.get()+N);
 	CHECK((unsigned)array[M] == M);
 	stl2::nth_element(array.get(), array.get()+N, array.get()+N); // begin, end, end
 }

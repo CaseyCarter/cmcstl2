@@ -59,7 +59,7 @@ test()
 	CHECK(res2 == Iter(ia + n));
 	CHECK(f.i_ == 9);
 
-	auto res3 = stl2::generate(std::move(rng), std::ref(f));
+	auto res3 = stl2::generate(unref_view{rng}, std::ref(f));
 	CHECK(ia[0] == 9);
 	CHECK(ia[1] == 10);
 	CHECK(ia[2] == 11);
