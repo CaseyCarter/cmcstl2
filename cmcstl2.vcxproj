@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -13,18 +13,19 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{034E2682-53F9-4C36-B2A7-CB2B5ED346AA}</ProjectGuid>
     <RootNamespace>cmcstl2</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -41,11 +42,18 @@
   <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)meta\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>VALIDATE_STL2;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <StringPooling>true</StringPooling>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -53,13 +61,21 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)meta\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>VALIDATE_STL2;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <StringPooling>true</StringPooling>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -141,6 +157,7 @@
     <ClInclude Include="include\stl2\detail\algorithm\reverse_copy.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\rotate.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\rotate_copy.hpp" />
+    <ClInclude Include="include\stl2\detail\algorithm\sample.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\search.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\search_n.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\set_difference.hpp" />
@@ -153,6 +170,7 @@
     <ClInclude Include="include\stl2\detail\algorithm\stable_partition.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\stable_sort.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\swap_ranges.hpp" />
+    <ClInclude Include="include\stl2\detail\algorithm\tagspec.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\transform.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\unique.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\unique_copy.hpp" />
@@ -174,11 +192,13 @@
     <ClInclude Include="include\stl2\detail\concepts\urng.hpp" />
     <ClInclude Include="include\stl2\detail\construct_destruct.hpp" />
     <ClInclude Include="include\stl2\detail\ebo_box.hpp" />
+    <ClInclude Include="include\stl2\detail\functional\comparisons.hpp" />
     <ClInclude Include="include\stl2\detail\functional\invoke.hpp" />
     <ClInclude Include="include\stl2\detail\functional\not_fn.hpp" />
     <ClInclude Include="include\stl2\detail\fwd.hpp" />
     <ClInclude Include="include\stl2\detail\hash.hpp" />
     <ClInclude Include="include\stl2\detail\iostream\concepts.hpp" />
+    <ClInclude Include="include\stl2\detail\iterator\any_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\basic_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\common_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\counted_iterator.hpp" />
@@ -190,11 +210,26 @@
     <ClInclude Include="include\stl2\detail\iterator\ostreambuf_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\ostream_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\unreachable.hpp" />
+    <ClInclude Include="include\stl2\detail\memory\addressof.hpp" />
+    <ClInclude Include="include\stl2\detail\memory\concepts.hpp" />
+    <ClInclude Include="include\stl2\detail\memory\construct_at.hpp" />
+    <ClInclude Include="include\stl2\detail\memory\destroy.hpp" />
+    <ClInclude Include="include\stl2\detail\memory\uninitialized_copy.hpp" />
+    <ClInclude Include="include\stl2\detail\memory\uninitialized_default_construct.hpp" />
+    <ClInclude Include="include\stl2\detail\memory\uninitialized_fill.hpp" />
+    <ClInclude Include="include\stl2\detail\memory\uninitialized_move.hpp" />
+    <ClInclude Include="include\stl2\detail\memory\uninitialized_value_construct.hpp" />
     <ClInclude Include="include\stl2\detail\meta.hpp" />
     <ClInclude Include="include\stl2\detail\operator_arrow.hpp" />
+    <ClInclude Include="include\stl2\detail\randutils.hpp" />
+    <ClInclude Include="include\stl2\detail\range\access.hpp" />
+    <ClInclude Include="include\stl2\detail\range\concepts.hpp" />
+    <ClInclude Include="include\stl2\detail\range\primitives.hpp" />
     <ClInclude Include="include\stl2\detail\range\range.hpp" />
     <ClInclude Include="include\stl2\detail\raw_ptr.hpp" />
     <ClInclude Include="include\stl2\detail\semiregular_box.hpp" />
+    <ClInclude Include="include\stl2\detail\smf_control.hpp" />
+    <ClInclude Include="include\stl2\detail\span.hpp" />
     <ClInclude Include="include\stl2\detail\swap.hpp" />
     <ClInclude Include="include\stl2\detail\tagged.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\concepts.hpp" />
@@ -202,25 +237,28 @@
     <ClInclude Include="include\stl2\detail\iterator\operations.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\reverse_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\iterator\move_iterator.hpp" />
-    <ClInclude Include="include\stl2\detail\range\concepts.hpp" />
-    <ClInclude Include="include\stl2\detail\range\access.hpp" />
-    <ClInclude Include="include\stl2\detail\range\primitives.hpp" />
     <ClInclude Include="include\stl2\detail\temporary_vector.hpp" />
     <ClInclude Include="include\stl2\detail\tuple_like.hpp" />
+    <ClInclude Include="include\stl2\detail\utility\in_place.hpp" />
     <ClInclude Include="include\stl2\detail\variant\fwd.hpp" />
     <ClInclude Include="include\stl2\detail\variant\storage.hpp" />
     <ClInclude Include="include\stl2\detail\variant\visit.hpp" />
     <ClInclude Include="include\stl2\functional.hpp" />
     <ClInclude Include="include\stl2\iterator.hpp" />
+    <ClInclude Include="include\stl2\memory.hpp" />
     <ClInclude Include="include\stl2\optional.hpp" />
     <ClInclude Include="include\stl2\random.hpp" />
     <ClInclude Include="include\stl2\tuple.hpp" />
     <ClInclude Include="include\stl2\type_traits.hpp" />
     <ClInclude Include="include\stl2\utility.hpp" />
     <ClInclude Include="include\stl2\variant.hpp" />
+    <ClInclude Include="include\stl2\view\indirect.hpp" />
     <ClInclude Include="include\stl2\view\iota.hpp" />
+    <ClInclude Include="include\stl2\view\move.hpp" />
+    <ClInclude Include="include\stl2\view\ref.hpp" />
     <ClInclude Include="include\stl2\view\repeat.hpp" />
     <ClInclude Include="include\stl2\view\repeat_n.hpp" />
+    <ClInclude Include="include\stl2\view\take_exactly.hpp" />
     <ClInclude Include="test\algorithm\is_heap.hpp" />
     <ClInclude Include="test\algorithm\is_heap_until.hpp" />
     <ClInclude Include="test\algorithm\set_difference.hpp" />
@@ -229,6 +267,7 @@
     <ClInclude Include="test\algorithm\set_union.hpp" />
     <ClInclude Include="test\concepts\validate.hpp" />
     <ClInclude Include="test\iterator\test_iterators.hpp" />
+    <ClInclude Include="test\memory\common.hpp" />
     <ClInclude Include="test\simple_test.hpp" />
     <ClInclude Include="test\test_iterators.hpp" />
     <ClInclude Include="test\test_utils.hpp" />
@@ -307,6 +346,7 @@
     <ClCompile Include="test\algorithm\reverse_copy.cpp" />
     <ClCompile Include="test\algorithm\rotate.cpp" />
     <ClCompile Include="test\algorithm\rotate_copy.cpp" />
+    <ClCompile Include="test\algorithm\sample.cpp" />
     <ClCompile Include="test\algorithm\search.cpp" />
     <ClCompile Include="test\algorithm\search_n.cpp" />
     <ClCompile Include="test\algorithm\set_difference1.cpp" />
@@ -356,6 +396,7 @@
     <ClCompile Include="test\functional\invoke.cpp" />
     <ClCompile Include="test\functional\not_fn.cpp" />
     <ClCompile Include="test\headers.cpp" />
+    <ClCompile Include="test\iterator\any_iterator.cpp" />
     <ClCompile Include="test\iterator\basic_iterator.cpp" />
     <ClCompile Include="test\iterator\common_iterator.cpp" />
     <ClCompile Include="test\iterator\counted_iterator.cpp" />
@@ -363,17 +404,26 @@
     <ClCompile Include="test\iterator\istreambuf_iterator.cpp" />
     <ClCompile Include="test\iterator\istream_iterator.cpp" />
     <ClCompile Include="test\iterator\make_range.cpp" />
+    <ClCompile Include="test\iterator\operations.cpp" />
     <ClCompile Include="test\iterator\ostreambuf_iterator.cpp" />
     <ClCompile Include="test\iterator\ostream_iterator.cpp" />
     <ClCompile Include="test\iterator\unreachable.cpp" />
+    <ClCompile Include="test\memory\destroy.cpp" />
+    <ClCompile Include="test\memory\uninitialized_copy.cpp" />
+    <ClCompile Include="test\memory\uninitialized_default_construct.cpp" />
+    <ClCompile Include="test\memory\uninitialized_fill.cpp" />
+    <ClCompile Include="test\memory\uninitialized_move.cpp" />
+    <ClCompile Include="test\memory\uninitialized_value_construct.cpp" />
     <ClCompile Include="test\meta.cpp" />
     <ClCompile Include="test\optional.cpp" />
     <ClCompile Include="test\range_access.cpp" />
+    <ClCompile Include="test\span.cpp" />
     <ClCompile Include="test\tagged.cpp" />
     <ClCompile Include="test\iterator\iterator.cpp" />
     <ClCompile Include="test\iterator\move_iterator.cpp" />
     <ClCompile Include="test\iterator\reverse_iterator.cpp" />
     <ClCompile Include="test\variant.cpp" />
+    <ClCompile Include="test\view\move_view.cpp" />
     <ClCompile Include="test\view\repeat_n_view.cpp" />
     <ClCompile Include="test\view\repeat_view.cpp" />
   </ItemGroup>
@@ -388,15 +438,18 @@
     <Text Include="test\detail\CMakeLists.txt" />
     <Text Include="test\functional\CMakeLists.txt" />
     <Text Include="test\iterator\CMakeLists.txt" />
+    <Text Include="test\memory\CMakeLists.txt" />
     <Text Include="test\view\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
+    <None Include=".travis.yml" />
     <None Include="include\experimental\ranges\algorithm" />
     <None Include="include\experimental\ranges\concepts" />
     <None Include="include\experimental\ranges\functional" />
     <None Include="include\experimental\ranges\iterator" />
+    <None Include="include\experimental\ranges\memory" />
     <None Include="include\experimental\ranges\random" />
     <None Include="include\experimental\ranges\tuple" />
     <None Include="include\experimental\ranges\type_traits" />
