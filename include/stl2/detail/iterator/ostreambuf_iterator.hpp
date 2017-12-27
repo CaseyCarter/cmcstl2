@@ -23,8 +23,6 @@
 #include <stl2/detail/iterator/default_sentinel.hpp>
 
 STL2_OPEN_NAMESPACE {
-	// Not to spec:
-	// * Extension: satisfies EqualityComparable and Sentinel<default_sentinel>
 	template <class charT, class traits = std::char_traits<charT>>
 	class ostreambuf_iterator {
 	public:
@@ -35,9 +33,6 @@ STL2_OPEN_NAMESPACE {
 		using streambuf_type = std::basic_streambuf<charT, traits>;
 
 		constexpr ostreambuf_iterator() noexcept = default;
-		constexpr ostreambuf_iterator(default_sentinel) noexcept
-		: ostreambuf_iterator{}
-		{}
 		STL2_CONSTEXPR_EXT ostreambuf_iterator(ostream_type& s) noexcept
 		: sbuf_(s.rdbuf()) {}
 		STL2_CONSTEXPR_EXT ostreambuf_iterator(streambuf_type* s) noexcept
@@ -56,31 +51,11 @@ STL2_OPEN_NAMESPACE {
 		ostreambuf_iterator& operator++() noexcept {
 			return *this;
 		}
-		// Not to spec:
-		// https://github.com/ericniebler/stl2/issues/232
 		ostreambuf_iterator& operator++(int) noexcept {
 			return *this;
 		}
 		bool failed() const noexcept {
 			return sbuf_ != nullptr;
-		}
-		friend bool operator==(ostreambuf_iterator a, ostreambuf_iterator b) noexcept {
-			return a.sbuf_ == b.sbuf_;
-		}
-		friend bool operator!=(ostreambuf_iterator a, ostreambuf_iterator b) noexcept {
-			return !(a == b);
-		}
-		friend bool operator==(ostreambuf_iterator a, default_sentinel) noexcept {
-			return a.sbuf_ == nullptr;
-		}
-		friend bool operator!=(ostreambuf_iterator a, default_sentinel b) noexcept {
-			return !(a == b);
-		}
-		friend bool operator==(default_sentinel, ostreambuf_iterator b) noexcept {
-			return b.sbuf_ == nullptr;
-		}
-		friend bool operator!=(default_sentinel a, ostreambuf_iterator b) noexcept {
-			return !(a == b);
 		}
 	private:
 		detail::raw_ptr<streambuf_type> sbuf_{nullptr};

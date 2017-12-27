@@ -31,8 +31,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Not to spec:
-	// * requirements are implicit.
-	//   See https://github.com/ericniebler/stl2/issues/246)
+	// * Implements https://github.com/ericniebler/stl2/issues/246
 	//
 	template <class charT, class traits = std::char_traits<charT>>
 	requires

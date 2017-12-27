@@ -27,8 +27,6 @@ STL2_OPEN_NAMESPACE {
 	// * Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78173; it is
 	//   necessary to guard the requires clause of the "fallback" specialization
 	//   to prevent hard errors for pointers to incomplete types.
-	// * Omit the extraneous is_array specialization.
-	//   See https://github.com/ericniebler/stl2/issues/243
 	//
 	namespace detail {
 		template <class T>

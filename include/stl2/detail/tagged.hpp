@@ -94,8 +94,6 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// tagged [taggedtup.tagged]
 	// Not to spec:
-	// * constexpr per P0579
-	// * Implements https://github.com/ericniebler/stl2/issues/172
 	// * Implements https://github.com/ericniebler/stl2/issues/363
 	// * Implements https://github.com/ericniebler/stl2/issues/364
 	// * Implements https://github.com/ericniebler/stl2/issues/418

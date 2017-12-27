@@ -61,8 +61,7 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// Destructible [concepts.lib.object.destructible]
-	// Not to spec
-	// https://github.com/ericniebler/stl2/issues/301
+	//
 	template <class T>
 	concept bool Destructible =
 		_Is<T, is_nothrow_destructible> && __addressable<T>;
@@ -76,8 +75,7 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// Constructible [concepts.lib.object.constructible]
-	// Not to spec
-	// See https://github.com/ericniebler/stl2/issues/301
+	//
 	template <class T, class... Args>
 	concept bool Constructible =
 		Destructible<T> && _Is<T, is_constructible, Args...>;
@@ -91,8 +89,7 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// DefaultConstructible [concepts.lib.object.defaultconstructible]
-	// Not to spec
-	// https://github.com/ericniebler/stl2/issues/301
+	//
 	template <class T>
 	concept bool DefaultConstructible =
 		Constructible<T>;
@@ -106,8 +103,7 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// MoveConstructible [concepts.lib.object.moveconstructible]
-	// Not to spec
-	// https://github.com/ericniebler/stl2/issues/313
+	//
 	template <class T>
 	concept bool MoveConstructible =
 		Constructible<T, T> && ConvertibleTo<T, T>;

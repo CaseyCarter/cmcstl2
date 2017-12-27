@@ -276,7 +276,6 @@ CONCEPT_ASSERT(!models::CopyConstructible<nonmovable &&>);
 CONCEPT_ASSERT(models::CopyConstructible<const nonmovable &>);
 CONCEPT_ASSERT(!models::CopyConstructible<const nonmovable &&>);
 
-// https://github.com/ericniebler/stl2/issues/301
 struct not_mutable_ref {
 	not_mutable_ref() = default;
 	not_mutable_ref(const not_mutable_ref&) = default;
@@ -341,11 +340,7 @@ CONCEPT_ASSERT(models::DefaultConstructible<std::initializer_list<int>>);
 
 CONCEPT_ASSERT(models::Constructible<int*>);
 CONCEPT_ASSERT(models::DefaultConstructible<int*>);
-
-// https://github.com/ericniebler/stl2/issues/301
 CONCEPT_ASSERT(!models::Constructible<int&, long&>);
-
-// https://github.com/ericniebler/stl2/issues/310
 CONCEPT_ASSERT(!models::Movable<int&&>);
 
 int main() {}

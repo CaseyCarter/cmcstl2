@@ -42,14 +42,12 @@ STL2_OPEN_NAMESPACE {
 		)
 	}
 
-	// Not to spec: constexpr per P0579
 	Range{R}
 	constexpr difference_type_t<iterator_t<R>> distance(R&& r)
 	STL2_NOEXCEPT_RETURN(
 		__stl2::distance(__stl2::begin(r), __stl2::end(r))
 	)
 
-	// Not to spec: constexpr per P0579
 	SizedRange{R}
 	constexpr difference_type_t<iterator_t<R>> distance(R&& r)
 	STL2_NOEXCEPT_RETURN(

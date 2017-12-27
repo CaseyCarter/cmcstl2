@@ -218,19 +218,6 @@ void test_proxy_iterator() {
 		CHECK(A::move_count == N);
 		CHECK(ranges::equal(vec2, ranges::ext::take_exactly_view<ranges::ext::iota_view<int>>{0, N}, std::equal_to<>{}));
 		CHECK(ranges::equal(vec, ranges::ext::repeat_n_view<int>{-1, N}, std::equal_to<>{}));
-
-		first = ranges::make_move_iterator(proxy_iterator<A>{ranges::data(vec)});
-		std::iota(vec.begin(), vec.end(), 0);
-		vec2.clear();
-		A::clear();
-		while (first != last) // Test post-increment
-			*out++ = *first++;
-
-		CHECK(ranges::size(vec2) == N);
-		CHECK(A::copy_count == std::size_t{0});
-		CHECK(A::move_count == 2*N);
-		CHECK(ranges::equal(vec2, ranges::ext::take_exactly_view<ranges::ext::iota_view<int>>{0, N}, std::equal_to<>{}));
-		CHECK(ranges::equal(vec, ranges::ext::repeat_n_view<int>{-1, N}, std::equal_to<>{}));
 	}
 
 	{

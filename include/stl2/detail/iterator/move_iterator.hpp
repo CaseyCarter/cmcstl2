@@ -99,34 +99,6 @@ STL2_OPEN_NAMESPACE {
 				static_cast<void>(++current_)
 			)
 
-			// Not to spec
-			// Experimental support for move_iterator post-increment
-			// BUGBUG doesn't correctly handle when decltype(current_++)
-			// is a reference.
-			using __postinc_t = std::decay_t<decltype(current_++)>;
-			Readable{R}
-			struct __proxy {
-				using value_type = __stl2::value_type_t<R>;
-				R __tmp;
-				constexpr decltype(auto) operator*()
-				STL2_NOEXCEPT_RETURN(
-					__stl2::iter_move(__tmp)
-				)
-				friend constexpr decltype(auto) iter_move(const __proxy& that)
-				STL2_NOEXCEPT_RETURN(
-					__stl2::iter_move(that.__tmp)
-				)
-			};
-
-#if STL2_WORKAROUND_GCC_69096
-			template <class = void>
-#endif // STL2_WORKAROUND_GCC_69096
-			constexpr auto post_increment()
-			noexcept(noexcept(__proxy<__postinc_t>{current_++}))
-			requires !ForwardIterator<I> && Readable<__postinc_t> {
-				return __proxy<__postinc_t>{current_++};
-			}
-
 			constexpr void prev()
 			noexcept(noexcept(--current_))
 			requires BidirectionalIterator<I>
@@ -180,10 +152,6 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
-	// Not to spec:
-	// * uses iter_move in operator* (See https://github.com/ericniebler/stl2/issues/244)
-	// * hooks iter_move and iter_swap (See https://github.com/ericniebler/stl2/issues/245)
-	// * constexpr per P0579
 	InputIterator{I}
 	using move_iterator = basic_iterator<__move_iterator::cursor<I>>;
 
@@ -192,7 +160,6 @@ STL2_OPEN_NAMESPACE {
 		using type = input_iterator_tag;
 	};
 
-	// Not to spec: constexpr per P0579
 	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool
 	operator<(const move_iterator<I1>& a, const move_iterator<I2>& b)
@@ -201,7 +168,6 @@ STL2_OPEN_NAMESPACE {
 			__move_iterator::access::current(__stl2::get_cursor(b))
 	)
 
-	// Not to spec: constexpr per P0579
 	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool
 	operator>(const move_iterator<I1>& a, const move_iterator<I2>& b)
@@ -209,7 +175,6 @@ STL2_OPEN_NAMESPACE {
 		b < a
 	)
 
-	// Not to spec: constexpr per P0579
 	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool
 	operator<=(const move_iterator<I1>& a, const move_iterator<I2>& b)
@@ -217,7 +182,6 @@ STL2_OPEN_NAMESPACE {
 		!(b < a)
 	)
 
-	// Not to spec: constexpr per P0579
 	StrictTotallyOrderedWith{I1, I2}
 	constexpr bool
 	operator>=(const move_iterator<I1>& a, const move_iterator<I2>& b)
@@ -225,7 +189,6 @@ STL2_OPEN_NAMESPACE {
 		!(a < b)
 	)
 
-	// Not to spec: constexpr per P0579
 	template <class I>
 	requires
 		InputIterator<__f<I>>
@@ -234,7 +197,6 @@ STL2_OPEN_NAMESPACE {
 		move_iterator<__f<I>>{std::forward<I>(i)}
 	)
 
-	// Not to spec: constexpr per P0579
 	Semiregular{S}
 	class move_sentinel : detail::ebo_box<S, move_sentinel<S>> {
 		friend __move_iterator::access;
@@ -267,7 +229,6 @@ STL2_OPEN_NAMESPACE {
 		{ return box_t::get(); }
 	};
 
-	// Not to spec: constexpr per P0579
 	template <class S>
 	requires
 		Semiregular<__f<S>>

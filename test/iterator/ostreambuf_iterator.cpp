@@ -37,16 +37,13 @@ namespace {
 int main() {
 	using I = ostreambuf_iterator<char>;
 	static_assert(models::OutputIterator<I, const char&>);
-	static_assert(models::Sentinel<default_sentinel, I>);
-	static_assert(models::Common<I, default_sentinel>);
-	static_assert(std::is_same<I, common_type_t<I, default_sentinel>>());
 
 	{
 		static const char hw[] = "Hello, world!";
 		auto hw_range = ext::make_range(__stl2::begin(hw), __stl2::end(hw) - 1);
 		std::ostringstream os;
 		auto r = ::copy(hw_range, I{os});
-		CHECK(r.out() != default_sentinel{});
+		CHECK(r.out().failed());
 		::check_equal(os.str(), hw_range);
 	}
 

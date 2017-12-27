@@ -53,9 +53,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// iter_move
-	// Not to spec: Uses a two-step dispatch instead of requiring user overloads
-	// to compete with the default overloads in overload resolution.
-	// See https://github.com/ericniebler/stl2/issues/242
 	//
 	namespace __iter_move {
 		// Not a poison pill, simply a non-ADL block.
@@ -108,8 +105,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// value_type [readable.iterators]
 	// Not to spec:
-	// * Implements #299
-	// * Implements #423
+	// * Implements https://github.com/ericniebler/stl2/issues/423
 	//
 	namespace detail {
 		template <class T>
@@ -170,9 +166,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// Readable [readable.iterators]
-	// Not to spec: Disables the "Experimental additional tests"
-	// See https://github.com/ericniebler/stl2/issues/239
-	// Additional changes from P0547
 	//
 	template <class I>
 	concept bool Readable =
@@ -201,9 +194,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// Writable [iterators.writable]
-	// Not to spec, but getting closer.
-	// See https://github.com/ericniebler/stl2/issues/339
-	// and https://github.com/ericniebler/stl2/issues/381
 	//
 	template <class Out, class R>
 	concept bool Writable =
@@ -310,8 +300,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// iter_swap
-	// Not to spec
-	// See https://github.com/ericniebler/stl2/issues/242
 	//
 	namespace __iter_swap {
 		// Poison pill for iter_swap. (See the detailed discussion at
@@ -382,8 +370,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlySwappable [commonalgoreq.indirectlyswappable]
-	// Not to spec
-	// See https://github.com/ericniebler/stl2/issues/241
 	//
 
 	template <class I1, class I2 = I1>
@@ -568,8 +554,7 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// OutputIterator [iterators.output]
-	// Not to spec:
-	// adds requirement on *i++ from P0541.
+	//
 	template <class I, class T>
 	concept bool OutputIterator =
 		Iterator<I> &&
@@ -587,8 +572,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// InputIterator [iterators.input]
-	// Not to spec: No requirements on i++
-	// See http://github.com/ericniebler/stl2/issues/232
 	//
 	template <class I>
 	concept bool InputIterator =
