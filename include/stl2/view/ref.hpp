@@ -56,23 +56,12 @@ STL2_OPEN_NAMESPACE {
 			requires ContiguousRange<Rng>
 			{ return __stl2::data(*rng_); }
 		};
-
-		template <class Rng>
-		inline constexpr bool is_referenceable_range<ref_view<Rng>> = true;
-
-		template <Range Rng>
-		requires !View<std::remove_cv_t<Rng>>
-		constexpr ref_view<Rng> as_view(Rng& rng) noexcept
-		{ return ref_view<Rng>{rng}; }
-
-		template <class T, View V = __uncvref<T>>
-		requires Constructible<V, T>
-		constexpr T&& as_view(T&& t) noexcept
-		{ return static_cast<T&&>(t); }
-
-		template <Range Rng>
-		using as_view_t = std::decay_t<decltype(ext::as_view(std::declval<Rng>()))>;
 	} // namespace ext
+
+	namespace detail {
+		template <class Rng>
+		inline constexpr bool is_referenceable_range<ext::ref_view<Rng>> = true;
+	} // namespace detail
 } STL2_CLOSE_NAMESPACE
 
 #endif

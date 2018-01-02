@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <Range R, ext::CopyConstructibleObject T>
 	using __maybe_dangling =
-		meta::if_c<ext::is_referenceable_range<R>, T, dangling<T>>;
+		meta::if_c<detail::is_referenceable_range<R>, T, dangling<T>>;
 
 	// Not to spec: ReferenceableRange
 	template <Range R>

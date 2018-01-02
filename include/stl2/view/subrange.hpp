@@ -9,8 +9,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_VIEW_ITERATOR_RANGE_HPP
-#define STL2_VIEW_ITERATOR_RANGE_HPP
+#ifndef STL2_VIEW_SUBRANGE_HPP
+#define STL2_VIEW_SUBRANGE_HPP
 
 #include <tuple>
 #include <stl2/utility.hpp>
@@ -233,12 +233,14 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		// Not to spec
-		template <class I, class S, subrange_kind K>
-		inline constexpr bool is_referenceable_range<subrange<I, S, K>> = true;
-
-		// Not to spec
 		template <Range R>
 		using safe_subrange_t =	__maybe_dangling<R, subrange<iterator_t<R>>>;
+	}
+
+	namespace detail {
+		// Not to spec
+		template <class I, class S, subrange_kind K>
+		inline constexpr bool is_referenceable_range<ext::subrange<I, S, K>> = true;
 	}
 } STL2_CLOSE_NAMESPACE
 
