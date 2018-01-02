@@ -24,17 +24,15 @@
 
 STL2_OPEN_NAMESPACE {
 	template <class T>
-	concept bool _PairLike = requires(T t) {
-		typename std::tuple_size<T>;
-		requires meta::Integral<std::tuple_size<T>>;
-		requires std::tuple_size<T>::value == 2;
-		typename std::tuple_element<0, T>;
-		typename std::tuple_element<1, T>;
-		requires meta::Trait<std::tuple_element<0, T>>;
-		requires meta::Trait<std::tuple_element<1, T>>;
-		{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
-		{ std::get<1>(t) } -> const std::tuple_element_t<1, T>&;
-	};
+	concept bool _PairLike =
+		meta::Integral<std::tuple_size<T>> &&
+		std::tuple_size<T>::value == 2 &&
+		meta::Trait<std::tuple_element<0, T>> &&
+		meta::Trait<std::tuple_element<1, T>> &&
+		requires(T t) {
+			{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
+			{ std::get<1>(t) } -> const std::tuple_element_t<1, T>&;
+		};
 
 	template <class T, class U, class V>
 	concept bool _PairLikeConvertibleTo =
@@ -55,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 		Sentinel<std::tuple_element_t<1, T>, std::tuple_element_t<0, T>>;
 
 	namespace ext {
-		enum subrange_kind : bool { unsized, sized };
+		enum class subrange_kind : bool { unsized, sized };
 
 		template <Iterator I, Sentinel<I> S = I,
 			subrange_kind K = static_cast<subrange_kind>(models::SizedSentinel<S, I>)>
@@ -235,11 +233,11 @@ STL2_OPEN_NAMESPACE {
 		// Not to spec
 		template <Range R>
 		using safe_subrange_t =	__maybe_dangling<R, subrange<iterator_t<R>>>;
-	}
+	} // namespace ext
 
 	namespace detail {
 		// Not to spec
-		template <class I, class S, subrange_kind K>
+		template <class I, class S, ext::subrange_kind K>
 		inline constexpr bool is_referenceable_range<ext::subrange<I, S, K>> = true;
 	}
 } STL2_CLOSE_NAMESPACE
