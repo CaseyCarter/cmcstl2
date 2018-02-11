@@ -501,8 +501,7 @@ STL2_OPEN_NAMESPACE {
 		struct fn {
 			// Prefer member
 			template <class R>
-			requires
-				has_member<R>
+			requires has_member<R>
 			constexpr auto operator()(R& r) const
 			STL2_NOEXCEPT_RETURN(
 				r.data()
@@ -510,8 +509,7 @@ STL2_OPEN_NAMESPACE {
 
 			// Return begin(r) if it's a pointer
 			template <class R>
-			requires
-				!has_member<R> && has_pointer_iterator<R>
+			requires !has_member<R> && has_pointer_iterator<R>
 			constexpr auto operator()(R& r) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::begin(r)
@@ -520,9 +518,7 @@ STL2_OPEN_NAMESPACE {
 			// Extension: Support contiguous ranges with non-pointer
 			//            iterators.
 			template <class R>
-			requires
-				!has_member<R> &&
-				!has_pointer_iterator<R> &&
+			requires !has_member<R> && !has_pointer_iterator<R> &&
 				has_contiguous_iterator<R>
 			constexpr auto operator()(R& r) const
 			noexcept(noexcept(__stl2::begin(r) == __stl2::end(r)
@@ -542,10 +538,8 @@ STL2_OPEN_NAMESPACE {
 
 			template <class R>
 			[[deprecated]] constexpr auto operator()(const R&& r) const
-			noexcept(noexcept(declval<const fn&>()(r)))
-			requires
-				has_member<const R> ||
-				has_pointer_iterator<const R> ||
+			noexcept(noexcept(std::declval<const fn&>()(r)))
+			requires has_member<const R> || has_pointer_iterator<const R> ||
 				has_contiguous_iterator<const R>
 			{
 				return (*this)(r);
