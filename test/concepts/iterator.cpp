@@ -158,6 +158,8 @@ namespace associated_type_test {
 	template <class T, bool B, class U>
 	using test = std::is_same<ns::iterator_category_t<iterator<T, B>>, U>;
 
+	CONCEPT_ASSERT(!meta::is_trait<ns::iterator_category<void*>>());
+	CONCEPT_ASSERT(!meta::is_trait<ns::iterator_category<int(*)()>>());
 	CONCEPT_ASSERT(!meta::is_trait<ns::iterator_category<iterator<std::output_iterator_tag, false>>>());
 	CONCEPT_ASSERT(!meta::is_trait<ns::iterator_category<iterator<std::output_iterator_tag, true>>>());
 
