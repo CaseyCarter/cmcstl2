@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 			auto ufirst = ext::uncounted(first);
 			using buf_t = temporary_buffer<value_type_t<decltype(ufirst)>>;
 			// TODO: tune this threshold.
-			static constexpr auto alloc_threshold = difference_type_t<I>(8);
+			constexpr auto alloc_threshold = difference_type_t<I>(8);
 			auto buf = n >= alloc_threshold ? buf_t{n / 2} : buf_t{};
 			auto last = detail::reverse_n_adaptive(ufirst, n, buf);
 			return ext::recounted(first, std::move(last), n);

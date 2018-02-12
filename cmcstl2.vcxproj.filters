@@ -82,6 +82,15 @@
     <Filter Include="Header Files\cmcstl2\stl2\detail\concepts\object">
       <UniqueIdentifier>{e93dea29-c5f4-4c17-87a9-b370317ab2cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\detail\memory">
+      <UniqueIdentifier>{07851e9b-7024-4312-a5e6-21cbf9a1be02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cmcstl2\stl2\detail\utility">
+      <UniqueIdentifier>{1e0b5a48-4e27-45b2-af54-9817e5d3406c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Files\memory">
+      <UniqueIdentifier>{7695f0ca-d47a-4955-b559-46325d418fdd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stl2\iterator.hpp">
@@ -182,15 +191,6 @@
     </ClInclude>
     <ClInclude Include="include\stl2\detail\iterator\default_sentinel.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\access.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\concepts.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\primitives.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
     </ClInclude>
     <ClInclude Include="include\stl2\detail\variant\fwd.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\variant</Filter>
@@ -474,9 +474,6 @@
     <ClInclude Include="include\stl2\detail\iterator\dangling.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\range\range.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
-    </ClInclude>
     <ClInclude Include="include\stl2\view\iota.hpp">
       <Filter>Header Files\cmcstl2\stl2\view</Filter>
     </ClInclude>
@@ -540,9 +537,6 @@
     <ClInclude Include="include\stl2\detail\ebo_box.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\functional\callable_wrapper.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\functional</Filter>
-    </ClInclude>
     <ClInclude Include="include\stl2\detail\functional\invoke.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\functional</Filter>
     </ClInclude>
@@ -578,6 +572,87 @@
     </ClInclude>
     <ClInclude Include="include\stl2\detail\semiregular_box.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\memory.hpp">
+      <Filter>Header Files\cmcstl2\stl2</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\randutils.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\smf_control.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\span.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\sample.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\algorithm\tagspec.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\functional\comparisons.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\iterator\any_iterator.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\memory\addressof.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\memory\concepts.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\memory\construct_at.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\memory\destroy.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\memory\uninitialized_copy.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\memory\uninitialized_default_construct.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\memory\uninitialized_fill.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\memory\uninitialized_move.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\memory\uninitialized_value_construct.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\access.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\concepts.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\primitives.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\range\range.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\detail\utility\in_place.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\view\indirect.hpp">
+      <Filter>Header Files\cmcstl2\stl2\view</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\view\move.hpp">
+      <Filter>Header Files\cmcstl2\stl2\view</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\view\ref.hpp">
+      <Filter>Header Files\cmcstl2\stl2\view</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stl2\view\take_exactly.hpp">
+      <Filter>Header Files\cmcstl2\stl2\view</Filter>
+    </ClInclude>
+    <ClInclude Include="test\memory\common.hpp">
+      <Filter>Test Files\memory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1007,6 +1082,39 @@
     <ClCompile Include="test\meta.cpp">
       <Filter>Test Files</Filter>
     </ClCompile>
+    <ClCompile Include="test\span.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\algorithm\sample.cpp">
+      <Filter>Test Files\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\any_iterator.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\iterator\operations.cpp">
+      <Filter>Test Files\iterator</Filter>
+    </ClCompile>
+    <ClCompile Include="test\view\move_view.cpp">
+      <Filter>Test Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="test\memory\destroy.cpp">
+      <Filter>Test Files\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="test\memory\uninitialized_copy.cpp">
+      <Filter>Test Files\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="test\memory\uninitialized_default_construct.cpp">
+      <Filter>Test Files\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="test\memory\uninitialized_fill.cpp">
+      <Filter>Test Files\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="test\memory\uninitialized_move.cpp">
+      <Filter>Test Files\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="test\memory\uninitialized_value_construct.cpp">
+      <Filter>Test Files\memory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="test\CMakeLists.txt">
@@ -1038,6 +1146,9 @@
     <Text Include="test\functional\CMakeLists.txt">
       <Filter>Test Files\functional</Filter>
     </Text>
+    <Text Include="test\memory\CMakeLists.txt">
+      <Filter>Test Files\memory</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
@@ -1067,5 +1178,9 @@
     <None Include="include\experimental\ranges\utility">
       <Filter>Header Files\cmcstl2\experimental\ranges</Filter>
     </None>
+    <None Include="include\experimental\ranges\memory">
+      <Filter>Header Files\cmcstl2\experimental\ranges</Filter>
+    </None>
+    <None Include=".travis.yml" />
   </ItemGroup>
 </Project>

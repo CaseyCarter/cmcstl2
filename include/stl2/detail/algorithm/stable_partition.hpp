@@ -278,7 +278,7 @@ STL2_OPEN_NAMESPACE {
 			// *first is known to be false
 
 			// might want to make this a function of trivial assignment
-			static constexpr difference_type_t<I> alloc_threshold = 4;
+			constexpr difference_type_t<I> alloc_threshold = 4;
 			using buf_t = detail::stable_part::buf_t<I>;
 			auto buf = n >= alloc_threshold ? buf_t{n} : buf_t{};
 			return detail::stable_part::forward(
@@ -310,7 +310,7 @@ STL2_OPEN_NAMESPACE {
 			// *last is known to be true
 
 			// might want to make this a function of trivial assignment
-			static constexpr difference_type_t<I> alloc_threshold = 4;
+			constexpr difference_type_t<I> alloc_threshold = 4;
 			using buf_t = detail::stable_part::buf_t<I>;
 			buf_t buf = n >= alloc_threshold ? buf_t{n} : buf_t{};
 			return detail::stable_part::bidirectional(

@@ -458,10 +458,13 @@ STL2_OPEN_NAMESPACE {
 
 	template <class> struct iterator_category {};
 
-	template <_IsNot<is_void> T>
-	struct iterator_category<T*> {
-		using type = ext::contiguous_iterator_tag;
-	};
+	template <class T>
+	struct iterator_category<T*>
+	: std::enable_if<std::is_object<T>::value, ext::contiguous_iterator_tag> {};
+
+	template <class T>
+	struct iterator_category<const T>
+	: iterator_category<T> {};
 
 	template <detail::MemberIteratorCategory T>
 	struct iterator_category<T> {
@@ -481,8 +484,7 @@ STL2_OPEN_NAMESPACE {
 	struct iterator_category<T> {};
 
 	template <class T>
-	using iterator_category_t =
-		meta::_t<iterator_category<remove_cv_t<T>>>;
+	using iterator_category_t = meta::_t<iterator_category<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Iterator [iterators.iterator]
@@ -681,7 +683,7 @@ STL2_OPEN_NAMESPACE {
 		concept bool ContiguousIterator =
 			RandomAccessIterator<I> &&
 			DerivedFrom<iterator_category_t<I>, contiguous_iterator_tag> &&
-			_Is<reference_t<I>, is_lvalue_reference> &&
+			std::is_lvalue_reference<reference_t<I>>::value &&
 			Same<value_type_t<I>, __uncvref<reference_t<I>>>;
 	}
 

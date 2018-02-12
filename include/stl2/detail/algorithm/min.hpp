@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 			value_type_t<iterator_t<Rng>> result = *first;
 			while (++first != last) {
 				auto&& tmp = *first;
-				if (__stl2::invoke(comp, __stl2::invoke(proj, tmp), __stl2::invoke(proj, result))) {
+				if (__invoke::impl(comp, __invoke::impl(proj, tmp), __invoke::impl(proj, result))) {
 					result = (decltype(tmp)&&)tmp;
 				}
 			}
@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr const T& min(const T& a, const T& b, Comp comp = Comp{},
 		Proj proj = Proj{})
 	{
-		return __stl2::invoke(comp, __stl2::invoke(proj, b), __stl2::invoke(proj, a)) ? b : a;
+		return __invoke::impl(comp, __invoke::impl(proj, b), __invoke::impl(proj, a)) ? b : a;
 	}
 
 	template <InputRange Rng, class Comp = less<>, class Proj = identity>
