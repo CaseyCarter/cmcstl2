@@ -76,11 +76,9 @@ STL2_OPEN_NAMESPACE {
 		template <WeaklyIncrementable I>
 		iota_view(I) -> iota_view<I>;
 
-		template <Incrementable I>
-		iota_view(I, I) -> iota_view<I, I>;
-
 		template <WeaklyIncrementable I, Semiregular Bound>
-		requires WeaklyEqualityComparable<I, Bound> && !ConvertibleTo<Bound, I>
+		requires WeaklyEqualityComparable<I, Bound> &&
+			(!Integral<I> || !Integral<Bound> || std::is_signed_v<I> == std::is_signed_v<Bound>)
 		iota_view(I, Bound) -> iota_view<I, Bound>;
 
 		template <class I, class Bound>
@@ -204,13 +202,10 @@ STL2_OPEN_NAMESPACE {
 					return ext::iota_view{value};
 				}
 
-				template <Incrementable I>
-				constexpr auto operator()(I value, I bound) const {
-					return ext::iota_view{value, bound};
-				}
-
 				template <WeaklyIncrementable I, Semiregular Bound>
-				requires WeaklyEqualityComparable<I, Bound> && !ConvertibleTo<Bound, I>
+				requires WeaklyEqualityComparable<I, Bound> &&
+					(!Integral<I> || !Integral<Bound> ||
+						std::is_signed_v<I> == std::is_signed_v<Bound>)
 				constexpr auto operator()(I value, Bound bound) const {
 					return ext::iota_view{value, bound};
 				}
