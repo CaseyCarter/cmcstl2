@@ -31,11 +31,11 @@ namespace {
 
 	ranges::Integral{I}
 	auto make_interval(I from, I to) {
-		return ranges::ext::take_exactly_view<ranges::ext::iota_view<I>>{{from}, to - from};
+		return ranges::view::iota(from, to);
 	}
 
 	void test(ranges::Range&& base) {
-		auto rng = make_move_view(base);
+		auto rng = base | ranges::view::move;
 		CHECK(static_cast<std::size_t>(ranges::size(rng)) == ranges::size(base));
 		CHECK(!ranges::empty(rng));
 		int count = 0;

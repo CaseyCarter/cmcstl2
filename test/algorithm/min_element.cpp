@@ -44,7 +44,7 @@ test_iter(Iter first, Sent last)
 	else
 		CHECK(i == last);
 
-	auto rng = stl2::ext::make_range(first, last);
+	auto rng = stl2::ext::subrange(first, last);
 	i = stl2::min_element(rng);
 	if (first != last)
 	{
@@ -99,7 +99,7 @@ test_iter_comp(Iter first, Sent last)
 	else
 		CHECK(i == last);
 
-	auto rng = stl2::ext::make_range(first, last);
+	auto rng = stl2::ext::subrange(first, last);
 	i = stl2::min_element(rng, std::greater<int>());
 	if (first != last)
 	{

@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 		template <Range Rng>
 		requires
 			!(_Is<Rng, std::is_reference> || View<Rng>)
-		class ref_view : view_base {
+		class ref_view : public view_base {
 			detail::raw_ptr<Rng> rng_;
 		public:
 			ref_view() = default;

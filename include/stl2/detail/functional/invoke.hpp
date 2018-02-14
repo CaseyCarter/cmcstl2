@@ -95,13 +95,13 @@ STL2_OPEN_NAMESPACE {
 		__invoke::impl(std::forward<F>(f), std::forward<Args>(args)...)
 	)
 
-	template<class> struct result_of {};
-	template<class R, class... Args>
+	template <class> struct result_of {};
+	template <class R, class... Args>
 	requires requires { __stl2::invoke(std::declval<R>(), std::declval<Args>()...); }
 	struct result_of<R(Args...)> {
 		using type = decltype(__stl2::invoke(std::declval<R>(), std::declval<Args>()...));
 	};
-	template<class T>
+	template <class T>
 	using result_of_t = meta::_t<result_of<T>>;
 } STL2_CLOSE_NAMESPACE
 

@@ -47,7 +47,7 @@ test()
 
 	auto checker = [&](R res)
 	{
-		CHECK((base(std::get<2>(res)) - ic) == sr);
+		CHECK(bool((base(std::get<2>(res)) - ic) == sr));
 		CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
 		stl2::fill(ic, 0);
 	};

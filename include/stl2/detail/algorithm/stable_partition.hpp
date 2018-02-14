@@ -22,7 +22,7 @@
 #include <stl2/detail/algorithm/partition_copy.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
-#include <stl2/detail/range/range.hpp>
+#include <stl2/view/subrange.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // stable_partition [alg.partitions]
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
-			ext::range<I>
+			ext::subrange<I>
 			forward_buffer(I first, I next, difference_type_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
 			{
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
-			ext::range<I>
+			ext::subrange<I>
 			forward_reduce(I first, difference_type_t<I> n, buf_t<I>& buf,
 				Pred& pred, Proj& proj);
 
@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
-			ext::range<I>
+			ext::subrange<I>
 			forward(I first, difference_type_t<I> n, buf_t<I>& buf, Pred& pred,
 				Proj& proj)
 			{
@@ -115,7 +115,7 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
-			ext::range<I>
+			ext::subrange<I>
 			forward_reduce(I first, difference_type_t<I> n, buf_t<I>& buf,
 				Pred& pred, Proj& proj)
 			{

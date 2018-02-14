@@ -19,7 +19,7 @@
 #include <stl2/detail/algorithm/copy.hpp>
 #include <stl2/detail/algorithm/equal.hpp>
 #include <stl2/view/iota.hpp>
-#include <stl2/view/take_exactly.hpp>
+#include <stl2/view/take.hpp>
 #include <stl2/view/repeat_n.hpp>
 #include "../simple_test.hpp"
 
@@ -216,7 +216,7 @@ void test_proxy_iterator() {
 		CHECK(ranges::size(vec2) == N);
 		CHECK(A::copy_count == std::size_t{0});
 		CHECK(A::move_count == N);
-		CHECK(ranges::equal(vec2, ranges::ext::take_exactly_view<ranges::ext::iota_view<int>>{0, N}, std::equal_to<>{}));
+		CHECK(ranges::equal(vec2, ranges::view::iota(0) | ranges::view::take(N), std::equal_to<>{}));
 		CHECK(ranges::equal(vec, ranges::ext::repeat_n_view<int>{-1, N}, std::equal_to<>{}));
 
 		first = ranges::make_move_iterator(proxy_iterator<A>{ranges::data(vec)});
@@ -229,7 +229,7 @@ void test_proxy_iterator() {
 		CHECK(ranges::size(vec2) == N);
 		CHECK(A::copy_count == std::size_t{0});
 		CHECK(A::move_count == 2*N);
-		CHECK(ranges::equal(vec2, ranges::ext::take_exactly_view<ranges::ext::iota_view<int>>{0, N}, std::equal_to<>{}));
+		CHECK(ranges::equal(vec2, ranges::view::iota(0) | ranges::view::take(N), std::equal_to<>{}));
 		CHECK(ranges::equal(vec, ranges::ext::repeat_n_view<int>{-1, N}, std::equal_to<>{}));
 	}
 

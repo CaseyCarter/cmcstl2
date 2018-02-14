@@ -47,8 +47,8 @@ test_iter()
 	set_difference(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic)).
 		check([&](std::pair<Iter1, OutIter> res)
 		{
-			CHECK((base(res.first) - ia) == sa);
-			CHECK((base(res.second) - ic) == sr);
+			CHECK(bool((base(res.first) - ia) == sa));
+			CHECK(bool((base(res.second) - ic) == sr));
 			CHECK(std::lexicographical_compare(ic, base(res.second), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		}
@@ -58,8 +58,8 @@ test_iter()
 	set_difference(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), OutIter(ic)).
 		check([&](std::pair<Iter1, OutIter> res)
 		{
-			CHECK((base(res.first) - ib) == sb);
-			CHECK((base(res.second) - ic) == srr);
+			CHECK(bool((base(res.first) - ib) == sb));
+			CHECK(bool((base(res.second) - ic) == srr));
 			CHECK(std::lexicographical_compare(ic, base(res.second), irr, irr+srr) == 0);
 			stl2::fill(ic, 0);
 		}
@@ -85,8 +85,8 @@ test_comp()
 	set_difference(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic), std::less<int>()).
 		check([&](std::pair<Iter1, OutIter> res)
 		{
-			CHECK((base(res.first) - ia) == sa);
-			CHECK((base(res.second) - ic) == sr);
+			CHECK(bool((base(res.first) - ia) == sa));
+			CHECK(bool((base(res.second) - ic) == sr));
 			CHECK(std::lexicographical_compare(ic, base(res.second), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		}
@@ -96,8 +96,8 @@ test_comp()
 	set_difference(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), OutIter(ic), std::less<int>()).
 		check([&](std::pair<Iter1, OutIter> res)
 		{
-			CHECK((base(res.first) - ib) == sb);
-			CHECK((base(res.second) - ic) == srr);
+			CHECK(bool((base(res.first) - ib) == sb));
+			CHECK(bool((base(res.second) - ic) == srr));
 			CHECK(std::lexicographical_compare(ic, base(res.second), irr, irr+srr) == 0);
 			stl2::fill(ic, 0);
 		}
