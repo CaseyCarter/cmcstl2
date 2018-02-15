@@ -24,12 +24,6 @@ void has_type(Actual &&)
 }
 
 template <typename T>
-T & as_lvalue(T && t)
-{
-	return t;
-}
-
-template <typename T>
 struct checker
 {
 private:

@@ -13,15 +13,15 @@
 #ifndef STL2_DETAIL_CONCEPTS_CALLABLE_HPP
 #define STL2_DETAIL_CONCEPTS_CALLABLE_HPP
 
-#include <functional>
-
-#include <stl2/iterator.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
+#include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/function.hpp>
 #include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/functional/invoke.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
@@ -97,8 +97,7 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec:
 	// and https://github.com/ericniebler/stl2/issues/286
 	template <class F, class... Is>
-	requires
-		Invocable<F, reference_t<Is>...>
+	requires Invocable<F, reference_t<Is>...>
 	struct indirect_result_of<F(Is...)>
 	: result_of<F(reference_t<Is>&&...)> {};
 
@@ -128,8 +127,8 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool IndirectRegularInvocable<F, I> = true;
 	}
 
-	template <class, class...> struct __predicate : false_type {};
-	Predicate{F, ...Args} struct __predicate<F, Args...> : true_type {};
+	template <class, class...> struct __predicate : std::false_type {};
+	Predicate{F, ...Args} struct __predicate<F, Args...> : std::true_type {};
 
 	namespace ext {
 		template <class F, class... Is>

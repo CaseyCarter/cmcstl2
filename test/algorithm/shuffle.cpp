@@ -33,9 +33,9 @@ namespace stl2 = __stl2;
 
 int main()
 {
+	constexpr unsigned s = 100;
 	{
-		int ia[100];
-		constexpr unsigned s = sizeof(ia)/sizeof(ia[0]);
+		int ia[s];
 		int ib[s];
 		int orig[s];
 		std::iota(ia, ia + s, 0);
@@ -49,10 +49,9 @@ int main()
 	}
 
 	{
-		int ia[100];
-		constexpr unsigned s = sizeof(ia)/sizeof(ia[0]);
-		int ib[100];
-		int orig[100];
+		int ia[s];
+		int ib[s];
+		int orig[s];
 		std::iota(ia, ia + s, 0);
 		std::iota(ib, ib + s, 0);
 		std::iota(orig, orig + s, 0);
@@ -64,7 +63,7 @@ int main()
 		CHECK(!stl2::equal(ia, ib));
 
 		std::iota(ia, ia + s, 0);
-		CHECK(stl2::shuffle(stl2::move(rng), g).get_unsafe().base() == stl2::end(ia));
+		CHECK(stl2::shuffle(unref_view{rng}, g).get_unsafe().base() == stl2::end(ia));
 		CHECK(!stl2::equal(ia, orig));
 	}
 

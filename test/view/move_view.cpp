@@ -9,6 +9,7 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
+#include <stl2/view/all.hpp>
 #include <stl2/view/move.hpp>
 #include <stl2/view/iota.hpp>
 #include <stl2/view/ref.hpp>
@@ -25,8 +26,8 @@ namespace ranges = __stl2;
 namespace {
 	template <ranges::Range Rng>
 	auto make_move_view(Rng&& rng) {
-		return ranges::ext::move_view<ranges::ext::as_view_t<Rng>>{
-			ranges::ext::as_view(std::forward<Rng>(rng))};
+		return ranges::ext::move_view<ranges::view::all_t<Rng>>{
+			ranges::view::all(std::forward<Rng>(rng))};
 	}
 
 	ranges::Integral{I}

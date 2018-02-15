@@ -74,7 +74,7 @@ int main()
 			ib[i] = 2 * i + 1;
 		auto r0 = stl2::ext::subrange(ia.get(), ia.get() + N);
 		auto r1 = stl2::ext::subrange(ib.get(), ib.get() + N);
-		auto r = stl2::merge(std::move(r0), std::move(r1), ic.get());
+		auto r = stl2::merge(unref_view{r0}, unref_view{r1}, ic.get());
 		CHECK(std::get<0>(r).get_unsafe() == ia.get() + N);
 		CHECK(std::get<1>(r).get_unsafe() == ib.get() + N);
 		CHECK(std::get<2>(r) == ic.get() + 2 * N);

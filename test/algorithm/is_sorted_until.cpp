@@ -59,10 +59,10 @@ struct range_call
 
 	template <class B, class E, class... Args>
 	auto operator()(B&& It, E&& e, Args&&... args)
-	 -> decltype(stl2::is_sorted_until(::as_lvalue(stl2::ext::subrange(begin_t{It}, sentinel_t{e})),
+	 -> decltype(stl2::is_sorted_until(stl2::ext::subrange(begin_t{It}, sentinel_t{e}),
 										 std::forward<Args>(args)...))
 	{
-		return stl2::is_sorted_until(::as_lvalue(stl2::ext::subrange(begin_t{It}, sentinel_t{e})),
+		return stl2::is_sorted_until(stl2::ext::subrange(begin_t{It}, sentinel_t{e}),
 									   std::forward<Args>(args)...);
 	}
 };
@@ -402,8 +402,8 @@ int main()
 	/// Rvalue range test:
 	{
 		A as[] = {{0}, {1}, {2}, {3}, {4}};
-		CHECK(stl2::is_sorted_until(stl2::move(as), std::less<int>{}, &A::a).get_unsafe() == stl2::end(as));
-		CHECK(stl2::is_sorted_until(stl2::move(as), std::greater<int>{}, &A::a).get_unsafe() == stl2::next(stl2::begin(as),1));
+		CHECK(stl2::is_sorted_until(std::move(as), std::less<int>{}, &A::a).get_unsafe() == stl2::end(as));
+		CHECK(stl2::is_sorted_until(std::move(as), std::greater<int>{}, &A::a).get_unsafe() == stl2::next(stl2::begin(as),1));
 	}
 
 	return ::test_result();

@@ -280,6 +280,16 @@ STL2_OPEN_NAMESPACE {
 		__stl2::ext::ViewableRange{R}
 		constexpr bool ViewableRange<R> = true;
 	}
+
+	namespace detail {
+		template <class T>
+		inline constexpr bool is_referenceable_range = std::is_lvalue_reference_v<T>;
+	}
+
+	namespace ext {
+		template <class R>
+		concept bool ReferenceableRange = Range<R> && detail::is_referenceable_range<R>;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

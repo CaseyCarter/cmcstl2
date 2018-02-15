@@ -127,20 +127,18 @@ int main()
 	test_move_only(1000);
 
 	{
-		int const N = 1000;
-		S* ia = new S [N];
-		int* ib = new int [N];
+		constexpr int N = 1000;
+		S ia[N];
+		int ib[N];
 		for (int i = 0; i < N; ++i)
 			ia[i].i = i;
 		std::shuffle(ia, ia+N, gen);
 		for (int i = 0; i <= N; ++i)
 		{
-			CHECK(stl2::push_heap(stl2::ext::subrange(ia, ia+i), std::greater<int>(), &S::i).get_unsafe() == ia+i);
+			CHECK(stl2::push_heap(unref_view{stl2::ext::subrange(ia, ia+i)}, std::greater<int>(), &S::i).get_unsafe() == ia+i);
 			std::transform(ia, ia+i, ib, std::mem_fn(&S::i));
 			CHECK(std::is_heap(ib, ib+i, std::greater<int>()));
 		}
-		delete [] ia;
-		delete [] ib;
 	}
 
 	return test_result();

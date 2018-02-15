@@ -23,6 +23,9 @@
 ///////////////////////////////////////////////////////////////////////////
 // equal_range [equal.range]
 //
+// Not to spec:
+// * use of ext::subrange and ext::safe_subrange_t throughout
+//
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <ForwardIterator I, class T, class Comp = less<>, class Proj = identity>
