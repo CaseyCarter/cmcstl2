@@ -53,6 +53,10 @@ STL2_OPEN_NAMESPACE {
 
 		struct fn {
 			template <class R, std::size_t N>
+			void operator()(R (&&)[N]) const = delete;
+			template <class T>
+			void operator()(initializer_list<T>&&) const = delete;
+			template <class R, std::size_t N>
 			constexpr R* operator()(R (&array)[N]) const noexcept {
 				return array;
 			}
@@ -109,6 +113,10 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_non_member<R> = true;
 
 		struct fn {
+			template <class R, std::size_t N>
+			void operator()(R (&&)[N]) const = delete;
+			template <class T>
+			void operator()(initializer_list<T>&&) const = delete;
 			template <class R, std::size_t N>
 			constexpr R* operator()(R (&array)[N]) const noexcept {
 				return array + N;

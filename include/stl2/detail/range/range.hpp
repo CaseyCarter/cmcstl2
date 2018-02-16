@@ -23,8 +23,8 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		// iterator_range? view? simple_iterator_and_sentinel_pair?
-		template <class I, class S = I>
+		// TODO: replace with subrange from P0789
+		template <ext::DestructibleObject I, ext::DestructibleObject S = I>
 		struct range;
 
 		template <Iterator I, Sentinel<I> S>

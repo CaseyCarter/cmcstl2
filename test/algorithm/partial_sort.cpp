@@ -76,13 +76,13 @@ test_larger_sorts(int N, int M)
 
 	std::shuffle(array, array+N, gen);
 	auto res3 = stl2::partial_sort(stl2::ext::make_range(array, array+N), array+M);
-	CHECK(res3.get_unsafe() == array+N);
+	CHECK(res3 == array+N);
 	for(int i = 0; i < M; ++i)
 		CHECK(array[i] == i);
 
 	std::shuffle(array, array+N, gen);
 	auto res4 = stl2::partial_sort(stl2::ext::make_range(I{array}, S{array+N}), I{array+M});
-	CHECK(res4.get_unsafe().base() == array+N);
+	CHECK(res4.base() == array+N);
 	for(int i = 0; i < M; ++i)
 		CHECK(array[i] == i);
 

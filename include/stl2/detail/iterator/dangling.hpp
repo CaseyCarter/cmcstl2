@@ -47,7 +47,10 @@ STL2_OPEN_NAMESPACE {
 
 	template <Range R>
 	using safe_iterator_t =
-		meta::if_<is_lvalue_reference<R>, iterator_t<R>, dangling<iterator_t<R>>>;
+		meta::if_<
+			meta::is_trait<meta::defer<__begin_t, R>>,
+			iterator_t<R>,
+			dangling<iterator_t<R>>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif
