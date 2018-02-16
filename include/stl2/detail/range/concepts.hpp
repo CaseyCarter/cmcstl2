@@ -38,14 +38,17 @@ STL2_OPEN_NAMESPACE {
 	// Range [ranges.range]
 	//
 	template <class T>
-	using iterator_t = decltype(__stl2::begin(declval<T&>()));
+	using iterator_t = __begin_t<T&>;
 
 	template <class T>
-	using sentinel_t = decltype(__stl2::end(declval<T&>()));
+	using sentinel_t = __end_t<T&>;
 
 	template <class T>
 	concept bool Range =
-		requires { typename sentinel_t<T>; };
+		requires {
+			typename iterator_t<T>;
+			typename sentinel_t<T>;
+		};
 
 	namespace models {
 		template <class>
@@ -53,12 +56,6 @@ STL2_OPEN_NAMESPACE {
 		__stl2::Range{R}
 		constexpr bool Range<R> = true;
 	}
-
-	///////////////////////////////////////////////////////////////////////////
-	// SizedRange [ranges.sized]
-	//
-	template <class R>
-	constexpr bool disable_sized_range = false;
 
 	template <class R>
 	concept bool SizedRange =
@@ -123,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T>
 	concept bool View =
 		Range<T> &&
-		__view_predicate<T> &&
+		__view_predicate<__uncvref<T>> &&
 		Semiregular<T>;
 
 	namespace models {

@@ -105,7 +105,7 @@ test1()
 		stl2::move_backward(ib, ib+N, ia+N);
 
 		auto r2 = stl2::move_backward(stl2::ext::make_range(InIter(ia), InIter(ia+N)), OutIter(ib+N));
-		CHECK(base(r2.first.get_unsafe()) == ia+N);
+		CHECK(base(r2.first) == ia+N);
 		CHECK(base(r2.second) == ib);
 		for(int i = 0; i < N; ++i)
 		{

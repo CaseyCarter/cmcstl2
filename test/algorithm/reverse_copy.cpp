@@ -116,7 +116,7 @@ void test()
 		std::memset(jd, 0, sizeof(jd));
 		auto p5 = stl2::reverse_copy(stl2::ext::make_range(Iter(id), Sent(id+sd)), OutIter(jd));
 		::check_equal(jd, {3, 2, 1, 0});
-		CHECK(p5.first.get_unsafe() == Iter(id+sd));
+		CHECK(p5.first == Iter(id+sd));
 		CHECK(base(p4.second) == jd+sd);
 	}
 }

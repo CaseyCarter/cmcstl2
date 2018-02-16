@@ -131,7 +131,7 @@ void test_8(int N)
 
 	std::shuffle(ia, ia+N, gen);
 	std::make_heap(ia, ia+N, std::greater<int>());
-	CHECK(stl2::sort_heap(stl2::ext::make_range(ia, sentinel<int*>(ia+N)), std::greater<int>()).get_unsafe() == ia+N);
+	CHECK(stl2::sort_heap(stl2::ext::make_range(ia, sentinel<int*>(ia+N)), std::greater<int>()) == ia+N);
 	CHECK(std::is_sorted(ia, ia+N, std::greater<int>()));
 
 	delete [] ia;
