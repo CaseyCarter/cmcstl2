@@ -29,22 +29,25 @@ STL2_OPEN_NAMESPACE {
 	namespace __begin {
 		// Poison pill for std::begin. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
-		void begin(auto&) = delete;
+		// Not to spec
+		template <class R>
+		void begin(R&&) = delete;
 
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
 			requires requires(R& r) {
+				//{ r.begin() } -> Iterator;
 				requires Iterator<__f<decltype(r.begin())>>;
 			}
-		constexpr bool has_member<R> = true;
+		constexpr bool has_member<R&> = true;
 
 		template <class R>
 		constexpr bool has_non_member = false;
 		template <class R>
-		requires
-			requires(R& r) {
-				requires Iterator<__f<decltype(begin(r))>>;
+		requires requires(R&& r) {
+				// { begin((R&&) r) } -> Iterator;
+				requires Iterator<__f<decltype(begin((R&&) r))>>;
 			}
 		constexpr bool has_non_member<R> = true;
 
@@ -55,28 +58,18 @@ STL2_OPEN_NAMESPACE {
 			}
 			// Prefer member if it returns Iterator.
 			template <class R>
-			requires has_member<R>
-			constexpr Iterator
-			operator()(R& r) const
+			requires has_member<R&>
+			constexpr auto operator()(R& r) const
 			STL2_NOEXCEPT_RETURN(
 				r.begin()
 			)
 			// Use ADL if it returns Iterator.
 			template <class R>
 			requires !has_member<R> && has_non_member<R>
-			constexpr Iterator
-			operator()(R& r) const
+			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				begin(r)
+				begin((R&&) r)
 			)
-			template <_IsNot<is_array> R>
-			[[deprecated]] constexpr Iterator
-			operator()(const R&& r) const
-			noexcept(noexcept(declval<const fn&>()(r)))
-			requires has_member<const R> || has_non_member<const R>
-			{
-				return (*this)(r);
-			}
 		};
 	}
 	// Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -84,27 +77,34 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto& begin = detail::static_const<__begin::fn>::value;
 	}
 
+	template <class R>
+	using __begin_t = decltype(__stl2::begin(declval<R>()));
+
 	// end
 	namespace __end {
 		// Poison pill for std::end. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
-		void end(auto&) = delete;
+		// Not to spec
+		template <class R>
+		void end(R&&) = delete;
 
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
-		requires
-			requires(R& r) {
-				requires Sentinel<__f<decltype(r.end())>, decltype(__stl2::begin(r))>;
+		requires requires(R& r) {
+				typename __begin_t<R&>;
+				// { r.end() } -> Sentinel<__begin_t<R&>>;
+				requires Sentinel<__f<decltype(r.end())>, __begin_t<R&>>;
 			}
-		constexpr bool has_member<R> = true;
+		constexpr bool has_member<R&> = true;
 
 		template <class R>
 		constexpr bool has_non_member = false;
 		template <class R>
-		requires
-			requires(R& r) {
-				requires Sentinel<__f<decltype(end(r))>, decltype(__stl2::begin(r))>;
+		requires requires(R&& r) {
+				typename __begin_t<R>;
+				// { end((R&&) r) } -> Sentinel<__begin_t<R>>;
+				requires Sentinel<__f<decltype(end((R&&) r))>, __begin_t<R&>>;
 			}
 		constexpr bool has_non_member<R> = true;
 
@@ -115,7 +115,7 @@ STL2_OPEN_NAMESPACE {
 			}
 			// Prefer member if it returns Sentinel.
 			template <class R>
-			requires has_member<R>
+			requires has_member<R&>
 			constexpr auto operator()(R& r) const
 			STL2_NOEXCEPT_RETURN(
 				r.end()
@@ -123,17 +123,10 @@ STL2_OPEN_NAMESPACE {
 			// Use ADL if it returns Sentinel.
 			template <class R>
 			requires !has_member<R> && has_non_member<R>
-			constexpr auto operator()(R& r) const
+			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				end(r)
+				end((R&&) r)
 			)
-			template <_IsNot<is_array> R>
-			[[deprecated]] constexpr auto operator()(const R&& r) const
-			noexcept(noexcept(declval<const fn&>()(r)))
-			requires has_member<const R> || has_non_member<const R>
-			{
-				return (*this)(r);
-			}
 		};
 	}
 	// Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -141,24 +134,24 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto& end = detail::static_const<__end::fn>::value;
 	}
 
+	template <class R>
+	using __end_t = decltype(__stl2::end(declval<R>()));
+
 	// cbegin
 	namespace __cbegin {
 		struct fn {
 			template <class R>
-			requires
-				requires(const R& r) { __stl2::begin(r); }
+			requires requires { typename __begin_t<const R&>; }
 			constexpr auto operator()(const R& r) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::begin(r)
 			)
 			template <class R>
-			[[deprecated]] constexpr auto operator()(const R&& r) const
-			noexcept(noexcept(__stl2::begin(r)))
-			requires
-				requires(const R& r) { __stl2::begin(r); }
-			{
-				return __stl2::begin(r);
-			}
+			requires requires { typename __begin_t<const R>; }
+			constexpr auto operator()(const R&& r) const
+			STL2_NOEXCEPT_RETURN(
+				__stl2::begin((const R&&) r)
+			)
 		};
 	}
 	// Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -170,20 +163,17 @@ STL2_OPEN_NAMESPACE {
 	namespace __cend {
 		struct fn {
 			template <class R>
-			requires
-				requires(const R& r) { __stl2::end(r); }
+			requires requires { typename __end_t<const R&>; }
 			constexpr auto operator()(const R& r) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::end(r)
 			)
 			template <class R>
-			[[deprecated]] constexpr auto operator()(const R&& r) const
-			noexcept(noexcept(__stl2::end(r)))
-			requires
-				requires(const R& r) { __stl2::end(r); }
-			{
-				return __stl2::end(r);
-			}
+			requires requires { typename __end_t<const R>; }
+			constexpr auto operator()(const R&& r) const
+			STL2_NOEXCEPT_RETURN(
+				__stl2::end((const R&&) r)
+			)
 		};
 	}
 	// Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -193,48 +183,64 @@ STL2_OPEN_NAMESPACE {
 
 	// rbegin
 	namespace __rbegin {
+		// Poison pill, not to spec
+		template <class R>
+		void rbegin(R&&) = delete;
+
 		// Prefer member if it returns Iterator
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
-		requires
-			requires(R& r) {
+		requires requires(R& r) {
+				// { r.rbegin() } -> Iterator;
 				requires Iterator<__f<decltype(r.rbegin())>>;
 			}
-		constexpr bool has_member<R> = true;
+		constexpr bool has_member<R&> = true;
+
+		template <class R>
+		constexpr bool has_non_member = false;
+		template <class R>
+		requires requires(R&& r) {
+				// { rbegin((R&&) r) } -> Iterator;
+				requires Iterator<__f<decltype(rbegin((R&&) r))>>;
+			}
+		constexpr bool has_non_member<R> = true;
 
 		// Default to make_reverse_iterator(end(r)) for Bounded ranges of
 		// Bidirectional iterators.
 		template <class R>
 		constexpr bool can_make_reverse = false;
 		template <class R>
-		requires
-			requires(R& r) {
-				requires Same<decltype(__stl2::begin(r)), decltype(__stl2::end(r))>;
-				__stl2::make_reverse_iterator(__stl2::end(r));
+		requires Same<__begin_t<R>, __end_t<R>> &&
+			requires(R&& r) {
+				__stl2::make_reverse_iterator(__stl2::end((R&&) r));
 			}
 		constexpr bool can_make_reverse<R> = true;
 
 		struct fn {
+			// Consider the case of a hypothetical reverse_subrange whose
+			// begin/end members pass its stored iterators through
+			// make_reverse_iterator. Like subrange, it is only a pair of
+			// iterators, and so rbegin/rend make sense on an rvalue
+			// reverse_subrange.
 			template <class R>
-			requires has_member<R>
+			requires has_member<R&>
 			constexpr auto operator()(R& r) const
 			STL2_NOEXCEPT_RETURN(
 				r.rbegin()
 			)
 			template <class R>
-			requires !has_member<R> && can_make_reverse<R>
-			constexpr auto operator()(R& r) const
+			requires !has_member<R> && has_non_member<R>
+			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				__stl2::make_reverse_iterator(__stl2::end(r))
+				rbegin((R&&) r)
 			)
 			template <class R>
-			[[deprecated]] constexpr auto operator()(const R&& r) const
-			noexcept(noexcept(declval<const fn&>()(r)))
-			requires has_member<const R> || can_make_reverse<const R>
-			{
-				return (*this)(r);
-			}
+			requires !has_member<R> && !has_non_member<R> && can_make_reverse<R>
+			constexpr auto operator()(R&& r) const
+			STL2_NOEXCEPT_RETURN(
+				__stl2::make_reverse_iterator(__stl2::end((R&&) r))
+			)
 		};
 	}
 	// Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -242,49 +248,66 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto& rbegin = detail::static_const<__rbegin::fn>::value;
 	}
 
+	template <class T>
+	using __rbegin_t = decltype(__stl2::rbegin(declval<T>()));
+
 	// rend
 	namespace __rend {
+		// poison-pill overload, not to spec
+		template <class R>
+		void rend(R&&) = delete;
+
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
-		requires
-			requires(R& r) {
-				requires Sentinel<__f<decltype(r.rend())>, decltype(__stl2::rbegin(r))>;
+		requires requires(R& r) {
+				typename __rbegin_t<R&>;
+				// { r.rend() } -> Sentinel<__rbegin_t<R&>>;
+				requires Sentinel<__f<decltype(r.rend())>, __rbegin_t<R&>>;
 			}
-		constexpr bool has_member<R> = true;
+		constexpr bool has_member<R&> = true;
+
+		template <class R>
+		constexpr bool has_non_member = false;
+		template <class R>
+		requires requires(R&& r) {
+				typename __rbegin_t<R>;
+				// { rend((R&&) r) } -> Sentinel<__rbegin_t<R>>;
+				requires Sentinel<__f<decltype(rend((R&&) r))>, __rbegin_t<R>>;
+			}
+		constexpr bool has_non_member<R> = true;
 
 		template <class R>
 		constexpr bool can_make_reverse = false;
 		template <class R>
-		requires
-			requires(R& r) {
-				requires Same<decltype(__stl2::begin(r)), decltype(__stl2::end(r))>;
-				__stl2::make_reverse_iterator(__stl2::begin(r));
+		requires Same<__begin_t<R>, __end_t<R>> &&
+			requires(R&& r) {
+				__stl2::make_reverse_iterator(__stl2::begin((R&&) r));
 			}
 		constexpr bool can_make_reverse<R> = true;
 
 		struct fn {
 			// Prefer member if it returns Sentinel
 			template <class R>
-			requires has_member<R>
+			requires has_member<R&>
 			constexpr auto operator()(R& r) const
-			STL2_NOEXCEPT_RETURN(r.rend())
-
+			STL2_NOEXCEPT_RETURN(
+				r.rend()
+			)
+			template <class R>
+			requires !has_member<R> && has_non_member<R>
+			constexpr auto operator()(R&& r) const
+			STL2_NOEXCEPT_RETURN(
+				rend((R&&) r)
+			)
 			// Default to make_reverse_iterator(begin(r)) for Bounded ranges of
 			// Bidirectional iterators.
 			template <class R>
-			requires !has_member<R> && can_make_reverse<R>
-			constexpr auto operator()(R& r) const
+			requires !has_member<R> && !has_non_member<R> && can_make_reverse<R>
+			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				__stl2::make_reverse_iterator(__stl2::begin(r))
+				__stl2::make_reverse_iterator(__stl2::begin((R&&) r))
 			)
-			template <class R>
-			[[deprecated]] constexpr auto operator()(const R&& r) const
-			noexcept(noexcept(declval<const fn&>()(r)))
-			requires has_member<const R> || can_make_reverse<const R>
-			{
-				return (*this)(r);
-			}
 		};
 	}
 	// Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -292,24 +315,24 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto& rend = detail::static_const<__rend::fn>::value;
 	}
 
+	template <class T>
+	using __rend_t = decltype(__stl2::rend(declval<T>()));
+
 	// crbegin
 	namespace __crbegin {
 		struct fn {
 			template <class R>
-			requires
-				requires(const R& r) { __stl2::rbegin(r); }
+			requires requires { typename __rbegin_t<const R&>; }
 			constexpr auto operator()(const R& r) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::rbegin(r)
 			)
 			template <class R>
-			[[deprecated]] constexpr auto operator()(const R&& r) const
-			noexcept(noexcept(__stl2::rbegin(r)))
-			requires
-				requires(const R& r) { __stl2::rbegin(r); }
-			{
-				return __stl2::rbegin(r);
-			}
+			requires requires { typename __rbegin_t<const R>; }
+			constexpr auto operator()(const R&& r) const
+			STL2_NOEXCEPT_RETURN(
+				__stl2::rbegin((const R&&) r)
+			)
 		};
 	}
 	// Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -321,20 +344,17 @@ STL2_OPEN_NAMESPACE {
 	namespace __crend {
 		struct fn {
 			template <class R>
-			requires
-				requires(const R& r) { __stl2::rend(r); }
+			requires requires { typename __rend_t<const R&>; }
 			constexpr auto operator()(const R& r) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::rend(r)
 			)
 			template <class R>
-			[[deprecated]] constexpr auto operator()(const R&& r) const
-			noexcept(noexcept(__stl2::rend(r)))
-			requires
-				requires(const R& r) { __stl2::rend(r); }
-			{
-				return __stl2::rend(r);
-			}
+			requires requires { typename __rend_t<const R>; }
+			constexpr auto operator()(const R&& r) const
+			STL2_NOEXCEPT_RETURN(
+				__stl2::rend((const R&&) r)
+			)
 		};
 	}
 	// Workaround GCC PR66957 by declaring this unnamed namespace inline.
@@ -343,19 +363,27 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
+	// disable_sized_range [ranges.sized]
+	//
+	template <class R>
+	constexpr bool disable_sized_range = false;
+
+	///////////////////////////////////////////////////////////////////////////
 	// Container access [iterator.container]
 	//
 	// size
 	namespace __size {
 		// Poison pill for std::size. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
-		void size(const auto&) = delete;
+		template <class R>
+		void size(const R&) = delete;
 
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
-		requires
+		requires !disable_sized_range<R> &&
 			requires(const R& r) {
+				// { r.size() } -> Integral;
 				requires Integral<__f<decltype(r.size())>>;
 			}
 		constexpr bool has_member<R> = true;
@@ -363,8 +391,9 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		constexpr bool has_non_member = false;
 		template <class R>
-		requires
+		requires !disable_sized_range<R> &&
 			requires(const R& r) {
+				// { size(r) } -> Integral;
 				requires Integral<__f<decltype(size(r))>>;
 			}
 		constexpr bool has_non_member<R> = true;
@@ -372,15 +401,12 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		constexpr bool has_difference = false;
 		template <class R>
-		requires
-			requires(const R& r) {
-				requires SizedSentinel<decltype(__stl2::end(r)), decltype(__stl2::begin(r))>;
-			}
+		requires SizedSentinel<__end_t<const R&>, __begin_t<const R&>>
 		constexpr bool has_difference<R> = true;
 
 		struct fn {
 			template <class T, std::size_t N>
-			constexpr std::size_t operator()(T(&)[N]) const noexcept {
+			constexpr std::size_t operator()(const T(&)[N]) const noexcept {
 				return N;
 			}
 			// Prefer member
@@ -415,49 +441,42 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
-		requires
-			requires(const R& r) {
-				{ r.empty() } -> bool;
+		requires requires(const R& r) {
+				// { r.empty() } -> bool;
+				requires ConvertibleTo<__f<decltype(r.empty())>, bool>;
 			}
 		constexpr bool has_member<R> = true;
 
 		template <class R>
 		constexpr bool has_size = false;
 		template <class R>
-		requires
-			requires(const R& r) { __stl2::size(r); }
+		requires requires(const R& r) { __stl2::size(r); }
 		constexpr bool has_size<R> = true;
 
 		template <class R>
 		constexpr bool has_begin_end = false;
 		template <class R>
-		requires
-			requires(const R& r) {
-				__stl2::end(r);
-			}
+		requires requires { typename __end_t<R>; }
 		constexpr bool has_begin_end<R> = true;
 
 		struct fn {
 			// Prefer member
 			template <class R>
-			requires
-				has_member<R>
+			requires has_member<R>
 			constexpr bool operator()(const R& r) const
 			STL2_NOEXCEPT_RETURN(
 				static_cast<bool>(r.empty())
 			)
 			// Use size
 			template <class R>
-			requires
-				!has_member<R> && has_size<R>
+			requires !has_member<R> && has_size<R>
 			constexpr bool operator()(const R& r) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::size(r) == 0
 			)
 			// Use begin == end
 			template <class R>
-			requires
-				!has_member<R> && !has_size<R> && has_begin_end<R>
+			requires !has_member<R> && !has_size<R> && has_begin_end<R>
 			constexpr bool operator()(const R& r) const
 			STL2_NOEXCEPT_RETURN(
 				static_cast<bool>(__stl2::begin(r) == __stl2::end(r))
@@ -474,75 +493,57 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
-		requires
-			requires(R& r) {
-				requires _Is<__f<decltype(r.data())>, std::is_pointer>;
+		requires requires(R& r) {
+				r.data();
+				requires std::is_pointer<__f<decltype(r.data())>>::value;
 			}
-		constexpr bool has_member<R> = true;
+		constexpr bool has_member<R&> = true;
 
 		template <class R>
 		constexpr bool has_pointer_iterator = false;
 		template <class R>
-		requires
-			requires(R& r) {
-				requires is_pointer<decltype(__stl2::begin(r))>::value;
-			}
+		requires std::is_pointer<__begin_t<R>>::value
 		constexpr bool has_pointer_iterator<R> = true;
 
 		template <class R>
 		constexpr bool has_contiguous_iterator = false;
 		template <class R>
-		requires
-			requires(R& r) {
-				requires ext::ContiguousIterator<decltype(__stl2::begin(r))>;
-			}
+		requires ext::ContiguousIterator<__begin_t<R>>
 		constexpr bool has_contiguous_iterator<R> = true;
 
 		struct fn {
 			// Prefer member
 			template <class R>
-			requires has_member<R>
+			requires has_member<R&>
 			constexpr auto operator()(R& r) const
 			STL2_NOEXCEPT_RETURN(
 				r.data()
 			)
-
 			// Return begin(r) if it's a pointer
 			template <class R>
 			requires !has_member<R> && has_pointer_iterator<R>
-			constexpr auto operator()(R& r) const
+			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				__stl2::begin(r)
+				__stl2::begin((R&&) r)
 			)
-
 			// Extension: Support contiguous ranges with non-pointer
 			//            iterators.
 			template <class R>
 			requires !has_member<R> && !has_pointer_iterator<R> &&
 				has_contiguous_iterator<R>
-			constexpr auto operator()(R& r) const
-			noexcept(noexcept(__stl2::begin(r) == __stl2::end(r)
-				? nullptr : detail::addressof(*__stl2::begin(r))))
+			constexpr auto operator()(R&& r) const
+			noexcept(noexcept(*declval<__begin_t<R>&>()) &&
+				noexcept(declval<__begin_t<R>&>() == declval<__end_t<R>>()))
 			{
-				auto i = __stl2::begin(r);
-				return i == __stl2::end(r) ? nullptr : detail::addressof(*i);
+				auto i = __stl2::begin((R&&) r);
+				return i == __stl2::end((R&&) r) ? nullptr : detail::addressof(*i);
 			}
-
 			// Extension: return pointer-to-mutable for string even before C++17.
 			template <class CharT, class Traits>
 			CharT* operator()(std::basic_string<CharT, Traits>& str) const
 			noexcept(noexcept(str.data()))
 			{
 				return const_cast<CharT*>(str.data());
-			}
-
-			template <class R>
-			[[deprecated]] constexpr auto operator()(const R&& r) const
-			noexcept(noexcept(std::declval<const fn&>()(r)))
-			requires has_member<const R> || has_pointer_iterator<const R> ||
-				has_contiguous_iterator<const R>
-			{
-				return (*this)(r);
 			}
 		};
 	}
@@ -556,17 +557,17 @@ STL2_OPEN_NAMESPACE {
 		namespace __cdata {
 			struct fn {
 				template <class R>
-					requires requires(const R& r) { __stl2::data(r); }
+				requires requires(const R& r) { __stl2::data(r); }
 				constexpr auto operator()(const R& r) const
-				STL2_NOEXCEPT_RETURN(__stl2::data(r))
+				STL2_NOEXCEPT_RETURN(
+					__stl2::data(r)
+				)
 
 				template <class R>
-				[[deprecated]] constexpr auto operator()(const R&& r) const
-					noexcept(noexcept(__stl2::data(r)))
-					requires requires(const R& r) { __stl2::data(r); }
-				{
-					return __stl2::data(r);
-				}
+				constexpr auto operator()(const R&& r) const
+				STL2_NOEXCEPT_RETURN(
+					__stl2::data((const R&&) r)
+				)
 			};
 		}
 		// Workaround GCC PR66957 by declaring this unnamed namespace inline.

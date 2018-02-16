@@ -24,8 +24,34 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		// iterator_range? view? simple_iterator_and_sentinel_pair?
-		template <Iterator I, Sentinel<I> S = I>
-		using range = tagged_pair<tag::begin(I), tag::end(S)>;
+		template <class I, class S = I>
+		struct range;
+
+		template <Iterator I, Sentinel<I> S>
+		struct range<I, S>
+		: tagged_pair<tag::begin(I), tag::end(S)> {
+			range() = default;
+			using tagged_pair<tag::begin(I), tag::end(S)>::tagged_pair;
+		};
+
+		template <Iterator I, Sentinel<I> S>
+		struct range<dangling<I>, dangling<S>>
+		: tagged_pair<tag::begin(dangling<I>), tag::end(dangling<S>)> {
+			range() = default;
+			using tagged_pair<tag::begin(dangling<I>), tag::end(dangling<S>)>::tagged_pair;
+		};
+
+		template <class I, class S>
+		constexpr I begin(ext::range<I, S>&& r)
+		STL2_NOEXCEPT_RETURN(
+			r.begin()
+		)
+
+		template <class I, class S>
+		constexpr S end(ext::range<I, S>&& r)
+		STL2_NOEXCEPT_RETURN(
+			r.end()
+		)
 
 		template <Iterator I, Sentinel<I> S>
 		constexpr auto make_range(I i, S s)

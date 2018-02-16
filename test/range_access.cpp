@@ -109,6 +109,7 @@ void test() {
 
 	// Valid: only member begin
 	static_assert(can_begin<A&>);
+	static_assert(!can_begin<A>);
 	static_assert(models::Same<decltype(__stl2::begin(__stl2::declval<A&>())), int*>);
 	static_assert(can_begin<const A&>);
 	static_assert(models::Same<decltype(__stl2::begin(__stl2::declval<const A&>())), const int*>);
@@ -135,6 +136,9 @@ void test() {
 		static_assert(models::Same<const int*, decltype(__stl2::begin(__stl2::declval<T&>()))>);
 		static_assert(models::Same<const int*, decltype(__stl2::begin(__stl2::declval<const T&>()))>);
 	}
+
+	static_assert(can_begin<__stl2::ext::range<int*,int*>&>);
+	static_assert(can_begin<__stl2::ext::range<int*,int*>&&>);
 }
 } // namespace begin_testing
 
