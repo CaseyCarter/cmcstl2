@@ -76,7 +76,7 @@ test_one_rng(unsigned N, unsigned M)
 	std::sort(ia, ia+M);
 	std::sort(ia+M, ia+N);
 	auto res2 = stl2::inplace_merge(stl2::ext::subrange(Iter(ia), Sent(ia+N)), Iter(ia+M));
-	CHECK(res2.get_unsafe() == Iter(ia+N));
+	CHECK(res2 == Iter(ia+N));
 	if(N > 0)
 	{
 		CHECK(ia[0] == 0);

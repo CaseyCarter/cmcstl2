@@ -75,8 +75,8 @@ int main()
 		auto r0 = stl2::ext::subrange(ia.get(), ia.get() + N);
 		auto r1 = stl2::ext::subrange(ib.get(), ib.get() + N);
 		auto r = stl2::merge(std::move(r0), std::move(r1), ic.get());
-		CHECK(std::get<0>(r).get_unsafe() == ia.get() + N);
-		CHECK(std::get<1>(r).get_unsafe() == ib.get() + N);
+		CHECK(std::get<0>(r) == ia.get() + N);
+		CHECK(std::get<1>(r) == ib.get() + N);
 		CHECK(std::get<2>(r) == ic.get() + 2 * N);
 		CHECK(ic[0] == 0);
 		CHECK(ic[2 * N - 1] == (int)(2 * N - 1));

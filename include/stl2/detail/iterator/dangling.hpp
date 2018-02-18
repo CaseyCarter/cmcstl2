@@ -45,9 +45,9 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template <class T, class U>
+	template <Range R, class U>
 	using __maybe_dangling =
-		meta::if_<is_lvalue_reference<T>, U, dangling<U>>;
+		meta::if_<meta::is_trait<meta::defer<__begin_t, R>>, U, dangling<U>>;
 
 	template <Range R>
 	using safe_iterator_t = __maybe_dangling<R, iterator_t<R>>;

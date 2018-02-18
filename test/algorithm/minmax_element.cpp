@@ -71,14 +71,14 @@ test_iter(Iter first, Sent last)
 	{
 		for (Iter j = first; j != last; ++j)
 		{
-			CHECK(!(*j < *res.first.get_unsafe()));
+			CHECK(!(*j < *res.first));
 			CHECK(!(*p.second < *j));
 		}
 	}
 	else
 	{
-		CHECK(res.first.get_unsafe() == last);
-		CHECK(res.second.get_unsafe() == last);
+		CHECK(res.first == last);
+		CHECK(res.second == last);
 	}
 }
 
@@ -155,14 +155,14 @@ test_iter_comp(Iter first, Sent last)
 	{
 		for (Iter j = first; j != last; ++j)
 		{
-			CHECK(!comp(*j, *res.get_unsafe().first));
-			CHECK(!comp(*res.get_unsafe().second, *j));
+			CHECK(!comp(*j, *res.first));
+			CHECK(!comp(*res.second, *j));
 		}
 	}
 	else
 	{
-		CHECK(res.get_unsafe().first == last);
-		CHECK(res.get_unsafe().second == last);
+		CHECK(res.first == last);
+		CHECK(res.second == last);
 	}
 }
 

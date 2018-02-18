@@ -58,10 +58,10 @@ test_iter(Iter first, Sent last)
 	if (first != last)
 	{
 		for (Iter j = first; j != last; ++j)
-			CHECK(!(*j < *res.get_unsafe()));
+			CHECK(!(*j < *res));
 	}
 	else
-		CHECK(res.get_unsafe() == last);
+		CHECK(res == last);
 }
 
 template <class Iter, class Sent = Iter>
@@ -113,10 +113,10 @@ test_iter_comp(Iter first, Sent last)
 	if (first != last)
 	{
 		for (Iter j = first; j != last; ++j)
-			CHECK(!std::greater<int>()(*j, *res.get_unsafe()));
+			CHECK(!std::greater<int>()(*j, *res));
 	}
 	else
-		CHECK(res.get_unsafe() == last);
+		CHECK(res == last);
 }
 
 template <class Iter, class Sent = Iter>

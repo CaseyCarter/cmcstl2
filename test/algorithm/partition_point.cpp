@@ -150,7 +150,7 @@ test_range()
 		const int ia[] = {1, 3, 5, 7, 9, 2};
 		CHECK(stl2::partition_point(stl2::ext::subrange(Iter(stl2::begin(ia)),
 														 Sent(stl2::end(ia))),
-									  is_odd()).get_unsafe() == Iter(ia + 5));
+									  is_odd()) == Iter(ia + 5));
 	}
 }
 

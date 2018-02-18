@@ -64,7 +64,7 @@ test()
 	CHECK(ia[1] == 10);
 	CHECK(ia[2] == 11);
 	CHECK(ia[3] == 12);
-	CHECK(res3.get_unsafe() == Iter(ia + n));
+	CHECK(res3 == Iter(ia + n));
 	CHECK(f.i_ == 13);
 }
 

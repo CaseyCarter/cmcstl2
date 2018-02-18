@@ -54,7 +54,7 @@ test_char()
 	CHECK(ca[1] == 3);
 	CHECK(ca[2] == 3);
 	CHECK(ca[3] == 3);
-	CHECK(j.get_unsafe() == Iter(ca + 4));
+	CHECK(j == Iter(ca + 4));
 }
 
 template <class Iter, class Sent = Iter>

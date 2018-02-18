@@ -115,7 +115,7 @@ void test_rng()
 	CHECK(rng::find_first_of(subrange(input_iterator<const int*>(ia),
 							 input_iterator<const int*>(ia + sa)),
 							 subrange(forward_iterator<const int*>(ib),
-							 forward_iterator<const int*>(ib + sb))).get_unsafe() ==
+							 forward_iterator<const int*>(ib + sb))) ==
 							 input_iterator<const int*>(ia+1));
 	int ic[] = {7};
 	CHECK(rng::find_first_of(as_lvalue(subrange(input_iterator<const int*>(ia),
@@ -136,17 +136,17 @@ void test_rng()
 	CHECK(rng::find_first_of(subrange(input_iterator<const int*>(ia),
 							 input_iterator<const int*>(ia + sa)),
 							 subrange(forward_iterator<const int*>(ic),
-							 forward_iterator<const int*>(ic + 1))).get_unsafe() ==
+							 forward_iterator<const int*>(ic + 1))) ==
 							 input_iterator<const int*>(ia+sa));
 	CHECK(rng::find_first_of(subrange(input_iterator<const int*>(ia),
 							 input_iterator<const int*>(ia + sa)),
 							 subrange(forward_iterator<const int*>(ic),
-							 forward_iterator<const int*>(ic))).get_unsafe() ==
+							 forward_iterator<const int*>(ic))) ==
 							 input_iterator<const int*>(ia+sa));
 	CHECK(rng::find_first_of(subrange(input_iterator<const int*>(ia),
 							 input_iterator<const int*>(ia)),
 							 subrange(forward_iterator<const int*>(ic),
-							 forward_iterator<const int*>(ic+1))).get_unsafe() ==
+							 forward_iterator<const int*>(ic+1))) ==
 							 input_iterator<const int*>(ia));
 }
 

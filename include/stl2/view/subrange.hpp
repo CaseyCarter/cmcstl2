@@ -221,10 +221,7 @@ STL2_OPEN_NAMESPACE {
 		using sized_subrange = subrange<I, S, true>;
 
 		template <Range R>
-		using safe_subrange_t =	meta::if_<
-			std::is_lvalue_reference<R>,
-			ext::subrange<iterator_t<R>>,
-			tagged_pair<tag::begin(safe_iterator_t<R>), tag::end(safe_iterator_t<R>)>>;
+		using safe_subrange_t = __maybe_dangling<R, ext::subrange<iterator_t<R>>>;
 
 		template <Iterator I, Sentinel<I> S>
 		subrange(I, S, difference_type_t<I>) -> subrange<I, S, true>;
@@ -254,6 +251,18 @@ STL2_OPEN_NAMESPACE {
 			else
 				return r.end();
 		}
+
+		template <class I, class S, bool Sized>
+		constexpr I begin(subrange<I, S, Sized>&& r)
+		STL2_NOEXCEPT_RETURN(
+			r.begin()
+		)
+
+		template <class I, class S, bool Sized>
+		constexpr S end(subrange<I, S, Sized>&& r)
+		STL2_NOEXCEPT_RETURN(
+			r.end()
+		)
 	}
 } STL2_CLOSE_NAMESPACE
 

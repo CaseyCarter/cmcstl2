@@ -147,8 +147,8 @@ void test_rng_4()
 	auto r2 = stl2::swap_ranges(
 		stl2::ext::subrange(Iter1(j), Sent1(j+4)),
 		stl2::ext::subrange(Iter2(i), Sent2(i+3)));
-	CHECK(base(r2.first.get_unsafe()) == j+3);
-	CHECK(base(r2.second.get_unsafe()) == i+3);
+	CHECK(base(r2.first) == j+3);
+	CHECK(base(r2.second) == i+3);
 	CHECK(i[0] == 4);
 	CHECK(i[1] == 5);
 	CHECK(i[2] == 6);

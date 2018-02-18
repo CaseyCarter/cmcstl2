@@ -102,7 +102,7 @@ int main()
 			std::fill_n(buf, sizeof(buf), '\0');
 			auto res4 = ranges::copy(std::move(str), buf);
 			*res4.second = '\0';
-			CHECK(res4.first.get_unsafe() == std::next(begin(str), std::strlen(sz)));
+			CHECK(res4.first == std::next(begin(str), std::strlen(sz)));
 			CHECK(res4.second == buf + std::strlen(sz));
 			CHECK(std::strcmp(sz, buf) == 0);
 		}

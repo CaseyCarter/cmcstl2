@@ -118,7 +118,7 @@ int main()
 		{
 			a.fill(0);
 			auto result = ranges::sample(std::move(rng), a.begin(), K, g1);
-			CHECK(in_sequence(ranges::begin(rng), result.in().get_unsafe(), ranges::end(rng)));
+			CHECK(in_sequence(ranges::begin(rng), result.in(), ranges::end(rng)));
 			CHECK(result.out() == a.end());
 			CHECK(!ranges::equal(a, c));
 		}
@@ -220,7 +220,7 @@ int main()
 		{
 			a.fill(0);
 			auto result = ranges::sample(std::move(rng), a, g1);
-			CHECK(in_sequence(i.data(), result.in().get_unsafe().base(), i.data() + N));
+			CHECK(in_sequence(i.data(), result.in().base(), i.data() + N));
 			CHECK(result.out() == a.end());
 			CHECK(!ranges::equal(a, c));
 		}

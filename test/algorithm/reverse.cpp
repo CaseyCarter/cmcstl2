@@ -95,7 +95,7 @@ void test()
 		// rvalue range
 		auto i5 = stl2::reverse(stl2::ext::subrange(Iter(id), Sent(id+sd)));
 		::check_equal(id, {0, 1, 2, 3});
-		CHECK(i5.get_unsafe() == Iter(id+sd));
+		CHECK(i5 == Iter(id+sd));
 	}
 }
 
