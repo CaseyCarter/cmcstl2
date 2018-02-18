@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 			template <class R, std::size_t N>
 			void operator()(R (&&)[N]) const = delete;
 			template <class T>
-			void operator()(initializer_list<T>&&) const = delete;
+			void operator()(std::initializer_list<T>&&) const = delete;
 			template <class R, std::size_t N>
 			constexpr R* operator()(R (&array)[N]) const noexcept {
 				return array;
@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <class R>
-	using __begin_t = decltype(__stl2::begin(declval<R>()));
+	using __begin_t = decltype(__stl2::begin(std::declval<R>()));
 
 	// end
 	namespace __end {
@@ -116,7 +116,7 @@ STL2_OPEN_NAMESPACE {
 			template <class R, std::size_t N>
 			void operator()(R (&&)[N]) const = delete;
 			template <class T>
-			void operator()(initializer_list<T>&&) const = delete;
+			void operator()(std::initializer_list<T>&&) const = delete;
 			template <class R, std::size_t N>
 			constexpr R* operator()(R (&array)[N]) const noexcept {
 				return array + N;
@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <class R>
-	using __end_t = decltype(__stl2::end(declval<R>()));
+	using __end_t = decltype(__stl2::end(std::declval<R>()));
 
 	// cbegin
 	namespace __cbegin {
@@ -257,7 +257,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <class T>
-	using __rbegin_t = decltype(__stl2::rbegin(declval<T>()));
+	using __rbegin_t = decltype(__stl2::rbegin(std::declval<T>()));
 
 	// rend
 	namespace __rend {
@@ -324,7 +324,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <class T>
-	using __rend_t = decltype(__stl2::rend(declval<T>()));
+	using __rend_t = decltype(__stl2::rend(std::declval<T>()));
 
 	// crbegin
 	namespace __crbegin {
@@ -540,8 +540,8 @@ STL2_OPEN_NAMESPACE {
 			requires !has_member<R> && !has_pointer_iterator<R> &&
 				has_contiguous_iterator<R>
 			constexpr auto operator()(R&& r) const
-			noexcept(noexcept(*declval<__begin_t<R>&>()) &&
-				noexcept(declval<__begin_t<R>&>() == declval<__end_t<R>>()))
+			noexcept(noexcept(*std::declval<__begin_t<R>&>()) &&
+				noexcept(std::declval<__begin_t<R>&>() == std::declval<__end_t<R>>()))
 			{
 				auto i = __stl2::begin((R&&) r);
 				return i == __stl2::end((R&&) r) ? nullptr : detail::addressof(*i);
