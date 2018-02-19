@@ -384,58 +384,62 @@ STL2_OPEN_NAMESPACE {
 		// Poison pill for std::size. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
 		template <class R>
-		void size(const R&) = delete;
+		void size(R&&) = delete;
 
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
-		requires !disable_sized_range<R> &&
-			requires(const R& r) {
-				// { r.size() } -> Integral;
-				requires Integral<__f<decltype(r.size())>>;
+		requires !disable_sized_range<__uncvref<R>> &&
+			requires(R&& r) {
+				// { ((R&&) r).size() } -> Integral;
+				requires Integral<__f<decltype(((R&&) r).size())>>;
 			}
 		constexpr bool has_member<R> = true;
 
 		template <class R>
 		constexpr bool has_non_member = false;
 		template <class R>
-		requires !disable_sized_range<R> &&
-			requires(const R& r) {
-				// { size(r) } -> Integral;
-				requires Integral<__f<decltype(size(r))>>;
+		requires !disable_sized_range<__uncvref<R>> &&
+			requires(R&& r) {
+				// { size((R&&) r) } -> Integral;
+				requires Integral<__f<decltype(size((R&&) r))>>;
 			}
 		constexpr bool has_non_member<R> = true;
 
 		template <class R>
 		constexpr bool has_difference = false;
 		template <class R>
-		requires SizedSentinel<__end_t<const R&>, __begin_t<const R&>>
+		requires SizedSentinel<__end_t<R>, __begin_t<R>>
 		constexpr bool has_difference<R> = true;
 
 		struct fn {
 			template <class T, std::size_t N>
-			constexpr std::size_t operator()(const T(&)[N]) const noexcept {
+			constexpr std::size_t operator()(T(&)[N]) const noexcept {
+				return N;
+			}
+			template <class T, std::size_t N>
+			constexpr std::size_t operator()(T(&&)[N]) const noexcept {
 				return N;
 			}
 			// Prefer member
 			template <class R>
 			requires has_member<R>
-			constexpr auto operator()(const R& r) const
+			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				r.size()
+				((R&&) r).size()
 			)
 			// Use non-member
 			template <class R>
 			requires !has_member<R> && has_non_member<R>
-			constexpr auto operator()(const R& r) const
+			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				size(r)
+				size((R&&) r)
 			)
 			template <class R>
 			requires !has_member<R> && !has_non_member<R> && has_difference<R>
-			constexpr auto operator()(const R& r) const
+			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				__stl2::end(r) - __stl2::begin(r)
+				__stl2::end((R&&) r) - __stl2::begin((R&&) r)
 			)
 		};
 	}
@@ -449,16 +453,15 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
-		requires requires(const R& r) {
-				// { r.empty() } -> bool;
-				requires ConvertibleTo<__f<decltype(r.empty())>, bool>;
+		requires requires(R&& r) {
+				bool(((R&&) r).empty());
 			}
 		constexpr bool has_member<R> = true;
 
 		template <class R>
 		constexpr bool has_size = false;
 		template <class R>
-		requires requires(const R& r) { __stl2::size(r); }
+		requires requires(R&& r) { __stl2::size((R&&) r); }
 		constexpr bool has_size<R> = true;
 
 		template <class R>
@@ -471,23 +474,23 @@ STL2_OPEN_NAMESPACE {
 			// Prefer member
 			template <class R>
 			requires has_member<R>
-			constexpr bool operator()(const R& r) const
+			constexpr bool operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				static_cast<bool>(r.empty())
+				bool(((R&&) r).empty())
 			)
 			// Use size
 			template <class R>
 			requires !has_member<R> && has_size<R>
-			constexpr bool operator()(const R& r) const
+			constexpr bool operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				__stl2::size(r) == 0
+				__stl2::size((R&&) r) == 0
 			)
 			// Use begin == end
 			template <class R>
 			requires !has_member<R> && !has_size<R> && has_begin_end<R>
-			constexpr bool operator()(const R& r) const
+			constexpr bool operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				static_cast<bool>(__stl2::begin(r) == __stl2::end(r))
+				__stl2::begin((R&&) r) == __stl2::end((R&&) r)
 			)
 		};
 	}
@@ -520,6 +523,8 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_contiguous_iterator<R> = true;
 
 		struct fn {
+			template <class I>
+			static I& __idref(I) noexcept;
 			// Prefer member
 			template <class R>
 			requires has_member<R&>
@@ -540,8 +545,8 @@ STL2_OPEN_NAMESPACE {
 			requires !has_member<R> && !has_pointer_iterator<R> &&
 				has_contiguous_iterator<R>
 			constexpr auto operator()(R&& r) const
-			noexcept(noexcept(*std::declval<__begin_t<R>&>()) &&
-				noexcept(std::declval<__begin_t<R>&>() == std::declval<__end_t<R>>()))
+			noexcept(noexcept((__idref)(__stl2::begin((R&&) r)) == __stl2::end((R&&) r)
+				? nullptr : *(__idref)(__stl2::begin((R&&) r))))
 			{
 				auto i = __stl2::begin((R&&) r);
 				return i == __stl2::end((R&&) r) ? nullptr : detail::addressof(*i);
