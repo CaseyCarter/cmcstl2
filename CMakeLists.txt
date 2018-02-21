@@ -14,6 +14,9 @@ cmake_minimum_required(VERSION 3.8)
 
 project(cmcstl2 CXX)
 
+option(BUILD_TESTS "Build the unit tests" OFF)
+option(BUILD_EXAMPLES "Build the examples" OFF)
+
 add_library(stl2 INTERFACE)
 target_include_directories(stl2 INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -32,8 +35,12 @@ install(
     FILES ${PROJECT_BINARY_DIR}/cmcstl2-config.cmake
     DESTINATION lib/cmake/cmcstl2)
 
-add_subdirectory(examples)
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
-enable_testing()
-include(CTest)
-add_subdirectory(test)
+if(BUILD_TESTS)
+    enable_testing()
+    include(CTest)
+    add_subdirectory(test)
+endif()
