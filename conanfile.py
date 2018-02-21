@@ -14,12 +14,13 @@ class CMCSTL2Conan(ConanFile):
     url="https://github.com/CaseyCarter/cmcstl2"
     description="An implementation of C++ Extensions for Ranges"
     license = "https://github.com/CaseyCarter/cmcstl2/blob/master/LICENSE.txt"
-    settings = ["os", "compiler", "arch"]
+    settings = ["compiler", "arch"]
     generators = "cmake"
     exports_sources = ["CMakeLists.txt", "include/*", "test/*", "examples/*"]
 
     def build(self):
         cmake = CMake(self)
+        cmake.verbose = True
         cmake.configure(source_folder=".")
         cmake.build()
         cmake.test()

@@ -18,11 +18,11 @@ matrix:
       addons: &gcc6
         apt:
           packages:
-            - g++-6
+            - g++-6 python-pip
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: GCC_VERSION=6 BUILD_TYPE=Release ASAN=Off
+    - env: GCC_VERSION=6 CONAN_GCC_VERSIONS=6 BUILD_TYPE=Release ASAN=Off
       os: linux
       addons: *gcc6
 
@@ -30,12 +30,12 @@ matrix:
     #   os: linux
     #   addons: *gcc6
 
-    - env: GCC_VERSION=7 BUILD_TYPE=Debug ASAN=Off
+    - env: GCC_VERSION=7 CONAN_GCC_VERSIONS=7 BUILD_TYPE=Debug ASAN=Off
       os: linux
       addons: &gcc7
         apt:
           packages:
-            - g++-7
+            - g++-7 python-pip
           sources:
             - ubuntu-toolchain-r-test
 
@@ -65,13 +65,24 @@ install:
       export PATH="${DEPS_DIR}/cmake/bin:${PATH}"
     fi
 
+  ############################################################################
+  # Install conan
+  ############################################################################
+  - pip install --user conan conan_package_tools
+  - conan user
+
 before_script:
   - cd "${TRAVIS_BUILD_DIR}"
   - mkdir -p build
   - cd build
   - if [ -n "$GCC_VERSION" -a "$ASAN" == "On" ]; then CXX_FLAGS="${CXX_FLAGS}"; fi
-  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS="${CXX_FLAGS}"
+  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DBUILD_TESTS=1 -DBUILD_EXAMPLES=1
   - make VERBOSE=1 -j${JOBS}
 
 script:
   - ctest -j${JOBS} --output-on-failure
+  - conan create .. mmha/stable
+  - conan remote add repo $CONAN_UPLOAD --insert
+  - conan user -p $CONAN_PASSWORD -r repo $CONAN_LOGIN_USERNAME
+  - conan upload cmcstl2/\*@$CONAN_LOGIN_USERNAME/$CONAN_CHANNEL --all -r=repo --confirm
+  #- python .travis/package.py
