@@ -13,9 +13,9 @@ target_link_libraries(app PRIVATE stl2)
 ```
 
 ## Conan Package
-| | | |
-|-|-|-|
-| Bintray repository | `conan remote add mmha https://api.bintray.com/conan/mmha/conan` |
+| On Bintray| [ ![Download](https://api.bintray.com/packages/mmha/conan/cmcstl2%3Ammha/images/download.svg) ](https://bintray.com/mmha/conan/cmcstl2%3Ammha/_latestVersion) |
+|-|-|
+| Repository | `conan remote add mmha https://api.bintray.com/conan/mmha/conan` |
 | Package reference  | `conan install cmcstl2/<commit_hash>@mmha/stable` |
 
 ### Usage
