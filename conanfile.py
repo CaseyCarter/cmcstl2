@@ -29,3 +29,5 @@ class CMCSTL2Conan(ConanFile):
         self.cpp_info.includedirs = ['include']
         if self.settings.compiler == "gcc":
             self.cpp_info.cppflags = ["-fconcepts"]
+        elif self.settings.compiler == "Visual Studio":
+            self.cpp_info.cppflags = ["/std:c++latest"]
