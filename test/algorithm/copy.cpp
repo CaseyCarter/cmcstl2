@@ -89,7 +89,7 @@ int main()
 	{
 		char const *sz = "hello world";
 		char buf[50];
-		auto str = ranges::ext::make_range(sz, delimiter<const char*>{'\0'});
+		auto str = ranges::ext::subrange(sz, delimiter<const char*>{'\0'});
 		{
 			std::fill_n(buf, sizeof(buf), '\0');
 			auto res3 = ranges::copy(str, buf);
@@ -102,7 +102,7 @@ int main()
 			std::fill_n(buf, sizeof(buf), '\0');
 			auto res4 = ranges::copy(std::move(str), buf);
 			*res4.second = '\0';
-			CHECK(res4.first.get_unsafe() == std::next(begin(str), std::strlen(sz)));
+			CHECK(res4.first == std::next(begin(str), std::strlen(sz)));
 			CHECK(res4.second == buf + std::strlen(sz));
 			CHECK(std::strcmp(sz, buf) == 0);
 		}

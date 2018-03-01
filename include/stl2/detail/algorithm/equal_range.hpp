@@ -18,10 +18,13 @@
 #include <stl2/detail/algorithm/lower_bound.hpp>
 #include <stl2/detail/algorithm/upper_bound.hpp>
 #include <stl2/detail/concepts/callable.hpp>
-#include <stl2/detail/range/range.hpp>
+#include <stl2/view/subrange.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // equal_range [equal.range]
+//
+// Not to spec:
+// * use of ext::subrange and ext::safe_subrange_t throughout
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
@@ -29,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectStrictWeakOrder<
 				Comp, const T*, projected<I, Proj>>
-		ext::range<I> equal_range_n(I first, difference_type_t<I> dist, const T& value,
+		ext::subrange<I> equal_range_n(I first, difference_type_t<I> dist, const T& value,
 			Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			if (0 < dist) {
@@ -65,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<I, Proj>>
-	ext::range<I> equal_range(I first, S last, const T& value,
+	ext::subrange<I> equal_range(I first, S last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		// Probe exponentially for either end-of-range, an iterator that
@@ -111,7 +114,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<I, Proj>>
-	ext::range<I> equal_range(I first, S last, const T& value,
+	ext::subrange<I> equal_range(I first, S last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto len = __stl2::distance(first, std::move(last));
@@ -124,8 +127,8 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>>
-	ext::range<safe_iterator_t<Rng>> equal_range(Rng&& rng, const T& value,
-		Comp comp = Comp{}, Proj proj = Proj{})
+	ext::safe_subrange_t<Rng>
+	equal_range(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::equal_range(
 			__stl2::begin(rng), __stl2::end(rng), value,
@@ -138,8 +141,8 @@ STL2_OPEN_NAMESPACE {
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>> &&
 		SizedRange<Rng>
-	ext::range<safe_iterator_t<Rng>> equal_range(Rng&& rng, const T& value,
-		Comp comp = Comp{}, Proj proj = Proj{})
+	ext::safe_subrange_t<Rng>
+	equal_range(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return ext::equal_range_n(
 			__stl2::begin(rng), __stl2::size(rng), value,

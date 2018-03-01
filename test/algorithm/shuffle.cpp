@@ -57,14 +57,14 @@ int main()
 		std::iota(ib, ib + s, 0);
 		std::iota(orig, orig + s, 0);
 		std::minstd_rand g;
-		auto rng = stl2::ext::make_range(random_access_iterator<int*>(ia), sentinel<int*>(ia+s));
+		auto rng = stl2::ext::subrange(random_access_iterator<int*>(ia), sentinel<int*>(ia+s));
 		stl2::shuffle(rng, g);
 		CHECK(!stl2::equal(ia, orig));
 		CHECK(stl2::shuffle(ib, g) == stl2::end(ib));
 		CHECK(!stl2::equal(ia, ib));
 
 		std::iota(ia, ia + s, 0);
-		CHECK(stl2::shuffle(stl2::move(rng), g).get_unsafe().base() == stl2::end(ia));
+		CHECK(stl2::shuffle(stl2::move(rng), g).base() == stl2::end(ia));
 		CHECK(!stl2::equal(ia, orig));
 	}
 

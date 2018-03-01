@@ -264,8 +264,8 @@ int main()
 	{
 		int rgi[] = {0,1,2,3,4,5};
 		auto r = stl2::rotate(stl2::move(rgi), rgi+2);
-		CHECK(r.begin().get_unsafe() == rgi+4);
-		CHECK(r.end().get_unsafe() == stl2::end(rgi));
+		CHECK(r.get_unsafe().begin() == rgi+4);
+		CHECK(r.get_unsafe().end() == stl2::end(rgi));
 		CHECK(rgi[0] == 2);
 		CHECK(rgi[1] == 3);
 		CHECK(rgi[2] == 4);

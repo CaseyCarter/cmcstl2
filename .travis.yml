@@ -13,23 +13,6 @@ cache:
 
 matrix:
   include:
-    - env: GCC_VERSION=6 BUILD_TYPE=Debug ASAN=Off
-      os: linux
-      addons: &gcc6
-        apt:
-          packages:
-            - g++-6
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - env: GCC_VERSION=6 BUILD_TYPE=Release ASAN=Off
-      os: linux
-      addons: *gcc6
-
-    # - env: GCC_VERSION=6 BUILD_TYPE=Release ASAN=On
-    #   os: linux
-    #   addons: *gcc6
-
     - env: GCC_VERSION=7 BUILD_TYPE=Debug ASAN=Off
       os: linux
       addons: &gcc7

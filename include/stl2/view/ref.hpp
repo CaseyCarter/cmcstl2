@@ -19,18 +19,16 @@
 #include <stl2/detail/memory/addressof.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <type_traits>
-#include <utility>
+#include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <Range Rng>
-		requires
-			!(_Is<Rng, std::is_reference> || View<Rng>)
-		class ref_view : view_base {
-			detail::raw_ptr<Rng> rng_;
+		requires !_Is<Rng, std::is_reference> && !View<Rng>
+		class ref_view : public view_interface<ref_view<Rng>> {
+			Rng* rng_ = nullptr;
 		public:
-			ref_view() = default;
+			constexpr ref_view() noexcept = default;
 			constexpr ref_view(Rng& rng) noexcept
 			: rng_{detail::addressof(rng)} {}
 
@@ -44,9 +42,9 @@ STL2_OPEN_NAMESPACE {
 			)
 
 			constexpr bool empty() const
-			STL2_NOEXCEPT_RETURN(
-				__stl2::empty(*rng_)
-			)
+			noexcept(noexcept(__stl2::empty(*rng_)))
+			requires detail::CanEmpty<Rng>
+			{ return __stl2::empty(*rng_); }
 
 			constexpr auto size() const
 			noexcept(noexcept(__stl2::size(*rng_)))
@@ -55,22 +53,20 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr auto data() const
 			noexcept(noexcept(__stl2::data(*rng_)))
-			requires requires { __stl2::data(*rng_); }
+			requires ContiguousRange<Rng>
 			{ return __stl2::data(*rng_); }
 		};
 
-		template <Range Rng>
-		requires !View<Rng>
-		constexpr ref_view<Rng> as_view(Rng& rng) noexcept
-		{ return ref_view<Rng>{rng}; }
-
-		template <class T, View V = __uncvref<T>>
-		requires Constructible<V, T>
-		constexpr T&& as_view(T&& t) noexcept
-		{ return std::forward<T>(t); }
-
-		template <Range Rng>
-		using as_view_t = std::decay_t<decltype(ext::as_view(std::declval<Rng>()))>;
+		template <class Rng>
+		constexpr iterator_t<Rng> begin(ref_view<Rng>&& r)
+		STL2_NOEXCEPT_RETURN(
+			r.begin()
+		)
+		template <class Rng>
+		constexpr sentinel_t<Rng> end(ref_view<Rng>&& r)
+		STL2_NOEXCEPT_RETURN(
+			r.end()
+		)
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 

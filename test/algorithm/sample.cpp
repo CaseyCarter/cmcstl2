@@ -91,7 +91,7 @@ int main()
 		std::iota(std::begin(i), std::end(i), 0);
 		std::array<int, K> a{}, b{}, c{};
 		std::minstd_rand g1, g2 = g1;
-		auto rng = ranges::ext::make_range(random_access_iterator<int*>(i.data()), sentinel<int*>(i.data() + N));
+		auto rng = ranges::ext::subrange(random_access_iterator<int*>(i.data()), sentinel<int*>(i.data() + N));
 
 		{
 			auto result = ranges::sample(rng, a.begin(), K, g1);
@@ -118,7 +118,7 @@ int main()
 		{
 			a.fill(0);
 			auto result = ranges::sample(std::move(rng), a.begin(), K, g1);
-			CHECK(in_sequence(ranges::begin(rng), result.in().get_unsafe(), ranges::end(rng)));
+			CHECK(in_sequence(ranges::begin(rng), result.in(), ranges::end(rng)));
 			CHECK(result.out() == a.end());
 			CHECK(!ranges::equal(a, c));
 		}
@@ -193,7 +193,7 @@ int main()
 		std::iota(std::begin(i), std::end(i), 0);
 		std::array<int, K> a{}, b{}, c{};
 		std::minstd_rand g1, g2 = g1;
-		auto rng = ranges::ext::make_range(random_access_iterator<int*>(i.data()), sentinel<int*>(i.data() + N));
+		auto rng = ranges::ext::subrange(random_access_iterator<int*>(i.data()), sentinel<int*>(i.data() + N));
 
 		{
 			auto result = ranges::sample(rng, a, g1);
@@ -220,7 +220,7 @@ int main()
 		{
 			a.fill(0);
 			auto result = ranges::sample(std::move(rng), a, g1);
-			CHECK(in_sequence(i.data(), result.in().get_unsafe().base(), i.data() + N));
+			CHECK(in_sequence(i.data(), result.in().base(), i.data() + N));
 			CHECK(result.out() == a.end());
 			CHECK(!ranges::equal(a, c));
 		}
@@ -251,7 +251,7 @@ int main()
 	{
 		std::array<MoveOnly, 10> source;
 		std::array<MoveOnly, 4> dest;
-		auto out = ranges::ext::make_range(
+		auto out = ranges::ext::subrange(
 			forward_iterator<MoveOnly*>(dest.data()),
 			sentinel<MoveOnly*, true>(dest.data() + dest.size()));
 		auto result = ranges::sample(ranges::make_move_iterator(source.begin()),

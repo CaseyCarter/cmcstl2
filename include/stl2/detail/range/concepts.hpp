@@ -38,14 +38,17 @@ STL2_OPEN_NAMESPACE {
 	// Range [ranges.range]
 	//
 	template <class T>
-	using iterator_t = decltype(__stl2::begin(declval<T&>()));
+	using iterator_t = __begin_t<T&>;
 
 	template <class T>
-	using sentinel_t = decltype(__stl2::end(declval<T&>()));
+	using sentinel_t = __end_t<T&>;
 
 	template <class T>
 	concept bool Range =
-		requires { typename sentinel_t<T>; };
+		requires(T&& t) {
+			__stl2::begin(t); // not necessarily equality-preserving
+			__stl2::end(t);
+		};
 
 	namespace models {
 		template <class>
@@ -53,12 +56,6 @@ STL2_OPEN_NAMESPACE {
 		__stl2::Range{R}
 		constexpr bool Range<R> = true;
 	}
-
-	///////////////////////////////////////////////////////////////////////////
-	// SizedRange [ranges.sized]
-	//
-	template <class R>
-	constexpr bool disable_sized_range = false;
 
 	template <class R>
 	concept bool SizedRange =
@@ -97,34 +94,40 @@ STL2_OPEN_NAMESPACE {
 	struct enable_view {};
 
 	template <class T>
-	constexpr bool __view_predicate = true;
+	struct __view_predicate3 : std::true_type {};
 
-	template <class T>
-		requires _Valid<meta::_t, enable_view<T>>
-	constexpr bool __view_predicate<T> = meta::_v<enable_view<T>>;
-
-	// TODO: Be very certain that "!" here works as intended.
 	template <_ContainerLike T>
-		requires !(DerivedFrom<T, view_base> ||
-			_Valid<meta::_t, enable_view<T>>)
-	constexpr bool __view_predicate<T> = false;
+	struct __view_predicate3<T> : std::false_type {};
 
 	template <class T>
-	constexpr bool __view_predicate<std::initializer_list<T>> = false;
+	struct __view_predicate2 : __view_predicate3<T> {};
+
+	template <DerivedFrom<view_base> T>
+	struct __view_predicate2<T> : std::true_type {};
+
+	template <class T>
+	struct __view_predicate : __view_predicate2<T> {};
+
+	template <class T>
+		requires meta::Trait<enable_view<T>>
+	struct __view_predicate<T> : enable_view<T> {};
+
+	template <class T>
+	struct __view_predicate<std::initializer_list<T>> : std::false_type {};
 	template <class Key, class Compare, class Alloc>
-	constexpr bool __view_predicate<std::set<Key, Compare, Alloc>> = false;
+	struct __view_predicate<std::set<Key, Compare, Alloc>> : std::false_type {};
 	template <class Key, class Compare, class Alloc>
-	constexpr bool __view_predicate<std::multiset<Key, Compare, Alloc>> = false;
+	struct __view_predicate<std::multiset<Key, Compare, Alloc>> : std::false_type {};
 	template <class Key, class Hash, class Pred, class Alloc>
-	constexpr bool __view_predicate<std::unordered_set<Key, Hash, Pred, Alloc>> = false;
+	struct __view_predicate<std::unordered_set<Key, Hash, Pred, Alloc>> : std::false_type {};
 	template <class Key, class Hash, class Pred, class Alloc>
-	constexpr bool __view_predicate<std::unordered_multiset<Key, Hash, Pred, Alloc>> = false;
+	struct __view_predicate<std::unordered_multiset<Key, Hash, Pred, Alloc>> : std::false_type {};
 
 	template <class T>
 	concept bool View =
 		Range<T> &&
-		__view_predicate<T> &&
-		Semiregular<T>;
+		Semiregular<T> &&
+		__view_predicate<__uncvref<T>>::value;
 
 	namespace models {
 		template <class>
@@ -241,6 +244,35 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool ContiguousView = false;
 		__stl2::ext::ContiguousView{R}
 		constexpr bool ContiguousView<R> = true;
+	}
+
+	namespace ext {
+		template <class R>
+		concept bool SimpleView =
+			View<R> && View<const R> &&
+			Same<iterator_t<R>, iterator_t<const R>> &&
+			Same<sentinel_t<R>, sentinel_t<const R>>;
+	}
+
+	namespace models {
+		template <class R>
+		constexpr bool SimpleView = false;
+		__stl2::ext::SimpleView{R}
+		constexpr bool SimpleView<R> = true;
+	}
+
+	namespace ext {
+		template<class Rng>
+		concept bool ViewableRange =
+			Range<Rng> &&
+			(std::is_lvalue_reference_v<Rng> || View<__f<Rng>>);
+	}
+
+	namespace models {
+		template <class R>
+		constexpr bool ViewableRange = false;
+		__stl2::ext::ViewableRange{R}
+		constexpr bool ViewableRange<R> = true;
 	}
 } STL2_CLOSE_NAMESPACE
 
