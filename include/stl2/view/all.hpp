@@ -17,7 +17,7 @@
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/view/view_closure.hpp>
-#include <stl2/view/subrange.hpp>
+#include <stl2/view/ref.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace view {
@@ -25,13 +25,15 @@ STL2_OPEN_NAMESPACE {
 			struct fn : detail::__pipeable<fn> {
 				template <Range Rng>
 				requires View<__f<Rng>>
-				constexpr __f<Rng> operator()(Rng&& rng) const
+				constexpr auto operator()(Rng&& rng) const
+				noexcept(std::is_nothrow_constructible_v<__f<Rng>, Rng>)
 				{ return std::forward<Rng>(rng); }
 
+				// Not to spec: ref_view
 				template <Range Rng>
-				requires std::is_lvalue_reference_v<Rng> && !View<std::decay_t<Rng>>
-				constexpr auto operator()(Rng&& rng) const
-				{ return ext::subrange{rng}; }
+				requires !View<std::remove_cv_t<Rng>>
+				constexpr auto operator()(Rng& rng) const noexcept
+				{ return ext::ref_view{rng}; }
 			};
 		}
 
@@ -46,7 +48,8 @@ STL2_OPEN_NAMESPACE {
 	// Work-around for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 	template <class V, class R>
 	concept bool _ConstructibleFromRange =
-		View<V> && ext::ViewableRange<R> && Constructible<V, ext::all_view<R>>;
+		requires { typename ext::all_view<R>; } &&
+		View<V> && Constructible<V, ext::all_view<R>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

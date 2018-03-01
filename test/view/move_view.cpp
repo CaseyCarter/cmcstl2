@@ -23,12 +23,6 @@
 namespace ranges = __stl2;
 
 namespace {
-	template <ranges::Range Rng>
-	auto make_move_view(Rng&& rng) {
-		return ranges::ext::move_view<ranges::ext::as_view_t<Rng>>{
-			ranges::ext::as_view(std::forward<Rng>(rng))};
-	}
-
 	ranges::Integral{I}
 	auto make_interval(I from, I to) {
 		return ranges::view::iota(from, to);

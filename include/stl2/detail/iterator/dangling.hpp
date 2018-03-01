@@ -13,42 +13,38 @@
 #ifndef STL2_DETAIL_ITERATOR_DANGLING_HPP
 #define STL2_DETAIL_ITERATOR_DANGLING_HPP
 
-#include <stl2/type_traits.hpp>
+#include <type_traits>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <CopyConstructible T>
+	template <ext::CopyConstructibleObject T> // Not to spec
 	class dangling {
 		T value;
 	public:
 		constexpr dangling()
-		noexcept(is_nothrow_default_constructible<T>::value)
+		noexcept(std::is_nothrow_default_constructible<T>::value)
 		requires DefaultConstructible<T>
 		: value{}
 		{}
 		constexpr dangling(T t)
-		noexcept(is_nothrow_move_constructible<T>::value)
+		noexcept(std::is_nothrow_move_constructible<T>::value)
 		: value(std::move(t))
 		{}
-		constexpr T get_unsafe() const&
-		noexcept(is_nothrow_copy_constructible<T>::value)
+		constexpr T get_unsafe() const
+		noexcept(std::is_nothrow_copy_constructible<T>::value)
 		{
 			return value;
 		}
-		constexpr T get_unsafe() &&
-		noexcept(is_nothrow_move_constructible<T>::value)
-		{
-			return std::move(value);
-		}
 	};
 
-	template <Range R, class U>
+	template <Range R, ext::CopyConstructibleObject U>
 	using __maybe_dangling =
 		meta::if_<meta::is_trait<meta::defer<__begin_t, R>>, U, dangling<U>>;
 
+	// Not to spec: permits rvalues so long as they work with __std2::begin
 	template <Range R>
 	using safe_iterator_t = __maybe_dangling<R, iterator_t<R>>;
 
