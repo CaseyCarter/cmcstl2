@@ -33,6 +33,9 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		void begin(R&&) = delete;
 
+		template <class T>
+		void begin(std::initializer_list<T>&&) = delete;
+
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
@@ -54,8 +57,7 @@ STL2_OPEN_NAMESPACE {
 		struct fn {
 			template <class R, std::size_t N>
 			void operator()(R (&&)[N]) const = delete;
-			template <class T>
-			void operator()(std::initializer_list<T>&&) const = delete;
+
 			template <class R, std::size_t N>
 			constexpr R* operator()(R (&array)[N]) const noexcept {
 				return array;
@@ -92,6 +94,9 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		void end(R&&) = delete;
 
+		template <class T>
+		void end(std::initializer_list<T>&&) = delete;
+
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
@@ -115,8 +120,7 @@ STL2_OPEN_NAMESPACE {
 		struct fn {
 			template <class R, std::size_t N>
 			void operator()(R (&&)[N]) const = delete;
-			template <class T>
-			void operator()(std::initializer_list<T>&&) const = delete;
+
 			template <class R, std::size_t N>
 			constexpr R* operator()(R (&array)[N]) const noexcept {
 				return array + N;
@@ -409,7 +413,8 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		constexpr bool has_difference = false;
 		template <class R>
-		requires SizedSentinel<__end_t<R>, __begin_t<R>>
+		requires SizedSentinel<__end_t<R>, __begin_t<R>> &&
+			ForwardIterator<__begin_t<R>>
 		constexpr bool has_difference<R> = true;
 
 		struct fn {
@@ -467,7 +472,8 @@ STL2_OPEN_NAMESPACE {
 		template <class R>
 		constexpr bool has_begin_end = false;
 		template <class R>
-		requires requires { typename __end_t<R>; }
+		requires requires { typename __end_t<R>; } &&
+			ForwardIterator<__begin_t<R>>
 		constexpr bool has_begin_end<R> = true;
 
 		struct fn {
@@ -501,19 +507,24 @@ STL2_OPEN_NAMESPACE {
 
 	// data
 	namespace __data {
+		template <class P>
+		constexpr bool is_object_ptr = false;
+		template <_Is<std::is_object> T>
+		constexpr bool is_object_ptr<T *> = true;
+
 		template <class R>
 		constexpr bool has_member = false;
 		template <class R>
 		requires requires(R& r) {
 				r.data();
-				requires std::is_pointer<__f<decltype(r.data())>>::value;
+				requires is_object_ptr<__f<decltype(r.data())>>;
 			}
 		constexpr bool has_member<R&> = true;
 
 		template <class R>
 		constexpr bool has_pointer_iterator = false;
 		template <class R>
-		requires std::is_pointer<__begin_t<R>>::value
+		requires is_object_ptr<__begin_t<R>>
 		constexpr bool has_pointer_iterator<R> = true;
 
 		template <class R>
@@ -577,6 +588,7 @@ STL2_OPEN_NAMESPACE {
 				)
 
 				template <class R>
+				requires requires(const R&& r) { __stl2::data((const R&&) r); }
 				constexpr auto operator()(const R&& r) const
 				STL2_NOEXCEPT_RETURN(
 					__stl2::data((const R&&) r)
