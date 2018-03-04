@@ -38,22 +38,14 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// Same [concepts.lib.corelang.same]
-	// Extension: variadic.
 	//
-	namespace models {
-		template <class...>
-		constexpr bool Same = true;
-		template <class T, class... Rest>
-		constexpr bool Same<T, Rest...> =
-#if defined(__GNUC__)
-			(... && __is_same_as(T, Rest));
-#else
-			(... && __bool<is_same<T, Rest>::value>);
-#endif
-	}
+	template <class T, class U>
+	concept bool Same = __bool<__is_same_as(T, U)> && __bool<__is_same_as(U, T)>;
 
-	template <class... Ts>
-	concept bool Same = models::Same<Ts...>;
+	namespace models {
+		template <class T, class U>
+		constexpr bool Same = __is_same_as(T, U);
+	}
 
 	template <class T>
 	concept bool _Decayed = Same<T, decay_t<T>>;
@@ -68,6 +60,9 @@ STL2_OPEN_NAMESPACE {
 
 	template <class T, class... Args>
 	concept bool _OneOf = models::_OneOf<T, Args...>;
+
+	template <class T, class U>
+	concept bool _NotSameAs = __bool<!__is_same_as(__uncvref<T>, __uncvref<U>)>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// DerivedFrom [concepts.lib.corelang.derived]
