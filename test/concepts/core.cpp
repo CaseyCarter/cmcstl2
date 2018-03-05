@@ -13,8 +13,8 @@
 
 #if VALIDATE_RANGES
 namespace models {
-template <class... Ts>
-constexpr bool Same = ranges::Same<Ts...>;
+template <class T, class U>
+constexpr bool Same = ranges::Same<T, U>;
 
 template <class T, class U>
 constexpr bool ConvertibleTo = ranges::ConvertibleTo<T, U>;
@@ -42,15 +42,28 @@ using __stl2::common_type_t;
 
 #include "../simple_test.hpp"
 
-CONCEPT_ASSERT(models::Same<>);
 CONCEPT_ASSERT(models::Same<int, int>);
 CONCEPT_ASSERT(models::Same<double, double>);
-CONCEPT_ASSERT(models::Same<double>);
 CONCEPT_ASSERT(!models::Same<double, int>);
 CONCEPT_ASSERT(!models::Same<int, double>);
 
-CONCEPT_ASSERT(models::Same<int, int, int, int>);
-CONCEPT_ASSERT(!models::Same<int, int, double, int>);
+#if VALIDATE_STL2
+// Test that `Same<A,B> && X` subsumes `Same<B,A>` (with reversed args).
+template <class A, class B>
+  requires __stl2::Same<B, A>
+constexpr bool test_same() {
+  return false;
+}
+
+template <class A, class B>
+  requires __stl2::Same<A, B> && __stl2::Integral<A>
+constexpr bool test_same() {
+  return true;
+}
+
+static_assert(!test_same<int*, int*>());
+static_assert(test_same<int, int>());
+#endif
 
 namespace convertible_to_test {
 struct A {};
