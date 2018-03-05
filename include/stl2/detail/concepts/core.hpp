@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 	// Same [concepts.lib.corelang.same]
 	//
 	template <class T, class U>
-	concept bool Same = __bool<__is_same_as(T, U)> && __bool<__is_same_as(U, T)>;
+	concept bool Same = __is_same_as(T, U) && __is_same_as(U, T);
 
 	namespace models {
 		template <class T, class U>
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 	concept bool _OneOf = models::_OneOf<T, Args...>;
 
 	template <class T, class U>
-	concept bool _NotSameAs = __bool<!__is_same_as(__uncvref<T>, __uncvref<U>)>;
+	concept bool _NotSameAs = !__is_same_as(__uncvref<T>, __uncvref<U>);
 
 	///////////////////////////////////////////////////////////////////////////
 	// DerivedFrom [concepts.lib.corelang.derived]

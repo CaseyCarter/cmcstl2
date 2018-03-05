@@ -92,11 +92,12 @@ STL2_OPEN_NAMESPACE {
 
 			subrange() = default;
 
-			constexpr subrange(I i, S s) requires !StoreSize
+			constexpr subrange(I i, S s)
+				requires !StoreSize
 			: data_{std::move(i), std::move(s)} {}
 
 			constexpr subrange(I i, S s, difference_type_t<I> n)
-			requires StoreSize
+				requires StoreSize
 			: data_{std::move(i), std::move(s), n} {
 				if constexpr (models::RandomAccessIterator<I>) {
 					STL2_EXPECT(first_() + n == last_());
@@ -109,45 +110,47 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			// Not to spec
-			template <Range R>
-			requires !StoreSize && Iterator<safe_iterator_t<R>> &&
+			template <_NotSameAs<subrange> R>
+			requires Range<R> && Iterator<safe_iterator_t<R>> &&
 				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
-			constexpr subrange(R&& r)
+			constexpr subrange(R&& r) requires (!StoreSize)
 			: subrange{__stl2::begin(r), __stl2::end(r)} {}
 
 			// Not to spec
-			template <Range R>
-			requires StoreSize && SizedRange<R> && Iterator<safe_iterator_t<R>> &&
+			template <_NotSameAs<subrange> R>
+			requires Range<R> && Iterator<safe_iterator_t<R>> &&
 				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
-			constexpr subrange(R&& r)
+			constexpr subrange(R&& r) requires StoreSize && SizedRange<R>
 			: subrange{__stl2::begin(r), __stl2::end(r), __stl2::distance(r)} {}
 
 			// Not to spec
 			template <Range R>
-			requires K == subrange_kind::sized && Iterator<safe_iterator_t<R>> &&
+			requires Iterator<safe_iterator_t<R>> &&
 				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
 			constexpr subrange(R&& r, difference_type_t<I> n)
+				requires (K == subrange_kind::sized)
 			: subrange{__stl2::begin(r), __stl2::end(r), n} {
 				if constexpr (SizedRange<R>) {
 					STL2_EXPECT(n == __stl2::distance(r));
 				}
 			}
 
-			template <_PairLikeConvertibleTo<I, S> PairLike>
-			requires !StoreSize
-			constexpr subrange(PairLike&& r)
+			template <_NotSameAs<subrange> PairLike>
+			requires _PairLikeConvertibleTo<PairLike, I, S>
+			constexpr subrange(PairLike&& r) requires (!StoreSize)
 			: subrange{std::get<0>(static_cast<PairLike&&>(r)),
 				std::get<1>(static_cast<PairLike&&>(r))}
 			{}
 
 			template <_PairLikeConvertibleTo<I, S> PairLike>
-			requires K == subrange_kind::sized
 			constexpr subrange(PairLike&& r, difference_type_t<I> n)
+				requires (K == subrange_kind::sized)
 			: subrange{std::get<0>(static_cast<PairLike&&>(r)),
 				std::get<1>(static_cast<PairLike&&>(r)), n}
 			{}
 
-			template <_PairLikeConvertibleFrom<const I&, const S&> PairLike>
+			template <_NotSameAs<subrange> PairLike>
+				requires _PairLikeConvertibleFrom<PairLike, const I&, const S&>
 			constexpr operator PairLike() const {
 				return PairLike(first_(), last_());
 			}
