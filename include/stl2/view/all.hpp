@@ -17,6 +17,7 @@
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/view/view_closure.hpp>
+#include <stl2/view/subrange.hpp>
 #include <stl2/view/ref.hpp>
 
 STL2_OPEN_NAMESPACE {
@@ -28,6 +29,11 @@ STL2_OPEN_NAMESPACE {
 				constexpr auto operator()(Rng&& rng) const
 				noexcept(std::is_nothrow_constructible_v<__f<Rng>, Rng>)
 				{ return std::forward<Rng>(rng); }
+
+				template <_ForwardingRange Rng>
+				requires !View<__uncvref<Rng>> && !std::is_reference_v<Rng>
+				constexpr auto operator()(Rng&& rng) const
+				{ return ext::subrange{static_cast<Rng&&>(rng)}; }
 
 				// Not to spec: ref_view
 				template <Range Rng>

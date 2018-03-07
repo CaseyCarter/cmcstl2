@@ -44,11 +44,17 @@ STL2_OPEN_NAMESPACE {
 	using sentinel_t = __end_t<T&>;
 
 	template <class T>
-	concept bool Range =
+	concept bool _RangeImpl =
 		requires(T&& t) {
-			__stl2::begin(t); // not necessarily equality-preserving
-			__stl2::end(t);
+			__stl2::begin(static_cast<T&&>(t)); // not necessarily equality-preserving
+			__stl2::end(static_cast<T&&>(t));
 		};
+
+	template <class T>
+	concept bool Range = _RangeImpl<T&>;
+
+	template <class T>
+	concept bool _ForwardingRange = Range<T> && _RangeImpl<T>;
 
 	namespace models {
 		template <class>
@@ -265,7 +271,7 @@ STL2_OPEN_NAMESPACE {
 		template<class Rng>
 		concept bool ViewableRange =
 			Range<Rng> &&
-			(std::is_lvalue_reference_v<Rng> || View<__f<Rng>>);
+			(_RangeImpl<Rng> || View<__f<Rng>>);
 	}
 
 	namespace models {
