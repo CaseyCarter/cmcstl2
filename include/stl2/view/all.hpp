@@ -31,15 +31,17 @@ STL2_OPEN_NAMESPACE {
 				{ return std::forward<Rng>(rng); }
 
 				template <_ForwardingRange Rng>
-				requires !View<__uncvref<Rng>> && !std::is_reference_v<Rng>
+				requires !View<__uncvref<Rng>>
 				constexpr auto operator()(Rng&& rng) const
-				{ return ext::subrange{static_cast<Rng&&>(rng)}; }
-
-				// Not to spec: ref_view
-				template <Range Rng>
-				requires !View<std::remove_cv_t<Rng>>
-				constexpr auto operator()(Rng& rng) const noexcept
-				{ return ext::ref_view{rng}; }
+				noexcept(std::is_reference_v<Rng>)
+				{
+					// Not to spec: ref_view
+					if constexpr (std::is_reference_v<Rng>) {
+						return ext::ref_view{rng};
+					} else {
+						return ext::subrange{static_cast<Rng&&>(rng)};
+					}
+				}
 			};
 		}
 
