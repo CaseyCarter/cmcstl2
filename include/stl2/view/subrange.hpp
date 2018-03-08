@@ -111,22 +111,21 @@ STL2_OPEN_NAMESPACE {
 
 			// Not to spec
 			template <_NotSameAs<subrange> R>
-			requires Range<R> && Iterator<safe_iterator_t<R>> &&
+			requires _ForwardingRange<R> &&
 				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
 			constexpr subrange(R&& r) requires (!StoreSize)
 			: subrange{__stl2::begin(r), __stl2::end(r)} {}
 
 			// Not to spec
 			template <_NotSameAs<subrange> R>
-			requires Range<R> && Iterator<safe_iterator_t<R>> &&
+			requires _ForwardingRange<R> &&
 				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
 			constexpr subrange(R&& r) requires StoreSize && SizedRange<R>
 			: subrange{__stl2::begin(r), __stl2::end(r), __stl2::distance(r)} {}
 
 			// Not to spec
-			template <Range R>
-			requires Iterator<safe_iterator_t<R>> &&
-				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
+			template <_ForwardingRange R>
+			requires ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
 			constexpr subrange(R&& r, difference_type_t<I> n)
 				requires (K == subrange_kind::sized)
 			: subrange{__stl2::begin(r), __stl2::end(r), n} {
@@ -206,18 +205,16 @@ STL2_OPEN_NAMESPACE {
 			subrange<std::tuple_element_t<0, P>, std::tuple_element_t<1, P>, subrange_kind::sized>;
 
 		// Not to spec
-		template <Range R>
-		requires Iterator<safe_iterator_t<R>>
+		template <_ForwardingRange R>
 		subrange(R&&) -> subrange<iterator_t<R>, sentinel_t<R>>;
 
 		// Not to spec
-		template <Range R>
-		requires SizedRange<R> && Iterator<safe_iterator_t<R>>
+		template <_ForwardingRange R>
+		requires SizedRange<R>
 		subrange(R&&) -> subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
 
 		// Not to spec
-		template <Range R>
-		requires Iterator<safe_iterator_t<R>>
+		template <_ForwardingRange R>
 		subrange(R&&, difference_type_t<iterator_t<R>>) ->
 			subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
 
