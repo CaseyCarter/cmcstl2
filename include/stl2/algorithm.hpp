@@ -42,6 +42,7 @@
 #include <stl2/detail/algorithm/is_heap.hpp>
 #include <stl2/detail/algorithm/is_heap_until.hpp>
 #include <stl2/detail/algorithm/is_partitioned.hpp>
+#include <stl2/detail/algorithm/is_permutation.hpp>
 #include <stl2/detail/algorithm/is_sorted.hpp>
 #include <stl2/detail/algorithm/is_sorted_until.hpp>
 #include <stl2/detail/algorithm/lexicographical_compare.hpp>
