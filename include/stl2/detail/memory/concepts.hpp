@@ -19,29 +19,39 @@
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
+	// __NoThrowInputIterator [Exposition]
+	//
+	template <class I>
+	concept bool __NoThrowInputIterator =
+		InputIterator<I> &&
+		_Is<reference_t<I>, std::is_lvalue_reference> &&
+		Same<__uncvref<reference_t<I>>, value_type_t<I>>;
+		// Axiom: no exceptions are thrown from increment, assignment, comparison,
+		//        indirection through valid iterators, or comparisons with valid sentinels.
+
+	///////////////////////////////////////////////////////////////////////////
+	// __NoThrowInputRange [Exposition]
+	//
+	template <class Rng>
+	concept bool __NoThrowInputRange =
+		Range<Rng> &&
+		__NoThrowInputIterator<iterator_t<Rng>>;
+
+	///////////////////////////////////////////////////////////////////////////
 	// __NoThrowForwardIterator [Exposition]
 	//
 	template <class I>
 	concept bool __NoThrowForwardIterator =
+		__NoThrowInputIterator<I> &&
 		ForwardIterator<I>;
-		// Axiom: no exceptions are thrown from increment, assignment, comparison,
-		//        or indirection through valid iterators.
 
 	///////////////////////////////////////////////////////////////////////////
-	// __NoThrowForwardIterator [Exposition]
+	// __NoThrowForwardRange [Exposition]
 	//
 	template <class Rng>
 	concept bool __NoThrowForwardRange =
-		Range<Rng> && __NoThrowForwardIterator<iterator_t<Rng>>;
-
-	///////////////////////////////////////////////////////////////////////////
-	// __ReferenceTo [Exposition]
-	//
-	template <class I, class T>
-	concept bool __ReferenceTo = // exposition only
-		InputIterator<I> &&
-		_Is<reference_t<I>, std::is_lvalue_reference> &&
-		Same<__uncvref<reference_t<I>>, T>;
+		__NoThrowInputRange<Rng> &&
+		ForwardRange<Rng>;
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_CONCEPTS_HPP

@@ -65,6 +65,12 @@ namespace {
 		test(ranges::uninitialized_move(to_move, independent.cbegin()));
 
 		to_move = control;
+		test(ranges::uninitialized_move(to_move, independent));
+
+		to_move = control;
+		test(ranges::uninitialized_move(to_move, static_cast<const raw_buffer<T>&>(independent)));
+
+		to_move = control;
 		test(ranges::uninitialized_move_n(to_move.begin(), to_move.size(), independent.begin()));
 
 		to_move = control; // to_move.begin(), not to_move.cbegin()
@@ -86,6 +92,8 @@ namespace {
 		test(second, first, ranges::uninitialized_move(second.begin(), second.end(), first.cbegin()));
 		test(first, second, ranges::uninitialized_move(first, second.begin()));
 		test(second, first, ranges::uninitialized_move(second, first.cbegin()));
+		test(first, second, ranges::uninitialized_move(first, second));
+		test(second, first, ranges::uninitialized_move(second, static_cast<const Move_only_t&>(first)));
 		test(first, second, ranges::uninitialized_move_n(first.begin(), first.size(), second.cbegin()));
 		test(second, first, ranges::uninitialized_move_n(second.begin(), second.size(), first.begin()));
 	}

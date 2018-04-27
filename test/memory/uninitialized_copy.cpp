@@ -43,6 +43,8 @@ namespace {
 		test(ranges::uninitialized_copy(control.cbegin(), control.cend(), independent.cbegin()));
 		test(ranges::uninitialized_copy(control, independent.begin()));
 		test(ranges::uninitialized_copy(control, independent.cbegin()));
+      test(ranges::uninitialized_copy(control, independent));
+      test(ranges::uninitialized_copy(control, static_cast<const raw_buffer<T>&>(independent)));
 		test(ranges::uninitialized_copy_n(control.begin(), control.size(), independent.begin()));
 		test(ranges::uninitialized_copy_n(control.cbegin(), control.size(), independent.cbegin()));
 	}

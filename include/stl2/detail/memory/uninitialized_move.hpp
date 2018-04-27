@@ -28,8 +28,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <InputIterator I, Sentinel<I> S, __NoThrowForwardIterator O>
 	requires
-		Constructible<value_type_t<O>, rvalue_reference_t<I>> &&
-		__ReferenceTo<I, value_type_t<O>>
+		Constructible<value_type_t<O>, rvalue_reference_t<I>>
 	tagged_pair<tag::in(I), tag::out(O)> uninitialized_move(I first, S last, O result)
 	{
 		auto guard = detail::destroy_guard<O>{result};
@@ -45,8 +44,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <InputRange Rng, __NoThrowForwardIterator O>
 	requires
-		Constructible<value_type_t<O>, rvalue_reference_t<iterator_t<Rng>>> &&
-		__ReferenceTo<iterator_t<Rng>, value_type_t<O>>
+		Constructible<value_type_t<O>, rvalue_reference_t<iterator_t<Rng>>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
 	uninitialized_move(Rng&& rng, O result)
 	{
@@ -55,12 +53,24 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
+	// uninitialized_move [Extension]
+	//
+	template <InputRange IRng, __NoThrowForwardRange ORng>
+	requires
+		Constructible<value_type_t<iterator_t<ORng>>, rvalue_reference_t<iterator_t<IRng>>>
+	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(iterator_t<ORng>)>
+	uninitialized_move(IRng&& irng, ORng& orng)
+	{
+		return __stl2::uninitialized_move(
+			__stl2::begin(irng), __stl2::end(irng), __stl2::begin(orng));
+	}
+
+	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_move_n [Extension]
 	//
 	template <InputIterator I, __NoThrowForwardIterator O>
 	requires
-		Constructible<value_type_t<O>, rvalue_reference_t<I>> &&
-		__ReferenceTo<I, value_type_t<I>>
+		Constructible<value_type_t<O>, rvalue_reference_t<I>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	uninitialized_move_n(I first, difference_type_t<I> n, O result)
 	{
