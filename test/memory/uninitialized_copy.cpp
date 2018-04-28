@@ -23,7 +23,7 @@
 #include "common.hpp"
 
 namespace ranges = __stl2;
-static_assert(ranges::Range<raw_buffer<int>>);
+
 namespace {
 	template <typename T>
 	requires
