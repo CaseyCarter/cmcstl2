@@ -23,7 +23,7 @@
 #include "common.hpp"
 
 namespace ranges = __stl2;
-
+static_assert(ranges::Range<raw_buffer<int>>);
 namespace {
 	template <typename T>
 	requires
@@ -43,8 +43,8 @@ namespace {
 		test(ranges::uninitialized_copy(control.cbegin(), control.cend(), independent.cbegin()));
 		test(ranges::uninitialized_copy(control, independent.begin()));
 		test(ranges::uninitialized_copy(control, independent.cbegin()));
-      test(ranges::uninitialized_copy(control, independent));
-      test(ranges::uninitialized_copy(control, static_cast<const raw_buffer<T>&>(independent)));
+		test(ranges::uninitialized_copy(control, ranges::ext::span<T>{independent}));
+		test(ranges::uninitialized_copy(control, ranges::ext::span<const T>{independent}));
 		test(ranges::uninitialized_copy_n(control.begin(), control.size(), independent.begin()));
 		test(ranges::uninitialized_copy_n(control.cbegin(), control.size(), independent.cbegin()));
 	}

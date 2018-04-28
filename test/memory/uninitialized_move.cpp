@@ -25,6 +25,7 @@
 #include "common.hpp"
 
 namespace ranges = __stl2;
+using ranges::ext::span;
 
 namespace {
 	template <typename T>
@@ -65,10 +66,10 @@ namespace {
 		test(ranges::uninitialized_move(to_move, independent.cbegin()));
 
 		to_move = control;
-		test(ranges::uninitialized_move(to_move, independent));
+		test(ranges::uninitialized_move(to_move, ranges::ext::span<T>{independent}));
 
 		to_move = control;
-		test(ranges::uninitialized_move(to_move, static_cast<const raw_buffer<T>&>(independent)));
+		test(ranges::uninitialized_move(to_move, ranges::ext::span<const T>{independent}));
 
 		to_move = control;
 		test(ranges::uninitialized_move_n(to_move.begin(), to_move.size(), independent.begin()));
@@ -87,13 +88,14 @@ namespace {
 			CHECK(static_cast<std::size_t>(n) == static_cast<std::size_t>(s.size()));
 		};
 
-		auto second = make_buffer<Move_only_t::value_type>(first.size());
+		using value_type = Move_only_t::value_type;
+		auto second = make_buffer<value_type>(first.size());
 		test(first, second, ranges::uninitialized_move(first.begin(), first.end(), second.begin()));
 		test(second, first, ranges::uninitialized_move(second.begin(), second.end(), first.cbegin()));
 		test(first, second, ranges::uninitialized_move(first, second.begin()));
 		test(second, first, ranges::uninitialized_move(second, first.cbegin()));
-		test(first, second, ranges::uninitialized_move(first, second));
-		test(second, first, ranges::uninitialized_move(second, static_cast<const Move_only_t&>(first)));
+		test(first, second, ranges::uninitialized_move(first, span<value_type>{second}));
+		test(second, first, ranges::uninitialized_move(second, span<const value_type>{first}));
 		test(first, second, ranges::uninitialized_move_n(first.begin(), first.size(), second.cbegin()));
 		test(second, first, ranges::uninitialized_move_n(second.begin(), second.size(), first.begin()));
 	}

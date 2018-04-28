@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 		InputIterator<I> &&
 		_Is<reference_t<I>, std::is_lvalue_reference> &&
 		Same<__uncvref<reference_t<I>>, value_type_t<I>>;
-		// Axiom: no exceptions are thrown from increment, assignment, comparison,
+		// Axiom: no exceptions are thrown from increment, copy, move, assignment, comparison,
 		//        indirection through valid iterators, or comparisons with valid sentinels.
 
 	///////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,7 @@ STL2_OPEN_NAMESPACE {
 	concept bool __NoThrowInputRange =
 		Range<Rng> &&
 		__NoThrowInputIterator<iterator_t<Rng>>;
+		// Axiom: no exceptions are thrown from calls to begin and end on a Rng.
 
 	///////////////////////////////////////////////////////////////////////////
 	// __NoThrowForwardIterator [Exposition]

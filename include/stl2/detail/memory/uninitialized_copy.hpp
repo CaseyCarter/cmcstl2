@@ -20,6 +20,7 @@
 #include <stl2/detail/memory/construct_at.hpp>
 #include <stl2/detail/memory/destroy.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/span.hpp>
 #include <stl2/detail/tagged.hpp>
 
 STL2_OPEN_NAMESPACE {
@@ -56,12 +57,13 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_copy [Extension]
 	//
-	template <InputRange IRng, __NoThrowForwardRange ORng>
+	template <InputRange IRng, class T>
 	requires
-		Constructible<value_type_t<iterator_t<ORng>>, reference_t<iterator_t<IRng>>>
-	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(iterator_t<ORng>)>
-	uninitialized_copy(IRng&& irng, ORng& orng)
+		Constructible<T, reference_t<iterator_t<IRng>>>
+	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(iterator_t<ext::span<T>>)>
+	uninitialized_copy(IRng&& irng, ext::span<T> orng)
 	{
+		STL2_EXPECT(__stl2::size(irng) == __stl2::size(orng));
 		return __stl2::uninitialized_copy(
 			__stl2::begin(irng), __stl2::end(irng), __stl2::begin(orng));
 	}
