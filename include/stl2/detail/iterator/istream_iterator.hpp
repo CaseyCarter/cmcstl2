@@ -14,7 +14,7 @@
 
 #include <iosfwd>
 #include <string>
-#include <stl2/memory.hpp>
+#include <stl2/detail/memory/addressof.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>

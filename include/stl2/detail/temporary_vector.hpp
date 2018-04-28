@@ -12,7 +12,6 @@
 #ifndef STL2_DETAIL_TEMPORARY_VECTOR_HPP
 #define STL2_DETAIL_TEMPORARY_VECTOR_HPP
 
-#include <stl2/memory.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/detail/construct_destruct.hpp>
