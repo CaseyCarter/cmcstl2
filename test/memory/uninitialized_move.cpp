@@ -66,10 +66,10 @@ namespace {
 		test(ranges::uninitialized_move(to_move, independent.cbegin()));
 
 		to_move = control;
-		test(ranges::uninitialized_move(to_move, ranges::ext::span<T>{independent}));
+		test(ranges::uninitialized_move(to_move, span<T>{independent}));
 
 		to_move = control;
-		test(ranges::uninitialized_move(to_move, ranges::ext::span<const T>{independent}));
+		test(ranges::uninitialized_move(to_move, span<const T>{independent}));
 
 		to_move = control;
 		test(ranges::uninitialized_move_n(to_move.begin(), to_move.size(), independent.begin()));
