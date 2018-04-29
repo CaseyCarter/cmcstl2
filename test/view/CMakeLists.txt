@@ -9,6 +9,7 @@
 #
 # Project home: https://github.com/caseycarter/cmcstl2
 #
+add_stl2_test(span span span.cpp)
 add_stl2_test(view.bounded view.bounded bounded_view.cpp)
 add_stl2_test(view.counted view.counted counted_view.cpp)
 add_stl2_test(view.filter view.filter filter_view.cpp)
