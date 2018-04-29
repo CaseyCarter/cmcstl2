@@ -21,6 +21,8 @@
 template <typename T>
 class raw_buffer {
 public:
+	using value_type = T;
+
 	~raw_buffer() {
 		if (data_) {
 			std::allocator<T>{}.deallocate(data_, size_);

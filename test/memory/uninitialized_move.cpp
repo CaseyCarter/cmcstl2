@@ -16,8 +16,10 @@
 #include <stl2/detail/algorithm/count_if.hpp>
 #include <stl2/detail/algorithm/equal.hpp>
 #include <stl2/detail/memory/destroy.hpp>
+#include <stl2/iterator.hpp>
 #include <stl2/view/repeat.hpp>
 #include <stl2/view/take_exactly.hpp>
+#include <algorithm>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -28,14 +30,15 @@ namespace ranges = __stl2;
 using ranges::ext::span;
 
 namespace {
-	template <typename T>
-	bool empty(const Array<T>& a) {
-		return ranges::all_of(a, &T::empty);
+	template <ranges::Range Rng>
+	bool empty(const Rng& rng, const std::ptrdiff_t n) {
+		return ranges::all_of(ranges::make_counted_iterator(rng.begin(), n), ranges::default_sentinel{},
+			&ranges::value_type_t<Rng>::empty);
 	}
 
-	template <typename T>
-	requires std::is_fundamental<T>::value
-	bool empty(const Array<T>&) {
+	template <ranges::Range Rng>
+	requires std::is_fundamental<ranges::value_type_t<Rng>>::value
+	bool empty(const Rng&, const std::ptrdiff_t) {
 		return true;
 	}
 
@@ -44,38 +47,71 @@ namespace {
 	{
 		auto independent = make_buffer<T>(control.size());
 		auto to_move = control;
-		auto test = [&control, &to_move, &independent](const auto& p) {
-			CHECK(::empty(to_move));
-			CHECK(p.in() == to_move.end());
-			CHECK(p.out() == independent.end());
+		auto test = [&control](const auto& to_move, const auto& independent, const auto& p) {
+			const auto distance_traversed =
+				std::min(
+					static_cast<std::ptrdiff_t>(to_move.size()),
+					static_cast<std::ptrdiff_t>(independent.size()));
+			CHECK(::empty(to_move, distance_traversed));
+			CHECK(p.in() == ranges::next(to_move.begin(), distance_traversed));
+			CHECK(p.out() == ranges::next(independent.begin(), distance_traversed));
 
-			CHECK(ranges::equal(control.begin(), control.begin() + (p.in() - to_move.begin()),
+			CHECK(ranges::equal(control.begin(), control.begin() + distance_traversed,
 					independent.begin(), p.out()));
 			ranges::destroy(independent.begin(), p.out());
 		};
 
-		test(ranges::uninitialized_move(to_move.begin(), to_move.end(), independent.begin()));
+		test(to_move, independent,
+			ranges::uninitialized_move(to_move.begin(), to_move.end(), independent.begin()));
 
 		to_move = control; // to_move.begin(), not to_move.cbegin()
-		test(ranges::uninitialized_move(to_move.begin(), to_move.end(), independent.cbegin()));
+		test(to_move, independent,
+			ranges::uninitialized_move(to_move.begin(), to_move.end(), independent.cbegin()));
 
 		to_move = control;
-		test(ranges::uninitialized_move(to_move, independent.begin()));
+		test(to_move, independent,
+			ranges::uninitialized_move(to_move, independent.begin()));
 
 		to_move = control;
-		test(ranges::uninitialized_move(to_move, independent.cbegin()));
+		test(to_move, independent,
+			ranges::uninitialized_move(to_move, independent.cbegin()));
+
+		auto driver = [&test](auto& in, auto& out) {
+			auto to_move = in;
+			test(to_move, out,
+				ranges::uninitialized_move(to_move.begin(), to_move.end(), out.begin(), out.end()));
+
+			to_move = in; // to_move.begin(), not to_move.cbegin()
+			test(to_move, out,
+				ranges::uninitialized_move(to_move.begin(), to_move.end(), out.cbegin(), out.cend()));
+
+			to_move = in;
+			test(to_move, out,
+				ranges::uninitialized_move(to_move, out));
+
+			to_move = in;
+			test(to_move, out,
+				ranges::uninitialized_move(to_move, static_cast<const raw_buffer<T>&>(out)));
+		};
+
+		// check range-based when distance(rng1) == distance(rng2)
+		driver(control, independent);
+
+		// check range-based when distance(rng1) < distance(rng2)
+		auto small_input = std::array<T, 1>{control[0]};
+		driver(small_input, independent);
+
+		// check range-based when distance(rng1) > distance(rng2)
+		auto small_output = make_buffer<T>(1);
+		driver(control, small_output);
 
 		to_move = control;
-		test(ranges::uninitialized_move(to_move, span<T>{independent}));
-
-		to_move = control;
-		test(ranges::uninitialized_move(to_move, span<const T>{independent}));
-
-		to_move = control;
-		test(ranges::uninitialized_move_n(to_move.begin(), to_move.size(), independent.begin()));
+		test(to_move, independent,
+			ranges::uninitialized_move_n(to_move.begin(), to_move.size(), independent.begin()));
 
 		to_move = control; // to_move.begin(), not to_move.cbegin()
-		test(ranges::uninitialized_move_n(to_move.begin(), to_move.size(), independent.cbegin()));
+		test(to_move, independent,
+			ranges::uninitialized_move_n(to_move.begin(), to_move.size(), independent.cbegin()));
 	}
 
 	using Move_only_t = Array<std::unique_ptr<std::string>>;
@@ -88,14 +124,17 @@ namespace {
 			CHECK(static_cast<std::size_t>(n) == static_cast<std::size_t>(s.size()));
 		};
 
-		using value_type = Move_only_t::value_type;
-		auto second = make_buffer<value_type>(first.size());
+		auto second = make_buffer<Move_only_t::value_type>(first.size());
 		test(first, second, ranges::uninitialized_move(first.begin(), first.end(), second.begin()));
 		test(second, first, ranges::uninitialized_move(second.begin(), second.end(), first.cbegin()));
 		test(first, second, ranges::uninitialized_move(first, second.begin()));
 		test(second, first, ranges::uninitialized_move(second, first.cbegin()));
-		test(first, second, ranges::uninitialized_move(first, span<value_type>{second}));
-		test(second, first, ranges::uninitialized_move(second, span<const value_type>{first}));
+		test(first, second, ranges::uninitialized_move(first.begin(), first.end(),
+			second.begin(), second.end()));
+		test(second, first, ranges::uninitialized_move(second.begin(), second.end(),
+			first.cbegin(), first.cend()));
+		test(first, second, ranges::uninitialized_move(first, second));
+		test(second, first, ranges::uninitialized_move(second, static_cast<const Move_only_t&>(first)));
 		test(first, second, ranges::uninitialized_move_n(first.begin(), first.size(), second.cbegin()));
 		test(second, first, ranges::uninitialized_move_n(second.begin(), second.size(), first.begin()));
 	}

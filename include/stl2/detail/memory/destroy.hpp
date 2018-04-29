@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// destroy [Extension]
 	//
-	template <__NoThrowInputIterator I, Sentinel<I> S>
+	template <__NoThrowInputIterator I, __NoThrowSentinel<I> S>
 	requires
 		Destructible<value_type_t<I>>
 	I destroy(I first, S last) noexcept

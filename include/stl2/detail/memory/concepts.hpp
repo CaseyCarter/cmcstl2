@@ -27,7 +27,16 @@ STL2_OPEN_NAMESPACE {
 		_Is<reference_t<I>, std::is_lvalue_reference> &&
 		Same<__uncvref<reference_t<I>>, value_type_t<I>>;
 		// Axiom: no exceptions are thrown from increment, copy, move, assignment,
-		//        indirection through valid iterators, or comparisons with valid sentinels.
+		//        indirection through valid iterators.
+
+	///////////////////////////////////////////////////////////////////////////
+	// __NoThrowSentinel [Exposition]
+	//
+	template <class S, class I>
+	concept bool __NoThrowSentinel =
+		Sentinel<S, I>;
+		// Axiom: no exceptions are thrown from comparisons between objects of types
+		//        I and S.
 
 	///////////////////////////////////////////////////////////////////////////
 	// __NoThrowInputRange [Exposition]
@@ -35,7 +44,8 @@ STL2_OPEN_NAMESPACE {
 	template <class Rng>
 	concept bool __NoThrowInputRange =
 		Range<Rng> &&
-		__NoThrowInputIterator<iterator_t<Rng>>;
+		__NoThrowInputIterator<iterator_t<Rng>> &&
+		__NoThrowSentinel<iterator_t<Rng>, iterator_t<Rng>>;
 		// Axiom: no exceptions are thrown from calls to begin and end on a Rng.
 
 	///////////////////////////////////////////////////////////////////////////

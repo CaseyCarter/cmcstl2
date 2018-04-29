@@ -28,10 +28,10 @@ STL2_OPEN_NAMESPACE {
 	// uninitialized_copy [Extension]
 	//
 	template <InputIterator I, Sentinel<I> S, __NoThrowForwardIterator O>
+	[[deprecated]] tagged_pair<tag::in(I), tag::out(O)>
+	uninitialized_copy(I first, S last, O result)
 	requires
 		Constructible<value_type_t<O>, reference_t<I>>
-	tagged_pair<tag::in(I), tag::out(O)>
-	uninitialized_copy(I first, S last, O result)
 	{
 		auto guard = detail::destroy_guard<O>{result};
 		for (; first != last; ++result, (void)++first) {
@@ -45,10 +45,10 @@ STL2_OPEN_NAMESPACE {
 	// uninitialized_copy [Extension]
 	//
 	template <InputRange Rng, __NoThrowForwardIterator O>
+	[[deprecated]] tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
+	uninitialized_copy(Rng&& rng, O result)
 	requires
 		Constructible<value_type_t<O>, reference_t<iterator_t<Rng>>>
-	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
-	uninitialized_copy(Rng&& rng, O result)
 	{
 		return __stl2::uninitialized_copy(
 			__stl2::begin(rng), __stl2::end(rng), result);
@@ -57,15 +57,31 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_copy [Extension]
 	//
-	template <InputRange IRng, class T>
+	template <InputIterator I, Sentinel<I> S1, __NoThrowForwardIterator O, __NoThrowSentinel<O> S2>
 	requires
-		Constructible<T, reference_t<iterator_t<IRng>>>
-	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(iterator_t<ext::span<T>>)>
-	uninitialized_copy(IRng&& irng, ext::span<T> orng)
+		Constructible<value_type_t<O>, reference_t<I>>
+	tagged_pair<tag::in(I), tag::out(O)>
+	uninitialized_copy(I ifirst, S1 ilast, O ofirst, S2 olast)
 	{
-		STL2_EXPECT(__stl2::size(irng) == __stl2::size(orng));
-		return __stl2::uninitialized_copy(
-			__stl2::begin(irng), __stl2::end(irng), __stl2::begin(orng));
+		auto guard = detail::destroy_guard<O>{ofirst};
+		for (; ifirst != ilast && ofirst != olast; ++ofirst, (void)++ifirst) {
+			__stl2::__construct_at(*ofirst, *ifirst);
+		}
+		guard.release();
+		return {std::move(ifirst), std::move(ofirst)};
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// uninitialized_copy [Extension]
+	//
+	template <InputRange IRng, __NoThrowForwardRange ORng>
+	requires
+		Constructible<value_type_t<iterator_t<ORng>>, reference_t<iterator_t<IRng>>>
+	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(iterator_t<ORng>)>
+	uninitialized_copy(IRng&& irng, ORng& orng)
+	{
+		return __stl2::uninitialized_copy(__stl2::begin(irng), __stl2::end(irng),
+         __stl2::begin(orng), __stl2::end(orng));
 	}
 
 	///////////////////////////////////////////////////////////////////////////

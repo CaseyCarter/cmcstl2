@@ -15,8 +15,10 @@
 #include <stl2/concepts.hpp>
 #include <stl2/detail/algorithm/equal.hpp>
 #include <stl2/detail/memory/destroy.hpp>
+#include <stl2/iterator.hpp>
 #include <stl2/view/repeat.hpp>
 #include <stl2/view/take_exactly.hpp>
+#include <algorithm>
 #include <cstdint>
 #include <vector>
 #include "../simple_test.hpp"
@@ -32,21 +34,46 @@ namespace {
 	void uninitialized_copy_test(const Array<T>& control)
 	{
 		auto independent = make_buffer<T>(control.size());
-		auto test = [&control, &independent](const auto p) {
-			CHECK(p.in() == control.end());
-			CHECK(p.out() == independent.end());
+		auto test = [](const auto& control, const auto& independent, const auto p) {
+			const auto distance_traversed =
+				std::min(
+					static_cast<std::ptrdiff_t>(control.size()),
+					static_cast<std::ptrdiff_t>(independent.size()));
+			CHECK(p.in() == ranges::next(control.begin(), distance_traversed));
+			CHECK(p.out() == ranges::next(independent.begin(), distance_traversed));
 			CHECK(ranges::equal(control.begin(), p.in(), independent.begin(), p.out()));
 			ranges::destroy(independent.begin(), p.out());
 		};
 
-		test(ranges::uninitialized_copy(control.begin(), control.end(), independent.begin()));
-		test(ranges::uninitialized_copy(control.cbegin(), control.cend(), independent.cbegin()));
-		test(ranges::uninitialized_copy(control, independent.begin()));
-		test(ranges::uninitialized_copy(control, independent.cbegin()));
-		test(ranges::uninitialized_copy(control, ranges::ext::span<T>{independent}));
-		test(ranges::uninitialized_copy(control, ranges::ext::span<const T>{independent}));
-		test(ranges::uninitialized_copy_n(control.begin(), control.size(), independent.begin()));
-		test(ranges::uninitialized_copy_n(control.cbegin(), control.size(), independent.cbegin()));
+		test(control, independent,
+			ranges::uninitialized_copy(control.begin(), control.end(), independent.begin()));
+		test(control, independent,
+			ranges::uninitialized_copy(control.cbegin(), control.cend(), independent.cbegin()));
+		test(control, independent,
+			ranges::uninitialized_copy(control, independent.begin()));
+		test(control, independent,
+			ranges::uninitialized_copy(control, independent.cbegin()));
+
+		auto driver = [&test](const auto& in, auto& out) {
+			test(in, out, ranges::uninitialized_copy(in.begin(), in.end(), out.begin(), out.end()));
+			test(in, out, ranges::uninitialized_copy(in.cbegin(), in.cend(), out.cbegin(), out.cend()));
+			test(in, out, ranges::uninitialized_copy(in, out));
+			test(in, out, ranges::uninitialized_copy(in, static_cast<const raw_buffer<T>&>(out)));
+		};
+
+		// check range-based when distance(rng1) == distance(rng2)
+		driver(control, independent);
+
+		// check double range-based when distance(rng1) < distance(rng2)
+		const auto small = make_buffer<T>(1);
+		driver(small, independent);
+		// check double range-based when distance(rng1) < distance(rng2)
+		driver(independent, small);
+
+		test(control, independent,
+			ranges::uninitialized_copy_n(control.begin(), control.size(), independent.begin()));
+		test(control, independent,
+			ranges::uninitialized_copy_n(control.cbegin(), control.size(), independent.cbegin()));
 	}
 
 	struct S {
