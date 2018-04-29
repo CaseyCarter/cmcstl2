@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 	concept bool __NoThrowInputRange =
 		Range<Rng> &&
 		__NoThrowInputIterator<iterator_t<Rng>> &&
-		__NoThrowSentinel<iterator_t<Rng>, iterator_t<Rng>>;
+		__NoThrowSentinel<sentinel_t<Rng>, iterator_t<Rng>>;
 		// Axiom: no exceptions are thrown from calls to begin and end on a Rng.
 
 	///////////////////////////////////////////////////////////////////////////
@@ -54,6 +54,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 	concept bool __NoThrowForwardIterator =
 		__NoThrowInputIterator<I> &&
+		__NoThrowSentinel<I, I> &&
 		ForwardIterator<I>;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -61,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class Rng>
 	concept bool __NoThrowForwardRange =
-		__NoThrowInputRange<Rng> &&
+		__NoThrowForwardIterator<iterator_t<Rng>> &&
 		ForwardRange<Rng>;
 } STL2_CLOSE_NAMESPACE
 

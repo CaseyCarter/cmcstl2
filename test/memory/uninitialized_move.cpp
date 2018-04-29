@@ -30,14 +30,24 @@ namespace ranges = __stl2;
 using ranges::ext::span;
 
 namespace {
-	template <ranges::Range Rng>
+	template <ranges::InputRange Rng>
+	requires requires {
+		typename ranges::value_type_t<Rng>;
+		&ranges::value_type_t<Rng>::empty;
+		requires ranges::Invocable<
+			decltype(&ranges::value_type_t<Rng>::empty),
+			ranges::reference_t<ranges::iterator_t<const Rng>>>;
+	}
 	bool empty(const Rng& rng, const std::ptrdiff_t n) {
 		return ranges::all_of(ranges::make_counted_iterator(rng.begin(), n), ranges::default_sentinel{},
 			&ranges::value_type_t<Rng>::empty);
 	}
 
-	template <ranges::Range Rng>
-	requires std::is_fundamental<ranges::value_type_t<Rng>>::value
+	template <ranges::InputRange Rng>
+	requires requires {
+		typename ranges::value_type_t<Rng>;
+		requires std::is_fundamental<ranges::value_type_t<Rng>>::value;
+	}
 	bool empty(const Rng&, const std::ptrdiff_t) {
 		return true;
 	}

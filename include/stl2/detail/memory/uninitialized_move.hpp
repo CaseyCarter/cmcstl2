@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		guard.release();
 		return {std::move(ifirst), std::move(ofirst)};
-   }
+	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_move [Extension]
@@ -75,8 +75,8 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange IRng, __NoThrowForwardRange ORng>
 	requires
 		Constructible<value_type_t<iterator_t<ORng>>, rvalue_reference_t<iterator_t<IRng>>>
-	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(iterator_t<ORng>)>
-	uninitialized_move(IRng&& irng, ORng& orng)
+	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(safe_iterator_t<ORng>)>
+	uninitialized_move(IRng&& irng, ORng&& orng)
 	{
 		return __stl2::uninitialized_move(__stl2::begin(irng), __stl2::end(irng),
 			__stl2::begin(orng), __stl2::end(orng));
