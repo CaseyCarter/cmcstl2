@@ -32,8 +32,8 @@ STL2_OPEN_NAMESPACE {
 
 			template <class... Args>
 			requires Constructible<T, Args...>
-			constexpr single_view(in_place_t, Args&&... args)
-			: value_(in_place, std::forward<Args>(args)...) {}
+			constexpr single_view(std::in_place_t, Args&&... args)
+			: value_(std::in_place, std::forward<Args>(args)...) {}
 
 			using iterator = const T*;
 			using const_iterator = const T*;

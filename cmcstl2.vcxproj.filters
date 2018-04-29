@@ -46,9 +46,6 @@
     <Filter Include="Header Files\cmcstl2\stl2\detail\range">
       <UniqueIdentifier>{913cee68-4003-4159-8f9d-0792ed72f286}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\cmcstl2\stl2\detail\variant">
-      <UniqueIdentifier>{d2d6aaa4-335e-423e-8a09-6d7577d103ed}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\cmcstl2\stl2\detail\iostream">
       <UniqueIdentifier>{828b5bb1-9cbd-4692-b759-759d23405123}</UniqueIdentifier>
     </Filter>
@@ -192,17 +189,8 @@
     <ClInclude Include="include\stl2\detail\iterator\default_sentinel.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\iterator</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\variant\fwd.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\variant</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\variant\storage.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\variant</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\detail\variant\visit.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\variant</Filter>
-    </ClInclude>
-    <ClInclude Include="include\stl2\variant.hpp">
-      <Filter>Header Files\cmcstl2\stl2</Filter>
+    <ClInclude Include="include\stl2\detail\variant.hpp">
+      <Filter>Header Files\cmcstl2\stl2\detail</Filter>
     </ClInclude>
     <ClInclude Include="include\stl2\detail\hash.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail</Filter>
@@ -636,9 +624,6 @@
     <ClInclude Include="include\stl2\detail\range\range.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail\range</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\detail\utility\in_place.hpp">
-      <Filter>Header Files\cmcstl2\stl2\detail\utility</Filter>
-    </ClInclude>
     <ClInclude Include="include\stl2\view\indirect.hpp">
       <Filter>Header Files\cmcstl2\stl2\view</Filter>
     </ClInclude>
@@ -709,9 +694,6 @@
     </ClCompile>
     <ClCompile Include="test\iterator\counted_iterator.cpp">
       <Filter>Test Files\iterator</Filter>
-    </ClCompile>
-    <ClCompile Include="test\variant.cpp">
-      <Filter>Test Files</Filter>
     </ClCompile>
     <ClCompile Include="test\iterator\unreachable.cpp">
       <Filter>Test Files\iterator</Filter>
