@@ -14,6 +14,7 @@
 
 #include <ostream>
 #include <stdexcept>
+#include <utility>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/hash.hpp>
@@ -22,7 +23,6 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/memory/addressof.hpp>
-#include <stl2/detail/utility/in_place.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // Implementation of C++17 optional
@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr storage_destruct_layer() noexcept {}
 			template <class... Args>
 			requires Constructible<T, Args...>
-			constexpr explicit storage_destruct_layer(in_place_t, Args&&... args)
+			constexpr explicit storage_destruct_layer(std::in_place_t, Args&&... args)
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			: item_(std::forward<Args>(args)...), engaged_{true} {}
 
@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr storage_destruct_layer() noexcept {}
 			template <class... Args>
 			requires Constructible<T, Args...>
-			constexpr explicit storage_destruct_layer(in_place_t, Args&&... args)
+			constexpr explicit storage_destruct_layer(std::in_place_t, Args&&... args)
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			: item_(std::forward<Args>(args)...), engaged_{true} {}
 
@@ -268,8 +268,8 @@ STL2_OPEN_NAMESPACE {
 	public:
 		static_assert(!models::Same<__uncvref<T>, nullopt_t>,
 			"optional cannot hold nullopt_t");
-		static_assert(!models::Same<__uncvref<T>, in_place_t>,
-			"optional cannot hold in_place_t");
+		static_assert(!models::Same<__uncvref<T>, std::in_place_t>,
+			"optional cannot hold std::in_place_t");
 
 		using value_type = T;
 
@@ -282,29 +282,29 @@ STL2_OPEN_NAMESPACE {
 
 		template <class... Args>
 		requires Constructible<T, Args...>
-		constexpr explicit optional(in_place_t, Args&&... args)
-		: base_t{in_place, std::forward<Args>(args)...} {}
+		constexpr explicit optional(std::in_place_t, Args&&... args)
+		: base_t{std::in_place, std::forward<Args>(args)...} {}
 		template <class E, class... Args>
 		requires Constructible<T, std::initializer_list<E>&, Args...>
-		constexpr explicit optional(in_place_t, std::initializer_list<E> il, Args&&... args)
-		: base_t{in_place, il, std::forward<Args>(args)...} {}
+		constexpr explicit optional(std::in_place_t, std::initializer_list<E> il, Args&&... args)
+		: base_t{std::in_place, il, std::forward<Args>(args)...} {}
 		template <class U = T>
 		requires
-			!Same<U, in_place_t> &&
+			!Same<U, std::in_place_t> &&
 			!Same<optional, std::decay_t<U>> &&
 			Constructible<T, U>
 		constexpr explicit optional(U&& u)
 		noexcept(std::is_nothrow_constructible<T, U>::value)
-		: base_t{in_place, std::forward<U>(u)} {}
+		: base_t{std::in_place, std::forward<U>(u)} {}
 		template <class U = T>
 		requires
-			!Same<U, in_place_t> &&
+			!Same<U, std::in_place_t> &&
 			!Same<optional, std::decay_t<U>> &&
 			Constructible<T, U> &&
 			ConvertibleTo<U, T>
 		constexpr optional(U&& u)
 		noexcept(std::is_nothrow_constructible<T, U>::value)
-		: base_t{in_place, std::forward<U>(u)} {}
+		: base_t{std::in_place, std::forward<U>(u)} {}
 		template <class U>
 		requires
 			Constructible<T, const U&> &&
@@ -726,11 +726,11 @@ STL2_OPEN_NAMESPACE {
 	template <class T, class... Args>
 	constexpr optional<T> make_optional(Args&&... args)
 	noexcept(std::is_nothrow_constructible<optional<T>, Args...>::value)
-	{ return optional<T>{in_place, std::forward<Args>(args)...}; }
+	{ return optional<T>{std::in_place, std::forward<Args>(args)...}; }
 	template <class T, class E, class... Args>
 	constexpr optional<T> make_optional(std::initializer_list<E> il, Args&&... args)
 	noexcept(std::is_nothrow_constructible<optional<T>, std::initializer_list<E>&, Args...>::value)
-	{ return optional<T>{in_place, il, std::forward<Args>(args)...}; }
+	{ return optional<T>{std::in_place, il, std::forward<Args>(args)...}; }
 
 	Common{T, U}
 	struct common_type<optional<T>, optional<U>> {

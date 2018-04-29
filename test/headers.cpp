@@ -28,7 +28,6 @@
 #include <stl2/tuple.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/utility.hpp>
-#include <stl2/variant.hpp>
 #include <stl2/view/indirect.hpp>
 #include <stl2/view/iota.hpp>
 #include <stl2/view/move.hpp>
