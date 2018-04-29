@@ -65,10 +65,10 @@ namespace {
 		driver(control, independent);
 
 		// check double range-based when distance(rng1) < distance(rng2)
-		const auto small = make_buffer<T>(1);
+		auto small = make_buffer<T>(1);
 		driver(small, independent);
 		// check double range-based when distance(rng1) < distance(rng2)
-		driver(independent, small);
+		driver(control, small);
 
 		test(control, independent,
 			ranges::uninitialized_copy_n(control.begin(), control.size(), independent.begin()));
