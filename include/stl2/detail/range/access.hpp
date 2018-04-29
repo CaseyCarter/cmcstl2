@@ -14,6 +14,7 @@
 
 #include <initializer_list>
 #include <string>
+#include <string_view>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -49,12 +50,13 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_non_member = false;
 		template <class R>
 		requires requires(R&& r) {
-				// { begin((R&&) r) } -> Iterator;
-				requires Iterator<__f<decltype(begin((R&&) r))>>;
+				// { begin(static_cast<R&&>(r)) } -> Iterator;
+				requires Iterator<__f<decltype(begin(static_cast<R&&>(r)))>>;
 			}
 		constexpr bool has_non_member<R> = true;
 
 		struct fn {
+			// Handle builtin arrays directly
 			template <class R, std::size_t N>
 			void operator()(R (&&)[N]) const = delete;
 
@@ -62,6 +64,13 @@ STL2_OPEN_NAMESPACE {
 			constexpr R* operator()(R (&array)[N]) const noexcept {
 				return array;
 			}
+
+			// Handle basic_string_view directly to implement P0970 non-intrusively
+			template <class CharT, class Traits>
+			constexpr auto operator()(const std::basic_string_view<CharT, Traits>& sv) const noexcept {
+				return sv.begin();
+			}
+
 			// Prefer member if it returns Iterator.
 			template <class R>
 			requires has_member<R&>
@@ -69,12 +78,13 @@ STL2_OPEN_NAMESPACE {
 			STL2_NOEXCEPT_RETURN(
 				r.begin()
 			)
+
 			// Use ADL if it returns Iterator.
 			template <class R>
 			requires !has_member<R> && has_non_member<R>
 			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				begin((R&&) r)
+				begin(static_cast<R&&>(r))
 			)
 		};
 	}
@@ -118,6 +128,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_non_member<R> = true;
 
 		struct fn {
+			// Handle builtin arrays directly
 			template <class R, std::size_t N>
 			void operator()(R (&&)[N]) const = delete;
 
@@ -125,6 +136,13 @@ STL2_OPEN_NAMESPACE {
 			constexpr R* operator()(R (&array)[N]) const noexcept {
 				return array + N;
 			}
+
+			// Handle basic_string_view directly to implement P0970 non-intrusively
+			template <class CharT, class Traits>
+			constexpr auto operator()(const std::basic_string_view<CharT, Traits>& sv) const noexcept {
+				return sv.end();
+			}
+
 			// Prefer member if it returns Sentinel.
 			template <class R>
 			requires has_member<R&>
@@ -132,6 +150,7 @@ STL2_OPEN_NAMESPACE {
 			STL2_NOEXCEPT_RETURN(
 				r.end()
 			)
+
 			// Use ADL if it returns Sentinel.
 			template <class R>
 			requires !has_member<R> && has_non_member<R>

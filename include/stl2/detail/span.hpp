@@ -274,6 +274,10 @@ STL2_OPEN_NAMESPACE {
 			constexpr reverse_iterator rbegin() const noexcept { return reverse_iterator{end()}; }
 			constexpr reverse_iterator rend() const noexcept { return reverse_iterator{begin()}; }
 
+			// Extension for P0970
+			friend constexpr iterator begin(span&& s) noexcept { return s.begin(); }
+			friend constexpr iterator end(span&& s) noexcept { return s.end(); }
+
 			// [span.comparison], span comparison operators
 			template <EqualityComparableWith<ElementType> U, index_type UExtent>
 			bool operator==(span<U, UExtent> that) const
