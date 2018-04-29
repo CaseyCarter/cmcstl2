@@ -19,6 +19,17 @@
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
+	// __NoThrowInputIterator [Exposition]
+	//
+	template <class I>
+	concept bool __NoThrowInputIterator =
+		InputIterator<I> &&
+		_Is<reference_t<I>, std::is_lvalue_reference> &&
+		Same<__uncvref<reference_t<I>>, value_type_t<I>>;
+		// Axiom: no exceptions are thrown from increment, copy, move, assignment,
+		//        indirection through valid iterators.
+
+	///////////////////////////////////////////////////////////////////////////
 	// __NoThrowSentinel [Exposition]
 	//
 	template <class S, class I>
@@ -26,18 +37,6 @@ STL2_OPEN_NAMESPACE {
 		Sentinel<S, I>;
 		// Axiom: no exceptions are thrown from comparisons between objects of types
 		//        I and S.
-
-	///////////////////////////////////////////////////////////////////////////
-	// __NoThrowInputIterator [Exposition]
-	//
-	template <class I>
-	concept bool __NoThrowInputIterator =
-		InputIterator<I> &&
-		__NoThrowSentinel<I, I> &&
-		_Is<reference_t<I>, std::is_lvalue_reference> &&
-		Same<__uncvref<reference_t<I>>, value_type_t<I>>;
-		// Axiom: no exceptions are thrown from increment, copy, move, assignment,
-		//        indirection through valid iterators.
 
 	///////////////////////////////////////////////////////////////////////////
 	// __NoThrowInputRange [Exposition]
@@ -55,6 +54,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 	concept bool __NoThrowForwardIterator =
 		__NoThrowInputIterator<I> &&
+		__NoThrowSentinel<I, I> &&
 		ForwardIterator<I>;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -62,6 +62,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <class Rng>
 	concept bool __NoThrowForwardRange =
+		__NoThrowForwardIterator<iterator_t<Rng>> &&
 		__NoThrowInputRange<Rng> &&
 		ForwardRange<Rng>;
 } STL2_CLOSE_NAMESPACE
