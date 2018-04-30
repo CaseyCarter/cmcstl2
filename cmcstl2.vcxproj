@@ -239,10 +239,7 @@
     <ClInclude Include="include\stl2\detail\iterator\move_iterator.hpp" />
     <ClInclude Include="include\stl2\detail\temporary_vector.hpp" />
     <ClInclude Include="include\stl2\detail\tuple_like.hpp" />
-    <ClInclude Include="include\stl2\detail\utility\in_place.hpp" />
-    <ClInclude Include="include\stl2\detail\variant\fwd.hpp" />
-    <ClInclude Include="include\stl2\detail\variant\storage.hpp" />
-    <ClInclude Include="include\stl2\detail\variant\visit.hpp" />
+    <ClInclude Include="include\stl2\detail\variant.hpp" />
     <ClInclude Include="include\stl2\functional.hpp" />
     <ClInclude Include="include\stl2\iterator.hpp" />
     <ClInclude Include="include\stl2\memory.hpp" />
@@ -251,7 +248,6 @@
     <ClInclude Include="include\stl2\tuple.hpp" />
     <ClInclude Include="include\stl2\type_traits.hpp" />
     <ClInclude Include="include\stl2\utility.hpp" />
-    <ClInclude Include="include\stl2\variant.hpp" />
     <ClInclude Include="include\stl2\view\indirect.hpp" />
     <ClInclude Include="include\stl2\view\iota.hpp" />
     <ClInclude Include="include\stl2\view\move.hpp" />
@@ -422,7 +418,6 @@
     <ClCompile Include="test\iterator\iterator.cpp" />
     <ClCompile Include="test\iterator\move_iterator.cpp" />
     <ClCompile Include="test\iterator\reverse_iterator.cpp" />
-    <ClCompile Include="test\variant.cpp" />
     <ClCompile Include="test\view\move_view.cpp" />
     <ClCompile Include="test\view\repeat_n_view.cpp" />
     <ClCompile Include="test\view\repeat_view.cpp" />

@@ -183,8 +183,8 @@ void test_tagged_pairs_creation_para_2_example() {
 void test_tagged_tuple_para_3_example() {
 	using namespace __stl2;
 	tagged_tuple<tag::in(char*), tag::out(char*)> t{0, 0};
-	CHECK(&t.in() == &get<0>(t));
-	CHECK(&t.out() == &get<1>(t));
+	CHECK(&t.in() == &std::get<0>(t));
+	CHECK(&t.out() == &std::get<1>(t));
 }
 
 void test_tagged_tuple_creation_para_4_example() {

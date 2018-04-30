@@ -101,8 +101,8 @@ static_assert(ranges::models::Swappable<::X::C>);
 static_assert(ranges::models::SwappableWith<::X::A&, ::X::B&>);
 
 void test_cross_type_swap() {
-	ranges::optional<::X::A> oa{ranges::in_place};
-	ranges::optional<::X::B> ob{ranges::in_place};
+	ranges::optional<::X::A> oa{std::in_place};
+	ranges::optional<::X::B> ob{std::in_place};
 
 	CHECK(oa->i == 42);
 	CHECK(ob->i == 13);

@@ -20,7 +20,6 @@
 #include <stl2/detail/swap.hpp>
 #include <stl2/detail/tagged.hpp>
 #include <stl2/detail/tuple_like.hpp>
-#include <stl2/detail/utility/in_place.hpp>
 
 STL2_OPEN_NAMESPACE {
 	// tagged_pair

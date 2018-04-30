@@ -14,8 +14,8 @@
 #define STL2_DETAIL_ITERATOR_COMMON_ITERATOR_HPP
 
 #include <stl2/type_traits.hpp>
-#include <stl2/variant.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/variant.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -104,24 +104,24 @@ STL2_OPEN_NAMESPACE {
 		struct convert_visitor {
 			constexpr auto operator()(const II& i) const
 			STL2_NOEXCEPT_RETURN(
-				variant<I, S>{in_place_index<0>, i}
+				std::variant<I, S>{std::in_place_index<0>, i}
 			)
 			constexpr auto operator()(const SS& s) const
 			STL2_NOEXCEPT_RETURN(
-				variant<I, S>{in_place_index<1>, s}
+				std::variant<I, S>{std::in_place_index<1>, s}
 			)
 		};
 
 		template <Iterator I, Sentinel<I> S, ConvertibleTo<I> II, ConvertibleTo<S> SS>
 		struct assign_visitor {
-			variant<I, S> *pv_;
+			std::variant<I, S> *pv_;
 			void operator()(const II& i) const
 			STL2_NOEXCEPT_RETURN(
-				pv_->template emplace<I>(i)
+				(void)pv_->template emplace<I>(i)
 			)
 			void operator()(const SS& s) const
 			STL2_NOEXCEPT_RETURN(
-				pv_->template emplace<S>(s)
+				(void)pv_->template emplace<S>(s)
 			)
 		};
 
@@ -168,7 +168,7 @@ STL2_OPEN_NAMESPACE {
 			requires !Same<II, SS>
 		friend class common_iterator;
 		friend __common_iterator::access;
-		variant<I, S> v_;
+		std::variant<I, S> v_;
 	public:
 		using difference_type = difference_type_t<I>;
 
@@ -177,12 +177,12 @@ STL2_OPEN_NAMESPACE {
 
 		// Not to spec: constexpr per P0579
 		constexpr common_iterator(I i)
-		noexcept(is_nothrow_constructible<variant<I, S>, I>::value)
+		noexcept(is_nothrow_constructible<std::variant<I, S>, I>::value)
 		: v_{std::move(i)} {}
 
 		// Not to spec: constexpr per P0579
 		constexpr common_iterator(S s)
-		noexcept(is_nothrow_constructible<variant<I, S>, S>::value)
+		noexcept(is_nothrow_constructible<std::variant<I, S>, S>::value)
 		: v_{std::move(s)} {}
 
 		// Not to spec: constexpr per P0579
@@ -191,7 +191,7 @@ STL2_OPEN_NAMESPACE {
 		noexcept(
 			std::is_nothrow_constructible<I, const II&>::value &&
 			std::is_nothrow_constructible<S, const SS&>::value)
-		: v_{__stl2::visit(__common_iterator::convert_visitor<I, S, II, SS>{}, i.v_)}
+		: v_{std::visit(__common_iterator::convert_visitor<I, S, II, SS>{}, i.v_)}
 		{}
 
 		template <ConvertibleTo<I> II, ConvertibleTo<S> SS>
@@ -200,48 +200,48 @@ STL2_OPEN_NAMESPACE {
 			std::is_nothrow_assignable<I&, const II&>::value &&
 			std::is_nothrow_assignable<S&, const SS&>::value)
 		{
-			__stl2::visit(
+			std::visit(
 				__common_iterator::assign_visitor<I, S, II, SS>{&v_}, i.v_);
 			return *this;
 		}
 
 		decltype(auto) operator*()
 		noexcept(noexcept(*std::declval<I&>())) {
-			STL2_EXPECT(__stl2::holds_alternative<I>(v_));
-			return *__stl2::get_unchecked<I>(v_);
+			STL2_EXPECT(std::holds_alternative<I>(v_));
+			return *std::get<I>(v_);
 		}
 		decltype(auto) operator*() const
 		noexcept(noexcept(*std::declval<const I&>()))
 		requires detail::Dereferenceable<const I> {
-			STL2_EXPECT(__stl2::holds_alternative<I>(v_));
-			return *__stl2::get_unchecked<I>(v_);
+			STL2_EXPECT(std::holds_alternative<I>(v_));
+			return *__stl2::__get_unchecked<I>(v_);
 		}
 		decltype(auto) operator->() const
 		noexcept(noexcept(__common_iterator::operator_arrow(std::declval<const I&>())))
 		requires Readable<const I> {
-			STL2_EXPECT(__stl2::holds_alternative<I>(v_));
-			return __common_iterator::operator_arrow(__stl2::get_unchecked<I>(v_));
+			STL2_EXPECT(std::holds_alternative<I>(v_));
+			return __common_iterator::operator_arrow(__stl2::__get_unchecked<I>(v_));
 		}
 
 		common_iterator& operator++()
 		noexcept(noexcept(++declval<I&>()))	{
-			STL2_EXPECT(__stl2::holds_alternative<I>(v_));
-			++__stl2::get_unchecked<I>(v_);
+			STL2_EXPECT(std::holds_alternative<I>(v_));
+			++__stl2::__get_unchecked<I>(v_);
 			return *this;
 		}
 		// Not to spec:
 		// https://github.com/ericniebler/stl2/issues/232
 		decltype(auto) operator++(int)
 		noexcept(noexcept((decltype(declval<I&>()++))declval<I&>()++)) {
-			STL2_EXPECT(__stl2::holds_alternative<I>(v_));
-			return __stl2::get_unchecked<I>(v_)++;
+			STL2_EXPECT(std::holds_alternative<I>(v_));
+			return __stl2::__get_unchecked<I>(v_)++;
 		}
 		common_iterator operator++(int)
 		noexcept(noexcept(common_iterator(common_iterator(++declval<common_iterator&>()))))
 		requires ForwardIterator<I> {
-			STL2_EXPECT(__stl2::holds_alternative<I>(v_));
+			STL2_EXPECT(std::holds_alternative<I>(v_));
 			auto tmp(*this);
-			++__stl2::get_unchecked<I>(v_);
+			++__stl2::__get_unchecked<I>(v_);
 			return tmp;
 		}
 
@@ -251,8 +251,8 @@ STL2_OPEN_NAMESPACE {
 			const common_iterator& i)
 			noexcept(noexcept(__stl2::iter_move(std::declval<const I&>())))
 			requires InputIterator<I> {
-			STL2_EXPECT(__stl2::holds_alternative<I>(i.v_));
-			return __stl2::iter_move(__stl2::get_unchecked<I>(i.v_));
+			STL2_EXPECT(std::holds_alternative<I>(i.v_));
+			return __stl2::iter_move(__stl2::__get_unchecked<I>(i.v_));
 		}
 
 		template <IndirectlySwappable<I> I2, class S2>
@@ -260,10 +260,10 @@ STL2_OPEN_NAMESPACE {
 			const common_iterator<I2, S2>& y)
 			noexcept(noexcept(__stl2::iter_swap(std::declval<const I&>(),
 				std::declval<const I2&>()))) {
-			STL2_EXPECT(__stl2::holds_alternative<I>(x.v_));
-			STL2_EXPECT(__stl2::holds_alternative<I2>(__common_iterator::access::v(y)));
-			__stl2::iter_swap(__stl2::get_unchecked<I>(x.v_),
-				__stl2::get_unchecked<I2>(__common_iterator::access::v(y)));
+			STL2_EXPECT(std::holds_alternative<I>(x.v_));
+			STL2_EXPECT(std::holds_alternative<I2>(__common_iterator::access::v(y)));
+			__stl2::iter_swap(__stl2::__get_unchecked<I>(x.v_),
+				__stl2::__get_unchecked<I2>(__common_iterator::access::v(y)));
 		}
 	};
 
@@ -284,9 +284,9 @@ STL2_OPEN_NAMESPACE {
 	bool operator==(
 		const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
 	STL2_NOEXCEPT_RETURN(
-		__stl2::visit(__common_iterator::equal_visitor<I1, I2, S1, S2>{},
-					  __common_iterator::access::v(x),
-					  __common_iterator::access::v(y))
+		std::visit(__common_iterator::equal_visitor<I1, I2, S1, S2>{},
+				   __common_iterator::access::v(x),
+				   __common_iterator::access::v(y))
 	)
 
 	template <class I1, class I2, Sentinel<I2> S1, Sentinel<I1> S2>
@@ -301,9 +301,9 @@ STL2_OPEN_NAMESPACE {
 	difference_type_t<I2> operator-(
 		const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
 	STL2_NOEXCEPT_RETURN(
-		__stl2::visit(__common_iterator::difference_visitor<I1, I2, S1, S2>{},
-					  __common_iterator::access::v(x),
-					  __common_iterator::access::v(y))
+		std::visit(__common_iterator::difference_visitor<I1, I2, S1, S2>{},
+				   __common_iterator::access::v(x),
+				   __common_iterator::access::v(y))
 	)
 } STL2_CLOSE_NAMESPACE
 
