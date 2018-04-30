@@ -58,17 +58,18 @@ namespace {
 			test(in, out, ranges::uninitialized_copy(in.begin(), in.end(), out.begin(), out.end()));
 			test(in, out, ranges::uninitialized_copy(in.cbegin(), in.cend(), out.cbegin(), out.cend()));
 			test(in, out, ranges::uninitialized_copy(in, out));
-			test(in, out, ranges::uninitialized_copy(in, static_cast<const raw_buffer<T>&>(out)));
+			test(in, out, ranges::uninitialized_copy(in, static_cast<const std::remove_reference_t<decltype(out)>&>(out)));
 		};
 
 		// check range-based when distance(rng1) == distance(rng2)
 		driver(control, independent);
 
 		// check double range-based when distance(rng1) < distance(rng2)
-		auto small = make_buffer<T>(1);
-		driver(small, independent);
-		// check double range-based when distance(rng1) < distance(rng2)
-		driver(control, small);
+		auto small_input = std::array<T, 1>{control[0]};
+		driver(small_input, independent);
+		// // check double range-based when distance(rng1) < distance(rng2)
+		auto small_output = make_buffer<T>(1);
+		driver(control, small_output);
 
 		test(control, independent,
 			ranges::uninitialized_copy_n(control.begin(), control.size(), independent.begin()));
