@@ -19,13 +19,13 @@ target_compile_options(stl2_test_config INTERFACE
         $<$<CONFIG:Debug>:-O0 -fno-inline -g3 -fstack-protector-all>
         $<$<CONFIG:Release>:-Ofast -g0>>)
 
-function(add_stl2_test TESTNAME EXENAME SOURCES...)
-  add_executable(${EXENAME} ${SOURCES...})
+function(add_stl2_test TESTNAME EXENAME FIRSTSOURCE)
+  add_executable(${EXENAME} ${FIRSTSOURCE} ${ARGN})
   target_link_libraries(${EXENAME} stl2_test_config)
   add_test(${TESTNAME} ${EXENAME})
 endfunction(add_stl2_test)
 
-add_stl2_test(test.headers headers headers.cpp)
+add_stl2_test(test.headers headers headers1.cpp headers2.cpp)
 add_stl2_test(test.range_access range_access range_access.cpp)
 add_stl2_test(test.tagged tagged tagged.cpp)
 add_stl2_test(test.common common common.cpp)

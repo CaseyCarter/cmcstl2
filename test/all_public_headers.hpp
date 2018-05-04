@@ -9,6 +9,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
+#ifndef ALL_PUBLIC_HEADERS_HPP
+#define ALL_PUBLIC_HEADERS_HPP
 
 #include <experimental/ranges/algorithm>
 #include <experimental/ranges/concepts>
@@ -36,4 +38,4 @@
 #include <stl2/view/repeat_n.hpp>
 #include <stl2/view/take_exactly.hpp>
 
-int main() {}
+#endif // ALL_PUBLIC_HEADERS_HPP
