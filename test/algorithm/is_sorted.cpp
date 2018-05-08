@@ -41,9 +41,10 @@ struct iter_call
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
 	template <class B, class E, class... Args>
-	auto operator()(B &&b, E &&e, Args &&... args)
-	 -> decltype(ranges::is_sorted(begin_t{b}, sentinel_t{e},
-								   std::forward<Args>(args)...))
+	requires requires(B&& b, E&& e, Args&&... args) {
+		ranges::is_sorted(begin_t{b}, sentinel_t{e}, std::forward<Args>(args)...);
+	}
+	bool operator()(B&& b, E&& e, Args&&... args)
 	{
 		return ranges::is_sorted(begin_t{b}, sentinel_t{e}, std::forward<Args>(args)...);
 	}
@@ -57,12 +58,14 @@ struct range_call
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
 	template <class B, class E, class...  Args>
-	auto operator()(B &&b, E &&e, Args &&... args)
-	 -> decltype(ranges::is_sorted(ranges::ext::subrange(begin_t{b}, sentinel_t{e}),
-								   std::forward<Args>(args)...))
+	requires requires(B&& b, E&& e, Args&&... args) {
+		ranges::is_sorted(ranges::ext::subrange(begin_t{b}, sentinel_t{e}),
+		                  std::forward<Args>(args)...);
+	}
+	bool operator()(B&& b, E&& e, Args&&... args)
 	{
 		return ranges::is_sorted(ranges::ext::subrange(begin_t{b}, sentinel_t{e}),
-								 std::forward<Args>(args)...);
+		                         std::forward<Args>(args)...);
 	}
 };
 

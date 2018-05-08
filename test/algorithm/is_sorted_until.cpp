@@ -41,12 +41,14 @@ struct iter_call
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
 	template <class B, class E, class... Args>
-	auto operator()(B&& It, E&& e, Args&&... args)
-	 -> decltype(stl2::is_sorted_until(begin_t{It}, sentinel_t{e},
-										 std::forward<Args>(args)...))
+	requires requires(B&& It, E&& e, Args&&... args) {
+		stl2::is_sorted_until(begin_t{It}, sentinel_t{e},
+		                      std::forward<Args>(args)...);
+	}
+	begin_t operator()(B&& It, E&& e, Args&&... args)
 	{
 		return stl2::is_sorted_until(begin_t{It}, sentinel_t{e},
-									   std::forward<Args>(args)...);
+		                             std::forward<Args>(args)...);
 	}
 };
 
@@ -58,12 +60,14 @@ struct range_call
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
 	template <class B, class E, class... Args>
-	auto operator()(B&& It, E&& e, Args&&... args)
-	 -> decltype(stl2::is_sorted_until(::as_lvalue(stl2::ext::subrange(begin_t{It}, sentinel_t{e})),
-										 std::forward<Args>(args)...))
+	requires requires(B&& It, E&& e, Args&&... args) {
+		stl2::is_sorted_until(::as_lvalue(stl2::ext::subrange(begin_t{It}, sentinel_t{e})),
+		                      std::forward<Args>(args)...);
+	}
+	begin_t operator()(B&& It, E&& e, Args&&... args)
 	{
 		return stl2::is_sorted_until(::as_lvalue(stl2::ext::subrange(begin_t{It}, sentinel_t{e})),
-									   std::forward<Args>(args)...);
+		                             std::forward<Args>(args)...);
 	}
 };
 
