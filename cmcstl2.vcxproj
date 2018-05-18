@@ -84,8 +84,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\meta\meta.hpp" />
-    <ClInclude Include="include\meta\meta_fwd.hpp" />
+    <ClInclude Include="include\stl2\meta\meta.hpp" />
+    <ClInclude Include="include\stl2\meta\meta_fwd.hpp" />
     <ClInclude Include="include\stl2\algorithm.hpp" />
     <ClInclude Include="include\stl2\concepts.hpp" />
     <ClInclude Include="include\stl2\detail\algorithm\adjacent_find.hpp" />

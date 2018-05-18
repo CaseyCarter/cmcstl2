@@ -19,7 +19,7 @@
 #include <initializer_list>
 #include <type_traits>
 #include <utility>
-#include <meta/meta_fwd.hpp>
+#include <stl2/meta/meta_fwd.hpp>
 
 #if defined(__clang__)
 #pragma GCC diagnostic push
