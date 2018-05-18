@@ -13,7 +13,7 @@
 #define STL2_DETAIL_META_HPP
 
 #include <type_traits>
-#include <meta/meta.hpp>
+#include <stl2/meta/meta.hpp>
 #include <stl2/detail/fwd.hpp>
 
 STL2_OPEN_NAMESPACE {
