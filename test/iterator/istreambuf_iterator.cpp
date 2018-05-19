@@ -93,6 +93,7 @@ int main() {
 		std::istringstream is(hw);
 		::check_equal(ext::subrange(I{is}, default_sentinel{}),
 									ext::subrange(hw + 0, hw + size(hw) - 1));
+		CHECK(I{is} == default_sentinel{});
 	}
 
 	{
@@ -105,6 +106,7 @@ int main() {
 		auto k = I{j};
 		CHECK(*k++ == '3');
 		CHECK(k == I{});
+		CHECK(k == default_sentinel{});
 	}
 
 	{
