@@ -165,7 +165,7 @@ STL2_OPEN_NAMESPACE {
 				return at_end() == that.at_end();
 			}
 			STL2_CONSTEXPR_EXT bool equal(default_sentinel) const noexcept {
-				return cursor{}.equal(*this);
+				return at_end();
 			}
 
 		private:
