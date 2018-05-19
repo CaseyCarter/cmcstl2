@@ -498,10 +498,10 @@
     <ClInclude Include="test\test_utils.hpp">
       <Filter>Test Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\meta\meta.hpp">
+    <ClInclude Include="include\stl2\meta\meta.hpp">
       <Filter>Header Files\cmcstl2\meta</Filter>
     </ClInclude>
-    <ClInclude Include="include\meta\meta_fwd.hpp">
+    <ClInclude Include="include\stl2\meta\meta_fwd.hpp">
       <Filter>Header Files\cmcstl2\meta</Filter>
     </ClInclude>
     <ClInclude Include="include\stl2\detail\algorithm\forward_sort.hpp">

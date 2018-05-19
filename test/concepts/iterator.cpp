@@ -90,7 +90,7 @@ namespace ns = ::__stl2;
 #include <memory>
 #include <type_traits>
 
-#include <meta/meta.hpp>
+#include <stl2/meta/meta.hpp>
 
 #include "../simple_test.hpp"
 

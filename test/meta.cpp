@@ -14,7 +14,7 @@
 // Project home: https://github.com/ericniebler/range-v3
 //
 #include <tuple>
-#include <meta/meta.hpp>
+#include <stl2/meta/meta.hpp>
 #include "simple_test.hpp"
 
 using namespace meta;

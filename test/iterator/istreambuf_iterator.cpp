@@ -116,5 +116,13 @@ int main() {
 		CHECK(*i.operator->().operator->() == '2');
 	}
 
+	{
+		// regression test for #149
+		auto in = std::istringstream{};
+		using I = std::istreambuf_iterator<char>;
+		CHECK(in.rdbuf() != nullptr);
+		CHECK(I{in} == I{});
+	}
+
 	return ::test_result();
 }

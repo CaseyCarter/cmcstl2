@@ -12,7 +12,7 @@
 #ifndef STL2_VIEW_INDIRECT_HPP
 #define STL2_VIEW_INDIRECT_HPP
 
-#include <meta/meta.hpp>
+#include <stl2/meta/meta.hpp>
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/iterator/concepts.hpp>

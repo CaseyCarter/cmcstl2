@@ -16,7 +16,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <meta/meta.hpp>
+#include <stl2/meta/meta.hpp>
 
 #ifdef __clang__
  #define STL2_HAS_BUILTIN(X) __has_builtin(__builtin_ ## X)
