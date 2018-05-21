@@ -21,7 +21,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	template <bool B>
-	constexpr bool __bool = B;
+	inline constexpr bool __bool = B;
 
 	template <template <class...> class T, class... U>
 	concept bool _Valid = requires { typename T<U...>; };

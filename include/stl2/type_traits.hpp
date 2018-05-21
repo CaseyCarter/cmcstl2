@@ -29,10 +29,10 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template <class T>
-	using __ref = add_lvalue_reference_t<T>;
+	using __ref = std::add_lvalue_reference_t<T>;
 
-	template <class T, class X = remove_reference_t<T>>
-	using __cref = __ref<add_const_t<X>>;
+	template <class T, class X = std::remove_reference_t<T>>
+	using __cref = __ref<std::add_const_t<X>>;
 
 	template <class T, class U>
 	using __cond = decltype(true ? declval<T(&)()>()() : declval<U(&)()>()());
@@ -40,11 +40,11 @@ STL2_OPEN_NAMESPACE {
 	template <class From, class To>
 	struct __copy_cv_ : meta::id<To> {};
 	template <class From, class To>
-	struct __copy_cv_<From const, To> : add_const<To> {};
+	struct __copy_cv_<From const, To> : std::add_const<To> {};
 	template <class From, class To>
-	struct __copy_cv_<From volatile, To> : add_volatile<To> {};
+	struct __copy_cv_<From volatile, To> : std::add_volatile<To> {};
 	template <class From, class To>
-	struct __copy_cv_<From const volatile, To> : add_cv<To> {};
+	struct __copy_cv_<From const volatile, To> : std::add_cv<To> {};
 	template <class From, class To>
 	using __copy_cv = meta::_t<__copy_cv_<From, To>>;
 
@@ -54,11 +54,11 @@ STL2_OPEN_NAMESPACE {
 	using __builtin_common_t = meta::_t<__builtin_common<T, U>>;
 	template <class T, class U>
 	requires _Valid<__cond, __cref<T>, __cref<U>>
-	struct __builtin_common<T, U> : decay<__cond<__cref<T>, __cref<U>>> {};
+	struct __builtin_common<T, U> : std::decay<__cond<__cref<T>, __cref<U>>> {};
 
 	template <class T, class U, class R = __builtin_common_t<T &, U &>>
-	using __rref_res = conditional_t<meta::_v<is_reference<R>>,
-		remove_reference_t<R> &&, R>;
+	using __rref_res = std::conditional_t<meta::_v<std::is_reference<R>>,
+		std::remove_reference_t<R> &&, R>;
 
 	template <class T, class U>
 	requires
@@ -89,10 +89,10 @@ STL2_OPEN_NAMESPACE {
 	using common_type_t = meta::_t<common_type<Ts...>>;
 
 	template <class T>
-	struct common_type<T> : decay<T> {};
+	struct common_type<T> : std::decay<T> {};
 
 	template <class T, class U>
-	struct __common_type2 : common_type<decay_t<T>, decay_t<U>> {};
+	struct __common_type2 : common_type<std::decay_t<T>, std::decay_t<U>> {};
 
 	template <_Decayed T, _Decayed U>
 	struct __common_type2<T, U> : __builtin_common<T, U> {};
@@ -113,8 +113,8 @@ STL2_OPEN_NAMESPACE {
 	// common_reference machinery
 	//
 	namespace __qual {
-		using __rref = meta::quote<add_rvalue_reference_t>;
-		using __lref = meta::quote<add_lvalue_reference_t>;
+		using __rref = meta::quote<std::add_rvalue_reference_t>;
+		using __lref = meta::quote<std::add_lvalue_reference_t>;
 		template <class>
 		struct __xref : meta::id<meta::compose<meta::quote<meta::_t>, meta::quote<meta::id>>> {};
 		template <class T>
@@ -122,11 +122,11 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		struct __xref<T&&> : meta::id<meta::compose<__rref, meta::_t<__xref<T>>>> {};
 		template <class T>
-		struct __xref<const T> : meta::id<meta::quote<add_const_t>> {};
+		struct __xref<const T> : meta::id<meta::quote<std::add_const_t>> {};
 		template <class T>
-		struct __xref<volatile T> : meta::id<meta::quote<add_volatile_t>> {};
+		struct __xref<volatile T> : meta::id<meta::quote<std::add_volatile_t>> {};
 		template <class T>
-		struct __xref<const volatile T> : meta::id<meta::quote<add_cv_t>> {};
+		struct __xref<const volatile T> : meta::id<meta::quote<std::add_cv_t>> {};
 	}
 
 	template <class T, class U, template <class> class TQual, template <class> class UQual>
@@ -168,7 +168,7 @@ STL2_OPEN_NAMESPACE {
 	template <_Is<std::is_reference> T, _Is<std::is_reference> U>
 	requires
 		_Valid<__builtin_common_t, T, U> &&
-		_Is<__builtin_common_t<T, U>, is_reference>
+		_Is<__builtin_common_t<T, U>, std::is_reference>
 	struct __common_reference2<T, U> : __builtin_common<T, U> {};
 
 	template <class T, class U>
@@ -211,11 +211,11 @@ STL2_OPEN_NAMESPACE {
 		Same<common_type_t<T, U>, common_type_t<U, T>> &&
 		ConvertibleTo<T, common_type_t<T, U>> &&
 		ConvertibleTo<U, common_type_t<T, U>> &&
-		CommonReference<add_lvalue_reference_t<const T>,
-			add_lvalue_reference_t<const U>> &&
-		CommonReference<add_lvalue_reference_t<common_type_t<T, U>>,
-			common_reference_t<add_lvalue_reference_t<const T>,
-				add_lvalue_reference_t<const U>>>;
+		CommonReference<std::add_lvalue_reference_t<const T>,
+			std::add_lvalue_reference_t<const U>> &&
+		CommonReference<std::add_lvalue_reference_t<common_type_t<T, U>>,
+			common_reference_t<std::add_lvalue_reference_t<const T>,
+				std::add_lvalue_reference_t<const U>>>;
 
 	namespace models {
 		template <class, class>

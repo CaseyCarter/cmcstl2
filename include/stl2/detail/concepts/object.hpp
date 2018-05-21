@@ -52,7 +52,6 @@ STL2_OPEN_NAMESPACE {
 		requires Constructible<decay_t<T>, T>
 	using __f = decay_t<T>;
 
-
 	namespace ext {
 		///////////////////////////////////////////////////////////////////////////
 		// 'structible object concepts
