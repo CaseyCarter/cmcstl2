@@ -29,8 +29,8 @@ STL2_OPEN_NAMESPACE {
 	requires
 		MoveConstructible<T> && Assignable<T&, U>
 	constexpr T exchange(T& t, U&& u)
-	noexcept(is_nothrow_move_constructible<T>::value &&
-		is_nothrow_assignable<T&, U>::value)
+	noexcept(std::is_nothrow_move_constructible<T>::value &&
+		std::is_nothrow_assignable<T&, U>::value)
 	{
 		T tmp(std::move(t));
 		t = std::forward<U>(u);
@@ -68,8 +68,7 @@ STL2_OPEN_NAMESPACE {
 			requires(const F& f, T& t, U& u) { f(t, u); }
 		constexpr bool has_operator<F, T, U> = true;
 
-		class fn {
-		public:
+		struct fn {
 			template <class T, class U>
 			requires has_customization<T, U>
 			constexpr void operator()(T&& t, U&& u) const
@@ -134,16 +133,15 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <class T, class U>
-	constexpr bool is_nothrow_swappable_v = false;
+	inline constexpr bool is_nothrow_swappable_v = false;
 
 	SwappableWith{T, U}
-	constexpr bool is_nothrow_swappable_v<T, U> =
+	inline constexpr bool is_nothrow_swappable_v<T, U> =
 		noexcept(__stl2::swap(std::declval<T>(), std::declval<U>())) &&
 		noexcept(__stl2::swap(std::declval<U>(), std::declval<T>()));
 
 	template <class T, class U>
-	using is_nothrow_swappable_t =
-		meta::bool_<is_nothrow_swappable_v<T, U>>;
+	using is_nothrow_swappable_t = meta::bool_<is_nothrow_swappable_v<T, U>>;
 
 	template <class T, class U>
 	struct is_nothrow_swappable :
