@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	namespace view {
-		namespace __bounded {
+		namespace __stl2_bounded {
 			struct fn : detail::__pipeable<fn> {
 				template <ext::ViewableRange R>
 				requires BoundedRange<R>
@@ -90,9 +90,9 @@ STL2_OPEN_NAMESPACE {
 				constexpr auto operator()(R&& r) const
 				{ return ext::bounded_view{std::forward<R>(r)}; }
 			};
-		} // namespace __bounded
+		} // namespace __stl2_bounded
 
-		inline constexpr __bounded::fn bounded {};
+		inline constexpr __stl2_bounded::fn bounded {};
 	} // namespace view
 } STL2_CLOSE_NAMESPACE
 
