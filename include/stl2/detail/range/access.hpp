@@ -450,20 +450,20 @@ STL2_OPEN_NAMESPACE {
 			requires has_member<R>
 			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				((R&&) r).size()
+				static_cast<R&&>(r).size()
 			)
 			// Use non-member
 			template <class R>
 			requires !has_member<R> && has_non_member<R>
 			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				size((R&&) r)
+				size(static_cast<R&&>(r))
 			)
 			template <class R>
 			requires !has_member<R> && !has_non_member<R> && has_difference<R>
 			constexpr auto operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				__stl2::end((R&&) r) - __stl2::begin((R&&) r)
+				__stl2::end(static_cast<R&&>(r)) - __stl2::begin(static_cast<R&&>(r))
 			)
 		};
 	}

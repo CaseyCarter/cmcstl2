@@ -32,6 +32,11 @@ STL2_OPEN_NAMESPACE {
 			constexpr ref_view(Rng& rng) noexcept
 			: rng_{detail::addressof(rng)} {}
 
+			constexpr Rng& base() const
+			STL2_NOEXCEPT_RETURN(
+				*rng_
+			)
+
 			constexpr iterator_t<Rng> begin() const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::begin(*rng_)
