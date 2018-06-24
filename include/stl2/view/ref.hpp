@@ -24,7 +24,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <Range Rng>
-		requires !_Is<Rng, std::is_reference> && !View<Rng>
+		requires _Is<Rng, std::is_object> && !View<Rng>
 		class ref_view : public view_interface<ref_view<Rng>> {
 			Rng* rng_ = nullptr;
 		public:
