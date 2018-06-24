@@ -17,6 +17,7 @@
 #include <stl2/detail/algorithm/transform.hpp>
 #include <stl2/detail/iterator/insert_iterators.hpp>
 #include <memory>
+#include <list>
 #include <vector>
 #include "../simple_test.hpp"
 
@@ -102,6 +103,32 @@ int main() {
 	//	 auto rng = debug_input_view<int const>{rgi} | view::remove_if(is_even{});
 	//	 ::check_equal(rng, {1,3,5,7,9});
 	// }
+
+	{
+		// Test operator-> with pointer
+		std::pair<int, int> pairs[] = {{1, 99}, {2, 1}, {3, 99}, {4, 3}};
+		auto rng = view::filter(pairs, [](auto&& p) { return p.first % 2 == 0; });
+		auto i = ranges::begin(rng);
+		auto const e = ranges::end(rng);
+		int sum = 0;
+		for (; i != e; ++i) {
+			sum += i->second;
+		}
+		CHECK(sum == 4);
+	}
+
+	{
+		// Test operator-> with non-pointer
+		std::list<std::pair<int, int>> pairs = {{1, 99}, {2, 1}, {3, 99}, {4, 3}};
+		auto rng = view::filter(pairs, [](auto&& p) { return p.first % 2 == 0; });
+		auto i = ranges::begin(rng);
+		auto const e = ranges::end(rng);
+		int sum = 0;
+		for (; i != e; ++i) {
+			sum += i->second;
+		}
+		CHECK(sum == 4);
+	}
 
 	return test_result();
 }
