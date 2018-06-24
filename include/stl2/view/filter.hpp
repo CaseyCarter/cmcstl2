@@ -163,8 +163,7 @@ STL2_OPEN_NAMESPACE {
 			{ return !(y == x); }
 		};
 
-		template <InputRange R, CopyConstructible Pred>
-		requires IndirectUnaryPredicate<Pred, iterator_t<R>> && ext::ViewableRange<R>
+		template <class R, class Pred>
 		filter_view(R&&, Pred) -> filter_view<all_view<R>, Pred>;
 	} // namespace ext
 

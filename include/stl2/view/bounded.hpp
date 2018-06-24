@@ -73,8 +73,7 @@ STL2_OPEN_NAMESPACE {
 			{ return __stl2::size(rng_); }
 		};
 
-		template <ViewableRange O>
-		requires !BoundedRange<O>
+		template <class O>
 		bounded_view(O&&) -> bounded_view<all_view<O>>;
 	} // namespace ext
 

@@ -69,8 +69,7 @@ STL2_OPEN_NAMESPACE {
 			{ return __stl2::size(base_); }
 		};
 
-		template <ext::ViewableRange Rng>
-		requires BidirectionalRange<Rng>
+		template <class Rng>
 		reverse_view(Rng&&) -> reverse_view<all_view<Rng>>;
 	} // namespace ext
 
