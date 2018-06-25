@@ -177,5 +177,10 @@ int main() {
 		CHECK(i == sv.end());
 	}
 
+	{
+		CHECK(ranges::begin(view::empty<int>) == nullptr);
+		CHECK(ranges::end(view::empty<int>) == nullptr);
+	}
+
 	return test_result();
 }

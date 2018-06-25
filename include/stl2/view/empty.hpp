@@ -21,10 +21,6 @@ STL2_OPEN_NAMESPACE {
 		template <_Is<std::is_object> T>
 		class empty_view : public view_interface<empty_view<T>> {
 		public:
-			using iterator = T*;
-			using const_iterator = T*;
-			using sentinel = T*;
-			using const_sentinel = T*;
 			constexpr static T* begin() noexcept
 			{ return nullptr; }
 			constexpr static T* end() noexcept
@@ -32,6 +28,11 @@ STL2_OPEN_NAMESPACE {
 			constexpr static ptrdiff_t size() noexcept
 			{ return 0; }
 			constexpr static T* data() noexcept
+			{ return nullptr; }
+
+			friend T* begin(const empty_view&&) noexcept
+			{ return nullptr; }
+			friend T* end(const empty_view&&) noexcept
 			{ return nullptr; }
 		};
 	}
