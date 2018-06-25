@@ -33,8 +33,8 @@ STL2_OPEN_NAMESPACE {
 			R base_;
 			detail::semiregular_box<Pred> pred_;
 			detail::non_propagating_cache<iterator_t<R>> begin_;
-			class iterator;
-			class sentinel;
+			class __iterator;
+			class __sentinel;
 		public:
 			filter_view() = default;
 
@@ -49,26 +49,26 @@ STL2_OPEN_NAMESPACE {
 			constexpr R base() const
 			{ return base_; }
 
-			constexpr iterator begin()
+			constexpr __iterator begin()
 			{
 				if(!begin_)
 					begin_ = __stl2::find_if(base_, std::ref(pred_.get()));
-				return iterator{*this, *begin_};
+				return __iterator{*this, *begin_};
 			}
 
-			constexpr sentinel end()
-			{ return sentinel{*this}; }
+			constexpr __sentinel end()
+			{ return __sentinel{*this}; }
 
-			constexpr iterator end() requires BoundedRange<R>
-			{ return iterator{*this, __stl2::end(base_)}; }
+			constexpr __iterator end() requires BoundedRange<R>
+			{ return __iterator{*this, __stl2::end(base_)}; }
 		};
 
 		template <class R, class Pred>
-		class filter_view<R, Pred>::iterator {
+		class filter_view<R, Pred>::__iterator {
 		private:
 			iterator_t<R> current_ {};
 			filter_view* parent_ = nullptr;
-			friend sentinel;
+			friend __sentinel;
 		public:
 			using iterator_category =
 				meta::if_c<models::BidirectionalIterator<iterator_t<R>>,
@@ -79,9 +79,9 @@ STL2_OPEN_NAMESPACE {
 			using value_type = value_type_t<iterator_t<R>>;
 			using difference_type = difference_type_t<iterator_t<R>>;
 
-			iterator() = default;
+			__iterator() = default;
 
-			constexpr iterator(filter_view& parent, iterator_t<R> current)
+			constexpr __iterator(filter_view& parent, iterator_t<R> current)
 			: current_(current), parent_(&parent) {}
 
 			constexpr iterator_t<R> base() const
@@ -99,7 +99,7 @@ STL2_OPEN_NAMESPACE {
 				return current_;
 			}
 
-			constexpr iterator& operator++()
+			constexpr __iterator& operator++()
 			{
 				const auto last = __stl2::end(parent_->base_);
 				STL2_ASSERT(current_ != last);
@@ -110,14 +110,14 @@ STL2_OPEN_NAMESPACE {
 			constexpr void operator++(int)
 			{ (void)++*this; }
 
-			constexpr iterator operator++(int) requires ForwardRange<R>
+			constexpr __iterator operator++(int) requires ForwardRange<R>
 			{
 				auto tmp = *this;
 				++*this;
 				return tmp;
 			}
 
-			constexpr iterator& operator--() requires BidirectionalRange<R>
+			constexpr __iterator& operator--() requires BidirectionalRange<R>
 			{
 				do
 					--current_;
@@ -125,50 +125,50 @@ STL2_OPEN_NAMESPACE {
 				return *this;
 			}
 
-			constexpr iterator operator--(int) requires BidirectionalRange<R>
+			constexpr __iterator operator--(int) requires BidirectionalRange<R>
 			{
 				auto tmp = *this;
 				--*this;
 				return tmp;
 			}
 
-			friend constexpr bool operator==(const iterator& x, const iterator& y)
+			friend constexpr bool operator==(const __iterator& x, const __iterator& y)
 			requires EqualityComparable<iterator_t<R>>
 			{ return x.current_ == y.current_; }
 
-			friend constexpr bool operator!=(const iterator& x, const iterator& y)
+			friend constexpr bool operator!=(const __iterator& x, const __iterator& y)
 			requires EqualityComparable<iterator_t<R>>
 			{ return !(x == y); }
 
 			friend constexpr rvalue_reference_t<iterator_t<R>>
-			iter_move(const iterator& i)
+			iter_move(const __iterator& i)
 			noexcept(noexcept(__stl2::iter_move(i.current_)))
 			{ return __stl2::iter_move(i.current_); }
 
-			friend constexpr void iter_swap(const iterator& x, const iterator& y)
+			friend constexpr void iter_swap(const __iterator& x, const __iterator& y)
 			noexcept(noexcept(__stl2::iter_swap(x.current_, y.current_)))
 			{ __stl2::iter_swap(x.current_, y.current_); }
 		};
 
 		template <class R, class Pred>
-		class filter_view<R, Pred>::sentinel {
+		class filter_view<R, Pred>::__sentinel {
 		private:
 			sentinel_t<R> end_;
 		public:
-			sentinel() = default;
-			explicit constexpr sentinel(filter_view& parent)
+			__sentinel() = default;
+			explicit constexpr __sentinel(filter_view& parent)
 			: end_(__stl2::end(parent)) {}
 
 			constexpr sentinel_t<R> base() const
 			{ return end_; }
 
-			friend constexpr bool operator==(const iterator& x, const sentinel& y)
+			friend constexpr bool operator==(const __iterator& x, const __sentinel& y)
 			{ return x.current_ == y.end_; }
-			friend constexpr bool operator==(const sentinel& x, const iterator& y)
+			friend constexpr bool operator==(const __sentinel& x, const __iterator& y)
 			{ return y == x; }
-			friend constexpr bool operator!=(const iterator& x, const sentinel& y)
+			friend constexpr bool operator!=(const __iterator& x, const __sentinel& y)
 			{ return !(x == y); }
-			friend constexpr bool operator!=(const sentinel& x, const iterator& y)
+			friend constexpr bool operator!=(const __sentinel& x, const __iterator& y)
 			{ return !(y == x); }
 		};
 
