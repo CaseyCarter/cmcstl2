@@ -179,8 +179,9 @@ STL2_OPEN_NAMESPACE {
 	struct common_reference<T, U, V, W...>
 	: common_reference<common_reference_t<T, U>, V, W...> {};
 
-	// Not to spec
-	// See https://github.com/ericniebler/stl2/issues/311
+	///////////////////////////////////////////////////////////////////////////
+	// CommonReference [concept.commonref]
+	//
 	template <class T, class U>
 	concept bool CommonReference =
 		requires {
@@ -199,9 +200,8 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
-	// Common [concepts.lib.corelang.common]
-	// Not to spec
-	// See https://github.com/ericniebler/stl2/issues/311
+	// Common [concept.common]
+	//
 	template <class T, class U>
 	concept bool Common =
 		requires {

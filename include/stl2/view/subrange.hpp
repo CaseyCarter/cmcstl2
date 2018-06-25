@@ -109,21 +109,18 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(last_() - first_() == n);
 			}
 
-			// Not to spec
 			template <_NotSameAs<subrange> R>
 			requires _ForwardingRange<R> &&
 				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
 			constexpr subrange(R&& r) requires (!StoreSize)
 			: subrange{__stl2::begin(r), __stl2::end(r)} {}
 
-			// Not to spec
 			template <_NotSameAs<subrange> R>
 			requires _ForwardingRange<R> &&
 				ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
 			constexpr subrange(R&& r) requires StoreSize && SizedRange<R>
 			: subrange{__stl2::begin(r), __stl2::end(r), __stl2::distance(r)} {}
 
-			// Not to spec
 			template <_ForwardingRange R>
 			requires ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
 			constexpr subrange(R&& r, difference_type_t<I> n)
@@ -204,21 +201,18 @@ STL2_OPEN_NAMESPACE {
 		subrange(P, difference_type_t<std::tuple_element_t<0, P>>) ->
 			subrange<std::tuple_element_t<0, P>, std::tuple_element_t<1, P>, subrange_kind::sized>;
 
-		// Not to spec
 		template <_ForwardingRange R>
 		subrange(R&&) -> subrange<iterator_t<R>, sentinel_t<R>>;
 
-		// Not to spec
 		template <_ForwardingRange R>
 		requires SizedRange<R>
 		subrange(R&&) -> subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
 
-		// Not to spec
 		template <_ForwardingRange R>
 		subrange(R&&, difference_type_t<iterator_t<R>>) ->
 			subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
 
-		// Not to spec
+		// Not to spec: Extension
 		template <Iterator I, Sentinel<I> S = I>
 		using sized_subrange = subrange<I, S, subrange_kind::sized>;
 
@@ -232,6 +226,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
+		// Not to spec: these should be hidden friends
 		template <class I, class S, subrange_kind K>
 		constexpr I begin(subrange<I, S, K>&& r)
 		noexcept(std::is_nothrow_copy_constructible_v<I>) {
@@ -243,7 +238,7 @@ STL2_OPEN_NAMESPACE {
 			return r.end();
 		}
 
-		// Not to spec
+		// Not to spec: should be constrained with _ForwardingRange, and never dangle.
 		template <Range R>
 		using safe_subrange_t =	__maybe_dangling<R, subrange<iterator_t<R>>>;
 	} // namespace ext

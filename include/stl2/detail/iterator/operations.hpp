@@ -19,7 +19,6 @@
 
 ///////////////////////////////////////////////////////////////////////////
 // Iterator operations [iterator.operations]
-// Not to spec: All constexpr per P0579.
 STL2_OPEN_NAMESPACE {
 	// advance
 	namespace __advance {

@@ -153,8 +153,6 @@ STL2_OPEN_NAMESPACE {
 		insert_iterator& operator++() {
 			return *this;
 		}
-		// Not to spec:
-		// https://github.com/ericniebler/stl2/issues/232
 		insert_iterator& operator++(int) {
 			return *this;
 		}

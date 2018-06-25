@@ -172,20 +172,16 @@ STL2_OPEN_NAMESPACE {
 	public:
 		using difference_type = difference_type_t<I>;
 
-		// Not to spec: constexpr per P0579
 		constexpr common_iterator() = default;
 
-		// Not to spec: constexpr per P0579
 		constexpr common_iterator(I i)
 		noexcept(is_nothrow_constructible<std::variant<I, S>, I>::value)
 		: v_{std::move(i)} {}
 
-		// Not to spec: constexpr per P0579
 		constexpr common_iterator(S s)
 		noexcept(is_nothrow_constructible<std::variant<I, S>, S>::value)
 		: v_{std::move(s)} {}
 
-		// Not to spec: constexpr per P0579
 		template <ConvertibleTo<I> II, ConvertibleTo<S> SS>
 		constexpr common_iterator(const common_iterator<II, SS>& i)
 		noexcept(
@@ -229,8 +225,6 @@ STL2_OPEN_NAMESPACE {
 			++__stl2::__get_unchecked<I>(v_);
 			return *this;
 		}
-		// Not to spec:
-		// https://github.com/ericniebler/stl2/issues/232
 		decltype(auto) operator++(int)
 		noexcept(noexcept((decltype(declval<I&>()++))declval<I&>()++)) {
 			STL2_EXPECT(std::holds_alternative<I>(v_));
@@ -245,8 +239,6 @@ STL2_OPEN_NAMESPACE {
 			return tmp;
 		}
 
-		// Not to spec:
-		// https://github.com/ericniebler/stl2/issues/245
 		friend rvalue_reference_t<I> iter_move(
 			const common_iterator& i)
 			noexcept(noexcept(__stl2::iter_move(std::declval<const I&>())))

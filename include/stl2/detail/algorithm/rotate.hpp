@@ -35,9 +35,6 @@
 ///////////////////////////////////////////////////////////////////////////
 // rotate [alg.rotate]
 //
-// Not to spec:
-// * use of ext::subrange and ext::safe_subrange_t throughout
-//
 STL2_OPEN_NAMESPACE {
 	template <class I>
 	requires

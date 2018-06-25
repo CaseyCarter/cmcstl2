@@ -94,8 +94,6 @@ STL2_OPEN_NAMESPACE {
 	template <class>
 	struct indirect_result_of {};
 
-	// Not to spec:
-	// and https://github.com/ericniebler/stl2/issues/286
 	template <class F, class... Is>
 	requires Invocable<F, reference_t<Is>...>
 	struct indirect_result_of<F(Is...)>

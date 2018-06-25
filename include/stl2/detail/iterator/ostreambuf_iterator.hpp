@@ -56,8 +56,6 @@ STL2_OPEN_NAMESPACE {
 		ostreambuf_iterator& operator++() noexcept {
 			return *this;
 		}
-		// Not to spec:
-		// https://github.com/ericniebler/stl2/issues/232
 		ostreambuf_iterator& operator++(int) noexcept {
 			return *this;
 		}
