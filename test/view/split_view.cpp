@@ -15,14 +15,10 @@
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
 
+#include <list>
 #include <sstream>
 
 namespace ranges = __stl2;
-
-namespace {
-}
-
-#include <list>
 
 int main() {
 	using namespace ranges;
@@ -175,11 +171,6 @@ int main() {
 		check_equal(*i, ext::single_view{'o'});
 		++i;
 		CHECK(i == sv.end());
-	}
-
-	{
-		CHECK(ranges::begin(view::empty<int>) == nullptr);
-		CHECK(ranges::end(view::empty<int>) == nullptr);
 	}
 
 	return test_result();

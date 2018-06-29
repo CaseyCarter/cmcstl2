@@ -1,6 +1,6 @@
 # cmcstl2 - A concept-enabled C++ standard library
 #
-#  Copyright Casey Carter 2015, 2017
+#  Copyright Casey Carter 2015 - 2018
 #
 #  Use, modification and distribution is subject to the
 #  Boost Software License, Version 1.0. (See accompanying
@@ -12,6 +12,7 @@
 add_stl2_test(span span span.cpp)
 add_stl2_test(view.bounded view.bounded bounded_view.cpp)
 add_stl2_test(view.counted view.counted counted_view.cpp)
+add_stl2_test(view.empty view.empty empty_view.cpp)
 add_stl2_test(view.filter view.filter filter_view.cpp)
 add_stl2_test(view.join view.join join_view.cpp)
 add_stl2_test(view.move view.move move_view.cpp)
