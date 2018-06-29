@@ -22,8 +22,6 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Assignable [concepts.lib.corelang.assignable]
 	//
-	// Not to spec
-	// See https://github.com/ericniebler/stl2/issues/229
 	template <class T, class U>
 	concept bool Assignable =
 		_Is<T, is_lvalue_reference> &&

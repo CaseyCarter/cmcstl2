@@ -22,8 +22,6 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Movable [concepts.lib.object.movable]
 	//
-	// Not to spec
-	// https://github.com/ericniebler/stl2/issues/310
 	template <class T>
 	concept bool Movable =
 		ext::Object<T> &&

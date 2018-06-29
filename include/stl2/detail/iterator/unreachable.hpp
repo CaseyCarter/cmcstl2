@@ -13,29 +13,32 @@
 #ifndef STL2_DETAIL_ITERATOR_UNREACHABLE_HPP
 #define STL2_DETAIL_ITERATOR_UNREACHABLE_HPP
 
-#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/iterator/common_iterator.hpp>
+#include <stl2/detail/iterator/increment.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // unreachable [unreachable.sentinel]
 //
 STL2_OPEN_NAMESPACE {
-	struct unreachable {};
+	struct unreachable {
+		template<WeaklyIncrementable WI>
+		friend constexpr bool operator==(unreachable, const WI&) noexcept {
+			return false;
+		}
+		template<WeaklyIncrementable WI>
+		friend constexpr bool operator==(const WI&, unreachable) noexcept {
+			return false;
+		}
 
-	constexpr bool operator==(const auto&, unreachable) noexcept {
-		return false;
-	}
-	constexpr bool operator==(unreachable, const auto&) noexcept {
-		return false;
-	}
-
-	constexpr bool operator!=(const auto&, unreachable) noexcept {
-		return true;
-	}
-	constexpr bool operator!=(unreachable, const auto&) noexcept {
-		return true;
-	}
+		template<WeaklyIncrementable WI>
+		friend constexpr bool operator!=(unreachable, const WI&) noexcept {
+			return true;
+		}
+		template<WeaklyIncrementable WI>
+		friend constexpr bool operator!=(const WI&, unreachable) noexcept {
+			return true;
+		}
+	};
 } STL2_CLOSE_NAMESPACE
 
 #endif

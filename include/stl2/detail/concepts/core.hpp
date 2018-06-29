@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// DerivedFrom [concepts.lib.corelang.derived]
-	// Not to spec: https://github.com/ericniebler/stl2/issues/255
+	//
 	template <class T, class U>
 	concept bool DerivedFrom =
 #if defined(__GNUC__)
@@ -85,9 +85,6 @@ STL2_OPEN_NAMESPACE {
 
 	///////////////////////////////////////////////////////////////////////////
 	// ConvertibleTo [concepts.lib.corelang.convertibleto]
-	// Not to spec: Requires both implicit and explicit conversion with
-	//              equal results.
-	// See https://github.com/ericniebler/stl2/issues/167
 	//
 	template <class T, class U>
 	concept bool ConvertibleTo =

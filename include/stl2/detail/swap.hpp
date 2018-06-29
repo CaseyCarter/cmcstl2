@@ -23,8 +23,7 @@
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// exchange [utility.exchange]
-	// Not to spec: constexpr
-	// See https://github.com/ericniebler/stl2/322
+	//
 	template <class T, class U = T>
 	requires
 		MoveConstructible<T> && Assignable<T&, U>

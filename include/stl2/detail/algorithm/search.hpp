@@ -28,6 +28,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/iterator/counted_iterator.hpp>
+#include <stl2/view/subrange.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // search [alg.search]
@@ -40,11 +41,11 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectlyComparable<
 				I1, I2, Pred, Proj1, Proj2>
-		I1 unsized(I1 first1, S1 last1, I2 first2, S2 last2,
+		ext::subrange<I1> unsized(I1 first1, S1 last1, I2 first2, S2 last2,
 			Pred pred, Proj1 proj1, Proj2 proj2)
 		{
 			if (first2 == last2) {
-				return first1;
+				return {first1, first1};
 			}
 
 			for (; first1 != last1; ++first1) {
@@ -53,19 +54,20 @@ STL2_OPEN_NAMESPACE {
 					auto m1 = first1;
 					auto m2 = first2;
 					do {
+						++m1;
 						// If pattern exhausted, first1 is the answer (works for 1 element pattern)
 						if (++m2 == last2) {
-							return first1;
+							return {first1, m1};
 						}
 						// Otherwise if source exhausted, pattern not found
-						if (++m1 == last1) {
-							return m1;
+						if (m1 == last1) {
+							return {m1, m1};
 						}
 					} while (__stl2::invoke(pred, __stl2::invoke(proj1, *m1), __stl2::invoke(proj2, *m2)));
 				}
 			}
 
-			return first1;
+			return {first1, first1};
 		}
 
 		template <ForwardIterator I1, Sentinel<I1> S1,
@@ -74,13 +76,13 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectlyComparable<
 				I1, I2, Pred, Proj1, Proj2>
-		I1 sized(
+		ext::subrange<I1> sized(
 			const I1 first1_, S1 last1, const difference_type_t<I1> d1_,
 			I2 first2, S2 last2, const difference_type_t<I2> d2,
 			Pred pred, Proj1 proj1, Proj2 proj2)
 		{
 			if (d2 == 0) {
-				return first1_;
+				return {first1_, first1_};
 			}
 
 			auto d1 = d1_;
@@ -90,13 +92,18 @@ STL2_OPEN_NAMESPACE {
 					auto m1 = first1;
 					auto m2 = first2;
 					do {
+						++m1;
 						if (++m2 == last2) {
-							return ext::recounted(first1_, first1, d1_ - d1);
+							return {
+								ext::recounted(first1_, first1, d1_ - d1),
+								ext::recounted(first1_, m1, d1_ - d1 + d2)
+							};
 						}
-					} while (__stl2::invoke(pred, __stl2::invoke(proj1, *++m1), __stl2::invoke(proj2, *m2)));
+					} while (__stl2::invoke(pred, __stl2::invoke(proj1, *m1), __stl2::invoke(proj2, *m2)));
 				}
 			}
-			return __stl2::next(ext::recounted(first1_, first1, d1_ - d1), last1);
+			auto end = __stl2::next(ext::recounted(first1_, first1, d1_ - d1), last1);
+			return {end, end};
 		}
 	}
 
@@ -106,8 +113,8 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectlyComparable<
 			I1, I2, Pred, Proj1, Proj2>
-	I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
-						Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+	ext::subrange<I1> search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
+		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::unsized(first1, last1, first2, last2,
 			std::ref(pred), std::ref(proj1),
@@ -123,7 +130,7 @@ STL2_OPEN_NAMESPACE {
 		SizedSentinel<S2, I2> &&
 		IndirectlyComparable<
 			I1, I2, Pred, Proj1, Proj2>
-	I1 search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
+	ext::subrange<I1> search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::sized(
@@ -138,7 +145,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectlyComparable<
 			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
-	safe_iterator_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
+	ext::safe_subrange_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::unsized(
@@ -155,7 +162,7 @@ STL2_OPEN_NAMESPACE {
 		SizedRange<Rng1> && SizedRange<Rng2> &&
 		IndirectlyComparable<
 			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
-	safe_iterator_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
+	ext::safe_subrange_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::sized(

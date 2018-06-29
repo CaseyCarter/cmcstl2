@@ -25,7 +25,6 @@
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Boolean [concepts.lib.compare.boolean]
-	// Not to spec: see https://github.com/ericniebler/stl2/issues/155
 	//
 	template <class B>
 	concept bool Boolean =

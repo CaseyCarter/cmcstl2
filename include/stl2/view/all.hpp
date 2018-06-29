@@ -35,7 +35,6 @@ STL2_OPEN_NAMESPACE {
 				constexpr auto operator()(Rng&& rng) const
 				noexcept(std::is_reference_v<Rng>)
 				{
-					// Not to spec: ref_view
 					if constexpr (std::is_reference_v<Rng>) {
 						return ext::ref_view{rng};
 					} else {

@@ -22,15 +22,19 @@
 #include <stl2/detail/tuple_like.hpp>
 
 STL2_OPEN_NAMESPACE {
+	////////////////////////////////////////////////////////////////////////////
 	// tagged_pair
+	// Not to spec: Kill it with fire.
+	//
 	template <TaggedType F, TaggedType S>
 	using tagged_pair =
 		tagged<pair<__tagged::element<F>, __tagged::element<S>>,
 			__tagged::specifier<F>, __tagged::specifier<S>>;
 
+	////////////////////////////////////////////////////////////////////////////
 	// make_tagged_pair
-	// Not to spec: forms the tagged_pair type in a requires-expression for
-	// better diagnostics.
+	// Not to spec: Kill it with fire.
+	//
 	template <TagSpecifier Tag1, TagSpecifier Tag2, class T1, class T2>
 	requires
 		requires {

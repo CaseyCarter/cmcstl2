@@ -23,9 +23,7 @@
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// CopyConstructible [concepts.lib.object.copyconstructible]
-	// Not to spec
-	// https://github.com/ericniebler/stl2/issues/301
-	// https://github.com/ericniebler/stl2/issues/313
+	//
 	template <class T>
 	concept bool CopyConstructible =
 		MoveConstructible<T> &&

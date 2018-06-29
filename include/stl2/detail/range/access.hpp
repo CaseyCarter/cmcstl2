@@ -30,7 +30,6 @@ STL2_OPEN_NAMESPACE {
 	namespace __begin {
 		// Poison pill for std::begin. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
-		// Not to spec
 		template <class R>
 		void begin(R&&) = delete;
 
@@ -100,7 +99,6 @@ STL2_OPEN_NAMESPACE {
 	namespace __end {
 		// Poison pill for std::end. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
-		// Not to spec
 		template <class R>
 		void end(R&&) = delete;
 
