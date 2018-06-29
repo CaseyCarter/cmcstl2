@@ -40,7 +40,9 @@ STL2_OPEN_NAMESPACE {
 	// Same [concepts.lib.corelang.same]
 	//
 	template <class T, class U>
-	concept bool Same = __is_same_as(T, U) && __is_same_as(U, T);
+	concept bool _SameImpl = __is_same_as(T, U);
+	template <class T, class U>
+	concept bool Same = _SameImpl<T, U> && _SameImpl<U, T>;
 
 	namespace models {
 		template <class T, class U>
