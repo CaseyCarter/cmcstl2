@@ -73,9 +73,6 @@ STL2_OPEN_NAMESPACE {
 			{ return bound_ - value_; }
 		};
 
-		template <WeaklyIncrementable I>
-		iota_view(I) -> iota_view<I>;
-
 		template <WeaklyIncrementable I, Semiregular Bound>
 		requires WeaklyEqualityComparable<I, Bound> &&
 			(!Integral<I> || !Integral<Bound> || std::is_signed_v<I> == std::is_signed_v<Bound>)
