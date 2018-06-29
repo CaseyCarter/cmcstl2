@@ -8,18 +8,18 @@
 #include <memory>
 #include "../simple_test.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 template <class> class show_type;
 
-template <stl2::Destructible T>
+template <ranges::Destructible T>
 class forward_list {
 	struct node {
 		std::unique_ptr<node> next_;
 		T data_;
 
 		template <class... Args>
-		requires stl2::Constructible<T, Args...>
+		requires ranges::Constructible<T, Args...>
 		constexpr node(Args&&... args)
 		noexcept(std::is_nothrow_constructible<T, Args...>::value)
 		: data_(std::forward<Args>(args)...) {}
@@ -39,10 +39,10 @@ class forward_list {
 		cursor(cursor<B> that) noexcept
 		: ptr_{that.ptr_} {}
 
-		struct mixin : protected stl2::basic_mixin<cursor> {
+		struct mixin : protected ranges::basic_mixin<cursor> {
 			mixin() = default;
-			using stl2::basic_mixin<cursor>::basic_mixin;
-			constexpr mixin(stl2::default_sentinel) noexcept
+			using ranges::basic_mixin<cursor>::basic_mixin;
+			constexpr mixin(ranges::default_sentinel) noexcept
 			: mixin{cursor{}}
 			{}
 		};
@@ -51,11 +51,11 @@ class forward_list {
 			return ptr_->data_;
 		}
 		constexpr void next() noexcept { ptr_ = ptr_->next_.get(); }
-		constexpr bool equal(stl2::default_sentinel) const noexcept { return !ptr_; }
+		constexpr bool equal(ranges::default_sentinel) const noexcept { return !ptr_; }
 		constexpr bool equal(const cursor& that) const noexcept { return ptr_ == that.ptr_; }
 
 	private:
-		stl2::detail::raw_ptr<node> ptr_ = nullptr;
+		ranges::detail::raw_ptr<node> ptr_ = nullptr;
 
 		friend forward_list;
 		constexpr cursor(node* ptr) noexcept
@@ -66,13 +66,13 @@ class forward_list {
 
 public:
 	using value_type = T;
-	using iterator = stl2::basic_iterator<cursor<false>>;
-	using const_iterator = stl2::basic_iterator<cursor<true>>;
+	using iterator = ranges::basic_iterator<cursor<false>>;
+	using const_iterator = ranges::basic_iterator<cursor<true>>;
 
 	forward_list() = default;
 	forward_list(std::initializer_list<T> il)
-	requires stl2::CopyConstructible<T>
-	{ stl2::reverse_copy(il, stl2::front_inserter(*this)); }
+	requires ranges::CopyConstructible<T>
+	{ ranges::reverse_copy(il, ranges::front_inserter(*this)); }
 
 	constexpr iterator begin() noexcept {
 		return iterator{cursor<false>{head_.get()}};
@@ -80,10 +80,10 @@ public:
 	constexpr const_iterator begin() const noexcept {
 		return const_iterator{cursor<true>{head_.get()}};
 	}
-	constexpr stl2::default_sentinel end() const noexcept { return {}; }
+	constexpr ranges::default_sentinel end() const noexcept { return {}; }
 
 	template <class... Args>
-	requires stl2::Constructible<T, Args...>
+	requires ranges::Constructible<T, Args...>
 	void emplace(Args&&... args) {
 		auto p = std::make_unique<node>(std::forward<Args>(args)...);
 		p->next_ = std::move(head_);
@@ -91,10 +91,10 @@ public:
 	}
 
 	void push_front(T&& t)
-	requires stl2::MoveConstructible<T>
+	requires ranges::MoveConstructible<T>
 	{ emplace(std::move(t)); }
 	void push_front(const T& t)
-	requires stl2::CopyConstructible<T>
+	requires ranges::CopyConstructible<T>
 	{ emplace(t); }
 };
 
@@ -102,8 +102,8 @@ template <class T>
 class pointer_cursor {
 public:
 	using contiguous = std::true_type;
-	class mixin : protected stl2::basic_mixin<pointer_cursor> {
-		using base_t = stl2::basic_mixin<pointer_cursor>;
+	class mixin : protected ranges::basic_mixin<pointer_cursor> {
+		using base_t = ranges::basic_mixin<pointer_cursor>;
 	public:
 		mixin() = default;
 		constexpr mixin(T* ptr) noexcept
@@ -117,7 +117,7 @@ public:
 	: ptr_{ptr} {}
 
 	template <class U>
-	requires stl2::ConvertibleTo<U*, T*>
+	requires ranges::ConvertibleTo<U*, T*>
 	constexpr pointer_cursor(const pointer_cursor<U>& that) noexcept
 	: ptr_{that.ptr_} {}
 
@@ -159,12 +159,12 @@ private:
 	T* ptr_;
 };
 
-template <stl2::Semiregular T, std::size_t N>
+template <ranges::Semiregular T, std::size_t N>
 class array {
 public:
 	using value_type = T;
-	using iterator = stl2::basic_iterator<pointer_cursor<T>>;
-	using const_iterator = stl2::basic_iterator<pointer_cursor<const T>>;
+	using iterator = ranges::basic_iterator<pointer_cursor<T>>;
+	using const_iterator = ranges::basic_iterator<pointer_cursor<const T>>;
 
 	// These should be constexpr, except for PR67376.
 	iterator begin() noexcept { return {elements_ + 0}; }
@@ -188,11 +188,11 @@ struct always_cursor {
 	constexpr std::ptrdiff_t distance_to(always_cursor) const noexcept { return 0; }
 };
 template <class T, T Value>
-using always_iterator = stl2::basic_iterator<always_cursor<T, Value>>;
+using always_iterator = ranges::basic_iterator<always_cursor<T, Value>>;
 
-template <stl2::ext::Object T>
+template <ranges::ext::Object T>
 struct proxy_wrapper {
-	stl2::detail::raw_ptr<T> ptr_ = nullptr;
+	ranges::detail::raw_ptr<T> ptr_ = nullptr;
 
 	proxy_wrapper() = default;
 	proxy_wrapper(T& t) noexcept : ptr_{std::addressof(t)} {}
@@ -202,7 +202,7 @@ struct proxy_wrapper {
 
 	proxy_wrapper& operator=(const T& t)
 	noexcept(std::is_nothrow_copy_assignable<T>::value)
-	requires stl2::CopyConstructible<T>
+	requires ranges::CopyConstructible<T>
 	{
 		get() = t;
 		return *this;
@@ -210,7 +210,7 @@ struct proxy_wrapper {
 
 	proxy_wrapper& operator=(T&& t)
 	noexcept(std::is_nothrow_move_assignable<T>::value)
-	requires stl2::MoveConstructible<T>
+	requires ranges::MoveConstructible<T>
 	{
 		get() = std::move(t);
 		return *this;
@@ -218,7 +218,7 @@ struct proxy_wrapper {
 
 	proxy_wrapper const& operator=(const T& t) const
 	noexcept(std::is_nothrow_copy_assignable<T>::value)
-	requires stl2::Copyable<T>
+	requires ranges::Copyable<T>
 	{
 		get() = t;
 		return *this;
@@ -226,7 +226,7 @@ struct proxy_wrapper {
 
 	proxy_wrapper const& operator=(T&& t) const
 	noexcept(std::is_nothrow_move_assignable<T>::value)
-	requires stl2::Movable<T>
+	requires ranges::Movable<T>
 	{
 		get() = std::move(t);
 		return *this;
@@ -281,16 +281,16 @@ struct proxy_array {
 		O&& indirect_move() const noexcept { return std::move(*ptr_); }
 	};
 
-	static_assert(stl2::cursor::Readable<cursor<false>>);
-	static_assert(stl2::cursor::IndirectMove<cursor<false>>);
-	static_assert(stl2::models::Same<T&&, stl2::cursor::rvalue_reference_t<cursor<false>>>);
+	static_assert(ranges::cursor::Readable<cursor<false>>);
+	static_assert(ranges::cursor::IndirectMove<cursor<false>>);
+	static_assert(ranges::Same<T&&, ranges::cursor::rvalue_reference_t<cursor<false>>>);
 
-	static_assert(stl2::cursor::Readable<cursor<true>>);
-	static_assert(stl2::cursor::IndirectMove<cursor<true>>);
-	static_assert(stl2::models::Same<const T&&, stl2::cursor::rvalue_reference_t<cursor<true>>>);
+	static_assert(ranges::cursor::Readable<cursor<true>>);
+	static_assert(ranges::cursor::IndirectMove<cursor<true>>);
+	static_assert(ranges::Same<const T&&, ranges::cursor::rvalue_reference_t<cursor<true>>>);
 
-	using iterator = stl2::basic_iterator<cursor<false>>;
-	using const_iterator = stl2::basic_iterator<cursor<true>>;
+	using iterator = ranges::basic_iterator<cursor<false>>;
+	using const_iterator = ranges::basic_iterator<cursor<true>>;
 	using reference = proxy_wrapper<T>;
 	using const_reference = proxy_wrapper<const T>;
 
@@ -312,10 +312,10 @@ struct proxy_array {
 	}
 };
 
-template <stl2::InputRange R>
+template <ranges::InputRange R>
 requires
-	stl2::StreamInsertable<stl2::value_type_t<stl2::iterator_t<R>>> &&
-	!stl2::Same<char, std::remove_cv_t<
+	ranges::StreamInsertable<ranges::value_type_t<ranges::iterator_t<R>>> &&
+	!ranges::Same<char, std::remove_cv_t<
 		std::remove_all_extents_t<std::remove_reference_t<R>>>>
 std::ostream& operator<<(std::ostream& os, R&& rng) {
 	os << '{';
@@ -338,59 +338,59 @@ void test_fl() {
 	using Rng = decltype(list);
 	using I = decltype(list.begin());
 	using S = decltype(list.end());
-	static_assert(stl2::models::WeaklyIncrementable<I>);
-	static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
-	static_assert(stl2::models::Readable<I>);
-	static_assert(stl2::models::Same<stl2::value_type_t<I>, int>);
-	static_assert(stl2::models::Same<stl2::reference_t<I>, int&>);
-	static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, int&&>);
-	static_assert(stl2::models::Copyable<I>);
-	static_assert(stl2::models::DefaultConstructible<I>);
-	static_assert(stl2::models::Semiregular<I>);
-	static_assert(stl2::models::Incrementable<I>);
-	static_assert(stl2::models::EqualityComparable<I>);
-	static_assert(stl2::models::ForwardIterator<I>);
-	static_assert(stl2::models::Sentinel<S, I>);
-	static_assert(stl2::models::ForwardRange<Rng>);
-	static_assert(stl2::models::Common<S, I>);
-	static_assert(stl2::models::Same<stl2::common_type_t<S, I>, I>);
+	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::Same<ranges::difference_type_t<I>, std::ptrdiff_t>);
+	static_assert(ranges::Readable<I>);
+	static_assert(ranges::Same<ranges::value_type_t<I>, int>);
+	static_assert(ranges::Same<ranges::reference_t<I>, int&>);
+	static_assert(ranges::Same<ranges::rvalue_reference_t<I>, int&&>);
+	static_assert(ranges::Copyable<I>);
+	static_assert(ranges::DefaultConstructible<I>);
+	static_assert(ranges::Semiregular<I>);
+	static_assert(ranges::Incrementable<I>);
+	static_assert(ranges::EqualityComparable<I>);
+	static_assert(ranges::ForwardIterator<I>);
+	static_assert(ranges::Sentinel<S, I>);
+	static_assert(ranges::ForwardRange<Rng>);
+	static_assert(ranges::Common<S, I>);
+	static_assert(ranges::Same<ranges::common_type_t<S, I>, I>);
 	// TODO replace with view::bounded:
-	// static_assert(stl2::models::Same<
-	// 	stl2::ext::subrange<I, I>,
-	// 	decltype(stl2::ext::make_bounded_range(list.begin(), list.end()))>);
+	// static_assert(ranges::Same<
+	// 	ranges::ext::subrange<I, I>,
+	// 	decltype(ranges::ext::make_bounded_range(list.begin(), list.end()))>);
 	std::cout << list << '\n';
-	*stl2::front_inserter(list) = 3.14;
+	*ranges::front_inserter(list) = 3.14;
 	std::cout << list << '\n';
 	CHECK(list.begin() != list.end());
 	CHECK(noexcept(list.begin() != list.end()));
 	CHECK(!(list.begin() == list.end()));
 	CHECK(noexcept(list.begin() == list.end()));
-	CHECK(list.begin() != stl2::next(list.begin()));
-	CHECK(!(list.begin() == stl2::next(list.begin())));
+	CHECK(list.begin() != ranges::next(list.begin()));
+	CHECK(!(list.begin() == ranges::next(list.begin())));
 	static_assert(I{} == I{});
 	CHECK(noexcept(I{} == I{}));
-	CHECK(noexcept(stl2::front_inserter(list)));
+	CHECK(noexcept(ranges::front_inserter(list)));
 	CHECK(sizeof(I) == sizeof(void*));
-	CHECK(stl2::begin(list) == stl2::cbegin(list));
-	{ auto i = stl2::cbegin(list); i = stl2::begin(list); }
-	{ auto i = stl2::begin(list); i = stl2::end(list); }
-	{ auto i = stl2::cbegin(list); i = stl2::end(list); }
+	CHECK(ranges::begin(list) == ranges::cbegin(list));
+	{ auto i = ranges::cbegin(list); i = ranges::begin(list); }
+	{ auto i = ranges::begin(list); i = ranges::end(list); }
+	{ auto i = ranges::cbegin(list); i = ranges::end(list); }
 }
 
 void test_rv() {
 	std::cout << "test_rv:\n";
-	stl2::ext::repeat_view<int> rv{42};
+	ranges::ext::repeat_view<int> rv{42};
 
 	using Rng = decltype(rv);
 	using I = decltype(rv.begin());
-	static_assert(stl2::models::WeaklyIncrementable<I>);
-	static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
-	static_assert(stl2::models::Readable<I>);
-	static_assert(stl2::models::Same<stl2::value_type_t<I>, int>);
-	static_assert(stl2::models::Same<stl2::reference_t<I>, int>);
-	static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, int>);
-	static_assert(stl2::models::RandomAccessIterator<I>);
-	static_assert(stl2::models::RandomAccessRange<Rng>);
+	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::Same<ranges::difference_type_t<I>, std::ptrdiff_t>);
+	static_assert(ranges::Readable<I>);
+	static_assert(ranges::Same<ranges::value_type_t<I>, int>);
+	static_assert(ranges::Same<ranges::reference_t<I>, int>);
+	static_assert(ranges::Same<ranges::rvalue_reference_t<I>, int>);
+	static_assert(ranges::RandomAccessIterator<I>);
+	static_assert(ranges::RandomAccessRange<Rng>);
 	CHECK(I{} == I{});
 
 	auto i = rv.begin();
@@ -399,7 +399,7 @@ void test_rv() {
 	}
 	std::cout << '\n';
 
-	stl2::copy_n(rv.begin(), 13, stl2::ostream_iterator<>{std::cout, " "});
+	ranges::copy_n(rv.begin(), 13, ranges::ostream_iterator<>{std::cout, " "});
 	std::cout << '\n';
 	CHECK(rv.begin() != rv.end());
 	CHECK(!(rv.begin() == rv.end()));
@@ -422,17 +422,17 @@ void test_array() {
 	using Rng = decltype(a);
 	using I = decltype(a.begin());
 	CHECK(noexcept(a.begin()));
-	static_assert(stl2::models::WeaklyIncrementable<I>);
-	static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
-	static_assert(stl2::models::Readable<I>);
-	static_assert(stl2::models::Same<stl2::value_type_t<I>, int>);
-	static_assert(stl2::models::Same<stl2::reference_t<I>, int&>);
-	static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, int&&>);
-	static_assert(stl2::models::ContiguousIterator<I>);
-	static_assert(stl2::models::RandomAccessRange<Rng>);
-	static_assert(stl2::models::RandomAccessRange<const Rng>);
-	static_assert(stl2::models::BoundedRange<Rng>);
-	static_assert(stl2::models::BoundedRange<const Rng>);
+	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::Same<ranges::difference_type_t<I>, std::ptrdiff_t>);
+	static_assert(ranges::Readable<I>);
+	static_assert(ranges::Same<ranges::value_type_t<I>, int>);
+	static_assert(ranges::Same<ranges::reference_t<I>, int&>);
+	static_assert(ranges::Same<ranges::rvalue_reference_t<I>, int&&>);
+	static_assert(ranges::ext::ContiguousIterator<I>);
+	static_assert(ranges::RandomAccessRange<Rng>);
+	static_assert(ranges::RandomAccessRange<const Rng>);
+	static_assert(ranges::BoundedRange<Rng>);
+	static_assert(ranges::BoundedRange<const Rng>);
 	CHECK(I{} == I{});
 	CHECK(noexcept(I{} == I{}));
 
@@ -447,8 +447,8 @@ void test_array() {
 		CHECK(!(first >= last));
 	}
 	{
-		auto first = stl2::begin(a);
-		auto last = stl2::cend(a) - 1;
+		auto first = ranges::begin(a);
+		auto last = ranges::cend(a) - 1;
 		CHECK(!(first == last));
 		CHECK((first != last));
 		CHECK((first < last));
@@ -457,22 +457,22 @@ void test_array() {
 		CHECK(!(first >= last));
 	}
 
-	stl2::fill(a, 42);
+	ranges::fill(a, 42);
 }
 
 void test_counted() {
-	using stl2::counted_iterator;
+	using ranges::counted_iterator;
 	std::cout << "test_counted:\n";
 	int some_ints[] = {0,1,2,3};
 	using I = counted_iterator<const int*>;
-	static_assert(stl2::models::WeaklyIncrementable<I>);
-	static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
-	static_assert(stl2::models::Readable<I>);
-	static_assert(stl2::models::Same<stl2::value_type_t<I>, int>);
-	static_assert(stl2::models::Same<stl2::reference_t<I>, const int&>);
-	static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, const int&&>);
-	static_assert(stl2::models::RandomAccessIterator<I>);
-	static_assert(stl2::models::ContiguousIterator<I>);
+	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::Same<ranges::difference_type_t<I>, std::ptrdiff_t>);
+	static_assert(ranges::Readable<I>);
+	static_assert(ranges::Same<ranges::value_type_t<I>, int>);
+	static_assert(ranges::Same<ranges::reference_t<I>, const int&>);
+	static_assert(ranges::Same<ranges::rvalue_reference_t<I>, const int&&>);
+	static_assert(ranges::RandomAccessIterator<I>);
+	static_assert(ranges::ext::ContiguousIterator<I>);
 	CHECK(I{} == I{});
 	auto first = I{some_ints, 4};
 	CHECK(first.base() == some_ints);
@@ -480,14 +480,14 @@ void test_counted() {
 	auto last = I{some_ints + 4, 0};
 	CHECK(last.base() == some_ints + 4);
 	CHECK(last.count() == 0);
-	static_assert(stl2::models::SizedSentinel<I, I>);
+	static_assert(ranges::SizedSentinel<I, I>);
 	CHECK((last - first) == 4);
-	static_assert(stl2::models::SizedSentinel<stl2::default_sentinel, I>);
-	CHECK((stl2::default_sentinel{} - first) == 4);
-	auto out = stl2::ostream_iterator<>{std::cout, " "};
-	stl2::copy(first, last, out);
+	static_assert(ranges::SizedSentinel<ranges::default_sentinel, I>);
+	CHECK((ranges::default_sentinel{} - first) == 4);
+	auto out = ranges::ostream_iterator<>{std::cout, " "};
+	ranges::copy(first, last, out);
 	std::cout << '\n';
-	stl2::copy(first, stl2::default_sentinel{}, out);
+	ranges::copy(first, ranges::default_sentinel{}, out);
 	std::cout << '\n';
 
 	auto second = first + 1;
@@ -498,8 +498,8 @@ void test_counted() {
 	CHECK(*first == 0);
 
 	{
-		auto one = counted_iterator<const int*>{some_ints + 1, stl2::distance(some_ints) - 1};
-		auto three = counted_iterator<int*>{some_ints + 3, stl2::distance(some_ints) - 3};
+		auto one = counted_iterator<const int*>{some_ints + 1, ranges::distance(some_ints) - 1};
+		auto three = counted_iterator<int*>{some_ints + 3, ranges::distance(some_ints) - 3};
 		CHECK(!(one == three));
 		CHECK((one != three));
 		CHECK((one < three));
@@ -516,15 +516,15 @@ void test_always() {
 	using I = decltype(i);
 	static_assert(std::is_empty<I>());
 	static_assert(sizeof(I) == 1);
-	static_assert(stl2::models::WeaklyIncrementable<I>);
-	static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
-	static_assert(stl2::models::Readable<I>);
-	static_assert(stl2::models::Same<stl2::value_type_t<I>, int>);
-	static_assert(stl2::models::Same<stl2::reference_t<I>, int>);
-	static_assert(stl2::models::Same<stl2::rvalue_reference_t<I>, int>);
-	static_assert(stl2::models::RandomAccessIterator<I>);
+	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::Same<ranges::difference_type_t<I>, std::ptrdiff_t>);
+	static_assert(ranges::Readable<I>);
+	static_assert(ranges::Same<ranges::value_type_t<I>, int>);
+	static_assert(ranges::Same<ranges::reference_t<I>, int>);
+	static_assert(ranges::Same<ranges::rvalue_reference_t<I>, int>);
+	static_assert(ranges::RandomAccessIterator<I>);
 	CHECK(I{} == I{});
-	stl2::copy_n(i, 13, stl2::ostream_iterator<>{std::cout, " "});
+	ranges::copy_n(i, 13, ranges::ostream_iterator<>{std::cout, " "});
 	std::cout << '\n';
 	CHECK(*i == 42);
 	CHECK(*(i + 42) == 42);
@@ -535,16 +535,16 @@ void test_always() {
 void test_back_inserter() {
 	std::cout << "test_back_inserter:\n";
 	auto vec = std::vector<int>{};
-	auto i = stl2::back_inserter(vec);
+	auto i = ranges::back_inserter(vec);
 	using I = decltype(i);
-	static_assert(stl2::models::WeaklyIncrementable<I>);
-	static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
-	static_assert(stl2::models::Same<stl2::reference_t<I>, I&>);
-	static_assert(!stl2::models::Readable<I>);
-	static_assert(stl2::models::OutputIterator<I, int>);
-	static_assert(!stl2::models::InputIterator<I>);
-	static_assert(!stl2::models::EqualityComparable<I>);
-	stl2::copy_n(always_iterator<int, 42>{}, 13, i);
+	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::Same<ranges::difference_type_t<I>, std::ptrdiff_t>);
+	static_assert(ranges::Same<ranges::reference_t<I>, I&>);
+	static_assert(!ranges::Readable<I>);
+	static_assert(ranges::OutputIterator<I, int>);
+	static_assert(!ranges::InputIterator<I>);
+	static_assert(!ranges::EqualityComparable<I>);
+	ranges::copy_n(always_iterator<int, 42>{}, 13, i);
 	CHECK(vec.size() == 13u);
 }
 
@@ -561,60 +561,60 @@ void test_proxy_array() {
 
 	using Rng = decltype(a);
 
-	using I = stl2::iterator_t<Rng>;
-	static_assert(stl2::models::WeaklyIncrementable<I>);
-	static_assert(stl2::models::Same<stl2::difference_type_t<I>, std::ptrdiff_t>);
-	static_assert(stl2::models::Readable<I>);
-	using R = stl2::reference_t<I>;
-	static_assert(stl2::models::Same<proxy_wrapper<int>, R>);
-	using V = stl2::value_type_t<I>;
-	static_assert(stl2::models::Same<int, V>);
-	static_assert(stl2::models::Same<int&&, decltype(iter_move(std::declval<const I&>()))>);
-	static_assert(stl2::models::Same<int&&, decltype(iter_move(std::declval<I&>()))>);
+	using I = ranges::iterator_t<Rng>;
+	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::Same<ranges::difference_type_t<I>, std::ptrdiff_t>);
+	static_assert(ranges::Readable<I>);
+	using R = ranges::reference_t<I>;
+	static_assert(ranges::Same<proxy_wrapper<int>, R>);
+	using V = ranges::value_type_t<I>;
+	static_assert(ranges::Same<int, V>);
+	static_assert(ranges::Same<int&&, decltype(iter_move(std::declval<const I&>()))>);
+	static_assert(ranges::Same<int&&, decltype(iter_move(std::declval<I&>()))>);
 
-	static_assert(stl2::__iter_move::has_customization<const I&>);
-	static_assert(stl2::__iter_move::has_customization<I&>);
-	using RR = stl2::rvalue_reference_t<I>;
-	static_assert(stl2::models::Same<int&&, RR>);
-	static_assert(stl2::models::RandomAccessIterator<I>);
-	static_assert(!stl2::models::ContiguousIterator<I>);
-	static_assert(stl2::models::RandomAccessRange<Rng>);
-	static_assert(stl2::models::BoundedRange<Rng>);
+	static_assert(ranges::__iter_move::has_customization<const I&>);
+	static_assert(ranges::__iter_move::has_customization<I&>);
+	using RR = ranges::rvalue_reference_t<I>;
+	static_assert(ranges::Same<int&&, RR>);
+	static_assert(ranges::RandomAccessIterator<I>);
+	static_assert(!ranges::ext::ContiguousIterator<I>);
+	static_assert(ranges::RandomAccessRange<Rng>);
+	static_assert(ranges::BoundedRange<Rng>);
 
-	using CI = stl2::iterator_t<const Rng>;
-	static_assert(stl2::models::WeaklyIncrementable<CI>);
-	static_assert(stl2::models::Same<stl2::difference_type_t<CI>, std::ptrdiff_t>);
-	using CR = stl2::reference_t<CI>;
-	static_assert(stl2::models::Same<proxy_wrapper<const int>, CR>);
-	using CV = stl2::value_type_t<CI>;
-	static_assert(stl2::models::Same<int, CV>);
+	using CI = ranges::iterator_t<const Rng>;
+	static_assert(ranges::WeaklyIncrementable<CI>);
+	static_assert(ranges::Same<ranges::difference_type_t<CI>, std::ptrdiff_t>);
+	using CR = ranges::reference_t<CI>;
+	static_assert(ranges::Same<proxy_wrapper<const int>, CR>);
+	using CV = ranges::value_type_t<CI>;
+	static_assert(ranges::Same<int, CV>);
 
-	static_assert(stl2::__iter_move::has_customization<const CI&>);
-	static_assert(stl2::__iter_move::has_customization<CI&>);
-	using CRR = stl2::rvalue_reference_t<CI>;
-	static_assert(stl2::models::Same<const int&&, CRR>);
+	static_assert(ranges::__iter_move::has_customization<const CI&>);
+	static_assert(ranges::__iter_move::has_customization<CI&>);
+	using CRR = ranges::rvalue_reference_t<CI>;
+	static_assert(ranges::Same<const int&&, CRR>);
 
-	static_assert(stl2::models::CommonReference<CR, CV&>);
-	static_assert(stl2::models::CommonReference<CR, CRR>);
-	static_assert(stl2::models::CommonReference<CRR, const CV&>);
-	static_assert(stl2::models::Readable<CI>);
-	static_assert(stl2::models::Same<const int&&, decltype(iter_move(std::declval<const CI&>()))>);
-	static_assert(stl2::models::Same<const int&&, decltype(iter_move(std::declval<CI&>()))>);
+	static_assert(ranges::CommonReference<CR, CV&>);
+	static_assert(ranges::CommonReference<CR, CRR>);
+	static_assert(ranges::CommonReference<CRR, const CV&>);
+	static_assert(ranges::Readable<CI>);
+	static_assert(ranges::Same<const int&&, decltype(iter_move(std::declval<const CI&>()))>);
+	static_assert(ranges::Same<const int&&, decltype(iter_move(std::declval<CI&>()))>);
 
-	static_assert(stl2::models::RandomAccessIterator<CI>);
-	static_assert(!stl2::models::ContiguousIterator<CI>);
-	static_assert(stl2::models::RandomAccessRange<const Rng>);
-	static_assert(stl2::models::BoundedRange<const Rng>);
+	static_assert(ranges::RandomAccessIterator<CI>);
+	static_assert(!ranges::ext::ContiguousIterator<CI>);
+	static_assert(ranges::RandomAccessRange<const Rng>);
+	static_assert(ranges::BoundedRange<const Rng>);
 
-	static_assert(stl2::models::Same<I, decltype(a.begin() + 2)>);
-	static_assert(stl2::models::CommonReference<const R&, const R&>);
-	static_assert(!stl2::models::SwappableWith<R, R>);
-	static_assert(stl2::models::IndirectlyMovableStorable<I, I>);
+	static_assert(ranges::Same<I, decltype(a.begin() + 2)>);
+	static_assert(ranges::CommonReference<const R&, const R&>);
+	static_assert(!ranges::SwappableWith<R, R>);
+	static_assert(ranges::IndirectlyMovableStorable<I, I>);
 
 	// Swappable<R, R> is not satisfied, and
 	// IndirectlyMovableStorable<I, I> is satisfied,
 	// so this should resolve to the second overload of iter_swap.
-	stl2::iter_swap(a.begin() + 1, a.begin() + 3);
+	ranges::iter_swap(a.begin() + 1, a.begin() + 3);
 	CHECK(a[0] == 0);
 	CHECK(a[1] == 3);
 	CHECK(a[2] == 2);

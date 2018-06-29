@@ -29,13 +29,6 @@ STL2_OPEN_NAMESPACE {
 			_Is<T, is_scalar> && Regular<T>;
 	}
 
-	namespace models {
-		template <class>
-		constexpr bool Scalar = false;
-		__stl2::ext::Scalar{T}
-		constexpr bool Scalar<T> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// Arithmetic [Extension]
 	//
@@ -43,13 +36,6 @@ STL2_OPEN_NAMESPACE {
 		template <class T>
 		concept bool Arithmetic =
 			_Is<T, is_arithmetic> && Scalar<T> && StrictTotallyOrdered<T>;
-	}
-
-	namespace models {
-		template <class>
-		constexpr bool Arithmetic = false;
-		__stl2::ext::Arithmetic{T}
-		constexpr bool Arithmetic<T> = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -61,26 +47,12 @@ STL2_OPEN_NAMESPACE {
 			_Is<T, is_floating_point> && Arithmetic<T>;
 	}
 
-	namespace models {
-		template <class>
-		constexpr bool FloatingPoint = false;
-		__stl2::ext::FloatingPoint{T}
-		constexpr bool FloatingPoint<T> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// Integral [concepts.lib.corelang.integral]
 	//
 	template <class T>
 	concept bool Integral =
 		_Is<T, is_integral> && ext::Arithmetic<T>;
-
-	namespace models {
-		template <class>
-		constexpr bool Integral = false;
-		__stl2::Integral{T}
-		constexpr bool Integral<T> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// SignedIntegral [concepts.lib.corelang.signedintegral]
@@ -89,26 +61,12 @@ STL2_OPEN_NAMESPACE {
 	concept bool SignedIntegral =
 		Integral<T> && (T(-1) < T(0));
 
-	namespace models {
-		template <class>
-		constexpr bool SignedIntegral = false;
-		__stl2::SignedIntegral{T}
-		constexpr bool SignedIntegral<T> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// UnsignedIntegral [concepts.lib.corelang.unsignedintegral]
 	//
 	template <class T>
 	concept bool UnsignedIntegral =
 		Integral<T> && !SignedIntegral<T>;
-
-	namespace models {
-		template <class>
-		constexpr bool UnsignedIntegral = false;
-		__stl2::UnsignedIntegral{T}
-		constexpr bool UnsignedIntegral<T> = true;
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

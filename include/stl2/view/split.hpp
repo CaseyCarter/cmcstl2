@@ -132,7 +132,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr decltype(auto) current() const noexcept requires ForwardRange<Base>
 			{ return (this->current_); }
 		public:
-			using iterator_category = meta::if_c<models::ForwardRange<Base>,
+			using iterator_category = meta::if_c<ForwardRange<Base>,
 				ranges::forward_iterator_tag, ranges::input_iterator_tag>;
 			using difference_type = difference_type_t<iterator_t<Base>>;
 			struct value_type;

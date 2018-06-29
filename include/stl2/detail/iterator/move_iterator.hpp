@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		public:
 			using difference_type = difference_type_t<I>;
 			using value_type = value_type_t<I>;
-			using single_pass = meta::bool_<!models::ForwardIterator<I>>;
+			using single_pass = meta::bool_<!ForwardIterator<I>>;
 
 			class mixin : protected basic_mixin<cursor> {
 				using base_t = basic_mixin<cursor>;

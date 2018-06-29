@@ -31,10 +31,10 @@ int main()
 		std::vector<std::string> vs{"this","is","his","face"};
 		ext::join_view jv{vs};
 		::check_equal(jv, {'t','h','i','s','i','s','h','i','s','f','a','c','e'});
-		static_assert(models::BidirectionalRange<decltype(jv)>);
-		static_assert(models::BidirectionalRange<const decltype(jv)>);
-		static_assert(models::BoundedRange<decltype(jv)>);
-		static_assert(models::BoundedRange<const decltype(jv)>);
+		static_assert(BidirectionalRange<decltype(jv)>);
+		static_assert(BidirectionalRange<const decltype(jv)>);
+		static_assert(BoundedRange<decltype(jv)>);
+		static_assert(BoundedRange<const decltype(jv)>);
 	}
 
 	{
@@ -42,10 +42,10 @@ int main()
 			| view::transform([](int i) {return view::iota(0,i);})
 			| view::join;
 		::check_equal(rng, {0,0,1,0,1,2});
-		static_assert(models::InputRange<decltype(rng)>);
-		static_assert(!models::Range<const decltype(rng)>);
-		static_assert(!models::ForwardRange<decltype(rng)>);
-		static_assert(!models::BoundedRange<decltype(rng)>);
+		static_assert(InputRange<decltype(rng)>);
+		static_assert(!Range<const decltype(rng)>);
+		static_assert(!ForwardRange<decltype(rng)>);
+		static_assert(!BoundedRange<decltype(rng)>);
 	}
 
 	{
@@ -54,10 +54,10 @@ int main()
 			| view::filter([](auto){ return true; })
 			| view::join;
 		::check_equal(rng, {0,0,1,0,1,2});
-		static_assert(models::InputRange<decltype(rng)>);
-		static_assert(!models::Range<const decltype(rng)>);
-		static_assert(!models::ForwardRange<decltype(rng)>);
-		static_assert(!models::BoundedRange<decltype(rng)>);
+		static_assert(InputRange<decltype(rng)>);
+		static_assert(!Range<const decltype(rng)>);
+		static_assert(!ForwardRange<decltype(rng)>);
+		static_assert(!BoundedRange<decltype(rng)>);
 	}
 
 	return ::test_result();

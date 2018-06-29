@@ -14,11 +14,6 @@
 #if VALIDATE_RANGES
 #include <utility>
 
-namespace models {
-	template <class T, class U = T>
-	constexpr bool Swappable = ranges::SwappableWith<T, U>;
-}
-
 namespace ns {
 	using std::declval;
 	using std::forward;
@@ -39,15 +34,15 @@ namespace ns = ::__stl2;
 #include "../simple_test.hpp"
 
 namespace swappable_test {
-	CONCEPT_ASSERT(models::Swappable<int>);
-	CONCEPT_ASSERT(models::SwappableWith<int&, int&>);
-	CONCEPT_ASSERT(models::Swappable<int[4]>);
-	CONCEPT_ASSERT(models::SwappableWith<int(&)[4], int(&)[4]>);
-	CONCEPT_ASSERT(!models::SwappableWith<int, int>);
-	CONCEPT_ASSERT(!models::SwappableWith<int&, double&>);
-	CONCEPT_ASSERT(!models::SwappableWith<int(&)[4], bool(&)[4]>);
-	CONCEPT_ASSERT(!models::Swappable<int[]>);
-	CONCEPT_ASSERT(!models::Swappable<int[][4]>);
+	CONCEPT_ASSERT(ranges::Swappable<int>);
+	CONCEPT_ASSERT(ranges::SwappableWith<int&, int&>);
+	CONCEPT_ASSERT(ranges::Swappable<int[4]>);
+	CONCEPT_ASSERT(ranges::SwappableWith<int(&)[4], int(&)[4]>);
+	CONCEPT_ASSERT(!ranges::SwappableWith<int, int>);
+	CONCEPT_ASSERT(!ranges::SwappableWith<int&, double&>);
+	CONCEPT_ASSERT(!ranges::SwappableWith<int(&)[4], bool(&)[4]>);
+	CONCEPT_ASSERT(!ranges::Swappable<int[]>);
+	CONCEPT_ASSERT(!ranges::Swappable<int[][4]>);
 
 	CONCEPT_ASSERT(noexcept(ns::swap(ns::declval<int&>(), ns::declval<int&>())));
 	CONCEPT_ASSERT(ns::is_nothrow_swappable<int&, int&>());
@@ -55,11 +50,11 @@ namespace swappable_test {
 
 #if VALIDATE_STL2
 	// range-v3 doesn't support swapping multidimensional arrays
-	CONCEPT_ASSERT(models::Swappable<int[3][4]>);
-	CONCEPT_ASSERT(models::SwappableWith<int(&)[3][4], int(&)[3][4]>);
-	CONCEPT_ASSERT(models::Swappable<int[3][4][1][2]>);
-	CONCEPT_ASSERT(models::SwappableWith<int(&)[3][4][1][2], int(&)[3][4][1][2]>);
-	CONCEPT_ASSERT(!models::SwappableWith<int(&)[3][4][1][2], int(&)[4][4][1][2]>);
+	CONCEPT_ASSERT(ranges::Swappable<int[3][4]>);
+	CONCEPT_ASSERT(ranges::SwappableWith<int(&)[3][4], int(&)[3][4]>);
+	CONCEPT_ASSERT(ranges::Swappable<int[3][4][1][2]>);
+	CONCEPT_ASSERT(ranges::SwappableWith<int(&)[3][4][1][2], int(&)[3][4][1][2]>);
+	CONCEPT_ASSERT(!ranges::SwappableWith<int(&)[3][4][1][2], int(&)[4][4][1][2]>);
 	CONCEPT_ASSERT(ns::is_nothrow_swappable<int(&)[6][7], int(&)[6][7]>());
 
 	struct unswappable : std::string { // Has std:: as an associated namespace
@@ -67,7 +62,7 @@ namespace swappable_test {
 		unswappable(const unswappable&) = delete;
 		unswappable(unswappable&&) = delete;
 	};
-	CONCEPT_ASSERT(!models::SwappableWith<unswappable&, unswappable&>);
+	CONCEPT_ASSERT(!ranges::SwappableWith<unswappable&, unswappable&>);
 	namespace __constrained_swappable {
 		// Has a constrained swap findable via ADL:
 		struct constrained_swappable {
@@ -84,8 +79,8 @@ namespace swappable_test {
 		void swap(T &, T &) {}
 	}
 	using __constrained_swappable::constrained_swappable;
-	CONCEPT_ASSERT(models::SwappableWith<constrained_swappable&, constrained_swappable&>);
-	CONCEPT_ASSERT(!models::SwappableWith<const volatile constrained_swappable&, const volatile constrained_swappable&>);
+	CONCEPT_ASSERT(ranges::SwappableWith<constrained_swappable&, constrained_swappable&>);
+	CONCEPT_ASSERT(!ranges::SwappableWith<const volatile constrained_swappable&, const volatile constrained_swappable&>);
 #endif
 
 	namespace {
@@ -96,7 +91,7 @@ namespace swappable_test {
 			friend void swap(A&, A&) noexcept {}
 		};
 
-		CONCEPT_ASSERT(models::Swappable<A>);
+		CONCEPT_ASSERT(ranges::Swappable<A>);
 		CONCEPT_ASSERT(noexcept(ns::swap(ns::declval<A&>(), ns::declval<A&>())));
 		CONCEPT_ASSERT(ns::is_nothrow_swappable<A&, A&>());
 	}
@@ -106,7 +101,7 @@ namespace swappable_test {
 			friend void swap(B&, B&) {}
 		};
 
-		CONCEPT_ASSERT(models::Swappable<B>);
+		CONCEPT_ASSERT(ranges::Swappable<B>);
 		CONCEPT_ASSERT(!noexcept(ns::swap(ns::declval<B&>(), ns::declval<B&>())));
 		CONCEPT_ASSERT(!ns::is_nothrow_swappable<B&, B&>());
 	}
@@ -156,7 +151,7 @@ int main() {
 		int a[2][2] = {{0, 1}, {2, 3}};
 		int b[2][2] = {{4, 5}, {6, 7}};
 
-		CONCEPT_ASSERT(models::SwappableWith<decltype((a)),decltype((b))>);
+		CONCEPT_ASSERT(ranges::SwappableWith<decltype((a)),decltype((b))>);
 		ns::swap(a, b);
 		CONCEPT_ASSERT(noexcept(ns::swap(a, b)));
 
@@ -177,11 +172,11 @@ int main() {
 		array<int, 4> a = {0,1,2,3};
 		int b[4] = {4,5,6,7};
 
-		CONCEPT_ASSERT(models::SwappableWith<decltype(a[0]),decltype(b[0])>);
+		CONCEPT_ASSERT(ranges::SwappableWith<decltype(a[0]),decltype(b[0])>);
 		ns::swap(a[0], b[0]);
 		CONCEPT_ASSERT(noexcept(ns::swap(a[0], b[0])));
 
-		CONCEPT_ASSERT(models::SwappableWith<decltype((a)),decltype((b))>);
+		CONCEPT_ASSERT(ranges::SwappableWith<decltype((a)),decltype((b))>);
 		ns::swap(a, b);
 		CONCEPT_ASSERT(noexcept(ns::swap(a, b)));
 
@@ -200,11 +195,11 @@ int main() {
 		array<array<int, 2>, 3> a = {{{{0, 1}}, {{2, 3}}, {{4, 5}}}};
 		int b[3][2] = {{6, 7}, {8, 9}, {10, 11}};
 
-		CONCEPT_ASSERT(models::SwappableWith<decltype(a[0]),decltype(b[0])>);
+		CONCEPT_ASSERT(ranges::SwappableWith<decltype(a[0]),decltype(b[0])>);
 		ns::swap(a[0], b[0]);
 		CONCEPT_ASSERT(noexcept(ns::swap(a[0], b[0])));
 
-		CONCEPT_ASSERT(models::SwappableWith<decltype((a)),decltype((b))>);
+		CONCEPT_ASSERT(ranges::SwappableWith<decltype((a)),decltype((b))>);
 		ns::swap(a, b);
 		CONCEPT_ASSERT(noexcept(ns::swap(a, b)));
 

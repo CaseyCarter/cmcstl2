@@ -29,13 +29,6 @@ STL2_OPEN_NAMESPACE {
 	concept bool IndirectlyComparable =
 		IndirectRelation<R, projected<I1, P1>, projected<I2, P2>>;
 
-	namespace models {
-		template <class, class, class = equal_to<>, class = identity, class = identity>
-		constexpr bool IndirectlyComparable = false;
-		__stl2::IndirectlyComparable{I1, I2, R, P1, P2}
-		constexpr bool IndirectlyComparable<I1, I2, R, P1, P2> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// Permutable [commmonalgoreq.permutable]
 	//
@@ -44,13 +37,6 @@ STL2_OPEN_NAMESPACE {
 		ForwardIterator<I> &&
 		IndirectlyMovableStorable<I, I> &&
 		IndirectlySwappable<I, I>;
-
-	namespace models {
-		template <class>
-		constexpr bool Permutable = false;
-		__stl2::Permutable{I}
-		constexpr bool Permutable<I> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// Mergeable [commmonalgoreq.mergeable]
@@ -65,13 +51,6 @@ STL2_OPEN_NAMESPACE {
 		IndirectlyCopyable<I2, Out> &&
 		IndirectStrictWeakOrder<R, projected<I1, P1>, projected<I2, P2>>;
 
-	namespace models {
-		template <class, class, class, class, class, class>
-		constexpr bool Mergeable = false;
-		__stl2::Mergeable{I1, I2, Out, R, P1, P2}
-		constexpr bool Mergeable<I1, I2, Out, R, P1, P2> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// Sortable [commmonalgoreq.sortable]
 	//
@@ -79,13 +58,6 @@ STL2_OPEN_NAMESPACE {
 	concept bool Sortable =
 		Permutable<I> &&
 		IndirectStrictWeakOrder<R, projected<I, P>>;
-
-	namespace models {
-		template <class, class, class>
-		constexpr bool Sortable = false;
-		__stl2::Sortable{I, R, P}
-		constexpr bool Sortable<I, R, P> = true;
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

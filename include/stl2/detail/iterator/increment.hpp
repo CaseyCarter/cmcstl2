@@ -77,13 +77,6 @@ STL2_OPEN_NAMESPACE {
 			i++;
 		};
 
-	namespace models {
-		template <class>
-		constexpr bool WeaklyIncrementable = false;
-		__stl2::WeaklyIncrementable{I}
-		constexpr bool WeaklyIncrementable<I> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// Incrementable [incrementable.iterators]
 	//
@@ -94,13 +87,6 @@ STL2_OPEN_NAMESPACE {
 		requires(I& i) {
 			{ i++ } -> Same<I>&&;
 		};
-
-	namespace models {
-		template <class>
-		constexpr bool Incrementable = false;
-		__stl2::Incrementable{I}
-		constexpr bool Incrementable<I> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// Decrementable [Extension]
@@ -121,13 +107,6 @@ STL2_OPEN_NAMESPACE {
 			// Axiom: bool(a == b) implies bool(++(--a) == b)
 	}
 
-	namespace models {
-		template <class>
-		constexpr bool Decrementable = false;
-		ext::Decrementable{I}
-		constexpr bool Decrementable<I> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// RandomAccessIncrementable [Extension]
 	//
@@ -144,13 +123,6 @@ STL2_OPEN_NAMESPACE {
 				{ ci - ci } -> difference_type_t<I>;
 			};
 			// FIXME: Axioms
-	}
-
-	namespace models {
-		template <class>
-		constexpr bool RandomAccessIncrementable = false;
-		ext::RandomAccessIncrementable{I}
-		constexpr bool RandomAccessIncrementable<I> = true;
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -19,15 +19,13 @@
 #if VALIDATE_RANGES
 #include <range/v3/utility/concepts.hpp>
 
-namespace models {}
-
 #define STL2_ASSERT(...) RANGES_ASSERT(__VA_ARGS__)
 #define STL2_EXPECT(...) RANGES_ASSERT(__VA_ARGS__)
 
 #elif VALIDATE_STL2
 #include <stl2/detail/fwd.hpp>
 
-namespace models = ::__stl2::models;
+namespace ranges = __stl2;
 
 #if __cpp_static_assert >= 201411
 #define CONCEPT_ASSERT(...) static_assert(__VA_ARGS__)

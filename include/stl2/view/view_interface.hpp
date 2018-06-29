@@ -67,11 +67,11 @@ STL2_OPEN_NAMESPACE {
 		class view_interface : public view_base {
 		private:
 			constexpr D& derived() noexcept {
-				static_assert(models::DerivedFrom<D, view_interface>);
+				static_assert(DerivedFrom<D, view_interface>);
 				return static_cast<D&>(*this);
 			}
 			constexpr const D& derived() const noexcept {
-				static_assert(models::DerivedFrom<D, view_interface>);
+				static_assert(DerivedFrom<D, view_interface>);
 				return static_cast<const D&>(*this);
 			}
 		public:

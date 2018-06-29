@@ -65,10 +65,6 @@ STL2_OPEN_NAMESPACE {
 		// Supported extensions beyond what is specified in C++ and
 		// the Ranges proposal, acceptable for user code to access.
 	}
-	namespace models {
-		// Concept-test predicates. E.g., models::ForwardIterator<I> is true iff
-		// I meets the syntactic requirements of ForwardIterator.
-	}
 } STL2_CLOSE_NAMESPACE
 
 // Used to qualify STL2 names

@@ -17,7 +17,6 @@
 #include "../test_iterators.hpp"
 
 namespace ranges = __stl2;
-namespace models = ranges::models;
 
 namespace {
 	struct silly_arrow_cursor {
@@ -57,26 +56,26 @@ namespace {
 		{
 			int i = 42;
 			auto ci = ranges::common_iterator<int*, ranges::unreachable>{&i};
-			static_assert(models::Same<int*, decltype(ci.operator->())>);
+			static_assert(ranges::Same<int*, decltype(ci.operator->())>);
 			CHECK(ci.operator->() == &i);
 		}
 		// the expression i.operator->() is well-formed
 		{
 			using I = ranges::basic_iterator<silly_arrow_cursor>;
 			auto ci = ranges::common_iterator<I, ranges::unreachable>{};
-			static_assert(models::Same<I, decltype(ci.operator->())>);
+			static_assert(ranges::Same<I, decltype(ci.operator->())>);
 			CHECK(ci.operator->().operator->() == 42);
 		}
 		// the expression *i is a glvalue [lvalue case]
 		{
 			auto ci = ranges::common_iterator<lvalue_iterator, ranges::unreachable>{};
-			static_assert(models::Same<int*, decltype(ci.operator->())>);
+			static_assert(ranges::Same<int*, decltype(ci.operator->())>);
 			CHECK(ci.operator->() == &forty_two);
 		}
 		// the expression *i is a glvalue [xvalue case]
 		{
 			auto ci = ranges::common_iterator<xvalue_iterator, ranges::unreachable>{};
-			static_assert(models::Same<int*, decltype(ci.operator->())>);
+			static_assert(ranges::Same<int*, decltype(ci.operator->())>);
 			CHECK(ci.operator->() == &forty_two);
 		}
 		// Otherwise, returns a proxy object
@@ -108,14 +107,13 @@ namespace {
 
 int main() {
 	{
-		namespace models = ::__stl2::models;
 		static_assert(
-			models::ForwardIterator<
+			ranges::ForwardIterator<
 				__stl2::common_iterator<
 					bidirectional_iterator<const char *>,
 					sentinel<const char *>>>);
 		static_assert(
-			!models::BidirectionalIterator<
+			!ranges::BidirectionalIterator<
 				__stl2::common_iterator<
 					bidirectional_iterator<const char *>,
 					sentinel<const char *>>>);
@@ -138,7 +136,7 @@ int main() {
 			>::value);
 		// Sized iterator range tests
 		static_assert(
-			!models::SizedSentinel<
+			!ranges::SizedSentinel<
 				__stl2::common_iterator<
 					forward_iterator<int*>,
 					sentinel<int*, true> >,
@@ -146,7 +144,7 @@ int main() {
 					forward_iterator<int*>,
 					sentinel<int*, true> > >);
 		static_assert(
-			models::SizedSentinel<
+			ranges::SizedSentinel<
 				__stl2::common_iterator<
 					random_access_iterator<int*>,
 					sentinel<int*, true> >,
@@ -154,7 +152,7 @@ int main() {
 					random_access_iterator<int*>,
 					sentinel<int*, true> > >);
 		static_assert(
-			!models::SizedSentinel<
+			!ranges::SizedSentinel<
 				__stl2::common_iterator<
 					random_access_iterator<int*>,
 					sentinel<int*, false> >,

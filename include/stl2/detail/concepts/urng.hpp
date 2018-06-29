@@ -19,25 +19,13 @@
 
 STL2_OPEN_NAMESPACE {
 	template <class G>
-	concept bool __urng =
+	concept bool UniformRandomNumberGenerator =
 		requires(G&& g) {
 			g();
 			requires UnsignedIntegral<decltype(g())>;
 			{ G::min() } -> Same<decltype(g())>&&;
 			{ G::max() } -> Same<decltype(g())>&&;
 		};
-
-	namespace models {
-		template <class G>
-		constexpr bool UniformRandomNumberGenerator = false;
-		template <class G>
-			requires __urng<G>
-		constexpr bool UniformRandomNumberGenerator<G> = true;
-	}
-
-	template <class G>
-	concept bool UniformRandomNumberGenerator =
-		models::UniformRandomNumberGenerator<G>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

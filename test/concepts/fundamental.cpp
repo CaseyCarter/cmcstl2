@@ -11,19 +11,7 @@
 //
 #include "validate.hpp"
 
-#if VALIDATE_RANGES
-namespace models {
-template <class T>
-constexpr bool Integral = ranges::Integral<T>;
-
-template <class T>
-constexpr bool SignedIntegral = ranges::SignedIntegral<T>;
-
-template <class T>
-constexpr bool UnsignedIntegral = ranges::UnsignedIntegral<T>;
-} // namespace models
-
-#elif VALIDATE_STL2
+#if VALIDATE_STL2
 #include <stl2/detail/concepts/fundamental.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #endif
@@ -31,26 +19,26 @@ constexpr bool UnsignedIntegral = ranges::UnsignedIntegral<T>;
 #include <cstddef>
 #include "../simple_test.hpp"
 
-CONCEPT_ASSERT(models::Integral<int>);
-CONCEPT_ASSERT(!models::Integral<double>);
-CONCEPT_ASSERT(models::Integral<unsigned>);
-CONCEPT_ASSERT(!models::Integral<void>);
-CONCEPT_ASSERT(models::Integral<std::ptrdiff_t>);
-CONCEPT_ASSERT(models::Integral<std::size_t>);
+CONCEPT_ASSERT(ranges::Integral<int>);
+CONCEPT_ASSERT(!ranges::Integral<double>);
+CONCEPT_ASSERT(ranges::Integral<unsigned>);
+CONCEPT_ASSERT(!ranges::Integral<void>);
+CONCEPT_ASSERT(ranges::Integral<std::ptrdiff_t>);
+CONCEPT_ASSERT(ranges::Integral<std::size_t>);
 
-CONCEPT_ASSERT(models::SignedIntegral<int>);
-CONCEPT_ASSERT(!models::SignedIntegral<double>);
-CONCEPT_ASSERT(!models::SignedIntegral<unsigned>);
-CONCEPT_ASSERT(!models::SignedIntegral<void>);
-CONCEPT_ASSERT(models::SignedIntegral<std::ptrdiff_t>);
-CONCEPT_ASSERT(!models::SignedIntegral<std::size_t>);
+CONCEPT_ASSERT(ranges::SignedIntegral<int>);
+CONCEPT_ASSERT(!ranges::SignedIntegral<double>);
+CONCEPT_ASSERT(!ranges::SignedIntegral<unsigned>);
+CONCEPT_ASSERT(!ranges::SignedIntegral<void>);
+CONCEPT_ASSERT(ranges::SignedIntegral<std::ptrdiff_t>);
+CONCEPT_ASSERT(!ranges::SignedIntegral<std::size_t>);
 
-CONCEPT_ASSERT(!models::UnsignedIntegral<int>);
-CONCEPT_ASSERT(!models::UnsignedIntegral<double>);
-CONCEPT_ASSERT(models::UnsignedIntegral<unsigned>);
-CONCEPT_ASSERT(!models::UnsignedIntegral<void>);
-CONCEPT_ASSERT(!models::UnsignedIntegral<std::ptrdiff_t>);
-CONCEPT_ASSERT(models::UnsignedIntegral<std::size_t>);
+CONCEPT_ASSERT(!ranges::UnsignedIntegral<int>);
+CONCEPT_ASSERT(!ranges::UnsignedIntegral<double>);
+CONCEPT_ASSERT(ranges::UnsignedIntegral<unsigned>);
+CONCEPT_ASSERT(!ranges::UnsignedIntegral<void>);
+CONCEPT_ASSERT(!ranges::UnsignedIntegral<std::ptrdiff_t>);
+CONCEPT_ASSERT(ranges::UnsignedIntegral<std::size_t>);
 
 #if VALIDATE_STL2
 namespace scalar_types {

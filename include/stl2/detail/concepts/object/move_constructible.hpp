@@ -27,13 +27,6 @@ STL2_OPEN_NAMESPACE {
 		concept bool Object = _Is<T, std::is_object>;
 	} // namespace ext
 
-	namespace models {
-		template <class>
-		constexpr bool Object = false;
-		__stl2::ext::Object{T}
-		constexpr bool Object<T> = true;
-	} // namespace models
-
 	///////////////////////////////////////////////////////////////////////////
 	// Addressable [Extension]
 	//
@@ -52,26 +45,12 @@ STL2_OPEN_NAMESPACE {
 			Object<T> && __addressable<T>;
 	}
 
-	namespace models {
-		template <class>
-		constexpr bool Addressable = false;
-		__stl2::ext::Addressable{T}
-		constexpr bool Addressable<T> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// Destructible [concepts.lib.object.destructible]
 	//
 	template <class T>
 	concept bool Destructible =
 		_Is<T, is_nothrow_destructible> && __addressable<T>;
-
-	namespace models {
-		template <class T>
-		constexpr bool Destructible = false;
-		__stl2::Destructible{T}
-		constexpr bool Destructible<T> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// Constructible [concepts.lib.object.constructible]
@@ -80,13 +59,6 @@ STL2_OPEN_NAMESPACE {
 	concept bool Constructible =
 		Destructible<T> && _Is<T, is_constructible, Args...>;
 
-	namespace models {
-		template <class, class...>
-		constexpr bool Constructible = false;
-		__stl2::Constructible{T, ...Args}
-		constexpr bool Constructible<T, Args...> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// DefaultConstructible [concepts.lib.object.defaultconstructible]
 	//
@@ -94,26 +66,12 @@ STL2_OPEN_NAMESPACE {
 	concept bool DefaultConstructible =
 		Constructible<T>;
 
-	namespace models {
-		template <class>
-		constexpr bool DefaultConstructible = false;
-		__stl2::DefaultConstructible{T}
-		constexpr bool DefaultConstructible<T> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// MoveConstructible [concepts.lib.object.moveconstructible]
 	//
 	template <class T>
 	concept bool MoveConstructible =
 		Constructible<T, T> && ConvertibleTo<T, T>;
-
-	namespace models {
-		template <class>
-		constexpr bool MoveConstructible = false;
-		__stl2::MoveConstructible{T}
-		constexpr bool MoveConstructible<T> = true;
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

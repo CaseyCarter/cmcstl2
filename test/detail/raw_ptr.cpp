@@ -13,9 +13,9 @@
 #include <stl2/detail/concepts/object.hpp>
 #include "../simple_test.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
-using stl2::detail::raw_ptr;
+using ranges::detail::raw_ptr;
 
 struct A { int i; };
 struct B : A { int j; };
@@ -24,10 +24,10 @@ int main() {
 	using RA = raw_ptr<A>;
 	using RB = raw_ptr<B>;
 
-	static_assert(stl2::models::Regular<RA>);
-	static_assert(stl2::models::StrictTotallyOrdered<RA>);
-	static_assert(stl2::models::Regular<RB>);
-	static_assert(stl2::models::StrictTotallyOrdered<RB>);
+	static_assert(ranges::Regular<RA>);
+	static_assert(ranges::StrictTotallyOrdered<RA>);
+	static_assert(ranges::Regular<RB>);
+	static_assert(ranges::StrictTotallyOrdered<RB>);
 
 	CHECK(RA{} == RA{});
 	CHECK(!(RA{} != RA{}));

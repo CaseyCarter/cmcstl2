@@ -76,18 +76,6 @@ STL2_OPEN_NAMESPACE {
 	concept bool IndirectUnaryInvocable =
 		ext::IndirectInvocable<F, I>;
 
-	namespace models {
-		template <class, class...>
-		constexpr bool IndirectInvocable = false;
-		__stl2::ext::IndirectInvocable{F, ...Is}
-		constexpr bool IndirectInvocable<F, Is...> = true;
-
-		template <class, class>
-		constexpr bool IndirectUnaryInvocable = false;
-		__stl2::IndirectUnaryInvocable{F, I}
-		constexpr bool IndirectUnaryInvocable<F, I> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// indirect_result_of [indirectcallables.indirectfunc]
 	//
@@ -112,18 +100,6 @@ STL2_OPEN_NAMESPACE {
 	template <class F, class I>
 	concept bool IndirectRegularUnaryInvocable =
 		ext::IndirectRegularInvocable<F, I>;
-
-	namespace models {
-		template <class, class...>
-		constexpr bool IndirectRegularInvocable = false;
-		__stl2::ext::IndirectRegularInvocable{F, ...Is}
-		constexpr bool IndirectRegularInvocable<F, Is...> = true;
-
-		template <class, class>
-		constexpr bool IndirectRegularUnaryInvocable = false;
-		__stl2::IndirectRegularUnaryInvocable{F, I}
-		constexpr bool IndirectRegularInvocable<F, I> = true;
-	}
 
 	template <class, class...> struct __predicate : std::false_type {};
 	Predicate{F, ...Args} struct __predicate<F, Args...> : std::true_type {};
@@ -150,18 +126,6 @@ STL2_OPEN_NAMESPACE {
 	concept bool IndirectUnaryPredicate =
 		ext::IndirectPredicate<F, I>;
 
-	namespace models {
-		template <class, class...>
-		constexpr bool IndirectPredicate = false;
-		__stl2::ext::IndirectPredicate{F, ...Is}
-		constexpr bool IndirectPredicate<F, Is...> = true;
-
-		template <class, class>
-		constexpr bool IndirectUnaryPredicate = false;
-		__stl2::IndirectUnaryPredicate{F, I}
-		constexpr bool IndirectUnaryPredicate<F, I> = true;
-	}
-
 	template <class F, class I1, class I2 = I1>
 	concept bool IndirectRelation =
 		Readable<I1> &&
@@ -173,13 +137,6 @@ STL2_OPEN_NAMESPACE {
 		Relation<F&, reference_t<I1>, reference_t<I2>> &&
 		Relation<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
-	namespace models {
-		template <class F, class I1, class I2 = I1>
-		constexpr bool IndirectRelation = false;
-		__stl2::IndirectRelation{F, I1, I2}
-		constexpr bool IndirectRelation<F, I1, I2> = true;
-	}
-
 	template <class F, class I1, class I2 = I1>
 	concept bool IndirectStrictWeakOrder =
 		Readable<I1> &&
@@ -190,13 +147,6 @@ STL2_OPEN_NAMESPACE {
 		StrictWeakOrder<F&, reference_t<I1>, value_type_t<I2>&> &&
 		StrictWeakOrder<F&, reference_t<I1>, reference_t<I2>> &&
 		StrictWeakOrder<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
-
-	namespace models {
-		template <class F, class I1, class I2 = I1>
-		constexpr bool IndirectStrictWeakOrder = false;
-		__stl2::IndirectStrictWeakOrder{F, I1, I2}
-		constexpr bool IndirectStrictWeakOrder<F, I1, I2> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// projected [projected.indirectcallables]

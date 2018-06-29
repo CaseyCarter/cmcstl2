@@ -192,13 +192,6 @@ STL2_OPEN_NAMESPACE {
 		ConvertibleTo<T, common_reference_t<T, U>> &&
 		ConvertibleTo<U, common_reference_t<T, U>>;
 
-	namespace models {
-		template <class, class>
-		constexpr bool CommonReference = false;
-		__stl2::CommonReference{T, U}
-		constexpr bool CommonReference<T, U> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// Common [concept.common]
 	//
@@ -216,13 +209,6 @@ STL2_OPEN_NAMESPACE {
 		CommonReference<std::add_lvalue_reference_t<common_type_t<T, U>>,
 			common_reference_t<std::add_lvalue_reference_t<const T>,
 				std::add_lvalue_reference_t<const U>>>;
-
-	namespace models {
-		template <class, class>
-		constexpr bool Common = false;
-		__stl2::Common{T, U}
-		constexpr bool Common<T, U> = true;
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

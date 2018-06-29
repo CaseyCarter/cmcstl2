@@ -120,17 +120,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::swap((U&&)u, (T&&)t);
 		};
 
-	namespace models {
-		template <class T>
-		constexpr bool Swappable = false;
-		__stl2::Swappable{T}
-		constexpr bool Swappable<T> = true;
-		template <class T, class U>
-		constexpr bool SwappableWith = false;
-		__stl2::SwappableWith{T, U}
-		constexpr bool SwappableWith<T, U> = true;
-	}
-
 	template <class T, class U>
 	inline constexpr bool is_nothrow_swappable_v = false;
 

@@ -56,13 +56,13 @@ STL2_OPEN_NAMESPACE {
 		enum class subrange_kind : bool { unsized, sized };
 
 		template <Iterator I, Sentinel<I> S = I,
-			subrange_kind K = static_cast<subrange_kind>(models::SizedSentinel<S, I>)>
+			subrange_kind K = static_cast<subrange_kind>(SizedSentinel<S, I>)>
 		requires K == subrange_kind::sized || !SizedSentinel<S, I>
 		class subrange
 		: public view_interface<subrange<I, S, K>>
 		{
 			static constexpr bool StoreSize =
-				K == subrange_kind::sized && !models::SizedSentinel<S, I>;
+				K == subrange_kind::sized && !SizedSentinel<S, I>;
 
 			meta::if_c<StoreSize,
 				std::tuple<I, S, difference_type_t<I>>,
@@ -99,7 +99,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr subrange(I i, S s, difference_type_t<I> n)
 				requires StoreSize
 			: data_{std::move(i), std::move(s), n} {
-				if constexpr (models::RandomAccessIterator<I>) {
+				if constexpr (RandomAccessIterator<I>) {
 					STL2_EXPECT(first_() + n == last_());
 				}
 			}

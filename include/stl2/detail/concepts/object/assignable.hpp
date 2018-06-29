@@ -31,13 +31,6 @@ STL2_OPEN_NAMESPACE {
 		requires(T t, U&& u) {
 			{ t = (U&&)u } -> Same<T>&&;
 		};
-
-	namespace models {
-		template <class, class>
-		constexpr bool Assignable = false;
-		__stl2::Assignable{T, U}
-		constexpr bool Assignable<T, U> = true;
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

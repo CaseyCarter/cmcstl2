@@ -7,14 +7,14 @@ int main() {
 	{
 		using I = ext::subrange<int*, int*>;
 		using CI = ext::subrange<const int*, const int*>;
-		static_assert(models::View<I>);
-		static_assert(models::SizedRange<I>);
-		static_assert(models::ContiguousRange<I>);
-		static_assert(models::BoundedRange<I>);
-		static_assert(models::View<CI>);
-		static_assert(models::SizedRange<CI>);
-		static_assert(models::ContiguousRange<CI>);
-		static_assert(models::BoundedRange<CI>);
+		static_assert(View<I>);
+		static_assert(SizedRange<I>);
+		static_assert(ext::ContiguousRange<I>);
+		static_assert(BoundedRange<I>);
+		static_assert(View<CI>);
+		static_assert(SizedRange<CI>);
+		static_assert(ext::ContiguousRange<CI>);
+		static_assert(BoundedRange<CI>);
 	}
 
 	{
@@ -22,10 +22,10 @@ int main() {
 		static constexpr std::size_t n = size(some_ints);
 		auto r = ext::subrange(some_ints + 0, some_ints + n);
 		using R = decltype(r);
-		static_assert(models::View<R>);
-		static_assert(models::SizedRange<R>);
-		static_assert(models::ContiguousRange<R>);
-		static_assert(models::BoundedRange<R>);
+		static_assert(View<R>);
+		static_assert(SizedRange<R>);
+		static_assert(ext::ContiguousRange<R>);
+		static_assert(BoundedRange<R>);
 
 		CHECK(begin(r) == some_ints + 0);
 		CHECK(end(r) == some_ints + n);

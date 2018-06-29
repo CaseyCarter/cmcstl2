@@ -276,7 +276,7 @@ STL2_OPEN_NAMESPACE {
 			const counted_iterator<I>& o, I i, difference_type_t<I> n)
 		noexcept(noexcept(counted_iterator<I>{std::move(i), o.count() - n}))
 		{
-			STL2_EXPENSIVE_ASSERT(!models::ForwardIterator<I> ||
+			STL2_EXPENSIVE_ASSERT(!ForwardIterator<I> ||
 				i == __stl2::next(o.base(), n));
 			return counted_iterator<I>{std::move(i), o.count() - n};
 		}

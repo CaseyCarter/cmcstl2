@@ -28,29 +28,29 @@ struct Int {
 int main() {
 	{
 		using I = istream_iterator<int>;
-		static_assert(models::WeaklyIncrementable<I>);
-		static_assert(models::Same<difference_type_t<I>, std::ptrdiff_t>);
-		static_assert(models::Readable<I>);
-		static_assert(models::Same<value_type_t<I>, int>);
-		static_assert(models::Same<reference_t<I>, const int&>);
-		static_assert(models::Same<rvalue_reference_t<I>, const int&&>);
-		static_assert(models::Iterator<I>);
-		static_assert(models::InputIterator<I>);
-		static_assert(!models::ForwardIterator<I>);
+		static_assert(WeaklyIncrementable<I>);
+		static_assert(Same<difference_type_t<I>, std::ptrdiff_t>);
+		static_assert(Readable<I>);
+		static_assert(Same<value_type_t<I>, int>);
+		static_assert(Same<reference_t<I>, const int&>);
+		static_assert(Same<rvalue_reference_t<I>, const int&&>);
+		static_assert(Iterator<I>);
+		static_assert(InputIterator<I>);
+		static_assert(!ForwardIterator<I>);
 
-		static_assert(models::Sentinel<I, I>);
-		static_assert(models::Sentinel<default_sentinel, I>);
-		static_assert(models::Common<default_sentinel, I>);
-		static_assert(models::Same<I, common_type_t<I, default_sentinel>>);
+		static_assert(Sentinel<I, I>);
+		static_assert(Sentinel<default_sentinel, I>);
+		static_assert(Common<default_sentinel, I>);
+		static_assert(Same<I, common_type_t<I, default_sentinel>>);
 
-		static_assert(models::Same<I::difference_type, std::ptrdiff_t>);
-		static_assert(models::Same<I::iterator_category, input_iterator_tag>);
-		static_assert(models::Same<I::value_type, int>);
-		static_assert(models::Same<I::reference, const int&>);
-		static_assert(models::Same<I::pointer, const int*>);
-		static_assert(models::Same<I::char_type, char>);
-		static_assert(models::Same<I::traits_type, std::char_traits<char>>);
-		static_assert(models::Same<I::istream_type, std::istream>);
+		static_assert(Same<I::difference_type, std::ptrdiff_t>);
+		static_assert(Same<I::iterator_category, input_iterator_tag>);
+		static_assert(Same<I::value_type, int>);
+		static_assert(Same<I::reference, const int&>);
+		static_assert(Same<I::pointer, const int*>);
+		static_assert(Same<I::char_type, char>);
+		static_assert(Same<I::traits_type, std::char_traits<char>>);
+		static_assert(Same<I::istream_type, std::istream>);
 
 		I{};
 		I{default_sentinel{}};
@@ -59,27 +59,27 @@ int main() {
 		I{i};
 		static_assert(std::is_trivially_copy_constructible<I>());
 
-		static_assert(models::Same<const int&, decltype(*i)>);
+		static_assert(Same<const int&, decltype(*i)>);
 		CHECK(*i == 42);
-		static_assert(models::Same<const int*, decltype(i.operator->())>);
+		static_assert(Same<const int*, decltype(i.operator->())>);
 		CHECK(&*i == i.operator->());
-		static_assert(models::Same<I&, decltype(++i)>);
+		static_assert(Same<I&, decltype(++i)>);
 		CHECK(&++i == &i);
 		CHECK(*i == 13);
-		static_assert(models::Same<I, decltype(i++)>);
+		static_assert(Same<I, decltype(i++)>);
 		{ I j{i}; CHECK(j == i++); }
 
-		static_assert(models::Same<bool, decltype(i == i)>);
+		static_assert(Same<bool, decltype(i == i)>);
 		CHECK(i == i);
-		static_assert(models::Same<bool, decltype(default_sentinel{} == i)>);
+		static_assert(Same<bool, decltype(default_sentinel{} == i)>);
 		CHECK(default_sentinel{} == i);
-		static_assert(models::Same<bool, decltype(i == default_sentinel{})>);
+		static_assert(Same<bool, decltype(i == default_sentinel{})>);
 		CHECK(i == default_sentinel{});
-		static_assert(models::Same<bool, decltype(i != i)>);
+		static_assert(Same<bool, decltype(i != i)>);
 		CHECK(!(i != i));
-		static_assert(models::Same<bool, decltype(default_sentinel{} != i)>);
+		static_assert(Same<bool, decltype(default_sentinel{} != i)>);
 		CHECK(!(default_sentinel{} != i));
-		static_assert(models::Same<bool, decltype(i != default_sentinel{})>);
+		static_assert(Same<bool, decltype(i != default_sentinel{})>);
 		CHECK(!(i != default_sentinel{}));
 	}
 	{

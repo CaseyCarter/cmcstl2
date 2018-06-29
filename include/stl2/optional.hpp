@@ -239,36 +239,36 @@ STL2_OPEN_NAMESPACE {
 	ext::DestructibleObject{T}
 	class optional
 	: public meta::_t<ext::optional_storage<T>>
-	, detail::smf_control::copy<models::CopyConstructible<T>>
-	, detail::smf_control::move<models::MoveConstructible<T>>
-	, detail::smf_control::copy_assign<models::Copyable<T>>
-	, detail::smf_control::move_assign<models::Movable<T>>
+	, detail::smf_control::copy<CopyConstructible<T>>
+	, detail::smf_control::move<MoveConstructible<T>>
+	, detail::smf_control::copy_assign<Copyable<T>>
+	, detail::smf_control::move_assign<Movable<T>>
 	{
 		using base_t = meta::_t<ext::optional_storage<T>>;
 
 		template <class U>
 		static constexpr bool should_unwrap_construct =
-			!(models::Constructible<T, optional<U>&> ||
-			  models::Constructible<T, optional<U>&&> ||
-			  models::Constructible<T, const optional<U>&> ||
-			  models::Constructible<T, const optional<U>&&> ||
-			  models::ConvertibleTo<optional<U>&, T> ||
-			  models::ConvertibleTo<optional<U>&&, T> ||
-			  models::ConvertibleTo<const optional<U>&, T> ||
-			  models::ConvertibleTo<const optional<U>&&, T>);
+			!(Constructible<T, optional<U>&> ||
+			  Constructible<T, optional<U>&&> ||
+			  Constructible<T, const optional<U>&> ||
+			  Constructible<T, const optional<U>&&> ||
+			  ConvertibleTo<optional<U>&, T> ||
+			  ConvertibleTo<optional<U>&&, T> ||
+			  ConvertibleTo<const optional<U>&, T> ||
+			  ConvertibleTo<const optional<U>&&, T>);
 
 		template <class U>
 		static constexpr bool should_unwrap_assign =
 			should_unwrap_construct<U> &&
-			!(models::Assignable<T&, optional<U>&> ||
-			  models::Assignable<T&, optional<U>&&> ||
-			  models::Assignable<T&, const optional<U>&> ||
-			  models::Assignable<T&, const optional<U>&&>);
+			!(Assignable<T&, optional<U>&> ||
+			  Assignable<T&, optional<U>&&> ||
+			  Assignable<T&, const optional<U>&> ||
+			  Assignable<T&, const optional<U>&&>);
 
 	public:
-		static_assert(!models::Same<__uncvref<T>, nullopt_t>,
+		static_assert(!Same<__uncvref<T>, nullopt_t>,
 			"optional cannot hold nullopt_t");
-		static_assert(!models::Same<__uncvref<T>, std::in_place_t>,
+		static_assert(!Same<__uncvref<T>, std::in_place_t>,
 			"optional cannot hold std::in_place_t");
 
 		using value_type = T;

@@ -22,21 +22,21 @@ int main() {
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
 		auto x = rg | view::bounded;
 		check_equal(x, {0,1,2,3,4,5,6,7,8,9});
-		static_assert(models::View<decltype(x)>);
-		static_assert(models::SizedRange<decltype(x)>);
-		static_assert(models::BoundedRange<decltype(x)>);
-		static_assert(models::RandomAccessRange<decltype(x)>);
+		static_assert(View<decltype(x)>);
+		static_assert(SizedRange<decltype(x)>);
+		static_assert(BoundedRange<decltype(x)>);
+		static_assert(RandomAccessRange<decltype(x)>);
 	}
 	{
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
 		auto x = view::counted(bidirectional_iterator(rg), 5) | view::bounded;
 		check_equal(x, {0,1,2,3,4});
-		static_assert(models::View<decltype(x)>);
-		static_assert(models::SizedRange<decltype(x)>);
-		static_assert(models::BoundedRange<decltype(x)>);
-		static_assert(models::ForwardRange<decltype(x)>);
-		static_assert(!models::BidirectionalRange<decltype(x)>);
-		static_assert(models::Same<decltype(x), decltype(view::bounded(x))>);
+		static_assert(View<decltype(x)>);
+		static_assert(SizedRange<decltype(x)>);
+		static_assert(BoundedRange<decltype(x)>);
+		static_assert(ForwardRange<decltype(x)>);
+		static_assert(!BidirectionalRange<decltype(x)>);
+		static_assert(Same<decltype(x), decltype(view::bounded(x))>);
 	}
  	return test_result();
 }

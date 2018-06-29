@@ -38,13 +38,6 @@ STL2_OPEN_NAMESPACE {
 			};
 	}
 
-	namespace models {
-		template <class>
-		constexpr bool Dereferenceable = false;
-		detail::Dereferenceable{R}
-		constexpr bool Dereferenceable<R> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// reference_t [iterator.assoc]
 	//
@@ -180,13 +173,6 @@ STL2_OPEN_NAMESPACE {
 		CommonReference<reference_t<I>&&, rvalue_reference_t<I>&&> &&
 		CommonReference<rvalue_reference_t<I>&&, const value_type_t<I>&>;
 
-	namespace models {
-		template <class>
-		constexpr bool Readable = false;
-		__stl2::Readable{I}
-		constexpr bool Readable<I> = true;
-	}
-
 	// A generally useful dependent type
 	Readable{I}
 	using iter_common_reference_t =
@@ -209,13 +195,6 @@ STL2_OPEN_NAMESPACE {
 			// Axiom: This expression is equivalent to the previous expression.
 		};
 
-	namespace models {
-		template <class, class>
-		constexpr bool Writable = false;
-		__stl2::Writable{Out, R}
-		constexpr bool Writable<Out, R> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlyMovable [commonalgoreq.indirectlymovable]
 	//
@@ -223,13 +202,6 @@ STL2_OPEN_NAMESPACE {
 	concept bool IndirectlyMovable =
 		Readable<In> &&
 		Writable<Out, rvalue_reference_t<In>>;
-
-	namespace models {
-		template <class, class>
-		constexpr bool IndirectlyMovable = false;
-		__stl2::IndirectlyMovable{In, Out}
-		constexpr bool IndirectlyMovable<In, Out> = true;
-	}
 
 	template <class In, class Out>
 	constexpr bool is_nothrow_indirectly_movable_v = false;
@@ -249,13 +221,6 @@ STL2_OPEN_NAMESPACE {
 		Constructible<value_type_t<In>, rvalue_reference_t<In>> &&
 		Assignable<value_type_t<In>&, rvalue_reference_t<In>>;
 
-	namespace models {
-		template <class, class>
-		constexpr bool IndirectlyMovableStorable = false;
-		__stl2::IndirectlyMovableStorable{In, Out}
-		constexpr bool IndirectlyMovableStorable<In, Out> = true;
-	}
-
 	template <class In, class Out>
 	constexpr bool is_nothrow_indirectly_movable_storable_v = false;
 
@@ -273,13 +238,6 @@ STL2_OPEN_NAMESPACE {
 	concept bool IndirectlyCopyable =
 		Readable<In> && Writable<Out, reference_t<In>>;
 
-	namespace models {
-		template <class, class>
-		constexpr bool IndirectlyCopyable = false;
-		__stl2::IndirectlyCopyable{In, Out}
-		constexpr bool IndirectlyCopyable<In, Out> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlyCopyableStorable [commonalgoreq.indirectlycopyable]
 	//
@@ -290,13 +248,6 @@ STL2_OPEN_NAMESPACE {
 		Copyable<value_type_t<In>> &&
 		Constructible<value_type_t<In>, reference_t<In>> &&
 		Assignable<value_type_t<In>&, reference_t<In>>;
-
-	namespace models {
-		template <class, class>
-		constexpr bool IndirectlyCopyableStorable = false;
-		__stl2::IndirectlyCopyableStorable{In, Out}
-		constexpr bool IndirectlyCopyableStorable<In, Out> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// iter_swap
@@ -380,13 +331,6 @@ STL2_OPEN_NAMESPACE {
 			__stl2::iter_swap((I1&&)i1, (I1&&)i1);
 			__stl2::iter_swap((I2&&)i2, (I2&&)i2);
 		};
-
-	namespace models {
-		template <class I1, class I2 = I1>
-		constexpr bool IndirectlySwappable = false;
-		__stl2::IndirectlySwappable{I1, I2}
-		constexpr bool IndirectlySwappable<I1, I2> = true;
-	}
 
 	template <class R1, class R2>
 	constexpr bool is_nothrow_indirectly_swappable_v = false;
@@ -486,13 +430,6 @@ STL2_OPEN_NAMESPACE {
 		//        (This should probably be a requirement of the object concepts,
 		//         or at least Semiregular.)
 
-	namespace models {
-		template <class>
-		constexpr bool Iterator = false;
-		__stl2::Iterator{I}
-		constexpr bool Iterator<I> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// Sentinel [sentinel.iterators]
 	//
@@ -511,13 +448,6 @@ STL2_OPEN_NAMESPACE {
 		//          * i is dereferenceable
 		//          * the element denoted by i is the first element of [i,s)
 		//          * [++i,s) denotes a range
-
-	namespace models {
-		template <class, class>
-		constexpr bool Sentinel = false;
-		__stl2::Sentinel{S, I}
-		constexpr bool Sentinel<S, I> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// SizedSentinel [iterators.sizedsentinel]
@@ -545,13 +475,6 @@ STL2_OPEN_NAMESPACE {
 			//          i - s is well-defined and equal to -N
 		};
 
-	namespace models {
-		template <class S, class I>
-		constexpr bool SizedSentinel = false;
-		__stl2::SizedSentinel{S, I}
-		constexpr bool SizedSentinel<S, I> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// OutputIterator [iterators.output]
 	//
@@ -562,13 +485,6 @@ STL2_OPEN_NAMESPACE {
 		requires(I& i, T&& t) {
 			*i++ = std::forward<T>(t);
 		};
-
-	namespace models {
-		template <class, class>
-		constexpr bool OutputIterator = false;
-		__stl2::OutputIterator{I, T}
-		constexpr bool OutputIterator<I, T> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// InputIterator [iterators.input]
@@ -582,13 +498,6 @@ STL2_OPEN_NAMESPACE {
 			DerivedFrom<iterator_category_t<I>, input_iterator_tag>;
 			i++;
 		};
-
-	namespace models {
-		template <class>
-		constexpr bool InputIterator = false;
-		__stl2::InputIterator{I}
-		constexpr bool InputIterator<I> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// ForwardIterator [iterators.forward]
@@ -607,13 +516,6 @@ STL2_OPEN_NAMESPACE {
 		//        Note: intent is to require == et al to be well-defined over
 		//        all iterator values that participate in a range.
 
-	namespace models {
-		template <class>
-		constexpr bool ForwardIterator = false;
-		__stl2::ForwardIterator{I}
-		constexpr bool ForwardIterator<I> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// BidirectionalIterator [iterators.bidirectional]
 	//
@@ -622,13 +524,6 @@ STL2_OPEN_NAMESPACE {
 		ForwardIterator<I> &&
 		DerivedFrom<iterator_category_t<I>, bidirectional_iterator_tag> &&
 		ext::Decrementable<I>;
-
-	namespace models {
-		template <class>
-		constexpr bool BidirectionalIterator = false;
-		__stl2::BidirectionalIterator{I}
-		constexpr bool BidirectionalIterator<I> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// RandomAccessIterator [iterators.random.access]
@@ -651,13 +546,6 @@ STL2_OPEN_NAMESPACE {
 		// ForwardIterator, e.g., "if [i,j) denotes a range, i < j et al are
 		// well-defined."
 
-	namespace models {
-		template <class>
-		constexpr bool RandomAccessIterator = false;
-		__stl2::RandomAccessIterator{I}
-		constexpr bool RandomAccessIterator<I> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// ContiguousIterator [Extension]
 	//
@@ -668,13 +556,6 @@ STL2_OPEN_NAMESPACE {
 			DerivedFrom<iterator_category_t<I>, contiguous_iterator_tag> &&
 			std::is_lvalue_reference<reference_t<I>>::value &&
 			Same<value_type_t<I>, __uncvref<reference_t<I>>>;
-	}
-
-	namespace models {
-		template <class>
-		constexpr bool ContiguousIterator = false;
-		__stl2::ext::ContiguousIterator{I}
-		constexpr bool ContiguousIterator<I> = true;
 	}
 
 	///////////////////////////////////////////////////////////////////////////

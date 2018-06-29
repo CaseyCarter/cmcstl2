@@ -15,7 +15,6 @@
 #include "simple_test.hpp"
 
 namespace ranges = ::std::experimental::ranges;
-namespace models = ranges::models;
 
 #if ASSEMBLY // Only for assembly inspection.
 using S = short;
@@ -94,11 +93,11 @@ namespace std::experimental::ranges {
 	struct common_type<::X::B, ::X::A> { using type = ::X::C; };
 }
 
-static_assert(ranges::models::Common<::X::A, ::X::B>);
-static_assert(ranges::models::Swappable<::X::A>);
-static_assert(ranges::models::Swappable<::X::B>);
-static_assert(ranges::models::Swappable<::X::C>);
-static_assert(ranges::models::SwappableWith<::X::A&, ::X::B&>);
+static_assert(ranges::Common<::X::A, ::X::B>);
+static_assert(ranges::Swappable<::X::A>);
+static_assert(ranges::Swappable<::X::B>);
+static_assert(ranges::Swappable<::X::C>);
+static_assert(ranges::SwappableWith<::X::A&, ::X::B&>);
 
 void test_cross_type_swap() {
 	ranges::optional<::X::A> oa{std::in_place};
@@ -173,7 +172,7 @@ int main() {
 		CHECK(!o);
 		{
 			auto oi = ranges::make_optional<int>(42);
-			static_assert(models::Swappable<ranges::optional<int>>);
+			static_assert(ranges::Swappable<ranges::optional<int>>);
 			ranges::swap(o, oi);
 			CHECK(!oi);
 			CHECK(o);
@@ -210,29 +209,29 @@ int main() {
 		using OI = ranges::optional<int>;
 		using OL = ranges::optional<long>;
 
-		static_assert(models::StrictTotallyOrdered<int>);
-		static_assert(models::StrictTotallyOrdered<OI>);
-		static_assert(models::StrictTotallyOrderedWith<int, OI>);
+		static_assert(ranges::StrictTotallyOrdered<int>);
+		static_assert(ranges::StrictTotallyOrdered<OI>);
+		static_assert(ranges::StrictTotallyOrderedWith<int, OI>);
 
-		static_assert(models::StrictTotallyOrdered<long>);
-		static_assert(models::StrictTotallyOrdered<OL>);
-		static_assert(models::StrictTotallyOrderedWith<long, OL>);
+		static_assert(ranges::StrictTotallyOrdered<long>);
+		static_assert(ranges::StrictTotallyOrdered<OL>);
+		static_assert(ranges::StrictTotallyOrderedWith<long, OL>);
 
-		static_assert(models::StrictTotallyOrderedWith<int, long>);
-		static_assert(models::StrictTotallyOrderedWith<OI, OL>);
+		static_assert(ranges::StrictTotallyOrderedWith<int, long>);
+		static_assert(ranges::StrictTotallyOrderedWith<OI, OL>);
 
-		static_assert(models::Constructible<long, int>);
-		static_assert(models::ConvertibleTo<int, long>);
-		static_assert(models::Constructible<OL, OI>);
-		static_assert(models::ConvertibleTo<OI, OL>);
+		static_assert(ranges::Constructible<long, int>);
+		static_assert(ranges::ConvertibleTo<int, long>);
+		static_assert(ranges::Constructible<OL, OI>);
+		static_assert(ranges::ConvertibleTo<OI, OL>);
 
-		static_assert(models::ConvertibleTo<OL, OI>);
-		static_assert(models::Constructible<OI, OL>);
+		static_assert(ranges::ConvertibleTo<OL, OI>);
+		static_assert(ranges::Constructible<OI, OL>);
 
-		static_assert(models::ConvertibleTo<long, int>);
-		static_assert(models::Constructible<int, long>);
+		static_assert(ranges::ConvertibleTo<long, int>);
+		static_assert(ranges::Constructible<int, long>);
 
-		static_assert(!models::SwappableWith<OI&, OL&>);
+		static_assert(!ranges::SwappableWith<OI&, OL&>);
 	}
 
 	{

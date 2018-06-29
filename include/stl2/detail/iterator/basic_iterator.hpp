@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 		template <detail::MemberDifferenceType C>
 		struct difference_type<C> {
 			using type = typename C::difference_type;
-			static_assert(models::SignedIntegral<type>,
+			static_assert(SignedIntegral<type>,
 				"Cursor's member difference_type is not a signed integer type.");
 		};
 		template <class C>
@@ -119,7 +119,7 @@ STL2_OPEN_NAMESPACE {
 			requires(const C& lhs, const C& rhs) { rhs.distance_to(lhs); }
 		struct difference_type<C> {
 			using type = decltype(declval<const C&>().distance_to(declval<const C&>()));
-			static_assert(models::SignedIntegral<type>,
+			static_assert(SignedIntegral<type>,
 				"Return type of Cursor's member distance_to is not a signed integer type.");
 		};
 		template <class C>
@@ -365,7 +365,7 @@ STL2_OPEN_NAMESPACE {
 			using typename cursor_traits<Cur>::value_t_;
 			using typename cursor_traits<Cur>::reference_t_;
 			using typename cursor_traits<Cur>::rvalue_reference_t_;
-			static_assert(models::CommonReference<value_t_&, reference_t_&&>,
+			static_assert(CommonReference<value_t_&, reference_t_&&>,
 				"Your readable and writable cursor must have a value type and a reference "
 				"type that share a common reference type. See the ranges::common_reference "
 				"type trait.");
@@ -717,14 +717,13 @@ STL2_OPEN_NAMESPACE {
 		}
 		// Otherwise, if reference_t is an lvalue reference to cv-qualified
 		// value_type_t, return the address of **this.
+		template<class BugsBugs = C> // Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71965
 		constexpr auto operator->() const
 		noexcept(noexcept(*std::declval<const basic_iterator&>()))
 		requires
 			!cursor::Arrow<C> && cursor::Readable<C> &&
 			std::is_lvalue_reference<const_reference_t>::value &&
-			// BUGBUG causes a strange failure. Tested with gcc trunk Feb 17 2017:
-			//Same<cursor::value_type_t<C>, __uncvref<const_reference_t>>
-			models::Same<cursor::value_type_t<C>, __uncvref<const_reference_t>>
+			Same<cursor::value_type_t<BugsBugs>, __uncvref<const_reference_t>>
 		{
 			return detail::addressof(**this);
 		}

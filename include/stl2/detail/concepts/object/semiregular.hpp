@@ -34,13 +34,6 @@ STL2_OPEN_NAMESPACE {
 		ConvertibleTo<const T&, T> &&
 		ConvertibleTo<const T, T>;
 
-	namespace models {
-		template <class>
-		constexpr bool CopyConstructible = false;
-		__stl2::CopyConstructible{T}
-		constexpr bool CopyConstructible<T> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// Copyable [concepts.lib.object.copyable]
 	//
@@ -50,26 +43,12 @@ STL2_OPEN_NAMESPACE {
 		Movable<T> &&
 		Assignable<T&, const T&>;
 
-	namespace models {
-		template <class>
-		constexpr bool Copyable = false;
-		__stl2::Copyable{T}
-		constexpr bool Copyable<T> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// Semiregular [concepts.lib.object.semiregular]
 	//
 	template <class T>
 	concept bool Semiregular =
 		Copyable<T> && DefaultConstructible<T>;
-
-	namespace models {
-		template <class>
-		constexpr bool Semiregular = false;
-		__stl2::Semiregular{T}
-		constexpr bool Semiregular<T> = true;
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -253,7 +253,7 @@ STL2_OPEN_NAMESPACE {
 			std::is_nothrow_move_constructible<I>::value)
 		{
 			auto d = last - first;
-			STL2_EXPECT((models::Same<I, S> || d >= 0));
+			STL2_EXPECT((Same<I, S> || d >= 0));
 			return {d, __stl2::next(std::move(first), std::move(last))};
 		}
 

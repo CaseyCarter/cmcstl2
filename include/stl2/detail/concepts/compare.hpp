@@ -55,13 +55,6 @@ STL2_OPEN_NAMESPACE {
 			{  a != b2 } -> ConvertibleTo<bool>&&;
 		};
 
-	namespace models {
-		template <class>
-		constexpr bool Boolean = false;
-		__stl2::Boolean{B}
-		constexpr bool Boolean<B> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// WeaklyEqualityComparable [concepts.lib.compare.equalitycomparable]
 	// Relaxation of EqualityComparable<T, U> that doesn't require
@@ -78,13 +71,6 @@ STL2_OPEN_NAMESPACE {
 			{ u == t } -> Boolean&&;
 			{ u != t } -> Boolean&&;
 		};
-
-	namespace models {
-		template <class, class>
-		constexpr bool WeaklyEqualityComparable = false;
-		__stl2::WeaklyEqualityComparable{T, U}
-		constexpr bool WeaklyEqualityComparable<T, U> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// EqualityComparable [concepts.lib.compare.equalitycomparable]
@@ -105,17 +91,6 @@ STL2_OPEN_NAMESPACE {
 			common_reference_t<
 				const remove_reference_t<T>&,
 				const remove_reference_t<U>&>>;
-
-	namespace models {
-		template <class T>
-		constexpr bool EqualityComparable = false;
-		__stl2::EqualityComparable{T}
-		constexpr bool EqualityComparable<T> = true;
-		template <class T, class U>
-		constexpr bool EqualityComparableWith = false;
-		__stl2::EqualityComparableWith{T, U}
-		constexpr bool EqualityComparableWith<T, U> = true;
-	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// StrictTotallyOrdered [concepts.lib.compare.stricttotallyordered]
@@ -155,17 +130,6 @@ STL2_OPEN_NAMESPACE {
 			common_reference_t<
 				const remove_reference_t<T>&,
 				const remove_reference_t<U>&>>;
-
-	namespace models {
-		template <class T>
-		constexpr bool StrictTotallyOrdered = false;
-		__stl2::StrictTotallyOrdered{T}
-		constexpr bool StrictTotallyOrdered<T> = true;
-		template <class T, class U>
-		constexpr bool StrictTotallyOrderedWith = false;
-		__stl2::StrictTotallyOrderedWith{T, U}
-		constexpr bool StrictTotallyOrderedWith<T, U> = true;
-	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -29,7 +29,7 @@ constexpr auto tt(int i, double d) {
 
 void test_pair() {
 	auto t = tp(42, 3.14);
-	static_assert(__stl2::models::Same<decltype(t), TP>);
+	static_assert(__stl2::Same<decltype(t), TP>);
 	CHECK(t.first == 42);
 	CHECK(std::get<0>(t) == 42);
 	CHECK(t.in() == 42);
@@ -40,7 +40,7 @@ void test_pair() {
 
 void test_constexpr_pair() {
 	constexpr auto t = tp(42, 3.14);
-	static_assert(__stl2::models::Same<decltype(t), const TP>);
+	static_assert(__stl2::Same<decltype(t), const TP>);
 	constexpr int f = t.first;
 	CHECK(f == 42);
 	constexpr int fg = std::get<0>(t);
@@ -57,7 +57,7 @@ void test_constexpr_pair() {
 
 void test_tuple() {
 	auto t = tt(42, 3.14);
-	static_assert(__stl2::models::Same<decltype(t), TT>);
+	static_assert(__stl2::Same<decltype(t), TT>);
 	CHECK(std::get<0>(t) == 42);
 	CHECK(t.in() == 42);
 	CHECK(std::get<1>(t) == 3.14);
@@ -66,7 +66,7 @@ void test_tuple() {
 
 void test_constexpr_tuple() {
 	constexpr auto t = tt(42, 3.14);
-	static_assert(__stl2::models::Same<decltype(t), const TT>);
+	static_assert(__stl2::Same<decltype(t), const TT>);
 	constexpr int fg = std::get<0>(t);
 	CHECK(fg == 42);
 	constexpr int ff = t.in();
@@ -147,7 +147,7 @@ void test_array() {
 
 void test_make_pair() {
 #define MAKE(a, b) __stl2::make_tagged_pair<__stl2::tag::in, __stl2::tag::out>(a, b)
-	static_assert(__stl2::models::Same<TP, decltype(MAKE(42, 3.14))>);
+	static_assert(__stl2::Same<TP, decltype(MAKE(42, 3.14))>);
 	CHECK(tp(42, 3.14) == MAKE(42, 3.14));
 	CHECK(MAKE(42, 3.14).in() == 42);
 	CHECK(MAKE(42, 3.14).out() == 3.14);
@@ -158,7 +158,7 @@ void test_make_pair() {
 void test_make_tuple() {
 	using namespace __stl2::tag;
 	auto t = __stl2::make_tagged_tuple<in, out, max>(1,2,3);
-	static_assert(__stl2::models::Same<__stl2::tagged_tuple<in(int), out(int), max(int)>, decltype(t)>);
+	static_assert(__stl2::Same<__stl2::tagged_tuple<in(int), out(int), max(int)>, decltype(t)>);
 	CHECK(t.in() == 1);
 	CHECK(t.out() == 2);
 	CHECK(t.max() == 3);
@@ -176,7 +176,7 @@ void test_tagged_pairs_creation_para_2_example() {
 	using namespace __stl2;
 	const auto a = make_tagged_pair<tag::min, tag::max>(5, 3.1415926);
 	const auto b = tagged_pair<tag::min(int), tag::max(double)>{5, 3.1415926};
-	static_assert(models::Same<decltype(a), decltype(b)>);
+	static_assert(Same<decltype(a), decltype(b)>);
 	CHECK(a == b);
 }
 
@@ -192,7 +192,7 @@ void test_tagged_tuple_creation_para_4_example() {
 	int i;
 	float j;
 	auto t = __stl2::make_tagged_tuple<tag::in1, tag::in2, tag::out>(1, std::ref(i), std::cref(j));
-	static_assert(models::Same<decltype(t), tagged_tuple<tag::in1(int), tag::in2(int&), tag::out(const float&)>>);
+	static_assert(Same<decltype(t), tagged_tuple<tag::in1(int), tag::in2(int&), tag::out(const float&)>>);
 	CHECK(t.in1() == 1);
 	CHECK(&t.in2() == &i);
 	CHECK(&t.out() == &j);

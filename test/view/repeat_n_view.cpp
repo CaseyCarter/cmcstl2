@@ -14,25 +14,25 @@
 #include <stl2/algorithm.hpp>
 #include "../simple_test.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 int main() {
 	static constexpr int N = 13;
 	static constexpr int value = 42;
-	auto v = stl2::ext::repeat_n_view<int>(value, N);
+	auto v = ranges::ext::repeat_n_view<int>(value, N);
 	using V = decltype(v);
-	static_assert(stl2::models::View<V>);
-	static_assert(stl2::models::SizedRange<V>);
+	static_assert(ranges::View<V>);
+	static_assert(ranges::SizedRange<V>);
 
-	CHECK(stl2::size(v) == N);
-	CHECK(stl2::count(v, value) == N);
-	CHECK(stl2::equal(v, std::vector<int>(N, value)));
+	CHECK(ranges::size(v) == N);
+	CHECK(ranges::count(v, value) == N);
+	CHECK(ranges::equal(v, std::vector<int>(N, value)));
 
 	static_assert(sizeof(v) == 2 * sizeof(std::ptrdiff_t));
 
 	{
 		struct empty {};
-		auto v = stl2::ext::repeat_n_view<empty>{{}, (1ULL << 20)};
+		auto v = ranges::ext::repeat_n_view<empty>{{}, (1ULL << 20)};
 		static_assert(sizeof(decltype(v.begin())) == sizeof(std::ptrdiff_t));
 	}
 

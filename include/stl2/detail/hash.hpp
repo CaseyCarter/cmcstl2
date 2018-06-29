@@ -32,13 +32,6 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
-	namespace models {
-		template <class>
-		constexpr bool Hashable = false;
-		__stl2::ext::Hashable{T}
-		constexpr bool Hashable<T> = true;
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// hash_combine [Extension]
 	// Stolen from Boost.
