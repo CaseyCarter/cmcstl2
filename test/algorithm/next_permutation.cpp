@@ -207,11 +207,11 @@ int main()
 	typedef std::greater<int> C;
 	std::pair<int, c_str> ia[] = {{6, {"six"}}, {5,{"five"}}, {4,{"four"}}, {3,{"three"}}, {2,{"two"}}, {1,{"one"}}};
 	CHECK(ranges::next_permutation(ia, C(), &std::pair<int,c_str>::first));
-	::check_equal<std::pair<int, c_str>>(ia, {{6, {"six"}}, {5,{"five"}}, {4,{"four"}}, {3,{"three"}}, {1,{"one"}}, {2,{"two"}}});
+	CHECK_EQUAL(ia, {std::pair<int, c_str>{6, {"six"}}, {5,{"five"}}, {4,{"four"}}, {3,{"three"}}, {1,{"one"}}, {2,{"two"}}});
 	CHECK(ranges::next_permutation(ia, C(), &std::pair<int,c_str>::first));
-	::check_equal<std::pair<int, c_str>>(ia, {{6, {"six"}}, {5,{"five"}}, {4,{"four"}}, {2,{"two"}}, {3,{"three"}}, {1,{"one"}}});
+	CHECK_EQUAL(ia, {std::pair<int, c_str>{6, {"six"}}, {5,{"five"}}, {4,{"four"}}, {2,{"two"}}, {3,{"three"}}, {1,{"one"}}});
 	CHECK(ranges::next_permutation(ia, C(), &std::pair<int,c_str>::first));
-	::check_equal<std::pair<int, c_str>>(ia, {{6, {"six"}}, {5,{"five"}}, {4,{"four"}}, {2,{"two"}}, {1,{"one"}}, {3,{"three"}}});
+	CHECK_EQUAL(ia, {std::pair<int, c_str>{6, {"six"}}, {5,{"five"}}, {4,{"four"}}, {2,{"two"}}, {1,{"one"}}, {3,{"three"}}});
 	// etc..
 
 	return ::test_result();

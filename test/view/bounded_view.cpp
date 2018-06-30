@@ -21,7 +21,7 @@ int main() {
 	{
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
 		auto x = rg | view::bounded;
-		check_equal(x, {0,1,2,3,4,5,6,7,8,9});
+		CHECK_EQUAL(x, {0,1,2,3,4,5,6,7,8,9});
 		static_assert(View<decltype(x)>);
 		static_assert(SizedRange<decltype(x)>);
 		static_assert(BoundedRange<decltype(x)>);
@@ -30,7 +30,7 @@ int main() {
 	{
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
 		auto x = view::counted(bidirectional_iterator(rg), 5) | view::bounded;
-		check_equal(x, {0,1,2,3,4});
+		CHECK_EQUAL(x, {0,1,2,3,4});
 		static_assert(View<decltype(x)>);
 		static_assert(SizedRange<decltype(x)>);
 		static_assert(BoundedRange<decltype(x)>);

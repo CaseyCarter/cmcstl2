@@ -65,7 +65,7 @@ int main() {
 
 	::copy(__stl2::begin(some_ints), __stl2::end(some_ints), i);
 	CHECK(ss.str() == "0 7 1 6 2 5 3 4 ");
-	::check_equal(
+	CHECK_EQUAL(
 		ext::subrange(istream_iterator<int>{ss}, default_sentinel{}),
 			some_ints);
 

@@ -18,10 +18,10 @@ namespace ranges = __stl2;
 int main() {
 	int rgi[]{1,2,3,4,5};
 	ranges::transform(rgi, rgi+5, rgi, [](int i){return i*2;});
-	::check_equal(rgi, {2,4,6,8,10});
+	CHECK_EQUAL(rgi, {2,4,6,8,10});
 
 	ranges::transform(rgi, rgi, [](int i){return i/2;});
-	::check_equal(rgi, {1,2,3,4,5});
+	CHECK_EQUAL(rgi, {1,2,3,4,5});
 
 	{
 		auto sum = [](int x, int y) { return x + y; };
@@ -35,7 +35,7 @@ int main() {
 			CHECK(result.in1() == ranges::end(source1));
 			CHECK(result.in2() == ranges::end(source2));
 			CHECK(result.out() == ranges::end(target));
-			::check_equal(target, control);
+			CHECK_EQUAL(target, control);
 		}
 
 		{
@@ -45,7 +45,7 @@ int main() {
 			CHECK(result.in1() == ranges::end(source1));
 			CHECK(result.in2() == ranges::end(source2));
 			CHECK(result.out() == ranges::end(target));
-			::check_equal(target, control);
+			CHECK_EQUAL(target, control);
 		}
 	}
 

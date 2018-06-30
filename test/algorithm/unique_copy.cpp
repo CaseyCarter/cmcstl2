@@ -250,6 +250,11 @@ bool operator==(S l, S r)
 	return l.i == r.i && l.j == r.j;
 }
 
+bool operator!=(S l, S r)
+{
+	return !(l == r);
+}
+
 int main()
 {
 	test<input_iterator<const int*>, output_iterator<int*> >();
@@ -289,7 +294,7 @@ int main()
 		std::pair<S const *, S *> r = stl2::unique_copy(ia, ib, stl2::equal_to<>(), &S::i);
 		CHECK(r.first == stl2::end(ia));
 		CHECK(r.second == ib + 7);
-		check_equal(stl2::ext::subrange(ib, ib+7), {S{1,1},S{2,2},S{3,3},S{4,5},S{5,6},S{6,9},S{7,10}});
+		CHECK_EQUAL(stl2::ext::subrange(ib, ib+7), {S{1,1},S{2,2},S{3,3},S{4,5},S{5,6},S{6,9},S{7,10}});
 	}
 
 	// Test rvalue ranges:
@@ -299,7 +304,7 @@ int main()
 		auto r = stl2::unique_copy(stl2::move(ia), ib, stl2::equal_to<>(), &S::i);
 		CHECK(r.first.get_unsafe() == stl2::end(ia));
 		CHECK(r.second == ib + 7);
-		check_equal(stl2::ext::subrange(ib, ib+7), {S{1,1},S{2,2},S{3,3},S{4,5},S{5,6},S{6,9},S{7,10}});
+		CHECK_EQUAL(stl2::ext::subrange(ib, ib+7), {S{1,1},S{2,2},S{3,3},S{4,5},S{5,6},S{6,9},S{7,10}});
 	}
 
 	return ::test_result();

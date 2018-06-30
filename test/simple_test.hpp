@@ -171,33 +171,43 @@ inline int test_result()
 	return ::test_impl::test_failures() ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
-#define CHECK(...)                                                                                  \
-	(void)(::test_impl::S{__FILE__, __LINE__, #__VA_ARGS__, __PRETTY_FUNCTION__} ->* __VA_ARGS__) \
+#define CHECK(...)                                                                                 \
+	(void)(::test_impl::S{__FILE__, __LINE__, #__VA_ARGS__, __PRETTY_FUNCTION__} ->* __VA_ARGS__)  \
 	/**/
 
 template <typename Rng, typename Rng2>
-void check_equal_(Rng && actual, Rng2&& expected)
+void check_equal_(const char* file, int line, const char* lhs, const char* rhs,
+	const char* fun, Rng && actual, Rng2&& expected)
 {
 	auto begin0 = NS::begin(actual);
 	auto end0 = NS::end(actual);
 	auto begin1 = NS::begin(expected);
 	auto end1 = NS::end(expected);
-	for(; begin0 != end0 && begin1 != end1; ++begin0, ++begin1)
-		CHECK(*begin0 == *begin1);
+
+	for(std::size_t i = 0; begin0 != end0 && begin1 != end1; ++begin0, (void)++i, ++begin1) {
+		if (*begin0 != *begin1) {
+			std::cerr <<
+				"> ERROR: CHECK failed \"" << lhs << '[' << i << "] != " << rhs << '[' << i << "]\"\n"
+				"> \t" << file << '(' << line << ')' << "\n"
+				"> \t in function \"" << fun << "\"\n"
+				"> \tEXPECTED: " << test_impl::stream(*begin1) << "\n"
+				"> \tACTUAL: " << test_impl::stream(*begin0) << '\n';
+			++test_impl::test_failures();
+		}
+	}
 	CHECK(begin0 == end0);
 	CHECK(begin1 == end1);
 }
 
 template <typename Val, typename Rng>
-void check_equal(Rng && actual, std::initializer_list<Val> expected)
+void check_equal_(const char* file, int line, const char* lhs, const char* rhs,
+	const char* fun, Rng && actual, std::initializer_list<Val>&& expected)
 {
-	check_equal_(actual, expected);
+	check_equal_(file, line, lhs, rhs, fun, actual, expected);
 }
 
-template <typename Rng, typename Rng2>
-void check_equal(Rng && actual, Rng2&& expected)
-{
-	check_equal_(actual, expected);
-}
+#define CHECK_EQUAL(first, ...) \
+	check_equal_(__FILE__, __LINE__, #first, #__VA_ARGS__, __PRETTY_FUNCTION__, first, __VA_ARGS__) \
+	/**/
 
 #endif
