@@ -47,7 +47,7 @@ int main() {
 		std::ostringstream os;
 		auto r = ::copy(hw_range, I{os});
 		CHECK(r.out() != default_sentinel{});
-		::check_equal(os.str(), hw_range);
+		CHECK_EQUAL(os.str(), hw_range);
 	}
 
 	return ::test_result();

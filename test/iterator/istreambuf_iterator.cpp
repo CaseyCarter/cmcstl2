@@ -91,7 +91,7 @@ int main() {
 	{
 		static const char hw[] = "Hello, world!";
 		std::istringstream is(hw);
-		::check_equal(ext::subrange(I{is}, default_sentinel{}),
+		CHECK_EQUAL(ext::subrange(I{is}, default_sentinel{}),
 									ext::subrange(hw + 0, hw + size(hw) - 1));
 		CHECK(I{is} == default_sentinel{});
 	}

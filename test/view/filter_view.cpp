@@ -52,9 +52,9 @@ int main() {
 	static_assert(!SizedRange<decltype(rng)>);
 	static_assert(BidirectionalRange<decltype(rng)>);
 	static_assert(!RandomAccessRange<decltype(rng)>);
-	::check_equal(rng, {1,3,5,7,9});
+	CHECK_EQUAL(rng, {1,3,5,7,9});
 
-	//::check_equal(rng | view::reverse, {9,7,5,3,1});
+	//CHECK_EQUAL(rng | view::reverse, {9,7,5,3,1});
 	//auto tmp = rng | view::reverse;
 	//CHECK(&*begin(tmp) == &rgi[8]);
 
@@ -64,7 +64,7 @@ int main() {
 	// static_assert(!RandomAccessView<__f<decltype(rng2)>>);
 	// static_assert(BoundedView<__f<decltype(rng2)>>);
 	// static_assert(!SizedView<__f<decltype(rng2)>>);
-	// ::check_equal(rng2, {1,3,5,7,9});
+	// CHECK_EQUAL(rng2, {1,3,5,7,9});
 	// CHECK(&*begin(rng2) == &rgi[0]);
 
 	// auto rng3 = view::counted(bidirectional_iterator<int*>{rgi}, 10) | view::remove_if(is_even());
@@ -73,7 +73,7 @@ int main() {
 	// static_assert(!RandomAccessView<__f<decltype(rng3)>>);
 	// static_assert(!BoundedView<__f<decltype(rng3)>>);
 	// static_assert(!SizedView<__f<decltype(rng3)>>);
-	// ::check_equal(rng3, {1,3,5,7,9});
+	// CHECK_EQUAL(rng3, {1,3,5,7,9});
 	// CHECK(&*begin(rng3) == &rgi[0]);
 	// CHECK(&*prev(next(begin(rng3))) == &rgi[0]);
 
@@ -84,7 +84,7 @@ int main() {
 	auto b2 = b;
 	b = b2;
 	auto mutable_rng = view::filter(rgi, [flag](int) mutable { return flag = !flag;});
-	::check_equal(mutable_rng, {1,3,5,7,9});
+	CHECK_EQUAL(mutable_rng, {1,3,5,7,9});
 	static_assert(Range<decltype(mutable_rng)>);
 	static_assert(Copyable<decltype(mutable_rng)>);
 	static_assert(!View<decltype(mutable_rng) const>);
@@ -96,12 +96,12 @@ int main() {
 	//	 auto r = view::concat(a, b);
 	//	 auto f = [](int i) { return i != 1 && i != 5; };
 	//	 auto r2 = r | view::remove_if(f);
-	//	 ::check_equal(r2, {1,5});
+	//	 CHECK_EQUAL(r2, {1,5});
 	// }
 
 	// {
 	//	 auto rng = debug_input_view<int const>{rgi} | view::remove_if(is_even{});
-	//	 ::check_equal(rng, {1,3,5,7,9});
+	//	 CHECK_EQUAL(rng, {1,3,5,7,9});
 	// }
 
 	{

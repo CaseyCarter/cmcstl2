@@ -41,7 +41,7 @@ int main()
 		static_assert(View<decltype(rng)>);
 		static_assert(!SizedRange<ext::iota_view<int>>);
 		static_assert(Range<const decltype(rng)>);
-		::check_equal(rng, {0,1,2,3,4,5,6,7,8,9});
+		CHECK_EQUAL(rng, {0,1,2,3,4,5,6,7,8,9});
 		decltype(rng)::const_iterator i{};
 	}
 
@@ -49,7 +49,7 @@ int main()
 		auto rng = view::iota(0, 100) | view::take(10);
 		static_assert(View<decltype(rng)>);
 		static_assert(Range<const decltype(rng)>);
-		::check_equal(rng, {0,1,2,3,4,5,6,7,8,9});
+		CHECK_EQUAL(rng, {0,1,2,3,4,5,6,7,8,9});
 		decltype(rng)::const_iterator i{};
 	}
 
@@ -62,7 +62,7 @@ int main()
 		static_assert(View<decltype(rng)>);
 		static_assert(!Range<const decltype(rng)>);
 		decltype(rng)::iterator i{};
-		::check_equal(rng, {0,2,4});
+		CHECK_EQUAL(rng, {0,2,4});
 	}
 
 	{
@@ -74,7 +74,7 @@ int main()
 		static_assert(View<decltype(rng)>);
 		static_assert(!Range<const decltype(rng)>);
 		decltype(rng)::iterator i{};
-		::check_equal(rng, {1,3,5});
+		CHECK_EQUAL(rng, {1,3,5});
 	}
 
 	return ::test_result();

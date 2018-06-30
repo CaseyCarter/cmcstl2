@@ -84,13 +84,13 @@ int main() {
 	}
 	{
 		std::istringstream is("5 4 3 2 1 0");
-		::check_equal(
+		CHECK_EQUAL(
 			ext::subrange(istream_iterator<int>{is}, default_sentinel{}),
 				{5, 4, 3, 2, 1, 0});
 	}
 	{
 		std::istringstream is("0.9 1.8 2.4 3.3");
-		::check_equal(
+		CHECK_EQUAL(
 			ext::subrange(istream_iterator<double>{is}, default_sentinel{}),
 				{0.9, 1.8, 2.4, 3.3});
 	}

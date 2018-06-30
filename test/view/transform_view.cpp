@@ -43,7 +43,7 @@ int main()
 	static_assert(View<decltype(rng)>);
 	static_assert(SizedRange<decltype(rng)>);
 	static_assert(RandomAccessRange<decltype(rng)>);
-	::check_equal(rng, {true, false, true, false, true, false, true, false, true, false});
+	CHECK_EQUAL(rng, {true, false, true, false, true, false, true, false, true, false});
 
 	std::pair<int, int> rgp[] = {{1,1}, {2,2}, {3,3}, {4,4}, {5,5}, {6,6}, {7,7}, {8,8}, {9,9}, {10,10}};
 	auto rng2 = rgp | view::transform(&std::pair<int,int>::first);
@@ -54,8 +54,8 @@ int main()
 	static_assert(BoundedRange<decltype(rng2)>);
 	static_assert(SizedRange<decltype(rng2)>);
 	static_assert(RandomAccessRange<decltype(rng2)>);
-	::check_equal(rng2, {1,2,3,4,5,6,7,8,9,10});
-	// ::check_equal(rng2 | view::reverse, {10,9,8,7,6,5,4,3,2,1});
+	CHECK_EQUAL(rng2, {1,2,3,4,5,6,7,8,9,10});
+	// CHECK_EQUAL(rng2 | view::reverse, {10,9,8,7,6,5,4,3,2,1});
 	// CHECK(&*begin(rng2) == &rgp[0].first);
 	// CHECK(rng2.size() == 10u);
 

@@ -112,7 +112,7 @@ int main()
 		int target[8]{};
 		auto l = {1,2,3,4,5,6};
 		CHECK(ranges::copy(std::move(l), target + 1).out() == target + 7);
-		check_equal(target, {0,1,2,3,4,5,6,0});
+		CHECK_EQUAL(target, {0,1,2,3,4,5,6,0});
 	}
 
 	return test_result();
