@@ -30,11 +30,12 @@ STL2_OPEN_NAMESPACE {
 		concept bool _TinyRange =
 			SizedRange<R> && std::remove_reference_t<R>::size() <= 1;
 
-		template<InputRange Rng>
+		template <InputRange Rng>
 		struct __split_view_base {
 			iterator_t<Rng> current_ {};
+			bool zero_ = false;
 		};
-		template<ForwardRange Rng>
+		template <ForwardRange Rng>
 		struct __split_view_base<Rng> {};
 
 		template <InputRange Rng, ForwardRange Pattern>
@@ -46,10 +47,7 @@ STL2_OPEN_NAMESPACE {
 			Rng base_ {};
 			Pattern pattern_ {};
 			template <bool Const> struct __outer_iterator;
-			template <bool Const> struct __outer_sentinel;
 			template <bool Const> struct __inner_iterator;
-			template <bool Const> struct __inner_sentinel;
-
 		public:
 			split_view() = default;
 			constexpr split_view(Rng base, Pattern pattern)
@@ -85,12 +83,8 @@ STL2_OPEN_NAMESPACE {
 			requires ForwardRange<Rng> && ForwardRange<const Rng>
 			{ return __outer_iterator<true>{*this, __stl2::begin(base_)}; }
 
-			constexpr auto end()
-			{ return __outer_sentinel<SimpleView<Rng>>{*this}; }
-
 			constexpr auto end() const
-			requires ForwardRange<Rng> && ForwardRange<const Rng>
-			{ return __outer_sentinel<true>{*this}; }
+			{ return default_sentinel{}; }
 
 			constexpr auto end() requires ForwardRange<Rng> && BoundedRange<Rng>
 			{ return __outer_iterator<SimpleView<Rng>>{*this, __stl2::end(base_)}; }
@@ -100,40 +94,39 @@ STL2_OPEN_NAMESPACE {
 			{ return __outer_iterator<true>{*this, __stl2::end(base_)}; }
 		};
 
-		template<class Rng, class Pattern>
+		template <class Rng, class Pattern>
 		split_view(Rng&&, Pattern&&) -> split_view<all_view<Rng>, all_view<Pattern>>;
 
-		template<InputRange Rng>
+		template <InputRange Rng>
 		split_view(Rng&&, value_type_t<iterator_t<Rng>>)
 			-> split_view<all_view<Rng>, single_view<value_type_t<iterator_t<Rng>>>>;
 
-		template<InputRange>
+		template <class, bool>
 		struct __split_view_outer_base {};
-		template<ForwardRange Rng>
-		struct __split_view_outer_base<Rng> {
-			iterator_t<Rng> current_ {};
+		template <ForwardRange Rng, bool Const>
+		struct __split_view_outer_base<Rng, Const> {
+			iterator_t<__maybe_const<Const, Rng>> current_;
 		};
 
 		template <class Rng, class Pattern>
 		template <bool Const>
 		struct split_view<Rng, Pattern>::__outer_iterator
-		: private __split_view_outer_base<__maybe_const<Const, Rng>> {
+		: private __split_view_outer_base<Rng, Const> {
 		private:
 			using Parent = __maybe_const<Const, split_view>;
 			using Base = __maybe_const<Const, Rng>;
 			Parent* parent_ = nullptr;
-			friend __outer_sentinel<Const>;
 			friend __outer_iterator<!Const>;
 			friend __inner_iterator<Const>;
-			constexpr decltype(auto) current() const noexcept
-			{ return (parent_->current_); }
-			constexpr decltype(auto) current() noexcept requires ForwardRange<Base>
-			{ return (this->current_); }
-			constexpr decltype(auto) current() const noexcept requires ForwardRange<Base>
-			{ return (this->current_); }
+			constexpr iterator_t<Base>& current() const noexcept
+			{ return parent_->current_; }
+			constexpr iterator_t<Base>& current() noexcept requires ForwardRange<Base>
+			{ return this->current_; }
+			constexpr const iterator_t<Base>& current() const noexcept requires ForwardRange<Base>
+			{ return this->current_; }
 		public:
 			using iterator_category = meta::if_c<ForwardRange<Base>,
-				ranges::forward_iterator_tag, ranges::input_iterator_tag>;
+				__stl2::forward_iterator_tag, __stl2::input_iterator_tag>;
 			using difference_type = difference_type_t<iterator_t<Base>>;
 			struct value_type;
 
@@ -142,11 +135,12 @@ STL2_OPEN_NAMESPACE {
 			: parent_(detail::addressof(parent)) {}
 			constexpr __outer_iterator(Parent& parent, iterator_t<Base> current)
 			requires ForwardRange<Base>
-			: __outer_iterator::__split_view_outer_base{current}, parent_(detail::addressof(parent)) {}
+			: __split_view_outer_base<Rng, Const>{std::move(current)}
+			, parent_(detail::addressof(parent)) {}
 
 			constexpr __outer_iterator(__outer_iterator<!Const> i) requires Const &&
 				ConvertibleTo<iterator_t<Rng>, iterator_t<Base>>
-			: __outer_iterator::__split_view_outer_base{i.current_}, parent_(i.parent_) {}
+			: __split_view_outer_base<Rng, Const>{i.current_}, parent_(i.parent_) {}
 
 			constexpr value_type operator*() const
 			{ return value_type{*this}; }
@@ -155,18 +149,21 @@ STL2_OPEN_NAMESPACE {
 			{
 				auto& cur = current();
 				auto const end = __stl2::end(parent_->base_);
-				if (cur == end)
-					return *this;
+				if (cur == end) return *this;
 				auto const [pbegin, pend] = subrange{parent_->pattern_};
 				do
 				{
-					auto [b,p] = __stl2::mismatch(cur, end, pbegin, pend);
-					if (p == pend) { // The pattern matched
-						// skip the pattern:
-						if constexpr (ForwardRange<Base>)
-							cur = __stl2::next(b, (int)(pbegin == pend), end);
-						else
-							cur = b;
+					auto [b, p] = __stl2::mismatch(cur, end, pbegin, pend);
+					if (p == pend) {
+						// The pattern matches, skip it
+						cur = b;
+						if (pbegin == pend) {
+							if constexpr (ForwardRange<Base>) ++cur;
+							else {
+								if (!parent_->zero_) ++cur;
+								parent_->zero_ = false;
+							}
+						}
 						break;
 					}
 				} while (++cur != end);
@@ -190,27 +187,14 @@ STL2_OPEN_NAMESPACE {
 				const __outer_iterator& x, const __outer_iterator& y)
 			requires ForwardRange<Base>
 			{ return !(x == y); }
-		};
 
-		template <class Rng, class Pattern>
-		template <bool Const>
-		struct split_view<Rng, Pattern>::__outer_sentinel {
-		private:
-			using Parent = __maybe_const<Const, split_view>;
-			using Base = __maybe_const<Const, Rng>;
-			sentinel_t<Base> end_;
-		public:
-			__outer_sentinel() = default;
-			constexpr explicit __outer_sentinel(Parent& parent)
-			: end_(__stl2::end(parent.base_)) {}
-
-			friend constexpr bool operator==(const __outer_iterator<Const>& x, const __outer_sentinel& y)
-			{ return x.current() == y.end_;	}
-			friend constexpr bool operator==(const __outer_sentinel& x, const __outer_iterator<Const>& y)
+			friend constexpr bool operator==(const __outer_iterator& x, default_sentinel)
+			{ return x.current() == __stl2::end(x.parent_->base_); }
+			friend constexpr bool operator==(default_sentinel x, const __outer_iterator& y)
 			{ return y == x; }
-			friend constexpr bool operator!=(const __outer_iterator<Const>& x, const __outer_sentinel& y)
+			friend constexpr bool operator!=(const __outer_iterator& x, default_sentinel y)
 			{ return !(x == y); }
-			friend constexpr bool operator!=(const __outer_sentinel& x, const __outer_iterator<Const>& y)
+			friend constexpr bool operator!=(default_sentinel x, const __outer_iterator& y)
 			{ return !(y == x);	}
 		};
 
@@ -228,16 +212,30 @@ STL2_OPEN_NAMESPACE {
 			{ return __inner_iterator<Const>{i_}; }
 
 			constexpr auto end() const
-			{ return __inner_sentinel<Const>{}; }
+			{ return default_sentinel{}; }
+		};
+
+		template <class>
+		struct __split_view_inner_base {};
+		template <ForwardRange Rng>
+		struct __split_view_inner_base<Rng> {
+			bool zero_ = false;
 		};
 
 		template <class Rng, class Pattern>
 		template <bool Const>
-		struct split_view<Rng, Pattern>::__inner_iterator {
+		struct split_view<Rng, Pattern>::__inner_iterator
+		: private __split_view_inner_base<Rng> {
 		private:
 			using Base = __maybe_const<Const, Rng>;
 			__outer_iterator<Const> i_ {};
-			bool zero_ = false;
+
+			bool& zero() const noexcept
+			{ return i_.parent_->zero_; }
+			bool& zero() noexcept requires ForwardRange<Base>
+			{ return this->zero_; }
+			const bool& zero() const noexcept requires ForwardRange<Base>
+			{ return this->zero_; }
 		public:
 			using iterator_category = iterator_category_t<__outer_iterator<Const>>;
 			using difference_type = difference_type_t<iterator_t<Base>>;
@@ -245,7 +243,7 @@ STL2_OPEN_NAMESPACE {
 
 			__inner_iterator() = default;
 			constexpr explicit __inner_iterator(__outer_iterator<Const> i)
-			: i_(i) {}
+			: i_{i} {}
 
 			constexpr decltype(auto) operator*() const
 			{ return *i_.current(); }
@@ -253,7 +251,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr __inner_iterator& operator++()
 			{
 				++i_.current();
-				zero_ = true;
+				zero() = true;
 				return *this;
 			}
 
@@ -269,25 +267,13 @@ STL2_OPEN_NAMESPACE {
 
 			friend constexpr bool operator==(const __inner_iterator& x, const __inner_iterator& y)
 			requires ForwardRange<Base>
-			{ return x.i_.current_ == y.i_.current_; }
+			{ return x.i_ == y.i_; }
 			friend constexpr bool operator!=(const __inner_iterator& x, const __inner_iterator& y)
 			requires ForwardRange<Base>
 			{ return !(x == y); }
 
-			friend constexpr decltype(auto) iter_move(const __inner_iterator& i)
-			noexcept(noexcept(ranges::iter_move(i.i_.current())))
-			{ return ranges::iter_move(i.i_.current()); }
-			friend constexpr void iter_swap(const __inner_iterator& x, const __inner_iterator& y)
-			noexcept(noexcept(ranges::iter_swap(x.i_.current(), y.i_.current())))
-			requires IndirectlySwappable<iterator_t<Base>>
-			{ ranges::iter_swap(x.i_.current(), y.i_.current()); }
-		};
-
-		template <class Rng, class Pattern>
-		template <bool Const>
-		struct split_view<Rng, Pattern>::__inner_sentinel {
 			friend constexpr bool operator==(
-				const __inner_iterator<Const>& x, __inner_sentinel)
+				const __inner_iterator& x, default_sentinel)
 			{
 				auto cur = x.i_.current();
 				auto end = __stl2::end(x.i_.parent_->base_);
@@ -295,7 +281,7 @@ STL2_OPEN_NAMESPACE {
 					return true;
 				auto [pcur, pend] = subrange{x.i_.parent_->pattern_};
 				if (pcur == pend)
-					return x.zero_;
+					return x.zero();
 				do {
 					if (*cur != *pcur)
 						return false;
@@ -305,36 +291,42 @@ STL2_OPEN_NAMESPACE {
 				return false;
 			}
 			friend constexpr bool operator==(
-				__inner_sentinel x, const __inner_iterator<Const>& y)
+				default_sentinel x, const __inner_iterator& y)
 			{ return y == x; }
 			friend constexpr bool operator!=(
-				const __inner_iterator<Const>& x, __inner_sentinel y)
+				const __inner_iterator& x, default_sentinel y)
 			{ return !(x == y); }
 			friend constexpr bool operator!=(
-				__inner_sentinel x, const __inner_iterator<Const>& y)
+				default_sentinel x, const __inner_iterator& y)
 			{ return !(y == x); }
+
+			friend constexpr decltype(auto) iter_move(const __inner_iterator& i)
+			noexcept(noexcept(__stl2::iter_move(i.i_.current())))
+			{ return __stl2::iter_move(i.i_.current()); }
+			friend constexpr void iter_swap(const __inner_iterator& x, const __inner_iterator& y)
+			noexcept(noexcept(__stl2::iter_swap(x.i_.current(), y.i_.current())))
+			requires IndirectlySwappable<iterator_t<Base>>
+			{ __stl2::iter_swap(x.i_.current(), y.i_.current()); }
 		};
-	}
+	} // namespace ext
 
 	namespace view {
-		namespace __split {
-			struct fn {
-				template<class E, class F>
-				requires requires(E&& e, F&& f) {
-					ext::split_view{static_cast<E&&>(e), static_cast<F&&>(f)};
-				}
-				constexpr auto operator()(E&& e, F&& f) const
-				STL2_NOEXCEPT_RETURN(
-					ext::split_view{static_cast<E&&>(e), static_cast<F&&>(f)}
-				)
+		struct __split_fn {
+			template <class E, class F>
+			requires requires(E&& e, F&& f) {
+				ext::split_view{static_cast<E&&>(e), static_cast<F&&>(f)};
+			}
+			constexpr auto operator()(E&& e, F&& f) const
+			STL2_NOEXCEPT_RETURN(
+				ext::split_view{static_cast<E&&>(e), static_cast<F&&>(f)}
+			)
 
-				template <CopyConstructible T>
-				constexpr auto operator()(T&& t) const
-				{ return detail::view_closure{*this, std::forward<T>(t)}; }
-			};
-		} // namespace __split
+			template <CopyConstructible T>
+			constexpr auto operator()(T&& t) const
+			{ return detail::view_closure{*this, std::forward<T>(t)}; }
+		};
 
-		inline constexpr __split::fn split {};
+		inline constexpr __split_fn split {};
 	}
 } STL2_CLOSE_NAMESPACE
 
