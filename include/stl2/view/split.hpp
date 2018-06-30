@@ -175,7 +175,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				auto tmp = *this;
 				++*this;
-				return *this;
+				return tmp;
 			}
 
 			friend constexpr bool operator==(
