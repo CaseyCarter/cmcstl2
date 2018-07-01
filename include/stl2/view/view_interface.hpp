@@ -84,10 +84,19 @@ STL2_OPEN_NAMESPACE {
 			requires detail::CanEmpty<const D> {
 				return !__stl2::empty(derived());
 			}
-			template <RandomAccessRange R = const D>
-			requires std::is_pointer_v<iterator_t<R>>
+			template <Range R = D>
+			requires ContiguousIterator<iterator_t<R>>
+			constexpr auto data() {
+				auto& d = derived();
+				return __stl2::empty(d) ? nullptr
+					: detail::addressof(*__stl2::begin(d));
+			}
+			template <Range R = const D>
+			requires ContiguousIterator<iterator_t<R>>
 			constexpr auto data() const {
-				return __stl2::begin(derived());
+				auto& d = derived();
+				return __stl2::empty(d) ? nullptr
+					: detail::addressof(*__stl2::begin(d));
 			}
 			constexpr auto size() const
 			// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
@@ -133,29 +142,12 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(detail::is_in_range(d, n));
 				return __stl2::begin(d)[n];
 			}
-			template <RandomAccessRange R = D>
-			requires SizedRange<R>
-			constexpr decltype(auto) at(difference_type_t<iterator_t<R>> n) {
-				auto& d = derived();
-				if (!detail::is_in_range(d, n)) {
-					throw std::out_of_range{};
-				}
-				return d[n];
-			}
-			template <RandomAccessRange R = const D>
-			requires SizedRange<R>
-			constexpr decltype(auto) at(difference_type_t<iterator_t<R>> n) const {
-				auto& d = derived();
-				if (!detail::is_in_range(d, n)) {
-					throw std::out_of_range{};
-				}
-				return d[n];
-			}
 			// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 			template <detail::ContainerConvertible<const D> C>
-			operator C () const {
+			operator C() const {
+				auto& d = derived();
 				using I = __range_common_iterator<const D>;
-				return C(I{__stl2::begin(derived())}, I{__stl2::end(derived())});
+				return C(I{__stl2::begin(d)}, I{__stl2::end(d)});
 			}
 		};
 	} // namespace ext
