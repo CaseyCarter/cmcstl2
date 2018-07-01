@@ -33,7 +33,9 @@ STL2_OPEN_NAMESPACE {
 		template <InputRange Rng>
 		struct __split_view_base {
 			iterator_t<Rng> current_ {};
-			bool zero_ = false;
+			bool zero_ = false; // Set to true when inner_iterator increments, which tells
+			                    // outer_iterator it need not increment the underlying
+			                    // iterator to "skip over" a zero-length pattern.
 		};
 		template <ForwardRange Rng>
 		struct __split_view_base<Rng> {};
@@ -51,8 +53,8 @@ STL2_OPEN_NAMESPACE {
 		public:
 			split_view() = default;
 			constexpr split_view(Rng base, Pattern pattern)
-			: base_(std::move(base)), pattern_(std::move(pattern))
-			{}
+			: base_(std::move(base))
+			, pattern_(std::move(pattern)) {}
 
 			template <InputRange O, ForwardRange P>
 			requires
@@ -70,28 +72,32 @@ STL2_OPEN_NAMESPACE {
 			: base_(view::all(std::forward<O>(o)))
 			, pattern_(single_view{std::move(e)}) {}
 
-			constexpr auto begin()
-			{
-				this->current_ = __stl2::begin(base_);
-				return __outer_iterator<SimpleView<Rng>>{*this};
+			constexpr auto begin() {
+				using I = __outer_iterator<SimpleView<Rng>>;
+				if constexpr (ForwardRange<Rng>) {
+					return I{*this, __stl2::begin(base_)};
+				} else {
+					this->current_ = __stl2::begin(base_);
+					return I{*this};
+				}
 			}
-
-			constexpr auto begin() requires ForwardRange<Rng>
-			{ return __outer_iterator<SimpleView<Rng>>{*this, __stl2::begin(base_)}; }
 
 			constexpr auto begin() const
 			requires ForwardRange<Rng> && ForwardRange<const Rng>
 			{ return __outer_iterator<true>{*this, __stl2::begin(base_)}; }
 
-			constexpr auto end() const
-			{ return default_sentinel{}; }
-
 			constexpr auto end() requires ForwardRange<Rng> && BoundedRange<Rng>
 			{ return __outer_iterator<SimpleView<Rng>>{*this, __stl2::end(base_)}; }
 
-			constexpr auto end() const
-			requires ForwardRange<Rng> && ForwardRange<const Rng> && BoundedRange<const Rng>
-			{ return __outer_iterator<true>{*this, __stl2::end(base_)}; }
+			constexpr auto end() const {
+				constexpr bool can_bound = ForwardRange<Rng> &&
+					ForwardRange<const Rng> && BoundedRange<const Rng>;
+				if constexpr (can_bound) {
+					return __outer_iterator<true>{*this, __stl2::end(base_)};
+				} else {
+					return default_sentinel{};
+				}
+			}
 		};
 
 		template <class Rng, class Pattern>
@@ -120,9 +126,11 @@ STL2_OPEN_NAMESPACE {
 			friend __inner_iterator<Const>;
 			constexpr iterator_t<Base>& current() const noexcept
 			{ return parent_->current_; }
-			constexpr iterator_t<Base>& current() noexcept requires ForwardRange<Base>
+			constexpr iterator_t<Base>& current() noexcept
+				requires ForwardRange<Base>
 			{ return this->current_; }
-			constexpr const iterator_t<Base>& current() const noexcept requires ForwardRange<Base>
+			constexpr const iterator_t<Base>& current() const noexcept
+				requires ForwardRange<Base>
 			{ return this->current_; }
 		public:
 			using iterator_category = meta::if_c<ForwardRange<Base>,
@@ -131,17 +139,20 @@ STL2_OPEN_NAMESPACE {
 			struct value_type;
 
 			__outer_iterator() = default;
+
 			constexpr explicit  __outer_iterator(Parent& parent)
 			requires !ForwardRange<Base>
 			: parent_(detail::addressof(parent)) {}
+
 			constexpr __outer_iterator(Parent& parent, iterator_t<Base> current)
 			requires ForwardRange<Base>
 			: __split_view_outer_base<Rng, Const>{std::move(current)}
 			, parent_(detail::addressof(parent)) {}
 
-			constexpr __outer_iterator(__outer_iterator<!Const> i) requires Const &&
-				ConvertibleTo<iterator_t<Rng>, iterator_t<const Rng>>
-			: __split_view_outer_base<Rng, Const>{i.current_}, parent_(i.parent_) {}
+			constexpr __outer_iterator(__outer_iterator<!Const> i)
+			requires Const && ConvertibleTo<iterator_t<Rng>, iterator_t<const Rng>>
+			: __split_view_outer_base<Rng, Const>{i.current_}
+			, parent_(i.parent_) {}
 
 			constexpr value_type operator*() const
 			{ return value_type{*this}; }
@@ -170,14 +181,16 @@ STL2_OPEN_NAMESPACE {
 				} while (++cur != end);
 				return *this;
 			}
+
 			constexpr decltype(auto) operator++(int)
 			{
 				if constexpr (ForwardRange<Base>) {
 					auto tmp = *this;
 					++*this;
 					return tmp;
-				} else
+				} else {
 					++*this;
+				}
 			}
 
 			friend constexpr bool operator==(
