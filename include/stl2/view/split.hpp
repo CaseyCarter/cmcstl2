@@ -132,6 +132,7 @@ STL2_OPEN_NAMESPACE {
 
 			__outer_iterator() = default;
 			constexpr explicit  __outer_iterator(Parent& parent)
+			requires !ForwardRange<Base>
 			: parent_(detail::addressof(parent)) {}
 			constexpr __outer_iterator(Parent& parent, iterator_t<Base> current)
 			requires ForwardRange<Base>
@@ -139,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 			, parent_(detail::addressof(parent)) {}
 
 			constexpr __outer_iterator(__outer_iterator<!Const> i) requires Const &&
-				ConvertibleTo<iterator_t<Rng>, iterator_t<Base>>
+				ConvertibleTo<iterator_t<Rng>, iterator_t<const Rng>>
 			: __split_view_outer_base<Rng, Const>{i.current_}, parent_(i.parent_) {}
 
 			constexpr value_type operator*() const
@@ -148,12 +149,12 @@ STL2_OPEN_NAMESPACE {
 			constexpr __outer_iterator& operator++()
 			{
 				auto& cur = current();
-				auto const end = __stl2::end(parent_->base_);
+				const auto end = __stl2::end(parent_->base_);
 				if (cur == end) return *this;
-				auto const [pbegin, pend] = subrange{parent_->pattern_};
+				const auto [pbegin, pend] = subrange{parent_->pattern_};
 				do
 				{
-					auto [b, p] = __stl2::mismatch(cur, end, pbegin, pend);
+					const auto [b, p] = __stl2::mismatch(cur, end, pbegin, pend);
 					if (p == pend) {
 						// The pattern matches, skip it
 						cur = b;
@@ -169,13 +170,14 @@ STL2_OPEN_NAMESPACE {
 				} while (++cur != end);
 				return *this;
 			}
-			constexpr void operator++(int)
-			{ ++*this; }
-			constexpr __outer_iterator operator++(int) requires ForwardRange<Base>
+			constexpr decltype(auto) operator++(int)
 			{
-				auto tmp = *this;
-				++*this;
-				return tmp;
+				if constexpr (ForwardRange<Base>) {
+					auto tmp = *this;
+					++*this;
+					return tmp;
+				} else
+					++*this;
 			}
 
 			friend constexpr bool operator==(
@@ -208,10 +210,10 @@ STL2_OPEN_NAMESPACE {
 			constexpr explicit value_type(__outer_iterator i)
 			: i_(i) {}
 
-			constexpr auto begin() const
+			constexpr __inner_iterator<Const> begin() const
 			{ return __inner_iterator<Const>{i_}; }
 
-			constexpr auto end() const
+			constexpr default_sentinel end() const
 			{ return default_sentinel{}; }
 		};
 
@@ -255,14 +257,14 @@ STL2_OPEN_NAMESPACE {
 				return *this;
 			}
 
-			constexpr void operator++(int)
-			{ ++*this; }
-
-			constexpr __inner_iterator operator++(int) requires ForwardRange<Base>
+			constexpr decltype(auto) operator++(int)
 			{
-				auto tmp = *this;
-				++*this;
-				return tmp;
+				if constexpr (ForwardRange<Base>) {
+					auto tmp = *this;
+					++*this;
+					return tmp;
+				} else
+					++*this;
 			}
 
 			friend constexpr bool operator==(const __inner_iterator& x, const __inner_iterator& y)
@@ -277,16 +279,12 @@ STL2_OPEN_NAMESPACE {
 			{
 				auto cur = x.i_.current();
 				auto end = __stl2::end(x.i_.parent_->base_);
-				if (cur == end)
-					return true;
+				if (cur == end) return true;
 				auto [pcur, pend] = subrange{x.i_.parent_->pattern_};
-				if (pcur == pend)
-					return x.zero();
+				if (pcur == pend) return x.zero();
 				do {
-					if (*cur != *pcur)
-						return false;
-					if (++pcur == pend)
-						return true;
+					if (*cur != *pcur) return false;
+					if (++pcur == pend) return true;
 				} while (++cur != end);
 				return false;
 			}
