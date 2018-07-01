@@ -13,7 +13,8 @@
 #define STL2_VIEW_SPLIT_HPP
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/algorithm/mismatch.hpp>
+#include <stl2/detail/algorithm/find_if.hpp>
+#include <stl2/detail/algorithm/search.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/range/access.hpp>
@@ -44,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		struct split_view : private __split_view_base<Rng> {
 		private:
 			template <bool Const> struct __outer_iterator;
-			template <bool Const> struct __inner_iterator;
+			struct __inner_iterator;
 
 			Rng base_ {};
 			Pattern pattern_ {};
@@ -109,6 +110,7 @@ STL2_OPEN_NAMESPACE {
 		template <ForwardRange Rng, bool Const>
 		struct __split_view_outer_base<Rng, Const> {
 			iterator_t<__maybe_const<Const, Rng>> current_ {};
+			subrange<iterator_t<__maybe_const<Const, Rng>>> delimiter_ {};
 		};
 
 		template <class Rng, class Pattern>
@@ -117,12 +119,19 @@ STL2_OPEN_NAMESPACE {
 		: private __split_view_outer_base<Rng, Const> {
 		private:
 			friend __outer_iterator<!Const>;
-			friend __inner_iterator<Const>;
+			friend __inner_iterator;
 
 			static_assert(ForwardRange<Rng> || !Const);
 
 			using Parent = __maybe_const<Const, split_view>;
 			using Base = __maybe_const<Const, Rng>;
+
+			// To avoid a dependency cycle, we must delay checking the
+			// constraints of subrange<__inner_iterator, default_sentinel>.
+			struct __value_type
+			: public subrange<__inner_iterator, default_sentinel> {
+				using __value_type::subrange::subrange;
+			};
 
 			Parent* parent_ = nullptr;
 
@@ -138,7 +147,8 @@ STL2_OPEN_NAMESPACE {
 			using iterator_category = meta::if_c<ForwardRange<Base>,
 				__stl2::forward_iterator_tag, __stl2::input_iterator_tag>;
 			using difference_type = iter_difference_t<iterator_t<Base>>;
-			struct value_type;
+			using value_type = meta::if_c<ForwardRange<Base>,
+				subrange<iterator_t<Base>>, __value_type>;
 
 			__outer_iterator() = default;
 
@@ -149,31 +159,46 @@ STL2_OPEN_NAMESPACE {
 			constexpr __outer_iterator(Parent& parent, iterator_t<Base> current)
 			requires ForwardRange<Base>
 			: __split_view_outer_base<Rng, Const>{std::move(current)}
-			, parent_(detail::addressof(parent)) {}
+			, parent_(detail::addressof(parent)) {
+				this->delimiter_ = __stl2::search(
+					subrange{this->current_, __stl2::end(parent_->base_)},
+					parent_->pattern_);
+			}
 
 			constexpr __outer_iterator(__outer_iterator<!Const> i)
 			requires Const && ConvertibleTo<iterator_t<Rng>, iterator_t<const Rng>>
-			: __split_view_outer_base<Rng, Const>{i.current_}
+			: __split_view_outer_base<Rng, Const>{i.current_, i.delimiter_}
 			, parent_(i.parent_) {}
 
-			constexpr value_type operator*() const
-			{ return value_type{*this}; }
+			constexpr value_type operator*() const {
+				if constexpr (ForwardRange<Base>) {
+					auto end = this->delimiter_.begin();
+					if (__stl2::empty(parent_->pattern_)) ++end;
+					return subrange<iterator_t<Base>>{current(), std::move(end)};
+				} else {
+					return __value_type{__inner_iterator{parent_}, {}};
+				}
+			}
 
 			constexpr __outer_iterator& operator++() {
 				auto& cur = current();
 				const auto end = __stl2::end(parent_->base_);
-				if (cur == end) return *this;
-				const auto [pbegin, pend] = subrange{parent_->pattern_};
-				if (pbegin == pend) ++cur;
-				else {
-					do {
-						const auto [b, p] = __stl2::mismatch(cur, end, pbegin, pend);
-						if (p == pend) {
-							// The pattern matches, skip it
-							cur = b;
-							break;
-						}
-					} while (++cur != end);
+				STL2_EXPECT(cur != end ||
+					(!ForwardRange<Base> && __stl2::distance(parent_->pattern_) == 1));
+				if constexpr (ForwardRange<Base>) {
+					const auto [pbegin, pend] = subrange{parent_->pattern_};
+					if (pbegin == pend) ++cur;
+					else cur = this->delimiter_.end();
+					this->delimiter_ = __stl2::search(cur, end, pbegin, pend);
+				} else {
+					if constexpr (Pattern::size() == 1) {
+						if (cur == end) return *this;
+						auto pred = [pbegin = __stl2::begin(parent_->pattern_)](const auto& e) {
+							return e == *pbegin;
+						};
+						cur = __stl2::find_if(cur, end, pred);
+					}
+					++cur;
 				}
 				return *this;
 			}
@@ -191,7 +216,6 @@ STL2_OPEN_NAMESPACE {
 			friend constexpr bool operator==(const __outer_iterator& x, const __outer_iterator& y)
 			requires ForwardRange<Base>
 			{ return x.current_ == y.current_; }
-
 			friend constexpr bool operator!=(const __outer_iterator& x, const __outer_iterator& y)
 			requires ForwardRange<Base>
 			{ return !(x == y); }
@@ -206,83 +230,51 @@ STL2_OPEN_NAMESPACE {
 			{ return !(y == x);	}
 		};
 
-		template <class Rng, class Pattern>
-		template <bool Const>
-		struct split_view<Rng, Pattern>::__outer_iterator<Const>::value_type {
-		private:
-			__outer_iterator i_ {};
-		public:
-			value_type() = default;
-			constexpr explicit value_type(__outer_iterator i)
-			: i_(i) {}
-
-			constexpr __inner_iterator<Const> begin() const
-			{ return __inner_iterator<Const>{i_}; }
-
-			constexpr default_sentinel end() const
-			{ return default_sentinel{}; }
+		template <class Pattern>
+		struct __split_view_inner_base {};
+		template <class Pattern>
+		requires Pattern::size() == 0
+		struct __split_view_inner_base<Pattern> {
+			bool at_end_ = false;
 		};
 
 		template <class Rng, class Pattern>
-		template <bool Const>
-		struct split_view<Rng, Pattern>::__inner_iterator {
+		struct split_view<Rng, Pattern>::__inner_iterator
+		: private __split_view_inner_base<Pattern> {
 		private:
-			using Base = __maybe_const<Const, Rng>;
+			static_assert(!ForwardRange<Rng>);
+			static_assert(_TinyRange<Pattern>);
 
-			static_assert(ForwardRange<Rng> || !Const);
-
-			__outer_iterator<Const> i_ {};
-			bool zero_ = false;
+			using Parent = split_view<Rng, Pattern>;
+			Parent* parent_ = nullptr;
 		public:
-			using iterator_category = iterator_category_t<__outer_iterator<Const>>;
-			using difference_type = iter_difference_t<iterator_t<Base>>;
-			using value_type = iter_value_t<iterator_t<Base>>;
+			using iterator_category = __stl2::input_iterator_tag;
+			using difference_type = iter_difference_t<iterator_t<Rng>>;
+			using value_type = iter_value_t<iterator_t<Rng>>;
 
 			__inner_iterator() = default;
-			constexpr explicit __inner_iterator(__outer_iterator<Const> i)
-			: i_{i} {}
+			constexpr explicit __inner_iterator(Parent* parent)
+			: parent_{parent} {}
 
 			constexpr decltype(auto) operator*() const
-			{ return *i_.current(); }
+			{ return *parent_->current_; }
 
 			constexpr __inner_iterator& operator++() {
-				zero_ = true;
-				if constexpr (!ForwardRange<Base>) {
-					if constexpr (Pattern::size() == 0) {
-						return *this;
-					}
-				}
-				++i_.current();
+				if constexpr (Pattern::size() == 0) this->at_end_ = true;
+				else ++parent_->current_;
 				return *this;
 			}
-
-			constexpr decltype(auto) operator++(int) {
-				if constexpr (ForwardRange<Base>) {
-					auto tmp = *this;
-					++*this;
-					return tmp;
-				} else
-					++*this;
-			}
-
-			friend constexpr bool operator==(const __inner_iterator& x, const __inner_iterator& y)
-			requires ForwardRange<Base>
-			{ return x.i_ == y.i_; }
-			friend constexpr bool operator!=(const __inner_iterator& x, const __inner_iterator& y)
-			requires ForwardRange<Base>
-			{ return !(x == y); }
+			constexpr void operator++(int)
+			{ ++*this; }
 
 			friend constexpr bool operator==(const __inner_iterator& x, default_sentinel) {
-				auto cur = x.i_.current();
-				auto end = __stl2::end(x.i_.parent_->base_);
-				if (cur == end) return true;
-				auto [pcur, pend] = subrange{x.i_.parent_->pattern_};
-				if (pcur == pend) return x.zero_;
-				do {
-					if (*cur != *pcur) return false;
-					if (++pcur == pend) return true;
-				} while (++cur != end);
-				return false;
+				if constexpr (Pattern::size() == 0) return x.at_end_;
+				else {
+					static_assert(Pattern::size() == 1);
+					const auto& cur = x.parent_->current_;
+					if (cur == __stl2::end(x.parent_->base_)) return true;
+					return *cur == *__stl2::begin(x.parent_->pattern_);
+				}
 			}
 			friend constexpr bool operator==(default_sentinel x, const __inner_iterator& y)
 			{ return y == x; }
@@ -293,12 +285,12 @@ STL2_OPEN_NAMESPACE {
 
 			friend constexpr decltype(auto) iter_move(const __inner_iterator& i)
 			STL2_NOEXCEPT_RETURN(
-				__stl2::iter_move(i.i_.current())
+				__stl2::iter_move(i.parent_->current_)
 			)
 			friend constexpr void iter_swap(const __inner_iterator& x, const __inner_iterator& y)
-			noexcept(noexcept(__stl2::iter_swap(x.i_.current(), y.i_.current())))
-			requires IndirectlySwappable<iterator_t<Base>>
-			{ __stl2::iter_swap(x.i_.current(), y.i_.current()); }
+			noexcept(noexcept(__stl2::iter_swap(x.parent_->current_, y.parent_->current_)))
+			requires IndirectlySwappable<iterator_t<Rng>>
+			{ __stl2::iter_swap(x.parent_->current_, y.parent_->current_); }
 		};
 	} // namespace ext
 
