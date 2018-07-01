@@ -114,7 +114,7 @@ private:
 	std::int64_t isbn_{1248163264128-256};
 	double price_{16.64};
 	std::string title_{"The Lord of the Rings: The Ring Goes South"};
-	std::string author_{"J.R.R Tolkein"};
+	std::string author_{"J.R.R Tolkien"};
 };
 
 template <typename T>
