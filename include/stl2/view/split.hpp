@@ -43,10 +43,11 @@ STL2_OPEN_NAMESPACE {
 			(ForwardRange<Rng> || _TinyRange<Pattern>)
 		struct split_view : private __split_view_base<Rng> {
 		private:
-			Rng base_ {};
-			Pattern pattern_ {};
 			template <bool Const> struct __outer_iterator;
 			template <bool Const> struct __inner_iterator;
+
+			Rng base_ {};
+			Pattern pattern_ {};
 		public:
 			split_view() = default;
 			constexpr split_view(Rng base, Pattern pattern)
@@ -70,12 +71,11 @@ STL2_OPEN_NAMESPACE {
 			, pattern_(single_view{std::move(e)}) {}
 
 			constexpr auto begin() {
-				using I = __outer_iterator<SimpleView<Rng>>;
 				if constexpr (ForwardRange<Rng>) {
-					return I{*this, __stl2::begin(base_)};
+					return __outer_iterator<SimpleView<Rng>>{*this, __stl2::begin(base_)};
 				} else {
 					this->current_ = __stl2::begin(base_);
-					return I{*this};
+					return __outer_iterator<false>{*this};
 				}
 			}
 
@@ -108,7 +108,7 @@ STL2_OPEN_NAMESPACE {
 		struct __split_view_outer_base {};
 		template <ForwardRange Rng, bool Const>
 		struct __split_view_outer_base<Rng, Const> {
-			iterator_t<__maybe_const<Const, Rng>> current_;
+			iterator_t<__maybe_const<Const, Rng>> current_ {};
 		};
 
 		template <class Rng, class Pattern>
@@ -116,11 +116,16 @@ STL2_OPEN_NAMESPACE {
 		struct split_view<Rng, Pattern>::__outer_iterator
 		: private __split_view_outer_base<Rng, Const> {
 		private:
-			using Parent = __maybe_const<Const, split_view>;
-			using Base = __maybe_const<Const, Rng>;
-			Parent* parent_ = nullptr;
 			friend __outer_iterator<!Const>;
 			friend __inner_iterator<Const>;
+
+			static_assert(ForwardRange<Rng> || !Const);
+
+			using Parent = __maybe_const<Const, split_view>;
+			using Base = __maybe_const<Const, Rng>;
+
+			Parent* parent_ = nullptr;
+
 			constexpr iterator_t<Base>& current() const noexcept
 			{ return parent_->current_; }
 			constexpr iterator_t<Base>& current() noexcept
@@ -154,8 +159,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr value_type operator*() const
 			{ return value_type{*this}; }
 
-			constexpr __outer_iterator& operator++()
-			{
+			constexpr __outer_iterator& operator++() {
 				auto& cur = current();
 				const auto end = __stl2::end(parent_->base_);
 				if (cur == end) return *this;
@@ -174,8 +178,7 @@ STL2_OPEN_NAMESPACE {
 				return *this;
 			}
 
-			constexpr decltype(auto) operator++(int)
-			{
+			constexpr decltype(auto) operator++(int) {
 				if constexpr (ForwardRange<Base>) {
 					auto tmp = *this;
 					++*this;
@@ -185,13 +188,11 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			friend constexpr bool operator==(
-				const __outer_iterator& x, const __outer_iterator& y)
+			friend constexpr bool operator==(const __outer_iterator& x, const __outer_iterator& y)
 			requires ForwardRange<Base>
 			{ return x.current_ == y.current_; }
 
-			friend constexpr bool operator!=(
-				const __outer_iterator& x, const __outer_iterator& y)
+			friend constexpr bool operator!=(const __outer_iterator& x, const __outer_iterator& y)
 			requires ForwardRange<Base>
 			{ return !(x == y); }
 
@@ -227,6 +228,9 @@ STL2_OPEN_NAMESPACE {
 		struct split_view<Rng, Pattern>::__inner_iterator {
 		private:
 			using Base = __maybe_const<Const, Rng>;
+
+			static_assert(ForwardRange<Rng> || !Const);
+
 			__outer_iterator<Const> i_ {};
 			bool zero_ = false;
 		public:
@@ -241,8 +245,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr decltype(auto) operator*() const
 			{ return *i_.current(); }
 
-			constexpr __inner_iterator& operator++()
-			{
+			constexpr __inner_iterator& operator++() {
 				zero_ = true;
 				if constexpr (!ForwardRange<Base>) {
 					if constexpr (Pattern::size() == 0) {
@@ -253,8 +256,7 @@ STL2_OPEN_NAMESPACE {
 				return *this;
 			}
 
-			constexpr decltype(auto) operator++(int)
-			{
+			constexpr decltype(auto) operator++(int) {
 				if constexpr (ForwardRange<Base>) {
 					auto tmp = *this;
 					++*this;
@@ -270,9 +272,7 @@ STL2_OPEN_NAMESPACE {
 			requires ForwardRange<Base>
 			{ return !(x == y); }
 
-			friend constexpr bool operator==(
-				const __inner_iterator& x, default_sentinel)
-			{
+			friend constexpr bool operator==(const __inner_iterator& x, default_sentinel) {
 				auto cur = x.i_.current();
 				auto end = __stl2::end(x.i_.parent_->base_);
 				if (cur == end) return true;
@@ -284,19 +284,17 @@ STL2_OPEN_NAMESPACE {
 				} while (++cur != end);
 				return false;
 			}
-			friend constexpr bool operator==(
-				default_sentinel x, const __inner_iterator& y)
+			friend constexpr bool operator==(default_sentinel x, const __inner_iterator& y)
 			{ return y == x; }
-			friend constexpr bool operator!=(
-				const __inner_iterator& x, default_sentinel y)
+			friend constexpr bool operator!=(const __inner_iterator& x, default_sentinel y)
 			{ return !(x == y); }
-			friend constexpr bool operator!=(
-				default_sentinel x, const __inner_iterator& y)
+			friend constexpr bool operator!=(default_sentinel x, const __inner_iterator& y)
 			{ return !(y == x); }
 
 			friend constexpr decltype(auto) iter_move(const __inner_iterator& i)
-			noexcept(noexcept(__stl2::iter_move(i.i_.current())))
-			{ return __stl2::iter_move(i.i_.current()); }
+			STL2_NOEXCEPT_RETURN(
+				__stl2::iter_move(i.i_.current())
+			)
 			friend constexpr void iter_swap(const __inner_iterator& x, const __inner_iterator& y)
 			noexcept(noexcept(__stl2::iter_swap(x.i_.current(), y.i_.current())))
 			requires IndirectlySwappable<iterator_t<Base>>
