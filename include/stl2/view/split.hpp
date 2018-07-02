@@ -33,9 +33,6 @@ STL2_OPEN_NAMESPACE {
 		template <InputRange Rng>
 		struct __split_view_base {
 			iterator_t<Rng> current_ {};
-			bool zero_ = false; // Set to true when inner_iterator increments, which tells
-			                    // outer_iterator it need not increment the underlying
-			                    // iterator to "skip over" a zero-length pattern.
 		};
 		template <ForwardRange Rng>
 		struct __split_view_base<Rng> {};
@@ -163,22 +160,17 @@ STL2_OPEN_NAMESPACE {
 				const auto end = __stl2::end(parent_->base_);
 				if (cur == end) return *this;
 				const auto [pbegin, pend] = subrange{parent_->pattern_};
-				do
-				{
-					const auto [b, p] = __stl2::mismatch(cur, end, pbegin, pend);
-					if (p == pend) {
-						// The pattern matches, skip it
-						cur = b;
-						if (pbegin == pend) {
-							if constexpr (ForwardRange<Base>) ++cur;
-							else {
-								if (!parent_->zero_) ++cur;
-								parent_->zero_ = false;
-							}
+				if (pbegin == pend) ++cur;
+				else {
+					do {
+						const auto [b, p] = __stl2::mismatch(cur, end, pbegin, pend);
+						if (p == pend) {
+							// The pattern matches, skip it
+							cur = b;
+							break;
 						}
-						break;
-					}
-				} while (++cur != end);
+					} while (++cur != end);
+				}
 				return *this;
 			}
 
@@ -230,27 +222,13 @@ STL2_OPEN_NAMESPACE {
 			{ return default_sentinel{}; }
 		};
 
-		template <class>
-		struct __split_view_inner_base {};
-		template <ForwardRange Rng>
-		struct __split_view_inner_base<Rng> {
-			bool zero_ = false;
-		};
-
 		template <class Rng, class Pattern>
 		template <bool Const>
-		struct split_view<Rng, Pattern>::__inner_iterator
-		: private __split_view_inner_base<Rng> {
+		struct split_view<Rng, Pattern>::__inner_iterator {
 		private:
 			using Base = __maybe_const<Const, Rng>;
 			__outer_iterator<Const> i_ {};
-
-			bool& zero() const noexcept
-			{ return i_.parent_->zero_; }
-			bool& zero() noexcept requires ForwardRange<Base>
-			{ return this->zero_; }
-			const bool& zero() const noexcept requires ForwardRange<Base>
-			{ return this->zero_; }
+			bool zero_ = false;
 		public:
 			using iterator_category = iterator_category_t<__outer_iterator<Const>>;
 			using difference_type = difference_type_t<iterator_t<Base>>;
@@ -265,8 +243,13 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr __inner_iterator& operator++()
 			{
+				zero_ = true;
+				if constexpr (!ForwardRange<Base>) {
+					if constexpr (Pattern::size() == 0) {
+						return *this;
+					}
+				}
 				++i_.current();
-				zero() = true;
 				return *this;
 			}
 
@@ -294,7 +277,7 @@ STL2_OPEN_NAMESPACE {
 				auto end = __stl2::end(x.i_.parent_->base_);
 				if (cur == end) return true;
 				auto [pcur, pend] = subrange{x.i_.parent_->pattern_};
-				if (pcur == pend) return x.zero();
+				if (pcur == pend) return x.zero_;
 				do {
 					if (*cur != *pcur) return false;
 					if (++pcur == pend) return true;
