@@ -184,15 +184,11 @@ STL2_OPEN_NAMESPACE {
 	template <class Out, class R>
 	concept bool Writable =
 		detail::Dereferenceable<Out> &&
-		requires(Out& o, R&& r) {
-			(void)(*o = (R&&)r);
-			// Handwaving: After the assignment, the value of the element denoted
-			//             by o "corresponds" to the value originally denoted by r.
-			// Axiom: If r equals foo && Readable<Out> &&
-			//        Same<value_type_t<Out>, ????>() then
-			//        (*o = (R&&)r, *o equals foo)
-			(void)(const_cast<const reference_t<Out>&&>(*o) = (R&&)r);
-			// Axiom: This expression is equivalent to the previous expression.
+		requires(Out&& o, R&& r) {
+			*o = static_cast<R&&>(r);
+			*static_cast<Out&&>(o) = static_cast<R&&>(r);
+			const_cast<const reference_t<Out>&&>(*o) = static_cast<R&&>(r);
+			const_cast<const reference_t<Out>&&>(*static_cast<Out&&>(o)) = static_cast<R&&>(r);
 		};
 
 	///////////////////////////////////////////////////////////////////////////
