@@ -22,22 +22,11 @@ STL2_OPEN_NAMESPACE {
 
 		template <class T>
 		concept bool Pipeable =
-			DerivedFrom<T, __pipeable_base> &&
-			ext::CopyConstructibleObject<T>;
+			DerivedFrom<T, __pipeable_base> && CopyConstructible<T>;
 
-		template <std::size_t N, std::size_t M>
-		concept bool EqualValue = (N == M);
-
-		template <std::size_t N, class T>
+		template <std::size_t, class T>
 		struct __box {
 			T value_;
-			template <EqualValue<N> M> constexpr T&& get() && noexcept
-			{ return static_cast<T&&>(value_); }
-			template <EqualValue<N> M> constexpr T& get() & noexcept
-			{ return value_; }
-			template <EqualValue<N> M> constexpr const T& get() const & noexcept
-			{ return value_; }
-			template <EqualValue<N> M> constexpr const T&& get() const && noexcept = delete;
 		};
 
 		template <class Derived>
@@ -79,21 +68,24 @@ STL2_OPEN_NAMESPACE {
 			template <InputRange Rng>
 			requires ext::ViewableRange<Rng> && Invocable<Fn, Rng, Ts...> &&
 				View<std::invoke_result_t<Fn, Rng, Ts...>>
-			constexpr auto operator()(Rng&& rng) &&
-			{ return Fn{}(std::forward<Rng>(rng), std::move(*this).template get<Is>()...); }
-
+			constexpr auto operator()(Rng&& rng) && {
+				return Fn{}(std::forward<Rng>(rng),
+					static_cast<__box<Is, Ts>&&>(*this).value_...);
+			}
 			template <InputRange Rng>
 			requires ext::ViewableRange<Rng> && Invocable<Fn, Rng, Ts &...> &&
 				View<std::invoke_result_t<Fn, Rng, Ts &...>>
-			constexpr auto operator()(Rng&& rng) &
-			{ return Fn{}(std::forward<Rng>(rng), this->template get<Is>()...); }
-
+			constexpr auto operator()(Rng&& rng) & {
+				return Fn{}(std::forward<Rng>(rng),
+					static_cast<__box<Is, Ts>&>(*this).value_...);
+			}
 			template <InputRange Rng>
 			requires ext::ViewableRange<Rng> && Invocable<Fn, Rng, const Ts &...> &&
 				View<std::invoke_result_t<Fn, Rng, const Ts &...>>
-			constexpr auto operator()(Rng&& rng) const &
-			{ return Fn{}(std::forward<Rng>(rng), this->template get<Is>()...); }
-
+			constexpr auto operator()(Rng&& rng) const & {
+				return Fn{}(std::forward<Rng>(rng),
+					static_cast<const __box<Is, Ts>&>(*this).value_...);
+			}
 			template <InputRange Rng>
 			requires ext::ViewableRange<Rng> && Invocable<Fn, Rng, const Ts &...> &&
 				View<std::invoke_result_t<Fn, Rng, const Ts &...>>
