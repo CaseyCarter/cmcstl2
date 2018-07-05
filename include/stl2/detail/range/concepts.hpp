@@ -169,7 +169,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <class R>
 		concept bool SimpleView =
-			View<R> && View<const R> &&
+			View<R> && Range<const R> &&
 			Same<iterator_t<R>, iterator_t<const R>> &&
 			Same<sentinel_t<R>, sentinel_t<const R>>;
 	}
