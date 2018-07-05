@@ -19,7 +19,7 @@
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/range/primitives.hpp>
 #include <stl2/view/all.hpp>
-#include <stl2/view/bounded.hpp>
+#include <stl2/view/common.hpp>
 #include <stl2/view/counted.hpp>
 #include <stl2/view/empty.hpp>
 #include <stl2/view/filter.hpp>

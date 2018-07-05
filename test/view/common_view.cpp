@@ -9,7 +9,7 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#include <stl2/view/bounded.hpp>
+#include <stl2/view/common.hpp>
 #include <stl2/view/counted.hpp>
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
@@ -20,7 +20,7 @@ int main() {
 	using namespace ranges;
 	{
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
-		auto x = rg | view::bounded;
+		auto x = rg | view::common;
 		CHECK_EQUAL(x, {0,1,2,3,4,5,6,7,8,9});
 		static_assert(View<decltype(x)>);
 		static_assert(SizedRange<decltype(x)>);
@@ -29,14 +29,14 @@ int main() {
 	}
 	{
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
-		auto x = view::counted(bidirectional_iterator(rg), 5) | view::bounded;
+		auto x = view::counted(bidirectional_iterator(rg), 5) | view::common;
 		CHECK_EQUAL(x, {0,1,2,3,4});
 		static_assert(View<decltype(x)>);
 		static_assert(SizedRange<decltype(x)>);
 		static_assert(CommonRange<decltype(x)>);
 		static_assert(ForwardRange<decltype(x)>);
 		static_assert(!BidirectionalRange<decltype(x)>);
-		static_assert(Same<decltype(x), decltype(view::bounded(x))>);
+		static_assert(Same<decltype(x), decltype(view::common(x))>);
 	}
  	return test_result();
 }

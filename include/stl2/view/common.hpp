@@ -25,18 +25,18 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <View Rng>
 		requires !CommonRange<Rng>
-		struct bounded_view : view_interface<bounded_view<Rng>> {
+		struct common_view : view_interface<common_view<Rng>> {
 		private:
 			Rng rng_;
 		public:
-			bounded_view() = default;
+			common_view() = default;
 
-			constexpr bounded_view(Rng rng)
+			constexpr common_view(Rng rng)
 			: rng_(std::move(rng)) {}
 
 			template <ViewableRange O>
 			requires !CommonRange<O> && _ConstructibleFromRange<Rng, O>
-			constexpr bounded_view(O&& o)
+			constexpr common_view(O&& o)
 			: rng_(view::all(std::forward<O>(o))) {}
 
 			constexpr Rng base() const { return rng_; }
@@ -74,11 +74,11 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class O>
-		bounded_view(O&&) -> bounded_view<all_view<O>>;
+		common_view(O&&) -> common_view<all_view<O>>;
 	} // namespace ext
 
 	namespace view {
-		namespace __stl2_bounded {
+		namespace __stl2_common {
 			struct fn : detail::__pipeable<fn> {
 				template <ext::ViewableRange R>
 				requires CommonRange<R>
@@ -87,11 +87,11 @@ STL2_OPEN_NAMESPACE {
 
 				template <ext::ViewableRange R>
 				constexpr auto operator()(R&& r) const
-				{ return ext::bounded_view{std::forward<R>(r)}; }
+				{ return ext::common_view{std::forward<R>(r)}; }
 			};
-		} // namespace __stl2_bounded
+		} // namespace __stl2_common
 
-		inline constexpr __stl2_bounded::fn bounded {};
+		inline constexpr __stl2_common::fn common {};
 	} // namespace view
 } STL2_CLOSE_NAMESPACE
 
