@@ -14,11 +14,8 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
-#include <stl2/detail/semiregular_box.hpp>
-#include <stl2/detail/algorithm/min.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/counted_iterator.hpp>
-#include <stl2/detail/functional/invoke.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/view/view_closure.hpp>
@@ -27,75 +24,81 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <Range R>
-		requires View<R>
-		struct take_view;
-
-		template <Range R>
-		requires View<R>
-		struct __take_view : view_interface<take_view<R>> {
+		template <View R>
+		struct take_view : view_interface<take_view<R>> {
 		private:
-			R base_ {};
+			template <bool> struct __sentinel;
 			using D = iter_difference_t<iterator_t<R>>;
+
+			R base_ {};
 			D count_ {};
-			template <bool Const>
-			struct __sentinel;
+
+			template <class Self>
+			static constexpr auto begin_(Self& self) {
+				using RR = __maybe_const<std::is_const_v<Self>, R>;
+				if constexpr (SizedRange<RR>) {
+					if constexpr (RandomAccessRange<RR>) {
+						return __stl2::begin(self.base_);
+					} else {
+						return counted_iterator{__stl2::begin(self.base_), self.size()};
+					}
+				} else {
+					return counted_iterator{__stl2::begin(self.base_), self.count_};
+				}
+			}
+			template <class Self>
+			static constexpr auto end_(Self& self) {
+				constexpr bool is_const = std::is_const_v<Self>;
+				using RR = __maybe_const<is_const, R>;
+				if constexpr (RandomAccessRange<RR> && SizedRange<RR>) {
+					return __stl2::begin(self.base_) + self.size();
+				} else if constexpr (SizedRange<RR>) {
+					return default_sentinel{};
+				} else {
+					return __sentinel<is_const>{__stl2::end(self.base_)};
+				}
+			}
+			template <class Self>
+			static constexpr auto size_(Self& self) {
+				const auto n = __stl2::size(self.base_);
+				const auto c = static_cast<decltype(n)>(self.count_);
+				return n < c ? n : c;
+			}
 		public:
-			__take_view() = default;
+			take_view() = default;
 
-			constexpr __take_view(R base, D count)
-			: base_(std::move(base)), count_(count) {}
+			constexpr take_view(R base, D count)
+			: base_(static_cast<R&&>(base)), count_(count) {}
 
-			template <Range O>
-			requires ext::ViewableRange<O> && _ConstructibleFromRange<R, O>
-			constexpr __take_view(O&& o, D count)
-			: base_(view::all(std::forward<O>(o))), count_(count) {}
+			template <ViewableRange O>
+			requires _ConstructibleFromRange<R, O>
+			constexpr take_view(O&& o, D count)
+			: base_(view::all(static_cast<O&&>(o))), count_(count) {}
 
-			constexpr R base() const
-			{ return base_; }
+			constexpr R base() const { return base_; }
 
-			constexpr auto begin()
-			{ return __stl2::make_counted_iterator(__stl2::begin(base_), count_); }
+			constexpr auto begin() requires !SimpleView<R> { return begin_(*this); }
+			constexpr auto begin() const requires Range<const R> { return begin_(*this); }
 
-			constexpr auto begin() const requires Range<const R>
-			{ return __stl2::make_counted_iterator(__stl2::begin(base_), count_); }
+			constexpr auto end() requires !SimpleView<R> { return end_(*this); }
+			constexpr auto end() const requires Range<const R> || SizedRange<R>
+			{ return end_(*this); }
 
-			constexpr auto begin() requires RandomAccessRange<R> && SizedRange<R>
-			{ return __stl2::begin(base_); }
-
-			constexpr auto begin() const
-			requires RandomAccessRange<const R> && SizedRange<const R>
-			{ return __stl2::begin(base_); }
-
-			constexpr auto end()
-			{ return __sentinel<SimpleView<R>>{ranges::end(base_)}; }
-
-			constexpr auto end() const requires Range<const R>
-			{ return __sentinel<true>{ranges::end(base_)}; }
-
-			constexpr auto end()
-			requires RandomAccessRange<R> && SizedRange<R>
-			{ return __stl2::begin(base_) + this->size(); }
-
-			constexpr auto end() const
-			requires RandomAccessRange<const R> && SizedRange<const R>
-			{ return __stl2::begin(base_) + this->size(); }
-
-			constexpr auto size() requires SizedRange<R>
-			{ return __stl2::min((D)__stl2::size(base_), count_); }
-
-			constexpr auto size() const requires SizedRange<const R>
-			{ return __stl2::min((D)__stl2::size(base_), count_); }
+			constexpr auto size() requires !SimpleView<R> && SizedRange<R> { return size_(*this); }
+			constexpr auto size() const requires SizedRange<const R> { return size_(*this); }
 		};
+
+		template <Range R>
+		take_view(R&&, iter_difference_t<iterator_t<R>>) -> take_view<all_view<R>>;
 
 		template <class R>
 		template <bool Const>
-		struct __take_view<R>::__sentinel {
+		struct take_view<R>::__sentinel {
 		private:
-			using Parent = __maybe_const<Const, __take_view>;
-			using Base =  __maybe_const<Const, R>;
-			sentinel_t<Base> end_ {};
+			using Base = __maybe_const<Const, R>;
 			using CI = counted_iterator<iterator_t<Base>>;
+
+			sentinel_t<Base> end_ {};
 		public:
 			__sentinel() = default;
 
@@ -106,49 +109,14 @@ STL2_OPEN_NAMESPACE {
 			requires Const && ConvertibleTo<sentinel_t<R>, sentinel_t<Base>>
 			: end_(s.base()) {}
 
-			constexpr sentinel_t<Base> base() const
-			{ return end_; }
+			constexpr sentinel_t<Base> base() const { return end_; }
 
 			friend constexpr bool operator==(const __sentinel& x, const CI& y)
-			requires EqualityComparable<iterator_t<Base>>
 			{ return 0 == y.count() || x.end_ == y.base(); }
-
-			friend constexpr bool operator==(const CI& x, const __sentinel& y)
-			requires EqualityComparable<iterator_t<Base>>
-			{ return y == x;}
-
-			friend constexpr bool operator!=(const __sentinel& x, const CI& y)
-			requires EqualityComparable<iterator_t<Base>>
-			{ return !(x == y); }
-
-			friend constexpr bool operator!=(const CI& x, const __sentinel& y)
-			requires EqualityComparable<iterator_t<Base>>
-			{ return !(y == x); }
+			friend constexpr bool operator==(const CI& x, const __sentinel& y) { return y == x;}
+			friend constexpr bool operator!=(const __sentinel& x, const CI& y) { return !(x == y); }
+			friend constexpr bool operator!=(const CI& x, const __sentinel& y) { return !(y == x); }
 		};
-
-		template <Range R>
-		requires View<R>
-		struct take_view : __take_view<R> {
-			take_view() = default;
-			using __take_view<R>::__take_view;
-			using iterator = decltype(std::declval<ext::__take_view<R>&>().begin());
-			using sentinel = decltype(std::declval<ext::__take_view<R>&>().end());
-		};
-
-		template <Range R>
-		requires View<R> && Range<const R>
-		struct take_view<R> : __take_view<R> {
-			take_view() = default;
-			using __take_view<R>::__take_view;
-			using iterator = decltype(std::declval<ext::__take_view<R>&>().begin());
-			using sentinel = decltype(std::declval<ext::__take_view<R>&>().end());
-			using const_iterator = decltype(std::declval<const ext::__take_view<R>&>().begin());
-			using const_sentinel = decltype(std::declval<const ext::__take_view<R>&>().end());
-		};
-
-		template <Range R>
-		take_view(R&& base, iter_difference_t<iterator_t<R>> n)
-		  -> take_view<all_view<R>>;
 	}
 
 	namespace view {
@@ -156,12 +124,12 @@ STL2_OPEN_NAMESPACE {
 			template <Range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
 			STL2_NOEXCEPT_REQUIRES_RETURN(
-				__stl2::ext::take_view{all(std::forward<Rng>(rng)), count}
+				__stl2::ext::take_view{view::all(static_cast<Rng&&>(rng)), count}
 			)
 
 			template <Integral D>
 			constexpr auto operator()(D count) const
-			{ return detail::view_closure{*this, (D)count}; }
+			{ return detail::view_closure{*this, static_cast<D>(count)}; }
 		};
 
 		inline constexpr __take_fn take {};

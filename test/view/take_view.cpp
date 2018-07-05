@@ -38,43 +38,65 @@ int main()
 
 	{
 		auto rng = view::iota(0) | view::take(10);
-		static_assert(View<decltype(rng)>);
-		static_assert(!SizedRange<ext::iota_view<int>>);
-		static_assert(Range<const decltype(rng)>);
+		using R = decltype(rng);
+		static_assert(View<R>);
+		static_assert(!SizedRange<R>);
+		static_assert(!CommonRange<R>);
+		static_assert(RandomAccessRange<R>);
+		static_assert(!ext::ContiguousRange<R>);
+		static_assert(Range<const R>);
 		CHECK_EQUAL(rng, {0,1,2,3,4,5,6,7,8,9});
-		decltype(rng)::const_iterator i{};
 	}
 
 	{
 		auto rng = view::iota(0, 100) | view::take(10);
-		static_assert(View<decltype(rng)>);
-		static_assert(Range<const decltype(rng)>);
+		using R = decltype(rng);
+		static_assert(View<R>);
+		static_assert(SizedRange<R>);
+		static_assert(CommonRange<R>);
+		static_assert(RandomAccessRange<R>);
+		static_assert(!ext::ContiguousRange<R>);
+		static_assert(Range<const R>);
 		CHECK_EQUAL(rng, {0,1,2,3,4,5,6,7,8,9});
-		decltype(rng)::const_iterator i{};
 	}
 
 	{
-		auto evens = [](int i){return i%2 == 0;};
+		auto evens = [](int i) { return i % 2 == 0; };
 		std::stringstream sin{"0 1 2 3 4 5 6 7 8 9"};
 		my_subrange is{istream_iterator<int>{sin}, istream_iterator<int>{}};
 		static_assert(InputRange<decltype(is)>);
 		auto rng = is | view::filter(evens) | view::take(3);
-		static_assert(View<decltype(rng)>);
-		static_assert(!Range<const decltype(rng)>);
-		decltype(rng)::iterator i{};
+		using R = decltype(rng);
+		static_assert(View<R>);
+		static_assert(!SizedRange<decltype(rng.base())>);
+		static_assert(!SizedRange<R>);
+		static_assert(!CommonRange<R>);
+		static_assert(InputRange<R>);
+		static_assert(!ForwardRange<R>);
+		static_assert(!Range<const R>);
 		CHECK_EQUAL(rng, {0,2,4});
 	}
 
 	{
-		auto odds = [](int i){return i%2 == 1;};
+		auto odds = [](int i) { return i % 2 == 1; };
 		std::stringstream sin{"0 1 2 3 4 5 6 7 8 9"};
 		my_subrange is{istream_iterator<int>{sin}, istream_iterator<int>{}};
 		auto pipe = view::filter(odds) | view::take(3);
 		auto rng = is | pipe;
-		static_assert(View<decltype(rng)>);
-		static_assert(!Range<const decltype(rng)>);
-		decltype(rng)::iterator i{};
+		using R = decltype(rng);
+		static_assert(View<R>);
+		static_assert(!SizedRange<decltype(rng.base())>);
+		static_assert(!SizedRange<R>);
+		static_assert(!CommonRange<R>);
+		static_assert(InputRange<R>);
+		static_assert(!ForwardRange<R>);
+		static_assert(!Range<const R>);
 		CHECK_EQUAL(rng, {1,3,5});
+	}
+
+	{
+		int some_ints[] = {1,2,3};
+		ext::take_view{some_ints, 2};
 	}
 
 	return ::test_result();
