@@ -176,7 +176,7 @@ inline int test_result()
 	/**/
 
 template <typename Rng, typename Rng2>
-void check_equal_(const char* file, int line, const char* lhs, const char* rhs,
+constexpr void check_equal_(const char* file, int line, const char* lhs, const char* rhs,
 	const char* fun, Rng && actual, Rng2&& expected)
 {
 	auto begin0 = NS::begin(actual);
@@ -195,12 +195,30 @@ void check_equal_(const char* file, int line, const char* lhs, const char* rhs,
 			++test_impl::test_failures();
 		}
 	}
-	CHECK(begin0 == end0);
-	CHECK(begin1 == end1);
+
+	if (!(begin0 == end0)) {
+		std::cerr <<
+			"> ERROR: CHECK failed \"begin0 != end0\"\n"
+			"> \t" << file << '(' << line << ')' << "\n"
+			"> \t in function \"" << fun << "\"\n"
+			"> \tEXPECTED: " << test_impl::stream(end0) << "\n"
+			"> \tACTUAL: " << test_impl::stream(begin0) << '\n';
+		++test_impl::test_failures();
+	}
+
+	if (!(begin1 == end1)) {
+		std::cerr <<
+			"> ERROR: CHECK failed \"begin1 != end1\"\n"
+			"> \t" << file << '(' << line << ')' << "\n"
+			"> \t in function \"" << fun << "\"\n"
+			"> \tEXPECTED: " << test_impl::stream(end1) << "\n"
+			"> \tACTUAL: " << test_impl::stream(begin1) << '\n';
+		++test_impl::test_failures();
+	}
 }
 
 template <typename Val, typename Rng>
-void check_equal_(const char* file, int line, const char* lhs, const char* rhs,
+constexpr void check_equal_(const char* file, int line, const char* lhs, const char* rhs,
 	const char* fun, Rng && actual, std::initializer_list<Val>&& expected)
 {
 	check_equal_(file, line, lhs, rhs, fun, actual, expected);
