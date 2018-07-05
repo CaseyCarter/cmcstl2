@@ -69,7 +69,8 @@ STL2_OPEN_NAMESPACE {
 			requires RandomAccessRange<const Rng> && SizedRange<Rng>
 			{ return __stl2::begin(rng_) + __stl2::size(rng_); }
 
-			constexpr auto size() const requires SizedRange<const Rng>
+			template<class R = const Rng> // gcc_bugs_bugs_bugs
+			constexpr auto size() const requires SizedRange<R>
 			{ return __stl2::size(rng_); }
 		};
 
