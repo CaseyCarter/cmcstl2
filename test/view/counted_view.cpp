@@ -23,7 +23,7 @@ int main() {
 		CHECK_EQUAL(x, {0,1,2,3,4,5,6,7,8,9});
 		static_assert(View<decltype(x)>);
 		static_assert(SizedRange<decltype(x)>);
-		static_assert(BoundedRange<decltype(x)>);
+		static_assert(CommonRange<decltype(x)>);
 		static_assert(RandomAccessRange<decltype(x)>);
 	}
 	{
@@ -32,7 +32,7 @@ int main() {
 		CHECK_EQUAL(x, {0,1,2,3,4,5,6,7,8,9});
 		static_assert(View<decltype(x)>);
 		static_assert(SizedRange<decltype(x)>);
-		static_assert(!BoundedRange<decltype(x)>);
+		static_assert(!CommonRange<decltype(x)>);
 		static_assert(ForwardRange<decltype(x)>);
 		static_assert(!BidirectionalRange<decltype(x)>);
 	}

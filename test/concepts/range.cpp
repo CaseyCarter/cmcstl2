@@ -535,7 +535,7 @@ int main() {
 
 	{
 		using T = int[2];
-		CONCEPT_ASSERT(ranges::BoundedRange<T>);
+		CONCEPT_ASSERT(ranges::CommonRange<T>);
 		CONCEPT_ASSERT(ranges::OutputRange<T, int>);
 		CONCEPT_ASSERT(ranges::OutputRange<T, const int&>);
 		CONCEPT_ASSERT(ranges::InputRange<T>);

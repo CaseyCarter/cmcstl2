@@ -74,12 +74,12 @@ STL2_OPEN_NAMESPACE {
 				Invocable<const F&, reference_t<iterator_t<ConstR>>>
 			{ return const_sentinel{__stl2::end(base_)}; }
 
-			constexpr iterator end() requires BoundedRange<R>
+			constexpr iterator end() requires CommonRange<R>
 			{ return {*this, __stl2::end(base_)}; }
 
 			// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 			template <class ConstR = const R>
-			constexpr const_iterator end() const requires BoundedRange<ConstR> &&
+			constexpr const_iterator end() const requires CommonRange<ConstR> &&
 				Invocable<const F&, reference_t<iterator_t<ConstR>>>
 			{ return {*this, __stl2::end(base_)}; }
 

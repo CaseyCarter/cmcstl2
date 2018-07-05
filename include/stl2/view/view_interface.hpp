@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 		struct __range_common_iterator_impl {
 			using type = common_iterator<iterator_t<Rng>, sentinel_t<Rng>>;
 		};
-		template <BoundedRange Rng>
+		template <CommonRange Rng>
 		struct __range_common_iterator_impl<Rng> {
 			using type = iterator_t<Rng>;
 		};
@@ -118,14 +118,14 @@ STL2_OPEN_NAMESPACE {
 				return *first;
 			}
 			constexpr decltype(auto) back()
-			requires BidirectionalRange<D> && BoundedRange<D> {
+			requires BidirectionalRange<D> && CommonRange<D> {
 				auto& d = derived();
 				auto last = __stl2::end(d);
 				STL2_EXPECT(__stl2::begin(d) != last);
 				return *--last;
 			}
 			constexpr decltype(auto) back() const
-			requires BidirectionalRange<const D> && BoundedRange<const D> {
+			requires BidirectionalRange<const D> && CommonRange<const D> {
 				auto& d = derived();
 				auto last = __stl2::end(d);
 				STL2_EXPECT(__stl2::begin(d) != last);

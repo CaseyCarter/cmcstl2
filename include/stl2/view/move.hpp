@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 			requires Range<const Rng>
 			{ return __stl2::make_move_sentinel(__stl2::end(get())); }
 			move_iterator<iterator_t<Rng>> end() const
-			requires Range<const Rng> && BoundedRange<const Rng>
+			requires Range<const Rng> && CommonRange<const Rng>
 			{ return __stl2::make_move_iterator(__stl2::end(get())); }
 
 			auto size() const
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 			requires !Range<const Rng>
 			{ return __stl2::make_move_sentinel(__stl2::end(get())); }
 			move_iterator<iterator_t<Rng>> end()
-			requires !Range<const Rng> && BoundedRange<Rng>
+			requires !Range<const Rng> && CommonRange<Rng>
 			{ return __stl2::make_move_iterator(__stl2::end(get())); }
 
 			auto size()

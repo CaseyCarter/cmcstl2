@@ -25,7 +25,7 @@ int main() {
 		static_assert(View<decltype(x)>);
 		static_assert(Range<const decltype(x)>);
 		static_assert(SizedRange<decltype(x)>);
-		static_assert(BoundedRange<decltype(x)>);
+		static_assert(CommonRange<decltype(x)>);
 		static_assert(RandomAccessRange<decltype(x)>);
 	}
 	{
@@ -35,7 +35,7 @@ int main() {
 		static_assert(View<decltype(x)>);
 		static_assert(!Range<const decltype(x)>);
 		static_assert(SizedRange<decltype(x)>);
-		static_assert(BoundedRange<decltype(x)>);
+		static_assert(CommonRange<decltype(x)>);
 		static_assert(BidirectionalRange<decltype(x)>);
 		static_assert(!RandomAccessRange<decltype(x)>);
 	}

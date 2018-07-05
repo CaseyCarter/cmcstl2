@@ -104,7 +104,7 @@ STL2_OPEN_NAMESPACE {
 			requires ForwardRange<Rng> &&
 				std::is_reference_v<InnerRng> &&
 				ForwardRange<InnerRng> &&
-				BoundedRange<Rng> && BoundedRange<InnerRng>
+				CommonRange<Rng> && CommonRange<InnerRng>
 			{ return {*this, __stl2::end(base_)}; }
 
 			// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
@@ -113,8 +113,8 @@ STL2_OPEN_NAMESPACE {
 			requires ForwardRange<ConstRng> &&
 				std::is_reference_v<reference_t<iterator_t<ConstRng>>> &&
 				ForwardRange<reference_t<iterator_t<ConstRng>>> &&
-				BoundedRange<ConstRng> &&
-				BoundedRange<reference_t<iterator_t<ConstRng>>>
+				CommonRange<ConstRng> &&
+				CommonRange<reference_t<iterator_t<ConstRng>>>
 			{ return {*this, __stl2::end(base_)}; }
 		};
 

@@ -51,7 +51,7 @@ int main()
 	static_assert(Same<value_type_t<iterator_t<decltype(rng2)>>, int>);
 	static_assert(Same<decltype(iter_move(begin(rng2))), int &&>);
 	static_assert(View<decltype(rng2)>);
-	static_assert(BoundedRange<decltype(rng2)>);
+	static_assert(CommonRange<decltype(rng2)>);
 	static_assert(SizedRange<decltype(rng2)>);
 	static_assert(RandomAccessRange<decltype(rng2)>);
 	CHECK_EQUAL(rng2, {1,2,3,4,5,6,7,8,9,10});

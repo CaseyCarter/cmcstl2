@@ -431,8 +431,8 @@ void test_array() {
 	static_assert(ranges::ext::ContiguousIterator<I>);
 	static_assert(ranges::RandomAccessRange<Rng>);
 	static_assert(ranges::RandomAccessRange<const Rng>);
-	static_assert(ranges::BoundedRange<Rng>);
-	static_assert(ranges::BoundedRange<const Rng>);
+	static_assert(ranges::CommonRange<Rng>);
+	static_assert(ranges::CommonRange<const Rng>);
 	CHECK(I{} == I{});
 	CHECK(noexcept(I{} == I{}));
 
@@ -579,7 +579,7 @@ void test_proxy_array() {
 	static_assert(ranges::RandomAccessIterator<I>);
 	static_assert(!ranges::ext::ContiguousIterator<I>);
 	static_assert(ranges::RandomAccessRange<Rng>);
-	static_assert(ranges::BoundedRange<Rng>);
+	static_assert(ranges::CommonRange<Rng>);
 
 	using CI = ranges::iterator_t<const Rng>;
 	static_assert(ranges::WeaklyIncrementable<CI>);
@@ -604,7 +604,7 @@ void test_proxy_array() {
 	static_assert(ranges::RandomAccessIterator<CI>);
 	static_assert(!ranges::ext::ContiguousIterator<CI>);
 	static_assert(ranges::RandomAccessRange<const Rng>);
-	static_assert(ranges::BoundedRange<const Rng>);
+	static_assert(ranges::CommonRange<const Rng>);
 
 	static_assert(ranges::Same<I, decltype(a.begin() + 2)>);
 	static_assert(ranges::CommonReference<const R&, const R&>);

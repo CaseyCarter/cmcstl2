@@ -33,8 +33,8 @@ int main()
 		CHECK_EQUAL(jv, {'t','h','i','s','i','s','h','i','s','f','a','c','e'});
 		static_assert(BidirectionalRange<decltype(jv)>);
 		static_assert(BidirectionalRange<const decltype(jv)>);
-		static_assert(BoundedRange<decltype(jv)>);
-		static_assert(BoundedRange<const decltype(jv)>);
+		static_assert(CommonRange<decltype(jv)>);
+		static_assert(CommonRange<const decltype(jv)>);
 	}
 
 	{
@@ -45,7 +45,7 @@ int main()
 		static_assert(InputRange<decltype(rng)>);
 		static_assert(!Range<const decltype(rng)>);
 		static_assert(!ForwardRange<decltype(rng)>);
-		static_assert(!BoundedRange<decltype(rng)>);
+		static_assert(!CommonRange<decltype(rng)>);
 	}
 
 	{
@@ -57,7 +57,7 @@ int main()
 		static_assert(InputRange<decltype(rng)>);
 		static_assert(!Range<const decltype(rng)>);
 		static_assert(!ForwardRange<decltype(rng)>);
-		static_assert(!BoundedRange<decltype(rng)>);
+		static_assert(!CommonRange<decltype(rng)>);
 	}
 
 	return ::test_result();
