@@ -10,11 +10,11 @@ int main() {
 		static_assert(View<I>);
 		static_assert(SizedRange<I>);
 		static_assert(ext::ContiguousRange<I>);
-		static_assert(BoundedRange<I>);
+		static_assert(CommonRange<I>);
 		static_assert(View<CI>);
 		static_assert(SizedRange<CI>);
 		static_assert(ext::ContiguousRange<CI>);
-		static_assert(BoundedRange<CI>);
+		static_assert(CommonRange<CI>);
 	}
 
 	{
@@ -25,7 +25,7 @@ int main() {
 		static_assert(View<R>);
 		static_assert(SizedRange<R>);
 		static_assert(ext::ContiguousRange<R>);
-		static_assert(BoundedRange<R>);
+		static_assert(CommonRange<R>);
 
 		CHECK(begin(r) == some_ints + 0);
 		CHECK(end(r) == some_ints + n);

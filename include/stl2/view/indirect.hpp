@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 			requires !Range<Rng const>
 			{ return {__stl2::end(get())}; }
 			basic_iterator<cursor<false>> end()
-			requires !Range<Rng const> && BoundedRange<Rng>
+			requires !Range<Rng const> && CommonRange<Rng>
 			{ return {cursor<false>{__stl2::end(get())}}; }
 
 			auto size()
@@ -93,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 			requires Range<Rng const>
 			{ return {__stl2::end(get())}; }
 			basic_iterator<cursor<true>> end() const
-			requires BoundedRange<Rng const>
+			requires CommonRange<Rng const>
 			{ return {cursor<true>{__stl2::end(get())}}; }
 
 			auto size() const

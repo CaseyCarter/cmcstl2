@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr __sentinel end()
 			{ return __sentinel{*this}; }
 
-			constexpr __iterator end() requires BoundedRange<R>
+			constexpr __iterator end() requires CommonRange<R>
 			{ return __iterator{*this, __stl2::end(base_)}; }
 		};
 

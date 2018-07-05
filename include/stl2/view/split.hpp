@@ -83,12 +83,12 @@ STL2_OPEN_NAMESPACE {
 			requires ForwardRange<Rng> && ForwardRange<const Rng>
 			{ return __outer_iterator<true>{*this, __stl2::begin(base_)}; }
 
-			constexpr auto end() requires ForwardRange<Rng> && BoundedRange<Rng>
+			constexpr auto end() requires ForwardRange<Rng> && CommonRange<Rng>
 			{ return __outer_iterator<SimpleView<Rng>>{*this, __stl2::end(base_)}; }
 
 			constexpr auto end() const {
 				constexpr bool can_bound = ForwardRange<Rng> &&
-					ForwardRange<const Rng> && BoundedRange<const Rng>;
+					ForwardRange<const Rng> && CommonRange<const Rng>;
 				if constexpr (can_bound) {
 					return __outer_iterator<true>{*this, __stl2::end(base_)};
 				} else {

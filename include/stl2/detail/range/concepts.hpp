@@ -115,10 +115,10 @@ STL2_OPEN_NAMESPACE {
 		__view_predicate<__uncvref<T>>::value;
 
 	///////////////////////////////////////////////////////////////////////////
-	// BoundedRange [ranges.bounded]
+	// CommonRange
 	//
 	template <class T>
-	concept bool BoundedRange =
+	concept bool CommonRange =
 		Range<T> && Same<iterator_t<T>, sentinel_t<T>>;
 
 	///////////////////////////////////////////////////////////////////////////

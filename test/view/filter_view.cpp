@@ -48,7 +48,7 @@ int main() {
 	static_assert(Same<int &, decltype(*begin(rng))>);
 	static_assert(View<decltype(rng)>);
 	static_assert(InputRange<decltype(rng)>);
-	static_assert(BoundedRange<decltype(rng)>);
+	static_assert(CommonRange<decltype(rng)>);
 	static_assert(!SizedRange<decltype(rng)>);
 	static_assert(BidirectionalRange<decltype(rng)>);
 	static_assert(!RandomAccessRange<decltype(rng)>);

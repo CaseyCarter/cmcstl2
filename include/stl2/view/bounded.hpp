@@ -24,7 +24,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <View Rng>
-		requires !BoundedRange<Rng>
+		requires !CommonRange<Rng>
 		struct bounded_view : view_interface<bounded_view<Rng>> {
 		private:
 			Rng rng_;
@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 			: rng_(std::move(rng)) {}
 
 			template <ViewableRange O>
-			requires !BoundedRange<O> && _ConstructibleFromRange<Rng, O>
+			requires !CommonRange<O> && _ConstructibleFromRange<Rng, O>
 			constexpr bounded_view(O&& o)
 			: rng_(view::all(std::forward<O>(o))) {}
 
@@ -81,7 +81,7 @@ STL2_OPEN_NAMESPACE {
 		namespace __stl2_bounded {
 			struct fn : detail::__pipeable<fn> {
 				template <ext::ViewableRange R>
-				requires BoundedRange<R>
+				requires CommonRange<R>
 				constexpr auto operator()(R&& r) const
 				{ return view::all(std::forward<R>(r)); }
 

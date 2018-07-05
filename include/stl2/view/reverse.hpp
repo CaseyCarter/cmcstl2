@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		requires BidirectionalRange<Rng>
 		class reverse_view
 		: public view_interface<reverse_view<Rng>>
-		, private detail::non_propagating_cache<iterator_t<Rng>, void, !BoundedRange<Rng>> {
+		, private detail::non_propagating_cache<iterator_t<Rng>, void, !CommonRange<Rng>> {
 			Rng base_;
 			constexpr auto& end_() noexcept
 			{ return static_cast<typename reverse_view::non_propagating_cache&>(*this); }
@@ -53,16 +53,16 @@ STL2_OPEN_NAMESPACE {
 				return __stl2::make_reverse_iterator(*end_());
 			}
 
-			constexpr auto begin() requires BoundedRange<Rng>
+			constexpr auto begin() requires CommonRange<Rng>
 			{ return __stl2::make_reverse_iterator(__stl2::end(base_)); }
 
-			constexpr auto begin() const requires BoundedRange<const Rng>
+			constexpr auto begin() const requires CommonRange<const Rng>
 			{ return __stl2::make_reverse_iterator(__stl2::end(base_)); }
 
 			constexpr auto end()
 			{ return __stl2::make_reverse_iterator(__stl2::begin(base_)); }
 
-			constexpr auto end() const requires BoundedRange<const Rng>
+			constexpr auto end() const requires CommonRange<const Rng>
 			{ return __stl2::make_reverse_iterator(__stl2::begin(base_)); }
 
 			constexpr auto size() const requires SizedRange<const Rng>
