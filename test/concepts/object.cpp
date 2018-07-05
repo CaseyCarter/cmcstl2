@@ -67,21 +67,6 @@ struct explicit_copy {
 	explicit explicit_copy(const explicit_copy&) = default;
 };
 
-struct partial_overloaded_address {
-	partial_overloaded_address* operator&();
-};
-struct overloaded_address {
-	overloaded_address* operator&();
-	const overloaded_address* operator&() const;
-};
-struct bad_overloaded_address {
-	void operator&() const;
-};
-struct bad_overloaded_const_address {
-	bad_overloaded_const_address* operator&();
-	void operator&() const;
-};
-
 struct semiregular {};
 
 struct regular {
@@ -110,23 +95,11 @@ CONCEPT_ASSERT(ranges::Destructible<void(&)()>);
 CONCEPT_ASSERT(!ranges::Destructible<int[]>);
 CONCEPT_ASSERT(ranges::Destructible<int[2]>);
 CONCEPT_ASSERT(ranges::Destructible<int(*)[2]>);
-CONCEPT_ASSERT(!ranges::ext::Addressable<int(&)[2]>);
 CONCEPT_ASSERT(ranges::Destructible<int(&)[2]>);
 CONCEPT_ASSERT(ranges::Destructible<moveonly>);
 CONCEPT_ASSERT(ranges::Destructible<nonmovable>);
 CONCEPT_ASSERT(!ranges::Destructible<indestructible>);
 CONCEPT_ASSERT(!ranges::Destructible<throwing_destructor>);
-
-#if 0
-// ill-formed (hard error)
-struct incomplete;
-CONCEPT_ASSERT(!ranges::Destructible<incomplete>);
-#endif
-
-CONCEPT_ASSERT(ranges::Destructible<partial_overloaded_address>);
-CONCEPT_ASSERT(ranges::Destructible<overloaded_address>);
-CONCEPT_ASSERT(!ranges::Destructible<bad_overloaded_address>);
-CONCEPT_ASSERT(!ranges::Destructible<bad_overloaded_const_address>);
 
 CONCEPT_ASSERT(ranges::Constructible<int>);
 CONCEPT_ASSERT(ranges::Constructible<int const>);

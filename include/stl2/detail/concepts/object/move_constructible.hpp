@@ -28,50 +28,29 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	///////////////////////////////////////////////////////////////////////////
-	// Addressable [Extension]
+	// Destructible [concept.destructible]
 	//
 	template <class T>
-	concept bool __addressable =
-		requires(T& t, const remove_reference_t<T>& ct) {
-			{ &t } -> Same<remove_reference_t<T>*>&&;
-			{ &ct } -> Same<const remove_reference_t<T>*>&&;
-			// Axiom: &t == addressof(t)
-			// Axiom: &ct == addressof(ct)
-		};
-
-	namespace ext {
-		template <class T>
-		concept bool Addressable =
-			Object<T> && __addressable<T>;
-	}
+	concept bool Destructible = _Is<T, is_nothrow_destructible>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// Destructible [concepts.lib.object.destructible]
-	//
-	template <class T>
-	concept bool Destructible =
-		_Is<T, is_nothrow_destructible> && __addressable<T>;
-
-	///////////////////////////////////////////////////////////////////////////
-	// Constructible [concepts.lib.object.constructible]
+	// Constructible [concept.constructible]
 	//
 	template <class T, class... Args>
 	concept bool Constructible =
 		Destructible<T> && _Is<T, is_constructible, Args...>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// DefaultConstructible [concepts.lib.object.defaultconstructible]
+	// DefaultConstructible [concept.defaultconstructible]
 	//
 	template <class T>
-	concept bool DefaultConstructible =
-		Constructible<T>;
+	concept bool DefaultConstructible = Constructible<T>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// MoveConstructible [concepts.lib.object.moveconstructible]
+	// MoveConstructible [concept.moveconstructible]
 	//
 	template <class T>
-	concept bool MoveConstructible =
-		Constructible<T, T> && ConvertibleTo<T, T>;
+	concept bool MoveConstructible = Constructible<T, T> && ConvertibleTo<T, T>;
 } STL2_CLOSE_NAMESPACE
 
 #endif
