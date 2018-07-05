@@ -104,8 +104,8 @@ namespace range_v3_tests {
 #if 0 // FIXME
 			std::as_const(rnd_rng).begin();
 			begin(std::as_const(rnd_rng));
-			static_assert(Iterator<decltype(begin(static_cast<const Rng&>(rnd_rng)))>);
-			auto tmp = cbegin(rnd_rng) + 3;
+			static_assert(__begin::has_member<const Rng&>); // Fine
+			auto tmp = cbegin(rnd_rng) + 3;                 // Error??!?
 #else
 			auto tmp = begin(rnd_rng) + 3;
 #endif
