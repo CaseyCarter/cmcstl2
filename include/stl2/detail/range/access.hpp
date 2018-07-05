@@ -26,13 +26,6 @@
 // Range access [range.access]
 //
 STL2_OPEN_NAMESPACE {
-	template<class T>
-	requires requires(T&& t) { static_cast<std::decay_t<T>>(static_cast<T&&>(t)); }
-	constexpr std::decay_t<T> __decay_copy(T&& t)
-	STL2_NOEXCEPT_RETURN(
-		static_cast<std::decay_t<T>>(static_cast<T&&>(t))
-	)
-
 	// begin
 	namespace __begin {
 		// Poison pill for std::begin. (See the detailed discussion at

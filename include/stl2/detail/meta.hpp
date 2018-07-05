@@ -33,6 +33,21 @@ STL2_OPEN_NAMESPACE {
 
 	template <bool IsConst, class T>
 	using __maybe_const = meta::if_c<IsConst, T const, T>;
+
+	template<class T>
+	void __nothrow_convertible_helper(T) noexcept;
+	template<class From, class To>
+	inline constexpr bool is_nothrow_convertible_v = false;
+	template<class From, class To>
+	requires std::is_convertible_v<From, To>
+	inline constexpr bool is_nothrow_convertible_v<From, To> =
+		noexcept(__nothrow_convertible_helper<To>(std::declval<From>()));
+
+	template<class T>
+	requires std::is_convertible_v<T, std::decay_t<T>>
+	constexpr std::decay_t<T> __decay_copy(T&& t)
+	noexcept(is_nothrow_convertible_v<T, std::decay_t<T>>)
+	{ return static_cast<T&&>(t); }
 } STL2_CLOSE_NAMESPACE
 
 #endif
