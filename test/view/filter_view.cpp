@@ -62,7 +62,7 @@ int main() {
 	// static_assert(Same<int &, decltype(*begin(rng2))>);
 	// static_assert(BidirectionalView<__f<decltype(rng2)>>);
 	// static_assert(!RandomAccessView<__f<decltype(rng2)>>);
-	// static_assert(BoundedView<__f<decltype(rng2)>>);
+	// static_assert(CommonView<__f<decltype(rng2)>>);
 	// static_assert(!SizedView<__f<decltype(rng2)>>);
 	// CHECK_EQUAL(rng2, {1,3,5,7,9});
 	// CHECK(&*begin(rng2) == &rgi[0]);
@@ -71,7 +71,7 @@ int main() {
 	// static_assert(Same<int &, decltype(*begin(rng3))>);
 	// static_assert(BidirectionalView<__f<decltype(rng3)>>);
 	// static_assert(!RandomAccessView<__f<decltype(rng3)>>);
-	// static_assert(!BoundedView<__f<decltype(rng3)>>);
+	// static_assert(!CommonView<__f<decltype(rng3)>>);
 	// static_assert(!SizedView<__f<decltype(rng3)>>);
 	// CHECK_EQUAL(rng3, {1,3,5,7,9});
 	// CHECK(&*begin(rng3) == &rgi[0]);

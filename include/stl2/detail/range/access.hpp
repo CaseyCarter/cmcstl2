@@ -208,7 +208,7 @@ STL2_OPEN_NAMESPACE {
 			{ __decay_copy(rbegin(static_cast<R&&>(r))) } -> Iterator;
 		};
 
-		// Default to make_reverse_iterator(end(r)) for Bounded ranges of
+		// Default to make_reverse_iterator(end(r)) for Common ranges of
 		// Bidirectional iterators.
 		template <class R>
 		concept bool can_make_reverse = requires(R&& r) {
@@ -291,7 +291,7 @@ STL2_OPEN_NAMESPACE {
 			STL2_NOEXCEPT_RETURN(
 				rend(static_cast<R&&>(r))
 			)
-			// Default to make_reverse_iterator(begin(r)) for Bounded ranges of
+			// Default to make_reverse_iterator(begin(r)) for Common ranges of
 			// Bidirectional iterators.
 			template <class R>
 			requires !has_member<R> && !has_non_member<R> && can_make_reverse<R>

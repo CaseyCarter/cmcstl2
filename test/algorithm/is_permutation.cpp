@@ -753,7 +753,7 @@ int main()
 								   sentinel<const int*>(ib + sa - 1)) == false);
 	}
 
-	// BoundedView tests, with sentinels:
+	// CommonView tests, with sentinels:
 	{
 		const int ia[] = {0, 1, 2, 3, 0, 5, 6, 2, 4, 4};
 		const int ib[] = {4, 2, 3, 0, 1, 4, 0, 5, 6, 2};
@@ -776,7 +776,7 @@ int main()
 								   sentinel<const int*>(ib + sa - 1))) == false);
 	}
 
-	// BoundedView tests, with sentinels, with predicate:
+	// CommonView tests, with sentinels, with predicate:
 	{
 		const int ia[] = {0, 1, 2, 3, 0, 5, 6, 2, 4, 4};
 		const int ib[] = {4, 2, 3, 0, 1, 4, 0, 5, 6, 2};
@@ -803,7 +803,7 @@ int main()
 								   std::equal_to<int const>()) == false);
 	}
 
-	// BoundedView tests, with sentinels, with predicate and projections:
+	// CommonView tests, with sentinels, with predicate and projections:
 	{
 		const S ia[] = {{0}, {1}, {2}, {3}, {0}, {5}, {6}, {2}, {4}, {4}};
 		const T ib[] = {{4}, {2}, {3}, {0}, {1}, {4}, {0}, {5}, {6}, {2}};
