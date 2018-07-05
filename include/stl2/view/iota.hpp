@@ -66,10 +66,11 @@ STL2_OPEN_NAMESPACE {
 			constexpr iterator end() const requires Same<I, Bound>
 			{ return iterator{bound_}; }
 
+			template <class II = I, class BB = Bound> // gcc_bugs_bugs_bugs
 			constexpr auto size() const
-			requires (Same<I, Bound> && ext::RandomAccessIncrementable<I>) ||
-				(Integral<I> && Integral<Bound>) ||
-				SizedSentinel<Bound, I>
+			requires (Same<II, BB> && ext::RandomAccessIncrementable<II>) ||
+				(Integral<II> && Integral<BB>) ||
+				SizedSentinel<BB, II>
 			{ return bound_ - value_; }
 		};
 

@@ -98,9 +98,10 @@ STL2_OPEN_NAMESPACE {
 				return __stl2::empty(d) ? nullptr
 					: detail::addressof(*__stl2::begin(d));
 			}
+			template <class R = const D> // gcc_bugs_bugs_bugs
 			constexpr auto size() const
 			// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-			requires detail::SizedSentinelForwardRange<const D> {
+			requires detail::SizedSentinelForwardRange<R> {
 				auto& d = derived();
 				return __stl2::end(d) - __stl2::begin(d);
 			}

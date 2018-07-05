@@ -24,8 +24,9 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <Range Rng>
-		requires _Is<Rng, std::is_object> && !View<Rng>
-		class ref_view : public view_interface<ref_view<Rng>> {
+		requires _Is<Rng, std::is_object>
+		struct ref_view : view_interface<ref_view<Rng>> {
+		private:
 			Rng* rng_ = nullptr;
 		public:
 			constexpr ref_view() noexcept = default;
@@ -63,12 +64,12 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <class Rng>
-		constexpr iterator_t<Rng> begin(ref_view<Rng>&& r)
+		constexpr iterator_t<Rng> begin(ref_view<Rng> r)
 		STL2_NOEXCEPT_RETURN(
 			r.begin()
 		)
 		template <class Rng>
-		constexpr sentinel_t<Rng> end(ref_view<Rng>&& r)
+		constexpr sentinel_t<Rng> end(ref_view<Rng> r)
 		STL2_NOEXCEPT_RETURN(
 			r.end()
 		)
