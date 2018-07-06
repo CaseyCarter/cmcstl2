@@ -31,6 +31,109 @@ STL2_OPEN_NAMESPACE {
 			common_type<difference_type_t<Ts>...>,
 			meta::id<int>>>;
 
+	// Writable wants const proxy references to be assignable, so we need a
+	// tuple-like type with const-qualified assignment operators.
+	template<class... Ts>
+	struct __tuple_hack : std::tuple<Ts...> {
+	private:
+		struct explode {};
+
+		template<class... Us>
+		requires sizeof...(Us) == sizeof...(Ts) &&
+			(Assignable<const Ts&, const Us&> && ...)
+		static constexpr bool assignable_hack = true;
+
+		template<class Other, std::size_t... Is>
+		requires Same<std::index_sequence_for<Ts...>, std::index_sequence<Is...>>
+		const __tuple_hack& assign_(Other&& other, std::index_sequence<Is...>) const {
+			((void)(std::get<Is>(*this) =
+				std::get<Is>(static_cast<Other&&>(other))), ...);
+			return *this;
+		}
+
+		template<class... Us>
+		requires sizeof...(Us) == sizeof...(Ts)
+		static constexpr bool can_construct = (std::is_constructible_v<Ts, Us> && ...);
+
+		template<class T>
+		__tuple_hack(explode, T&& t)
+		: std::tuple<Ts...>{static_cast<T&&>(t)} {}
+
+	public:
+		using std::tuple<Ts...>::tuple;
+		__tuple_hack(const std::tuple<Ts...>& t)
+		: std::tuple<Ts...>{t} {}
+		__tuple_hack(std::tuple<Ts...>&& t)
+		: std::tuple<Ts...>{static_cast<std::tuple<Ts...>&&>(t)} {}
+
+		template<class... Us>
+		requires sizeof...(Us) == sizeof...(Ts) &&
+			can_construct<Us&...> // gcc_bugs_bugs_bugs
+		__tuple_hack(std::tuple<Us...>& u)
+		: __tuple_hack{explode{}, u} {}
+
+		__tuple_hack(const __tuple_hack&) = default;
+		__tuple_hack(__tuple_hack&&) = default;
+		__tuple_hack& operator=(const __tuple_hack&) = default;
+		__tuple_hack& operator=(__tuple_hack&&) = default;
+
+		using std::tuple<Ts...>::operator=;
+
+		const __tuple_hack& operator=(const std::tuple<Ts...>& t) const
+		requires (Assignable<const Ts&, const Ts&> && ...) {
+			using Indices = std::index_sequence_for<Ts...>;
+			return assign_(t, Indices{});
+		}
+		const __tuple_hack& operator=(std::tuple<Ts...>&& t) const
+		requires (Assignable<const Ts&, Ts> && ...) {
+			using Indices = std::index_sequence_for<Ts...>;
+			return assign_(static_cast<std::tuple<Ts...>&&>(t), Indices{});
+		}
+		template<class... Us>
+		requires assignable_hack<Us...>
+		const __tuple_hack& operator=(const std::tuple<Us...>& t) const {
+			using Indices = std::index_sequence_for<Ts...>;
+			return assign_(t, Indices{});
+		}
+		template<class... Us>
+		requires assignable_hack<Us...>
+		const __tuple_hack& operator=(std::tuple<Us...>&& t) const {
+			using Indices = std::index_sequence_for<Ts...>;
+			return assign_(static_cast<std::tuple<Us...>&&>(t), Indices{});
+		}
+	};
+
+	template<class... Ts>
+	__tuple_hack(Ts&&...) -> __tuple_hack<Ts&&...>;
+
+	template<class... Ts, class... Us>
+	requires sizeof...(Ts) == sizeof...(Us) &&
+		(requires { typename common_type_t<Ts, Us>; } && ...)
+	struct common_type<__tuple_hack<Ts...>, std::tuple<Us...>> {
+		using type = __tuple_hack<common_type_t<Ts, Us>...>;
+	};
+	template<class... Ts, class... Us>
+	requires sizeof...(Ts) == sizeof...(Us) &&
+		(requires { typename common_type_t<Ts, Us>; } && ...)
+	struct common_type<std::tuple<Ts...>, __tuple_hack<Us...>>	{
+		using type = __tuple_hack<common_type_t<Ts, Us>...>;
+	};
+
+	template<class... Ts, class... Us,
+		template <class> class TQual, template <class> class UQual>
+	requires sizeof...(Ts) == sizeof...(Us) &&
+		(requires { typename common_reference_t<TQual<Ts>, UQual<Us>>; } && ...)
+	struct basic_common_reference<__tuple_hack<Ts...>, std::tuple<Us...>, TQual, UQual> {
+		using type = __tuple_hack<common_reference_t<TQual<Ts>, UQual<Us>>...>;
+	};
+	template<class... Ts, class... Us,
+		template <class> class TQual, template <class> class UQual>
+	requires sizeof...(Ts) == sizeof...(Us) &&
+		(requires { typename common_reference_t<TQual<Ts>, UQual<Us>>; } && ...)
+	struct basic_common_reference<std::tuple<Ts...>, __tuple_hack<Us...>, TQual, UQual> {
+		using type = __tuple_hack<common_reference_t<TQual<Ts>, UQual<Us>>...>;
+	};
+
 	namespace ext {
 		template<View... Ranges>
 		struct __zip_view_base {
@@ -63,7 +166,8 @@ STL2_OPEN_NAMESPACE {
 				if constexpr (sizeof...(Ranges) != 0) {
 					static_assert(Same<std::index_sequence<Is...>, Indices>);
 					using D = __common_difference_type_t<iterator_t<Ranges>...>;
-					return __stl2::min(static_cast<D>(__stl2::size(std::get<Is>(self.ranges_)))...);
+					return __stl2::min({static_cast<D>(
+						__stl2::size(std::get<Is>(self.ranges_)))...});
 				} else {
 					return 0;
 				}
@@ -110,64 +214,6 @@ STL2_OPEN_NAMESPACE {
 
 		template <class... Ranges>
 		zip_view(Ranges&&...) -> zip_view<ext::all_view<Ranges>...>;
-
-		// Writable wants const proxy references to be assignable, so we need a
-		// tuple-like type with const-qualified assignment operators
-		template<class... Ts>
-		struct __tuple_hack : std::tuple<Ts...> {
-		private:
-			template<class... Us>
-			requires sizeof...(Us) == sizeof...(Ts) &&
-				(Assignable<const Ts&, const Us&> && ...)
-			static constexpr bool assignable_hack = true;
-
-			template<class Other, std::size_t... Is>
-			requires Same<std::index_sequence_for<Ts...>, std::index_sequence<Is...>>
-			const __tuple_hack& assign_(Other&& other, std::index_sequence<Is...>) const {
-				((void)(std::get<Is>(*this) =
-					std::get<Is>(static_cast<Other&&>(other))), ...);
-				return *this;
-			}
-		public:
-			using std::tuple<Ts...>::tuple;
-			__tuple_hack(const std::tuple<Ts...>& t)
-			: std::tuple<Ts...>{t} {}
-			__tuple_hack(std::tuple<Ts...>&& t)
-			: std::tuple<Ts...>{static_cast<std::tuple<Ts...>&&>(t)} {}
-
-			__tuple_hack(const __tuple_hack&) = default;
-			__tuple_hack(__tuple_hack&&) = default;
-			__tuple_hack& operator=(const __tuple_hack&) = default;
-			__tuple_hack& operator=(__tuple_hack&&) = default;
-
-			using std::tuple<Ts...>::operator=;
-
-			const __tuple_hack& operator=(const std::tuple<Ts...>& t) const
-			requires (Assignable<const Ts&, const Ts&> && ...) {
-				using Indices = std::index_sequence_for<Ts...>;
-				return assign_(t, Indices{});
-			}
-			const __tuple_hack& operator=(std::tuple<Ts...>&& t) const
-			requires (Assignable<const Ts&, Ts> && ...) {
-				using Indices = std::index_sequence_for<Ts...>;
-				return assign_(static_cast<std::tuple<Ts...>&&>(t), Indices{});
-			}
-			template<class... Us>
-			requires assignable_hack<Us...>
-			const __tuple_hack& operator=(const std::tuple<Us...>& t) const {
-				using Indices = std::index_sequence_for<Ts...>;
-				return assign_(t, Indices{});
-			}
-			template<class... Us>
-			requires assignable_hack<Us...>
-			const __tuple_hack& operator=(std::tuple<Us...>&& t) const {
-				using Indices = std::index_sequence_for<Ts...>;
-				return assign_(static_cast<std::tuple<Us...>&&>(t), Indices{});
-			}
-		};
-
-		template<class... Ts>
-		__tuple_hack(Ts&&...) -> __tuple_hack<Ts&&...>;
 
 		template<bool, View... Ranges>
 		struct __zipperator_base {
@@ -361,8 +407,8 @@ STL2_OPEN_NAMESPACE {
 				iterator_t<__maybe_const<Const, Ranges>>> && ...)
 			{
 				if constexpr (sizeof...(Ranges) != 0) {
-					return __stl2::max(static_cast<difference_type>(
-						std::get<Is>(x.current()) - std::get<Is>(y.current()))...);
+					return __stl2::max({static_cast<difference_type>(
+						std::get<Is>(x.current()) - std::get<Is>(y.current()))...});
 				} else {
 					return 0;
 				}
