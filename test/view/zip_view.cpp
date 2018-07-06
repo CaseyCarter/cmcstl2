@@ -11,18 +11,24 @@
 //
 
 #include <stl2/view/zip.hpp>
+#include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/sort.hpp>
+#include <stl2/detail/iterator/insert_iterators.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/functional/comparisons.hpp>
 #include <stl2/view/common.hpp>
 #include <stl2/view/istream.hpp>
+#include <memory>
 #include <sstream>
+#include <string>
 #include <tuple>
 #include <vector>
 #include "../simple_test.hpp"
 
 // TODO:
 // * output range tests
+
+template<class...> class show_type; // FIXME: remove
 
 namespace ranges = __stl2;
 
@@ -36,10 +42,20 @@ namespace range_v3_tests {
 	template<class T>
 	using range_rvalue_reference_t = rvalue_reference_t<iterator_t<T>>;
 
-	template<class T>
-	concept bool CommonView = View<T> && CommonRange<T>;
-	template<class T>
-	concept bool SizedView = View<T> && SizedRange<T>;
+	struct MoveOnlyString : std::string {
+		using std::string::string;
+
+		MoveOnlyString() = default;
+		MoveOnlyString(MoveOnlyString&& that)
+		: std::string{static_cast<std::string&&>(that)}
+		{ that.clear(); }
+		MoveOnlyString& operator=(MoveOnlyString&& that) {
+			static_cast<std::string&>(*this) =
+				static_cast<std::string&&>(that);
+			that.clear();
+			return *this;
+		}
+	};
 
 	void test() {
 		std::vector<int> vi{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -51,21 +67,22 @@ namespace range_v3_tests {
 			using V = std::tuple<int, std::string, std::string>;
 			auto rng = view::zip(vi, vs, view::istream<std::string>(str) | view::common);
 			using Rng = decltype(rng);
-			static_assert(!CommonView<Rng>);
-			static_assert(!SizedView<Rng>);
+			static_assert(View<Rng>);
+			static_assert(InputRange<Rng>);
+			static_assert(!ForwardRange<Rng>);
+			static_assert(!CommonRange<Rng>);
+			static_assert(!SizedRange<Rng>);
 			static_assert(Same<
 				range_value_type_t<Rng>,
 				std::tuple<int, std::string, std::string>>);
 			static_assert(Same<
 				range_reference_t<Rng>,
-				ext::__tuple_hack<int &, std::string const &, std::string &>>);
+				__tuple_hack<int &, std::string const &, std::string &>>);
 			static_assert(Same<
 				range_rvalue_reference_t<Rng>,
-				ext::__tuple_hack<int &&, std::string const &&, std::string &&>>);
+				__tuple_hack<int &&, std::string const &&, std::string &&>>);
 			static_assert(ConvertibleTo<range_value_type_t<Rng> &&,
 				range_rvalue_reference_t<Rng>>);
-			static_assert(InputIterator<iterator_t<Rng>>);
-			static_assert(!ForwardIterator<iterator_t<Rng>>);
 			CHECK_EQUAL(rng, {V{0, "hello", "john"},
 			                   {1, "goodbye", "paul"},
 			                   {2, "hello", "george"},
@@ -78,8 +95,10 @@ namespace range_v3_tests {
 			auto rng = view::zip(vi, vs, view::istream<std::string>(str));
 			using Rng = decltype(rng);
 			static_assert(View<Rng>);
-			static_assert(!SizedView<Rng>);
-			static_assert(!CommonView<Rng>);
+			static_assert(InputRange<Rng>);
+			static_assert(!ForwardRange<Rng>);
+			static_assert(!SizedRange<Rng>);
+			static_assert(!CommonRange<Rng>);
 			using I = decltype(begin(rng));
 			static_assert(InputIterator<I>);
 			static_assert(!ForwardIterator<I>);
@@ -96,16 +115,17 @@ namespace range_v3_tests {
 		{
 			auto rnd_rng = view::zip(vi, vs);
 			using Rng = decltype(rnd_rng);
+			static_assert(RandomAccessRange<Rng>);
+			static_assert(!ext::ContiguousRange<Rng>);
+			static_assert(CommonRange<Rng>);
+			static_assert(SizedRange<Rng>);
 			using Ref = range_reference_t<decltype(rnd_rng)>;
-			static_assert(Same<Ref, ext::__tuple_hack<int &, std::string const &>>);
-			static_assert(CommonView<Rng>);
-			static_assert(SizedView<Rng>);
-			static_assert(RandomAccessIterator<decltype(begin(rnd_rng))>);
-#if 0 // FIXME
-			std::as_const(rnd_rng).begin();
-			begin(std::as_const(rnd_rng));
+			static_assert(Same<Ref, __tuple_hack<int &, std::string const &>>);
+#if 0 // FIXME: bug in ranges::begin
+			std::as_const(rnd_rng).begin();                 // Fine
 			static_assert(__begin::has_member<const Rng&>); // Fine
-			auto tmp = cbegin(rnd_rng) + 3;                 // Error??!?
+			begin(std::as_const(rnd_rng));                  // Error??!?
+			auto tmp = cbegin(rnd_rng) + 3;                 // Error
 #else
 			auto tmp = begin(rnd_rng) + 3;
 #endif
@@ -125,7 +145,7 @@ namespace range_v3_tests {
 			auto rng = view::zip_with(std::plus<std::string>{}, v0, v1);
 			std::vector<std::string> expected;
 			copy(rng, ranges::back_inserter(expected));
-			::check_equal(expected, {"ax", "by", "cz"});
+			CHECK_EQUAL(expected, {"ax", "by", "cz"});
 		}
 
 		// zip_with
@@ -136,45 +156,48 @@ namespace range_v3_tests {
 			auto rng = view::zip_with(std::plus<std::string>{}, v0, v1);
 			std::vector<std::string> expected;
 			copy(rng, ranges::back_inserter(expected));
-			::check_equal(expected, {"ax", "by", "cz"});
+			CHECK_EQUAL(expected, {"ax", "by", "cz"});
 		}
 #endif // TODO
-#if 0 // FIXME
+
 		// Move from a zip view
 		{
-			auto v0 = to_<std::vector<MoveOnlyString>>({"a", "b", "c"});
-			auto v1 = to_<std::vector<MoveOnlyString>>({"x", "y", "z"});
+			std::vector<MoveOnlyString> v0;
+			for (auto p : {"a", "b", "c"}) v0.emplace_back(p);
+			std::vector<MoveOnlyString> v1;
+			for (auto p : {"x", "y", "z"}) v1.emplace_back(p);
 
 			auto rng = view::zip(v0, v1);
-			::models<concepts::RandomAccessRange>(rng);
+			using R = decltype(rng);
+			static_assert(RandomAccessRange<R>);
+			static_assert(!ext::ContiguousRange<R>);
 			std::vector<std::pair<MoveOnlyString, MoveOnlyString>> expected;
-			move(rng, ranges::back_inserter(expected));
-			::check_equal(expected | view::keys, {"a", "b", "c"});
-			::check_equal(expected | view::values, {"x", "y", "z"});
-			::check_equal(v0, {"", "", ""});
-			::check_equal(v1, {"", "", ""});
+#if 0 // FIXME
+			ranges::move(rng, ranges::back_inserter(expected));
+			CHECK_EQUAL(expected, {std::pair<std::string, std::string>{"a", "x"}, {"b", "y"}, {"c", "z"}});
+			CHECK_EQUAL(v0, {"", "", ""});
+			CHECK_EQUAL(v1, {"", "", ""});
 
 			move(expected, rng.begin());
-			::check_equal(expected | view::keys, {"", "", ""});
-			::check_equal(expected | view::values, {"", "", ""});
-			::check_equal(v0, {"a", "b", "c"});
-			::check_equal(v1, {"x", "y", "z"});
+			CHECK_EQUAL(expected, {std::pair<std::string, std::string>{"", ""}, {"", ""}, {"", ""}});
+			CHECK_EQUAL(v0, {"a", "b", "c"});
+			CHECK_EQUAL(v1, {"x", "y", "z"});
 
 			std::vector<MoveOnlyString> res;
-			using R = decltype(rng);
 			auto proj =
-				[](range_reference_t<R> p) -> MoveOnlyString& {return p.first;};
+				[](range_reference_t<R> p) -> MoveOnlyString& { return p.first; };
 			auto rng2 = rng | view::transform(proj);
-			move(rng2, ranges::back_inserter(res));
-			::check_equal(res, {"a", "b", "c"});
-			::check_equal(v0, {"", "", ""});
-			::check_equal(v1, {"x", "y", "z"});
 			using R2 = decltype(rng2);
 			static_assert(Same<range_value_type_t<R2>, MoveOnlyString>());
 			static_assert(Same<range_reference_t<R2>, MoveOnlyString &>());
 			static_assert(Same<range_rvalue_reference_t<R2>, MoveOnlyString &&>());
+			move(rng2, ranges::back_inserter(res));
+			CHECK_EQUAL(res, {"a", "b", "c"});
+			CHECK_EQUAL(v0, {"", "", ""});
+			CHECK_EQUAL(v1, {"x", "y", "z"});
+#endif
 		}
-
+#if 0 // FIXME
 		{
 			auto const v = to_<std::vector<MoveOnlyString>>({"a", "b", "c"});
 			auto rng = view::zip(v, v);
@@ -202,7 +225,7 @@ namespace range_v3_tests {
 			static_assert(Same<range_reference_t<Moved>, int &&>());
 			auto zipped = view::zip(moved);
 			using Zipped = decltype(zipped);
-			static_assert(Same<range_reference_t<Zipped>, ext::__tuple_hack<int &&> >());
+			static_assert(Same<range_reference_t<Zipped>, __tuple_hack<int &&> >());
 		}
 
 		// This is actually a test of the logic of view_adaptor. Since the stride view
@@ -252,7 +275,7 @@ namespace range_v3_tests {
 				debug_input_view<int const>{i2}
 			);
 			using P = std::pair<int, int>;
-			::check_equal(rng, {P{0, 4}, P{1, 5}, P{2, 6}, P{3, 7}});
+			CHECK_EQUAL(rng, {P{0, 4}, P{1, 5}, P{2, 6}, P{3, 7}});
 		}
 #endif
 	}
