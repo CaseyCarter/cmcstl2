@@ -18,6 +18,7 @@
 #include <stl2/detail/functional/comparisons.hpp>
 #include <stl2/view/common.hpp>
 #include <stl2/view/istream.hpp>
+#include <stl2/view/transform.hpp>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -171,31 +172,29 @@ namespace range_v3_tests {
 			using R = decltype(rng);
 			static_assert(RandomAccessRange<R>);
 			static_assert(!ext::ContiguousRange<R>);
-			std::vector<std::pair<MoveOnlyString, MoveOnlyString>> expected;
-#if 0 // FIXME
+			std::vector<std::tuple<MoveOnlyString, MoveOnlyString>> expected;
 			ranges::move(rng, ranges::back_inserter(expected));
-			CHECK_EQUAL(expected, {std::pair<std::string, std::string>{"a", "x"}, {"b", "y"}, {"c", "z"}});
+			CHECK_EQUAL(expected, {std::tuple<std::string, std::string>{"a", "x"}, {"b", "y"}, {"c", "z"}});
 			CHECK_EQUAL(v0, {"", "", ""});
 			CHECK_EQUAL(v1, {"", "", ""});
 
 			move(expected, rng.begin());
-			CHECK_EQUAL(expected, {std::pair<std::string, std::string>{"", ""}, {"", ""}, {"", ""}});
+			CHECK_EQUAL(expected, {std::tuple<std::string, std::string>{"", ""}, {"", ""}, {"", ""}});
 			CHECK_EQUAL(v0, {"a", "b", "c"});
 			CHECK_EQUAL(v1, {"x", "y", "z"});
 
 			std::vector<MoveOnlyString> res;
 			auto proj =
-				[](range_reference_t<R> p) -> MoveOnlyString& { return p.first; };
+				[](range_reference_t<R> p) -> MoveOnlyString& { return std::get<0>(p); };
 			auto rng2 = rng | view::transform(proj);
 			using R2 = decltype(rng2);
-			static_assert(Same<range_value_type_t<R2>, MoveOnlyString>());
-			static_assert(Same<range_reference_t<R2>, MoveOnlyString &>());
-			static_assert(Same<range_rvalue_reference_t<R2>, MoveOnlyString &&>());
+			static_assert(Same<range_value_type_t<R2>, MoveOnlyString>);
+			static_assert(Same<range_reference_t<R2>, MoveOnlyString &>);
+			static_assert(Same<range_rvalue_reference_t<R2>, MoveOnlyString &&>);
 			move(rng2, ranges::back_inserter(res));
 			CHECK_EQUAL(res, {"a", "b", "c"});
 			CHECK_EQUAL(v0, {"", "", ""});
 			CHECK_EQUAL(v1, {"x", "y", "z"});
-#endif
 		}
 #if 0 // FIXME
 		{
@@ -203,29 +202,29 @@ namespace range_v3_tests {
 			auto rng = view::zip(v, v);
 			using Rng = decltype(rng);
 			using I = iterator_t<Rng>;
-			static_assert(Readable<I>());
+			static_assert(Readable<I>);
 			static_assert(Same<
 				range_value_type_t<Rng>,
-				std::pair<MoveOnlyString, MoveOnlyString>>());
+				std::pair<MoveOnlyString, MoveOnlyString>>);
 			static_assert(Same<
 				range_reference_t<Rng>,
-				common_pair<MoveOnlyString const &, MoveOnlyString const &>>());
+				common_pair<MoveOnlyString const &, MoveOnlyString const &>>);
 			static_assert(Same<
 				range_rvalue_reference_t<Rng>,
-				common_pair<MoveOnlyString const &&, MoveOnlyString const &&>>());
+				common_pair<MoveOnlyString const &&, MoveOnlyString const &&>>);
 			static_assert(Same<
 				range_common_reference_t<Rng>,
-				common_pair<MoveOnlyString const &, MoveOnlyString const &>>());
+				common_pair<MoveOnlyString const &, MoveOnlyString const &>>);
 		}
 
 		{
 			std::vector<int> v{1, 2, 3, 4};
 			auto moved = v | view::move;
 			using Moved = decltype(moved);
-			static_assert(Same<range_reference_t<Moved>, int &&>());
+			static_assert(Same<range_reference_t<Moved>, int &&>);
 			auto zipped = view::zip(moved);
 			using Zipped = decltype(zipped);
-			static_assert(Same<range_reference_t<Zipped>, __tuple_hack<int &&> >());
+			static_assert(Same<range_reference_t<Zipped>, __tuple_hack<int &&> >);
 		}
 
 		// This is actually a test of the logic of view_adaptor. Since the stride view
@@ -234,8 +233,8 @@ namespace range_v3_tests {
 		{
 			auto rng0 = view::zip(vi, vs);
 			auto rng1 = view::stride(rng0, 2);
-			static_assert(Same<range_rvalue_reference_t<decltype(rng1)>, range_rvalue_reference_t<decltype(rng0)>>());
-			static_assert(Same<range_value_type_t<decltype(rng1)>, range_value_type_t<decltype(rng0)>>());
+			static_assert(Same<range_rvalue_reference_t<decltype(rng1)>, range_rvalue_reference_t<decltype(rng0)>>);
+			static_assert(Same<range_value_type_t<decltype(rng1)>, range_value_type_t<decltype(rng0)>>);
 		}
 
 		// Test for noexcept iter_move

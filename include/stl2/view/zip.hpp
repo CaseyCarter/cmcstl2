@@ -36,8 +36,6 @@ STL2_OPEN_NAMESPACE {
 	template<class... Ts>
 	struct __tuple_hack : std::tuple<Ts...> {
 	private:
-		struct explode {};
-
 		template<class... Us>
 		requires sizeof...(Us) == sizeof...(Ts) &&
 			(Assignable<const Ts&, const Us&> && ...)
@@ -55,22 +53,18 @@ STL2_OPEN_NAMESPACE {
 		requires sizeof...(Us) == sizeof...(Ts)
 		static constexpr bool can_construct = (std::is_constructible_v<Ts, Us> && ...);
 
-		template<class T>
-		__tuple_hack(explode, T&& t)
-		: std::tuple<Ts...>{static_cast<T&&>(t)} {}
-
 	public:
 		using std::tuple<Ts...>::tuple;
-		__tuple_hack(const std::tuple<Ts...>& t)
+		constexpr __tuple_hack(const std::tuple<Ts...>& t)
 		: std::tuple<Ts...>{t} {}
-		__tuple_hack(std::tuple<Ts...>&& t)
+		constexpr __tuple_hack(std::tuple<Ts...>&& t)
 		: std::tuple<Ts...>{static_cast<std::tuple<Ts...>&&>(t)} {}
 
 		template<class... Us>
 		requires sizeof...(Us) == sizeof...(Ts) &&
 			can_construct<Us&...> // gcc_bugs_bugs_bugs
-		__tuple_hack(std::tuple<Us...>& u)
-		: __tuple_hack{explode{}, u} {}
+		constexpr __tuple_hack(std::tuple<Us...>& u)
+		: std::tuple<Ts...>{u} {}
 
 		__tuple_hack(const __tuple_hack&) = default;
 		__tuple_hack(__tuple_hack&&) = default;
@@ -79,25 +73,25 @@ STL2_OPEN_NAMESPACE {
 
 		using std::tuple<Ts...>::operator=;
 
-		const __tuple_hack& operator=(const std::tuple<Ts...>& t) const
+		constexpr const __tuple_hack& operator=(const std::tuple<Ts...>& t) const
 		requires (Assignable<const Ts&, const Ts&> && ...) {
 			using Indices = std::index_sequence_for<Ts...>;
 			return assign_(t, Indices{});
 		}
-		const __tuple_hack& operator=(std::tuple<Ts...>&& t) const
+		constexpr const __tuple_hack& operator=(std::tuple<Ts...>&& t) const
 		requires (Assignable<const Ts&, Ts> && ...) {
 			using Indices = std::index_sequence_for<Ts...>;
 			return assign_(static_cast<std::tuple<Ts...>&&>(t), Indices{});
 		}
 		template<class... Us>
 		requires assignable_hack<Us...>
-		const __tuple_hack& operator=(const std::tuple<Us...>& t) const {
+		constexpr const __tuple_hack& operator=(const std::tuple<Us...>& t) const {
 			using Indices = std::index_sequence_for<Ts...>;
 			return assign_(t, Indices{});
 		}
 		template<class... Us>
 		requires assignable_hack<Us...>
-		const __tuple_hack& operator=(std::tuple<Us...>&& t) const {
+		constexpr const __tuple_hack& operator=(std::tuple<Us...>&& t) const {
 			using Indices = std::index_sequence_for<Ts...>;
 			return assign_(static_cast<std::tuple<Us...>&&>(t), Indices{});
 		}
