@@ -18,6 +18,7 @@
 #include <stl2/detail/functional/comparisons.hpp>
 #include <stl2/view/common.hpp>
 #include <stl2/view/istream.hpp>
+#include <stl2/view/move.hpp>
 #include <stl2/view/transform.hpp>
 #include <memory>
 #include <sstream>
@@ -42,6 +43,8 @@ namespace range_v3_tests {
 	using range_reference_t = reference_t<iterator_t<T>>;
 	template<class T>
 	using range_rvalue_reference_t = rvalue_reference_t<iterator_t<T>>;
+	template<class T>
+	using range_common_reference_t = iter_common_reference_t<iterator_t<T>>;
 
 	struct MoveOnlyString : std::string {
 		using std::string::string;
@@ -196,25 +199,29 @@ namespace range_v3_tests {
 			CHECK_EQUAL(v0, {"", "", ""});
 			CHECK_EQUAL(v1, {"x", "y", "z"});
 		}
-#if 0 // FIXME
+
 		{
-			auto const v = to_<std::vector<MoveOnlyString>>({"a", "b", "c"});
+			auto const v = [] {
+				std::vector<MoveOnlyString> v;
+				for (auto p : {"a", "b", "c"}) v.emplace_back(p);
+				return v;
+			}();
 			auto rng = view::zip(v, v);
 			using Rng = decltype(rng);
 			using I = iterator_t<Rng>;
 			static_assert(Readable<I>);
 			static_assert(Same<
 				range_value_type_t<Rng>,
-				std::pair<MoveOnlyString, MoveOnlyString>>);
+				std::tuple<MoveOnlyString, MoveOnlyString>>);
 			static_assert(Same<
 				range_reference_t<Rng>,
-				common_pair<MoveOnlyString const &, MoveOnlyString const &>>);
+				__tuple_hack<MoveOnlyString const &, MoveOnlyString const &>>);
 			static_assert(Same<
 				range_rvalue_reference_t<Rng>,
-				common_pair<MoveOnlyString const &&, MoveOnlyString const &&>>);
+				__tuple_hack<MoveOnlyString const &&, MoveOnlyString const &&>>);
 			static_assert(Same<
 				range_common_reference_t<Rng>,
-				common_pair<MoveOnlyString const &, MoveOnlyString const &>>);
+				__tuple_hack<MoveOnlyString const &, MoveOnlyString const &>>);
 		}
 
 		{
@@ -226,7 +233,7 @@ namespace range_v3_tests {
 			using Zipped = decltype(zipped);
 			static_assert(Same<range_reference_t<Zipped>, __tuple_hack<int &&> >);
 		}
-
+#if 0 // FIXME : view::stride
 		// This is actually a test of the logic of view_adaptor. Since the stride view
 		// does not redefine the current member function, the base range's iter_move
 		// function gets picked up automatically.
@@ -236,17 +243,17 @@ namespace range_v3_tests {
 			static_assert(Same<range_rvalue_reference_t<decltype(rng1)>, range_rvalue_reference_t<decltype(rng0)>>);
 			static_assert(Same<range_value_type_t<decltype(rng1)>, range_value_type_t<decltype(rng0)>>);
 		}
-
+#endif
 		// Test for noexcept iter_move
 		{
 			static_assert(noexcept(std::declval<std::unique_ptr<int>&>() = std::declval<std::unique_ptr<int>&&>()), "");
 			std::unique_ptr<int> rg1[10], rg2[10];
 			auto x = view::zip(rg1, rg2);
-			std::pair<std::unique_ptr<int>, std::unique_ptr<int>> p = iter_move(x.begin());
+			std::tuple<std::unique_ptr<int>, std::unique_ptr<int>> p = iter_move(x.begin());
 			auto it = x.begin();
 			static_assert(noexcept(iter_move(it)), "");
 		}
-
+#if 0 // FIXME: view::take_while, view::for_each
 		// Really a test for common_iterator's iter_move, but this is a good place for it.
 		{
 			std::unique_ptr<int> rg1[10], rg2[10];
