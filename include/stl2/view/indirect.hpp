@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 		template <View Rng>
 		requires
 			InputRange<Rng> &&
-			Readable<reference_t<iterator_t<Rng>>>
+			Readable<iter_reference_t<iterator_t<Rng>>>
 		class indirect_view : detail::ebo_box<Rng, indirect_view<Rng>> {
 			using base_t = detail::ebo_box<Rng, indirect_view<Rng>>;
 			using base_t::get;
@@ -54,15 +54,15 @@ STL2_OPEN_NAMESPACE {
 				bool equal(const sentinel<IsConst>& s) const
 				{ return it_ == s.s_; }
 
-				difference_type_t<iterator_t<IsConst>> distance_to(const cursor& that) const
+				iter_difference_t<iterator_t<IsConst>> distance_to(const cursor& that) const
 				requires SizedSentinel<iterator_t<IsConst>, iterator_t<IsConst>>
 				{ return that.it_ - it_; }
-				difference_type_t<iterator_t<IsConst>>
+				iter_difference_t<iterator_t<IsConst>>
 				distance_to(const sentinel<IsConst>& that) const
 				requires SizedSentinel<sentinel_t<IsConst>, iterator_t<IsConst>>
 				{ return that.s_ - it_; }
 
-				void advance(difference_type_t<iterator_t<IsConst>> n)
+				void advance(iter_difference_t<iterator_t<IsConst>> n)
 				requires RandomAccessIterator<iterator_t<IsConst>>
 				{ it_ += n; }
 			};

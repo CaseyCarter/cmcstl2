@@ -65,8 +65,8 @@ STL2_OPEN_NAMESPACE {
 			template <InputRange O>
 			requires
 				_ConstructibleFromRange<Rng, O> &&
-				Constructible<Pattern, single_view<value_type_t<iterator_t<O>>>>
-			constexpr split_view(O&& o, value_type_t<iterator_t<O>> e)
+				Constructible<Pattern, single_view<iter_value_t<iterator_t<O>>>>
+			constexpr split_view(O&& o, iter_value_t<iterator_t<O>> e)
 			: base_(view::all(std::forward<O>(o)))
 			, pattern_(single_view{std::move(e)}) {}
 
@@ -101,8 +101,8 @@ STL2_OPEN_NAMESPACE {
 		split_view(Rng&&, Pattern&&) -> split_view<all_view<Rng>, all_view<Pattern>>;
 
 		template <InputRange Rng>
-		split_view(Rng&&, value_type_t<iterator_t<Rng>>)
-			-> split_view<all_view<Rng>, single_view<value_type_t<iterator_t<Rng>>>>;
+		split_view(Rng&&, iter_value_t<iterator_t<Rng>>)
+			-> split_view<all_view<Rng>, single_view<iter_value_t<iterator_t<Rng>>>>;
 
 		template <class, bool>
 		struct __split_view_outer_base {};
@@ -137,7 +137,7 @@ STL2_OPEN_NAMESPACE {
 		public:
 			using iterator_category = meta::if_c<ForwardRange<Base>,
 				__stl2::forward_iterator_tag, __stl2::input_iterator_tag>;
-			using difference_type = difference_type_t<iterator_t<Base>>;
+			using difference_type = iter_difference_t<iterator_t<Base>>;
 			struct value_type;
 
 			__outer_iterator() = default;
@@ -235,8 +235,8 @@ STL2_OPEN_NAMESPACE {
 			bool zero_ = false;
 		public:
 			using iterator_category = iterator_category_t<__outer_iterator<Const>>;
-			using difference_type = difference_type_t<iterator_t<Base>>;
-			using value_type = value_type_t<iterator_t<Base>>;
+			using difference_type = iter_difference_t<iterator_t<Base>>;
+			using value_type = iter_value_t<iterator_t<Base>>;
 
 			__inner_iterator() = default;
 			constexpr explicit __inner_iterator(__outer_iterator<Const> i)

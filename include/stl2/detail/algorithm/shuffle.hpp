@@ -25,7 +25,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	template <RandomAccessIterator I, Sentinel<I> S,
-		class Gen = detail::default_random_engine&, class D = difference_type_t<I>>
+		class Gen = detail::default_random_engine&, class D = iter_difference_t<I>>
 	requires
 		Permutable<I> &&
 		UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <RandomAccessRange Rng, class Gen = detail::default_random_engine&,
-		class D = difference_type_t<iterator_t<Rng>>>
+		class D = iter_difference_t<iterator_t<Rng>>>
 	requires
 		Permutable<iterator_t<Rng>> &&
 		UniformRandomNumberGenerator<remove_reference_t<Gen>> &&

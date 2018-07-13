@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
 			I value_ {};
 		public:
 			using value_type = I;
-			using difference_type = difference_type_t<I>;
+			using difference_type = iter_difference_t<I>;
 
 			iterator() = default;
 			constexpr explicit iterator(I value)

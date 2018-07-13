@@ -77,8 +77,8 @@ STL2_OPEN_NAMESPACE {
 			IndirectlyComparable<
 				I1, I2, Pred, Proj1, Proj2>
 		ext::subrange<I1> sized(
-			const I1 first1_, S1 last1, const difference_type_t<I1> d1_,
-			I2 first2, S2 last2, const difference_type_t<I2> d2,
+			const I1 first1_, S1 last1, const iter_difference_t<I1> d1_,
+			I2 first2, S2 last2, const iter_difference_t<I2> d2,
 			Pred pred, Proj1 proj1, Proj2 proj2)
 		{
 			if (d2 == 0) {

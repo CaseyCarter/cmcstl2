@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 		template <RandomAccessIterator I, class Comp, class Proj>
 		requires
 			Sortable<I, Comp, Proj>
-		void sort_heap_n(I first, difference_type_t<I> n, Comp comp, Proj proj)
+		void sort_heap_n(I first, iter_difference_t<I> n, Comp comp, Proj proj)
 		{
 			if (n < 2) {
 				return;

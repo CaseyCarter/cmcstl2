@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 	[[deprecated]] tagged_pair<tag::in(I), tag::out(O)>
 	uninitialized_copy(I first, S last, O result)
 	requires
-		Constructible<value_type_t<O>, reference_t<I>>
+		Constructible<iter_value_t<O>, iter_reference_t<I>>
 	{
 		auto guard = detail::destroy_guard<O>{result};
 		for (; first != last; ++result, (void)++first) {
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 	[[deprecated]] tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
 	uninitialized_copy(Rng&& rng, O result)
 	requires
-		Constructible<value_type_t<O>, reference_t<iterator_t<Rng>>>
+		Constructible<iter_value_t<O>, iter_reference_t<iterator_t<Rng>>>
 	{
 		return __stl2::uninitialized_copy(
 			__stl2::begin(rng), __stl2::end(rng), result);
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <InputIterator I, Sentinel<I> S1, __NoThrowForwardIterator O, __NoThrowSentinel<O> S2>
 	requires
-		Constructible<value_type_t<O>, reference_t<I>>
+		Constructible<iter_value_t<O>, iter_reference_t<I>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	uninitialized_copy(I ifirst, S1 ilast, O ofirst, S2 olast)
 	{
@@ -75,7 +75,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <InputRange IRng, __NoThrowForwardRange ORng>
 	requires
-		Constructible<value_type_t<iterator_t<ORng>>, reference_t<iterator_t<IRng>>>
+		Constructible<iter_value_t<iterator_t<ORng>>, iter_reference_t<iterator_t<IRng>>>
 	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(safe_iterator_t<ORng>)>
 	uninitialized_copy(IRng&& irng, ORng&& orng)
 	{
@@ -88,9 +88,9 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <InputIterator I, __NoThrowForwardIterator O>
 	requires
-		Constructible<value_type_t<O>, reference_t<I>>
+		Constructible<iter_value_t<O>, iter_reference_t<I>>
 	tagged_pair<tag::in(I), tag::out(O)>
-	uninitialized_copy_n(I first, difference_type_t<I> n, O out)
+	uninitialized_copy_n(I first, iter_difference_t<I> n, O out)
 	{
 		auto result = __stl2::uninitialized_copy(
 			__stl2::make_counted_iterator(first, n),

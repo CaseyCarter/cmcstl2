@@ -43,8 +43,8 @@ STL2_OPEN_NAMESPACE {
 			friend access;
 			I current_{};
 		public:
-			using difference_type = difference_type_t<I>;
-			using value_type = value_type_t<I>;
+			using difference_type = iter_difference_t<I>;
+			using value_type = iter_value_t<I>;
 			using single_pass = meta::bool_<!ForwardIterator<I>>;
 
 			class mixin : protected basic_mixin<cursor> {
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 				using difference_type = cursor::difference_type;
 				using value_type = cursor::value_type;
 				using iterator_category = input_iterator_tag;
-				using reference = rvalue_reference_t<I>;
+				using reference = iter_rvalue_reference_t<I>;
 
 				constexpr mixin() = default;
 				constexpr explicit mixin(I&& i)
@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 			: current_{access::current(u)}
 			{}
 
-			constexpr rvalue_reference_t<I> read() const
+			constexpr iter_rvalue_reference_t<I> read() const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::iter_move(current_)
 			)
@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
 			using __postinc_t = std::decay_t<decltype(current_++)>;
 			Readable{R}
 			struct __proxy {
-				using value_type = __stl2::value_type_t<R>;
+				using value_type = __stl2::iter_value_t<R>;
 				R __tmp;
 				constexpr decltype(auto) operator*()
 				STL2_NOEXCEPT_RETURN(
@@ -134,7 +134,7 @@ STL2_OPEN_NAMESPACE {
 				--current_;
 			}
 
-			constexpr void advance(difference_type_t<I> n)
+			constexpr void advance(iter_difference_t<I> n)
 			noexcept(noexcept(current_ += n))
 			requires RandomAccessIterator<I>
 			{
@@ -153,13 +153,13 @@ STL2_OPEN_NAMESPACE {
 				current_ == access::sentinel(that)
 			)
 
-			constexpr difference_type_t<I>
+			constexpr iter_difference_t<I>
 			distance_to(const cursor<SizedSentinel<I> >& that) const
 			STL2_NOEXCEPT_RETURN(
 				access::current(that) - current_
 			)
 
-			constexpr difference_type_t<I>
+			constexpr iter_difference_t<I>
 			distance_to(const move_sentinel<SizedSentinel<I> >& that) const
 			STL2_NOEXCEPT_RETURN(
 				access::sentinel(that) - current_

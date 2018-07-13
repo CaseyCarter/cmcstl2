@@ -29,11 +29,11 @@ int main() {
 	{
 		using I = istream_iterator<int>;
 		static_assert(WeaklyIncrementable<I>);
-		static_assert(Same<difference_type_t<I>, std::ptrdiff_t>);
+		static_assert(Same<iter_difference_t<I>, std::ptrdiff_t>);
 		static_assert(Readable<I>);
-		static_assert(Same<value_type_t<I>, int>);
-		static_assert(Same<reference_t<I>, const int&>);
-		static_assert(Same<rvalue_reference_t<I>, const int&&>);
+		static_assert(Same<iter_value_t<I>, int>);
+		static_assert(Same<iter_reference_t<I>, const int&>);
+		static_assert(Same<iter_rvalue_reference_t<I>, const int&&>);
 		static_assert(Iterator<I>);
 		static_assert(InputIterator<I>);
 		static_assert(!ForwardIterator<I>);

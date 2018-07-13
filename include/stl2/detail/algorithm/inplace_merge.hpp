@@ -49,13 +49,13 @@ STL2_OPEN_NAMESPACE {
 			template <BidirectionalIterator I, class C, class P>
 			requires
 				Sortable<I, C, P>
-			static void impl(I begin, I middle, I end, difference_type_t<I> len1,
-				difference_type_t<I> len2, temporary_buffer<value_type_t<I>>& buf,
+			static void impl(I begin, I middle, I end, iter_difference_t<I> len1,
+				iter_difference_t<I> len2, temporary_buffer<iter_value_t<I>>& buf,
 				C& pred, P& proj)
 			{
 				STL2_EXPENSIVE_ASSERT(len1 == __stl2::distance(begin, midddle));
 				STL2_EXPENSIVE_ASSERT(len2 == __stl2::distance(middle, end));
-				temporary_vector<value_type_t<I>> vec{buf};
+				temporary_vector<iter_value_t<I>> vec{buf};
 				if (len1 <= len2) {
 					__stl2::move(begin, middle, __stl2::back_inserter(vec));
 					__stl2::merge(
@@ -83,12 +83,12 @@ STL2_OPEN_NAMESPACE {
 			template <BidirectionalIterator I, class C, class P>
 			requires
 				Sortable<I, __f<C>, __f<P>>
-			void operator()(I begin, I middle, I end, difference_type_t<I> len1, difference_type_t<I> len2,
-				detail::temporary_buffer<value_type_t<I>>& buf, C pred, P proj) const
+			void operator()(I begin, I middle, I end, iter_difference_t<I> len1, iter_difference_t<I> len2,
+				detail::temporary_buffer<iter_value_t<I>>& buf, C pred, P proj) const
 			{
 				// Pre: len1 == distance(begin, midddle)
 				// Pre: len2 == distance(middle, end)
-				using D = difference_type_t<I>;
+				using D = iter_difference_t<I>;
 				while (true) {
 					// if middle == end, we're done
 					if (len2 == 0) {
@@ -178,10 +178,10 @@ STL2_OPEN_NAMESPACE {
 			template <BidirectionalIterator I, class C = less<>, class P = identity>
 			requires
 				Sortable<I, __f<C>, __f<P>>
-			void operator()(I begin, I middle, I end, difference_type_t<I> len1,
-				difference_type_t<I> len2, C pred = C{}, P proj = P{}) const
+			void operator()(I begin, I middle, I end, iter_difference_t<I> len1,
+				iter_difference_t<I> len2, C pred = C{}, P proj = P{}) const
 			{
-				temporary_buffer<value_type_t<I>> no_buffer;
+				temporary_buffer<iter_value_t<I>> no_buffer;
 				merge_adaptive(std::move(begin), std::move(middle), std::move(end),
 					len1, len2, no_buffer, std::ref(pred), std::ref(proj));
 			}
@@ -201,9 +201,9 @@ STL2_OPEN_NAMESPACE {
 		auto len1 = __stl2::distance(first, middle);
 		auto len2_and_end = __stl2::ext::enumerate(middle, std::move(last));
 		auto buf_size = std::min(len1, len2_and_end.count());
-		detail::temporary_buffer<value_type_t<I>> buf;
-		if (is_trivially_move_assignable<value_type_t<I>>{} && 8 < buf_size) {
-			buf = detail::temporary_buffer<value_type_t<I>>{buf_size};
+		detail::temporary_buffer<iter_value_t<I>> buf;
+		if (is_trivially_move_assignable<iter_value_t<I>>{} && 8 < buf_size) {
+			buf = detail::temporary_buffer<iter_value_t<I>>{buf_size};
 		}
 		detail::merge_adaptive(std::move(first), std::move(middle), len2_and_end.end(),
 			len1, len2_and_end.count(), buf, std::ref(comp), std::ref(proj));

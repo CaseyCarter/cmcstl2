@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 		template <class I>
 		requires
 			Readable<const I> &&
-			_Is<reference_t<const I>, std::is_reference>
+			_Is<iter_reference_t<const I>, std::is_reference>
 		constexpr auto operator_arrow_(const I& i, ext::priority_tag<1>)
 		noexcept(noexcept(*i)) {
 			auto&& tmp = *i;
@@ -71,15 +71,15 @@ STL2_OPEN_NAMESPACE {
 		template <class I>
 		requires
 			Readable<const I> &&
-			!std::is_reference<reference_t<I>>::value &&
-			Constructible<value_type_t<I>, reference_t<I>>
+			!std::is_reference<iter_reference_t<I>>::value &&
+			Constructible<iter_value_t<I>, iter_reference_t<I>>
 		constexpr auto operator_arrow_(const I& i, ext::priority_tag<0>)
 		noexcept(
 			std::is_nothrow_move_constructible<
-				operator_arrow_proxy<value_type_t<I>>>::value &&
+				operator_arrow_proxy<iter_value_t<I>>>::value &&
 			std::is_nothrow_constructible<
-				operator_arrow_proxy<value_type_t<I>>, reference_t<I>>::value) {
-			return operator_arrow_proxy<value_type_t<I>>{*i};
+				operator_arrow_proxy<iter_value_t<I>>, iter_reference_t<I>>::value) {
+			return operator_arrow_proxy<iter_value_t<I>>{*i};
 		}
 
 		template <class I>
@@ -148,12 +148,12 @@ STL2_OPEN_NAMESPACE {
 		template <class I2, SizedSentinel<I2> I1,
 			SizedSentinel<I2> S1, SizedSentinel<I1> S2>
 		struct difference_visitor {
-			constexpr difference_type_t<I2> operator()(
+			constexpr iter_difference_t<I2> operator()(
 				const auto& lhs, const auto& rhs) const
 			STL2_NOEXCEPT_RETURN(
-				static_cast<difference_type_t<I2>>(lhs - rhs)
+				static_cast<iter_difference_t<I2>>(lhs - rhs)
 			)
-			constexpr difference_type_t<I2> operator()(
+			constexpr iter_difference_t<I2> operator()(
 				const S1&, const S2&) const noexcept
 			{
 				return 0;
@@ -170,7 +170,7 @@ STL2_OPEN_NAMESPACE {
 		friend __common_iterator::access;
 		std::variant<I, S> v_;
 	public:
-		using difference_type = difference_type_t<I>;
+		using difference_type = iter_difference_t<I>;
 
 		constexpr common_iterator() = default;
 
@@ -239,7 +239,7 @@ STL2_OPEN_NAMESPACE {
 			return tmp;
 		}
 
-		friend rvalue_reference_t<I> iter_move(
+		friend iter_rvalue_reference_t<I> iter_move(
 			const common_iterator& i)
 			noexcept(noexcept(__stl2::iter_move(std::declval<const I&>())))
 			requires InputIterator<I> {
@@ -260,8 +260,8 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template <Readable I, class S>
-	struct value_type<common_iterator<I, S>> {
-		using type = value_type_t<I>;
+	struct readable_traits<common_iterator<I, S>> {
+		using type = iter_value_t<I>;
 	};
 	template <InputIterator I, class S>
 	struct iterator_category<common_iterator<I, S>> {
@@ -290,7 +290,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class I2, SizedSentinel<I2> I1, SizedSentinel<I2> S1,
 		SizedSentinel<I1> S2>
-	difference_type_t<I2> operator-(
+	iter_difference_t<I2> operator-(
 		const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
 	STL2_NOEXCEPT_RETURN(
 		std::visit(__common_iterator::difference_visitor<I1, I2, S1, S2>{},

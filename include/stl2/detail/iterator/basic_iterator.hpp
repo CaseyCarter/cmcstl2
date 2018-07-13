@@ -868,7 +868,7 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template <class C>
-	struct difference_type<basic_iterator<C>> {
+	struct incrementable_traits<basic_iterator<C>> {
 		using type = cursor::difference_type_t<C>;
 	};
 
@@ -878,7 +878,7 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template <cursor::Input C>
-	struct value_type<basic_iterator<C>> {
+	struct readable_traits<basic_iterator<C>> {
 		using type = cursor::value_type_t<C>;
 	};
 

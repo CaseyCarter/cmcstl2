@@ -18,7 +18,7 @@
 using namespace __stl2;
 
 namespace {
-	template <InputIterator I, Sentinel<I> S, OutputIterator<reference_t<I>> O>
+	template <InputIterator I, Sentinel<I> S, OutputIterator<iter_reference_t<I>> O>
 	tagged_pair<tag::in(I), tag::out(O)>
 	constexpr copy(I first, S last, O out) {
 		for (; first != last; ++first, void(), ++out) {
@@ -34,9 +34,9 @@ int main() {
 
 	using I = ostream_iterator<int>;
 	static_assert(WeaklyIncrementable<I>);
-	static_assert(Same<difference_type_t<I>, std::ptrdiff_t>);
+	static_assert(Same<iter_difference_t<I>, std::ptrdiff_t>);
 	static_assert(Iterator<I>);
-	static_assert(Same<reference_t<I>, I&>);
+	static_assert(Same<iter_reference_t<I>, I&>);
 	static_assert(OutputIterator<I, const int&>);
 	static_assert(!InputIterator<I>);
 

@@ -48,9 +48,9 @@ STL2_OPEN_NAMESPACE {
 			__stl2::make_heap(result_first, r, std::ref(comp), std::ref(proj2));
 			const auto len = __stl2::distance(result_first, r);
 			for(; first != last; ++first) {
-				reference_t<I1>&& x = *first;
+				iter_reference_t<I1>&& x = *first;
 				if(__stl2::invoke(comp, __stl2::invoke(proj1, x), __stl2::invoke(proj2, *result_first))) {
-					*result_first = std::forward<reference_t<I1>>(x);
+					*result_first = std::forward<iter_reference_t<I1>>(x);
 					detail::sift_down_n(result_first, len, result_first,
 						std::ref(comp), std::ref(proj2));
 				}

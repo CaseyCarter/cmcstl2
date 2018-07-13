@@ -31,11 +31,11 @@ STL2_OPEN_NAMESPACE {
 		const T2& new_value, Proj proj = Proj{})
 	{
 		for (; first != last; ++first, ++result) {
-			reference_t<I>&& v = *first;
+			iter_reference_t<I>&& v = *first;
 			if (__stl2::invoke(proj, v) == old_value) {
 				*result = new_value;
 			} else {
-				*result = std::forward<reference_t<I>>(v);
+				*result = std::forward<iter_reference_t<I>>(v);
 			}
 		}
 		return {std::move(first), std::move(result)};

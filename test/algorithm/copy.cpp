@@ -20,12 +20,12 @@
 namespace ranges = __stl2;
 
 template <ranges::InputIterator I>
-	requires ranges::Regular<ranges::value_type_t<I>>
+	requires ranges::Regular<ranges::iter_value_t<I>>
 class delimiter {
-	ranges::value_type_t<I> value_;
+	ranges::iter_value_t<I> value_;
 public:
 	delimiter() = default;
-	delimiter(ranges::value_type_t<I> value) :
+	delimiter(ranges::iter_value_t<I> value) :
 		value_{std::move(value)} {}
 
 	friend bool operator==(const delimiter& lhs, const delimiter& rhs) {

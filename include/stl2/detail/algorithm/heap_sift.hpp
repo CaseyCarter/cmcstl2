@@ -37,14 +37,14 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectStrictWeakOrder<Comp,
 				projected<I, Proj>, projected<I, Proj>>
-		void sift_up_n(I first, difference_type_t<I> n, Comp comp, Proj proj)
+		void sift_up_n(I first, iter_difference_t<I> n, Comp comp, Proj proj)
 		{
 			if (n > 1) {
 				I last = first + n;
 				n = (n - 2) / 2;
 				I i = first + n;
 				if (__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *--last))) {
-					value_type_t<I> v = __stl2::iter_move(last);
+					iter_value_t<I> v = __stl2::iter_move(last);
 					do {
 						*last = __stl2::iter_move(i);
 						last = i;
@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectStrictWeakOrder<Comp,
 				projected<I, Proj>, projected<I, Proj>>
-		void sift_down_n(I first, difference_type_t<I> n, I start,
+		void sift_down_n(I first, iter_difference_t<I> n, I start,
 			Comp comp, Proj proj)
 		{
 			// left-child of start is at 2 * start + 1
@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 				return;
 			}
 
-			value_type_t<I> top = __stl2::iter_move(start);
+			iter_value_t<I> top = __stl2::iter_move(start);
 			do {
 				// we are not in heap-order, swap the parent with it's largest child
 				*start = __stl2::iter_move(child_i);

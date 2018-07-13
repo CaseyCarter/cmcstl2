@@ -25,9 +25,9 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
-	difference_type_t<I> count_if(I first, S last, Pred pred, Proj proj = Proj{})
+	iter_difference_t<I> count_if(I first, S last, Pred pred, Proj proj = Proj{})
 	{
-		auto n = difference_type_t<I>{0};
+		auto n = iter_difference_t<I>{0};
 		for (; first != last; ++first) {
 			if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
 				++n;
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
-	difference_type_t<iterator_t<Rng>> count_if(Rng&& rng, Pred pred, Proj proj = Proj{})
+	iter_difference_t<iterator_t<Rng>> count_if(Rng&& rng, Pred pred, Proj proj = Proj{})
 	{
 		return __stl2::count_if(__stl2::begin(rng), __stl2::end(rng),
 			std::ref(pred), std::ref(proj));

@@ -28,16 +28,16 @@ STL2_OPEN_NAMESPACE {
 			InputIterator<I> && Sentinel<S, I> && WeaklyIncrementable<O> &&
 			IndirectlyCopyable<I, O> &&
 			UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
-			ConvertibleTo<result_of_t<Gen&()>, difference_type_t<I>>;
+			ConvertibleTo<result_of_t<Gen&()>, iter_difference_t<I>>;
 
 		template <class I, class S, class O, class Gen>
 		requires
 			constraint<I, S, O, Gen>
 		tagged_pair<tag::in(I), tag::out(O)>
-		sized_impl(I first, S last, difference_type_t<I> pop_size,
-			O out, difference_type_t<I> n, Gen& gen)
+		sized_impl(I first, S last, iter_difference_t<I> pop_size,
+			O out, iter_difference_t<I> n, Gen& gen)
 		{
-			uniform_int_distribution<difference_type_t<I>> dist;
+			uniform_int_distribution<iter_difference_t<I>> dist;
 			using param_t = typename decltype(dist)::param_type;
 			if (n > pop_size) {
 				n = pop_size;
@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 		(ForwardIterator<I> || SizedSentinel<S, I>) &&
 		__sample::constraint<I, S, O, Gen>
 	tagged_pair<tag::in(I), tag::out(O)>
-	inline sample(I first, S last, O out, difference_type_t<I> n,
+	inline sample(I first, S last, O out, iter_difference_t<I> n,
 		Gen&& gen = detail::get_random_engine())
 	{
 		auto k = __stl2::distance(first, last);
@@ -73,19 +73,19 @@ STL2_OPEN_NAMESPACE {
 		!(ForwardIterator<I> || SizedSentinel<S, I>) &&
 		__sample::constraint<I, S, O, Gen>
 	tagged_pair<tag::in(I), tag::out(O)>
-	sample(I first, S last, O out, difference_type_t<I> n,
+	sample(I first, S last, O out, iter_difference_t<I> n,
 		Gen&& gen = detail::get_random_engine())
 	{
 		if (n <= 0) {
 			goto done;
 		}
-		for (difference_type_t<I> i = 0; i < n; (void)++i, ++first) {
+		for (iter_difference_t<I> i = 0; i < n; (void)++i, ++first) {
 			if (first == last) {
 				goto done;
 			}
 			out[i] = *first;
 		}
-		uniform_int_distribution<difference_type_t<I>> dist;
+		uniform_int_distribution<iter_difference_t<I>> dist;
 		using param_t = typename decltype(dist)::param_type;
 		for (auto pop_size = n; first != last; (void)++first, ++pop_size) {
 			auto const i = dist(gen, param_t{0, pop_size});
@@ -134,7 +134,7 @@ STL2_OPEN_NAMESPACE {
 		!(ForwardRange<Rng> || SizedRange<Rng>) &&
 		__sample::constraint<iterator_t<Rng>, sentinel_t<Rng>, O, Gen>
 	inline tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
-	sample(Rng&& rng, O out, difference_type_t<iterator_t<Rng>> n,
+	sample(Rng&& rng, O out, iter_difference_t<iterator_t<Rng>> n,
 		Gen&& gen = detail::get_random_engine())
 	{
 		return __stl2::sample(__stl2::begin(rng), __stl2::end(rng),
@@ -146,7 +146,7 @@ STL2_OPEN_NAMESPACE {
 		(ForwardRange<Rng> || SizedRange<Rng>) &&
 		__sample::constraint<iterator_t<Rng>, sentinel_t<Rng>, O, Gen>
 	inline tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
-	sample(Rng&& rng, O out, difference_type_t<iterator_t<Rng>> n,
+	sample(Rng&& rng, O out, iter_difference_t<iterator_t<Rng>> n,
 		Gen&& gen = detail::get_random_engine())
 	{
 		return __sample::sized_impl(__stl2::begin(rng), __stl2::end(rng),

@@ -18,19 +18,19 @@
 
 namespace ns {
 	template <class I>
-	using difference_type_t = ranges::iterator_difference_t<I>;
+	using iter_difference_t = ranges::iterator_difference_t<I>;
 
 	template <class I>
 	using iterator_category_t = ranges::iterator_category_t<I>;
 
 	template <class I>
-	using reference_t = ranges::iterator_reference_t<I>;
+	using iter_reference_t = ranges::iterator_reference_t<I>;
 
 	template <class I>
-	using rvalue_reference_t = ranges::iterator_rvalue_reference_t<I>;
+	using iter_rvalue_reference_t = ranges::iterator_rvalue_reference_t<I>;
 
 	template <class I>
-	using value_type_t = ranges::iterator_value_t<I>;
+	using iter_value_t = ranges::iterator_value_t<I>;
 
 	using ranges::value_type;
 	using ranges::difference_type;
@@ -41,7 +41,7 @@ namespace ns {
 	using ranges::bidirectional_iterator_tag;
 	using ranges::random_access_iterator_tag;
 
-	using ranges::indirect_result_of_t;
+	using ranges::indirect_invoke_result_t;
 }
 
 #elif VALIDATE_STL2
@@ -64,41 +64,41 @@ namespace associated_type_test {
 	struct A { using value_type = int; int& operator*() const; };
 	struct B : A { using value_type = double; };
 
-	CONCEPT_ASSERT(ranges::Same<int&, ns::reference_t<int*>>);
-	CONCEPT_ASSERT(ranges::Same<int&, ns::reference_t<int[]>>);
-	CONCEPT_ASSERT(ranges::Same<int&, ns::reference_t<int[4]>>);
-	CONCEPT_ASSERT(ranges::Same<int&, ns::reference_t<A>>);
-	CONCEPT_ASSERT(ranges::Same<int&, ns::reference_t<B>>);
-	CONCEPT_ASSERT(ranges::Same<const int&, ns::reference_t<const int*>>);
+	CONCEPT_ASSERT(ranges::Same<int&, ns::iter_reference_t<int*>>);
+	CONCEPT_ASSERT(ranges::Same<int&, ns::iter_reference_t<int[]>>);
+	CONCEPT_ASSERT(ranges::Same<int&, ns::iter_reference_t<int[4]>>);
+	CONCEPT_ASSERT(ranges::Same<int&, ns::iter_reference_t<A>>);
+	CONCEPT_ASSERT(ranges::Same<int&, ns::iter_reference_t<B>>);
+	CONCEPT_ASSERT(ranges::Same<const int&, ns::iter_reference_t<const int*>>);
 
-	CONCEPT_ASSERT(ranges::Same<int&&, ns::rvalue_reference_t<int*>>);
-	CONCEPT_ASSERT(ranges::Same<int&&, ns::rvalue_reference_t<int[]>>);
-	CONCEPT_ASSERT(ranges::Same<int&&, ns::rvalue_reference_t<int[4]>>);
-	CONCEPT_ASSERT(ranges::Same<int&&, ns::rvalue_reference_t<A>>);
-	CONCEPT_ASSERT(ranges::Same<int&&, ns::rvalue_reference_t<B>>);
-	CONCEPT_ASSERT(ranges::Same<const int&&, ns::rvalue_reference_t<const int*>>);
+	CONCEPT_ASSERT(ranges::Same<int&&, ns::iter_rvalue_reference_t<int*>>);
+	CONCEPT_ASSERT(ranges::Same<int&&, ns::iter_rvalue_reference_t<int[]>>);
+	CONCEPT_ASSERT(ranges::Same<int&&, ns::iter_rvalue_reference_t<int[4]>>);
+	CONCEPT_ASSERT(ranges::Same<int&&, ns::iter_rvalue_reference_t<A>>);
+	CONCEPT_ASSERT(ranges::Same<int&&, ns::iter_rvalue_reference_t<B>>);
+	CONCEPT_ASSERT(ranges::Same<const int&&, ns::iter_rvalue_reference_t<const int*>>);
 
-	CONCEPT_ASSERT(ranges::Same<int, ns::value_type_t<int*>>);
-	CONCEPT_ASSERT(ranges::Same<int, ns::value_type_t<int[]>>);
-	CONCEPT_ASSERT(ranges::Same<int, ns::value_type_t<int[4]>>);
-	CONCEPT_ASSERT(ranges::Same<int, ns::value_type_t<A>>);
-	CONCEPT_ASSERT(ranges::Same<double, ns::value_type_t<B>>);
-	CONCEPT_ASSERT(ranges::Same<int, ns::value_type_t<const int*>>);
-	CONCEPT_ASSERT(!meta::is_trait<ns::value_type<void>>());
-	CONCEPT_ASSERT(!meta::is_trait<ns::value_type<void*>>());
-	CONCEPT_ASSERT(ranges::Same<int, ns::value_type_t<const int* const>>);
-	CONCEPT_ASSERT(ranges::Same<int, ns::value_type_t<const int[2]>>);
+	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<int*>>);
+	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<int[]>>);
+	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<int[4]>>);
+	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<A>>);
+	CONCEPT_ASSERT(ranges::Same<double, ns::iter_value_t<B>>);
+	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<const int*>>);
+	CONCEPT_ASSERT(!meta::is_trait<ns::readable_traits<void>>());
+	CONCEPT_ASSERT(!meta::is_trait<ns::readable_traits<void*>>());
+	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<const int* const>>);
+	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<const int[2]>>);
 	struct S { using value_type = int; using element_type = int const; };
-	CONCEPT_ASSERT(ranges::Same<int, ns::value_type_t<S>>);
+	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<S>>);
 
-	CONCEPT_ASSERT(ranges::Same<std::ptrdiff_t, ns::difference_type_t<int*>>);
-	CONCEPT_ASSERT(ranges::Same<std::ptrdiff_t, ns::difference_type_t<int[]>>);
-	CONCEPT_ASSERT(ranges::Same<std::ptrdiff_t, ns::difference_type_t<int[4]>>);
+	CONCEPT_ASSERT(ranges::Same<std::ptrdiff_t, ns::iter_difference_t<int*>>);
+	CONCEPT_ASSERT(ranges::Same<std::ptrdiff_t, ns::iter_difference_t<int[]>>);
+	CONCEPT_ASSERT(ranges::Same<std::ptrdiff_t, ns::iter_difference_t<int[4]>>);
 
-	CONCEPT_ASSERT(!meta::is_trait<ns::difference_type<void>>());
-	CONCEPT_ASSERT(!meta::is_trait<ns::difference_type<void*>>());
+	CONCEPT_ASSERT(!meta::is_trait<ns::incrementable_traits<void>>());
+	CONCEPT_ASSERT(!meta::is_trait<ns::incrementable_traits<void*>>());
 
-	CONCEPT_ASSERT(ranges::Same<int, ns::difference_type_t<int>>);
+	CONCEPT_ASSERT(ranges::Same<int, ns::iter_difference_t<int>>);
 #if VALIDATE_STL2
 	CONCEPT_ASSERT(ranges::Same<ns::iterator_category_t<int*>, __stl2::ext::contiguous_iterator_tag>);
 	CONCEPT_ASSERT(ranges::Same<ns::iterator_category_t<const int*>, __stl2::ext::contiguous_iterator_tag>);
@@ -167,7 +167,7 @@ namespace readable_test {
 	CONCEPT_ASSERT(ranges::Readable<int*>);
 	CONCEPT_ASSERT(ranges::Readable<const int*>);
 	CONCEPT_ASSERT(ranges::Readable<A>);
-	CONCEPT_ASSERT(ranges::Same<ns::value_type_t<A>,int>);
+	CONCEPT_ASSERT(ranges::Same<ns::iter_value_t<A>,int>);
 
 	struct MoveOnlyReadable {
 		using value_type = std::unique_ptr<int>;
@@ -258,10 +258,10 @@ namespace indirectly_callable_test {
 	CONCEPT_ASSERT(ranges::ext::IndirectInvocable<std::plus<int>, int*, int*>);
 }
 
-namespace indirect_result_of_test {
+namespace indirect_invoke_result_test {
 	template <class R, class... Args>
 	using fn_t = R(Args...);
-	CONCEPT_ASSERT(ranges::Same<ns::indirect_result_of_t<fn_t<void, int>&(const int*)>, void>);
+	CONCEPT_ASSERT(ranges::Same<ns::indirect_invoke_result_t<fn_t<void, int>&, const int*>, void>);
 }
 
 int main() {

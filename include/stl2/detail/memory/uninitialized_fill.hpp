@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <__NoThrowForwardIterator I, Sentinel<I> S, typename T>
 	requires
-		Constructible<value_type_t<I>, const T&>
+		Constructible<iter_value_t<I>, const T&>
 	I uninitialized_fill(I first, S last, const T& x)
 	{
 		auto guard = detail::destroy_guard<I>{first};
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <__NoThrowForwardRange Rng, typename T>
 	requires
-		Constructible<value_type_t<iterator_t<Rng>>, const T&>
+		Constructible<iter_value_t<iterator_t<Rng>>, const T&>
 	safe_iterator_t<Rng>
 	uninitialized_fill(Rng&& rng, const T& x)
 	{
@@ -55,8 +55,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <__NoThrowForwardIterator I, typename T>
 	requires
-		Constructible<value_type_t<I>, const T&>
-	I uninitialized_fill_n(I first, const difference_type_t<I> n, const T& x)
+		Constructible<iter_value_t<I>, const T&>
+	I uninitialized_fill_n(I first, const iter_difference_t<I> n, const T& x)
 	{
 		return __stl2::uninitialized_fill(
 			__stl2::make_counted_iterator(std::move(first), n),

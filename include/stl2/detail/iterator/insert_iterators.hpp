@@ -133,15 +133,15 @@ STL2_OPEN_NAMESPACE {
 		insert_iterator() = default;
 		insert_iterator(Container& x, iterator_t<Container> i)
 		: container(std::addressof(x)), iter(std::move(i)) {}
-		insert_iterator& operator=(const value_type_t<Container>& value)
-		requires detail::InsertableInto<const value_type_t<Container>&, Container>
+		insert_iterator& operator=(const iter_value_t<Container>& value)
+		requires detail::InsertableInto<const iter_value_t<Container>&, Container>
 		{
 			iter = container->insert(iter, value);
 			++iter;
 			return *this;
 		}
-		insert_iterator& operator=(value_type_t<Container>&& value)
-		requires detail::InsertableInto<value_type_t<Container>&&, Container>
+		insert_iterator& operator=(iter_value_t<Container>&& value)
+		requires detail::InsertableInto<iter_value_t<Container>&&, Container>
 		{
 			iter = container->insert(iter, std::move(value));
 			++iter;

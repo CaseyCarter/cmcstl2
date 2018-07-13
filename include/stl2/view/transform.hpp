@@ -30,7 +30,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <InputRange R, CopyConstructible F>
-		requires View<R> && Invocable<F&, reference_t<iterator_t<R>>>
+		requires View<R> && Invocable<F&, iter_reference_t<iterator_t<R>>>
 		class transform_view : public view_interface<transform_view<R, F>> {
 		private:
 			R base_;
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 			// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 			template <class ConstR = const R>
 			constexpr const_iterator begin() const requires Range<ConstR> &&
-				Invocable<const F&, reference_t<iterator_t<ConstR>>>
+				Invocable<const F&, iter_reference_t<iterator_t<ConstR>>>
 			{ return {*this, __stl2::begin(base_)}; }
 
 			constexpr sentinel end()
@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 			// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 			template <class ConstR = const R>
 			constexpr const_sentinel end() const requires Range<ConstR> &&
-				Invocable<const F&, reference_t<iterator_t<ConstR>>>
+				Invocable<const F&, iter_reference_t<iterator_t<ConstR>>>
 			{ return const_sentinel{__stl2::end(base_)}; }
 
 			constexpr iterator end() requires CommonRange<R>
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 			// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 			template <class ConstR = const R>
 			constexpr const_iterator end() const requires CommonRange<ConstR> &&
-				Invocable<const F&, reference_t<iterator_t<ConstR>>>
+				Invocable<const F&, iter_reference_t<iterator_t<ConstR>>>
 			{ return {*this, __stl2::end(base_)}; }
 
 			constexpr auto size() requires SizedRange<R>
@@ -106,8 +106,8 @@ STL2_OPEN_NAMESPACE {
 		public:
 			using iterator_category = iterator_category_t<iterator_t<Base>>;
 			using value_type =
-				__uncvref<std::invoke_result_t<F&, reference_t<iterator_t<Base>>>>;
-			using difference_type = difference_type_t<iterator_t<Base>>;
+				__uncvref<std::invoke_result_t<F&, iter_reference_t<iterator_t<Base>>>>;
+			using difference_type = iter_difference_t<iterator_t<Base>>;
 
 			__iterator() = default;
 
@@ -250,12 +250,12 @@ STL2_OPEN_NAMESPACE {
 			friend constexpr bool operator!=(const __sentinel& x, const __iterator<Const>& y)
 			{ return !(y == x); }
 
-			friend constexpr difference_type_t<iterator_t<Base>>
+			friend constexpr iter_difference_t<iterator_t<Base>>
 			operator-(const __iterator<Const>& x, const __sentinel& y)
 			requires SizedSentinel<sentinel_t<Base>, iterator_t<Base>>
 			{ return x.current_ - y.end_; }
 
-			friend constexpr difference_type_t<iterator_t<Base>>
+			friend constexpr iter_difference_t<iterator_t<Base>>
 			operator-(const __sentinel& y, const __iterator<Const>& x)
 			requires SizedSentinel<sentinel_t<Base>, iterator_t<Base>>
 			{ return x.end_ - y.current_; }
@@ -266,7 +266,7 @@ STL2_OPEN_NAMESPACE {
 		namespace __transform {
 			struct fn {
 				template <InputRange Rng, CopyConstructible F>
-				requires ext::ViewableRange<Rng> && Invocable<F&, reference_t<iterator_t<Rng>>>
+				requires ext::ViewableRange<Rng> && Invocable<F&, iter_reference_t<iterator_t<Rng>>>
 				constexpr auto operator()(Rng&& rng, F fun) const {
 					return ext::transform_view{std::forward<Rng>(rng), std::move(fun)};
 				}

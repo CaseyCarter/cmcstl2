@@ -48,7 +48,7 @@ int main()
 	std::pair<int, int> rgp[] = {{1,1}, {2,2}, {3,3}, {4,4}, {5,5}, {6,6}, {7,7}, {8,8}, {9,9}, {10,10}};
 	auto rng2 = rgp | view::transform(&std::pair<int,int>::first);
 	static_assert(Same<int &, decltype(*begin(rng2))>);
-	static_assert(Same<value_type_t<iterator_t<decltype(rng2)>>, int>);
+	static_assert(Same<iter_value_t<iterator_t<decltype(rng2)>>, int>);
 	static_assert(Same<decltype(iter_move(begin(rng2))), int &&>);
 	static_assert(View<decltype(rng2)>);
 	static_assert(CommonRange<decltype(rng2)>);

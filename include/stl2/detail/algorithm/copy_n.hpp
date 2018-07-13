@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputIterator I, WeaklyIncrementable O>
 	requires IndirectlyCopyable<I, O>
 	tagged_pair<tag::in(I), tag::out(O)>
-	copy_n(I first_, difference_type_t<I> n, O result)
+	copy_n(I first_, iter_difference_t<I> n, O result)
 	{
 		STL2_EXPECT(n >= 0);
 		auto norig = n;
