@@ -113,7 +113,7 @@ STL2_OPEN_NAMESPACE {
 		CommonReference<
 			const remove_reference_t<T>&,
 			const remove_reference_t<U>&> &&
-		requires(T&& t, U&&u) {
+		requires(T&& t, U&& u) {
 			__stl2::swap((T&&)t, (T&&)t);
 			__stl2::swap((U&&)u, (U&&)u);
 			__stl2::swap((T&&)t, (U&&)u);
