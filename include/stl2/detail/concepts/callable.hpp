@@ -80,13 +80,8 @@ STL2_OPEN_NAMESPACE {
 	// indirect_invoke_result [indirectcallables.indirectfunc]
 	//
 	template <class F, class... Is>
-	requires Invocable<F, iter_reference_t<Is>...>
-	struct indirect_invoke_result
-	: invoke_result<F, iter_reference_t<Is>&&...> {};
-
-	template <class F, class... Is>
 	using indirect_invoke_result_t =
-		meta::_t<indirect_invoke_result<F, Is...>>;
+		invoke_result_t<F, iter_reference_t<Is>&&...>;
 
 	namespace ext {
 		template <class F, class... Is>
