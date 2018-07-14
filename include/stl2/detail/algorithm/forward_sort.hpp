@@ -46,13 +46,13 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		namespace fsort {
 			template <class I>
-			using buf_t = temporary_buffer<value_type_t<I>>;
+			using buf_t = temporary_buffer<iter_value_t<I>>;
 
 			template <class I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
-			inline I merge_n_with_buffer(I f0, difference_type_t<I> n0,
-				I f1, difference_type_t<I> n1,
+			inline I merge_n_with_buffer(I f0, iter_difference_t<I> n0,
+				I f1, iter_difference_t<I> n1,
 				buf_t<I>& buf, Comp& comp, Proj& proj)
 			{
 				STL2_EXPECT(0 <= n0);
@@ -73,13 +73,13 @@ STL2_OPEN_NAMESPACE {
 			template <class I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
-			inline void merge_n_step_0(I f0, difference_type_t<I> n0,
-				I f1, difference_type_t<I> n1,
+			inline void merge_n_step_0(I f0, iter_difference_t<I> n0,
+				I f1, iter_difference_t<I> n1,
 				Comp& comp, Proj& proj,
-				I& f0_0, difference_type_t<I>& n0_0,
-				I& f0_1, difference_type_t<I>& n0_1,
-				I& f1_0, difference_type_t<I>& n1_0,
-				I& f1_1, difference_type_t<I>& n1_1)
+				I& f0_0, iter_difference_t<I>& n0_0,
+				I& f0_1, iter_difference_t<I>& n0_1,
+				I& f1_0, iter_difference_t<I>& n1_0,
+				I& f1_1, iter_difference_t<I>& n1_1)
 			{
 				STL2_EXPECT(0 <= n0);
 				STL2_EXPECT(0 <= n1);
@@ -98,13 +98,13 @@ STL2_OPEN_NAMESPACE {
 			template <class I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
-			inline void merge_n_step_1(I f0, difference_type_t<I> n0,
-				I f1, difference_type_t<I> n1,
+			inline void merge_n_step_1(I f0, iter_difference_t<I> n0,
+				I f1, iter_difference_t<I> n1,
 				Comp& comp, Proj& proj,
-				I& f0_0, difference_type_t<I>& n0_0,
-				I& f0_1, difference_type_t<I>& n0_1,
-				I& f1_0, difference_type_t<I>& n1_0,
-				I& f1_1, difference_type_t<I>& n1_1)
+				I& f0_0, iter_difference_t<I>& n0_0,
+				I& f0_1, iter_difference_t<I>& n0_1,
+				I& f1_0, iter_difference_t<I>& n1_0,
+				I& f1_1, iter_difference_t<I>& n1_1)
 			{
 				STL2_EXPECT(0 <= n0);
 				STL2_EXPECT(0 <= n1);
@@ -123,8 +123,8 @@ STL2_OPEN_NAMESPACE {
 			template <class I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
-			I merge_n_adaptive(I f0, difference_type_t<I> n0,
-				I f1, difference_type_t<I> n1,
+			I merge_n_adaptive(I f0, iter_difference_t<I> n0,
+				I f1, iter_difference_t<I> n1,
 				buf_t<I>& buf, Comp& comp, Proj& proj)
 			{
 				STL2_EXPECT(0 <= n0);
@@ -136,7 +136,7 @@ STL2_OPEN_NAMESPACE {
 					return fsort::merge_n_with_buffer(f0, n0, f1, n1, buf, comp, proj);
 				}
 				I f0_0, f0_1, f1_0, f1_1;
-				difference_type_t<I> n0_0, n0_1, n1_0, n1_1;
+				iter_difference_t<I> n0_0, n0_1, n1_0, n1_1;
 
 				if (n0 < n1) {
 					fsort::merge_n_step_0(f0, n0, f1, n1, comp, proj,
@@ -154,7 +154,7 @@ STL2_OPEN_NAMESPACE {
 			template <class I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
-			I sort_n_adaptive(I first, const difference_type_t<I> n, buf_t<I>& buf,
+			I sort_n_adaptive(I first, const iter_difference_t<I> n, buf_t<I>& buf,
 				Comp& comp, Proj& proj)
 			{
 				STL2_EXPECT(0 <= n);
@@ -171,13 +171,13 @@ STL2_OPEN_NAMESPACE {
 			template <class I, class Comp = less<>, class Proj = identity>
 			requires
 				Sortable<I, Comp, Proj>
-			inline I sort_n(I first, const difference_type_t<I> n,
+			inline I sort_n(I first, const iter_difference_t<I> n,
 				Comp comp = Comp{}, Proj proj = Proj{})
 			{
 				STL2_EXPECT(0 <= n);
 				auto ufirst = ext::uncounted(first);
-				static_assert(Same<value_type_t<I>, value_type_t<decltype(ufirst)>>);
-				using buf_t = temporary_buffer<value_type_t<I>>;
+				static_assert(Same<iter_value_t<I>, iter_value_t<decltype(ufirst)>>);
+				using buf_t = temporary_buffer<iter_value_t<I>>;
 				// TODO: tune this threshold.
 				auto buf = n / 2 >= 16 ? buf_t{n / 2} : buf_t{};
 				auto last = detail::fsort::sort_n_adaptive(std::move(ufirst), n,

@@ -24,8 +24,8 @@ STL2_OPEN_NAMESPACE {
 	template <class I>
 	concept bool __NoThrowInputIterator =
 		InputIterator<I> &&
-		_Is<reference_t<I>, std::is_lvalue_reference> &&
-		Same<__uncvref<reference_t<I>>, value_type_t<I>>;
+		_Is<iter_reference_t<I>, std::is_lvalue_reference> &&
+		Same<__uncvref<iter_reference_t<I>>, iter_value_t<I>>;
 		// Axiom: no exceptions are thrown from increment, copy, move, assignment,
 		//        indirection through valid iterators.
 

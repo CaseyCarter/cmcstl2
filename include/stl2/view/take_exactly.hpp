@@ -29,11 +29,11 @@ STL2_OPEN_NAMESPACE {
 			using base_t = detail::ebo_box<Base, take_exactly_view<Base>>;
 			using base_t::get;
 
-			difference_type_t<iterator_t<Base>> n_;
+			iter_difference_t<iterator_t<Base>> n_;
 		public:
 			take_exactly_view() requires DefaultConstructible<Base> = default;
 
-			constexpr take_exactly_view(Base view, difference_type_t<iterator_t<Base>> n)
+			constexpr take_exactly_view(Base view, iter_difference_t<iterator_t<Base>> n)
 			noexcept(std::is_nothrow_move_constructible<Base>::value)
 			: base_t{std::move(view)}, n_{n}
 			{ STL2_EXPECT(n >= 0); }
@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 	#endif
 
 			constexpr default_sentinel end() const noexcept { return {}; }
-			constexpr difference_type_t<iterator_t<Base>> size() const noexcept { return n_; }
+			constexpr iter_difference_t<iterator_t<Base>> size() const noexcept { return n_; }
 			constexpr bool empty() const noexcept { return n_ == 0; }
 		};
 	} // namespace ext

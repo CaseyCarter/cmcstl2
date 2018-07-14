@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 		!disable_sized_range<__uncvref<R>> &&
 		requires(const remove_reference_t<R>& r) {
 			{ __stl2::size(r) } -> Integral;
-			{ __stl2::size(r) } -> difference_type_t<iterator_t<R>>;
+			{ __stl2::size(r) } -> iter_difference_t<iterator_t<R>>;
 		};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 	template <class T>
 	concept bool _ContainerLike =
 		Range<T> && Range<const T> &&
-		!Same<reference_t<iterator_t<T>>, reference_t<iterator_t<const T>>>;
+		!Same<iter_reference_t<iterator_t<T>>, iter_reference_t<iterator_t<const T>>>;
 
 	template <class T>
 	struct enable_view {};
@@ -159,10 +159,10 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <class R>
 		concept bool ContiguousRange =
-			_Is<reference_t<iterator_t<R>>, is_reference> &&
-			Same<value_type_t<iterator_t<R>>, __uncvref<reference_t<iterator_t<R>>>> &&
+			_Is<iter_reference_t<iterator_t<R>>, is_reference> &&
+			Same<iter_value_t<iterator_t<R>>, __uncvref<iter_reference_t<iterator_t<R>>>> &&
 			requires(R& r) {
-				{ __stl2::data(r) } -> Same<add_pointer_t<reference_t<iterator_t<R>>>>&&;
+				{ __stl2::data(r) } -> Same<add_pointer_t<iter_reference_t<iterator_t<R>>>>&&;
 			};
 	}
 

@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 				}
 
 				template <Iterator I>
-				constexpr auto operator()(I i, difference_type_t<I> d) const
+				constexpr auto operator()(I i, iter_difference_t<I> d) const
 				{ return ext::subrange{counted_iterator{i, d}, default_sentinel{}}; }
 			};
 		}

@@ -29,14 +29,14 @@ STL2_OPEN_NAMESPACE {
 			using iterator_category = __stl2::input_iterator_tag;
 		};
 		template <ForwardRange Base>
-		requires std::is_reference_v<reference_t<iterator_t<Base>>> &&
-			ForwardRange<reference_t<iterator_t<Base>>>
+		requires std::is_reference_v<iter_reference_t<iterator_t<Base>>> &&
+			ForwardRange<iter_reference_t<iterator_t<Base>>>
 		struct join_view_iterator_base<Base> {
 			using iterator_category = __stl2::forward_iterator_tag;
 		};
 		template <BidirectionalRange Base>
-		requires std::is_reference_v<reference_t<iterator_t<Base>>> &&
-			BidirectionalRange<reference_t<iterator_t<Base>>>
+		requires std::is_reference_v<iter_reference_t<iterator_t<Base>>> &&
+			BidirectionalRange<iter_reference_t<iterator_t<Base>>>
 		struct join_view_iterator_base<Base> {
 			using iterator_category = __stl2::bidirectional_iterator_tag;
 		};
@@ -52,15 +52,15 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template <InputRange Rng>
-		requires View<Rng> && InputRange<reference_t<iterator_t<Rng>>> &&
-			(std::is_reference_v<reference_t<iterator_t<Rng>>> ||
-				View<value_type_t<iterator_t<Rng>>>)
+		requires View<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
+			(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
+				View<iter_value_t<iterator_t<Rng>>>)
 		class join_view
 		: public view_interface<join_view<Rng>>
-		, detail::join_view_base<reference_t<iterator_t<Rng>>> {
+		, detail::join_view_base<iter_reference_t<iterator_t<Rng>>> {
 		private:
 			Rng base_ {};
-			using InnerRng = reference_t<iterator_t<Rng>>;
+			using InnerRng = iter_reference_t<iterator_t<Rng>>;
 			template <bool Const>
 			struct __iterator;
 			template <bool Const>
@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 			template <class ConstRng = const Rng>
 			constexpr const_iterator begin() const
 			requires InputRange<ConstRng> &&
-				std::is_reference_v<reference_t<iterator_t<ConstRng>>>
+				std::is_reference_v<iter_reference_t<iterator_t<ConstRng>>>
 			{ return {*this, __stl2::begin(base_)}; }
 
 			constexpr sentinel end()
@@ -97,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 			template <class ConstRng = const Rng>
 			constexpr const_sentinel end() const
 			requires InputRange<ConstRng> &&
-				std::is_reference_v<reference_t<iterator_t<ConstRng>>>
+				std::is_reference_v<iter_reference_t<iterator_t<ConstRng>>>
 			{ return const_sentinel{*this}; }
 
 			constexpr iterator end()
@@ -111,17 +111,17 @@ STL2_OPEN_NAMESPACE {
 			template <class ConstRng = const Rng>
 			constexpr const_iterator end() const
 			requires ForwardRange<ConstRng> &&
-				std::is_reference_v<reference_t<iterator_t<ConstRng>>> &&
-				ForwardRange<reference_t<iterator_t<ConstRng>>> &&
+				std::is_reference_v<iter_reference_t<iterator_t<ConstRng>>> &&
+				ForwardRange<iter_reference_t<iterator_t<ConstRng>>> &&
 				CommonRange<ConstRng> &&
-				CommonRange<reference_t<iterator_t<ConstRng>>>
+				CommonRange<iter_reference_t<iterator_t<ConstRng>>>
 			{ return {*this, __stl2::end(base_)}; }
 		};
 
 		template <InputRange Rng>
-		requires InputRange<reference_t<iterator_t<Rng>>> &&
-			(std::is_reference_v<reference_t<iterator_t<Rng>>> ||
-				View<value_type_t<iterator_t<Rng>>>)
+		requires InputRange<iter_reference_t<iterator_t<Rng>>> &&
+			(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
+				View<iter_value_t<iterator_t<Rng>>>)
 		explicit join_view(Rng&&) -> join_view<all_view<Rng>>;
 
 		template <class Rng>
@@ -133,7 +133,7 @@ STL2_OPEN_NAMESPACE {
 			using Parent = __maybe_const<Const, join_view>;
 
 			iterator_t<Base> outer_ {};
-			iterator_t<reference_t<iterator_t<Base>>> inner_ {};
+			iterator_t<iter_reference_t<iterator_t<Base>>> inner_ {};
 			Parent* parent_ {};
 
 			friend __iterator<!Const>;
@@ -141,7 +141,7 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr decltype(auto) update_cache_()
 			{
-				if constexpr (!std::is_reference_v<reference_t<iterator_t<Base>>>)
+				if constexpr (!std::is_reference_v<iter_reference_t<iterator_t<Base>>>)
 				{
 					auto&& inner = *outer_;
 					return (parent_->inner_ = view::all(inner));
@@ -152,7 +152,7 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr decltype(auto) inner_rng_()
 			{
-				if constexpr (!std::is_reference_v<reference_t<iterator_t<Base>>>)
+				if constexpr (!std::is_reference_v<iter_reference_t<iterator_t<Base>>>)
 					return (parent_->inner_);
 				else
 					return *outer_;
@@ -167,16 +167,16 @@ STL2_OPEN_NAMESPACE {
 						return;
 				}
 				// needed for symmetric iterator comparison:
-				if constexpr (std::is_reference_v<reference_t<iterator_t<Base>>>)
-					inner_ = iterator_t<reference_t<iterator_t<Base>>>{};
+				if constexpr (std::is_reference_v<iter_reference_t<iterator_t<Base>>>)
+					inner_ = iterator_t<iter_reference_t<iterator_t<Base>>>{};
 			}
 		public:
 			using value_type =
-				value_type_t<iterator_t<reference_t<iterator_t<Base>>>>;
+				iter_value_t<iterator_t<iter_reference_t<iterator_t<Base>>>>;
 			using difference_type =
 				__stl2::common_type_t<
-					difference_type_t<iterator_t<Base>>,
-					difference_type_t<iterator_t<reference_t<iterator_t<Base>>>>>;
+					iter_difference_t<iterator_t<Base>>,
+					iter_difference_t<iterator_t<iter_reference_t<iterator_t<Base>>>>>;
 
 			__iterator() = default;
 
@@ -188,7 +188,7 @@ STL2_OPEN_NAMESPACE {
 				ConvertibleTo<iterator_t<Rng>, iterator_t<Base>> &&
 				ConvertibleTo<
 					iterator_t<InnerRng>,
-					iterator_t<reference_t<iterator_t<Base>>>>
+					iterator_t<iter_reference_t<iterator_t<Base>>>>
 			: outer_(i.outer_), inner_(i.inner_), parent_(i.parent) {}
 
 			constexpr decltype(auto) operator*() const
@@ -208,9 +208,9 @@ STL2_OPEN_NAMESPACE {
 			{ ++*this; }
 
 			constexpr __iterator operator++(int)
-			requires std::is_reference_v<reference_t<iterator_t<Base>>> &&
+			requires std::is_reference_v<iter_reference_t<iterator_t<Base>>> &&
 				ForwardRange<Base> &&
-				ForwardRange<reference_t<iterator_t<Base>>>
+				ForwardRange<iter_reference_t<iterator_t<Base>>>
 			{
 				auto tmp = *this;
 				++*this;
@@ -218,9 +218,9 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			constexpr __iterator& operator--()
-			requires std::is_reference_v<reference_t<iterator_t<Base>>> &&
+			requires std::is_reference_v<iter_reference_t<iterator_t<Base>>> &&
 				BidirectionalRange<Base> &&
-				BidirectionalRange<reference_t<iterator_t<Base>>>
+				BidirectionalRange<iter_reference_t<iterator_t<Base>>>
 			{
 				if (outer_ == __stl2::end(parent_->base_))
 					inner_ = __stl2::end(*--outer_);
@@ -231,9 +231,9 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			constexpr __iterator operator--(int)
-			requires std::is_reference_v<reference_t<iterator_t<Base>>> &&
+			requires std::is_reference_v<iter_reference_t<iterator_t<Base>>> &&
 				BidirectionalRange<Base> &&
-				BidirectionalRange<reference_t<iterator_t<Base>>>
+				BidirectionalRange<iter_reference_t<iterator_t<Base>>>
 			{
 				auto tmp = *this;
 				--*this;
@@ -241,15 +241,15 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			friend constexpr bool operator==(const __iterator& x, const __iterator& y)
-			requires std::is_reference_v<reference_t<iterator_t<Base>>> &&
+			requires std::is_reference_v<iter_reference_t<iterator_t<Base>>> &&
 				EqualityComparable<iterator_t<Base>> &&
-				EqualityComparable<iterator_t<reference_t<iterator_t<Base>>>>
+				EqualityComparable<iterator_t<iter_reference_t<iterator_t<Base>>>>
 			{ return x.outer_ == y.outer_ && x.inner_ == y.inner_; }
 
 			friend constexpr bool operator!=(const __iterator& x, const __iterator& y)
-			requires std::is_reference_v<reference_t<iterator_t<Base>>> &&
+			requires std::is_reference_v<iter_reference_t<iterator_t<Base>>> &&
 				EqualityComparable<iterator_t<Base>> &&
-				EqualityComparable<iterator_t<reference_t<iterator_t<Base>>>>
+				EqualityComparable<iterator_t<iter_reference_t<iterator_t<Base>>>>
 			{ return !(x == y); }
 
 			friend constexpr decltype(auto) iter_move(const __iterator& i)
@@ -300,9 +300,9 @@ STL2_OPEN_NAMESPACE {
 			struct fn : detail::__pipeable<fn>
 			{
 				template <InputRange Rng>
-				requires ext::ViewableRange<Rng> && InputRange<reference_t<iterator_t<Rng>>> &&
-					(std::is_reference_v<reference_t<iterator_t<Rng>>> ||
-						View<value_type_t<iterator_t<Rng>>>)
+				requires ext::ViewableRange<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
+					(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
+						View<iter_value_t<iterator_t<Rng>>>)
 				constexpr auto operator()(Rng&& rng) const
 				{ return ext::join_view{std::forward<Rng>(rng)}; }
 			};

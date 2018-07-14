@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 				K == subrange_kind::sized && !SizedSentinel<S, I>;
 
 			meta::if_c<StoreSize,
-				std::tuple<I, S, difference_type_t<I>>,
+				std::tuple<I, S, iter_difference_t<I>>,
 				std::tuple<I, S>> data_;
 
 			constexpr I& first_() noexcept {
@@ -80,10 +80,10 @@ STL2_OPEN_NAMESPACE {
 			constexpr const S& last_() const noexcept {
 				return std::get<1>(data_);
 			}
-			constexpr difference_type_t<I>& size_() noexcept requires StoreSize {
+			constexpr iter_difference_t<I>& size_() noexcept requires StoreSize {
 				return std::get<2>(data_);
 			}
-			constexpr const difference_type_t<I>& size_() const noexcept requires StoreSize {
+			constexpr const iter_difference_t<I>& size_() const noexcept requires StoreSize {
 				return std::get<2>(data_);
 			}
 		public:
@@ -96,14 +96,14 @@ STL2_OPEN_NAMESPACE {
 				requires !StoreSize
 			: data_{std::move(i), std::move(s)} {}
 
-			constexpr subrange(I i, S s, difference_type_t<I> n)
+			constexpr subrange(I i, S s, iter_difference_t<I> n)
 				requires StoreSize
 			: data_{std::move(i), std::move(s), n} {
 				if constexpr (RandomAccessIterator<I>) {
 					STL2_EXPECT(first_() + n == last_());
 				}
 			}
-			constexpr subrange(I i, S s, difference_type_t<I> n)
+			constexpr subrange(I i, S s, iter_difference_t<I> n)
 			requires SizedSentinel<S, I>
 			: data_{std::move(i), std::move(s)} {
 				STL2_EXPECT(last_() - first_() == n);
@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
 
 			template <_ForwardingRange R>
 			requires ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
-			constexpr subrange(R&& r, difference_type_t<I> n)
+			constexpr subrange(R&& r, iter_difference_t<I> n)
 				requires (K == subrange_kind::sized)
 			: subrange{__stl2::begin(r), __stl2::end(r), n} {
 				if constexpr (SizedRange<R>) {
@@ -139,7 +139,7 @@ STL2_OPEN_NAMESPACE {
 			{}
 
 			template <_PairLikeConvertibleTo<I, S> PairLike>
-			constexpr subrange(PairLike&& r, difference_type_t<I> n)
+			constexpr subrange(PairLike&& r, iter_difference_t<I> n)
 				requires (K == subrange_kind::sized)
 			: subrange{std::get<0>(static_cast<PairLike&&>(r)),
 				std::get<1>(static_cast<PairLike&&>(r)), n}
@@ -161,7 +161,7 @@ STL2_OPEN_NAMESPACE {
 				return first_() == last_();
 			}
 
-			constexpr difference_type_t<I> size() const requires K == subrange_kind::sized {
+			constexpr iter_difference_t<I> size() const requires K == subrange_kind::sized {
 				if constexpr (StoreSize) {
 					return size_();
 				} else {
@@ -169,18 +169,18 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			[[nodiscard]] constexpr subrange next(difference_type_t<I> n = 1) const {
+			[[nodiscard]] constexpr subrange next(iter_difference_t<I> n = 1) const {
 				auto tmp = *this;
 				tmp.advance(n);
 				return tmp;
 			}
-			[[nodiscard]] constexpr subrange prev(difference_type_t<I> n = 1) const
+			[[nodiscard]] constexpr subrange prev(iter_difference_t<I> n = 1) const
 			requires BidirectionalIterator<I> {
 				auto tmp = *this;
 				tmp.advance(-n);
 				return tmp;
 			}
-			constexpr subrange& advance(difference_type_t<I> n) {
+			constexpr subrange& advance(iter_difference_t<I> n) {
 				auto remainder = __stl2::advance(first_(), n, last_());
 				(void)remainder;
 				if constexpr (StoreSize) {
@@ -191,14 +191,14 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <Iterator I, Sentinel<I> S>
-		subrange(I, S, difference_type_t<I>) -> subrange<I, S, subrange_kind::sized>;
+		subrange(I, S, iter_difference_t<I>) -> subrange<I, S, subrange_kind::sized>;
 
 		template <_IteratorSentinelPair P>
 		subrange(P) ->
 			subrange<std::tuple_element_t<0, P>, std::tuple_element_t<1, P>>;
 
 		template <_IteratorSentinelPair P>
-		subrange(P, difference_type_t<std::tuple_element_t<0, P>>) ->
+		subrange(P, iter_difference_t<std::tuple_element_t<0, P>>) ->
 			subrange<std::tuple_element_t<0, P>, std::tuple_element_t<1, P>, subrange_kind::sized>;
 
 		template <_ForwardingRange R>
@@ -209,7 +209,7 @@ STL2_OPEN_NAMESPACE {
 		subrange(R&&) -> subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
 
 		template <_ForwardingRange R>
-		subrange(R&&, difference_type_t<iterator_t<R>>) ->
+		subrange(R&&, iter_difference_t<iterator_t<R>>) ->
 			subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
 
 		// Not to spec: Extension

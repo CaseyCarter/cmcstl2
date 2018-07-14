@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectUnaryPredicate<
 				Pred, projected<I, Proj>>
-		I partition_point_n(I first, difference_type_t<I> n,
+		I partition_point_n(I first, iter_difference_t<I> n,
 			Pred pred, Proj proj = Proj{})
 		{
 			STL2_EXPECT(0 <= n);
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		// Probe exponentially for either end-of-range or an iterator
 		// that is past the partition point (i.e., does not satisfy pred).
-		auto n = difference_type_t<I>{1};
+		auto n = iter_difference_t<I>{1};
 		while (true) {
 			auto m = first;
 			auto d = __stl2::advance(m, n, last);

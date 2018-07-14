@@ -41,21 +41,21 @@ STL2_OPEN_NAMESPACE {
 		concept bool SizedSentinelForwardRange = ForwardRange<R> && SizedSentinel<sentinel_t<R>, iterator_t<R>>;
 		template <class C, class R>
 		concept bool ContainerConvertible = InputRange<R> && ForwardRange<C> && !View<C> &&
-			ConvertibleTo<reference_t<iterator_t<R>>, value_type_t<iterator_t<C>>> &&
+			ConvertibleTo<iter_reference_t<iterator_t<R>>, iter_value_t<iterator_t<C>>> &&
 			Constructible<C, ext::__range_common_iterator<R>, ext::__range_common_iterator<R>>;
 
 		template <Range R>
-		constexpr bool is_in_range(R& r, difference_type_t<iterator_t<R>> n) noexcept {
+		constexpr bool is_in_range(R& r, iter_difference_t<iterator_t<R>> n) noexcept {
 			return 0 <= n;
 		}
 
 		template <SizedRange R>
-		constexpr bool is_in_range(R& r, difference_type_t<iterator_t<R>> n)
+		constexpr bool is_in_range(R& r, iter_difference_t<iterator_t<R>> n)
 			noexcept(noexcept(__stl2::size(r)))
 		{
 			auto sz = __stl2::size(r);
 			using T = std::make_unsigned_t<common_type_t<
-				difference_type_t<iterator_t<R>>,
+				iter_difference_t<iterator_t<R>>,
 				decltype(sz)>>;
 			return static_cast<T>(n) < static_cast<T>(sz);
 		}
@@ -132,13 +132,13 @@ STL2_OPEN_NAMESPACE {
 				return *--last;
 			}
 			template <RandomAccessRange R = D>
-			constexpr decltype(auto) operator[](difference_type_t<iterator_t<R>> n) {
+			constexpr decltype(auto) operator[](iter_difference_t<iterator_t<R>> n) {
 				auto& d = derived();
 				STL2_EXPECT(detail::is_in_range(d, n));
 				return __stl2::begin(d)[n];
 			}
 			template <RandomAccessRange R = const D>
-			constexpr decltype(auto) operator[](difference_type_t<iterator_t<R>> n) const {
+			constexpr decltype(auto) operator[](iter_difference_t<iterator_t<R>> n) const {
 				auto& d = derived();
 				STL2_EXPECT(detail::is_in_range(d, n));
 				return __stl2::begin(d)[n];

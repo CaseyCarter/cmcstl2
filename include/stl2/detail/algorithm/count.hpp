@@ -25,10 +25,10 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectRelation<
 			equal_to<>, projected<I, Proj>, const T*>
-	difference_type_t<I>
+	iter_difference_t<I>
 	count(I first, S last, const T& value, Proj proj = Proj{})
 	{
-		difference_type_t<I> n = 0;
+		iter_difference_t<I> n = 0;
 		for (; first != last; ++first) {
 			if (__stl2::invoke(proj, *first) == value) {
 				++n;
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectRelation<
 			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
-	difference_type_t<iterator_t<Rng>>
+	iter_difference_t<iterator_t<Rng>>
 	count(Rng&& rng, const T& value, Proj proj = Proj{})
 	{
 		return __stl2::count(__stl2::begin(rng), __stl2::end(rng),

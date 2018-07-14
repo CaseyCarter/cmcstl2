@@ -76,8 +76,8 @@ STL2_OPEN_NAMESPACE {
 				meta::if_c<ForwardIterator<iterator_t<R>>,
 					__stl2::forward_iterator_tag,
 					__stl2::input_iterator_tag>>;
-			using value_type = value_type_t<iterator_t<R>>;
-			using difference_type = difference_type_t<iterator_t<R>>;
+			using value_type = iter_value_t<iterator_t<R>>;
+			using difference_type = iter_difference_t<iterator_t<R>>;
 
 			__iterator() = default;
 
@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr iterator_t<R> base() const
 			{ return current_; }
 
-			constexpr reference_t<iterator_t<R>> operator*() const
+			constexpr iter_reference_t<iterator_t<R>> operator*() const
 			{ return *current_; }
 
 			// Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
@@ -140,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 			requires EqualityComparable<iterator_t<R>>
 			{ return !(x == y); }
 
-			friend constexpr rvalue_reference_t<iterator_t<R>>
+			friend constexpr iter_rvalue_reference_t<iterator_t<R>>
 			iter_move(const __iterator& i)
 			noexcept(noexcept(__stl2::iter_move(i.current_)))
 			{ return __stl2::iter_move(i.current_); }

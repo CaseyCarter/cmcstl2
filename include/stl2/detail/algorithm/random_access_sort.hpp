@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 			I choose_pivot(I first, I last, Comp& comp, Proj& proj)
 			{
 				STL2_EXPECT(first != last);
-				I mid = first + difference_type_t<I>(last - first) / 2;
+				I mid = first + iter_difference_t<I>(last - first) / 2;
 				--last;
 				// Find the median:
 				return [&](auto&& a, auto&& b, auto&& c) {
@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 			template <BidirectionalIterator I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
-			void unguarded_linear_insert(I last, value_type_t<I> val, Comp& comp, Proj& proj)
+			void unguarded_linear_insert(I last, iter_value_t<I> val, Comp& comp, Proj& proj)
 			{
 				I next = __stl2::prev(last);
 				while (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *next))) {
@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 				Sortable<I, Comp, Proj>
 			void linear_insert(I first, I last, Comp& comp, Proj& proj)
 			{
-				value_type_t<I> val = __stl2::iter_move(last);
+				iter_value_t<I> val = __stl2::iter_move(last);
 				if (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *first))) {
 					__stl2::move_backward(first, last, last + 1);
 					*first = std::move(val);
@@ -135,7 +135,7 @@ STL2_OPEN_NAMESPACE {
 			template <RandomAccessIterator I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
-			void introsort_loop(I first, I last, difference_type_t<I> depth_limit,
+			void introsort_loop(I first, I last, iter_difference_t<I> depth_limit,
 				Comp& comp, Proj& proj)
 			{
 				while (__stl2::distance(first, last) > introsort_threshold) {

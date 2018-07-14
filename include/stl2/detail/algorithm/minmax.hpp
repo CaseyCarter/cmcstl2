@@ -27,14 +27,14 @@ STL2_OPEN_NAMESPACE {
 	namespace __minmax {
 		template <InputRange Rng, class Comp = less<>, class Proj = identity>
 		requires
-			Copyable<value_type_t<iterator_t<Rng>>> &&
+			Copyable<iter_value_t<iterator_t<Rng>>> &&
 			IndirectStrictWeakOrder<
 				Comp, projected<iterator_t<Rng>, Proj>>
-		constexpr tagged_pair<tag::min(value_type_t<iterator_t<Rng>>),
-			tag::max(value_type_t<iterator_t<Rng>>)>
+		constexpr tagged_pair<tag::min(iter_value_t<iterator_t<Rng>>),
+			tag::max(iter_value_t<iterator_t<Rng>>)>
 		impl(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 		{
-			using V = value_type_t<iterator_t<Rng>>;
+			using V = iter_value_t<iterator_t<Rng>>;
 			auto first = __stl2::begin(rng);
 			auto last = __stl2::end(rng);
 			STL2_EXPECT(first != last);
@@ -99,11 +99,11 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		Copyable<value_type_t<iterator_t<Rng>>> &&
+		Copyable<iter_value_t<iterator_t<Rng>>> &&
 		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
-	STL2_CONSTEXPR_EXT tagged_pair<tag::min(value_type_t<iterator_t<Rng>>),
-		tag::max(value_type_t<iterator_t<Rng>>)>
+	STL2_CONSTEXPR_EXT tagged_pair<tag::min(iter_value_t<iterator_t<Rng>>),
+		tag::max(iter_value_t<iterator_t<Rng>>)>
 	minmax(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __minmax::impl(rng, std::ref(comp), std::ref(proj));

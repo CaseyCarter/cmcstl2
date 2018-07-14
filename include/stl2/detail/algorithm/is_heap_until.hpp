@@ -36,11 +36,11 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectStrictWeakOrder<
 				Comp, projected<I, Proj>>
-		I is_heap_until_n(I first, const difference_type_t<I> n,
+		I is_heap_until_n(I first, const iter_difference_t<I> n,
 			Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			STL2_EXPECT(0 <= n);
-			difference_type_t<I> p = 0, c = 1;
+			iter_difference_t<I> p = 0, c = 1;
 			I pp = first;
 			while (c < n) {
 				I cp = first + c;

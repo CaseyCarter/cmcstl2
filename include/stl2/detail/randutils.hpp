@@ -269,7 +269,7 @@ STL2_OPEN_NAMESPACE {
 
 				template <InputIterator I, Sentinel<I> S>
 				requires
-					ConvertibleTo<reference_t<I>, IntRep>
+					ConvertibleTo<iter_reference_t<I>, IntRep>
 				void mix_entropy(I begin, S end)
 				{
 					auto hash_const = INIT_A;
@@ -316,7 +316,7 @@ STL2_OPEN_NAMESPACE {
 
 				template <InputIterator I, Sentinel<I> S>
 				requires
-					ConvertibleTo<reference_t<I>, IntRep>
+					ConvertibleTo<iter_reference_t<I>, IntRep>
 				seed_seq_fe(I begin, S end)
 				{
 					seed(begin, end);
@@ -391,7 +391,7 @@ STL2_OPEN_NAMESPACE {
 
 				template <InputIterator I, Sentinel<I> S>
 				requires
-					ConvertibleTo<reference_t<I>, IntRep>
+					ConvertibleTo<iter_reference_t<I>, IntRep>
 				void seed(I begin, S end)
 				{
 					mix_entropy(begin, end);

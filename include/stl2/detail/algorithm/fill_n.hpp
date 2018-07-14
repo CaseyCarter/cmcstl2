@@ -20,7 +20,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	template <class T, OutputIterator<const T&> O>
-	O fill_n(O first, difference_type_t<O> n, const T& value) {
+	O fill_n(O first, iter_difference_t<O> n, const T& value) {
 		for (; n > 0; --n, ++first) {
 			*first = value;
 		}

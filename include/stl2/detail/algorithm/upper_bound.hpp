@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 			ForwardIterator<__f<I>> &&
 			IndirectStrictWeakOrder<
 				Comp, const T*, projected<__f<I>, Proj>>
-		__f<I> upper_bound_n(I&& first, difference_type_t<__f<I>> n, const T& value,
+		__f<I> upper_bound_n(I&& first, iter_difference_t<__f<I>> n, const T& value,
 			Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			return ext::partition_point_n(std::forward<I>(first), n,

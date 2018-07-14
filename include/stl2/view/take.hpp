@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 		struct __take_view : view_interface<take_view<R>> {
 		private:
 			R base_ {};
-			using D = difference_type_t<iterator_t<R>>;
+			using D = iter_difference_t<iterator_t<R>>;
 			D count_ {};
 			template <bool Const>
 			struct __sentinel;
@@ -148,7 +148,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template <InputRange R>
-		take_view(R&& base, difference_type_t<iterator_t<R>> n)
+		take_view(R&& base, iter_difference_t<iterator_t<R>> n)
 		  -> take_view<all_view<R>>;
 	}
 
@@ -157,7 +157,7 @@ STL2_OPEN_NAMESPACE {
 			struct fn {
 				template <InputRange Rng>
 				requires ext::ViewableRange<Rng>
-				constexpr auto operator()(Rng&& rng, difference_type_t<iterator_t<Rng>> count) const
+				constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
 				{ return ext::take_view{std::forward<Rng>(rng), count}; }
 
 				template <Integral D>

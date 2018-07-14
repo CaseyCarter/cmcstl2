@@ -304,14 +304,14 @@ template <ranges::ext::ContiguousIterator I, ranges::SizedSentinel<I> S,
 	ranges::ext::ContiguousIterator O>
 requires
 	ranges::IndirectlyCopyable<I, O> &&
-	ranges::Same<ranges::value_type_t<I>, ranges::value_type_t<O>> &&
-	std::is_trivially_copyable<ranges::value_type_t<I>>::value
+	ranges::Same<ranges::iter_value_t<I>, ranges::iter_value_t<O>> &&
+	std::is_trivially_copyable<ranges::iter_value_t<I>>::value
 bool copy(I first, S last, O o) {
 	auto n = last - first;
 	STL2_EXPECT(n >= 0);
 	if (n) {
 		std::memmove(std::addressof(*o), std::addressof(*first),
-			n * sizeof(ranges::value_type_t<I>));
+			n * sizeof(ranges::iter_value_t<I>));
 	}
 	return true;
 }
@@ -363,9 +363,9 @@ void test_iter_swap2() {
 		using I = decltype(a);
 		static_assert(ranges::Same<I, decltype(b)>);
 		static_assert(ranges::Readable<I>);
-		using R = ranges::reference_t<I>;
+		using R = ranges::iter_reference_t<I>;
 		static_assert(ranges::Same<int&, R>);
-		using RR = ranges::rvalue_reference_t<I>;
+		using RR = ranges::iter_rvalue_reference_t<I>;
 		static_assert(ranges::Same<int&&, RR>);
 		static_assert(ranges::SwappableWith<R, R>);
 
@@ -383,11 +383,11 @@ void test_iter_swap2() {
 		auto a = array<int, 4>{0,1,2,3};
 		using I = decltype(a.begin());
 		static_assert(ranges::Readable<I>);
-		using V = ranges::value_type_t<I>;
+		using V = ranges::iter_value_t<I>;
 		static_assert(ranges::Same<int, V>);
-		using R = ranges::reference_t<I>;
+		using R = ranges::iter_reference_t<I>;
 		static_assert(ranges::Same<reference_wrapper<int>, R>);
-		using RR = ranges::rvalue_reference_t<I>;
+		using RR = ranges::iter_rvalue_reference_t<I>;
 		static_assert(ranges::Same<int&&, RR>);
 
 		static_assert(ranges::Same<I, decltype(a.begin() + 2)>);

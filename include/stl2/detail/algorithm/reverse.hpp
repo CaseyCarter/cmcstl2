@@ -47,8 +47,8 @@ STL2_OPEN_NAMESPACE {
 		template <class I>
 		requires
 			Permutable<I>
-		I reverse_n_with_half_buffer(I first, const difference_type_t<I> n,
-			temporary_buffer<value_type_t<I>>& buf)
+		I reverse_n_with_half_buffer(I first, const iter_difference_t<I> n,
+			temporary_buffer<iter_value_t<I>>& buf)
 		{
 			// Precondition: $\property{mutable\_counted\_range}(first, n)$
 			STL2_EXPECT(n / 2 <= buf.size());
@@ -76,11 +76,11 @@ STL2_OPEN_NAMESPACE {
 		template <class I>
 		requires
 			Permutable<I>
-		I reverse_n_adaptive(I first, const difference_type_t<I> n,
-			temporary_buffer<value_type_t<I>>& buf)
+		I reverse_n_adaptive(I first, const iter_difference_t<I> n,
+			temporary_buffer<iter_value_t<I>>& buf)
 		{
 			// Precondition: $\property{mutable\_counted\_range}(first, n)$
-			if (n < difference_type_t<I>(2)) {
+			if (n < iter_difference_t<I>(2)) {
 				return __stl2::next(std::move(first), n);
 			}
 
@@ -102,12 +102,12 @@ STL2_OPEN_NAMESPACE {
 		template <class I>
 		requires
 			Permutable<I>
-		I reverse_n(I first, difference_type_t<I> n)
+		I reverse_n(I first, iter_difference_t<I> n)
 		{
 			auto ufirst = ext::uncounted(first);
-			using buf_t = temporary_buffer<value_type_t<decltype(ufirst)>>;
+			using buf_t = temporary_buffer<iter_value_t<decltype(ufirst)>>;
 			// TODO: tune this threshold.
-			constexpr auto alloc_threshold = difference_type_t<I>(8);
+			constexpr auto alloc_threshold = iter_difference_t<I>(8);
 			auto buf = n >= alloc_threshold ? buf_t{n / 2} : buf_t{};
 			auto last = detail::reverse_n_adaptive(ufirst, n, buf);
 			return ext::recounted(first, std::move(last), n);

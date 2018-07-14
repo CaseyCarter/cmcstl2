@@ -43,7 +43,7 @@ template <class RI>
 void
 test_sort_helper(RI f, RI l)
 {
-	using value_type = stl2::value_type_t<RI>;
+	using value_type = stl2::iter_value_t<RI>;
 	auto stable_sort = make_testable_1<false>([](auto&&... args) {
 		return stl2::stable_sort(std::forward<decltype(args)>(args)...);
 	});

@@ -39,10 +39,10 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
-	// reference_t [iterator.assoc]
+	// iter_reference_t [iterator.assoc]
 	//
 	detail::Dereferenceable{R}
-	using reference_t = decltype(*declval<R&>());
+	using iter_reference_t = decltype(*declval<R&>());
 
 	///////////////////////////////////////////////////////////////////////////
 	// iter_move
@@ -77,9 +77,9 @@ STL2_OPEN_NAMESPACE {
 			template <class R>
 			requires
 				detail::Dereferenceable<R>
-			constexpr rvalue<reference_t<R>> operator()(R&& r) const
+			constexpr rvalue<iter_reference_t<R>> operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
-				static_cast<rvalue<reference_t<R>>>(*r)
+				static_cast<rvalue<iter_reference_t<R>>>(*r)
 			)
 		};
 	}
@@ -89,11 +89,11 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
-	// rvalue_reference_t [Extension]
+	// iter_rvalue_reference_t [Extension]
 	// From the proxy iterator work (P0022).
 	//
 	detail::Dereferenceable{R}
-	using rvalue_reference_t = decltype(__stl2::iter_move(declval<R&>()));
+	using iter_rvalue_reference_t = decltype(__stl2::iter_move(declval<R&>()));
 
 	///////////////////////////////////////////////////////////////////////////
 	// value_type [readable.iterators]
@@ -111,34 +111,34 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template <class>
-	struct value_type {};
+	struct readable_traits {};
 
 	template <ext::Object T>
-	struct value_type<T*> {
+	struct readable_traits<T*> {
 		using type = std::remove_cv_t<T>;
 	};
 
 	template <_Is<is_array> T>
-	struct value_type<T> : value_type<decay_t<T>> {};
+	struct readable_traits<T> : readable_traits<decay_t<T>> {};
 
 	template <class I>
-	struct value_type<I const> : value_type<decay_t<I>> {};
+	struct readable_traits<I const> : readable_traits<decay_t<I>> {};
 
 	template <detail::MemberValueType T>
-	struct value_type<T> {};
+	struct readable_traits<T> {};
 
 	template <detail::MemberValueType T>
 	requires ext::Object<typename T::value_type>
-	struct value_type<T> {
+	struct readable_traits<T> {
 		using type = typename T::value_type;
 	};
 
 	template <detail::MemberElementType T>
-	struct value_type<T> {};
+	struct readable_traits<T> {};
 
 	template <detail::MemberElementType T>
 	requires ext::Object<typename T::element_type>
-	struct value_type<T> {
+	struct readable_traits<T> {
 		using type = std::remove_cv_t<typename T::element_type>;
 	};
 
@@ -147,15 +147,15 @@ STL2_OPEN_NAMESPACE {
 		detail::MemberValueType<T> && ext::Object<typename T::value_type> &&
 		detail::MemberElementType<T> && ext::Object<typename T::element_type> &&
 		Same<typename T::value_type, std::remove_cv_t<typename T::element_type>>
-	struct value_type<T> {
+	struct readable_traits<T> {
 		using type = typename T::value_type;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
-	// value_type_t [readable.iterators]
+	// iter_value_t [readable.iterators]
 	//
 	template <class T>
-	using value_type_t = meta::_t<value_type<T>>;
+	using iter_value_t = meta::_t<readable_traits<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Readable [readable.iterators]
@@ -164,19 +164,19 @@ STL2_OPEN_NAMESPACE {
 	concept bool Readable =
 		requires {
 			// Associated types
-			typename value_type_t<I>;
-			typename reference_t<I>;
-			typename rvalue_reference_t<I>;
+			typename iter_value_t<I>;
+			typename iter_reference_t<I>;
+			typename iter_rvalue_reference_t<I>;
 		} &&
 		// Relationships between associated types
-		CommonReference<reference_t<I>&&, value_type_t<I>&> &&
-		CommonReference<reference_t<I>&&, rvalue_reference_t<I>&&> &&
-		CommonReference<rvalue_reference_t<I>&&, const value_type_t<I>&>;
+		CommonReference<iter_reference_t<I>&&, iter_value_t<I>&> &&
+		CommonReference<iter_reference_t<I>&&, iter_rvalue_reference_t<I>&&> &&
+		CommonReference<iter_rvalue_reference_t<I>&&, const iter_value_t<I>&>;
 
 	// A generally useful dependent type
 	Readable{I}
 	using iter_common_reference_t =
-		common_reference_t<reference_t<I>, value_type_t<I>&>;
+		common_reference_t<iter_reference_t<I>, iter_value_t<I>&>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Writable [iterators.writable]
@@ -187,8 +187,8 @@ STL2_OPEN_NAMESPACE {
 		requires(Out&& o, R&& r) {
 			*o = static_cast<R&&>(r);
 			*static_cast<Out&&>(o) = static_cast<R&&>(r);
-			const_cast<const reference_t<Out>&&>(*o) = static_cast<R&&>(r);
-			const_cast<const reference_t<Out>&&>(*static_cast<Out&&>(o)) = static_cast<R&&>(r);
+			const_cast<const iter_reference_t<Out>&&>(*o) = static_cast<R&&>(r);
+			const_cast<const iter_reference_t<Out>&&>(*static_cast<Out&&>(o)) = static_cast<R&&>(r);
 		};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -197,14 +197,14 @@ STL2_OPEN_NAMESPACE {
 	template <class In, class Out>
 	concept bool IndirectlyMovable =
 		Readable<In> &&
-		Writable<Out, rvalue_reference_t<In>>;
+		Writable<Out, iter_rvalue_reference_t<In>>;
 
 	template <class In, class Out>
 	constexpr bool is_nothrow_indirectly_movable_v = false;
 
 	IndirectlyMovable{In, Out}
 	constexpr bool is_nothrow_indirectly_movable_v<In, Out> =
-		noexcept(noexcept(declval<reference_t<Out>>() = __stl2::iter_move(declval<In>())));
+		noexcept(noexcept(declval<iter_reference_t<Out>>() = __stl2::iter_move(declval<In>())));
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlyMovableStorable [commonalgoreq.indirectlymovable]
@@ -212,10 +212,10 @@ STL2_OPEN_NAMESPACE {
 	template <class In, class Out>
 	concept bool IndirectlyMovableStorable =
 		IndirectlyMovable<In, Out> &&
-		Writable<Out, value_type_t<In>&&> &&
-		Movable<value_type_t<In>> &&
-		Constructible<value_type_t<In>, rvalue_reference_t<In>> &&
-		Assignable<value_type_t<In>&, rvalue_reference_t<In>>;
+		Writable<Out, iter_value_t<In>&&> &&
+		Movable<iter_value_t<In>> &&
+		Constructible<iter_value_t<In>, iter_rvalue_reference_t<In>> &&
+		Assignable<iter_value_t<In>&, iter_rvalue_reference_t<In>>;
 
 	template <class In, class Out>
 	constexpr bool is_nothrow_indirectly_movable_storable_v = false;
@@ -223,16 +223,16 @@ STL2_OPEN_NAMESPACE {
 	IndirectlyMovableStorable{In, Out}
 	constexpr bool is_nothrow_indirectly_movable_storable_v<In, Out> =
 		is_nothrow_indirectly_movable_v<In, Out> &&
-		is_nothrow_assignable<reference_t<Out>, value_type_t<In>>::value &&
-		is_nothrow_constructible<value_type_t<In>, rvalue_reference_t<In>>::value &&
-		is_nothrow_assignable<value_type_t<In>&, rvalue_reference_t<In>>::value;
+		is_nothrow_assignable<iter_reference_t<Out>, iter_value_t<In>>::value &&
+		is_nothrow_constructible<iter_value_t<In>, iter_rvalue_reference_t<In>>::value &&
+		is_nothrow_assignable<iter_value_t<In>&, iter_rvalue_reference_t<In>>::value;
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlyCopyable [commonalgoreq.indirectlycopyable]
 	//
 	template <class In, class Out>
 	concept bool IndirectlyCopyable =
-		Readable<In> && Writable<Out, reference_t<In>>;
+		Readable<In> && Writable<Out, iter_reference_t<In>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlyCopyableStorable [commonalgoreq.indirectlycopyable]
@@ -240,10 +240,10 @@ STL2_OPEN_NAMESPACE {
 	template <class In, class Out>
 	concept bool IndirectlyCopyableStorable =
 		IndirectlyCopyable<In, Out> &&
-		Writable<Out, const value_type_t<In>&> &&
-		Copyable<value_type_t<In>> &&
-		Constructible<value_type_t<In>, reference_t<In>> &&
-		Assignable<value_type_t<In>&, reference_t<In>>;
+		Writable<Out, const iter_value_t<In>&> &&
+		Copyable<iter_value_t<In>> &&
+		Constructible<iter_value_t<In>, iter_reference_t<In>> &&
+		Assignable<iter_value_t<In>&, iter_reference_t<In>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// iter_swap
@@ -264,7 +264,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class R1, class R2>
 		requires
-			SwappableWith<reference_t<R1>, reference_t<R2>>
+			SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>>
 		constexpr void impl(R1&& r1, R2&& r2)
 		STL2_NOEXCEPT_RETURN(
 			__stl2::swap(*r1, *r2)
@@ -272,7 +272,7 @@ STL2_OPEN_NAMESPACE {
 
 		template <class R1, class R2>
 		requires
-			!SwappableWith<reference_t<R1>, reference_t<R2>> &&
+			!SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>> &&
 			IndirectlyMovableStorable<R1, R2> &&
 			IndirectlyMovableStorable<R2, R1>
 		constexpr void impl(R1& r1, R2& r2)
@@ -280,7 +280,7 @@ STL2_OPEN_NAMESPACE {
 				is_nothrow_indirectly_movable_storable_v<R1, R2> &&
 				is_nothrow_indirectly_movable_storable_v<R2, R1>)
 		{
-			value_type_t<R1> tmp = __stl2::iter_move(r1);
+			iter_value_t<R1> tmp = __stl2::iter_move(r1);
 			*r1 = __stl2::iter_move(r2);
 			*r2 = std::move(tmp);
 		}
@@ -460,14 +460,14 @@ STL2_OPEN_NAMESPACE {
 		Sentinel<S, I> &&
 		!disable_sized_sentinel<remove_cv_t<S>, remove_cv_t<I>> &&
 		requires(const I i, const S s) {
-			{ s - i } -> Same<difference_type_t<I>>&&;
-			{ i - s } -> Same<difference_type_t<I>>&&;
+			{ s - i } -> Same<iter_difference_t<I>>&&;
+			{ i - s } -> Same<iter_difference_t<I>>&&;
 			// Axiom: If [i,s) denotes a range and N is the smallest
 			//        non-negative integer such that N applications of
 			//        ++i make bool(i == s) == true
-			//        * if N is representable by difference_type_t<I> then
+			//        * if N is representable by iter_difference_t<I> then
 			//          s - i is well-defined and equal to N
-			//        * if -N is representable by difference_type_t<I> then
+			//        * if -N is representable by iter_difference_t<I> then
 			//          i - s is well-defined and equal to -N
 		};
 
@@ -532,9 +532,9 @@ STL2_OPEN_NAMESPACE {
 		// Should ordering be in SizedSentinel and/or RandomAccessIncrementable?
 		StrictTotallyOrdered<I> &&
 		ext::RandomAccessIncrementable<I> &&
-		requires(const I& ci, const difference_type_t<I> n) {
+		requires(const I& ci, const iter_difference_t<I> n) {
 			ci[n];
-			requires Same<decltype(ci[n]), reference_t<I>>;
+			requires Same<decltype(ci[n]), iter_reference_t<I>>;
 		};
 		// FIXME: Axioms for definition space of ordering operations. Don't
 		// require them to be the same space as ==, since pointers can't meet
@@ -550,8 +550,8 @@ STL2_OPEN_NAMESPACE {
 		concept bool ContiguousIterator =
 			RandomAccessIterator<I> &&
 			DerivedFrom<iterator_category_t<I>, contiguous_iterator_tag> &&
-			std::is_lvalue_reference<reference_t<I>>::value &&
-			Same<value_type_t<I>, __uncvref<reference_t<I>>>;
+			std::is_lvalue_reference<iter_reference_t<I>>::value &&
+			Same<iter_value_t<I>, __uncvref<iter_reference_t<I>>>;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -559,7 +559,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <InputIterator I>
 	struct __pointer_type {
-		using type = add_pointer_t<reference_t<I>>;
+		using type = add_pointer_t<iter_reference_t<I>>;
 	};
 
 	template <InputIterator I>
@@ -576,7 +576,7 @@ STL2_OPEN_NAMESPACE {
 
 	Iterator{I}
 	struct __iterator_traits<I> {
-		using difference_type = difference_type_t<I>;
+		using difference_type = iter_difference_t<I>;
 		using value_type = void;
 		using reference = void;
 		using pointer = void;
@@ -585,9 +585,9 @@ STL2_OPEN_NAMESPACE {
 
 	InputIterator{I}
 	struct __iterator_traits<I> {
-		using difference_type = difference_type_t<I>;
-		using value_type = value_type_t<I>;
-		using reference = reference_t<I>;
+		using difference_type = iter_difference_t<I>;
+		using value_type = iter_value_t<I>;
+		using reference = iter_reference_t<I>;
 		using pointer = meta::_t<__pointer_type<I>>;
 		using iterator_category = iterator_category_t<I>;
 	};
@@ -649,7 +649,7 @@ namespace std {
 		// defined.
 		requires !::__stl2::detail::LooksLikeSTL1Iterator<Out>
 	struct iterator_traits<Out> {
-		using difference_type   = ::__stl2::difference_type_t<Out>;
+		using difference_type   = ::__stl2::iter_difference_t<Out>;
 		using value_type        = meta::_t<::__stl2::detail::value_type_with_a_default<Out>>;
 		using reference         = meta::_t<::__stl2::detail::reference_with_a_default<Out>>;
 		using pointer           = meta::_t<::__stl2::detail::pointer_with_a_default<Out>>;
@@ -666,18 +666,18 @@ namespace std {
 		!::__stl2::detail::LooksLikeSTL1Iterator<In> &&
 		::__stl2::Sentinel<In, In>
 	struct iterator_traits<In> {
-		using difference_type   = ::__stl2::difference_type_t<In>;
-		using value_type        = ::__stl2::value_type_t<In>;
+		using difference_type   = ::__stl2::iter_difference_t<In>;
+		using value_type        = ::__stl2::iter_value_t<In>;
 		using reference         =
 				meta::_t<::__stl2::detail::reference_with_a_default<
-						In, ::__stl2::reference_t<In>>>;
+						In, ::__stl2::iter_reference_t<In>>>;
 		using pointer           =
 				meta::_t<::__stl2::detail::pointer_with_a_default<In,
 						typename ::__stl2::iterator_traits<In>::pointer>>;
 		using iterator_category =
 			::__stl2::detail::stl2_to_std_iterator_category<
 					::__stl2::iterator_category_t<In>,
-					::__stl2::reference_t<In>>;
+					::__stl2::iter_reference_t<In>>;
 	};
 } // namespace std
 

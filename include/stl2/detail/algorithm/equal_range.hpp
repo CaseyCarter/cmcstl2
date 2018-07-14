@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectStrictWeakOrder<
 				Comp, const T*, projected<I, Proj>>
-		ext::subrange<I> equal_range_n(I first, difference_type_t<I> dist, const T& value,
+		ext::subrange<I> equal_range_n(I first, iter_difference_t<I> dist, const T& value,
 			Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			if (0 < dist) {
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 		// is past the equal range (i.e., denotes an element greater
 		// than value), or is in the equal range (denotes an element equal
 		// to value).
-		auto dist = difference_type_t<I>{1};
+		auto dist = iter_difference_t<I>{1};
 		while (true) {
 			auto mid = first;
 			auto d = __stl2::advance(mid, dist, last);

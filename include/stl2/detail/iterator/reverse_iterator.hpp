@@ -41,8 +41,8 @@ STL2_OPEN_NAMESPACE {
 			I current_{};
 
 		public:
-			using difference_type = difference_type_t<I>;
-			using value_type = value_type_t<I>;
+			using difference_type = iter_difference_t<I>;
+			using value_type = iter_value_t<I>;
 
 			class mixin : protected basic_mixin<cursor> {
 				using base_t = basic_mixin<cursor>;
@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 				using difference_type = cursor::difference_type;
 				using value_type = cursor::value_type;
 				using iterator_category = iterator_category_t<I>;
-				using reference = reference_t<I>;
+				using reference = iter_reference_t<I>;
 				using pointer = I;
 
 				constexpr mixin() = default;
@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 			: current_{access::current(u)}
 			{}
 
-			constexpr reference_t<I> read() const
+			constexpr iter_reference_t<I> read() const
 			STL2_NOEXCEPT_RETURN(
 				*__stl2::prev(current_)
 			)
@@ -97,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 				(void)++current_
 			)
 
-			constexpr void advance(difference_type_t<I> n)
+			constexpr void advance(iter_difference_t<I> n)
 			noexcept(noexcept(current_ -= n))
 			requires RandomAccessIterator<I>
 			{
@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 				current_ == access::current(that)
 			)
 
-			constexpr difference_type_t<I> distance_to(
+			constexpr iter_difference_t<I> distance_to(
 				const cursor<SizedSentinel<I> >& that) const
 			STL2_NOEXCEPT_RETURN(
 				-(access::current(that) - current_)

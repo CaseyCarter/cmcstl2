@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 	using __iter_args_lists =
 		meta::push_back<
 			meta::cartesian_product<
-				meta::list<meta::list<value_type_t<Is>&, reference_t<Is>>...>>,
+				meta::list<meta::list<iter_value_t<Is>&, iter_reference_t<Is>>...>>,
 			meta::list<iter_common_reference_t<Is>...>>;
 
 	template <typename MapFn, typename ReduceFn>
@@ -61,8 +61,8 @@ STL2_OPEN_NAMESPACE {
 			CopyConstructible<F> &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
-			Invocable<F&, value_type_t<Is>&...> &&
-			Invocable<F&, reference_t<Is>...> &&
+			Invocable<F&, iter_value_t<Is>&...> &&
+			Invocable<F&, iter_reference_t<Is>...> &&
 			Invocable<F&, iter_common_reference_t<Is>...> &&
 			// redundantly checks the above 3 requirements
 			meta::_v<meta::invoke<
@@ -77,19 +77,11 @@ STL2_OPEN_NAMESPACE {
 		ext::IndirectInvocable<F, I>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// indirect_result_of [indirectcallables.indirectfunc]
+	// indirect_invoke_result [indirectcallables.indirectfunc]
 	//
-	template <class>
-	struct indirect_result_of {};
-
 	template <class F, class... Is>
-	requires Invocable<F, reference_t<Is>...>
-	struct indirect_result_of<F(Is...)>
-	: result_of<F(reference_t<Is>&&...)> {};
-
-	template <class T>
-	using indirect_result_of_t =
-		meta::_t<indirect_result_of<T>>;
+	using indirect_invoke_result_t =
+		invoke_result_t<F, iter_reference_t<Is>&&...>;
 
 	namespace ext {
 		template <class F, class... Is>
@@ -111,8 +103,8 @@ STL2_OPEN_NAMESPACE {
 			CopyConstructible<F> &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
-			Predicate<F&, value_type_t<Is>&...> &&
-			Predicate<F&, reference_t<Is>...> &&
+			Predicate<F&, iter_value_t<Is>&...> &&
+			Predicate<F&, iter_reference_t<Is>...> &&
 			Predicate<F&, iter_common_reference_t<Is>...> &&
 			// redundantly checks the above 3 requirements
 			meta::_v<meta::invoke<
@@ -131,10 +123,10 @@ STL2_OPEN_NAMESPACE {
 		Readable<I1> &&
 		Readable<I2> &&
 		CopyConstructible<F> &&
-		Relation<F&, value_type_t<I1>&, value_type_t<I2>&> &&
-		Relation<F&, value_type_t<I1>&, reference_t<I2>> &&
-		Relation<F&, reference_t<I1>, value_type_t<I2>&> &&
-		Relation<F&, reference_t<I1>, reference_t<I2>> &&
+		Relation<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
+		Relation<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
+		Relation<F&, iter_reference_t<I1>, iter_value_t<I2>&> &&
+		Relation<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
 		Relation<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
 	template <class F, class I1, class I2 = I1>
@@ -142,10 +134,10 @@ STL2_OPEN_NAMESPACE {
 		Readable<I1> &&
 		Readable<I2> &&
 		CopyConstructible<F> &&
-		StrictWeakOrder<F&, value_type_t<I1>&, value_type_t<I2>&> &&
-		StrictWeakOrder<F&, value_type_t<I1>&, reference_t<I2>> &&
-		StrictWeakOrder<F&, reference_t<I1>, value_type_t<I2>&> &&
-		StrictWeakOrder<F&, reference_t<I1>, reference_t<I2>> &&
+		StrictWeakOrder<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
+		StrictWeakOrder<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
+		StrictWeakOrder<F&, iter_reference_t<I1>, iter_value_t<I2>&> &&
+		StrictWeakOrder<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
 		StrictWeakOrder<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -153,13 +145,13 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <Readable I, IndirectRegularUnaryInvocable<I> Proj>
 	struct projected {
-		using value_type = __uncvref<indirect_result_of_t<Proj&(I)>>;
-		indirect_result_of_t<Proj&(I)> operator*() const;
+		using value_type = __uncvref<indirect_invoke_result_t<Proj&, I>>;
+		indirect_invoke_result_t<Proj&, I> operator*() const;
 	};
 
 	template <WeaklyIncrementable I, class Proj>
-	struct difference_type<projected<I, Proj>> :
-		difference_type<I> {};
+	struct incrementable_traits<projected<I, Proj>> :
+		incrementable_traits<I> {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

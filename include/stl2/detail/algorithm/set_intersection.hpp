@@ -33,8 +33,8 @@ STL2_OPEN_NAMESPACE {
 		Proj2 proj2 = Proj2{})
 	{
 		while (first1 != last1 && first2 != last2) {
-			reference_t<I1>&& v1 = *first1;
-			reference_t<I2>&& v2 = *first2;
+			iter_reference_t<I1>&& v1 = *first1;
+			iter_reference_t<I2>&& v2 = *first2;
 			auto&& p1 = __stl2::invoke(proj1, v1);
 			auto&& p2 = __stl2::invoke(proj2, v2);
 			if (__stl2::invoke(comp, p1, p2)) {
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 			} else if (__stl2::invoke(comp, p2, p1)) {
 				++first2;
 			} else {
-				*result = std::forward<reference_t<I1>>(v1);
+				*result = std::forward<iter_reference_t<I1>>(v1);
 				++result;
 				++first1;
 				++first2;

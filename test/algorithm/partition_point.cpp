@@ -156,7 +156,7 @@ test_range()
 
 stl2::Iterator{I}
 stl2::ext::subrange<stl2::counted_iterator<I>, stl2::default_sentinel>
-make_counted_view(I i, stl2::difference_type_t<I> n) {
+make_counted_view(I i, stl2::iter_difference_t<I> n) {
   return {stl2::make_counted_iterator(stl2::move(i), n), {}};
 }
 

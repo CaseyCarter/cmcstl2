@@ -26,16 +26,16 @@ STL2_OPEN_NAMESPACE {
 	namespace __min {
 		template <InputRange Rng, class Comp = less<>, class Proj = identity>
 		requires
-			Copyable<value_type_t<iterator_t<Rng>>> &&
+			Copyable<iter_value_t<iterator_t<Rng>>> &&
 			IndirectStrictWeakOrder<
 				Comp, projected<iterator_t<Rng>, Proj>>
-		constexpr value_type_t<iterator_t<Rng>>
+		constexpr iter_value_t<iterator_t<Rng>>
 		impl(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			auto first = __stl2::begin(rng);
 			auto last = __stl2::end(rng);
 			STL2_EXPECT(first != last);
-			value_type_t<iterator_t<Rng>> result = *first;
+			iter_value_t<iterator_t<Rng>> result = *first;
 			while (++first != last) {
 				auto&& tmp = *first;
 				if (__invoke::impl(comp, __invoke::impl(proj, tmp), __invoke::impl(proj, result))) {
@@ -58,10 +58,10 @@ STL2_OPEN_NAMESPACE {
 
 	template <InputRange Rng, class Comp = less<>, class Proj = identity>
 	requires
-		Copyable<value_type_t<iterator_t<Rng>>> &&
+		Copyable<iter_value_t<iterator_t<Rng>>> &&
 		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
-	STL2_CONSTEXPR_EXT value_type_t<iterator_t<Rng>>
+	STL2_CONSTEXPR_EXT iter_value_t<iterator_t<Rng>>
 	min(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __min::impl(rng, std::ref(comp), std::ref(proj));

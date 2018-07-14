@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		CopyConstructible F, class Proj = identity>
 	requires
 		Writable<O,
-			indirect_result_of_t<F&(projected<I, Proj>)>>
+			indirect_invoke_result_t<F&, projected<I, Proj>>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	transform(I first, S last, O result, F op, Proj proj = Proj{})
 	{
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange R, WeaklyIncrementable O, CopyConstructible F, class Proj = identity>
 	requires
 		Writable<O,
-			indirect_result_of_t<F&(projected<iterator_t<R>, Proj>)>>
+			indirect_invoke_result_t<F&, projected<iterator_t<R>, Proj>>>
 	tagged_pair<tag::in(safe_iterator_t<R>), tag::out(O)>
 	transform(R&& r, O result, F op, Proj proj = Proj{})
 	{
@@ -59,9 +59,9 @@ STL2_OPEN_NAMESPACE {
 	requires
 		InputIterator<std::decay_t<I2>> && !Range<I2> &&
 		Writable<O,
-			indirect_result_of_t<F&(
+			indirect_invoke_result_t<F&,
 				projected<I1, Proj1>,
-				projected<std::decay_t<I2>, Proj2>)>>
+				projected<std::decay_t<I2>, Proj2>>>
 	{
 		auto first2 = std::forward<I2>(first2_);
 		for (; first1 != last1; ++first1, ++first2, ++result) {
@@ -80,9 +80,9 @@ STL2_OPEN_NAMESPACE {
 	requires
 		InputIterator<std::decay_t<I>> && !Range<I> &&
 		Writable<O,
-			indirect_result_of_t<F&(
+			indirect_invoke_result_t<F&,
 				projected<iterator_t<Rng>, Proj1>,
-				projected<std::decay_t<I>, Proj2>)>>
+				projected<std::decay_t<I>, Proj2>>>
 	{
 		auto first2 = std::forward<I>(first2_);
 		return __stl2::transform(
@@ -98,9 +98,9 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		Writable<O,
-			indirect_result_of_t<F&(
+			indirect_invoke_result_t<F&,
 				projected<I1, Proj1>,
-				projected<I2, Proj2>)>>
+				projected<I2, Proj2>>>
 	tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
 	transform(I1 first1, S1 last1, I2 first2, S2 last2, O result,
 		F op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
@@ -115,9 +115,9 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		Writable<O,
-			indirect_result_of_t<F&(
+			indirect_invoke_result_t<F&,
 				projected<iterator_t<Rng1>, Proj1>,
-				projected<iterator_t<Rng2>, Proj2>)>>
+				projected<iterator_t<Rng2>, Proj2>>>
 	tagged_tuple<
 		tag::in1(safe_iterator_t<Rng1>),
 		tag::in2(safe_iterator_t<Rng2>),

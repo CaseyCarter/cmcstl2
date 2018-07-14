@@ -33,21 +33,21 @@ using ranges::ext::span;
 namespace {
 	template <ranges::InputRange Rng>
 	requires requires {
-		typename ranges::value_type_t<Rng>;
-		&ranges::value_type_t<Rng>::empty;
+		typename ranges::iter_value_t<Rng>;
+		&ranges::iter_value_t<Rng>::empty;
 		requires ranges::Invocable<
-			decltype(&ranges::value_type_t<Rng>::empty),
-			ranges::reference_t<ranges::iterator_t<const Rng>>>;
+			decltype(&ranges::iter_value_t<Rng>::empty),
+			ranges::iter_reference_t<ranges::iterator_t<const Rng>>>;
 	}
 	bool empty(const Rng& rng, const std::ptrdiff_t n) {
 		return ranges::all_of(ranges::make_counted_iterator(rng.begin(), n), ranges::default_sentinel{},
-			&ranges::value_type_t<Rng>::empty);
+			&ranges::iter_value_t<Rng>::empty);
 	}
 
 	template <ranges::InputRange Rng>
 	requires requires {
-		typename ranges::value_type_t<Rng>;
-		requires std::is_fundamental<ranges::value_type_t<Rng>>::value;
+		typename ranges::iter_value_t<Rng>;
+		requires std::is_fundamental<ranges::iter_value_t<Rng>>::value;
 	}
 	bool empty(const Rng&, const std::ptrdiff_t) {
 		return true;

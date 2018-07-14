@@ -45,13 +45,13 @@ STL2_OPEN_NAMESPACE {
 					std::move(first1), std::move(last1), std::move(result));
 				break;
 			}
-			reference_t<I1>&& v1 = *first1;
-			reference_t<I2>&& v2 = *first2;
+			iter_reference_t<I1>&& v1 = *first1;
+			iter_reference_t<I2>&& v2 = *first2;
 			if (__stl2::invoke(comp, __stl2::invoke(proj1, v1), __stl2::invoke(proj2, v2))) {
-				*result = std::forward<reference_t<I1>>(v1);
+				*result = std::forward<iter_reference_t<I1>>(v1);
 				++first1;
 			} else {
-				*result = std::forward<reference_t<I2>>(v2);
+				*result = std::forward<iter_reference_t<I2>>(v2);
 				++first2;
 			}
 			++result;

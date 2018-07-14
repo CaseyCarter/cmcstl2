@@ -22,7 +22,7 @@
 
 STL2_OPEN_NAMESPACE {
 	////////////////////////////////////////////////////////////////////////////
-	// difference_type_t [iterator.assoc]
+	// iter_difference_t [iterator.assoc]
 	// Not to spec:
 	// * Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78173; it is
 	//   necessary to guard the requires clause of the "fallback" specialization
@@ -34,19 +34,19 @@ STL2_OPEN_NAMESPACE {
 			requires { typename T::difference_type; };
 	}
 
-	template <class> struct difference_type {};
+	template <class> struct incrementable_traits {};
 
 	template <ext::Object T>
-	struct difference_type<T*> {
+	struct incrementable_traits<T*> {
 		using type = std::ptrdiff_t;
 	};
 
 	template <class T>
-	struct difference_type<const T>
-	: difference_type<std::decay_t<T>> {};
+	struct incrementable_traits<const T>
+	: incrementable_traits<std::decay_t<T>> {};
 
 	detail::MemberDifferenceType{T}
-	struct difference_type<T> {
+	struct incrementable_traits<T> {
 		using type = typename T::difference_type;
 	};
 
@@ -59,11 +59,11 @@ STL2_OPEN_NAMESPACE {
 				requires Integral<decltype(a - b)>;
 			 	// { a - b } -> Integral;
 			}
-	struct difference_type<T>
+	struct incrementable_traits<T>
 	: make_signed<decltype(declval<const T>() - declval<const T>())> {};
 
 	template <class T>
-	using difference_type_t = meta::_t<difference_type<T>>;
+	using iter_difference_t = meta::_t<incrementable_traits<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// WeaklyIncrementable [weaklyincrementable.iterators]
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 	concept bool WeaklyIncrementable =
 		Semiregular<I> &&
 		requires(I& i) {
-			typename difference_type_t<I>;
+			typename iter_difference_t<I>;
 			{ ++i } -> Same<I&>&&;
 			i++;
 		};
@@ -114,13 +114,13 @@ STL2_OPEN_NAMESPACE {
 		template <class I>
 		concept bool RandomAccessIncrementable =
 			Decrementable<I> &&
-			requires(I& i, const I& ci, const difference_type_t<I> n) {
+			requires(I& i, const I& ci, const iter_difference_t<I> n) {
 				{ i += n } -> Same<I&>&&;
 				{ i -= n } -> Same<I&>&&;
 				{ ci + n } -> Same<I>&&;
 				{ n + ci } -> Same<I>&&;
 				{ ci - n } -> Same<I>&&;
-				{ ci - ci } -> difference_type_t<I>;
+				{ ci - ci } -> iter_difference_t<I>;
 			};
 			// FIXME: Axioms
 	}

@@ -86,13 +86,13 @@ STL2_OPEN_NAMESPACE {
 	I nth_element(I first, I nth, S last, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		I end = __stl2::next(nth, last), end_orig = end;
-		constexpr difference_type_t<I> limit = 7;
+		constexpr iter_difference_t<I> limit = 7;
 		while (true) {
 		restart:
 			if (nth == end) {
 				return end_orig;
 			}
-			difference_type_t<I> len = end - first;
+			iter_difference_t<I> len = end - first;
 			switch (len) {
 			case 0:
 			case 1:

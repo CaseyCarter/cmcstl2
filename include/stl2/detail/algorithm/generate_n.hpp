@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Invocable<F&> &&
 		Writable<O, result_of_t<F&()>>
-	O generate_n(O first, difference_type_t<O> n, F gen)
+	O generate_n(O first, iter_difference_t<O> n, F gen)
 	{
 		for (; n > 0; ++first, --n) {
 			*first = gen();

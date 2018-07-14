@@ -35,11 +35,11 @@ namespace {
 
 		using I = istreambuf_iterator<charT, traits>;
 		static_assert(WeaklyIncrementable<I>);
-		static_assert(Same<typename traits::off_type, difference_type_t<I>>);
-		static_assert(Same<charT, value_type_t<I>>);
+		static_assert(Same<typename traits::off_type, iter_difference_t<I>>);
+		static_assert(Same<charT, iter_value_t<I>>);
 		static_assert(Readable<I>);
-		static_assert(Same<charT, reference_t<I>>);
-		static_assert(Same<charT, rvalue_reference_t<I>>);
+		static_assert(Same<charT, iter_reference_t<I>>);
+		static_assert(Same<charT, iter_rvalue_reference_t<I>>);
 		static_assert(Iterator<I>);
 		static_assert(Same<input_iterator_tag, iterator_category_t<I>>);
 		static_assert(InputIterator<I>);
@@ -49,8 +49,8 @@ namespace {
 		static_assert(Common<I, default_sentinel>);
 		static_assert(Same<I, common_type_t<I, default_sentinel>>);
 
-		static_assert(Same<value_type_t<I>, typename I::value_type>);
-		static_assert(Same<difference_type_t<I>, typename I::difference_type>);
+		static_assert(Same<iter_value_t<I>, typename I::value_type>);
+		static_assert(Same<iter_difference_t<I>, typename I::difference_type>);
 		static_assert(Same<input_iterator_tag, typename I::iterator_category>);
 		static_assert(Same<charT, typename I::reference>);
 		static_assert(Same<traits, typename I::traits_type>);
