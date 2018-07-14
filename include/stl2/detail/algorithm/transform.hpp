@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		CopyConstructible F, class Proj = identity>
 	requires
 		Writable<O,
-			indirect_invoke_result_t<F&, projected<I, Proj>>>
+			indirect_result_t<F&, projected<I, Proj>>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	transform(I first, S last, O result, F op, Proj proj = Proj{})
 	{
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange R, WeaklyIncrementable O, CopyConstructible F, class Proj = identity>
 	requires
 		Writable<O,
-			indirect_invoke_result_t<F&, projected<iterator_t<R>, Proj>>>
+			indirect_result_t<F&, projected<iterator_t<R>, Proj>>>
 	tagged_pair<tag::in(safe_iterator_t<R>), tag::out(O)>
 	transform(R&& r, O result, F op, Proj proj = Proj{})
 	{
@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		InputIterator<std::decay_t<I2>> && !Range<I2> &&
 		Writable<O,
-			indirect_invoke_result_t<F&,
+			indirect_result_t<F&,
 				projected<I1, Proj1>,
 				projected<std::decay_t<I2>, Proj2>>>
 	{
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		InputIterator<std::decay_t<I>> && !Range<I> &&
 		Writable<O,
-			indirect_invoke_result_t<F&,
+			indirect_result_t<F&,
 				projected<iterator_t<Rng>, Proj1>,
 				projected<std::decay_t<I>, Proj2>>>
 	{
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		Writable<O,
-			indirect_invoke_result_t<F&,
+			indirect_result_t<F&,
 				projected<I1, Proj1>,
 				projected<I2, Proj2>>>
 	tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
@@ -115,7 +115,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		Writable<O,
-			indirect_invoke_result_t<F&,
+			indirect_result_t<F&,
 				projected<iterator_t<Rng1>, Proj1>,
 				projected<iterator_t<Rng2>, Proj2>>>
 	tagged_tuple<

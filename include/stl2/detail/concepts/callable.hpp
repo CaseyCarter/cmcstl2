@@ -77,11 +77,11 @@ STL2_OPEN_NAMESPACE {
 		ext::IndirectInvocable<F, I>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// indirect_invoke_result [indirectcallables.indirectfunc]
+	// indirect_result_t
 	//
 	template <class F, class... Is>
-	using indirect_invoke_result_t =
-		invoke_result_t<F, iter_reference_t<Is>&&...>;
+	requires (Readable<Is> && ...) && Invocable<F, iter_reference_t<Is>...>
+	using indirect_result_t = invoke_result_t<F, iter_reference_t<Is>&&...>;
 
 	namespace ext {
 		template <class F, class... Is>
@@ -145,8 +145,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	template <Readable I, IndirectRegularUnaryInvocable<I> Proj>
 	struct projected {
-		using value_type = __uncvref<indirect_invoke_result_t<Proj&, I>>;
-		indirect_invoke_result_t<Proj&, I> operator*() const;
+		using value_type = __uncvref<indirect_result_t<Proj&, I>>;
+		indirect_result_t<Proj&, I> operator*() const;
 	};
 
 	template <WeaklyIncrementable I, class Proj>

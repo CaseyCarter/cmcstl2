@@ -41,7 +41,7 @@ namespace ns {
 	using ranges::bidirectional_iterator_tag;
 	using ranges::random_access_iterator_tag;
 
-	using ranges::indirect_invoke_result_t;
+	using ranges::indirect_result_t;
 }
 
 #elif VALIDATE_STL2
@@ -261,7 +261,7 @@ namespace indirectly_callable_test {
 namespace indirect_invoke_result_test {
 	template <class R, class... Args>
 	using fn_t = R(Args...);
-	CONCEPT_ASSERT(ranges::Same<ns::indirect_invoke_result_t<fn_t<void, int>&, const int*>, void>);
+	CONCEPT_ASSERT(ranges::Same<ns::indirect_result_t<fn_t<void, int>&, const int*>, void>);
 }
 
 int main() {
