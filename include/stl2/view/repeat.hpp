@@ -15,18 +15,18 @@
 #include <stl2/iterator.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/cheap_storage.hpp>
-#include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/memory/addressof.hpp>
 #include <stl2/detail/meta.hpp>
+#include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <Semiregular T>
-		class repeat_view : detail::ebo_box<T, repeat_view<T>> {
-			using storage_t = detail::ebo_box<T, repeat_view<T>>;
+		template <CopyConstructibleObject T>
+		class repeat_view : detail::semiregular_box<T> {
+			using storage_t = detail::semiregular_box<T>;
 			using storage_t::get;
 
 			class cursor : detail::cheap_reference_box_t<const T> {
