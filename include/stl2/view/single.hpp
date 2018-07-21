@@ -56,16 +56,14 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	namespace view {
-		namespace __single {
-			struct fn {
-				template <class T>
-				requires CopyConstructible<__f<T>>
-				constexpr auto operator()(T&& t) const
-				{ return ext::single_view{std::forward<T>(t)}; }
-			};
-		}
+		struct __single_fn {
+			template <class T>
+			requires CopyConstructible<__f<T>>
+			constexpr auto operator()(T&& t) const
+			{ return __stl2::ext::single_view{std::forward<T>(t)}; }
+		};
 
-		inline constexpr __single::fn single {};
+		inline constexpr __single_fn single {};
 	}
 } STL2_CLOSE_NAMESPACE
 

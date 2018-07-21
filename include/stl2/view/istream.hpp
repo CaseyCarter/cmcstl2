@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 		requires StreamExtractable<Val>
 		struct __istream_fn {
 			constexpr auto operator()(std::istream& sin) const noexcept
-			{ return ext::istream_view<Val>{sin}; }
+			{ return __stl2::ext::istream_view<Val>{sin}; }
 		};
 
 		template<Semiregular Val>

@@ -153,20 +153,18 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	namespace view {
-		namespace __take {
-			struct fn {
-				template <InputRange Rng>
-				requires ext::ViewableRange<Rng>
-				constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
-				{ return ext::take_view{std::forward<Rng>(rng), count}; }
+		struct __take_fn {
+			template <InputRange Rng>
+			requires __stl2::ext::ViewableRange<Rng>
+			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
+			{ return __stl2::ext::take_view{std::forward<Rng>(rng), count}; }
 
-				template <Integral D>
-				constexpr auto operator()(D count) const
-				{ return detail::view_closure{*this, (D)count}; }
-			};
-		}
+			template <Integral D>
+			constexpr auto operator()(D count) const
+			{ return detail::view_closure{*this, (D)count}; }
+		};
 
-		inline constexpr __take::fn take {};
+		inline constexpr __take_fn take {};
 	}
 } STL2_CLOSE_NAMESPACE
 

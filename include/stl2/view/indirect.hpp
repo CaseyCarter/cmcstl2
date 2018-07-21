@@ -18,14 +18,18 @@
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/view/all.hpp>
+#include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <View Rng>
 		requires
 			InputRange<Rng> &&
-			Readable<iter_reference_t<iterator_t<Rng>>>
-		class indirect_view : detail::ebo_box<Rng, indirect_view<Rng>> {
+			Readable<remove_reference_t<iter_reference_t<iterator_t<Rng>>>>
+		class indirect_view
+		: public view_interface<indirect_view<Rng>>
+		, private detail::ebo_box<Rng, indirect_view<Rng>> {
 			using base_t = detail::ebo_box<Rng, indirect_view<Rng>>;
 			using base_t::get;
 
@@ -72,14 +76,15 @@ STL2_OPEN_NAMESPACE {
 
 			basic_iterator<cursor<false>> begin()
 			requires !Range<Rng const>
-			{ return {cursor<false>{__stl2::begin(get())}}; }
+			{ return basic_iterator<cursor<false>>{cursor<false>{__stl2::begin(get())}}; }
 
 			sentinel<false> end()
 			requires !Range<Rng const>
-			{ return {__stl2::end(get())}; }
+			{ return sentinel<false>{__stl2::end(get())}; }
+
 			basic_iterator<cursor<false>> end()
 			requires !Range<Rng const> && CommonRange<Rng>
-			{ return {cursor<false>{__stl2::end(get())}}; }
+			{ return basic_iterator<cursor<false>>{cursor<false>{__stl2::end(get())}}; }
 
 			auto size()
 			requires !Range<Rng const> && SizedRange<Rng>
@@ -87,23 +92,39 @@ STL2_OPEN_NAMESPACE {
 
 			basic_iterator<cursor<true>> begin() const
 			requires Range<Rng const>
-			{ return {cursor<true>{__stl2::begin(get())}}; }
+			{ return basic_iterator<cursor<true>>{cursor<true>{__stl2::begin(get())}}; }
 
 			sentinel<true> end() const
 			requires Range<Rng const>
-			{ return {__stl2::end(get())}; }
+			{ return sentinel<true>{__stl2::end(get())}; }
+
 			basic_iterator<cursor<true>> end() const
 			requires CommonRange<Rng const>
-			{ return {cursor<true>{__stl2::end(get())}}; }
+			{ return basic_iterator<cursor<true>>{cursor<true>{__stl2::end(get())}}; }
 
 			auto size() const
 			requires SizedRange<Rng const>
 			{ return __stl2::size(get()); }
 		};
+
+		template <class Rng>
+		indirect_view(Rng&&) -> indirect_view<all_view<Rng>>;
 	} // namespace ext
 
 	template <class V>
 	struct enable_view<ext::indirect_view<V>> : std::true_type {};
+
+	namespace view::ext {
+		struct __indirect_fn : detail::__pipeable<__indirect_fn> {
+			template <class Rng>
+			constexpr auto operator()(Rng&& rng) const
+			STL2_NOEXCEPT_REQUIRES_RETURN(
+				__stl2::ext::indirect_view(all(std::forward<Rng>(rng)))
+			)
+		};
+
+		inline constexpr __indirect_fn indirect {};
+	} // namespace view::ext
 } STL2_CLOSE_NAMESPACE
 
 #endif

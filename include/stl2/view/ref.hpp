@@ -20,6 +20,7 @@
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/view/view_interface.hpp>
+#include <stl2/detail/view/view_closure.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
@@ -74,6 +75,18 @@ STL2_OPEN_NAMESPACE {
 			r.end()
 		)
 	} // namespace ext
+
+	namespace view::ext {
+		struct __ref_fn : detail::__pipeable<__ref_fn> {
+			template <class Rng>
+			auto operator()(Rng&& rng) const
+			STL2_NOEXCEPT_REQUIRES_RETURN(
+				__stl2::ext::ref_view(std::forward<Rng>(rng))
+			)
+		};
+
+		inline constexpr __ref_fn ref {};
+	} // namespace view::ext
 } STL2_CLOSE_NAMESPACE
 
 #endif

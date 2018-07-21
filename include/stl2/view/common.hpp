@@ -78,20 +78,18 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	namespace view {
-		namespace __stl2_common {
-			struct fn : detail::__pipeable<fn> {
-				template <ext::ViewableRange R>
-				requires CommonRange<R>
-				constexpr auto operator()(R&& r) const
-				{ return view::all(std::forward<R>(r)); }
+		struct __stl2_common_fn : detail::__pipeable<__stl2_common_fn> {
+			template <__stl2::ext::ViewableRange R>
+			requires CommonRange<R>
+			constexpr auto operator()(R&& r) const
+			{ return view::all(std::forward<R>(r)); }
 
-				template <ext::ViewableRange R>
-				constexpr auto operator()(R&& r) const
-				{ return ext::common_view{std::forward<R>(r)}; }
-			};
-		} // namespace __stl2_common
+			template <__stl2::ext::ViewableRange R>
+			constexpr auto operator()(R&& r) const
+			{ return __stl2::ext::common_view{std::forward<R>(r)}; }
+		};
 
-		inline constexpr __stl2_common::fn common {};
+		inline constexpr __stl2_common_fn common {};
 	} // namespace view
 } STL2_CLOSE_NAMESPACE
 

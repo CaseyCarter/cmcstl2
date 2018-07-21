@@ -20,11 +20,16 @@
 #include <stl2/detail/iterator/counted_iterator.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/view/all.hpp>
+#include <stl2/detail/view/view_closure.hpp>
+#include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <View Base>
-		class take_exactly_view : detail::ebo_box<Base, take_exactly_view<Base>>
+		class take_exactly_view
+		: public view_interface<take_exactly_view<Base>>
+		, private detail::ebo_box<Base, take_exactly_view<Base>>
 		{
 			using base_t = detail::ebo_box<Base, take_exactly_view<Base>>;
 			using base_t::get;
@@ -88,10 +93,31 @@ STL2_OPEN_NAMESPACE {
 			constexpr iter_difference_t<iterator_t<Base>> size() const noexcept { return n_; }
 			constexpr bool empty() const noexcept { return n_ == 0; }
 		};
+
+		template <InputRange R>
+		take_exactly_view(R&& base, iter_difference_t<iterator_t<R>> n)
+			-> take_exactly_view<all_view<R>>;
 	} // namespace ext
 
 	template <class V>
 	struct enable_view<ext::take_exactly_view<V>> : std::true_type {};
+
+	namespace view::ext {
+		struct __take_exactly_fn : detail::__pipeable<__take_exactly_fn> {
+			template <class V>
+			auto operator()(V&& view, iter_difference_t<iterator_t<V>> const n) const
+			STL2_NOEXCEPT_REQUIRES_RETURN
+			(
+				__stl2::ext::take_exactly_view(std::forward<V>(view), n)
+			)
+
+			template <Integral D>
+			constexpr auto operator()(D count) const
+			{ return detail::view_closure(*this, static_cast<D>(count)); }
+		};
+
+		inline constexpr __take_exactly_fn take_exactly {};
+	} // namespace view::ext
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -177,20 +177,18 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	namespace view {
-		namespace __filter {
-			struct fn {
-				template <InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
-				requires ext::ViewableRange<R>
-				constexpr auto operator()(R&& rng, Pred pred) const
-				{ return ext::filter_view<ext::all_view<R>, Pred>{std::forward<R>(rng), std::move(pred)}; }
+		struct __filter_fn {
+			template <InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
+			requires __stl2::ext::ViewableRange<R>
+			constexpr auto operator()(R&& rng, Pred pred) const
+			{ return __stl2::ext::filter_view<__stl2::ext::all_view<R>, Pred>{std::forward<R>(rng), std::move(pred)}; }
 
-				template <CopyConstructible Pred>
-				constexpr auto operator()(Pred pred) const
-				{ return detail::view_closure{*this, std::move(pred)}; }
-			};
-		}
+			template <CopyConstructible Pred>
+			constexpr auto operator()(Pred pred) const
+			{ return detail::view_closure{*this, std::move(pred)}; }
+		};
 
-		inline constexpr __filter::fn filter {};
+		inline constexpr __filter_fn filter {};
 	}
 } STL2_CLOSE_NAMESPACE
 

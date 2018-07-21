@@ -76,20 +76,18 @@ STL2_OPEN_NAMESPACE {
 	template <class V>
 	struct enable_view<ext::move_view<V>> : std::true_type {};
 
-	namespace __move {
-		struct fn : detail::__pipeable<fn> {
+	namespace view {
+		struct __move_fn : detail::__pipeable<__move_fn> {
 			template <InputRange Rng>
-			requires ext::ViewableRange<Rng>
-			constexpr ext::move_view<ext::all_view<Rng>> operator()(Rng&& rng) const {
-				return ext::move_view<ext::all_view<Rng>>{
+			requires __stl2::ext::ViewableRange<Rng>
+			constexpr __stl2::ext::move_view<__stl2::ext::all_view<Rng>> operator()(Rng&& rng) const {
+				return __stl2::ext::move_view<__stl2::ext::all_view<Rng>>{
 					view::all(std::forward<Rng>(rng))};
 			}
 		};
-	} // namespace __move
 
-	namespace view {
-		inline constexpr __move::fn move {};
-	}
+		inline constexpr __move_fn move {};
+	} // namespace view
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -74,6 +74,13 @@ namespace __stl2 = ::std::experimental::ranges;
 	noexcept(noexcept(__VA_ARGS__)) \
 	{ return __VA_ARGS__; }
 
+
+#define STL2_NOEXCEPT_REQUIRES_RETURN(...) \
+	noexcept(noexcept(__VA_ARGS__)) \
+	requires requires { __VA_ARGS__; } \
+	{ return (__VA_ARGS__); } \
+
+
 #if STL2_CONSTEXPR_EXTENSIONS
  #define STL2_CONSTEXPR_EXT constexpr
 #else
@@ -115,6 +122,14 @@ namespace __stl2 = ::std::experimental::ranges;
   #define STL2_EXPECT(...) STL2_ASSERT(__VA_ARGS__)
  #endif
 #endif
+
+#ifndef STL2_ENSURE
+ #ifdef NDEBUG
+  #define STL2_ENSURE(...) STL2_ASSUME(__VA_ARGS__)
+ #else
+  #define STL2_ENSURE(...) STL2_ASSERT(__VA_ARGS__)
+ #endif // NDEBUG
+#endif // STL2_ENSURE
 
 #define STL2_PRAGMA(X) _Pragma(#X)
 #if defined(__GNUC__) || defined(__clang__)

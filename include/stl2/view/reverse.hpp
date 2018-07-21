@@ -73,19 +73,17 @@ STL2_OPEN_NAMESPACE {
 		reverse_view(Rng&&) -> reverse_view<all_view<Rng>>;
 	} // namespace ext
 
-	namespace __reverse {
-		struct fn : detail::__pipeable<fn> {
+	namespace view {
+		struct __reverse_fn : detail::__pipeable<__reverse_fn> {
 			template <BidirectionalRange Rng>
-			requires ext::ViewableRange<Rng>
+			requires __stl2::ext::ViewableRange<Rng>
 			constexpr auto operator()(Rng&& rng) const {
-				return ext::reverse_view{std::forward<Rng>(rng)};
+				return __stl2::ext::reverse_view{std::forward<Rng>(rng)};
 			}
 		};
-	} // namespace __reverse
 
-	namespace view {
-		inline constexpr __reverse::fn reverse {};
-	}
+		inline constexpr __reverse_fn reverse {};
+	} // namespace view
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -10,6 +10,7 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <stl2/view/repeat.hpp>
+#include <stl2/view/take.hpp>
 #include <array>
 #include <vector>
 #include "../simple_test.hpp"
@@ -96,6 +97,13 @@ int main() {
 				decltype(first.operator->()),
 				const std::vector<int>*>);
 		CHECK(first->size() == N);
+	}
+	{
+		auto v = ranges::view::ext::repeat(9) | ranges::view::take(10);
+		static_assert(ranges::View<decltype(v)>);
+		static_assert(ranges::RandomAccessIterator<decltype(v.begin())>);
+		// static_assert(ranges::SizedView<decltype(v)>);
+		CHECK_EQUAL(v, {9, 9, 9, 9, 9, 9, 9, 9, 9, 9});
 	}
 
 	return test_result();
