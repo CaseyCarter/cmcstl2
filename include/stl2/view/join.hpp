@@ -293,23 +293,18 @@ STL2_OPEN_NAMESPACE {
 		};
 	} // namespace ext
 
-	namespace view
-	{
-		namespace __join
-		{
-			struct fn : detail::__pipeable<fn>
-			{
-				template <InputRange Rng>
-				requires ext::ViewableRange<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
-					(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
-						View<iter_value_t<iterator_t<Rng>>>)
-				constexpr auto operator()(Rng&& rng) const
-				{ return ext::join_view{std::forward<Rng>(rng)}; }
-			};
-		}
+	namespace view {
+		struct __join_fn : detail::__pipeable<__join_fn> {
+			template <InputRange Rng>
+			requires __stl2::ext::ViewableRange<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
+				(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
+					View<iter_value_t<iterator_t<Rng>>>)
+			constexpr auto operator()(Rng&& rng) const
+			{ return __stl2::ext::join_view{std::forward<Rng>(rng)}; }
+		};
 
-		inline constexpr __join::fn join {};
-	}
+		inline constexpr __join_fn join {};
+	} // namespace view
 } STL2_CLOSE_NAMESPACE
 
 #endif

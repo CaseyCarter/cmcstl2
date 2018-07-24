@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace view {
 		template <class T>
-		inline constexpr ext::empty_view<T> empty {};
+		inline constexpr __stl2::ext::empty_view<T> empty {};
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -35,6 +35,13 @@ int main() {
 		auto v = ranges::ext::repeat_n_view<empty>{{}, (1ULL << 20)};
 		static_assert(sizeof(decltype(v.begin())) == sizeof(std::ptrdiff_t));
 	}
+	{
+		auto v = ranges::view::ext::repeat_n(9, 10);
+		static_assert(ranges::View<decltype(v)>);
+		static_assert(ranges::RandomAccessIterator<decltype(v.begin())>);
+		static_assert(ranges::SizedRange<decltype(v)>);
+		CHECK_EQUAL(v, {9, 9, 9, 9, 9, 9, 9, 9, 9, 9});
+	}
 
 	return test_result();
 }

@@ -28,11 +28,11 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <InputRange R>
+		template <Range R>
 		requires View<R>
 		struct take_view;
 
-		template <InputRange R>
+		template <Range R>
 		requires View<R>
 		struct __take_view : view_interface<take_view<R>> {
 		private:
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr __take_view(R base, D count)
 			: base_(std::move(base)), count_(count) {}
 
-			template <InputRange O>
+			template <Range O>
 			requires ext::ViewableRange<O> && _ConstructibleFromRange<R, O>
 			constexpr __take_view(O&& o, D count)
 			: base_(view::all(std::forward<O>(o))), count_(count) {}
@@ -127,7 +127,7 @@ STL2_OPEN_NAMESPACE {
 			{ return !(y == x); }
 		};
 
-		template <InputRange R>
+		template <Range R>
 		requires View<R>
 		struct take_view : __take_view<R> {
 			take_view() = default;
@@ -136,7 +136,7 @@ STL2_OPEN_NAMESPACE {
 			using sentinel = decltype(std::declval<ext::__take_view<R>&>().end());
 		};
 
-		template <InputRange R>
+		template <Range R>
 		requires View<R> && Range<const R>
 		struct take_view<R> : __take_view<R> {
 			take_view() = default;
@@ -147,26 +147,25 @@ STL2_OPEN_NAMESPACE {
 			using const_sentinel = decltype(std::declval<const ext::__take_view<R>&>().end());
 		};
 
-		template <InputRange R>
+		template <Range R>
 		take_view(R&& base, iter_difference_t<iterator_t<R>> n)
 		  -> take_view<all_view<R>>;
 	}
 
 	namespace view {
-		namespace __take {
-			struct fn {
-				template <InputRange Rng>
-				requires ext::ViewableRange<Rng>
-				constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
-				{ return ext::take_view{std::forward<Rng>(rng), count}; }
+		struct __take_fn {
+			template <Range Rng>
+			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
+			STL2_NOEXCEPT_REQUIRES_RETURN(
+				__stl2::ext::take_view{all(std::forward<Rng>(rng)), count}
+			)
 
-				template <Integral D>
-				constexpr auto operator()(D count) const
-				{ return detail::view_closure{*this, (D)count}; }
-			};
-		}
+			template <Integral D>
+			constexpr auto operator()(D count) const
+			{ return detail::view_closure{*this, (D)count}; }
+		};
 
-		inline constexpr __take::fn take {};
+		inline constexpr __take_fn take {};
 	}
 } STL2_CLOSE_NAMESPACE
 

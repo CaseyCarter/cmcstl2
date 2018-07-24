@@ -21,11 +21,12 @@
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
+#include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <CopyConstructibleObject T>
-		class repeat_view : detail::semiregular_box<T> {
+		class repeat_view : private detail::semiregular_box<T> {
 			using storage_t = detail::semiregular_box<T>;
 			using storage_t::get;
 
@@ -70,6 +71,18 @@ STL2_OPEN_NAMESPACE {
 			constexpr const T& value() const noexcept { return get(); }
 		};
 	} // namespace ext
+
+	namespace view::ext {
+		class __repeat_fn {
+			template <class T>
+			constexpr auto operator()(T&& t) const
+			STL2_NOEXCEPT_REQUIRES_RETURN(
+				__stl2::ext::repeat_view{std::forward<T>(t)}
+			)
+		};
+
+		inline constexpr __repeat_fn repeat {};
+	} // namespace view::ext
 
 	template <class T>
 	struct enable_view<ext::repeat_view<T>> : std::true_type {};

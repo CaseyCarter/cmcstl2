@@ -263,23 +263,22 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	namespace view {
-		namespace __transform {
-			struct fn {
-				template <InputRange Rng, CopyConstructible F>
-				requires ext::ViewableRange<Rng> && Invocable<F&, iter_reference_t<iterator_t<Rng>>>
-				constexpr auto operator()(Rng&& rng, F fun) const {
-					return ext::transform_view{std::forward<Rng>(rng), std::move(fun)};
-				}
+		struct __transform_fn {
+			template <InputRange Rng, CopyConstructible F>
+			requires
+				__stl2::ext::ViewableRange<Rng> && Invocable<F&, iter_reference_t<iterator_t<Rng>>>
+			constexpr auto operator()(Rng&& rng, F fun) const {
+				return __stl2::ext::transform_view{std::forward<Rng>(rng), std::move(fun)};
+			}
 
-				template <CopyConstructible F>
-				constexpr auto operator()(F fun) const {
-					return detail::view_closure{*this, std::move(fun)};
-				}
-			};
-		}
+			template <CopyConstructible F>
+			constexpr auto operator()(F fun) const {
+				return detail::view_closure{*this, std::move(fun)};
+			}
+		};
 
-		inline constexpr __transform::fn transform {};
-	}
+		inline constexpr __transform_fn transform {};
+	} // namespace view
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -22,30 +22,28 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace view {
-		namespace __all {
-			struct fn : detail::__pipeable<fn> {
-				template <Range Rng>
-				requires View<__f<Rng>>
-				constexpr auto operator()(Rng&& rng) const
-				noexcept(std::is_nothrow_constructible_v<__f<Rng>, Rng>)
-				{ return std::forward<Rng>(rng); }
+		struct __all_fn : detail::__pipeable<__all_fn> {
+			template <Range Rng>
+			requires View<__f<Rng>>
+			constexpr auto operator()(Rng&& rng) const
+			noexcept(std::is_nothrow_constructible_v<__f<Rng>, Rng>)
+			{ return std::forward<Rng>(rng); }
 
-				template <_ForwardingRange Rng>
-				requires !View<__uncvref<Rng>>
-				constexpr auto operator()(Rng&& rng) const
-				noexcept(std::is_reference_v<Rng>)
-				{
-					if constexpr (std::is_reference_v<Rng>) {
-						return ext::ref_view{rng};
-					} else {
-						return ext::subrange{static_cast<Rng&&>(rng)};
-					}
+			template <_ForwardingRange Rng>
+			requires !View<__uncvref<Rng>>
+			constexpr auto operator()(Rng&& rng) const
+			noexcept(std::is_reference_v<Rng>)
+			{
+				if constexpr (std::is_reference_v<Rng>) {
+					return __stl2::ext::ref_view{rng};
+				} else {
+					return __stl2::ext::subrange{static_cast<Rng&&>(rng)};
 				}
-			};
-		}
+			}
+		};
 
-		inline constexpr __all::fn all {};
-	}
+		inline constexpr __all_fn all {};
+	} // namespace view
 
 	namespace ext {
 		template <ViewableRange Rng>

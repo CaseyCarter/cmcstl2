@@ -306,11 +306,11 @@ STL2_OPEN_NAMESPACE {
 		struct __split_fn {
 			template <class E, class F>
 			requires requires(E&& e, F&& f) {
-				ext::split_view{static_cast<E&&>(e), static_cast<F&&>(f)};
+				__stl2::ext::split_view{static_cast<E&&>(e), static_cast<F&&>(f)};
 			}
 			constexpr auto operator()(E&& e, F&& f) const
 			STL2_NOEXCEPT_RETURN(
-				ext::split_view{static_cast<E&&>(e), static_cast<F&&>(f)}
+				__stl2::ext::split_view{static_cast<E&&>(e), static_cast<F&&>(f)}
 			)
 
 			template <CopyConstructible T>

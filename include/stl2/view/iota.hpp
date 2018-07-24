@@ -193,24 +193,22 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	namespace view {
-		namespace __iota {
-			struct fn {
-				template <WeaklyIncrementable I>
-				constexpr auto operator()(I value) const {
-					return ext::iota_view{value};
-				}
+		struct __iota_fn {
+			template <WeaklyIncrementable I>
+			constexpr auto operator()(I value) const {
+				return __stl2::ext::iota_view{value};
+			}
 
-				template <WeaklyIncrementable I, Semiregular Bound>
-				requires WeaklyEqualityComparable<I, Bound> &&
-					(!Integral<I> || !Integral<Bound> ||
-						std::is_signed_v<I> == std::is_signed_v<Bound>)
-				constexpr auto operator()(I value, Bound bound) const {
-					return ext::iota_view{value, bound};
-				}
-			};
-		}
+			template <WeaklyIncrementable I, Semiregular Bound>
+			requires WeaklyEqualityComparable<I, Bound> &&
+				(!Integral<I> || !Integral<Bound> ||
+					std::is_signed_v<I> == std::is_signed_v<Bound>)
+			constexpr auto operator()(I value, Bound bound) const {
+				return __stl2::ext::iota_view{value, bound};
+			}
+		};
 
-		inline constexpr __iota::fn iota {};
+		inline constexpr __iota_fn iota {};
 	}
 } STL2_CLOSE_NAMESPACE
 
