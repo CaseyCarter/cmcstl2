@@ -39,7 +39,7 @@ int main() {
 		auto v = ranges::view::ext::repeat_n(9, 10);
 		static_assert(ranges::View<decltype(v)>);
 		static_assert(ranges::RandomAccessIterator<decltype(v.begin())>);
-		// static_assert(ranges::SizedView<decltype(v)>);
+		static_assert(ranges::SizedRange<decltype(v)>);
 		CHECK_EQUAL(v, {9, 9, 9, 9, 9, 9, 9, 9, 9, 9});
 	}
 

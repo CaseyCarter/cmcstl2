@@ -94,7 +94,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr bool empty() const noexcept { return n_ == 0; }
 		};
 
-		template <InputRange R>
+		template <Range R>
 		take_exactly_view(R&& base, iter_difference_t<iterator_t<R>> n)
 			-> take_exactly_view<all_view<R>>;
 	} // namespace ext
@@ -108,7 +108,7 @@ STL2_OPEN_NAMESPACE {
 			auto operator()(V&& view, iter_difference_t<iterator_t<V>> const n) const
 			STL2_NOEXCEPT_REQUIRES_RETURN
 			(
-				__stl2::ext::take_exactly_view(std::forward<V>(view), n)
+				__stl2::ext::take_exactly_view(all(std::forward<V>(view)), n)
 			)
 
 			template <Integral D>

@@ -70,9 +70,6 @@ STL2_OPEN_NAMESPACE {
 			constexpr unreachable end() const noexcept { return {}; }
 			constexpr const T& value() const noexcept { return get(); }
 		};
-
-		template <class T>
-		repeat_view(T) -> repeat_view<T>;
 	} // namespace ext
 
 	namespace view::ext {
