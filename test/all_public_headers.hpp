@@ -27,7 +27,6 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/memory.hpp>
-#include <stl2/optional.hpp>
 #include <stl2/random.hpp>
 #include <stl2/ranges.hpp>
 #include <stl2/tuple.hpp>

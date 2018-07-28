@@ -243,7 +243,6 @@
     <ClInclude Include="include\stl2\functional.hpp" />
     <ClInclude Include="include\stl2\iterator.hpp" />
     <ClInclude Include="include\stl2\memory.hpp" />
-    <ClInclude Include="include\stl2\optional.hpp" />
     <ClInclude Include="include\stl2\random.hpp" />
     <ClInclude Include="include\stl2\tuple.hpp" />
     <ClInclude Include="include\stl2\type_traits.hpp" />
@@ -411,7 +410,6 @@
     <ClCompile Include="test\memory\uninitialized_move.cpp" />
     <ClCompile Include="test\memory\uninitialized_value_construct.cpp" />
     <ClCompile Include="test\meta.cpp" />
-    <ClCompile Include="test\optional.cpp" />
     <ClCompile Include="test\range_access.cpp" />
     <ClCompile Include="test\span.cpp" />
     <ClCompile Include="test\tagged.cpp" />

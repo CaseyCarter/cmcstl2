@@ -14,17 +14,16 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
+#include <stl2/detail/semiregular_box.hpp>
+#include <stl2/detail/algorithm/min.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/iterator/counted_iterator.hpp>
+#include <stl2/detail/functional/invoke.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
-#include <stl2/optional.hpp>
-#include <stl2/detail/functional/invoke.hpp>
-#include <stl2/detail/semiregular_box.hpp>
-#include <stl2/detail/iterator/counted_iterator.hpp>
-#include <stl2/detail/algorithm/min.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
