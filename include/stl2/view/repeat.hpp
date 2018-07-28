@@ -75,9 +75,15 @@ STL2_OPEN_NAMESPACE {
 	namespace view::ext {
 		class __repeat_fn {
 			template <class T>
-			constexpr auto operator()(T&& t) const
+			constexpr auto operator()(T const& t) const
 			STL2_NOEXCEPT_REQUIRES_RETURN(
-				__stl2::ext::repeat_view{std::forward<T>(t)}
+				__stl2::ext::repeat_view{t}
+			)
+
+			template <class T>
+			constexpr auto operator()(remove_reference_t<T>&& t) const
+			STL2_NOEXCEPT_REQUIRES_RETURN(
+				__stl2::ext::repeat_view{std::move(t)}
 			)
 		};
 

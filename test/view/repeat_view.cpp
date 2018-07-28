@@ -104,6 +104,19 @@ int main() {
 		static_assert(ranges::RandomAccessIterator<decltype(v.begin())>);
 		CHECK_EQUAL(v, {9, 9, 9, 9, 9, 9, 9, 9, 9, 9});
 	}
+	{
+		struct empty { 
+			bool operator==(empty const&) const noexcept { return true; }
+			bool operator!=(empty const&) const noexcept { return false; }
+		};
+
+		auto e = empty{};
+		auto v2 = ranges::view::ext::repeat(e) | ranges::view::take(3);
+		CHECK_EQUAL(v2, {e, e, e});
+
+		auto v3 = ranges::view::ext::repeat(std::move(e)) | ranges::view::take(3);
+		CHECK_EQUAL(v2, v3);
+	}
 
 	return test_result();
 }

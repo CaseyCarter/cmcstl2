@@ -26,11 +26,21 @@ STL2_OPEN_NAMESPACE {
 	namespace view::ext {
 		class __repeat_n_fn {
 			template <class T>
-			constexpr auto operator()(T&& t, std::ptrdiff_t const n) const
+			constexpr auto operator()(T const& t, std::ptrdiff_t const n) const
 			STL2_NOEXCEPT_REQUIRES_RETURN(
 				STL2_EXPECT(n >= 0),
-				__stl2::ext::repeat_n_view<T>{std::forward<T>(t), n}
+				__stl2::ext::repeat_n_view<T>(t, n)
 			)
+
+			template <class T>
+			constexpr auto operator()(remove_reference_t<T>&& t, std::ptrdiff_t const n) const
+			STL2_NOEXCEPT_REQUIRES_RETURN(
+				STL2_EXPECT(n >= 0),
+				__stl2::ext::repeat_n_view<T>(std::move(t), n)
+			)
+
+			template <class T>
+			constexpr auto operator()(remove_reference_t<T> const&&, std::ptrdiff_t) = delete;
 		};
 
 		inline constexpr __repeat_n_fn repeat_n {};
