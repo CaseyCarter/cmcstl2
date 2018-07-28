@@ -13,33 +13,33 @@
 #ifndef STL2_DETAIL_NON_PROPAGATING_CACHE_HPP
 #define STL2_DETAIL_NON_PROPAGATING_CACHE_HPP
 
-#include <stl2/optional.hpp>
+#include <optional>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		template <ext::DestructibleObject T, class Tag = void, bool Enable = true>
-		struct non_propagating_cache : optional<T> {
+		struct non_propagating_cache : std::optional<T> {
 			non_propagating_cache() = default;
 			constexpr non_propagating_cache(nullopt_t) noexcept
 			{}
 			constexpr non_propagating_cache(non_propagating_cache const &) noexcept
-			: optional<T>{}
+			: std::optional<T>{}
 			{}
 			constexpr non_propagating_cache(non_propagating_cache &&that) noexcept
-			: optional<T>{}
-			{ that.optional<T>::reset(); }
+			: std::optional<T>{}
+			{ that.std::optional<T>::reset(); }
 			constexpr non_propagating_cache &operator=(non_propagating_cache const &) noexcept {
-				optional<T>::reset();
+				std::optional<T>::reset();
 				return *this;
 			}
 			constexpr non_propagating_cache &operator=(non_propagating_cache &&that) noexcept {
-				that.optional<T>::reset();
-				optional<T>::reset();
+				that.std::optional<T>::reset();
+				std::optional<T>::reset();
 				return *this;
 			}
-			using optional<T>::operator=;
+			using std::optional<T>::operator=;
 		};
 
 		template <ext::DestructibleObject T, class Tag>

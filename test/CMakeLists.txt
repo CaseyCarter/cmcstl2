@@ -30,7 +30,6 @@ add_stl2_test(test.range_access range_access range_access.cpp)
 add_stl2_test(test.tagged tagged tagged.cpp)
 add_stl2_test(test.common common common.cpp)
 add_stl2_test(test.meta meta meta.cpp)
-add_stl2_test(test.optional optional optional.cpp)
 
 add_subdirectory(concepts)
 add_subdirectory(detail)

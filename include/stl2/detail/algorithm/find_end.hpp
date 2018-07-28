@@ -13,9 +13,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_FIND_END_HPP
 #define STL2_DETAIL_ALGORITHM_FIND_END_HPP
 
+#include <optional>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
-#include <stl2/optional.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/callable.hpp>
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 			return __stl2::next(first1, last1);
 		}
 
-		optional<I1> res;
+		std::optional<I1> res;
 		for (; first1 != last1; ++first1) {
 			if (__stl2::invoke(pred, __stl2::invoke(proj, *first1), *first2)) {
 				auto m1 = first1;

@@ -379,7 +379,7 @@ void test_fl() {
 
 void test_rv() {
 	std::cout << "test_rv:\n";
-	ranges::ext::repeat_view<int> rv{42};
+	ranges::ext::repeat_view rv{42};
 
 	using Rng = decltype(rv);
 	using I = decltype(rv.begin());
@@ -387,8 +387,8 @@ void test_rv() {
 	static_assert(ranges::Same<ranges::iter_difference_t<I>, std::ptrdiff_t>);
 	static_assert(ranges::Readable<I>);
 	static_assert(ranges::Same<ranges::iter_value_t<I>, int>);
-	static_assert(ranges::Same<ranges::iter_reference_t<I>, int>);
-	static_assert(ranges::Same<ranges::iter_rvalue_reference_t<I>, int>);
+	static_assert(ranges::Same<ranges::iter_reference_t<I>, int&>);
+	static_assert(ranges::Same<ranges::iter_rvalue_reference_t<I>, int&&>);
 	static_assert(ranges::RandomAccessIterator<I>);
 	static_assert(ranges::RandomAccessRange<Rng>);
 	CHECK(I{} == I{});

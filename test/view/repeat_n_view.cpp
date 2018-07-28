@@ -19,7 +19,7 @@ namespace ranges = __stl2;
 int main() {
 	static constexpr int N = 13;
 	static constexpr int value = 42;
-	auto v = ranges::ext::repeat_n_view<int>(value, N);
+	auto v = ranges::view::ext::repeat_n(value, N);
 	using V = decltype(v);
 	static_assert(ranges::View<V>);
 	static_assert(ranges::SizedRange<V>);
@@ -31,9 +31,16 @@ int main() {
 	static_assert(sizeof(v) == 2 * sizeof(std::ptrdiff_t));
 
 	{
-		struct empty {};
-		auto v = ranges::ext::repeat_n_view<empty>{{}, (1ULL << 20)};
-		static_assert(sizeof(decltype(v.begin())) == sizeof(std::ptrdiff_t));
+		struct empty {
+			bool operator==(empty const&) const noexcept { return true; }
+			bool operator!=(empty const&) const noexcept { return false; }
+		};
+		auto e = empty{};
+		auto v2 = ranges::view::ext::repeat_n(e, 3);
+		CHECK_EQUAL(v2, {e, e, e});
+
+		auto v3 = ranges::view::ext::repeat_n(std::move(e), 3);
+		CHECK_EQUAL(v2, v3);
 	}
 	{
 		auto v = ranges::view::ext::repeat_n(9, 10);
