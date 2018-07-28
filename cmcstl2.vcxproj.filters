@@ -195,9 +195,6 @@
     <ClInclude Include="include\stl2\detail\hash.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail</Filter>
     </ClInclude>
-    <ClInclude Include="include\stl2\optional.hpp">
-      <Filter>Header Files\cmcstl2\stl2</Filter>
-    </ClInclude>
     <ClInclude Include="include\stl2\detail\raw_ptr.hpp">
       <Filter>Header Files\cmcstl2\stl2\detail</Filter>
     </ClInclude>
@@ -697,9 +694,6 @@
     </ClCompile>
     <ClCompile Include="test\iterator\unreachable.cpp">
       <Filter>Test Files\iterator</Filter>
-    </ClCompile>
-    <ClCompile Include="test\optional.cpp">
-      <Filter>Test Files</Filter>
     </ClCompile>
     <ClCompile Include="test\iterator\istream_iterator.cpp">
       <Filter>Test Files\iterator</Filter>
