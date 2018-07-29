@@ -21,6 +21,7 @@
 #include <stl2/view/all.hpp>
 #include <stl2/view/common.hpp>
 #include <stl2/view/counted.hpp>
+#include <stl2/view/drop.hpp>
 #include <stl2/view/empty.hpp>
 #include <stl2/view/filter.hpp>
 #include <stl2/view/indirect.hpp>

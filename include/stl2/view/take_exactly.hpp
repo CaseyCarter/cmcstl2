@@ -18,6 +18,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/counted_iterator.hpp>
+#include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/view/all.hpp>
@@ -39,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 			take_exactly_view() requires DefaultConstructible<Base> = default;
 
 			constexpr take_exactly_view(Base view, iter_difference_t<iterator_t<Base>> n)
-			noexcept(std::is_nothrow_move_constructible<Base>::value)
+			noexcept(noexcept(std::is_nothrow_move_constructible<Base>::value))
 			: base_t{std::move(view)}, n_{n}
 			{ STL2_EXPECT(n >= 0); }
 
