@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		requires BidirectionalRange<Rng>
 		class reverse_view
 		: public view_interface<reverse_view<Rng>>
-		, private detail::non_propagating_cache<iterator_t<Rng>, void, !CommonRange<Rng>> {
+		, private detail::non_propagating_cache<iterator_t<Rng>, reverse_view<Rng>, !CommonRange<Rng>> {
 			Rng base_;
 			constexpr auto& end_() noexcept
 			{ return static_cast<typename reverse_view::non_propagating_cache&>(*this); }
