@@ -1,7 +1,7 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
 //  Copyright Eric Niebler 2014
-//  Copyright Casey Carter 2015
+//  Copyright Casey Carter 2015, 2018
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -13,57 +13,162 @@
 #ifndef STL2_DETAIL_ALGORITHM_IS_PERMUTATION_HPP
 #define STL2_DETAIL_ALGORITHM_IS_PERMUTATION_HPP
 
+#include <limits>
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/algorithm/count_if.hpp>
+#include <stl2/detail/algorithm/find_if.hpp>
+#include <stl2/detail/algorithm/mismatch.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // is_permutation [alg.is_permutation]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I1, Sentinel<I1> S1,
-		ForwardIterator I2, Sentinel<I2> S2,
+	template <Integral To, Integral From>
+	constexpr bool __can_represent(const From value) noexcept {
+		using C = decltype(true ? value : To{});
+		if constexpr (Same<To, C> && (SignedIntegral<To> || UnsignedIntegral<From>)) {
+			return true;
+		} else {
+			if constexpr (SignedIntegral<From>) {
+				if constexpr (UnsignedIntegral<To>) {
+					if (value < 0) return false;
+				} else {
+					if (C(value) < C(std::numeric_limits<To>::min())) return false;
+				}
+			}
+			return C(value) <= C(std::numeric_limits<To>::max());
+		}
+	}
+
+	// Does distance(first, last) == n?
+	template <Iterator I, Sentinel<I> S, SignedIntegral D>
+	constexpr bool __has_length(const I first, const S last, const D n) {
+		STL2_EXPECT(n >= 0);
+		if constexpr (SizedSentinel<S, I>) {
+			return n == last - first;
+		} else {
+			if (__stl2::__can_represent<iter_difference_t<I>>(n)) {
+				return __stl2::advance(first, n, last) == 0 &&
+					first == last;
+			}
+			return false;
+		}
+	}
+	// Does distance(rng) == n?
+	template <Range Rng, SignedIntegral D>
+	constexpr bool __has_length(Rng&& rng, const D n) {
+		STL2_EXPECT(n >= 0);
+		if constexpr (SizedRange<Rng>) {
+			return n == __stl2::distance(rng);
+		} else {
+			return __stl2::__has_length(__stl2::begin(rng), __stl2::end(rng), n);
+		}
+	}
+
+	// Do the two ranges have the same length, and if so what is it?
+	template <Iterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
+	constexpr std::pair<bool, iter_difference_t<I1>>
+	__common_range_length(I1 first1, S1 last1, I2 first2, S2 last2) {
+		using D = iter_difference_t<I1>;
+
+		if constexpr (SizedSentinel<S1, I1>) {
+			const auto count = last1 - first1;
+			return {__stl2::__has_length(first2, last2, count), count};
+		} else if constexpr (SizedSentinel<S2, I2>) {
+			const auto count = last2 - first2;
+			return {__stl2::__has_length(first1, last1, count), static_cast<D>(count)};
+		} else {
+			for (D count = 0;; ++first1, (void)++count, ++first2) {
+				const bool end_of_second = first2 == last2;
+				if (first1 == last1) return {end_of_second, count};
+				if (end_of_second) return {false, count};
+			}
+		}
+	}
+	// Do the two ranges have the same length, and if so what is it?
+	template <Range Rng1, Range Rng2>
+	constexpr std::pair<bool, iter_difference_t<iterator_t<Rng1>>>
+	__common_range_length(Rng1&& rng1, Rng2&& rng2) {
+		using D = iter_difference_t<iterator_t<Rng1>>;
+
+		if constexpr (SizedRange<Rng1>) {
+			auto count = __stl2::distance(rng1);
+			return {__stl2::__has_length(rng2, count), count};
+		} else if constexpr (SizedRange<Rng2>) {
+			auto count = __stl2::distance(rng2);
+			return {__stl2::__has_length(rng1, count), static_cast<D>(count)};
+		} else {
+			return __stl2::__common_range_length(
+				__stl2::begin(rng1), __stl2::end(rng1),
+				__stl2::begin(rng2), __stl2::end(rng2));
+		}
+	}
+
+	template <ForwardIterator I1, ForwardIterator I2,
 		class Pred, class Proj1, class Proj2>
 	requires
 		IndirectlyComparable<I1, I2, __f<Pred&>, __f<Proj1&>, __f<Proj2&>>
-	bool __is_permutation_tail(I1 first1, S1 last1, I2 first2, S2 last2,
-		Pred& pred, Proj1& proj1, Proj2& proj2)
+	bool __is_permutation_tail(const I1 first1, const I2 first2,
+		const iter_difference_t<I1> n, Pred& pred, Proj1& proj1, Proj2& proj2)
 	{
-		// For each element in [f1, l1), see if there are the same number of
-		// equal elements in [f2, l2)
-		for (I1 i = first1; i != last1; ++i) {
-			// Have we already counted the number of *i in [f1, l1)?
-			for (I1 j = first1; j != i; ++j) {
-				if (__stl2::invoke(pred, __stl2::invoke(proj1, *j), __stl2::invoke(proj1, *i))) {
-						goto next_iter;
-				}
-			}
-			{
-				// Count number of *i in [f2, l2)
-				iter_difference_t<I2> c2 = 0;
-				for (I2 j = first2; j != last2; ++j) {
-					if (__stl2::invoke(pred, __stl2::invoke(proj1, *i), __stl2::invoke(proj2, *j))) {
-						++c2;
-					}
-				}
-				if (c2 == 0) {
-					return false;
-				}
-				// Count number of *i in [i, l1) (we can start with 1)
-				iter_difference_t<I1> c1 = 1;
-				for (I1 j = __stl2::next(i); j != last1; ++j) {
-					if (__stl2::invoke(pred, __stl2::invoke(proj1, *i), __stl2::invoke(proj1, *j))) {
-						++c1;
-					}
-				}
-				if (c1 != c2) {
-					return false;
-				}
-			}
-		next_iter:;
+		// Pre: [first1, n) and [first2, n) are valid ranges.
+		// Pre: n == 0 or *first1 != *first2.
+		STL2_EXPECT(n >= 0);
+		if (n == 0) return true;
+		STL2_ASSERT(!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2)));
+		if (n == 1) return false;
+
+		// For each element in [first1, n), see if there are the same number of
+		// equal elements in [first2, n)
+		counted_iterator<I1> i{first1, n};
+		while (i.count()) {
+			auto&& e = __stl2::invoke(proj1, *i);
+			auto match_predicate = [&pred, &e](auto&& x) {
+				return __stl2::invoke(pred, e, static_cast<decltype(x)&&>(x));
+			};
+
+			// If for some j in [first1, i.base()), *j == e, we've already
+			// validated the counts of elements equal to e.
+			auto match = __stl2::find_if(counted_iterator{first1, n - i.count()},
+				default_sentinel{}, match_predicate, std::ref(proj1));
+			++i;
+			if (match.count()) continue;
+
+			// Count number of e in [first2, n)
+			const auto c2 = __stl2::count_if(counted_iterator{first2, n},
+				default_sentinel{}, match_predicate, std::ref(proj2));
+			if (c2 == 0) return false;
+
+			// Count number of e in [i, default_sentinel)
+			const auto c1 = __stl2::count_if(i, default_sentinel{},
+				match_predicate, std::ref(proj1));
+
+			// If the number of e in [first2, n) is not equal to
+			// the number of e in [first1, n), we don't have a permutation.
+			if (c1 + 1 != c2) return false;
 		}
 		return true;
+	}
+
+	template <ForwardIterator I1, ForwardIterator I2,
+		class Pred, class Proj1, class Proj2>
+	requires IndirectlyComparable<I1, I2, __f<Pred&>, __f<Proj1&>, __f<Proj2&>>
+	bool __is_permutation_trim(I1 first1, I2 first2, iter_difference_t<I1> n,
+		Pred& pred, Proj1& proj1, Proj2& proj2)
+	{
+		// trim equal prefixes
+		auto [counted, mid2] = __stl2::mismatch(
+			counted_iterator{std::move(first1), n}, default_sentinel{},
+			std::move(first2), unreachable{},
+			std::ref(pred), std::ref(proj1), std::ref(proj2));
+
+		// TODO: trim equal suffixes from bidirectional sequences?
+
+		return __stl2::__is_permutation_tail(counted.base(), std::move(mid2),
+			counted.count(), pred, proj1, proj2);
 	}
 
 	template <ForwardIterator I1, Sentinel<I1> S1, class I2,
@@ -76,24 +181,14 @@ STL2_OPEN_NAMESPACE {
 		IndirectlyComparable<I1, std::decay_t<I2>, Pred, Proj1, Proj2>
 	{
 		auto first2 = std::forward<I2>(first2_);
-		// shorten sequences as much as possible by lopping off any equal parts
-		for (; first1 != last1; ++first1, ++first2) {
-			if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
-				goto not_done;
-			}
-		}
-		return true;
-	not_done:
+		// shorten sequences by removing equal prefixes
+		auto [mid1, mid2] = __stl2::mismatch(std::move(first1), last1,
+			std::move(first2), unreachable{},
+			std::ref(pred), std::ref(proj1), std::ref(proj2));
 
-		// first1 != last1 && *first1 != *first2
-		auto l1 = __stl2::distance(first1, last1);
-		if (l1 == 1) {
-			return false;
-		}
-
-		auto last2 = __stl2::next(first2, l1);
-		return __stl2::__is_permutation_tail(std::move(first1), std::move(last1),
-			std::move(first2), std::move(last2), pred, proj1, proj2);
+		auto count = __stl2::distance(mid1, std::move(last1));
+		return __stl2::__is_permutation_tail(std::move(mid1), std::move(mid2),
+			count, pred, proj1, proj2);
 	}
 
 	template <ForwardRange Rng1, class I2, class Pred = equal_to<>,
@@ -105,10 +200,16 @@ STL2_OPEN_NAMESPACE {
 		IndirectlyComparable<iterator_t<Rng1>, std::decay_t<I2>, Pred, Proj1, Proj2>
 	{
 		auto first2 = std::forward<I2>(first2_);
-		return __stl2::is_permutation(
-			__stl2::begin(rng1), __stl2::end(rng1), std::move(first2),
-			std::ref(pred), std::ref(proj1),
-			std::ref(proj2));
+		if constexpr (SizedRange<Rng1>) {
+			const auto count = __stl2::distance(rng1);
+			return __stl2::__is_permutation_trim(
+				__stl2::begin(rng1), std::move(first2), count,
+				pred, proj1, proj2);
+		} else {
+			return __stl2::is_permutation(
+				__stl2::begin(rng1), __stl2::end(rng1), std::move(first2),
+				std::ref(pred), std::ref(proj1), std::ref(proj2));
+		}
 	}
 
 	template <ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
@@ -119,50 +220,31 @@ STL2_OPEN_NAMESPACE {
 	bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
-		// shorten sequences as much as possible by lopping off any equal parts
-		for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
-			if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
-				goto not_done;
+		if constexpr (SizedSentinel<S1, I1> || SizedSentinel<S2, I2>) {
+			iter_difference_t<I1> count1;
+			if constexpr (SizedSentinel<S1, I1>) {
+				count1 = last1 - first1;
+				if (!__stl2::__has_length(first2, last2, count1)) return false;
+			} else {
+				const auto count2 = last2 - first2;
+				if (!__stl2::__has_length(first1, last1, count2)) return false;
+				count1 = static_cast<decltype(count1)>(count2);
 			}
+			return __stl2::__is_permutation_trim(std::move(first1), std::move(first2),
+				count1, pred, proj1, proj2);
+		} else {
+			// shorten sequences by removing equal prefixes
+			auto [mid1, mid2] = __stl2::mismatch(
+				std::move(first1), last1, std::move(first2), last2,
+				std::ref(pred), std::ref(proj1), std::ref(proj2));
+
+			auto [same_length, count] =
+				__stl2::__common_range_length(mid1, std::move(last1), mid2, std::move(last2));
+			if (!same_length) return false;
+
+			return __stl2::__is_permutation_tail(std::move(mid1), std::move(mid2),
+				count, pred, proj1, proj2);
 		}
-		return first1 == last1 && first2 == last2;
-	not_done:
-
-		// first1 != last1 && first2 != last2 && *first1 != *first2
-		auto l1 = __stl2::distance(first1, last1);
-		auto l2 = __stl2::distance(first2, last2);
-		if (l1 != l2) {
-			return false;
-		}
-
-		return __stl2::__is_permutation_tail(std::move(first1), std::move(last1),
-			std::move(first2), std::move(last2), pred, proj1, proj2);
-	}
-
-	template <ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
-		Sentinel<I2> S2, class Pred = equal_to<>, class Proj1 = identity,
-		class Proj2 = identity>
-	requires
-		SizedSentinel<S1, I1> && SizedSentinel<S2, I2> &&
-		IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-	bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		if (__stl2::distance(first1, last1) != __stl2::distance(first2, last2)) {
-			return false;
-		}
-
-		// shorten sequences as much as possible by lopping off any equal parts
-		for (; first1 != last1; ++first1, ++first2) {
-			if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
-				goto not_done;
-			}
-		}
-		return true;
-	not_done:
-
-		return __stl2::__is_permutation_tail(std::move(first1), std::move(last1),
-			std::move(first2), std::move(last2), pred, proj1, proj2);
 	}
 
 	template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
@@ -172,28 +254,25 @@ STL2_OPEN_NAMESPACE {
 	bool is_permutation(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
-		return __stl2::is_permutation(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2),
-			std::ref(pred), std::ref(proj1),
-			std::ref(proj2));
-	}
-
-	template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		SizedRange<Rng1> && SizedRange<Rng2> &&
-		IndirectlyComparable<iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
-	bool is_permutation(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		if (__stl2::distance(rng1) != __stl2::distance(rng2)) {
-			return false;
+		if constexpr (SizedRange<Rng1> || SizedRange<Rng2>) {
+			using D = iter_difference_t<iterator_t<Rng1>>;
+			D count1;
+			if constexpr (SizedRange<Rng1>) {
+				count1 = __stl2::distance(rng1);
+				if (!__stl2::__has_length(rng2, count1)) return false;
+			} else {
+				const auto count2 = __stl2::distance(rng2);
+				if (!__stl2::__has_length(rng1, count2)) return false;
+				count1 = static_cast<D>(count2);
+			}
+			return __stl2::__is_permutation_trim(__stl2::begin(rng1),
+				__stl2::begin(rng2), count1, pred, proj1, proj2);
+		} else {
+			return __stl2::is_permutation(
+				__stl2::begin(rng1), __stl2::end(rng1),
+				__stl2::begin(rng2), __stl2::end(rng2),
+				std::ref(pred), std::ref(proj1), std::ref(proj2));
 		}
-		return __stl2::is_permutation(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), std::ref(pred),
-			std::ref(proj1), std::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -44,15 +44,23 @@ STL2_OPEN_NAMESPACE {
 
 	Range{R}
 	constexpr iter_difference_t<iterator_t<R>> distance(R&& r)
-	STL2_NOEXCEPT_RETURN(
-		__stl2::distance(__stl2::begin(r), __stl2::end(r))
-	)
+	noexcept(noexcept(__stl2::distance(__stl2::begin(r), __stl2::end(r))))
+	{
+		const iter_difference_t<iterator_t<R>> n =
+			__stl2::distance(__stl2::begin(r), __stl2::end(r));
+		STL2_EXPECT(n >= 0);
+		return n;
+	}
 
 	SizedRange{R}
 	constexpr iter_difference_t<iterator_t<R>> distance(R&& r)
-	STL2_NOEXCEPT_RETURN(
-		static_cast<iter_difference_t<iterator_t<R>>>(__stl2::size(r))
-	)
+	noexcept(noexcept(__stl2::size(r)))
+	{
+		const auto n =
+			static_cast<iter_difference_t<iterator_t<R>>>(__stl2::size(r));
+		STL2_EXPECT(n >= 0);
+		return n;
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif
