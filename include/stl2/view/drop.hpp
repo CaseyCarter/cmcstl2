@@ -16,14 +16,14 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
-#include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/non_propagating_cache.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/nth_iterator.hpp>
 #include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
-#include <stl2/detail/range/nth_iterator.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
@@ -41,8 +41,7 @@ STL2_OPEN_NAMESPACE {
 			{}
 
 			template <ViewableRange O>
-			requires
-				_ConstructibleFromRange<R, O>
+			requires _ConstructibleFromRange<R, O>
 			constexpr drop_view(O&& o, D count)
 				: base_(view::all(std::forward<O>(o))),
 				  count_(count)
@@ -50,14 +49,12 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr R base() const { return base_; }
 
-			constexpr auto begin()
-			requires !(SimpleView<R> && RandomAccessRange<R>)
+			constexpr auto begin() requires !(SimpleView<R> && RandomAccessRange<R>)
 			{ return begin_impl(*this); }
 			constexpr auto begin() const requires Range<const R> && RandomAccessRange<const R>
 			{ return begin_impl(*this); }
 
-			constexpr auto end()
-			requires !(SimpleView<R>)
+			constexpr auto end() requires !(SimpleView<R>)
 			{ return end_impl(*this); }
 			constexpr auto end() const requires Range<const R>
 			{ return end_impl(*this); }
@@ -68,29 +65,15 @@ STL2_OPEN_NAMESPACE {
 			R base_;
 			D count_;
 
-			constexpr auto& cached_begin() noexcept
-			{ return static_cast<typename drop_view::non_propagating_cache&>(*this); }
-
 			template <class X>
-			static constexpr auto begin_impl(X& x)
-			{
-				auto compute_begin = [&x]{
-					STL2_EXPECT(x.count_ >= 0);
-					if constexpr (SizedRange<__maybe_const<is_const_v<X>, R>>) {
-						return __stl2::ext::nth_iterator(x.base_, x.count_);
-					}
-					else {
-						return __stl2::next(__stl2::begin(x.base_), x.count_, __stl2::end(x.base_));
-					}
-				};
-
+			static constexpr auto begin_impl(X& x) {
 				if constexpr (RandomAccessRange<__maybe_const<is_const_v<X>, R>>) {
-					return compute_begin();
-				}
-				else {
-					auto& iterator_self = x.cached_begin();
+					return __stl2::ext::nth_iterator(x.base_, x.count_);
+				} else {
+					using cache_t = typename drop_view::non_propagating_cache;
+					auto& iterator_self = static_cast<cache_t&>(x);
 					if (!iterator_self) {
-						iterator_self = compute_begin();
+						iterator_self = __stl2::ext::nth_iterator(x.base_, x.count_);
 					}
 
 					return *iterator_self;
@@ -101,8 +84,7 @@ STL2_OPEN_NAMESPACE {
 			static constexpr auto end_impl(X& x) { return __stl2::end(x.base_); }
 
 			template <class X>
-			static constexpr auto size_impl(X& x)
-			{
+			static constexpr auto size_impl(X& x) {
 				auto const size = __stl2::size(x.base_);
 				auto const count = static_cast<decltype(size)>(x.count_);
 				return size < count ? 0 : size - count;

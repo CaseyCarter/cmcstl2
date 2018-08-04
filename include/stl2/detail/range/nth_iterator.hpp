@@ -16,6 +16,7 @@
 #include <stl2/detail/iterator/operations.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
@@ -24,23 +25,28 @@ STL2_OPEN_NAMESPACE {
 			constexpr auto operator()(R&& r, iter_difference_t<iterator_t<R>> n) const
 			{
 				STL2_EXPECT(n >= 0);
-				auto const size = __stl2::distance(r);
-				constexpr bool BoundedNonRandom = CommonRange<R> && !RandomAccessRange<R>;
-				if (n >= size) {
-					if constexpr (BoundedNonRandom && !BidirectionalRange<R>) {
-						// If the range is RandomAccess or Bidirectional, this is just extra codegen
-						// with no performance improvement over the following cases.
-						return __stl2::end(r);
+				if constexpr (SizedRange<R>) {
+					auto const size = __stl2::distance(r);
+					constexpr bool CommonNonRandom = CommonRange<R> && !RandomAccessRange<R>;
+					if (n >= size) {
+						if constexpr (CommonNonRandom && !BidirectionalRange<R>) {
+							// If the range is RandomAccess or Bidirectional, this is just extra codegen
+							// with no performance improvement over the following cases.
+							return __stl2::end(r);
+						}
+						n = size;
 					}
-					n = size;
-				}
-				if constexpr (BoundedNonRandom && BidirectionalRange<R>) {
-					// Again, this would not be an improvement for RandomAccess ranges.
-					if (n > size / 2) {
-						return __stl2::prev(__stl2::end(r), size - n);
+					if constexpr (CommonNonRandom && BidirectionalRange<R>) {
+						// Again, this would not be an improvement for RandomAccess ranges.
+						if (n > size / 2) {
+							return __stl2::prev(__stl2::end(r), size - n);
+						}
 					}
+					return __stl2::next(__stl2::begin(r), n);
 				}
-				return __stl2::next(__stl2::begin(r), n);
+				else {
+					return __stl2::next(__stl2::begin(r), n, __stl2::end(r));
+				}
 			}
 		};
 
