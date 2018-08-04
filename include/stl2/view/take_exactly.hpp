@@ -18,6 +18,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/counted_iterator.hpp>
+#include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/view/all.hpp>

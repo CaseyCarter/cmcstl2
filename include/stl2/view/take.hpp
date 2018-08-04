@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 					if constexpr (RandomAccessRange<RR>) {
 						return __stl2::begin(self.base_);
 					} else {
-						return counted_iterator{__stl2::begin(self.base_), self.size()};
+						return counted_iterator{__stl2::begin(self.base_), static_cast<D>(self.size())};
 					}
 				} else {
 					return counted_iterator{__stl2::begin(self.base_), self.count_};

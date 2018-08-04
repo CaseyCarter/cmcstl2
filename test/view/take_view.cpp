@@ -14,6 +14,7 @@
 #include <stl2/view/filter.hpp>
 #include <stl2/view/subrange.hpp>
 #include <stl2/detail/iterator/istream_iterator.hpp>
+#include <list>
 #include <memory>
 #include <vector>
 #include <sstream>
@@ -97,6 +98,15 @@ int main()
 	{
 		int some_ints[] = {1,2,3};
 		ext::take_view{some_ints, 2};
+	}
+
+	{
+		std::list<int> l{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+		auto rng = l | view::take(6);
+		static_assert(ranges::View<decltype(rng)>);
+		static_assert(ranges::SizedRange<decltype(rng)>);
+		static_assert(ranges::BidirectionalIterator<decltype(ranges::begin(rng))>);
+		CHECK_EQUAL(rng, {0, 1, 2, 3, 4, 5});
 	}
 
 	return ::test_result();
