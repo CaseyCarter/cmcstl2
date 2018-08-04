@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		template <View R>
 		class drop_view
 		: public view_interface<drop_view<R>>
-		, private detail::non_propagating_cache<iterator_t<R>, drop_view<R>, !RandomAccessRange<R const>> {
+		, private detail::non_propagating_cache<iterator_t<R>, drop_view<R>, !RandomAccessRange<const R>> {
 			using D = iter_difference_t<iterator_t<R>>;
 		public:
 			drop_view() = default;
@@ -52,17 +52,17 @@ STL2_OPEN_NAMESPACE {
 			constexpr auto begin()
 			requires !(SimpleView<R> && RandomAccessRange<R>)
 			{ return begin_impl(*this); }
-			constexpr auto begin() const requires Range<R const> && RandomAccessRange<R const>
+			constexpr auto begin() const requires Range<const R> && RandomAccessRange<const R>
 			{ return begin_impl(*this); }
 
 			constexpr auto end()
 			requires !(SimpleView<R> && RandomAccessRange<R>)
 			{ return end_impl(*this); }
-			constexpr auto end() const requires Range<R const> && RandomAccessRange<R const>
+			constexpr auto end() const requires Range<const R> && RandomAccessRange<const R>
 			{ return end_impl(*this); }
 
 			constexpr auto size() requires !SimpleView<R> && SizedRange<R> { return size_impl(*this); }
-			constexpr auto size() const requires SizedRange<R const> { return size_impl(*this); }
+			constexpr auto size() const requires SizedRange<const R> { return size_impl(*this); }
 		private:
 			R base_;
 			D count_;
@@ -75,19 +75,14 @@ STL2_OPEN_NAMESPACE {
 			template <class X>
 			static constexpr auto begin_impl(X& x)
 			{
-				[[maybe_unused]] auto checked_begin = [&x]{
-					D const dist = __stl2::distance(x.base_);
-					STL2_EXPECT(x.count_ >= 0);
-					return __stl2::next(__stl2::begin(x.base_), dist < x.count_ ? dist : x.count_);
-				};
-
-				[[maybe_unused]] auto unchecked_begin = [&x]{
-					return __stl2::next(__stl2::begin(x.base_), x.count_);
+				[[maybe_unused]] auto compute_begin = [&x]{
+					return __stl2::next(__stl2::begin(x.base_), x.count_, __stl2::end(x.base_));
 				};
 
 				if constexpr (RandomAccessRange<__maybe_const<is_const_v<X>, R>>) {
 					if constexpr (SizedRange<__maybe_const<is_const_v<X>, R>>) {
-						return checked_begin();
+						STL2_EXPECT(x.count_ >= 0);
+						return compute_begin();
 					}
 					else {
 						return unchecked_begin();
@@ -96,10 +91,11 @@ STL2_OPEN_NAMESPACE {
 				else {
 					if (!x.cached_begin()) {
 						if constexpr (SizedRange<__maybe_const<is_const_v<X>, R>>) {
-							x.cached_begin() = checked_begin();
+							STL2_EXPECT(x.count_ >= 0);
+							x.cached_begin() = compute_begin();
 						}
 						else {
-							x.cached_begin() = unchecked_begin();
+							x.cached_begin() = compute_begin();
 						}
 					}
 
