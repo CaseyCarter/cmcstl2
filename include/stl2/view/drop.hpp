@@ -23,6 +23,7 @@
 #include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
+#include <stl2/detail/range/nth_iterator.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
@@ -76,8 +77,7 @@ STL2_OPEN_NAMESPACE {
 				auto compute_begin = [&x]{
 					STL2_EXPECT(x.count_ >= 0);
 					if constexpr (SizedRange<__maybe_const<is_const_v<X>, R>>) {
-						D const dist = __stl2::distance(x.base_);
-						return __stl2::next(__stl2::begin(x.base_), dist < x.count_ ? dist : x.count_);
+						return __stl2::ext::nth_iterator(x.base_, x.count_);
 					}
 					else {
 						return __stl2::next(__stl2::begin(x.base_), x.count_, __stl2::end(x.base_));
