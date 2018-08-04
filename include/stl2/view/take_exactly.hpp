@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 			take_exactly_view() requires DefaultConstructible<Base> = default;
 
 			constexpr take_exactly_view(Base view, iter_difference_t<iterator_t<Base>> n)
-			noexcept(noexcept(std::is_nothrow_move_constructible<Base>::value))
+			noexcept(std::is_nothrow_move_constructible<Base>::value)
 			: base_t{std::move(view)}, n_{n}
 			{ STL2_EXPECT(n >= 0); }
 

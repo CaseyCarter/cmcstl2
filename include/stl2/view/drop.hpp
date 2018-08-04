@@ -16,9 +16,8 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
-#include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/functional/invoke.hpp>
+#include <stl2/detail/non_propagating_cache.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/view/view_closure.hpp>
@@ -27,179 +26,69 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <Range R>
-		requires
-			View<R>
-		struct drop_view;
-
-		template <Range R>
-		requires
-			View<R>
-		class __drop_view : public view_interface<drop_view<R>> {
+		template <View R>
+		class drop_view : public view_interface<drop_view<R>> {
 			using D = iter_difference_t<iterator_t<R>>;
-
-			template <bool Const>
-			struct __sentinel;
 		public:
-			__drop_view() = default;
+			drop_view() = default;
 
-			constexpr __drop_view(R base, D count)
+			constexpr drop_view(R base, D count)
 				: base_(std::move(base)),
 				  count_(count)
 			{}
 
-			template <Range O>
+			template <ViewableRange O>
 			requires
-				ext::ViewableRange<O> &&
 				_ConstructibleFromRange<R, O>
-			constexpr __drop_view(O&& o, D count)
+			constexpr drop_view(O&& o, D count)
 				: base_(view::all(std::forward<O>(o))),
 				  count_(count)
 			{}
 
-			constexpr R base() const
-			{
-				return base_;
-			}
+			constexpr R base() const { return base_; }
 
-			constexpr auto begin()
-			{
-				return begin_impl(*this);
-			}
+			constexpr auto begin() requires !SimpleView<R> { return begin_impl(*this); }
+			constexpr auto begin() const requires Range<R const>
+			{ return begin_impl(*this); }
 
-			constexpr auto begin() const
-			requires
-				Range<R const>
-			{
-				return begin_impl(*this);
-			}
+			constexpr auto end() requires !SimpleView<R> { return end_impl(*this); }
+			constexpr auto end() const requires Range<R const>
+			{ return end_impl(*this); }
 
-			constexpr auto begin()
-			requires
-				SizedRange<R>
-			{
-				return begin_impl(*this);
-			}
-
-			constexpr auto begin() const
-			requires
-				SizedRange<R const>
-			{
-				return begin_impl(*this);
-			}
-
-			constexpr auto end()
-			{
-				return __sentinel<SimpleView<R>>(__stl2::end(base_));
-			}
-
-			constexpr auto end() const
-			requires
-				Range<R const>
-			{
-				return __sentinel<true>(__stl2::end(base_));
-			}
-
-			constexpr auto size() const
-			requires
-				SizedRange<R>
-			{
-				return __stl2::distance(base_) < count_ ? 0 : __stl2::distance(base_) - count_;
-			}
+			constexpr auto size() requires !SimpleView<R> && SizedRange<R> { return size_impl(*this); }
+			constexpr auto size() const requires SizedRange<R const> { return size_impl(*this); }
 		private:
 			R base_;
 			D count_;
+			mutable detail::non_propagating_cache<iterator_t<R>> begin_;
 
 			template <class X>
-			static constexpr decltype(auto) begin_impl(X&& x)
+			static constexpr auto begin_impl(X& x)
 			{
-				return __stl2::next(__stl2::begin(x.base_), x.count_);
+				if (!x.begin_) {
+					if constexpr (SizedRange<__maybe_const<is_const_v<X>, R>>) {
+						D const dist = __stl2::distance(x.base_);
+						STL2_EXPECT(x.count_ >= 0);
+						x.begin_ = __stl2::next(__stl2::begin(x.base_), dist < x.count_ ? dist : x.count_);
+					}
+					else {
+						x.begin_ = __stl2::next(__stl2::begin(x.base_), x.count_);
+					}
+				}
+
+				return *x.begin_;
 			}
 
 			template <class X>
-			static constexpr decltype(auto) begin_impl(X&& x)
-			requires
-				SizedRange<R>
+			static constexpr auto end_impl(X& x) { return __stl2::end(x.base_); }
+
+			template <class X>
+			static constexpr auto size_impl(X& x)
 			{
-				D const dist = __stl2::distance(x.base_);
-				return (__stl2::next(__stl2::begin(x.base_), dist < x.count_ ? dist : x.count_));
+				auto const size = __stl2::size(x.base_);
+				auto const count = static_cast<decltype(size)>(x.count_);
+				return size < count ? 0 : size - count;
 			}
-		};
-
-		template <class R>
-		template <bool Const>
-		class __drop_view<R>::__sentinel {
-			using Base = __maybe_const<Const, R>;
-			sentinel_t<Base> end_ {};
-		public:
-			__sentinel() = default;
-
-			constexpr explicit __sentinel(sentinel_t<Base> end)
-				: end_(end)
-			{}
-
-			constexpr __sentinel(__sentinel<!Const> s)
-			requires
-				Const &&
-				ConvertibleTo<sentinel_t<R>, sentinel_t<Base>>
-				: end_(s.base())
-			{}
-
-			constexpr sentinel_t<Base> base() const
-			{
-				return end_;
-			}
-
-			friend constexpr bool operator==(__sentinel const& x, iterator_t<Base> const& y)
-			requires
-				EqualityComparable<iterator_t<Base>>
-			{
-				return x.end_ == y;
-			}
-
-			friend constexpr bool operator==(iterator_t<Base> const& x, __sentinel const& y)
-			requires
-				EqualityComparable<iterator_t<Base>>
-			{
-				return y == x;
-			}
-
-			friend constexpr bool operator!=(__sentinel const& x, iterator_t<Base> const& y)
-			requires
-				EqualityComparable<iterator_t<Base>>
-			{
-				return !(x == y);
-			}
-
-			friend constexpr bool operator!=(iterator_t<Base> const& x, __sentinel const& y)
-			requires
-				EqualityComparable<iterator_t<Base>>
-			{
-				return !(y == x);
-			}
-		};
-
-		template <Range R>
-		requires
-			View<R>
-		struct drop_view : __drop_view<R> {
-			drop_view() = default;
-			using __drop_view<R>::__drop_view;
-			using iterator = decltype(std::declval<ext::__drop_view<R>&>().base());
-			using sentinel = decltype(std::declval<ext::__drop_view<R>&>().end());
-		};
-
-		template <Range R>
-		requires
-			View<R> &&
-			Range<R const>
-		struct drop_view<R> : __drop_view<R> {
-			drop_view() = default;
-			using __drop_view<R>::__drop_view;
-			using iterator = decltype(std::declval<ext::__drop_view<R>&>().base());
-			using sentinel = decltype(std::declval<ext::__drop_view<R>&>().end());
-			using const_iterator = decltype(std::declval<ext::__drop_view<R> const&>().base());
-			using const_sentinel = decltype(std::declval<ext::__drop_view<R> const&>().end());
 		};
 
 		template <Range R>
@@ -207,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	namespace view::ext {
-		struct __drop_fn {
+		struct __drop_fn : detail::__pipeable<__drop_fn> {
 			template <Range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
 			STL2_NOEXCEPT_REQUIRES_RETURN(

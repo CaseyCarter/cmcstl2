@@ -12,7 +12,6 @@
 add_stl2_test(span span span.cpp)
 add_stl2_test(view.common view.common common_view.cpp)
 add_stl2_test(view.counted view.counted counted_view.cpp)
-# add_stl2_test(view.drop_exactly view.drop_exactly drop_exactly_view.cpp)
 add_stl2_test(view.drop view.drop drop_view.cpp)
 add_stl2_test(view.empty view.empty empty_view.cpp)
 add_stl2_test(view.filter view.filter filter_view.cpp)

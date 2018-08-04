@@ -12,12 +12,12 @@
 //
 #include <stl2/view/drop.hpp>
 
-#include <list>
 #include <stl2/view/iota.hpp>
 #include <stl2/view/join.hpp>
 #include <stl2/view/reverse.hpp>
 #include <stl2/view/subrange.hpp>
 #include <stl2/view/take.hpp>
+#include <list>
 #include <vector>
 #include "../simple_test.hpp"
 
@@ -139,7 +139,7 @@ int main()
 	// }
 
 	// {
-	// 	// regression test for #728
+	// 	// regression test for ericniebler/range-v3#728
 	// 	auto rng1 = view::iota(1) | view::chunk(6) | view::take(3);
 	// 	int i = 2;
 	// 	for (auto o1 : rng1) {
@@ -150,7 +150,7 @@ int main()
 	// }
 
 	{
-		// regression test for #813
+		// regression test for ericniebler/range-v3#813
 		static int const some_ints[] = {0,1,2,3};
 		auto rng = some_ints | view::drop(10);
 		CHECK(ranges::empty(rng));
