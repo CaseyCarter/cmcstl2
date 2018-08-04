@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 						return compute_begin();
 					}
 					else {
-						return unchecked_begin();
+						return compute_begin();
 					}
 				}
 				else {
