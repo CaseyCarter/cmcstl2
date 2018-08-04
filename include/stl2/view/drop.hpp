@@ -75,7 +75,13 @@ STL2_OPEN_NAMESPACE {
 			{
 				auto compute_begin = [&x]{
 					STL2_EXPECT(x.count_ >= 0);
-					return __stl2::next(__stl2::begin(x.base_), x.count_, __stl2::end(x.base_));
+					if constexpr (SizedRange<__maybe_const<is_const_v<X>, R>>) {
+						D const dist = __stl2::distance(x.base_);
+						return __stl2::next(__stl2::begin(x.base_), dist < x.count_ ? dist : x.count_);
+					}
+					else {
+						return __stl2::next(__stl2::begin(x.base_), x.count_, __stl2::end(x.base_));
+					}
 				};
 
 				if constexpr (RandomAccessRange<__maybe_const<is_const_v<X>, R>>) {
