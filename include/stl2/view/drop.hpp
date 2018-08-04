@@ -27,7 +27,9 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <View R>
-		class drop_view : public view_interface<drop_view<R>> {
+		class drop_view
+		: public view_interface<drop_view<R>>
+		, private detail::non_propagating_cache<iterator_t<R>, drop_view<R>, !RandomAccessRange<R const>> {
 			using D = iter_difference_t<iterator_t<R>>;
 		public:
 			drop_view() = default;
@@ -47,12 +49,16 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr R base() const { return base_; }
 
-			constexpr auto begin() requires !SimpleView<R> { return begin_impl(*this); }
-			constexpr auto begin() const requires Range<R const>
+			constexpr auto begin()
+			requires !(SimpleView<R> && RandomAccessRange<R>)
+			{ return begin_impl(*this); }
+			constexpr auto begin() const requires Range<R const> && RandomAccessRange<R const>
 			{ return begin_impl(*this); }
 
-			constexpr auto end() requires !SimpleView<R> { return end_impl(*this); }
-			constexpr auto end() const requires Range<R const>
+			constexpr auto end()
+			requires !(SimpleView<R> && RandomAccessRange<R>)
+			{ return end_impl(*this); }
+			constexpr auto end() const requires Range<R const> && RandomAccessRange<R const>
 			{ return end_impl(*this); }
 
 			constexpr auto size() requires !SimpleView<R> && SizedRange<R> { return size_impl(*this); }
@@ -60,23 +66,45 @@ STL2_OPEN_NAMESPACE {
 		private:
 			R base_;
 			D count_;
-			mutable detail::non_propagating_cache<iterator_t<R>> begin_;
+
+			constexpr auto& cached_begin() noexcept
+			{
+				return static_cast<typename drop_view::non_propagating_cache&>(*this);
+			}
 
 			template <class X>
 			static constexpr auto begin_impl(X& x)
 			{
-				if (!x.begin_) {
+				[[maybe_unused]] auto checked_begin = [&x]{
+					D const dist = __stl2::distance(x.base_);
+					STL2_EXPECT(x.count_ >= 0);
+					return __stl2::next(__stl2::begin(x.base_), dist < x.count_ ? dist : x.count_);
+				};
+
+				[[maybe_unused]] auto unchecked_begin = [&x]{
+					return __stl2::next(__stl2::begin(x.base_), x.count_);
+				};
+
+				if constexpr (RandomAccessRange<__maybe_const<is_const_v<X>, R>>) {
 					if constexpr (SizedRange<__maybe_const<is_const_v<X>, R>>) {
-						D const dist = __stl2::distance(x.base_);
-						STL2_EXPECT(x.count_ >= 0);
-						x.begin_ = __stl2::next(__stl2::begin(x.base_), dist < x.count_ ? dist : x.count_);
+						return checked_begin();
 					}
 					else {
-						x.begin_ = __stl2::next(__stl2::begin(x.base_), x.count_);
+						return unchecked_begin();
 					}
 				}
+				else {
+					if (!x.cached_begin()) {
+						if constexpr (SizedRange<__maybe_const<is_const_v<X>, R>>) {
+							x.cached_begin() = checked_begin();
+						}
+						else {
+							x.cached_begin() = unchecked_begin();
+						}
+					}
 
-				return *x.begin_;
+					return *x.cached_begin();
+				}
 			}
 
 			template <class X>
