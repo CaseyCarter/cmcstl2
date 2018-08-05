@@ -2,7 +2,6 @@
 //
 //  Copyright Casey Carter
 //  Copyright Eric Niebler
-//  Copyright Christopher Di Bella
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
