@@ -18,7 +18,6 @@
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/iterator/counted_iterator.hpp>
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
