@@ -27,7 +27,9 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <View R, IndirectPredicate<iterator_t<R>> Pred>
+		template <View R, class Pred>
+		requires InputRange<R> && std::is_object_v<Pred> &&
+			IndirectUnaryPredicate<const Pred, iterator_t<R>>
 		class take_while_view
 		: public view_interface<take_while_view<R, Pred>>
 		, private detail::semiregular_box<Pred> {
@@ -52,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr auto begin() const requires Range<const R> { return begin_impl(*this); }
 
 			constexpr auto end() requires !SimpleView<R> { return end_impl(*this); }
-			constexpr auto end() const requires Range<const R> || SizedRange<R>
+			constexpr auto end() const requires Range<const R>
 			{ return end_impl(*this); }
 		private:
 			R base_;
@@ -67,12 +69,13 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template <Range R, IndirectPredicate<iterator_t<R>> Pred>
+		template <class R, ext::CopyConstructibleObject Pred>
 		take_while_view(R&&, Pred) -> take_while_view<all_view<R>, Pred>;
 
 		template <class R, class Pred>
 		template <bool Const>
 		class take_while_view<R, Pred>::__sentinel {
+			friend __sentinel<false>;
 			using Base = __maybe_const<Const, R>;
 			sentinel_t<Base> end_ {};
 			const Pred* pred_;
@@ -80,11 +83,11 @@ STL2_OPEN_NAMESPACE {
 			__sentinel() = default;
 
 			constexpr explicit __sentinel(sentinel_t<Base> end, const Pred* pred)
-			: end_(end), pred_(std::move(pred)) {}
+			: end_(end), pred_(pred) {}
 
 			constexpr __sentinel(__sentinel<!Const> s)
 			requires Const && ConvertibleTo<sentinel_t<R>, sentinel_t<Base>>
-			: end_(s.base()), pred_(std::move(s.pred_)) {}
+			: end_(s.base()), pred_(s.pred_) {}
 
 			constexpr sentinel_t<Base> base() const { return end_; }
 
@@ -104,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 				__stl2::ext::take_while_view{view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
 			)
 
-			template <CopyConstructible Pred>
+			template <__stl2::ext::CopyConstructibleObject Pred>
 			constexpr auto operator()(Pred pred) const
 			{ return detail::view_closure{*this, std::move(pred)}; }
 		};

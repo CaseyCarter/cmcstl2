@@ -36,20 +36,6 @@ int main()
 	static_assert(ranges::RandomAccessRange<decltype(rng1)>);
 	CHECK_EQUAL(rng1, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-	//																															  //
-	// 						DISABLED because the lambda is not equality-preserving.						  //
-	//							Left in the review only to confirm that this is the case.					  //
-	//																															  //
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-	// Check with a mutable predicate
-	// int rgi[] = {0,1,2,3,4,5,6,7,8,9};
-	// int cnt = 0;
-	// auto mutable_only = view::take_while(rgi, [cnt](int) mutable { return ++cnt <= 5;});
-	// CHECK_EQUAL(mutable_only, {0,1,2,3,4});
-	// static_assert(ranges::View<decltype(mutable_only)>);
-	// static_assert(!ranges::View<decltype(mutable_only) const>);
-
 	// Check with a mutable predicate
 	{
 		auto rng0 = view::iota(10) | view::take_while([](int i) mutable { return i != 25; });

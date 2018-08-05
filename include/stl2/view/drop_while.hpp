@@ -15,14 +15,12 @@
 #define STL2_VIEW_DROP_WHILE_HPP
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/meta.hpp>
 #include <stl2/detail/algorithm/find_if_not.hpp>
 #include <stl2/detail/non_propagating_cache.hpp>
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/range/nth_iterator.hpp>
 #include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <utility>
@@ -30,6 +28,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template <View R, IndirectPredicate<iterator_t<R>> Pred>
+		requires InputRange<R> && std::is_object_v<Pred>
 		class drop_while_view
 		: public view_interface<drop_while_view<R, Pred>>
 		, private detail::semiregular_box<Pred>
@@ -54,7 +53,21 @@ STL2_OPEN_NAMESPACE {
 				using cache_t = typename drop_while_view::non_propagating_cache;
 				auto& iterator_self = static_cast<cache_t&>(*this);
 				if (!iterator_self) {
-					iterator_self = __stl2::find_if_not(base_, pred());
+					iterator_self = __stl2::find_if_not(base_, [this](auto&& i) mutable {
+#ifndef NDEBUG
+						// A predicate must be equality-preserving. While it's not possible to generally
+						// check that te predicate isn't equality-preserving, we can trap
+						// non-equality-preserving invocables on-the-spot by calling them multiple times
+						// and compare the results.
+						// This is only enabled in debug-mode, since it's potentially an expensive check.
+						auto result1 = get()(i);
+						auto result2 = get()(i);
+						STL2_ASSERT(result1 == result2);
+						return result1;
+#else
+						return get()(i);
+#endif // NDEBUG
+					});
 				}
 
 				return *iterator_self;
@@ -65,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 			R base_;
 		};
 
-		template <Range R, IndirectPredicate<iterator_t<R>> Pred>
+		template <class R, ext::CopyConstructibleObject Pred>
 		drop_while_view(R&&, Pred) -> drop_while_view<all_view<R>, Pred>;
 	} // namespace ext
 
@@ -77,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 				__stl2::ext::drop_while_view{view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
 			)
 
-			template <CopyConstructible Pred>
+			template <__stl2::ext::CopyConstructibleObject Pred>
 			constexpr auto operator()(Pred pred) const
 			{ return detail::view_closure{*this, std::move(pred)}; }
 		};
