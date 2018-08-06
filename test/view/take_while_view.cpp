@@ -36,16 +36,6 @@ int main()
 	static_assert(ranges::RandomAccessRange<decltype(rng1)>);
 	CHECK_EQUAL(rng1, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
-	// Check with a mutable predicate
-	{
-		auto rng0 = view::iota(10) | view::take_while([](int i) mutable { return i != 25; });
-		CHECK_EQUAL(rng0, {10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24});
-		static_assert(ranges::View<decltype(rng0)>);
-		static_assert(!ranges::View<decltype(rng0) const>);
-		static_assert(!ranges::CommonRange<decltype(rng0)>);
-		static_assert(ranges::RandomAccessIterator<decltype(rng0.begin())>);
-	}
-
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	//																															  //
 	// 								DISABLED until generate is migrated to cmcstl2.							  //
@@ -57,20 +47,6 @@ int main()
 	// 		return ++N;
 	// 	});
 	// 	auto rng = ns | view::take_while([](int i) { return i < 5; });
-	// 	CHECK_EQUAL(rng, {1,2,3,4});
-	// }
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-	//																															  //
-	// 								DISABLED until generate is migrated to cmcstl2.							  //
-	//																															  //
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-	// {
-	// 	auto ns = view::generate([]() mutable {
-	// 		static int N;
-	// 		return ++N;
-	// 	});
-	// 	auto rng = ns | view::take_while([](int i) mutable { return i < 5; });
 	// 	CHECK_EQUAL(rng, {1,2,3,4});
 	// }
 
