@@ -54,19 +54,14 @@ STL2_OPEN_NAMESPACE {
 				auto& iterator_self = static_cast<cache_t&>(*this);
 				if (!iterator_self) {
 					iterator_self = __stl2::find_if_not(base_, [this](auto&& i) mutable {
-#ifndef NDEBUG
 						// A predicate must be equality-preserving. While it's not possible to generally
 						// check that te predicate isn't equality-preserving, we can trap
 						// non-equality-preserving invocables on-the-spot by calling them multiple times
 						// and compare the results.
 						// This is only enabled in debug-mode, since it's potentially an expensive check.
-						auto result1 = get()(i);
-						auto result2 = get()(i);
-						STL2_ASSERT(result1 == result2);
-						return result1;
-#else
-						return get()(i);
-#endif // NDEBUG
+						auto result = get()(i);
+						STL2_ASSERT(result == get()(i));
+						return result;
 					});
 				}
 
@@ -78,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 			R base_;
 		};
 
-		template <class R, ext::CopyConstructibleObject Pred>
+		template <class R, class Pred>
 		drop_while_view(R&&, Pred) -> drop_while_view<all_view<R>, Pred>;
 	} // namespace ext
 

@@ -30,7 +30,6 @@ int main()
 		//  static_assert(range_cardinality<decltype(rng0)>::value == unknown);
 		static_assert(ranges::RandomAccessRange<decltype(rng0)>);
 		static_assert(!ranges::CommonRange<decltype(rng0)>);
-		static_assert(ranges::RandomAccessIterator<decltype(rng0.begin())>);
 		auto b = rng0.begin();
 		CHECK(*b == 25);
 		CHECK(*(b+1) == 26);

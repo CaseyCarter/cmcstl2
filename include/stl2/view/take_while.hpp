@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template <class R, ext::CopyConstructibleObject Pred>
+		template <class R, class Pred>
 		take_while_view(R&&, Pred) -> take_while_view<all_view<R>, Pred>;
 
 		template <class R, class Pred>
