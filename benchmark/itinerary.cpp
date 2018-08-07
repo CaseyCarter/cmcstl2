@@ -306,14 +306,15 @@ inline constexpr auto toDates = [](Itinerary& i)
 
 BENCHMARK_DEFINE_F(ItineraryFixture, STL2)(benchmark::State& state)
 {
+    auto const cmp = [](auto const& x, auto const& y)
+    {
+        return ranges::lexicographical_compare(x, y);
+    };
+
     for (auto _ : state)
     {
         benchmark::DoNotOptimize(
-            ranges::equal_range(
-                itineraries,
-                dates,
-                ranges::lexicographical_compare,
-                toDates));
+            ranges::equal_range(itineraries, dates, cmp, toDates));
     }
 }
 BENCHMARK_REGISTER_F(ItineraryFixture, STL2)
