@@ -15,7 +15,7 @@
 #include <random>
 #include <array>
 #include <benchmark/benchmark.h>
-#include <experimental/ranges/range>
+#include <experimental/ranges/ranges>
 #include <experimental/ranges/algorithm>
 
 namespace ranges = std::experimental::ranges;
@@ -193,6 +193,52 @@ namespace std::experimental::ranges
     };
 }
 
+namespace sort_of_ranges {
+    template <ranges::ForwardRange Rng, class T,
+        class Comp = ranges::less<>, class Proj = ranges::identity>
+    requires
+        ranges::IndirectStrictWeakOrder<
+            Comp, const T*, ranges::projected<ranges::iterator_t<Rng>, Proj>>
+    ranges::ext::safe_subrange_t<Rng>
+    equal_range(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
+    {
+        return not_ranges::equal_range(
+            ranges::begin(rng), ranges::end(rng), value,
+            std::ref(comp), std::ref(proj));
+    }
+
+    template <ranges::ForwardRange Rng, class T, class Comp = ranges::less<>,
+        class Proj = ranges::identity>
+    requires
+        ranges::IndirectStrictWeakOrder<
+            Comp, const T*, ranges::projected<ranges::iterator_t<Rng>, Proj>> &&
+        ranges::SizedRange<Rng>
+    ranges::ext::safe_subrange_t<Rng>
+    equal_range(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
+    {
+        return not_ranges::equal_range_n(
+            ranges::begin(rng), ranges::size(rng), value,
+            std::ref(comp), std::ref(proj));
+    }
+
+    template <ranges::InputRange Rng1, ranges::InputRange Rng2, class Comp = ranges::less<>,
+        class Proj1 = ranges::identity, class Proj2 = ranges::identity>
+    requires
+        ranges::IndirectStrictWeakOrder<Comp,
+            ranges::projected<ranges::iterator_t<Rng1>, Proj1>,
+            ranges::projected<ranges::iterator_t<Rng2>, Proj2>>
+    constexpr bool lexicographical_compare(Rng1&& rng1, Rng2&& rng2,
+        Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+    {
+        return not_ranges::lexicographical_compare(
+            ranges::begin(rng1), ranges::end(rng1),
+            ranges::begin(rng2), ranges::end(rng2),
+            std::ref(comp),
+            std::ref(proj1),
+            std::ref(proj2));
+    }
+}
+
 struct Date
 {
     int v;
@@ -308,13 +354,13 @@ BENCHMARK_DEFINE_F(ItineraryFixture, STL2)(benchmark::State& state)
 {
     auto const cmp = [](auto const& x, auto const& y)
     {
-        return ranges::lexicographical_compare(x, y);
+        return sort_of_ranges::lexicographical_compare(x, y);
     };
 
     for (auto _ : state)
     {
         benchmark::DoNotOptimize(
-            ranges::equal_range(itineraries, dates, cmp, toDates));
+            sort_of_ranges::equal_range(itineraries, dates, cmp, toDates));
     }
 }
 BENCHMARK_REGISTER_F(ItineraryFixture, STL2)
