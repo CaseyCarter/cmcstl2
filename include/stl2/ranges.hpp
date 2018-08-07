@@ -22,6 +22,7 @@
 #include <stl2/view/common.hpp>
 #include <stl2/view/counted.hpp>
 #include <stl2/view/drop.hpp>
+#include <stl2/view/drop_while.hpp>
 #include <stl2/view/empty.hpp>
 #include <stl2/view/filter.hpp>
 #include <stl2/view/indirect.hpp>
@@ -38,6 +39,7 @@
 #include <stl2/view/subrange.hpp>
 #include <stl2/view/take.hpp>
 #include <stl2/view/take_exactly.hpp>
+#include <stl2/view/take_while.hpp>
 #include <stl2/view/transform.hpp>
 #include <stl2/view/view_interface.hpp>
 
