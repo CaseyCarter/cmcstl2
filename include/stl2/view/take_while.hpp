@@ -11,8 +11,8 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_VIEW_TAKE_HPP
-#define STL2_VIEW_TAKE_HPP
+#ifndef STL2_VIEW_TAKE_WHILE_HPP
+#define STL2_VIEW_TAKE_WHILE_HPP
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
@@ -116,4 +116,4 @@ STL2_OPEN_NAMESPACE {
 	} // namespace view::ext
 } STL2_CLOSE_NAMESPACE
 
-#endif
+#endif // STL2_VIEW_TAKE_WHILE_HPP

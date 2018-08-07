@@ -17,6 +17,7 @@
 
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/nth_iterator.hpp>
 #include <stl2/detail/range/primitives.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/common.hpp>
