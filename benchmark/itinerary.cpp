@@ -18,6 +18,158 @@
 #include <experimental/ranges/range>
 #include <experimental/ranges/algorithm>
 
+namespace ranges = std::experimental::ranges;
+
+namespace not_ranges
+{
+    template <class C, class T>
+    struct __lower_bound_fn {
+        std::decay_t<C> comp_;
+        const T& value_;
+
+        constexpr __lower_bound_fn(C comp, const T& value) :
+            comp_(std::ref(comp)), value_(value) {}
+
+        constexpr bool operator()(auto&& i) const {
+            return ranges::invoke(comp_, i, value_);
+        }
+    };
+
+    template <class I, class T, class Comp = ranges::less<>, class Proj = ranges::identity>
+    std::decay_t<I> lower_bound_n(I&& first, ranges::iter_difference_t<std::decay_t<I>> n,
+        const T& value, Comp comp = Comp{}, Proj proj = Proj{})
+    {
+        return ranges::ext::partition_point_n(
+            std::forward<I>(first), n,
+            __lower_bound_fn<Comp, T>{std::ref(comp), value},
+            std::ref(proj));
+    }
+
+    template <class C, class T>
+    struct __upper_bound_fn {
+        std::decay_t<C> comp_;
+        const T& value_;
+
+        constexpr __upper_bound_fn(C comp, const T& value)
+        : comp_(std::ref(comp)), value_(value) {}
+
+        constexpr bool operator()(auto&& i) const {
+            return !ranges::invoke(comp_, value_, i);
+        }
+    };
+
+    template <class I, class T, class Comp = ranges::less<>, class Proj = ranges::identity>
+    std::decay_t<I> upper_bound_n(I&& first, ranges::iter_difference_t<std::decay_t<I>> n, const T& value,
+        Comp comp = Comp{}, Proj proj = Proj{})
+    {
+        return ranges::ext::partition_point_n(std::forward<I>(first), n,
+            __upper_bound_fn<Comp, T>{std::ref(comp), value},
+            std::ref(proj));
+    }
+
+    template <class I, class T,
+        class Comp = ranges::less<>, class Proj = ranges::identity>
+    ranges::ext::subrange<I>
+    equal_range_n(I first, ranges::iter_difference_t<I> dist, const T& value,
+        Comp comp = Comp{}, Proj proj = Proj{})
+    {
+        if (0 < dist) {
+            do {
+                auto half = dist / 2;
+                auto middle = ranges::next(first, half);
+                auto&& v = *middle;
+                auto&& pv = ranges::invoke(proj, std::forward<decltype(v)>(v));
+                if (ranges::invoke(comp, pv, value)) {
+                    first = std::move(middle);
+                    ++first;
+                    dist -= half + 1;
+                } else if (ranges::invoke(comp, value, pv)) {
+                    dist = half;
+                } else {
+                    return {
+                        not_ranges::lower_bound_n(
+                            std::move(first), half, value,
+                            std::ref(comp), std::ref(proj)),
+                        not_ranges::upper_bound_n(ranges::next(middle),
+                            dist - (half + 1), value,
+                            std::ref(comp), std::ref(proj))
+                    };
+                }
+            } while (0 != dist);
+        }
+        return {first, first};
+    }
+
+    template <class I, class S, class T,
+        class Comp = ranges::less<>, class Proj = ranges::identity>
+    ranges::ext::subrange<I> equal_range(I first, S last, const T& value,
+        Comp comp = Comp{}, Proj proj = Proj{})
+    {
+        // Probe exponentially for either end-of-range, an iterator that
+        // is past the equal range (i.e., denotes an element greater
+        // than value), or is in the equal range (denotes an element equal
+        // to value).
+        auto dist = ranges::iter_difference_t<I>{1};
+        while (true) {
+            auto mid = first;
+            auto d = ranges::advance(mid, dist, last);
+            STL2_EXPECT(d >= 0);
+            if (d || mid == last) {
+                // at the end of the input range
+                return not_ranges::equal_range_n(
+                    std::move(first), dist - d, value,
+                    std::ref(comp), std::ref(proj));
+            }
+            auto&& v = *mid;
+            auto&& pv = ranges::invoke(proj, std::forward<decltype(v)>(v));
+            // if value < *mid, mid is after the target range.
+            if (ranges::invoke(comp, value, pv)) {
+                return not_ranges::equal_range_n(
+                    std::move(first), dist, value,
+                    std::ref(comp), std::ref(proj));
+            } else if (!ranges::invoke(comp, pv, value)) {
+                // *mid == value: the lower bound is <= mid, and the upper bound is > mid.
+                return {
+                    not_ranges::lower_bound_n(std::move(first), dist, value,
+                        std::ref(comp), std::ref(proj)),
+                    ranges::upper_bound(std::move(mid), std::move(last),
+                        value, std::ref(comp), std::ref(proj))
+                };
+            }
+            // *mid < value, mid is before the target range.
+            first = std::move(mid);
+            ++first;
+            dist *= 2;
+        }
+    }
+
+    template <class I, ranges::SizedSentinel<I> S, class T,
+        class Comp = ranges::less<>, class Proj = ranges::identity>
+    ranges::ext::subrange<I> equal_range(I first, S last, const T& value,
+        Comp comp = Comp{}, Proj proj = Proj{})
+    {
+        auto len = ranges::distance(first, std::move(last));
+        return not_ranges::equal_range_n(std::move(first), len, value,
+            std::ref(comp), std::ref(proj));
+    }
+
+    template <class I1, class S1, class I2, class S2, class Comp = ranges::less<>,
+        class Proj1 = ranges::identity, class Proj2 = ranges::identity>
+    bool lexicographical_compare(I1 first1, S1 last1, I2 first2, S2 last2,
+        Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+    {
+        for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
+            if (ranges::invoke(comp, ranges::invoke(proj1, *first1), ranges::invoke(proj2, *first2))) {
+                return true;
+            }
+            if (ranges::invoke(comp, ranges::invoke(proj2, *first2), ranges::invoke(proj1, *first1))) {
+                return false;
+            }
+        }
+        return first1 == last1 && first2 != last2;
+    }
+}
+
 namespace std::experimental::ranges
 {
     template<class Ref>
@@ -40,8 +192,6 @@ namespace std::experimental::ranges
                                         iter_reference_t<iterator_t<R2>>>>;
     };
 }
-
-namespace ranges = std::experimental::ranges;
 
 struct Date
 {
@@ -83,19 +233,19 @@ struct LegDepartureComparator
 struct ItineraryDepartureComparator
 {
     bool operator()(std::vector<Date> const& ds, Itinerary const& i) const
-    { return std::lexicographical_compare(ds.begin(), ds.end(),
-                                          i.legs().begin(), i.legs().end(),
-                                          LegDepartureComparator()); }
+    { return not_ranges::lexicographical_compare(ds.begin(), ds.end(),
+                                                 i.legs().begin(), i.legs().end(),
+                                                 LegDepartureComparator()); }
 
     bool operator()(Itinerary const& i, std::vector<Date> const& ds) const
-    { return std::lexicographical_compare(i.legs().begin(), i.legs().end(),
-                                          ds.begin(), ds.end(),
-                                          LegDepartureComparator()); }
+    { return not_ranges::lexicographical_compare(i.legs().begin(), i.legs().end(),
+                                                 ds.begin(), ds.end(),
+                                                 LegDepartureComparator()); }
 
     bool operator()(Itinerary const& i1, Itinerary const& i2) const
-    { return std::lexicographical_compare(i1.legs().begin(), i1.legs().end(),
-                                          i2.legs().begin(), i2.legs().end(),
-                                          LegDepartureComparator()); }
+    { return not_ranges::lexicographical_compare(i1.legs().begin(), i1.legs().end(),
+                                                 i2.legs().begin(), i2.legs().end(),
+                                                 LegDepartureComparator()); }
 };
 
 class ItineraryFixture : public ::benchmark::Fixture {
@@ -138,8 +288,8 @@ BENCHMARK_DEFINE_F(ItineraryFixture, STL1)(benchmark::State& state)
     for (auto _ : state)
     {
         benchmark::DoNotOptimize(
-            std::equal_range(itineraries.begin(), itineraries.end(),
-                             dates, ItineraryDepartureComparator()));
+            not_ranges::equal_range(itineraries.begin(), itineraries.end(),
+                                    dates, ItineraryDepartureComparator()));
     }
 }
 BENCHMARK_REGISTER_F(ItineraryFixture, STL1)
