@@ -24,15 +24,15 @@ namespace std::experimental::ranges
     struct any_view
     {
         template<Range R>
-          requires Same<iter_reference_t<iterator_t<R>>, Ref>
+            requires Same<iter_reference_t<iterator_t<R>>, Ref>
         any_view(R&&)
         {}
         std::add_pointer_t<Ref> begin() const { return 0; }
         std::add_pointer_t<Ref> end() const { return 0; }
     };
     template <Range R1, Range R2>
-      requires CommonReference<iter_reference_t<iterator_t<R1>>,
-                               iter_reference_t<iterator_t<R2>>>
+        requires CommonReference<iter_reference_t<iterator_t<R1>>,
+                                 iter_reference_t<iterator_t<R2>>>
     struct common_type<R1, R2>
     {
         using type =
@@ -43,7 +43,7 @@ namespace std::experimental::ranges
 
 namespace ranges = std::experimental::ranges;
 
-struct Date 
+struct Date
 {
     int v;
 };
@@ -69,7 +69,7 @@ struct Itinerary
 };
 
 struct LegDepartureComparator
-{ 
+{
     bool operator()(Date d, Leg const& l) const
     { return d < l.departure_date(); }
 
@@ -82,20 +82,20 @@ struct LegDepartureComparator
 
 struct ItineraryDepartureComparator
 {
-   bool operator()(std::vector<Date> const& ds, Itinerary const& i) const
-   { return std::lexicographical_compare(ds.begin(), ds.end(),
-                                         i.legs().begin(), i.legs().end(),
-                                         LegDepartureComparator()); }
+    bool operator()(std::vector<Date> const& ds, Itinerary const& i) const
+    { return std::lexicographical_compare(ds.begin(), ds.end(),
+                                          i.legs().begin(), i.legs().end(),
+                                          LegDepartureComparator()); }
 
-   bool operator()(Itinerary const& i, std::vector<Date> const& ds) const
-   { return std::lexicographical_compare(i.legs().begin(), i.legs().end(),
+    bool operator()(Itinerary const& i, std::vector<Date> const& ds) const
+    { return std::lexicographical_compare(i.legs().begin(), i.legs().end(),
                                           ds.begin(), ds.end(),
                                           LegDepartureComparator()); }
 
-   bool operator()(Itinerary const& i1, Itinerary const& i2) const
-   { return std::lexicographical_compare(i1.legs().begin(), i1.legs().end(),
-                                         i2.legs().begin(), i2.legs().end(),
-                                         LegDepartureComparator()); }
+    bool operator()(Itinerary const& i1, Itinerary const& i2) const
+    { return std::lexicographical_compare(i1.legs().begin(), i1.legs().end(),
+                                          i2.legs().begin(), i2.legs().end(),
+                                          LegDepartureComparator()); }
 };
 
 class ItineraryFixture : public ::benchmark::Fixture {
@@ -103,24 +103,24 @@ public:
     void SetUp(const ::benchmark::State& st)
     {
         std::size_t const elements = st.range(0);
-        std::size_t const legs = st.range(1); 
+        std::size_t const legs = st.range(1);
 
         std::mt19937 gen;
         std::uniform_int_distribution<int> dist(0, 30);
 
         dates.resize(legs);
         for (Date& d : dates)
-          d.v = dist(gen);
+            d.v = dist(gen);
 
         itineraries.resize(elements);
         for (Itinerary& itin : itineraries)
         {
-           itin.l.resize(legs);
-           for (Leg& leg : itin.l)
-              leg.d.v = dist(gen);
+            itin.l.resize(legs);
+            for (Leg& leg : itin.l)
+                leg.d.v = dist(gen);
         }
-        std::sort(itineraries.begin(), itineraries.end(), 
-                  ItineraryDepartureComparator()); 
+        std::sort(itineraries.begin(), itineraries.end(),
+                  ItineraryDepartureComparator());
     }
 
     void TearDown(const ::benchmark::State&)
@@ -129,13 +129,13 @@ public:
         dates.clear();
     }
 
-   std::vector<Itinerary> itineraries; 
-   std::vector<Date> dates;
+    std::vector<Itinerary> itineraries;
+    std::vector<Date> dates;
 };
 
 BENCHMARK_DEFINE_F(ItineraryFixture, STL1)(benchmark::State& state)
 {
-    while (state.KeepRunning())
+    for (auto _ : state)
     {
         benchmark::DoNotOptimize(
             std::equal_range(itineraries.begin(), itineraries.end(),
@@ -143,7 +143,7 @@ BENCHMARK_DEFINE_F(ItineraryFixture, STL1)(benchmark::State& state)
     }
 }
 BENCHMARK_REGISTER_F(ItineraryFixture, STL1)
-  -> Ranges({{1<<10, 1<<20}, {1,2}});
+    -> Ranges({{1<<10, 1<<20}, {1,2}});
 
 inline constexpr auto toDate = [](const Leg& l)
 {
@@ -156,8 +156,8 @@ inline constexpr auto toDates = [](Itinerary& i)
 
 BENCHMARK_DEFINE_F(ItineraryFixture, STL2)(benchmark::State& state)
 {
-   while (state.KeepRunning())
-   {
+    for (auto _ : state)
+    {
         benchmark::DoNotOptimize(
             ranges::equal_range(
                 itineraries,
@@ -167,4 +167,6 @@ BENCHMARK_DEFINE_F(ItineraryFixture, STL2)(benchmark::State& state)
     }
 }
 BENCHMARK_REGISTER_F(ItineraryFixture, STL2)
-  -> Ranges({{1<<10, 1<<20}, {1,2}});
+    -> Ranges({{1<<10, 1<<20}, {1,2}});
+
+BENCHMARK_MAIN();
