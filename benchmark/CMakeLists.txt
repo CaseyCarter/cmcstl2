@@ -10,10 +10,5 @@
 # Project home: https://github.com/caseycarter/cmcstl2
 #
 
-find_package(Threads REQUIRED)
-
-include_directories("../external/google-benchmark/include")
-file(GLOB GOOGLE_BENCHMARK_FILES "../external/google-benchmark/src/*.cc")
-
-add_executable(itinerary itinerary.cpp ${GOOGLE_BENCHMARK_FILES})
-target_link_libraries(itinerary stl2 Threads::Threads)
+add_executable(itinerary itinerary.cpp)
+target_link_libraries(itinerary stl2 benchmark)
