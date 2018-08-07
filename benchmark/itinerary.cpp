@@ -155,7 +155,7 @@ namespace not_ranges
 
     template <class I1, class S1, class I2, class S2, class Comp = ranges::less<>,
         class Proj1 = ranges::identity, class Proj2 = ranges::identity>
-    bool lexicographical_compare(I1 first1, S1 last1, I2 first2, S2 last2,
+    constexpr bool lexicographical_compare(I1 first1, S1 last1, I2 first2, S2 last2,
         Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
     {
         for (; first1 != last1 && first2 != last2; ++first1, ++first2) {

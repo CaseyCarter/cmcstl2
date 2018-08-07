@@ -21,14 +21,14 @@
 // lexicographical_compare [alg.lex.comparison]
 //
 STL2_OPEN_NAMESPACE {
-	inline constexpr struct lexicographical_compare_fn
+	inline constexpr struct __lexicographical_compare_fn
 	{
 		template <InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
 			class Comp = less<>, class Proj1 = identity, class Proj2 = identity>
 		requires
 			IndirectStrictWeakOrder<Comp,
 				projected<I1, Proj1>, projected<I2, Proj2>>
-		bool operator()(I1 first1, S1 last1, I2 first2, S2 last2,
+		constexpr bool operator()(I1 first1, S1 last1, I2 first2, S2 last2,
 			Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
 		{
 			for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectStrictWeakOrder<Comp,
 				projected<iterator_t<Rng1>, Proj1>,
 				projected<iterator_t<Rng2>, Proj2>>
-		bool operator()(Rng1&& rng1, Rng2&& rng2,
+		constexpr bool operator()(Rng1&& rng1, Rng2&& rng2,
 			Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
 		{
 			return (*this)(
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 				std::ref(proj1),
 				std::ref(proj2));
 		}
-	} const lexicographical_compare {};
+	} lexicographical_compare {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
