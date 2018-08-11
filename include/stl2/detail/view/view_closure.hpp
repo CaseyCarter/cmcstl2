@@ -14,19 +14,26 @@
 
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
+#include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		struct __pipeable_base {};
+		struct __pipeable_base;
 
 		template <class T>
 		concept bool Pipeable =
-			DerivedFrom<T, __pipeable_base> && CopyConstructible<T>;
+			DerivedFrom<T, __pipeable_base> && ext::CopyConstructibleObject<T>;
 
-		template <std::size_t, class T>
-		struct __box {
-			T value_;
+		template <Pipeable, Pipeable>
+		struct __view_pipeline;
+
+		struct __pipeable_base {
+			template <Pipeable A, Pipeable B>
+			requires Constructible<__uncvref<A>, A> &&
+				Constructible<__uncvref<B>, B>
+			friend constexpr auto operator|(A&& left, B&& right)
+			{ return __view_pipeline{static_cast<A&&>(left), static_cast<B&&>(right)}; }
 		};
 
 		template <class Derived>
@@ -57,6 +64,11 @@ STL2_OPEN_NAMESPACE {
 
 		template <class Indices, class Fn, class... Ts>
 		struct __view_closure;
+
+		template <std::size_t, class T>
+		struct __box {
+			T value_;
+		};
 
 		template <std::size_t... Is, class Fn, class... Ts>
 		struct __view_closure<std::index_sequence<Is...>, Fn, Ts...>
@@ -128,10 +140,6 @@ STL2_OPEN_NAMESPACE {
 			constexpr decltype(auto) operator()(R&& r) const &
 			{ return right_(left_(std::forward<R>(r))); }
 		};
-
-		template <Pipeable A, Pipeable B>
-		constexpr auto operator|(A left, B right)
-		{ return __view_pipeline{std::move(left), std::move(right)}; }
 	}
 } STL2_CLOSE_NAMESPACE
 
