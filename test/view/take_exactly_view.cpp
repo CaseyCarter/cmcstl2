@@ -23,10 +23,10 @@ namespace ranges = __stl2;
 
 namespace {
 	template <class I, class S>
-	struct my_subrange : __stl2::ext::subrange<I, S> {
+	struct my_subrange : ranges::subrange<I, S> {
 		my_subrange() = default;
 		my_subrange(I i, S s)
-		: __stl2::ext::subrange<I, S>{i, s} {}
+		: ranges::subrange<I, S>{i, s} {}
 		I begin() { return this->my_subrange::subrange::begin(); }
 		S end() { return this->my_subrange::subrange::end(); }
 	};
@@ -39,7 +39,7 @@ int main()
 	{
 		auto rng = view::iota(0) | view::ext::take_exactly(10);
 		static_assert(View<decltype(rng)>);
-		static_assert(!SizedRange<ext::iota_view<int>>);
+		static_assert(!SizedRange<iota_view<int>>);
 		static_assert(Range<const decltype(rng)>);
 		CHECK_EQUAL(rng, {0,1,2,3,4,5,6,7,8,9});
 	}

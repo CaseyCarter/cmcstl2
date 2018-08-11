@@ -23,62 +23,60 @@
 #include <stl2/detail/view/view_closure.hpp>
 
 STL2_OPEN_NAMESPACE {
-	namespace ext {
-		template <View Rng>
-		requires BidirectionalRange<Rng>
-		class reverse_view
-		: public view_interface<reverse_view<Rng>>
-		, private detail::non_propagating_cache<iterator_t<Rng>, reverse_view<Rng>, !CommonRange<Rng>> {
-			Rng base_;
-			constexpr auto& end_() noexcept
-			{ return static_cast<typename reverse_view::non_propagating_cache&>(*this); }
-		public:
-			reverse_view() = default;
+	template <View Rng>
+	requires BidirectionalRange<Rng>
+	class reverse_view
+	: public view_interface<reverse_view<Rng>>
+	, private detail::non_propagating_cache<iterator_t<Rng>, reverse_view<Rng>, !CommonRange<Rng>> {
+		Rng base_;
+		constexpr auto& end_() noexcept
+		{ return static_cast<typename reverse_view::non_propagating_cache&>(*this); }
+	public:
+		reverse_view() = default;
 
-			constexpr explicit reverse_view(Rng rng)
-			: base_{std::move(rng)} {}
+		constexpr explicit reverse_view(Rng rng)
+		: base_{std::move(rng)} {}
 
-			template <ViewableRange O>
-			requires BidirectionalRange<O> && _ConstructibleFromRange<Rng, O>
-			constexpr explicit reverse_view(O&& o)
-			: base_(view::all(std::forward<O>(o))) {}
+		template <ViewableRange O>
+		requires BidirectionalRange<O> && _ConstructibleFromRange<Rng, O>
+		constexpr explicit reverse_view(O&& o)
+		: base_(view::all(std::forward<O>(o))) {}
 
-			constexpr Rng base() const
-			{ return base_; }
+		constexpr Rng base() const
+		{ return base_; }
 
-			constexpr auto begin()
-			{
-				if (!end_())
-					end_() = __stl2::next(__stl2::begin(base_), __stl2::end(base_));
-				return __stl2::make_reverse_iterator(*end_());
-			}
+		constexpr auto begin()
+		{
+			if (!end_())
+				end_() = __stl2::next(__stl2::begin(base_), __stl2::end(base_));
+			return __stl2::make_reverse_iterator(*end_());
+		}
 
-			constexpr auto begin() requires CommonRange<Rng>
-			{ return __stl2::make_reverse_iterator(__stl2::end(base_)); }
+		constexpr auto begin() requires CommonRange<Rng>
+		{ return __stl2::make_reverse_iterator(__stl2::end(base_)); }
 
-			constexpr auto begin() const requires CommonRange<const Rng>
-			{ return __stl2::make_reverse_iterator(__stl2::end(base_)); }
+		constexpr auto begin() const requires CommonRange<const Rng>
+		{ return __stl2::make_reverse_iterator(__stl2::end(base_)); }
 
-			constexpr auto end()
-			{ return __stl2::make_reverse_iterator(__stl2::begin(base_)); }
+		constexpr auto end()
+		{ return __stl2::make_reverse_iterator(__stl2::begin(base_)); }
 
-			constexpr auto end() const requires CommonRange<const Rng>
-			{ return __stl2::make_reverse_iterator(__stl2::begin(base_)); }
+		constexpr auto end() const requires CommonRange<const Rng>
+		{ return __stl2::make_reverse_iterator(__stl2::begin(base_)); }
 
-			constexpr auto size() const requires SizedRange<const Rng>
-			{ return __stl2::size(base_); }
-		};
+		constexpr auto size() const requires SizedRange<const Rng>
+		{ return __stl2::size(base_); }
+	};
 
-		template <class Rng>
-		reverse_view(Rng&&) -> reverse_view<all_view<Rng>>;
-	} // namespace ext
+	template <class Rng>
+	reverse_view(Rng&&) -> reverse_view<all_view<Rng>>;
 
 	namespace view {
 		struct __reverse_fn : detail::__pipeable<__reverse_fn> {
 			template <BidirectionalRange Rng>
-			requires __stl2::ext::ViewableRange<Rng>
+			requires ViewableRange<Rng>
 			constexpr auto operator()(Rng&& rng) const {
-				return __stl2::ext::reverse_view{std::forward<Rng>(rng)};
+				return reverse_view{std::forward<Rng>(rng)};
 			}
 		};
 

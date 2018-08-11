@@ -52,7 +52,7 @@ namespace {
 		CHECK(result.out() == target + 4);
 		CHECK(std::count(target, target + 4, 0) == 4);
 		auto l2 = {1, 2, 3, 4};
-		CHECK_EQUAL(ranges::ext::subrange(target + 4, target + 8), std::move(l2));
+		CHECK_EQUAL(ranges::subrange(target + 4, target + 8), std::move(l2));
 	}
 }
 

@@ -356,7 +356,7 @@ void test_fl() {
 	static_assert(ranges::Same<ranges::common_type_t<S, I>, I>);
 	// TODO replace with view::common:
 	// static_assert(ranges::Same<
-	// 	ranges::ext::subrange<I, I>,
+	// 	ranges::subrange<I, I>,
 	// 	decltype(ranges::ext::make_common_range(list.begin(), list.end()))>);
 	std::cout << list << '\n';
 	*ranges::front_inserter(list) = 3.14;
@@ -428,7 +428,7 @@ void test_array() {
 	static_assert(ranges::Same<ranges::iter_value_t<I>, int>);
 	static_assert(ranges::Same<ranges::iter_reference_t<I>, int&>);
 	static_assert(ranges::Same<ranges::iter_rvalue_reference_t<I>, int&&>);
-	static_assert(ranges::ext::ContiguousIterator<I>);
+	static_assert(ranges::ContiguousIterator<I>);
 	static_assert(ranges::RandomAccessRange<Rng>);
 	static_assert(ranges::RandomAccessRange<const Rng>);
 	static_assert(ranges::CommonRange<Rng>);
@@ -472,7 +472,7 @@ void test_counted() {
 	static_assert(ranges::Same<ranges::iter_reference_t<I>, const int&>);
 	static_assert(ranges::Same<ranges::iter_rvalue_reference_t<I>, const int&&>);
 	static_assert(ranges::RandomAccessIterator<I>);
-	static_assert(ranges::ext::ContiguousIterator<I>);
+	static_assert(ranges::ContiguousIterator<I>);
 	CHECK(I{} == I{});
 	auto first = I{some_ints, 4};
 	CHECK(first.base() == some_ints);
@@ -577,7 +577,7 @@ void test_proxy_array() {
 	using RR = ranges::iter_rvalue_reference_t<I>;
 	static_assert(ranges::Same<int&&, RR>);
 	static_assert(ranges::RandomAccessIterator<I>);
-	static_assert(!ranges::ext::ContiguousIterator<I>);
+	static_assert(!ranges::ContiguousIterator<I>);
 	static_assert(ranges::RandomAccessRange<Rng>);
 	static_assert(ranges::CommonRange<Rng>);
 
@@ -602,7 +602,7 @@ void test_proxy_array() {
 	static_assert(ranges::Same<const int&&, decltype(iter_move(std::declval<CI&>()))>);
 
 	static_assert(ranges::RandomAccessIterator<CI>);
-	static_assert(!ranges::ext::ContiguousIterator<CI>);
+	static_assert(!ranges::ContiguousIterator<CI>);
 	static_assert(ranges::RandomAccessRange<const Rng>);
 	static_assert(ranges::CommonRange<const Rng>);
 

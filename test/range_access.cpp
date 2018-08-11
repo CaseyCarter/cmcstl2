@@ -138,8 +138,8 @@ namespace begin_testing {
 			static_assert(ranges::Same<const int*, decltype(ranges::begin(std::declval<const T&>()))>);
 		}
 
-		static_assert(can_begin<ranges::ext::subrange<int*, int*>&>);
-		static_assert(can_begin<ranges::ext::subrange<int*, int*>&&>);
+		static_assert(can_begin<ranges::subrange<int*, int*>&>);
+		static_assert(can_begin<ranges::subrange<int*, int*>&&>);
 	}
 } // namespace begin_testing
 

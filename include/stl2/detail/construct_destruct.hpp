@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 		namespace {
-			constexpr auto& destruct = detail::static_const<destruct_fn>::value;
+			inline constexpr destruct_fn destruct{};
 		}
 
 		struct construct_fn {
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 		namespace {
-			constexpr auto& construct = detail::static_const<construct_fn>::value;
+			inline constexpr construct_fn construct{};
 		}
 	}
 } STL2_CLOSE_NAMESPACE

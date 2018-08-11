@@ -8,6 +8,6 @@ static_assert(ranges::Same<std::ptrdiff_t,ranges::iter_difference_t<foo*>>);
 static_assert(ranges::Same<foo*,ranges::common_type_t<foo*, foo*>>);
 struct foo {};
 
-static_assert(ranges::ext::ContiguousIterator<foo*>);
+static_assert(ranges::ContiguousIterator<foo*>);
 
 int main() {}

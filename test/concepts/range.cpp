@@ -543,7 +543,7 @@ int main() {
 		CONCEPT_ASSERT(ranges::BidirectionalRange<T>);
 		CONCEPT_ASSERT(ranges::RandomAccessRange<T>);
 #if VALIDATE_STL2
-		CONCEPT_ASSERT(ranges::ext::ContiguousRange<T>);
+		CONCEPT_ASSERT(ranges::ContiguousRange<T>);
 #endif
 	}
 

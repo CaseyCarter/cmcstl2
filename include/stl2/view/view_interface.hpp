@@ -20,7 +20,7 @@
 #include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-	namespace ext {
+	namespace detail {
 		template <Range Rng>
 		struct __range_common_iterator_impl {
 			using type = common_iterator<iterator_t<Rng>, sentinel_t<Rng>>;
@@ -32,9 +32,7 @@ STL2_OPEN_NAMESPACE {
 		template <Range Rng>
 		using __range_common_iterator =
 			typename __range_common_iterator_impl<Rng>::type;
-	}
 
-	namespace detail {
 		template <class R>
 		concept bool CanEmpty = Range<R> && requires(R& r) { __stl2::empty(r); };
 		template <class R>
@@ -42,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 		template <class C, class R>
 		concept bool ContainerConvertible = InputRange<R> && ForwardRange<C> && !View<C> &&
 			ConvertibleTo<iter_reference_t<iterator_t<R>>, iter_value_t<iterator_t<C>>> &&
-			Constructible<C, ext::__range_common_iterator<R>, ext::__range_common_iterator<R>>;
+			Constructible<C, __range_common_iterator<R>, __range_common_iterator<R>>;
 
 		template <Range R>
 		constexpr bool is_in_range(R& r, iter_difference_t<iterator_t<R>> n) noexcept {
@@ -61,97 +59,95 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	namespace ext {
-		template <class D>
-		requires std::is_class_v<D>
-		class view_interface : public view_base {
-		private:
-			constexpr D& derived() noexcept {
-				static_assert(DerivedFrom<D, view_interface>);
-				return static_cast<D&>(*this);
-			}
-			constexpr const D& derived() const noexcept {
-				static_assert(DerivedFrom<D, view_interface>);
-				return static_cast<const D&>(*this);
-			}
-		public:
-			constexpr bool empty() const requires ForwardRange<const D> {
-				auto& d = derived();
-				return __stl2::begin(d) == __stl2::end(d);
-			}
-			constexpr explicit operator bool() const
-			// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82740
-			requires detail::CanEmpty<const D> {
-				return !__stl2::empty(derived());
-			}
-			template <Range R = D>
-			requires ContiguousIterator<iterator_t<R>>
-			constexpr auto data() {
-				auto& d = derived();
-				return __stl2::empty(d) ? nullptr
-					: detail::addressof(*__stl2::begin(d));
-			}
-			template <Range R = const D>
-			requires ContiguousIterator<iterator_t<R>>
-			constexpr auto data() const {
-				auto& d = derived();
-				return __stl2::empty(d) ? nullptr
-					: detail::addressof(*__stl2::begin(d));
-			}
-			template <class R = const D> // gcc_bugs_bugs_bugs
-			constexpr auto size() const
-			// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-			requires detail::SizedSentinelForwardRange<R> {
-				auto& d = derived();
-				return __stl2::end(d) - __stl2::begin(d);
-			}
-			constexpr decltype(auto) front() requires ForwardRange<D> {
-				auto& d = derived();
-				const auto first = __stl2::begin(d);
-				STL2_EXPECT(first != __stl2::end(d));
-				return *first;
-			}
-			constexpr decltype(auto) front() const requires ForwardRange<const D> {
-				auto& d = derived();
-				const auto first = __stl2::begin(d);
-				STL2_EXPECT(first != __stl2::end(d));
-				return *first;
-			}
-			constexpr decltype(auto) back()
-			requires BidirectionalRange<D> && CommonRange<D> {
-				auto& d = derived();
-				auto last = __stl2::end(d);
-				STL2_EXPECT(__stl2::begin(d) != last);
-				return *--last;
-			}
-			constexpr decltype(auto) back() const
-			requires BidirectionalRange<const D> && CommonRange<const D> {
-				auto& d = derived();
-				auto last = __stl2::end(d);
-				STL2_EXPECT(__stl2::begin(d) != last);
-				return *--last;
-			}
-			template <RandomAccessRange R = D>
-			constexpr decltype(auto) operator[](iter_difference_t<iterator_t<R>> n) {
-				auto& d = derived();
-				STL2_EXPECT(detail::is_in_range(d, n));
-				return __stl2::begin(d)[n];
-			}
-			template <RandomAccessRange R = const D>
-			constexpr decltype(auto) operator[](iter_difference_t<iterator_t<R>> n) const {
-				auto& d = derived();
-				STL2_EXPECT(detail::is_in_range(d, n));
-				return __stl2::begin(d)[n];
-			}
-			// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-			template <detail::ContainerConvertible<const D> C>
-			operator C() const {
-				auto& d = derived();
-				using I = __range_common_iterator<const D>;
-				return C(I{__stl2::begin(d)}, I{__stl2::end(d)});
-			}
-		};
-	} // namespace ext
+	template <class D>
+	requires std::is_class_v<D>
+	class view_interface : public view_base {
+	private:
+		constexpr D& derived() noexcept {
+			static_assert(DerivedFrom<D, view_interface>);
+			return static_cast<D&>(*this);
+		}
+		constexpr const D& derived() const noexcept {
+			static_assert(DerivedFrom<D, view_interface>);
+			return static_cast<const D&>(*this);
+		}
+	public:
+		constexpr bool empty() const requires ForwardRange<const D> {
+			auto& d = derived();
+			return __stl2::begin(d) == __stl2::end(d);
+		}
+		constexpr explicit operator bool() const
+		// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82740
+		requires detail::CanEmpty<const D> {
+			return !__stl2::empty(derived());
+		}
+		template <Range R = D>
+		requires ContiguousIterator<iterator_t<R>>
+		constexpr auto data() {
+			auto& d = derived();
+			return __stl2::empty(d) ? nullptr
+				: detail::addressof(*__stl2::begin(d));
+		}
+		template <Range R = const D>
+		requires ContiguousIterator<iterator_t<R>>
+		constexpr auto data() const {
+			auto& d = derived();
+			return __stl2::empty(d) ? nullptr
+				: detail::addressof(*__stl2::begin(d));
+		}
+		template <class R = const D> // gcc_bugs_bugs_bugs
+		constexpr auto size() const
+		// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
+		requires detail::SizedSentinelForwardRange<R> {
+			auto& d = derived();
+			return __stl2::end(d) - __stl2::begin(d);
+		}
+		constexpr decltype(auto) front() requires ForwardRange<D> {
+			auto& d = derived();
+			const auto first = __stl2::begin(d);
+			STL2_EXPECT(first != __stl2::end(d));
+			return *first;
+		}
+		constexpr decltype(auto) front() const requires ForwardRange<const D> {
+			auto& d = derived();
+			const auto first = __stl2::begin(d);
+			STL2_EXPECT(first != __stl2::end(d));
+			return *first;
+		}
+		constexpr decltype(auto) back()
+		requires BidirectionalRange<D> && CommonRange<D> {
+			auto& d = derived();
+			auto last = __stl2::end(d);
+			STL2_EXPECT(__stl2::begin(d) != last);
+			return *--last;
+		}
+		constexpr decltype(auto) back() const
+		requires BidirectionalRange<const D> && CommonRange<const D> {
+			auto& d = derived();
+			auto last = __stl2::end(d);
+			STL2_EXPECT(__stl2::begin(d) != last);
+			return *--last;
+		}
+		template <RandomAccessRange R = D>
+		constexpr decltype(auto) operator[](iter_difference_t<iterator_t<R>> n) {
+			auto& d = derived();
+			STL2_EXPECT(detail::is_in_range(d, n));
+			return __stl2::begin(d)[n];
+		}
+		template <RandomAccessRange R = const D>
+		constexpr decltype(auto) operator[](iter_difference_t<iterator_t<R>> n) const {
+			auto& d = derived();
+			STL2_EXPECT(detail::is_in_range(d, n));
+			return __stl2::begin(d)[n];
+		}
+		// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
+		template <detail::ContainerConvertible<const D> C>
+		operator C() const {
+			auto& d = derived();
+			using I = detail::__range_common_iterator<const D>;
+			return C(I{__stl2::begin(d)}, I{__stl2::end(d)});
+		}
+	};
 } STL2_CLOSE_NAMESPACE
 
 #endif

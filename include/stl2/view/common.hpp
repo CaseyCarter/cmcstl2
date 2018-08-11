@@ -22,71 +22,69 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	namespace ext {
-		template <View Rng>
-		requires !CommonRange<Rng>
-		struct common_view : view_interface<common_view<Rng>> {
-		private:
-			Rng rng_;
-		public:
-			common_view() = default;
+	template <View Rng>
+	requires !CommonRange<Rng>
+	struct common_view : view_interface<common_view<Rng>> {
+	private:
+		Rng rng_;
+	public:
+		common_view() = default;
 
-			constexpr common_view(Rng rng)
-			: rng_(std::move(rng)) {}
+		constexpr common_view(Rng rng)
+		: rng_(std::move(rng)) {}
 
-			template <ViewableRange O>
-			requires !CommonRange<O> && _ConstructibleFromRange<Rng, O>
-			constexpr common_view(O&& o)
-			: rng_(view::all(std::forward<O>(o))) {}
+		template <ViewableRange O>
+		requires !CommonRange<O> && _ConstructibleFromRange<Rng, O>
+		constexpr common_view(O&& o)
+		: rng_(view::all(std::forward<O>(o))) {}
 
-			constexpr Rng base() const { return rng_; }
+		constexpr Rng base() const { return rng_; }
 
-			constexpr auto begin()
-			{ return common_iterator<iterator_t<Rng>, sentinel_t<Rng>>(__stl2::begin(rng_)); }
-			constexpr auto end()
-			{ return common_iterator<iterator_t<Rng>, sentinel_t<Rng>>(__stl2::end(rng_)); }
+		constexpr auto begin()
+		{ return common_iterator<iterator_t<Rng>, sentinel_t<Rng>>(__stl2::begin(rng_)); }
+		constexpr auto end()
+		{ return common_iterator<iterator_t<Rng>, sentinel_t<Rng>>(__stl2::end(rng_)); }
 
-			constexpr auto begin() requires RandomAccessRange<Rng> && SizedRange<Rng>
-			{ return __stl2::begin(rng_); }
-			constexpr auto end() requires RandomAccessRange<Rng> && SizedRange<Rng>
-			{ return __stl2::begin(rng_) + __stl2::size(rng_); }
+		constexpr auto begin() requires RandomAccessRange<Rng> && SizedRange<Rng>
+		{ return __stl2::begin(rng_); }
+		constexpr auto end() requires RandomAccessRange<Rng> && SizedRange<Rng>
+		{ return __stl2::begin(rng_) + __stl2::size(rng_); }
 
-			constexpr auto begin() const requires Range<const Rng>
-			{
-				return common_iterator<iterator_t<const Rng>, sentinel_t<const Rng>>(
-					__stl2::begin(rng_));
-			}
-			constexpr auto end() const requires Range<const Rng>
-			{
-				return common_iterator<iterator_t<const Rng>, sentinel_t<const Rng>>(
-					__stl2::end(rng_));
-			}
+		constexpr auto begin() const requires Range<const Rng>
+		{
+			return common_iterator<iterator_t<const Rng>, sentinel_t<const Rng>>(
+				__stl2::begin(rng_));
+		}
+		constexpr auto end() const requires Range<const Rng>
+		{
+			return common_iterator<iterator_t<const Rng>, sentinel_t<const Rng>>(
+				__stl2::end(rng_));
+		}
 
-			constexpr auto begin() const
-			requires RandomAccessRange<const Rng> && SizedRange<const Rng>
-			{ return __stl2::begin(rng_); }
-			constexpr auto end() const
-			requires RandomAccessRange<const Rng> && SizedRange<Rng>
-			{ return __stl2::begin(rng_) + __stl2::size(rng_); }
+		constexpr auto begin() const
+		requires RandomAccessRange<const Rng> && SizedRange<const Rng>
+		{ return __stl2::begin(rng_); }
+		constexpr auto end() const
+		requires RandomAccessRange<const Rng> && SizedRange<Rng>
+		{ return __stl2::begin(rng_) + __stl2::size(rng_); }
 
-			constexpr auto size() const requires SizedRange<const Rng>
-			{ return __stl2::size(rng_); }
-		};
+		constexpr auto size() const requires SizedRange<const Rng>
+		{ return __stl2::size(rng_); }
+	};
 
-		template <class O>
-		common_view(O&&) -> common_view<all_view<O>>;
-	} // namespace ext
+	template <class O>
+	common_view(O&&) -> common_view<all_view<O>>;
 
 	namespace view {
 		struct __stl2_common_fn : detail::__pipeable<__stl2_common_fn> {
-			template <__stl2::ext::ViewableRange R>
+			template <ViewableRange R>
 			requires CommonRange<R>
 			constexpr auto operator()(R&& r) const
 			{ return view::all(std::forward<R>(r)); }
 
-			template <__stl2::ext::ViewableRange R>
+			template <ViewableRange R>
 			constexpr auto operator()(R&& r) const
-			{ return __stl2::ext::common_view{std::forward<R>(r)}; }
+			{ return common_view{std::forward<R>(r)}; }
 		};
 
 		inline constexpr __stl2_common_fn common {};

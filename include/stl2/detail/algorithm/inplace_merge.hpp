@@ -170,7 +170,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		namespace {
-			constexpr auto&& merge_adaptive = static_const<merge_adaptive_fn>::value;
+			inline constexpr merge_adaptive_fn merge_adaptive{};
 		}
 
 		struct inplace_merge_no_buffer_fn
@@ -188,7 +188,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		namespace {
-			constexpr auto&& inplace_merge_no_buffer = static_const<inplace_merge_no_buffer_fn>::value;
+			inline constexpr inplace_merge_no_buffer_fn inplace_merge_no_buffer{};
 		}
 	}
 

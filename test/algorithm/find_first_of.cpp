@@ -21,20 +21,17 @@
 #if VALIDATE_RANGES
 #include <range/v3/core.hpp>
 #include <range/v3/algorithm/find_first_of.hpp>
-namespace rng = ranges;
 
 #elif VALIDATE_STL2
 #include <stl2/detail/algorithm/find_first_of.hpp>
-namespace rng = __stl2;
-STL2_OPEN_NAMESPACE {
-  using ext::subrange;
-} STL2_CLOSE_NAMESPACE
 namespace ranges = __stl2;
 #endif
 
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
 #include "../test_utils.hpp"
+
+namespace rng = ranges;
 
 void test_iter()
 {

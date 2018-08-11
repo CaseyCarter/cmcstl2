@@ -91,7 +91,7 @@ int main()
 		std::iota(std::begin(i), std::end(i), 0);
 		std::array<int, K> a{}, b{}, c{};
 		std::minstd_rand g1, g2 = g1;
-		auto rng = ranges::ext::subrange(random_access_iterator<int*>(i.data()), sentinel<int*>(i.data() + N));
+		auto rng = ranges::subrange(random_access_iterator<int*>(i.data()), sentinel<int*>(i.data() + N));
 
 		{
 			auto result = ranges::sample(rng, a.begin(), K, g1);
@@ -193,7 +193,7 @@ int main()
 		std::iota(std::begin(i), std::end(i), 0);
 		std::array<int, K> a{}, b{}, c{};
 		std::minstd_rand g1, g2 = g1;
-		auto rng = ranges::ext::subrange(random_access_iterator<int*>(i.data()), sentinel<int*>(i.data() + N));
+		auto rng = ranges::subrange(random_access_iterator<int*>(i.data()), sentinel<int*>(i.data() + N));
 
 		{
 			auto result = ranges::sample(rng, a, g1);
@@ -251,7 +251,7 @@ int main()
 	{
 		std::array<MoveOnly, 10> source;
 		std::array<MoveOnly, 4> dest;
-		auto out = ranges::ext::subrange(
+		auto out = ranges::subrange(
 			forward_iterator<MoveOnly*>(dest.data()),
 			sentinel<MoveOnly*, true>(dest.data() + dest.size()));
 		auto result = ranges::sample(ranges::make_move_iterator(source.begin()),

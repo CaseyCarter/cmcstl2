@@ -31,7 +31,7 @@
 #include "../test_iterators.hpp"
 
 namespace ranges = __stl2;
-using ranges::ext::subrange;
+using ranges::subrange;
 
 template<class I>
 constexpr bool eq(subrange<I> const& x, subrange<I> const& y) {

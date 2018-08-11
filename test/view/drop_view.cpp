@@ -96,7 +96,7 @@ int main()
 
 	{
 		int some_ints[] = {0,1,2};
-		auto rng = ranges::ext::subrange(some_ints + 0, some_ints + 1);
+		auto rng = ranges::subrange(some_ints + 0, some_ints + 1);
 		auto rng2 = view::drop(rng, 2);
 		CHECK(ranges::begin(rng2) == some_ints + 1);
 		CHECK(ranges::size(rng2) == 0u);

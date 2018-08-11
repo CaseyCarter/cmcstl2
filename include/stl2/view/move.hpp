@@ -79,9 +79,9 @@ STL2_OPEN_NAMESPACE {
 	namespace view {
 		struct __move_fn : detail::__pipeable<__move_fn> {
 			template <InputRange Rng>
-			requires __stl2::ext::ViewableRange<Rng>
-			constexpr __stl2::ext::move_view<__stl2::ext::all_view<Rng>> operator()(Rng&& rng) const {
-				return __stl2::ext::move_view<__stl2::ext::all_view<Rng>>{
+			requires ViewableRange<Rng>
+			constexpr __stl2::ext::move_view<all_view<Rng>> operator()(Rng&& rng) const {
+				return __stl2::ext::move_view<all_view<Rng>>{
 					view::all(std::forward<Rng>(rng))};
 			}
 		};

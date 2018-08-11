@@ -38,7 +38,7 @@ void
 test_iter(Iter first, Sent last)
 {
 	assert(first != last);
-	auto rng = stl2::ext::subrange(first, last);
+	auto rng = stl2::subrange(first, last);
 	auto v1 = stl2::min(rng);
 	for (Iter i = first; i != last; ++i)
 		CHECK(!(*i < v1));
@@ -71,7 +71,7 @@ void
 test_iter_comp(Iter first, Sent last)
 {
 	assert(first != last);
-	auto rng = stl2::ext::subrange(first, last);
+	auto rng = stl2::subrange(first, last);
 	auto v = stl2::min(rng, std::greater<int>());
 	for (Iter i = first; i != last; ++i)
 		CHECK(!std::greater<int>()(*i, v));
