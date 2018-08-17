@@ -81,7 +81,9 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 	}
-	inline constexpr __begin::__fn begin{};
+	inline namespace __cpos {
+		inline constexpr __begin::__fn begin{};
+	}
 
 	template <class R>
 	using __begin_t = decltype(__stl2::begin(std::declval<R>()));
@@ -143,7 +145,9 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 	}
-	inline constexpr __end::__fn end{};
+	inline namespace __cpos {
+		inline constexpr __end::__fn end{};
+	}
 
 	template <class R>
 	using __end_t = decltype(__stl2::end(std::declval<R>()));
@@ -163,7 +167,9 @@ STL2_OPEN_NAMESPACE {
 			__stl2::begin(static_cast<const R&&>(r))
 		)
 	};
-	inline constexpr __cbegin_fn cbegin{};
+	inline namespace __cpos {
+		inline constexpr __cbegin_fn cbegin{};
+	}
 
 	// cend
 	struct __cend_fn {
@@ -180,7 +186,9 @@ STL2_OPEN_NAMESPACE {
 			__stl2::end(static_cast<const R&&>(r))
 		)
 	};
-	inline constexpr __cend_fn cend{};
+	inline namespace __cpos {
+		inline constexpr __cend_fn cend{};
+	}
 
 	// rbegin
 	namespace __rbegin {
@@ -237,7 +245,9 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 	}
-	inline constexpr __rbegin::__fn rbegin{};
+	inline namespace __cpos {
+		inline constexpr __rbegin::__fn rbegin{};
+	}
 
 	template <class T>
 	using __rbegin_t = decltype(__stl2::rbegin(std::declval<T>()));
@@ -294,7 +304,9 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 	}
-	inline constexpr __rend::__fn rend{};
+	inline namespace __cpos {
+		inline constexpr __rend::__fn rend{};
+	}
 
 	template <class T>
 	using __rend_t = decltype(__stl2::rend(std::declval<T>()));
@@ -314,7 +326,9 @@ STL2_OPEN_NAMESPACE {
 			__stl2::rbegin(static_cast<const R&&>(r))
 		)
 	};
-	inline constexpr __crbegin_fn crbegin{};
+	inline namespace __cpos {
+		inline constexpr __crbegin_fn crbegin{};
+	}
 
 	// crend
 	struct __crend_fn {
@@ -331,12 +345,14 @@ STL2_OPEN_NAMESPACE {
 			__stl2::rend(static_cast<const R&&>(r))
 		)
 	};
-	inline constexpr __crend_fn crend{};
+	inline namespace __cpos {
+		inline constexpr __crend_fn crend{};
+	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// disable_sized_range [range.sized]
 	//
-	template <class R>
+	template <class>
 	inline constexpr bool disable_sized_range = false;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -402,7 +418,9 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 	}
-	inline constexpr __size::__fn size{};
+	inline namespace __cpos {
+		inline constexpr __size::__fn size{};
+	}
 
 	// empty
 	namespace __empty {
@@ -448,7 +466,9 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 	}
-	inline constexpr __empty::__fn empty{};
+	inline namespace __cpos {
+		inline constexpr __empty::__fn empty{};
+	}
 
 	// data
 	namespace __data {
@@ -474,7 +494,7 @@ STL2_OPEN_NAMESPACE {
 		concept bool has_contiguous_iterator = requires {
 			typename __begin_t<R>;
 			typename __end_t<R>;
-			requires ext::ContiguousIterator<__begin_t<R>>;
+			requires ContiguousIterator<__begin_t<R>>;
 		};
 
 		struct __fn {
@@ -514,7 +534,9 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 	}
-	inline constexpr __data::__fn data{};
+	inline namespace __cpos {
+		inline constexpr __data::__fn data{};
+	}
 
 	// cdata
 	struct __cdata_fn {
@@ -532,7 +554,9 @@ STL2_OPEN_NAMESPACE {
 			__stl2::data(static_cast<const R&&>(r))
 		)
 	};
-	inline constexpr __cdata_fn cdata{};
+	inline namespace __cpos {
+		inline constexpr __cdata_fn cdata{};
+	}
 } STL2_CLOSE_NAMESPACE
 
 #endif

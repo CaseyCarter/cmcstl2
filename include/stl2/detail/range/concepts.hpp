@@ -156,15 +156,16 @@ STL2_OPEN_NAMESPACE {
 	concept bool RandomAccessRange =
 		Range<T> && RandomAccessIterator<iterator_t<T>>;
 
-	namespace ext {
-		template <class R>
-		concept bool ContiguousRange =
-			_Is<iter_reference_t<iterator_t<R>>, is_reference> &&
-			Same<iter_value_t<iterator_t<R>>, __uncvref<iter_reference_t<iterator_t<R>>>> &&
-			requires(R& r) {
-				{ __stl2::data(r) } -> Same<add_pointer_t<iter_reference_t<iterator_t<R>>>>&&;
-			};
-	}
+	///////////////////////////////////////////////////////////////////////////
+	// ContiguousRange [ranges.contiguous]
+	//
+	template <class R>
+	concept bool ContiguousRange =
+		_Is<iter_reference_t<iterator_t<R>>, is_reference> &&
+		Same<iter_value_t<iterator_t<R>>, __uncvref<iter_reference_t<iterator_t<R>>>> &&
+		requires(R& r) {
+			{ __stl2::data(r) } -> Same<add_pointer_t<iter_reference_t<iterator_t<R>>>>&&;
+		};
 
 	namespace ext {
 		template <class R>
@@ -173,12 +174,11 @@ STL2_OPEN_NAMESPACE {
 			Same<iterator_t<R>, iterator_t<const R>> &&
 			Same<sentinel_t<R>, sentinel_t<const R>>;
 	}
-	namespace ext {
-		template<class Rng>
-		concept bool ViewableRange =
-			Range<Rng> &&
-			(_RangeImpl<Rng> || View<__f<Rng>>);
-	}
+
+	template<class Rng>
+	concept bool ViewableRange =
+		Range<Rng> &&
+		(_RangeImpl<Rng> || View<__f<Rng>>);
 } STL2_CLOSE_NAMESPACE
 
 #endif

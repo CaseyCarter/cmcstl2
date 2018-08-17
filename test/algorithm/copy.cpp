@@ -89,7 +89,7 @@ int main()
 	{
 		char const *sz = "hello world";
 		char buf[50];
-		auto str = ranges::ext::subrange(sz, delimiter<const char*>{'\0'});
+		auto str = ranges::subrange(sz, delimiter<const char*>{'\0'});
 		{
 			std::fill_n(buf, sizeof(buf), '\0');
 			auto res3 = ranges::copy(str, buf);

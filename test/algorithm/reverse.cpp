@@ -67,33 +67,33 @@ void test()
 	{
 		int ia[] = {0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		Iter i0 = stl2::reverse(::as_lvalue(stl2::ext::subrange(Iter(ia), Sent(ia))));
+		Iter i0 = stl2::reverse(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia))));
 		CHECK_EQUAL(ia, {0});
 		CHECK(i0 == Iter(ia));
-		Iter i1 = stl2::reverse(::as_lvalue(stl2::ext::subrange(Iter(ia), Sent(ia+sa))));
+		Iter i1 = stl2::reverse(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia+sa))));
 		CHECK_EQUAL(ia, {0});
 		CHECK(i1 == Iter(ia+sa));
 
 		int ib[] = {0, 1};
 		const unsigned sb = sizeof(ib)/sizeof(ib[0]);
-		Iter i2 = stl2::reverse(::as_lvalue(stl2::ext::subrange(Iter(ib), Sent(ib+sb))));
+		Iter i2 = stl2::reverse(::as_lvalue(stl2::subrange(Iter(ib), Sent(ib+sb))));
 		CHECK_EQUAL(ib, {1, 0});
 		CHECK(i2 == Iter(ib+sb));
 
 		int ic[] = {0, 1, 2};
 		const unsigned sc = sizeof(ic)/sizeof(ic[0]);
-		Iter i3 = stl2::reverse(::as_lvalue(stl2::ext::subrange(Iter(ic), Sent(ic+sc))));
+		Iter i3 = stl2::reverse(::as_lvalue(stl2::subrange(Iter(ic), Sent(ic+sc))));
 		CHECK_EQUAL(ic, {2, 1, 0});
 		CHECK(i3 == Iter(ic+sc));
 
 		int id[] = {0, 1, 2, 3};
 		const unsigned sd = sizeof(id)/sizeof(id[0]);
-		Iter i4 = stl2::reverse(::as_lvalue(stl2::ext::subrange(Iter(id), Sent(id+sd))));
+		Iter i4 = stl2::reverse(::as_lvalue(stl2::subrange(Iter(id), Sent(id+sd))));
 		CHECK_EQUAL(id, {3, 2, 1, 0});
 		CHECK(i4 == Iter(id+sd));
 
 		// rvalue range
-		auto i5 = stl2::reverse(stl2::ext::subrange(Iter(id), Sent(id+sd)));
+		auto i5 = stl2::reverse(stl2::subrange(Iter(id), Sent(id+sd)));
 		CHECK_EQUAL(id, {0, 1, 2, 3});
 		CHECK(i5 == Iter(id+sd));
 	}

@@ -1988,24 +1988,6 @@ namespace meta
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////
-        // static_const
-        ///\cond
-        namespace detail
-        {
-            template <typename T>
-            struct static_const
-            {
-                static constexpr T value{};
-            };
-
-            // Avoid potential ODR violations with global objects:
-            template <typename T>
-            constexpr T static_const<T>::value;
-        } // namespace detail
-
-        ///\endcond
-
-        ///////////////////////////////////////////////////////////////////////////////////////////
         // for_each
         /// \cond
         namespace detail
@@ -2021,19 +2003,10 @@ namespace meta
         } // namespace detail
         /// \endcond
 
-        ///\cond
-        namespace
-        {
-            /// \endcond
-
-            /// `for_each(L, Fn)` calls the \p Fn for each
-            /// argument in the \p L.
-            /// \ingroup runtime
-            constexpr auto &&for_each = detail::static_const<detail::for_each_fn>::value;
-
-            /// \cond
-        }
-        /// \endcond
+        /// `for_each(L, Fn)` calls the \p Fn for each
+        /// argument in the \p L.
+        /// \ingroup runtime
+        inline constexpr detail::for_each_fn for_each {};
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // transpose

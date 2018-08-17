@@ -21,7 +21,6 @@ struct S
 int main()
 {
 	using namespace __stl2;
-	using __stl2::ext::subrange;
 
 	int ia[] = {0, 1, 2, 2, 0, 1, 2, 3};
 	constexpr unsigned cia = size(ia);

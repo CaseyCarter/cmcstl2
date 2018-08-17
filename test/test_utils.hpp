@@ -67,8 +67,8 @@ public:
 			using S = typename sentinel_type<I>::type;
 			check(algo_(begin, end, rest...));
 			check(algo_(begin, S{base(end)}, rest...));
-			check(algo_(::rvalue_if<RvalueOK>(__stl2::ext::subrange(begin, end)), rest...));
-			check(algo_(::rvalue_if<RvalueOK>(__stl2::ext::subrange(begin, S{base(end)})), rest...));
+			check(algo_(::rvalue_if<RvalueOK>(__stl2::subrange(begin, end)), rest...));
+			check(algo_(::rvalue_if<RvalueOK>(__stl2::subrange(begin, S{base(end)})), rest...));
 		}};
 	}
 };
@@ -99,11 +99,11 @@ public:
 			using S2 = typename sentinel_type<I2>::type;
 			check(algo_(begin1, end1, begin2, end2, rest...));
 			check(algo_(begin1, S1{base(end1)}, begin2, S2{base(end2)}, rest...));
-			check(algo_(::rvalue_if<RvalueOK1>(__stl2::ext::subrange(begin1, end1)),
-						::rvalue_if<RvalueOK2>(__stl2::ext::subrange(begin2, end2)),
+			check(algo_(::rvalue_if<RvalueOK1>(__stl2::subrange(begin1, end1)),
+						::rvalue_if<RvalueOK2>(__stl2::subrange(begin2, end2)),
 						rest...));
-			check(algo_(::rvalue_if<RvalueOK1>(__stl2::ext::subrange(begin1, S1{base(end1)})),
-						::rvalue_if<RvalueOK2>(__stl2::ext::subrange(begin2, S2{base(end2)})),
+			check(algo_(::rvalue_if<RvalueOK1>(__stl2::subrange(begin1, S1{base(end1)})),
+						::rvalue_if<RvalueOK2>(__stl2::subrange(begin2, S2{base(end2)})),
 						rest...));
 		}};
 	}

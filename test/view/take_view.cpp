@@ -24,10 +24,10 @@ namespace ranges = __stl2;
 
 namespace {
 	template <class I, class S>
-	struct my_subrange : __stl2::ext::subrange<I, S> {
+	struct my_subrange : ranges::subrange<I, S> {
 		my_subrange() = default;
 		my_subrange(I i, S s)
-		: __stl2::ext::subrange<I, S>{i, s} {}
+		: ranges::subrange<I, S>{i, s} {}
 		I begin() { return this->my_subrange::subrange::begin(); }
 		S end() { return this->my_subrange::subrange::end(); }
 	};
@@ -44,7 +44,7 @@ int main()
 		static_assert(!SizedRange<R>);
 		static_assert(!CommonRange<R>);
 		static_assert(RandomAccessRange<R>);
-		static_assert(!ext::ContiguousRange<R>);
+		static_assert(!ContiguousRange<R>);
 		static_assert(Range<const R>);
 		CHECK_EQUAL(rng, {0,1,2,3,4,5,6,7,8,9});
 	}
@@ -56,7 +56,7 @@ int main()
 		static_assert(SizedRange<R>);
 		static_assert(CommonRange<R>);
 		static_assert(RandomAccessRange<R>);
-		static_assert(!ext::ContiguousRange<R>);
+		static_assert(!ContiguousRange<R>);
 		static_assert(Range<const R>);
 		CHECK_EQUAL(rng, {0,1,2,3,4,5,6,7,8,9});
 	}
@@ -97,7 +97,7 @@ int main()
 
 	{
 		int some_ints[] = {1,2,3};
-		ext::take_view{some_ints, 2};
+		take_view{some_ints, 2};
 	}
 
 	{

@@ -29,7 +29,7 @@ int main()
 
 	{
 		std::vector<std::string> vs{"this","is","his","face"};
-		ext::join_view jv{vs};
+		join_view jv{vs};
 		CHECK_EQUAL(jv, {'t','h','i','s','i','s','h','i','s','f','a','c','e'});
 		static_assert(BidirectionalRange<decltype(jv)>);
 		static_assert(BidirectionalRange<const decltype(jv)>);

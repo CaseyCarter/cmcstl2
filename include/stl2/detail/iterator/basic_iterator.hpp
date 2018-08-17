@@ -299,7 +299,7 @@ STL2_OPEN_NAMESPACE {
 		template <RandomAccess C>
 		struct category<C> { using type = random_access_iterator_tag; };
 		template <Contiguous C>
-		struct category<C> { using type = ext::contiguous_iterator_tag; };
+		struct category<C> { using type = contiguous_iterator_tag; };
 		template <class C>
 		using category_t = meta::_t<category<C>>;
 	}

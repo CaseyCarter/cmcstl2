@@ -27,7 +27,7 @@ struct T
 int main()
 {
 	using namespace __stl2;
-	using __stl2::ext::subrange;
+
 	auto equals = [](auto&& i){
 	  return [i = forward<decltype(i)>(i)](const auto& j) {
 		return i == j;

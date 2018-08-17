@@ -164,7 +164,7 @@ template <ranges::BidirectionalIterator>
 constexpr category iterator_dispatch() { return category::bidirectional; }
 template <ranges::RandomAccessIterator>
 constexpr category iterator_dispatch() { return category::random_access; }
-template <ranges::ext::ContiguousIterator>
+template <ranges::ContiguousIterator>
 constexpr category iterator_dispatch() { return category::contiguous; }
 
 template <class C, bool EC, class R = int&>
@@ -237,7 +237,7 @@ arbitrary_iterator<C, B, R> operator+(
 
 void test_iterator_dispatch() {
 	CHECK(iterator_dispatch<void>() == category::none);
-	static_assert(ranges::ext::ContiguousIterator<int*>);
+	static_assert(ranges::ContiguousIterator<int*>);
 	CHECK(iterator_dispatch<int*>() == category::contiguous);
 
 	{
@@ -271,8 +271,8 @@ void test_iterator_dispatch() {
 		CHECK(iterator_dispatch<I>() == category::random_access);
 	}
 	{
-		using I = arbitrary_iterator<ranges::ext::contiguous_iterator_tag, true>;
-		static_assert(ranges::ext::ContiguousIterator<I>);
+		using I = arbitrary_iterator<ranges::contiguous_iterator_tag, true>;
+		static_assert(ranges::ContiguousIterator<I>);
 		CHECK(iterator_dispatch<I>() == category::contiguous);
 	}
 
@@ -300,8 +300,8 @@ bool copy(I first, S last, O o) {
 	return false;
 }
 
-template <ranges::ext::ContiguousIterator I, ranges::SizedSentinel<I> S,
-	ranges::ext::ContiguousIterator O>
+template <ranges::ContiguousIterator I, ranges::SizedSentinel<I> S,
+	ranges::ContiguousIterator O>
 requires
 	ranges::IndirectlyCopyable<I, O> &&
 	ranges::Same<ranges::iter_value_t<I>, ranges::iter_value_t<O>> &&
@@ -441,7 +441,7 @@ void test_std_traits() {
 	static_assert(ranges::Same<std::iterator_traits<R>::iterator_category,
 		std::random_access_iterator_tag>);
 
-	using C = arbitrary_iterator<ranges::ext::contiguous_iterator_tag, true>;
+	using C = arbitrary_iterator<ranges::contiguous_iterator_tag, true>;
 	static_assert(ranges::Same<std::iterator_traits<C>::iterator_category,
 		std::random_access_iterator_tag>);
 

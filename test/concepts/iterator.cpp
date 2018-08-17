@@ -100,8 +100,8 @@ namespace associated_type_test {
 
 	CONCEPT_ASSERT(ranges::Same<int, ns::iter_difference_t<int>>);
 #if VALIDATE_STL2
-	CONCEPT_ASSERT(ranges::Same<ns::iterator_category_t<int*>, __stl2::ext::contiguous_iterator_tag>);
-	CONCEPT_ASSERT(ranges::Same<ns::iterator_category_t<const int*>, __stl2::ext::contiguous_iterator_tag>);
+	CONCEPT_ASSERT(ranges::Same<ns::iterator_category_t<int*>, ns::contiguous_iterator_tag>);
+	CONCEPT_ASSERT(ranges::Same<ns::iterator_category_t<const int*>, ns::contiguous_iterator_tag>);
 #elif VALIDATE_RANGES
 	CONCEPT_ASSERT(ranges::Same<ns::iterator_category_t<int*>, ns::random_access_iterator_tag>);
 	CONCEPT_ASSERT(ranges::Same<ns::iterator_category_t<const int*>, ns::random_access_iterator_tag>);

@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 				if constexpr (std::is_reference_v<Rng>) {
 					return __stl2::ext::ref_view{rng};
 				} else {
-					return __stl2::ext::subrange{static_cast<Rng&&>(rng)};
+					return subrange{static_cast<Rng&&>(rng)};
 				}
 			}
 		};
@@ -45,16 +45,14 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr __all_fn all {};
 	} // namespace view
 
-	namespace ext {
-		template <ViewableRange Rng>
-		using all_view = decltype(view::all(std::declval<Rng>()));
-	}
+	template <ViewableRange Rng>
+	using all_view = decltype(view::all(std::declval<Rng>()));
 
 	// Work-around for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 	template <class V, class R>
 	concept bool _ConstructibleFromRange =
-		requires { typename ext::all_view<R>; } &&
-		View<V> && Constructible<V, ext::all_view<R>>;
+		requires { typename all_view<R>; } &&
+		View<V> && Constructible<V, all_view<R>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

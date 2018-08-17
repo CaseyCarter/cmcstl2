@@ -23,7 +23,7 @@ int main() {
 		using R = decltype(v);
 		static_assert(ranges::View<R>);
 		static_assert(ranges::RandomAccessRange<R>);
-		static_assert(!ranges::ext::ContiguousRange<R>);
+		static_assert(!ranges::ContiguousRange<R>);
 		static_assert(!ranges::CommonRange<R>);
 		static_assert(sizeof(v) == sizeof(int));
 		CHECK(v.value() == 42);
@@ -37,7 +37,7 @@ int main() {
 
 		auto const& cv = v;
 		static_assert(ranges::RandomAccessRange<const R>);
-		static_assert(!ranges::ext::ContiguousRange<const R>);
+		static_assert(!ranges::ContiguousRange<const R>);
 		static_assert(!ranges::CommonRange<const R>);
 		CHECK(cv.value() == 42);
 		CHECK(std::addressof(v.value()) == std::addressof(cv.value()));

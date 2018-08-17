@@ -38,7 +38,7 @@ void
 test_iter(Iter first, Sent last)
 {
 	assert(first != last);
-	auto rng = stl2::ext::subrange(first, last);
+	auto rng = stl2::subrange(first, last);
 	auto res = stl2::minmax(rng);
 	for (Iter i = first; i != last; ++i) {
 		CHECK(!(*i < res.first));
@@ -75,7 +75,7 @@ test_iter_comp(Iter first, Sent last)
 	assert(first != last);
 	typedef std::greater<int> Compare;
 	Compare comp;
-	auto rng = stl2::ext::subrange(first, last);
+	auto rng = stl2::subrange(first, last);
 	auto res = stl2::minmax(rng, comp);
 	for (Iter i = first; i != last; ++i) {
 		CHECK(!comp(*i, res.first));

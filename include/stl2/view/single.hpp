@@ -18,49 +18,47 @@
 #include <stl2/detail/semiregular_box.hpp>
 
 STL2_OPEN_NAMESPACE {
-	namespace ext {
-		template <CopyConstructible T>
-		class single_view : public view_interface<single_view<T>> {
-		private:
-			detail::semiregular_box<T> value_;
-		public:
-			single_view() = default;
-			constexpr explicit single_view(const T& t)
-			: value_(t) {}
-			constexpr explicit single_view(T&& t)
-			: value_(std::move(t)) {}
+	template <CopyConstructible T>
+	class single_view : public view_interface<single_view<T>> {
+	private:
+		detail::semiregular_box<T> value_;
+	public:
+		single_view() = default;
+		constexpr explicit single_view(const T& t)
+		: value_(t) {}
+		constexpr explicit single_view(T&& t)
+		: value_(std::move(t)) {}
 
-			template <class... Args>
-			requires Constructible<T, Args...>
-			constexpr single_view(std::in_place_t, Args&&... args)
-			: value_(std::in_place, std::forward<Args>(args)...) {}
+		template <class... Args>
+		requires Constructible<T, Args...>
+		constexpr single_view(std::in_place_t, Args&&... args)
+		: value_(std::in_place, std::forward<Args>(args)...) {}
 
-			using iterator = const T*;
-			using const_iterator = const T*;
-			using sentinel = const T*;
-			using const_sentinel = const T*;
+		using iterator = const T*;
+		using const_iterator = const T*;
+		using sentinel = const T*;
+		using const_sentinel = const T*;
 
-			constexpr const T* begin() const noexcept
-			{ return std::addressof(value_.get()); }
-			constexpr const T* end() const noexcept
-			{ return begin() + 1; }
-			constexpr static ptrdiff_t size() noexcept
-			{ return 1; }
-			constexpr const T* data() const noexcept
-			{ return begin(); }
-		};
+		constexpr const T* begin() const noexcept
+		{ return std::addressof(value_.get()); }
+		constexpr const T* end() const noexcept
+		{ return begin() + 1; }
+		constexpr static ptrdiff_t size() noexcept
+		{ return 1; }
+		constexpr const T* data() const noexcept
+		{ return begin(); }
+	};
 
-		template <class T>
-		requires CopyConstructible<__f<T>> && !meta::is<__f<T>, single_view>::value
-		explicit single_view(T&&) -> single_view<std::decay_t<T>>;
-	}
+	template <class T>
+	requires CopyConstructible<__f<T>> && !meta::is<__f<T>, single_view>::value
+	explicit single_view(T&&) -> single_view<std::decay_t<T>>;
 
 	namespace view {
 		struct __single_fn {
 			template <class T>
 			requires CopyConstructible<__f<T>>
 			constexpr auto operator()(T&& t) const
-			{ return __stl2::ext::single_view{std::forward<T>(t)}; }
+			{ return single_view{std::forward<T>(t)}; }
 		};
 
 		inline constexpr __single_fn single {};

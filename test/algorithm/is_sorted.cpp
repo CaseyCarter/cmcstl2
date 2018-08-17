@@ -59,12 +59,12 @@ struct range_call
 
 	template <class B, class E, class...  Args>
 	requires requires(B&& b, E&& e, Args&&... args) {
-		ranges::is_sorted(ranges::ext::subrange(begin_t{b}, sentinel_t{e}),
+		ranges::is_sorted(ranges::subrange(begin_t{b}, sentinel_t{e}),
 		                  std::forward<Args>(args)...);
 	}
 	bool operator()(B&& b, E&& e, Args&&... args)
 	{
-		return ranges::is_sorted(ranges::ext::subrange(begin_t{b}, sentinel_t{e}),
+		return ranges::is_sorted(ranges::subrange(begin_t{b}, sentinel_t{e}),
 		                         std::forward<Args>(args)...);
 	}
 };

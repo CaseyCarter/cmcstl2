@@ -28,7 +28,6 @@ void
 test()
 {
 	using namespace __stl2;
-	using __stl2::ext::subrange;
 
 	int ia[] = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 0, 1, 2, 3, 0, 1, 2, 0, 1, 0};
 	constexpr unsigned sa = size(ia);
@@ -90,7 +89,6 @@ void
 test_pred()
 {
 	using namespace __stl2;
-	using __stl2::ext::subrange;
 
 	int ia[] = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 0, 1, 2, 3, 0, 1, 2, 0, 1, 0};
 	constexpr unsigned sa = size(ia);
@@ -171,7 +169,6 @@ void
 test_proj()
 {
 	using namespace __stl2;
-	using __stl2::ext::subrange;
 
 	S ia[] = {{0}, {1}, {2}, {3}, {4}, {5}, {0}, {1}, {2}, {3}, {4}, {0}, {1}, {2}, {3}, {0}, {1}, {2}, {0}, {1}, {0}};
 	constexpr unsigned sa = size(ia);

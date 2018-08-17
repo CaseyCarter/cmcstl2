@@ -24,12 +24,12 @@ STL2_OPEN_NAMESPACE {
 			constexpr auto operator()(T* p, std::ptrdiff_t d) const
 			{
 				STL2_EXPECT(d >= 0);
-				return __stl2::ext::subrange{p, p + d};
+				return subrange{p, p + d};
 			}
 
 			template <Iterator I>
 			constexpr auto operator()(I i, iter_difference_t<I> d) const
-			{ return __stl2::ext::subrange{counted_iterator{i, d}, default_sentinel{}}; }
+			{ return subrange{counted_iterator{i, d}, default_sentinel{}}; }
 		};
 
 		inline constexpr __counted_fn counted {};

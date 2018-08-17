@@ -51,8 +51,8 @@ int main()
 			ia[i] = 2 * i;
 		for(unsigned i = 0; i < N; ++i)
 			ib[i] = 2 * i + 1;
-		auto r0 = stl2::ext::subrange(ia.get(), ia.get() + N);
-		auto r1 = stl2::ext::subrange(ib.get(), ib.get() + N);
+		auto r0 = stl2::subrange(ia.get(), ia.get() + N);
+		auto r1 = stl2::subrange(ib.get(), ib.get() + N);
 		auto r = stl2::merge(r0, r1, ic.get());
 		CHECK(std::get<0>(r) == ia.get() + N);
 		CHECK(std::get<1>(r) == ib.get() + N);
@@ -72,8 +72,8 @@ int main()
 			ia[i] = 2 * i;
 		for(unsigned i = 0; i < N; ++i)
 			ib[i] = 2 * i + 1;
-		auto r0 = stl2::ext::subrange(ia.get(), ia.get() + N);
-		auto r1 = stl2::ext::subrange(ib.get(), ib.get() + N);
+		auto r0 = stl2::subrange(ia.get(), ia.get() + N);
+		auto r1 = stl2::subrange(ib.get(), ib.get() + N);
 		auto r = stl2::merge(std::move(r0), std::move(r1), ic.get());
 		CHECK(std::get<0>(r) == ia.get() + N);
 		CHECK(std::get<1>(r) == ib.get() + N);

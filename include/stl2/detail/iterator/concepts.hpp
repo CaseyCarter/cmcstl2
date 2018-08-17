@@ -83,9 +83,8 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 	}
-	// Workaround GCC PR66957 by declaring this unnamed namespace inline.
-	inline namespace {
-		constexpr auto& iter_move = detail::static_const<__iter_move::fn>::value;
+	inline namespace __cpos {
+		inline constexpr __iter_move::fn iter_move{};
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -310,9 +309,8 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 	}
-	// Workaround GCC PR66957 by declaring this unnamed namespace inline.
-	inline namespace {
-		constexpr auto& iter_swap = detail::static_const<__iter_swap::fn>::value;
+	inline namespace __cpos {
+		inline constexpr __iter_swap::fn iter_swap{};
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -355,14 +353,11 @@ STL2_OPEN_NAMESPACE {
 	struct forward_iterator_tag : input_iterator_tag {};
 	struct bidirectional_iterator_tag : forward_iterator_tag {};
 	struct random_access_iterator_tag : bidirectional_iterator_tag {};
-
-	namespace ext {
-		struct contiguous_iterator_tag : random_access_iterator_tag {};
-	}
+	struct contiguous_iterator_tag : random_access_iterator_tag {};
 
 	///////////////////////////////////////////////////////////////////////////
 	// iterator_category and iterator_category_t [iterator.assoc]
-	// Extension: Category for pointers is ext::contiguous_iterator_tag,
+	// Extension: Category for pointers is contiguous_iterator_tag,
 	//     which derives from random_access_iterator_tag.
 	//
 	namespace detail {
@@ -386,7 +381,7 @@ STL2_OPEN_NAMESPACE {
 
 	template <class T>
 	struct iterator_category<T*>
-	: std::enable_if<std::is_object<T>::value, ext::contiguous_iterator_tag> {};
+	: std::enable_if<std::is_object<T>::value, contiguous_iterator_tag> {};
 
 	template <class T>
 	struct iterator_category<const T>
@@ -543,16 +538,14 @@ STL2_OPEN_NAMESPACE {
 		// well-defined."
 
 	///////////////////////////////////////////////////////////////////////////
-	// ContiguousIterator [Extension]
+	// ContiguousIterator
 	//
-	namespace ext {
-		template <class I>
-		concept bool ContiguousIterator =
-			RandomAccessIterator<I> &&
-			DerivedFrom<iterator_category_t<I>, contiguous_iterator_tag> &&
-			std::is_lvalue_reference<iter_reference_t<I>>::value &&
-			Same<iter_value_t<I>, __uncvref<iter_reference_t<I>>>;
-	}
+	template <class I>
+	concept bool ContiguousIterator =
+		RandomAccessIterator<I> &&
+		DerivedFrom<iterator_category_t<I>, contiguous_iterator_tag> &&
+		std::is_lvalue_reference<iter_reference_t<I>>::value &&
+		Same<iter_value_t<I>, __uncvref<iter_reference_t<I>>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// iterator_traits [iterator.assoc]

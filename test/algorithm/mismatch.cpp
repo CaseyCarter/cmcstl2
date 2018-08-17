@@ -25,10 +25,7 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace ranges {
-	using namespace __stl2;
-	using __stl2::ext::subrange;
-}
+namespace ranges = __stl2;
 
 template <typename Iter, typename Sent = Iter>
 void test_iter()

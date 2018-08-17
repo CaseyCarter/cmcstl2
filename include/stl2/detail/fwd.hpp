@@ -65,6 +65,11 @@ STL2_OPEN_NAMESPACE {
 		// Supported extensions beyond what is specified in C++ and
 		// the Ranges proposal, acceptable for user code to access.
 	}
+	inline namespace __cpos {
+		// Customization point objects, whose names would otherwise
+		// clash with hidden friend functions if they were declared
+		// directly in the stl2 namespace.
+	}
 } STL2_CLOSE_NAMESPACE
 
 // Used to qualify STL2 names
@@ -152,27 +157,13 @@ STL2_OPEN_NAMESPACE {
 		return static_cast<std::remove_reference_t<T>&&>(t);
 	}
 
-	namespace detail {
-		// "constexpr object" ODR workaround from N4381.
-		template <class T>
-		struct static_const {
-			static constexpr T value{};
-		};
-
-		template <class T>
-		constexpr T static_const<T>::value;
-	}
-
 	namespace ext {
 		// tags for manually specified overload ordering
 		template <unsigned N>
 		struct priority_tag : priority_tag<N - 1> {};
 		template <>
 		struct priority_tag<0> {};
-		// Workaround GCC PR66957 by declaring this unnamed namespace inline.
-		inline namespace {
-			constexpr auto& max_priority_tag = detail::static_const<priority_tag<4>>::value;
-		}
+		inline constexpr priority_tag<4> max_priority_tag{};
 	}
 } STL2_CLOSE_NAMESPACE
 

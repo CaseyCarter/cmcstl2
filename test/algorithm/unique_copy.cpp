@@ -144,7 +144,7 @@ test_range()
 	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
 	int ja[sa] = {-1};
 	count_equal::count = 0;
-	std::pair<InIter, OutIter> r = stl2::unique_copy(::as_lvalue(stl2::ext::subrange(InIter(ia), Sent(ia+sa))), OutIter(ja), count_equal());
+	std::pair<InIter, OutIter> r = stl2::unique_copy(::as_lvalue(stl2::subrange(InIter(ia), Sent(ia+sa))), OutIter(ja), count_equal());
 	CHECK(base(r.first) == ia + sa);
 	CHECK(base(r.second) == ja + sa);
 	CHECK(ja[0] == 0);
@@ -154,7 +154,7 @@ test_range()
 	const unsigned sb = sizeof(ib)/sizeof(ib[0]);
 	int jb[sb] = {-1};
 	count_equal::count = 0;
-	r = stl2::unique_copy(::as_lvalue(stl2::ext::subrange(InIter(ib), Sent(ib+sb))), OutIter(jb), count_equal());
+	r = stl2::unique_copy(::as_lvalue(stl2::subrange(InIter(ib), Sent(ib+sb))), OutIter(jb), count_equal());
 	CHECK(base(r.first) == ib + sb);
 	CHECK(base(r.second) == jb + sb);
 	CHECK(jb[0] == 0);
@@ -165,7 +165,7 @@ test_range()
 	const unsigned sc = sizeof(ic)/sizeof(ic[0]);
 	int jc[sc] = {-1};
 	count_equal::count = 0;
-	r = stl2::unique_copy(::as_lvalue(stl2::ext::subrange(InIter(ic), Sent(ic+sc))), OutIter(jc), count_equal());
+	r = stl2::unique_copy(::as_lvalue(stl2::subrange(InIter(ic), Sent(ic+sc))), OutIter(jc), count_equal());
 	CHECK(base(r.first) == ic + sc);
 	CHECK(base(r.second) == jc + 1);
 	CHECK(jc[0] == 0);
@@ -175,7 +175,7 @@ test_range()
 	const unsigned sd = sizeof(id)/sizeof(id[0]);
 	int jd[sd] = {-1};
 	count_equal::count = 0;
-	r = stl2::unique_copy(::as_lvalue(stl2::ext::subrange(InIter(id), Sent(id+sd))), OutIter(jd), count_equal());
+	r = stl2::unique_copy(::as_lvalue(stl2::subrange(InIter(id), Sent(id+sd))), OutIter(jd), count_equal());
 	CHECK(base(r.first) == id + sd);
 	CHECK(base(r.second) == jd + 2);
 	CHECK(jd[0] == 0);
@@ -186,7 +186,7 @@ test_range()
 	const unsigned se = sizeof(ie)/sizeof(ie[0]);
 	int je[se] = {-1};
 	count_equal::count = 0;
-	r = stl2::unique_copy(::as_lvalue(stl2::ext::subrange(InIter(ie), Sent(ie+se))), OutIter(je), count_equal());
+	r = stl2::unique_copy(::as_lvalue(stl2::subrange(InIter(ie), Sent(ie+se))), OutIter(je), count_equal());
 	CHECK(base(r.first) == ie + se);
 	CHECK(base(r.second) == je + 3);
 	CHECK(je[0] == 0);
@@ -198,7 +198,7 @@ test_range()
 	const unsigned sg = sizeof(ig)/sizeof(ig[0]);
 	int jg[sg] = {-1};
 	count_equal::count = 0;
-	r = stl2::unique_copy(::as_lvalue(stl2::ext::subrange(InIter(ig), Sent(ig+sg))), OutIter(jg), count_equal());
+	r = stl2::unique_copy(::as_lvalue(stl2::subrange(InIter(ig), Sent(ig+sg))), OutIter(jg), count_equal());
 	CHECK(base(r.first) == ig + sg);
 	CHECK(base(r.second) == jg + 2);
 	CHECK(jg[0] == 0);
@@ -209,7 +209,7 @@ test_range()
 	const unsigned sh = sizeof(ih)/sizeof(ih[0]);
 	int jh[sh] = {-1};
 	count_equal::count = 0;
-	r = stl2::unique_copy(::as_lvalue(stl2::ext::subrange(InIter(ih), Sent(ih+sh))), OutIter(jh), count_equal());
+	r = stl2::unique_copy(::as_lvalue(stl2::subrange(InIter(ih), Sent(ih+sh))), OutIter(jh), count_equal());
 	CHECK(base(r.first) == ih + sh);
 	CHECK(base(r.second) == jh + 2);
 	CHECK(jh[0] == 0);
@@ -220,7 +220,7 @@ test_range()
 	const unsigned si = sizeof(ii)/sizeof(ii[0]);
 	int ji[si] = {-1};
 	count_equal::count = 0;
-	r = stl2::unique_copy(::as_lvalue(stl2::ext::subrange(InIter(ii), Sent(ii+si))), OutIter(ji), count_equal());
+	r = stl2::unique_copy(::as_lvalue(stl2::subrange(InIter(ii), Sent(ii+si))), OutIter(ji), count_equal());
 	CHECK(base(r.first) == ii + si);
 	CHECK(base(r.second) == ji + 3);
 	CHECK(ji[0] == 0);
@@ -294,7 +294,7 @@ int main()
 		std::pair<S const *, S *> r = stl2::unique_copy(ia, ib, stl2::equal_to<>(), &S::i);
 		CHECK(r.first == stl2::end(ia));
 		CHECK(r.second == ib + 7);
-		CHECK_EQUAL(stl2::ext::subrange(ib, ib+7), {S{1,1},S{2,2},S{3,3},S{4,5},S{5,6},S{6,9},S{7,10}});
+		CHECK_EQUAL(stl2::subrange(ib, ib+7), {S{1,1},S{2,2},S{3,3},S{4,5},S{5,6},S{6,9},S{7,10}});
 	}
 
 	// Test rvalue ranges:
@@ -304,7 +304,7 @@ int main()
 		auto r = stl2::unique_copy(stl2::move(ia), ib, stl2::equal_to<>(), &S::i);
 		CHECK(r.first.get_unsafe() == stl2::end(ia));
 		CHECK(r.second == ib + 7);
-		CHECK_EQUAL(stl2::ext::subrange(ib, ib+7), {S{1,1},S{2,2},S{3,3},S{4,5},S{5,6},S{6,9},S{7,10}});
+		CHECK_EQUAL(stl2::subrange(ib, ib+7), {S{1,1},S{2,2},S{3,3},S{4,5},S{5,6},S{6,9},S{7,10}});
 	}
 
 	return ::test_result();

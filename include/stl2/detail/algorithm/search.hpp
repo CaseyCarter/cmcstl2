@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectlyComparable<
 				I1, I2, Pred, Proj1, Proj2>
-		ext::subrange<I1> unsized(I1 first1, S1 last1, I2 first2, S2 last2,
+		subrange<I1> unsized(I1 first1, S1 last1, I2 first2, S2 last2,
 			Pred pred, Proj1 proj1, Proj2 proj2)
 		{
 			if (first2 == last2) {
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectlyComparable<
 				I1, I2, Pred, Proj1, Proj2>
-		ext::subrange<I1> sized(
+		subrange<I1> sized(
 			const I1 first1_, S1 last1, const iter_difference_t<I1> d1_,
 			I2 first2, S2 last2, const iter_difference_t<I2> d2,
 			Pred pred, Proj1 proj1, Proj2 proj2)
@@ -113,7 +113,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectlyComparable<
 			I1, I2, Pred, Proj1, Proj2>
-	ext::subrange<I1> search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
+	subrange<I1> search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::unsized(first1, last1, first2, last2,
@@ -130,7 +130,7 @@ STL2_OPEN_NAMESPACE {
 		SizedSentinel<S2, I2> &&
 		IndirectlyComparable<
 			I1, I2, Pred, Proj1, Proj2>
-	ext::subrange<I1> search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
+	subrange<I1> search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::sized(
@@ -145,7 +145,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectlyComparable<
 			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
-	ext::safe_subrange_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
+	safe_subrange_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::unsized(
@@ -162,7 +162,7 @@ STL2_OPEN_NAMESPACE {
 		SizedRange<Rng1> && SizedRange<Rng2> &&
 		IndirectlyComparable<
 			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
-	ext::safe_subrange_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
+	safe_subrange_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	{
 		return __search::sized(

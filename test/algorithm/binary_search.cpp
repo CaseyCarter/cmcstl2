@@ -52,7 +52,7 @@ int main()
 	CHECK(!ranges::binary_search(a, 4, less<>(), &std::pair<int, int>::first));
 	CHECK(!ranges::binary_search(c, 4, less<>(), &std::pair<int, int>::first));
 
-	CHECK(ranges::binary_search(ranges::ext::iota_view<int>{0}, 42));
+	CHECK(ranges::binary_search(ranges::iota_view<int>{0}, 42));
 
 	{
 		auto il = {0, 3, 5, 7, 9, 11, 13};

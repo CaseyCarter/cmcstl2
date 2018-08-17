@@ -40,163 +40,161 @@ STL2_OPEN_NAMESPACE {
 			using iterator_category = __stl2::random_access_iterator_tag;
 		};
 	}
-	namespace ext {
-		template <WeaklyIncrementable I, Semiregular Bound = unreachable>
-		requires WeaklyEqualityComparable<I, Bound>
-		struct iota_view : view_interface<iota_view<I, Bound>> {
-		private:
-			I value_ {};
-			Bound bound_ {};
-		public:
-			iota_view() = default;
-			/// \pre: `Bound{}` is reachable from `value`
-			constexpr explicit iota_view(I value)
-			: value_(value), bound_{} {}
-			template <class II = I, class BB = Bound>
-			constexpr iota_view(meta::id_t<II> value, meta::id_t<BB> bound)
-			: value_(value), bound_(bound) {}
+	template <WeaklyIncrementable I, Semiregular Bound = unreachable>
+	requires WeaklyEqualityComparable<I, Bound>
+	struct iota_view : view_interface<iota_view<I, Bound>> {
+	private:
+		I value_ {};
+		Bound bound_ {};
+	public:
+		iota_view() = default;
+		/// \pre: `Bound{}` is reachable from `value`
+		constexpr explicit iota_view(I value)
+		: value_(value), bound_{} {}
+		template <class II = I, class BB = Bound>
+		constexpr iota_view(meta::id_t<II> value, meta::id_t<BB> bound)
+		: value_(value), bound_(bound) {}
 
-			struct iterator;
-			struct sentinel;
+		struct iterator;
+		struct sentinel;
 
-			constexpr iterator begin() const
-			{ return iterator{value_}; }
-			constexpr sentinel end() const
-			{ return sentinel{bound_}; }
-			constexpr iterator end() const requires Same<I, Bound>
-			{ return iterator{bound_}; }
+		constexpr iterator begin() const
+		{ return iterator{value_}; }
+		constexpr sentinel end() const
+		{ return sentinel{bound_}; }
+		constexpr iterator end() const requires Same<I, Bound>
+		{ return iterator{bound_}; }
 
-			template <class II = I, class BB = Bound> // gcc_bugs_bugs_bugs
-			constexpr auto size() const
-			requires (Same<II, BB> && ext::RandomAccessIncrementable<II>) ||
-				(Integral<II> && Integral<BB>) ||
-				SizedSentinel<BB, II>
-			{ return bound_ - value_; }
-		};
+		template <class II = I, class BB = Bound> // gcc_bugs_bugs_bugs
+		constexpr auto size() const
+		requires (Same<II, BB> && ext::RandomAccessIncrementable<II>) ||
+			(Integral<II> && Integral<BB>) ||
+			SizedSentinel<BB, II>
+		{ return bound_ - value_; }
+	};
 
-		template <WeaklyIncrementable I, Semiregular Bound>
-		requires WeaklyEqualityComparable<I, Bound> &&
-			(!Integral<I> || !Integral<Bound> || std::is_signed_v<I> == std::is_signed_v<Bound>)
-		iota_view(I, Bound) -> iota_view<I, Bound>;
+	template <WeaklyIncrementable I, Semiregular Bound>
+	requires WeaklyEqualityComparable<I, Bound> &&
+		(!Integral<I> || !Integral<Bound> || std::is_signed_v<I> == std::is_signed_v<Bound>)
+	iota_view(I, Bound) -> iota_view<I, Bound>;
 
-		template <class I, class Bound>
-		struct iota_view<I, Bound>::iterator
-		: detail::iota_view_iterator_base<I> {
-		private:
-			I value_ {};
-		public:
-			using value_type = I;
-			using difference_type = iter_difference_t<I>;
+	template <class I, class Bound>
+	struct iota_view<I, Bound>::iterator
+	: detail::iota_view_iterator_base<I> {
+	private:
+		I value_ {};
+	public:
+		using value_type = I;
+		using difference_type = iter_difference_t<I>;
 
-			iterator() = default;
-			constexpr explicit iterator(I value)
-			: value_(value) {}
+		iterator() = default;
+		constexpr explicit iterator(I value)
+		: value_(value) {}
 
-			constexpr I operator*() const noexcept(std::is_nothrow_copy_constructible_v<I>)
-			{ return value_; }
+		constexpr I operator*() const noexcept(std::is_nothrow_copy_constructible_v<I>)
+		{ return value_; }
 
-			constexpr iterator& operator++()
-			{
-				++value_;
-				return *this;
-			}
-			constexpr void operator++(int)
-			{ ++*this; }
-			constexpr iterator operator++(int) requires Incrementable<I>
-			{
-				auto tmp = *this;
-				++*this;
-				return tmp;
-			}
+		constexpr iterator& operator++()
+		{
+			++value_;
+			return *this;
+		}
+		constexpr void operator++(int)
+		{ ++*this; }
+		constexpr iterator operator++(int) requires Incrementable<I>
+		{
+			auto tmp = *this;
+			++*this;
+			return tmp;
+		}
 
-			constexpr iterator& operator--() requires ext::Decrementable<I>
-			{
-				--value_;
-				return *this;
-			}
-			constexpr iterator operator--(int) requires ext::Decrementable<I>
-			{
-				auto tmp = *this;
-				--*this;
-				return tmp;
-			}
+		constexpr iterator& operator--() requires ext::Decrementable<I>
+		{
+			--value_;
+			return *this;
+		}
+		constexpr iterator operator--(int) requires ext::Decrementable<I>
+		{
+			auto tmp = *this;
+			--*this;
+			return tmp;
+		}
 
-			constexpr iterator& operator+=(difference_type n)
-			requires ext::RandomAccessIncrementable<I>
-			{
-				value_ += n;
-				return *this;
-			}
-			constexpr iterator& operator-=(difference_type n)
-			requires ext::RandomAccessIncrementable<I>
-			{
-				value_ -= n;
-				return *this;
-			}
-			constexpr I operator[](difference_type n) const
-			requires ext::RandomAccessIncrementable<I>
-			{ return value_ + n; }
+		constexpr iterator& operator+=(difference_type n)
+		requires ext::RandomAccessIncrementable<I>
+		{
+			value_ += n;
+			return *this;
+		}
+		constexpr iterator& operator-=(difference_type n)
+		requires ext::RandomAccessIncrementable<I>
+		{
+			value_ -= n;
+			return *this;
+		}
+		constexpr I operator[](difference_type n) const
+		requires ext::RandomAccessIncrementable<I>
+		{ return value_ + n; }
 
-			friend constexpr bool operator==(const iterator& x, const iterator& y)
-			requires EqualityComparable<I>
-			{ return x.value_ == y.value_; }
-			friend constexpr bool operator!=(const iterator& x, const iterator& y)
-			requires EqualityComparable<I>
-			{ return !(x == y); }
+		friend constexpr bool operator==(const iterator& x, const iterator& y)
+		requires EqualityComparable<I>
+		{ return x.value_ == y.value_; }
+		friend constexpr bool operator!=(const iterator& x, const iterator& y)
+		requires EqualityComparable<I>
+		{ return !(x == y); }
 
-			friend constexpr bool operator<(const iterator& x, const iterator& y)
-			requires StrictTotallyOrdered<I>
-			{ return x.value_ < y.value_; }
-			friend constexpr bool operator>(const iterator& x, const iterator& y)
-			requires StrictTotallyOrdered<I>
-			{ return y < x; }
-			friend constexpr bool operator<=(const iterator& x, const iterator& y)
-			requires StrictTotallyOrdered<I>
-			{ return !(y < x); }
-			friend constexpr bool operator>=(const iterator& x, const iterator& y)
-			requires StrictTotallyOrdered<I>
-			{ return !(x < y); }
+		friend constexpr bool operator<(const iterator& x, const iterator& y)
+		requires StrictTotallyOrdered<I>
+		{ return x.value_ < y.value_; }
+		friend constexpr bool operator>(const iterator& x, const iterator& y)
+		requires StrictTotallyOrdered<I>
+		{ return y < x; }
+		friend constexpr bool operator<=(const iterator& x, const iterator& y)
+		requires StrictTotallyOrdered<I>
+		{ return !(y < x); }
+		friend constexpr bool operator>=(const iterator& x, const iterator& y)
+		requires StrictTotallyOrdered<I>
+		{ return !(x < y); }
 
-			friend constexpr iterator operator+(iterator i, difference_type n)
-			requires ext::RandomAccessIncrementable<I>
-			{ return iterator{*i + n}; }
-			friend constexpr iterator operator+(difference_type n, iterator i)
-			requires ext::RandomAccessIncrementable<I>
-			{ return i + n; }
+		friend constexpr iterator operator+(iterator i, difference_type n)
+		requires ext::RandomAccessIncrementable<I>
+		{ return iterator{*i + n}; }
+		friend constexpr iterator operator+(difference_type n, iterator i)
+		requires ext::RandomAccessIncrementable<I>
+		{ return i + n; }
 
-			friend constexpr iterator operator-(iterator i, difference_type n)
-			requires ext::RandomAccessIncrementable<I>
-			{ return i + -n; }
-			friend constexpr difference_type operator-(const iterator& x, const iterator& y)
-			requires ext::RandomAccessIncrementable<I>
-			{ return *x - *y; }
-		};
+		friend constexpr iterator operator-(iterator i, difference_type n)
+		requires ext::RandomAccessIncrementable<I>
+		{ return i + -n; }
+		friend constexpr difference_type operator-(const iterator& x, const iterator& y)
+		requires ext::RandomAccessIncrementable<I>
+		{ return *x - *y; }
+	};
 
-		template <class I, class Bound>
-		struct iota_view<I, Bound>::sentinel {
-		private:
-			Bound bound_;
-		public:
-			sentinel() = default;
-			constexpr explicit sentinel(Bound bound)
-			: bound_(bound) {}
+	template <class I, class Bound>
+	struct iota_view<I, Bound>::sentinel {
+	private:
+		Bound bound_;
+	public:
+		sentinel() = default;
+		constexpr explicit sentinel(Bound bound)
+		: bound_(bound) {}
 
-			friend constexpr bool operator==(const iterator& x, const sentinel& y)
-			{ return x.value_ == y.bound_; }
-			friend constexpr bool operator==(const sentinel& x, const iterator& y)
-			{ return y == x; }
-			friend constexpr bool operator!=(const iterator& x, const sentinel& y)
-			{ return !(x == y); }
-			friend constexpr bool operator!=(const sentinel& x, const iterator& y)
-			{ return !(y == x); }
-		};
-	} // namespace ext
+		friend constexpr bool operator==(const iterator& x, const sentinel& y)
+		{ return x.value_ == y.bound_; }
+		friend constexpr bool operator==(const sentinel& x, const iterator& y)
+		{ return y == x; }
+		friend constexpr bool operator!=(const iterator& x, const sentinel& y)
+		{ return !(x == y); }
+		friend constexpr bool operator!=(const sentinel& x, const iterator& y)
+		{ return !(y == x); }
+	};
 
 	namespace view {
 		struct __iota_fn {
 			template <WeaklyIncrementable I>
 			constexpr auto operator()(I value) const {
-				return __stl2::ext::iota_view{value};
+				return iota_view{value};
 			}
 
 			template <WeaklyIncrementable I, Semiregular Bound>
@@ -204,7 +202,7 @@ STL2_OPEN_NAMESPACE {
 				(!Integral<I> || !Integral<Bound> ||
 					std::is_signed_v<I> == std::is_signed_v<Bound>)
 			constexpr auto operator()(I value, Bound bound) const {
-				return __stl2::ext::iota_view{value, bound};
+				return iota_view{value, bound};
 			}
 		};
 

@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectStrictWeakOrder<
 				Comp, const T*, projected<I, Proj>>
-		ext::subrange<I> equal_range_n(I first, iter_difference_t<I> dist, const T& value,
+		subrange<I> equal_range_n(I first, iter_difference_t<I> dist, const T& value,
 			Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			if (0 < dist) {
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<I, Proj>>
-	ext::subrange<I> equal_range(I first, S last, const T& value,
+	subrange<I> equal_range(I first, S last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		// Probe exponentially for either end-of-range, an iterator that
@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<I, Proj>>
-	ext::subrange<I> equal_range(I first, S last, const T& value,
+	subrange<I> equal_range(I first, S last, const T& value,
 		Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		auto len = __stl2::distance(first, std::move(last));
@@ -124,7 +124,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>>
-	ext::safe_subrange_t<Rng>
+	safe_subrange_t<Rng>
 	equal_range(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return __stl2::equal_range(
@@ -138,7 +138,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>> &&
 		SizedRange<Rng>
-	ext::safe_subrange_t<Rng>
+	safe_subrange_t<Rng>
 	equal_range(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
 	{
 		return ext::equal_range_n(

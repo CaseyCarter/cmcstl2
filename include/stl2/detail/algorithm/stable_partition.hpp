@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
-			ext::subrange<I>
+			subrange<I>
 			forward_buffer(I first, I next, iter_difference_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj)
 			{
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
-			ext::subrange<I>
+			subrange<I>
 			forward_reduce(I first, iter_difference_t<I> n, buf_t<I>& buf,
 				Pred& pred, Proj& proj);
 
@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
-			ext::subrange<I>
+			subrange<I>
 			forward(I first, iter_difference_t<I> n, buf_t<I>& buf, Pred& pred,
 				Proj& proj)
 			{
@@ -115,7 +115,7 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
-			ext::subrange<I>
+			subrange<I>
 			forward_reduce(I first, iter_difference_t<I> n, buf_t<I>& buf,
 				Pred& pred, Proj& proj)
 			{
