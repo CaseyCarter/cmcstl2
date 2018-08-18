@@ -13,6 +13,7 @@
 #include <stl2/iterator.hpp>
 
 #include <algorithm>
+#include <cstring>
 #include <initializer_list>
 #include "./test_iterators.hpp"
 #include "./simple_test.hpp"
@@ -114,5 +115,44 @@ test_range_algo_2<Algo, RvalueOK1, RvalueOK2> make_testable_2(Algo algo)
 {
 	return test_range_algo_2<Algo, RvalueOK1, RvalueOK2>{algo};
 }
+
+// a simple type to test move semantics
+struct move_only_string {
+	char const* sz_;
+
+	move_only_string(char const* sz = "")
+	: sz_(sz)
+	{}
+	move_only_string(move_only_string&& that)
+	: sz_(that.sz_)
+	{
+		that.sz_ = "";
+	}
+	move_only_string(move_only_string const&) = delete;
+	move_only_string& operator=(move_only_string&& that)
+	{
+		sz_ = that.sz_;
+		that.sz_ = "";
+		return *this;
+	}
+	move_only_string& operator=(move_only_string const&) = delete;
+	bool operator==(move_only_string const& that) const
+	{
+		return 0 == std::strcmp(sz_, that.sz_);
+	}
+	bool operator<(const move_only_string& that) const
+	{
+		return std::strcmp(sz_, that.sz_) < 0;
+	}
+	bool operator!=(move_only_string const& that) const
+	{
+		return !(*this == that);
+	}
+
+	friend std::ostream& operator<<(std::ostream& sout, move_only_string const& str)
+	{
+		return sout << '"' << str.sz_ << '"';
+	}
+};
 
 #endif
