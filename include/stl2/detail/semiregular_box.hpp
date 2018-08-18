@@ -132,6 +132,13 @@ STL2_OPEN_NAMESPACE {
 
 		template<class T>
 		semiregular_box(T) -> semiregular_box<T>;
+
+		template<typename T, bool IsConst = false>
+		using semiregular_ref_or_val_t =
+			meta::if_c<
+				Semiregular<T>,
+				meta::if_c<IsConst, T, reference_wrapper<T>>,
+				reference_wrapper<meta::if_c<IsConst, semiregular_box<T> const, semiregular_box<T>>>>;
 	}
 } STL2_CLOSE_NAMESPACE
 
