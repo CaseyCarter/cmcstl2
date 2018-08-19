@@ -107,44 +107,6 @@ namespace swappable_test {
 	}
 } // namespace swappable_test
 
-#if 0 // No longer functional
-template <class T, std::size_t N>
-struct array {
-	T elements_[N];
-
-	constexpr T& operator[](std::size_t i) noexcept {
-		STL2_EXPECT(i < N);
-		return elements_[i];
-	}
-
-	constexpr const T& operator[](std::size_t i) const noexcept {
-		STL2_EXPECT(i < N);
-		return elements_[i];
-	}
-};
-
-template <class T, class U, std::size_t N>
-	requires stl2::SwappableWith<T&, U&>
-void swap(array<T, N>& a, array<U, N>& b)
-	noexcept(noexcept(ns::swap(a.elements_, b.elements_))) {
-	ns::swap(a.elements_, b.elements_);
-}
-
-template <class T, class U, std::size_t N>
-	requires stl2::SwappableWithT&, U&>()
-void swap(array<T, N>& a, U (&b)[N])
-	noexcept(noexcept(ns::swap(a.elements_, b))) {
-	ns::swap(a.elements_, b);
-}
-
-template <class T, class U, std::size_t N>
-	requires stl2::SwappableWith<T&, U&>
-void swap(T (&b)[N], array<U, N>& a)
-	noexcept(noexcept(ns::swap(a.elements_, b))) {
-	ns::swap(a.elements_, b);
-}
-#endif
-
 int main() {
 #if VALIDATE_STL2
 	{
@@ -164,58 +126,6 @@ int main() {
 		CHECK(b[0][1] == 1);
 		CHECK(b[1][0] == 2);
 		CHECK(b[1][1] == 3);
-	}
-#endif
-
-#if 0
-	{
-		array<int, 4> a = {0,1,2,3};
-		int b[4] = {4,5,6,7};
-
-		CONCEPT_ASSERT(ranges::SwappableWith<decltype(a[0]),decltype(b[0])>);
-		ns::swap(a[0], b[0]);
-		CONCEPT_ASSERT(noexcept(ns::swap(a[0], b[0])));
-
-		CONCEPT_ASSERT(ranges::SwappableWith<decltype((a)),decltype((b))>);
-		ns::swap(a, b);
-		CONCEPT_ASSERT(noexcept(ns::swap(a, b)));
-
-		CHECK(a[0] == 0);
-		CHECK(a[1] == 5);
-		CHECK(a[2] == 6);
-		CHECK(a[3] == 7);
-
-		CHECK(b[0] == 4);
-		CHECK(b[1] == 1);
-		CHECK(b[2] == 2);
-		CHECK(b[3] == 3);
-	}
-
-	{
-		array<array<int, 2>, 3> a = {{{{0, 1}}, {{2, 3}}, {{4, 5}}}};
-		int b[3][2] = {{6, 7}, {8, 9}, {10, 11}};
-
-		CONCEPT_ASSERT(ranges::SwappableWith<decltype(a[0]),decltype(b[0])>);
-		ns::swap(a[0], b[0]);
-		CONCEPT_ASSERT(noexcept(ns::swap(a[0], b[0])));
-
-		CONCEPT_ASSERT(ranges::SwappableWith<decltype((a)),decltype((b))>);
-		ns::swap(a, b);
-		CONCEPT_ASSERT(noexcept(ns::swap(a, b)));
-
-		CHECK(a[0][0] == 0);
-		CHECK(a[0][1] == 1);
-		CHECK(a[1][0] == 8);
-		CHECK(a[1][1] == 9);
-		CHECK(a[2][0] == 10);
-		CHECK(a[2][1] == 11);
-
-		CHECK(b[0][0] == 6);
-		CHECK(b[0][1] == 7);
-		CHECK(b[1][0] == 2);
-		CHECK(b[1][1] == 3);
-		CHECK(b[2][0] == 4);
-		CHECK(b[2][1] == 5);
 	}
 #endif
 
