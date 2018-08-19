@@ -63,7 +63,6 @@ int main()
 	{
 		std::vector<std::string> vs2{"john", "paul", "george", "ringo"};
 		auto&& rng = view::zip(vi, vs, vs2);
-		(void)rng;
 		using Rng = decltype(rng);
 		static_assert(ranges::CommonRange<Rng>);
 		static_assert(ranges::SizedRange<Rng>);
@@ -74,8 +73,8 @@ int main()
 		static_assert(ranges::RandomAccessIterator<decltype(ranges::begin(rng))>);
 
 		auto common = view::common(rng);
-		auto expected = std::vector(ranges::begin(common), ranges::end(common));
 		using V = std::tuple<int, std::string, std::string>;
+		auto expected = std::vector<V>(ranges::begin(common), ranges::end(common));
 		CHECK_EQUAL(expected, {V{0, "hello", "john"},
 									  V{1, "goodbye", "paul"},
 									  V{2, "hello", "george"},

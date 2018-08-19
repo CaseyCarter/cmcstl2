@@ -184,7 +184,7 @@ STL2_OPEN_NAMESPACE {
 					detail::tuple_transform(
 						static_cast<iterator_base const&>(a),
 						static_cast<typename __actual_sentinel::iterator_base const&>(b),
-						[](auto const& a, auto const& b) STL2_NOEXCEPT_RETURN(__stl2::distance(a, b))),
+						[](auto const& a, auto const& b) { return __stl2::distance(a, b); }),
 					[&abs](auto const a, auto const b) noexcept { return abs(a) < abs(b); });
 			}
 
