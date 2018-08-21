@@ -13,7 +13,6 @@
 #ifndef STL2_DETAIL_MEMORY_UNINITIALIZED_COPY_HPP
 #define STL2_DETAIL_MEMORY_UNINITIALIZED_COPY_HPP
 
-#include <new>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/memory/concepts.hpp>
