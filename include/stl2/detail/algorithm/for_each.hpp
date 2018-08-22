@@ -22,27 +22,36 @@
 // for_each [alg.for_each]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, class F, class Proj = identity>
-	requires
-		IndirectUnaryInvocable<F, projected<I, Proj>>
-	tagged_pair<tag::in(I), tag::fun(F)>
-	for_each(I first, S last, F fun, Proj proj = Proj{})
-	{
-		for (; first != last; ++first) {
-			static_cast<void>(__stl2::invoke(fun, __stl2::invoke(proj, *first)));
-		}
-		return {std::move(first), std::move(fun)};
-	}
+	template<class I, class F>
+	struct __in_fun_result {
+		I in;
+		F fun;
+	};
 
-	template <InputRange Rng, class F, class Proj = identity>
-	requires
-		IndirectUnaryInvocable<F, projected<iterator_t<Rng>, Proj>>
-	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::fun(F)>
-	for_each(Rng&& rng, F fun, Proj proj = Proj{})
-	{
-		return {__stl2::for_each(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(fun), std::ref(proj)).in(), std::move(fun)};
-	}
+	template<class I, class F>
+	struct for_each_result : __in_fun_result<I ,F> {};
+
+	struct __for_each_fn {
+		template<InputIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectUnaryInvocable<projected<I, Proj>> Fun>
+		constexpr for_each_result<I, Fun> operator()(I first, S last, Fun f, Proj proj = Proj{}) const
+		{
+			for (; first != last; ++first) {
+				static_cast<void>(__stl2::invoke(f, __stl2::invoke(proj, *first)));
+			}
+			return {std::move(first), std::move(f)};
+		}
+
+		template<InputRange Rng, class Proj = identity,
+			IndirectUnaryInvocable<projected<iterator_t<Rng>, Proj>> Fun>
+		constexpr for_each_result<safe_iterator_t<Rng>, Fun>
+		operator()(Rng&& rng, Fun f, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), std::move(f), std::ref(proj));
+		}
+	};
+
+	inline constexpr __for_each_fn for_each {};
 } STL2_CLOSE_NAMESPACE
 
-#endif
+#endif // STL2_DETAIL_ALGORITHM_FOR_EACH_HPP

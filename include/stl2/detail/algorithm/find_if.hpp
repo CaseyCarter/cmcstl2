@@ -21,30 +21,29 @@
 // find_if [alg.find]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	I find_if(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		for (; first != last; ++first) {
-			if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
-				break;
+	struct __find_if_fn {
+		template<InputIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		constexpr I operator()(I first, S last, Pred pred, Proj proj = Proj{}) const
+		{
+			for (; first != last; ++first) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
+					break;
+				}
 			}
+			return first;
 		}
-		return first;
-	}
 
-	template <InputRange Rng, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	find_if(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::find_if(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(pred), std::ref(proj));
-	}
+		template<InputRange Rng, class Proj = identity,
+		IndirectUnaryPredicate<projected<iterator_t<Rng>, Proj>> Pred>
+		constexpr safe_iterator_t<Rng>
+		operator()(Rng&& rng, Pred pred, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), std::ref(pred), std::ref(proj));
+		}
+	};
+
+	inline constexpr __find_if_fn find_if {};
 } STL2_CLOSE_NAMESPACE
 
-#endif
+#endif // STL2_DETAIL_ALGORITHM_FIND_IF_HPP

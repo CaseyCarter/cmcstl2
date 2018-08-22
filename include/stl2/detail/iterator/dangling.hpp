@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 		meta::if_<meta::is_trait<meta::defer<__begin_t, R>>, U, dangling<U>>;
 
 	template <Range R>
-	using safe_iterator_t = __maybe_dangling<R, iterator_t<R>>;
+	using safe_iterator_t = decltype(__stl2::begin(declval<R>()));
 
 } STL2_CLOSE_NAMESPACE
 
