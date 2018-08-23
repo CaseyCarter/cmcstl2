@@ -21,30 +21,31 @@
 // count_if [alg.count]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	iter_difference_t<I> count_if(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		auto n = iter_difference_t<I>{0};
-		for (; first != last; ++first) {
-			if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
-				++n;
+	struct __count_if_fn {
+		template<InputIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		constexpr iter_difference_t<I>
+		operator()(I first, S last, Pred pred, Proj proj = Proj{}) const
+		{
+			auto n = iter_difference_t<I>{0};
+			for (; first != last; ++first) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
+					++n;
+				}
 			}
+			return n;
 		}
-		return n;
-	}
 
-	template <InputRange Rng, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	iter_difference_t<iterator_t<Rng>> count_if(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::count_if(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(pred), std::ref(proj));
-	}
+		template<InputRange Rng, class Proj = identity,
+			IndirectUnaryPredicate<projected<iterator_t<Rng>, Proj>> Pred>
+		constexpr iter_difference_t<iterator_t<Rng>>
+		operator()(Rng&& rng, Pred pred, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), std::ref(pred), std::ref(proj));
+		}
+	};
+
+	inline constexpr __count_if_fn count_if {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

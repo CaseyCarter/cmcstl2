@@ -21,32 +21,31 @@
 // count [alg.count]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, class T, class Proj = identity>
-	requires
-		IndirectRelation<
-			equal_to<>, projected<I, Proj>, const T*>
-	iter_difference_t<I>
-	count(I first, S last, const T& value, Proj proj = Proj{})
-	{
-		iter_difference_t<I> n = 0;
-		for (; first != last; ++first) {
-			if (__stl2::invoke(proj, *first) == value) {
-				++n;
+	struct __count_fn {
+		template<InputIterator I, Sentinel<I> S, class T, class Proj = identity>
+		requires IndirectRelation<ranges::equal_to<>, projected<I, Proj>, const T*>
+		constexpr iter_difference_t<I>
+		operator()(I first, S last, const T& value, Proj proj = Proj{}) const
+		{
+			iter_difference_t<I> n = 0;
+			for (; first != last; ++first) {
+				if (__stl2::invoke(proj, *first) == value) {
+					++n;
+				}
 			}
+			return n;
 		}
-		return n;
-	}
 
-	template <InputRange Rng, class T, class Proj = identity>
-	requires
-		IndirectRelation<
-			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
-	iter_difference_t<iterator_t<Rng>>
-	count(Rng&& rng, const T& value, Proj proj = Proj{})
-	{
-		return __stl2::count(__stl2::begin(rng), __stl2::end(rng),
-			value, std::ref(proj));
-	}
+		template<InputRange Rng, class T, class Proj = identity>
+		requires IndirectRelation<ranges::equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
+		constexpr iter_difference_t<iterator_t<Rng>>
+		operator()(Rng&& rng, const T& value, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), value, std::ref(proj));
+		}
+	};
+
+	inline constexpr __count_fn count {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

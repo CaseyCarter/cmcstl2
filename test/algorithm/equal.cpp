@@ -32,9 +32,6 @@ void test()
 	int ib[s] = {0, 1, 2, 5, 4, 5};
 	CHECK(equal(input_iterator<const int*>(ia),
 							sentinel<const int*>(ia+s),
-							input_iterator<const int*>(ia)));
-	CHECK(equal(input_iterator<const int*>(ia),
-							sentinel<const int*>(ia+s),
 							input_iterator<const int*>(ia),
 							sentinel<const int*>(ia+s)));
 	CHECK(equal(random_access_iterator<const int*>(ia),
@@ -45,9 +42,6 @@ void test()
 							sentinel<const int*>(ia+s),
 							random_access_iterator<const int*>(ia),
 							sentinel<const int*>(ia + s)));
-	CHECK(!equal(input_iterator<const int*>(ia),
-							 sentinel<const int*>(ia+s),
-							 input_iterator<const int*>(ib)));
 	CHECK(!equal(input_iterator<const int*>(ia),
 							 sentinel<const int*>(ia+s),
 							 input_iterator<const int*>(ib),
@@ -82,48 +76,24 @@ void test_rng()
 	int ia[] = {0, 1, 2, 3, 4, 5};
 	constexpr unsigned s = size(ia);
 	int ib[s] = {0, 1, 2, 5, 4, 5};
-	CHECK(equal(subrange(input_iterator<const int*>(ia),
-												 sentinel<const int*>(ia+s)),
-							input_iterator<const int*>(ia)));
-	CHECK(equal(subrange(input_iterator<const int*>(ia),
-												 sentinel<const int*>(ia+s)),
-							subrange(input_iterator<const int*>(ia),
-												 sentinel<const int*>(ia+s))));
-	CHECK(equal(subrange(random_access_iterator<const int*>(ia),
-												 random_access_iterator<const int*>(ia+s)),
-							subrange(random_access_iterator<const int*>(ia),
-												 random_access_iterator<const int*>(ia + s))));
-	CHECK(equal(subrange(random_access_iterator<const int*>(ia),
-												 sentinel<const int*>(ia+s)),
-							subrange(random_access_iterator<const int*>(ia),
-												 sentinel<const int*>(ia + s))));
-	CHECK(!equal(subrange(input_iterator<const int*>(ia),
-													sentinel<const int*>(ia+s)),
-							 input_iterator<const int*>(ib)));
-	CHECK(!equal(subrange(input_iterator<const int*>(ia),
-													sentinel<const int*>(ia+s)),
-							 subrange(input_iterator<const int*>(ib),
-													sentinel<const int*>(ib + s))));
-	CHECK(!equal(subrange(random_access_iterator<const int*>(ia),
-													random_access_iterator<const int*>(ia+s)),
-							 subrange(random_access_iterator<const int*>(ib),
-													random_access_iterator<const int*>(ib+s))));
-	CHECK(!equal(subrange(random_access_iterator<const int*>(ia),
-													sentinel<const int*>(ia+s)),
-							 subrange(random_access_iterator<const int*>(ib),
-													sentinel<const int*>(ib + s))));
-	CHECK(!equal(subrange(input_iterator<const int*>(ia),
-													sentinel<const int*>(ia+s)),
-							 subrange(input_iterator<const int*>(ia),
-													sentinel<const int*>(ia + s - 1))));
-	CHECK(!equal(subrange(random_access_iterator<const int*>(ia),
-													random_access_iterator<const int*>(ia+s)),
-							 subrange(random_access_iterator<const int*>(ia),
-													random_access_iterator<const int*>(ia+s-1))));
-	CHECK(!equal(subrange(random_access_iterator<const int*>(ia),
-													sentinel<const int*>(ia+s)),
-							 subrange(random_access_iterator<const int*>(ia),
-													sentinel<const int*>(ia + s - 1))));
+	CHECK(equal(subrange(input_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+					subrange(input_iterator<const int*>(ia), sentinel<const int*>(ia+s))));
+	CHECK(equal(subrange(random_access_iterator<const int*>(ia), random_access_iterator<const int*>(ia+s)),
+					subrange(random_access_iterator<const int*>(ia), random_access_iterator<const int*>(ia + s))));
+	CHECK(equal(subrange(random_access_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+					subrange(random_access_iterator<const int*>(ia), sentinel<const int*>(ia + s))));
+	CHECK(!equal(subrange(input_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+					 subrange(input_iterator<const int*>(ib), sentinel<const int*>(ib + s))));
+	CHECK(!equal(subrange(random_access_iterator<const int*>(ia), random_access_iterator<const int*>(ia+s)),
+					 subrange(random_access_iterator<const int*>(ib), random_access_iterator<const int*>(ib+s))));
+	CHECK(!equal(subrange(random_access_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+					 subrange(random_access_iterator<const int*>(ib), sentinel<const int*>(ib + s))));
+	CHECK(!equal(subrange(input_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+					 subrange(input_iterator<const int*>(ia), sentinel<const int*>(ia + s - 1))));
+	CHECK(!equal(subrange(random_access_iterator<const int*>(ia), random_access_iterator<const int*>(ia+s)),
+					 subrange(random_access_iterator<const int*>(ia), random_access_iterator<const int*>(ia+s-1))));
+	CHECK(!equal(subrange(random_access_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+					 subrange(random_access_iterator<const int*>(ia), sentinel<const int*>(ia + s - 1))));
 }
 
 int comparison_count = 0;
@@ -145,22 +115,18 @@ void test_pred()
 	CHECK(equal(input_iterator<const int*>(ia),
 							sentinel<const int*>(ia+s),
 							input_iterator<const int*>(ia),
-							std::equal_to<int>()));
-	CHECK(equal(input_iterator<const int*>(ia),
-							sentinel<const int*>(ia+s),
-							input_iterator<const int*>(ia),
 							sentinel<const int*>(ia + s),
-							std::equal_to<int>()));
+							std::equal_to<>()));
 	CHECK(equal(random_access_iterator<const int*>(ia),
 							random_access_iterator<const int*>(ia+s),
 							random_access_iterator<const int*>(ia),
 							random_access_iterator<const int*>(ia+s),
-							std::equal_to<int>()));
+							std::equal_to<>()));
 	CHECK(equal(random_access_iterator<const int*>(ia),
 							sentinel<const int*>(ia+s),
 							random_access_iterator<const int*>(ia),
 							sentinel<const int*>(ia + s),
-							std::equal_to<int>()));
+							std::equal_to<>()));
 
 	comparison_count = 0;
 	CHECK(!equal(input_iterator<const int*>(ia),
@@ -186,22 +152,18 @@ void test_pred()
 	CHECK(!equal(input_iterator<const int*>(ia),
 							 sentinel<const int*>(ia+s),
 							 input_iterator<const int*>(ib),
-							 std::equal_to<int>()));
-	CHECK(!equal(input_iterator<const int*>(ia),
-							 sentinel<const int*>(ia+s),
-							 input_iterator<const int*>(ib),
 							 sentinel<const int*>(ib + s),
-							 std::equal_to<int>()));
+							 std::equal_to<>()));
 	CHECK(!equal(random_access_iterator<const int*>(ia),
 							 random_access_iterator<const int*>(ia+s),
 							 random_access_iterator<const int*>(ib),
 							 random_access_iterator<const int*>(ib+s),
-							 std::equal_to<int>()));
+							 std::equal_to<>()));
 	CHECK(!equal(random_access_iterator<const int*>(ia),
 							 sentinel<const int*>(ia+s),
 							 random_access_iterator<const int*>(ib),
 							 sentinel<const int*>(ib + s),
-							 std::equal_to<int>()));
+							 std::equal_to<>()));
 }
 
 void test_rng_pred()
@@ -212,66 +174,41 @@ void test_rng_pred()
 	int ia[] = {0, 1, 2, 3, 4, 5};
 	constexpr unsigned s = size(ia);
 	int ib[s] = {0, 1, 2, 5, 4, 5};
-	CHECK(ranges::equal(subrange(input_iterator<const int*>(ia),
-																 sentinel<const int*>(ia+s)),
-											input_iterator<const int*>(ia),
-											std::equal_to<int>()));
-	CHECK(ranges::equal(subrange(input_iterator<const int*>(ia),
-																 sentinel<const int*>(ia+s)),
-											subrange(input_iterator<const int*>(ia),
-																 sentinel<const int*>(ia + s)),
-											std::equal_to<int>()));
-	CHECK(ranges::equal(subrange(random_access_iterator<const int*>(ia),
-																 random_access_iterator<const int*>(ia+s)),
-											subrange(random_access_iterator<const int*>(ia),
-																 random_access_iterator<const int*>(ia+s)),
-											std::equal_to<int>()));
-	CHECK(ranges::equal(subrange(random_access_iterator<const int*>(ia),
-																 sentinel<const int*>(ia+s)),
-											subrange(random_access_iterator<const int*>(ia),
-																 sentinel<const int*>(ia + s)),
-											std::equal_to<int>()));
+	CHECK(ranges::equal(subrange(input_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+							  subrange(input_iterator<const int*>(ia), sentinel<const int*>(ia + s)),
+							  std::equal_to<>()));
+	CHECK(ranges::equal(subrange(random_access_iterator<const int*>(ia), random_access_iterator<const int*>(ia+s)),
+							  subrange(random_access_iterator<const int*>(ia), random_access_iterator<const int*>(ia+s)),
+							  std::equal_to<>()));
+	CHECK(ranges::equal(subrange(random_access_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+							  subrange(random_access_iterator<const int*>(ia), sentinel<const int*>(ia + s)),
+							  std::equal_to<>()));
 
 	comparison_count = 0;
-	CHECK(!ranges::equal(subrange(input_iterator<const int*>(ia),
-																	sentinel<const int*>(ia+s)),
-											 subrange(input_iterator<const int*>(ia),
-																	sentinel<const int*>(ia + s - 1)),
-											 counting_equals<int>));
+	CHECK(!ranges::equal(subrange(input_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+								subrange(input_iterator<const int*>(ia), sentinel<const int*>(ia + s - 1)),
+								counting_equals<int>));
 	CHECK(comparison_count > 0);
 	comparison_count = 0;
-	CHECK(!ranges::equal(subrange(random_access_iterator<const int*>(ia),
-																	random_access_iterator<const int*>(ia+s)),
-											 subrange(random_access_iterator<const int*>(ia),
-																	random_access_iterator<const int*>(ia+s-1)),
-											 counting_equals<int>));
+	CHECK(!ranges::equal(subrange(random_access_iterator<const int*>(ia), random_access_iterator<const int*>(ia+s)),
+								subrange(random_access_iterator<const int*>(ia), random_access_iterator<const int*>(ia+s-1)),
+								counting_equals<int>));
 	CHECK(comparison_count == 0);
 	comparison_count = 0;
-	CHECK(!ranges::equal(subrange(random_access_iterator<const int*>(ia),
-																	sentinel<const int*>(ia+s)),
-											 subrange(random_access_iterator<const int*>(ia),
-																	sentinel<const int*>(ia + s - 1)),
-											 counting_equals<int>));
+	CHECK(!ranges::equal(subrange(random_access_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+								subrange(random_access_iterator<const int*>(ia), sentinel<const int*>(ia + s - 1)),
+								counting_equals<int>));
 	CHECK(comparison_count > 0);
-	CHECK(!ranges::equal(subrange(input_iterator<const int*>(ia),
-																	sentinel<const int*>(ia+s)),
-											 input_iterator<const int*>(ib),
-											 std::equal_to<int>()));
-	CHECK(!ranges::equal(subrange(input_iterator<const int*>(ia),
-																	sentinel<const int*>(ia+s)),
-											 subrange(input_iterator<const int*>(ib),
-																	sentinel<const int*>(ib + s)),
-											 std::equal_to<int>()));
-	CHECK(!ranges::equal(subrange(random_access_iterator<const int*>(ia),
-																	random_access_iterator<const int*>(ia+s)),
-											 subrange(random_access_iterator<const int*>(ib),
-																	random_access_iterator<const int*>(ib+s)),
-											 std::equal_to<int>()));
-	CHECK(!ranges::equal(subrange(random_access_iterator<const int*>(ia),
-																	sentinel<const int*>(ia+s)),
-											 subrange(random_access_iterator<const int*>(ib),
-																	sentinel<const int*>(ib + s)),
-											 std::equal_to<int>()));
+
+	CHECK(!ranges::equal(subrange(input_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+								subrange(input_iterator<const int*>(ib), sentinel<const int*>(ib + s)),
+								std::equal_to<>()));
+	CHECK(!ranges::equal(subrange(random_access_iterator<const int*>(ia), random_access_iterator<const int*>(ia+s)),
+								subrange(random_access_iterator<const int*>(ib), random_access_iterator<const int*>(ib+s)),
+								std::equal_to<>()));
+	CHECK(!ranges::equal(subrange(random_access_iterator<const int*>(ia), sentinel<const int*>(ia+s)),
+								subrange(random_access_iterator<const int*>(ib), sentinel<const int*>(ib + s)),
+								std::equal_to<>()));
 }
 
 int main()
@@ -280,13 +217,6 @@ int main()
 	::test_rng();
 	::test_pred();
 	::test_rng_pred();
-
-	{
-		int const a[] = {1,2,3};
-		int const b[] = {1,2,3};
-		CHECK(ranges::equal(a, ranges::begin(b)));
-		CHECK(ranges::equal(ranges::begin(a), ranges::end(a), ranges::begin(b)));
-	}
 
 	return ::test_result();
 }

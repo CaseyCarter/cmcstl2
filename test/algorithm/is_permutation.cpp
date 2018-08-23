@@ -55,14 +55,6 @@ int main()
 		const int ia[] = {0};
 		const int ib[] = {0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + 0),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -79,10 +71,6 @@ int main()
 		const int ia[] = {0};
 		const int ib[] = {1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -95,10 +83,6 @@ int main()
 		const int ia[] = {0, 0};
 		const int ib[] = {0, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -115,10 +99,6 @@ int main()
 		const int ia[] = {0, 0};
 		const int ib[] = {0, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -130,10 +110,6 @@ int main()
 		const int ia[] = {0, 0};
 		const int ib[] = {1, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -145,10 +121,6 @@ int main()
 		const int ia[] = {0, 0};
 		const int ib[] = {1, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -163,11 +135,6 @@ int main()
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
 								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
-
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
 								   forward_iterator<const int*>(ib + sa),
 								   std::equal_to<const int>()) == false);
 	}
@@ -175,10 +142,6 @@ int main()
 		const int ia[] = {0, 1};
 		const int ib[] = {0, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -195,10 +158,6 @@ int main()
 		const int ia[] = {0, 1};
 		const int ib[] = {1, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -215,10 +174,6 @@ int main()
 		const int ia[] = {0, 1};
 		const int ib[] = {1, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -230,10 +185,6 @@ int main()
 		const int ia[] = {1, 0};
 		const int ib[] = {0, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -245,10 +196,6 @@ int main()
 		const int ia[] = {1, 0};
 		const int ib[] = {0, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -265,10 +212,6 @@ int main()
 		const int ia[] = {1, 0};
 		const int ib[] = {1, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -285,10 +228,6 @@ int main()
 		const int ia[] = {1, 0};
 		const int ib[] = {1, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -300,10 +239,6 @@ int main()
 		const int ia[] = {1, 1};
 		const int ib[] = {0, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -315,10 +250,6 @@ int main()
 		const int ia[] = {1, 1};
 		const int ib[] = {0, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -330,10 +261,6 @@ int main()
 		const int ia[] = {1, 1};
 		const int ib[] = {1, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -345,10 +272,6 @@ int main()
 		const int ia[] = {1, 1};
 		const int ib[] = {1, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -366,10 +289,6 @@ int main()
 		const int ia[] = {0, 0, 0};
 		const int ib[] = {1, 0, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -381,10 +300,6 @@ int main()
 		const int ia[] = {0, 0, 0};
 		const int ib[] = {1, 0, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -396,10 +311,6 @@ int main()
 		const int ia[] = {0, 0, 0};
 		const int ib[] = {1, 0, 2};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -411,10 +322,6 @@ int main()
 		const int ia[] = {0, 0, 0};
 		const int ib[] = {1, 1, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -426,10 +333,6 @@ int main()
 		const int ia[] = {0, 0, 0};
 		const int ib[] = {1, 1, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -441,10 +344,6 @@ int main()
 		const int ia[] = {0, 0, 0};
 		const int ib[] = {1, 1, 2};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -456,10 +355,6 @@ int main()
 		const int ia[] = {0, 0, 0};
 		const int ib[] = {1, 2, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -471,10 +366,6 @@ int main()
 		const int ia[] = {0, 0, 0};
 		const int ib[] = {1, 2, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -486,10 +377,6 @@ int main()
 		const int ia[] = {0, 0, 0};
 		const int ib[] = {1, 2, 2};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -501,10 +388,6 @@ int main()
 		const int ia[] = {0, 0, 1};
 		const int ib[] = {1, 0, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -521,10 +404,6 @@ int main()
 		const int ia[] = {0, 0, 1};
 		const int ib[] = {1, 0, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -536,10 +415,6 @@ int main()
 		const int ia[] = {0, 1, 2};
 		const int ib[] = {1, 0, 2};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -556,10 +431,6 @@ int main()
 		const int ia[] = {0, 1, 2};
 		const int ib[] = {1, 2, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -576,10 +447,6 @@ int main()
 		const int ia[] = {0, 1, 2};
 		const int ib[] = {2, 1, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -596,10 +463,6 @@ int main()
 		const int ia[] = {0, 1, 2};
 		const int ib[] = {2, 0, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -616,10 +479,6 @@ int main()
 		const int ia[] = {0, 0, 1};
 		const int ib[] = {1, 0, 1};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -631,10 +490,6 @@ int main()
 		const int ia[] = {0, 0, 1};
 		const int ib[] = {1, 0, 0};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -656,10 +511,6 @@ int main()
 		const int ia[] = {0, 1, 2, 3, 0, 5, 6, 2, 4, 4};
 		const int ib[] = {4, 2, 3, 0, 1, 4, 0, 5, 6, 2};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -698,11 +549,6 @@ int main()
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
 								   forward_iterator<const int*>(ib),
-								   std::equal_to<const int>()) == false);
-
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib),
 								   forward_iterator<const int*>(ib + sa),
 								   std::equal_to<const int>()) == false);
 	}
@@ -712,9 +558,6 @@ int main()
 		const int ia[] = {0, 1, 2, 3, 0, 5, 6, 2, 4, 4};
 		const int ib[] = {4, 2, 3, 0, 1, 4, 0, 5, 6, 2};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   forward_iterator<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib)) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   forward_iterator<const int*>(ia + sa),
@@ -735,9 +578,6 @@ int main()
 		const int ia[] = {0, 1, 2, 3, 0, 5, 6, 2, 4, 4};
 		const int ib[] = {4, 2, 3, 0, 1, 4, 0, 5, 6, 2};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
-								   sentinel<const int*>(ia + sa),
-								   forward_iterator<const int*>(ib)) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const int*>(ia),
 								   sentinel<const int*>(ia + sa),
@@ -758,9 +598,6 @@ int main()
 		const int ia[] = {0, 1, 2, 3, 0, 5, 6, 2, 4, 4};
 		const int ib[] = {4, 2, 3, 0, 1, 4, 0, 5, 6, 2};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(stl2::subrange(forward_iterator<const int*>(ia),
-								   sentinel<const int*>(ia + sa)),
-								   forward_iterator<const int*>(ib)) == true);
 
 		CHECK(stl2::is_permutation(stl2::subrange(forward_iterator<const int*>(ia),
 								   sentinel<const int*>(ia + sa)),
@@ -781,10 +618,6 @@ int main()
 		const int ia[] = {0, 1, 2, 3, 0, 5, 6, 2, 4, 4};
 		const int ib[] = {4, 2, 3, 0, 1, 4, 0, 5, 6, 2};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(stl2::subrange(forward_iterator<const int*>(ia),
-								   sentinel<const int*>(ia + sa)),
-								   forward_iterator<const int*>(ib),
-								   std::equal_to<int const>()) == true);
 
 		CHECK(stl2::is_permutation(stl2::subrange(forward_iterator<const int*>(ia),
 								   sentinel<const int*>(ia + sa)),
@@ -808,7 +641,6 @@ int main()
 		const S ia[] = {{0}, {1}, {2}, {3}, {0}, {5}, {6}, {2}, {4}, {4}};
 		const T ib[] = {{4}, {2}, {3}, {0}, {1}, {4}, {0}, {5}, {6}, {2}};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(ia, &ib[0], std::equal_to<int const>(), &S::i, &T::i) == true);
 		CHECK(stl2::is_permutation(ia, ib, std::equal_to<int const>(), &S::i, &T::i) == true);
 		CHECK(stl2::is_permutation(stl2::subrange(forward_iterator<const S*>(ia),
 								   sentinel<const S*>(ia + sa)),
@@ -827,10 +659,6 @@ int main()
 		const S ia[] = {{0}, {1}, {2}, {3}, {0}, {5}, {6}, {2}, {4}, {4}};
 		const T ib[] = {{4}, {2}, {3}, {0}, {1}, {4}, {0}, {5}, {6}, {2}};
 		const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-		CHECK(stl2::is_permutation(forward_iterator<const S*>(ia),
-								   sentinel<const S*>(ia + sa),
-								   forward_iterator<const T*>(ib),
-								   std::equal_to<int const>(), &S::i, &T::i) == true);
 
 		CHECK(stl2::is_permutation(forward_iterator<const S*>(ia),
 								   sentinel<const S*>(ia + sa),
@@ -847,13 +675,6 @@ int main()
 								   forward_iterator<const T*>(ib),
 								   sentinel<const T*>(ib + sa - 1),
 								   std::equal_to<int const>(), &S::i, &T::i) == false);
-	}
-
-	{
-		int const a[] = {0,1,2,3};
-		int const b[] = {2,3,1,0};
-		CHECK(stl2::is_permutation(a, stl2::begin(b)));
-		CHECK(stl2::is_permutation(stl2::begin(a), stl2::end(a), stl2::begin(b)));
 	}
 
 	return ::test_result();

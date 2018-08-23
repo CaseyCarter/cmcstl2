@@ -34,14 +34,9 @@
 // search [alg.search]
 //
 STL2_OPEN_NAMESPACE {
-	namespace __search {
-		template <ForwardIterator I1, Sentinel<I1> S1,
-			ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
-			class Proj1 = identity, class Proj2 = identity>
-		requires
-			IndirectlyComparable<
-				I1, I2, Pred, Proj1, Proj2>
-		subrange<I1> unsized(I1 first1, S1 last1, I2 first2, S2 last2,
+	class __search_fn {
+		template <class I1, class S1, class I2, class S2, class Pred, class Proj1, class Proj2>
+		static constexpr subrange<I1> unsized(I1 first1, S1 last1, I2 first2, S2 last2,
 			Pred pred, Proj1 proj1, Proj2 proj2)
 		{
 			if (first2 == last2) {
@@ -70,13 +65,8 @@ STL2_OPEN_NAMESPACE {
 			return {first1, first1};
 		}
 
-		template <ForwardIterator I1, Sentinel<I1> S1,
-			ForwardIterator I2, Sentinel<I2> S2,
-			class Pred, class Proj1, class Proj2>
-		requires
-			IndirectlyComparable<
-				I1, I2, Pred, Proj1, Proj2>
-		subrange<I1> sized(
+		template <class I1, class S1, class I2, class S2, class Pred, class Proj1, class Proj2>
+		static constexpr subrange<I1> sized(
 			const I1 first1_, S1 last1, const iter_difference_t<I1> d1_,
 			I2 first2, S2 last2, const iter_difference_t<I2> d2,
 			Pred pred, Proj1 proj1, Proj2 proj2)
@@ -105,72 +95,79 @@ STL2_OPEN_NAMESPACE {
 			auto end = __stl2::next(ext::recounted(first1_, first1, d1_ - d1), last1);
 			return {end, end};
 		}
-	}
 
-	template <ForwardIterator I1, Sentinel<I1> S1,
-		ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectlyComparable<
-			I1, I2, Pred, Proj1, Proj2>
-	subrange<I1> search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __search::unsized(first1, last1, first2, last2,
-			std::ref(pred), std::ref(proj1),
-			std::ref(proj2));
-	}
+		template <class I1, class S1, class I2, class S2, class Pred, class Proj1, class Proj2>
+		static constexpr subrange<I1> impl(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred,
+			Proj1 proj1, Proj2 proj2)
+		{
+			return __search_fn::unsized(first1, last1, first2, last2,
+				std::ref(pred), std::ref(proj1),
+				std::ref(proj2));
+		}
 
-	// Extension
-	template <ForwardIterator I1, Sentinel<I1> S1,
-		ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		SizedSentinel<S1, I1> &&
-		SizedSentinel<S2, I2> &&
-		IndirectlyComparable<
-			I1, I2, Pred, Proj1, Proj2>
-	subrange<I1> search(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __search::sized(
-			first1, last1, __stl2::distance(first1, last1),
-			first2, last2, __stl2::distance(first2, last2),
-			std::ref(pred), std::ref(proj1),
-			std::ref(proj2));
-	}
+		template <class R1, class R2, class Pred, class Proj1, class Proj2>
+		static constexpr safe_subrange_t<R1> impl(R1&& r1, R2&& r2, Pred pred,
+			Proj1 proj1, Proj2 proj2)
+		{
+			return __search_fn::unsized(
+				__stl2::begin(r1), __stl2::end(r1),
+				__stl2::begin(r2), __stl2::end(r2),
+				std::ref(pred), std::ref(proj1), std::ref(proj2));
+		}
 
-	template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectlyComparable<
-			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
-	safe_subrange_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __search::unsized(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2),
-			std::ref(pred), std::ref(proj1),
-			std::ref(proj2));
-	}
+		/////////////////
+		// [Extension]
+		template <class I1, SizedSentinel<I1> S1, class I2, SizedSentinel<I1> S2, class Pred,
+			class Proj1, class Proj2>
+		static constexpr subrange<I1> impl(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred,
+			Proj1 proj1, Proj2 proj2)
+		{
+			return __search_fn::sized(
+				first1, last1, __stl2::distance(first1, last1),
+				first2, last2, __stl2::distance(first2, last2),
+				std::ref(pred), std::ref(proj1),
+				std::ref(proj2));
+		}
 
-	// Extension
-	template <ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
-						class Proj1 = identity, class Proj2 = identity>
-	requires
-		SizedRange<Rng1> && SizedRange<Rng2> &&
-		IndirectlyComparable<
-			iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
-	safe_subrange_t<Rng1> search(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __search::sized(
-			__stl2::begin(rng1), __stl2::end(rng1), __stl2::distance(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2), __stl2::distance(rng2),
-			std::ref(pred), std::ref(proj1),
-			std::ref(proj2));
-	}
+		/////////////////
+		// [Extension]
+		template <SizedRange R1, SizedRange R2, class Pred, class Proj1, class Proj2>
+		static constexpr safe_subrange_t<R1> impl(R1&& r1, R2&& r2, Pred pred,
+			Proj1 proj1, Proj2 proj2)
+		{
+			return __search_fn::sized(
+				__stl2::begin(r1), __stl2::end(r1), __stl2::distance(r1),
+				__stl2::begin(r2), __stl2::end(r2), __stl2::distance(r2),
+				std::ref(pred), std::ref(proj1), std::ref(proj2));
+		}
+	public:
+		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
+			Sentinel<I2> S2, class Pred = ranges::equal_to<>,
+			class Proj1 = identity, class Proj2 = identity>
+		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
+		constexpr subrange<I1> operator()(I1 first1, S1 last1, I2 first2, S2 last2,
+			Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
+		{
+			return __search_fn::impl(
+				std::move(first1), std::move(last1),
+				std::move(first2), std::move(last2),
+				std::ref(pred), std::ref(proj1), std::ref(proj2));
+		}
+
+		template<ForwardRange R1, ForwardRange R2, class Pred = ranges::equal_to<>,
+			class Proj1 = identity, class Proj2 = identity>
+		requires IndirectlyComparable<iterator_t<R1>, iterator_t<R2>, Pred, Proj1, Proj2>
+		constexpr safe_subrange_t<R1> operator()(R1&& r1, R2&& r2, Pred pred = Pred{},
+			Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
+		{
+			return __search_fn::impl(
+				__stl2::begin(r1), __stl2::end(r1),
+				__stl2::begin(r2), __stl2::end(r2),
+				std::ref(pred), std::ref(proj1), std::ref(proj2));
+		}
+	};
+
+	inline constexpr __search_fn search {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

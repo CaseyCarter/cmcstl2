@@ -22,35 +22,33 @@
 // adjacent_find [alg.adjacent.find]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I, Sentinel<I> S, class Pred = equal_to<>,
-		class Proj = identity>
-	requires
-		IndirectRelation<Pred, projected<I, Proj>>
-	I adjacent_find(I first, S last, Pred pred = Pred{}, Proj proj = Proj{})
-	{
-		if (first == last) {
-			return first;
-		}
-
-		auto next = first;
-		for (; ++next != last; first = next) {
-			if (__stl2::invoke(pred, __stl2::invoke(proj, *first), __stl2::invoke(proj, *next))) {
+	struct __adjacent_find_fn {
+		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectRelation<projected<I, Proj>> Pred = ranges::equal_to<>>
+		constexpr I operator()(I first, S last, Pred pred = Pred{}, Proj proj = Proj{}) const
+		{
+			if (first == last) {
 				return first;
 			}
-		}
-		return next;
-	}
 
-	template <ForwardRange Rng, class Pred = equal_to<>, class Proj = identity>
-	requires
-		IndirectRelation<Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	adjacent_find(Rng&& rng, Pred pred = Pred{}, Proj proj = Proj{})
-	{
-		return __stl2::adjacent_find(
-			__stl2::begin(rng), __stl2::end(rng),
-			std::ref(pred), std::ref(proj));
-	}
+			auto next = first;
+			for (; ++next != last; first = next) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj, *first), __stl2::invoke(proj, *next))) {
+					return first;
+				}
+			}
+			return next;
+		}
+
+		template<ForwardRange Rng, class Proj = identity,
+			IndirectRelation<projected<iterator_t<Rng>, Proj>> Pred = ranges::equal_to<>>
+		constexpr safe_iterator_t<Rng> operator()(Rng&& rng, Pred pred = Pred{}, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), std::ref(pred), std::ref(proj));
+		}
+	};
+
+	inline constexpr __adjacent_find_fn adjacent_find {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

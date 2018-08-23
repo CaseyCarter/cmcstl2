@@ -29,7 +29,7 @@ int main()
 									&std::pair<int, int>::second))>::value);
 
 	auto l = {0, 2, 2, 4, 6};
-	CHECK(ranges::adjacent_find(std::move(l)).get_unsafe()[2] == 4);
+	CHECK(ranges::adjacent_find(l)[2] == 4);
 
 	return test_result();
 }
