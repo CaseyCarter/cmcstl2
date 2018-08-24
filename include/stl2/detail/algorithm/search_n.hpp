@@ -33,15 +33,13 @@
 // search_n [alg.search]
 //
 STL2_OPEN_NAMESPACE {
-	namespace __search_n {
-		template <ForwardIterator I, Sentinel<I> S, class T, class Pred, class Proj>
-		requires
-			IndirectlyComparable<I, const T*, Pred, Proj>
-		I unsized(I first, S last, iter_difference_t<I> count,
+	class __search_n_fn {
+		template <class I, class S, class T, class Pred, class Proj>
+		static constexpr subrange<I> unsized(I first, S last, iter_difference_t<I> count,
 			const T& value, Pred pred, Proj proj)
 		{
 			if (count <= 0) {
-				return first;
+				return {first, first};
 			}
 
 			for (; first != last; ++first) {
@@ -50,27 +48,25 @@ STL2_OPEN_NAMESPACE {
 					iter_difference_t<I> n = 0;
 					do {
 						if (++n == count) {
-							return saved;
+							return {saved, __stl2::next(saved, count)};
 						}
 						if (++first == last) {
-							return first;
+							return {first, first};
 						}
 					} while(__stl2::invoke(pred, __stl2::invoke(proj, *first), value));
 				}
 			}
 
-			return first;
+			return {first, first};
 		}
 
-		template <ForwardIterator I, Sentinel<I> S, class T, class Pred, class Proj>
-		requires
-			IndirectlyComparable<I, const T*, Pred, Proj>
-		I sized(I first_, S last, iter_difference_t<I> d_,
+		template <class I, class S, class T, class Pred, class Proj>
+		static constexpr subrange<I> sized(I first_, S last, iter_difference_t<I> d_,
 			iter_difference_t<I> count,
 			const T& value, Pred pred, Proj proj)
 		{
 			if (count <= 0) {
-				return first_;
+				return {first_, first_};
 			}
 
 			auto d = d_;
@@ -85,69 +81,72 @@ STL2_OPEN_NAMESPACE {
 						if (++n == count) {
 							// Pattern exhausted, saved is the answer
 							// (works for 1 element pattern)
-							return ext::recounted(first_, std::move(saved), d_ - d);
+							return {saved, __stl2::next(saved, count)};
 						}
 					} while (__stl2::invoke(pred, __stl2::invoke(proj, *++first), value));
 					d -= n;
 				}
 			}
 
-			return __stl2::next(ext::recounted(first_, std::move(first), d_ - d),
-				std::move(last));
+			auto result = __stl2::next(first, std::move(last));
+			return {result, result};
 		}
-	}
 
-	template <ForwardIterator I, Sentinel<I> S, class T,
-		class Pred = equal_to<>, class Proj = identity>
-	requires
-		IndirectlyComparable<I, const T*, Pred, Proj>
-	I search_n(I first, S last, iter_difference_t<I> count,
-						 const T& value, Pred pred = Pred{}, Proj proj = Proj{})
-	{
-		return __search_n::unsized(std::move(first), std::move(last),
-			count, value, std::ref(pred), std::ref(proj));
-	}
+		template <class I, class S, class T, class Pred, class Proj>
+		static constexpr subrange<I> impl(I first, S last, iter_difference_t<I> count,
+			const T& value, Pred pred, Proj proj)
+		{
+			return __search_n_fn::unsized(std::move(first), std::move(last), count, value,
+				std::ref(pred), std::ref(proj));
+		}
 
-	template <ForwardIterator I, Sentinel<I> S, class T,
-		class Pred = equal_to<>, class Proj = identity>
-	requires
-		SizedSentinel<S, I> &&
-		IndirectlyComparable<I, const T*, Pred, Proj>
-	I search_n(I first, S last, iter_difference_t<I> count,
-						 const T& value, Pred pred = Pred{}, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(first, last);
-		return __search_n::sized(std::move(first), std::move(last),
-			n, count, value, std::ref(pred), std::ref(proj));
-	}
+		template <class I, SizedSentinel<I> S, class T, class Pred, class Proj>
+		static constexpr subrange<I> impl(I first, S last, iter_difference_t<I> count,
+			const T& value, Pred pred, Proj proj)
+		{
+			auto n = __stl2::distance(first, last);
+			return __search_n_fn::sized(std::move(first), std::move(last), n, count, value,
+				std::ref(pred), std::ref(proj));
+		}
 
-	template <ForwardRange Rng, class T, class Pred = equal_to<>, class Proj = identity>
-	requires
-		IndirectlyComparable<
-			iterator_t<Rng>, const T*, Pred, Proj>
-	safe_iterator_t<Rng>
-	search_n(Rng&& rng, iter_difference_t<iterator_t<Rng>> count,
-		const T& value, Pred pred = Pred{}, Proj proj = Proj{})
-	{
-		return __search_n::unsized(
-			__stl2::begin(rng), __stl2::end(rng), count, value,
-			std::ref(pred), std::ref(proj));
-	}
+		template <class R, class T, class Pred, class Proj>
+		static constexpr safe_subrange_t<R> impl(R&& r, iter_difference_t<iterator_t<R>> count,
+			const T& value, Pred pred, Proj proj)
+		{
+			return __search_n_fn::unsized(
+				__stl2::begin(r), __stl2::end(r), count, value, std::ref(pred), std::ref(proj));
+		}
 
-	template <ForwardRange Rng, class T, class Pred = equal_to<>, class Proj = identity>
-	requires
-		SizedRange<Rng> &&
-		IndirectlyComparable<
-			iterator_t<Rng>, const T*, Pred, Proj>
-	safe_iterator_t<Rng>
-	search_n(Rng&& rng, iter_difference_t<iterator_t<Rng>> count,
-		const T& value, Pred pred = Pred{}, Proj proj = Proj{})
-	{
-		return __search_n::sized(
-			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::distance(rng), count, value,
-			std::ref(pred), std::ref(proj));
-	}
+		template <SizedRange R, class T, class Pred, class Proj>
+		static constexpr safe_subrange_t<R> impl(R&& r, iter_difference_t<iterator_t<R>> count,
+			const T& value, Pred pred, Proj proj)
+		{
+			return __search_n_fn::sized(
+				__stl2::begin(r), __stl2::end(r), __stl2::distance(r), count, value,
+				std::ref(pred), std::ref(proj));
+		}
+	public:
+		template<ForwardIterator I, Sentinel<I> S, class T, class Pred = ranges::equal_to<>,
+			class Proj = identity>
+		requires IndirectlyComparable<I, const T*, Pred, Proj>
+		constexpr subrange<I> operator()(I first, S last, iter_difference_t<I> count,
+			const T& value, Pred pred = Pred{}, Proj proj = Proj{}) const
+		{
+			return __search_n_fn::impl(std::move(first), std::move(last), count, value, std::ref(pred),
+				std::ref(proj));
+		}
+
+		template<ForwardRange R, class T, class Pred = ranges::equal_to<>, class Proj = identity>
+		requires IndirectlyComparable<iterator_t<R>, const T*, Pred, Proj>
+		constexpr safe_subrange_t<R> operator()(R&& r, iter_difference_t<iterator_t<R>> count,
+			const T& value, Pred pred = Pred{}, Proj proj = Proj{}) const
+		{
+			return __search_n_fn::impl(static_cast<R&&>(r), count, value, std::ref(pred),
+				std::ref(proj));
+		}
+	};
+
+	inline constexpr __search_n_fn search_n {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

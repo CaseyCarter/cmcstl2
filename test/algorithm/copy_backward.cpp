@@ -26,9 +26,9 @@ namespace {
 			int target[8]{};
 			auto result = ranges::copy_backward(ranges::make_counted_iterator(v.begin(), 4),
 				ranges::make_counted_iterator(v.begin(), 0), ranges::end(target));
-			CHECK(result.in().count() == 0);
-			CHECK(result.in().base() == v.begin());
-			CHECK(result.out() == target + 4);
+			CHECK(result.in.count() == 0);
+			CHECK(result.in.base() == v.begin());
+			CHECK(result.out == target + 4);
 			CHECK(std::count(target, target + 4, 0) == 4);
 			CHECK(std::count(target + 4, target + 8, 42) == 4);
 		}
@@ -37,9 +37,9 @@ namespace {
 			int target[8]{};
 			auto result = ranges::copy_backward(ranges::make_counted_iterator(v.begin(), 4),
 				ranges::default_sentinel{}, ranges::end(target));
-			CHECK(result.in().count() == 0);
-			CHECK(result.in().base() == v.begin());
-			CHECK(result.out() == target + 4);
+			CHECK(result.in.count() == 0);
+			CHECK(result.in.base() == v.begin());
+			CHECK(result.out == target + 4);
 			CHECK(std::count(target, target + 4, 0) == 4);
 			CHECK(std::count(target + 4, target + 8, 42) == 4);
 		}
@@ -48,8 +48,8 @@ namespace {
 	void test_initializer_list() {
 		int target[8]{};
 		auto l1 = {1, 2, 3, 4};
-		auto result = ranges::copy_backward(std::move(l1), ranges::end(target));
-		CHECK(result.out() == target + 4);
+		auto result = ranges::copy_backward(l1, ranges::end(target));
+		CHECK(result.out == target + 4);
 		CHECK(std::count(target, target + 4, 0) == 4);
 		auto l2 = {1, 2, 3, 4};
 		CHECK_EQUAL(ranges::subrange(target + 4, target + 8), std::move(l2));
@@ -67,22 +67,22 @@ int main()
 	std::pair<int, int> out[size(a)] = {};
 
 	auto res = ranges::copy_backward(begin(a), end(a), end(out));
-	CHECK(res.first == end(a));
-	CHECK(res.second == begin(out));
+	CHECK(res.in == end(a));
+	CHECK(res.out == begin(out));
 	CHECK(std::equal(a, a + size(a), out));
 
 	std::fill_n(out, size(out), std::make_pair(0, 0));
 	CHECK(!std::equal(a, a + size(a), out));
 
 	res = ranges::copy_backward(a, end(out));
-	CHECK(res.first == end(a));
-	CHECK(res.second == begin(out));
+	CHECK(res.in == end(a));
+	CHECK(res.out == begin(out));
 	CHECK(std::equal(a, a + size(a), out));
 
 	std::fill_n(out, size(out), std::make_pair(0, 0));
-	auto res2 = ranges::copy_backward(ranges::move(a), end(out));
-	CHECK(res2.first.get_unsafe() == end(a));
-	CHECK(res2.second == begin(out));
+	auto res2 = ranges::copy_backward(a, end(out));
+	CHECK(res2.in == end(a));
+	CHECK(res2.out == begin(out));
 	CHECK(std::equal(a, a + size(a), out));
 
 	test_repeat_view();

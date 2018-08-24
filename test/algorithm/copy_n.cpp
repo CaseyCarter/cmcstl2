@@ -23,8 +23,8 @@ int main() {
 	std::fill_n(target, n, 0);
 	static_assert(n >= 2);
 	auto res = stl2::copy_n(source, n - 2, target);
-	CHECK(res.in() == source + n - 2);
-	CHECK(res.out() == target + n - 2);
+	CHECK(res.in == source + n - 2);
+	CHECK(res.out == target + n - 2);
 
 	CHECK(std::equal(source, source + n - 2, target));
 	CHECK(target[n - 2] == 0);

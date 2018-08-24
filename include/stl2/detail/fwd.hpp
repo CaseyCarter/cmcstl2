@@ -153,7 +153,7 @@ STL2_OPEN_NAMESPACE {
 	// pulling in the move algorithm.
 	template <class T>
 	requires true
-	constexpr std::remove_reference_t<T>&& move(T&& t) noexcept {
+	constexpr std::remove_reference_t<T>&& __move(T&& t) noexcept {
 		return static_cast<std::remove_reference_t<T>&&>(t);
 	}
 

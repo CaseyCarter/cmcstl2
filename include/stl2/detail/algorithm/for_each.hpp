@@ -16,18 +16,13 @@
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/detail/algorithm/tagspec.hpp>
+#include <stl2/detail/algorithm/for_each.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // for_each [alg.for_each]
 //
 STL2_OPEN_NAMESPACE {
-	template<class I, class F>
-	struct __in_fun_result {
-		I in;
-		F fun;
-	};
-
 	template<class I, class F>
 	struct for_each_result : __in_fun_result<I ,F> {};
 

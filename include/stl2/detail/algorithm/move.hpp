@@ -15,57 +15,63 @@
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
-#include <stl2/detail/algorithm/tagspec.hpp>
+#include <stl2/detail/algorithm/return_types.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // move [alg.move]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O>
-	requires
-		IndirectlyMovable<I, O>
-	tagged_pair<tag::in(I), tag::out(O)>
-	move(I first, S last, O result) {
-		for (; first != last; ++first, ++result) {
-			*result = __stl2::iter_move(first);
-		}
-		return {std::move(first), std::move(result)};
-	}
+	template <class I, class O>
+	struct move_result : __in_out_result<I, O> {};
 
-	template <InputRange Rng, class O>
-	requires
-		WeaklyIncrementable<__f<O>> &&
-		IndirectlyMovable<iterator_t<Rng>, __f<O>>
-	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
-	move(Rng&& rng, O&& result) {
-		return __stl2::move(__stl2::begin(rng), __stl2::end(rng), std::forward<O>(result));
-	}
+	struct __move_fn {
+		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O>
+		requires IndirectlyMovable<I, O>
+		constexpr move_result<I, O> operator()(I first, S last, O result) const
+		{
+				for (; first != last; ++first, ++result) {
+					*result = __stl2::iter_move(first);
+				}
+				return {std::move(first), std::move(result)};
+		}
+
+		template<InputRange Rng, WeaklyIncrementable O>
+		requires IndirectlyMovable<iterator_t<Rng>, O>
+		constexpr move_result<safe_iterator_t<Rng>, O> operator()(Rng&& rng, O result) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), std::forward<O>(result));
+		}
+	};
+
+	inline constexpr __move_fn move {};
 
 	namespace ext {
-		// Extension
-		template <InputIterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
-		requires
-			IndirectlyMovable<I1, I2>
-		tagged_pair<tag::in(I1), tag::out(I2)>
-		move(I1 first1, S1 last1, I2 first2, S2 last2) {
-			for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
-				*first2 = __stl2::iter_move(first1);
+		struct __move_ext_fn {
+			// Extension
+			template <InputIterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
+			requires IndirectlyMovable<I1, I2>
+			constexpr move_result<I1, I2> operator()(I1 first1, S1 last1, I2 first2, S2 last2) const
+			{
+				for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
+					*first2 = __stl2::iter_move(first1);
+				}
+				return {std::move(first1), std::move(first2)};
 			}
-			return {std::move(first1), std::move(first2)};
-		}
+
+			// Extension
+			template <InputRange Rng1, Range Rng2>
+			requires IndirectlyMovable<iterator_t<Rng1>, iterator_t<Rng2>>
+			move_result<safe_iterator_t<Rng1>, safe_iterator_t<Rng2>>
+			operator()(Rng1&& rng1, Rng2&& rng2) const
+			{
+				return (*this)(__stl2::begin(rng1), __stl2::end(rng1),
+					__stl2::begin(rng2), __stl2::end(rng2));
+			}
+		};
 
 		// Extension
-		template <InputRange Rng1, Range Rng2>
-		requires
-			IndirectlyMovable<iterator_t<Rng1>, iterator_t<Rng2>>
-		tagged_pair<
-			tag::in(safe_iterator_t<Rng1>),
-			tag::out(safe_iterator_t<Rng2>)>
-		move(Rng1&& rng1, Rng2&& rng2) {
-			return ext::move(__stl2::begin(rng1), __stl2::end(rng1),
-				__stl2::begin(rng2), __stl2::end(rng2));
-		}
-	}
+		inline constexpr __move_ext_fn move {};
+	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 
 #endif
