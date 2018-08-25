@@ -30,21 +30,22 @@ int main() {
 		int const control[] = {4,6,8,10};
 
 		{
+			using ranges::begin, ranges::end;
 			int target[4]{};
-			auto result = ranges::transform(source1, ranges::begin(source2), target, sum);
-			CHECK(result.in1() == ranges::end(source1));
-			CHECK(result.in2() == ranges::end(source2));
-			CHECK(result.out() == ranges::end(target));
+			auto result = ranges::transform(begin(source1), end(source1), begin(source2), end(source2),
+				target, sum);
+			CHECK(result.in1 == ranges::end(source1));
+			CHECK(result.in2 == ranges::end(source2));
+			CHECK(result.out == ranges::end(target));
 			CHECK_EQUAL(target, control);
 		}
 
 		{
 			int target[4]{};
-			auto result = ranges::transform(ranges::begin(source1), ranges::end(source1),
-				ranges::begin(source2), target, sum);
-			CHECK(result.in1() == ranges::end(source1));
-			CHECK(result.in2() == ranges::end(source2));
-			CHECK(result.out() == ranges::end(target));
+			auto result = ranges::transform(source1, source2, target, sum);
+			CHECK(result.in1 == ranges::end(source1));
+			CHECK(result.in2 == ranges::end(source2));
+			CHECK(result.out == ranges::end(target));
 			CHECK_EQUAL(target, control);
 		}
 	}

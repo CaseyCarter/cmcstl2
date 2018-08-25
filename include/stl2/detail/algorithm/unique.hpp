@@ -23,37 +23,35 @@
 // unique [alg.unique]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I, Sentinel<I> S,
-		class R = equal_to<>, class Proj = identity>
-	requires
-		Permutable<I> &&
-		IndirectRelation<__f<R>, projected<I, Proj>>
-	I unique(I first, S last, R comp = R{}, Proj proj = Proj{})
-	{
-		first = __stl2::adjacent_find(
+	struct __unique_fn {
+		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectRelation<projected<I, Proj>> R = ranges::equal_to<>>
+		requires Permutable<I>
+		constexpr I operator()(I first, S last, R comp = R{}, Proj proj = Proj{}) const
+		{
+			first = __stl2::adjacent_find(
 			std::move(first), last, std::ref(comp), std::ref(proj));
-		if (first != last) {
-			for (auto m = __stl2::next(first, 2); m != last; ++m) {
-				if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *m))) {
-					*++first = __stl2::iter_move(m);
+			if (first != last) {
+				for (auto m = __stl2::next(first, 2); m != last; ++m) {
+					if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *m))) {
+						*++first = __stl2::iter_move(m);
+					}
 				}
+				++first;
 			}
-			++first;
+			return first;
 		}
-		return first;
-	}
 
-	template <ForwardRange Rng, class R = equal_to<>, class Proj = identity>
-	requires
-		Permutable<iterator_t<Rng>> &&
-		IndirectRelation<
-			__f<R>, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	unique(Rng&& rng, R comp = R{}, Proj proj = Proj{})
-	{
-		return __stl2::unique(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(comp), std::ref(proj));
-	}
+		template<ForwardRange Rng, class Proj = identity,
+			IndirectRelation<projected<iterator_t<Rng>, Proj>> R = ranges::equal_to<>>
+		requires Permutable<iterator_t<Rng>>
+		constexpr safe_iterator_t<Rng> operator()(Rng&& rng, R comp = R{}, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), std::ref(comp), std::ref(proj));
+		}
+	};
+
+	inline constexpr __unique_fn unique {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

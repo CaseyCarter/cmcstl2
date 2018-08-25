@@ -20,27 +20,26 @@
 // generate [alg.generate]
 //
 STL2_OPEN_NAMESPACE {
-	template <class F, Iterator O, Sentinel<O> S>
-	requires
-		Invocable<F&> &&
-		Writable<O, result_of_t<F&()>>
-	O generate(O first, S last, F gen)
-	{
-		for (; first != last; ++first) {
-			*first = gen();
+	struct __generate_fn {
+		template<Iterator O, Sentinel<O> S, CopyConstructible F>
+		requires Invocable<F&> && Writable<O, invoke_result_t<F&>>
+		constexpr O operator()(O first, S last, F gen) const
+		{
+			for (; first != last; ++first) {
+				*first = gen();
+			}
+			return first;
 		}
-		return first;
-	}
 
-	template <class Rng, class F>
-	requires
-		Invocable<F&> &&
-		OutputRange<Rng, result_of_t<F&()>>
-	safe_iterator_t<Rng>
-	generate(Rng&& rng, F gen)
-	{
-		return __stl2::generate(__stl2::begin(rng), __stl2::end(rng), std::ref(gen));
-	}
+		template<class Rng, CopyConstructible F>
+		requires Invocable<F&> && OutputRange<Rng, invoke_result_t<F&>>
+		constexpr safe_iterator_t<Rng> operator()(Rng&& rng, F gen) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), std::ref(gen));
+		}
+	};
+
+	inline constexpr __generate_fn generate {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

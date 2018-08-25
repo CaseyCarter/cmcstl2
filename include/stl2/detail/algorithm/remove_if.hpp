@@ -22,38 +22,35 @@
 // remove [alg.remove]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
-	requires
-		Permutable<I> &&
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	I remove_if(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		first = __stl2::find_if(std::move(first), last,
-			std::ref(pred), std::ref(proj));
-		if (first != last) {
-			for (auto m = __stl2::next(first); m != last; ++m) {
-				if (!__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
-					*first = __stl2::iter_move(m);
-					++first;
+	struct __remove_if_fn {
+		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		requires Permutable<I>
+		constexpr I operator()(I first, S last, Pred pred, Proj proj = Proj{}) const
+		{
+			first = __stl2::find_if(std::move(first), last,
+				std::ref(pred), std::ref(proj));
+			if (first != last) {
+				for (auto m = __stl2::next(first); m != last; ++m) {
+					if (!__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
+						*first = __stl2::iter_move(m);
+						++first;
+					}
 				}
 			}
+			return first;
 		}
-		return first;
-	}
 
-	template <ForwardRange Rng, class Pred, class Proj = identity>
-	requires
-		Permutable<iterator_t<Rng>> &&
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	remove_if(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::remove_if(
-			__stl2::begin(rng), __stl2::end(rng),
-			std::ref(pred), std::ref(proj));
-	}
+		template<ForwardRange Rng, class Proj = identity,
+			IndirectUnaryPredicate<projected<iterator_t<Rng>, Proj>> Pred>
+		requires Permutable<iterator_t<Rng>>
+		constexpr safe_iterator_t<Rng> operator()(Rng&& rng, Pred pred, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), std::ref(pred), std::ref(proj));
+		}
+	};
+
+	inline constexpr __remove_if_fn remove_if {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

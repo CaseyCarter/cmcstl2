@@ -20,36 +20,32 @@
 // replace_if [alg.replace]
 //
 STL2_OPEN_NAMESPACE {
-	// Extension: Relax to InputIterator
-	template <InputIterator I, Sentinel<I> S, class Pred, class T, class Proj = identity>
-	requires
-		Writable<I, const T&> &&
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	I replace_if(I first, S last, Pred pred, const T& new_value, Proj proj = Proj{})
-	{
-		if (first != last) {
-			do {
-				if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
-					*first = new_value;
-				}
-			} while (++first != last);
+	struct __replace_if_fn {
+		template<InputIterator I, Sentinel<I> S, class T, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		requires Writable<I, const T&>
+		constexpr I operator()(I first, S last, Pred pred, const T& new_value, Proj proj = Proj{}) const
+		{
+			if (first != last) {
+				do {
+					if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
+						*first = new_value;
+					}
+				} while (++first != last);
+			}
+			return first;
 		}
-		return first;
-	}
 
-	// Extension: Relax to InputRange
-	template <InputRange Rng, class Pred, class T, class Proj = identity>
-	requires
-		Writable<iterator_t<Rng>, const T&> &&
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng> replace_if(Rng&& rng, Pred pred, const T& new_value,
-		Proj proj = Proj{})
-	{
-		return __stl2::replace_if(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(pred), new_value, std::ref(proj));
-	}
+		template<InputRange R, class T, class Proj = identity,
+			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
+		requires Writable<iterator_t<R>, const T&>
+		constexpr safe_iterator_t<R> operator()(R&& r, Pred pred, const T& new_value, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(r), __stl2::end(r), std::ref(pred), new_value, std::ref(proj));
+		}
+	};
+
+	inline constexpr __replace_if_fn replace_if {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

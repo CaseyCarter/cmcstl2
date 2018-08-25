@@ -20,40 +20,36 @@
 // replace [alg.replace]
 //
 STL2_OPEN_NAMESPACE {
-	// Extension: Relax to InputIterator
-	template <InputIterator I, Sentinel<I> S, class T1, class T2,
-		class Proj = identity>
-	requires
-		Writable<I, const T2&> &&
-		IndirectRelation<
-			equal_to<>, projected<I, Proj>, const T1*>
-	I replace(I first, S last, const T1& old_value, const T2& new_value,
-		Proj proj = Proj{})
-	{
-		if (first != last) {
-			do {
-				if (__stl2::invoke(proj, *first) == old_value) {
-					*first = new_value;
-				}
-			} while (++first != last);
+	struct __replace_fn {
+		template<InputIterator I, Sentinel<I> S, class T1, class T2, class Proj = identity>
+		requires Writable<I, const T2&> &&
+			IndirectRelation<ranges::equal_to<>, projected<I, Proj>, const T1*>
+		constexpr I
+		operator()(I first, S last, const T1& old_value, const T2& new_value, Proj proj = Proj{}) const
+		{
+			if (first != last) {
+				do {
+					if (__stl2::invoke(proj, *first) == old_value) {
+						*first = new_value;
+					}
+				} while (++first != last);
+			}
+			return first;
 		}
-		return first;
-	}
 
-	// Extension: Relax to InputRange
-	template <InputRange Rng, class T1, class T2, class Proj = identity>
-	requires
-		Writable<iterator_t<Rng>, const T2&> &&
-		IndirectRelation<
-			equal_to<>, projected<iterator_t<Rng>, Proj>, const T1*>
-	safe_iterator_t<Rng>
-	replace(Rng&& rng, const T1& old_value, const T2& new_value,
-		Proj proj = Proj{})
-	{
-		return __stl2::replace(
-			__stl2::begin(rng), __stl2::end(rng),
-			old_value, new_value, std::ref(proj));
-	}
+		template<InputRange Rng, class T1, class T2, class Proj = identity>
+		requires Writable<iterator_t<Rng>, const T2&> &&
+			IndirectRelation<ranges::equal_to<>, projected<iterator_t<Rng>, Proj>, const T1*>
+		constexpr safe_iterator_t<Rng>
+		operator()(Rng&& rng, const T1& old_value, const T2& new_value, Proj proj = Proj{}) const
+		{
+			return (*this)(
+				__stl2::begin(rng), __stl2::end(rng),
+				old_value, new_value, std::ref(proj));
+		}
+	};
+
+	inline constexpr __replace_fn replace {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

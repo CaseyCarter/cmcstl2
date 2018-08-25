@@ -149,8 +149,8 @@ int main()
 	// Test rvalue range
 	{
 		int a[] = {0, 1, 1, 1, 2, 2, 2};
-		auto r = stl2::unique(stl2::move(a));
-		CHECK(r.get_unsafe() == a + 3);
+		auto r = stl2::unique(a);
+		CHECK(r == a + 3);
 		CHECK(a[0] == 0);
 		CHECK(a[1] == 1);
 		CHECK(a[2] == 2);

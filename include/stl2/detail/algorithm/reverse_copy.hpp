@@ -14,36 +14,37 @@
 #define STL2_DETAIL_ALGORITHM_REVERSE_COPY_HPP
 
 #include <stl2/iterator.hpp>
-#include <stl2/detail/algorithm/tagspec.hpp>
+#include <stl2/detail/algorithm/return_types.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // reverse_copy [alg.reverse]
 //
 STL2_OPEN_NAMESPACE {
-	template <BidirectionalIterator I, Sentinel<I> S, WeaklyIncrementable O>
-	requires
-		IndirectlyCopyable<I, O>
-	tagged_pair<tag::in(I), tag::out(O)>
-	reverse_copy(I first, S last, O result)
-	{
-		auto bound = __stl2::next(first, std::move(last));
-		for (auto m = bound; m != first; ++result) {
-			*result = *--m;
-		}
-		return {std::move(bound), std::move(result)};
-	}
+	template<class I, class O>
+	struct reverse_copy_result : __in_out_result<I, O> {};
 
-	template <BidirectionalRange Rng, class O>
-	requires
-		WeaklyIncrementable<__f<O>> &&
-		IndirectlyCopyable<iterator_t<Rng>, __f<O>>
-	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
-	reverse_copy(Rng&& rng, O&& result)
-	{
-		return __stl2::reverse_copy(__stl2::begin(rng), __stl2::end(rng),
-			std::forward<O>(result));
-	}
+	struct __reverse_copy_fn {
+		template<BidirectionalIterator I, Sentinel<I> S, WeaklyIncrementable O>
+		requires IndirectlyCopyable<I, O>
+		constexpr reverse_copy_result<I, O> operator()(I first, S last, O result) const
+		{
+			auto bound = __stl2::next(first, std::move(last));
+			for (auto m = bound; m != first; ++result) {
+				*result = *--m;
+			}
+			return {std::move(bound), std::move(result)};
+		}
+
+		template<BidirectionalRange Rng, WeaklyIncrementable O>
+		requires IndirectlyCopyable<iterator_t<Rng>, O>
+		constexpr reverse_copy_result<safe_iterator_t<Rng>, O> operator()(Rng&& rng, O result) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), std::move(result));
+		}
+	};
+
+	inline constexpr __reverse_copy_fn reverse_copy {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

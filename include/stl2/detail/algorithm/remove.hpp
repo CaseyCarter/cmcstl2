@@ -23,35 +23,34 @@
 // remove [alg.remove]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I, Sentinel<I> S, class T, class Proj = identity>
-	requires
-		Permutable<I> &&
-		IndirectRelation<
-			equal_to<>, projected<I, Proj>, const T*>
-	I remove(I first, S last, const T& value, Proj proj = Proj{})
-	{
-		first = __stl2::find(std::move(first), last, value, std::ref(proj));
-		if (first != last) {
-			for (auto m = __stl2::next(first); m != last; ++m) {
-				if (__stl2::invoke(proj, *m) != value) {
-					*first = __stl2::iter_move(m);
-					++first;
+	struct __remove_fn {
+		template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity>
+		requires Permutable<I> &&
+			IndirectRelation<ranges::equal_to<>, projected<I, Proj>, const T*>
+		constexpr I operator()(I first, S last, const T& value, Proj proj = Proj{}) const
+		{
+			first = __stl2::find(std::move(first), last, value, std::ref(proj));
+			if (first != last) {
+				for (auto m = __stl2::next(first); m != last; ++m) {
+					if (__stl2::invoke(proj, *m) != value) {
+						*first = __stl2::iter_move(m);
+						++first;
+					}
 				}
 			}
+			return first;
 		}
-		return first;
-	}
 
-	template <ForwardRange Rng, class T, class Proj = identity>
-	requires
-		Permutable<iterator_t<Rng>> &&
-		IndirectRelation<
-			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
-	safe_iterator_t<Rng>
-	remove(Rng&& rng, const T& value, Proj proj = Proj{})
-	{
-		return __stl2::remove(__stl2::begin(rng), __stl2::end(rng), value, std::ref(proj));
-	}
+		template<ForwardRange Rng, class T, class Proj = identity>
+		requires Permutable<iterator_t<Rng>> &&
+			IndirectRelation<ranges::equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
+		constexpr safe_iterator_t<Rng> operator()(Rng&& rng, const T& value, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), value, std::ref(proj));
+		}
+	};
+
+	inline constexpr __remove_fn remove {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

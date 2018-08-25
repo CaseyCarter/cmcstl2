@@ -181,8 +181,8 @@ int main()
 		S ia[] = {S{0}, S{1}, S{2}, S{3}, S{4}, S{2}, S{3}, S{4}, S{2}};
 		constexpr unsigned sa = stl2::size(ia);
 		using namespace std::placeholders;
-		auto r = stl2::remove_if(stl2::move(ia), std::bind(std::equal_to<int>(), _1, 2), &S::i);
-		CHECK(r.get_unsafe() == ia + sa-3);
+		auto r = stl2::remove_if(ia, std::bind(std::equal_to<int>(), _1, 2), &S::i);
+		CHECK(r == ia + sa-3);
 		CHECK(ia[0].i == 0);
 		CHECK(ia[1].i == 1);
 		CHECK(ia[2].i == 3);

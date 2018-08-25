@@ -162,8 +162,8 @@ int main()
 	// Check rvalue range
 	S ia2[] = {S{0}, S{1}, S{2}, S{3}, S{4}, S{2}, S{3}, S{4}, S{2}};
 	constexpr unsigned sa2 = stl2::size(ia2);
-	auto r2 = stl2::remove(stl2::move(ia2), 2, &S::i);
-	CHECK(r2.get_unsafe() == ia2 + sa2-3);
+	auto r2 = stl2::remove(ia2, 2, &S::i);
+	CHECK(r2 == ia2 + sa2-3);
 	CHECK(ia2[0].i == 0);
 	CHECK(ia2[1].i == 1);
 	CHECK(ia2[2].i == 3);
