@@ -19,7 +19,6 @@
 #include <stl2/detail/memory/concepts.hpp>
 #include <stl2/detail/memory/construct_at.hpp>
 #include <stl2/detail/memory/destroy.hpp>
-#include <stl2/detail/tagged.hpp>
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////

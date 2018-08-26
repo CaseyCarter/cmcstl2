@@ -39,20 +39,20 @@ namespace {
 				std::min(
 					static_cast<std::ptrdiff_t>(control.size()),
 					static_cast<std::ptrdiff_t>(independent.size()));
-			CHECK(p.in() == ranges::next(control.begin(), distance_traversed));
-			CHECK(p.out() == ranges::next(independent.begin(), distance_traversed));
-			CHECK(ranges::equal(control.begin(), p.in(), independent.begin(), p.out()));
-			ranges::destroy(independent.begin(), p.out());
+			CHECK(p.in == ranges::next(control.begin(), distance_traversed));
+			CHECK(p.out == ranges::next(independent.begin(), distance_traversed));
+			CHECK(ranges::equal(control.begin(), p.in, independent.begin(), p.out));
+			ranges::destroy(independent.begin(), p.out);
 		};
 
 		test(control, independent,
-			ranges::uninitialized_copy(control.begin(), control.end(), independent.begin()));
+			ranges::uninitialized_copy(control.begin(), control.end(), independent.begin(), independent.end()));
 		test(control, independent,
-			ranges::uninitialized_copy(control.cbegin(), control.cend(), independent.cbegin()));
+			ranges::uninitialized_copy(control.cbegin(), control.cend(), independent.cbegin(), independent.cend()));
 		test(control, independent,
-			ranges::uninitialized_copy(control, independent.begin()));
+			ranges::uninitialized_copy(control, independent));
 		test(control, independent,
-			ranges::uninitialized_copy(control, independent.cbegin()));
+			ranges::uninitialized_copy(control, static_cast<raw_buffer<T> const&>(independent)));
 
 		auto driver = [&test](const auto& in, auto& out) {
 			test(in, out, ranges::uninitialized_copy(in.begin(), in.end(), out.begin(), out.end()));
@@ -72,9 +72,9 @@ namespace {
 		driver(control, small_output);
 
 		test(control, independent,
-			ranges::uninitialized_copy_n(control.begin(), control.size(), independent.begin()));
+			ranges::uninitialized_copy_n(control.begin(), control.size(), independent.begin(), independent.end()));
 		test(control, independent,
-			ranges::uninitialized_copy_n(control.cbegin(), control.size(), independent.cbegin()));
+			ranges::uninitialized_copy_n(control.cbegin(), control.size(), independent.cbegin(), independent.cend()));
 	}
 
 	struct S {
@@ -107,7 +107,7 @@ namespace {
 		auto independent = make_buffer<S>(n);
 		S::count = 0;
 		try {
-			ranges::uninitialized_copy_n(control.begin(), n, independent.begin());
+			ranges::uninitialized_copy_n(control.begin(), n, independent.begin(), independent.end());
 			CHECK(false);
 		} catch(S::exception&) {
 			CHECK(S::count == S::throw_after);
@@ -118,7 +118,7 @@ namespace {
 		};
 		S::count = 0;
 		try {
-			ranges::uninitialized_copy(control2, independent.begin());
+			ranges::uninitialized_copy(control2, independent);
 			CHECK(false);
 		} catch(S::exception&) {
 			CHECK(S::count == S::throw_after);

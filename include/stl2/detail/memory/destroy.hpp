@@ -26,49 +26,52 @@
 #include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-	///////////////////////////////////////////////////////////////////////////
-	// destroy_at [Extension]
-	//
-	template <Destructible T>
-	void destroy_at(T* p) noexcept
-	{
-		p->~T();
-	}
+	struct __destroy_at_fn {
+		template <Destructible T>
+		void operator()(T* p) const noexcept
+		{
+			p->~T();
+		}
+	};
 
-	///////////////////////////////////////////////////////////////////////////
-	// destroy [Extension]
-	//
-	template <__NoThrowInputIterator I, __NoThrowSentinel<I> S>
-	requires
-		Destructible<iter_value_t<I>>
-	I destroy(I first, S last) noexcept
-	{
-		for (; first != last; ++first) {
-			__stl2::destroy_at(detail::addressof(*first));
+	inline constexpr __destroy_at_fn destroy_at {};
+
+	struct __destroy_fn {
+		template <__NoThrowInputIterator I, __NoThrowSentinel<I> S>
+		requires
+			Destructible<iter_value_t<I>>
+		I operator()(I first, S last) const noexcept
+		{
+			for (; first != last; ++first) {
+				__stl2::destroy_at(detail::addressof(*first));
+			}
+
+			return first;
 		}
 
-		return first;
-	}
+		template <__NoThrowInputRange Rng>
+		requires
+			Destructible<iter_value_t<iterator_t<Rng>>>
+		safe_iterator_t<Rng> operator()(Rng&& rng) const noexcept
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng));
+		}
+	};
 
-	template <__NoThrowInputRange Rng>
-	requires
-		Destructible<iter_value_t<iterator_t<Rng>>>
-	safe_iterator_t<Rng> destroy(Rng&& rng) noexcept
-	{
-		return __stl2::destroy(__stl2::begin(rng), __stl2::end(rng));
-	}
+	inline constexpr __destroy_fn destroy {};
 
-	///////////////////////////////////////////////////////////////////////////
-	// destroy_n [Extension]
-	//
-	template <__NoThrowInputIterator I>
-	requires
-		Destructible<iter_value_t<I>>
-	I destroy_n(I first, iter_difference_t<I> n) noexcept
-	{
-		return __stl2::destroy(__stl2::make_counted_iterator(std::move(first), n),
-			default_sentinel{}).base();
-	}
+	struct __destroy_n_fn {
+		template <__NoThrowInputIterator I>
+		requires
+			Destructible<iter_value_t<I>>
+		I operator()(I first, iter_difference_t<I> n) const noexcept
+		{
+			return __stl2::destroy(__stl2::make_counted_iterator(std::move(first), n),
+				default_sentinel{}).base();
+		}
+	};
+
+	inline constexpr __destroy_n_fn destroy_n {};
 
 	namespace detail {
 		template <__NoThrowForwardIterator I>

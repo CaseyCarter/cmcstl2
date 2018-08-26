@@ -1,7 +1,7 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
-//  Copyright Casey Carter 2016
-//  Copyright Christopher Di Bella 2016
+//  Copyright Casey Carter
+//  Copyright Christopher Di Bella
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -19,48 +19,43 @@
 #include <stl2/detail/memory/concepts.hpp>
 #include <stl2/detail/memory/construct_at.hpp>
 #include <stl2/detail/memory/destroy.hpp>
-#include <stl2/detail/tagged.hpp>
 
 STL2_OPEN_NAMESPACE {
-	///////////////////////////////////////////////////////////////////////////
-	// uninitialized_default_construct [Extension]
-	//
-	template <__NoThrowForwardIterator I, Sentinel<I> S>
-	requires
-		DefaultConstructible<iter_value_t<I>>
-	I uninitialized_default_construct(I first, S last)
-	{
-		auto guard = detail::destroy_guard<I>{first};
-		for (; first != last; ++first) {
-			__stl2::__default_construct_at(*first);
+	struct __uninitialized_default_construct_fn {
+		template <__NoThrowForwardIterator I, Sentinel<I> S>
+		requires DefaultConstructible<iter_value_t<I>>
+		I operator()(I first, S last) const
+		{
+			auto guard = detail::destroy_guard<I>{first};
+			for (; first != last; ++first) {
+				__stl2::__default_construct_at(*first);
+			}
+			guard.release();
+			return first;
 		}
-		guard.release();
-		return first;
-	}
 
-	///////////////////////////////////////////////////////////////////////////
-	// uninitialized_default_construct [Extension]
-	//
-	template <__NoThrowForwardRange Rng>
-	requires
-		DefaultConstructible<iter_value_t<iterator_t<Rng>>>
-	safe_iterator_t<Rng> uninitialized_default_construct(Rng&& rng)
-	{
-		return __stl2::uninitialized_default_construct(
-			__stl2::begin(rng), __stl2::end(rng));
-	}
+		template <__NoThrowForwardRange Rng>
+		requires DefaultConstructible<iter_value_t<iterator_t<Rng>>>
+		safe_iterator_t<Rng> operator()(Rng&& rng) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng));
+		}
+	};
 
-	///////////////////////////////////////////////////////////////////////////
-	// uninitialized_default_construct_n [Extension]
-	//
-	template <__NoThrowForwardIterator I>
-	requires DefaultConstructible<iter_value_t<I>>
-	I uninitialized_default_construct_n(I first, iter_difference_t<I> n)
-	{
-		return __stl2::uninitialized_default_construct(
-			__stl2::make_counted_iterator(first, n),
-			default_sentinel{}).base();
-	}
+	inline constexpr __uninitialized_default_construct_fn uninitialized_default_construct {};
+
+	struct __uninitialized_default_construct_n_fn {
+		template <__NoThrowForwardIterator I>
+		requires DefaultConstructible<iter_value_t<I>>
+		I operator()(I first, iter_difference_t<I> n) const
+		{
+			return __stl2::uninitialized_default_construct(
+				__stl2::make_counted_iterator(first, n),
+				default_sentinel{}).base();
+		}
+	};
+
+	inline constexpr __uninitialized_default_construct_n_fn uninitialized_default_construct_n {};
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_UNINITIALIZED_DEFAULT_CONSTRUCT_HPP
