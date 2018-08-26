@@ -24,40 +24,39 @@
 // shuffle [alg.random.shuffle]
 //
 STL2_OPEN_NAMESPACE {
-	template <RandomAccessIterator I, Sentinel<I> S,
-		class Gen = detail::default_random_engine&, class D = iter_difference_t<I>>
-	requires
-		Permutable<I> &&
-		UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
-		ConvertibleTo<result_of_t<Gen&()>, D>
-	I shuffle(I const first, S const last, Gen&& g = detail::get_random_engine())
-	{
-		auto mid = first;
-		if (mid == last) {
+	struct __shuffle_fn {
+		template<RandomAccessIterator I, Sentinel<I> S, class Gen>
+		requires Permutable<I> &&
+			UniformRandomBitGenerator<remove_reference_t<Gen>> &&
+			ConvertibleTo<invoke_result_t<Gen&>, iter_difference_t<I>>
+		I operator()(I first, S last, Gen&& g) const
+		{
+			auto mid = first;
+			if (mid == last) {
+				return mid;
+			}
+			auto dist = uniform_int_distribution<iter_difference_t<I>>{};
+			using param_t = typename uniform_int_distribution<iter_difference_t<I>>::param_type;
+			while (++mid != last) {
+				if (auto const i = dist(g, param_t{0, mid - first})) {
+					__stl2::iter_swap(mid - i, mid);
+				}
+			}
 			return mid;
 		}
-		auto dist = uniform_int_distribution<D>{};
-		using param_t = typename uniform_int_distribution<D>::param_type;
-		while (++mid != last) {
-			if (auto const i = dist(g, param_t{0, mid - first})) {
-				__stl2::iter_swap(mid - i, mid);
-			}
-		}
-		return mid;
-	}
 
-	template <RandomAccessRange Rng, class Gen = detail::default_random_engine&,
-		class D = iter_difference_t<iterator_t<Rng>>>
-	requires
-		Permutable<iterator_t<Rng>> &&
-		UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
-		ConvertibleTo<result_of_t<Gen&()>, D>
-	inline safe_iterator_t<Rng> shuffle(
-		Rng&& rng, Gen&& g = detail::get_random_engine())
-	{
-		return  __stl2::shuffle(__stl2::begin(rng), __stl2::end(rng),
-			std::forward<Gen>(g));
-	}
+		template<RandomAccessRange Rng, class Gen>
+		requires Permutable<iterator_t<Rng>> &&
+			UniformRandomBitGenerator<remove_reference_t<Gen>> &&
+			ConvertibleTo<invoke_result_t<Gen&>, iter_difference_t<iterator_t<Rng>>>
+		safe_iterator_t<Rng> operator()(Rng&& rng, Gen&& g) const
+		{
+			return  (*this)(__stl2::begin(rng), __stl2::end(rng),
+				std::forward<Gen>(g));
+		}
+	};
+
+	inline constexpr __shuffle_fn shuffle {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

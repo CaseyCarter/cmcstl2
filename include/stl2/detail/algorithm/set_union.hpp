@@ -17,68 +17,67 @@
 #include <stl2/tuple.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
-#include <stl2/detail/algorithm/tagspec.hpp>
+#include <stl2/detail/algorithm/return_types.hpp>
 #include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // set_union [set.union]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I1, Sentinel<I1> S1,
-		InputIterator I2, Sentinel<I2> S2,
-		WeaklyIncrementable O, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		Mergeable<I1, I2, O, Comp, Proj1, Proj2>
-	tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
-	set_union(I1 first1, S1 last1, I2 first2, S2 last2, O result,
-		Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		while (true) {
-			if (first1 == last1) {
-				auto res = __stl2::copy(std::move(first2), std::move(last2), std::move(result));
-				return {std::move(first1), std::move(res.in()), std::move(res.out())};
-			}
-			if (first2 == last2) {
-				auto res = __stl2::copy(std::move(first1), std::move(last1), std::move(result));
-				return {std::move(res.in()), std::move(first2), std::move(res.out())};
-			}
-			iter_reference_t<I1>&& v1 = *first1;
-			iter_reference_t<I2>&& v2 = *first2;
-			auto&& p1 = __stl2::invoke(proj1, v1);
-			auto&& p2 = __stl2::invoke(proj2, v2);
-			if (__stl2::invoke(comp, p1, p2)) {
-				*result = std::forward<iter_reference_t<I1>>(v1);
-				++first1;
-			} else {
-				if (!__stl2::invoke(comp, p2, p1)) {
-					++first1;
-				}
-				*result = std::forward<iter_reference_t<I2>>(v2);
-				++first2;
-			}
-			++result;
-		}
-	}
+	template<class I1, class I2, class O>
+	struct set_union_result : __in1_in2_out_result<I1, I2, O> {};
 
-	template <InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		WeaklyIncrementable<__f<O>> &&
-		Mergeable<
-			iterator_t<Rng1>, iterator_t<Rng2>, __f<O>,
-			Comp, Proj1, Proj2>
-	tagged_tuple<tag::in1(safe_iterator_t<Rng1>),
-		tag::in2(safe_iterator_t<Rng2>), tag::out(__f<O>)>
-	set_union(Rng1&& rng1, Rng2&& rng2, O&& result, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::set_union(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2),
-			std::forward<O>(result), std::ref(comp),
-			std::ref(proj1), std::ref(proj2));
-	}
+	struct __set_union_fn {
+		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
+			WeaklyIncrementable O, class Comp = ranges::less<>, class Proj1 = identity, class Proj2 = identity>
+		requires Mergeable<I1, I2, O, Comp, Proj1, Proj2>
+		constexpr set_union_result<I1, I2, O>
+		operator()(I1 first1, S1 last1, I2 first2, S2 last2, O result, Comp comp = Comp{},
+			Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
+		{
+			while (true) {
+				if (first1 == last1) {
+					auto res = __stl2::copy(std::move(first2), std::move(last2), std::move(result));
+					return {std::move(first1), std::move(res.in), std::move(res.out)};
+				}
+				if (first2 == last2) {
+					auto res = __stl2::copy(std::move(first1), std::move(last1), std::move(result));
+					return {std::move(res.in), std::move(first2), std::move(res.out)};
+				}
+				iter_reference_t<I1>&& v1 = *first1;
+				iter_reference_t<I2>&& v2 = *first2;
+				auto&& p1 = __stl2::invoke(proj1, v1);
+				auto&& p2 = __stl2::invoke(proj2, v2);
+				if (__stl2::invoke(comp, p1, p2)) {
+					*result = std::forward<iter_reference_t<I1>>(v1);
+					++first1;
+				} else {
+					if (!__stl2::invoke(comp, p2, p1)) {
+						++first1;
+					}
+					*result = std::forward<iter_reference_t<I2>>(v2);
+					++first2;
+				}
+				++result;
+			}
+		}
+
+		template<InputRange R1, InputRange R2, WeaklyIncrementable O,
+			class Comp = ranges::less<>, class Proj1 = identity, class Proj2 = identity>
+		requires Mergeable<iterator_t<R1>, iterator_t<R2>, O, Comp, Proj1, Proj2>
+		constexpr set_union_result<safe_iterator_t<R1>, safe_iterator_t<R2>, O>
+		operator()(R1&& r1, R2&& r2, O result, Comp comp = Comp{},
+			Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
+		{
+			return (*this)(
+				__stl2::begin(r1), __stl2::end(r1),
+				__stl2::begin(r2), __stl2::end(r2),
+				std::forward<O>(result), std::ref(comp),
+				std::ref(proj1), std::ref(proj2));
+		}
+	};
+
+	inline constexpr __set_union_fn set_union {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

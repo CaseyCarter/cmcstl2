@@ -25,35 +25,37 @@
 // partial_sort [partial.sort]
 //
 STL2_OPEN_NAMESPACE {
-	template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
-		class Proj = identity>
-	requires
-		Sortable<I, Comp, Proj>
-	I partial_sort(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		__stl2::make_heap(first, middle, std::ref(comp), std::ref(proj));
-		const auto len = __stl2::distance(first, middle);
-		I i = middle;
-		for(; i != last; ++i) {
-			if(__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {
-				__stl2::iter_swap(i, first);
-				detail::sift_down_n(first, len, first, std::ref(comp), std::ref(proj));
+	struct __partial_sort_fn {
+		template<RandomAccessIterator I, Sentinel<I> S, class Comp = ranges::less<>,
+			class Proj = identity>
+		requires Sortable<I, Comp, Proj>
+		constexpr I operator()(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			__stl2::make_heap(first, middle, std::ref(comp), std::ref(proj));
+			const auto len = __stl2::distance(first, middle);
+			I i = middle;
+			for(; i != last; ++i) {
+				if(__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {
+					__stl2::iter_swap(i, first);
+					__stl2::detail::sift_down_n(first, len, first, std::ref(comp), std::ref(proj));
+				}
 			}
+			__stl2::sort_heap(first, middle, std::ref(comp), std::ref(proj));
+			return i;
 		}
-		__stl2::sort_heap(first, middle, std::ref(comp), std::ref(proj));
-		return i;
-	}
 
-	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		Sortable<iterator_t<Rng>, Comp, Proj>
-	safe_iterator_t<Rng>
-	partial_sort(Rng&& rng, iterator_t<Rng> middle, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::partial_sort(
-			__stl2::begin(rng), std::move(middle), __stl2::end(rng),
-			std::ref(comp), std::ref(proj));
-	}
+		template<RandomAccessRange R, class Comp = ranges::less<>, class Proj = identity>
+		requires Sortable<iterator_t<R>, Comp, Proj>
+		constexpr safe_iterator_t<R>
+		operator()(R&& r, iterator_t<R> middle, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			return (*this)(
+				__stl2::begin(r), std::move(middle), __stl2::end(r),
+				std::ref(comp), std::ref(proj));
+		}
+	};
+
+	inline constexpr __partial_sort_fn partial_sort {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -45,19 +45,19 @@ test_iter()
 	});
 
 	set_symmetric_difference(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic)).
-		check([&](std::tuple<Iter1, Iter2, OutIter> res)
+		check([&](auto res)
 		{
-			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
+			CHECK(bool((base(res.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		}
 	);
 
 	set_symmetric_difference(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), OutIter(ic)).
-		check([&](std::tuple<Iter1, Iter2, OutIter> res)
+		check([&](auto res)
 		{
-			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
+			CHECK(bool((base(res.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		}
 	);
@@ -80,19 +80,19 @@ test_comp()
 	});
 
 	set_symmetric_difference(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic), std::less<int>()).
-		check([&](std::tuple<Iter1, Iter2, OutIter> res)
+		check([&](auto res)
 		{
-			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
+			CHECK(bool((base(res.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		}
 	);
 
 	set_symmetric_difference(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), OutIter(ic), std::less<int>()).
-		check([&](std::tuple<Iter1, Iter2, OutIter> res)
+		check([&](auto res)
 		{
-			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
+			CHECK(bool((base(res.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		}
 	);

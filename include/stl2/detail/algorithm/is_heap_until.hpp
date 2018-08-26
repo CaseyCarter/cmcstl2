@@ -31,12 +31,12 @@
 // is_heap_until [is.heap]
 //
 STL2_OPEN_NAMESPACE {
-	namespace detail {
+	class __is_heap_until_fn {
 		template <RandomAccessIterator I, class Comp = less<>, class Proj = identity>
 		requires
 			IndirectStrictWeakOrder<
 				Comp, projected<I, Proj>>
-		I is_heap_until_n(I first, const iter_difference_t<I> n,
+		static constexpr I is_heap_until_n(I first, const iter_difference_t<I> n,
 			Comp comp = Comp{}, Proj proj = Proj{})
 		{
 			STL2_EXPECT(0 <= n);
@@ -58,30 +58,26 @@ STL2_OPEN_NAMESPACE {
 			}
 			return first + n;
 		}
-	}
+	public:
+		template<RandomAccessIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectStrictWeakOrder<projected<I, Proj>> Comp = ranges::less<>>
+		constexpr I operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			auto n = __stl2::distance(first, std::move(last));
+			return __is_heap_until_fn::is_heap_until_n(std::move(first), n,
+				std::ref(comp), std::ref(proj));
+		}
 
-	template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
-		class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<I, Proj>>
-	I is_heap_until(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(first, std::move(last));
-		return detail::is_heap_until_n(std::move(first), n,
-			std::ref(comp), std::ref(proj));
-	}
+		template<RandomAccessRange R, class Proj = identity,
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = ranges::less<>>
+		constexpr safe_iterator_t<R> operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			return __is_heap_until_fn::is_heap_until_n(__stl2::begin(r), __stl2::distance(r),
+				std::ref(comp), std::ref(proj));
+		}
+	};
 
-	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	is_heap_until(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return detail::is_heap_until_n(__stl2::begin(rng), __stl2::distance(rng),
-			std::ref(comp), std::ref(proj));
-	}
+	inline constexpr __is_heap_until_fn is_heap_until {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

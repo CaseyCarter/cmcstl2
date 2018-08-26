@@ -40,15 +40,15 @@ test()
 	int ir[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 6};
 	const int sr = sizeof(ir)/sizeof(ir[0]);
 
-	using R = std::tuple<Iter1, Iter2, OutIter>;
+	using R = stl2::set_union_result<Iter1, Iter2, OutIter>;
 	auto set_union = make_testable_2([](auto&&... args) {
 		return stl2::set_union(stl2::forward<decltype(args)>(args)...);
 	});
 
 	auto checker = [&](R res)
 	{
-		CHECK(bool((base(std::get<2>(res)) - ic) == sr));
-		CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
+		CHECK(bool((base(res.out) - ic) == sr));
+		CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
 		stl2::fill(ic, 0);
 	};
 

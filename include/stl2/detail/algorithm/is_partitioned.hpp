@@ -23,27 +23,24 @@
 // is_partitioned [alg.partitions]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	bool is_partitioned(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		first = __stl2::find_if_not(std::move(first), last,
-			std::ref(pred), std::ref(proj));
-		return __stl2::none_of(std::move(first), std::move(last),
-			std::ref(pred), std::ref(proj));
-	}
+	struct __is_partitioned_fn {
+		template<InputIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		constexpr bool operator()(I first, S last, Pred pred, Proj proj = Proj{}) const
+		{
+			first = __stl2::find_if_not(std::move(first), last, std::ref(pred), std::ref(proj));
+			return __stl2::none_of(std::move(first), std::move(last), std::ref(pred), std::ref(proj));
+		}
 
-	template <InputRange Rng, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	bool is_partitioned(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::is_partitioned(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(pred), std::ref(proj));
-	}
+		template<InputRange Rng, class Proj = identity,
+			IndirectUnaryPredicate<projected<iterator_t<Rng>, Proj>> Pred>
+		constexpr bool operator()(Rng&& rng, Pred pred, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng), std::ref(pred), std::ref(proj));
+		}
+	};
+
+	inline constexpr __is_partitioned_fn is_partitioned {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

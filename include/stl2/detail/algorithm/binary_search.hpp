@@ -22,28 +22,27 @@
 // binary_search [binary.search]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I, Sentinel<I> S, class T,
-		class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, const T*, projected<I, Proj>>
-	bool binary_search(I first, S last, const T& value, Comp comp = Comp{},
-		Proj proj = Proj{})
-	{
-		auto result = __stl2::lower_bound(__stl2::move(first), last, value,
-			std::ref(comp), std::ref(proj));
-		return result != last && !__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
-	}
+	struct __binary_search_fn {
+		template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
+			IndirectStrictWeakOrder<const T*, projected<I, Proj>> Comp = ranges::less<>>
+		constexpr bool operator()(I first, S last, const T& value, Comp comp = Comp{},
+			Proj proj = Proj{}) const
+		{
+			auto result = __stl2::lower_bound(std::move(first), last, value,
+				std::ref(comp), std::ref(proj));
+			return result != last && !__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
+		}
 
-	template <ForwardRange Rng, class T, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, const T*, projected<iterator_t<Rng>, Proj>>
-	bool binary_search(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::binary_search(
-			__stl2::begin(rng), __stl2::end(rng), value, std::ref(comp), std::ref(proj));
-	}
+		template<ForwardRange R, class T, class Proj = identity,
+			IndirectStrictWeakOrder<const T*, projected<iterator_t<R>, Proj>> Comp = ranges::less<>>
+		constexpr bool operator()(R&& r, const T& value, Comp comp = Comp{},
+			Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(r), __stl2::end(r), value, std::ref(comp), std::ref(proj));
+		}
+	};
+
+	inline constexpr __binary_search_fn binary_search {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

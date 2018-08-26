@@ -157,7 +157,7 @@ test_range()
 stl2::Iterator{I}
 stl2::subrange<stl2::counted_iterator<I>, stl2::default_sentinel>
 make_counted_view(I i, stl2::iter_difference_t<I> n) {
-  return {stl2::make_counted_iterator(stl2::move(i), n), {}};
+  return {stl2::make_counted_iterator(std::move(i), n), {}};
 }
 
 template <class Iter>
@@ -234,8 +234,9 @@ int main()
 	CHECK(stl2::partition_point(ia, is_odd(), &S::i) == ia + 3);
 
 	// Test infinite range
-	CHECK(*stl2::partition_point(stl2::iota_view<int>{0},
-								[](int i){ return i < 42; }).get_unsafe() == 42);
+	auto r = stl2::iota_view<int>{0};
+	CHECK(*stl2::partition_point(r,
+								[](int i){ return i < 42; }) == 42);
 
 	return ::test_result();
 }

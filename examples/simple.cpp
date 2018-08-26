@@ -21,5 +21,5 @@ int main() {
 	std::cout << '\n';
 	auto result = ranges::reverse_copy(v, out);
 	std::cout << '\n';
-	return !(result.in() == ranges::end(v));
+	return !(result.in == ranges::end(v));
 }

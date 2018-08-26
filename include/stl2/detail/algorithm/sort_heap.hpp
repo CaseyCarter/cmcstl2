@@ -32,43 +32,41 @@
 // sort_heap [sort.heap]
 //
 STL2_OPEN_NAMESPACE {
-	namespace detail {
+	class __sort_heap_fn {
 		template <RandomAccessIterator I, class Comp, class Proj>
-		requires
-			Sortable<I, Comp, Proj>
-		void sort_heap_n(I first, iter_difference_t<I> n, Comp comp, Proj proj)
+		requires Sortable<I, Comp, Proj>
+		static constexpr void sort_heap_n(I first, iter_difference_t<I> n, Comp comp, Proj proj)
 		{
 			if (n < 2) {
 				return;
 			}
 
 			for (auto i = n; i > 1; --i) {
-				detail::pop_heap_n(first, i, std::ref(comp), std::ref(proj));
+				__pop_heap_fn::pop_heap_n(first, i, std::ref(comp), std::ref(proj));
 			}
 		}
-	}
+	public:
+		template<RandomAccessIterator I, Sentinel<I> S, class Comp = ranges::less<>,
+			class Proj = identity>
+		requires Sortable<I, Comp, Proj>
+		constexpr I operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			auto n = __stl2::distance(first, std::move(last));
+			__sort_heap_fn::sort_heap_n(first, n, std::ref(comp), std::ref(proj));
+			return first + n;
+		}
 
-	template <RandomAccessIterator I, Sentinel<I> S,
-						class Comp = less<>, class Proj = identity>
-	requires
-		Sortable<I, Comp, Proj>
-	I sort_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(first, std::move(last));
-		detail::sort_heap_n(first, n, std::ref(comp), std::ref(proj));
-		return first + n;
-	}
+		template<RandomAccessRange R, class Comp = ranges::less<>, class Proj = identity>
+		requires Sortable<iterator_t<R>, Comp, Proj>
+		constexpr safe_iterator_t<R> operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			auto n = __stl2::distance(r);
+			__sort_heap_fn::sort_heap_n(__stl2::begin(r), n, std::ref(comp), std::ref(proj));
+			return __stl2::begin(r) + n;
+		}
+	};
 
-	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		Sortable<iterator_t<Rng>, Comp, Proj>
-	safe_iterator_t<Rng>
-	sort_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(rng);
-		detail::sort_heap_n(__stl2::begin(rng), n, std::ref(comp), std::ref(proj));
-		return __stl2::begin(rng) + n;
-	}
+	inline constexpr __sort_heap_fn sort_heap {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -67,8 +67,8 @@ STL2_OPEN_NAMESPACE {
 						__stl2::make_move_iterator(std::move(counted)),
 						move_sentinel<default_sentinel>{},
 						std::move(first), __stl2::back_inserter(vec),
-						std::ref(pred), std::ref(proj)).out1();
-				auto last = __stl2::move(vec, pp).out();
+						std::ref(pred), std::ref(proj)).out1;
+				auto last = __stl2::move(vec, pp).out;
 				return {std::move(pp), std::move(last)};
 			}
 
@@ -167,7 +167,7 @@ STL2_OPEN_NAMESPACE {
 					std::move(first),
 					__stl2::back_inserter(vec),
 					std::ref(pred),
-					std::ref(proj)).out1();
+					std::ref(proj)).out1;
 				*middle = __stl2::iter_move(last);
 				++middle;
 				__stl2::move(vec, middle);
@@ -330,61 +330,58 @@ STL2_OPEN_NAMESPACE {
 				std::move(first), std::move(bound), n,
 				std::ref(pred), std::ref(proj));
 		}
+
+		struct __stable_partition_fn {
+			template <ForwardIterator I, Sentinel<I> S, class Proj = identity,
+				IndirectUnaryPredicate<projected<I, Proj>> Pred>
+			requires Permutable<I>
+			I operator()(I first, S last, Pred pred, Proj proj = Proj{}) const
+			{
+				auto n = __stl2::distance(first, std::move(last));
+				return __stl2::ext::stable_partition_n(
+					std::move(first), n,
+					std::ref(pred), std::ref(proj));
+			}
+
+			template<ForwardRange Rng, class Proj = identity,
+				IndirectUnaryPredicate<projected<iterator_t<Rng>, Proj>> Pred>
+			requires Permutable<iterator_t<Rng>>
+			safe_iterator_t<Rng> operator()(Rng&& rng, Pred pred, Proj proj = Proj{}) const
+			{
+				return __stl2::ext::stable_partition_n(
+					__stl2::begin(rng), __stl2::distance(rng),
+					std::ref(pred), std::ref(proj));
+			}
+		};
+
+		inline constexpr __stable_partition_fn stable_partition {};
 	}
 
-	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
-	requires
-		Permutable<I> &&
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	I stable_partition(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(first, std::move(last));
-		return ext::stable_partition_n(
-			std::move(first), n,
-			std::ref(pred), std::ref(proj));
-	}
+	struct __stable_partition_fn {
+		template<BidirectionalIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		requires Permutable<I>
+		I operator()(I first, S last, Pred pred, Proj proj = Proj{}) const
+		{
+			auto bound = ext::enumerate(first, std::move(last));
+			return ext::stable_partition_n(
+				std::move(first), std::move(bound.end()), bound.count(),
+				std::ref(pred), std::ref(proj));
+		}
 
-	template <BidirectionalIterator I, Sentinel<I> S, class Pred,
-		class Proj = identity>
-	requires
-		Permutable<I> &&
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	I stable_partition(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		auto bound = ext::enumerate(first, std::move(last));
-		return ext::stable_partition_n(
-			std::move(first), std::move(bound.end()), bound.count(),
-			std::ref(pred), std::ref(proj));
-	}
+		template<BidirectionalRange Rng, class Proj = identity,
+			IndirectUnaryPredicate<projected<iterator_t<Rng>, Proj>> Pred>
+		requires Permutable<iterator_t<Rng>>
+		safe_iterator_t<Rng> operator()(Rng&& rng, Pred pred, Proj proj = Proj{}) const
+		{
+			auto bound = ext::enumerate(rng);
+			return ext::stable_partition_n(
+				__stl2::begin(rng), std::move(bound.end()), bound.count(),
+				std::ref(pred), std::ref(proj));
+		}
+	};
 
-	template <ForwardRange Rng, class Pred, class Proj = identity>
-	requires
-		Permutable<iterator_t<Rng>> &&
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	stable_partition(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return ext::stable_partition_n(
-			__stl2::begin(rng), __stl2::distance(rng),
-			std::ref(pred), std::ref(proj));
-	}
-
-	template <BidirectionalRange Rng, class Pred, class Proj = identity>
-	requires
-		Permutable<iterator_t<Rng>> &&
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	stable_partition(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		auto bound = ext::enumerate(rng);
-		return ext::stable_partition_n(
-			__stl2::begin(rng), std::move(bound.end()), bound.count(),
-			std::ref(pred), std::ref(proj));
-	}
+	inline constexpr __stable_partition_fn stable_partition {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

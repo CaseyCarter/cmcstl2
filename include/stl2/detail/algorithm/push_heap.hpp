@@ -32,27 +32,28 @@
 // push_heap [push.heap]
 //
 STL2_OPEN_NAMESPACE {
-	template <RandomAccessIterator I, class S, class Comp = less<>, class Proj = identity>
-	requires
-		Sentinel<__f<S>, I> &&
-		Sortable<I, Comp, Proj>
-	I push_heap(I first, S&& last, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(first, std::forward<S>(last));
-		detail::sift_up_n(first, n, std::ref(comp), std::ref(proj));
-		return first + n;
-	}
+	struct __push_heap_fn {
+		template<RandomAccessIterator I, Sentinel<I> S, class Comp = ranges::less<>,
+			class Proj = identity>
+		requires Sortable<I, Comp, Proj>
+		constexpr I operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			auto n = __stl2::distance(first, std::forward<S>(last));
+			detail::sift_up_n(first, n, std::ref(comp), std::ref(proj));
+			return first + n;
+		}
 
-	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		Sortable<iterator_t<Rng>, Comp, Proj>
-	safe_iterator_t<Rng>
-	push_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(rng);
-		detail::sift_up_n(__stl2::begin(rng), n, std::ref(comp), std::ref(proj));
-		return __stl2::begin(rng) + n;
-	}
+		template<RandomAccessRange R, class Comp = ranges::less<>, class Proj = identity>
+		requires Sortable<iterator_t<R>, Comp, Proj>
+		constexpr safe_iterator_t<R> operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			auto n = __stl2::distance(r);
+			detail::sift_up_n(__stl2::begin(r), n, std::ref(comp), std::ref(proj));
+			return __stl2::begin(r) + n;
+		}
+	};
+
+	inline constexpr __push_heap_fn push_heap {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

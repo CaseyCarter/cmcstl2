@@ -23,16 +23,16 @@ int main()
 		int ir[] = {1, 2, 3, 3, 3, 4, 4, 6};
 		const int sr = sizeof(ir)/sizeof(ir[0]);
 
-		std::tuple<S *, T *, U *> res1 =
+		auto res1 =
 			stl2::set_symmetric_difference(ia, ib, ic, std::less<int>(), &S::i, &T::j);
-		CHECK((std::get<2>(res1) - ic) == sr);
-		CHECK(stl2::lexicographical_compare(ic, std::get<2>(res1), ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK((res1.out - ic) == sr);
+		CHECK(stl2::lexicographical_compare(ic, res1.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
 		stl2::fill(ic, U{0});
 
-		std::tuple<T *, S *, U *> res2 =
+		auto res2 =
 			stl2::set_symmetric_difference(ib, ia, ic, std::less<int>(), &T::j, &S::i);
-		CHECK((std::get<2>(res2) - ic) == sr);
-		CHECK(stl2::lexicographical_compare(ic, std::get<2>(res2), ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK((res2.out - ic) == sr);
+		CHECK(stl2::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
 	}
 
 	// Test rvalue ranges
@@ -44,19 +44,19 @@ int main()
 		const int sr = sizeof(ir)/sizeof(ir[0]);
 
 		auto res1 =
-			stl2::set_symmetric_difference(std::move(ia), std::move(ib), ic, std::less<int>(), &S::i, &T::j);
-		CHECK(std::get<0>(res1).get_unsafe() == stl2::end(ia));
-		CHECK(std::get<1>(res1).get_unsafe() == stl2::end(ib));
-		CHECK((std::get<2>(res1) - ic) == sr);
-		CHECK(stl2::lexicographical_compare(ic, std::get<2>(res1), ir, ir+sr, std::less<int>(), &U::k) == 0);
+			stl2::set_symmetric_difference(ia, ib, ic, std::less<int>(), &S::i, &T::j);
+		CHECK(res1.in1 == stl2::end(ia));
+		CHECK(res1.in2 == stl2::end(ib));
+		CHECK((res1.out - ic) == sr);
+		CHECK(stl2::lexicographical_compare(ic, res1.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
 		stl2::fill(ic, U{0});
 
 		auto res2 =
-			stl2::set_symmetric_difference(std::move(ib), std::move(ia), ic, std::less<int>(), &T::j, &S::i);
-		CHECK(std::get<0>(res2).get_unsafe() == stl2::end(ib));
-		CHECK(std::get<1>(res2).get_unsafe() == stl2::end(ia));
-		CHECK((std::get<2>(res2) - ic) == sr);
-		CHECK(stl2::lexicographical_compare(ic, std::get<2>(res2), ir, ir+sr, std::less<int>(), &U::k) == 0);
+			stl2::set_symmetric_difference(ib, ia, ic, std::less<int>(), &T::j, &S::i);
+		CHECK(res2.in1 == stl2::end(ib));
+		CHECK(res2.in2 == stl2::end(ia));
+		CHECK((res2.out - ic) == sr);
+		CHECK(stl2::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
 	}
 
 	return ::test_result();

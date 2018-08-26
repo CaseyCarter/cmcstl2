@@ -32,41 +32,42 @@
 // pop_heap [pop.heap]
 //
 STL2_OPEN_NAMESPACE {
-	namespace detail {
+	class __pop_heap_fn {
 		template <RandomAccessIterator I, class Proj, class Comp>
 		requires
 			Sortable<I, Comp, Proj>
-		void pop_heap_n(I first, iter_difference_t<I> n, Comp comp, Proj proj)
+		static constexpr void pop_heap_n(I first, iter_difference_t<I> n, Comp comp, Proj proj)
 		{
 			if (n > 1) {
 				__stl2::iter_swap(first, first + (n - 1));
-				detail::sift_down_n(first, n - 1, first, std::ref(comp),
+				__stl2::detail::sift_down_n(first, n - 1, first, std::ref(comp),
 					std::ref(proj));
 			}
 		}
-	}
 
-	template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
-						class Proj = identity>
-	requires
-		Sortable<I, Comp, Proj>
-	I pop_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(first, std::move(last));
-		detail::pop_heap_n(first, n, std::ref(comp), std::ref(proj));
-		return first + n;
-	}
+		friend class __sort_heap_fn;
+	public:
+		template<RandomAccessIterator I, Sentinel<I> S, class Comp = ranges::less<>,
+			class Proj = identity>
+		requires Sortable<I, Comp, Proj>
+		constexpr I operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			auto n = __stl2::distance(first, std::move(last));
+			__pop_heap_fn::pop_heap_n(first, n, std::ref(comp), std::ref(proj));
+			return first + n;
+		}
 
-	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		Sortable<iterator_t<Rng>, Comp, Proj>
-	safe_iterator_t<Rng>
-	pop_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(rng);
-		detail::pop_heap_n(__stl2::begin(rng), n, std::ref(comp), std::ref(proj));
-		return __stl2::begin(rng) + n;
-	}
+		template<RandomAccessRange R, class Comp = ranges::less<>, class Proj = identity>
+		requires Sortable<iterator_t<R>, Comp, Proj>
+		constexpr safe_iterator_t<R> operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			auto n = __stl2::distance(r);
+			__pop_heap_fn::pop_heap_n(__stl2::begin(r), n, std::ref(comp), std::ref(proj));
+			return __stl2::begin(r) + n;
+		}
+	};
+
+	inline constexpr __pop_heap_fn pop_heap {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

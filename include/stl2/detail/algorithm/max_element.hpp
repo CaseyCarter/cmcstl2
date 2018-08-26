@@ -21,32 +21,32 @@
 // max_element [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<I, Proj>>
-	I max_element(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		if (first != last) {
-			for (auto i = __stl2::next(first); i != last; ++i) {
-				if (!__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {
-					first = i;
+	struct __max_element_fn {
+		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectStrictWeakOrder<projected<I, Proj>> Comp = ranges::less<>>
+		constexpr I operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			if (first != last) {
+				for (auto i = __stl2::next(first); i != last; ++i) {
+					if (!__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {
+						first = i;
+					}
 				}
 			}
+			return first;
 		}
-		return first;
-	}
 
-	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	max_element(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::max_element(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(comp), std::ref(proj));
-	}
+		template<ForwardRange R, class Proj = identity,
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = ranges::less<>>
+		constexpr safe_iterator_t<R>
+		operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(r), __stl2::end(r),
+				std::ref(comp), std::ref(proj));
+		}
+	};
+
+	inline constexpr __max_element_fn max_element {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

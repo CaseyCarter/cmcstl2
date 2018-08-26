@@ -33,85 +33,87 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <ForwardIterator I, class Pred, class Proj = identity>
-		requires
-			IndirectUnaryPredicate<
-				Pred, projected<I, Proj>>
-		I partition_point_n(I first, iter_difference_t<I> n,
-			Pred pred, Proj proj = Proj{})
-		{
-			STL2_EXPECT(0 <= n);
-			while (n != 0) {
-				auto const half = n / 2;
-				auto middle = __stl2::next(__stl2::ext::uncounted(first), half);
-				if (__stl2::invoke(pred, __stl2::invoke(proj, *middle))) {
-					first = __stl2::ext::recounted(
-										 first, std::move(++middle), half + 1);
-					n -= half + 1;
-				} else {
-					n = half;
+		struct __partition_point_n_fn {
+			template <ForwardIterator I, class Proj = identity, IndirectUnaryPredicate<projected<I, Proj>> Pred>
+			constexpr I operator()(I first, iter_difference_t<I> n, Pred pred, Proj proj = Proj{}) const
+			{
+				STL2_EXPECT(0 <= n);
+				while (n != 0) {
+					auto const half = n / 2;
+					auto middle = __stl2::next(__stl2::ext::uncounted(first), half);
+					if (__stl2::invoke(pred, __stl2::invoke(proj, *middle))) {
+						first = __stl2::ext::recounted(
+											first, std::move(++middle), half + 1);
+						n -= half + 1;
+					} else {
+						n = half;
+					}
 				}
+				return first;
 			}
-			return first;
-		}
-	}
+		};
 
-	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		// Probe exponentially for either end-of-range or an iterator
-		// that is past the partition point (i.e., does not satisfy pred).
-		auto n = iter_difference_t<I>{1};
-		while (true) {
-			auto m = first;
-			auto d = __stl2::advance(m, n, last);
-			if (m == last || !__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
-				n -= d;
-				return ext::partition_point_n(std::move(first), n,
-					std::move(pred), std::move(proj));
+		inline constexpr __partition_point_n_fn partition_point_n {};
+	} // namespace ext
+
+	class __partition_point_fn {
+		template<ForwardIterator I, Sentinel<I> S, class Proj, class Pred>
+		static constexpr I impl(I first, S last, Pred pred, Proj proj = Proj{})
+		{
+			// Probe exponentially for either end-of-range or an iterator
+			// that is past the partition point (i.e., does not satisfy pred).
+			auto n = iter_difference_t<I>{1};
+			while (true) {
+				auto m = first;
+				auto d = __stl2::advance(m, n, last);
+				if (m == last || !__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
+					n -= d;
+					return __stl2::ext::partition_point_n(std::move(first), n,
+						std::move(pred), std::move(proj));
+				}
+				first = std::move(m);
+				n *= 2;
 			}
-			first = std::move(m);
-			n *= 2;
 		}
-	}
 
-	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
-	requires
-		SizedSentinel<S, I> &&
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(first, std::move(last));
-		return __stl2::ext::partition_point_n(std::move(first), n,
-			std::ref(pred), std::ref(proj));
-	}
+		template<ForwardIterator I, SizedSentinel<I> S, class Proj, class Pred>
+		static constexpr I impl(I first, S last, Pred pred, Proj proj = Proj{})
+		{
+			auto n = __stl2::distance(first, std::move(last));
+			return __stl2::ext::partition_point_n(std::move(first), n, std::ref(pred), std::ref(proj));
+		}
 
-	template <ForwardRange Rng, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::partition_point(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(pred), std::ref(proj));
-	}
+		template<ForwardRange R, class Proj, class Pred>
+		static constexpr safe_iterator_t<R> impl(R&& r, Pred pred, Proj proj = Proj{})
+		{
+			return __stl2::__partition_point_fn::impl(__stl2::begin(r), __stl2::end(r),
+				std::ref(pred), std::ref(proj));
+		}
 
-	template <ForwardRange Rng, class Pred, class Proj = identity>
-	requires
-		SizedRange<Rng> &&
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return ext::partition_point_n(__stl2::begin(rng), __stl2::distance(rng),
-			std::ref(pred), std::ref(proj));
-	}
+		template<SizedRange R, class Proj, class Pred>
+		static constexpr safe_iterator_t<R> impl(R&& r, Pred pred, Proj proj = Proj{})
+		{
+			return __stl2::ext::partition_point_n(__stl2::begin(r), __stl2::distance(r),
+				std::ref(pred), std::ref(proj));
+		}
+	public:
+		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		constexpr I operator()(I first, S last, Pred pred, Proj proj = Proj{}) const
+		{
+			return __partition_point_fn::impl(std::move(first), std::move(last),
+				std::ref(pred), std::ref(proj));
+		}
+
+		template<ForwardRange R, class Proj = identity,
+			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
+		constexpr safe_iterator_t<R> operator()(R&& r, Pred pred, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(r), __stl2::end(r), std::ref(pred), std::ref(proj));
+		}
+	};
+
+	inline constexpr __partition_point_fn partition_point {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

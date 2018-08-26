@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 						__stl2::make_move_iterator(first + step_size),
 						__stl2::make_move_iterator(first + two_step),
 						result, std::ref(pred),
-						std::ref(proj), std::ref(proj)).out();
+						std::ref(proj), std::ref(proj)).out;
 					first += two_step;
 				}
 				step_size = __stl2::min(iter_difference_t<I>(last - first), step_size);
@@ -156,60 +156,61 @@ STL2_OPEN_NAMESPACE {
 					middle - first, last - middle, buf,
 					std::ref(comp), std::ref(proj));
 			}
+		} // namespace ssort
+	} // namespace detail
+
+	struct __stable_sort_fn {
+		template<RandomAccessIterator I, Sentinel<I> S, class Comp = ranges::less<>,
+			class Proj = identity>
+		requires Sortable<I, Comp, Proj>
+		I operator()(I first, S last_, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			auto last = __stl2::next(first, std::move(last_));
+			auto len = iter_difference_t<I>(last - first);
+			using buf_t = detail::ssort::buf_t<I>;
+			auto buf = len > 256 ? buf_t{len} : buf_t{};
+			if (!buf.size_) {
+				__stl2::detail::ssort::inplace_stable_sort(first, last, comp, proj);
+			} else {
+				__stl2::detail::ssort::stable_sort_adaptive(first, last, buf, comp, proj);
+			}
+			return last;
 		}
-	}
 
-	// Extension: Supports forward iterators.
-	template <class I, class S, class Comp = less<>, class Proj = identity>
-	requires
-		Sentinel<__f<S>, I> &&
-		Sortable<I, Comp, Proj>
-	I stable_sort(I first, S&& last, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(first, std::forward<S>(last));
-		return detail::fsort::sort_n(std::move(first), n,
-			std::ref(comp), std::ref(proj));
-	}
-
-	template <RandomAccessIterator I, class S, class Comp = less<>,
-						class Proj = identity>
-	requires
-		Sentinel<__f<S>, I> &&
-		Sortable<I, Comp, Proj>
-	I stable_sort(I first, S&& last_, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		auto last = __stl2::next(first, std::forward<S>(last_));
-		auto len = iter_difference_t<I>(last - first);
-		using buf_t = detail::ssort::buf_t<I>;
-		auto buf = len > 256 ? buf_t{len} : buf_t{};
-		if (!buf.size_) {
-			detail::ssort::inplace_stable_sort(first, last, comp, proj);
-		} else {
-			detail::ssort::stable_sort_adaptive(first, last, buf, comp, proj);
+		template<RandomAccessRange R, class Comp = ranges::less<>, class Proj = identity>
+		requires Sortable<iterator_t<R>, Comp, Proj>
+		safe_iterator_t<R> operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(r), __stl2::end(r), std::ref(comp), std::ref(proj));
 		}
-		return last;
-	}
+	};
 
-	// Extension: supports forward ranges.
-	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		Sortable<iterator_t<Rng>, Comp, Proj>
-	safe_iterator_t<Rng>
-	stable_sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return detail::fsort::sort_n(__stl2::begin(rng), __stl2::distance(rng),
-			std::ref(comp), std::ref(proj));
-	}
+	inline constexpr __stable_sort_fn stable_sort {};
 
-	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		Sortable<iterator_t<Rng>, Comp, Proj>
-	safe_iterator_t<Rng>
-	stable_sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::stable_sort(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(comp), std::ref(proj));
-	}
+	namespace ext {
+		struct __stable_sort_fn : __stl2::__stable_sort_fn {
+			using __stl2::__stable_sort_fn::operator();
+
+			template <ForwardIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
+			requires Sortable<I, Comp, Proj>
+			I operator()(I first, S&& last, Comp comp = Comp{}, Proj proj = Proj{}) const
+			{
+				auto n = __stl2::distance(first, std::forward<S>(last));
+				return __stl2::detail::fsort::sort_n(std::move(first), n,
+					std::ref(comp), std::ref(proj));
+			}
+
+			template <ForwardRange R, class Comp = less<>, class Proj = identity>
+			requires Sortable<iterator_t<R>, Comp, Proj>
+			safe_iterator_t<R> operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{})
+			{
+				return __stl2::detail::fsort::sort_n(__stl2::begin(r), __stl2::distance(r),
+					std::ref(comp), std::ref(proj));
+			}
+		};
+
+		inline constexpr __stable_sort_fn stable_sort {};
+	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 
 #endif

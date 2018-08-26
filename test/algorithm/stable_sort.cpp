@@ -226,7 +226,7 @@ int main()
 			v[i].i = v.size() - i - 1;
 			v[i].j = i;
 		}
-		CHECK(stl2::stable_sort(std::move(v), std::less<int>{}, &S::i).get_unsafe() == v.end());
+		CHECK(stl2::stable_sort(v, std::less<int>{}, &S::i) == v.end());
 		for(int i = 0; (std::size_t)i < v.size(); ++i)
 		{
 			CHECK(v[i].i == i);

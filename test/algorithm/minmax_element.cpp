@@ -35,19 +35,19 @@ template <class Iter, class Sent = Iter>
 void
 test_iter(Iter first, Sent last)
 {
-	std::pair<Iter, Iter> p = stl2::minmax_element(first, last);
+	auto p = stl2::minmax_element(first, last);
 	if (first != last)
 	{
 		for (Iter j = first; j != last; ++j)
 		{
-			CHECK(!(*j < *p.first));
-			CHECK(!(*p.second < *j));
+			CHECK(!(*j < *p.min));
+			CHECK(!(*p.max < *j));
 		}
 	}
 	else
 	{
-		CHECK(p.first == last);
-		CHECK(p.second == last);
+		CHECK(p.min == last);
+		CHECK(p.max == last);
 	}
 
 	auto rng = stl2::subrange(first, last);
@@ -56,14 +56,14 @@ test_iter(Iter first, Sent last)
 	{
 		for (Iter j = first; j != last; ++j)
 		{
-			CHECK(!(*j < *p.first));
-			CHECK(!(*p.second < *j));
+			CHECK(!(*j < *p.min));
+			CHECK(!(*p.max < *j));
 		}
 	}
 	else
 	{
-		CHECK(p.first == last);
-		CHECK(p.second == last);
+		CHECK(p.min == last);
+		CHECK(p.max == last);
 	}
 
 	auto res = stl2::minmax_element(std::move(rng));
@@ -71,14 +71,14 @@ test_iter(Iter first, Sent last)
 	{
 		for (Iter j = first; j != last; ++j)
 		{
-			CHECK(!(*j < *res.first));
-			CHECK(!(*p.second < *j));
+			CHECK(!(*j < *res.min));
+			CHECK(!(*p.max < *j));
 		}
 	}
 	else
 	{
-		CHECK(res.first == last);
-		CHECK(res.second == last);
+		CHECK(res.min == last);
+		CHECK(res.max == last);
 	}
 }
 
@@ -107,9 +107,9 @@ test_iter()
 		std::unique_ptr<int[]> a{new int[N]};
 		std::fill_n(a.get(), N, 5);
 		std::shuffle(a.get(), a.get()+N, gen);
-		std::pair<Iter, Iter> p = stl2::minmax_element(Iter(a.get()), Sent(a.get()+N));
-		CHECK(base(p.first) == a.get());
-		CHECK(base(p.second) == a.get()+N-1);
+		auto p = stl2::minmax_element(Iter(a.get()), Sent(a.get()+N));
+		CHECK(base(p.min) == a.get());
+		CHECK(base(p.max) == a.get()+N-1);
 	}
 }
 
@@ -119,19 +119,19 @@ test_iter_comp(Iter first, Sent last)
 {
 	typedef std::greater<int> Compare;
 	Compare comp;
-	std::pair<Iter, Iter> p = stl2::minmax_element(first, last, comp);
+	auto p = stl2::minmax_element(first, last, comp);
 	if (first != last)
 	{
 		for (Iter j = first; j != last; ++j)
 		{
-			CHECK(!comp(*j, *p.first));
-			CHECK(!comp(*p.second, *j));
+			CHECK(!comp(*j, *p.min));
+			CHECK(!comp(*p.max, *j));
 		}
 	}
 	else
 	{
-		CHECK(p.first == last);
-		CHECK(p.second == last);
+		CHECK(p.min == last);
+		CHECK(p.max == last);
 	}
 
 	auto rng = stl2::subrange(first, last);
@@ -140,14 +140,14 @@ test_iter_comp(Iter first, Sent last)
 	{
 		for (Iter j = first; j != last; ++j)
 		{
-			CHECK(!comp(*j, *p.first));
-			CHECK(!comp(*p.second, *j));
+			CHECK(!comp(*j, *p.min));
+			CHECK(!comp(*p.max, *j));
 		}
 	}
 	else
 	{
-		CHECK(p.first == last);
-		CHECK(p.second == last);
+		CHECK(p.min == last);
+		CHECK(p.max == last);
 	}
 
 	auto res = stl2::minmax_element(std::move(rng), comp);
@@ -155,14 +155,14 @@ test_iter_comp(Iter first, Sent last)
 	{
 		for (Iter j = first; j != last; ++j)
 		{
-			CHECK(!comp(*j, *res.first));
-			CHECK(!comp(*res.second, *j));
+			CHECK(!comp(*j, *res.min));
+			CHECK(!comp(*res.max, *j));
 		}
 	}
 	else
 	{
-		CHECK(res.first == last);
-		CHECK(res.second == last);
+		CHECK(res.min == last);
+		CHECK(res.max == last);
 	}
 }
 
@@ -193,9 +193,9 @@ test_iter_comp()
 		std::shuffle(a.get(), a.get()+N, gen);
 		typedef std::greater<int> Compare;
 		Compare comp;
-		std::pair<Iter, Iter> p = stl2::minmax_element(Iter(a.get()), Sent(a.get()+N), comp);
-		CHECK(base(p.first) == a.get());
-		CHECK(base(p.second) == a.get()+N-1);
+		auto p = stl2::minmax_element(Iter(a.get()), Sent(a.get()+N), comp);
+		CHECK(base(p.min) == a.get());
+		CHECK(base(p.max) == a.get()+N-1);
 	}
 }
 
@@ -224,9 +224,9 @@ int main()
 
 	// Works with projections?
 	S s[] = {S{1},S{2},S{3},S{4},S{-4},S{5},S{6},S{40},S{7},S{8},S{9}};
-	std::pair<S const *, S const *> ps = stl2::minmax_element(s, std::less<int>{}, &S::i);
-	CHECK(ps.first->i == -4);
-	CHECK(ps.second->i == 40);
+	auto ps = stl2::minmax_element(s, std::less<int>{}, &S::i);
+	CHECK(ps.min->i == -4);
+	CHECK(ps.max->i == 40);
 
 	return test_result();
 }

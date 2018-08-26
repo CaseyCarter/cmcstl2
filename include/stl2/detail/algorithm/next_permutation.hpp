@@ -32,46 +32,47 @@
 // next_permutation [alg.permutation.generators]
 //
 STL2_OPEN_NAMESPACE {
-	template <BidirectionalIterator I, Sentinel<I> S,
-		class Comp = less<>, class Proj = identity>
-	requires
-		Sortable<I, Comp, Proj>
-	bool next_permutation(I first, S last,
-		Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		if (first == last) {
-			return false;
-		}
-		I end = __stl2::next(first, std::move(last)), i = end;
-		if (first == --i) {
-			return false;
-		}
-		while (true) {
-			I ip1 = i;
-			if (__stl2::invoke(comp, __stl2::invoke(proj, *--i), __stl2::invoke(proj, *ip1))) {
-				I j = end;
-				while (!__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *--j))) {
-					;
-				}
-				__stl2::iter_swap(i, j);
-				__stl2::reverse(ip1, end);
-				return true;
-			}
-			if (i == first) {
-				__stl2::reverse(first, end);
+	struct __next_permutation_fn {
+		template<BidirectionalIterator I, Sentinel<I> S, class Comp = ranges::less<>,
+			class Proj = identity>
+		requires Sortable<I, Comp, Proj>
+		constexpr bool operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			if (first == last) {
 				return false;
 			}
+			I end = __stl2::next(first, std::move(last)), i = end;
+			if (first == --i) {
+				return false;
+			}
+			while (true) {
+				I ip1 = i;
+				if (__stl2::invoke(comp, __stl2::invoke(proj, *--i), __stl2::invoke(proj, *ip1))) {
+					I j = end;
+					while (!__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *--j))) {
+						;
+					}
+					__stl2::iter_swap(i, j);
+					__stl2::reverse(ip1, end);
+					return true;
+				}
+				if (i == first) {
+					__stl2::reverse(first, end);
+					return false;
+				}
+			}
 		}
-	}
 
-	template <BidirectionalRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		Sortable<iterator_t<Rng>, Comp, Proj>
-	bool next_permutation(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::next_permutation(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(comp), std::ref(proj));
-	}
+		template<BidirectionalRange R, class Comp = ranges::less<>, class Proj = identity>
+		requires Sortable<iterator_t<R>, Comp, Proj>
+		constexpr bool operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(r), __stl2::end(r),
+				std::ref(comp), std::ref(proj));
+		}
+	};
+
+	inline constexpr __next_permutation_fn next_permutation {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

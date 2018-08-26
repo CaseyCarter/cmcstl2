@@ -32,26 +32,25 @@
 // is_heap [is.heap]
 //
 STL2_OPEN_NAMESPACE {
-	template <RandomAccessIterator I, Sentinel<I> S,
-		class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<I, Proj>>
-	bool is_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return last == __stl2::is_heap_until(std::move(first), last,
-			std::ref(comp), std::ref(proj));
-	}
+	struct __is_heap_fn {
+		template<RandomAccessIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectStrictWeakOrder<projected<I, Proj>> Comp = ranges::less<>>
+		constexpr bool operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			return last == __stl2::is_heap_until(std::move(first), last,
+				std::ref(comp), std::ref(proj));
+		}
 
-	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<iterator_t<Rng>, Proj>>
-	bool is_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::end(rng) ==
-			__stl2::is_heap_until(rng, std::ref(comp), std::ref(proj));
-	}
+		template<RandomAccessRange R, class Proj = identity,
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = ranges::less<>>
+		constexpr bool operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			return __stl2::end(r) ==
+				__stl2::is_heap_until(r, std::ref(comp), std::ref(proj));
+		}
+	};
+
+	inline constexpr __is_heap_fn is_heap {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
