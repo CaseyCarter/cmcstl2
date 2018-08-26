@@ -149,14 +149,6 @@ STL2_OPEN_NAMESPACE {
 	using std::declval;
 	using std::forward;
 
-	// Must implement move here instead of using std::move to avoid
-	// pulling in the move algorithm.
-	template <class T>
-	requires true
-	constexpr std::remove_reference_t<T>&& __move(T&& t) noexcept {
-		return static_cast<std::remove_reference_t<T>&&>(t);
-	}
-
 	namespace ext {
 		// tags for manually specified overload ordering
 		template <unsigned N>
