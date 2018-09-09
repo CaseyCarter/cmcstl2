@@ -23,31 +23,31 @@
 // any_of [alg.any_of]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	bool any_of(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		if (first != last) {
-			do {
-				if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
-					return true;
-				}
-			} while (++first != last);
+	struct __any_of_fn {
+		template<InputIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		constexpr bool operator()(I first, S last, Pred pred, Proj proj = Proj{}) const
+		{
+			if (first != last) {
+				do {
+					if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
+						return true;
+					}
+				} while (++first != last);
+			}
+			return false;
 		}
-		return false;
-	}
 
-	template <InputRange R, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<R>, Proj>>
-	bool any_of(R&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::any_of(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(pred), std::ref(proj));
-	}
+		template<InputRange R, class Proj = identity,
+			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
+		constexpr bool operator()(R&& rng, Pred pred, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(rng), __stl2::end(rng),
+				std::ref(pred), std::ref(proj));
+		}
+	};
+
+	inline constexpr __any_of_fn any_of {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
