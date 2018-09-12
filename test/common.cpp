@@ -135,7 +135,10 @@ static_assert(is_same<
 
 struct X2 {};
 struct Y2 {};
-struct Z2 {};
+struct Z2 {
+	explicit Z2(X2);
+	explicit Z2(Y2);
+};
 
 STL2_OPEN_NAMESPACE {
 template <>
@@ -183,7 +186,12 @@ namespace libcpp_tests
 }
 STL2_OPEN_NAMESPACE {
 	template <typename T>
-	struct common_type<T, libcpp_tests::S<T> >
+	struct common_type<T, libcpp_tests::S<T>>
+	{
+		typedef libcpp_tests::S<T> type;
+	};
+	template <typename T>
+	struct common_type<libcpp_tests::S<T>, T>
 	{
 		typedef libcpp_tests::S<T> type;
 	};
@@ -357,6 +365,8 @@ namespace libstdcpp_tests
 		operator Abstract*();
 	};
 
+#if 0 // All test cases involving these types are ill-formed NDR since they
+      // specialize common_type<X, Y> differently from common_type<Y, X>
 	struct X1 {};
 	struct X2 {};
 	struct RX12 {};
@@ -365,8 +375,10 @@ namespace libstdcpp_tests
 	struct Y2 {};
 	struct Y3 {};
 	struct Y4 {};
+#endif
 }
 
+#if 0 // These are all ill-formed NDR
 STL2_OPEN_NAMESPACE {
 	template <>
 	struct common_type<libstdcpp_tests::X1, libstdcpp_tests::X2>
@@ -377,7 +389,7 @@ STL2_OPEN_NAMESPACE {
 	template <>
 	struct common_type<libstdcpp_tests::X2, libstdcpp_tests::X1>
 	{
-		typedef libstdcpp_tests::RX21 type;
+		typedef libstdcpp_tests::RX12 type;
 	};
 
 	template <>
@@ -389,7 +401,7 @@ STL2_OPEN_NAMESPACE {
 	template <>
 	struct common_type<libstdcpp_tests::X1, libstdcpp_tests::RX12>
 	{
-		typedef libstdcpp_tests::Y2 type;
+		typedef libstdcpp_tests::Y1 type;
 	};
 
 	template <>
@@ -401,9 +413,10 @@ STL2_OPEN_NAMESPACE {
 	template <>
 	struct common_type<libstdcpp_tests::X1, libstdcpp_tests::RX21>
 	{
-		typedef libstdcpp_tests::Y4 type;
+		typedef libstdcpp_tests::Y3 type;
 	};
 } STL2_CLOSE_NAMESPACE
+#endif
 
 namespace libstdcpp_tests
 {
@@ -502,6 +515,7 @@ namespace libstdcpp_tests
 	static_assert(is_type<common_type<volatile Ukn&&, volatile Ukn&&>,
 			Ukn>(), "");
 
+#if 0 // Ditto ill-formed NDR
 	static_assert(is_type<common_type<X1, X2>, RX12>(), "");
 	static_assert(is_type<common_type<X2, X1>, RX21>(), "");
 
@@ -510,6 +524,7 @@ namespace libstdcpp_tests
 
 	static_assert(is_type<common_type<X1, X1, X2>, RX12>(), "");
 	static_assert(is_type<common_type<X1, X1, X2, X1>, Y1>(), "");
+#endif
 
 	static_assert(!meta::is_trait<common_type<>>(), "");
 	static_assert(!meta::is_trait<common_type<int, S>>(), "");
