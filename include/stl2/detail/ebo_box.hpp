@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr const T&& get() const&& noexcept { return std::move(item_); }
 
 		private:
-			T item_;
+			T item_{};
 		};
 
 		template <ext::DestructibleObject T, class Tag>
