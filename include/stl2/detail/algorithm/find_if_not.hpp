@@ -22,28 +22,25 @@
 // find_if_not [alg.find]
 //
 STL2_OPEN_NAMESPACE {
-	template <class I, class S, class Pred, class Proj = identity>
-	requires
-		InputIterator<__f<I>> &&
-		Sentinel<__f<S>, __f<I>> &&
-		IndirectUnaryPredicate<
-			Pred, projected<__f<I>, Proj>>
-	__f<I> find_if_not(I&& first, S&& last, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::find_if(std::forward<I>(first), std::forward<S>(last),
-			__stl2::not_fn(std::ref(pred)), std::ref(proj));
-	}
+	struct __find_if_not_fn {
+		template<InputIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		constexpr I operator()(I first, S last, Pred pred, Proj proj = Proj{}) const
+		{
+			return __stl2::find_if(std::forward<I>(first), std::forward<S>(last),
+				__stl2::not_fn(std::ref(pred)), std::ref(proj));
+		}
 
-	template <InputRange Rng, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	find_if_not(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::find_if(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::not_fn(std::ref(pred)), std::ref(proj));
-	}
+		template<InputRange R, class Proj = identity,
+			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
+		constexpr safe_iterator_t<R> operator()(R&& r, Pred pred, Proj proj = Proj{}) const
+		{
+			return __stl2::find_if(__stl2::begin(r), __stl2::end(r),
+				__stl2::not_fn(std::ref(pred)), std::ref(proj));
+		}
+	};
+
+	inline constexpr __find_if_not_fn find_if_not {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

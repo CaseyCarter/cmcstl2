@@ -21,44 +21,43 @@
 // find_first_of [alg.find.first.of]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I1, Sentinel<I1> S1,
-		ForwardIterator I2, Sentinel<I2> S2,
-		class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectRelation<Pred,
-			projected<I1, Proj1>,
-			projected<I2, Proj2>>
-	I1 find_first_of(I1 first1, S1 last1, I2 first2, S2 last2,
-		Pred pred = Pred{}, Proj1 proj1 = Proj1{},
-		Proj2 proj2 = Proj2{})
-	{
-		for (; first1 != last1; ++first1) {
-			for (auto pos = first2; pos != last2; ++pos) {
-				if (__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *pos))) {
-					return first1;
+	struct __find_first_of_fn {
+		template<InputIterator I1, Sentinel<I1> S1, ForwardIterator I2, Sentinel<I2> S2,
+			class Proj1 = identity, class Proj2 = identity,
+			IndirectRelation<projected<I1, Proj1>,	projected<I2, Proj2>> Pred = equal_to<>>
+		constexpr I1 operator()(I1 first1, S1 last1, I2 first2, S2 last2,
+			Pred pred = Pred{}, Proj1 proj1 = Proj1{},
+			Proj2 proj2 = Proj2{}) const
+		{
+			for (; first1 != last1; ++first1) {
+				for (auto pos = first2; pos != last2; ++pos) {
+					if (__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *pos))) {
+						return first1;
+					}
 				}
 			}
+			return first1;
 		}
-		return first1;
-	}
 
-	template <InputRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectRelation<Pred,
-			projected<iterator_t<Rng1>, Proj1>,
-			projected<iterator_t<Rng2>, Proj2>>
-	safe_iterator_t<Rng1>
-	find_first_of(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
-	{
-		return __stl2::find_first_of(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2),
-			std::ref(pred), std::ref(proj1),
-			std::ref(proj2));
-	}
+		template<InputRange R1, ForwardRange R2, class Pred = equal_to<>,
+			class Proj1 = identity, class Proj2 = identity>
+		requires
+			IndirectRelation<Pred,
+				projected<iterator_t<R1>, Proj1>,
+				projected<iterator_t<R2>, Proj2>>
+		constexpr safe_iterator_t<R1>
+		operator()(R1&& r1, R2&& r2, Pred pred = Pred{},
+			Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
+		{
+			return (*this)(
+				__stl2::begin(r1), __stl2::end(r1),
+				__stl2::begin(r2), __stl2::end(r2),
+				std::ref(pred), std::ref(proj1),
+				std::ref(proj2));
+		}
+	};
+
+	inline constexpr __find_first_of_fn find_first_of {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
