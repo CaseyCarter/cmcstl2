@@ -39,36 +39,36 @@ STL2_OPEN_NAMESPACE {
 			std::aligned_storage_t<2 * sizeof(void *)> tiny;
 		};
 
-		template <class It>
+		template<class It>
 		using is_small =
 			std::integral_constant<bool, (sizeof(It) <= sizeof(blob::tiny))>;
 		using small_tag = std::true_type;
 		using big_tag = std::false_type;
 
-		template <class RValueReference>
+		template<class RValueReference>
 		using iter_move_fn = RValueReference (*)(blob const &);
 
-		template <class RValueReference>
+		template<class RValueReference>
 		inline iter_move_fn<RValueReference> uninit_noop(op, blob *, blob *) {
 			return nullptr;
 		}
 
-		template <class Reference>
+		template<class Reference>
 		[[noreturn]] inline Reference uninit_deref(blob const &) {
 			std::terminate();
 		}
 
-		template <class Reference, InputIterator I>
+		template<class Reference, InputIterator I>
 		Reference deref_small(blob const &src) {
 			return **static_cast<I const *>(static_cast<void const *>(&src.tiny));
 		}
 
-		template <class Reference, InputIterator I>
+		template<class Reference, InputIterator I>
 		Reference deref_big(blob const &src) {
 			return *static_cast<shared_iterator<I> const *>(src.big)->it;
 		}
 
-		template <class I, class J>
+		template<class I, class J>
 		constexpr bool iter_equal(I const &, J const &) {
 			return true;
 		}
@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 			return i == j;
 		}
 
-		template <class RValueReference, InputIterator I>
+		template<class RValueReference, InputIterator I>
 		iter_move_fn<RValueReference> exec_small(op o, blob *src, blob *dst) {
 			switch (o) {
 			case op::copy:
@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 			return nullptr;
 		}
 
-		template <class RValueReference, InputIterator I>
+		template<class RValueReference, InputIterator I>
 		iter_move_fn<RValueReference> exec_big(op o, blob *src, blob *dst) {
 			switch (o) {
 			case op::copy:
@@ -141,7 +141,7 @@ STL2_OPEN_NAMESPACE {
 			return nullptr;
 		}
 
-		template <class Reference, class ValueType, class RValueReference>
+		template<class Reference, class ValueType, class RValueReference>
 		struct cursor {
 		private:
 			blob data_ = { nullptr };
@@ -240,7 +240,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
-	template <class Reference,
+	template<class Reference,
 		class ValueType = __uncvref<Reference>,
 		class RValueReference = __iter_move::rvalue<Reference>>
 	using any_input_iterator =

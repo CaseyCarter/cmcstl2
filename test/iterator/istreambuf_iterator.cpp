@@ -18,7 +18,7 @@
 using namespace __stl2;
 
 namespace {
-	template <class charT, class traits = std::char_traits<charT>>
+	template<class charT, class traits = std::char_traits<charT>>
 	void validate_one() {
 		using C = __istreambuf_iterator::cursor<charT, traits>;
 		static_assert(cursor::Cursor<C>);
@@ -78,7 +78,7 @@ namespace {
 		static_assert(Constructible<I, decltype(i++)>);
 	}
 
-	template <class... Cs>
+	template<class... Cs>
 	void validate() {
 		(validate_one<Cs>(), ...);
 	}

@@ -28,7 +28,7 @@
 // partial_sort_copy [partial.sort.copy]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I1, Sentinel<I1> S1,
+	template<InputIterator I1, Sentinel<I1> S1,
 		RandomAccessIterator I2, Sentinel<I2> S2,
 		class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 		return r;
 	}
 
-	template <InputRange Rng1, RandomAccessRange Rng2, class Comp = less<>,
+	template<InputRange Rng1, RandomAccessRange Rng2, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		IndirectlyCopyable<iterator_t<Rng1>, iterator_t<Rng2>> &&

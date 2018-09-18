@@ -28,11 +28,11 @@ STL2_OPEN_NAMESPACE {
 		InputIterator{I} class cursor;
 
 		struct access {
-			template <_SpecializationOf<cursor> C>
+			template<_SpecializationOf<cursor> C>
 			static constexpr decltype(auto) current(C&& c) noexcept {
 				return (std::forward<C>(c).current_);
 			}
-			template <_SpecializationOf<move_sentinel> MS>
+			template<_SpecializationOf<move_sentinel> MS>
 			static constexpr decltype(auto) sentinel(MS&& ms) noexcept {
 				return std::forward<MS>(ms).get();
 			}
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(is_nothrow_copy_constructible<I>::value)
 			: current_{i}
 			{}
-			template <ConvertibleTo<I> U>
+			template<ConvertibleTo<I> U>
 			constexpr cursor(const cursor<U>& u)
 			noexcept(is_nothrow_constructible<I, const U&>::value)
 			: current_{access::current(u)}
@@ -119,7 +119,7 @@ STL2_OPEN_NAMESPACE {
 			};
 
 #if STL2_WORKAROUND_GCC_69096
-			template <class = void>
+			template<class = void>
 #endif // STL2_WORKAROUND_GCC_69096
 			constexpr auto post_increment()
 			noexcept(noexcept(__proxy<__postinc_t>{current_++}))
@@ -183,7 +183,7 @@ STL2_OPEN_NAMESPACE {
 	InputIterator{I}
 	using move_iterator = basic_iterator<__move_iterator::cursor<I>>;
 
-	template <class I>
+	template<class I>
 	struct iterator_category<move_iterator<I>> {
 		using type = input_iterator_tag;
 	};
@@ -217,7 +217,7 @@ STL2_OPEN_NAMESPACE {
 		!(a < b)
 	)
 
-	template <class I>
+	template<class I>
 	requires
 		InputIterator<__f<I>>
 	constexpr auto make_move_iterator(I&& i)
@@ -238,13 +238,13 @@ STL2_OPEN_NAMESPACE {
 		noexcept(is_nothrow_move_constructible<S>::value)
 		: box_t(std::move(s))
 		{}
-		template <ConvertibleTo<S> T>
+		template<ConvertibleTo<S> T>
 		constexpr move_sentinel(const move_sentinel<T>& s)
 		noexcept(is_nothrow_constructible<S, const T&>::value)
 		: box_t{__move_iterator::access::sentinel(s)}
 		{}
 
-		template <ConvertibleTo<S> T>
+		template<ConvertibleTo<S> T>
 		constexpr move_sentinel& operator=(const move_sentinel<T>& s) &
 		noexcept(is_nothrow_assignable<S&, const T&>::value)
 		{
@@ -257,7 +257,7 @@ STL2_OPEN_NAMESPACE {
 		{ return box_t::get(); }
 	};
 
-	template <class S>
+	template<class S>
 	requires
 		Semiregular<__f<S>>
 	constexpr auto make_move_sentinel(S&& s)

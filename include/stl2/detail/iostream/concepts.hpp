@@ -19,7 +19,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// StreamExtractable [Extension]
 	//
-	template <class T, class charT = char, class traits = std::char_traits<charT>>
+	template<class T, class charT = char, class traits = std::char_traits<charT>>
 	concept bool StreamExtractable =
 		requires(std::basic_istream<charT, traits>& is, T& t) {
 			{ is >> t } -> Same<std::basic_istream<charT, traits>>&;
@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// StreamInsertable [Extension]
 	//
-	template <class T, class charT = char, class traits = std::char_traits<charT>>
+	template<class T, class charT = char, class traits = std::char_traits<charT>>
 	concept bool StreamInsertable =
 		requires(std::basic_ostream<charT, traits>& os, const T& t) {
 			{ os << t } -> Same<std::basic_ostream<charT, traits>>&;

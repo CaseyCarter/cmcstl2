@@ -27,7 +27,7 @@
 
 namespace ranges = __stl2;
 
-template <typename Iter, typename Sent = Iter>
+template<typename Iter, typename Sent = Iter>
 void test_iter()
 {
 	int ia[] = {0, 1, 2, 2, 0, 1, 2, 3};
@@ -49,7 +49,7 @@ void test_iter()
 						   Pair{Iter(ia+2),Iter(ib+2)});
 }
 
-template <typename Iter, typename Sent = Iter>
+template<typename Iter, typename Sent = Iter>
 void test_range()
 {
 	int ia[] = {0, 1, 2, 2, 0, 1, 2, 3};

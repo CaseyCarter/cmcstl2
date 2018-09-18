@@ -28,7 +28,7 @@ struct S
 	int i_;
 };
 
-template <class> class show_type;
+template<class> class show_type;
 
 int main()
 {

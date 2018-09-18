@@ -13,7 +13,7 @@
 
 #if VALIDATE_RANGES
 namespace ranges {
-template <class T>
+template<class T>
 constexpr bool Boolean =
 	std::is_same<T, bool>(); // Obviously many tests will fail ;)
 }

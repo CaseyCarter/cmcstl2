@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_move [Extension]
 	//
-	template <InputIterator I, Sentinel<I> S, __NoThrowForwardIterator O>
+	template<InputIterator I, Sentinel<I> S, __NoThrowForwardIterator O>
 	[[deprecated]] tagged_pair<tag::in(I), tag::out(O)> uninitialized_move(I first, S last, O result)
 	requires
 		Constructible<iter_value_t<O>, iter_rvalue_reference_t<I>>
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_move [Extension]
 	//
-	template <InputRange Rng, __NoThrowForwardIterator O>
+	template<InputRange Rng, __NoThrowForwardIterator O>
 	[[deprecated]] tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
 	uninitialized_move(Rng&& rng, O result)
 	requires
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_move [Extension]
 	//
-	template <InputIterator I, Sentinel<I> S1, __NoThrowForwardIterator O, __NoThrowSentinel<O> S2>
+	template<InputIterator I, Sentinel<I> S1, __NoThrowForwardIterator O, __NoThrowSentinel<O> S2>
 	requires
 		Constructible<iter_value_t<O>, iter_rvalue_reference_t<I>>
 	tagged_pair<tag::in(I), tag::out(O)> uninitialized_move(I ifirst, S1 ilast, O ofirst, S2 olast)
@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_move [Extension]
 	//
-	template <InputRange IRng, __NoThrowForwardRange ORng>
+	template<InputRange IRng, __NoThrowForwardRange ORng>
 	requires
 		Constructible<iter_value_t<iterator_t<ORng>>, iter_rvalue_reference_t<iterator_t<IRng>>>
 	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(safe_iterator_t<ORng>)>
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_move_n [Extension]
 	//
-	template <InputIterator I, __NoThrowForwardIterator O>
+	template<InputIterator I, __NoThrowForwardIterator O>
 	requires
 		Constructible<iter_value_t<O>, iter_rvalue_reference_t<I>>
 	tagged_pair<tag::in(I), tag::out(O)>

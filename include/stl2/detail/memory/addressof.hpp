@@ -21,22 +21,22 @@ STL2_OPEN_NAMESPACE {
 		using std::addressof;
 
 #elif STL2_HAS_BUILTIN(addressof)
-		template <class T>
+		template<class T>
 		constexpr T* addressof(T& t) noexcept {
 			return __builtin_addressof(t);
 		}
 
 #else
 
-		template <class>
+		template<class>
 		constexpr bool __user_defined_addressof = false;
-		template <class T>
+		template<class T>
 		requires
 			requires(T& t) { t.operator&(); } ||
 			requires(T& t) { operator&(t); }
 		constexpr bool __user_defined_addressof<T> = true;
 
-		template <class T>
+		template<class T>
 		requires __user_defined_addressof<T>
 		T* __addressof(T& t) noexcept {
 			return std::addressof(t);
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 			return &t;
 		}
 
-		template <class T>
+		template<class T>
 		constexpr T* addressof(T& t) noexcept {
 			return detail::__addressof(t);
 		}

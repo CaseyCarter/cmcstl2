@@ -17,19 +17,19 @@
 #include <range/v3/utility/iterator_traits.hpp>
 
 namespace ns {
-	template <class I>
+	template<class I>
 	using iter_difference_t = ranges::iterator_difference_t<I>;
 
-	template <class I>
+	template<class I>
 	using iterator_category_t = ranges::iterator_category_t<I>;
 
-	template <class I>
+	template<class I>
 	using iter_reference_t = ranges::iterator_reference_t<I>;
 
-	template <class I>
+	template<class I>
 	using iter_rvalue_reference_t = ranges::iterator_rvalue_reference_t<I>;
 
-	template <class I>
+	template<class I>
 	using iter_value_t = ranges::iterator_value_t<I>;
 
 	using ranges::value_type;
@@ -107,10 +107,10 @@ namespace associated_type_test {
 	CONCEPT_ASSERT(ranges::Same<ns::iterator_category_t<const int*>, ns::random_access_iterator_tag>);
 #endif
 
-	template <class T>
+	template<class T>
 	struct derive_from : T {};
 
-	template <class T, bool Derive>
+	template<class T, bool Derive>
 	using iterator =
 		meta::apply<
 			meta::bind_front<
@@ -121,7 +121,7 @@ namespace associated_type_test {
 				meta::list<void, void, void, void>,
 				meta::list<int>>>;
 
-	template <class T, bool B, class U>
+	template<class T, bool B, class U>
 	using test = std::is_same<ns::iterator_category_t<iterator<T, B>>, U>;
 
 	CONCEPT_ASSERT(!meta::is_trait<ns::iterator_category<void*>>());
@@ -259,7 +259,7 @@ namespace indirectly_callable_test {
 }
 
 namespace indirect_invoke_result_test {
-	template <class R, class... Args>
+	template<class R, class... Args>
 	using fn_t = R(Args...);
 	CONCEPT_ASSERT(ranges::Same<ns::indirect_result_t<fn_t<void, int>&, const int*>, void>);
 }

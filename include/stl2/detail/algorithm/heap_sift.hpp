@@ -33,7 +33,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template <RandomAccessIterator I, class Comp, class Proj>
+		template<RandomAccessIterator I, class Comp, class Proj>
 		requires
 			IndirectStrictWeakOrder<Comp,
 				projected<I, Proj>, projected<I, Proj>>
@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template <RandomAccessIterator I, class Comp, class Proj>
+		template<RandomAccessIterator I, class Comp, class Proj>
 		requires
 			IndirectStrictWeakOrder<Comp,
 				projected<I, Proj>, projected<I, Proj>>

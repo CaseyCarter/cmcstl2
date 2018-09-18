@@ -28,16 +28,16 @@
 // common_iterator [common.iterators]
 //
 STL2_OPEN_NAMESPACE {
-	template <Iterator I, Sentinel<I> S>
+	template<Iterator I, Sentinel<I> S>
 		requires !Same<I, S>
 	class common_iterator;
 
 	namespace __common_iterator {
-		template <class T>
+		template<class T>
 		class operator_arrow_proxy {
 			T value_;
 		public:
-			template <class U>
+			template<class U>
 			constexpr explicit operator_arrow_proxy(U&& u)
 			noexcept(std::is_nothrow_constructible<T, U>::value)
 			requires Constructible<T, U>
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template <class I>
+		template<class I>
 		requires
 			Readable<const I> &&
 			(std::is_pointer<I>::value ||
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 			return i;
 		}
 
-		template <class I>
+		template<class I>
 		requires
 			Readable<const I> &&
 			_Is<iter_reference_t<const I>, std::is_reference>
@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 			return detail::addressof(tmp);
 		}
 
-		template <class I>
+		template<class I>
 		requires
 			Readable<const I> &&
 			!std::is_reference<iter_reference_t<I>>::value &&
@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 			return operator_arrow_proxy<iter_value_t<I>>{*i};
 		}
 
-		template <class I>
+		template<class I>
 		requires
 			Readable<const I> &&
 			requires(const I& i) {
@@ -94,13 +94,13 @@ STL2_OPEN_NAMESPACE {
 		)
 
 		struct access {
-			template <_SpecializationOf<common_iterator> C>
+			template<_SpecializationOf<common_iterator> C>
 			static constexpr decltype(auto) v(C&& c) noexcept {
 				return (std::forward<C>(c).v_);
 			}
 		};
 
-		template <Iterator I, Sentinel<I> S, ConvertibleTo<I> II, ConvertibleTo<S> SS>
+		template<Iterator I, Sentinel<I> S, ConvertibleTo<I> II, ConvertibleTo<S> SS>
 		struct convert_visitor {
 			constexpr auto operator()(const II& i) const
 			STL2_NOEXCEPT_RETURN(
@@ -112,7 +112,7 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 
-		template <Iterator I, Sentinel<I> S, ConvertibleTo<I> II, ConvertibleTo<S> SS>
+		template<Iterator I, Sentinel<I> S, ConvertibleTo<I> II, ConvertibleTo<S> SS>
 		struct assign_visitor {
 			std::variant<I, S> *pv_;
 			void operator()(const II& i) const
@@ -125,7 +125,7 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 
-		template <Iterator I1, Iterator I2, Sentinel<I2> S1, Sentinel<I1> S2>
+		template<Iterator I1, Iterator I2, Sentinel<I2> S1, Sentinel<I1> S2>
 		struct equal_visitor {
 			constexpr bool operator()(const I1&, const I2&) const noexcept {
 				return true;
@@ -145,7 +145,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template <class I2, SizedSentinel<I2> I1,
+		template<class I2, SizedSentinel<I2> I1,
 			SizedSentinel<I2> S1, SizedSentinel<I1> S2>
 		struct difference_visitor {
 			constexpr iter_difference_t<I2> operator()(
@@ -161,10 +161,10 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
-	template <Iterator I, Sentinel<I> S>
+	template<Iterator I, Sentinel<I> S>
 		requires !Same<I, S>
 	class common_iterator {
-		template <Iterator II, Sentinel<II> SS>
+		template<Iterator II, Sentinel<II> SS>
 			requires !Same<II, SS>
 		friend class common_iterator;
 		friend __common_iterator::access;
@@ -182,7 +182,7 @@ STL2_OPEN_NAMESPACE {
 		noexcept(is_nothrow_constructible<std::variant<I, S>, S>::value)
 		: v_{std::move(s)} {}
 
-		template <ConvertibleTo<I> II, ConvertibleTo<S> SS>
+		template<ConvertibleTo<I> II, ConvertibleTo<S> SS>
 		constexpr common_iterator(const common_iterator<II, SS>& i)
 		noexcept(
 			std::is_nothrow_constructible<I, const II&>::value &&
@@ -190,7 +190,7 @@ STL2_OPEN_NAMESPACE {
 		: v_{std::visit(__common_iterator::convert_visitor<I, S, II, SS>{}, i.v_)}
 		{}
 
-		template <ConvertibleTo<I> II, ConvertibleTo<S> SS>
+		template<ConvertibleTo<I> II, ConvertibleTo<S> SS>
 		common_iterator& operator=(const common_iterator<II, SS>& i)
 		noexcept(
 			std::is_nothrow_assignable<I&, const II&>::value &&
@@ -247,7 +247,7 @@ STL2_OPEN_NAMESPACE {
 			return __stl2::iter_move(__stl2::__get_unchecked<I>(i.v_));
 		}
 
-		template <IndirectlySwappable<I> I2, class S2>
+		template<IndirectlySwappable<I> I2, class S2>
 		friend void iter_swap(const common_iterator& x,
 			const common_iterator<I2, S2>& y)
 			noexcept(noexcept(__stl2::iter_swap(std::declval<const I&>(),
@@ -259,20 +259,20 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template <Readable I, class S>
+	template<Readable I, class S>
 	struct readable_traits<common_iterator<I, S>> {
 		using type = iter_value_t<I>;
 	};
-	template <InputIterator I, class S>
+	template<InputIterator I, class S>
 	struct iterator_category<common_iterator<I, S>> {
 		using type = input_iterator_tag;
 	};
-	template <ForwardIterator I, class S>
+	template<ForwardIterator I, class S>
 	struct iterator_category<common_iterator<I, S>> {
 		using type = forward_iterator_tag;
 	};
 
-	template <class I1, class I2, Sentinel<I2> S1, Sentinel<I1> S2>
+	template<class I1, class I2, Sentinel<I2> S1, Sentinel<I1> S2>
 	bool operator==(
 		const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
 	STL2_NOEXCEPT_RETURN(
@@ -281,14 +281,14 @@ STL2_OPEN_NAMESPACE {
 				   __common_iterator::access::v(y))
 	)
 
-	template <class I1, class I2, Sentinel<I2> S1, Sentinel<I1> S2>
+	template<class I1, class I2, Sentinel<I2> S1, Sentinel<I1> S2>
 	bool operator!=(
 		const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
 	STL2_NOEXCEPT_RETURN(
 		!(x == y)
 	)
 
-	template <class I2, SizedSentinel<I2> I1, SizedSentinel<I2> S1,
+	template<class I2, SizedSentinel<I2> I1, SizedSentinel<I2> S1,
 		SizedSentinel<I1> S2>
 	iter_difference_t<I2> operator-(
 		const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)

@@ -20,7 +20,7 @@
 // generate [alg.generate]
 //
 STL2_OPEN_NAMESPACE {
-	template <class F, Iterator O, Sentinel<O> S>
+	template<class F, Iterator O, Sentinel<O> S>
 	requires
 		Invocable<F&> &&
 		Writable<O, result_of_t<F&()>>
@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 		return first;
 	}
 
-	template <class Rng, class F>
+	template<class Rng, class F>
 	requires
 		Invocable<F&> &&
 		OutputRange<Rng, result_of_t<F&()>>

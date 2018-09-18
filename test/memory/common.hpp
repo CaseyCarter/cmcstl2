@@ -18,7 +18,7 @@
 #include <stl2/memory.hpp>
 #include <stl2/utility.hpp>
 
-template <typename T>
+template<typename T>
 class raw_buffer {
 public:
 	using value_type = T;
@@ -84,7 +84,7 @@ private:
 	std::ptrdiff_t size_;
 };
 
-template <typename T>
+template<typename T>
 auto make_buffer(const std::size_t size) {
 	STL2_EXPECT(size <= static_cast<std::size_t>(PTRDIFF_MAX));
 	return raw_buffer<T>{static_cast<std::ptrdiff_t>(size)};
@@ -117,7 +117,7 @@ private:
 	std::string author_{"J.R.R Tolkien"};
 };
 
-template <typename T>
+template<typename T>
 using Array = std::array<T, 8>;
 
 #endif // COMMON_HPP

@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 
 				seeder() = default;
 				seeder(std::initializer_list<result_type>) {}
-				template <InputIterator I, Sentinel<I> S>
+				template<InputIterator I, Sentinel<I> S>
 				seeder(I, S) {}
 
 				template<RandomAccessIterator I, SizedSentinel<I> S>

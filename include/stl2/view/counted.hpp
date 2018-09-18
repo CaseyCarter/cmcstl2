@@ -20,14 +20,14 @@
 STL2_OPEN_NAMESPACE {
 	namespace view {
 		struct __counted_fn {
-			template <_Is<std::is_object> T>
+			template<_Is<std::is_object> T>
 			constexpr auto operator()(T* p, std::ptrdiff_t d) const
 			{
 				STL2_EXPECT(d >= 0);
 				return subrange{p, p + d};
 			}
 
-			template <Iterator I>
+			template<Iterator I>
 			constexpr auto operator()(I i, iter_difference_t<I> d) const
 			{ return subrange{counted_iterator{i, d}, default_sentinel{}}; }
 		};

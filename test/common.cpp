@@ -28,8 +28,8 @@ struct X {};
 struct Y { explicit Y(X){} };
 
 STL2_OPEN_NAMESPACE {
-template <> struct common_type<X, Y> { typedef Y type; };
-template <> struct common_type<Y, X> { typedef Y type; };
+template<> struct common_type<X, Y> { typedef Y type; };
+template<> struct common_type<Y, X> { typedef Y type; };
 } STL2_CLOSE_NAMESPACE
 
 static_assert(is_same<common_type_t<X, Y>, Y>(), "");    // (A)
@@ -50,7 +50,7 @@ static_assert(is_same<common_reference_t<int &&, int const &, float &>, float>()
 static_assert(!meta::is_trait<common_reference<int, short, int, char*>>(), "");
 
 STL2_OPEN_NAMESPACE {
-template <class... T, class... U, template <class> class TQual, template <class> class UQual>
+template<class... T, class... U, template<class> class TQual, template<class> class UQual>
 	requires(_Valid<common_reference_t, TQual<T>, UQual<U>> && ...)
 struct basic_common_reference<tuple<T...>, tuple<U...>, TQual, UQual> {
 	using type = tuple<common_reference_t<TQual<T>, UQual<U>>...>;
@@ -141,12 +141,12 @@ struct Z2 {
 };
 
 STL2_OPEN_NAMESPACE {
-template <>
+template<>
 struct common_type<X2, Y2>
 {
 	using type = Z2;
 };
-template <>
+template<>
 struct common_type<Y2, X2>
 {
 	using type = Z2;
@@ -178,19 +178,19 @@ namespace libcpp_tests
 {
 	struct E {};
 
-	template <class T>
+	template<class T>
 	struct X { explicit X(T const&){} };
 
-	template <class T>
+	template<class T>
 	struct S { explicit S(T const&){} };
 }
 STL2_OPEN_NAMESPACE {
-	template <typename T>
+	template<typename T>
 	struct common_type<T, libcpp_tests::S<T>>
 	{
 		typedef libcpp_tests::S<T> type;
 	};
-	template <typename T>
+	template<typename T>
 	struct common_type<libcpp_tests::S<T>, T>
 	{
 		typedef libcpp_tests::S<T> type;
@@ -198,10 +198,10 @@ STL2_OPEN_NAMESPACE {
 } STL2_CLOSE_NAMESPACE
 namespace libcpp_tests
 {
-	template <class T, class U>
+	template<class T, class U>
 	struct no_common_type : true_type {};
 
-	template <class T, class U>
+	template<class T, class U>
 	requires requires {typename common_type_t<T, U>;}
 	struct no_common_type<T, U> : false_type {};
 
@@ -292,10 +292,10 @@ STL2_OPEN_NAMESPACE {
 
 namespace libstdcpp_tests
 {
-	template <typename T, typename Expected>
+	template<typename T, typename Expected>
 	struct is_type : std::false_type {};
 
-	template <meta::Trait T, typename Expected>
+	template<meta::Trait T, typename Expected>
 		requires Same<meta::_t<T>, Expected>
 	struct is_type<T, Expected> : std::true_type {};
 
@@ -312,19 +312,19 @@ namespace libstdcpp_tests
 	struct G1 { operator const void*(); };
 	struct G2 { operator volatile void*(); };
 
-	template <typename T>
+	template<typename T>
 	struct ImplicitTo
 	{
 		operator T();
 	};
 
-	template <typename T>
+	template<typename T>
 	struct ExplicitTo
 	{
 		explicit operator T();
 	};
 
-	template <typename T>
+	template<typename T>
 	struct PrivateImplicitTo
 	{
 	private:
@@ -380,37 +380,37 @@ namespace libstdcpp_tests
 
 #if 0 // These are all ill-formed NDR
 STL2_OPEN_NAMESPACE {
-	template <>
+	template<>
 	struct common_type<libstdcpp_tests::X1, libstdcpp_tests::X2>
 	{
 		typedef libstdcpp_tests::RX12 type;
 	};
 
-	template <>
+	template<>
 	struct common_type<libstdcpp_tests::X2, libstdcpp_tests::X1>
 	{
 		typedef libstdcpp_tests::RX12 type;
 	};
 
-	template <>
+	template<>
 	struct common_type<libstdcpp_tests::RX12, libstdcpp_tests::X1>
 	{
 		typedef libstdcpp_tests::Y1 type;
 	};
 
-	template <>
+	template<>
 	struct common_type<libstdcpp_tests::X1, libstdcpp_tests::RX12>
 	{
 		typedef libstdcpp_tests::Y1 type;
 	};
 
-	template <>
+	template<>
 	struct common_type<libstdcpp_tests::RX21, libstdcpp_tests::X1>
 	{
 		typedef libstdcpp_tests::Y3 type;
 	};
 
-	template <>
+	template<>
 	struct common_type<libstdcpp_tests::X1, libstdcpp_tests::RX21>
 	{
 		typedef libstdcpp_tests::Y3 type;
@@ -603,7 +603,7 @@ namespace libstdcpp_tests
 				decltype(local_lmd2)&>>(), "");
 	}
 
-	template <typename... Args>
+	template<typename... Args>
 	constexpr
 	std::array<typename common_type<Args...>::type,
 		sizeof...(Args)>

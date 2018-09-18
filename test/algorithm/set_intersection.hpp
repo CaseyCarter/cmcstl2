@@ -28,7 +28,7 @@
 
 namespace stl2 = __stl2;
 
-template <class Iter1, class Iter2, class OutIter>
+template<class Iter1, class Iter2, class OutIter>
 void
 test()
 {

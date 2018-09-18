@@ -24,7 +24,7 @@
 // partition_copy [alg.partitions]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O1,
+	template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O1,
 		WeaklyIncrementable O2, class Pred, class Proj = identity>
 	requires
 		IndirectlyCopyable<I, O1> &&
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 			std::move(out_true), std::move(out_false)};
 	}
 
-	template <InputRange Rng, class O1, class O2, class Pred, class Proj = identity>
+	template<InputRange Rng, class O1, class O2, class Pred, class Proj = identity>
 	requires
 		WeaklyIncrementable<__f<O1>> &&
 		WeaklyIncrementable<__f<O2>> &&

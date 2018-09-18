@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		template<class T>
 		using data_pointer_t = decltype(__stl2::data(std::declval<T&>()));
 
-		template <class Range>
+		template<class Range>
 		concept bool SizedContiguousRange =
 			ContiguousRange<Range> && SizedRange<Range>;
 
@@ -42,12 +42,12 @@ STL2_OPEN_NAMESPACE {
 #endif
 		constexpr auto dynamic_extent = static_cast<__span::index_t>(-1);
 
-		template <_Is<std::is_object> ElementType, __span::index_t Extent = dynamic_extent>
+		template<_Is<std::is_object> ElementType, __span::index_t Extent = dynamic_extent>
 		requires Extent >= dynamic_extent
 		struct span;
 
 		namespace __span {
-			template <index_t Extent>
+			template<index_t Extent>
 			requires Extent >= dynamic_extent
 			struct extent {
 				constexpr extent() noexcept = default;
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 				}
 				constexpr index_t size() const noexcept { return Extent; }
 			};
-			template <>
+			template<>
 			struct extent<dynamic_extent> {
 				constexpr extent() noexcept = default;
 				constexpr extent(index_t size) noexcept
@@ -70,42 +70,42 @@ STL2_OPEN_NAMESPACE {
 				index_t size_ = 0;
 			};
 
-			template <class> struct static_extent_ {};
-			template <class T, std::size_t Extent>
+			template<class> struct static_extent_ {};
+			template<class T, std::size_t Extent>
 			struct static_extent_<T[Extent]>
 			: std::integral_constant<index_t, static_cast<index_t>(Extent)>
 			{};
-			template <class T, std::size_t Extent>
+			template<class T, std::size_t Extent>
 			struct static_extent_<std::array<T, Extent>>
 			: std::integral_constant<index_t, static_cast<index_t>(Extent)>
 			{};
-			template <class T, index_t Extent>
+			template<class T, index_t Extent>
 			struct static_extent_<span<T, Extent>>
 			: std::integral_constant<index_t, Extent>
 			{};
-			template <class T>
+			template<class T>
 			struct static_extent_<span<T>>
 			{};
-			template <class T>
+			template<class T>
 			using static_extent = static_extent_<__uncvref<T>>;
 
-			template <class>
+			template<class>
 			constexpr bool has_static_extent = false;
-			template <class T>
+			template<class T>
 			requires requires { static_extent<T>::value; }
 			constexpr bool has_static_extent<T> = true;
 
-			template <class Range>
+			template<class Range>
 			concept bool StaticSizedContiguousRange =
 				SizedContiguousRange<Range> && has_static_extent<Range>;
 
-			template <class Range, class ElementType>
+			template<class Range, class ElementType>
 			concept bool compatible = SizedContiguousRange<Range> &&
 				ConvertibleTo<
 					std::remove_pointer_t<data_pointer_t<Range>>(*)[],
 					ElementType(*)[]>;
 
-			template <Integral To, Integral From>
+			template<Integral To, Integral From>
 			constexpr To narrow_cast(From from) noexcept {
 				using C = common_type_t<To, From>;
 				auto to = static_cast<To>(from);
@@ -114,7 +114,7 @@ STL2_OPEN_NAMESPACE {
 				return to;
 			}
 
-			template <class T>
+			template<class T>
 			constexpr index_t byte_extent(index_t count) noexcept
 			{
 				if (count < 0) {
@@ -126,7 +126,7 @@ STL2_OPEN_NAMESPACE {
 		} // namespace __span
 
 		// [span], class template span
-		template <_Is<std::is_object> ElementType, __span::index_t Extent>
+		template<_Is<std::is_object> ElementType, __span::index_t Extent>
 		requires Extent >= dynamic_extent
 		struct span : private __span::extent<Extent> {
 			// constants and types
@@ -153,14 +153,14 @@ STL2_OPEN_NAMESPACE {
 			: span{first, last - first}
 			{}
 
-			template <__span::compatible<ElementType> Range>
+			template<__span::compatible<ElementType> Range>
 			requires Extent == __span::static_extent<Range>::value
 			constexpr span(Range&& rng)
 			noexcept(noexcept(__stl2::data(rng)))
 			: span{__stl2::data(rng), Extent}
 			{}
 
-			template <__span::compatible<ElementType> Range>
+			template<__span::compatible<ElementType> Range>
 			requires (Extent == dynamic_extent || !__span::has_static_extent<Range>)
 			constexpr span(Range&& rng)
 			noexcept(noexcept(__stl2::data(rng), __stl2::size(rng)))
@@ -168,7 +168,7 @@ STL2_OPEN_NAMESPACE {
 			{}
 
 			// [span.sub], span subviews
-			template <index_type Count>
+			template<index_type Count>
 			constexpr span<element_type, Count> first() const noexcept
 			{
 				static_assert(Count >= 0,
@@ -187,7 +187,7 @@ STL2_OPEN_NAMESPACE {
 				return {data_, count};
 			}
 
-			template <index_type Count>
+			template<index_type Count>
 			constexpr span<element_type, Count> last() const noexcept
 			{
 				static_assert(Count >= 0,
@@ -206,7 +206,7 @@ STL2_OPEN_NAMESPACE {
 				return {data_ + size() - count, count};
 			}
 
-			template <index_type Offset, index_type Count>
+			template<index_type Offset, index_type Count>
 			constexpr span<element_type, Count> subspan() const noexcept
 			{
 				static_assert(Offset >= 0,
@@ -219,7 +219,7 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT((Offset == 0 && Count == 0) || data_ != nullptr);
 				return {data_ + Offset, Count};
 			}
-			template <index_type Offset>
+			template<index_type Offset>
 			requires Offset >= 0 && (Extent == dynamic_extent || Extent >= Offset)
 			constexpr span<element_type, Extent >= Offset ? Extent - Offset : dynamic_extent> subspan() const noexcept
 			{
@@ -279,36 +279,36 @@ STL2_OPEN_NAMESPACE {
 			friend constexpr iterator end(span&& s) noexcept { return s.end(); }
 
 			// [span.comparison], span comparison operators
-			template <EqualityComparableWith<ElementType> U, index_type UExtent>
+			template<EqualityComparableWith<ElementType> U, index_type UExtent>
 			bool operator==(span<U, UExtent> that) const
 			{
 				STL2_EXPECT(!size() || data());
 				STL2_EXPECT(!that.size() || that.data());
 				return __stl2::equal(*this, that);
 			}
-			template <EqualityComparableWith<ElementType> U, index_type UExtent>
+			template<EqualityComparableWith<ElementType> U, index_type UExtent>
 			bool operator!=(span<U, UExtent> that) const
 			{
 				return !(*this == that);
 			}
-			template <StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
+			template<StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
 			bool operator<(span<U, UExtent> that) const
 			{
 				STL2_EXPECT(!size() || data());
 				STL2_EXPECT(!that.size() || that.data());
 				return __stl2::lexicographical_compare(*this, that);
 			}
-			template <StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
+			template<StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
 			bool operator>(span<U, UExtent> that)
 			{
 				return that < *this;
 			}
-			template <StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
+			template<StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
 			bool operator<=(span<U, UExtent> that)
 			{
 				return !(that < *this);
 			}
-			template <StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
+			template<StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
 			bool operator>=(span<U, UExtent> that)
 			{
 				return !(*this < that);
@@ -319,46 +319,46 @@ STL2_OPEN_NAMESPACE {
 		};
 
 #ifdef __cpp_deduction_guides
-		template <SizedContiguousRange Rng>
+		template<SizedContiguousRange Rng>
 		span(Rng&& rng) -> span<std::remove_pointer_t<data_pointer_t<Rng>>>;
 
-		template <__span::StaticSizedContiguousRange Rng>
+		template<__span::StaticSizedContiguousRange Rng>
 		span(Rng&& rng) -> span<std::remove_pointer_t<data_pointer_t<Rng>>,
 			__span::static_extent<Rng>::value>;
 #endif
 
 		// [span.objectrep], views of object representation
-		template <class ElementType, __span::index_t Extent>
+		template<class ElementType, __span::index_t Extent>
 		span<const unsigned char, __span::byte_extent<ElementType>(Extent)>
 		as_bytes(span<ElementType, Extent> s) noexcept
 		{
 			return {reinterpret_cast<const unsigned char*>(s.data()), s.size_bytes()};
 		}
-		template <class ElementType, __span::index_t Extent>
+		template<class ElementType, __span::index_t Extent>
 		span<unsigned char, __span::byte_extent<ElementType>(Extent)>
 		as_writeable_bytes(span<ElementType, Extent> s) noexcept
 		{
 			return {reinterpret_cast<unsigned char*>(s.data()), s.size_bytes()};
 		}
 
-		template <class ElementType>
+		template<class ElementType>
 		constexpr auto make_span(ElementType* ptr, __span::index_t count) noexcept
 		{
 			return span<ElementType>{ptr, count};
 		}
-		template <class ElementType>
+		template<class ElementType>
 		constexpr auto make_span(ElementType* first, ElementType* last) noexcept
 		{
 			return span<ElementType>{first, last};
 		}
-		template <SizedContiguousRange Rng>
+		template<SizedContiguousRange Rng>
 		constexpr auto make_span(Rng&& rng)
 		noexcept(noexcept(__stl2::data(rng), __stl2::size(rng)))
 		{
 			using S = span<std::remove_pointer_t<data_pointer_t<Rng>>>;
 			return S{__stl2::data(rng), __span::narrow_cast<__span::index_t>(__stl2::size(rng))};
 		}
-		template <__span::StaticSizedContiguousRange Rng>
+		template<__span::StaticSizedContiguousRange Rng>
 		constexpr auto make_span(Rng&& rng)
 		noexcept(noexcept(__stl2::data(rng)))
 		{

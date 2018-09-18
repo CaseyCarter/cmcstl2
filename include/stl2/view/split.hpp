@@ -25,25 +25,25 @@
 #include <type_traits>
 
 STL2_OPEN_NAMESPACE {
-	template <class R>
+	template<class R>
 	concept bool _TinyRange =
 		SizedRange<R> && std::remove_reference_t<R>::size() <= 1;
 
-	template <InputRange Rng>
+	template<InputRange Rng>
 	struct __split_view_base {
 		iterator_t<Rng> current_ {};
 	};
-	template <ForwardRange Rng>
+	template<ForwardRange Rng>
 	struct __split_view_base<Rng> {};
 
-	template <InputRange Rng, ForwardRange Pattern>
+	template<InputRange Rng, ForwardRange Pattern>
 	requires View<Rng> && View<Pattern> &&
 		IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to<>> &&
 		(ForwardRange<Rng> || _TinyRange<Pattern>)
 	struct split_view : private __split_view_base<Rng> {
 	private:
-		template <bool Const> struct __outer_iterator;
-		template <bool Const> struct __inner_iterator;
+		template<bool Const> struct __outer_iterator;
+		template<bool Const> struct __inner_iterator;
 
 		Rng base_ {};
 		Pattern pattern_ {};
@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 		: base_(std::move(base))
 		, pattern_(std::move(pattern)) {}
 
-		template <InputRange O, ForwardRange P>
+		template<InputRange O, ForwardRange P>
 		requires
 			_ConstructibleFromRange<Rng, O> &&
 			_ConstructibleFromRange<Pattern, P>
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 		: base_(view::all(std::forward<O>(o)))
 		, pattern_(view::all(std::forward<P>(p))) {}
 
-		template <InputRange O>
+		template<InputRange O>
 		requires
 			_ConstructibleFromRange<Rng, O> &&
 			Constructible<Pattern, single_view<iter_value_t<iterator_t<O>>>>
@@ -96,22 +96,22 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template <class Rng, class Pattern>
+	template<class Rng, class Pattern>
 	split_view(Rng&&, Pattern&&) -> split_view<all_view<Rng>, all_view<Pattern>>;
 
-	template <InputRange Rng>
+	template<InputRange Rng>
 	split_view(Rng&&, iter_value_t<iterator_t<Rng>>)
 		-> split_view<all_view<Rng>, single_view<iter_value_t<iterator_t<Rng>>>>;
 
-	template <class, bool>
+	template<class, bool>
 	struct __split_view_outer_base {};
-	template <ForwardRange Rng, bool Const>
+	template<ForwardRange Rng, bool Const>
 	struct __split_view_outer_base<Rng, Const> {
 		iterator_t<__maybe_const<Const, Rng>> current_ {};
 	};
 
-	template <class Rng, class Pattern>
-	template <bool Const>
+	template<class Rng, class Pattern>
+	template<bool Const>
 	struct split_view<Rng, Pattern>::__outer_iterator
 	: private __split_view_outer_base<Rng, Const> {
 	private:
@@ -205,8 +205,8 @@ STL2_OPEN_NAMESPACE {
 		{ return !(y == x);	}
 	};
 
-	template <class Rng, class Pattern>
-	template <bool Const>
+	template<class Rng, class Pattern>
+	template<bool Const>
 	struct split_view<Rng, Pattern>::__outer_iterator<Const>::value_type {
 	private:
 		__outer_iterator i_ {};
@@ -222,8 +222,8 @@ STL2_OPEN_NAMESPACE {
 		{ return default_sentinel{}; }
 	};
 
-	template <class Rng, class Pattern>
-	template <bool Const>
+	template<class Rng, class Pattern>
+	template<bool Const>
 	struct split_view<Rng, Pattern>::__inner_iterator {
 	private:
 		using Base = __maybe_const<Const, Rng>;
@@ -302,7 +302,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace view {
 		struct __split_fn {
-			template <class E, class F>
+			template<class E, class F>
 			requires requires(E&& e, F&& f) {
 				split_view{static_cast<E&&>(e), static_cast<F&&>(f)};
 			}
@@ -311,7 +311,7 @@ STL2_OPEN_NAMESPACE {
 				split_view{static_cast<E&&>(e), static_cast<F&&>(f)}
 			)
 
-			template <CopyConstructible T>
+			template<CopyConstructible T>
 			constexpr auto operator()(T&& t) const
 			{ return detail::view_closure{*this, std::forward<T>(t)}; }
 		};

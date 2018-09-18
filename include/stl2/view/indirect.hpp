@@ -23,7 +23,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <View Rng>
+		template<View Rng>
 		requires
 			InputRange<Rng> &&
 			Readable<remove_reference_t<iter_reference_t<iterator_t<Rng>>>>
@@ -33,16 +33,16 @@ STL2_OPEN_NAMESPACE {
 			using base_t = detail::ebo_box<Rng, indirect_view<Rng>>;
 			using base_t::get;
 
-			template <bool IsConst>
+			template<bool IsConst>
 			using sentinel_t = __stl2::sentinel_t<__maybe_const<IsConst, Rng>>;
-			template <bool IsConst>
+			template<bool IsConst>
 			using iterator_t = __stl2::iterator_t<__maybe_const<IsConst, Rng>>;
 
-			template <bool IsConst>
+			template<bool IsConst>
 			struct sentinel {
 				sentinel_t<IsConst> s_;
 			};
-			template <bool IsConst>
+			template<bool IsConst>
 			struct cursor {
 				iterator_t<IsConst> it_;
 
@@ -107,16 +107,16 @@ STL2_OPEN_NAMESPACE {
 			{ return __stl2::size(get()); }
 		};
 
-		template <class Rng>
+		template<class Rng>
 		indirect_view(Rng&&) -> indirect_view<all_view<Rng>>;
 	} // namespace ext
 
-	template <class V>
+	template<class V>
 	struct enable_view<ext::indirect_view<V>> : std::true_type {};
 
 	namespace view::ext {
 		struct __indirect_fn : detail::__pipeable<__indirect_fn> {
-			template <class Rng>
+			template<class Rng>
 			constexpr auto operator()(Rng&& rng) const
 			STL2_NOEXCEPT_REQUIRES_RETURN(
 				__stl2::ext::indirect_view(all(std::forward<Rng>(rng)))

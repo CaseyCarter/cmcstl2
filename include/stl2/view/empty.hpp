@@ -17,7 +17,7 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <_Is<std::is_object> T>
+	template<_Is<std::is_object> T>
 	class empty_view : public view_interface<empty_view<T>> {
 	public:
 		constexpr static T* begin() noexcept
@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	namespace view {
-		template <class T>
+		template<class T>
 		inline constexpr empty_view<T> empty {};
 	}
 } STL2_CLOSE_NAMESPACE

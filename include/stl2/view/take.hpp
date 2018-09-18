@@ -23,16 +23,16 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <View R>
+	template<View R>
 	struct take_view : view_interface<take_view<R>> {
 	private:
-		template <bool> struct __sentinel;
+		template<bool> struct __sentinel;
 		using D = iter_difference_t<iterator_t<R>>;
 
 		R base_ {};
 		D count_ {};
 
-		template <class Self>
+		template<class Self>
 		static constexpr auto begin_(Self& self) {
 			using RR = __maybe_const<std::is_const_v<Self>, R>;
 			if constexpr (SizedRange<RR>) {
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 				return counted_iterator{__stl2::begin(self.base_), self.count_};
 			}
 		}
-		template <class Self>
+		template<class Self>
 		static constexpr auto end_(Self& self) {
 			constexpr bool is_const = std::is_const_v<Self>;
 			using RR = __maybe_const<is_const, R>;
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 				return __sentinel<is_const>{__stl2::end(self.base_)};
 			}
 		}
-		template <class Self>
+		template<class Self>
 		static constexpr auto size_(Self& self) {
 			const auto n = __stl2::size(self.base_);
 			const auto c = static_cast<decltype(n)>(self.count_);
@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr take_view(R base, D count)
 		: base_(static_cast<R&&>(base)), count_(count) {}
 
-		template <ViewableRange O>
+		template<ViewableRange O>
 		requires _ConstructibleFromRange<R, O>
 		constexpr take_view(O&& o, D count)
 		: base_(view::all(static_cast<O&&>(o))), count_(count) {}
@@ -87,11 +87,11 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto size() const requires SizedRange<const R> { return size_(*this); }
 	};
 
-	template <Range R>
+	template<Range R>
 	take_view(R&&, iter_difference_t<iterator_t<R>>) -> take_view<all_view<R>>;
 
-	template <class R>
-	template <bool Const>
+	template<class R>
+	template<bool Const>
 	struct take_view<R>::__sentinel {
 	private:
 		using Base = __maybe_const<Const, R>;
@@ -119,13 +119,13 @@ STL2_OPEN_NAMESPACE {
 
 	namespace view {
 		struct __take_fn {
-			template <Range Rng>
+			template<Range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
 			STL2_NOEXCEPT_REQUIRES_RETURN(
 				take_view{view::all(static_cast<Rng&&>(rng)), count}
 			)
 
-			template <Integral D>
+			template<Integral D>
 			constexpr auto operator()(D count) const
 			{ return detail::view_closure{*this, static_cast<D>(count)}; }
 		};

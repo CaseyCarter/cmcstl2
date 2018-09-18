@@ -28,19 +28,19 @@
 
 namespace stl2 = __stl2;
 
-template <stl2::ForwardIterator I, stl2::Sentinel<I> S, class T>
+template<stl2::ForwardIterator I, stl2::Sentinel<I> S, class T>
 	requires stl2::Writable<I, const T&>
 I count_and_fill(I i, S s, const T& t) {
 	return stl2::fill_n(i, stl2::distance(i, s), t);
 }
 
-template <stl2::ForwardRange Rng, class T>
+template<stl2::ForwardRange Rng, class T>
 	requires stl2::Writable<stl2::iterator_t<Rng>, const T&>
 stl2::safe_iterator_t<Rng> count_and_fill(Rng&& rng, const T& t) {
 	return stl2::fill_n(stl2::begin(rng), stl2::distance(rng), t);
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_char()
 {
@@ -69,7 +69,7 @@ test_char()
 	CHECK(j == Iter(ca + 4));
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_int()
 {

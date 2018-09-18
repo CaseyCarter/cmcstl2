@@ -16,7 +16,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template <class T>
+		template<class T>
 		class raw_ptr {
 		public:
 #ifdef NDEBUG

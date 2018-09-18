@@ -6,8 +6,8 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		namespace smf_control {
-			template <bool> struct copy {};
-			template <> struct copy<false> {
+			template<bool> struct copy {};
+			template<> struct copy<false> {
 				copy() = default;
 				copy(const copy&) = delete;
 				copy(copy&&) = default;
@@ -15,8 +15,8 @@ STL2_OPEN_NAMESPACE {
 				copy& operator=(copy&&) = default;
 			};
 
-			template <bool> struct move {};
-			template <> struct move<false> {
+			template<bool> struct move {};
+			template<> struct move<false> {
 				move() = default;
 				move(const move&) = default;
 				move(move&&) = delete;
@@ -24,8 +24,8 @@ STL2_OPEN_NAMESPACE {
 				move& operator=(move&&) = default;
 			};
 
-			template <bool> struct copy_assign {};
-			template <> struct copy_assign<false> {
+			template<bool> struct copy_assign {};
+			template<> struct copy_assign<false> {
 				copy_assign() = default;
 				copy_assign(const copy_assign&) = default;
 				copy_assign(copy_assign&&) = default;
@@ -33,8 +33,8 @@ STL2_OPEN_NAMESPACE {
 				copy_assign& operator=(copy_assign&&) = default;
 			};
 
-			template <bool> struct move_assign {};
-			template <> struct move_assign<false> {
+			template<bool> struct move_assign {};
+			template<> struct move_assign<false> {
 				move_assign() = default;
 				move_assign(const move_assign&) = default;
 				move_assign(move_assign&&) = default;

@@ -34,13 +34,13 @@
 namespace stl2 = __stl2;
 
 /// Calls the iterator interface of the algorithm
-template <class Iter>
+template<class Iter>
 struct iter_call
 {
 	using begin_t = Iter;
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
-	template <class B, class E, class... Args>
+	template<class B, class E, class... Args>
 	requires requires(B&& It, E&& e, Args&&... args) {
 		stl2::is_sorted_until(begin_t{It}, sentinel_t{e},
 		                      std::forward<Args>(args)...);
@@ -53,13 +53,13 @@ struct iter_call
 };
 
 /// Calls the range interface of the algorithm
-template <class Iter>
+template<class Iter>
 struct range_call
 {
 	using begin_t = Iter;
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
-	template <class B, class E, class... Args>
+	template<class B, class E, class... Args>
 	requires requires(B&& It, E&& e, Args&&... args) {
 		stl2::is_sorted_until(::as_lvalue(stl2::subrange(begin_t{It}, sentinel_t{e})),
 		                      std::forward<Args>(args)...);
@@ -71,7 +71,7 @@ struct range_call
 	}
 };
 
-template <class It, template <class> class FunT>
+template<class It, template<class> class FunT>
 void test()
 {
 	using Fun = FunT<It>;

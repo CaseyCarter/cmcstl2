@@ -23,7 +23,7 @@
 #include <stl2/detail/view/view_closure.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <View Rng>
+	template<View Rng>
 	requires BidirectionalRange<Rng>
 	class reverse_view
 	: public view_interface<reverse_view<Rng>>
@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr explicit reverse_view(Rng rng)
 		: base_{std::move(rng)} {}
 
-		template <ViewableRange O>
+		template<ViewableRange O>
 		requires BidirectionalRange<O> && _ConstructibleFromRange<Rng, O>
 		constexpr explicit reverse_view(O&& o)
 		: base_(view::all(std::forward<O>(o))) {}
@@ -68,12 +68,12 @@ STL2_OPEN_NAMESPACE {
 		{ return __stl2::size(base_); }
 	};
 
-	template <class Rng>
+	template<class Rng>
 	reverse_view(Rng&&) -> reverse_view<all_view<Rng>>;
 
 	namespace view {
 		struct __reverse_fn : detail::__pipeable<__reverse_fn> {
-			template <BidirectionalRange Rng>
+			template<BidirectionalRange Rng>
 			requires ViewableRange<Rng>
 			constexpr auto operator()(Rng&& rng) const {
 				return reverse_view{std::forward<Rng>(rng)};

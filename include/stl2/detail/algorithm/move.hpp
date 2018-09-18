@@ -21,7 +21,7 @@
 // move [alg.move]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O>
+	template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O>
 	requires
 		IndirectlyMovable<I, O>
 	tagged_pair<tag::in(I), tag::out(O)>
@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(first), std::move(result)};
 	}
 
-	template <InputRange Rng, class O>
+	template<InputRange Rng, class O>
 	requires
 		WeaklyIncrementable<__f<O>> &&
 		IndirectlyMovable<iterator_t<Rng>, __f<O>>
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		// Extension
-		template <InputIterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
+		template<InputIterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
 		requires
 			IndirectlyMovable<I1, I2>
 		tagged_pair<tag::in(I1), tag::out(I2)>
@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		// Extension
-		template <InputRange Rng1, Range Rng2>
+		template<InputRange Rng1, Range Rng2>
 		requires
 			IndirectlyMovable<iterator_t<Rng1>, iterator_t<Rng2>>
 		tagged_pair<

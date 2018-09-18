@@ -21,7 +21,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Regular [concepts.lib.object.regular]
 	//
-	template <class T>
+	template<class T>
 	concept bool Regular =
 		Semiregular<T> && EqualityComparable<T>;
 } STL2_CLOSE_NAMESPACE

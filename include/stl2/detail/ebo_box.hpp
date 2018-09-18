@@ -19,7 +19,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template <ext::DestructibleObject T, class Tag = void>
+		template<ext::DestructibleObject T, class Tag = void>
 		struct ebo_box {
 			ebo_box() = default;
 			constexpr ebo_box(const T& t)
@@ -33,14 +33,14 @@ STL2_OPEN_NAMESPACE {
 			: item_(std::move(t))
 			{}
 
-			template <class First>
+			template<class First>
 			requires !_OneOf<std::decay_t<First>, ebo_box, T> &&
 				Constructible<T, First> && ConvertibleTo<First, T>
 			constexpr ebo_box(First&& f)
 			noexcept(std::is_nothrow_constructible<T, First>::value)
 			: item_(std::forward<First>(f))
 			{}
-			template <class First, class... Rest>
+			template<class First, class... Rest>
 			requires (sizeof...(Rest) > 0 || !_OneOf<std::decay_t<First>, ebo_box, T>) &&
 				Constructible<T, First, Rest...>
 			constexpr explicit ebo_box(First&& f, Rest&&... r)
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 			T item_;
 		};
 
-		template <ext::DestructibleObject T, class Tag>
+		template<ext::DestructibleObject T, class Tag>
 		requires std::is_empty<T>::value && !std::is_final<T>::value
 		struct ebo_box<T, Tag> : private T {
 			ebo_box() = default;

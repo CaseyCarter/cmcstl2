@@ -34,7 +34,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		// stable, 2-3 compares, 0-2 swaps
-		template <class I, class C, class P>
+		template<class I, class C, class P>
 		requires
 			Sortable<I, C, P>
 		unsigned sort3(I x, I y, I z, C& comp, P& proj)
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 			return 1;
 		}
 
-		template <BidirectionalIterator I, class C, class P>
+		template<BidirectionalIterator I, class C, class P>
 		requires
 			Sortable<I, C, P>
 		void selection_sort(I begin, I end, C &comp, P &proj)
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// TODO: refactor this monstrosity.
-	template <RandomAccessIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
+	template<RandomAccessIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
 	requires
 		Sortable<I, Comp, Proj>
 	I nth_element(I first, I nth, S last, Comp comp = Comp{}, Proj proj = Proj{})
@@ -258,7 +258,7 @@ STL2_OPEN_NAMESPACE {
 		return end_orig;
 	}
 
-	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
+	template<RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>

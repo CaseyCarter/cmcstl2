@@ -28,7 +28,7 @@ namespace ranges = __stl2;
 namespace {
 	constexpr auto N = 1 << 10;
 
-	template <typename T>
+	template<typename T>
 	requires
 		ranges::DefaultConstructible<T> &&
 		ranges::EqualityComparable<T>

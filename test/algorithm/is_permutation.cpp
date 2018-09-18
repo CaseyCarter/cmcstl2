@@ -32,7 +32,7 @@ namespace stl2 = __stl2;
 
 int comparison_count = 0;
 
-template <typename T>
+template<typename T>
 bool counting_equals( T const &a, T const &b )
 {
 	++comparison_count;

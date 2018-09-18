@@ -21,7 +21,7 @@
 // reverse_copy [alg.reverse]
 //
 STL2_OPEN_NAMESPACE {
-	template <BidirectionalIterator I, Sentinel<I> S, WeaklyIncrementable O>
+	template<BidirectionalIterator I, Sentinel<I> S, WeaklyIncrementable O>
 	requires
 		IndirectlyCopyable<I, O>
 	tagged_pair<tag::in(I), tag::out(O)>
@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(bound), std::move(result)};
 	}
 
-	template <BidirectionalRange Rng, class O>
+	template<BidirectionalRange Rng, class O>
 	requires
 		WeaklyIncrementable<__f<O>> &&
 		IndirectlyCopyable<iterator_t<Rng>, __f<O>>

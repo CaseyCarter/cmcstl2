@@ -24,7 +24,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <View Rng>
+		template<View Rng>
 		requires InputRange<Rng>
 		class move_view : detail::ebo_box<Rng, move_view<Rng>>
 						, public view_interface<move_view<Rng>> {
@@ -73,12 +73,12 @@ STL2_OPEN_NAMESPACE {
 		};
 	} // namespace ext
 
-	template <class V>
+	template<class V>
 	struct enable_view<ext::move_view<V>> : std::true_type {};
 
 	namespace view {
 		struct __move_fn : detail::__pipeable<__move_fn> {
-			template <InputRange Rng>
+			template<InputRange Rng>
 			requires ViewableRange<Rng>
 			constexpr __stl2::ext::move_view<all_view<Rng>> operator()(Rng&& rng) const {
 				return __stl2::ext::move_view<all_view<Rng>>{

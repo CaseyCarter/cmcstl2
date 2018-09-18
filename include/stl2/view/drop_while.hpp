@@ -27,7 +27,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <View R, IndirectPredicate<iterator_t<R>> Pred>
+		template<View R, IndirectPredicate<iterator_t<R>> Pred>
 		requires InputRange<R> && std::is_object_v<Pred>
 		class drop_while_view
 		: public view_interface<drop_while_view<R, Pred>>
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr drop_while_view(R base, Pred pred)
 			: storage_t{std::move(pred)}, base_(std::move(base)) {}
 
-			template <ViewableRange O>
+			template<ViewableRange O>
 			requires _ConstructibleFromRange<R, O>
 			constexpr drop_while_view(O&& o, Pred pred)
 			: storage_t{std::move(pred)}, base_(view::all(static_cast<O&&>(o))) {}
@@ -73,19 +73,19 @@ STL2_OPEN_NAMESPACE {
 			R base_;
 		};
 
-		template <class R, class Pred>
+		template<class R, class Pred>
 		drop_while_view(R&&, Pred) -> drop_while_view<all_view<R>, Pred>;
 	} // namespace ext
 
 	namespace view::ext {
 		struct __drop_while_fn : detail::__pipeable<__drop_while_fn> {
-			template <class Rng, class Pred>
+			template<class Rng, class Pred>
 			constexpr auto operator()(Rng&& rng, Pred&& pred) const
 			STL2_NOEXCEPT_REQUIRES_RETURN(
 				__stl2::ext::drop_while_view{view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
 			)
 
-			template <__stl2::ext::CopyConstructibleObject Pred>
+			template<__stl2::ext::CopyConstructibleObject Pred>
 			constexpr auto operator()(Pred pred) const
 			{ return detail::view_closure{*this, std::move(pred)}; }
 		};

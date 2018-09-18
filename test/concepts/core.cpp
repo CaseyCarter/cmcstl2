@@ -13,7 +13,7 @@
 
 #if VALIDATE_RANGES
 namespace ns {
-template <class T, class U>
+template<class T, class U>
 using common_type_t = ranges::common_type_t<T, U>;
 }
 
@@ -38,13 +38,13 @@ CONCEPT_ASSERT(!ranges::Same<int, double>);
 
 #if VALIDATE_STL2
 // Test that `Same<A,B> && X` subsumes `Same<B,A>` (with reversed args).
-template <class A, class B>
+template<class A, class B>
   requires __stl2::Same<B, A>
 constexpr bool test_same() {
   return false;
 }
 
-template <class A, class B>
+template<class A, class B>
   requires __stl2::Same<A, B> && __stl2::Integral<A>
 constexpr bool test_same() {
   return true;
@@ -123,14 +123,14 @@ result f(A) {
 	return result::exact;
 }
 
-template <class, class, class = void>
+template<class, class, class = void>
 constexpr bool ConvertibleTo = false;
-template <class T, class U>
+template<class T, class U>
 constexpr bool ConvertibleTo<T, U, std::enable_if_t<
 	std::is_convertible<T, U>::value,
 	decltype(static_cast<U>(std::declval<T>()))>> = true;
 
-template <class T>
+template<class T>
 meta::if_c<
 	ConvertibleTo<T,A> &&
 		!std::is_same<A,T>::value,
@@ -140,7 +140,7 @@ f(T) {
 	return result::convertible;
 }
 
-template <class T>
+template<class T>
 meta::if_c<
 	!(ConvertibleTo<T, A> ||
 		std::is_same<A,T>::value),

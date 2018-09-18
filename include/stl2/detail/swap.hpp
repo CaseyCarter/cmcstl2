@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// exchange [utility.exchange]
 	//
-	template <class T, class U = T>
+	template<class T, class U = T>
 	requires
 		MoveConstructible<T> && Assignable<T&, U>
 	constexpr T exchange(T& t, U&& u)
@@ -50,31 +50,31 @@ STL2_OPEN_NAMESPACE {
 		// name lookup from searching further up the namespace hierarchy and
 		// finding std::swap. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
-		template <class T> void swap(T&, T&) = delete;
-		template <class T, std::size_t N> void swap(T(&)[N], T(&)[N]) = delete;
+		template<class T> void swap(T&, T&) = delete;
+		template<class T, std::size_t N> void swap(T(&)[N], T(&)[N]) = delete;
 
-		template <class T, class U>
+		template<class T, class U>
 		constexpr bool has_customization = false;
-		template <class T, class U>
+		template<class T, class U>
 		requires
 			requires(T&& t, U&& u) { swap((T&&)t, (U&&)u); }
 		constexpr bool has_customization<T, U> = true;
 
-		template <class F, class T, class U>
+		template<class F, class T, class U>
 		constexpr bool has_operator = false;
-		template <class F, class T, class U>
+		template<class F, class T, class U>
 		requires
 			requires(const F& f, T& t, U& u) { f(t, u); }
 		constexpr bool has_operator<F, T, U> = true;
 
 		struct fn {
-			template <class T, class U>
+			template<class T, class U>
 			requires has_customization<T, U>
 			constexpr void operator()(T&& t, U&& u) const
 			STL2_NOEXCEPT_RETURN(
 				(void)swap(std::forward<T>(t), std::forward<U>(u))
 			)
-			template <class T>
+			template<class T>
 			requires
 				!has_customization<T&, T&> && MoveConstructible<T> &&
 				Assignable<T&, T&&>
@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 			STL2_NOEXCEPT_RETURN(
 				(void)(b = __stl2::exchange(a, std::move(b)))
 			)
-			template <class T, class U, std::size_t N, class F = fn>
+			template<class T, class U, std::size_t N, class F = fn>
 			requires
 				!has_customization<T(&)[N], U(&)[N]> && has_operator<F, T, U>
 			constexpr void operator()(T (&t)[N], U (&u)[N]) const
@@ -101,13 +101,13 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Swappable [concepts.lib.corelang.swappable]
 	//
-	template <class T>
+	template<class T>
 	concept bool Swappable =
 		requires(T& a, T& b) {
 			__stl2::swap(a, b);
 		};
 
-	template <class T, class U>
+	template<class T, class U>
 	concept bool SwappableWith =
 		CommonReference<
 			const remove_reference_t<T>&,
@@ -119,7 +119,7 @@ STL2_OPEN_NAMESPACE {
 			__stl2::swap((U&&)u, (T&&)t);
 		};
 
-	template <class T, class U>
+	template<class T, class U>
 	inline constexpr bool is_nothrow_swappable_v = false;
 
 	SwappableWith{T, U}
@@ -127,10 +127,10 @@ STL2_OPEN_NAMESPACE {
 		noexcept(__stl2::swap(std::declval<T>(), std::declval<U>())) &&
 		noexcept(__stl2::swap(std::declval<U>(), std::declval<T>()));
 
-	template <class T, class U>
+	template<class T, class U>
 	using is_nothrow_swappable_t = meta::bool_<is_nothrow_swappable_v<T, U>>;
 
-	template <class T, class U>
+	template<class T, class U>
 	struct is_nothrow_swappable :
 		is_nothrow_swappable_t<T, U> {};
 } STL2_CLOSE_NAMESPACE

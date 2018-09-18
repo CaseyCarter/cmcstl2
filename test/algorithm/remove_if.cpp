@@ -33,7 +33,7 @@
 
 namespace stl2 = __stl2;
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_iter()
 {
@@ -50,7 +50,7 @@ test_iter()
 	CHECK(ia[5] == 4);
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_range()
 {
@@ -72,7 +72,7 @@ struct pred
 	bool operator()(const std::unique_ptr<int>& i) {return *i == 2;}
 };
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_iter_rvalue()
 {
@@ -97,7 +97,7 @@ test_iter_rvalue()
 	CHECK(*ia[5] == 4);
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_range_rvalue()
 {

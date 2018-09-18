@@ -22,7 +22,7 @@
 // binary_search [binary.search]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I, Sentinel<I> S, class T,
+	template<ForwardIterator I, Sentinel<I> S, class T,
 		class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 		return result != last && !__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
 	}
 
-	template <ForwardRange Rng, class T, class Comp = less<>, class Proj = identity>
+	template<ForwardRange Rng, class T, class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>>

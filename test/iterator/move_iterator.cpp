@@ -126,7 +126,7 @@ void test_both() {
 	CHECK(A::move_count == N);
 }
 
-template <class T>
+template<class T>
 class proxy_iterator {
 public:
 	using value_type = T;

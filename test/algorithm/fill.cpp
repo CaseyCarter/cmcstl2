@@ -28,7 +28,7 @@
 
 namespace stl2 = __stl2;
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_char()
 {
@@ -57,7 +57,7 @@ test_char()
 	CHECK(j == Iter(ca + 4));
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_int()
 {

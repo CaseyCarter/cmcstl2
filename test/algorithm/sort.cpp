@@ -36,7 +36,7 @@ namespace { std::mt19937 gen; }
 // BUGBUG
 namespace std
 {
-	template <typename F, typename S>
+	template<typename F, typename S>
 	std::ostream & operator<<(std::ostream &sout, std::pair<F,S> const & p)
 	{
 		return sout << '[' << p.first << ',' << p.second << ']';
@@ -45,7 +45,7 @@ namespace std
 
 struct first
 {
-	template <typename P>
+	template<typename P>
 	int operator()(P const & p) const
 	{
 		return p.first;
@@ -54,12 +54,12 @@ struct first
 
 struct indirect_less
 {
-	template <class P>
+	template<class P>
 	bool operator()(const P& x, const P& y) const
 		{return *x < *y;}
 };
 
-template <class RI>
+template<class RI>
 void
 test_sort_helper(RI f, RI l)
 {
@@ -91,7 +91,7 @@ test_sort_helper(RI f, RI l)
 	}
 }
 
-template <class RI>
+template<class RI>
 void
 test_sort_driver_driver(RI f, RI l, int start, RI real_last)
 {
@@ -107,14 +107,14 @@ test_sort_driver_driver(RI f, RI l, int start, RI real_last)
 	}
 }
 
-template <class RI>
+template<class RI>
 void
 test_sort_driver(RI f, RI l, int start)
 {
 	test_sort_driver_driver(f, l, start, l);
 }
 
-template <int sa>
+template<int sa>
 void
 test_sort_()
 {

@@ -22,7 +22,7 @@
 STL2_OPEN_NAMESPACE {
 	// advance
 	namespace __advance {
-		template <class I>
+		template<class I>
 		requires
 			Iterator<I>
 			// Pre: 0 <= n && [i,i+n)
@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 		(void)(i += n)
 	)
 
-	template <class I, class S>
+	template<class I, class S>
 	requires
 		Sentinel<S, I>
 		// Pre: [i,bound)
@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <class I, class S>
+	template<class I, class S>
 	requires
 		Sentinel<S, I> && Assignable<I&, S&&>
 	constexpr void advance(I& i, S bound)
@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 		(void)(i = std::move(bound))
 	)
 
-	template <class I, class S>
+	template<class I, class S>
 	requires
 		Sentinel<S, I> && !Assignable<I&, S&&> &&
 		SizedSentinel<S, I>
@@ -101,7 +101,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	namespace __advance {
-		template <class I, class S>
+		template<class I, class S>
 		requires
 			Sentinel<S, I>
 			// Pre: 0 == n || (0 < n && [i,bound))
@@ -118,7 +118,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <class I, class S>
+	template<class I, class S>
 	requires
 		Sentinel<S, I>
 		// Pre: 0 == n || (0 < n && [i,bound))
@@ -128,7 +128,7 @@ STL2_OPEN_NAMESPACE {
 		__advance::impl(i, n, bound)
 	)
 
-	template <class I, class S>
+	template<class I, class S>
 	requires
 		Sentinel<S, I> && SizedSentinel<S, I>
 		// Pre: 0 <= n && [i,bound)
@@ -149,7 +149,7 @@ STL2_OPEN_NAMESPACE {
 		return 0;
 	}
 
-	template <class I>
+	template<class I>
 	requires
 		BidirectionalIterator<I>
 		// Pre: 0 == n || (0 < n ? [i,bound) : [bound,i))
@@ -170,7 +170,7 @@ STL2_OPEN_NAMESPACE {
 		return n;
 	}
 
-	template <class I>
+	template<class I>
 	requires
 		BidirectionalIterator<I> && SizedSentinel<I, I>
 		// Pre: 0 == n ? ([i,bound) || [bound,i)) : (0 < n ? [i,bound) : [bound,i))
@@ -198,7 +198,7 @@ STL2_OPEN_NAMESPACE {
 		x
 	)
 
-	template <class S, class I>
+	template<class S, class I>
 	requires
 		Sentinel<__f<S>, I>
 	constexpr I next(I x, S&& bound)
@@ -207,7 +207,7 @@ STL2_OPEN_NAMESPACE {
 		x
 	)
 
-	template <class S, class I>
+	template<class S, class I>
 	requires
 		Sentinel<__f<S>, I>
 	constexpr I next(I x, iter_difference_t<I> n, S&& bound)
@@ -257,7 +257,7 @@ STL2_OPEN_NAMESPACE {
 			return {d, __stl2::next(std::move(first), std::move(last))};
 		}
 
-		template <class S, class I>
+		template<class S, class I>
 		requires
 			Sentinel<S, I> && !SizedSentinel<S, I> && SizedSentinel<I, I>
 		constexpr tagged_pair<tag::count(iter_difference_t<I>), tag::end(I)>
@@ -289,7 +289,7 @@ STL2_OPEN_NAMESPACE {
 		return d;
 	}
 
-	template <class I>
+	template<class I>
 	requires
 		SizedSentinel<I, I>
 		// Pre: [first, last) || [last, first)

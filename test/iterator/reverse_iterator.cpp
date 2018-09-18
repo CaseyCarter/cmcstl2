@@ -30,14 +30,14 @@
 
 namespace ranges = __stl2;
 
-template <class It> void test() { ranges::reverse_iterator<It>{}; }
+template<class It> void test() { ranges::reverse_iterator<It>{}; }
 
-template <class It> void test2(It i) {
+template<class It> void test2(It i) {
 	ranges::reverse_iterator<It> r(i);
 	CHECK(r.base() == i);
 }
 
-template <class It, class U> void test3(U u) {
+template<class It, class U> void test3(U u) {
 	const ranges::reverse_iterator<U> r2(u);
 	ranges::reverse_iterator<It> r1 = r2;
 	CHECK(r1.base() == u);
@@ -46,40 +46,40 @@ template <class It, class U> void test3(U u) {
 struct Base {};
 struct Derived : Base {};
 
-template <class It> void test4(It i) {
+template<class It> void test4(It i) {
 	const auto r = ranges::make_reverse_iterator(i);
 	static_assert(std::is_same<decltype(r), const ranges::reverse_iterator<It>>());
 	CHECK(r.base() == i);
 }
 
-template <class It> void test5(It l, It r, bool x) {
+template<class It> void test5(It l, It r, bool x) {
 	const ranges::reverse_iterator<It> r1(l);
 	const ranges::reverse_iterator<It> r2(r);
 	CHECK((r1 != r2) == x);
 }
 
-template <class It> void test6(It i, It x) {
+template<class It> void test6(It i, It x) {
 	ranges::reverse_iterator<It> r(i);
 	ranges::reverse_iterator<It> rr = r++;
 	CHECK(r.base() == x);
 	CHECK(rr.base() == i);
 }
 
-template <class It> void test7(It i, It x) {
+template<class It> void test7(It i, It x) {
 	ranges::reverse_iterator<It> r(i);
 	ranges::reverse_iterator<It> &rr = ++r;
 	CHECK(r.base() == x);
 	CHECK(&rr == &r);
 }
 
-template <class It>
+template<class It>
 void test8(It i, ranges::iter_difference_t<It> n, It x) {
 	const ranges::reverse_iterator<It> r(i);
 	ranges::reverse_iterator<It> rr = r + n;
 	CHECK(rr.base() == x);
 }
 
-template <class It>
+template<class It>
 void test9(It i, ranges::iter_difference_t<It> n, It x) {
 	ranges::reverse_iterator<It> r(i);
 	ranges::reverse_iterator<It> &rr = r += n;
@@ -87,26 +87,26 @@ void test9(It i, ranges::iter_difference_t<It> n, It x) {
 	CHECK(&rr == &r);
 }
 
-template <class It> void test10(It i, It x) {
+template<class It> void test10(It i, It x) {
 	ranges::reverse_iterator<It> r(i);
 	ranges::reverse_iterator<It> rr = r--;
 	CHECK(r.base() == x);
 	CHECK(rr.base() == i);
 }
-template <class It> void test11(It i, It x) {
+template<class It> void test11(It i, It x) {
 	ranges::reverse_iterator<It> r(i);
 	ranges::reverse_iterator<It> &rr = --r;
 	CHECK(r.base() == x);
 	CHECK(&rr == &r);
 }
-template <class It>
+template<class It>
 void test12(It i, ranges::iter_difference_t<It> n, It x) {
 	const ranges::reverse_iterator<It> r(i);
 	ranges::reverse_iterator<It> rr = r - n;
 	CHECK(rr.base() == x);
 }
 
-template <class It>
+template<class It>
 void test13(It i, ranges::iter_difference_t<It> n, It x) {
 	ranges::reverse_iterator<It> r(i);
 	ranges::reverse_iterator<It> &rr = r -= n;
@@ -123,56 +123,56 @@ public:
 	friend bool operator==(const A &x, const A &y) { return x.data_ == y.data_; }
 };
 
-template <class It> void test14(It i, ranges::iter_value_t<It> x) {
+template<class It> void test14(It i, ranges::iter_value_t<It> x) {
 	ranges::reverse_iterator<It> r(i);
 	CHECK(*r == x);
 }
 
-template <class It, class U> void test15(U u) {
+template<class It, class U> void test15(U u) {
 	const ranges::reverse_iterator<U> r2(u);
 	ranges::reverse_iterator<It> r1;
 	ranges::reverse_iterator<It> &rr = r1 = r2;
 	CHECK(r1.base() == u);
 	CHECK(&rr == &r1);
 }
-template <class It> void test16(It l, It r, bool x) {
+template<class It> void test16(It l, It r, bool x) {
 	const ranges::reverse_iterator<It> r1(l);
 	const ranges::reverse_iterator<It> r2(r);
 	CHECK((r1 == r2) == x);
 }
 
-template <class It1, class It2> void test17(It1 l, It2 r, std::ptrdiff_t x) {
+template<class It1, class It2> void test17(It1 l, It2 r, std::ptrdiff_t x) {
 	 const ranges::reverse_iterator<It1> r1(l);
 	 const ranges::reverse_iterator<It2> r2(r);
 	 CHECK((r1 - r2) == x);
 }
 
-template <class It> void test18(It l, It r, bool x) {
+template<class It> void test18(It l, It r, bool x) {
 	const ranges::reverse_iterator<It> r1(l);
 	const ranges::reverse_iterator<It> r2(r);
 	CHECK((r1 > r2) == x);
 }
 
-template <class It> void test19(It l, It r, bool x) {
+template<class It> void test19(It l, It r, bool x) {
 	const ranges::reverse_iterator<It> r1(l);
 	const ranges::reverse_iterator<It> r2(r);
 	CHECK((r1 >= r2) == x);
 }
 
-template <class It>
+template<class It>
 void test20(It i, ranges::iter_difference_t<It> n, ranges::iter_value_t<It> x) {
 	const ranges::reverse_iterator<It> r(i);
 	ranges::iter_value_t<It> rr = r[n];
 	CHECK(rr == x);
 }
 
-template <class It> void test21(It l, It r, bool x) {
+template<class It> void test21(It l, It r, bool x) {
 	const ranges::reverse_iterator<It> r1(l);
 	const ranges::reverse_iterator<It> r2(r);
 	CHECK((r1 < r2) == x);
 }
 
-template <class It>
+template<class It>
 void
 test22(It l, It r, bool x) {
 	const ranges::reverse_iterator<It> r1(l);
@@ -180,7 +180,7 @@ test22(It l, It r, bool x) {
 	CHECK((r1 < r2) == x);
 }
 
-template <class It>
+template<class It>
 void
 test23(It l, It r, bool x) {
 	const ranges::reverse_iterator<It> r1(l);
@@ -201,7 +201,7 @@ public:
 	}
 };
 
-template <class It>
+template<class It>
 void
 test24(It i, ranges::iter_value_t<It> x)
 {
@@ -225,7 +225,7 @@ public:
 	C       *operator&()       { return nullptr; }
 };
 
-template <class It>
+template<class It>
 void
 test25(It i, ranges::iter_difference_t<It> n, It x)
 {

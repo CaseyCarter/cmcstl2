@@ -29,7 +29,7 @@ namespace ranges = __stl2;
 namespace {
 	constexpr int N = 1 << 12;
 
-	template <typename T>
+	template<typename T>
 	requires ranges::DefaultConstructible<T> && ranges::EqualityComparable<T>
 	void test(const raw_buffer<T>& independent, ranges::iterator_t<const raw_buffer<T>> p)
 	{
@@ -39,7 +39,7 @@ namespace {
 		ranges::destroy(independent.begin(), p);
 	}
 
-	template <typename T>
+	template<typename T>
 	requires
 		ranges::DefaultConstructible<T> &&
 		ranges::EqualityComparable<T>
@@ -54,7 +54,7 @@ namespace {
 		test(independent, ranges::uninitialized_default_construct_n(independent.cbegin(), independent.size()));
 	}
 
-	template <typename T>
+	template<typename T>
 	requires
 		ranges::DefaultConstructible<T> &&
 		ranges::EqualityComparable<T> &&
@@ -68,7 +68,7 @@ namespace {
 		ranges::destroy(independent.begin(), p);
 	}
 
-	template <typename T>
+	template<typename T>
 	requires
 		ranges::DefaultConstructible<T> &&
 		ranges::EqualityComparable<T> &&

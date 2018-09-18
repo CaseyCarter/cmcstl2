@@ -12,48 +12,48 @@
 
 #include <stl2/iterator.hpp>
 
-template <class It, bool Sized = false>
+template<class It, bool Sized = false>
 class sentinel;
 
-template <class It>
+template<class It>
 class output_iterator;
 
-template <class It>
+template<class It>
 class input_iterator;
 
-template <class It>
+template<class It>
 class forward_iterator;
 
-template <class It>
+template<class It>
 class bidirectional_iterator;
 
-template <class It>
+template<class It>
 class random_access_iterator;
 
 
-template <class Iter, bool Sized>
+template<class Iter, bool Sized>
 constexpr Iter base(sentinel<Iter, Sized> i) { return i.base(); }
 
-template <class Iter>
+template<class Iter>
 constexpr Iter base(output_iterator<Iter> i) { return i.base(); }
 
-template <class Iter>
+template<class Iter>
 constexpr Iter base(input_iterator<Iter> i) { return i.base(); }
 
-template <class Iter>
+template<class Iter>
 constexpr Iter base(forward_iterator<Iter> i) { return i.base(); }
 
-template <class Iter>
+template<class Iter>
 constexpr Iter base(bidirectional_iterator<Iter> i) { return i.base(); }
 
-template <class Iter>
+template<class Iter>
 constexpr Iter base(random_access_iterator<Iter> i) { return i.base(); }
 
-template <class Iter>    // everything else
+template<class Iter>    // everything else
 constexpr Iter base(Iter i) { return i; }
 
 
-template <class It, bool Sized>
+template<class It, bool Sized>
 class sentinel
 {
 	It it_;
@@ -61,24 +61,24 @@ public:
 	constexpr sentinel() : it_() {}
 	constexpr explicit sentinel(It it) : it_(it) {}
 	constexpr It base() const { return it_; }
-	template <typename I>
+	template<typename I>
 	constexpr friend bool operator==(const I& x, const sentinel& y)
 	{
 		using ::base;
 		return base(x) == y.it_;
 	}
-	template <typename I>
+	template<typename I>
 	constexpr friend bool operator!=(const I& x, const sentinel& y)
 	{
 		return !(x == y);
 	}
-	template <typename I>
+	template<typename I>
 	constexpr friend bool operator==(const sentinel& x, const I& y)
 	{
 		using ::base;
 		return x.it_ == base(y);
 	}
-	template <typename I>
+	template<typename I>
 	constexpr friend bool operator!=(const sentinel& x, const I& y)
 	{
 		return !(x == y);
@@ -86,26 +86,26 @@ public:
 };
 
 // For making sized iterator ranges:
-template <template <typename> class I, typename It>
+template<template<typename> class I, typename It>
 constexpr
 std::ptrdiff_t operator-(sentinel<It, true> end, I<It> begin)
 {
 	return base(end) - base(begin);
 }
 
-template <typename It, template <typename> class I>
+template<typename It, template<typename> class I>
 constexpr
 std::ptrdiff_t operator-(I<It> end, sentinel<It, true> begin)
 {
 	return -(begin - end);
 }
 
-template <class It>
+template<class It>
 class output_iterator
 {
 	It it_;
 
-	template <class U> friend class output_iterator;
+	template<class U> friend class output_iterator;
 public:
 	using difference_type = __stl2::iter_difference_t<It>;
 	using pointer = It;
@@ -115,7 +115,7 @@ public:
 
 	constexpr output_iterator () {}
 	constexpr explicit output_iterator(It it) : it_(it) {}
-	template <class U>
+	template<class U>
 	  requires __stl2::ConvertibleTo<U, It>
 	constexpr
 	output_iterator(const output_iterator<U>& u) :it_(u.it_) {}
@@ -127,12 +127,12 @@ public:
 	{return it_++;}
 };
 
-template <class It>
+template<class It>
 class input_iterator
 {
 	It it_;
 
-	template <class U> friend class input_iterator;
+	template<class U> friend class input_iterator;
 public:
 	typedef __stl2::input_iterator_tag iterator_category;
 	typedef __stl2::iter_value_t<It>      value_type;
@@ -144,7 +144,7 @@ public:
 
 	constexpr input_iterator() : it_() {}
 	constexpr explicit input_iterator(It it) : it_(it) {}
-	template <class U>
+	template<class U>
 	  requires __stl2::ConvertibleTo<U, It>
 	constexpr input_iterator(const input_iterator<U>& u) :it_(u.it_) {}
 
@@ -163,7 +163,7 @@ public:
 		{return !(x == y);}
 };
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator==(const input_iterator<T>& x, const input_iterator<U>& y)
@@ -171,7 +171,7 @@ operator==(const input_iterator<T>& x, const input_iterator<U>& y)
 	return x.base() == y.base();
 }
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator!=(const input_iterator<T>& x, const input_iterator<U>& y)
@@ -179,12 +179,12 @@ operator!=(const input_iterator<T>& x, const input_iterator<U>& y)
 	return !(x == y);
 }
 
-template <class It>
+template<class It>
 class forward_iterator
 {
 	It it_;
 
-	template <class U> friend class forward_iterator;
+	template<class U> friend class forward_iterator;
 public:
 	typedef __stl2::forward_iterator_tag iterator_category;
 	typedef __stl2::iter_value_t<It>        value_type;
@@ -196,7 +196,7 @@ public:
 
 	constexpr forward_iterator() : it_() {}
 	constexpr explicit forward_iterator(It it) : it_(it) {}
-	template <class U>
+	template<class U>
 	  requires __stl2::ConvertibleTo<U, It>
 	constexpr forward_iterator(const forward_iterator<U>& u) :it_(u.it_) {}
 
@@ -215,7 +215,7 @@ public:
 	{return !(x == y);}
 };
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator==(const forward_iterator<T>& x, const forward_iterator<U>& y)
@@ -223,7 +223,7 @@ operator==(const forward_iterator<T>& x, const forward_iterator<U>& y)
 	return x.base() == y.base();
 }
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator!=(const forward_iterator<T>& x, const forward_iterator<U>& y)
@@ -231,12 +231,12 @@ operator!=(const forward_iterator<T>& x, const forward_iterator<U>& y)
 	return !(x == y);
 }
 
-template <class It>
+template<class It>
 class bidirectional_iterator
 {
 	It it_;
 
-	template <class U> friend class bidirectional_iterator;
+	template<class U> friend class bidirectional_iterator;
 public:
 	typedef __stl2::bidirectional_iterator_tag iterator_category;
 	typedef __stl2::iter_value_t<It>              value_type;
@@ -248,7 +248,7 @@ public:
 
 	constexpr bidirectional_iterator() : it_() {}
 	constexpr explicit bidirectional_iterator(It it) : it_(it) {}
-	template <class U>
+	template<class U>
 	  requires __stl2::ConvertibleTo<U, It>
 	constexpr bidirectional_iterator(const bidirectional_iterator<U>& u) :it_(u.it_) {}
 
@@ -264,7 +264,7 @@ public:
 	{bidirectional_iterator tmp(*this); --(*this); return tmp;}
 };
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator==(const bidirectional_iterator<T>& x, const bidirectional_iterator<U>& y)
@@ -272,7 +272,7 @@ operator==(const bidirectional_iterator<T>& x, const bidirectional_iterator<U>& 
 	return x.base() == y.base();
 }
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator!=(const bidirectional_iterator<T>& x, const bidirectional_iterator<U>& y)
@@ -280,12 +280,12 @@ operator!=(const bidirectional_iterator<T>& x, const bidirectional_iterator<U>& 
 	return !(x == y);
 }
 
-template <class It>
+template<class It>
 class random_access_iterator
 {
 	It it_;
 
-	template <class U> friend class random_access_iterator;
+	template<class U> friend class random_access_iterator;
 public:
 	typedef __stl2::random_access_iterator_tag iterator_category;
 	typedef __stl2::iter_value_t<It>              value_type;
@@ -297,7 +297,7 @@ public:
 
 	constexpr random_access_iterator() : it_() {}
 	constexpr explicit random_access_iterator(It it) : it_(it) {}
-	template <class U>
+	template<class U>
 	  requires __stl2::ConvertibleTo<U, It>
 	constexpr random_access_iterator(const random_access_iterator<U>& u) :it_(u.it_) {}
 
@@ -330,7 +330,7 @@ public:
 	reference operator[](difference_type n) const {return it_[n];}
 };
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator==(const random_access_iterator<T>& x, const random_access_iterator<U>& y)
@@ -338,7 +338,7 @@ operator==(const random_access_iterator<T>& x, const random_access_iterator<U>& 
 	return x.base() == y.base();
 }
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator!=(const random_access_iterator<T>& x, const random_access_iterator<U>& y)
@@ -346,7 +346,7 @@ operator!=(const random_access_iterator<T>& x, const random_access_iterator<U>& 
 	return !(x == y);
 }
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator<(const random_access_iterator<T>& x, const random_access_iterator<U>& y)
@@ -354,7 +354,7 @@ operator<(const random_access_iterator<T>& x, const random_access_iterator<U>& y
 	return x.base() < y.base();
 }
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator<=(const random_access_iterator<T>& x, const random_access_iterator<U>& y)
@@ -362,7 +362,7 @@ operator<=(const random_access_iterator<T>& x, const random_access_iterator<U>& 
 	return !(y < x);
 }
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator>(const random_access_iterator<T>& x, const random_access_iterator<U>& y)
@@ -370,7 +370,7 @@ operator>(const random_access_iterator<T>& x, const random_access_iterator<U>& y
 	return y < x;
 }
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 bool
 operator>=(const random_access_iterator<T>& x, const random_access_iterator<U>& y)
@@ -378,7 +378,7 @@ operator>=(const random_access_iterator<T>& x, const random_access_iterator<U>& 
 	return !(x < y);
 }
 
-template <class T, class U>
+template<class T, class U>
 constexpr
 __stl2::iter_difference_t<T>
 operator-(const random_access_iterator<T>& x, const random_access_iterator<U>& y)
@@ -386,19 +386,19 @@ operator-(const random_access_iterator<T>& x, const random_access_iterator<U>& y
 	return x.base() - y.base();
 }
 
-template <typename It, bool Sized = false>
+template<typename It, bool Sized = false>
 struct sentinel_type
 {
 	using type = It;
 };
 
-template <typename T, bool Sized>
+template<typename T, bool Sized>
 struct sentinel_type<T*, Sized>
 {
 	using type = sentinel<T*, Sized>;
 };
 
-template <template <typename> class I, typename It, bool Sized>
+template<template<typename> class I, typename It, bool Sized>
 struct sentinel_type<I<It>, Sized>
 {
 	using type = sentinel<It, Sized>;

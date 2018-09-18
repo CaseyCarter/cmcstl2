@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	// tagged_pair
 	// Not to spec: Kill it with fire.
 	//
-	template <TaggedType F, TaggedType S>
+	template<TaggedType F, TaggedType S>
 	using tagged_pair =
 		tagged<pair<__tagged::element<F>, __tagged::element<S>>,
 			__tagged::specifier<F>, __tagged::specifier<S>>;
@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 	// make_tagged_pair
 	// Not to spec: Kill it with fire.
 	//
-	template <TagSpecifier Tag1, TagSpecifier Tag2, class T1, class T2>
+	template<TagSpecifier Tag1, TagSpecifier Tag2, class T1, class T2>
 	requires
 		requires {
 			typename tagged_pair<Tag1(__unwrap<T1>), Tag2(__unwrap<T2>)>;

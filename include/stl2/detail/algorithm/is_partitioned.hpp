@@ -23,7 +23,7 @@
 // is_partitioned [alg.partitions]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
+	template<InputIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(pred), std::ref(proj));
 	}
 
-	template <InputRange Rng, class Pred, class Proj = identity>
+	template<InputRange Rng, class Pred, class Proj = identity>
 	requires
 		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>

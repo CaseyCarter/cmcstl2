@@ -51,12 +51,12 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		namespace ssort {
-			template <class I>
+			template<class I>
 			using buf_t = temporary_buffer<iter_value_t<I>>;
 
 			constexpr int merge_sort_chunk_size = 7;
 
-			template <RandomAccessIterator I, class C, class P>
+			template<RandomAccessIterator I, class C, class P>
 			requires
 				Sortable<I, C, P>
 			void inplace_stable_sort(I first, I last, C &pred, P &proj)
@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			template <RandomAccessIterator I, WeaklyIncrementable O, class C, class P>
+			template<RandomAccessIterator I, WeaklyIncrementable O, class C, class P>
 			requires
 				Sortable<I, C, P>
 			void merge_sort_loop(I first, I last, O result,
@@ -100,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 					std::ref(proj), std::ref(proj));
 			}
 
-			template <RandomAccessIterator I, class C, class P>
+			template<RandomAccessIterator I, class C, class P>
 			requires
 				Sortable<I, C, P>
 			void chunk_insertion_sort(I first, I last, iter_difference_t<I> chunk_size,
@@ -113,7 +113,7 @@ STL2_OPEN_NAMESPACE {
 				rsort::insertion_sort(first, last, comp, proj);
 			}
 
-			template <RandomAccessIterator I, class C, class P>
+			template<RandomAccessIterator I, class C, class P>
 			requires
 				Sortable<I, C, P>
 			void merge_sort_with_buffer(I first, I last, buf_t<I>& buf, C &comp, P &proj)
@@ -138,7 +138,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			template <RandomAccessIterator I, class C, class P>
+			template<RandomAccessIterator I, class C, class P>
 			requires
 				Sortable<I, C, P>
 			void stable_sort_adaptive(I first, I last, buf_t<I>& buf, C &comp, P &proj)
@@ -160,7 +160,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension: Supports forward iterators.
-	template <class I, class S, class Comp = less<>, class Proj = identity>
+	template<class I, class S, class Comp = less<>, class Proj = identity>
 	requires
 		Sentinel<__f<S>, I> &&
 		Sortable<I, Comp, Proj>
@@ -171,7 +171,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(comp), std::ref(proj));
 	}
 
-	template <RandomAccessIterator I, class S, class Comp = less<>,
+	template<RandomAccessIterator I, class S, class Comp = less<>,
 						class Proj = identity>
 	requires
 		Sentinel<__f<S>, I> &&
@@ -191,7 +191,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension: supports forward ranges.
-	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
+	template<ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
@@ -201,7 +201,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(comp), std::ref(proj));
 	}
 
-	template <RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
+	template<RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>

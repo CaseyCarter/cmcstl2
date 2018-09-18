@@ -23,7 +23,7 @@
 // unique_copy [alg.unique]
 //
 STL2_OPEN_NAMESPACE {
-	template <class I, class S, class O, class R, class Proj>
+	template<class I, class S, class O, class R, class Proj>
 	requires IndirectlyCopyableStorable<I, O>
 	tagged_pair<tag::in(I), tag::out(O)>
 	__unique_copy(ext::priority_tag<0>, I first, S last, O result, R comp, Proj proj)
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(first), std::move(result)};
 	}
 
-	template <class I, class S, InputIterator O, class R, class Proj>
+	template<class I, class S, InputIterator O, class R, class Proj>
 	requires Same<iter_value_t<I>, iter_value_t<O>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	__unique_copy(ext::priority_tag<1>, I first, S last, O result, R comp, Proj proj)
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(first), std::move(result)};
 	}
 
-	template <ForwardIterator I, class S, class O, class R, class Proj>
+	template<ForwardIterator I, class S, class O, class R, class Proj>
 	tagged_pair<tag::in(I), tag::out(O)>
 	__unique_copy(ext::priority_tag<2>, I first, S const last, O result, R comp, Proj proj)
 	{
@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(first), std::move(result)};
 	}
 
-	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
+	template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
 		class R = equal_to<>, class Proj = identity>
 	requires
 		IndirectlyCopyable<I, O> &&
@@ -108,7 +108,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(proj));
 	}
 
-	template <InputRange Rng, WeaklyIncrementable O, class R = equal_to<>,
+	template<InputRange Rng, WeaklyIncrementable O, class R = equal_to<>,
 		class Proj = identity>
 	requires
 		IndirectlyCopyable<iterator_t<Rng>, O> &&

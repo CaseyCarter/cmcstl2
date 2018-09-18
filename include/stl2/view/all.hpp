@@ -23,13 +23,13 @@
 STL2_OPEN_NAMESPACE {
 	namespace view {
 		struct __all_fn : detail::__pipeable<__all_fn> {
-			template <Range Rng>
+			template<Range Rng>
 			requires View<__f<Rng>>
 			constexpr auto operator()(Rng&& rng) const
 			noexcept(std::is_nothrow_constructible_v<__f<Rng>, Rng>)
 			{ return std::forward<Rng>(rng); }
 
-			template <_ForwardingRange Rng>
+			template<_ForwardingRange Rng>
 			requires !View<__uncvref<Rng>>
 			constexpr auto operator()(Rng&& rng) const
 			noexcept(std::is_reference_v<Rng>)
@@ -45,11 +45,11 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr __all_fn all {};
 	} // namespace view
 
-	template <ViewableRange Rng>
+	template<ViewableRange Rng>
 	using all_view = decltype(view::all(std::declval<Rng>()));
 
 	// Work-around for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-	template <class V, class R>
+	template<class V, class R>
 	concept bool _ConstructibleFromRange =
 		requires { typename all_view<R>; } &&
 		View<V> && Constructible<V, all_view<R>>;

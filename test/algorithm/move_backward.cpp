@@ -27,7 +27,7 @@
 
 namespace stl2 = __stl2;
 
-template <typename InIter, typename OutIter>
+template<typename InIter, typename OutIter>
 void
 test()
 {
@@ -65,7 +65,7 @@ struct S
 	std::unique_ptr<int> p;
 };
 
-template <typename InIter, typename OutIter>
+template<typename InIter, typename OutIter>
 void
 test1()
 {

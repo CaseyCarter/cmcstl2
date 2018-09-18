@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
 		// If T models MoveConstructible, semiregular_box<T> models Movable &&
 		// DefaultConstructible (so-called "MoveSemiregular"). If T models
 		// CopyConstructible, semiregular_box<T> models Semiregular.
-		template <ext::MoveConstructibleObject T>
+		template<ext::MoveConstructibleObject T>
 		struct semiregular_box {
 			semiregular_box() = default;
 			constexpr semiregular_box()
@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 			requires DefaultConstructible<T>
 			: o_{std::in_place} {}
 
-			template <_NotSameAs<semiregular_box> U>
+			template<_NotSameAs<semiregular_box> U>
 			requires ConvertibleTo<U, T>
 			constexpr semiregular_box(U&& u)
 			noexcept(std::is_nothrow_constructible_v<T, U>)
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 			semiregular_box(const semiregular_box&) requires CopyConstructible<T> = default;
 			semiregular_box(semiregular_box&&) = default;
 
-			template <class... Args>
+			template<class... Args>
 			requires Constructible<T, Args...>
 			constexpr semiregular_box(std::in_place_t, Args&&... args)
 			noexcept(std::is_nothrow_constructible_v<T, Args...>)
@@ -119,18 +119,18 @@ STL2_OPEN_NAMESPACE {
 			std::optional<T> o_;
 		};
 
-		template <Semiregular T>
+		template<Semiregular T>
 		struct semiregular_box<T> : ebo_box<T, semiregular_box<T>> {
 			using semiregular_box::ebo_box::ebo_box;
 
-			template <class... Args>
+			template<class... Args>
 			requires Constructible<T, Args...>
 			constexpr semiregular_box(std::in_place_t, Args&&... args)
 			noexcept(std::is_nothrow_constructible_v<T, Args...>)
 			: semiregular_box::ebo_box{static_cast<Args&&>(args)...} {}
 		};
 
-		template <class T>
+		template<class T>
 		semiregular_box(T) -> semiregular_box<T>;
 	}
 } STL2_CLOSE_NAMESPACE

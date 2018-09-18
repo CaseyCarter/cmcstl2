@@ -24,7 +24,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <Range Rng>
+		template<Range Rng>
 		requires _Is<Rng, std::is_object>
 		struct ref_view : view_interface<ref_view<Rng>> {
 		private:
@@ -64,12 +64,12 @@ STL2_OPEN_NAMESPACE {
 			{ return __stl2::data(*rng_); }
 		};
 
-		template <class Rng>
+		template<class Rng>
 		constexpr iterator_t<Rng> begin(ref_view<Rng> r)
 		STL2_NOEXCEPT_RETURN(
 			r.begin()
 		)
-		template <class Rng>
+		template<class Rng>
 		constexpr sentinel_t<Rng> end(ref_view<Rng> r)
 		STL2_NOEXCEPT_RETURN(
 			r.end()
@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace view::ext {
 		struct __ref_fn : detail::__pipeable<__ref_fn> {
-			template <class Rng>
+			template<class Rng>
 			auto operator()(Rng&& rng) const
 			STL2_NOEXCEPT_REQUIRES_RETURN(
 				__stl2::ext::ref_view(std::forward<Rng>(rng))

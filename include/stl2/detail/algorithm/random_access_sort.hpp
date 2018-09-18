@@ -28,7 +28,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		namespace rsort {
-			template <RandomAccessIterator I, class Comp, class Proj>
+			template<RandomAccessIterator I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			I choose_pivot(I first, I last, Comp& comp, Proj& proj)
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 				}(__stl2::invoke(proj, *first), __stl2::invoke(proj, *mid), __stl2::invoke(proj, *last));
 			}
 
-			template <RandomAccessIterator I, class Comp, class Proj>
+			template<RandomAccessIterator I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			I unguarded_partition(I first, I last, Comp& comp, Proj& proj)
@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			template <BidirectionalIterator I, class Comp, class Proj>
+			template<BidirectionalIterator I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			void unguarded_linear_insert(I last, iter_value_t<I> val, Comp& comp, Proj& proj)
@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 				*last = std::move(val);
 			}
 
-			template <BidirectionalIterator I, class Comp, class Proj>
+			template<BidirectionalIterator I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			void linear_insert(I first, I last, Comp& comp, Proj& proj)
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			template <BidirectionalIterator I, class Comp, class Proj>
+			template<BidirectionalIterator I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			void insertion_sort(I first, I last, Comp& comp, Proj& proj)
@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			template <BidirectionalIterator I, class Comp, class Proj>
+			template<BidirectionalIterator I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			void unguarded_insertion_sort(I first, I last, Comp& comp, Proj& proj)
@@ -132,7 +132,7 @@ STL2_OPEN_NAMESPACE {
 				return k;
 			}
 
-			template <RandomAccessIterator I, class Comp, class Proj>
+			template<RandomAccessIterator I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			void introsort_loop(I first, I last, iter_difference_t<I> depth_limit,
@@ -149,7 +149,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			template <RandomAccessIterator I, class Comp, class Proj>
+			template<RandomAccessIterator I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			void final_insertion_sort(I first, I last, Comp &comp, Proj &proj)

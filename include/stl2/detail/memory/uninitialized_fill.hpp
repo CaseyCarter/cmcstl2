@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_fill [Extension]
 	//
-	template <__NoThrowForwardIterator I, Sentinel<I> S, typename T>
+	template<__NoThrowForwardIterator I, Sentinel<I> S, typename T>
 	requires
 		Constructible<iter_value_t<I>, const T&>
 	I uninitialized_fill(I first, S last, const T& x)
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_fill [Extension]
 	//
-	template <__NoThrowForwardRange Rng, typename T>
+	template<__NoThrowForwardRange Rng, typename T>
 	requires
 		Constructible<iter_value_t<iterator_t<Rng>>, const T&>
 	safe_iterator_t<Rng>
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_fill_n [Extension]
 	//
-	template <__NoThrowForwardIterator I, typename T>
+	template<__NoThrowForwardIterator I, typename T>
 	requires
 		Constructible<iter_value_t<I>, const T&>
 	I uninitialized_fill_n(I first, const iter_difference_t<I> n, const T& x)

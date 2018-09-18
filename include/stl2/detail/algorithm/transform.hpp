@@ -25,7 +25,7 @@
 // transform [alg.transform]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
+	template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
 		CopyConstructible F, class Proj = identity>
 	requires
 		Writable<O,
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(first), std::move(result)};
 	}
 
-	template <InputRange R, WeaklyIncrementable O, CopyConstructible F, class Proj = identity>
+	template<InputRange R, WeaklyIncrementable O, CopyConstructible F, class Proj = identity>
 	requires
 		Writable<O,
 			indirect_result_t<F&, projected<iterator_t<R>, Proj>>>
@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(op), std::ref(proj));
 	}
 
-	template <InputIterator I1, Sentinel<I1> S1, class I2, WeaklyIncrementable O,
+	template<InputIterator I1, Sentinel<I1> S1, class I2, WeaklyIncrementable O,
 		CopyConstructible F, class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]] tagged_tuple<tag::in1(I1), tag::in2(std::decay_t<I2>), tag::out(O)>
 	transform(I1 first1, S1 last1, I2&& first2_, O result,
@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(first1), std::move(first2), std::move(result)};
 	}
 
-	template <InputRange Rng, class I, WeaklyIncrementable O, CopyConstructible F,
+	template<InputRange Rng, class I, WeaklyIncrementable O, CopyConstructible F,
 		class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]]
 	tagged_tuple<tag::in1(safe_iterator_t<Rng>),
@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(proj2));
 	}
 
-	template <InputIterator I1, Sentinel<I1> S1,
+	template<InputIterator I1, Sentinel<I1> S1,
 		InputIterator I2, Sentinel<I2> S2,
 		WeaklyIncrementable O, CopyConstructible F,
 		class Proj1 = identity, class Proj2 = identity>
@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(first1), std::move(first2), std::move(result)};
 	}
 
-	template <InputRange Rng1, InputRange Rng2, WeaklyIncrementable O, CopyConstructible F,
+	template<InputRange Rng1, InputRange Rng2, WeaklyIncrementable O, CopyConstructible F,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		Writable<O,

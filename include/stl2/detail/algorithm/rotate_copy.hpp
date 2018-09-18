@@ -21,7 +21,7 @@
 // rotate_copy [alg.rotate]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I, class F, class S, class O>
+	template<ForwardIterator I, class F, class S, class O>
 	requires
 		Same<I, __f<F>> &&
 		Sentinel<__f<S>, I> &&
@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 		return res;
 	}
 
-	template <ForwardRange Rng, class M, class O>
+	template<ForwardRange Rng, class M, class O>
 	requires
 		Same<iterator_t<Rng>, __f<M>> &&
 		WeaklyIncrementable<__f<O>> &&

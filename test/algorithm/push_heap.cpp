@@ -24,7 +24,7 @@
 
 // <algorithm>
 
-// template <RandomAccessIterator Iter>
+// template<RandomAccessIterator Iter>
 //   requires ShuffleIterator<Iter>
 //         && LessThanComparable<Iter::value_type>
 //   void
@@ -100,7 +100,7 @@ void test_proj(int N)
 
 struct indirect_less
 {
-	template <class P>
+	template<class P>
 	bool operator()(const P& x, const P& y) const
 		{return *x < *y;}
 };

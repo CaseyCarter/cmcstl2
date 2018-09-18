@@ -22,7 +22,7 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <View Rng>
+	template<View Rng>
 	requires !CommonRange<Rng>
 	struct common_view : view_interface<common_view<Rng>> {
 	private:
@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr common_view(Rng rng)
 		: rng_(std::move(rng)) {}
 
-		template <ViewableRange O>
+		template<ViewableRange O>
 		requires !CommonRange<O> && _ConstructibleFromRange<Rng, O>
 		constexpr common_view(O&& o)
 		: rng_(view::all(std::forward<O>(o))) {}
@@ -72,17 +72,17 @@ STL2_OPEN_NAMESPACE {
 		{ return __stl2::size(rng_); }
 	};
 
-	template <class O>
+	template<class O>
 	common_view(O&&) -> common_view<all_view<O>>;
 
 	namespace view {
 		struct __stl2_common_fn : detail::__pipeable<__stl2_common_fn> {
-			template <ViewableRange R>
+			template<ViewableRange R>
 			requires CommonRange<R>
 			constexpr auto operator()(R&& r) const
 			{ return view::all(std::forward<R>(r)); }
 
-			template <ViewableRange R>
+			template<ViewableRange R>
 			constexpr auto operator()(R&& r) const
 			{ return common_view{std::forward<R>(r)}; }
 		};

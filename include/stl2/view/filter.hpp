@@ -25,7 +25,7 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
+	template<InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
 	requires View<R>
 	class filter_view : public view_interface<filter_view<R, Pred>> {
 	private:
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr filter_view(R base, Pred pred)
 		: base_(std::move(base)), pred_(std::move(pred)) {}
 
-		template <InputRange O>
+		template<InputRange O>
 		requires ViewableRange<O> && _ConstructibleFromRange<R, O>
 		constexpr filter_view(O&& o, Pred pred)
 		: base_(view::all(std::forward<O>(o))), pred_(std::move(pred)) {}
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 		{ return __iterator{*this, __stl2::end(base_)}; }
 	};
 
-	template <class R, class Pred>
+	template<class R, class Pred>
 	class filter_view<R, Pred>::__iterator {
 	private:
 		iterator_t<R> current_ {};
@@ -149,7 +149,7 @@ STL2_OPEN_NAMESPACE {
 		{ __stl2::iter_swap(x.current_, y.current_); }
 	};
 
-	template <class R, class Pred>
+	template<class R, class Pred>
 	class filter_view<R, Pred>::__sentinel {
 	private:
 		sentinel_t<R> end_;
@@ -171,17 +171,17 @@ STL2_OPEN_NAMESPACE {
 		{ return !(y == x); }
 	};
 
-	template <class R, class Pred>
+	template<class R, class Pred>
 	filter_view(R&&, Pred) -> filter_view<all_view<R>, Pred>;
 
 	namespace view {
 		struct __filter_fn {
-			template <InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
+			template<InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
 			requires ViewableRange<R>
 			constexpr auto operator()(R&& rng, Pred pred) const
 			{ return filter_view<all_view<R>, Pred>{std::forward<R>(rng), std::move(pred)}; }
 
-			template <CopyConstructible Pred>
+			template<CopyConstructible Pred>
 			constexpr auto operator()(Pred pred) const
 			{ return detail::view_closure{*this, std::move(pred)}; }
 		};

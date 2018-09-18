@@ -25,7 +25,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <ForwardIterator I, class T, class Comp = less<>, class Proj = identity>
+		template<ForwardIterator I, class T, class Comp = less<>, class Proj = identity>
 		requires
 			IndirectStrictWeakOrder<
 				Comp, const T*, projected<I, Proj>>
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <ForwardIterator I, Sentinel<I> S, class T,
+	template<ForwardIterator I, Sentinel<I> S, class T,
 		class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <ForwardIterator I, SizedSentinel<I> S, class T,
+	template<ForwardIterator I, SizedSentinel<I> S, class T,
 		class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
@@ -119,7 +119,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(comp), std::ref(proj));
 	}
 
-	template <ForwardRange Rng, class T,
+	template<ForwardRange Rng, class T,
 		class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
@@ -132,7 +132,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(comp), std::ref(proj));
 	}
 
-	template <ForwardRange Rng, class T, class Comp = less<>,
+	template<ForwardRange Rng, class T, class Comp = less<>,
 		class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<

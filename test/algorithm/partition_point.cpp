@@ -38,7 +38,7 @@ struct is_odd
 	bool operator()(const int& i) const {return i % 2 != 0;}
 };
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_iter()
 {
@@ -92,7 +92,7 @@ test_iter()
 	}
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_range()
 {
@@ -160,7 +160,7 @@ make_counted_view(I i, stl2::iter_difference_t<I> n) {
   return {stl2::make_counted_iterator(stl2::move(i), n), {}};
 }
 
-template <class Iter>
+template<class Iter>
 void
 test_counted()
 {

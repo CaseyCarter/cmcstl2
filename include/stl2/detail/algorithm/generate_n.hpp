@@ -20,7 +20,7 @@
 // generate_n [alg.generate]
 //
 STL2_OPEN_NAMESPACE {
-	template <class F, Iterator O>
+	template<class F, Iterator O>
 	requires
 		Invocable<F&> &&
 		Writable<O, result_of_t<F&()>>

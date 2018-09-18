@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// equal_to [comparisons]
 	//
-	template <class T = void>
+	template<class T = void>
 		requires EqualityComparable<T> || Same<T, void>
 	struct equal_to {
 		constexpr bool operator()(const T& a, const T& b) const {
@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template <>
+	template<>
 	struct equal_to<void> {
 		EqualityComparableWith{T, U}
 		constexpr decltype(auto) operator()(T&& t, U&& u) const {
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// not_equal_to
 	//
-	template <class T = void>
+	template<class T = void>
 		requires EqualityComparable<T> || Same<T, void>
 	struct not_equal_to {
 		constexpr bool operator()(const T& a, const T& b) const {
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template <>
+	template<>
 	struct not_equal_to<void> {
 		EqualityComparableWith{T, U}
 		constexpr decltype(auto) operator()(T&& t, U&& u) const {
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// greater
 	//
-	template <class T = void>
+	template<class T = void>
 		requires StrictTotallyOrdered<T> || Same<T, void>
 	struct greater {
 		constexpr bool operator()(const T& a, const T& b) const {
@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template <>
+	template<>
 	struct greater<void> {
 		StrictTotallyOrderedWith{T, U}
 		constexpr decltype(auto) operator()(T&& t, U&& u) const {
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 		using is_transparent = true_type;
 	};
 
-	template <class T>
+	template<class T>
 	struct greater<T*> : private std::greater<T*> {
 		using std::greater<T*>::operator();
 	};
@@ -91,7 +91,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// less
 	//
-	template <class T = void>
+	template<class T = void>
 		requires StrictTotallyOrdered<T> || Same<T, void>
 	struct less {
 		constexpr bool operator()(const T& a, const T& b) const {
@@ -99,7 +99,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template <>
+	template<>
 	struct less<void> {
 		StrictTotallyOrderedWith{T, U}
 		constexpr decltype(auto) operator()(T&& t, U&& u) const {
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 		using is_transparent = true_type;
 	};
 
-	template <class T>
+	template<class T>
 	struct less<T*> : private std::less<T*> {
 		using std::less<T*>::operator();
 	};
@@ -117,7 +117,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// greater_equal
 	//
-	template <class T = void>
+	template<class T = void>
 		requires StrictTotallyOrdered<T> || Same<T, void>
 	struct greater_equal {
 		constexpr bool operator()(const T& a, const T& b) const {
@@ -125,7 +125,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template <>
+	template<>
 	struct greater_equal<void> {
 		StrictTotallyOrderedWith{T, U}
 		constexpr decltype(auto) operator()(T&& t, U&& u) const {
@@ -135,7 +135,7 @@ STL2_OPEN_NAMESPACE {
 		using is_transparent = true_type;
 	};
 
-	template <class T>
+	template<class T>
 	struct greater_equal<T*> : private std::greater_equal<T*> {
 		using std::greater_equal<T*>::operator();
 	};
@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// less_equal
 	//
-	template <class T = void>
+	template<class T = void>
 		requires StrictTotallyOrdered<T> || Same<T, void>
 	struct less_equal {
 		constexpr bool operator()(const T& a, const T& b) const {
@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template <>
+	template<>
 	struct less_equal<void> {
 		StrictTotallyOrderedWith{T, U}
 		constexpr decltype(auto) operator()(T&& t, U&& u) const {
@@ -161,7 +161,7 @@ STL2_OPEN_NAMESPACE {
 		using is_transparent = true_type;
 	};
 
-	template <class T>
+	template<class T>
 	struct less_equal<T*> : private std::less_equal<T*> {
 		using std::less_equal<T*>::operator();
 	};

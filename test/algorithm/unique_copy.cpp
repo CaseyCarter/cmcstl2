@@ -36,14 +36,14 @@ namespace stl2 = __stl2;
 struct count_equal
 {
 	static unsigned count;
-	template <class T>
+	template<class T>
 	bool operator()(const T& x, const T& y)
 		{++count; return x == y;}
 };
 
 unsigned count_equal::count = 0;
 
-template <class InIter, class OutIter, typename Sent = InIter>
+template<class InIter, class OutIter, typename Sent = InIter>
 void
 test_iter()
 {
@@ -136,7 +136,7 @@ test_iter()
 	CHECK(count_equal::count == si-1);
 }
 
-template <class InIter, class OutIter, typename Sent = InIter>
+template<class InIter, class OutIter, typename Sent = InIter>
 void
 test_range()
 {
@@ -229,7 +229,7 @@ test_range()
 	CHECK(count_equal::count == si-1);
 }
 
-template <class InIter, class OutIter>
+template<class InIter, class OutIter>
 void test()
 {
 	using Sent = typename sentinel_type<InIter>::type;

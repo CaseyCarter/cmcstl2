@@ -21,7 +21,7 @@
 
 namespace ranges = __stl2;
 
-template <class T>
+template<class T>
 struct reference_wrapper {
 	ranges::detail::raw_ptr<T> ptr_;
 
@@ -58,7 +58,7 @@ struct reference_wrapper {
 	operator T&() const noexcept { return get(); }
 };
 
-template <class T, std::size_t N>
+template<class T, std::size_t N>
 struct array {
 	T e_[N];
 
@@ -151,23 +151,23 @@ std::ostream& operator<<(std::ostream& sout, category c) {
 	}
 }
 
-template <class>
+template<class>
 constexpr category iterator_dispatch() { return category::none; }
-template <ranges::OutputIterator<const int&> I>
+template<ranges::OutputIterator<const int&> I>
 requires !ranges::InputIterator<I>
 constexpr category iterator_dispatch() { return category::output; }
-template <ranges::InputIterator>
+template<ranges::InputIterator>
 constexpr category iterator_dispatch() { return category::input; }
-template <ranges::ForwardIterator>
+template<ranges::ForwardIterator>
 constexpr category iterator_dispatch() { return category::forward; }
-template <ranges::BidirectionalIterator>
+template<ranges::BidirectionalIterator>
 constexpr category iterator_dispatch() { return category::bidirectional; }
-template <ranges::RandomAccessIterator>
+template<ranges::RandomAccessIterator>
 constexpr category iterator_dispatch() { return category::random_access; }
-template <ranges::ContiguousIterator>
+template<ranges::ContiguousIterator>
 constexpr category iterator_dispatch() { return category::contiguous; }
 
-template <class C, bool EC, class R = int&>
+template<class C, bool EC, class R = int&>
 struct arbitrary_iterator {
 	using difference_type = std::ptrdiff_t;
 
@@ -183,7 +183,7 @@ struct arbitrary_iterator {
 	requires EC;
 };
 
-template <ranges::DerivedFrom<ranges::input_iterator_tag> C, bool EC, class R>
+template<ranges::DerivedFrom<ranges::input_iterator_tag> C, bool EC, class R>
 struct arbitrary_iterator<C, EC, R> {
 	using iterator_category = C;
 	using value_type = std::remove_reference_t<R>;
@@ -227,11 +227,11 @@ struct arbitrary_iterator<C, EC, R> {
 	requires ranges::DerivedFrom<C, ranges::random_access_iterator_tag>;
 };
 
-template <ranges::DerivedFrom<ranges::random_access_iterator_tag> C, bool B, class R>
+template<ranges::DerivedFrom<ranges::random_access_iterator_tag> C, bool B, class R>
 arbitrary_iterator<C, B, R> operator+(
 	arbitrary_iterator<C, B, R>, typename arbitrary_iterator<C, B, R>::difference_type);
 
-template <ranges::DerivedFrom<ranges::random_access_iterator_tag> C, bool B, class R>
+template<ranges::DerivedFrom<ranges::random_access_iterator_tag> C, bool B, class R>
 arbitrary_iterator<C, B, R> operator+(
 	typename arbitrary_iterator<C, B, R>::difference_type, arbitrary_iterator<C, B, R>);
 
@@ -291,7 +291,7 @@ void test_iterator_dispatch() {
 	}
 }
 
-template <ranges::InputIterator I, ranges::Sentinel<I> S, class O>
+template<ranges::InputIterator I, ranges::Sentinel<I> S, class O>
 requires ranges::IndirectlyCopyable<I, O>
 bool copy(I first, S last, O o) {
 	for (; first != last; ++first, ++o) {
@@ -300,7 +300,7 @@ bool copy(I first, S last, O o) {
 	return false;
 }
 
-template <ranges::ContiguousIterator I, ranges::SizedSentinel<I> S,
+template<ranges::ContiguousIterator I, ranges::SizedSentinel<I> S,
 	ranges::ContiguousIterator O>
 requires
 	ranges::IndirectlyCopyable<I, O> &&
@@ -406,9 +406,9 @@ void test_iter_swap2() {
 	}
 }
 
-template <class T>
+template<class T>
 constexpr bool has_category = false;
-template <class T>
+template<class T>
 requires
 	requires { typename T::iterator_category; }
 constexpr bool has_category<T> = true;
