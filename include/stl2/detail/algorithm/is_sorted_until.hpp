@@ -21,7 +21,7 @@
 // is_sorted_until [is.sorted]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I, Sentinel<I> S, class Comp = less<>,
+	template<ForwardIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 
 	}
 
-	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
+	template<ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>

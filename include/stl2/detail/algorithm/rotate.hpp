@@ -36,7 +36,7 @@
 // rotate [alg.rotate]
 //
 STL2_OPEN_NAMESPACE {
-	template <class I>
+	template<class I>
 	requires
 		Permutable<I>
 	subrange<I> __rotate_left(I first, I last)
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(lm1), std::move(last)};
 	}
 
-	template <BidirectionalIterator I>
+	template<BidirectionalIterator I>
 	requires
 		Permutable<I>
 	subrange<I> __rotate_right(I first, I last)
@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(fp1), std::move(last)};
 	}
 
-	template <Permutable I, Sentinel<I> S>
+	template<Permutable I, Sentinel<I> S>
 	subrange<I> __rotate_forward(I first, I middle, S last)
 	{
 		I i = middle;
@@ -102,7 +102,7 @@ STL2_OPEN_NAMESPACE {
 		return x;
 	}
 
-	template <RandomAccessIterator I>
+	template<RandomAccessIterator I>
 	requires
 		Permutable<I>
 	subrange<I> __rotate_gcd(I first, I middle, I last)
@@ -135,7 +135,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(first), std::move(last)};
 	}
 
-	template <Permutable I, Sentinel<I> S>
+	template<Permutable I, Sentinel<I> S>
 	subrange<I> __rotate(I first, I middle, S last)
 	{
 		return __stl2::__rotate_forward(
@@ -154,7 +154,7 @@ STL2_OPEN_NAMESPACE {
 			std::move(first), std::move(middle), std::move(last));
 	}
 
-	template <BidirectionalIterator I>
+	template<BidirectionalIterator I>
 	requires Permutable<I>
 	subrange<I> __rotate(I first, I middle, I last)
 	{
@@ -170,7 +170,7 @@ STL2_OPEN_NAMESPACE {
 			std::move(first), std::move(middle), std::move(last));
 	}
 
-	template <RandomAccessIterator I>
+	template<RandomAccessIterator I>
 	requires Permutable<I>
 	subrange<I> __rotate(I first, I middle, I last)
 	{
@@ -188,7 +188,7 @@ STL2_OPEN_NAMESPACE {
 			std::move(first), std::move(middle), std::move(last));
 	}
 
-	template <Permutable I, Sentinel<I> S>
+	template<Permutable I, Sentinel<I> S>
 	subrange<I> rotate(I first, I middle, S last)
 	{
 		if (first == middle) {
@@ -202,7 +202,7 @@ STL2_OPEN_NAMESPACE {
 			std::move(first), std::move(middle), std::move(last));
 	}
 
-	template <ForwardRange Rng>
+	template<ForwardRange Rng>
 	requires
 		Permutable<iterator_t<Rng>>
 	safe_subrange_t<Rng> rotate(Rng&& rng, iterator_t<Rng> middle)

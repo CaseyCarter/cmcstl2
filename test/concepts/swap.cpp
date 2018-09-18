@@ -70,12 +70,12 @@ namespace swappable_test {
 			constrained_swappable(const constrained_swappable&) = default;
 			constrained_swappable(constrained_swappable&&) = default;
 		};
-		template <class T>
+		template<class T>
 		concept bool ConstrainedSwappable =
 			ns::Same<T, constrained_swappable>;
-		template <ConstrainedSwappable T, ConstrainedSwappable U>
+		template<ConstrainedSwappable T, ConstrainedSwappable U>
 		void swap(T&, U&) {}
-		template <ConstrainedSwappable T>
+		template<ConstrainedSwappable T>
 		void swap(T &, T &) {}
 	}
 	using __constrained_swappable::constrained_swappable;

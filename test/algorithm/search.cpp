@@ -38,7 +38,7 @@ constexpr bool eq(subrange<I> const& x, subrange<I> const& y) {
 	return x.begin() == y.begin() && x.end() == y.end();
 }
 
-template <class Iter1, class Iter2, typename Sent1 = Iter1, typename Sent2 = Iter2>
+template<class Iter1, class Iter2, typename Sent1 = Iter1, typename Sent2 = Iter2>
 void
 test_iter_impl()
 {
@@ -97,7 +97,7 @@ test_iter_impl()
 		ranges::search(Iter1(ij), Sent1(ij+sj), Iter2(ik), Sent2(ik+sk))));
 }
 
-template <class Iter1, class Iter2>
+template<class Iter1, class Iter2>
 void
 test_iter()
 {
@@ -113,7 +113,7 @@ test_iter()
 	test_iter_impl<Iter1, Iter2, SizedSent1, SizedSent2>();
 }
 
-template <class Iter1, class Iter2, typename Sent1 = Iter1, typename Sent2 = Iter2>
+template<class Iter1, class Iter2, typename Sent1 = Iter1, typename Sent2 = Iter2>
 void
 test_range_impl()
 {
@@ -178,7 +178,7 @@ test_range_impl()
 			subrange(Iter2(ik), Sent2(ik+sk)))));
 }
 
-template <class Iter1, class Iter2>
+template<class Iter1, class Iter2>
 void
 test_range()
 {
@@ -194,7 +194,7 @@ test_range()
 	test_range_impl<Iter1, Iter2, SizedSent1, SizedSent2>();
 }
 
-template <class Iter1, class Iter2>
+template<class Iter1, class Iter2>
 void
 test()
 {

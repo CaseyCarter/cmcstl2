@@ -24,7 +24,7 @@
 // shuffle [alg.random.shuffle]
 //
 STL2_OPEN_NAMESPACE {
-	template <RandomAccessIterator I, Sentinel<I> S,
+	template<RandomAccessIterator I, Sentinel<I> S,
 		class Gen = detail::default_random_engine&, class D = iter_difference_t<I>>
 	requires
 		Permutable<I> &&
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 		return mid;
 	}
 
-	template <RandomAccessRange Rng, class Gen = detail::default_random_engine&,
+	template<RandomAccessRange Rng, class Gen = detail::default_random_engine&,
 		class D = iter_difference_t<iterator_t<Rng>>>
 	requires
 		Permutable<iterator_t<Rng>> &&

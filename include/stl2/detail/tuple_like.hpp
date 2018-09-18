@@ -19,7 +19,7 @@ STL2_OPEN_NAMESPACE {
 		namespace adl {
 			using std::get;
 
-			template <std::size_t I, class T>
+			template<std::size_t I, class T>
 			constexpr auto adl_get(T&& t)
 			noexcept(noexcept(get<I>(static_cast<T&&>(t))))
 			-> decltype(get<I>(static_cast<T&&>(t)))

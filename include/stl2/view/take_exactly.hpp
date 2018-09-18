@@ -27,7 +27,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <View Base>
+		template<View Base>
 		class take_exactly_view
 		: public view_interface<take_exactly_view<Base>>
 		, private detail::ebo_box<Base, take_exactly_view<Base>>
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 				requires(Base& b) { __stl2::data(b); }
 			{ return __stl2::data(get()); }
 	#else
-			template <class B = Base>
+			template<class B = Base>
 			requires
 				Same<B, Base> &&
 				!Range<B const> &&
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 				requires(Base const& b) { __stl2::data(b); }
 			{ return __stl2::data(get()); }
 	#else
-			template <class B = Base>
+			template<class B = Base>
 			requires
 				Same<B, Base> &&
 				Range<B const> &&
@@ -95,24 +95,24 @@ STL2_OPEN_NAMESPACE {
 			constexpr bool empty() const noexcept { return n_ == 0; }
 		};
 
-		template <Range R>
+		template<Range R>
 		take_exactly_view(R&& base, iter_difference_t<iterator_t<R>> n)
 			-> take_exactly_view<all_view<R>>;
 	} // namespace ext
 
-	template <class V>
+	template<class V>
 	struct enable_view<ext::take_exactly_view<V>> : std::true_type {};
 
 	namespace view::ext {
 		struct __take_exactly_fn : detail::__pipeable<__take_exactly_fn> {
-			template <class V>
+			template<class V>
 			auto operator()(V&& view, iter_difference_t<iterator_t<V>> const n) const
 			STL2_NOEXCEPT_REQUIRES_RETURN
 			(
 				__stl2::ext::take_exactly_view(all(std::forward<V>(view)), n)
 			)
 
-			template <Integral D>
+			template<Integral D>
 			constexpr auto operator()(D count) const
 			{ return detail::view_closure(*this, static_cast<D>(count)); }
 		};

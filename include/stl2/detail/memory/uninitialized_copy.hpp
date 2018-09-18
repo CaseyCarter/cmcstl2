@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_copy [Extension]
 	//
-	template <InputIterator I, Sentinel<I> S, __NoThrowForwardIterator O>
+	template<InputIterator I, Sentinel<I> S, __NoThrowForwardIterator O>
 	[[deprecated]] tagged_pair<tag::in(I), tag::out(O)>
 	uninitialized_copy(I first, S last, O result)
 	requires
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_copy [Extension]
 	//
-	template <InputRange Rng, __NoThrowForwardIterator O>
+	template<InputRange Rng, __NoThrowForwardIterator O>
 	[[deprecated]] tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
 	uninitialized_copy(Rng&& rng, O result)
 	requires
@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_copy [Extension]
 	//
-	template <InputIterator I, Sentinel<I> S1, __NoThrowForwardIterator O, __NoThrowSentinel<O> S2>
+	template<InputIterator I, Sentinel<I> S1, __NoThrowForwardIterator O, __NoThrowSentinel<O> S2>
 	requires
 		Constructible<iter_value_t<O>, iter_reference_t<I>>
 	tagged_pair<tag::in(I), tag::out(O)>
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_copy [Extension]
 	//
-	template <InputRange IRng, __NoThrowForwardRange ORng>
+	template<InputRange IRng, __NoThrowForwardRange ORng>
 	requires
 		Constructible<iter_value_t<iterator_t<ORng>>, iter_reference_t<iterator_t<IRng>>>
 	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(safe_iterator_t<ORng>)>
@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_copy_n [Extension]
 	//
-	template <InputIterator I, __NoThrowForwardIterator O>
+	template<InputIterator I, __NoThrowForwardIterator O>
 	requires
 		Constructible<iter_value_t<O>, iter_reference_t<I>>
 	tagged_pair<tag::in(I), tag::out(O)>

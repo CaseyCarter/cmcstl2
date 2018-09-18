@@ -103,7 +103,7 @@ void test_swap() {
 	CHECK(t2.out() == 3.14);
 }
 
-template <class T> T& lv();
+template<class T> T& lv();
 
 struct nothrow_pair {
 	int first;
@@ -115,9 +115,9 @@ struct nothrow_pair {
 };
 
 namespace std {
-	template <>
+	template<>
 	struct tuple_size<nothrow_pair> : meta::size_t<2> {};
-	template <std::size_t N>
+	template<std::size_t N>
 		requires N < 2
 	struct tuple_element<N, nothrow_pair> : meta::id<int> {};
 }
@@ -210,14 +210,14 @@ void test_tag_extension() {
 	CHECK(p.foo() == 13);
 }
 
-template <class T>
+template<class T>
 struct im_a_tuple {
 	T i = 42;
 
 	void out();
 };
 
-template <int I>
+template<int I>
 concept bool Zero = I == 0;
 
 Zero{I} constexpr auto&
@@ -233,9 +233,9 @@ Zero{I} constexpr auto&&
 get(const im_a_tuple<auto>&& f) { return std::move(f).i; }
 
 namespace std {
-	template <class T>
+	template<class T>
 	struct tuple_size<::im_a_tuple<T>> : meta::size_t<1> {};
-	template <class T>
+	template<class T>
 	struct tuple_element<0, ::im_a_tuple<T>> { using type = T; };
 }
 

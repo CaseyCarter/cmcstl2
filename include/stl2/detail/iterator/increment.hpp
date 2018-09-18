@@ -29,19 +29,19 @@ STL2_OPEN_NAMESPACE {
 	//   to prevent hard errors for pointers to incomplete types.
 	//
 	namespace detail {
-		template <class T>
+		template<class T>
 		concept bool MemberDifferenceType =
 			requires { typename T::difference_type; };
 	}
 
-	template <class> struct incrementable_traits {};
+	template<class> struct incrementable_traits {};
 
-	template <ext::Object T>
+	template<ext::Object T>
 	struct incrementable_traits<T*> {
 		using type = std::ptrdiff_t;
 	};
 
-	template <class T>
+	template<class T>
 	struct incrementable_traits<const T>
 	: incrementable_traits<std::decay_t<T>> {};
 
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 		using type = typename T::difference_type;
 	};
 
-	template <class T>
+	template<class T>
 		requires !detail::MemberDifferenceType<T> &&
 			_IsNot<T, is_pointer> && // Avoid GCC PR 78173 (See above)
 			requires(const T& a, const T& b) {
@@ -62,13 +62,13 @@ STL2_OPEN_NAMESPACE {
 	struct incrementable_traits<T>
 	: make_signed<decltype(declval<const T>() - declval<const T>())> {};
 
-	template <class T>
+	template<class T>
 	using iter_difference_t = meta::_t<incrementable_traits<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// WeaklyIncrementable [weaklyincrementable.iterators]
 	//
-	template <class I>
+	template<class I>
 	concept bool WeaklyIncrementable =
 		Semiregular<I> &&
 		requires(I& i) {
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Incrementable [incrementable.iterators]
 	//
-	template <class I>
+	template<class I>
 	concept bool Incrementable =
 		WeaklyIncrementable<I> &&
 		EqualityComparable<I> &&
@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 	// Decrementable [Extension]
 	//
 	namespace ext {
-		template <class I>
+		template<class I>
 		concept bool Decrementable =
 			Incrementable<I> &&
 			requires(I& i) {
@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
 	// RandomAccessIncrementable [Extension]
 	//
 	namespace ext {
-		template <class I>
+		template<class I>
 		concept bool RandomAccessIncrementable =
 			Decrementable<I> &&
 			requires(I& i, const I& ci, const iter_difference_t<I> n) {

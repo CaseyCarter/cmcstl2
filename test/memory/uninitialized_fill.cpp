@@ -24,7 +24,7 @@ namespace ranges = __stl2;
 namespace {
 	constexpr auto test_size{1 << 10};
 
-	template <typename T>
+	template<typename T>
 	requires ranges::CopyConstructible<T> && ranges::EqualityComparable<T>
 	void uninitialized_fill_test(const T& x)
 	{

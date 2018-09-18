@@ -50,7 +50,7 @@ void test_initializer_list() {
 	CHECK(ranges::empty(il) == false);
 }
 
-template <class T, T... Is>
+template<class T, T... Is>
 void test_array(std::integer_sequence<T, Is...>) {
 	T a[sizeof...(Is)] = { Is... };
 	{
@@ -71,13 +71,13 @@ void test_array(std::integer_sequence<T, Is...>) {
 }
 
 namespace begin_testing {
-	template <class R>
+	template<class R>
 	concept bool CanBegin =
 		requires(R&& r) {
 			ranges::begin((R&&)r);
 		};
 
-	template <class>
+	template<class>
 	constexpr bool can_begin = false;
 	CanBegin{R}
 	constexpr bool can_begin<R> = true;
@@ -144,7 +144,7 @@ namespace begin_testing {
 } // namespace begin_testing
 
 namespace X {
-	template <class T, std::size_t N>
+	template<class T, std::size_t N>
 		requires N != 0
 	struct array {
 		T elements_[N];
@@ -154,13 +154,13 @@ namespace X {
 		constexpr const T* data() const noexcept { return elements_; }
 	};
 
-	template <class T, std::size_t N>
+	template<class T, std::size_t N>
 	constexpr T* begin(array<T, N>& a) noexcept { return a.elements_; }
-	template <class T, std::size_t N>
+	template<class T, std::size_t N>
 	constexpr T* end(array<T, N>& a) noexcept { return a.elements_ + N; }
-	template <class T, std::size_t N>
+	template<class T, std::size_t N>
 	constexpr const T* begin(const array<T, N>& a) noexcept { return a.elements_; }
-	template <class T, std::size_t N>
+	template<class T, std::size_t N>
 	constexpr const T* end(const array<T, N>& a) noexcept { return a.elements_ + N; }
 } // namespace X
 

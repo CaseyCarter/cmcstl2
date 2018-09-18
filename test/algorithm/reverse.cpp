@@ -30,7 +30,7 @@
 
 namespace stl2 = __stl2;
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void test()
 {
 	// iterators

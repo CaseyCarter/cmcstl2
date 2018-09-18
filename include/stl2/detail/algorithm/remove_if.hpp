@@ -22,7 +22,7 @@
 // remove [alg.remove]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
+	template<ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		Permutable<I> &&
 		IndirectUnaryPredicate<
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		return first;
 	}
 
-	template <ForwardRange Rng, class Pred, class Proj = identity>
+	template<ForwardRange Rng, class Pred, class Proj = identity>
 	requires
 		Permutable<iterator_t<Rng>> &&
 		IndirectUnaryPredicate<

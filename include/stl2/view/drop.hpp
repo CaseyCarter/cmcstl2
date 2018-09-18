@@ -27,7 +27,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <View R>
+		template<View R>
 		class drop_view
 		: public view_interface<drop_view<R>>
 		, private detail::non_propagating_cache<iterator_t<R>, drop_view<R>, !RandomAccessRange<const R>> {
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 				  count_(count)
 			{}
 
-			template <ViewableRange O>
+			template<ViewableRange O>
 			requires _ConstructibleFromRange<R, O>
 			constexpr drop_view(O&& o, D count)
 				: base_(view::all(std::forward<O>(o))),
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 			R base_;
 			D count_;
 
-			template <class X>
+			template<class X>
 			static constexpr auto begin_impl(X& x) {
 				if constexpr (RandomAccessRange<__maybe_const<is_const_v<X>, R>>) {
 					return __stl2::ext::nth_iterator(x.base_, x.count_);
@@ -80,10 +80,10 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			template <class X>
+			template<class X>
 			static constexpr auto end_impl(X& x) { return __stl2::end(x.base_); }
 
-			template <class X>
+			template<class X>
 			static constexpr auto size_impl(X& x) {
 				auto const size = __stl2::size(x.base_);
 				auto const count = static_cast<decltype(size)>(x.count_);
@@ -91,19 +91,19 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template <Range R>
+		template<Range R>
 		drop_view(R&&, iter_difference_t<iterator_t<R>>) -> drop_view<all_view<R>>;
 	} // namespace ext
 
 	namespace view::ext {
 		struct __drop_fn : detail::__pipeable<__drop_fn> {
-			template <Range Rng>
+			template<Range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
 			STL2_NOEXCEPT_REQUIRES_RETURN(
 				__stl2::ext::drop_view(all(std::forward<Rng>(rng)), count)
 			)
 
-			template <Integral D>
+			template<Integral D>
 			constexpr auto operator()(D count) const
 			{
 				return detail::view_closure(*this, static_cast<D>(count));

@@ -36,7 +36,7 @@ struct is_odd
 	bool operator()(const int& i) const {return i & 1;}
 };
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_iter()
 {
@@ -72,7 +72,7 @@ test_iter()
 	}
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_range()
 {

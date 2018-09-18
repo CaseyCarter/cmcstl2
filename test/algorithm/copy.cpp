@@ -19,7 +19,7 @@
 
 namespace ranges = __stl2;
 
-template <ranges::InputIterator I>
+template<ranges::InputIterator I>
 	requires ranges::Regular<ranges::iter_value_t<I>>
 class delimiter {
 	ranges::iter_value_t<I> value_;
@@ -49,11 +49,11 @@ public:
 };
 
 STL2_OPEN_NAMESPACE {
-template <class I>
+template<class I>
 struct common_type<I, ::delimiter<I>> {
 	using type = common_iterator<I, ::delimiter<I>>;
 };
-template <class I>
+template<class I>
 	struct common_type<::delimiter<I>, I> {
 	using type = common_iterator<I, ::delimiter<I>>;
 };

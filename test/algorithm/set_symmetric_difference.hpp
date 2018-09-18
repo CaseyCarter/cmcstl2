@@ -28,7 +28,7 @@
 
 namespace stl2 = __stl2;
 
-template <class Iter1, class Iter2, class OutIter>
+template<class Iter1, class Iter2, class OutIter>
 void
 test_iter()
 {
@@ -63,7 +63,7 @@ test_iter()
 	);
 }
 
-template <class Iter1, class Iter2, class OutIter>
+template<class Iter1, class Iter2, class OutIter>
 void
 test_comp()
 {
@@ -98,7 +98,7 @@ test_comp()
 	);
 }
 
-template <class Iter1, class Iter2, class OutIter>
+template<class Iter1, class Iter2, class OutIter>
 void test()
 {
 	test_iter<Iter1, Iter2, OutIter>();

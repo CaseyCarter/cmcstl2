@@ -31,7 +31,7 @@ namespace stl2 = __stl2;
 
 namespace { std::mt19937 gen; }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_iter(Iter first, Sent last)
 {
@@ -64,7 +64,7 @@ test_iter(Iter first, Sent last)
 		CHECK(j == last);
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_iter(unsigned N)
 {
@@ -74,7 +74,7 @@ test_iter(unsigned N)
 	test_iter(Iter(a.get()), Sent(a.get()+N));
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_iter()
 {
@@ -86,7 +86,7 @@ test_iter()
 	test_iter<Iter, Sent>(1000);
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_iter_comp(Iter first, Sent last)
 {
@@ -119,7 +119,7 @@ test_iter_comp(Iter first, Sent last)
 		CHECK(res == last);
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_iter_comp(unsigned N)
 {
@@ -129,7 +129,7 @@ test_iter_comp(unsigned N)
 	test_iter_comp(Iter(a.get()), Sent(a.get()+N));
 }
 
-template <class Iter, class Sent = Iter>
+template<class Iter, class Sent = Iter>
 void
 test_iter_comp()
 {

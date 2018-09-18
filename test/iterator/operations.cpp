@@ -17,7 +17,7 @@
 namespace ranges = std::experimental::ranges;
 
 namespace {
-    template <class T, std::size_t N, bool Bidi = true>
+    template<class T, std::size_t N, bool Bidi = true>
     struct unsized_range {
         T array_[N];
 

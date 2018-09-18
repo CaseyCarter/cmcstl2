@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template <class T>
+		template<class T>
 		class temporary_buffer {
 			unique_ptr<T, temporary_buffer_deleter> alloc_;
 			std::ptrdiff_t size_ = 0;
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template <class T>
+		template<class T>
 		requires alignof(T) > alignof(std::max_align_t)
 		class temporary_buffer<T> {
 			unique_ptr<unsigned char, temporary_buffer_deleter> alloc_;
@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template <ext::DestructibleObject T>
+		template<ext::DestructibleObject T>
 		class temporary_vector {
 			T* begin_ = nullptr;
 			T* end_ = nullptr;
@@ -141,7 +141,7 @@ STL2_OPEN_NAMESPACE {
 				return begin_[i];
 			}
 
-			template <class... Args>
+			template<class... Args>
 			requires Constructible<T, Args...>
 			void emplace_back(Args&&... args)
 			noexcept(is_nothrow_constructible<T, Args...>::value)

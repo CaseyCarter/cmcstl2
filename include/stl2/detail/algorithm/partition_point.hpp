@@ -33,7 +33,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <ForwardIterator I, class Pred, class Proj = identity>
+		template<ForwardIterator I, class Pred, class Proj = identity>
 		requires
 			IndirectUnaryPredicate<
 				Pred, projected<I, Proj>>
@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
+	template<ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
+	template<ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		SizedSentinel<S, I> &&
 		IndirectUnaryPredicate<
@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(pred), std::ref(proj));
 	}
 
-	template <ForwardRange Rng, class Pred, class Proj = identity>
+	template<ForwardRange Rng, class Pred, class Proj = identity>
 	requires
 		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
@@ -101,7 +101,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(pred), std::ref(proj));
 	}
 
-	template <ForwardRange Rng, class Pred, class Proj = identity>
+	template<ForwardRange Rng, class Pred, class Proj = identity>
 	requires
 		SizedRange<Rng> &&
 		IndirectUnaryPredicate<

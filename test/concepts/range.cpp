@@ -19,10 +19,10 @@
 #include <range/v3/utility/concepts.hpp>
 
 namespace ns {
-	template <class R>
+	template<class R>
 	using iterator_t = ranges::range_iterator_t<R>;
 
-	template <class R>
+	template<class R>
 	using sentinel_t = ranges::range_sentinel_t<R>;
 
 	using ranges::size;
@@ -31,7 +31,7 @@ namespace ns {
 	using ranges::end;
 }
 
-template <bool allow_nonconst, bool allow_const, bool allow_size>
+template<bool allow_nonconst, bool allow_const, bool allow_size>
 struct arbitrary_range {
 	CONCEPT_REQUIRES(allow_nonconst)
 	int* begin();
@@ -52,7 +52,7 @@ struct arbitrary_range {
 
 namespace ns = ::__stl2;
 
-template <bool allow_nonconst, bool allow_const, bool allow_size>
+template<bool allow_nonconst, bool allow_const, bool allow_size>
 struct arbitrary_range {
 	int* begin() requires allow_nonconst;
 	int* end() requires allow_nonconst;
@@ -98,23 +98,23 @@ struct immutable_badsized_range :
 
 #if VALIDATE_STL2
 STL2_OPEN_NAMESPACE {
-template <>
+template<>
 constexpr bool disable_sized_range<mutable_badsized_range> = true;
-template <>
+template<>
 constexpr bool disable_sized_range<mutable_only_badsized_range> = true;
-template <>
+template<>
 constexpr bool disable_sized_range<immutable_badsized_range> = true;
 } STL2_CLOSE_NAMESPACE
 
 #elif VALIDATE_RANGES
 namespace ranges {
-template <>
+template<>
 struct is_sized_range<mutable_badsized_range> :
 	std::false_type {};
-template <>
+template<>
 struct is_sized_range<mutable_only_badsized_range> :
 	std::false_type {};
-template <>
+template<>
 struct is_sized_range<immutable_badsized_range> :
 	std::false_type {};
 }
@@ -134,17 +134,17 @@ struct strange_view3 : strange_view2 {};
 
 #if VALIDATE_STL2
 STL2_OPEN_NAMESPACE {
-	template <>
+	template<>
 	struct enable_view<strange_view> : std::true_type {};
-	template <>
+	template<>
 	struct enable_view<strange_view3> : std::false_type {};
 } STL2_CLOSE_NAMESPACE
 
 #elif VALIDATE_RANGES
 namespace ranges {
-	template <>
+	template<>
 	struct is_view<strange_view> : std::true_type {};
-	template <>
+	template<>
 	struct is_view<strange_view3> : std::false_type {};
 }
 #endif
@@ -474,10 +474,10 @@ void ridiculously_exhaustive_range_property_test() {
 }
 
 #if VALIDATE_RANGES
-template <class I, class S,
+template<class I, class S,
 	CONCEPT_REQUIRES_(ranges::InputIterator<I> && ranges::Sentinel<S, I>)>
 #elif VALIDATE_STL2
-template <ns::InputIterator I, ns::Sentinel<I> S>
+template<ns::InputIterator I, ns::Sentinel<I> S>
 #endif
 I complicated_algorithm(I i, S s) {
 	static constexpr bool output = false;
@@ -493,7 +493,7 @@ I complicated_algorithm(I i, S s) {
 }
 
 #if VALIDATE_RANGES
-template <class R, CONCEPT_REQUIRES_(ranges::Range<R>)>
+template<class R, CONCEPT_REQUIRES_(ranges::Range<R>)>
 #elif VALIDATE_STL2
 ns::InputRange{R}
 #endif
@@ -501,13 +501,13 @@ ns::iterator_t<R> complicated_algorithm(R&& r) {
 	return complicated_algorithm(ns::begin(r), ns::end(r));
 }
 
-template <class T>
+template<class T>
 struct array_view {
 	T* first_;
 	std::size_t n_;
 
 	array_view() = default;
-	template <std::size_t N>
+	template<std::size_t N>
 	array_view(T (&a)[N]) : first_{a}, n_{N} {}
 
 	auto begin() const { return first_; }

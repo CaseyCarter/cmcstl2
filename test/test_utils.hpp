@@ -17,19 +17,19 @@
 #include "./test_iterators.hpp"
 #include "./simple_test.hpp"
 
-template <typename Expected, typename Actual>
+template<typename Expected, typename Actual>
 void has_type(Actual &&)
 {
 	static_assert(std::is_same<Expected, Actual>::value, "Not the same");
 }
 
-template <typename T>
+template<typename T>
 T & as_lvalue(T && t)
 {
 	return t;
 }
 
-template <typename T>
+template<typename T>
 struct checker
 {
 private:
@@ -43,12 +43,12 @@ public:
 	}
 };
 
-template <bool B, typename T>
+template<bool B, typename T>
 typename std::conditional<B, T, T const &>::type rvalue_if(T const &t) {
 	return t;
 }
 
-template <typename Algo, bool RvalueOK = false>
+template<typename Algo, bool RvalueOK = false>
 struct test_range_algo_1
 {
 private:
@@ -57,7 +57,7 @@ public:
 	explicit test_range_algo_1(Algo algo)
 	  : algo_(algo)
 	{}
-	template <typename I, typename... Rest>
+	template<typename I, typename... Rest>
 	auto operator()(I begin, I end, Rest &&... rest) const ->
 		checker<decltype(algo_(begin, end, rest...))>
 	{
@@ -73,13 +73,13 @@ public:
 	}
 };
 
-template <bool RvalueOK = false, typename Algo>
+template<bool RvalueOK = false, typename Algo>
 test_range_algo_1<Algo, RvalueOK> make_testable_1(Algo algo)
 {
 	return test_range_algo_1<Algo, RvalueOK>{algo};
 }
 
-template <typename Algo, bool RvalueOK1 = false, bool RvalueOK2 = false>
+template<typename Algo, bool RvalueOK1 = false, bool RvalueOK2 = false>
 struct test_range_algo_2
 {
 private:
@@ -88,7 +88,7 @@ public:
 	explicit test_range_algo_2(Algo algo)
 	  : algo_(algo)
 	{}
-	template <typename I1, typename I2, typename... Rest>
+	template<typename I1, typename I2, typename... Rest>
 	auto operator()(I1 begin1, I1 end1, I2 begin2, I2 end2, Rest &&... rest) const ->
 		checker<decltype(algo_(begin1, end1, begin2, end2, rest...))>
 	{
@@ -109,7 +109,7 @@ public:
 	}
 };
 
-template <bool RvalueOK1 = false, bool RvalueOK2 = false, typename Algo>
+template<bool RvalueOK1 = false, bool RvalueOK2 = false, typename Algo>
 test_range_algo_2<Algo, RvalueOK1, RvalueOK2> make_testable_2(Algo algo)
 {
 	return test_range_algo_2<Algo, RvalueOK1, RvalueOK2>{algo};

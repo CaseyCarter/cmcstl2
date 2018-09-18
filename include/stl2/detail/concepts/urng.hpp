@@ -18,7 +18,7 @@
 #include <stl2/detail/concepts/fundamental.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <class G>
+	template<class G>
 	concept bool UniformRandomNumberGenerator =
 		requires(G&& g) {
 			g();

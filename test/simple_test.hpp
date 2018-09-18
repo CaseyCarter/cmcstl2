@@ -32,24 +32,24 @@ namespace test_impl
 		return test_failures;
 	}
 
-	template <typename T>
+	template<typename T>
 	struct streamable_base
 	{};
 
-	template <typename T>
+	template<typename T>
 	std::ostream &operator<<(std::ostream &sout, streamable_base<T> const &)
 	{
 		return sout << "<non-streamable type>";
 	}
 
-	template <typename T>
+	template<typename T>
 	struct streamable : streamable_base<T>
 	{
 	private:
 		T const &t_;
 	public:
 		explicit streamable(T const &t) : t_(t) {}
-		template <typename U = T>
+		template<typename U = T>
 		friend auto operator<<(std::ostream &sout, streamable const &s) ->
 			decltype(sout << std::declval<U const &>())
 		{
@@ -57,13 +57,13 @@ namespace test_impl
 		}
 	};
 
-	template <typename T>
+	template<typename T>
 	streamable<T> stream(T const &t)
 	{
 		return streamable<T>{t};
 	}
 
-	template <typename T>
+	template<typename T>
 	struct R
 	{
 	private:
@@ -74,7 +74,7 @@ namespace test_impl
 		int lineno_;
 		bool dismissed_ = false;
 
-		template <typename U>
+		template<typename U>
 		void oops(U const &u) const
 		{
 			std::cerr
@@ -90,7 +90,7 @@ namespace test_impl
 		{
 			dismissed_ = true;
 		}
-		template <typename V = T>
+		template<typename V = T>
 		auto eval_(int) -> decltype(!std::declval<V>())
 		{
 			return !t_;
@@ -109,37 +109,37 @@ namespace test_impl
 			if(!dismissed_ && eval_(42))
 				this->oops(42);
 		}
-		template <typename U>
+		template<typename U>
 		void operator==(U const &u)
 		{
 			dismiss();
 			if(!(t_ == u)) this->oops(u);
 		}
-		template <typename U>
+		template<typename U>
 		void operator!=(U const &u)
 		{
 			dismiss();
 			if(!(t_ != u)) this->oops(u);
 		}
-		template <typename U>
+		template<typename U>
 		void operator<(U const &u)
 		{
 			dismiss();
 			if(!(t_ < u)) this->oops(u);
 		}
-		template <typename U>
+		template<typename U>
 		void operator<=(U const &u)
 		{
 			dismiss();
 			if(!(t_ <= u)) this->oops(u);
 		}
-		template <typename U>
+		template<typename U>
 		void operator>(U const &u)
 		{
 			dismiss();
 			if(!(t_ > u)) this->oops(u);
 		}
-		template <typename U>
+		template<typename U>
 		void operator>=(U const &u)
 		{
 			dismiss();
@@ -158,7 +158,7 @@ namespace test_impl
 		S(char const *filename, int lineno, char const *expr, char const *func)
 		  : filename_(filename), expr_(expr), func_(func), lineno_(lineno)
 		{}
-		template <typename T>
+		template<typename T>
 		R<T> operator->*(T && t)
 		{
 			return {filename_, lineno_, expr_, func_, std::forward<T>(t)};
@@ -175,7 +175,7 @@ inline int test_result()
 	(void)(::test_impl::S{__FILE__, __LINE__, #__VA_ARGS__, __PRETTY_FUNCTION__} ->* __VA_ARGS__)  \
 	/**/
 
-template <typename Rng, typename Rng2>
+template<typename Rng, typename Rng2>
 constexpr void check_equal_(const char* file, int line, const char* lhs, const char* rhs,
 	const char* fun, Rng && actual, Rng2&& expected)
 {
@@ -217,7 +217,7 @@ constexpr void check_equal_(const char* file, int line, const char* lhs, const c
 	}
 }
 
-template <typename Val, typename Rng>
+template<typename Val, typename Rng>
 constexpr void check_equal_(const char* file, int line, const char* lhs, const char* rhs,
 	const char* fun, Rng && actual, std::initializer_list<Val>&& expected)
 {

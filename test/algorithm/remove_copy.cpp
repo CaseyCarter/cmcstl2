@@ -31,7 +31,7 @@
 
 namespace stl2 = __stl2;
 
-template <class InIter, class OutIter, class Sent = InIter>
+template<class InIter, class OutIter, class Sent = InIter>
 void
 test_iter()
 {
@@ -49,7 +49,7 @@ test_iter()
 	CHECK(ib[5] == 4);
 }
 
-template <class InIter, class OutIter, class Sent = InIter>
+template<class InIter, class OutIter, class Sent = InIter>
 void
 test_range()
 {
@@ -67,7 +67,7 @@ test_range()
 	CHECK(ib[5] == 4);
 }
 
-template <class InIter, class OutIter, class Sent = InIter>
+template<class InIter, class OutIter, class Sent = InIter>
 void
 test()
 {

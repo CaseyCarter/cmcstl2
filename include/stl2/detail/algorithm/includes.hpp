@@ -21,7 +21,7 @@
 // includes [includes]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I1, Sentinel<I1> S1,
+	template<InputIterator I1, Sentinel<I1> S1,
 		InputIterator I2, Sentinel<I2> S2, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <InputRange Rng1, InputRange Rng2, class Comp = less<>,
+	template<InputRange Rng1, InputRange Rng2, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		IndirectStrictWeakOrder<Comp,

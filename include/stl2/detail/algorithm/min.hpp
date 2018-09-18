@@ -24,7 +24,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace __min {
-		template <InputRange Rng, class Comp = less<>, class Proj = identity>
+		template<InputRange Rng, class Comp = less<>, class Proj = identity>
 		requires
 			Copyable<iter_value_t<iterator_t<Rng>>> &&
 			IndirectStrictWeakOrder<
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <class T, class Comp = less<>, class Proj = identity>
+	template<class T, class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<const T*, Proj>>
@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 		return __invoke::impl(comp, __invoke::impl(proj, b), __invoke::impl(proj, a)) ? b : a;
 	}
 
-	template <InputRange Rng, class Comp = less<>, class Proj = identity>
+	template<InputRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		Copyable<iter_value_t<iterator_t<Rng>>> &&
 		IndirectStrictWeakOrder<
@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 		return __min::impl(rng, std::ref(comp), std::ref(proj));
 	}
 
-	template <Copyable T, class Comp = less<>, class Proj = identity>
+	template<Copyable T, class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<const T*, Proj>>

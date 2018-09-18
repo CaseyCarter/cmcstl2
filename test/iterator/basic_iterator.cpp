@@ -10,15 +10,15 @@
 
 namespace ranges = __stl2;
 
-template <class> class show_type;
+template<class> class show_type;
 
-template <ranges::Destructible T>
+template<ranges::Destructible T>
 class forward_list {
 	struct node {
 		std::unique_ptr<node> next_;
 		T data_;
 
-		template <class... Args>
+		template<class... Args>
 		requires ranges::Constructible<T, Args...>
 		constexpr node(Args&&... args)
 		noexcept(std::is_nothrow_constructible<T, Args...>::value)
@@ -28,13 +28,13 @@ class forward_list {
 		node(const node&) = delete;
 	};
 
-	template <bool IsConst>
+	template<bool IsConst>
 	class cursor {
 	public:
-		template <bool> friend class cursor;
+		template<bool> friend class cursor;
 
 		cursor() = default;
-		template <bool B>
+		template<bool B>
 		requires IsConst && !B
 		cursor(cursor<B> that) noexcept
 		: ptr_{that.ptr_} {}
@@ -82,7 +82,7 @@ public:
 	}
 	constexpr ranges::default_sentinel end() const noexcept { return {}; }
 
-	template <class... Args>
+	template<class... Args>
 	requires ranges::Constructible<T, Args...>
 	void emplace(Args&&... args) {
 		auto p = std::make_unique<node>(std::forward<Args>(args)...);
@@ -98,7 +98,7 @@ public:
 	{ emplace(t); }
 };
 
-template <class T>
+template<class T>
 class pointer_cursor {
 public:
 	using contiguous = std::true_type;
@@ -116,7 +116,7 @@ public:
 	constexpr pointer_cursor(T* ptr) noexcept
 	: ptr_{ptr} {}
 
-	template <class U>
+	template<class U>
 	requires ranges::ConvertibleTo<U*, T*>
 	constexpr pointer_cursor(const pointer_cursor<U>& that) noexcept
 	: ptr_{that.ptr_} {}
@@ -159,7 +159,7 @@ private:
 	T* ptr_;
 };
 
-template <ranges::Semiregular T, std::size_t N>
+template<ranges::Semiregular T, std::size_t N>
 class array {
 public:
 	using value_type = T;
@@ -175,7 +175,7 @@ public:
 	T elements_[N];
 };
 
-template <class T, T Value>
+template<class T, T Value>
 struct always_cursor {
 	constexpr T read() const
 		noexcept(std::is_nothrow_copy_constructible<T>::value) {
@@ -187,10 +187,10 @@ struct always_cursor {
 	constexpr void advance(std::ptrdiff_t) const noexcept {}
 	constexpr std::ptrdiff_t distance_to(always_cursor) const noexcept { return 0; }
 };
-template <class T, T Value>
+template<class T, T Value>
 using always_iterator = ranges::basic_iterator<always_cursor<T, Value>>;
 
-template <ranges::ext::Object T>
+template<ranges::ext::Object T>
 struct proxy_wrapper {
 	ranges::detail::raw_ptr<T> ptr_ = nullptr;
 
@@ -236,27 +236,27 @@ struct proxy_wrapper {
 };
 
 STL2_OPEN_NAMESPACE {
-	template <class T, class U, template <class> class TQual,
-		template <class> class UQual>
+	template<class T, class U, template<class> class TQual,
+		template<class> class UQual>
 	struct basic_common_reference<::proxy_wrapper<T>, U, TQual, UQual>
 	: common_reference<T&, UQual<U>> {};
 
-	template <class T, class U, template <class> class TQual,
-		template <class> class UQual>
+	template<class T, class U, template<class> class TQual,
+		template<class> class UQual>
 	struct basic_common_reference<T, ::proxy_wrapper<U>, TQual, UQual>
 	: common_reference<TQual<T>, U&> {};
 
-	template <class T, class U, template <class> class TQual,
-		template <class> class UQual>
+	template<class T, class U, template<class> class TQual,
+		template<class> class UQual>
 	struct basic_common_reference<
 		::proxy_wrapper<T>, ::proxy_wrapper<U>, TQual, UQual>
 	: common_reference<T&, U&> {};
 } STL2_CLOSE_NAMESPACE
 
 // std::array-ish container with proxy iterators.
-template <class T, std::size_t N>
+template<class T, std::size_t N>
 struct proxy_array {
-	template <bool IsConst>
+	template<bool IsConst>
 	struct cursor {
 		using value_type = T;
 
@@ -264,17 +264,17 @@ struct proxy_array {
 		O* ptr_;
 
 		cursor(O* p = nullptr) : ptr_{p} {}
-		template <bool B>
+		template<bool B>
 		requires IsConst && !B
 		cursor(const cursor<B>& that) : ptr_{that.ptr_} {}
 
-		template <bool B>
+		template<bool B>
 		bool equal(const cursor<B>& that) const noexcept { return ptr_ == that.ptr_; }
 		proxy_wrapper<O> read() const noexcept { return {*ptr_}; }
 		void next() noexcept { ++ptr_; }
 		void prev() noexcept { --ptr_; }
 		void advance(std::ptrdiff_t n) noexcept { ptr_ += n; }
-		template <bool B>
+		template<bool B>
 		std::ptrdiff_t distance_to(const cursor<B>& that) const noexcept {
 			return that.ptr_ - ptr_;
 		}
@@ -312,7 +312,7 @@ struct proxy_array {
 	}
 };
 
-template <ranges::InputRange R>
+template<ranges::InputRange R>
 requires
 	ranges::StreamInsertable<ranges::iter_value_t<ranges::iterator_t<R>>> &&
 	!ranges::Same<char, std::remove_cv_t<

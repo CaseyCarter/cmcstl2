@@ -20,31 +20,31 @@
 // Language-related Concepts [concepts.lang]
 //
 STL2_OPEN_NAMESPACE {
-	template <template <class...> class T, class... U>
+	template<template<class...> class T, class... U>
 	concept bool _Valid = requires { typename T<U...>; };
 
 #if __cpp_concepts <= 201507
-	template <bool B>
+	template<bool B>
 	inline constexpr bool __bool = B;
 
-	template <class U, template <class...> class T, class... V>
+	template<class U, template<class...> class T, class... V>
 	concept bool _Is = _Valid<T, U, V...> && __bool<T<U, V...>::value>;
 
-	template <class U, template <class...> class T, class... V>
+	template<class U, template<class...> class T, class... V>
 	concept bool _IsNot = _Valid<T, U, V...> && __bool<!T<U, V...>::value>;
 
 	// U is a cv/ref-qualified specialization of class template T.
-	template <class U, template <class...> class T>
+	template<class U, template<class...> class T>
 	concept bool _SpecializationOf = __bool<meta::is<__uncvref<U>, T>::value>;
 #else
-	template <class U, template <class...> class T, class... V>
+	template<class U, template<class...> class T, class... V>
 	concept bool _Is = _Valid<T, U, V...> && T<U, V...>::value;
 
-	template <class U, template <class...> class T, class... V>
+	template<class U, template<class...> class T, class... V>
 	concept bool _IsNot = _Valid<T, U, V...> && !T<U, V...>::value;
 
 	// U is a cv/ref-qualified specialization of class template T.
-	template <class U, template <class...> class T>
+	template<class U, template<class...> class T>
 	concept bool _SpecializationOf = meta::is<__uncvref<U>, T>::value;
 #endif
 
@@ -52,28 +52,28 @@ STL2_OPEN_NAMESPACE {
 	// Same
 	//
 #if defined(__GNUC__)
-	template <class T, class U>
+	template<class T, class U>
 	concept bool _SameImpl = __is_same_as(T, U);
 #else
-	template <class T, class U>
+	template<class T, class U>
 	concept bool _SameImpl = std::is_same_v<T, U>;
 #endif
-	template <class T, class U>
+	template<class T, class U>
 	concept bool Same = _SameImpl<T, U> && _SameImpl<U, T>;
 
-	template <class T>
+	template<class T>
 	concept bool _Decayed = Same<T, std::decay_t<T>>;
 
-	template <class T, class... Args>
+	template<class T, class... Args>
 	concept bool _OneOf = (Same<T, Args> || ...);
 
-	template <class T, class U>
+	template<class T, class U>
 	concept bool _NotSameAs = !_SameImpl<__uncvref<T>, __uncvref<U>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// DerivedFrom
 	//
-	template <class T, class U>
+	template<class T, class U>
 	concept bool DerivedFrom =
 #if defined(__GNUC__)
 		__is_base_of(U, T) &&
@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// ConvertibleTo
 	//
-	template <class From, class To>
+	template<class From, class To>
 	concept bool ConvertibleTo =
 		std::is_convertible_v<From, To> && requires(From (&f)()) {
 			static_cast<To>(f());

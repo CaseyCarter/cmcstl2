@@ -27,7 +27,7 @@
 namespace ranges = __stl2;
 
 namespace {
-	template <typename T>
+	template<typename T>
 	requires
 		ranges::CopyConstructible<T> &&
 		ranges::EqualityComparable<T>

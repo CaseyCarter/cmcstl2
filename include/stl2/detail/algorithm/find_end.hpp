@@ -29,119 +29,90 @@ STL2_OPEN_NAMESPACE {
 		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2, Sentinel<I2> S2,
 			class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
 		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-		constexpr I1 operator()(I1 first1, const S1 last1,
-			const I2 first2, const S2 last2,
-			Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
-		{
+		constexpr I1 operator()(I1 first1, S1 last1, I2 first2, S2 last2,
+			Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const {
 			if (first2 == last2) {
 				return __stl2::next(first1, last1);
 			}
 
-			std::optional<I1> res;
-			for (; first1 != last1; ++first1) {
-				if (__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
-					auto m1 = first1;
-					auto m2 = first2;
-					do {
-						if (++m2 == last2) {
-							res = first1;
-							break;
+			if constexpr (BidirectionalIterator<I1> && BidirectionalIterator<I2>) {
+				auto end1 = __stl2::next(first1, last1);
+				auto end2 = __stl2::next(first2, last2);
+
+				if constexpr (RandomAccessIterator<I1> && RandomAccessIterator<I2>) {
+					// Take advantage of knowing source and pattern lengths.
+					// Stop short when source is smaller than pattern
+					const auto len2 = end2 - first2;
+					if (end1 - first1 < len2) {
+						return end1;
+					}
+
+					// End of pattern match can't go before here
+					const auto s = first1 + (len2 - 1);
+
+					for (auto l1 = end1; l1 != s; --l1) {
+						auto m1 = l1;
+						auto m2 = end2;
+						while (__stl2::invoke(pred, __stl2::invoke(proj1, *--m1), __stl2::invoke(proj2, *--m2))) {
+							if (m2 == first2) {
+								return m1;
+							}
 						}
-						if (++m1 == last1) {
-							return std::move(res).value_or(std::move(m1));
+					}
+					return end1;
+				} else {
+					--end2;
+					auto l1 = end1;
+					while (l1 != first1) {
+						if (__stl2::invoke(pred, __stl2::invoke(proj1, *--l1), __stl2::invoke(proj2, *end2))) {
+							auto m1 = l1;
+							auto m2 = end2;
+							do {
+								if (m2 == first2) {
+									return m1;
+								}
+								if (m1 == first1) {
+									return end1;
+								}
+							} while (__stl2::invoke(pred, __stl2::invoke(proj1, *--m1), __stl2::invoke(proj2, *--m2)));
 						}
-					} while (__stl2::invoke(pred, __stl2::invoke(proj1, *m1), __stl2::invoke(proj2, *m2)));
+					}
+
+					return end1;
 				}
-			}
-			return std::move(res).value_or(std::move(first1));
-		}
-
-		template<BidirectionalIterator I1, BidirectionalIterator I2,
-			class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
-		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-		constexpr I1 operator()(I1 first1, I1 last1, I2 first2, I2 last2,
-			Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
-		{
-			if (first2 == last2) {
-				return last1;  // Everything matches an empty sequence
-			}
-
-			--last2;
-			auto l1 = last1;
-			while (l1 != first1) {
-				if (__stl2::invoke(pred, __stl2::invoke(proj1, *--l1), __stl2::invoke(proj2, *last2))) {
-					auto m1 = l1;
-					auto m2 = last2;
-					do {
-						if (m2 == first2) {
-							return m1;
-						}
-						if (m1 == first1) {
-							return last1;
-						}
-					} while (__stl2::invoke(pred, __stl2::invoke(proj1, *--m1), __stl2::invoke(proj2, *--m2)));
-				}
-			}
-
-			return last1;
-		}
-
-		template<RandomAccessIterator I1, RandomAccessIterator I2,
-			class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
-		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-		constexpr I1 operator()(I1 first1, I1 last1, I2 first2, I2 last2,
-			Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
-		{
-			// Take advantage of knowing source and pattern lengths.
-			// Stop short when source is smaller than pattern
-			const auto len2 = last2 - first2;
-			if (len2 == 0 || last1 - first1 < len2) {
-				return last1;
-			}
-
-			// End of pattern match can't go before here
-			const auto s = first1 + (len2 - 1);
-
-			for (auto l1 = last1; l1 != s; --l1) {
-				auto m1 = l1;
-				auto m2 = last2;
-				while (__stl2::invoke(pred, __stl2::invoke(proj1, *--m1), __stl2::invoke(proj2, *--m2))) {
-					if (m2 == first2) {
-						return m1;
+			} else {
+				std::optional<I1> res;
+				for (; first1 != last1; ++first1) {
+					if (__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
+						auto m1 = first1;
+						auto m2 = first2;
+						do {
+							if (++m2 == last2) {
+								res = first1;
+								break;
+							}
+							if (++m1 == last1) {
+								return std::move(res).value_or(std::move(m1));
+							}
+						} while (__stl2::invoke(pred, __stl2::invoke(proj1, *m1), __stl2::invoke(proj2, *m2)));
 					}
 				}
+				return std::move(res).value_or(std::move(first1));
 			}
-			return last1;
 		}
 
-		template<BidirectionalIterator I1, Sentinel<I1> S1, BidirectionalIterator I2, Sentinel<I2> S2,
-			class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
-		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-		constexpr I1 operator()(I1 first1, S1 s1, I2 first2, S2 s2,
-			Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
-		{
-			auto last1 = __stl2::next(first1, std::move(s1));
-			auto last2 = __stl2::next(first2, std::move(s2));
-			return (*this)(
-				std::move(first1), std::move(last1),
-				std::move(first2), std::move(last2),
-				std::ref(pred), std::ref(proj1), std::ref(proj2));
-		}
 
-		template <ForwardRange R1, ForwardRange R2,
+		template<ForwardRange R1, ForwardRange R2,
 			class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
 		requires IndirectlyComparable<iterator_t<R1>, iterator_t<R2>, Pred, Proj1, Proj2>
-		constexpr safe_iterator_t<R1>
-		operator()(R1&& r1, R2&& r2, Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
+		constexpr safe_iterator_t<R1> operator()(R1&& r1, R2&& r2,
+			Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
 		{
 			return (*this)(
 				__stl2::begin(r1), __stl2::end(r1),
 				__stl2::begin(r2), __stl2::end(r2),
 				std::ref(pred), std::ref(proj1), std::ref(proj2));
 		}
-
-		// Holding off on initializer_list overloads for now; this
-		// overload set is already very fragile.
 	};
 
 	inline constexpr __find_end_fn find_end {};

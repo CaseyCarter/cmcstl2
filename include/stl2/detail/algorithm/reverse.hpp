@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		// An adaptation of the EoP algorithm reverse_n_with_buffer
 		// Complexity: n moves + n / 2 swaps
-		template <class I>
+		template<class I>
 		requires
 			Permutable<I>
 		I reverse_n_with_half_buffer(I first, const iter_difference_t<I> n,
@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		// From EoP
-		template <class I>
+		template<class I>
 		requires
 			Permutable<I>
 		I reverse_n_adaptive(I first, const iter_difference_t<I> n,
@@ -99,7 +99,7 @@ STL2_OPEN_NAMESPACE {
 				std::move(first2)).in2();
 		}
 
-		template <class I>
+		template<class I>
 		requires
 			Permutable<I>
 		I reverse_n(I first, iter_difference_t<I> n)
@@ -114,7 +114,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <BidirectionalIterator I>
+	template<BidirectionalIterator I>
 	requires
 		Permutable<I>
 	I reverse(I first, I last)
@@ -127,7 +127,7 @@ STL2_OPEN_NAMESPACE {
 		return last;
 	}
 
-	template <RandomAccessIterator I>
+	template<RandomAccessIterator I>
 	requires
 		Permutable<I>
 	I reverse(I first, I last)
@@ -143,14 +143,14 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template <Permutable I, Sentinel<I> S>
+	template<Permutable I, Sentinel<I> S>
 	I reverse(I first, S last)
 	{
 		auto n = __stl2::distance(first, std::move(last));
 		return detail::reverse_n(std::move(first), n);
 	}
 
-	template <Permutable I, Sentinel<I> S>
+	template<Permutable I, Sentinel<I> S>
 	requires
 		BidirectionalIterator<I>
 	I reverse(I first, S last)
@@ -160,7 +160,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template <ForwardRange Rng>
+	template<ForwardRange Rng>
 	requires
 		Permutable<iterator_t<Rng>>
 	safe_iterator_t<Rng> reverse(Rng&& rng)
@@ -168,7 +168,7 @@ STL2_OPEN_NAMESPACE {
 		return detail::reverse_n(__stl2::begin(rng), __stl2::distance(rng));
 	}
 
-	template <BidirectionalRange Rng>
+	template<BidirectionalRange Rng>
 	requires
 		Permutable<iterator_t<Rng>>
 	safe_iterator_t<Rng> reverse(Rng&& rng)

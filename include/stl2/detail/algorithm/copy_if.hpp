@@ -24,7 +24,7 @@
 // copy_if [alg.copy]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
+	template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
 		class Pred, class Proj = identity>
 	requires
 		IndirectlyCopyable<I, O> &&
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(first), std::move(result)};
 	}
 
-	template <InputRange Rng, class O, class Pred, class Proj = identity>
+	template<InputRange Rng, class O, class Pred, class Proj = identity>
 	requires
 		WeaklyIncrementable<__f<O>> &&
 		IndirectUnaryPredicate<

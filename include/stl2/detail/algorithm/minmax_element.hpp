@@ -27,7 +27,7 @@
 // minmax_element [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-	template <ForwardIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
+	template<ForwardIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<I, Proj>>
@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 		return result;
 	}
 
-	template <ForwardRange Rng, class Comp = less<>, class Proj = identity>
+	template<ForwardRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>

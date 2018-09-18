@@ -20,12 +20,12 @@
 
 STL2_OPEN_NAMESPACE {
 	// tagged_tuple
-	template <TaggedType... Types>
+	template<TaggedType... Types>
 	using tagged_tuple =
 		tagged<tuple<__tagged::element<Types>...>, __tagged::specifier<Types>...>;
 
 	// make_tagged_tuple
-	template <TagSpecifier... Tags, class... Types>
+	template<TagSpecifier... Tags, class... Types>
 	constexpr auto make_tagged_tuple(Types&&... ts) {
 		return tagged_tuple<Tags(__unwrap<Types>)...>{
 			std::forward<Types>(ts)...

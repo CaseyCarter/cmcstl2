@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 			Readable{I}
 			using buf_t = detail::temporary_buffer<iter_value_t<I>>;
 
-			template <ForwardIterator I, class Proj,
+			template<ForwardIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			void skip_true(I& first, iter_difference_t<I>& n, Pred& pred, Proj& proj)
 			{
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			template <ForwardIterator I, class Proj,
+			template<ForwardIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 				return {std::move(pp), std::move(last)};
 			}
 
-			template <ForwardIterator I, class Proj,
+			template<ForwardIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 			forward_reduce(I first, iter_difference_t<I> n, buf_t<I>& buf,
 				Pred& pred, Proj& proj);
 
-			template <ForwardIterator I, class Proj,
+			template<ForwardIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
 				return {std::move(pp), std::move(res2.end())};
 			}
 
-			template <ForwardIterator I, class Proj,
+			template<ForwardIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
@@ -129,7 +129,7 @@ STL2_OPEN_NAMESPACE {
 				return stable_part::forward(std::move(first), n, buf, pred, proj);
 			}
 
-			template <BidirectionalIterator I, class Proj,
+			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			void skip_false(I& last, iter_difference_t<I>& n, Pred& pred, Proj& proj)
 			{
@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
 				} while (--n != 0 && !__stl2::invoke(pred, __stl2::invoke(proj, *last)));
 			}
 
-			template <BidirectionalIterator I, class Proj,
+			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
@@ -174,21 +174,21 @@ STL2_OPEN_NAMESPACE {
 				return middle;
 			}
 
-			template <BidirectionalIterator I, class Proj,
+			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
 			I bidirectional_reduce_front(I first, I last, iter_difference_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj);
 
-			template <BidirectionalIterator I, class Proj,
+			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
 			I bidirectional_reduce_back(I first, I last, iter_difference_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj);
 
-			template <BidirectionalIterator I, class Proj,
+			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
@@ -222,7 +222,7 @@ STL2_OPEN_NAMESPACE {
 					std::move(pp2)).begin();
 			}
 
-			template <BidirectionalIterator I, class Proj,
+			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
@@ -240,7 +240,7 @@ STL2_OPEN_NAMESPACE {
 				return stable_part::bidirectional(first, last, n, buf, pred, proj);
 			}
 
-			template <BidirectionalIterator I, class Proj,
+			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
@@ -261,7 +261,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	namespace ext {
-		template <ForwardIterator I, class Pred, class Proj = identity>
+		template<ForwardIterator I, class Pred, class Proj = identity>
 		requires
 			Permutable<I> &&
 			IndirectUnaryPredicate<
@@ -285,7 +285,7 @@ STL2_OPEN_NAMESPACE {
 				first, n, buf, pred, proj).begin();
 		}
 
-		template <BidirectionalIterator I, class Pred, class Proj = identity>
+		template<BidirectionalIterator I, class Pred, class Proj = identity>
 		requires
 			Permutable<I> &&
 			IndirectUnaryPredicate<
@@ -317,7 +317,7 @@ STL2_OPEN_NAMESPACE {
 				first, last, n, buf, pred, proj);
 		}
 
-		template <BidirectionalIterator I, class Pred, class Proj = identity>
+		template<BidirectionalIterator I, class Pred, class Proj = identity>
 		requires
 			Permutable<I> &&
 			IndirectUnaryPredicate<
@@ -332,7 +332,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
+	template<ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		Permutable<I> &&
 		IndirectUnaryPredicate<
@@ -345,7 +345,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(pred), std::ref(proj));
 	}
 
-	template <BidirectionalIterator I, Sentinel<I> S, class Pred,
+	template<BidirectionalIterator I, Sentinel<I> S, class Pred,
 		class Proj = identity>
 	requires
 		Permutable<I> &&
@@ -359,7 +359,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(pred), std::ref(proj));
 	}
 
-	template <ForwardRange Rng, class Pred, class Proj = identity>
+	template<ForwardRange Rng, class Pred, class Proj = identity>
 	requires
 		Permutable<iterator_t<Rng>> &&
 		IndirectUnaryPredicate<
@@ -372,7 +372,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(pred), std::ref(proj));
 	}
 
-	template <BidirectionalRange Rng, class Pred, class Proj = identity>
+	template<BidirectionalRange Rng, class Pred, class Proj = identity>
 	requires
 		Permutable<iterator_t<Rng>> &&
 		IndirectUnaryPredicate<

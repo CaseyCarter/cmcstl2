@@ -20,7 +20,7 @@
 // replace_copy [alg.replace]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I, Sentinel<I> S, class T1, class T2,
+	template<InputIterator I, Sentinel<I> S, class T1, class T2,
 		OutputIterator<const T2&> O, class Proj = identity>
 	requires
 		IndirectlyCopyable<I, O> &&
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(first), std::move(result)};
 	}
 
-	template <InputRange Rng, class T1, class T2, class O, class Proj = identity>
+	template<InputRange Rng, class T1, class T2, class O, class Proj = identity>
 	requires
 		OutputIterator<__f<O>, const T2&> &&
 		IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&

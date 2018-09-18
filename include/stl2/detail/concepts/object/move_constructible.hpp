@@ -23,33 +23,33 @@ STL2_OPEN_NAMESPACE {
 	// Object [Extension]
 	//
 	namespace ext {
-		template <class T>
+		template<class T>
 		concept bool Object = _Is<T, std::is_object>;
 	} // namespace ext
 
 	///////////////////////////////////////////////////////////////////////////
 	// Destructible [concept.destructible]
 	//
-	template <class T>
+	template<class T>
 	concept bool Destructible = _Is<T, is_nothrow_destructible>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Constructible [concept.constructible]
 	//
-	template <class T, class... Args>
+	template<class T, class... Args>
 	concept bool Constructible =
 		Destructible<T> && _Is<T, is_constructible, Args...>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// DefaultConstructible [concept.defaultconstructible]
 	//
-	template <class T>
+	template<class T>
 	concept bool DefaultConstructible = Constructible<T>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// MoveConstructible [concept.moveconstructible]
 	//
-	template <class T>
+	template<class T>
 	concept bool MoveConstructible = Constructible<T, T> && ConvertibleTo<T, T>;
 } STL2_CLOSE_NAMESPACE
 

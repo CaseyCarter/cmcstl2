@@ -23,7 +23,7 @@
 namespace ranges = __stl2;
 
 namespace {
-	template <class I, class S>
+	template<class I, class S>
 	struct my_subrange : ranges::subrange<I, S> {
 		my_subrange() = default;
 		my_subrange(I i, S s)

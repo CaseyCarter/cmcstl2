@@ -26,7 +26,7 @@
 // is_permutation [alg.is_permutation]
 //
 STL2_OPEN_NAMESPACE {
-	template <Integral To, Integral From>
+	template<Integral To, Integral From>
 	constexpr bool __can_represent(const From value) noexcept {
 		using C = decltype(true ? value : To{});
 		if constexpr (Same<To, C> && (SignedIntegral<To> || UnsignedIntegral<From>)) {
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Does distance(first, last) == n?
-	template <Iterator I, Sentinel<I> S, SignedIntegral D>
+	template<Iterator I, Sentinel<I> S, SignedIntegral D>
 	constexpr bool __has_length(const I first, const S last, const D n) {
 		STL2_EXPECT(n >= 0);
 		if constexpr (SizedSentinel<S, I>) {
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 	// Does distance(rng) == n?
-	template <Range Rng, SignedIntegral D>
+	template<Range Rng, SignedIntegral D>
 	constexpr bool __has_length(Rng&& rng, const D n) {
 		STL2_EXPECT(n >= 0);
 		if constexpr (SizedRange<Rng>) {
@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Do the two ranges have the same length, and if so what is it?
-	template <Iterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
+	template<Iterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
 	constexpr std::pair<bool, iter_difference_t<I1>>
 	__common_range_length(I1 first1, S1 last1, I2 first2, S2 last2) {
 		using D = iter_difference_t<I1>;
@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 	// Do the two ranges have the same length, and if so what is it?
-	template <Range Rng1, Range Rng2>
+	template<Range Rng1, Range Rng2>
 	constexpr std::pair<bool, iter_difference_t<iterator_t<Rng1>>>
 	__common_range_length(Rng1&& rng1, Rng2&& rng2) {
 		using D = iter_difference_t<iterator_t<Rng1>>;
@@ -107,10 +107,9 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <ForwardIterator I1, ForwardIterator I2,
+	template<ForwardIterator I1, ForwardIterator I2,
 		class Pred, class Proj1, class Proj2>
-	requires
-		IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
+	requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
 	bool __is_permutation_tail(const I1 first1, const I2 first2,
 		const iter_difference_t<I1> n, Pred& pred, Proj1& proj1, Proj2& proj2)
 	{
@@ -153,7 +152,7 @@ STL2_OPEN_NAMESPACE {
 		return true;
 	}
 
-	template <ForwardIterator I1, ForwardIterator I2,
+	template<ForwardIterator I1, ForwardIterator I2,
 		class Pred, class Proj1, class Proj2>
 	requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
 	bool __is_permutation_trim(I1 first1, I2 first2, iter_difference_t<I1> n,
@@ -172,7 +171,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	struct __is_permutation_fn {
-		template <ForwardIterator I1, Sentinel<I1> S1, class I2,
+		template<ForwardIterator I1, Sentinel<I1> S1, class I2,
 			class Pred = equal_to<>, class Proj1 = identity,
 			class Proj2 = identity>
 		[[deprecated]] constexpr bool operator()(I1 first1, S1 last1, I2&& first2_, Pred pred = Pred{},
@@ -192,7 +191,7 @@ STL2_OPEN_NAMESPACE {
 				count, pred, proj1, proj2);
 		}
 
-		template <ForwardRange R1, class I2, class Pred = equal_to<>,
+		template<ForwardRange R1, class I2, class Pred = equal_to<>,
 			class Proj1 = identity, class Proj2 = identity>
 		[[deprecated]] constexpr bool operator()(R1&& r1, I2&& first2_, Pred pred = Pred{},
 			Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
@@ -247,7 +246,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template <ForwardRange R1, ForwardRange R2, class Pred = equal_to<>,
+		template<ForwardRange R1, ForwardRange R2, class Pred = equal_to<>,
 			class Proj1 = identity, class Proj2 = identity>
 		requires IndirectlyComparable<iterator_t<R1>, iterator_t<R2>, Pred, Proj1, Proj2>
 		constexpr bool operator()(R1&& r1, R2&& r2, Pred pred = Pred{},

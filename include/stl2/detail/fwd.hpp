@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 
 	// Must implement move here instead of using std::move to avoid
 	// pulling in the move algorithm.
-	template <class T>
+	template<class T>
 	requires true
 	constexpr std::remove_reference_t<T>&& move(T&& t) noexcept {
 		return static_cast<std::remove_reference_t<T>&&>(t);
@@ -159,9 +159,9 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		// tags for manually specified overload ordering
-		template <unsigned N>
+		template<unsigned N>
 		struct priority_tag : priority_tag<N - 1> {};
-		template <>
+		template<>
 		struct priority_tag<0> {};
 		inline constexpr priority_tag<4> max_priority_tag{};
 	}

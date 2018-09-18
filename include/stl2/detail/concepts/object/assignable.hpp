@@ -22,7 +22,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Assignable [concepts.lib.corelang.assignable]
 	//
-	template <class T, class U>
+	template<class T, class U>
 	concept bool Assignable =
 		_Is<T, is_lvalue_reference> &&
 		CommonReference<

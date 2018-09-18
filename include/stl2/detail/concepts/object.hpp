@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	// whose target will eventually accept a parameter by value. E.g., the
 	// range overload of find:
 	//
-	//   template <InputRange Rng, class T, class Proj = identity>
+	//   template<InputRange Rng, class T, class Proj = identity>
 	//     requires IndirectRelation<equal_to<>,
 	//                projected<iterator_t<Rng>, Proj>, const T*>()
 	//   safe_iterator_t<Rng>
@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	// can be implemented to perfect-forward to the iterator overload as:
 	//
-	//   template <InputRange Rng, class T, class Proj = identity>
+	//   template<InputRange Rng, class T, class Proj = identity>
 	//     requires IndirectRelation<equal_to<>,
 	//                projected<iterator_t<Rng>, __f<Proj>>, // NW: __f<Proj>
 	//                const T*>()
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 	// be used in the target function, and its constraints ensure that
 	// the decayed type can in fact be constructed from the actual type.
 	//
-	template <class T>
+	template<class T>
 		requires Constructible<decay_t<T>, T>
 	using __f = decay_t<T>;
 
@@ -56,55 +56,55 @@ STL2_OPEN_NAMESPACE {
 		///////////////////////////////////////////////////////////////////////////
 		// 'structible object concepts
 		//
-		template <class T>
+		template<class T>
 		concept bool DestructibleObject = Object<T> && Destructible<T>;
 
-		template <class T, class... Args>
+		template<class T, class... Args>
 		concept bool ConstructibleObject = Object<T> && Constructible<T, Args...>;
 
-		template <class T>
+		template<class T>
 		concept bool DefaultConstructibleObject = Object<T> && DefaultConstructible<T>;
 
-		template <class T>
+		template<class T>
 		concept bool MoveConstructibleObject = Object<T> && MoveConstructible<T>;
 
-		template <class T>
+		template<class T>
 		concept bool CopyConstructibleObject = Object<T> && CopyConstructible<T>;
 
 		///////////////////////////////////////////////////////////////////////////
 		// TriviallyFoo concepts
 		//
-		template <class T>
+		template<class T>
 		concept bool TriviallyDestructible =
 			Destructible<T> && _Is<T, is_trivially_destructible>;
 
-		template <class T, class... Args>
+		template<class T, class... Args>
 		concept bool TriviallyConstructible =
 			Constructible<T, Args...> &&
 			_Is<T, is_trivially_constructible, Args...>;
 
-		template <class T>
+		template<class T>
 		concept bool TriviallyDefaultConstructible =
 			DefaultConstructible<T> &&
 			_Is<T, is_trivially_default_constructible>;
 
-		template <class T>
+		template<class T>
 		concept bool TriviallyMoveConstructible =
 			MoveConstructible<T> && _Is<T, is_trivially_move_constructible>;
 
-		template <class T>
+		template<class T>
 		concept bool TriviallyCopyConstructible =
 			CopyConstructible<T> &&
 			TriviallyMoveConstructible<T> &&
 			_Is<T, is_trivially_copy_constructible>;
 
-		template <class T>
+		template<class T>
 		concept bool TriviallyMovable =
 			Movable<T> &&
 			TriviallyMoveConstructible<T> &&
 			_Is<T, is_trivially_move_assignable>;
 
-		template <class T>
+		template<class T>
 		concept bool TriviallyCopyable =
 			Copyable<T> &&
 			TriviallyMovable<T> &&

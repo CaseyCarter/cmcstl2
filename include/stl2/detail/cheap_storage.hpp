@@ -23,9 +23,9 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		constexpr std::size_t cheap_copy_size = 32;
 
-		template <class>
+		template<class>
 		constexpr bool cheaply_copyable = false;
-		template <class T>
+		template<class T>
 		requires
 			CopyConstructible<T> &&
 			std::is_trivially_copyable<T>::value &&
@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 				sizeof(T) <= cheap_copy_size)
 		constexpr bool cheaply_copyable<T> = true;
 
-		template <_Is<std::is_object> T, class Tag = void>
+		template<_Is<std::is_object> T, class Tag = void>
 		class ref_box {
 		public:
 			ref_box() = default;
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		// Note: promotes to CopyConstructible
-		template <_Is<std::is_object> T, class Tag = void>
+		template<_Is<std::is_object> T, class Tag = void>
 		using cheap_reference_box_t = meta::if_c<
 			cheaply_copyable<remove_cv_t<T>>,
 			ebo_box<remove_cv_t<T>, Tag>,

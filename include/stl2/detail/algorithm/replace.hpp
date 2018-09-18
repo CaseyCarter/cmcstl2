@@ -21,7 +21,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	// Extension: Relax to InputIterator
-	template <InputIterator I, Sentinel<I> S, class T1, class T2,
+	template<InputIterator I, Sentinel<I> S, class T1, class T2,
 		class Proj = identity>
 	requires
 		Writable<I, const T2&> &&
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension: Relax to InputRange
-	template <InputRange Rng, class T1, class T2, class Proj = identity>
+	template<InputRange Rng, class T1, class T2, class Proj = identity>
 	requires
 		Writable<iterator_t<Rng>, const T2&> &&
 		IndirectRelation<

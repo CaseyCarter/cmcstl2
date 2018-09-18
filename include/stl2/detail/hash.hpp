@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	// Extremely limited since std::hash is not SFINAE-friendly.
 	//
 	namespace ext {
-		template <class T>
+		template<class T>
 		concept bool Hashable = requires(const T& e) {
 			typename std::hash<T>;
 			{ std::hash<T>{}(e) } -> std::size_t;

@@ -23,7 +23,7 @@
 // set_difference [set.difference]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I1, Sentinel<I1> S1,
+	template<InputIterator I1, Sentinel<I1> S1,
 		InputIterator I2, Sentinel<I2> S2,
 		WeaklyIncrementable O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::copy(std::move(first1), std::move(last1), std::move(result));
 	}
 
-	template <InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
+	template<InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		WeaklyIncrementable<__f<O>> &&

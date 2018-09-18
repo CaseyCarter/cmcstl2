@@ -24,33 +24,33 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template <InputRange Base>
+		template<InputRange Base>
 		struct join_view_iterator_base {
 			using iterator_category = __stl2::input_iterator_tag;
 		};
-		template <ForwardRange Base>
+		template<ForwardRange Base>
 		requires std::is_reference_v<iter_reference_t<iterator_t<Base>>> &&
 			ForwardRange<iter_reference_t<iterator_t<Base>>>
 		struct join_view_iterator_base<Base> {
 			using iterator_category = __stl2::forward_iterator_tag;
 		};
-		template <BidirectionalRange Base>
+		template<BidirectionalRange Base>
 		requires std::is_reference_v<iter_reference_t<iterator_t<Base>>> &&
 			BidirectionalRange<iter_reference_t<iterator_t<Base>>>
 		struct join_view_iterator_base<Base> {
 			using iterator_category = __stl2::bidirectional_iterator_tag;
 		};
 
-		template <InputRange InnerRng>
+		template<InputRange InnerRng>
 		struct join_view_base {
 			all_view<InnerRng> inner_ {};
 		};
-		template <InputRange InnerRng>
+		template<InputRange InnerRng>
 		requires std::is_reference_v<InnerRng>
 		struct join_view_base<InnerRng> {};
 	}
 
-	template <InputRange Rng>
+	template<InputRange Rng>
 	requires View<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
 		(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
 			View<iter_value_t<iterator_t<Rng>>>)
@@ -60,16 +60,16 @@ STL2_OPEN_NAMESPACE {
 	private:
 		Rng base_ {};
 		using InnerRng = iter_reference_t<iterator_t<Rng>>;
-		template <bool Const>
+		template<bool Const>
 		struct __iterator;
-		template <bool Const>
+		template<bool Const>
 		struct __sentinel;
 	public:
 		join_view() = default;
 		constexpr explicit join_view(Rng base)
 		: base_(std::move(base)) {}
 
-		template <InputRange O>
+		template<InputRange O>
 		requires ViewableRange<O> && _ConstructibleFromRange<Rng, O>
 		constexpr explicit join_view(O&& o)
 		: base_(view::all(std::forward<O>(o))) {}
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 		{ return {*this, __stl2::begin(base_)}; }
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template <class ConstRng = const Rng>
+		template<class ConstRng = const Rng>
 		constexpr const_iterator begin() const
 		requires InputRange<ConstRng> &&
 			std::is_reference_v<iter_reference_t<iterator_t<ConstRng>>>
@@ -93,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 		{ return sentinel{*this}; }
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template <class ConstRng = const Rng>
+		template<class ConstRng = const Rng>
 		constexpr const_sentinel end() const
 		requires InputRange<ConstRng> &&
 			std::is_reference_v<iter_reference_t<iterator_t<ConstRng>>>
@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 		{ return {*this, __stl2::end(base_)}; }
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template <class ConstRng = const Rng>
+		template<class ConstRng = const Rng>
 		constexpr const_iterator end() const
 		requires ForwardRange<ConstRng> &&
 			std::is_reference_v<iter_reference_t<iterator_t<ConstRng>>> &&
@@ -117,14 +117,14 @@ STL2_OPEN_NAMESPACE {
 		{ return {*this, __stl2::end(base_)}; }
 	};
 
-	template <InputRange Rng>
+	template<InputRange Rng>
 	requires InputRange<iter_reference_t<iterator_t<Rng>>> &&
 		(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
 			View<iter_value_t<iterator_t<Rng>>>)
 	explicit join_view(Rng&&) -> join_view<all_view<Rng>>;
 
-	template <class Rng>
-	template <bool Const>
+	template<class Rng>
+	template<bool Const>
 	struct join_view<Rng>::__iterator
 	: detail::join_view_iterator_base<__maybe_const<Const, Rng>> {
 	private:
@@ -260,8 +260,8 @@ STL2_OPEN_NAMESPACE {
 		{ __stl2::iter_swap(x.inner_, y.inner_); }
 	};
 
-	template <class Rng>
-	template <bool Const>
+	template<class Rng>
+	template<bool Const>
 	struct join_view<Rng>::__sentinel {
 	private:
 		using Base = __maybe_const<Const, Rng>;
@@ -293,7 +293,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace view {
 		struct __join_fn : detail::__pipeable<__join_fn> {
-			template <InputRange Rng>
+			template<InputRange Rng>
 			requires ViewableRange<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
 				(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
 					View<iter_value_t<iterator_t<Rng>>>)

@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Invocable [concepts.lib.callables.callable]
 	//
-	template <class F, class... Args>
+	template<class F, class... Args>
 	concept bool Invocable =
 		requires(F&& f, Args&&... args) {
 			__invoke::impl((F&&)f, (Args&&)args...);
@@ -35,14 +35,14 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// RegularInvocable [concepts.lib.callables.regularcallable]
 	//
-	template <class F, class... Args>
+	template<class F, class... Args>
 	concept bool RegularInvocable =
 		Invocable<F, Args...>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Predicate [concepts.lib.callables.predicate]
 	//
-	template <class F, class... Args>
+	template<class F, class... Args>
 	concept bool Predicate =
 		RegularInvocable<F, Args...> &&
 			Boolean<result_of_t<F&&(Args&&...)>>;
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Relation [concepts.lib.callables.relation]
 	//
-	template <class R, class T, class U>
+	template<class R, class T, class U>
 	concept bool Relation =
 		Predicate<R, T, T> &&
 		Predicate<R, U, U> &&
@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// StrictWeakOrder [concepts.lib.callables.strictweakorder]
 	//
-	template <class R, class T, class U>
+	template<class R, class T, class U>
 	concept bool StrictWeakOrder =
 		Relation<R, T, U>;
 } STL2_CLOSE_NAMESPACE

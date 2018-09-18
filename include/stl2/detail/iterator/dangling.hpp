@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
  	// dangling
 	// Not to spec: Kill it with fire.
 	//
- 	template <ext::CopyConstructibleObject T>
+ 	template<ext::CopyConstructibleObject T>
 	class dangling {
 		T value;
 	public:
@@ -44,11 +44,11 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template <Range R, ext::CopyConstructibleObject U>
+	template<Range R, ext::CopyConstructibleObject U>
 	using __maybe_dangling =
 		meta::if_<meta::is_trait<meta::defer<__begin_t, R>>, U, dangling<U>>;
 
-	template <Range R>
+	template<Range R>
 	using safe_iterator_t = __maybe_dangling<R, iterator_t<R>>;
 
 } STL2_CLOSE_NAMESPACE

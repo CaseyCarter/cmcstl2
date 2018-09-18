@@ -21,33 +21,33 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template <Range Rng>
+		template<Range Rng>
 		struct __range_common_iterator_impl {
 			using type = common_iterator<iterator_t<Rng>, sentinel_t<Rng>>;
 		};
-		template <CommonRange Rng>
+		template<CommonRange Rng>
 		struct __range_common_iterator_impl<Rng> {
 			using type = iterator_t<Rng>;
 		};
-		template <Range Rng>
+		template<Range Rng>
 		using __range_common_iterator =
 			typename __range_common_iterator_impl<Rng>::type;
 
-		template <class R>
+		template<class R>
 		concept bool CanEmpty = Range<R> && requires(R& r) { __stl2::empty(r); };
-		template <class R>
+		template<class R>
 		concept bool SizedSentinelForwardRange = ForwardRange<R> && SizedSentinel<sentinel_t<R>, iterator_t<R>>;
-		template <class C, class R>
+		template<class C, class R>
 		concept bool ContainerConvertible = InputRange<R> && ForwardRange<C> && !View<C> &&
 			ConvertibleTo<iter_reference_t<iterator_t<R>>, iter_value_t<iterator_t<C>>> &&
 			Constructible<C, __range_common_iterator<R>, __range_common_iterator<R>>;
 
-		template <Range R>
+		template<Range R>
 		constexpr bool is_in_range(R& r, iter_difference_t<iterator_t<R>> n) noexcept {
 			return 0 <= n;
 		}
 
-		template <SizedRange R>
+		template<SizedRange R>
 		constexpr bool is_in_range(R& r, iter_difference_t<iterator_t<R>> n)
 			noexcept(noexcept(__stl2::size(r)))
 		{
@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <class D>
+	template<class D>
 	requires std::is_class_v<D>
 	class view_interface : public view_base {
 	private:
@@ -81,21 +81,21 @@ STL2_OPEN_NAMESPACE {
 		requires detail::CanEmpty<const D> {
 			return !__stl2::empty(derived());
 		}
-		template <Range R = D>
+		template<Range R = D>
 		requires ContiguousIterator<iterator_t<R>>
 		constexpr auto data() {
 			auto& d = derived();
 			return __stl2::empty(d) ? nullptr
 				: detail::addressof(*__stl2::begin(d));
 		}
-		template <Range R = const D>
+		template<Range R = const D>
 		requires ContiguousIterator<iterator_t<R>>
 		constexpr auto data() const {
 			auto& d = derived();
 			return __stl2::empty(d) ? nullptr
 				: detail::addressof(*__stl2::begin(d));
 		}
-		template <class R = const D> // gcc_bugs_bugs_bugs
+		template<class R = const D> // gcc_bugs_bugs_bugs
 		constexpr auto size() const
 		// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		requires detail::SizedSentinelForwardRange<R> {
@@ -128,20 +128,20 @@ STL2_OPEN_NAMESPACE {
 			STL2_EXPECT(__stl2::begin(d) != last);
 			return *--last;
 		}
-		template <RandomAccessRange R = D>
+		template<RandomAccessRange R = D>
 		constexpr decltype(auto) operator[](iter_difference_t<iterator_t<R>> n) {
 			auto& d = derived();
 			STL2_EXPECT(detail::is_in_range(d, n));
 			return __stl2::begin(d)[n];
 		}
-		template <RandomAccessRange R = const D>
+		template<RandomAccessRange R = const D>
 		constexpr decltype(auto) operator[](iter_difference_t<iterator_t<R>> n) const {
 			auto& d = derived();
 			STL2_EXPECT(detail::is_in_range(d, n));
 			return __stl2::begin(d)[n];
 		}
 		// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template <detail::ContainerConvertible<const D> C>
+		template<detail::ContainerConvertible<const D> C>
 		operator C() const {
 			auto& d = derived();
 			using I = detail::__range_common_iterator<const D>;

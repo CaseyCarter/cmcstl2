@@ -29,7 +29,7 @@
 
 namespace stl2 = __stl2;
 
-template <class Iter, typename Sent = Iter>
+template<class Iter, typename Sent = Iter>
 void
 test_iter_impl()
 {
@@ -75,7 +75,7 @@ test_iter_impl()
 	CHECK(stl2::search_n(Iter(ic), Sent(ic+sc), 4, 0) == Iter(ic+sc));
 }
 
-template <class Iter, class Iter2>
+template<class Iter, class Iter2>
 void
 test_iter()
 {
@@ -87,7 +87,7 @@ test_iter()
 	test_iter_impl<Iter, SizedSent1>();
 }
 
-template <class Iter, typename Sent = Iter>
+template<class Iter, typename Sent = Iter>
 void
 test_range_impl()
 {
@@ -133,7 +133,7 @@ test_range_impl()
 	CHECK(stl2::search_n(::as_lvalue(stl2::subrange(Iter(ic), Sent(ic+sc))), 4, 0) == Iter(ic+sc));
 }
 
-template <class Iter, class Iter2>
+template<class Iter, class Iter2>
 void
 test_range()
 {
@@ -145,7 +145,7 @@ test_range()
 	test_range_impl<Iter, SizedSent1>();
 }
 
-template <class Iter, class Iter2>
+template<class Iter, class Iter2>
 void
 test()
 {

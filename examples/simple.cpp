@@ -9,7 +9,7 @@
 // I prefer to use a namespace alias:
 namespace ranges = std::experimental::ranges;
 
-template <class...> class show_type;
+template<class...> class show_type;
 
 void foo(ranges::Readable&) {}
 

@@ -7,7 +7,7 @@ using ranges::detail::temporary_buffer;
 using ranges::detail::temporary_vector;
 
 namespace {
-	template <std::size_t Alignment>
+	template<std::size_t Alignment>
 	void test_single_alignment() {
 		struct alignas(Alignment) foo {
 			char space[Alignment + 1];
@@ -25,7 +25,7 @@ namespace {
 		CHECK(std::align(Alignment, sizeof(foo), ptr, size) == data);
 	}
 
-	template <std::size_t... Alignments>
+	template<std::size_t... Alignments>
 	void test_alignments() {
 		(test_single_alignment<Alignments>(), ...);
 	}

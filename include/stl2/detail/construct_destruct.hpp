@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 				t.~T();
 			}
 
-			template <Destructible T, std::size_t N>
+			template<Destructible T, std::size_t N>
 			void operator()(T (&a)[N]) const noexcept {
 				std::size_t i = N;
 				while (i > 0) {

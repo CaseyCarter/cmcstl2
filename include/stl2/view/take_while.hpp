@@ -27,13 +27,13 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <View R, class Pred>
+		template<View R, class Pred>
 		requires InputRange<R> && std::is_object_v<Pred> &&
 			IndirectUnaryPredicate<const Pred, iterator_t<R>>
 		class take_while_view
 		: public view_interface<take_while_view<R, Pred>>
 		, private detail::semiregular_box<Pred> {
-			template <bool> class __sentinel;
+			template<bool> class __sentinel;
 			using storage_t = detail::semiregular_box<Pred>;
 			using storage_t::get;
 		public:
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr take_while_view(R base, Pred pred)
 			: storage_t{std::move(pred)}, base_(static_cast<R&&>(base)) {}
 
-			template <ViewableRange O>
+			template<ViewableRange O>
 			requires _ConstructibleFromRange<R, O>
 			constexpr take_while_view(O&& o, Pred pred)
 			: storage_t{std::move(pred)}, base_(view::all(static_cast<O&&>(o))) {}
@@ -59,21 +59,21 @@ STL2_OPEN_NAMESPACE {
 		private:
 			R base_;
 
-			template <class Self>
+			template<class Self>
 			static constexpr auto begin_impl(Self& self) { return __stl2::begin(self.base_); }
 
-			template <class Self>
+			template<class Self>
 			static constexpr auto end_impl(Self& self) {
 				constexpr bool is_const = std::is_const_v<Self>;
 				return __sentinel<is_const>{__stl2::end(self.base_), &self.pred()};
 			}
 		};
 
-		template <class R, class Pred>
+		template<class R, class Pred>
 		take_while_view(R&&, Pred) -> take_while_view<all_view<R>, Pred>;
 
-		template <class R, class Pred>
-		template <bool Const>
+		template<class R, class Pred>
+		template<bool Const>
 		class take_while_view<R, Pred>::__sentinel {
 			friend __sentinel<false>;
 			using Base = __maybe_const<Const, R>;
@@ -101,13 +101,13 @@ STL2_OPEN_NAMESPACE {
 
 	namespace view::ext {
 		struct __take_while_fn : detail::__pipeable<__take_while_fn> {
-			template <class Rng, class Pred>
+			template<class Rng, class Pred>
 			constexpr auto operator()(Rng&& rng, Pred&& pred) const
 			STL2_NOEXCEPT_REQUIRES_RETURN(
 				__stl2::ext::take_while_view{view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
 			)
 
-			template <__stl2::ext::CopyConstructibleObject Pred>
+			template<__stl2::ext::CopyConstructibleObject Pred>
 			constexpr auto operator()(Pred pred) const
 			{ return detail::view_closure{*this, std::move(pred)}; }
 		};

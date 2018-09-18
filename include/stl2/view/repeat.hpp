@@ -25,7 +25,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <CopyConstructibleObject T>
+		template<CopyConstructibleObject T>
 		struct repeat_view
 		: private detail::semiregular_box<T>
 		, view_interface<repeat_view<T>>
@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 			using storage_t = detail::semiregular_box<T>;
 			using storage_t::get;
 
-			template <bool IsConst>
+			template<bool IsConst>
 			struct cursor {
 			private:
 				friend cursor<true>;
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 
 		public:
 			repeat_view() = default;
-			template <_NotSameAs<repeat_view> U>
+			template<_NotSameAs<repeat_view> U>
 			requires ConvertibleTo<U, T>
 			explicit constexpr repeat_view(U&& u)
 			noexcept(std::is_nothrow_constructible_v<T, U>)
@@ -79,13 +79,13 @@ STL2_OPEN_NAMESPACE {
 			constexpr unreachable end() const noexcept { return {}; }
 		};
 
-		template <class T>
+		template<class T>
 		repeat_view(T) -> repeat_view<T>;
 	} // namespace ext
 
 	namespace view::ext {
 		struct __repeat_fn {
-			template <class T>
+			template<class T>
 			constexpr auto operator()(T&& t) const
 			STL2_NOEXCEPT_REQUIRES_RETURN(
 				__stl2::ext::repeat_view{static_cast<T&&>(t)}

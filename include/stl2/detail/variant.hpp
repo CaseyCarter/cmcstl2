@@ -24,7 +24,7 @@
 STL2_OPEN_NAMESPACE {
 	// Obtain the index of T in TypeList; substitution failure if T
 	// does not appear exactly once.
-	template <class T, class TypeList,
+	template<class T, class TypeList,
 		std::size_t I = meta::_v<meta::find_index<TypeList, T>>>
 	requires
 		I != meta::_v<meta::npos> &&
@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr std::size_t __index_of_type = I;
 
 	// Like std::get<I>(v), but with a precondition that v.index() == I
-	template <std::size_t I, _SpecializationOf<std::variant> Variant>
+	template<std::size_t I, _SpecializationOf<std::variant> Variant>
 	requires I < std::variant_size_v<__uncvref<Variant>>
 	constexpr decltype(auto) __get_unchecked(Variant&& v) noexcept {
 		STL2_EXPECT(v.index() == I);
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Like std::get<T>(v), but with a precondition that holds_alternative<T>(v)
-	template <class T, _SpecializationOf<std::variant> Variant>
+	template<class T, _SpecializationOf<std::variant> Variant>
 	requires requires { __index_of_type<T, meta::as_list<__uncvref<Variant>>>; }
 	constexpr decltype(auto) __get_unchecked(Variant&& v) noexcept {
 		STL2_EXPECT(std::holds_alternative<T>(v));

@@ -23,7 +23,7 @@
 // merge [alg.merge]
 //
 STL2_OPEN_NAMESPACE {
-	template <InputIterator I1, Sentinel<I1> S1,
+	template<InputIterator I1, Sentinel<I1> S1,
 		InputIterator I2, Sentinel<I2> S2,
 		class O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(first1), std::move(first2), std::move(result)};
 	}
 
-	template <InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
+	template<InputRange Rng1, InputRange Rng2, class O, class Comp = less<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		Mergeable<

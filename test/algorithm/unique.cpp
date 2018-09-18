@@ -33,13 +33,13 @@
 namespace stl2 = __stl2;
 
 /// Calls the iterator interface of the algorithm
-template <class Iter>
+template<class Iter>
 struct iter_call
 {
 	using begin_t = Iter;
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
-	template <class B, class E, class... Args>
+	template<class B, class E, class... Args>
 	auto operator()(B &&It, E &&e, Args &&... args) const
 	{
 		return stl2::unique(begin_t{It}, sentinel_t{e}, std::forward<Args>(args)...);
@@ -47,13 +47,13 @@ struct iter_call
 };
 
 /// Calls the range interface of the algorithm
-template <class Iter>
+template<class Iter>
 struct range_call
 {
 	using begin_t = Iter;
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
-	template <class B, class E, class... Args>
+	template<class B, class E, class... Args>
 	auto operator()(B &&It, E &&e, Args &&... args) const
 	{
 		auto rng = stl2::subrange(begin_t{It}, sentinel_t{e});
@@ -61,9 +61,9 @@ struct range_call
 	}
 };
 
-template <class T> using identity_t = T;
+template<class T> using identity_t = T;
 
-template <class It, template <class> class FunT>
+template<class It, template<class> class FunT>
 void test()
 {
 	using Fun = FunT<It>;

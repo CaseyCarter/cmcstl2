@@ -33,7 +33,7 @@
 // partition [alg.partitions]
 //
 STL2_OPEN_NAMESPACE {
-	template <Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
+	template<Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 		return first;
 	}
 
-	template <Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
+	template<Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
 	requires
 		BidirectionalIterator<I> &&
 		IndirectUnaryPredicate<
@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 		return first;
 	}
 
-	template <ForwardRange Rng, class Pred, class Proj = identity>
+	template<ForwardRange Rng, class Pred, class Proj = identity>
 	requires
 		Permutable<iterator_t<Rng>> &&
 		IndirectUnaryPredicate<

@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 		///////////////////////////////////////////////////////////////////////////
 		// istream_cursor [Implementation detail]
 		//
-		template <Semiregular T, class charT = char,
+		template<Semiregular T, class charT = char,
 			class traits = std::char_traits<charT>,
 			SignedIntegral Distance = std::ptrdiff_t>
 		requires
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// istream_iterator [iterator.istream]
 	//
-	template <Semiregular T, class charT = char, class traits = std::char_traits<charT>,
+	template<Semiregular T, class charT = char, class traits = std::char_traits<charT>,
 		SignedIntegral Distance = std::ptrdiff_t>
 	requires
 		StreamExtractable<T, charT, traits>

@@ -24,8 +24,7 @@ STL2_OPEN_NAMESPACE {
 	struct __find_fn {
 		template<InputIterator I, Sentinel<I> S, class T, class Proj = identity>
 		requires IndirectRelation<equal_to<>, projected<I, Proj>, const T*>
-		constexpr I operator()(I first, S last, const T& value, Proj proj = Proj{}) const
-		{
+		constexpr I operator()(I first, S last, const T& value, Proj proj = Proj{}) const {
 			for (; first != last; ++first) {
 				if (__stl2::invoke(proj, *first) == value) {
 					break;

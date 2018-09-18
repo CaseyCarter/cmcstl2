@@ -45,10 +45,10 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		namespace fsort {
-			template <class I>
+			template<class I>
 			using buf_t = temporary_buffer<iter_value_t<I>>;
 
-			template <class I, class Comp, class Proj>
+			template<class I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			inline I merge_n_with_buffer(I f0, iter_difference_t<I> n0,
@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 					std::ref(proj), std::ref(proj)).out();
 			}
 
-			template <class I, class Comp, class Proj>
+			template<class I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			inline void merge_n_step_0(I f0, iter_difference_t<I> n0,
@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 				n1_1 = n1 - n0_1;
 			}
 
-			template <class I, class Comp, class Proj>
+			template<class I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			inline void merge_n_step_1(I f0, iter_difference_t<I> n0,
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 				n1_1 = n1 - n0_1 - 1;
 			}
 
-			template <class I, class Comp, class Proj>
+			template<class I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			I merge_n_adaptive(I f0, iter_difference_t<I> n0,
@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 				return fsort::merge_n_adaptive(f1_0, n1_0, f1_1, n1_1, buf, comp, proj);
 			}
 
-			template <class I, class Comp, class Proj>
+			template<class I, class Comp, class Proj>
 			requires
 				Sortable<I, Comp, Proj>
 			I sort_n_adaptive(I first, const iter_difference_t<I> n, buf_t<I>& buf,
@@ -168,7 +168,7 @@ STL2_OPEN_NAMESPACE {
 					buf, comp, proj);
 			}
 
-			template <class I, class Comp = less<>, class Proj = identity>
+			template<class I, class Comp = less<>, class Proj = identity>
 			requires
 				Sortable<I, Comp, Proj>
 			inline I sort_n(I first, const iter_difference_t<I> n,

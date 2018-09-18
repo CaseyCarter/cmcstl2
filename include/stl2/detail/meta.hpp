@@ -17,21 +17,21 @@
 #include <stl2/detail/fwd.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <class T>
+	template<class T>
 	using __uncvref = std::remove_cv_t<std::remove_reference_t<T>>;
 
 	namespace detail {
-		template <class>
+		template<class>
 		struct __as_integer_sequence {};
-		template <class T, T... Is>
+		template<class T, T... Is>
 		struct __as_integer_sequence<meta::list<std::integral_constant<T, Is>...>> {
 			using type = std::integer_sequence<T, Is...>;
 		};
 	}
-	template <class T>
+	template<class T>
 	using __as_integer_sequence = meta::_t<detail::__as_integer_sequence<T>>;
 
-	template <bool IsConst, class T>
+	template<bool IsConst, class T>
 	using __maybe_const = meta::if_c<IsConst, T const, T>;
 
 	template<class T>

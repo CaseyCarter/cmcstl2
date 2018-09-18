@@ -40,66 +40,66 @@ namespace meta
     {
         namespace detail
         {
-            template <bool B>
+            template<bool B>
             constexpr bool bool_ = B;
         }
 
-        template <typename... Ts>
+        template<typename... Ts>
         struct list;
 
-        template <template <typename...> class>
+        template<template<typename...> class>
         struct quote;
 
-        template <typename T, template <T...> class F>
+        template<typename T, template<T...> class F>
         struct quote_i;
 
-        template <template <typename...> class C, typename... Ts>
+        template<template<typename...> class C, typename... Ts>
         struct defer;
 
-        template <typename T, template <T...> class C, T... Is>
+        template<typename T, template<T...> class C, T... Is>
         struct defer_i;
 
-        template <typename T>
+        template<typename T>
         constexpr bool is_list_v = false;
 
-        template <typename... Ts>
+        template<typename... Ts>
         constexpr bool is_list_v<list<Ts...>> = true;
 
-        template <typename...>
+        template<typename...>
         concept bool True = true;
 
-        template <typename T, typename U>
+        template<typename T, typename U>
         concept bool Same = detail::bool_<std::is_same<T, U>::value>;
 
-        template <template <typename...> class C, typename... Ts>
+        template<template<typename...> class C, typename... Ts>
         concept bool Valid = requires
         {
             typename C<Ts...>;
         };
 
-        template <typename T, template <T...> class C, T... Is>
+        template<typename T, template<T...> class C, T... Is>
         concept bool Valid_I = requires
         {
             typename C<Is...>;
         };
 
-        template <typename T>
+        template<typename T>
         concept bool Trait = requires
         {
             typename T::type;
         };
 
-        template <typename T>
+        template<typename T>
         concept bool Invocable = requires
         {
             typename quote<T::template invoke>;
         };
 
-        template <typename T>
+        template<typename T>
         concept bool List = is_list_v<T>;
 
         // clang-format off
-        template <typename T>
+        template<typename T>
         concept bool Integral = requires
         {
             typename T::type;
@@ -125,15 +125,15 @@ namespace meta
         && T{}() == T::value;
         // clang-format on
 
-        template <typename T>
+        template<typename T>
         struct id;
 
-        template <Invocable... Fs>
+        template<Invocable... Fs>
         struct compose;
 
         namespace extension
         {
-            template <Invocable F, typename L>
+            template<Invocable F, typename L>
             struct apply;
         }
 

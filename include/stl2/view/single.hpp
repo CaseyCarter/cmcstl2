@@ -18,7 +18,7 @@
 #include <stl2/detail/semiregular_box.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <CopyConstructible T>
+	template<CopyConstructible T>
 	class single_view : public view_interface<single_view<T>> {
 	private:
 		detail::semiregular_box<T> value_;
@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr explicit single_view(T&& t)
 		: value_(std::move(t)) {}
 
-		template <class... Args>
+		template<class... Args>
 		requires Constructible<T, Args...>
 		constexpr single_view(std::in_place_t, Args&&... args)
 		: value_(std::in_place, std::forward<Args>(args)...) {}
@@ -49,13 +49,13 @@ STL2_OPEN_NAMESPACE {
 		{ return begin(); }
 	};
 
-	template <class T>
+	template<class T>
 	requires CopyConstructible<__f<T>> && !meta::is<__f<T>, single_view>::value
 	explicit single_view(T&&) -> single_view<std::decay_t<T>>;
 
 	namespace view {
 		struct __single_fn {
-			template <class T>
+			template<class T>
 			requires CopyConstructible<__f<T>>
 			constexpr auto operator()(T&& t) const
 			{ return single_view{std::forward<T>(t)}; }

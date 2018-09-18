@@ -26,20 +26,20 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace __tagged {
-		template <class T>
+		template<class T>
 		struct properties {};
-		template <class Spec, class Arg>
+		template<class Spec, class Arg>
 		struct properties<Spec(Arg)> {
 			using specifier = Spec;
 			using type = Arg;
 		};
-		template <class T>
+		template<class T>
 		using specifier = typename properties<T>::specifier;
 
-		template <class T>
+		template<class T>
 		using element = meta::_t<properties<T>>;
 
-		template <class Untagged>
+		template<class Untagged>
 		struct base : Untagged {
 			using Untagged::Untagged;
 			base() = default;
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	} // namespace __tagged
 
-	template <class T>
+	template<class T>
 	concept bool TagSpecifier =
 		requires {
 			typename T::template tagged_getter<std::tuple<int>, 0, __tagged::base<std::tuple<int>>>;
@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 				std::tuple<int>>;
 		};
 
-	template <class T>
+	template<class T>
 	concept bool TaggedType =
 		requires {
 			typename __tagged::specifier<T>;
@@ -80,11 +80,11 @@ STL2_OPEN_NAMESPACE {
 		};
 
 	namespace __tagged {
-		template <ext::DestructibleObject Untagged, std::size_t, TagSpecifier...>
+		template<ext::DestructibleObject Untagged, std::size_t, TagSpecifier...>
 		struct chain {
 			using type = base<Untagged>;
 		};
-		template <ext::DestructibleObject Untagged, std::size_t I, TagSpecifier First, TagSpecifier... Rest>
+		template<ext::DestructibleObject Untagged, std::size_t I, TagSpecifier First, TagSpecifier... Rest>
 		struct chain<Untagged, I, First, Rest...> {
 			using type = typename First::template tagged_getter<Untagged, I,
 				meta::_t<chain<Untagged, I + 1, Rest...>>>;
@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 	// tagged [taggedtup.tagged]
 	// Not to spec: Kill with fire.
 	//
-	template <ext::DestructibleObject Base, TagSpecifier... Tags>
+	template<ext::DestructibleObject Base, TagSpecifier... Tags>
 	requires sizeof...(Tags) <= tuple_size<Base>::value
 	struct tagged : meta::_t<__tagged::chain<Base, 0, Tags...>>	{
 	private:
@@ -106,19 +106,19 @@ STL2_OPEN_NAMESPACE {
 
 		// Note: const Base& and Base&& constructors are inherited from __tagged::base<Base>
 
-		template <class Other>
+		template<class Other>
 		requires Constructible<Base, Other>
 		constexpr tagged(tagged<Other, Tags...>&& that)
 		noexcept(std::is_nothrow_constructible<Base, Other&&>::value)
 		: base_t(static_cast<Other&&>(that)) {}
 
-		template <class Other>
+		template<class Other>
 		requires Constructible<Base, const Other&>
 		constexpr tagged(const tagged<Other, Tags...>& that)
 		noexcept(std::is_nothrow_constructible<Base, const Other&>::value)
 		: base_t(static_cast<const Other&>(that)) {}
 
-		template <class Other>
+		template<class Other>
 		requires Assignable<Base&, Other>
 		constexpr tagged& operator=(tagged<Other, Tags...>&& that)
 		noexcept(std::is_nothrow_assignable<Base&, Other&&>::value)
@@ -127,7 +127,7 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
-		template <class Other>
+		template<class Other>
 		requires Assignable<Base&, const Other&>
 		constexpr tagged& operator=(const tagged<Other, Tags...>& that)
 		noexcept(std::is_nothrow_assignable<Base&, const Other&>::value)
@@ -136,7 +136,7 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
-		template <class U>
+		template<class U>
 		requires !Same<decay_t<U>, tagged> && Assignable<Base&, U>
 		constexpr tagged& operator=(U&& u) &
 		noexcept(std::is_nothrow_assignable<Base&, U&&>::value)
@@ -162,7 +162,7 @@ STL2_OPEN_NAMESPACE {
 
 	#define STL2_DEFINE_GETTER(name)                                                                \
 		struct name {                                                                               \
-			template <::__stl2::ext::DestructibleObject Untagged, ::std::size_t I, class Next>      \
+			template<::__stl2::ext::DestructibleObject Untagged, ::std::size_t I, class Next>      \
 			struct tagged_getter : Next {                                                           \
 				using Next::Next;                                                                   \
 				tagged_getter() = default;                                                          \
@@ -199,11 +199,11 @@ STL2_OPEN_NAMESPACE {
 } STL2_CLOSE_NAMESPACE
 
 namespace std {
-	template <class Base, ::__stl2::TagSpecifier... Tags>
+	template<class Base, ::__stl2::TagSpecifier... Tags>
 	struct tuple_size<::__stl2::tagged<Base, Tags...>>
 	: tuple_size<Base> { };
 
-	template <size_t N, class Base, ::__stl2::TagSpecifier... Tags>
+	template<size_t N, class Base, ::__stl2::TagSpecifier... Tags>
 	struct tuple_element<N, ::__stl2::tagged<Base, Tags...>>
 	: tuple_element<N, Base> { };
 }

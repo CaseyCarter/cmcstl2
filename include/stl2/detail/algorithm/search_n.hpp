@@ -34,7 +34,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace __search_n {
-		template <ForwardIterator I, Sentinel<I> S, class T, class Pred, class Proj>
+		template<ForwardIterator I, Sentinel<I> S, class T, class Pred, class Proj>
 		requires
 			IndirectlyComparable<I, const T*, Pred, Proj>
 		I unsized(I first, S last, iter_difference_t<I> count,
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 			return first;
 		}
 
-		template <ForwardIterator I, Sentinel<I> S, class T, class Pred, class Proj>
+		template<ForwardIterator I, Sentinel<I> S, class T, class Pred, class Proj>
 		requires
 			IndirectlyComparable<I, const T*, Pred, Proj>
 		I sized(I first_, S last, iter_difference_t<I> d_,
@@ -97,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <ForwardIterator I, Sentinel<I> S, class T,
+	template<ForwardIterator I, Sentinel<I> S, class T,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
 		IndirectlyComparable<I, const T*, Pred, Proj>
@@ -108,7 +108,7 @@ STL2_OPEN_NAMESPACE {
 			count, value, std::ref(pred), std::ref(proj));
 	}
 
-	template <ForwardIterator I, Sentinel<I> S, class T,
+	template<ForwardIterator I, Sentinel<I> S, class T,
 		class Pred = equal_to<>, class Proj = identity>
 	requires
 		SizedSentinel<S, I> &&
@@ -121,7 +121,7 @@ STL2_OPEN_NAMESPACE {
 			n, count, value, std::ref(pred), std::ref(proj));
 	}
 
-	template <ForwardRange Rng, class T, class Pred = equal_to<>, class Proj = identity>
+	template<ForwardRange Rng, class T, class Pred = equal_to<>, class Proj = identity>
 	requires
 		IndirectlyComparable<
 			iterator_t<Rng>, const T*, Pred, Proj>
@@ -134,7 +134,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(pred), std::ref(proj));
 	}
 
-	template <ForwardRange Rng, class T, class Pred = equal_to<>, class Proj = identity>
+	template<ForwardRange Rng, class T, class Pred = equal_to<>, class Proj = identity>
 	requires
 		SizedRange<Rng> &&
 		IndirectlyComparable<

@@ -23,7 +23,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __mismatch_fn {
-		template <InputIterator I1, Sentinel<I1> S1, class I2,
+		template<InputIterator I1, Sentinel<I1> S1, class I2,
 			class Pred = equal_to<>, class Proj1 = identity, class Proj2 = identity>
 		[[deprecated]] constexpr tagged_pair<tag::in1(I1), tag::in2(std::decay_t<I2>)>
 		operator()(I1 first1, S1 last1, I2&& first2_, Pred pred = Pred{},
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first1), std::move(first2)};
 		}
 
-		template <InputRange Rng1, class I2, class Pred = equal_to<>,
+		template<InputRange Rng1, class I2, class Pred = equal_to<>,
 			class Proj1 = identity, class Proj2 = identity>
 		[[deprecated]]
 		constexpr tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::in2(__f<I2>)>

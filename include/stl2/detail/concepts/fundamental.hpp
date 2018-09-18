@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 	// Scalar [Extension]
 	//
 	namespace ext {
-		template <class T>
+		template<class T>
 		concept bool Scalar =
 			_Is<T, is_scalar> && Regular<T>;
 	}
@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 	// Arithmetic [Extension]
 	//
 	namespace ext {
-		template <class T>
+		template<class T>
 		concept bool Arithmetic =
 			_Is<T, is_arithmetic> && Scalar<T> && StrictTotallyOrdered<T>;
 	}
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	// FloatingPoint [Extension]
 	//
 	namespace ext {
-		template <class T>
+		template<class T>
 		concept bool FloatingPoint =
 			_Is<T, is_floating_point> && Arithmetic<T>;
 	}
@@ -50,21 +50,21 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Integral [concepts.lib.corelang.integral]
 	//
-	template <class T>
+	template<class T>
 	concept bool Integral =
 		_Is<T, is_integral> && ext::Arithmetic<T>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// SignedIntegral [concepts.lib.corelang.signedintegral]
 	//
-	template <class T>
+	template<class T>
 	concept bool SignedIntegral =
 		Integral<T> && (T(-1) < T(0));
 
 	///////////////////////////////////////////////////////////////////////////
 	// UnsignedIntegral [concepts.lib.corelang.unsignedintegral]
 	//
-	template <class T>
+	template<class T>
 	concept bool UnsignedIntegral =
 		Integral<T> && !SignedIntegral<T>;
 } STL2_CLOSE_NAMESPACE

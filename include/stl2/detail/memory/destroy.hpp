@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// destroy_at [Extension]
 	//
-	template <Destructible T>
+	template<Destructible T>
 	void destroy_at(T* p) noexcept
 	{
 		p->~T();
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// destroy [Extension]
 	//
-	template <__NoThrowInputIterator I, __NoThrowSentinel<I> S>
+	template<__NoThrowInputIterator I, __NoThrowSentinel<I> S>
 	requires
 		Destructible<iter_value_t<I>>
 	I destroy(I first, S last) noexcept
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 		return first;
 	}
 
-	template <__NoThrowInputRange Rng>
+	template<__NoThrowInputRange Rng>
 	requires
 		Destructible<iter_value_t<iterator_t<Rng>>>
 	safe_iterator_t<Rng> destroy(Rng&& rng) noexcept
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// destroy_n [Extension]
 	//
-	template <__NoThrowInputIterator I>
+	template<__NoThrowInputIterator I>
 	requires
 		Destructible<iter_value_t<I>>
 	I destroy_n(I first, iter_difference_t<I> n) noexcept
@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	namespace detail {
-		template <__NoThrowForwardIterator I>
+		template<__NoThrowForwardIterator I>
 		class destroy_guard {
 			I first_;
 			detail::raw_ptr<I> last_;

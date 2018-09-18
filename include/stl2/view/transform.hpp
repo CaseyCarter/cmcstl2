@@ -27,21 +27,21 @@
 #include <functional>
 
 STL2_OPEN_NAMESPACE {
-	template <InputRange R, CopyConstructible F>
+	template<InputRange R, CopyConstructible F>
 	requires View<R> && Invocable<F&, iter_reference_t<iterator_t<R>>>
 	class transform_view : public view_interface<transform_view<R, F>> {
 	private:
 		R base_;
 		detail::semiregular_box<F> fun_;
-		template <bool Const> struct __iterator;
-		template <bool Const> struct __sentinel;
+		template<bool Const> struct __iterator;
+		template<bool Const> struct __sentinel;
 	public:
 		transform_view() = default;
 
 		constexpr transform_view(R base, F fun)
 		: base_(std::move(base)), fun_(std::move(fun)) {}
 
-		template <InputRange O>
+		template<InputRange O>
 		requires ViewableRange<O> && _ConstructibleFromRange<R, O>
 		constexpr transform_view(O&& o, F fun)
 		: base_(view::all(std::forward<O>(o))), fun_(std::move(fun)) {}
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 		{ return {*this, __stl2::begin(base_)}; }
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template <class ConstR = const R>
+		template<class ConstR = const R>
 		constexpr const_iterator begin() const requires Range<ConstR> &&
 			Invocable<const F&, iter_reference_t<iterator_t<ConstR>>>
 		{ return {*this, __stl2::begin(base_)}; }
@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 		{ return sentinel{__stl2::end(base_)}; }
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template <class ConstR = const R>
+		template<class ConstR = const R>
 		constexpr const_sentinel end() const requires Range<ConstR> &&
 			Invocable<const F&, iter_reference_t<iterator_t<ConstR>>>
 		{ return const_sentinel{__stl2::end(base_)}; }
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 		{ return {*this, __stl2::end(base_)}; }
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template <class ConstR = const R>
+		template<class ConstR = const R>
 		constexpr const_iterator end() const requires CommonRange<ConstR> &&
 			Invocable<const F&, iter_reference_t<iterator_t<ConstR>>>
 		{ return {*this, __stl2::end(base_)}; }
@@ -88,11 +88,11 @@ STL2_OPEN_NAMESPACE {
 		{ return __stl2::size(base_); }
 	};
 
-	template <class R, class F>
+	template<class R, class F>
 	transform_view(R&& r, F fun) -> transform_view<all_view<R>, F>;
 
-	template <class R, class F>
-	template <bool Const>
+	template<class R, class F>
+	template<bool Const>
 	class transform_view<R, F>::__iterator {
 	private:
 		using Parent = __maybe_const<Const, transform_view>;
@@ -217,8 +217,8 @@ STL2_OPEN_NAMESPACE {
 		{ __stl2::iter_swap(x.current_, y.current_); }
 	};
 
-	template <class R, class F>
-	template <bool Const>
+	template<class R, class F>
+	template<bool Const>
 	class transform_view<R, F>::__sentinel {
 	private:
 		using Parent = meta::if_c<Const, const transform_view, transform_view>;
@@ -261,14 +261,14 @@ STL2_OPEN_NAMESPACE {
 
 	namespace view {
 		struct __transform_fn {
-			template <InputRange Rng, CopyConstructible F>
+			template<InputRange Rng, CopyConstructible F>
 			requires
 				ViewableRange<Rng> && Invocable<F&, iter_reference_t<iterator_t<Rng>>>
 			constexpr auto operator()(Rng&& rng, F fun) const {
 				return transform_view{std::forward<Rng>(rng), std::move(fun)};
 			}
 
-			template <CopyConstructible F>
+			template<CopyConstructible F>
 			constexpr auto operator()(F fun) const {
 				return detail::view_closure{*this, std::move(fun)};
 			}

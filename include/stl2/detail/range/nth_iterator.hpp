@@ -21,7 +21,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		struct __nth_iterator {
-			template <Range R>
+			template<Range R>
 			constexpr auto operator()(R&& r, iter_difference_t<iterator_t<R>> n) const
 			{
 				STL2_EXPECT(n >= 0);

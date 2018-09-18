@@ -33,7 +33,7 @@ auto includes_fn = [](auto&&... args) {
   return stl2::includes(stl2::forward<decltype(args)>(args)...);
 };
 
-template <class Iter1, class Iter2>
+template<class Iter1, class Iter2>
 void
 test_iter()
 {
@@ -63,7 +63,7 @@ test_iter()
 	includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+4)).check(false_);
 }
 
-template <class Iter1, class Iter2>
+template<class Iter1, class Iter2>
 void
 test_comp()
 {
@@ -93,7 +93,7 @@ test_comp()
 	includes(Iter1(ia), Iter1(ia+sa), Iter2(id), Iter2(id+4), std::less<int>()).check(false_);
 }
 
-template <class Iter1, class Iter2>
+template<class Iter1, class Iter2>
 void test()
 {
 	test_iter<Iter1, Iter2>();

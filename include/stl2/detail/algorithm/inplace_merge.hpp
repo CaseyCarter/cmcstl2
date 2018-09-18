@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		struct merge_adaptive_fn {
 		private:
-			template <BidirectionalIterator I, class C, class P>
+			template<BidirectionalIterator I, class C, class P>
 			requires
 				Sortable<I, C, P>
 			static void impl(I begin, I middle, I end, iter_difference_t<I> len1,
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 		public:
-			template <BidirectionalIterator I, class C, class P>
+			template<BidirectionalIterator I, class C, class P>
 			requires
 				Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, iter_difference_t<I> len1, iter_difference_t<I> len2,
@@ -175,7 +175,7 @@ STL2_OPEN_NAMESPACE {
 
 		struct inplace_merge_no_buffer_fn
 		{
-			template <BidirectionalIterator I, class C = less<>, class P = identity>
+			template<BidirectionalIterator I, class C = less<>, class P = identity>
 			requires
 				Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, iter_difference_t<I> len1,
@@ -192,7 +192,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template <BidirectionalIterator I, Sentinel<I> S, class Comp = less<>,
+	template<BidirectionalIterator I, Sentinel<I> S, class Comp = less<>,
 		class Proj = identity>
 	requires
 		Sortable<I, Comp, Proj>
@@ -210,7 +210,7 @@ STL2_OPEN_NAMESPACE {
 		return len2_and_end.end();
 	}
 
-	template <BidirectionalRange Rng, class Comp = less<>, class Proj = identity>
+	template<BidirectionalRange Rng, class Comp = less<>, class Proj = identity>
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
