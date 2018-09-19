@@ -221,12 +221,10 @@ STL2_OPEN_NAMESPACE {
 	subrange(P, iter_difference_t<std::tuple_element_t<0, P>>) ->
 		subrange<std::tuple_element_t<0, P>, std::tuple_element_t<1, P>, subrange_kind::sized>;
 
-	template<_ForwardingRange R>
-	subrange(R&&) -> subrange<iterator_t<R>, sentinel_t<R>>;
-
-	template<_ForwardingRange R>
-	requires SizedRange<R>
-	subrange(R&&) -> subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
+	template <_ForwardingRange R>
+	subrange(R&&) -> subrange<iterator_t<R>, sentinel_t<R>,
+		(SizedRange<R> || SizedSentinel<sentinel_t<R>, iterator_t<R>>)
+			? subrange_kind::sized : subrange_kind::unsized>;
 
 	template<_ForwardingRange R>
 	subrange(R&&, iter_difference_t<iterator_t<R>>) ->
