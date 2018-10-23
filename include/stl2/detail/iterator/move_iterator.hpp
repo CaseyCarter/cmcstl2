@@ -238,13 +238,15 @@ STL2_OPEN_NAMESPACE {
 		noexcept(is_nothrow_move_constructible<S>::value)
 		: box_t(std::move(s))
 		{}
-		template<ConvertibleTo<S> T>
+		template<class T>
+		requires ConvertibleTo<const T&, S>
 		constexpr move_sentinel(const move_sentinel<T>& s)
 		noexcept(is_nothrow_constructible<S, const T&>::value)
 		: box_t{__move_iterator::access::sentinel(s)}
 		{}
 
-		template<ConvertibleTo<S> T>
+		template<class T>
+		requires Assignable<S&, const T&>
 		constexpr move_sentinel& operator=(const move_sentinel<T>& s) &
 		noexcept(is_nothrow_assignable<S&, const T&>::value)
 		{
