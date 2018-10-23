@@ -112,7 +112,7 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	template<class V>
-	struct enable_view<ext::indirect_view<V>> : std::true_type {};
+	inline constexpr bool enable_view<ext::indirect_view<V>> = true;
 
 	namespace view::ext {
 		struct __indirect_fn : detail::__pipeable<__indirect_fn> {

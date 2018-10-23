@@ -135,9 +135,9 @@ struct strange_view3 : strange_view2 {};
 #if VALIDATE_STL2
 STL2_OPEN_NAMESPACE {
 	template<>
-	struct enable_view<strange_view> : std::true_type {};
+	inline constexpr bool enable_view<strange_view> = true;
 	template<>
-	struct enable_view<strange_view3> : std::false_type {};
+	inline constexpr bool enable_view<strange_view3> = false;
 } STL2_CLOSE_NAMESPACE
 
 #elif VALIDATE_RANGES

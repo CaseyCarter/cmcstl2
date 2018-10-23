@@ -101,7 +101,7 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	template<class V>
-	struct enable_view<ext::take_exactly_view<V>> : std::true_type {};
+	inline constexpr bool enable_view<ext::take_exactly_view<V>> = true;
 
 	namespace view::ext {
 		struct __take_exactly_fn : detail::__pipeable<__take_exactly_fn> {

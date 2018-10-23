@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	template<class V>
-	struct enable_view<ext::move_view<V>> : std::true_type {};
+	inline constexpr bool enable_view<ext::move_view<V>> = true;
 
 	namespace view {
 		struct __move_fn : detail::__pipeable<__move_fn> {

@@ -76,43 +76,27 @@ STL2_OPEN_NAMESPACE {
 		!Same<iter_reference_t<iterator_t<T>>, iter_reference_t<iterator_t<const T>>>;
 
 	template<class T>
-	struct enable_view {};
+	concept bool __enable_view_default = DerivedFrom<T, view_base> || !_ContainerLike<T>;
 
 	template<class T>
-	struct __view_predicate3 : std::true_type {};
-
-	template<_ContainerLike T>
-	struct __view_predicate3<T> : std::false_type {};
+	inline constexpr bool enable_view = __enable_view_default<T>;
 
 	template<class T>
-	struct __view_predicate2 : __view_predicate3<T> {};
-
-	template<DerivedFrom<view_base> T>
-	struct __view_predicate2<T> : std::true_type {};
-
-	template<class T>
-	struct __view_predicate : __view_predicate2<T> {};
-
-	template<class T>
-		requires meta::Trait<enable_view<T>>
-	struct __view_predicate<T> : enable_view<T> {};
-
-	template<class T>
-	struct __view_predicate<std::initializer_list<T>> : std::false_type {};
+	inline constexpr bool enable_view<std::initializer_list<T>> = false;
 	template<class Key, class Compare, class Alloc>
-	struct __view_predicate<std::set<Key, Compare, Alloc>> : std::false_type {};
+	inline constexpr bool enable_view<std::set<Key, Compare, Alloc>> = false;
 	template<class Key, class Compare, class Alloc>
-	struct __view_predicate<std::multiset<Key, Compare, Alloc>> : std::false_type {};
+	inline constexpr bool enable_view<std::multiset<Key, Compare, Alloc>> = false;
 	template<class Key, class Hash, class Pred, class Alloc>
-	struct __view_predicate<std::unordered_set<Key, Hash, Pred, Alloc>> : std::false_type {};
+	inline constexpr bool enable_view<std::unordered_set<Key, Hash, Pred, Alloc>> = false;
 	template<class Key, class Hash, class Pred, class Alloc>
-	struct __view_predicate<std::unordered_multiset<Key, Hash, Pred, Alloc>> : std::false_type {};
+	inline constexpr bool enable_view<std::unordered_multiset<Key, Hash, Pred, Alloc>> = false;
 
 	template<class T>
 	concept bool View =
 		Range<T> &&
 		Semiregular<T> &&
-		__view_predicate<__uncvref<T>>::value;
+		enable_view<__uncvref<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// CommonRange
