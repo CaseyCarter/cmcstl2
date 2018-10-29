@@ -168,9 +168,12 @@ CONCEPT_ASSERT(!ranges::DefaultConstructible<int[]>);
 CONCEPT_ASSERT(ranges::DefaultConstructible<int[2]>);
 CONCEPT_ASSERT(!ranges::DefaultConstructible<nondefaultconstructible>);
 
-// It's hard to catch explicit default constructors, see
-// http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1518.
-// CONCEPT_ASSERT(!ranges::DefaultConstructible<explicit_default>);
+namespace pathological_explicit_default_constructor {
+	struct S0 { explicit S0() = default; };
+	struct S1 { S0 x; };
+	CONCEPT_ASSERT(!ranges::DefaultConstructible<S1>);
+}
+
 CONCEPT_ASSERT(ranges::DefaultConstructible<explicit_move>);
 CONCEPT_ASSERT(ranges::DefaultConstructible<explicit_copy>);
 CONCEPT_ASSERT(!ranges::DefaultConstructible<deleted_default>);

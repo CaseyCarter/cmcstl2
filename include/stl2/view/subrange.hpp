@@ -24,32 +24,38 @@
 
 STL2_OPEN_NAMESPACE {
 	template<class T>
+	concept bool _PairLikeGCCBugs = requires(T t) {
+		{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
+		{ std::get<1>(t) } -> const std::tuple_element_t<1, T>&;
+	};
+
+	template<class T>
 	concept bool _PairLike =
-		meta::Integral<std::tuple_size<T>> &&
-		std::tuple_size<T>::value == 2 &&
-		meta::Trait<std::tuple_element<0, T>> &&
-		meta::Trait<std::tuple_element<1, T>> &&
-		requires(T t) {
-			{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
-			{ std::get<1>(t) } -> const std::tuple_element_t<1, T>&;
+		!std::is_reference_v<T> && requires {
+			typename std::tuple_size<T>::type;
+			requires DerivedFrom<std::tuple_size<T>, std::integral_constant<std::size_t, 2>>;
+			typename std::tuple_element_t<0, remove_const_t<T>>;
+			typename std::tuple_element_t<1, remove_const_t<T>>;
+			requires _PairLikeGCCBugs<T>; // Separate named concept to avoid premature substitution.
 		};
 
 	template<class T, class U, class V>
 	concept bool _PairLikeConvertibleTo =
-		!Range<T> && _PairLike<__uncvref<T>> &&
+		!Range<T> && _PairLike<std::remove_reference_t<T>> &&
 		requires(T&& t) {
-			{ std::get<0>(static_cast<T&&>(t)) } -> ConvertibleTo<U>;
-			{ std::get<1>(static_cast<T&&>(t)) } -> ConvertibleTo<V>;
+			std::get<0>(static_cast<T&&>(t));
+			requires ConvertibleTo<decltype(std::get<0>(static_cast<T&&>(t))), U>;
+			std::get<1>(static_cast<T&&>(t));
+			requires ConvertibleTo<decltype(std::get<1>(static_cast<T&&>(t))), V>;
 		};
 
 	template<class T, class U, class V>
 	concept bool _PairLikeConvertibleFrom =
-		!Range<T> && Same<T, __uncvref<T>> && _PairLike<T> &&
-		Constructible<T, U, V>;
+		!Range<T> && _PairLike<T> && Constructible<T, U, V>;
 
 	template<class T>
 	concept bool _IteratorSentinelPair =
-		!Range<T> && Same<T, __uncvref<T>> && _PairLike<T> &&
+		!Range<T> && _PairLike<T> &&
 		Sentinel<std::tuple_element_t<1, T>, std::tuple_element_t<0, T>>;
 
 	enum class subrange_kind : bool { unsized, sized };
