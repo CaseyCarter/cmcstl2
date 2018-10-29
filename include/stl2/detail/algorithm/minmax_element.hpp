@@ -27,63 +27,63 @@
 // minmax_element [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-	template<ForwardIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<I, Proj>>
-	STL2_CONSTEXPR_EXT tagged_pair<tag::min(I), tag::max(I)>
-	minmax_element(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		auto result = tagged_pair<tag::min(I), tag::max(I)>{first, first};
-		if (first == last || ++first == last) {
+	struct __minmax_element_fn {
+		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less<>>
+		constexpr tagged_pair<tag::min(I), tag::max(I)>
+		operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			auto result = tagged_pair<tag::min(I), tag::max(I)>{first, first};
+			if (first == last || ++first == last) {
+				return result;
+			}
+			if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.first))) {
+				result.first = first;
+			} else {
+				result.second = first;
+			}
+			while (++first != last) {
+				I tmp = first;
+				if (++first == last) {
+					if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.first))) {
+						result.first = tmp;
+					} else if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.second))) {
+						result.second = tmp;
+					}
+					break;
+				}
+
+				if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *tmp))) {
+					if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.first))) {
+						result.first = first;
+					}
+					if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.second))) {
+						result.second = tmp;
+					}
+				} else {
+					if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.first))) {
+						result.first = tmp;
+					}
+					if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.second))) {
+						result.second = first;
+					}
+				}
+			}
 			return result;
 		}
-		if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.first))) {
-			result.first = first;
-		} else {
-			result.second = first;
-		}
-		while (++first != last) {
-			I tmp = first;
-			if (++first == last) {
-				if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.first))) {
-					result.first = tmp;
-				} else if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.second))) {
-					result.second = tmp;
-				}
-				break;
-			}
 
-			if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *tmp))) {
-				if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.first))) {
-					result.first = first;
-				}
-				if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.second))) {
-					result.second = tmp;
-				}
-			} else {
-				if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.first))) {
-					result.first = tmp;
-				}
-				if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.second))) {
-					result.second = first;
-				}
-			}
+		template<ForwardRange R, class Proj = identity,
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less<>>
+		constexpr tagged_pair<tag::min(safe_iterator_t<R>),
+			tag::max(safe_iterator_t<R>)>
+		operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(r), __stl2::end(r),
+				std::ref(comp), std::ref(proj));
 		}
-		return result;
-	}
+	};
 
-	template<ForwardRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<iterator_t<Rng>, Proj>>
-	STL2_CONSTEXPR_EXT tagged_pair<tag::min(safe_iterator_t<Rng>),
-		tag::max(safe_iterator_t<Rng>)>
-	minmax_element(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::minmax_element(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(comp), std::ref(proj));
-	}
+	inline constexpr __minmax_element_fn minmax_element {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
