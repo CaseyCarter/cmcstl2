@@ -24,7 +24,8 @@
 // minmax [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-	class __minmax_fn {
+	struct __minmax_fn {
+	private:
 		template<InputRange R, class Proj = identity,
 			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less<>>
 		requires Copyable<iter_value_t<iterator_t<R>>>
