@@ -21,33 +21,32 @@
 // min_element [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-	template<ForwardIterator I, Sentinel<I> S,
-		class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<I, Proj>>
-	I min_element(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		if (first != last) {
-			for (auto i = __stl2::next(first); i != last; ++i) {
-				if (__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {
-					first = i;
+	struct __min_element_fn {
+		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less<>>
+		constexpr I operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			if (first != last) {
+				for (auto i = __stl2::next(first); i != last; ++i) {
+					if (__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {
+						first = i;
+					}
 				}
 			}
+			return first;
 		}
-		return first;
-	}
 
-	template<ForwardRange Rng, class Comp = less<>, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	min_element(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::min_element(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(comp), std::ref(proj));
-	}
+		template<ForwardRange R, class Proj = identity,
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less<>>
+		constexpr safe_iterator_t<R>
+		operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		{
+			return (*this)(__stl2::begin(r), __stl2::end(r),
+				std::ref(comp), std::ref(proj));
+		}
+	};
+
+	inline constexpr __min_element_fn min_element {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
