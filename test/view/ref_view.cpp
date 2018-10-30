@@ -16,18 +16,23 @@
 #include "../test_utils.hpp"
 #include <stl2/detail/algorithm/transform.hpp>
 
-namespace view = __stl2::view::ext;
+namespace ranges = __stl2;
 
-int main()
-{
-	auto rng = std::vector<int>(10, 0);
-	auto iota = 0;
-	for (auto&& i : rng | view::ref) {
-		i += iota;
-		++iota;
+static_assert(ranges::Constructible<ranges::ext::ref_view<const int[42]>, const int(&)[42]>);
+static_assert(ranges::Constructible<ranges::ext::ref_view<const int[42]>, int(&)[42]>);
+static_assert(!ranges::Constructible<ranges::ext::ref_view<const int[42]>, int(&&)[42]>);
+static_assert(!ranges::Constructible<ranges::ext::ref_view<const int[42]>, const int(&&)[42]>);
+
+int main() {
+	{
+		auto rng = std::vector<int>(10, 0);
+		auto iota = 0;
+		for (auto&& i : rng | ranges::view::ext::ref) {
+			i += iota;
+			++iota;
+		}
+		CHECK_EQUAL(rng, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 	}
-	CHECK_EQUAL(rng, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
 	return ::test_result();
 }
-
