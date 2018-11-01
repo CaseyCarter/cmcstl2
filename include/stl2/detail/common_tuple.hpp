@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 		common_tuple& operator=(tuple<Us...>& that) noexcept((is_nothrow_assignable_v<Ts&, Us&> && ...))
 		{
 			static_assert((Assignable<Ts&, Us&> && ...)); // workaround for GCC #85241
-			(void)tuple_transform(base(), that, element_assign_{});
+			(void)detail::tuple_transform(base(), that, element_assign_{});
 			return *this;
 		}
 
@@ -90,14 +90,14 @@ STL2_OPEN_NAMESPACE {
 		common_tuple& operator=(tuple<Us...> const& that) noexcept((is_nothrow_assignable_v<Ts&, Us const&> && ...))
 		{
 			static_assert((Assignable<Ts&, Us const&> && ...)); // workaround for GCC #85241
-			(void)tuple_transform(base(), that, element_assign_{});
+			(void)detail::tuple_transform(base(), that, element_assign_{});
 			return *this;
 		}
 		template<typename... Us>
 		common_tuple& operator=(tuple<Us...>&& that) noexcept((is_nothrow_assignable_v<Ts&, Us> && ...))
 		{
 			static_assert((Assignable<Ts&, Us> && ...)); // workaround for GCC #85241
-			(void)tuple_transform(base(), std::move(that), element_assign_{});
+			(void)detail::tuple_transform(base(), std::move(that), element_assign_{});
 			return *this;
 		}
 
@@ -105,21 +105,21 @@ STL2_OPEN_NAMESPACE {
 		common_tuple const& operator=(tuple<Us...>& that) const noexcept((is_nothrow_assignable_v<Ts const&, Us&> && ...))
 		{
 			static_assert((Assignable<Ts const&, Us&> && ...)); // workaround for GCC #85241
-			(void)tuple_transform(base(), that, element_assign_{});
+			(void)detail::tuple_transform(base(), that, element_assign_{});
 			return *this;
 		}
 		template<typename... Us>
 		common_tuple const& operator=(tuple<Us...> const& that) const noexcept((is_nothrow_assignable_v<Ts const&, Us const&> && ...))
 		{
 			static_assert((Assignable<Ts const&, Us const&> && ...)); // workaround for GCC #85241
-			(void)tuple_transform(base(), that, element_assign_{});
+			(void)detail::tuple_transform(base(), that, element_assign_{});
 			return *this;
 		}
 		template<typename... Us>
 		common_tuple const& operator=(tuple<Us...>&& that) const noexcept((is_nothrow_assignable_v<Ts const&, Us&&> && ...))
 		{
 			static_assert((Assignable<Ts const&, Us&&> && ...)); // workaround for GCC #85241
-			(void)tuple_transform(base(), std::move(that), element_assign_{});
+			(void)detail::tuple_transform(base(), std::move(that), element_assign_{});
 			return *this;
 		}
 

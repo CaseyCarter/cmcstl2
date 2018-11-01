@@ -14,384 +14,389 @@
 #define STL2_VIEW_ZIP_WITH_HPP
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/algorithm/min.hpp>
-#include <stl2/detail/concepts/callable.hpp>
-#include <stl2/detail/concepts/object.hpp>
-#include <stl2/detail/iterator/common_iterator.hpp>
-#include <stl2/detail/iterator/increment.hpp>
-#include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/common_tuple.hpp>
-#include <stl2/detail/ebo_box.hpp>
+#include <stl2/detail/algorithm/max.hpp>
+#include <stl2/detail/algorithm/min.hpp>
+#include <stl2/detail/iterator/increment.hpp>
 #include <stl2/detail/semiregular_box.hpp>
-#include <stl2/type_traits.hpp>
+#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
-#include <stl2/view/view_interface.hpp>
-#include <tuple>
-#include <utility>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <CopyConstructibleObject Fun, View... Rngs>
-		requires
-			(InputRange<Rngs> && ...) &&
-			IndirectInvocable<Fun, iterator_t<Rngs>...>
-		class iter_zip_with_view
-		: public view_interface<iter_zip_with_view<Fun, Rngs...>>
-		, private detail::semiregular_box<Fun>
-		, private tuple<Rngs...> {
-			using semiregular_base = detail::semiregular_box<Fun>;
-			using tuple_base = tuple<Rngs...>;
+		template<Range R>
+		using range_value_t = iter_value_t<iterator_t<R>>;
 
-			using __difference_type = common_type_t<iter_difference_t<iterator_t<Rngs>>...>;
-			using __size_type = make_unsigned_t<__difference_type>;
+		template<Range R>
+		using range_difference_t = iter_difference_t<iterator_t<R>>;
 
-			using semiregular_base::get;
+		template<Range R>
+		using range_reference_t = iter_reference_t<iterator_t<R>>;
 
-			struct __iterator;
-			class __sentinel : tuple<sentinel_t<Rngs>...> {
-				using iterator_base = tuple<sentinel_t<Rngs>...>;
-			public:
-				constexpr __sentinel() = default;
+		template<class T, bool is_const = false>
+		using __semiregular_ref_or_val_t = detail::semiregular_box<T>;
 
-				template <typename X>
-				constexpr explicit __sentinel(X&&, tuple<sentinel_t<Rngs>...> ends)
-				: tuple<sentinel_t<Rngs>...>(std::move(ends))
-				{}
+		template<class F, class... Rs>
+		concept bool __zippable =
+			(InputRange<Rs> && ...) &&
+			Invocable<F&, iterator_t<Rs>...>;
 
-				friend class __iterator;
-			};
-
-			using __actual_sentinel = conditional_t<(CommonRange<Rngs> && ...), __iterator, __sentinel>;
-		public:
-			iter_zip_with_view() = default;
-
-			constexpr explicit iter_zip_with_view(Rngs... rngs)
-			: semiregular_base(Fun{}), tuple_base(std::move(rngs)...)
-			{}
-
-			constexpr explicit iter_zip_with_view(Fun fun, Rngs... rngs)
-			: semiregular_base(std::move(fun)), tuple_base(std::move(rngs)...)
-			{}
-
-			constexpr auto begin() requires !(SimpleView<Rngs> && ...)
-			{ return begin_impl(*this); }
-
-			constexpr auto begin() const requires (Range<Rngs const> && ...)
-			{ return begin_impl(*this); }
-
-			constexpr auto end() requires !(SimpleView<Rngs> && ...)
-			{ return end_impl(*this); }
-
-			constexpr auto end() const requires (Range<Rngs const> && ...)
-			{ return end_impl(*this); }
-
-			constexpr __size_type size() requires (SizedRange<Rngs> && ...)
-			{ return size_impl(*this); }
-
-			constexpr __size_type size() const requires (SizedRange<const Rngs> && ...)
-			{ return size_impl(*this); }
-		protected:
-			constexpr Fun const& fun() const noexcept
-			{ return get(); }
-
-			constexpr tuple<Rngs...>& rngs() noexcept requires !(SimpleView<Rngs> && ...)
-			{ return static_cast<tuple<Rngs...>&>(*this); }
-
-			constexpr tuple<Rngs...> const& rngs() const noexcept requires (Range<Rngs const> && ...)
-			{ return static_cast<tuple<Rngs...> const&>(*this); }
+		template<class F, class... Rs>
+		requires (ViewableRange<Rs> && ...) && Invocable<F&, range_reference_t<Rs>&&...>
+		struct __iter_zip_with_view
+		: private detail::semiregular_box<F>
+		, private tuple<Rs...> {
 		private:
-			template <class Self>
-			static constexpr auto begin_impl(Self& self) noexcept
+			using difference_type = common_type_t<range_difference_t<Rs>...>;
+			using size_type = make_unsigned_t<difference_type>;
+
+			template<bool is_const>
+			struct __cursor;
+
+			template<bool is_const>
+			using __iterator = basic_iterator<__cursor<is_const>>;
+
+			template<bool is_const>
+			struct __sentinel;
+
+			template<bool is_const>
+			using __end_cursor_t = conditional_t<
+				(CommonRange<__maybe_const<is_const, Rs>> && ...) &&
+					(ForwardRange<__maybe_const<is_const, Rs>> && ...),
+				__iterator<is_const>,
+				__sentinel<is_const>
+			>;
+
+			using detail::semiregular_box<F>::get;
+
+			template<class Self>
+			[[nodiscard]] static constexpr auto&& __as_tuple(Self&& self)
 			{
-				return __iterator(
-					self.fun(),
-					detail::tuple_transform(self.rngs(), __stl2::begin)
+				using __tuple_base = tuple<Rs...>;
+				if constexpr (is_lvalue_reference_v<Self>) {
+					if constexpr (is_const_v<remove_reference_t<Self>>) {
+						return static_cast<__tuple_base const&>(self);
+					}
+					else {
+						return static_cast<__tuple_base&>(self);
+					}
+				}
+				else if (is_lvalue_reference_v<Self>) {
+					return static_cast<__tuple_base&&>(self);
+				}
+			}
+
+			template<bool is_const, class Self>
+			[[nodiscard]] static constexpr __iterator<is_const> begin_impl([[maybe_unused]] Self&& self)
+			{
+				return __iterator<is_const>(
+					__cursor<is_const>(
+						self.get(),
+						detail::tuple_transform(__as_tuple(self), __stl2::begin)
+					)
 				);
 			}
 
-			template <class Self>
-			static constexpr auto end_impl(Self& self) noexcept
+			template<bool is_const, class Self>
+			[[nodiscard]] static constexpr __end_cursor_t<is_const> end_impl([[maybe_unused]] Self&& self)
 			{
-				return __actual_sentinel(
-					self.fun(),
-					detail::tuple_transform(self.rngs(), __stl2::end)
-				);
+				if constexpr (Same<__end_cursor_t<is_const>, __iterator<is_const>>) {
+					return __iterator<is_const>(
+						__cursor<is_const>(
+							self.get(),
+							detail::tuple_transform(__as_tuple(self), __stl2::end)
+						)
+					);
+				}
+				else {
+					return __sentinel<is_const>(
+						self.get(),
+						detail::tuple_transform(__as_tuple(self), __stl2::end)
+					);
+				}
 			}
+		public:
+			void foo() {
+				__iterator<false>{};
+			}
+			__iter_zip_with_view() = default;
 
-			template <class Self>
-			static constexpr auto size_impl(Self& self) requires (SizedRange<Rngs> && ...)
+			constexpr explicit __iter_zip_with_view(Rs... rs)
+			: __iter_zip_with_view::semiregular_box(F{})
+			, __iter_zip_with_view::tuple(std::move(rs)...)
+			{}
+
+			constexpr explicit __iter_zip_with_view(F f, Rs... rs)
+			: __iter_zip_with_view::semiregular_box(std::move(f))
+			, __iter_zip_with_view::tuple(std::move(rs)...)
+			{}
+
+			constexpr size_type size() const
+			requires (SizedRange<Rs const> && ...)
 			{
 				return detail::tuple_foldl(
-					detail::tuple_transform(static_cast<__maybe_const<is_const_v<Self>, tuple_base>&>(self), __stl2::size),
-					(std::numeric_limits<__size_type>::max)(),
-					[](auto const& a, auto const& b) -> decltype(__stl2::min(a, b)) {
-						return __stl2::min(a, b); });
+					detail::tuple_transform(__as_tuple(*this), __stl2::size),
+					numeric_limits<size_type>::max(),
+					__stl2::min
+				);
 			}
+
+			constexpr __iterator<false> begin()
+			{ return __iter_zip_with_view::begin_impl<false>(*this); }
+
+			constexpr __iterator<true> begin() const
+			requires (Range<Rs const> && ...) && (__zippable<F, Rs const> && ...)
+			{ return __iter_zip_with_view::begin_impl<true>(*this); }
+
+			constexpr auto cbegin() const
+			requires (Range<Rs const> && ...) && (__zippable<F, Rs const> && ...)
+			{ return begin(); }
+
+			constexpr __end_cursor_t<false> end()
+			{ return __iter_zip_with_view::end_impl<false>(*this); }
+
+			constexpr __end_cursor_t<true> end() const
+			requires (Range<Rs const> && ...) && (__zippable<F, Rs const> && ...)
+			{ return __iter_zip_with_view::end_impl<true>(*this); }
+
+			constexpr auto cend() const
+			requires (Range<Rs const> && ...) && (__zippable<F, Rs const> && ...)
+			{ return end(); }
 		};
 
-		template <class Fun, class... Rngs>
-		iter_zip_with_view(Fun, Rngs...) -> iter_zip_with_view<Fun, all_view<Rngs>...>;
-
-		template <class Fun, class... Rngs>
-		class iter_zip_with_view<Fun, Rngs...>::__iterator
-		: tuple<iterator_t<Rngs>...> {
-		public:
-			using difference_type = common_type_t<iter_difference_t<iterator_t<Rngs>>...>;
-			using value_type = decay_t<indirect_result_t<Fun&, iterator_t<Rngs>...>>;
-			using iterator_category = common_type_t<iterator_category_t<iterator_t<Rngs>>...>;
+		template<class F, class... Rs>
+		template<bool is_const>
+		struct __iter_zip_with_view<F, Rs...>::__sentinel
+		: private tuple<sentinel_t<__maybe_const<is_const, Rs>>...> {
 		private:
-			using iterator_base = tuple<iterator_t<Rngs>...>;
-			using __sentinel = iter_zip_with_view<Fun, Rngs...>::__sentinel;
-			using __actual_sentinel = iter_zip_with_view<Fun, Rngs...>::__actual_sentinel;
-			Fun const* fun_; // TODO: EBO me
-								  // TODO: possibly remove const
+			friend struct __cursor<is_const>;
+			friend struct __sentinel<!is_const>;
+			using __tuple_base = tuple<sentinel_t<__maybe_const<is_const, Rs>>...>;
 
-			template <class Self, size_t... Is>
-			static constexpr decltype(auto) deref_all(Self& self, index_sequence<Is...>)
+			template<class Self>
+			[[nodiscard]] static constexpr auto&& __as_tuple(Self&& self)
 			{
-				auto iterator_self = static_cast<__maybe_const<is_const_v<Self>, iterator_base>&>(self);
-				return std::tie((*std::get<Is>(iterator_self))...);
+				if constexpr (is_lvalue_reference_v<Self>) {
+					if constexpr (is_const_v<remove_reference_t<Self>>) {
+						return static_cast<__tuple_base const&>(self);
+					}
+					else {
+						return static_cast<__tuple_base&>(self);
+					}
+				}
+				else if (is_lvalue_reference_v<Self>) {
+					return static_cast<__tuple_base&&>(self);
+				}
+			}
+		public:
+			constexpr __sentinel() = default;
+			constexpr __sentinel(__tuple_base ends)
+				: __sentinel::tuple(std::move(ends))
+			{}
+
+			template<bool other_const>
+			requires is_const && !other_const
+			constexpr __sentinel(__sentinel<other_const> that)
+				: __sentinel::tuple(std::move(__as_tuple(that)))
+			{}
+		};
+
+		template<class F, class... Rs>
+		template<bool is_const>
+		struct __iter_zip_with_view<F, Rs...>::__cursor
+		: private __semiregular_ref_or_val_t<F, is_const>
+		, private tuple<iterator_t<__maybe_const<is_const, Rs>>...> {
+		private:
+			using __function_base = __semiregular_ref_or_val_t<F, is_const>;
+			using __tuple_base = tuple<iterator_t<__maybe_const<is_const, Rs>>...>;
+
+			using __function_base::get;
+
+			friend struct __cursor<!is_const>;
+
+			template<class Self>
+			[[nodiscard]] static constexpr auto&& __as_tuple(Self&& self)
+			{
+				if constexpr (is_lvalue_reference_v<Self>) {
+					if constexpr (is_const_v<remove_reference_t<Self>>) {
+						return static_cast<__tuple_base const&>(self);
+					}
+					else {
+						return static_cast<__tuple_base&>(self);
+					}
+				}
+				else if (is_lvalue_reference_v<Self>) {
+					return static_cast<__tuple_base&&>(self);
+				}
+			}
+		public:
+			using difference_type = common_type_t<range_difference_t<__maybe_const<is_const, Rs>>...>;
+			using value_type =
+				decay_t<indirect_result_t<F&, iterator_t<__maybe_const<is_const, Rs>>...>>;
+
+			__cursor() = default;
+
+			constexpr __cursor(__function_base f, __tuple_base is)
+			: __function_base(std::move(f))
+			, __tuple_base(std::move(is))
+			{}
+
+			template<bool other_const = false>
+			requires is_const && !other_const
+			constexpr __cursor(__cursor<other_const> that)
+			: __function_base(std::move(that.get()))
+			, __tuple_base(std::move(__as_tuple(that)))
+			{}
+
+			constexpr decltype(auto) read() const
+			{
+				return std::apply([this](auto&&... xs) {
+					return __stl2::invoke(get(), *std::forward<decltype(xs)>(xs)...);
+				}, __as_tuple(*this));
 			}
 
-			template <class Self>
-			static constexpr decltype(auto) read_impl(Self& self)
-			STL2_NOEXCEPT_RETURN(
-				std::apply(*self.fun_, deref_all(self, index_sequence_for<Rngs...>{}))
-			)
-
-			template <class Self>
-			static constexpr decltype(auto) subscript_impl(Self& self, difference_type n)
-			STL2_NOEXCEPT_RETURN(
-				*(self + n)
-			)
-
-			template <class T1, class T2, Predicate<T1, T2> Comp>
-			static constexpr bool relation_impl(T1 const& t1, T2 const& t2, Comp comp)
+			constexpr void next()
 			{
+				detail::tuple_for_each(__as_tuple(*this), [](auto& x){ ++x; });
+			}
+
+			constexpr bool equal(__cursor const& that) const
+			requires (Sentinel<
+					iterator_t<__maybe_const<is_const, Rs>>,
+					iterator_t<__maybe_const<is_const, Rs>>> && ...)
+			{
+				// By returning true if *any* of the iterators are equal, we allow
+				// zipped ranges to be of different lengths, stopping when the first
+				// one reaches the end.
 				return detail::tuple_foldl(
-					detail::tuple_transform(static_cast<typename T1::iterator_base const&>(t1),
-													static_cast<typename T2::iterator_base const&>(t2),
-													comp),
+					detail::tuple_transform(__as_tuple(*this), __as_tuple(that), equal_to<>{}),
 					false,
 					logical_or<>{}
 				);
 			}
 
-			static constexpr difference_type distance_impl(__iterator const& a, __actual_sentinel const& b)
+			constexpr bool equal(__sentinel<is_const> const& s) const
 			{
-				auto abs = [](auto const x) noexcept { return x < 0 ? -x : x; };
-				return detail::tuple_min(
-					detail::tuple_transform(
-						static_cast<iterator_base const&>(a),
-						static_cast<typename __actual_sentinel::iterator_base const&>(b),
-						[](auto const& a, auto const& b) { return __stl2::distance(a, b); }),
-					[&abs](auto const a, auto const b) noexcept { return abs(a) < abs(b); });
+				// By returning true if *any* of the iterators are equal, we allow
+				// zipped ranges to be of different lengths, stopping when the first
+				// one reaches the end.
+				return detail::tuple_foldl(
+					detail::tuple_transform(__as_tuple(*this), s.__as_tuple(s), equal_to<>{}),
+					false,
+					logical_or<>{}
+				);
 			}
 
-			template <class T1, class T2>
-			static constexpr bool equal_impl(T1 const& t1, T2 const& t2)
-			{ return relation_impl(t1, t2, [](auto const& a, auto const& b){ return a == b; }); }
-
-			static constexpr bool less_impl(__iterator const& a, __iterator const& b)
-			{ return relation_impl(a, b, [](auto const& a, auto const& b){ return a < b; }); }
-
-			template <class F>
-			constexpr void advance_impl(F f)
-			{ detail::tuple_for_each(static_cast<iterator_base&>(*this), std::move(f)); }
-		public:
-			constexpr __iterator() = default;
-			constexpr __iterator(Fun const& fun, std::tuple<iterator_t<Rngs>...> its)
-			: iterator_base(std::move(its)), fun_(std::addressof(fun))
-			{}
-
-			constexpr decltype(auto) operator*()
-			noexcept(noexcept(read_impl(std::declval<__iterator&>())))
-			{ return read_impl(*this); }
-
-			constexpr decltype(auto) operator*() const
-			noexcept(noexcept(read_impl(std::declval<__iterator&>())))
-			requires (Range<Rngs const> && ...)
-			{ return read_impl(*this); }
-
-			constexpr __iterator& operator++()
+			constexpr void prev()
+			requires (BidirectionalRange<__maybe_const<is_const, Rs>> && ...)
 			{
-				advance_impl([](auto& x){ ++x; });
-				return *this;
+				detail::tuple_for_each(__as_tuple(*this), [](auto& x){ --x; });
 			}
 
-			constexpr __iterator operator++(int)
+			constexpr void advance(difference_type n)
+			requires (RandomAccessRange<__maybe_const<is_const, Rs>> && ...)
 			{
-				auto result = *this;
-				++*this;
-				return result;
+				detail::tuple_for_each(__as_tuple(*this), [n](auto& x){ __stl2::advance(x, n); });
 			}
 
-			constexpr __iterator& operator--() requires (BidirectionalRange<Rngs> && ...)
+			constexpr difference_type distance_to(__cursor const& that) const
+			requires (SizedSentinel<
+					iterator_t<__maybe_const<is_const, Rs>>,
+					iterator_t<__maybe_const<is_const, Rs>>> && ...)
 			{
-				advance_impl([](auto& x){ return --x; });
-				return *this;
+				// Return the smallest distance (in magnitude) of any of the iterator
+				// pairs. This is to accommodate zippers of sequences of different length.
+				if (0 < std::get<0>(__as_tuple(that)) - std::get<0>(*this)) {
+					return detail::tuple_foldl(
+						detail::tuple_transform(__as_tuple(*this), __as_tuple(that), __stl2::distance),
+						numeric_limits<difference_type>::max(),
+						__stl2::min
+					);
+				}
+				else {
+					return detail::tuple_foldl(
+						detail::tuple_transform(__as_tuple(*this), __as_tuple(that), __stl2::distance),
+						numeric_limits<difference_type>::min(),
+						__stl2::max
+					);
+				}
 			}
 
-			constexpr __iterator operator--(int) requires (BidirectionalRange<Rngs> && ...)
+			constexpr auto indirect_move()
+			requires !is_const
 			{
-				auto result = *this;
-				--*this;
-				return result;
+				return detail::tuple_transform(__as_tuple(*this), __stl2::iter_move);
 			}
 
-			constexpr decltype(auto) operator[](difference_type n)
-			requires (RandomAccessRange<Rngs> && ...)
-			{ return subscript_impl(*this, n); }
-
-			constexpr decltype(auto) operator[](difference_type n) const
-			requires (RandomAccessRange<const Rngs> && ...)
-			{ return subscript_impl(*this, n); }
-
-			constexpr __iterator& operator+=(difference_type n)
-			requires (RandomAccessRange<Rngs> && ...)
+			constexpr void indirect_swap(__cursor<false>& that)
+			requires !is_const
 			{
-				advance_impl([n](auto& x){ return __stl2::advance(x, n); });
-				return *this;
+				*this = detail::tuple_transform(__as_tuple(*this), __as_tuple(that), __stl2::iter_swap);
 			}
-
-			constexpr __iterator& operator-=(difference_type n)
-			requires (RandomAccessRange<Rngs> && ...)
-			{
-				advance_impl([n](auto& x){ return __stl2::advance(x, -n); });
-				return *this;
-			}
-
-			friend constexpr __iterator operator+(__iterator a, difference_type n)
-			requires (RandomAccessRange<Rngs> && ...)
-			{ return (a += n); }
-
-			friend constexpr __iterator operator+(difference_type n, __iterator a)
-			requires (RandomAccessRange<Rngs> && ...)
-			{ return (a += n); }
-
-			friend constexpr __iterator operator-(__iterator a, difference_type n)
-			requires (RandomAccessRange<Rngs> && ...)
-			{ return (a -= n); }
-
-			friend constexpr difference_type operator-(const __iterator& first, const __actual_sentinel& last)
-			requires (SizedSentinel<iterator_t<Rngs>, sentinel_t<Rngs>> && ...)
-			{ return distance_impl(last, first); }
-
-			friend constexpr difference_type operator-(const __sentinel& last, const __iterator& first)
-			requires !Same<__iterator, __actual_sentinel> &&
-				(SizedSentinel<iterator_t<Rngs>, sentinel_t<Rngs>> && ...)
-			{ return -(first - last); }
-
-			constexpr friend bool operator==(const __iterator& a, const __iterator& b)
-			requires (Sentinel<iterator_t<Rngs>, iterator_t<Rngs>> && ...)
-			{ return equal_impl(a, b); }
-
-			constexpr friend bool operator==(const __iterator& a, const __sentinel& b)
-			{ return equal_impl(a, b); }
-
-			constexpr friend bool operator==(const __sentinel& a, const __iterator& b)
-			{ return (b == a); }
-
-			constexpr friend bool operator==(const __iterator& a, const default_sentinel b)
-			{ return equal_impl(a, b); }
-
-			constexpr friend bool operator==(const default_sentinel a, const __iterator& b)
-			{ return (b == a); }
-
-			constexpr friend bool operator!=(const __iterator& a, const __iterator& b)
-			requires (Sentinel<iterator_t<Rngs>, iterator_t<Rngs>> && ...)
-			{ return !(a == b); }
-
-			constexpr friend bool operator!=(const __iterator& a, const __sentinel& b)
-			{ return !(a == b); }
-
-			constexpr friend bool operator!=(const __sentinel& a, const __iterator& b)
-			{ return !(b == a); }
-
-			constexpr friend bool operator!=(const __iterator& a, const default_sentinel b)
-			{ return !(a == b); }
-
-			constexpr friend bool operator!=(const default_sentinel a, const __iterator& b)
-			{ return !(b == a); }
-
-			constexpr friend bool operator<(const __iterator& a, const __iterator& b)
-			requires (RandomAccessRange<Rngs> && ...)
-			{ return less_impl(a, b); }
-
-			constexpr friend bool operator>(const __iterator& a, const __iterator& b)
-			requires (RandomAccessRange<Rngs> && ...)
-			{ return b < a; }
-
-			constexpr friend bool operator<=(const __iterator& a, const __iterator& b)
-			requires (RandomAccessRange<Rngs> && ...)
-			{ return !(a > b); }
-
-			constexpr friend bool operator>=(const __iterator& a, const __iterator& b)
-			requires (RandomAccessRange<Rngs> && ...)
-			{ return !(a < b); }
 		};
 
-		template <CopyConstructibleObject Fun, View... Rngs>
-		requires
-			(InputRange<Rngs> && ...) &&
-			IndirectInvocable<Fun, iterator_t<Rngs>...>
-		struct zip_with_view : iter_zip_with_view<Fun, Rngs...> {
+		template<class F, class... Rs>
+		struct zip_with_view : __iter_zip_with_view<F, Rs...> {
 			zip_with_view() = default;
 
-			constexpr explicit zip_with_view(Rngs... rngs)
-				: iter_zip_with_view<Fun, Rngs...>{
-					{Fun{}}, std::move(rngs)...}
+			constexpr explicit zip_with_view(Rs... rs)
+			: __iter_zip_with_view<F, Rs...>(std::move(rs)...)
 			{}
 
-			constexpr explicit zip_with_view(Fun fun, Rngs... rngs)
-				: iter_zip_with_view<Fun, Rngs...>{
-					std::move(fun), std::move(rngs)...}
+			constexpr explicit zip_with_view(F f, Rs... rs)
+			: __iter_zip_with_view<F, Rs...>(std::move(f), std::move(rs)...)
 			{}
 		};
 
-		template <class Fun, class... Rngs>
-		zip_with_view(Fun, Rngs...) -> zip_with_view<Fun, all_view<Rngs>...>;
+		template<class F, class... Rs>
+		zip_with_view(F, Rs...) -> zip_with_view<F, all_view<Rs>...>;
 	} // namespace ext
-
-	template <class Fun, class... Rngs>
-	struct enable_view<ext::zip_with_view<Fun, Rngs...>> : std::true_type {};
 
 	namespace view::ext {
 		struct __iter_zip_with_fn {
-			template <class Fun, class... Rngs>
-			constexpr auto operator()(Fun fun, Rngs&&... rngs) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
-				__stl2::ext::iter_zip_with_view{std::move(fun), all(static_cast<Rngs&&>(rngs))...}
-			)
+			template<class... Rs, class F>
+			requires __stl2::ext::__zippable<F, Rs...>
+			auto operator()(F f, Rs&&... rs) const
+			{
+				return __stl2::ext::__iter_zip_with_view<F, all_view<Rs>...>(
+					std::move(f),
+					all(std::forward<Rs>(rs))...
+				);
+			}
 		};
 
 		inline constexpr __iter_zip_with_fn iter_zip_with {};
 
 		struct __zip_with_fn {
-			template <class Fun, class... Rngs>
-			constexpr auto operator()(Fun fun, Rngs&&... rngs) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
-				__stl2::ext::zip_with_view{std::move(fun), all(static_cast<Rngs&&>(rngs))...}
-			)
+			template<class F, class... Rs>
+			requires
+				(InputRange<Rs> && ...) &&
+				CopyConstructible<F> &&
+				Invocable<F&, __stl2::ext::range_reference_t<Rs>&&...>
+			constexpr auto operator()(F f, Rs&&... rs) const
+			{
+				return __stl2::ext::zip_with_view(std::move(f), all(std::forward<Rs>(rs))...);
+			}
 		};
 
 		inline constexpr __zip_with_fn zip_with {};
 
-		class __zip_fn {
-		public:
-			template <class... Rngs>
-			constexpr auto operator()(Rngs&&... rngs) const
+		struct __zip_fn {
+			template<typename... Rs>
+			requires (Range<Rs> && ...)
+			constexpr auto operator()(Rs&&... rs) const
 			{
 				return zip_with(
-					[](auto&&... xs){
-						return common_tuple<decltype(xs)...>(static_cast<decltype(xs)>(xs)...);
+					[](auto&&... xs) {
+						return common_tuple<decltype(xs)...>(std::forward<decltype(xs)>(xs)...);
 					},
-					static_cast<Rngs&&>(rngs)...); 
+					std::forward<Rs>(rs)...
+				);
 			}
 		};
 
 		inline constexpr __zip_fn zip {};
-	}
+	} // namespace view::ext
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_VIEW_ZIP_WITH_HPP

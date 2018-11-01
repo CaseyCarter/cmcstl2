@@ -4,6 +4,10 @@
 #include <stl2/detail/iterator/insert_iterators.hpp>
 #include <stl2/view/common.hpp>
 #include <stl2/view/istream.hpp>
+#include <stl2/view/transform.hpp>
+
+#include <stl2/detail/range/concepts.hpp>
+
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 
@@ -20,10 +24,7 @@ namespace view {
 	using ranges::view::ext::zip_with;
 } // namespace view
 
-//// TODO erase stuff
-template <class> struct dne;
-#include <stl2/detail/algorithm/transform.hpp>
-//// END TODO
+template<ranges::ViewableRange> void models_ViewableRange();
 
 int main()
 {
@@ -34,24 +35,24 @@ int main()
 	// {
 	// 	std::stringstream str{"john paul george ringo"};
 	// 	using V = std::tuple<int, std::string, std::string>;
-	// 	auto&& rng = view::zip(vi, vs, view::istream<std::string>(str) | view::common);
+	// 	auto&& r = view::zip(vi, vs, view::istream<std::string>(str) | view::common);
 	// TODO: find out why this breaks												^~~~~~~~~~~~~^
 
-	// 	using Rng = decltype(rng);
-	// 	static_assert(ranges::CommonRange<Rng>);
-	// 	static_assert(!ranges::SizedRange<Rng>);
-	// 	static_assert(ranges::Same<ranges::iter_value_t<ranges::iterator_t<Rng>>, std::tuple<int&, std::string const&, std::string&>>);
+	// 	using R = decltype(r);
+	// 	static_assert(ranges::CommonRange<R>);
+	// 	static_assert(!ranges::SizedRange<R>);
+	// 	static_assert(ranges::Same<ranges::iter_value_t<ranges::iterator_t<R>>, std::tuple<int&, std::string const&, std::string&>>);
 	// 	//											I think this being non-reference-to-const means that I stuffed up somewhere   ^~~~~~~~~~~^
 
-	// 	// static_assert(Same<ranges::iter_reference_t<Rng>, common_tuple<int &, std::string const &, std::string &>>());
+	// 	// static_assert(Same<ranges::iter_reference_t<R>, common_tuple<int &, std::string const &, std::string &>>());
 	// 	// CONCEPT_ASSERT(Same<
-	// 	// 	range_rvalue_reference_t<Rng>,
+	// 	// 	range_rvalue_reference_t<R>,
 	// 	// 	common_tuple<int &&, std::string const &&, std::string &&>>());
-	// 	static_assert(ranges::ConvertibleTo<ranges::iter_value_t<ranges::iterator_t<Rng>>&&, ranges::iter_value_t<ranges::iterator_t<Rng>>>); // Can this be Movable<Rng> instead?
-	// 	static_assert(ranges::InputIterator<decltype(begin(rng))>);
-	// 	static_assert(!ranges::ForwardIterator<decltype(begin(rng))>);
+	// 	static_assert(ranges::ConvertibleTo<ranges::iter_value_t<ranges::iterator_t<R>>&&, ranges::iter_value_t<ranges::iterator_t<R>>>); // Can this be Movable<R> instead?
+	// 	static_assert(ranges::InputIterator<decltype(begin(r))>);
+	// 	static_assert(!ranges::ForwardIterator<decltype(begin(r))>);
 
-	// 	auto common = view::common(rng);
+	// 	auto common = view::common(r);
 	// 	auto expected = std::vector(ranges::begin(common), ranges::end(common));
 	// 	CHECK_EQUAL(expected, {V{0, "hello", "john"},
 	// 								  V{1, "goodbye", "paul"},
@@ -62,17 +63,17 @@ int main()
 	// consolation for the above not working
 	{
 		std::vector<std::string> vs2{"john", "paul", "george", "ringo"};
-		auto&& rng = view::zip(vi, vs, vs2);
-		using Rng = decltype(rng);
-		static_assert(ranges::CommonRange<Rng>);
-		static_assert(ranges::SizedRange<Rng>);
-		static_assert(ranges::Same<ranges::iter_value_t<ranges::iterator_t<Rng>>, ranges::common_tuple<int&, std::string const&, std::string&>>);
-	//                                              I think this being reference-to-mutable means that I stuffed up somewhere   ^~~~~~~~~~~^
+		auto&& r = view::zip(vi, vs, vs2);
+		using R = decltype(r);
+		static_assert(ranges::CommonRange<R>);
+		static_assert(ranges::SizedRange<R>);
+		// static_assert(ranges::Same<ranges::ext::range_value_t<R>, std::tuple<int, std::string, std::string>>);
+		static_assert(ranges::Same<ranges::ext::range_reference_t<R>, ranges::common_tuple<int&, std::string const&, std::string&>>);
 
-		static_assert(ranges::ConvertibleTo<ranges::iter_value_t<ranges::iterator_t<Rng>>&&, ranges::iter_value_t<ranges::iterator_t<Rng>>>); // Can this be Movable<Rng> instead?
-		static_assert(ranges::RandomAccessIterator<decltype(ranges::begin(rng))>);
+		static_assert(ranges::ConvertibleTo<ranges::iter_value_t<ranges::iterator_t<R>>&&, ranges::iter_value_t<ranges::iterator_t<R>>>); // Can this be Movable<R> instead?
+		static_assert(ranges::RandomAccessIterator<decltype(ranges::begin(r))>);
 
-		auto common = view::common(rng);
+		auto common = view::common(r);
 		using V = std::tuple<int, std::string, std::string>;
 		auto expected = std::vector<V>(ranges::begin(common), ranges::end(common));
 		CHECK_EQUAL(expected, {V{0, "hello", "john"},
@@ -81,49 +82,49 @@ int main()
 									  V{3, "goodbye", "ringo"}});
 	}
 
-	// // Mixed ranges and common ranges
-	{
-		std::stringstream str{"john paul george ringo"};
-		using V = std::tuple<int, std::string, std::string>;
-		auto&& rng = view::zip(vi, vs, view::istream<std::string>(str));
-		using Rng = std::remove_reference_t<decltype(rng)>;
-		static_assert(ranges::View<Rng>);
-		static_assert(!ranges::SizedRange<Rng>);
-		static_assert(!ranges::CommonRange<Rng>);
-		static_assert(ranges::InputRange<Rng>);
-		static_assert(!ranges::ForwardRange<Rng>);
-		std::vector<V> expected;
-		ranges::copy(rng, ranges::back_inserter(expected));
-		CHECK_EQUAL(expected, {V{0, "hello", "john"},
-									  V{1, "goodbye", "paul"},
-									  V{2, "hello", "george"},
-									  V{3, "goodbye", "ringo"}});
-	}
+	// Mixed ranges and common ranges
+	// {
+	// 	std::stringstream str{"john paul george ringo"};
+	// 	using V = std::tuple<int, std::string, std::string>;
+	// 	auto&& r = view::zip(vi, vs, view::istream<std::string>(str));
+	// 	using R = std::remove_reference_t<decltype(r)>;
+	// 	static_assert(ranges::View<R>);
+	// 	static_assert(!ranges::SizedRange<R>);
+	// 	static_assert(!ranges::CommonRange<R>);
+	// 	static_assert(ranges::InputRange<R>);
+	// 	static_assert(!ranges::ForwardRange<R>);
+	// 	std::vector<V> expected;
+	// 	ranges::copy(r, ranges::back_inserter(expected));
+	// 	CHECK_EQUAL(expected, {V{0, "hello", "john"},
+	// 								  V{1, "goodbye", "paul"},
+	// 								  V{2, "hello", "george"},
+	// 								  V{3, "goodbye", "ringo"}});
+	// }
 
 	{
-		auto rnd_rng = view::zip(vi, vs);
-		using Rng = decltype(rnd_rng);
-		using Ref = ranges::iter_reference_t<ranges::iterator_t<decltype(rnd_rng)>>;
+		auto rnd_r = view::zip(vi, vs);
+		using R = decltype(rnd_r);
+		using Ref = ranges::iter_reference_t<ranges::iterator_t<R>>;
 		static_assert(std::is_same_v<Ref, ranges::common_tuple<int&, std::string const&>>);
-		static_assert(ranges::CommonRange<Rng>);
-		static_assert(ranges::SizedRange<Rng>);
-		static_assert(ranges::RandomAccessIterator<ranges::iterator_t<Rng>>);
-		auto tmp = cbegin(rnd_rng) + 3;
+		static_assert(ranges::CommonRange<R>);
+		static_assert(ranges::SizedRange<R>);
+		static_assert(ranges::RandomAccessIterator<ranges::iterator_t<R>>);
+		auto tmp = ranges::cbegin(rnd_r) + 3;
 		CHECK(std::get<0>(*tmp) == 3);
 		CHECK(std::get<1>(*tmp) == "goodbye");
 
-		CHECK((rnd_rng.end() - rnd_rng.begin()) == 4);
-		CHECK((rnd_rng.begin() - rnd_rng.end()) == -4);
-		CHECK(rnd_rng.size() == 4u);
+		CHECK((rnd_r.end() - rnd_r.begin()) == 4);
+		CHECK((rnd_r.begin() - rnd_r.end()) == -4);
+		CHECK(rnd_r.size() == 4u);
 	}
 
 	{
 		std::vector<std::string> v0{"a","b","c"};
 		std::vector<std::string> v1{"x","y","z"};
 
-		auto rng = view::zip_with(std::plus<>{}, v0, v1);
+		auto r = view::zip_with(std::plus<>{}, v0, v1);
 		std::vector<std::string> expected;
-		ranges::copy(rng, ranges::back_inserter(expected));
+		ranges::copy(r, ranges::back_inserter(expected));
 		CHECK_EQUAL(expected, {"ax","by","cz"});
 	}
 
@@ -131,68 +132,71 @@ int main()
 		std::vector<std::string> v0{"a","b","c"};
 		std::vector<std::string> v1{"x","y","z"};
 
-		auto rng = view::zip_with(std::plus<std::string>{}, v0, v1);
+		auto r = view::zip_with(std::plus<std::string>{}, v0, v1);
 		std::vector<std::string> expected;
-		copy(rng, ranges::back_inserter(expected));
+		copy(r, ranges::back_inserter(expected));
 		CHECK_EQUAL(expected, {"ax","by","cz"});
 	}
 
 	// Move from a zip view
-	// {
-	// 	static_assert(ranges::Movable<move_only_string>);
-	// 	auto v0 = std::vector<int>{};
-	// 	v0.emplace_back("a");
-	// 	v0.emplace_back("b");
-	// 	v0.emplace_back("c");
+	{
+		static_assert(ranges::Movable<move_only_string>);
+		auto v0 = std::vector<std::string>{};
+		// models_ViewableRange<
+		// 	ranges::all_view<
+		// 		std::vector<move_only_string>
+		// 	>
+		// >();
+		v0.emplace_back("a");
+		v0.emplace_back("b");
+		v0.emplace_back("c");
 
-	// 	auto v1 = std::vector<int>{};
-	// 	v1.emplace_back("x");
-	// 	v1.emplace_back("y");
-	// 	v1.emplace_back("z");
-	// 	auto rng = view::zip(v0, v1);
+		auto v1 = std::vector<std::string>{};
+		v1.emplace_back("x");
+		v1.emplace_back("y");
+		v1.emplace_back("z");
 
-	// 	using Rng = decltype(rng);
-	// 	static_assert(ranges::RandomAccessRange<Rng>);
-	// 	using fake_flat_map = std::vector<std::tuple<std::string, std::string>>;
-	// 	fake_flat_map expected;
-	// 	std::vector<std::string> x{"a", "b", "c"};
-	// 	std::vector<std::string> y{"x", "y", "z"};
+		auto r = view::zip(v0, v1);
 
-	// 	ranges::move(rng, ranges::back_inserter(expected));
-	// 	CHECK_EQUAL(expected | view::keys, {"a","b","c"});
-	// 	CHECK_EQUAL(expected | view::values, {"x","y","z"});
-	// 	CHECK_EQUAL(expected, fake_flat_map{{"a", "x"},
-	// 													{"b", "y"},
-	// 													{"c", "z"}});
-	// 	CHECK_EQUAL(v0, {"","",""});
-	// 	CHECK_EQUAL(v1, {"","",""});
+		using R = decltype(r);
+		static_assert(ranges::RandomAccessRange<R>);
 
-	// 	move(expected, rng.begin());
-	// 	CHECK_EQUAL(expected | view::keys, {"","",""});
-	// 	CHECK_EQUAL(expected | view::values, {"","",""});
-	// 	CHECK_EQUAL(v0, {"a","b","c"});
-	// 	CHECK_EQUAL(v1, {"x","y","z"});
+		{
+			// ATTN @CaseyCarter
+			std::vector<std::tuple<std::string, std::string>> expected;
+			ranges::move(r, ranges::back_inserter(expected));
+			CHECK_EQUAL(expected | view::keys, {"a","b","c"});
+			CHECK_EQUAL(expected | view::values, {"x","y","z"});
+			CHECK_EQUAL(v0, {"","",""});
+			CHECK_EQUAL(v1, {"","",""});
+		}
+
+		// move(expected, r.begin());
+		// CHECK_EQUAL(expected | view::keys, {"","",""});
+		// CHECK_EQUAL(expected | view::values, {"","",""});
+		// CHECK_EQUAL(v0, {"a","b","c"});
+		// CHECK_EQUAL(v1, {"x","y","z"});
 
 	// 	std::vector<move_only_string> res;
-	// 	using R = decltype(rng);
+	// 	using R = decltype(r);
 	// 	auto proj =
 	// 		[](range_reference_t<R> p) -> move_only_string& {return p.first;};
-	// 	auto rng2 = rng | view::transform(proj);
-	// 	move(rng2, ranges::back_inserter(res));
+	// 	auto r2 = r | view::transform(proj);
+	// 	move(r2, ranges::back_inserter(res));
 	// 	CHECK_EQUAL(res, {"a","b","c"});
 	// 	CHECK_EQUAL(v0, {"","",""});
 	// 	CHECK_EQUAL(v1, {"x","y","z"});
-	// 	using R2 = decltype(rng2);
+	// 	using R2 = decltype(r2);
 	// 	CONCEPT_ASSERT(Same<range_value_type_t<R2>, move_only_string>());
 	// 	CONCEPT_ASSERT(Same<range_reference_t<R2>, move_only_string &>());
 	// 	CONCEPT_ASSERT(Same<range_rvalue_reference_t<R2>, move_only_string &&>());
-	// }
+	}
 
 	// {
 	// 	auto const v = to_<std::vector<move_only_string>>({"a","b","c"});
-	// 	auto rng = view::zip(v, v);
-	// 	using Rng = decltype(rng);
-	// 	using I = iterator_t<Rng>;
+	// 	auto r = view::zip(v, v);
+	// 	using R = decltype(r);
+	// 	using I = iterator_t<R>;
 	// 	CONCEPT_ASSERT(Readable<I>());
 	// 	CONCEPT_ASSERT(Same<
 	// 		iter_value_t<I>,
@@ -204,7 +208,7 @@ int main()
 	// 		iter_rvalue_reference_t<I>,
 	// 		common_pair<move_only_string const &&, move_only_string const &&>>());
 	// 	CONCEPT_ASSERT(Same<
-	// 		range_common_reference_t<Rng>,
+	// 		range_common_reference_t<R>,
 	// 		common_pair<move_only_string const &, move_only_string const &>>());
 	// }
 
@@ -222,10 +226,10 @@ int main()
 	// // does not redefine the current member function, the base range's iter_move
 	// // function gets picked up automatically.
 	// {
-	// 	auto rng0 = view::zip(vi, vs);
-	// 	auto rng1 = view::stride(rng0, 2);
-	// 	CONCEPT_ASSERT(Same<range_rvalue_reference_t<decltype(rng1)>, range_rvalue_reference_t<decltype(rng0)>>());
-	// 	CONCEPT_ASSERT(Same<range_value_type_t<decltype(rng1)>, range_value_type_t<decltype(rng0)>>());
+	// 	auto r0 = view::zip(vi, vs);
+	// 	auto r1 = view::stride(r0, 2);
+	// 	CONCEPT_ASSERT(Same<range_rvalue_reference_t<decltype(r1)>, range_rvalue_reference_t<decltype(r0)>>());
+	// 	CONCEPT_ASSERT(Same<range_value_type_t<decltype(r1)>, range_value_type_t<decltype(r0)>>());
 	// }
 
 	// // Test for noexcept iter_move
@@ -253,19 +257,19 @@ int main()
 	// // Regression test for #439.
 	// {
 	// 	std::vector<int> vec{0,1,2};
-	// 	auto rng = vec | view::for_each([](int i) { return ranges::yield(i); });
-	// 	ranges::distance(view::zip(view::ints(0), rng) | view::bounded);
+	// 	auto r = vec | view::for_each([](int i) { return ranges::yield(i); });
+	// 	ranges::distance(view::zip(view::ints(0), r) | view::bounded);
 	// }
 
 	// {
 	// 	int const i1[] = {0,1,2,3};
 	// 	int const i2[] = {4,5,6,7};
-	// 	auto rng = view::zip(
+	// 	auto r = view::zip(
 	// 		debug_input_view<int const>{i1},
 	// 		debug_input_view<int const>{i2}
 	// 	);
 	// 	using P = std::pair<int, int>;
-	// 	CHECK_EQUAL(rng, {P{0,4},P{1,5}, P{2,6}, P{3,7}});
+	// 	CHECK_EQUAL(r, {P{0,4},P{1,5}, P{2,6}, P{3,7}});
 	// }
 
 	return ::test_result();

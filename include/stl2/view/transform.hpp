@@ -22,6 +22,7 @@
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
+#include <stl2/view/subrange.hpp>
 #include <stl2/view/view_interface.hpp>
 
 #include <functional>
@@ -275,6 +276,21 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __transform_fn transform {};
+
+		template<int X>
+		requires (X == 0) || (X == 1)
+		struct __get_fn {
+			template<class P>
+			requires _PairLike<remove_reference_t<P>>
+			constexpr decltype(auto) operator()(P&& p) const
+			{
+				using T = decltype(std::get<X>(std::forward<P>(p)));
+				return std::forward<T>(std::get<X>(std::forward<P>(p)));
+			}
+		};
+
+		inline constexpr auto keys = view::transform(__get_fn<0>{});
+		inline constexpr auto values = view::transform(__get_fn<1>{});
 	} // namespace view
 } STL2_CLOSE_NAMESPACE
 
