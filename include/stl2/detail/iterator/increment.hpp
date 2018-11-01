@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 			Incrementable<I> &&
 			requires(I& i) {
 				{ --i } -> Same<I>&;
-				i--; Same<decltype(i--), I>;
+				i--; requires Same<I, decltype(i--)>;
 			};
 			// Let a and b be objects of type I.
 			// Axiom: &--a == &a
