@@ -191,112 +191,49 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// next
-	Iterator{I}
-	constexpr I next(I x, iter_difference_t<I> n = 1)
-	STL2_NOEXCEPT_RETURN(
-		__stl2::advance(x, n),
-		x
-	)
+	struct __next_fn {
+		template<Iterator I>
+		constexpr I operator()(I x, iter_difference_t<I> n = 1) const
+		STL2_NOEXCEPT_RETURN(
+			__stl2::advance(x, n),
+			x
+		)
 
-	template<class S, class I>
-	requires
-		Sentinel<__f<S>, I>
-	constexpr I next(I x, S&& bound)
-	STL2_NOEXCEPT_RETURN(
-		__stl2::advance(x, std::forward<S>(bound)),
-		x
-	)
+		template<Iterator I, Sentinel<I> S>
+		constexpr I operator()(I x, S bound) const
+		STL2_NOEXCEPT_RETURN(
+			__stl2::advance(x, std::forward<S>(bound)),
+			x
+		)
 
-	template<class S, class I>
-	requires
-		Sentinel<__f<S>, I>
-	constexpr I next(I x, iter_difference_t<I> n, S&& bound)
-	STL2_NOEXCEPT_RETURN(
-		__stl2::advance(x, n, std::forward<S>(bound)),
-		x
-	)
+		template<Iterator I, Sentinel<I> S>
+		constexpr I operator()(I x, iter_difference_t<I> n, S bound) const
+		STL2_NOEXCEPT_RETURN(
+			__stl2::advance(x, n, std::forward<S>(bound)),
+			x
+		)
+	};
+
+	inline constexpr __next_fn next {};
 
 	// prev
-	BidirectionalIterator{I}
-	constexpr I prev(I x, iter_difference_t<I> n = 1)
-	STL2_NOEXCEPT_RETURN(
-		__stl2::advance(x, -n),
-		x
-	)
+	struct __prev_fn {
+		template<BidirectionalIterator I>
+		constexpr I operator()(I x, iter_difference_t<I> n = 1) const
+		STL2_NOEXCEPT_RETURN(
+			__stl2::advance(x, -n),
+			x
+		)
 
-	BidirectionalIterator{I}
-	constexpr I prev(I x, iter_difference_t<I> n, I bound)
-	STL2_NOEXCEPT_RETURN(
-		__stl2::advance(x, -n, std::move(bound)),
-		x
-	)
+		template<BidirectionalIterator I>
+		constexpr I operator()(I x, iter_difference_t<I> n, I bound) const
+		STL2_NOEXCEPT_RETURN(
+			__stl2::advance(x, -n, std::move(bound)),
+			x
+		)
+	};
 
-	namespace ext {
-		Sentinel{S, I}
-		constexpr tagged_pair<tag::count(iter_difference_t<I>), tag::end(I)>
-		enumerate(I first, S last)
-		noexcept(noexcept(++first != last) &&
-			std::is_nothrow_move_constructible<I>::value)
-		{
-			iter_difference_t<I> n = 0;
-			while (first != last) {
-				++n;
-				++first;
-			}
-			return {n, std::move(first)};
-		}
-
-		SizedSentinel{S, I}
-		constexpr tagged_pair<tag::count(iter_difference_t<I>), tag::end(I)>
-		enumerate(I first, S last)
-		noexcept(noexcept(__stl2::next(std::move(first), std::move(last))) &&
-			std::is_nothrow_move_constructible<I>::value)
-		{
-			auto d = last - first;
-			STL2_EXPECT((Same<I, S> || d >= 0));
-			return {d, __stl2::next(std::move(first), std::move(last))};
-		}
-
-		template<class S, class I>
-		requires
-			Sentinel<S, I> && !SizedSentinel<S, I> && SizedSentinel<I, I>
-		constexpr tagged_pair<tag::count(iter_difference_t<I>), tag::end(I)>
-		enumerate(I first, S last)
-		noexcept(noexcept(__stl2::next(first, std::move(last))) &&
-			std::is_nothrow_move_constructible<I>::value)
-		{
-			auto end = __stl2::next(first, std::move(last));
-			auto n = end - first;
-			return {n, std::move(end)};
-		}
-	}
-
-	// distance
-	Sentinel{S, I}
-		// Pre: [first, last)
-	constexpr iter_difference_t<I> distance(I first, S last)
-	STL2_NOEXCEPT_RETURN(
-		ext::enumerate(std::move(first), std::move(last)).first
-	)
-
-	SizedSentinel{S, I}
-		// Pre: [first, last)
-	constexpr iter_difference_t<I> distance(I first, S last)
-	noexcept(noexcept(last - first))
-	{
-		auto d = last - first;
-		STL2_EXPECT(d >= 0);
-		return d;
-	}
-
-	template<class I>
-	requires
-		SizedSentinel<I, I>
-		// Pre: [first, last) || [last, first)
-	constexpr iter_difference_t<I> distance(I first, I last)
-	STL2_NOEXCEPT_RETURN(
-		last - first
-	)
+	inline constexpr __prev_fn prev {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

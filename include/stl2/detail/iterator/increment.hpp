@@ -71,10 +71,11 @@ STL2_OPEN_NAMESPACE {
 	template<class I>
 	concept bool WeaklyIncrementable =
 		Semiregular<I> &&
-		requires(I& i) {
+		requires(I i) {
 			typename iter_difference_t<I>;
-			{ ++i } -> Same<I&>&&;
-			i++;
+			requires SignedIntegral<iter_difference_t<I>>;
+			{ ++i } -> Same<I>&; // not required to be equality-preserving
+			i++; // not required to be equality-preserving
 		};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -82,10 +83,10 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class I>
 	concept bool Incrementable =
+		Regular<I> &&
 		WeaklyIncrementable<I> &&
-		EqualityComparable<I> &&
-		requires(I& i) {
-			{ i++ } -> Same<I>&&;
+		requires(I i) {
+			i++; requires Same<decltype(i++), I>;
 		};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -95,9 +96,9 @@ STL2_OPEN_NAMESPACE {
 		template<class I>
 		concept bool Decrementable =
 			Incrementable<I> &&
-			requires(I& i) {
-				{ --i } -> Same<I&>&&;
-				{ i-- } -> Same<I>&&;
+			requires(I i) {
+				{ --i } -> Same<I>&;
+				i--; requires Same<I, decltype(i--)>;
 			};
 			// Let a and b be objects of type I.
 			// Axiom: &--a == &a
