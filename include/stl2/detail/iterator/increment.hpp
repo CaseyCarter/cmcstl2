@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 		template<class I>
 		concept bool Decrementable =
 			Incrementable<I> &&
-			requires(I& i) {
+			requires(I i) {
 				{ --i } -> Same<I>&;
 				i--; requires Same<I, decltype(i--)>;
 			};
