@@ -25,9 +25,15 @@
 #include <type_traits>
 
 STL2_OPEN_NAMESPACE {
+	template<auto> struct __require_constant;
+
 	template<class R>
 	concept bool _TinyRange =
-		SizedRange<R> && std::remove_reference_t<R>::size() <= 1;
+		SizedRange<R> &&
+		requires {
+			typename __require_constant<std::remove_reference_t<R>::size()>;
+		} &&
+		std::remove_reference_t<R>::size() <= 1;
 
 	template<InputRange Rng>
 	struct __split_view_base {
