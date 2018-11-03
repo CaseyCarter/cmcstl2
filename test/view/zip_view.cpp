@@ -37,12 +37,16 @@ namespace ranges = __stl2;
 namespace range_v3_tests {
 	using namespace ranges;
 
+	template<class A, class B>
+	requires CommonReference<A, B>
+	constexpr void models_common_reference() {}
+
 	template<class T>
-	using range_value_type_t = value_type_t<iterator_t<T>>;
+	using range_value_type_t = iter_value_t<iterator_t<T>>;
 	template<class T>
-	using range_reference_t = reference_t<iterator_t<T>>;
+	using range_reference_t = iter_reference_t<iterator_t<T>>;
 	template<class T>
-	using range_rvalue_reference_t = rvalue_reference_t<iterator_t<T>>;
+	using range_rvalue_reference_t = iter_rvalue_reference_t<iterator_t<T>>;
 	template<class T>
 	using range_common_reference_t = iter_common_reference_t<iterator_t<T>>;
 
@@ -65,7 +69,9 @@ namespace range_v3_tests {
 		std::vector<int> vi{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 		std::vector<std::string> const vs{"hello", "goodbye", "hello", "goodbye"};
 
-		// All common ranges, but one single-pass
+#if 0 // Test DISABLED until cardinality is supported (view::istream does not have a size)
+		//
+		All common ranges, but one single-pass
 		{
 			std::stringstream str{"john paul george ringo"};
 			using V = std::tuple<int, std::string, std::string>;
@@ -81,10 +87,10 @@ namespace range_v3_tests {
 				std::tuple<int, std::string, std::string>>);
 			static_assert(Same<
 				range_reference_t<Rng>,
-				__tuple_hack<int &, std::string const &, std::string &>>);
+				std::tuple<int &, std::string const &, std::string &>>);
 			static_assert(Same<
 				range_rvalue_reference_t<Rng>,
-				__tuple_hack<int &&, std::string const &&, std::string &&>>);
+				std::tuple<int &&, std::string const &&, std::string &&>>);
 			static_assert(ConvertibleTo<range_value_type_t<Rng> &&,
 				range_rvalue_reference_t<Rng>>);
 			CHECK_EQUAL(rng, {V{0, "hello", "john"},
@@ -92,6 +98,7 @@ namespace range_v3_tests {
 			                   {2, "hello", "george"},
 			                   {3, "goodbye", "ringo"}});
 		}
+#endif
 
 		// Mixed ranges and common ranges
 		{
@@ -107,7 +114,7 @@ namespace range_v3_tests {
 			static_assert(InputIterator<I>);
 			static_assert(!ForwardIterator<I>);
 			using V = std::tuple<int, std::string, std::string>;
-			static_assert(Same<V, value_type_t<I>>);
+			static_assert(Same<V, iter_value_t<I>>);
 			std::vector<V> expected;
 			ranges::copy(rng, ranges::back_inserter(expected));
 			CHECK_EQUAL(expected, {V{0, "hello", "john"},
@@ -120,11 +127,11 @@ namespace range_v3_tests {
 			auto rnd_rng = view::zip(vi, vs);
 			using Rng = decltype(rnd_rng);
 			static_assert(RandomAccessRange<Rng>);
-			static_assert(!ext::ContiguousRange<Rng>);
+			static_assert(!ContiguousRange<Rng>);
 			static_assert(CommonRange<Rng>);
 			static_assert(SizedRange<Rng>);
 			using Ref = range_reference_t<decltype(rnd_rng)>;
-			static_assert(Same<Ref, __tuple_hack<int &, std::string const &>>);
+			static_assert(Same<Ref, std::tuple<int &, std::string const &>>);
 #if 0 // FIXME: bug in ranges::begin
 			std::as_const(rnd_rng).begin();                 // Fine
 			static_assert(__begin::has_member<const Rng&>); // Fine
@@ -174,14 +181,14 @@ namespace range_v3_tests {
 			auto rng = view::zip(v0, v1);
 			using R = decltype(rng);
 			static_assert(RandomAccessRange<R>);
-			static_assert(!ext::ContiguousRange<R>);
+			static_assert(!ContiguousRange<R>);
 			std::vector<std::tuple<MoveOnlyString, MoveOnlyString>> expected;
 			ranges::move(rng, ranges::back_inserter(expected));
 			CHECK_EQUAL(expected, {std::tuple<std::string, std::string>{"a", "x"}, {"b", "y"}, {"c", "z"}});
 			CHECK_EQUAL(v0, {"", "", ""});
 			CHECK_EQUAL(v1, {"", "", ""});
 
-			move(expected, rng.begin());
+			ranges::move(expected, rng.begin());
 			CHECK_EQUAL(expected, {std::tuple<std::string, std::string>{"", ""}, {"", ""}, {"", ""}});
 			CHECK_EQUAL(v0, {"a", "b", "c"});
 			CHECK_EQUAL(v1, {"x", "y", "z"});
@@ -199,7 +206,6 @@ namespace range_v3_tests {
 			CHECK_EQUAL(v0, {"", "", ""});
 			CHECK_EQUAL(v1, {"x", "y", "z"});
 		}
-
 		{
 			auto const v = [] {
 				std::vector<MoveOnlyString> v;
@@ -215,13 +221,13 @@ namespace range_v3_tests {
 				std::tuple<MoveOnlyString, MoveOnlyString>>);
 			static_assert(Same<
 				range_reference_t<Rng>,
-				__tuple_hack<MoveOnlyString const &, MoveOnlyString const &>>);
+				std::tuple<MoveOnlyString const &, MoveOnlyString const &>>);
 			static_assert(Same<
 				range_rvalue_reference_t<Rng>,
-				__tuple_hack<MoveOnlyString const &&, MoveOnlyString const &&>>);
+				std::tuple<MoveOnlyString const &&, MoveOnlyString const &&>>);
 			static_assert(Same<
 				range_common_reference_t<Rng>,
-				__tuple_hack<MoveOnlyString const &, MoveOnlyString const &>>);
+				std::tuple<MoveOnlyString const &, MoveOnlyString const &>>);
 		}
 
 		{
@@ -231,8 +237,9 @@ namespace range_v3_tests {
 			static_assert(Same<range_reference_t<Moved>, int &&>);
 			auto zipped = view::zip(moved);
 			using Zipped = decltype(zipped);
-			static_assert(Same<range_reference_t<Zipped>, __tuple_hack<int &&> >);
+			static_assert(Same<range_reference_t<Zipped>, std::tuple<int &&> >);
 		}
+
 #if 0 // FIXME : view::stride
 		// This is actually a test of the logic of view_adaptor. Since the stride view
 		// does not redefine the current member function, the base range's iter_move
@@ -244,6 +251,7 @@ namespace range_v3_tests {
 			static_assert(Same<range_value_type_t<decltype(rng1)>, range_value_type_t<decltype(rng0)>>);
 		}
 #endif
+
 		// Test for noexcept iter_move
 		{
 			static_assert(noexcept(std::declval<std::unique_ptr<int>&>() = std::declval<std::unique_ptr<int>&&>()), "");
@@ -253,7 +261,8 @@ namespace range_v3_tests {
 			auto it = x.begin();
 			static_assert(noexcept(iter_move(it)), "");
 		}
-#if 0 // FIXME: view::take_while, view::for_each
+
+#if 0 // FIXME: view::take_while, view::for_each, view::yield
 		// Really a test for common_iterator's iter_move, but this is a good place for it.
 		{
 			std::unique_ptr<int> rg1[10], rg2[10];
@@ -285,7 +294,7 @@ namespace range_v3_tests {
 		}
 #endif
 	}
-}
+} // namespace range_v3_tests
 
 int main() {
 	using namespace ranges;
@@ -311,14 +320,14 @@ int main() {
 		CHECK_EQUAL(ys, {7, 6, 5, 4, 8, 9, 10});
 	}
 
-	{
-		auto rng = view::zip();
-		using R = decltype(rng);
-		static_assert(Same<value_type_t<iterator_t<R>>, std::tuple<>>);
-		CHECK(empty(rng));
-		ranges::sort(rng);
-		CHECK_EQUAL(rng, std::initializer_list<std::tuple<>>{});
-	}
+	// {
+	// 	auto rng = view::zip();
+	// 	using R = decltype(rng);
+	// 	static_assert(Same<iter_value_t<iterator_t<R>>, std::tuple<>>);
+	// 	CHECK(empty(rng));
+	// 	ranges::sort(rng);
+	// 	CHECK_EQUAL(rng, std::initializer_list<std::tuple<>>{});
+	// }
 
 	range_v3_tests::test();
 

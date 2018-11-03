@@ -12,7 +12,7 @@
 #ifndef STL2_DETAIL_TUPLE_LIKE_HPP
 #define STL2_DETAIL_TUPLE_LIKE_HPP
 
-#include <tuple>
+#include <stl2/detail/gnu_tuple_hack.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {

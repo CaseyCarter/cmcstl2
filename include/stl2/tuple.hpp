@@ -16,6 +16,7 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/tagged.hpp>
+#include <stl2/detail/gnu_tuple_hack.hpp>
 #include <stl2/detail/tuple_like.hpp>
 
 STL2_OPEN_NAMESPACE {

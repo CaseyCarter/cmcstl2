@@ -12,7 +12,7 @@
 #ifndef STL2_VIEW_SUBRANGE_HPP
 #define STL2_VIEW_SUBRANGE_HPP
 
-#include <tuple>
+#include <stl2/detail/gnu_tuple_hack.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/tagspec.hpp>
