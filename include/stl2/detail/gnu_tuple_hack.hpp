@@ -853,6 +853,14 @@ namespace std _GLIBCXX_VISIBILITY(default) {
     template <typename _Alloc> tuple(allocator_arg_t, const _Alloc &) {}
     template <typename _Alloc>
     tuple(allocator_arg_t, const _Alloc &, const tuple &) {}
+
+	constexpr tuple(tuple const&) = default;
+	constexpr tuple(tuple&&) = default;
+
+	 constexpr tuple& operator=(tuple const&) = default;
+	 constexpr tuple const& operator=(tuple const&) const;
+	 constexpr tuple& operator=(tuple&&) = default;
+	 constexpr tuple const& operator=(tuple&&) const;
   };
 
   /// Partial specialization, 2-element tuple.

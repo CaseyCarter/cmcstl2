@@ -174,6 +174,11 @@ STL2_OPEN_NAMESPACE {
 		using type = tuple<common_reference_t<TQual<Ts&>, UQual<remove_reference_t<Ts>&&>>...>;
 	};
 
+	template<template<class> class TQual, template <class> class UQual>
+	struct basic_common_reference<tuple<>, tuple<>, TQual, UQual> {
+		using type = tuple<>;
+	};
+
 	namespace ext {
 		template<View... Rs>
 		struct __zip_view_base {

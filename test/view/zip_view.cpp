@@ -320,14 +320,14 @@ int main() {
 		CHECK_EQUAL(ys, {7, 6, 5, 4, 8, 9, 10});
 	}
 
-	// {
-	// 	auto rng = view::zip();
-	// 	using R = decltype(rng);
-	// 	static_assert(Same<iter_value_t<iterator_t<R>>, std::tuple<>>);
-	// 	CHECK(empty(rng));
-	// 	ranges::sort(rng);
-	// 	CHECK_EQUAL(rng, std::initializer_list<std::tuple<>>{});
-	// }
+	{
+		auto rng = view::zip();
+		using R = decltype(rng);
+		static_assert(Same<iter_value_t<iterator_t<R>>, std::tuple<>>);
+		CHECK(empty(rng));
+		ranges::sort(rng);
+		CHECK_EQUAL(rng, std::initializer_list<std::tuple<>>{});
+	}
 
 	range_v3_tests::test();
 
