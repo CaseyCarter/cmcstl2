@@ -32,6 +32,7 @@ install(
     FILES ${PROJECT_BINARY_DIR}/cmcstl2-config.cmake
     DESTINATION lib/cmake/cmcstl2)
 
+add_subdirectory(benchmark)
 add_subdirectory(examples)
 
 enable_testing()
