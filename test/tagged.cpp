@@ -218,7 +218,7 @@ struct im_a_tuple {
 };
 
 template<int I>
-concept bool Zero = I == 0;
+STL2_CONCEPT Zero = I == 0;
 
 Zero{I} constexpr auto&
 get(im_a_tuple<auto>& f) { return f.i; }

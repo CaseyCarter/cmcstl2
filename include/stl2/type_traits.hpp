@@ -183,7 +183,7 @@ STL2_OPEN_NAMESPACE {
 	// CommonReference [concept.commonref]
 	//
 	template<class T, class U>
-	concept bool CommonReference =
+	STL2_CONCEPT CommonReference =
 		requires {
 			typename common_reference_t<T, U>;
 			typename common_reference_t<U, T>;
@@ -196,7 +196,7 @@ STL2_OPEN_NAMESPACE {
 	// Common [concept.common]
 	//
 	template<class T, class U>
-	concept bool Common =
+	STL2_CONCEPT Common =
 		requires {
 			typename common_type_t<T, U>;
 			typename common_type_t<U, T>;

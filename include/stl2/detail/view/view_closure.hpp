@@ -22,7 +22,7 @@ STL2_OPEN_NAMESPACE {
 		struct __pipeable_base;
 
 		template<class T>
-		concept bool Pipeable =
+		STL2_CONCEPT Pipeable =
 			DerivedFrom<T, __pipeable_base> && ext::CopyConstructibleObject<T>;
 
 		template<Pipeable, Pipeable>

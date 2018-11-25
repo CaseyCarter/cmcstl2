@@ -72,7 +72,7 @@ void test_array(std::integer_sequence<T, Is...>) {
 
 namespace begin_testing {
 	template<class R>
-	concept bool CanBegin =
+	STL2_CONCEPT CanBegin =
 		requires(R&& r) {
 			ranges::begin((R&&)r);
 		};

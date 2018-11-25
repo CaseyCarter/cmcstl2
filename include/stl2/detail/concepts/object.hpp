@@ -57,55 +57,55 @@ STL2_OPEN_NAMESPACE {
 		// 'structible object concepts
 		//
 		template<class T>
-		concept bool DestructibleObject = Object<T> && Destructible<T>;
+		STL2_CONCEPT DestructibleObject = Object<T> && Destructible<T>;
 
 		template<class T, class... Args>
-		concept bool ConstructibleObject = Object<T> && Constructible<T, Args...>;
+		STL2_CONCEPT ConstructibleObject = Object<T> && Constructible<T, Args...>;
 
 		template<class T>
-		concept bool DefaultConstructibleObject = Object<T> && DefaultConstructible<T>;
+		STL2_CONCEPT DefaultConstructibleObject = Object<T> && DefaultConstructible<T>;
 
 		template<class T>
-		concept bool MoveConstructibleObject = Object<T> && MoveConstructible<T>;
+		STL2_CONCEPT MoveConstructibleObject = Object<T> && MoveConstructible<T>;
 
 		template<class T>
-		concept bool CopyConstructibleObject = Object<T> && CopyConstructible<T>;
+		STL2_CONCEPT CopyConstructibleObject = Object<T> && CopyConstructible<T>;
 
 		///////////////////////////////////////////////////////////////////////////
 		// TriviallyFoo concepts
 		//
 		template<class T>
-		concept bool TriviallyDestructible =
+		STL2_CONCEPT TriviallyDestructible =
 			Destructible<T> && _Is<T, is_trivially_destructible>;
 
 		template<class T, class... Args>
-		concept bool TriviallyConstructible =
+		STL2_CONCEPT TriviallyConstructible =
 			Constructible<T, Args...> &&
 			_Is<T, is_trivially_constructible, Args...>;
 
 		template<class T>
-		concept bool TriviallyDefaultConstructible =
+		STL2_CONCEPT TriviallyDefaultConstructible =
 			DefaultConstructible<T> &&
 			_Is<T, is_trivially_default_constructible>;
 
 		template<class T>
-		concept bool TriviallyMoveConstructible =
+		STL2_CONCEPT TriviallyMoveConstructible =
 			MoveConstructible<T> && _Is<T, is_trivially_move_constructible>;
 
 		template<class T>
-		concept bool TriviallyCopyConstructible =
+		STL2_CONCEPT TriviallyCopyConstructible =
 			CopyConstructible<T> &&
 			TriviallyMoveConstructible<T> &&
 			_Is<T, is_trivially_copy_constructible>;
 
 		template<class T>
-		concept bool TriviallyMovable =
+		STL2_CONCEPT TriviallyMovable =
 			Movable<T> &&
 			TriviallyMoveConstructible<T> &&
 			_Is<T, is_trivially_move_assignable>;
 
 		template<class T>
-		concept bool TriviallyCopyable =
+		STL2_CONCEPT TriviallyCopyable =
 			Copyable<T> &&
 			TriviallyMovable<T> &&
 			TriviallyCopyConstructible<T> &&

@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	template<auto> struct __require_constant;
 
 	template<class R>
-	concept bool _TinyRange =
+	STL2_CONCEPT _TinyRange =
 		SizedRange<R> &&
 		requires {
 			typename __require_constant<std::remove_reference_t<R>::size()>;

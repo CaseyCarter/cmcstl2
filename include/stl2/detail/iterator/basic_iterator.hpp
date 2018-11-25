@@ -158,14 +158,14 @@ STL2_OPEN_NAMESPACE {
 		using value_type_t = meta::_t<value_type<C>>;
 
 		template<class C, class M>
-		concept bool _Cursor =
+		STL2_CONCEPT _Cursor =
 			Semiregular<C> &&
 			Semiregular<M> &&
 			Constructible<M, C> &&
 			Constructible<M, const C&>;
 
 		template<class C>
-		concept bool Cursor =
+		STL2_CONCEPT Cursor =
 			requires {
 				typename difference_type_t<C>;
 				typename mixin_t<remove_cv_t<C>>;
@@ -173,7 +173,7 @@ STL2_OPEN_NAMESPACE {
 			_Cursor<remove_cv_t<C>, mixin_t<remove_cv_t<C>>>;
 
 		template<class C>
-		concept bool Readable =
+		STL2_CONCEPT Readable =
 			Cursor<C> &&
 			requires(const C& c) {
 				{ c.read() } -> auto&&;
@@ -181,52 +181,52 @@ STL2_OPEN_NAMESPACE {
 				typename value_type_t<C>;
 			};
 		template<class C>
-		concept bool Arrow =
+		STL2_CONCEPT Arrow =
 			Readable<C> &&
 			requires(const C& c) {
 				{ c.arrow() } -> auto&&;
 			};
 		template<class C, class T>
-		concept bool Writable =
+		STL2_CONCEPT Writable =
 			Cursor<C> &&
 			requires(C& c, T&& t) {
 				c.write(std::forward<T>(t)); // Not required to be equality-preserving
 			};
 
 		template<class S, class C>
-		concept bool Sentinel =
+		STL2_CONCEPT Sentinel =
 			Cursor<C> &&
 			Semiregular<S> &&
 			requires(const C& c, const S& s) {
 				{ c.equal(s) } -> bool;
 			};
 		template<class S, class C>
-		concept bool SizedSentinel =
+		STL2_CONCEPT SizedSentinel =
 			Sentinel<S, C> &&
 			requires(const C& c, const S& s) {
 				{ c.distance_to(s) } -> Same<difference_type_t<C>>&&;
 			};
 
 		template<class C>
-		concept bool Next =
+		STL2_CONCEPT Next =
 			Cursor<C> && requires(C& c) { c.next(); };
 		template<class C>
-		concept bool PostIncrement =
+		STL2_CONCEPT PostIncrement =
 			Cursor<C> &&
 			requires(C& c) {
 				c.post_increment();
 			};
 		template<class C>
-		concept bool Prev =
+		STL2_CONCEPT Prev =
 			Cursor<C> && requires(C& c) { c.prev(); };
 		template<class C>
-		concept bool Advance =
+		STL2_CONCEPT Advance =
 			Cursor<C> && requires(C& c, difference_type_t<C> n) {
 				c.advance(n);
 			};
 
 		template<class C>
-		concept bool IndirectMove =
+		STL2_CONCEPT IndirectMove =
 			Readable<C> && requires(const C& c) {
 				{ c.indirect_move() } -> auto&&;
 			};
@@ -251,7 +251,7 @@ STL2_OPEN_NAMESPACE {
 		using rvalue_reference_t = meta::_t<rvalue_reference<C>>;
 
 		template<class C1, class C2>
-		concept bool IndirectSwap =
+		STL2_CONCEPT IndirectSwap =
 			Readable<C1> &&
 			Readable<C2> &&
 			requires(const C1& c1, const C2& c2) {
@@ -263,25 +263,25 @@ STL2_OPEN_NAMESPACE {
 			};
 
 		template<class C>
-		concept bool Input =
+		STL2_CONCEPT Input =
 			Readable<C> && Next<C>;
 		template<class C>
-		concept bool Forward =
+		STL2_CONCEPT Forward =
 			Input<C> && !single_pass<C> && Sentinel<C, C>;
 		template<class C>
-		concept bool Bidirectional =
+		STL2_CONCEPT Bidirectional =
 			Forward<C> && Prev<C>;
 		template<class C>
-		concept bool RandomAccess =
+		STL2_CONCEPT RandomAccess =
 			Bidirectional<C> && Advance<C> && SizedSentinel<C, C>;
 		template<class C>
-		concept bool Contiguous =
+		STL2_CONCEPT Contiguous =
 			RandomAccess<C> &&
 			contiguous<C> &&
 			is_lvalue_reference<reference_t<C>>::value;
 
 		template<class From, class To>
-		concept bool ConvertibleTo =
+		STL2_CONCEPT ConvertibleTo =
 			Cursor<From> &&
 			Cursor<To> &&
 			__stl2::ConvertibleTo<From, To> &&
@@ -541,7 +541,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class C>
-		concept bool PostIncrementCursor =
+		STL2_CONCEPT PostIncrementCursor =
 			requires(C& c) {
 				{ c.post_increment() } -> Same<C>&&;
 			};

@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template<class F, class... Is>
-		concept bool IndirectInvocable =
+		STL2_CONCEPT IndirectInvocable =
 			(Readable<Is> && ... && true) &&
 			CopyConstructible<F> &&
 			// The following 3 are checked redundantly, but are called out
@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<class F, class I>
-	concept bool IndirectUnaryInvocable =
+	STL2_CONCEPT IndirectUnaryInvocable =
 		ext::IndirectInvocable<F, I>;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -85,12 +85,12 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template<class F, class... Is>
-		concept bool IndirectRegularInvocable =
+		STL2_CONCEPT IndirectRegularInvocable =
 			IndirectInvocable<F, Is...>;
 	}
 
 	template<class F, class I>
-	concept bool IndirectRegularUnaryInvocable =
+	STL2_CONCEPT IndirectRegularUnaryInvocable =
 		ext::IndirectRegularInvocable<F, I>;
 
 	template<class, class...> struct __predicate : std::false_type {};
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template<class F, class... Is>
-		concept bool IndirectPredicate =
+		STL2_CONCEPT IndirectPredicate =
 			(Readable<Is> && ... && true) &&
 			CopyConstructible<F> &&
 			// The following 3 are checked redundantly, but are called out
@@ -115,11 +115,11 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<class F, class I>
-	concept bool IndirectUnaryPredicate =
+	STL2_CONCEPT IndirectUnaryPredicate =
 		ext::IndirectPredicate<F, I>;
 
 	template<class F, class I1, class I2 = I1>
-	concept bool IndirectRelation =
+	STL2_CONCEPT IndirectRelation =
 		Readable<I1> &&
 		Readable<I2> &&
 		CopyConstructible<F> &&
@@ -130,7 +130,7 @@ STL2_OPEN_NAMESPACE {
 		Relation<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
 	template<class F, class I1, class I2 = I1>
-	concept bool IndirectStrictWeakOrder =
+	STL2_CONCEPT IndirectStrictWeakOrder =
 		Readable<I1> &&
 		Readable<I2> &&
 		CopyConstructible<F> &&

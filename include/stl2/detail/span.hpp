@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 		using data_pointer_t = decltype(__stl2::data(std::declval<T&>()));
 
 		template<class Range>
-		concept bool SizedContiguousRange =
+		STL2_CONCEPT SizedContiguousRange =
 			ContiguousRange<Range> && SizedRange<Range>;
 
 		namespace __span {
@@ -96,11 +96,11 @@ STL2_OPEN_NAMESPACE {
 			constexpr bool has_static_extent<T> = true;
 
 			template<class Range>
-			concept bool StaticSizedContiguousRange =
+			STL2_CONCEPT StaticSizedContiguousRange =
 				SizedContiguousRange<Range> && has_static_extent<Range>;
 
 			template<class Range, class ElementType>
-			concept bool compatible = SizedContiguousRange<Range> &&
+			STL2_CONCEPT compatible = SizedContiguousRange<Range> &&
 				ConvertibleTo<
 					std::remove_pointer_t<data_pointer_t<Range>>(*)[],
 					ElementType(*)[]>;

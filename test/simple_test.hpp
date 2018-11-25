@@ -104,6 +104,8 @@ namespace test_impl
 		  : filename_(filename), expr_(expr), func_(func)
 		  , t_(std::forward<T>(t)), lineno_(lineno)
 		{}
+		R(R const&) = delete;
+		R& operator=(R const&) = delete;
 		~R()
 		{
 			if(!dismissed_ && eval_(42))
