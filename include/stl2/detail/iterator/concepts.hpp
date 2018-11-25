@@ -662,16 +662,26 @@ namespace std {
 		using difference_type   = ::__stl2::iter_difference_t<In>;
 		using value_type        = ::__stl2::iter_value_t<In>;
 		using reference         =
-				meta::_t<::__stl2::detail::reference_with_a_default<
-						In, ::__stl2::iter_reference_t<In>>>;
+			meta::_t<::__stl2::detail::reference_with_a_default<
+					In, ::__stl2::iter_reference_t<In>>>;
 		using pointer           =
-				meta::_t<::__stl2::detail::pointer_with_a_default<In,
-						typename ::__stl2::iterator_traits<In>::pointer>>;
+			meta::_t<::__stl2::detail::pointer_with_a_default<In,
+					typename ::__stl2::iterator_traits<In>::pointer>>;
 		using iterator_category =
 			::__stl2::detail::stl2_to_std_iterator_category<
 					::__stl2::iterator_category_t<In>,
 					::__stl2::iter_reference_t<In>>;
 	};
 } // namespace std
+
+#ifdef __GLIBCXX__ // HACKHACK: pointer iterator wrappers are contiguous
+#include <bits/stl_iterator.h>
+STL2_OPEN_NAMESPACE {
+	template<class T, class C>
+	struct iterator_category<::__gnu_cxx::__normal_iterator<T, C>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+} STL2_CLOSE_NAMESPACE
+#endif
 
 #endif
