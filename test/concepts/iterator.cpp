@@ -52,9 +52,13 @@ namespace ns {
 namespace ns = ::__stl2;
 #endif
 
+#include <array>
 #include <cstddef>
 #include <memory>
+#include <string>
 #include <type_traits>
+#include <valarray>
+#include <vector>
 
 #include <stl2/meta/meta.hpp>
 
@@ -262,6 +266,93 @@ namespace indirect_invoke_result_test {
 	template<class R, class... Args>
 	using fn_t = R(Args...);
 	CONCEPT_ASSERT(ranges::Same<ns::indirect_result_t<fn_t<void, int>&, const int*>, void>);
+}
+
+namespace contiguous_test {
+	template<class T>
+	struct fancy {
+		using iterator_category = std::random_access_iterator_tag;
+		using difference_type = std::ptrdiff_t;
+		using value_type = std::remove_cv_t<T>;
+		using pointer = T*;
+		using reference = std::add_lvalue_reference_t<T>;
+
+		static fancy pointer_to(T& t) { return fancy{std::addressof(t)}; }
+
+		fancy() = default;
+		fancy(std::nullptr_t) : ptr_{} {}
+		explicit fancy(T* ptr) : ptr_{ptr} {}
+
+		explicit operator bool() const { return ptr_ != nullptr; }
+
+		reference operator*() const { return *ptr_; }
+		T* operator->() const { return ptr_; }
+
+		fancy& operator++() { ++ptr_; return *this; }
+		fancy operator++(int) { auto tmp = *this; ++*this; return tmp; }
+		fancy& operator--() { --ptr_; return *this; }
+		fancy operator--(int) { auto tmp = *this; --*this; return tmp; }
+
+		fancy& operator+=(difference_type n) { ptr_ += n; return *this; }
+		fancy operator+(difference_type n) const { return fancy{ptr_ + n}; }
+		friend fancy operator+(difference_type n, fancy x) { return x + n; }
+		fancy& operator-=(difference_type n) { *this += -n; return *this; }
+		fancy operator-(difference_type n) const { return fancy{ptr_ - n}; }
+		difference_type operator-(fancy x) const { return ptr_ - x.ptr_; }
+
+		bool operator==(fancy x) const { return ptr_ == x.ptr_; }
+		bool operator!=(fancy x) const { return !(*this == x); }
+		bool operator< (fancy x) const { return ptr_ < x.ptr_; }
+		bool operator> (fancy x) const { return x < *this; }
+		bool operator<=(fancy x) const { return !(x < *this); }
+		bool operator>=(fancy x) const { return !(*this < x); }
+
+		T* ptr_;
+	};
+
+	template<class T>
+	struct allocator {
+		using value_type = T;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using reference = std::add_lvalue_reference_t<T>;
+		using const_reference = std::add_lvalue_reference_t<const T>;
+		using pointer = fancy<T>;
+		using const_pointer = fancy<const T>;
+		using void_pointer = fancy<void>;
+		using const_void_pointer = fancy<const void>;
+
+		template<class U> struct rebind {
+			using other = allocator<U>;
+		};
+
+		allocator() = default;
+		template<class U>
+		allocator(const allocator<U>&);
+
+		fancy<T> allocate(std::size_t);
+		void deallocate(fancy<T>, std::size_t) noexcept;
+
+		template<class U>
+		bool operator==(allocator<U>);
+		template<class U>
+		bool operator!=(allocator<U>);
+	};
+
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::array<int, 42>::iterator>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::array<int, 42>::const_iterator>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::string::iterator>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::string::const_iterator>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::basic_string<char, std::char_traits<char>, allocator<char>>::iterator>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::basic_string<char, std::char_traits<char>, allocator<char>>::const_iterator>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::string_view::iterator>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::string_view::const_iterator>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<ranges::iterator_t<std::valarray<double>>>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<ranges::iterator_t<const std::valarray<double>>>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::vector<int>::iterator>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::vector<int>::const_iterator>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::vector<int, allocator<int>>::iterator>);
+	CONCEPT_ASSERT(ranges::ContiguousIterator<std::vector<int, allocator<int>>::const_iterator>);
 }
 
 int main() {
