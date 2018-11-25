@@ -26,14 +26,14 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class I1, class I2, class R = equal_to<>, class P1 = identity,
 		class P2 = identity>
-	concept bool IndirectlyComparable =
+	STL2_CONCEPT IndirectlyComparable =
 		IndirectRelation<R, projected<I1, P1>, projected<I2, P2>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Permutable [commmonalgoreq.permutable]
 	//
 	template<class I>
-	concept bool Permutable =
+	STL2_CONCEPT Permutable =
 		ForwardIterator<I> &&
 		IndirectlyMovableStorable<I, I> &&
 		IndirectlySwappable<I, I>;
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class I1, class I2, class Out, class R = less<>,
 		class P1 = identity, class P2 = identity>
-	concept bool Mergeable =
+	STL2_CONCEPT Mergeable =
 		InputIterator<I1> &&
 		InputIterator<I2> &&
 		WeaklyIncrementable<Out> &&
@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 	// Sortable [commmonalgoreq.sortable]
 	//
 	template<class I, class R = less<>, class P = identity>
-	concept bool Sortable =
+	STL2_CONCEPT Sortable =
 		Permutable<I> &&
 		IndirectStrictWeakOrder<R, projected<I, P>>;
 } STL2_CLOSE_NAMESPACE

@@ -34,11 +34,11 @@ STL2_OPEN_NAMESPACE {
 			typename __range_common_iterator_impl<Rng>::type;
 
 		template<class R>
-		concept bool CanEmpty = Range<R> && requires(R& r) { __stl2::empty(r); };
+		STL2_CONCEPT CanEmpty = Range<R> && requires(R& r) { __stl2::empty(r); };
 		template<class R>
-		concept bool SizedSentinelForwardRange = ForwardRange<R> && SizedSentinel<sentinel_t<R>, iterator_t<R>>;
+		STL2_CONCEPT SizedSentinelForwardRange = ForwardRange<R> && SizedSentinel<sentinel_t<R>, iterator_t<R>>;
 		template<class C, class R>
-		concept bool ContainerConvertible = InputRange<R> && ForwardRange<C> && !View<C> &&
+		STL2_CONCEPT ContainerConvertible = InputRange<R> && ForwardRange<C> && !View<C> &&
 			ConvertibleTo<iter_reference_t<iterator_t<R>>, iter_value_t<iterator_t<C>>> &&
 			Constructible<C, __range_common_iterator<R>, __range_common_iterator<R>>;
 

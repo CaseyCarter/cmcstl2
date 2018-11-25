@@ -71,7 +71,7 @@ namespace swappable_test {
 			constrained_swappable(constrained_swappable&&) = default;
 		};
 		template<class T>
-		concept bool ConstrainedSwappable =
+		STL2_CONCEPT ConstrainedSwappable =
 			ns::Same<T, constrained_swappable>;
 		template<ConstrainedSwappable T, ConstrainedSwappable U>
 		void swap(T&, U&) {}

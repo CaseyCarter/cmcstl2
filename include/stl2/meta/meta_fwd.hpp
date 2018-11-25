@@ -18,6 +18,14 @@
 #include <utility>
 #include <type_traits>
 
+#if !defined(__cpp_concepts) || __cpp_concepts == 0
+#error Nothing here will work without support for C++ concepts.
+#elif __cpp_concepts <= 201507L
+#define META_CONCEPT concept bool
+#else
+#define META_CONCEPT concept
+#endif
+
 #ifndef META_DISABLE_DEPRECATED_WARNINGS
 #ifdef __cpp_attribute_deprecated
 #define META_DEPRECATED(MSG) [[deprecated(MSG)]]
@@ -66,41 +74,41 @@ namespace meta
         constexpr bool is_list_v<list<Ts...>> = true;
 
         template<typename...>
-        concept bool True = true;
+        META_CONCEPT True = true;
 
         template<typename T, typename U>
-        concept bool Same = detail::bool_<std::is_same<T, U>::value>;
+        META_CONCEPT Same = detail::bool_<std::is_same<T, U>::value>;
 
         template<template<typename...> class C, typename... Ts>
-        concept bool Valid = requires
+        META_CONCEPT Valid = requires
         {
             typename C<Ts...>;
         };
 
         template<typename T, template<T...> class C, T... Is>
-        concept bool Valid_I = requires
+        META_CONCEPT Valid_I = requires
         {
             typename C<Is...>;
         };
 
         template<typename T>
-        concept bool Trait = requires
+        META_CONCEPT Trait = requires
         {
             typename T::type;
         };
 
         template<typename T>
-        concept bool Invocable = requires
+        META_CONCEPT Invocable = requires
         {
             typename quote<T::template invoke>;
         };
 
         template<typename T>
-        concept bool List = is_list_v<T>;
+        META_CONCEPT List = is_list_v<T>;
 
         // clang-format off
         template<typename T>
-        concept bool Integral = requires
+        META_CONCEPT Integral = requires
         {
             typename T::type;
             typename T::value_type;

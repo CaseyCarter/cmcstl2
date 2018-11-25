@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 
 	// Work-around for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 	template<class V, class R>
-	concept bool _ConstructibleFromRange =
+	STL2_CONCEPT _ConstructibleFromRange =
 		requires { typename all_view<R>; } &&
 		View<V> && Constructible<V, all_view<R>>;
 } STL2_CLOSE_NAMESPACE

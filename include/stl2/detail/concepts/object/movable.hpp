@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
 	// Movable [concepts.lib.object.movable]
 	//
 	template<class T>
-	concept bool Movable =
+	STL2_CONCEPT Movable =
 		ext::Object<T> &&
 		MoveConstructible<T> &&
 		Assignable<T&, T> &&

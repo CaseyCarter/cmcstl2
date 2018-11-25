@@ -24,13 +24,13 @@
 
 STL2_OPEN_NAMESPACE {
 	template<class T>
-	concept bool _PairLikeGCCBugs = requires(T t) {
+	STL2_CONCEPT _PairLikeGCCBugs = requires(T t) {
 		{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
 		{ std::get<1>(t) } -> const std::tuple_element_t<1, T>&;
 	};
 
 	template<class T>
-	concept bool _PairLike =
+	STL2_CONCEPT _PairLike =
 		!std::is_reference_v<T> && requires {
 			typename std::tuple_size<T>::type;
 			requires DerivedFrom<std::tuple_size<T>, std::integral_constant<std::size_t, 2>>;
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 	template<class T, class U, class V>
-	concept bool _PairLikeConvertibleTo =
+	STL2_CONCEPT _PairLikeConvertibleTo =
 		!Range<T> && _PairLike<std::remove_reference_t<T>> &&
 		requires(T&& t) {
 			std::get<0>(static_cast<T&&>(t));
@@ -50,11 +50,11 @@ STL2_OPEN_NAMESPACE {
 		};
 
 	template<class T, class U, class V>
-	concept bool _PairLikeConvertibleFrom =
+	STL2_CONCEPT _PairLikeConvertibleFrom =
 		!Range<T> && _PairLike<T> && Constructible<T, U, V>;
 
 	template<class T>
-	concept bool _IteratorSentinelPair =
+	STL2_CONCEPT _IteratorSentinelPair =
 		!Range<T> && _PairLike<T> &&
 		Sentinel<std::tuple_element_t<1, T>, std::tuple_element_t<0, T>>;
 

@@ -24,7 +24,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace __sample {
 		template<class I, class S, class O, class Gen>
-		concept bool constraint =
+		STL2_CONCEPT constraint =
 			InputIterator<I> && Sentinel<S, I> && WeaklyIncrementable<O> &&
 			IndirectlyCopyable<I, O> &&
 			UniformRandomNumberGenerator<remove_reference_t<Gen>> &&

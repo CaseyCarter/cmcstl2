@@ -37,13 +37,13 @@ STL2_OPEN_NAMESPACE {
 		void begin(std::initializer_list<T>&&) = delete;
 
 		template<class R>
-		concept bool has_member = _Is<R, std::is_lvalue_reference> && requires(R r) {
+		STL2_CONCEPT has_member = _Is<R, std::is_lvalue_reference> && requires(R r) {
 			r.begin();
 			{ __decay_copy(r.begin()) } -> Iterator;
 		};
 
 		template<class R>
-		concept bool has_non_member = requires(R&& r) {
+		STL2_CONCEPT has_non_member = requires(R&& r) {
 			begin(static_cast<R&&>(r));
 			{ __decay_copy(begin(static_cast<R&&>(r))) } -> Iterator;
 		};
@@ -99,14 +99,14 @@ STL2_OPEN_NAMESPACE {
 		void end(std::initializer_list<T>&&) = delete;
 
 		template<class R>
-		concept bool has_member = _Is<R, std::is_lvalue_reference> && requires(R r) {
+		STL2_CONCEPT has_member = _Is<R, std::is_lvalue_reference> && requires(R r) {
 			typename __begin_t<R>;
 			r.end();
 			{ __decay_copy(r.end()) } -> Sentinel<__begin_t<R>>;
 		};
 
 		template<class R>
-		concept bool has_non_member = requires(R&& r) {
+		STL2_CONCEPT has_non_member = requires(R&& r) {
 			typename __begin_t<R>;
 			end(static_cast<R&&>(r));
 			{ __decay_copy(end(static_cast<R&&>(r))) } -> Sentinel<__begin_t<R>>;
@@ -198,13 +198,13 @@ STL2_OPEN_NAMESPACE {
 
 		// Prefer member if it returns Iterator
 		template<class R>
-		concept bool has_member = _Is<R, std::is_lvalue_reference> && requires(R r) {
+		STL2_CONCEPT has_member = _Is<R, std::is_lvalue_reference> && requires(R r) {
 			r.begin();
 			{ __decay_copy(r.rbegin()) } -> Iterator;
 		};
 
 		template<class R>
-		concept bool has_non_member = requires(R&& r) {
+		STL2_CONCEPT has_non_member = requires(R&& r) {
 			rbegin(static_cast<R&&>(r));
 			{ __decay_copy(rbegin(static_cast<R&&>(r))) } -> Iterator;
 		};
@@ -212,7 +212,7 @@ STL2_OPEN_NAMESPACE {
 		// Default to make_reverse_iterator(end(r)) for Common ranges of
 		// Bidirectional iterators.
 		template<class R>
-		concept bool can_make_reverse = requires(R&& r) {
+		STL2_CONCEPT can_make_reverse = requires(R&& r) {
 			typename __begin_t<R>;
 			typename __end_t<R>;
 			requires Same<__begin_t<R>, __end_t<R>>;
@@ -259,21 +259,21 @@ STL2_OPEN_NAMESPACE {
 		void rend(R&&) = delete;
 
 		template<class R>
-		concept bool has_member = _Is<R, std::is_lvalue_reference> && requires(R r) {
+		STL2_CONCEPT has_member = _Is<R, std::is_lvalue_reference> && requires(R r) {
 			typename __rbegin_t<R>;
 			r.rend();
 			{ __decay_copy(r.rend()) } -> Sentinel<__rbegin_t<R>>;
 		};
 
 		template<class R>
-		concept bool has_non_member = requires(R&& r) {
+		STL2_CONCEPT has_non_member = requires(R&& r) {
 			typename __rbegin_t<R>;
 			rend(static_cast<R&&>(r));
 			{ __decay_copy(rend(static_cast<R&&>(r))) } -> Sentinel<__rbegin_t<R>>;
 		};
 
 		template<class R>
-		concept bool can_make_reverse = requires(R&& r) {
+		STL2_CONCEPT can_make_reverse = requires(R&& r) {
 			typename __begin_t<R>;
 			typename __end_t<R>;
 			requires Same<__begin_t<R>, __end_t<R>>;
@@ -366,21 +366,21 @@ STL2_OPEN_NAMESPACE {
 		void size(T&&) = delete;
 
 		template<class R>
-		concept bool has_member = !disable_sized_range<__uncvref<R>> &&
+		STL2_CONCEPT has_member = !disable_sized_range<__uncvref<R>> &&
 			requires(R&& r) {
 				static_cast<R&&>(r).size();
 				{ __decay_copy(static_cast<R&&>(r).size()) } -> Integral;
 			};
 
 		template<class R>
-		concept bool has_non_member = !disable_sized_range<__uncvref<R>> &&
+		STL2_CONCEPT has_non_member = !disable_sized_range<__uncvref<R>> &&
 			requires(R&& r) {
 				size(static_cast<R&&>(r));
 				{ __decay_copy(size(static_cast<R&&>(r))) } -> Integral;
 			};
 
 		template<class R>
-		concept bool has_difference = requires {
+		STL2_CONCEPT has_difference = requires {
 			typename __begin_t<R>;
 			typename __end_t<R>;
 		} &&
@@ -425,18 +425,18 @@ STL2_OPEN_NAMESPACE {
 	// empty
 	namespace __empty {
 		template<class R>
-		concept bool has_member = requires(R&& r) {
+		STL2_CONCEPT has_member = requires(R&& r) {
 			static_cast<R&&>(r).empty();
 			static_cast<bool>(static_cast<R&&>(r).empty());
 		};
 
 		template<class R>
-		concept bool has_size = requires(R&& r) {
+		STL2_CONCEPT has_size = requires(R&& r) {
 			__stl2::size(static_cast<R&&>(r));
 		};
 
 		template<class R>
-		concept bool has_begin_end = requires {
+		STL2_CONCEPT has_begin_end = requires {
 			typename __begin_t<R>;
 			typename __end_t<R>;
 			requires ForwardIterator<__begin_t<R>>;
@@ -478,20 +478,20 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr bool is_object_ptr<T *> = true;
 
 		template<class R>
-		concept bool has_member = _Is<R, std::is_lvalue_reference> && requires(R r) {
+		STL2_CONCEPT has_member = _Is<R, std::is_lvalue_reference> && requires(R r) {
 			r.data();
 			__decay_copy(r.data());
 			requires is_object_ptr<decltype(__decay_copy(r.data()))>;
 		};
 
 		template<class R>
-		concept bool has_pointer_iterator = requires {
+		STL2_CONCEPT has_pointer_iterator = requires {
 			typename __begin_t<R>;
 			requires is_object_ptr<__begin_t<R>>;
 		};
 
 		template<class R>
-		concept bool has_contiguous_iterator = requires {
+		STL2_CONCEPT has_contiguous_iterator = requires {
 			typename __begin_t<R>;
 			typename __end_t<R>;
 			requires ContiguousIterator<__begin_t<R>>;

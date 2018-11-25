@@ -30,6 +30,14 @@
  #endif // __GNUC__
 #endif // __clang__
 
+#if !defined(__cpp_concepts) || __cpp_concepts == 0
+#error Nothing here will work without support for C++ concepts.
+#elif __cpp_concepts <= 201507L
+#define STL2_CONCEPT concept bool
+#else
+#define STL2_CONCEPT concept
+#endif
+
 #ifndef STL2_WORKAROUND_GCC_69096
  #if defined(__GNUC__) && __GNUC__ >= 6
   // Return type deduction performed *before* checking constraints.

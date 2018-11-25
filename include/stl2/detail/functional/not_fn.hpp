@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	namespace detail {
 		template<class F, class... Args>
-		concept bool NegateInvocable = Invocable<F, Args...> &&
+		STL2_CONCEPT NegateInvocable = Invocable<F, Args...> &&
 			requires(F&& f, Args&&... args) {
 				{ !__invoke::impl(static_cast<F&&>(f), static_cast<Args&&>(args)...) } -> Boolean;
 			};
