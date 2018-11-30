@@ -109,9 +109,13 @@ STL2_OPEN_NAMESPACE {
 
 	template<class T, class U>
 	STL2_CONCEPT SwappableWith =
+#if 1 // P/R of unfiled LWG issue
+		CommonReference<T, U> &&
+#else
 		CommonReference<
 			const remove_reference_t<T>&,
 			const remove_reference_t<U>&> &&
+#endif
 		requires(T&& t, U&& u) {
 			__stl2::swap((T&&)t, (T&&)t);
 			__stl2::swap((U&&)u, (U&&)u);
