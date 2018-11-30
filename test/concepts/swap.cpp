@@ -107,6 +107,51 @@ namespace swappable_test {
 	}
 } // namespace swappable_test
 
+#if VALIDATE_STL2
+namespace example {
+	template<class T, ranges::SwappableWith<T> U>
+	void value_swap(T&& t, U&& u) {
+		ranges::swap(std::forward<T>(t), std::forward<U>(u));
+	}
+
+	template<ranges::Swappable T>
+	void lv_swap(T& t1, T& t2) {
+		ranges::swap(t1, t2);
+	}
+
+	namespace N {
+		struct A { int m; };
+		struct Proxy {
+			A* a;
+
+			Proxy(A& a) : a{&a} {}
+
+			friend void swap(Proxy&& x, Proxy&& y) {
+				ranges::swap(x.a, y.a);
+			}
+			friend void swap(A& x, Proxy p) {
+				ranges::swap(x.m, p.a->m);
+			}
+			friend void swap(Proxy p, A& x) { swap(x, p); }
+		};
+		Proxy proxy(A& a) { return Proxy(a); }
+
+	}
+
+	void test() {
+		int i = 1, j = 2;
+		lv_swap(i, j);
+		CHECK(i == 2);
+		CHECK(j == 1);
+
+		N::A a1 = { 5 }, a2 = { -5 };
+		value_swap(a1, proxy(a2));
+		CHECK(a1.m == -5);
+		CHECK(a2.m == 5);
+	}
+}
+#endif
+
 int main() {
 #if VALIDATE_STL2
 	{
@@ -127,6 +172,8 @@ int main() {
 		CHECK(b[1][0] == 2);
 		CHECK(b[1][1] == 3);
 	}
+
+	example::test();
 #endif
 
 	return ::test_result();
