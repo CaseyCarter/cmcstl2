@@ -32,7 +32,7 @@
 // prev_permutation [alg.permutation.generators]
 //
 STL2_OPEN_NAMESPACE {
-	template<BidirectionalIterator I, Sentinel<I> S, class Comp = less<>,
+	template<BidirectionalIterator I, Sentinel<I> S, class Comp = less,
 		class Proj = identity>
 	requires
 		Sortable<I, Comp, Proj>
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template<BidirectionalRange Rng, class Comp = less<>, class Proj = identity>
+	template<BidirectionalRange Rng, class Comp = less, class Proj = identity>
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	bool prev_permutation(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})

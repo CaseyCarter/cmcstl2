@@ -172,7 +172,7 @@ STL2_OPEN_NAMESPACE {
 
 	struct __is_permutation_fn {
 		template<ForwardIterator I1, Sentinel<I1> S1, class I2,
-			class Pred = equal_to<>, class Proj1 = identity,
+			class Pred = equal_to, class Proj1 = identity,
 			class Proj2 = identity>
 		[[deprecated]] constexpr bool operator()(I1 first1, S1 last1, I2&& first2_, Pred pred = Pred{},
 			Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
@@ -191,7 +191,7 @@ STL2_OPEN_NAMESPACE {
 				count, pred, proj1, proj2);
 		}
 
-		template<ForwardRange R1, class I2, class Pred = equal_to<>,
+		template<ForwardRange R1, class I2, class Pred = equal_to,
 			class Proj1 = identity, class Proj2 = identity>
 		[[deprecated]] constexpr bool operator()(R1&& r1, I2&& first2_, Pred pred = Pred{},
 			Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
@@ -213,7 +213,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
-			Sentinel<I2> S2, class Pred = equal_to<>, class Proj1 = identity,
+			Sentinel<I2> S2, class Pred = equal_to, class Proj1 = identity,
 			class Proj2 = identity>
 		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
 		constexpr bool operator()(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
@@ -246,7 +246,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<ForwardRange R1, ForwardRange R2, class Pred = equal_to<>,
+		template<ForwardRange R1, ForwardRange R2, class Pred = equal_to,
 			class Proj1 = identity, class Proj2 = identity>
 		requires IndirectlyComparable<iterator_t<R1>, iterator_t<R2>, Pred, Proj1, Proj2>
 		constexpr bool operator()(R1&& r1, R2&& r2, Pred pred = Pred{},

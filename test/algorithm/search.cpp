@@ -229,7 +229,7 @@ int main()
 		S const in[] = {{0}, {1}, {2}, {3}, {4}, {5}};
 		T const pat[] = {{2}, {3}};
 
-		auto result = ranges::search(in, pat, ranges::equal_to<>{}, &S::i, &T::i);
+		auto result = ranges::search(in, pat, ranges::equal_to{}, &S::i, &T::i);
 		CHECK(result.begin() == in+2);
 		CHECK(result.end() == in+4);
 	}

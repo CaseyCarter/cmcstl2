@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectlyCopyable<I, O> &&
 		IndirectRelation<
-			equal_to<>, projected<I, Proj>, const T*>
+			equal_to, projected<I, Proj>, const T*>
 	tagged_pair<tag::in(I), tag::out(O)>
 	remove_copy(I first, S last, O result, const T& value, Proj proj = Proj{})
 	{
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 		WeaklyIncrementable<__f<O>> &&
 		IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
 		IndirectRelation<
-			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
+			equal_to, projected<iterator_t<Rng>, Proj>, const T*>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	remove_copy(Rng&& rng, O&& result, const T& value, Proj proj = Proj{})
 	{

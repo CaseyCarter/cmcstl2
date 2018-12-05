@@ -291,7 +291,7 @@ int main()
 	{
 		S const ia[] = {{1,1},{2,2},{3,3},{3,4},{4,5},{5,6},{5,7},{5,8},{6,9},{7,10}};
 		S ib[stl2::size(ia)];
-		std::pair<S const *, S *> r = stl2::unique_copy(ia, ib, stl2::equal_to<>(), &S::i);
+		std::pair<S const *, S *> r = stl2::unique_copy(ia, ib, stl2::equal_to(), &S::i);
 		CHECK(r.first == stl2::end(ia));
 		CHECK(r.second == ib + 7);
 		CHECK_EQUAL(stl2::subrange(ib, ib+7), {S{1,1},S{2,2},S{3,3},S{4,5},S{5,6},S{6,9},S{7,10}});
@@ -301,7 +301,7 @@ int main()
 	{
 		S const ia[] = {{1,1},{2,2},{3,3},{3,4},{4,5},{5,6},{5,7},{5,8},{6,9},{7,10}};
 		S ib[stl2::size(ia)];
-		auto r = stl2::unique_copy(stl2::move(ia), ib, stl2::equal_to<>(), &S::i);
+		auto r = stl2::unique_copy(stl2::move(ia), ib, stl2::equal_to(), &S::i);
 		CHECK(r.first.get_unsafe() == stl2::end(ia));
 		CHECK(r.second == ib + 7);
 		CHECK_EQUAL(stl2::subrange(ib, ib+7), {S{1,1},S{2,2},S{3,3},S{4,5},S{5,6},S{6,9},S{7,10}});

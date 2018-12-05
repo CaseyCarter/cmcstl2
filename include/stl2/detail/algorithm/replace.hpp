@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Writable<I, const T2&> &&
 		IndirectRelation<
-			equal_to<>, projected<I, Proj>, const T1*>
+			equal_to, projected<I, Proj>, const T1*>
 	I replace(I first, S last, const T1& old_value, const T2& new_value,
 		Proj proj = Proj{})
 	{
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Writable<iterator_t<Rng>, const T2&> &&
 		IndirectRelation<
-			equal_to<>, projected<iterator_t<Rng>, Proj>, const T1*>
+			equal_to, projected<iterator_t<Rng>, Proj>, const T1*>
 	safe_iterator_t<Rng>
 	replace(Rng&& rng, const T1& old_value, const T2& new_value,
 		Proj proj = Proj{})

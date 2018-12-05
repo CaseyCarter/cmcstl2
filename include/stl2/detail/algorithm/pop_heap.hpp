@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template<RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
+	template<RandomAccessIterator I, Sentinel<I> S, class Comp = less,
 						class Proj = identity>
 	requires
 		Sortable<I, Comp, Proj>
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 		return first + n;
 	}
 
-	template<RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
+	template<RandomAccessRange Rng, class Comp = less, class Proj = identity>
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>

@@ -22,7 +22,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
-		class Comp = less<>, class Proj1 = identity, class Proj2 = identity>
+		class Comp = less, class Proj1 = identity, class Proj2 = identity>
 	requires
 		IndirectStrictWeakOrder<Comp,
 			projected<I1, Proj1>, projected<I2, Proj2>>
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 		return first1 == last1 && first2 != last2;
 	}
 
-	template<InputRange Rng1, InputRange Rng2, class Comp = less<>,
+	template<InputRange Rng1, InputRange Rng2, class Comp = less,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		IndirectStrictWeakOrder<Comp,

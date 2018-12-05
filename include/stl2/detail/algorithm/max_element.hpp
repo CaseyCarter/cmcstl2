@@ -23,7 +23,7 @@
 STL2_OPEN_NAMESPACE {
 	struct __max_element_fn {
 		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
-			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less<>>
+			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
 		constexpr I operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
 		{
 			if (first != last) {
@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<ForwardRange R, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less<>>
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
 		{

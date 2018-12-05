@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// TODO: refactor this monstrosity.
-	template<RandomAccessIterator I, Sentinel<I> S, class Comp = less<>, class Proj = identity>
+	template<RandomAccessIterator I, Sentinel<I> S, class Comp = less, class Proj = identity>
 	requires
 		Sortable<I, Comp, Proj>
 	I nth_element(I first, I nth, S last, Comp comp = Comp{}, Proj proj = Proj{})
@@ -258,7 +258,7 @@ STL2_OPEN_NAMESPACE {
 		return end_orig;
 	}
 
-	template<RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
+	template<RandomAccessRange Rng, class Comp = less, class Proj = identity>
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>

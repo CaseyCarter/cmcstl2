@@ -24,7 +24,7 @@
 // sort [sort]
 //
 STL2_OPEN_NAMESPACE {
-	template<RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
+	template<RandomAccessIterator I, Sentinel<I> S, class Comp = less,
 		class Proj = identity>
 	requires
 		Sortable<I, Comp, Proj>
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 		return last;
 	}
 
-	template<RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
+	template<RandomAccessRange Rng, class Comp = less, class Proj = identity>
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 #if STL2_WORKAROUND_GCC_79591
-		template<RandomAccessIterator I, Sentinel<I> S, class Comp = less<>,
+		template<RandomAccessIterator I, Sentinel<I> S, class Comp = less,
 			class Proj = identity>
 		requires
 			Sortable<I, Comp, Proj>
@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 			return last;
 		}
 
-		template<RandomAccessRange Rng, class Comp = less<>, class Proj = identity>
+		template<RandomAccessRange Rng, class Comp = less, class Proj = identity>
 		requires
 			Sortable<iterator_t<Rng>, Comp, Proj>
 		safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 		using __stl2::sort;
 #endif // STL2_WORKAROUND_GCC_79591
 
-		template<ForwardIterator I, Sentinel<I> S, class Comp = less<>,
+		template<ForwardIterator I, Sentinel<I> S, class Comp = less,
 			class Proj = identity>
 		requires
 			Sortable<I, Comp, Proj>
@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 				std::ref(comp), std::ref(proj));
 		}
 
-		template<ForwardRange Rng, class Comp = less<>, class Proj = identity>
+		template<ForwardRange Rng, class Comp = less, class Proj = identity>
 		requires
 			Sortable<iterator_t<Rng>, Comp, Proj>
 		safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})

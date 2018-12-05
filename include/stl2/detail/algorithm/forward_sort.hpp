@@ -168,7 +168,7 @@ STL2_OPEN_NAMESPACE {
 					buf, comp, proj);
 			}
 
-			template<class I, class Comp = less<>, class Proj = identity>
+			template<class I, class Comp = less, class Proj = identity>
 			requires
 				Sortable<I, Comp, Proj>
 			inline I sort_n(I first, const iter_difference_t<I> n,

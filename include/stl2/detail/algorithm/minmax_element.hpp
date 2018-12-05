@@ -29,7 +29,7 @@
 STL2_OPEN_NAMESPACE {
 	struct __minmax_element_fn {
 		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
-			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less<>>
+			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
 		constexpr tagged_pair<tag::min(I), tag::max(I)>
 		operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
 		{
@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<ForwardRange R, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less<>>
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
 		constexpr tagged_pair<tag::min(safe_iterator_t<R>),
 			tag::max(safe_iterator_t<R>)>
 		operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
