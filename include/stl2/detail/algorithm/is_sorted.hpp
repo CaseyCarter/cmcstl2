@@ -22,7 +22,7 @@
 // is_sorted [is.sorted]
 //
 STL2_OPEN_NAMESPACE {
-	template<ForwardIterator I, Sentinel<I> S, class Comp = less<>,
+	template<ForwardIterator I, Sentinel<I> S, class Comp = less,
 		class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(comp), std::ref(proj));
 	}
 
-	template<ForwardRange Rng, class Comp = less<>, class Proj = identity>
+	template<ForwardRange Rng, class Comp = less, class Proj = identity>
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>

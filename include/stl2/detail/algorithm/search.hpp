@@ -36,7 +36,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace __search {
 		template<ForwardIterator I1, Sentinel<I1> S1,
-			ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
+			ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to,
 			class Proj1 = identity, class Proj2 = identity>
 		requires
 			IndirectlyComparable<
@@ -108,7 +108,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<ForwardIterator I1, Sentinel<I1> S1,
-		ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
+		ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		IndirectlyComparable<
@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
 
 	// Extension
 	template<ForwardIterator I1, Sentinel<I1> S1,
-		ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
+		ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		SizedSentinel<S1, I1> &&
@@ -140,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(proj2));
 	}
 
-	template<ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
+	template<ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
 		IndirectlyComparable<
@@ -156,7 +156,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// Extension
-	template<ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to<>,
+	template<ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to,
 						class Proj1 = identity, class Proj2 = identity>
 	requires
 		SizedRange<Rng1> && SizedRange<Rng2> &&

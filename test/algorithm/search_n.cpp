@@ -174,7 +174,7 @@ int main()
 	{
 		S const in[] = {{0}, {1}, {2}, {2}, {4}, {5}};
 
-		S const *p = stl2::search_n(in, 2, 2, stl2::equal_to<int>{}, &S::i);
+		S const *p = stl2::search_n(in, 2, 2, std::equal_to<int>{}, &S::i);
 		CHECK(p == in+2);
 	}
 

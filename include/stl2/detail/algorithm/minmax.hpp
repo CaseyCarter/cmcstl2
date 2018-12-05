@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	struct __minmax_fn {
 	private:
 		template<InputRange R, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less<>>
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
 		requires Copyable<iter_value_t<iterator_t<R>>>
 		static constexpr tagged_pair<tag::min(iter_value_t<iterator_t<R>>),
 			tag::max(iter_value_t<iterator_t<R>>)>
@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	public:
 		template<class T, class Proj = identity,
-			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less<>>
+			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
 		constexpr tagged_pair<tag::min(const T&), tag::max(const T&)>
 		operator()(const T& a, const T& b, Comp comp = Comp{}, Proj proj = Proj{}) const
 		{
@@ -94,7 +94,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<InputRange R, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less<>>
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
 		requires Copyable<iter_value_t<iterator_t<R>>>
 		constexpr tagged_pair<tag::min(iter_value_t<iterator_t<R>>),
 			tag::max(iter_value_t<iterator_t<R>>)>
@@ -104,7 +104,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<Copyable T, class Proj = identity,
-			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = ranges::less<>>
+			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = ranges::less>
 		constexpr tagged_pair<tag::min(T), tag::max(T)>
 		operator()(std::initializer_list<T>&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
 		{

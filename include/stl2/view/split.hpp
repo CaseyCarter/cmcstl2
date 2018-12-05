@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<InputRange Rng, ForwardRange Pattern>
 	requires View<Rng> && View<Pattern> &&
-		IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to<>> &&
+		IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
 		(ForwardRange<Rng> || _TinyRange<Pattern>)
 	struct split_view : private __split_view_base<Rng> {
 	private:

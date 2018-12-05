@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectlyCopyable<I, O> &&
 		IndirectRelation<
-			equal_to<>, projected<I, Proj>, const T1*>
+			equal_to, projected<I, Proj>, const T1*>
 	tagged_pair<tag::in(I), tag::out(O)>
 	replace_copy(I first, S last, O result, const T1& old_value,
 		const T2& new_value, Proj proj = Proj{})
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 		OutputIterator<__f<O>, const T2&> &&
 		IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
 		IndirectRelation<
-			equal_to<>, projected<iterator_t<Rng>, Proj>, const T1*>
+			equal_to, projected<iterator_t<Rng>, Proj>, const T1*>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	replace_copy(Rng&& rng, O&& result, const T1& old_value,
 		const T2& new_value, Proj proj = Proj{})

@@ -216,8 +216,8 @@ void test_proxy_iterator() {
 		CHECK(ranges::size(vec2) == N);
 		CHECK(A::copy_count == std::size_t{0});
 		CHECK(A::move_count == N);
-		CHECK(ranges::equal(vec2, ranges::view::iota(0) | ranges::view::take(N), std::equal_to<>{}));
-		CHECK(ranges::equal(vec, ranges::view::ext::repeat_n(-1, N), std::equal_to<>{}));
+		CHECK(ranges::equal(vec2, ranges::view::iota(0) | ranges::view::take(N), std::equal_to{}));
+		CHECK(ranges::equal(vec, ranges::view::ext::repeat_n(-1, N), std::equal_to{}));
 
 		first = ranges::make_move_iterator(proxy_iterator<A>{ranges::data(vec)});
 		std::iota(vec.begin(), vec.end(), 0);
@@ -229,8 +229,8 @@ void test_proxy_iterator() {
 		CHECK(ranges::size(vec2) == N);
 		CHECK(A::copy_count == std::size_t{0});
 		CHECK(A::move_count == 2*N);
-		CHECK(ranges::equal(vec2, ranges::view::iota(0) | ranges::view::take(N), std::equal_to<>{}));
-		CHECK(ranges::equal(vec, ranges::view::ext::repeat_n(-1, N), std::equal_to<>{}));
+		CHECK(ranges::equal(vec2, ranges::view::iota(0) | ranges::view::take(N), std::equal_to{}));
+		CHECK(ranges::equal(vec, ranges::view::ext::repeat_n(-1, N), std::equal_to{}));
 	}
 
 	{

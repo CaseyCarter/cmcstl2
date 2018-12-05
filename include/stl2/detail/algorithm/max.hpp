@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	public:
 		template<class T, class Proj = identity,
-			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less<>>
+			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
 		constexpr const T&
 		operator()(const T& a, const T& b, Comp comp = Comp{}, Proj proj = Proj{}) const
 		{
@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<InputRange R, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = ranges::less<>>
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = ranges::less>
 		requires Copyable<iter_value_t<iterator_t<R>>>
 		constexpr iter_value_t<iterator_t<R>>
 		operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<Copyable T, class Proj = identity,
-			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less<>>
+			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
 		constexpr T
 		operator()(std::initializer_list<T> r, Comp comp = Comp{}, Proj proj = Proj{}) const
 		{

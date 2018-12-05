@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Permutable<I> &&
 		IndirectRelation<
-			equal_to<>, projected<I, Proj>, const T*>
+			equal_to, projected<I, Proj>, const T*>
 	I remove(I first, S last, const T& value, Proj proj = Proj{})
 	{
 		first = __stl2::find(std::move(first), last, value, std::ref(proj));
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Permutable<iterator_t<Rng>> &&
 		IndirectRelation<
-			equal_to<>, projected<iterator_t<Rng>, Proj>, const T*>
+			equal_to, projected<iterator_t<Rng>, Proj>, const T*>
 	safe_iterator_t<Rng>
 	remove(Rng&& rng, const T& value, Proj proj = Proj{})
 	{

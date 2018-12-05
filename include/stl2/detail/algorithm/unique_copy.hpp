@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-		class R = equal_to<>, class Proj = identity>
+		class R = equal_to, class Proj = identity>
 	requires
 		IndirectlyCopyable<I, O> &&
 		IndirectRelation<R, projected<I, Proj>> &&
@@ -108,7 +108,7 @@ STL2_OPEN_NAMESPACE {
 			std::ref(proj));
 	}
 
-	template<InputRange Rng, WeaklyIncrementable O, class R = equal_to<>,
+	template<InputRange Rng, WeaklyIncrementable O, class R = equal_to,
 		class Proj = identity>
 	requires
 		IndirectlyCopyable<iterator_t<Rng>, O> &&
