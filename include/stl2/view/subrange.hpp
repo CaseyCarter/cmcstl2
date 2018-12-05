@@ -23,6 +23,17 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
+	template<class From, class To>
+	STL2_CONCEPT _ConvertibleToNotSlicing =
+		ConvertibleTo<From, To> &&
+		// A conversion is a slicing conversion if the source and the destination
+		// are both pointers, and if the pointed-to types differ after removing
+		// cv qualifiers.
+		!(_Is<std::decay_t<From>, std::is_pointer> &&
+		  _Is<std::decay_t<To>, std::is_pointer> &&
+		  _NotSameAs<std::remove_pointer_t<std::decay_t<From>>,
+		             std::remove_pointer_t<std::decay_t<To>>>);
+
 	template<class T>
 	STL2_CONCEPT _PairLikeGCCBugs = requires(T t) {
 		{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
@@ -36,7 +47,8 @@ STL2_OPEN_NAMESPACE {
 			requires DerivedFrom<std::tuple_size<T>, std::integral_constant<std::size_t, 2>>;
 			typename std::tuple_element_t<0, remove_const_t<T>>;
 			typename std::tuple_element_t<1, remove_const_t<T>>;
-			requires _PairLikeGCCBugs<T>; // Separate named concept to avoid premature substitution.
+			requires _PairLikeGCCBugs<T>; // Separate named concept to avoid
+			                              // premature substitution.
 		};
 
 	template<class T, class U, class V>
@@ -44,14 +56,23 @@ STL2_OPEN_NAMESPACE {
 		!Range<T> && _PairLike<std::remove_reference_t<T>> &&
 		requires(T&& t) {
 			std::get<0>(static_cast<T&&>(t));
-			requires ConvertibleTo<decltype(std::get<0>(static_cast<T&&>(t))), U>;
+			requires _ConvertibleToNotSlicing<
+				decltype(std::get<0>(static_cast<T&&>(t))), U>;
 			std::get<1>(static_cast<T&&>(t));
-			requires ConvertibleTo<decltype(std::get<1>(static_cast<T&&>(t))), V>;
+			requires ConvertibleTo<
+				decltype(std::get<1>(static_cast<T&&>(t))), V>;
 		};
 
 	template<class T, class U, class V>
+	STL2_CONCEPT _PairLikeConvertibleFromGCCBugs =
+		_ConvertibleToNotSlicing<U, std::tuple_element_t<0, T>> &&
+		ConvertibleTo<V, std::tuple_element_t<1, T>>;
+
+	template<class T, class U, class V>
 	STL2_CONCEPT _PairLikeConvertibleFrom =
-		!Range<T> && _PairLike<T> && Constructible<T, U, V>;
+		!Range<T> && _PairLike<T> && Constructible<T, U, V> &&
+		_PairLikeConvertibleFromGCCBugs<T, U, V>; // Separate named concept to avoid
+		                                          // premature substitution.
 
 	template<class T>
 	STL2_CONCEPT _IteratorSentinelPair =
@@ -118,18 +139,21 @@ STL2_OPEN_NAMESPACE {
 
 		subrange() = default;
 
-		constexpr subrange(I i, S s)
-			requires !StoreSize
+		template <_ConvertibleToNotSlicing<I> _I>
+		constexpr subrange(_I i, S s)
+			requires (!StoreSize)
 		: data_{std::move(i), std::move(s)} {}
 
-		constexpr subrange(I i, S s, iter_difference_t<I> n)
-			requires StoreSize
+		template <_ConvertibleToNotSlicing<I> _I>
+		constexpr subrange(_I i, S s, iter_difference_t<I> n)
+			requires (StoreSize)
 		: data_{std::move(i), std::move(s), n} {
 			if constexpr (RandomAccessIterator<I>) {
 				STL2_EXPECT(first_() + n == last_());
 			}
 		}
-		constexpr subrange(I i, S s, iter_difference_t<I> n)
+		template <_ConvertibleToNotSlicing<I> _I>
+		constexpr subrange(_I i, S s, iter_difference_t<I> n)
 		requires SizedSentinel<S, I>
 		: data_{std::move(i), std::move(s)} {
 			STL2_EXPECT(last_() - first_() == n);
@@ -137,18 +161,22 @@ STL2_OPEN_NAMESPACE {
 
 		template<_NotSameAs<subrange> R>
 		requires _ForwardingRange<R> &&
-			ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
+			_ConvertibleToNotSlicing<iterator_t<R>, I> &&
+			ConvertibleTo<sentinel_t<R>, S>
 		constexpr subrange(R&& r) requires (!StoreSize)
 		: subrange{__stl2::begin(r), __stl2::end(r)} {}
 
 		template<_NotSameAs<subrange> R>
 		requires _ForwardingRange<R> &&
-			ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
+			_ConvertibleToNotSlicing<iterator_t<R>, I> &&
+			ConvertibleTo<sentinel_t<R>, S>
 		constexpr subrange(R&& r) requires StoreSize && SizedRange<R>
 		: subrange{__stl2::begin(r), __stl2::end(r), __stl2::distance(r)} {}
 
 		template<_ForwardingRange R>
-		requires ConvertibleTo<iterator_t<R>, I> && ConvertibleTo<sentinel_t<R>, S>
+		requires
+			_ConvertibleToNotSlicing<iterator_t<R>, I> &&
+			ConvertibleTo<sentinel_t<R>, S>
 		constexpr subrange(R&& r, iter_difference_t<I> n)
 			requires (K == subrange_kind::sized)
 		: subrange{__stl2::begin(r), __stl2::end(r), n} {
@@ -172,7 +200,7 @@ STL2_OPEN_NAMESPACE {
 		{}
 
 		template<_NotSameAs<subrange> PairLike>
-			requires _PairLikeConvertibleFrom<PairLike, const I&, const S&>
+		requires _PairLikeConvertibleFrom<PairLike, const I&, const S&>
 		constexpr operator PairLike() const {
 			return PairLike(first_(), last_());
 		}
@@ -216,7 +244,10 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template<Iterator I, Sentinel<I> S>
+	template<class I, class S>
+	subrange(I, S) -> subrange<I, S>;
+
+	template<Iterator I, class S>
 	subrange(I, S, iter_difference_t<I>) -> subrange<I, S, subrange_kind::sized>;
 
 	template<_IteratorSentinelPair P>

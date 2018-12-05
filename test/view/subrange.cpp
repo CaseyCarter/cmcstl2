@@ -25,6 +25,9 @@ using namespace ranges::ext;
 template<Range Rng>
 safe_subrange_t<Rng> algorithm(Rng &&rng);
 
+struct Base {};
+struct Derived : Base {};
+
 int main()
 {
 	std::vector<int> vi{1,2,3,4};
@@ -49,6 +52,34 @@ int main()
 		decltype(::algorithm(std::declval<std::vector<int>>()))>);
 	static_assert(Same<dangling<subrange<std::vector<int>::iterator>>,
 		decltype(::algorithm(std::move(vi)))>);
+
+	// Test that slicing conversions are not allowed.
+	static_assert(Constructible<subrange<Base*, Base*>, Base*, Base*>);
+	static_assert(!Constructible<subrange<Base*, Base*>, Derived*, Derived*>);
+	static_assert(Constructible<subrange<const Base*, const Base*>, Base*, Base*>);
+	static_assert(!Constructible<subrange<const Base*, const Base*>, Derived*, Derived*>);
+	static_assert(Constructible<subrange<Base*, Base*>, std::pair<Base*, Base*>>);
+	static_assert(!Constructible<subrange<Base*, Base*>, std::pair<Derived*, Derived*>>);
+	static_assert(!Constructible<subrange<Base*, Base*>, subrange<Derived*, Derived*>>);
+
+	static_assert(Constructible<subrange<Base*, unreachable>, Base*, unreachable>);
+	static_assert(!Constructible<subrange<Base*, unreachable>, Derived*, unreachable>);
+	static_assert(Constructible<subrange<const Base*, unreachable>, Base*, unreachable>);
+	static_assert(!Constructible<subrange<const Base*, unreachable>, Derived*, unreachable>);
+	static_assert(Constructible<subrange<Base*, unreachable>, std::pair<Base*, unreachable>>);
+	static_assert(!Constructible<subrange<Base*, unreachable>, std::pair<Derived*, unreachable>>);
+	static_assert(!Constructible<subrange<Base*, unreachable>, subrange<Derived*, unreachable>>);
+
+	static_assert(Constructible<subrange<Base*, unreachable, subrange_kind::sized>, Base*, unreachable, std::ptrdiff_t>);
+	static_assert(!Constructible<subrange<Base*, unreachable, subrange_kind::sized>, Derived*, unreachable, std::ptrdiff_t>);
+	static_assert(Constructible<subrange<const Base*, unreachable, subrange_kind::sized>, Base*, unreachable, std::ptrdiff_t>);
+	static_assert(!Constructible<subrange<const Base*, unreachable, subrange_kind::sized>, Derived*, unreachable, std::ptrdiff_t>);
+	static_assert(Constructible<subrange<Base*, unreachable, subrange_kind::sized>, std::pair<Base*, unreachable>, std::ptrdiff_t>);
+	static_assert(!Constructible<subrange<Base*, unreachable, subrange_kind::sized>, std::pair<Derived*, unreachable>, std::ptrdiff_t>);
+	static_assert(!Constructible<subrange<Base*, unreachable, subrange_kind::sized>, subrange<Derived*, unreachable>, std::ptrdiff_t>);
+
+	static_assert(ConvertibleTo<subrange<Base*, Base*>, std::pair<const Base*, const Base*>>);
+	static_assert(!ConvertibleTo<subrange<Derived*, Derived*>, std::pair<Base*, Base*>>);
 
 	subrange<std::vector<int>::iterator> r0 {vi.begin(), vi.end()};
 	static_assert(std::tuple_size<decltype(r0)>::value == 2);
