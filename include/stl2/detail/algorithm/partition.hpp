@@ -33,61 +33,52 @@
 // partition [alg.partitions]
 //
 STL2_OPEN_NAMESPACE {
-	template<Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
-	requires
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	I partition(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		first = __stl2::find_if_not(std::move(first), last,
-			std::ref(pred), std::ref(proj));
-		if (first != last) {
-			for (auto m = first; ++m != last;) {
-				if (__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
-					__stl2::iter_swap(first, m);
-					++first;
-				}
-			}
-		}
-		return first;
-	}
+	struct __partition_fn {
+		template<Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
+		requires IndirectUnaryPredicate<Pred, projected<I, Proj>>
+		constexpr I operator()(I first, S last_, Pred pred, Proj proj = {}) const {
+			if constexpr (BidirectionalIterator<I>) {
+				auto last = __stl2::next(first, std::move(last_));
 
-	template<Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
-	requires
-		BidirectionalIterator<I> &&
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	I partition(I first, S last_, Pred pred, Proj proj = Proj{})
-	{
-		auto last = __stl2::next(first, std::move(last_));
-
-		for (; first != last; ++first) {
-			if (!__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
-				while (true) {
-					if (--last == first) {
-						return first;
+				for (; first != last; ++first) {
+					if (!__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
+						while (true) {
+							if (--last == first) {
+								return first;
+							}
+							if (__stl2::invoke(pred, __stl2::invoke(proj, *last))) {
+								__stl2::iter_swap(first, last);
+								break;
+							}
+						}
 					}
-					if (__stl2::invoke(pred, __stl2::invoke(proj, *last))) {
-						__stl2::iter_swap(first, last);
-						break;
+				}
+			} else {
+				first = __stl2::find_if_not(std::move(first), last_,
+					std::ref(pred), std::ref(proj));
+				if (first != last_) {
+					for (auto m = first; ++m != last_;) {
+						if (__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
+							__stl2::iter_swap(first, m);
+							++first;
+						}
 					}
 				}
 			}
+			return first;
 		}
-		return first;
-	}
 
-	template<ForwardRange Rng, class Pred, class Proj = identity>
-	requires
-		Permutable<iterator_t<Rng>> &&
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	partition(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return __stl2::partition(__stl2::begin(rng), __stl2::end(rng),
-			std::ref(pred), std::ref(proj));
-	}
+		template<ForwardRange Rng, class Pred, class Proj = identity>
+		requires Permutable<iterator_t<Rng>> &&
+			IndirectUnaryPredicate<Pred, projected<iterator_t<Rng>, Proj>>
+		constexpr safe_iterator_t<Rng>
+		operator()(Rng&& rng, Pred pred, Proj proj = {}) const {
+			return (*this)(__stl2::begin(rng), __stl2::end(rng),
+				std::ref(pred), std::ref(proj));
+		}
+	};
+
+	inline constexpr __partition_fn partition {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -22,89 +22,61 @@
 // lower_bound [lower.bound]
 //
 STL2_OPEN_NAMESPACE {
-	template<class C, class T>
+	namespace ext {
+		struct __lower_bound_n_fn {
+			template<class I, class T, class Comp = less, class Proj = identity>
+			requires ForwardIterator<__f<I>> &&
+				IndirectStrictWeakOrder<Comp, const T*, projected<__f<I>, Proj>>
+			constexpr __f<I> operator()(I&& first, iter_difference_t<__f<I>> n,
+				const T& value, Comp comp = {}, Proj proj = {}) const {
+				auto pred = [&](auto&& i) -> bool {
+					return __stl2::invoke(comp, i, value);
+				};
+				return __stl2::ext::partition_point_n(
+					std::forward<I>(first), n, pred, std::ref(proj));
+			}
+		};
+
+		inline constexpr __lower_bound_n_fn lower_bound_n {};
+	}
+
 	struct __lower_bound_fn {
-		decay_t<C> comp_;
-		const T& value_;
+		template<class I, class S, class T, class Comp = less, class Proj = identity>
+		requires ForwardIterator<__f<I>> && Sentinel<__f<S>, __f<I>> &&
+			IndirectStrictWeakOrder<Comp, const T*, projected<__f<I>, Proj>>
+		constexpr __f<I> operator()(I&& first, S&& last, const T& value,
+			Comp comp = {}, Proj proj = {}) const {
+			if constexpr (SizedSentinel<__f<S>, __f<I>>) {
+				auto first_ = std::forward<I>(first);
+				auto n = __stl2::distance(first_, std::forward<S>(last));
+				return __stl2::ext::lower_bound_n(std::move(first_), n, value,
+					std::ref(comp), std::ref(proj));
+			} else {
+				auto pred = [&](auto&& i) -> bool {
+					return __stl2::invoke(comp, i, value);
+				};
+				return __stl2::partition_point(
+					std::forward<I>(first), std::forward<S>(last), pred, std::ref(proj));
+			}
+		}
 
-		constexpr __lower_bound_fn(C comp, const T& value) :
-			comp_(std::ref(comp)), value_(value) {}
-
-		constexpr bool operator()(auto&& i) const {
-			return __stl2::invoke(comp_, i, value_);
+		template<ForwardRange Rng, class T, class Comp = less, class Proj = identity>
+		requires
+			IndirectStrictWeakOrder<Comp, const T*, projected<iterator_t<Rng>, Proj>>
+		constexpr safe_iterator_t<Rng>
+		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
+			if constexpr (SizedRange<Rng>) {
+				return __stl2::ext::lower_bound_n(
+					__stl2::begin(rng), __stl2::distance(rng), value,
+					std::ref(comp), std::ref(proj));
+			} else {
+				return (*this)(__stl2::begin(rng), __stl2::end(rng), value,
+					std::ref(comp), std::ref(proj));
+			}
 		}
 	};
 
-	namespace ext {
-		template<class I, class T, class Comp = less, class Proj = identity>
-		requires
-			ForwardIterator<__f<I>> &&
-			IndirectStrictWeakOrder<
-				Comp, const T*, projected<__f<I>, Proj>>
-		__f<I> lower_bound_n(I&& first, iter_difference_t<__f<I>> n,
-			const T& value, Comp comp = Comp{}, Proj proj = Proj{})
-		{
-			return __stl2::ext::partition_point_n(
-				std::forward<I>(first), n,
-				__lower_bound_fn<Comp, T>{std::ref(comp), value},
-				std::ref(proj));
-		}
-	}
-
-	template<class I, class S, class T, class Comp = less, class Proj = identity>
-	requires
-		ForwardIterator<__f<I>> &&
-		Sentinel<__f<S>, __f<I>> &&
-		IndirectStrictWeakOrder<
-			Comp, const T*, projected<__f<I>, Proj>>
-	__f<I> lower_bound(I&& first, S&& last, const T& value,
-		Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::partition_point(
-			std::forward<I>(first), std::forward<S>(last),
-			__lower_bound_fn<Comp, T>{std::ref(comp), value},
-			std::ref(proj));
-	}
-
-	template<class I, class S, class T, class Comp = less, class Proj = identity>
-	requires
-		SizedSentinel<__f<S>, __f<I>> &&
-		ForwardIterator<__f<I>> &&
-		Sentinel<__f<S>, __f<I>> &&
-		IndirectStrictWeakOrder<
-			Comp, const T*, projected<__f<I>, Proj>>
-	__f<I> lower_bound(I&& first_, S&& last, const T& value,
-		Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		auto first = std::forward<I>(first_);
-		auto n = __stl2::distance(first, std::forward<S>(last));
-		return __stl2::ext::lower_bound_n(std::move(first), n, value,
-			std::ref(comp), std::ref(proj));
-	}
-
-	template<ForwardRange Rng, class T, class Comp = less, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, const T*, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	lower_bound(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::lower_bound(__stl2::begin(rng), __stl2::end(rng), value,
-			std::ref(comp), std::ref(proj));
-	}
-
-	template<ForwardRange Rng, class T, class Comp = less, class Proj = identity>
-	requires
-		SizedRange<Rng> &&
-		IndirectStrictWeakOrder<
-			Comp, const T*, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	lower_bound(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
-	{
-		return __stl2::ext::lower_bound_n(
-			__stl2::begin(rng), __stl2::distance(rng), value,
-			std::ref(comp), std::ref(proj));
-	}
+	inline constexpr __lower_bound_fn lower_bound {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
