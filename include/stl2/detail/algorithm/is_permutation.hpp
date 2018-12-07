@@ -170,7 +170,7 @@ STL2_OPEN_NAMESPACE {
 			counted.count(), pred, proj1, proj2);
 	}
 
-	struct __is_permutation_fn {
+	struct __is_permutation_fn : private __niebloid {
 		template<ForwardIterator I1, Sentinel<I1> S1, class I2,
 			class Pred = equal_to, class Proj1 = identity,
 			class Proj2 = identity>

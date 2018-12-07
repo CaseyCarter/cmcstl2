@@ -22,7 +22,7 @@
 // mismatch [mismatch]
 //
 STL2_OPEN_NAMESPACE {
-	struct __mismatch_fn {
+	struct __mismatch_fn : private __niebloid {
 		template<InputIterator I1, Sentinel<I1> S1, class I2,
 			class Pred = equal_to, class Proj1 = identity, class Proj2 = identity>
 		[[deprecated]] constexpr tagged_pair<tag::in1(I1), tag::in2(std::decay_t<I2>)>

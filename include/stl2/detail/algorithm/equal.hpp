@@ -21,7 +21,8 @@
 // equal [alg.equal]
 //
 STL2_OPEN_NAMESPACE {
-	class __equal_fn {
+	struct __equal_fn : private __niebloid {
+	private:
 		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
 			class Pred, class Proj1, class Proj2>
 		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>

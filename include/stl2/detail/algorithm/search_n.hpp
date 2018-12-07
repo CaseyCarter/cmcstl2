@@ -33,7 +33,7 @@
 // search_n [alg.search]
 //
 STL2_OPEN_NAMESPACE {
-	struct __search_n_fn {
+	struct __search_n_fn : private __niebloid {
 	private:
 		template<ForwardIterator I, Sentinel<I> S, class T, class Pred, class Proj>
 		requires IndirectlyComparable<I, const T*, Pred, Proj>

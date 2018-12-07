@@ -34,7 +34,7 @@
 // search [alg.search]
 //
 STL2_OPEN_NAMESPACE {
-	struct __search_fn {
+	struct __search_fn : private __niebloid {
 	private:
 		template<ForwardIterator I1, Sentinel<I1> S1,
 			ForwardIterator I2, Sentinel<I2> S2, class Pred = equal_to,

@@ -191,7 +191,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// next
-	struct __next_fn {
+	struct __next_fn : private __niebloid {
 		template<Iterator I>
 		constexpr I operator()(I x, iter_difference_t<I> n = 1) const
 		STL2_NOEXCEPT_RETURN(
@@ -217,7 +217,7 @@ STL2_OPEN_NAMESPACE {
 	inline constexpr __next_fn next {};
 
 	// prev
-	struct __prev_fn {
+	struct __prev_fn : private __niebloid {
 		template<BidirectionalIterator I>
 		constexpr I operator()(I x, iter_difference_t<I> n = 1) const
 		STL2_NOEXCEPT_RETURN(

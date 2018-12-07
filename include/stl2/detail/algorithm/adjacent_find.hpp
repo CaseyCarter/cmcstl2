@@ -22,7 +22,7 @@
 // adjacent_find [alg.adjacent.find]
 //
 STL2_OPEN_NAMESPACE {
-	struct __adjacent_find_fn {
+	struct __adjacent_find_fn : private __niebloid {
 		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectRelation<projected<I, Proj>> Pred = equal_to>
 		constexpr I operator()(I first, S last, Pred pred = {}, Proj proj = {}) const

@@ -21,7 +21,7 @@
 // count_if [alg.count]
 //
 STL2_OPEN_NAMESPACE {
-	struct __count_if_fn {
+	struct __count_if_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectUnaryPredicate<projected<I, Proj>> Pred>
 		constexpr iter_difference_t<I>

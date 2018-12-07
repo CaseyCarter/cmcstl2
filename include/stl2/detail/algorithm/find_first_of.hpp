@@ -21,7 +21,7 @@
 // find_first_of [alg.find.first.of]
 //
 STL2_OPEN_NAMESPACE {
-	struct __find_first_of_fn {
+	struct __find_first_of_fn : private __niebloid {
 		template<InputIterator I1, Sentinel<I1> S1, ForwardIterator I2, Sentinel<I2> S2,
 			class Proj1 = identity, class Proj2 = identity,
 			IndirectRelation<projected<I1, Proj1>,	projected<I2, Proj2>> Pred = equal_to>

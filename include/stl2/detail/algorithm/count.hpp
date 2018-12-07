@@ -21,7 +21,7 @@
 // count [alg.count]
 //
 STL2_OPEN_NAMESPACE {
-	struct __count_fn {
+	struct __count_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, class T, class Proj = identity>
 		requires IndirectRelation<equal_to, projected<I, Proj>, const T*>
 		constexpr iter_difference_t<I>

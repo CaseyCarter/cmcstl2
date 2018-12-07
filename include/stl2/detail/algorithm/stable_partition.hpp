@@ -29,7 +29,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		struct __stable_partition_n_fn {
+		struct __stable_partition_n_fn : private __niebloid {
 		private:
 			template<Readable I>
 			using buf_t = detail::temporary_buffer<iter_value_t<I>>;
@@ -280,7 +280,7 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr __stable_partition_n_fn stable_partition_n {};
 	} // namespace ext
 
-	struct __stable_partition_fn {
+	struct __stable_partition_fn : private __niebloid {
 		template<ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
 		requires Permutable<I> && IndirectUnaryPredicate<Pred, projected<I, Proj>>
 		I operator()(I first, S last, Pred pred, Proj proj = {}) const {
