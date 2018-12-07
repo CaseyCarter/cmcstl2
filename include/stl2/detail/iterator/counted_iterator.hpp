@@ -23,11 +23,12 @@
 #include <stl2/detail/iterator/operations.hpp>
 
 STL2_OPEN_NAMESPACE {
-	Iterator{I}
+	template<Iterator I>
 	class counted_iterator {
-		Iterator{O} friend class counted_iterator;
-		Iterator{O} friend constexpr
-		void advance(counted_iterator<O>& i, iter_difference_t<O> n);
+		template<class> friend class counted_iterator;
+		template<Iterator O>
+		friend constexpr void
+		advance(counted_iterator<O>& i, iter_difference_t<O> n);
 
 		ext::compressed_pair<I, iter_difference_t<I>> data_{};
 
@@ -230,7 +231,7 @@ STL2_OPEN_NAMESPACE {
 		counted_iterator<I>{std::move(i), n}
 	)
 
-	Iterator{I}
+	template<Iterator I>
 	constexpr void advance(counted_iterator<I>& i, iter_difference_t<I> n)
 	noexcept(noexcept(__stl2::advance(std::declval<I&>(), n)))
 	{
@@ -239,14 +240,14 @@ STL2_OPEN_NAMESPACE {
 		i.cnt() -= n;
 	}
 
-	RandomAccessIterator{I}
+	template<RandomAccessIterator I>
 	constexpr void advance(counted_iterator<I>& i, iter_difference_t<I> n)
 	STL2_NOEXCEPT_RETURN(
 		(STL2_EXPECT(n <= i.count()), i += n, void())
 	)
 
 	namespace ext {
-		Iterator{I}
+		template<Iterator I>
 		constexpr auto uncounted(const I& i)
 		noexcept(is_nothrow_copy_constructible<I>::value)
 		{
@@ -258,7 +259,7 @@ STL2_OPEN_NAMESPACE {
 			i.base()
 		)
 
-		Iterator{I}
+		template<Iterator I>
 		constexpr auto recounted(const I&, const I& i, iter_difference_t<I> = 0)
 		noexcept(is_nothrow_copy_constructible<I>::value)
 		{

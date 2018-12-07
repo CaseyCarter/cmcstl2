@@ -426,7 +426,7 @@ namespace meta
         template<typename>
         constexpr bool is_trait_v = false;
 
-        Trait{T}
+        template<Trait T>
         constexpr bool is_trait_v<T> = true;
 
         /// An alias for `std::true_type` if `T::type` exists and names a type; otherwise, it's an
@@ -440,7 +440,7 @@ namespace meta
         template<typename>
         constexpr bool is_callable_v = false;
 
-        Invocable{T}
+        template <Invocable T>
         constexpr bool is_callable_v<T> = true;
 
         /// An alias for `std::true_type` if `T::invoke` exists and names a class template;

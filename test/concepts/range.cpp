@@ -495,7 +495,7 @@ I complicated_algorithm(I i, S s) {
 #if VALIDATE_RANGES
 template<class R, CONCEPT_REQUIRES_(ranges::Range<R>)>
 #elif VALIDATE_STL2
-ns::InputRange{R}
+template<ns::InputRange R>
 #endif
 ns::iterator_t<R> complicated_algorithm(R&& r) {
 	return complicated_algorithm(ns::begin(r), ns::end(r));

@@ -77,11 +77,6 @@ namespace begin_testing {
 			ranges::begin((R&&)r);
 		};
 
-	template<class>
-	constexpr bool can_begin = false;
-	CanBegin{R}
-	constexpr bool can_begin<R> = true;
-
 	struct A {
 		int* begin();
 		int* end();
@@ -100,35 +95,35 @@ namespace begin_testing {
 
 	void test() {
 		// Valid
-		static_assert(can_begin<int(&)[2]>);
+		static_assert(CanBegin<int(&)[2]>);
 		static_assert(ranges::Same<decltype(ranges::begin(std::declval<int(&)[2]>())), int*>);
-		static_assert(can_begin<const int(&)[2]>);
+		static_assert(CanBegin<const int(&)[2]>);
 		static_assert(ranges::Same<decltype(ranges::begin(std::declval<const int(&)[2]>())), const int*>);
 
 		// Ill-formed: array rvalue
-		static_assert(!can_begin<int(&&)[2]>);
+		static_assert(!CanBegin<int(&&)[2]>);
 
 		// Valid: only member begin
-		static_assert(can_begin<A&>);
-		static_assert(!can_begin<A>);
+		static_assert(CanBegin<A&>);
+		static_assert(!CanBegin<A>);
 		static_assert(ranges::Same<decltype(ranges::begin(std::declval<A&>())), int*>);
-		static_assert(can_begin<const A&>);
+		static_assert(CanBegin<const A&>);
 		static_assert(ranges::Same<decltype(ranges::begin(std::declval<const A&>())), const int*>);
 
 		// Valid: Both member and non-member begin, but non-member returns non-Iterator.
-		static_assert(can_begin<B&>);
+		static_assert(CanBegin<B&>);
 		static_assert(ranges::Same<decltype(ranges::begin(std::declval<B&>())), int*>);
-		static_assert(can_begin<const B&>);
+		static_assert(CanBegin<const B&>);
 		static_assert(ranges::Same<decltype(ranges::begin(std::declval<const B&>())), const int*>);
 
 		// Valid: Both member and non-member begin, but non-member returns non-Iterator.
-		static_assert(can_begin<C&>);
-		static_assert(can_begin<const C&>);
+		static_assert(CanBegin<C&>);
+		static_assert(CanBegin<const C&>);
 
 		// Valid: Prefer member begin
-		static_assert(can_begin<D&>);
+		static_assert(CanBegin<D&>);
 		static_assert(ranges::Same<int*, decltype(ranges::begin(std::declval<D&>()))>);
-		static_assert(can_begin<const D&>);
+		static_assert(CanBegin<const D&>);
 		static_assert(ranges::Same<const int*, decltype(ranges::begin(std::declval<const D&>()))>);
 
 		{
@@ -138,8 +133,8 @@ namespace begin_testing {
 			static_assert(ranges::Same<const int*, decltype(ranges::begin(std::declval<const T&>()))>);
 		}
 
-		static_assert(can_begin<ranges::subrange<int*, int*>&>);
-		static_assert(can_begin<ranges::subrange<int*, int*>&&>);
+		static_assert(CanBegin<ranges::subrange<int*, int*>&>);
+		static_assert(CanBegin<ranges::subrange<int*, int*>&&>);
 	}
 } // namespace begin_testing
 

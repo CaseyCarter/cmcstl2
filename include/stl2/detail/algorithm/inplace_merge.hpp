@@ -169,9 +169,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		namespace {
-			inline constexpr merge_adaptive_fn merge_adaptive{};
-		}
+		inline constexpr merge_adaptive_fn merge_adaptive {};
 
 		struct inplace_merge_no_buffer_fn
 		{
@@ -187,9 +185,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		namespace {
-			inline constexpr inplace_merge_no_buffer_fn inplace_merge_no_buffer{};
-		}
+		inline constexpr inplace_merge_no_buffer_fn inplace_merge_no_buffer {};
 	}
 
 	template<BidirectionalIterator I, Sentinel<I> S, class Comp = less,

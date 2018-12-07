@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// iter_reference_t [iterator.assoc]
 	//
-	detail::Dereferenceable{R}
+	template<detail::Dereferenceable R>
 	using iter_reference_t = decltype(*declval<R&>());
 
 	///////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ STL2_OPEN_NAMESPACE {
 	// iter_rvalue_reference_t [Extension]
 	// From the proxy iterator work (P0022).
 	//
-	detail::Dereferenceable{R}
+	template<detail::Dereferenceable R>
 	using iter_rvalue_reference_t = decltype(__stl2::iter_move(declval<R&>()));
 
 	///////////////////////////////////////////////////////////////////////////
@@ -173,7 +173,7 @@ STL2_OPEN_NAMESPACE {
 		CommonReference<iter_rvalue_reference_t<I>&&, const iter_value_t<I>&>;
 
 	// A generally useful dependent type
-	Readable{I}
+	template<Readable I>
 	using iter_common_reference_t =
 		common_reference_t<iter_reference_t<I>, iter_value_t<I>&>;
 
@@ -201,7 +201,7 @@ STL2_OPEN_NAMESPACE {
 	template<class In, class Out>
 	constexpr bool is_nothrow_indirectly_movable_v = false;
 
-	IndirectlyMovable{In, Out}
+	template<class Out, IndirectlyMovable<Out> In>
 	constexpr bool is_nothrow_indirectly_movable_v<In, Out> =
 		noexcept(noexcept(declval<iter_reference_t<Out>>() = __stl2::iter_move(declval<In>())));
 
@@ -219,7 +219,7 @@ STL2_OPEN_NAMESPACE {
 	template<class In, class Out>
 	constexpr bool is_nothrow_indirectly_movable_storable_v = false;
 
-	IndirectlyMovableStorable{In, Out}
+	template<class Out, IndirectlyMovableStorable<Out> In>
 	constexpr bool is_nothrow_indirectly_movable_storable_v<In, Out> =
 		is_nothrow_indirectly_movable_v<In, Out> &&
 		is_nothrow_assignable<iter_reference_t<Out>, iter_value_t<In>>::value &&
@@ -329,7 +329,7 @@ STL2_OPEN_NAMESPACE {
 	template<class R1, class R2>
 	constexpr bool is_nothrow_indirectly_swappable_v = false;
 
-	IndirectlySwappable{R1, R2}
+	template<class R1, IndirectlySwappable<R1> R2>
 	constexpr bool is_nothrow_indirectly_swappable_v<R1, R2> =
 		noexcept(__stl2::iter_swap(declval<R1>(), declval<R2>())) &&
 		noexcept(__stl2::iter_swap(declval<R2>(), declval<R1>())) &&
@@ -567,7 +567,7 @@ STL2_OPEN_NAMESPACE {
 	template<class>
 	struct __iterator_traits {};
 
-	Iterator{I}
+	template<Iterator I>
 	struct __iterator_traits<I> {
 		using difference_type = iter_difference_t<I>;
 		using value_type = void;
@@ -576,7 +576,7 @@ STL2_OPEN_NAMESPACE {
 		using iterator_category = output_iterator_tag;
 	};
 
-	InputIterator{I}
+	template<InputIterator I>
 	struct __iterator_traits<I> {
 		using difference_type = iter_difference_t<I>;
 		using value_type = iter_value_t<I>;

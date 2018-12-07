@@ -217,20 +217,17 @@ struct im_a_tuple {
 	void out();
 };
 
-template<int I>
-STL2_CONCEPT Zero = I == 0;
+template<int I, class T> requires (I == 0) constexpr auto&
+get(im_a_tuple<T>& f) { return f.i; }
 
-Zero{I} constexpr auto&
-get(im_a_tuple<auto>& f) { return f.i; }
+template<int I, class T> requires (I == 0) constexpr auto&
+get(const im_a_tuple<T>& f) { return f.i; }
 
-Zero{I} constexpr auto&
-get(const im_a_tuple<auto>& f) { return f.i; }
+template<int I, class T> requires (I == 0) constexpr auto&&
+get(im_a_tuple<T>&& f) { return std::move(f).i; }
 
-Zero{I} constexpr auto&&
-get(im_a_tuple<auto>&& f) { return std::move(f).i; }
-
-Zero{I} constexpr auto&&
-get(const im_a_tuple<auto>&& f) { return std::move(f).i; }
+template<int I, class T> requires (I == 0) constexpr auto&&
+get(const im_a_tuple<T>&& f) { return std::move(f).i; }
 
 namespace std {
 	template<class T>

@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 	struct incrementable_traits<const T>
 	: incrementable_traits<std::decay_t<T>> {};
 
-	detail::MemberDifferenceType{T}
+	template<detail::MemberDifferenceType T>
 	struct incrementable_traits<T> {
 		using type = typename T::difference_type;
 	};
