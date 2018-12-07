@@ -28,15 +28,16 @@
 // stable_partition [alg.partitions]
 //
 STL2_OPEN_NAMESPACE {
-	namespace detail {
-		namespace stable_part {
-			Readable{I}
+	namespace ext {
+		struct __stable_partition_n_fn {
+		private:
+			template<Readable I>
 			using buf_t = detail::temporary_buffer<iter_value_t<I>>;
 
 			template<ForwardIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			void skip_true(I& first, iter_difference_t<I>& n, Pred& pred, Proj& proj)
-			{
+			static constexpr void
+			skip_true(I& first, iter_difference_t<I>& n, Pred& pred, Proj& proj) {
 				// advance "first" past values that satisfy the predicate.
 				// Ensures: n == 0 || !__stl2::invoke(pred, __stl2::invoke(proj, *first))
 				STL2_EXPECT(n >= 0);
@@ -50,10 +51,8 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires
 				Permutable<I>
-			subrange<I>
-			forward_buffer(I first, I next, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj)
-			{
+			static subrange<I> forward_buffer(I first, I next, iter_difference_t<I> n,
+				buf_t<I>& buf, Pred& pred, Proj& proj) {
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first)))
 				// Precondition: __stl2::next(first) == next
 				STL2_EXPECT(n >= 2);
@@ -74,20 +73,9 @@ STL2_OPEN_NAMESPACE {
 
 			template<ForwardIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires
-				Permutable<I>
-			subrange<I>
-			forward_reduce(I first, iter_difference_t<I> n, buf_t<I>& buf,
-				Pred& pred, Proj& proj);
-
-			template<ForwardIterator I, class Proj,
-				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires
-				Permutable<I>
-			subrange<I>
-			forward(I first, iter_difference_t<I> n, buf_t<I>& buf, Pred& pred,
-				Proj& proj)
-			{
+			requires Permutable<I>
+			static subrange<I> forward(I first, iter_difference_t<I> n,
+				buf_t<I>& buf, Pred& pred, Proj& proj) {
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first)))
 				STL2_EXPECT(n > 0);
 
@@ -98,14 +86,14 @@ STL2_OPEN_NAMESPACE {
 				// n >= 2
 
 				if (n <= buf.size()) {
-					return stable_part::forward_buffer(
+					return forward_buffer(
 						std::move(first), std::move(middle),
 						n, buf, pred, proj);
 				}
 
 				const auto half_n = n / 2;
-				auto res1 = stable_part::forward(std::move(first), half_n, buf, pred, proj);
-				auto res2 = stable_part::forward_reduce(res1.end(), n - half_n, buf, pred, proj);
+				auto res1 = forward(std::move(first), half_n, buf, pred, proj);
+				auto res2 = forward_reduce(res1.end(), n - half_n, buf, pred, proj);
 				auto pp = __stl2::rotate(std::move(res1.begin()),
 					std::move(res1.end()), std::move(res2.begin())).begin();
 				return {std::move(pp), std::move(res2.end())};
@@ -113,26 +101,22 @@ STL2_OPEN_NAMESPACE {
 
 			template<ForwardIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires
-				Permutable<I>
-			subrange<I>
-			forward_reduce(I first, iter_difference_t<I> n, buf_t<I>& buf,
-				Pred& pred, Proj& proj)
-			{
-				// Establish preconditions of stable_part::forward by reducing the
+			requires Permutable<I>
+			static subrange<I> forward_reduce(I first, iter_difference_t<I> n,
+				buf_t<I>& buf, Pred& pred, Proj& proj) {
+				// Establish preconditions of forward by reducing the
 				// input range.
-				stable_part::skip_true(first, n, pred, proj);
+				skip_true(first, n, pred, proj);
 				if (n < iter_difference_t<I>(2)) {
 					auto last = __stl2::next(first, n);
 					return {std::move(first), std::move(last)};
 				}
-				return stable_part::forward(std::move(first), n, buf, pred, proj);
+				return forward(std::move(first), n, buf, pred, proj);
 			}
 
 			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			void skip_false(I& last, iter_difference_t<I>& n, Pred& pred, Proj& proj)
-			{
+			static void skip_false(I& last, iter_difference_t<I>& n, Pred& pred, Proj& proj) {
 				// Move last backward past values that do not satisfy pred.
 				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *(last - n)))
 				STL2_EXPECT(n > 0);
@@ -145,11 +129,9 @@ STL2_OPEN_NAMESPACE {
 
 			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires
-				Permutable<I>
-			I bidirectional_buffer(I first, I last, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj)
-			{
+			requires Permutable<I>
+			static I bidirectional_buffer(I first, I last, iter_difference_t<I> n,
+				buf_t<I>& buf, Pred& pred, Proj& proj) {
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
 				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *last))
 				// Precondition: n == distance(first, last)
@@ -176,25 +158,9 @@ STL2_OPEN_NAMESPACE {
 
 			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires
-				Permutable<I>
-			I bidirectional_reduce_front(I first, I last, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj);
-
-			template<BidirectionalIterator I, class Proj,
-				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires
-				Permutable<I>
-			I bidirectional_reduce_back(I first, I last, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj);
-
-			template<BidirectionalIterator I, class Proj,
-				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires
-				Permutable<I>
-			I bidirectional(I first, I last, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj)
-			{
+			requires Permutable<I>
+			static I bidirectional(I first, I last, iter_difference_t<I> n,
+				buf_t<I>& buf, Pred& pred, Proj& proj) {
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
 				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *last))
 				// Precondition: n == distance(first, last)
@@ -206,16 +172,16 @@ STL2_OPEN_NAMESPACE {
 				}
 				// n >= 2
 				if (n <= buf.size()) {
-					return stable_part::bidirectional_buffer(
+					return bidirectional_buffer(
 						std::move(first), std::move(last),
 						n, buf, pred, proj);
 				}
 
 				const auto half_n = n / 2;
 				auto middle = __stl2::next(first, half_n);
-				auto pp1 = stable_part::bidirectional_reduce_back(
+				auto pp1 = bidirectional_reduce_back(
 					std::move(first), middle, half_n, buf, pred, proj);
-				auto pp2 = stable_part::bidirectional_reduce_front(
+				auto pp2 = bidirectional_reduce_front(
 					middle, std::move(last), n - half_n, buf, pred, proj);
 
 				return __stl2::rotate(std::move(pp1), std::move(middle),
@@ -224,167 +190,132 @@ STL2_OPEN_NAMESPACE {
 
 			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires
-				Permutable<I>
-			I bidirectional_reduce_front(I first, I last, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj)
-			{
+			requires Permutable<I>
+			static I bidirectional_reduce_front(I first, I last,
+				iter_difference_t<I> n, buf_t<I>& buf, Pred& pred, Proj& proj) {
 				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *last))
 				// Precondition: n == distance(first, last)
 				STL2_EXPECT(n >= iter_difference_t<I>(0));
 
-				stable_part::skip_true(first, n, pred, proj);
+				skip_true(first, n, pred, proj);
 				if (n == iter_difference_t<I>(0)) {
 					return std::move(++last);
 				}
-				return stable_part::bidirectional(first, last, n, buf, pred, proj);
+				return bidirectional(first, last, n, buf, pred, proj);
 			}
 
 			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires
-				Permutable<I>
-			I bidirectional_reduce_back(I first, I last, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj)
-			{
+			requires Permutable<I>
+			static I bidirectional_reduce_back(I first, I last,
+				iter_difference_t<I> n, buf_t<I>& buf, Pred& pred, Proj& proj) {
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
 				// Precondition: n == __stl2::distance(first, last)
 				STL2_EXPECT(n >= iter_difference_t<I>(1));
 
-				stable_part::skip_false(last, n, pred, proj);
+				skip_false(last, n, pred, proj);
 				if (n == iter_difference_t<I>(0)) {
 					return first;
 				}
-				return stable_part::bidirectional(first, last, n, buf, pred, proj);
+				return bidirectional(first, last, n, buf, pred, proj);
 			}
-		}
-	}
+		public:
+			template<ForwardIterator I, class Pred, class Proj = identity>
+			requires Permutable<I> && IndirectUnaryPredicate<Pred, projected<I, Proj>>
+			I operator()(I first, iter_difference_t<I> n,
+				Pred pred, Proj proj = {}) const {
+				if constexpr (BidirectionalIterator<I>) {
+					auto bound = __stl2::next(first, n);
+					return (*this)(
+						std::move(first), std::move(bound), n,
+						std::ref(pred), std::ref(proj));
+				} else {
+					// Either prove all true or find first false
+					skip_true(first, n, pred, proj);
+					if (n < iter_difference_t<I>(2)) {
+						return first;
+					}
+					// We now have a reduced range [first, first + n)
+					// *first is known to be false
 
-	namespace ext {
-		template<ForwardIterator I, class Pred, class Proj = identity>
-		requires
-			Permutable<I> &&
-			IndirectUnaryPredicate<
-				Pred, projected<I, Proj>>
-		I stable_partition_n(I first, iter_difference_t<I> n,
-			Pred pred, Proj proj = Proj{})
-		{
-			// Either prove all true or find first false
-			detail::stable_part::skip_true(first, n, pred, proj);
-			if (n < iter_difference_t<I>(2)) {
-				return first;
-			}
-			// We now have a reduced range [first, first + n)
-			// *first is known to be false
-
-			// might want to make this a function of trivial assignment
-			constexpr iter_difference_t<I> alloc_threshold = 4;
-			using buf_t = detail::stable_part::buf_t<I>;
-			auto buf = n >= alloc_threshold ? buf_t{n} : buf_t{};
-			return detail::stable_part::forward(
-				first, n, buf, pred, proj).begin();
-		}
-
-		template<BidirectionalIterator I, class Pred, class Proj = identity>
-		requires
-			Permutable<I> &&
-			IndirectUnaryPredicate<
-				Pred, projected<I, Proj>>
-		I stable_partition_n(I first, I last, iter_difference_t<I> n,
-			Pred pred, Proj proj = Proj{})
-		{
-			// Precondition: n == distance(first, last);
-			// Either prove all true or find first false
-			detail::stable_part::skip_true(first, n, pred, proj);
-			if (n == iter_difference_t<I>(0)) {
-				return first;
+					// might want to make this a function of trivial assignment
+					constexpr iter_difference_t<I> alloc_threshold = 4;
+					using buf_t = buf_t<I>;
+					auto buf = n >= alloc_threshold ? buf_t{n} : buf_t{};
+					return forward(
+						first, n, buf, pred, proj).begin();
+				}
 			}
 
-			// Either prove (first, last) is all false or find last true
-			detail::stable_part::skip_false(last, n, pred, proj);
-			if (n == iter_difference_t<I>(0)) {
-				return first;
+			template<BidirectionalIterator I, class Pred, class Proj = identity>
+			requires Permutable<I> && IndirectUnaryPredicate<Pred, projected<I, Proj>>
+			I operator()(I first, I last, iter_difference_t<I> n,
+				Pred pred, Proj proj = {}) const {
+				STL2_ASSERT(n == __stl2::distance(first, last));
+
+				// Either prove all true or find first false
+				skip_true(first, n, pred, proj);
+				if (n == iter_difference_t<I>(0)) {
+					return first;
+				}
+
+				// Either prove (first, last) is all false or find last true
+				skip_false(last, n, pred, proj);
+				if (n == iter_difference_t<I>(0)) {
+					return first;
+				}
+				// We now have a reduced range [first, last]
+				// *first is known to be false
+				// *last is known to be true
+
+				// might want to make this a function of trivial assignment
+				constexpr iter_difference_t<I> alloc_threshold = 4;
+				using buf_t = buf_t<I>;
+				buf_t buf = n >= alloc_threshold ? buf_t{n} : buf_t{};
+				return bidirectional(
+					first, last, n, buf, pred, proj);
 			}
-			// We now have a reduced range [first, last]
-			// *first is known to be false
-			// *last is known to be true
+		};
 
-			// might want to make this a function of trivial assignment
-			constexpr iter_difference_t<I> alloc_threshold = 4;
-			using buf_t = detail::stable_part::buf_t<I>;
-			buf_t buf = n >= alloc_threshold ? buf_t{n} : buf_t{};
-			return detail::stable_part::bidirectional(
-				first, last, n, buf, pred, proj);
+		inline constexpr __stable_partition_n_fn stable_partition_n {};
+	} // namespace ext
+
+	struct __stable_partition_fn {
+		template<ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
+		requires Permutable<I> && IndirectUnaryPredicate<Pred, projected<I, Proj>>
+		I operator()(I first, S last, Pred pred, Proj proj = {}) const {
+			if constexpr (BidirectionalIterator<I>) {
+				auto bound = ext::enumerate(first, std::move(last));
+				return ext::stable_partition_n(
+					std::move(first), std::move(bound.end()), bound.count(),
+					std::ref(pred), std::ref(proj));
+			} else {
+				auto n = __stl2::distance(first, std::move(last));
+				return ext::stable_partition_n(
+					std::move(first), n,
+					std::ref(pred), std::ref(proj));
+			}
 		}
 
-		template<BidirectionalIterator I, class Pred, class Proj = identity>
-		requires
-			Permutable<I> &&
-			IndirectUnaryPredicate<
-				Pred, projected<I, Proj>>
-		I stable_partition_n(I first, iter_difference_t<I> n,
-			Pred pred, Proj proj = Proj{})
-		{
-			auto bound = __stl2::next(first, n);
-			return ext::stable_partition_n(
-				std::move(first), std::move(bound), n,
-				std::ref(pred), std::ref(proj));
+		template<ForwardRange Rng, class Pred, class Proj = identity>
+		requires Permutable<iterator_t<Rng>> &&
+			IndirectUnaryPredicate<Pred, projected<iterator_t<Rng>, Proj>>
+		safe_iterator_t<Rng>
+		operator()(Rng&& rng, Pred pred, Proj proj = {}) const {
+			if constexpr (BidirectionalRange<Rng>) {
+				auto bound = ext::enumerate(rng);
+				return ext::stable_partition_n(
+					__stl2::begin(rng), std::move(bound.end()), bound.count(),
+					std::ref(pred), std::ref(proj));
+			} else {
+				return ext::stable_partition_n(
+					__stl2::begin(rng), __stl2::distance(rng),
+					std::ref(pred), std::ref(proj));
+			}
 		}
-	}
+	};
 
-	template<ForwardIterator I, Sentinel<I> S, class Pred, class Proj = identity>
-	requires
-		Permutable<I> &&
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	I stable_partition(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		auto n = __stl2::distance(first, std::move(last));
-		return ext::stable_partition_n(
-			std::move(first), n,
-			std::ref(pred), std::ref(proj));
-	}
-
-	template<BidirectionalIterator I, Sentinel<I> S, class Pred,
-		class Proj = identity>
-	requires
-		Permutable<I> &&
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	I stable_partition(I first, S last, Pred pred, Proj proj = Proj{})
-	{
-		auto bound = ext::enumerate(first, std::move(last));
-		return ext::stable_partition_n(
-			std::move(first), std::move(bound.end()), bound.count(),
-			std::ref(pred), std::ref(proj));
-	}
-
-	template<ForwardRange Rng, class Pred, class Proj = identity>
-	requires
-		Permutable<iterator_t<Rng>> &&
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	stable_partition(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		return ext::stable_partition_n(
-			__stl2::begin(rng), __stl2::distance(rng),
-			std::ref(pred), std::ref(proj));
-	}
-
-	template<BidirectionalRange Rng, class Pred, class Proj = identity>
-	requires
-		Permutable<iterator_t<Rng>> &&
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	safe_iterator_t<Rng>
-	stable_partition(Rng&& rng, Pred pred, Proj proj = Proj{})
-	{
-		auto bound = ext::enumerate(rng);
-		return ext::stable_partition_n(
-			__stl2::begin(rng), std::move(bound.end()), bound.count(),
-			std::ref(pred), std::ref(proj));
-	}
+	inline constexpr __stable_partition_fn stable_partition {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
