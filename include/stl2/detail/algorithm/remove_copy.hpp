@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectRelation<
 			equal_to, projected<I, Proj>, const T*>
 	tagged_pair<tag::in(I), tag::out(O)>
-	remove_copy(I first, S last, O result, const T& value, Proj proj = Proj{})
+	remove_copy(I first, S last, O result, const T& value, Proj proj = {})
 	{
 		for (; first != last; ++first) {
 			iter_reference_t<I>&& v = *first;
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectRelation<
 			equal_to, projected<iterator_t<Rng>, Proj>, const T*>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
-	remove_copy(Rng&& rng, O&& result, const T& value, Proj proj = Proj{})
+	remove_copy(Rng&& rng, O&& result, const T& value, Proj proj = {})
 	{
 		return __stl2::remove_copy(__stl2::begin(rng), __stl2::end(rng),
 			std::forward<O>(result), value, std::ref(proj));

@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	struct __adjacent_find_fn {
 		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectRelation<projected<I, Proj>> Pred = equal_to>
-		constexpr I operator()(I first, S last, Pred pred = Pred{}, Proj proj = Proj{}) const
+		constexpr I operator()(I first, S last, Pred pred = {}, Proj proj = {}) const
 		{
 			if (first == last) {
 				return first;
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 		template<ForwardRange R, class Proj = identity,
 			IndirectRelation<projected<iterator_t<R>, Proj>> Pred = equal_to>
 		constexpr safe_iterator_t<R>
-		operator()(R&& r, Pred pred = Pred{}, Proj proj = Proj{}) const
+		operator()(R&& r, Pred pred = {}, Proj proj = {}) const
 		{
 			return (*this)(
 				__stl2::begin(r), __stl2::end(r),

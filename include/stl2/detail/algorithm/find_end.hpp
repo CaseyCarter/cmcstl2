@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 			class Pred = equal_to, class Proj1 = identity, class Proj2 = identity>
 		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
 		constexpr I1 operator()(I1 first1, S1 last1, I2 first2, S2 last2,
-			Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const {
+			Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const {
 			if (first2 == last2) {
 				return __stl2::next(first1, last1);
 			}
@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
 			class Pred = equal_to, class Proj1 = identity, class Proj2 = identity>
 		requires IndirectlyComparable<iterator_t<R1>, iterator_t<R2>, Pred, Proj1, Proj2>
 		constexpr safe_iterator_t<R1> operator()(R1&& r1, R2&& r2,
-			Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
+			Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
 			return (*this)(
 				__stl2::begin(r1), __stl2::end(r1),

@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	struct __all_of_fn {
 		template<InputIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectUnaryPredicate<projected<I, Proj>> Pred>
-		constexpr bool operator()(I first, S last, Pred pred, Proj proj = Proj{}) const
+		constexpr bool operator()(I first, S last, Pred pred, Proj proj = {}) const
 		{
 			if (first != last) {
 				do {
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<InputRange R, class Proj = identity,
 			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
-		constexpr bool operator()(R&& rng, Pred pred, Proj proj = Proj{}) const
+		constexpr bool operator()(R&& rng, Pred pred, Proj proj = {}) const
 		{
 			return (*this)(__stl2::begin(rng), __stl2::end(rng),
 				std::ref(pred), std::ref(proj));

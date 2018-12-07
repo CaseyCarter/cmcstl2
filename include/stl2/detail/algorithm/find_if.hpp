@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 	struct __find_if_fn {
 		template<InputIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectUnaryPredicate<projected<I, Proj>> Pred>
-		constexpr I operator()(I first, S last, Pred pred, Proj proj = Proj{}) const
+		constexpr I operator()(I first, S last, Pred pred, Proj proj = {}) const
 		{
 			for (; first != last; ++first) {
 				if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<InputRange R, class Proj = identity,
 			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
-		constexpr safe_iterator_t<R> operator()(R&& r, Pred pred, Proj proj = Proj{}) const
+		constexpr safe_iterator_t<R> operator()(R&& r, Pred pred, Proj proj = {}) const
 		{
 			return (*this)(__stl2::begin(r), __stl2::end(r),
 				std::ref(pred), std::ref(proj));

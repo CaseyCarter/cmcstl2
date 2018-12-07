@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<I, Proj>>
-	I is_sorted_until(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
+	I is_sorted_until(I first, S last, Comp comp = {}, Proj proj = {})
 	{
 		if (first != last) {
 			while (true) {
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	is_sorted_until(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
+	is_sorted_until(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::is_sorted_until(__stl2::begin(rng), __stl2::end(rng),
 			std::ref(comp), std::ref(proj));

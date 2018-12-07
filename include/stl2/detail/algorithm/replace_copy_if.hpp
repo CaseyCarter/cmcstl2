@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 			Pred, projected<I, Proj>>
 	tagged_pair<tag::in(I), tag::out(O)>
 	replace_copy_if(I first, S last, O result, Pred pred,
-		const T& new_value, Proj proj = Proj{})
+		const T& new_value, Proj proj = {})
 	{
 		for (; first != last; ++first, ++result) {
 			iter_reference_t<I>&& v = *first;
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 			Pred, projected<iterator_t<Rng>, Proj>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	replace_copy_if(Rng&& rng, O&& result, Pred pred, const T& new_value,
-		Proj proj = Proj{})
+		Proj proj = {})
 	{
 		return __stl2::replace_copy_if(
 			__stl2::begin(rng), __stl2::end(rng), std::forward<O>(result),

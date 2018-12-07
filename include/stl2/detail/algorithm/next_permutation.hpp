@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Sortable<I, Comp, Proj>
 	bool next_permutation(I first, S last,
-		Comp comp = Comp{}, Proj proj = Proj{})
+		Comp comp = {}, Proj proj = {})
 	{
 		if (first == last) {
 			return false;
@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 	template<BidirectionalRange Rng, class Comp = less, class Proj = identity>
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
-	bool next_permutation(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
+	bool next_permutation(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::next_permutation(__stl2::begin(rng), __stl2::end(rng),
 			std::ref(comp), std::ref(proj));

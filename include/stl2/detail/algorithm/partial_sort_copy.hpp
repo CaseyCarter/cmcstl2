@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectStrictWeakOrder<
 			Comp, projected<I1, Proj1>, projected<I2, Proj2>>
 	I2 partial_sort_copy(I1 first, S1 last, I2 result_first, S2 result_last,
-		Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+		Comp comp = {}, Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		auto r = result_first;
 		if(r != result_last) {
@@ -69,8 +69,8 @@ STL2_OPEN_NAMESPACE {
 			projected<iterator_t<Rng1>, Proj1>,
 			projected<iterator_t<Rng2>, Proj2>>
 	safe_iterator_t<Rng2>
-	partial_sort_copy(Rng1&& rng, Rng2&& result_rng, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+	partial_sort_copy(Rng1&& rng, Rng2&& result_rng, Comp comp = {},
+		Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		return __stl2::partial_sort_copy(
 			__stl2::begin(rng), __stl2::end(rng),

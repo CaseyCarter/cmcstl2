@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 		template<class T, class Proj = identity,
 			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
 		constexpr const T&
-		operator()(const T& a, const T& b, Comp comp = Comp{}, Proj proj = Proj{}) const
+		operator()(const T& a, const T& b, Comp comp = {}, Proj proj = {}) const
 		{
 			return !__invoke::impl(comp, __invoke::impl(proj, a), __invoke::impl(proj, b)) ? a : b;
 		}
@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = ranges::less>
 		requires Copyable<iter_value_t<iterator_t<R>>>
 		constexpr iter_value_t<iterator_t<R>>
-		operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		operator()(R&& r, Comp comp = {}, Proj proj = {}) const
 		{
 			return __max_fn::impl(r, std::ref(comp), std::ref(proj));
 		}
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 		template<Copyable T, class Proj = identity,
 			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
 		constexpr T
-		operator()(std::initializer_list<T> r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		operator()(std::initializer_list<T> r, Comp comp = {}, Proj proj = {}) const
 		{
 			return __max_fn::impl(r, std::ref(comp), std::ref(proj));
 		}

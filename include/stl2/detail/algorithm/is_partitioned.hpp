@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
-	bool is_partitioned(I first, S last, Pred pred, Proj proj = Proj{})
+	bool is_partitioned(I first, S last, Pred pred, Proj proj = {})
 	{
 		first = __stl2::find_if_not(std::move(first), last,
 			std::ref(pred), std::ref(proj));
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
-	bool is_partitioned(Rng&& rng, Pred pred, Proj proj = Proj{})
+	bool is_partitioned(Rng&& rng, Pred pred, Proj proj = {})
 	{
 		return __stl2::is_partitioned(__stl2::begin(rng), __stl2::end(rng),
 			std::ref(pred), std::ref(proj));

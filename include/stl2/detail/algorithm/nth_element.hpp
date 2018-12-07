@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 	template<RandomAccessIterator I, Sentinel<I> S, class Comp = less, class Proj = identity>
 	requires
 		Sortable<I, Comp, Proj>
-	I nth_element(I first, I nth, S last, Comp comp = Comp{}, Proj proj = Proj{})
+	I nth_element(I first, I nth, S last, Comp comp = {}, Proj proj = {})
 	{
 		I end = __stl2::next(nth, last), end_orig = end;
 		constexpr iter_difference_t<I> limit = 7;
@@ -262,7 +262,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
-	nth_element(Rng&& rng, iterator_t<Rng> nth, Comp comp = Comp{}, Proj proj = Proj{})
+	nth_element(Rng&& rng, iterator_t<Rng> nth, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::nth_element(
 			__stl2::begin(rng), std::move(nth), __stl2::end(rng),

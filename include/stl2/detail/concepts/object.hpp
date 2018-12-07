@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 	//     requires IndirectRelation<equal_to,
 	//                projected<iterator_t<Rng>, Proj>, const T*>()
 	//   safe_iterator_t<Rng>
-	//   find(Rng&& rng, const T& value, Proj proj = Proj{});
+	//   find(Rng&& rng, const T& value, Proj proj = {});
 	//
 	// can be implemented to perfect-forward to the iterator overload as:
 	//
@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 	//                projected<iterator_t<Rng>, __f<Proj>>, // NW: __f<Proj>
 	//                const T*>()
 	//   safe_iterator_t<Rng>
-	//   find(Rng&& rng, const T& value, Proj&& proj = Proj{}) {
+	//   find(Rng&& rng, const T& value, Proj&& proj = {}) {
 	//     return find(begin(rng), end(rng), value, forward<Proj>(proj));
 	//   }
 	//

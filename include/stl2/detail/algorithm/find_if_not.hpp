@@ -25,14 +25,14 @@ STL2_OPEN_NAMESPACE {
 	struct __find_if_not_fn {
 		template<InputIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectUnaryPredicate<projected<I, Proj>> Pred>
-		constexpr I operator()(I first, S last, Pred pred, Proj proj = Proj{}) const {
+		constexpr I operator()(I first, S last, Pred pred, Proj proj = {}) const {
 			return __stl2::find_if(std::move(first), std::move(last),
 				__stl2::not_fn(std::ref(pred)), std::ref(proj));
 		}
 
 		template<InputRange R, class Proj = identity,
 			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
-		constexpr safe_iterator_t<R> operator()(R&& r, Pred pred, Proj proj = Proj{}) const {
+		constexpr safe_iterator_t<R> operator()(R&& r, Pred pred, Proj proj = {}) const {
 			return __stl2::find_if(__stl2::begin(r), __stl2::end(r),
 				__stl2::not_fn(std::ref(pred)), std::ref(proj));
 		}

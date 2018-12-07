@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
 		constexpr tagged_pair<tag::min(I), tag::max(I)>
-		operator()(I first, S last, Comp comp = Comp{}, Proj proj = Proj{}) const
+		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const
 		{
 			auto result = tagged_pair<tag::min(I), tag::max(I)>{first, first};
 			if (first == last || ++first == last) {
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
 		constexpr tagged_pair<tag::min(safe_iterator_t<R>),
 			tag::max(safe_iterator_t<R>)>
-		operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		operator()(R&& r, Comp comp = {}, Proj proj = {}) const
 		{
 			return (*this)(__stl2::begin(r), __stl2::end(r),
 				std::ref(comp), std::ref(proj));

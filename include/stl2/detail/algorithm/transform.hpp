@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		Writable<O,
 			indirect_result_t<F&, projected<I, Proj>>>
 	tagged_pair<tag::in(I), tag::out(O)>
-	transform(I first, S last, O result, F op, Proj proj = Proj{})
+	transform(I first, S last, O result, F op, Proj proj = {})
 	{
 		for (; first != last; ++first, ++result) {
 			*result = __stl2::invoke(op, __stl2::invoke(proj, *first));
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		Writable<O,
 			indirect_result_t<F&, projected<iterator_t<R>, Proj>>>
 	tagged_pair<tag::in(safe_iterator_t<R>), tag::out(O)>
-	transform(R&& r, O result, F op, Proj proj = Proj{})
+	transform(R&& r, O result, F op, Proj proj = {})
 	{
 		return __stl2::transform(
 			__stl2::begin(r), __stl2::end(r), std::move(result),
@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 		CopyConstructible F, class Proj1 = identity, class Proj2 = identity>
 	[[deprecated]] tagged_tuple<tag::in1(I1), tag::in2(std::decay_t<I2>), tag::out(O)>
 	transform(I1 first1, S1 last1, I2&& first2_, O result,
-		F op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+		F op, Proj1 proj1 = {}, Proj2 proj2 = {})
 	requires
 		InputIterator<std::decay_t<I2>> && !Range<I2> &&
 		Writable<O,
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 	tagged_tuple<tag::in1(safe_iterator_t<Rng>),
 		tag::in2(std::decay_t<I>), tag::out(O)>
 	transform(Rng&& r1, I&& first2_, O result, F op,
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+		Proj1 proj1 = {}, Proj2 proj2 = {})
 	requires
 		InputIterator<std::decay_t<I>> && !Range<I> &&
 		Writable<O,
@@ -103,7 +103,7 @@ STL2_OPEN_NAMESPACE {
 				projected<I2, Proj2>>>
 	tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
 	transform(I1 first1, S1 last1, I2 first2, S2 last2, O result,
-		F op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+		F op, Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		for (; first1 != last1 && first2 != last2; ++first1, ++first2, ++result) {
 			*result = __stl2::invoke(op, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2));
@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
 		tag::in2(safe_iterator_t<Rng2>),
 		tag::out(O)>
 	transform(Rng1&& r1, Rng2&& r2, O result, F op,
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+		Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		return __stl2::transform(
 			__stl2::begin(r1), __stl2::end(r1),

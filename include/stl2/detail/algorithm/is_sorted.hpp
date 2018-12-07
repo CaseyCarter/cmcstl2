@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<I, Proj>>
-	bool is_sorted(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
+	bool is_sorted(I first, S last, Comp comp = {}, Proj proj = {})
 	{
 		return last == __stl2::is_sorted_until(std::move(first), last,
 			std::ref(comp), std::ref(proj));
@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
-	bool is_sorted(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
+	bool is_sorted(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::end(rng) ==
 			__stl2::is_sorted_until(__stl2::begin(rng), __stl2::end(rng),

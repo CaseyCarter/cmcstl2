@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 			class Proj1 = identity, class Proj2 = identity,
 			IndirectRelation<projected<I1, Proj1>,	projected<I2, Proj2>> Pred = equal_to>
 		constexpr I1 operator()(I1 first1, S1 last1, I2 first2, S2 last2,
-			Pred pred = Pred{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
+			Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
 			for (; first1 != last1; ++first1) {
 				for (auto pos = first2; pos != last2; ++pos) {
@@ -45,8 +45,8 @@ STL2_OPEN_NAMESPACE {
 				projected<iterator_t<R1>, Proj1>,
 				projected<iterator_t<R2>, Proj2>>
 		constexpr safe_iterator_t<R1>
-		operator()(R1&& r1, R2&& r2, Pred pred = Pred{},
-			Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{}) const
+		operator()(R1&& r1, R2&& r2, Pred pred = {},
+			Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
 			return (*this)(
 				__stl2::begin(r1), __stl2::end(r1),

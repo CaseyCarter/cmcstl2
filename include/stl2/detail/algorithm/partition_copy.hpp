@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 			Pred, projected<I, Proj>>
 	tagged_tuple<tag::in(I), tag::out1(O1), tag::out2(O2)>
 	partition_copy(I first, S last, O1 out_true, O2 out_false, Pred pred,
-		Proj proj = Proj{})
+		Proj proj = {})
 	{
 		for (; first != last; ++first) {
 			iter_reference_t<I>&& v = *first;
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 		tag::out1(__f<O1>),
 		tag::out2(__f<O2>)>
 	partition_copy(Rng&& rng, O1&& out_true, O2&& out_false, Pred pred,
-		Proj proj = Proj{})
+		Proj proj = {})
 	{
 		return __stl2::partition_copy(
 			__stl2::begin(rng), __stl2::end(rng),

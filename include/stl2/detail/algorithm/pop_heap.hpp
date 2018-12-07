@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 						class Proj = identity>
 	requires
 		Sortable<I, Comp, Proj>
-	I pop_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
+	I pop_heap(I first, S last, Comp comp = {}, Proj proj = {})
 	{
 		auto n = __stl2::distance(first, std::move(last));
 		detail::pop_heap_n(first, n, std::ref(comp), std::ref(proj));
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
-	pop_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
+	pop_heap(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		auto n = __stl2::distance(rng);
 		detail::pop_heap_n(__stl2::begin(rng), n, std::ref(comp), std::ref(proj));

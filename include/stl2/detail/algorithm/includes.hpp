@@ -27,8 +27,8 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<I1, Proj1>, projected<I2, Proj2>>
-	bool includes(I1 first1, S1 last1, I2 first2, S2 last2, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+	bool includes(I1 first1, S1 last1, I2 first2, S2 last2, Comp comp = {},
+		Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		while (true) {
 			if (first2 == last2) {
@@ -53,8 +53,8 @@ STL2_OPEN_NAMESPACE {
 		IndirectStrictWeakOrder<Comp,
 			projected<iterator_t<Rng1>, Proj1>,
 			projected<iterator_t<Rng2>, Proj2>>
-	bool includes(Rng1&& rng1, Rng2&& rng2, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+	bool includes(Rng1&& rng1, Rng2&& rng2, Comp comp = {},
+		Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		return __stl2::includes(
 			__stl2::begin(rng1), __stl2::end(rng1),
