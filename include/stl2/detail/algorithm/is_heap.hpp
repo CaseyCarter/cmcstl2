@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<I, Proj>>
-	bool is_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
+	bool is_heap(I first, S last, Comp comp = {}, Proj proj = {})
 	{
 		return last == __stl2::is_heap_until(std::move(first), last,
 			std::ref(comp), std::ref(proj));
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
-	bool is_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
+	bool is_heap(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::end(rng) ==
 			__stl2::is_heap_until(rng, std::ref(comp), std::ref(proj));

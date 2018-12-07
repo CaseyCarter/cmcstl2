@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 		Permutable<I> &&
 		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
-	I remove_if(I first, S last, Pred pred, Proj proj = Proj{})
+	I remove_if(I first, S last, Pred pred, Proj proj = {})
 	{
 		first = __stl2::find_if(std::move(first), last,
 			std::ref(pred), std::ref(proj));
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	remove_if(Rng&& rng, Pred pred, Proj proj = Proj{})
+	remove_if(Rng&& rng, Pred pred, Proj proj = {})
 	{
 		return __stl2::remove_if(
 			__stl2::begin(rng), __stl2::end(rng),

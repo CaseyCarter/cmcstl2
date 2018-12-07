@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		Mergeable<I1, I2, O, Comp, Proj1, Proj2>
 	tagged_pair<tag::in(I1), tag::out(O)>
 	set_difference(I1 first1, S1 last1, I2 first2, S2 last2, O result,
-		Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+		Comp comp = {}, Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		while (first1 != last1 && first2 != last2) {
 			iter_reference_t<I1>&& v1 = *first1;
@@ -60,8 +60,8 @@ STL2_OPEN_NAMESPACE {
 			iterator_t<Rng1>, iterator_t<Rng2>,
 			__f<O>, Comp, Proj1, Proj2>
 	tagged_pair<tag::in(safe_iterator_t<Rng1>), tag::out(__f<O>)>
-	set_difference(Rng1&& rng1, Rng2&& rng2, O&& result, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+	set_difference(Rng1&& rng1, Rng2&& rng2, O&& result, Comp comp = {},
+		Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		return __stl2::set_difference(__stl2::begin(rng1), __stl2::end(rng1),
 			__stl2::begin(rng2), __stl2::end(rng2), std::forward<O>(result),

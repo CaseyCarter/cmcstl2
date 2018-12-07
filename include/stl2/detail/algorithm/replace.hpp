@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectRelation<
 			equal_to, projected<I, Proj>, const T1*>
 	I replace(I first, S last, const T1& old_value, const T2& new_value,
-		Proj proj = Proj{})
+		Proj proj = {})
 	{
 		if (first != last) {
 			do {
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 			equal_to, projected<iterator_t<Rng>, Proj>, const T1*>
 	safe_iterator_t<Rng>
 	replace(Rng&& rng, const T1& old_value, const T2& new_value,
-		Proj proj = Proj{})
+		Proj proj = {})
 	{
 		return __stl2::replace(
 			__stl2::begin(rng), __stl2::end(rng),

@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
 	tagged_pair<tag::in(I), tag::out(O)>
-	copy_if(I first, S last, O result, Pred pred, Proj proj = Proj{})
+	copy_if(I first, S last, O result, Pred pred, Proj proj = {})
 	{
 		for (; first != last; ++first) {
 			iter_reference_t<I>&& v = *first;
@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 			Pred, projected<iterator_t<Rng>, Proj>> &&
 		IndirectlyCopyable<iterator_t<Rng>, __f<O>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
-	copy_if(Rng&& rng, O&& result, Pred pred, Proj proj = Proj{})
+	copy_if(Rng&& rng, O&& result, Pred pred, Proj proj = {})
 	{
 		return __stl2::copy_if(__stl2::begin(rng), __stl2::end(rng),
 			std::forward<O>(result), std::ref(pred),

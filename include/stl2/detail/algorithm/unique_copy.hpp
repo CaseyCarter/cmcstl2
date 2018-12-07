@@ -97,8 +97,8 @@ STL2_OPEN_NAMESPACE {
 		 InputIterator<O> && Same<iter_value_t<I>, iter_value_t<O>> ||
 		 IndirectlyCopyableStorable<I, O>)
 	tagged_pair<tag::in(I), tag::out(O)>
-	unique_copy(I first, S last, O result, R comp = R{},
-		Proj proj = Proj{})
+	unique_copy(I first, S last, O result, R comp = {},
+		Proj proj = {})
 	{
 		return __stl2::__unique_copy(
 			ext::priority_tag<2>{},
@@ -117,7 +117,7 @@ STL2_OPEN_NAMESPACE {
 		 InputIterator<O> && Same<iter_value_t<iterator_t<Rng>>, iter_value_t<O>> ||
 		 IndirectlyCopyableStorable<iterator_t<Rng>, O>)
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
-	unique_copy(Rng&& rng, O result, R comp = R{}, Proj proj = Proj{})
+	unique_copy(Rng&& rng, O result, R comp = {}, Proj proj = {})
 	{
 		return __stl2::__unique_copy(
 			ext::priority_tag<2>{},

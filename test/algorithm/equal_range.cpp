@@ -46,7 +46,7 @@ void not_totally_ordered()
 
 template<class Iter, class Sent, class T, class Proj = ranges::identity>
 void
-test(Iter first, Sent last, const T& value, Proj proj = Proj{})
+test(Iter first, Sent last, const T& value, Proj proj = {})
 {
 	auto i = ranges::equal_range(first, last, value, ranges::less{}, proj);
 	for (Iter j = first; j != i.begin(); ++j)

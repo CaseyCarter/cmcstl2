@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		requires Copyable<iter_value_t<iterator_t<R>>>
 		static constexpr tagged_pair<tag::min(iter_value_t<iterator_t<R>>),
 			tag::max(iter_value_t<iterator_t<R>>)>
-		impl(R&& r, Comp comp = Comp{}, Proj proj = Proj{})
+		impl(R&& r, Comp comp = {}, Proj proj = {})
 		{
 			using V = iter_value_t<iterator_t<R>>;
 			auto first = __stl2::begin(r);
@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 		template<class T, class Proj = identity,
 			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
 		constexpr tagged_pair<tag::min(const T&), tag::max(const T&)>
-		operator()(const T& a, const T& b, Comp comp = Comp{}, Proj proj = Proj{}) const
+		operator()(const T& a, const T& b, Comp comp = {}, Proj proj = {}) const
 		{
 			if (__invoke::impl(comp, __invoke::impl(proj, b), __invoke::impl(proj, a))) {
 				return {b, a};
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 		requires Copyable<iter_value_t<iterator_t<R>>>
 		constexpr tagged_pair<tag::min(iter_value_t<iterator_t<R>>),
 			tag::max(iter_value_t<iterator_t<R>>)>
-		operator()(R&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		operator()(R&& r, Comp comp = {}, Proj proj = {}) const
 		{
 			return __minmax_fn::impl(r, std::ref(comp), std::ref(proj));
 		}
@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
 		template<Copyable T, class Proj = identity,
 			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = ranges::less>
 		constexpr tagged_pair<tag::min(T), tag::max(T)>
-		operator()(std::initializer_list<T>&& r, Comp comp = Comp{}, Proj proj = Proj{}) const
+		operator()(std::initializer_list<T>&& r, Comp comp = {}, Proj proj = {}) const
 		{
 			return __minmax_fn::impl(r, std::ref(comp), std::ref(proj));
 		}

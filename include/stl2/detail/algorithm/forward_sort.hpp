@@ -172,7 +172,7 @@ STL2_OPEN_NAMESPACE {
 			requires
 				Sortable<I, Comp, Proj>
 			inline I sort_n(I first, const iter_difference_t<I> n,
-				Comp comp = Comp{}, Proj proj = Proj{})
+				Comp comp = {}, Proj proj = {})
 			{
 				STL2_EXPECT(0 <= n);
 				auto ufirst = ext::uncounted(first);

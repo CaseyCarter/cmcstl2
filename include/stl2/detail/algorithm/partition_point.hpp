@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectUnaryPredicate<
 				Pred, projected<I, Proj>>
 		I partition_point_n(I first, iter_difference_t<I> n,
-			Pred pred, Proj proj = Proj{})
+			Pred pred, Proj proj = {})
 		{
 			STL2_EXPECT(0 <= n);
 			while (n != 0) {
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
-	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
+	I partition_point(I first, S last, Pred pred, Proj proj = {})
 	{
 		// Probe exponentially for either end-of-range or an iterator
 		// that is past the partition point (i.e., does not satisfy pred).
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 		SizedSentinel<S, I> &&
 		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
-	I partition_point(I first, S last, Pred pred, Proj proj = Proj{})
+	I partition_point(I first, S last, Pred pred, Proj proj = {})
 	{
 		auto n = __stl2::distance(first, std::move(last));
 		return __stl2::ext::partition_point_n(std::move(first), n,
@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
+	partition_point(Rng&& rng, Pred pred, Proj proj = {})
 	{
 		return __stl2::partition_point(__stl2::begin(rng), __stl2::end(rng),
 			std::ref(pred), std::ref(proj));
@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	partition_point(Rng&& rng, Pred pred, Proj proj = Proj{})
+	partition_point(Rng&& rng, Pred pred, Proj proj = {})
 	{
 		return ext::partition_point_n(__stl2::begin(rng), __stl2::distance(rng),
 			std::ref(pred), std::ref(proj));

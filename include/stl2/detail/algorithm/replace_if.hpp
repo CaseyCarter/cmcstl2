@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 		Writable<I, const T&> &&
 		IndirectUnaryPredicate<
 			Pred, projected<I, Proj>>
-	I replace_if(I first, S last, Pred pred, const T& new_value, Proj proj = Proj{})
+	I replace_if(I first, S last, Pred pred, const T& new_value, Proj proj = {})
 	{
 		if (first != last) {
 			do {
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectUnaryPredicate<
 			Pred, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng> replace_if(Rng&& rng, Pred pred, const T& new_value,
-		Proj proj = Proj{})
+		Proj proj = {})
 	{
 		return __stl2::replace_if(__stl2::begin(rng), __stl2::end(rng),
 			std::ref(pred), new_value, std::ref(proj));

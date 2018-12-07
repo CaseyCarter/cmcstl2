@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		Permutable<I> &&
 		IndirectRelation<
 			equal_to, projected<I, Proj>, const T*>
-	I remove(I first, S last, const T& value, Proj proj = Proj{})
+	I remove(I first, S last, const T& value, Proj proj = {})
 	{
 		first = __stl2::find(std::move(first), last, value, std::ref(proj));
 		if (first != last) {
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectRelation<
 			equal_to, projected<iterator_t<Rng>, Proj>, const T*>
 	safe_iterator_t<Rng>
-	remove(Rng&& rng, const T& value, Proj proj = Proj{})
+	remove(Rng&& rng, const T& value, Proj proj = {})
 	{
 		return __stl2::remove(__stl2::begin(rng), __stl2::end(rng), value, std::ref(proj));
 	}

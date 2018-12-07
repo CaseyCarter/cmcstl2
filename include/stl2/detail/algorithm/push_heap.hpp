@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Sentinel<__f<S>, I> &&
 		Sortable<I, Comp, Proj>
-	I push_heap(I first, S&& last, Comp comp = Comp{}, Proj proj = Proj{})
+	I push_heap(I first, S&& last, Comp comp = {}, Proj proj = {})
 	{
 		auto n = __stl2::distance(first, std::forward<S>(last));
 		detail::sift_up_n(first, n, std::ref(comp), std::ref(proj));
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
-	push_heap(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
+	push_heap(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		auto n = __stl2::distance(rng);
 		detail::sift_up_n(__stl2::begin(rng), n, std::ref(comp), std::ref(proj));

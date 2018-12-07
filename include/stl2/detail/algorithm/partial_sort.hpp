@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj = identity>
 	requires
 		Sortable<I, Comp, Proj>
-	I partial_sort(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{})
+	I partial_sort(I first, I middle, S last, Comp comp = {}, Proj proj = {})
 	{
 		__stl2::make_heap(first, middle, std::ref(comp), std::ref(proj));
 		const auto len = __stl2::distance(first, middle);
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng>
-	partial_sort(Rng&& rng, iterator_t<Rng> middle, Comp comp = Comp{}, Proj proj = Proj{})
+	partial_sort(Rng&& rng, iterator_t<Rng> middle, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::partial_sort(
 			__stl2::begin(rng), std::move(middle), __stl2::end(rng),

@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj = identity>
 	requires
 		Sortable<I, Comp, Proj>
-	I sort(I first, S sent, Comp comp = Comp{}, Proj proj = Proj{})
+	I sort(I first, S sent, Comp comp = {}, Proj proj = {})
 	{
 		if (first == sent) {
 			return first;
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 	template<RandomAccessRange Rng, class Comp = less, class Proj = identity>
 	requires
 		Sortable<iterator_t<Rng>, Comp, Proj>
-	safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
+	safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::sort(__stl2::begin(rng), __stl2::end(rng),
 			std::ref(comp), std::ref(proj));
@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 			class Proj = identity>
 		requires
 			Sortable<I, Comp, Proj>
-		I sort(I first, S sent, Comp comp = Comp{}, Proj proj = Proj{})
+		I sort(I first, S sent, Comp comp = {}, Proj proj = {})
 		{
 			if (first == sent) {
 				return first;
@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 		template<RandomAccessRange Rng, class Comp = less, class Proj = identity>
 		requires
 			Sortable<iterator_t<Rng>, Comp, Proj>
-		safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
+		safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = {}, Proj proj = {})
 		{
 			return __stl2::sort(__stl2::begin(rng), __stl2::end(rng),
 				std::ref(comp), std::ref(proj));
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 			class Proj = identity>
 		requires
 			Sortable<I, Comp, Proj>
-		I sort(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
+		I sort(I first, S last, Comp comp = {}, Proj proj = {})
 		{
 			auto n = __stl2::distance(first, std::move(last));
 			return detail::fsort::sort_n(std::move(first), n,
@@ -93,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 		template<ForwardRange Rng, class Comp = less, class Proj = identity>
 		requires
 			Sortable<iterator_t<Rng>, Comp, Proj>
-		safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
+		safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = {}, Proj proj = {})
 		{
 			return detail::fsort::sort_n(__stl2::begin(rng), __stl2::distance(rng),
 				std::ref(comp), std::ref(proj));

@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectStrictWeakOrder<
 				Comp, projected<I, Proj>>
 		I is_heap_until_n(I first, const iter_difference_t<I> n,
-			Comp comp = Comp{}, Proj proj = Proj{})
+			Comp comp = {}, Proj proj = {})
 		{
 			STL2_EXPECT(0 <= n);
 			iter_difference_t<I> p = 0, c = 1;
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, projected<I, Proj>>
-	I is_heap_until(I first, S last, Comp comp = Comp{}, Proj proj = Proj{})
+	I is_heap_until(I first, S last, Comp comp = {}, Proj proj = {})
 	{
 		auto n = __stl2::distance(first, std::move(last));
 		return detail::is_heap_until_n(std::move(first), n,
@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectStrictWeakOrder<
 			Comp, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	is_heap_until(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{})
+	is_heap_until(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		return detail::is_heap_until_n(__stl2::begin(rng), __stl2::distance(rng),
 			std::ref(comp), std::ref(proj));

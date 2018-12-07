@@ -27,8 +27,8 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<I, Proj>>
-	bool binary_search(I first, S last, const T& value, Comp comp = Comp{},
-		Proj proj = Proj{})
+	bool binary_search(I first, S last, const T& value, Comp comp = {},
+		Proj proj = {})
 	{
 		auto result = __stl2::lower_bound(__stl2::move(first), last, value,
 			std::ref(comp), std::ref(proj));
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		IndirectStrictWeakOrder<
 			Comp, const T*, projected<iterator_t<Rng>, Proj>>
-	bool binary_search(Rng&& rng, const T& value, Comp comp = Comp{}, Proj proj = Proj{})
+	bool binary_search(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::binary_search(
 			__stl2::begin(rng), __stl2::end(rng), value, std::ref(comp), std::ref(proj));

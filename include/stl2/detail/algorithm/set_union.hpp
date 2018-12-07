@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 		Mergeable<I1, I2, O, Comp, Proj1, Proj2>
 	tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
 	set_union(I1 first1, S1 last1, I2 first2, S2 last2, O result,
-		Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+		Comp comp = {}, Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		while (true) {
 			if (first1 == last1) {
@@ -70,8 +70,8 @@ STL2_OPEN_NAMESPACE {
 			Comp, Proj1, Proj2>
 	tagged_tuple<tag::in1(safe_iterator_t<Rng1>),
 		tag::in2(safe_iterator_t<Rng2>), tag::out(__f<O>)>
-	set_union(Rng1&& rng1, Rng2&& rng2, O&& result, Comp comp = Comp{},
-		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
+	set_union(Rng1&& rng1, Rng2&& rng2, O&& result, Comp comp = {},
+		Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		return __stl2::set_union(
 			__stl2::begin(rng1), __stl2::end(rng1),

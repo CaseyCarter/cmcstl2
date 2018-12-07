@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		Permutable<I> &&
 		IndirectRelation<__f<R>, projected<I, Proj>>
-	I unique(I first, S last, R comp = R{}, Proj proj = Proj{})
+	I unique(I first, S last, R comp = {}, Proj proj = {})
 	{
 		first = __stl2::adjacent_find(
 			std::move(first), last, std::ref(comp), std::ref(proj));
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectRelation<
 			__f<R>, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
-	unique(Rng&& rng, R comp = R{}, Proj proj = Proj{})
+	unique(Rng&& rng, R comp = {}, Proj proj = {})
 	{
 		return __stl2::unique(__stl2::begin(rng), __stl2::end(rng),
 			std::ref(comp), std::ref(proj));
