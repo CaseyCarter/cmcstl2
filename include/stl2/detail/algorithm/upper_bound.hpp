@@ -23,7 +23,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		struct __upper_bound_n_fn {
+		struct __upper_bound_n_fn : private __niebloid {
 			template<class I, class T, class Comp = less, class Proj = identity>
 			requires ForwardIterator<__f<I>> &&
 				IndirectStrictWeakOrder<Comp, const T*, projected<__f<I>, Proj>>
@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr __upper_bound_n_fn upper_bound_n {};
 	}
 
-	struct __upper_bound_fn {
+	struct __upper_bound_fn : private __niebloid {
 		template<class I, class S, class T, class Comp = less, class Proj = identity>
 		requires ForwardIterator<__f<I>> && Sentinel<__f<S>, __f<I>> &&
 			IndirectStrictWeakOrder<Comp, const T*, projected<__f<I>, Proj>>

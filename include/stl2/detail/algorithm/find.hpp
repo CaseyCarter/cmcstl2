@@ -21,7 +21,7 @@
 // find [alg.find]
 //
 STL2_OPEN_NAMESPACE {
-	struct __find_fn {
+	struct __find_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, class T, class Proj = identity>
 		requires IndirectRelation<equal_to, projected<I, Proj>, const T*>
 		constexpr I operator()(I first, S last, const T& value, Proj proj = {}) const {

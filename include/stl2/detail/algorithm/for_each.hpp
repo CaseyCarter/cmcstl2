@@ -22,7 +22,7 @@
 // for_each [alg.for_each]
 //
 STL2_OPEN_NAMESPACE {
-	struct __for_each_fn {
+	struct __for_each_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectUnaryInvocable<projected<I, Proj>> F>
 		constexpr tagged_pair<tag::in(I), tag::fun(F)>

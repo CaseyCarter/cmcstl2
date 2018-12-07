@@ -25,7 +25,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		struct __equal_range_n_fn {
+		struct __equal_range_n_fn : private __niebloid {
 			template<ForwardIterator I, class T, class Comp = less, class Proj = identity>
 			requires IndirectStrictWeakOrder<Comp, const T*, projected<I, Proj>>
 			constexpr subrange<I>
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr __equal_range_n_fn equal_range_n {};
 	} // namespace ext
 
-	struct __equal_range_fn {
+	struct __equal_range_fn : private __niebloid {
 		template<ForwardIterator I, Sentinel<I> S, class T,
 			class Comp = less, class Proj = identity>
 		requires IndirectStrictWeakOrder<Comp, const T*, projected<I, Proj>>

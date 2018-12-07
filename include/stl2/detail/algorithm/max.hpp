@@ -23,7 +23,7 @@
 // max [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-	struct __max_fn {
+	struct __max_fn : private __niebloid {
 	private:
 		template<InputRange R, class Proj,
 			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp>

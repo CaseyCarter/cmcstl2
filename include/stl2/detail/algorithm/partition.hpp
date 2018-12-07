@@ -33,7 +33,7 @@
 // partition [alg.partitions]
 //
 STL2_OPEN_NAMESPACE {
-	struct __partition_fn {
+	struct __partition_fn : private __niebloid {
 		template<Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
 		requires IndirectUnaryPredicate<Pred, projected<I, Proj>>
 		constexpr I operator()(I first, S last_, Pred pred, Proj proj = {}) const {

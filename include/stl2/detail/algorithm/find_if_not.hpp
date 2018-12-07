@@ -22,7 +22,7 @@
 // find_if_not [alg.find]
 //
 STL2_OPEN_NAMESPACE {
-	struct __find_if_not_fn {
+	struct __find_if_not_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectUnaryPredicate<projected<I, Proj>> Pred>
 		constexpr I operator()(I first, S last, Pred pred, Proj proj = {}) const {

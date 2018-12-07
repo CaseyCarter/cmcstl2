@@ -173,6 +173,12 @@ STL2_OPEN_NAMESPACE {
 		struct priority_tag<0> {};
 		inline constexpr priority_tag<4> max_priority_tag{};
 	}
+
+	struct __niebloid {
+		explicit __niebloid() = default;
+		__niebloid(__niebloid&&) = delete;
+		__niebloid& operator=(__niebloid&&) = delete;
+	};
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_FWD_HPP

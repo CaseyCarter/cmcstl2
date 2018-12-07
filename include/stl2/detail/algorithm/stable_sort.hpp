@@ -49,7 +49,7 @@
 // stable_sort [stable.sort]
 //
 STL2_OPEN_NAMESPACE {
-	struct __stable_sort_fn {
+	struct __stable_sort_fn : private __niebloid {
 		template<class I>
 		using buf_t = detail::temporary_buffer<iter_value_t<I>>;
 

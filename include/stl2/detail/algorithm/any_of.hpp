@@ -23,7 +23,7 @@
 // any_of [alg.any_of]
 //
 STL2_OPEN_NAMESPACE {
-	struct __any_of_fn {
+	struct __any_of_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectUnaryPredicate<projected<I, Proj>> Pred>
 		constexpr bool operator()(I first, S last, Pred pred, Proj proj = {}) const

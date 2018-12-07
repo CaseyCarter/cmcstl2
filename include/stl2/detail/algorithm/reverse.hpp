@@ -42,7 +42,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		struct __reverse_n_fn {
+		struct __reverse_n_fn : private __niebloid {
 		private:
 			template<Readable I>
 			using buf_t = detail::temporary_buffer<iter_value_t<I>>;
@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr __reverse_n_fn reverse_n {};
 	} // namespace ext
 
-	struct __reverse_fn {
+	struct __reverse_fn : private __niebloid {
 		// Extension: supports forward iterators
 		template<Permutable I, Sentinel<I> S>
 		constexpr I operator()(I first, S last) const {

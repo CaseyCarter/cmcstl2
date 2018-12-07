@@ -21,7 +21,7 @@
 // min_element [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-	struct __min_element_fn {
+	struct __min_element_fn : private __niebloid {
 		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
 		constexpr I operator()(I first, S last, Comp comp = {}, Proj proj = {}) const

@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 		)
 	}
 
-	struct __distance_fn {
+	struct __distance_fn : private __niebloid {
 		template<Iterator I, Sentinel<I> S>
 		constexpr iter_difference_t<I> operator()(I first, S last) const
 		// [[expects axiom: reachable(first, last)]]

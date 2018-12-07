@@ -25,7 +25,7 @@
 // find_end [alg.find.end]
 //
 STL2_OPEN_NAMESPACE {
-	struct __find_end_fn {
+	struct __find_end_fn : private __niebloid {
 		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2, Sentinel<I2> S2,
 			class Pred = equal_to, class Proj1 = identity, class Proj2 = identity>
 		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
