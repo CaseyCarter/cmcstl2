@@ -250,7 +250,8 @@ STL2_OPEN_NAMESPACE {
 	namespace __iter_swap {
 		// Poison pill for iter_swap. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
-		void iter_swap(auto, auto) = delete;
+		template<class T, class U>
+		void iter_swap(T, U) = delete;
 
 		template<class, class>
 		constexpr bool has_customization = false;
