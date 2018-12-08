@@ -30,7 +30,7 @@
 // Iterator concepts [iterator.requirements]
 //
 STL2_OPEN_NAMESPACE {
-		template<class T>
+	template<class T>
 	using __with_reference = T&;
 	template<class T>
 	STL2_CONCEPT __can_reference = requires { typename __with_reference<T>; };
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 	STL2_CONCEPT __dereferenceable = requires(T& t) {
 		// { *t } -> __can_reference;
 		*t; typename __with_reference<decltype(*t)>;
-			};
+	};
 
 	///////////////////////////////////////////////////////////////////////////
 	// iter_reference_t [iterator.assoc]
@@ -637,16 +637,17 @@ STL2_OPEN_NAMESPACE {
 				requires DerivedFrom<typename I::iterator_category, std::input_iterator_tag> ||
 						 DerivedFrom<typename I::iterator_category, std::output_iterator_tag>;
 			};
+		template<class I>
+		STL2_CONCEPT ProbablySTL2Iterator = !LooksLikeSTL1Iterator<I> && Iterator<I>;
 	}
 } STL2_CLOSE_NAMESPACE
 
 namespace std {
-	template<::__stl2::Iterator Out>
+	template<::__stl2::ProbablySTL2Iterator Out>
 		// HACKHACK to avoid partial specialization after instantiation errors. Platform
 		// vendors can avoid this hack by fixing up stdlib headers to fwd declare these
 		// partial specializations in the same place that std::iterator_traits is first
 		// defined.
-		requires !::__stl2::detail::LooksLikeSTL1Iterator<Out>
 	struct iterator_traits<Out> {
 		using difference_type   = ::__stl2::iter_difference_t<Out>;
 		using value_type        = meta::_t<::__stl2::detail::value_type_with_a_default<Out>>;
@@ -655,15 +656,12 @@ namespace std {
 		using iterator_category = std::output_iterator_tag;
 	};
 
-	template<::__stl2::InputIterator In>
-	requires
-		!::__stl2::detail::LooksLikeSTL1Iterator<In>
+	template<::__stl2::ProbablySTL2Iterator In>
+	requires ::__stl2::InputIterator<In>
 	struct iterator_traits<In> { };
 
-	template<::__stl2::InputIterator In>
-	requires
-		!::__stl2::detail::LooksLikeSTL1Iterator<In> &&
-		::__stl2::Sentinel<In, In>
+	template<::__stl2::ProbablySTL2Iterator In>
+	requires ::__stl2::InputIterator<In> && ::__stl2::Sentinel<In, In>
 	struct iterator_traits<In> {
 		using difference_type   = ::__stl2::iter_difference_t<In>;
 		using value_type        = ::__stl2::iter_value_t<In>;
