@@ -639,11 +639,11 @@ STL2_OPEN_NAMESPACE {
 			};
 		template<class I>
 		STL2_CONCEPT ProbablySTL2Iterator = !LooksLikeSTL1Iterator<I> && Iterator<I>;
-	}
+	} // namespace detail
 } STL2_CLOSE_NAMESPACE
 
 namespace std {
-	template<::__stl2::ProbablySTL2Iterator Out>
+	template<::__stl2::detail::ProbablySTL2Iterator Out>
 		// HACKHACK to avoid partial specialization after instantiation errors. Platform
 		// vendors can avoid this hack by fixing up stdlib headers to fwd declare these
 		// partial specializations in the same place that std::iterator_traits is first
@@ -656,11 +656,11 @@ namespace std {
 		using iterator_category = std::output_iterator_tag;
 	};
 
-	template<::__stl2::ProbablySTL2Iterator In>
+	template<::__stl2::detail::ProbablySTL2Iterator In>
 	requires ::__stl2::InputIterator<In>
 	struct iterator_traits<In> { };
 
-	template<::__stl2::ProbablySTL2Iterator In>
+	template<::__stl2::detail::ProbablySTL2Iterator In>
 	requires ::__stl2::InputIterator<In> && ::__stl2::Sentinel<In, In>
 	struct iterator_traits<In> {
 		using difference_type   = ::__stl2::iter_difference_t<In>;
