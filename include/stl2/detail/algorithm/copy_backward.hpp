@@ -23,31 +23,32 @@
 // copy_backward [alg.copy]
 //
 STL2_OPEN_NAMESPACE {
-	template<BidirectionalIterator I1, Sentinel<I1> S1, BidirectionalIterator I2>
-	requires
-		IndirectlyCopyable<I1, I2>
-	tagged_pair<tag::in(I1), tag::out(I2)>
-	copy_backward(I1 first, S1 sent, I2 out)
-	{
-		auto last = __stl2::next(first, std::move(sent));
-		auto i = last;
-		while (i != first) {
-			*--out = *--i;
-		}
-		return {std::move(last), std::move(out)};
-	}
+	template<class I, class O>
+	using copy_backward_result = __in_out_result<I, O>;
 
-	template<BidirectionalRange Rng, class I>
-	requires
-		BidirectionalIterator<__f<I>> &&
-		IndirectlyCopyable<iterator_t<Rng>, __f<I>>
-	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<I>)>
-	copy_backward(Rng&& rng, I&& result)
-	{
-		return __stl2::copy_backward(
-			__stl2::begin(rng), __stl2::end(rng),
-			std::forward<I>(result));
-	}
+	struct __copy_backward_fn : private __niebloid {
+		template<BidirectionalIterator I1, Sentinel<I1> S1, BidirectionalIterator I2>
+		requires IndirectlyCopyable<I1, I2>
+		constexpr copy_backward_result<I1, I2>
+		operator()(I1 first, S1 sent, I2 out) const
+		{
+			auto last = next(first, std::move(sent));
+			auto i = last;
+			while (i != first) {
+				*--out = *--i;
+			}
+			return {std::move(last), std::move(out)};
+		}
+
+		template<BidirectionalRange R, BidirectionalIterator I>
+		constexpr copy_backward_result<safe_iterator_t<R>, I>
+		operator()(R&& r, I result) const
+		{
+			return (*this)(begin(r), end(r), std::forward<I>(result));
+		}
+	};
+
+	inline constexpr __copy_backward_fn copy_backward {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

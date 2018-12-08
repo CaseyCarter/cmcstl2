@@ -415,24 +415,6 @@ int main()
 		CHECK(ap[9].p == P{4, 2});
 	}
 
-	// Test rvalue ranges
-	using P = std::pair<int, int>;
-	{  // check mixed
-		S ap[] = { {{0, 1}}, {{0, 2}}, {{1, 1}}, {{1, 2}}, {{2, 1}}, {{2, 2}}, {{3, 1}}, {{3, 2}}, {{4, 1}}, {{4, 2}} };
-		auto r = ranges::stable_partition(std::move(ap), odd_first(), &S::p);
-		CHECK(r.get_unsafe() == ap + 4);
-		CHECK(ap[0].p == P{1, 1});
-		CHECK(ap[1].p == P{1, 2});
-		CHECK(ap[2].p == P{3, 1});
-		CHECK(ap[3].p == P{3, 2});
-		CHECK(ap[4].p == P{0, 1});
-		CHECK(ap[5].p == P{0, 2});
-		CHECK(ap[6].p == P{2, 1});
-		CHECK(ap[7].p == P{2, 2});
-		CHECK(ap[8].p == P{4, 1});
-		CHECK(ap[9].p == P{4, 2});
-	}
-
 	{
 		int some_ints[] = {1, 0};
 		auto first = some_ints + 0, last = some_ints + 2;

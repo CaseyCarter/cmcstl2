@@ -96,18 +96,5 @@ int main()
 		CHECK(i == stl2::end(ia));
 	}
 
-	// test rvalue range
-	{
-		using P = std::pair<int,std::string>;
-		P ia[] = {{0,"0"}, {1,"1"}, {2,"2"}, {3,"3"}, {4,"4"}};
-		auto i = stl2::replace(stl2::move(ia), 2, std::make_pair(42,"42"), &std::pair<int,std::string>::first);
-		CHECK(ia[0] == P{0,"0"});
-		CHECK(ia[1] == P{1,"1"});
-		CHECK(ia[2] == P{42,"42"});
-		CHECK(ia[3] == P{3,"3"});
-		CHECK(ia[4] == P{4,"4"});
-		CHECK(i.get_unsafe() == stl2::end(ia));
-	}
-
 	return ::test_result();
 }

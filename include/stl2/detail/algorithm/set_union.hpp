@@ -36,12 +36,12 @@ STL2_OPEN_NAMESPACE {
 	{
 		while (true) {
 			if (first1 == last1) {
-				auto res = __stl2::copy(std::move(first2), std::move(last2), std::move(result));
-				return {std::move(first1), std::move(res.in()), std::move(res.out())};
+				auto res = copy(std::move(first2), std::move(last2), std::move(result));
+				return {std::move(first1), std::move(res.in), std::move(res.out)};
 			}
 			if (first2 == last2) {
-				auto res = __stl2::copy(std::move(first1), std::move(last1), std::move(result));
-				return {std::move(res.in()), std::move(first2), std::move(res.out())};
+				auto res = copy(std::move(first1), std::move(last1), std::move(result));
+				return {std::move(res.in), std::move(first2), std::move(res.out)};
 			}
 			iter_reference_t<I1>&& v1 = *first1;
 			iter_reference_t<I2>&& v2 = *first2;

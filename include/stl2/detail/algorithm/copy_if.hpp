@@ -24,39 +24,42 @@
 // copy_if [alg.copy]
 //
 STL2_OPEN_NAMESPACE {
-	template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-		class Pred, class Proj = identity>
-	requires
-		IndirectlyCopyable<I, O> &&
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	tagged_pair<tag::in(I), tag::out(O)>
-	copy_if(I first, S last, O result, Pred pred, Proj proj = {})
-	{
-		for (; first != last; ++first) {
-			iter_reference_t<I>&& v = *first;
-			if (__stl2::invoke(pred, __stl2::invoke(proj, v))) {
-				*result = std::forward<iter_reference_t<I>>(v);
-				++result;
+	template<class I, class O>
+	using copy_if_result = __in_out_result<I, O>;
+
+	struct __copy_if_fn : private __niebloid {
+		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		requires IndirectlyCopyable<I, O>
+		constexpr copy_if_result<I, O>
+		operator()(I first, S last, O result, Pred pred, Proj proj = {}) const
+		{
+			for (; first != last; ++first) {
+				iter_reference_t<I>&& v = *first;
+				if (__stl2::invoke(pred, __stl2::invoke(proj, v))) {
+					*result = std::forward<iter_reference_t<I>>(v);
+					++result;
+				}
 			}
+
+			return {std::move(first), std::move(result)};
 		}
 
-		return {std::move(first), std::move(result)};
-	}
+		template<InputRange R, WeaklyIncrementable O, class Proj = identity,
+			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
+		requires IndirectlyCopyable<iterator_t<R>, O>
+		constexpr copy_if_result<safe_iterator_t<R>, O>
+		operator()(R&& r, O result, Pred pred, Proj proj = {}) const
+		{
+			return (*this)(
+				begin(r), end(r),
+				std::forward<O>(result),
+				std::ref(pred),
+				std::ref(proj));
+		}
+	};
 
-	template<InputRange Rng, class O, class Pred, class Proj = identity>
-	requires
-		WeaklyIncrementable<__f<O>> &&
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>> &&
-		IndirectlyCopyable<iterator_t<Rng>, __f<O>>
-	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
-	copy_if(Rng&& rng, O&& result, Pred pred, Proj proj = {})
-	{
-		return __stl2::copy_if(__stl2::begin(rng), __stl2::end(rng),
-			std::forward<O>(result), std::ref(pred),
-			std::ref(proj));
-	}
+	inline constexpr __copy_if_fn copy_if {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

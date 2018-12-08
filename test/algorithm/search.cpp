@@ -254,13 +254,5 @@ int main()
 		CHECK((e - b) == 0);
 	}
 
-	// Test rvalue ranges
-	{
-		int ib[] = {0, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3, 4};
-		int ie[] = {1, 2, 3};
-		CHECK(eq(subrange{ib+4, ib+7},
-			ranges::search(ranges::move(ib), ie).get_unsafe()));
-	}
-
 	return ::test_result();
 }
