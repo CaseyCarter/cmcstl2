@@ -75,16 +75,16 @@ int main()
 		CHECK(*(b+1) == 21);
 	}
 
-	// Test DISABLED while view::take(n) | view::reverse isn't possible.
-	// {
-	// 	auto rng = view::iota(10) | view::drop(10) | view::take(10) | view::reverse;
-	// 	static_assert(ranges::View<decltype(rng)>);
-	// 	static_assert(ranges::SizedRange<decltype(rng)>);
-	// 	static_assert(!ranges::is_infinite<decltype(rng5)>::value, "");
-	// 	CHECK_EQUAL(rng, {29, 28, 27, 26, 25, 24, 23, 22, 21, 20});
-	// 	CHECK(ranges::size(rng) == 10u);
-	// }
-
+#if 0 // Test DISABLED while view::take(n) | view::reverse isn't possible.
+	{
+		auto rng = view::iota(10) | view::drop(10) | view::take(10) | view::reverse;
+		static_assert(ranges::View<decltype(rng)>);
+		static_assert(ranges::SizedRange<decltype(rng)>);
+		static_assert(!ranges::is_infinite<decltype(rng5)>::value, "");
+		CHECK_EQUAL(rng, {29, 28, 27, 26, 25, 24, 23, 22, 21, 20});
+		CHECK(ranges::size(rng) == 10u);
+	}
+#endif
 	{
 		// consolation for the above not being possible
 		auto rng = view::iota(10) | view::drop(10) | view::take(10);
@@ -102,52 +102,53 @@ int main()
 		CHECK(ranges::size(rng2) == 0u);
 	}
 
-	// Test DISABLED until view::chunk becomes available.
-	// {
-	// 	// Regression test for https://github.com/ericniebler/range-v3/issues/413
-	// 	auto skips = [](std::vector<int> xs) -> std::vector<std::vector<int>> {
-	// 		return view::iota(0, (int)xs.size())
-	// 			  | view::transform([&](int n) {
-	// 					 return xs | view::chunk(n + 1)
-	// 								  | view::transform(view::drop(n))
-	// 								  | view::join;
-	// 				 });
-	// 	};
-	// 	auto skipped = skips({1,2,3,4,5,6,7,8});
-	// 	CHECK(skipped.size() == 8u);
-	// 	if(skipped.size() >= 8u)
-	// 	{
-	// 		CHECK_EQUAL(skipped[0], {1,2,3,4,5,6,7,8});
-	// 		CHECK_EQUAL(skipped[1], {2,4,6,8});
-	// 		CHECK_EQUAL(skipped[2], {3,6});
-	// 		CHECK_EQUAL(skipped[3], {4,8});
-	// 		CHECK_EQUAL(skipped[4], {5});
-	// 		CHECK_EQUAL(skipped[5], {6});
-	// 		CHECK_EQUAL(skipped[6], {7});
-	// 		CHECK_EQUAL(skipped[7], {8});
-	// 	}
-	// }
+#if 0 // Test DISABLED pending view implementations.
+	{
+		// Regression test for https://github.com/ericniebler/range-v3/issues/413
+		auto skips = [](std::vector<int> xs) -> std::vector<std::vector<int>> {
+			return view::iota(0, (int)xs.size())
+				  | view::transform([&](int n) {
+						 return xs | view::chunk(n + 1)
+									  | view::transform(view::drop(n))
+									  | view::join;
+					 });
+		};
+		auto skipped = skips({1,2,3,4,5,6,7,8});
+		CHECK(skipped.size() == 8u);
+		if(skipped.size() >= 8u)
+		{
+			CHECK_EQUAL(skipped[0], {1,2,3,4,5,6,7,8});
+			CHECK_EQUAL(skipped[1], {2,4,6,8});
+			CHECK_EQUAL(skipped[2], {3,6});
+			CHECK_EQUAL(skipped[3], {4,8});
+			CHECK_EQUAL(skipped[4], {5});
+			CHECK_EQUAL(skipped[5], {6});
+			CHECK_EQUAL(skipped[6], {7});
+			CHECK_EQUAL(skipped[7], {8});
+		}
+	}
 
-	// {
-	// 	static int const some_ints[] = {0,1,2,3};
-	// 	auto rng = debug_input_view<int const>{some_ints} | view::drop(2);
-	// 	using R = decltype(rng);
-	// 	CONCEPT_ASSERT(InputView<R>());
-	// 	CONCEPT_ASSERT(!ForwardRange<R>());
-	// 	CONCEPT_ASSERT(Same<int const&, ranges::iter_reference_t<R>>());
-	// 	CHECK_EQUAL(rng, {2,3});
-	// }
+	{
+		static int const some_ints[] = {0,1,2,3};
+		auto rng = debug_input_view<int const>{some_ints} | view::drop(2);
+		using R = decltype(rng);
+		CONCEPT_ASSERT(InputView<R>());
+		CONCEPT_ASSERT(!ForwardRange<R>());
+		CONCEPT_ASSERT(Same<int const&, ranges::iter_reference_t<R>>());
+		CHECK_EQUAL(rng, {2,3});
+	}
 
-	// {
-	// 	// regression test for ericniebler/range-v3#728
-	// 	auto rng1 = view::iota(1) | view::chunk(6) | view::take(3);
-	// 	int i = 2;
-	// 	for (auto o1 : rng1) {
-	// 		auto rng2 = o1 | view::drop(1);
-	// 		CHECK_EQUAL(rng2, {i, i+1, i+2, i+3, i+4});
-	// 		i += 6;
-	// 	}
-	// }
+	{
+		// regression test for ericniebler/range-v3#728
+		auto rng1 = view::iota(1) | view::chunk(6) | view::take(3);
+		int i = 2;
+		for (auto o1 : rng1) {
+			auto rng2 = o1 | view::drop(1);
+			CHECK_EQUAL(rng2, {i, i+1, i+2, i+3, i+4});
+			i += 6;
+		}
+	}
+#endif
 
 	{
 		// regression test for ericniebler/range-v3#813

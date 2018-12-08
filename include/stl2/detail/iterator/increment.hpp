@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 				// Avoid gcc ICE (TODO file bug):
 				a - b;
 				requires Integral<decltype(a - b)>;
-			 	// { a - b } -> Integral;
+				// { a - b } -> Integral;
 			}
 	struct incrementable_traits<T>
 	: make_signed<decltype(declval<const T>() - declval<const T>())> {};

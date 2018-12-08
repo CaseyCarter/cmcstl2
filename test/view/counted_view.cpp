@@ -36,5 +36,5 @@ int main() {
 		static_assert(ForwardRange<decltype(x)>);
 		static_assert(!BidirectionalRange<decltype(x)>);
 	}
- 	return test_result();
+	return test_result();
 }

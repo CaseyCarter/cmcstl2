@@ -695,8 +695,8 @@ namespace libstdcpp_tests
 	}
 
 	#define COMMON_TYPE_TEST_2_IMPL(type1, type2, type3, uid) \
-		typedef common_type<type1, type2>::type  	JOIN(JOIN(test, uid),_t1); \
-		typedef common_type<type2, type1>::type  	JOIN(JOIN(test, uid),_t2); \
+		typedef common_type<type1, type2>::type JOIN(JOIN(test, uid),_t1); \
+		typedef common_type<type2, type1>::type JOIN(JOIN(test, uid),_t2); \
 		CHECK( (is_same<JOIN(JOIN(test, uid),_t1), type3>::value) ); \
 		CHECK( (is_same<JOIN(JOIN(test, uid),_t2), type3>::value) )
 
