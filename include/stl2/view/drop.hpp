@@ -14,9 +14,9 @@
 #ifndef STL2_VIEW_DROP_HPP
 #define STL2_VIEW_DROP_HPP
 
+#include <stl2/detail/cached_position.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
-#include <stl2/detail/non_propagating_cache.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 		template<View R>
 		class drop_view
 		: public view_interface<drop_view<R>>
-		, private detail::non_propagating_cache<iterator_t<R>, drop_view<R>, !RandomAccessRange<const R>> {
+		, private detail::cached_position<R, drop_view<R>, !RandomAccessRange<const R>> {
 			using D = iter_difference_t<iterator_t<R>>;
 		public:
 			drop_view() = default;
@@ -70,13 +70,15 @@ STL2_OPEN_NAMESPACE {
 				if constexpr (RandomAccessRange<__maybe_const<is_const_v<X>, R>>) {
 					return __stl2::ext::nth_iterator(x.base_, x.count_);
 				} else {
-					using cache_t = typename drop_view::non_propagating_cache;
-					auto& iterator_self = static_cast<cache_t&>(x);
-					if (!iterator_self) {
-						iterator_self = __stl2::ext::nth_iterator(x.base_, x.count_);
+					using cache_t = typename drop_view::cached_position;
+					auto& cache = static_cast<cache_t&>(x);
+					if (cache) {
+						return cache.get(x.base_);
 					}
 
-					return *iterator_self;
+					auto iter = __stl2::ext::nth_iterator(x.base_, x.count_);
+					cache.set(x.base_, iter);
+					return iter;
 				}
 			}
 
