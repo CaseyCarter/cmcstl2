@@ -130,7 +130,7 @@ STL2_OPEN_NAMESPACE {
 		template<class> struct reference_type {};
 		template<class C>
 		requires
-			requires(const C& c) { { c.read() } -> auto&&; }
+			requires(const C& c) { c.read(); requires __can_reference<decltype(c.read())>; }
 		struct reference_type<C> {
 			using type = decltype(declval<const C&>().read());
 		};
@@ -176,7 +176,7 @@ STL2_OPEN_NAMESPACE {
 		STL2_CONCEPT Readable =
 			Cursor<C> &&
 			requires(const C& c) {
-				{ c.read() } -> auto&&;
+				c.read(); requires __can_reference<decltype(c.read())>;
 				typename reference_t<C>;
 				typename value_type_t<C>;
 			};
@@ -184,7 +184,7 @@ STL2_OPEN_NAMESPACE {
 		STL2_CONCEPT Arrow =
 			Readable<C> &&
 			requires(const C& c) {
-				{ c.arrow() } -> auto&&;
+				c.arrow(); requires __can_reference<decltype(c.arrow())>;
 			};
 		template<class C, class T>
 		STL2_CONCEPT Writable =
@@ -228,7 +228,7 @@ STL2_OPEN_NAMESPACE {
 		template<class C>
 		STL2_CONCEPT IndirectMove =
 			Readable<C> && requires(const C& c) {
-				{ c.indirect_move() } -> auto&&;
+				c.indirect_move(); requires __can_reference<decltype(c.indirect_move())>;
 			};
 
 		template<class> struct rvalue_reference {};

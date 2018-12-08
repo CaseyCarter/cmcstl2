@@ -210,7 +210,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		decltype(auto) operator*() const
 		noexcept(noexcept(*std::declval<const I&>()))
-		requires detail::Dereferenceable<const I> {
+		requires __dereferenceable<const I> {
 			STL2_EXPECT(std::holds_alternative<I>(v_));
 			return *__stl2::__get_unchecked<I>(v_);
 		}

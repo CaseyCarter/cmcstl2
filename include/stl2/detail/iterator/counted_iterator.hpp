@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		decltype(auto) operator*() const
 		noexcept(noexcept(*std::declval<const I&>()))
-		requires detail::Dereferenceable<const I> {
+		requires __dereferenceable<const I> {
 			return *current();
 		}
 		constexpr counted_iterator& operator++() {
