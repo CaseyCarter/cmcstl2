@@ -94,7 +94,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectlyCopyable<I, O> &&
 		IndirectRelation<R, projected<I, Proj>> &&
 		(ForwardIterator<I> ||
-		 InputIterator<O> && Same<iter_value_t<I>, iter_value_t<O>> ||
+		 (InputIterator<O> && Same<iter_value_t<I>, iter_value_t<O>>) ||
 		 IndirectlyCopyableStorable<I, O>)
 	tagged_pair<tag::in(I), tag::out(O)>
 	unique_copy(I first, S last, O result, R comp = {},
@@ -114,7 +114,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectlyCopyable<iterator_t<Rng>, O> &&
 		IndirectRelation<R, projected<iterator_t<Rng>, Proj>> &&
 		(ForwardIterator<iterator_t<Rng>> ||
-		 InputIterator<O> && Same<iter_value_t<iterator_t<Rng>>, iter_value_t<O>> ||
+		 (InputIterator<O> && Same<iter_value_t<iterator_t<Rng>>, iter_value_t<O>>) ||
 		 IndirectlyCopyableStorable<iterator_t<Rng>, O>)
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
 	unique_copy(Rng&& rng, O result, R comp = {}, Proj proj = {})
