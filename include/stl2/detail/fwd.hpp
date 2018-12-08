@@ -60,6 +60,14 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_CLANG_37556
+ #ifdef __clang__ // Workaround https://bugs.llvm.org/show_bug.cgi?id=37556
+  #define STL2_WORKAROUND_CLANG_37556 1
+ #else
+  #define STL2_WORKAROUND_CLANG_37556 0
+ #endif
+#endif
+
 #define STL2_OPEN_NAMESPACE \
 	namespace std { namespace experimental { namespace ranges { inline namespace v1
 #define STL2_CLOSE_NAMESPACE }}}

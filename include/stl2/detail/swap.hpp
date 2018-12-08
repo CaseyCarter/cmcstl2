@@ -137,6 +137,22 @@ STL2_OPEN_NAMESPACE {
 	template<class T, class U>
 	struct is_nothrow_swappable :
 		is_nothrow_swappable_t<T, U> {};
+
+	namespace detail {
+		template<_Is<std::is_class> Derived>
+		struct __member_swap {
+		private:
+			constexpr Derived& derived() noexcept {
+				return static_cast<Derived&>(*this);
+			}
+		public:
+			friend constexpr void swap(__member_swap& x, __member_swap& y)
+			STL2_NOEXCEPT_REQUIRES_RETURN(
+				x.derived().swap(y.derived())
+			)
+		};
+	}
+	using detail::__member_swap;
 } STL2_CLOSE_NAMESPACE
 
 #endif
