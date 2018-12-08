@@ -12,8 +12,8 @@
 #ifndef STL2_VIEW_FILTER_HPP
 #define STL2_VIEW_FILTER_HPP
 
+#include <stl2/detail/cached_position.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/non_propagating_cache.hpp>
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/algorithm/find_if.hpp>
 #include <stl2/detail/functional/invoke.hpp>
@@ -25,74 +25,80 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
-	requires View<R>
-	class filter_view : public view_interface<filter_view<R, Pred>> {
+	template<InputRange V, IndirectUnaryPredicate<iterator_t<V>> Pred>
+	requires View<V>
+	class filter_view : public view_interface<filter_view<V, Pred>> {
 	private:
-		R base_;
-		detail::semiregular_box<Pred> pred_;
-		detail::non_propagating_cache<iterator_t<R>> begin_;
 		class __iterator;
 		class __sentinel;
+
+		V base_;
+		detail::semiregular_box<Pred> pred_;
+		detail::cached_position<V> begin_;
+
 	public:
 		filter_view() = default;
 
-		constexpr filter_view(R base, Pred pred)
+		constexpr filter_view(V base, Pred pred)
 		: base_(std::move(base)), pred_(std::move(pred)) {}
 
-		template<InputRange O>
-		requires ViewableRange<O> && _ConstructibleFromRange<R, O>
-		constexpr filter_view(O&& o, Pred pred)
-		: base_(view::all(std::forward<O>(o))), pred_(std::move(pred)) {}
+		template<InputRange R>
+		requires ViewableRange<R> && _ConstructibleFromRange<V, R>
+		constexpr filter_view(R&& o, Pred pred)
+		: base_(view::all(std::forward<R>(o))), pred_(std::move(pred)) {}
 
-		constexpr R base() const
+		constexpr V base() const
 		{ return base_; }
 
 		constexpr __iterator begin()
 		{
-			if(!begin_)
-				begin_ = __stl2::find_if(base_, std::ref(pred_.get()));
-			return __iterator{*this, *begin_};
+			auto cached = static_cast<bool>(begin_);
+			iterator_t<V> first = cached
+				? begin_.get(base_)
+				: __stl2::find_if(base_, std::ref(pred_.get()));
+			if(!cached)
+				begin_.set(base_, first);
+			return __iterator{*this, std::move(first)};
 		}
 
 		constexpr __sentinel end()
 		{ return __sentinel{*this}; }
 
-		constexpr __iterator end() requires CommonRange<R>
+		constexpr __iterator end() requires CommonRange<V>
 		{ return __iterator{*this, __stl2::end(base_)}; }
 	};
 
-	template<class R, class Pred>
-	class filter_view<R, Pred>::__iterator {
+	template<class V, class Pred>
+	class filter_view<V, Pred>::__iterator {
 	private:
-		iterator_t<R> current_ {};
+		iterator_t<V> current_ {};
 		filter_view* parent_ = nullptr;
 		friend __sentinel;
 	public:
 		using iterator_category =
-			meta::if_c<BidirectionalIterator<iterator_t<R>>,
+			meta::if_c<BidirectionalIterator<iterator_t<V>>,
 				__stl2::bidirectional_iterator_tag,
-			meta::if_c<ForwardIterator<iterator_t<R>>,
+			meta::if_c<ForwardIterator<iterator_t<V>>,
 				__stl2::forward_iterator_tag,
 				__stl2::input_iterator_tag>>;
-		using value_type = iter_value_t<iterator_t<R>>;
-		using difference_type = iter_difference_t<iterator_t<R>>;
+		using value_type = iter_value_t<iterator_t<V>>;
+		using difference_type = iter_difference_t<iterator_t<V>>;
 
 		__iterator() = default;
 
-		constexpr __iterator(filter_view& parent, iterator_t<R> current)
+		constexpr __iterator(filter_view& parent, iterator_t<V> current)
 		: current_(current), parent_(&parent) {}
 
-		constexpr iterator_t<R> base() const
+		constexpr iterator_t<V> base() const
 		{ return current_; }
 
-		constexpr iter_reference_t<iterator_t<R>> operator*() const
+		constexpr iter_reference_t<iterator_t<V>> operator*() const
 		{ return *current_; }
 
 		// Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template<class II = iterator_t<R>>
-		constexpr iterator_t<R> operator->() const
-		requires is_pointer_v<iterator_t<R>> ||
+		template<class II = iterator_t<V>>
+		constexpr iterator_t<V> operator->() const
+		requires is_pointer_v<iterator_t<V>> ||
 			requires(II i) { i.operator->(); }
 		{
 			return current_;
@@ -109,14 +115,14 @@ STL2_OPEN_NAMESPACE {
 		constexpr void operator++(int)
 		{ (void)++*this; }
 
-		constexpr __iterator operator++(int) requires ForwardRange<R>
+		constexpr __iterator operator++(int) requires ForwardRange<V>
 		{
 			auto tmp = *this;
 			++*this;
 			return tmp;
 		}
 
-		constexpr __iterator& operator--() requires BidirectionalRange<R>
+		constexpr __iterator& operator--() requires BidirectionalRange<V>
 		{
 			do
 				--current_;
@@ -124,7 +130,7 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
-		constexpr __iterator operator--(int) requires BidirectionalRange<R>
+		constexpr __iterator operator--(int) requires BidirectionalRange<V>
 		{
 			auto tmp = *this;
 			--*this;
@@ -132,14 +138,14 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator==(const __iterator& x, const __iterator& y)
-		requires EqualityComparable<iterator_t<R>>
+		requires EqualityComparable<iterator_t<V>>
 		{ return x.current_ == y.current_; }
 
 		friend constexpr bool operator!=(const __iterator& x, const __iterator& y)
-		requires EqualityComparable<iterator_t<R>>
+		requires EqualityComparable<iterator_t<V>>
 		{ return !(x == y); }
 
-		friend constexpr iter_rvalue_reference_t<iterator_t<R>>
+		friend constexpr iter_rvalue_reference_t<iterator_t<V>>
 		iter_move(const __iterator& i)
 		noexcept(noexcept(__stl2::iter_move(i.current_)))
 		{ return __stl2::iter_move(i.current_); }
@@ -149,16 +155,16 @@ STL2_OPEN_NAMESPACE {
 		{ __stl2::iter_swap(x.current_, y.current_); }
 	};
 
-	template<class R, class Pred>
-	class filter_view<R, Pred>::__sentinel {
+	template<class V, class Pred>
+	class filter_view<V, Pred>::__sentinel {
 	private:
-		sentinel_t<R> end_;
+		sentinel_t<V> end_;
 	public:
 		__sentinel() = default;
 		explicit constexpr __sentinel(filter_view& parent)
 		: end_(__stl2::end(parent)) {}
 
-		constexpr sentinel_t<R> base() const
+		constexpr sentinel_t<V> base() const
 		{ return end_; }
 
 		friend constexpr bool operator==(const __iterator& x, const __sentinel& y)
@@ -179,11 +185,13 @@ STL2_OPEN_NAMESPACE {
 			template<InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
 			requires ViewableRange<R>
 			constexpr auto operator()(R&& rng, Pred pred) const
-			{ return filter_view<all_view<R>, Pred>{std::forward<R>(rng), std::move(pred)}; }
-
+			STL2_NOEXCEPT_REQUIRES_RETURN(
+				filter_view<all_view<R>, Pred>{std::forward<R>(rng), std::move(pred)}
+			)
 			template<CopyConstructible Pred>
-			constexpr auto operator()(Pred pred) const
-			{ return detail::view_closure{*this, std::move(pred)}; }
+			constexpr auto operator()(Pred pred) const {
+				return detail::view_closure{*this, std::move(pred)};
+			}
 		};
 
 		inline constexpr __filter_fn filter {};

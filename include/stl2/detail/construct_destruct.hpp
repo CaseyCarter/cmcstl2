@@ -33,9 +33,8 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 		};
-		namespace {
-			inline constexpr destruct_fn destruct{};
-		}
+
+		inline constexpr destruct_fn destruct {};
 
 		struct construct_fn {
 			template<class T, class... Args>
@@ -47,9 +46,8 @@ STL2_OPEN_NAMESPACE {
 					T{std::forward<Args>(args)...};
 			}
 		};
-		namespace {
-			inline constexpr construct_fn construct{};
-		}
+
+		inline constexpr construct_fn construct {};
 	}
 } STL2_CLOSE_NAMESPACE
 
