@@ -246,9 +246,11 @@ STL2_OPEN_NAMESPACE {
 
 	template<RandomAccessIterator I>
 	constexpr void advance(counted_iterator<I>& i, iter_difference_t<I> n)
-	STL2_NOEXCEPT_RETURN(
-		(STL2_EXPECT(n <= i.count()), i += n, void())
-	)
+	noexcept(noexcept(i += n))
+	{
+		STL2_EXPECT(n <= i.count());
+		i += n;
+	}
 
 	namespace ext {
 		template<Iterator I>
