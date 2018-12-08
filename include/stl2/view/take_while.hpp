@@ -72,7 +72,9 @@ STL2_OPEN_NAMESPACE {
 		template<class R, class Pred>
 		take_while_view(R&&, Pred) -> take_while_view<all_view<R>, Pred>;
 
-		template<class R, class Pred>
+		template<View R, class Pred>
+		requires InputRange<R> && std::is_object_v<Pred> &&
+			IndirectUnaryPredicate<const Pred, iterator_t<R>>
 		template<bool Const>
 		class take_while_view<R, Pred>::__sentinel {
 			friend __sentinel<false>;

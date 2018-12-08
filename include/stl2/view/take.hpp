@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 	template<Range R>
 	take_view(R&&, iter_difference_t<iterator_t<R>>) -> take_view<all_view<R>>;
 
-	template<class R>
+	template<View R>
 	template<bool Const>
 	struct take_view<R>::__sentinel {
 	private:

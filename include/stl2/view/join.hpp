@@ -123,7 +123,10 @@ STL2_OPEN_NAMESPACE {
 			View<iter_value_t<iterator_t<Rng>>>)
 	explicit join_view(Rng&&) -> join_view<all_view<Rng>>;
 
-	template<class Rng>
+	template<InputRange Rng>
+	requires View<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
+		(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
+			View<iter_value_t<iterator_t<Rng>>>)
 	template<bool Const>
 	struct join_view<Rng>::__iterator
 	: detail::join_view_iterator_base<__maybe_const<Const, Rng>> {
@@ -260,7 +263,10 @@ STL2_OPEN_NAMESPACE {
 		{ __stl2::iter_swap(x.inner_, y.inner_); }
 	};
 
-	template<class Rng>
+	template<InputRange Rng>
+	requires View<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
+		(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
+			View<iter_value_t<iterator_t<Rng>>>)
 	template<bool Const>
 	struct join_view<Rng>::__sentinel {
 	private:
