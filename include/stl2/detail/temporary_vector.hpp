@@ -160,7 +160,7 @@ STL2_OPEN_NAMESPACE {
 			{ emplace_back(std::move(t)); }
 		};
 
-		ext::DestructibleObject{T}
+		template<ext::DestructibleObject T>
 		temporary_vector<T> make_temporary_vector(temporary_buffer<T>& buf) {
 			return {buf};
 		}

@@ -22,10 +22,10 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-	Semiregular{S} class move_sentinel;
+	template<Semiregular> class move_sentinel;
 
 	namespace __move_iterator {
-		InputIterator{I} class cursor;
+		template<InputIterator> class cursor;
 
 		struct access {
 			template<_SpecializationOf<cursor> C>
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		InputIterator{I}
+		template<InputIterator I>
 		class cursor {
 			friend access;
 			I current_{};
@@ -104,7 +104,7 @@ STL2_OPEN_NAMESPACE {
 			// BUGBUG doesn't correctly handle when decltype(current_++)
 			// is a reference.
 			using __postinc_t = std::decay_t<decltype(current_++)>;
-			Readable{R}
+			template<Readable R>
 			struct __proxy {
 				using value_type = __stl2::iter_value_t<R>;
 				R __tmp;
@@ -180,7 +180,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
-	InputIterator{I}
+	template<InputIterator I>
 	using move_iterator = basic_iterator<__move_iterator::cursor<I>>;
 
 	template<class I>
@@ -188,7 +188,7 @@ STL2_OPEN_NAMESPACE {
 		using type = input_iterator_tag;
 	};
 
-	StrictTotallyOrderedWith{I1, I2}
+	template<class I1, StrictTotallyOrderedWith<I1> I2>
 	constexpr bool
 	operator<(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
@@ -196,21 +196,21 @@ STL2_OPEN_NAMESPACE {
 			__move_iterator::access::current(__stl2::get_cursor(b))
 	)
 
-	StrictTotallyOrderedWith{I1, I2}
+	template<class I1, StrictTotallyOrderedWith<I1> I2>
 	constexpr bool
 	operator>(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
 		b < a
 	)
 
-	StrictTotallyOrderedWith{I1, I2}
+	template<class I1, StrictTotallyOrderedWith<I1> I2>
 	constexpr bool
 	operator<=(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
 		!(b < a)
 	)
 
-	StrictTotallyOrderedWith{I1, I2}
+	template<class I1, StrictTotallyOrderedWith<I1> I2>
 	constexpr bool
 	operator>=(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
@@ -225,7 +225,7 @@ STL2_OPEN_NAMESPACE {
 		move_iterator<__f<I>>{std::forward<I>(i)}
 	)
 
-	Semiregular{S}
+	template<Semiregular S>
 	class move_sentinel : detail::ebo_box<S, move_sentinel<S>> {
 		friend __move_iterator::access;
 		using box_t = detail::ebo_box<S, move_sentinel<S>>;

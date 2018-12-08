@@ -23,7 +23,7 @@
 namespace ranges = __stl2;
 
 namespace {
-	ranges::Integral{I}
+	template<ranges::Integral I>
 	auto make_interval(I from, I to) {
 		return ranges::view::iota(from, to);
 	}

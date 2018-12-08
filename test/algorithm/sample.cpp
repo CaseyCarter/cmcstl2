@@ -35,7 +35,7 @@
 namespace ranges = __stl2;
 
 namespace {
-	ranges::Sentinel{S, I}
+	template<class I, ranges::Sentinel<I> S>
 	bool in_sequence(I first, I mid, S last)
 	{
 		for (; first != mid; ++first)

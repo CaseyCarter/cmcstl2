@@ -126,7 +126,7 @@ STL2_OPEN_NAMESPACE {
 	template<class T, class U>
 	inline constexpr bool is_nothrow_swappable_v = false;
 
-	SwappableWith{T, U}
+	template<class T, SwappableWith<T> U>
 	inline constexpr bool is_nothrow_swappable_v<T, U> =
 		noexcept(__stl2::swap(std::declval<T>(), std::declval<U>())) &&
 		noexcept(__stl2::swap(std::declval<U>(), std::declval<T>()));

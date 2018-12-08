@@ -122,7 +122,7 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr std::ptrdiff_t introsort_threshold = 16;
 
-			Integral{I}
+			template <Integral I>
 			constexpr auto log2(I n) {
 				STL2_EXPECT(n > 0);
 				I k = 0;

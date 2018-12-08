@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	Iterator{I}
+	template<Iterator I>
 		// Pre: 0 <= n && [i,i+n)
 	constexpr void advance(I& i, iter_difference_t<I> n)
 	noexcept(noexcept(++std::declval<I&>()))
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		__advance::impl(i, n);
 	}
 
-	BidirectionalIterator{I}
+	template<BidirectionalIterator I>
 		// Pre: 0 <= n ? [i,i+n) : [i+n,i)
 	constexpr void advance(I& i, iter_difference_t<I> n)
 	noexcept(noexcept(++std::declval<I&>(), --std::declval<I&>()))
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	RandomAccessIterator{I}
+	template<RandomAccessIterator I>
 		// Pre: 0 <= n ? [i,i+n) : [i+n,i)
 	constexpr void advance(I& i, iter_difference_t<I> n)
 	STL2_NOEXCEPT_RETURN(
