@@ -31,6 +31,12 @@ STL2_OPEN_NAMESPACE {
 		STL2_DEFINE_GETTER(end)
 		STL2_DEFINE_GETTER(count) // Extension
 	}
+
+	template<class I, class O>
+	struct __in_out_result {
+		I in;
+		O out;
+	};
 } STL2_CLOSE_NAMESPACE
 
 #endif

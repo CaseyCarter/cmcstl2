@@ -65,16 +65,7 @@ int main()
 	CHECK(stl2::upper_bound(a, 1, less(), &std::pair<int, int>::first) == &a[4]);
 	CHECK(stl2::upper_bound(c, 1, less(), &std::pair<int, int>::first) == &c[4]);
 
-	CHECK(stl2::upper_bound(stl2::move(a), a[2]).get_unsafe() == &a[3]);
-	CHECK(stl2::upper_bound(stl2::move(c), c[3]).get_unsafe() == &c[4]);
-
-	CHECK(stl2::upper_bound(stl2::move(a), a[4], less()).get_unsafe() == &a[5]);
-	CHECK(stl2::upper_bound(stl2::move(c), c[5], less()).get_unsafe() == &c[6]);
-
-	CHECK(stl2::upper_bound(stl2::move(a), 1, less(), &std::pair<int, int>::first).get_unsafe() == &a[4]);
-	CHECK(stl2::upper_bound(stl2::move(c), 1, less(), &std::pair<int, int>::first).get_unsafe() == &c[4]);
-
-	CHECK(*stl2::upper_bound(stl2::iota_view<int>{}, 42).get_unsafe() == 43);
+	CHECK(*stl2::upper_bound(stl2::iota_view<int>{}, 42) == 43);
 
 	return test_result();
 }

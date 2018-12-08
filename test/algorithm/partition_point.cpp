@@ -235,7 +235,7 @@ int main()
 
 	// Test infinite range
 	CHECK(*stl2::partition_point(stl2::iota_view<int>{0},
-								[](int i){ return i < 42; }).get_unsafe() == 42);
+								[](int i){ return i < 42; }) == 42);
 
 	return ::test_result();
 }
