@@ -21,7 +21,7 @@ int main() {
 
 	static const int evens[] = {4,2,0};
 	static_assert(sizeof(evens) / sizeof(evens[0]) == n / 2);
-	auto is_even = [](int i){
+	auto is_even = [](int i) {
 		return i % 2 == 0;
 	};
 
@@ -36,8 +36,8 @@ int main() {
 		};
 
 		auto res = ranges::copy_if(source, source + n, target, is_even);
-		CHECK(res.in() == source + n);
-		CHECK(res.out() == target + n / 2);
+		CHECK(res.in == source + n);
+		CHECK(res.out == target + n / 2);
 
 		CHECK(std::equal(target, target + n / 2, evens));
 		CHECK(std::count(target + n / 2, target + n, -1) == n / 2);
@@ -48,8 +48,8 @@ int main() {
 		std::fill_n(target, n, -1);
 
 		auto res = ranges::copy_if(source, target, is_even);
-		CHECK(res.in() == source + n);
-		CHECK(res.out() == target + n / 2);
+		CHECK(res.in == source + n);
+		CHECK(res.out == target + n / 2);
 
 		CHECK(std::equal(target, target + n / 2, evens));
 		CHECK(std::count(target + n / 2, target + n, -1) == n / 2);
@@ -60,8 +60,8 @@ int main() {
 		std::fill_n(target, n, -1);
 
 		auto res = ranges::copy_if(std::move(source), target, is_even);
-		CHECK(res.in().get_unsafe() == source + n);
-		CHECK(res.out() == target + n / 2);
+		static_assert(ranges::Same<decltype(res.in), ranges::dangling>);
+		CHECK(res.out == target + n / 2);
 
 		CHECK(std::equal(target, target + n / 2, evens));
 		CHECK(std::count(target + n / 2, target + n, -1) == n / 2);
@@ -79,8 +79,8 @@ int main() {
 		}
 
 		auto res = ranges::copy_if(source, target, is_even, &S::value);
-		CHECK(res.in() == source + n);
-		CHECK(res.out() == target + n / 2);
+		CHECK(res.in == source + n);
+		CHECK(res.out == target + n / 2);
 
 		for (auto i = n / 2; i-- > 0;) {
 			CHECK(target[i].value == source[2 * i].value);
@@ -97,7 +97,7 @@ int main() {
 		{
 			auto l = {5,4,3,2,1,0};
 			auto res = ranges::copy_if(std::move(l), target, is_even);
-			CHECK(res.out() == target + n / 2);
+			CHECK(res.out == target + n / 2);
 		}
 
 		CHECK(std::equal(target, target + n / 2, evens));

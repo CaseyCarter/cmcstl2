@@ -29,22 +29,19 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
-struct is_odd
-{
+struct is_odd {
 	bool operator()(const int& i) const {return i & 1;}
 };
 
 template<class Iter, class Sent = Iter>
-void
-test_iter()
-{
+void test_iter() {
 	const int ia[] = {1, 2, 3, 4, 6, 8, 5, 7};
 	int r1[10] = {0};
 	int r2[10] = {0};
 	typedef std::tuple<Iter, output_iterator<int*>,  int*> P;
-	P p = stl2::partition_copy(Iter(std::begin(ia)),
+	P p = ranges::partition_copy(Iter(std::begin(ia)),
 								 Sent(std::end(ia)),
 								 output_iterator<int*>(r1), r2, is_odd());
 	CHECK(std::get<0>(p) == Iter(std::end(ia)));
@@ -68,7 +65,7 @@ test_range()
 	int r1[10] = {0};
 	int r2[10] = {0};
 	typedef std::tuple<Iter, output_iterator<int*>,  int*> P;
-	P p = stl2::partition_copy(::as_lvalue(stl2::subrange(Iter(std::begin(ia)),
+	P p = ranges::partition_copy(::as_lvalue(ranges::subrange(Iter(std::begin(ia)),
 														   Sent(std::end(ia)))),
 								 output_iterator<int*>(r1), r2, is_odd());
 	CHECK(std::get<0>(p) == Iter(std::end(ia)));
@@ -96,7 +93,7 @@ void test_proj()
 	S r1[10] = {S{0}};
 	S r2[10] = {S{0}};
 	typedef std::tuple<S const *, S*,  S*> P;
-	P p = stl2::partition_copy(ia, r1, r2, is_odd(), &S::i);
+	P p = ranges::partition_copy(ia, r1, r2, is_odd(), &S::i);
 	CHECK(std::get<0>(p) == std::end(ia));
 	CHECK(std::get<1>(p) == r1 + 4);
 	CHECK(r1[0].i == 1);
@@ -116,8 +113,8 @@ void test_rvalue()
 	const S ia[] = {S{1}, S{2}, S{3}, S{4}, S{6}, S{8}, S{5}, S{7}};
 	S r1[10] = {S{0}};
 	S r2[10] = {S{0}};
-	auto p = stl2::partition_copy(stl2::move(ia), r1, r2, is_odd(), &S::i);
-	CHECK(std::get<0>(p).get_unsafe() == std::end(ia));
+	auto p = ranges::partition_copy(std::move(ia), r1, r2, is_odd(), &S::i);
+	static_assert(ranges::Same<decltype(std::get<0>(p)), ranges::dangling&>);
 	CHECK(std::get<1>(p) == r1 + 4);
 	CHECK(r1[0].i == 1);
 	CHECK(r1[1].i == 3);

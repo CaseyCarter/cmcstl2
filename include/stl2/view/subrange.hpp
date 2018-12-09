@@ -282,7 +282,6 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	// Not to spec: should be constrained with _ForwardingRange, and never dangle.
 	template<Range R>
 	using safe_subrange_t =	__maybe_dangling<R, subrange<iterator_t<R>>>;
 } STL2_CLOSE_NAMESPACE

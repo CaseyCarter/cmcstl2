@@ -143,6 +143,7 @@ STL2_OPEN_NAMESPACE {
 			STL2_EXPECT(detail::is_in_range(d, n));
 			return __stl2::begin(d)[n];
 		}
+		// Extension
 		// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		template<detail::ContainerConvertible<const D&> C>
 		operator C() const {

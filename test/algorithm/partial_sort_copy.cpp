@@ -28,7 +28,7 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 namespace { std::mt19937 gen; }
 
@@ -37,7 +37,7 @@ void
 test_larger_sorts(int N, int M)
 {
     auto partial_sort_copy = ::make_testable_2<true, false>([](auto&&... args) {
-        return stl2::partial_sort_copy(std::forward<decltype(args)>(args)...);
+        return ranges::partial_sort_copy(std::forward<decltype(args)>(args)...);
     });
     int* input = new int[N];
     int* output = new int[M];
@@ -116,7 +116,7 @@ struct U
 int main()
 {
     int i = 0;
-    int * r = stl2::partial_sort_copy(&i, &i, &i, &i+5);
+    int * r = ranges::partial_sort_copy(&i, &i, &i, &i+5);
     CHECK(r == &i);
     CHECK(i == 0);
     test<input_iterator<const int*> >();
@@ -134,7 +134,7 @@ int main()
         for (int i = 0; i < N; ++i)
             input[i].i = i;
         std::shuffle(input, input+N, gen);
-        U* r = stl2::partial_sort_copy(input, output, std::less<int>(), &S::i, &U::i);
+        U* r = ranges::partial_sort_copy(input, output, std::less<int>(), &S::i, &U::i);
         U* e = output + std::min(N, M);
         CHECK(r == e);
         int i = 0;
@@ -151,9 +151,9 @@ int main()
         for (int i = 0; i < N; ++i)
             input[i].i = i;
         std::shuffle(input, input+N, gen);
-        auto r = stl2::partial_sort_copy(input, std::move(output), std::less<int>(), &S::i, &U::i);
+        auto r = ranges::partial_sort_copy(input, std::move(output), std::less<int>(), &S::i, &U::i);
         U* e = output + std::min(N, M);
-        CHECK(r.get_unsafe() == e);
+        static_assert(ranges::Same<decltype(r), ranges::dangling>);
         int i = 0;
         for (U* x = output; x < e; ++x, ++i)
             CHECK(x->i == i);

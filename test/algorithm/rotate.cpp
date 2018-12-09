@@ -27,12 +27,12 @@
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 template<class Iter, class Sent = Iter>
 void test()
 {
-	using namespace stl2;
+	using namespace ranges;
 
 	int ia[] = {0};
 	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
@@ -263,9 +263,8 @@ int main()
 	// test rvalue range
 	{
 		int rgi[] = {0,1,2,3,4,5};
-		auto r = stl2::rotate(stl2::move(rgi), rgi+2);
-		CHECK(r.get_unsafe().begin() == rgi+4);
-		CHECK(r.get_unsafe().end() == stl2::end(rgi));
+		auto r = ranges::rotate(std::move(rgi), rgi+2);
+		static_assert(ranges::Same<decltype(r), ranges::dangling>);
 		CHECK(rgi[0] == 2);
 		CHECK(rgi[1] == 3);
 		CHECK(rgi[2] == 4);

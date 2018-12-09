@@ -20,7 +20,8 @@ target_include_directories(stl2 INTERFACE
     $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 target_compile_features(stl2 INTERFACE cxx_std_17)
 target_compile_options(stl2 INTERFACE
-    $<$<CXX_COMPILER_ID:GNU>:-fconcepts>)
+    $<$<CXX_COMPILER_ID:GNU>:-fconcepts>
+    $<$<CXX_COMPILER_ID:Clang>:-Xclang -fconcepts-ts>)
 
 install(DIRECTORY include/ DESTINATION include)
 install(TARGETS stl2 EXPORT cmcstl2-targets)

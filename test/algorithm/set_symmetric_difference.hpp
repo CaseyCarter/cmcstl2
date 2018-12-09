@@ -26,7 +26,7 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 template<class Iter1, class Iter2, class OutIter>
 void
@@ -41,7 +41,7 @@ test_iter()
 	const int sr = sizeof(ir)/sizeof(ir[0]);
 
 	auto set_symmetric_difference = ::make_testable_2([](auto&&... args) {
-		return stl2::set_symmetric_difference(stl2::forward<decltype(args)>(args)...);
+		return ranges::set_symmetric_difference(std::forward<decltype(args)>(args)...);
 	});
 
 	set_symmetric_difference(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic)).
@@ -49,7 +49,7 @@ test_iter()
 		{
 			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
 			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
-			stl2::fill(ic, 0);
+			ranges::fill(ic, 0);
 		}
 	);
 
@@ -58,7 +58,7 @@ test_iter()
 		{
 			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
 			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
-			stl2::fill(ic, 0);
+			ranges::fill(ic, 0);
 		}
 	);
 }
@@ -76,7 +76,7 @@ test_comp()
 	const int sr = sizeof(ir)/sizeof(ir[0]);
 
 	auto set_symmetric_difference = ::make_testable_2([](auto&&... args) {
-		return stl2::set_symmetric_difference(stl2::forward<decltype(args)>(args)...);
+		return ranges::set_symmetric_difference(std::forward<decltype(args)>(args)...);
 	});
 
 	set_symmetric_difference(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic), std::less<int>()).
@@ -84,7 +84,7 @@ test_comp()
 		{
 			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
 			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
-			stl2::fill(ic, 0);
+			ranges::fill(ic, 0);
 		}
 	);
 
@@ -93,7 +93,7 @@ test_comp()
 		{
 			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
 			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
-			stl2::fill(ic, 0);
+			ranges::fill(ic, 0);
 		}
 	);
 }

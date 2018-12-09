@@ -29,7 +29,7 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 namespace { std::mt19937 gen; }
 
@@ -63,13 +63,13 @@ template<class RI>
 void
 test_sort_helper(RI f, RI l)
 {
-	using value_type = stl2::iter_value_t<RI>;
+	using value_type = ranges::iter_value_t<RI>;
 	auto sort = make_testable_1<false>([](auto&&... args) {
-		return stl2::sort(std::forward<decltype(args)>(args)...);
+		return ranges::sort(std::forward<decltype(args)>(args)...);
 	});
 	if (f != l)
 	{
-		auto len = stl2::distance(f, l);
+		auto len = ranges::distance(f, l);
 		value_type* save(new value_type[len]);
 		do
 		{
@@ -141,27 +141,27 @@ test_larger_sorts(int N, int M)
 	}
 
 	// test saw tooth pattern
-	CHECK(stl2::sort(array, array+N) == array+N);
+	CHECK(ranges::sort(array, array+N) == array+N);
 	CHECK(std::is_sorted(array, array+N));
 	// test random pattern
 	std::shuffle(array, array+N, gen);
-	CHECK(stl2::sort(array, array+N) == array+N);
+	CHECK(ranges::sort(array, array+N) == array+N);
 	CHECK(std::is_sorted(array, array+N));
 	// test sorted pattern
-	CHECK(stl2::sort(array, array+N) == array+N);
+	CHECK(ranges::sort(array, array+N) == array+N);
 	CHECK(std::is_sorted(array, array+N));
 	// test reverse sorted pattern
 	std::reverse(array, array+N);
-	CHECK(stl2::sort(array, array+N) == array+N);
+	CHECK(ranges::sort(array, array+N) == array+N);
 	CHECK(std::is_sorted(array, array+N));
 	// test swap ranges 2 pattern
 	std::swap_ranges(array, array+N/2, array+N/2);
-	CHECK(stl2::sort(array, array+N) == array+N);
+	CHECK(ranges::sort(array, array+N) == array+N);
 	CHECK(std::is_sorted(array, array+N));
 	// test reverse swap ranges 2 pattern
 	std::reverse(array, array+N);
 	std::swap_ranges(array, array+N/2, array+N/2);
-	CHECK(stl2::sort(array, array+N) == array+N);
+	CHECK(ranges::sort(array, array+N) == array+N);
 	CHECK(std::is_sorted(array, array+N));
 	delete [] array;
 }
@@ -230,7 +230,7 @@ int main()
 {
 	// test null range
 	int d = 0;
-	stl2::sort(&d, &d);
+	ranges::sort(&d, &d);
 	// exhaustively test all possibilities up to length 8
 	test_sort_<1>();
 	test_sort_<2>();
@@ -257,7 +257,7 @@ int main()
 		std::vector<std::unique_ptr<int> > v(1000);
 		for(int i = 0; (std::size_t)i < v.size(); ++i)
 			v[i].reset(new int(v.size() - i - 1));
-		stl2::sort(v, indirect_less());
+		ranges::sort(v, indirect_less());
 		for(int i = 0; (std::size_t)i < v.size(); ++i)
 			CHECK(*v[i] == i);
 	}
@@ -270,7 +270,7 @@ int main()
 			v[i].i = v.size() - i - 1;
 			v[i].j = i;
 		}
-		stl2::sort(v, std::less<int>{}, &S::i);
+		ranges::sort(v, std::less<int>{}, &S::i);
 		for(int i = 0; (std::size_t)i < v.size(); ++i)
 		{
 			CHECK(v[i].i == i);
@@ -286,7 +286,8 @@ int main()
 			v[i].i = v.size() - i - 1;
 			v[i].j = i;
 		}
-		CHECK(stl2::sort(std::move(v), std::less<int>{}, &S::i).get_unsafe() == v.end());
+		auto r = ranges::sort(std::move(v), std::less<int>{}, &S::i);
+		static_assert(ranges::Same<decltype(r), ranges::dangling>);
 		for(int i = 0; (std::size_t)i < v.size(); ++i)
 		{
 			CHECK(v[i].i == i);

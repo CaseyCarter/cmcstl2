@@ -31,16 +31,16 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 template<class Iter, class Sent = Iter>
 void
 test_iter()
 {
 	int ia[] = {0, 1, 2, 3, 4, 2, 3, 4, 2};
-	constexpr unsigned sa = stl2::size(ia);
+	constexpr unsigned sa = ranges::size(ia);
 	using namespace std::placeholders;
-	Iter r = stl2::remove_if(Iter(ia), Sent(ia+sa), std::bind(std::equal_to<int>(), _1, 2));
+	Iter r = ranges::remove_if(Iter(ia), Sent(ia+sa), std::bind(std::equal_to<int>(), _1, 2));
 	CHECK(base(r) == ia + sa-3);
 	CHECK(ia[0] == 0);
 	CHECK(ia[1] == 1);
@@ -55,9 +55,9 @@ void
 test_range()
 {
 	int ia[] = {0, 1, 2, 3, 4, 2, 3, 4, 2};
-	constexpr unsigned sa = stl2::size(ia);
+	constexpr unsigned sa = ranges::size(ia);
 	using namespace std::placeholders;
-	Iter r = stl2::remove_if(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia+sa))), std::bind(std::equal_to<int>(), _1, 2));
+	Iter r = ranges::remove_if(::as_lvalue(ranges::subrange(Iter(ia), Sent(ia+sa))), std::bind(std::equal_to<int>(), _1, 2));
 	CHECK(base(r) == ia + sa-3);
 	CHECK(ia[0] == 0);
 	CHECK(ia[1] == 1);
@@ -87,7 +87,7 @@ test_iter_rvalue()
 	ia[6].reset(new int(3));
 	ia[7].reset(new int(4));
 	ia[8].reset(new int(2));
-	Iter r = stl2::remove_if(Iter(ia), Sent(ia+sa), pred());
+	Iter r = ranges::remove_if(Iter(ia), Sent(ia+sa), pred());
 	CHECK(base(r) == ia + sa-3);
 	CHECK(*ia[0] == 0);
 	CHECK(*ia[1] == 1);
@@ -112,7 +112,7 @@ test_range_rvalue()
 	ia[6].reset(new int(3));
 	ia[7].reset(new int(4));
 	ia[8].reset(new int(2));
-	Iter r = stl2::remove_if(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia+sa))), pred());
+	Iter r = ranges::remove_if(::as_lvalue(ranges::subrange(Iter(ia), Sent(ia+sa))), pred());
 	CHECK(base(r) == ia + sa-3);
 	CHECK(*ia[0] == 0);
 	CHECK(*ia[1] == 1);
@@ -164,9 +164,9 @@ int main()
 	{
 		// Check projection
 		S ia[] = {S{0}, S{1}, S{2}, S{3}, S{4}, S{2}, S{3}, S{4}, S{2}};
-		constexpr unsigned sa = stl2::size(ia);
+		constexpr unsigned sa = ranges::size(ia);
 		using namespace std::placeholders;
-		S* r = stl2::remove_if(ia, std::bind(std::equal_to<int>(), _1, 2), &S::i);
+		S* r = ranges::remove_if(ia, std::bind(std::equal_to<int>(), _1, 2), &S::i);
 		CHECK(r == ia + sa-3);
 		CHECK(ia[0].i == 0);
 		CHECK(ia[1].i == 1);
@@ -179,10 +179,9 @@ int main()
 	{
 		// Check rvalue range
 		S ia[] = {S{0}, S{1}, S{2}, S{3}, S{4}, S{2}, S{3}, S{4}, S{2}};
-		constexpr unsigned sa = stl2::size(ia);
 		using namespace std::placeholders;
-		auto r = stl2::remove_if(stl2::move(ia), std::bind(std::equal_to<int>(), _1, 2), &S::i);
-		CHECK(r.get_unsafe() == ia + sa-3);
+		auto r = ranges::remove_if(std::move(ia), std::bind(std::equal_to<int>(), _1, 2), &S::i);
+		static_assert(ranges::Same<decltype(r), ranges::dangling>);
 		CHECK(ia[0].i == 0);
 		CHECK(ia[1].i == 1);
 		CHECK(ia[2].i == 3);
