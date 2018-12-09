@@ -37,16 +37,25 @@ STL2_OPEN_NAMESPACE {
 		void begin(std::initializer_list<T>&&) = delete;
 
 		template<class R>
-		STL2_CONCEPT has_member = _Is<R, std::is_lvalue_reference> && requires(R r) {
-			r.begin();
-			{ __decay_copy(r.begin()) } -> Iterator;
-		};
+		STL2_CONCEPT has_member = _Is<R, std::is_lvalue_reference> &&
+			requires(R& r) {
+				r.begin();
+				{ __decay_copy(r.begin()) } -> Iterator;
+			};
 
 		template<class R>
 		STL2_CONCEPT has_non_member = requires(R&& r) {
 			begin(static_cast<R&&>(r));
 			{ __decay_copy(begin(static_cast<R&&>(r))) } -> Iterator;
 		};
+
+		template<class>
+		inline constexpr bool nothrow = false;
+		template<has_member R>
+		inline constexpr bool nothrow<R> = noexcept(std::declval<R>().begin());
+		template<class R>
+		requires !has_member<R> && has_non_member<R>
+		inline constexpr bool nothrow<R> = noexcept(begin(std::declval<R>()));
 
 		struct __fn {
 			// Handle builtin arrays directly
@@ -64,21 +73,16 @@ STL2_OPEN_NAMESPACE {
 				return sv.begin();
 			}
 
-			// Prefer member if it returns Iterator.
 			template<class R>
-			requires has_member<R&>
-			constexpr auto operator()(R& r) const
-			STL2_NOEXCEPT_RETURN(
-				r.begin()
-			)
-
-			// Use ADL if it returns Iterator.
-			template<class R>
-			requires !has_member<R> && has_non_member<R>
+			requires has_member<R> || has_non_member<R>
 			constexpr auto operator()(R&& r) const
-			STL2_NOEXCEPT_RETURN(
-				begin(static_cast<R&&>(r))
-			)
+			noexcept(nothrow<R>) {
+				if constexpr (has_member<R>) {
+					return static_cast<R&&>(r).begin();
+				} else {
+					return begin(static_cast<R&&>(r));
+				}
+			}
 		};
 	}
 	inline namespace __cpos {

@@ -37,10 +37,13 @@ STL2_OPEN_NAMESPACE {
 		STL2_CONCEPT CanEmpty = Range<R> && requires(R& r) { __stl2::empty(r); };
 		template<class R>
 		STL2_CONCEPT SizedSentinelForwardRange = ForwardRange<R> && SizedSentinel<sentinel_t<R>, iterator_t<R>>;
-		template<class C, class R>
-		STL2_CONCEPT ContainerConvertible = InputRange<R> && ForwardRange<C> && !View<C> &&
+		template<class C, class R> // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
+		STL2_CONCEPT ContainerConvertibleGCCBugs = InputRange<R> &&
 			ConvertibleTo<iter_reference_t<iterator_t<R>>, iter_value_t<iterator_t<C>>> &&
 			Constructible<C, __range_common_iterator<R>, __range_common_iterator<R>>;
+		template<class C, class R>
+		STL2_CONCEPT ContainerConvertible = ForwardRange<C> && !View<C> &&
+			ContainerConvertibleGCCBugs<C, R>;
 
 		template<Range R>
 		constexpr bool is_in_range(R& r, iter_difference_t<iterator_t<R>> n) noexcept {
@@ -76,9 +79,9 @@ STL2_OPEN_NAMESPACE {
 			auto& d = derived();
 			return __stl2::begin(d) == __stl2::end(d);
 		}
-		constexpr explicit operator bool() const
 		// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82740
-		requires detail::CanEmpty<const D> {
+		template<detail::CanEmpty = const D> // gcc_bugs_bugs_bugs
+		constexpr explicit operator bool() const {
 			return !__stl2::empty(derived());
 		}
 		template<Range R = D>
@@ -141,7 +144,7 @@ STL2_OPEN_NAMESPACE {
 			return __stl2::begin(d)[n];
 		}
 		// Distinct named concept to workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template<detail::ContainerConvertible<const D> C>
+		template<detail::ContainerConvertible<const D&> C>
 		operator C() const {
 			auto& d = derived();
 			using I = detail::__range_common_iterator<const D>;
