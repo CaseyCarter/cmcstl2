@@ -25,12 +25,16 @@ STL2_OPEN_NAMESPACE {
 
 	namespace view::ext {
 		struct __repeat_n_fn {
+		private:
+		template<class T> using V = __stl2::ext::repeat_n_view<__uncvref<T>>;
+		public:
 			template<class T>
 			constexpr auto operator()(T&& t, std::ptrdiff_t const n) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
-				STL2_EXPECT(n >= 0),
-				__stl2::ext::repeat_n_view<__uncvref<T>>{repeat(static_cast<T&&>(t)), n}
-			)
+			noexcept(noexcept(V<T>{repeat(static_cast<T&&>(t)), n}))
+			requires requires { V<T>{repeat(static_cast<T&&>(t)), n}; } {
+				STL2_EXPECT(n >= 0);
+				return V<T>{repeat(static_cast<T&&>(t)), n};
+			}
 		};
 
 		inline constexpr __repeat_n_fn repeat_n {};

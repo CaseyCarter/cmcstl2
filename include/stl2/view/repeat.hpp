@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 		struct __repeat_fn {
 			template<class T>
 			constexpr auto operator()(T&& t) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
+			STL2_REQUIRES_RETURN(
 				__stl2::ext::repeat_view{static_cast<T&&>(t)}
 			)
 		};

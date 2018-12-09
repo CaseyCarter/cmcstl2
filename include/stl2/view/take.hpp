@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 	template<Range R>
 	take_view(R&&, iter_difference_t<iterator_t<R>>) -> take_view<all_view<R>>;
 
-	template<class R>
+	template<View R>
 	template<bool Const>
 	struct take_view<R>::__sentinel {
 	private:
@@ -121,7 +121,7 @@ STL2_OPEN_NAMESPACE {
 		struct __take_fn {
 			template<Range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
+			STL2_REQUIRES_RETURN(
 				take_view{view::all(static_cast<Rng&&>(rng)), count}
 			)
 

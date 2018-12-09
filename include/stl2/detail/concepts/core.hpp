@@ -51,7 +51,10 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Same
 	//
-#if defined(__GNUC__)
+#if defined(__clang__)
+	template<class T, class U>
+	STL2_CONCEPT _SameImpl = __is_same(T, U);
+#elif defined(__GNUC__)
 	template<class T, class U>
 	STL2_CONCEPT _SameImpl = __is_same_as(T, U);
 #else
@@ -75,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class T, class U>
 	STL2_CONCEPT DerivedFrom =
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER)
 		__is_base_of(U, T) &&
 #else
 		std::is_base_of_v<U, T> &&
@@ -87,7 +90,12 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class From, class To>
 	STL2_CONCEPT ConvertibleTo =
-		std::is_convertible_v<From, To> && requires(From (&f)()) {
+#if defined(__clang__) || defined(_MSC_VER)
+		__is_convertible_to(From, To) &&
+#else
+		std::is_convertible_v<From, To> &&
+#endif
+		requires(From (&f)()) {
 			static_cast<To>(f());
 		};
 		// Axiom: implicit and explicit conversion have equal results.

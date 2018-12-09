@@ -78,7 +78,8 @@ STL2_OPEN_NAMESPACE {
 		(!Integral<I> || !Integral<Bound> || std::is_signed_v<I> == std::is_signed_v<Bound>)
 	iota_view(I, Bound) -> iota_view<I, Bound>;
 
-	template<class I, class Bound>
+	template<WeaklyIncrementable I, Semiregular Bound>
+	requires WeaklyEqualityComparable<I, Bound>
 	struct iota_view<I, Bound>::iterator
 	: detail::iota_view_iterator_base<I> {
 	private:
@@ -171,7 +172,8 @@ STL2_OPEN_NAMESPACE {
 		{ return *x - *y; }
 	};
 
-	template<class I, class Bound>
+	template<WeaklyIncrementable I, Semiregular Bound>
+	requires WeaklyEqualityComparable<I, Bound>
 	struct iota_view<I, Bound>::sentinel {
 	private:
 		Bound bound_;

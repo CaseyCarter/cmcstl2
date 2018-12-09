@@ -32,17 +32,18 @@ STL2_OPEN_NAMESPACE {
 	: meta::bool_<sizeof...(T) == 1> {};
 
 	template<class T, class U, class... Rest>
-	requires
-		CommonReference<T, U>
+	requires CommonReference<T, U>
 	struct __common_reference<T, U, Rest...>
 	: __common_reference<common_reference_t<T, U>, Rest...> {};
 
 	template<Readable... Is>
-	using __iter_args_lists =
+	using __iter_args_lists_ =
 		meta::push_back<
 			meta::cartesian_product<
 				meta::list<meta::list<iter_value_t<Is>&, iter_reference_t<Is>>...>>,
 			meta::list<iter_common_reference_t<Is>...>>;
+	template<class... Is>
+	using __iter_args_lists = __iter_args_lists_<Is...>;
 
 	template<typename MapFn, typename ReduceFn>
 	using __iter_map_reduce_fn =

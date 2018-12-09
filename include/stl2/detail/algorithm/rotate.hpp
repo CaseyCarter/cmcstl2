@@ -92,7 +92,8 @@ STL2_OPEN_NAMESPACE {
 		return {std::move(r), std::move(i)};
 	}
 
-	constexpr Integral __gcd(Integral x, Integral y)
+	template<Integral I>
+	constexpr I __gcd(I x, I y)
 	{
 		do {
 			auto t = x % y;

@@ -141,26 +141,28 @@ STL2_OPEN_NAMESPACE {
 				current_ += n;
 			}
 
-			constexpr bool equal(
-				const cursor<EqualityComparableWith<I> >& that) const
+			template<EqualityComparableWith<I> I2>
+			constexpr bool equal(const cursor<I2>& that) const
 			STL2_NOEXCEPT_RETURN(
 				current_ == access::current(that)
 			)
 
-			constexpr bool equal(
-				const move_sentinel<Sentinel<I> >& that) const
+			template<Sentinel<I> S>
+			constexpr bool equal(const move_sentinel<S>& that) const
 			STL2_NOEXCEPT_RETURN(
 				current_ == access::sentinel(that)
 			)
 
+			template<SizedSentinel<I> S>
 			constexpr iter_difference_t<I>
-			distance_to(const cursor<SizedSentinel<I> >& that) const
+			distance_to(const cursor<S>& that) const
 			STL2_NOEXCEPT_RETURN(
 				access::current(that) - current_
 			)
 
+			template<SizedSentinel<I> S>
 			constexpr iter_difference_t<I>
-			distance_to(const move_sentinel<SizedSentinel<I> >& that) const
+			distance_to(const move_sentinel<S>& that) const
 			STL2_NOEXCEPT_RETURN(
 				access::sentinel(that) - current_
 			)
@@ -172,8 +174,8 @@ STL2_OPEN_NAMESPACE {
 			)
 
 			// Extension
-			constexpr void indirect_swap(
-				const cursor<IndirectlySwappable<I> >& that) const
+			template<IndirectlySwappable<I> I2>
+			constexpr void indirect_swap(const cursor<I2>& that) const
 			STL2_NOEXCEPT_RETURN(
 				__stl2::iter_swap(current_, access::current(that))
 			)

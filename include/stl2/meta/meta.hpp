@@ -578,23 +578,26 @@ namespace meta
         /// Compose the Invocables \p Fns in the parameter pack \p Ts.
         /// \ingroup composition
         template<Invocable... Fns>
-        struct compose
+        struct compose_
         {
         };
 
         template<Invocable Fn0>
-        struct compose<Fn0>
+        struct compose_<Fn0>
         {
             template<typename... Ts>
             using invoke = invoke<Fn0, Ts...>;
         };
 
         template<Invocable Fn0, Invocable... Fns>
-        struct compose<Fn0, Fns...>
+        struct compose_<Fn0, Fns...>
         {
             template<typename... Ts>
-            using invoke = invoke<Fn0, invoke<compose<Fns...>, Ts...>>;
+            using invoke = invoke<Fn0, invoke<compose_<Fns...>, Ts...>>;
         };
+
+        template<typename... Fns>
+        using compose = compose_<Fns...>;
 
         namespace lazy
         {
@@ -783,7 +786,10 @@ namespace meta
         /// result of applying Invocable `compose<Gs...>` to all the arguments.
         /// \ingroup composition
         template<Invocable... Fns>
-        using on = detail::on_<Fns...>;
+        using on_ = detail::on_<Fns...>;
+
+        template<typename... Fns>
+        using on = on_<Fns...>;
 
         namespace lazy
         {
@@ -897,13 +903,19 @@ namespace meta
         /// doing short-circuiting.
         /// \ingroup logical
         template<Integral... Bs>
-        using strict_and = and_c<_v<Bs>...>;
+        using strict_and_ = and_c<_v<Bs>...>;
+
+        template<typename... Bs>
+        using strict_and = strict_and_<Bs...>;
 
         /// Logically and together all the integral constant-wrapped Boolean parameters, \e with
         /// short-circuiting.
         /// \ingroup logical
         template<Integral... Bs>
-        using and_ = _t<detail::_and_<Bs...>>;
+        using _and_ = _t<detail::_and_<Bs...>>;
+
+        template<typename... Bs>
+        using and_ = _and_<Bs...>;
 
         /// Logically or together all the Boolean parameters
         /// \ingroup logical
@@ -914,13 +926,19 @@ namespace meta
         /// doing short-circuiting.
         /// \ingroup logical
         template<Integral... Bs>
-        using strict_or = or_c<_v<Bs>...>;
+        using strict_or_ = or_c<_v<Bs>...>;
+
+        template<typename... Bs>
+        using strict_or = strict_or_<Bs...>;
 
         /// Logically or together all the integral constant-wrapped Boolean parameters, \e with
         /// short-circuiting.
         /// \ingroup logical
         template<Integral... Bs>
-        using or_ = _t<detail::_or_<Bs...>>;
+        using _or_ = _t<detail::_or_<Bs...>>;
+
+        template<typename... Bs>
+        using or_ = _or_<Bs...>;
 
         namespace lazy
         {
@@ -1128,7 +1146,10 @@ namespace meta
         /// \f$ O(L) \f$ where \f$ L \f$ is the number of lists in the list of lists.
         /// \ingroup transformation
         template<List... Ls>
-        using concat = _t<detail::concat_<Ls...>>;
+        using concat_ = _t<detail::concat_<Ls...>>;
+
+        template<typename... Lists>
+        using concat = concat_<Lists...>;
 
         namespace lazy
         {
@@ -1471,12 +1492,18 @@ namespace meta
         /// An integral constant wrapper around the minimum of `Ts::type::value...`
         /// \ingroup math
         template<Integral... Ts>
-        using min = fold<pop_front<list<Ts...>>, front<list<Ts...>>, quote<detail::min_>>;
+        using min_ = fold<pop_front<list<Ts...>>, front<list<Ts...>>, quote<detail::min_>>;
+
+        template<typename... Ts>
+        using min = min_<Ts...>;
 
         /// An integral constant wrapper around the maximum of `Ts::type::value...`
         /// \ingroup math
         template<Integral... Ts>
-        using max = fold<pop_front<list<Ts...>>, front<list<Ts...>>, quote<detail::max_>>;
+        using max_ = fold<pop_front<list<Ts...>>, front<list<Ts...>>, quote<detail::max_>>;
+
+        template<typename... Ts>
+        using max = max_<Ts...>;
 
         namespace lazy
         {

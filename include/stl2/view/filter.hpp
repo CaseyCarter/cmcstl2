@@ -68,7 +68,8 @@ STL2_OPEN_NAMESPACE {
 		{ return __iterator{*this, __stl2::end(base_)}; }
 	};
 
-	template<class V, class Pred>
+	template<InputRange V, IndirectUnaryPredicate<iterator_t<V>> Pred>
+	requires View<V>
 	class filter_view<V, Pred>::__iterator {
 	private:
 		iterator_t<V> current_ {};
@@ -155,7 +156,8 @@ STL2_OPEN_NAMESPACE {
 		{ __stl2::iter_swap(x.current_, y.current_); }
 	};
 
-	template<class V, class Pred>
+	template<InputRange V, IndirectUnaryPredicate<iterator_t<V>> Pred>
+	requires View<V>
 	class filter_view<V, Pred>::__sentinel {
 	private:
 		sentinel_t<V> end_;
@@ -185,7 +187,7 @@ STL2_OPEN_NAMESPACE {
 			template<InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
 			requires ViewableRange<R>
 			constexpr auto operator()(R&& rng, Pred pred) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
+			STL2_REQUIRES_RETURN(
 				filter_view<all_view<R>, Pred>{std::forward<R>(rng), std::move(pred)}
 			)
 			template<CopyConstructible Pred>

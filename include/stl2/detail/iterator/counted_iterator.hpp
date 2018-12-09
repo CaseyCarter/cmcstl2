@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		decltype(auto) operator*() const
 		noexcept(noexcept(*std::declval<const I&>()))
-		requires detail::Dereferenceable<const I> {
+		requires __dereferenceable<const I> {
 			return *current();
 		}
 		constexpr counted_iterator& operator++() {
@@ -156,12 +156,14 @@ STL2_OPEN_NAMESPACE {
 		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return x.count() == y.count();
 	}
+	template<class I>
 	constexpr bool operator==(
-		const counted_iterator<auto>& x, default_sentinel) noexcept {
+		const counted_iterator<I>& x, default_sentinel) noexcept {
 		return x.count() == 0;
 	}
+	template<class I>
 	constexpr bool operator==(
-		default_sentinel, const counted_iterator<auto>& x) noexcept {
+		default_sentinel, const counted_iterator<I>& x) noexcept {
 		return x.count() == 0;
 	}
 	template<class I1, class I2>
@@ -170,12 +172,14 @@ STL2_OPEN_NAMESPACE {
 		const counted_iterator<I1>& x, const counted_iterator<I2>& y) noexcept {
 		return !(x == y);
 	}
+	template<class I>
 	constexpr bool operator!=(
-		const counted_iterator<auto>& x, default_sentinel y) noexcept {
+		const counted_iterator<I>& x, default_sentinel y) noexcept {
 		return !(x == y);
 	}
+	template<class I>
 	constexpr bool operator!=(
-		default_sentinel x, const counted_iterator<auto>& y) noexcept {
+		default_sentinel x, const counted_iterator<I>& y) noexcept {
 		return !(x == y);
 	}
 	template<class I1, class I2>
@@ -242,9 +246,11 @@ STL2_OPEN_NAMESPACE {
 
 	template<RandomAccessIterator I>
 	constexpr void advance(counted_iterator<I>& i, iter_difference_t<I> n)
-	STL2_NOEXCEPT_RETURN(
-		(STL2_EXPECT(n <= i.count()), i += n, void())
-	)
+	noexcept(noexcept(i += n))
+	{
+		STL2_EXPECT(n <= i.count());
+		i += n;
+	}
 
 	namespace ext {
 		template<Iterator I>
@@ -254,7 +260,8 @@ STL2_OPEN_NAMESPACE {
 			return i;
 		}
 
-		constexpr auto uncounted(const counted_iterator<auto>& i)
+		template<class I>
+		constexpr auto uncounted(const counted_iterator<I>& i)
 		STL2_NOEXCEPT_RETURN(
 			i.base()
 		)

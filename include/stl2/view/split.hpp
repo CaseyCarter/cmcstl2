@@ -116,7 +116,10 @@ STL2_OPEN_NAMESPACE {
 		iterator_t<__maybe_const<Const, Rng>> current_ {};
 	};
 
-	template<class Rng, class Pattern>
+	template<InputRange Rng, ForwardRange Pattern>
+	requires View<Rng> && View<Pattern> &&
+		IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
+		(ForwardRange<Rng> || _TinyRange<Pattern>)
 	template<bool Const>
 	struct split_view<Rng, Pattern>::__outer_iterator
 	: private __split_view_outer_base<Rng, Const> {
@@ -211,7 +214,10 @@ STL2_OPEN_NAMESPACE {
 		{ return !(y == x);	}
 	};
 
-	template<class Rng, class Pattern>
+	template<InputRange Rng, ForwardRange Pattern>
+	requires View<Rng> && View<Pattern> &&
+		IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
+		(ForwardRange<Rng> || _TinyRange<Pattern>)
 	template<bool Const>
 	struct split_view<Rng, Pattern>::__outer_iterator<Const>::value_type {
 	private:
@@ -228,7 +234,10 @@ STL2_OPEN_NAMESPACE {
 		{ return default_sentinel{}; }
 	};
 
-	template<class Rng, class Pattern>
+	template<InputRange Rng, ForwardRange Pattern>
+	requires View<Rng> && View<Pattern> &&
+		IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
+		(ForwardRange<Rng> || _TinyRange<Pattern>)
 	template<bool Const>
 	struct split_view<Rng, Pattern>::__inner_iterator {
 	private:
@@ -309,11 +318,8 @@ STL2_OPEN_NAMESPACE {
 	namespace view {
 		struct __split_fn {
 			template<class E, class F>
-			requires requires(E&& e, F&& f) {
-				split_view{static_cast<E&&>(e), static_cast<F&&>(f)};
-			}
 			constexpr auto operator()(E&& e, F&& f) const
-			STL2_NOEXCEPT_RETURN(
+			STL2_REQUIRES_RETURN(
 				split_view{static_cast<E&&>(e), static_cast<F&&>(f)}
 			)
 

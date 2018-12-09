@@ -97,7 +97,12 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<ext::DestructibleObject Base, TagSpecifier... Tags>
 	requires sizeof...(Tags) <= tuple_size<Base>::value
-	struct tagged : meta::_t<__tagged::chain<Base, 0, Tags...>>	{
+	struct tagged
+	: meta::_t<__tagged::chain<Base, 0, Tags...>>
+#if STL2_WORKAROUND_CLANG_37556
+	, private __member_swap<tagged<Base, Tags...>>
+#endif
+	{
 	private:
 		using base_t = meta::_t<__tagged::chain<Base, 0, Tags...>>;
 	public:
@@ -152,12 +157,12 @@ STL2_OPEN_NAMESPACE {
 			__stl2::swap(static_cast<Base&>(*this), static_cast<Base&>(that));
 		}
 
+#if !STL2_WORKAROUND_CLANG_37556
 		friend constexpr void swap(tagged& a, tagged& b)
-		noexcept(noexcept(a.swap(b)))
-		requires Swappable<Base>
-		{
-			a.swap(b);
-		}
+		STL2_NOEXCEPT_REQUIRES_RETURN(
+			a.swap(b)
+		)
+#endif
 	};
 
 	#define STL2_DEFINE_GETTER(name)                                                                \

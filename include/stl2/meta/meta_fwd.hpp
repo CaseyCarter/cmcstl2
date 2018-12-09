@@ -137,7 +137,7 @@ namespace meta
         struct id;
 
         template<Invocable... Fs>
-        struct compose;
+        struct compose_;
 
         namespace extension
         {

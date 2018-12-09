@@ -106,12 +106,14 @@ result f(A) {
 	return result::exact;
 }
 
-result f(__stl2::ConvertibleTo<A>) {
+template<__stl2::ConvertibleTo<A> T>
+result f(T) {
 	std::cout << "Convertible to A\n";
 	return result::convertible;
 }
 
-result f(auto) {
+template<class T>
+result f(T) {
 	std::cout << "Nothing to do with A\n";
 	return result::unrelated;
 }

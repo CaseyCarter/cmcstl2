@@ -30,18 +30,20 @@
 // Iterator concepts [iterator.requirements]
 //
 STL2_OPEN_NAMESPACE {
-	namespace detail {
-		template<class T>
-		STL2_CONCEPT Dereferenceable =
-			requires(T& t) {
-				{ *t } -> auto&&;
-			};
-	}
+	template<class T>
+	using __with_reference = T&;
+	template<class T>
+	STL2_CONCEPT __can_reference = requires { typename __with_reference<T>; };
+	template<class T>
+	STL2_CONCEPT __dereferenceable = requires(T& t) {
+		// { *t } -> __can_reference;
+		*t; typename __with_reference<decltype(*t)>;
+	};
 
 	///////////////////////////////////////////////////////////////////////////
 	// iter_reference_t [iterator.assoc]
 	//
-	template<detail::Dereferenceable R>
+	template<__dereferenceable R>
 	using iter_reference_t = decltype(*declval<R&>());
 
 	///////////////////////////////////////////////////////////////////////////
@@ -55,9 +57,11 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool has_customization = false;
 		template<class R>
 		requires
-			detail::Dereferenceable<R> &&
+			__dereferenceable<R> &&
 			requires(R&& r) {
-				{ iter_move((R&&)r) } -> auto&&;
+				// { iter_move(static_cast<R&&>(r)) ->__can_reference;
+				iter_move(static_cast<R&&>(r));
+				requires __can_reference<decltype(iter_move(static_cast<R&&>(r)))>;
 			}
 		constexpr bool has_customization<R> = true;
 
@@ -68,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 		struct fn {
 			template<class R>
 			requires
-				detail::Dereferenceable<R> && has_customization<R>
+				__dereferenceable<R> && has_customization<R>
 			constexpr decltype(auto) operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
 				iter_move((R&&)r)
@@ -76,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 
 			template<class R>
 			requires
-				detail::Dereferenceable<R>
+				__dereferenceable<R>
 			constexpr rvalue<iter_reference_t<R>> operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
 				static_cast<rvalue<iter_reference_t<R>>>(*r)
@@ -91,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 	// iter_rvalue_reference_t [Extension]
 	// From the proxy iterator work (P0022).
 	//
-	template<detail::Dereferenceable R>
+	template<__dereferenceable R>
 	using iter_rvalue_reference_t = decltype(__stl2::iter_move(declval<R&>()));
 
 	///////////////////////////////////////////////////////////////////////////
@@ -182,7 +186,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class Out, class R>
 	STL2_CONCEPT Writable =
-		detail::Dereferenceable<Out> &&
+		__dereferenceable<Out> &&
 		requires(Out&& o, R&& r) {
 			*o = static_cast<R&&>(r);
 			*static_cast<Out&&>(o) = static_cast<R&&>(r);
@@ -250,7 +254,8 @@ STL2_OPEN_NAMESPACE {
 	namespace __iter_swap {
 		// Poison pill for iter_swap. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
-		void iter_swap(auto, auto) = delete;
+		template<class T, class U>
+		void iter_swap(T, U) = delete;
 
 		template<class, class>
 		constexpr bool has_customization = false;
@@ -414,7 +419,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class I>
 	STL2_CONCEPT Iterator =
-		detail::Dereferenceable<I&> && WeaklyIncrementable<I>;
+		__dereferenceable<I&> && WeaklyIncrementable<I>;
 		// Axiom?: i is non-singular iff it denotes an element
 		// Axiom?: if i equals j then i and j denote equal elements
 		// Axiom?: I{} is in the domain of copy/move construction/assignment
@@ -558,7 +563,8 @@ STL2_OPEN_NAMESPACE {
 	template<InputIterator I>
 	requires
 		requires(I i) {
-			{ i.operator->() } -> auto&&;
+			// { i.operator->() } -> __can_reference;
+			i.operator->(); requires __can_reference<decltype(i.operator->())>;
 		}
 	struct __pointer_type<I> {
 		using type = decltype(declval<I&>().operator->());
@@ -631,16 +637,17 @@ STL2_OPEN_NAMESPACE {
 				requires DerivedFrom<typename I::iterator_category, std::input_iterator_tag> ||
 						 DerivedFrom<typename I::iterator_category, std::output_iterator_tag>;
 			};
-	}
+		template<class I>
+		STL2_CONCEPT ProbablySTL2Iterator = !LooksLikeSTL1Iterator<I> && Iterator<I>;
+	} // namespace detail
 } STL2_CLOSE_NAMESPACE
 
 namespace std {
-	template<::__stl2::Iterator Out>
+	template<::__stl2::detail::ProbablySTL2Iterator Out>
 		// HACKHACK to avoid partial specialization after instantiation errors. Platform
 		// vendors can avoid this hack by fixing up stdlib headers to fwd declare these
 		// partial specializations in the same place that std::iterator_traits is first
 		// defined.
-		requires !::__stl2::detail::LooksLikeSTL1Iterator<Out>
 	struct iterator_traits<Out> {
 		using difference_type   = ::__stl2::iter_difference_t<Out>;
 		using value_type        = meta::_t<::__stl2::detail::value_type_with_a_default<Out>>;
@@ -649,15 +656,12 @@ namespace std {
 		using iterator_category = std::output_iterator_tag;
 	};
 
-	template<::__stl2::InputIterator In>
-	requires
-		!::__stl2::detail::LooksLikeSTL1Iterator<In>
+	template<::__stl2::detail::ProbablySTL2Iterator In>
+	requires ::__stl2::InputIterator<In>
 	struct iterator_traits<In> { };
 
-	template<::__stl2::InputIterator In>
-	requires
-		!::__stl2::detail::LooksLikeSTL1Iterator<In> &&
-		::__stl2::Sentinel<In, In>
+	template<::__stl2::detail::ProbablySTL2Iterator In>
+	requires ::__stl2::InputIterator<In> && ::__stl2::Sentinel<In, In>
 	struct iterator_traits<In> {
 		using difference_type   = ::__stl2::iter_difference_t<In>;
 		using value_type        = ::__stl2::iter_value_t<In>;

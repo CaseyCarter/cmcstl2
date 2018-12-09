@@ -21,10 +21,10 @@
 
 STL2_OPEN_NAMESPACE {
 	////////////////////////////////////////////////////////////////////////////
- 	// dangling
+	// dangling
 	// Not to spec: Kill it with fire.
 	//
- 	template<ext::CopyConstructibleObject T>
+	template<ext::CopyConstructibleObject T>
 	class dangling {
 		T value;
 	public:

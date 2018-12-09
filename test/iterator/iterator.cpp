@@ -323,6 +323,7 @@ void test_copy() {
 			A(int i) : value{i} {}
 			A(const A& that) :
 				value{that.value} {}
+			A& operator=(const A&) = default;
 		};
 		A a[] = {0,1,2,3}, b[] = {4,5,6,7};
 		CHECK(!copy(ranges::begin(a) + 1, ranges::end(a) - 1, ranges::begin(b) + 1));
@@ -409,8 +410,7 @@ void test_iter_swap2() {
 template<class T>
 constexpr bool has_category = false;
 template<class T>
-requires
-	requires { typename T::iterator_category; }
+requires requires { typename T::iterator_category; }
 constexpr bool has_category<T> = true;
 
 void test_std_traits() {

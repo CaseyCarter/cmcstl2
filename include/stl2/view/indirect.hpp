@@ -118,8 +118,8 @@ STL2_OPEN_NAMESPACE {
 		struct __indirect_fn : detail::__pipeable<__indirect_fn> {
 			template<class Rng>
 			constexpr auto operator()(Rng&& rng) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
-				__stl2::ext::indirect_view(all(std::forward<Rng>(rng)))
+			STL2_REQUIRES_RETURN(
+				__stl2::ext::indirect_view{all(std::forward<Rng>(rng))}
 			)
 		};
 

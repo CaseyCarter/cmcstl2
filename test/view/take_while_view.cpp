@@ -36,19 +36,16 @@ int main()
 	static_assert(ranges::RandomAccessRange<decltype(rng1)>);
 	CHECK_EQUAL(rng1, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-	//																															  //
-	// 								DISABLED until generate is migrated to cmcstl2.							  //
-	//																															  //
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-	// {
-	// 	auto ns = view::generate([]() mutable {
-	// 		static int N;
-	// 		return ++N;
-	// 	});
-	// 	auto rng = ns | view::take_while([](int i) { return i < 5; });
-	// 	CHECK_EQUAL(rng, {1,2,3,4});
-	// }
+#if 0 // DISABLED until generate is migrated to cmcstl2.
+	{
+		auto ns = view::generate([]() mutable {
+			static int N;
+			return ++N;
+		});
+		auto rng = ns | view::take_while([](int i) { return i < 5; });
+		CHECK_EQUAL(rng, {1,2,3,4});
+	}
+#endif
 
 	return ::test_result();
 }
