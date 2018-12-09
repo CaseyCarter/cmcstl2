@@ -36,15 +36,17 @@ STL2_OPEN_NAMESPACE {
 	{
 		while (true) {
 			if (first1 == last1) {
-				auto [in, out] = copy(
+				auto cresult = copy(
 					std::move(first2), std::move(last2), std::move(result));
-				std::tie(first2, result) = std::tie(in, out);
+				first2 = std::move(cresult.in);
+				result = std::move(cresult.out);
 				break;
 			}
 			if (first2 == last2) {
-				auto [in, out] = copy(
+				auto cresult = copy(
 					std::move(first1), std::move(last1), std::move(result));
-				std::tie(first1, result) = std::tie(in, out);
+				first1 = std::move(cresult.in);
+				result = std::move(cresult.out);
 				break;
 			}
 			iter_reference_t<I1>&& v1 = *first1;

@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr copy_backward_result<safe_iterator_t<R>, I>
 		operator()(R&& r, I result) const
 		{
-			return (*this)(begin(r), end(r), std::forward<I>(result));
+			return (*this)(begin(r), end(r), std::move(result));
 		}
 	};
 

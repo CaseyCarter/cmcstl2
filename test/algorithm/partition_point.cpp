@@ -208,7 +208,7 @@ int main() {
 	const S ia[] = {S{1}, S{3}, S{5}, S{2}, S{4}, S{6}};
 	CHECK(ranges::partition_point(ia, is_odd(), &S::i) == ia + 3);
 
-	// Test infinite rangea
+	// Test infinite ranges
 	CHECK(*ranges::partition_point(ranges::iota_view<int>{0},
 		[](int i){ return i < 42; }) == 42);
 

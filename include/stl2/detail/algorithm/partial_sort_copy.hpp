@@ -42,8 +42,9 @@ STL2_OPEN_NAMESPACE {
 	{
 		auto r = result_first;
 		if(r != result_last) {
-			auto [in, out] = ext::copy(std::move(first), last, std::move(r), result_last);
-			std::tie(first, r) = std::tie(in, out);
+			auto cresult = ext::copy(std::move(first), last, std::move(r), result_last);
+			first = std::move(cresult.in);
+			r = std::move(cresult.out);
 
 			__stl2::make_heap(result_first, r, std::ref(comp), std::ref(proj2));
 			const auto len = __stl2::distance(result_first, r);

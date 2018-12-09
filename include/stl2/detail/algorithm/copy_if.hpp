@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			return (*this)(
 				begin(r), end(r),
-				std::forward<O>(result),
+				std::move(result),
 				std::ref(pred),
 				std::ref(proj));
 		}
