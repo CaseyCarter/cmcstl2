@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		template<InputIterator I, WeaklyIncrementable O>
 		requires IndirectlyCopyable<I, O>
 		constexpr copy_n_result<I, O>
-			operator()(I first_, iter_difference_t<I> n, O result) const
+		operator()(I first_, iter_difference_t<I> n, O result) const
 		{
 			STL2_EXPECT(n >= 0);
 			auto norig = n;
