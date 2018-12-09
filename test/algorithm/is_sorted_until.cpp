@@ -31,49 +31,45 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 /// Calls the iterator interface of the algorithm
 template<class Iter>
-struct iter_call
-{
+struct iter_call {
 	using begin_t = Iter;
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
 	template<class B, class E, class... Args>
 	requires requires(B&& It, E&& e, Args&&... args) {
-		stl2::is_sorted_until(begin_t{It}, sentinel_t{e},
-		                      std::forward<Args>(args)...);
+		ranges::is_sorted_until(begin_t{It}, sentinel_t{e},
+		                        std::forward<Args>(args)...);
 	}
 	begin_t operator()(B&& It, E&& e, Args&&... args)
 	{
-		return stl2::is_sorted_until(begin_t{It}, sentinel_t{e},
-		                             std::forward<Args>(args)...);
+		return ranges::is_sorted_until(begin_t{It}, sentinel_t{e},
+		                               std::forward<Args>(args)...);
 	}
 };
 
 /// Calls the range interface of the algorithm
 template<class Iter>
-struct range_call
-{
+struct range_call {
 	using begin_t = Iter;
 	using sentinel_t = typename sentinel_type<Iter>::type;
 
 	template<class B, class E, class... Args>
 	requires requires(B&& It, E&& e, Args&&... args) {
-		stl2::is_sorted_until(::as_lvalue(stl2::subrange(begin_t{It}, sentinel_t{e})),
-		                      std::forward<Args>(args)...);
+		ranges::is_sorted_until(::as_lvalue(ranges::subrange(begin_t{It}, sentinel_t{e})),
+		                        std::forward<Args>(args)...);
 	}
-	begin_t operator()(B&& It, E&& e, Args&&... args)
-	{
-		return stl2::is_sorted_until(::as_lvalue(stl2::subrange(begin_t{It}, sentinel_t{e})),
-		                             std::forward<Args>(args)...);
+	begin_t operator()(B&& It, E&& e, Args&&... args) {
+		return ranges::is_sorted_until(::as_lvalue(ranges::subrange(begin_t{It}, sentinel_t{e})),
+		                               std::forward<Args>(args)...);
 	}
 };
 
 template<class It, template<class> class FunT>
-void test()
-{
+void test() {
 	using Fun = FunT<It>;
 
 	{
@@ -378,8 +374,7 @@ void test()
 
 struct A { int a; };
 
-int main()
-{
+int main() {
 	test<forward_iterator<const int*>, iter_call>();
 	test<bidirectional_iterator<const int*>, iter_call>();
 	test<random_access_iterator<const int*>, iter_call>();
@@ -393,21 +388,21 @@ int main()
 	/// Initializer list test:
 	{
 		std::initializer_list<int> r = {0,1,2,3,4,5,6,7,8,9,10};
-		CHECK(stl2::is_sorted_until(r) == stl2::end(r));
+		CHECK(ranges::is_sorted_until(r) == ranges::end(r));
 	}
 
 	/// Projection test:
 	{
 		A as[] = {{0}, {1}, {2}, {3}, {4}};
-		CHECK(stl2::is_sorted_until(as, std::less<int>{}, &A::a) == stl2::end(as));
-		CHECK(stl2::is_sorted_until(as, std::greater<int>{}, &A::a) == stl2::next(stl2::begin(as),1));
+		CHECK(ranges::is_sorted_until(as, std::less<int>{}, &A::a) == ranges::end(as));
+		CHECK(ranges::is_sorted_until(as, std::greater<int>{}, &A::a) == ranges::next(ranges::begin(as),1));
 	}
 
 	/// Rvalue range test:
 	{
 		A as[] = {{0}, {1}, {2}, {3}, {4}};
-		CHECK(stl2::is_sorted_until(stl2::move(as), std::less<int>{}, &A::a).get_unsafe() == stl2::end(as));
-		CHECK(stl2::is_sorted_until(stl2::move(as), std::greater<int>{}, &A::a).get_unsafe() == stl2::next(stl2::begin(as),1));
+		CHECK(ranges::is_sorted_until(ranges::subrange(as), std::less<int>{}, &A::a) == ranges::end(as));
+		CHECK(ranges::is_sorted_until(ranges::subrange(as), std::greater<int>{}, &A::a) == ranges::next(ranges::begin(as),1));
 	}
 
 	return ::test_result();

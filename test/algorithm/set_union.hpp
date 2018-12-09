@@ -26,12 +26,10 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 template<class Iter1, class Iter2, class OutIter>
-void
-test()
-{
+void test() {
 	int ia[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
 	const int sa = sizeof(ia)/sizeof(ia[0]);
 	int ib[] = {2, 4, 4, 6};
@@ -42,14 +40,14 @@ test()
 
 	using R = std::tuple<Iter1, Iter2, OutIter>;
 	auto set_union = make_testable_2([](auto&&... args) {
-		return stl2::set_union(stl2::forward<decltype(args)>(args)...);
+		return ranges::set_union(std::forward<decltype(args)>(args)...);
 	});
 
 	auto checker = [&](R res)
 	{
 		CHECK(bool((base(std::get<2>(res)) - ic) == sr));
 		CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
-		stl2::fill(ic, 0);
+		ranges::fill(ic, 0);
 	};
 
 	set_union(Iter1(ia), Iter1(ia+sa),
@@ -63,18 +61,15 @@ test()
 		Iter2(ia), Iter2(ia+sa), OutIter(ic), std::less<int>()).check(checker);
 }
 
-struct S
-{
+struct S {
 	int i;
 };
 
-struct T
-{
+struct T {
 	int j;
 };
 
-struct U
-{
+struct U {
 	int k;
 	U& operator=(S s) { k = s.i; return *this;}
 	U& operator=(T t) { k = t.j; return *this;}

@@ -21,9 +21,7 @@ namespace ranges = __stl2;
 
 template<ranges::InputIterator I>
 	requires ranges::Regular<ranges::iter_value_t<I>>
-class delimiter {
-	ranges::iter_value_t<I> value_;
-public:
+struct delimiter {
 	delimiter() = default;
 	delimiter(ranges::iter_value_t<I> value) :
 		value_{std::move(value)} {}
@@ -46,21 +44,22 @@ public:
 	friend bool operator!=(const delimiter& s, const I& i) {
 		return !(i == s);
 	}
+private:
+	ranges::iter_value_t<I> value_;
 };
 
 STL2_OPEN_NAMESPACE {
-template<class I>
-struct common_type<I, ::delimiter<I>> {
-	using type = common_iterator<I, ::delimiter<I>>;
-};
-template<class I>
-	struct common_type<::delimiter<I>, I> {
-	using type = common_iterator<I, ::delimiter<I>>;
-};
+	template<class I>
+	struct common_type<I, ::delimiter<I>> {
+		using type = common_iterator<I, ::delimiter<I>>;
+	};
+	template<class I>
+		struct common_type<::delimiter<I>, I> {
+		using type = common_iterator<I, ::delimiter<I>>;
+	};
 } STL2_CLOSE_NAMESPACE
 
-int main()
-{
+int main() {
 	using ranges::begin;
 	using ranges::end;
 	using ranges::size;
@@ -70,18 +69,16 @@ int main()
 	std::pair<int, int> out[size(a)] = {};
 
 	auto res = ranges::copy(begin(a), end(a), out);
-	CHECK(res.first == end(a));
-	CHECK(res.second == out + size(out));
-	CHECK(&res.first == &res.in());
-	CHECK(&res.second == &res.out());
+	CHECK(res.in == end(a));
+	CHECK(res.out == out + size(out));
 	CHECK(std::equal(a, a + size(a), out));
 
 	std::fill_n(out, size(out), std::make_pair(0, 0));
 	CHECK(!std::equal(a, a + size(a), out));
 
 	res = ranges::copy(a, out);
-	CHECK(res.first == a + size(a));
-	CHECK(res.second == out + size(out));
+	CHECK(res.in == a + size(a));
+	CHECK(res.out == out + size(out));
 	CHECK(std::equal(a, a + size(a), out));
 
 	std::fill_n(out, size(out), std::make_pair(0, 0));
@@ -93,17 +90,17 @@ int main()
 		{
 			std::fill_n(buf, sizeof(buf), '\0');
 			auto res3 = ranges::copy(str, buf);
-			*res3.second = '\0';
-			CHECK(res3.first == std::next(begin(str), std::strlen(sz)));
-			CHECK(res3.second == buf + std::strlen(sz));
+			*res3.out = '\0';
+			CHECK(res3.in == std::next(begin(str), std::strlen(sz)));
+			CHECK(res3.out == buf + std::strlen(sz));
 			CHECK(std::strcmp(sz, buf) == 0);
 		}
 		{
 			std::fill_n(buf, sizeof(buf), '\0');
 			auto res4 = ranges::copy(std::move(str), buf);
-			*res4.second = '\0';
-			CHECK(res4.first == std::next(begin(str), std::strlen(sz)));
-			CHECK(res4.second == buf + std::strlen(sz));
+			*res4.out = '\0';
+			CHECK(res4.in == std::next(begin(str), std::strlen(sz)));
+			CHECK(res4.out == buf + std::strlen(sz));
 			CHECK(std::strcmp(sz, buf) == 0);
 		}
 	}
@@ -111,7 +108,7 @@ int main()
 	{
 		int target[8]{};
 		auto l = {1,2,3,4,5,6};
-		CHECK(ranges::copy(std::move(l), target + 1).out() == target + 7);
+		CHECK(ranges::copy(std::move(l), target + 1).out == target + 7);
 		CHECK_EQUAL(target, {0,1,2,3,4,5,6,0});
 	}
 

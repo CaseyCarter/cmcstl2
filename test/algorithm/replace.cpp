@@ -28,14 +28,14 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 template<typename Iter, typename Sent = Iter>
 void test_iter()
 {
 	int ia[] = {0, 1, 2, 3, 4};
 	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-	Iter i = stl2::replace(Iter(ia), Sent(ia+sa), 2, 5);
+	Iter i = ranges::replace(Iter(ia), Sent(ia+sa), 2, 5);
 	CHECK(ia[0] == 0);
 	CHECK(ia[1] == 1);
 	CHECK(ia[2] == 5);
@@ -49,8 +49,8 @@ void test_rng()
 {
 	int ia[] = {0, 1, 2, 3, 4};
 	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-	auto rng = stl2::subrange(Iter(ia), Sent(ia+sa));
-	Iter i = stl2::replace(rng, 2, 5);
+	auto rng = ranges::subrange(Iter(ia), Sent(ia+sa));
+	Iter i = ranges::replace(rng, 2, 5);
 	CHECK(ia[0] == 0);
 	CHECK(ia[1] == 1);
 	CHECK(ia[2] == 5);
@@ -87,26 +87,26 @@ int main()
 	{
 		using P = std::pair<int,std::string>;
 		P ia[] = {{0,"0"}, {1,"1"}, {2,"2"}, {3,"3"}, {4,"4"}};
-		P *i = stl2::replace(ia, 2, std::make_pair(42,"42"), &std::pair<int,std::string>::first);
+		P *i = ranges::replace(ia, 2, std::make_pair(42,"42"), &std::pair<int,std::string>::first);
 		CHECK(ia[0] == P{0,"0"});
 		CHECK(ia[1] == P{1,"1"});
 		CHECK(ia[2] == P{42,"42"});
 		CHECK(ia[3] == P{3,"3"});
 		CHECK(ia[4] == P{4,"4"});
-		CHECK(i == stl2::end(ia));
+		CHECK(i == ranges::end(ia));
 	}
 
 	// test rvalue range
 	{
 		using P = std::pair<int,std::string>;
 		P ia[] = {{0,"0"}, {1,"1"}, {2,"2"}, {3,"3"}, {4,"4"}};
-		auto i = stl2::replace(stl2::move(ia), 2, std::make_pair(42,"42"), &std::pair<int,std::string>::first);
+		auto i = ranges::replace(std::move(ia), 2, std::make_pair(42,"42"), &std::pair<int,std::string>::first);
+		static_assert(ranges::Same<decltype(i), ranges::dangling>);
 		CHECK(ia[0] == P{0,"0"});
 		CHECK(ia[1] == P{1,"1"});
 		CHECK(ia[2] == P{42,"42"});
 		CHECK(ia[3] == P{3,"3"});
 		CHECK(ia[4] == P{4,"4"});
-		CHECK(i.get_unsafe() == stl2::end(ia));
 	}
 
 	return ::test_result();

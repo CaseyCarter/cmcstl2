@@ -24,15 +24,15 @@ int main()
 		const int sr = sizeof(ir)/sizeof(ir[0]);
 
 		using R = std::tuple<S *, T*, U*>;
-		R res = stl2::set_union(ia, ib, ic, std::less<int>(), &S::i, &T::j);
+		R res = ranges::set_union(ia, ib, ic, std::less<int>(), &S::i, &T::j);
 		CHECK((std::get<2>(res) - ic) == sr);
-		CHECK(stl2::lexicographical_compare(ic, std::get<2>(res), ir, ir+sr, std::less<int>(), &U::k) == 0);
-		stl2::fill(ic, U{0});
+		CHECK(ranges::lexicographical_compare(ic, std::get<2>(res), ir, ir+sr, std::less<int>(), &U::k) == 0);
+		ranges::fill(ic, U{0});
 
 		using R2 = std::tuple<T *, S*, U*>;
-		R2 res2 = stl2::set_union(ib, ia, ic, std::less<int>(), &T::j, &S::i);
+		R2 res2 = ranges::set_union(ib, ia, ic, std::less<int>(), &T::j, &S::i);
 		CHECK((std::get<2>(res2) - ic) == sr);
-		CHECK(stl2::lexicographical_compare(ic, std::get<2>(res2), ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK(ranges::lexicographical_compare(ic, std::get<2>(res2), ir, ir+sr, std::less<int>(), &U::k) == 0);
 	}
 
 	// Test projections
@@ -43,18 +43,18 @@ int main()
 		int ir[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 6};
 		const int sr = sizeof(ir)/sizeof(ir[0]);
 
-		auto res = stl2::set_union(std::move(ia), std::move(ib), ic, std::less<int>(), &S::i, &T::j);
-		CHECK(std::get<0>(res).get_unsafe() == stl2::end(ia));
-		CHECK(std::get<1>(res).get_unsafe() == stl2::end(ib));
+		auto res = ranges::set_union(std::move(ia), std::move(ib), ic, std::less<int>(), &S::i, &T::j);
+		static_assert(ranges::Same<decltype(std::get<0>(res)), ranges::dangling&>);
+		static_assert(ranges::Same<decltype(std::get<1>(res)), ranges::dangling&>);
 		CHECK((std::get<2>(res) - ic) == sr);
-		CHECK(stl2::lexicographical_compare(ic, std::get<2>(res), ir, ir+sr, std::less<int>(), &U::k) == 0);
-		stl2::fill(ic, U{0});
+		CHECK(ranges::lexicographical_compare(ic, std::get<2>(res), ir, ir+sr, std::less<int>(), &U::k) == 0);
+		ranges::fill(ic, U{0});
 
-		auto res2 = stl2::set_union(std::move(ib), std::move(ia), ic, std::less<int>(), &T::j, &S::i);
-		CHECK(std::get<0>(res2).get_unsafe() == stl2::end(ib));
-		CHECK(std::get<1>(res2).get_unsafe() == stl2::end(ia));
+		auto res2 = ranges::set_union(std::move(ib), std::move(ia), ic, std::less<int>(), &T::j, &S::i);
+		static_assert(ranges::Same<decltype(std::get<0>(res2)), ranges::dangling&>);
+		static_assert(ranges::Same<decltype(std::get<1>(res2)), ranges::dangling&>);
 		CHECK((std::get<2>(res2) - ic) == sr);
-		CHECK(stl2::lexicographical_compare(ic, std::get<2>(res2), ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK(ranges::lexicographical_compare(ic, std::get<2>(res2), ir, ir+sr, std::less<int>(), &U::k) == 0);
 	}
 
 	return ::test_result();

@@ -30,7 +30,7 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 /// Calls the iterator interface of the algorithm
 template<class Iter>
@@ -42,7 +42,7 @@ struct iter_call
 	template<class B, class E, class... Args>
 	auto operator()(B &&It, E &&e, Args &&... args) const
 	{
-		return stl2::unique(begin_t{It}, sentinel_t{e}, std::forward<Args>(args)...);
+		return ranges::unique(begin_t{It}, sentinel_t{e}, std::forward<Args>(args)...);
 	}
 };
 
@@ -56,8 +56,8 @@ struct range_call
 	template<class B, class E, class... Args>
 	auto operator()(B &&It, E &&e, Args &&... args) const
 	{
-		auto rng = stl2::subrange(begin_t{It}, sentinel_t{e});
-		return stl2::unique(rng, std::forward<Args>(args)...);
+		auto rng = ranges::subrange(begin_t{It}, sentinel_t{e});
+		return ranges::unique(rng, std::forward<Args>(args)...);
 	}
 };
 
@@ -149,8 +149,8 @@ int main()
 	// Test rvalue range
 	{
 		int a[] = {0, 1, 1, 1, 2, 2, 2};
-		auto r = stl2::unique(stl2::move(a));
-		CHECK(r.get_unsafe() == a + 3);
+		auto r = ranges::unique(std::move(a));
+		static_assert(ranges::Same<decltype(r), ranges::dangling>);
 		CHECK(a[0] == 0);
 		CHECK(a[1] == 1);
 		CHECK(a[2] == 2);

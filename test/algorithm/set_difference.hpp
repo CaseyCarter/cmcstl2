@@ -26,12 +26,10 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 template<class Iter1, class Iter2, class OutIter>
-void
-test_iter()
-{
+void test_iter() {
 	int ia[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
 	const int sa = sizeof(ia)/sizeof(ia[0]);
 	int ib[] = {2, 4, 4, 6};
@@ -41,35 +39,33 @@ test_iter()
 	const int sr = sizeof(ir)/sizeof(ir[0]);
 
 	auto set_difference = ::make_testable_2<false, true>([](auto&&... args) {
-		return stl2::set_difference(stl2::forward<decltype(args)>(args)...);
+		return ranges::set_difference(std::forward<decltype(args)>(args)...);
 	});
 
 	set_difference(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic)).
-		check([&](std::pair<Iter1, OutIter> res)
+		check([&](ranges::set_difference_result<Iter1, OutIter> res)
 		{
-			CHECK(bool((base(res.first) - ia) == sa));
-			CHECK(bool((base(res.second) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(res.second), ir, ir+sr) == 0);
-			stl2::fill(ic, 0);
+			CHECK(bool((base(res.in) - ia) == sa));
+			CHECK(bool((base(res.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
+			ranges::fill(ic, 0);
 		}
 	);
 	int irr[] = {6};
 	const int srr = sizeof(irr)/sizeof(irr[0]);
 	set_difference(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), OutIter(ic)).
-		check([&](std::pair<Iter1, OutIter> res)
+		check([&](ranges::set_difference_result<Iter1, OutIter> res)
 		{
-			CHECK(bool((base(res.first) - ib) == sb));
-			CHECK(bool((base(res.second) - ic) == srr));
-			CHECK(std::lexicographical_compare(ic, base(res.second), irr, irr+srr) == 0);
-			stl2::fill(ic, 0);
+			CHECK(bool((base(res.in) - ib) == sb));
+			CHECK(bool((base(res.out) - ic) == srr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), irr, irr+srr) == 0);
+			ranges::fill(ic, 0);
 		}
 	);
 }
 
 template<class Iter1, class Iter2, class OutIter>
-void
-test_comp()
-{
+void test_comp() {
 	int ia[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
 	const int sa = sizeof(ia)/sizeof(ia[0]);
 	int ib[] = {2, 4, 4, 6};
@@ -79,50 +75,46 @@ test_comp()
 	const int sr = sizeof(ir)/sizeof(ir[0]);
 
 	auto set_difference = ::make_testable_2<false, true>([](auto&&... args) {
-		return stl2::set_difference(stl2::forward<decltype(args)>(args)...);
+		return ranges::set_difference(std::forward<decltype(args)>(args)...);
 	});
 
 	set_difference(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic), std::less<int>()).
-		check([&](std::pair<Iter1, OutIter> res)
+		check([&](ranges::set_difference_result<Iter1, OutIter> res)
 		{
-			CHECK(bool((base(res.first) - ia) == sa));
-			CHECK(bool((base(res.second) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(res.second), ir, ir+sr) == 0);
-			stl2::fill(ic, 0);
+			CHECK(bool((base(res.in) - ia) == sa));
+			CHECK(bool((base(res.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
+			ranges::fill(ic, 0);
 		}
 	);
 	int irr[] = {6};
 	const int srr = sizeof(irr)/sizeof(irr[0]);
 	set_difference(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), OutIter(ic), std::less<int>()).
-		check([&](std::pair<Iter1, OutIter> res)
+		check([&](ranges::set_difference_result<Iter1, OutIter> res)
 		{
-			CHECK(bool((base(res.first) - ib) == sb));
-			CHECK(bool((base(res.second) - ic) == srr));
-			CHECK(std::lexicographical_compare(ic, base(res.second), irr, irr+srr) == 0);
-			stl2::fill(ic, 0);
+			CHECK(bool((base(res.in) - ib) == sb));
+			CHECK(bool((base(res.out) - ic) == srr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), irr, irr+srr) == 0);
+			ranges::fill(ic, 0);
 		}
 	);
 }
 
 template<class Iter1, class Iter2, class OutIter>
-void test()
-{
+void test() {
 	test_iter<Iter1, Iter2, OutIter>();
 	test_comp<Iter1, Iter2, OutIter>();
 }
 
-struct S
-{
+struct S {
 	int i;
 };
 
-struct T
-{
+struct T {
 	int j;
 };
 
-struct U
-{
+struct U {
 	int k;
 	U& operator=(S s) { k = s.i; return *this;}
 	U& operator=(T t) { k = t.j; return *this;}

@@ -50,10 +50,10 @@ int main()
 	pi = find(ia, 10);
 	CHECK(pi == ia+s);
 
-	auto pj = find(move(ia), 3);
-	CHECK((pj.get_unsafe() != ia+s && *pj.get_unsafe() == 3));
-	pj = find(move(ia), 10);
-	CHECK(pj.get_unsafe() == ia+s);
+	auto pj = find(subrange(ia), 3);
+	CHECK((pj != ia+s && *pj == 3));
+	pj = find(subrange(ia), 10);
+	CHECK(pj == ia+s);
 
 	S sa[] = {{0}, {1}, {2}, {3}, {4}, {5}};
 	S *ps = find(sa, 3, &S::i_);

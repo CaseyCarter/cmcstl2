@@ -17,7 +17,7 @@
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 
-namespace ranges = ::__stl2;
+namespace ranges = __stl2;
 
 using namespace ranges;
 using namespace ranges::ext;
@@ -28,8 +28,7 @@ safe_subrange_t<Rng> algorithm(Rng &&rng);
 struct Base {};
 struct Derived : Base {};
 
-int main()
-{
+int main() {
 	std::vector<int> vi{1,2,3,4};
 
 	////////////////////////////////////////////////////////////////////////////
@@ -48,9 +47,9 @@ int main()
 		decltype(::algorithm(std::declval<ref_view<int[42]>>()))>);
 
 	// non-ReferenceableRange rvalue ranges dangle:
-	static_assert(Same<dangling<subrange<typename std::vector<int>::iterator>>,
+	static_assert(Same<dangling,
 		decltype(::algorithm(std::declval<std::vector<int>>()))>);
-	static_assert(Same<dangling<subrange<std::vector<int>::iterator>>,
+	static_assert(Same<dangling,
 		decltype(::algorithm(std::move(vi)))>);
 
 	// Test that slicing conversions are not allowed.

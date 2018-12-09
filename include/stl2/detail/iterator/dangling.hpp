@@ -13,40 +13,25 @@
 #ifndef STL2_DETAIL_ITERATOR_DANGLING_HPP
 #define STL2_DETAIL_ITERATOR_DANGLING_HPP
 
-#include <type_traits>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
-#include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
 	////////////////////////////////////////////////////////////////////////////
 	// dangling
-	// Not to spec: Kill it with fire.
 	//
-	template<ext::CopyConstructibleObject T>
-	class dangling {
-		T value;
-	public:
-		constexpr dangling()
-		noexcept(std::is_nothrow_default_constructible<T>::value)
-		requires DefaultConstructible<T>
-		: value{}
-		{}
-		constexpr dangling(T t)
-		noexcept(std::is_nothrow_move_constructible<T>::value)
-		: value(std::move(t))
-		{}
-		constexpr T get_unsafe() const
-		noexcept(std::is_nothrow_copy_constructible<T>::value)
-		{
-			return value;
-		}
+	struct dangling {
+		constexpr dangling() noexcept = default;
+		template<class... Args>
+		constexpr dangling(Args&&...) noexcept {}
 	};
 
-	template<Range R, ext::CopyConstructibleObject U>
-	using __maybe_dangling =
-		meta::if_<meta::is_trait<meta::defer<__begin_t, R>>, U, dangling<U>>;
+	template<Range R>
+	inline constexpr bool __is_forwarding_range = _ForwardingRange<R>;
+
+	template<Range R, class U>
+	using __maybe_dangling = meta::if_c<__is_forwarding_range<R>, U, dangling>;
 
 	template<Range R>
 	using safe_iterator_t = __maybe_dangling<R, iterator_t<R>>;

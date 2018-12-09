@@ -12,8 +12,10 @@
 #ifndef STL2_DETAIL_ALGORITHM_TAGSPEC_HPP
 #define STL2_DETAIL_ALGORITHM_TAGSPEC_HPP
 
+#include <utility>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/tagged.hpp>
+#include <stl2/detail/concepts/core.hpp>
 
 STL2_OPEN_NAMESPACE {
 	// tag specifiers [alg.tagspec]
@@ -31,6 +33,24 @@ STL2_OPEN_NAMESPACE {
 		STL2_DEFINE_GETTER(end)
 		STL2_DEFINE_GETTER(count) // Extension
 	}
+
+	template<class I, class O>
+	struct __in_out_result {
+		I in;
+		O out;
+
+		// Extension: the dangling story actually works.
+		template<class I2, class O2>
+		requires ConvertibleTo<const I&, I2> && ConvertibleTo<const O&, O2>
+		operator __in_out_result<I2, O2>() const& {
+			return {in, out};
+		}
+		template<class I2, class O2>
+		requires ConvertibleTo<I, I2> && ConvertibleTo<O, O2>
+		operator __in_out_result<I2, O2>() && {
+			return {std::move(in), std::move(out)};
+		}
+	};
 } STL2_CLOSE_NAMESPACE
 
 #endif

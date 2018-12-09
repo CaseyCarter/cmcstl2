@@ -29,44 +29,41 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
-struct is_odd
-{
+struct is_odd {
 	bool operator()(const int& i) const {return i & 1;}
 };
 
 template<class Iter, class Sent = Iter>
-void
-test_iter()
-{
+void test_iter() {
 	// check mixed
 	int ia[] = {1, 2, 3, 4, 5, 6, 7, 8 ,9};
 	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-	Iter r = stl2::partition(Iter(ia), Sent(ia + sa), is_odd());
+	Iter r = ranges::partition(Iter(ia), Sent(ia + sa), is_odd());
 	CHECK(base(r) == ia + 5);
 	for (int* i = ia; i < base(r); ++i)
 		CHECK(is_odd()(*i));
 	for (int* i = base(r); i < ia+sa; ++i)
 		CHECK(!is_odd()(*i));
 	// check empty
-	r = stl2::partition(Iter(ia), Sent(ia), is_odd());
+	r = ranges::partition(Iter(ia), Sent(ia), is_odd());
 	CHECK(base(r) == ia);
 	// check all false
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i;
-	r = stl2::partition(Iter(ia), Sent(ia+sa), is_odd());
+	r = ranges::partition(Iter(ia), Sent(ia+sa), is_odd());
 	CHECK(base(r) == ia);
 	// check all true
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i+1;
-	r = stl2::partition(Iter(ia), Sent(ia+sa), is_odd());
+	r = ranges::partition(Iter(ia), Sent(ia+sa), is_odd());
 	CHECK(base(r) == ia+sa);
 	// check all true but last
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i+1;
 	ia[sa-1] = 10;
-	r = stl2::partition(Iter(ia), Sent(ia+sa), is_odd());
+	r = ranges::partition(Iter(ia), Sent(ia+sa), is_odd());
 	CHECK(base(r) == ia+sa-1);
 	for (int* i = ia; i < base(r); ++i)
 		CHECK(is_odd()(*i));
@@ -76,7 +73,7 @@ test_iter()
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i+1;
 	ia[0] = 10;
-	r = stl2::partition(Iter(ia), Sent(ia+sa), is_odd());
+	r = ranges::partition(Iter(ia), Sent(ia+sa), is_odd());
 	CHECK(base(r) == ia+sa-1);
 	for (int* i = ia; i < base(r); ++i)
 		CHECK(is_odd()(*i));
@@ -86,7 +83,7 @@ test_iter()
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i;
 	ia[sa-1] = 11;
-	r = stl2::partition(Iter(ia), Sent(ia+sa), is_odd());
+	r = ranges::partition(Iter(ia), Sent(ia+sa), is_odd());
 	CHECK(base(r) == ia+1);
 	for (int* i = ia; i < base(r); ++i)
 		CHECK(is_odd()(*i));
@@ -96,7 +93,7 @@ test_iter()
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i;
 	ia[0] = 11;
-	r = stl2::partition(Iter(ia), Sent(ia+sa), is_odd());
+	r = ranges::partition(Iter(ia), Sent(ia+sa), is_odd());
 	CHECK(base(r) == ia+1);
 	for (int* i = ia; i < base(r); ++i)
 		CHECK(is_odd()(*i));
@@ -105,36 +102,34 @@ test_iter()
 }
 
 template<class Iter, class Sent = Iter>
-void
-test_range()
-{
+void test_range() {
 	// check mixed
 	int ia[] = {1, 2, 3, 4, 5, 6, 7, 8 ,9};
 	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-	Iter r = stl2::partition(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia + sa))), is_odd());
+	Iter r = ranges::partition(::as_lvalue(ranges::subrange(Iter(ia), Sent(ia + sa))), is_odd());
 	CHECK(base(r) == ia + 5);
 	for (int* i = ia; i < base(r); ++i)
 		CHECK(is_odd()(*i));
 	for (int* i = base(r); i < ia+sa; ++i)
 		CHECK(!is_odd()(*i));
 	// check empty
-	r = stl2::partition(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia))), is_odd());
+	r = ranges::partition(::as_lvalue(ranges::subrange(Iter(ia), Sent(ia))), is_odd());
 	CHECK(base(r) == ia);
 	// check all false
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i;
-	r = stl2::partition(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia+sa))), is_odd());
+	r = ranges::partition(::as_lvalue(ranges::subrange(Iter(ia), Sent(ia+sa))), is_odd());
 	CHECK(base(r) == ia);
 	// check all true
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i+1;
-	r = stl2::partition(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia+sa))), is_odd());
+	r = ranges::partition(::as_lvalue(ranges::subrange(Iter(ia), Sent(ia+sa))), is_odd());
 	CHECK(base(r) == ia+sa);
 	// check all true but last
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i+1;
 	ia[sa-1] = 10;
-	r = stl2::partition(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia+sa))), is_odd());
+	r = ranges::partition(::as_lvalue(ranges::subrange(Iter(ia), Sent(ia+sa))), is_odd());
 	CHECK(base(r) == ia+sa-1);
 	for (int* i = ia; i < base(r); ++i)
 		CHECK(is_odd()(*i));
@@ -144,7 +139,7 @@ test_range()
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i+1;
 	ia[0] = 10;
-	r = stl2::partition(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia+sa))), is_odd());
+	r = ranges::partition(::as_lvalue(ranges::subrange(Iter(ia), Sent(ia+sa))), is_odd());
 	CHECK(base(r) == ia+sa-1);
 	for (int* i = ia; i < base(r); ++i)
 		CHECK(is_odd()(*i));
@@ -154,7 +149,7 @@ test_range()
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i;
 	ia[sa-1] = 11;
-	r = stl2::partition(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia+sa))), is_odd());
+	r = ranges::partition(::as_lvalue(ranges::subrange(Iter(ia), Sent(ia+sa))), is_odd());
 	CHECK(base(r) == ia+1);
 	for (int* i = ia; i < base(r); ++i)
 		CHECK(is_odd()(*i));
@@ -164,7 +159,7 @@ test_range()
 	for (unsigned i = 0; i < sa; ++i)
 		ia[i] = 2*i;
 	ia[0] = 11;
-	r = stl2::partition(::as_lvalue(stl2::subrange(Iter(ia), Sent(ia+sa))), is_odd());
+	r = ranges::partition(::as_lvalue(ranges::subrange(Iter(ia), Sent(ia+sa))), is_odd());
 	CHECK(base(r) == ia+1);
 	for (int* i = ia; i < base(r); ++i)
 		CHECK(is_odd()(*i));
@@ -172,13 +167,11 @@ test_range()
 		CHECK(!is_odd()(*i));
 }
 
-struct S
-{
+struct S {
 	int i;
 };
 
-int main()
-{
+int main() {
 	test_iter<forward_iterator<int*> >();
 	test_iter<bidirectional_iterator<int*> >();
 	test_iter<random_access_iterator<int*> >();
@@ -198,7 +191,7 @@ int main()
 	// Test projections
 	S ia[] = {S{1}, S{2}, S{3}, S{4}, S{5}, S{6}, S{7}, S{8} ,S{9}};
 	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
-	S* r = stl2::partition(ia, is_odd(), &S::i);
+	S* r = ranges::partition(ia, is_odd(), &S::i);
 	CHECK(r == ia + 5);
 	for (S* i = ia; i < r; ++i)
 		CHECK(is_odd()(i->i));
@@ -206,11 +199,11 @@ int main()
 		CHECK(!is_odd()(i->i));
 
 	// Test rvalue range
-	auto r2 = stl2::partition(stl2::move(ia), is_odd(), &S::i);
-	CHECK(r2.get_unsafe() == ia + 5);
-	for (S* i = ia; i < r2.get_unsafe(); ++i)
+	auto r2 = ranges::partition(ranges::subrange(ia), is_odd(), &S::i);
+	CHECK(r2 == ia + 5);
+	for (S* i = ia; i < r2; ++i)
 		CHECK(is_odd()(i->i));
-	for (S* i = r2.get_unsafe(); i < ia+sa; ++i)
+	for (S* i = r2; i < ia+sa; ++i)
 		CHECK(!is_odd()(i->i));
 
 	return ::test_result();

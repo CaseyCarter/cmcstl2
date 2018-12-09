@@ -12,8 +12,7 @@
 
 #include "set_difference.hpp"
 
-int main()
-{
+int main() {
 	test<const int*, input_iterator<const int*>, output_iterator<int*> >();
 	test<const int*, input_iterator<const int*>, bidirectional_iterator<int*> >();
 	test<const int*, input_iterator<const int*>, bidirectional_iterator<int*> >();
