@@ -107,14 +107,14 @@ STL2_OPEN_NAMESPACE {
 		struct __take_exactly_fn : detail::__pipeable<__take_exactly_fn> {
 			template<class V>
 			auto operator()(V&& view, iter_difference_t<iterator_t<V>> const n) const
-			STL2_NOEXCEPT_REQUIRES_RETURN
-			(
+			STL2_REQUIRES_RETURN(
 				__stl2::ext::take_exactly_view(all(std::forward<V>(view)), n)
 			)
 
 			template<Integral D>
-			constexpr auto operator()(D count) const
-			{ return detail::view_closure(*this, static_cast<D>(count)); }
+			constexpr auto operator()(D count) const {
+				return detail::view_closure(*this, static_cast<D>(count));
+			}
 		};
 
 		inline constexpr __take_exactly_fn take_exactly {};

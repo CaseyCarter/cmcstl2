@@ -187,7 +187,7 @@ STL2_OPEN_NAMESPACE {
 			template<InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
 			requires ViewableRange<R>
 			constexpr auto operator()(R&& rng, Pred pred) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
+			STL2_REQUIRES_RETURN(
 				filter_view<all_view<R>, Pred>{std::forward<R>(rng), std::move(pred)}
 			)
 			template<CopyConstructible Pred>

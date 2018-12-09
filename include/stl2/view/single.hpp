@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 		struct __single_fn {
 			template<class T>
 			constexpr auto operator()(T&& t) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
+			STL2_REQUIRES_RETURN(
 				single_view{std::forward<T>(t)}
 			)
 		};

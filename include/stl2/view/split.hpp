@@ -318,11 +318,8 @@ STL2_OPEN_NAMESPACE {
 	namespace view {
 		struct __split_fn {
 			template<class E, class F>
-			requires requires(E&& e, F&& f) {
-				split_view{static_cast<E&&>(e), static_cast<F&&>(f)};
-			}
 			constexpr auto operator()(E&& e, F&& f) const
-			STL2_NOEXCEPT_RETURN(
+			STL2_REQUIRES_RETURN(
 				split_view{static_cast<E&&>(e), static_cast<F&&>(f)}
 			)
 

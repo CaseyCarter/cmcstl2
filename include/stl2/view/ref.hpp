@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 		struct __ref_fn : detail::__pipeable<__ref_fn> {
 			template<class R>
 			auto operator()(R&& rng) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
+			STL2_REQUIRES_RETURN(
 				__stl2::ext::ref_view(std::forward<R>(rng))
 			)
 		};

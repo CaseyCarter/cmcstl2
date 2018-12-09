@@ -105,7 +105,7 @@ STL2_OPEN_NAMESPACE {
 		struct __take_while_fn : detail::__pipeable<__take_while_fn> {
 			template<class Rng, class Pred>
 			constexpr auto operator()(Rng&& rng, Pred&& pred) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
+			STL2_REQUIRES_RETURN(
 				__stl2::ext::take_while_view{view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
 			)
 

@@ -95,12 +95,14 @@ namespace __stl2 = ::std::experimental::ranges;
 	noexcept(noexcept(__VA_ARGS__)) \
 	{ return __VA_ARGS__; }
 
+#define STL2_REQUIRES_RETURN(...) \
+	requires requires { __VA_ARGS__; } \
+	{ return (__VA_ARGS__); }
 
 #define STL2_NOEXCEPT_REQUIRES_RETURN(...) \
 	noexcept(noexcept(__VA_ARGS__)) \
 	requires requires { __VA_ARGS__; } \
-	{ return (__VA_ARGS__); } \
-
+	{ return (__VA_ARGS__); }
 
 #if STL2_CONSTEXPR_EXTENSIONS
  #define STL2_CONSTEXPR_EXT constexpr

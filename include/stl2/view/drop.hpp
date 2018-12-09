@@ -101,7 +101,7 @@ STL2_OPEN_NAMESPACE {
 		struct __drop_fn : detail::__pipeable<__drop_fn> {
 			template<Range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
+			STL2_REQUIRES_RETURN(
 				__stl2::ext::drop_view(all(std::forward<Rng>(rng)), count)
 			)
 

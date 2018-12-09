@@ -121,7 +121,7 @@ STL2_OPEN_NAMESPACE {
 		struct __take_fn {
 			template<Range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
-			STL2_NOEXCEPT_REQUIRES_RETURN(
+			STL2_REQUIRES_RETURN(
 				take_view{view::all(static_cast<Rng&&>(rng)), count}
 			)
 
