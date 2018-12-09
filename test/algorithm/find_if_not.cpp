@@ -57,6 +57,11 @@ int main()
 	pi = find_if_not(ia, [](int i){return i != 10;});
 	CHECK(pi == ia+s);
 
+	auto pj = find_if_not(move(ia), [](int i){return i != 3;});
+	CHECK(*pj.get_unsafe() == 3);
+	pj = find_if_not(move(ia), [](int i){return i != 10;});
+	CHECK(pj.get_unsafe() == ia+s);
+
 	S sa[] = {{0}, {1}, {2}, {3}, {4}, {5}};
 	S *ps = find_if_not(sa, [](int i){return i != 3;}, &S::i_);
 	CHECK(ps->i_ == 3);

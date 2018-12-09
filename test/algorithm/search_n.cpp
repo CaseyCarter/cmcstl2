@@ -193,5 +193,11 @@ int main()
 		CHECK(it2.count() == 0);
 	}
 
+	// Test rvalue ranges
+	{
+		int ib[] = {0, 0, 1, 1, 2, 2};
+		CHECK(stl2::search_n(stl2::move(ib), 2, 1).get_unsafe() == ib+2);
+	}
+
 	return ::test_result();
 }

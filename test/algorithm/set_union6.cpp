@@ -44,15 +44,15 @@ int main()
 		const int sr = sizeof(ir)/sizeof(ir[0]);
 
 		auto res = stl2::set_union(std::move(ia), std::move(ib), ic, std::less<int>(), &S::i, &T::j);
-		CHECK(std::get<0>(res) == stl2::end(ia));
-		CHECK(std::get<1>(res) == stl2::end(ib));
+		CHECK(std::get<0>(res).get_unsafe() == stl2::end(ia));
+		CHECK(std::get<1>(res).get_unsafe() == stl2::end(ib));
 		CHECK((std::get<2>(res) - ic) == sr);
 		CHECK(stl2::lexicographical_compare(ic, std::get<2>(res), ir, ir+sr, std::less<int>(), &U::k) == 0);
 		stl2::fill(ic, U{0});
 
 		auto res2 = stl2::set_union(std::move(ib), std::move(ia), ic, std::less<int>(), &T::j, &S::i);
-		CHECK(std::get<0>(res2) == stl2::end(ib));
-		CHECK(std::get<1>(res2) == stl2::end(ia));
+		CHECK(std::get<0>(res2).get_unsafe() == stl2::end(ib));
+		CHECK(std::get<1>(res2).get_unsafe() == stl2::end(ia));
 		CHECK((std::get<2>(res2) - ic) == sr);
 		CHECK(stl2::lexicographical_compare(ic, std::get<2>(res2), ir, ir+sr, std::less<int>(), &U::k) == 0);
 	}

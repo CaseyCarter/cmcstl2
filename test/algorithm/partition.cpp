@@ -205,5 +205,13 @@ int main()
 	for (S* i = r; i < ia+sa; ++i)
 		CHECK(!is_odd()(i->i));
 
+	// Test rvalue range
+	auto r2 = stl2::partition(stl2::move(ia), is_odd(), &S::i);
+	CHECK(r2.get_unsafe() == ia + 5);
+	for (S* i = ia; i < r2.get_unsafe(); ++i)
+		CHECK(is_odd()(i->i));
+	for (S* i = r2.get_unsafe(); i < ia+sa; ++i)
+		CHECK(!is_odd()(i->i));
+
 	return ::test_result();
 }

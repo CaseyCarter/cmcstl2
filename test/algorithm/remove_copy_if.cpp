@@ -153,5 +153,21 @@ int main()
 		CHECK(ib[5].i == 4);
 	}
 
+	// Check rvalue range
+	{
+		S ia[] = {S{0}, S{1}, S{2}, S{3}, S{4}, S{2}, S{3}, S{4}, S{2}};
+		constexpr unsigned sa = stl2::size(ia);
+		S ib[sa];
+		auto r = stl2::remove_copy_if(stl2::move(ia), ib, [](int i){return i == 2;}, &S::i);
+		CHECK(r.first.get_unsafe() == ia + sa);
+		CHECK(r.second == ib + sa-3);
+		CHECK(ib[0].i == 0);
+		CHECK(ib[1].i == 1);
+		CHECK(ib[2].i == 3);
+		CHECK(ib[3].i == 4);
+		CHECK(ib[4].i == 3);
+		CHECK(ib[5].i == 4);
+	}
+
 	return ::test_result();
 }

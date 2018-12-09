@@ -28,5 +28,8 @@ int main()
 							   decltype(ranges::adjacent_find(v2, ranges::equal_to{},
 									&std::pair<int, int>::second))>::value);
 
+	auto l = {0, 2, 2, 4, 6};
+	CHECK(ranges::adjacent_find(std::move(l)).get_unsafe()[2] == 4);
+
 	return test_result();
 }

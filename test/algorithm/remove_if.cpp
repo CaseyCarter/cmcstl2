@@ -176,5 +176,20 @@ int main()
 		CHECK(ia[5].i == 4);
 	}
 
+	{
+		// Check rvalue range
+		S ia[] = {S{0}, S{1}, S{2}, S{3}, S{4}, S{2}, S{3}, S{4}, S{2}};
+		constexpr unsigned sa = stl2::size(ia);
+		using namespace std::placeholders;
+		auto r = stl2::remove_if(stl2::move(ia), std::bind(std::equal_to<int>(), _1, 2), &S::i);
+		CHECK(r.get_unsafe() == ia + sa-3);
+		CHECK(ia[0].i == 0);
+		CHECK(ia[1].i == 1);
+		CHECK(ia[2].i == 3);
+		CHECK(ia[3].i == 4);
+		CHECK(ia[4].i == 3);
+		CHECK(ia[5].i == 4);
+	}
+
 	return ::test_result();
 }
