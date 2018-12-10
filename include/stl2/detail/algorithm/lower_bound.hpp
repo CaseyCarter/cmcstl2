@@ -67,10 +67,10 @@ STL2_OPEN_NAMESPACE {
 		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
 			if constexpr (SizedRange<Rng>) {
 				return __stl2::ext::lower_bound_n(
-					__stl2::begin(rng), __stl2::distance(rng), value,
+					begin(rng), __stl2::distance(rng), value,
 					std::ref(comp), std::ref(proj));
 			} else {
-				return (*this)(__stl2::begin(rng), __stl2::end(rng), value,
+				return (*this)(begin(rng), end(rng), value,
 					std::ref(comp), std::ref(proj));
 			}
 		}

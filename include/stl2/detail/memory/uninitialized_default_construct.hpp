@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng> uninitialized_default_construct(Rng&& rng)
 	{
 		return __stl2::uninitialized_default_construct(
-			__stl2::begin(rng), __stl2::end(rng));
+			begin(rng), end(rng));
 	}
 
 	///////////////////////////////////////////////////////////////////////////

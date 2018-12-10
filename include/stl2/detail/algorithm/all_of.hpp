@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
 		constexpr bool operator()(R&& rng, Pred pred, Proj proj = {}) const
 		{
-			return (*this)(__stl2::begin(rng), __stl2::end(rng),
+			return (*this)(begin(rng), end(rng),
 				std::ref(pred), std::ref(proj));
 		}
 	};

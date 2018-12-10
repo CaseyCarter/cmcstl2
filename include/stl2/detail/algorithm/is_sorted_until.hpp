@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	is_sorted_until(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
-		return __stl2::is_sorted_until(__stl2::begin(rng), __stl2::end(rng),
+		return __stl2::is_sorted_until(begin(rng), end(rng),
 			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

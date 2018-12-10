@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 		template<InputRange R, class Proj = identity,
 			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
 		constexpr safe_iterator_t<R> operator()(R&& r, Pred pred, Proj proj = {}) const {
-			return __stl2::find_if(__stl2::begin(r), __stl2::end(r),
+			return __stl2::find_if(begin(r), end(r),
 				__stl2::not_fn(std::ref(pred)), std::ref(proj));
 		}
 	};

@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	is_heap_until(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
-		return detail::is_heap_until_n(__stl2::begin(rng), __stl2::distance(rng),
+		return detail::is_heap_until_n(begin(rng), __stl2::distance(rng),
 			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

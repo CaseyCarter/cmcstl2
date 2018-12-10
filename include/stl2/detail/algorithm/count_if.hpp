@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
 		constexpr iter_difference_t<iterator_t<R>>
 		operator()(R&& r, Pred pred, Proj proj = {}) const {
-			return (*this)(__stl2::begin(r), __stl2::end(r),
+			return (*this)(begin(r), end(r),
 				std::ref(pred), std::ref(proj));
 		}
 	};

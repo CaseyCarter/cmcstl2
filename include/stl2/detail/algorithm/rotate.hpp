@@ -208,7 +208,7 @@ STL2_OPEN_NAMESPACE {
 		Permutable<iterator_t<Rng>>
 	safe_subrange_t<Rng> rotate(Rng&& rng, iterator_t<Rng> middle)
 	{
-		return __stl2::rotate(__stl2::begin(rng), std::move(middle), __stl2::end(rng));
+		return __stl2::rotate(begin(rng), std::move(middle), end(rng));
 	}
 } STL2_CLOSE_NAMESPACE
 

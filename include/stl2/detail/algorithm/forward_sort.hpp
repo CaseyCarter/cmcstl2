@@ -62,8 +62,8 @@ STL2_OPEN_NAMESPACE {
 				__stl2::move(__stl2::make_counted_iterator(f0, n0),
 					default_sentinel{}, __stl2::back_inserter(vec));
 				return __stl2::merge(
-					__stl2::make_move_iterator(__stl2::begin(vec)),
-					__stl2::make_move_iterator(__stl2::end(vec)),
+					__stl2::make_move_iterator(begin(vec)),
+					__stl2::make_move_iterator(end(vec)),
 					__stl2::make_move_iterator(__stl2::make_counted_iterator(std::move(f1), n1)),
 					move_sentinel<default_sentinel>{},
 					std::move(f0), std::ref(comp),

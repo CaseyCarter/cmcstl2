@@ -117,10 +117,10 @@ STL2_OPEN_NAMESPACE {
 		constexpr safe_subrange_t<Rng>
 		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
 			if constexpr (SizedRange<Rng>) {
-				return ext::equal_range_n(__stl2::begin(rng), __stl2::size(rng), value,
+				return ext::equal_range_n(begin(rng), size(rng), value,
 					std::ref(comp), std::ref(proj));
 			} else {
-				return (*this)(__stl2::begin(rng), __stl2::end(rng), value,
+				return (*this)(begin(rng), end(rng), value,
 					std::ref(comp), std::ref(proj));
 			}
 		}

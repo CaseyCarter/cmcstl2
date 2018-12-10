@@ -172,10 +172,10 @@ STL2_OPEN_NAMESPACE {
 		requires Sortable<iterator_t<Rng>, Comp, Proj>
 		safe_iterator_t<Rng> operator()(Rng&& rng, Comp comp = {}, Proj proj = {}) const {
 			if constexpr (RandomAccessRange<Rng>) {
-				return (*this)(__stl2::begin(rng), __stl2::end(rng),
+				return (*this)(begin(rng), end(rng),
 					std::ref(comp), std::ref(proj));
 			} else {
-				return detail::fsort::sort_n(__stl2::begin(rng), __stl2::distance(rng),
+				return detail::fsort::sort_n(begin(rng), __stl2::distance(rng),
 					std::ref(comp), std::ref(proj));
 			}
 		}

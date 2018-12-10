@@ -54,10 +54,8 @@ STL2_OPEN_NAMESPACE {
 		requires !detail::MemberDifferenceType<T> &&
 			_IsNot<T, is_pointer> && // Avoid GCC PR 78173 (See above)
 			requires(const T& a, const T& b) {
-				// Avoid gcc ICE (TODO file bug):
-				a - b;
-				requires Integral<decltype(a - b)>;
 				// { a - b } -> Integral;
+				a - b; requires Integral<decltype(a - b)>;
 			}
 	struct incrementable_traits<T>
 	: make_signed<decltype(declval<const T>() - declval<const T>())> {};

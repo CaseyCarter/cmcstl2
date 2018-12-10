@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 		Constructible<iter_value_t<O>, iter_rvalue_reference_t<iterator_t<Rng>>>
 	{
 		return __stl2::uninitialized_move(
-			__stl2::begin(rng), __stl2::end(rng), std::move(result));
+			begin(rng), end(rng), std::move(result));
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -76,8 +76,8 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(safe_iterator_t<ORng>)>
 	uninitialized_move(IRng&& irng, ORng&& orng)
 	{
-		return __stl2::uninitialized_move(__stl2::begin(irng), __stl2::end(irng),
-			__stl2::begin(orng), __stl2::end(orng));
+		return __stl2::uninitialized_move(begin(irng), end(irng),
+			begin(orng), end(orng));
 	}
 
 	///////////////////////////////////////////////////////////////////////////

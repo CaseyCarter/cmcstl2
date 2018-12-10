@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	bool prev_permutation(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
-		return __stl2::prev_permutation(__stl2::begin(rng), __stl2::end(rng),
+		return __stl2::prev_permutation(begin(rng), end(rng),
 			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

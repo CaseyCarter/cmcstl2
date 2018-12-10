@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 			Comp, projected<iterator_t<Rng>, Proj>>
 	bool is_heap(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
-		return __stl2::end(rng) ==
+		return end(rng) ==
 			__stl2::is_heap_until(rng, std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

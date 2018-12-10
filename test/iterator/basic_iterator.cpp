@@ -354,11 +354,6 @@ void test_fl() {
 	static_assert(ranges::ForwardRange<Rng>);
 	static_assert(ranges::Common<S, I>);
 	static_assert(ranges::Same<ranges::common_type_t<S, I>, I>);
-#if 0 // TODO replace with view::common:
-	static_assert(ranges::Same<
-		ranges::subrange<I, I>,
-		decltype(ranges::ext::make_common_range(list.begin(), list.end()))>);
-#endif
 	std::cout << list << '\n';
 	*ranges::front_inserter(list) = 3.14;
 	std::cout << list << '\n';

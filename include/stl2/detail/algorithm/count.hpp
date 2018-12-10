@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr iter_difference_t<iterator_t<R>>
 		operator()(R&& r, const T& value, Proj proj = {}) const
 		{
-			return (*this)(__stl2::begin(r), __stl2::end(r),
+			return (*this)(begin(r), end(r),
 				value, std::ref(proj));
 		}
 	};

@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 	move_backward(Rng&& rng, I&& result)
 	{
 		return __stl2::move_backward(
-			__stl2::begin(rng), __stl2::end(rng), std::forward<I>(result));
+			begin(rng), end(rng), std::forward<I>(result));
 	}
 } STL2_CLOSE_NAMESPACE
 

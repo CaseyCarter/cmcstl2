@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectlySwappable<iterator_t<Rng>, std::decay_t<I>>
 	{
 		auto first2 = std::forward<I>(first2_);
-		return __swap_ranges::impl(__stl2::begin(rng1), __stl2::end(rng1), std::move(first2));
+		return __swap_ranges::impl(begin(rng1), end(rng1), std::move(first2));
 	}
 
 	template<ForwardIterator I1, Sentinel<I1> S1,
@@ -75,8 +75,8 @@ STL2_OPEN_NAMESPACE {
 	swap_ranges(Rng1&& rng1, Rng2&& rng2)
 	{
 		return __stl2::swap_ranges(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2));
+			begin(rng1), end(rng1),
+			begin(rng2), end(rng2));
 	}
 } STL2_CLOSE_NAMESPACE
 

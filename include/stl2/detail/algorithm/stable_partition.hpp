@@ -305,11 +305,11 @@ STL2_OPEN_NAMESPACE {
 			if constexpr (BidirectionalRange<Rng>) {
 				auto bound = ext::enumerate(rng);
 				return ext::stable_partition_n(
-					__stl2::begin(rng), std::move(bound.end()), bound.count(),
+					begin(rng), std::move(bound.end()), bound.count(),
 					std::ref(pred), std::ref(proj));
 			} else {
 				return ext::stable_partition_n(
-					__stl2::begin(rng), __stl2::distance(rng),
+					begin(rng), __stl2::distance(rng),
 					std::ref(pred), std::ref(proj));
 			}
 		}

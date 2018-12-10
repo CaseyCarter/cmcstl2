@@ -66,8 +66,8 @@ STL2_OPEN_NAMESPACE {
 	make_heap(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		auto n = __stl2::distance(rng);
-		detail::make_heap_n(__stl2::begin(rng), n, std::ref(comp), std::ref(proj));
-		return __stl2::begin(rng) + n;
+		detail::make_heap_n(begin(rng), n, std::ref(comp), std::ref(proj));
+		return begin(rng) + n;
 	}
 } STL2_CLOSE_NAMESPACE
 

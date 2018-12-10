@@ -13,31 +13,31 @@
 #define STL2_VIEW_ALL_HPP
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/view/view_closure.hpp>
-#include <stl2/view/subrange.hpp>
 #include <stl2/view/ref.hpp>
+#include <stl2/view/subrange.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace view {
 		struct __all_fn : detail::__pipeable<__all_fn> {
-			template<Range Rng>
-			requires View<__f<Rng>>
-			constexpr auto operator()(Rng&& rng) const
-			noexcept(std::is_nothrow_constructible_v<__f<Rng>, Rng>)
-			{ return std::forward<Rng>(rng); }
+			template<Range R>
+			requires View<__f<R>>
+			constexpr auto operator()(R&& r) const
+			noexcept(std::is_nothrow_constructible_v<__f<R>, R>) {
+				return static_cast<R&&>(r);
+			}
 
-			template<_ForwardingRange Rng>
-			requires !View<__uncvref<Rng>>
-			constexpr auto operator()(Rng&& rng) const
-			noexcept(std::is_reference_v<Rng>)
+			template<_ForwardingRange R>
+			requires (!View<__uncvref<R>>)
+			constexpr auto operator()(R&& r) const
+			noexcept(std::is_reference_v<R>)
 			{
-				if constexpr (std::is_reference_v<Rng>) {
-					return __stl2::ext::ref_view{rng};
+				if constexpr (std::is_reference_v<R>) {
+					return ref_view{r};
 				} else {
-					return subrange{static_cast<Rng&&>(rng)};
+					return subrange{static_cast<R&&>(r)};
 				}
 			}
 		};
@@ -45,8 +45,8 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr __all_fn all {};
 	} // namespace view
 
-	template<ViewableRange Rng>
-	using all_view = decltype(view::all(std::declval<Rng>()));
+	template<ViewableRange R>
+	using all_view = decltype(view::all(std::declval<R>()));
 
 	// Work-around for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 	template<class V, class R>

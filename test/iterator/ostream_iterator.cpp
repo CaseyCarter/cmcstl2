@@ -63,7 +63,7 @@ int main() {
 	static_assert(noexcept(I{I{}}));
 	static_assert(noexcept(I{i}));
 
-	::copy(__stl2::begin(some_ints), __stl2::end(some_ints), i);
+	::copy(begin(some_ints), end(some_ints), i);
 	CHECK(ss.str() == "0 7 1 6 2 5 3 4 ");
 	CHECK_EQUAL(
 		subrange(istream_iterator<int>{ss}, default_sentinel{}),

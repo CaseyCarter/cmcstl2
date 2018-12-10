@@ -23,11 +23,12 @@
 
 ///////////////////////////////////////////////////////////////////////////
 // Implementation of P0122 span
-//
+// Not to spec: many things (hence the extension namespace). This is a
+// "How should span better fit into the Ranges design" experiment.
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<class T>
-		using data_pointer_t = decltype(__stl2::data(std::declval<T&>()));
+		using data_pointer_t = decltype(data(std::declval<T&>()));
 
 		template<class Range>
 		STL2_CONCEPT SizedContiguousRange =
@@ -37,10 +38,7 @@ STL2_OPEN_NAMESPACE {
 			using index_t = std::ptrdiff_t;
 		}
 
-#if defined(__cpp_inline_variables)
-		inline
-#endif
-		constexpr auto dynamic_extent = static_cast<__span::index_t>(-1);
+		inline constexpr auto dynamic_extent = static_cast<__span::index_t>(-1);
 
 		template<_Is<std::is_object> ElementType, __span::index_t Extent = dynamic_extent>
 		requires Extent >= dynamic_extent
@@ -153,6 +151,7 @@ STL2_OPEN_NAMESPACE {
 			: span{first, last - first}
 			{}
 
+			// FIXME: accept forwarding-range?
 			template<__span::compatible<ElementType> Range>
 			requires Extent == __span::static_extent<Range>::value
 			constexpr span(Range&& rng)
@@ -160,6 +159,7 @@ STL2_OPEN_NAMESPACE {
 			: span{__stl2::data(rng), Extent}
 			{}
 
+			// FIXME: accept forwarding-range?
 			template<__span::compatible<ElementType> Range>
 			requires (Extent == dynamic_extent || !__span::has_static_extent<Range>)
 			constexpr span(Range&& rng)
@@ -351,20 +351,22 @@ STL2_OPEN_NAMESPACE {
 		{
 			return span<ElementType>{first, last};
 		}
+		// FIXME: accept forwarding-range?
 		template<SizedContiguousRange Rng>
 		constexpr auto make_span(Rng&& rng)
-		noexcept(noexcept(__stl2::data(rng), __stl2::size(rng)))
+		noexcept(noexcept(data(rng), size(rng)))
 		{
 			using S = span<std::remove_pointer_t<data_pointer_t<Rng>>>;
-			return S{__stl2::data(rng), __span::narrow_cast<__span::index_t>(__stl2::size(rng))};
+			return S{data(rng), __span::narrow_cast<__span::index_t>(size(rng))};
 		}
+		// FIXME: accept forwarding-range?
 		template<__span::StaticSizedContiguousRange Rng>
 		constexpr auto make_span(Rng&& rng)
-		noexcept(noexcept(__stl2::data(rng)))
+		noexcept(noexcept(data(rng)))
 		{
 			using S = span<std::remove_pointer_t<data_pointer_t<Rng>>,
 				__span::static_extent<Rng>::value>;
-			return S{__stl2::data(rng), __span::static_extent<Rng>::value};
+			return S{data(rng), __span::static_extent<Rng>::value};
 		}
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE

@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		auto k = __stl2::distance(first, last);
 		return __sample::sized_impl(std::move(first), std::move(last),
-			k, __stl2::begin(out), __stl2::distance(out), gen);
+			k, begin(out), __stl2::distance(out), gen);
 	}
 
 	template<class I, class S, class ORng,
@@ -125,7 +125,7 @@ STL2_OPEN_NAMESPACE {
 		Gen&& gen = detail::get_random_engine())
 	{
 		return __stl2::sample(std::move(first), std::move(last),
-			__stl2::begin(out), __stl2::distance(out), std::forward<Gen>(gen));
+			begin(out), __stl2::distance(out), std::forward<Gen>(gen));
 	}
 
 	template<class Rng, RandomAccessIterator O,
@@ -137,7 +137,7 @@ STL2_OPEN_NAMESPACE {
 	sample(Rng&& rng, O out, iter_difference_t<iterator_t<Rng>> n,
 		Gen&& gen = detail::get_random_engine())
 	{
-		return __stl2::sample(__stl2::begin(rng), __stl2::end(rng),
+		return __stl2::sample(begin(rng), end(rng),
 			std::move(out), n, std::forward<Gen>(gen));
 	}
 
@@ -149,7 +149,7 @@ STL2_OPEN_NAMESPACE {
 	sample(Rng&& rng, O out, iter_difference_t<iterator_t<Rng>> n,
 		Gen&& gen = detail::get_random_engine())
 	{
-		return __sample::sized_impl(__stl2::begin(rng), __stl2::end(rng),
+		return __sample::sized_impl(begin(rng), end(rng),
 			__stl2::distance(rng), std::move(out), n, std::forward<Gen>(gen));
 	}
 
@@ -164,8 +164,8 @@ STL2_OPEN_NAMESPACE {
 		tag::out(safe_iterator_t<ORng>)>
 	sample(IRng&& rng, ORng&& out, Gen&& gen = detail::get_random_engine())
 	{
-		return __stl2::sample(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::begin(out), __stl2::distance(out), std::forward<Gen>(gen));
+		return __stl2::sample(begin(rng), end(rng),
+			begin(out), __stl2::distance(out), std::forward<Gen>(gen));
 	}
 
 	template<class IRng, class ORng, class Gen = detail::default_random_engine&>
@@ -179,8 +179,8 @@ STL2_OPEN_NAMESPACE {
 		tag::out(safe_iterator_t<ORng>)>
 	sample(IRng&& rng, ORng&& out, Gen&& gen = detail::get_random_engine())
 	{
-		return __sample::sized_impl(__stl2::begin(rng), __stl2::end(rng),
-			__stl2::distance(rng), __stl2::begin(out), __stl2::distance(out),
+		return __sample::sized_impl(begin(rng), end(rng),
+			__stl2::distance(rng), begin(out), __stl2::distance(out),
 			std::forward<Gen>(gen));
 	}
 } STL2_CLOSE_NAMESPACE

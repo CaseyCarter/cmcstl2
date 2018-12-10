@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 	transform(R&& r, O result, F op, Proj proj = {})
 	{
 		return __stl2::transform(
-			__stl2::begin(r), __stl2::end(r), std::move(result),
+			begin(r), end(r), std::move(result),
 			std::ref(op), std::ref(proj));
 	}
 
@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		auto first2 = std::forward<I>(first2_);
 		return __stl2::transform(
-			__stl2::begin(r1), __stl2::end(r1),
+			begin(r1), end(r1),
 			std::move(first2), std::move(result),
 			std::ref(op), std::ref(proj1),
 			std::ref(proj2));
@@ -126,8 +126,8 @@ STL2_OPEN_NAMESPACE {
 		Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		return __stl2::transform(
-			__stl2::begin(r1), __stl2::end(r1),
-			__stl2::begin(r2), __stl2::end(r2),
+			begin(r1), end(r1),
+			begin(r2), end(r2),
 			std::move(result), std::ref(op),
 			std::ref(proj1),
 			std::ref(proj2));

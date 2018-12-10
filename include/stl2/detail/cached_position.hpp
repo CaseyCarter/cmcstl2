@@ -83,10 +83,10 @@ STL2_OPEN_NAMESPACE {
 			}
 			constexpr iterator_t<R> get(R& r) const {
 				STL2_EXPECT(*this);
-				return __stl2::begin(r) + offset_;
+				return begin(r) + offset_;
 			}
 			constexpr void set(R& r, const iterator_t<R>& it) {
-				offset_ = it - __stl2::begin(r);
+				offset_ = it - begin(r);
 			}
 		private:
 			iter_difference_t<iterator_t<R>> offset_ = -1;

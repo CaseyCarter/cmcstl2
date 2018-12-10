@@ -32,20 +32,20 @@ STL2_OPEN_NAMESPACE {
 						if constexpr (CommonNonRandom && !BidirectionalRange<R>) {
 							// If the range is RandomAccess or Bidirectional, this is just extra codegen
 							// with no performance improvement over the following cases.
-							return __stl2::end(r);
+							return end(r);
 						}
 						n = size;
 					}
 					if constexpr (CommonNonRandom && BidirectionalRange<R>) {
 						// Again, this would not be an improvement for RandomAccess ranges.
 						if (n > size / 2) {
-							return __stl2::prev(__stl2::end(r), size - n);
+							return __stl2::prev(end(r), size - n);
 						}
 					}
-					return __stl2::next(__stl2::begin(r), n);
+					return __stl2::next(begin(r), n);
 				}
 				else {
-					return __stl2::next(__stl2::begin(r), n, __stl2::end(r));
+					return __stl2::next(begin(r), n, end(r));
 				}
 			}
 		};

@@ -23,69 +23,60 @@
 #include <stl2/detail/view/view_closure.hpp>
 
 STL2_OPEN_NAMESPACE {
-	namespace ext {
-		template<Range R>
-		requires _Is<R, std::is_object>
-		struct ref_view : view_interface<ref_view<R>> {
-		private:
-			R* r_ = nullptr;
+	// ref_view [ranges.view.ref]
+	// Not an extension: P1252 makes this user-visible
+	template<Range R>
+	requires std::is_object_v<R>
+	struct ref_view : view_interface<ref_view<R>> {
+	private:
+		R* r_ = nullptr;
 
-			static void fun(R&) noexcept; // not defined
-			static void fun(R&&) = delete;
+		static void fun(R&) noexcept; // not defined
+		static void fun(R&&) = delete;
+	public:
+		constexpr ref_view() noexcept = default;
 
-		public:
-			constexpr ref_view() noexcept = default;
-
-			template<_NotSameAs<ref_view> T>
-			requires requires(T&& t) { fun(static_cast<T&&>(t)); }
-			constexpr ref_view(T&& t)
+		template<_NotSameAs<ref_view> T>
+		requires requires(T&& t) { fun(static_cast<T&&>(t)); }
+		constexpr ref_view(T&& t)
 #if 0
-			noexcept(std::is_nothrow_convertible_v<T, R&>)
+		noexcept(std::is_nothrow_convertible_v<T, R&>) // strengthened
 #else
-			noexcept(noexcept(fun(static_cast<T&&>(t))))
+		noexcept(noexcept(fun(static_cast<T&&>(t)))) // strengthened
 #endif
-			: r_{detail::addressof(static_cast<R&>(static_cast<T&&>(t)))} {}
+		: r_{std::addressof(static_cast<R&>(static_cast<T&&>(t)))} {}
 
-			constexpr R& base() const noexcept
-			{ return *r_; }
+		constexpr R& base() const noexcept { return *r_; }
 
-			constexpr iterator_t<R> begin() const
-			{ return __stl2::begin(*r_); }
+		constexpr iterator_t<R> begin() const { return __stl2::begin(*r_); }
+		constexpr sentinel_t<R> end() const { return __stl2::end(*r_); }
 
-			constexpr sentinel_t<R> end() const
-			{ return __stl2::end(*r_); }
+		constexpr bool empty() const requires detail::CanEmpty<R> {
+			return __stl2::empty(*r_);
+		}
 
-			constexpr bool empty() const
-			requires detail::CanEmpty<R>
-			{ return __stl2::empty(*r_); }
+		constexpr auto size() const requires SizedRange<R> {
+			return __stl2::size(*r_);
+		}
 
-			constexpr auto size() const
-			requires SizedRange<R>
-			{ return __stl2::size(*r_); }
+		constexpr auto data() const requires ContiguousRange<R> {
+			return __stl2::data(*r_);
+		}
 
-			constexpr auto data() const
-			requires ContiguousRange<R>
-			{ return __stl2::data(*r_); }
-		};
+		friend constexpr iterator_t<R> begin(ref_view r) { return r.begin(); }
+		friend constexpr sentinel_t<R> end(ref_view r) { return r.end(); }
+	};
 
-		template<class R>
-		ref_view(R&) -> ref_view<R>;
-
-		template<class R>
-		constexpr iterator_t<R> begin(ref_view<R> r)
-		{ return r.begin(); }
-
-		template<class R>
-		constexpr sentinel_t<R> end(ref_view<R> r)
-		{ return r.end(); }
-	} // namespace ext
+	// This deduction guide is the P/R for LWG 3173
+	template<class R>
+	ref_view(R&) -> ref_view<R>;
 
 	namespace view::ext {
 		struct __ref_fn : detail::__pipeable<__ref_fn> {
 			template<class R>
 			auto operator()(R&& rng) const
 			STL2_REQUIRES_RETURN(
-				__stl2::ext::ref_view(std::forward<R>(rng))
+				ref_view{std::forward<R>(rng)}
 			)
 		};
 

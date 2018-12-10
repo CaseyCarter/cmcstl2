@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			auto first2 = std::forward<I2>(first2_);
 			return (*this)(
-				__stl2::begin(rng1), __stl2::end(rng1),
+				begin(rng1), end(rng1),
 				std::move(first2), std::ref(pred),
 				std::ref(proj1), std::ref(proj2));
 		}
@@ -86,8 +86,8 @@ STL2_OPEN_NAMESPACE {
 			Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
 			return (*this)(
-				__stl2::begin(r1), __stl2::end(r1),
-				__stl2::begin(r2), __stl2::end(r2),
+				begin(r1), end(r1),
+				begin(r2), end(r2),
 				std::ref(pred),
 				std::ref(proj1),
 				std::ref(proj2));

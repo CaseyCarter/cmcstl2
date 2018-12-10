@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 	remove_copy_if(Rng&& rng, O&& result, Pred pred, Proj proj = {})
 	{
 		return __stl2::remove_copy_if(
-			__stl2::begin(rng), __stl2::end(rng), std::forward<O>(result),
+			begin(rng), end(rng), std::forward<O>(result),
 			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
