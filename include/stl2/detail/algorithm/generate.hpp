@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	generate(Rng&& rng, F gen)
 	{
-		return __stl2::generate(__stl2::begin(rng), __stl2::end(rng), std::ref(gen));
+		return __stl2::generate(begin(rng), end(rng), std::ref(gen));
 	}
 } STL2_CLOSE_NAMESPACE
 

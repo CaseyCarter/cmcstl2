@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 		if constexpr (SizedRange<Rng>) {
 			return n == __stl2::distance(rng);
 		} else {
-			return __stl2::__has_length(__stl2::begin(rng), __stl2::end(rng), n);
+			return __stl2::__has_length(begin(rng), end(rng), n);
 		}
 	}
 
@@ -102,8 +102,8 @@ STL2_OPEN_NAMESPACE {
 			return {__stl2::__has_length(rng1, count), static_cast<D>(count)};
 		} else {
 			return __stl2::__common_range_length(
-				__stl2::begin(rng1), __stl2::end(rng1),
-				__stl2::begin(rng2), __stl2::end(rng2));
+				begin(rng1), end(rng1),
+				begin(rng2), end(rng2));
 		}
 	}
 
@@ -203,11 +203,11 @@ STL2_OPEN_NAMESPACE {
 			if constexpr (SizedRange<R1>) {
 				const auto count = __stl2::distance(r1);
 				return __stl2::__is_permutation_trim(
-					__stl2::begin(r1), std::move(first2), count,
+					begin(r1), std::move(first2), count,
 					pred, proj1, proj2);
 			} else {
 				return (*this)(
-					__stl2::begin(r1), __stl2::end(r1), std::move(first2),
+					begin(r1), end(r1), std::move(first2),
 					std::ref(pred), std::ref(proj1), std::ref(proj2));
 			}
 		}
@@ -263,12 +263,12 @@ STL2_OPEN_NAMESPACE {
 					if (!__stl2::__has_length(r1, count2)) return false;
 					count1 = static_cast<D>(count2);
 				}
-				return __stl2::__is_permutation_trim(__stl2::begin(r1),
-					__stl2::begin(r2), count1, pred, proj1, proj2);
+				return __stl2::__is_permutation_trim(begin(r1),
+					begin(r2), count1, pred, proj1, proj2);
 			} else {
 				return (*this)(
-					__stl2::begin(r1), __stl2::end(r1),
-					__stl2::begin(r2), __stl2::end(r2),
+					begin(r1), end(r1),
+					begin(r2), end(r2),
 					std::ref(pred), std::ref(proj1), std::ref(proj2));
 			}
 		}

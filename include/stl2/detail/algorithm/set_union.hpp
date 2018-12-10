@@ -74,8 +74,8 @@ STL2_OPEN_NAMESPACE {
 		Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		return __stl2::set_union(
-			__stl2::begin(rng1), __stl2::end(rng1),
-			__stl2::begin(rng2), __stl2::end(rng2),
+			begin(rng1), end(rng1),
+			begin(rng2), end(rng2),
 			std::forward<O>(result), std::ref(comp),
 			std::ref(proj1), std::ref(proj2));
 	}

@@ -265,7 +265,7 @@ STL2_OPEN_NAMESPACE {
 	nth_element(Rng&& rng, iterator_t<Rng> nth, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::nth_element(
-			__stl2::begin(rng), std::move(nth), __stl2::end(rng),
+			begin(rng), std::move(nth), end(rng),
 			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 		Destructible<iter_value_t<iterator_t<Rng>>>
 	safe_iterator_t<Rng> destroy(Rng&& rng) noexcept
 	{
-		return __stl2::destroy(__stl2::begin(rng), __stl2::end(rng));
+		return __stl2::destroy(begin(rng), end(rng));
 	}
 
 	///////////////////////////////////////////////////////////////////////////

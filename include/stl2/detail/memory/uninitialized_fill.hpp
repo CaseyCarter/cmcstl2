@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	uninitialized_fill(Rng&& rng, const T& x)
 	{
-		return __stl2::uninitialized_fill(__stl2::begin(rng), __stl2::end(rng), x);
+		return __stl2::uninitialized_fill(begin(rng), end(rng), x);
 	}
 
 	///////////////////////////////////////////////////////////////////////////

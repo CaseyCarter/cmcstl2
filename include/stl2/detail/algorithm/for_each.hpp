@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr tagged_pair<tag::in(safe_iterator_t<R>), tag::fun(F)>
 		operator()(R&& r, F fun, Proj proj = {}) const
 		{
-			return {(*this)(__stl2::begin(r), __stl2::end(r),
+			return {(*this)(begin(r), end(r),
 				std::ref(fun), std::ref(proj)).in(), std::move(fun)};
 		}
 	};

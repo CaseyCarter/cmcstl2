@@ -121,7 +121,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::__unique_copy(
 			ext::priority_tag<2>{},
-			__stl2::begin(rng), __stl2::end(rng),
+			begin(rng), end(rng),
 			std::move(result),
 			std::ref(comp),
 			std::ref(proj));

@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 		operator()(R&& r, Pred pred = {}, Proj proj = {}) const
 		{
 			return (*this)(
-				__stl2::begin(r), __stl2::end(r),
+				begin(r), end(r),
 				std::ref(pred), std::ref(proj));
 		}
 	};

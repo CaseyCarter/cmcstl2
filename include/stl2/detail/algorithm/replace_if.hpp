@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng> replace_if(Rng&& rng, Pred pred, const T& new_value,
 		Proj proj = {})
 	{
-		return __stl2::replace_if(__stl2::begin(rng), __stl2::end(rng),
+		return __stl2::replace_if(begin(rng), end(rng),
 			std::ref(pred), new_value, std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

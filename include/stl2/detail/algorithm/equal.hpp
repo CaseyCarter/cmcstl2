@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectlyComparable<iterator_t<Rng1>, std::decay_t<I2>, Pred, Proj1, Proj2>
 		{
 			auto first2 = std::forward<I2>(first2_);
-			return __equal_fn::__equal_3(__stl2::begin(rng1), __stl2::end(rng1),
+			return __equal_fn::__equal_3(begin(rng1), end(rng1),
 				std::move(first2), pred, proj1, proj2);
 		}
 
@@ -109,12 +109,12 @@ STL2_OPEN_NAMESPACE {
 			if constexpr (SizedRange<R1> && SizedRange<R2>) {
 				return __stl2::distance(r1) == __stl2::distance(r2) &&
 					__equal_fn::__equal_3(
-						__stl2::begin(r1), __stl2::end(r1),
-						__stl2::begin(r2), pred, proj1, proj2);
+						begin(r1), end(r1),
+						begin(r2), pred, proj1, proj2);
 			} else {
 				return __equal_fn::__equal_4(
-					__stl2::begin(r1), __stl2::end(r1),
-					__stl2::begin(r2), __stl2::end(r2),
+					begin(r1), end(r1),
+					begin(r2), end(r2),
 					pred, proj1, proj2);
 			}
 		}

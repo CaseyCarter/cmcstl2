@@ -31,8 +31,8 @@ STL2_OPEN_NAMESPACE {
 		static constexpr iter_value_t<iterator_t<R>>
 		impl(R&& r, Comp comp, Proj proj)
 		{
-			auto first = __stl2::begin(r);
-			auto last = __stl2::end(r);
+			auto first = begin(r);
+			auto last = end(r);
 			STL2_EXPECT(first != last);
 			iter_value_t<iterator_t<R>> result = *first;
 			while (++first != last) {

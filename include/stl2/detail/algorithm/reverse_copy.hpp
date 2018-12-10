@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	reverse_copy(Rng&& rng, O&& result)
 	{
-		return __stl2::reverse_copy(__stl2::begin(rng), __stl2::end(rng),
+		return __stl2::reverse_copy(begin(rng), end(rng),
 			std::forward<O>(result));
 	}
 } STL2_CLOSE_NAMESPACE

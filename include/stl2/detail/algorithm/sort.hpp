@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		Sortable<iterator_t<Rng>, Comp, Proj>
 	safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
-		return __stl2::sort(__stl2::begin(rng), __stl2::end(rng),
+		return __stl2::sort(begin(rng), end(rng),
 			std::ref(comp), std::ref(proj));
 	}
 
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 			Sortable<iterator_t<Rng>, Comp, Proj>
 		safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = {}, Proj proj = {})
 		{
-			return __stl2::sort(__stl2::begin(rng), __stl2::end(rng),
+			return __stl2::sort(begin(rng), end(rng),
 				std::ref(comp), std::ref(proj));
 		}
 #else  // STL2_WORKAROUND_GCC_79591
@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 			Sortable<iterator_t<Rng>, Comp, Proj>
 		safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = {}, Proj proj = {})
 		{
-			return detail::fsort::sort_n(__stl2::begin(rng), __stl2::distance(rng),
+			return detail::fsort::sort_n(begin(rng), __stl2::distance(rng),
 				std::ref(comp), std::ref(proj));
 		}
 	} // namespace ext

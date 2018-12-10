@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		DefaultConstructible<iter_value_t<iterator_t<Rng>>>
 	safe_iterator_t<Rng> uninitialized_value_construct(Rng&& rng)
 	{
-		return __stl2::uninitialized_value_construct(__stl2::begin(rng), __stl2::end(rng));
+		return __stl2::uninitialized_value_construct(begin(rng), end(rng));
 	}
 
 	///////////////////////////////////////////////////////////////////////////

@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 	template<class T, OutputRange<const T&> Rng>
 	safe_iterator_t<Rng> fill(Rng&& rng, const T& value)
 	{
-		return __stl2::fill(__stl2::begin(rng), __stl2::end(rng), value);
+		return __stl2::fill(begin(rng), end(rng), value);
 	}
 } STL2_CLOSE_NAMESPACE
 

@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectlyMovable<iterator_t<Rng>, __f<O>>
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	move(Rng&& rng, O&& result) {
-		return __stl2::move(__stl2::begin(rng), __stl2::end(rng), std::forward<O>(result));
+		return __stl2::move(begin(rng), end(rng), std::forward<O>(result));
 	}
 
 	namespace ext {
@@ -62,8 +62,8 @@ STL2_OPEN_NAMESPACE {
 			tag::in(safe_iterator_t<Rng1>),
 			tag::out(safe_iterator_t<Rng2>)>
 		move(Rng1&& rng1, Rng2&& rng2) {
-			return ext::move(__stl2::begin(rng1), __stl2::end(rng1),
-				__stl2::begin(rng2), __stl2::end(rng2));
+			return ext::move(begin(rng1), end(rng1),
+				begin(rng2), end(rng2));
 		}
 	}
 } STL2_CLOSE_NAMESPACE

@@ -49,31 +49,31 @@ STL2_OPEN_NAMESPACE {
 			template<BidirectionalIterator I, class C, class P>
 			requires
 				Sortable<I, C, P>
-			static void impl(I begin, I middle, I end, iter_difference_t<I> len1,
+			static void impl(I first, I middle, I last, iter_difference_t<I> len1,
 				iter_difference_t<I> len2, temporary_buffer<iter_value_t<I>>& buf,
 				C& pred, P& proj)
 			{
-				STL2_EXPENSIVE_ASSERT(len1 == __stl2::distance(begin, midddle));
-				STL2_EXPENSIVE_ASSERT(len2 == __stl2::distance(middle, end));
+				STL2_EXPENSIVE_ASSERT(len1 == __stl2::distance(first, midddle));
+				STL2_EXPENSIVE_ASSERT(len2 == __stl2::distance(middle, last));
 				temporary_vector<iter_value_t<I>> vec{buf};
 				if (len1 <= len2) {
-					__stl2::move(begin, middle, __stl2::back_inserter(vec));
+					__stl2::move(first, middle, __stl2::back_inserter(vec));
 					__stl2::merge(
-						__stl2::make_move_iterator(__stl2::begin(vec)),
-						__stl2::make_move_iterator(__stl2::end(vec)),
+						__stl2::make_move_iterator(begin(vec)),
+						__stl2::make_move_iterator(end(vec)),
 						__stl2::make_move_iterator(std::move(middle)),
-						__stl2::make_move_iterator(std::move(end)),
-						std::move(begin), std::ref(pred),
+						__stl2::make_move_iterator(std::move(last)),
+						std::move(first), std::ref(pred),
 						std::ref(proj), std::ref(proj));
 				} else {
-					__stl2::move(middle, end, __stl2::back_inserter(vec));
+					__stl2::move(middle, last, __stl2::back_inserter(vec));
 					using RBi = reverse_iterator<I>;
 					__stl2::merge(
 						__stl2::make_move_iterator(RBi{std::move(middle)}),
-						__stl2::make_move_iterator(RBi{std::move(begin)}),
-						__stl2::make_move_iterator(__stl2::rbegin(vec)),
-						__stl2::make_move_iterator(__stl2::rend(vec)),
-						RBi{std::move(end)},
+						__stl2::make_move_iterator(RBi{std::move(first)}),
+						__stl2::make_move_iterator(rbegin(vec)),
+						__stl2::make_move_iterator(rend(vec)),
+						RBi{std::move(last)},
 						__stl2::not_fn(std::ref(pred)),
 						std::ref(proj), std::ref(proj));
 				}
@@ -212,8 +212,8 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	inplace_merge(Rng&& rng, iterator_t<Rng> middle, Comp comp = {}, Proj proj = {})
 	{
-		return __stl2::inplace_merge(__stl2::begin(rng), std::move(middle),
-			__stl2::end(rng), std::ref(comp), std::ref(proj));
+		return __stl2::inplace_merge(begin(rng), std::move(middle),
+			end(rng), std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

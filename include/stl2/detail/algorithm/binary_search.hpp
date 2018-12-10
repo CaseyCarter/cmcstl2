@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	bool binary_search(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::binary_search(
-			__stl2::begin(rng), __stl2::end(rng), value, std::ref(comp), std::ref(proj));
+			begin(rng), end(rng), value, std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

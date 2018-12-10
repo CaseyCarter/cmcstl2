@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	unique(Rng&& rng, R comp = {}, Proj proj = {})
 	{
-		return __stl2::unique(__stl2::begin(rng), __stl2::end(rng),
+		return __stl2::unique(begin(rng), end(rng),
 			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

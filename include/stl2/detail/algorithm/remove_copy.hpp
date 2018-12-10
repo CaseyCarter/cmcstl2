@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
 	remove_copy(Rng&& rng, O&& result, const T& value, Proj proj = {})
 	{
-		return __stl2::remove_copy(__stl2::begin(rng), __stl2::end(rng),
+		return __stl2::remove_copy(begin(rng), end(rng),
 			std::forward<O>(result), value, std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

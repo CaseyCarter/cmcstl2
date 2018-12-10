@@ -109,8 +109,8 @@ STL2_OPEN_NAMESPACE {
 			Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
 			return (*this)(
-				__stl2::begin(r1), __stl2::end(r1),
-				__stl2::begin(r2), __stl2::end(r2),
+				begin(r1), end(r1),
+				begin(r2), end(r2),
 				std::ref(pred), std::ref(proj1), std::ref(proj2));
 		}
 	};

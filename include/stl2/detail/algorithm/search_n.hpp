@@ -113,10 +113,10 @@ STL2_OPEN_NAMESPACE {
 		operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count,
 			const T& value, Pred pred = {}, Proj proj = {}) const {
 			if constexpr (SizedRange<Rng>) {
-				return sized(__stl2::begin(rng), __stl2::end(rng),
+				return sized(begin(rng), end(rng),
 					__stl2::distance(rng), count, value, std::ref(pred), std::ref(proj));
 			} else {
-				return unsized(__stl2::begin(rng), __stl2::end(rng), count, value,
+				return unsized(begin(rng), end(rng), count, value,
 					std::ref(pred), std::ref(proj));
 			}
 		}

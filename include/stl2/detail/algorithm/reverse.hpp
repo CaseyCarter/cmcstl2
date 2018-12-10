@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 				}
 				// Swap the buffered elements in reverse order with the second half of
 				// the input range.
-				auto ulast = __swap_ranges::impl(__stl2::rbegin(vec), __stl2::rend(vec),
+				auto ulast = __swap_ranges::impl(rbegin(vec), rend(vec),
 					std::move(umiddle)).in2();
 				// Shift the buffer contents into the first half of the input range.
 				__stl2::move(vec, std::move(ufirst));
@@ -142,7 +142,7 @@ STL2_OPEN_NAMESPACE {
 		template<ForwardRange Rng>
 		requires Permutable<iterator_t<Rng>>
 		constexpr safe_iterator_t<Rng> operator()(Rng&& rng) const {
-			return (*this)(__stl2::begin(rng), __stl2::end(rng));
+			return (*this)(begin(rng), end(rng));
 		}
 	};
 

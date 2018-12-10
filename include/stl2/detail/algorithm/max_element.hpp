@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const
 		{
-			return (*this)(__stl2::begin(r), __stl2::end(r),
+			return (*this)(begin(r), end(r),
 				std::ref(comp), std::ref(proj));
 		}
 	};

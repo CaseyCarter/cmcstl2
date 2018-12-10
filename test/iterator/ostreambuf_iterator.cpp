@@ -30,7 +30,7 @@ namespace {
 	template<InputRange R, OutputIterator<iter_reference_t<iterator_t<R>>> O>
 	constexpr tagged_pair<tag::in(safe_iterator_t<R>), tag::out(O)>
 	copy(R&& range, O out) {
-		return ::copy(__stl2::begin(range), __stl2::end(range), __stl2::move(out));
+		return ::copy(begin(range), end(range), __stl2::move(out));
 	}
 }
 
@@ -43,7 +43,7 @@ int main() {
 
 	{
 		static const char hw[] = "Hello, world!";
-		auto hw_range = subrange(__stl2::begin(hw), __stl2::end(hw) - 1);
+		auto hw_range = subrange(begin(hw), end(hw) - 1);
 		std::ostringstream os;
 		auto r = ::copy(hw_range, I{os});
 		CHECK(r.out() != default_sentinel{});

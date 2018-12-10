@@ -74,8 +74,8 @@ STL2_OPEN_NAMESPACE {
 		Proj1 proj1 = {}, Proj2 proj2 = {})
 	{
 		return __stl2::partial_sort_copy(
-			__stl2::begin(rng), __stl2::end(rng),
-			__stl2::begin(result_rng), __stl2::end(result_rng),
+			begin(rng), end(rng),
+			begin(result_rng), end(result_rng),
 			std::ref(comp),
 			std::ref(proj1), std::ref(proj2));
 	}

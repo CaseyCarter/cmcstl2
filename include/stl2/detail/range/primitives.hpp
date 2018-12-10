@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 		template<Range R>
 		constexpr auto enumerate(R&& r)
 		STL2_NOEXCEPT_RETURN(
-			__stl2::ext::enumerate(__stl2::begin(r), __stl2::end(r))
+			__stl2::ext::enumerate(begin(r), end(r))
 		)
 
 		template<SizedRange R>
@@ -73,8 +73,8 @@ STL2_OPEN_NAMESPACE {
 		STL2_NOEXCEPT_RETURN(
 			tagged_pair<tag::count(iter_difference_t<iterator_t<R>>),
 				tag::end(safe_iterator_t<R>)>{
-				__stl2::size(r),
-				__stl2::next(__stl2::begin(r), __stl2::end(r))
+				size(r),
+				__stl2::next(begin(r), end(r))
 			}
 		)
 	}
@@ -107,20 +107,20 @@ STL2_OPEN_NAMESPACE {
 
 		template<Range R>
 		constexpr iter_difference_t<iterator_t<R>> operator()(R&& r) const
-		noexcept(noexcept(std::declval<__distance_fn const&>()(__stl2::begin(r), __stl2::end(r))))
+		noexcept(noexcept(std::declval<__distance_fn const&>()(begin(r), end(r))))
 		{
 			const iter_difference_t<iterator_t<R>> n =
-				(*this)(__stl2::begin(r), __stl2::end(r));
+				(*this)(begin(r), end(r));
 			STL2_EXPECT(n >= 0);
 			return n;
 		}
 
 		template<SizedRange R>
 		constexpr iter_difference_t<iterator_t<R>> operator()(R&& r) const
-		noexcept(noexcept(__stl2::size(r)))
+		noexcept(noexcept(size(r)))
 		{
 			const auto n =
-				static_cast<iter_difference_t<iterator_t<R>>>(__stl2::size(r));
+				static_cast<iter_difference_t<iterator_t<R>>>(size(r));
 			STL2_EXPECT(n >= 0);
 			return n;
 		}

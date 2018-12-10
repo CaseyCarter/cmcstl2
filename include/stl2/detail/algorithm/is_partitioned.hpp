@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 			Pred, projected<iterator_t<Rng>, Proj>>
 	bool is_partitioned(Rng&& rng, Pred pred, Proj proj = {})
 	{
-		return __stl2::is_partitioned(__stl2::begin(rng), __stl2::end(rng),
+		return __stl2::is_partitioned(begin(rng), end(rng),
 			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

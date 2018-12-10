@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectUnaryPredicate<Pred, projected<iterator_t<Rng>, Proj>>
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, Pred pred, Proj proj = {}) const {
-			return (*this)(__stl2::begin(rng), __stl2::end(rng),
+			return (*this)(begin(rng), end(rng),
 				std::ref(pred), std::ref(proj));
 		}
 	};

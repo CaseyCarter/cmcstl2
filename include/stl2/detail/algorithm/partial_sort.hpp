@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 	partial_sort(Rng&& rng, iterator_t<Rng> middle, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::partial_sort(
-			__stl2::begin(rng), std::move(middle), __stl2::end(rng),
+			begin(rng), std::move(middle), end(rng),
 			std::ref(comp), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

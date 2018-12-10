@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	remove(Rng&& rng, const T& value, Proj proj = {})
 	{
-		return __stl2::remove(__stl2::begin(rng), __stl2::end(rng), value, std::ref(proj));
+		return __stl2::remove(begin(rng), end(rng), value, std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

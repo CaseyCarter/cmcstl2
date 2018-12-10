@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 	remove_if(Rng&& rng, Pred pred, Proj proj = {})
 	{
 		return __stl2::remove_if(
-			__stl2::begin(rng), __stl2::end(rng),
+			begin(rng), end(rng),
 			std::ref(pred), std::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

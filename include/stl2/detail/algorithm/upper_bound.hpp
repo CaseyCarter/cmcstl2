@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectStrictWeakOrder<Comp, const T*, projected<iterator_t<Rng>, Proj>>
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
-			return (*this)(__stl2::begin(rng), __stl2::end(rng),
+			return (*this)(begin(rng), end(rng),
 				value, std::ref(comp), std::ref(proj));
 		}
 
@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectStrictWeakOrder<Comp, const T*, projected<iterator_t<Rng>, Proj>>
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
-			return ext::upper_bound_n(__stl2::begin(rng), __stl2::distance(rng),
+			return ext::upper_bound_n(begin(rng), __stl2::distance(rng),
 				value, std::ref(comp), std::ref(proj));
 		}
 	};

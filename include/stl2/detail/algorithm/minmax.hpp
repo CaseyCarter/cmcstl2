@@ -34,8 +34,8 @@ STL2_OPEN_NAMESPACE {
 		impl(R&& r, Comp comp = {}, Proj proj = {})
 		{
 			using V = iter_value_t<iterator_t<R>>;
-			auto first = __stl2::begin(r);
-			auto last = __stl2::end(r);
+			auto first = begin(r);
+			auto last = end(r);
 			STL2_EXPECT(first != last);
 			auto result = tagged_pair<tag::min(V), tag::max(V)>{
 				*first, *first
