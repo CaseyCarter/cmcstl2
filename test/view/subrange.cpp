@@ -56,24 +56,18 @@ int main() {
 	static_assert(!Constructible<subrange<Base*, Base*>, Derived*, Derived*>);
 	static_assert(Constructible<subrange<const Base*, const Base*>, Base*, Base*>);
 	static_assert(!Constructible<subrange<const Base*, const Base*>, Derived*, Derived*>);
-	static_assert(Constructible<subrange<Base*, Base*>, std::pair<Base*, Base*>>);
-	static_assert(!Constructible<subrange<Base*, Base*>, std::pair<Derived*, Derived*>>);
 	static_assert(!Constructible<subrange<Base*, Base*>, subrange<Derived*, Derived*>>);
 
 	static_assert(Constructible<subrange<Base*, unreachable>, Base*, unreachable>);
 	static_assert(!Constructible<subrange<Base*, unreachable>, Derived*, unreachable>);
 	static_assert(Constructible<subrange<const Base*, unreachable>, Base*, unreachable>);
 	static_assert(!Constructible<subrange<const Base*, unreachable>, Derived*, unreachable>);
-	static_assert(Constructible<subrange<Base*, unreachable>, std::pair<Base*, unreachable>>);
-	static_assert(!Constructible<subrange<Base*, unreachable>, std::pair<Derived*, unreachable>>);
 	static_assert(!Constructible<subrange<Base*, unreachable>, subrange<Derived*, unreachable>>);
 
 	static_assert(Constructible<subrange<Base*, unreachable, subrange_kind::sized>, Base*, unreachable, std::ptrdiff_t>);
 	static_assert(!Constructible<subrange<Base*, unreachable, subrange_kind::sized>, Derived*, unreachable, std::ptrdiff_t>);
 	static_assert(Constructible<subrange<const Base*, unreachable, subrange_kind::sized>, Base*, unreachable, std::ptrdiff_t>);
 	static_assert(!Constructible<subrange<const Base*, unreachable, subrange_kind::sized>, Derived*, unreachable, std::ptrdiff_t>);
-	static_assert(Constructible<subrange<Base*, unreachable, subrange_kind::sized>, std::pair<Base*, unreachable>, std::ptrdiff_t>);
-	static_assert(!Constructible<subrange<Base*, unreachable, subrange_kind::sized>, std::pair<Derived*, unreachable>, std::ptrdiff_t>);
 	static_assert(!Constructible<subrange<Base*, unreachable, subrange_kind::sized>, subrange<Derived*, unreachable>, std::ptrdiff_t>);
 
 	static_assert(ConvertibleTo<subrange<Base*, Base*>, std::pair<const Base*, const Base*>>);
@@ -128,9 +122,6 @@ int main() {
 
 	std::pair<std::vector<int>::iterator, unreachable> p1 = r1;
 	CHECK(p1.first == vi.begin()+1);
-
-	subrange<std::vector<int>::iterator, unreachable> r2 { p1 };
-	CHECK(r1.begin() == vi.begin()+1);
 
 	std::list<int> li{1,2,3,4};
 	ext::sized_subrange<std::list<int>::iterator> l0 {li.begin(), li.end(),
@@ -198,20 +189,6 @@ int main() {
 		static_assert(Same<decltype(r0), decltype(s0)>);
 		static_assert(Same<decltype(l0), decltype(s1)>);
 		static_assert(Same<decltype(l0), decltype(s2)>);
-	}
-	{
-		subrange s0{p1};
-		subrange s1{std::make_pair(vi.begin(), vi.end())};
-		subrange s2{std::make_pair(li.begin(), li.end())};
-		static_assert(Same<decltype(r2), decltype(s0)>);
-		static_assert(Same<decltype(r0), decltype(s1)>);
-		static_assert(Same<decltype(l1), decltype(s2)>);
-	}
-	{
-		subrange s0{std::make_pair(vi.begin(), vi.end()), distance(vi)};
-		subrange s1{std::make_pair(li.begin(), li.end()), distance(li)};
-		static_assert(Same<decltype(r0), decltype(s0)>);
-		static_assert(Same<decltype(l0), decltype(s1)>);
 	}
 
 	return ::test_result();
