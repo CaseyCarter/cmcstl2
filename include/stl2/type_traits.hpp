@@ -35,7 +35,8 @@ STL2_OPEN_NAMESPACE {
 	using __cref = __ref<std::add_const_t<X>>;
 
 	template<class T, class U>
-	using __cond = decltype(true ? declval<T(&)()>()() : declval<U(&)()>()());
+	using __cond =
+		decltype(true ? std::declval<T(&)()>()() : std::declval<U(&)()>()());
 
 	template<class From, class To>
 	struct __copy_cv_ : meta::id<To> {};

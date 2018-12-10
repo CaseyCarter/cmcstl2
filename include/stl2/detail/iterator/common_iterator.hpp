@@ -222,18 +222,18 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		common_iterator& operator++()
-		noexcept(noexcept(++declval<I&>()))	{
+		noexcept(noexcept(++std::declval<I&>()))	{
 			STL2_EXPECT(std::holds_alternative<I>(v_));
 			++__stl2::__get_unchecked<I>(v_);
 			return *this;
 		}
 		decltype(auto) operator++(int)
-		noexcept(noexcept((decltype(declval<I&>()++))declval<I&>()++)) {
+		noexcept(noexcept((decltype(std::declval<I&>()++))std::declval<I&>()++)) {
 			STL2_EXPECT(std::holds_alternative<I>(v_));
 			return __stl2::__get_unchecked<I>(v_)++;
 		}
 		common_iterator operator++(int)
-		noexcept(noexcept(common_iterator(common_iterator(++declval<common_iterator&>()))))
+		noexcept(noexcept(common_iterator(common_iterator(++std::declval<common_iterator&>()))))
 		requires ForwardIterator<I> {
 			STL2_EXPECT(std::holds_alternative<I>(v_));
 			auto tmp(*this);

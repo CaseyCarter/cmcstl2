@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
 			requires
 				!has_customization<T(&)[N], U(&)[N]> && has_operator<F, T, U>
 			constexpr void operator()(T (&t)[N], U (&u)[N]) const
-			noexcept(noexcept(declval<const F&>()(t[0], u[0])))
+			noexcept(noexcept(std::declval<const F&>()(t[0], u[0])))
 			{
 				for (std::size_t i = 0; i < N; ++i) {
 					(*this)(t[i], u[i]);
