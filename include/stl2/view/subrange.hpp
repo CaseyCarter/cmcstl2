@@ -53,6 +53,8 @@ STL2_OPEN_NAMESPACE {
 
 	template<class T, class U, class V>
 	STL2_CONCEPT _PairLikeConvertibleFromGCCBugs =
+		!std::is_reference_v<std::tuple_element_t<0, T>> &&
+		!std::is_reference_v<std::tuple_element_t<1, T>> &&
 		_ConvertibleToNotSlicing<U, std::tuple_element_t<0, T>> &&
 		ConvertibleTo<V, std::tuple_element_t<1, T>>;
 
@@ -122,23 +124,23 @@ STL2_OPEN_NAMESPACE {
 
 		subrange() = default;
 
-		template <_ConvertibleToNotSlicing<I> _I>
-		constexpr subrange(_I&& i, S s)
+		template <_ConvertibleToNotSlicing<I> I2>
+		constexpr subrange(I2&& i, S s)
 			requires (!StoreSize)
-		: data_{std::forward<_I>(i), std::move(s)} {}
+		: data_{std::forward<I2>(i), std::move(s)} {}
 
-		template <_ConvertibleToNotSlicing<I> _I>
-		constexpr subrange(_I&& i, S s, iter_difference_t<I> n)
+		template <_ConvertibleToNotSlicing<I> I2>
+		constexpr subrange(I2&& i, S s, iter_difference_t<I> n)
 			requires (StoreSize)
-		: data_{std::forward<_I>(i), std::move(s), n} {
+		: data_{std::forward<I2>(i), std::move(s), n} {
 			if constexpr (RandomAccessIterator<I>) {
 				STL2_EXPECT(first_() + n == last_());
 			}
 		}
-		template <_ConvertibleToNotSlicing<I> _I>
-		constexpr subrange(_I&& i, S s, iter_difference_t<I> n)
+		template <_ConvertibleToNotSlicing<I> I2>
+		constexpr subrange(I2&& i, S s, iter_difference_t<I> n)
 		requires SizedSentinel<S, I>
-		: data_{std::forward<_I>(i), std::move(s)} {
+		: data_{std::forward<I2>(i), std::move(s)} {
 			STL2_EXPECT(last_() - first_() == n);
 		}
 
