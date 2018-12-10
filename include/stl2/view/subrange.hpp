@@ -62,11 +62,6 @@ STL2_OPEN_NAMESPACE {
 		_PairLikeConvertibleFromGCCBugs<T, U, V>; // Separate named concept to avoid
 		                                          // premature substitution.
 
-	template<class T>
-	STL2_CONCEPT _IteratorSentinelPair =
-		!Range<T> && _PairLike<T> &&
-		Sentinel<std::tuple_element_t<1, T>, std::tuple_element_t<0, T>>;
-
 	enum class subrange_kind : bool { unsized, sized };
 
 	template<Iterator I, Sentinel<I> S = I,
