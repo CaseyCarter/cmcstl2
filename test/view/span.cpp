@@ -1089,11 +1089,14 @@ int main() {
 	static_assert(ranges::Same<decltype(ranges::end(std::declval<span<int>>())), ranges::iterator_t<span<int>>>);
 	static_assert(ranges::Same<decltype(ranges::begin(std::declval<const span<int>>())), ranges::iterator_t<span<int>>>);
 	static_assert(ranges::Same<decltype(ranges::end(std::declval<const span<int>>())), ranges::iterator_t<span<int>>>);
+	{
+		int some_ints[]{42};
+		CHECK(ranges::data(span{some_ints, 0}) == +some_ints);
+	}
 
 	{
 		int some_ints[] = {0,1,2,3,4};
 		auto result = ranges::find(span{some_ints}, 3);
-		static_assert(ranges::Same<int*, decltype(result)>);
-		CHECK(result == some_ints + 3);
+		CHECK(*result == 3);
 	}
 }

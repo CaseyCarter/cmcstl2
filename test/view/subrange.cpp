@@ -20,7 +20,6 @@
 namespace ranges = __stl2;
 
 using namespace ranges;
-using namespace ranges::ext;
 
 template<Range Rng>
 safe_subrange_t<Rng> algorithm(Rng &&rng);
@@ -134,7 +133,7 @@ int main() {
 	CHECK(r1.begin() == vi.begin()+1);
 
 	std::list<int> li{1,2,3,4};
-	sized_subrange<std::list<int>::iterator> l0 {li.begin(), li.end(),
+	ext::sized_subrange<std::list<int>::iterator> l0 {li.begin(), li.end(),
 		static_cast<std::ptrdiff_t>(li.size())};
 	static_assert(View<decltype(l0)> && SizedRange<decltype(l0)>);
 	CHECK(l0.begin() == li.begin());
