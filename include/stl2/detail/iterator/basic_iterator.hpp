@@ -24,9 +24,9 @@
 #include <stl2/detail/memory/addressof.hpp>
 
 // TODO:
-// * Fix the noexcept clauses that assume that get() is noexcept.
+// * Specify that get() must not throw.
 // * Think long and hard about the various proxies and reference
-//   validity requirements.
+//   validity requirements for forward iterators.
 
 STL2_OPEN_NAMESPACE {
 	template<ext::DestructibleObject T>
