@@ -71,7 +71,7 @@ struct arbitrary_range {
 using mutable_unsized_range =
 	arbitrary_range<true, true, false>;
 
-using mutable_only_unsized_range =
+using mutable_only_no_size_range =
 	arbitrary_range<true, false, false>;
 
 using immutable_unsized_range =
@@ -218,29 +218,29 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(!ranges::View<const mutable_unsized_range&>);
 
 
-	CONCEPT_ASSERT(ranges::Same<ns::iterator_t<mutable_only_unsized_range&>, I>);
-	CONCEPT_ASSERT(ranges::Same<ns::sentinel_t<mutable_only_unsized_range&>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_only_unsized_range>);
-	CONCEPT_ASSERT(!ranges::SizedRange<mutable_only_unsized_range>);
-	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_unsized_range>);
-	CONCEPT_ASSERT(ranges::View<mutable_only_unsized_range>);
+	CONCEPT_ASSERT(ranges::Same<ns::iterator_t<mutable_only_no_size_range&>, I>);
+	CONCEPT_ASSERT(ranges::Same<ns::sentinel_t<mutable_only_no_size_range&>, I>);
+	CONCEPT_ASSERT(ranges::Range<mutable_only_no_size_range>);
+	CONCEPT_ASSERT(ranges::SizedRange<mutable_only_no_size_range>);
+	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_no_size_range>);
+	CONCEPT_ASSERT(ranges::View<mutable_only_no_size_range>);
 
-	CONCEPT_ASSERT(ranges::Same<ns::iterator_t<mutable_only_unsized_range&>, I>);
-	CONCEPT_ASSERT(ranges::Same<ns::sentinel_t<mutable_only_unsized_range&>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_only_unsized_range&>);
-	CONCEPT_ASSERT(!ranges::SizedRange<mutable_only_unsized_range&>);
-	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_unsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<mutable_only_unsized_range&>);
+	CONCEPT_ASSERT(ranges::Same<ns::iterator_t<mutable_only_no_size_range&>, I>);
+	CONCEPT_ASSERT(ranges::Same<ns::sentinel_t<mutable_only_no_size_range&>, I>);
+	CONCEPT_ASSERT(ranges::Range<mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(ranges::SizedRange<mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::View<mutable_only_no_size_range&>);
 
-	CONCEPT_ASSERT(!ranges::Range<const mutable_only_unsized_range>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_only_unsized_range>);
-	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_only_unsized_range>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_only_unsized_range>);
+	CONCEPT_ASSERT(!ranges::Range<const mutable_only_no_size_range>);
+	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_only_no_size_range>);
+	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_only_no_size_range>);
+	CONCEPT_ASSERT(!ranges::View<const mutable_only_no_size_range>);
 
-	CONCEPT_ASSERT(!ranges::Range<const mutable_only_unsized_range&>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_only_unsized_range&>);
-	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_only_unsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_only_unsized_range&>);
+	CONCEPT_ASSERT(!ranges::Range<const mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::View<const mutable_only_no_size_range&>);
 
 
 	CONCEPT_ASSERT(ranges::Same<ns::iterator_t<immutable_unsized_range>, CI>);
@@ -464,13 +464,13 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(!ranges::View<strange_view3&>);
 	CONCEPT_ASSERT(!ranges::View<const strange_view3>);
 
-	CONCEPT_ASSERT(ranges::Range<mutable_only_unsized_range&>);
-	CONCEPT_ASSERT(ranges::Range<mutable_only_unsized_range>);
-	CONCEPT_ASSERT(ranges::View<mutable_only_unsized_range>);
-	CONCEPT_ASSERT(!ranges::View<mutable_only_unsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<mutable_only_unsized_range&&>);
-	CONCEPT_ASSERT(!ranges::Range<const mutable_only_unsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_only_unsized_range&>);
+	CONCEPT_ASSERT(ranges::Range<mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(ranges::Range<mutable_only_no_size_range>);
+	CONCEPT_ASSERT(ranges::View<mutable_only_no_size_range>);
+	CONCEPT_ASSERT(!ranges::View<mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::View<mutable_only_no_size_range&&>);
+	CONCEPT_ASSERT(!ranges::Range<const mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::View<const mutable_only_no_size_range&>);
 }
 
 #if VALIDATE_RANGES

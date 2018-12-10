@@ -46,8 +46,8 @@ STL2_OPEN_NAMESPACE {
 	template<class T>
 	STL2_CONCEPT _RangeImpl =
 		requires(T&& t) {
-			__stl2::begin(static_cast<T&&>(t)); // not necessarily equality-preserving
-			__stl2::end(static_cast<T&&>(t));
+			begin(static_cast<T&&>(t)); // not necessarily equality-preserving
+			end(static_cast<T&&>(t));
 		};
 
 	template<class T>
@@ -58,12 +58,8 @@ STL2_OPEN_NAMESPACE {
 
 	template<class R>
 	STL2_CONCEPT SizedRange =
-		Range<R> &&
-		!disable_sized_range<__uncvref<R>> &&
-		requires(const remove_reference_t<R>& r) {
-			{ __stl2::size(r) } -> Integral;
-			{ __stl2::size(r) } -> iter_difference_t<iterator_t<R>>;
-		};
+		Range<R> && !disable_sized_range<__uncvref<R>> &&
+		requires(R& r) { size(r); };
 
 	///////////////////////////////////////////////////////////////////////////
 	// View [ranges.view]
@@ -148,7 +144,7 @@ STL2_OPEN_NAMESPACE {
 		_Is<iter_reference_t<iterator_t<R>>, is_reference> &&
 		Same<iter_value_t<iterator_t<R>>, __uncvref<iter_reference_t<iterator_t<R>>>> &&
 		requires(R& r) {
-			{ __stl2::data(r) } -> Same<add_pointer_t<iter_reference_t<iterator_t<R>>>>&&;
+			{ data(r) } -> Same<add_pointer_t<iter_reference_t<iterator_t<R>>>>;
 		};
 
 	namespace ext {
