@@ -40,9 +40,31 @@ STL2_OPEN_NAMESPACE {
 			using iterator_category = __stl2::random_access_iterator_tag;
 		};
 	}
+
 	template<WeaklyIncrementable I, Semiregular Bound = unreachable>
 	requires WeaklyEqualityComparable<I, Bound>
-	struct iota_view : view_interface<iota_view<I, Bound>> {
+	struct iota_view;
+
+	namespace __iota_view_detail {
+		struct __adl_hook {};
+
+		// Extension: iota_view models forwarding-range, as suggested by
+		// https://github.com/ericniebler/stl2/issues/575
+		template<class I, class S>
+		constexpr iterator_t<iota_view<I, S>> begin(iota_view<I, S> r) {
+			return r.begin();
+		}
+		template<class I, class S>
+		constexpr sentinel_t<iota_view<I, S>> end(iota_view<I, S> r) {
+			return r.end();
+		}
+	}
+
+	template<WeaklyIncrementable I, Semiregular Bound>
+	requires WeaklyEqualityComparable<I, Bound>
+	struct iota_view
+	: private __iota_view_detail::__adl_hook
+	, view_interface<iota_view<I, Bound>> {
 	private:
 		struct __iterator;
 		struct __sentinel;
@@ -64,13 +86,6 @@ STL2_OPEN_NAMESPACE {
 		{ return __sentinel{bound_}; }
 		constexpr __iterator end() const requires Same<I, Bound>
 		{ return __iterator{bound_}; }
-
-		// Extension: iota_view models forwarding-range, as suggested by
-		// https://github.com/ericniebler/stl2/issues/575
-		friend constexpr __iterator begin(iota_view&& v)
-		{ return v.begin(); }
-		friend constexpr /* Sentinel<__iterator> */ auto end(iota_view&& v)
-		{ return v.end(); }
 
 		template<class II = I, class BB = Bound> // gcc_bugs_bugs_bugs
 		constexpr auto size() const

@@ -26,6 +26,17 @@
 // Range access [range.access]
 //
 STL2_OPEN_NAMESPACE {
+	inline constexpr struct __as_const_fn {
+		template<class T>
+		constexpr const T& operator()(T& t) const noexcept {
+			return t;
+		}
+		template<class T>
+		constexpr const T&& operator()(T&& t) const noexcept {
+			return (T&&)t;
+		}
+	} __as_const {};
+
 	// begin
 	namespace __begin {
 		// Poison pill for std::begin. (See the detailed discussion at
@@ -33,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		template<class T> void begin(T&&) = delete;
 
 		template<class T>
-		void begin(std::initializer_list<T>&&) = delete;
+		void begin(std::initializer_list<T>) = delete;
 
 		template<class R>
 		STL2_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
@@ -69,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 			// Handle basic_string_view directly to implement P0970 non-intrusively
 			template<class CharT, class Traits>
 			constexpr auto operator()(
-				const std::basic_string_view<CharT, Traits>& sv) const noexcept {
+				std::basic_string_view<CharT, Traits> sv) const noexcept {
 				return sv.begin();
 			}
 
@@ -98,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 		template<class T> void end(T&&) = delete;
 
 		template<class T>
-		void end(std::initializer_list<T>&&) = delete;
+		void end(std::initializer_list<T>) = delete;
 
 		template<class R>
 		STL2_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
@@ -136,17 +147,9 @@ STL2_OPEN_NAMESPACE {
 			// Handle basic_string_view directly to implement P0970 non-intrusively
 			template<class CharT, class Traits>
 			constexpr auto operator()(
-				const std::basic_string_view<CharT, Traits>& sv) const noexcept {
+				std::basic_string_view<CharT, Traits> sv) const noexcept {
 				return sv.end();
 			}
-
-			// Prefer member if it returns Sentinel.
-			template<class R>
-			requires has_member<R&>
-			constexpr auto operator()(R& r) const
-			STL2_NOEXCEPT_RETURN(
-				r.end()
-			)
 
 			// Use ADL if it returns Sentinel.
 			template<class R>
@@ -169,14 +172,9 @@ STL2_OPEN_NAMESPACE {
 	// cbegin
 	struct __cbegin_fn {
 		template<class R>
-		constexpr auto operator()(const R& r) const
+		constexpr auto operator()(R&& r) const
 		STL2_NOEXCEPT_REQUIRES_RETURN(
-			begin(r)
-		)
-		template<class R>
-		constexpr auto operator()(const R&& r) const
-		STL2_NOEXCEPT_REQUIRES_RETURN(
-			begin(static_cast<const R&&>(r))
+			begin(__as_const((R&&)r))
 		)
 	};
 	inline namespace __cpos {
@@ -186,14 +184,9 @@ STL2_OPEN_NAMESPACE {
 	// cend
 	struct __cend_fn {
 		template<class R>
-		constexpr auto operator()(const R& r) const
+		constexpr auto operator()(R&& r) const
 		STL2_NOEXCEPT_REQUIRES_RETURN(
-			end(r)
-		)
-		template<class R>
-		constexpr auto operator()(const R&& r) const
-		STL2_NOEXCEPT_REQUIRES_RETURN(
-			end(static_cast<const R&&>(r))
+			end(__as_const((R&&)r))
 		)
 	};
 	inline namespace __cpos {
@@ -322,14 +315,9 @@ STL2_OPEN_NAMESPACE {
 	// crbegin
 	struct __crbegin_fn {
 		template<class R>
-		constexpr auto operator()(const R& r) const
+		constexpr auto operator()(R&& r) const
 		STL2_NOEXCEPT_REQUIRES_RETURN(
-			rbegin(r)
-		)
-		template<class R>
-		constexpr auto operator()(const R&& r) const
-		STL2_NOEXCEPT_REQUIRES_RETURN(
-			rbegin(static_cast<const R&&>(r))
+			rbegin(__as_const((R&&)r))
 		)
 	};
 	inline namespace __cpos {
@@ -339,14 +327,9 @@ STL2_OPEN_NAMESPACE {
 	// crend
 	struct __crend_fn {
 		template<class R>
-		constexpr auto operator()(const R& r) const
+		constexpr auto operator()(R&& r) const
 		STL2_NOEXCEPT_REQUIRES_RETURN(
-			rend(r)
-		)
-		template<class R>
-		constexpr auto operator()(const R&& r) const
-		STL2_NOEXCEPT_REQUIRES_RETURN(
-			rend(static_cast<const R&&>(r))
+			rend(__as_const((R&&)r))
 		)
 	};
 	inline namespace __cpos {
@@ -544,15 +527,9 @@ STL2_OPEN_NAMESPACE {
 	// cdata
 	struct __cdata_fn {
 		template<class R>
-		constexpr auto operator()(const R& r) const
+		constexpr auto operator()(R&& r) const
 		STL2_NOEXCEPT_REQUIRES_RETURN(
-			data(r)
-		)
-
-		template<class R>
-		constexpr auto operator()(const R&& r) const
-		STL2_NOEXCEPT_REQUIRES_RETURN(
-			data(static_cast<R&&>(r))
+			data(__as_const((R&&)r))
 		)
 	};
 	inline namespace __cpos {
