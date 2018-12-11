@@ -23,10 +23,10 @@
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// exchange [utility.exchange]
-	//
+	// Not to spec: this wasn't proposed for C++20, but I'm keeping it around
+	// until the libraries we want to support implement constexpr std::exchange.
 	template<class T, class U = T>
-	requires
-		MoveConstructible<T> && Assignable<T&, U>
+	requires MoveConstructible<T> && Assignable<T&, U>
 	constexpr T exchange(T& t, U&& u)
 	noexcept(std::is_nothrow_move_constructible<T>::value &&
 		std::is_nothrow_assignable<T&, U>::value)
@@ -54,18 +54,17 @@ STL2_OPEN_NAMESPACE {
 		template<class T, std::size_t N> void swap(T(&)[N], T(&)[N]) = delete;
 
 		template<class T, class U>
-		constexpr bool has_customization = false;
-		template<class T, class U>
-		requires
-			requires(T&& t, U&& u) { swap((T&&)t, (U&&)u); }
-		constexpr bool has_customization<T, U> = true;
+		STL2_CONCEPT has_customization =
+			(std::is_class_v<__uncvref<T>> || std::is_class_v<__uncvref<U>>
+			 || std::is_enum_v<__uncvref<T>> || std::is_enum_v<__uncvref<U>>) &&
+			requires(T&& t, U&& u) {
+				(void)swap(static_cast<T&&>(t), static_cast<U&&>(u));
+			};
 
 		template<class F, class T, class U>
-		constexpr bool has_operator = false;
-		template<class F, class T, class U>
-		requires
-			requires(const F& f, T& t, U& u) { f(t, u); }
-		constexpr bool has_operator<F, T, U> = true;
+		STL2_CONCEPT has_operator = requires(const F& f, T& t, U& u) {
+			f(t, u);
+		};
 
 		struct fn {
 			template<class T, class U>
@@ -75,19 +74,16 @@ STL2_OPEN_NAMESPACE {
 				(void)swap(std::forward<T>(t), std::forward<U>(u))
 			)
 			template<class T>
-			requires
-				!has_customization<T&, T&> && MoveConstructible<T> &&
-				Assignable<T&, T&&>
+			requires (!has_customization<T&, T&> && MoveConstructible<T>
+				&& Assignable<T&, T&&>)
 			constexpr void operator()(T& a, T& b) const
 			STL2_NOEXCEPT_RETURN(
 				(void)(b = __stl2::exchange(a, std::move(b)))
 			)
 			template<class T, class U, std::size_t N, class F = fn>
-			requires
-				!has_customization<T(&)[N], U(&)[N]> && has_operator<F, T, U>
+			requires has_operator<F, T, U>
 			constexpr void operator()(T (&t)[N], U (&u)[N]) const
-			noexcept(noexcept(std::declval<const F&>()(t[0], u[0])))
-			{
+			noexcept(noexcept(std::declval<const F&>()(t[0], u[0]))) {
 				for (std::size_t i = 0; i < N; ++i) {
 					(*this)(t[i], u[i]);
 				}
@@ -139,7 +135,8 @@ STL2_OPEN_NAMESPACE {
 		is_nothrow_swappable_t<T, U> {};
 
 	namespace detail {
-		template<_Is<std::is_class> Derived>
+		template<class Derived>
+		requires std::is_class_v<Derived>
 		struct __member_swap {
 		private:
 			constexpr Derived& derived() noexcept {
