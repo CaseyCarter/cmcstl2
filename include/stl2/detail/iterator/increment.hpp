@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 				a - b; requires Integral<decltype(a - b)>;
 			}
 	struct incrementable_traits<T>
-	: make_signed<decltype(declval<const T>() - declval<const T>())> {};
+	: make_signed<decltype(std::declval<const T>() - std::declval<const T>())> {};
 
 	template<class T>
 	using iter_difference_t = meta::_t<incrementable_traits<T>>;

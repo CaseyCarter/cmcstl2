@@ -13,8 +13,8 @@
 #define STL2_DETAIL_ITERATOR_ISTREAM_ITERATOR_HPP
 
 #include <iosfwd>
+#include <memory>
 #include <string>
-#include <stl2/detail/memory/addressof.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(is_nothrow_default_constructible<T>::value) = default;
 
 			STL2_CONSTEXPR_EXT istream_cursor(istream_type& s)
-			: stream_{detail::addressof(s)}
+			: stream_{std::addressof(s)}
 			{ next(); }
 
 			constexpr istream_cursor(default_sentinel)

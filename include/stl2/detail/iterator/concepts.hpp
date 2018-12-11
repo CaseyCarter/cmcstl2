@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 	// iter_reference_t [iterator.assoc]
 	//
 	template<__dereferenceable R>
-	using iter_reference_t = decltype(*declval<R&>());
+	using iter_reference_t = decltype(*std::declval<R&>());
 
 	///////////////////////////////////////////////////////////////////////////
 	// iter_move
@@ -96,7 +96,8 @@ STL2_OPEN_NAMESPACE {
 	// From the proxy iterator work (P0022).
 	//
 	template<__dereferenceable R>
-	using iter_rvalue_reference_t = decltype(__stl2::iter_move(declval<R&>()));
+	using iter_rvalue_reference_t =
+		decltype(__stl2::iter_move(std::declval<R&>()));
 
 	///////////////////////////////////////////////////////////////////////////
 	// value_type [readable.iterators]
@@ -207,7 +208,8 @@ STL2_OPEN_NAMESPACE {
 
 	template<class Out, IndirectlyMovable<Out> In>
 	constexpr bool is_nothrow_indirectly_movable_v<In, Out> =
-		noexcept(noexcept(declval<iter_reference_t<Out>>() = __stl2::iter_move(declval<In>())));
+		noexcept(noexcept(std::declval<iter_reference_t<Out>>()
+			= __stl2::iter_move(std::declval<In>())));
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlyMovableStorable [commonalgoreq.indirectlymovable]
@@ -336,10 +338,10 @@ STL2_OPEN_NAMESPACE {
 
 	template<class R1, IndirectlySwappable<R1> R2>
 	constexpr bool is_nothrow_indirectly_swappable_v<R1, R2> =
-		noexcept(__stl2::iter_swap(declval<R1>(), declval<R2>())) &&
-		noexcept(__stl2::iter_swap(declval<R2>(), declval<R1>())) &&
-		noexcept(__stl2::iter_swap(declval<R1>(), declval<R1>())) &&
-		noexcept(__stl2::iter_swap(declval<R2>(), declval<R2>()));
+		noexcept(__stl2::iter_swap(std::declval<R1>(), std::declval<R2>())) &&
+		noexcept(__stl2::iter_swap(std::declval<R2>(), std::declval<R1>())) &&
+		noexcept(__stl2::iter_swap(std::declval<R1>(), std::declval<R1>())) &&
+		noexcept(__stl2::iter_swap(std::declval<R2>(), std::declval<R2>()));
 
 	template<class R1, class R2>
 	using is_nothrow_indirectly_swappable_t =
@@ -567,7 +569,7 @@ STL2_OPEN_NAMESPACE {
 			i.operator->(); requires __can_reference<decltype(i.operator->())>;
 		}
 	struct __pointer_type<I> {
-		using type = decltype(declval<I&>().operator->());
+		using type = decltype(std::declval<I&>().operator->());
 	};
 
 	template<class>

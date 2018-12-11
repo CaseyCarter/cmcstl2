@@ -152,12 +152,12 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr explicit  __outer_iterator(Parent& parent)
 		requires !ForwardRange<Base>
-		: parent_(detail::addressof(parent)) {}
+		: parent_(std::addressof(parent)) {}
 
 		constexpr __outer_iterator(Parent& parent, iterator_t<Base> current)
 		requires ForwardRange<Base>
 		: __split_view_outer_base<Rng, Const>{std::move(current)}
-		, parent_(detail::addressof(parent)) {}
+		, parent_(std::addressof(parent)) {}
 
 		constexpr __outer_iterator(__outer_iterator<!Const> i)
 		requires Const && ConvertibleTo<iterator_t<Rng>, iterator_t<const Rng>>

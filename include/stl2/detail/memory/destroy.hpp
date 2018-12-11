@@ -13,14 +13,14 @@
 #ifndef STL2_DETAIL_MEMORY_DESTROY_HPP
 #define STL2_DETAIL_MEMORY_DESTROY_HPP
 
+#include <memory>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/swap.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/iterator/counted_iterator.hpp>
 #include <stl2/detail/iterator/dangling.hpp>
-#include <stl2/detail/memory/addressof.hpp>
+#include <stl2/detail/iterator/counted_iterator.hpp>
 #include <stl2/detail/memory/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 	I destroy(I first, S last) noexcept
 	{
 		for (; first != last; ++first) {
-			__stl2::destroy_at(detail::addressof(*first));
+			__stl2::destroy_at(std::addressof(*first));
 		}
 
 		return first;
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 		Destructible<iter_value_t<I>>
 	I destroy_n(I first, iter_difference_t<I> n) noexcept
 	{
-		return __stl2::destroy(__stl2::make_counted_iterator(std::move(first), n),
+		return __stl2::destroy(counted_iterator{std::move(first), n},
 			default_sentinel{}).base();
 	}
 
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			explicit destroy_guard(I& it)
-			: first_{it}, last_{detail::addressof(it)} {}
+			: first_{it}, last_{std::addressof(it)} {}
 
 			destroy_guard(destroy_guard&& that)
 			: first_{std::move(that.first_)}

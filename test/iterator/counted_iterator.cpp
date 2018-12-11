@@ -25,10 +25,10 @@ constexpr bool test_constexpr() {
 	static_assert(n >= 4);
 
 	{ ranges::counted_iterator<int*> unused{}; (void)unused; }
-	auto first = ranges::make_counted_iterator(ranges::begin(some_ints), n);
+	auto first = ranges::counted_iterator{ranges::begin(some_ints), n};
 	if (first.base() != ranges::begin(some_ints)) return false;
 	if (first.count() != n) return false;
-	auto last = ranges::make_counted_iterator(ranges::end(some_ints), 0);
+	auto last = ranges::counted_iterator{ranges::end(some_ints), 0};
 	if (last.base() != ranges::end(some_ints)) return false;
 
 	if (first == last) return false;
@@ -89,7 +89,7 @@ int main()
 
 	{
 		int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-		auto i = make_counted_iterator(forward_iterator<int*>{rgi}, size(rgi));
+		auto i = counted_iterator{forward_iterator<int*>{rgi}, size(rgi)};
 		static_assert(std::is_same<decltype(i),counted_iterator<forward_iterator<int*>>>());
 		static_assert(SizedSentinel<default_sentinel, decltype(i)>);
 		CHECK(static_cast<std::size_t>(default_sentinel{} - i) == size(rgi));
@@ -104,8 +104,8 @@ int main()
 
 	{
 		std::list<int> l;
-		auto a = make_counted_iterator(l.begin(), 0);
-		auto b = make_counted_iterator(l.cbegin(), 0);
+		auto a = counted_iterator{l.begin(), 0};
+		auto b = counted_iterator{l.cbegin(), 0};
 		static_assert(std::is_same<common_type_t<decltype(a), decltype(b)>, decltype(b)>());
 		CHECK((a - a) == 0);
 		CHECK((b - b) == 0);

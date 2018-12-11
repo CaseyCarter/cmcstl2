@@ -12,15 +12,15 @@
 #ifndef STL2_VIEW_REF_HPP
 #define STL2_VIEW_REF_HPP
 
+#include <memory>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
-#include <stl2/detail/memory/addressof.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/view/view_interface.hpp>
 #include <stl2/detail/view/view_closure.hpp>
+#include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
 	// ref_view [ranges.view.ref]

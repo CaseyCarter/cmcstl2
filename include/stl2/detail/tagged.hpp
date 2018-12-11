@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr void swap(tagged& that)
-		noexcept(is_nothrow_swappable_v<Base&, Base&>)
+		noexcept(ext::is_nothrow_swappable_v<Base&, Base&>)
 		requires Swappable<Base>
 		{
 			__stl2::swap(static_cast<Base&>(*this), static_cast<Base&>(that));
@@ -167,7 +167,7 @@ STL2_OPEN_NAMESPACE {
 
 	#define STL2_DEFINE_GETTER(name)                                                                \
 		struct name {                                                                               \
-			template<::__stl2::ext::DestructibleObject Untagged, ::std::size_t I, class Next>      \
+			template<::__stl2::ext::DestructibleObject Untagged, ::std::size_t I, class Next>       \
 			struct tagged_getter : Next {                                                           \
 				using Next::Next;                                                                   \
 				tagged_getter() = default;                                                          \

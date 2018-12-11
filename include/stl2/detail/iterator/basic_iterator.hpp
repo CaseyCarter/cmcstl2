@@ -13,6 +13,7 @@
 #ifndef STL2_DETAIL_ITERATOR_BASIC_ITERATOR_HPP
 #define STL2_DETAIL_ITERATOR_BASIC_ITERATOR_HPP
 
+#include <memory>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
@@ -21,7 +22,6 @@
 #include <stl2/detail/concepts/fundamental.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/memory/addressof.hpp>
 
 // TODO:
 // * Specify that get() must not throw.
@@ -118,7 +118,8 @@ STL2_OPEN_NAMESPACE {
 			!detail::MemberDifferenceType<C> &&
 			requires(const C& lhs, const C& rhs) { rhs.distance_to(lhs); }
 		struct difference_type<C> {
-			using type = decltype(declval<const C&>().distance_to(declval<const C&>()));
+			using type =
+				decltype(std::declval<const C&>().distance_to(std::declval<const C&>()));
 			static_assert(SignedIntegral<type>,
 				"Return type of Cursor's member distance_to is not a signed integer type.");
 		};
@@ -132,7 +133,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			requires(const C& c) { c.read(); requires __can_reference<decltype(c.read())>; }
 		struct reference_type<C> {
-			using type = decltype(declval<const C&>().read());
+			using type = decltype(std::declval<const C&>().read());
 		};
 		template<class C>
 		using reference_t = meta::_t<reference_type<C>>;
@@ -245,7 +246,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			IndirectMove<C>
 		struct rvalue_reference<C> {
-			using type = decltype(declval<const C&>().indirect_move());
+			using type = decltype(std::declval<const C&>().indirect_move());
 		};
 		template<class C>
 		using rvalue_reference_t = meta::_t<rvalue_reference<C>>;
@@ -311,7 +312,7 @@ STL2_OPEN_NAMESPACE {
 		template<class Derived, class Head>
 		struct proxy_reference_conversion {
 			operator Head() const
-			noexcept(noexcept(Head(Head(declval<const Derived&>().get_()))))
+			noexcept(noexcept(Head(Head(std::declval<const Derived&>().get_()))))
 			{
 				return Head(static_cast<const Derived*>(this)->get_());
 			}
@@ -665,7 +666,7 @@ STL2_OPEN_NAMESPACE {
 			cursor::Writable<C, T>
 		constexpr basic_iterator& operator=(T&& t)
 		noexcept(noexcept(
-			declval<C&>().write(static_cast<T&&>(t))))
+			std::declval<C&>().write(static_cast<T&&>(t))))
 		{
 			get().write(static_cast<T&&>(t));
 			return *this;
@@ -684,20 +685,20 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr decltype(auto) operator*() const
-		noexcept(noexcept(declval<const C&>().read()))
+		noexcept(noexcept(std::declval<const C&>().read()))
 		requires cursor::Readable<C> && !detail::is_writable<C>
 		{
 			return get().read();
 		}
 		constexpr decltype(auto) operator*()
-		noexcept(noexcept(reference_t{declval<mixin&>().get()}))
+		noexcept(noexcept(reference_t{std::declval<mixin&>().get()}))
 		requires cursor::Next<C> && detail::is_writable<C>
 		{
 			return reference_t{get()};
 		}
 		constexpr decltype(auto) operator*() const
 		noexcept(noexcept(
-			const_reference_t{declval<const mixin&>().get()}))
+			const_reference_t{std::declval<const mixin&>().get()}))
 		requires cursor::Next<C> && detail::is_writable<C>
 		{
 			return const_reference_t{get()};
@@ -725,14 +726,14 @@ STL2_OPEN_NAMESPACE {
 			std::is_lvalue_reference<const_reference_t>::value &&
 			Same<cursor::value_type_t<BugsBugs>, __uncvref<const_reference_t>>
 		{
-			return detail::addressof(**this);
+			return std::addressof(**this);
 		}
 
 		constexpr basic_iterator& operator++() & noexcept {
 			return *this;
 		}
 		constexpr basic_iterator& operator++() &
-		noexcept(noexcept(declval<C&>().next()))
+		noexcept(noexcept(std::declval<C&>().next()))
 		requires cursor::Next<C>
 		{
 			get().next();
@@ -742,7 +743,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr basic_iterator operator++(int) &
 		noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
 			is_nothrow_move_constructible<basic_iterator>::value &&
-			noexcept(++declval<basic_iterator&>()))
+			noexcept(++std::declval<basic_iterator&>()))
 		{
 			auto tmp(*this);
 			++*this;
@@ -750,7 +751,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr void operator++(int) &
-		noexcept(noexcept(++declval<basic_iterator&>()))
+		noexcept(noexcept(++std::declval<basic_iterator&>()))
 		requires cursor::Input<C> && !cursor::Forward<C>
 			&& !cursor::PostIncrement<C>
 		{
@@ -758,7 +759,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr decltype(auto) operator++(int) &
-		noexcept(noexcept(declval<C&>().post_increment()))
+		noexcept(noexcept(std::declval<C&>().post_increment()))
 		requires cursor::PostIncrement<C>
 		{
 			return get().post_increment();
@@ -773,7 +774,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr basic_iterator& operator--() &
-		noexcept(noexcept(declval<C&>().prev()))
+		noexcept(noexcept(std::declval<C&>().prev()))
 		requires cursor::Bidirectional<C>
 		{
 			get().prev();
@@ -782,7 +783,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr basic_iterator operator--(int) &
 		noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
 			is_nothrow_move_constructible<basic_iterator>::value &&
-			noexcept(--declval<basic_iterator&>()))
+			noexcept(--std::declval<basic_iterator&>()))
 		requires cursor::Bidirectional<C>
 		{
 			auto tmp = *this;
@@ -791,14 +792,14 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr basic_iterator& operator+=(D n) &
-		noexcept(noexcept(declval<C&>().advance(n)))
+		noexcept(noexcept(std::declval<C&>().advance(n)))
 		requires cursor::RandomAccess<C>
 		{
 			get().advance(n);
 			return *this;
 		}
 		constexpr basic_iterator& operator-=(D n) &
-		noexcept(noexcept(declval<C&>().advance(-n)))
+		noexcept(noexcept(std::declval<C&>().advance(-n)))
 		requires cursor::RandomAccess<C>
 		{
 			get().advance(-n);
@@ -806,7 +807,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr decltype(auto) operator[](D n) const
-		noexcept(noexcept(*(declval<basic_iterator&>() + n)))
+		noexcept(noexcept(*(std::declval<basic_iterator&>() + n)))
 		requires cursor::RandomAccess<C>
 		{
 			return *(*this + n);
@@ -887,7 +888,7 @@ STL2_OPEN_NAMESPACE {
 		const basic_iterator<C>& i, cursor::difference_type_t<C> n)
 	noexcept(is_nothrow_copy_constructible<basic_iterator<C>>::value &&
 		is_nothrow_move_constructible<basic_iterator<C>>::value &&
-		noexcept(declval<basic_iterator<C>&>() += n))
+		noexcept(std::declval<basic_iterator<C>&>() += n))
 	requires cursor::RandomAccess<C>
 	{
 		auto tmp = i;

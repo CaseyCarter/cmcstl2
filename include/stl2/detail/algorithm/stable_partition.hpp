@@ -60,8 +60,7 @@ STL2_OPEN_NAMESPACE {
 
 				auto&& vec = detail::make_temporary_vector(buf);
 				vec.push_back(__stl2::iter_move(first));
-				auto counted = __stl2::make_counted_iterator(
-					ext::uncounted(next), n - 1);
+				auto counted = counted_iterator{ext::uncounted(next), n - 1};
 				auto pp = __stl2::partition_copy(
 						__stl2::make_move_iterator(std::move(counted)),
 						move_sentinel<default_sentinel>{},

@@ -20,8 +20,8 @@ namespace ranges = __stl2;
 
 namespace {
 	struct silly_arrow_cursor {
-		int read() const;
-		void next();
+		int read() const { return 42; }
+		void next() {}
 		int arrow() const { return 42; }
 	};
 
@@ -97,7 +97,7 @@ namespace {
 		using ranges::default_sentinel;
 
 		using CI = common_iterator<counted_iterator<int*>, default_sentinel>;
-		constexpr CI foo{ranges::make_counted_iterator(&i, 1)}; (void)foo;
+		constexpr CI foo{ranges::counted_iterator{&i, 1}}; (void)foo;
 		constexpr CI bar{default_sentinel{}}; (void)bar;
 		using CCI = common_iterator<counted_iterator<const int*>, default_sentinel>;
 		constexpr CCI baz{foo};

@@ -89,14 +89,14 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto data() {
 			auto& d = derived();
 			return __stl2::empty(d) ? nullptr
-				: detail::addressof(*begin(d));
+				: std::addressof(*begin(d));
 		}
 		template<Range R = const D>
 		requires ContiguousIterator<iterator_t<R>>
 		constexpr auto data() const {
 			auto& d = derived();
 			return __stl2::empty(d) ? nullptr
-				: detail::addressof(*begin(d));
+				: std::addressof(*begin(d));
 		}
 		template<class R = const D> // gcc_bugs_bugs_bugs
 		constexpr auto size() const

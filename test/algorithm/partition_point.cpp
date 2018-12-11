@@ -137,7 +137,7 @@ void test_range() {
 template<ranges::Iterator I>
 ranges::subrange<ranges::counted_iterator<I>, ranges::default_sentinel>
 make_counted_view(I i, ranges::iter_difference_t<I> n) {
-	return {ranges::make_counted_iterator(std::move(i), n), {}};
+	return {ranges::counted_iterator{std::move(i), n}, {}};
 }
 
 template<class Iter>
