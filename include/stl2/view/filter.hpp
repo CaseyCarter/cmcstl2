@@ -127,7 +127,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			do
 				--current_;
-			while(__stl2::invoke(parent_->pred_.get(), *current_));
+			while(!__stl2::invoke(parent_->pred_.get(), *current_));
 			return *this;
 		}
 
