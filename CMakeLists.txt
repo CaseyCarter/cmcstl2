@@ -15,7 +15,7 @@ cmake_minimum_required(VERSION 3.8)
 project(cmcstl2 CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-find_package(Sanitizer COMPONENTS address undefined REQUIRED)
+find_package(Sanitizer COMPONENTS address undefined)
 
 add_library(stl2 INTERFACE)
 target_include_directories(stl2 INTERFACE
