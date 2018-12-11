@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			while (distance(first, last) > introsort_threshold) {
 				if (depth_limit == 0) {
-					__stl2::partial_sort(first, last, last, std::ref(comp), std::ref(proj));
+					partial_sort(first, last, last, std::ref(comp), std::ref(proj));
 					return;
 				}
 				I cut = __sort_fn::unguarded_partition(first, last, comp, proj);
