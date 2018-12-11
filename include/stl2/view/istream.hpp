@@ -14,11 +14,11 @@
 #define STL2_VIEW_ISTREAM_HPP
 
 #include <istream>
+#include <memory>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/iostream/concepts.hpp>
-#include <stl2/detail/memory/addressof.hpp>
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 			istream_view() = default;
 			explicit constexpr istream_view(std::istream& sin)
 			noexcept(std::is_nothrow_default_constructible_v<Val>)
-			: sin_{detail::addressof(sin)} {}
+			: sin_{std::addressof(sin)} {}
 
 			__iterator begin() {
 				next_(); // prime the pump
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 
 			__iterator() = default;
 			explicit constexpr __iterator(istream_view<Val>& parent) noexcept
-			: parent_{detail::addressof(parent)} {}
+			: parent_{std::addressof(parent)} {}
 
 			__iterator& operator++()
 			{ parent_->next_(); return *this; }

@@ -12,6 +12,7 @@
 #ifndef STL2_VIEW_REPEAT_HPP
 #define STL2_VIEW_REPEAT_HPP
 
+#include <memory>
 #include <stl2/iterator.hpp>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -20,7 +21,6 @@
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
-#include <stl2/detail/memory/addressof.hpp>
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 			public:
 				cursor() = default;
 				constexpr explicit cursor(__maybe_const<IsConst, repeat_view>& r) noexcept
-				: value_{detail::addressof(r.get())} {}
+				: value_{std::addressof(r.get())} {}
 				constexpr cursor(const cursor<!IsConst>& that) noexcept requires IsConst
 				: value_{that.value_} {}
 

@@ -13,6 +13,7 @@
 #ifndef STL2_DETAIL_ITERATOR_COMMON_ITERATOR_HPP
 #define STL2_DETAIL_ITERATOR_COMMON_ITERATOR_HPP
 
+#include <memory>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/variant.hpp>
@@ -22,7 +23,6 @@
 #include <stl2/detail/iterator/basic_iterator.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/operations.hpp>
-#include <stl2/detail/memory/addressof.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // common_iterator [common.iterators]
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 			: value_(std::forward<U>(u)) {}
 
 			constexpr const T* operator->() const noexcept {
-				return detail::addressof(value_);
+				return std::addressof(value_);
 			}
 		};
 
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto operator_arrow_(const I& i, ext::priority_tag<1>)
 		noexcept(noexcept(*i)) {
 			auto&& tmp = *i;
-			return detail::addressof(tmp);
+			return std::addressof(tmp);
 		}
 
 		template<class I>

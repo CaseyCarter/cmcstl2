@@ -24,9 +24,6 @@
  #define STL2_HAS_BUILTIN(X) STL2_HAS_BUILTIN_ ## X
  #if defined(__GNUC__)
   #define STL2_HAS_BUILTIN_unreachable 1
-  #if __GNUC__ >= 7
-   #define STL2_HAS_BUILTIN_addressof 1
-  #endif // __GNUC__ >= 7
  #endif // __GNUC__
 #endif // __clang__
 

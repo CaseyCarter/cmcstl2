@@ -13,7 +13,7 @@
 #define STL2_DETAIL_ITERATOR_INSERT_ITERATORS_HPP
 
 #include <cstddef>
-#include <stl2/detail/memory/addressof.hpp>
+#include <memory>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 
 			STL2_CONSTEXPR_EXT explicit
 			insert_cursor_base(Container& x) noexcept
-			: container_{detail::addressof(x)}
+			: container_{std::addressof(x)}
 			{}
 		protected:
 			raw_ptr<Container> container_{};

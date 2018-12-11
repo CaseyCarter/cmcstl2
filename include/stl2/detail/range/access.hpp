@@ -13,6 +13,7 @@
 #define STL2_DETAIL_RANGE_ACCESS_HPP
 
 #include <initializer_list>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <stl2/detail/fwd.hpp>
@@ -20,7 +21,6 @@
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>
-#include <stl2/detail/memory/addressof.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // Range access [range.access]

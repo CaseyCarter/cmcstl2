@@ -13,6 +13,7 @@
 #ifndef STL2_DETAIL_ITERATOR_BASIC_ITERATOR_HPP
 #define STL2_DETAIL_ITERATOR_BASIC_ITERATOR_HPP
 
+#include <memory>
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
@@ -21,7 +22,6 @@
 #include <stl2/detail/concepts/fundamental.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/memory/addressof.hpp>
 
 // TODO:
 // * Specify that get() must not throw.
@@ -726,7 +726,7 @@ STL2_OPEN_NAMESPACE {
 			std::is_lvalue_reference<const_reference_t>::value &&
 			Same<cursor::value_type_t<BugsBugs>, __uncvref<const_reference_t>>
 		{
-			return detail::addressof(**this);
+			return std::addressof(**this);
 		}
 
 		constexpr basic_iterator& operator++() & noexcept {
