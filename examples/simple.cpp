@@ -11,7 +11,8 @@ namespace ranges = std::experimental::ranges;
 
 template<class...> class show_type;
 
-void foo(ranges::Readable&) {}
+template<ranges::Readable T>
+void foo(T&) {}
 
 int main() {
 	auto v = std::vector<std::string>{"this", "is", "a", "test"};

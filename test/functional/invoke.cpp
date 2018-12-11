@@ -16,8 +16,9 @@
 namespace stl2 = __stl2;
 
 constexpr struct {
-	constexpr auto&& operator()(auto&& arg) const noexcept {
-		return (decltype(arg)&&)arg;
+	template<class T>
+	constexpr auto&& operator()(T&& arg) const noexcept {
+		return static_cast<T&&>(arg);
 	}
 } h;
 

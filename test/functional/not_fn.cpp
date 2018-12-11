@@ -18,7 +18,8 @@
 namespace stl2 = __stl2;
 
 constexpr struct {
-	constexpr bool operator()(stl2::Integral i) const {
+	template<stl2::Integral T>
+	constexpr bool operator()(T i) const {
 		return i % 2 != 0;
 	}
 } is_odd{};

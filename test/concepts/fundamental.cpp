@@ -47,13 +47,20 @@ enum class t {
 	integral, signed_integral, unsigned_integral, ull
 };
 
-constexpr t f(__stl2::Regular) { return t::regular; }
-constexpr t f(__stl2::ext::Scalar) { return t::scalar; }
-constexpr t f(__stl2::ext::Arithmetic) { return t::arithmetic; }
-constexpr t f(__stl2::ext::FloatingPoint) { return t::floating_point; }
-constexpr t f(__stl2::Integral) { return t::integral; }
-constexpr t f(__stl2::SignedIntegral) { return t::signed_integral; }
-constexpr t f(__stl2::UnsignedIntegral) { return t::unsigned_integral; }
+template<__stl2::Regular T>
+constexpr t f(T) { return t::regular; }
+template<__stl2::ext::Scalar T>
+constexpr t f(T) { return t::scalar; }
+template<__stl2::ext::Arithmetic T>
+constexpr t f(T) { return t::arithmetic; }
+template<__stl2::ext::FloatingPoint T>
+constexpr t f(T) { return t::floating_point; }
+template<__stl2::Integral T>
+constexpr t f(T) { return t::integral; }
+template<__stl2::SignedIntegral T>
+constexpr t f(T) { return t::signed_integral; }
+template<__stl2::UnsignedIntegral T>
+constexpr t f(T) { return t::unsigned_integral; }
 constexpr t f(unsigned long long) { return t::ull; }
 
 void test() {
