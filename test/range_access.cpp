@@ -103,11 +103,6 @@ namespace begin_testing {
 	struct D : A {};
 	char* begin(D&);
 
-	struct S {
-		friend int* begin(S&&);
-		friend int* end(S&&);
-	};
-
 	void test() {
 		// Valid
 		static_assert(CanBegin<int(&)[2]>);
