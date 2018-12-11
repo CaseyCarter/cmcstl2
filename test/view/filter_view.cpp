@@ -10,15 +10,19 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <stl2/view/filter.hpp>
-#include <stl2/view/iota.hpp>
-#include <stl2/view/ref.hpp>
-#include <stl2/view/take_exactly.hpp>
+
 #include <stl2/detail/algorithm/count.hpp>
 #include <stl2/detail/algorithm/transform.hpp>
 #include <stl2/detail/iterator/insert_iterators.hpp>
-#include <memory>
+#include <stl2/view/all.hpp>
+#include <stl2/view/iota.hpp>
+#include <stl2/view/reverse.hpp>
+#include <stl2/view/take_exactly.hpp>
+
 #include <list>
+#include <memory>
 #include <vector>
+
 #include "../simple_test.hpp"
 
 namespace ranges = __stl2;
@@ -54,9 +58,9 @@ int main() {
 	static_assert(!RandomAccessRange<decltype(rng)>);
 	CHECK_EQUAL(rng, {1,3,5,7,9});
 
-	//CHECK_EQUAL(rng | view::reverse, {9,7,5,3,1});
-	//auto tmp = rng | view::reverse;
-	//CHECK(&*begin(tmp) == &rgi[8]);
+	CHECK_EQUAL(rng | view::reverse, {9,7,5,3,1});
+	auto tmp = rng | view::reverse;
+	CHECK(&*begin(tmp) == &rgi[8]);
 
 	// auto rng2 = view::counted(rgi, 10) | view::remove_if(not_fn(is_odd()));
 	// static_assert(Same<int &, decltype(*begin(rng2))>);
