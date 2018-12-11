@@ -170,7 +170,7 @@ int main() {
 	{
 		int in[] = {0,1,2,2,4,5};
 		auto rng = ranges::subrange(
-					 ranges::make_counted_iterator(bidirectional_iterator<int*>(in), 6),
+					 ranges::counted_iterator{bidirectional_iterator<int*>(in), 6},
 					 ranges::default_sentinel{});
 		auto it = ranges::search_n(rng, 2, 2);
 		CHECK(base(it.base()) == in+2);

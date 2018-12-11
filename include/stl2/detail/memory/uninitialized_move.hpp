@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 	uninitialized_move_n(I first, iter_difference_t<I> n, O result)
 	{
 		auto r = __stl2::uninitialized_move(
-			__stl2::make_counted_iterator(first, n),
+			counted_iterator{first, n},
 			default_sentinel{}, std::move(result));
 		return {r.in().base(), r.out()};
 	}

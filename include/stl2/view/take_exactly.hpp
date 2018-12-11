@@ -45,9 +45,9 @@ STL2_OPEN_NAMESPACE {
 			{ STL2_EXPECT(n >= 0); }
 
 			constexpr auto begin()
-			noexcept(noexcept(__stl2::make_counted_iterator(__stl2::begin(std::declval<Base&>()), n_)))
+			noexcept(noexcept(counted_iterator{__stl2::begin(std::declval<Base&>()), n_}))
 			requires !Range<Base const>
-			{ return __stl2::make_counted_iterator(__stl2::begin(get()), n_); }
+			{ return counted_iterator{__stl2::begin(get()), n_}; }
 
 	#if 0 // FIXME: Untagged bug workaround
 			constexpr auto data()
@@ -68,9 +68,9 @@ STL2_OPEN_NAMESPACE {
 	#endif
 
 			constexpr auto begin() const
-			noexcept(noexcept(__stl2::make_counted_iterator(__stl2::begin(std::declval<Base const&>()), n_)))
+			noexcept(noexcept(counted_iterator{__stl2::begin(std::declval<Base const&>()), n_}))
 			requires Range<Base const>
-			{ return __stl2::make_counted_iterator(__stl2::begin(get()), n_); }
+			{ return counted_iterator{__stl2::begin(get()), n_}; }
 
 	#if 0 // FIXME: Untagged bug workaround
 			constexpr auto data() const

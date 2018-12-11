@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 		Destructible<iter_value_t<I>>
 	I destroy_n(I first, iter_difference_t<I> n) noexcept
 	{
-		return __stl2::destroy(__stl2::make_counted_iterator(std::move(first), n),
+		return __stl2::destroy(counted_iterator{std::move(first), n},
 			default_sentinel{}).base();
 	}
 

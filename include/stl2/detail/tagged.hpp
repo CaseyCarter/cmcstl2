@@ -167,7 +167,7 @@ STL2_OPEN_NAMESPACE {
 
 	#define STL2_DEFINE_GETTER(name)                                                                \
 		struct name {                                                                               \
-			template<::__stl2::ext::DestructibleObject Untagged, ::std::size_t I, class Next>      \
+			template<::__stl2::ext::DestructibleObject Untagged, ::std::size_t I, class Next>       \
 			struct tagged_getter : Next {                                                           \
 				using Next::Next;                                                                   \
 				tagged_getter() = default;                                                          \

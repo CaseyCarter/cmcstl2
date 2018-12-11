@@ -25,10 +25,9 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
-struct gen_test
-{
+struct gen_test {
 	int i_;
 	gen_test() = default;
 	gen_test(int i) : i_(i) {}
@@ -36,13 +35,11 @@ struct gen_test
 };
 
 template<class Iter, class Sent = Iter>
-void
-test()
-{
+void test() {
 	const unsigned n = 4;
 	int ia[n] = {0};
 	auto f = gen_test{1};
-	auto res1 = stl2::generate(Iter(ia), Sent(ia + n), std::ref(f));
+	auto res1 = ranges::generate(Iter(ia), Sent(ia + n), std::ref(f));
 	CHECK(ia[0] == 1);
 	CHECK(ia[1] == 2);
 	CHECK(ia[2] == 3);
@@ -50,8 +47,8 @@ test()
 	CHECK(res1 == Iter(ia + n));
 	CHECK(f.i_ == 5);
 
-	auto rng = stl2::subrange(Iter(ia), Sent(ia + n));
-	auto res2 = stl2::generate(rng, std::ref(f));
+	auto rng = ranges::subrange(Iter(ia), Sent(ia + n));
+	auto res2 = ranges::generate(rng, std::ref(f));
 	CHECK(ia[0] == 5);
 	CHECK(ia[1] == 6);
 	CHECK(ia[2] == 7);
@@ -59,7 +56,7 @@ test()
 	CHECK(res2 == Iter(ia + n));
 	CHECK(f.i_ == 9);
 
-	auto res3 = stl2::generate(std::move(rng), std::ref(f));
+	auto res3 = ranges::generate(std::move(rng), std::ref(f));
 	CHECK(ia[0] == 9);
 	CHECK(ia[1] == 10);
 	CHECK(ia[2] == 11);
@@ -68,14 +65,13 @@ test()
 	CHECK(f.i_ == 13);
 }
 
-void test2()
-{
-	// Test stl2::generate with a genuine output range
+void test2() {
+	// Test ranges::generate with a genuine output range
 	std::vector<int> v;
-	auto rng = stl2::subrange(
-		stl2::make_counted_iterator(stl2::back_inserter(v), 5),
-		stl2::default_sentinel{});
-	stl2::generate(rng, gen_test(1));
+	auto rng = ranges::subrange(
+		ranges::counted_iterator{ranges::back_inserter(v), 5},
+		ranges::default_sentinel{});
+	ranges::generate(rng, gen_test(1));
 	CHECK(v.size() == 5u);
 	CHECK(v[0] == 1);
 	CHECK(v[1] == 2);
@@ -84,8 +80,7 @@ void test2()
 	CHECK(v[4] == 5);
 }
 
-int main()
-{
+int main() {
 	test<forward_iterator<int*> >();
 	test<bidirectional_iterator<int*> >();
 	test<random_access_iterator<int*> >();

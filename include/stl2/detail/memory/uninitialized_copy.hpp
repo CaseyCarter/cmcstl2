@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 	uninitialized_copy_n(I first, iter_difference_t<I> n, O out)
 	{
 		auto result = __stl2::uninitialized_copy(
-			__stl2::make_counted_iterator(first, n),
+			counted_iterator{first, n},
 			default_sentinel{}, out);
 		return {result.in().base(), result.out()};
 	}

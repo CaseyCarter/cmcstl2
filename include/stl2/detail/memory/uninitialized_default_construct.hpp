@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 	I uninitialized_default_construct_n(I first, iter_difference_t<I> n)
 	{
 		return __stl2::uninitialized_default_construct(
-			__stl2::make_counted_iterator(first, n),
+			counted_iterator{first, n},
 			default_sentinel{}).base();
 	}
 } STL2_CLOSE_NAMESPACE

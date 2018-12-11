@@ -238,8 +238,8 @@ int main()
 	{
 		int in[] = {0,1,2,3,4,5};
 		auto rng = subrange(
-					 ranges::make_counted_iterator(
-					   bidirectional_iterator<int*>(in), 6),
+					 ranges::counted_iterator{
+					   bidirectional_iterator<int*>(in), 6},
 					 ranges::default_sentinel{});
 		{
 			auto [b, e] = ranges::search(rng, std::initializer_list<int>{2,3});

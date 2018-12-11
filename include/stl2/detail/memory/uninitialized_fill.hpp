@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 	I uninitialized_fill_n(I first, const iter_difference_t<I> n, const T& x)
 	{
 		return __stl2::uninitialized_fill(
-			__stl2::make_counted_iterator(std::move(first), n),
+			counted_iterator{std::move(first), n},
 			default_sentinel{}, x).base();
 	}
 } STL2_CLOSE_NAMESPACE
