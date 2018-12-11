@@ -119,20 +119,19 @@ STL2_OPEN_NAMESPACE {
 			__stl2::swap((U&&)u, (T&&)t);
 		};
 
-	template<class T, class U>
-	inline constexpr bool is_nothrow_swappable_v = false;
+	namespace ext {
+		template<class T, class U>
+		inline constexpr bool is_nothrow_swappable_v = false;
 
-	template<class T, SwappableWith<T> U>
-	inline constexpr bool is_nothrow_swappable_v<T, U> =
-		noexcept(__stl2::swap(std::declval<T>(), std::declval<U>())) &&
-		noexcept(__stl2::swap(std::declval<U>(), std::declval<T>()));
+		template<class T, SwappableWith<T> U>
+		inline constexpr bool is_nothrow_swappable_v<T, U> =
+			noexcept(__stl2::swap(std::declval<T>(), std::declval<U>())) &&
+			noexcept(__stl2::swap(std::declval<U>(), std::declval<T>()));
 
-	template<class T, class U>
-	using is_nothrow_swappable_t = meta::bool_<is_nothrow_swappable_v<T, U>>;
-
-	template<class T, class U>
-	struct is_nothrow_swappable :
-		is_nothrow_swappable_t<T, U> {};
+		template<class T, class U>
+		struct is_nothrow_swappable :
+			meta::bool_<is_nothrow_swappable_v<T, U>> {};
+	}
 
 	namespace detail {
 		template<class Derived>

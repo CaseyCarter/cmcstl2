@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr void swap(tagged& that)
-		noexcept(is_nothrow_swappable_v<Base&, Base&>)
+		noexcept(ext::is_nothrow_swappable_v<Base&, Base&>)
 		requires Swappable<Base>
 		{
 			__stl2::swap(static_cast<Base&>(*this), static_cast<Base&>(that));
