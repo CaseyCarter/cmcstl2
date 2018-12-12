@@ -59,20 +59,9 @@ STL2_OPEN_NAMESPACE {
 		: base_(std::move(base))
 		, pattern_(std::move(pattern)) {}
 
-		template<InputRange O, ForwardRange P>
-		requires
-			_ConstructibleFromRange<Rng, O> &&
-			_ConstructibleFromRange<Pattern, P>
-		constexpr split_view(O&& o, P&& p)
-		: base_(view::all(std::forward<O>(o)))
-		, pattern_(view::all(std::forward<P>(p))) {}
-
-		template<InputRange O>
-		requires
-			_ConstructibleFromRange<Rng, O> &&
-			Constructible<Pattern, single_view<iter_value_t<iterator_t<O>>>>
-		constexpr split_view(O&& o, iter_value_t<iterator_t<O>> e)
-		: base_(view::all(std::forward<O>(o)))
+		constexpr split_view(Rng base, iter_value_t<iterator_t<Rng>> e)
+		requires Constructible<Pattern, single_view<iter_value_t<iterator_t<Rng>>>>
+		: base_(std::move(base))
 		, pattern_(single_view{std::move(e)}) {}
 
 		constexpr auto begin() {

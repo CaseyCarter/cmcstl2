@@ -41,11 +41,6 @@ STL2_OPEN_NAMESPACE {
 		constexpr transform_view(R base, F fun)
 		: base_(std::move(base)), fun_(std::move(fun)) {}
 
-		template<InputRange O>
-		requires ViewableRange<O> && _ConstructibleFromRange<R, O>
-		constexpr transform_view(O&& o, F fun)
-		: base_(view::all(std::forward<O>(o))), fun_(std::move(fun)) {}
-
 		using iterator = __iterator<false>;
 		using sentinel = __sentinel<false>;
 		using const_iterator = __iterator<true>;

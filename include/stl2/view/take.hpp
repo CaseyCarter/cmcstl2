@@ -69,11 +69,6 @@ STL2_OPEN_NAMESPACE {
 		constexpr take_view(R base, D count)
 		: base_(static_cast<R&&>(base)), count_(count) {}
 
-		template<ViewableRange O>
-		requires _ConstructibleFromRange<R, O>
-		constexpr take_view(O&& o, D count)
-		: base_(view::all(static_cast<O&&>(o))), count_(count) {}
-
 		constexpr R base() const { return base_; }
 
 		constexpr auto begin() requires !ext::SimpleView<R> { return begin_(*this); }

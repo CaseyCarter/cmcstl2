@@ -40,13 +40,6 @@ STL2_OPEN_NAMESPACE {
 				  count_(count)
 			{}
 
-			template<ViewableRange O>
-			requires _ConstructibleFromRange<R, O>
-			constexpr drop_view(O&& o, D count)
-				: base_(view::all(std::forward<O>(o))),
-				  count_(count)
-			{}
-
 			constexpr R base() const { return base_; }
 
 			constexpr auto begin() requires !(SimpleView<R> && RandomAccessRange<R>)

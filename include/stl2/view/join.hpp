@@ -69,11 +69,6 @@ STL2_OPEN_NAMESPACE {
 		constexpr explicit join_view(Rng base)
 		: base_(std::move(base)) {}
 
-		template<InputRange O>
-		requires ViewableRange<O> && _ConstructibleFromRange<Rng, O>
-		constexpr explicit join_view(O&& o)
-		: base_(view::all(std::forward<O>(o))) {}
-
 		using iterator = __iterator<ext::SimpleView<Rng>>;
 		using sentinel = __sentinel<ext::SimpleView<Rng>>;
 		using const_iterator = __iterator<true>;
