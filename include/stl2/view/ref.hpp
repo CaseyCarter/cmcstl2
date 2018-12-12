@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 	namespace __ref_view_detail {
 		struct __adl_hook {};
 
-		// Not to spec (yet);
+		// Not to spec: should be hidden friends.
 		template<class R>
 		constexpr iterator_t<R> begin(ref_view<R> r) {
 			return r.begin();
