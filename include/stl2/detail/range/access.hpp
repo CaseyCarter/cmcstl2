@@ -151,7 +151,6 @@ STL2_OPEN_NAMESPACE {
 				return sv.end();
 			}
 
-			// Use ADL if it returns Sentinel.
 			template<class R>
 			requires has_member<R> || has_non_member<R>
 			constexpr auto operator()(R&& r) const {
