@@ -76,12 +76,12 @@ STL2_OPEN_NAMESPACE {
 
 		// Not to spec: these should be hidden friends
 		template<class I, class S, subrange_kind K>
-		constexpr I begin(subrange<I, S, K>&& r)
+		constexpr I begin(subrange<I, S, K> r)
 		noexcept(std::is_nothrow_copy_constructible_v<I>) {
 			return r.begin();
 		}
 		template<class I, class S, subrange_kind K>
-		constexpr S end(subrange<I, S, K>&& r)
+		constexpr S end(subrange<I, S, K> r)
 		noexcept(std::is_nothrow_copy_constructible_v<S>) {
 			return r.end();
 		}

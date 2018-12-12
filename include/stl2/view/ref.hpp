@@ -24,10 +24,30 @@
 
 STL2_OPEN_NAMESPACE {
 	// ref_view [ranges.view.ref]
-	// Not an extension: P1252 makes this user-visible
 	template<Range R>
 	requires std::is_object_v<R>
-	struct ref_view : view_interface<ref_view<R>> {
+	struct ref_view;
+
+	// Not an extension: P1252 makes this user-visible
+	namespace __ref_view_detail {
+		struct __adl_hook {};
+
+		// Not to spec: should be hidden friends.
+		template<class R>
+		constexpr iterator_t<R> begin(ref_view<R> r) {
+			return r.begin();
+		}
+		template<class R>
+		constexpr sentinel_t<R> end(ref_view<R> r) {
+			return r.end();
+		}
+	}
+
+	template<Range R>
+	requires std::is_object_v<R>
+	struct ref_view
+	: private __ref_view_detail::__adl_hook
+	, view_interface<ref_view<R>> {
 	private:
 		R* r_ = nullptr;
 
@@ -62,9 +82,6 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto data() const requires ContiguousRange<R> {
 			return __stl2::data(*r_);
 		}
-
-		friend constexpr iterator_t<R> begin(ref_view r) { return r.begin(); }
-		friend constexpr sentinel_t<R> end(ref_view r) { return r.end(); }
 	};
 
 	// This deduction guide is the P/R for LWG 3173

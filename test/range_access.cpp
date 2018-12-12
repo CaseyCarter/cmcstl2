@@ -12,8 +12,12 @@
 //
 #include <stl2/iterator.hpp>
 #include <stl2/detail/algorithm/find.hpp>
+#include <stl2/view/subrange.hpp>
+#include <stl2/view/ref.hpp>
+#include <stl2/view/iota.hpp>
 #include <iostream>
 #include <vector>
+#include <utility>
 #include "simple_test.hpp"
 
 namespace ranges = __stl2;
@@ -77,6 +81,12 @@ namespace begin_testing {
 			ranges::begin((R&&)r);
 		};
 
+	template<class R>
+	STL2_CONCEPT CanCBegin =
+		requires(R&& r) {
+			ranges::cbegin((R&&)r);
+		};
+
 	struct A {
 		int* begin();
 		int* end();
@@ -100,30 +110,46 @@ namespace begin_testing {
 		static_assert(CanBegin<const int(&)[2]>);
 		static_assert(ranges::Same<decltype(ranges::begin(std::declval<const int(&)[2]>())), const int*>);
 
+		static_assert(CanCBegin<int(&)[2]>);
+		static_assert(ranges::Same<decltype(ranges::cbegin(std::declval<int(&)[2]>())), const int*>);
+		static_assert(CanCBegin<const int(&)[2]>);
+		static_assert(ranges::Same<decltype(ranges::cbegin(std::declval<const int(&)[2]>())), const int*>);
+
 		// Ill-formed: array rvalue
 		static_assert(!CanBegin<int(&&)[2]>);
+		static_assert(!CanBegin<const int(&&)[2]>);
+
+		static_assert(!CanCBegin<int(&&)[2]>);
+		static_assert(!CanCBegin<const int(&&)[2]>);
 
 		// Valid: only member begin
 		static_assert(CanBegin<A&>);
 		static_assert(!CanBegin<A>);
 		static_assert(ranges::Same<decltype(ranges::begin(std::declval<A&>())), int*>);
 		static_assert(CanBegin<const A&>);
+		static_assert(!CanBegin<const A>);
 		static_assert(ranges::Same<decltype(ranges::begin(std::declval<const A&>())), const int*>);
 
 		// Valid: Both member and non-member begin, but non-member returns non-Iterator.
 		static_assert(CanBegin<B&>);
+		static_assert(!CanBegin<B>);
 		static_assert(ranges::Same<decltype(ranges::begin(std::declval<B&>())), int*>);
 		static_assert(CanBegin<const B&>);
+		static_assert(!CanBegin<const B>);
 		static_assert(ranges::Same<decltype(ranges::begin(std::declval<const B&>())), const int*>);
 
 		// Valid: Both member and non-member begin, but non-member returns non-Iterator.
 		static_assert(CanBegin<C&>);
+		static_assert(!CanBegin<C>);
 		static_assert(CanBegin<const C&>);
+		static_assert(!CanBegin<const C>);
 
 		// Valid: Prefer member begin
 		static_assert(CanBegin<D&>);
+		static_assert(!CanBegin<D>);
 		static_assert(ranges::Same<int*, decltype(ranges::begin(std::declval<D&>()))>);
 		static_assert(CanBegin<const D&>);
+		static_assert(!CanBegin<const D>);
 		static_assert(ranges::Same<const int*, decltype(ranges::begin(std::declval<const D&>()))>);
 
 		{
@@ -131,10 +157,39 @@ namespace begin_testing {
 			// Valid: begin accepts lvalue initializer_list
 			static_assert(ranges::Same<const int*, decltype(ranges::begin(std::declval<T&>()))>);
 			static_assert(ranges::Same<const int*, decltype(ranges::begin(std::declval<const T&>()))>);
+			static_assert(!CanBegin<std::initializer_list<int>>);
+			static_assert(!CanBegin<const std::initializer_list<int>>);
 		}
 
 		static_assert(CanBegin<ranges::subrange<int*, int*>&>);
-		static_assert(CanBegin<ranges::subrange<int*, int*>&&>);
+		static_assert(CanBegin<const ranges::subrange<int*, int*>&>);
+		static_assert(CanBegin<ranges::subrange<int*, int*>>);
+		static_assert(CanBegin<const ranges::subrange<int*, int*>>);
+
+		static_assert(CanCBegin<ranges::subrange<int*, int*>&>);
+		static_assert(CanCBegin<const ranges::subrange<int*, int*>&>);
+		static_assert(CanCBegin<ranges::subrange<int*, int*>>);
+		static_assert(CanCBegin<const ranges::subrange<int*, int*>>);
+
+		static_assert(CanBegin<ranges::ref_view<int[5]>&>);
+		static_assert(CanBegin<const ranges::ref_view<int[5]>&>);
+		static_assert(CanBegin<ranges::ref_view<int[5]>>);
+		static_assert(CanBegin<const ranges::ref_view<int[5]>>);
+
+		static_assert(CanCBegin<ranges::ref_view<int[5]>&>);
+		static_assert(CanCBegin<const ranges::ref_view<int[5]>&>);
+		static_assert(CanCBegin<ranges::ref_view<int[5]>>);
+		static_assert(CanCBegin<const ranges::ref_view<int[5]>>);
+
+		static_assert(CanBegin<ranges::iota_view<int, int>&>);
+		static_assert(CanBegin<const ranges::iota_view<int, int>&>);
+		static_assert(CanBegin<ranges::iota_view<int, int>>);
+		static_assert(CanBegin<const ranges::iota_view<int, int>>);
+
+		static_assert(CanCBegin<ranges::iota_view<int, int>&>);
+		static_assert(CanCBegin<const ranges::iota_view<int, int>&>);
+		static_assert(CanCBegin<ranges::iota_view<int, int>>);
+		static_assert(CanCBegin<const ranges::iota_view<int, int>>);
 	}
 } // namespace begin_testing
 
