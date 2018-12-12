@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 		template<class T> void end(T&&) = delete;
 
 		template<class T>
-		void end(std::initializer_list<T>) = delete;
+		void end(std::initializer_list<T>) = delete; // TODO: file LWG issue
 
 		template<class R>
 		STL2_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
