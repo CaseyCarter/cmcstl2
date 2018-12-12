@@ -56,14 +56,14 @@ namespace {
 		{
 			int i = 42;
 			auto ci = ranges::common_iterator<int*, ranges::unreachable>{&i};
-			static_assert(ranges::Same<int*, decltype(ci.operator->())>);
+			static_assert(ranges::Same<int* const&, decltype(ci.operator->())>);
 			CHECK(ci.operator->() == &i);
 		}
 		// the expression i.operator->() is well-formed
 		{
 			using I = ranges::basic_iterator<silly_arrow_cursor>;
 			auto ci = ranges::common_iterator<I, ranges::unreachable>{};
-			static_assert(ranges::Same<I, decltype(ci.operator->())>);
+			static_assert(ranges::Same<const I&, decltype(ci.operator->())>);
 			CHECK(ci.operator->().operator->() == 42);
 		}
 		// the expression *i is a glvalue [lvalue case]

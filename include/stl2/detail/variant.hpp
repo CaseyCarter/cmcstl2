@@ -18,6 +18,8 @@
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
 
+// TODO: conditional noexcept for __unchecked_visit?
+
 ///////////////////////////////////////////////////////////////////////////
 // variant utiilities
 //
@@ -34,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 	// Like std::get<I>(v), but with a precondition that v.index() == I
 	template<std::size_t I, _SpecializationOf<std::variant> Variant>
 	requires I < std::variant_size_v<__uncvref<Variant>>
-	constexpr decltype(auto) __get_unchecked(Variant&& v) noexcept {
+	constexpr decltype(auto) __unchecked_get(Variant&& v) noexcept {
 		STL2_EXPECT(v.index() == I);
 		return std::get<I>(static_cast<Variant&&>(v));
 	}
@@ -42,9 +44,16 @@ STL2_OPEN_NAMESPACE {
 	// Like std::get<T>(v), but with a precondition that holds_alternative<T>(v)
 	template<class T, _SpecializationOf<std::variant> Variant>
 	requires requires { __index_of_type<T, meta::as_list<__uncvref<Variant>>>; }
-	constexpr decltype(auto) __get_unchecked(Variant&& v) noexcept {
+	constexpr decltype(auto) __unchecked_get(Variant&& v) noexcept {
 		STL2_EXPECT(std::holds_alternative<T>(v));
 		return std::get<T>(static_cast<Variant&&>(v));
+	}
+
+	template<class F, class... Vs>
+	requires (_SpecializationOf<Vs, std::variant> && ...)
+	constexpr decltype(auto) __unchecked_visit(F&& f, Vs&&... vs) {
+		(STL2_EXPECT(!vs.valueless_by_exception()), ...);
+		return std::visit(static_cast<F&&>(f), static_cast<Vs&&>(vs)...);
 	}
 } STL2_CLOSE_NAMESPACE
 
