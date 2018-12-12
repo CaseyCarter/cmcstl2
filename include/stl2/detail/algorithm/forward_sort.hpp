@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 
 			template<class I, class Comp, class Proj>
 			requires Sortable<I, Comp, Proj>
-			static constexpr I merge_n_with_buffer(I f0, iter_difference_t<I> n0,
+			static I merge_n_with_buffer(I f0, iter_difference_t<I> n0,
 				I f1, iter_difference_t<I> n1,
 				buf_t<I>& buf, Comp& comp, Proj& proj)
 			{
@@ -166,7 +166,7 @@ STL2_OPEN_NAMESPACE {
 		public:
 			template<class I, class Comp = less, class Proj = identity>
 			requires Sortable<I, Comp, Proj>
-			static constexpr I sort_n(I first, const iter_difference_t<I> n,
+			static I sort_n(I first, const iter_difference_t<I> n,
 				Comp comp = {}, Proj proj = {})
 			{
 				STL2_EXPECT(0 <= n);
