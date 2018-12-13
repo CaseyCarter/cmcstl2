@@ -53,8 +53,8 @@ STL2_OPEN_NAMESPACE {
 				iter_difference_t<I> len2, temporary_buffer<iter_value_t<I>>& buf,
 				C& pred, P& proj)
 			{
-				STL2_EXPENSIVE_ASSERT(len1 == __stl2::distance(first, midddle));
-				STL2_EXPENSIVE_ASSERT(len2 == __stl2::distance(middle, last));
+				STL2_EXPENSIVE_ASSERT(len1 == distance(first, midddle));
+				STL2_EXPENSIVE_ASSERT(len2 == distance(middle, last));
 				temporary_vector<iter_value_t<I>> vec{buf};
 				if (len1 <= len2) {
 					__stl2::move(first, middle, __stl2::back_inserter(vec));
@@ -128,7 +128,7 @@ STL2_OPEN_NAMESPACE {
 						m2 = next(middle, len21);
 						m1 = __stl2::upper_bound(begin, middle, __stl2::invoke(proj, *m2),
 							__stl2::ref(pred), __stl2::ref(proj));
-						len11 = __stl2::distance(begin, m1);
+						len11 = distance(begin, m1);
 					} else {
 						if (len1 == 1) {
 							// len1 >= len2 && len2 > 0, therefore len2 == 1
@@ -141,7 +141,7 @@ STL2_OPEN_NAMESPACE {
 						m1 = next(begin, len11);
 						m2 = __stl2::lower_bound(middle, end, __stl2::invoke(proj, *m1),
 							__stl2::ref(pred), __stl2::ref(proj));
-						len21 = __stl2::distance(middle, m2);
+						len21 = distance(middle, m2);
 					}
 					D len12 = len1 - len11;  // distance(m1, middle)
 					D len22 = len2 - len21;  // distance(m2, end)
@@ -194,7 +194,7 @@ STL2_OPEN_NAMESPACE {
 		Sortable<I, Comp, Proj>
 	I inplace_merge(I first, I middle, S last, Comp comp = {}, Proj proj = {})
 	{
-		auto len1 = __stl2::distance(first, middle);
+		auto len1 = distance(first, middle);
 		auto len2_and_end = __stl2::ext::enumerate(middle, std::move(last));
 		auto buf_size = std::min(len1, len2_and_end.count());
 		detail::temporary_buffer<iter_value_t<I>> buf;

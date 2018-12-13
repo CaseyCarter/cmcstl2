@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr subrange<I> operator()(I first, S last, const T& value,
 			Comp comp = {}, Proj proj = {}) const {
 			if constexpr (SizedSentinel<S, I>) {
-				auto len = __stl2::distance(first, std::move(last));
+				auto len = distance(first, std::move(last));
 				return ext::equal_range_n(std::move(first), len, value,
 					__stl2::ref(comp), __stl2::ref(proj));
 			} else {

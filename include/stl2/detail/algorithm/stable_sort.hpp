@@ -161,7 +161,7 @@ STL2_OPEN_NAMESPACE {
 				}
 				return last;
 			} else {
-				auto n = __stl2::distance(first, std::forward<S>(last_));
+				auto n = distance(first, std::forward<S>(last_));
 				return detail::fsort_n(std::move(first), n,
 					__stl2::ref(comp), __stl2::ref(proj));
 			}
@@ -175,7 +175,7 @@ STL2_OPEN_NAMESPACE {
 				return (*this)(begin(rng), end(rng),
 					__stl2::ref(comp), __stl2::ref(proj));
 			} else {
-				return detail::fsort_n(begin(rng), __stl2::distance(rng),
+				return detail::fsort_n(begin(rng), distance(rng),
 					__stl2::ref(comp), __stl2::ref(proj));
 			}
 		}

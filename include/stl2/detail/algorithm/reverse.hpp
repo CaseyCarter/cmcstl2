@@ -132,7 +132,7 @@ STL2_OPEN_NAMESPACE {
 				}
 				return bound;
 			} else {
-				auto n = __stl2::distance(first, std::move(last));
+				auto n = distance(first, std::move(last));
 				return ext::reverse_n(std::move(first), n);
 			}
 		}

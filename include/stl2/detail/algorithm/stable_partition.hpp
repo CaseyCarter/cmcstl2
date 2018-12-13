@@ -209,7 +209,7 @@ STL2_OPEN_NAMESPACE {
 			static I bidirectional_reduce_back(I first, I last,
 				iter_difference_t<I> n, buf_t<I>& buf, Pred& pred, Proj& proj) {
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
-				// Precondition: n == __stl2::distance(first, last)
+				// Precondition: n == distance(first, last)
 				STL2_EXPECT(n >= iter_difference_t<I>(1));
 
 				skip_false(last, n, pred, proj);
@@ -250,7 +250,7 @@ STL2_OPEN_NAMESPACE {
 			requires Permutable<I> && IndirectUnaryPredicate<Pred, projected<I, Proj>>
 			I operator()(I first, I last, iter_difference_t<I> n,
 				Pred pred, Proj proj = {}) const {
-				STL2_ASSERT(n == __stl2::distance(first, last));
+				STL2_ASSERT(n == distance(first, last));
 
 				// Either prove all true or find first false
 				skip_true(first, n, pred, proj);
@@ -289,7 +289,7 @@ STL2_OPEN_NAMESPACE {
 					std::move(first), std::move(bound.end()), bound.count(),
 					__stl2::ref(pred), __stl2::ref(proj));
 			} else {
-				auto n = __stl2::distance(first, std::move(last));
+				auto n = distance(first, std::move(last));
 				return ext::stable_partition_n(
 					std::move(first), n,
 					__stl2::ref(pred), __stl2::ref(proj));
@@ -308,7 +308,7 @@ STL2_OPEN_NAMESPACE {
 					__stl2::ref(pred), __stl2::ref(proj));
 			} else {
 				return ext::stable_partition_n(
-					begin(rng), __stl2::distance(rng),
+					begin(rng), distance(rng),
 					__stl2::ref(pred), __stl2::ref(proj));
 			}
 		}

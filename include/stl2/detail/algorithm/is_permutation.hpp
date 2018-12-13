@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool __has_length(Rng&& rng, const D n) {
 		STL2_EXPECT(n >= 0);
 		if constexpr (SizedRange<Rng>) {
-			return n == __stl2::distance(rng);
+			return n == distance(rng);
 		} else {
 			return __stl2::__has_length(begin(rng), end(rng), n);
 		}
@@ -95,10 +95,10 @@ STL2_OPEN_NAMESPACE {
 		using D = iter_difference_t<iterator_t<Rng1>>;
 
 		if constexpr (SizedRange<Rng1>) {
-			auto count = __stl2::distance(rng1);
+			auto count = distance(rng1);
 			return {__stl2::__has_length(rng2, count), count};
 		} else if constexpr (SizedRange<Rng2>) {
-			auto count = __stl2::distance(rng2);
+			auto count = distance(rng2);
 			return {__stl2::__has_length(rng1, count), static_cast<D>(count)};
 		} else {
 			return __stl2::__common_range_length(
@@ -186,7 +186,7 @@ STL2_OPEN_NAMESPACE {
 				std::move(first2), unreachable{},
 				__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 
-			auto count = __stl2::distance(mid1, std::move(last1));
+			auto count = distance(mid1, std::move(last1));
 			return __stl2::__is_permutation_tail(std::move(mid1), std::move(mid2),
 				count, pred, proj1, proj2);
 		}
@@ -201,7 +201,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			auto first2 = std::forward<I2>(first2_);
 			if constexpr (SizedRange<R1>) {
-				const auto count = __stl2::distance(r1);
+				const auto count = distance(r1);
 				return __stl2::__is_permutation_trim(
 					begin(r1), std::move(first2), count,
 					pred, proj1, proj2);
@@ -256,10 +256,10 @@ STL2_OPEN_NAMESPACE {
 				using D = iter_difference_t<iterator_t<R1>>;
 				D count1;
 				if constexpr (SizedRange<R1>) {
-					count1 = __stl2::distance(r1);
+					count1 = distance(r1);
 					if (!__stl2::__has_length(r2, count1)) return false;
 				} else {
-					const auto count2 = __stl2::distance(r2);
+					const auto count2 = distance(r2);
 					if (!__stl2::__has_length(r1, count2)) return false;
 					count1 = static_cast<D>(count2);
 				}

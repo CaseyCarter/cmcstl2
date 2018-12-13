@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 			Comp comp = {}, Proj proj = {}) const {
 			if constexpr (SizedSentinel<__f<S>, __f<I>>) {
 				auto first_ = std::forward<I>(first);
-				auto n = __stl2::distance(first_, std::forward<S>(last));
+				auto n = distance(first_, std::forward<S>(last));
 				return __stl2::ext::lower_bound_n(std::move(first_), n, value,
 					__stl2::ref(comp), __stl2::ref(proj));
 			} else {
@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
 			if constexpr (SizedRange<Rng>) {
 				return __stl2::ext::lower_bound_n(
-					begin(rng), __stl2::distance(rng), value,
+					begin(rng), distance(rng), value,
 					__stl2::ref(comp), __stl2::ref(proj));
 			} else {
 				return (*this)(begin(rng), end(rng), value,

@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 			Comp, projected<I, Proj>>
 	I is_heap_until(I first, S last, Comp comp = {}, Proj proj = {})
 	{
-		auto n = __stl2::distance(first, std::move(last));
+		auto n = distance(first, std::move(last));
 		return detail::is_heap_until_n(std::move(first), n,
 			__stl2::ref(comp), __stl2::ref(proj));
 	}
@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	is_heap_until(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
-		return detail::is_heap_until_n(begin(rng), __stl2::distance(rng),
+		return detail::is_heap_until_n(begin(rng), distance(rng),
 			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

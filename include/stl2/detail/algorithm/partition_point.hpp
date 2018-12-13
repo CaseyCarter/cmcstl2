@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 			Pred, projected<I, Proj>>
 	I partition_point(I first, S last, Pred pred, Proj proj = {})
 	{
-		auto n = __stl2::distance(first, std::move(last));
+		auto n = distance(first, std::move(last));
 		return __stl2::ext::partition_point_n(std::move(first), n,
 			__stl2::ref(pred), __stl2::ref(proj));
 	}
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	partition_point(Rng&& rng, Pred pred, Proj proj = {})
 	{
-		return ext::partition_point_n(begin(rng), __stl2::distance(rng),
+		return ext::partition_point_n(begin(rng), distance(rng),
 			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE

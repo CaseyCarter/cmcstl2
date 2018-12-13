@@ -128,8 +128,8 @@ STL2_OPEN_NAMESPACE {
 			Proj1 proj1 = {}, Proj2 proj2 = {}) const {
 			if constexpr (SizedRange<Rng1> && SizedRange<Rng2>) {
 				return sized(
-					begin(rng1), end(rng1), __stl2::distance(rng1),
-					begin(rng2), end(rng2), __stl2::distance(rng2),
+					begin(rng1), end(rng1), distance(rng1),
+					begin(rng2), end(rng2), distance(rng2),
 					__stl2::ref(pred), __stl2::ref(proj1),
 					__stl2::ref(proj2));
 			} else {

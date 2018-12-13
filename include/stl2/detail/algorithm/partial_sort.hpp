@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr I operator()(I first, I middle, S last, Comp comp = {}, Proj proj = {}) const
 		{
 			__stl2::make_heap(first, middle, __stl2::ref(comp), __stl2::ref(proj));
-			const auto len = __stl2::distance(first, middle);
+			const auto len = distance(first, middle);
 			I i = middle;
 			for(; i != last; ++i) {
 				if(__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {

@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				STL2_EXPECT(n >= 0);
 				if constexpr (SizedRange<R>) {
-					auto const size = __stl2::distance(r);
+					auto const size = distance(r);
 					constexpr bool CommonNonRandom = CommonRange<R> && !RandomAccessRange<R>;
 					if (n >= size) {
 						if constexpr (CommonNonRandom && !BidirectionalRange<R>) {

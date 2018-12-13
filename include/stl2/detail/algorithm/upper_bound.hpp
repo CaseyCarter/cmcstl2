@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr __f<I> operator()(I&& first_, S&& last, const T& value,
 			Comp comp = {}, Proj proj = {}) const  {
 			auto first = std::forward<I>(first_);
-			auto n = __stl2::distance(first, std::forward<S>(last));
+			auto n = distance(first, std::forward<S>(last));
 			return ext::upper_bound_n(std::move(first), n, value,
 				__stl2::ref(comp), __stl2::ref(proj));
 		}
@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectStrictWeakOrder<Comp, const T*, projected<iterator_t<Rng>, Proj>>
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
-			return ext::upper_bound_n(begin(rng), __stl2::distance(rng),
+			return ext::upper_bound_n(begin(rng), distance(rng),
 				value, __stl2::ref(comp), __stl2::ref(proj));
 		}
 	};

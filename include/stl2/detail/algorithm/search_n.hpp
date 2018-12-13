@@ -114,7 +114,7 @@ STL2_OPEN_NAMESPACE {
 			const T& value, Pred pred = {}, Proj proj = {}) const {
 			if constexpr (SizedRange<Rng>) {
 				return sized(begin(rng), end(rng),
-					__stl2::distance(rng), count, value, __stl2::ref(pred), __stl2::ref(proj));
+					distance(rng), count, value, __stl2::ref(pred), __stl2::ref(proj));
 			} else {
 				return unsized(begin(rng), end(rng), count, value,
 					__stl2::ref(pred), __stl2::ref(proj));

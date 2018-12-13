@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 		Sortable<I, Comp, Proj>
 	I push_heap(I first, S&& last, Comp comp = {}, Proj proj = {})
 	{
-		auto n = __stl2::distance(first, std::forward<S>(last));
+		auto n = distance(first, std::forward<S>(last));
 		detail::sift_up_n(first, n, __stl2::ref(comp), __stl2::ref(proj));
 		return first + n;
 	}
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	push_heap(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
-		auto n = __stl2::distance(rng);
+		auto n = distance(rng);
 		detail::sift_up_n(begin(rng), n, __stl2::ref(comp), __stl2::ref(proj));
 		return begin(rng) + n;
 	}

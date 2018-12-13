@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 		Sortable<I, Comp, Proj>
 	I pop_heap(I first, S last, Comp comp = {}, Proj proj = {})
 	{
-		auto n = __stl2::distance(first, std::move(last));
+		auto n = distance(first, std::move(last));
 		detail::pop_heap_n(first, n, __stl2::ref(comp), __stl2::ref(proj));
 		return first + n;
 	}
@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	pop_heap(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
-		auto n = __stl2::distance(rng);
+		auto n = distance(rng);
 		detail::pop_heap_n(begin(rng), n, __stl2::ref(comp), __stl2::ref(proj));
 		return begin(rng) + n;
 	}

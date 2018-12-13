@@ -87,8 +87,8 @@ STL2_OPEN_NAMESPACE {
 			Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
 			if constexpr (SizedSentinel<S1, I1> && SizedSentinel<S2, I2>) {
-				auto len1 = __stl2::distance(first1, last1);
-				auto len2 = __stl2::distance(first2, std::move(last2));
+				auto len1 = distance(first1, last1);
+				auto len2 = distance(first2, std::move(last2));
 				return len1 == len2 &&
 					__equal_fn::__equal_3(std::move(first1), std::move(last1),
 						std::move(first2), pred, proj1, proj2);
@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 			Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
 			if constexpr (SizedRange<R1> && SizedRange<R2>) {
-				return __stl2::distance(r1) == __stl2::distance(r2) &&
+				return distance(r1) == distance(r2) &&
 					__equal_fn::__equal_3(
 						begin(r1), end(r1),
 						begin(r2), pred, proj1, proj2);
