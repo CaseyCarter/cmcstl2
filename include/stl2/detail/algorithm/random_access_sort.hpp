@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 			static constexpr void insertion_sort(I first, I last, Comp& comp, Proj& proj)
 			{
 				if (first != last) {
-					for (I i = __stl2::next(first); i != last; ++i) {
+					for (I i = next(first); i != last; ++i) {
 						linear_insert(first, i, comp, proj);
 					}
 				}

@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			return __stl2::next(ext::recounted(first_, std::move(first), d_ - d),
+			return next(ext::recounted(first_, std::move(first), d_ - d),
 				std::move(last));
 		}
 	public:

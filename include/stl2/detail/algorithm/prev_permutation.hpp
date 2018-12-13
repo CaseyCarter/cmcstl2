@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		if (first == last) {
 			return false;
 		}
-		I end = __stl2::next(first, std::move(last)), i = end;
+		I end = next(first, std::move(last)), i = end;
 		if (first == --i) {
 			return false;
 		}

@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 				if (0 < dist) {
 					do {
 						auto half = dist / 2;
-						auto middle = __stl2::next(first, half);
+						auto middle = next(first, half);
 						auto&& v = *middle;
 						auto&& pv = __stl2::invoke(proj, std::forward<decltype(v)>(v));
 						if (__stl2::invoke(comp, pv, value)) {
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 								ext::lower_bound_n(
 									std::move(first), half, value,
 									__stl2::ref(comp), __stl2::ref(proj)),
-								ext::upper_bound_n(__stl2::next(middle),
+								ext::upper_bound_n(next(middle),
 									dist - (half + 1), value,
 									__stl2::ref(comp), __stl2::ref(proj))
 							};

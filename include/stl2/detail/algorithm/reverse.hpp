@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				// Precondition: $\property{mutable\_counted\_range}(first, n)$
 				if (n < iter_difference_t<I>(2)) {
-					return __stl2::next(std::move(first), n);
+					return next(std::move(first), n);
 				}
 
 				const auto half_n = n / 2;
@@ -114,7 +114,7 @@ STL2_OPEN_NAMESPACE {
 		template<Permutable I, Sentinel<I> S>
 		constexpr I operator()(I first, S last) const {
 			if constexpr (BidirectionalIterator<I>) {
-				auto bound = __stl2::next(first, std::move(last));
+				auto bound = next(first, std::move(last));
 				if constexpr (RandomAccessIterator<I>) {
 					if (first != bound) {
 						auto m = bound;

@@ -32,12 +32,12 @@ STL2_OPEN_NAMESPACE {
 		constexpr I1 operator()(I1 first1, S1 last1, I2 first2, S2 last2,
 			Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const {
 			if (first2 == last2) {
-				return __stl2::next(first1, last1);
+				return next(first1, last1);
 			}
 
 			if constexpr (BidirectionalIterator<I1> && BidirectionalIterator<I2>) {
-				auto end1 = __stl2::next(first1, last1);
-				auto end2 = __stl2::next(first2, last2);
+				auto end1 = next(first1, last1);
+				auto end2 = next(first2, last2);
 
 				if constexpr (RandomAccessIterator<I1> && RandomAccessIterator<I2>) {
 					// Take advantage of knowing source and pattern lengths.

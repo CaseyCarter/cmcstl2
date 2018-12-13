@@ -42,22 +42,22 @@ STL2_OPEN_NAMESPACE {
 		template<Iterator I, SizedSentinel<I> S>
 		constexpr tagged_pair<tag::count(iter_difference_t<I>), tag::end(I)>
 		enumerate(I first, S last)
-		noexcept(noexcept(__stl2::next(std::move(first), std::move(last))) &&
+		noexcept(noexcept(next(std::move(first), std::move(last))) &&
 			std::is_nothrow_move_constructible<I>::value)
 		{
 			auto d = last - first;
 			STL2_EXPECT((Same<I, S> || d >= 0));
-			return {d, __stl2::next(std::move(first), std::move(last))};
+			return {d, next(std::move(first), std::move(last))};
 		}
 
 		template<Iterator I, Sentinel<I> S>
 		requires (!SizedSentinel<S, I>) && SizedSentinel<I, I>
 		constexpr tagged_pair<tag::count(iter_difference_t<I>), tag::end(I)>
 		enumerate(I first, S last)
-		noexcept(noexcept(__stl2::next(first, std::move(last))) &&
+		noexcept(noexcept(next(first, std::move(last))) &&
 			std::is_nothrow_move_constructible<I>::value)
 		{
-			auto end = __stl2::next(first, std::move(last));
+			auto end = next(first, std::move(last));
 			auto n = end - first;
 			return {n, std::move(end)};
 		}
@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 			tagged_pair<tag::count(iter_difference_t<iterator_t<R>>),
 				tag::end(safe_iterator_t<R>)>{
 				size(r),
-				__stl2::next(begin(r), end(r))
+				next(begin(r), end(r))
 			}
 		)
 	}

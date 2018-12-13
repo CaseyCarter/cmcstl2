@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(I1), tag::out(__f<I2>)>
 	move_backward(I1 first, S1 s, I2&& out)
 	{
-		auto last = __stl2::next(first, std::move(s));
+		auto last = next(first, std::move(s));
 		return __stl2::move_backward(
 			std::move(first), std::move(last), std::forward<I2>(out));
 	}

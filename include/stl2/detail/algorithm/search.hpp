@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 					} while (__stl2::invoke(pred, __stl2::invoke(proj1, *m1), __stl2::invoke(proj2, *m2)));
 				}
 			}
-			auto end = __stl2::next(ext::recounted(first1_, first1, d1_ - d1), last1);
+			auto end = next(ext::recounted(first1_, first1, d1_ - d1), last1);
 			return {end, end};
 		}
 	public:

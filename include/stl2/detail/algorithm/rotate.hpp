@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	subrange<I> __rotate_left(I first, I last)
 	{
 		iter_value_t<I> tmp = __stl2::iter_move(first);
-		I lm1 = __stl2::move(__stl2::next(first), last, first).second;
+		I lm1 = __stl2::move(next(first), last, first).second;
 		*lm1 = std::move(tmp);
 		return {std::move(lm1), std::move(last)};
 	}
@@ -147,7 +147,7 @@ STL2_OPEN_NAMESPACE {
 	subrange<I> __rotate(I first, I middle, I last)
 	{
 		if (is_trivially_move_assignable<iter_value_t<I>>()) {
-			if (__stl2::next(first) == middle) {
+			if (next(first) == middle) {
 				return __stl2::__rotate_left(std::move(first), std::move(last));
 			}
 		}
@@ -160,10 +160,10 @@ STL2_OPEN_NAMESPACE {
 	subrange<I> __rotate(I first, I middle, I last)
 	{
 		if (is_trivially_move_assignable<iter_value_t<I>>()) {
-			if (__stl2::next(first) == middle) {
+			if (next(first) == middle) {
 				return __stl2::__rotate_left(std::move(first), std::move(last));
 			}
-			if (__stl2::next(middle) == last) {
+			if (next(middle) == last) {
 				return __stl2::__rotate_right(std::move(first), std::move(last));
 			}
 		}
@@ -176,10 +176,10 @@ STL2_OPEN_NAMESPACE {
 	subrange<I> __rotate(I first, I middle, I last)
 	{
 		if (is_trivially_move_assignable<iter_value_t<I>>()) {
-			if (__stl2::next(first) == middle) {
+			if (next(first) == middle) {
 				return __stl2::__rotate_left(std::move(first), std::move(last));
 			}
-			if (__stl2::next(middle) == last) {
+			if (next(middle) == last) {
 				return __stl2::__rotate_right(std::move(first), std::move(last));
 			}
 			return __stl2::__rotate_gcd(
@@ -193,7 +193,7 @@ STL2_OPEN_NAMESPACE {
 	subrange<I> rotate(I first, I middle, S last)
 	{
 		if (first == middle) {
-			first = __stl2::next(std::move(first), std::move(last));
+			first = next(std::move(first), std::move(last));
 			return {first, std::move(first)};
 		}
 		if (middle == last) {

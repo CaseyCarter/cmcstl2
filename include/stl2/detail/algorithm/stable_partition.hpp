@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 			static subrange<I> forward_buffer(I first, I next, iter_difference_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj) {
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first)))
-				// Precondition: __stl2::next(first) == next
+				// Precondition: next(first) == next
 				STL2_EXPECT(n >= 2);
 				STL2_EXPECT(n <= buf.size());
 
@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first)))
 				STL2_EXPECT(n > 0);
 
-				auto middle = __stl2::next(first);
+				auto middle = next(first);
 				if (n == iter_difference_t<I>(1)) {
 					return {std::move(first), std::move(middle)};
 				}
@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 				// input range.
 				skip_true(first, n, pred, proj);
 				if (n < iter_difference_t<I>(2)) {
-					auto last = __stl2::next(first, n);
+					auto last = next(first, n);
 					return {std::move(first), std::move(last)};
 				}
 				return forward(std::move(first), n, buf, pred, proj);
@@ -141,7 +141,7 @@ STL2_OPEN_NAMESPACE {
 				// and the true values to the front of the sequence.
 				auto&& vec = detail::make_temporary_vector(buf);
 				vec.push_back(__stl2::iter_move(first));
-				auto middle = __stl2::next(first);
+				auto middle = next(first);
 				middle = __stl2::partition_copy(
 					__stl2::make_move_iterator(std::move(middle)),
 					__stl2::make_move_iterator(last),
@@ -177,7 +177,7 @@ STL2_OPEN_NAMESPACE {
 				}
 
 				const auto half_n = n / 2;
-				auto middle = __stl2::next(first, half_n);
+				auto middle = next(first, half_n);
 				auto pp1 = bidirectional_reduce_back(
 					std::move(first), middle, half_n, buf, pred, proj);
 				auto pp2 = bidirectional_reduce_front(
@@ -224,7 +224,7 @@ STL2_OPEN_NAMESPACE {
 			I operator()(I first, iter_difference_t<I> n,
 				Pred pred, Proj proj = {}) const {
 				if constexpr (BidirectionalIterator<I>) {
-					auto bound = __stl2::next(first, n);
+					auto bound = next(first, n);
 					return (*this)(
 						std::move(first), std::move(bound), n,
 						__stl2::ref(pred), __stl2::ref(proj));

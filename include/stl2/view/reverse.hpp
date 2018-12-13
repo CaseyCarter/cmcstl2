@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 			const auto cached = static_cast<bool>(end_());
 			iterator_t<Rng> first = cached
 				? end_().get(base_)
-				: __stl2::next(__stl2::begin(base_), __stl2::end(base_));
+				: next(__stl2::begin(base_), __stl2::end(base_));
 			if (!cached)
 				end_().set(base_, first);
 			return __iterator{std::move(first)};

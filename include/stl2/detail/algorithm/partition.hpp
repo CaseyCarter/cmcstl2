@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 		requires IndirectUnaryPredicate<Pred, projected<I, Proj>>
 		constexpr I operator()(I first, S last_, Pred pred, Proj proj = {}) const {
 			if constexpr (BidirectionalIterator<I>) {
-				auto last = __stl2::next(first, std::move(last_));
+				auto last = next(first, std::move(last_));
 
 				for (; first != last; ++first) {
 					if (!__stl2::invoke(pred, __stl2::invoke(proj, *first))) {

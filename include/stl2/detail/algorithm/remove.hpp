@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		first = __stl2::find(std::move(first), last, value, __stl2::ref(proj));
 		if (first != last) {
-			for (auto m = __stl2::next(first); m != last; ++m) {
+			for (auto m = next(first); m != last; ++m) {
 				if (__stl2::invoke(proj, *m) != value) {
 					*first = __stl2::iter_move(m);
 					++first;

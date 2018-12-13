@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 		Sortable<I, Comp, Proj>
 	I nth_element(I first, I nth, S last, Comp comp = {}, Proj proj = {})
 	{
-		I end = __stl2::next(nth, last), end_orig = end;
+		I end = next(nth, last), end_orig = end;
 		constexpr iter_difference_t<I> limit = 7;
 		while (true) {
 		restart:

@@ -125,7 +125,7 @@ STL2_OPEN_NAMESPACE {
 					if (len1 < len2) {
 						// len >= 1, len2 >= 2
 						len21 = len2 / 2;
-						m2 = __stl2::next(middle, len21);
+						m2 = next(middle, len21);
 						m1 = __stl2::upper_bound(begin, middle, __stl2::invoke(proj, *m2),
 							__stl2::ref(pred), __stl2::ref(proj));
 						len11 = __stl2::distance(begin, m1);
@@ -138,7 +138,7 @@ STL2_OPEN_NAMESPACE {
 						}
 						// len1 >= 2, len2 >= 1
 						len11 = len1 / 2;
-						m1 = __stl2::next(begin, len11);
+						m1 = next(begin, len11);
 						m2 = __stl2::lower_bound(middle, end, __stl2::invoke(proj, *m1),
 							__stl2::ref(pred), __stl2::ref(proj));
 						len21 = __stl2::distance(middle, m2);

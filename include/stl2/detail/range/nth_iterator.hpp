@@ -42,10 +42,10 @@ STL2_OPEN_NAMESPACE {
 							return __stl2::prev(end(r), size - n);
 						}
 					}
-					return __stl2::next(begin(r), n);
+					return next(begin(r), n);
 				}
 				else {
-					return __stl2::next(begin(r), n, end(r));
+					return next(begin(r), n, end(r));
 				}
 			}
 		};

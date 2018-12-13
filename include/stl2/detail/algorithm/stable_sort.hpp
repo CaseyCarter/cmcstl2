@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 		requires Sentinel<__f<S>, I> && Sortable<I, Comp, Proj>
 		I operator()(I first, S&& last_, Comp comp = {}, Proj proj = {}) const {
 			if constexpr (RandomAccessIterator<I>) {
-				auto last = __stl2::next(first, std::forward<S>(last_));
+				auto last = next(first, std::forward<S>(last_));
 				auto len = iter_difference_t<I>(last - first);
 				auto buf = len > 256 ? buf_t<I>{len} : buf_t<I>{};
 				if (!buf.size_) {

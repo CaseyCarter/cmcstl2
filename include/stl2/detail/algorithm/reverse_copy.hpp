@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(I), tag::out(O)>
 	reverse_copy(I first, S last, O result)
 	{
-		auto bound = __stl2::next(first, std::move(last));
+		auto bound = next(first, std::move(last));
 		for (auto m = bound; m != first; ++result) {
 			*result = *--m;
 		}
