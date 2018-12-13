@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 			auto cached = static_cast<bool>(begin_);
 			iterator_t<V> first = cached
 				? begin_.get(base_)
-				: __stl2::find_if(base_, std::ref(pred_.get()));
+				: __stl2::find_if(base_, __stl2::ref(pred_.get()));
 			if(!cached)
 				begin_.set(base_, first);
 			return __iterator{*this, std::move(first)};
@@ -104,7 +104,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			const auto last = __stl2::end(parent_->base_);
 			STL2_ASSERT(current_ != last);
-			current_ = __stl2::find_if(++current_, last, std::ref(parent_->pred_.get()));
+			current_ = __stl2::find_if(++current_, last, __stl2::ref(parent_->pred_.get()));
 			return *this;
 		}
 

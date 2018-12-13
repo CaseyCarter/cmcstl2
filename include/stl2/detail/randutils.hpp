@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 				template<RandomAccessIterator I, SizedSentinel<I> S>
 				void generate(I first, S last) const {
 					std::random_device rd{};
-					__stl2::generate(first, last, std::ref(rd));
+					__stl2::generate(first, last, __stl2::ref(rd));
 				}
 
 				static constexpr std::size_t size() noexcept { return ~std::size_t{0}; }

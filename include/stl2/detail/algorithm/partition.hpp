@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 		requires IndirectUnaryPredicate<Pred, projected<I, Proj>>
 		constexpr I operator()(I first, S last_, Pred pred, Proj proj = {}) const {
 			if constexpr (BidirectionalIterator<I>) {
-				auto last = __stl2::next(first, std::move(last_));
+				auto last = next(first, std::move(last_));
 
 				for (; first != last; ++first) {
 					if (!__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 								return first;
 							}
 							if (__stl2::invoke(pred, __stl2::invoke(proj, *last))) {
-								__stl2::iter_swap(first, last);
+								iter_swap(first, last);
 								break;
 							}
 						}
@@ -55,11 +55,11 @@ STL2_OPEN_NAMESPACE {
 				}
 			} else {
 				first = __stl2::find_if_not(std::move(first), last_,
-					std::ref(pred), std::ref(proj));
+					__stl2::ref(pred), __stl2::ref(proj));
 				if (first != last_) {
 					for (auto m = first; ++m != last_;) {
 						if (__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
-							__stl2::iter_swap(first, m);
+							iter_swap(first, m);
 							++first;
 						}
 					}
@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, Pred pred, Proj proj = {}) const {
 			return (*this)(begin(rng), end(rng),
-				std::ref(pred), std::ref(proj));
+				__stl2::ref(pred), __stl2::ref(proj));
 		}
 	};
 

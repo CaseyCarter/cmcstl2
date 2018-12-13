@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::transform(
 			begin(r), end(r), std::move(result),
-			std::ref(op), std::ref(proj));
+			__stl2::ref(op), __stl2::ref(proj));
 	}
 
 	template<InputIterator I1, Sentinel<I1> S1, class I2, WeaklyIncrementable O,
@@ -88,8 +88,8 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::transform(
 			begin(r1), end(r1),
 			std::move(first2), std::move(result),
-			std::ref(op), std::ref(proj1),
-			std::ref(proj2));
+			__stl2::ref(op), __stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 
 	template<InputIterator I1, Sentinel<I1> S1,
@@ -128,9 +128,9 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::transform(
 			begin(r1), end(r1),
 			begin(r2), end(r2),
-			std::move(result), std::ref(op),
-			std::ref(proj1),
-			std::ref(proj2));
+			std::move(result), __stl2::ref(op),
+			__stl2::ref(proj1),
+			__stl2::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

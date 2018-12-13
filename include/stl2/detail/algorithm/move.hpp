@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	tagged_pair<tag::in(I), tag::out(O)>
 	move(I first, S last, O result) {
 		for (; first != last; ++first, ++result) {
-			*result = __stl2::iter_move(first);
+			*result = iter_move(first);
 		}
 		return {std::move(first), std::move(result)};
 	}
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 		tagged_pair<tag::in(I1), tag::out(I2)>
 		move(I1 first1, S1 last1, I2 first2, S2 last2) {
 			for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
-				*first2 = __stl2::iter_move(first1);
+				*first2 = iter_move(first1);
 			}
 			return {std::move(first1), std::move(first2)};
 		}

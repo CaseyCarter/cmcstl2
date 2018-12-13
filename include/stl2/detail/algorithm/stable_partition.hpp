@@ -54,18 +54,18 @@ STL2_OPEN_NAMESPACE {
 			static subrange<I> forward_buffer(I first, I next, iter_difference_t<I> n,
 				buf_t<I>& buf, Pred& pred, Proj& proj) {
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first)))
-				// Precondition: __stl2::next(first) == next
+				// Precondition: next(first) == next
 				STL2_EXPECT(n >= 2);
 				STL2_EXPECT(n <= buf.size());
 
 				auto&& vec = detail::make_temporary_vector(buf);
-				vec.push_back(__stl2::iter_move(first));
+				vec.push_back(iter_move(first));
 				auto counted = counted_iterator{ext::uncounted(next), n - 1};
 				auto pp = __stl2::partition_copy(
 						__stl2::make_move_iterator(std::move(counted)),
 						move_sentinel<default_sentinel>{},
 						std::move(first), __stl2::back_inserter(vec),
-						std::ref(pred), std::ref(proj)).out1();
+						__stl2::ref(pred), __stl2::ref(proj)).out1();
 				auto last = __stl2::move(vec, pp).out();
 				return {std::move(pp), std::move(last)};
 			}
@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first)))
 				STL2_EXPECT(n > 0);
 
-				auto middle = __stl2::next(first);
+				auto middle = next(first);
 				if (n == iter_difference_t<I>(1)) {
 					return {std::move(first), std::move(middle)};
 				}
@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 				// input range.
 				skip_true(first, n, pred, proj);
 				if (n < iter_difference_t<I>(2)) {
-					auto last = __stl2::next(first, n);
+					auto last = next(first, n);
 					return {std::move(first), std::move(last)};
 				}
 				return forward(std::move(first), n, buf, pred, proj);
@@ -140,16 +140,16 @@ STL2_OPEN_NAMESPACE {
 				// Move the false values into the temporary buffer
 				// and the true values to the front of the sequence.
 				auto&& vec = detail::make_temporary_vector(buf);
-				vec.push_back(__stl2::iter_move(first));
-				auto middle = __stl2::next(first);
+				vec.push_back(iter_move(first));
+				auto middle = next(first);
 				middle = __stl2::partition_copy(
 					__stl2::make_move_iterator(std::move(middle)),
 					__stl2::make_move_iterator(last),
 					std::move(first),
 					__stl2::back_inserter(vec),
-					std::ref(pred),
-					std::ref(proj)).out1();
-				*middle = __stl2::iter_move(last);
+					__stl2::ref(pred),
+					__stl2::ref(proj)).out1();
+				*middle = iter_move(last);
 				++middle;
 				__stl2::move(vec, middle);
 				return middle;
@@ -166,7 +166,7 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(n >= iter_difference_t<I>(1));
 
 				if (n == iter_difference_t<I>(1)) {
-					__stl2::iter_swap(first, last);
+					iter_swap(first, last);
 					return last;
 				}
 				// n >= 2
@@ -177,7 +177,7 @@ STL2_OPEN_NAMESPACE {
 				}
 
 				const auto half_n = n / 2;
-				auto middle = __stl2::next(first, half_n);
+				auto middle = next(first, half_n);
 				auto pp1 = bidirectional_reduce_back(
 					std::move(first), middle, half_n, buf, pred, proj);
 				auto pp2 = bidirectional_reduce_front(
@@ -209,7 +209,7 @@ STL2_OPEN_NAMESPACE {
 			static I bidirectional_reduce_back(I first, I last,
 				iter_difference_t<I> n, buf_t<I>& buf, Pred& pred, Proj& proj) {
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
-				// Precondition: n == __stl2::distance(first, last)
+				// Precondition: n == distance(first, last)
 				STL2_EXPECT(n >= iter_difference_t<I>(1));
 
 				skip_false(last, n, pred, proj);
@@ -224,10 +224,10 @@ STL2_OPEN_NAMESPACE {
 			I operator()(I first, iter_difference_t<I> n,
 				Pred pred, Proj proj = {}) const {
 				if constexpr (BidirectionalIterator<I>) {
-					auto bound = __stl2::next(first, n);
+					auto bound = next(first, n);
 					return (*this)(
 						std::move(first), std::move(bound), n,
-						std::ref(pred), std::ref(proj));
+						__stl2::ref(pred), __stl2::ref(proj));
 				} else {
 					// Either prove all true or find first false
 					skip_true(first, n, pred, proj);
@@ -250,7 +250,7 @@ STL2_OPEN_NAMESPACE {
 			requires Permutable<I> && IndirectUnaryPredicate<Pred, projected<I, Proj>>
 			I operator()(I first, I last, iter_difference_t<I> n,
 				Pred pred, Proj proj = {}) const {
-				STL2_ASSERT(n == __stl2::distance(first, last));
+				STL2_ASSERT(n == distance(first, last));
 
 				// Either prove all true or find first false
 				skip_true(first, n, pred, proj);
@@ -284,15 +284,15 @@ STL2_OPEN_NAMESPACE {
 		requires Permutable<I> && IndirectUnaryPredicate<Pred, projected<I, Proj>>
 		I operator()(I first, S last, Pred pred, Proj proj = {}) const {
 			if constexpr (BidirectionalIterator<I>) {
-				auto bound = ext::enumerate(first, std::move(last));
+				auto [bound, n] = ext::enumerate(first, std::move(last));
 				return ext::stable_partition_n(
-					std::move(first), std::move(bound.end()), bound.count(),
-					std::ref(pred), std::ref(proj));
+					std::move(first), std::move(bound), n,
+					__stl2::ref(pred), __stl2::ref(proj));
 			} else {
-				auto n = __stl2::distance(first, std::move(last));
+				auto n = distance(first, std::move(last));
 				return ext::stable_partition_n(
 					std::move(first), n,
-					std::ref(pred), std::ref(proj));
+					__stl2::ref(pred), __stl2::ref(proj));
 			}
 		}
 
@@ -302,14 +302,14 @@ STL2_OPEN_NAMESPACE {
 		safe_iterator_t<Rng>
 		operator()(Rng&& rng, Pred pred, Proj proj = {}) const {
 			if constexpr (BidirectionalRange<Rng>) {
-				auto bound = ext::enumerate(rng);
+				auto [bound, n] = ext::enumerate(rng);
 				return ext::stable_partition_n(
-					begin(rng), std::move(bound.end()), bound.count(),
-					std::ref(pred), std::ref(proj));
+					begin(rng), std::move(bound), n,
+					__stl2::ref(pred), __stl2::ref(proj));
 			} else {
 				return ext::stable_partition_n(
-					begin(rng), __stl2::distance(rng),
-					std::ref(pred), std::ref(proj));
+					begin(rng), distance(rng),
+					__stl2::ref(pred), __stl2::ref(proj));
 			}
 		}
 	};

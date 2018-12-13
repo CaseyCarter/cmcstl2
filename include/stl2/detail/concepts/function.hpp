@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 	template<class F, class... Args>
 	STL2_CONCEPT Invocable =
 		requires(F&& f, Args&&... args) {
-			__invoke::impl((F&&)f, (Args&&)args...);
+			__stl2::invoke((F&&)f, (Args&&)args...);
 		};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -44,8 +44,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class F, class... Args>
 	STL2_CONCEPT Predicate =
-		RegularInvocable<F, Args...> &&
-			Boolean<result_of_t<F&&(Args&&...)>>;
+		RegularInvocable<F, Args...> && Boolean<invoke_result_t<F, Args...>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Relation [concepts.lib.callables.relation]

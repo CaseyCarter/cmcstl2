@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			return __stl2::next(ext::recounted(first_, std::move(first), d_ - d),
+			return next(ext::recounted(first_, std::move(first), d_ - d),
 				std::move(last));
 		}
 	public:
@@ -100,10 +100,10 @@ STL2_OPEN_NAMESPACE {
 			if constexpr (SizedSentinel<S, I>) {
 				auto n = static_cast<iter_difference_t<I>>(last - first);
 				return sized(std::move(first), std::move(last),
-					n, count, value, std::ref(pred), std::ref(proj));
+					n, count, value, __stl2::ref(pred), __stl2::ref(proj));
 			} else {
 				return unsized(std::move(first), std::move(last),
-					count, value, std::ref(pred), std::ref(proj));
+					count, value, __stl2::ref(pred), __stl2::ref(proj));
 			}
 		}
 
@@ -114,10 +114,10 @@ STL2_OPEN_NAMESPACE {
 			const T& value, Pred pred = {}, Proj proj = {}) const {
 			if constexpr (SizedRange<Rng>) {
 				return sized(begin(rng), end(rng),
-					__stl2::distance(rng), count, value, std::ref(pred), std::ref(proj));
+					distance(rng), count, value, __stl2::ref(pred), __stl2::ref(proj));
 			} else {
 				return unsized(begin(rng), end(rng), count, value,
-					std::ref(pred), std::ref(proj));
+					__stl2::ref(pred), __stl2::ref(proj));
 			}
 		}
 	};

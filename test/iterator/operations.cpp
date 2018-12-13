@@ -294,9 +294,14 @@ namespace {
             constexpr int rng[] = {0,1,2,3};
             if (ranges::distance(rng) != 4) return false;
             if (ranges::distance(ranges::begin(rng), ranges::end(rng)) != 4) return false;
-            auto bound = std::make_pair(std::ptrdiff_t{4}, ranges::end(rng));
-            if (ranges::ext::enumerate(rng) != bound) return false;
-            if (ranges::ext::enumerate(ranges::begin(rng), ranges::end(rng)) != bound) return false;
+            {
+                auto [bound, n] = ranges::ext::enumerate(rng);
+                if (bound != ranges::end(rng) || n != 4) return false;
+            }
+            {
+                auto [bound, n] = ranges::ext::enumerate(ranges::begin(rng), ranges::end(rng));
+                if (bound != ranges::end(rng) || n != 4) return false;
+            }
         }
 
         {
@@ -305,13 +310,13 @@ namespace {
             if (ranges::distance(ranges::begin(rng), ranges::end(rng)) != 42) return false;
             {
                 auto result = ranges::ext::enumerate(rng);
-                if (result.count() != 42) return false;
-                if (result.end() != ranges::default_sentinel{}) return false;
+                if (result.count != 42) return false;
+                if (result.end != ranges::default_sentinel{}) return false;
             }
             {
                 auto result = ranges::ext::enumerate(ranges::begin(rng), ranges::end(rng));
-                if (result.count() != 42) return false;
-                if (result.end() != ranges::default_sentinel{}) return false;
+                if (result.count != 42) return false;
+                if (result.end != ranges::default_sentinel{}) return false;
             }
         }
 
@@ -319,18 +324,28 @@ namespace {
             constexpr unsized_range<int, 4> rng = {0,1,2,3};
             if (ranges::distance(rng) != 4) return false;
             if (ranges::distance(ranges::begin(rng), ranges::end(rng)) != 4) return false;
-            auto bound = std::make_pair(std::ptrdiff_t{4}, ranges::end(rng));
-            if (ranges::ext::enumerate(rng) != bound) return false;
-            if (ranges::ext::enumerate(ranges::begin(rng), ranges::end(rng)) != bound) return false;
+            {
+                auto [bound, n] = ranges::ext::enumerate(rng);
+                if (bound != ranges::end(rng) || n != 4) return false;
+            }
+            {
+                auto [bound, n] = ranges::ext::enumerate(ranges::begin(rng), ranges::end(rng));
+                if (bound != ranges::end(rng) || n != 4) return false;
+            }
         }
 
         {
             constexpr unsized_range<int, 4, false> rng = {0,1,2,3};
             if (ranges::distance(rng) != 4) return false;
             if (ranges::distance(ranges::begin(rng), ranges::end(rng)) != 4) return false;
-            auto bound = std::make_pair(std::ptrdiff_t{4}, ranges::end(rng));
-            if (ranges::ext::enumerate(rng) != bound) return false;
-            if (ranges::ext::enumerate(ranges::begin(rng), ranges::end(rng)) != bound) return false;
+            {
+                auto [bound, n] = ranges::ext::enumerate(rng);
+                if (bound != ranges::end(rng) || n != 4) return false;
+            }
+            {
+                auto [bound, n] = ranges::ext::enumerate(ranges::begin(rng), ranges::end(rng));
+                if (bound != ranges::end(rng) || n != 4) return false;
+            }
         }
 
         return true;

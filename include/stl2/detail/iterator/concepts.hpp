@@ -31,10 +31,6 @@
 //
 STL2_OPEN_NAMESPACE {
 	template<class T>
-	using __with_reference = T&;
-	template<class T>
-	STL2_CONCEPT __can_reference = requires { typename __with_reference<T>; };
-	template<class T>
 	STL2_CONCEPT __dereferenceable = requires(T& t) {
 		// { *t } -> __can_reference;
 		*t; typename __with_reference<decltype(*t)>;
@@ -97,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<__dereferenceable R>
 	using iter_rvalue_reference_t =
-		decltype(__stl2::iter_move(std::declval<R&>()));
+		decltype(iter_move(std::declval<R&>()));
 
 	///////////////////////////////////////////////////////////////////////////
 	// value_type [readable.iterators]
@@ -209,7 +205,7 @@ STL2_OPEN_NAMESPACE {
 	template<class Out, IndirectlyMovable<Out> In>
 	constexpr bool is_nothrow_indirectly_movable_v<In, Out> =
 		noexcept(noexcept(std::declval<iter_reference_t<Out>>()
-			= __stl2::iter_move(std::declval<In>())));
+			= iter_move(std::declval<In>())));
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlyMovableStorable [commonalgoreq.indirectlymovable]
@@ -286,8 +282,8 @@ STL2_OPEN_NAMESPACE {
 				is_nothrow_indirectly_movable_storable_v<R1, R2> &&
 				is_nothrow_indirectly_movable_storable_v<R2, R1>)
 		{
-			iter_value_t<R1> tmp = __stl2::iter_move(r1);
-			*r1 = __stl2::iter_move(r2);
+			iter_value_t<R1> tmp = iter_move(r1);
+			*r1 = iter_move(r2);
 			*r2 = std::move(tmp);
 		}
 
@@ -327,10 +323,10 @@ STL2_OPEN_NAMESPACE {
 	template<class I1, class I2 = I1>
 	STL2_CONCEPT IndirectlySwappable =
 		requires(I1&& i1, I2&& i2) {
-			__stl2::iter_swap((I1&&)i1, (I2&&)i2);
-			__stl2::iter_swap((I2&&)i2, (I1&&)i1);
-			__stl2::iter_swap((I1&&)i1, (I1&&)i1);
-			__stl2::iter_swap((I2&&)i2, (I2&&)i2);
+			iter_swap((I1&&)i1, (I2&&)i2);
+			iter_swap((I2&&)i2, (I1&&)i1);
+			iter_swap((I1&&)i1, (I1&&)i1);
+			iter_swap((I2&&)i2, (I2&&)i2);
 		};
 
 	template<class R1, class R2>
@@ -338,10 +334,10 @@ STL2_OPEN_NAMESPACE {
 
 	template<class R1, IndirectlySwappable<R1> R2>
 	constexpr bool is_nothrow_indirectly_swappable_v<R1, R2> =
-		noexcept(__stl2::iter_swap(std::declval<R1>(), std::declval<R2>())) &&
-		noexcept(__stl2::iter_swap(std::declval<R2>(), std::declval<R1>())) &&
-		noexcept(__stl2::iter_swap(std::declval<R1>(), std::declval<R1>())) &&
-		noexcept(__stl2::iter_swap(std::declval<R2>(), std::declval<R2>()));
+		noexcept(iter_swap(std::declval<R1>(), std::declval<R2>())) &&
+		noexcept(iter_swap(std::declval<R2>(), std::declval<R1>())) &&
+		noexcept(iter_swap(std::declval<R1>(), std::declval<R1>())) &&
+		noexcept(iter_swap(std::declval<R2>(), std::declval<R2>()));
 
 	template<class R1, class R2>
 	using is_nothrow_indirectly_swappable_t =

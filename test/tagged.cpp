@@ -191,7 +191,7 @@ void test_tagged_tuple_creation_para_4_example() {
 	using namespace __stl2;
 	int i;
 	float j;
-	auto t = __stl2::make_tagged_tuple<tag::in1, tag::in2, tag::out>(1, std::ref(i), std::cref(j));
+	auto t = make_tagged_tuple<tag::in1, tag::in2, tag::out>(1, ref(i), cref(j));
 	static_assert(Same<decltype(t), tagged_tuple<tag::in1(int), tag::in2(int&), tag::out(const float&)>>);
 	CHECK(t.in1() == 1);
 	CHECK(&t.in2() == &i);

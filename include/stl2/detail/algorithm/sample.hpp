@@ -27,8 +27,7 @@ STL2_OPEN_NAMESPACE {
 		STL2_CONCEPT constraint =
 			InputIterator<I> && Sentinel<S, I> && WeaklyIncrementable<O> &&
 			IndirectlyCopyable<I, O> &&
-			UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
-			ConvertibleTo<result_of_t<Gen&()>, iter_difference_t<I>>;
+			UniformRandomNumberGenerator<remove_reference_t<Gen>>;
 
 		template<class I, class S, class O, class Gen>
 		requires
@@ -62,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 	inline sample(I first, S last, O out, iter_difference_t<I> n,
 		Gen&& gen = detail::get_random_engine())
 	{
-		auto k = __stl2::distance(first, last);
+		auto k = distance(first, last);
 		return __sample::sized_impl(std::move(first), std::move(last),
 			k, std::move(out), n, gen);
 	}
@@ -108,9 +107,9 @@ STL2_OPEN_NAMESPACE {
 	sample(I first, S last, ORng&& out,
 		Gen&& gen = detail::get_random_engine())
 	{
-		auto k = __stl2::distance(first, last);
+		auto k = distance(first, last);
 		return __sample::sized_impl(std::move(first), std::move(last),
-			k, begin(out), __stl2::distance(out), gen);
+			k, begin(out), distance(out), gen);
 	}
 
 	template<class I, class S, class ORng,
@@ -125,7 +124,7 @@ STL2_OPEN_NAMESPACE {
 		Gen&& gen = detail::get_random_engine())
 	{
 		return __stl2::sample(std::move(first), std::move(last),
-			begin(out), __stl2::distance(out), std::forward<Gen>(gen));
+			begin(out), distance(out), std::forward<Gen>(gen));
 	}
 
 	template<class Rng, RandomAccessIterator O,
@@ -150,7 +149,7 @@ STL2_OPEN_NAMESPACE {
 		Gen&& gen = detail::get_random_engine())
 	{
 		return __sample::sized_impl(begin(rng), end(rng),
-			__stl2::distance(rng), std::move(out), n, std::forward<Gen>(gen));
+			distance(rng), std::move(out), n, std::forward<Gen>(gen));
 	}
 
 	template<class IRng, class ORng, class Gen = detail::default_random_engine&>
@@ -165,7 +164,7 @@ STL2_OPEN_NAMESPACE {
 	sample(IRng&& rng, ORng&& out, Gen&& gen = detail::get_random_engine())
 	{
 		return __stl2::sample(begin(rng), end(rng),
-			begin(out), __stl2::distance(out), std::forward<Gen>(gen));
+			begin(out), distance(out), std::forward<Gen>(gen));
 	}
 
 	template<class IRng, class ORng, class Gen = detail::default_random_engine&>
@@ -180,7 +179,7 @@ STL2_OPEN_NAMESPACE {
 	sample(IRng&& rng, ORng&& out, Gen&& gen = detail::get_random_engine())
 	{
 		return __sample::sized_impl(begin(rng), end(rng),
-			__stl2::distance(rng), begin(out), __stl2::distance(out),
+			distance(rng), begin(out), distance(out),
 			std::forward<Gen>(gen));
 	}
 } STL2_CLOSE_NAMESPACE

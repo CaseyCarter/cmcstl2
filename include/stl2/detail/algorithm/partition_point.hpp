@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 			STL2_EXPECT(0 <= n);
 			while (n != 0) {
 				auto const half = n / 2;
-				auto middle = __stl2::next(__stl2::ext::uncounted(first), half);
+				auto middle = next(__stl2::ext::uncounted(first), half);
 				if (__stl2::invoke(pred, __stl2::invoke(proj, *middle))) {
 					first = __stl2::ext::recounted(
 										 first, std::move(++middle), half + 1);
@@ -85,9 +85,9 @@ STL2_OPEN_NAMESPACE {
 			Pred, projected<I, Proj>>
 	I partition_point(I first, S last, Pred pred, Proj proj = {})
 	{
-		auto n = __stl2::distance(first, std::move(last));
+		auto n = distance(first, std::move(last));
 		return __stl2::ext::partition_point_n(std::move(first), n,
-			std::ref(pred), std::ref(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template<ForwardRange Rng, class Pred, class Proj = identity>
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 	partition_point(Rng&& rng, Pred pred, Proj proj = {})
 	{
 		return __stl2::partition_point(begin(rng), end(rng),
-			std::ref(pred), std::ref(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template<ForwardRange Rng, class Pred, class Proj = identity>
@@ -109,8 +109,8 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	partition_point(Rng&& rng, Pred pred, Proj proj = {})
 	{
-		return ext::partition_point_n(begin(rng), __stl2::distance(rng),
-			std::ref(pred), std::ref(proj));
+		return ext::partition_point_n(begin(rng), distance(rng),
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

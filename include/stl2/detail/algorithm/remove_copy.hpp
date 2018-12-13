@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 	remove_copy(Rng&& rng, O&& result, const T& value, Proj proj = {})
 	{
 		return __stl2::remove_copy(begin(rng), end(rng),
-			std::forward<O>(result), value, std::ref(proj));
+			std::forward<O>(result), value, __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

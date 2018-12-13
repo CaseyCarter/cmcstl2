@@ -44,21 +44,21 @@ STL2_OPEN_NAMESPACE {
 					return 0;                     // x <= y && y <= z
 				}
 				                                  // x <= y && y > z
-				__stl2::iter_swap(y, z);          // x <= z && y < z
+				iter_swap(y, z);          // x <= z && y < z
 				if (__stl2::invoke(comp, __stl2::invoke(proj, *y), __stl2::invoke(proj, *x))) {   // if x > y
-					__stl2::iter_swap(x, y);      // x < y && y <= z
+					iter_swap(x, y);      // x < y && y <= z
 					return 2;
 				}
 				return 1;                         // x <= y && y < z
 			}
 			if (__stl2::invoke(comp, __stl2::invoke(proj, *z), __stl2::invoke(proj, *y))) {       // x > y, if y > z
-				__stl2::iter_swap(x, z);          // x < y && y < z
+				iter_swap(x, z);          // x < y && y < z
 				return 1;
 			}
-			__stl2::iter_swap(x, y);              // x > y && y <= z
+			iter_swap(x, y);              // x > y && y <= z
 			                                      // x < y && x <= z
 			if (__stl2::invoke(comp, __stl2::invoke(proj, *z), __stl2::invoke(proj, *y))) {       // if y > z
-				__stl2::iter_swap(y, z);          // x <= y && y < z
+				iter_swap(y, z);          // x <= y && y < z
 				return 2;
 			}
 			return 1;
@@ -70,10 +70,10 @@ STL2_OPEN_NAMESPACE {
 		void selection_sort(I begin, I end, C &comp, P &proj)
 		{
 			STL2_EXPECT(begin != end);
-			for (I lm1 = __stl2::prev(end); begin != lm1; ++begin) {
-				I i = __stl2::min_element(begin, end, std::ref(comp), std::ref(proj));
+			for (I lm1 = prev(end); begin != lm1; ++begin) {
+				I i = __stl2::min_element(begin, end, __stl2::ref(comp), __stl2::ref(proj));
 				if (i != begin) {
-					__stl2::iter_swap(begin, i);
+					iter_swap(begin, i);
 				}
 			}
 		}
@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 		Sortable<I, Comp, Proj>
 	I nth_element(I first, I nth, S last, Comp comp = {}, Proj proj = {})
 	{
-		I end = __stl2::next(nth, last), end_orig = end;
+		I end = next(nth, last), end_orig = end;
 		constexpr iter_difference_t<I> limit = 7;
 		while (true) {
 		restart:
@@ -99,7 +99,7 @@ STL2_OPEN_NAMESPACE {
 				return end_orig;
 			case 2:
 				if (__stl2::invoke(comp, __stl2::invoke(proj, *--end), __stl2::invoke(proj, *first))) {
-					__stl2::iter_swap(first, end);
+					iter_swap(first, end);
 				}
 				return end_orig;
 			case 3:
@@ -141,7 +141,7 @@ STL2_OPEN_NAMESPACE {
 									return end_orig;  // [first, end) all equivalent elements
 								}
 								if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *i))) {
-									__stl2::iter_swap(i, j);
+									iter_swap(i, j);
 									++n_swaps;
 									++i;
 									break;
@@ -160,7 +160,7 @@ STL2_OPEN_NAMESPACE {
 								;
 							if (i >= j)
 								break;
-							__stl2::iter_swap(i, j);
+							iter_swap(i, j);
 							++n_swaps;
 							++i;
 						}
@@ -175,7 +175,7 @@ STL2_OPEN_NAMESPACE {
 						goto restart;
 					}
 					if (__stl2::invoke(comp, __stl2::invoke(proj, *j), __stl2::invoke(proj, *m))) {
-						__stl2::iter_swap(i, j);
+						iter_swap(i, j);
 						++n_swaps;
 						break;  // found guard for downward moving j, now use unguarded partition
 					}
@@ -198,7 +198,7 @@ STL2_OPEN_NAMESPACE {
 					if (i >= j) {
 						break;
 					}
-					__stl2::iter_swap(i, j);
+					iter_swap(i, j);
 					++n_swaps;
 					// It is known that m != j
 					// If m just moved, follow it
@@ -210,7 +210,7 @@ STL2_OPEN_NAMESPACE {
 			}
 			// [first, i) < *m and *m <= [i, end)
 			if (i != m && __stl2::invoke(comp, __stl2::invoke(proj, *m), __stl2::invoke(proj, *i))) {
-				__stl2::iter_swap(i, m);
+				iter_swap(i, m);
 				++n_swaps;
 			}
 			// [first, i) < *i and *i <= [i+1, end)
@@ -266,7 +266,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::nth_element(
 			begin(rng), std::move(nth), end(rng),
-			std::ref(comp), std::ref(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

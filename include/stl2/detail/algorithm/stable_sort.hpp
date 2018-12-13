@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 				inplace_stable_sort(middle, last, pred, proj);
 				detail::inplace_merge_no_buffer(first, middle, last,
 					middle - first, last - middle,
-					std::ref(pred), std::ref(proj));
+					__stl2::ref(pred), __stl2::ref(proj));
 			}
 		}
 
@@ -81,8 +81,8 @@ STL2_OPEN_NAMESPACE {
 					__stl2::make_move_iterator(first + step_size),
 					__stl2::make_move_iterator(first + step_size),
 					__stl2::make_move_iterator(first + two_step),
-					result, std::ref(pred),
-					std::ref(proj), std::ref(proj)).out();
+					result, __stl2::ref(pred),
+					__stl2::ref(proj), __stl2::ref(proj)).out();
 				first += two_step;
 			}
 			step_size = __stl2::min(iter_difference_t<I>(last - first), step_size);
@@ -91,8 +91,8 @@ STL2_OPEN_NAMESPACE {
 				__stl2::make_move_iterator(first + step_size),
 				__stl2::make_move_iterator(first + step_size),
 				__stl2::make_move_iterator(last),
-				result, std::ref(pred),
-				std::ref(proj), std::ref(proj));
+				result, __stl2::ref(pred),
+				__stl2::ref(proj), __stl2::ref(proj));
 		}
 
 		template<RandomAccessIterator I, class C, class P>
@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
 			}
 			detail::merge_adaptive(first, middle, last,
 				middle - first, last - middle, buf,
-				std::ref(comp), std::ref(proj));
+				__stl2::ref(comp), __stl2::ref(proj));
 		}
 
 		// Extension: Supports forward iterators.
@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 		requires Sentinel<__f<S>, I> && Sortable<I, Comp, Proj>
 		I operator()(I first, S&& last_, Comp comp = {}, Proj proj = {}) const {
 			if constexpr (RandomAccessIterator<I>) {
-				auto last = __stl2::next(first, std::forward<S>(last_));
+				auto last = next(first, std::forward<S>(last_));
 				auto len = iter_difference_t<I>(last - first);
 				auto buf = len > 256 ? buf_t<I>{len} : buf_t<I>{};
 				if (!buf.size_) {
@@ -161,9 +161,9 @@ STL2_OPEN_NAMESPACE {
 				}
 				return last;
 			} else {
-				auto n = __stl2::distance(first, std::forward<S>(last_));
-				return detail::fsort::sort_n(std::move(first), n,
-					std::ref(comp), std::ref(proj));
+				auto n = distance(first, std::forward<S>(last_));
+				return detail::fsort_n(std::move(first), n,
+					__stl2::ref(comp), __stl2::ref(proj));
 			}
 		}
 
@@ -173,10 +173,10 @@ STL2_OPEN_NAMESPACE {
 		safe_iterator_t<Rng> operator()(Rng&& rng, Comp comp = {}, Proj proj = {}) const {
 			if constexpr (RandomAccessRange<Rng>) {
 				return (*this)(begin(rng), end(rng),
-					std::ref(comp), std::ref(proj));
+					__stl2::ref(comp), __stl2::ref(proj));
 			} else {
-				return detail::fsort::sort_n(begin(rng), __stl2::distance(rng),
-					std::ref(comp), std::ref(proj));
+				return detail::fsort_n(begin(rng), distance(rng),
+					__stl2::ref(comp), __stl2::ref(proj));
 			}
 		}
 	};

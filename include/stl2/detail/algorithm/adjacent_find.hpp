@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			return (*this)(
 				begin(r), end(r),
-				std::ref(pred), std::ref(proj));
+				__stl2::ref(pred), __stl2::ref(proj));
 		}
 	};
 

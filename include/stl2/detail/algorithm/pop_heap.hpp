@@ -39,9 +39,9 @@ STL2_OPEN_NAMESPACE {
 		void pop_heap_n(I first, iter_difference_t<I> n, Comp comp, Proj proj)
 		{
 			if (n > 1) {
-				__stl2::iter_swap(first, first + (n - 1));
-				detail::sift_down_n(first, n - 1, first, std::ref(comp),
-					std::ref(proj));
+				iter_swap(first, first + (n - 1));
+				detail::sift_down_n(first, n - 1, first, __stl2::ref(comp),
+					__stl2::ref(proj));
 			}
 		}
 	}
@@ -52,8 +52,8 @@ STL2_OPEN_NAMESPACE {
 		Sortable<I, Comp, Proj>
 	I pop_heap(I first, S last, Comp comp = {}, Proj proj = {})
 	{
-		auto n = __stl2::distance(first, std::move(last));
-		detail::pop_heap_n(first, n, std::ref(comp), std::ref(proj));
+		auto n = distance(first, std::move(last));
+		detail::pop_heap_n(first, n, __stl2::ref(comp), __stl2::ref(proj));
 		return first + n;
 	}
 
@@ -63,8 +63,8 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng>
 	pop_heap(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
-		auto n = __stl2::distance(rng);
-		detail::pop_heap_n(begin(rng), n, std::ref(comp), std::ref(proj));
+		auto n = distance(rng);
+		detail::pop_heap_n(begin(rng), n, __stl2::ref(comp), __stl2::ref(proj));
 		return begin(rng) + n;
 	}
 } STL2_CLOSE_NAMESPACE

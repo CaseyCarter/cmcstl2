@@ -112,7 +112,7 @@ namespace __stl2 = ::std::experimental::ranges;
   #define STL2_ASSERT(...) void(0)
  #else
   #include <cassert>
-  #define STL2_ASSERT(...) assert(__VA_ARGS__)
+  #define STL2_ASSERT(...) assert((__VA_ARGS__))
  #endif
 #endif
 

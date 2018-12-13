@@ -31,11 +31,11 @@ STL2_OPEN_NAMESPACE {
 	I unique(I first, S last, R comp = {}, Proj proj = {})
 	{
 		first = __stl2::adjacent_find(
-			std::move(first), last, std::ref(comp), std::ref(proj));
+			std::move(first), last, __stl2::ref(comp), __stl2::ref(proj));
 		if (first != last) {
-			for (auto m = __stl2::next(first, 2); m != last; ++m) {
+			for (auto m = next(first, 2); m != last; ++m) {
 				if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *m))) {
-					*++first = __stl2::iter_move(m);
+					*++first = iter_move(m);
 				}
 			}
 			++first;
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 	unique(Rng&& rng, R comp = {}, Proj proj = {})
 	{
 		return __stl2::unique(begin(rng), end(rng),
-			std::ref(comp), std::ref(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

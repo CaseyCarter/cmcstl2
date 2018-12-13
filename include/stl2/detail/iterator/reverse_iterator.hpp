@@ -115,17 +115,15 @@ STL2_OPEN_NAMESPACE {
 				-(access::current(that) - current_)
 			)
 
-			// Extension
 			constexpr decltype(auto) indirect_move() const
 			STL2_NOEXCEPT_RETURN(
-				__stl2::iter_move(__stl2::prev(current_))
+				iter_move(__stl2::prev(current_))
 			)
 
-			// Extension
 			template<IndirectlySwappable<I> J>
 			constexpr void indirect_swap(const cursor<J>& that) const
 			STL2_NOEXCEPT_RETURN(
-				__stl2::iter_swap(
+				iter_swap(
 					__stl2::prev(current_), __stl2::prev(access::current(that)))
 			)
 		};

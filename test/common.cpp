@@ -163,7 +163,7 @@ static_assert(is_same<common_reference_t<void, void>, void>());
 static_assert(Common<void, void>);
 static_assert(is_same<common_type_t<void, void>, void>());
 
-static_assert(is_same<common_type_t<std::reference_wrapper<int>, int>, int>::value);
+static_assert(is_same<common_type_t<reference_wrapper<int>, int>, int>::value);
 
 // Test cases taken from libc++
 //===----------------------------------------------------------------------===//

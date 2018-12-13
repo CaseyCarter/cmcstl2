@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr I operator()(I first, S last, Comp comp = {}, Proj proj = {}) const
 		{
 			if (first != last) {
-				for (auto i = __stl2::next(first); i != last; ++i) {
+				for (auto i = next(first); i != last; ++i) {
 					if (!__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {
 						first = i;
 					}
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const
 		{
 			return (*this)(begin(r), end(r),
-				std::ref(comp), std::ref(proj));
+				__stl2::ref(comp), __stl2::ref(proj));
 		}
 	};
 

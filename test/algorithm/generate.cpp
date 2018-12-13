@@ -39,7 +39,7 @@ void test() {
 	const unsigned n = 4;
 	int ia[n] = {0};
 	auto f = gen_test{1};
-	auto res1 = ranges::generate(Iter(ia), Sent(ia + n), std::ref(f));
+	auto res1 = ranges::generate(Iter(ia), Sent(ia + n), ranges::ref(f));
 	CHECK(ia[0] == 1);
 	CHECK(ia[1] == 2);
 	CHECK(ia[2] == 3);
@@ -48,7 +48,7 @@ void test() {
 	CHECK(f.i_ == 5);
 
 	auto rng = ranges::subrange(Iter(ia), Sent(ia + n));
-	auto res2 = ranges::generate(rng, std::ref(f));
+	auto res2 = ranges::generate(rng, ranges::ref(f));
 	CHECK(ia[0] == 5);
 	CHECK(ia[1] == 6);
 	CHECK(ia[2] == 7);
@@ -56,7 +56,7 @@ void test() {
 	CHECK(res2 == Iter(ia + n));
 	CHECK(f.i_ == 9);
 
-	auto res3 = ranges::generate(std::move(rng), std::ref(f));
+	auto res3 = ranges::generate(std::move(rng), ranges::ref(f));
 	CHECK(ia[0] == 9);
 	CHECK(ia[1] == 10);
 	CHECK(ia[2] == 11);

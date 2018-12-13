@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 		return __stl2::partition_copy(
 			begin(rng), end(rng),
 			std::forward<O1>(out_true), std::forward<O2>(out_false),
-			std::ref(pred), std::ref(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

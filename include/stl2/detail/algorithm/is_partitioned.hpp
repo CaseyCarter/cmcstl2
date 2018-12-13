@@ -30,9 +30,9 @@ STL2_OPEN_NAMESPACE {
 	bool is_partitioned(I first, S last, Pred pred, Proj proj = {})
 	{
 		first = __stl2::find_if_not(std::move(first), last,
-			std::ref(pred), std::ref(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 		return __stl2::none_of(std::move(first), std::move(last),
-			std::ref(pred), std::ref(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template<InputRange Rng, class Pred, class Proj = identity>
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	bool is_partitioned(Rng&& rng, Pred pred, Proj proj = {})
 	{
 		return __stl2::is_partitioned(begin(rng), end(rng),
-			std::ref(pred), std::ref(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

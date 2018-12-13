@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		impl(I1 first1, S1 last1, I2 first2)
 		{
 			for (; first1 != last1; ++first1, void(++first2)) {
-				__stl2::iter_swap(first1, first2);
+				iter_swap(first1, first2);
 			}
 			return {std::move(first1), std::move(first2)};
 		}
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 	swap_ranges(I1 first1, S1 last1, I2 first2, S2 last2)
 	{
 		for (; first1 != last1 && first2 != last2; ++first1, void(++first2)) {
-			__stl2::iter_swap(first1, first2);
+			iter_swap(first1, first2);
 		}
 		return {std::move(first1), std::move(first2)};
 	}

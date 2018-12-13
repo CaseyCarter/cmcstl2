@@ -48,6 +48,11 @@ STL2_OPEN_NAMESPACE {
 	STL2_CONCEPT _SpecializationOf = meta::is<__uncvref<U>, T>::value;
 #endif
 
+	template<class T>
+	using __with_reference = T&;
+	template<class T>
+	STL2_CONCEPT __can_reference = requires { typename __with_reference<T>; };
+
 	///////////////////////////////////////////////////////////////////////////
 	// Same
 	//

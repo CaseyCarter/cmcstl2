@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				STL2_EXPECT(n >= 0);
 				if constexpr (SizedRange<R>) {
-					auto const size = __stl2::distance(r);
+					auto const size = distance(r);
 					constexpr bool CommonNonRandom = CommonRange<R> && !RandomAccessRange<R>;
 					if (n >= size) {
 						if constexpr (CommonNonRandom && !BidirectionalRange<R>) {
@@ -39,13 +39,13 @@ STL2_OPEN_NAMESPACE {
 					if constexpr (CommonNonRandom && BidirectionalRange<R>) {
 						// Again, this would not be an improvement for RandomAccess ranges.
 						if (n > size / 2) {
-							return __stl2::prev(end(r), size - n);
+							return prev(end(r), size - n);
 						}
 					}
-					return __stl2::next(begin(r), n);
+					return next(begin(r), n);
 				}
 				else {
-					return __stl2::next(begin(r), n, end(r));
+					return next(begin(r), n, end(r));
 				}
 			}
 		};

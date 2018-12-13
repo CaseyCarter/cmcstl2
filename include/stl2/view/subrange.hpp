@@ -156,7 +156,7 @@ STL2_OPEN_NAMESPACE {
 			_ConvertibleToNotSlicing<iterator_t<R>, I> &&
 			ConvertibleTo<sentinel_t<R>, S>
 		constexpr subrange(R&& r) requires StoreSize && SizedRange<R>
-		: subrange{__stl2::begin(r), __stl2::end(r), __stl2::distance(r)} {}
+		: subrange{__stl2::begin(r), __stl2::end(r), distance(r)} {}
 
 		template<_ForwardingRange R>
 		requires
@@ -166,7 +166,7 @@ STL2_OPEN_NAMESPACE {
 			requires (K == subrange_kind::sized)
 		: subrange{__stl2::begin(r), __stl2::end(r), n} {
 			if constexpr (SizedRange<R>) {
-				STL2_EXPECT(n == __stl2::distance(r));
+				STL2_EXPECT(n == distance(r));
 			}
 		}
 

@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 				if (0 < dist) {
 					do {
 						auto half = dist / 2;
-						auto middle = __stl2::next(first, half);
+						auto middle = next(first, half);
 						auto&& v = *middle;
 						auto&& pv = __stl2::invoke(proj, std::forward<decltype(v)>(v));
 						if (__stl2::invoke(comp, pv, value)) {
@@ -47,10 +47,10 @@ STL2_OPEN_NAMESPACE {
 							return {
 								ext::lower_bound_n(
 									std::move(first), half, value,
-									std::ref(comp), std::ref(proj)),
-								ext::upper_bound_n(__stl2::next(middle),
+									__stl2::ref(comp), __stl2::ref(proj)),
+								ext::upper_bound_n(next(middle),
 									dist - (half + 1), value,
-									std::ref(comp), std::ref(proj))
+									__stl2::ref(comp), __stl2::ref(proj))
 							};
 						}
 					} while (0 != dist);
@@ -69,9 +69,9 @@ STL2_OPEN_NAMESPACE {
 		constexpr subrange<I> operator()(I first, S last, const T& value,
 			Comp comp = {}, Proj proj = {}) const {
 			if constexpr (SizedSentinel<S, I>) {
-				auto len = __stl2::distance(first, std::move(last));
+				auto len = distance(first, std::move(last));
 				return ext::equal_range_n(std::move(first), len, value,
-					std::ref(comp), std::ref(proj));
+					__stl2::ref(comp), __stl2::ref(proj));
 			} else {
 				// Probe exponentially for either end-of-range, an iterator that
 				// is past the equal range (i.e., denotes an element greater
@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
 						// at the end of the input range
 						return ext::equal_range_n(
 							std::move(first), dist - d, value,
-							std::ref(comp), std::ref(proj));
+							__stl2::ref(comp), __stl2::ref(proj));
 					}
 					auto&& v = *mid;
 					auto&& pv = __stl2::invoke(proj, std::forward<decltype(v)>(v));
@@ -94,14 +94,14 @@ STL2_OPEN_NAMESPACE {
 					if (__stl2::invoke(comp, value, pv)) {
 						return ext::equal_range_n(
 							std::move(first), dist, value,
-							std::ref(comp), std::ref(proj));
+							__stl2::ref(comp), __stl2::ref(proj));
 					} else if (!__stl2::invoke(comp, pv, value)) {
 						// *mid == value: the lower bound is <= mid, and the upper bound is > mid.
 						return {
 							ext::lower_bound_n(std::move(first), dist, value,
-								std::ref(comp), std::ref(proj)),
+								__stl2::ref(comp), __stl2::ref(proj)),
 							__stl2::upper_bound(std::move(mid), std::move(last),
-								value, std::ref(comp), std::ref(proj))
+								value, __stl2::ref(comp), __stl2::ref(proj))
 						};
 					}
 					// *mid < value, mid is before the target range.
@@ -118,10 +118,10 @@ STL2_OPEN_NAMESPACE {
 		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
 			if constexpr (SizedRange<Rng>) {
 				return ext::equal_range_n(begin(rng), size(rng), value,
-					std::ref(comp), std::ref(proj));
+					__stl2::ref(comp), __stl2::ref(proj));
 			} else {
 				return (*this)(begin(rng), end(rng), value,
-					std::ref(comp), std::ref(proj));
+					__stl2::ref(comp), __stl2::ref(proj));
 			}
 		}
 	};

@@ -13,9 +13,11 @@
 #include <algorithm>
 #include "../simple_test.hpp"
 
+namespace ranges = __stl2;
+
 int strlen_test(const char* p) noexcept {
-	using C = __stl2::common_iterator<const char*, __stl2::unreachable>;
-	return __stl2::distance(C{p}, std::find(C{p}, C{__stl2::unreachable{}}, '\0'));
+	using C = ranges::common_iterator<const char*, ranges::unreachable>;
+	return ranges::distance(C{p}, std::find(C{p}, C{ranges::unreachable{}}, '\0'));
 }
 
 int main() {

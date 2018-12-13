@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::replace_copy_if(
 			begin(rng), end(rng), std::forward<O>(result),
-			std::ref(pred), new_value, std::ref(proj));
+			__stl2::ref(pred), new_value, __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

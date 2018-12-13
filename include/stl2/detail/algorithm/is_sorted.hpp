@@ -22,27 +22,23 @@
 // is_sorted [is.sorted]
 //
 STL2_OPEN_NAMESPACE {
-	template<ForwardIterator I, Sentinel<I> S, class Comp = less,
-		class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<I, Proj>>
-	bool is_sorted(I first, S last, Comp comp = {}, Proj proj = {})
-	{
-		return last == __stl2::is_sorted_until(std::move(first), last,
-			std::ref(comp), std::ref(proj));
-	}
+	struct __is_sorted_fn : private __niebloid {
+		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
+			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
+		constexpr bool operator()(I first, S last, Comp comp = {}, Proj proj = {}) const
+		{
+			return last == is_sorted_until(std::move(first), last, __stl2::ref(comp), __stl2::ref(proj));
+		}
 
-	template<ForwardRange Rng, class Comp = less, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<iterator_t<Rng>, Proj>>
-	bool is_sorted(Rng&& rng, Comp comp = {}, Proj proj = {})
-	{
-		return end(rng) ==
-			__stl2::is_sorted_until(begin(rng), end(rng),
-				std::ref(comp), std::ref(proj));
-	}
+		template<ForwardRange R, class Proj = identity,
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
+		constexpr bool operator()(R&& r, Comp comp = {}, Proj proj = {}) const
+		{
+			return end(r) == is_sorted_until(begin(r), end(r), __stl2::ref(comp), __stl2::ref(proj));
+		}
+	};
+
+	inline constexpr __is_sorted_fn is_sorted {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
