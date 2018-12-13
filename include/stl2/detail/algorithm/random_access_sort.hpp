@@ -27,22 +27,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		struct rsort : private __niebloid {
-			template<RandomAccessIterator I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
-			static constexpr I choose_pivot(I first, I last, Comp& comp, Proj& proj)
-			{
-				STL2_EXPECT(first != last);
-				I mid = first + iter_difference_t<I>(last - first) / 2;
-				--last;
-				// Find the median:
-				return [&](auto&& a, auto&& b, auto&& c) {
-					return __stl2::invoke(comp, a, b)
-						? (__stl2::invoke(comp, b, c) ? mid   : (__stl2::invoke(comp, a, c) ? last : first))
-						: (__stl2::invoke(comp, a, c) ? first : (__stl2::invoke(comp, b, c) ? last : mid  ));
-				}(__stl2::invoke(proj, *first), __stl2::invoke(proj, *mid), __stl2::invoke(proj, *last));
-			}
-
+		struct rsort {
 			template<BidirectionalIterator I, class Comp, class Proj>
 			requires Sortable<I, Comp, Proj>
 			static constexpr void
@@ -56,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 				}
 				*last = std::move(val);
 			}
-
+		private:
 			template<BidirectionalIterator I, class Comp, class Proj>
 			requires Sortable<I, Comp, Proj>
 			static constexpr void linear_insert(I first, I last, Comp& comp, Proj& proj)
@@ -66,17 +51,17 @@ STL2_OPEN_NAMESPACE {
 					__stl2::move_backward(first, last, last + 1);
 					*first = std::move(val);
 				} else {
-					rsort::unguarded_linear_insert(last, std::move(val), comp, proj);
+					unguarded_linear_insert(last, std::move(val), comp, proj);
 				}
 			}
-
+		public:
 			template<BidirectionalIterator I, class Comp, class Proj>
 			requires Sortable<I, Comp, Proj>
 			static constexpr void insertion_sort(I first, I last, Comp& comp, Proj& proj)
 			{
 				if (first != last) {
 					for (I i = __stl2::next(first); i != last; ++i) {
-						rsort::linear_insert(first, i, comp, proj);
+						linear_insert(first, i, comp, proj);
 					}
 				}
 			}

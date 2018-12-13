@@ -31,9 +31,24 @@ STL2_OPEN_NAMESPACE {
 
 		template<RandomAccessIterator I, class Comp, class Proj>
 		requires Sortable<I, Comp, Proj>
+		static constexpr I choose_pivot(I first, I last, Comp& comp, Proj& proj)
+		{
+			STL2_EXPECT(first != last);
+			I mid = first + iter_difference_t<I>(last - first) / 2;
+			--last;
+			// Find the median:
+			return [&](auto&& a, auto&& b, auto&& c) {
+				return __stl2::invoke(comp, a, b)
+					? (__stl2::invoke(comp, b, c) ? mid   : (__stl2::invoke(comp, a, c) ? last : first))
+					: (__stl2::invoke(comp, a, c) ? first : (__stl2::invoke(comp, b, c) ? last : mid  ));
+			}(__stl2::invoke(proj, *first), __stl2::invoke(proj, *mid), __stl2::invoke(proj, *last));
+		}
+
+		template<RandomAccessIterator I, class Comp, class Proj>
+		requires Sortable<I, Comp, Proj>
 		static constexpr I unguarded_partition(I first, I last, Comp& comp, Proj& proj)
 		{
-			I pivot_pnt = detail::rsort::choose_pivot(first, last, comp, proj);
+			I pivot_pnt = choose_pivot(first, last, comp, proj);
 
 			// Do the partition:
 			while (true) {
