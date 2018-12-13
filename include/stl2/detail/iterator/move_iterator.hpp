@@ -175,7 +175,7 @@ STL2_OPEN_NAMESPACE {
 			template<IndirectlySwappable<I> I2>
 			constexpr void indirect_swap(const cursor<I2>& that) const
 			STL2_NOEXCEPT_RETURN(
-				__stl2::iter_swap(current_, access::current(that))
+				iter_swap(current_, access::current(that))
 			)
 		};
 	}

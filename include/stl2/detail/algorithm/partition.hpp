@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 								return first;
 							}
 							if (__stl2::invoke(pred, __stl2::invoke(proj, *last))) {
-								__stl2::iter_swap(first, last);
+								iter_swap(first, last);
 								break;
 							}
 						}
@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 				if (first != last_) {
 					for (auto m = first; ++m != last_;) {
 						if (__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
-							__stl2::iter_swap(first, m);
+							iter_swap(first, m);
 							++first;
 						}
 					}

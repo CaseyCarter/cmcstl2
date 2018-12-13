@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 		void pop_heap_n(I first, iter_difference_t<I> n, Comp comp, Proj proj)
 		{
 			if (n > 1) {
-				__stl2::iter_swap(first, first + (n - 1));
+				iter_swap(first, first + (n - 1));
 				detail::sift_down_n(first, n - 1, first, __stl2::ref(comp),
 					__stl2::ref(proj));
 			}

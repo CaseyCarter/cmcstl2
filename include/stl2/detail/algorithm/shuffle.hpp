@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 		using param_t = typename uniform_int_distribution<D>::param_type;
 		while (++mid != last) {
 			if (auto const i = dist(g, param_t{0, mid - first})) {
-				__stl2::iter_swap(mid - i, mid);
+				iter_swap(mid - i, mid);
 			}
 		}
 		return mid;

@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		I i = middle;
 		while (true) {
-			__stl2::iter_swap(first, i);
+			iter_swap(first, i);
 			++first;
 			if (++i == last) {
 				break;
@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 		if (first != middle) {
 			I j = middle;
 			while (true) {
-				__stl2::iter_swap(first, j);
+				iter_swap(first, j);
 				++first;
 				if (++j == last) {
 					if (first == middle) {

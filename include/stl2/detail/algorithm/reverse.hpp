@@ -119,14 +119,14 @@ STL2_OPEN_NAMESPACE {
 					if (first != bound) {
 						auto m = bound;
 						while (first < --m) {
-							__stl2::iter_swap(first, m);
+							iter_swap(first, m);
 							++first;
 						}
 					}
 				} else {
 					auto m = bound;
 					while (first != m && first != --m) {
-						__stl2::iter_swap(first, m);
+						iter_swap(first, m);
 						++first;
 					}
 				}

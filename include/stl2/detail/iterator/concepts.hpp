@@ -323,10 +323,10 @@ STL2_OPEN_NAMESPACE {
 	template<class I1, class I2 = I1>
 	STL2_CONCEPT IndirectlySwappable =
 		requires(I1&& i1, I2&& i2) {
-			__stl2::iter_swap((I1&&)i1, (I2&&)i2);
-			__stl2::iter_swap((I2&&)i2, (I1&&)i1);
-			__stl2::iter_swap((I1&&)i1, (I1&&)i1);
-			__stl2::iter_swap((I2&&)i2, (I2&&)i2);
+			iter_swap((I1&&)i1, (I2&&)i2);
+			iter_swap((I2&&)i2, (I1&&)i1);
+			iter_swap((I1&&)i1, (I1&&)i1);
+			iter_swap((I2&&)i2, (I2&&)i2);
 		};
 
 	template<class R1, class R2>
@@ -334,10 +334,10 @@ STL2_OPEN_NAMESPACE {
 
 	template<class R1, IndirectlySwappable<R1> R2>
 	constexpr bool is_nothrow_indirectly_swappable_v<R1, R2> =
-		noexcept(__stl2::iter_swap(std::declval<R1>(), std::declval<R2>())) &&
-		noexcept(__stl2::iter_swap(std::declval<R2>(), std::declval<R1>())) &&
-		noexcept(__stl2::iter_swap(std::declval<R1>(), std::declval<R1>())) &&
-		noexcept(__stl2::iter_swap(std::declval<R2>(), std::declval<R2>()));
+		noexcept(iter_swap(std::declval<R1>(), std::declval<R2>())) &&
+		noexcept(iter_swap(std::declval<R2>(), std::declval<R1>())) &&
+		noexcept(iter_swap(std::declval<R1>(), std::declval<R1>())) &&
+		noexcept(iter_swap(std::declval<R2>(), std::declval<R2>()));
 
 	template<class R1, class R2>
 	using is_nothrow_indirectly_swappable_t =

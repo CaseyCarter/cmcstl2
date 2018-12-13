@@ -166,7 +166,7 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(n >= iter_difference_t<I>(1));
 
 				if (n == iter_difference_t<I>(1)) {
-					__stl2::iter_swap(first, last);
+					iter_swap(first, last);
 					return last;
 				}
 				// n >= 2

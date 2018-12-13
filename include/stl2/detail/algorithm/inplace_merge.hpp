@@ -133,7 +133,7 @@ STL2_OPEN_NAMESPACE {
 						if (len1 == 1) {
 							// len1 >= len2 && len2 > 0, therefore len2 == 1
 							// It is known *begin > *middle
-							__stl2::iter_swap(begin, middle);
+							iter_swap(begin, middle);
 							return;
 						}
 						// len1 >= 2, len2 >= 1

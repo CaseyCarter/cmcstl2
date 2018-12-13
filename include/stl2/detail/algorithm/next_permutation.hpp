@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 				while (!__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *--j))) {
 					;
 				}
-				__stl2::iter_swap(i, j);
+				iter_swap(i, j);
 				__stl2::reverse(ip1, end);
 				return true;
 			}
