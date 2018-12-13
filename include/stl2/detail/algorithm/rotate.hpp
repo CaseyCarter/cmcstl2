@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 		Permutable<I>
 	subrange<I> __rotate_right(I first, I last)
 	{
-		I lm1 = __stl2::prev(last);
+		I lm1 = prev(last);
 		iter_value_t<I> tmp = __stl2::iter_move(lm1);
 		I fp1 = __stl2::move_backward(first, std::move(lm1), last).second;
 		*first = std::move(tmp);

@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 			static constexpr void
 			unguarded_linear_insert(I last, iter_value_t<I> val, Comp& comp, Proj& proj)
 			{
-				I next = __stl2::prev(last);
+				I next = prev(last);
 				while (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *next))) {
 					*last = __stl2::iter_move(next);
 					last = next;

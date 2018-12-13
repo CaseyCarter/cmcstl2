@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 					if constexpr (CommonNonRandom && BidirectionalRange<R>) {
 						// Again, this would not be an improvement for RandomAccess ranges.
 						if (n > size / 2) {
-							return __stl2::prev(end(r), size - n);
+							return prev(end(r), size - n);
 						}
 					}
 					return next(begin(r), n);
