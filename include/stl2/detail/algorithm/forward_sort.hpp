@@ -45,6 +45,21 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		struct __fsort_n_fn {
+			template<class I, class Comp = less, class Proj = identity>
+			requires Sortable<I, Comp, Proj>
+			I operator()(I first, const iter_difference_t<I> n,
+				Comp comp = {}, Proj proj = {}) const
+			{
+				STL2_EXPECT(0 <= n);
+				auto ufirst = ext::uncounted(first);
+				static_assert(Same<iter_value_t<I>, iter_value_t<decltype(ufirst)>>);
+				using buf_t = temporary_buffer<iter_value_t<I>>;
+				// TODO: tune this threshold.
+				auto buf = n / 2 >= 16 ? buf_t{n / 2} : buf_t{};
+				auto last = sort_n_adaptive(std::move(ufirst), n,
+					buf, comp, proj);
+				return ext::recounted(first, std::move(last), n);
+			}
 		private:
 			template<class I>
 			using buf_t = temporary_buffer<iter_value_t<I>>;
@@ -162,22 +177,6 @@ STL2_OPEN_NAMESPACE {
 				sort_n_adaptive(middle, n - half_n, buf, comp, proj);
 				return merge_n_adaptive(first, half_n, middle, n - half_n,
 					buf, comp, proj);
-			}
-		public:
-			template<class I, class Comp = less, class Proj = identity>
-			requires Sortable<I, Comp, Proj>
-			I operator()(I first, const iter_difference_t<I> n,
-				Comp comp = {}, Proj proj = {}) const
-			{
-				STL2_EXPECT(0 <= n);
-				auto ufirst = ext::uncounted(first);
-				static_assert(Same<iter_value_t<I>, iter_value_t<decltype(ufirst)>>);
-				using buf_t = temporary_buffer<iter_value_t<I>>;
-				// TODO: tune this threshold.
-				auto buf = n / 2 >= 16 ? buf_t{n / 2} : buf_t{};
-				auto last = sort_n_adaptive(std::move(ufirst), n,
-					buf, comp, proj);
-				return ext::recounted(first, std::move(last), n);
 			}
 		};
 

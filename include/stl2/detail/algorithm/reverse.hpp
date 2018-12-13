@@ -43,6 +43,15 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		struct __reverse_n_fn : private __niebloid {
+			template<Permutable I>
+			constexpr I operator()(I first, iter_difference_t<I> n) const {
+				auto ufirst = ext::uncounted(first);
+				// TODO: tune this threshold.
+				constexpr auto alloc_threshold = iter_difference_t<I>(8);
+				auto buf = n >= alloc_threshold ? buf_t<I>{n / 2} : buf_t<I>{};
+				auto last = reverse_n_adaptive(ufirst, n, buf);
+				return ext::recounted(first, std::move(last), n);
+			}
 		private:
 			template<Readable I>
 			using buf_t = detail::temporary_buffer<iter_value_t<I>>;
@@ -94,16 +103,6 @@ STL2_OPEN_NAMESPACE {
 				reverse_n_adaptive(first2, half_n, buf);
 				return __swap_ranges::impl(std::move(first), std::move(last1),
 					std::move(first2)).in2();
-			}
-		public:
-			template<Permutable I>
-			constexpr I operator()(I first, iter_difference_t<I> n) const {
-				auto ufirst = ext::uncounted(first);
-				// TODO: tune this threshold.
-				constexpr auto alloc_threshold = iter_difference_t<I>(8);
-				auto buf = n >= alloc_threshold ? buf_t<I>{n / 2} : buf_t<I>{};
-				auto last = reverse_n_adaptive(ufirst, n, buf);
-				return ext::recounted(first, std::move(last), n);
 			}
 		};
 

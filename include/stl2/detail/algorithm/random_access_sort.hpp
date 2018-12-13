@@ -41,6 +41,16 @@ STL2_OPEN_NAMESPACE {
 				}
 				*last = std::move(val);
 			}
+			template<BidirectionalIterator I, class Comp, class Proj>
+			requires Sortable<I, Comp, Proj>
+			static constexpr void insertion_sort(I first, I last, Comp& comp, Proj& proj)
+			{
+				if (first != last) {
+					for (I i = __stl2::next(first); i != last; ++i) {
+						linear_insert(first, i, comp, proj);
+					}
+				}
+			}
 		private:
 			template<BidirectionalIterator I, class Comp, class Proj>
 			requires Sortable<I, Comp, Proj>
@@ -52,17 +62,6 @@ STL2_OPEN_NAMESPACE {
 					*first = std::move(val);
 				} else {
 					unguarded_linear_insert(last, std::move(val), comp, proj);
-				}
-			}
-		public:
-			template<BidirectionalIterator I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
-			static constexpr void insertion_sort(I first, I last, Comp& comp, Proj& proj)
-			{
-				if (first != last) {
-					for (I i = __stl2::next(first); i != last; ++i) {
-						linear_insert(first, i, comp, proj);
-					}
 				}
 			}
 		};
