@@ -40,11 +40,6 @@ STL2_OPEN_NAMESPACE {
 		constexpr explicit reverse_view(Rng rng)
 		: base_{std::move(rng)} {}
 
-		template<ViewableRange O>
-		requires BidirectionalRange<O> && _ConstructibleFromRange<Rng, O>
-		constexpr explicit reverse_view(O&& o)
-		: base_(view::all(std::forward<O>(o))) {}
-
 		constexpr Rng base() const
 		{ return base_; }
 

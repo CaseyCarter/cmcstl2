@@ -29,11 +29,6 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr explicit common_view(V v) : base_(std::move(v)) {}
 
-		template<ViewableRange R>
-		requires (!CommonRange<R> && _ConstructibleFromRange<V, R>)
-		constexpr explicit common_view(R&& r)
-		: base_(view::all(std::forward<R>(r))) {}
-
 		constexpr V base() const { return base_; }
 
 		constexpr auto size() requires (!ext::SimpleView<V> && SizedRange<V>) {

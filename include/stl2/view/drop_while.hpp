@@ -41,11 +41,6 @@ STL2_OPEN_NAMESPACE {
 			constexpr drop_while_view(R base, Pred pred)
 			: storage_t{std::move(pred)}, base_(std::move(base)) {}
 
-			template<ViewableRange O>
-			requires _ConstructibleFromRange<R, O>
-			constexpr drop_while_view(O&& o, Pred pred)
-			: storage_t{std::move(pred)}, base_(view::all(static_cast<O&&>(o))) {}
-
 			constexpr R base() const { return base_; }
 			constexpr const Pred& pred() const noexcept { return get(); }
 

@@ -11,6 +11,7 @@
 //
 #include <stl2/view/reverse.hpp>
 #include <stl2/view/counted.hpp>
+#include <stl2/view/filter.hpp>
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
 
@@ -39,5 +40,18 @@ int main() {
 		static_assert(BidirectionalRange<decltype(x)>);
 		static_assert(!RandomAccessRange<decltype(x)>);
 	}
+	{
+		// Regression test for CaseyCarter/cmcstl2#223
+		int a[] = {1, 7, 3, 6, 5, 2, 4, 8};
+		auto r0 = ranges::view::reverse(a);
+		auto is_even = [](int i) { return i % 2 == 0; };
+		auto r1 = ranges::view::filter(r0, is_even);
+		int sum = 0;
+		for (auto i : r1) {
+			sum += i;
+		}
+		CHECK(20 == sum);
+	}
+
 	return test_result();
 }
