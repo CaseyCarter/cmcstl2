@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::set_intersection(begin(rng1), end(rng1),
 			begin(rng2), end(rng2), std::forward<O>(result),
-			std::ref(comp), std::ref(proj1), std::ref(proj2));
+			__stl2::ref(comp), __stl2::ref(proj1), __stl2::ref(proj2));
 	}
 } STL2_CLOSE_NAMESPACE
 

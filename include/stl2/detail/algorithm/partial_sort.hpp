@@ -30,16 +30,16 @@ STL2_OPEN_NAMESPACE {
 		requires Sortable<I, Comp, Proj>
 		constexpr I operator()(I first, I middle, S last, Comp comp = {}, Proj proj = {}) const
 		{
-			__stl2::make_heap(first, middle, std::ref(comp), std::ref(proj));
+			__stl2::make_heap(first, middle, __stl2::ref(comp), __stl2::ref(proj));
 			const auto len = __stl2::distance(first, middle);
 			I i = middle;
 			for(; i != last; ++i) {
 				if(__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *first))) {
 					iter_swap(i, first);
-					detail::sift_down_n(first, len, first, std::ref(comp), std::ref(proj));
+					detail::sift_down_n(first, len, first, __stl2::ref(comp), __stl2::ref(proj));
 				}
 			}
-			__stl2::sort_heap(first, middle, std::ref(comp), std::ref(proj));
+			__stl2::sort_heap(first, middle, __stl2::ref(comp), __stl2::ref(proj));
 			return i;
 		}
 
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, iterator_t<R> middle, Comp comp = {}, Proj proj = {}) const
 		{
-			return (*this)(begin(r), std::move(middle), end(r), std::ref(comp), std::ref(proj));
+			return (*this)(begin(r), std::move(middle), end(r), __stl2::ref(comp), __stl2::ref(proj));
 		}
 	};
 

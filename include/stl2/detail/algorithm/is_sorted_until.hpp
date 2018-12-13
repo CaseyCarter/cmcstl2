@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
 		constexpr safe_iterator_t<R> operator()(R&& r, Comp comp = {}, Proj proj = {}) const
 		{
-			return (*this)(begin(r), end(r), std::ref(comp), std::ref(proj));
+			return (*this)(begin(r), end(r), __stl2::ref(comp), __stl2::ref(proj));
 		}
 	};
 

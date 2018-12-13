@@ -73,8 +73,8 @@ STL2_OPEN_NAMESPACE {
 			auto first2 = std::forward<I2>(first2_);
 			return (*this)(
 				begin(rng1), end(rng1),
-				std::move(first2), std::ref(pred),
-				std::ref(proj1), std::ref(proj2));
+				std::move(first2), __stl2::ref(pred),
+				__stl2::ref(proj1), __stl2::ref(proj2));
 		}
 
 		template<InputRange R1, InputRange R2,
@@ -88,9 +88,9 @@ STL2_OPEN_NAMESPACE {
 			return (*this)(
 				begin(r1), end(r1),
 				begin(r2), end(r2),
-				std::ref(pred),
-				std::ref(proj1),
-				std::ref(proj2));
+				__stl2::ref(pred),
+				__stl2::ref(proj1),
+				__stl2::ref(proj2));
 		}
 	};
 

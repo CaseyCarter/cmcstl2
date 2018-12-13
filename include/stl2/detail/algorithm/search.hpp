@@ -112,12 +112,12 @@ STL2_OPEN_NAMESPACE {
 				return sized(
 					first1, last1, last1 - first1,
 					first2, last2, last2 - first2,
-					std::ref(pred), std::ref(proj1),
-					std::ref(proj2));
+					__stl2::ref(pred), __stl2::ref(proj1),
+					__stl2::ref(proj2));
 			} else {
 				return unsized(first1, last1, first2, last2,
-					std::ref(pred), std::ref(proj1),
-					std::ref(proj2));
+					__stl2::ref(pred), __stl2::ref(proj1),
+					__stl2::ref(proj2));
 			}
 		}
 
@@ -130,14 +130,14 @@ STL2_OPEN_NAMESPACE {
 				return sized(
 					begin(rng1), end(rng1), __stl2::distance(rng1),
 					begin(rng2), end(rng2), __stl2::distance(rng2),
-					std::ref(pred), std::ref(proj1),
-					std::ref(proj2));
+					__stl2::ref(pred), __stl2::ref(proj1),
+					__stl2::ref(proj2));
 			} else {
 				return unsized(
 					begin(rng1), end(rng1),
 					begin(rng2), end(rng2),
-					std::ref(pred), std::ref(proj1),
-					std::ref(proj2));
+					__stl2::ref(pred), __stl2::ref(proj1),
+					__stl2::ref(proj2));
 			}
 		}
 	};

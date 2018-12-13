@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 			if (++first != last) {
 				{
 					auto&& tmp = *first;
-					if (__invoke::impl(comp, __invoke::impl(proj, tmp), __invoke::impl(proj, result.first))) {
+					if (__stl2::invoke(comp, __stl2::invoke(proj, tmp), __stl2::invoke(proj, result.first))) {
 						result.first = (decltype(tmp)&&)tmp;
 					} else {
 						result.second = (decltype(tmp)&&)tmp;
@@ -52,27 +52,27 @@ STL2_OPEN_NAMESPACE {
 				while (++first != last) {
 					auto tmp1 = V{*first};
 					if (++first == last) {
-						if (__invoke::impl(comp, __invoke::impl(proj, tmp1), __invoke::impl(proj, result.first))) {
+						if (__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.first))) {
 							result.first = std::move(tmp1);
-						} else if (!__invoke::impl(comp, __invoke::impl(proj, tmp1), __invoke::impl(proj, result.second))) {
+						} else if (!__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.second))) {
 							result.second = std::move(tmp1);
 						}
 						break;
 					}
 
 					auto&& tmp2 = *first;
-					if (__invoke::impl(comp, __invoke::impl(proj, tmp2), __invoke::impl(proj, tmp1))) {
-						if (__invoke::impl(comp, __invoke::impl(proj, tmp2), __invoke::impl(proj, result.first))) {
+					if (__stl2::invoke(comp, __stl2::invoke(proj, tmp2), __stl2::invoke(proj, tmp1))) {
+						if (__stl2::invoke(comp, __stl2::invoke(proj, tmp2), __stl2::invoke(proj, result.first))) {
 							result.first = (decltype(tmp2)&&)tmp2;
 						}
-						if (!__invoke::impl(comp, __invoke::impl(proj, tmp1), __invoke::impl(proj, result.second))) {
+						if (!__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.second))) {
 							result.second = std::move(tmp1);
 						}
 					} else {
-						if (__invoke::impl(comp, __invoke::impl(proj, tmp1), __invoke::impl(proj, result.first))) {
+						if (__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.first))) {
 							result.first = std::move(tmp1);
 						}
-						if (!__invoke::impl(comp, __invoke::impl(proj, tmp2), __invoke::impl(proj, result.second))) {
+						if (!__stl2::invoke(comp, __stl2::invoke(proj, tmp2), __stl2::invoke(proj, result.second))) {
 							result.second = (decltype(tmp2)&&)tmp2;
 						}
 					}
@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr tagged_pair<tag::min(const T&), tag::max(const T&)>
 		operator()(const T& a, const T& b, Comp comp = {}, Proj proj = {}) const
 		{
-			if (__invoke::impl(comp, __invoke::impl(proj, b), __invoke::impl(proj, a))) {
+			if (__stl2::invoke(comp, __stl2::invoke(proj, b), __stl2::invoke(proj, a))) {
 				return {b, a};
 			} else {
 				return {a, b};
@@ -100,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 			tag::max(iter_value_t<iterator_t<R>>)>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const
 		{
-			return __minmax_fn::impl(r, std::ref(comp), std::ref(proj));
+			return __minmax_fn::impl(r, __stl2::ref(comp), __stl2::ref(proj));
 		}
 
 		template<Copyable T, class Proj = identity,
@@ -108,7 +108,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr tagged_pair<tag::min(T), tag::max(T)>
 		operator()(std::initializer_list<T>&& r, Comp comp = {}, Proj proj = {}) const
 		{
-			return __minmax_fn::impl(r, std::ref(comp), std::ref(proj));
+			return __minmax_fn::impl(r, __stl2::ref(comp), __stl2::ref(proj));
 		}
 	};
 

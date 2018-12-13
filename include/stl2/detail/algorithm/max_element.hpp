@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const
 		{
 			return (*this)(begin(r), end(r),
-				std::ref(comp), std::ref(proj));
+				__stl2::ref(comp), __stl2::ref(proj));
 		}
 	};
 

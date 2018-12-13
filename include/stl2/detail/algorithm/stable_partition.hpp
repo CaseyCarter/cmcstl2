@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 						__stl2::make_move_iterator(std::move(counted)),
 						move_sentinel<default_sentinel>{},
 						std::move(first), __stl2::back_inserter(vec),
-						std::ref(pred), std::ref(proj)).out1();
+						__stl2::ref(pred), __stl2::ref(proj)).out1();
 				auto last = __stl2::move(vec, pp).out();
 				return {std::move(pp), std::move(last)};
 			}
@@ -147,8 +147,8 @@ STL2_OPEN_NAMESPACE {
 					__stl2::make_move_iterator(last),
 					std::move(first),
 					__stl2::back_inserter(vec),
-					std::ref(pred),
-					std::ref(proj)).out1();
+					__stl2::ref(pred),
+					__stl2::ref(proj)).out1();
 				*middle = __stl2::iter_move(last);
 				++middle;
 				__stl2::move(vec, middle);
@@ -227,7 +227,7 @@ STL2_OPEN_NAMESPACE {
 					auto bound = __stl2::next(first, n);
 					return (*this)(
 						std::move(first), std::move(bound), n,
-						std::ref(pred), std::ref(proj));
+						__stl2::ref(pred), __stl2::ref(proj));
 				} else {
 					// Either prove all true or find first false
 					skip_true(first, n, pred, proj);
@@ -287,12 +287,12 @@ STL2_OPEN_NAMESPACE {
 				auto bound = ext::enumerate(first, std::move(last));
 				return ext::stable_partition_n(
 					std::move(first), std::move(bound.end()), bound.count(),
-					std::ref(pred), std::ref(proj));
+					__stl2::ref(pred), __stl2::ref(proj));
 			} else {
 				auto n = __stl2::distance(first, std::move(last));
 				return ext::stable_partition_n(
 					std::move(first), n,
-					std::ref(pred), std::ref(proj));
+					__stl2::ref(pred), __stl2::ref(proj));
 			}
 		}
 
@@ -305,11 +305,11 @@ STL2_OPEN_NAMESPACE {
 				auto bound = ext::enumerate(rng);
 				return ext::stable_partition_n(
 					begin(rng), std::move(bound.end()), bound.count(),
-					std::ref(pred), std::ref(proj));
+					__stl2::ref(pred), __stl2::ref(proj));
 			} else {
 				return ext::stable_partition_n(
 					begin(rng), __stl2::distance(rng),
-					std::ref(pred), std::ref(proj));
+					__stl2::ref(pred), __stl2::ref(proj));
 			}
 		}
 	};

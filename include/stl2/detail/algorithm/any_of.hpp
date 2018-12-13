@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool operator()(R&& rng, Pred pred, Proj proj = {}) const
 		{
 			return (*this)(begin(rng), end(rng),
-				std::ref(pred), std::ref(proj));
+				__stl2::ref(pred), __stl2::ref(proj));
 		}
 	};
 

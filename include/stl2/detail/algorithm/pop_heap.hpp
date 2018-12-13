@@ -40,8 +40,8 @@ STL2_OPEN_NAMESPACE {
 		{
 			if (n > 1) {
 				__stl2::iter_swap(first, first + (n - 1));
-				detail::sift_down_n(first, n - 1, first, std::ref(comp),
-					std::ref(proj));
+				detail::sift_down_n(first, n - 1, first, __stl2::ref(comp),
+					__stl2::ref(proj));
 			}
 		}
 	}
@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 	I pop_heap(I first, S last, Comp comp = {}, Proj proj = {})
 	{
 		auto n = __stl2::distance(first, std::move(last));
-		detail::pop_heap_n(first, n, std::ref(comp), std::ref(proj));
+		detail::pop_heap_n(first, n, __stl2::ref(comp), __stl2::ref(proj));
 		return first + n;
 	}
 
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 	pop_heap(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		auto n = __stl2::distance(rng);
-		detail::pop_heap_n(begin(rng), n, std::ref(comp), std::ref(proj));
+		detail::pop_heap_n(begin(rng), n, __stl2::ref(comp), __stl2::ref(proj));
 		return begin(rng) + n;
 	}
 } STL2_CLOSE_NAMESPACE

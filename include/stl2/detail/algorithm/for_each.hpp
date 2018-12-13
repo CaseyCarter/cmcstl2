@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 		operator()(R&& r, F fun, Proj proj = {}) const
 		{
 			return {(*this)(begin(r), end(r),
-				std::ref(fun), std::ref(proj)).in(), std::move(fun)};
+				__stl2::ref(fun), __stl2::ref(proj)).in(), std::move(fun)};
 		}
 	};
 

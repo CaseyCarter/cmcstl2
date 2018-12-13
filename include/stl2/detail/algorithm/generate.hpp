@@ -1,6 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
-//  Copyright Casey Carter 2015
+//  Copyright Casey Carter 2015-present
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -20,27 +20,24 @@
 // generate [alg.generate]
 //
 STL2_OPEN_NAMESPACE {
-	template<class F, Iterator O, Sentinel<O> S>
-	requires
-		Invocable<F&> &&
-		Writable<O, result_of_t<F&()>>
-	O generate(O first, S last, F gen)
-	{
-		for (; first != last; ++first) {
-			*first = gen();
+	struct __generate_fn : private __niebloid {
+		template<Iterator O, Sentinel<O> S, CopyConstructible F>
+		requires Invocable<F&> && Writable<O, invoke_result_t<F&>>
+		constexpr O operator()(O first, S last, F gen) const {
+			for (; first != last; ++first) {
+				*first = gen();
+			}
+			return first;
 		}
-		return first;
-	}
 
-	template<class Rng, class F>
-	requires
-		Invocable<F&> &&
-		OutputRange<Rng, result_of_t<F&()>>
-	safe_iterator_t<Rng>
-	generate(Rng&& rng, F gen)
-	{
-		return __stl2::generate(begin(rng), end(rng), std::ref(gen));
-	}
+		template<class R, CopyConstructible F>
+		requires Invocable<F&> && OutputRange<R, invoke_result_t<F&>>
+		constexpr safe_iterator_t<R> operator()(R&& r, F gen) const {
+			return (*this)(begin(r), end(r), __stl2::ref(gen));
+		}
+	};
+
+	inline constexpr __generate_fn generate {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

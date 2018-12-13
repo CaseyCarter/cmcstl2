@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 				begin(r1), end(r1),
 				begin(r2), end(r2),
 				std::move(result),
-				std::ref(comp), std::ref(proj1), std::ref(proj2));
+				__stl2::ref(comp), __stl2::ref(proj1), __stl2::ref(proj2));
 		}
 	};
 

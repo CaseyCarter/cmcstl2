@@ -28,8 +28,7 @@ STL2_OPEN_NAMESPACE {
 		class Gen = detail::default_random_engine&, class D = iter_difference_t<I>>
 	requires
 		Permutable<I> &&
-		UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
-		ConvertibleTo<result_of_t<Gen&()>, D>
+		UniformRandomNumberGenerator<remove_reference_t<Gen>>
 	I shuffle(I const first, S const last, Gen&& g = detail::get_random_engine())
 	{
 		auto mid = first;
@@ -50,8 +49,7 @@ STL2_OPEN_NAMESPACE {
 		class D = iter_difference_t<iterator_t<Rng>>>
 	requires
 		Permutable<iterator_t<Rng>> &&
-		UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
-		ConvertibleTo<result_of_t<Gen&()>, D>
+		UniformRandomNumberGenerator<remove_reference_t<Gen>>
 	inline safe_iterator_t<Rng> shuffle(
 		Rng&& rng, Gen&& g = detail::get_random_engine())
 	{

@@ -31,10 +31,6 @@
 //
 STL2_OPEN_NAMESPACE {
 	template<class T>
-	using __with_reference = T&;
-	template<class T>
-	STL2_CONCEPT __can_reference = requires { typename __with_reference<T>; };
-	template<class T>
 	STL2_CONCEPT __dereferenceable = requires(T& t) {
 		// { *t } -> __can_reference;
 		*t; typename __with_reference<decltype(*t)>;

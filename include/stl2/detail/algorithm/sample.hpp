@@ -27,8 +27,7 @@ STL2_OPEN_NAMESPACE {
 		STL2_CONCEPT constraint =
 			InputIterator<I> && Sentinel<S, I> && WeaklyIncrementable<O> &&
 			IndirectlyCopyable<I, O> &&
-			UniformRandomNumberGenerator<remove_reference_t<Gen>> &&
-			ConvertibleTo<result_of_t<Gen&()>, iter_difference_t<I>>;
+			UniformRandomNumberGenerator<remove_reference_t<Gen>>;
 
 		template<class I, class S, class O, class Gen>
 		requires

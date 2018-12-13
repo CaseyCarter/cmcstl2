@@ -27,17 +27,17 @@ STL2_OPEN_NAMESPACE {
 			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
 		constexpr bool operator()(I first, S last, Comp comp = {}, Proj proj = {}) const
 		{
-			return last == is_sorted_until(std::move(first), last, std::ref(comp), std::ref(proj));
+			return last == is_sorted_until(std::move(first), last, __stl2::ref(comp), __stl2::ref(proj));
 		}
 
 		template<ForwardRange R, class Proj = identity,
 			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
 		constexpr bool operator()(R&& r, Comp comp = {}, Proj proj = {}) const
 		{
-			return end(r) == is_sorted_until(begin(r), end(r), std::ref(comp), std::ref(proj));
+			return end(r) == is_sorted_until(begin(r), end(r), __stl2::ref(comp), __stl2::ref(proj));
 		}
 	};
-	
+
 	inline constexpr __is_sorted_fn is_sorted {};
 } STL2_CLOSE_NAMESPACE
 

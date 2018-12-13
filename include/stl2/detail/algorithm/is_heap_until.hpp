@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		auto n = __stl2::distance(first, std::move(last));
 		return detail::is_heap_until_n(std::move(first), n,
-			std::ref(comp), std::ref(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	template<RandomAccessRange Rng, class Comp = less, class Proj = identity>
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 	is_heap_until(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		return detail::is_heap_until_n(begin(rng), __stl2::distance(rng),
-			std::ref(comp), std::ref(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

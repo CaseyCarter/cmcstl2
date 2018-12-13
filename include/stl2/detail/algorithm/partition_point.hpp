@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		auto n = __stl2::distance(first, std::move(last));
 		return __stl2::ext::partition_point_n(std::move(first), n,
-			std::ref(pred), std::ref(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template<ForwardRange Rng, class Pred, class Proj = identity>
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 	partition_point(Rng&& rng, Pred pred, Proj proj = {})
 	{
 		return __stl2::partition_point(begin(rng), end(rng),
-			std::ref(pred), std::ref(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 
 	template<ForwardRange Rng, class Pred, class Proj = identity>
@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 	partition_point(Rng&& rng, Pred pred, Proj proj = {})
 	{
 		return ext::partition_point_n(begin(rng), __stl2::distance(rng),
-			std::ref(pred), std::ref(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

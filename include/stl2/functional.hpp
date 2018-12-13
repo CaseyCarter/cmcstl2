@@ -29,6 +29,8 @@ STL2_OPEN_NAMESPACE {
 	template<_Decayed T>
 	struct __unwrap_<T> { using type = T; };
 	template<class T>
+	struct __unwrap_<reference_wrapper<T>> { using type = T&; };
+	template<class T>
 	struct __unwrap_<std::reference_wrapper<T>> { using type = T&; };
 	template<class T>
 	using __unwrap = meta::_t<__unwrap_<T>>;

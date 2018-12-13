@@ -63,8 +63,8 @@ STL2_OPEN_NAMESPACE {
 						__stl2::make_move_iterator(end(vec)),
 						__stl2::make_move_iterator(std::move(middle)),
 						__stl2::make_move_iterator(std::move(last)),
-						std::move(first), std::ref(pred),
-						std::ref(proj), std::ref(proj));
+						std::move(first), __stl2::ref(pred),
+						__stl2::ref(proj), __stl2::ref(proj));
 				} else {
 					__stl2::move(middle, last, __stl2::back_inserter(vec));
 					using RBi = reverse_iterator<I>;
@@ -74,8 +74,8 @@ STL2_OPEN_NAMESPACE {
 						__stl2::make_move_iterator(rbegin(vec)),
 						__stl2::make_move_iterator(rend(vec)),
 						RBi{std::move(last)},
-						__stl2::not_fn(std::ref(pred)),
-						std::ref(proj), std::ref(proj));
+						__stl2::not_fn(__stl2::ref(pred)),
+						__stl2::ref(proj), __stl2::ref(proj));
 				}
 			}
 
@@ -127,7 +127,7 @@ STL2_OPEN_NAMESPACE {
 						len21 = len2 / 2;
 						m2 = __stl2::next(middle, len21);
 						m1 = __stl2::upper_bound(begin, middle, __stl2::invoke(proj, *m2),
-							std::ref(pred), std::ref(proj));
+							__stl2::ref(pred), __stl2::ref(proj));
 						len11 = __stl2::distance(begin, m1);
 					} else {
 						if (len1 == 1) {
@@ -140,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 						len11 = len1 / 2;
 						m1 = __stl2::next(begin, len11);
 						m2 = __stl2::lower_bound(middle, end, __stl2::invoke(proj, *m1),
-							std::ref(pred), std::ref(proj));
+							__stl2::ref(pred), __stl2::ref(proj));
 						len21 = __stl2::distance(middle, m2);
 					}
 					D len12 = len1 - len11;  // distance(m1, middle)
@@ -152,14 +152,14 @@ STL2_OPEN_NAMESPACE {
 					// merge smaller range with recursive call and larger with tail recursion elimination
 					if(len11 + len21 < len12 + len22) {
 						(*this)(std::move(begin), std::move(m1), middle, len11, len21, buf,
-										std::ref(pred), std::ref(proj));
+										__stl2::ref(pred), __stl2::ref(proj));
 						begin = std::move(middle);
 						middle = std::move(m2);
 						len1 = len12;
 						len2 = len22;
 					} else {
 						(*this)(middle, std::move(m2), std::move(end), len12, len22, buf,
-										std::ref(pred), std::ref(proj));
+										__stl2::ref(pred), __stl2::ref(proj));
 						end = std::move(middle);
 						middle = std::move(m1);
 						len1 = len11;
@@ -181,7 +181,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				temporary_buffer<iter_value_t<I>> no_buffer;
 				merge_adaptive(std::move(begin), std::move(middle), std::move(end),
-					len1, len2, no_buffer, std::ref(pred), std::ref(proj));
+					len1, len2, no_buffer, __stl2::ref(pred), __stl2::ref(proj));
 			}
 		};
 
@@ -202,7 +202,7 @@ STL2_OPEN_NAMESPACE {
 			buf = detail::temporary_buffer<iter_value_t<I>>{buf_size};
 		}
 		detail::merge_adaptive(std::move(first), std::move(middle), len2_and_end.end(),
-			len1, len2_and_end.count(), buf, std::ref(comp), std::ref(proj));
+			len1, len2_and_end.count(), buf, __stl2::ref(comp), __stl2::ref(proj));
 		return len2_and_end.end();
 	}
 
@@ -213,7 +213,7 @@ STL2_OPEN_NAMESPACE {
 	inplace_merge(Rng&& rng, iterator_t<Rng> middle, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::inplace_merge(begin(rng), std::move(middle),
-			end(rng), std::ref(comp), std::ref(proj));
+			end(rng), __stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 
