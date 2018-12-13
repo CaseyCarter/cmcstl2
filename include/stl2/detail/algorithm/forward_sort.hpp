@@ -44,7 +44,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		struct fsort : private __niebloid {
+		struct __fsort_n_fn {
 		private:
 			template<class I>
 			using buf_t = temporary_buffer<iter_value_t<I>>;
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(0 <= n0);
 				STL2_EXPECT(0 <= n1);
 				STL2_EXPECT(n0 <= buf.size());
-				auto&& vec = make_temporary_vector(buf);
+				auto&& vec = detail::make_temporary_vector(buf);
 				__stl2::move(counted_iterator{f0, n0},
 					default_sentinel{}, __stl2::back_inserter(vec));
 				return __stl2::merge(
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 
 			template<class I, class Comp, class Proj>
 			requires Sortable<I, Comp, Proj>
-			static constexpr I merge_n_adaptive(I f0, iter_difference_t<I> n0,
+			static I merge_n_adaptive(I f0, iter_difference_t<I> n0,
 				I f1, iter_difference_t<I> n1,
 				buf_t<I>& buf, Comp& comp, Proj& proj)
 			{
@@ -130,27 +130,27 @@ STL2_OPEN_NAMESPACE {
 					return __stl2::next(f0, n0 + n1);
 				}
 				if (n0 <= buf.size()) {
-					return fsort::merge_n_with_buffer(f0, n0, f1, n1, buf, comp, proj);
+					return merge_n_with_buffer(f0, n0, f1, n1, buf, comp, proj);
 				}
 				I f0_0, f0_1, f1_0, f1_1;
 				iter_difference_t<I> n0_0, n0_1, n1_0, n1_1;
 
 				if (n0 < n1) {
-					fsort::merge_n_step_0(f0, n0, f1, n1, comp, proj,
+					merge_n_step_0(f0, n0, f1, n1, comp, proj,
 						f0_0, n0_0, f0_1, n0_1,
 						f1_0, n1_0, f1_1, n1_1);
 				} else {
-					fsort::merge_n_step_1(f0, n0, f1, n1, comp, proj,
+					merge_n_step_1(f0, n0, f1, n1, comp, proj,
 						f0_0, n0_0, f0_1, n0_1,
 						f1_0, n1_0, f1_1, n1_1);
 				}
-				fsort::merge_n_adaptive(f0_0, n0_0, f0_1, n0_1, buf, comp, proj);
-				return fsort::merge_n_adaptive(f1_0, n1_0, f1_1, n1_1, buf, comp, proj);
+				merge_n_adaptive(f0_0, n0_0, f0_1, n0_1, buf, comp, proj);
+				return merge_n_adaptive(f1_0, n1_0, f1_1, n1_1, buf, comp, proj);
 			}
 
 			template<class I, class Comp, class Proj>
 			requires Sortable<I, Comp, Proj>
-			static constexpr I sort_n_adaptive(I first, const iter_difference_t<I> n, buf_t<I>& buf,
+			static I sort_n_adaptive(I first, const iter_difference_t<I> n, buf_t<I>& buf,
 				Comp& comp, Proj& proj)
 			{
 				STL2_EXPECT(0 <= n);
@@ -158,16 +158,16 @@ STL2_OPEN_NAMESPACE {
 				if (!half_n) {
 					return __stl2::next(first, n);
 				}
-				I middle = fsort::sort_n_adaptive(first, half_n, buf, comp, proj);
-				fsort::sort_n_adaptive(middle, n - half_n, buf, comp, proj);
-				return fsort::merge_n_adaptive(first, half_n, middle, n - half_n,
+				I middle = sort_n_adaptive(first, half_n, buf, comp, proj);
+				sort_n_adaptive(middle, n - half_n, buf, comp, proj);
+				return merge_n_adaptive(first, half_n, middle, n - half_n,
 					buf, comp, proj);
 			}
 		public:
 			template<class I, class Comp = less, class Proj = identity>
 			requires Sortable<I, Comp, Proj>
-			static I sort_n(I first, const iter_difference_t<I> n,
-				Comp comp = {}, Proj proj = {})
+			I operator()(I first, const iter_difference_t<I> n,
+				Comp comp = {}, Proj proj = {}) const
 			{
 				STL2_EXPECT(0 <= n);
 				auto ufirst = ext::uncounted(first);
@@ -175,11 +175,13 @@ STL2_OPEN_NAMESPACE {
 				using buf_t = temporary_buffer<iter_value_t<I>>;
 				// TODO: tune this threshold.
 				auto buf = n / 2 >= 16 ? buf_t{n / 2} : buf_t{};
-				auto last = detail::fsort::sort_n_adaptive(std::move(ufirst), n,
+				auto last = sort_n_adaptive(std::move(ufirst), n,
 					buf, comp, proj);
 				return ext::recounted(first, std::move(last), n);
 			}
 		};
+
+		inline constexpr __fsort_n_fn fsort_n {};
 	}
 } STL2_CLOSE_NAMESPACE
 

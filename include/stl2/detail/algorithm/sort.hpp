@@ -105,7 +105,7 @@ STL2_OPEN_NAMESPACE {
 		///
 		template<ForwardIterator I, Sentinel<I> S, class Comp = less, class Proj = identity>
 		requires Sortable<I, Comp, Proj>
-		I operator()(I first, S sent, Comp comp = {}, Proj proj = {}) const
+		constexpr I operator()(I first, S sent, Comp comp = {}, Proj proj = {}) const
 		{
 			if constexpr (RandomAccessIterator<I>) {
 				if (first == sent) {
@@ -119,7 +119,7 @@ STL2_OPEN_NAMESPACE {
 			}
 			else {
 				auto n = distance(first, std::move(sent));
-				return detail::fsort::sort_n(std::move(first), n, std::move(comp), std::move(proj));
+				return detail::fsort_n(std::move(first), n, std::move(comp), std::move(proj));
 			}
 		}
 
