@@ -101,12 +101,6 @@ namespace __stl2 = ::std::experimental::ranges;
 	requires requires { __VA_ARGS__; } \
 	{ return (__VA_ARGS__); }
 
-#if STL2_CONSTEXPR_EXTENSIONS
- #define STL2_CONSTEXPR_EXT constexpr
-#else
- #define STL2_CONSTEXPR_EXT inline
-#endif
-
 #ifndef STL2_ASSERT
  #ifdef NDEBUG
   #define STL2_ASSERT(...) void(0)

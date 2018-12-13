@@ -113,10 +113,10 @@ STL2_OPEN_NAMESPACE {
 				constexpr mixin(default_sentinel) noexcept
 				: base_t{}
 				{}
-				STL2_CONSTEXPR_EXT mixin(streambuf_type* s) noexcept
+				mixin(streambuf_type* s) noexcept
 				: base_t{cursor{s}}
 				{}
-				STL2_CONSTEXPR_EXT mixin(const __proxy& p) noexcept
+				mixin(const __proxy& p) noexcept
 				: base_t{cursor{p}}
 				{}
 				mixin(istream_type& s) noexcept
@@ -128,8 +128,7 @@ STL2_OPEN_NAMESPACE {
 				// Since basic_iterator<cursor> derives from mixin, mixin must be
 				// instantiable before basic_iterator<cursor> is complete.
 				template<Same<cursor> C>
-				STL2_CONSTEXPR_EXT bool
-				equal(const basic_iterator<C>& that) const noexcept {
+				bool equal(const basic_iterator<C>& that) const noexcept {
 					return base_t::get().equal(__stl2::get_cursor(that));
 				}
 			};
@@ -138,10 +137,10 @@ STL2_OPEN_NAMESPACE {
 			constexpr cursor(default_sentinel) noexcept
 			: cursor{}
 			{}
-			STL2_CONSTEXPR_EXT cursor(streambuf_type* s) noexcept
+			cursor(streambuf_type* s) noexcept
 			: sbuf_{s}
 			{}
-			STL2_CONSTEXPR_EXT cursor(const __proxy& p) noexcept
+			cursor(const __proxy& p) noexcept
 			: cursor{p.sbuf_}
 			{}
 			cursor(istream_type& s) noexcept
@@ -162,10 +161,10 @@ STL2_OPEN_NAMESPACE {
 				return {traits::to_char_type(advance()), sbuf_};
 			}
 
-			STL2_CONSTEXPR_EXT bool equal(const cursor& that) const noexcept {
+			bool equal(const cursor& that) const noexcept {
 				return at_end() == that.at_end();
 			}
-			STL2_CONSTEXPR_EXT bool equal(default_sentinel) const noexcept {
+			bool equal(default_sentinel) const noexcept {
 				return at_end();
 			}
 

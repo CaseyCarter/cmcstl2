@@ -29,12 +29,11 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr insert_cursor_base() noexcept = default;
 
-			STL2_CONSTEXPR_EXT explicit
-			insert_cursor_base(Container& x) noexcept
+			constexpr explicit insert_cursor_base(Container& x) noexcept
 			: container_{std::addressof(x)}
 			{}
 		protected:
-			raw_ptr<Container> container_{};
+			raw_ptr<Container> container_ = nullptr;
 		};
 
 		template<class Cursor, class Container>
@@ -60,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t::base_t;
 
 			template<BackInsertableInto<Container> T>
-			void write(T&& t) {
+			constexpr void write(T&& t) {
 				base_t::container_->push_back(std::forward<T>(t));
 			}
 		};
@@ -74,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 		basic_iterator<detail::back_insert_cursor<Container>>;
 
 	template<detail::MemberValueType Container>
-	STL2_CONSTEXPR_EXT auto back_inserter(Container& c) noexcept {
+	constexpr auto back_inserter(Container& c) noexcept {
 		return back_insert_iterator<Container>{c};
 	}
 
@@ -94,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t::base_t;
 
 			template<FrontInsertableInto<Container> T>
-			void write(T&& t) {
+			constexpr void write(T&& t) {
 				base_t::container_->push_front(std::forward<T>(t));
 			}
 		};
@@ -108,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 		basic_iterator<detail::front_insert_cursor<Container>>;
 
 	template<detail::MemberValueType Container>
-	STL2_CONSTEXPR_EXT auto front_inserter(Container& x) noexcept {
+	constexpr auto front_inserter(Container& x) noexcept {
 		return front_insert_iterator<Container>{x};
 	}
 
@@ -131,38 +130,38 @@ STL2_OPEN_NAMESPACE {
 		using difference_type = ptrdiff_t;
 
 		insert_iterator() = default;
-		insert_iterator(Container& x, iterator_t<Container> i)
+		constexpr insert_iterator(Container& x, iterator_t<Container> i)
 		: container(std::addressof(x)), iter(std::move(i)) {}
-		insert_iterator& operator=(const iter_value_t<Container>& value)
+		constexpr insert_iterator& operator=(const iter_value_t<Container>& value)
 		requires detail::InsertableInto<const iter_value_t<Container>&, Container>
 		{
 			iter = container->insert(iter, value);
 			++iter;
 			return *this;
 		}
-		insert_iterator& operator=(iter_value_t<Container>&& value)
+		constexpr insert_iterator& operator=(iter_value_t<Container>&& value)
 		requires detail::InsertableInto<iter_value_t<Container>&&, Container>
 		{
 			iter = container->insert(iter, std::move(value));
 			++iter;
 			return *this;
 		}
-		insert_iterator& operator*() {
+		constexpr insert_iterator& operator*() {
 			return *this;
 		}
-		insert_iterator& operator++() {
+		constexpr insert_iterator& operator++() {
 			return *this;
 		}
-		insert_iterator& operator++(int) {
+		constexpr insert_iterator& operator++(int) {
 			return *this;
 		}
 	private:
-		detail::raw_ptr<Container> container{nullptr};
-		iterator_t<Container> iter{};
+		detail::raw_ptr<Container> container = nullptr;
+		iterator_t<Container> iter = iterator_t<Container>();
 	};
 
 	template<detail::MemberValueType Container>
-	STL2_CONSTEXPR_EXT auto inserter(Container& x, iterator_t<Container> i)
+	constexpr auto inserter(Container& x, iterator_t<Container> i)
 	STL2_NOEXCEPT_RETURN(
 		insert_iterator<Container>{x, std::move(i)}
 	)
