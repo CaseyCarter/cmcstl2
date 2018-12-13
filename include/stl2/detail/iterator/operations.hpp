@@ -193,7 +193,13 @@ STL2_OPEN_NAMESPACE {
 	// next
 	struct __next_fn : private __niebloid {
 		template<Iterator I>
-		constexpr I operator()(I x, iter_difference_t<I> n = 1) const
+		constexpr I operator()(I x) const
+		STL2_NOEXCEPT_RETURN(
+			++x
+		)
+
+		template<Iterator I>
+		constexpr I operator()(I x, iter_difference_t<I> n) const
 		STL2_NOEXCEPT_RETURN(
 			__stl2::advance(x, n),
 			x
@@ -202,14 +208,14 @@ STL2_OPEN_NAMESPACE {
 		template<Iterator I, Sentinel<I> S>
 		constexpr I operator()(I x, S bound) const
 		STL2_NOEXCEPT_RETURN(
-			__stl2::advance(x, std::forward<S>(bound)),
+			__stl2::advance(x, std::move(bound)),
 			x
 		)
 
 		template<Iterator I, Sentinel<I> S>
 		constexpr I operator()(I x, iter_difference_t<I> n, S bound) const
 		STL2_NOEXCEPT_RETURN(
-			__stl2::advance(x, n, std::forward<S>(bound)),
+			__stl2::advance(x, n, std::move(bound)),
 			x
 		)
 	};
