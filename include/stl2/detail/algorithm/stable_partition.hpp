@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(n <= buf.size());
 
 				auto&& vec = detail::make_temporary_vector(buf);
-				vec.push_back(__stl2::iter_move(first));
+				vec.push_back(iter_move(first));
 				auto counted = counted_iterator{ext::uncounted(next), n - 1};
 				auto pp = __stl2::partition_copy(
 						__stl2::make_move_iterator(std::move(counted)),
@@ -140,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 				// Move the false values into the temporary buffer
 				// and the true values to the front of the sequence.
 				auto&& vec = detail::make_temporary_vector(buf);
-				vec.push_back(__stl2::iter_move(first));
+				vec.push_back(iter_move(first));
 				auto middle = next(first);
 				middle = __stl2::partition_copy(
 					__stl2::make_move_iterator(std::move(middle)),
@@ -149,7 +149,7 @@ STL2_OPEN_NAMESPACE {
 					__stl2::back_inserter(vec),
 					__stl2::ref(pred),
 					__stl2::ref(proj)).out1();
-				*middle = __stl2::iter_move(last);
+				*middle = iter_move(last);
 				++middle;
 				__stl2::move(vec, middle);
 				return middle;

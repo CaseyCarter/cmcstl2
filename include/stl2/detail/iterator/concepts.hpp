@@ -93,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<__dereferenceable R>
 	using iter_rvalue_reference_t =
-		decltype(__stl2::iter_move(std::declval<R&>()));
+		decltype(iter_move(std::declval<R&>()));
 
 	///////////////////////////////////////////////////////////////////////////
 	// value_type [readable.iterators]
@@ -205,7 +205,7 @@ STL2_OPEN_NAMESPACE {
 	template<class Out, IndirectlyMovable<Out> In>
 	constexpr bool is_nothrow_indirectly_movable_v<In, Out> =
 		noexcept(noexcept(std::declval<iter_reference_t<Out>>()
-			= __stl2::iter_move(std::declval<In>())));
+			= iter_move(std::declval<In>())));
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlyMovableStorable [commonalgoreq.indirectlymovable]
@@ -282,8 +282,8 @@ STL2_OPEN_NAMESPACE {
 				is_nothrow_indirectly_movable_storable_v<R1, R2> &&
 				is_nothrow_indirectly_movable_storable_v<R2, R1>)
 		{
-			iter_value_t<R1> tmp = __stl2::iter_move(r1);
-			*r1 = __stl2::iter_move(r2);
+			iter_value_t<R1> tmp = iter_move(r1);
+			*r1 = iter_move(r2);
 			*r2 = std::move(tmp);
 		}
 

@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 		static constexpr void unguarded_insertion_sort(I first, I last, Comp& comp, Proj& proj)
 		{
 			for (I i = first; i != last; ++i) {
-				detail::rsort::unguarded_linear_insert(i, __stl2::iter_move(i), comp, proj);
+				detail::rsort::unguarded_linear_insert(i, iter_move(i), comp, proj);
 			}
 		}
 

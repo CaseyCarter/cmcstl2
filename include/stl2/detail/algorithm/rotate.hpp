@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 		Permutable<I>
 	subrange<I> __rotate_left(I first, I last)
 	{
-		iter_value_t<I> tmp = __stl2::iter_move(first);
+		iter_value_t<I> tmp = iter_move(first);
 		I lm1 = __stl2::move(next(first), last, first).second;
 		*lm1 = std::move(tmp);
 		return {std::move(lm1), std::move(last)};
@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 	subrange<I> __rotate_right(I first, I last)
 	{
 		I lm1 = prev(last);
-		iter_value_t<I> tmp = __stl2::iter_move(lm1);
+		iter_value_t<I> tmp = iter_move(lm1);
 		I fp1 = __stl2::move_backward(first, std::move(lm1), last).second;
 		*first = std::move(tmp);
 		return {std::move(fp1), std::move(last)};
@@ -117,11 +117,11 @@ STL2_OPEN_NAMESPACE {
 		}
 		auto const g = __stl2::__gcd(m1, m2);
 		for (I p = first + g; p != first;) {
-			iter_value_t<I> t = __stl2::iter_move(--p);
+			iter_value_t<I> t = iter_move(--p);
 			I p1 = p;
 			I p2 = p1 + m1;
 			do {
-				*p1 = __stl2::iter_move(p2);
+				*p1 = iter_move(p2);
 				p1 = p2;
 				D const d = last - p2;
 				if (m1 < d) {

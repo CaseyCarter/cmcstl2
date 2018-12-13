@@ -102,7 +102,7 @@ STL2_OPEN_NAMESPACE {
 					// fallthrough
 			case op::rval:
 					return +[](blob const &src) -> RValueReference {
-						return __stl2::iter_move(
+						return iter_move(
 							*static_cast<I const *>(static_cast<void const *>(&src.tiny)));
 					};
 				}
@@ -133,7 +133,7 @@ STL2_OPEN_NAMESPACE {
 					// fallthrough
 			case op::rval:
 					return +[](blob const &src) -> RValueReference {
-						return __stl2::iter_move(
+						return iter_move(
 							static_cast<shared_iterator<I> const *>(src.big)->it);
 					};
 				}

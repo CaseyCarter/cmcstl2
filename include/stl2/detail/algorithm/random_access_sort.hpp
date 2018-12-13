@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				I next = prev(last);
 				while (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *next))) {
-					*last = __stl2::iter_move(next);
+					*last = iter_move(next);
 					last = next;
 					--next;
 				}
@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 			requires Sortable<I, Comp, Proj>
 			static constexpr void linear_insert(I first, I last, Comp& comp, Proj& proj)
 			{
-				iter_value_t<I> val = __stl2::iter_move(last);
+				iter_value_t<I> val = iter_move(last);
 				if (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *first))) {
 					__stl2::move_backward(first, last, last + 1);
 					*first = std::move(val);

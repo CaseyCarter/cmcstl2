@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		auto guard = detail::destroy_guard<O>{result};
 		for (; first != last; (void)++result, ++first) {
-			__stl2::__construct_at(*result, __stl2::iter_move(first));
+			__stl2::__construct_at(*result, iter_move(first));
 		}
 		guard.release();
 		return {std::move(first), std::move(result)};
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		auto guard = detail::destroy_guard<O>{ofirst};
 		for (; ifirst != ilast && ofirst != olast; ++ofirst, (void)++ifirst) {
-			__stl2::__construct_at(*ofirst, __stl2::iter_move(ifirst));
+			__stl2::__construct_at(*ofirst, iter_move(ifirst));
 		}
 		guard.release();
 		return {std::move(ifirst), std::move(ofirst)};

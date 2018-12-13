@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		auto i = last;
 		while (i != first) {
-			*--result = __stl2::iter_move(--i);
+			*--result = iter_move(--i);
 		}
 		return {std::move(last), std::move(result)};
 	}

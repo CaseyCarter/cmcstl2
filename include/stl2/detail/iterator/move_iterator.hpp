@@ -91,7 +91,7 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr iter_rvalue_reference_t<I> read() const
 			STL2_NOEXCEPT_RETURN(
-				__stl2::iter_move(current_)
+				iter_move(current_)
 			)
 
 			constexpr void next()
@@ -167,13 +167,11 @@ STL2_OPEN_NAMESPACE {
 				access::sentinel(that) - current_
 			)
 
-			// Extension
 			constexpr decltype(auto) indirect_move() const
 			STL2_NOEXCEPT_RETURN(
-				__stl2::iter_move(current_)
+				iter_move(current_)
 			)
 
-			// Extension
 			template<IndirectlySwappable<I> I2>
 			constexpr void indirect_swap(const cursor<I2>& that) const
 			STL2_NOEXCEPT_RETURN(

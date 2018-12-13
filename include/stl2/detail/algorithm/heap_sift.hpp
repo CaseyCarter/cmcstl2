@@ -44,9 +44,9 @@ STL2_OPEN_NAMESPACE {
 				n = (n - 2) / 2;
 				I i = first + n;
 				if (__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *--last))) {
-					iter_value_t<I> v = __stl2::iter_move(last);
+					iter_value_t<I> v = iter_move(last);
 					do {
-						*last = __stl2::iter_move(i);
+						*last = iter_move(i);
 						last = i;
 						if (n == 0) {
 							break;
@@ -89,10 +89,10 @@ STL2_OPEN_NAMESPACE {
 				return;
 			}
 
-			iter_value_t<I> top = __stl2::iter_move(start);
+			iter_value_t<I> top = iter_move(start);
 			do {
 				// we are not in heap-order, swap the parent with it's largest child
-				*start = __stl2::iter_move(child_i);
+				*start = iter_move(child_i);
 				start = child_i;
 
 				if ((n - 2) / 2 < child) {
