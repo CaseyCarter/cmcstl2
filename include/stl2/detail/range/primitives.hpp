@@ -13,7 +13,6 @@
 #define STL2_DETAIL_RANGE_PRIMITIVES_HPP
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/iterator/dangling.hpp>
 #include <stl2/detail/iterator/operations.hpp>
 #include <stl2/detail/range/access.hpp>
@@ -25,58 +24,60 @@
 STL2_OPEN_NAMESPACE {
 	// enumerate
 	namespace ext {
-		template<Iterator I, Sentinel<I> S>
-		constexpr tagged_pair<tag::count(iter_difference_t<I>), tag::end(I)>
-		enumerate(I first, S last)
-		noexcept(noexcept(++first != last) &&
-			std::is_nothrow_move_constructible<I>::value)
-		{
-			iter_difference_t<I> n = 0;
-			while (first != last) {
-				++n;
-				++first;
+		template<class I, class C>
+		struct enumerate_result {
+			I end;
+			C count;
+
+			template<class I2, class C2>
+			requires ConvertibleTo<const I&, I2> && ConvertibleTo<const C&, C2>
+			operator enumerate_result<I2, C2>() const& {
+				return {end, count};
 			}
-			return {n, std::move(first)};
-		}
-
-		template<Iterator I, SizedSentinel<I> S>
-		constexpr tagged_pair<tag::count(iter_difference_t<I>), tag::end(I)>
-		enumerate(I first, S last)
-		noexcept(noexcept(next(std::move(first), std::move(last))) &&
-			std::is_nothrow_move_constructible<I>::value)
-		{
-			auto d = last - first;
-			STL2_EXPECT(Same<I, S> || d >= 0);
-			return {d, next(std::move(first), std::move(last))};
-		}
-
-		template<Iterator I, Sentinel<I> S>
-		requires (!SizedSentinel<S, I>) && SizedSentinel<I, I>
-		constexpr tagged_pair<tag::count(iter_difference_t<I>), tag::end(I)>
-		enumerate(I first, S last)
-		noexcept(noexcept(next(first, std::move(last))) &&
-			std::is_nothrow_move_constructible<I>::value)
-		{
-			auto end = next(first, std::move(last));
-			auto n = end - first;
-			return {n, std::move(end)};
-		}
-
-		template<Range R>
-		constexpr auto enumerate(R&& r)
-		STL2_NOEXCEPT_RETURN(
-			__stl2::ext::enumerate(begin(r), end(r))
-		)
-
-		template<SizedRange R>
-		constexpr auto enumerate(R&& r)
-		STL2_NOEXCEPT_RETURN(
-			tagged_pair<tag::count(iter_difference_t<iterator_t<R>>),
-				tag::end(safe_iterator_t<R>)>{
-				size(r),
-				next(begin(r), end(r))
+			template<class I2, class C2>
+			requires ConvertibleTo<I, I2> && ConvertibleTo<C, C2>
+			operator enumerate_result<I2, C2>() && {
+				return {std::move(end), std::move(count)};
 			}
-		)
+		};
+
+		struct __enumerate_fn {
+			template<Iterator I, Sentinel<I> S>
+			constexpr enumerate_result<I, iter_difference_t<I>>
+			operator()(I first, S last) const {
+				if constexpr (SizedSentinel<S, I>) {
+					auto d = last - first;
+					STL2_EXPECT(Same<I, S> || d >= 0);
+					return {__stl2::next(std::move(first), std::move(last)), d};
+				} else if constexpr (SizedSentinel<I, I>) {
+					auto end = __stl2::next(first, std::move(last));
+					auto n = end - first;
+					return {std::move(end), n};
+				} else {
+					iter_difference_t<I> n = 0;
+					while (first != last) {
+						++n;
+						++first;
+					}
+					return {std::move(first), n};
+				}
+			}
+
+			template<_ForwardingRange R>
+			constexpr enumerate_result<iterator_t<R>,
+				iter_difference_t<iterator_t<R>>>
+			operator()(R&& r) const {
+				if constexpr (SizedRange<R>) {
+					using D = iter_difference_t<iterator_t<R>>;
+					auto n = static_cast<D>(size(r));
+					return {__stl2::next(begin(r), end(r)), n};
+				} else {
+					return (*this)(begin(r), end(r));
+				}
+			}
+		};
+
+		inline constexpr __enumerate_fn enumerate {};
 	}
 
 	struct __distance_fn : private __niebloid {

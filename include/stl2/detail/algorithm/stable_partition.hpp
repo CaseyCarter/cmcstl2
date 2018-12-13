@@ -284,9 +284,9 @@ STL2_OPEN_NAMESPACE {
 		requires Permutable<I> && IndirectUnaryPredicate<Pred, projected<I, Proj>>
 		I operator()(I first, S last, Pred pred, Proj proj = {}) const {
 			if constexpr (BidirectionalIterator<I>) {
-				auto bound = ext::enumerate(first, std::move(last));
+				auto [bound, n] = ext::enumerate(first, std::move(last));
 				return ext::stable_partition_n(
-					std::move(first), std::move(bound.end()), bound.count(),
+					std::move(first), std::move(bound), n,
 					__stl2::ref(pred), __stl2::ref(proj));
 			} else {
 				auto n = distance(first, std::move(last));
@@ -302,9 +302,9 @@ STL2_OPEN_NAMESPACE {
 		safe_iterator_t<Rng>
 		operator()(Rng&& rng, Pred pred, Proj proj = {}) const {
 			if constexpr (BidirectionalRange<Rng>) {
-				auto bound = ext::enumerate(rng);
+				auto [bound, n] = ext::enumerate(rng);
 				return ext::stable_partition_n(
-					begin(rng), std::move(bound.end()), bound.count(),
+					begin(rng), std::move(bound), n,
 					__stl2::ref(pred), __stl2::ref(proj));
 			} else {
 				return ext::stable_partition_n(
