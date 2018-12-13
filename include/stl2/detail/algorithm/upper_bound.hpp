@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr __f<I> operator()(I&& first, iter_difference_t<__f<I>> n, const T& value,
 				Comp comp = {}, Proj proj = {}) const {
 				auto pred = [&](auto&& i) { return !__stl2::invoke(comp, value, i); };
-				return ext::partition_point_n(std::forward<I>(first), n, pred, std::ref(proj));
+				return ext::partition_point_n(std::forward<I>(first), n, pred, __stl2::ref(proj));
 			}
 		};
 
@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 			Comp comp = {}, Proj proj = {}) const {
 			auto pred = [&](auto&& i) { return !__stl2::invoke(comp, value, i); };
 			return __stl2::partition_point(std::forward<I>(first),
-				std::forward<S>(last), pred, std::ref(proj));
+				std::forward<S>(last), pred, __stl2::ref(proj));
 		}
 
 		template<class I, class S, class T, class Comp = less, class Proj = identity>
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 			auto first = std::forward<I>(first_);
 			auto n = __stl2::distance(first, std::forward<S>(last));
 			return ext::upper_bound_n(std::move(first), n, value,
-				std::ref(comp), std::ref(proj));
+				__stl2::ref(comp), __stl2::ref(proj));
 		}
 
 		template<ForwardRange Rng, class T, class Comp = less, class Proj = identity>
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
 			return (*this)(begin(rng), end(rng),
-				value, std::ref(comp), std::ref(proj));
+				value, __stl2::ref(comp), __stl2::ref(proj));
 		}
 
 		template<ForwardRange Rng, class T, class Comp = less, class Proj = identity>
@@ -75,7 +75,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
 			return ext::upper_bound_n(begin(rng), __stl2::distance(rng),
-				value, std::ref(comp), std::ref(proj));
+				value, __stl2::ref(comp), __stl2::ref(proj));
 		}
 	};
 

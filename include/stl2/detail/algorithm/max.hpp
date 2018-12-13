@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 			iter_value_t<iterator_t<R>> result = *first;
 			while (++first != last) {
 				auto&& tmp = *first;
-				if (__invoke::impl(comp, __invoke::impl(proj, result), __invoke::impl(proj, tmp))) {
+				if (__stl2::invoke(comp, __stl2::invoke(proj, result), __stl2::invoke(proj, tmp))) {
 					result = (decltype(tmp)&&)tmp;
 				}
 			}
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr const T&
 		operator()(const T& a, const T& b, Comp comp = {}, Proj proj = {}) const
 		{
-			return !__invoke::impl(comp, __invoke::impl(proj, a), __invoke::impl(proj, b)) ? a : b;
+			return !__stl2::invoke(comp, __stl2::invoke(proj, a), __stl2::invoke(proj, b)) ? a : b;
 		}
 
 		template<InputRange R, class Proj = identity,
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr iter_value_t<iterator_t<R>>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const
 		{
-			return __max_fn::impl(r, std::ref(comp), std::ref(proj));
+			return __max_fn::impl(r, __stl2::ref(comp), __stl2::ref(proj));
 		}
 
 		template<Copyable T, class Proj = identity,
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr T
 		operator()(std::initializer_list<T> r, Comp comp = {}, Proj proj = {}) const
 		{
-			return __max_fn::impl(r, std::ref(comp), std::ref(proj));
+			return __max_fn::impl(r, __stl2::ref(comp), __stl2::ref(proj));
 		}
 	};
 

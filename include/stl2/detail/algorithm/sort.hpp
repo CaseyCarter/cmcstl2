@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::sort(begin(rng), end(rng),
-			std::ref(comp), std::ref(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	namespace ext {
@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 		safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = {}, Proj proj = {})
 		{
 			return __stl2::sort(begin(rng), end(rng),
-				std::ref(comp), std::ref(proj));
+				__stl2::ref(comp), __stl2::ref(proj));
 		}
 #else  // STL2_WORKAROUND_GCC_79591
 		using __stl2::sort;
@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			auto n = __stl2::distance(first, std::move(last));
 			return detail::fsort::sort_n(std::move(first), n,
-				std::ref(comp), std::ref(proj));
+				__stl2::ref(comp), __stl2::ref(proj));
 		}
 
 		template<ForwardRange Rng, class Comp = less, class Proj = identity>
@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 		safe_iterator_t<Rng> sort(Rng&& rng, Comp comp = {}, Proj proj = {})
 		{
 			return detail::fsort::sort_n(begin(rng), __stl2::distance(rng),
-				std::ref(comp), std::ref(proj));
+				__stl2::ref(comp), __stl2::ref(proj));
 		}
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE

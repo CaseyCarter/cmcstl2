@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 	bool is_sorted(I first, S last, Comp comp = {}, Proj proj = {})
 	{
 		return last == __stl2::is_sorted_until(std::move(first), last,
-			std::ref(comp), std::ref(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 
 	template<ForwardRange Rng, class Comp = less, class Proj = identity>
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return end(rng) ==
 			__stl2::is_sorted_until(begin(rng), end(rng),
-				std::ref(comp), std::ref(proj));
+				__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

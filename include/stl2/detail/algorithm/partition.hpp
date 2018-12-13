@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			} else {
 				first = __stl2::find_if_not(std::move(first), last_,
-					std::ref(pred), std::ref(proj));
+					__stl2::ref(pred), __stl2::ref(proj));
 				if (first != last_) {
 					for (auto m = first; ++m != last_;) {
 						if (__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, Pred pred, Proj proj = {}) const {
 			return (*this)(begin(rng), end(rng),
-				std::ref(pred), std::ref(proj));
+				__stl2::ref(pred), __stl2::ref(proj));
 		}
 	};
 

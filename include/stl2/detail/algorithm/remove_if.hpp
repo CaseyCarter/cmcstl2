@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 	I remove_if(I first, S last, Pred pred, Proj proj = {})
 	{
 		first = __stl2::find_if(std::move(first), last,
-			std::ref(pred), std::ref(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 		if (first != last) {
 			for (auto m = __stl2::next(first); m != last; ++m) {
 				if (!__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		return __stl2::remove_if(
 			begin(rng), end(rng),
-			std::ref(pred), std::ref(proj));
+			__stl2::ref(pred), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

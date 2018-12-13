@@ -104,8 +104,8 @@ STL2_OPEN_NAMESPACE {
 			ext::priority_tag<2>{},
 			std::move(first), std::move(last),
 			std::move(result),
-			std::ref(comp),
-			std::ref(proj));
+			__stl2::ref(comp),
+			__stl2::ref(proj));
 	}
 
 	template<InputRange Rng, WeaklyIncrementable O, class R = equal_to,
@@ -123,8 +123,8 @@ STL2_OPEN_NAMESPACE {
 			ext::priority_tag<2>{},
 			begin(rng), end(rng),
 			std::move(result),
-			std::ref(comp),
-			std::ref(proj));
+			__stl2::ref(comp),
+			__stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

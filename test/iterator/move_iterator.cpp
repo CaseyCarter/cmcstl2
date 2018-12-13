@@ -148,8 +148,8 @@ public:
 		}
 	};
 
-	std::reference_wrapper<T> operator*() const {
-		return std::reference_wrapper<T>{**ptr_};
+	ranges::reference_wrapper<T> operator*() const {
+		return ranges::reference_wrapper<T>{**ptr_};
 	}
 
 	bool operator==(const proxy_iterator& that) const {
@@ -166,7 +166,7 @@ public:
 		return *this;
 	}
 	readable_proxy operator++(int) & {
-		readable_proxy tmp{__stl2::iter_move(*ptr_)};
+		readable_proxy tmp{ranges::iter_move(*ptr_)};
 		++*this;
 		return tmp;
 	}
@@ -188,11 +188,11 @@ void test_proxy_iterator() {
 	static_assert(
 		ranges::Same<
 			ranges::iter_reference_t<proxy_iterator<A>>,
-			std::reference_wrapper<A>>);
+			ranges::reference_wrapper<A>>);
 	static_assert(
 		ranges::Same<
 			ranges::iter_reference_t<const proxy_iterator<A>>,
-			std::reference_wrapper<A>>);
+			ranges::reference_wrapper<A>>);
 	static_assert(
 		ranges::Same<
 			ranges::iter_rvalue_reference_t<proxy_iterator<A>>,

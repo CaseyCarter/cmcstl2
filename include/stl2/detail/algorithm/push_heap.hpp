@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 	I push_heap(I first, S&& last, Comp comp = {}, Proj proj = {})
 	{
 		auto n = __stl2::distance(first, std::forward<S>(last));
-		detail::sift_up_n(first, n, std::ref(comp), std::ref(proj));
+		detail::sift_up_n(first, n, __stl2::ref(comp), __stl2::ref(proj));
 		return first + n;
 	}
 
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 	push_heap(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		auto n = __stl2::distance(rng);
-		detail::sift_up_n(begin(rng), n, std::ref(comp), std::ref(proj));
+		detail::sift_up_n(begin(rng), n, __stl2::ref(comp), __stl2::ref(proj));
 		return begin(rng) + n;
 	}
 } STL2_CLOSE_NAMESPACE

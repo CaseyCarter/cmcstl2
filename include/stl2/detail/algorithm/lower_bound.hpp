@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 					return __stl2::invoke(comp, i, value);
 				};
 				return __stl2::ext::partition_point_n(
-					std::forward<I>(first), n, pred, std::ref(proj));
+					std::forward<I>(first), n, pred, __stl2::ref(proj));
 			}
 		};
 
@@ -50,13 +50,13 @@ STL2_OPEN_NAMESPACE {
 				auto first_ = std::forward<I>(first);
 				auto n = __stl2::distance(first_, std::forward<S>(last));
 				return __stl2::ext::lower_bound_n(std::move(first_), n, value,
-					std::ref(comp), std::ref(proj));
+					__stl2::ref(comp), __stl2::ref(proj));
 			} else {
 				auto pred = [&](auto&& i) -> bool {
 					return __stl2::invoke(comp, i, value);
 				};
 				return __stl2::partition_point(
-					std::forward<I>(first), std::forward<S>(last), pred, std::ref(proj));
+					std::forward<I>(first), std::forward<S>(last), pred, __stl2::ref(proj));
 			}
 		}
 
@@ -68,10 +68,10 @@ STL2_OPEN_NAMESPACE {
 			if constexpr (SizedRange<Rng>) {
 				return __stl2::ext::lower_bound_n(
 					begin(rng), __stl2::distance(rng), value,
-					std::ref(comp), std::ref(proj));
+					__stl2::ref(comp), __stl2::ref(proj));
 			} else {
 				return (*this)(begin(rng), end(rng), value,
-					std::ref(comp), std::ref(proj));
+					__stl2::ref(comp), __stl2::ref(proj));
 			}
 		}
 	};

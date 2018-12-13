@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 		requires IndirectRelation<equal_to, projected<iterator_t<R>, Proj>, const T*>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, const T& value, Proj proj = {}) const {
-			return (*this)(begin(r), end(r), value, std::ref(proj));
+			return (*this)(begin(r), end(r), value, __stl2::ref(proj));
 		}
 	};
 

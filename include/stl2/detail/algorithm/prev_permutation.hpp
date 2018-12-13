@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 	bool prev_permutation(Rng&& rng, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::prev_permutation(begin(rng), end(rng),
-			std::ref(comp), std::ref(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 

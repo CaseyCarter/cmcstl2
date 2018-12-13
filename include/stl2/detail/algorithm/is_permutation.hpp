@@ -132,18 +132,18 @@ STL2_OPEN_NAMESPACE {
 			// If for some j in [first1, i.base()), *j == e, we've already
 			// validated the counts of elements equal to e.
 			auto match = __stl2::find_if(counted_iterator{first1, n - i.count()},
-				default_sentinel{}, match_predicate, std::ref(proj1));
+				default_sentinel{}, match_predicate, __stl2::ref(proj1));
 			++i;
 			if (match.count()) continue;
 
 			// Count number of e in [first2, n)
 			const auto c2 = __stl2::count_if(counted_iterator{first2, n},
-				default_sentinel{}, match_predicate, std::ref(proj2));
+				default_sentinel{}, match_predicate, __stl2::ref(proj2));
 			if (c2 == 0) return false;
 
 			// Count number of e in [i, default_sentinel)
 			const auto c1 = __stl2::count_if(i, default_sentinel{},
-				match_predicate, std::ref(proj1));
+				match_predicate, __stl2::ref(proj1));
 
 			// If the number of e in [first2, n) is not equal to
 			// the number of e in [first1, n), we don't have a permutation.
@@ -162,7 +162,7 @@ STL2_OPEN_NAMESPACE {
 		auto [counted, mid2] = __stl2::mismatch(
 			counted_iterator{std::move(first1), n}, default_sentinel{},
 			std::move(first2), unreachable{},
-			std::ref(pred), std::ref(proj1), std::ref(proj2));
+			__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 
 		// TODO: trim equal suffixes from bidirectional sequences?
 
@@ -184,7 +184,7 @@ STL2_OPEN_NAMESPACE {
 			// shorten sequences by removing equal prefixes
 			auto [mid1, mid2] = __stl2::mismatch(std::move(first1), last1,
 				std::move(first2), unreachable{},
-				std::ref(pred), std::ref(proj1), std::ref(proj2));
+				__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 
 			auto count = __stl2::distance(mid1, std::move(last1));
 			return __stl2::__is_permutation_tail(std::move(mid1), std::move(mid2),
@@ -208,7 +208,7 @@ STL2_OPEN_NAMESPACE {
 			} else {
 				return (*this)(
 					begin(r1), end(r1), std::move(first2),
-					std::ref(pred), std::ref(proj1), std::ref(proj2));
+					__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 			}
 		}
 
@@ -235,7 +235,7 @@ STL2_OPEN_NAMESPACE {
 				// shorten sequences by removing equal prefixes
 				auto [mid1, mid2] = __stl2::mismatch(
 					std::move(first1), last1, std::move(first2), last2,
-					std::ref(pred), std::ref(proj1), std::ref(proj2));
+					__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 
 				auto [same_length, count] =
 					__stl2::__common_range_length(mid1, std::move(last1), mid2, std::move(last2));
@@ -269,7 +269,7 @@ STL2_OPEN_NAMESPACE {
 				return (*this)(
 					begin(r1), end(r1),
 					begin(r2), end(r2),
-					std::ref(pred), std::ref(proj1), std::ref(proj2));
+					__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 			}
 		}
 	};

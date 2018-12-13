@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		Proj proj = {})
 	{
 		auto result = __stl2::lower_bound(__stl2::move(first), last, value,
-			std::ref(comp), std::ref(proj));
+			__stl2::ref(comp), __stl2::ref(proj));
 		return result != last && !__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
 	}
 
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	bool binary_search(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {})
 	{
 		return __stl2::binary_search(
-			begin(rng), end(rng), value, std::ref(comp), std::ref(proj));
+			begin(rng), end(rng), value, __stl2::ref(comp), __stl2::ref(proj));
 	}
 } STL2_CLOSE_NAMESPACE
 
