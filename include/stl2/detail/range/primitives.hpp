@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 			std::is_nothrow_move_constructible<I>::value)
 		{
 			auto d = last - first;
-			STL2_EXPECT((Same<I, S> || d >= 0));
+			STL2_EXPECT(Same<I, S> || d >= 0);
 			return {d, next(std::move(first), std::move(last))};
 		}
 
@@ -81,46 +81,32 @@ STL2_OPEN_NAMESPACE {
 
 	struct __distance_fn : private __niebloid {
 		template<Iterator I, Sentinel<I> S>
-		constexpr iter_difference_t<I> operator()(I first, S last) const
-		// [[expects axiom: reachable(first, last)]]
-		STL2_NOEXCEPT_RETURN(
-			ext::enumerate(std::move(first), std::move(last)).first
-		)
-
-		template<Iterator I, SizedSentinel<I> S>
-		constexpr iter_difference_t<I> operator()(I first, S last) const
-		noexcept(noexcept(last - first))
-		// [[expects axiom: reachable(first, last)]]
-		{
-			auto d = last - first;
-			STL2_EXPECT(d >= 0);
-			return d;
-		}
-
-		template<Iterator I>
-		requires SizedSentinel<I, I>
-		constexpr iter_difference_t<I> operator()(I first, I last) const
-		// [[expects axiom: reachable(first, last)]]
-		STL2_NOEXCEPT_RETURN(
-			last - first
-		)
-
-		template<Range R>
-		constexpr iter_difference_t<iterator_t<R>> operator()(R&& r) const
-		noexcept(noexcept(std::declval<__distance_fn const&>()(begin(r), end(r))))
-		{
-			const iter_difference_t<iterator_t<R>> n =
-				(*this)(begin(r), end(r));
-			STL2_EXPECT(n >= 0);
+		constexpr iter_difference_t<I> operator()(I first, S last) const {
+			using D = iter_difference_t<I>;
+			D n = 0;
+			if constexpr (SizedSentinel<S, I>) {
+				n = last - first;
+				STL2_EXPECT(Same<I, S> || n >= 0);
+			} else if constexpr (SizedSentinel<I, I>) {
+				auto end = __stl2::next(first, std::move(last));
+				n = end - first;
+			} else {
+				for (; first != last; ++first) {
+					++n;
+				}
+			}
 			return n;
 		}
 
-		template<SizedRange R>
-		constexpr iter_difference_t<iterator_t<R>> operator()(R&& r) const
-		noexcept(noexcept(size(r)))
-		{
-			const auto n =
-				static_cast<iter_difference_t<iterator_t<R>>>(size(r));
+		template<Range R>
+		constexpr iter_difference_t<iterator_t<R>> operator()(R&& r) const {
+			using D = iter_difference_t<iterator_t<R>>;
+			D n = 0;
+			if constexpr (SizedRange<R>) {
+				n = static_cast<D>(size(r));
+			} else {
+				n = (*this)(begin(r), end(r));
+			}
 			STL2_EXPECT(n >= 0);
 			return n;
 		}
