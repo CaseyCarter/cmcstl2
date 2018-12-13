@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr ostream_iterator() noexcept = default;
 
-		STL2_CONSTEXPR_EXT ostream_iterator(
+		ostream_iterator(
 			ostream_type& os, const charT* delimiter = nullptr) noexcept
 		: out_stream_(std::addressof(os)), delim_(delimiter) {}
 

@@ -38,9 +38,9 @@ STL2_OPEN_NAMESPACE {
 		constexpr ostreambuf_iterator(default_sentinel) noexcept
 		: ostreambuf_iterator{}
 		{}
-		STL2_CONSTEXPR_EXT ostreambuf_iterator(ostream_type& s) noexcept
+		ostreambuf_iterator(ostream_type& s) noexcept
 		: sbuf_(s.rdbuf()) {}
-		STL2_CONSTEXPR_EXT ostreambuf_iterator(streambuf_type* s) noexcept
+		ostreambuf_iterator(streambuf_type* s) noexcept
 		: sbuf_(s) {}
 		ostreambuf_iterator& operator=(charT c) {
 			if (sbuf_) {
