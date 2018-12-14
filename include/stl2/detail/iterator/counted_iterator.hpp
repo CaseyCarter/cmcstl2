@@ -281,16 +281,15 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template<Iterator I>
-	constexpr void __advance_fn::operator()(counted_iterator<I>& i, iter_difference_t<I> n) const
+	constexpr void __advance_fn::operator()(
+		counted_iterator<I>& i, iter_difference_t<I> n) const
 	{
 		if constexpr (RandomAccessIterator<I>) {
-			STL2_EXPECT(n <= __counted_iterator::access::count(i));
 			i += n;
-		}
-		else {
+		} else {
 			auto& length = __counted_iterator::access::count(i);
 			STL2_EXPECT(n <= length);
-			advance(__counted_iterator::access::current(i), n);
+			(*this)(__counted_iterator::access::current(i), n);
 			length -= n;
 		}
 	}
