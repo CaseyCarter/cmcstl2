@@ -281,19 +281,17 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template<Iterator I>
-	constexpr void advance(counted_iterator<I>& i, iter_difference_t<I> n)
-	noexcept(noexcept(__stl2::advance(std::declval<I&>(), n))) {
-		auto& length = __counted_iterator::access::count(i);
-		STL2_EXPECT(n <= length);
-		__stl2::advance(__counted_iterator::access::current(i), n);
-		length -= n;
-	}
-
-	template<RandomAccessIterator I>
-	constexpr void advance(counted_iterator<I>& i, iter_difference_t<I> n)
-	noexcept(noexcept(i += n)) {
-		STL2_EXPECT(n <= __counted_iterator::access::count(i));
-		i += n;
+	constexpr void __advance_fn::operator()(
+		counted_iterator<I>& i, iter_difference_t<I> n) const
+	{
+		if constexpr (RandomAccessIterator<I>) {
+			i += n;
+		} else {
+			auto& length = __counted_iterator::access::count(i);
+			STL2_EXPECT(n <= length);
+			(*this)(__counted_iterator::access::current(i), n);
+			length -= n;
+		}
 	}
 
 	namespace ext {

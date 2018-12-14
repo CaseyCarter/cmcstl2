@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 		auto n = iter_difference_t<I>{1};
 		while (true) {
 			auto m = first;
-			auto d = __stl2::advance(m, n, last);
+			auto d = advance(m, n, last);
 			if (m == last || !__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
 				n -= d;
 				return ext::partition_point_n(std::move(first), n,

@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 			return n == last - first;
 		} else {
 			if (__stl2::__can_represent<iter_difference_t<I>>(n)) {
-				return __stl2::advance(first, n, last) == 0 &&
+				return advance(first, n, last) == 0 &&
 					first == last;
 			}
 			return false;
