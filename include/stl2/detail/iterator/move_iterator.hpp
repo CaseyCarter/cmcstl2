@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 				using base_t::base_t;
 
 				constexpr I base() const
-				noexcept(is_nothrow_copy_constructible<I>::value)
+				noexcept(std::is_nothrow_copy_constructible<I>::value)
 				{
 					return base_t::get().current_;
 				}
@@ -76,16 +76,16 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr cursor() = default;
 			constexpr explicit cursor(I&& i)
-			noexcept(is_nothrow_move_constructible<I>::value)
+			noexcept(std::is_nothrow_move_constructible<I>::value)
 			: current_{std::move(i)}
 			{}
 			constexpr explicit cursor(const I& i)
-			noexcept(is_nothrow_copy_constructible<I>::value)
+			noexcept(std::is_nothrow_copy_constructible<I>::value)
 			: current_{i}
 			{}
 			template<ConvertibleTo<I> U>
 			constexpr cursor(const cursor<U>& u)
-			noexcept(is_nothrow_constructible<I, const U&>::value)
+			noexcept(std::is_nothrow_constructible<I, const U&>::value)
 			: current_{access::current(u)}
 			{}
 
@@ -231,37 +231,36 @@ STL2_OPEN_NAMESPACE {
 		using box_t = detail::ebo_box<S, move_sentinel<S>>;
 	public:
 		constexpr move_sentinel()
-		noexcept(is_nothrow_default_constructible<S>::value)
+		noexcept(std::is_nothrow_default_constructible<S>::value)
 		: box_t{}
 		{}
 		explicit constexpr move_sentinel(S s)
-		noexcept(is_nothrow_move_constructible<S>::value)
+		noexcept(std::is_nothrow_move_constructible<S>::value)
 		: box_t(std::move(s))
 		{}
 		template<class T>
 		requires ConvertibleTo<const T&, S>
 		constexpr move_sentinel(const move_sentinel<T>& s)
-		noexcept(is_nothrow_constructible<S, const T&>::value)
+		noexcept(std::is_nothrow_constructible<S, const T&>::value)
 		: box_t{__move_iterator::access::sentinel(s)}
 		{}
 
 		template<class T>
 		requires Assignable<S&, const T&>
 		constexpr move_sentinel& operator=(const move_sentinel<T>& s) &
-		noexcept(is_nothrow_assignable<S&, const T&>::value)
+		noexcept(std::is_nothrow_assignable<S&, const T&>::value)
 		{
 			box_t::get() = __move_iterator::access::sentinel(s);
 			return *this;
 		}
 
 		constexpr S base() const
-		noexcept(is_nothrow_copy_constructible<S>::value)
+		noexcept(std::is_nothrow_copy_constructible<S>::value)
 		{ return box_t::get(); }
 	};
 
 	template<class S>
-	requires
-		Semiregular<__f<S>>
+	requires Semiregular<__f<S>>
 	constexpr auto make_move_sentinel(S&& s)
 	STL2_NOEXCEPT_RETURN(
 		move_sentinel<__f<S>>(std::forward<S>(s))

@@ -49,8 +49,8 @@ STL2_OPEN_NAMESPACE {
 	// the decayed type can in fact be constructed from the actual type.
 	//
 	template<class T>
-		requires Constructible<decay_t<T>, T>
-	using __f = decay_t<T>;
+		requires Constructible<std::decay_t<T>, T>
+	using __f = std::decay_t<T>;
 
 	namespace ext {
 		///////////////////////////////////////////////////////////////////////////
@@ -76,40 +76,40 @@ STL2_OPEN_NAMESPACE {
 		//
 		template<class T>
 		STL2_CONCEPT TriviallyDestructible =
-			Destructible<T> && _Is<T, is_trivially_destructible>;
+			Destructible<T> && _Is<T, std::is_trivially_destructible>;
 
 		template<class T, class... Args>
 		STL2_CONCEPT TriviallyConstructible =
 			Constructible<T, Args...> &&
-			_Is<T, is_trivially_constructible, Args...>;
+			_Is<T, std::is_trivially_constructible, Args...>;
 
 		template<class T>
 		STL2_CONCEPT TriviallyDefaultConstructible =
 			DefaultConstructible<T> &&
-			_Is<T, is_trivially_default_constructible>;
+			_Is<T, std::is_trivially_default_constructible>;
 
 		template<class T>
 		STL2_CONCEPT TriviallyMoveConstructible =
-			MoveConstructible<T> && _Is<T, is_trivially_move_constructible>;
+			MoveConstructible<T> && _Is<T, std::is_trivially_move_constructible>;
 
 		template<class T>
 		STL2_CONCEPT TriviallyCopyConstructible =
 			CopyConstructible<T> &&
 			TriviallyMoveConstructible<T> &&
-			_Is<T, is_trivially_copy_constructible>;
+			_Is<T, std::is_trivially_copy_constructible>;
 
 		template<class T>
 		STL2_CONCEPT TriviallyMovable =
 			Movable<T> &&
 			TriviallyMoveConstructible<T> &&
-			_Is<T, is_trivially_move_assignable>;
+			_Is<T, std::is_trivially_move_assignable>;
 
 		template<class T>
 		STL2_CONCEPT TriviallyCopyable =
 			Copyable<T> &&
 			TriviallyMovable<T> &&
 			TriviallyCopyConstructible<T> &&
-			_Is<T, is_trivially_copy_assignable>;
+			_Is<T, std::is_trivially_copy_assignable>;
 	}
 } STL2_CLOSE_NAMESPACE
 

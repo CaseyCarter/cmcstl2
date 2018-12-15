@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T>
-		constexpr bool IsValueType = !is_void<T>::value;
+		constexpr bool IsValueType = !std::is_void<T>::value;
 	} // namespace detail
 	template<class T>
 	requires
@@ -149,7 +149,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			!detail::MemberValueType<C> && requires { typename reference_t<C>; }
 		struct value_type<C> {
-			using type = decay_t<reference_t<C>>;
+			using type = std::decay_t<reference_t<C>>;
 			static_assert(detail::IsValueType<type>,
 				"Cursor's reference type does not decay to a value type.");
 		};
@@ -169,9 +169,9 @@ STL2_OPEN_NAMESPACE {
 		STL2_CONCEPT Cursor =
 			requires {
 				typename difference_type_t<C>;
-				typename mixin_t<remove_cv_t<C>>;
+				typename mixin_t<std::remove_cv_t<C>>;
 			} &&
-			_Cursor<remove_cv_t<C>, mixin_t<remove_cv_t<C>>>;
+			_Cursor<std::remove_cv_t<C>, mixin_t<std::remove_cv_t<C>>>;
 
 		template<class C>
 		STL2_CONCEPT Readable =
@@ -238,9 +238,9 @@ STL2_OPEN_NAMESPACE {
 			Readable<C>
 		struct rvalue_reference<C> {
 			using type = meta::if_<
-				is_reference<reference_t<C>>,
-				remove_reference_t<reference_t<C>>&&,
-				decay_t<reference_t<C>>>;
+				std::is_reference<reference_t<C>>,
+				std::remove_reference_t<reference_t<C>>&&,
+				std::decay_t<reference_t<C>>>;
 		};
 		template<class C>
 		requires
@@ -279,7 +279,7 @@ STL2_OPEN_NAMESPACE {
 		STL2_CONCEPT Contiguous =
 			RandomAccess<C> &&
 			contiguous<C> &&
-			is_lvalue_reference<reference_t<C>>::value;
+			std::is_lvalue_reference<reference_t<C>>::value;
 
 		template<class From, class To>
 		STL2_CONCEPT ConvertibleTo =
@@ -510,11 +510,11 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool is_writable = true;
 		template<class C>
 		requires
-			cursor::Readable<remove_cv_t<C>>
+			cursor::Readable<std::remove_cv_t<C>>
 		constexpr bool is_writable<C> = false;
 		template<class C>
 		requires
-			cursor::Readable<remove_cv_t<C>> &&
+			cursor::Readable<std::remove_cv_t<C>> &&
 			cursor::Writable<C, cursor::value_type_t<C>&&>
 		constexpr bool is_writable<C> = true;
 
@@ -648,21 +648,21 @@ STL2_OPEN_NAMESPACE {
 
 		template<cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator& operator=(basic_iterator<O>&& that) &
-		noexcept(is_nothrow_assignable<C&, O>::value)
+		noexcept(std::is_nothrow_assignable<C&, O>::value)
 		{
 			get() = __stl2::get_cursor(std::move(that));
 			return *this;
 		}
 		template<cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator& operator=(const basic_iterator<O>& that) &
-		noexcept(is_nothrow_assignable<C&, const O&>::value)
+		noexcept(std::is_nothrow_assignable<C&, const O&>::value)
 		{
 			get() = __stl2::get_cursor(that);
 			return *this;
 		}
 		template<class T>
 		requires
-			!Same<decay_t<T>, basic_iterator> && !cursor::Next<C> &&
+			!Same<std::decay_t<T>, basic_iterator> && !cursor::Next<C> &&
 			cursor::Writable<C, T>
 		constexpr basic_iterator& operator=(T&& t)
 		noexcept(noexcept(
@@ -675,10 +675,10 @@ STL2_OPEN_NAMESPACE {
 		// http://wg21.link/P0186
 		template<class O>
 		requires
-			!Same<decay_t<O>, basic_iterator> &&
+			!Same<std::decay_t<O>, basic_iterator> &&
 			Assignable<C&, O>
 		constexpr basic_iterator& operator=(O&& o) &
-		noexcept(is_nothrow_assignable<C&, O>::value)
+		noexcept(std::is_nothrow_assignable<C&, O>::value)
 		{
 			get() = std::forward<O>(o);
 			return *this;
@@ -741,8 +741,8 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr basic_iterator operator++(int) &
-		noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
-			is_nothrow_move_constructible<basic_iterator>::value &&
+		noexcept(std::is_nothrow_copy_constructible<basic_iterator>::value &&
+			std::is_nothrow_move_constructible<basic_iterator>::value &&
 			noexcept(++std::declval<basic_iterator&>()))
 		{
 			auto tmp(*this);
@@ -781,8 +781,8 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 		constexpr basic_iterator operator--(int) &
-		noexcept(is_nothrow_copy_constructible<basic_iterator>::value &&
-			is_nothrow_move_constructible<basic_iterator>::value &&
+		noexcept(std::is_nothrow_copy_constructible<basic_iterator>::value &&
+			std::is_nothrow_move_constructible<basic_iterator>::value &&
 			noexcept(--std::declval<basic_iterator&>()))
 		requires cursor::Bidirectional<C>
 		{
@@ -886,8 +886,8 @@ STL2_OPEN_NAMESPACE {
 	template<class C>
 	constexpr basic_iterator<C> operator+(
 		const basic_iterator<C>& i, cursor::difference_type_t<C> n)
-	noexcept(is_nothrow_copy_constructible<basic_iterator<C>>::value &&
-		is_nothrow_move_constructible<basic_iterator<C>>::value &&
+	noexcept(std::is_nothrow_copy_constructible<basic_iterator<C>>::value &&
+		std::is_nothrow_move_constructible<basic_iterator<C>>::value &&
 		noexcept(std::declval<basic_iterator<C>&>() += n))
 	requires cursor::RandomAccess<C>
 	{

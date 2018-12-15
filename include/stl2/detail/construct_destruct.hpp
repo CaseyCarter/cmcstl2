@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 			template<class T, class... Args>
 			requires Constructible<T, Args...>
 			void operator()(T& t, Args&&... args) const
-			noexcept(is_nothrow_constructible<T, Args...>::value)
+			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			{
 				::new(static_cast<void*>(&t))
 					T{std::forward<Args>(args)...};

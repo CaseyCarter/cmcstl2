@@ -45,8 +45,8 @@ STL2_OPEN_NAMESPACE {
 		!std::is_reference_v<T> && requires {
 			typename std::tuple_size<T>::type;
 			requires DerivedFrom<std::tuple_size<T>, std::integral_constant<std::size_t, 2>>;
-			typename std::tuple_element_t<0, remove_const_t<T>>;
-			typename std::tuple_element_t<1, remove_const_t<T>>;
+			typename std::tuple_element_t<0, std::remove_const_t<T>>;
+			typename std::tuple_element_t<1, std::remove_const_t<T>>;
 			requires _PairLikeGCCBugs<T>; // Separate named concept to avoid
 			                              // premature substitution.
 		};

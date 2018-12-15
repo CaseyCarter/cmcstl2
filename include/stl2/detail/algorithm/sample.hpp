@@ -27,16 +27,15 @@ STL2_OPEN_NAMESPACE {
 		STL2_CONCEPT constraint =
 			InputIterator<I> && Sentinel<S, I> && WeaklyIncrementable<O> &&
 			IndirectlyCopyable<I, O> &&
-			UniformRandomNumberGenerator<remove_reference_t<Gen>>;
+			UniformRandomNumberGenerator<std::remove_reference_t<Gen>>;
 
 		template<class I, class S, class O, class Gen>
-		requires
-			constraint<I, S, O, Gen>
+		requires constraint<I, S, O, Gen>
 		tagged_pair<tag::in(I), tag::out(O)>
 		sized_impl(I first, S last, iter_difference_t<I> pop_size,
 			O out, iter_difference_t<I> n, Gen& gen)
 		{
-			uniform_int_distribution<iter_difference_t<I>> dist;
+			std::uniform_int_distribution<iter_difference_t<I>> dist;
 			using param_t = typename decltype(dist)::param_type;
 			if (n > pop_size) {
 				n = pop_size;
@@ -84,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 			}
 			out[i] = *first;
 		}
-		uniform_int_distribution<iter_difference_t<I>> dist;
+		std::uniform_int_distribution<iter_difference_t<I>> dist;
 		using param_t = typename decltype(dist)::param_type;
 		for (auto pop_size = n; first != last; (void)++first, ++pop_size) {
 			auto const i = dist(gen, param_t{0, pop_size});

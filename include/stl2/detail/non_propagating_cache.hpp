@@ -22,7 +22,7 @@ STL2_OPEN_NAMESPACE {
 		template<ext::DestructibleObject T, class Tag = void, bool Enable = true>
 		struct non_propagating_cache : std::optional<T> {
 			non_propagating_cache() = default;
-			constexpr non_propagating_cache(nullopt_t) noexcept
+			constexpr non_propagating_cache(std::nullopt_t) noexcept
 			{}
 			constexpr non_propagating_cache(non_propagating_cache const &) noexcept
 			: std::optional<T>{}

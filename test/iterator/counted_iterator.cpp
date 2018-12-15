@@ -17,7 +17,7 @@
 #include "../test_iterators.hpp"
 #include "../simple_test.hpp"
 
-namespace ranges = std::experimental::ranges;
+namespace ranges = __stl2;
 
 constexpr bool test_constexpr() {
 	int some_ints[] = {0,1,2,3};
@@ -85,7 +85,7 @@ static_assert(test_constexpr());
 
 int main()
 {
-	using namespace std::experimental::ranges;
+	using namespace ranges;
 
 	{
 		int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};

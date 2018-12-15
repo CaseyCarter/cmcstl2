@@ -61,18 +61,18 @@ STL2_OPEN_NAMESPACE {
 				using base_t::base_t;
 
 				constexpr I base() const
-				noexcept(is_nothrow_copy_constructible<I>::value)
+				noexcept(std::is_nothrow_copy_constructible<I>::value)
 				{ return base_t::get().current_; }
 			};
 
 			constexpr cursor() = default;
 			constexpr explicit cursor(I x)
-			noexcept(is_nothrow_move_constructible<I>::value)
+			noexcept(std::is_nothrow_move_constructible<I>::value)
 			: current_{std::move(x)}
 			{}
 			template<ConvertibleTo<I> U>
 			constexpr cursor(const cursor<U>& u)
-			noexcept(is_nothrow_constructible<I, const U&>::value)
+			noexcept(std::is_nothrow_constructible<I, const U&>::value)
 			: current_{access::current(u)}
 			{}
 

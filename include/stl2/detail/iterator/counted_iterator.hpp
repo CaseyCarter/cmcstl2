@@ -297,7 +297,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<Iterator I>
 		constexpr auto uncounted(const I& i)
-		noexcept(is_nothrow_copy_constructible<I>::value) {
+		noexcept(std::is_nothrow_copy_constructible<I>::value) {
 			return i;
 		}
 
@@ -309,7 +309,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<Iterator I>
 		constexpr auto recounted(const I&, const I& i, iter_difference_t<I> = 0)
-		noexcept(is_nothrow_copy_constructible<I>::value)
+		noexcept(std::is_nothrow_copy_constructible<I>::value)
 		{
 			return i;
 		}

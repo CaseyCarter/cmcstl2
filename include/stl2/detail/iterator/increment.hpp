@@ -52,13 +52,13 @@ STL2_OPEN_NAMESPACE {
 
 	template<class T>
 		requires !detail::MemberDifferenceType<T> &&
-			_IsNot<T, is_pointer> && // Avoid GCC PR 78173 (See above)
+			_IsNot<T, std::is_pointer> && // Avoid GCC PR 78173 (See above)
 			requires(const T& a, const T& b) {
 				// { a - b } -> Integral;
 				a - b; requires Integral<decltype(a - b)>;
 			}
 	struct incrementable_traits<T>
-	: make_signed<decltype(std::declval<const T>() - std::declval<const T>())> {};
+	: std::make_signed<decltype(std::declval<const T>() - std::declval<const T>())> {};
 
 	template<class T>
 	using iter_difference_t = meta::_t<incrementable_traits<T>>;

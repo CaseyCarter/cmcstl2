@@ -27,7 +27,7 @@
 #include <vector>
 #include "../simple_test.hpp"
 
-namespace ranges = std::experimental::ranges;
+namespace ranges = __stl2;
 using ranges::ext::span;
 using ranges::ext::__span::narrow_cast;
 using ranges::ext::make_span;

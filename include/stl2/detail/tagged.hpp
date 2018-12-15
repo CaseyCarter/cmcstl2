@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec: Kill with fire.
 	//
 	template<ext::DestructibleObject Base, TagSpecifier... Tags>
-	requires sizeof...(Tags) <= tuple_size<Base>::value
+	requires sizeof...(Tags) <= std::tuple_size<Base>::value
 	struct tagged
 	: meta::_t<__tagged::chain<Base, 0, Tags...>>
 #if STL2_WORKAROUND_CLANG_37556
@@ -142,7 +142,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<class U>
-		requires !Same<decay_t<U>, tagged> && Assignable<Base&, U>
+		requires !Same<std::decay_t<U>, tagged> && Assignable<Base&, U>
 		constexpr tagged& operator=(U&& u) &
 		noexcept(std::is_nothrow_assignable<Base&, U&&>::value)
 		{

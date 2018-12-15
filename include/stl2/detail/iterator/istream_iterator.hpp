@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 			using difference_type = Distance;
 			using value_type = T;
 			using istream_type = std::basic_istream<charT, traits>;
-			using single_pass = true_type;
+			using single_pass = std::true_type;
 
 			class mixin : protected basic_mixin<istream_cursor> {
 				using base_t = basic_mixin<istream_cursor>;
@@ -66,14 +66,14 @@ STL2_OPEN_NAMESPACE {
 			};
 
 			constexpr istream_cursor()
-			noexcept(is_nothrow_default_constructible<T>::value) = default;
+			noexcept(std::is_nothrow_default_constructible<T>::value) = default;
 
 			istream_cursor(istream_type& s)
 			: stream_{std::addressof(s)}
 			{ next(); }
 
 			constexpr istream_cursor(default_sentinel)
-			noexcept(is_nothrow_default_constructible<T>::value)
+			noexcept(std::is_nothrow_default_constructible<T>::value)
 			: istream_cursor{}
 			{}
 

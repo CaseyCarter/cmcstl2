@@ -146,7 +146,7 @@ STL2_OPEN_NAMESPACE {
 	template <Permutable I>
 	subrange<I> __rotate(I first, I middle, I last)
 	{
-		if (is_trivially_move_assignable<iter_value_t<I>>()) {
+		if (std::is_trivially_move_assignable_v<iter_value_t<I>>) {
 			if (next(first) == middle) {
 				return __stl2::__rotate_left(std::move(first), std::move(last));
 			}
@@ -159,7 +159,7 @@ STL2_OPEN_NAMESPACE {
 	requires Permutable<I>
 	subrange<I> __rotate(I first, I middle, I last)
 	{
-		if (is_trivially_move_assignable<iter_value_t<I>>()) {
+		if (std::is_trivially_move_assignable_v<iter_value_t<I>>) {
 			if (next(first) == middle) {
 				return __stl2::__rotate_left(std::move(first), std::move(last));
 			}
@@ -175,7 +175,7 @@ STL2_OPEN_NAMESPACE {
 	requires Permutable<I>
 	subrange<I> __rotate(I first, I middle, I last)
 	{
-		if (is_trivially_move_assignable<iter_value_t<I>>()) {
+		if (std::is_trivially_move_assignable_v<iter_value_t<I>>) {
 			if (next(first) == middle) {
 				return __stl2::__rotate_left(std::move(first), std::move(last));
 			}

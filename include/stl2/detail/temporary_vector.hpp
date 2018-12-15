@@ -31,10 +31,10 @@ STL2_OPEN_NAMESPACE {
 
 		template<class T>
 		class temporary_buffer {
-			unique_ptr<T, temporary_buffer_deleter> alloc_;
+			std::unique_ptr<T, temporary_buffer_deleter> alloc_;
 			std::ptrdiff_t size_ = 0;
 
-			temporary_buffer(pair<T*, std::ptrdiff_t> buf) :
+			temporary_buffer(std::pair<T*, std::ptrdiff_t> buf) :
 				alloc_{buf.first}, size_{buf.second} {}
 
 		public:
@@ -54,14 +54,14 @@ STL2_OPEN_NAMESPACE {
 		template<class T>
 		requires alignof(T) > alignof(std::max_align_t)
 		class temporary_buffer<T> {
-			unique_ptr<unsigned char, temporary_buffer_deleter> alloc_;
+			std::unique_ptr<unsigned char, temporary_buffer_deleter> alloc_;
 			T* aligned_ = nullptr;
 			std::ptrdiff_t size_ = 0;
 
 			static_assert((alignof(T) & (alignof(T) - 1)) == 0,
 				"Alignment must be a power of two.");
 
-			temporary_buffer(pair<unsigned char*, std::ptrdiff_t> buf)
+			temporary_buffer(std::pair<unsigned char*, std::ptrdiff_t> buf)
 			: alloc_{buf.first}
 			{
 				if (buf.second > 0 && static_cast<std::size_t>(buf.second) >= sizeof(T)) {
@@ -145,18 +145,18 @@ STL2_OPEN_NAMESPACE {
 			template<class... Args>
 			requires Constructible<T, Args...>
 			void emplace_back(Args&&... args)
-			noexcept(is_nothrow_constructible<T, Args...>::value)
+			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			{
 				STL2_EXPECT(end_ < alloc_);
 				detail::construct(*end_, std::forward<Args>(args)...);
 				++end_;
 			}
 			void push_back(const T& t)
-			noexcept(is_nothrow_copy_constructible<T>::value)
+			noexcept(std::is_nothrow_copy_constructible<T>::value)
 			requires CopyConstructible<T>
 			{ emplace_back(t); }
 			void push_back(T&& t)
-			noexcept(is_nothrow_move_constructible<T>::value)
+			noexcept(std::is_nothrow_move_constructible<T>::value)
 			requires MoveConstructible<T>
 			{ emplace_back(std::move(t)); }
 		};

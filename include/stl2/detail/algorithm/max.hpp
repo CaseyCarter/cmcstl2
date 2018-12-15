@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<InputRange R, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = ranges::less>
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
 		requires Copyable<iter_value_t<iterator_t<R>>>
 		constexpr iter_value_t<iterator_t<R>>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const
