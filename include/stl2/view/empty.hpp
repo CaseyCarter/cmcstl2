@@ -12,27 +12,20 @@
 #ifndef STL2_VIEW_EMPTY_HPP
 #define STL2_VIEW_EMPTY_HPP
 
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/concepts/core.hpp>
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<_Is<std::is_object> T>
-	class empty_view : public view_interface<empty_view<T>> {
-	public:
-		constexpr static T* begin() noexcept
-		{ return nullptr; }
-		constexpr static T* end() noexcept
-		{ return nullptr; }
-		constexpr static ptrdiff_t size() noexcept
-		{ return 0; }
-		constexpr static T* data() noexcept
-		{ return nullptr; }
+	template<class T>
+	requires std::is_object_v<T>
+	struct empty_view : view_interface<empty_view<T>> {
+		static constexpr T* begin() noexcept { return nullptr; }
+		static constexpr T* end() noexcept { return nullptr; }
+		static constexpr T* data() noexcept { return nullptr; }
+		static constexpr std::ptrdiff_t size() noexcept { return 0; }
+		static constexpr bool empty() noexcept { return true; }
 
-		friend T* begin(empty_view) noexcept
-		{ return nullptr; }
-		friend T* end(empty_view) noexcept
-		{ return nullptr; }
+		friend constexpr T* begin(empty_view) noexcept { return nullptr; }
+		friend constexpr T* end(empty_view) noexcept { return nullptr; }
 	};
 
 	namespace view {

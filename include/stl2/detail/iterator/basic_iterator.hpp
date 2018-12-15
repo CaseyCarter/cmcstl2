@@ -107,16 +107,16 @@ STL2_OPEN_NAMESPACE {
 		struct difference_type {
 			using type = std::ptrdiff_t;
 		};
-		template<detail::MemberDifferenceType C>
+		template<class C>
+		requires requires { typename C::difference_type; }
 		struct difference_type<C> {
 			using type = typename C::difference_type;
 			static_assert(SignedIntegral<type>,
 				"Cursor's member difference_type is not a signed integer type.");
 		};
 		template<class C>
-		requires
-			!detail::MemberDifferenceType<C> &&
-			requires(const C& lhs, const C& rhs) { rhs.distance_to(lhs); }
+		requires (!requires { typename C::difference_type; } &&
+			requires(const C& lhs, const C& rhs) { rhs.distance_to(lhs); })
 		struct difference_type<C> {
 			using type =
 				decltype(std::declval<const C&>().distance_to(std::declval<const C&>()));
@@ -870,7 +870,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<class C>
 	struct incrementable_traits<basic_iterator<C>> {
-		using type = cursor::difference_type_t<C>;
+		using difference_type = cursor::difference_type_t<C>;
 	};
 
 	template<cursor::Input C>
@@ -880,7 +880,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<cursor::Input C>
 	struct readable_traits<basic_iterator<C>> {
-		using type = cursor::value_type_t<C>;
+		using value_type = cursor::value_type_t<C>;
 	};
 
 	template<class C>

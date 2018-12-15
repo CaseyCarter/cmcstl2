@@ -166,10 +166,10 @@ STL2_OPEN_NAMESPACE {
 	template<class T, class U>
 	struct __common_reference2 : __common_reference2_1_<T, U> {};
 
-	template<_Is<std::is_reference> T, _Is<std::is_reference> U>
-	requires
+	template<class T, class U>
+	requires std::is_reference_v<T> && std::is_reference_v<U> &&
 		_Valid<__builtin_common_t, T, U> &&
-		_Is<__builtin_common_t<T, U>, std::is_reference>
+		std::is_reference_v<__builtin_common_t<T, U>>
 	struct __common_reference2<T, U> : __builtin_common<T, U> {};
 
 	template<class T, class U>
@@ -201,14 +201,17 @@ STL2_OPEN_NAMESPACE {
 		requires {
 			typename common_type_t<T, U>;
 			typename common_type_t<U, T>;
+			requires Same<common_type_t<T, U>, common_type_t<U, T>>;
+			static_cast<common_type_t<T, U>>(std::declval<T>());
+			static_cast<common_type_t<T, U>>(std::declval<U>());
 		} &&
-		Same<common_type_t<T, U>, common_type_t<U, T>> &&
-		ConvertibleTo<T, common_type_t<T, U>> &&
-		ConvertibleTo<U, common_type_t<T, U>> &&
-		CommonReference<std::add_lvalue_reference_t<const T>,
+		CommonReference<
+			std::add_lvalue_reference_t<const T>,
 			std::add_lvalue_reference_t<const U>> &&
-		CommonReference<std::add_lvalue_reference_t<common_type_t<T, U>>,
-			common_reference_t<std::add_lvalue_reference_t<const T>,
+		CommonReference<
+			std::add_lvalue_reference_t<common_type_t<T, U>>,
+			common_reference_t<
+				std::add_lvalue_reference_t<const T>,
 				std::add_lvalue_reference_t<const U>>>;
 } STL2_CLOSE_NAMESPACE
 

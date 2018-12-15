@@ -265,12 +265,12 @@ STL2_OPEN_NAMESPACE {
 
 	template<class I, class S>
 	struct incrementable_traits<common_iterator<I, S>> {
-		using type = iter_difference_t<I>;
+		using difference_type = iter_difference_t<I>;
 	};
 
 	template<Readable I, class S>
 	struct readable_traits<common_iterator<I, S>> {
-		using type = iter_value_t<I>;
+		using value_type = iter_value_t<I>;
 	};
 
 	template<InputIterator I, class S>

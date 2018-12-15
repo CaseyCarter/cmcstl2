@@ -268,12 +268,12 @@ STL2_OPEN_NAMESPACE {
 
 	template<class I>
 	struct incrementable_traits<counted_iterator<I>> {
-		using type = iter_difference_t<I>;
+		using difference_type = iter_difference_t<I>;
 	};
 
 	template<Readable I>
 	struct readable_traits<counted_iterator<I>> {
-		using type = iter_value_t<I>;
+		using value_type = iter_value_t<I>;
 	};
 	template<InputIterator I>
 	struct iterator_category<counted_iterator<I>> {

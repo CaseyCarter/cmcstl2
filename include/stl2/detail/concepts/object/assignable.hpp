@@ -22,14 +22,18 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// Assignable [concepts.lib.corelang.assignable]
 	//
-	template<class T, class U>
+	template<class LHS, class RHS>
 	STL2_CONCEPT Assignable =
-		_Is<T, std::is_lvalue_reference> &&
+		std::is_lvalue_reference_v<LHS> &&
+#if 0 // TODO: investigate making this change
+		CommonReference<LHS, RHS> &&
+#else
 		CommonReference<
-			const std::remove_reference_t<T>&,
-			const std::remove_reference_t<U>&> &&
-		requires(T t, U&& u) {
-			{ t = static_cast<U&&>(u) } -> Same<T>&&;
+			const std::remove_reference_t<LHS>&,
+			const std::remove_reference_t<RHS>&> &&
+#endif
+		requires(LHS lhs, RHS&& rhs) {
+			{ lhs = static_cast<RHS&&>(rhs) } -> Same<LHS>&&;
 		};
 } STL2_CLOSE_NAMESPACE
 

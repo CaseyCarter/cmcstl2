@@ -127,7 +127,7 @@ STL2_OPEN_NAMESPACE {
 	class insert_iterator {
 	public:
 		using container_type = Container;
-		using difference_type = ptrdiff_t;
+		using difference_type = std::ptrdiff_t;
 
 		insert_iterator() = default;
 		constexpr insert_iterator(Container& x, iterator_t<Container> i)

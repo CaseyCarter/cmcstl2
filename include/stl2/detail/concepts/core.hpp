@@ -27,8 +27,10 @@ STL2_OPEN_NAMESPACE {
 	template<bool B>
 	inline constexpr bool __bool = B;
 
+#if 0 // UNUSED
 	template<class U, template<class...> class T, class... V>
 	STL2_CONCEPT _Is = _Valid<T, U, V...> && __bool<T<U, V...>::value>;
+#endif
 
 	template<class U, template<class...> class T, class... V>
 	STL2_CONCEPT _IsNot = _Valid<T, U, V...> && __bool<!T<U, V...>::value>;
@@ -37,8 +39,10 @@ STL2_OPEN_NAMESPACE {
 	template<class U, template<class...> class T>
 	STL2_CONCEPT _SpecializationOf = __bool<meta::is<__uncvref<U>, T>::value>;
 #else
+#if 0 // UNUSED
 	template<class U, template<class...> class T, class... V>
 	STL2_CONCEPT _Is = _Valid<T, U, V...> && T<U, V...>::value;
+#endif
 
 	template<class U, template<class...> class T, class... V>
 	STL2_CONCEPT _IsNot = _Valid<T, U, V...> && !T<U, V...>::value;

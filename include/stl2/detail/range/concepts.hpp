@@ -141,7 +141,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class R>
 	STL2_CONCEPT ContiguousRange =
-		_Is<iter_reference_t<iterator_t<R>>, std::is_reference> &&
+		std::is_reference_v<iter_reference_t<iterator_t<R>>> &&
 		Same<iter_value_t<iterator_t<R>>, __uncvref<iter_reference_t<iterator_t<R>>>> &&
 		requires(R& r) {
 			{ data(r) } -> Same<std::add_pointer_t<iter_reference_t<iterator_t<R>>>>;

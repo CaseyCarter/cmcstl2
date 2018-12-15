@@ -93,66 +93,48 @@ STL2_OPEN_NAMESPACE {
 		decltype(iter_move(std::declval<R&>()));
 
 	///////////////////////////////////////////////////////////////////////////
-	// value_type [readable.iterators]
-	// Not to spec:
-	// * Implements https://github.com/ericniebler/stl2/issues/423
+	// readable_traits [readable.traits]
 	//
 	namespace detail {
 		template<class T>
 		STL2_CONCEPT MemberValueType =
 			requires { typename T::value_type; };
-
-		template<class T>
-		STL2_CONCEPT MemberElementType =
-			requires { typename T::element_type; };
 	}
 
-	template<class>
-	struct readable_traits {};
-
-	template<ext::Object T>
-	struct readable_traits<T*> {
-		using type = std::remove_cv_t<T>;
+	template<class T> struct __cond_value_type {};
+	template<class T>
+	requires std::is_object_v<T>
+	struct __cond_value_type<T> {
+		using value_type = std::remove_cv_t<T>;
 	};
 
-	template<_Is<std::is_array> T>
-	struct readable_traits<T> : readable_traits<std::decay_t<T>> {};
-
-	template<class I>
-	struct readable_traits<I const> : readable_traits<std::decay_t<I>> {};
-
-	template<detail::MemberValueType T>
-	struct readable_traits<T> {};
-
-	template<detail::MemberValueType T>
-	requires ext::Object<typename T::value_type>
-	struct readable_traits<T> {
-		using type = typename T::value_type;
-	};
-
-	template<detail::MemberElementType T>
-	struct readable_traits<T> {};
-
-	template<detail::MemberElementType T>
-	requires ext::Object<typename T::element_type>
-	struct readable_traits<T> {
-		using type = std::remove_cv_t<typename T::element_type>;
-	};
+	template<class> struct readable_traits {};
 
 	template<class T>
-	requires
-		detail::MemberValueType<T> && ext::Object<typename T::value_type> &&
-		detail::MemberElementType<T> && ext::Object<typename T::element_type> &&
-		Same<typename T::value_type, std::remove_cv_t<typename T::element_type>>
-	struct readable_traits<T> {
-		using type = typename T::value_type;
+	struct readable_traits<T*> : __cond_value_type<T> {};
+
+	template<class I>
+	requires std::is_array_v<I>
+	struct readable_traits<I> {
+		using value_type = std::remove_cv_t<std::remove_extent_t<I>>;
 	};
+
+	template<class I>
+	struct readable_traits<I const> : readable_traits<I> {};
+
+	template<class I>
+	requires requires { typename I::value_type; }
+	struct readable_traits<I> : __cond_value_type<typename I::value_type> {};
+
+	template<class I>
+	requires requires { typename I::element_type; }
+	struct readable_traits<I> : __cond_value_type<typename I::element_type> {};
 
 	///////////////////////////////////////////////////////////////////////////
 	// iter_value_t [readable.iterators]
 	//
-	template<class T>
-	using iter_value_t = meta::_t<readable_traits<T>>;
+	template<class I>
+	using iter_value_t = typename readable_traits<I>::value_type;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Readable [readable.iterators]

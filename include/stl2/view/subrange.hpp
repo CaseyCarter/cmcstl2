@@ -29,8 +29,8 @@ STL2_OPEN_NAMESPACE {
 		// A conversion is a slicing conversion if the source and the destination
 		// are both pointers, and if the pointed-to types differ after removing
 		// cv qualifiers.
-		!(_Is<std::decay_t<From>, std::is_pointer> &&
-		  _Is<std::decay_t<To>, std::is_pointer> &&
+		!(std::is_pointer_v<std::decay_t<From>> &&
+		  std::is_pointer_v<std::decay_t<To>> &&
 		  _NotSameAs<std::remove_pointer_t<std::decay_t<From>>,
 		             std::remove_pointer_t<std::decay_t<To>>>);
 

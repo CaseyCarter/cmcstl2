@@ -22,46 +22,43 @@
 
 STL2_OPEN_NAMESPACE {
 	////////////////////////////////////////////////////////////////////////////
-	// iter_difference_t [iterator.assoc]
+	// incrementable_traits [incrementable.traits]
 	// Not to spec:
 	// * Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78173; it is
 	//   necessary to guard the requires clause of the "fallback" specialization
 	//   to prevent hard errors for pointers to incomplete types.
 	//
-	namespace detail {
-		template<class T>
-		STL2_CONCEPT MemberDifferenceType =
-			requires { typename T::difference_type; };
-	}
-
 	template<class> struct incrementable_traits {};
 
-	template<ext::Object T>
+	template<class T>
+	requires std::is_object_v<T>
 	struct incrementable_traits<T*> {
-		using type = std::ptrdiff_t;
+		using difference_type = std::ptrdiff_t;
 	};
 
-	template<class T>
-	struct incrementable_traits<const T>
-	: incrementable_traits<std::decay_t<T>> {};
+	template<class I>
+	struct incrementable_traits<const I> : incrementable_traits<I> {};
 
-	template<detail::MemberDifferenceType T>
+	template<class T>
+	requires requires { typename T::difference_type; }
 	struct incrementable_traits<T> {
-		using type = typename T::difference_type;
+		using difference_type = typename T::difference_type;
 	};
 
 	template<class T>
-		requires !detail::MemberDifferenceType<T> &&
-			_IsNot<T, std::is_pointer> && // Avoid GCC PR 78173 (See above)
-			requires(const T& a, const T& b) {
-				// { a - b } -> Integral;
-				a - b; requires Integral<decltype(a - b)>;
-			}
-	struct incrementable_traits<T>
-	: std::make_signed<decltype(std::declval<const T>() - std::declval<const T>())> {};
+	requires (!requires { typename T::difference_type; } &&
+		!std::is_pointer_v<T> && // Avoid GCC PR 78173 (See above)
+		requires(const T& a, const T& b) {
+			// { a - b } -> Integral;
+			a - b; requires Integral<decltype(a - b)>;
+		})
+	struct incrementable_traits<T> {
+		using difference_type = std::make_signed_t<
+			decltype(std::declval<T>() - std::declval<T>())>;
+	};
 
 	template<class T>
-	using iter_difference_t = meta::_t<incrementable_traits<T>>;
+	using iter_difference_t = typename incrementable_traits<T>::difference_type;
 
 	///////////////////////////////////////////////////////////////////////////
 	// WeaklyIncrementable [weaklyincrementable.iterators]

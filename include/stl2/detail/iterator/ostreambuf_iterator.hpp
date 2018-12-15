@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	template<class charT, class traits = std::char_traits<charT>>
 	class ostreambuf_iterator {
 	public:
-		using difference_type = ptrdiff_t;
+		using difference_type = std::ptrdiff_t;
 		using char_type = charT;
 		using traits_type = traits;
 		using ostream_type = std::basic_ostream<charT, traits>;

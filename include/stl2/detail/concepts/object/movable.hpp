@@ -24,10 +24,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class T>
 	STL2_CONCEPT Movable =
-		ext::Object<T> &&
-		MoveConstructible<T> &&
-		Assignable<T&, T> &&
-		Swappable<T>;
+		std::is_object_v<T> && MoveConstructible<T> &&
+		Assignable<T&, T> && Swappable<T>;
 } STL2_CLOSE_NAMESPACE
 
 #endif
