@@ -120,6 +120,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<Semiregular T>
+		requires ext::Object<T>
 		struct semiregular_box<T> : ebo_box<T, semiregular_box<T>> {
 			using semiregular_box::ebo_box::ebo_box;
 
