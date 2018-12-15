@@ -22,16 +22,16 @@ int main() {
 		int ir[] = {1, 2, 3, 3, 3, 4, 4, 6};
 		const int sr = sizeof(ir)/sizeof(ir[0]);
 
-		std::tuple<S *, T *, U *> res1 =
+		ranges::set_symmetric_difference_result<S *, T *, U *> res1 =
 			ranges::set_symmetric_difference(ia, ib, ic, std::less<int>(), &S::i, &T::j);
-		CHECK((std::get<2>(res1) - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, std::get<2>(res1), ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK((res1.out - ic) == sr);
+		CHECK(ranges::lexicographical_compare(ic, res1.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
 		ranges::fill(ic, U{0});
 
-		std::tuple<T *, S *, U *> res2 =
+		ranges::set_symmetric_difference_result<T *, S *, U *> res2 =
 			ranges::set_symmetric_difference(ib, ia, ic, std::less<int>(), &T::j, &S::i);
-		CHECK((std::get<2>(res2) - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, std::get<2>(res2), ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK((res2.out - ic) == sr);
+		CHECK(ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
 	}
 
 	// Test rvalue ranges
@@ -44,18 +44,18 @@ int main() {
 
 		auto res1 =
 			ranges::set_symmetric_difference(std::move(ia), std::move(ib), ic, std::less<int>(), &S::i, &T::j);
-		static_assert(ranges::Same<decltype(std::get<0>(res1)), ranges::dangling&>);
-		static_assert(ranges::Same<decltype(std::get<1>(res1)), ranges::dangling&>);
-		CHECK((std::get<2>(res1) - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, std::get<2>(res1), ir, ir+sr, std::less<int>(), &U::k) == 0);
+		static_assert(ranges::Same<decltype(res1.in1), ranges::dangling>);
+		static_assert(ranges::Same<decltype(res1.in2), ranges::dangling>);
+		CHECK((res1.out - ic) == sr);
+		CHECK(ranges::lexicographical_compare(ic, res1.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
 		ranges::fill(ic, U{0});
 
 		auto res2 =
 			ranges::set_symmetric_difference(std::move(ib), std::move(ia), ic, std::less<int>(), &T::j, &S::i);
-		static_assert(ranges::Same<decltype(std::get<0>(res2)), ranges::dangling&>);
-		static_assert(ranges::Same<decltype(std::get<1>(res2)), ranges::dangling&>);
-		CHECK((std::get<2>(res2) - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, std::get<2>(res2), ir, ir+sr, std::less<int>(), &U::k) == 0);
+		static_assert(ranges::Same<decltype(res2.in1), ranges::dangling>);
+		static_assert(ranges::Same<decltype(res2.in2), ranges::dangling>);
+		CHECK((res2.out - ic) == sr);
+		CHECK(ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
 	}
 
 	return ::test_result();

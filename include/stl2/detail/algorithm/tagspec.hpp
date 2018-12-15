@@ -51,6 +51,27 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(in), std::move(out)};
 		}
 	};
+
+	template<class I1, class I2, class O>
+	struct __in_in_out_result {
+		I1 in1;
+		I2 in2;
+		O out;
+
+		// Extension: the dangling story actually works.
+		template<class II1, class II2, class OO>
+		requires ConvertibleTo<const I1&, II1> &&
+			ConvertibleTo<const I2&, II2> && ConvertibleTo<const O&, OO>
+		operator __in_in_out_result<II1, II2, OO>() const& {
+			return {in1, in2, out};
+		}
+		template<class II1, class II2, class OO>
+		requires ConvertibleTo<I1, II1> &&
+			ConvertibleTo<I2, II2> && ConvertibleTo<O, OO>
+		operator __in_in_out_result<II1, II2, OO>() && {
+			return {std::move(in1), std::move(in2), std::move(out)};
+		}
+	};
 } STL2_CLOSE_NAMESPACE
 
 #endif
