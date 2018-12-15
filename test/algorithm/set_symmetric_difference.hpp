@@ -29,9 +29,7 @@
 namespace ranges = __stl2;
 
 template<class Iter1, class Iter2, class OutIter>
-void
-test_iter()
-{
+void test_iter() {
 	int ia[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
 	const int sa = sizeof(ia)/sizeof(ia[0]);
 	int ib[] = {2, 4, 4, 6};
@@ -45,28 +43,26 @@ test_iter()
 	});
 
 	set_symmetric_difference(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic)).
-		check([&](std::tuple<Iter1, Iter2, OutIter> res)
+		check([&](ranges::set_symmetric_difference_result<Iter1, Iter2, OutIter> res)
 		{
-			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
+			CHECK(bool((base(res.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
 			ranges::fill(ic, 0);
 		}
 	);
 
 	set_symmetric_difference(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), OutIter(ic)).
-		check([&](std::tuple<Iter1, Iter2, OutIter> res)
+		check([&](ranges::set_symmetric_difference_result<Iter1, Iter2, OutIter> res)
 		{
-			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
+			CHECK(bool((base(res.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
 			ranges::fill(ic, 0);
 		}
 	);
 }
 
 template<class Iter1, class Iter2, class OutIter>
-void
-test_comp()
-{
+void test_comp() {
 	int ia[] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
 	const int sa = sizeof(ia)/sizeof(ia[0]);
 	int ib[] = {2, 4, 4, 6};
@@ -80,43 +76,39 @@ test_comp()
 	});
 
 	set_symmetric_difference(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic), std::less<int>()).
-		check([&](std::tuple<Iter1, Iter2, OutIter> res)
+		check([&](ranges::set_symmetric_difference_result<Iter1, Iter2, OutIter> res)
 		{
-			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
+			CHECK(bool((base(res.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
 			ranges::fill(ic, 0);
 		}
 	);
 
 	set_symmetric_difference(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), OutIter(ic), std::less<int>()).
-		check([&](std::tuple<Iter1, Iter2, OutIter> res)
+		check([&](ranges::set_symmetric_difference_result<Iter1, Iter2, OutIter> res)
 		{
-			CHECK(bool((base(std::get<2>(res)) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(std::get<2>(res)), ir, ir+sr) == 0);
+			CHECK(bool((base(res.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
 			ranges::fill(ic, 0);
 		}
 	);
 }
 
 template<class Iter1, class Iter2, class OutIter>
-void test()
-{
+void test() {
 	test_iter<Iter1, Iter2, OutIter>();
 	test_comp<Iter1, Iter2, OutIter>();
 }
 
-struct S
-{
+struct S {
 	int i;
 };
 
-struct T
-{
+struct T {
 	int j;
 };
 
-struct U
-{
+struct U {
 	int k;
 	U& operator=(S s) { k = s.i; return *this;}
 	U& operator=(T t) { k = t.j; return *this;}
