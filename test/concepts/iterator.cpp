@@ -32,8 +32,6 @@ namespace ns {
 	template<class I>
 	using iter_value_t = ranges::iterator_value_t<I>;
 
-	using ranges::value_type;
-	using ranges::difference_type;
 	using ranges::iterator_category;
 
 	using ranges::input_iterator_tag;
@@ -68,6 +66,11 @@ namespace associated_type_test {
 	struct A { using value_type = int; int& operator*() const; };
 	struct B : A { using value_type = double; };
 
+	template<class, class = void>
+	constexpr bool has_member_value_type = false;
+	template<class T>
+	constexpr bool has_member_value_type<T, std::void_t<typename T::value_type>> = true;
+
 	CONCEPT_ASSERT(ranges::Same<int&, ns::iter_reference_t<int*>>);
 	CONCEPT_ASSERT(ranges::Same<int&, ns::iter_reference_t<int[]>>);
 	CONCEPT_ASSERT(ranges::Same<int&, ns::iter_reference_t<int[4]>>);
@@ -88,12 +91,12 @@ namespace associated_type_test {
 	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<A>>);
 	CONCEPT_ASSERT(ranges::Same<double, ns::iter_value_t<B>>);
 	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<const int*>>);
-	CONCEPT_ASSERT(!meta::is_trait<ns::readable_traits<void>>());
-	CONCEPT_ASSERT(!meta::is_trait<ns::readable_traits<void*>>());
+	CONCEPT_ASSERT(!has_member_value_type<ns::readable_traits<void>>);
+	CONCEPT_ASSERT(!has_member_value_type<ns::readable_traits<void*>>);
 	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<const int* const>>);
 	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<const int[2]>>);
 	struct S { using value_type = int; using element_type = int const; };
-	CONCEPT_ASSERT(ranges::Same<int, ns::iter_value_t<S>>);
+	// ns::readable_traits<S> // ill-formed, hard error
 
 	CONCEPT_ASSERT(ranges::Same<std::ptrdiff_t, ns::iter_difference_t<int*>>);
 	CONCEPT_ASSERT(ranges::Same<std::ptrdiff_t, ns::iter_difference_t<int[]>>);
