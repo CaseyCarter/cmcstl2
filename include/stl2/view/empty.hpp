@@ -17,14 +17,14 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<_Is<std::is_object> T>
+	template<ext::Object T>
 	class empty_view : public view_interface<empty_view<T>> {
 	public:
 		constexpr static T* begin() noexcept
 		{ return nullptr; }
 		constexpr static T* end() noexcept
 		{ return nullptr; }
-		constexpr static ptrdiff_t size() noexcept
+		constexpr static std::ptrdiff_t size() noexcept
 		{ return 0; }
 		constexpr static T* data() noexcept
 		{ return nullptr; }

@@ -13,14 +13,14 @@
 #define STL2_VIEW_COUNTED_VIEW_HPP
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/concepts/core.hpp>
-#include <stl2/view/subrange.hpp>
+#include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/counted_iterator.hpp>
+#include <stl2/view/subrange.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace view {
 		struct __counted_fn {
-			template<_Is<std::is_object> T>
+			template<__stl2::ext::Object T>
 			constexpr auto operator()(T* p, std::ptrdiff_t d) const
 			{
 				STL2_EXPECT(d >= 0);

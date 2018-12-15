@@ -115,7 +115,8 @@ STL2_OPEN_NAMESPACE {
 		using type = std::remove_cv_t<T>;
 	};
 
-	template<_Is<std::is_array> T>
+	template<class T>
+	requires std::is_array_v<T>
 	struct readable_traits<T> : readable_traits<std::decay_t<T>> {};
 
 	template<class I>

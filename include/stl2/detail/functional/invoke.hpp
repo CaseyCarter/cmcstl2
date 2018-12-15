@@ -50,7 +50,8 @@ STL2_OPEN_NAMESPACE {
 		)
 	}
 
-	template<_Is<std::is_function> F, class T, class T1, class... Args>
+	template<class F, class T, class T1, class... Args>
+	requires std::is_function_v<F>
 	constexpr decltype(auto) invoke(F (T::*f), T1&& t1, Args&&... args)
 	STL2_NOEXCEPT_REQUIRES_RETURN(
 		(__invoke::coerce<T>(static_cast<T1&&>(t1)).*f)(static_cast<Args&&>(args)...)

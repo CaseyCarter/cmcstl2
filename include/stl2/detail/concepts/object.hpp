@@ -76,40 +76,40 @@ STL2_OPEN_NAMESPACE {
 		//
 		template<class T>
 		STL2_CONCEPT TriviallyDestructible =
-			Destructible<T> && _Is<T, std::is_trivially_destructible>;
+			Destructible<T> && std::is_trivially_destructible_v<T>;
 
 		template<class T, class... Args>
 		STL2_CONCEPT TriviallyConstructible =
 			Constructible<T, Args...> &&
-			_Is<T, std::is_trivially_constructible, Args...>;
+			std::is_trivially_constructible_v<T, Args...>;
 
 		template<class T>
 		STL2_CONCEPT TriviallyDefaultConstructible =
 			DefaultConstructible<T> &&
-			_Is<T, std::is_trivially_default_constructible>;
+			std::is_trivially_default_constructible_v<T>;
 
 		template<class T>
 		STL2_CONCEPT TriviallyMoveConstructible =
-			MoveConstructible<T> && _Is<T, std::is_trivially_move_constructible>;
+			MoveConstructible<T> && std::is_trivially_move_constructible_v<T>;
 
 		template<class T>
 		STL2_CONCEPT TriviallyCopyConstructible =
 			CopyConstructible<T> &&
 			TriviallyMoveConstructible<T> &&
-			_Is<T, std::is_trivially_copy_constructible>;
+			std::is_trivially_copy_constructible_v<T>;
 
 		template<class T>
 		STL2_CONCEPT TriviallyMovable =
 			Movable<T> &&
 			TriviallyMoveConstructible<T> &&
-			_Is<T, std::is_trivially_move_assignable>;
+			std::is_trivially_move_assignable_v<T>;
 
 		template<class T>
 		STL2_CONCEPT TriviallyCopyable =
 			Copyable<T> &&
 			TriviallyMovable<T> &&
 			TriviallyCopyConstructible<T> &&
-			_Is<T, std::is_trivially_copy_assignable>;
+			std::is_trivially_copy_assignable_v<T>;
 	}
 } STL2_CLOSE_NAMESPACE
 

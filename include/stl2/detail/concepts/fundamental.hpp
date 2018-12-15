@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<class T>
 		STL2_CONCEPT Scalar =
-			_Is<T, std::is_scalar> && Regular<T>;
+			std::is_scalar_v<T> && Regular<T>;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<class T>
 		STL2_CONCEPT Arithmetic =
-			_Is<T, std::is_arithmetic> && Scalar<T> && StrictTotallyOrdered<T>;
+			std::is_arithmetic_v<T> && Scalar<T> && StrictTotallyOrdered<T>;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<class T>
 		STL2_CONCEPT FloatingPoint =
-			_Is<T, std::is_floating_point> && Arithmetic<T>;
+			std::is_floating_point_v<T> && Arithmetic<T>;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class T>
 	STL2_CONCEPT Integral =
-		_Is<T, std::is_integral> && ext::Arithmetic<T>;
+		std::is_integral_v<T> && ext::Arithmetic<T>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// SignedIntegral [concepts.lib.corelang.signedintegral]
