@@ -20,34 +20,41 @@ STL2_OPEN_NAMESPACE {
 	template<class T>
 	using __uncvref = std::remove_cv_t<std::remove_reference_t<T>>;
 
-	namespace detail {
-		template<class>
-		struct __as_integer_sequence {};
-		template<class T, T... Is>
-		struct __as_integer_sequence<meta::list<std::integral_constant<T, Is>...>> {
-			using type = std::integer_sequence<T, Is...>;
-		};
-	}
-	template<class T>
-	using __as_integer_sequence = meta::_t<detail::__as_integer_sequence<T>>;
-
 	template<bool IsConst, class T>
-	using __maybe_const = meta::if_c<IsConst, T const, T>;
+	using __maybe_const = std::conditional_t<IsConst, T const, T>;
 
-	template<class T>
-	void __nothrow_convertible_helper(T) noexcept;
+	template<class From, class To>
+	inline constexpr bool _IsConvertibleImpl =
+#if defined(__clang__)
+		META_CONCEPT_BARRIER(__is_convertible(From, To));
+#elif defined(_MSC_VER)
+		META_CONCEPT_BARRIER(__is_convertible_to(From, To));
+#else
+		META_CONCEPT_BARRIER(std::is_convertible_v<From, To>);
+#endif
+
 	template<class From, class To>
 	inline constexpr bool is_nothrow_convertible_v = false;
+
+	template<class T>
+	void __nothrow_convertible_helper(T) noexcept; // not defined
+
 	template<class From, class To>
-	requires std::is_convertible_v<From, To>
+	requires _IsConvertibleImpl<From, To>
 	inline constexpr bool is_nothrow_convertible_v<From, To> =
 		noexcept(__nothrow_convertible_helper<To>(std::declval<From>()));
 
-	template<class T>
-	requires std::is_convertible_v<T, std::decay_t<T>>
-	constexpr std::decay_t<T> __decay_copy(T&& t)
-	noexcept(is_nothrow_convertible_v<T, std::decay_t<T>>)
-	{ return static_cast<T&&>(t); }
+	template<class T, class D = std::decay_t<T>>
+	requires _IsConvertibleImpl<T, D>
+	D __decay_copy(T&& t)
+	noexcept(is_nothrow_convertible_v<T, D>)
+#if defined(__GNUC__) && !defined(__clang__)
+	{
+		return static_cast<T&&>(t);
+	}
+#else
+	; // not defined
+#endif
 } STL2_CLOSE_NAMESPACE
 
 #endif

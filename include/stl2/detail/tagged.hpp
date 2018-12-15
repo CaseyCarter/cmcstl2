@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 	} // namespace __tagged
 
 	template<class T>
-	STL2_CONCEPT TagSpecifier =
+	META_CONCEPT TagSpecifier =
 		requires {
 			typename T::template tagged_getter<std::tuple<int>, 0, __tagged::base<std::tuple<int>>>;
 			requires DerivedFrom<
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 	template<class T>
-	STL2_CONCEPT TaggedType =
+	META_CONCEPT TaggedType =
 		requires {
 			typename __tagged::specifier<T>;
 			typename __tagged::element<T>;

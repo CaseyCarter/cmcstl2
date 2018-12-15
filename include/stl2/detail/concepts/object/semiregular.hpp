@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	// CopyConstructible [concepts.lib.object.copyconstructible]
 	//
 	template<class T>
-	STL2_CONCEPT CopyConstructible =
+	META_CONCEPT CopyConstructible =
 		MoveConstructible<T> &&
 		Constructible<T, T&> && ConvertibleTo<T&, T> &&
 		Constructible<T, const T&> && ConvertibleTo<const T&, T> &&
@@ -35,14 +35,14 @@ STL2_OPEN_NAMESPACE {
 	// Copyable [concepts.lib.object.copyable]
 	//
 	template<class T>
-	STL2_CONCEPT Copyable =
+	META_CONCEPT Copyable =
 		CopyConstructible<T> && Movable<T> && Assignable<T&, const T&>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Semiregular [concepts.lib.object.semiregular]
 	//
 	template<class T>
-	STL2_CONCEPT Semiregular = Copyable<T> && DefaultConstructible<T>;
+	META_CONCEPT Semiregular = Copyable<T> && DefaultConstructible<T>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -22,7 +22,7 @@ STL2_OPEN_NAMESPACE {
 	// Regular [concepts.lib.object.regular]
 	//
 	template<class T>
-	STL2_CONCEPT Regular = Semiregular<T> && EqualityComparable<T>;
+	META_CONCEPT Regular = Semiregular<T> && EqualityComparable<T>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

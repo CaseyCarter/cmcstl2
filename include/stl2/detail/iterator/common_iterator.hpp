@@ -156,7 +156,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<class I>
-	STL2_CONCEPT _HasArrow = requires(I& i) { i.operator->(); };
+	META_CONCEPT _HasArrow = requires(I& i) { i.operator->(); };
 
 	// common_iterator [common.iterator]
 	template<Iterator I, Sentinel<I> S>

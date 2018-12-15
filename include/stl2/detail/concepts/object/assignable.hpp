@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
 	// Assignable [concepts.lib.corelang.assignable]
 	//
 	template<class LHS, class RHS>
-	STL2_CONCEPT Assignable =
+	META_CONCEPT Assignable =
 		std::is_lvalue_reference_v<LHS> &&
 #if 0 // TODO: investigate making this change
 		CommonReference<LHS, RHS> &&

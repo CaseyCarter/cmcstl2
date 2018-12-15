@@ -20,90 +20,49 @@
 // Language-related Concepts [concepts.lang]
 //
 STL2_OPEN_NAMESPACE {
-	template<template<class...> class T, class... U>
-	STL2_CONCEPT _Valid = requires { typename T<U...>; };
-
-#if __cpp_concepts <= 201507
-	template<bool B>
-	inline constexpr bool __bool = B;
-
-#if 0 // UNUSED
-	template<class U, template<class...> class T, class... V>
-	STL2_CONCEPT _Is = _Valid<T, U, V...> && __bool<T<U, V...>::value>;
-#endif
-
-	template<class U, template<class...> class T, class... V>
-	STL2_CONCEPT _IsNot = _Valid<T, U, V...> && __bool<!T<U, V...>::value>;
-
 	// U is a cv/ref-qualified specialization of class template T.
 	template<class U, template<class...> class T>
-	STL2_CONCEPT _SpecializationOf = __bool<meta::is<__uncvref<U>, T>::value>;
-#else
-#if 0 // UNUSED
-	template<class U, template<class...> class T, class... V>
-	STL2_CONCEPT _Is = _Valid<T, U, V...> && T<U, V...>::value;
-#endif
-
-	template<class U, template<class...> class T, class... V>
-	STL2_CONCEPT _IsNot = _Valid<T, U, V...> && !T<U, V...>::value;
-
-	// U is a cv/ref-qualified specialization of class template T.
-	template<class U, template<class...> class T>
-	STL2_CONCEPT _SpecializationOf = meta::is<__uncvref<U>, T>::value;
-#endif
+	META_CONCEPT _SpecializationOf =
+		META_CONCEPT_BARRIER(meta::is_v<__uncvref<U>, T>);
 
 	template<class T>
 	using __with_reference = T&;
 	template<class T>
-	STL2_CONCEPT __can_reference = requires { typename __with_reference<T>; };
+	META_CONCEPT __can_reference = requires { typename __with_reference<T>; };
 
 	///////////////////////////////////////////////////////////////////////////
 	// Same
 	//
-#if defined(__clang__)
 	template<class T, class U>
-	STL2_CONCEPT _SameImpl = __is_same(T, U);
-#elif defined(__GNUC__)
-	template<class T, class U>
-	STL2_CONCEPT _SameImpl = __is_same_as(T, U);
-#else
-	template<class T, class U>
-	STL2_CONCEPT _SameImpl = std::is_same_v<T, U>;
-#endif
-	template<class T, class U>
-	STL2_CONCEPT Same = _SameImpl<T, U> && _SameImpl<U, T>;
+	META_CONCEPT Same = meta::Same<T, U> && meta::Same<U, T>;
 
 	template<class T>
-	STL2_CONCEPT _Decayed = Same<T, std::decay_t<T>>;
+	META_CONCEPT _Decayed = meta::Same<T, std::decay_t<T>>;
 
 	template<class T, class... Args>
-	STL2_CONCEPT _OneOf = (Same<T, Args> || ...);
+	META_CONCEPT _OneOf = (meta::Same<T, Args> || ...);
 
 	template<class T, class U>
-	STL2_CONCEPT _NotSameAs = !_SameImpl<__uncvref<T>, __uncvref<U>>;
+	META_CONCEPT _NotSameAs = !meta::Same<__uncvref<T>, __uncvref<U>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// DerivedFrom
 	//
 	template<class T, class U>
-	STL2_CONCEPT DerivedFrom =
+	META_CONCEPT DerivedFrom =
 #if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER)
-		__is_base_of(U, T) &&
+		META_CONCEPT_BARRIER(__is_base_of(U, T)) &&
 #else
-		std::is_base_of_v<U, T> &&
+		META_CONCEPT_BARRIER(std::is_base_of_v<U, T>) &&
 #endif
-			std::is_convertible_v<const volatile T*, const volatile U*>;
+		_IsConvertibleImpl<const volatile T*, const volatile U*>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// ConvertibleTo
 	//
 	template<class From, class To>
-	STL2_CONCEPT ConvertibleTo =
-#if defined(__clang__) || defined(_MSC_VER)
-		__is_convertible_to(From, To) &&
-#else
-		std::is_convertible_v<From, To> &&
-#endif
+	META_CONCEPT ConvertibleTo =
+		_IsConvertibleImpl<From, To> &&
 		requires(From (&f)()) {
 			static_cast<To>(f());
 		};

@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T, class C>
-		STL2_CONCEPT BackInsertableInto =
+		META_CONCEPT BackInsertableInto =
 			requires(T&& t, C& c) {
 				c.push_back((T&&)t);
 			};
@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace detail {
 		template<class T, class C>
-		STL2_CONCEPT FrontInsertableInto =
+		META_CONCEPT FrontInsertableInto =
 			requires(T&& t, C& c) {
 				c.push_front((T&&)t);
 			};
@@ -113,7 +113,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace detail {
 		template<class T, class C>
-		STL2_CONCEPT InsertableInto =
+		META_CONCEPT InsertableInto =
 			requires(T&& t, C& c, iterator_t<C> i) {
 				{  c.insert(i, (T&&)t) } -> iterator_t<C>;
 			};

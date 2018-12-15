@@ -24,7 +24,7 @@
 
 STL2_OPEN_NAMESPACE {
 	template<class From, class To>
-	STL2_CONCEPT _ConvertibleToNotSlicing =
+	META_CONCEPT _ConvertibleToNotSlicing =
 		ConvertibleTo<From, To> &&
 		// A conversion is a slicing conversion if the source and the destination
 		// are both pointers, and if the pointed-to types differ after removing
@@ -35,13 +35,13 @@ STL2_OPEN_NAMESPACE {
 		             std::remove_pointer_t<std::decay_t<To>>>);
 
 	template<class T>
-	STL2_CONCEPT _PairLikeGCCBugs = requires(T t) {
+	META_CONCEPT _PairLikeGCCBugs = requires(T t) {
 		{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
 		{ std::get<1>(t) } -> const std::tuple_element_t<1, T>&;
 	};
 
 	template<class T>
-	STL2_CONCEPT _PairLike =
+	META_CONCEPT _PairLike =
 		!std::is_reference_v<T> && requires {
 			typename std::tuple_size<T>::type;
 			requires DerivedFrom<std::tuple_size<T>, std::integral_constant<std::size_t, 2>>;
@@ -52,14 +52,14 @@ STL2_OPEN_NAMESPACE {
 		};
 
 	template<class T, class U, class V>
-	STL2_CONCEPT _PairLikeConvertibleFromGCCBugs =
+	META_CONCEPT _PairLikeConvertibleFromGCCBugs =
 		!std::is_reference_v<std::tuple_element_t<0, T>> &&
 		!std::is_reference_v<std::tuple_element_t<1, T>> &&
 		_ConvertibleToNotSlicing<U, std::tuple_element_t<0, T>> &&
 		ConvertibleTo<V, std::tuple_element_t<1, T>>;
 
 	template<class T, class U, class V>
-	STL2_CONCEPT _PairLikeConvertibleFrom =
+	META_CONCEPT _PairLikeConvertibleFrom =
 		!Range<T> && _PairLike<T> && Constructible<T, U, V> &&
 		_PairLikeConvertibleFromGCCBugs<T, U, V>; // Separate named concept to avoid
 		                                          // premature substitution.

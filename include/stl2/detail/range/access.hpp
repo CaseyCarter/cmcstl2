@@ -47,14 +47,14 @@ STL2_OPEN_NAMESPACE {
 		void begin(std::initializer_list<T>) = delete; // TODO: file LWG issue
 
 		template<class R>
-		STL2_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
+		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
 			requires(R& r) {
 				r.begin();
 				{ __decay_copy(r.begin()) } -> Iterator;
 			};
 
 		template<class R>
-		STL2_CONCEPT has_non_member = requires(R&& r) {
+		META_CONCEPT has_non_member = requires(R&& r) {
 			begin(static_cast<R&&>(r));
 			{ __decay_copy(begin(static_cast<R&&>(r))) } -> Iterator;
 		};
@@ -112,7 +112,7 @@ STL2_OPEN_NAMESPACE {
 		void end(std::initializer_list<T>) = delete; // TODO: file LWG issue
 
 		template<class R>
-		STL2_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
+		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
 			requires(R& r) {
 				r.end();
 				begin(r);
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 			};
 
 		template<class R>
-		STL2_CONCEPT has_non_member = requires(R&& r) {
+		META_CONCEPT has_non_member = requires(R&& r) {
 			end(static_cast<R&&>(r));
 			begin(static_cast<R&&>(r));
 			{ __decay_copy(end(static_cast<R&&>(r))) } -> Sentinel<__begin_t<R>>;
@@ -199,14 +199,14 @@ STL2_OPEN_NAMESPACE {
 
 		// Prefer member if it returns Iterator
 		template<class R>
-		STL2_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
+		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
 			requires(R& r) {
 				r.rbegin();
 				{ __decay_copy(r.rbegin()) } -> Iterator;
 			};
 
 		template<class R>
-		STL2_CONCEPT has_non_member = requires(R&& r) {
+		META_CONCEPT has_non_member = requires(R&& r) {
 			rbegin(static_cast<R&&>(r));
 			{ __decay_copy(rbegin(static_cast<R&&>(r))) } -> Iterator;
 		};
@@ -214,7 +214,7 @@ STL2_OPEN_NAMESPACE {
 		// Default to make_reverse_iterator(end(r)) for Common ranges of
 		// Bidirectional iterators.
 		template<class R>
-		STL2_CONCEPT can_make_reverse = requires(R&& r) {
+		META_CONCEPT can_make_reverse = requires(R&& r) {
 			{ begin(static_cast<R&&>(r)) } -> BidirectionalIterator;
 			{ end(static_cast<R&&>(r)) } -> Same<__begin_t<R>>;
 		};
@@ -262,7 +262,7 @@ STL2_OPEN_NAMESPACE {
 		template<class R> void rend(R&&) = delete;
 
 		template<class R>
-		STL2_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
+		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
 			requires(R& r) {
 				rbegin(r);
 				r.rend();
@@ -270,7 +270,7 @@ STL2_OPEN_NAMESPACE {
 			};
 
 		template<class R>
-		STL2_CONCEPT has_non_member = requires(R&& r) {
+		META_CONCEPT has_non_member = requires(R&& r) {
 			rbegin(static_cast<R&&>(r));
 			rend(static_cast<R&&>(r));
 			{ __decay_copy(rend(static_cast<R&&>(r))) } ->
@@ -348,19 +348,19 @@ STL2_OPEN_NAMESPACE {
 		template<class T> void size(T&&) = delete;
 
 		template<class R>
-		STL2_CONCEPT has_member = requires(R& r) {
+		META_CONCEPT has_member = requires(R& r) {
 			r.size();
 			{ __decay_copy(r.size()) } -> Integral;
 		};
 
 		template<class R>
-		STL2_CONCEPT has_non_member = requires(R& r) {
+		META_CONCEPT has_non_member = requires(R& r) {
 			size(r);
 			{ __decay_copy(size(r)) } -> Integral;
 		};
 
 		template<class R>
-		STL2_CONCEPT has_difference = requires(R& r) {
+		META_CONCEPT has_difference = requires(R& r) {
 			{ begin(r) } -> ForwardIterator;
 			{ end(r) } -> SizedSentinel<__begin_t<R&>>;
 		};
@@ -408,18 +408,18 @@ STL2_OPEN_NAMESPACE {
 	// TODO: LWG issue
 	namespace __empty {
 		template<class R>
-		STL2_CONCEPT has_member = requires(R& r) {
+		META_CONCEPT has_member = requires(R& r) {
 			r.empty();
 			bool(r.empty());
 		};
 
 		template<class R>
-		STL2_CONCEPT has_size = requires(R& r) {
+		META_CONCEPT has_size = requires(R& r) {
 			size(r);
 		};
 
 		template<class R>
-		STL2_CONCEPT has_begin_end = requires(R& r) {
+		META_CONCEPT has_begin_end = requires(R& r) {
 			{ begin(r) } -> ForwardIterator;
 			end(r);
 		};
@@ -468,12 +468,12 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr bool is_object_ptr<T*> = true;
 
 		template<class R>
-		STL2_CONCEPT forwarding_range_hack = requires(R&& r) {
+		META_CONCEPT forwarding_range_hack = requires(R&& r) {
 			end(static_cast<R&&>(r));
 		};
 
 		template<class R>
-		STL2_CONCEPT has_member =
+		META_CONCEPT has_member =
 			requires(R& r) {
 				r.data();
 				__decay_copy(r.data());
@@ -482,7 +482,7 @@ STL2_OPEN_NAMESPACE {
 			(std::is_lvalue_reference_v<R> || forwarding_range_hack<R>);
 
 		template<class R>
-		STL2_CONCEPT has_contiguous_iterator = requires(R&& r) {
+		META_CONCEPT has_contiguous_iterator = requires(R&& r) {
 			{ begin(static_cast<R&&>(r)) } -> ContiguousIterator;
 			end(static_cast<R&&>(r));
 		};

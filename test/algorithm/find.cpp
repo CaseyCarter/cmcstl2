@@ -23,16 +23,14 @@
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
 
-struct S
-{
+namespace ranges = __stl2;
+
+struct S {
 	int i_;
 };
 
-template<class> class show_type;
-
-int main()
-{
-	using namespace __stl2;
+int main() {
+	using namespace ranges;
 
 	int ia[] = {0, 1, 2, 3, 4, 5};
 	auto first = [&ia]{ return input_iterator<const int*>{ia}; };

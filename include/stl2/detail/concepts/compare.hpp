@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	// Boolean [concepts.lib.compare.boolean]
 	//
 	template<class B>
-	STL2_CONCEPT Boolean =
+	META_CONCEPT Boolean =
 		Movable<std::decay_t<B>> &&
 		requires(const std::remove_reference_t<B>& b1,
 			     const std::remove_reference_t<B>& b2, const bool a) {
@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 	// requirements for Sentinel's operator ==.
 	//
 	template<class T, class U>
-	STL2_CONCEPT WeaklyEqualityComparable =
+	META_CONCEPT WeaklyEqualityComparable =
 		requires(const std::remove_reference_t<T>& t,
 				 const std::remove_reference_t<U>& u) {
 			{ t == u } -> Boolean&&;
@@ -76,11 +76,11 @@ STL2_OPEN_NAMESPACE {
 	// EqualityComparable [concepts.lib.compare.equalitycomparable]
 	//
 	template<class T>
-	STL2_CONCEPT EqualityComparable =
+	META_CONCEPT EqualityComparable =
 		WeaklyEqualityComparable<T, T>;
 
 	template<class T, class U>
-	STL2_CONCEPT EqualityComparableWith =
+	META_CONCEPT EqualityComparableWith =
 		EqualityComparable<T> &&
 		EqualityComparable<U> &&
 		WeaklyEqualityComparable<T, U> &&
@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 	// StrictTotallyOrdered [concepts.lib.compare.stricttotallyordered]
 	//
 	template<class T, class U>
-	STL2_CONCEPT __totally_ordered =
+	META_CONCEPT __totally_ordered =
 		requires(const std::remove_reference_t<T>& t,
 		         const std::remove_reference_t<U>& u) {
 			{ t <  u } -> Boolean&&;
@@ -111,13 +111,13 @@ STL2_OPEN_NAMESPACE {
 		};
 
 	template<class T>
-	STL2_CONCEPT StrictTotallyOrdered =
+	META_CONCEPT StrictTotallyOrdered =
 		EqualityComparable<T> && __totally_ordered<T, T>;
 		// Axiom: t1 == t2 and t1 < t2 have the same definition space.
 		// Axiom: bool(t <= t)
 
 	template<class T, class U>
-	STL2_CONCEPT StrictTotallyOrderedWith =
+	META_CONCEPT StrictTotallyOrderedWith =
 		StrictTotallyOrdered<T> &&
 		StrictTotallyOrdered<U> &&
 		EqualityComparableWith<T, U> &&

@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 		template<class T, std::size_t N> void swap(T(&)[N], T(&)[N]) = delete;
 
 		template<class T, class U>
-		STL2_CONCEPT has_customization =
+		META_CONCEPT has_customization =
 			(std::is_class_v<__uncvref<T>> || std::is_class_v<__uncvref<U>>
 			 || std::is_enum_v<__uncvref<T>> || std::is_enum_v<__uncvref<U>>) &&
 			requires(T&& t, U&& u) {
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 			};
 
 		template<class F, class T, class U>
-		STL2_CONCEPT has_operator = requires(const F& f, T& t, U& u) {
+		META_CONCEPT has_operator = requires(const F& f, T& t, U& u) {
 			f(t, u);
 		};
 
@@ -98,13 +98,13 @@ STL2_OPEN_NAMESPACE {
 	// Swappable [concepts.lib.corelang.swappable]
 	//
 	template<class T>
-	STL2_CONCEPT Swappable =
+	META_CONCEPT Swappable =
 		requires(T& a, T& b) {
 			__stl2::swap(a, b);
 		};
 
 	template<class T, class U>
-	STL2_CONCEPT SwappableWith =
+	META_CONCEPT SwappableWith =
 #if 1 // P/R of unfiled LWG issue
 		CommonReference<T, U> &&
 #else
