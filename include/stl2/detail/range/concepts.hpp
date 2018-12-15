@@ -159,6 +159,20 @@ STL2_OPEN_NAMESPACE {
 	STL2_CONCEPT ViewableRange =
 		Range<Rng> &&
 		(_RangeImpl<Rng> || View<Rng>);
+
+	namespace ext {
+		template<Range R>
+		using range_value_t = iter_value_t<iterator_t<R>>;
+
+		template<Range R>
+		using range_difference_t = iter_difference_t<iterator_t<R>>;
+
+		template<Range R>
+		using range_reference_t = iter_reference_t<iterator_t<R>>;
+
+		template<Range R>
+		using range_rvalue_reference_t = iter_reference_t<iterator_t<R>>;
+	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 
 #endif
