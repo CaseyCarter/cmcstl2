@@ -36,8 +36,7 @@ STL2_OPEN_NAMESPACE {
 	// RegularInvocable [concepts.lib.callables.regularcallable]
 	//
 	template<class F, class... Args>
-	STL2_CONCEPT RegularInvocable =
-		Invocable<F, Args...>;
+	STL2_CONCEPT RegularInvocable = Invocable<F, Args...>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Predicate [concepts.lib.callables.predicate]
@@ -56,23 +55,22 @@ STL2_OPEN_NAMESPACE {
 		Predicate<R, T, U> &&
 		Predicate<R, U, T> &&
 		CommonReference<
-			const remove_reference_t<T>&,
-			const remove_reference_t<U>&> &&
+			const std::remove_reference_t<T>&,
+			const std::remove_reference_t<U>&> &&
 		Predicate<
 			R,
 			common_reference_t<
-				const remove_reference_t<T>&,
-				const remove_reference_t<U>&>,
+				const std::remove_reference_t<T>&,
+				const std::remove_reference_t<U>&>,
 			common_reference_t<
-				const remove_reference_t<T>&,
-				const remove_reference_t<U>&>>;
+				const std::remove_reference_t<T>&,
+				const std::remove_reference_t<U>&>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// StrictWeakOrder [concepts.lib.callables.strictweakorder]
 	//
 	template<class R, class T, class U>
-	STL2_CONCEPT StrictWeakOrder =
-		Relation<R, T, U>;
+	STL2_CONCEPT StrictWeakOrder = Relation<R, T, U>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

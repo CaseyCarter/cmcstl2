@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 			using streambuf_type = std::basic_streambuf<charT, traits>;
 			using istream_type = std::basic_istream<charT, traits>;
 			using int_type = typename traits::int_type;
-			using single_pass = true_type;
+			using single_pass = std::true_type;
 
 			class pointer {
 			public:
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 				friend cursor;
 
 				explicit constexpr pointer(const cursor& i)
-				noexcept(is_nothrow_move_constructible<charT>::value)
+				noexcept(std::is_nothrow_move_constructible<charT>::value)
 				: keep_{i.current()}
 				{}
 
@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 				using value_type = charT;
 
 				constexpr charT operator*() const
-				noexcept(is_nothrow_copy_constructible<charT>::value)
+				noexcept(std::is_nothrow_copy_constructible<charT>::value)
 				{
 					return keep_;
 				}
@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 
 				constexpr __proxy() noexcept = default;
 				constexpr __proxy(charT c, streambuf_type* sbuf)
-				noexcept(is_nothrow_move_constructible<charT>::value)
+				noexcept(std::is_nothrow_move_constructible<charT>::value)
 				: keep_{std::move(c)}, sbuf_{sbuf}
 				{}
 

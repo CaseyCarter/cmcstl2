@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 	private:
-		detail::raw_ptr<basic_ostream<charT, traits>> out_stream_{nullptr};
+		detail::raw_ptr<std::basic_ostream<charT, traits>> out_stream_{nullptr};
 		const charT* delim_{nullptr};
 	};
 

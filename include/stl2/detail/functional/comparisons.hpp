@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 			return std::forward<T>(t) == std::forward<U>(u);
 		}
 
-		using is_transparent = true_type;
+		using is_transparent = std::true_type;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 			return std::forward<T>(t) != std::forward<U>(u);
 		}
 
-		using is_transparent = true_type;
+		using is_transparent = std::true_type;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 			return std::forward<T>(t) > std::forward<U>(u);
 		}
 
-		using is_transparent = true_type;
+		using is_transparent = std::true_type;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 			return std::forward<T>(t) < std::forward<U>(u);
 		}
 
-		using is_transparent = true_type;
+		using is_transparent = std::true_type;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 			return std::forward<T>(t) >= std::forward<U>(u);
 		}
 
-		using is_transparent = true_type;
+		using is_transparent = std::true_type;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 			return std::forward<T>(t) <= std::forward<U>(u);
 		}
 
-		using is_transparent = true_type;
+		using is_transparent = std::true_type;
 	};
 } STL2_CLOSE_NAMESPACE
 

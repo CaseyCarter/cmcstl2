@@ -28,9 +28,9 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class B>
 	STL2_CONCEPT Boolean =
-		Movable<decay_t<B>> &&
-		requires(const remove_reference_t<B>& b1,
-					const remove_reference_t<B>& b2, const bool a) {
+		Movable<std::decay_t<B>> &&
+		requires(const std::remove_reference_t<B>& b1,
+			     const std::remove_reference_t<B>& b2, const bool a) {
 			// Requirements common to both Boolean and BooleanTestable.
 			{ b1 } -> ConvertibleTo<bool>&&;
 			{ !b1 } -> ConvertibleTo<bool>&&;
@@ -64,8 +64,8 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class T, class U>
 	STL2_CONCEPT WeaklyEqualityComparable =
-		requires(const remove_reference_t<T>& t,
-				 const remove_reference_t<U>& u) {
+		requires(const std::remove_reference_t<T>& t,
+				 const std::remove_reference_t<U>& u) {
 			{ t == u } -> Boolean&&;
 			{ t != u } -> Boolean&&;
 			{ u == t } -> Boolean&&;
@@ -85,20 +85,20 @@ STL2_OPEN_NAMESPACE {
 		EqualityComparable<U> &&
 		WeaklyEqualityComparable<T, U> &&
 		CommonReference<
-			const remove_reference_t<T>&,
-			const remove_reference_t<U>&> &&
+			const std::remove_reference_t<T>&,
+			const std::remove_reference_t<U>&> &&
 		EqualityComparable<
 			common_reference_t<
-				const remove_reference_t<T>&,
-				const remove_reference_t<U>&>>;
+				const std::remove_reference_t<T>&,
+				const std::remove_reference_t<U>&>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// StrictTotallyOrdered [concepts.lib.compare.stricttotallyordered]
 	//
 	template<class T, class U>
 	STL2_CONCEPT __totally_ordered =
-		requires(const remove_reference_t<T>& t,
-		         const remove_reference_t<U>& u) {
+		requires(const std::remove_reference_t<T>& t,
+		         const std::remove_reference_t<U>& u) {
 			{ t <  u } -> Boolean&&;
 			{ t >  u } -> Boolean&&;
 			{ t <= u } -> Boolean&&;
@@ -124,12 +124,12 @@ STL2_OPEN_NAMESPACE {
 		__totally_ordered<T, U> &&
 		__totally_ordered<U, T> &&
 		CommonReference<
-			const remove_reference_t<T>&,
-			const remove_reference_t<U>&> &&
+			const std::remove_reference_t<T>&,
+			const std::remove_reference_t<U>&> &&
 		StrictTotallyOrdered<
 			common_reference_t<
-				const remove_reference_t<T>&,
-				const remove_reference_t<U>&>>;
+				const std::remove_reference_t<T>&,
+				const std::remove_reference_t<U>&>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -52,8 +52,7 @@ STL2_OPEN_NAMESPACE {
 		template<class>
 		constexpr bool has_customization = false;
 		template<class R>
-		requires
-			__dereferenceable<R> &&
+		requires __dereferenceable<R> &&
 			requires(R&& r) {
 				// { iter_move(static_cast<R&&>(r)) ->__can_reference;
 				iter_move(static_cast<R&&>(r));
@@ -63,20 +62,18 @@ STL2_OPEN_NAMESPACE {
 
 		template<class R>
 		using rvalue =
-			meta::if_<is_reference<R>, remove_reference_t<R>&&, decay_t<R>>;
+			meta::if_<std::is_reference<R>, std::remove_reference_t<R>&&, std::decay_t<R>>;
 
 		struct fn {
 			template<class R>
-			requires
-				__dereferenceable<R> && has_customization<R>
+			requires __dereferenceable<R> && has_customization<R>
 			constexpr decltype(auto) operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
 				iter_move((R&&)r)
 			)
 
 			template<class R>
-			requires
-				__dereferenceable<R>
+			requires __dereferenceable<R>
 			constexpr rvalue<iter_reference_t<R>> operator()(R&& r) const
 			STL2_NOEXCEPT_RETURN(
 				static_cast<rvalue<iter_reference_t<R>>>(*r)
@@ -118,11 +115,11 @@ STL2_OPEN_NAMESPACE {
 		using type = std::remove_cv_t<T>;
 	};
 
-	template<_Is<is_array> T>
-	struct readable_traits<T> : readable_traits<decay_t<T>> {};
+	template<_Is<std::is_array> T>
+	struct readable_traits<T> : readable_traits<std::decay_t<T>> {};
 
 	template<class I>
-	struct readable_traits<I const> : readable_traits<decay_t<I>> {};
+	struct readable_traits<I const> : readable_traits<std::decay_t<I>> {};
 
 	template<detail::MemberValueType T>
 	struct readable_traits<T> {};
@@ -224,9 +221,9 @@ STL2_OPEN_NAMESPACE {
 	template<class Out, IndirectlyMovableStorable<Out> In>
 	constexpr bool is_nothrow_indirectly_movable_storable_v<In, Out> =
 		is_nothrow_indirectly_movable_v<In, Out> &&
-		is_nothrow_assignable<iter_reference_t<Out>, iter_value_t<In>>::value &&
-		is_nothrow_constructible<iter_value_t<In>, iter_rvalue_reference_t<In>>::value &&
-		is_nothrow_assignable<iter_value_t<In>&, iter_rvalue_reference_t<In>>::value;
+		std::is_nothrow_assignable<iter_reference_t<Out>, iter_value_t<In>>::value &&
+		std::is_nothrow_constructible<iter_value_t<In>, iter_rvalue_reference_t<In>>::value &&
+		std::is_nothrow_assignable<iter_value_t<In>&, iter_rvalue_reference_t<In>>::value;
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlyCopyable [commonalgoreq.indirectlycopyable]
@@ -258,23 +255,20 @@ STL2_OPEN_NAMESPACE {
 		template<class, class>
 		constexpr bool has_customization = false;
 		template<class R1, class R2>
-		requires
-			requires(R1&& r1, R2&& r2) {
-				iter_swap((R1&&)r1, (R2&&)r2);
-			}
+		requires requires(R1&& r1, R2&& r2) {
+			iter_swap((R1&&)r1, (R2&&)r2);
+		}
 		constexpr bool has_customization<R1, R2> = true;
 
 		template<class R1, class R2>
-		requires
-			SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>>
+		requires SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>>
 		constexpr void impl(R1&& r1, R2&& r2)
 		STL2_NOEXCEPT_RETURN(
 			__stl2::swap(*r1, *r2)
 		)
 
 		template<class R1, class R2>
-		requires
-			!SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>> &&
+		requires !SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>> &&
 			IndirectlyMovableStorable<R1, R2> &&
 			IndirectlyMovableStorable<R2, R1>
 		constexpr void impl(R1& r1, R2& r2)
@@ -290,8 +284,8 @@ STL2_OPEN_NAMESPACE {
 		struct fn {
 			template<class R1, class R2>
 			requires
-				Readable<remove_reference_t<R1>> &&
-				Readable<remove_reference_t<R2>> &&
+				Readable<std::remove_reference_t<R1>> &&
+				Readable<std::remove_reference_t<R2>> &&
 				has_customization<R1, R2>
 			constexpr void operator()(R1&& r1, R2&& r2) const
 			STL2_NOEXCEPT_RETURN(
@@ -300,8 +294,8 @@ STL2_OPEN_NAMESPACE {
 
 			template<class R1, class R2>
 			requires
-				Readable<remove_reference_t<R1>> &&
-				Readable<remove_reference_t<R2>> &&
+				Readable<std::remove_reference_t<R1>> &&
+				Readable<std::remove_reference_t<R2>> &&
 				!has_customization<R1&, R2&> &&
 				requires(R1& r1, R2& r2) {
 					__iter_swap::impl(r1, r2);
@@ -456,7 +450,7 @@ STL2_OPEN_NAMESPACE {
 	template<class S, class I>
 	STL2_CONCEPT SizedSentinel =
 		Sentinel<S, I> &&
-		!disable_sized_sentinel<remove_cv_t<S>, remove_cv_t<I>> &&
+		!disable_sized_sentinel<std::remove_cv_t<S>, std::remove_cv_t<I>> &&
 		requires(const I i, const S s) {
 			{ s - i } -> Same<iter_difference_t<I>>&&;
 			{ i - s } -> Same<iter_difference_t<I>>&&;
@@ -555,7 +549,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<InputIterator I>
 	struct __pointer_type {
-		using type = add_pointer_t<iter_reference_t<I>>;
+		using type = std::add_pointer_t<iter_reference_t<I>>;
 	};
 
 	template<InputIterator I>

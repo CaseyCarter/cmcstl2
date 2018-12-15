@@ -14,7 +14,7 @@
 #include <stl2/view/take_exactly.hpp>
 #include <stl2/detail/iterator/basic_iterator.hpp>
 
-namespace ranges = std::experimental::ranges;
+namespace ranges = __stl2;
 
 namespace {
     template<class T, std::size_t N, bool Bidi = true>

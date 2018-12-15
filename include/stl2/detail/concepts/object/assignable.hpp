@@ -24,12 +24,12 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class T, class U>
 	STL2_CONCEPT Assignable =
-		_Is<T, is_lvalue_reference> &&
+		_Is<T, std::is_lvalue_reference> &&
 		CommonReference<
-			const remove_reference_t<T>&,
-			const remove_reference_t<U>&> &&
+			const std::remove_reference_t<T>&,
+			const std::remove_reference_t<U>&> &&
 		requires(T t, U&& u) {
-			{ t = (U&&)u } -> Same<T>&&;
+			{ t = static_cast<U&&>(u) } -> Same<T>&&;
 		};
 } STL2_CLOSE_NAMESPACE
 

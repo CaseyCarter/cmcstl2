@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		private:
 			meta::if_c<_ForwardingRange<R>,
-				optional<iterator_t<R>>,
+				std::optional<iterator_t<R>>,
 				non_propagating_cache<iterator_t<R>>> cache_;
 		};
 		template<RandomAccessRange R, class Tag>

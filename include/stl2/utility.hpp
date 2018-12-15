@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<TaggedType F, TaggedType S>
 	using tagged_pair =
-		tagged<pair<__tagged::element<F>, __tagged::element<S>>,
+		tagged<std::pair<__tagged::element<F>, __tagged::element<S>>,
 			__tagged::specifier<F>, __tagged::specifier<S>>;
 
 	////////////////////////////////////////////////////////////////////////////

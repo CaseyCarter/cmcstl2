@@ -94,7 +94,7 @@ STL2_OPEN_NAMESPACE {
 		// Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		template<class II = iterator_t<V>>
 		constexpr iterator_t<V> operator->() const
-		requires is_pointer_v<iterator_t<V>> ||
+		requires std::is_pointer_v<iterator_t<V>> ||
 			requires(II i) { i.operator->(); }
 		{
 			return current_;

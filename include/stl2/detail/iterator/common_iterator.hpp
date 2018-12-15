@@ -216,7 +216,7 @@ STL2_OPEN_NAMESPACE {
 		decltype(auto) operator->() const
 		requires Readable<const I> &&
 			(_HasArrow<const I> ||
-			 is_reference_v<iter_reference_t<I>> ||
+			 std::is_reference_v<iter_reference_t<I>> ||
 			 Constructible<iter_value_t<I>, iter_reference_t<I>>)
 		{
 			if constexpr (std::is_pointer_v<I> || _HasArrow<const I>)

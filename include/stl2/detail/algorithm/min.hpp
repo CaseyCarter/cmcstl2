@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<Copyable T, class Proj = identity,
-			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = ranges::less>
+			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
 		constexpr T operator()(std::initializer_list<T> r,
 			Comp comp = {}, Proj proj = {}) const
 		{

@@ -31,14 +31,14 @@ STL2_OPEN_NAMESPACE {
 	// Destructible [concept.destructible]
 	//
 	template<class T>
-	STL2_CONCEPT Destructible = _Is<T, is_nothrow_destructible>;
+	STL2_CONCEPT Destructible = _Is<T, std::is_nothrow_destructible>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Constructible [concept.constructible]
 	//
 	template<class T, class... Args>
 	STL2_CONCEPT Constructible =
-		Destructible<T> && _Is<T, is_constructible, Args...>;
+		Destructible<T> && _Is<T, std::is_constructible, Args...>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// DefaultConstructible [concept.defaultconstructible]
