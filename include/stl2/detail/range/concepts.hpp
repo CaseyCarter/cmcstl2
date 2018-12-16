@@ -171,7 +171,7 @@ STL2_OPEN_NAMESPACE {
 		using range_reference_t = iter_reference_t<iterator_t<R>>;
 
 		template<Range R>
-		using range_rvalue_reference_t = iter_reference_t<iterator_t<R>>;
+		using range_rvalue_reference_t = iter_rvalue_reference_t<iterator_t<R>>;
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 
