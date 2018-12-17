@@ -53,5 +53,20 @@ int main() {
 		CHECK(20 == sum);
 	}
 
-	return test_result();
+	{
+		int rg[] = {0,1,2,3,4,5,6,7,8,9};
+#if 0
+		auto x = rg | view::reverse | view::reverse;
+		static_assert(Same<decltype(x), ref_view<decltype(rg)>>);
+		CHECK(&x.base() == &rg);
+#else
+		auto x = view::reverse(rg);
+		using R = decltype(x);
+		static_assert(Range<R>);
+		static_assert(!_RangeImpl<R>);
+		static_assert(View<R>);
+		static_assert(ViewableRange<R>);
+#endif
+	}
+ 	return test_result();
 }
