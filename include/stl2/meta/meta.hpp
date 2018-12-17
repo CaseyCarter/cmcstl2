@@ -554,26 +554,11 @@ namespace meta
         }
 
         /// is
-        /// \cond
-        namespace detail
-        {
-            template<typename, template<typename...> class>
-            struct is_ : std::false_type
-            {
-            };
-
-            template<typename... Ts, template<typename...> class C>
-            struct is_<C<Ts...>, C> : std::true_type
-            {
-            };
-        }
-        /// \endcond
-
         /// Test whether a type \p T is an instantiation of class
         /// template \p C.
         /// \ingroup trait
         template<typename T, template<typename...> class C>
-        using is = _t<detail::is_<T, C>>;
+        using is = bool_<is_v<T, C>>;
 
         /// Compose the Invocables \p Fns in the parameter pack \p Ts.
         /// \ingroup composition

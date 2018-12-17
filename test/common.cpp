@@ -51,7 +51,7 @@ static_assert(!meta::is_trait<common_reference<int, short, int, char*>>(), "");
 
 STL2_OPEN_NAMESPACE {
 template<class... T, class... U, template<class> class TQual, template<class> class UQual>
-	requires(_Valid<common_reference_t, TQual<T>, UQual<U>> && ...)
+	requires (meta::Valid<common_reference_t, TQual<T>, UQual<U>> && ...)
 struct basic_common_reference<tuple<T...>, tuple<U...>, TQual, UQual> {
 	using type = tuple<common_reference_t<TQual<T>, UQual<U>>...>;
 };

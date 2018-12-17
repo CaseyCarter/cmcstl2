@@ -19,7 +19,7 @@
 
 STL2_OPEN_NAMESPACE {
 	template<class G>
-	STL2_CONCEPT UniformRandomNumberGenerator =
+	META_CONCEPT UniformRandomNumberGenerator =
 		requires(G&& g) {
 			g();
 			requires UnsignedIntegral<decltype(g())>;

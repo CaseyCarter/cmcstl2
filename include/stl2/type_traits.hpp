@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 	template<class T, class U>
 	using __builtin_common_t = meta::_t<__builtin_common<T, U>>;
 	template<class T, class U>
-	requires _Valid<__cond, __cref<T>, __cref<U>>
+	requires meta::Valid<__cond, __cref<T>, __cref<U>>
 	struct __builtin_common<T, U> : std::decay<__cond<__cref<T>, __cref<U>>> {};
 
 	template<class T, class U, class R = __builtin_common_t<T &, U &>>
@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<class T, class U>
 	requires
-		_Valid<__builtin_common_t, T &, U &> &&
+		meta::Valid<__builtin_common_t, T &, U &> &&
 		ConvertibleTo<T &&, __rref_res<T, U>> &&
 		ConvertibleTo<U &&, __rref_res<T, U>>
 	struct __builtin_common<T &&, U &&> : meta::id<__rref_res<T, U>> {};
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<class T, class U>
 	requires
-		_Valid<__builtin_common_t, T &, U const &> &&
+		meta::Valid<__builtin_common_t, T &, U const &> &&
 		ConvertibleTo<U &&, __builtin_common_t<T &, U const &>>
 	struct __builtin_common<T &, U &&> : __builtin_common<T &, U const &> {};
 	template<class T, class U>
@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
 	struct common_type<T, U> : __common_type2<T, U> {};
 
 	template<class T, class U, class V, class...  W>
-	requires _Valid<common_type_t, T, U>
+	requires meta::Valid<common_type_t, T, U>
 	struct common_type<T, U, V, W...>
 	: common_type<common_type_t<T, U>, V, W...> {};
 
@@ -160,7 +160,7 @@ STL2_OPEN_NAMESPACE {
 	struct __common_reference2_1_ : __common_reference2_2_<T, U> {};
 
 	template<class T, class U>
-	requires _Valid<meta::_t, __basic_common_reference<T, U>>
+	requires meta::Valid<meta::_t, __basic_common_reference<T, U>>
 	struct __common_reference2_1_<T, U> : __basic_common_reference<T, U> {};
 
 	template<class T, class U>
@@ -168,7 +168,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<class T, class U>
 	requires std::is_reference_v<T> && std::is_reference_v<U> &&
-		_Valid<__builtin_common_t, T, U> &&
+		meta::Valid<__builtin_common_t, T, U> &&
 		std::is_reference_v<__builtin_common_t<T, U>>
 	struct __common_reference2<T, U> : __builtin_common<T, U> {};
 
@@ -176,7 +176,7 @@ STL2_OPEN_NAMESPACE {
 	struct common_reference<T, U> : __common_reference2<T, U> {};
 
 	template<class T, class U, class V, class... W>
-	requires _Valid<common_reference_t, T, U>
+	requires meta::Valid<common_reference_t, T, U>
 	struct common_reference<T, U, V, W...>
 	: common_reference<common_reference_t<T, U>, V, W...> {};
 
@@ -184,7 +184,7 @@ STL2_OPEN_NAMESPACE {
 	// CommonReference [concept.commonref]
 	//
 	template<class T, class U>
-	STL2_CONCEPT CommonReference =
+	META_CONCEPT CommonReference =
 		requires {
 			typename common_reference_t<T, U>;
 			typename common_reference_t<U, T>;
@@ -197,7 +197,7 @@ STL2_OPEN_NAMESPACE {
 	// Common [concept.common]
 	//
 	template<class T, class U>
-	STL2_CONCEPT Common =
+	META_CONCEPT Common =
 		requires {
 			typename common_type_t<T, U>;
 			typename common_type_t<U, T>;

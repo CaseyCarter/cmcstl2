@@ -31,7 +31,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	template<class T>
-	STL2_CONCEPT __dereferenceable = requires(T& t) {
+	META_CONCEPT __dereferenceable = requires(T& t) {
 		// { *t } -> __can_reference;
 		*t; typename __with_reference<decltype(*t)>;
 	};
@@ -97,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	namespace detail {
 		template<class T>
-		STL2_CONCEPT MemberValueType =
+		META_CONCEPT MemberValueType =
 			requires { typename T::value_type; };
 	}
 
@@ -140,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 	// Readable [readable.iterators]
 	//
 	template<class I>
-	STL2_CONCEPT Readable =
+	META_CONCEPT Readable =
 		requires {
 			// Associated types
 			typename iter_value_t<I>;
@@ -161,7 +161,7 @@ STL2_OPEN_NAMESPACE {
 	// Writable [iterators.writable]
 	//
 	template<class Out, class R>
-	STL2_CONCEPT Writable =
+	META_CONCEPT Writable =
 		__dereferenceable<Out> &&
 		requires(Out&& o, R&& r) {
 			*o = static_cast<R&&>(r);
@@ -174,7 +174,7 @@ STL2_OPEN_NAMESPACE {
 	// IndirectlyMovable [commonalgoreq.indirectlymovable]
 	//
 	template<class In, class Out>
-	STL2_CONCEPT IndirectlyMovable =
+	META_CONCEPT IndirectlyMovable =
 		Readable<In> &&
 		Writable<Out, iter_rvalue_reference_t<In>>;
 
@@ -190,7 +190,7 @@ STL2_OPEN_NAMESPACE {
 	// IndirectlyMovableStorable [commonalgoreq.indirectlymovable]
 	//
 	template<class In, class Out>
-	STL2_CONCEPT IndirectlyMovableStorable =
+	META_CONCEPT IndirectlyMovableStorable =
 		IndirectlyMovable<In, Out> &&
 		Writable<Out, iter_value_t<In>&&> &&
 		Movable<iter_value_t<In>> &&
@@ -211,14 +211,14 @@ STL2_OPEN_NAMESPACE {
 	// IndirectlyCopyable [commonalgoreq.indirectlycopyable]
 	//
 	template<class In, class Out>
-	STL2_CONCEPT IndirectlyCopyable =
+	META_CONCEPT IndirectlyCopyable =
 		Readable<In> && Writable<Out, iter_reference_t<In>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// IndirectlyCopyableStorable [commonalgoreq.indirectlycopyable]
 	//
 	template<class In, class Out>
-	STL2_CONCEPT IndirectlyCopyableStorable =
+	META_CONCEPT IndirectlyCopyableStorable =
 		IndirectlyCopyable<In, Out> &&
 		Writable<Out, const iter_value_t<In>&> &&
 		Copyable<iter_value_t<In>> &&
@@ -297,7 +297,7 @@ STL2_OPEN_NAMESPACE {
 	//
 
 	template<class I1, class I2 = I1>
-	STL2_CONCEPT IndirectlySwappable =
+	META_CONCEPT IndirectlySwappable =
 		requires(I1&& i1, I2&& i2) {
 			iter_swap((I1&&)i1, (I2&&)i2);
 			iter_swap((I2&&)i2, (I1&&)i1);
@@ -341,7 +341,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	namespace detail {
 		template<class T>
-		STL2_CONCEPT MemberIteratorCategory =
+		META_CONCEPT MemberIteratorCategory =
 			requires { typename T::iterator_category; };
 
 		namespace std_to_stl2_iterator_category_ {
@@ -392,7 +392,7 @@ STL2_OPEN_NAMESPACE {
 	// Denotes an element of a range, i.e., is a position.
 	//
 	template<class I>
-	STL2_CONCEPT Iterator =
+	META_CONCEPT Iterator =
 		__dereferenceable<I&> && WeaklyIncrementable<I>;
 		// Axiom?: i is non-singular iff it denotes an element
 		// Axiom?: if i equals j then i and j denote equal elements
@@ -407,7 +407,7 @@ STL2_OPEN_NAMESPACE {
 	// that denote a range.
 	//
 	template<class S, class I>
-	STL2_CONCEPT Sentinel =
+	META_CONCEPT Sentinel =
 		Iterator<I> &&
 		Semiregular<S> &&
 		WeaklyEqualityComparable<S, I>;
@@ -430,7 +430,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool disable_sized_sentinel = false;
 
 	template<class S, class I>
-	STL2_CONCEPT SizedSentinel =
+	META_CONCEPT SizedSentinel =
 		Sentinel<S, I> &&
 		!disable_sized_sentinel<std::remove_cv_t<S>, std::remove_cv_t<I>> &&
 		requires(const I i, const S s) {
@@ -449,7 +449,7 @@ STL2_OPEN_NAMESPACE {
 	// OutputIterator [iterators.output]
 	//
 	template<class I, class T>
-	STL2_CONCEPT OutputIterator =
+	META_CONCEPT OutputIterator =
 		Iterator<I> &&
 		Writable<I, T> &&
 		requires(I& i, T&& t) {
@@ -460,7 +460,7 @@ STL2_OPEN_NAMESPACE {
 	// InputIterator [iterators.input]
 	//
 	template<class I>
-	STL2_CONCEPT InputIterator =
+	META_CONCEPT InputIterator =
 		Iterator<I> &&
 		Readable<I> &&
 		requires(I& i, const I& ci) {
@@ -473,7 +473,7 @@ STL2_OPEN_NAMESPACE {
 	// ForwardIterator [iterators.forward]
 	//
 	template<class I>
-	STL2_CONCEPT ForwardIterator =
+	META_CONCEPT ForwardIterator =
 		InputIterator<I> &&
 		DerivedFrom<iterator_category_t<I>, forward_iterator_tag> &&
 		Incrementable<I> &&
@@ -490,7 +490,7 @@ STL2_OPEN_NAMESPACE {
 	// BidirectionalIterator [iterators.bidirectional]
 	//
 	template<class I>
-	STL2_CONCEPT BidirectionalIterator =
+	META_CONCEPT BidirectionalIterator =
 		ForwardIterator<I> &&
 		DerivedFrom<iterator_category_t<I>, bidirectional_iterator_tag> &&
 		ext::Decrementable<I>;
@@ -499,7 +499,7 @@ STL2_OPEN_NAMESPACE {
 	// RandomAccessIterator [iterators.random.access]
 	//
 	template<class I>
-	STL2_CONCEPT RandomAccessIterator =
+	META_CONCEPT RandomAccessIterator =
 		BidirectionalIterator<I> &&
 		DerivedFrom<iterator_category_t<I>, random_access_iterator_tag> &&
 		SizedSentinel<I, I> &&
@@ -520,7 +520,7 @@ STL2_OPEN_NAMESPACE {
 	// ContiguousIterator
 	//
 	template<class I>
-	STL2_CONCEPT ContiguousIterator =
+	META_CONCEPT ContiguousIterator =
 		RandomAccessIterator<I> &&
 		DerivedFrom<iterator_category_t<I>, contiguous_iterator_tag> &&
 		std::is_lvalue_reference<iter_reference_t<I>>::value &&
@@ -605,14 +605,14 @@ STL2_OPEN_NAMESPACE {
 		struct pointer_with_a_default<T, U> : meta::id<typename T::pointer> {};
 
 		template<class I>
-		STL2_CONCEPT LooksLikeSTL1Iterator =
+		META_CONCEPT LooksLikeSTL1Iterator =
 			requires {
 				typename I::iterator_category;
 				requires DerivedFrom<typename I::iterator_category, std::input_iterator_tag> ||
 						 DerivedFrom<typename I::iterator_category, std::output_iterator_tag>;
 			};
 		template<class I>
-		STL2_CONCEPT ProbablySTL2Iterator = !LooksLikeSTL1Iterator<I> && Iterator<I>;
+		META_CONCEPT ProbablySTL2Iterator = !LooksLikeSTL1Iterator<I> && Iterator<I>;
 	} // namespace detail
 } STL2_CLOSE_NAMESPACE
 

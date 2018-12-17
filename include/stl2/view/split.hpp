@@ -25,13 +25,11 @@
 #include <type_traits>
 
 STL2_OPEN_NAMESPACE {
-	template<auto> struct __require_constant;
-
 	template<class R>
-	STL2_CONCEPT _TinyRange =
+	META_CONCEPT _TinyRange =
 		SizedRange<R> &&
 		requires {
-			typename __require_constant<std::remove_reference_t<R>::size()>;
+			typename meta::detail::require_constant<std::remove_reference_t<R>::size()>;
 		} &&
 		std::remove_reference_t<R>::size() <= 1;
 

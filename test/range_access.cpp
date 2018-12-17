@@ -76,13 +76,13 @@ void test_array(std::integer_sequence<T, Is...>) {
 
 namespace begin_testing {
 	template<class R>
-	STL2_CONCEPT CanBegin =
+	META_CONCEPT CanBegin =
 		requires(R&& r) {
 			ranges::begin((R&&)r);
 		};
 
 	template<class R>
-	STL2_CONCEPT CanCBegin =
+	META_CONCEPT CanCBegin =
 		requires(R&& r) {
 			ranges::cbegin((R&&)r);
 		};

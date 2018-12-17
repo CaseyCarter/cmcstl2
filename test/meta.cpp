@@ -412,5 +412,25 @@ int main()
 	}
 
 	test_tuple_cat();
+
+	{
+		static_assert(meta::Integral<std::true_type>);
+		static_assert(meta::Integral<std::integral_constant<std::size_t, 42>>);
+		static_assert(meta::Integral<std::integral_constant<int, -42>>);
+
+		struct S1 : std::integral_constant<int, 42>
+		{
+		};
+		static_assert(meta::Integral<S1>);
+
+#if !defined(__GNUC__) || defined(__clang__) // Avoid https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88515
+		struct S2 : S1
+		{
+			const int value;
+		};
+		static_assert(!meta::Integral<S2>);
+#endif
+	}
+
 	return ::test_result();
 }

@@ -39,8 +39,8 @@ STL2_OPEN_NAMESPACE {
 
 		template<class T>
 		inline constexpr bool is_reference_wrapper =
-			meta::is<T, reference_wrapper>::value ||
-			meta::is<T, std::reference_wrapper>::value;
+			meta::is_v<T, reference_wrapper> ||
+			meta::is_v<T, std::reference_wrapper>;
 
 		template<class, class T1>
 		requires is_reference_wrapper<std::decay_t<T1>>

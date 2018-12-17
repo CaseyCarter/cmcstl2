@@ -15,15 +15,18 @@
 #ifndef META_FWD_HPP
 #define META_FWD_HPP
 
-#include <utility>
 #include <type_traits>
+#include <utility>
 
 #if !defined(__cpp_concepts) || __cpp_concepts == 0
 #error Nothing here will work without support for C++ concepts.
 #elif __cpp_concepts <= 201507L
 #define META_CONCEPT concept bool
+// TS concepts subsumption barrier for atomic expressions
+#define META_CONCEPT_BARRIER(...) ::meta::detail::bool_<__VA_ARGS__>
 #else
 #define META_CONCEPT concept
+#define META_CONCEPT_BARRIER(...) __VA_ARGS__
 #endif
 
 #ifndef META_DISABLE_DEPRECATED_WARNINGS
@@ -49,7 +52,9 @@ namespace meta
         namespace detail
         {
             template<bool B>
-            constexpr bool bool_ = B;
+            inline constexpr bool bool_ = B;
+
+            template<auto> struct require_constant; // not defined
         }
 
         template<typename... Ts>
@@ -67,17 +72,18 @@ namespace meta
         template<typename T, template<T...> class C, T... Is>
         struct defer_i;
 
-        template<typename T>
-        constexpr bool is_list_v = false;
-
-        template<typename... Ts>
-        constexpr bool is_list_v<list<Ts...>> = true;
-
         template<typename...>
-        META_CONCEPT True = true;
+        META_CONCEPT True = META_CONCEPT_BARRIER(true);
 
         template<typename T, typename U>
-        META_CONCEPT Same = detail::bool_<std::is_same<T, U>::value>;
+        META_CONCEPT Same =
+#if defined(__clang__)
+            META_CONCEPT_BARRIER(__is_same(T, U));
+#elif defined(__GNUC__)
+            META_CONCEPT_BARRIER(__is_same_as(T, U));
+#else
+            META_CONCEPT_BARRIER(std::is_same_v<T, U>);
+#endif
 
         template<template<typename...> class C, typename... Ts>
         META_CONCEPT Valid = requires
@@ -103,8 +109,17 @@ namespace meta
             typename quote<T::template invoke>;
         };
 
+        /// is_v
+        /// Test whether a type \p T is an instantiation of class
+        /// template \p C.
+        /// \ingroup trait
+        template<typename, template<typename...> class>
+        inline constexpr bool is_v = false;
+        template<typename... Ts, template<typename...> class C>
+        inline constexpr bool is_v<C<Ts...>, C> = true;
+
         template<typename T>
-        META_CONCEPT List = is_list_v<T>;
+        META_CONCEPT List = is_v<T, list>;
 
         // clang-format off
         template<typename T>
@@ -113,24 +128,30 @@ namespace meta
             typename T::type;
             typename T::value_type;
             typename T::type::value_type;
-            requires Same<typename T::value_type, typename T::type::value_type>;
-            // \begin{BUGBUG} https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68434
-            //{ T::value } -> Same<typename T::value_type>;
-            //{ T::type::value } -> Same<typename T::value_type>;
+        }
+        && Same<typename T::value_type, typename T::type::value_type>
+        && std::is_integral_v<typename T::value_type>
+        && requires
+        {
+            // { T::value } -> Same<const typename T::value_type&>;
             T::value;
+            requires Same<decltype(T::value), const typename T::value_type>;
+            typename detail::require_constant<T::value>;
+
+            // { T::type::value } -> Same<const typename T::value_type&>;
             T::type::value;
-            // requires Same<decltype(T::value), typename T::value_type>;
-            // requires Same<decltype(T::type::value), typename T::value_type>;
-            // \end{BUGBUG}
-            { T {} } -> typename T::value_type;
-            // Again: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68434
-            //{ T{}() } -> Same<typename T::value_type>;
+            requires Same<decltype(T::type::value), const typename T::value_type>;
+            typename detail::require_constant<T::type::value>;
+            requires T::value == T::type::value;
+
+            // { T{}() } -> Same<typename T::value_type>;
             T{}();
             requires Same<decltype(T{}()), typename T::value_type>;
-        }
-        && std::is_integral<typename T::value_type>::value
-        && T::value == T::type::value
-        && T{}() == T::value;
+            typename detail::require_constant<T{}()>;
+            requires T{}() == T::value;
+
+            { T{} } -> typename T::value_type;
+        };
         // clang-format on
 
         template<typename T>
@@ -146,7 +167,6 @@ namespace meta
         }
 
         using std::integer_sequence;
-
     } // inline namespace v1
 } // namespace meta
 

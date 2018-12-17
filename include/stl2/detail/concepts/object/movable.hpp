@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
 	// Movable [concepts.lib.object.movable]
 	//
 	template<class T>
-	STL2_CONCEPT Movable =
+	META_CONCEPT Movable =
 		std::is_object_v<T> && MoveConstructible<T> &&
 		Assignable<T&, T> && Swappable<T>;
 } STL2_CLOSE_NAMESPACE

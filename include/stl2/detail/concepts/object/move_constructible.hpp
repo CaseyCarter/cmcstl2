@@ -24,33 +24,33 @@ STL2_OPEN_NAMESPACE {
 	//
 	namespace ext {
 		template<class T>
-		STL2_CONCEPT Object = std::is_object_v<T>;
+		META_CONCEPT Object = std::is_object_v<T>;
 	} // namespace ext
 
 	///////////////////////////////////////////////////////////////////////////
 	// Destructible [concept.destructible]
 	//
 	template<class T>
-	STL2_CONCEPT Destructible = std::is_nothrow_destructible_v<T>;
+	META_CONCEPT Destructible = std::is_nothrow_destructible_v<T>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Constructible [concept.constructible]
 	//
 	template<class T, class... Args>
-	STL2_CONCEPT Constructible =
+	META_CONCEPT Constructible =
 		Destructible<T> && std::is_constructible_v<T, Args...>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// DefaultConstructible [concept.defaultconstructible]
 	//
 	template<class T>
-	STL2_CONCEPT DefaultConstructible = Constructible<T> && requires { T{}; };
+	META_CONCEPT DefaultConstructible = Constructible<T> && requires { T{}; };
 
 	///////////////////////////////////////////////////////////////////////////
 	// MoveConstructible [concept.moveconstructible]
 	//
 	template<class T>
-	STL2_CONCEPT MoveConstructible = Constructible<T, T> && ConvertibleTo<T, T>;
+	META_CONCEPT MoveConstructible = Constructible<T, T> && ConvertibleTo<T, T>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

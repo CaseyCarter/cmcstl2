@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	namespace ext {
 		template<class T>
-		STL2_CONCEPT Hashable = requires(const T& e) {
+		META_CONCEPT Hashable = requires(const T& e) {
 			typename std::hash<T>;
 			{ std::hash<T>{}(e) } -> std::size_t;
 		};

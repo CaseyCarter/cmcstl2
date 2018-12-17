@@ -34,15 +34,15 @@ STL2_OPEN_NAMESPACE {
 			typename __range_common_iterator_impl<Rng>::type;
 
 		template<class R>
-		STL2_CONCEPT CanEmpty = Range<R> && requires(R& r) { empty(r); };
+		META_CONCEPT CanEmpty = Range<R> && requires(R& r) { empty(r); };
 		template<class R>
-		STL2_CONCEPT SizedSentinelForwardRange = ForwardRange<R> && SizedSentinel<sentinel_t<R>, iterator_t<R>>;
+		META_CONCEPT SizedSentinelForwardRange = ForwardRange<R> && SizedSentinel<sentinel_t<R>, iterator_t<R>>;
 		template<class C, class R> // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		STL2_CONCEPT ContainerConvertibleGCCBugs = InputRange<R> &&
+		META_CONCEPT ContainerConvertibleGCCBugs = InputRange<R> &&
 			ConvertibleTo<iter_reference_t<iterator_t<R>>, iter_value_t<iterator_t<C>>> &&
 			Constructible<C, __range_common_iterator<R>, __range_common_iterator<R>>;
 		template<class C, class R>
-		STL2_CONCEPT ContainerConvertible = ForwardRange<C> && !View<C> &&
+		META_CONCEPT ContainerConvertible = ForwardRange<C> && !View<C> &&
 			ContainerConvertibleGCCBugs<C, R>;
 
 		template<Range R>

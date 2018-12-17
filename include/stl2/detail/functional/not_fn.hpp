@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	// not_fn from C++17
 	//
 	template<class F, class... Args>
-	STL2_CONCEPT _NegateInvocable = Invocable<F, Args...> &&
+	META_CONCEPT _NegateInvocable = Invocable<F, Args...> &&
 		requires(F&& f, Args&&... args) {
 			!__stl2::invoke(static_cast<F&&>(f),
 				static_cast<Args&&>(args)...);
