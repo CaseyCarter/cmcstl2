@@ -121,15 +121,10 @@ namespace example {
 			Proxy(A& a) : a{&a} {}
 
 			friend void swap(Proxy&& x, Proxy&& y) {
-				ranges::swap(x.a, y.a);
+				ranges::swap(*x.a, *y.a);
 			}
-			friend void swap(A& x, Proxy p) {
-				ranges::swap(x.m, p.a->m);
-			}
-			friend void swap(Proxy p, A& x) { swap(x, p); }
 		};
 		Proxy proxy(A& a) { return Proxy(a); }
-
 	}
 
 	void test() {
@@ -142,6 +137,22 @@ namespace example {
 		value_swap(a1, proxy(a2));
 		CHECK(a1.m == -5);
 		CHECK(a2.m == 5);
+
+		// Additional checks for paths not exercised by the example
+		value_swap(proxy(a1), a2);
+		CHECK(a1.m == 5);
+		CHECK(a2.m == -5);
+
+		value_swap(proxy(a1), proxy(a2));
+		CHECK(a1.m == -5);
+		CHECK(a2.m == 5);
+
+		N::Proxy p1{a1}, p2{a2};
+		ranges::swap(p1, p2);
+		CHECK(a1.m == -5);
+		CHECK(a2.m == 5);
+		CHECK(p1.a == &a2);
+		CHECK(p2.a == &a1);
 	}
 }
 #endif
