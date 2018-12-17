@@ -29,27 +29,22 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 namespace { std::mt19937 gen; }
 
 template<class Iter, class Sent = Iter>
-void
-test_iter(Iter first, Sent last)
-{
+void test_iter(Iter first, Sent last) {
 	assert(first != last);
-	auto rng = stl2::subrange(first, last);
-	auto res = stl2::minmax(rng);
+	auto res = ranges::minmax(ranges::subrange(first, last));
 	for (Iter i = first; i != last; ++i) {
-		CHECK(!(*i < res.first));
-		CHECK(!(res.second < *i));
+		CHECK(!(*i < res.min));
+		CHECK(!(res.max < *i));
 	}
 }
 
 template<class Iter, class Sent = Iter>
-void
-test_iter(unsigned N)
-{
+void test_iter(unsigned N) {
 	assert(N > 0);
 	std::unique_ptr<int[]> a{new int[N]};
 	std::iota(a.get(), a.get()+N, 0);
@@ -58,9 +53,7 @@ test_iter(unsigned N)
 }
 
 template<class Iter, class Sent = Iter>
-void
-test_iter()
-{
+void test_iter() {
 	test_iter<Iter, Sent>(1);
 	test_iter<Iter, Sent>(2);
 	test_iter<Iter, Sent>(3);
@@ -69,24 +62,19 @@ test_iter()
 }
 
 template<class Iter, class Sent = Iter>
-void
-test_iter_comp(Iter first, Sent last)
-{
+void test_iter_comp(Iter first, Sent last) {
 	assert(first != last);
 	typedef std::greater<int> Compare;
 	Compare comp;
-	auto rng = stl2::subrange(first, last);
-	auto res = stl2::minmax(rng, comp);
+	auto res = ranges::minmax(ranges::subrange(first, last), comp);
 	for (Iter i = first; i != last; ++i) {
-		CHECK(!comp(*i, res.first));
-		CHECK(!comp(res.second, *i));
+		CHECK(!comp(*i, res.min));
+		CHECK(!comp(res.max, *i));
 	}
 }
 
 template<class Iter, class Sent = Iter>
-void
-test_iter_comp(unsigned N)
-{
+void test_iter_comp(unsigned N) {
 	assert(N > 0);
 	std::unique_ptr<int[]> a{new int[N]};
 	std::iota(a.get(), a.get()+N, 0);
@@ -95,9 +83,7 @@ test_iter_comp(unsigned N)
 }
 
 template<class Iter, class Sent = Iter>
-void
-test_iter_comp()
-{
+void test_iter_comp() {
 	test_iter_comp<Iter, Sent>(1);
 	test_iter_comp<Iter, Sent>(2);
 	test_iter_comp<Iter, Sent>(3);
@@ -105,14 +91,12 @@ test_iter_comp()
 	test_iter_comp<Iter, Sent>(1000);
 }
 
-struct S
-{
+struct S {
 	int value;
 	int index;
 };
 
-int main()
-{
+int main() {
 	test_iter<input_iterator<const int*> >();
 	test_iter<forward_iterator<const int*> >();
 	test_iter<bidirectional_iterator<const int*> >();
@@ -135,11 +119,11 @@ int main()
 
 	// Works with projections?
 	S s[] = {S{1,0},S{2,1},S{3,2},S{4,3},S{-4,4},S{40,5},S{-4,6},S{40,7},S{7,8},S{8,9},S{9,10}};
-	auto res = stl2::minmax(s, std::less<int>{}, &S::value);
-	CHECK(res.first.value == -4);
-	CHECK(res.first.index == 4);
-	CHECK(res.second.value == 40);
-	CHECK(res.second.index == 7);
+	auto res = ranges::minmax(s, std::less<int>{}, &S::value);
+	CHECK(res.min.value == -4);
+	CHECK(res.min.index == 4);
+	CHECK(res.max.value == 40);
+	CHECK(res.max.index == 7);
 
 	return test_result();
 }

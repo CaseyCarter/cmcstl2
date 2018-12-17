@@ -27,10 +27,9 @@ STL2_OPEN_NAMESPACE {
 	private:
 		template<InputRange R, class Proj = identity,
 			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
-		requires Copyable<iter_value_t<iterator_t<R>>>
+		requires IndirectlyCopyableStorable<iterator_t<R>, iter_value_t<iterator_t<R>>*>
 		static constexpr iter_value_t<iterator_t<R>>
-		impl(R&& r, Comp comp = {}, Proj proj = {})
-		{
+		impl(R&& r, Comp comp = {}, Proj proj = {}) {
 			auto first = begin(r);
 			auto last = end(r);
 			STL2_EXPECT(first != last);
@@ -38,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 			while (++first != last) {
 				auto&& tmp = *first;
 				if (__stl2::invoke(comp, __stl2::invoke(proj, tmp), __stl2::invoke(proj, result))) {
-					result = (decltype(tmp)&&)tmp;
+					result = static_cast<decltype(tmp)>(tmp);
 				}
 			}
 			return result;
@@ -46,27 +45,26 @@ STL2_OPEN_NAMESPACE {
 	public:
 		template<class T, class Proj = identity,
 			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
-		constexpr const T& operator()(const T& a, const T& b, Comp comp = {},
-			Proj proj = {}) const
-		{
-			return __stl2::invoke(comp, __stl2::invoke(proj, b), __stl2::invoke(proj, a)) ? b : a;
-		}
-
-		template<InputRange R, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
-		requires Copyable<iter_value_t<iterator_t<R>>>
-		constexpr iter_value_t<iterator_t<R>>
-		operator()(R&& r, Comp comp = {}, Proj proj = {}) const
-		{
-			return __min_fn::impl(r, __stl2::ref(comp), __stl2::ref(proj));
+		constexpr const T&
+		operator()(const T& a, const T& b, Comp comp = {}, Proj proj = {}) const {
+			const bool test = __stl2::invoke(comp,
+				__stl2::invoke(proj, b), __stl2::invoke(proj, a));
+			return test ? b : a;
 		}
 
 		template<Copyable T, class Proj = identity,
 			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
-		constexpr T operator()(std::initializer_list<T> r,
-			Comp comp = {}, Proj proj = {}) const
-		{
-			return __min_fn::impl(r, __stl2::ref(comp), __stl2::ref(proj));
+		constexpr T
+		operator()(std::initializer_list<T> r, Comp comp = {}, Proj proj = {}) const {
+			return impl(r, __stl2::ref(comp), __stl2::ref(proj));
+		}
+
+		template<InputRange R, class Proj = identity,
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
+		requires IndirectlyCopyableStorable<iterator_t<R>, iter_value_t<iterator_t<R>>*>
+		constexpr iter_value_t<iterator_t<R>>
+		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
+			return impl(r, __stl2::ref(comp), __stl2::ref(proj));
 		}
 	};
 
