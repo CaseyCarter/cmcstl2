@@ -17,12 +17,13 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
+////////////////////////////////////////////////////////////////////////////////
+// invoke(_result(_t)?)?, reference_wrapper, and c?ref all properly constexpr
+// per the proposed design in P1065.
+//
 STL2_OPEN_NAMESPACE {
 	template<__can_reference> struct reference_wrapper;
 
-	///////////////////////////////////////////////////////////////////////////
-	// invoke [C++ WP]
-	//
 	namespace __invoke {
 		template<class, class T1>
 		constexpr decltype(auto) coerce(T1&& t1)
