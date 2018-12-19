@@ -44,34 +44,30 @@ test()
 		return stl2::set_intersection(stl2::forward<decltype(args)>(args)...);
 	});
 
-	set_intersection(Iter1(ia), Iter1(ia+sa),
-					 Iter2(ib), Iter2(ib+sb), OutIter(ic)).check([&](OutIter ce)
-		{
-			CHECK(bool((base(ce) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(ce), ir, ir+sr) == 0);
+	set_intersection(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic))
+		.check([&](auto result) {
+			CHECK(bool((base(result.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(result.out), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		});
-	set_intersection(Iter1(ib), Iter1(ib+sb),
-					 Iter2(ia), Iter2(ia+sa), OutIter(ic)).check([&](OutIter ce)
-		{
-			CHECK(bool((base(ce) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(ce), ir, ir+sr) == 0);
+	set_intersection(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), OutIter(ic))
+		.check([&](auto result) {
+			CHECK(bool((base(result.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(result.out), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		});
 
 
-	set_intersection(Iter1(ia), Iter1(ia+sa),
-					 Iter2(ib), Iter2(ib+sb), OutIter(ic), std::less<int>()).check([&](OutIter ce)
-		{
-			CHECK(bool((base(ce) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(ce), ir, ir+sr) == 0);
+	set_intersection(Iter1(ia), Iter1(ia+sa), Iter2(ib), Iter2(ib+sb), OutIter(ic), stl2::less{})
+		.check([&](auto result) {
+			CHECK(bool((base(result.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(result.out), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		});
-	set_intersection(Iter1(ib), Iter1(ib+sb),
-					 Iter2(ia), Iter2(ia+sa), OutIter(ic), std::less<int>()).check([&](OutIter ce)
-		{
-			CHECK(bool((base(ce) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(ce), ir, ir+sr) == 0);
+	set_intersection(Iter1(ib), Iter1(ib+sb), Iter2(ia), Iter2(ia+sa), OutIter(ic), stl2::less{})
+		.check([&](auto result) {
+			CHECK(bool((base(result.out) - ic) == sr));
+			CHECK(std::lexicographical_compare(ic, base(result.out), ir, ir+sr) == 0);
 			stl2::fill(ic, 0);
 		});
 }

@@ -17,15 +17,17 @@ int main()
 {
 	// Test projections
 	{
-		S ia[] = {S{1}, S{2}, S{2}, S{3}, S{3}, S{3}, S{4}, S{4}, S{4}, S{4}};
-		T ib[] = {T{2}, T{4}, T{4}, T{6}};
-		U ic[20];
-		int ir[] = {2, 4, 4};
-		const int sr = sizeof(ir)/sizeof(ir[0]);
+		const auto in1 = std::array{S{1}, S{2}, S{2}, S{3}, S{3}, S{3}, S{4}, S{4}, S{4}, S{4}};
+		const auto in2 = std::array{T{2}, T{4}, T{4}, T{6}};
+		auto out = std::array<U, 20>{};
+		const auto expected = std::array{2, 4, 4};
 
-		U* res = stl2::set_intersection(ia, ib, ic, std::less<int>(), &S::i, &T::j);
-		CHECK((res - ic) == sr);
-		CHECK(stl2::lexicographical_compare(ic, res, ir, ir+sr, std::less<int>(), &U::k) == 0);
+		auto result = stl2::set_intersection(in1, in2, stl2::begin(out), stl2::less{}, &S::i, &T::j);
+		CHECK((result.out - stl2::begin(out)) == stl2::distance(expected));
+		CHECK(stl2::lexicographical_compare(
+			stl2::begin(out), result.out,
+			stl2::begin(expected), stl2::end(expected),
+			stl2::less{}, &U::k) == 0);
 	}
 
 	return ::test_result();
