@@ -18,20 +18,24 @@
 ///////////////////////////////////////////////////////////////////////////
 // fill [alg.fill]
 STL2_OPEN_NAMESPACE {
-	template<class T, OutputIterator<const T&> O, Sentinel<O> S>
-	O fill(O first, S last, const T& value)
-	{
-		for (; first != last; ++first) {
-			*first = value;
+	struct __fill_fn : private __niebloid {
+		template<class T, OutputIterator<const T&> O, Sentinel<O> S>
+		constexpr O operator()(O first, S last, const T& value) const
+		{
+			for (; first != last; ++first) {
+				*first = value;
+			}
+			return first;
 		}
-		return first;
-	}
 
-	template<class T, OutputRange<const T&> Rng>
-	safe_iterator_t<Rng> fill(Rng&& rng, const T& value)
-	{
-		return __stl2::fill(begin(rng), end(rng), value);
-	}
+		template<class T, OutputRange<const T&> R>
+		constexpr safe_iterator_t<R> operator()(R&& r, const T& value) const
+		{
+			return (*this)(begin(r), end(r), value);
+		}
+	};
+
+	inline constexpr __fill_fn fill {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
