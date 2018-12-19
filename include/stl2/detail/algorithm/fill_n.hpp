@@ -19,13 +19,18 @@
 // fill_n [alg.fill]
 //
 STL2_OPEN_NAMESPACE {
-	template<class T, OutputIterator<const T&> O>
-	O fill_n(O first, iter_difference_t<O> n, const T& value) {
-		for (; n > 0; --n, ++first) {
-			*first = value;
+	struct __fill_n_fn : private __niebloid {
+		template<class T, OutputIterator<const T&> O>
+		constexpr O operator()(O first, iter_difference_t<O> n, const T& value) const
+		{
+			for (; n > 0; --n, (void)++first) {
+				*first = value;
+			}
+			return first;
 		}
-		return first;
-	}
+	};
+
+	inline constexpr __fill_n_fn fill_n {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
