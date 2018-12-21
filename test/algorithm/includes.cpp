@@ -30,7 +30,7 @@ auto const true_  = [](bool b){CHECK(b);};
 auto const false_ = [](bool b){CHECK(!b);};
 
 auto includes_fn = [](auto&&... args) {
-  return stl2::includes(stl2::forward<decltype(args)>(args)...);
+  return stl2::includes(std::forward<decltype(args)>(args)...);
 };
 
 template<class Iter1, class Iter2>

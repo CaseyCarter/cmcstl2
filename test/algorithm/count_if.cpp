@@ -29,7 +29,7 @@ int main()
 	using namespace __stl2;
 
 	auto equals = [](auto&& i){
-	  return [i = forward<decltype(i)>(i)](const auto& j) {
+	  return [i = static_cast<decltype(i)>(i)](const auto& j) {
 		return i == j;
 	  };
 	};

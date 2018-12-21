@@ -41,7 +41,7 @@ test()
 	const int sr = sizeof(ir)/sizeof(ir[0]);
 
 	auto set_intersection = ::make_testable_2<true, true>([](auto&&... args) {
-		return stl2::set_intersection(stl2::forward<decltype(args)>(args)...);
+		return stl2::set_intersection(std::forward<decltype(args)>(args)...);
 	});
 
 	set_intersection(Iter1(ia), Iter1(ia+sa),

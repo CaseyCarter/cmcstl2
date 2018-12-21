@@ -64,7 +64,7 @@ int main()
 		CHECK(!stl2::equal(ia, ib));
 
 		std::iota(ia, ia + s, 0);
-		CHECK(stl2::shuffle(stl2::move(rng), g).base() == stl2::end(ia));
+		CHECK(stl2::shuffle(std::move(rng), g).base() == stl2::end(ia));
 		CHECK(!stl2::equal(ia, orig));
 	}
 

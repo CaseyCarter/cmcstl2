@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 	//                const T*>()
 	//   safe_iterator_t<Rng>
 	//   find(Rng&& rng, const T& value, Proj&& proj = {}) {
-	//     return find(begin(rng), end(rng), value, forward<Proj>(proj));
+	//     return find(begin(rng), end(rng), value, std::forward<Proj>(proj));
 	//   }
 	//
 	// __f<Proj> is an alias for the decayed type that will eventually

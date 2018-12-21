@@ -44,7 +44,7 @@ namespace stl2 = __stl2;
 namespace { std::mt19937 gen; }
 
 const auto push_heap = make_testable_1([](auto&&... args) {
-	return stl2::push_heap(stl2::forward<decltype(args)>(args)...);
+	return stl2::push_heap(std::forward<decltype(args)>(args)...);
 });
 
 void test(int N)

@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 	bool binary_search(I first, S last, const T& value, Comp comp = {},
 		Proj proj = {})
 	{
-		auto result = __stl2::lower_bound(__stl2::move(first), last, value,
+		auto result = __stl2::lower_bound(std::move(first), last, value,
 			__stl2::ref(comp), __stl2::ref(proj));
 		return result != last && !__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
 	}
