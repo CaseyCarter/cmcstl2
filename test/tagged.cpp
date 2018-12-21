@@ -205,7 +205,7 @@ void test_tag_extension() {
 	static_assert(std::is_same<int&, decltype(p.foo())>());
 	const auto& cp = p;
 	static_assert(std::is_same<const int&, decltype(cp.foo())>());
-	static_assert(std::is_same<int&&, decltype(__stl2::move(p).foo())>());
+	static_assert(std::is_same<int&&, decltype(std::move(p).foo())>());
 	CHECK(p.in() == 42);
 	CHECK(p.foo() == 13);
 }

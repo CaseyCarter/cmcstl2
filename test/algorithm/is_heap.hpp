@@ -37,7 +37,7 @@ void test()
 {
 #if defined(IS_HEAP_1) || defined(IS_HEAP_2)
 	auto is_heap = make_testable_1([](auto&&... args) {
-		return stl2::is_heap(stl2::forward<decltype(args)>(args)...);
+		return stl2::is_heap(std::forward<decltype(args)>(args)...);
 	});
 #endif
 
@@ -545,7 +545,7 @@ void test_comp()
 {
 #if defined(IS_HEAP_3) || defined(IS_HEAP_4)
 	auto is_heap = make_testable_1([](auto&&... args) {
-		return stl2::is_heap(stl2::forward<decltype(args)>(args)...);
+		return stl2::is_heap(std::forward<decltype(args)>(args)...);
 	});
 #endif
 

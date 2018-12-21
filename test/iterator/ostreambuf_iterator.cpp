@@ -30,7 +30,7 @@ namespace {
 	template<InputRange R, OutputIterator<iter_reference_t<iterator_t<R>>> O>
 	constexpr tagged_pair<tag::in(safe_iterator_t<R>), tag::out(O)>
 	copy(R&& range, O out) {
-		return ::copy(begin(range), end(range), __stl2::move(out));
+		return ::copy(begin(range), end(range), std::move(out));
 	}
 }
 
