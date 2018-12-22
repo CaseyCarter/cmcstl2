@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
 			std::move(first), std::move(middle), std::move(last));
 	}
 
-	template <Permutable I>
+	template<Permutable I>
 	subrange<I> __rotate(I first, I middle, I last)
 	{
 		if (std::is_trivially_move_assignable_v<iter_value_t<I>>) {

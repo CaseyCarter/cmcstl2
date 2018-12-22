@@ -129,14 +129,6 @@ namespace __stl2 = ::std::experimental::ranges;
  #endif
 #endif
 
-#ifndef STL2_ENSURE
- #ifdef NDEBUG
-  #define STL2_ENSURE(...) STL2_ASSUME(__VA_ARGS__)
- #else
-  #define STL2_ENSURE(...) STL2_ASSERT(__VA_ARGS__)
- #endif // NDEBUG
-#endif // STL2_ENSURE
-
 #define STL2_PRAGMA(X) _Pragma(#X)
 #if defined(__GNUC__) || defined(__clang__)
 #define STL2_DIAGNOSTIC_PUSH STL2_PRAGMA(GCC diagnostic push)

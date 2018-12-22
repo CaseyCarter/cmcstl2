@@ -22,7 +22,7 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template <View V>
+	template<View V>
 	requires BidirectionalRange<V>
 	class reverse_view
 	: public view_interface<reverse_view<V>>
@@ -75,18 +75,18 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	template <class R>
+	template<class R>
 	reverse_view(R&&) -> reverse_view<all_view<R>>;
 
 	namespace view {
-		template <class>
+		template<class>
 		inline constexpr bool __is_reversible_subrange = false;
-		template <class I, subrange_kind K>
+		template<class I, subrange_kind K>
 		inline constexpr bool __is_reversible_subrange<
 			subrange<reverse_iterator<I>, reverse_iterator<I>, K>> = true;
 
 		struct __reverse_fn : detail::__pipeable<__reverse_fn> {
-			template <BidirectionalRange R>
+			template<BidirectionalRange R>
 			requires ViewableRange<R>
 			constexpr auto operator()(R&& r) const {
 				if constexpr (_SpecializationOf<R, reverse_view>) {
