@@ -119,17 +119,14 @@ STL2_OPEN_NAMESPACE {
 			return std::get<2>(data_);
 		}
 	public:
-		using iterator = I;
-		using sentinel = S;
-
 		subrange() = default;
 
-		template <_ConvertibleToNotSlicing<I> I2>
+		template<_ConvertibleToNotSlicing<I> I2>
 		constexpr subrange(I2&& i, S s)
 			requires (!StoreSize)
 		: data_{std::forward<I2>(i), std::move(s)} {}
 
-		template <_ConvertibleToNotSlicing<I> I2>
+		template<_ConvertibleToNotSlicing<I> I2>
 		constexpr subrange(I2&& i, S s, iter_difference_t<I> n)
 			requires (StoreSize)
 		: data_{std::forward<I2>(i), std::move(s), n} {
@@ -137,7 +134,7 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(first_() + n == last_());
 			}
 		}
-		template <_ConvertibleToNotSlicing<I> I2>
+		template<_ConvertibleToNotSlicing<I> I2>
 		constexpr subrange(I2&& i, S s, iter_difference_t<I> n)
 		requires SizedSentinel<S, I>
 		: data_{std::forward<I2>(i), std::move(s)} {
