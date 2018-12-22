@@ -119,9 +119,6 @@ STL2_OPEN_NAMESPACE {
 			return std::get<2>(data_);
 		}
 	public:
-		using iterator = I;
-		using sentinel = S;
-
 		subrange() = default;
 
 		template<_ConvertibleToNotSlicing<I> I2>
