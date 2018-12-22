@@ -21,48 +21,43 @@
 // includes [includes]
 //
 STL2_OPEN_NAMESPACE {
-	template<InputIterator I1, Sentinel<I1> S1,
-		InputIterator I2, Sentinel<I2> S2, class Comp = less,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, projected<I1, Proj1>, projected<I2, Proj2>>
-	bool includes(I1 first1, S1 last1, I2 first2, S2 last2, Comp comp = {},
-		Proj1 proj1 = {}, Proj2 proj2 = {})
-	{
-		while (true) {
-			if (first2 == last2) {
-				return true;
+	struct __includes_fn : private  __niebloid {
+		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
+			class Proj1 = identity, class Proj2 = identity,
+			IndirectStrictWeakOrder<projected<I1, Proj1>, projected<I2, Proj2>> Comp = less>
+		constexpr bool
+		operator()(I1 first1, S1 last1, I2 first2, S2 last2, Comp comp = {},
+			Proj1 proj1 = {}, Proj2 proj2 = {}) const
+		{
+			while (true) {
+				if (first2 == last2) {
+					return true;
+				}
+				if (first1 == last1) {
+					return false;
+				}
+				if (__stl2::invoke(comp, __stl2::invoke(proj2, *first2), __stl2::invoke(proj1, *first1))) {
+					return false;
+				}
+				if (!__stl2::invoke(comp, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
+					++first2;
+				}
+				++first1;
 			}
-			if (first1 == last1) {
-				return false;
-			}
-			if (__stl2::invoke(comp, __stl2::invoke(proj2, *first2), __stl2::invoke(proj1, *first1))) {
-				return false;
-			}
-			if (!__stl2::invoke(comp, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
-				++first2;
-			}
-			++first1;
 		}
-	}
 
-	template<InputRange Rng1, InputRange Rng2, class Comp = less,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		IndirectStrictWeakOrder<Comp,
-			projected<iterator_t<Rng1>, Proj1>,
-			projected<iterator_t<Rng2>, Proj2>>
-	bool includes(Rng1&& rng1, Rng2&& rng2, Comp comp = {},
-		Proj1 proj1 = {}, Proj2 proj2 = {})
-	{
-		return __stl2::includes(
-			begin(rng1), end(rng1),
-			begin(rng2), end(rng2),
-			__stl2::ref(comp),
-			__stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
+		template<InputRange R1, InputRange R2, class Proj1 = identity, class Proj2 = identity,
+			IndirectStrictWeakOrder<projected<iterator_t<R1>, Proj1>,
+				projected<iterator_t<R2>, Proj2>> Comp = less>
+		constexpr bool
+		operator()(R1&& r1, R2&& r2, Comp comp = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
+		{
+			return (*this)(begin(r1), end(r1), begin(r2), end(r2), __stl2::ref(comp),
+				__stl2::ref(proj1), __stl2::ref(proj2));
+		}
+	};
+
+	inline constexpr __includes_fn includes {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

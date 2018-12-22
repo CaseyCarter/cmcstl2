@@ -28,8 +28,7 @@ STL2_OPEN_NAMESPACE {
 
 	struct __set_difference_fn : private __niebloid {
 		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
-			WeaklyIncrementable O, class Comp = less,
-			class Proj1 = identity, class Proj2 = identity>
+			WeaklyIncrementable O, class Comp = less, class Proj1 = identity, class Proj2 = identity>
 		requires Mergeable<I1, I2, O, Comp, Proj1, Proj2>
 		constexpr set_difference_result<I1, O>
 		operator()(I1 first1, S1 last1, I2 first2, S2 last2, O result,
