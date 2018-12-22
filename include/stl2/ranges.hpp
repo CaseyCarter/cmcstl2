@@ -26,6 +26,7 @@
 #include <stl2/view/drop_while.hpp>
 #include <stl2/view/empty.hpp>
 #include <stl2/view/filter.hpp>
+#include <stl2/view/generate.hpp>
 #include <stl2/view/indirect.hpp>
 #include <stl2/view/iota.hpp>
 #include <stl2/view/istream.hpp>
