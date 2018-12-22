@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 
 			iter_difference_t<iterator_t<Base>> n_;
 		public:
-			take_exactly_view() requires DefaultConstructible<Base> = default;
+			take_exactly_view() = default;
 
 			constexpr take_exactly_view(Base view, iter_difference_t<iterator_t<Base>> n)
 			noexcept(std::is_nothrow_move_constructible<Base>::value)
@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
 	namespace view::ext {
 		struct __take_exactly_fn : detail::__pipeable<__take_exactly_fn> {
 			template<class V>
-			auto operator()(V&& view, iter_difference_t<iterator_t<V>> const n) const
+			constexpr auto operator()(V&& view, iter_difference_t<iterator_t<V>> const n) const
 			STL2_REQUIRES_RETURN(
 				__stl2::ext::take_exactly_view(all(std::forward<V>(view)), n)
 			)
