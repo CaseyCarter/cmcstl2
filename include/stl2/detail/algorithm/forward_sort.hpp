@@ -74,8 +74,7 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(0 <= n1);
 				STL2_EXPECT(n0 <= buf.size());
 				auto&& vec = detail::make_temporary_vector(buf);
-				__stl2::move(counted_iterator{f0, n0},
-					default_sentinel{}, __stl2::back_inserter(vec));
+				move(counted_iterator{f0, n0}, default_sentinel{}, __stl2::back_inserter(vec));
 				return merge(
 					__stl2::make_move_iterator(begin(vec)),
 					__stl2::make_move_iterator(end(vec)),

@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 	subrange<I> __rotate_left(I first, I last)
 	{
 		iter_value_t<I> tmp = iter_move(first);
-		I lm1 = __stl2::move(next(first), last, first).second;
+		I lm1 = move(next(first), last, first).out;
 		*lm1 = std::move(tmp);
 		return {std::move(lm1), std::move(last)};
 	}
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		I lm1 = prev(last);
 		iter_value_t<I> tmp = iter_move(lm1);
-		I fp1 = __stl2::move_backward(first, std::move(lm1), last).second;
+		I fp1 = move_backward(first, std::move(lm1), last).out;
 		*first = std::move(tmp);
 		return {std::move(fp1), std::move(last)};
 	}

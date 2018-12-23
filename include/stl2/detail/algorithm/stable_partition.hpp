@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 						move_sentinel<default_sentinel>{},
 						std::move(first), __stl2::back_inserter(vec),
 						__stl2::ref(pred), __stl2::ref(proj)).out1();
-				auto last = __stl2::move(vec, pp).out();
+				auto last = move(vec, pp).out;
 				return {std::move(pp), std::move(last)};
 			}
 
@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 					__stl2::ref(proj)).out1();
 				*middle = iter_move(last);
 				++middle;
-				__stl2::move(vec, middle);
+				move(vec, middle);
 				return middle;
 			}
 

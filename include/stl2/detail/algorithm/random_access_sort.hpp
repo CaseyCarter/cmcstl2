@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				iter_value_t<I> val = iter_move(last);
 				if (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *first))) {
-					__stl2::move_backward(first, last, last + 1);
+					move_backward(first, last, last + 1);
 					*first = std::move(val);
 				} else {
 					unguarded_linear_insert(last, std::move(val), comp, proj);

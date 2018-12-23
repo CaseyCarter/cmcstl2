@@ -66,9 +66,9 @@ STL2_OPEN_NAMESPACE {
 				detail::temporary_vector vec{buf};
 				auto ufirst = ext::uncounted(first);
 				// Shift the first half of the input range into the buffer.
-				auto umiddle = ext::uncounted(__stl2::move(
+				auto umiddle = ext::uncounted(move(
 					counted_iterator{ufirst, n / 2}, default_sentinel{},
-					__stl2::back_inserter(vec)).in());
+					__stl2::back_inserter(vec)).in);
 				if (n % 2 != 0) {
 					++umiddle;
 				}
@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 				auto ulast = __swap_ranges::impl(rbegin(vec), rend(vec),
 					std::move(umiddle)).in2();
 				// Shift the buffer contents into the first half of the input range.
-				__stl2::move(vec, std::move(ufirst));
+				move(vec, std::move(ufirst));
 				return __stl2::ext::recounted(first, std::move(ulast), n);
 			}
 
