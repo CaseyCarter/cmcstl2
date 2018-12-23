@@ -32,8 +32,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectUnaryPredicate<projected<I, Proj>> Pred>
 		requires IndirectlyCopyable<I, O>
 		constexpr copy_if_result<I, O>
-		operator()(I first, S last, O result, Pred pred, Proj proj = {}) const
-		{
+		operator()(I first, S last, O result, Pred pred, Proj proj = {}) const {
 			for (; first != last; ++first) {
 				iter_reference_t<I>&& v = *first;
 				if (__stl2::invoke(pred, __stl2::invoke(proj, v))) {
@@ -49,13 +48,9 @@ STL2_OPEN_NAMESPACE {
 			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
 		requires IndirectlyCopyable<iterator_t<R>, O>
 		constexpr copy_if_result<safe_iterator_t<R>, O>
-		operator()(R&& r, O result, Pred pred, Proj proj = {}) const
-		{
-			return (*this)(
-				begin(r), end(r),
-				std::move(result),
-				__stl2::ref(pred),
-				__stl2::ref(proj));
+		operator()(R&& r, O result, Pred pred, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), std::move(result),
+				__stl2::ref(pred), __stl2::ref(proj));
 		}
 	};
 

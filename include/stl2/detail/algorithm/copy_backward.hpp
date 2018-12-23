@@ -30,8 +30,7 @@ STL2_OPEN_NAMESPACE {
 		template<BidirectionalIterator I1, Sentinel<I1> S1, BidirectionalIterator I2>
 		requires IndirectlyCopyable<I1, I2>
 		constexpr copy_backward_result<I1, I2>
-		operator()(I1 first, S1 sent, I2 out) const
-		{
+		operator()(I1 first, S1 sent, I2 out) const {
 			auto last = next(first, std::move(sent));
 			auto i = last;
 			while (i != first) {
@@ -42,8 +41,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<BidirectionalRange R, BidirectionalIterator I>
 		constexpr copy_backward_result<safe_iterator_t<R>, I>
-		operator()(R&& r, I result) const
-		{
+		operator()(R&& r, I result) const {
 			return (*this)(begin(r), end(r), std::move(result));
 		}
 	};
