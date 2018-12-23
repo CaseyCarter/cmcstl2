@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 						move_sentinel<default_sentinel>{},
 						std::move(first), __stl2::back_inserter(vec),
 						__stl2::ref(pred), __stl2::ref(proj)).out1();
-				auto last = __stl2::move(vec, pp).out();
+				auto last = move(vec, pp).out;
 				return {std::move(pp), std::move(last)};
 			}
 
@@ -93,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 				const auto half_n = n / 2;
 				auto res1 = forward(std::move(first), half_n, buf, pred, proj);
 				auto res2 = forward_reduce(res1.end(), n - half_n, buf, pred, proj);
-				auto pp = __stl2::rotate(std::move(res1.begin()),
+				auto pp = rotate(std::move(res1.begin()),
 					std::move(res1.end()), std::move(res2.begin())).begin();
 				return {std::move(pp), std::move(res2.end())};
 			}
@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 					__stl2::ref(proj)).out1();
 				*middle = iter_move(last);
 				++middle;
-				__stl2::move(vec, middle);
+				move(vec, middle);
 				return middle;
 			}
 
@@ -183,7 +183,7 @@ STL2_OPEN_NAMESPACE {
 				auto pp2 = bidirectional_reduce_front(
 					middle, std::move(last), n - half_n, buf, pred, proj);
 
-				return __stl2::rotate(std::move(pp1), std::move(middle),
+				return rotate(std::move(pp1), std::move(middle),
 					std::move(pp2)).begin();
 			}
 

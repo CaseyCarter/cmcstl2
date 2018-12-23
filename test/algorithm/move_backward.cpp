@@ -25,12 +25,10 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 template<typename InIter, typename OutIter>
-void
-test()
-{
+void test() {
 	{
 		const int N = 1000;
 		int ia[N];
@@ -38,9 +36,10 @@ test()
 			ia[i] = i;
 		int ib[N] = {0};
 
-		std::pair<InIter, OutIter> r = stl2::move_backward(InIter(ia), InIter(ia+N), OutIter(ib+N));
-		CHECK(base(r.first) == ia+N);
-		CHECK(base(r.second) == ib);
+		ranges::move_backward_result<InIter, OutIter> r =
+			ranges::move_backward(InIter(ia), InIter(ia+N), OutIter(ib+N));
+		CHECK(base(r.in) == ia+N);
+		CHECK(base(r.out) == ib);
 		for(int i = 0; i < N; ++i)
 			CHECK(ia[i] == ib[i]);
 	}
@@ -52,23 +51,21 @@ test()
 			ia[i] = i;
 		int ib[N] = {0};
 
-		std::pair<InIter, OutIter> r = stl2::move_backward(as_lvalue(stl2::subrange(InIter(ia), InIter(ia+N))), OutIter(ib+N));
-		CHECK(base(r.first) == ia+N);
-		CHECK(base(r.second) == ib);
+		ranges::move_backward_result<InIter, OutIter> r =
+			ranges::move_backward(as_lvalue(ranges::subrange(InIter(ia), InIter(ia+N))), OutIter(ib+N));
+		CHECK(base(r.in) == ia+N);
+		CHECK(base(r.out) == ib);
 		for(int i = 0; i < N; ++i)
 			CHECK(ia[i] == ib[i]);
 	}
 }
 
-struct S
-{
+struct S {
 	std::unique_ptr<int> p;
 };
 
 template<typename InIter, typename OutIter>
-void
-test1()
-{
+void test1() {
 	{
 		const int N = 100;
 		std::unique_ptr<int> ia[N];
@@ -76,9 +73,10 @@ test1()
 			ia[i].reset(new int(i));
 		std::unique_ptr<int> ib[N];
 
-		std::pair<InIter, OutIter> r = stl2::move_backward(InIter(ia), InIter(ia+N), OutIter(ib+N));
-		CHECK(base(r.first) == ia+N);
-		CHECK(base(r.second) == ib);
+		ranges::move_backward_result<InIter, OutIter> r =
+			ranges::move_backward(InIter(ia), InIter(ia+N), OutIter(ib+N));
+		CHECK(base(r.in) == ia+N);
+		CHECK(base(r.out) == ib);
 		for(int i = 0; i < N; ++i)
 		{
 			CHECK(ia[i].get() == nullptr);
@@ -93,20 +91,21 @@ test1()
 			ia[i].reset(new int(i));
 		std::unique_ptr<int> ib[N];
 
-		std::pair<InIter, OutIter> r = stl2::move_backward(as_lvalue(stl2::subrange(InIter(ia), InIter(ia+N))), OutIter(ib+N));
-		CHECK(base(r.first) == ia+N);
-		CHECK(base(r.second) == ib);
+		ranges::move_backward_result<InIter, OutIter> r =
+			ranges::move_backward(as_lvalue(ranges::subrange(InIter(ia), InIter(ia+N))), OutIter(ib+N));
+		CHECK(base(r.in) == ia+N);
+		CHECK(base(r.out) == ib);
 		for(int i = 0; i < N; ++i)
 		{
 			CHECK(ia[i].get() == nullptr);
 			CHECK(*ib[i] == i);
 		}
 
-		stl2::move_backward(ib, ib+N, ia+N);
+		ranges::move_backward(ib, ib+N, ia+N);
 
-		auto r2 = stl2::move_backward(stl2::subrange(InIter(ia), InIter(ia+N)), OutIter(ib+N));
-		CHECK(base(r2.first) == ia+N);
-		CHECK(base(r2.second) == ib);
+		auto r2 = ranges::move_backward(ranges::subrange(InIter(ia), InIter(ia+N)), OutIter(ib+N));
+		CHECK(base(r2.in) == ia+N);
+		CHECK(base(r2.out) == ib);
 		for(int i = 0; i < N; ++i)
 		{
 			CHECK(ia[i].get() == nullptr);
@@ -115,8 +114,7 @@ test1()
 	}
 }
 
-int main()
-{
+int main() {
 	test<bidirectional_iterator<const int*>, bidirectional_iterator<int*> >();
 	test<bidirectional_iterator<const int*>, random_access_iterator<int*> >();
 	test<bidirectional_iterator<const int*>, int*>();

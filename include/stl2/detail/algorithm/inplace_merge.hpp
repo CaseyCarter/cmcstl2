@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPENSIVE_ASSERT(len2 == distance(middle, last));
 				temporary_vector<iter_value_t<I>> vec{buf};
 				if (len1 <= len2) {
-					__stl2::move(first, middle, __stl2::back_inserter(vec));
+					move(first, middle, __stl2::back_inserter(vec));
 					merge(
 						__stl2::make_move_iterator(begin(vec)),
 						__stl2::make_move_iterator(end(vec)),
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 						std::move(first), __stl2::ref(pred),
 						__stl2::ref(proj), __stl2::ref(proj));
 				} else {
-					__stl2::move(middle, last, __stl2::back_inserter(vec));
+					move(middle, last, __stl2::back_inserter(vec));
 					using RBi = reverse_iterator<I>;
 					merge(
 						__stl2::make_move_iterator(RBi{std::move(middle)}),
@@ -147,7 +147,7 @@ STL2_OPEN_NAMESPACE {
 					D len22 = len2 - len21;  // distance(m2, end)
 					// [begin, m1) [m1, middle) [middle, m2) [m2, end)
 					// swap middle two partitions
-					middle = __stl2::rotate(m1, std::move(middle), m2).begin();
+					middle = rotate(m1, std::move(middle), m2).begin();
 					// len12 and len21 now have swapped meanings
 					// merge smaller range with recursive call and larger with tail recursion elimination
 					if(len11 + len21 < len12 + len22) {

@@ -66,18 +66,17 @@ STL2_OPEN_NAMESPACE {
 				detail::temporary_vector vec{buf};
 				auto ufirst = ext::uncounted(first);
 				// Shift the first half of the input range into the buffer.
-				auto umiddle = ext::uncounted(__stl2::move(
+				auto umiddle = ext::uncounted(move(
 					counted_iterator{ufirst, n / 2}, default_sentinel{},
-					__stl2::back_inserter(vec)).in());
+					__stl2::back_inserter(vec)).in);
 				if (n % 2 != 0) {
 					++umiddle;
 				}
 				// Swap the buffered elements in reverse order with the second half of
 				// the input range.
-				auto ulast = __swap_ranges::impl(rbegin(vec), rend(vec),
-					std::move(umiddle)).in2();
+				auto ulast = __swap_ranges3(rbegin(vec), rend(vec), std::move(umiddle)).in2;
 				// Shift the buffer contents into the first half of the input range.
-				__stl2::move(vec, std::move(ufirst));
+				move(vec, std::move(ufirst));
 				return __stl2::ext::recounted(first, std::move(ulast), n);
 			}
 
@@ -101,8 +100,8 @@ STL2_OPEN_NAMESPACE {
 					++first2;
 				}
 				reverse_n_adaptive(first2, half_n, buf);
-				return __swap_ranges::impl(std::move(first), std::move(last1),
-					std::move(first2)).in2();
+				return __swap_ranges3(std::move(first), std::move(last1),
+					std::move(first2)).in2;
 			}
 		};
 
