@@ -76,17 +76,17 @@ STL2_OPEN_NAMESPACE {
 			iter_difference_t<I> step_size, C &pred, P &proj) {
 			auto two_step = iter_difference_t<I>(2 * step_size);
 			while (last - first >= two_step) {
-				result = __stl2::merge(
+				result = merge(
 					__stl2::make_move_iterator(first),
 					__stl2::make_move_iterator(first + step_size),
 					__stl2::make_move_iterator(first + step_size),
 					__stl2::make_move_iterator(first + two_step),
 					result, __stl2::ref(pred),
-					__stl2::ref(proj), __stl2::ref(proj)).out();
+					__stl2::ref(proj), __stl2::ref(proj)).out;
 				first += two_step;
 			}
 			step_size = __stl2::min(iter_difference_t<I>(last - first), step_size);
-			__stl2::merge(
+			merge(
 				__stl2::make_move_iterator(first),
 				__stl2::make_move_iterator(first + step_size),
 				__stl2::make_move_iterator(first + step_size),
