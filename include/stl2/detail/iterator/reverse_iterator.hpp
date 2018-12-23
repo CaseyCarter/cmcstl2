@@ -136,8 +136,8 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool operator<(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
 	STL2_NOEXCEPT_RETURN(
-		__reverse_iterator::access::current(__stl2::get_cursor(x)) >
-			__reverse_iterator::access::current(__stl2::get_cursor(y))
+		__reverse_iterator::access::current(get_cursor(x)) >
+			__reverse_iterator::access::current(get_cursor(y))
 	)
 
 	template<class I1, StrictTotallyOrderedWith<I1> I2>

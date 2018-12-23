@@ -129,7 +129,7 @@ STL2_OPEN_NAMESPACE {
 				// instantiable before basic_iterator<cursor> is complete.
 				template<Same<cursor> C>
 				bool equal(const basic_iterator<C>& that) const noexcept {
-					return base_t::get().equal(__stl2::get_cursor(that));
+					return base_t::get().equal(get_cursor(that));
 				}
 			};
 
