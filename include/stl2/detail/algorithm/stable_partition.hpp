@@ -93,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 				const auto half_n = n / 2;
 				auto res1 = forward(std::move(first), half_n, buf, pred, proj);
 				auto res2 = forward_reduce(res1.end(), n - half_n, buf, pred, proj);
-				auto pp = __stl2::rotate(std::move(res1.begin()),
+				auto pp = rotate(std::move(res1.begin()),
 					std::move(res1.end()), std::move(res2.begin())).begin();
 				return {std::move(pp), std::move(res2.end())};
 			}
@@ -183,7 +183,7 @@ STL2_OPEN_NAMESPACE {
 				auto pp2 = bidirectional_reduce_front(
 					middle, std::move(last), n - half_n, buf, pred, proj);
 
-				return __stl2::rotate(std::move(pp1), std::move(middle),
+				return rotate(std::move(pp1), std::move(middle),
 					std::move(pp2)).begin();
 			}
 

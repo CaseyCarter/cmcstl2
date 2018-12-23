@@ -101,7 +101,7 @@ STL2_OPEN_NAMESPACE {
 				f0_1 = next(f0_0, n0_0);
 				f1_1 = __stl2::ext::lower_bound_n(f1, n1, __stl2::invoke(proj, *f0_1),
 					__stl2::ref(comp), __stl2::ref(proj));
-				f1_0 = __stl2::rotate(f0_1, f1, f1_1).begin();
+				f1_0 = rotate(f0_1, f1, f1_1).begin();
 				n0_1 = distance(f0_1, f1_0);
 				f1_0 = next(f1_0);
 				n1_0 = n0 - n0_0 - 1;
@@ -126,7 +126,7 @@ STL2_OPEN_NAMESPACE {
 				f0_1 = __stl2::ext::upper_bound_n(f0, n0, __stl2::invoke(proj, *f1_1),
 					__stl2::ref(comp), __stl2::ref(proj));
 				f1_1 = next(f1_1);
-				f1_0 = __stl2::rotate(f0_1, f1, f1_1).begin();
+				f1_0 = rotate(f0_1, f1, f1_1).begin();
 				n0_0 = distance(f0_0, f0_1);
 				n1_0 = n0 - n0_0;
 				n1_1 = n1 - n0_1 - 1;

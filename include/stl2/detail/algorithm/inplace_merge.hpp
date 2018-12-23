@@ -147,7 +147,7 @@ STL2_OPEN_NAMESPACE {
 					D len22 = len2 - len21;  // distance(m2, end)
 					// [begin, m1) [m1, middle) [middle, m2) [m2, end)
 					// swap middle two partitions
-					middle = __stl2::rotate(m1, std::move(middle), m2).begin();
+					middle = rotate(m1, std::move(middle), m2).begin();
 					// len12 and len21 now have swapped meanings
 					// merge smaller range with recursive call and larger with tail recursion elimination
 					if(len11 + len21 < len12 + len22) {
