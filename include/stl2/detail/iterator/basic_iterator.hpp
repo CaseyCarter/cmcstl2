@@ -585,11 +585,14 @@ STL2_OPEN_NAMESPACE {
 	: common_type<cursor::value_type_t<Cur1>, cursor::value_type_t<Cur2>>
 	{};
 
-	template<_SpecializationOf<basic_iterator> BI>
-	constexpr decltype(auto) get_cursor(BI&& i)
-	STL2_NOEXCEPT_RETURN(
-		std::forward<BI>(i).get()
-	)
+	struct __get_cursor_fn {
+		template<_SpecializationOf<basic_iterator> BI>
+		constexpr auto&& operator()(BI&& i) const
+		STL2_NOEXCEPT_RETURN(
+			static_cast<BI&&>(i).get()
+		)
+	};
+	inline constexpr __get_cursor_fn get_cursor {};
 
 	namespace basic_iterator_adl {
 		struct hook {};
@@ -616,8 +619,7 @@ STL2_OPEN_NAMESPACE {
 	, detail::iterator_associated_types_base<C>
 	, basic_iterator_adl::hook
 	{
-		template<_SpecializationOf<basic_iterator> BI>
-		friend constexpr decltype(auto) get_cursor(BI&& i);
+		friend __get_cursor_fn;
 
 		using mixin = mixin_t<C>;
 		using mixin::get;
@@ -633,11 +635,11 @@ STL2_OPEN_NAMESPACE {
 		template<cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator(basic_iterator<O>&& that)
 		noexcept(std::is_nothrow_constructible<mixin, O>::value)
-		: mixin(__stl2::get_cursor(std::move(that))) {}
+		: mixin(get_cursor(std::move(that))) {}
 		template<cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator(const basic_iterator<O>& that)
 		noexcept(std::is_nothrow_constructible<mixin, const O&>::value)
-		: mixin(__stl2::get_cursor(that)) {}
+		: mixin(get_cursor(that)) {}
 		constexpr explicit basic_iterator(const C& c)
 		noexcept(std::is_nothrow_constructible<mixin, const C&>::value)
 		: mixin(c) {}
@@ -650,14 +652,14 @@ STL2_OPEN_NAMESPACE {
 		constexpr basic_iterator& operator=(basic_iterator<O>&& that) &
 		noexcept(std::is_nothrow_assignable<C&, O>::value)
 		{
-			get() = __stl2::get_cursor(std::move(that));
+			get() = get_cursor(std::move(that));
 			return *this;
 		}
 		template<cursor::ConvertibleTo<C> O>
 		constexpr basic_iterator& operator=(const basic_iterator<O>& that) &
 		noexcept(std::is_nothrow_assignable<C&, const O&>::value)
 		{
-			get() = __stl2::get_cursor(that);
+			get() = get_cursor(that);
 			return *this;
 		}
 		template<class T>
@@ -917,7 +919,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool operator==(
 		const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
 	STL2_NOEXCEPT_RETURN(
-		__stl2::get_cursor(lhs).equal(__stl2::get_cursor(rhs))
+		get_cursor(lhs).equal(get_cursor(rhs))
 	)
 
 	template<class C, class S>
@@ -925,7 +927,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool operator==(
 		const basic_iterator<C>& lhs, const S& rhs)
 	STL2_NOEXCEPT_RETURN(
-		__stl2::get_cursor(lhs).equal(rhs)
+		get_cursor(lhs).equal(rhs)
 	)
 
 	template<class C, class S>
@@ -949,7 +951,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool operator!=(
 		const basic_iterator<C>& lhs, const S& rhs)
 	STL2_NOEXCEPT_RETURN(
-		!__stl2::get_cursor(lhs).equal(rhs)
+		!get_cursor(lhs).equal(rhs)
 	)
 
 	template<class C, class S>
@@ -957,7 +959,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool operator!=(
 		const S& lhs, const basic_iterator<C>& rhs)
 	STL2_NOEXCEPT_RETURN(
-		!__stl2::get_cursor(rhs).equal(lhs)
+		!get_cursor(rhs).equal(lhs)
 	)
 
 	template<class C1, class C2>
@@ -965,7 +967,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr cursor::difference_type_t<C2> operator-(
 		const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
 	STL2_NOEXCEPT_RETURN(
-		__stl2::get_cursor(rhs).distance_to(__stl2::get_cursor(lhs))
+		get_cursor(rhs).distance_to(get_cursor(lhs))
 	)
 
 	template<class C, class S>
@@ -973,7 +975,7 @@ STL2_OPEN_NAMESPACE {
 	constexpr cursor::difference_type_t<C> operator-(
 		const S& lhs, const basic_iterator<C>& rhs)
 	STL2_NOEXCEPT_RETURN(
-		__stl2::get_cursor(rhs).distance_to(lhs)
+		get_cursor(rhs).distance_to(lhs)
 	)
 
 	template<class C, class S>

@@ -192,8 +192,8 @@ STL2_OPEN_NAMESPACE {
 	constexpr bool
 	operator<(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
-		__move_iterator::access::current(__stl2::get_cursor(a)) <
-			__move_iterator::access::current(__stl2::get_cursor(b))
+		__move_iterator::access::current(get_cursor(a)) <
+			__move_iterator::access::current(get_cursor(b))
 	)
 
 	template<class I1, StrictTotallyOrderedWith<I1> I2>
