@@ -74,8 +74,7 @@ STL2_OPEN_NAMESPACE {
 				}
 				// Swap the buffered elements in reverse order with the second half of
 				// the input range.
-				auto ulast = __swap_ranges::impl(rbegin(vec), rend(vec),
-					std::move(umiddle)).in2();
+				auto ulast = __swap_ranges3(rbegin(vec), rend(vec), std::move(umiddle)).in2;
 				// Shift the buffer contents into the first half of the input range.
 				move(vec, std::move(ufirst));
 				return __stl2::ext::recounted(first, std::move(ulast), n);
@@ -101,8 +100,8 @@ STL2_OPEN_NAMESPACE {
 					++first2;
 				}
 				reverse_n_adaptive(first2, half_n, buf);
-				return __swap_ranges::impl(std::move(first), std::move(last1),
-					std::move(first2)).in2();
+				return __swap_ranges3(std::move(first), std::move(last1),
+					std::move(first2)).in2;
 			}
 		};
 

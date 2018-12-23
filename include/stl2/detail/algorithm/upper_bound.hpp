@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 			Sentinel<__f<S>, __f<I>> &&
 			IndirectStrictWeakOrder<Comp, const T*, projected<__f<I>, Proj>>
 		constexpr __f<I> operator()(I&& first_, S&& last, const T& value,
-			Comp comp = {}, Proj proj = {}) const  {
+			Comp comp = {}, Proj proj = {}) const {
 			auto first = std::forward<I>(first_);
 			auto n = distance(first, std::forward<S>(last));
 			return ext::upper_bound_n(std::move(first), n, value,

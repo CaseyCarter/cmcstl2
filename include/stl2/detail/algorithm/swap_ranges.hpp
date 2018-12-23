@@ -20,64 +20,43 @@
 // swap_ranges [alg.swap]
 //
 STL2_OPEN_NAMESPACE {
-	namespace __swap_ranges {
+	template<class I1, class I2>
+	using swap_ranges_result = __in_in_result<I1, I2>;
+
+	struct __swap_ranges3_fn {
 		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2>
-		requires
-			IndirectlySwappable<I1, I2>
-		constexpr tagged_pair<tag::in1(I1), tag::in2(I2)>
-		impl(I1 first1, S1 last1, I2 first2)
-		{
-			for (; first1 != last1; ++first1, void(++first2)) {
+		requires IndirectlySwappable<I1, I2>
+		constexpr swap_ranges_result<I1, I2>
+		operator()(I1 first1, S1 last1, I2 first2) const {
+			for (; first1 != last1; (void) ++first1, (void) ++first2) {
 				iter_swap(first1, first2);
 			}
 			return {std::move(first1), std::move(first2)};
 		}
-	}
+	};
 
-	template<ForwardIterator I1, Sentinel<I1> S1, class I2>
-	[[deprecated]] tagged_pair<tag::in1(I1), tag::in2(std::decay_t<I2>)>
-	swap_ranges(I1 first1, S1 last1, I2&& first2_)
-	requires ForwardIterator<std::decay_t<I2>> && !Range<I2> &&
-		IndirectlySwappable<I1, std::decay_t<I2>>
-	{
-		return __swap_ranges::impl(
-			std::move(first1), std::move(last1), std::forward<I2>(first2_));
-	}
+	inline constexpr __swap_ranges3_fn __swap_ranges3 {};
 
-	template<ForwardRange Rng, class I>
-	[[deprecated]] tagged_pair<tag::in1(safe_iterator_t<Rng>), tag::in2(std::decay_t<I>)>
-	swap_ranges(Rng&& rng1, I&& first2_)
-	requires ForwardIterator<std::decay_t<I>> && !Range<I> &&
-		IndirectlySwappable<iterator_t<Rng>, std::decay_t<I>>
-	{
-		auto first2 = std::forward<I>(first2_);
-		return __swap_ranges::impl(begin(rng1), end(rng1), std::move(first2));
-	}
-
-	template<ForwardIterator I1, Sentinel<I1> S1,
-		ForwardIterator I2, Sentinel<I2> S2>
-	requires
-		IndirectlySwappable<I1, I2>
-	tagged_pair<tag::in1(I1), tag::in2(I2)>
-	swap_ranges(I1 first1, S1 last1, I2 first2, S2 last2)
-	{
-		for (; first1 != last1 && first2 != last2; ++first1, void(++first2)) {
-			iter_swap(first1, first2);
+	struct __swap_ranges_fn : private __niebloid {
+		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2, Sentinel<I2> S2>
+		requires IndirectlySwappable<I1, I2>
+		constexpr swap_ranges_result<I1, I2>
+		operator()(I1 first1, S1 last1, I2 first2, S2 last2) const {
+			for (; first1 != last1 && first2 != last2; ++first1, void(++first2)) {
+				iter_swap(first1, first2);
+			}
+			return {std::move(first1), std::move(first2)};
 		}
-		return {std::move(first1), std::move(first2)};
-	}
 
-	template<ForwardRange Rng1, ForwardRange Rng2>
-	requires
-		IndirectlySwappable<iterator_t<Rng1>, iterator_t<Rng2>>
-	tagged_pair<tag::in1(safe_iterator_t<Rng1>),
-							tag::in2(safe_iterator_t<Rng2>)>
-	swap_ranges(Rng1&& rng1, Rng2&& rng2)
-	{
-		return __stl2::swap_ranges(
-			begin(rng1), end(rng1),
-			begin(rng2), end(rng2));
-	}
+		template<ForwardRange R1, ForwardRange R2>
+		requires IndirectlySwappable<iterator_t<R1>, iterator_t<R2>>
+		constexpr swap_ranges_result<safe_iterator_t<R1>, safe_iterator_t<R2>>
+		operator()(R1&& r1, R2&& r2) const {
+			return (*this)(begin(r1), end(r1), begin(r2), end(r2));
+		}
+	};
+
+	inline constexpr __swap_ranges_fn swap_ranges {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
