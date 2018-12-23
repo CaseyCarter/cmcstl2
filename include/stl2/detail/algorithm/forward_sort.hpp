@@ -76,13 +76,13 @@ STL2_OPEN_NAMESPACE {
 				auto&& vec = detail::make_temporary_vector(buf);
 				__stl2::move(counted_iterator{f0, n0},
 					default_sentinel{}, __stl2::back_inserter(vec));
-				return __stl2::merge(
+				return merge(
 					__stl2::make_move_iterator(begin(vec)),
 					__stl2::make_move_iterator(end(vec)),
 					__stl2::make_move_iterator(counted_iterator{std::move(f1), n1}),
 					move_sentinel<default_sentinel>{},
 					std::move(f0), __stl2::ref(comp),
-					__stl2::ref(proj), __stl2::ref(proj)).out();
+					__stl2::ref(proj), __stl2::ref(proj)).out;
 			}
 
 			template<class I, class Comp, class Proj>
