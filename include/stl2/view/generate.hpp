@@ -62,7 +62,8 @@ STL2_OPEN_NAMESPACE {
 			{ return {}; }
 		};
 
-		template<class F>
+		template<CopyConstructibleObject F>
+		requires Invocable<F&>
 		struct generate_view<F>::__iterator {
 			using value_type = result_t;
 			using difference_type = std::intmax_t;
