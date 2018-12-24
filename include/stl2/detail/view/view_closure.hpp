@@ -39,12 +39,6 @@ STL2_OPEN_NAMESPACE {
 		template<class Derived>
 		struct __pipeable : __pipeable_base {
 			template<class Rng>
-			friend constexpr auto operator|(Rng&& rng, Derived&& c)
-				// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68093
-				-> decltype(std::move(c)(std::forward<Rng>(rng)))
-			{ return std::move(c)(std::forward<Rng>(rng)); }
-
-			template<class Rng>
 			friend constexpr auto operator|(Rng&& rng, Derived& c)
 				// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68093
 				-> decltype(c(std::forward<Rng>(rng)))
@@ -57,9 +51,21 @@ STL2_OPEN_NAMESPACE {
 			{ return c(std::forward<Rng>(rng)); }
 
 			template<class Rng>
+			friend constexpr auto operator|(Rng&& rng, Derived&& c)
+				// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68093
+				-> decltype(std::move(c)(std::forward<Rng>(rng)))
+			{ return std::move(c)(std::forward<Rng>(rng)); }
+
+#if STL2_WORKAROUND_CLANG_40150
+			template<class Rng>
 			friend constexpr auto operator|(Rng&& rng, const Derived&& c)
 				// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68093
-				-> decltype(c(std::forward<Rng>(rng))) = delete;
+				-> decltype(std::move(c)(std::forward<Rng>(rng)))
+			{ return std::move(c)(std::forward<Rng>(rng)); }
+#else
+			template<class Rng>
+			friend void operator|(Rng&& rng, const Derived&& c) = delete;
+#endif
 		};
 
 		template<class Indices, class Fn, class... Ts>
@@ -101,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 			template<InputRange Rng>
 			requires ViewableRange<Rng> && Invocable<Fn, Rng, const Ts &...> &&
 				View<invoke_result_t<Fn, Rng, const Ts &...>>
-			constexpr auto operator()(Rng&& rng) const && = delete;
+			void operator()(Rng&& rng) const && = delete;
 		};
 
 		template<Semiregular Fn, CopyConstructible... Ts>
