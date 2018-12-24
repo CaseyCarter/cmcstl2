@@ -62,8 +62,13 @@ STL2_OPEN_NAMESPACE {
 
 		public:
 			repeat_view() = default;
+#if STL2_WORKAROUND_CLANGC_42
+			template<class U>
+			requires _NotSameAs<U, repeat_view> && ConvertibleTo<U, T>
+#else
 			template<_NotSameAs<repeat_view> U>
 			requires ConvertibleTo<U, T>
+#endif
 			explicit constexpr repeat_view(U&& u)
 			noexcept(std::is_nothrow_constructible_v<T, U>)
 			: storage_t{static_cast<U&&>(u)} {}

@@ -27,6 +27,16 @@
  #endif // __GNUC__
 #endif // __clang__
 
+#ifndef STL2_WORKAROUND_CLANGC_42
+ #if defined(__clang__)
+  // Failure to short-circuit with constrained-parameter syntax.
+  // https://github.com/saarraz/clang-concepts/issues/42
+  #define STL2_WORKAROUND_CLANGC_42 1
+ #else
+  #define STL2_WORKAROUND_CLANGC_42 0
+ #endif
+#endif
+
 #ifndef STL2_WORKAROUND_GCC_69096
  #if defined(__GNUC__) && __GNUC__ >= 6
   // Return type deduction performed *before* checking constraints.

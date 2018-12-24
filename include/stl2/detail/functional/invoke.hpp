@@ -89,7 +89,12 @@ STL2_OPEN_NAMESPACE {
 	public:
 		using type = T;
 
+#if STL2_WORKAROUND_CLANGC_42
+		template<class U>
+		requires _NotSameAs<U, reference_wrapper>
+#else
 		template<_NotSameAs<reference_wrapper> U>
+#endif
 		constexpr reference_wrapper(U&& u)
 		noexcept(noexcept(fun(static_cast<U&&>(u))))
 		requires requires { fun(static_cast<U&&>(u)); }
