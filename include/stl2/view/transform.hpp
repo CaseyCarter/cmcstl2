@@ -100,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 	public:
 		using iterator_category = iterator_category_t<iterator_t<Base>>;
 		using value_type =
-			__uncvref<std::invoke_result_t<F&, iter_reference_t<iterator_t<Base>>>>;
+			__uncvref<invoke_result_t<F&, iter_reference_t<iterator_t<Base>>>>;
 		using difference_type = iter_difference_t<iterator_t<Base>>;
 
 		__iterator() = default;

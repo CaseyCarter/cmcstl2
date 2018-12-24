@@ -79,28 +79,28 @@ STL2_OPEN_NAMESPACE {
 
 			template<InputRange Rng>
 			requires ViewableRange<Rng> && Invocable<Fn, Rng, Ts...> &&
-				View<std::invoke_result_t<Fn, Rng, Ts...>>
+				View<invoke_result_t<Fn, Rng, Ts...>>
 			constexpr auto operator()(Rng&& rng) && {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<__box<Is, Ts>&&>(*this).value_...);
 			}
 			template<InputRange Rng>
 			requires ViewableRange<Rng> && Invocable<Fn, Rng, Ts &...> &&
-				View<std::invoke_result_t<Fn, Rng, Ts &...>>
+				View<invoke_result_t<Fn, Rng, Ts &...>>
 			constexpr auto operator()(Rng&& rng) & {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<__box<Is, Ts>&>(*this).value_...);
 			}
 			template<InputRange Rng>
 			requires ViewableRange<Rng> && Invocable<Fn, Rng, const Ts &...> &&
-				View<std::invoke_result_t<Fn, Rng, const Ts &...>>
+				View<invoke_result_t<Fn, Rng, const Ts &...>>
 			constexpr auto operator()(Rng&& rng) const & {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<const __box<Is, Ts>&>(*this).value_...);
 			}
 			template<InputRange Rng>
 			requires ViewableRange<Rng> && Invocable<Fn, Rng, const Ts &...> &&
-				View<std::invoke_result_t<Fn, Rng, const Ts &...>>
+				View<invoke_result_t<Fn, Rng, const Ts &...>>
 			constexpr auto operator()(Rng&& rng) const && = delete;
 		};
 
@@ -125,18 +125,18 @@ STL2_OPEN_NAMESPACE {
 			: left_(std::move(left)), right_(std::move(right)) {}
 
 			template<ViewableRange R>
-			requires Invocable<A, R> && Invocable<B, std::invoke_result_t<A, R>>
+			requires Invocable<A, R> && Invocable<B, invoke_result_t<A, R>>
 			constexpr decltype(auto) operator()(R&& r) &&
 			{ return std::move(right_)(std::move(left_)(std::forward<R>(r))); }
 
 			template<ViewableRange R>
-			requires Invocable<A&, R> && Invocable<B&, std::invoke_result_t<A&, R>>
+			requires Invocable<A&, R> && Invocable<B&, invoke_result_t<A&, R>>
 			constexpr decltype(auto) operator()(R&& r) &
 			{ return right_(left_(std::forward<R>(r))); }
 
 			template<ViewableRange R>
 			requires Invocable<const A&, R> &&
-				Invocable<const B&, std::invoke_result_t<const A&, R>>
+				Invocable<const B&, invoke_result_t<const A&, R>>
 			constexpr decltype(auto) operator()(R&& r) const &
 			{ return right_(left_(std::forward<R>(r))); }
 		};
