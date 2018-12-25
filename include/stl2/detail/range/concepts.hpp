@@ -120,29 +120,28 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class T>
 	META_CONCEPT ForwardRange =
-		Range<T> && ForwardIterator<iterator_t<T>>;
+		InputRange<T> && ForwardIterator<iterator_t<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// BidirectionalRange [ranges.bidirectional]
 	//
 	template<class T>
 	META_CONCEPT BidirectionalRange =
-		Range<T> && BidirectionalIterator<iterator_t<T>>;
+		ForwardRange<T> && BidirectionalIterator<iterator_t<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// RandomAccessRange [ranges.random.access]
 	//
 	template<class T>
 	META_CONCEPT RandomAccessRange =
-		Range<T> && RandomAccessIterator<iterator_t<T>>;
+		BidirectionalRange<T> && RandomAccessIterator<iterator_t<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// ContiguousRange [ranges.contiguous]
 	//
 	template<class R>
 	META_CONCEPT ContiguousRange =
-		std::is_reference_v<iter_reference_t<iterator_t<R>>> &&
-		Same<iter_value_t<iterator_t<R>>, __uncvref<iter_reference_t<iterator_t<R>>>> &&
+		RandomAccessRange<R> && ContiguousIterator<iterator_t<R>> &&
 		requires(R& r) {
 			{ data(r) } -> Same<std::add_pointer_t<iter_reference_t<iterator_t<R>>>>;
 		};
