@@ -19,10 +19,10 @@
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// __NoThrowInputIterator [Exposition]
+	// _NoThrowInputIterator [Exposition]
 	//
 	template<class I>
-	META_CONCEPT __NoThrowInputIterator =
+	META_CONCEPT _NoThrowInputIterator =
 		InputIterator<I> &&
 		std::is_lvalue_reference_v<iter_reference_t<I>> &&
 		Same<__uncvref<iter_reference_t<I>>, iter_value_t<I>>;
@@ -30,41 +30,40 @@ STL2_OPEN_NAMESPACE {
 		//        indirection through valid iterators.
 
 	///////////////////////////////////////////////////////////////////////////
-	// __NoThrowSentinel [Exposition]
+	// _NoThrowSentinel [Exposition]
 	//
 	template<class S, class I>
-	META_CONCEPT __NoThrowSentinel =
+	META_CONCEPT _NoThrowSentinel =
 		Sentinel<S, I>;
 		// Axiom: no exceptions are thrown from comparisons between objects of types
 		//        I and S.
 
 	///////////////////////////////////////////////////////////////////////////
-	// __NoThrowInputRange [Exposition]
+	// _NoThrowInputRange [Exposition]
 	//
 	template<class Rng>
-	META_CONCEPT __NoThrowInputRange =
+	META_CONCEPT _NoThrowInputRange =
 		Range<Rng> &&
-		__NoThrowInputIterator<iterator_t<Rng>> &&
-		__NoThrowSentinel<sentinel_t<Rng>, iterator_t<Rng>>;
+		_NoThrowInputIterator<iterator_t<Rng>> &&
+		_NoThrowSentinel<sentinel_t<Rng>, iterator_t<Rng>>;
 		// Axiom: no exceptions are thrown from calls to begin and end on a Rng.
 
 	///////////////////////////////////////////////////////////////////////////
-	// __NoThrowForwardIterator [Exposition]
+	// _NoThrowForwardIterator [Exposition]
 	//
 	template<class I>
-	META_CONCEPT __NoThrowForwardIterator =
-		__NoThrowInputIterator<I> &&
-		__NoThrowSentinel<I, I> &&
-		ForwardIterator<I>;
+	META_CONCEPT _NoThrowForwardIterator =
+		_NoThrowInputIterator<I> &&
+		ForwardIterator<I> &&
+		_NoThrowSentinel<I, I>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// __NoThrowForwardRange [Exposition]
+	// _NoThrowForwardRange [Exposition]
 	//
 	template<class Rng>
-	META_CONCEPT __NoThrowForwardRange =
-		__NoThrowForwardIterator<iterator_t<Rng>> &&
-		__NoThrowInputRange<Rng> &&
-		ForwardRange<Rng>;
+	META_CONCEPT _NoThrowForwardRange =
+		_NoThrowInputRange<Rng> &&
+		_NoThrowForwardIterator<iterator_t<Rng>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_CONCEPTS_HPP
