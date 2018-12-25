@@ -91,6 +91,27 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
+	template<class I, class O1, class O2>
+	struct __in_out_out_result {
+		I in;
+		O1 out1;
+		O2 out2;
+
+		// Extension: the dangling story actually works.
+		template<class II, class OO1, class OO2>
+		requires ConvertibleTo<const I&, II> &&
+			ConvertibleTo<const O1&, OO1> && ConvertibleTo<const O2&, OO2>
+		operator __in_out_out_result<II, OO1, OO2>() const& {
+			return {in, out1, out2};
+		}
+		template<class II, class OO1, class OO2>
+		requires ConvertibleTo<I, II> &&
+			ConvertibleTo<O1, OO1> && ConvertibleTo<O2, OO2>
+		operator __in_out_out_result<II, OO1, OO2>() && {
+			return {std::move(in), std::move(out1), std::move(out2)};
+		}
+	};
+
 	template<class I, class F>
 	struct __in_fun_result {
 		I in;

@@ -61,11 +61,11 @@ STL2_OPEN_NAMESPACE {
 				auto&& vec = detail::make_temporary_vector(buf);
 				vec.push_back(iter_move(first));
 				auto counted = counted_iterator{ext::uncounted(next), n - 1};
-				auto pp = __stl2::partition_copy(
+				auto pp = partition_copy(
 						__stl2::make_move_iterator(std::move(counted)),
 						move_sentinel<default_sentinel>{},
 						std::move(first), __stl2::back_inserter(vec),
-						__stl2::ref(pred), __stl2::ref(proj)).out1();
+						__stl2::ref(pred), __stl2::ref(proj)).out1;
 				auto last = move(vec, pp).out;
 				return {std::move(pp), std::move(last)};
 			}
@@ -142,13 +142,13 @@ STL2_OPEN_NAMESPACE {
 				auto&& vec = detail::make_temporary_vector(buf);
 				vec.push_back(iter_move(first));
 				auto middle = next(first);
-				middle = __stl2::partition_copy(
+				middle = partition_copy(
 					__stl2::make_move_iterator(std::move(middle)),
 					__stl2::make_move_iterator(last),
 					std::move(first),
 					__stl2::back_inserter(vec),
 					__stl2::ref(pred),
-					__stl2::ref(proj)).out1();
+					__stl2::ref(proj)).out1;
 				*middle = iter_move(last);
 				++middle;
 				move(vec, middle);
