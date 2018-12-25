@@ -54,11 +54,11 @@ STL2_OPEN_NAMESPACE {
 					;
 				}
 				iter_swap(i, j);
-				__stl2::reverse(ip1, end);
+				reverse(ip1, end);
 				return true;
 			}
 			if (i == first) {
-				__stl2::reverse(first, end);
+				reverse(first, end);
 				return false;
 			}
 		}
