@@ -15,7 +15,6 @@
 
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
-#include <stl2/tuple.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
 #include <stl2/detail/algorithm/heap_sift.hpp>

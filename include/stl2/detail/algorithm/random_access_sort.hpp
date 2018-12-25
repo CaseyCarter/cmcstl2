@@ -15,7 +15,6 @@
 
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
-#include <stl2/tuple.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/move_backward.hpp>
 #include <stl2/detail/algorithm/partial_sort.hpp>
