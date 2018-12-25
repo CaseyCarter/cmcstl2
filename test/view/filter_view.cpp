@@ -134,5 +134,10 @@ int main() {
 		CHECK(sum == 4);
 	}
 
+	{
+		auto yes = [](int){ return true; };
+		(void) (view::iota(0) | view::filter(yes));
+	}
+
 	return test_result();
 }

@@ -31,17 +31,17 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT __ConstInvocable =
 			Invocable<F&> &&
 			Invocable<const F&> &&
-			Same<std::invoke_result_t<F&>, std::invoke_result_t<const F&>>;
+			Same<invoke_result_t<F&>, invoke_result_t<const F&>>;
 
 		template<CopyConstructibleObject F>
 		requires Invocable<F&>
 		struct generate_view
 		: view_interface<generate_view<F>>
 		, private detail::semiregular_box<F>
-		, private detail::non_propagating_cache<std::invoke_result_t<F&>> {
+		, private detail::non_propagating_cache<invoke_result_t<F&>> {
 		private:
 			using generator_base = detail::semiregular_box<F>;
-			using result_t = std::invoke_result_t<F&>;
+			using result_t = invoke_result_t<F&>;
 			using cache_base = detail::non_propagating_cache<result_t>;
 
 			struct __iterator;
@@ -62,7 +62,8 @@ STL2_OPEN_NAMESPACE {
 			{ return {}; }
 		};
 
-		template<class F>
+		template<CopyConstructibleObject F>
+		requires Invocable<F&>
 		struct generate_view<F>::__iterator {
 			using value_type = result_t;
 			using difference_type = std::intmax_t;

@@ -49,11 +49,40 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_CLANG_UNKNOWN1
+ #if defined(__clang__) && __clang_major < 7
+  // Rejects-valid with CTAD nested in parens.
+  #define STL2_WORKAROUND_CLANG_UNKNOWN1 1
+ #else
+  #define STL2_WORKAROUND_CLANG_UNKNOWN1 0
+ #endif
+#endif
+
 #ifndef STL2_WORKAROUND_CLANG_37556
  #ifdef __clang__ // Workaround https://bugs.llvm.org/show_bug.cgi?id=37556
+  // Improper symbol redefinition diagnostic for names in different declarative regions
   #define STL2_WORKAROUND_CLANG_37556 1
  #else
   #define STL2_WORKAROUND_CLANG_37556 0
+ #endif
+#endif
+
+#ifndef STL2_WORKAROUND_CLANG_40150
+ #ifdef __clang__ // Workaround https://bugs.llvm.org/show_bug.cgi?id=40150
+  // deleted friend of template class conflicts with its own definition
+  #define STL2_WORKAROUND_CLANG_40150 1
+ #else
+  #define STL2_WORKAROUND_CLANG_40150 0
+ #endif
+#endif
+
+#ifndef STL2_WORKAROUND_CLANGC_42
+ #if defined(__clang__)
+  // Failure to short-circuit with constrained-parameter syntax
+  // https://github.com/saarraz/clang-concepts/issues/42
+  #define STL2_WORKAROUND_CLANGC_42 1
+ #else
+  #define STL2_WORKAROUND_CLANGC_42 0
  #endif
 #endif
 
@@ -80,9 +109,23 @@ STL2_OPEN_NAMESPACE {
 // Used to qualify STL2 names
 namespace __stl2 = ::std::experimental::ranges;
 
+#if STL2_WORKAROUND_CLANG_UNKNOWN1
 #define STL2_NOEXCEPT_RETURN(...) \
 	noexcept(noexcept(__VA_ARGS__)) \
 	{ return __VA_ARGS__; }
+
+#define STL2_REQUIRES_RETURN(...) \
+	requires requires { __VA_ARGS__; } \
+	{ return __VA_ARGS__; }
+
+#define STL2_NOEXCEPT_REQUIRES_RETURN(...) \
+	noexcept(noexcept(__VA_ARGS__)) \
+	requires requires { __VA_ARGS__; } \
+	{ return __VA_ARGS__; }
+#else
+#define STL2_NOEXCEPT_RETURN(...) \
+	noexcept(noexcept(__VA_ARGS__)) \
+	{ return (__VA_ARGS__); }
 
 #define STL2_REQUIRES_RETURN(...) \
 	requires requires { __VA_ARGS__; } \
@@ -92,6 +135,7 @@ namespace __stl2 = ::std::experimental::ranges;
 	noexcept(noexcept(__VA_ARGS__)) \
 	requires requires { __VA_ARGS__; } \
 	{ return (__VA_ARGS__); }
+#endif
 
 #ifndef STL2_ASSERT
  #ifdef NDEBUG

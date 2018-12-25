@@ -39,12 +39,6 @@ STL2_OPEN_NAMESPACE {
 		template<class Derived>
 		struct __pipeable : __pipeable_base {
 			template<class Rng>
-			friend constexpr auto operator|(Rng&& rng, Derived&& c)
-				// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68093
-				-> decltype(std::move(c)(std::forward<Rng>(rng)))
-			{ return std::move(c)(std::forward<Rng>(rng)); }
-
-			template<class Rng>
 			friend constexpr auto operator|(Rng&& rng, Derived& c)
 				// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68093
 				-> decltype(c(std::forward<Rng>(rng)))
@@ -57,9 +51,21 @@ STL2_OPEN_NAMESPACE {
 			{ return c(std::forward<Rng>(rng)); }
 
 			template<class Rng>
+			friend constexpr auto operator|(Rng&& rng, Derived&& c)
+				// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68093
+				-> decltype(std::move(c)(std::forward<Rng>(rng)))
+			{ return std::move(c)(std::forward<Rng>(rng)); }
+
+#if STL2_WORKAROUND_CLANG_40150
+			template<class Rng>
 			friend constexpr auto operator|(Rng&& rng, const Derived&& c)
 				// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68093
-				-> decltype(c(std::forward<Rng>(rng))) = delete;
+				-> decltype(std::move(c)(std::forward<Rng>(rng)))
+			{ return std::move(c)(std::forward<Rng>(rng)); }
+#else
+			template<class Rng>
+			friend void operator|(Rng&& rng, const Derived&& c) = delete;
+#endif
 		};
 
 		template<class Indices, class Fn, class... Ts>
@@ -79,29 +85,29 @@ STL2_OPEN_NAMESPACE {
 
 			template<InputRange Rng>
 			requires ViewableRange<Rng> && Invocable<Fn, Rng, Ts...> &&
-				View<std::invoke_result_t<Fn, Rng, Ts...>>
+				View<invoke_result_t<Fn, Rng, Ts...>>
 			constexpr auto operator()(Rng&& rng) && {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<__box<Is, Ts>&&>(*this).value_...);
 			}
 			template<InputRange Rng>
 			requires ViewableRange<Rng> && Invocable<Fn, Rng, Ts &...> &&
-				View<std::invoke_result_t<Fn, Rng, Ts &...>>
+				View<invoke_result_t<Fn, Rng, Ts &...>>
 			constexpr auto operator()(Rng&& rng) & {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<__box<Is, Ts>&>(*this).value_...);
 			}
 			template<InputRange Rng>
 			requires ViewableRange<Rng> && Invocable<Fn, Rng, const Ts &...> &&
-				View<std::invoke_result_t<Fn, Rng, const Ts &...>>
+				View<invoke_result_t<Fn, Rng, const Ts &...>>
 			constexpr auto operator()(Rng&& rng) const & {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<const __box<Is, Ts>&>(*this).value_...);
 			}
 			template<InputRange Rng>
 			requires ViewableRange<Rng> && Invocable<Fn, Rng, const Ts &...> &&
-				View<std::invoke_result_t<Fn, Rng, const Ts &...>>
-			constexpr auto operator()(Rng&& rng) const && = delete;
+				View<invoke_result_t<Fn, Rng, const Ts &...>>
+			void operator()(Rng&& rng) const && = delete;
 		};
 
 		template<Semiregular Fn, CopyConstructible... Ts>
@@ -125,18 +131,18 @@ STL2_OPEN_NAMESPACE {
 			: left_(std::move(left)), right_(std::move(right)) {}
 
 			template<ViewableRange R>
-			requires Invocable<A, R> && Invocable<B, std::invoke_result_t<A, R>>
+			requires Invocable<A, R> && Invocable<B, invoke_result_t<A, R>>
 			constexpr decltype(auto) operator()(R&& r) &&
 			{ return std::move(right_)(std::move(left_)(std::forward<R>(r))); }
 
 			template<ViewableRange R>
-			requires Invocable<A&, R> && Invocable<B&, std::invoke_result_t<A&, R>>
+			requires Invocable<A&, R> && Invocable<B&, invoke_result_t<A&, R>>
 			constexpr decltype(auto) operator()(R&& r) &
 			{ return right_(left_(std::forward<R>(r))); }
 
 			template<ViewableRange R>
 			requires Invocable<const A&, R> &&
-				Invocable<const B&, std::invoke_result_t<const A&, R>>
+				Invocable<const B&, invoke_result_t<const A&, R>>
 			constexpr decltype(auto) operator()(R&& r) const &
 			{ return right_(left_(std::forward<R>(r))); }
 		};

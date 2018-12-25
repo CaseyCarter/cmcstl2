@@ -159,7 +159,7 @@ STL2_OPEN_NAMESPACE {
 	public:
 		__sentinel() = default;
 		explicit constexpr __sentinel(filter_view& parent)
-		: end_(__stl2::end(parent)) {}
+		: end_(__stl2::end(parent.base_)) {}
 
 		constexpr sentinel_t<V> base() const
 		{ return end_; }

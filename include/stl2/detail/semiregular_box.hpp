@@ -31,8 +31,13 @@ STL2_OPEN_NAMESPACE {
 			requires DefaultConstructible<T>
 			: o_{std::in_place} {}
 
+#if STL2_WORKAROUND_CLANGC_42
+			template<class U>
+			requires _NotSameAs<U, semiregular_box> && ConvertibleTo<U, T>
+#else
 			template<_NotSameAs<semiregular_box> U>
 			requires ConvertibleTo<U, T>
+#endif
 			constexpr semiregular_box(U&& u)
 			noexcept(std::is_nothrow_constructible_v<T, U>)
 			: o_{std::in_place, static_cast<U&&>(u)} {}
