@@ -20,117 +20,65 @@
 #include <stl2/detail/algorithm/tagspec.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
-///////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // transform [alg.transform]
 //
 STL2_OPEN_NAMESPACE {
-	template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-		CopyConstructible F, class Proj = identity>
-	requires
-		Writable<O,
-			indirect_result_t<F&, projected<I, Proj>>>
-	tagged_pair<tag::in(I), tag::out(O)>
-	transform(I first, S last, O result, F op, Proj proj = {})
-	{
-		for (; first != last; ++first, ++result) {
-			*result = __stl2::invoke(op, __stl2::invoke(proj, *first));
+	template<class I, class O>
+	using unary_transform_result = __in_out_result<I, O>;
+
+	template<class I1, class I2, class O>
+	using binary_transform_result = __in_in_out_result<I1, I2, O>;
+
+	struct __transform_fn : private __niebloid {
+		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
+			CopyConstructible F, class Proj = identity>
+		requires Writable<O, indirect_result_t<F&, projected<I, Proj>>>
+		constexpr unary_transform_result<I, O>
+		operator()(I first, S last, O result, F op, Proj proj = {}) const {
+			for (; first != last; (void) ++first, (void) ++result) {
+				*result = __stl2::invoke(op, __stl2::invoke(proj, *first));
+			}
+			return {std::move(first), std::move(result)};
 		}
-		return {std::move(first), std::move(result)};
-	}
 
-	template<InputRange R, WeaklyIncrementable O, CopyConstructible F, class Proj = identity>
-	requires
-		Writable<O,
-			indirect_result_t<F&, projected<iterator_t<R>, Proj>>>
-	tagged_pair<tag::in(safe_iterator_t<R>), tag::out(O)>
-	transform(R&& r, O result, F op, Proj proj = {})
-	{
-		return __stl2::transform(
-			begin(r), end(r), std::move(result),
-			__stl2::ref(op), __stl2::ref(proj));
-	}
-
-	template<InputIterator I1, Sentinel<I1> S1, class I2, WeaklyIncrementable O,
-		CopyConstructible F, class Proj1 = identity, class Proj2 = identity>
-	[[deprecated]] tagged_tuple<tag::in1(I1), tag::in2(std::decay_t<I2>), tag::out(O)>
-	transform(I1 first1, S1 last1, I2&& first2_, O result,
-		F op, Proj1 proj1 = {}, Proj2 proj2 = {})
-	requires
-		InputIterator<std::decay_t<I2>> && !Range<I2> &&
-		Writable<O,
-			indirect_result_t<F&,
-				projected<I1, Proj1>,
-				projected<std::decay_t<I2>, Proj2>>>
-	{
-		auto first2 = std::forward<I2>(first2_);
-		for (; first1 != last1; ++first1, ++first2, ++result) {
-			*result = __stl2::invoke(op, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2));
+		template<InputRange R, WeaklyIncrementable O, CopyConstructible F,
+			class Proj = identity>
+		requires Writable<O, indirect_result_t<F&, projected<iterator_t<R>, Proj>>>
+		constexpr unary_transform_result<safe_iterator_t<R>, O>
+		operator()(R&& r, O result, F op, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), std::move(result), __stl2::ref(op),
+				__stl2::ref(proj));
 		}
-		return {std::move(first1), std::move(first2), std::move(result)};
-	}
 
-	template<InputRange Rng, class I, WeaklyIncrementable O, CopyConstructible F,
-		class Proj1 = identity, class Proj2 = identity>
-	[[deprecated]]
-	tagged_tuple<tag::in1(safe_iterator_t<Rng>),
-		tag::in2(std::decay_t<I>), tag::out(O)>
-	transform(Rng&& r1, I&& first2_, O result, F op,
-		Proj1 proj1 = {}, Proj2 proj2 = {})
-	requires
-		InputIterator<std::decay_t<I>> && !Range<I> &&
-		Writable<O,
-			indirect_result_t<F&,
-				projected<iterator_t<Rng>, Proj1>,
-				projected<std::decay_t<I>, Proj2>>>
-	{
-		auto first2 = std::forward<I>(first2_);
-		return __stl2::transform(
-			begin(r1), end(r1),
-			std::move(first2), std::move(result),
-			__stl2::ref(op), __stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
-
-	template<InputIterator I1, Sentinel<I1> S1,
-		InputIterator I2, Sentinel<I2> S2,
-		WeaklyIncrementable O, CopyConstructible F,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		Writable<O,
-			indirect_result_t<F&,
-				projected<I1, Proj1>,
-				projected<I2, Proj2>>>
-	tagged_tuple<tag::in1(I1), tag::in2(I2), tag::out(O)>
-	transform(I1 first1, S1 last1, I2 first2, S2 last2, O result,
-		F op, Proj1 proj1 = {}, Proj2 proj2 = {})
-	{
-		for (; first1 != last1 && first2 != last2; ++first1, ++first2, ++result) {
-			*result = __stl2::invoke(op, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2));
+		template<InputIterator I1, Sentinel<I1> S1,
+			InputIterator I2, Sentinel<I2> S2,
+			WeaklyIncrementable O, CopyConstructible F,
+			class Proj1 = identity, class Proj2 = identity>
+		requires Writable<O, indirect_result_t<F&,
+			projected<I1, Proj1>, projected<I2, Proj2>>>
+		constexpr binary_transform_result<I1, I2, O>
+		operator()(I1 first1, S1 last1, I2 first2, S2 last2, O result,
+			F op, Proj1 proj1 = {}, Proj2 proj2 = {}) const
+		{
+			for (; first1 != last1 && first2 != last2; (void) ++first1, (void) ++first2, (void) ++result) {
+				*result = __stl2::invoke(op, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2));
+			}
+			return {std::move(first1), std::move(first2), std::move(result)};
 		}
-		return {std::move(first1), std::move(first2), std::move(result)};
-	}
 
-	template<InputRange Rng1, InputRange Rng2, WeaklyIncrementable O, CopyConstructible F,
-		class Proj1 = identity, class Proj2 = identity>
-	requires
-		Writable<O,
-			indirect_result_t<F&,
-				projected<iterator_t<Rng1>, Proj1>,
-				projected<iterator_t<Rng2>, Proj2>>>
-	tagged_tuple<
-		tag::in1(safe_iterator_t<Rng1>),
-		tag::in2(safe_iterator_t<Rng2>),
-		tag::out(O)>
-	transform(Rng1&& r1, Rng2&& r2, O result, F op,
-		Proj1 proj1 = {}, Proj2 proj2 = {})
-	{
-		return __stl2::transform(
-			begin(r1), end(r1),
-			begin(r2), end(r2),
-			std::move(result), __stl2::ref(op),
-			__stl2::ref(proj1),
-			__stl2::ref(proj2));
-	}
+		template<InputRange R1, InputRange R2, WeaklyIncrementable O,
+			CopyConstructible F, class Proj1 = identity, class Proj2 = identity>
+		requires Writable<O, indirect_result_t<F&,
+			projected<iterator_t<R1>, Proj1>, projected<iterator_t<R2>, Proj2>>>
+		constexpr binary_transform_result<safe_iterator_t<R1>, safe_iterator_t<R2>, O>
+		operator()(R1&& r1, R2&& r2, O result, F op, Proj1 proj1 = {}, Proj2 proj2 = {}) const {
+			return (*this)(begin(r1), end(r1), begin(r2), end(r2), std::move(result),
+				__stl2::ref(op), __stl2::ref(proj1), __stl2::ref(proj2));
+		}
+	};
+
+	inline constexpr __transform_fn transform {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
