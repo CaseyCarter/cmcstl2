@@ -97,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 			T* alloc_ = nullptr;
 
 			void _clear() noexcept {
-				__stl2::for_each(begin_, end_, destruct);
+				for_each(begin_, end_, destruct);
 			}
 
 		public:

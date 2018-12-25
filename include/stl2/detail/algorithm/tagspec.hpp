@@ -90,6 +90,24 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(in1), std::move(in2), std::move(out)};
 		}
 	};
+
+	template<class I, class F>
+	struct __in_fun_result {
+		I in;
+		F fun;
+
+		// Extension: the dangling story actually works.
+		template<class I2, class F2>
+		requires ConvertibleTo<const I&, I2> && ConvertibleTo<const F&, F2>
+		operator __in_fun_result<I2, F2>() const& {
+			return {in, fun};
+		}
+		template<class I2, class F2>
+		requires ConvertibleTo<I, I2> && ConvertibleTo<F, F2>
+		operator __in_fun_result<I2, F2>() && {
+			return {std::move(in), std::move(fun)};
+		}
+	};
 } STL2_CLOSE_NAMESPACE
 
 #endif
