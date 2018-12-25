@@ -108,6 +108,24 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(in), std::move(fun)};
 		}
 	};
+
+	template<class T>
+	struct minmax_result {
+		T min;
+		T max;
+
+		// Extension: the dangling story actually works.
+		template<class T2>
+		requires ConvertibleTo<const T&, T2>
+		operator minmax_result<T2>() const& {
+			return {min, max};
+		}
+		template<class T2>
+		requires ConvertibleTo<T, T2>
+		operator minmax_result<T2>() && {
+			return {std::move(min), std::move(max)};
+		}
+	};
 } STL2_CLOSE_NAMESPACE
 
 #endif
