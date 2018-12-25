@@ -28,18 +28,18 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 template<class InIter, class OutIter, class Sent = InIter>
-void test_iter()
-{
+void test_iter() {
 	int ia[] = {0, 1, 2, 3, 4};
 	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
 	int ib[sa] = {0};
-	std::pair<InIter, OutIter> r = stl2::replace_copy_if(InIter(ia), Sent(ia+sa), OutIter(ib),
-		[](int i){return 2==i;}, 5);
-	CHECK(base(r.first) == ia + sa);
-	CHECK(base(r.second) == ib + sa);
+	ranges::replace_copy_if_result<InIter, OutIter> r =
+		ranges::replace_copy_if(InIter(ia), Sent(ia+sa), OutIter(ib),
+		                        [](int i){ return 2 == i; }, 5);
+	CHECK(base(r.in) == ia + sa);
+	CHECK(base(r.out) == ib + sa);
 	CHECK(ib[0] == 0);
 	CHECK(ib[1] == 1);
 	CHECK(ib[2] == 5);
@@ -48,16 +48,15 @@ void test_iter()
 }
 
 template<class InIter, class OutIter, class Sent = InIter>
-void test_rng()
-{
+void test_rng() {
 	int ia[] = {0, 1, 2, 3, 4};
 	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
 	int ib[sa] = {0};
-	auto rng = stl2::subrange(InIter(ia), Sent(ia+sa));
-	std::pair<InIter, OutIter> r = stl2::replace_copy_if(rng, OutIter(ib),
-		[](int i){return 2==i;}, 5);
-	CHECK(base(r.first) == ia + sa);
-	CHECK(base(r.second) == ib + sa);
+	auto rng = ranges::subrange(InIter(ia), Sent(ia+sa));
+	ranges::replace_copy_if_result<InIter, OutIter> r =
+		ranges::replace_copy_if(rng, OutIter(ib), [](int i){ return 2 == i; }, 5);
+	CHECK(base(r.in) == ia + sa);
+	CHECK(base(r.out) == ib + sa);
 	CHECK(ib[0] == 0);
 	CHECK(ib[1] == 1);
 	CHECK(ib[2] == 5);
@@ -66,8 +65,7 @@ void test_rng()
 }
 
 template<class InIter, class OutIter>
-void test()
-{
+void test() {
 	using Sent = typename sentinel_type<InIter>::type;
 	test_iter<InIter, OutIter>();
 	test_iter<InIter, OutIter>();
@@ -75,8 +73,7 @@ void test()
 	test_rng<InIter, OutIter, Sent>();
 }
 
-int main()
-{
+int main() {
 	test<input_iterator<const int*>, output_iterator<int*> >();
 	test<input_iterator<const int*>, forward_iterator<int*> >();
 	test<input_iterator<const int*>, bidirectional_iterator<int*> >();
@@ -111,11 +108,11 @@ int main()
 	{
 		using P = std::pair<int, std::string>;
 		P in[] = {{0, "0"}, {1, "1"}, {2, "2"}, {3, "3"}, {4, "4"}};
-		P out[stl2::size(in)] = {};
-		std::pair<P *, P *> r = stl2::replace_copy_if(in, out,
-			[](int i){return 2==i;}, P{5, "5"}, &std::pair<int, std::string>::first);
-		CHECK(r.first == stl2::end(in));
-		CHECK(r.second == stl2::end(out));
+		P out[ranges::size(in)] = {};
+		ranges::replace_copy_if_result<P*, P*> r =
+			ranges::replace_copy_if(in, out, [](int i){ return 2==i; }, P{5, "5"}, &P::first);
+		CHECK(r.in == ranges::end(in));
+		CHECK(r.out == ranges::end(out));
 		CHECK(out[0] == P{0, "0"});
 		CHECK(out[1] == P{1, "1"});
 		CHECK(out[2] == P{5, "5"});
