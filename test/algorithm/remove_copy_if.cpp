@@ -33,15 +33,14 @@
 namespace ranges = __stl2;
 
 template<class InIter, class OutIter, class Sent = InIter>
-void
-test_iter()
-{
+void test_iter() {
 	int ia[] = {0, 1, 2, 3, 4, 2, 3, 4, 2};
 	constexpr unsigned sa = ranges::size(ia);
 	int ib[sa];
-	std::pair<InIter, OutIter> r = ranges::remove_copy_if(InIter(ia), Sent(ia+sa), OutIter(ib), [](int i){return i == 2;});
-	CHECK(base(r.first) == ia + sa);
-	CHECK(base(r.second) == ib + sa-3);
+	ranges::remove_copy_if_result<InIter, OutIter> r =
+		ranges::remove_copy_if(InIter(ia), Sent(ia+sa), OutIter(ib), [](int i){return i == 2;});
+	CHECK(base(r.in) == ia + sa);
+	CHECK(base(r.out) == ib + sa-3);
 	CHECK(ib[0] == 0);
 	CHECK(ib[1] == 1);
 	CHECK(ib[2] == 3);
@@ -51,15 +50,15 @@ test_iter()
 }
 
 template<class InIter, class OutIter, class Sent = InIter>
-void
-test_range()
-{
+void test_range() {
 	int ia[] = {0, 1, 2, 3, 4, 2, 3, 4, 2};
 	constexpr unsigned sa = ranges::size(ia);
 	int ib[sa];
-	std::pair<InIter, OutIter> r = ranges::remove_copy_if(::as_lvalue(ranges::subrange(InIter(ia), Sent(ia+sa))), OutIter(ib), [](int i){return i == 2;});
-	CHECK(base(r.first) == ia + sa);
-	CHECK(base(r.second) == ib + sa-3);
+	auto s = ranges::subrange(InIter(ia), Sent(ia + sa));
+	ranges::remove_copy_if_result<InIter, OutIter> r =
+		ranges::remove_copy_if(s, OutIter(ib), [](int i){ return i == 2; });
+	CHECK(base(r.in) == ia + sa);
+	CHECK(base(r.out) == ib + sa-3);
 	CHECK(ib[0] == 0);
 	CHECK(ib[1] == 1);
 	CHECK(ib[2] == 3);
@@ -69,20 +68,16 @@ test_range()
 }
 
 template<class InIter, class OutIter, class Sent = InIter>
-void
-test()
-{
+void test() {
 	test_iter<InIter, OutIter, Sent>();
 	test_range<InIter, OutIter, Sent>();
 }
 
-struct S
-{
+struct S {
 	int i;
 };
 
-int main()
-{
+int main() {
 	test<input_iterator<const int*>, output_iterator<int*>>();
 	test<input_iterator<const int*>, forward_iterator<int*>>();
 	test<input_iterator<const int*>, bidirectional_iterator<int*>>();
@@ -142,9 +137,10 @@ int main()
 		S ia[] = {S{0}, S{1}, S{2}, S{3}, S{4}, S{2}, S{3}, S{4}, S{2}};
 		constexpr unsigned sa = ranges::size(ia);
 		S ib[sa];
-		std::pair<S*, S*> r = ranges::remove_copy_if(ia, ib, [](int i){return i == 2;}, &S::i);
-		CHECK(r.first == ia + sa);
-		CHECK(r.second == ib + sa-3);
+		ranges::remove_copy_if_result<S*, S*> r =
+			ranges::remove_copy_if(ia, ib, [](int i){ return i == 2; }, &S::i);
+		CHECK(r.in == ia + sa);
+		CHECK(r.out == ib + sa - 3);
 		CHECK(ib[0].i == 0);
 		CHECK(ib[1].i == 1);
 		CHECK(ib[2].i == 3);
@@ -158,9 +154,9 @@ int main()
 		S ia[] = {S{0}, S{1}, S{2}, S{3}, S{4}, S{2}, S{3}, S{4}, S{2}};
 		constexpr unsigned sa = ranges::size(ia);
 		S ib[sa];
-		auto r = ranges::remove_copy_if(std::move(ia), ib, [](int i){return i == 2;}, &S::i);
-		static_assert(ranges::Same<decltype(r.first), ranges::dangling>);
-		CHECK(r.second == ib + sa-3);
+		auto r = ranges::remove_copy_if(std::move(ia), ib, [](int i){ return i == 2; }, &S::i);
+		static_assert(ranges::Same<decltype(r.in), ranges::dangling>);
+		CHECK(r.out == ib + sa-3);
 		CHECK(ib[0].i == 0);
 		CHECK(ib[1].i == 1);
 		CHECK(ib[2].i == 3);

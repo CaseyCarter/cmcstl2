@@ -22,37 +22,36 @@
 // remove_copy [alg.remove]
 //
 STL2_OPEN_NAMESPACE {
-	template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-		class T, class Proj = identity>
-	requires
-		IndirectlyCopyable<I, O> &&
-		IndirectRelation<
-			equal_to, projected<I, Proj>, const T*>
-	tagged_pair<tag::in(I), tag::out(O)>
-	remove_copy(I first, S last, O result, const T& value, Proj proj = {})
-	{
-		for (; first != last; ++first) {
-			iter_reference_t<I>&& v = *first;
-			if (__stl2::invoke(proj, v) != value) {
-				*result = std::forward<iter_reference_t<I>>(v);
-				++result;
-			}
-		}
-		return {std::move(first), std::move(result)};
-	}
+	template<class I, class O>
+	using remove_copy_result = __in_out_result<I, O>;
 
-	template<InputRange Rng, class O, class T, class Proj = identity>
-	requires
-		WeaklyIncrementable<__f<O>> &&
-		IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
-		IndirectRelation<
-			equal_to, projected<iterator_t<Rng>, Proj>, const T*>
-	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
-	remove_copy(Rng&& rng, O&& result, const T& value, Proj proj = {})
-	{
-		return __stl2::remove_copy(begin(rng), end(rng),
-			std::forward<O>(result), value, __stl2::ref(proj));
-	}
+	struct __remove_copy_fn : private __niebloid {
+		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O, class T,
+			class Proj = identity>
+		requires IndirectlyCopyable<I, O> &&
+			IndirectRelation<equal_to, projected<I, Proj>, const T*>
+		constexpr remove_copy_result<I, O>
+		operator()(I first, S last, O result, const T& value, Proj proj = {}) const {
+			for (; first != last; ++first) {
+				iter_reference_t<I>&& v = *first;
+				if (__stl2::invoke(proj, v) != value) {
+					*result = std::forward<iter_reference_t<I>>(v);
+					++result;
+				}
+			}
+			return {std::move(first), std::move(result)};
+		}
+
+		template<InputRange R, WeaklyIncrementable O, class T, class Proj = identity>
+		requires IndirectlyCopyable<iterator_t<R>, O> &&
+			IndirectRelation<equal_to, projected<iterator_t<R>, Proj>, const T*>
+		constexpr remove_copy_result<safe_iterator_t<R>, O>
+		operator()(R&& r, O result, const T& value, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), std::move(result), value, __stl2::ref(proj));
+		}
+	};
+
+	inline constexpr __remove_copy_fn remove_copy {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
