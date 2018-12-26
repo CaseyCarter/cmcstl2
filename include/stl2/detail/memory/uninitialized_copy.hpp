@@ -19,83 +19,55 @@
 #include <stl2/detail/memory/construct_at.hpp>
 #include <stl2/detail/memory/destroy.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/tagged.hpp>
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// uninitialized_copy [Extension]
+	// uninitialized_copy [uninitialized.copy]
 	//
-	template<InputIterator I, Sentinel<I> S, __NoThrowForwardIterator O>
-	[[deprecated]] tagged_pair<tag::in(I), tag::out(O)>
-	uninitialized_copy(I first, S last, O result)
-	requires
-		Constructible<iter_value_t<O>, iter_reference_t<I>>
-	{
-		auto guard = detail::destroy_guard<O>{result};
-		for (; first != last; ++result, (void)++first) {
-			__stl2::__construct_at(*result, *first);
+	template<class I, class O>
+	using uninitialized_copy_result = __in_out_result<I, O>;
+
+	struct __uninitialized_copy_fn : private __niebloid {
+		template<InputIterator I, Sentinel<I> S1, _NoThrowForwardIterator O, _NoThrowSentinel<O> S2>
+		requires Constructible<iter_value_t<O>, iter_reference_t<I>>
+		uninitialized_copy_result<I, O> operator()(I ifirst, S1 ilast, O ofirst, S2 olast) const {
+			auto guard = detail::destroy_guard{ofirst};
+			for (; ifirst != ilast && ofirst != olast; (void) ++ifirst, (void)++ofirst) {
+				__stl2::__construct_at(*ofirst, *ifirst);
+			}
+			guard.release();
+			return {std::move(ifirst), std::move(ofirst)};
 		}
-		guard.release();
-		return {std::move(first), std::move(result)};
-	}
 
-	///////////////////////////////////////////////////////////////////////////
-	// uninitialized_copy [Extension]
-	//
-	template<InputRange Rng, __NoThrowForwardIterator O>
-	[[deprecated]] tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(O)>
-	uninitialized_copy(Rng&& rng, O result)
-	requires
-		Constructible<iter_value_t<O>, iter_reference_t<iterator_t<Rng>>>
-	{
-		return __stl2::uninitialized_copy(
-			begin(rng), end(rng), result);
-	}
-
-	///////////////////////////////////////////////////////////////////////////
-	// uninitialized_copy [Extension]
-	//
-	template<InputIterator I, Sentinel<I> S1, __NoThrowForwardIterator O, __NoThrowSentinel<O> S2>
-	requires
-		Constructible<iter_value_t<O>, iter_reference_t<I>>
-	tagged_pair<tag::in(I), tag::out(O)>
-	uninitialized_copy(I ifirst, S1 ilast, O ofirst, S2 olast)
-	{
-		auto guard = detail::destroy_guard<O>{ofirst};
-		for (; ifirst != ilast && ofirst != olast; ++ofirst, (void)++ifirst) {
-			__stl2::__construct_at(*ofirst, *ifirst);
+		template<InputRange IR, _NoThrowForwardRange OR>
+		requires Constructible<iter_value_t<iterator_t<OR>>, iter_reference_t<iterator_t<IR>>>
+		uninitialized_copy_result<safe_iterator_t<IR>, safe_iterator_t<OR>>
+		operator()(IR&& in, OR&& out) const {
+			return (*this)(begin(in), end(in), begin(out), end(out));
 		}
-		guard.release();
-		return {std::move(ifirst), std::move(ofirst)};
-	}
+	};
+
+	inline constexpr __uninitialized_copy_fn uninitialized_copy {};
 
 	///////////////////////////////////////////////////////////////////////////
-	// uninitialized_copy [Extension]
+	// uninitialized_copy_n [uninitialized.copy]
 	//
-	template<InputRange IRng, __NoThrowForwardRange ORng>
-	requires
-		Constructible<iter_value_t<iterator_t<ORng>>, iter_reference_t<iterator_t<IRng>>>
-	tagged_pair<tag::in(safe_iterator_t<IRng>), tag::out(safe_iterator_t<ORng>)>
-	uninitialized_copy(IRng&& irng, ORng&& orng)
-	{
-		return __stl2::uninitialized_copy(begin(irng), end(irng),
-			begin(orng), end(orng));
-	}
+	template<class I, class O>
+	using uninitialized_copy_n_result = __in_out_result<I, O>;
 
-	///////////////////////////////////////////////////////////////////////////
-	// uninitialized_copy_n [Extension]
-	//
-	template<InputIterator I, __NoThrowForwardIterator O>
-	requires
-		Constructible<iter_value_t<O>, iter_reference_t<I>>
-	tagged_pair<tag::in(I), tag::out(O)>
-	uninitialized_copy_n(I first, iter_difference_t<I> n, O out)
-	{
-		auto result = __stl2::uninitialized_copy(
-			counted_iterator{first, n},
-			default_sentinel{}, out);
-		return {result.in().base(), result.out()};
-	}
+	struct __uninitialized_copy_n_fn : private __niebloid {
+		template<InputIterator I, _NoThrowForwardIterator O, _NoThrowSentinel<O> S>
+		requires Constructible<iter_value_t<O>, iter_reference_t<I>>
+		uninitialized_copy_n_result<I, O>
+		operator()(I first, iter_difference_t<I> n, O ofirst, S olast) const {
+			auto [in, out] = uninitialized_copy(
+				counted_iterator{std::move(first), n}, default_sentinel{},
+				std::move(ofirst), std::move(olast));
+			return {in.base(), std::move(out)};
+		}
+	};
+
+	inline constexpr __uninitialized_copy_n_fn uninitialized_copy_n {};
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_UNINITIALIZED_COPY_HPP

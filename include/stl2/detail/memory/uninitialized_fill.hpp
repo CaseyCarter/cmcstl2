@@ -18,49 +18,46 @@
 #include <stl2/detail/memory/concepts.hpp>
 #include <stl2/detail/memory/construct_at.hpp>
 #include <stl2/detail/memory/destroy.hpp>
-#include <stl2/detail/tagged.hpp>
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// uninitialized_fill [Extension]
+	// uninitialized_fill [uninitialized.fill]
 	//
-	template<__NoThrowForwardIterator I, Sentinel<I> S, typename T>
-	requires
-		Constructible<iter_value_t<I>, const T&>
-	I uninitialized_fill(I first, S last, const T& x)
-	{
-		auto guard = detail::destroy_guard<I>{first};
-		for (; first != last; ++first) {
-			__stl2::__construct_at(*first, x);
+	struct __uninitialized_fill_fn : private __niebloid {
+		template<_NoThrowForwardIterator I, _NoThrowSentinel<I> S, class T>
+		requires Constructible<iter_value_t<I>, const T&>
+		I operator()(I first, S last, const T& x) const {
+			auto guard = detail::destroy_guard{first};
+			for (; first != last; ++first) {
+				__stl2::__construct_at(*first, x);
+			}
+			guard.release();
+			return first;
 		}
-		guard.release();
-		return first;
-	}
+
+		template<_NoThrowForwardRange R, class T>
+		requires Constructible<iter_value_t<iterator_t<R>>, const T&>
+		safe_iterator_t<R> operator()(R&& r, const T& x) const {
+			return (*this)(begin(r), end(r), x);
+		}
+	};
+
+	inline constexpr __uninitialized_fill_fn uninitialized_fill {};
 
 	///////////////////////////////////////////////////////////////////////////
-	// uninitialized_fill [Extension]
+	// uninitialized_fill_n [uninitialized.fill]
 	//
-	template<__NoThrowForwardRange Rng, typename T>
-	requires
-		Constructible<iter_value_t<iterator_t<Rng>>, const T&>
-	safe_iterator_t<Rng>
-	uninitialized_fill(Rng&& rng, const T& x)
-	{
-		return __stl2::uninitialized_fill(begin(rng), end(rng), x);
-	}
+	struct __uninitialized_fill_n_fn : private __niebloid {
+		template<_NoThrowForwardIterator I, class T>
+		requires Constructible<iter_value_t<I>, const T&>
+		I operator()(I first, const iter_difference_t<I> n, const T& x) const {
+			return uninitialized_fill(
+				counted_iterator{std::move(first), n},
+				default_sentinel{}, x).base();
+		}
+	};
 
-	///////////////////////////////////////////////////////////////////////////
-	// uninitialized_fill_n [Extension]
-	//
-	template<__NoThrowForwardIterator I, typename T>
-	requires
-		Constructible<iter_value_t<I>, const T&>
-	I uninitialized_fill_n(I first, const iter_difference_t<I> n, const T& x)
-	{
-		return __stl2::uninitialized_fill(
-			counted_iterator{std::move(first), n},
-			default_sentinel{}, x).base();
-	}
+	inline constexpr __uninitialized_fill_n_fn uninitialized_fill_n {};
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_UNINITIALIZED_FILL_HPP

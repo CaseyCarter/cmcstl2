@@ -47,54 +47,37 @@ namespace {
 	template<ranges::InputRange Rng>
 	requires requires {
 		typename ranges::iter_value_t<Rng>;
-		requires std::is_fundamental<ranges::iter_value_t<Rng>>::value;
+		requires std::is_fundamental_v<ranges::iter_value_t<Rng>>;
 	}
 	bool empty(const Rng&, const std::ptrdiff_t) {
 		return true;
 	}
 
 	template<ranges::Copyable T>
-	void uninitialized_move_test(const Array<T>& control)
-	{
+	void uninitialized_move_test(const Array<T>& control) {
 		auto independent = make_buffer<T>(control.size());
-		auto to_move = control;
 		auto test = [&control](const auto& to_move, const auto& independent, const auto& p) {
 			const auto distance_traversed =
-				std::min(
-					static_cast<std::ptrdiff_t>(to_move.size()),
-					static_cast<std::ptrdiff_t>(independent.size()));
+				std::min<std::ptrdiff_t>(to_move.size(), independent.size());
 			CHECK(::empty(to_move, distance_traversed));
-			CHECK(p.in() == ranges::next(to_move.begin(), distance_traversed));
-			CHECK(p.out() == ranges::next(independent.begin(), distance_traversed));
+			CHECK(p.in == ranges::next(to_move.begin(), distance_traversed));
+			CHECK(p.out == ranges::next(independent.begin(), distance_traversed));
 
 			CHECK(ranges::equal(control.begin(), control.begin() + distance_traversed,
-					independent.begin(), p.out()));
-			ranges::destroy(independent.begin(), p.out());
+					independent.begin(), p.out));
+			ranges::destroy(independent.begin(), p.out);
 		};
 
-		test(to_move, independent,
-			ranges::uninitialized_move(to_move.begin(), to_move.end(), independent.begin()));
-
-		to_move = control; // to_move.begin(), not to_move.cbegin()
-		test(to_move, independent,
-			ranges::uninitialized_move(to_move.begin(), to_move.end(), independent.cbegin()));
-
-		to_move = control;
-		test(to_move, independent,
-			ranges::uninitialized_move(to_move, independent.begin()));
-
-		to_move = control;
-		test(to_move, independent,
-			ranges::uninitialized_move(to_move, independent.cbegin()));
-
-		auto driver = [&test](auto& in, auto& out) {
+		auto driver = [&test](const auto& in, auto& out) {
 			auto to_move = in;
 			test(to_move, out,
-				ranges::uninitialized_move(to_move.begin(), to_move.end(), out.begin(), out.end()));
+				ranges::uninitialized_move(to_move.begin(), to_move.end(),
+					out.begin(), out.end()));
 
 			to_move = in; // to_move.begin(), not to_move.cbegin()
 			test(to_move, out,
-				ranges::uninitialized_move(to_move.begin(), to_move.end(), out.cbegin(), out.cend()));
+				ranges::uninitialized_move(to_move.begin(), to_move.end(),
+					out.cbegin(), out.cend()));
 
 			to_move = in;
 			test(to_move, out,
@@ -102,7 +85,17 @@ namespace {
 
 			to_move = in;
 			test(to_move, out,
-				ranges::uninitialized_move(to_move, static_cast<const raw_buffer<T>&>(out)));
+				ranges::uninitialized_move(to_move, std::as_const(out)));
+
+			to_move = in;
+			test(to_move, out,
+				ranges::uninitialized_move_n(to_move.begin(), to_move.size(),
+				out.begin(), out.end()));
+
+			to_move = in; // to_move.begin(), not to_move.cbegin()
+			test(to_move, out,
+				ranges::uninitialized_move_n(to_move.begin(), to_move.size(),
+				out.cbegin(), out.cend()));
 		};
 
 		// check range-based when distance(rng1) == distance(rng2)
@@ -115,39 +108,28 @@ namespace {
 		// check range-based when distance(rng1) > distance(rng2)
 		auto small_output = make_buffer<T>(1);
 		driver(control, small_output);
-
-		to_move = control;
-		test(to_move, independent,
-			ranges::uninitialized_move_n(to_move.begin(), to_move.size(), independent.begin()));
-
-		to_move = control; // to_move.begin(), not to_move.cbegin()
-		test(to_move, independent,
-			ranges::uninitialized_move_n(to_move.begin(), to_move.size(), independent.cbegin()));
 	}
 
 	using Move_only_t = Array<std::unique_ptr<std::string>>;
-	void uninitialized_move_test(Move_only_t first)
-	{
+	void uninitialized_move_test(Move_only_t first) {
 		auto test = [](const auto& s, const auto& d, const auto& p) {
-			CHECK(p.in() == s.end());
-			CHECK(p.out() == d.end());
-			auto n = ranges::count_if(s.begin(), p.in(), [](const auto& i){ return !i; });
+			CHECK(p.in == s.end());
+			CHECK(p.out == d.end());
+			auto n = ranges::count_if(s.begin(), p.in, [](const auto& i){ return !i; });
 			CHECK(static_cast<std::size_t>(n) == static_cast<std::size_t>(s.size()));
 		};
 
 		auto second = make_buffer<Move_only_t::value_type>(first.size());
-		test(first, second, ranges::uninitialized_move(first.begin(), first.end(), second.begin()));
-		test(second, first, ranges::uninitialized_move(second.begin(), second.end(), first.cbegin()));
-		test(first, second, ranges::uninitialized_move(first, second.begin()));
-		test(second, first, ranges::uninitialized_move(second, first.cbegin()));
 		test(first, second, ranges::uninitialized_move(first.begin(), first.end(),
 			second.begin(), second.end()));
 		test(second, first, ranges::uninitialized_move(second.begin(), second.end(),
 			first.cbegin(), first.cend()));
 		test(first, second, ranges::uninitialized_move(first, second));
-		test(second, first, ranges::uninitialized_move(second, static_cast<const Move_only_t&>(first)));
-		test(first, second, ranges::uninitialized_move_n(first.begin(), first.size(), second.cbegin()));
-		test(second, first, ranges::uninitialized_move_n(second.begin(), second.size(), first.begin()));
+		test(second, first, ranges::uninitialized_move(second, std::as_const(first)));
+		test(first, second, ranges::uninitialized_move_n(first.begin(), first.size(),
+			second.cbegin(), second.cend()));
+		test(second, first, ranges::uninitialized_move_n(second.begin(), second.size(),
+			first.begin(), first.end()));
 	}
 
 	struct S {
@@ -178,26 +160,28 @@ namespace {
 		constexpr int n = 2 * S::throw_after;
 		auto control = ranges::ext::repeat_view<S>{S{}};
 		auto independent = make_buffer<S>(n);
+
 		S::count = 0;
 		try {
-			ranges::uninitialized_move_n(control.begin(), n, independent.begin());
+			ranges::uninitialized_move_n(control.begin(), n,
+				independent.begin(), independent.end());
 			CHECK(false);
 		} catch(S::exception&) {
 			CHECK(S::count == S::throw_after);
 		}
-		S::count = 0;
 
+		S::count = 0;
 		auto control2 = ranges::ext::take_exactly_view<ranges::ext::repeat_view<S>>{
 			std::move(control), n
 		};
+
 		S::count = 0;
 		try {
-			ranges::uninitialized_move(control2, independent.begin());
+			ranges::uninitialized_move(control2, independent);
 			CHECK(false);
 		} catch(S::exception&) {
 			CHECK(S::count == S::throw_after);
 		}
-		S::count = 0;
 	}
 }
 
@@ -210,8 +194,7 @@ namespace {
  * - initial array: using the default constructor
  * - second array:  using a non-default constructor
  */
-int main()
-{
+int main() {
 	using Test_type_one = Array<int>;
 	using Test_type_two = Array<std::vector<double>>;
 	uninitialized_move_test(Test_type_one{});

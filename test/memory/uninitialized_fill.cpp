@@ -11,11 +11,12 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <stl2/detail/memory/uninitialized_fill.hpp>
+
 #include <cstdint>
+#include <vector>
 #include <stl2/concepts.hpp>
 #include <stl2/detail/algorithm/find_if.hpp>
 #include <stl2/detail/memory/destroy.hpp>
-#include <vector>
 #include "../simple_test.hpp"
 #include "common.hpp"
 
@@ -26,8 +27,7 @@ namespace {
 
 	template<typename T>
 	requires ranges::CopyConstructible<T> && ranges::EqualityComparable<T>
-	void uninitialized_fill_test(const T& x)
-	{
+	void uninitialized_fill_test(const T& x) {
 		const auto independent = make_buffer<T>(test_size);
 		auto test = [&independent, &x](const auto& p){
 			CHECK(p == independent.end());
@@ -88,8 +88,7 @@ namespace {
 	}
 }
 
-int main()
-{
+int main() {
 	uninitialized_fill_test(0);
 	uninitialized_fill_test(0.0);
 	uninitialized_fill_test('a');

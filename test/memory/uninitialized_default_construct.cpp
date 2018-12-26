@@ -31,8 +31,7 @@ namespace {
 
 	template<typename T>
 	requires ranges::DefaultConstructible<T> && ranges::EqualityComparable<T>
-	void test(const raw_buffer<T>& independent, ranges::iterator_t<const raw_buffer<T>> p)
-	{
+	void test(const raw_buffer<T>& independent, ranges::iterator_t<const raw_buffer<T>> p) {
 		T t{};
 		CHECK(p == independent.cend());
 		CHECK(ranges::find_if(independent.begin(), p, [&t](const T& i){ return i != t; }) == p);
@@ -40,27 +39,21 @@ namespace {
 	}
 
 	template<typename T>
-	requires
-		ranges::DefaultConstructible<T> &&
-		ranges::EqualityComparable<T>
-	void uninitialized_default_construct_test()
-	{
+	requires ranges::DefaultConstructible<T> && ranges::EqualityComparable<T>
+	void uninitialized_default_construct_test() {
 		auto independent = make_buffer<T>(N);
 
 		test(independent, ranges::uninitialized_default_construct(independent.begin(), independent.end()));
 		test(independent, ranges::uninitialized_default_construct(independent.cbegin(), independent.cend()));
 		test(independent, ranges::uninitialized_default_construct(independent));
+		test(independent, ranges::uninitialized_default_construct(std::as_const(independent)));
 		test(independent, ranges::uninitialized_default_construct_n(independent.begin(), independent.size()));
 		test(independent, ranges::uninitialized_default_construct_n(independent.cbegin(), independent.size()));
 	}
 
 	template<typename T>
-	requires
-		ranges::DefaultConstructible<T> &&
-		ranges::EqualityComparable<T> &&
-		std::is_fundamental<T>::value
-	void test(const raw_buffer<T>& independent, ranges::iterator_t<const raw_buffer<T>> p)
-	{
+	requires ranges::DefaultConstructible<T> && ranges::EqualityComparable<T> && std::is_fundamental<T>::value
+	void test(const raw_buffer<T>& independent, ranges::iterator_t<const raw_buffer<T>> p) {
 		T t;
 		std::memset(&t, 0xCC, sizeof(T));
 		CHECK(p == independent.cend());
@@ -69,12 +62,8 @@ namespace {
 	}
 
 	template<typename T>
-	requires
-		ranges::DefaultConstructible<T> &&
-		ranges::EqualityComparable<T> &&
-		std::is_fundamental<T>::value
-	void uninitialized_default_construct_test()
-	{
+	requires ranges::DefaultConstructible<T> && ranges::EqualityComparable<T> && std::is_fundamental<T>::value
+	void uninitialized_default_construct_test() {
 		auto independent = make_buffer<T>(N);
 
 		std::memset(independent.begin(), 0xCC, independent.size() * sizeof(T));
@@ -123,8 +112,7 @@ namespace {
 	}
 }
 
-int main()
-{
+int main() {
 	uninitialized_default_construct_test<char>();
 	uninitialized_default_construct_test<int>();
 	uninitialized_default_construct_test<long long>();

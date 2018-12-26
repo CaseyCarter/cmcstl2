@@ -14,10 +14,7 @@
 #define STL2_DETAIL_MEMORY_DESTROY_HPP
 
 #include <memory>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/raw_ptr.hpp>
-#include <stl2/detail/swap.hpp>
-#include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/dangling.hpp>
 #include <stl2/detail/iterator/counted_iterator.hpp>
@@ -27,58 +24,83 @@
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// destroy_at [Extension]
+	// destroy_at [specialized.destroy]
 	//
-	template<Destructible T>
-	void destroy_at(T* p) noexcept
-	{
-		p->~T();
-	}
+	struct __destroy_at_fn : private __niebloid {
+		template<Destructible T>
+		void operator()(T* p) const noexcept;
+	};
+
+	inline constexpr __destroy_at_fn destroy_at {};
 
 	///////////////////////////////////////////////////////////////////////////
-	// destroy [Extension]
+	// destroy [specialized.destroy]
 	//
-	template<__NoThrowInputIterator I, __NoThrowSentinel<I> S>
-	requires
-		Destructible<iter_value_t<I>>
-	I destroy(I first, S last) noexcept
-	{
-		for (; first != last; ++first) {
-			__stl2::destroy_at(std::addressof(*first));
+	struct __destroy_fn : private __niebloid {
+		template<_NoThrowInputIterator I, _NoThrowSentinel<I> S>
+		requires Destructible<iter_value_t<I>>
+		I operator()(I first, S last) const noexcept {
+			if constexpr (std::is_trivially_destructible_v<iter_value_t<I>>) {
+				advance(first, last);
+			} else {
+				for (; first != last; ++first) {
+					destroy_at(std::addressof(*first));
+				}
+			}
+
+			return first;
 		}
 
-		return first;
-	}
+		template<_NoThrowInputRange R>
+		requires Destructible<iter_value_t<iterator_t<R>>>
+		safe_iterator_t<R> operator()(R&& r) const noexcept {
+			if constexpr (std::is_trivially_destructible_v<iter_value_t<iterator_t<R>>> &&
+			              Same<dangling, safe_iterator_t<R>>) {
+				return {};
+			} else {
+				return (*this)(begin(r), end(r));
+			}
+		}
+	};
 
-	template<__NoThrowInputRange Rng>
-	requires
-		Destructible<iter_value_t<iterator_t<Rng>>>
-	safe_iterator_t<Rng> destroy(Rng&& rng) noexcept
-	{
-		return __stl2::destroy(begin(rng), end(rng));
+	inline constexpr __destroy_fn destroy {};
+
+	template<Destructible T>
+	inline void __destroy_at_fn::operator()(T* p) const noexcept {
+		if constexpr (!std::is_trivially_destructible_v<T>) {
+			if constexpr (std::is_array_v<T>) {
+				destroy(begin(*p), end(*p));
+			} else {
+				p->~T();
+			}
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////
-	// destroy_n [Extension]
+	// destroy_n [specialized.destroy]
 	//
-	template<__NoThrowInputIterator I>
-	requires
-		Destructible<iter_value_t<I>>
-	I destroy_n(I first, iter_difference_t<I> n) noexcept
-	{
-		return __stl2::destroy(counted_iterator{std::move(first), n},
-			default_sentinel{}).base();
-	}
+	struct __destroy_n_fn : private __niebloid {
+		template<_NoThrowInputIterator I>
+		requires Destructible<iter_value_t<I>>
+		I operator()(I first, iter_difference_t<I> n) const noexcept {
+			if constexpr (std::is_trivially_destructible_v<iter_value_t<I>>) {
+				return next(std::move(first), n);
+			} else {
+				return destroy(counted_iterator{std::move(first), n},
+					default_sentinel{}).base();
+			}
+		}
+	};
+
+	inline constexpr __destroy_n_fn destroy_n {};
 
 	namespace detail {
-		template<__NoThrowForwardIterator I>
-		class destroy_guard {
-			I first_;
-			detail::raw_ptr<I> last_;
-		public:
+		template<_NoThrowForwardIterator I>
+		requires Destructible<iter_value_t<I>>
+		struct destroy_guard {
 			~destroy_guard() {
 				if (last_) {
-					__stl2::destroy(std::move(first_), *last_);
+					destroy(std::move(first_), *last_);
 				}
 			}
 
@@ -90,6 +112,17 @@ STL2_OPEN_NAMESPACE {
 			, last_{__stl2::exchange(that.last_, nullptr)} {}
 
 			void release() noexcept { last_ = nullptr; }
+		private:
+			I first_;
+			detail::raw_ptr<I> last_;
+		};
+
+		template<_NoThrowForwardIterator I>
+		requires Destructible<iter_value_t<I>> &&
+			std::is_trivially_destructible_v<iter_value_t<I>>
+		struct destroy_guard<I> {
+			constexpr explicit destroy_guard(I&) noexcept {}
+			constexpr void release() const noexcept {}
 		};
 	}
 } STL2_CLOSE_NAMESPACE
