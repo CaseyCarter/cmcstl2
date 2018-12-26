@@ -159,7 +159,7 @@ STL2_OPEN_NAMESPACE {
 		Pred& pred, Proj1& proj1, Proj2& proj2)
 	{
 		// trim equal prefixes
-		auto [counted, mid2] = __stl2::mismatch(
+		auto [counted, mid2] = mismatch(
 			counted_iterator{std::move(first1), n}, default_sentinel{},
 			std::move(first2), unreachable{},
 			__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
@@ -182,7 +182,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			auto first2 = std::forward<I2>(first2_);
 			// shorten sequences by removing equal prefixes
-			auto [mid1, mid2] = __stl2::mismatch(std::move(first1), last1,
+			auto [mid1, mid2] = mismatch(std::move(first1), last1,
 				std::move(first2), unreachable{},
 				__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 
@@ -233,7 +233,7 @@ STL2_OPEN_NAMESPACE {
 					count1, pred, proj1, proj2);
 			} else {
 				// shorten sequences by removing equal prefixes
-				auto [mid1, mid2] = __stl2::mismatch(
+				auto [mid1, mid2] = mismatch(
 					std::move(first1), last1, std::move(first2), last2,
 					__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 

@@ -24,18 +24,22 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
+		template<class R>
+		META_CONCEPT _GLvalueRange = Range<R> &&
+			std::is_reference_v<iter_reference_t<iterator_t<R>>>;
+
 		template<InputRange Base>
 		struct join_view_iterator_base {
 			using iterator_category = __stl2::input_iterator_tag;
 		};
 		template<ForwardRange Base>
-		requires std::is_reference_v<iter_reference_t<iterator_t<Base>>> &&
+		requires _GLvalueRange<Base> &&
 			ForwardRange<iter_reference_t<iterator_t<Base>>>
 		struct join_view_iterator_base<Base> {
 			using iterator_category = __stl2::forward_iterator_tag;
 		};
 		template<BidirectionalRange Base>
-		requires std::is_reference_v<iter_reference_t<iterator_t<Base>>> &&
+		requires _GLvalueRange<Base> &&
 			BidirectionalRange<iter_reference_t<iterator_t<Base>>>
 		struct join_view_iterator_base<Base> {
 			using iterator_category = __stl2::bidirectional_iterator_tag;
@@ -52,8 +56,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<InputRange Rng>
 	requires View<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
-		(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
-			View<iter_value_t<iterator_t<Rng>>>)
+		(detail::_GLvalueRange<Rng> || View<iter_value_t<iterator_t<Rng>>>)
 	class join_view
 	: public view_interface<join_view<Rng>>
 	, detail::join_view_base<iter_reference_t<iterator_t<Rng>>> {
@@ -84,44 +87,40 @@ STL2_OPEN_NAMESPACE {
 			std::is_reference_v<iter_reference_t<iterator_t<ConstRng>>>
 		{ return {*this, __stl2::begin(base_)}; }
 
-		constexpr sentinel end()
-		{ return sentinel{*this}; }
+		constexpr auto end()
+		{
+			if constexpr (ForwardRange<Rng> && std::is_reference_v<InnerRng> &&
+			              ForwardRange<InnerRng> && CommonRange<Rng> &&
+			              CommonRange<InnerRng>) {
+				return iterator{*this, __stl2::end(base_)};
+			} else
+				return sentinel{*this};
+		}
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		template<class ConstRng = const Rng>
-		constexpr const_sentinel end() const
+		constexpr auto end() const
 		requires InputRange<ConstRng> &&
 			std::is_reference_v<iter_reference_t<iterator_t<ConstRng>>>
-		{ return const_sentinel{*this}; }
-
-		constexpr iterator end()
-		requires ForwardRange<Rng> &&
-			std::is_reference_v<InnerRng> &&
-			ForwardRange<InnerRng> &&
-			CommonRange<Rng> && CommonRange<InnerRng>
-		{ return {*this, __stl2::end(base_)}; }
-
-		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template<class ConstRng = const Rng>
-		constexpr const_iterator end() const
-		requires ForwardRange<ConstRng> &&
-			std::is_reference_v<iter_reference_t<iterator_t<ConstRng>>> &&
+		{
+			if constexpr (ForwardRange<ConstRng> &&
 			ForwardRange<iter_reference_t<iterator_t<ConstRng>>> &&
 			CommonRange<ConstRng> &&
-			CommonRange<iter_reference_t<iterator_t<ConstRng>>>
-		{ return {*this, __stl2::end(base_)}; }
+			CommonRange<iter_reference_t<iterator_t<ConstRng>>>) {
+				return const_iterator{*this, __stl2::end(base_)};
+			} else
+				return const_sentinel{*this};
+		}
 	};
 
 	template<InputRange Rng>
 	requires InputRange<iter_reference_t<iterator_t<Rng>>> &&
-		(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
-			View<iter_value_t<iterator_t<Rng>>>)
+		(detail::_GLvalueRange<Rng> || View<iter_value_t<iterator_t<Rng>>>)
 	explicit join_view(Rng&&) -> join_view<all_view<Rng>>;
 
 	template<InputRange Rng>
 	requires View<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
-		(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
-			View<iter_value_t<iterator_t<Rng>>>)
+		(detail::_GLvalueRange<Rng> || View<iter_value_t<iterator_t<Rng>>>)
 	template<bool Const>
 	struct join_view<Rng>::__iterator
 	: detail::join_view_iterator_base<__maybe_const<Const, Rng>> {
@@ -138,7 +137,7 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr decltype(auto) update_cache_()
 		{
-			if constexpr (!std::is_reference_v<iter_reference_t<iterator_t<Base>>>)
+			if constexpr (!detail::_GLvalueRange<Base>)
 			{
 				auto&& inner = *outer_;
 				return (parent_->inner_ = view::all(inner));
@@ -149,7 +148,7 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr decltype(auto) inner_rng_()
 		{
-			if constexpr (!std::is_reference_v<iter_reference_t<iterator_t<Base>>>)
+			if constexpr (!detail::_GLvalueRange<Base>)
 				return (parent_->inner_);
 			else
 				return *outer_;
@@ -164,7 +163,7 @@ STL2_OPEN_NAMESPACE {
 					return;
 			}
 			// needed for symmetric iterator comparison:
-			if constexpr (std::is_reference_v<iter_reference_t<iterator_t<Base>>>)
+			if constexpr (detail::_GLvalueRange<Base>)
 				inner_ = iterator_t<iter_reference_t<iterator_t<Base>>>{};
 		}
 	public:
@@ -260,8 +259,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<InputRange Rng>
 	requires View<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
-		(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
-			View<iter_value_t<iterator_t<Rng>>>)
+		(detail::_GLvalueRange<Rng> || View<iter_value_t<iterator_t<Rng>>>)
 	template<bool Const>
 	struct join_view<Rng>::__sentinel {
 	private:
@@ -294,12 +292,11 @@ STL2_OPEN_NAMESPACE {
 
 	namespace view {
 		struct __join_fn : detail::__pipeable<__join_fn> {
-			template<InputRange Rng>
-			requires ViewableRange<Rng> && InputRange<iter_reference_t<iterator_t<Rng>>> &&
-				(std::is_reference_v<iter_reference_t<iterator_t<Rng>>> ||
-					View<iter_value_t<iterator_t<Rng>>>)
+			template<class Rng>
 			constexpr auto operator()(Rng&& rng) const
-			{ return join_view{std::forward<Rng>(rng)}; }
+			STL2_REQUIRES_RETURN(
+				join_view{std::forward<Rng>(rng)}
+			)
 		};
 
 		inline constexpr __join_fn join {};

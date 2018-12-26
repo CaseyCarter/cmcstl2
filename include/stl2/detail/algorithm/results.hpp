@@ -9,31 +9,13 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_ALGORITHM_TAGSPEC_HPP
-#define STL2_DETAIL_ALGORITHM_TAGSPEC_HPP
+#ifndef STL2_DETAIL_ALGORITHM_RESULTS_HPP
+#define STL2_DETAIL_ALGORITHM_RESULTS_HPP
 
 #include <utility>
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/tagged.hpp>
 #include <stl2/detail/concepts/core.hpp>
 
 STL2_OPEN_NAMESPACE {
-	// tag specifiers [alg.tagspec]
-	namespace tag {
-		STL2_DEFINE_GETTER(in)
-		STL2_DEFINE_GETTER(in1)
-		STL2_DEFINE_GETTER(in2)
-		STL2_DEFINE_GETTER(out)
-		STL2_DEFINE_GETTER(out1)
-		STL2_DEFINE_GETTER(out2)
-		STL2_DEFINE_GETTER(fun)
-		STL2_DEFINE_GETTER(min)
-		STL2_DEFINE_GETTER(max)
-		STL2_DEFINE_GETTER(begin)
-		STL2_DEFINE_GETTER(end)
-		STL2_DEFINE_GETTER(count) // Extension
-	}
-
 	template<class I, class O>
 	struct __in_out_result {
 		I in;
@@ -88,6 +70,63 @@ STL2_OPEN_NAMESPACE {
 			ConvertibleTo<I2, II2> && ConvertibleTo<O, OO>
 		operator __in_in_out_result<II1, II2, OO>() && {
 			return {std::move(in1), std::move(in2), std::move(out)};
+		}
+	};
+
+	template<class I, class O1, class O2>
+	struct __in_out_out_result {
+		I in;
+		O1 out1;
+		O2 out2;
+
+		// Extension: the dangling story actually works.
+		template<class II, class OO1, class OO2>
+		requires ConvertibleTo<const I&, II> &&
+			ConvertibleTo<const O1&, OO1> && ConvertibleTo<const O2&, OO2>
+		operator __in_out_out_result<II, OO1, OO2>() const& {
+			return {in, out1, out2};
+		}
+		template<class II, class OO1, class OO2>
+		requires ConvertibleTo<I, II> &&
+			ConvertibleTo<O1, OO1> && ConvertibleTo<O2, OO2>
+		operator __in_out_out_result<II, OO1, OO2>() && {
+			return {std::move(in), std::move(out1), std::move(out2)};
+		}
+	};
+
+	template<class I, class F>
+	struct __in_fun_result {
+		I in;
+		F fun;
+
+		// Extension: the dangling story actually works.
+		template<class I2, class F2>
+		requires ConvertibleTo<const I&, I2> && ConvertibleTo<const F&, F2>
+		operator __in_fun_result<I2, F2>() const& {
+			return {in, fun};
+		}
+		template<class I2, class F2>
+		requires ConvertibleTo<I, I2> && ConvertibleTo<F, F2>
+		operator __in_fun_result<I2, F2>() && {
+			return {std::move(in), std::move(fun)};
+		}
+	};
+
+	template<class T>
+	struct minmax_result {
+		T min;
+		T max;
+
+		// Extension: the dangling story actually works.
+		template<class T2>
+		requires ConvertibleTo<const T&, T2>
+		operator minmax_result<T2>() const& {
+			return {min, max};
+		}
+		template<class T2>
+		requires ConvertibleTo<T, T2>
+		operator minmax_result<T2>() && {
+			return {std::move(min), std::move(max)};
 		}
 	};
 } STL2_CLOSE_NAMESPACE

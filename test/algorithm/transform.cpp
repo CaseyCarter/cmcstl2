@@ -17,10 +17,10 @@ namespace ranges = __stl2;
 
 int main() {
 	int rgi[]{1,2,3,4,5};
-	ranges::transform(rgi, rgi+5, rgi, [](int i){return i*2;});
+	ranges::transform(rgi, rgi+5, rgi, [](int i){ return i * 2; });
 	CHECK_EQUAL(rgi, {2,4,6,8,10});
 
-	ranges::transform(rgi, rgi, [](int i){return i/2;});
+	ranges::transform(rgi, rgi, [](int i){ return i / 2; });
 	CHECK_EQUAL(rgi, {1,2,3,4,5});
 
 	{
@@ -31,20 +31,20 @@ int main() {
 
 		{
 			int target[4]{};
-			auto result = ranges::transform(source1, ranges::begin(source2), target, sum);
-			CHECK(result.in1() == ranges::end(source1));
-			CHECK(result.in2() == ranges::end(source2));
-			CHECK(result.out() == ranges::end(target));
+			auto result = ranges::transform(ranges::begin(source1), ranges::end(source1),
+				ranges::begin(source2), ranges::end(source2), target, sum);
+			CHECK(result.in1 == ranges::end(source1));
+			CHECK(result.in2 == ranges::end(source2));
+			CHECK(result.out == ranges::end(target));
 			CHECK_EQUAL(target, control);
 		}
 
 		{
 			int target[4]{};
-			auto result = ranges::transform(ranges::begin(source1), ranges::end(source1),
-				ranges::begin(source2), target, sum);
-			CHECK(result.in1() == ranges::end(source1));
-			CHECK(result.in2() == ranges::end(source2));
-			CHECK(result.out() == ranges::end(target));
+			auto result = ranges::transform(source1, source2, target, sum);
+			CHECK(result.in1 == ranges::end(source1));
+			CHECK(result.in2 == ranges::end(source2));
+			CHECK(result.out == ranges::end(target));
 			CHECK_EQUAL(target, control);
 		}
 	}

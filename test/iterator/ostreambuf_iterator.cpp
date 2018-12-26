@@ -18,9 +18,14 @@
 using namespace __stl2;
 
 namespace {
+	template<class I, class O>
+	struct result {
+		I in;
+		O out;
+	};
+
 	template<InputIterator I, Sentinel<I> S, OutputIterator<iter_reference_t<I>> O>
-	tagged_pair<tag::in(I), tag::out(O)>
-	constexpr copy(I first, S last, O out) {
+	constexpr result<I, O> copy(I first, S last, O out) {
 		for (; first != last; ++first, void(), ++out) {
 			*out = *first;
 		}
@@ -28,7 +33,7 @@ namespace {
 	}
 
 	template<InputRange R, OutputIterator<iter_reference_t<iterator_t<R>>> O>
-	constexpr tagged_pair<tag::in(safe_iterator_t<R>), tag::out(O)>
+	constexpr result<safe_iterator_t<R>, O>
 	copy(R&& range, O out) {
 		return ::copy(begin(range), end(range), std::move(out));
 	}
@@ -46,7 +51,7 @@ int main() {
 		auto hw_range = subrange(begin(hw), end(hw) - 1);
 		std::ostringstream os;
 		auto r = ::copy(hw_range, I{os});
-		CHECK(r.out() != default_sentinel{});
+		CHECK(r.out != default_sentinel{});
 		CHECK_EQUAL(os.str(), hw_range);
 	}
 

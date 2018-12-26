@@ -162,7 +162,7 @@ STL2_OPEN_NAMESPACE {
 			if (pbegin == pend) ++cur;
 			else {
 				do {
-					const auto [b, p] = __stl2::mismatch(cur, end, pbegin, pend);
+					const auto [b, p] = mismatch(cur, end, pbegin, pend);
 					if (p == pend) {
 						// The pattern matches, skip it
 						cur = b;

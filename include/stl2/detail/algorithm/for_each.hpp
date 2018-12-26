@@ -15,32 +15,32 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
-#include <stl2/detail/algorithm/tagspec.hpp>
+#include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// for_each [alg.for_each]
+// for_each [alg.foreach]
 //
 STL2_OPEN_NAMESPACE {
+	template<class I, class F>
+	using for_each_result = __in_fun_result<I, F>;
+
 	struct __for_each_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectUnaryInvocable<projected<I, Proj>> F>
-		constexpr tagged_pair<tag::in(I), tag::fun(F)>
-		operator()(I first, S last, F fun, Proj proj = {}) const
-		{
+		constexpr for_each_result<I, F>
+		operator()(I first, S last, F fun, Proj proj = {}) const {
 			for (; first != last; ++first) {
-				static_cast<void>(__stl2::invoke(fun, __stl2::invoke(proj, *first)));
+				__stl2::invoke(fun, __stl2::invoke(proj, *first));
 			}
 			return {std::move(first), std::move(fun)};
 		}
 
 		template<InputRange R, class Proj = identity,
 			IndirectUnaryInvocable<projected<iterator_t<R>, Proj>> F>
-		constexpr tagged_pair<tag::in(safe_iterator_t<R>), tag::fun(F)>
-		operator()(R&& r, F fun, Proj proj = {}) const
-		{
-			return {(*this)(begin(r), end(r),
-				__stl2::ref(fun), __stl2::ref(proj)).in(), std::move(fun)};
+		constexpr for_each_result<safe_iterator_t<R>, F>
+		operator()(R&& r, F fun, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), std::move(fun), std::move(proj));
 		}
 	};
 

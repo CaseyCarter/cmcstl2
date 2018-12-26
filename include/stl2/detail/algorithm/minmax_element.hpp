@@ -19,7 +19,7 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
-#include <stl2/detail/algorithm/tagspec.hpp>
+#include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
@@ -30,42 +30,42 @@ STL2_OPEN_NAMESPACE {
 	struct __minmax_element_fn : private __niebloid {
 		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
-		constexpr tagged_pair<tag::min(I), tag::max(I)>
+		constexpr minmax_result<I>
 		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const
 		{
-			auto result = tagged_pair<tag::min(I), tag::max(I)>{first, first};
+			minmax_result<I> result{first, first};
 			if (first == last || ++first == last) {
 				return result;
 			}
-			if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.first))) {
-				result.first = first;
+			if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.max))) {
+				result.min = first;
 			} else {
-				result.second = first;
+				result.max = first;
 			}
 			while (++first != last) {
 				I tmp = first;
 				if (++first == last) {
-					if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.first))) {
-						result.first = tmp;
-					} else if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.second))) {
-						result.second = tmp;
+					if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.min))) {
+						result.min = tmp;
+					} else if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.max))) {
+						result.max = tmp;
 					}
 					break;
 				}
 
 				if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *tmp))) {
-					if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.first))) {
-						result.first = first;
+					if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.min))) {
+						result.min = first;
 					}
-					if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.second))) {
-						result.second = tmp;
+					if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.max))) {
+						result.max = tmp;
 					}
 				} else {
-					if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.first))) {
-						result.first = tmp;
+					if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.min))) {
+						result.min = tmp;
 					}
-					if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.second))) {
-						result.second = first;
+					if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.max))) {
+						result.max = first;
 					}
 				}
 			}
@@ -74,12 +74,9 @@ STL2_OPEN_NAMESPACE {
 
 		template<ForwardRange R, class Proj = identity,
 			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
-		constexpr tagged_pair<tag::min(safe_iterator_t<R>),
-			tag::max(safe_iterator_t<R>)>
-		operator()(R&& r, Comp comp = {}, Proj proj = {}) const
-		{
-			return (*this)(begin(r), end(r),
-				__stl2::ref(comp), __stl2::ref(proj));
+		constexpr minmax_result<safe_iterator_t<R>>
+		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), __stl2::ref(comp), __stl2::ref(proj));
 		}
 	};
 

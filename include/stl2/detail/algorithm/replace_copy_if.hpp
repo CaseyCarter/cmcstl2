@@ -13,48 +13,47 @@
 #define STL2_DETAIL_ALGORITHM_REPLACE_COPY_IF_HPP
 
 #include <stl2/iterator.hpp>
-#include <stl2/detail/algorithm/tagspec.hpp>
+#include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // replace_copy_if [alg.replace]
 //
 STL2_OPEN_NAMESPACE {
-	template<InputIterator I, Sentinel<I> S, class Pred, class T,
-		OutputIterator<const T&> O, class Proj = identity>
-	requires
-		IndirectlyCopyable<I, O> &&
-		IndirectUnaryPredicate<
-			Pred, projected<I, Proj>>
-	tagged_pair<tag::in(I), tag::out(O)>
-	replace_copy_if(I first, S last, O result, Pred pred,
-		const T& new_value, Proj proj = {})
-	{
-		for (; first != last; ++first, ++result) {
-			iter_reference_t<I>&& v = *first;
-			if (__stl2::invoke(pred, __stl2::invoke(proj, v))) {
-				*result = new_value;
-			} else {
-				*result = std::forward<iter_reference_t<I>>(v);
-			}
-		}
-		return {std::move(first), std::move(result)};
-	}
+	template<class I, class O>
+	using replace_copy_if_result = __in_out_result<I, O>;
 
-	template<InputRange Rng, class Pred, class T, class O, class Proj = identity>
-	requires
-		OutputIterator<__f<O>, const T&> &&
-		IndirectlyCopyable<iterator_t<Rng>, __f<O>> &&
-		IndirectUnaryPredicate<
-			Pred, projected<iterator_t<Rng>, Proj>>
-	tagged_pair<tag::in(safe_iterator_t<Rng>), tag::out(__f<O>)>
-	replace_copy_if(Rng&& rng, O&& result, Pred pred, const T& new_value,
-		Proj proj = {})
-	{
-		return __stl2::replace_copy_if(
-			begin(rng), end(rng), std::forward<O>(result),
-			__stl2::ref(pred), new_value, __stl2::ref(proj));
-	}
+	struct __replace_copy_if_fn : private __niebloid {
+		template<InputIterator I, Sentinel<I> S, class T,
+			OutputIterator<const T&> O, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		requires IndirectlyCopyable<I, O>
+		constexpr replace_copy_if_result<I, O>
+		operator()(I first, S last, O result, Pred pred,
+			const T& new_value, Proj proj = {}) const
+		{
+			for (; first != last; (void) ++first, (void) ++result) {
+				iter_reference_t<I>&& v = *first;
+				if (__stl2::invoke(pred, __stl2::invoke(proj, v))) {
+					*result = new_value;
+				} else {
+					*result = std::forward<iter_reference_t<I>>(v);
+				}
+			}
+			return {std::move(first), std::move(result)};
+		}
+
+		template<InputRange R, class T, OutputIterator<const T&> O, class Proj = identity,
+			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
+		requires IndirectlyCopyable<iterator_t<R>, O>
+		constexpr replace_copy_if_result<safe_iterator_t<R>, O>
+		operator()(R&& r, O result, Pred pred, const T& new_value, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), std::move(result),
+				__stl2::ref(pred), new_value, __stl2::ref(proj));
+		}
+	};
+
+	inline constexpr __replace_copy_if_fn replace_copy_if {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

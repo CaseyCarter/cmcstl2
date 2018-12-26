@@ -52,8 +52,7 @@ namespace {
 	};
 }
 
-int main()
-{
+int main() {
 	constexpr unsigned N = 100;
 	constexpr unsigned K = 10;
 	{
@@ -63,25 +62,25 @@ int main()
 		std::minstd_rand g1, g2 = g1;
 
 		{
-			auto result = ranges::sample(random_access_iterator<int*>(i.data()),
+			auto result = ranges::ext::sample(random_access_iterator<int*>(i.data()),
 				sentinel<int*>(i.data()+N), a.begin(), K, g1);
-			CHECK(in_sequence(i.data(), result.in().base(), i.data() + N));
-			CHECK(result.out() == a.end());
+			CHECK(in_sequence(i.data(), result.in.base(), i.data() + N));
+			CHECK(result.out == a.end());
 			CHECK(!ranges::equal(a, c));
 		}
 
 		{
-			auto result = ranges::sample(i.begin(), i.end(), b.begin(), K, g1);
-			CHECK(in_sequence(i.begin(), result.in(), i.end()));
-			CHECK(result.out() == b.end());
+			auto result = ranges::ext::sample(i.begin(), i.end(), b.begin(), K, g1);
+			CHECK(in_sequence(i.begin(), result.in, i.end()));
+			CHECK(result.out == b.end());
 			CHECK(!ranges::equal(a, b));
 			CHECK(!ranges::equal(b, c));
 		}
 
 		{
-			auto result = ranges::sample(i.begin(), i.end(), c.begin(), K, g2);
-			CHECK(in_sequence(i.begin(), result.in(), i.end()));
-			CHECK(result.out() == c.end());
+			auto result = ranges::ext::sample(i.begin(), i.end(), c.begin(), K, g2);
+			CHECK(in_sequence(i.begin(), result.in, i.end()));
+			CHECK(result.out == c.end());
 			CHECK(ranges::equal(a, c));
 		}
 	}
@@ -94,32 +93,32 @@ int main()
 		auto rng = ranges::subrange(random_access_iterator<int*>(i.data()), sentinel<int*>(i.data() + N));
 
 		{
-			auto result = ranges::sample(rng, a.begin(), K, g1);
-			CHECK(in_sequence(ranges::begin(rng), result.in(), ranges::end(rng)));
-			CHECK(result.out() == a.end());
+			auto result = ranges::ext::sample(rng, a.begin(), K, g1);
+			CHECK(in_sequence(ranges::begin(rng), result.in, ranges::end(rng)));
+			CHECK(result.out == a.end());
 			CHECK(!ranges::equal(a, b));
 		}
 
 		{
-			auto result = ranges::sample(i, b.begin(), K, g2);
-			CHECK(in_sequence(i.begin(), result.in(), i.end()));
-			CHECK(result.out() == b.end());
+			auto result = ranges::ext::sample(i, b.begin(), K, g2);
+			CHECK(in_sequence(i.begin(), result.in, i.end()));
+			CHECK(result.out == b.end());
 			CHECK(ranges::equal(a, b));
 		}
 
 		{
-			auto result = ranges::sample(i, b.begin(), K, g1);
-			CHECK(in_sequence(i.begin(), result.in(), i.end()));
-			CHECK(result.out() == b.end());
+			auto result = ranges::ext::sample(i, b.begin(), K, g1);
+			CHECK(in_sequence(i.begin(), result.in, i.end()));
+			CHECK(result.out == b.end());
 			CHECK(!ranges::equal(a, b));
 			CHECK(!ranges::equal(b, c));
 		}
 
 		{
 			a.fill(0);
-			auto result = ranges::sample(std::move(rng), a.begin(), K, g1);
-			CHECK(in_sequence(ranges::begin(rng), result.in(), ranges::end(rng)));
-			CHECK(result.out() == a.end());
+			auto result = ranges::ext::sample(std::move(rng), a.begin(), K, g1);
+			CHECK(in_sequence(ranges::begin(rng), result.in, ranges::end(rng)));
+			CHECK(result.out == a.end());
 			CHECK(!ranges::equal(a, c));
 		}
 	}
@@ -130,17 +129,17 @@ int main()
 		std::array<int, K> a{}, b{}, c{};
 
 		{
-			auto result = ranges::sample(random_access_iterator<int*>(i.data()),
+			auto result = ranges::ext::sample(random_access_iterator<int*>(i.data()),
 				sentinel<int*>(i.data() + N), a.begin(), K);
-			CHECK(in_sequence(i.data(), result.in().base(), i.data() + N));
-			CHECK(result.out() == a.end());
+			CHECK(in_sequence(i.data(), result.in.base(), i.data() + N));
+			CHECK(result.out == a.end());
 			CHECK(!ranges::equal(a, b));
 		}
 
 		{
-			auto result = ranges::sample(i, b.begin(), K);
-			CHECK(in_sequence(i.begin(), result.in(), i.end()));
-			CHECK(result.out() == b.end());
+			auto result = ranges::ext::sample(i, b.begin(), K);
+			CHECK(in_sequence(i.begin(), result.in, i.end()));
+			CHECK(result.out == b.end());
 			CHECK(!ranges::equal(b, c));
 			CHECK(!ranges::equal(a, b));
 		}
@@ -149,13 +148,13 @@ int main()
 	{
 		std::array<MoveOnly, 10> source;
 		std::array<MoveOnly, 4> dest;
-		auto result = ranges::sample(ranges::make_move_iterator(source.begin()),
+		auto result = ranges::ext::sample(ranges::make_move_iterator(source.begin()),
 			ranges::make_move_sentinel(source.end()),
 			forward_iterator<MoveOnly*>(dest.data()), dest.size());
 		CHECK(in_sequence(ranges::make_move_iterator(source.begin()),
-			result.in(),
+			result.in,
 			ranges::make_move_sentinel(source.end())));
-		CHECK(result.out() == forward_iterator<MoveOnly*>(dest.data() + dest.size()));
+		CHECK(result.out == forward_iterator<MoveOnly*>(dest.data() + dest.size()));
 	}
 
 	{
@@ -165,25 +164,25 @@ int main()
 		std::minstd_rand g1, g2 = g1;
 
 		{
-			auto result = ranges::sample(random_access_iterator<int*>(i.data()),
+			auto result = ranges::ext::sample(random_access_iterator<int*>(i.data()),
 				sentinel<int*>(i.data()+N), a, g1);
-			CHECK(in_sequence(i.data(), result.in().base(), i.data() + N));
-			CHECK(result.out() == a.end());
+			CHECK(in_sequence(i.data(), result.in.base(), i.data() + N));
+			CHECK(result.out == a.end());
 			CHECK(!ranges::equal(a, c));
 		}
 
 		{
-			auto result = ranges::sample(i.begin(), i.end(), b, g1);
-			CHECK(in_sequence(i.begin(), result.in(), i.end()));
-			CHECK(result.out() == b.end());
+			auto result = ranges::ext::sample(i.begin(), i.end(), b, g1);
+			CHECK(in_sequence(i.begin(), result.in, i.end()));
+			CHECK(result.out == b.end());
 			CHECK(!ranges::equal(a, b));
 			CHECK(!ranges::equal(b, c));
 		}
 
 		{
-			auto result = ranges::sample(i.begin(), i.end(), c, g2);
-			CHECK(in_sequence(i.begin(), result.in(), i.end()));
-			CHECK(result.out() == c.end());
+			auto result = ranges::ext::sample(i.begin(), i.end(), c, g2);
+			CHECK(in_sequence(i.begin(), result.in, i.end()));
+			CHECK(result.out == c.end());
 			CHECK(ranges::equal(a, c));
 		}
 	}
@@ -196,32 +195,32 @@ int main()
 		auto rng = ranges::subrange(random_access_iterator<int*>(i.data()), sentinel<int*>(i.data() + N));
 
 		{
-			auto result = ranges::sample(rng, a, g1);
-			CHECK(in_sequence(i.data(), result.in().base(), i.data() + N));
-			CHECK(result.out() == a.end());
+			auto result = ranges::ext::sample(rng, a, g1);
+			CHECK(in_sequence(i.data(), result.in.base(), i.data() + N));
+			CHECK(result.out == a.end());
 			CHECK(!ranges::equal(a, b));
 		}
 
 		{
-			auto result = ranges::sample(i, b, g2);
-			CHECK(in_sequence(i.begin(), result.in(), i.end()));
-			CHECK(result.out() == b.end());
+			auto result = ranges::ext::sample(i, b, g2);
+			CHECK(in_sequence(i.begin(), result.in, i.end()));
+			CHECK(result.out == b.end());
 			CHECK(ranges::equal(a, b));
 		}
 
 		{
-			auto result = ranges::sample(i, b, g1);
-			CHECK(in_sequence(i.begin(), result.in(), i.end()));
-			CHECK(result.out() == b.end());
+			auto result = ranges::ext::sample(i, b, g1);
+			CHECK(in_sequence(i.begin(), result.in, i.end()));
+			CHECK(result.out == b.end());
 			CHECK(!ranges::equal(a, b));
 			CHECK(!ranges::equal(b, c));
 		}
 
 		{
 			a.fill(0);
-			auto result = ranges::sample(std::move(rng), a, g1);
-			CHECK(in_sequence(i.data(), result.in().base(), i.data() + N));
-			CHECK(result.out() == a.end());
+			auto result = ranges::ext::sample(std::move(rng), a, g1);
+			CHECK(in_sequence(i.data(), result.in.base(), i.data() + N));
+			CHECK(result.out == a.end());
 			CHECK(!ranges::equal(a, c));
 		}
 	}
@@ -232,17 +231,17 @@ int main()
 		std::array<int, K> a{}, b{}, c{};
 
 		{
-			auto result = ranges::sample(random_access_iterator<int*>(i.data()),
+			auto result = ranges::ext::sample(random_access_iterator<int*>(i.data()),
 				sentinel<int*>(i.data() + N), a);
-			CHECK(in_sequence(i.data(), result.in().base(), i.data() + N));
-			CHECK(result.out() == a.end());
+			CHECK(in_sequence(i.data(), result.in.base(), i.data() + N));
+			CHECK(result.out == a.end());
 			CHECK(!ranges::equal(a, b));
 		}
 
 		{
-			auto result = ranges::sample(i, b);
-			CHECK(in_sequence(i.begin(), result.in(), i.end()));
-			CHECK(result.out() == b.end());
+			auto result = ranges::ext::sample(i, b);
+			CHECK(in_sequence(i.begin(), result.in, i.end()));
+			CHECK(result.out == b.end());
 			CHECK(!ranges::equal(b, c));
 			CHECK(!ranges::equal(a, b));
 		}
@@ -254,10 +253,10 @@ int main()
 		auto out = ranges::subrange(
 			forward_iterator<MoveOnly*>(dest.data()),
 			sentinel<MoveOnly*, true>(dest.data() + dest.size()));
-		auto result = ranges::sample(ranges::make_move_iterator(source.begin()),
+		auto result = ranges::ext::sample(ranges::make_move_iterator(source.begin()),
 			ranges::make_move_sentinel(source.end()), out);
-		CHECK(in_sequence(source.data(), result.in().base(), source.data() + source.size()));
-		CHECK(result.out() == ranges::end(out));
+		CHECK(in_sequence(source.data(), result.in.base(), source.data() + source.size()));
+		CHECK(result.out == ranges::end(out));
 	}
 
 	{
@@ -265,14 +264,14 @@ int main()
 		int sample[2];
 		std::minstd_rand g;
 		{
-			auto result = ranges::sample(data, sample, g);
-			CHECK(in_sequence(ranges::begin(data), result.in(), ranges::end(data)));
-			CHECK(result.out() == ranges::end(sample));
+			auto result = ranges::ext::sample(data, sample, g);
+			CHECK(in_sequence(ranges::begin(data), result.in, ranges::end(data)));
+			CHECK(result.out == ranges::end(sample));
 		}
 		{
-			auto result = ranges::sample(data, sample);
-			CHECK(in_sequence(ranges::begin(data), result.in(), ranges::end(data)));
-			CHECK(result.out() == ranges::end(sample));
+			auto result = ranges::ext::sample(data, sample);
+			CHECK(in_sequence(ranges::begin(data), result.in, ranges::end(data)));
+			CHECK(result.out == ranges::end(sample));
 		}
 	}
 

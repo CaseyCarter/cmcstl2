@@ -16,6 +16,7 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
+#include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/concepts/object.hpp>
 
@@ -23,12 +24,6 @@
 // minmax [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
-	template<class T>
-	struct minmax_result {
-		T min;
-		T max;
-	};
-
 	struct __minmax_fn : private __niebloid {
 	private:
 		template<InputRange R, class Proj = identity,
