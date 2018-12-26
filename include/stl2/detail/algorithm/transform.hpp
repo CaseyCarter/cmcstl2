@@ -17,7 +17,7 @@
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/algorithm/tagspec.hpp>
+#include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////

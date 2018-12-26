@@ -9,31 +9,13 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_ALGORITHM_TAGSPEC_HPP
-#define STL2_DETAIL_ALGORITHM_TAGSPEC_HPP
+#ifndef STL2_DETAIL_ALGORITHM_RESULTS_HPP
+#define STL2_DETAIL_ALGORITHM_RESULTS_HPP
 
 #include <utility>
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/tagged.hpp>
 #include <stl2/detail/concepts/core.hpp>
 
 STL2_OPEN_NAMESPACE {
-	// tag specifiers [alg.tagspec]
-	namespace tag {
-		STL2_DEFINE_GETTER(in)
-		STL2_DEFINE_GETTER(in1)
-		STL2_DEFINE_GETTER(in2)
-		STL2_DEFINE_GETTER(out)
-		STL2_DEFINE_GETTER(out1)
-		STL2_DEFINE_GETTER(out2)
-		STL2_DEFINE_GETTER(fun)
-		STL2_DEFINE_GETTER(min)
-		STL2_DEFINE_GETTER(max)
-		STL2_DEFINE_GETTER(begin)
-		STL2_DEFINE_GETTER(end)
-		STL2_DEFINE_GETTER(count) // Extension
-	}
-
 	template<class I, class O>
 	struct __in_out_result {
 		I in;

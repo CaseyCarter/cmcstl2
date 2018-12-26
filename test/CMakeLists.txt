@@ -27,7 +27,6 @@ endfunction(add_stl2_test)
 
 add_stl2_test(test.headers headers headers1.cpp headers2.cpp)
 add_stl2_test(test.range_access range_access range_access.cpp)
-add_stl2_test(test.tagged tagged tagged.cpp)
 add_stl2_test(test.common common common.cpp)
 add_stl2_test(test.meta meta meta.cpp)
 
