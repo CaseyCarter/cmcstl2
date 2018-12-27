@@ -48,9 +48,9 @@ STL2_OPEN_NAMESPACE {
 				if constexpr (SizedSentinel<S, I>) {
 					auto d = last - first;
 					STL2_EXPECT(Same<I, S> || d >= 0);
-					return {__stl2::next(std::move(first), std::move(last)), d};
+					return {next(std::move(first), std::move(last)), d};
 				} else if constexpr (SizedSentinel<I, I>) {
-					auto end = __stl2::next(first, std::move(last));
+					auto end = next(first, std::move(last));
 					auto n = end - first;
 					return {std::move(end), n};
 				} else {
@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 				if constexpr (SizedRange<R>) {
 					using D = iter_difference_t<iterator_t<R>>;
 					auto n = static_cast<D>(size(r));
-					return {__stl2::next(begin(r), end(r)), n};
+					return {next(begin(r), end(r)), n};
 				} else {
 					return (*this)(begin(r), end(r));
 				}
@@ -83,13 +83,12 @@ STL2_OPEN_NAMESPACE {
 	struct __distance_fn : private __niebloid {
 		template<Iterator I, Sentinel<I> S>
 		constexpr iter_difference_t<I> operator()(I first, S last) const {
-			using D = iter_difference_t<I>;
-			D n = 0;
+			iter_difference_t<I> n = 0;
 			if constexpr (SizedSentinel<S, I>) {
 				n = last - first;
 				STL2_EXPECT(Same<I, S> || n >= 0);
 			} else if constexpr (SizedSentinel<I, I>) {
-				auto end = __stl2::next(first, std::move(last));
+				auto end = next(first, std::move(last));
 				n = end - first;
 			} else {
 				for (; first != last; ++first) {
@@ -101,10 +100,9 @@ STL2_OPEN_NAMESPACE {
 
 		template<Range R>
 		constexpr iter_difference_t<iterator_t<R>> operator()(R&& r) const {
-			using D = iter_difference_t<iterator_t<R>>;
-			D n = 0;
+			iter_difference_t<iterator_t<R>> n = 0;
 			if constexpr (SizedRange<R>) {
-				n = static_cast<D>(size(r));
+				n = static_cast<iter_difference_t<iterator_t<R>>>(size(r));
 			} else {
 				n = (*this)(begin(r), end(r));
 			}
