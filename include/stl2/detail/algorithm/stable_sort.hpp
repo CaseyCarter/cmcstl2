@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 					__stl2::ref(proj), __stl2::ref(proj)).out;
 				first += two_step;
 			}
-			step_size = __stl2::min(iter_difference_t<I>(last - first), step_size);
+			step_size = min(iter_difference_t<I>(last - first), step_size);
 			merge(
 				__stl2::make_move_iterator(first),
 				__stl2::make_move_iterator(first + step_size),

@@ -16,12 +16,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_MINMAX_ELEMENT_HPP
 #define STL2_DETAIL_ALGORITHM_MINMAX_ELEMENT_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/utility.hpp>
 #include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
-#include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/range/dangling.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // minmax_element [alg.min.max]
@@ -34,42 +31,34 @@ STL2_OPEN_NAMESPACE {
 		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const
 		{
 			minmax_result<I> result{first, first};
-			if (first == last || ++first == last) {
-				return result;
-			}
-			if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.max))) {
-				result.min = first;
-			} else {
-				result.max = first;
-			}
-			while (++first != last) {
+			if (first == last || ++first == last) return result;
+
+			auto pred = [&](auto&& lhs, auto&& rhs) -> bool {
+				return __stl2::invoke(comp,
+					__stl2::invoke(proj, static_cast<decltype(lhs)>(lhs)),
+					__stl2::invoke(proj, static_cast<decltype(rhs)>(rhs)));
+			};
+			if (pred(*first, *result.max)) result.min = first;
+			else result.max = first;
+
+			while (true) {
+				if (++first == last) return result;
+
 				I tmp = first;
 				if (++first == last) {
-					if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.min))) {
-						result.min = tmp;
-					} else if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.max))) {
-						result.max = tmp;
-					}
-					break;
+					if (pred(*tmp, *result.min)) result.min = tmp;
+					else if (!pred(*tmp, *result.max)) result.max = tmp;
+					return result;
 				}
 
-				if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *tmp))) {
-					if (__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.min))) {
-						result.min = first;
-					}
-					if (!__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.max))) {
-						result.max = tmp;
-					}
+				if (pred(*first, *tmp)) {
+					if (pred(*first, *result.min)) result.min = first;
+					if (!pred(*tmp, *result.max)) result.max = tmp;
 				} else {
-					if (__stl2::invoke(comp, __stl2::invoke(proj, *tmp), __stl2::invoke(proj, *result.min))) {
-						result.min = tmp;
-					}
-					if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *result.max))) {
-						result.max = first;
-					}
+					if (pred(*tmp, *result.min)) result.min = tmp;
+					if (!pred(*first, *result.max)) result.max = first;
 				}
 			}
-			return result;
 		}
 
 		template<ForwardRange R, class Proj = identity,
