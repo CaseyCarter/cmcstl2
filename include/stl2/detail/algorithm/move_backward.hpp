@@ -12,8 +12,8 @@
 #ifndef STL2_DETAIL_ALGORITHM_MOVE_BACKWARD_HPP
 #define STL2_DETAIL_ALGORITHM_MOVE_BACKWARD_HPP
 
-#include <stl2/iterator.hpp>
 #include <stl2/detail/algorithm/results.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // move_backward [alg.move]
@@ -23,7 +23,8 @@ STL2_OPEN_NAMESPACE {
 	using move_backward_result = __in_out_result<I1, I2>;
 
 	struct __move_backward_fn : private __niebloid {
-		template<BidirectionalIterator I1, Sentinel<I1> S1, BidirectionalIterator I2>
+		template<BidirectionalIterator I1, Sentinel<I1> S1,
+			BidirectionalIterator I2>
 		requires IndirectlyMovable<I1, I2>
 		constexpr move_backward_result<I1, I2>
 		operator()(I1 first, S1 s, I2 result) const {

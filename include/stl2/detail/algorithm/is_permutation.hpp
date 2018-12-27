@@ -18,6 +18,9 @@
 #include <stl2/detail/algorithm/count_if.hpp>
 #include <stl2/detail/algorithm/find_if.hpp>
 #include <stl2/detail/algorithm/mismatch.hpp>
+#include <stl2/detail/iterator/counted_iterator.hpp>
+#include <stl2/detail/iterator/unreachable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // is_permutation [alg.is_permutation]
