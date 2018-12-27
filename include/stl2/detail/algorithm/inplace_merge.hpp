@@ -42,40 +42,6 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		struct merge_adaptive_fn {
-		private:
-			template<BidirectionalIterator I, class C, class P>
-			requires Sortable<I, C, P>
-			static void impl(I first, I middle, I last, iter_difference_t<I> len1,
-				iter_difference_t<I> len2, temporary_buffer<iter_value_t<I>>& buf,
-				C& pred, P& proj)
-			{
-				STL2_EXPENSIVE_ASSERT(len1 == distance(first, midddle));
-				STL2_EXPENSIVE_ASSERT(len2 == distance(middle, last));
-				temporary_vector<iter_value_t<I>> vec{buf};
-				if (len1 <= len2) {
-					move(first, middle, __stl2::back_inserter(vec));
-					merge(
-						__stl2::make_move_iterator(begin(vec)),
-						__stl2::make_move_iterator(end(vec)),
-						__stl2::make_move_iterator(std::move(middle)),
-						__stl2::make_move_iterator(std::move(last)),
-						std::move(first), __stl2::ref(pred),
-						__stl2::ref(proj), __stl2::ref(proj));
-				} else {
-					move(middle, last, __stl2::back_inserter(vec));
-					using RBi = reverse_iterator<I>;
-					merge(
-						__stl2::make_move_iterator(RBi{std::move(middle)}),
-						__stl2::make_move_iterator(RBi{std::move(first)}),
-						__stl2::make_move_iterator(rbegin(vec)),
-						__stl2::make_move_iterator(rend(vec)),
-						RBi{std::move(last)},
-						__stl2::not_fn(__stl2::ref(pred)),
-						__stl2::ref(proj), __stl2::ref(proj));
-				}
-			}
-
-		public:
 			template<BidirectionalIterator I, class C, class P>
 			requires Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, iter_difference_t<I> len1, iter_difference_t<I> len2,
@@ -100,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 						}
 					}
 					if (len1 <= buf.size() || len2 <= buf.size()) {
-						merge_adaptive_fn::impl(std::move(begin), std::move(middle),
+						impl(std::move(begin), std::move(middle),
 							std::move(end), len1, len2, buf, pred, proj);
 						return;
 					}
@@ -134,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 						// len1 >= 2, len2 >= 1
 						len11 = len1 / 2;
 						m1 = next(begin, len11);
-						m2 = __stl2::lower_bound(middle, end, __stl2::invoke(proj, *m1),
+						m2 = lower_bound(middle, end, __stl2::invoke(proj, *m1),
 							__stl2::ref(pred), __stl2::ref(proj));
 						len21 = distance(middle, m2);
 					}
@@ -160,6 +126,38 @@ STL2_OPEN_NAMESPACE {
 						len1 = len11;
 						len2 = len21;
 					}
+				}
+			}
+		private:
+			template<BidirectionalIterator I, class C, class P>
+			requires Sortable<I, C, P>
+			static void impl(I first, I middle, I last, iter_difference_t<I> len1,
+				iter_difference_t<I> len2, temporary_buffer<iter_value_t<I>>& buf,
+				C& pred, P& proj)
+			{
+				STL2_EXPENSIVE_ASSERT(len1 == distance(first, midddle));
+				STL2_EXPENSIVE_ASSERT(len2 == distance(middle, last));
+				temporary_vector<iter_value_t<I>> vec{buf};
+				if (len1 <= len2) {
+					move(first, middle, __stl2::back_inserter(vec));
+					merge(
+						__stl2::make_move_iterator(begin(vec)),
+						__stl2::make_move_iterator(end(vec)),
+						__stl2::make_move_iterator(std::move(middle)),
+						__stl2::make_move_iterator(std::move(last)),
+						std::move(first), __stl2::ref(pred),
+						__stl2::ref(proj), __stl2::ref(proj));
+				} else {
+					move(middle, last, __stl2::back_inserter(vec));
+					using RBi = reverse_iterator<I>;
+					merge(
+						__stl2::make_move_iterator(RBi{std::move(middle)}),
+						__stl2::make_move_iterator(RBi{std::move(first)}),
+						__stl2::make_move_iterator(rbegin(vec)),
+						__stl2::make_move_iterator(rend(vec)),
+						RBi{std::move(last)},
+						__stl2::not_fn(__stl2::ref(pred)),
+						__stl2::ref(proj), __stl2::ref(proj));
 				}
 			}
 		};
