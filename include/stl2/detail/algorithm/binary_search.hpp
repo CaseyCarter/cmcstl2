@@ -23,19 +23,23 @@ STL2_OPEN_NAMESPACE {
 	struct __binary_search_fn : private __niebloid {
 		template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
 			IndirectStrictWeakOrder<const T*, projected<I, Proj>> Comp = less>
-		constexpr bool
-		operator()(I first, S last, const T& value, Comp comp = {}, Proj proj = {}) const {
-			auto result = __stl2::lower_bound(std::move(first), last, value,
+		constexpr bool operator()(I first, S last, const T& value,
+			Comp comp = {}, Proj proj = {}) const
+		{
+			auto result = lower_bound(std::move(first), last, value,
 				__stl2::ref(comp), __stl2::ref(proj));
 			return bool(result != last) &&
 				!__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
 		}
 
 		template<ForwardRange R, class T, class Proj = identity,
-			IndirectStrictWeakOrder<const T*, projected<iterator_t<R>, Proj>> Comp = less>
-		constexpr bool
-		operator()(R&& r, const T& value, Comp comp = {}, Proj proj = {}) const {
-			return (*this)(begin(r), end(r), value, __stl2::ref(comp), __stl2::ref(proj));
+			IndirectStrictWeakOrder<const T*,
+				projected<iterator_t<R>, Proj>> Comp = less>
+		constexpr bool operator()(R&& r, const T& value, Comp comp = {},
+			Proj proj = {}) const
+		{
+			return (*this)(begin(r), end(r), value, __stl2::ref(comp),
+				__stl2::ref(proj));
 		}
 	};
 
