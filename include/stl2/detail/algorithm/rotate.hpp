@@ -28,7 +28,6 @@
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/move_backward.hpp>
 #include <stl2/detail/algorithm/swap_ranges.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
 #include <stl2/view/subrange.hpp>
 

@@ -34,7 +34,6 @@
 #include <stl2/detail/temporary_vector.hpp>
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/swap_ranges.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // reverse [alg.reverse]
@@ -76,7 +75,7 @@ STL2_OPEN_NAMESPACE {
 				auto ulast = __swap_ranges3(rbegin(vec), rend(vec), std::move(umiddle)).in2;
 				// Shift the buffer contents into the first half of the input range.
 				move(vec, std::move(ufirst));
-				return __stl2::ext::recounted(first, std::move(ulast), n);
+				return ext::recounted(first, std::move(ulast), n);
 			}
 
 			// From EoP

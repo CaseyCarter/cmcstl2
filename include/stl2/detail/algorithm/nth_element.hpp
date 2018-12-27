@@ -26,7 +26,6 @@
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/min_element.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // nth_element [alg.nth.element]

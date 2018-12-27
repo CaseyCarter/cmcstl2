@@ -16,7 +16,6 @@
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/adjacent_find.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -30,8 +29,7 @@ STL2_OPEN_NAMESPACE {
 		IndirectRelation<__f<R>, projected<I, Proj>>
 	I unique(I first, S last, R comp = {}, Proj proj = {})
 	{
-		first = __stl2::adjacent_find(
-			std::move(first), last, __stl2::ref(comp), __stl2::ref(proj));
+		first = adjacent_find(std::move(first), last, __stl2::ref(comp), __stl2::ref(proj));
 		if (first != last) {
 			for (auto m = next(first, 2); m != last; ++m) {
 				if (!__stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *m))) {

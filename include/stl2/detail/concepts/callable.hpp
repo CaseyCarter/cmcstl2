@@ -14,18 +14,15 @@
 #define STL2_DETAIL_CONCEPTS_CALLABLE_HPP
 
 #include <stl2/type_traits.hpp>
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/compare.hpp>
-#include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/function.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/functional/invoke.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-	///////////////////////////////////////////////////////////////////////////
-	// Indirect callables [indirectfunc.indirectcallables]
+	////////////////////////////////////////////////////////////////////////////
+	// Indirect callables [indirectcallable.indirectinvocable]
 	//
 	template<class... T>
 	struct __common_reference
@@ -77,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT IndirectUnaryInvocable =
 		ext::IndirectInvocable<F, I>;
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// indirect_result_t
 	//
 	template<class F, class... Is>
@@ -143,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 		StrictWeakOrder<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
 		StrictWeakOrder<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// projected [projected.indirectcallables]
 	//
 	template<Readable I, IndirectRegularUnaryInvocable<I> Proj>
@@ -153,8 +150,41 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template<WeaklyIncrementable I, class Proj>
-	struct incrementable_traits<projected<I, Proj>> :
-		incrementable_traits<I> {};
+	struct incrementable_traits<projected<I, Proj>> {
+		using type = iter_difference_t<I>;
+	};
+
+	////////////////////////////////////////////////////////////////////////////
+	// IndirectlyComparable [alg.req.ind.cmp]
+	//
+	template<class I1, class I2, class R = equal_to, class P1 = identity,
+		class P2 = identity>
+	META_CONCEPT IndirectlyComparable =
+		IndirectRelation<R, projected<I1, P1>, projected<I2, P2>>;
+
+	////////////////////////////////////////////////////////////////////////////
+	// Permutable [alg.req.permutable]
+	//
+	template<class I>
+	META_CONCEPT Permutable = ForwardIterator<I> &&
+		IndirectlyMovableStorable<I, I> && IndirectlySwappable<I, I>;
+
+	////////////////////////////////////////////////////////////////////////////
+	// Mergeable [alg.req.mergeable]
+	//
+	template<class I1, class I2, class Out, class R = less,
+		class P1 = identity, class P2 = identity>
+	META_CONCEPT Mergeable = InputIterator<I1> && InputIterator<I2> &&
+		WeaklyIncrementable<Out> &&
+		IndirectlyCopyable<I1, Out> && IndirectlyCopyable<I2, Out> &&
+		IndirectStrictWeakOrder<R, projected<I1, P1>, projected<I2, P2>>;
+
+	////////////////////////////////////////////////////////////////////////////
+	// Sortable [alg.req.sortable]
+	//
+	template<class I, class R = less, class P = identity>
+	META_CONCEPT Sortable = Permutable<I> &&
+		IndirectStrictWeakOrder<R, projected<I, P>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

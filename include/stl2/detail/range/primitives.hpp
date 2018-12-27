@@ -13,10 +13,10 @@
 #define STL2_DETAIL_RANGE_PRIMITIVES_HPP
 
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/iterator/dangling.hpp>
 #include <stl2/detail/iterator/operations.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/dangling.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // Range primitives [range.primitives]

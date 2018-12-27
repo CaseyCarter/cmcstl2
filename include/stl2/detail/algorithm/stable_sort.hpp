@@ -43,7 +43,6 @@
 #include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/min.hpp>
 #include <stl2/detail/algorithm/random_access_sort.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // stable_sort [stable.sort]

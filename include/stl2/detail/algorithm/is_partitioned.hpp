@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 	{
 		first = __stl2::find_if_not(std::move(first), last,
 			__stl2::ref(pred), __stl2::ref(proj));
-		return __stl2::none_of(std::move(first), std::move(last),
+		return none_of(std::move(first), std::move(last),
 			__stl2::ref(pred), __stl2::ref(proj));
 	}
 

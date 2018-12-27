@@ -12,10 +12,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_EQUAL_HPP
 #define STL2_DETAIL_ALGORITHM_EQUAL_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // equal [alg.equal]
@@ -26,29 +25,35 @@ STL2_OPEN_NAMESPACE {
 		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
 			class Pred, class Proj1, class Proj2>
 		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-		static constexpr bool __equal_3(I1 first1, S1 last1, I2 first2, Pred& pred,
-			Proj1& proj1, Proj2& proj2)
+		static constexpr bool __equal_3(I1 first1, S1 last1, I2 first2,
+			Pred& pred, Proj1& proj1, Proj2& proj2)
 		{
 			for (; first1 != last1; (void) ++first1, (void) ++first2) {
-				if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
+				if (!__stl2::invoke(pred,
+						__stl2::invoke(proj1, *first1),
+						__stl2::invoke(proj2, *first2))) {
 					return false;
 				}
 			}
 			return true;
 		}
 
-		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
-			class Pred, class Proj1, class Proj2>
+		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
+			Sentinel<I2> S2, class Pred, class Proj1, class Proj2>
 		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-		static constexpr bool __equal_4(I1 first1, S1 last1, I2 first2, S2 last2, Pred& pred,
-			Proj1& proj1, Proj2& proj2)
+		static constexpr bool __equal_4(I1 first1, S1 last1, I2 first2, S2 last2,
+			Pred& pred, Proj1& proj1, Proj2& proj2)
 		{
-			for (; bool(first1 != last1) && bool(first2 != last2); (void) ++first1, (void) ++first2) {
-				if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
-					return false;
-				}
+			while (true) {
+				const bool b = first2 == last2;
+				if (first1 == last1) return b;
+				if (b) return false;
+				if (!__stl2::invoke(pred,
+						__stl2::invoke(proj1, *first1),
+						__stl2::invoke(proj2, *first2))) return false;
+				++first1;
+				++first2;
 			}
-			return bool(first1 == last1) && bool(first2 == last2);
 		}
 	public:
 		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,

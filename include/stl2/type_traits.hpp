@@ -14,7 +14,7 @@
 #define STL2_TYPE_TRAITS
 
 #include <type_traits>
-#include <stl2/detail/fwd.hpp>
+
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
 

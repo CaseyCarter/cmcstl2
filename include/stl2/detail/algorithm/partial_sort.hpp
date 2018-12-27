@@ -19,7 +19,6 @@
 #include <stl2/detail/algorithm/heap_sift.hpp>
 #include <stl2/detail/algorithm/make_heap.hpp>
 #include <stl2/detail/algorithm/sort_heap.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // partial_sort [partial.sort]

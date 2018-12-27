@@ -20,7 +20,6 @@
 #include <stl2/detail/algorithm/count_if.hpp>
 #include <stl2/detail/algorithm/find_if.hpp>
 #include <stl2/detail/algorithm/mismatch.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // is_permutation [alg.is_permutation]

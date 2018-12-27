@@ -16,7 +16,6 @@
 #include <stl2/iterator.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
 #include <stl2/detail/algorithm/results.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // merge [alg.merge]

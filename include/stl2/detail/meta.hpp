@@ -13,8 +13,8 @@
 #define STL2_DETAIL_META_HPP
 
 #include <type_traits>
-#include <stl2/meta/meta.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/meta/meta.hpp>
 
 STL2_OPEN_NAMESPACE {
 	template<class T>

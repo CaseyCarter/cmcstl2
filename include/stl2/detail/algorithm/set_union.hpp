@@ -17,7 +17,6 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
 #include <stl2/detail/algorithm/results.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // set_union [set.union]
