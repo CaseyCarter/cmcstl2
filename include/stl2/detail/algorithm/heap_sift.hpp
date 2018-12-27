@@ -22,9 +22,6 @@
 #ifndef STL2_DETAIL_ALGORITHM_HEAP_SIFT_HPP
 #define STL2_DETAIL_ALGORITHM_HEAP_SIFT_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -33,86 +30,99 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template<RandomAccessIterator I, class Comp, class Proj>
-		requires
-			IndirectStrictWeakOrder<Comp,
-				projected<I, Proj>, projected<I, Proj>>
-		void sift_up_n(I first, iter_difference_t<I> n, Comp comp, Proj proj)
-		{
-			if (n > 1) {
+		struct __sift_up_n_fn {
+			template<RandomAccessIterator I, class Comp, class Proj>
+			requires Sortable<I, Comp, Proj>
+			constexpr void operator()(I first, iter_difference_t<I> n,
+				Comp comp, Proj proj) const
+			{
+				if (n <= 1) return;
+
+				auto pred = [&](auto&& lhs, auto&& rhs) -> bool {
+					return __stl2::invoke(comp,
+						__stl2::invoke(proj, static_cast<decltype(lhs)>(lhs)),
+						__stl2::invoke(proj, static_cast<decltype(rhs)>(rhs)));
+				};
+
 				I last = first + n;
 				n = (n - 2) / 2;
 				I i = first + n;
-				if (__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, *--last))) {
-					iter_value_t<I> v = iter_move(last);
-					do {
-						*last = iter_move(i);
-						last = i;
-						if (n == 0) {
-							break;
-						}
-						n = (n - 1) / 2;
-						i = first + n;
-					} while(__stl2::invoke(comp, __stl2::invoke(proj, *i), __stl2::invoke(proj, v)));
-					*last = std::move(v);
-				}
+				if (!pred(*i, *--last)) return;
+
+				iter_value_t<I> v = iter_move(last);
+				do {
+					*last = iter_move(i);
+					last = i;
+					if (n == 0) break;
+					n = (n - 1) / 2;
+					i = first + n;
+				} while(pred(*i, v));
+
+				*last = std::move(v);
 			}
-		}
+		};
 
-		template<RandomAccessIterator I, class Comp, class Proj>
-		requires
-			IndirectStrictWeakOrder<Comp,
-				projected<I, Proj>, projected<I, Proj>>
-		void sift_down_n(I first, iter_difference_t<I> n, I start,
-			Comp comp, Proj proj)
-		{
-			// left-child of start is at 2 * start + 1
-			// right-child of start is at 2 * start + 2
-			auto child = start - first;
+		inline constexpr __sift_up_n_fn sift_up_n {};
 
-			if (n < 2 || (n - 2) / 2 < child) {
-				return;
-			}
+		struct __sift_down_n_fn {
+			template<RandomAccessIterator I, class Comp, class Proj>
+			requires Sortable<I, Comp, Proj>
+			constexpr void operator()(I first, iter_difference_t<I> n, I start,
+				Comp comp, Proj proj) const
+			{
+				// left-child of start is at 2 * start + 1
+				// right-child of start is at 2 * start + 2
+				auto child = start - first;
 
-			child = 2 * child + 1;
-			I child_i = first + child;
+				if (n < 2 || (n - 2) / 2 < child) return;
 
-			if ((child + 1) < n && __stl2::invoke(comp, __stl2::invoke(proj, *child_i), __stl2::invoke(proj, *(child_i + 1)))) {
-				// right-child exists and is greater than left-child
-				++child_i;
-				++child;
-			}
+				auto pred = [&](auto&& lhs, auto&& rhs) -> bool {
+					return __stl2::invoke(comp,
+						__stl2::invoke(proj, static_cast<decltype(lhs)>(lhs)),
+						__stl2::invoke(proj, static_cast<decltype(rhs)>(rhs)));
+				};
 
-			// check if we are in heap-order
-			if (__stl2::invoke(comp, __stl2::invoke(proj, *child_i), __stl2::invoke(proj, *start))) {
-				// we are, start is larger than its largest child
-				return;
-			}
-
-			iter_value_t<I> top = iter_move(start);
-			do {
-				// we are not in heap-order, swap the parent with it's largest child
-				*start = iter_move(child_i);
-				start = child_i;
-
-				if ((n - 2) / 2 < child) {
-					break;
-				}
-
-				// recompute the child based off of the updated parent
 				child = 2 * child + 1;
-				child_i = first + child;
+				I child_i = first + child;
 
-				if ((child + 1) < n && __stl2::invoke(comp, __stl2::invoke(proj, *child_i), __stl2::invoke(proj, *(child_i + 1)))) {
+				if ((child + 1) < n && pred(*child_i, *(child_i + 1))) {
 					// right-child exists and is greater than left-child
 					++child_i;
 					++child;
 				}
 
 				// check if we are in heap-order
-			} while (!__stl2::invoke(comp, __stl2::invoke(proj, *child_i), __stl2::invoke(proj, top)));
-			*start = std::move(top);
-		}
+				if (pred(*child_i, *start)) {
+					// we are, start is larger than its largest child
+					return;
+				}
+
+				iter_value_t<I> top = iter_move(start);
+				do {
+					// we are not in heap-order, swap the parent with its largest child
+					*start = iter_move(child_i);
+					start = child_i;
+
+					if ((n - 2) / 2 < child) break;
+
+					// recompute the child based off of the updated parent
+					child = 2 * child + 1;
+					child_i = first + child;
+
+					if ((child + 1) < n && pred(*child_i, *(child_i + 1))) {
+						// right-child exists and is greater than left-child
+						++child_i;
+						++child;
+					}
+
+					// check if we are in heap-order
+				} while (!pred(*child_i, top));
+
+				*start = std::move(top);
+			}
+		};
+
+		inline constexpr __sift_down_n_fn sift_down_n {};
 	}
 } STL2_CLOSE_NAMESPACE
 
