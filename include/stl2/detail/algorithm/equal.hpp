@@ -13,7 +13,6 @@
 #define STL2_DETAIL_ALGORITHM_EQUAL_HPP
 
 #include <stl2/detail/concepts/callable.hpp>
-#include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
