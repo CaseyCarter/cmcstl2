@@ -22,18 +22,15 @@
 #ifndef STL2_DETAIL_ALGORITHM_INPLACE_MERGE_HPP
 #define STL2_DETAIL_ALGORITHM_INPLACE_MERGE_HPP
 
-#include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/type_traits.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/temporary_vector.hpp>
-#include <stl2/detail/algorithm/move.hpp>
-#include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/lower_bound.hpp>
-#include <stl2/detail/algorithm/upper_bound.hpp>
+#include <stl2/detail/algorithm/merge.hpp>
+#include <stl2/detail/algorithm/min.hpp>
+#include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/rotate.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
-#include <algorithm>
+#include <stl2/detail/algorithm/upper_bound.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // inplace_merge [alg.merge]
@@ -47,8 +44,7 @@ STL2_OPEN_NAMESPACE {
 		struct merge_adaptive_fn {
 		private:
 			template<BidirectionalIterator I, class C, class P>
-			requires
-				Sortable<I, C, P>
+			requires Sortable<I, C, P>
 			static void impl(I first, I middle, I last, iter_difference_t<I> len1,
 				iter_difference_t<I> len2, temporary_buffer<iter_value_t<I>>& buf,
 				C& pred, P& proj)
@@ -81,8 +77,7 @@ STL2_OPEN_NAMESPACE {
 
 		public:
 			template<BidirectionalIterator I, class C, class P>
-			requires
-				Sortable<I, __f<C>, __f<P>>
+			requires Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, iter_difference_t<I> len1, iter_difference_t<I> len2,
 				detail::temporary_buffer<iter_value_t<I>>& buf, C pred, P proj) const
 			{
@@ -174,8 +169,7 @@ STL2_OPEN_NAMESPACE {
 		struct inplace_merge_no_buffer_fn
 		{
 			template<BidirectionalIterator I, class C = less, class P = identity>
-			requires
-				Sortable<I, __f<C>, __f<P>>
+			requires Sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, iter_difference_t<I> len1,
 				iter_difference_t<I> len2, C pred = {}, P proj = {}) const
 			{
@@ -188,31 +182,33 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr inplace_merge_no_buffer_fn inplace_merge_no_buffer {};
 	}
 
-	template<BidirectionalIterator I, Sentinel<I> S, class Comp = less,
-		class Proj = identity>
-	requires Sortable<I, Comp, Proj>
-	I inplace_merge(I first, I middle, S last, Comp comp = {}, Proj proj = {})
-	{
-		auto len1 = distance(first, middle);
-		auto len2_and_end = __stl2::ext::enumerate(middle, std::move(last));
-		auto buf_size = std::min(len1, len2_and_end.count);
-		detail::temporary_buffer<iter_value_t<I>> buf;
-		if (std::is_trivially_move_assignable_v<iter_value_t<I>> && 8 < buf_size) {
-			buf = detail::temporary_buffer<iter_value_t<I>>{buf_size};
+	struct __inplace_merge_fn : private __niebloid {
+		template<BidirectionalIterator I, Sentinel<I> S, class Comp = less,
+			class Proj = identity>
+		requires Sortable<I, Comp, Proj>
+		I operator()(I first, I middle, S last, Comp comp = {}, Proj proj = {}) const {
+			auto len1 = distance(first, middle);
+			auto len2_and_end = ext::enumerate(middle, std::move(last));
+			auto buf_size = min(len1, len2_and_end.count);
+			detail::temporary_buffer<iter_value_t<I>> buf;
+			if (std::is_trivially_move_assignable_v<iter_value_t<I>> && 8 < buf_size) {
+				buf = detail::temporary_buffer<iter_value_t<I>>{buf_size};
+			}
+			detail::merge_adaptive(std::move(first), std::move(middle), len2_and_end.end,
+				len1, len2_and_end.count, buf, __stl2::ref(comp), __stl2::ref(proj));
+			return len2_and_end.end;
 		}
-		detail::merge_adaptive(std::move(first), std::move(middle), len2_and_end.end,
-			len1, len2_and_end.count, buf, __stl2::ref(comp), __stl2::ref(proj));
-		return len2_and_end.end;
-	}
 
-	template<BidirectionalRange Rng, class Comp = less, class Proj = identity>
-	requires Sortable<iterator_t<Rng>, Comp, Proj>
-	safe_iterator_t<Rng>
-	inplace_merge(Rng&& rng, iterator_t<Rng> middle, Comp comp = {}, Proj proj = {})
-	{
-		return __stl2::inplace_merge(begin(rng), std::move(middle),
-			end(rng), __stl2::ref(comp), __stl2::ref(proj));
-	}
+		template<BidirectionalRange Rng, class Comp = less, class Proj = identity>
+		requires Sortable<iterator_t<Rng>, Comp, Proj>
+		safe_iterator_t<Rng>
+		operator()(Rng&& rng, iterator_t<Rng> middle, Comp comp = {}, Proj proj = {}) const {
+			return (*this)(begin(rng), std::move(middle), end(rng), __stl2::ref(comp),
+				__stl2::ref(proj));
+		}
+	};
+
+	inline constexpr __inplace_merge_fn inplace_merge {};
 } STL2_CLOSE_NAMESPACE
 
 #endif
