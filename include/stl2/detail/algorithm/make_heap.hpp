@@ -23,7 +23,8 @@
 #define STL2_DETAIL_ALGORITHM_MAKE_HEAP_HPP
 
 #include <stl2/detail/algorithm/heap_sift.hpp>
-#include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/dangling.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // make_heap [make.heap]
