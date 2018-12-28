@@ -31,8 +31,8 @@ STL2_OPEN_NAMESPACE {
 				auto pred = [&](auto&& i) -> bool {
 					return __stl2::invoke(comp, i, value);
 				};
-				return __stl2::ext::partition_point_n(
-					std::forward<I>(first), n, pred, __stl2::ref(proj));
+				return __stl2::ext::partition_point_n(std::forward<I>(first), n,
+					std::move(pred), __stl2::ref(proj));
 			}
 		};
 
@@ -53,8 +53,8 @@ STL2_OPEN_NAMESPACE {
 				auto pred = [&](auto&& i) -> bool {
 					return __stl2::invoke(comp, i, value);
 				};
-				return __stl2::partition_point(std::move(first),
-					std::move(last), pred, __stl2::ref(proj));
+				return partition_point(std::move(first), std::move(last),
+					std::move(pred), __stl2::ref(proj));
 			}
 		}
 

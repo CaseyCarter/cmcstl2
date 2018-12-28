@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 						// len >= 1, len2 >= 2
 						len21 = len2 / 2;
 						m2 = next(middle, len21);
-						m1 = __stl2::upper_bound(begin, middle, __stl2::invoke(proj, *m2),
+						m1 = upper_bound(begin, middle, __stl2::invoke(proj, *m2),
 							__stl2::ref(pred), __stl2::ref(proj));
 						len11 = distance(begin, m1);
 					} else {
