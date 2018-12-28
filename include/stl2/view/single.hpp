@@ -13,8 +13,9 @@
 #define STL2_VIEW_SINGLE_HPP
 
 #include <memory>
-#include <type_traits>
 #include <utility>
+
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/semiregular_box.hpp>

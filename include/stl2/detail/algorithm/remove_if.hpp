@@ -15,7 +15,6 @@
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/find_if.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -29,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 			Pred, projected<I, Proj>>
 	I remove_if(I first, S last, Pred pred, Proj proj = {})
 	{
-		first = __stl2::find_if(std::move(first), last,
+		first = find_if(std::move(first), last,
 			__stl2::ref(pred), __stl2::ref(proj));
 		if (first != last) {
 			for (auto m = next(first); m != last; ++m) {

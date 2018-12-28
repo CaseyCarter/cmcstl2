@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 				using cache_t = typename drop_while_view::non_propagating_cache;
 				auto& iterator_self = static_cast<cache_t&>(*this);
 				if (!iterator_self) {
-					iterator_self = __stl2::find_if_not(base_, [this](auto&& i) mutable {
+					iterator_self = find_if_not(base_, [this](auto&& i) mutable {
 						// A predicate must be equality-preserving. While it's not possible to generally
 						// check that te predicate isn't equality-preserving, we can trap
 						// non-equality-preserving invocables on-the-spot by calling them multiple times

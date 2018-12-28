@@ -18,7 +18,6 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/forward_sort.hpp>
 #include <stl2/detail/algorithm/random_access_sort.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 #include <utility>
 
 ///////////////////////////////////////////////////////////////////////////

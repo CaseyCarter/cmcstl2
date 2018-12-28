@@ -12,11 +12,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_MISMATCH_HPP
 #define STL2_DETAIL_ALGORITHM_MISMATCH_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/utility.hpp>
 #include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // mismatch [mismatch]
@@ -26,17 +24,24 @@ STL2_OPEN_NAMESPACE {
 	using mismatch_result = __in_in_result<I1, I2>;
 
 	struct __mismatch_fn : private __niebloid {
-		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
-			class Proj1 = identity, class Proj2 = identity,
-			IndirectRelation<projected<I1, Proj1>, projected<I2, Proj2>> Pred = equal_to>
+		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
+			Sentinel<I2> S2, class Proj1 = identity, class Proj2 = identity,
+			IndirectRelation<projected<I1, Proj1>,
+				projected<I2, Proj2>> Pred = equal_to>
 		constexpr mismatch_result<I1, I2>
 		operator()(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = {},
 			Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
-			for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
-				if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
+			while (true) {
+				if (first1 == last1) break;
+				if (first2 == last2) break;
+				if (!__stl2::invoke(pred,
+						__stl2::invoke(proj1, *first1),
+						__stl2::invoke(proj2, *first2))) {
 					break;
 				}
+				++first1;
+				++first2;
 			}
 			return {std::move(first1), std::move(first2)};
 		}
@@ -49,12 +54,8 @@ STL2_OPEN_NAMESPACE {
 		operator()(R1&& r1, R2&& r2, Pred pred = {},
 			Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
-			return (*this)(
-				begin(r1), end(r1),
-				begin(r2), end(r2),
-				__stl2::ref(pred),
-				__stl2::ref(proj1),
-				__stl2::ref(proj2));
+			return (*this)(begin(r1), end(r1), begin(r2), end(r2),
+				__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 		}
 	};
 

@@ -25,7 +25,6 @@
 #include <stl2/functional.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -43,10 +42,9 @@ STL2_OPEN_NAMESPACE {
 			STL2_EXPECT(0 <= n);
 			while (n != 0) {
 				auto const half = n / 2;
-				auto middle = next(__stl2::ext::uncounted(first), half);
+				auto middle = next(ext::uncounted(first), half);
 				if (__stl2::invoke(pred, __stl2::invoke(proj, *middle))) {
-					first = __stl2::ext::recounted(
-										 first, std::move(++middle), half + 1);
+					first = ext::recounted(first, std::move(++middle), half + 1);
 					n -= half + 1;
 				} else {
 					n = half;

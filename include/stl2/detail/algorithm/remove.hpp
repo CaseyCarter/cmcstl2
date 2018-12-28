@@ -16,7 +16,6 @@
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/find.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -30,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 			equal_to, projected<I, Proj>, const T*>
 	I remove(I first, S last, const T& value, Proj proj = {})
 	{
-		first = __stl2::find(std::move(first), last, value, __stl2::ref(proj));
+		first = find(std::move(first), last, value, __stl2::ref(proj));
 		if (first != last) {
 			for (auto m = next(first); m != last; ++m) {
 				if (__stl2::invoke(proj, *m) != value) {

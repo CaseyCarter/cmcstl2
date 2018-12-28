@@ -12,10 +12,8 @@
 #ifndef STL2_DETAIL_ALGORITHM_IS_SORTED_UNTIL_HPP
 #define STL2_DETAIL_ALGORITHM_IS_SORTED_UNTIL_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/dangling.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // is_sorted_until [is.sorted]
@@ -24,12 +22,14 @@ STL2_OPEN_NAMESPACE {
 	struct __is_sorted_until_fn : private __niebloid {
 		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
-		constexpr I operator()(I first, S last, Comp comp = {}, Proj proj = {}) const
-		{
+		constexpr I
+		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const {
 			if (first != last) {
 				while (true) {
 					auto prev = first;
-					if (++first == last || __stl2::invoke(comp, __stl2::invoke(proj, *first), __stl2::invoke(proj, *prev))) {
+					if (++first == last || __stl2::invoke(comp,
+							__stl2::invoke(proj, *first),
+							__stl2::invoke(proj, *prev))) {
 						break;
 					}
 				}
@@ -39,9 +39,10 @@ STL2_OPEN_NAMESPACE {
 
 		template<ForwardRange R, class Proj = identity,
 			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
-		constexpr safe_iterator_t<R> operator()(R&& r, Comp comp = {}, Proj proj = {}) const
-		{
-			return (*this)(begin(r), end(r), __stl2::ref(comp), __stl2::ref(proj));
+		constexpr safe_iterator_t<R>
+		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), __stl2::ref(comp),
+				__stl2::ref(proj));
 		}
 	};
 

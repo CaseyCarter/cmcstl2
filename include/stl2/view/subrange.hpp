@@ -17,8 +17,8 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/iterator/dangling.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/dangling.hpp>
 #include <stl2/detail/range/primitives.hpp>
 #include <stl2/view/view_interface.hpp>
 

@@ -12,10 +12,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_FIND_FIRST_OF_HPP
 #define STL2_DETAIL_ALGORITHM_FIND_FIRST_OF_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/dangling.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // find_first_of [alg.find.first.of]
@@ -30,7 +29,9 @@ STL2_OPEN_NAMESPACE {
 		{
 			for (; first1 != last1; ++first1) {
 				for (auto pos = first2; pos != last2; ++pos) {
-					if (__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *pos))) {
+					if (__stl2::invoke(pred,
+							__stl2::invoke(proj1, *first1),
+							__stl2::invoke(proj2, *pos))) {
 						return first1;
 					}
 				}
@@ -38,21 +39,17 @@ STL2_OPEN_NAMESPACE {
 			return first1;
 		}
 
-		template<InputRange R1, ForwardRange R2, class Pred = equal_to,
-			class Proj1 = identity, class Proj2 = identity>
-		requires
-			IndirectRelation<Pred,
+		template<InputRange R1, ForwardRange R2,
+			class Proj1 = identity, class Proj2 = identity,
+			IndirectRelation<
 				projected<iterator_t<R1>, Proj1>,
-				projected<iterator_t<R2>, Proj2>>
+				projected<iterator_t<R2>, Proj2>> Pred = equal_to>
 		constexpr safe_iterator_t<R1>
 		operator()(R1&& r1, R2&& r2, Pred pred = {},
 			Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
-			return (*this)(
-				begin(r1), end(r1),
-				begin(r2), end(r2),
-				__stl2::ref(pred), __stl2::ref(proj1),
-				__stl2::ref(proj2));
+			return (*this)(begin(r1), end(r1), begin(r2), end(r2),
+				__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 		}
 	};
 

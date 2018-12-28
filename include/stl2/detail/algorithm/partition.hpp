@@ -26,7 +26,6 @@
 #include <stl2/iterator.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/find_if_not.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -54,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 					}
 				}
 			} else {
-				first = __stl2::find_if_not(std::move(first), last_,
+				first = find_if_not(std::move(first), last_,
 					__stl2::ref(pred), __stl2::ref(proj));
 				if (first != last_) {
 					for (auto m = first; ++m != last_;) {

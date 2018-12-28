@@ -284,7 +284,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				STL2_EXPECT(!size() || data());
 				STL2_EXPECT(!that.size() || that.data());
-				return __stl2::equal(*this, that);
+				return equal(*this, that);
 			}
 			template<EqualityComparableWith<ElementType> U, index_type UExtent>
 			bool operator!=(span<U, UExtent> that) const
@@ -296,7 +296,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				STL2_EXPECT(!size() || data());
 				STL2_EXPECT(!that.size() || that.data());
-				return __stl2::lexicographical_compare(*this, that);
+				return lexicographical_compare(*this, that);
 			}
 			template<StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
 			bool operator>(span<U, UExtent> that)

@@ -26,30 +26,28 @@
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
 
-namespace stl2 = __stl2;
+namespace ranges = __stl2;
 
 template<class Iter, class Sent = Iter>
-void
-test_char()
-{
+void test_char() {
 	const unsigned n = 4;
 	char ca[n] = {0};
-	auto i = stl2::fill(Iter(ca), Sent(ca+n), char(1));
+	auto i = ranges::fill(Iter(ca), Sent(ca+n), char(1));
 	CHECK(ca[0] == 1);
 	CHECK(ca[1] == 1);
 	CHECK(ca[2] == 1);
 	CHECK(ca[3] == 1);
 	CHECK(i == Iter(ca + 4));
 
-	auto rng = stl2::subrange(Iter(ca), Sent(ca+n));
-	i = stl2::fill(rng, char(2));
+	auto rng = ranges::subrange(Iter(ca), Sent(ca+n));
+	i = ranges::fill(rng, char(2));
 	CHECK(ca[0] == 2);
 	CHECK(ca[1] == 2);
 	CHECK(ca[2] == 2);
 	CHECK(ca[3] == 2);
 	CHECK(i == Iter(ca + 4));
 
-	auto j = stl2::fill(stl2::subrange(Iter(ca), Sent(ca+n)), char(3));
+	auto j = ranges::fill(ranges::subrange(Iter(ca), Sent(ca+n)), char(3));
 	CHECK(ca[0] == 3);
 	CHECK(ca[1] == 3);
 	CHECK(ca[2] == 3);
@@ -58,27 +56,24 @@ test_char()
 }
 
 template<class Iter, class Sent = Iter>
-void
-test_int()
-{
+void test_int() {
 	const unsigned n = 4;
 	int ia[n] = {0};
-	stl2::fill(Iter(ia), Sent(ia+n), 1);
+	ranges::fill(Iter(ia), Sent(ia+n), 1);
 	CHECK(ia[0] == 1);
 	CHECK(ia[1] == 1);
 	CHECK(ia[2] == 1);
 	CHECK(ia[3] == 1);
 
-	auto rng = stl2::subrange(Iter(ia), Sent(ia+n));
-	stl2::fill(rng, 2);
+	auto rng = ranges::subrange(Iter(ia), Sent(ia+n));
+	ranges::fill(rng, 2);
 	CHECK(ia[0] == 2);
 	CHECK(ia[2] == 2);
 	CHECK(ia[2] == 2);
 	CHECK(ia[3] == 2);
 }
 
-int main()
-{
+int main() {
 	test_char<forward_iterator<char*> >();
 	test_char<bidirectional_iterator<char*> >();
 	test_char<random_access_iterator<char*> >();

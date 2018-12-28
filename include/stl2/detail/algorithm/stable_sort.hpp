@@ -43,7 +43,6 @@
 #include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/min.hpp>
 #include <stl2/detail/algorithm/random_access_sort.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // stable_sort [stable.sort]
@@ -85,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 					__stl2::ref(proj), __stl2::ref(proj)).out;
 				first += two_step;
 			}
-			step_size = __stl2::min(iter_difference_t<I>(last - first), step_size);
+			step_size = min(iter_difference_t<I>(last - first), step_size);
 			merge(
 				__stl2::make_move_iterator(first),
 				__stl2::make_move_iterator(first + step_size),

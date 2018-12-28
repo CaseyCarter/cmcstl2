@@ -18,7 +18,6 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/move_backward.hpp>
 #include <stl2/detail/algorithm/partial_sort.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
 
 ///////////////////////////////////////////////////////////////////////////

@@ -14,36 +14,29 @@
 #ifndef STL2_DETAIL_ALGORITHM_ANY_OF_HPP
 #define STL2_DETAIL_ALGORITHM_ANY_OF_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/concepts.hpp>
 
-///////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // any_of [alg.any_of]
 //
 STL2_OPEN_NAMESPACE {
 	struct __any_of_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectUnaryPredicate<projected<I, Proj>> Pred>
-		constexpr bool operator()(I first, S last, Pred pred, Proj proj = {}) const
-		{
-			if (first != last) {
-				do {
-					if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
-						return true;
-					}
-				} while (++first != last);
+		constexpr bool operator()(I first, S last, Pred pred, Proj proj = {}) const {
+			for (; first != last; ++first) {
+				if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
+					return true;
+				}
 			}
 			return false;
 		}
 
 		template<InputRange R, class Proj = identity,
 			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
-		constexpr bool operator()(R&& rng, Pred pred, Proj proj = {}) const
-		{
-			return (*this)(begin(rng), end(rng),
-				__stl2::ref(pred), __stl2::ref(proj));
+		constexpr bool operator()(R&& rng, Pred pred, Proj proj = {}) const {
+			return (*this)(begin(rng), end(rng), __stl2::ref(pred), __stl2::ref(proj));
 		}
 	};
 

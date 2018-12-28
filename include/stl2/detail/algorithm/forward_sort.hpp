@@ -28,19 +28,17 @@
 #ifndef STL2_DETAIL_ALGORITHM_FORWARD_SORT_HPP
 #define STL2_DETAIL_ALGORITHM_FORWARD_SORT_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
 #include <stl2/detail/temporary_vector.hpp>
 #include <stl2/detail/algorithm/lower_bound.hpp>
 #include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/rotate.hpp>
 #include <stl2/detail/algorithm/upper_bound.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
+#include <stl2/detail/range/concepts.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// sort [Extension]
+// detail::fsort_n [Extension]
 //
-// Algorithm for forward iterators from EoP.
+// Sort for forward iterators from EoP.
 //
 STL2_OPEN_NAMESPACE {
 	namespace detail {

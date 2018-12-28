@@ -12,10 +12,8 @@
 #ifndef STL2_DETAIL_ALGORITHM_COUNT_IF_HPP
 #define STL2_DETAIL_ALGORITHM_COUNT_IF_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/concepts.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // count_if [alg.count]
@@ -39,8 +37,7 @@ STL2_OPEN_NAMESPACE {
 			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
 		constexpr iter_difference_t<iterator_t<R>>
 		operator()(R&& r, Pred pred, Proj proj = {}) const {
-			return (*this)(begin(r), end(r),
-				__stl2::ref(pred), __stl2::ref(proj));
+			return (*this)(begin(r), end(r), __stl2::ref(pred), __stl2::ref(proj));
 		}
 	};
 

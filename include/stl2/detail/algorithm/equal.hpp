@@ -12,10 +12,8 @@
 #ifndef STL2_DETAIL_ALGORITHM_EQUAL_HPP
 #define STL2_DETAIL_ALGORITHM_EQUAL_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // equal [alg.equal]
@@ -26,60 +24,37 @@ STL2_OPEN_NAMESPACE {
 		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
 			class Pred, class Proj1, class Proj2>
 		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-		static constexpr bool __equal_3(I1 first1, S1 last1, I2 first2, Pred& pred,
-			Proj1& proj1, Proj2& proj2)
+		static constexpr bool __equal_3(I1 first1, S1 last1, I2 first2,
+			Pred& pred, Proj1& proj1, Proj2& proj2)
 		{
-			for (; first1 != last1; ++first1, ++first2) {
-				if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
+			for (; first1 != last1; (void) ++first1, (void) ++first2) {
+				if (!__stl2::invoke(pred,
+						__stl2::invoke(proj1, *first1),
+						__stl2::invoke(proj2, *first2))) {
 					return false;
 				}
 			}
 			return true;
 		}
 
-		template<InputIterator I1, Sentinel<I1> S1,
-			InputIterator I2, Sentinel<I2> S2,
-			class Pred, class Proj1, class Proj2>
+		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
+			Sentinel<I2> S2, class Pred, class Proj1, class Proj2>
 		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
-		static constexpr bool __equal_4(I1 first1, S1 last1, I2 first2, S2 last2, Pred& pred,
-			Proj1& proj1, Proj2& proj2)
+		static constexpr bool __equal_4(I1 first1, S1 last1, I2 first2, S2 last2,
+			Pred& pred, Proj1& proj1, Proj2& proj2)
 		{
-			for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
-				if (!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))) {
-					return false;
-				}
+			while (true) {
+				const bool b = first2 == last2;
+				if (first1 == last1) return b;
+				if (b) return false;
+				if (!__stl2::invoke(pred,
+						__stl2::invoke(proj1, *first1),
+						__stl2::invoke(proj2, *first2))) return false;
+				++first1;
+				++first2;
 			}
-			return first1 == last1 && first2 == last2;
 		}
 	public:
-		template<InputIterator I1, Sentinel<I1> S1, class I2, class Pred = equal_to,
-			class Proj1 = identity, class Proj2 = identity>
-		[[deprecated]] constexpr bool
-		operator()(I1 first1, S1 last1, I2&& first2_, Pred pred = {},
-			Proj1 proj1 = {}, Proj2 proj2 = {}) const
-		requires
-			InputIterator<std::decay_t<I2>> && !Range<I2> &&
-			IndirectlyComparable<I1, std::decay_t<I2>, Pred, Proj1, Proj2>
-		{
-			auto first2 = std::forward<I2>(first2_);
-			return __equal_fn::__equal_3(
-				std::move(first1), std::move(last1),
-				std::move(first2), pred, proj1, proj2);
-		}
-
-		template<InputRange Rng1, class I2, class Pred = equal_to,
-			class Proj1 = identity, class Proj2 = identity>
-		[[deprecated]] constexpr bool operator()(Rng1&& rng1, I2&& first2_, Pred pred = {},
-			Proj1 proj1 = {}, Proj2 proj2 = {}) const
-		requires
-			InputIterator<std::decay_t<I2>> && !Range<I2> &&
-			IndirectlyComparable<iterator_t<Rng1>, std::decay_t<I2>, Pred, Proj1, Proj2>
-		{
-			auto first2 = std::forward<I2>(first2_);
-			return __equal_fn::__equal_3(begin(rng1), end(rng1),
-				std::move(first2), pred, proj1, proj2);
-		}
-
 		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
 			class Pred = equal_to, class Proj1 = identity, class Proj2 = identity>
 		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
@@ -90,10 +65,10 @@ STL2_OPEN_NAMESPACE {
 				auto len1 = distance(first1, last1);
 				auto len2 = distance(first2, std::move(last2));
 				return len1 == len2 &&
-					__equal_fn::__equal_3(std::move(first1), std::move(last1),
+					__equal_3(std::move(first1), std::move(last1),
 						std::move(first2), pred, proj1, proj2);
 			} else {
-				return __equal_fn::__equal_4(
+				return __equal_4(
 					std::move(first1), std::move(last1),
 					std::move(first2), std::move(last2),
 					pred, proj1, proj2);
@@ -108,11 +83,11 @@ STL2_OPEN_NAMESPACE {
 		{
 			if constexpr (SizedRange<R1> && SizedRange<R2>) {
 				return distance(r1) == distance(r2) &&
-					__equal_fn::__equal_3(
+					__equal_3(
 						begin(r1), end(r1),
 						begin(r2), pred, proj1, proj2);
 			} else {
-				return __equal_fn::__equal_4(
+				return __equal_4(
 					begin(r1), end(r1),
 					begin(r2), end(r2),
 					pred, proj1, proj2);

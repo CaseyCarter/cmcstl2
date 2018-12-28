@@ -12,6 +12,7 @@
 #ifndef STL2_VIEW_JOIN_HPP
 #define STL2_VIEW_JOIN_HPP
 
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/range/access.hpp>
@@ -19,8 +20,6 @@
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
 #include <stl2/detail/view/view_closure.hpp>
-
-#include <type_traits>
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
