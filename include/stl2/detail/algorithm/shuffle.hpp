@@ -13,48 +13,47 @@
 #ifndef STL2_DETAIL_ALGORITHM_SHUFFLE_HPP
 #define STL2_DETAIL_ALGORITHM_SHUFFLE_HPP
 
-#include <stl2/iterator.hpp>
 #include <stl2/random.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/randutils.hpp>
-#include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/callable.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // shuffle [alg.random.shuffle]
 //
 STL2_OPEN_NAMESPACE {
-	template<RandomAccessIterator I, Sentinel<I> S,
-		class Gen = detail::default_random_engine&, class D = iter_difference_t<I>>
-	requires
-		Permutable<I> &&
-		UniformRandomNumberGenerator<std::remove_reference_t<Gen>>
-	I shuffle(I const first, S const last, Gen&& g = detail::get_random_engine())
-	{
-		auto mid = first;
-		if (mid == last) {
+	struct __shuffle_fn : private __niebloid {
+		template<RandomAccessIterator I, Sentinel<I> S,
+			class Gen = detail::default_random_engine&>
+		requires Permutable<I> &&
+			UniformRandomBitGenerator<std::remove_reference_t<Gen>>
+		constexpr I operator()(I const first, S const last,
+			Gen&& g = detail::get_random_engine()) const
+		{
+			auto mid = first;
+			if (mid == last) return mid;
+			using D = iter_difference_t<I>;
+			auto dist = std::uniform_int_distribution<D>{};
+			using param_t =
+				typename std::uniform_int_distribution<D>::param_type;
+			while (++mid != last) {
+				if (auto const i = dist(g, param_t{0, mid - first})) {
+					iter_swap(mid - i, mid);
+				}
+			}
 			return mid;
 		}
-		auto dist = std::uniform_int_distribution<D>{};
-		using param_t = typename std::uniform_int_distribution<D>::param_type;
-		while (++mid != last) {
-			if (auto const i = dist(g, param_t{0, mid - first})) {
-				iter_swap(mid - i, mid);
-			}
-		}
-		return mid;
-	}
 
-	template<RandomAccessRange Rng, class Gen = detail::default_random_engine&,
-		class D = iter_difference_t<iterator_t<Rng>>>
-	requires
-		Permutable<iterator_t<Rng>> &&
-		UniformRandomNumberGenerator<std::remove_reference_t<Gen>>
-	inline safe_iterator_t<Rng> shuffle(
-		Rng&& rng, Gen&& g = detail::get_random_engine())
-	{
-		return __stl2::shuffle(begin(rng), end(rng),
-			std::forward<Gen>(g));
-	}
+		template<RandomAccessRange Rng,
+			class Gen = detail::default_random_engine&>
+		requires Permutable<iterator_t<Rng>> &&
+			UniformRandomBitGenerator<std::remove_reference_t<Gen>>
+		constexpr safe_iterator_t<Rng>
+		operator()(Rng&& rng, Gen&& g = detail::get_random_engine()) const {
+			return (*this)(begin(rng), end(rng), std::forward<Gen>(g));
+		}
+	};
+
+	inline constexpr __shuffle_fn shuffle {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT __sample_constraint =
 			InputIterator<I> && Sentinel<S, I> && WeaklyIncrementable<O> &&
 			IndirectlyCopyable<I, O> &&
-			UniformRandomNumberGenerator<std::remove_reference_t<Gen>>;
+			UniformRandomBitGenerator<std::remove_reference_t<Gen>>;
 
 		struct __sample_fn : private __niebloid {
 			template<class I, class S, class O,
