@@ -12,38 +12,36 @@
 #ifndef STL2_DETAIL_ALGORITHM_SHIFT_LEFT_HPP
 #define STL2_DETAIL_ALGORITHM_SHIFT_LEFT_HPP
 
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/move.hpp>
-#include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/iterator/dangling.hpp>
-#include <stl2/detail/iterator/operations.hpp>
-#include <stl2/detail/range/access.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// shift_left [Extension, from P0769]
+// shift_left [Extension]
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <ForwardIterator I, Sentinel<I> S>
-		requires IndirectlyMovable<I, I>
-		I shift_left(I first, S last, const difference_type_t<I> n) {
-			if (n <= 0) {
-				return __stl2::next(first, last);
+		struct __shift_left_fn : private __niebloid {
+			template <Permutable I, Sentinel<I> S>
+			constexpr I
+			operator()(I first, S last, iter_difference_t<I> n) const {
+				if (n <= 0) return next(std::move(first), std::move(last));
+
+				auto mid = first;
+				if (advance(mid, n, last) > 0) return first;
+
+				return move(std::move(mid), std::move(last), std::move(first)).out;
 			}
 
-			auto mid = first;
-			if (__stl2::advance(mid, n, last) > 0) {
-				return first;
+			template <Range R>
+			requires Permutable<iterator_t<R>>
+			constexpr safe_iterator_t<R>
+			operator()(R&& r, iter_difference_t<iterator_t<R>> n) const {
+				return (*this)(begin(r), end(r), n);
 			}
+		};
 
-			return ext::move_overlapping(std::move(mid), std::move(last), std::move(first)).out();
-		}
-
-		template <ForwardRange Rng>
-		requires IndirectlyMovable<iterator_t<Rng>, iterator_t<Rng>>
-		safe_iterator_t<Rng> shift_left(Rng&& rng, const difference_type_t<iterator_t<Rng>> n) {
-			return __stl2::shift_left(__stl2::begin(rng), __stl2::end(rng), n);
-		}
+		inline constexpr __shift_left_fn shift_left {};
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 

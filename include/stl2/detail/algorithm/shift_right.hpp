@@ -12,77 +12,70 @@
 #ifndef STL2_DETAIL_ALGORITHM_SHIFT_RIGHT_HPP
 #define STL2_DETAIL_ALGORITHM_SHIFT_RIGHT_HPP
 
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/move.hpp>
-#include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/iterator/dangling.hpp>
-#include <stl2/detail/iterator/operations.hpp>
-#include <stl2/detail/range/access.hpp>
+#include <stl2/detail/algorithm/move_backward.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // shift_right [Extension, from P0769]
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template <ForwardIterator I, Sentinel<I> S>
-		requires IndirectlyMovable<I, I> && IndirectlySwappable<I>
-		I shift_right(I first, const S last, const difference_type_t<I> n) {
-			if (n <= 0) {
-				return first;
-			}
+		struct __shift_right_fn : private __niebloid {
+			template <Permutable I, Sentinel<I> S>
+			constexpr I
+			operator()(I first, S last, const iter_difference_t<I> n) const {
+				if (n <= 0) return first;
 
-			const auto left = first;
-			if (__stl2::advance(first, n, last) != 0) {
-				return first;
-			}
-			const auto right = first;
-			// [left, right) is the prefix of n elements that are left
-			// valid-but-unspecified; we'll use it as scratch space
+				if constexpr (BidirectionalIterator<I> && Same<I, S>) {
+					auto mid = last;
+					if (advance(mid, -n, first) != 0) return first;
+					return move_backward(first, mid, end).out;
+				} else {
+					const auto left = first;
+					if (advance(first, n, last) != 0) return first;
 
-			auto probe = first;
-			if (const auto d = __stl2::advance(probe, n, last)) {
-				return ext::move_overlapping(left, __stl2::next(left, n - d), first).out();
-			}
+					const auto right = first;
+					// [left, right) is the prefix of n elements that are left
+					// valid-but-unspecified; we'll use it as scratch space
 
-			auto mid = left;
-			for (;;) {
-				__stl2::iter_swap(first, mid);
-				if (++mid == right) {
-					mid = left;
+					auto probe = first;
+					if (const auto d = advance(probe, n, last)) {
+						return move(left, next(left, n - d), first).out;
+					}
+
+					auto mid = left;
+					do {
+						iter_swap(first, mid);
+						if (++mid == right) {
+							mid = left;
+						}
+						++first;
+					} while (++probe != last);
+
+					while (true) {
+						*first = iter_move(mid);
+						if (++first == last) {
+							break;
+						}
+						if (++mid == right) {
+							mid = left;
+						}
+					}
+					return first;
 				}
-				++first;
-				if (++probe == last) {
-					break;
-				}
 			}
 
-			for (;;) {
-				*first = __stl2::iter_move(mid);
-				if (++first == last) {
-					break;
-				}
-				if (++mid == right) {
-					mid = left;
-				}
+			template <Range R>
+			requires Permutable<iterator_t<R>>
+			constexpr safe_iterator_t<R>
+			operator()(R&& r, const iter_difference_t<iterator_t<R>> n) const {
+				return (*this)(begin(r), end(r), n);
 			}
-			return first;
-		}
+		};
 
-		template <BidirectionalIterator I, Sentinel<I> S>
-		requires IndirectlyMovable<I, I>
-		I shift_right(I first, const S last_, const difference_type_t<I> n) {
-			auto last = __stl2::next(first, last_);
-			auto mid = first;
-			if (__stl2::advance(mid, n, last) == 0) {
-				ext::move_backward_overlapping();
-			}
-		}
-
-		template <ForwardRange Rng>
-		requires IndirectlyMovable<iterator_t<Rng>, iterator_t<Rng>>
-		safe_iterator_t<Rng> shift_right(Rng&& rng, const difference_type_t<iterator_t<Rng>> n) {
-			return __stl2::shift_right(__stl2::begin(rng), __stl2::end(rng), n);
-		}
+		inline constexpr __shift_right_fn shift_right {};
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 
