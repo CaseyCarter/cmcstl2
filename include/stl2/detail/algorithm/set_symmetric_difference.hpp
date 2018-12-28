@@ -12,11 +12,10 @@
 #ifndef STL2_DETAIL_ALGORITHM_SET_SYMMETRIC_DIFFERENCE_HPP
 #define STL2_DETAIL_ALGORITHM_SET_SYMMETRIC_DIFFERENCE_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
 #include <stl2/detail/algorithm/results.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // set_symmetric_difference [set.symmetric.difference]
@@ -26,8 +25,9 @@ STL2_OPEN_NAMESPACE {
 	using set_symmetric_difference_result = __in_in_out_result<I1, I2, O>;
 
 	struct __set_symmetric_difference_fn : private __niebloid {
-		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
-			WeaklyIncrementable O, class Comp = less, class Proj1 = identity, class Proj2 = identity>
+		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
+			Sentinel<I2> S2, WeaklyIncrementable O, class Comp = less,
+			class Proj1 = identity, class Proj2 = identity>
 		requires Mergeable<I1, I2, O, Comp, Proj1, Proj2>
 		constexpr set_symmetric_difference_result<I1, I2, O>
 		operator()(I1 first1, S1 last1, I2 first2, S2 last2, O result,
@@ -35,13 +35,15 @@ STL2_OPEN_NAMESPACE {
 		{
 			while (true) {
 				if (first1 == last1) {
-					auto cresult = copy(std::move(first2), std::move(last2), std::move(result));
+					auto cresult = copy(std::move(first2), std::move(last2),
+						std::move(result));
 					first2 = std::move(cresult.in);
 					result = std::move(cresult.out);
 					break;
 				}
 				if (first2 == last2) {
-					auto cresult = copy(std::move(first1), std::move(last1), std::move(result));
+					auto cresult = copy(std::move(first1), std::move(last1),
+						std::move(result));
 					first1 = std::move(cresult.in);
 					result = std::move(cresult.out);
 					break;
@@ -77,9 +79,9 @@ STL2_OPEN_NAMESPACE {
 		operator()(R1&& r1, R2&& r2, O result, Comp comp = {},
 			Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
-			return (*this)(
-				begin(r1), end(r1), begin(r2), end(r2), std::move(result),
-				__stl2::ref(comp), __stl2::ref(proj1), __stl2::ref(proj2));
+			return (*this)(begin(r1), end(r1), begin(r2), end(r2),
+				std::move(result), __stl2::ref(comp), __stl2::ref(proj1),
+				__stl2::ref(proj2));
 		}
 	};
 
