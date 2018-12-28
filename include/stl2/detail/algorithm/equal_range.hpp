@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 						return {
 							ext::lower_bound_n(std::move(first), dist, value,
 								__stl2::ref(comp), __stl2::ref(proj)),
-							__stl2::upper_bound(std::move(mid), std::move(last),
+							upper_bound(std::move(mid), std::move(last),
 								value, __stl2::ref(comp), __stl2::ref(proj))
 						};
 					}

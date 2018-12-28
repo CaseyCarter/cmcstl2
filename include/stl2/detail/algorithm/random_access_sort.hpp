@@ -13,12 +13,10 @@
 #ifndef STL2_DETAIL_ALGORITHM_RANDOM_ACCESS_SORT_HPP
 #define STL2_DETAIL_ALGORITHM_RANDOM_ACCESS_SORT_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/move_backward.hpp>
 #include <stl2/detail/algorithm/partial_sort.hpp>
-#include <stl2/detail/concepts/fundamental.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // sort [sort]

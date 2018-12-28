@@ -12,45 +12,41 @@
 #ifndef STL2_DETAIL_ALGORITHM_REMOVE_HPP
 #define STL2_DETAIL_ALGORITHM_REMOVE_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/find.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // remove [alg.remove]
 //
 STL2_OPEN_NAMESPACE {
-	template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity>
-	requires
-		Permutable<I> &&
-		IndirectRelation<
-			equal_to, projected<I, Proj>, const T*>
-	I remove(I first, S last, const T& value, Proj proj = {})
-	{
-		first = find(std::move(first), last, value, __stl2::ref(proj));
-		if (first != last) {
-			for (auto m = next(first); m != last; ++m) {
-				if (__stl2::invoke(proj, *m) != value) {
-					*first = iter_move(m);
-					++first;
+	struct __remove_fn : private __niebloid {
+		template<Permutable I, Sentinel<I> S, class T, class Proj = identity>
+		requires IndirectRelation<equal_to, projected<I, Proj>, const T*>
+		constexpr I
+		operator()(I first, S last, const T& value, Proj proj = {}) const {
+			first = find(std::move(first), last, value, __stl2::ref(proj));
+			if (first != last) {
+				for (auto m = next(first); m != last; ++m) {
+					if (__stl2::invoke(proj, *m) != value) {
+						*first = iter_move(m);
+						++first;
+					}
 				}
 			}
+			return first;
 		}
-		return first;
-	}
 
-	template<ForwardRange Rng, class T, class Proj = identity>
-	requires
-		Permutable<iterator_t<Rng>> &&
-		IndirectRelation<
-			equal_to, projected<iterator_t<Rng>, Proj>, const T*>
-	safe_iterator_t<Rng>
-	remove(Rng&& rng, const T& value, Proj proj = {})
-	{
-		return __stl2::remove(begin(rng), end(rng), value, __stl2::ref(proj));
-	}
+		template<ForwardRange Rng, class T, class Proj = identity>
+		requires Permutable<iterator_t<Rng>> &&
+			IndirectRelation<equal_to, projected<iterator_t<Rng>, Proj>, const T*>
+		constexpr safe_iterator_t<Rng>
+		operator()(Rng&& rng, const T& value, Proj proj = {}) const {
+			return (*this)(begin(rng), end(rng), value, __stl2::ref(proj));
+		}
+	};
+
+	inline constexpr __remove_fn remove {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

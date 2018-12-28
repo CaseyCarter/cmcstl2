@@ -65,11 +65,11 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<BidirectionalRange Rng, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<Rng>, Comp, Proj>
+		template<BidirectionalRange R, class Comp = less, class Proj = identity>
+		requires Sortable<iterator_t<R>, Comp, Proj>
 		constexpr bool
-		operator()(Rng&& rng, Comp comp = {}, Proj proj = {}) const {
-			return (*this)(begin(rng), end(rng), __stl2::ref(comp),
+		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), __stl2::ref(comp),
 				__stl2::ref(proj));
 		}
 	};
