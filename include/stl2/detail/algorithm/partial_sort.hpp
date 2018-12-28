@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 						__stl2::ref(proj));
 				}
 			}
-			__stl2::sort_heap(first, middle, __stl2::ref(comp),
+			sort_heap(first, middle, __stl2::ref(comp),
 				__stl2::ref(proj));
 			return i;
 		}

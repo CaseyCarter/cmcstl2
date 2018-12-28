@@ -12,10 +12,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_SET_INTERSECTION_HPP
 #define STL2_DETAIL_ALGORITHM_SET_INTERSECTION_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/algorithm/copy.hpp>
+#include <stl2/detail/algorithm/results.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // set_intersection [set.intersection]
@@ -25,14 +24,15 @@ STL2_OPEN_NAMESPACE {
 	using set_intersection_result = __in_in_out_result<I1, I2, O>;
 
 	struct __set_intersection_fn : private __niebloid {
-		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
-			WeaklyIncrementable O, class Comp = less, class Proj1 = identity, class Proj2 = identity>
+		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
+			Sentinel<I2> S2, WeaklyIncrementable O, class Comp = less,
+			class Proj1 = identity, class Proj2 = identity>
 		requires Mergeable<I1, I2, O, Comp, Proj1, Proj2>
 		constexpr set_intersection_result<I1, I2, O>
 		operator()(I1 first1, S1 last1, I2 first2, S2 last2, O result,
 			Comp comp = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
-			while (first1 != last1 && first2 != last2) {
+			while (bool(first1 != last1) && bool(first2 != last2)) {
 				iter_reference_t<I1>&& v1 = *first1;
 				iter_reference_t<I2>&& v2 = *first2;
 				auto&& p1 = __stl2::invoke(proj1, v1);
@@ -54,11 +54,14 @@ STL2_OPEN_NAMESPACE {
 		template<InputRange R1, InputRange R2, WeaklyIncrementable O,
 			class Comp = less, class Proj1 = identity, class Proj2 = identity>
 		requires Mergeable<iterator_t<R1>, iterator_t<R2>, O, Comp, Proj1, Proj2>
-		constexpr set_intersection_result<safe_iterator_t<R1>, safe_iterator_t<R2>, O>
-		operator()(R1&& r1, R2&& r2, O result, Comp comp = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
+		constexpr set_intersection_result<
+			safe_iterator_t<R1>, safe_iterator_t<R2>, O>
+		operator()(R1&& r1, R2&& r2, O result, Comp comp = {}, Proj1 proj1 = {},
+			Proj2 proj2 = {}) const
 		{
-			return (*this)(begin(r1), end(r1), begin(r2), end(r2), std::move(result),
-				__stl2::ref(comp), __stl2::ref(proj1), __stl2::ref(proj2));
+			return (*this)(begin(r1), end(r1), begin(r2), end(r2),
+				std::move(result), __stl2::ref(comp), __stl2::ref(proj1),
+				__stl2::ref(proj2));
 		}
 	};
 

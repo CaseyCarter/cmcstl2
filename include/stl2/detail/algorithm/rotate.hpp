@@ -22,13 +22,10 @@
 #ifndef STL2_DETAIL_ALGORITHM_ROTATE_HPP
 #define STL2_DETAIL_ALGORITHM_ROTATE_HPP
 
-#include <stl2/iterator.hpp>
-#include <stl2/type_traits.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/move_backward.hpp>
 #include <stl2/detail/algorithm/swap_ranges.hpp>
-#include <stl2/detail/concepts/fundamental.hpp>
+#include <stl2/detail/concepts/callable.hpp>
 #include <stl2/view/subrange.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -52,20 +49,24 @@ STL2_OPEN_NAMESPACE {
 				if constexpr (Same<I, S>) {
 					if constexpr (BidirectionalIterator<I>) {
 						if (next(middle) == last) {
-							return __rotate_right(std::move(first), std::move(last));
+							return __rotate_right(std::move(first), std
+								::move(last));
 						}
 					}
 					if constexpr (RandomAccessIterator<I>) {
-						return __rotate_gcd(std::move(first), std::move(middle), std::move(last));
+						return __rotate_gcd(std::move(first), std::move(middle),
+							std::move(last));
 					}
 				}
 			}
-			return __rotate_forward(std::move(first), std::move(middle), std::move(last));
+			return __rotate_forward(std::move(first), std::move(middle),
+				std::move(last));
 		}
 
 		template<ForwardRange R>
 		requires Permutable<iterator_t<R>>
-		constexpr safe_subrange_t<R> operator()(R&& r, iterator_t<R> middle) const {
+		constexpr safe_subrange_t<R>
+		operator()(R&& r, iterator_t<R> middle) const {
 			return (*this)(begin(r), std::move(middle), end(r));
 		}
 	private:

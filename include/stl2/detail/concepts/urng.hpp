@@ -13,18 +13,22 @@
 #ifndef STL2_DETAIL_CONCEPTS_URNG_HPP
 #define STL2_DETAIL_CONCEPTS_URNG_HPP
 
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/concepts/core.hpp>
-#include <stl2/detail/concepts/fundamental.hpp>
+#include <stl2/detail/concepts/callable.hpp>
 
 STL2_OPEN_NAMESPACE {
+	template<auto> struct __require_constant; // not defined
+
 	template<class G>
-	META_CONCEPT UniformRandomNumberGenerator =
-		requires(G&& g) {
-			g();
-			requires UnsignedIntegral<decltype(g())>;
-			{ G::min() } -> Same<decltype(g())>&&;
-			{ G::max() } -> Same<decltype(g())>&&;
+	META_CONCEPT UniformRandomBitGenerator =
+		Invocable<G&> && UnsignedIntegral<invoke_result_t<G&>> &&
+		requires {
+			G::min(); requires Same<decltype(G::min()), invoke_result_t<G&>>;
+			G::max(); requires Same<decltype(G::max()), invoke_result_t<G&>>;
+#if 1 // This is the PR for https://wg21.link/lwg3150
+			typename __require_constant<G::min()>;
+			typename __require_constant<G::min()>;
+			requires G::min() < G::max();
+#endif
 		};
 } STL2_CLOSE_NAMESPACE
 
