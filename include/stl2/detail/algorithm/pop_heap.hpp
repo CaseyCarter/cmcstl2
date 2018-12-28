@@ -58,13 +58,13 @@ STL2_OPEN_NAMESPACE {
 			return first + n;
 		}
 
-		template<RandomAccessRange Rng, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<Rng>, Comp, Proj>
-		constexpr safe_iterator_t<Rng>
-		operator()(Rng&& rng, Comp comp = {}, Proj proj = {}) const {
-			auto n = distance(rng);
-			detail::pop_heap_n(begin(rng), n, __stl2::ref(comp), __stl2::ref(proj));
-			return begin(rng) + n;
+		template<RandomAccessRange R, class Comp = less, class Proj = identity>
+		requires Sortable<iterator_t<R>, Comp, Proj>
+		constexpr safe_iterator_t<R>
+		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
+			auto n = distance(r);
+			detail::pop_heap_n(begin(r), n, __stl2::ref(comp), __stl2::ref(proj));
+			return begin(r) + n;
 		}
 	};
 
