@@ -13,12 +13,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_TRANSFORM_HPP
 #define STL2_DETAIL_ALGORITHM_TRANSFORM_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/utility.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 // transform [alg.transform]
@@ -61,8 +58,11 @@ STL2_OPEN_NAMESPACE {
 		operator()(I1 first1, S1 last1, I2 first2, S2 last2, O result,
 			F op, Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
-			for (; first1 != last1 && first2 != last2; (void) ++first1, (void) ++first2, (void) ++result) {
-				*result = __stl2::invoke(op, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2));
+			for (; bool(first1 != last1) && bool(first2 != last2);
+			     (void) ++first1, (void) ++first2, (void) ++result)
+			{
+				*result = __stl2::invoke(op, __stl2::invoke(proj1, *first1),
+					__stl2::invoke(proj2, *first2));
 			}
 			return {std::move(first1), std::move(first2), std::move(result)};
 		}
@@ -72,7 +72,9 @@ STL2_OPEN_NAMESPACE {
 		requires Writable<O, indirect_result_t<F&,
 			projected<iterator_t<R1>, Proj1>, projected<iterator_t<R2>, Proj2>>>
 		constexpr binary_transform_result<safe_iterator_t<R1>, safe_iterator_t<R2>, O>
-		operator()(R1&& r1, R2&& r2, O result, F op, Proj1 proj1 = {}, Proj2 proj2 = {}) const {
+		operator()(R1&& r1, R2&& r2, O result, F op, Proj1 proj1 = {},
+			Proj2 proj2 = {}) const
+		{
 			return (*this)(begin(r1), end(r1), begin(r2), end(r2), std::move(result),
 				__stl2::ref(op), __stl2::ref(proj1), __stl2::ref(proj2));
 		}
