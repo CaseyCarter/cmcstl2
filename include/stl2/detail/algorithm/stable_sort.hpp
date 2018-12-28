@@ -41,6 +41,8 @@
 #include <stl2/detail/algorithm/min.hpp>
 #include <stl2/detail/algorithm/random_access_sort.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/iterator/insert_iterators.hpp>
+#include <stl2/detail/iterator/move_iterator.hpp>
 #include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////

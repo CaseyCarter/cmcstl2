@@ -31,6 +31,8 @@
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/rotate.hpp>
 #include <stl2/detail/algorithm/upper_bound.hpp>
+#include <stl2/detail/iterator/insert_iterators.hpp>
+#include <stl2/detail/iterator/move_iterator.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // inplace_merge [alg.merge]

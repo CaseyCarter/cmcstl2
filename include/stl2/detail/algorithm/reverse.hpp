@@ -33,6 +33,7 @@
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/swap_ranges.hpp>
 #include <stl2/detail/iterator/counted_iterator.hpp>
+#include <stl2/detail/iterator/insert_iterators.hpp>
 #include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////

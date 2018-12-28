@@ -33,6 +33,8 @@
 #include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/rotate.hpp>
 #include <stl2/detail/algorithm/upper_bound.hpp>
+#include <stl2/detail/iterator/insert_iterators.hpp>
+#include <stl2/detail/iterator/move_iterator.hpp>
 #include <stl2/detail/range/concepts.hpp>
 
 ///////////////////////////////////////////////////////////////////////////

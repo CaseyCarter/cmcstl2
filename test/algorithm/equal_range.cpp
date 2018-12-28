@@ -20,34 +20,36 @@
 //===----------------------------------------------------------------------===//
 
 #include <stl2/detail/algorithm/equal_range.hpp>
-#include <vector>
 #include <iterator>
+#include <vector>
+#include <stl2/detail/algorithm/copy.hpp>
+#include <stl2/detail/iterator/move_iterator.hpp>
+#include <stl2/view/iota.hpp>
+#include <stl2/view/join.hpp>
+#include <stl2/view/repeat_n.hpp>
+#include <stl2/view/take.hpp>
+#include <stl2/view/transform.hpp>
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
 
 namespace ranges = __stl2;
 
-struct my_int
-{
+struct my_int {
 	int value;
 };
 
-bool compare(my_int lhs, my_int rhs)
-{
+bool compare(my_int lhs, my_int rhs) {
 	return lhs.value < rhs.value;
 }
 
-void not_totally_ordered()
-{
+void not_totally_ordered() {
 	// This better compile!
 	std::vector<my_int> vec;
 	ranges::equal_range(vec, my_int{10}, compare);
 }
 
 template<class Iter, class Sent, class T, class Proj = ranges::identity>
-void
-test(Iter first, Sent last, const T& value, Proj proj = {})
-{
+void test(Iter first, Sent last, const T& value, Proj proj = {}) {
 	auto i = ranges::equal_range(first, last, value, ranges::less{}, proj);
 	for (Iter j = first; j != i.begin(); ++j)
 		CHECK(ranges::invoke(proj, *j) < value);
@@ -71,22 +73,17 @@ test(Iter first, Sent last, const T& value, Proj proj = {})
 }
 
 template<class Iter, class Sent = Iter>
-void
-test()
-{
-#if 0
+void test() {
 	using namespace ranges::view;
 	static constexpr unsigned M = 10;
 	std::vector<int> v;
-	auto input = ints | take(100) | transform([](int i){return repeat_n(i,M);}) | join;
+	auto input = iota(0) | take(100) | transform([](int i){return ext::repeat_n(i,M);}) | join;
 	ranges::copy(input, ranges::back_inserter(v));
 	for (int x = 0; x <= (int)M; ++x)
 		test(Iter(v.data()), Sent(v.data()+v.size()), x);
-#endif
 }
 
-int main()
-{
+int main() {
 	int d[] = {0, 1, 2, 3};
 	for (int* e = d; e <= d+4; ++e)
 		for (int x = -1; x <= 4; ++x)
