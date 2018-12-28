@@ -12,15 +12,14 @@
 #ifndef STL2_DETAIL_ALGORITHM_STABLE_PARTITION_HPP
 #define STL2_DETAIL_ALGORITHM_STABLE_PARTITION_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/temporary_vector.hpp>
 #include <stl2/detail/algorithm/find_if_not.hpp>
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/rotate.hpp>
 #include <stl2/detail/algorithm/partition_copy.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/iterator/insert_iterators.hpp>
+#include <stl2/detail/iterator/move_iterator.hpp>
 #include <stl2/view/subrange.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -29,6 +28,56 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		struct __stable_partition_n_fn : private __niebloid {
+			template<ForwardIterator I, class Pred, class Proj = identity>
+			requires Permutable<I> &&
+				IndirectUnaryPredicate<Pred, projected<I, Proj>>
+			I operator()(I first, iter_difference_t<I> n, Pred pred,
+				Proj proj = {}) const
+			{
+				if constexpr (BidirectionalIterator<I>) {
+					auto bound = next(first, n);
+					return (*this)(std::move(first), std::move(bound), n,
+						__stl2::ref(pred), __stl2::ref(proj));
+				} else {
+					// Either prove all true or find first false
+					skip_true(first, n, pred, proj);
+					if (n < iter_difference_t<I>(2)) return first;
+					// We now have a reduced range [first, first + n)
+					// *first is known to be false
+
+					// PERF: might want to make this a function of trivial assignment
+					constexpr iter_difference_t<I> alloc_threshold = 4;
+					using buf_t = buf_t<I>;
+					auto buf = n >= alloc_threshold ? buf_t{n} : buf_t{};
+					return forward(first, n, buf, pred, proj).begin();
+				}
+			}
+
+			template<BidirectionalIterator I, class Pred, class Proj = identity>
+			requires Permutable<I> &&
+				IndirectUnaryPredicate<Pred, projected<I, Proj>>
+			I operator()(I first, I last, iter_difference_t<I> n, Pred pred,
+				Proj proj = {}) const
+			{
+				STL2_ASSERT(n == distance(first, last));
+
+				// Either prove all true or find first false
+				skip_true(first, n, pred, proj);
+				if (n == iter_difference_t<I>(0)) return first;
+
+				// Either prove (first, last) is all false or find last true
+				skip_false(last, n, pred, proj);
+				if (n == iter_difference_t<I>(0)) return first;
+				// We now have a reduced range [first, last]
+				// *first is known to be false
+				// *last is known to be true
+
+				// might want to make this a function of trivial assignment
+				constexpr iter_difference_t<I> alloc_threshold = 4;
+				using buf_t = buf_t<I>;
+				buf_t buf = n >= alloc_threshold ? buf_t{n} : buf_t{};
+				return bidirectional(first, last, n, buf, pred, proj);
+			}
 		private:
 			template<Readable I>
 			using buf_t = detail::temporary_buffer<iter_value_t<I>>;
@@ -46,12 +95,11 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			template<ForwardIterator I, class Proj,
+			template<Permutable I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires
-				Permutable<I>
-			static subrange<I> forward_buffer(I first, I next, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj) {
+			static subrange<I> forward_buffer(I first, I next,
+				iter_difference_t<I> n, buf_t<I>& buf, Pred& pred, Proj& proj)
+			{
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first)))
 				// Precondition: next(first) == next
 				STL2_EXPECT(n >= 2);
@@ -69,11 +117,11 @@ STL2_OPEN_NAMESPACE {
 				return {std::move(pp), std::move(last)};
 			}
 
-			template<ForwardIterator I, class Proj,
+			template<Permutable I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires Permutable<I>
 			static subrange<I> forward(I first, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj) {
+				buf_t<I>& buf, Pred& pred, Proj& proj)
+			{
 				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first)))
 				STL2_EXPECT(n > 0);
 
@@ -81,7 +129,7 @@ STL2_OPEN_NAMESPACE {
 				if (n == iter_difference_t<I>(1)) {
 					return {std::move(first), std::move(middle)};
 				}
-				// n >= 2
+				// Post: n >= 2
 
 				if (n <= buf.size()) {
 					return forward_buffer(
@@ -97,11 +145,11 @@ STL2_OPEN_NAMESPACE {
 				return {std::move(pp), std::move(res2.end())};
 			}
 
-			template<ForwardIterator I, class Proj,
+			template<Permutable I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			requires Permutable<I>
 			static subrange<I> forward_reduce(I first, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj) {
+				buf_t<I>& buf, Pred& pred, Proj& proj)
+			{
 				// Establish preconditions of forward by reducing the
 				// input range.
 				skip_true(first, n, pred, proj);
@@ -114,11 +162,12 @@ STL2_OPEN_NAMESPACE {
 
 			template<BidirectionalIterator I, class Proj,
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
-			static void skip_false(I& last, iter_difference_t<I>& n, Pred& pred, Proj& proj) {
+			static constexpr void
+			skip_false(I& last, iter_difference_t<I>& n, Pred& pred, Proj& proj) {
 				// Move last backward past values that do not satisfy pred.
-				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *(last - n)))
+				// Pre: __stl2::invoke(pred, __stl2::invoke(proj, *(last - n)))
 				STL2_EXPECT(n > 0);
-				// Ensures: n == 0 || __stl2::invoke(pred, __stl2::invoke(proj, *last))
+				// Post: n == 0 || __stl2::invoke(pred, __stl2::invoke(proj, *last))
 
 				do {
 					--last;
@@ -129,10 +178,11 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires Permutable<I>
 			static I bidirectional_buffer(I first, I last, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj) {
-				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
-				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *last))
-				// Precondition: n == distance(first, last)
+				buf_t<I>& buf, Pred& pred, Proj& proj)
+			{
+				// Pre: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
+				// Pre: __stl2::invoke(pred, __stl2::invoke(proj, *last))
+				// Pre: n == distance(first, last)
 				STL2_EXPECT(n >= 2);
 				STL2_EXPECT(n <= buf.size());
 
@@ -158,17 +208,18 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires Permutable<I>
 			static I bidirectional(I first, I last, iter_difference_t<I> n,
-				buf_t<I>& buf, Pred& pred, Proj& proj) {
-				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
-				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *last))
-				// Precondition: n == distance(first, last)
+				buf_t<I>& buf, Pred& pred, Proj& proj)
+			{
+				// Pre: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
+				// Pre: __stl2::invoke(pred, __stl2::invoke(proj, *last))
+				// Pre: n == distance(first, last)
 				STL2_EXPECT(n >= iter_difference_t<I>(1));
 
 				if (n == iter_difference_t<I>(1)) {
 					iter_swap(first, last);
 					return last;
 				}
-				// n >= 2
+				// Post: n >= 2
 				if (n <= buf.size()) {
 					return bidirectional_buffer(
 						std::move(first), std::move(last),
@@ -190,9 +241,10 @@ STL2_OPEN_NAMESPACE {
 				IndirectUnaryPredicate<projected<I, Proj>> Pred>
 			requires Permutable<I>
 			static I bidirectional_reduce_front(I first, I last,
-				iter_difference_t<I> n, buf_t<I>& buf, Pred& pred, Proj& proj) {
-				// Precondition: __stl2::invoke(pred, __stl2::invoke(proj, *last))
-				// Precondition: n == distance(first, last)
+				iter_difference_t<I> n, buf_t<I>& buf, Pred& pred, Proj& proj)
+			{
+				// Pre: __stl2::invoke(pred, __stl2::invoke(proj, *last))
+				// Pre: n == distance(first, last)
 				STL2_EXPECT(n >= iter_difference_t<I>(0));
 
 				skip_true(first, n, pred, proj);
@@ -207,8 +259,8 @@ STL2_OPEN_NAMESPACE {
 			requires Permutable<I>
 			static I bidirectional_reduce_back(I first, I last,
 				iter_difference_t<I> n, buf_t<I>& buf, Pred& pred, Proj& proj) {
-				// Precondition: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
-				// Precondition: n == distance(first, last)
+				// Pre: !__stl2::invoke(pred, __stl2::invoke(proj, *first))
+				// Pre: n == distance(first, last)
 				STL2_EXPECT(n >= iter_difference_t<I>(1));
 
 				skip_false(last, n, pred, proj);
@@ -216,62 +268,6 @@ STL2_OPEN_NAMESPACE {
 					return first;
 				}
 				return bidirectional(first, last, n, buf, pred, proj);
-			}
-		public:
-			template<ForwardIterator I, class Pred, class Proj = identity>
-			requires Permutable<I> && IndirectUnaryPredicate<Pred, projected<I, Proj>>
-			I operator()(I first, iter_difference_t<I> n,
-				Pred pred, Proj proj = {}) const {
-				if constexpr (BidirectionalIterator<I>) {
-					auto bound = next(first, n);
-					return (*this)(
-						std::move(first), std::move(bound), n,
-						__stl2::ref(pred), __stl2::ref(proj));
-				} else {
-					// Either prove all true or find first false
-					skip_true(first, n, pred, proj);
-					if (n < iter_difference_t<I>(2)) {
-						return first;
-					}
-					// We now have a reduced range [first, first + n)
-					// *first is known to be false
-
-					// might want to make this a function of trivial assignment
-					constexpr iter_difference_t<I> alloc_threshold = 4;
-					using buf_t = buf_t<I>;
-					auto buf = n >= alloc_threshold ? buf_t{n} : buf_t{};
-					return forward(
-						first, n, buf, pred, proj).begin();
-				}
-			}
-
-			template<BidirectionalIterator I, class Pred, class Proj = identity>
-			requires Permutable<I> && IndirectUnaryPredicate<Pred, projected<I, Proj>>
-			I operator()(I first, I last, iter_difference_t<I> n,
-				Pred pred, Proj proj = {}) const {
-				STL2_ASSERT(n == distance(first, last));
-
-				// Either prove all true or find first false
-				skip_true(first, n, pred, proj);
-				if (n == iter_difference_t<I>(0)) {
-					return first;
-				}
-
-				// Either prove (first, last) is all false or find last true
-				skip_false(last, n, pred, proj);
-				if (n == iter_difference_t<I>(0)) {
-					return first;
-				}
-				// We now have a reduced range [first, last]
-				// *first is known to be false
-				// *last is known to be true
-
-				// might want to make this a function of trivial assignment
-				constexpr iter_difference_t<I> alloc_threshold = 4;
-				using buf_t = buf_t<I>;
-				buf_t buf = n >= alloc_threshold ? buf_t{n} : buf_t{};
-				return bidirectional(
-					first, last, n, buf, pred, proj);
 			}
 		};
 

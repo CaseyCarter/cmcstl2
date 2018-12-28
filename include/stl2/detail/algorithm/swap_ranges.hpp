@@ -12,9 +12,11 @@
 #ifndef STL2_DETAIL_ALGORITHM_SWAP_RANGES_HPP
 #define STL2_DETAIL_ALGORITHM_SWAP_RANGES_HPP
 
-#include <stl2/iterator.hpp>
-#include <stl2/utility.hpp>
+#include <stl2/detail/swap.hpp>
 #include <stl2/detail/algorithm/results.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/iterator/counted_iterator.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // swap_ranges [alg.swap]
@@ -38,11 +40,14 @@ STL2_OPEN_NAMESPACE {
 	inline constexpr __swap_ranges3_fn __swap_ranges3 {};
 
 	struct __swap_ranges_fn : private __niebloid {
-		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2, Sentinel<I2> S2>
+		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
+			Sentinel<I2> S2>
 		requires IndirectlySwappable<I1, I2>
 		constexpr swap_ranges_result<I1, I2>
 		operator()(I1 first1, S1 last1, I2 first2, S2 last2) const {
-			for (; first1 != last1 && first2 != last2; ++first1, void(++first2)) {
+			for (; bool(first1 != last1) && bool(first2 != last2);
+			     (void) ++first1, (void) ++first2)
+			{
 				iter_swap(first1, first2);
 			}
 			return {std::move(first1), std::move(first2)};
