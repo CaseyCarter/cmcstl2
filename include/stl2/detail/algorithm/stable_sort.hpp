@@ -35,20 +35,53 @@
 #ifndef STL2_DETAIL_ALGORITHM_STABLE_SORT_HPP
 #define STL2_DETAIL_ALGORITHM_STABLE_SORT_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/forward_sort.hpp>
 #include <stl2/detail/algorithm/inplace_merge.hpp>
 #include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/min.hpp>
 #include <stl2/detail/algorithm/random_access_sort.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // stable_sort [stable.sort]
 //
 STL2_OPEN_NAMESPACE {
 	struct __stable_sort_fn : private __niebloid {
+		// Extension: Supports forward iterators.
+		template<class I, class S, class Comp = less, class Proj = identity>
+		requires Sentinel<__f<S>, I> && Sortable<I, Comp, Proj>
+		I operator()(I first, S&& last_, Comp comp = {}, Proj proj = {}) const {
+			if constexpr (RandomAccessIterator<I>) {
+				auto last = next(first, std::forward<S>(last_));
+				auto len = iter_difference_t<I>(last - first);
+				auto buf = len > 256 ? buf_t<I>{len} : buf_t<I>{};
+				if (!buf.size_) {
+					inplace_stable_sort(first, last, comp, proj);
+				} else {
+					stable_sort_adaptive(first, last, buf, comp, proj);
+				}
+				return last;
+			} else {
+				auto n = distance(first, std::forward<S>(last_));
+				return detail::fsort_n(std::move(first), n,
+					__stl2::ref(comp), __stl2::ref(proj));
+			}
+		}
+
+		// Extension: supports forward ranges.
+		template<ForwardRange R, class Comp = less, class Proj = identity>
+		requires Sortable<iterator_t<R>, Comp, Proj>
+		safe_iterator_t<R> operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
+			if constexpr (RandomAccessRange<R>) {
+				return (*this)(begin(r), end(r), __stl2::ref(comp),
+					__stl2::ref(proj));
+			} else {
+				return detail::fsort_n(begin(r), distance(r), __stl2::ref(comp),
+					__stl2::ref(proj));
+			}
+		}
+	private:
 		template<class I>
 		using buf_t = detail::temporary_buffer<iter_value_t<I>>;
 
@@ -143,40 +176,6 @@ STL2_OPEN_NAMESPACE {
 			detail::merge_adaptive(first, middle, last,
 				middle - first, last - middle, buf,
 				__stl2::ref(comp), __stl2::ref(proj));
-		}
-
-		// Extension: Supports forward iterators.
-		template<class I, class S, class Comp = less, class Proj = identity>
-		requires Sentinel<__f<S>, I> && Sortable<I, Comp, Proj>
-		I operator()(I first, S&& last_, Comp comp = {}, Proj proj = {}) const {
-			if constexpr (RandomAccessIterator<I>) {
-				auto last = next(first, std::forward<S>(last_));
-				auto len = iter_difference_t<I>(last - first);
-				auto buf = len > 256 ? buf_t<I>{len} : buf_t<I>{};
-				if (!buf.size_) {
-					inplace_stable_sort(first, last, comp, proj);
-				} else {
-					stable_sort_adaptive(first, last, buf, comp, proj);
-				}
-				return last;
-			} else {
-				auto n = distance(first, std::forward<S>(last_));
-				return detail::fsort_n(std::move(first), n,
-					__stl2::ref(comp), __stl2::ref(proj));
-			}
-		}
-
-		// Extension: supports forward ranges.
-		template<ForwardRange Rng, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<Rng>, Comp, Proj>
-		safe_iterator_t<Rng> operator()(Rng&& rng, Comp comp = {}, Proj proj = {}) const {
-			if constexpr (RandomAccessRange<Rng>) {
-				return (*this)(begin(rng), end(rng),
-					__stl2::ref(comp), __stl2::ref(proj));
-			} else {
-				return detail::fsort_n(begin(rng), distance(rng),
-					__stl2::ref(comp), __stl2::ref(proj));
-			}
 		}
 	};
 
