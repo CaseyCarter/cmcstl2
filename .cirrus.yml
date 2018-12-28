@@ -35,7 +35,7 @@ task:
     - cmake .. -GNinja -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
   build_script:
     - cd build
-    - ninja
+    - ninja -v
   test_script:
     - cd build
     - ctest -j8 --output-on-failure
