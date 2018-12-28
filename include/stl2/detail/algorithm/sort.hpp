@@ -13,25 +13,51 @@
 #ifndef STL2_DETAIL_ALGORITHM_SORT_HPP
 #define STL2_DETAIL_ALGORITHM_SORT_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/forward_sort.hpp>
 #include <stl2/detail/algorithm/random_access_sort.hpp>
-#include <utility>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // sort [sort]
 //
 STL2_OPEN_NAMESPACE {
 	struct __sort_fn : private __niebloid {
+		/// Extension: sort using forward iterators
+		///
+		template<ForwardIterator I, Sentinel<I> S, class Comp = less,
+			class Proj = identity>
+		requires Sortable<I, Comp, Proj>
+		constexpr I
+		operator()(I first, S sent, Comp comp = {}, Proj proj = {}) const {
+			if constexpr (RandomAccessIterator<I>) {
+				if (first == sent) return first;
+				auto last = next(first, std::move(sent));
+				auto n = distance(first, last);
+				introsort_loop(first, last, log2(n) * 2, comp, proj);
+				final_insertion_sort(first, last, comp, proj);
+				return last;
+			} else {
+				auto n = distance(first, std::move(sent));
+				return detail::fsort_n(std::move(first), n, std::move(comp), std::move(proj));
+			}
+		}
+
+		/// Extension: sort using forward ranges
+		///
+		template<ForwardRange R, class Comp = less, class Proj = identity>
+		requires Sortable<iterator_t<R>, Comp, Proj>
+		constexpr safe_iterator_t<R>
+		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), std::move(comp), std::move(proj));
+		}
 	private:
 		static constexpr std::ptrdiff_t introsort_threshold = 16;
 
 		template<RandomAccessIterator I, class Comp, class Proj>
 		requires Sortable<I, Comp, Proj>
-		static constexpr I choose_pivot(I first, I last, Comp& comp, Proj& proj)
-		{
+		static constexpr I
+		choose_pivot(I first, I last, Comp& comp, Proj& proj) {
 			STL2_EXPECT(first != last);
 			I mid = first + iter_difference_t<I>(last - first) / 2;
 			--last;
@@ -45,8 +71,8 @@ STL2_OPEN_NAMESPACE {
 
 		template<RandomAccessIterator I, class Comp, class Proj>
 		requires Sortable<I, Comp, Proj>
-		static constexpr I unguarded_partition(I first, I last, Comp& comp, Proj& proj)
-		{
+		static constexpr I
+		unguarded_partition(I first, I last, Comp& comp, Proj& proj) {
 			I pivot_pnt = choose_pivot(first, last, comp, proj);
 
 			// Do the partition:
@@ -86,8 +112,8 @@ STL2_OPEN_NAMESPACE {
 
 		template<BidirectionalIterator I, class Comp, class Proj>
 		requires Sortable<I, Comp, Proj>
-		static constexpr void unguarded_insertion_sort(I first, I last, Comp& comp, Proj& proj)
-		{
+		static constexpr void
+		unguarded_insertion_sort(I first, I last, Comp& comp, Proj& proj) {
 			for (I i = first; i != last; ++i) {
 				detail::rsort::unguarded_linear_insert(i, iter_move(i), comp, proj);
 			}
@@ -95,8 +121,8 @@ STL2_OPEN_NAMESPACE {
 
 		template<RandomAccessIterator I, class Comp, class Proj>
 		requires Sortable<I, Comp, Proj>
-		static constexpr void final_insertion_sort(I first, I last, Comp &comp, Proj &proj)
-		{
+		static constexpr void
+		final_insertion_sort(I first, I last, Comp &comp, Proj &proj) {
 			if (distance(first, last) > introsort_threshold) {
 				detail::rsort::insertion_sort(first, first + introsort_threshold, comp, proj);
 				unguarded_insertion_sort(first + introsort_threshold, last, comp, proj);
@@ -113,37 +139,6 @@ STL2_OPEN_NAMESPACE {
 				++k;
 			}
 			return k;
-		}
-	public:
-		/// Extension: sort using forward iterators
-		///
-		template<ForwardIterator I, Sentinel<I> S, class Comp = less, class Proj = identity>
-		requires Sortable<I, Comp, Proj>
-		constexpr I operator()(I first, S sent, Comp comp = {}, Proj proj = {}) const
-		{
-			if constexpr (RandomAccessIterator<I>) {
-				if (first == sent) {
-					return first;
-				}
-				auto last = next(first, std::move(sent));
-				auto n = distance(first, last);
-				introsort_loop(first, last, log2(n) * 2, comp, proj);
-				final_insertion_sort(first, last, comp, proj);
-				return last;
-			}
-			else {
-				auto n = distance(first, std::move(sent));
-				return detail::fsort_n(std::move(first), n, std::move(comp), std::move(proj));
-			}
-		}
-
-		/// Extension: sort using forward ranges
-		///
-		template<ForwardRange R, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<R>, Comp, Proj>
-		constexpr safe_iterator_t<R> operator()(R&& r, Comp comp = {}, Proj proj = {}) const
-		{
-			return (*this)(begin(r), end(r), std::move(comp), std::move(proj));
 		}
 	};
 
