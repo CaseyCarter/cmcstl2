@@ -12,10 +12,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_REMOVE_COPY_HPP
 #define STL2_DETAIL_ALGORITHM_REMOVE_COPY_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
 #include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // remove_copy [alg.remove]
