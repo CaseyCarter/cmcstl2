@@ -13,7 +13,6 @@
 add_library(stl2_test_config INTERFACE)
 target_link_libraries(stl2_test_config INTERFACE stl2)
 target_link_libraries(stl2_test_config INTERFACE $<$<CONFIG:Debug>:Sanitizer::all>)
-target_compile_definitions(stl2_test_config INTERFACE $<$<CONFIG:Release>:NDEBUG>)
 target_compile_options(stl2_test_config INTERFACE
     $<$<CXX_COMPILER_ID:GNU>:
         -ftemplate-backtrace-limit=0 -Wall -Wextra -pedantic -Werror -march=native
