@@ -12,9 +12,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_REPLACE_COPY_HPP
 #define STL2_DETAIL_ALGORITHM_REPLACE_COPY_HPP
 
-#include <stl2/iterator.hpp>
 #include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // replace_copy [alg.replace]
