@@ -19,21 +19,24 @@
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/iostream/concepts.hpp>
+#include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<Semiregular Val>
+		template<Movable Val>
 		requires StreamExtractable<Val>
-		struct istream_view : view_interface<istream_view<Val>> {
+		struct istream_view
+		: view_interface<istream_view<Val>>
+		, detail::semiregular_box<Val> {
 		private:
+			using base_t = detail::semiregular_box<Val>;
 			struct __iterator;
 
 			detail::raw_ptr<std::istream> sin_ = nullptr;
-			Val obj_ {};
 
 			void next_()
-			{ *sin_ >> obj_; }
+			{ *sin_ >> base_t::get(); }
 		public:
 			istream_view() = default;
 			explicit constexpr istream_view(std::istream& sin)
@@ -49,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 			{ return {}; }
 		};
 
-		template<Semiregular Val>
+		template<class Val>
 		requires StreamExtractable<Val>
 		struct istream_view<Val>::__iterator {
 		private:
@@ -69,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 			{ ++*this; }
 
 			Val& operator*() const
-			{ return parent_->obj_; }
+			{ return parent_->get(); }
 
 			friend bool operator==(__iterator x, default_sentinel)
 			{ return !*x.parent_->sin_; }
@@ -83,14 +86,14 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	namespace view {
-		template<Semiregular Val>
+		template<Movable Val>
 		requires StreamExtractable<Val>
 		struct __istream_fn {
 			constexpr auto operator()(std::istream& sin) const noexcept
 			{ return __stl2::ext::istream_view<Val>{sin}; }
 		};
 
-		template<Semiregular Val>
+		template<Movable Val>
 		requires StreamExtractable<Val>
 		inline constexpr __istream_fn<Val> istream{};
 	} // namespace view
