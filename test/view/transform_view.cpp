@@ -11,6 +11,7 @@
 //
 #include <stl2/view/transform.hpp>
 #include <stl2/view/iota.hpp>
+#include <stl2/view/filter.hpp>
 #include <stl2/detail/algorithm/count.hpp>
 #include <stl2/detail/algorithm/transform.hpp>
 #include <stl2/detail/iterator/insert_iterators.hpp>
@@ -58,6 +59,13 @@ int main()
 	// CHECK_EQUAL(rng2 | view::reverse, {10,9,8,7,6,5,4,3,2,1});
 	// CHECK(&*begin(rng2) == &rgp[0].first);
 	// CHECK(rng2.size() == 10u);
+
+
+	// https://github.com/CaseyCarter/cmcstl2/issues/262
+	{
+		auto id = [](int x){ return x; };
+		view::iota(0) | view::filter(id) | view::transform(id);
+	}
 
 	return ::test_result();
 }

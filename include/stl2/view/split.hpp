@@ -146,7 +146,7 @@ STL2_OPEN_NAMESPACE {
 		, parent_(std::addressof(parent)) {}
 
 		constexpr __outer_iterator(__outer_iterator<!Const> i)
-		requires Const && ConvertibleTo<iterator_t<Rng>, iterator_t<const Rng>>
+		requires Const && ConvertibleTo<iterator_t<Rng>, iterator_t<Base>>
 		: __split_view_outer_base<Rng, Const>{i.current_}
 		, parent_(i.parent_) {}
 
