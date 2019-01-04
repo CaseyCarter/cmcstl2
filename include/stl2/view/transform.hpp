@@ -227,7 +227,7 @@ STL2_OPEN_NAMESPACE {
 		explicit constexpr __sentinel(sentinel_t<Base> end)
 		: end_(end) {}
 		constexpr __sentinel(__sentinel<!Const> i)
-		requires Const && ConvertibleTo<sentinel_t<R>, sentinel_t<const R>>
+		requires Const && ConvertibleTo<sentinel_t<R>, sentinel_t<Base>>
 		: end_(i.end_) {}
 
 		constexpr sentinel_t<Base> base() const
