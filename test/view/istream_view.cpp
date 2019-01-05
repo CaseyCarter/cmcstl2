@@ -12,10 +12,11 @@
 //
 #include <stl2/view/istream.hpp>
 
-#include "../simple_test.hpp"
-#include "../test_utils.hpp"
 #include <sstream>
 #include <string_view>
+
+#include "../simple_test.hpp"
+#include "../test_utils.hpp"
 
 struct moveonly {
 	char c;
@@ -24,11 +25,9 @@ struct moveonly {
 	moveonly(moveonly&&) = default;
 	moveonly& operator=(moveonly&&) & = default;
 
-	operator char() const
-	{ return c; }
+	operator char() const { return c; }
 
-	friend std::istream& operator>>(std::istream& is, moveonly& m)
-	{
+	friend std::istream& operator>>(std::istream& is, moveonly& m) {
 		is.get(m.c);
 		return is;
 	}
@@ -36,8 +35,7 @@ struct moveonly {
 
 namespace ranges = __stl2;
 
-int main()
-{
+int main() {
 	constexpr std::string_view test = "abcd3210";
 	std::istringstream ss{test.data()};
 	CHECK_EQUAL(ranges::view::istream<moveonly>(ss), test);
