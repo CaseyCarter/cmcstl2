@@ -10,30 +10,29 @@
 // Project home: https://github.com/caseycarter/cmcstl2
 //
 #include <stl2/view/transform.hpp>
-#include <stl2/view/iota.hpp>
-#include <stl2/view/filter.hpp>
+
+#include <memory>
+#include <vector>
+
 #include <stl2/detail/algorithm/count.hpp>
 #include <stl2/detail/algorithm/transform.hpp>
 #include <stl2/detail/iterator/insert_iterators.hpp>
-#include <memory>
-#include <vector>
+#include <stl2/view/filter.hpp>
+#include <stl2/view/iota.hpp>
+#include <stl2/view/reverse.hpp>
 #include "../simple_test.hpp"
 
 namespace ranges = __stl2;
 
-namespace
-{
-	struct is_odd
-	{
-		bool operator()(int i) const
-		{
+namespace {
+	struct is_odd {
+		bool operator()(int i) const {
 			return (i % 2) == 1;
 		}
 	};
 }
 
-int main()
-{
+int main() {
 	using namespace ranges;
 
 	int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -55,11 +54,10 @@ int main()
 	static_assert(CommonRange<decltype(rng2)>);
 	static_assert(SizedRange<decltype(rng2)>);
 	static_assert(RandomAccessRange<decltype(rng2)>);
+	CHECK(&*begin(rng2) == &rgp[0].first);
+	CHECK(rng2.size() == 10u);
 	CHECK_EQUAL(rng2, {1,2,3,4,5,6,7,8,9,10});
-	// CHECK_EQUAL(rng2 | view::reverse, {10,9,8,7,6,5,4,3,2,1});
-	// CHECK(&*begin(rng2) == &rgp[0].first);
-	// CHECK(rng2.size() == 10u);
-
+	CHECK_EQUAL(rng2 | view::reverse, {10,9,8,7,6,5,4,3,2,1});
 
 	// https://github.com/CaseyCarter/cmcstl2/issues/262
 	{
