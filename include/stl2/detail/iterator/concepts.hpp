@@ -444,6 +444,12 @@ STL2_OPEN_NAMESPACE {
 		};
 
 	////////////////////////////////////////////////////////////////////////////
+	// Exposition-only has-arrow [range.utility.helpers]
+	template<class I>
+	META_CONCEPT __has_arrow = InputIterator<I> &&
+		(std::is_pointer_v<I> || requires(I i) { i.operator->(); });
+
+	////////////////////////////////////////////////////////////////////////////
 	// ForwardIterator [iterators.forward]
 	//
 	template<class I>
