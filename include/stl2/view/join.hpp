@@ -46,7 +46,8 @@ STL2_OPEN_NAMESPACE {
 
 		template<InputRange InnerRng>
 		struct join_view_base {
-			all_view<InnerRng> inner_ = all_view<InnerRng>();
+			// Implements the PR for https://github.com/ericniebler/stl2#604
+			mutable all_view<InnerRng> inner_ = all_view<InnerRng>();
 		};
 		template<InputRange InnerRng>
 		requires std::is_reference_v<InnerRng>
