@@ -206,7 +206,8 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr __iterator& operator--()
 		requires ref_is_glvalue && BidirectionalRange<Base> &&
-			BidirectionalRange<iter_reference_t<iterator_t<Base>>>
+			BidirectionalRange<iter_reference_t<iterator_t<Base>>> &&
+			CommonRange<iter_reference_t<iterator_t<Base>>>
 		{
 			if (outer_ == __stl2::end(parent_->base_)) {
 				inner_ = __stl2::end(*--outer_);
@@ -220,7 +221,8 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr __iterator operator--(int)
 		requires ref_is_glvalue && BidirectionalRange<Base> &&
-			BidirectionalRange<iter_reference_t<iterator_t<Base>>>
+			BidirectionalRange<iter_reference_t<iterator_t<Base>>> &&
+			CommonRange<iter_reference_t<iterator_t<Base>>>
 		{
 			auto tmp = *this;
 			--*this;
