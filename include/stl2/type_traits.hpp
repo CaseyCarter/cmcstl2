@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 
 	// [meta.trans.other]/3.2
 	template<class T>
-	struct common_type<T> : common_type<std::decay_t<T>, std::decay_t<T>> {};
+	struct common_type<T> : common_type<T, T> {};
 
 	// [meta.trans.other]/3.3: "Otherwise, there shall be no member type."
 	template<class, class> // NB: The arguments have been decayed by the time they get here.
@@ -74,9 +74,9 @@ STL2_OPEN_NAMESPACE {
 	struct common_type<T, U> : common_type<std::decay_t<T>, std::decay_t<U>> {};
 
 	template<class T, class U, class V, class...  W>
-	requires requires { typename common_type_t<std::decay_t<T>, std::decay_t<U>>; }
+	requires requires { typename common_type_t<T, U>; }
 	struct common_type<T, U, V, W...>
-	: common_type<common_type_t<std::decay_t<T>, std::decay_t<U>>, V, W...> {};
+	: common_type<common_type_t<T, U>, V, W...> {};
 
 	////////////////////////////////////////////////////////////////////////////
 	// basic_common_reference [meta.trans.other]
