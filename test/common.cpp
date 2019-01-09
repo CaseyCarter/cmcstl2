@@ -530,7 +530,7 @@ namespace libstdcpp_tests
 	static_assert(!meta::is_trait<common_type<int, S>>(), "");
 	static_assert(!meta::is_trait<common_type<U, S>>(), "");
 	static_assert(!meta::is_trait<common_type<U, U2>>(), "");
-	// See https://cplusplus.github.io/LWG/lwg-active.html#2763 and P0435
+	// See https://wg21.link/lwg2763 and P0435
 	//static_assert(!meta::is_trait<common_type<const ImplicitTo<int>, int>>{}, "");
 	// Unsure about these two:
 	//static_assert(!meta::is_trait<common_type<PrivateImplicitTo<int>, int>>{}, "");

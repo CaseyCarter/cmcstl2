@@ -40,8 +40,8 @@ STL2_OPEN_NAMESPACE {
 	// swap [utility.swap]
 	//
 	namespace __swap {
-		// http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2152
-		// http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
+		// https://wg21.link/lwg2152
+		// https://wg21.link/lwg2171
 
 		// Poison pill for std::swap. If ADL for "swap" finds std::swap and
 		// unqualified name lookup finds this overload, the ambiguity causes
