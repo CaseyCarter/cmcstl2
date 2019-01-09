@@ -9,10 +9,13 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
+#include <stl2/type_traits.hpp>
+
+#include <functional>
+#include <initializer_list>
 #include <tuple>
 #include <utility>
-#include <initializer_list>
-#include <stl2/type_traits.hpp>
+
 #include "simple_test.hpp"
 
 using std::tuple;
@@ -160,6 +163,14 @@ static_assert(Common<void, void>);
 static_assert(is_same_v<common_type_t<void, void>, void>);
 
 static_assert(is_same_v<common_type_t<reference_wrapper<int>, int>, int>);
+static_assert(is_same_v<common_type_t<std::reference_wrapper<int>, int>, int>);
+
+// https://github.com/ericniebler/stl2/issues/338
+struct MyIntRef {
+  MyIntRef(int &);
+};
+static_assert(is_same_v<common_reference_t<int&, MyIntRef>, MyIntRef>);
+static_assert(is_same_v<common_reference_t<int, int, int>, int>);
 
 // Test cases taken from libc++
 //===----------------------------------------------------------------------===//
@@ -769,16 +780,6 @@ namespace libstdcpp_tests
 				void>(),
 				"common_type<const volatile void, const volatile void>" );
 }
-
-// https://github.com/ericniebler/stl2/issues/338
-struct MyIntRef {
-  MyIntRef(int &);
-};
-using T = common_reference_t<int&, MyIntRef>;
-static_assert( is_same<common_reference<int&, MyIntRef>::type, MyIntRef>(),
-	"common_reference<int&, MyIntRef>");
-static_assert( is_same<common_reference<int, int, int>::type, int>(),
-    "common_reference<int, int, int>");
 
 int main() {
 	::libstdcpp_tests::typedefs_1();
