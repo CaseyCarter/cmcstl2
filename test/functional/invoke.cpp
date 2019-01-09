@@ -15,6 +15,8 @@
 
 namespace ranges = __stl2;
 
+static_assert(ranges::Copyable<ranges::reference_wrapper<int>>);
+
 constexpr struct {
 	template<class T>
 	constexpr auto&& operator()(T&& arg) const noexcept {

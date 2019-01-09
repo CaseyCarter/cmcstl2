@@ -23,33 +23,41 @@ namespace ranges = __stl2;
 
 template<class T>
 struct reference_wrapper {
+private:
 	ranges::detail::raw_ptr<T> ptr_;
 
+	static T* f(T& t) noexcept { return std::addressof(t); }
+	static void f(T&&) = delete;
+public:
 	reference_wrapper() = default;
-	reference_wrapper(T& t) noexcept : ptr_{std::addressof(t)} {}
-	reference_wrapper(T&&) = delete;
+
+	template<ranges::_NotSameAs<reference_wrapper> U>
+	reference_wrapper(U&& u)
+	noexcept(noexcept(f(static_cast<U&&>(u))))
+	requires requires { f(static_cast<U&&>(u)); }
+	: ptr_{f(static_cast<U&&>(u))} {}
 
 	T& get() const noexcept {
 		return *ptr_;
 	}
 
-	reference_wrapper & operator=(const T& t)
+	reference_wrapper& operator=(const T& t)
 		noexcept(std::is_nothrow_copy_assignable<T>::value) {
 		get() = t;
 		return *this;
 	}
-	reference_wrapper & operator=(T&& t)
+	reference_wrapper& operator=(T&& t)
 		noexcept(std::is_nothrow_move_assignable<T>::value) {
 		get() = std::move(t);
 		return *this;
 	}
 
-	reference_wrapper const& operator=(const T& t) const
+	const reference_wrapper& operator=(const T& t) const
 		noexcept(std::is_nothrow_copy_assignable<T>::value) {
 		get() = t;
 		return *this;
 	}
-	reference_wrapper const& operator=(T&& t) const
+	const reference_wrapper& operator=(T&& t) const
 		noexcept(std::is_nothrow_move_assignable<T>::value) {
 		get() = std::move(t);
 		return *this;
