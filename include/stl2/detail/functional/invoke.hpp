@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 	template<__can_reference T>
 	struct reference_wrapper {
 	private:
-		T& t_;
+		T* t_;
 
 		static constexpr T& fun(T& t) noexcept { return t; }
 		static constexpr void fun(T&& t) = delete;
@@ -98,10 +98,10 @@ STL2_OPEN_NAMESPACE {
 		constexpr reference_wrapper(U&& u)
 		noexcept(noexcept(fun(static_cast<U&&>(u))))
 		requires requires { fun(static_cast<U&&>(u)); }
-		: t_(fun(static_cast<U&&>(u))) {}
+		: t_(std::addressof(fun(static_cast<U&&>(u)))) {}
 
-		constexpr operator T&() const noexcept { return t_; }
-		constexpr T& get() const noexcept { return t_; }
+		constexpr operator T&() const noexcept { return *t_; }
+		constexpr T& get() const noexcept { return *t_; }
 
 		template<class... Args>
 		requires requires {
@@ -109,8 +109,9 @@ STL2_OPEN_NAMESPACE {
 		}
 		constexpr decltype(auto) operator()(Args&&... args) const
 		noexcept(noexcept(__stl2::invoke(
-			std::declval<T&>(), static_cast<Args&&>(args)...))) {
-			return __stl2::invoke(t_, static_cast<Args&&>(args)...);
+			std::declval<T&>(), static_cast<Args&&>(args)...)))
+		{
+			return __stl2::invoke(*t_, static_cast<Args&&>(args)...);
 		}
 	};
 
