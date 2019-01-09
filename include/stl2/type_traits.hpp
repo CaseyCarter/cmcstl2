@@ -23,10 +23,6 @@ STL2_OPEN_NAMESPACE {
 	// common_type [meta.trans.other]
 	//
 
-	// Modified CREF from [meta.trans.other]/2.1 that doesn't work with void.
-	template<class T>
-	using __cref_nonvoid = const std::remove_reference_t<T>&;
-
 	// COND_RES [meta.trans.other]/2.4
 	template<class T, class U>
 	using __cond_res =
@@ -40,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 
 	// [meta.trans.other]/3.2
 	template<class T>
-	struct common_type<T> : common_type<std::decay_t<T>, std::decay_t<T>> {};
+	struct common_type<T> : common_type<T, T> {};
 
 	// [meta.trans.other]/3.3: "Otherwise, there shall be no member type."
 	template<class, class> // NB: The arguments have been decayed by the time they get here.
@@ -49,11 +45,11 @@ STL2_OPEN_NAMESPACE {
 	// [meta.trans.other]/3.3.4
 	// I'm 99% certain that [meta.trans.other]/3.3.4 never produces a useful
 	// common type when T or U is void - proper cases for void would be handled
-	// earlier in 3.3.3 - so __cref_nonvoid is fine here.
+	// earlier in 3.3.3 - so const X& is equivalent to CREF(X) here.
 	template<class T, class U> // NB: Ditto decayed.
-	requires requires { typename __cond_res<__cref_nonvoid<T>, __cref_nonvoid<U>>; }
+	requires requires { typename __cond_res<const T&, const U&>; }
 	struct __common_type3<T, U> {
-		using type = std::decay_t<__cond_res<__cref_nonvoid<T>, __cref_nonvoid<U>>>;
+		using type = std::decay_t<__cond_res<const T&, const U&>>;
 	};
 
 	template<class T, class U> // NB: Ditto decayed.
@@ -74,9 +70,9 @@ STL2_OPEN_NAMESPACE {
 	struct common_type<T, U> : common_type<std::decay_t<T>, std::decay_t<U>> {};
 
 	template<class T, class U, class V, class...  W>
-	requires requires { typename common_type_t<std::decay_t<T>, std::decay_t<U>>; }
+	requires requires { typename common_type_t<T, U>; }
 	struct common_type<T, U, V, W...>
-	: common_type<common_type_t<std::decay_t<T>, std::decay_t<U>>, V, W...> {};
+	: common_type<common_type_t<T, U>, V, W...> {};
 
 	////////////////////////////////////////////////////////////////////////////
 	// basic_common_reference [meta.trans.other]
