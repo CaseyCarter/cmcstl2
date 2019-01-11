@@ -58,8 +58,6 @@ namespace ns = ::__stl2;
 #include <valarray>
 #include <vector>
 
-#include <stl2/meta/meta.hpp>
-
 #include "../simple_test.hpp"
 
 namespace associated_type_test {
