@@ -20,6 +20,8 @@
 // Language-related Concepts [concepts.lang]
 //
 STL2_OPEN_NAMESPACE {
+	template<auto> struct __require_constant; // not defined
+
 	// U is a cv/ref-qualified specialization of class template T.
 	template<class U, template<class...> class T>
 	META_CONCEPT _SpecializationOf =

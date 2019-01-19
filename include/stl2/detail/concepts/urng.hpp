@@ -16,8 +16,6 @@
 #include <stl2/detail/concepts/callable.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<auto> struct __require_constant; // not defined
-
 	template<class G>
 	META_CONCEPT UniformRandomBitGenerator =
 		Invocable<G&> && UnsignedIntegral<invoke_result_t<G&>> &&

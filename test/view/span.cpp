@@ -14,8 +14,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <stl2/detail/span.hpp>
-#include <stl2/detail/algorithm/find.hpp>
+#include <stl2/view/span.hpp>
 
 #include <array>
 #include <iostream>
@@ -25,14 +24,15 @@
 #include <regex>
 #include <string>
 #include <vector>
+
+#include <stl2/detail/algorithm/find.hpp>
 #include "../simple_test.hpp"
 
 namespace ranges = __stl2;
-using ranges::ext::span;
-using ranges::ext::__span::narrow_cast;
-using ranges::ext::make_span;
-using ranges::ext::as_bytes;
-using ranges::ext::as_writeable_bytes;
+using ranges::span;
+using ranges::__span::narrow_cast;
+using ranges::as_bytes;
+using ranges::as_writeable_bytes;
 
 namespace {
 	struct BaseClass {};
@@ -147,23 +147,23 @@ void test_case_from_pointer_size_constructor()
 	}
 
 	{
-		auto s = make_span(&arr[0], 2);
+		auto s = span(&arr[0], 2);
 		CHECK((s.size() == 2 && s.data() == &arr[0]));
 		CHECK((s[0] == 1 && s[1] == 2));
 	}
 
 	{
 		int* p = nullptr;
-		auto s = make_span(p, static_cast<span<int>::index_type>(0));
+		auto s = span(p, static_cast<span<int>::index_type>(0));
 		CHECK((s.size() == 0 && s.data() == nullptr));
 	}
 
 	{
 		int i = 42;
-		span<int> s{&i, 0};
+		span<int> s{&i, std::size_t{0}};
 		CHECK((s.size() == 0 && s.data() == &i));
 
-		span<const int> cs{&i, 0};
+		span<const int> cs{&i, std::size_t{0}};
 		CHECK((s.size() == 0 && s.data() == &i));
 	}
 }
@@ -227,19 +227,19 @@ void test_case_from_pointer_pointer_constructor()
 	//}
 
 	{
-		auto s = make_span(&arr[0], &arr[2]);
+		auto s = span(&arr[0], &arr[2]);
 		CHECK((s.size() == 2 && s.data() == &arr[0]));
 		CHECK((s[0] == 1 && s[1] == 2));
 	}
 
 	{
-		auto s = make_span(&arr[0], &arr[0]);
+		auto s = span(&arr[0], &arr[0]);
 		CHECK((s.size() == 0 && s.data() == &arr[0]));
 	}
 
 	{
 		int* p = nullptr;
-		auto s = make_span(p, p);
+		auto s = span(p, p);
 		CHECK((s.size() == 0 && s.data() == nullptr));
 	}
 }
@@ -284,17 +284,17 @@ void test_case_from_array_constructor()
 	}
 
 	{
-		auto s = make_span(arr);
+		auto s = span(arr);
 		CHECK((s.size() == 5 && s.data() == &arr[0]));
 	}
 
 	{
-		auto s = make_span(&(arr2d[0]), 1);
+		auto s = span(&(arr2d[0]), 1);
 		CHECK((s.size() == 1 && s.data() == &arr2d[0]));
 	}
 
 	{
-		auto s = make_span(&arr3d[0], 1);
+		auto s = span(&arr3d[0], 1);
 		CHECK((s.size() == 1 && s.data() == &arr3d[0]));
 	}
 }
@@ -325,6 +325,7 @@ void test_case_from_std_array_constructor()
 	static_assert(!std::is_constructible<span<const int, 0>, decltype((arr))>::value);
 	static_assert(!std::is_constructible<span<int, 5>, decltype((arr))>::value);
 
+#if 0 // ill-formed test cases
 	{
 		auto get_an_array = []() -> std::array<int, 4> { return {1, 2, 3, 4}; };
 		auto take_a_span = [](span<int>) {};
@@ -336,9 +337,13 @@ void test_case_from_std_array_constructor()
 		auto take_a_span = [](span<const int>) {};
 		take_a_span(get_an_array());
 	}
+#else
+	static_assert(!std::is_constructible_v<span<int>, std::array<int, 4>>);
+	static_assert(!std::is_constructible_v<span<const int>, std::array<int, 4>>);
+#endif // ill-formed
 
 	{
-		auto s = make_span(arr);
+		auto s = span(arr);
 		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 }
@@ -361,14 +366,18 @@ void test_case_from_const_std_array_constructor()
 	static_assert(!std::is_constructible<span<const int, 0>, decltype((arr))>::value);
 	static_assert(!std::is_constructible<span<const int, 5>, decltype((arr))>::value);
 
+#if 0 // ill-formed test case
 	{
 		auto get_an_array = []() -> const std::array<int, 4> { return {1, 2, 3, 4}; };
 		auto take_a_span = [](span<const int>) {};
 		take_a_span(get_an_array());
 	}
+#else
+	static_assert(!std::is_constructible_v<span<const int>, const std::array<int, 4>>);
+#endif // ill-formed
 
 	{
-		auto s = make_span(arr);
+		auto s = span(arr);
 		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 }
@@ -393,7 +402,7 @@ void test_case_from_std_array_const_constructor()
 	static_assert(!std::is_constructible<span<int, 4>, decltype((arr))>::value);
 
 	{
-		auto s = make_span(arr);
+		auto s = span(arr);
 		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(arr.size()) && s.data() == arr.data()));
 	}
 }
@@ -419,22 +428,30 @@ void test_case_from_container_constructor()
 		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(str.size()) && s.data() == str.data()));
 	}
 
+#if 0 // ill-formed test case
 	{
 		auto get_temp_string = []() -> std::string { return {}; };
 		auto use_span = [](span<char>) {};
 		use_span(get_temp_string());
 	}
+#else
+	static_assert(!std::is_constructible_v<span<char>, std::string>);
+#endif
 
 	{
 		span<const char> cs{str};
 		CHECK((cs.size() == narrow_cast<std::ptrdiff_t>(str.size()) && cs.data() == str.data()));
 	}
 
+#if 0 // ill-formed test case
 	{
 		auto get_temp_string = []() -> std::string { return {}; };
 		auto use_span = [](span<const char>) {};
 		use_span(get_temp_string());
 	}
+#else
+	static_assert(!std::is_constructible_v<span<const char>, std::string>);
+#endif
 
 	{
 		static_assert(!std::is_constructible<span<char>, decltype((cstr))>::value);
@@ -443,6 +460,7 @@ void test_case_from_container_constructor()
 			  cs.data() == cstr.data()));
 	}
 
+#if 0 // ill-formed test cases
 	{
 		auto get_temp_vector = []() -> std::vector<int> { return {}; };
 		auto use_span = [](span<int>) {};
@@ -455,22 +473,27 @@ void test_case_from_container_constructor()
 		use_span(get_temp_vector());
 	}
 
-	static_assert(!std::is_convertible<const std::vector<int>, span<const char>>::value);
-
 	{
 		auto get_temp_string = []() -> const std::string { return {}; };
 		auto use_span = [](span<const char> s) { static_cast<void>(s); };
 		use_span(get_temp_string());
 		use_span(span<const char>(get_temp_string()));
 	}
+#else
+	static_assert(!std::is_constructible_v<span<int>, std::vector<int>>);
+	static_assert(!std::is_constructible_v<span<const int>, std::vector<int>>);
+	static_assert(!std::is_constructible_v<span<const char>, const std::string>);
+#endif
+
+	static_assert(!std::is_convertible<const std::vector<int>, span<const char>>::value);
 
 	static_assert(!std::is_constructible<span<int>, std::map<int, int>&>::value);
 
 	{
-		auto s = make_span(v);
+		auto s = span(v);
 		CHECK((s.size() == narrow_cast<std::ptrdiff_t>(v.size()) && s.data() == v.data()));
 
-		auto cs = make_span(cv);
+		auto cs = span(cv);
 		CHECK((cs.size() == narrow_cast<std::ptrdiff_t>(cv.size()) && cs.data() == cv.data()));
 	}
 }
@@ -513,7 +536,6 @@ void test_case_copy_move_and_assignment()
 
 void test_case_class_template_argument_deduction()
 {
-#ifdef __cpp_deduction_guides
 	{
 		int arr[] = {1, 2, 3, 4, 5};
 		{
@@ -551,7 +573,6 @@ void test_case_class_template_argument_deduction()
 			static_assert(ranges::Same<span<int>, decltype(s)>);
 		}
 	}
-#endif
 }
 
 void test_case_first()
@@ -806,126 +827,6 @@ void test_case_rbegin_rend()
 	}
 }
 
-void test_case_comparison_operators()
-{
-	{
-		span<int> s1;
-		span<int> s2;
-		CHECK(s1 == s2);
-		CHECK(!(s1 != s2));
-		CHECK(!(s1 < s2));
-		CHECK(s1 <= s2);
-		CHECK(!(s1 > s2));
-		CHECK(s1 >= s2);
-		CHECK(s2 == s1);
-		CHECK(!(s2 != s1));
-		CHECK(!(s2 < s1));
-		CHECK(s2 <= s1);
-		CHECK(!(s2 > s1));
-		CHECK(s2 >= s1);
-	}
-
-	{
-		int arr[] = {2, 1};
-		span<int> s1 = arr;
-		span<int> s2 = arr;
-
-		CHECK(s1 == s2);
-		CHECK(!(s1 != s2));
-		CHECK(!(s1 < s2));
-		CHECK(s1 <= s2);
-		CHECK(!(s1 > s2));
-		CHECK(s1 >= s2);
-		CHECK(s2 == s1);
-		CHECK(!(s2 != s1));
-		CHECK(!(s2 < s1));
-		CHECK(s2 <= s1);
-		CHECK(!(s2 > s1));
-		CHECK(s2 >= s1);
-	}
-
-	{
-		int arr[] = {2, 1}; // bigger
-
-		span<int> s1;
-		span<int> s2 = arr;
-
-		CHECK(s1 != s2);
-		CHECK(s2 != s1);
-		CHECK(!(s1 == s2));
-		CHECK(!(s2 == s1));
-		CHECK(s1 < s2);
-		CHECK(!(s2 < s1));
-		CHECK(s1 <= s2);
-		CHECK(!(s2 <= s1));
-		CHECK(s2 > s1);
-		CHECK(!(s1 > s2));
-		CHECK(s2 >= s1);
-		CHECK(!(s1 >= s2));
-	}
-
-	{
-		int arr1[] = {1, 2};
-		int arr2[] = {1, 2};
-		span<int> s1 = arr1;
-		span<int> s2 = arr2;
-
-		CHECK(s1 == s2);
-		CHECK(!(s1 != s2));
-		CHECK(!(s1 < s2));
-		CHECK(s1 <= s2);
-		CHECK(!(s1 > s2));
-		CHECK(s1 >= s2);
-		CHECK(s2 == s1);
-		CHECK(!(s2 != s1));
-		CHECK(!(s2 < s1));
-		CHECK(s2 <= s1);
-		CHECK(!(s2 > s1));
-		CHECK(s2 >= s1);
-	}
-
-	{
-		int arr[] = {1, 2, 3};
-
-		span<int> s1 = {&arr[0], 2}; // shorter
-		span<int> s2 = arr;          // longer
-
-		CHECK(s1 != s2);
-		CHECK(s2 != s1);
-		CHECK(!(s1 == s2));
-		CHECK(!(s2 == s1));
-		CHECK(s1 < s2);
-		CHECK(!(s2 < s1));
-		CHECK(s1 <= s2);
-		CHECK(!(s2 <= s1));
-		CHECK(s2 > s1);
-		CHECK(!(s1 > s2));
-		CHECK(s2 >= s1);
-		CHECK(!(s1 >= s2));
-	}
-
-	{
-		int arr1[] = {1, 2}; // smaller
-		int arr2[] = {2, 1}; // bigger
-
-		span<int> s1 = arr1;
-		span<int> s2 = arr2;
-
-		CHECK(s1 != s2);
-		CHECK(s2 != s1);
-		CHECK(!(s1 == s2));
-		CHECK(!(s2 == s1));
-		CHECK(s1 < s2);
-		CHECK(!(s2 < s1));
-		CHECK(s1 <= s2);
-		CHECK(!(s2 <= s1));
-		CHECK(s2 > s1);
-		CHECK(!(s1 > s2));
-		CHECK(s2 >= s1);
-		CHECK(!(s1 >= s2));
-	}
-}
-
 void test_case_as_bytes()
 {
 	int a[] = {1, 2, 3, 4};
@@ -1007,12 +908,16 @@ void test_case_fixed_size_conversions()
 		static_cast<void>(s1);
 	}
 
+#if 0 // ill-formed test case
 	// ...or dynamically
 	{
 		// NB: implicit conversion to span<int,1> from span<int>
 		span<int, 1> s1 = s4.first(1);
 		static_cast<void>(s1);
 	}
+#else
+	static_assert(!std::is_constructible_v<span<int, 1>, span<int>>);
+#endif
 
 	// initialization or assignment to static span that requires size INCREASE is not ok.
 	int arr2[2] = {1, 2};
@@ -1074,7 +979,6 @@ int main() {
 	test_case_iterator_comparisons();
 	test_case_begin_end();
 	test_case_rbegin_rend();
-	test_case_comparison_operators();
 	test_case_as_bytes();
 	test_case_as_writeable_bytes();
 	test_case_fixed_size_conversions();
@@ -1091,7 +995,7 @@ int main() {
 	static_assert(ranges::Same<decltype(ranges::end(std::declval<const span<int>>())), ranges::iterator_t<span<int>>>);
 	{
 		int some_ints[]{42};
-		CHECK(ranges::data(span{some_ints, 0}) == +some_ints);
+		CHECK(ranges::data(span{some_ints}) == some_ints);
 	}
 
 	{

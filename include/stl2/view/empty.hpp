@@ -12,6 +12,7 @@
 #ifndef STL2_VIEW_EMPTY_HPP
 #define STL2_VIEW_EMPTY_HPP
 
+#include <stl2/detail/range/concepts.hpp>
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
@@ -27,6 +28,9 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr T* begin(empty_view) noexcept { return nullptr; }
 		friend constexpr T* end(empty_view) noexcept { return nullptr; }
 	};
+
+	template<class T>
+	inline constexpr std::ptrdiff_t ext::static_extent<empty_view<T>> = 0;
 
 	namespace view {
 		template<class T>

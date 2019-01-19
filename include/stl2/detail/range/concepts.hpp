@@ -27,6 +27,7 @@ namespace std {
 #ifndef __GLIBCXX__
 #pragma message "These forward declarations will likely only work with libstdc++."
 #endif
+	template<class, size_t> struct array;
 	template<class, class, class> class set;
 	template<class, class, class> class multiset;
 	template<class, class, class, class> class unordered_set;
@@ -171,6 +172,23 @@ STL2_OPEN_NAMESPACE {
 
 		template<Range R>
 		using range_rvalue_reference_t = iter_rvalue_reference_t<iterator_t<R>>;
+
+		template<class>
+		inline constexpr std::ptrdiff_t static_extent = -1; // Should the primary be ill-formed?
+		template<class T, std::size_t Extent>
+		inline constexpr std::ptrdiff_t static_extent<T[Extent]> = std::ptrdiff_t{Extent};
+		template<class T, std::size_t Extent>
+		inline constexpr std::ptrdiff_t static_extent<std::array<T, Extent>> = std::ptrdiff_t{Extent};
+
+		template<class R>
+		META_CONCEPT __has_static_extent = Range<R> && requires {
+			{ static_extent<__uncvref<R>> } -> Integral;
+			typename __require_constant<static_extent<__uncvref<R>>>;
+			requires static_extent<__uncvref<R>> >= 0;
+		};
+
+		template<__has_static_extent R>
+		inline constexpr auto static_extent_of = static_extent<__uncvref<R>>;
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 

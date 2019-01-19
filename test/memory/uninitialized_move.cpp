@@ -16,9 +16,9 @@
 #include <stl2/detail/algorithm/count_if.hpp>
 #include <stl2/detail/algorithm/equal.hpp>
 #include <stl2/detail/memory/destroy.hpp>
-#include <stl2/detail/span.hpp>
 #include <stl2/iterator.hpp>
 #include <stl2/view/repeat.hpp>
+#include <stl2/view/span.hpp>
 #include <stl2/view/take_exactly.hpp>
 #include <algorithm>
 #include <cstdint>
@@ -28,7 +28,7 @@
 #include "common.hpp"
 
 namespace ranges = __stl2;
-using ranges::ext::span;
+using ranges::span;
 
 namespace {
 	template<ranges::InputRange Rng>

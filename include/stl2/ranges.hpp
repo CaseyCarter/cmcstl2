@@ -37,6 +37,7 @@
 #include <stl2/view/repeat.hpp>
 #include <stl2/view/reverse.hpp>
 #include <stl2/view/single.hpp>
+#include <stl2/view/span.hpp>
 #include <stl2/view/split.hpp>
 #include <stl2/view/subrange.hpp>
 #include <stl2/view/take.hpp>

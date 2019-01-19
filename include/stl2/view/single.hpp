@@ -17,7 +17,7 @@
 
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/view/view_interface.hpp>
 
@@ -47,6 +47,9 @@ STL2_OPEN_NAMESPACE {
 		constexpr T* data() noexcept { return std::addressof(value_.get()); }
 		constexpr const T* data() const noexcept { return std::addressof(value_.get()); }
 	};
+
+	template<class T>
+	inline constexpr std::ptrdiff_t ext::static_extent<single_view<T>> = 1;
 
 	namespace view {
 		struct __single_fn {
