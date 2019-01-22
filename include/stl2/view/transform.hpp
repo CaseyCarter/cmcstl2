@@ -86,7 +86,8 @@ STL2_OPEN_NAMESPACE {
 	transform_view(R&& r, F fun) -> transform_view<all_view<R>, F>;
 
 	template<InputRange V, CopyConstructible F>
-	requires View<V> && Invocable<F&, iter_reference_t<iterator_t<V>>>
+	requires View<V> && std::is_object_v<F> &&
+		RegularInvocable<F&, iter_reference_t<iterator_t<V>>>
 	template<bool Const>
 	class transform_view<V, F>::__iterator {
 	private:
@@ -213,7 +214,8 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template<InputRange V, CopyConstructible F>
-	requires View<V> && Invocable<F&, iter_reference_t<iterator_t<V>>>
+	requires View<V> && std::is_object_v<F> &&
+		RegularInvocable<F&, iter_reference_t<iterator_t<V>>>
 	template<bool Const>
 	class transform_view<V, F>::__sentinel {
 	private:
