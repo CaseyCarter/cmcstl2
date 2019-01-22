@@ -529,6 +529,32 @@ void complicated_algorithm_test() {
 	CHECK(complicated_algorithm(array_view<int>{some_ints}) == ns::end(some_ints));
 }
 
+template<auto N>
+struct a_tiny_range {
+	static constexpr auto size() noexcept { return N; }
+	int* begin();
+	int* end();
+};
+
+static_assert(ranges::ext::__has_static_extent<int[42]>);
+static_assert(ranges::ext::static_extent_of<int[42]> == 42);
+static_assert(ranges::ext::__has_static_extent<int[42][13]>);
+static_assert(ranges::ext::static_extent_of<int[42][13]> == 42);
+static_assert(ranges::ext::__has_static_extent<int[42][13], 1>);
+static_assert(ranges::ext::static_extent_of<int[42][13], 1> == 13);
+static_assert(ranges::ext::__has_static_extent<std::array<int, 42>>);
+static_assert(ranges::ext::static_extent_of<std::array<int, 42>> == 42);
+static_assert(ranges::ext::__has_static_extent<std::array<std::array<int, 42>, 13>>);
+static_assert(ranges::ext::static_extent_of<std::array<std::array<int, 42>, 13>> == 13);
+static_assert(ranges::ext::__has_static_extent<std::array<std::array<int, 42>, 13>, 1>);
+static_assert(ranges::ext::static_extent_of<std::array<std::array<int, 42>, 13>, 1> == 42);
+static_assert(ranges::ext::__has_static_extent<a_tiny_range<42>>);
+static_assert(ranges::ext::static_extent_of<a_tiny_range<42>> == 42);
+static_assert(ranges::ext::__has_static_extent<a_tiny_range<std::size_t{42}>>);
+static_assert(ranges::ext::static_extent_of<a_tiny_range<std::size_t{42}>> == std::size_t{42});
+static_assert(!ranges::ext::__has_static_extent<a_tiny_range<-42>>);
+static_assert(ranges::ext::static_extent<a_tiny_range<-42>> == -42);
+
 int main() {
 	ridiculously_exhaustive_range_property_test();
 	complicated_algorithm_test();

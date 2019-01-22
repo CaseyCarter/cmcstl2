@@ -173,35 +173,42 @@ STL2_OPEN_NAMESPACE {
 		template<Range R>
 		using range_rvalue_reference_t = iter_rvalue_reference_t<iterator_t<R>>;
 
-		template<class>
+		template<class, unsigned = 0>
 		inline constexpr int static_extent = -1;
 
 		// Extension (vs. P1419): implement static_extent for tiny-ranges
 		template<SizedRange R>
 		requires requires {
-			// BUGSBUGSBUGS { R::size() } Integral;
+			// BUGSBUGSBUGS: should be { R::size() } Integral;
 			R::size(); requires Integral<decltype(R::size())>;
+			// BUGSBUGSBUGS: should be typename __require_constant<R::size()>;
 			typename ::__stl2::__require_constant<R::size()>;
 		}
 		inline constexpr auto static_extent<R> = R::size();
 
-		template<class T, std::size_t Extent>
-		inline constexpr std::ptrdiff_t static_extent<T[Extent]> =
-			std::ptrdiff_t{Extent};
+		template<class T, std::size_t N, unsigned I>
+		inline constexpr auto static_extent<T[N], I> = std::extent_v<T[N], I>;
 
-		template<class T, std::size_t Extent>
-		inline constexpr std::ptrdiff_t static_extent<std::array<T, Extent>> =
-			std::ptrdiff_t{Extent};
+		template<class T, std::size_t N>
+		inline constexpr std::ptrdiff_t static_extent<std::array<T, N>, 0> =
+			std::ptrdiff_t{N};
 
-		template<class R>
+		// Extension: support nested std::array
+		template<class T, std::size_t N, unsigned I>
+		requires I > 0
+		inline constexpr auto static_extent<std::array<T, N>, I> =
+			static_extent<T, I - 1>;
+
+		template<class R, unsigned I = 0>
 		META_CONCEPT __has_static_extent = Range<R> && requires {
-			{ static_extent<__uncvref<R>> } -> Integral;
-			typename __require_constant<static_extent<__uncvref<R>>>;
-			requires static_extent<__uncvref<R>> >= 0;
+			{ static_extent<__uncvref<R>, I> } -> Integral;
+			typename __require_constant<static_extent<__uncvref<R>, I>>;
+			requires static_extent<__uncvref<R>, I> >= 0;
 		};
 
-		template<__has_static_extent R>
-		inline constexpr auto static_extent_of = static_extent<__uncvref<R>>;
+		template<class R, unsigned I = 0>
+		requires __has_static_extent<R, I>
+		inline constexpr auto static_extent_of = static_extent<__uncvref<R>, I>;
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 
