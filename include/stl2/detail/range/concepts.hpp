@@ -175,10 +175,23 @@ STL2_OPEN_NAMESPACE {
 
 		template<class>
 		inline constexpr int static_extent = -1;
+
+		// Extension (vs. P1419): implement static_extent for tiny-ranges
+		template<SizedRange R>
+		requires requires {
+			// BUGSBUGSBUGS { R::size() } Integral;
+			R::size(); requires Integral<decltype(R::size())>;
+			typename ::__stl2::__require_constant<R::size()>;
+		}
+		inline constexpr auto static_extent<R> = R::size();
+
 		template<class T, std::size_t Extent>
-		inline constexpr std::ptrdiff_t static_extent<T[Extent]> = std::ptrdiff_t{Extent};
+		inline constexpr std::ptrdiff_t static_extent<T[Extent]> =
+			std::ptrdiff_t{Extent};
+
 		template<class T, std::size_t Extent>
-		inline constexpr std::ptrdiff_t static_extent<std::array<T, Extent>> = std::ptrdiff_t{Extent};
+		inline constexpr std::ptrdiff_t static_extent<std::array<T, Extent>> =
+			std::ptrdiff_t{Extent};
 
 		template<class R>
 		META_CONCEPT __has_static_extent = Range<R> && requires {

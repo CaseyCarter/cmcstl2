@@ -48,9 +48,6 @@ STL2_OPEN_NAMESPACE {
 		constexpr const T* data() const noexcept { return std::addressof(value_.get()); }
 	};
 
-	template<class T>
-	inline constexpr std::ptrdiff_t ext::static_extent<single_view<T>> = 1;
-
 	namespace view {
 		struct __single_fn {
 			template<class T>

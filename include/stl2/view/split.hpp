@@ -26,11 +26,15 @@
 STL2_OPEN_NAMESPACE {
 	template<class R>
 	META_CONCEPT _TinyRange =
+#if 1 // HACKHACK use static_extent_of extension
+		 ext::static_extent_of<R> <= 1;
+#else
 		SizedRange<R> &&
 		requires {
 			typename meta::detail::require_constant<std::remove_reference_t<R>::size()>;
 		} &&
 		std::remove_reference_t<R>::size() <= 1;
+#endif
 
 	template<InputRange Rng>
 	struct __split_view_base {
