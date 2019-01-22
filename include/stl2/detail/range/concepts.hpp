@@ -174,7 +174,7 @@ STL2_OPEN_NAMESPACE {
 		using range_rvalue_reference_t = iter_rvalue_reference_t<iterator_t<R>>;
 
 		template<class>
-		inline constexpr std::ptrdiff_t static_extent = -1;
+		inline constexpr int static_extent = -1;
 		template<class T, std::size_t Extent>
 		inline constexpr std::ptrdiff_t static_extent<T[Extent]> = std::ptrdiff_t{Extent};
 		template<class T, std::size_t Extent>
