@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 		struct __single_ref_fn : detail::__pipeable<__single_ref_fn> {
 			template<class T>
 			constexpr auto operator()(T&& t) const
-			STL2_REQUIRES_RETURN(
+			STL2_NOEXCEPT_REQUIRES_RETURN(
 				__stl2::ext::single_ref_view{std::forward<T>(t)}
 			)
 		};
