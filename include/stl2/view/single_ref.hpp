@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<class T>
 		requires std::is_object_v<T>
-		class single_ref_view : public view_interface<single_ref_view<T>> {
+		struct single_ref_view : view_interface<single_ref_view<T>> {
 		private:
 			T* ref_ = nullptr;
 
