@@ -48,10 +48,13 @@ namespace ext {
 		noexcept(noexcept(fun(static_cast<U&&>(u)))) // strengthened
 		: ref_{std::addressof(static_cast<T&>(static_cast<U&&>(u)))} {}
 
-		constexpr T* begin() const noexcept { return data(); }
-		constexpr T* end() const noexcept { return data() + 1; }
+		constexpr T* begin() noexcept { return data(); }
+		constexpr const T* begin() const noexcept { return data(); }
+		constexpr T* end() noexcept { return data() + 1; }
+		constexpr const T* end() const noexcept { return data() + 1; }
 		constexpr static std::ptrdiff_t size() noexcept { return 1; }
-		constexpr T* data() const noexcept { return ref_; }
+		constexpr T* data() noexcept { return ref_; }
+		constexpr const T* data() const noexcept { return ref_; }
 	};
 
 	template <class T>
