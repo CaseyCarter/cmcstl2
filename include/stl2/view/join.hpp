@@ -135,9 +135,9 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr void satisfy_() {
 			auto update_inner_range =
-				[this](iter_reference_t<iterator_t<Base>> x) -> decltype(auto) {
+				[this](iter_reference_t<iterator_t<Base>> x) -> auto& {
 				if constexpr (ref_is_glvalue) return (x);
-				else return (parent_->inner_ = view::all(x));
+				else return (parent_->inner_ = view::all(std::move(x)));
 			};
 
 			for (; outer_ != __stl2::end(parent_->base_); ++outer_) {
