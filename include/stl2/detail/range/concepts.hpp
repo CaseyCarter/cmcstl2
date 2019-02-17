@@ -200,7 +200,7 @@ STL2_OPEN_NAMESPACE {
 			static_extent<T, I - 1>;
 
 		template<class R, unsigned I = 0>
-		META_CONCEPT __has_static_extent = Range<R> && requires {
+		META_CONCEPT __has_static_extent = SizedRange<R> && requires {
 			{ static_extent<__uncvref<R>, I> } -> Integral;
 			typename __require_constant<static_extent<__uncvref<R>, I>>;
 			requires static_extent<__uncvref<R>, I> >= 0;
