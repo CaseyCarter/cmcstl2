@@ -33,48 +33,37 @@ STL2_OPEN_NAMESPACE {
 			ContiguousRange<R> && SizedRange<R>;
 	}
 
-	namespace __span {
-		using index_t = std::ptrdiff_t;
-	}
+	inline constexpr auto dynamic_extent = std::ptrdiff_t{-1};
 
-	inline constexpr auto dynamic_extent = static_cast<__span::index_t>(-1);
-
-	template<ext::Object ElementType, __span::index_t Extent = dynamic_extent>
+	template<ext::Object ElementType, std::ptrdiff_t Extent = dynamic_extent>
 	requires Extent >= dynamic_extent
 	struct span;
 
 	namespace __span {
-		template<index_t Extent>
+		template<std::ptrdiff_t Extent>
 		requires Extent >= dynamic_extent
 		struct extent {
 			constexpr extent() noexcept = default;
-			constexpr extent(index_t size) noexcept {
+			constexpr extent(std::ptrdiff_t size) noexcept {
 				STL2_EXPECT(size == Extent);
 			}
-			constexpr index_t size() const noexcept { return Extent; }
+			constexpr std::ptrdiff_t size() const noexcept { return Extent; }
 		};
 		template<>
 		struct extent<dynamic_extent> {
 			constexpr extent() noexcept = default;
-			constexpr extent(index_t size) noexcept
+			constexpr extent(std::ptrdiff_t size) noexcept
 			: size_{size} {
 				STL2_EXPECT(size >= 0);
 			}
-			constexpr index_t size() const noexcept { return size_; }
+			constexpr std::ptrdiff_t size() const noexcept { return size_; }
 		private:
-			index_t size_ = 0;
+			std::ptrdiff_t size_ = 0;
 		};
 
 		template<class R>
 		META_CONCEPT StaticSizedContiguousRange =
 			ext::SizedContiguousRange<R> && ext::__has_static_extent<R>;
-
-		template<class R, class ElementType>
-		META_CONCEPT compatible = ext::SizedContiguousRange<R> &&
-			_ForwardingRange<R> &&
-			ConvertibleTo<
-				std::remove_pointer_t<ext::data_pointer_t<R>>(*)[],
-				ElementType(*)[]>;
 
 		template<Integral To, Integral From>
 		constexpr To narrow_cast(From from) noexcept {
@@ -86,28 +75,28 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<class T>
-		constexpr index_t byte_extent(index_t count) noexcept {
+		constexpr std::ptrdiff_t byte_extent(std::ptrdiff_t count) noexcept {
 			if (count < 0) return dynamic_extent;
 			STL2_EXPECT(__span::narrow_cast<std::size_t>(count) <= PTRDIFF_MAX / sizeof(T));
-			return count * __span::narrow_cast<index_t>(sizeof(T));
+			return count * __span::narrow_cast<std::ptrdiff_t>(sizeof(T));
 		}
 
 #if STL2_WORKAROUND_CLANG_37556
-		template<class T, index_t E>
+		template<class T, std::ptrdiff_t E>
 		constexpr auto begin(span<T, E> s) noexcept { return s.begin(); }
-		template<class T, index_t E>
+		template<class T, std::ptrdiff_t E>
 		constexpr auto end(span<T, E> s) noexcept { return s.end(); }
 #endif // STL2_WORKAROUND_CLANG_37556
 	} // namespace __span
 
 	// [span], class template span
-	template<ext::Object ElementType, __span::index_t Extent>
+	template<ext::Object ElementType, std::ptrdiff_t Extent>
 	requires Extent >= dynamic_extent
 	struct span : private __span::extent<Extent> {
 		// constants and types
 		using element_type = ElementType;
 		using value_type = std::remove_cv_t<ElementType>;
-		using difference_type = __span::index_t;
+		using difference_type = std::ptrdiff_t;
 		using index_type = difference_type;
 		using pointer = element_type*;
 		using reference = element_type&;
@@ -127,15 +116,12 @@ STL2_OPEN_NAMESPACE {
 		: span{first, last - first} {}
 
 		template<_NotSameAs<span> R>
-		requires Extent == ext::static_extent_of<R> &&
-			__span::compatible<R, ElementType>
-		constexpr span(R&& rng)
-		noexcept(noexcept(__stl2::data(rng)))
-		: span{__stl2::data(rng), Extent} {}
-
-		template<_NotSameAs<span> R>
-		requires Extent == dynamic_extent &&
-			__span::compatible<R, ElementType>
+		requires ContiguousRange<R> && SizedRange<R> && _ForwardingRange<R> &&
+			(Extent == dynamic_extent || Extent == ext::static_extent_of<R>) &&
+			ConvertibleTo<
+				std::remove_pointer_t<std::remove_reference_t<
+					iter_reference_t<iterator_t<R>>>>(*)[],
+				ElementType(*)[]>
 		constexpr span(R&& rng)
 		noexcept(noexcept(__stl2::data(rng), __stl2::size(rng)))
 		: span{__stl2::data(rng), __span::narrow_cast<index_type>(__stl2::size(rng))} {}
@@ -256,17 +242,17 @@ STL2_OPEN_NAMESPACE {
 	span(Rng&& rng) -> span<std::remove_pointer_t<ext::data_pointer_t<Rng>>,
 		ext::static_extent_of<Rng>>;
 
-	template<class T, __span::index_t Extent>
+	template<class T, std::ptrdiff_t Extent>
 	requires Extent > dynamic_extent
-	inline constexpr __span::index_t ext::static_extent<span<T, Extent>> = Extent;
+	inline constexpr std::ptrdiff_t ext::static_extent<span<T, Extent>> = Extent;
 
 	// [span.objectrep], views of object representation
-	template<class ElementType, __span::index_t Extent>
+	template<class ElementType, std::ptrdiff_t Extent>
 	span<const unsigned char, __span::byte_extent<ElementType>(Extent)>
 	as_bytes(span<ElementType, Extent> s) noexcept {
 		return {reinterpret_cast<const unsigned char*>(s.data()), s.size_bytes()};
 	}
-	template<class ElementType, __span::index_t Extent>
+	template<class ElementType, std::ptrdiff_t Extent>
 	span<unsigned char, __span::byte_extent<ElementType>(Extent)>
 	as_writeable_bytes(span<ElementType, Extent> s) noexcept {
 		return {reinterpret_cast<unsigned char*>(s.data()), s.size_bytes()};
