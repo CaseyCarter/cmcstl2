@@ -49,5 +49,6 @@ endif()
 
 if(NOT_SUBPROJECT OR BUILD_TESTING)
     include(CTest)
+    add_custom_target(check ${CMAKE_CTEST_COMMAND} -V)
     add_subdirectory(test)
 endif()

@@ -22,7 +22,8 @@ target_compile_options(stl2_test_config INTERFACE
 function(add_stl2_test TESTNAME EXENAME FIRSTSOURCE)
   add_executable(${EXENAME} ${FIRSTSOURCE} ${ARGN})
   target_link_libraries(${EXENAME} stl2_test_config)
-  add_test(${TESTNAME} ${EXENAME})
+  add_test(NAME ${TESTNAME} COMMAND $<TARGET_FILE:${EXENAME}>)
+  add_dependencies(check ${EXENAME})
 endfunction(add_stl2_test)
 
 add_stl2_test(test.headers headers headers1.cpp headers2.cpp)
