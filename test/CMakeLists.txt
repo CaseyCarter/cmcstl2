@@ -23,7 +23,7 @@ function(add_stl2_test TESTNAME EXENAME FIRSTSOURCE)
   add_executable(${EXENAME} ${FIRSTSOURCE} ${ARGN})
   target_link_libraries(${EXENAME} stl2_test_config)
   add_test(NAME ${TESTNAME} COMMAND $<TARGET_FILE:${EXENAME}>)
-  add_dependencies(check ${EXENAME})
+  add_dependencies(stl2-check ${EXENAME})
 endfunction(add_stl2_test)
 
 add_stl2_test(test.headers headers headers1.cpp headers2.cpp)
