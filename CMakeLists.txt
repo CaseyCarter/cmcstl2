@@ -19,6 +19,8 @@ if(CMAKE_CURRENT_LIST_DIR STREQUAL CMAKE_SOURCE_DIR)
     set(NOT_SUBPROJECT ON)
 endif()
 
+option(BUILD_EXAMPLES "Build stl2 examples" ON)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Sanitizer COMPONENTS address undefined)
 
@@ -41,7 +43,9 @@ install(
     FILES ${PROJECT_BINARY_DIR}/cmcstl2-config.cmake
     DESTINATION lib/cmake/cmcstl2)
 
-add_subdirectory(examples)
+if(NOT_SUBPROJECT OR BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 enable_testing()
 include(CTest)
