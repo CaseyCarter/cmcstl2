@@ -14,6 +14,11 @@ cmake_minimum_required(VERSION 3.8)
 
 project(cmcstl2 CXX)
 
+# check if cmcstl2 is a subproject
+if(CMAKE_CURRENT_LIST_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(NOT_SUBPROJECT ON)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Sanitizer COMPONENTS address undefined)
 
