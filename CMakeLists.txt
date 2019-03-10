@@ -14,13 +14,14 @@ cmake_minimum_required(VERSION 3.8)
 
 project(cmcstl2 CXX)
 
-# check if cmcstl2 is a subproject
+# check if cmcstl2 is not a subproject
 if(CMAKE_CURRENT_LIST_DIR STREQUAL CMAKE_SOURCE_DIR)
-    set(STL2_NOT_SUBPROJECT ON)
+    option(STL2_BUILD_EXAMPLES "Build stl2 examples" ON)
+    option(STL2_BUILD_TESTING "Build stl2 tests" ON)
+else()
+    option(STL2_BUILD_EXAMPLES "Build stl2 examples" OFF)
+    option(STL2_BUILD_TESTING "Build stl2 tests" OFF)
 endif()
-
-option(STL2_BUILD_EXAMPLES "Build stl2 examples" ON)
-option(STL2_BUILD_TESTING "Build stl2 tests" ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Sanitizer COMPONENTS address undefined)
@@ -44,11 +45,11 @@ install(
     FILES ${PROJECT_BINARY_DIR}/cmcstl2-config.cmake
     DESTINATION lib/cmake/cmcstl2)
 
-if(STL2_NOT_SUBPROJECT OR STL2_BUILD_EXAMPLES)
+if(STL2_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-if(STL2_NOT_SUBPROJECT OR STL2_BUILD_TESTING)
+if(STL2_BUILD_TESTING)
     include(CTest)
     add_custom_target(stl2-check ${CMAKE_CTEST_COMMAND} -V)
     add_subdirectory(test)
