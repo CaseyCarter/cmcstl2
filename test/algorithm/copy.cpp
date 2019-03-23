@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <cstring>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -103,6 +104,13 @@ int main() {
 			CHECK(res4.out == buf + std::strlen(sz));
 			CHECK(std::strcmp(sz, buf) == 0);
 		}
+	}
+
+	{
+		int target[8]{};
+		single_pass_array l = {1,2,3,4,5,6};
+		CHECK(ranges::copy(std::move(l), target + 1).out == target + 7);
+		CHECK_EQUAL(target, {0,1,2,3,4,5,6,0});
 	}
 
 	{

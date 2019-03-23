@@ -81,14 +81,14 @@ STL2_OPEN_NAMESPACE {
 		// is an opt-out trait that tells basic_iterator that an Input cursor is NOT
 		// Forward despite having equality.
 		template<class>
-		constexpr bool single_pass = false;
+		constexpr bool single_pass = true;
 		template<class C>
-		requires
-			requires {
+		requires (copyable<C> &&
+			!requires {
 				typename C::single_pass;
 				requires bool(C::single_pass::value);
-			}
-		constexpr bool single_pass<C> = true;
+			})
+		constexpr bool single_pass<C> = false;
 
 		// A RandomAccess cursor whose reference_t is a reference type and
 		// whose member type "contiguous" looks like true_type will generate
@@ -165,8 +165,8 @@ STL2_OPEN_NAMESPACE {
 
 		template<class C, class M>
 		META_CONCEPT _Cursor =
-			semiregular<C> &&
-			semiregular<M> &&
+			movable<C> &&
+			movable<M> &&
 			constructible_from<M, C> &&
 			constructible_from<M, const C&>;
 
@@ -289,7 +289,9 @@ STL2_OPEN_NAMESPACE {
 			readable<C> && Next<C>;
 		template<class C>
 		META_CONCEPT Forward =
-			Input<C> && !single_pass<C> && sentinel_for<C, C>;
+			Input<C> && !single_pass<C> &&
+			copyable<C> && copyable<mixin_t<C>> &&
+			constructible_from<mixin_t<C>, const C&> && sentinel_for<C, C>;
 		template<class C>
 		META_CONCEPT Bidirectional =
 			Forward<C> && Prev<C>;

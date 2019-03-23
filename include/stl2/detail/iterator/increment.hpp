@@ -19,6 +19,7 @@
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
+#include <stl2/detail/concepts/object.hpp>
 
 STL2_OPEN_NAMESPACE {
 	////////////////////////////////////////////////////////////////////////////
@@ -68,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class I>
 	META_CONCEPT weakly_incrementable =
-		semiregular<I> &&
+			movable<I> && default_initializable<I> &&
 		requires(I i) {
 			typename iter_difference_t<I>;
 			requires signed_integral<iter_difference_t<I>>;
