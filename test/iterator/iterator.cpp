@@ -162,7 +162,7 @@ std::ostream& operator<<(std::ostream& sout, category c) {
 template<class>
 constexpr category iterator_dispatch() { return category::none; }
 template<ranges::OutputIterator<const int&> I>
-requires !ranges::InputIterator<I>
+requires (!ranges::InputIterator<I>)
 constexpr category iterator_dispatch() { return category::output; }
 template<ranges::InputIterator>
 constexpr category iterator_dispatch() { return category::input; }

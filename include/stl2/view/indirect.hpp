@@ -74,19 +74,19 @@ STL2_OPEN_NAMESPACE {
 			indirect_view(Rng rng) : base_t{std::move(rng)} {}
 
 			basic_iterator<cursor<false>> begin()
-			requires !Range<Rng const>
+			requires (!Range<Rng const>)
 			{ return basic_iterator<cursor<false>>{cursor<false>{__stl2::begin(get())}}; }
 
 			sentinel<false> end()
-			requires !Range<Rng const>
+			requires (!Range<Rng const>)
 			{ return sentinel<false>{__stl2::end(get())}; }
 
 			basic_iterator<cursor<false>> end()
-			requires !Range<Rng const> && CommonRange<Rng>
+			requires (!Range<Rng const> && CommonRange<Rng>)
 			{ return basic_iterator<cursor<false>>{cursor<false>{__stl2::end(get())}}; }
 
 			auto size()
-			requires !Range<Rng const> && SizedRange<Rng>
+			requires (!Range<Rng const> && SizedRange<Rng>)
 			{ return __stl2::size(get()); }
 
 			basic_iterator<cursor<true>> begin() const

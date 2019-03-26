@@ -246,9 +246,9 @@ STL2_OPEN_NAMESPACE {
 		)
 
 		template<class R1, class R2>
-		requires !SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>> &&
+		requires (!SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>> &&
 			IndirectlyMovableStorable<R1, R2> &&
-			IndirectlyMovableStorable<R2, R1>
+			IndirectlyMovableStorable<R2, R1>)
 		constexpr void impl(R1& r1, R2& r2)
 			noexcept(
 				is_nothrow_indirectly_movable_storable_v<R1, R2> &&

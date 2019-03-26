@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
 #endif // STL2_WORKAROUND_GCC_69096
 			constexpr auto post_increment()
 			noexcept(noexcept(__proxy<__postinc_t>{current_++}))
-			requires !ForwardIterator<I> && Readable<__postinc_t> {
+			requires (!ForwardIterator<I> && Readable<__postinc_t>) {
 				return __proxy<__postinc_t>{current_++};
 			}
 

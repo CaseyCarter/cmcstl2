@@ -71,14 +71,14 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr R base() const { return base_; }
 
-		constexpr auto begin() requires !ext::SimpleView<R> { return begin_(*this); }
+		constexpr auto begin() requires (!ext::SimpleView<R>) { return begin_(*this); }
 		constexpr auto begin() const requires Range<const R> { return begin_(*this); }
 
-		constexpr auto end() requires !ext::SimpleView<R> { return end_(*this); }
+		constexpr auto end() requires (!ext::SimpleView<R>) { return end_(*this); }
 		constexpr auto end() const requires Range<const R> || SizedRange<R>
 		{ return end_(*this); }
 
-		constexpr auto size() requires !ext::SimpleView<R> && SizedRange<R> { return size_(*this); }
+		constexpr auto size() requires (!ext::SimpleView<R> && SizedRange<R>) { return size_(*this); }
 		constexpr auto size() const requires SizedRange<const R> { return size_(*this); }
 	};
 

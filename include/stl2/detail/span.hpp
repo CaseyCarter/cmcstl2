@@ -153,7 +153,7 @@ STL2_OPEN_NAMESPACE {
 
 			// FIXME: accept forwarding-range?
 			template<__span::compatible<ElementType> Range>
-			requires Extent == __span::static_extent<Range>::value
+			requires (Extent == __span::static_extent<Range>::value)
 			constexpr span(Range&& rng)
 			noexcept(noexcept(__stl2::data(rng)))
 			: span{__stl2::data(rng), Extent}
