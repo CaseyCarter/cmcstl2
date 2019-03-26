@@ -35,7 +35,7 @@ class forward_list {
 
 		cursor() = default;
 		template<bool B>
-		requires IsConst && !B
+		requires (IsConst && !B)
 		cursor(cursor<B> that) noexcept
 		: ptr_{that.ptr_} {}
 
@@ -265,7 +265,7 @@ struct proxy_array {
 
 		cursor(O* p = nullptr) : ptr_{p} {}
 		template<bool B>
-		requires IsConst && !B
+		requires (IsConst && !B)
 		cursor(const cursor<B>& that) : ptr_{that.ptr_} {}
 
 		template<bool B>

@@ -45,10 +45,10 @@ STL2_OPEN_NAMESPACE {
 			constexpr R base() const { return base_; }
 			constexpr const Pred& pred() const noexcept { return get(); }
 
-			constexpr auto begin() requires !SimpleView<R> { return begin_impl(*this); }
+			constexpr auto begin() requires (!SimpleView<R>) { return begin_impl(*this); }
 			constexpr auto begin() const requires Range<const R> { return begin_impl(*this); }
 
-			constexpr auto end() requires !SimpleView<R> { return end_impl(*this); }
+			constexpr auto end() requires (!SimpleView<R>) { return end_impl(*this); }
 			constexpr auto end() const requires Range<const R>
 			{ return end_impl(*this); }
 		private:

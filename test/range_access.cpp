@@ -195,7 +195,7 @@ namespace begin_testing {
 
 namespace X {
 	template<class T, std::size_t N>
-		requires N != 0
+		requires (N != 0)
 	struct array {
 		T elements_[N];
 

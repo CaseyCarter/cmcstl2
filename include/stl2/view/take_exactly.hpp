@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr auto begin()
 			noexcept(noexcept(counted_iterator{__stl2::begin(std::declval<Base&>()), n_}))
-			requires !Range<Base const>
+			requires (!Range<Base const>)
 			{ return counted_iterator{__stl2::begin(get()), n_}; }
 
 	#if 0 // FIXME: Untagged bug workaround

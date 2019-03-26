@@ -57,8 +57,8 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template<InputRange R, class O>
-			requires !Range<O> && WeaklyIncrementable<__f<O>>
-				&& IndirectlyMovable<iterator_t<R>, __f<O>>
+			requires (!Range<O> && WeaklyIncrementable<__f<O>>
+				&& IndirectlyMovable<iterator_t<R>, __f<O>>)
 			constexpr move_result<safe_iterator_t<R>, __f<O>>
 			operator()(R&& r, O&& result_) const {
 				auto result = std::forward<O>(result_);

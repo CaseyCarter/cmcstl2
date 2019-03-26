@@ -137,7 +137,7 @@ STL2_OPEN_NAMESPACE {
 		__outer_iterator() = default;
 
 		constexpr explicit  __outer_iterator(Parent& parent)
-		requires !ForwardRange<Base>
+		requires (!ForwardRange<Base>)
 		: parent_(std::addressof(parent)) {}
 
 		constexpr __outer_iterator(Parent& parent, iterator_t<Base> current)

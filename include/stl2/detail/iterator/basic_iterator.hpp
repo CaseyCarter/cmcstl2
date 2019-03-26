@@ -30,7 +30,7 @@
 
 STL2_OPEN_NAMESPACE {
 	template<ext::DestructibleObject T>
-	requires std::is_class<T>::value && !std::is_final<T>::value
+	requires (std::is_class<T>::value && !std::is_final<T>::value)
 	class basic_mixin : T {
 	public:
 		basic_mixin() = default;
@@ -688,7 +688,7 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr decltype(auto) operator*() const
 		noexcept(noexcept(std::declval<const C&>().read()))
-		requires cursor::Readable<C> && !detail::is_writable<C>
+		requires (cursor::Readable<C> && !detail::is_writable<C>)
 		{
 			return get().read();
 		}
@@ -706,7 +706,7 @@ STL2_OPEN_NAMESPACE {
 			return const_reference_t{get()};
 		}
 		constexpr basic_iterator& operator*() noexcept
-		requires !cursor::Next<C>
+		requires (!cursor::Next<C>)
 		{
 			return *this;
 		}
@@ -754,8 +754,8 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr void operator++(int) &
 		noexcept(noexcept(++std::declval<basic_iterator&>()))
-		requires cursor::Input<C> && !cursor::Forward<C>
-			&& !cursor::PostIncrement<C>
+		requires (cursor::Input<C> && !cursor::Forward<C>
+			&& !cursor::PostIncrement<C>)
 		{
 			++*this;
 		}
