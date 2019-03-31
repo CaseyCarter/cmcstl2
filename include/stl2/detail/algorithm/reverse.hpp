@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		struct __reverse_n_fn {
 			template<permutable I>
 			constexpr I operator()(I first, iter_difference_t<I> n) const {
-				auto ufirst = ext::uncounted(first);
+				auto ufirst = ext::uncounted(std::move(first));
 				// TODO: tune this threshold.
 				constexpr auto alloc_threshold = iter_difference_t<I>(8);
 				auto buf = n >= alloc_threshold ? buf_t<I>{n / 2} : buf_t<I>{};
@@ -66,8 +66,9 @@ STL2_OPEN_NAMESPACE {
 				detail::temporary_vector<iter_value_t<I>> vec{buf};
 #else // ^^^ workaround / no workaround vvv
 				detail::temporary_vector vec{buf};
+
 #endif // STL2_WORKAROUND_MSVC_841651
-				auto ufirst = ext::uncounted(first);
+				auto ufirst = ext::uncounted(std::move(first));
 				// Shift the first half of the input range into the buffer.
 				auto umiddle = ext::uncounted(move(
 					counted_iterator{ufirst, n / 2}, default_sentinel{},

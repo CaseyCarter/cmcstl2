@@ -31,12 +31,12 @@ STL2_OPEN_NAMESPACE {
 		operator()(I first_, iter_difference_t<I> n, O result) const {
 			if (n < 0) n = 0;
 			auto norig = n;
-			auto first = ext::uncounted(first_);
+			auto first = ext::uncounted(std::move(first_));
 			for(; n > 0; (void) ++first, (void) ++result, --n) {
 				*result = *first;
 			}
 			return {
-				ext::recounted(first_, first, norig),
+				ext::recounted(first_, std::move(first), norig),
 				std::move(result)
 			};
 		}

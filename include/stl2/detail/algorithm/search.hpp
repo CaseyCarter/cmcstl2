@@ -114,7 +114,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			auto d1 = d1_;
-			auto first1 = ext::uncounted(first1_);
+			auto first1 = ext::uncounted(std::move(first1_));
 			for(; d1 >= d2; ++first1, --d1) {
 				if (__stl2::invoke(pred, __stl2::invoke(proj1, *first1),
 						__stl2::invoke(proj2, *first2)))
@@ -125,14 +125,14 @@ STL2_OPEN_NAMESPACE {
 						++m1;
 						if (++m2 == last2) {
 							return {
-								ext::recounted(first1_, first1, d1_ - d1),
-								ext::recounted(first1_, m1, d1_ - d1 + d2)
+								ext::recounted(first1_, std::move(first1), d1_ - d1),
+								ext::recounted(first1_, std::move(m1), d1_ - d1 + d2)
 							};
 						}
 					} while (__stl2::invoke(pred, __stl2::invoke(proj1, *m1), __stl2::invoke(proj2, *m2)));
 				}
 			}
-			auto end = next(ext::recounted(first1_, first1, d1_ - d1), last1);
+			auto end = next(ext::recounted(first1_, std::move(first1), d1_ - d1), last1);
 			return {end, end};
 		}
 	};

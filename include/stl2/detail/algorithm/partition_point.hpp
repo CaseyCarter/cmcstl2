@@ -40,9 +40,10 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(0 <= n);
 				while (n != 0) {
 					auto const half = n / 2;
-					auto middle = next(ext::uncounted(first), half);
+					auto middle = next(ext::uncounted(std::move(first)), half);
 					if (__stl2::invoke(pred, __stl2::invoke(proj, *middle))) {
-						first = ext::recounted(first, std::move(++middle), half + 1);
+						++middle;
+						first = ext::recounted(first, std::move(middle), half + 1);
 						n -= half + 1;
 					} else {
 						n = half;
