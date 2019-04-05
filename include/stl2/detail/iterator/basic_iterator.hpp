@@ -601,7 +601,7 @@ STL2_OPEN_NAMESPACE {
 		requires cursor::IndirectMove<C>
 		constexpr decltype(auto) iter_move(const basic_iterator<C>& i)
 		STL2_NOEXCEPT_RETURN(
-			i.get().indirect_move()
+			get_cursor(i).indirect_move()
 		)
 
 		template<class C1, class C2>
@@ -609,7 +609,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr void iter_swap(
 			const basic_iterator<C1>& x, const basic_iterator<C2>& y)
 		STL2_NOEXCEPT_RETURN(
-			static_cast<void>(x.get().indirect_swap(y.get()))
+			static_cast<void>(get_cursor(x).indirect_swap(get_cursor(y)))
 		)
 	} // namespace basic_iterator_adl
 
