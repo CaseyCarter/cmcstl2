@@ -30,6 +30,7 @@
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -304,6 +305,15 @@ int main() {
 		CHECK(r.out == ib + 7);
 		CHECK_EQUAL(ranges::subrange(ib, ib+7), {S{1,1},S{2,2},S{3,3},S{4,5},S{5,6},S{6,9},S{7,10}});
 	}
+
+	// Test single pass:
+	{
+		auto a = single_pass_array{1, 1, 2, 2, 3, 4, 5, 6, 7, 1};
+		int out[8];
+		ranges::unique_copy(a, out);
+		CHECK_EQUAL(out, {1, 2, 3, 4, 5, 6, 7, 1});
+	}
+
 
 	return ::test_result();
 }

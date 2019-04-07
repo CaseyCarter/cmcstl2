@@ -12,6 +12,7 @@
 #include <stl2/detail/algorithm/transform.hpp>
 
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -45,6 +46,36 @@ int main() {
 			CHECK(result.in1 == ranges::end(source1));
 			CHECK(result.in2 == ranges::end(source2));
 			CHECK(result.out == ranges::end(target));
+			CHECK_EQUAL(target, control);
+		}
+
+		{
+			auto a = single_pass_array{1,2,3,4,5};
+			int out[5];
+			ranges::transform(a, out, [](int i){ return i * 2; });
+			CHECK_EQUAL(out, {2,4,6,8,10});
+		}
+
+		{
+			auto a = single_pass_array{1,2,3,4,5};
+			int out[5];
+			ranges::transform(ranges::begin(a),  ranges::end(a), ranges::begin(out), [](int i){ return i * 2; });
+			CHECK_EQUAL(out, {2,4,6,8,10});
+		}
+
+		{
+			auto a = single_pass_array {0,1,2,3};
+			auto b = single_pass_array {4,5,6,7};
+			int target[4]{};
+			ranges::transform(ranges::begin(a), ranges::end(a), ranges::begin(b), ranges::end(b), target, sum);
+			CHECK_EQUAL(target, control);
+		}
+
+		{
+			auto a = single_pass_array {0,1,2,3};
+			auto b = single_pass_array {4,5,6,7};
+			int target[4]{};
+			ranges::transform(a, b, target, sum);
 			CHECK_EQUAL(target, control);
 		}
 	}
