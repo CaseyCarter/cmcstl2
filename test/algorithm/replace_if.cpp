@@ -23,10 +23,12 @@
 //===----------------------------------------------------------------------===//
 
 #include <stl2/detail/algorithm/replace_if.hpp>
+#include <stl2/detail/algorithm/equal.hpp>
 #include <utility>
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -110,6 +112,21 @@ int main()
 		CHECK(ia[3] == P{3,"3"});
 		CHECK(ia[4] == P{4,"4"});
 	}
+
+	// Check single pass
+	{
+		auto a = single_pass_array{1, 2, 3, 4};
+		int expected[] = {1, 2, 3, 42};
+		ranges::replace_if(a, [](int i){return i==4;}, 42);
+		CHECK(ranges::equal(a, expected));
+	}
+	{
+		auto a = single_pass_array{1, 2, 3, 4};
+		int expected[] = {1, 2, 3, 42};
+		ranges::replace_if(ranges::begin(a), ranges::end(a), [](int i){return i==4;}, 42);
+		CHECK(ranges::equal(a, expected));
+	}
+
 
 	return ::test_result();
 }

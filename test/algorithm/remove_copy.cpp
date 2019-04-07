@@ -28,6 +28,7 @@
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -161,6 +162,17 @@ int main() {
 		CHECK(ib[3].i == 4);
 		CHECK(ib[4].i == 3);
 		CHECK(ib[5].i == 4);
+	}
+
+	// Check single pass
+	{
+		auto a = single_pass_array{1, 2, 3, 4};
+		int out[] = {0, 0, 0, 0};
+		ranges::remove_copy(a, ranges::begin(out), 4);
+		CHECK(out[0] == 1);
+		CHECK(out[1] == 2);
+		CHECK(out[2] == 3);
+		CHECK(out[3] == 0);
 	}
 
 	return ::test_result();

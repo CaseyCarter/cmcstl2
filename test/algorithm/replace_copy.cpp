@@ -23,10 +23,12 @@
 //===----------------------------------------------------------------------===//
 
 #include <stl2/detail/algorithm/replace_copy.hpp>
+#include <stl2/detail/algorithm/equal.hpp>
 #include <utility>
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -117,6 +119,22 @@ int main() {
 		CHECK(out[2] == P{5, "5"});
 		CHECK(out[3] == P{3, "3"});
 		CHECK(out[4] == P{4, "4"});
+	}
+
+	// Check single pass
+	{
+		auto a = single_pass_array{1, 2, 3, 4};
+		int expected[] = {1, 2, 3, 42};
+		int out[] = {0, 0, 0, 0};
+		ranges::replace_copy(a, out, 4, 42);
+		CHECK(ranges::equal(out, expected));
+	}
+	{
+		auto a = single_pass_array{1, 2, 3, 4};
+		int out[] = {0, 0, 0, 0};
+		int expected[] = {1, 2, 3, 42};
+		ranges::replace_copy(ranges::begin(a), ranges::end(a), ranges::begin(out), 4, 42);
+		CHECK(ranges::equal(out, expected));
 	}
 
 	return ::test_result();
