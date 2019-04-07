@@ -22,6 +22,7 @@
 #include <stl2/utility.hpp>
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 struct S
 {
@@ -67,6 +68,12 @@ int main()
 	CHECK(ps->i_ == 3);
 	ps = find_if_not(sa, [](int i){return i != 10;}, &S::i_);
 	CHECK(ps == end(sa));
+
+	{
+		auto single_pass   = single_pass_array{0, 1, 2, 3, 1};
+		auto single_pass_r = find_if_not(single_pass, [](int i){return i == 0;});
+		CHECK((single_pass_r != end(single_pass) && *single_pass_r == 1));
+	}
 
 	return ::test_result();
 }

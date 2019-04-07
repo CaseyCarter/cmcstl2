@@ -19,12 +19,14 @@
 //===----------------------------------------------------------------------===//
 
 #include <stl2/detail/algorithm/move.hpp>
+#include <stl2/detail/algorithm/equal.hpp>
 #include <stl2/view/subrange.hpp>
 #include <memory>
 #include <algorithm>
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -112,6 +114,22 @@ void test1() {
 			CHECK(ia[i].get() == nullptr);
 			CHECK(*ib[i] == i);
 		}
+	}
+}
+
+void test_single_pass() {
+	int expected[] = {1, 2, 3, 4};
+	{
+		int  o[4];
+		auto a = single_pass_array{1, 2, 3, 4};
+		ranges::move(a, ranges::begin(o));
+		CHECK(ranges::equal(o, expected));
+	}
+	{
+		int  o[4];
+		auto a = single_pass_array{1, 2, 3, 4};
+		ranges::move(ranges::begin(a), ranges::end(a), ranges::begin(o));
+		CHECK(ranges::equal(o, expected));
 	}
 }
 
@@ -236,6 +254,8 @@ int main() {
 	test1<random_access_iterator<std::unique_ptr<int>*>, forward_iterator<std::unique_ptr<int>*>, sentinel<std::unique_ptr<int>*> >();
 	test1<random_access_iterator<std::unique_ptr<int>*>, bidirectional_iterator<std::unique_ptr<int>*>, sentinel<std::unique_ptr<int>*> >();
 	test1<random_access_iterator<std::unique_ptr<int>*>, random_access_iterator<std::unique_ptr<int>*>, sentinel<std::unique_ptr<int>*> >();
+
+	test_single_pass();
 
 	return test_result();
 }

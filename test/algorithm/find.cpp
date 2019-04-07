@@ -22,6 +22,7 @@
 #include <stl2/utility.hpp>
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -58,6 +59,10 @@ int main() {
 	CHECK((ps != end(sa) && ps->i_ == 3));
 	ps = find(sa, 10, &S::i_);
 	CHECK(ps == end(sa));
+
+	auto single_pass   = single_pass_array{0, 1, 2, 3};
+	auto single_pass_r = find(single_pass, 2);
+	CHECK((single_pass_r != end(single_pass) && *single_pass_r == 2));
 
 	return ::test_result();
 }

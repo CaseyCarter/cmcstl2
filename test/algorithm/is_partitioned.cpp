@@ -28,6 +28,7 @@
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace stl2 = __stl2;
 
@@ -70,6 +71,11 @@ test_iter()
 									  Sent(stl2::begin(ia)),
 									  is_odd()));
 	}
+
+	{
+		const auto a = single_pass_array{1, 3, 5, 2, 4, 6};
+		CHECK(stl2::is_partitioned(stl2::begin(a), stl2::end(a), is_odd()));
+	}
 }
 
 template<class Iter, class Sent = Iter>
@@ -105,6 +111,10 @@ test_range()
 		CHECK( stl2::is_partitioned(stl2::subrange(Iter(stl2::begin(ia)),
 													Sent(stl2::begin(ia))),
 									  is_odd()));
+	}
+	{
+		const auto a = single_pass_array{1, 3, 5, 2, 4, 6};
+		CHECK(stl2::is_partitioned(a, is_odd()));
 	}
 }
 

@@ -24,6 +24,7 @@
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 STL2_OPEN_NAMESPACE {
 	template<class I1, class I2>
@@ -111,6 +112,22 @@ int main() {
 				ranges::begin(s2), ranges::end(s2), std::equal_to<int>(), &S::i, &S::i);
 		CHECK(ps2.in1->i == -4);
 		CHECK(ps2.in2->i == 5);
+	}
+
+	{
+		auto a = single_pass_array{1, 2, 3, 4, 5, 6, 7};
+		auto b = single_pass_array{1, 2, 3, 4, 5, 5, 7};
+		auto r = ranges::mismatch(ranges::begin(a), ranges::end(a), ranges::begin(b), ranges::end(b));
+		CHECK(*(r.in1) == 6);
+		CHECK(*(r.in2) == 5);
+	}
+
+	{
+		auto a = single_pass_array{1, 2, 3, 4, 5, 6, 7};
+		auto b = single_pass_array{1, 2, 3, 4, 5, 5, 7};
+		auto r = ranges::mismatch(a, b);
+		CHECK(*(r.in1) == 6);
+		CHECK(*(r.in2) == 5);
 	}
 
 	return test_result();

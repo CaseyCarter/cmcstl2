@@ -13,6 +13,7 @@
 #include <stl2/detail/algorithm/for_each.hpp>
 #include <vector>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -56,6 +57,14 @@ int main() {
 	{
 		auto il = {0, 2, 4, 6};
 		auto result = ranges::for_each(std::move(il), [sum = 0](int i) mutable -> int {
+			return sum += i;
+		});
+		CHECK(result.fun(0) == 12);
+	}
+
+	{
+		auto sp = single_pass_array{0, 2, 4, 6};
+		auto result = ranges::for_each(sp, [sum = 0](int i) mutable -> int {
 			return sum += i;
 		});
 		CHECK(result.fun(0) == 12);
