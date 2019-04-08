@@ -25,10 +25,10 @@ int main()
 
 		auto result = stl2::set_intersection(in1, in2, stl2::begin(out), stl2::less{}, &S::i, &T::j);
 		CHECK((result.out - stl2::begin(out)) == stl2::distance(expected));
-		CHECK(stl2::lexicographical_compare(
+		CHECK(!stl2::lexicographical_compare(
 			stl2::begin(out), result.out,
 			stl2::begin(expected), stl2::end(expected),
-			stl2::less{}, &U::k) == false);
+			stl2::less{}, &U::k));
 	}
 
 	return ::test_result();

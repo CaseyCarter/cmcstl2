@@ -25,13 +25,13 @@ int main() {
 		ranges::set_symmetric_difference_result<S *, T *, U *> res1 =
 			ranges::set_symmetric_difference(ia, ib, ic, std::less<int>(), &S::i, &T::j);
 		CHECK((res1.out - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, res1.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res1.out, ir, ir+sr, std::less<int>(), &U::k));
 		ranges::fill(ic, U{0});
 
 		ranges::set_symmetric_difference_result<T *, S *, U *> res2 =
 			ranges::set_symmetric_difference(ib, ia, ic, std::less<int>(), &T::j, &S::i);
 		CHECK((res2.out - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k));
 	}
 
 	// Test rvalue ranges
@@ -47,7 +47,7 @@ int main() {
 		static_assert(ranges::Same<decltype(res1.in1), ranges::dangling>);
 		static_assert(ranges::Same<decltype(res1.in2), ranges::dangling>);
 		CHECK((res1.out - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, res1.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res1.out, ir, ir+sr, std::less<int>(), &U::k));
 		ranges::fill(ic, U{0});
 
 		auto res2 =
@@ -55,7 +55,7 @@ int main() {
 		static_assert(ranges::Same<decltype(res2.in1), ranges::dangling>);
 		static_assert(ranges::Same<decltype(res2.in2), ranges::dangling>);
 		CHECK((res2.out - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k));
 	}
 
 	return ::test_result();

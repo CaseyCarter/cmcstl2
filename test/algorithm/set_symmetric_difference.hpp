@@ -46,7 +46,7 @@ void test_iter() {
 		check([&](ranges::set_symmetric_difference_result<Iter1, Iter2, OutIter> res)
 		{
 			CHECK(bool((base(res.out) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
+			CHECK(!std::lexicographical_compare(ic, base(res.out), ir, ir+sr));
 			ranges::fill(ic, 0);
 		}
 	);
@@ -55,7 +55,7 @@ void test_iter() {
 		check([&](ranges::set_symmetric_difference_result<Iter1, Iter2, OutIter> res)
 		{
 			CHECK(bool((base(res.out) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
+			CHECK(!std::lexicographical_compare(ic, base(res.out), ir, ir+sr));
 			ranges::fill(ic, 0);
 		}
 	);
@@ -79,7 +79,7 @@ void test_comp() {
 		check([&](ranges::set_symmetric_difference_result<Iter1, Iter2, OutIter> res)
 		{
 			CHECK(bool((base(res.out) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
+			CHECK(!std::lexicographical_compare(ic, base(res.out), ir, ir+sr));
 			ranges::fill(ic, 0);
 		}
 	);
@@ -88,7 +88,7 @@ void test_comp() {
 		check([&](ranges::set_symmetric_difference_result<Iter1, Iter2, OutIter> res)
 		{
 			CHECK(bool((base(res.out) - ic) == sr));
-			CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
+			CHECK(!std::lexicographical_compare(ic, base(res.out), ir, ir+sr));
 			ranges::fill(ic, 0);
 		}
 	);
