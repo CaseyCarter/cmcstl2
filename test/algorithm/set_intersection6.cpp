@@ -10,6 +10,7 @@
 // Project home: https://github.com/ericniebler/range-v3
 //
 
+#include <array>
 #include "set_intersection.hpp"
 #include <stl2/detail/algorithm/lexicographical_compare.hpp>
 
@@ -27,7 +28,7 @@ int main()
 		CHECK(stl2::lexicographical_compare(
 			stl2::begin(out), result.out,
 			stl2::begin(expected), stl2::end(expected),
-			stl2::less{}, &U::k) == 0);
+			stl2::less{}, &U::k) == false);
 	}
 
 	return ::test_result();
