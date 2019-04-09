@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 				auto last = next(first, std::forward<S>(last_));
 				auto len = iter_difference_t<I>(last - first);
 				auto buf = len > 256 ? buf_t<I>{len} : buf_t<I>{};
-				if (!buf.size_) {
+				if (!buf.size()) {
 					inplace_stable_sort(first, last, comp, proj);
 				} else {
 					stable_sort_adaptive(first, last, buf, comp, proj);
