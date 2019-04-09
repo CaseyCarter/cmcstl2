@@ -26,13 +26,13 @@ int main()
 		using R = ranges::set_union_result<S *, T*, U*>;
 		R res = ranges::set_union(ia, ib, ic, std::less<int>(), &S::i, &T::j);
 		CHECK((res.out - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, res.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res.out, ir, ir+sr, std::less<int>(), &U::k));
 		ranges::fill(ic, U{0});
 
 		using R2 = ranges::set_union_result<T *, S*, U*>;
 		R2 res2 = ranges::set_union(ib, ia, ic, std::less<int>(), &T::j, &S::i);
 		CHECK((res2.out - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k));
 	}
 
 	// Test projections
@@ -47,14 +47,14 @@ int main()
 		static_assert(ranges::Same<decltype(res.in1), ranges::dangling>);
 		static_assert(ranges::Same<decltype(res.in2), ranges::dangling>);
 		CHECK((res.out - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, res.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res.out, ir, ir+sr, std::less<int>(), &U::k));
 		ranges::fill(ic, U{0});
 
 		auto res2 = ranges::set_union(std::move(ib), std::move(ia), ic, std::less<int>(), &T::j, &S::i);
 		static_assert(ranges::Same<decltype(res2.in1), ranges::dangling>);
 		static_assert(ranges::Same<decltype(res2.in2), ranges::dangling>);
 		CHECK((res2.out - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k));
 	}
 
 	return ::test_result();
