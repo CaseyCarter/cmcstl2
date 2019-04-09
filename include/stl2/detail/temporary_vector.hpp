@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 			T* end_ = nullptr;
 			T* alloc_ = nullptr;
 
-			void _clear() noexcept {
+			void destroy() noexcept {
 				for_each(begin_, end_, destruct);
 			}
 
@@ -104,19 +104,19 @@ STL2_OPEN_NAMESPACE {
 			using value_type = T;
 
 			~temporary_vector() {
-				_clear();
+				destroy();
 			}
 
 			temporary_vector() = default;
 			temporary_vector(temporary_buffer<T>& buf)
 			: begin_{buf.data()}, end_{begin_}
-			, alloc_{begin_ + buf.size_}
+			, alloc_{begin_ + buf.size()}
 			{}
 			temporary_vector(temporary_vector&&) = delete;
 			temporary_vector& operator=(temporary_vector&& that) = delete;
 
 			void clear() noexcept {
-				_clear();
+				destroy();
 				end_ = begin_;
 			}
 
