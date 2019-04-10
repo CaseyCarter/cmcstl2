@@ -49,8 +49,11 @@ STL2_OPEN_NAMESPACE {
 	requires (!requires { typename T::difference_type; } &&
 		!std::is_pointer_v<T> && // Avoid GCC PR 78173 (See above)
 		requires(const T& a, const T& b) {
-			// { a - b } -> Integral;
+#if __cpp_concepts >= 201811LL
+			{ a - b } -> Integral;
+#else
 			a - b; requires Integral<decltype(a - b)>;
+#endif
 		})
 	struct incrementable_traits<T> {
 		using difference_type = std::make_signed_t<
@@ -69,7 +72,11 @@ STL2_OPEN_NAMESPACE {
 		requires(I i) {
 			typename iter_difference_t<I>;
 			requires SignedIntegral<iter_difference_t<I>>;
+#if __cpp_concepts >= 201811LL
+			{ ++i } -> Same<I&>; // not required to be equality-preserving
+#else
 			{ ++i } -> Same<I>&; // not required to be equality-preserving
+#endif
 			i++; // not required to be equality-preserving
 		};
 
@@ -81,7 +88,11 @@ STL2_OPEN_NAMESPACE {
 		Regular<I> &&
 		WeaklyIncrementable<I> &&
 		requires(I i) {
+#if __cpp_concepts >= 201811LL
+			{ i++ } -> Same<I>;
+#else
 			i++; requires Same<decltype(i++), I>;
+#endif
 		};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -92,8 +103,13 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT Decrementable =
 			Incrementable<I> &&
 			requires(I i) {
+#if __cpp_concepts >= 201811LL
+				{ --i } -> Same<I&>;
+				{ i-- } -> Same<I>;
+#else
 				{ --i } -> Same<I>&;
 				i--; requires Same<I, decltype(i--)>;
+#endif
 			};
 			// Let a and b be objects of type I.
 			// Axiom: &--a == &a
@@ -111,11 +127,11 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT RandomAccessIncrementable =
 			Decrementable<I> &&
 			requires(I& i, const I& ci, const iter_difference_t<I> n) {
-				{ i += n } -> Same<I&>&&;
-				{ i -= n } -> Same<I&>&&;
-				{ ci + n } -> Same<I>&&;
-				{ n + ci } -> Same<I>&&;
-				{ ci - n } -> Same<I>&&;
+				{ i += n } -> STL2_RVALUE_REQ(Same<I&>);
+				{ i -= n } -> STL2_RVALUE_REQ(Same<I&>);
+				{ ci + n } -> STL2_RVALUE_REQ(Same<I>);
+				{ n + ci } -> STL2_RVALUE_REQ(Same<I>);
+				{ ci - n } -> STL2_RVALUE_REQ(Same<I>);
 				{ ci - ci } -> iter_difference_t<I>;
 			};
 			// FIXME: Axioms

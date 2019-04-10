@@ -29,13 +29,13 @@ STL2_OPEN_NAMESPACE {
 	template<class T, class TypeList,
 		std::size_t I = meta::_v<meta::find_index<TypeList, T>>>
 	requires
-		I != meta::_v<meta::npos> &&
-		Same<meta::find_index<meta::drop_c<TypeList, I + 1>, T>, meta::npos>
+		(I != meta::_v<meta::npos> &&
+		Same<meta::find_index<meta::drop_c<TypeList, I + 1>, T>, meta::npos>)
 	constexpr std::size_t __index_of_type = I;
 
 	// Like std::get<I>(v), but with a precondition that v.index() == I
 	template<std::size_t I, _SpecializationOf<std::variant> Variant>
-	requires I < std::variant_size_v<__uncvref<Variant>>
+	requires (I < std::variant_size_v<__uncvref<Variant>>)
 	constexpr decltype(auto) __unchecked_get(Variant&& v) noexcept {
 		STL2_EXPECT(v.index() == I);
 		return std::get<I>(static_cast<Variant&&>(v));

@@ -130,8 +130,13 @@ STL2_OPEN_NAMESPACE {
 
 		template<class> struct reference_type {};
 		template<class C>
-		requires
-			requires(const C& c) { c.read(); requires __can_reference<decltype(c.read())>; }
+		requires requires(const C& c) {
+#ifdef META_HAS_P1084
+			{ c.read() } -> __can_reference;
+#else
+			c.read(); requires __can_reference<decltype(c.read())>;
+#endif
+		}
 		struct reference_type<C> {
 			using type = decltype(std::declval<const C&>().read());
 		};
@@ -177,7 +182,11 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT Readable =
 			Cursor<C> &&
 			requires(const C& c) {
+#ifdef META_HAS_P1084
+				{ c.read() } -> __can_reference;
+#else
 				c.read(); requires __can_reference<decltype(c.read())>;
+#endif
 				typename reference_t<C>;
 				typename value_type_t<C>;
 			};
@@ -185,7 +194,11 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT Arrow =
 			Readable<C> &&
 			requires(const C& c) {
+#ifdef META_HAS_P1084
+				{ c.arrow() } ->__can_reference;
+#else
 				c.arrow(); requires __can_reference<decltype(c.arrow())>;
+#endif
 			};
 		template<class C, class T>
 		META_CONCEPT Writable =
@@ -205,7 +218,7 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT SizedSentinel =
 			Sentinel<S, C> &&
 			requires(const C& c, const S& s) {
-				{ c.distance_to(s) } -> Same<difference_type_t<C>>&&;
+				{ c.distance_to(s) } -> STL2_RVALUE_REQ(Same<difference_type_t<C>>);
 			};
 
 		template<class C>
@@ -229,7 +242,11 @@ STL2_OPEN_NAMESPACE {
 		template<class C>
 		META_CONCEPT IndirectMove =
 			Readable<C> && requires(const C& c) {
+#ifdef META_HAS_P1084
+				{ c.indirect_move() } -> __can_reference;
+#else
 				c.indirect_move(); requires __can_reference<decltype(c.indirect_move())>;
+#endif
 			};
 
 		template<class> struct rvalue_reference {};
@@ -544,7 +561,7 @@ STL2_OPEN_NAMESPACE {
 		template<class C>
 		META_CONCEPT PostIncrementCursor =
 			requires(C& c) {
-				{ c.post_increment() } -> Same<C>&&;
+				{ c.post_increment() } -> STL2_RVALUE_REQ(Same<C>);
 			};
 	} // namespace detail
 

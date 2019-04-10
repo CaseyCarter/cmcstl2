@@ -32,27 +32,27 @@ STL2_OPEN_NAMESPACE {
 		requires(const std::remove_reference_t<B>& b1,
 			     const std::remove_reference_t<B>& b2, const bool a) {
 			// Requirements common to both Boolean and BooleanTestable.
-			{ b1 } -> ConvertibleTo<bool>&&;
-			{ !b1 } -> ConvertibleTo<bool>&&;
-			{ b1 && a } ->  Same<bool>&&;
-			{ b1 || a } ->  Same<bool>&&;
+			{  b1      } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
+			{ !b1      } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
+			{  b1 && a } -> STL2_RVALUE_REQ(Same<bool>);
+			{  b1 || a } -> STL2_RVALUE_REQ(Same<bool>);
 
 			// Requirements of Boolean that are also be valid for
 			// BooleanTestable, but for which BooleanTestable does not
 			// require validation.
-			{ b1 && b2 } -> Same<bool>&&;
-			{  a && b2 } -> Same<bool>&&;
-			{ b1 || b2 } -> Same<bool>&&;
-			{  a || b2 } -> Same<bool>&&;
+			{ b1 && b2 } -> STL2_RVALUE_REQ(Same<bool>);
+			{  a && b2 } -> STL2_RVALUE_REQ(Same<bool>);
+			{ b1 || b2 } -> STL2_RVALUE_REQ(Same<bool>);
+			{  a || b2 } -> STL2_RVALUE_REQ(Same<bool>);
 
 			// Requirements of Boolean that are not required by
 			// BooleanTestable.
-			{ b1 == b2 } -> ConvertibleTo<bool>&&;
-			{ b1 == a  } -> ConvertibleTo<bool>&&;
-			{  a == b2 } -> ConvertibleTo<bool>&&;
-			{ b1 != b2 } -> ConvertibleTo<bool>&&;
-			{ b1 != a  } -> ConvertibleTo<bool>&&;
-			{  a != b2 } -> ConvertibleTo<bool>&&;
+			{ b1 == b2 } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
+			{ b1 == a  } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
+			{  a == b2 } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
+			{ b1 != b2 } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
+			{ b1 != a  } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
+			{  a != b2 } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
 		};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -66,10 +66,10 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT WeaklyEqualityComparable =
 		requires(const std::remove_reference_t<T>& t,
 				 const std::remove_reference_t<U>& u) {
-			{ t == u } -> Boolean&&;
-			{ t != u } -> Boolean&&;
-			{ u == t } -> Boolean&&;
-			{ u != t } -> Boolean&&;
+			{ t == u } -> STL2_RVALUE_REQ(Boolean);
+			{ t != u } -> STL2_RVALUE_REQ(Boolean);
+			{ u == t } -> STL2_RVALUE_REQ(Boolean);
+			{ u != t } -> STL2_RVALUE_REQ(Boolean);
 		};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -99,10 +99,10 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT __totally_ordered =
 		requires(const std::remove_reference_t<T>& t,
 		         const std::remove_reference_t<U>& u) {
-			{ t <  u } -> Boolean&&;
-			{ t >  u } -> Boolean&&;
-			{ t <= u } -> Boolean&&;
-			{ t >= u } -> Boolean&&;
+			{ t <  u } -> STL2_RVALUE_REQ(Boolean);
+			{ t >  u } -> STL2_RVALUE_REQ(Boolean);
+			{ t <= u } -> STL2_RVALUE_REQ(Boolean);
+			{ t >= u } -> STL2_RVALUE_REQ(Boolean);
 			// Axiom: t < u, t > u, t <= u, t >= u have the same definition space.
 			// Axiom: If bool(t < u) then bool(t <= u)
 			// Axiom: If bool(t > u) then bool(t >= u)

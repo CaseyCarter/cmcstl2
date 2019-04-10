@@ -54,15 +54,15 @@ STL2_OPEN_NAMESPACE {
 			constexpr auto data()
 			noexcept(noexcept(__stl2::data(std::declval<Base&>())))
 			requires
-				!Range<Base const> &&
-				requires(Base& b) { __stl2::data(b); }
+				(!Range<Base const> &&
+				requires(Base& b) { __stl2::data(b); })
 			{ return __stl2::data(get()); }
 	#else
 			template<class B = Base>
 			requires
-				Same<B, Base> &&
+				(Same<B, Base> &&
 				!Range<B const> &&
-				requires(B& b) { __stl2::data(b); }
+				requires(B& b) { __stl2::data(b); })
 			constexpr auto data()
 			noexcept(noexcept(__stl2::data(std::declval<B&>())))
 			{ return __stl2::data(get()); }
@@ -77,8 +77,8 @@ STL2_OPEN_NAMESPACE {
 			constexpr auto data() const
 			noexcept(noexcept(__stl2::data(std::declval<Base const&>())))
 			requires
-				!Range<Base const> &&
-				requires(Base const& b) { __stl2::data(b); }
+				(!Range<Base const> &&
+				requires(Base const& b) { __stl2::data(b); })
 			{ return __stl2::data(get()); }
 	#else
 			template<class B = Base>

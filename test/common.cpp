@@ -209,7 +209,7 @@ namespace libcpp_tests
 	struct no_common_type : true_type {};
 
 	template<class T, class U>
-	requires requires {typename common_type_t<T, U>;}
+	requires requires { typename common_type_t<T, U>; }
 	struct no_common_type<T, U> : false_type {};
 
     static_assert((is_same<common_type_t<int>, int>::value), "");

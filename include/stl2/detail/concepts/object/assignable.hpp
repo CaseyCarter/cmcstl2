@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 			const std::remove_reference_t<RHS>&> &&
 #endif
 		requires(LHS lhs, RHS&& rhs) {
-			{ lhs = static_cast<RHS&&>(rhs) } -> Same<LHS>&&;
+			{ lhs = static_cast<RHS&&>(rhs) } -> STL2_RVALUE_REQ(Same<LHS>);
 		};
 } STL2_CLOSE_NAMESPACE
 
