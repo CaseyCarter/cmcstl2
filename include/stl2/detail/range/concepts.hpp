@@ -24,8 +24,9 @@
 #include <stl2/detail/range/access.hpp>
 
 namespace std {
-#ifndef __GLIBCXX__
-#pragma message "These forward declarations will likely only work with libstdc++."
+#if !defined(__GLIBCXX__) && !defined(_MSVC_STL_VERSION)
+#pragma message "These forward declarations will only work with standard " \
+	"libraries that don't use inline namespaces for versioning."
 #endif
 	template<class, class, class> class set;
 	template<class, class, class> class multiset;
