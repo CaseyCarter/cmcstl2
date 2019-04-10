@@ -39,13 +39,19 @@
 
 #elif defined(_MSC_VER)
 #define META_HAS_MAKE_INTEGER_SEQ 1
-#define META_WORKAROUND_MSVC_702792 // Fixed for VS2019, possibly 16.0?
-#define META_WORKAROUND_MSVC_703656 // Fixed for VS2019 16.0
-#define META_WORKAROUND_MSVC_756112 // fold expression + alias templates in template argument
+#if _MSC_VER < 1921
+#define META_WORKAROUND_MSVC_756112 // fold expression + alias templates in template argument (Fixed in next VS2019 toolset update)
+#if _MSC_VER < 1920
+#define META_WORKAROUND_MSVC_702792 // Fixed in VS2019 Preview 2
+#define META_WORKAROUND_MSVC_703656 // Fixed in VS2019 Preview 2
+#endif // _MSC_VER < 1920
+#endif // _MSC_VER < 1921
 
 #elif defined(__GNUC__)
 #define META_WORKAROUND_GCC_86356 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=86356
-#if __GNUC__ < 8
+#if __GNUC__ >= 8
+#define META_HAS_INTEGER_PACK 1
+#else
 #define META_WORKAROUND_GCC_UNKNOWN1 // Older GCCs don't like fold + debug + -march=native
 #endif
 #if __GNUC__ == 5 && __GNUC_MINOR__ == 1
@@ -99,6 +105,10 @@
 #define META_HAS_MAKE_INTEGER_SEQ 0
 #endif
 
+#ifndef META_HAS_INTEGER_PACK
+#define META_HAS_INTEGER_PACK 0
+#endif
+
 #ifndef META_HAS_TYPE_PACK_ELEMENT
 #ifdef __has_builtin
 #if __has_builtin(__type_pack_element)
@@ -119,6 +129,11 @@
 #endif
 #ifndef META_DEPRECATED
 #define META_DEPRECATED(...)
+#endif
+
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=64970
+#if(defined(__GNUC__) && __GNUC__ >= 5) || defined(__clang__)
+#define META_WORKAROUND_GCC_64970
 #endif
 
 #ifndef META_CXX_FOLD_EXPRESSIONS
