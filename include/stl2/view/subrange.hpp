@@ -249,7 +249,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<std::size_t N, class I, class S, subrange_kind K>
-	requires N < 2
+	requires (N < 2)
 	constexpr auto get(const subrange<I, S, K>& r) {
 		if constexpr (N == 0) {
 			return r.begin();

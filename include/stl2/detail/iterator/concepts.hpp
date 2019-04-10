@@ -32,8 +32,11 @@
 STL2_OPEN_NAMESPACE {
 	template<class T>
 	META_CONCEPT __dereferenceable = requires(T& t) {
-		// { *t } -> __can_reference;
+#ifdef META_HAS_P1084
+		{ *t } -> __can_reference;
+#else
 		*t; typename __with_reference<decltype(*t)>;
+#endif
 	};
 
 	////////////////////////////////////////////////////////////////////////////
@@ -54,9 +57,12 @@ STL2_OPEN_NAMESPACE {
 		template<class R>
 		requires __dereferenceable<R> &&
 			requires(R&& r) {
-				// { iter_move(static_cast<R&&>(r)) ->__can_reference;
+#if __cpp_concepts >= 201811LL
+				{ iter_move(static_cast<R&&>(r)) ->__can_reference;
+#else
 				iter_move(static_cast<R&&>(r));
 				requires __can_reference<decltype(iter_move(static_cast<R&&>(r)))>;
+#endif
 			}
 		constexpr bool has_customization<R> = true;
 
@@ -408,8 +414,8 @@ STL2_OPEN_NAMESPACE {
 		Sentinel<S, I> &&
 		!disable_sized_sentinel<std::remove_cv_t<S>, std::remove_cv_t<I>> &&
 		requires(const I i, const S s) {
-			{ s - i } -> Same<iter_difference_t<I>>&&;
-			{ i - s } -> Same<iter_difference_t<I>>&&;
+			{ s - i } -> STL2_RVALUE_REQ(Same<iter_difference_t<I>>);
+			{ i - s } -> STL2_RVALUE_REQ(Same<iter_difference_t<I>>);
 			// Axiom: If [i,s) denotes a range and N is the smallest
 			//        non-negative integer such that N applications of
 			//        ++i make bool(i == s) == true
@@ -487,8 +493,12 @@ STL2_OPEN_NAMESPACE {
 		StrictTotallyOrdered<I> &&
 		ext::RandomAccessIncrementable<I> &&
 		requires(const I& ci, const iter_difference_t<I> n) {
+#if __cpp_concepts >= 201811LL
+			{ ci[n] } -> Same<iter_reference_t<I>>;
+#else
 			ci[n];
 			requires Same<decltype(ci[n]), iter_reference_t<I>>;
+#endif
 		};
 		// FIXME: Axioms for definition space of ordering operations. Don't
 		// require them to be the same space as ==, since pointers can't meet
@@ -517,8 +527,11 @@ STL2_OPEN_NAMESPACE {
 	template<InputIterator I>
 	requires
 		requires(I i) {
-			// { i.operator->() } -> __can_reference;
+#if __cpp_concepts >= 201811LL
+			{ i.operator->() } -> __can_reference;
+#else
 			i.operator->(); requires __can_reference<decltype(i.operator->())>;
+#endif
 		}
 	struct __pointer_type<I> {
 		using type = decltype(std::declval<I&>().operator->());

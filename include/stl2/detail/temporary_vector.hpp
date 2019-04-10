@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T>
-		requires alignof(T) > alignof(std::max_align_t)
+		requires (alignof(T) > alignof(std::max_align_t))
 		class temporary_buffer<T> {
 			std::unique_ptr<unsigned char, temporary_buffer_deleter> alloc_;
 			T* aligned_ = nullptr;

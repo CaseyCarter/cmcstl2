@@ -41,12 +41,12 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr auto dynamic_extent = static_cast<__span::index_t>(-1);
 
 		template<ext::Object ElementType, __span::index_t Extent = dynamic_extent>
-		requires Extent >= dynamic_extent
+		requires (Extent >= dynamic_extent)
 		struct span;
 
 		namespace __span {
 			template<index_t Extent>
-			requires Extent >= dynamic_extent
+			requires (Extent >= dynamic_extent)
 			struct extent {
 				constexpr extent() noexcept = default;
 				constexpr extent(index_t size) noexcept
@@ -125,7 +125,7 @@ STL2_OPEN_NAMESPACE {
 
 		// [span], class template span
 		template<ext::Object ElementType, __span::index_t Extent>
-		requires Extent >= dynamic_extent
+		requires (Extent >= dynamic_extent)
 		struct span : private __span::extent<Extent> {
 			// constants and types
 			using element_type = ElementType;
@@ -220,7 +220,7 @@ STL2_OPEN_NAMESPACE {
 				return {data_ + Offset, Count};
 			}
 			template<index_type Offset>
-			requires Offset >= 0 && (Extent == dynamic_extent || Extent >= Offset)
+			requires (Offset >= 0 && (Extent == dynamic_extent || Extent >= Offset))
 			constexpr span<element_type, Extent >= Offset ? Extent - Offset : dynamic_extent> subspan() const noexcept
 			{
 				static_assert(Offset >= 0,
