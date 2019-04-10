@@ -11,6 +11,7 @@
 //
 #include <stl2/type_traits.hpp>
 
+#include <array>
 #include <functional>
 #include <initializer_list>
 #include <tuple>
