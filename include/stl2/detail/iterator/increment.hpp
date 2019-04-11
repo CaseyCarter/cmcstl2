@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 	requires (!requires { typename T::difference_type; } &&
 		!std::is_pointer_v<T> && // Avoid GCC PR 78173 (See above)
 		requires(const T& a, const T& b) {
-#if __cpp_concepts >= 201811LL
+#if META_HAS_P1084
 			{ a - b } -> Integral;
 #else
 			a - b; requires Integral<decltype(a - b)>;
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 		requires(I i) {
 			typename iter_difference_t<I>;
 			requires SignedIntegral<iter_difference_t<I>>;
-#if __cpp_concepts >= 201811LL
+#if META_HAS_P1084
 			{ ++i } -> Same<I&>; // not required to be equality-preserving
 #else
 			{ ++i } -> Same<I>&; // not required to be equality-preserving
@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 		Regular<I> &&
 		WeaklyIncrementable<I> &&
 		requires(I i) {
-#if __cpp_concepts >= 201811LL
+#if META_HAS_P1084
 			{ i++ } -> Same<I>;
 #else
 			i++; requires Same<decltype(i++), I>;
@@ -103,7 +103,7 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT Decrementable =
 			Incrementable<I> &&
 			requires(I i) {
-#if __cpp_concepts >= 201811LL
+#if META_HAS_P1084
 				{ --i } -> Same<I&>;
 				{ i-- } -> Same<I>;
 #else
