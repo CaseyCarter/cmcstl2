@@ -120,14 +120,16 @@ STL2_OPEN_NAMESPACE {
 
 		Parent* parent_ = nullptr;
 
-		constexpr iterator_t<Base>& current() const noexcept
-		{ return parent_->current_; }
 		constexpr iterator_t<Base>& current() noexcept
 			requires ForwardRange<Base>
 		{ return this->current_; }
-		constexpr const iterator_t<Base>& current() const noexcept
-			requires ForwardRange<Base>
-		{ return this->current_; }
+		constexpr auto& current() const noexcept {
+			if constexpr (ForwardRange<Base>) {
+				return this->current_;
+			} else {
+				return parent_->current_;
+			}
+		}
 	public:
 		using iterator_category = meta::if_c<ForwardRange<Base>,
 			__stl2::forward_iterator_tag, __stl2::input_iterator_tag>;
