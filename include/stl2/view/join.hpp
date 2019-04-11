@@ -287,9 +287,15 @@ STL2_OPEN_NAMESPACE {
 		struct __join_fn : detail::__pipeable<__join_fn> {
 			template<class R>
 			constexpr auto operator()(R&& r) const
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(R&& r) { join_view{static_cast<R&&>(r)}; } {
+				return join_view{static_cast<R&&>(r)};
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				join_view{static_cast<R&&>(r)}
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 		};
 
 		inline constexpr __join_fn join {};

@@ -108,9 +108,17 @@ STL2_OPEN_NAMESPACE {
 		struct __take_exactly_fn : detail::__pipeable<__take_exactly_fn> {
 			template<class V>
 			constexpr auto operator()(V&& view, iter_difference_t<iterator_t<V>> const n) const
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(V&& view, iter_difference_t<iterator_t<V>> const n) {
+				__stl2::ext::take_exactly_view(all(std::forward<V>(view)), n);
+			} {
+				return __stl2::ext::take_exactly_view(all(std::forward<V>(view)), n);
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				__stl2::ext::take_exactly_view(all(std::forward<V>(view)), n)
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 
 			template<Integral D>
 			constexpr auto operator()(D count) const {
