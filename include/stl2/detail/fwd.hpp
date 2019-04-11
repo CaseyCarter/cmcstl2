@@ -85,6 +85,16 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_CLANGC_50
+ #if defined(__clang__)
+  // A trailing-requires-clause should be in function parameter scope
+  // https://github.com/saarraz/clang-concepts/issues/50
+  #define STL2_WORKAROUND_CLANGC_50 1
+ #else
+  #define STL2_WORKAROUND_CLANGC_50 0
+ #endif
+#endif
+
 #define STL2_OPEN_NAMESPACE \
 	namespace std { namespace experimental { namespace ranges { inline namespace v1
 #define STL2_CLOSE_NAMESPACE }}}

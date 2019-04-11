@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -65,11 +66,7 @@ STL2_OPEN_NAMESPACE {
 		requires requires(T&& t) { fun(static_cast<T&&>(t)); }
 #endif
 		constexpr ref_view(T&& t)
-#if 0
-		noexcept(std::is_nothrow_convertible_v<T, R&>) // strengthened
-#else
-		noexcept(noexcept(fun(static_cast<T&&>(t)))) // strengthened
-#endif
+		noexcept(is_nothrow_convertible_v<T, R&>) // strengthened
 		: r_{std::addressof(static_cast<R&>(static_cast<T&&>(t)))} {}
 
 		constexpr R& base() const noexcept { return *r_; }
@@ -97,10 +94,16 @@ STL2_OPEN_NAMESPACE {
 	namespace view::ext {
 		struct __ref_fn : detail::__pipeable<__ref_fn> {
 			template<class R>
-			auto operator()(R&& rng) const
+			auto operator()(R&& r) const
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(R&& r) { ref_view{std::forward<R>(r)}; } {
+				return ref_view{std::forward<R>(r)};
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
-				ref_view{std::forward<R>(rng)}
+				ref_view{std::forward<R>(r)}
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 		};
 
 		inline constexpr __ref_fn ref {};

@@ -152,7 +152,7 @@ STL2_OPEN_NAMESPACE {
 		};
 		template<class C>
 		requires
-			!detail::MemberValueType<C> && requires { typename reference_t<C>; }
+			(!detail::MemberValueType<C>) && requires { typename reference_t<C>; }
 		struct value_type<C> {
 			using type = std::decay_t<reference_t<C>>;
 			static_assert(detail::IsValueType<type>,
@@ -680,9 +680,8 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 		template<class T>
-		requires
-			!Same<std::decay_t<T>, basic_iterator> && !cursor::Next<C> &&
-			cursor::Writable<C, T>
+		requires (!Same<std::decay_t<T>, basic_iterator> && !cursor::Next<C> &&
+			cursor::Writable<C, T>)
 		constexpr basic_iterator& operator=(T&& t)
 		noexcept(noexcept(
 			std::declval<C&>().write(static_cast<T&&>(t))))
@@ -694,8 +693,8 @@ STL2_OPEN_NAMESPACE {
 		// http://wg21.link/P0186
 		template<class O>
 		requires
-			!Same<std::decay_t<O>, basic_iterator> &&
-			Assignable<C&, O>
+			(!Same<std::decay_t<O>, basic_iterator> &&
+			Assignable<C&, O>)
 		constexpr basic_iterator& operator=(O&& o) &
 		noexcept(std::is_nothrow_assignable<C&, O>::value)
 		{
@@ -741,9 +740,9 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto operator->() const
 		noexcept(noexcept(*std::declval<const basic_iterator&>()))
 		requires
-			!cursor::Arrow<C> && cursor::Readable<C> &&
+			(!cursor::Arrow<C> && cursor::Readable<C> &&
 			std::is_lvalue_reference<const_reference_t>::value &&
-			Same<cursor::value_type_t<BugsBugs>, __uncvref<const_reference_t>>
+			Same<cursor::value_type_t<BugsBugs>, __uncvref<const_reference_t>>)
 		{
 			return std::addressof(**this);
 		}

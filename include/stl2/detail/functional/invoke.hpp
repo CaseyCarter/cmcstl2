@@ -92,12 +92,16 @@ STL2_OPEN_NAMESPACE {
 #if STL2_WORKAROUND_CLANGC_42
 		template<class U>
 		requires _NotSameAs<U, reference_wrapper>
-#else
+#else // ^^^ workaround / no workaround vvv
 		template<_NotSameAs<reference_wrapper> U>
-#endif
+#endif // STL2_WORKAROUND_CLANGC_42
 		constexpr reference_wrapper(U&& u)
 		noexcept(noexcept(fun(static_cast<U&&>(u))))
+#if STL2_WORKAROUND_CLANGC_50
+		requires requires(U&& u) { fun(static_cast<U&&>(u)); }
+#else // ^^^ workaround / no workaround vvv
 		requires requires { fun(static_cast<U&&>(u)); }
+#endif // STL2_WORKAROUND_CLANGC_50
 		: t_(std::addressof(fun(static_cast<U&&>(u)))) {}
 
 		constexpr operator T&() const noexcept { return *t_; }

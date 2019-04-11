@@ -277,7 +277,7 @@ STL2_OPEN_NAMESPACE {
 			requires
 				Readable<std::remove_reference_t<R1>> &&
 				Readable<std::remove_reference_t<R2>> &&
-				!has_customization<R1&, R2&> &&
+				(!has_customization<R1&, R2&>) &&
 				requires(R1& r1, R2& r2) {
 					__iter_swap::impl(r1, r2);
 				}
@@ -360,7 +360,7 @@ STL2_OPEN_NAMESPACE {
 	template<detail::MemberIteratorCategory T>
 	requires
 		DerivedFrom<typename T::iterator_category, std::output_iterator_tag> &&
-		!DerivedFrom<typename T::iterator_category, std::input_iterator_tag>
+		(!DerivedFrom<typename T::iterator_category, std::input_iterator_tag>)
 	struct iterator_category<T> {};
 
 	template<class T>

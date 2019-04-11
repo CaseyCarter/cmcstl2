@@ -117,9 +117,17 @@ STL2_OPEN_NAMESPACE {
 		struct __indirect_fn : detail::__pipeable<__indirect_fn> {
 			template<class Rng>
 			constexpr auto operator()(Rng&& rng) const
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(Rng&& rng) {
+				__stl2::ext::indirect_view{all(std::forward<Rng>(rng))};
+			} {
+				return __stl2::ext::indirect_view{all(std::forward<Rng>(rng))};
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				__stl2::ext::indirect_view{all(std::forward<Rng>(rng))}
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 		};
 
 		inline constexpr __indirect_fn indirect {};
