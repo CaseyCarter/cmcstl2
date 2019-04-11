@@ -188,6 +188,8 @@ namespace __stl2 = ::std::experimental::ranges;
 #define STL2_RVALUE_REQ(...) __VA_ARGS__&&
 #endif // Detect support for P1084
 
+#define STL2_CONSTEVAL constexpr
+
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		// tags for manually specified overload ordering

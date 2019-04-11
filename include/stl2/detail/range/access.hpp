@@ -17,6 +17,7 @@
 #include <string>
 #include <string_view>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
@@ -59,15 +60,30 @@ STL2_OPEN_NAMESPACE {
 			{ __decay_copy(begin(static_cast<R&&>(r))) } -> Iterator;
 		};
 
-		template<class>
-		inline constexpr bool nothrow = false;
-		template<has_member R>
-		inline constexpr bool nothrow<R> = noexcept(std::declval<R&>().begin());
-		template<class R>
-		requires (!has_member<R> && has_non_member<R>)
-		inline constexpr bool nothrow<R> = noexcept(begin(std::declval<R>()));
-
 		struct __fn {
+		private:
+			enum __strategy { __none, __member, __non_member };
+
+			template<class R>
+			static STL2_CONSTEVAL __strategy __choose() noexcept {
+				if constexpr (has_member<R>) {
+					return __member;
+				} else if constexpr (has_non_member<R>) {
+					return __non_member;
+				} else {
+					return __none;
+				}
+			}
+
+			template<__strategy St, class R>
+			static STL2_CONSTEVAL bool __nothrow() noexcept {
+				if constexpr (St == __member) {
+					return noexcept(__nothrow_convertible_helper(std::declval<R&>().begin()));
+				} else if constexpr (St == __non_member) {
+					return noexcept(__nothrow_convertible_helper(begin(std::declval<R>())));
+				}
+			}
+		public:
 			// Handle builtin arrays directly
 			template<class R, std::size_t N>
 			void operator()(R (&&)[N]) const = delete;
@@ -84,13 +100,15 @@ STL2_OPEN_NAMESPACE {
 				return sv.begin();
 			}
 
-			template<class R>
-			requires has_member<R> || has_non_member<R>
-			constexpr auto operator()(R&& r) const noexcept(nothrow<R>) {
-				if constexpr (has_member<R>) {
+			template<class R, __strategy St = __choose<R>()>
+			requires (St != __none)
+			constexpr auto operator()(R&& r) const noexcept(__nothrow<St, R>()) {
+				if constexpr (St == __member) {
 					return r.begin();
-				} else {
+				} else if constexpr (St == __non_member) {
 					return begin(static_cast<R&&>(r));
+				} else {
+					static_assert(St != __none, "WTF?");
 				}
 			}
 		};
