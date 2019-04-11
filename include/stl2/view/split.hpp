@@ -233,6 +233,20 @@ STL2_OPEN_NAMESPACE {
 
 		__outer_iterator<Const> i_ {};
 		bool zero_ = false;
+
+		constexpr bool at_end() const {
+			auto cur = i_.current();
+			auto end = __stl2::end(i_.parent_->base_);
+			if (cur == end) return true;
+			auto [pcur, pend] = subrange{i_.parent_->pattern_};
+			if (pcur == pend) return zero_;
+			do {
+				if (*cur != *pcur) return false;
+				if (++pcur == pend) return true;
+			} while (++cur != end);
+			return false;
+		}
+		constexpr auto& current() const noexcept { return i_.current(); }
 	public:
 		using iterator_category = iterator_category_t<__outer_iterator<Const>>;
 		using difference_type = iter_difference_t<iterator_t<Base>>;
@@ -272,18 +286,8 @@ STL2_OPEN_NAMESPACE {
 		requires ForwardRange<Base>
 		{ return !(x == y); }
 
-		friend constexpr bool operator==(const __inner_iterator& x, default_sentinel) {
-			auto cur = x.i_.current();
-			auto end = __stl2::end(x.i_.parent_->base_);
-			if (cur == end) return true;
-			auto [pcur, pend] = subrange{x.i_.parent_->pattern_};
-			if (pcur == pend) return x.zero_;
-			do {
-				if (*cur != *pcur) return false;
-				if (++pcur == pend) return true;
-			} while (++cur != end);
-			return false;
-		}
+		friend constexpr bool operator==(const __inner_iterator& x, default_sentinel)
+		{ return x.at_end(); }
 		friend constexpr bool operator==(default_sentinel x, const __inner_iterator& y)
 		{ return y == x; }
 		friend constexpr bool operator!=(const __inner_iterator& x, default_sentinel y)
@@ -293,12 +297,13 @@ STL2_OPEN_NAMESPACE {
 
 		friend constexpr decltype(auto) iter_move(const __inner_iterator& i)
 		STL2_NOEXCEPT_RETURN(
-			__stl2::iter_move(i.i_.current())
+			__stl2::iter_move(i.current())
 		)
+
 		friend constexpr void iter_swap(const __inner_iterator& x, const __inner_iterator& y)
-		noexcept(noexcept(__stl2::iter_swap(x.i_.current(), y.i_.current())))
+		noexcept(noexcept(__stl2::iter_swap(x.current(), y.current())))
 		requires IndirectlySwappable<iterator_t<Base>>
-		{ __stl2::iter_swap(x.i_.current(), y.i_.current()); }
+		{ __stl2::iter_swap(x.current(), y.current()); }
 	};
 
 	namespace view {
