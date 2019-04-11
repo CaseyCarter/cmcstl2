@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/raw_ptr.hpp>
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -65,11 +66,7 @@ STL2_OPEN_NAMESPACE {
 		requires requires(T&& t) { fun(static_cast<T&&>(t)); }
 #endif
 		constexpr ref_view(T&& t)
-#if 0
-		noexcept(std::is_nothrow_convertible_v<T, R&>) // strengthened
-#else
-		noexcept(noexcept(fun(static_cast<T&&>(t)))) // strengthened
-#endif
+		noexcept(is_nothrow_convertible_v<T, R&>) // strengthened
 		: r_{std::addressof(static_cast<R&>(static_cast<T&&>(t)))} {}
 
 		constexpr R& base() const noexcept { return *r_; }
