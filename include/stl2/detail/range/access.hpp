@@ -371,8 +371,8 @@ STL2_OPEN_NAMESPACE {
 		requires (!disable_sized_range<std::remove_cv_t<T>> && has_member<T>)
 		inline constexpr bool nothrow<T> = noexcept(std::declval<T&>().size());
 		template<class T>
-		requires (!disable_sized_range<std::remove_cv_t<T>>)
-			&& !has_member<T> && has_non_member<T>
+		requires (!disable_sized_range<std::remove_cv_t<T>>
+			&& !has_member<T> && has_non_member<T>)
 		inline constexpr bool nothrow<T> = noexcept(size(std::declval<T&>()));
 		template<class T>
 		requires (disable_sized_range<std::remove_cv_t<T>>
