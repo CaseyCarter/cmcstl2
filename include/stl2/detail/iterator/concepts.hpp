@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 		template<class R>
 		requires __dereferenceable<R> &&
 			requires(R&& r) {
-#if META_HAS_P1084
+#ifdef META_HAS_P1084
 				{ iter_move(static_cast<R&&>(r)) ->__can_reference;
 #else
 				iter_move(static_cast<R&&>(r));
@@ -493,7 +493,7 @@ STL2_OPEN_NAMESPACE {
 		StrictTotallyOrdered<I> &&
 		ext::RandomAccessIncrementable<I> &&
 		requires(const I& ci, const iter_difference_t<I> n) {
-#if META_HAS_P1084
+#ifdef META_HAS_P1084
 			{ ci[n] } -> Same<iter_reference_t<I>>;
 #else
 			ci[n];
@@ -527,7 +527,7 @@ STL2_OPEN_NAMESPACE {
 	template<InputIterator I>
 	requires
 		requires(I i) {
-#if META_HAS_P1084
+#ifdef META_HAS_P1084
 			{ i.operator->() } -> __can_reference;
 #else
 			i.operator->(); requires __can_reference<decltype(i.operator->())>;
