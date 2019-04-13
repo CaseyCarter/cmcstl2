@@ -223,6 +223,14 @@ STL2_OPEN_NAMESPACE {
 		using Base = __maybe_const<Const, V>;
 		sentinel_t<Base> end_ {};
 		friend __sentinel<!Const>;
+
+		constexpr bool equal(const __iterator<Const>& i) const {
+			return i.current_ == end_;
+		}
+		constexpr iter_difference_t<iterator_t<Base>>
+		distance(const __iterator<Const>& i) const {
+			return i.current_ - end_;
+		}
 	public:
 		__sentinel() = default;
 		explicit constexpr __sentinel(sentinel_t<Base> end)
@@ -235,26 +243,26 @@ STL2_OPEN_NAMESPACE {
 		{ return end_; }
 
 		friend constexpr bool operator==(const __iterator<Const>& x, const __sentinel& y)
-		{ return x.current_ == y.end_; }
+		{ return y.equal(x); }
 
 		friend constexpr bool operator==(const __sentinel& x, const __iterator<Const>& y)
-		{ return y == x; }
+		{ return x.equal(y); }
 
 		friend constexpr bool operator!=(const __iterator<Const>& x, const __sentinel& y)
-		{ return !(x == y); }
+		{ return !y.equal(x); }
 
 		friend constexpr bool operator!=(const __sentinel& x, const __iterator<Const>& y)
-		{ return !(y == x); }
+		{ return !x.equal(y); }
 
 		friend constexpr iter_difference_t<iterator_t<Base>>
 		operator-(const __iterator<Const>& x, const __sentinel& y)
 		requires SizedSentinel<sentinel_t<Base>, iterator_t<Base>>
-		{ return x.current_ - y.end_; }
+		{ return -y.distance(x); }
 
 		friend constexpr iter_difference_t<iterator_t<Base>>
 		operator-(const __sentinel& y, const __iterator<Const>& x)
 		requires SizedSentinel<sentinel_t<Base>, iterator_t<Base>>
-		{ return x.end_ - y.current_; }
+		{ return y.distance(x); }
 	};
 
 	namespace view {

@@ -260,6 +260,9 @@ STL2_OPEN_NAMESPACE {
 
 		sentinel_t<Base> end_ = sentinel_t<Base>();
 
+		constexpr bool equal(const __iterator<Const>& i) const {
+			return i.outer_ == end_;
+		}
 	public:
 		__sentinel() = default;
 
@@ -271,16 +274,13 @@ STL2_OPEN_NAMESPACE {
 		: end_(std::move(s.end_)) {}
 
 		friend constexpr bool operator==(const __iterator<Const>& x, const __sentinel& y)
-		{ return x.outer_ == y.end_; }
-
+		{ return y.equal(x); }
 		friend constexpr bool operator==(const __sentinel& x, const __iterator<Const>& y)
-		{ return y == x; }
-
+		{ return x.equal(y); }
 		friend constexpr bool operator!=(const __iterator<Const>& x, const __sentinel& y)
-		{ return !(x == y); }
-
+		{ return !y.equal(x); }
 		friend constexpr bool operator!=(const __sentinel& x, const __iterator<Const>& y)
-		{ return !(y == x); }
+		{ return !x.equal(y); }
 	};
 
 	namespace view {

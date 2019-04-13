@@ -121,7 +121,7 @@ STL2_OPEN_NAMESPACE {
 		Parent* parent_ = nullptr;
 
 		constexpr iterator_t<Base>& current() noexcept
-			requires ForwardRange<Base>
+		requires ForwardRange<Base>
 		{ return this->current_; }
 		constexpr auto& current() const noexcept {
 			if constexpr (ForwardRange<Base>) {
@@ -129,6 +129,10 @@ STL2_OPEN_NAMESPACE {
 			} else {
 				return parent_->current_;
 			}
+		}
+
+		constexpr bool at_end() const {
+			return current() == __stl2::end(parent_->base_);
 		}
 	public:
 		using iterator_category = meta::if_c<ForwardRange<Base>,
@@ -193,13 +197,13 @@ STL2_OPEN_NAMESPACE {
 		{ return !(x == y); }
 
 		friend constexpr bool operator==(const __outer_iterator& x, default_sentinel)
-		{ return x.current() == __stl2::end(x.parent_->base_); }
-		friend constexpr bool operator==(default_sentinel x, const __outer_iterator& y)
-		{ return y == x; }
-		friend constexpr bool operator!=(const __outer_iterator& x, default_sentinel y)
-		{ return !(x == y); }
-		friend constexpr bool operator!=(default_sentinel x, const __outer_iterator& y)
-		{ return !(y == x);	}
+		{ return x.at_end(); }
+		friend constexpr bool operator==(default_sentinel, const __outer_iterator& y)
+		{ return y.at_end(); }
+		friend constexpr bool operator!=(const __outer_iterator& x, default_sentinel)
+		{ return !x.at_end(); }
+		friend constexpr bool operator!=(default_sentinel, const __outer_iterator& y)
+		{ return !y.at_end(); }
 	};
 
 	template<InputRange Rng, ForwardRange Pattern>
@@ -290,12 +294,12 @@ STL2_OPEN_NAMESPACE {
 
 		friend constexpr bool operator==(const __inner_iterator& x, default_sentinel)
 		{ return x.at_end(); }
-		friend constexpr bool operator==(default_sentinel x, const __inner_iterator& y)
-		{ return y == x; }
-		friend constexpr bool operator!=(const __inner_iterator& x, default_sentinel y)
-		{ return !(x == y); }
-		friend constexpr bool operator!=(default_sentinel x, const __inner_iterator& y)
-		{ return !(y == x); }
+		friend constexpr bool operator==(default_sentinel, const __inner_iterator& y)
+		{ return y.at_end(); }
+		friend constexpr bool operator!=(const __inner_iterator& x, default_sentinel)
+		{ return !x.at_end(); }
+		friend constexpr bool operator!=(default_sentinel, const __inner_iterator& y)
+		{ return !y.at_end(); }
 
 		friend constexpr decltype(auto) iter_move(const __inner_iterator& i)
 		STL2_NOEXCEPT_RETURN(
