@@ -29,11 +29,10 @@ STL2_OPEN_NAMESPACE {
 	requires std::is_object_v<R>
 	struct ref_view;
 
-	// Not an extension: P1252 makes this user-visible
+#if STL2_WORKAROUND_CLANG_37556
 	namespace __ref_view_detail {
 		struct __adl_hook {};
 
-		// Not to spec: should be hidden friends.
 		template<class R>
 		constexpr iterator_t<R> begin(ref_view<R> r) {
 			return r.begin();
@@ -43,12 +42,16 @@ STL2_OPEN_NAMESPACE {
 			return r.end();
 		}
 	}
+#endif // STL2_WORKAROUND_CLANG_37556
 
 	template<Range R>
 	requires std::is_object_v<R>
 	struct ref_view
-	: private __ref_view_detail::__adl_hook
-	, view_interface<ref_view<R>> {
+	: view_interface<ref_view<R>>
+#if STL2_WORKAROUND_CLANG_37556
+	, private __ref_view_detail::__adl_hook
+#endif // STL2_WORKAROUND_CLANG_37556
+	{
 	private:
 		R* r_ = nullptr;
 
@@ -61,10 +64,10 @@ STL2_OPEN_NAMESPACE {
 		template<class T>
 		requires _NotSameAs<T, ref_view> &&
 			requires(T&& t) { fun(static_cast<T&&>(t)); }
-#else
+#else // ^^^ workaround / no workaround vvv
 		template<_NotSameAs<ref_view> T>
 		requires requires(T&& t) { fun(static_cast<T&&>(t)); }
-#endif
+#endif // STL2_WORKAROUND_CLANGC_42
 		constexpr ref_view(T&& t)
 		noexcept(is_nothrow_convertible_v<T, R&>) // strengthened
 		: r_{std::addressof(static_cast<R&>(static_cast<T&&>(t)))} {}
@@ -73,6 +76,15 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr iterator_t<R> begin() const { return __stl2::begin(*r_); }
 		constexpr sentinel_t<R> end() const { return __stl2::end(*r_); }
+
+#if !STL2_WORKAROUND_CLANG_37556
+		friend constexpr iterator_t<R> begin(ref_view r) {
+			return r.begin();
+		}
+		friend constexpr sentinel_t<R> end(ref_view r) {
+			return r.end();
+		}
+#endif // !STL2_WORKAROUND_CLANG_37556
 
 		constexpr bool empty() const requires detail::CanEmpty<R> {
 			return __stl2::empty(*r_);
