@@ -69,8 +69,15 @@ STL2_OPEN_NAMESPACE {
 
 				constexpr I base() const
 				noexcept(std::is_nothrow_copy_constructible<I>::value)
+				requires CopyConstructible<I>
 				{
 					return base_t::get().current_;
+				}
+
+				constexpr I base() &&
+				noexcept(std::is_nothrow_move_constructible<I>::value)
+				{
+					return std::move(base_t::get().current_);
 				}
 			};
 

@@ -91,7 +91,9 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 		constexpr I base() const&
-		noexcept(std::is_nothrow_copy_constructible_v<I>) { // strengthened
+		noexcept(std::is_nothrow_copy_constructible_v<I>) // strengthened
+		requires CopyConstructible<I>
+		{
 			return current_;
 		}
 		constexpr I base() &&
