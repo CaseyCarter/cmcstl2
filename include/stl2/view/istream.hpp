@@ -71,18 +71,19 @@ STL2_OPEN_NAMESPACE {
 			Val* operator->() const { return std::addressof(parent_->get()); }
 
 			friend bool operator==(__iterator x, default_sentinel) {
-				return !*x.parent_->sin_;
+				return x.at_end();
 			}
-			friend bool operator==(default_sentinel y, __iterator x) {
-				return x == y;
+			friend bool operator==(default_sentinel, __iterator x) {
+				return x.at_end();
 			}
-			friend bool operator!=(__iterator x, default_sentinel y) {
-				return !(x == y);
+			friend bool operator!=(__iterator x, default_sentinel) {
+				return !x.at_end();
 			}
-			friend bool operator!=(default_sentinel y, __iterator x) {
-				return !(y == x);
+			friend bool operator!=(default_sentinel, __iterator x) {
+				return !x.at_end();
 			}
 		private:
+			bool at_end() const { return !*parent_->sin_; }
 			detail::raw_ptr<istream_view<Val>> parent_ = nullptr;
 		};
 	} // namespace ext

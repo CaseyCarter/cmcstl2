@@ -156,6 +156,10 @@ STL2_OPEN_NAMESPACE {
 	class filter_view<V, Pred>::__sentinel {
 	private:
 		sentinel_t<V> end_;
+
+		constexpr bool equal(const __iterator& i) const {
+			return i.current_ == end_;
+		}
 	public:
 		__sentinel() = default;
 		explicit constexpr __sentinel(filter_view& parent)
@@ -165,13 +169,13 @@ STL2_OPEN_NAMESPACE {
 		{ return end_; }
 
 		friend constexpr bool operator==(const __iterator& x, const __sentinel& y)
-		{ return x.current_ == y.end_; }
+		{ return y.equal(x); }
 		friend constexpr bool operator==(const __sentinel& x, const __iterator& y)
-		{ return y == x; }
+		{ return x.equal(y); }
 		friend constexpr bool operator!=(const __iterator& x, const __sentinel& y)
-		{ return !(x == y); }
+		{ return !y.equal(x); }
 		friend constexpr bool operator!=(const __sentinel& x, const __iterator& y)
-		{ return !(y == x); }
+		{ return !x.equal(y); }
 	};
 
 	template<class R, class Pred>
