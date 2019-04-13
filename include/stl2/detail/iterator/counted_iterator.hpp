@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 			STL2_EXPECT(n >= 0);
 		}
 		template<class I2>
-		requires convertible_to<const I2&, I>
+		requires convertible_to<const I2&, I> && copy_constructible<I>
 		constexpr counted_iterator(const counted_iterator<I2>& i)
 		noexcept(std::is_nothrow_copy_constructible_v<I>) // strengthened
 		: current_(__counted_iterator::access::current(i))
@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		constexpr I base() const&
 		noexcept(std::is_nothrow_copy_constructible_v<I>) // strengthened
-		requires CopyConstructible<I>
+		requires copy_constructible<I>
 		{
 			return current_;
 		}
@@ -118,7 +118,7 @@ STL2_OPEN_NAMESPACE {
 			--length_;
 			return *this;
 		}
-		/* STL2_CXX20_CONSTEXPR */ decltype(auto) operator++(int) {
+		/* STL2_CXX20_CONSTEXPR */ decltype(auto) operator++(int) requires copy_constructible<I> {
 			STL2_EXPECT(length_ > 0);
 			--length_;
 			try {

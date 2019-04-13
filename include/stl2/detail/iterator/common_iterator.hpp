@@ -185,6 +185,7 @@ STL2_OPEN_NAMESPACE {
 		noexcept(
 			std::is_nothrow_constructible_v<I, const I2&> &&
 			std::is_nothrow_constructible_v<S, const S2&>) // strengthened
+		requires copy_constructible<I>
 		: v_{__stl2::__unchecked_visit(
 			__common_iterator::convert_visitor<I, S, I2, S2>{},
 			__common_iterator::access::v(i))}
@@ -236,7 +237,7 @@ STL2_OPEN_NAMESPACE {
 			++__stl2::__unchecked_get<I>(v_);
 			return *this;
 		}
-		decltype(auto) operator++(int)
+		decltype(auto) operator++(int) requires copy_constructible<I>
 		{
 			auto& i = __stl2::__unchecked_get<I>(v_);
 			if constexpr (forward_iterator<I>) {

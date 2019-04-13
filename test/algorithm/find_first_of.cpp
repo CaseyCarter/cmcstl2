@@ -145,15 +145,15 @@ void test_single_pass() {
 	{
 		auto it = find_first_of(begin(a),
 								end(a),
-								forward_iterator<const int*>(ib),
-								sentinel<const int*>(ib + 3)
+								::forward_iterator<const int*>(ib),
+								::sentinel<const int*>(ib + 3)
 								);
 		CHECK((it != end(a) && *it == 3));
 	}
 	{
 		auto it = find_first_of(a,
-								subrange(forward_iterator<const int*>(ib),
-								forward_iterator<const int*>(ib + 3))
+								subrange(::forward_iterator<const int*>(ib),
+								::forward_iterator<const int*>(ib + 3))
 								);
 		CHECK((it != end(a) && *it == 3));
 	}

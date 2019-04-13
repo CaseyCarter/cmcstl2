@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 
 				constexpr I base() const
 				noexcept(std::is_nothrow_copy_constructible<I>::value)
-				requires CopyConstructible<I>
+				requires copy_constructible<I>
 				{
 					return base_t::get().current_;
 				}
@@ -88,11 +88,13 @@ STL2_OPEN_NAMESPACE {
 			{}
 			constexpr explicit cursor(const I& i)
 			noexcept(std::is_nothrow_copy_constructible<I>::value)
+			requires copy_constructible<I>
 			: current_{i}
 			{}
 			template<convertible_to<I> U>
 			constexpr cursor(const cursor<U>& u)
 			noexcept(std::is_nothrow_constructible<I, const U&>::value)
+			requires copy_constructible<I>
 			: current_{access::current(u)}
 			{}
 

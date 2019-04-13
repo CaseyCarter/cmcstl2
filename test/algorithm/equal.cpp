@@ -34,7 +34,7 @@ bool counting_equals(const T &a, const T &b) {
 }
 
 int main() {
-	using ranges::equal, ranges::distance, ranges::subrange;
+	using ranges::equal, ranges::distance, ranges::subrange, ranges::begin, ranges::end;
 
 	{
 		static const int a[] = {0, 1, 2, 3, 4, 5};

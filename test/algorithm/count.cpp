@@ -69,7 +69,7 @@ int main()
 	{
 		single_pass_array a {0, 1, 1, 2, 3};
 		CHECK(count(a, 1) == 2);
-		CHECK(count(begin(a), end(a), 1) == 2);
+		CHECK(count(__stl2::begin(a), __stl2::end(a), 1) == 2);
 	}
 
 	return ::test_result();

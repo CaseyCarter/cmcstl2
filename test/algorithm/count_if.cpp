@@ -91,7 +91,7 @@ int main()
 	{
 		single_pass_array a {0, 1, 1, 2, 3};
 		CHECK(count_if(a, equals(1)) == 2);
-		CHECK(count_if(begin(a), end(a), equals(1)) == 2);
+		CHECK(count_if(__stl2::begin(a), __stl2::end(a), equals(1)) == 2);
 	}
 
 	return ::test_result();
