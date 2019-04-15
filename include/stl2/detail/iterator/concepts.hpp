@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 		requires __dereferenceable<R> &&
 			requires(R&& r) {
 #ifdef META_HAS_P1084
-				{ iter_move(static_cast<R&&>(r)) ->__can_reference;
+				{ iter_move(static_cast<R&&>(r)) } ->__can_reference;
 #else
 				iter_move(static_cast<R&&>(r));
 				requires __can_reference<decltype(iter_move(static_cast<R&&>(r)))>;
