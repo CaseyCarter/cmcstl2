@@ -119,7 +119,7 @@ public:
 	template<class U>
 	requires ranges::ConvertibleTo<U*, T*>
 	constexpr pointer_cursor(const pointer_cursor<U>& that) noexcept
-	: ptr_{that.ptr_} {}
+	: ptr_{that.arrow()} {}
 
 	constexpr T& read() const noexcept {
 		STL2_EXPECT(ptr_);
