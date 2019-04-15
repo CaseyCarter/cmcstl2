@@ -71,10 +71,10 @@ STL2_OPEN_NAMESPACE {
 	requires (K == subrange_kind::sized || !SizedSentinel<S, I>)
 	class subrange;
 
+#if STL2_WORKAROUND_CLANG_37556
 	namespace __subrange_detail {
 		struct __adl_hook {};
 
-		// Not to spec: these should be hidden friends
 		template<class I, class S, subrange_kind K>
 		constexpr I begin(subrange<I, S, K> r)
 		noexcept(std::is_nothrow_copy_constructible_v<I>) {
@@ -86,12 +86,15 @@ STL2_OPEN_NAMESPACE {
 			return r.end();
 		}
 	}
+#endif // STL2_WORKAROUND_CLANG_37556
 
 	template<Iterator I, Sentinel<I> S, subrange_kind K>
 	requires (K == subrange_kind::sized || !SizedSentinel<S, I>)
 	class subrange
-	: private __subrange_detail::__adl_hook
-	, public view_interface<subrange<I, S, K>>
+	: public view_interface<subrange<I, S, K>>
+#if STL2_WORKAROUND_CLANG_37556
+	, private __subrange_detail::__adl_hook
+#endif // STL2_WORKAROUND_CLANG_37556
 	{
 		static constexpr bool StoreSize =
 			K == subrange_kind::sized && !SizedSentinel<S, I>;
@@ -181,10 +184,10 @@ STL2_OPEN_NAMESPACE {
 		template<class PairLike>
 		requires _NotSameAs<PairLike, subrange> &&
 			_PairLikeConvertibleFrom<PairLike, const I&, const S&>
-#else
+#else // ^^^ workaround / no workaround vvv
 		template<_NotSameAs<subrange> PairLike>
 		requires _PairLikeConvertibleFrom<PairLike, const I&, const S&>
-#endif
+#endif // STL2_WORKAROUND_CLANGC_42
 		constexpr operator PairLike() const {
 			return PairLike(first_(), last_());
 		}
@@ -195,6 +198,17 @@ STL2_OPEN_NAMESPACE {
 		constexpr S end() const noexcept(std::is_nothrow_copy_constructible_v<S>) {
 			return last_();
 		}
+#if !STL2_WORKAROUND_CLANG_37556
+		friend constexpr I begin(const subrange& r)
+		noexcept(std::is_nothrow_copy_constructible_v<I>) {
+			return r.first_();
+		}
+		friend constexpr S end(const subrange& r)
+		noexcept(std::is_nothrow_copy_constructible_v<S>) {
+			return r.last_();
+		}
+#endif // !STL2_WORKAROUND_CLANG_37556
+
 		constexpr bool empty() const {
 			return first_() == last_();
 		}
