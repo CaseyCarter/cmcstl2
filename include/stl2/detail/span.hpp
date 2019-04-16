@@ -142,7 +142,6 @@ STL2_OPEN_NAMESPACE {
 			// [span.cons], span constructors
 			constexpr span() noexcept = default;
 			constexpr span(pointer ptr, index_type count) noexcept
-			requires true // HACK: disambiguates span{ptr, 0}
 			: __span::extent<Extent>{count}, data_{ptr}
 			{
 				STL2_EXPECT(count == 0 || ptr != nullptr);
