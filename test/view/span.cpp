@@ -526,6 +526,7 @@ void test_case_class_template_argument_deduction()
 			span s{arr};
 			static_assert(ranges::Same<span<int, 5>, decltype(s)>);
 		}
+#if 0 // TODO: reactivate these cases on the span_updates branch
 		{
 			span s{ranges::begin(arr), ranges::size(arr)};
 			static_assert(ranges::Same<span<int>, decltype(s)>);
@@ -534,6 +535,7 @@ void test_case_class_template_argument_deduction()
 			span s{ranges::begin(arr), ranges::end(arr)};
 			static_assert(ranges::Same<span<int>, decltype(s)>);
 		}
+#endif
 	}
 	{
 		std::vector<int> vec = {1, 2, 3, 4, 5};
