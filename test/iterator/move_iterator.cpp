@@ -166,9 +166,11 @@ public:
 		return *this;
 	}
 	readable_proxy operator++(int) & {
-		readable_proxy tmp{ranges::iter_move(*ptr_)};
-		++*this;
-		return tmp;
+		struct guard { // Just a weeee hack.
+			proxy_iterator& self_;
+			~guard() { ++self_; }
+		} _{*this};
+		return readable_proxy{ranges::iter_move(*ptr_)};
 	}
 
 	friend T&& iter_move(const proxy_iterator& p) {
