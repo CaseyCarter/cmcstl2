@@ -30,10 +30,13 @@ add_library(stl2 INTERFACE)
 target_include_directories(stl2 INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
-target_compile_features(stl2 INTERFACE cxx_std_17)
+if(NOT MSVC)
+    target_compile_features(stl2 INTERFACE cxx_std_17)
+endif()
 target_compile_options(stl2 INTERFACE
     $<$<CXX_COMPILER_ID:GNU>:-fconcepts>
-    $<$<CXX_COMPILER_ID:Clang>:-Xclang -fconcepts-ts>)
+    $<$<CXX_COMPILER_ID:Clang>:-Xclang -fconcepts-ts>
+    $<$<CXX_COMPILER_ID:MSVC>:/std:c++latest /permissive- /experimental:concepts /D__cpp_concepts=201811L>)
 
 install(DIRECTORY include/ DESTINATION include)
 install(TARGETS stl2 EXPORT cmcstl2-targets)

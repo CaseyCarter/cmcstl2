@@ -653,6 +653,56 @@ STL2_OPEN_NAMESPACE {
 		using type = __stl2::contiguous_iterator_tag;
 	};
 } STL2_CLOSE_NAMESPACE
+#elif defined(_MSVC_STL_VERSION)
+namespace std {
+	template<class, size_t> class _Array_iterator;
+	template<class, size_t> class _Array_const_iterator;
+	template<class, size_t> class _Span_iterator;       // My crystal ball tells me we'll pick
+	template<class, size_t> class _Span_const_iterator; // these names when we implement span.
+	template<class> class _String_iterator;
+	template<class> class _String_const_iterator;
+	template<class> class _String_view_iterator;
+	template<class> class _Vector_iterator;
+	template<class> class _Vector_const_iterator;
+}
+STL2_OPEN_NAMESPACE {
+	template<class T, size_t N>
+	struct iterator_category<::std::_Array_iterator<T, N>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T, size_t N>
+	struct iterator_category<::std::_Array_const_iterator<T, N>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T, size_t N>
+	struct iterator_category<::std::_Span_iterator<T, N>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T, size_t N>
+	struct iterator_category<::std::_Span_const_iterator<T, N>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T>
+	struct iterator_category<::std::_String_iterator<T>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T>
+	struct iterator_category<::std::_String_const_iterator<T>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T>
+	struct iterator_category<::std::_String_view_iterator<T>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T>
+	struct iterator_category<::std::_Vector_iterator<T>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T>
+	struct iterator_category<::std::_Vector_const_iterator<T>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+} STL2_CLOSE_NAMESPACE
 #endif
 
 #endif

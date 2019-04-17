@@ -173,6 +173,9 @@ inline int test_result()
 	return ::test_impl::test_failures() ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
+#if defined(_MSC_VER) && !defined(__clang__)
+#define __PRETTY_FUNCTION__ __FUNCSIG__
+#endif
 #define CHECK(...)                                                                                 \
 	(void)(::test_impl::S{__FILE__, __LINE__, #__VA_ARGS__, __PRETTY_FUNCTION__} ->* __VA_ARGS__)  \
 	/**/
