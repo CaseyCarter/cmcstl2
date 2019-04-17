@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<WeaklyIncrementable I, Semiregular Bound>
 	requires WeaklyEqualityComparable<I, Bound>
-	struct iota_view
+	struct STL2_EMPTY_BASES iota_view
 	: private __iota_view_detail::__adl_hook
 	, view_interface<iota_view<I, Bound>> {
 	private:

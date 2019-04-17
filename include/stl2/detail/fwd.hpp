@@ -194,6 +194,12 @@ namespace __stl2 = ::std::experimental::ranges;
 #define STL2_NO_UNIQUE_ADDRESS
 #endif
 
+#ifdef _MSC_VER
+#define STL2_EMPTY_BASES __declspec(empty_bases)
+#else
+#define STL2_EMPTY_BASES
+#endif
+
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		// tags for manually specified overload ordering

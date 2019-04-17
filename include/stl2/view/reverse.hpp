@@ -24,7 +24,7 @@
 STL2_OPEN_NAMESPACE {
 	template<View V>
 	requires BidirectionalRange<V>
-	class reverse_view
+	class STL2_EMPTY_BASES reverse_view
 	: public view_interface<reverse_view<V>>
 	, private detail::cached_position<V, reverse_view<V>, !CommonRange<V>> {
 	private:

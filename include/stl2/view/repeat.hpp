@@ -26,7 +26,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<CopyConstructibleObject T>
-		struct repeat_view
+		struct STL2_EMPTY_BASES repeat_view
 		: private detail::semiregular_box<T>
 		, view_interface<repeat_view<T>>
 		{

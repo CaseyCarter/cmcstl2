@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			InputRange<Rng> &&
 			Readable<std::remove_reference_t<iter_reference_t<iterator_t<Rng>>>>
-		class indirect_view
+		class STL2_EMPTY_BASES indirect_view
 		: public view_interface<indirect_view<Rng>>
 		, private detail::ebo_box<Rng, indirect_view<Rng>> {
 			using base_t = detail::ebo_box<Rng, indirect_view<Rng>>;

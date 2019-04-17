@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<std::size_t... Is, class Fn, class... Ts>
-		struct __view_closure<std::index_sequence<Is...>, Fn, Ts...>
+		struct STL2_EMPTY_BASES __view_closure<std::index_sequence<Is...>, Fn, Ts...>
 		: private __box<Is, Ts>... {
 			__view_closure() = default;
 			constexpr explicit __view_closure(Fn, Ts&&... ts)
@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<Semiregular Fn, CopyConstructible... Ts>
-		struct view_closure
+		struct STL2_EMPTY_BASES view_closure
 		: __pipeable<view_closure<Fn, Ts...>>
 		, __view_closure<std::index_sequence_for<Ts...>, Fn, Ts...> {
 			using __view_closure<std::index_sequence_for<Ts...>, Fn, Ts...>::__view_closure;
