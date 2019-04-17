@@ -71,7 +71,7 @@ STL2_OPEN_NAMESPACE {
 			cached_position() = default;
 			cached_position(const cached_position&) = default;
 			cached_position(cached_position&& that)
-			:	offset_{__stl2::exchange(that.offset_, -1)} {}
+			: offset_{__stl2::exchange(that.offset_, -1)} {}
 			cached_position& operator=(const cached_position&) = default;
 			cached_position& operator=(cached_position&& that) {
 				offset_ = __stl2::exchange(that.offset_, -1);

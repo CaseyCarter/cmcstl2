@@ -36,8 +36,7 @@ STL2_OPEN_NAMESPACE {
 			drop_view() = default;
 
 			constexpr drop_view(R base, D count)
-				: base_(std::move(base)),
-				  count_(count)
+			: base_(std::move(base)), count_(count)
 			{}
 
 			constexpr R base() const { return base_; }
