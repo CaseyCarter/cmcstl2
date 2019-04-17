@@ -29,7 +29,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<View Base>
-		class take_exactly_view
+		class STL2_EMPTY_BASES take_exactly_view
 		: public view_interface<take_exactly_view<Base>>
 		, private detail::ebo_box<Base, take_exactly_view<Base>>
 		{

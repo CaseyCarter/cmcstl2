@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 		template<View R, class Pred>
 		requires InputRange<R> && std::is_object_v<Pred> &&
 			IndirectUnaryPredicate<const Pred, iterator_t<R>>
-		class take_while_view
+		class STL2_EMPTY_BASES take_while_view
 		: public view_interface<take_while_view<R, Pred>>
 		, private detail::semiregular_box<Pred> {
 			template<bool> class __sentinel;

@@ -365,7 +365,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class Cur>
-		struct basic_proxy_reference
+		struct STL2_EMPTY_BASES basic_proxy_reference
 		: cursor_traits<Cur>
 		, meta::inherit<
 				meta::transform<
@@ -631,7 +631,7 @@ STL2_OPEN_NAMESPACE {
 	} // namespace basic_iterator_adl
 
 	template<cursor::Cursor C>
-	class basic_iterator
+	class STL2_EMPTY_BASES basic_iterator
 	: public mixin_t<C>
 	, detail::iterator_associated_types_base<C>
 	, basic_iterator_adl::hook

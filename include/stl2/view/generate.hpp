@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<CopyConstructibleObject F>
 		requires Invocable<F&>
-		struct generate_view
+		struct STL2_EMPTY_BASES generate_view
 		: view_interface<generate_view<F>>
 		, private detail::semiregular_box<F>
 		, private detail::non_propagating_cache<invoke_result_t<F&>> {

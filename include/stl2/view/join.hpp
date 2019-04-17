@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 	template<InputRange V>
 	requires View<V> && InputRange<iter_reference_t<iterator_t<V>>> &&
 		(detail::_GLvalueRange<V> || View<iter_value_t<iterator_t<V>>>) // TODO: file LWG issue
-	class join_view
+	class STL2_EMPTY_BASES join_view
 	: public view_interface<join_view<V>>
 	, detail::join_view_base<iter_reference_t<iterator_t<V>>> {
 	private:

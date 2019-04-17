@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<View R, IndirectPredicate<iterator_t<R>> Pred>
 		requires InputRange<R> && std::is_object_v<Pred>
-		class drop_while_view
+		class STL2_EMPTY_BASES drop_while_view
 		: public view_interface<drop_while_view<R, Pred>>
 		, private detail::semiregular_box<Pred>
 		, private detail::non_propagating_cache<iterator_t<R>, drop_while_view<R, Pred>> {

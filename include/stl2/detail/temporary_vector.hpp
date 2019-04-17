@@ -34,8 +34,8 @@ STL2_OPEN_NAMESPACE {
 			std::unique_ptr<T, temporary_buffer_deleter> alloc_;
 			std::ptrdiff_t size_ = 0;
 
-			temporary_buffer(std::pair<T*, std::ptrdiff_t> buf) :
-				alloc_{buf.first}, size_{buf.second} {}
+			temporary_buffer(std::pair<T*, std::ptrdiff_t> buf)
+			: alloc_{buf.first}, size_{buf.second} {}
 
 		public:
 			temporary_buffer() = default;

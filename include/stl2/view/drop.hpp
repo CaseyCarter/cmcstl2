@@ -28,7 +28,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<View R>
-		class drop_view
+		class STL2_EMPTY_BASES drop_view
 		: public view_interface<drop_view<R>>
 		, private detail::cached_position<R, drop_view<R>, !RandomAccessRange<const R>> {
 			using D = iter_difference_t<iterator_t<R>>;
@@ -36,8 +36,7 @@ STL2_OPEN_NAMESPACE {
 			drop_view() = default;
 
 			constexpr drop_view(R base, D count)
-				: base_(std::move(base)),
-				  count_(count)
+			: base_(std::move(base)), count_(count)
 			{}
 
 			constexpr R base() const { return base_; }

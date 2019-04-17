@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	// ref_view [ranges.view.ref]
 	template<Range R>
 	requires std::is_object_v<R>
-	struct ref_view;
+	struct STL2_EMPTY_BASES ref_view;
 
 	// Not an extension: P1252 makes this user-visible
 	namespace __ref_view_detail {
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<Range R>
 	requires std::is_object_v<R>
-	struct ref_view
+	struct STL2_EMPTY_BASES ref_view
 	: private __ref_view_detail::__adl_hook
 	, view_interface<ref_view<R>> {
 	private:

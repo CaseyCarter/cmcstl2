@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<Movable Val>
 		requires DefaultConstructible<Val> && StreamExtractable<Val>
-		struct istream_view
+		struct STL2_EMPTY_BASES istream_view
 		: view_interface<istream_view<Val>>
 		, detail::semiregular_box<Val> {
 		private:

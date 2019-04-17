@@ -26,8 +26,9 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<View Rng>
 		requires InputRange<Rng>
-		class move_view : detail::ebo_box<Rng, move_view<Rng>>
-						, public view_interface<move_view<Rng>> {
+		class STL2_EMPTY_BASES move_view
+		: detail::ebo_box<Rng, move_view<Rng>>
+		, public view_interface<move_view<Rng>> {
 			using base_t = detail::ebo_box<Rng, move_view<Rng>>;
 			using base_t::get;
 		public:

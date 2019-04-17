@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<Iterator I, Sentinel<I> S, subrange_kind K>
 	requires (K == subrange_kind::sized || !SizedSentinel<S, I>)
-	class subrange
+	class STL2_EMPTY_BASES subrange
 	: private __subrange_detail::__adl_hook
 	, public view_interface<subrange<I, S, K>>
 	{
