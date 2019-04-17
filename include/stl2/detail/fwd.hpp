@@ -188,6 +188,12 @@ namespace __stl2 = ::std::experimental::ranges;
 #define STL2_RVALUE_REQ(...) __VA_ARGS__&&
 #endif // Detect support for P1084
 
+#if __has_cpp_attribute(no_unique_address)
+#define STL2_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#else
+#define STL2_NO_UNIQUE_ADDRESS
+#endif
+
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		// tags for manually specified overload ordering
