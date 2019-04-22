@@ -153,7 +153,7 @@ STL2_OPEN_NAMESPACE {
 
 			template<class R>
 			requires has_member<R> || has_non_member<R>
-			constexpr auto operator()(R&& r) const {
+			constexpr auto operator()(R&& r) const noexcept(nothrow<R>) {
 				if constexpr (has_member<R>)
 					return r.end();
 				else

@@ -212,6 +212,25 @@ namespace X {
 	constexpr const T* begin(const array<T, N>& a) noexcept { return a.elements_; }
 	template<class T, std::size_t N>
 	constexpr const T* end(const array<T, N>& a) noexcept { return a.elements_ + N; }
+
+	template<class T, std::size_t N>
+		requires (N != 0)
+	struct non_constexpr_array {
+		T elements_[N];
+
+		bool empty() const noexcept { return N == 0; }
+		T* data() noexcept { return elements_; }
+		const T* data() const noexcept { return elements_; }
+	};
+
+	template<class T, std::size_t N>
+	T* begin(non_constexpr_array<T, N>& a) noexcept { return a.elements_; }
+	template<class T, std::size_t N>
+	T* end(non_constexpr_array<T, N>& a) noexcept { return a.elements_ + N; }
+	template<class T, std::size_t N>
+	const T* begin(const non_constexpr_array<T, N>& a) noexcept { return a.elements_; }
+	template<class T, std::size_t N>
+	const T* end(const non_constexpr_array<T, N>& a) noexcept { return a.elements_ + N; }
 } // namespace X
 
 using I = int*;
@@ -247,12 +266,15 @@ int main() {
 	static_assert(first == cbegin(some_ints));
 	static_assert(last == cend(some_ints));
 
-	static_assert(noexcept(begin(some_ints)));
-	static_assert(noexcept(end(some_ints)));
-	static_assert(noexcept(cbegin(some_ints)));
-	static_assert(noexcept(cend(some_ints)));
-	static_assert(noexcept(empty(some_ints)));
-	static_assert(noexcept(data(some_ints)));
+	{
+		X::non_constexpr_array<int, 4> not_a_constant_expression{{0,1,2,3}};
+		static_assert(noexcept(begin(not_a_constant_expression)));
+		static_assert(noexcept(end(not_a_constant_expression)));
+		static_assert(noexcept(cbegin(not_a_constant_expression)));
+		static_assert(noexcept(cend(not_a_constant_expression)));
+		static_assert(noexcept(empty(not_a_constant_expression)));
+		static_assert(noexcept(data(not_a_constant_expression)));
+	}
 
 	constexpr bool output = false;
 	static_assert(!empty(some_ints));
