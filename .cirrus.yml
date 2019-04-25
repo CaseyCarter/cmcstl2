@@ -24,9 +24,9 @@ task:
   container: # Docker image is specifically for this project. If clang-concepts is required, please
              # use cjdb/clang-concepts:latest instead (it tries to remain up-to-date with the tip of
              # clang-concepts trunk).
-    image: cjdb/cmcstl2-testbed:latest
+    image: cjdb/cirrus-cpp:bionic
     cpu: 8
-    memory: 16G
+    memory: 10G
   configure_script:
     - mkdir -p build
     - cd build
