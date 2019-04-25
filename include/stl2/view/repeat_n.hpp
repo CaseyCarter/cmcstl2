@@ -31,7 +31,13 @@ STL2_OPEN_NAMESPACE {
 			template<class T>
 			constexpr auto operator()(T&& t, std::ptrdiff_t const n) const
 			noexcept(noexcept(V<T>{repeat(static_cast<T&&>(t)), n}))
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(T&& t, std::ptrdiff_t n) {
+				V<T>{repeat(static_cast<T&&>(t)), n};
+			} {
+#else // ^^^ workaround / no workaround vvv
 			requires requires { V<T>{repeat(static_cast<T&&>(t)), n}; } {
+#endif // STL2_WORKAROUND_CLANGC_50
 				STL2_EXPECT(n >= 0);
 				return V<T>{repeat(static_cast<T&&>(t)), n};
 			}
