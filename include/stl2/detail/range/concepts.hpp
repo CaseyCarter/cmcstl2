@@ -157,8 +157,12 @@ STL2_OPEN_NAMESPACE {
 
 	template<class Rng>
 	META_CONCEPT ViewableRange =
+#if 1 // This is the PR of https://github.com/ericniebler/stl2/issues/623
+		View<__uncvref<Rng>> || _ForwardingRange<Rng>;
+#else
 		Range<Rng> &&
-		(_RangeImpl<Rng> || View<Rng>);
+		(_RangeImpl<Rng> || View<std::decay_t<Rng>>);
+#endif
 
 	namespace ext {
 		template<Range R>
