@@ -16,13 +16,13 @@
 #include <utility>
 
 #include <stl2/type_traits.hpp>
-#include <stl2/detail/concepts/function.hpp>
-#include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/fwd.hpp>
-#include <stl2/detail/iterator/unreachable.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/non_propagating_cache.hpp>
 #include <stl2/detail/semiregular_box.hpp>
+#include <stl2/detail/concepts/function.hpp>
+#include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/iterator/unreachable.hpp>
 #include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/view_interface.hpp>
 
@@ -100,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 				if (!view.as_cache()) {
 					view.as_cache().emplace(view.get()());
 				}
-				using reference_t = std::conditional_t<
+				using reference_t = __cond<
 					std::is_lvalue_reference_v<result_t>,
 					result_t,
 					__uncvref<result_t>&&>;

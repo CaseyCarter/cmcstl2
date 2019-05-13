@@ -18,11 +18,20 @@
 #include <stl2/detail/fwd.hpp>
 
 STL2_OPEN_NAMESPACE {
+	template<bool> struct __cond_ {
+		template<class T, class> using invoke = T;
+	};
+	template<> struct __cond_<false> {
+		template<class, class T> using invoke = T;
+	};
+	template<bool B, class T, class U> using __cond =
+		typename __cond_<B>::template invoke<T, U>;
+
 	template<class T>
 	using __uncvref = std::remove_cv_t<std::remove_reference_t<T>>;
 
 	template<bool IsConst, class T>
-	using __maybe_const = std::conditional_t<IsConst, T const, T>;
+	using __maybe_const = __cond<IsConst, const T, T>;
 
 	template<class From, class To>
 	inline constexpr bool _IsConvertibleImpl =
@@ -35,15 +44,22 @@ STL2_OPEN_NAMESPACE {
 #endif
 
 	template<class From, class To>
-	inline constexpr bool is_nothrow_convertible_v = false;
+	inline constexpr bool is_nothrow_convertible_v =
+		std::is_void_v<From> && std::is_void_v<To>;
 
 	template<class T>
-	void __nothrow_convertible_helper(T) noexcept; // not defined
+	void __nothrow_convertible_helper(T) noexcept
+#if defined(__GNUC__) && !defined(__clang__) // BUGBUG
+	{}
+#else
+	; // not defined
+#endif
 
 	template<class From, class To>
-	requires _IsConvertibleImpl<From, To>
-	inline constexpr bool is_nothrow_convertible_v<From, To> =
-		noexcept(__nothrow_convertible_helper<To>(std::declval<From>()));
+	requires requires(From&& f) {
+		{ __nothrow_convertible_helper<To>(static_cast<From&&>(f)) } noexcept;
+	}
+	inline constexpr bool is_nothrow_convertible_v<From, To> = true;
 
 	template<class T, class D = std::decay_t<T>>
 	requires _IsConvertibleImpl<T, D>

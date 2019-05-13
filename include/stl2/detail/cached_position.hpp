@@ -14,6 +14,7 @@
 #define STL2_DETAIL_CACHED_POSITION_HPP
 
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/swap.hpp>
 #include <stl2/detail/non_propagating_cache.hpp>
 #include <stl2/detail/iterator/operations.hpp>
@@ -62,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 				cache_ = it;
 			}
 		private:
-			meta::if_c<_ForwardingRange<R>,
+			__cond<_ForwardingRange<R>,
 				std::optional<iterator_t<R>>,
 				non_propagating_cache<iterator_t<R>>> cache_;
 		};

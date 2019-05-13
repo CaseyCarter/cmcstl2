@@ -135,7 +135,7 @@ STL2_OPEN_NAMESPACE {
 			return current() == __stl2::end(parent_->base_);
 		}
 	public:
-		using iterator_category = meta::if_c<ForwardRange<Base>,
+		using iterator_category = __cond<ForwardRange<Base>,
 			__stl2::forward_iterator_tag, __stl2::input_iterator_tag>;
 		using difference_type = iter_difference_t<iterator_t<Base>>;
 		struct value_type;

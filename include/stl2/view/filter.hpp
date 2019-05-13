@@ -72,9 +72,9 @@ STL2_OPEN_NAMESPACE {
 		friend __sentinel;
 	public:
 		using iterator_category =
-			meta::if_c<BidirectionalIterator<iterator_t<V>>,
+			__cond<BidirectionalIterator<iterator_t<V>>,
 				__stl2::bidirectional_iterator_tag,
-			meta::if_c<ForwardIterator<iterator_t<V>>,
+			__cond<ForwardIterator<iterator_t<V>>,
 				__stl2::forward_iterator_tag,
 				__stl2::input_iterator_tag>>;
 		using value_type = iter_value_t<iterator_t<V>>;

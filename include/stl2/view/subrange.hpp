@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 		static constexpr bool StoreSize =
 			K == subrange_kind::sized && !SizedSentinel<S, I>;
 
-		meta::if_c<StoreSize,
+		__cond<StoreSize,
 			std::tuple<I, S, iter_difference_t<I>>,
 			std::tuple<I, S>> data_;
 

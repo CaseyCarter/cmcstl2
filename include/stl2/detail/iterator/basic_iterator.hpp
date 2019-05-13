@@ -544,15 +544,15 @@ STL2_OPEN_NAMESPACE {
 		template<cursor::Readable Cur>
 		struct iterator_associated_types_base<Cur> {
 			using reference_t =
-				meta::if_c<
+				__cond<
 					is_writable<const Cur>,
 					basic_proxy_reference<const Cur>,
-					meta::if_c<
+					__cond<
 						is_writable<Cur>,
 						basic_proxy_reference<Cur>,
 						cursor::reference_t<Cur>>>;
 			using const_reference_t =
-				meta::if_c<
+				__cond<
 					is_writable<const Cur>,
 					basic_proxy_reference<const Cur>,
 					cursor::reference_t<Cur>>;

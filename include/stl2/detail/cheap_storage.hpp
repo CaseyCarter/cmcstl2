@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 
 		// Note: promotes to CopyConstructible
 		template<ext::Object T, class Tag = void>
-		using cheap_reference_box_t = meta::if_c<
+		using cheap_reference_box_t = __cond<
 			cheaply_copyable<remove_cv_t<T>>,
 			ebo_box<remove_cv_t<T>, Tag>,
 			ref_box<T, Tag>>;
