@@ -13,11 +13,11 @@
 #define STL2_VIEW_REVERSE_HPP
 
 #include <stl2/detail/cached_position.hpp>
+#include <stl2/detail/closure.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/reverse_iterator.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
 

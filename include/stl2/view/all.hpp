@@ -15,7 +15,6 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/ref.hpp>
 #include <stl2/view/subrange.hpp>
 

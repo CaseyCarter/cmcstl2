@@ -16,6 +16,7 @@
 #include <utility>
 
 #include <stl2/type_traits.hpp>
+#include <stl2/detail/closure.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/non_propagating_cache.hpp>
@@ -23,7 +24,6 @@
 #include <stl2/detail/concepts/function.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/unreachable.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {

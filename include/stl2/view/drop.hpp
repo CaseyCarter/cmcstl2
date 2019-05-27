@@ -15,13 +15,13 @@
 #define STL2_VIEW_DROP_HPP
 
 #include <stl2/detail/cached_position.hpp>
+#include <stl2/detail/closure.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
 #include <stl2/detail/range/nth_iterator.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
 
@@ -108,7 +108,7 @@ STL2_OPEN_NAMESPACE {
 			template<Integral D>
 			constexpr auto operator()(D count) const
 			{
-				return detail::view_closure(*this, static_cast<D>(count));
+				return detail::closure(*this, static_cast<D>(count));
 			}
 		};
 

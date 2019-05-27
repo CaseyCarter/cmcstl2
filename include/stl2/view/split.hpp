@@ -13,13 +13,13 @@
 #define STL2_VIEW_SPLIT_HPP
 
 #include <stl2/type_traits.hpp>
+#include <stl2/detail/closure.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/mismatch.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/single.hpp>
 
@@ -330,7 +330,7 @@ STL2_OPEN_NAMESPACE {
 
 			template<CopyConstructible T>
 			constexpr auto operator()(T&& t) const
-			{ return detail::view_closure{*this, std::forward<T>(t)}; }
+			{ return detail::closure{*this, std::forward<T>(t)}; }
 		};
 
 		inline constexpr __split_fn split {};
