@@ -19,6 +19,7 @@
 #include <stl2/detail/variant.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/iterator/operations.hpp>
+#include <stl2/detail/range/concepts.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // common_iterator [common.iterators]
@@ -281,6 +282,20 @@ STL2_OPEN_NAMESPACE {
 	struct iterator_category<common_iterator<I, S>> {
 		using type = forward_iterator_tag;
 	};
+
+	template<bool>
+	struct __range_common_iterator_impl {
+		template <class _Rng>
+		using __fn = common_iterator<iterator_t<_Rng>, sentinel_t<_Rng>>;
+	};
+	template<>
+	struct __range_common_iterator_impl<true> {
+		template <class _Rng>
+		using __fn = iterator_t<_Rng>;
+	};
+	template<Range _Rng>
+	using __range_common_iterator =
+		typename __range_common_iterator_impl<CommonRange<_Rng>>::template __fn<_Rng>;
 } STL2_CLOSE_NAMESPACE
 
 #endif
