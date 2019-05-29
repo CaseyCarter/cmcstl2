@@ -238,6 +238,8 @@ int main() {
 	test_zip_to_map(view::zip(view::iota(0), view::iota(0, 10)), 0);
 #endif
 
+#define HAS_TYPE_CONSTRAINTS 0 // no compiler implements P1141's type-constraint syntax yet
+
 	{
 		// Examples from P1206
 		std::list<int> l;
@@ -247,35 +249,35 @@ int main() {
 		my_alloc<int> alloc(42);
 #endif
 		// copy a list to a vector of the same type
-#if 0 // P1141 syntax not supported
+#if HAS_TYPE_CONSTRAINTS
 		Same<std::vector<int>> auto a = ranges::to<std::vector<int>>(l);
 #else
 		auto a = ranges::to<std::vector<int>>(l);
 		static_assert(Same<decltype(a), std::vector<int>>);
 #endif
 		// Specify an allocator
-#if 0 // P1141 syntax not supported
+#if HAS_TYPE_CONSTRAINTS
 		Same<std::vector<int, Alloc>> auto b = ranges::to<std::vector<int, Alloc>(l, alloc);
 #else
 		auto b = ranges::to<std::vector<int, Alloc>>(l, alloc);
 		static_assert(Same<decltype(b), std::vector<int, Alloc>>);
 #endif
 		// copy a list to a vector of the same type, deducing value_type
-#if 0 // P1141 syntax not supported
+#if HAS_TYPE_CONSTRAINTS
 		Same<std::vector<int>> auto c = ranges::to<std::vector>(l);
 #else
 		auto c = ranges::to<std::vector>(l);
 		static_assert(Same<decltype(c), std::vector<int>>);
 #endif
 		// copy to a container of types ConvertibleTo
-#if 0 // P1141 syntax not supported
+#if HAS_TYPE_CONSTRAINTS
 		Same<std::vector<long>> auto d = ranges::to<std::vector<long>>(l);
 #else
 		auto d = ranges::to<std::vector<long>>(l);
 		static_assert(Same<decltype(d), std::vector<long>>);
 #endif
 		// Supports converting associative container to sequence containers
-#if 0 // P1141 syntax not supported
+#if HAS_TYPE_CONSTRAINTS
 		Same<std::vector<std::pair<const int, int>>>
 			auto f = ranges::to<vector<std::pair<const int, int>>>(m);
 #else
@@ -283,7 +285,7 @@ int main() {
 		static_assert(Same<decltype(f), std::vector<std::pair<const int, int>>>);
 #endif
 		// Removing the const from the key by default
-#if 0 // P1141 syntax not supported
+#if HAS_TYPE_CONSTRAINTS
 		Same<std::vector<std::pair<int, int>>> auto e = ranges::to<std::vector>(m);
 #else
 		auto e = ranges::to<std::vector>(m);
@@ -294,14 +296,14 @@ int main() {
 #endif
 #endif
 		// Supports converting sequence containers to associative ones
-#if 0 // P1141 syntax not supported
+#if HAS_TYPE_CONSTRAINTS
 		Same<std::map<int, int>> auto g = f | ranges::to<map>();
 #else
 		auto g1 = f | ranges::to<std::map>();
 		static_assert(Same<decltype(g1), std::map<int, int>>);
 #endif
 		// Pipe syntax
-#if 0 // P1141 syntax not supported
+#if HAS_TYPE_CONSTRAINTS
 		Same<std::vector<int>> auto g = l | ranges::view::take(42) | ranges::to<std::vector>();
 #else
 		auto g2 = l | ranges::view::take(42) | ranges::to<std::vector>();
@@ -316,7 +318,7 @@ int main() {
 		// The pipe syntax also support specifying the type and conversions
 		auto i = l | ranges::view::take(42) | ranges::to<std::vector<long>>();
 		// Parentheses are optional for template...
-#if 0 // P1141 syntax not supported
+#if HAS_TYPE_CONSTRAINTS
 		Same<std::vector<int>> auto j = l | ranges::view::take(42) | ranges::to<std::vector>;
 #else
 		auto j = l | ranges::view::take(42) | ranges::to<std::vector>;

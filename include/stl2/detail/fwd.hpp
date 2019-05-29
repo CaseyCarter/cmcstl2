@@ -48,6 +48,16 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_GCC_UNKNOWN0
+ #if defined(__GNUC__) && !defined(__clang__)
+  // GCC instantiates non-ODR-used function templates that are used as
+  // unevaluated operands in a requires-expression
+  #define STL2_WORKAROUND_GCC_UNKNOWN0 1
+ #else
+  #define STL2_WORKAROUND_GCC_UNKNOWN0 0
+ #endif
+#endif
+
 #ifndef STL2_WORKAROUND_CLANG_UNKNOWN1
  #if defined(__clang__) && __clang_major < 7
   // Rejects-valid with CTAD nested in parens.

@@ -22,19 +22,27 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace __to {
-		template<class _Cont>
-		META_CONCEPT __containerish =
-			ForwardRange<_Cont> /* && !View<_Cont> */ && MoveConstructible<_Cont>;
+		struct __adl_hook {
+			explicit __adl_hook() = default;
+		};
 
 		template<class _Cont, class _IRange, class... _Args>
 		META_CONCEPT __class_convertible = InputRange<_IRange> &&
-			__containerish<std::remove_cv_t<_Cont>> &&
+			ForwardRange<std::remove_cv_t<_Cont>> &&
+#if STL2_WORKAROUND_GCC_UNKNOWN0 // See https://godbolt.org/z/e_dtqQ
+			std::is_object_v<std::remove_cv_t<_Cont>> && enable_view<std::remove_cv_t<_Cont>> &&
+#else // ^^^ workaround / no workaround vvv
+			!View<std::remove_cv_t<_Cont>> &&
+#endif // STL2_WORKAROUND_GCC_UNKNOWN0
+			MoveConstructible<std::remove_cv_t<_Cont>> &&
+			// Proxy for Cpp17EmplaceConstructible:
 			Constructible<ext::range_value_t<_Cont>, ext::range_reference_t<_IRange>> &&
 			Constructible<_Cont, __range_common_iterator<_IRange>,
 				__range_common_iterator<_IRange>, _Args...>;
 
 		template<class _IRange, class _Cont, class... _Args>
-		META_CONCEPT __reserve_assignable = SizedRange<_IRange> && Constructible<_Cont, _Args...> &&
+		META_CONCEPT __reserve_assignable = SizedRange<_IRange> &&
+			Constructible<_Cont, _Args...> && MoveConstructible<_Cont> &&
 			requires(_Cont& __mc, const _Cont& __cc) {
 				{ __cc.capacity() } -> Integral;
 				__mc.reserve(__cc.capacity());
@@ -46,13 +54,13 @@ STL2_OPEN_NAMESPACE {
 		struct __class_to {
 			template<class _IRange, class... _Args>
 			requires __class_convertible<_Cont, _IRange, _Args...>
-			constexpr _Cont operator()(_IRange&& __r, _Args&&... __args) const {
+			constexpr auto operator()(_IRange&& __r, _Args&&... __args) const {
 				using __ci = __range_common_iterator<_IRange>;
-				if constexpr (__reserve_assignable<_IRange, _Cont, _Args...>) {
-					_Cont __c(static_cast<_Args&&>(__args)...);
+				if constexpr (__reserve_assignable<_IRange, remove_cv_t<_Cont>, _Args...>) {
+					remove_cv_t<_Cont> __c(static_cast<_Args&&>(__args)...);
 					auto const __size = size(__r);
 					using __capacity = decltype(__c.capacity());
-					// if (__can_represent<__capacity>(__size)) ?
+					// FIXME: What if __capacity can't represent __size?
 					__c.reserve(static_cast<__capacity>(__size));
 					__c.assign(__ci(begin(__r)), __ci(end(__r)));
 					return __c;
@@ -70,13 +78,13 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class _Cont>
-		constexpr __class_closure<_Cont> to() noexcept {
+		constexpr __class_closure<_Cont> to(__adl_hook = __adl_hook{}) noexcept {
 			return {};
 		}
 
 		template<class _IRange, class _Cont>
 		requires __class_convertible<_Cont, _IRange>
-		constexpr auto operator|(_IRange&& __r, __class_closure<_Cont>(&)() noexcept) {
+		constexpr auto operator|(_IRange&& __r, __class_closure<_Cont>(&)(__adl_hook) noexcept) {
 			return __class_to<_Cont>{}(static_cast<_IRange&&>(__r));
 		}
 
@@ -138,13 +146,14 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<template<class...> class _ContT>
-		constexpr __template_closure<_ContT> to() noexcept {
+		constexpr __template_closure<_ContT> to(__adl_hook = __adl_hook{}) noexcept {
 			return {};
 		}
 
 		template<template<class...> class _ContT, class _IRange>
 		requires __template_convertible<_ContT, _IRange>
-		constexpr auto operator|(_IRange&& __r, __template_closure<_ContT>(&)() noexcept) {
+		constexpr auto operator|(
+			_IRange&& __r, __template_closure<_ContT>(&)(__adl_hook) noexcept) {
 			return __template_to<_ContT>{}(static_cast<_IRange&&>(__r));
 		}
 
