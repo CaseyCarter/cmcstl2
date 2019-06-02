@@ -32,11 +32,11 @@
 STL2_OPEN_NAMESPACE {
 	template<class T>
 	META_CONCEPT __dereferenceable = requires(T& t) {
-#ifdef META_HAS_P1084
-		{ *t } -> __can_reference;
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+		*t; requires __can_reference<decltype(*t)>;
 #else
-		*t; typename __with_reference<decltype(*t)>;
-#endif
+		{ *t } -> __can_reference;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 	};
 
 	////////////////////////////////////////////////////////////////////////////
@@ -57,12 +57,12 @@ STL2_OPEN_NAMESPACE {
 		template<class R>
 		requires __dereferenceable<R> &&
 			requires(R&& r) {
-#ifdef META_HAS_P1084
-				{ iter_move(static_cast<R&&>(r)) } ->__can_reference;
-#else
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
 				iter_move(static_cast<R&&>(r));
 				requires __can_reference<decltype(iter_move(static_cast<R&&>(r)))>;
-#endif
+#else
+				{ iter_move(static_cast<R&&>(r)) } ->__can_reference;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			}
 		constexpr bool has_customization<R> = true;
 
@@ -297,10 +297,10 @@ STL2_OPEN_NAMESPACE {
 	template<class I1, class I2 = I1>
 	META_CONCEPT IndirectlySwappable =
 		requires(I1&& i1, I2&& i2) {
-			iter_swap((I1&&)i1, (I2&&)i2);
-			iter_swap((I2&&)i2, (I1&&)i1);
-			iter_swap((I1&&)i1, (I1&&)i1);
-			iter_swap((I2&&)i2, (I2&&)i2);
+			iter_swap(static_cast<I1&&>(i1), static_cast<I2&&>(i2));
+			iter_swap(static_cast<I2&&>(i2), static_cast<I1&&>(i1));
+			iter_swap(static_cast<I1&&>(i1), static_cast<I1&&>(i1));
+			iter_swap(static_cast<I2&&>(i2), static_cast<I2&&>(i2));
 		};
 
 	////////////////////////////////////////////////////////////////////////////
@@ -414,8 +414,13 @@ STL2_OPEN_NAMESPACE {
 		Sentinel<S, I> &&
 		!disable_sized_sentinel<std::remove_cv_t<S>, std::remove_cv_t<I>> &&
 		requires(const I i, const S s) {
-			{ s - i } -> STL2_RVALUE_REQ(Same<iter_difference_t<I>>);
-			{ i - s } -> STL2_RVALUE_REQ(Same<iter_difference_t<I>>);
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			s - i; requires Same<decltype(s - i), iter_difference_t<I>>;
+			i - s; requires Same<decltype(i - s), iter_difference_t<I>>;
+#else
+			{ s - i } -> Same<iter_difference_t<I>>;
+			{ i - s } -> Same<iter_difference_t<I>>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			// Axiom: If [i,s) denotes a range and N is the smallest
 			//        non-negative integer such that N applications of
 			//        ++i make bool(i == s) == true
@@ -432,9 +437,7 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT OutputIterator =
 		Iterator<I> &&
 		Writable<I, T> &&
-		requires(I& i, T&& t) {
-			*i++ = std::forward<T>(t);
-		};
+		requires(I& i, T&& t) { *i++ = std::forward<T>(t); };
 
 	////////////////////////////////////////////////////////////////////////////
 	// InputIterator [iterators.input]
@@ -493,12 +496,12 @@ STL2_OPEN_NAMESPACE {
 		StrictTotallyOrdered<I> &&
 		ext::RandomAccessIncrementable<I> &&
 		requires(const I& ci, const iter_difference_t<I> n) {
-#ifdef META_HAS_P1084
-			{ ci[n] } -> Same<iter_reference_t<I>>;
-#else
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
 			ci[n];
 			requires Same<decltype(ci[n]), iter_reference_t<I>>;
-#endif
+#else
+			{ ci[n] } -> Same<iter_reference_t<I>>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 		// FIXME: Axioms for definition space of ordering operations. Don't
 		// require them to be the same space as ==, since pointers can't meet
@@ -527,11 +530,11 @@ STL2_OPEN_NAMESPACE {
 	template<InputIterator I>
 	requires
 		requires(I i) {
-#ifdef META_HAS_P1084
-			{ i.operator->() } -> __can_reference;
-#else
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
 			i.operator->(); requires __can_reference<decltype(i.operator->())>;
-#endif
+#else
+			{ i.operator->() } -> __can_reference;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		}
 	struct __pointer_type<I> {
 		using type = decltype(std::declval<I&>().operator->());

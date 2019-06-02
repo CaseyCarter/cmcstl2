@@ -144,7 +144,11 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT ContiguousRange =
 		RandomAccessRange<R> && ContiguousIterator<iterator_t<R>> &&
 		requires(R& r) {
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			data(r); requires Same<decltype(data(r)), std::add_pointer_t<iter_reference_t<iterator_t<R>>>>;
+#else
 			{ data(r) } -> Same<std::add_pointer_t<iter_reference_t<iterator_t<R>>>>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 
 	namespace ext {

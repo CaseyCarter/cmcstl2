@@ -48,30 +48,23 @@ STL2_OPEN_NAMESPACE {
 		std::is_void_v<From> && std::is_void_v<To>;
 
 	template<class T>
-	void __nothrow_convertible_helper(T) noexcept
-#if defined(__GNUC__) && !defined(__clang__) // BUGBUG
-	{}
-#else
-	; // not defined
-#endif
+	void __nothrow_convertible_helper(T) noexcept; // not defined
 
 	template<class From, class To>
 	requires requires(From&& f) {
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+		__nothrow_convertible_helper<To>(static_cast<From&&>(f));
+		requires noexcept(__nothrow_convertible_helper<To>(static_cast<From&&>(f)));
+#else
 		{ __nothrow_convertible_helper<To>(static_cast<From&&>(f)) } noexcept;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 	}
 	inline constexpr bool is_nothrow_convertible_v<From, To> = true;
 
 	template<class T, class D = std::decay_t<T>>
 	requires _IsConvertibleImpl<T, D>
 	D __decay_copy(T&& t)
-	noexcept(is_nothrow_convertible_v<T, D>)
-#if defined(__GNUC__) && !defined(__clang__)
-	{
-		return static_cast<T&&>(t);
-	}
-#else
-	; // not defined
-#endif
+	noexcept(is_nothrow_convertible_v<T, D>); // not defined
 } STL2_CLOSE_NAMESPACE
 
 #endif

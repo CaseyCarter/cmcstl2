@@ -40,8 +40,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	struct __upper_bound_fn : private __niebloid {
-		template<ForwardIterator I, Sentinel<I> S, class T,
-			class Proj = identity,
+		template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
 			IndirectStrictWeakOrder<const T*, projected<I, Proj>> Comp = less>
 		constexpr I operator()(I first, S last, const T& value,
 			Comp comp = {}, Proj proj = {}) const

@@ -49,11 +49,11 @@ STL2_OPEN_NAMESPACE {
 	requires (!requires { typename T::difference_type; } &&
 		!std::is_pointer_v<T> && // Avoid GCC PR 78173 (See above)
 		requires(const T& a, const T& b) {
-#ifdef META_HAS_P1084
-			{ a - b } -> Integral;
-#else
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
 			a - b; requires Integral<decltype(a - b)>;
-#endif
+#else
+			{ a - b } -> Integral;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		})
 	struct incrementable_traits<T> {
 		using difference_type = std::make_signed_t<
@@ -72,11 +72,11 @@ STL2_OPEN_NAMESPACE {
 		requires(I i) {
 			typename iter_difference_t<I>;
 			requires SignedIntegral<iter_difference_t<I>>;
-#ifdef META_HAS_P1084
-			{ ++i } -> Same<I&>; // not required to be equality-preserving
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			++i; requires Same<decltype(++i), I&>; // not required to be equality-preserving
 #else
-			{ ++i } -> Same<I>&; // not required to be equality-preserving
-#endif
+			{ ++i } -> Same<I&>; // not required to be equality-preserving
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			i++; // not required to be equality-preserving
 		};
 
@@ -88,11 +88,11 @@ STL2_OPEN_NAMESPACE {
 		Regular<I> &&
 		WeaklyIncrementable<I> &&
 		requires(I i) {
-#ifdef META_HAS_P1084
-			{ i++ } -> Same<I>;
-#else
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
 			i++; requires Same<decltype(i++), I>;
-#endif
+#else
+			{ i++ } -> Same<I>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -103,13 +103,13 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT Decrementable =
 			Incrementable<I> &&
 			requires(I i) {
-#ifdef META_HAS_P1084
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+				--i; requires Same<decltype(--i), I&>;
+				i--; requires Same<decltype(i--), I>;
+#else
 				{ --i } -> Same<I&>;
 				{ i-- } -> Same<I>;
-#else
-				{ --i } -> Same<I>&;
-				i--; requires Same<I, decltype(i--)>;
-#endif
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			};
 			// Let a and b be objects of type I.
 			// Axiom: &--a == &a
@@ -127,12 +127,21 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT RandomAccessIncrementable =
 			Decrementable<I> &&
 			requires(I& i, const I& ci, const iter_difference_t<I> n) {
-				{ i += n } -> STL2_RVALUE_REQ(Same<I&>);
-				{ i -= n } -> STL2_RVALUE_REQ(Same<I&>);
-				{ ci + n } -> STL2_RVALUE_REQ(Same<I>);
-				{ n + ci } -> STL2_RVALUE_REQ(Same<I>);
-				{ ci - n } -> STL2_RVALUE_REQ(Same<I>);
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+				i += n;  requires Same<decltype(i += n), I&>;
+				i -= n;  requires Same<decltype(i -= n), I&>;
+				ci + n;  requires Same<decltype(ci + n), I>;
+				n + ci;  requires Same<decltype(n + ci), I>;
+				ci - n;  requires Same<decltype(ci - n), I>;
+				ci - ci; requires _IsConvertibleImpl<decltype(ci - ci), iter_difference_t<I>>;
+#else
+				{ i += n } -> Same<I&>;
+				{ i -= n } -> Same<I&>;
+				{ ci + n } -> Same<I>;
+				{ n + ci } -> Same<I>;
+				{ ci - n } -> Same<I>;
 				{ ci - ci } -> iter_difference_t<I>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			};
 			// FIXME: Axioms
 	}
