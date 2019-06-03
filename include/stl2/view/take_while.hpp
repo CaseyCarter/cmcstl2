@@ -14,6 +14,7 @@
 #ifndef STL2_VIEW_TAKE_WHILE_HPP
 #define STL2_VIEW_TAKE_WHILE_HPP
 
+#include <stl2/detail/closure.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/callable.hpp>
@@ -21,7 +22,6 @@
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
 
@@ -116,7 +116,7 @@ STL2_OPEN_NAMESPACE {
 
 			template<__stl2::ext::CopyConstructibleObject Pred>
 			constexpr auto operator()(Pred pred) const
-			{ return detail::view_closure{*this, std::move(pred)}; }
+			{ return detail::closure{*this, std::move(pred)}; }
 		};
 
 		inline constexpr __take_while_fn take_while {};

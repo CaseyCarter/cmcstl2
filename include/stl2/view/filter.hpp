@@ -13,6 +13,7 @@
 #define STL2_VIEW_FILTER_HPP
 
 #include <stl2/detail/cached_position.hpp>
+#include <stl2/detail/closure.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/algorithm/find_if.hpp>
@@ -20,7 +21,6 @@
 #include <stl2/detail/iterator/concepts.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
 
@@ -72,9 +72,9 @@ STL2_OPEN_NAMESPACE {
 		friend __sentinel;
 	public:
 		using iterator_category =
-			meta::if_c<BidirectionalIterator<iterator_t<V>>,
+			__cond<BidirectionalIterator<iterator_t<V>>,
 				__stl2::bidirectional_iterator_tag,
-			meta::if_c<ForwardIterator<iterator_t<V>>,
+			__cond<ForwardIterator<iterator_t<V>>,
 				__stl2::forward_iterator_tag,
 				__stl2::input_iterator_tag>>;
 		using value_type = iter_value_t<iterator_t<V>>;
@@ -94,8 +94,7 @@ STL2_OPEN_NAMESPACE {
 		// Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		template<class II = iterator_t<V>>
 		constexpr iterator_t<V> operator->() const
-		requires std::is_pointer_v<iterator_t<V>> ||
-			requires(II i) { i.operator->(); }
+		requires std::is_pointer_v<iterator_t<V>> || requires(II i) { i.operator->(); }
 		{
 			return current_;
 		}
@@ -202,7 +201,7 @@ STL2_OPEN_NAMESPACE {
 
 			template<CopyConstructible Pred>
 			constexpr auto operator()(Pred pred) const {
-				return detail::view_closure{*this, std::move(pred)};
+				return detail::closure{*this, std::move(pred)};
 			}
 		};
 

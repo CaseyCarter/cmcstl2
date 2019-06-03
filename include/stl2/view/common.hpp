@@ -12,11 +12,11 @@
 #ifndef STL2_VIEW_COMMON_HPP
 #define STL2_VIEW_COMMON_HPP
 
+#include <stl2/detail/closure.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/iterator/common_iterator.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
 

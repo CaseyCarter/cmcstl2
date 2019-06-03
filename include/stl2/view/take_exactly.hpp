@@ -15,6 +15,7 @@
 #include <utility>
 
 #include <stl2/type_traits.hpp>
+#include <stl2/detail/closure.hpp>
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -22,7 +23,6 @@
 #include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
 
@@ -122,7 +122,7 @@ STL2_OPEN_NAMESPACE {
 
 			template<Integral D>
 			constexpr auto operator()(D count) const {
-				return detail::view_closure(*this, static_cast<D>(count));
+				return detail::closure(*this, static_cast<D>(count));
 			}
 		};
 

@@ -168,7 +168,7 @@ static_assert(is_same_v<common_type_t<std::reference_wrapper<int>, int>, int>);
 
 // https://github.com/ericniebler/stl2/issues/338
 struct MyIntRef {
-  MyIntRef(int &);
+	MyIntRef(int &);
 };
 static_assert(is_same_v<common_reference_t<int&, MyIntRef>, MyIntRef>);
 static_assert(is_same_v<common_reference_t<int, int, int>, int>);
@@ -213,54 +213,54 @@ namespace libcpp_tests
 	requires requires { typename common_type_t<T, U>; }
 	struct no_common_type<T, U> : false_type {};
 
-    static_assert((is_same<common_type_t<int>, int>::value), "");
-    static_assert((is_same<common_type_t<char>, char>::value), "");
-    static_assert((is_same<common_type_t<int>,   int>::value), "");
-    static_assert((is_same<common_type_t<char>, char>::value), "");
+	static_assert((is_same<common_type_t<int>, int>::value), "");
+	static_assert((is_same<common_type_t<char>, char>::value), "");
+	static_assert((is_same<common_type_t<int>,   int>::value), "");
+	static_assert((is_same<common_type_t<char>, char>::value), "");
 
-    static_assert((is_same<common_type_t<               int>, int>::value), "");
-    static_assert((is_same<common_type_t<const          int>, int>::value), "");
-    static_assert((is_same<common_type_t<      volatile int>, int>::value), "");
-    static_assert((is_same<common_type_t<const volatile int>, int>::value), "");
+	static_assert((is_same<common_type_t<               int>, int>::value), "");
+	static_assert((is_same<common_type_t<const          int>, int>::value), "");
+	static_assert((is_same<common_type_t<      volatile int>, int>::value), "");
+	static_assert((is_same<common_type_t<const volatile int>, int>::value), "");
 
-    static_assert((is_same<common_type_t<int,           int>, int>::value), "");
-    static_assert((is_same<common_type_t<int,     const int>, int>::value), "");
+	static_assert((is_same<common_type_t<int,           int>, int>::value), "");
+	static_assert((is_same<common_type_t<int,     const int>, int>::value), "");
 
-    static_assert((is_same<common_type_t<long,       const int>, long>::value), "");
-    static_assert((is_same<common_type_t<const long,       int>, long>::value), "");
-    static_assert((is_same<common_type_t<long,    volatile int>, long>::value), "");
-    static_assert((is_same<common_type_t<volatile long,    int>, long>::value), "");
-    static_assert((is_same<common_type_t<const long, const int>, long>::value), "");
+	static_assert((is_same<common_type_t<long,       const int>, long>::value), "");
+	static_assert((is_same<common_type_t<const long,       int>, long>::value), "");
+	static_assert((is_same<common_type_t<long,    volatile int>, long>::value), "");
+	static_assert((is_same<common_type_t<volatile long,    int>, long>::value), "");
+	static_assert((is_same<common_type_t<const long, const int>, long>::value), "");
 
-    static_assert((is_same<common_type_t<double, char>, double>::value), "");
-    static_assert((is_same<common_type_t<short, char>, int>::value), "");
-    static_assert((is_same<common_type_t<double, char>, double>::value), "");
-    static_assert((is_same<common_type_t<short, char>, int>::value), "");
+	static_assert((is_same<common_type_t<double, char>, double>::value), "");
+	static_assert((is_same<common_type_t<short, char>, int>::value), "");
+	static_assert((is_same<common_type_t<double, char>, double>::value), "");
+	static_assert((is_same<common_type_t<short, char>, int>::value), "");
 
-    static_assert((is_same<common_type_t<double, char, long long>, double>::value), "");
-    static_assert((is_same<common_type_t<unsigned, char, long long>, long long>::value), "");
-    static_assert((is_same<common_type_t<double, char, long long>, double>::value), "");
-    static_assert((is_same<common_type_t<unsigned, char, long long>, long long>::value), "");
+	static_assert((is_same<common_type_t<double, char, long long>, double>::value), "");
+	static_assert((is_same<common_type_t<unsigned, char, long long>, long long>::value), "");
+	static_assert((is_same<common_type_t<double, char, long long>, double>::value), "");
+	static_assert((is_same<common_type_t<unsigned, char, long long>, long long>::value), "");
 
-    static_assert((is_same<common_type_t<               void>, void>::value), "");
-    static_assert((is_same<common_type_t<const          void>, void>::value), "");
-    static_assert((is_same<common_type_t<      volatile void>, void>::value), "");
-    static_assert((is_same<common_type_t<const volatile void>, void>::value), "");
+	static_assert((is_same<common_type_t<               void>, void>::value), "");
+	static_assert((is_same<common_type_t<const          void>, void>::value), "");
+	static_assert((is_same<common_type_t<      volatile void>, void>::value), "");
+	static_assert((is_same<common_type_t<const volatile void>, void>::value), "");
 
-    static_assert((is_same<common_type_t<void,       const void>, void>::value), "");
-    static_assert((is_same<common_type_t<const void,       void>, void>::value), "");
-    static_assert((is_same<common_type_t<void,    volatile void>, void>::value), "");
-    static_assert((is_same<common_type_t<volatile void,    void>, void>::value), "");
-    static_assert((is_same<common_type_t<const void, const void>, void>::value), "");
+	static_assert((is_same<common_type_t<void,       const void>, void>::value), "");
+	static_assert((is_same<common_type_t<const void,       void>, void>::value), "");
+	static_assert((is_same<common_type_t<void,    volatile void>, void>::value), "");
+	static_assert((is_same<common_type_t<volatile void,    void>, void>::value), "");
+	static_assert((is_same<common_type_t<const void, const void>, void>::value), "");
 
-    static_assert((no_common_type<void, int>::value), "");
-    static_assert((no_common_type<int, void>::value), "");
-    static_assert((no_common_type<int, E>::value), "");
-    static_assert((no_common_type<int, X<int> >::value), "");
+	static_assert((no_common_type<void, int>::value), "");
+	static_assert((no_common_type<int, void>::value), "");
+	static_assert((no_common_type<int, E>::value), "");
+	static_assert((no_common_type<int, X<int> >::value), "");
 
-    static_assert((is_same<common_type_t<int, S<int> >, S<int> >::value), "");
-    static_assert((is_same<common_type_t<int, S<int>, S<int> >, S<int> >::value), "");
-    static_assert((is_same<common_type_t<int, int, S<int> >, S<int> >::value), "");
+	static_assert((is_same<common_type_t<int, S<int> >, S<int> >::value), "");
+	static_assert((is_same<common_type_t<int, S<int>, S<int> >, S<int> >::value), "");
+	static_assert((is_same<common_type_t<int, int, S<int> >, S<int> >::value), "");
 }
 
 // libstdc++ tests

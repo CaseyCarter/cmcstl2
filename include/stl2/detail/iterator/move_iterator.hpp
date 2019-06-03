@@ -218,8 +218,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class I>
-	requires
-		InputIterator<__f<I>>
+	requires InputIterator<__f<I>>
 	constexpr auto make_move_iterator(I&& i)
 	STL2_NOEXCEPT_RETURN(
 		move_iterator<__f<I>>{std::forward<I>(i)}

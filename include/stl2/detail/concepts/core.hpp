@@ -22,8 +22,7 @@
 STL2_OPEN_NAMESPACE {
 	// U is a cv/ref-qualified specialization of class template T.
 	template<class U, template<class...> class T>
-	META_CONCEPT _SpecializationOf =
-		META_CONCEPT_BARRIER(meta::is_v<__uncvref<U>, T>);
+	META_CONCEPT _SpecializationOf = meta::is_v<__uncvref<U>, T>;
 
 	template<class T>
 	using __with_reference = T&;
@@ -51,9 +50,9 @@ STL2_OPEN_NAMESPACE {
 	template<class Derived, class Base>
 	META_CONCEPT DerivedFrom =
 #if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER)
-		META_CONCEPT_BARRIER(__is_base_of(Base, Derived)) &&
+		__is_base_of(Base, Derived) &&
 #else
-		META_CONCEPT_BARRIER(std::is_base_of_v<Base, Derived>) &&
+		std::is_base_of_v<Base, Derived> &&
 #endif
 		_IsConvertibleImpl<const volatile Derived*, const volatile Base*>;
 

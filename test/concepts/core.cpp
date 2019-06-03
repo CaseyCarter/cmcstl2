@@ -39,15 +39,15 @@ CONCEPT_ASSERT(!ranges::Same<int, double>);
 #if VALIDATE_STL2
 // Test that `Same<A,B> && X` subsumes `Same<B,A>` (with reversed args).
 template<class A, class B>
-  requires __stl2::Same<B, A>
+	requires __stl2::Same<B, A>
 constexpr bool test_same() {
-  return false;
+	return false;
 }
 
 template<class A, class B>
-  requires __stl2::Same<A, B> && __stl2::Integral<A>
+	requires __stl2::Same<A, B> && __stl2::Integral<A>
 constexpr bool test_same() {
-  return true;
+	return true;
 }
 
 static_assert(!test_same<int*, int*>());

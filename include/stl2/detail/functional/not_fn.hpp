@@ -27,14 +27,13 @@ STL2_OPEN_NAMESPACE {
 	template<class F, class... Args>
 	META_CONCEPT _NegateInvocable = Invocable<F, Args...> &&
 		requires(F&& f, Args&&... args) {
-#ifdef META_HAS_P1084
-			{ !__stl2::invoke(static_cast<F&&>(f), static_cast<Args&&>(args)...) } -> Boolean;
-#else
-			!__stl2::invoke(static_cast<F&&>(f),
-				static_cast<Args&&>(args)...);
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			!__stl2::invoke(static_cast<F&&>(f), static_cast<Args&&>(args)...);
 			requires Boolean<decltype(!__stl2::invoke(static_cast<F&&>(f),
 				static_cast<Args&&>(args)...))>;
-#endif
+#else
+			{ !__stl2::invoke(static_cast<F&&>(f), static_cast<Args&&>(args)...) } -> Boolean;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 
 	template<ext::MoveConstructibleObject F>

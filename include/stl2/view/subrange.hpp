@@ -36,8 +36,15 @@ STL2_OPEN_NAMESPACE {
 
 	template<class T>
 	META_CONCEPT _PairLikeGCCBugs = requires(T t) {
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+		std::get<0>(t);
+		requires _IsConvertibleImpl<decltype(std::get<0>(t)), const std::tuple_element_t<0, T>&>;
+		std::get<1>(t);
+		requires _IsConvertibleImpl<decltype(std::get<1>(t)), const std::tuple_element_t<1, T>&>;
+#else
 		{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
 		{ std::get<1>(t) } -> const std::tuple_element_t<1, T>&;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 	};
 
 	template<class T>
@@ -96,7 +103,7 @@ STL2_OPEN_NAMESPACE {
 		static constexpr bool StoreSize =
 			K == subrange_kind::sized && !SizedSentinel<S, I>;
 
-		meta::if_c<StoreSize,
+		__cond<StoreSize,
 			std::tuple<I, S, iter_difference_t<I>>,
 			std::tuple<I, S>> data_;
 
@@ -265,7 +272,7 @@ STL2_OPEN_NAMESPACE {
 namespace std {
 	template<class I, class S, ::__stl2::subrange_kind K>
 	struct tuple_size<::__stl2::subrange<I, S, K>>
-	  : std::integral_constant<size_t, 2> {};
+	: std::integral_constant<size_t, 2> {};
 	template<class I, class S, ::__stl2::subrange_kind K>
 	struct tuple_element<0, ::__stl2::subrange<I, S, K>>
 	{ using type = I; };

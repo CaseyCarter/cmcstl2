@@ -37,7 +37,8 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class Cursor, class Container>
-		struct insert_cursor_mixin : protected ebo_box<Cursor, insert_cursor_mixin<Cursor, Container>> {
+		struct insert_cursor_mixin
+		: protected ebo_box<Cursor, insert_cursor_mixin<Cursor, Container>> {
 			using difference_type =
 				typename insert_cursor_base<Container>::difference_type;
 			using container_type = Container;
@@ -46,9 +47,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<class T, class C>
 		META_CONCEPT BackInsertableInto =
-			requires(T&& t, C& c) {
-				c.push_back((T&&)t);
-			};
+			requires(T&& t, C& c) { c.push_back(static_cast<T&&>(t)); };
 
 		template<MemberValueType Container>
 		struct back_insert_cursor : insert_cursor_base<Container> {
@@ -80,9 +79,7 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		template<class T, class C>
 		META_CONCEPT FrontInsertableInto =
-			requires(T&& t, C& c) {
-				c.push_front((T&&)t);
-			};
+			requires(T&& t, C& c) { c.push_front(static_cast<T&&>(t)); };
 
 		template<MemberValueType Container>
 		struct front_insert_cursor : insert_cursor_base<Container> {
@@ -113,10 +110,14 @@ STL2_OPEN_NAMESPACE {
 
 	namespace detail {
 		template<class T, class C>
-		META_CONCEPT InsertableInto =
-			requires(T&& t, C& c, iterator_t<C> i) {
-				{  c.insert(i, (T&&)t) } -> iterator_t<C>;
-			};
+		META_CONCEPT InsertableInto = requires(T&& t, C& c, iterator_t<C> i) {
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			c.insert(i, static_cast<T&&>(t));
+			requires _IsConvertibleImpl<decltype(c.insert(i, static_cast<T&&>(t))), iterator_t<C>>;
+#else
+			{ c.insert(i, static_cast<T&&>(t)) } -> iterator_t<C>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
+		};
 	}
 
 	///////////////////////////////////////////////////////////////////////////

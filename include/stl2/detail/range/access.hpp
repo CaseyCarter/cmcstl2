@@ -50,13 +50,22 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
 			requires(R& r) {
 				r.begin();
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+				__decay_copy(r.begin()); requires Iterator<decltype(__decay_copy(r.begin()))>;
+#else
 				{ __decay_copy(r.begin()) } -> Iterator;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			};
 
 		template<class R>
 		META_CONCEPT has_non_member = requires(R&& r) {
 			begin(static_cast<R&&>(r));
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			__decay_copy(begin(static_cast<R&&>(r)));
+			requires Iterator<decltype(__decay_copy(begin(static_cast<R&&>(r))))>;
+#else
 			{ __decay_copy(begin(static_cast<R&&>(r))) } -> Iterator;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 
 		template<class>
@@ -116,14 +125,24 @@ STL2_OPEN_NAMESPACE {
 			requires(R& r) {
 				r.end();
 				begin(r);
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+				__decay_copy(r.end());
+				requires Sentinel<decltype(__decay_copy(r.end())), __begin_t<R>>;
+#else
 				{ __decay_copy(r.end()) } -> Sentinel<__begin_t<R>>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			};
 
 		template<class R>
 		META_CONCEPT has_non_member = requires(R&& r) {
 			end(static_cast<R&&>(r));
 			begin(static_cast<R&&>(r));
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			__decay_copy(end(static_cast<R&&>(r)));
+			requires Sentinel<decltype(__decay_copy(end(static_cast<R&&>(r)))), __begin_t<R>>;
+#else
 			{ __decay_copy(end(static_cast<R&&>(r))) } -> Sentinel<__begin_t<R>>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 
 		template<class>
@@ -216,21 +235,35 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
 			requires(R& r) {
 				r.rbegin();
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+				__decay_copy(r.rbegin()); requires Iterator<decltype(__decay_copy(r.rbegin()))>;
+#else
 				{ __decay_copy(r.rbegin()) } -> Iterator;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			};
 
 		template<class R>
 		META_CONCEPT has_non_member = requires(R&& r) {
 			rbegin(static_cast<R&&>(r));
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			__decay_copy(rbegin(static_cast<R&&>(r)));
+			requires Iterator<decltype(__decay_copy(rbegin(static_cast<R&&>(r))))>;
+#else
 			{ __decay_copy(rbegin(static_cast<R&&>(r))) } -> Iterator;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 
 		// Default to make_reverse_iterator(end(r)) for Common ranges of
 		// Bidirectional iterators.
 		template<class R>
 		META_CONCEPT can_make_reverse = requires(R&& r) {
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			begin(static_cast<R&&>(r)); requires BidirectionalIterator<decltype(begin(static_cast<R&&>(r)))>;
+			end(static_cast<R&&>(r)); requires Same<decltype(end(static_cast<R&&>(r))), __begin_t<R>>;
+#else
 			{ begin(static_cast<R&&>(r)) } -> BidirectionalIterator;
 			{ end(static_cast<R&&>(r)) } -> Same<__begin_t<R>>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 
 		template<class>
@@ -280,15 +313,25 @@ STL2_OPEN_NAMESPACE {
 			requires(R& r) {
 				rbegin(r);
 				r.rend();
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+				__decay_copy(r.rend()); requires Sentinel<decltype(__decay_copy(r.rend())), __rbegin_t<R>>;
+#else
 				{ __decay_copy(r.rend()) } -> Sentinel<__rbegin_t<R>>;
+
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			};
 
 		template<class R>
 		META_CONCEPT has_non_member = requires(R&& r) {
 			rbegin(static_cast<R&&>(r));
 			rend(static_cast<R&&>(r));
-			{ __decay_copy(rend(static_cast<R&&>(r))) } ->
-				Sentinel<__rbegin_t<R>>;
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			__decay_copy(rend(static_cast<R&&>(r)));
+			requires Sentinel<decltype(__decay_copy(rend(static_cast<R&&>(r)))), __rbegin_t<R>>;
+#else
+			{ __decay_copy(rend(static_cast<R&&>(r))) } -> Sentinel<__rbegin_t<R>>;
+
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 
 		using __stl2::__rbegin::can_make_reverse;
@@ -378,19 +421,32 @@ STL2_OPEN_NAMESPACE {
 		template<class R>
 		META_CONCEPT has_member = requires(R& r) {
 			r.size();
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			__decay_copy(r.size()); requires Integral<decltype(__decay_copy(r.size()))>;
+#else
 			{ __decay_copy(r.size()) } -> Integral;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 
 		template<class R>
 		META_CONCEPT has_non_member = requires(R& r) {
 			size(r);
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			__decay_copy(size(r)); requires Integral<decltype(__decay_copy(size(r)))>;
+#else
 			{ __decay_copy(size(r)) } -> Integral;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 
 		template<class R>
 		META_CONCEPT has_difference = requires(R& r) {
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			begin(r); requires ForwardIterator<decltype(begin(r))>;
+			end(r); requires SizedSentinel<decltype(end(r)), __begin_t<R&>>;
+#else
 			{ begin(r) } -> ForwardIterator;
 			{ end(r) } -> SizedSentinel<__begin_t<R&>>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 
 		template<class T>
@@ -412,18 +468,24 @@ STL2_OPEN_NAMESPACE {
 			template<class R, class T = std::remove_reference_t<R>,
 				class U = std::remove_cv_t<T>>
 			requires std::is_array_v<T>
-				|| (!disable_sized_range<U>
-					&& (has_member<T> || has_non_member<T>))
+				|| (!disable_sized_range<U> && (has_member<T> || has_non_member<T>))
 				|| has_difference<T>
 			constexpr auto operator()(R&& r) const noexcept(nothrow<T>) {
 				if constexpr (std::is_array_v<T>)
 					return std::extent_v<T>;
-				else if constexpr (!disable_sized_range<U> && has_member<T>)
-					return r.size();
-				else if constexpr (!disable_sized_range<U> && has_non_member<T>)
-					return size(r);
-				else // has_difference<T>
-					return end(r) - begin(r);
+				else if constexpr (!disable_sized_range<U> && has_member<T>) {
+					auto const result = r.size();
+					STL2_EXPECT(result >= 0);
+					return result;
+				} else if constexpr (!disable_sized_range<U> && has_non_member<T>) {
+					auto const result = size(r);
+					STL2_EXPECT(result >= 0);
+					return result;
+				} else { // has_difference<T>
+					auto const result = end(r) - begin(r);
+					STL2_EXPECT(result >= 0);
+					return result;
+				}
 			}
 		};
 	}
@@ -448,7 +510,11 @@ STL2_OPEN_NAMESPACE {
 
 		template<class R>
 		META_CONCEPT has_begin_end = requires(R& r) {
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			begin(r); requires ForwardIterator<decltype(begin(r))>;
+#else
 			{ begin(r) } -> ForwardIterator;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			end(r);
 		};
 
@@ -511,7 +577,11 @@ STL2_OPEN_NAMESPACE {
 
 		template<class R>
 		META_CONCEPT has_contiguous_iterator = requires(R&& r) {
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			begin(static_cast<R&&>(r)); requires ContiguousIterator<decltype(begin(static_cast<R&&>(r)))>;
+#else
 			{ begin(static_cast<R&&>(r)) } -> ContiguousIterator;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			end(static_cast<R&&>(r));
 		};
 

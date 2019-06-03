@@ -22,13 +22,13 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT UniformRandomBitGenerator =
 		Invocable<G&> && UnsignedIntegral<invoke_result_t<G&>> &&
 		requires {
-#ifdef META_HAS_P1084
-			{ G::min() } -> Same<invoke_result_t<G&>>;
-			{ G::max() } -> Same<invoke_result_t<G&>>;
-#else
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
 			G::min(); requires Same<decltype(G::min()), invoke_result_t<G&>>;
 			G::max(); requires Same<decltype(G::max()), invoke_result_t<G&>>;
-#endif
+#else
+			{ G::min() } -> Same<invoke_result_t<G&>>;
+			{ G::max() } -> Same<invoke_result_t<G&>>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 #if 1 // This is the PR for https://wg21.link/lwg3150
 			typename __require_constant<G::min()>;
 			typename __require_constant<G::min()>;

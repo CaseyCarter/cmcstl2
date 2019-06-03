@@ -13,7 +13,7 @@
 #ifndef STL2_DETAIL_RANGE_DANGLING_HPP
 #define STL2_DETAIL_RANGE_DANGLING_HPP
 
-#include <stl2/type_traits.hpp>
+#include <stl2/detail/meta.hpp>
 #include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 	inline constexpr bool __is_forwarding_range = _ForwardingRange<R>;
 
 	template<Range R, class U>
-	using __maybe_dangling = std::conditional_t<__is_forwarding_range<R>, U, dangling>;
+	using __maybe_dangling = __cond<__is_forwarding_range<R>, U, dangling>;
 
 	template<Range R>
 	using safe_iterator_t = __maybe_dangling<R, iterator_t<R>>;

@@ -21,18 +21,6 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template<Range Rng>
-		struct __range_common_iterator_impl {
-			using type = common_iterator<iterator_t<Rng>, sentinel_t<Rng>>;
-		};
-		template<CommonRange Rng>
-		struct __range_common_iterator_impl<Rng> {
-			using type = iterator_t<Rng>;
-		};
-		template<Range Rng>
-		using __range_common_iterator =
-			typename __range_common_iterator_impl<Rng>::type;
-
 		template<class R>
 		META_CONCEPT CanEmpty = Range<R> && requires(R& r) { empty(r); };
 		template<class R>
@@ -158,7 +146,7 @@ STL2_OPEN_NAMESPACE {
 		template<detail::ContainerConvertible<const D&> C>
 		operator C() const {
 			auto& d = derived();
-			using I = detail::__range_common_iterator<const D>;
+			using I = __range_common_iterator<const D>;
 			return C(I{begin(d)}, I{end(d)});
 		}
 	};

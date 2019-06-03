@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <functional>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/meta.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // Hash machinery.
@@ -28,7 +29,12 @@ STL2_OPEN_NAMESPACE {
 		template<class T>
 		META_CONCEPT Hashable = requires(const T& e) {
 			typename std::hash<T>;
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			std::hash<T>{}(e);
+			requires _IsConvertibleImpl<decltype(std::hash<T>{}(e)), std::size_t>;
+#else
 			{ std::hash<T>{}(e) } -> std::size_t;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 		};
 	}
 

@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		using default_random_engine =
-			meta::if_c<sizeof(void*) >= 8, std::mt19937_64, std::mt19937>;
+			__cond<sizeof(void*) >= 8, std::mt19937_64, std::mt19937>;
 		template<class = void>
 		inline default_random_engine& get_random_engine()
 		{

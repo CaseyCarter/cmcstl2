@@ -26,10 +26,11 @@ function(add_stl2_test TESTNAME EXENAME FIRSTSOURCE)
   add_dependencies(stl2-check ${EXENAME})
 endfunction(add_stl2_test)
 
-add_stl2_test(test.headers headers headers1.cpp headers2.cpp)
-add_stl2_test(test.range_access range_access range_access.cpp)
 add_stl2_test(test.common common common.cpp)
+add_stl2_test(test.headers headers headers1.cpp headers2.cpp)
 add_stl2_test(test.meta meta meta.cpp)
+add_stl2_test(test.range_access range_access range_access.cpp)
+add_stl2_test(test.to to to.cpp)
 
 add_subdirectory(concepts)
 add_subdirectory(detail)

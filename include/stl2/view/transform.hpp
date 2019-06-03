@@ -14,6 +14,7 @@
 
 #include <functional>
 
+#include <stl2/detail/closure.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/semiregular_box.hpp>
@@ -22,7 +23,6 @@
 #include <stl2/detail/functional/invoke.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
 
@@ -276,7 +276,7 @@ STL2_OPEN_NAMESPACE {
 
 			template<CopyConstructible F>
 			constexpr auto operator()(F fun) const {
-				return detail::view_closure{*this, std::move(fun)};
+				return detail::closure{*this, std::move(fun)};
 			}
 		};
 
