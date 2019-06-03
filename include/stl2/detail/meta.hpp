@@ -36,11 +36,11 @@ STL2_OPEN_NAMESPACE {
 	template<class From, class To>
 	inline constexpr bool _IsConvertibleImpl =
 #if defined(__clang__)
-		META_CONCEPT_BARRIER(__is_convertible(From, To));
+		__is_convertible(From, To);
 #elif defined(_MSC_VER)
-		META_CONCEPT_BARRIER(__is_convertible_to(From, To));
+		__is_convertible_to(From, To);
 #else
-		META_CONCEPT_BARRIER(std::is_convertible_v<From, To>);
+		std::is_convertible_v<From, To>;
 #endif
 
 	template<class From, class To>

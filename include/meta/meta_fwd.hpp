@@ -156,11 +156,8 @@
 #endif
 #if __cpp_concepts <= 201507L
 #define META_CONCEPT concept bool
-// TS concepts subsumption barrier for atomic expressions
-#define META_CONCEPT_BARRIER(...) ::meta::detail::bool_<__VA_ARGS__>
 #else
 #define META_CONCEPT concept
-#define META_CONCEPT_BARRIER(...) __VA_ARGS__
 #if __cpp_concepts >= 201811L
 #define META_HAS_P1084
 #endif
@@ -211,23 +208,20 @@ namespace meta
 #ifdef META_CONCEPT
     namespace detail
     {
-        template <bool B>
-        META_INLINE_VAR constexpr bool bool_ = B;
-
         template <auto> struct require_constant; // not defined
     }
 
     template <typename...>
-    META_CONCEPT True = META_CONCEPT_BARRIER(true);
+    META_CONCEPT True = true;
 
     template <typename T, typename U>
     META_CONCEPT Same =
 #if defined(__clang__)
-        META_CONCEPT_BARRIER(__is_same(T, U));
+        __is_same(T, U);
 #elif defined(__GNUC__) && __GNUC__ >= 6
-        META_CONCEPT_BARRIER(__is_same_as(T, U));
+        __is_same_as(T, U);
 #else
-        META_CONCEPT_BARRIER(std::is_same_v<T, U>);
+        std::is_same_v<T, U>;
 #endif
 
     template <template <typename...> class C, typename... Ts>
