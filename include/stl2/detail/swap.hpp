@@ -98,14 +98,11 @@ STL2_OPEN_NAMESPACE {
 	// Swappable [concepts.lib.corelang.swappable]
 	//
 	template<class T>
-	META_CONCEPT Swappable =
-		requires(T& a, T& b) {
-			__stl2::swap(a, b);
-		};
+	META_CONCEPT Swappable = requires(T& a, T& b) { __stl2::swap(a, b); };
 
 	template<class T, class U>
 	META_CONCEPT SwappableWith =
-#if 1 // P/R of unfiled LWG issue
+#if 1 // P/R of LWG 3175
 		CommonReference<T, U> &&
 #else
 		CommonReference<
@@ -113,10 +110,10 @@ STL2_OPEN_NAMESPACE {
 			const remove_reference_t<U>&> &&
 #endif
 		requires(T&& t, U&& u) {
-			__stl2::swap((T&&)t, (T&&)t);
-			__stl2::swap((U&&)u, (U&&)u);
-			__stl2::swap((T&&)t, (U&&)u);
-			__stl2::swap((U&&)u, (T&&)t);
+			__stl2::swap(static_cast<T&&>(t), static_cast<T&&>(t));
+			__stl2::swap(static_cast<U&&>(u), static_cast<U&&>(u));
+			__stl2::swap(static_cast<T&&>(t), static_cast<U&&>(u));
+			__stl2::swap(static_cast<U&&>(u), static_cast<T&&>(t));
 		};
 
 	namespace ext {

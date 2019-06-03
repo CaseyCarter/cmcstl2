@@ -22,11 +22,11 @@ STL2_OPEN_NAMESPACE {
 	template<class T, class charT = char, class traits = std::char_traits<charT>>
 	META_CONCEPT StreamExtractable =
 		requires(std::basic_istream<charT, traits>& is, T& t) {
-#ifdef META_HAS_P1084
-			{ is >> t } -> Same<std::basic_istream<charT, traits>&>;
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			is >> t; requires Same<decltype(is >> t), std::basic_istream<charT, traits>&>;
 #else
-			{ is >> t } -> Same<std::basic_istream<charT, traits>>&;
-#endif
+			{ is >> t } -> Same<std::basic_istream<charT, traits>&>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			// Axiom: &is == &(is << t)
 		};
 
@@ -36,11 +36,11 @@ STL2_OPEN_NAMESPACE {
 	template<class T, class charT = char, class traits = std::char_traits<charT>>
 	META_CONCEPT StreamInsertable =
 		requires(std::basic_ostream<charT, traits>& os, const T& t) {
-#ifdef META_HAS_P1084
-			{ os << t } -> Same<std::basic_ostream<charT, traits>&>;
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+			os << t; requires Same<decltype(os << t), std::basic_ostream<charT, traits>&>;
 #else
-			{ os << t } -> Same<std::basic_ostream<charT, traits>>&;
-#endif
+			{ os << t } -> Same<std::basic_ostream<charT, traits>&>;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 			// Axiom: &os == &(os << t)
 		};
 } STL2_CLOSE_NAMESPACE

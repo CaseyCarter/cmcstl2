@@ -28,12 +28,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<class _Cont, class _IRange, class... _Args>
 		META_CONCEPT __class_convertible = InputRange<_IRange> &&
-			ForwardRange<std::remove_cv_t<_Cont>> &&
-#if STL2_WORKAROUND_GCC_UNKNOWN0 // See https://godbolt.org/z/e_dtqQ
-			std::is_object_v<std::remove_cv_t<_Cont>> && enable_view<std::remove_cv_t<_Cont>> &&
-#else // ^^^ workaround / no workaround vvv
-			!View<std::remove_cv_t<_Cont>> &&
-#endif // STL2_WORKAROUND_GCC_UNKNOWN0
+			ForwardRange<std::remove_cv_t<_Cont>> && !View<std::remove_cv_t<_Cont>> &&
 			MoveConstructible<std::remove_cv_t<_Cont>> &&
 			// Proxy for Cpp17EmplaceConstructible:
 			Constructible<ext::range_value_t<_Cont>, ext::range_reference_t<_IRange>> &&
@@ -44,7 +39,11 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT __reserve_assignable = SizedRange<_IRange> &&
 			Constructible<_Cont, _Args...> && MoveConstructible<_Cont> &&
 			requires(_Cont& __mc, const _Cont& __cc) {
+#if STL2_BROKEN_COMPOUND_REQUIREMENT
+				__cc.capacity(); requires Integral<decltype(__cc.capacity())>;
+#else
 				{ __cc.capacity() } -> Integral;
+#endif // STL2_BROKEN_COMPOUND_REQUIREMENT
 				__mc.reserve(__cc.capacity());
 				requires Assignable<ext::range_reference_t<_Cont>, ext::range_reference_t<_IRange>>;
 				__mc.assign(__range_common_iterator<_IRange>(), __range_common_iterator<_IRange>());

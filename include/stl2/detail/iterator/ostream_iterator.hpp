@@ -30,9 +30,7 @@ STL2_OPEN_NAMESPACE {
 	// Extension: ostream_iterator<void> accepts any streamable type.
 	//
 	template<class T = void, class charT = char, class traits = std::char_traits<charT>>
-	requires
-		Same<T, void> ||
-		StreamInsertable<T, charT, traits>
+	requires Same<T, void> || StreamInsertable<T, charT, traits>
 	class ostream_iterator {
 	public:
 		using difference_type = std::ptrdiff_t;
@@ -47,9 +45,7 @@ STL2_OPEN_NAMESPACE {
 		: out_stream_(std::addressof(os)), delim_(delimiter) {}
 
 		template<class U, class V = meta::if_<std::is_void<T>, U, T>>
-		requires
-			ConvertibleTo<U, V const&> &&
-			StreamInsertable<V, charT, traits>
+		requires ConvertibleTo<U, V const&> && StreamInsertable<V, charT, traits>
 		ostream_iterator& operator=(U&& u) {
 			*out_stream_ << static_cast<V const &>(std::forward<U>(u));
 			if (delim_ != nullptr) {

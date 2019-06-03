@@ -48,13 +48,13 @@
  #endif
 #endif
 
-#ifndef STL2_WORKAROUND_GCC_UNKNOWN0
+#ifndef STL2_WORKAROUND_GCC_90675
  #if defined(__GNUC__) && !defined(__clang__)
-  // GCC instantiates non-ODR-used function templates that are used as
-  // unevaluated operands in a requires-expression
-  #define STL2_WORKAROUND_GCC_UNKNOWN0 1
+  // GCC instantiates non-ODR-used function templates that are used in
+  // expressions in a compound-requirement (https://godbolt.org/z/cHC8PE)
+  #define STL2_WORKAROUND_GCC_90675 1
  #else
-  #define STL2_WORKAROUND_GCC_UNKNOWN0 0
+  #define STL2_WORKAROUND_GCC_90675 0
  #endif
 #endif
 
@@ -192,12 +192,6 @@ namespace __stl2 = ::std::experimental::ranges;
  #endif
 #endif
 
-#ifdef META_HAS_P1084
-#define STL2_RVALUE_REQ(...) __VA_ARGS__
-#else // ^^^ Has P1084 / No P1084 vvv
-#define STL2_RVALUE_REQ(...) __VA_ARGS__&&
-#endif // Detect support for P1084
-
 #if __has_cpp_attribute(no_unique_address)
 #define STL2_NO_UNIQUE_ADDRESS [[no_unique_address]]
 #else
@@ -208,6 +202,14 @@ namespace __stl2 = ::std::experimental::ranges;
 #define STL2_EMPTY_BASES __declspec(empty_bases)
 #else
 #define STL2_EMPTY_BASES
+#endif
+
+#ifndef STL2_BROKEN_COMPOUND_REQUIREMENT
+#if STL2_WORKAROUND_GCC_90675 || !defined(META_HAS_P1084)
+#define STL2_BROKEN_COMPOUND_REQUIREMENT 1
+#else
+#define STL2_BROKEN_COMPOUND_REQUIREMENT 0
+#endif
 #endif
 
 STL2_OPEN_NAMESPACE {

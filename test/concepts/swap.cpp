@@ -163,7 +163,7 @@ int main() {
 		int a[2][2] = {{0, 1}, {2, 3}};
 		int b[2][2] = {{4, 5}, {6, 7}};
 
-		CONCEPT_ASSERT(SwappableWith<decltype((a)),decltype((b))>);
+		CONCEPT_ASSERT(SwappableWith<decltype((a)), decltype((b))>);
 		swap(a, b);
 		CONCEPT_ASSERT(noexcept(swap(a, b)));
 
