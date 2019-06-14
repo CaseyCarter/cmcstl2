@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 		class R = equal_to<>, class Proj = identity>
 	requires
 		IndirectlyCopyable<I, O> &&
-		IndirectRelation<R, projected<I, Proj>> &&
+		IndirectBinaryPredicate<R, projected<I, Proj>, projected<I, Proj>> &&
 		(ForwardIterator<I> ||
 		 InputIterator<O> && Same<iter_value_t<I>, iter_value_t<O>> ||
 		 IndirectlyCopyableStorable<I, O>)
@@ -112,7 +112,7 @@ STL2_OPEN_NAMESPACE {
 		class Proj = identity>
 	requires
 		IndirectlyCopyable<iterator_t<Rng>, O> &&
-		IndirectRelation<R, projected<iterator_t<Rng>, Proj>> &&
+		IndirectBinaryPredicate<R, projected<iterator_t<Rng>, Proj>, projected<iterator_t<Rng>, Proj>> &&
 		(ForwardIterator<iterator_t<Rng>> ||
 		 InputIterator<O> && Same<iter_value_t<iterator_t<Rng>>, iter_value_t<O>> ||
 		 IndirectlyCopyableStorable<iterator_t<Rng>, O>)

@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 		class R = equal_to<>, class Proj = identity>
 	requires
 		Permutable<I> &&
-		IndirectRelation<__f<R>, projected<I, Proj>>
+		IndirectBinaryPredicate<__f<R>, projected<I, Proj>, projected<I, Proj>>
 	I unique(I first, S last, R comp = R{}, Proj proj = Proj{})
 	{
 		first = __stl2::adjacent_find(
@@ -46,8 +46,8 @@ STL2_OPEN_NAMESPACE {
 	template <ForwardRange Rng, class R = equal_to<>, class Proj = identity>
 	requires
 		Permutable<iterator_t<Rng>> &&
-		IndirectRelation<
-			__f<R>, projected<iterator_t<Rng>, Proj>>
+		IndirectBinaryPredicate<
+			__f<R>, projected<iterator_t<Rng>, Proj>, projected<iterator_t<Rng>, Proj>>
 	safe_iterator_t<Rng>
 	unique(Rng&& rng, R comp = R{}, Proj proj = Proj{})
 	{

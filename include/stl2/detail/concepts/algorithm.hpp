@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	template <class I1, class I2, class R = equal_to<>, class P1 = identity,
 		class P2 = identity>
 	concept bool IndirectlyComparable =
-		IndirectRelation<R, projected<I1, P1>, projected<I2, P2>>;
+		IndirectBinaryPredicate<R, projected<I1, P1>, projected<I2, P2>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Permutable [commmonalgoreq.permutable]

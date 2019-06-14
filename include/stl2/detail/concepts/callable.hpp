@@ -118,16 +118,16 @@ STL2_OPEN_NAMESPACE {
 	concept bool IndirectUnaryPredicate =
 		ext::IndirectPredicate<F, I>;
 
-	template <class F, class I1, class I2 = I1>
-	concept bool IndirectRelation =
+	template <class F, class I1, class I2>
+	concept bool IndirectBinaryPredicate =
 		Readable<I1> &&
 		Readable<I2> &&
 		CopyConstructible<F> &&
-		Relation<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
-		Relation<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
-		Relation<F&, iter_reference_t<I1>, iter_value_t<I2>&> &&
-		Relation<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
-		Relation<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
+		Predicate<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
+		Predicate<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
+		Predicate<F&, iter_reference_t<I1>, iter_value_t<I2>&> &&
+		Predicate<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
+		Predicate<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
 	template <class F, class I1, class I2 = I1>
 	concept bool IndirectStrictWeakOrder =

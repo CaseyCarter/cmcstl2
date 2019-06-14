@@ -16,7 +16,7 @@
 #include <stl2/iterator.hpp>
 #include <stl2/utility.hpp>
 #include <stl2/detail/algorithm/tagspec.hpp>
-#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/concepts/algorithm.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // mismatch [mismatch]
@@ -28,9 +28,7 @@ STL2_OPEN_NAMESPACE {
 	mismatch(I1 first1, S1 last1, I2&& first2_, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
 	requires
-		IndirectRelation<Pred,
-			projected<I1, Proj1>,
-			projected<std::decay_t<I2>, Proj2>>
+        IndirectlyComparable<I1, std::decay_t<I2>, Pred, Proj1, Proj2>
 	{
 		auto first2 = std::forward<I2>(first2_);
 		for (; first1 != last1; ++first1, ++first2) {
@@ -45,8 +43,7 @@ STL2_OPEN_NAMESPACE {
 		InputIterator I2, Sentinel<I2> S2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		IndirectRelation<
-			Pred, projected<I1, Proj1>, projected<I2, Proj2>>
+        IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
 	tagged_pair<tag::in1(I1), tag::in2(I2)>
 	mismatch(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
@@ -68,9 +65,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		InputIterator<std::decay_t<I2>> &&
 		!Range<I2> &&
-		IndirectRelation<Pred,
-			projected<iterator_t<Rng1>, Proj1>,
-			projected<std::decay_t<I2>, Proj2>>
+        IndirectlyComparable<iterator_t<Rng1>, std::decay_t<I2>, Pred, Proj1, Proj2>
 	{
 		auto first2 = std::forward<I2>(first2_);
 		return __stl2::mismatch(
@@ -82,9 +77,7 @@ STL2_OPEN_NAMESPACE {
 	template <InputRange Rng1, InputRange Rng2, class Pred = equal_to<>,
 		class Proj1 = identity, class Proj2 = identity>
 	requires
-		IndirectRelation<Pred,
-			projected<iterator_t<Rng1>, Proj1>,
-			projected<iterator_t<Rng2>, Proj2>>
+        IndirectlyComparable<iterator_t<Rng1>, iterator_t<Rng2>, Pred, Proj1, Proj2>
 	tagged_pair<tag::in1(safe_iterator_t<Rng1>), tag::in2(safe_iterator_t<Rng2>)>
 	mismatch(Rng1&& rng1, Rng2&& rng2, Pred pred = Pred{},
 		Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{})
