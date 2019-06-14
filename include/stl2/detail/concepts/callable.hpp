@@ -119,15 +119,15 @@ STL2_OPEN_NAMESPACE {
 		ext::IndirectPredicate<F, I>;
 
 	template<class F, class I1, class I2 = I1>
-	META_CONCEPT IndirectRelation =
+	META_CONCEPT IndirectBinaryPredicate =
 		Readable<I1> &&
 		Readable<I2> &&
 		CopyConstructible<F> &&
-		Relation<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
-		Relation<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
-		Relation<F&, iter_reference_t<I1>, iter_value_t<I2>&> &&
-		Relation<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
-		Relation<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
+		Predicate<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
+		Predicate<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
+		Predicate<F&, iter_reference_t<I1>, iter_value_t<I2>&> &&
+		Predicate<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
+		Predicate<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
 	template<class F, class I1, class I2 = I1>
 	META_CONCEPT IndirectStrictWeakOrder =
@@ -160,7 +160,7 @@ STL2_OPEN_NAMESPACE {
 	template<class I1, class I2, class R = equal_to, class P1 = identity,
 		class P2 = identity>
 	META_CONCEPT IndirectlyComparable =
-		IndirectRelation<R, projected<I1, P1>, projected<I2, P2>>;
+		IndirectBinaryPredicate<R, projected<I1, P1>, projected<I2, P2>>;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Permutable [alg.req.permutable]

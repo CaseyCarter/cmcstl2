@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
 		template<InputIterator I, Sentinel<I> S, class T1, class T2,
 			class Proj = identity>
 		requires Writable<I, const T2&> &&
-			IndirectRelation<equal_to, projected<I, Proj>, const T1*>
+			IndirectBinaryPredicate<equal_to, projected<I, Proj>, const T1*>
 		constexpr I operator()(I first, S last, const T1& old_value,
 			const T2& new_value, Proj proj = {}) const
 		{
@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<InputRange R, class T1, class T2, class Proj = identity>
 		requires Writable<iterator_t<R>, const T2&> &&
-			IndirectRelation<equal_to, projected<iterator_t<R>, Proj>, const T1*>
+			IndirectBinaryPredicate<equal_to, projected<iterator_t<R>, Proj>, const T1*>
 		constexpr safe_iterator_t<R> operator()(R&& r, const T1& old_value,
 			const T2& new_value, Proj proj = {}) const
 		{

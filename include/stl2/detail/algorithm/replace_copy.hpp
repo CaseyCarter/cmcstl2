@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 		template<InputIterator I, Sentinel<I> S, class T1, class T2,
 			OutputIterator<const T2&> O, class Proj = identity>
 		requires IndirectlyCopyable<I, O> &&
-			IndirectRelation<equal_to, projected<I, Proj>, const T1*>
+			IndirectBinaryPredicate<equal_to, projected<I, Proj>, const T1*>
 		constexpr replace_copy_result<I, O>
 		operator()(I first, S last, O result, const T1& old_value,
 			const T2& new_value, Proj proj = {}) const
@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 		template<InputRange R, class T1, class T2, OutputIterator<const T2&> O,
 			class Proj = identity>
 		requires IndirectlyCopyable<iterator_t<R>, O> &&
-			IndirectRelation<equal_to, projected<iterator_t<R>, Proj>, const T1*>
+			IndirectBinaryPredicate<equal_to, projected<iterator_t<R>, Proj>, const T1*>
 		constexpr replace_copy_result<safe_iterator_t<R>, O>
 		operator()(R&& r, O result, const T1& old_value, const T2& new_value,
 			Proj proj = {}) const
