@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 	struct __unique_copy_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
 			class Proj = identity,
-			IndirectBinaryPredicate<projected<I, Proj>, projected<I, Proj>> C = equal_to>
+			IndirectEquivalenceRelation<projected<I, Proj>> C = equal_to>
 		requires IndirectlyCopyable<I, O> &&
 			(ForwardIterator<I> || __unique_copy_helper<I, O> ||
 			 IndirectlyCopyableStorable<I, O>)
@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<InputRange R, WeaklyIncrementable O, class Proj = identity,
-			IndirectBinaryPredicate<projected<iterator_t<R>, Proj>, projected<iterator_t<R>, Proj>> C = equal_to>
+			IndirectEquivalenceRelation<projected<iterator_t<R>, Proj>> C = equal_to>
 		requires IndirectlyCopyable<iterator_t<R>, O> &&
 			(ForwardRange<R> || __unique_copy_helper<iterator_t<R>, O> ||
 			 IndirectlyCopyableStorable<iterator_t<R>, O>)

@@ -130,6 +130,17 @@ STL2_OPEN_NAMESPACE {
 		Predicate<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
 	template<class F, class I1, class I2 = I1>
+	META_CONCEPT IndirectEquivalenceRelation =
+		Readable<I1> &&
+		Readable<I2> &&
+		CopyConstructible<F> &&
+		EquivalenceRelation<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
+		EquivalenceRelation<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
+		EquivalenceRelation<F&, iter_reference_t<I1>, iter_value_t<I2>&> &&
+		EquivalenceRelation<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
+		EquivalenceRelation<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
+
+	template<class F, class I1, class I2 = I1>
 	META_CONCEPT IndirectStrictWeakOrder =
 		Readable<I1> &&
 		Readable<I2> &&
