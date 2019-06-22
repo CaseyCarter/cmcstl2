@@ -16,6 +16,24 @@
 #include <stl2/detail/concepts/core.hpp>
 
 STL2_OPEN_NAMESPACE {
+	template<class I, class T>
+	struct __in_value_result {
+		STL2_NO_UNIQUE_ADDRESS I in;
+		STL2_NO_UNIQUE_ADDRESS T value;
+
+		// Extension: the dangling story actually works.
+		template<class I2, class T2>
+		requires ConvertibleTo<const I&, I2> && ConvertibleTo<const T&, T2>
+		operator __in_value_result<I2, T2>() const& {
+			return {in, value};
+		}
+		template<class I2, class T2>
+		requires ConvertibleTo<I, I2> && ConvertibleTo<T, T2>
+		operator __in_value_result<I2, T2>() && {
+			return {std::move(in), std::move(value)};
+		}
+	};
+
 	template<class I, class O>
 	struct __in_out_result {
 		STL2_NO_UNIQUE_ADDRESS I in;
