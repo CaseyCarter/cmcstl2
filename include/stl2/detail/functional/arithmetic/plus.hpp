@@ -15,6 +15,7 @@
 
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/numeric_traits/identity.hpp>
 #include <type_traits>
 #include <utility>
 
@@ -43,6 +44,26 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			using is_transparent = std::true_type;
+		};
+
+		template<class T, class U>
+		struct left_identity<__stl2::ext::plus, T, U> {
+			constexpr explicit left_identity(__stl2::ext::plus, const T&, const U&)
+			requires Magma<__stl2::ext::plus, T, U>
+			{}
+
+			constexpr auto value() const
+			{ return T{}; }
+		};
+
+		template<class T, class U>
+		struct right_identity<__stl2::ext::plus, T, U> {
+			constexpr explicit right_identity(__stl2::ext::plus, const T&, const U&)
+			requires Magma<__stl2::ext::plus, T, U>
+			{}
+
+			constexpr auto value() const
+			{ return U{}; }
 		};
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE

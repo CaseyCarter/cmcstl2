@@ -17,6 +17,7 @@
 #include <stl2/detail/functional/arithmetic/plus.hpp>
 #include <stl2/detail/functional/arithmetic/quotient.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/numeric_traits/identity.hpp>
 #include <type_traits>
 #include <utility>
 
@@ -42,6 +43,20 @@ STL2_OPEN_NAMESPACE {
 			constexpr decltype(auto) operator()(T&& t, U&& u) const {
 				return std::forward<T>(t) % std::forward<U>(u);
 			}
+		};
+
+		template<class T, class U>
+		struct right_identity<modulus, T, U> {
+			constexpr explicit right_identity(modulus, const T& t, const U&)
+			requires Magma<modulus, T, U>
+			: t_{t}
+			{}
+
+			constexpr auto value() const {
+				return t_ + T{1};
+			}
+		private:
+			const T& t_;
 		};
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE

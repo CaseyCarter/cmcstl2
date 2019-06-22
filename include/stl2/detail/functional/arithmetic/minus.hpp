@@ -16,6 +16,7 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/functional/arithmetic/plus.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/numeric_traits/identity.hpp>
 #include <type_traits>
 #include <utility>
 
@@ -49,6 +50,12 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			using is_transparent = std::true_type;
+		};
+
+		template<class T, class U>
+		struct right_identity<__stl2::ext::minus, T, U>
+		: private right_identity<__stl2::ext::plus, T, U> {
+			using right_identity<__stl2::ext::plus, T, U>::operator();
 		};
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE

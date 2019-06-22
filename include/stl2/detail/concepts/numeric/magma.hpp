@@ -14,7 +14,7 @@
 #define STL2_DETAIL_CONCEPTS_NUMERIC_MAGMA_HPP
 
 #include <stl2/detail/concepts/core.hpp>
-#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/concepts/function.hpp>
 #include <stl2/detail/fwd.hpp>
 
 STL2_OPEN_NAMESPACE {

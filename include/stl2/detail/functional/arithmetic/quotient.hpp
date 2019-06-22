@@ -16,6 +16,7 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/functional/arithmetic/product.hpp>
 #include <stl2/detail/fwd.hpp>
+#include <stl2/detail/numeric_traits/identity.hpp>
 #include <type_traits>
 #include <utility>
 
@@ -41,6 +42,17 @@ STL2_OPEN_NAMESPACE {
 			template<class T, __divisible_with<T> U>
 			constexpr decltype(auto) operator()(T&& t, U&& u) const {
 				return std::forward<T>(t) / std::forward<U>(u);
+			}
+		};
+
+		template<class T, class U>
+		struct right_identity<quotient, T, U> {
+			constexpr explicit right_identity(quotient, const T&, const U&)
+			requires Magma<quotient, T, U>
+			{}
+
+			constexpr auto value() const {
+				return U{1};
 			}
 		};
 	} // namespace ext

@@ -18,6 +18,7 @@
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/concepts/function.hpp>
 #include <stl2/detail/concepts/fundamental.hpp>
+#include <stl2/detail/concepts/numeric.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/concepts/urng.hpp>
 #include <stl2/detail/iostream/concepts.hpp>

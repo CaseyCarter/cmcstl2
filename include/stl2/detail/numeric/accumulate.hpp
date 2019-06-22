@@ -14,10 +14,7 @@
 #define STL2_DETAIL_NUMERIC_REDUCE_HPP
 
 #include <stl2/detail/algorithm/results.hpp>
-#include <stl2/detail/concepts/callable.hpp>
-#include <stl2/detail/concepts/numeric/magma.hpp>
-#include <stl2/detail/concepts/numeric/monoid.hpp>
-#include <stl2/detail/concepts/numeric/semigroup.hpp>
+#include <stl2/detail/concepts/numeric.hpp>
 #include <stl2/detail/functional/arithmetic/plus.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/numeric_traits/identity.hpp>
@@ -47,6 +44,26 @@ STL2_OPEN_NAMESPACE {
 			constexpr accumulate_result<safe_iterator_t<R>, T>
 			operator()(R&& r, T init, BOp bop = {}, Proj proj = {}) const {
 				return (*this)(begin(r), end(r), std::move(init), std::ref(bop), std::ref(proj));
+			}
+
+			template<InputIterator I, Sentinel<I> S, class Proj = identity,
+				class BOp = __stl2::ext::plus>
+			requires IndirectMonoid<BOp, projected<I, Proj>, projected<I, Proj>,
+				                     iter_value_t<projected<I, Proj>>*>
+			constexpr accumulate_result<I, iter_value_t<projected<I, Proj>>>
+			operator()(I first, S last, BOp bop = {}, Proj proj = {}) const {
+				return (*this)(std::move(first), std::move(last),
+					two_sided_identity{bop, __stl2::invoke(proj, *first), __stl2::invoke(proj, *first)}.value(),
+					std::ref(bop), std::ref(proj));
+			}
+
+			template<InputRange R, class Proj = identity, class BOp = __stl2::ext::plus>
+			requires IndirectMonoid<BOp, projected<iterator_t<R>, Proj>,
+				                     projected<iterator_t<R>, Proj>,
+				                     iter_value_t<projected<iterator_t<R>, Proj>>*>
+			constexpr accumulate_result<safe_iterator_t<R>, iter_value_t<projected<iterator_t<R>, Proj>>>
+			operator()(R&& r, BOp bop = {}, Proj proj = {}) const {
+				return (*this)(begin(r), end(r), std::move(bop), std::move(proj));
 			}
 		};
 

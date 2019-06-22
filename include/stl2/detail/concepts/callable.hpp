@@ -16,7 +16,6 @@
 #include <stl2/type_traits.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/function.hpp>
-#include <stl2/detail/concepts/numeric/magma.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/functional/invoke.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
@@ -186,19 +185,6 @@ STL2_OPEN_NAMESPACE {
 	template<class I, class R = less, class P = identity>
 	META_CONCEPT Sortable = Permutable<I> &&
 		IndirectStrictWeakOrder<R, projected<I, P>>;
-
-	namespace ext {
-		template<class BOp, class I1, class I2, class O>
-		META_CONCEPT IndirectMagma =
-			Readable<I1> &&
-			Readable<I2> &&
-			Writable<O, indirect_result_t<BOp&, I1, I2>> &&
-			Magma<BOp&, iter_value_t<I1>&, iter_value_t<I2>&> &&
-			Magma<BOp&, iter_value_t<I1>&, iter_reference_t<I2>&> &&
-			Magma<BOp&, iter_reference_t<I1>, iter_value_t<I2>&> &&
-			Magma<BOp&, iter_reference_t<I1>, iter_reference_t<I2>> &&
-			Magma<BOp&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
-	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 
 #endif
