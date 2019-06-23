@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 				{ std::forward<T>(t) * std::forward<U>(u) } -> Common<T>;
 				{ std::forward<T>(t) * std::forward<U>(u) } -> Common<U>;
 				requires Same<decltype(std::forward<T>(t) * std::forward<U>(u)),
-					           decltype(std::forward<U>(t) * std::forward<T>(u))>;
+				              decltype(std::forward<U>(t) * std::forward<T>(u))>;
 			};
 		// axiom: T{0} is equivalent to T{}, and similarly for U
 		// axiom: `t * T{1} == t` and `T{1} * t == t`, and similarly for U

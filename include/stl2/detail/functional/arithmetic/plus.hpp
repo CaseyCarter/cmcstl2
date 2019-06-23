@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 				{ std::forward<T>(t) + std::forward<U>(u) } -> Common<T>;
 				{ std::forward<T>(t) + std::forward<U>(u) } -> Common<U>;
 				requires Same<decltype(std::forward<T>(t) + std::forward<U>(u)),
-					           decltype(std::forward<U>(t) + std::forward<T>(u))>;
+				              decltype(std::forward<U>(t) + std::forward<T>(u))>;
 			};
 
 		struct plus {

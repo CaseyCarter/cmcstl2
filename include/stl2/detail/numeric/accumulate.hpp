@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 			template<InputIterator I, Sentinel<I> S, class Proj = identity,
 				class BOp = __stl2::ext::plus>
 			requires IndirectMonoid<BOp, projected<I, Proj>, projected<I, Proj>,
-				                     iter_value_t<projected<I, Proj>>*>
+			                        iter_value_t<projected<I, Proj>>*>
 			constexpr accumulate_result<I, iter_value_t<projected<I, Proj>>>
 			operator()(I first, S last, BOp bop = {}, Proj proj = {}) const {
 				return (*this)(std::move(first), std::move(last),
@@ -59,8 +59,8 @@ STL2_OPEN_NAMESPACE {
 
 			template<InputRange R, class Proj = identity, class BOp = __stl2::ext::plus>
 			requires IndirectMonoid<BOp, projected<iterator_t<R>, Proj>,
-				                     projected<iterator_t<R>, Proj>,
-				                     iter_value_t<projected<iterator_t<R>, Proj>>*>
+			                        projected<iterator_t<R>, Proj>,
+			                        iter_value_t<projected<iterator_t<R>, Proj>>*>
 			constexpr accumulate_result<safe_iterator_t<R>, iter_value_t<projected<iterator_t<R>, Proj>>>
 			operator()(R&& r, BOp bop = {}, Proj proj = {}) const {
 				return (*this)(begin(r), end(r), std::move(bop), std::move(proj));

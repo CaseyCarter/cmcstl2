@@ -15,6 +15,7 @@
 
 #include <stl2/detail/functional/arithmetic/plus.hpp>
 #include <stl2/detail/functional/arithmetic/minus.hpp>
+#include <stl2/detail/functional/arithmetic/negate.hpp>
 #include <stl2/detail/functional/arithmetic/product.hpp>
 #include <stl2/detail/functional/arithmetic/quotient.hpp>
 #include <stl2/detail/functional/arithmetic/modulus.hpp>

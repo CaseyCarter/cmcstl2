@@ -15,6 +15,7 @@
 
 #include <stl2/detail/concepts/core.hpp>
 #include <stl2/detail/functional/arithmetic/plus.hpp>
+#include <stl2/detail/functional/arithmetic/negate.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/numeric_traits/identity.hpp>
 #include <type_traits>
@@ -23,12 +24,11 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<class T, class U>
-		META_CONCEPT __differenceable_with = __summable_with<T, U> &&
+		META_CONCEPT __differenceable_with =
+			__summable_with<T, U> &&
+			__negatable<T> &&
+			__negatable<U> &&
 			requires(__uncvref<T> t, __uncvref<U> u) {
-				{ +std::forward<T>(t) } -> Same<T>;
-				{ -std::forward<T>(t) } -> Same<T>;
-				{ +std::forward<U>(u) } -> Same<U>;
-				{ -std::forward<U>(u) } -> Same<U>;
 				{ t -= std::forward<U>(u) } -> CommonReference<T&>;
 				{ u -= std::forward<T>(t) } -> CommonReference<U&>;
 				{ std::forward<T>(t) - std::forward<T>(t) } -> Common<T>;
@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 				{ std::forward<T>(t) - std::forward<U>(u) } -> Common<T>;
 				{ std::forward<T>(t) - std::forward<U>(u) } -> Common<U>;
 				requires Same<decltype(std::forward<T>(t) - std::forward<U>(u)),
-					           decltype(std::forward<U>(t) - std::forward<T>(u))>;
+				              decltype(std::forward<U>(t) - std::forward<T>(u))>;
 			};
 		// axiom: `t - t` is equivalent to `T{}`
 		// axiom: `t - (-t)` is equivalent to `t + t`
