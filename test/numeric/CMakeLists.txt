@@ -12,3 +12,4 @@
 include("../concept_select.txt")
 
 add_stl2_test(test.numeric.accumulate numeric.accumulate accumulate.cpp)
+add_stl2_test(test.numeric.partial_sum numeric.partial_sum partial_sum.cpp)
