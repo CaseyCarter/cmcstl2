@@ -20,8 +20,6 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		/// \brief
 		/// \note Users may specialise this type.
-		/// \note left_identity<BOp, T, U> may store a reference to T, so ensure that the lifetime of
-		///       the identity object is exceeded by the lifetime of object of type T.
 		/// \ref [numeric.identity.left]
 		///
 		template<class BOp, class T, class U = T>
@@ -36,8 +34,6 @@ STL2_OPEN_NAMESPACE {
 
 		/// \brief
 		/// \note Users may specialise this type.
-		/// \note right_identity<BOp, T, U> may store a reference to T, so ensure that the lifetime of
-		///       the identity object is exceeded by the lifetime of object of type U.
 		/// \ref [numeric.identity.right]
 		///
 		template<class BOp, class T, class U = T>
@@ -77,9 +73,6 @@ STL2_OPEN_NAMESPACE {
 
 		/// \brief
 		/// \note Users may not specialise this type.
-		/// \note two_sided_identity<BOp, T, U> may store references to both T and U, so ensure
-		///       that the lifetime of the identity object is exceeded by the lifetime of the objects
-		///       of types T and U.
 		/// \ref [numeric.identity.two_sided]
 		///
 		template<class BOp, class T, class U = T>

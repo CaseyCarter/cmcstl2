@@ -44,20 +44,6 @@ STL2_OPEN_NAMESPACE {
 				return std::forward<T>(t) % std::forward<U>(u);
 			}
 		};
-
-		template<class T, class U>
-		struct right_identity<modulus, T, U> {
-			constexpr explicit right_identity(modulus, const T& t, const U&)
-			requires Magma<modulus, T, U>
-			: t_{t}
-			{}
-
-			constexpr auto value() const {
-				return t_ + T{1};
-			}
-		private:
-			const T& t_;
-		};
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 
