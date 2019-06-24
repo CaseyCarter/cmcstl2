@@ -12,28 +12,27 @@
 #ifndef STL2_DETAIL_ALGORITHM_LOWER_BOUND_HPP
 #define STL2_DETAIL_ALGORITHM_LOWER_BOUND_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/partition_point.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // lower_bound [lower.bound]
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		struct __lower_bound_n_fn : private __niebloid {
+		struct __lower_bound_n_fn {
 			template<class I, class T, class Comp = less, class Proj = identity>
 			requires ForwardIterator<__f<I>> &&
 				IndirectStrictWeakOrder<Comp, const T*, projected<__f<I>, Proj>>
 			constexpr __f<I> operator()(I&& first, iter_difference_t<__f<I>> n,
-				const T& value, Comp comp = {}, Proj proj = {}) const {
+				const T& value, Comp comp = {}, Proj proj = {}) const
+			{
 				auto pred = [&](auto&& i) -> bool {
 					return __stl2::invoke(comp, i, value);
 				};
-				return __stl2::ext::partition_point_n(
-					std::forward<I>(first), n, pred, __stl2::ref(proj));
+				return __stl2::ext::partition_point_n(std::forward<I>(first), n,
+					std::move(pred), __stl2::ref(proj));
 			}
 		};
 
@@ -41,33 +40,32 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	struct __lower_bound_fn : private __niebloid {
-		template<class I, class S, class T, class Comp = less, class Proj = identity>
-		requires ForwardIterator<__f<I>> && Sentinel<__f<S>, __f<I>> &&
-			IndirectStrictWeakOrder<Comp, const T*, projected<__f<I>, Proj>>
-		constexpr __f<I> operator()(I&& first, S&& last, const T& value,
-			Comp comp = {}, Proj proj = {}) const {
-			if constexpr (SizedSentinel<__f<S>, __f<I>>) {
-				auto first_ = std::forward<I>(first);
-				auto n = distance(first_, std::forward<S>(last));
-				return __stl2::ext::lower_bound_n(std::move(first_), n, value,
+		template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
+			IndirectStrictWeakOrder<const T*, projected<I, Proj>> Comp = less>
+		constexpr I operator()(I first, S last, const T& value, Comp comp = {},
+			Proj proj = {}) const
+		{
+			if constexpr (SizedSentinel<S, I>) {
+				auto n = distance(first, std::move(last));
+				return ext::lower_bound_n(std::move(first), n, value,
 					__stl2::ref(comp), __stl2::ref(proj));
 			} else {
 				auto pred = [&](auto&& i) -> bool {
 					return __stl2::invoke(comp, i, value);
 				};
-				return __stl2::partition_point(
-					std::forward<I>(first), std::forward<S>(last), pred, __stl2::ref(proj));
+				return partition_point(std::move(first), std::move(last),
+					std::move(pred), __stl2::ref(proj));
 			}
 		}
 
-		template<ForwardRange Rng, class T, class Comp = less, class Proj = identity>
-		requires
-			IndirectStrictWeakOrder<Comp, const T*, projected<iterator_t<Rng>, Proj>>
-		constexpr safe_iterator_t<Rng>
-		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
+		template<ForwardRange Rng, class T, class Proj = identity,
+			IndirectStrictWeakOrder<const T*,
+				projected<iterator_t<Rng>, Proj>> Comp = less>
+		constexpr safe_iterator_t<Rng> operator()(Rng&& rng, const T& value,
+			Comp comp = {}, Proj proj = {}) const
+		{
 			if constexpr (SizedRange<Rng>) {
-				return __stl2::ext::lower_bound_n(
-					begin(rng), distance(rng), value,
+				return ext::lower_bound_n(begin(rng), distance(rng), value,
 					__stl2::ref(comp), __stl2::ref(proj));
 			} else {
 				return (*this)(begin(rng), end(rng), value,

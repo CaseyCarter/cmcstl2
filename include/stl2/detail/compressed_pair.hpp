@@ -20,7 +20,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<Destructible T, Destructible U>
-		class compressed_pair :
+		class STL2_EMPTY_BASES compressed_pair :
 			detail::ebo_box<T, meta::size_t<0>>,
 			detail::ebo_box<U, meta::size_t<1>> {
 			using first_t = detail::ebo_box<T, meta::size_t<0>>;

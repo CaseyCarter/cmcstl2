@@ -12,7 +12,6 @@
 #ifndef STL2_VIEW_INDIRECT_HPP
 #define STL2_VIEW_INDIRECT_HPP
 
-#include <stl2/meta/meta.hpp>
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
@@ -27,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			InputRange<Rng> &&
 			Readable<std::remove_reference_t<iter_reference_t<iterator_t<Rng>>>>
-		class indirect_view
+		class STL2_EMPTY_BASES indirect_view
 		: public view_interface<indirect_view<Rng>>
 		, private detail::ebo_box<Rng, indirect_view<Rng>> {
 			using base_t = detail::ebo_box<Rng, indirect_view<Rng>>;
@@ -75,19 +74,19 @@ STL2_OPEN_NAMESPACE {
 			indirect_view(Rng rng) : base_t{std::move(rng)} {}
 
 			basic_iterator<cursor<false>> begin()
-			requires !Range<Rng const>
+			requires (!Range<Rng const>)
 			{ return basic_iterator<cursor<false>>{cursor<false>{__stl2::begin(get())}}; }
 
 			sentinel<false> end()
-			requires !Range<Rng const>
+			requires (!Range<Rng const>)
 			{ return sentinel<false>{__stl2::end(get())}; }
 
 			basic_iterator<cursor<false>> end()
-			requires !Range<Rng const> && CommonRange<Rng>
+			requires (!Range<Rng const> && CommonRange<Rng>)
 			{ return basic_iterator<cursor<false>>{cursor<false>{__stl2::end(get())}}; }
 
 			auto size()
-			requires !Range<Rng const> && SizedRange<Rng>
+			requires (!Range<Rng const> && SizedRange<Rng>)
 			{ return __stl2::size(get()); }
 
 			basic_iterator<cursor<true>> begin() const
@@ -118,9 +117,17 @@ STL2_OPEN_NAMESPACE {
 		struct __indirect_fn : detail::__pipeable<__indirect_fn> {
 			template<class Rng>
 			constexpr auto operator()(Rng&& rng) const
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(Rng&& rng) {
+				__stl2::ext::indirect_view{all(std::forward<Rng>(rng))};
+			} {
+				return __stl2::ext::indirect_view{all(std::forward<Rng>(rng))};
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				__stl2::ext::indirect_view{all(std::forward<Rng>(rng))}
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 		};
 
 		inline constexpr __indirect_fn indirect {};

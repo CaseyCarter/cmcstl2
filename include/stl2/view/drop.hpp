@@ -28,7 +28,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<View R>
-		class drop_view
+		class STL2_EMPTY_BASES drop_view
 		: public view_interface<drop_view<R>>
 		, private detail::cached_position<R, drop_view<R>, !RandomAccessRange<const R>> {
 			using D = iter_difference_t<iterator_t<R>>;
@@ -36,23 +36,22 @@ STL2_OPEN_NAMESPACE {
 			drop_view() = default;
 
 			constexpr drop_view(R base, D count)
-				: base_(std::move(base)),
-				  count_(count)
+			: base_(std::move(base)), count_(count)
 			{}
 
 			constexpr R base() const { return base_; }
 
-			constexpr auto begin() requires !(SimpleView<R> && RandomAccessRange<R>)
+			constexpr auto begin() requires (!SimpleView<R> || !RandomAccessRange<R>)
 			{ return begin_impl(*this); }
 			constexpr auto begin() const requires Range<const R> && RandomAccessRange<const R>
 			{ return begin_impl(*this); }
 
-			constexpr auto end() requires !(SimpleView<R>)
+			constexpr auto end() requires (!SimpleView<R>)
 			{ return end_impl(*this); }
 			constexpr auto end() const requires Range<const R>
 			{ return end_impl(*this); }
 
-			constexpr auto size() requires !SimpleView<R> && SizedRange<R> { return size_impl(*this); }
+			constexpr auto size() requires (!SimpleView<R> && SizedRange<R>) { return size_impl(*this); }
 			constexpr auto size() const requires SizedRange<const R> { return size_impl(*this); }
 		private:
 			R base_;
@@ -94,9 +93,17 @@ STL2_OPEN_NAMESPACE {
 		struct __drop_fn : detail::__pipeable<__drop_fn> {
 			template<Range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) {
+				__stl2::ext::drop_view(all(std::forward<Rng>(rng)), count);
+			} {
+				return __stl2::ext::drop_view(all(std::forward<Rng>(rng)), count);
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				__stl2::ext::drop_view(all(std::forward<Rng>(rng)), count)
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 
 			template<Integral D>
 			constexpr auto operator()(D count) const

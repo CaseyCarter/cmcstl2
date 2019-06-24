@@ -135,8 +135,14 @@ int main() {
 	}
 
 	{
-		auto yes = [](int){ return true; };
+		auto yes = [](int) { return true; };
 		(void) (view::iota(0) | view::filter(yes));
+	}
+
+	{
+		auto yes = [](int) { return true; };
+		auto const rng = view::iota(0) | view::filter(yes);
+		view::all(rng);
 	}
 
 	return test_result();

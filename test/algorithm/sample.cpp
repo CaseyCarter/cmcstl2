@@ -255,7 +255,7 @@ int main() {
 			sentinel<MoveOnly*, true>(dest.data() + dest.size()));
 		auto result = ranges::ext::sample(ranges::make_move_iterator(source.begin()),
 			ranges::make_move_sentinel(source.end()), out);
-		CHECK(in_sequence(source.data(), result.in.base(), source.data() + source.size()));
+		CHECK(in_sequence(source.begin(), result.in.base(), source.end()));
 		CHECK(result.out == ranges::end(out));
 	}
 

@@ -60,5 +60,24 @@ int main()
 		static_assert(!CommonRange<decltype(rng)>);
 	}
 
+	{
+		// https://github.com/ericniebler/stl2/issues/604
+		auto rng0 = view::iota(0, 4)
+			| view::transform([](int i) { return view::iota(0, i); });
+		auto rng1 = ref_view{rng0};
+		static_assert(RandomAccessRange<decltype(rng1)>);
+		static_assert(Range<const decltype(rng1)>);
+		static_assert(CommonRange<decltype(rng1)>);
+		static_assert(RandomAccessRange<ext::range_reference_t<decltype(rng1)>>);
+		static_assert(ext::SimpleView<decltype(rng1)>);
+		static_assert(!std::is_reference_v<ext::range_reference_t<decltype(rng1)>>);
+		auto rng2 = rng1 | view::join;
+		CHECK_EQUAL(rng2, {0,0,1,0,1,2});
+		static_assert(InputRange<decltype(rng2)>);
+		static_assert(!Range<const decltype(rng2)>);
+		static_assert(!ForwardRange<decltype(rng2)>);
+		static_assert(!CommonRange<decltype(rng2)>);
+	}
+
 	return ::test_result();
 }

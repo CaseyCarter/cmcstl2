@@ -10,28 +10,27 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#ifndef STL2_DETAIL_ITERATOR_DANGLING_HPP
-#define STL2_DETAIL_ITERATOR_DANGLING_HPP
+#ifndef STL2_DETAIL_RANGE_DANGLING_HPP
+#define STL2_DETAIL_RANGE_DANGLING_HPP
 
-#include <stl2/detail/fwd.hpp>
-#include <stl2/detail/meta.hpp>
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/range/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
 	////////////////////////////////////////////////////////////////////////////
-	// dangling
+	// dangling [P1252]
 	//
 	struct dangling {
 		constexpr dangling() noexcept = default;
-		template<class... Args>
-		constexpr dangling(Args&&...) noexcept {}
+		template<class Arg>
+		constexpr dangling(Arg&&) noexcept {}
 	};
 
 	template<Range R>
 	inline constexpr bool __is_forwarding_range = _ForwardingRange<R>;
 
 	template<Range R, class U>
-	using __maybe_dangling = meta::if_c<__is_forwarding_range<R>, U, dangling>;
+	using __maybe_dangling = std::conditional_t<__is_forwarding_range<R>, U, dangling>;
 
 	template<Range R>
 	using safe_iterator_t = __maybe_dangling<R, iterator_t<R>>;

@@ -12,9 +12,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_REPLACE_COPY_IF_HPP
 #define STL2_DETAIL_ALGORITHM_REPLACE_COPY_IF_HPP
 
-#include <stl2/iterator.hpp>
 #include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // replace_copy_if [alg.replace]
@@ -43,11 +43,14 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first), std::move(result)};
 		}
 
-		template<InputRange R, class T, OutputIterator<const T&> O, class Proj = identity,
+		template<InputRange R, class T, OutputIterator<const T&> O,
+			class Proj = identity,
 			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
 		requires IndirectlyCopyable<iterator_t<R>, O>
 		constexpr replace_copy_if_result<safe_iterator_t<R>, O>
-		operator()(R&& r, O result, Pred pred, const T& new_value, Proj proj = {}) const {
+		operator()(R&& r, O result, Pred pred, const T& new_value,
+			Proj proj = {}) const
+		{
 			return (*this)(begin(r), end(r), std::move(result),
 				__stl2::ref(pred), new_value, __stl2::ref(proj));
 		}

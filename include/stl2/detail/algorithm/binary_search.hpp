@@ -12,38 +12,38 @@
 #ifndef STL2_DETAIL_ALGORITHM_BINARY_SEARCH_HPP
 #define STL2_DETAIL_ALGORITHM_BINARY_SEARCH_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/lower_bound.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/concepts.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // binary_search [binary.search]
 //
 STL2_OPEN_NAMESPACE {
-	template<ForwardIterator I, Sentinel<I> S, class T,
-		class Comp = less, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, const T*, projected<I, Proj>>
-	bool binary_search(I first, S last, const T& value, Comp comp = {},
-		Proj proj = {})
-	{
-		auto result = __stl2::lower_bound(std::move(first), last, value,
-			__stl2::ref(comp), __stl2::ref(proj));
-		return result != last && !__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
-	}
+	struct __binary_search_fn : private __niebloid {
+		template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
+			IndirectStrictWeakOrder<const T*, projected<I, Proj>> Comp = less>
+		constexpr bool operator()(I first, S last, const T& value,
+			Comp comp = {}, Proj proj = {}) const
+		{
+			auto result = lower_bound(std::move(first), last, value,
+				__stl2::ref(comp), __stl2::ref(proj));
+			return bool(result != last) &&
+				!__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
+		}
 
-	template<ForwardRange Rng, class T, class Comp = less, class Proj = identity>
-	requires
-		IndirectStrictWeakOrder<
-			Comp, const T*, projected<iterator_t<Rng>, Proj>>
-	bool binary_search(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {})
-	{
-		return __stl2::binary_search(
-			begin(rng), end(rng), value, __stl2::ref(comp), __stl2::ref(proj));
-	}
+		template<ForwardRange R, class T, class Proj = identity,
+			IndirectStrictWeakOrder<const T*,
+				projected<iterator_t<R>, Proj>> Comp = less>
+		constexpr bool operator()(R&& r, const T& value, Comp comp = {},
+			Proj proj = {}) const
+		{
+			return (*this)(begin(r), end(r), value, __stl2::ref(comp),
+				__stl2::ref(proj));
+		}
+	};
+
+	inline constexpr __binary_search_fn binary_search {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

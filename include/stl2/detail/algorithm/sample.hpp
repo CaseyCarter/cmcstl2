@@ -13,13 +13,11 @@
 #ifndef RANGES_V3_ALGORITHM_SAMPLE_HPP
 #define RANGES_V3_ALGORITHM_SAMPLE_HPP
 
-#include <stl2/iterator.hpp>
 #include <stl2/random.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/randutils.hpp>
 #include <stl2/detail/algorithm/results.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
-#include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 // sample [Extension]
@@ -33,12 +31,14 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT __sample_constraint =
 			InputIterator<I> && Sentinel<S, I> && WeaklyIncrementable<O> &&
 			IndirectlyCopyable<I, O> &&
-			UniformRandomNumberGenerator<std::remove_reference_t<Gen>>;
+			UniformRandomBitGenerator<std::remove_reference_t<Gen>>;
 
 		struct __sample_fn : private __niebloid {
-			template<class I, class S, class O, class Gen = detail::default_random_engine&>
+			template<class I, class S, class O,
+				class Gen = detail::default_random_engine&>
 			requires __sample_constraint<I, S, O, Gen> &&
-				(ForwardIterator<I> || SizedSentinel<S, I> || RandomAccessIterator<O>)
+				(ForwardIterator<I> || SizedSentinel<S, I> ||
+				 RandomAccessIterator<O>)
 			constexpr sample_result<I, O>
 			operator()(I first, S last, O o, iter_difference_t<I> n,
 				Gen&& gen = detail::get_random_engine()) const
@@ -49,17 +49,20 @@ STL2_OPEN_NAMESPACE {
 						k, std::move(o), n, gen);
 				} else {
 					if (n > 0) {
-						for (iter_difference_t<I> i = 0; i < n && first != last; (void) ++i, (void) ++first) {
+						for (iter_difference_t<I> i = 0;
+						     i < n && bool(first != last);
+						     (void) ++i, (void) ++first)
+						{
 							o[i] = *first;
 						}
 						if (first != last) {
 							std::uniform_int_distribution<iter_difference_t<I>> dist;
 							using param_t = typename decltype(dist)::param_type;
-							for (auto pop_size = n; first != last; (void)++first, ++pop_size) {
+							for (auto pop_size = n; first != last;
+							     (void) ++first, ++pop_size)
+							{
 								const auto i = dist(gen, param_t{0, pop_size});
-								if (i < n) {
-									o[i] = *first;
-								}
+								if (i < n) o[i] = *first;
 							}
 							o += n;
 						}
@@ -68,12 +71,16 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 
-			template<class I, class S, class OR, class Gen = detail::default_random_engine&>
+			template<class I, class S, class OR,
+				class Gen = detail::default_random_engine&>
 			requires __sample_constraint<I, S, iterator_t<OR>, Gen> &&
-				(ForwardIterator<I> || SizedSentinel<S, I> || RandomAccessRange<OR>) &&
+				(ForwardIterator<I> || SizedSentinel<S, I> ||
+				 RandomAccessRange<OR>) &&
 				(ForwardRange<OR> || SizedRange<OR>)
 			constexpr sample_result<I, safe_iterator_t<OR>>
-			operator()(I first, S last, OR&& o, Gen&& gen = detail::get_random_engine()) const {
+			operator()(I first, S last, OR&& o,
+				Gen&& gen = detail::get_random_engine()) const
+			{
 				if constexpr (ForwardIterator<I> || SizedSentinel<S, I>) {
 					auto k = distance(first, last);
 					return sized_impl(std::move(first), std::move(last),
@@ -95,16 +102,22 @@ STL2_OPEN_NAMESPACE {
 					return sized_impl(begin(r), end(r), distance(r), std::move(o),
 						n, std::forward<Gen>(gen));
 				} else { // RandomAccessIterator<O>
-					return (*this)(begin(r), end(r), std::move(o), n, std::forward<Gen>(gen));
+					return (*this)(begin(r), end(r), std::move(o), n,
+						std::forward<Gen>(gen));
 				}
 			}
 
-			template<Range IR, Range OR, class Gen = detail::default_random_engine&>
-			requires __sample_constraint<iterator_t<IR>, sentinel_t<IR>, iterator_t<OR>, Gen> &&
+			template<Range IR, Range OR,
+				class Gen = detail::default_random_engine&>
+			requires
+				__sample_constraint<iterator_t<IR>, sentinel_t<IR>,
+					iterator_t<OR>, Gen> &&
 				(ForwardRange<IR> || SizedRange<IR> || RandomAccessRange<OR>) &&
 				(ForwardRange<OR> || SizedRange<OR>)
 			constexpr sample_result<safe_iterator_t<IR>, safe_iterator_t<OR>>
-			operator()(IR&& r, OR&& o, Gen&& gen = detail::get_random_engine()) const {
+			operator()(IR&& r, OR&& o,
+				Gen&& gen = detail::get_random_engine()) const
+			{
 				if constexpr (ForwardRange<IR> || SizedRange<IR>) {
 					return sized_impl(begin(r), end(r), distance(r), begin(o),
 						distance(o), std::forward<Gen>(gen));

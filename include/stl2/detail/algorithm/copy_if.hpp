@@ -13,12 +13,10 @@
 #ifndef STL2_DETAIL_ALGORITHM_COPY_IF_HPP
 #define STL2_DETAIL_ALGORITHM_COPY_IF_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/utility.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/dangling.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // copy_if [alg.copy]
@@ -28,8 +26,8 @@ STL2_OPEN_NAMESPACE {
 	using copy_if_result = __in_out_result<I, O>;
 
 	struct __copy_if_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O, class Proj = identity,
-			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
+			class Proj = identity, IndirectUnaryPredicate<projected<I, Proj>> Pred>
 		requires IndirectlyCopyable<I, O>
 		constexpr copy_if_result<I, O>
 		operator()(I first, S last, O result, Pred pred, Proj proj = {}) const {

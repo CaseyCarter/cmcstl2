@@ -28,8 +28,8 @@ int main() {
 			ranges::set_difference(ia, ib, ic, std::less<int>(), &S::i, &T::j);
 		CHECK((res.in - ia) == sa);
 		CHECK((res.out - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, res.out, ir, ir+sr,
-			std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res.out, ir, ir+sr,
+			std::less<int>(), &U::k));
 		ranges::fill(ic, U{0});
 
 		int irr[] = {6};
@@ -38,8 +38,8 @@ int main() {
 			ranges::set_difference(ib, ia, ic, std::less<int>(), &T::j, &S::i);
 		CHECK((res2.in - ib) == sb);
 		CHECK((res2.out - ic) == srr);
-		CHECK(ranges::lexicographical_compare(ic, res2.out, ir, irr+srr,
-			std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res2.out, ir, irr+srr,
+			std::less<int>(), &U::k));
 	}
 
 	// Test rvalue ranges
@@ -54,8 +54,8 @@ int main() {
 			std::less<int>(), &S::i, &T::j);
 		static_assert(ranges::Same<decltype(res.in), ranges::dangling>);
 		CHECK((res.out - ic) == sr);
-		CHECK(ranges::lexicographical_compare(ic, res.out, ir, ir+sr,
-			std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res.out, ir, ir+sr,
+			std::less<int>(), &U::k));
 		ranges::fill(ic, U{0});
 
 		int irr[] = {6};
@@ -64,8 +64,8 @@ int main() {
 			std::less<int>(), &T::j, &S::i);
 		static_assert(ranges::Same<decltype(res2.in), ranges::dangling>);
 		CHECK((res2.out - ic) == srr);
-		CHECK(ranges::lexicographical_compare(ic, res2.out, ir, irr+srr,
-			std::less<int>(), &U::k) == 0);
+		CHECK(!ranges::lexicographical_compare(ic, res2.out, ir, irr+srr,
+			std::less<int>(), &U::k));
 	}
 
 	return ::test_result();

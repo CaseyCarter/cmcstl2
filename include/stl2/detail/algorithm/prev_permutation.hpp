@@ -22,56 +22,59 @@
 #ifndef STL2_DETAIL_ALGORITHM_PREV_PERMUTATION_HPP
 #define STL2_DETAIL_ALGORITHM_PREV_PERMUTATION_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/reverse.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // prev_permutation [alg.permutation.generators]
 //
 STL2_OPEN_NAMESPACE {
-	template<BidirectionalIterator I, Sentinel<I> S, class Comp = less,
-		class Proj = identity>
-	requires
-		Sortable<I, Comp, Proj>
-	bool prev_permutation(I first, S last, Comp comp = {},
-		Proj proj = {})
-	{
-		if (first == last) {
-			return false;
-		}
-		I end = next(first, std::move(last)), i = end;
-		if (first == --i) {
-			return false;
-		}
-		while (true) {
-			I ip1 = i;
-			if (__stl2::invoke(comp, __stl2::invoke(proj, *ip1), __stl2::invoke(proj, *--i))) {
-				I j = end;
-				while (!__stl2::invoke(comp, __stl2::invoke(proj, *--j), __stl2::invoke(proj, *i))) {
-					;
-				}
-				iter_swap(i, j);
-				reverse(ip1, end);
-				return true;
-			}
-			if (i == first) {
-				reverse(first, end);
-				return false;
-			}
-		}
-	}
+	struct __prev_permutation_fn : private __niebloid {
+		template<BidirectionalIterator I, Sentinel<I> S, class Comp = less,
+			class Proj = identity>
+		requires Sortable<I, Comp, Proj>
+		constexpr bool
+		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const {
+			if (first == last) return false;
 
-	template<BidirectionalRange Rng, class Comp = less, class Proj = identity>
-	requires
-		Sortable<iterator_t<Rng>, Comp, Proj>
-	bool prev_permutation(Rng&& rng, Comp comp = {}, Proj proj = {})
-	{
-		return __stl2::prev_permutation(begin(rng), end(rng),
-			__stl2::ref(comp), __stl2::ref(proj));
-	}
+			I end = next(first, std::move(last));
+			I i = end;
+			if (first == --i) return false;
+
+			auto pred = [&](auto&& lhs, auto&& rhs) -> bool {
+				return __stl2::invoke(comp,
+					__stl2::invoke(proj, static_cast<decltype(lhs)>(lhs)),
+					__stl2::invoke(proj, static_cast<decltype(rhs)>(rhs)));
+			};
+
+			while (true) {
+				I ip1 = i;
+				if (pred(*ip1, *--i)) {
+					I j = end;
+					while (!pred(*--j, *i)) {
+						;
+					}
+					iter_swap(i, j);
+					reverse(ip1, end);
+					return true;
+				}
+				if (i == first) {
+					reverse(first, end);
+					return false;
+				}
+			}
+		}
+
+		template<BidirectionalRange R, class Comp = less, class Proj = identity>
+		requires Sortable<iterator_t<R>, Comp, Proj>
+		constexpr bool
+		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), __stl2::ref(comp),
+				__stl2::ref(proj));
+		}
+	};
+
+	inline constexpr __prev_permutation_fn prev_permutation {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

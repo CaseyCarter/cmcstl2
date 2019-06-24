@@ -24,17 +24,6 @@
 #include <stl2/detail/functional/not_fn.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<class T>
-	struct __unwrap_ : __unwrap_<std::decay_t<T>> {};
-	template<_Decayed T>
-	struct __unwrap_<T> { using type = T; };
-	template<class T>
-	struct __unwrap_<reference_wrapper<T>> { using type = T&; };
-	template<class T>
-	struct __unwrap_<std::reference_wrapper<T>> { using type = T&; };
-	template<class T>
-	using __unwrap = meta::_t<__unwrap_<T>>;
-
 	///////////////////////////////////////////////////////////////////////////
 	// identity [func.identity]
 	//

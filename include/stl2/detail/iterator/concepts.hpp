@@ -26,23 +26,26 @@
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/iterator/increment.hpp>
 
-///////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // Iterator concepts [iterator.requirements]
 //
 STL2_OPEN_NAMESPACE {
 	template<class T>
 	META_CONCEPT __dereferenceable = requires(T& t) {
-		// { *t } -> __can_reference;
+#ifdef META_HAS_P1084
+		{ *t } -> __can_reference;
+#else
 		*t; typename __with_reference<decltype(*t)>;
+#endif
 	};
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// iter_reference_t [iterator.assoc]
 	//
 	template<__dereferenceable R>
 	using iter_reference_t = decltype(*std::declval<R&>());
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// iter_move
 	//
 	namespace __iter_move {
@@ -54,9 +57,12 @@ STL2_OPEN_NAMESPACE {
 		template<class R>
 		requires __dereferenceable<R> &&
 			requires(R&& r) {
-				// { iter_move(static_cast<R&&>(r)) ->__can_reference;
+#ifdef META_HAS_P1084
+				{ iter_move(static_cast<R&&>(r)) } ->__can_reference;
+#else
 				iter_move(static_cast<R&&>(r));
 				requires __can_reference<decltype(iter_move(static_cast<R&&>(r)))>;
+#endif
 			}
 		constexpr bool has_customization<R> = true;
 
@@ -84,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr __iter_move::fn iter_move{};
 	}
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// iter_rvalue_reference_t [Extension]
 	// From the proxy iterator work (P0022).
 	//
@@ -92,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 	using iter_rvalue_reference_t =
 		decltype(iter_move(std::declval<R&>()));
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// readable_traits [readable.traits]
 	//
 	namespace detail {
@@ -130,13 +136,13 @@ STL2_OPEN_NAMESPACE {
 	requires requires { typename I::element_type; }
 	struct readable_traits<I> : __cond_value_type<typename I::element_type> {};
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// iter_value_t [readable.iterators]
 	//
 	template<class I>
 	using iter_value_t = typename readable_traits<I>::value_type;
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// Readable [readable.iterators]
 	//
 	template<class I>
@@ -157,7 +163,7 @@ STL2_OPEN_NAMESPACE {
 	using iter_common_reference_t =
 		common_reference_t<iter_reference_t<I>, iter_value_t<I>&>;
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// Writable [iterators.writable]
 	//
 	template<class Out, class R>
@@ -170,13 +176,12 @@ STL2_OPEN_NAMESPACE {
 			const_cast<const iter_reference_t<Out>&&>(*static_cast<Out&&>(o)) = static_cast<R&&>(r);
 		};
 
-	///////////////////////////////////////////////////////////////////////////
-	// IndirectlyMovable [commonalgoreq.indirectlymovable]
+	////////////////////////////////////////////////////////////////////////////
+	// IndirectlyMovable [alg.req.ind.move]
 	//
 	template<class In, class Out>
 	META_CONCEPT IndirectlyMovable =
-		Readable<In> &&
-		Writable<Out, iter_rvalue_reference_t<In>>;
+		Readable<In> && Writable<Out, iter_rvalue_reference_t<In>>;
 
 	template<class In, class Out>
 	constexpr bool is_nothrow_indirectly_movable_v = false;
@@ -186,8 +191,8 @@ STL2_OPEN_NAMESPACE {
 		noexcept(noexcept(std::declval<iter_reference_t<Out>>()
 			= iter_move(std::declval<In>())));
 
-	///////////////////////////////////////////////////////////////////////////
-	// IndirectlyMovableStorable [commonalgoreq.indirectlymovable]
+	////////////////////////////////////////////////////////////////////////////
+	// IndirectlyMovableStorable [alg.req.ind.move]
 	//
 	template<class In, class Out>
 	META_CONCEPT IndirectlyMovableStorable =
@@ -207,15 +212,15 @@ STL2_OPEN_NAMESPACE {
 		std::is_nothrow_constructible<iter_value_t<In>, iter_rvalue_reference_t<In>>::value &&
 		std::is_nothrow_assignable<iter_value_t<In>&, iter_rvalue_reference_t<In>>::value;
 
-	///////////////////////////////////////////////////////////////////////////
-	// IndirectlyCopyable [commonalgoreq.indirectlycopyable]
+	////////////////////////////////////////////////////////////////////////////
+	// IndirectlyCopyable [alg.req.ind.copy]
 	//
 	template<class In, class Out>
 	META_CONCEPT IndirectlyCopyable =
 		Readable<In> && Writable<Out, iter_reference_t<In>>;
 
-	///////////////////////////////////////////////////////////////////////////
-	// IndirectlyCopyableStorable [commonalgoreq.indirectlycopyable]
+	////////////////////////////////////////////////////////////////////////////
+	// IndirectlyCopyableStorable [alg.req.ind.copy]
 	//
 	template<class In, class Out>
 	META_CONCEPT IndirectlyCopyableStorable =
@@ -225,7 +230,7 @@ STL2_OPEN_NAMESPACE {
 		Constructible<iter_value_t<In>, iter_reference_t<In>> &&
 		Assignable<iter_value_t<In>&, iter_reference_t<In>>;
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// iter_swap
 	//
 	namespace __iter_swap {
@@ -234,13 +239,10 @@ STL2_OPEN_NAMESPACE {
 		template<class T, class U>
 		void iter_swap(T, U) = delete;
 
-		template<class, class>
-		constexpr bool has_customization = false;
 		template<class R1, class R2>
-		requires requires(R1&& r1, R2&& r2) {
-			iter_swap((R1&&)r1, (R2&&)r2);
-		}
-		constexpr bool has_customization<R1, R2> = true;
+		META_CONCEPT has_customization = requires(R1&& r1, R2&& r2) {
+			iter_swap(static_cast<R1&&>(r1), static_cast<R2&&>(r2));
+		};
 
 		template<class R1, class R2>
 		requires SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>>
@@ -250,9 +252,9 @@ STL2_OPEN_NAMESPACE {
 		)
 
 		template<class R1, class R2>
-		requires !SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>> &&
+		requires (!SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>> &&
 			IndirectlyMovableStorable<R1, R2> &&
-			IndirectlyMovableStorable<R2, R1>
+			IndirectlyMovableStorable<R2, R1>)
 		constexpr void impl(R1& r1, R2& r2)
 			noexcept(
 				is_nothrow_indirectly_movable_storable_v<R1, R2> &&
@@ -265,10 +267,7 @@ STL2_OPEN_NAMESPACE {
 
 		struct fn {
 			template<class R1, class R2>
-			requires
-				Readable<std::remove_reference_t<R1>> &&
-				Readable<std::remove_reference_t<R2>> &&
-				has_customization<R1, R2>
+			requires has_customization<R1, R2>
 			constexpr void operator()(R1&& r1, R2&& r2) const
 			STL2_NOEXCEPT_RETURN(
 				static_cast<void>(iter_swap((R1&&)r1, (R2&&)r2))
@@ -278,7 +277,7 @@ STL2_OPEN_NAMESPACE {
 			requires
 				Readable<std::remove_reference_t<R1>> &&
 				Readable<std::remove_reference_t<R2>> &&
-				!has_customization<R1&, R2&> &&
+				(!has_customization<R1&, R2&>) &&
 				requires(R1& r1, R2& r2) {
 					__iter_swap::impl(r1, r2);
 				}
@@ -292,10 +291,9 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr __iter_swap::fn iter_swap{};
 	}
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// IndirectlySwappable [commonalgoreq.indirectlyswappable]
 	//
-
 	template<class I1, class I2 = I1>
 	META_CONCEPT IndirectlySwappable =
 		requires(I1&& i1, I2&& i2) {
@@ -305,25 +303,7 @@ STL2_OPEN_NAMESPACE {
 			iter_swap((I2&&)i2, (I2&&)i2);
 		};
 
-	template<class R1, class R2>
-	constexpr bool is_nothrow_indirectly_swappable_v = false;
-
-	template<class R1, IndirectlySwappable<R1> R2>
-	constexpr bool is_nothrow_indirectly_swappable_v<R1, R2> =
-		noexcept(iter_swap(std::declval<R1>(), std::declval<R2>())) &&
-		noexcept(iter_swap(std::declval<R2>(), std::declval<R1>())) &&
-		noexcept(iter_swap(std::declval<R1>(), std::declval<R1>())) &&
-		noexcept(iter_swap(std::declval<R2>(), std::declval<R2>()));
-
-	template<class R1, class R2>
-	using is_nothrow_indirectly_swappable_t =
-		meta::bool_<is_nothrow_indirectly_swappable_v<R1, R2>>;
-
-	template<class R1, class R2>
-	struct is_nothrow_indirectly_swappable :
-		is_nothrow_indirectly_swappable_t<R1, R2> {};
-
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// Iterator tags [std.iterator.tags]
 	// Extension: contiguous_iterator_tag for denoting contiguous iterators.
 	//
@@ -334,7 +314,7 @@ STL2_OPEN_NAMESPACE {
 	struct random_access_iterator_tag : bidirectional_iterator_tag {};
 	struct contiguous_iterator_tag : random_access_iterator_tag {};
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// iterator_category and iterator_category_t [iterator.assoc]
 	// Extension: Category for pointers is contiguous_iterator_tag,
 	//     which derives from random_access_iterator_tag.
@@ -380,13 +360,13 @@ STL2_OPEN_NAMESPACE {
 	template<detail::MemberIteratorCategory T>
 	requires
 		DerivedFrom<typename T::iterator_category, std::output_iterator_tag> &&
-		!DerivedFrom<typename T::iterator_category, std::input_iterator_tag>
+		(!DerivedFrom<typename T::iterator_category, std::input_iterator_tag>)
 	struct iterator_category<T> {};
 
 	template<class T>
 	using iterator_category_t = meta::_t<iterator_category<T>>;
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// Iterator [iterators.iterator]
 	//
 	// Denotes an element of a range, i.e., is a position.
@@ -400,7 +380,7 @@ STL2_OPEN_NAMESPACE {
 		//        (This should probably be a requirement of the object concepts,
 		//         or at least Semiregular.)
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// Sentinel [sentinel.iterators]
 	//
 	// A relationship between an Iterator and a Semiregular ("sentinel")
@@ -419,7 +399,7 @@ STL2_OPEN_NAMESPACE {
 		//          * the element denoted by i is the first element of [i,s)
 		//          * [++i,s) denotes a range
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// SizedSentinel [iterators.sizedsentinel]
 	//
 	// Refinement of Sentinel that provides the capability to compute the
@@ -434,8 +414,8 @@ STL2_OPEN_NAMESPACE {
 		Sentinel<S, I> &&
 		!disable_sized_sentinel<std::remove_cv_t<S>, std::remove_cv_t<I>> &&
 		requires(const I i, const S s) {
-			{ s - i } -> Same<iter_difference_t<I>>&&;
-			{ i - s } -> Same<iter_difference_t<I>>&&;
+			{ s - i } -> STL2_RVALUE_REQ(Same<iter_difference_t<I>>);
+			{ i - s } -> STL2_RVALUE_REQ(Same<iter_difference_t<I>>);
 			// Axiom: If [i,s) denotes a range and N is the smallest
 			//        non-negative integer such that N applications of
 			//        ++i make bool(i == s) == true
@@ -445,7 +425,7 @@ STL2_OPEN_NAMESPACE {
 			//          i - s is well-defined and equal to -N
 		};
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// OutputIterator [iterators.output]
 	//
 	template<class I, class T>
@@ -456,7 +436,7 @@ STL2_OPEN_NAMESPACE {
 			*i++ = std::forward<T>(t);
 		};
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// InputIterator [iterators.input]
 	//
 	template<class I>
@@ -469,7 +449,13 @@ STL2_OPEN_NAMESPACE {
 			i++;
 		};
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	// Exposition-only has-arrow [range.utility.helpers]
+	template<class I>
+	META_CONCEPT __has_arrow = InputIterator<I> &&
+		(std::is_pointer_v<I> || requires(I i) { i.operator->(); });
+
+	////////////////////////////////////////////////////////////////////////////
 	// ForwardIterator [iterators.forward]
 	//
 	template<class I>
@@ -486,7 +472,7 @@ STL2_OPEN_NAMESPACE {
 		//        Note: intent is to require == et al to be well-defined over
 		//        all iterator values that participate in a range.
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// BidirectionalIterator [iterators.bidirectional]
 	//
 	template<class I>
@@ -495,7 +481,7 @@ STL2_OPEN_NAMESPACE {
 		DerivedFrom<iterator_category_t<I>, bidirectional_iterator_tag> &&
 		ext::Decrementable<I>;
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// RandomAccessIterator [iterators.random.access]
 	//
 	template<class I>
@@ -507,8 +493,12 @@ STL2_OPEN_NAMESPACE {
 		StrictTotallyOrdered<I> &&
 		ext::RandomAccessIncrementable<I> &&
 		requires(const I& ci, const iter_difference_t<I> n) {
+#ifdef META_HAS_P1084
+			{ ci[n] } -> Same<iter_reference_t<I>>;
+#else
 			ci[n];
 			requires Same<decltype(ci[n]), iter_reference_t<I>>;
+#endif
 		};
 		// FIXME: Axioms for definition space of ordering operations. Don't
 		// require them to be the same space as ==, since pointers can't meet
@@ -516,7 +506,7 @@ STL2_OPEN_NAMESPACE {
 		// ForwardIterator, e.g., "if [i,j) denotes a range, i < j et al are
 		// well-defined."
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// ContiguousIterator
 	//
 	template<class I>
@@ -526,7 +516,7 @@ STL2_OPEN_NAMESPACE {
 		std::is_lvalue_reference<iter_reference_t<I>>::value &&
 		Same<iter_value_t<I>, __uncvref<iter_reference_t<I>>>;
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// iterator_traits [iterator.assoc]
 	//
 	template<InputIterator I>
@@ -537,8 +527,11 @@ STL2_OPEN_NAMESPACE {
 	template<InputIterator I>
 	requires
 		requires(I i) {
-			// { i.operator->() } -> __can_reference;
+#ifdef META_HAS_P1084
+			{ i.operator->() } -> __can_reference;
+#else
 			i.operator->(); requires __can_reference<decltype(i.operator->())>;
+#endif
 		}
 	struct __pointer_type<I> {
 		using type = decltype(std::declval<I&>().operator->());
@@ -568,7 +561,7 @@ STL2_OPEN_NAMESPACE {
 	template<class I>
 	using iterator_traits = __iterator_traits<I>;
 
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	// Standard iterator traits [iterator.stdtraits]
 	//
 	namespace detail {
@@ -657,6 +650,56 @@ namespace std {
 STL2_OPEN_NAMESPACE {
 	template<class T, class C>
 	struct iterator_category<::__gnu_cxx::__normal_iterator<T, C>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+} STL2_CLOSE_NAMESPACE
+#elif defined(_MSVC_STL_VERSION)
+namespace std {
+	template<class, size_t> class _Array_iterator;
+	template<class, size_t> class _Array_const_iterator;
+	template<class, size_t> class _Span_iterator;       // My crystal ball tells me we'll pick
+	template<class, size_t> class _Span_const_iterator; // these names when we implement span.
+	template<class> class _String_iterator;
+	template<class> class _String_const_iterator;
+	template<class> class _String_view_iterator;
+	template<class> class _Vector_iterator;
+	template<class> class _Vector_const_iterator;
+}
+STL2_OPEN_NAMESPACE {
+	template<class T, size_t N>
+	struct iterator_category<::std::_Array_iterator<T, N>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T, size_t N>
+	struct iterator_category<::std::_Array_const_iterator<T, N>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T, size_t N>
+	struct iterator_category<::std::_Span_iterator<T, N>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T, size_t N>
+	struct iterator_category<::std::_Span_const_iterator<T, N>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T>
+	struct iterator_category<::std::_String_iterator<T>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T>
+	struct iterator_category<::std::_String_const_iterator<T>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T>
+	struct iterator_category<::std::_String_view_iterator<T>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T>
+	struct iterator_category<::std::_Vector_iterator<T>> {
+		using type = __stl2::contiguous_iterator_tag;
+	};
+	template<class T>
+	struct iterator_category<::std::_Vector_const_iterator<T>> {
 		using type = __stl2::contiguous_iterator_tag;
 	};
 } STL2_CLOSE_NAMESPACE

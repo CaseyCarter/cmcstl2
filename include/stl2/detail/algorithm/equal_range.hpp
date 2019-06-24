@@ -12,9 +12,6 @@
 #ifndef STL2_DETAIL_ALGORITHM_EQUAL_RANGE_HPP
 #define STL2_DETAIL_ALGORITHM_EQUAL_RANGE_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/lower_bound.hpp>
 #include <stl2/detail/algorithm/upper_bound.hpp>
 #include <stl2/detail/concepts/callable.hpp>
@@ -25,7 +22,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		struct __equal_range_n_fn : private __niebloid {
+		struct __equal_range_n_fn {
 			template<ForwardIterator I, class T, class Comp = less, class Proj = identity>
 			requires IndirectStrictWeakOrder<Comp, const T*, projected<I, Proj>>
 			constexpr subrange<I>
@@ -63,11 +60,12 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	struct __equal_range_fn : private __niebloid {
-		template<ForwardIterator I, Sentinel<I> S, class T,
-			class Comp = less, class Proj = identity>
+		template<ForwardIterator I, Sentinel<I> S, class T, class Comp = less,
+			class Proj = identity>
 		requires IndirectStrictWeakOrder<Comp, const T*, projected<I, Proj>>
 		constexpr subrange<I> operator()(I first, S last, const T& value,
-			Comp comp = {}, Proj proj = {}) const {
+			Comp comp = {}, Proj proj = {}) const
+		{
 			if constexpr (SizedSentinel<S, I>) {
 				auto len = distance(first, std::move(last));
 				return ext::equal_range_n(std::move(first), len, value,
@@ -100,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 						return {
 							ext::lower_bound_n(std::move(first), dist, value,
 								__stl2::ref(comp), __stl2::ref(proj)),
-							__stl2::upper_bound(std::move(mid), std::move(last),
+							upper_bound(std::move(mid), std::move(last),
 								value, __stl2::ref(comp), __stl2::ref(proj))
 						};
 					}
@@ -117,11 +115,11 @@ STL2_OPEN_NAMESPACE {
 		constexpr safe_subrange_t<Rng>
 		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
 			if constexpr (SizedRange<Rng>) {
-				return ext::equal_range_n(begin(rng), size(rng), value,
-					__stl2::ref(comp), __stl2::ref(proj));
+				return ext::equal_range_n(begin(rng), size(rng), value, __stl2::ref(comp),
+					__stl2::ref(proj));
 			} else {
-				return (*this)(begin(rng), end(rng), value,
-					__stl2::ref(comp), __stl2::ref(proj));
+				return (*this)(begin(rng), end(rng), value, __stl2::ref(comp),
+					__stl2::ref(proj));
 			}
 		}
 	};

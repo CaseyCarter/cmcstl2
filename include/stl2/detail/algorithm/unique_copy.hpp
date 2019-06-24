@@ -12,12 +12,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_UNIQUE_COPY_HPP
 #define STL2_DETAIL_ALGORITHM_UNIQUE_COPY_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/results.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // unique_copy [alg.unique]
@@ -32,12 +29,14 @@ STL2_OPEN_NAMESPACE {
 
 	struct __unique_copy_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-			class Proj = identity, IndirectRelation<projected<I, Proj>> C = equal_to>
+			class Proj = identity,
+			IndirectRelation<projected<I, Proj>> C = equal_to>
 		requires IndirectlyCopyable<I, O> &&
 			(ForwardIterator<I> || __unique_copy_helper<I, O> ||
 			 IndirectlyCopyableStorable<I, O>)
-		constexpr unique_copy_result<I, O>
-		operator()(I first, const S last, O result, C comp = {}, Proj proj = {}) const {
+		constexpr unique_copy_result<I, O> operator()(I first, const S last,
+			O result, C comp = {}, Proj proj = {}) const
+		{
 			if (first != last) {
 				auto pred = [&comp, &proj](auto&& lhs, auto&& rhs) {
 					return !bool(__stl2::invoke(comp,

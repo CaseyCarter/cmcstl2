@@ -12,10 +12,10 @@
 #ifndef STL2_DETAIL_ALGORITHM_ROTATE_COPY_HPP
 #define STL2_DETAIL_ALGORITHM_ROTATE_COPY_HPP
 
-#include <stl2/iterator.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
 #include <stl2/detail/algorithm/results.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // rotate_copy [alg.rotate]
@@ -28,8 +28,7 @@ STL2_OPEN_NAMESPACE {
 		template<ForwardIterator I, Sentinel<I> S, WeaklyIncrementable O>
 		requires IndirectlyCopyable<I, O>
 		constexpr rotate_copy_result<I, O>
-		operator()(I first, I middle, S last, O result) const
-		{
+		operator()(I first, I middle, S last, O result) const {
 			auto res = copy(middle, std::move(last), std::move(result));
 			res.out = copy(std::move(first), std::move(middle),
 				std::move(res.out)).out;
@@ -39,10 +38,8 @@ STL2_OPEN_NAMESPACE {
 		template<ForwardRange R, WeaklyIncrementable O>
 		requires IndirectlyCopyable<iterator_t<R>, O>
 		constexpr rotate_copy_result<safe_iterator_t<R>, O>
-		operator()(R&& r, iterator_t<R> middle, O result) const
-		{
-			return (*this)(
-				begin(r), std::move(middle), end(r),
+		operator()(R&& r, iterator_t<R> middle, O result) const {
+			return (*this)(begin(r), std::move(middle), end(r),
 				std::move(result));
 		}
 	};

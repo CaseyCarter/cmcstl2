@@ -34,8 +34,8 @@ STL2_OPEN_NAMESPACE {
 			{}
 
 			template<class First>
-			requires !_OneOf<std::decay_t<First>, ebo_box, T> &&
-				Constructible<T, First> && ConvertibleTo<First, T>
+			requires (!_OneOf<std::decay_t<First>, ebo_box, T> &&
+				Constructible<T, First> && ConvertibleTo<First, T>)
 			constexpr ebo_box(First&& f)
 			noexcept(std::is_nothrow_constructible<T, First>::value)
 			: item_(std::forward<First>(f))
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<ext::DestructibleObject T, class Tag>
-		requires std::is_empty<T>::value && !std::is_final<T>::value
+		requires (std::is_empty<T>::value && !std::is_final<T>::value)
 		struct ebo_box<T, Tag> : private T {
 			ebo_box() = default;
 			constexpr ebo_box(const T& t)

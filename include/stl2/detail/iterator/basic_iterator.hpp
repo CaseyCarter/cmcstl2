@@ -30,7 +30,7 @@
 
 STL2_OPEN_NAMESPACE {
 	template<ext::DestructibleObject T>
-	requires std::is_class<T>::value && !std::is_final<T>::value
+	requires (std::is_class<T>::value && !std::is_final<T>::value)
 	class basic_mixin : T {
 	public:
 		basic_mixin() = default;
@@ -130,8 +130,13 @@ STL2_OPEN_NAMESPACE {
 
 		template<class> struct reference_type {};
 		template<class C>
-		requires
-			requires(const C& c) { c.read(); requires __can_reference<decltype(c.read())>; }
+		requires requires(const C& c) {
+#ifdef META_HAS_P1084
+			{ c.read() } -> __can_reference;
+#else
+			c.read(); requires __can_reference<decltype(c.read())>;
+#endif
+		}
 		struct reference_type<C> {
 			using type = decltype(std::declval<const C&>().read());
 		};
@@ -147,7 +152,7 @@ STL2_OPEN_NAMESPACE {
 		};
 		template<class C>
 		requires
-			!detail::MemberValueType<C> && requires { typename reference_t<C>; }
+			(!detail::MemberValueType<C>) && requires { typename reference_t<C>; }
 		struct value_type<C> {
 			using type = std::decay_t<reference_t<C>>;
 			static_assert(detail::IsValueType<type>,
@@ -177,7 +182,11 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT Readable =
 			Cursor<C> &&
 			requires(const C& c) {
+#ifdef META_HAS_P1084
+				{ c.read() } -> __can_reference;
+#else
 				c.read(); requires __can_reference<decltype(c.read())>;
+#endif
 				typename reference_t<C>;
 				typename value_type_t<C>;
 			};
@@ -185,7 +194,11 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT Arrow =
 			Readable<C> &&
 			requires(const C& c) {
+#ifdef META_HAS_P1084
+				{ c.arrow() } ->__can_reference;
+#else
 				c.arrow(); requires __can_reference<decltype(c.arrow())>;
+#endif
 			};
 		template<class C, class T>
 		META_CONCEPT Writable =
@@ -205,7 +218,7 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT SizedSentinel =
 			Sentinel<S, C> &&
 			requires(const C& c, const S& s) {
-				{ c.distance_to(s) } -> Same<difference_type_t<C>>&&;
+				{ c.distance_to(s) } -> STL2_RVALUE_REQ(Same<difference_type_t<C>>);
 			};
 
 		template<class C>
@@ -229,7 +242,11 @@ STL2_OPEN_NAMESPACE {
 		template<class C>
 		META_CONCEPT IndirectMove =
 			Readable<C> && requires(const C& c) {
+#ifdef META_HAS_P1084
+				{ c.indirect_move() } -> __can_reference;
+#else
 				c.indirect_move(); requires __can_reference<decltype(c.indirect_move())>;
+#endif
 			};
 
 		template<class> struct rvalue_reference {};
@@ -348,7 +365,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class Cur>
-		struct basic_proxy_reference
+		struct STL2_EMPTY_BASES basic_proxy_reference
 		: cursor_traits<Cur>
 		, meta::inherit<
 				meta::transform<
@@ -544,7 +561,7 @@ STL2_OPEN_NAMESPACE {
 		template<class C>
 		META_CONCEPT PostIncrementCursor =
 			requires(C& c) {
-				{ c.post_increment() } -> Same<C>&&;
+				{ c.post_increment() } -> STL2_RVALUE_REQ(Same<C>);
 			};
 	} // namespace detail
 
@@ -601,7 +618,7 @@ STL2_OPEN_NAMESPACE {
 		requires cursor::IndirectMove<C>
 		constexpr decltype(auto) iter_move(const basic_iterator<C>& i)
 		STL2_NOEXCEPT_RETURN(
-			i.get().indirect_move()
+			get_cursor(i).indirect_move()
 		)
 
 		template<class C1, class C2>
@@ -609,12 +626,12 @@ STL2_OPEN_NAMESPACE {
 		constexpr void iter_swap(
 			const basic_iterator<C1>& x, const basic_iterator<C2>& y)
 		STL2_NOEXCEPT_RETURN(
-			static_cast<void>(x.get().indirect_swap(y.get()))
+			static_cast<void>(get_cursor(x).indirect_swap(get_cursor(y)))
 		)
 	} // namespace basic_iterator_adl
 
 	template<cursor::Cursor C>
-	class basic_iterator
+	class STL2_EMPTY_BASES basic_iterator
 	: public mixin_t<C>
 	, detail::iterator_associated_types_base<C>
 	, basic_iterator_adl::hook
@@ -663,9 +680,8 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 		template<class T>
-		requires
-			!Same<std::decay_t<T>, basic_iterator> && !cursor::Next<C> &&
-			cursor::Writable<C, T>
+		requires (!Same<std::decay_t<T>, basic_iterator> && !cursor::Next<C> &&
+			cursor::Writable<C, T>)
 		constexpr basic_iterator& operator=(T&& t)
 		noexcept(noexcept(
 			std::declval<C&>().write(static_cast<T&&>(t))))
@@ -677,8 +693,8 @@ STL2_OPEN_NAMESPACE {
 		// http://wg21.link/P0186
 		template<class O>
 		requires
-			!Same<std::decay_t<O>, basic_iterator> &&
-			Assignable<C&, O>
+			(!Same<std::decay_t<O>, basic_iterator> &&
+			Assignable<C&, O>)
 		constexpr basic_iterator& operator=(O&& o) &
 		noexcept(std::is_nothrow_assignable<C&, O>::value)
 		{
@@ -688,7 +704,7 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr decltype(auto) operator*() const
 		noexcept(noexcept(std::declval<const C&>().read()))
-		requires cursor::Readable<C> && !detail::is_writable<C>
+		requires (cursor::Readable<C> && !detail::is_writable<C>)
 		{
 			return get().read();
 		}
@@ -706,7 +722,7 @@ STL2_OPEN_NAMESPACE {
 			return const_reference_t{get()};
 		}
 		constexpr basic_iterator& operator*() noexcept
-		requires !cursor::Next<C>
+		requires (!cursor::Next<C>)
 		{
 			return *this;
 		}
@@ -724,9 +740,9 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto operator->() const
 		noexcept(noexcept(*std::declval<const basic_iterator&>()))
 		requires
-			!cursor::Arrow<C> && cursor::Readable<C> &&
+			(!cursor::Arrow<C> && cursor::Readable<C> &&
 			std::is_lvalue_reference<const_reference_t>::value &&
-			Same<cursor::value_type_t<BugsBugs>, __uncvref<const_reference_t>>
+			Same<cursor::value_type_t<BugsBugs>, __uncvref<const_reference_t>>)
 		{
 			return std::addressof(**this);
 		}
@@ -754,8 +770,8 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr void operator++(int) &
 		noexcept(noexcept(++std::declval<basic_iterator&>()))
-		requires cursor::Input<C> && !cursor::Forward<C>
-			&& !cursor::PostIncrement<C>
+		requires (cursor::Input<C> && !cursor::Forward<C>
+			&& !cursor::PostIncrement<C>)
 		{
 			++*this;
 		}

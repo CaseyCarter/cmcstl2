@@ -13,9 +13,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_COPY_N_HPP
 #define STL2_DETAIL_ALGORITHM_COPY_N_HPP
 
-#include <stl2/iterator.hpp>
-#include <stl2/utility.hpp>
 #include <stl2/detail/algorithm/results.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
+#include <stl2/detail/iterator/counted_iterator.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // copy_n [alg.copy]
@@ -28,16 +28,15 @@ STL2_OPEN_NAMESPACE {
 		template<InputIterator I, WeaklyIncrementable O>
 		requires IndirectlyCopyable<I, O>
 		constexpr copy_n_result<I, O>
-		operator()(I first_, iter_difference_t<I> n, O result) const
-		{
-			STL2_EXPECT(n >= 0);
+		operator()(I first_, iter_difference_t<I> n, O result) const {
+			if (n < 0) n = 0;
 			auto norig = n;
-			auto first = __stl2::ext::uncounted(first_);
-			for(; n > 0; ++first, ++result, --n) {
+			auto first = ext::uncounted(first_);
+			for(; n > 0; (void) ++first, (void) ++result, --n) {
 				*result = *first;
 			}
 			return {
-				__stl2::ext::recounted(first_, first, norig),
+				ext::recounted(first_, first, norig),
 				std::move(result)
 			};
 		}

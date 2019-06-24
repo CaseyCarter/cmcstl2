@@ -34,8 +34,8 @@ STL2_OPEN_NAMESPACE {
 			std::unique_ptr<T, temporary_buffer_deleter> alloc_;
 			std::ptrdiff_t size_ = 0;
 
-			temporary_buffer(std::pair<T*, std::ptrdiff_t> buf) :
-				alloc_{buf.first}, size_{buf.second} {}
+			temporary_buffer(std::pair<T*, std::ptrdiff_t> buf)
+			: alloc_{buf.first}, size_{buf.second} {}
 
 		public:
 			temporary_buffer() = default;
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T>
-		requires alignof(T) > alignof(std::max_align_t)
+		requires (alignof(T) > alignof(std::max_align_t))
 		class temporary_buffer<T> {
 			std::unique_ptr<unsigned char, temporary_buffer_deleter> alloc_;
 			T* aligned_ = nullptr;
@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 			T* end_ = nullptr;
 			T* alloc_ = nullptr;
 
-			void _clear() noexcept {
+			void destroy() noexcept {
 				for_each(begin_, end_, destruct);
 			}
 
@@ -104,19 +104,19 @@ STL2_OPEN_NAMESPACE {
 			using value_type = T;
 
 			~temporary_vector() {
-				_clear();
+				destroy();
 			}
 
 			temporary_vector() = default;
 			temporary_vector(temporary_buffer<T>& buf)
 			: begin_{buf.data()}, end_{begin_}
-			, alloc_{begin_ + buf.size_}
+			, alloc_{begin_ + buf.size()}
 			{}
 			temporary_vector(temporary_vector&&) = delete;
 			temporary_vector& operator=(temporary_vector&& that) = delete;
 
 			void clear() noexcept {
-				_clear();
+				destroy();
 				end_ = begin_;
 			}
 

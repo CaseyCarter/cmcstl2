@@ -46,7 +46,7 @@ void test() {
 	auto checker = [&](R res)
 	{
 		CHECK(bool((base(res.out) - ic) == sr));
-		CHECK(std::lexicographical_compare(ic, base(res.out), ir, ir+sr) == 0);
+		CHECK(!std::lexicographical_compare(ic, base(res.out), ir, ir+sr));
 		ranges::fill(ic, 0);
 	};
 

@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<WeaklyIncrementable I, Semiregular Bound>
 	requires WeaklyEqualityComparable<I, Bound>
-	struct iota_view
+	struct STL2_EMPTY_BASES iota_view
 	: private __iota_view_detail::__adl_hook
 	, view_interface<iota_view<I, Bound>> {
 	private:
@@ -104,9 +104,8 @@ STL2_OPEN_NAMESPACE {
 	requires WeaklyEqualityComparable<I, Bound>
 	struct iota_view<I, Bound>::__iterator
 	: detail::iota_view_iterator_base<I> {
-	private:
-		I value_ {};
-	public:
+		friend __sentinel;
+
 		using value_type = I;
 		using difference_type = iter_difference_t<I>;
 
@@ -192,26 +191,33 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr difference_type operator-(const __iterator& x, const __iterator& y)
 		requires ext::RandomAccessIncrementable<I>
 		{ return *x - *y; }
+
+	private:
+		I value_ {};
 	};
 
 	template<WeaklyIncrementable I, Semiregular Bound>
 	requires WeaklyEqualityComparable<I, Bound>
 	struct iota_view<I, Bound>::__sentinel {
-	private:
-		Bound bound_;
-	public:
 		__sentinel() = default;
 		constexpr explicit __sentinel(Bound bound)
 		: bound_(bound) {}
 
 		friend constexpr bool operator==(const __iterator& x, const __sentinel& y)
-		{ return x.value_ == y.bound_; }
+		{ return y.equal(x); }
 		friend constexpr bool operator==(const __sentinel& x, const __iterator& y)
-		{ return y == x; }
+		{ return x.equal(y); }
 		friend constexpr bool operator!=(const __iterator& x, const __sentinel& y)
-		{ return !(x == y); }
+		{ return !y.equal(x); }
 		friend constexpr bool operator!=(const __sentinel& x, const __iterator& y)
-		{ return !(y == x); }
+		{ return !x.equal(y); }
+
+	private:
+		constexpr bool equal(const __iterator& i) const {
+			return i.value_ == bound_;
+		}
+
+		Bound bound_;
 	};
 
 	namespace view {

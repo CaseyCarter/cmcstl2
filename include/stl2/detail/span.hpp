@@ -41,12 +41,12 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr auto dynamic_extent = static_cast<__span::index_t>(-1);
 
 		template<ext::Object ElementType, __span::index_t Extent = dynamic_extent>
-		requires Extent >= dynamic_extent
+		requires (Extent >= dynamic_extent)
 		struct span;
 
 		namespace __span {
 			template<index_t Extent>
-			requires Extent >= dynamic_extent
+			requires (Extent >= dynamic_extent)
 			struct extent {
 				constexpr extent() noexcept = default;
 				constexpr extent(index_t size) noexcept
@@ -125,7 +125,7 @@ STL2_OPEN_NAMESPACE {
 
 		// [span], class template span
 		template<ext::Object ElementType, __span::index_t Extent>
-		requires Extent >= dynamic_extent
+		requires (Extent >= dynamic_extent)
 		struct span : private __span::extent<Extent> {
 			// constants and types
 			using element_type = ElementType;
@@ -142,7 +142,6 @@ STL2_OPEN_NAMESPACE {
 			// [span.cons], span constructors
 			constexpr span() noexcept = default;
 			constexpr span(pointer ptr, index_type count) noexcept
-			requires true // HACK: disambiguates span{ptr, 0}
 			: __span::extent<Extent>{count}, data_{ptr}
 			{
 				STL2_EXPECT(count == 0 || ptr != nullptr);
@@ -153,7 +152,7 @@ STL2_OPEN_NAMESPACE {
 
 			// FIXME: accept forwarding-range?
 			template<__span::compatible<ElementType> Range>
-			requires Extent == __span::static_extent<Range>::value
+			requires (Extent == __span::static_extent<Range>::value)
 			constexpr span(Range&& rng)
 			noexcept(noexcept(__stl2::data(rng)))
 			: span{__stl2::data(rng), Extent}
@@ -220,7 +219,7 @@ STL2_OPEN_NAMESPACE {
 				return {data_ + Offset, Count};
 			}
 			template<index_type Offset>
-			requires Offset >= 0 && (Extent == dynamic_extent || Extent >= Offset)
+			requires (Offset >= 0 && (Extent == dynamic_extent || Extent >= Offset))
 			constexpr span<element_type, Extent >= Offset ? Extent - Offset : dynamic_extent> subspan() const noexcept
 			{
 				static_assert(Offset >= 0,
@@ -284,7 +283,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				STL2_EXPECT(!size() || data());
 				STL2_EXPECT(!that.size() || that.data());
-				return __stl2::equal(*this, that);
+				return equal(*this, that);
 			}
 			template<EqualityComparableWith<ElementType> U, index_type UExtent>
 			bool operator!=(span<U, UExtent> that) const
@@ -296,7 +295,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				STL2_EXPECT(!size() || data());
 				STL2_EXPECT(!that.size() || that.data());
-				return __stl2::lexicographical_compare(*this, that);
+				return lexicographical_compare(*this, that);
 			}
 			template<StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
 			bool operator>(span<U, UExtent> that)

@@ -12,8 +12,9 @@
 #ifndef STL2_VIEW_TAKE_EXACTLY_HPP
 #define STL2_VIEW_TAKE_EXACTLY_HPP
 
-#include <type_traits>
 #include <utility>
+
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>
@@ -21,14 +22,14 @@
 #include <stl2/detail/iterator/default_sentinel.hpp>
 #include <stl2/detail/range/access.hpp>
 #include <stl2/detail/range/concepts.hpp>
-#include <stl2/view/all.hpp>
 #include <stl2/detail/view/view_closure.hpp>
+#include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<View Base>
-		class take_exactly_view
+		class STL2_EMPTY_BASES take_exactly_view
 		: public view_interface<take_exactly_view<Base>>
 		, private detail::ebo_box<Base, take_exactly_view<Base>>
 		{
@@ -46,22 +47,22 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr auto begin()
 			noexcept(noexcept(counted_iterator{__stl2::begin(std::declval<Base&>()), n_}))
-			requires !Range<Base const>
+			requires (!Range<Base const>)
 			{ return counted_iterator{__stl2::begin(get()), n_}; }
 
 	#if 0 // FIXME: Untagged bug workaround
 			constexpr auto data()
 			noexcept(noexcept(__stl2::data(std::declval<Base&>())))
 			requires
-				!Range<Base const> &&
-				requires(Base& b) { __stl2::data(b); }
+				(!Range<Base const> &&
+				requires(Base& b) { __stl2::data(b); })
 			{ return __stl2::data(get()); }
 	#else
 			template<class B = Base>
 			requires
-				Same<B, Base> &&
+				(Same<B, Base> &&
 				!Range<B const> &&
-				requires(B& b) { __stl2::data(b); }
+				requires(B& b) { __stl2::data(b); })
 			constexpr auto data()
 			noexcept(noexcept(__stl2::data(std::declval<B&>())))
 			{ return __stl2::data(get()); }
@@ -76,8 +77,8 @@ STL2_OPEN_NAMESPACE {
 			constexpr auto data() const
 			noexcept(noexcept(__stl2::data(std::declval<Base const&>())))
 			requires
-				!Range<Base const> &&
-				requires(Base const& b) { __stl2::data(b); }
+				(!Range<Base const> &&
+				requires(Base const& b) { __stl2::data(b); })
 			{ return __stl2::data(get()); }
 	#else
 			template<class B = Base>
@@ -107,9 +108,17 @@ STL2_OPEN_NAMESPACE {
 		struct __take_exactly_fn : detail::__pipeable<__take_exactly_fn> {
 			template<class V>
 			constexpr auto operator()(V&& view, iter_difference_t<iterator_t<V>> const n) const
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(V&& view, iter_difference_t<iterator_t<V>> const n) {
+				__stl2::ext::take_exactly_view(all(std::forward<V>(view)), n);
+			} {
+				return __stl2::ext::take_exactly_view(all(std::forward<V>(view)), n);
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				__stl2::ext::take_exactly_view(all(std::forward<V>(view)), n)
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 
 			template<Integral D>
 			constexpr auto operator()(D count) const {

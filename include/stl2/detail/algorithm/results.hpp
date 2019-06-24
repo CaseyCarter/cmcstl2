@@ -18,8 +18,8 @@
 STL2_OPEN_NAMESPACE {
 	template<class I, class O>
 	struct __in_out_result {
-		I in;
-		O out;
+		STL2_NO_UNIQUE_ADDRESS I in;
+		STL2_NO_UNIQUE_ADDRESS O out;
 
 		// Extension: the dangling story actually works.
 		template<class I2, class O2>
@@ -36,8 +36,8 @@ STL2_OPEN_NAMESPACE {
 
 	template<class I1, class I2>
 	struct __in_in_result {
-		I1 in1;
-		I2 in2;
+		STL2_NO_UNIQUE_ADDRESS I1 in1;
+		STL2_NO_UNIQUE_ADDRESS I2 in2;
 
 		// Extension: the dangling story actually works.
 		template<class II1, class II2>
@@ -54,9 +54,9 @@ STL2_OPEN_NAMESPACE {
 
 	template<class I1, class I2, class O>
 	struct __in_in_out_result {
-		I1 in1;
-		I2 in2;
-		O out;
+		STL2_NO_UNIQUE_ADDRESS I1 in1;
+		STL2_NO_UNIQUE_ADDRESS I2 in2;
+		STL2_NO_UNIQUE_ADDRESS O out;
 
 		// Extension: the dangling story actually works.
 		template<class II1, class II2, class OO>
@@ -75,9 +75,9 @@ STL2_OPEN_NAMESPACE {
 
 	template<class I, class O1, class O2>
 	struct __in_out_out_result {
-		I in;
-		O1 out1;
-		O2 out2;
+		STL2_NO_UNIQUE_ADDRESS I in;
+		STL2_NO_UNIQUE_ADDRESS O1 out1;
+		STL2_NO_UNIQUE_ADDRESS O2 out2;
 
 		// Extension: the dangling story actually works.
 		template<class II, class OO1, class OO2>
@@ -96,8 +96,8 @@ STL2_OPEN_NAMESPACE {
 
 	template<class I, class F>
 	struct __in_fun_result {
-		I in;
-		F fun;
+		STL2_NO_UNIQUE_ADDRESS I in;
+		STL2_NO_UNIQUE_ADDRESS F fun;
 
 		// Extension: the dangling story actually works.
 		template<class I2, class F2>
@@ -114,8 +114,8 @@ STL2_OPEN_NAMESPACE {
 
 	template<class T>
 	struct minmax_result {
-		T min;
-		T max;
+		STL2_NO_UNIQUE_ADDRESS T min;
+		STL2_NO_UNIQUE_ADDRESS T max;
 
 		// Extension: the dangling story actually works.
 		template<class T2>

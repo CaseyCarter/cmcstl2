@@ -13,10 +13,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_ADJACENT_FIND_HPP
 #define STL2_DETAIL_ALGORITHM_ADJACENT_FIND_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/dangling.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // adjacent_find [alg.adjacent.find]
@@ -25,15 +24,17 @@ STL2_OPEN_NAMESPACE {
 	struct __adjacent_find_fn : private __niebloid {
 		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectRelation<projected<I, Proj>> Pred = equal_to>
-		constexpr I operator()(I first, S last, Pred pred = {}, Proj proj = {}) const
-		{
+		constexpr I
+		operator()(I first, S last, Pred pred = {}, Proj proj = {}) const {
 			if (first == last) {
 				return first;
 			}
 
 			auto next = first;
 			for (; ++next != last; first = next) {
-				if (__stl2::invoke(pred, __stl2::invoke(proj, *first), __stl2::invoke(proj, *next))) {
+				if (__stl2::invoke(pred,
+						__stl2::invoke(proj, *first),
+						__stl2::invoke(proj, *next))) {
 					return first;
 				}
 			}
@@ -43,11 +44,9 @@ STL2_OPEN_NAMESPACE {
 		template<ForwardRange R, class Proj = identity,
 			IndirectRelation<projected<iterator_t<R>, Proj>> Pred = equal_to>
 		constexpr safe_iterator_t<R>
-		operator()(R&& r, Pred pred = {}, Proj proj = {}) const
-		{
-			return (*this)(
-				begin(r), end(r),
-				__stl2::ref(pred), __stl2::ref(proj));
+		operator()(R&& r, Pred pred = {}, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), __stl2::ref(pred),
+				__stl2::ref(proj));
 		}
 	};
 

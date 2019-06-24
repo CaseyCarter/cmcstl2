@@ -13,9 +13,8 @@
 #ifndef STL2_DETAIL_ALGORITHM_REVERSE_COPY_HPP
 #define STL2_DETAIL_ALGORITHM_REVERSE_COPY_HPP
 
-#include <stl2/iterator.hpp>
 #include <stl2/detail/algorithm/results.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // reverse_copy [alg.reverse]

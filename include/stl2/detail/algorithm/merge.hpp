@@ -12,11 +12,10 @@
 #ifndef STL2_DETAIL_ALGORITHM_MERGE_HPP
 #define STL2_DETAIL_ALGORITHM_MERGE_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
 #include <stl2/detail/algorithm/results.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // merge [alg.merge]

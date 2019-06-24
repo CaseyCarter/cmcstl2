@@ -12,7 +12,7 @@
 
 add_library(stl2_test_config INTERFACE)
 target_link_libraries(stl2_test_config INTERFACE stl2)
-target_compile_definitions(stl2_test_config INTERFACE $<$<CONFIG:Release>:NDEBUG>)
+target_link_libraries(stl2_test_config INTERFACE $<$<CONFIG:Debug>:Sanitizer::all>)
 target_compile_options(stl2_test_config INTERFACE
     $<$<CXX_COMPILER_ID:GNU>:
         -ftemplate-backtrace-limit=0 -Wall -Wextra -pedantic -Werror -march=native
@@ -22,7 +22,8 @@ target_compile_options(stl2_test_config INTERFACE
 function(add_stl2_test TESTNAME EXENAME FIRSTSOURCE)
   add_executable(${EXENAME} ${FIRSTSOURCE} ${ARGN})
   target_link_libraries(${EXENAME} stl2_test_config)
-  add_test(${TESTNAME} ${EXENAME})
+  add_test(NAME ${TESTNAME} COMMAND $<TARGET_FILE:${EXENAME}>)
+  add_dependencies(stl2-check ${EXENAME})
 endfunction(add_stl2_test)
 
 add_stl2_test(test.headers headers headers1.cpp headers2.cpp)

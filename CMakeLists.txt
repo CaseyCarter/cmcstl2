@@ -17,14 +17,29 @@ project(cmcstl2 CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# check if cmcstl2 is not a subproject
+if(CMAKE_CURRENT_LIST_DIR STREQUAL CMAKE_SOURCE_DIR)
+    option(STL2_BUILD_EXAMPLES "Build stl2 examples" ON)
+    option(STL2_BUILD_TESTING "Build stl2 tests" ON)
+else()
+    option(STL2_BUILD_EXAMPLES "Build stl2 examples" OFF)
+    option(STL2_BUILD_TESTING "Build stl2 tests" OFF)
+endif()
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(Sanitizer COMPONENTS address undefined)
+
 add_library(stl2 INTERFACE)
 target_include_directories(stl2 INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
-target_compile_features(stl2 INTERFACE cxx_std_17)
+if(NOT MSVC)
+    target_compile_features(stl2 INTERFACE cxx_std_17)
+endif()
 target_compile_options(stl2 INTERFACE
     $<$<CXX_COMPILER_ID:GNU>:-fconcepts>
-    $<$<CXX_COMPILER_ID:Clang>:-Xclang -fconcepts-ts>)
+    $<$<CXX_COMPILER_ID:Clang>:-Xclang -fconcepts-ts>
+    $<$<CXX_COMPILER_ID:MSVC>:/std:c++latest /permissive- /experimental:concepts /D__cpp_concepts=201811L>)
 
 install(DIRECTORY include/ DESTINATION include)
 install(TARGETS stl2 EXPORT cmcstl2-targets)
@@ -36,8 +51,12 @@ install(
     FILES ${PROJECT_BINARY_DIR}/cmcstl2-config.cmake
     DESTINATION lib/cmake/cmcstl2)
 
-add_subdirectory(examples)
+if(STL2_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
-enable_testing()
-include(CTest)
-add_subdirectory(test)
+if(STL2_BUILD_TESTING)
+    include(CTest)
+    add_custom_target(stl2-check ${CMAKE_CTEST_COMMAND} -V)
+    add_subdirectory(test)
+endif()

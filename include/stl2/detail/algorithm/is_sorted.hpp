@@ -12,9 +12,6 @@
 #ifndef STL2_DETAIL_ALGORITHM_IS_SORTED_HPP
 #define STL2_DETAIL_ALGORITHM_IS_SORTED_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/is_sorted_until.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 
@@ -25,16 +22,17 @@ STL2_OPEN_NAMESPACE {
 	struct __is_sorted_fn : private __niebloid {
 		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
-		constexpr bool operator()(I first, S last, Comp comp = {}, Proj proj = {}) const
-		{
-			return last == is_sorted_until(std::move(first), last, __stl2::ref(comp), __stl2::ref(proj));
+		constexpr bool
+		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const {
+			return last == is_sorted_until(std::move(first), last,
+				__stl2::ref(comp), __stl2::ref(proj));
 		}
 
 		template<ForwardRange R, class Proj = identity,
 			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
-		constexpr bool operator()(R&& r, Comp comp = {}, Proj proj = {}) const
-		{
-			return end(r) == is_sorted_until(begin(r), end(r), __stl2::ref(comp), __stl2::ref(proj));
+		constexpr bool operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
+			return end(r) == is_sorted_until(begin(r), end(r),
+				__stl2::ref(comp), __stl2::ref(proj));
 		}
 	};
 

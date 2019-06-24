@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<View R, IndirectPredicate<iterator_t<R>> Pred>
 		requires InputRange<R> && std::is_object_v<Pred>
-		class drop_while_view
+		class STL2_EMPTY_BASES drop_while_view
 		: public view_interface<drop_while_view<R, Pred>>
 		, private detail::semiregular_box<Pred>
 		, private detail::non_propagating_cache<iterator_t<R>, drop_while_view<R, Pred>> {
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 				using cache_t = typename drop_while_view::non_propagating_cache;
 				auto& iterator_self = static_cast<cache_t&>(*this);
 				if (!iterator_self) {
-					iterator_self = __stl2::find_if_not(base_, [this](auto&& i) mutable {
+					iterator_self = find_if_not(base_, [this](auto&& i) mutable {
 						// A predicate must be equality-preserving. While it's not possible to generally
 						// check that te predicate isn't equality-preserving, we can trap
 						// non-equality-preserving invocables on-the-spot by calling them multiple times
@@ -76,9 +76,20 @@ STL2_OPEN_NAMESPACE {
 		struct __drop_while_fn : detail::__pipeable<__drop_while_fn> {
 			template<class Rng, class Pred>
 			constexpr auto operator()(Rng&& rng, Pred&& pred) const
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(Rng&& rng, Pred&& pred) {
+				__stl2::ext::drop_while_view{
+					view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
+			} {
+				return __stl2::ext::drop_while_view{
+					view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
-				__stl2::ext::drop_while_view{view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
+				__stl2::ext::drop_while_view{
+					view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 
 			template<__stl2::ext::CopyConstructibleObject Pred>
 			constexpr auto operator()(Pred pred) const
