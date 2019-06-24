@@ -13,6 +13,9 @@
 #ifndef STL2_VIEW_GENERATE_HPP
 #define STL2_VIEW_GENERATE_HPP
 
+#include <utility>
+
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/concepts/function.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/fwd.hpp>
@@ -22,8 +25,6 @@
 #include <stl2/detail/semiregular_box.hpp>
 #include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/view_interface.hpp>
-#include <type_traits>
-#include <utility>
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
@@ -35,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<CopyConstructibleObject F>
 		requires Invocable<F&>
-		struct generate_view
+		struct STL2_EMPTY_BASES generate_view
 		: view_interface<generate_view<F>>
 		, private detail::semiregular_box<F>
 		, private detail::non_propagating_cache<invoke_result_t<F&>> {
@@ -112,9 +113,18 @@ STL2_OPEN_NAMESPACE {
 		struct __generate_fn : detail::__pipeable<__generate_fn> {
 			template<class F>
 			constexpr auto operator()(F&& f) const
+#if STL2_WORKAROUND_CLANGC_50
+			noexcept(noexcept(__stl2::ext::generate_view{std::forward<F>(f)}))
+			requires requires(F&& f) {
+				__stl2::ext::generate_view{std::forward<F>(f)};
+			} {
+				return __stl2::ext::generate_view{std::forward<F>(f)};
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_NOEXCEPT_REQUIRES_RETURN(
 				__stl2::ext::generate_view{std::forward<F>(f)}
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 		};
 
 		inline constexpr __generate_fn generate {};

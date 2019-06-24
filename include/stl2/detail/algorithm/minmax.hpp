@@ -13,70 +13,16 @@
 #define STL2_DETAIL_ALGORITHM_MINMAX_HPP
 
 #include <initializer_list>
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/utility.hpp>
+
 #include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/concepts/callable.hpp>
-#include <stl2/detail/concepts/object.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // minmax [alg.min.max]
 //
 STL2_OPEN_NAMESPACE {
 	struct __minmax_fn : private __niebloid {
-	private:
-		template<InputRange R, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
-		requires IndirectlyCopyableStorable<iterator_t<R>, iter_value_t<iterator_t<R>>*>
-		static constexpr minmax_result<iter_value_t<iterator_t<R>>>
-		impl(R&& r, Comp comp = {}, Proj proj = {}) {
-			using V = iter_value_t<iterator_t<R>>;
-			auto first = begin(r);
-			auto last = end(r);
-			STL2_EXPECT(first != last);
-			minmax_result<V> result{*first, *first};
-			if (++first != last) {
-				{
-					auto&& tmp = *first;
-					if (__stl2::invoke(comp, __stl2::invoke(proj, tmp), __stl2::invoke(proj, result.min))) {
-						result.min = static_cast<decltype(tmp)>(tmp);
-					} else {
-						result.max = static_cast<decltype(tmp)>(tmp);
-					}
-				}
-				while (++first != last) {
-					auto tmp1 = V{*first};
-					if (++first == last) {
-						if (__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.min))) {
-							result.min = std::move(tmp1);
-						} else if (!__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.max))) {
-							result.max = std::move(tmp1);
-						}
-						break;
-					}
-
-					auto&& tmp2 = *first;
-					if (__stl2::invoke(comp, __stl2::invoke(proj, tmp2), __stl2::invoke(proj, tmp1))) {
-						if (__stl2::invoke(comp, __stl2::invoke(proj, tmp2), __stl2::invoke(proj, result.min))) {
-							result.min = static_cast<decltype(tmp2)>(tmp2);
-						}
-						if (!__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.max))) {
-							result.max = std::move(tmp1);
-						}
-					} else {
-						if (__stl2::invoke(comp, __stl2::invoke(proj, tmp1), __stl2::invoke(proj, result.min))) {
-							result.min = std::move(tmp1);
-						}
-						if (!__stl2::invoke(comp, __stl2::invoke(proj, tmp2), __stl2::invoke(proj, result.max))) {
-							result.max = static_cast<decltype(tmp2)>(tmp2);
-						}
-					}
-				}
-			}
-			return result;
-		}
-	public:
 		template<class T, class Proj = identity,
 			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
 		constexpr minmax_result<const T&>
@@ -102,6 +48,61 @@ STL2_OPEN_NAMESPACE {
 		constexpr minmax_result<iter_value_t<iterator_t<R>>>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
 			return impl(r, __stl2::ref(comp), __stl2::ref(proj));
+		}
+	private:
+		template<InputRange R, class Proj = identity,
+			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
+		requires IndirectlyCopyableStorable<iterator_t<R>, iter_value_t<iterator_t<R>>*>
+		static constexpr minmax_result<iter_value_t<iterator_t<R>>>
+		impl(R&& r, Comp comp = {}, Proj proj = {}) {
+			using V = iter_value_t<iterator_t<R>>;
+			auto first = begin(r);
+			auto last = end(r);
+			STL2_EXPECT(first != last);
+			minmax_result<V> result{*first, *first};
+			if (++first == last) return result;
+
+			auto pred = [&](auto& lhs, auto& rhs) -> bool {
+				return __stl2::invoke(comp, __stl2::invoke(proj, lhs),
+					__stl2::invoke(proj, rhs));
+			};
+
+			{
+				auto&& tmp = *first;
+				if (pred(tmp, result.min)) {
+					result.min = static_cast<decltype(tmp)>(tmp);
+				} else {
+					result.max = static_cast<decltype(tmp)>(tmp);
+				}
+			}
+
+			while (true) {
+				if (++first == last) return result;
+
+				auto tmp1 = V{*first};
+				if (++first == last) {
+					if (pred(tmp1, result.min)) result.min = std::move(tmp1);
+					else if (!pred(tmp1, result.max)) result.max = std::move(tmp1);
+					return result;
+				}
+
+				auto&& tmp2 = *first;
+				if (pred(tmp2, tmp1)) {
+					if (pred(tmp2, result.min)) {
+						result.min = static_cast<decltype(tmp2)>(tmp2);
+					}
+					if (!pred(tmp1, result.max)) {
+						result.max = std::move(tmp1);
+					}
+				} else {
+					if (pred(tmp1, result.min)) {
+						result.min = std::move(tmp1);
+					}
+					if (!pred(tmp2, result.max)) {
+						result.max = static_cast<decltype(tmp2)>(tmp2);
+					}
+				}
+			}
 		}
 	};
 

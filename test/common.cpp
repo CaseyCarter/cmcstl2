@@ -9,20 +9,25 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
+#include <stl2/type_traits.hpp>
+
+#include <array>
+#include <functional>
+#include <initializer_list>
 #include <tuple>
 #include <utility>
-#include <initializer_list>
-#include <stl2/type_traits.hpp>
+
 #include "simple_test.hpp"
 
 using std::tuple;
 using std::is_same;
+using std::is_same_v;
 using std::false_type;
 using std::true_type;
 using namespace __stl2;
 
-static_assert(is_same<common_type_t<int, short&, int, char>, int>(), "");
-static_assert(!meta::is_trait<common_type<int, short, int, char*>>(), "");
+static_assert(is_same_v<common_type_t<int, short&, int, char>, int>);
+static_assert(!meta::is_trait<common_type<int, short, int, char*>>());
 
 struct X {};
 struct Y { explicit Y(X){} };
@@ -32,9 +37,9 @@ template<> struct common_type<X, Y> { typedef Y type; };
 template<> struct common_type<Y, X> { typedef Y type; };
 } STL2_CLOSE_NAMESPACE
 
-static_assert(is_same<common_type_t<X, Y>, Y>(), "");    // (A)
-static_assert(is_same<common_type_t<X, Y, Y>, Y>(), ""); // (B)
-static_assert(is_same<common_type_t<X, X, Y>, Y>(), ""); // (C)
+static_assert(is_same_v<common_type_t<X, Y>, Y>);    // (A)
+static_assert(is_same_v<common_type_t<X, Y, Y>, Y>); // (B)
+static_assert(is_same_v<common_type_t<X, X, Y>, Y>); // (C)
 
 struct AA {
 	AA() = default;
@@ -43,11 +48,11 @@ struct AA {
 };
 struct BB : AA { };
 
-static_assert(is_same<common_type_t<AA, BB>, AA>(), ""); // (C)
+static_assert(is_same_v<common_type_t<AA, BB>, AA>); // (C)
 
-static_assert(is_same<common_reference_t<int &&, int const &, int volatile &>, int const volatile &>(), "");
-static_assert(is_same<common_reference_t<int &&, int const &, float &>, float>(), "");
-static_assert(!meta::is_trait<common_reference<int, short, int, char*>>(), "");
+static_assert(is_same_v<common_reference_t<int &&, int const &, int volatile &>, int const volatile &>);
+static_assert(is_same_v<common_reference_t<int &&, int const &, float &>, float>);
+static_assert(!meta::is_trait<common_reference<int, short, int, char*>>());
 
 STL2_OPEN_NAMESPACE {
 template<class... T, class... U, template<class> class TQual, template<class> class UQual>
@@ -57,16 +62,16 @@ struct basic_common_reference<tuple<T...>, tuple<U...>, TQual, UQual> {
 };
 } STL2_CLOSE_NAMESPACE
 
-static_assert(is_same<
+static_assert(is_same_v<
 	common_reference_t<const tuple<int, short> &, tuple<int&,short volatile&>>,
-	tuple<const int&,const volatile short&>>(), "");
+	tuple<const int&,const volatile short&>>);
 
-static_assert(is_same<
+static_assert(is_same_v<
 	common_reference_t<volatile tuple<int, short> &, const tuple<int,short>&>,
-	const volatile tuple<int, short>&>(), "");
+	const volatile tuple<int, short>&>);
 
 static_assert(!meta::is_trait<
-	common_reference<volatile tuple<short> &, const tuple<int,short>&>>(), "");
+	common_reference<volatile tuple<short> &, const tuple<int,short>&>>());
 
 struct B {};
 struct D : B {};
@@ -83,55 +88,52 @@ struct noncopyable
 struct noncopyable2 : noncopyable
 {};
 
-static_assert(is_same<common_reference_t<B &, D &>, B &>::value, "");
-static_assert(is_same<common_reference_t<B &, D const &>, B const &>::value, "");
-static_assert(is_same<common_reference_t<B &, D const &, D &>, B const &>::value, "");
-static_assert(is_same<common_reference_t<B const &, D &>, B const &>::value, "");
-static_assert(is_same<common_reference_t<B &, D &, B &, D &>, B &>::value, "");
+static_assert(is_same_v<common_reference_t<B &, D &>, B &>);
+static_assert(is_same_v<common_reference_t<B &, D const &>, B const &>);
+static_assert(is_same_v<common_reference_t<B &, D const &, D &>, B const &>);
+static_assert(is_same_v<common_reference_t<B const &, D &>, B const &>);
+static_assert(is_same_v<common_reference_t<B &, D &, B &, D &>, B &>);
 
-static_assert(is_same<common_reference_t<B &&, D &&>, B &&>::value, "");
-static_assert(is_same<common_reference_t<B const &&, D &&>, B const &&>::value, "");
-static_assert(is_same<common_reference_t<B &&, D const &&>, B const &&>::value, "");
+static_assert(is_same_v<common_reference_t<B &&, D &&>, B &&>);
+static_assert(is_same_v<common_reference_t<B const &&, D &&>, B const &&>);
+static_assert(is_same_v<common_reference_t<B &&, D const &&>, B const &&>);
 
-static_assert(is_same<common_reference_t<B &, D &&>, B const &>::value, "");
-static_assert(is_same<common_reference_t<B &, D const &&>, B const &>::value, "");
-static_assert(is_same<common_reference_t<B const &, D &&>, B const &>::value, "");
+static_assert(is_same_v<common_reference_t<B &, D &&>, B const &>);
+static_assert(is_same_v<common_reference_t<B &, D const &&>, B const &>);
+static_assert(is_same_v<common_reference_t<B const &, D &&>, B const &>);
 
-static_assert(is_same<common_reference_t<B &&, D &>, B const &>::value, "");
-static_assert(is_same<common_reference_t<B &&, D const &>, B const &>::value, "");
-static_assert(is_same<common_reference_t<B const &&, D &>, B const &>::value, "");
+static_assert(is_same_v<common_reference_t<B &&, D &>, B const &>);
+static_assert(is_same_v<common_reference_t<B &&, D const &>, B const &>);
+static_assert(is_same_v<common_reference_t<B const &&, D &>, B const &>);
 
-static_assert(is_same<common_reference_t<int, short>, int>::value, "");
-static_assert(is_same<common_reference_t<int, short &>, int>::value, "");
-static_assert(is_same<common_reference_t<int &, short &>, int>::value, "");
-static_assert(is_same<common_reference_t<int &, short>, int>::value, "");
+static_assert(is_same_v<common_reference_t<int, short>, int>);
+static_assert(is_same_v<common_reference_t<int, short &>, int>);
+static_assert(is_same_v<common_reference_t<int &, short &>, int>);
+static_assert(is_same_v<common_reference_t<int &, short>, int>);
 
 // tricky volatile reference case
-static_assert(is_same<common_reference_t<int &&, int volatile &>, int>::value, "");
-static_assert(is_same<common_reference_t<int volatile &, int &&>, int>::value, "");
-static_assert(is_same<common_reference_t<int const volatile &&, int volatile &&>, int const volatile &&>::value, "");
-static_assert(is_same<common_reference_t<int &&, int const &, int volatile &>, int const volatile &>(), "");
+static_assert(is_same_v<common_reference_t<int &&, int volatile &>, int>);
+static_assert(is_same_v<common_reference_t<int volatile &, int &&>, int>);
+static_assert(is_same_v<common_reference_t<int const volatile &&, int volatile &&>, int const volatile &&>);
+static_assert(is_same_v<common_reference_t<int &&, int const &, int volatile &>, int const volatile &>);
 
 // Array types?? Yup!
-static_assert(is_same<common_reference_t<int (&)[10], int (&&)[10]>, int const(&)[10]>::value, "");
-static_assert(is_same<common_reference_t<int const (&)[10], int volatile (&)[10]>, int const volatile(&)[10]>::value, "");
-static_assert(is_same<common_reference_t<int (&)[10], int (&)[11]>, int *>::value, "");
+static_assert(is_same_v<common_reference_t<int (&)[10], int (&&)[10]>, int const(&)[10]>);
+static_assert(is_same_v<common_reference_t<int const (&)[10], int volatile (&)[10]>, int const volatile(&)[10]>);
+static_assert(is_same_v<common_reference_t<int (&)[10], int (&)[11]>, int *>);
 
 // Some tests with noncopyable types
-static_assert(is_same<
+static_assert(is_same_v<
 	common_reference_t<noncopyable const &, noncopyable>,
-	noncopyable
->::value, "");
+	noncopyable>);
 
-static_assert(is_same<
+static_assert(is_same_v<
 	common_reference_t<noncopyable2 const &, noncopyable>,
-	noncopyable
->::value, "");
+	noncopyable>);
 
-static_assert(is_same<
+static_assert(is_same_v<
 	common_reference_t<noncopyable const &, noncopyable2>,
-	noncopyable
->::value, "");
+	noncopyable>);
 
 struct X2 {};
 struct Y2 {};
@@ -153,17 +155,23 @@ struct common_type<Y2, X2>
 };
 } STL2_CLOSE_NAMESPACE
 
-static_assert(is_same<
-	common_reference_t<X2 &, Y2 const &>,
-	Z2
->::value, "");
+static_assert(is_same_v<common_type_t<X2 &, Y2 const &>, Z2>);
+static_assert(is_same_v<common_reference_t<X2 &, Y2 const &>, Z2>);
 
 static_assert(CommonReference<void, void>);
-static_assert(is_same<common_reference_t<void, void>, void>());
+static_assert(is_same_v<common_reference_t<void, void>, void>);
 static_assert(Common<void, void>);
-static_assert(is_same<common_type_t<void, void>, void>());
+static_assert(is_same_v<common_type_t<void, void>, void>);
 
-static_assert(is_same<common_type_t<reference_wrapper<int>, int>, int>::value);
+static_assert(is_same_v<common_type_t<reference_wrapper<int>, int>, int>);
+static_assert(is_same_v<common_type_t<std::reference_wrapper<int>, int>, int>);
+
+// https://github.com/ericniebler/stl2/issues/338
+struct MyIntRef {
+  MyIntRef(int &);
+};
+static_assert(is_same_v<common_reference_t<int&, MyIntRef>, MyIntRef>);
+static_assert(is_same_v<common_reference_t<int, int, int>, int>);
 
 // Test cases taken from libc++
 //===----------------------------------------------------------------------===//
@@ -202,7 +210,7 @@ namespace libcpp_tests
 	struct no_common_type : true_type {};
 
 	template<class T, class U>
-	requires requires {typename common_type_t<T, U>;}
+	requires requires { typename common_type_t<T, U>; }
 	struct no_common_type<T, U> : false_type {};
 
     static_assert((is_same<common_type_t<int>, int>::value), "");
@@ -375,7 +383,7 @@ namespace libstdcpp_tests
 	struct Y2 {};
 	struct Y3 {};
 	struct Y4 {};
-#endif
+#endif // IFNDR test cases
 }
 
 #if 0 // These are all ill-formed NDR
@@ -416,7 +424,7 @@ STL2_OPEN_NAMESPACE {
 		typedef libstdcpp_tests::Y3 type;
 	};
 } STL2_CLOSE_NAMESPACE
-#endif
+#endif // IFNDR test cases
 
 namespace libstdcpp_tests
 {
@@ -515,7 +523,7 @@ namespace libstdcpp_tests
 	static_assert(is_type<common_type<volatile Ukn&&, volatile Ukn&&>,
 			Ukn>(), "");
 
-#if 0 // Ditto ill-formed NDR
+#if 0 // IFNDR test cases
 	static_assert(is_type<common_type<X1, X2>, RX12>(), "");
 	static_assert(is_type<common_type<X2, X1>, RX21>(), "");
 
@@ -524,18 +532,18 @@ namespace libstdcpp_tests
 
 	static_assert(is_type<common_type<X1, X1, X2>, RX12>(), "");
 	static_assert(is_type<common_type<X1, X1, X2, X1>, Y1>(), "");
-#endif
+#endif // IFNDR test cases
 
 	static_assert(!meta::is_trait<common_type<>>(), "");
 	static_assert(!meta::is_trait<common_type<int, S>>(), "");
 	static_assert(!meta::is_trait<common_type<U, S>>(), "");
 	static_assert(!meta::is_trait<common_type<U, U2>>(), "");
-	// See https://cplusplus.github.io/LWG/lwg-active.html#2763 and P0435
-	//static_assert(!meta::is_trait<common_type<const ImplicitTo<int>, int>>{}, "");
-	// Unsure about these two:
-	//static_assert(!meta::is_trait<common_type<PrivateImplicitTo<int>, int>>{}, "");
-	//static_assert(!meta::is_trait<common_type<const PrivateImplicitTo<int>,
-	//		int>>(), "");
+	// See https://wg21.link/lwg2763 and P0435
+	static_assert(is_same_v<common_type_t<const ImplicitTo<int>, int>, int>);
+#if !defined(__GNUC__) || defined(__clang__) // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67225
+	static_assert(!meta::is_trait<common_type<PrivateImplicitTo<int>, int>>{}, "");
+	static_assert(!meta::is_trait<common_type<const PrivateImplicitTo<int>, int>>(), "");
+#endif
 	static_assert(!meta::is_trait<common_type<int, Ukn>>(), "");
 	static_assert(!meta::is_trait<common_type<int, Abstract>>(), "");
 	static_assert(!meta::is_trait<common_type<Ukn, Abstract>>(), "");
@@ -773,16 +781,6 @@ namespace libstdcpp_tests
 				void>(),
 				"common_type<const volatile void, const volatile void>" );
 }
-
-// https://github.com/ericniebler/stl2/issues/338
-struct MyIntRef {
-  MyIntRef(int &);
-};
-using T = common_reference_t<int&, MyIntRef>;
-static_assert( is_same<common_reference<int&, MyIntRef>::type, MyIntRef>(),
-	"common_reference<int&, MyIntRef>");
-static_assert( is_same<common_reference<int, int, int>::type, int>(),
-    "common_reference<int, int, int>");
 
 int main() {
 	::libstdcpp_tests::typedefs_1();

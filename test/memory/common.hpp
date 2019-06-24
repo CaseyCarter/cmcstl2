@@ -13,6 +13,7 @@
 #ifndef COMMON_HPP
 #define COMMON_HPP
 
+#include <array>
 #include <cstdint>
 #include <string>
 #include <stl2/memory.hpp>

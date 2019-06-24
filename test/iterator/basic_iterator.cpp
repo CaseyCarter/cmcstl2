@@ -35,7 +35,7 @@ class forward_list {
 
 		cursor() = default;
 		template<bool B>
-		requires IsConst && !B
+		requires (IsConst && !B)
 		cursor(cursor<B> that) noexcept
 		: ptr_{that.ptr_} {}
 
@@ -119,7 +119,7 @@ public:
 	template<class U>
 	requires ranges::ConvertibleTo<U*, T*>
 	constexpr pointer_cursor(const pointer_cursor<U>& that) noexcept
-	: ptr_{that.ptr_} {}
+	: ptr_{that.arrow()} {}
 
 	constexpr T& read() const noexcept {
 		STL2_EXPECT(ptr_);
@@ -265,7 +265,7 @@ struct proxy_array {
 
 		cursor(O* p = nullptr) : ptr_{p} {}
 		template<bool B>
-		requires IsConst && !B
+		requires (IsConst && !B)
 		cursor(const cursor<B>& that) : ptr_{that.ptr_} {}
 
 		template<bool B>
@@ -314,9 +314,9 @@ struct proxy_array {
 
 template<ranges::InputRange R>
 requires
-	ranges::StreamInsertable<ranges::iter_value_t<ranges::iterator_t<R>>> &&
-	!ranges::Same<char, std::remove_cv_t<
-		std::remove_all_extents_t<std::remove_reference_t<R>>>>
+	(ranges::StreamInsertable<ranges::iter_value_t<ranges::iterator_t<R>>> &&
+	 !ranges::Same<char, std::remove_cv_t<
+		std::remove_all_extents_t<std::remove_reference_t<R>>>>)
 std::ostream& operator<<(std::ostream& os, R&& rng) {
 	os << '{';
 	auto i = rng.begin();

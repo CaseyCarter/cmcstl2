@@ -12,6 +12,8 @@
 #ifndef STL2_VIEW_TRANSFORM_HPP
 #define STL2_VIEW_TRANSFORM_HPP
 
+#include <functional>
+
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/semiregular_box.hpp>
@@ -24,75 +26,73 @@
 #include <stl2/view/all.hpp>
 #include <stl2/view/view_interface.hpp>
 
-#include <functional>
-
 STL2_OPEN_NAMESPACE {
-	template<InputRange R, CopyConstructible F>
-	requires View<R> && Invocable<F&, iter_reference_t<iterator_t<R>>>
-	class transform_view : public view_interface<transform_view<R, F>> {
+	template<InputRange V, CopyConstructible F>
+	requires View<V> && std::is_object_v<F> &&
+		RegularInvocable<F&, iter_reference_t<iterator_t<V>>>
+	class transform_view : public view_interface<transform_view<V, F>> {
 	private:
-		R base_;
+		template<bool> class __iterator;
+		template<bool> class __sentinel;
+
+		V base_ = V();
 		detail::semiregular_box<F> fun_;
-		template<bool Const> struct __iterator;
-		template<bool Const> struct __sentinel;
+
 	public:
 		transform_view() = default;
 
-		constexpr transform_view(R base, F fun)
+		constexpr transform_view(V base, F fun)
 		: base_(std::move(base)), fun_(std::move(fun)) {}
 
-		using iterator = __iterator<false>;
-		using sentinel = __sentinel<false>;
-		using const_iterator = __iterator<true>;
-		using const_sentinel = __sentinel<true>;
+		constexpr V base() const { return base_; }
 
-		constexpr R base() const
-		{ return base_; }
-
-		constexpr iterator begin()
+		constexpr __iterator<false> begin()
 		{ return {*this, __stl2::begin(base_)}; }
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template<class ConstR = const R>
-		constexpr const_iterator begin() const requires Range<ConstR> &&
-			Invocable<const F&, iter_reference_t<iterator_t<ConstR>>>
+		template<class ConstV = const V>
+		constexpr __iterator<true> begin() const requires Range<ConstV> &&
+			RegularInvocable<const F&, iter_reference_t<iterator_t<ConstV>>>
 		{ return {*this, __stl2::begin(base_)}; }
 
-		constexpr sentinel end()
-		{ return sentinel{__stl2::end(base_)}; }
+		constexpr auto end() {
+			if constexpr (CommonRange<V>) {
+				return __iterator<false>{*this, __stl2::end(base_)};
+			} else {
+				return __sentinel<false>{__stl2::end(base_)};
+			}
+		}
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template<class ConstR = const R>
-		constexpr const_sentinel end() const requires Range<ConstR> &&
-			Invocable<const F&, iter_reference_t<iterator_t<ConstR>>>
-		{ return const_sentinel{__stl2::end(base_)}; }
+		template<class ConstV = const V>
+		constexpr auto end() const requires Range<ConstV> &&
+			RegularInvocable<const F&, iter_reference_t<iterator_t<ConstV>>>
+		{
+			if constexpr (CommonRange<const V>) {
+				return __iterator<true>{*this, __stl2::end(base_)};
+			} else {
+				return __sentinel<true>{__stl2::end(base_)};
+			}
+		}
 
-		constexpr iterator end() requires CommonRange<R>
-		{ return {*this, __stl2::end(base_)}; }
-
-		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		template<class ConstR = const R>
-		constexpr const_iterator end() const requires CommonRange<ConstR> &&
-			Invocable<const F&, iter_reference_t<iterator_t<ConstR>>>
-		{ return {*this, __stl2::end(base_)}; }
-
-		constexpr auto size() requires SizedRange<R>
+		constexpr auto size() requires SizedRange<V>
 		{ return __stl2::size(base_); }
 
-		constexpr auto size() const requires SizedRange<const R>
+		constexpr auto size() const requires SizedRange<const V>
 		{ return __stl2::size(base_); }
 	};
 
 	template<class R, class F>
 	transform_view(R&& r, F fun) -> transform_view<all_view<R>, F>;
 
-	template<InputRange R, CopyConstructible F>
-	requires View<R> && Invocable<F&, iter_reference_t<iterator_t<R>>>
+	template<InputRange V, CopyConstructible F>
+	requires View<V> && std::is_object_v<F> &&
+		RegularInvocable<F&, iter_reference_t<iterator_t<V>>>
 	template<bool Const>
-	class transform_view<R, F>::__iterator {
+	class transform_view<V, F>::__iterator {
 	private:
 		using Parent = __maybe_const<Const, transform_view>;
-		using Base = __maybe_const<Const, R>;
+		using Base = __maybe_const<Const, V>;
 		iterator_t<Base> current_ {};
 		Parent* parent_ = nullptr;
 		friend __iterator<!Const>;
@@ -109,8 +109,8 @@ STL2_OPEN_NAMESPACE {
 		: current_(current), parent_(&parent) {}
 
 		constexpr __iterator(__iterator<!Const> i)
-		requires Const && ConvertibleTo<iterator_t<R>, iterator_t<Base>>
-		: current_(i.current_), parent_(i.parent_) {}
+		requires Const && ConvertibleTo<iterator_t<V>, iterator_t<Base>>
+		: current_(std::move(i.current_)), parent_(i.parent_) {}
 
 		constexpr iterator_t<Base> base() const
 		{ return current_; }
@@ -213,47 +213,56 @@ STL2_OPEN_NAMESPACE {
 		{ __stl2::iter_swap(x.current_, y.current_); }
 	};
 
-	template<InputRange R, CopyConstructible F>
-	requires View<R> && Invocable<F&, iter_reference_t<iterator_t<R>>>
+	template<InputRange V, CopyConstructible F>
+	requires View<V> && std::is_object_v<F> &&
+		RegularInvocable<F&, iter_reference_t<iterator_t<V>>>
 	template<bool Const>
-	class transform_view<R, F>::__sentinel {
+	class transform_view<V, F>::__sentinel {
 	private:
-		using Parent = meta::if_c<Const, const transform_view, transform_view>;
-		using Base = meta::if_c<Const, const R, R>;
+		using Parent = __maybe_const<Const, transform_view>;
+		using Base = __maybe_const<Const, V>;
 		sentinel_t<Base> end_ {};
 		friend __sentinel<!Const>;
+
+		constexpr bool equal(const __iterator<Const>& i) const {
+			return i.current_ == end_;
+		}
+		constexpr iter_difference_t<iterator_t<Base>>
+		distance(const __iterator<Const>& i) const {
+			return i.current_ - end_;
+		}
 	public:
 		__sentinel() = default;
 		explicit constexpr __sentinel(sentinel_t<Base> end)
 		: end_(end) {}
 		constexpr __sentinel(__sentinel<!Const> i)
-		requires Const && ConvertibleTo<sentinel_t<R>, sentinel_t<const R>>
-		: end_(i.end_) {}
+		requires Const && ConvertibleTo<sentinel_t<V>, sentinel_t<Base>>
+		: end_(std::move(i.end_)) {}
 
 		constexpr sentinel_t<Base> base() const
 		{ return end_; }
 
 		friend constexpr bool operator==(const __iterator<Const>& x, const __sentinel& y)
-		{ return x.current_ == y.end_; }
+		{ return y.equal(x); }
 
 		friend constexpr bool operator==(const __sentinel& x, const __iterator<Const>& y)
-		{ return y == x; }
+		{ return x.equal(y); }
 
 		friend constexpr bool operator!=(const __iterator<Const>& x, const __sentinel& y)
-		{ return !(x == y); }
+		{ return !y.equal(x); }
 
 		friend constexpr bool operator!=(const __sentinel& x, const __iterator<Const>& y)
-		{ return !(y == x); }
+		{ return !x.equal(y); }
 
 		friend constexpr iter_difference_t<iterator_t<Base>>
 		operator-(const __iterator<Const>& x, const __sentinel& y)
 		requires SizedSentinel<sentinel_t<Base>, iterator_t<Base>>
-		{ return x.current_ - y.end_; }
+		{ return -y.distance(x); }
 
 		friend constexpr iter_difference_t<iterator_t<Base>>
 		operator-(const __sentinel& y, const __iterator<Const>& x)
 		requires SizedSentinel<sentinel_t<Base>, iterator_t<Base>>
-		{ return x.end_ - y.current_; }
+		{ return y.distance(x); }
 	};
 
 	namespace view {

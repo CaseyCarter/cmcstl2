@@ -12,10 +12,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_MOVE_HPP
 #define STL2_DETAIL_ALGORITHM_MOVE_HPP
 
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/copy.hpp>
 #include <stl2/detail/algorithm/results.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // move [alg.move]
@@ -58,20 +57,26 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template<InputRange R, class O>
-			requires !Range<O> && WeaklyIncrementable<__f<O>>
-				&& IndirectlyMovable<iterator_t<R>, __f<O>>
+			requires (!Range<O> && WeaklyIncrementable<__f<O>>
+				&& IndirectlyMovable<iterator_t<R>, __f<O>>)
 			constexpr move_result<safe_iterator_t<R>, __f<O>>
-			operator()(R&& r, O&& result) const {
-				return (*this)(begin(r), end(r), std::forward<O>(result));
+			operator()(R&& r, O&& result_) const {
+				auto result = std::forward<O>(result_);
+				return (*this)(begin(r), end(r), std::move(result));
 			}
 
 			// Extension
-			template<InputIterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
+			template<InputIterator I1, Sentinel<I1> S1,
+				Iterator I2, Sentinel<I2> S2>
 			requires IndirectlyMovable<I1, I2>
 			constexpr move_result<I1, I2>
 			operator()(I1 first1, S1 last1, I2 first2, S2 last2) const {
-				for (; first1 != last1 && first2 != last2; (void) ++first1, (void) ++first2) {
+				while (true) {
+					if (first1 == last1) break;
+					if (first2 == last2) break;
 					*first2 = iter_move(first1);
+					++first1;
+					++first2;
 				}
 				return {std::move(first1), std::move(first2)};
 			}

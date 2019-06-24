@@ -26,11 +26,9 @@
 namespace ranges = __stl2;
 
 template<class Iter1, class Iter2, class Sent1 = Iter1, class Sent2 = Iter2>
-void
-test_iter1()
-{
+void test_iter1() {
 	int ia[] = {1, 2, 3, 4};
-	constexpr unsigned sa = ranges::size(ia);
+	constexpr auto sa = ranges::distance(ia);
 	int ib[] = {1, 2, 3};
 	CHECK(!ranges::lexicographical_compare(Iter1(ia), Sent1(ia+sa), Iter2(ib), Sent2(ib+2)));
 	CHECK(ranges::lexicographical_compare(Iter1(ib), Sent1(ib+2), Iter2(ia), Sent2(ia+sa)));
@@ -40,54 +38,53 @@ test_iter1()
 	CHECK(!ranges::lexicographical_compare(Iter1(ib+1), Sent1(ib+3), Iter2(ia), Sent2(ia+sa)));
 }
 
-void test_iter()
-{
-	typedef sentinel<const int*> S;
+void test_iter() {
+	using S = sentinel<const int*>;
 
-	test_iter1<input_iterator<const int*>, input_iterator<const int*> >();
-	test_iter1<input_iterator<const int*>, forward_iterator<const int*> >();
-	test_iter1<input_iterator<const int*>, bidirectional_iterator<const int*> >();
-	test_iter1<input_iterator<const int*>, random_access_iterator<const int*> >();
+	test_iter1<input_iterator<const int*>, input_iterator<const int*>>();
+	test_iter1<input_iterator<const int*>, forward_iterator<const int*>>();
+	test_iter1<input_iterator<const int*>, bidirectional_iterator<const int*>>();
+	test_iter1<input_iterator<const int*>, random_access_iterator<const int*>>();
 	test_iter1<input_iterator<const int*>, input_iterator<const int*>, S, S>();
 	test_iter1<input_iterator<const int*>, forward_iterator<const int*>, S, S>();
 	test_iter1<input_iterator<const int*>, bidirectional_iterator<const int*>, S, S>();
 	test_iter1<input_iterator<const int*>, random_access_iterator<const int*>, S, S>();
 	test_iter1<input_iterator<const int*>, const int*>();
 
-	test_iter1<forward_iterator<const int*>, input_iterator<const int*> >();
-	test_iter1<forward_iterator<const int*>, forward_iterator<const int*> >();
-	test_iter1<forward_iterator<const int*>, bidirectional_iterator<const int*> >();
-	test_iter1<forward_iterator<const int*>, random_access_iterator<const int*> >();
+	test_iter1<forward_iterator<const int*>, input_iterator<const int*>>();
+	test_iter1<forward_iterator<const int*>, forward_iterator<const int*>>();
+	test_iter1<forward_iterator<const int*>, bidirectional_iterator<const int*>>();
+	test_iter1<forward_iterator<const int*>, random_access_iterator<const int*>>();
 	test_iter1<forward_iterator<const int*>, input_iterator<const int*>, S, S>();
 	test_iter1<forward_iterator<const int*>, forward_iterator<const int*>, S, S>();
 	test_iter1<forward_iterator<const int*>, bidirectional_iterator<const int*>, S, S>();
 	test_iter1<forward_iterator<const int*>, random_access_iterator<const int*>, S, S>();
 	test_iter1<forward_iterator<const int*>, const int*>();
 
-	test_iter1<bidirectional_iterator<const int*>, input_iterator<const int*> >();
-	test_iter1<bidirectional_iterator<const int*>, forward_iterator<const int*> >();
-	test_iter1<bidirectional_iterator<const int*>, bidirectional_iterator<const int*> >();
-	test_iter1<bidirectional_iterator<const int*>, random_access_iterator<const int*> >();
+	test_iter1<bidirectional_iterator<const int*>, input_iterator<const int*>>();
+	test_iter1<bidirectional_iterator<const int*>, forward_iterator<const int*>>();
+	test_iter1<bidirectional_iterator<const int*>, bidirectional_iterator<const int*>>();
+	test_iter1<bidirectional_iterator<const int*>, random_access_iterator<const int*>>();
 	test_iter1<bidirectional_iterator<const int*>, input_iterator<const int*>, S, S>();
 	test_iter1<bidirectional_iterator<const int*>, forward_iterator<const int*>, S, S>();
 	test_iter1<bidirectional_iterator<const int*>, bidirectional_iterator<const int*>, S, S>();
 	test_iter1<bidirectional_iterator<const int*>, random_access_iterator<const int*>, S, S>();
 	test_iter1<bidirectional_iterator<const int*>, const int*>();
 
-	test_iter1<random_access_iterator<const int*>, input_iterator<const int*> >();
-	test_iter1<random_access_iterator<const int*>, forward_iterator<const int*> >();
-	test_iter1<random_access_iterator<const int*>, bidirectional_iterator<const int*> >();
-	test_iter1<random_access_iterator<const int*>, random_access_iterator<const int*> >();
+	test_iter1<random_access_iterator<const int*>, input_iterator<const int*>>();
+	test_iter1<random_access_iterator<const int*>, forward_iterator<const int*>>();
+	test_iter1<random_access_iterator<const int*>, bidirectional_iterator<const int*>>();
+	test_iter1<random_access_iterator<const int*>, random_access_iterator<const int*>>();
 	test_iter1<random_access_iterator<const int*>, input_iterator<const int*>, S, S>();
 	test_iter1<random_access_iterator<const int*>, forward_iterator<const int*>, S, S>();
 	test_iter1<random_access_iterator<const int*>, bidirectional_iterator<const int*>, S, S>();
 	test_iter1<random_access_iterator<const int*>, random_access_iterator<const int*>, S, S>();
 	test_iter1<random_access_iterator<const int*>, const int*>();
 
-	test_iter1<const int*, input_iterator<const int*> >();
-	test_iter1<const int*, forward_iterator<const int*> >();
-	test_iter1<const int*, bidirectional_iterator<const int*> >();
-	test_iter1<const int*, random_access_iterator<const int*> >();
+	test_iter1<const int*, input_iterator<const int*>>();
+	test_iter1<const int*, forward_iterator<const int*>>();
+	test_iter1<const int*, bidirectional_iterator<const int*>>();
+	test_iter1<const int*, random_access_iterator<const int*>>();
 	test_iter1<const int*, input_iterator<const int*>, const int*, S>();
 	test_iter1<const int*, forward_iterator<const int*>, const int*, S>();
 	test_iter1<const int*, bidirectional_iterator<const int*>, const int*, S>();
@@ -96,14 +93,11 @@ void test_iter()
 }
 
 template<class Iter1, class Iter2, class Sent1 = Iter1, class Sent2 = Iter2>
-void
-test_iter_comp1()
-{
+void test_iter_comp1() {
 	int ia[] = {1, 2, 3, 4};
-	const unsigned sa = sizeof(ia)/sizeof(ia[0]);
+	constexpr auto sa = ranges::distance(ia);
 	int ib[] = {1, 2, 3};
-	typedef std::greater<int> C;
-	C c;
+	std::greater<int> c;
 	CHECK(!ranges::lexicographical_compare(Iter1(ia), Sent1(ia+sa), Iter2(ib), Sent2(ib+2), c));
 	CHECK(ranges::lexicographical_compare(Iter1(ib), Sent1(ib+2), Iter2(ia), Sent2(ia+sa), c));
 	CHECK(!ranges::lexicographical_compare(Iter1(ia), Sent1(ia+sa), Iter2(ib), Sent2(ib+3), c));
@@ -112,54 +106,53 @@ test_iter_comp1()
 	CHECK(ranges::lexicographical_compare(Iter1(ib+1), Sent1(ib+3), Iter2(ia), Sent2(ia+sa), c));
 }
 
-void test_iter_comp()
-{
-	typedef sentinel<const int*> S;
+void test_iter_comp() {
+	using S = sentinel<const int*>;
 
-	test_iter_comp1<input_iterator<const int*>, input_iterator<const int*> >();
-	test_iter_comp1<input_iterator<const int*>, forward_iterator<const int*> >();
-	test_iter_comp1<input_iterator<const int*>, bidirectional_iterator<const int*> >();
-	test_iter_comp1<input_iterator<const int*>, random_access_iterator<const int*> >();
+	test_iter_comp1<input_iterator<const int*>, input_iterator<const int*>>();
+	test_iter_comp1<input_iterator<const int*>, forward_iterator<const int*>>();
+	test_iter_comp1<input_iterator<const int*>, bidirectional_iterator<const int*>>();
+	test_iter_comp1<input_iterator<const int*>, random_access_iterator<const int*>>();
 	test_iter_comp1<input_iterator<const int*>, input_iterator<const int*>, S, S>();
 	test_iter_comp1<input_iterator<const int*>, forward_iterator<const int*>, S, S>();
 	test_iter_comp1<input_iterator<const int*>, bidirectional_iterator<const int*>, S, S>();
 	test_iter_comp1<input_iterator<const int*>, random_access_iterator<const int*>, S, S>();
 	test_iter_comp1<input_iterator<const int*>, const int*>();
 
-	test_iter_comp1<forward_iterator<const int*>, input_iterator<const int*> >();
-	test_iter_comp1<forward_iterator<const int*>, forward_iterator<const int*> >();
-	test_iter_comp1<forward_iterator<const int*>, bidirectional_iterator<const int*> >();
-	test_iter_comp1<forward_iterator<const int*>, random_access_iterator<const int*> >();
+	test_iter_comp1<forward_iterator<const int*>, input_iterator<const int*>>();
+	test_iter_comp1<forward_iterator<const int*>, forward_iterator<const int*>>();
+	test_iter_comp1<forward_iterator<const int*>, bidirectional_iterator<const int*>>();
+	test_iter_comp1<forward_iterator<const int*>, random_access_iterator<const int*>>();
 	test_iter_comp1<forward_iterator<const int*>, input_iterator<const int*>, S, S>();
 	test_iter_comp1<forward_iterator<const int*>, forward_iterator<const int*>, S, S>();
 	test_iter_comp1<forward_iterator<const int*>, bidirectional_iterator<const int*>, S, S>();
 	test_iter_comp1<forward_iterator<const int*>, random_access_iterator<const int*>, S, S>();
 	test_iter_comp1<forward_iterator<const int*>, const int*>();
 
-	test_iter_comp1<bidirectional_iterator<const int*>, input_iterator<const int*> >();
-	test_iter_comp1<bidirectional_iterator<const int*>, forward_iterator<const int*> >();
-	test_iter_comp1<bidirectional_iterator<const int*>, bidirectional_iterator<const int*> >();
-	test_iter_comp1<bidirectional_iterator<const int*>, random_access_iterator<const int*> >();
+	test_iter_comp1<bidirectional_iterator<const int*>, input_iterator<const int*>>();
+	test_iter_comp1<bidirectional_iterator<const int*>, forward_iterator<const int*>>();
+	test_iter_comp1<bidirectional_iterator<const int*>, bidirectional_iterator<const int*>>();
+	test_iter_comp1<bidirectional_iterator<const int*>, random_access_iterator<const int*>>();
 	test_iter_comp1<bidirectional_iterator<const int*>, input_iterator<const int*>, S, S>();
 	test_iter_comp1<bidirectional_iterator<const int*>, forward_iterator<const int*>, S, S>();
 	test_iter_comp1<bidirectional_iterator<const int*>, bidirectional_iterator<const int*>, S, S>();
 	test_iter_comp1<bidirectional_iterator<const int*>, random_access_iterator<const int*>, S, S>();
 	test_iter_comp1<bidirectional_iterator<const int*>, const int*>();
 
-	test_iter_comp1<random_access_iterator<const int*>, input_iterator<const int*> >();
-	test_iter_comp1<random_access_iterator<const int*>, forward_iterator<const int*> >();
-	test_iter_comp1<random_access_iterator<const int*>, bidirectional_iterator<const int*> >();
-	test_iter_comp1<random_access_iterator<const int*>, random_access_iterator<const int*> >();
+	test_iter_comp1<random_access_iterator<const int*>, input_iterator<const int*>>();
+	test_iter_comp1<random_access_iterator<const int*>, forward_iterator<const int*>>();
+	test_iter_comp1<random_access_iterator<const int*>, bidirectional_iterator<const int*>>();
+	test_iter_comp1<random_access_iterator<const int*>, random_access_iterator<const int*>>();
 	test_iter_comp1<random_access_iterator<const int*>, input_iterator<const int*>, S, S>();
 	test_iter_comp1<random_access_iterator<const int*>, forward_iterator<const int*>, S, S>();
 	test_iter_comp1<random_access_iterator<const int*>, bidirectional_iterator<const int*>, S, S>();
 	test_iter_comp1<random_access_iterator<const int*>, random_access_iterator<const int*>, S, S>();
 	test_iter_comp1<random_access_iterator<const int*>, const int*>();
 
-	test_iter_comp1<const int*, input_iterator<const int*> >();
-	test_iter_comp1<const int*, forward_iterator<const int*> >();
-	test_iter_comp1<const int*, bidirectional_iterator<const int*> >();
-	test_iter_comp1<const int*, random_access_iterator<const int*> >();
+	test_iter_comp1<const int*, input_iterator<const int*>>();
+	test_iter_comp1<const int*, forward_iterator<const int*>>();
+	test_iter_comp1<const int*, bidirectional_iterator<const int*>>();
+	test_iter_comp1<const int*, random_access_iterator<const int*>>();
 	test_iter_comp1<const int*, input_iterator<const int*>, const int*, S>();
 	test_iter_comp1<const int*, forward_iterator<const int*>, const int*, S>();
 	test_iter_comp1<const int*, bidirectional_iterator<const int*>, const int*, S>();
@@ -167,9 +160,7 @@ void test_iter_comp()
 	test_iter_comp1<const int*, const int*>();
 }
 
-
-int main()
-{
+int main() {
 	test_iter();
 	test_iter_comp();
 

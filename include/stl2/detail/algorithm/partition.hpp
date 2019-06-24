@@ -22,20 +22,17 @@
 #ifndef STL2_DETAIL_ALGORITHM_PARTITION_HPP
 #define STL2_DETAIL_ALGORITHM_PARTITION_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/find_if_not.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // partition [alg.partitions]
 //
 STL2_OPEN_NAMESPACE {
 	struct __partition_fn : private __niebloid {
-		template<Permutable I, Sentinel<I> S, class Pred, class Proj = identity>
-		requires IndirectUnaryPredicate<Pred, projected<I, Proj>>
+		template<Permutable I, Sentinel<I> S, class Proj = identity,
+			IndirectUnaryPredicate<projected<I, Proj>> Pred>
 		constexpr I operator()(I first, S last_, Pred pred, Proj proj = {}) const {
 			if constexpr (BidirectionalIterator<I>) {
 				auto last = next(first, std::move(last_));
@@ -54,8 +51,8 @@ STL2_OPEN_NAMESPACE {
 					}
 				}
 			} else {
-				first = __stl2::find_if_not(std::move(first), last_,
-					__stl2::ref(pred), __stl2::ref(proj));
+				first = find_if_not(std::move(first), last_, __stl2::ref(pred),
+					__stl2::ref(proj));
 				if (first != last_) {
 					for (auto m = first; ++m != last_;) {
 						if (__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
@@ -68,13 +65,13 @@ STL2_OPEN_NAMESPACE {
 			return first;
 		}
 
-		template<ForwardRange Rng, class Pred, class Proj = identity>
-		requires Permutable<iterator_t<Rng>> &&
-			IndirectUnaryPredicate<Pred, projected<iterator_t<Rng>, Proj>>
-		constexpr safe_iterator_t<Rng>
-		operator()(Rng&& rng, Pred pred, Proj proj = {}) const {
-			return (*this)(begin(rng), end(rng),
-				__stl2::ref(pred), __stl2::ref(proj));
+		template<ForwardRange R, class Proj = identity,
+			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
+		requires Permutable<iterator_t<R>>
+		constexpr safe_iterator_t<R>
+		operator()(R&& r, Pred pred, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), __stl2::ref(pred),
+				__stl2::ref(proj));
 		}
 	};
 

@@ -24,11 +24,10 @@
 STL2_OPEN_NAMESPACE {
 	template<View V>
 	requires BidirectionalRange<V>
-	class reverse_view
+	class STL2_EMPTY_BASES reverse_view
 	: public view_interface<reverse_view<V>>
 	, private detail::cached_position<V, reverse_view<V>, !CommonRange<V>> {
-		using __iterator = reverse_iterator<iterator_t<V>>;
-
+	private:
 		V base_ = V();
 
 		constexpr auto& end_() noexcept {
@@ -42,9 +41,9 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr V base() const { return base_; }
 
-		constexpr __iterator begin() {
+		constexpr reverse_iterator<iterator_t<V>> begin() {
 			if constexpr (CommonRange<V>) {
-				return __iterator{__stl2::end(base_)};
+				return reverse_iterator<iterator_t<V>>{__stl2::end(base_)};
 			} else {
 				const auto cached = static_cast<bool>(end_());
 				iterator_t<V> first = cached
@@ -52,19 +51,19 @@ STL2_OPEN_NAMESPACE {
 					: next(__stl2::begin(base_), __stl2::end(base_));
 				if (!cached)
 					end_().set(base_, first);
-				return __iterator{std::move(first)};
+				return reverse_iterator<iterator_t<V>>{std::move(first)};
 			}
 		}
 
-		constexpr __iterator begin() const requires CommonRange<const V> {
-			return __iterator{__stl2::end(base_)};
+		constexpr auto begin() const requires CommonRange<const V> {
+			return reverse_iterator<iterator_t<const V>>{__stl2::end(base_)};
 		}
 
-		constexpr __iterator end() {
-			return __iterator{__stl2::begin(base_)};
+		constexpr reverse_iterator<iterator_t<V>> end() {
+			return reverse_iterator<iterator_t<V>>{__stl2::begin(base_)};
 		}
-		constexpr __iterator end() const requires CommonRange<const V> {
-			return __iterator{__stl2::begin(base_)};
+		constexpr auto end() const requires CommonRange<const V> {
+			return reverse_iterator<iterator_t<const V>>{__stl2::begin(base_)};
 		}
 
 		constexpr auto size() requires SizedRange<V> {

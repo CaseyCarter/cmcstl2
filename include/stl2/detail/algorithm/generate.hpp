@@ -12,9 +12,8 @@
 #ifndef STL2_DETAIL_ALGORITHM_GENERATE_HPP
 #define STL2_DETAIL_ALGORITHM_GENERATE_HPP
 
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/function.hpp>
+#include <stl2/detail/range/dangling.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // generate [alg.generate]

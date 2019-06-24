@@ -22,22 +22,29 @@
 STL2_OPEN_NAMESPACE {
 	namespace view {
 		struct __all_fn : detail::__pipeable<__all_fn> {
-			template<Range R>
-			requires View<__f<R>>
-			constexpr auto operator()(R&& r) const
-			noexcept(std::is_nothrow_constructible_v<__f<R>, R>) {
-				return static_cast<R&&>(r);
-			}
+		private:
+			enum : unsigned { __throws = 1, __decay = 2, __ref = 4, __subrange = 6 };
 
-			template<_ForwardingRange R>
-			requires (!View<__uncvref<R>>)
-			constexpr auto operator()(R&& r) const
-			noexcept(std::is_reference_v<R>)
-			{
-				if constexpr (std::is_reference_v<R>) {
-					return ref_view{r};
+			template<ViewableRange _Range>
+			static constexpr unsigned __choose() noexcept {
+				if constexpr (View<__uncvref<_Range>>) {
+					return __decay | std::is_nothrow_constructible_v<__uncvref<_Range>, _Range>;
+				} else if constexpr (std::is_lvalue_reference_v<_Range>) {
+					return __ref | noexcept(ref_view{std::declval<_Range>()});
 				} else {
-					return subrange{static_cast<R&&>(r)};
+					return __subrange | noexcept(subrange{std::declval<_Range>()});
+				}
+			}
+		public:
+			template<ViewableRange _Range, unsigned _Choice = __choose<_Range>()>
+			constexpr auto operator()(_Range&& __r) const noexcept(_Choice & __throws) {
+				constexpr auto __strategy = _Choice & ~__throws;
+				if constexpr (__strategy == __decay) {
+					return static_cast<_Range&&>(__r);
+				} else if constexpr (__strategy == __ref) {
+					return ref_view{__r};
+				} else {
+					return subrange{static_cast<_Range&&>(__r)};
 				}
 			}
 		};

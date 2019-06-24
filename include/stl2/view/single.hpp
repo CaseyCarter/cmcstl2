@@ -13,8 +13,9 @@
 #define STL2_VIEW_SINGLE_HPP
 
 #include <memory>
-#include <type_traits>
 #include <utility>
+
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>
 #include <stl2/detail/semiregular_box.hpp>
@@ -51,9 +52,15 @@ STL2_OPEN_NAMESPACE {
 		struct __single_fn {
 			template<class T>
 			constexpr auto operator()(T&& t) const
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(T&& t) { single_view{std::forward<T>(t)}; } {
+				return single_view{std::forward<T>(t)};
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				single_view{std::forward<T>(t)}
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 		};
 
 		inline constexpr __single_fn single {};

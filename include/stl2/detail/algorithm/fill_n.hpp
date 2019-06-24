@@ -12,8 +12,7 @@
 #ifndef STL2_DETAIL_ALGORITHM_FILL_N_HPP
 #define STL2_DETAIL_ALGORITHM_FILL_N_HPP
 
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
+#include <stl2/detail/iterator/concepts.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // fill_n [alg.fill]
@@ -21,8 +20,8 @@
 STL2_OPEN_NAMESPACE {
 	struct __fill_n_fn : private __niebloid {
 		template<class T, OutputIterator<const T&> O>
-		constexpr O operator()(O first, iter_difference_t<O> n, const T& value) const
-		{
+		constexpr O
+		operator()(O first, iter_difference_t<O> n, const T& value) const {
 			for (; n > 0; --n, (void)++first) {
 				*first = value;
 			}

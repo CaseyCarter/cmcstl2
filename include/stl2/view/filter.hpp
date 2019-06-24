@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 			auto cached = static_cast<bool>(begin_);
 			iterator_t<V> first = cached
 				? begin_.get(base_)
-				: __stl2::find_if(base_, __stl2::ref(pred_.get()));
+				: find_if(base_, __stl2::ref(pred_.get()));
 			if(!cached)
 				begin_.set(base_, first);
 			return __iterator{*this, std::move(first)};
@@ -104,7 +104,7 @@ STL2_OPEN_NAMESPACE {
 		{
 			const auto last = __stl2::end(parent_->base_);
 			STL2_ASSERT(current_ != last);
-			current_ = __stl2::find_if(++current_, last, __stl2::ref(parent_->pred_.get()));
+			current_ = find_if(++current_, last, __stl2::ref(parent_->pred_.get()));
 			return *this;
 		}
 
@@ -156,6 +156,10 @@ STL2_OPEN_NAMESPACE {
 	class filter_view<V, Pred>::__sentinel {
 	private:
 		sentinel_t<V> end_;
+
+		constexpr bool equal(const __iterator& i) const {
+			return i.current_ == end_;
+		}
 	public:
 		__sentinel() = default;
 		explicit constexpr __sentinel(filter_view& parent)
@@ -165,13 +169,13 @@ STL2_OPEN_NAMESPACE {
 		{ return end_; }
 
 		friend constexpr bool operator==(const __iterator& x, const __sentinel& y)
-		{ return x.current_ == y.end_; }
+		{ return y.equal(x); }
 		friend constexpr bool operator==(const __sentinel& x, const __iterator& y)
-		{ return y == x; }
+		{ return x.equal(y); }
 		friend constexpr bool operator!=(const __iterator& x, const __sentinel& y)
-		{ return !(x == y); }
+		{ return !y.equal(x); }
 		friend constexpr bool operator!=(const __sentinel& x, const __iterator& y)
-		{ return !(y == x); }
+		{ return !x.equal(y); }
 	};
 
 	template<class R, class Pred>
@@ -182,9 +186,20 @@ STL2_OPEN_NAMESPACE {
 			template<InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
 			requires ViewableRange<R>
 			constexpr auto operator()(R&& rng, Pred pred) const
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(R&& rng, Pred pred) {
+				filter_view<all_view<R>, Pred>{
+					std::forward<R>(rng), std::move(pred)};
+			} {
+				return filter_view<all_view<R>, Pred>{
+					std::forward<R>(rng), std::move(pred)};
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				filter_view<all_view<R>, Pred>{std::forward<R>(rng), std::move(pred)}
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
+
 			template<CopyConstructible Pred>
 			constexpr auto operator()(Pred pred) const {
 				return detail::view_closure{*this, std::move(pred)};

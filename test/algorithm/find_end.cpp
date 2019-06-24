@@ -23,11 +23,11 @@
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
 
+namespace ranges = __stl2;
+
 template<class Iter1, class Iter2, typename Sent1 = Iter1, typename Sent2 = Iter2>
-void
-test()
-{
-	using namespace __stl2;
+void test() {
+	using namespace ranges;
 
 	int ia[] = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 0, 1, 2, 3, 0, 1, 2, 0, 1, 0};
 	constexpr unsigned sa = size(ia);
@@ -47,7 +47,7 @@ test()
 	CHECK(find_end(Iter1(ia), Sent1(ia + sa), Iter2(h), Sent2(h + 7)) == Iter1(ia + sa));
 	CHECK(find_end(Iter1(ia), Sent1(ia + sa), Iter2(b), Sent2(b)) == Iter1(ia + sa));
 	CHECK(find_end(Iter1(ia), Sent1(ia), Iter2(b), Sent2(b + 1)) == Iter1(ia));
-#if 0
+
 	auto ir = subrange(Iter1(ia), Sent1(ia + sa));
 	CHECK(find_end(ir, subrange(Iter2(b), Sent2(b + 1))) == Iter1(ia + sa - 1));
 	CHECK(find_end(ir, subrange(Iter2(c), Sent2(c + 2))) == Iter1(ia + 18));
@@ -66,18 +66,16 @@ test()
 	CHECK(find_end(std::move(ir), subrange(Iter2(g), Sent2(g + 6))) == Iter1(ia));
 	CHECK(find_end(std::move(ir), subrange(Iter2(h), Sent2(h + 7))) == Iter1(ia + sa));
 	CHECK(find_end(std::move(ir), subrange(Iter2(b), Sent2(b))) == Iter1(ia + sa));
-#endif
+
 	auto er = subrange(Iter1(ia), Sent1(ia));
 	CHECK(find_end(er, subrange(Iter2(b), Sent2(b + 1))) == Iter1(ia));
 	CHECK(find_end(std::move(er), subrange(Iter2(b), Sent2(b + 1))) == Iter1(ia));
 }
 
-struct count_equal
-{
+struct count_equal {
 	static unsigned count;
 	template<class T>
-	bool operator()(const T& x, const T& y)
-	{
+	bool operator()(const T& x, const T& y) {
 		++count; return x == y;
 	}
 };
@@ -85,10 +83,8 @@ struct count_equal
 unsigned count_equal::count = 0;
 
 template<class Iter1, class Iter2, typename Sent1 = Iter1, typename Sent2 = Iter2>
-void
-test_pred()
-{
-	using namespace __stl2;
+void test_pred() {
+	using namespace ranges;
 
 	int ia[] = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 0, 1, 2, 3, 0, 1, 2, 0, 1, 0};
 	constexpr unsigned sa = size(ia);
@@ -159,16 +155,13 @@ test_pred()
 	CHECK(count_equal::count == 0u);
 }
 
-struct S
-{
+struct S {
 	int i_;
 };
 
 template<class Iter1, class Iter2, typename Sent1 = Iter1, typename Sent2 = Iter2>
-void
-test_proj()
-{
-	using namespace __stl2;
+void test_proj() {
+	using namespace ranges;
 
 	S ia[] = {{0}, {1}, {2}, {3}, {4}, {5}, {0}, {1}, {2}, {3}, {4}, {0}, {1}, {2}, {3}, {0}, {1}, {2}, {0}, {1}, {0}};
 	constexpr unsigned sa = size(ia);
@@ -202,8 +195,7 @@ test_proj()
 	CHECK(find_end(er, subrange(Iter2(b), Sent2(b + 1)), equal_to(), &S::i_) == Iter1(ia));
 }
 
-int main()
-{
+int main() {
 	test<forward_iterator<const int*>, forward_iterator<const int*> >();
 	test<forward_iterator<const int*>, bidirectional_iterator<const int*> >();
 	test<forward_iterator<const int*>, random_access_iterator<const int*> >();

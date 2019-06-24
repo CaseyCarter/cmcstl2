@@ -12,10 +12,8 @@
 #ifndef STL2_DETAIL_ALGORITHM_FIND_IF_HPP
 #define STL2_DETAIL_ALGORITHM_FIND_IF_HPP
 
-#include <stl2/functional.hpp>
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/range/dangling.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // find_if [alg.find]
@@ -24,8 +22,8 @@ STL2_OPEN_NAMESPACE {
 	struct __find_if_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, class Proj = identity,
 			IndirectUnaryPredicate<projected<I, Proj>> Pred>
-		constexpr I operator()(I first, S last, Pred pred, Proj proj = {}) const
-		{
+		constexpr I
+		operator()(I first, S last, Pred pred, Proj proj = {}) const {
 			for (; first != last; ++first) {
 				if (__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
 					break;
@@ -36,10 +34,10 @@ STL2_OPEN_NAMESPACE {
 
 		template<InputRange R, class Proj = identity,
 			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
-		constexpr safe_iterator_t<R> operator()(R&& r, Pred pred, Proj proj = {}) const
-		{
-			return (*this)(begin(r), end(r),
-				__stl2::ref(pred), __stl2::ref(proj));
+		constexpr safe_iterator_t<R>
+		operator()(R&& r, Pred pred, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), __stl2::ref(pred),
+				__stl2::ref(proj));
 		}
 	};
 

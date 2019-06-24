@@ -29,19 +29,19 @@
 #ifndef STL2_DETAIL_ALGORITHM_REVERSE_HPP
 #define STL2_DETAIL_ALGORITHM_REVERSE_HPP
 
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/temporary_vector.hpp>
 #include <stl2/detail/algorithm/move.hpp>
 #include <stl2/detail/algorithm/swap_ranges.hpp>
-#include <stl2/detail/concepts/algorithm.hpp>
+#include <stl2/detail/iterator/counted_iterator.hpp>
+#include <stl2/detail/iterator/insert_iterators.hpp>
+#include <stl2/detail/range/primitives.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // reverse [alg.reverse]
 //
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		struct __reverse_n_fn : private __niebloid {
+		struct __reverse_n_fn {
 			template<Permutable I>
 			constexpr I operator()(I first, iter_difference_t<I> n) const {
 				auto ufirst = ext::uncounted(first);
@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 				auto ulast = __swap_ranges3(rbegin(vec), rend(vec), std::move(umiddle)).in2;
 				// Shift the buffer contents into the first half of the input range.
 				move(vec, std::move(ufirst));
-				return __stl2::ext::recounted(first, std::move(ulast), n);
+				return ext::recounted(first, std::move(ulast), n);
 			}
 
 			// From EoP
@@ -115,17 +115,16 @@ STL2_OPEN_NAMESPACE {
 				auto bound = next(first, std::move(last));
 				if constexpr (RandomAccessIterator<I>) {
 					if (first != bound) {
-						auto m = bound;
-						while (first < --m) {
+						for (auto m = bound; first < --m; ++first) {
 							iter_swap(first, m);
-							++first;
 						}
 					}
 				} else {
-					auto m = bound;
-					while (first != m && first != --m) {
+					for (auto m = bound;
+					     bool(first != m) && bool(first != --m);
+					     ++first)
+					{
 						iter_swap(first, m);
-						++first;
 					}
 				}
 				return bound;
@@ -136,10 +135,10 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		// Extension: supports forward ranges
-		template<ForwardRange Rng>
-		requires Permutable<iterator_t<Rng>>
-		constexpr safe_iterator_t<Rng> operator()(Rng&& rng) const {
-			return (*this)(begin(rng), end(rng));
+		template<ForwardRange R>
+		requires Permutable<iterator_t<R>>
+		constexpr safe_iterator_t<R> operator()(R&& r) const {
+			return (*this)(begin(r), end(r));
 		}
 	};
 

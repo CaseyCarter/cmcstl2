@@ -26,8 +26,9 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<View Rng>
 		requires InputRange<Rng>
-		class move_view : detail::ebo_box<Rng, move_view<Rng>>
-						, public view_interface<move_view<Rng>> {
+		class STL2_EMPTY_BASES move_view
+		: detail::ebo_box<Rng, move_view<Rng>>
+		, public view_interface<move_view<Rng>> {
 			using base_t = detail::ebo_box<Rng, move_view<Rng>>;
 			using base_t::get;
 		public:
@@ -55,20 +56,20 @@ STL2_OPEN_NAMESPACE {
 			{ return __stl2::empty(get()); }
 
 			move_iterator<iterator_t<Rng>> begin()
-			requires !Range<const Rng>
+			requires (!Range<const Rng>)
 			{ return __stl2::make_move_iterator(__stl2::begin(get())); }
 			move_sentinel<sentinel_t<Rng>> end()
-			requires !Range<const Rng>
+			requires (!Range<const Rng>)
 			{ return __stl2::make_move_sentinel(__stl2::end(get())); }
 			move_iterator<iterator_t<Rng>> end()
-			requires !Range<const Rng> && CommonRange<Rng>
+			requires (!Range<const Rng> && CommonRange<Rng>)
 			{ return __stl2::make_move_iterator(__stl2::end(get())); }
 
 			auto size()
-			requires !Range<const Rng> && SizedRange<Rng>
+			requires (!Range<const Rng> && SizedRange<Rng>)
 			{ return __stl2::size(get()); }
 			bool empty()
-			requires !Range<const Rng>
+			requires (!Range<const Rng>)
 			{ return __stl2::empty(get()); }
 		};
 	} // namespace ext

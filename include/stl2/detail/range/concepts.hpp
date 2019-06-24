@@ -24,8 +24,9 @@
 #include <stl2/detail/range/access.hpp>
 
 namespace std {
-#ifndef __GLIBCXX__
-#pragma message "These forward declarations will likely only work with libstdc++."
+#if !defined(__GLIBCXX__) && !defined(_MSVC_STL_VERSION)
+#pragma message "These forward declarations will only work with standard " \
+	"libraries that don't use inline namespaces for versioning."
 #endif
 	template<class, class, class> class set;
 	template<class, class, class> class multiset;
@@ -156,8 +157,12 @@ STL2_OPEN_NAMESPACE {
 
 	template<class Rng>
 	META_CONCEPT ViewableRange =
+#if 1 // This is the PR of https://github.com/ericniebler/stl2/issues/623
+		View<__uncvref<Rng>> || _ForwardingRange<Rng>;
+#else
 		Range<Rng> &&
-		(_RangeImpl<Rng> || View<Rng>);
+		(_RangeImpl<Rng> || View<std::decay_t<Rng>>);
+#endif
 
 	namespace ext {
 		template<Range R>

@@ -15,8 +15,7 @@
 
 #include <type_traits>
 #include <utility>
-
-#include <stl2/meta/meta.hpp>
+#include <meta/meta.hpp>
 
 #ifdef __clang__
  #define STL2_HAS_BUILTIN(X) __has_builtin(__builtin_ ## X)
@@ -83,6 +82,16 @@
   #define STL2_WORKAROUND_CLANGC_42 1
  #else
   #define STL2_WORKAROUND_CLANGC_42 0
+ #endif
+#endif
+
+#ifndef STL2_WORKAROUND_CLANGC_50
+ #if defined(__clang__)
+  // A trailing-requires-clause should be in function parameter scope
+  // https://github.com/saarraz/clang-concepts/issues/50
+  #define STL2_WORKAROUND_CLANGC_50 1
+ #else
+  #define STL2_WORKAROUND_CLANGC_50 0
  #endif
 #endif
 
@@ -173,13 +182,22 @@ namespace __stl2 = ::std::experimental::ranges;
  #endif
 #endif
 
-#define STL2_PRAGMA(X) _Pragma(#X)
-#if defined(__GNUC__) || defined(__clang__)
-#define STL2_DIAGNOSTIC_PUSH STL2_PRAGMA(GCC diagnostic push)
-#define STL2_DIAGNOSTIC_POP STL2_PRAGMA(GCC diagnostic pop)
-#define STL2_DIAGNOSTIC_IGNORE(X) STL2_PRAGMA(GCC diagnostic ignored X)
+#ifdef META_HAS_P1084
+#define STL2_RVALUE_REQ(...) __VA_ARGS__
+#else // ^^^ Has P1084 / No P1084 vvv
+#define STL2_RVALUE_REQ(...) __VA_ARGS__&&
+#endif // Detect support for P1084
+
+#if __has_cpp_attribute(no_unique_address)
+#define STL2_NO_UNIQUE_ADDRESS [[no_unique_address]]
 #else
-#error unsupported compiler
+#define STL2_NO_UNIQUE_ADDRESS
+#endif
+
+#ifdef _MSC_VER
+#define STL2_EMPTY_BASES __declspec(empty_bases)
+#else
+#define STL2_EMPTY_BASES
 #endif
 
 STL2_OPEN_NAMESPACE {

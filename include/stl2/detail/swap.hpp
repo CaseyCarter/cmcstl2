@@ -40,8 +40,8 @@ STL2_OPEN_NAMESPACE {
 	// swap [utility.swap]
 	//
 	namespace __swap {
-		// http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-active.html#2152
-		// http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-closed.html#2171
+		// https://wg21.link/lwg2152
+		// https://wg21.link/lwg2171
 
 		// Poison pill for std::swap. If ADL for "swap" finds std::swap and
 		// unqualified name lookup finds this overload, the ambiguity causes
@@ -143,9 +143,18 @@ STL2_OPEN_NAMESPACE {
 			}
 		public:
 			friend constexpr void swap(__member_swap& x, __member_swap& y)
+#if STL2_WORKAROUND_CLANGC_50
+			noexcept(noexcept(x.derived().swap(y.derived())))
+			requires requires(__member_swap& x, __member_swap& y) {
+				x.derived().swap(y.derived());
+			} {
+				x.derived().swap(y.derived());
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_NOEXCEPT_REQUIRES_RETURN(
-				x.derived().swap(y.derived())
+				(void) x.derived().swap(y.derived())
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 		};
 	}
 	using detail::__member_swap;

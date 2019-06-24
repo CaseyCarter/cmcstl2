@@ -12,9 +12,9 @@
 #ifndef STL2_DETAIL_ALGORITHM_COPY_HPP
 #define STL2_DETAIL_ALGORITHM_COPY_HPP
 
-#include <stl2/iterator.hpp>
-#include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/results.hpp>
+#include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/dangling.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
 // copy [alg.copy]
@@ -57,11 +57,12 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template<InputRange R, class O>
-			requires !Range<O> && WeaklyIncrementable<__f<O>>
-				&& IndirectlyCopyable<iterator_t<R>, __f<O>>
+			requires (!Range<O> && WeaklyIncrementable<__f<O>>
+				&& IndirectlyCopyable<iterator_t<R>, __f<O>>)
 			constexpr copy_result<safe_iterator_t<R>, __f<O>>
-			operator()(R&& r, O&& result) const {
-				return (*this)(begin(r), end(r), std::forward<O>(result));
+			operator()(R&& r, O&& result_) const {
+				auto result = std::forward<O>(result_);
+				return (*this)(begin(r), end(r), std::move(result));
 			}
 
 			// Extension

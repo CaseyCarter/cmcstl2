@@ -17,8 +17,8 @@
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/algorithm/results.hpp>
 #include <stl2/detail/iterator/concepts.hpp>
-#include <stl2/detail/iterator/dangling.hpp>
 #include <stl2/detail/range/concepts.hpp>
+#include <stl2/detail/range/dangling.hpp>
 #include <stl2/detail/range/primitives.hpp>
 #include <stl2/view/view_interface.hpp>
 
@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<Iterator I, Sentinel<I> S = I,
 		subrange_kind K = static_cast<subrange_kind>(SizedSentinel<S, I>)>
-	requires K == subrange_kind::sized || !SizedSentinel<S, I>
+	requires (K == subrange_kind::sized || !SizedSentinel<S, I>)
 	class subrange;
 
 	namespace __subrange_detail {
@@ -88,8 +88,8 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<Iterator I, Sentinel<I> S, subrange_kind K>
-	requires K == subrange_kind::sized || !SizedSentinel<S, I>
-	class subrange
+	requires (K == subrange_kind::sized || !SizedSentinel<S, I>)
+	class STL2_EMPTY_BASES subrange
 	: private __subrange_detail::__adl_hook
 	, public view_interface<subrange<I, S, K>>
 	{
@@ -199,7 +199,7 @@ STL2_OPEN_NAMESPACE {
 			return first_() == last_();
 		}
 
-		constexpr iter_difference_t<I> size() const requires K == subrange_kind::sized {
+		constexpr iter_difference_t<I> size() const requires (K == subrange_kind::sized) {
 			if constexpr (StoreSize) {
 				return size_();
 			} else {
@@ -249,7 +249,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<std::size_t N, class I, class S, subrange_kind K>
-	requires N < 2
+	requires (N < 2)
 	constexpr auto get(const subrange<I, S, K>& r) {
 		if constexpr (N == 0) {
 			return r.begin();

@@ -13,7 +13,8 @@
 #define STL2_DETAIL_SEMIREGULAR_BOX_HPP
 
 #include <optional>
-#include <type_traits>
+
+#include <stl2/type_traits.hpp>
 #include <stl2/detail/ebo_box.hpp>
 #include <stl2/detail/fwd.hpp>
 #include <stl2/detail/concepts/object.hpp>

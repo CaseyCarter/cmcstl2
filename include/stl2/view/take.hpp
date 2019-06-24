@@ -71,14 +71,14 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr R base() const { return base_; }
 
-		constexpr auto begin() requires !ext::SimpleView<R> { return begin_(*this); }
+		constexpr auto begin() requires (!ext::SimpleView<R>) { return begin_(*this); }
 		constexpr auto begin() const requires Range<const R> { return begin_(*this); }
 
-		constexpr auto end() requires !ext::SimpleView<R> { return end_(*this); }
+		constexpr auto end() requires (!ext::SimpleView<R>) { return end_(*this); }
 		constexpr auto end() const requires Range<const R> || SizedRange<R>
 		{ return end_(*this); }
 
-		constexpr auto size() requires !ext::SimpleView<R> && SizedRange<R> { return size_(*this); }
+		constexpr auto size() requires (!ext::SimpleView<R> && SizedRange<R>) { return size_(*this); }
 		constexpr auto size() const requires SizedRange<const R> { return size_(*this); }
 	};
 
@@ -116,9 +116,17 @@ STL2_OPEN_NAMESPACE {
 		struct __take_fn {
 			template<Range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
+#if STL2_WORKAROUND_CLANGC_50
+			requires requires(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) {
+				take_view{view::all(static_cast<Rng&&>(rng)), count};
+			} {
+				return take_view{view::all(static_cast<Rng&&>(rng)), count};
+			}
+#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				take_view{view::all(static_cast<Rng&&>(rng)), count}
 			)
+#endif // STL2_WORKAROUND_CLANGC_50
 
 			template<Integral D>
 			constexpr auto operator()(D count) const
