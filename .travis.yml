@@ -12,20 +12,6 @@ cache:
 
 matrix:
   include:
-    - env: GCC_VERSION=7 BUILD_TYPE=Debug
-      os: linux
-      addons: &gcc7
-        apt:
-          packages:
-            - g++-7
-            - ninja-build
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - env: GCC_VERSION=7 BUILD_TYPE=Release
-      os: linux
-      addons: *gcc7
-
     - env: GCC_VERSION=8 BUILD_TYPE=Debug
       os: linux
       addons: &gcc8

@@ -16,7 +16,6 @@
 task:
   env:
     matrix:
-      COMPILER_VERSION: 7
       COMPILER_VERSION: 8
     matrix:
       BUILD_TYPE: Debug
