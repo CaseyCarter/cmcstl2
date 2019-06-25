@@ -1,4 +1,4 @@
-// Range v3 library
+// cmcstl2 - A concept-enabled C++ standard library
 //
 //  Copyright Casey Carter
 //  Copyright Christopher Di Bella
@@ -8,7 +8,8 @@
 //  file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
-// Project home: https://github.com/ericniebler/range-v3
+// Project home: https://github.com/caseycarter/cmcstl2
+//
 #include <stl2/detail/numeric/accumulate.hpp>
 
 #include "../simple_test.hpp"

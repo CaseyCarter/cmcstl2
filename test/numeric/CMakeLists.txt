@@ -1,6 +1,7 @@
 # cmcstl2 - A concept-enabled C++ standard library
 #
-#  Copyright Casey Carter 2015, 2017
+#  Copyright Casey Carter
+#  Copyright Christopher Di Bella
 #
 #  Use, modification and distribution is subject to the
 #  Boost Software License, Version 1.0. (See accompanying
