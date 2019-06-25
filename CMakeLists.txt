@@ -10,11 +10,10 @@
 #
 # Project home: https://github.com/caseycarter/cmcstl2
 #
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.12)
 
 project(cmcstl2 CXX)
 
-set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # check if cmcstl2 is not a subproject
@@ -33,13 +32,11 @@ add_library(stl2 INTERFACE)
 target_include_directories(stl2 INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
-if(NOT MSVC)
-    target_compile_features(stl2 INTERFACE cxx_std_17)
-endif()
+target_compile_features(stl2 INTERFACE cxx_std_20)
 target_compile_options(stl2 INTERFACE
     $<$<CXX_COMPILER_ID:GNU>:-fconcepts>
     $<$<CXX_COMPILER_ID:Clang>:-Xclang -fconcepts-ts>
-    $<$<CXX_COMPILER_ID:MSVC>:/std:c++latest /permissive- /experimental:concepts /D__cpp_concepts=201811L>)
+    $<$<CXX_COMPILER_ID:MSVC>:/permissive- /experimental:concepts>)
 
 install(DIRECTORY include/ DESTINATION include)
 install(TARGETS stl2 EXPORT cmcstl2-targets)
