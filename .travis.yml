@@ -8,7 +8,7 @@ language: cpp
 
 cache:
   directories:
-    - ${TRAVIS_BUILD_DIR}/deps/cmake
+    - ${TRAVIS_BUILD_DIR}/deps/cmake-3.12.4
 
 matrix:
   include:
@@ -42,11 +42,12 @@ install:
   ############################################################################
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      if [[ -z "$(ls -A ${DEPS_DIR}/cmake/bin)" ]]; then
+      CMAKE_VERSION=3.12.4
+      if [[ -z "$(ls -A ${DEPS_DIR}/cmake-${CMAKE_VERSION}/bin)" ]]; then
         CMAKE_URL="https://cmake.org/files/v3.12/cmake-3.12.4-Linux-x86_64.tar.gz"
-        mkdir -p cmake && travis_retry wget --no-check-certificate --quiet -O - "${CMAKE_URL}" | tar --strip-components=1 -xz -C cmake
+        mkdir -p "cmake-${CMAKE_VERSION}" && travis_retry wget --no-check-certificate --quiet -O - "${CMAKE_URL}" | tar --strip-components=1 -xz -C "cmake-${CMAKE_VERSION}"
       fi
-      export PATH="${DEPS_DIR}/cmake/bin:${PATH}"
+      export PATH="${DEPS_DIR}/cmake-${CMAKE_VERSION}/bin:${PATH}"
     fi
 
 before_script:
