@@ -77,14 +77,15 @@ STL2_OPEN_NAMESPACE {
 		///
 		template<class BOp, class T, class U = T>
 		requires __has_two_sided_identity<BOp, T, U>
-		struct two_sided_identity : private left_identity<BOp, T, U>
-			                       , private right_identity<BOp, T, U> {
+		struct two_sided_identity
+		: private left_identity<BOp, T, U>
+		, private right_identity<BOp, T, U> {
 			constexpr explicit two_sided_identity(const BOp& bop, const T& t, const U& u)
 			: left_identity<BOp, T, U>{bop, t, u}
 			, right_identity<BOp, T, U>{bop, t, u}
 			{
 				STL2_EXPECT(static_cast<left_identity<BOp, T, U>&>(*this).value()
-					      == static_cast<right_identity<BOp, T, U>&>(*this).value());
+				         == static_cast<right_identity<BOp, T, U>&>(*this).value());
 			}
 
 			constexpr auto value() const {
