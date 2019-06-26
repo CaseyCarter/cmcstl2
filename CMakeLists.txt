@@ -25,7 +25,7 @@ else()
     option(STL2_BUILD_TESTING "Build stl2 tests" OFF)
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/config/cmake")
 find_package(Sanitizer COMPONENTS address undefined)
 
 add_library(stl2 INTERFACE)

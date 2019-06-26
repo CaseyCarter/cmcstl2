@@ -62,7 +62,7 @@ public:
 		checker<decltype(algo_(begin, end, rest...))>
 	{
 		using R = decltype(algo_(begin, end, rest...));
-		return checker<R>{[this,=](std::function<void(R)> const & check)
+		return checker<R>{[=,this](std::function<void(R)> const & check)
 		{
 			using S = typename sentinel_type<I>::type;
 			check(algo_(begin, end, rest...));
@@ -93,7 +93,7 @@ public:
 		checker<decltype(algo_(begin1, end1, begin2, end2, rest...))>
 	{
 		using R = decltype(algo_(begin1, end1, begin2, end2, rest...));
-		return checker<R>{[this,=](std::function<void(R)> const & check)
+		return checker<R>{[=,this](std::function<void(R)> const & check)
 		{
 			using S1 = typename sentinel_type<I1>::type;
 			using S2 = typename sentinel_type<I2>::type;

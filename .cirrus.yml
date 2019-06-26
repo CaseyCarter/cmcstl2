@@ -20,10 +20,8 @@ task:
     matrix:
       BUILD_TYPE: Debug
       BUILD_TYPE: Release
-  container: # Docker image is specifically for this project. If clang-concepts is required, please
-             # use cjdb/clang-concepts:latest instead (it tries to remain up-to-date with the tip of
-             # clang-concepts trunk).
-    image: cjdb/cmcstl2-testbed:latest
+  container:
+    dockerfile: config/ci/Dockerfile
     cpu: 8
     memory: 16G
   configure_script:
