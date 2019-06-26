@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 	// DefaultConstructible [concept.defaultconstructible]
 	//
 	template<class T>
-	META_CONCEPT DefaultConstructible = Constructible<T> && requires { T{}; };
+	META_CONCEPT DefaultConstructible = Constructible<T>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// MoveConstructible [concept.moveconstructible]
