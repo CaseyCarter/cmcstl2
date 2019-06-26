@@ -48,6 +48,15 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_GCC_UNKNOWN0
+ #ifdef __GNUC__
+  // Unfiled GCC bug triggered by the P/R for LWG 3149
+  #define STL2_WORKAROUND_GCC_UNKNOWN0 1
+ #else
+  #define STL2_WORKAROUND_GCC_UNKNOWN0 0
+ #endif
+#endif
+
 #ifndef STL2_WORKAROUND_CLANG_UNKNOWN1
  #if defined(__clang__) && __clang_major < 7
   // Rejects-valid with CTAD nested in parens.

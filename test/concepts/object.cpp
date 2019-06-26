@@ -171,7 +171,11 @@ CONCEPT_ASSERT(!ranges::DefaultConstructible<nondefaultconstructible>);
 namespace pathological_explicit_default_constructor {
 	struct S0 { explicit S0() = default; };
 	struct S1 { S0 x; };
+#if STL2_WORKAROUND_GCC_UNKNOWN0
 	CONCEPT_ASSERT(ranges::DefaultConstructible<S1>);
+#else // ^^^ workaround / no workaround vvv
+	CONCEPT_ASSERT(!ranges::DefaultConstructible<S1>);
+#endif // STL2_WORKAROUND_GCC_UNKNOWN0
 }
 
 CONCEPT_ASSERT(ranges::DefaultConstructible<explicit_move>);

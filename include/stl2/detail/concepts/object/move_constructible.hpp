@@ -44,7 +44,11 @@ STL2_OPEN_NAMESPACE {
 	// DefaultConstructible [concept.defaultconstructible]
 	//
 	template<class T>
-	META_CONCEPT DefaultConstructible = Constructible<T>;
+	META_CONCEPT DefaultConstructible = Constructible<T>
+#if !STL2_WORKAROUND_GCC_UNKNOWN0 // Implement P/R for LWG 3149
+		&& requires { T{} } // && is_default_initializable<T>
+#endif // LWG 3149
+		;
 
 	///////////////////////////////////////////////////////////////////////////
 	// MoveConstructible [concept.moveconstructible]
