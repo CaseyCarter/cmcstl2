@@ -52,9 +52,9 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T, class U>
+		requires Magma<product, T, U>
 		struct left_identity<product, T, U> {
 			constexpr explicit left_identity(const product&, const T&, const U&)
-			requires Magma<product, T, U>
 			{}
 
 			constexpr auto value() const
@@ -62,9 +62,9 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T, class U>
+		requires Magma<product, T, U>
 		struct right_identity<product, T, U> {
 			constexpr explicit right_identity(const product&, const T&, const U&)
-			requires Magma<product, T, U>
 			{}
 
 			constexpr auto value() const

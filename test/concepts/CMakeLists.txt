@@ -18,3 +18,5 @@ add_stl2_test(test.concepts.iterator concepts.iterator iterator.cpp)
 add_stl2_test(test.concepts.object concepts.object object.cpp)
 add_stl2_test(test.concepts.range concepts.range range.cpp)
 add_stl2_test(test.concepts.swap concepts.swap swap.cpp)
+
+add_subdirectory(numeric)

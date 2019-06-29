@@ -47,9 +47,9 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T, class U>
+		requires Magma<__stl2::ext::plus, T, U>
 		struct left_identity<__stl2::ext::plus, T, U> {
 			constexpr explicit left_identity(__stl2::ext::plus, const T&, const U&)
-			requires Magma<__stl2::ext::plus, T, U>
 			{}
 
 			constexpr auto value() const
@@ -57,9 +57,9 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T, class U>
+		requires Magma<__stl2::ext::plus, T, U>
 		struct right_identity<__stl2::ext::plus, T, U> {
 			constexpr explicit right_identity(__stl2::ext::plus, const T&, const U&)
-			requires Magma<__stl2::ext::plus, T, U>
 			{}
 
 			constexpr auto value() const

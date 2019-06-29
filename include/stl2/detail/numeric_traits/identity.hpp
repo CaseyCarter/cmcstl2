@@ -27,6 +27,7 @@ STL2_OPEN_NAMESPACE {
 		struct left_identity {};
 
 		template<class BOp, class T, class U>
+		requires Magma<BOp, T, U>
 		struct left_identity<BOp&, T, U> : left_identity<__uncvref<BOp>, T, U> {};
 
 		template<class BOp, class T, class U = T>
@@ -41,6 +42,7 @@ STL2_OPEN_NAMESPACE {
 		struct right_identity {};
 
 		template<class BOp, class T, class U>
+		requires Magma<BOp, T, U>
 		struct right_identity<BOp&, T, U> : right_identity<__uncvref<BOp>, T, U> {};
 
 		template<class BOp, class T, class U = T>
@@ -53,9 +55,9 @@ STL2_OPEN_NAMESPACE {
 			typename left_identity_t<BOp, U, T>;
 			typename right_identity_t<BOp, U, T>;
 
-			requires Same<left_identity_t<BOp, T, U>, left_identity_t<BOp, U, T>>;
-			requires Same<right_identity_t<BOp, T, U>, right_identity_t<BOp, U, T>>;
-			requires Same<left_identity_t<BOp, T, U>, right_identity_t<BOp, T, U>>;
+			requires Common<left_identity_t<BOp, T, U>, left_identity_t<BOp, U, T>>;
+			requires Common<right_identity_t<BOp, T, U>, right_identity_t<BOp, U, T>>;
+			requires Common<left_identity_t<BOp, T, U>, right_identity_t<BOp, T, U>>;
 
 			// axiom {
 			//    auto left = left_identity<T, U, BOp>{};
@@ -89,7 +91,9 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			constexpr auto value() const {
-				return static_cast<const left_identity<BOp, T, U>&>(*this).value();
+				return static_cast<std::common_type_t<T, U>>(
+					static_cast<const left_identity<BOp, T, U>&>(*this).value()
+				);
 			}
 		};
 

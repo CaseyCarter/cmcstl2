@@ -130,19 +130,19 @@ void test_projection(R&& r, O&& result, BOp const& bop, Proj const& proj, E cons
 {
 	test_projection(input_iterator(begin(r)), sentinel(end(r)),
 		begin(result), end(result), bop, proj, expected_output);
-	// test_projection(forward_iterator(begin(r)), sentinel(end(r)),
-	// 	begin(result), end(result), bop, proj, expected_output);
-	// test_projection(bidirectional_iterator(begin(r)), sentinel(end(r)),
-	// 	begin(result), end(result), bop, proj, expected_output);
-	// test_projection(random_access_iterator(begin(r)), sentinel(end(r)),
-	// 	begin(result), end(result), bop, proj, expected_output);
+	test_projection(forward_iterator(begin(r)), sentinel(end(r)),
+		begin(result), end(result), bop, proj, expected_output);
+	test_projection(bidirectional_iterator(begin(r)), sentinel(end(r)),
+		begin(result), end(result), bop, proj, expected_output);
+	test_projection(random_access_iterator(begin(r)), sentinel(end(r)),
+		begin(result), end(result), bop, proj, expected_output);
 
-	// test_projection(forward_iterator(begin(r)), forward_iterator(end(r)),
-	// 	begin(result), end(result), bop, proj, expected_output);
-	// test_projection(bidirectional_iterator(begin(r)), bidirectional_iterator(end(r)),
-	// 	begin(result), end(result), bop, proj, expected_output);
-	// test_projection(random_access_iterator(begin(r)), random_access_iterator(end(r)),
-	// 	begin(result), end(result), bop, proj, expected_output);
+	test_projection(forward_iterator(begin(r)), forward_iterator(end(r)),
+		begin(result), end(result), bop, proj, expected_output);
+	test_projection(bidirectional_iterator(begin(r)), bidirectional_iterator(end(r)),
+		begin(result), end(result), bop, proj, expected_output);
+	test_projection(random_access_iterator(begin(r)), random_access_iterator(end(r)),
+		begin(result), end(result), bop, proj, expected_output);
 }
 
 int main()

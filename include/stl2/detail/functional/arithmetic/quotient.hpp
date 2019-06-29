@@ -46,9 +46,9 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T, class U>
+		requires Magma<quotient, T, U>
 		struct right_identity<quotient, T, U> {
 			constexpr explicit right_identity(quotient, const T&, const U&)
-			requires Magma<quotient, T, U>
 			{}
 
 			constexpr auto value() const {

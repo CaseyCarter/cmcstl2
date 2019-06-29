@@ -53,9 +53,10 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T, class U>
+		requires Magma<__stl2::ext::minus, T, U>
 		struct right_identity<__stl2::ext::minus, T, U>
 		: private right_identity<__stl2::ext::plus, T, U> {
-			using right_identity<__stl2::ext::plus, T, U>::operator();
+			using right_identity<__stl2::ext::plus, T, U>::value;
 		};
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE
