@@ -14,6 +14,7 @@
 #define STL2_MOVE_ONLY_STRING_HPP
 
 #include <cstring>
+#include <ostream>
 #include <stl2/detail/swap.hpp>
 
 namespace cmcstl2_test {
