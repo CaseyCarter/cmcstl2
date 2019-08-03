@@ -51,6 +51,7 @@ namespace {
             if (pos != rng + 4) return false;
             // advance(i, n, s)
             pos = ranges::begin(rng);
+            if (ranges::advance(pos, -10, pos) != -10) return false;
             if (ranges::advance(pos, 2, ranges::end(rng)) != 0) return false;
             if (pos != rng + 2) return false;
             if (ranges::advance(pos, 42, ranges::end(rng)) != 40) return false;

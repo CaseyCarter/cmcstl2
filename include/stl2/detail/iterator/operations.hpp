@@ -82,10 +82,10 @@ STL2_OPEN_NAMESPACE {
 			} else {
 				if constexpr (BidirectionalIterator<I> && Same<I, S>) {
 					if (0 > n) {
-						do {
+						while (n != 0 && i != bound) {
 							--i;
 							++n;
-						} while (0 != n && i != bound);
+						}
 						return n;
 					}
 				}
