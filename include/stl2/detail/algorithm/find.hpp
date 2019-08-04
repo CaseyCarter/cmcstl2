@@ -21,7 +21,7 @@
 STL2_OPEN_NAMESPACE {
 	struct __find_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, class T, class Proj = identity>
-		requires IndirectRelation<equal_to, projected<I, Proj>, const T*>
+		requires IndirectBinaryPredicate<equal_to, projected<I, Proj>, const T*>
 		constexpr I
 		operator()(I first, S last, const T& value, Proj proj = {}) const {
 			for (; first != last; ++first) {
@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<InputRange R, class T, class Proj = identity>
-		requires IndirectRelation<equal_to, projected<iterator_t<R>, Proj>, const T*>
+		requires IndirectBinaryPredicate<equal_to, projected<iterator_t<R>, Proj>, const T*>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, const T& value, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), value, __stl2::ref(proj));

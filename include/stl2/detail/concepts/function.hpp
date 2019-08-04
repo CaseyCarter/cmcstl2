@@ -67,6 +67,12 @@ STL2_OPEN_NAMESPACE {
 				const std::remove_reference_t<U>&>>;
 
 	///////////////////////////////////////////////////////////////////////////
+	// EquivalenceRelation 
+	//
+	template<class R, class T, class U>
+	META_CONCEPT EquivalenceRelation = Relation<R, T, U>;
+
+	///////////////////////////////////////////////////////////////////////////
 	// StrictWeakOrder [concepts.lib.callables.strictweakorder]
 	//
 	template<class R, class T, class U>
