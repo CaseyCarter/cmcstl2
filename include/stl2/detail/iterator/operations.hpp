@@ -29,12 +29,12 @@ STL2_OPEN_NAMESPACE {
 				i += n;
 			} else {
 				if constexpr (BidirectionalIterator<I>) {
-					for (; 0 > n; ++n) {
+					for (; n < 0; ++n) {
 						--i;
 					}
 				}
-				STL2_EXPECT(0 <= n);
-				for (; 0 < n; --n) {
+				STL2_EXPECT(n >= 0);
+				for (; n > 0; --n) {
 					++i;
 				}
 			}
@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 				i = std::move(bound);
 			} else if constexpr (SizedSentinel<S, I>) {
 				iter_difference_t<I> d = bound - i;
-				STL2_EXPECT(0 <= d);
+				STL2_EXPECT(d >= 0);
 				(*this)(i, d);
 			} else while (i != bound) {
 				++i;
@@ -59,20 +59,20 @@ STL2_OPEN_NAMESPACE {
 		constexpr iter_difference_t<I>
 		operator()(I& i, iter_difference_t<I> n, S bound) const
 		// [[expects axiom: 0 == n ||
-		//     (0 < n && reachable(i, bound)) ||
-		//     (0 > n && Same<I, S> && BidirectionalIterator<I> && reachable(bound, i))]]
+		//     (n > 0 && reachable(i, bound)) ||
+		//     (n < 0 && Same<I, S> && BidirectionalIterator<I> && reachable(bound, i))]]
 		{
 			if constexpr (SizedSentinel<S, I>) {
 				const auto d = bound - i;
 				if constexpr (BidirectionalIterator<I> && Same<I, S>) {
-					STL2_EXPECT(0 <= n ? 0 <= d : 0 >= d);
-					if (0 <= n ? d <= n : d >= n) {
+					STL2_EXPECT(n >= 0 ? d >= 0 : d <= 0);
+					if (n >= 0 ? n >= d : n <= d) {
 						i = std::move(bound);
 						return n - d;
 					}
 				} else {
-					STL2_EXPECT(0 <= n && 0 <= d);
-					if (d <= n) {
+					STL2_EXPECT(n >= 0 && d >= 0);
+					if (n >= d) {
 						(*this)(i, std::move(bound));
 						return n - d;
 					}
@@ -81,7 +81,7 @@ STL2_OPEN_NAMESPACE {
 				return 0;
 			} else {
 				if constexpr (BidirectionalIterator<I> && Same<I, S>) {
-					if (0 > n) {
+					if (n < 0) {
 						while (n != 0 && i != bound) {
 							--i;
 							++n;
@@ -89,8 +89,8 @@ STL2_OPEN_NAMESPACE {
 						return n;
 					}
 				}
-				STL2_EXPECT(0 <= n);
-				while (0 != n && i != bound) {
+				STL2_EXPECT(n >= 0);
+				while (n != 0 && i != bound) {
 					++i;
 					--n;
 				}
