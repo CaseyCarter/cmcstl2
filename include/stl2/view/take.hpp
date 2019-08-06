@@ -100,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 		: end_(end) {}
 
 		constexpr __sentinel(__sentinel<!Const> s)
-		requires Const && ConvertibleTo<sentinel_t<R>, sentinel_t<Base>>
+		requires Const && convertible_to<sentinel_t<R>, sentinel_t<Base>>
 		: end_(s.base()) {}
 
 		constexpr sentinel_t<Base> base() const { return end_; }
@@ -128,7 +128,7 @@ STL2_OPEN_NAMESPACE {
 			)
 #endif // STL2_WORKAROUND_CLANGC_50
 
-			template<Integral D>
+			template<integral D>
 			constexpr auto operator()(D count) const
 			{ return detail::view_closure{*this, static_cast<D>(count)}; }
 		};

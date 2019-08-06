@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 				return {a, b};
 		}
 
-		template<Copyable T, class Proj = identity,
+		template<copyable T, class Proj = identity,
 			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
 		constexpr minmax_result<T>
 		operator()(std::initializer_list<T>&& r, Comp comp = {}, Proj proj = {}) const {
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<InputRange R, class Proj = identity,
 			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
-		requires Copyable<iter_value_t<iterator_t<R>>>
+		requires copyable<iter_value_t<iterator_t<R>>>
 		constexpr minmax_result<iter_value_t<iterator_t<R>>>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
 			return impl(r, __stl2::ref(comp), __stl2::ref(proj));

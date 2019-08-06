@@ -107,7 +107,7 @@ void test_rvalue() {
 	S r1[10] = {S{0}};
 	S r2[10] = {S{0}};
 	auto p = ranges::partition_copy(std::move(ia), r1, r2, is_odd(), &S::i);
-	static_assert(ranges::Same<decltype(p.in), ranges::dangling>);
+	static_assert(ranges::same_as<decltype(p.in), ranges::dangling>);
 	CHECK(p.out1 == r1 + 4);
 	CHECK(r1[0].i == 1);
 	CHECK(r1[1].i == 3);

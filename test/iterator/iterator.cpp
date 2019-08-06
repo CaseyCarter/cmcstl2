@@ -191,7 +191,7 @@ struct arbitrary_iterator {
 	requires EC;
 };
 
-template<ranges::DerivedFrom<ranges::input_iterator_tag> C, bool EC, class R>
+template<ranges::derived_from<ranges::input_iterator_tag> C, bool EC, class R>
 struct arbitrary_iterator<C, EC, R> {
 	using iterator_category = C;
 	using value_type = std::remove_reference_t<R>;
@@ -203,43 +203,43 @@ struct arbitrary_iterator<C, EC, R> {
 	arbitrary_iterator operator++(int);
 
 	bool operator==(arbitrary_iterator) const
-	requires EC || ranges::DerivedFrom<C, ranges::forward_iterator_tag>;
+	requires EC || ranges::derived_from<C, ranges::forward_iterator_tag>;
 	bool operator!=(arbitrary_iterator) const
-	requires EC || ranges::DerivedFrom<C, ranges::forward_iterator_tag>;
+	requires EC || ranges::derived_from<C, ranges::forward_iterator_tag>;
 
 	arbitrary_iterator& operator--()
-	requires ranges::DerivedFrom<C, ranges::bidirectional_iterator_tag>;
+	requires ranges::derived_from<C, ranges::bidirectional_iterator_tag>;
 	arbitrary_iterator operator--(int)
-	requires ranges::DerivedFrom<C, ranges::bidirectional_iterator_tag>;
+	requires ranges::derived_from<C, ranges::bidirectional_iterator_tag>;
 
 	bool operator<(arbitrary_iterator) const
-	requires ranges::DerivedFrom<C, ranges::random_access_iterator_tag>;
+	requires ranges::derived_from<C, ranges::random_access_iterator_tag>;
 	bool operator>(arbitrary_iterator) const
-	requires ranges::DerivedFrom<C, ranges::random_access_iterator_tag>;
+	requires ranges::derived_from<C, ranges::random_access_iterator_tag>;
 	bool operator<=(arbitrary_iterator) const
-	requires ranges::DerivedFrom<C, ranges::random_access_iterator_tag>;
+	requires ranges::derived_from<C, ranges::random_access_iterator_tag>;
 	bool operator>=(arbitrary_iterator) const
-	requires ranges::DerivedFrom<C, ranges::random_access_iterator_tag>;
+	requires ranges::derived_from<C, ranges::random_access_iterator_tag>;
 
 	arbitrary_iterator& operator+=(difference_type)
-	requires ranges::DerivedFrom<C, ranges::random_access_iterator_tag>;
+	requires ranges::derived_from<C, ranges::random_access_iterator_tag>;
 	arbitrary_iterator& operator-=(difference_type)
-	requires ranges::DerivedFrom<C, ranges::random_access_iterator_tag>;
+	requires ranges::derived_from<C, ranges::random_access_iterator_tag>;
 
 	arbitrary_iterator operator-(difference_type) const
-	requires ranges::DerivedFrom<C, ranges::random_access_iterator_tag>;
+	requires ranges::derived_from<C, ranges::random_access_iterator_tag>;
 	difference_type operator-(arbitrary_iterator) const
-	requires ranges::DerivedFrom<C, ranges::random_access_iterator_tag>;
+	requires ranges::derived_from<C, ranges::random_access_iterator_tag>;
 
 	value_type& operator[](difference_type) const
-	requires ranges::DerivedFrom<C, ranges::random_access_iterator_tag>;
+	requires ranges::derived_from<C, ranges::random_access_iterator_tag>;
 };
 
-template<ranges::DerivedFrom<ranges::random_access_iterator_tag> C, bool B, class R>
+template<ranges::derived_from<ranges::random_access_iterator_tag> C, bool B, class R>
 arbitrary_iterator<C, B, R> operator+(
 	arbitrary_iterator<C, B, R>, typename arbitrary_iterator<C, B, R>::difference_type);
 
-template<ranges::DerivedFrom<ranges::random_access_iterator_tag> C, bool B, class R>
+template<ranges::derived_from<ranges::random_access_iterator_tag> C, bool B, class R>
 arbitrary_iterator<C, B, R> operator+(
 	typename arbitrary_iterator<C, B, R>::difference_type, arbitrary_iterator<C, B, R>);
 
@@ -260,7 +260,7 @@ void test_iterator_dispatch() {
 	{
 		using I = arbitrary_iterator<ranges::input_iterator_tag, true>;
 		static_assert(ranges::InputIterator<I>);
-		static_assert(ranges::EqualityComparable<I>);
+		static_assert(ranges::equality_comparable<I>);
 		CHECK(iterator_dispatch<I>() == category::input);
 	}
 	{
@@ -293,7 +293,7 @@ void test_iterator_dispatch() {
 	{
 		using I = arbitrary_iterator<void, true>;
 		static_assert(ranges::OutputIterator<I, const int&>);
-		static_assert(ranges::EqualityComparable<I>);
+		static_assert(ranges::equality_comparable<I>);
 		static_assert(!ranges::InputIterator<I>);
 		CHECK(iterator_dispatch<I>() == category::output);
 	}
@@ -312,7 +312,7 @@ template<ranges::ContiguousIterator I, ranges::SizedSentinel<I> S,
 	ranges::ContiguousIterator O>
 requires
 	ranges::IndirectlyCopyable<I, O> &&
-	ranges::Same<ranges::iter_value_t<I>, ranges::iter_value_t<O>> &&
+	ranges::same_as<ranges::iter_value_t<I>, ranges::iter_value_t<O>> &&
 	std::is_trivially_copyable<ranges::iter_value_t<I>>::value
 bool copy(I first, S last, O o) {
 	auto n = last - first;
@@ -370,15 +370,15 @@ void test_iter_swap2() {
 		auto a = std::make_unique<int>(42);
 		auto b = std::make_unique<int>(13);
 		using I = decltype(a);
-		static_assert(ranges::Same<I, decltype(b)>);
+		static_assert(ranges::same_as<I, decltype(b)>);
 		static_assert(ranges::Readable<I>);
 		using R = ranges::iter_reference_t<I>;
-		static_assert(ranges::Same<int&, R>);
+		static_assert(ranges::same_as<int&, R>);
 		using RR = ranges::iter_rvalue_reference_t<I>;
-		static_assert(ranges::Same<int&&, RR>);
-		static_assert(ranges::SwappableWith<R, R>);
+		static_assert(ranges::same_as<int&&, RR>);
+		static_assert(ranges::swappable_with<R, R>);
 
-		// Swappable<R, R> is true, calls the first overload of
+		// swappable<R, R> is true, calls the first overload of
 		// iter_swap (which delegates to swap(*a, *b)):
 		ranges::iter_swap(a, b);
 		CHECK(*a == 13);
@@ -393,18 +393,18 @@ void test_iter_swap2() {
 		using I = decltype(a.begin());
 		static_assert(ranges::Readable<I>);
 		using V = ranges::iter_value_t<I>;
-		static_assert(ranges::Same<int, V>);
+		static_assert(ranges::same_as<int, V>);
 		using R = ranges::iter_reference_t<I>;
-		static_assert(ranges::Same<reference_wrapper<int>, R>);
+		static_assert(ranges::same_as<reference_wrapper<int>, R>);
 		using RR = ranges::iter_rvalue_reference_t<I>;
-		static_assert(ranges::Same<int&&, RR>);
+		static_assert(ranges::same_as<int&&, RR>);
 
-		static_assert(ranges::Same<I, decltype(a.begin() + 2)>);
-		static_assert(ranges::CommonReference<const R&, const R&>);
-		static_assert(!ranges::SwappableWith<R, R>);
+		static_assert(ranges::same_as<I, decltype(a.begin() + 2)>);
+		static_assert(ranges::common_reference_with<const R&, const R&>);
+		static_assert(!ranges::swappable_with<R, R>);
 		static_assert(ranges::IndirectlyMovableStorable<I, I>);
 
-		// Swappable<R, R> is not satisfied, and
+		// swappable<R, R> is not satisfied, and
 		// IndirectlyMovableStorable<I, I> is satisfied,
 		// so this should resolve to the second overload of iter_swap.
 		ranges::iter_swap(a.begin() + 1, a.begin() + 3);
@@ -423,50 +423,50 @@ constexpr bool has_category<T> = true;
 
 void test_std_traits() {
 	using WO = arbitrary_iterator<void, false>;
-	static_assert(ranges::Same<std::iterator_traits<WO>::iterator_category,
+	static_assert(ranges::same_as<std::iterator_traits<WO>::iterator_category,
 		std::output_iterator_tag>);
 
 	using O = arbitrary_iterator<void, true>;
-	static_assert(ranges::Same<std::iterator_traits<O>::iterator_category,
+	static_assert(ranges::same_as<std::iterator_traits<O>::iterator_category,
 		std::output_iterator_tag>);
 
 	using WI = arbitrary_iterator<ranges::input_iterator_tag, false>;
 	static_assert(!has_category<std::iterator_traits<WI>>);
 
 	using I = arbitrary_iterator<ranges::input_iterator_tag, true>;
-	static_assert(ranges::Same<std::iterator_traits<I>::iterator_category,
+	static_assert(ranges::same_as<std::iterator_traits<I>::iterator_category,
 		std::input_iterator_tag>);
 
 	using F = arbitrary_iterator<ranges::forward_iterator_tag, true>;
-	static_assert(ranges::Same<std::iterator_traits<F>::iterator_category,
+	static_assert(ranges::same_as<std::iterator_traits<F>::iterator_category,
 		std::forward_iterator_tag>);
 
 	using B = arbitrary_iterator<ranges::bidirectional_iterator_tag, true>;
-	static_assert(ranges::Same<std::iterator_traits<B>::iterator_category,
+	static_assert(ranges::same_as<std::iterator_traits<B>::iterator_category,
 		std::bidirectional_iterator_tag>);
 
 	using R = arbitrary_iterator<ranges::random_access_iterator_tag, true>;
-	static_assert(ranges::Same<std::iterator_traits<R>::iterator_category,
+	static_assert(ranges::same_as<std::iterator_traits<R>::iterator_category,
 		std::random_access_iterator_tag>);
 
 	using C = arbitrary_iterator<ranges::contiguous_iterator_tag, true>;
-	static_assert(ranges::Same<std::iterator_traits<C>::iterator_category,
+	static_assert(ranges::same_as<std::iterator_traits<C>::iterator_category,
 		std::random_access_iterator_tag>);
 
 	using IV = arbitrary_iterator<ranges::input_iterator_tag, true, int>;
-	static_assert(ranges::Same<std::iterator_traits<IV>::iterator_category,
+	static_assert(ranges::same_as<std::iterator_traits<IV>::iterator_category,
 		std::input_iterator_tag>);
 
 	using FV = arbitrary_iterator<ranges::forward_iterator_tag, true, int>;
-	static_assert(ranges::Same<std::iterator_traits<FV>::iterator_category,
+	static_assert(ranges::same_as<std::iterator_traits<FV>::iterator_category,
 		std::input_iterator_tag>);
 
 	using BV = arbitrary_iterator<ranges::bidirectional_iterator_tag, true, int>;
-	static_assert(ranges::Same<std::iterator_traits<BV>::iterator_category,
+	static_assert(ranges::same_as<std::iterator_traits<BV>::iterator_category,
 		std::input_iterator_tag>);
 
 	using RV = arbitrary_iterator<ranges::random_access_iterator_tag, true, int>;
-	static_assert(ranges::Same<std::iterator_traits<RV>::iterator_category,
+	static_assert(ranges::same_as<std::iterator_traits<RV>::iterator_category,
 		std::input_iterator_tag>);
 }
 

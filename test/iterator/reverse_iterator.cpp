@@ -504,8 +504,8 @@ int main() {
 		// Verify that reverse_iterator's constructor that accepts a base iterator
 		// is explicit.
 		using RI = ranges::reverse_iterator<char*>;
-		static_assert(ranges::Constructible<RI, char*>);
-		static_assert(!ranges::ConvertibleTo<char*, RI>);
+		static_assert(ranges::constructible_from<RI, char*>);
+		static_assert(!ranges::convertible_to<char*, RI>);
 	}
 
 	return test_result();

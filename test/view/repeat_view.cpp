@@ -29,8 +29,8 @@ int main() {
 		CHECK(v.value() == 42);
 
 		auto first = v.begin();
-		static_assert(ranges::Same<decltype(*first), int&>);
-		static_assert(ranges::Same<decltype(first.operator->()), int*>);
+		static_assert(ranges::same_as<decltype(*first), int&>);
+		static_assert(ranges::same_as<decltype(first.operator->()), int*>);
 		CHECK(*first == 42);
 		CHECK(std::addressof(*first) == std::addressof(v.value()));
 		CHECK(ranges::next(first) == first);
@@ -43,8 +43,8 @@ int main() {
 		CHECK(std::addressof(v.value()) == std::addressof(cv.value()));
 
 		auto cfirst = cv.begin();
-		static_assert(ranges::Same<decltype(*cfirst), const int&>);
-		static_assert(ranges::Same<decltype(cfirst.operator->()), const int*>);
+		static_assert(ranges::same_as<decltype(*cfirst), const int&>);
+		static_assert(ranges::same_as<decltype(cfirst.operator->()), const int*>);
 		CHECK(*cfirst == 42);
 		CHECK(std::addressof(*cfirst) == std::addressof(cv.value()));
 		CHECK(ranges::next(cfirst) == cfirst);

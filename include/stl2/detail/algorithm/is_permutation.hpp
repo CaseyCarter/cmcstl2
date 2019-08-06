@@ -87,14 +87,14 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 	private:
-		template<Integral To, Integral From>
+		template<integral To, integral From>
 		static constexpr bool __can_represent(const From value) noexcept {
 			using C = decltype(true ? value : To{});
-			if constexpr (Same<To, C> && (SignedIntegral<To> || UnsignedIntegral<From>)) {
+			if constexpr (same_as<To, C> && (signed_integral<To> || unsigned_integral<From>)) {
 				return true;
 			} else {
-				if constexpr (SignedIntegral<From>) {
-					if constexpr (UnsignedIntegral<To>) {
+				if constexpr (signed_integral<From>) {
+					if constexpr (unsigned_integral<To>) {
 						if (value < 0) return false;
 					} else {
 						if (C(value) < C(std::numeric_limits<To>::min())) return false;
@@ -105,7 +105,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		// Does distance(first, last) == n?
-		template<Iterator I, Sentinel<I> S, SignedIntegral D>
+		template<Iterator I, Sentinel<I> S, signed_integral D>
 		static constexpr bool __has_length(const I first, const S last, const D n) {
 			STL2_EXPECT(n >= 0);
 			if constexpr (SizedSentinel<S, I>) {
@@ -119,7 +119,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 		// Does distance(rng) == n?
-		template<Range Rng, SignedIntegral D>
+		template<Range Rng, signed_integral D>
 		static constexpr bool __has_length(Rng&& rng, const D n) {
 			STL2_EXPECT(n >= 0);
 			if constexpr (SizedRange<Rng>) {

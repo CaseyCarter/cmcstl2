@@ -19,26 +19,26 @@
 #include <cstddef>
 #include "../simple_test.hpp"
 
-CONCEPT_ASSERT(ranges::Integral<int>);
-CONCEPT_ASSERT(!ranges::Integral<double>);
-CONCEPT_ASSERT(ranges::Integral<unsigned>);
-CONCEPT_ASSERT(!ranges::Integral<void>);
-CONCEPT_ASSERT(ranges::Integral<std::ptrdiff_t>);
-CONCEPT_ASSERT(ranges::Integral<std::size_t>);
+CONCEPT_ASSERT(ranges::integral<int>);
+CONCEPT_ASSERT(!ranges::integral<double>);
+CONCEPT_ASSERT(ranges::integral<unsigned>);
+CONCEPT_ASSERT(!ranges::integral<void>);
+CONCEPT_ASSERT(ranges::integral<std::ptrdiff_t>);
+CONCEPT_ASSERT(ranges::integral<std::size_t>);
 
-CONCEPT_ASSERT(ranges::SignedIntegral<int>);
-CONCEPT_ASSERT(!ranges::SignedIntegral<double>);
-CONCEPT_ASSERT(!ranges::SignedIntegral<unsigned>);
-CONCEPT_ASSERT(!ranges::SignedIntegral<void>);
-CONCEPT_ASSERT(ranges::SignedIntegral<std::ptrdiff_t>);
-CONCEPT_ASSERT(!ranges::SignedIntegral<std::size_t>);
+CONCEPT_ASSERT(ranges::signed_integral<int>);
+CONCEPT_ASSERT(!ranges::signed_integral<double>);
+CONCEPT_ASSERT(!ranges::signed_integral<unsigned>);
+CONCEPT_ASSERT(!ranges::signed_integral<void>);
+CONCEPT_ASSERT(ranges::signed_integral<std::ptrdiff_t>);
+CONCEPT_ASSERT(!ranges::signed_integral<std::size_t>);
 
-CONCEPT_ASSERT(!ranges::UnsignedIntegral<int>);
-CONCEPT_ASSERT(!ranges::UnsignedIntegral<double>);
-CONCEPT_ASSERT(ranges::UnsignedIntegral<unsigned>);
-CONCEPT_ASSERT(!ranges::UnsignedIntegral<void>);
-CONCEPT_ASSERT(!ranges::UnsignedIntegral<std::ptrdiff_t>);
-CONCEPT_ASSERT(ranges::UnsignedIntegral<std::size_t>);
+CONCEPT_ASSERT(!ranges::unsigned_integral<int>);
+CONCEPT_ASSERT(!ranges::unsigned_integral<double>);
+CONCEPT_ASSERT(ranges::unsigned_integral<unsigned>);
+CONCEPT_ASSERT(!ranges::unsigned_integral<void>);
+CONCEPT_ASSERT(!ranges::unsigned_integral<std::ptrdiff_t>);
+CONCEPT_ASSERT(ranges::unsigned_integral<std::size_t>);
 
 #if VALIDATE_STL2
 namespace scalar_types {
@@ -47,19 +47,19 @@ enum class t {
 	integral, signed_integral, unsigned_integral, ull
 };
 
-template<__stl2::Regular T>
+template<__stl2::regular T>
 constexpr t f(T) { return t::regular; }
 template<__stl2::ext::Scalar T>
 constexpr t f(T) { return t::scalar; }
 template<__stl2::ext::Arithmetic T>
 constexpr t f(T) { return t::arithmetic; }
-template<__stl2::ext::FloatingPoint T>
+template<__stl2::floating_point T>
 constexpr t f(T) { return t::floating_point; }
-template<__stl2::Integral T>
+template<__stl2::integral T>
 constexpr t f(T) { return t::integral; }
-template<__stl2::SignedIntegral T>
+template<__stl2::signed_integral T>
 constexpr t f(T) { return t::signed_integral; }
-template<__stl2::UnsignedIntegral T>
+template<__stl2::unsigned_integral T>
 constexpr t f(T) { return t::unsigned_integral; }
 constexpr t f(unsigned long long) { return t::ull; }
 

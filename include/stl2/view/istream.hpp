@@ -25,8 +25,8 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<Movable Val>
-		requires DefaultConstructible<Val> && StreamExtractable<Val>
+		template<movable Val>
+		requires default_initializable<Val> && StreamExtractable<Val>
 		struct STL2_EMPTY_BASES istream_view
 		: view_interface<istream_view<Val>>
 		, detail::semiregular_box<Val> {
@@ -50,8 +50,8 @@ STL2_OPEN_NAMESPACE {
 			constexpr default_sentinel end() const noexcept { return {}; }
 		};
 
-		template<Movable Val>
-		requires DefaultConstructible<Val> && StreamExtractable<Val>
+		template<movable Val>
+		requires default_initializable<Val> && StreamExtractable<Val>
 		struct istream_view<Val>::__iterator {
 			using iterator_category = input_iterator_tag;
 			using difference_type = std::ptrdiff_t;

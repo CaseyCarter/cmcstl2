@@ -153,7 +153,7 @@ int main()
         std::shuffle(input, input+N, gen);
         auto r = ranges::partial_sort_copy(input, std::move(output), std::less<int>(), &S::i, &U::i);
         U* e = output + std::min(N, M);
-        static_assert(ranges::Same<decltype(r), ranges::dangling>);
+        static_assert(ranges::same_as<decltype(r), ranges::dangling>);
         int i = 0;
         for (U* x = output; x < e; ++x, ++i)
             CHECK(x->i == i);

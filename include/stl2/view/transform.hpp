@@ -27,9 +27,9 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<InputRange V, CopyConstructible F>
+	template<InputRange V, copy_constructible F>
 	requires View<V> && std::is_object_v<F> &&
-		RegularInvocable<F&, iter_reference_t<iterator_t<V>>>
+		regular_invocable<F&, iter_reference_t<iterator_t<V>>>
 	class transform_view : public view_interface<transform_view<V, F>> {
 	private:
 		template<bool> class __iterator;
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		template<class ConstV = const V>
 		constexpr __iterator<true> begin() const requires Range<ConstV> &&
-			RegularInvocable<const F&, iter_reference_t<iterator_t<ConstV>>>
+			regular_invocable<const F&, iter_reference_t<iterator_t<ConstV>>>
 		{ return {*this, __stl2::begin(base_)}; }
 
 		constexpr auto end() {
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		template<class ConstV = const V>
 		constexpr auto end() const requires Range<ConstV> &&
-			RegularInvocable<const F&, iter_reference_t<iterator_t<ConstV>>>
+			regular_invocable<const F&, iter_reference_t<iterator_t<ConstV>>>
 		{
 			if constexpr (CommonRange<const V>) {
 				return __iterator<true>{*this, __stl2::end(base_)};
@@ -85,9 +85,9 @@ STL2_OPEN_NAMESPACE {
 	template<class R, class F>
 	transform_view(R&& r, F fun) -> transform_view<all_view<R>, F>;
 
-	template<InputRange V, CopyConstructible F>
+	template<InputRange V, copy_constructible F>
 	requires View<V> && std::is_object_v<F> &&
-		RegularInvocable<F&, iter_reference_t<iterator_t<V>>>
+		regular_invocable<F&, iter_reference_t<iterator_t<V>>>
 	template<bool Const>
 	class transform_view<V, F>::__iterator {
 	private:
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 		: current_(current), parent_(&parent) {}
 
 		constexpr __iterator(__iterator<!Const> i)
-		requires Const && ConvertibleTo<iterator_t<V>, iterator_t<Base>>
+		requires Const && convertible_to<iterator_t<V>, iterator_t<Base>>
 		: current_(std::move(i.current_)), parent_(i.parent_) {}
 
 		constexpr iterator_t<Base> base() const
@@ -162,11 +162,11 @@ STL2_OPEN_NAMESPACE {
 		{ return invoke(parent_->fun_.get(), current_[n]); }
 
 		friend constexpr bool operator==(const __iterator& x, const __iterator& y)
-		requires EqualityComparable<iterator_t<Base>>
+		requires equality_comparable<iterator_t<Base>>
 		{ return x.current_ == y.current_; }
 
 		friend constexpr bool operator!=(const __iterator& x, const __iterator& y)
-		requires EqualityComparable<iterator_t<Base>>
+		requires equality_comparable<iterator_t<Base>>
 		{ return !(x == y); }
 
 		friend constexpr bool operator<(const __iterator& x, const __iterator& y)
@@ -215,9 +215,9 @@ STL2_OPEN_NAMESPACE {
 		{ __stl2::iter_swap(x.current_, y.current_); }
 	};
 
-	template<InputRange V, CopyConstructible F>
+	template<InputRange V, copy_constructible F>
 	requires View<V> && std::is_object_v<F> &&
-		RegularInvocable<F&, iter_reference_t<iterator_t<V>>>
+		regular_invocable<F&, iter_reference_t<iterator_t<V>>>
 	template<bool Const>
 	class transform_view<V, F>::__sentinel {
 	private:
@@ -238,7 +238,7 @@ STL2_OPEN_NAMESPACE {
 		explicit constexpr __sentinel(sentinel_t<Base> end)
 		: end_(end) {}
 		constexpr __sentinel(__sentinel<!Const> i)
-		requires Const && ConvertibleTo<sentinel_t<V>, sentinel_t<Base>>
+		requires Const && convertible_to<sentinel_t<V>, sentinel_t<Base>>
 		: end_(std::move(i.end_)) {}
 
 		constexpr sentinel_t<Base> base() const
@@ -269,14 +269,14 @@ STL2_OPEN_NAMESPACE {
 
 	namespace view {
 		struct __transform_fn {
-			template<InputRange Rng, CopyConstructible F>
+			template<InputRange Rng, copy_constructible F>
 			requires
-				ViewableRange<Rng> && Invocable<F&, iter_reference_t<iterator_t<Rng>>>
+				ViewableRange<Rng> && invocable<F&, iter_reference_t<iterator_t<Rng>>>
 			constexpr auto operator()(Rng&& rng, F fun) const {
 				return transform_view{std::forward<Rng>(rng), std::move(fun)};
 			}
 
-			template<CopyConstructible F>
+			template<copy_constructible F>
 			constexpr auto operator()(F fun) const {
 				return detail::view_closure{*this, std::move(fun)};
 			}

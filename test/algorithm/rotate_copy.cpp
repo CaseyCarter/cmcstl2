@@ -309,7 +309,7 @@ int main()
 		int rgi[] = {0,1,2,3,4,5};
 		int rgo[6] = {0};
 		auto r = ranges::rotate_copy(std::move(rgi), rgi+2, rgo);
-		static_assert(ranges::Same<decltype(r.in), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(r.in), ranges::dangling>);
 		CHECK(r.out == ranges::end(rgo));
 		CHECK(rgo[0] == 2);
 		CHECK(rgo[1] == 3);

@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(std::is_nothrow_move_constructible<I>::value)
 			: current_{std::move(x)}
 			{}
-			template<ConvertibleTo<I> U>
+			template<convertible_to<I> U>
 			constexpr cursor(const cursor<U>& u)
 			noexcept(std::is_nothrow_constructible<I, const U&>::value)
 			: current_{access::current(u)}
@@ -103,7 +103,7 @@ STL2_OPEN_NAMESPACE {
 				current_ -= n;
 			}
 
-			template<EqualityComparableWith<I> J>
+			template<equality_comparable_with<I> J>
 			constexpr bool equal(const cursor<J>& that) const
 			STL2_NOEXCEPT_RETURN(
 				current_ == access::current(that)
@@ -132,7 +132,7 @@ STL2_OPEN_NAMESPACE {
 	template<class I>
 	using reverse_iterator = basic_iterator<__reverse_iterator::cursor<I>>;
 
-	template<class I1, StrictTotallyOrderedWith<I1> I2>
+	template<class I1, totally_ordered_with<I1> I2>
 	constexpr bool operator<(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
 	STL2_NOEXCEPT_RETURN(
@@ -140,21 +140,21 @@ STL2_OPEN_NAMESPACE {
 			__reverse_iterator::access::current(get_cursor(y))
 	)
 
-	template<class I1, StrictTotallyOrderedWith<I1> I2>
+	template<class I1, totally_ordered_with<I1> I2>
 	constexpr bool operator>(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
 	STL2_NOEXCEPT_RETURN(
 		y < x
 	)
 
-	template<class I1, StrictTotallyOrderedWith<I1> I2>
+	template<class I1, totally_ordered_with<I1> I2>
 	constexpr bool operator<=(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
 	STL2_NOEXCEPT_RETURN(
 		!(y < x)
 	)
 
-	template<class I1, StrictTotallyOrderedWith<I1> I2>
+	template<class I1, totally_ordered_with<I1> I2>
 	constexpr bool operator>=(
 		const reverse_iterator<I1>& x, const reverse_iterator<I2>& y)
 	STL2_NOEXCEPT_RETURN(

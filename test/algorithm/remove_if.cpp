@@ -181,7 +181,7 @@ int main()
 		S ia[] = {S{0}, S{1}, S{2}, S{3}, S{4}, S{2}, S{3}, S{4}, S{2}};
 		using namespace std::placeholders;
 		auto r = ranges::remove_if(std::move(ia), std::bind(std::equal_to<int>(), _1, 2), &S::i);
-		static_assert(ranges::Same<decltype(r), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(r), ranges::dangling>);
 		CHECK(ia[0].i == 0);
 		CHECK(ia[1].i == 1);
 		CHECK(ia[2].i == 3);

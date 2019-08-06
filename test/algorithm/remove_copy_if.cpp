@@ -155,7 +155,7 @@ int main() {
 		constexpr unsigned sa = ranges::size(ia);
 		S ib[sa];
 		auto r = ranges::remove_copy_if(std::move(ia), ib, [](int i){ return i == 2; }, &S::i);
-		static_assert(ranges::Same<decltype(r.in), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(r.in), ranges::dangling>);
 		CHECK(r.out == ib + sa-3);
 		CHECK(ib[0].i == 0);
 		CHECK(ib[1].i == 1);

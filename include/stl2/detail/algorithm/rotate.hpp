@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 				if (next(first) == middle) {
 					return __rotate_left(std::move(first), std::move(last));
 				}
-				if constexpr (Same<I, S>) {
+				if constexpr (same_as<I, S>) {
 					if constexpr (BidirectionalIterator<I>) {
 						if (next(middle) == last) {
 							return __rotate_right(std::move(first), std
@@ -124,7 +124,7 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(r), std::move(i)};
 		}
 
-		template<Integral I>
+		template<integral I>
 		static constexpr I __gcd(I x, I y) {
 			do {
 				auto t = x % y;

@@ -63,7 +63,7 @@ int main()
 	//      static_assert(InputView<R>());
 	//      static_assert(!ForwardRange<R>());
 	//      static_assert(!BoundedRange<R>());
-	//      static_assert(Same<int const&, range_reference_t<R>>());
+	//      static_assert(same_as<int const&, range_reference_t<R>>());
 	//      CHECK_EQUAL(rng, {4,5,6,7,8,9});
 	//  }
 

@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 			{
 				STL2_EXPECT(0 <= n);
 				auto ufirst = ext::uncounted(first);
-				static_assert(Same<iter_value_t<I>, iter_value_t<decltype(ufirst)>>);
+				static_assert(same_as<iter_value_t<I>, iter_value_t<decltype(ufirst)>>);
 				using buf_t = temporary_buffer<iter_value_t<I>>;
 				// TODO: tune this threshold.
 				auto buf = n / 2 >= 16 ? buf_t{n / 2} : buf_t{};

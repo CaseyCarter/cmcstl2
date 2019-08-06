@@ -225,12 +225,12 @@ STL2_OPEN_NAMESPACE {
 			{ __decay_copy(rbegin(static_cast<R&&>(r))) } -> Iterator;
 		};
 
-		// Default to make_reverse_iterator(end(r)) for Common ranges of
+		// Default to make_reverse_iterator(end(r)) for common_with ranges of
 		// Bidirectional iterators.
 		template<class R>
 		META_CONCEPT can_make_reverse = requires(R&& r) {
 			{ begin(static_cast<R&&>(r)) } -> BidirectionalIterator;
-			{ end(static_cast<R&&>(r)) } -> Same<__begin_t<R>>;
+			{ end(static_cast<R&&>(r)) } -> same_as<__begin_t<R>>;
 		};
 
 		template<class>
@@ -378,13 +378,13 @@ STL2_OPEN_NAMESPACE {
 		template<class R>
 		META_CONCEPT has_member = requires(R& r) {
 			r.size();
-			{ __decay_copy(r.size()) } -> Integral;
+			{ __decay_copy(r.size()) } -> integral;
 		};
 
 		template<class R>
 		META_CONCEPT has_non_member = requires(R& r) {
 			size(r);
-			{ __decay_copy(size(r)) } -> Integral;
+			{ __decay_copy(size(r)) } -> integral;
 		};
 
 		template<class R>

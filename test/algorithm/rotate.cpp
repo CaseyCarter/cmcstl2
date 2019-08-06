@@ -264,7 +264,7 @@ int main()
 	{
 		int rgi[] = {0,1,2,3,4,5};
 		auto r = ranges::rotate(std::move(rgi), rgi+2);
-		static_assert(ranges::Same<decltype(r), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(r), ranges::dangling>);
 		CHECK(rgi[0] == 2);
 		CHECK(rgi[1] == 3);
 		CHECK(rgi[2] == 4);

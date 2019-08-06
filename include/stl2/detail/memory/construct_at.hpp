@@ -20,13 +20,13 @@
 
 STL2_OPEN_NAMESPACE {
 	template<class T, class... Args>
-	requires Constructible<T, Args...>
+	requires constructible_from<T, Args...>
 	void __construct_at(T& t, Args&&... args) {
 		::new(const_cast<void*>(static_cast<const volatile void*>(std::addressof(t))))
 			T(std::forward<Args>(args)...);
 	}
 
-	template<DefaultConstructible T>
+	template<default_initializable T>
 	void __default_construct_at(T& t)
 	{
 		::new(const_cast<void*>(static_cast<const volatile void*>(std::addressof(t))))

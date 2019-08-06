@@ -28,33 +28,33 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	///////////////////////////////////////////////////////////////////////////
-	// Destructible [concept.destructible]
+	// destructible [concept.destructible]
 	//
 	template<class T>
-	META_CONCEPT Destructible = std::is_nothrow_destructible_v<T>;
+	META_CONCEPT destructible = std::is_nothrow_destructible_v<T>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// Constructible [concept.constructible]
+	// constructible_from [concept.constructible]
 	//
 	template<class T, class... Args>
-	META_CONCEPT Constructible =
-		Destructible<T> && std::is_constructible_v<T, Args...>;
+	META_CONCEPT constructible_from =
+		destructible<T> && std::is_constructible_v<T, Args...>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// DefaultConstructible [concept.defaultconstructible]
+	// default_initializable [concept.defaultconstructible]
 	//
 	template<class T>
-	META_CONCEPT DefaultConstructible = Constructible<T>
+	META_CONCEPT default_initializable = constructible_from<T>
 #if !STL2_WORKAROUND_GCC_UNKNOWN0 // Implement P/R for LWG 3149
-		&& requires { T{}; } // && is_default_initializable<T>
+		&& requires { T{}; } // && is-default-initializable<T>
 #endif // LWG 3149
 		;
 
 	///////////////////////////////////////////////////////////////////////////
-	// MoveConstructible [concept.moveconstructible]
+	// move_constructible [concept.moveconstructible]
 	//
 	template<class T>
-	META_CONCEPT MoveConstructible = Constructible<T, T> && ConvertibleTo<T, T>;
+	META_CONCEPT move_constructible = constructible_from<T, T> && convertible_to<T, T>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

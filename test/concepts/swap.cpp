@@ -29,15 +29,15 @@ using ranges::ext::is_nothrow_swappable_v;
 using namespace ranges;
 
 namespace swappable_test {
-	CONCEPT_ASSERT(Swappable<int>);
-	CONCEPT_ASSERT(SwappableWith<int&, int&>);
-	CONCEPT_ASSERT(Swappable<int[4]>);
-	CONCEPT_ASSERT(SwappableWith<int(&)[4], int(&)[4]>);
-	CONCEPT_ASSERT(!SwappableWith<int, int>);
-	CONCEPT_ASSERT(!SwappableWith<int&, double&>);
-	CONCEPT_ASSERT(!SwappableWith<int(&)[4], bool(&)[4]>);
-	CONCEPT_ASSERT(!Swappable<int[]>);
-	CONCEPT_ASSERT(!Swappable<int[][4]>);
+	CONCEPT_ASSERT(swappable<int>);
+	CONCEPT_ASSERT(swappable_with<int&, int&>);
+	CONCEPT_ASSERT(swappable<int[4]>);
+	CONCEPT_ASSERT(swappable_with<int(&)[4], int(&)[4]>);
+	CONCEPT_ASSERT(!swappable_with<int, int>);
+	CONCEPT_ASSERT(!swappable_with<int&, double&>);
+	CONCEPT_ASSERT(!swappable_with<int(&)[4], bool(&)[4]>);
+	CONCEPT_ASSERT(!swappable<int[]>);
+	CONCEPT_ASSERT(!swappable<int[][4]>);
 
 	CONCEPT_ASSERT(noexcept(swap(std::declval<int&>(), std::declval<int&>())));
 	CONCEPT_ASSERT(is_nothrow_swappable_v<int&, int&>);
@@ -45,11 +45,11 @@ namespace swappable_test {
 
 #if VALIDATE_STL2
 	// range-v3 doesn't support swapping multidimensional arrays
-	CONCEPT_ASSERT(Swappable<int[3][4]>);
-	CONCEPT_ASSERT(SwappableWith<int(&)[3][4], int(&)[3][4]>);
-	CONCEPT_ASSERT(Swappable<int[3][4][1][2]>);
-	CONCEPT_ASSERT(SwappableWith<int(&)[3][4][1][2], int(&)[3][4][1][2]>);
-	CONCEPT_ASSERT(!SwappableWith<int(&)[3][4][1][2], int(&)[4][4][1][2]>);
+	CONCEPT_ASSERT(swappable<int[3][4]>);
+	CONCEPT_ASSERT(swappable_with<int(&)[3][4], int(&)[3][4]>);
+	CONCEPT_ASSERT(swappable<int[3][4][1][2]>);
+	CONCEPT_ASSERT(swappable_with<int(&)[3][4][1][2], int(&)[3][4][1][2]>);
+	CONCEPT_ASSERT(!swappable_with<int(&)[3][4][1][2], int(&)[4][4][1][2]>);
 	CONCEPT_ASSERT(is_nothrow_swappable_v<int(&)[6][7], int(&)[6][7]>);
 
 	struct unswappable : std::string { // Has std:: as an associated namespace
@@ -57,7 +57,7 @@ namespace swappable_test {
 		unswappable(const unswappable&) = delete;
 		unswappable(unswappable&&) = delete;
 	};
-	CONCEPT_ASSERT(!SwappableWith<unswappable&, unswappable&>);
+	CONCEPT_ASSERT(!swappable_with<unswappable&, unswappable&>);
 	namespace __constrained_swappable {
 		// Has a constrained swap findable via ADL:
 		struct constrained_swappable {
@@ -66,15 +66,15 @@ namespace swappable_test {
 			constrained_swappable(constrained_swappable&&) = default;
 		};
 		template<class T>
-		META_CONCEPT ConstrainedSwappable = Same<T, constrained_swappable>;
+		META_CONCEPT ConstrainedSwappable = same_as<T, constrained_swappable>;
 		template<ConstrainedSwappable T, ConstrainedSwappable U>
 		void swap(T&, U&) {}
 		template<ConstrainedSwappable T>
 		void swap(T &, T &) {}
 	}
 	using __constrained_swappable::constrained_swappable;
-	CONCEPT_ASSERT(SwappableWith<constrained_swappable&, constrained_swappable&>);
-	CONCEPT_ASSERT(!SwappableWith<const volatile constrained_swappable&, const volatile constrained_swappable&>);
+	CONCEPT_ASSERT(swappable_with<constrained_swappable&, constrained_swappable&>);
+	CONCEPT_ASSERT(!swappable_with<const volatile constrained_swappable&, const volatile constrained_swappable&>);
 #endif
 
 	namespace {
@@ -85,7 +85,7 @@ namespace swappable_test {
 			friend void swap(A&, A&) noexcept {}
 		};
 
-		CONCEPT_ASSERT(Swappable<A>);
+		CONCEPT_ASSERT(swappable<A>);
 		CONCEPT_ASSERT(noexcept(swap(std::declval<A&>(), std::declval<A&>())));
 		CONCEPT_ASSERT(is_nothrow_swappable_v<A&, A&>);
 	}
@@ -95,7 +95,7 @@ namespace swappable_test {
 			friend void swap(B&, B&) {}
 		};
 
-		CONCEPT_ASSERT(Swappable<B>);
+		CONCEPT_ASSERT(swappable<B>);
 		CONCEPT_ASSERT(!noexcept(swap(std::declval<B&>(), std::declval<B&>())));
 		CONCEPT_ASSERT(!is_nothrow_swappable_v<B&, B&>);
 	}
@@ -103,12 +103,12 @@ namespace swappable_test {
 
 #if VALIDATE_STL2
 namespace example {
-	template<class T, ranges::SwappableWith<T> U>
+	template<class T, ranges::swappable_with<T> U>
 	void value_swap(T&& t, U&& u) {
 		ranges::swap(std::forward<T>(t), std::forward<U>(u));
 	}
 
-	template<ranges::Swappable T>
+	template<ranges::swappable T>
 	void lv_swap(T& t1, T& t2) {
 		ranges::swap(t1, t2);
 	}
@@ -163,7 +163,7 @@ int main() {
 		int a[2][2] = {{0, 1}, {2, 3}};
 		int b[2][2] = {{4, 5}, {6, 7}};
 
-		CONCEPT_ASSERT(SwappableWith<decltype((a)),decltype((b))>);
+		CONCEPT_ASSERT(swappable_with<decltype((a)),decltype((b))>);
 		swap(a, b);
 		CONCEPT_ASSERT(noexcept(swap(a, b)));
 

@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	namespace __istreambuf_iterator {
 		template<class charT, class traits = std::char_traits<charT>>
 		requires
-			SignedIntegral<typename traits::off_type>
+			signed_integral<typename traits::off_type>
 		class cursor;
 	}
 
@@ -36,16 +36,16 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class charT, class traits = std::char_traits<charT>>
 	requires
-		MoveConstructible<charT> &&
-		DefaultConstructible<charT> &&
-		SignedIntegral<typename traits::off_type>
+		move_constructible<charT> &&
+		default_initializable<charT> &&
+		signed_integral<typename traits::off_type>
 	using istreambuf_iterator =
 		basic_iterator<__istreambuf_iterator::cursor<charT, traits>>;
 
 	namespace __istreambuf_iterator {
 		template<class charT, class traits>
 		requires
-			SignedIntegral<typename traits::off_type>
+			signed_integral<typename traits::off_type>
 		class cursor {
 		public:
 			using value_type = charT;
@@ -127,7 +127,7 @@ STL2_OPEN_NAMESPACE {
 				// Yuck. This can't be simply "basic_iterator<cursor>".
 				// Since basic_iterator<cursor> derives from mixin, mixin must be
 				// instantiable before basic_iterator<cursor> is complete.
-				template<Same<cursor> C>
+				template<same_as<cursor> C>
 				bool equal(const basic_iterator<C>& that) const noexcept {
 					return base_t::get().equal(get_cursor(that));
 				}

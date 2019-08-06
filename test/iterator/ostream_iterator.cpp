@@ -39,22 +39,22 @@ int main() {
 
 	using I = ostream_iterator<int>;
 	static_assert(WeaklyIncrementable<I>);
-	static_assert(Same<iter_difference_t<I>, std::ptrdiff_t>);
+	static_assert(same_as<iter_difference_t<I>, std::ptrdiff_t>);
 	static_assert(Iterator<I>);
-	static_assert(Same<iter_reference_t<I>, I&>);
+	static_assert(same_as<iter_reference_t<I>, I&>);
 	static_assert(OutputIterator<I, const int&>);
 	static_assert(!InputIterator<I>);
 
 	I i{ss, " "};
-	static_assert(Same<I::difference_type, std::ptrdiff_t>);
-	static_assert(Same<I::char_type, char>);
-	static_assert(Same<I::traits_type, std::char_traits<char>>);
-	static_assert(Same<I::ostream_type, std::ostream>);
+	static_assert(same_as<I::difference_type, std::ptrdiff_t>);
+	static_assert(same_as<I::char_type, char>);
+	static_assert(same_as<I::traits_type, std::char_traits<char>>);
+	static_assert(same_as<I::ostream_type, std::ostream>);
 
-	static_assert(Same<I&, decltype(*i)>);
-	static_assert(Same<I&, decltype(*i = 42)>);
-	static_assert(Same<I&, decltype(++i)>);
-	static_assert(Same<I&, decltype(i++)>);
+	static_assert(same_as<I&, decltype(*i)>);
+	static_assert(same_as<I&, decltype(*i = 42)>);
+	static_assert(same_as<I&, decltype(++i)>);
+	static_assert(same_as<I&, decltype(i++)>);
 
 	static_assert(noexcept(I{}));
 #if defined(__GNUC__) && __GNUC__ < 8 || (__GNUC__ == 7 && __GNUC_MINOR__ >= 2)
@@ -74,7 +74,7 @@ int main() {
 		subrange(istream_iterator<int>{ss}, default_sentinel{}),
 			some_ints);
 
-	static_assert(Same<
+	static_assert(same_as<
 		ostream_iterator<int>&,
 		decltype(*std::declval<ostream_iterator<int>&>())>);
 

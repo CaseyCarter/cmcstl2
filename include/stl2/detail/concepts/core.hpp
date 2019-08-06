@@ -31,10 +31,10 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT __can_reference = requires { typename __with_reference<T>; };
 
 	///////////////////////////////////////////////////////////////////////////
-	// Same
+	// same_as
 	//
 	template<class T, class U>
-	META_CONCEPT Same = meta::Same<T, U> && meta::Same<U, T>;
+	META_CONCEPT same_as = meta::Same<T, U> && meta::Same<U, T>;
 
 	template<class T>
 	META_CONCEPT _Decayed = meta::Same<T, std::decay_t<T>>;
@@ -46,10 +46,10 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT _NotSameAs = !meta::Same<__uncvref<T>, __uncvref<U>>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// DerivedFrom
+	// derived_from
 	//
 	template<class Derived, class Base>
-	META_CONCEPT DerivedFrom =
+	META_CONCEPT derived_from =
 #if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER)
 		META_CONCEPT_BARRIER(__is_base_of(Base, Derived)) &&
 #else
@@ -58,10 +58,10 @@ STL2_OPEN_NAMESPACE {
 		_IsConvertibleImpl<const volatile Derived*, const volatile Base*>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// ConvertibleTo
+	// convertible_to
 	//
 	template<class From, class To>
-	META_CONCEPT ConvertibleTo =
+	META_CONCEPT convertible_to =
 		_IsConvertibleImpl<From, To> &&
 #if 1 // This is the PR for https://wg21.link/lwg3151
 		requires {

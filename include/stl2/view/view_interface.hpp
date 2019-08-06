@@ -39,8 +39,8 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT SizedSentinelForwardRange = ForwardRange<R> && SizedSentinel<sentinel_t<R>, iterator_t<R>>;
 		template<class C, class R> // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		META_CONCEPT ContainerConvertibleGCCBugs = InputRange<R> &&
-			ConvertibleTo<iter_reference_t<iterator_t<R>>, iter_value_t<iterator_t<C>>> &&
-			Constructible<C, __range_common_iterator<R>, __range_common_iterator<R>>;
+			convertible_to<iter_reference_t<iterator_t<R>>, iter_value_t<iterator_t<C>>> &&
+			constructible_from<C, __range_common_iterator<R>, __range_common_iterator<R>>;
 		template<class C, class R>
 		META_CONCEPT ContainerConvertible = ForwardRange<C> && !View<C> &&
 			ContainerConvertibleGCCBugs<C, R>;
@@ -67,11 +67,11 @@ STL2_OPEN_NAMESPACE {
 	class view_interface : public view_base {
 	private:
 		constexpr D& derived() noexcept {
-			static_assert(DerivedFrom<D, view_interface>);
+			static_assert(derived_from<D, view_interface>);
 			return static_cast<D&>(*this);
 		}
 		constexpr const D& derived() const noexcept {
-			static_assert(DerivedFrom<D, view_interface>);
+			static_assert(derived_from<D, view_interface>);
 			return static_cast<const D&>(*this);
 		}
 	public:

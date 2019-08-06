@@ -70,10 +70,10 @@ STL2_OPEN_NAMESPACE {
 	template<class T>
 	META_CONCEPT _ContainerLike =
 		Range<T> && Range<const T> &&
-		!Same<iter_reference_t<iterator_t<T>>, iter_reference_t<iterator_t<const T>>>;
+		!same_as<iter_reference_t<iterator_t<T>>, iter_reference_t<iterator_t<const T>>>;
 
 	template<class T>
-	META_CONCEPT __enable_view_default = DerivedFrom<T, view_base> || !_ContainerLike<T>;
+	META_CONCEPT __enable_view_default = derived_from<T, view_base> || !_ContainerLike<T>;
 
 	template<class T>
 	inline constexpr bool enable_view = __enable_view_default<T>;
@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 	template<class T>
 	META_CONCEPT View =
 		Range<T> &&
-		Semiregular<T> &&
+		semiregular<T> &&
 		enable_view<__uncvref<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class T>
 	META_CONCEPT CommonRange =
-		Range<T> && Same<iterator_t<T>, sentinel_t<T>>;
+		Range<T> && same_as<iterator_t<T>, sentinel_t<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// OutputRange [ranges.output]
@@ -144,15 +144,15 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT ContiguousRange =
 		RandomAccessRange<R> && ContiguousIterator<iterator_t<R>> &&
 		requires(R& r) {
-			{ data(r) } -> Same<std::add_pointer_t<iter_reference_t<iterator_t<R>>>>;
+			{ data(r) } -> same_as<std::add_pointer_t<iter_reference_t<iterator_t<R>>>>;
 		};
 
 	namespace ext {
 		template<class R>
 		META_CONCEPT SimpleView =
 			View<R> && Range<const R> &&
-			Same<iterator_t<R>, iterator_t<const R>> &&
-			Same<sentinel_t<R>, sentinel_t<const R>>;
+			same_as<iterator_t<R>, iterator_t<const R>> &&
+			same_as<sentinel_t<R>, sentinel_t<const R>>;
 	}
 
 	template<class Rng>

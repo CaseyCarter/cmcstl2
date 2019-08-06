@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 
 	struct __transform_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-			CopyConstructible F, class Proj = identity>
+			copy_constructible F, class Proj = identity>
 		requires Writable<O, indirect_result_t<F&, projected<I, Proj>>>
 		constexpr unary_transform_result<I, O>
 		operator()(I first, S last, O result, F op, Proj proj = {}) const {
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first), std::move(result)};
 		}
 
-		template<InputRange R, WeaklyIncrementable O, CopyConstructible F,
+		template<InputRange R, WeaklyIncrementable O, copy_constructible F,
 			class Proj = identity>
 		requires Writable<O, indirect_result_t<F&, projected<iterator_t<R>, Proj>>>
 		constexpr unary_transform_result<safe_iterator_t<R>, O>
@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<InputIterator I1, Sentinel<I1> S1,
 			InputIterator I2, Sentinel<I2> S2,
-			WeaklyIncrementable O, CopyConstructible F,
+			WeaklyIncrementable O, copy_constructible F,
 			class Proj1 = identity, class Proj2 = identity>
 		requires Writable<O, indirect_result_t<F&,
 			projected<I1, Proj1>, projected<I2, Proj2>>>
@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<InputRange R1, InputRange R2, WeaklyIncrementable O,
-			CopyConstructible F, class Proj1 = identity, class Proj2 = identity>
+			copy_constructible F, class Proj1 = identity, class Proj2 = identity>
 		requires Writable<O, indirect_result_t<F&,
 			projected<iterator_t<R1>, Proj1>, projected<iterator_t<R2>, Proj2>>>
 		constexpr binary_transform_result<safe_iterator_t<R1>, safe_iterator_t<R2>, O>

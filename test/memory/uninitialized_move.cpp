@@ -35,7 +35,7 @@ namespace {
 	requires requires {
 		typename ranges::iter_value_t<Rng>;
 		&ranges::iter_value_t<Rng>::empty;
-		requires ranges::Invocable<
+		requires ranges::invocable<
 			decltype(&ranges::iter_value_t<Rng>::empty),
 			ranges::iter_reference_t<ranges::iterator_t<const Rng>>>;
 	}
@@ -53,7 +53,7 @@ namespace {
 		return true;
 	}
 
-	template<ranges::Copyable T>
+	template<ranges::copyable T>
 	void uninitialized_move_test(const Array<T>& control) {
 		auto independent = make_buffer<T>(control.size());
 		auto test = [&control](const auto& to_move, const auto& independent, const auto& p) {

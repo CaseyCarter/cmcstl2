@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<class I, class O>
 	META_CONCEPT __unique_copy_helper = InputIterator<I> &&  InputIterator<O> &&
-		Same<iter_value_t<I>, iter_value_t<O>>;
+		same_as<iter_value_t<I>, iter_value_t<O>>;
 
 	struct __unique_copy_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,

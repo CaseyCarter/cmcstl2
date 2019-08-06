@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 		, pattern_(std::move(pattern)) {}
 
 		constexpr split_view(Rng base, iter_value_t<iterator_t<Rng>> e)
-		requires Constructible<Pattern, single_view<iter_value_t<iterator_t<Rng>>>>
+		requires constructible_from<Pattern, single_view<iter_value_t<iterator_t<Rng>>>>
 		: base_(std::move(base))
 		, pattern_(single_view{std::move(e)}) {}
 
@@ -152,7 +152,7 @@ STL2_OPEN_NAMESPACE {
 		, parent_(std::addressof(parent)) {}
 
 		constexpr __outer_iterator(__outer_iterator<!Const> i)
-		requires Const && ConvertibleTo<iterator_t<Rng>, iterator_t<Base>>
+		requires Const && convertible_to<iterator_t<Rng>, iterator_t<Base>>
 		: __split_view_outer_base<Rng, Const>{i.current_}
 		, parent_(i.parent_) {}
 
@@ -328,7 +328,7 @@ STL2_OPEN_NAMESPACE {
 			)
 #endif // STL2_WORKAROUND_CLANGC_50
 
-			template<CopyConstructible T>
+			template<copy_constructible T>
 			constexpr auto operator()(T&& t) const
 			{ return detail::view_closure{*this, std::forward<T>(t)}; }
 		};

@@ -25,7 +25,7 @@
 STL2_OPEN_NAMESPACE {
 	template<class From, class To>
 	META_CONCEPT _ConvertibleToNotSlicing =
-		ConvertibleTo<From, To> &&
+		convertible_to<From, To> &&
 		// A conversion is a slicing conversion if the source and the destination
 		// are both pointers, and if the pointed-to types differ after removing
 		// cv qualifiers.
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT _PairLike =
 		!std::is_reference_v<T> && requires {
 			typename std::tuple_size<T>::type;
-			requires DerivedFrom<std::tuple_size<T>, std::integral_constant<std::size_t, 2>>;
+			requires derived_from<std::tuple_size<T>, std::integral_constant<std::size_t, 2>>;
 			typename std::tuple_element_t<0, std::remove_const_t<T>>;
 			typename std::tuple_element_t<1, std::remove_const_t<T>>;
 			requires _PairLikeGCCBugs<T>; // Separate named concept to avoid
@@ -56,11 +56,11 @@ STL2_OPEN_NAMESPACE {
 		!std::is_reference_v<std::tuple_element_t<0, T>> &&
 		!std::is_reference_v<std::tuple_element_t<1, T>> &&
 		_ConvertibleToNotSlicing<U, std::tuple_element_t<0, T>> &&
-		ConvertibleTo<V, std::tuple_element_t<1, T>>;
+		convertible_to<V, std::tuple_element_t<1, T>>;
 
 	template<class T, class U, class V>
 	META_CONCEPT _PairLikeConvertibleFrom =
-		!Range<T> && _PairLike<T> && Constructible<T, U, V> &&
+		!Range<T> && _PairLike<T> && constructible_from<T, U, V> &&
 		_PairLikeConvertibleFromGCCBugs<T, U, V>; // Separate named concept to avoid
 		                                          // premature substitution.
 
@@ -149,7 +149,7 @@ STL2_OPEN_NAMESPACE {
 		requires _ForwardingRange<R> &&
 #endif
 			_ConvertibleToNotSlicing<iterator_t<R>, I> &&
-			ConvertibleTo<sentinel_t<R>, S>
+			convertible_to<sentinel_t<R>, S>
 		constexpr subrange(R&& r) requires (!StoreSize)
 		: subrange{__stl2::begin(r), __stl2::end(r)} {}
 
@@ -161,14 +161,14 @@ STL2_OPEN_NAMESPACE {
 		requires _ForwardingRange<R> &&
 #endif
 			_ConvertibleToNotSlicing<iterator_t<R>, I> &&
-			ConvertibleTo<sentinel_t<R>, S>
+			convertible_to<sentinel_t<R>, S>
 		constexpr subrange(R&& r) requires StoreSize && SizedRange<R>
 		: subrange{__stl2::begin(r), __stl2::end(r), distance(r)} {}
 
 		template<_ForwardingRange R>
 		requires
 			_ConvertibleToNotSlicing<iterator_t<R>, I> &&
-			ConvertibleTo<sentinel_t<R>, S>
+			convertible_to<sentinel_t<R>, S>
 		constexpr subrange(R&& r, iter_difference_t<I> n)
 			requires (K == subrange_kind::sized)
 		: subrange{__stl2::begin(r), __stl2::end(r), n} {

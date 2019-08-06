@@ -20,44 +20,44 @@
 #include <stl2/detail/functional/invoke.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// Invocable Concepts [concepts.lib.callables]
+// invocable Concepts [concepts.lib.callables]
 //
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// Invocable [concepts.lib.callables.callable]
+	// invocable [concepts.lib.callables.callable]
 	//
 	template<class F, class... Args>
-	META_CONCEPT Invocable =
+	META_CONCEPT invocable =
 		requires(F&& f, Args&&... args) {
 			__stl2::invoke((F&&)f, (Args&&)args...);
 		};
 
 	///////////////////////////////////////////////////////////////////////////
-	// RegularInvocable [concepts.lib.callables.regularcallable]
+	// regular_invocable [concepts.lib.callables.regularcallable]
 	//
 	template<class F, class... Args>
-	META_CONCEPT RegularInvocable = Invocable<F, Args...>;
+	META_CONCEPT regular_invocable = invocable<F, Args...>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// Predicate [concepts.lib.callables.predicate]
+	// predicate [concepts.lib.callables.predicate]
 	//
 	template<class F, class... Args>
-	META_CONCEPT Predicate =
-		RegularInvocable<F, Args...> && Boolean<invoke_result_t<F, Args...>>;
+	META_CONCEPT predicate =
+		regular_invocable<F, Args...> && boolean<invoke_result_t<F, Args...>>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// Relation [concepts.lib.callables.relation]
+	// relation [concepts.lib.callables.relation]
 	//
 	template<class R, class T, class U>
-	META_CONCEPT Relation =
-		Predicate<R, T, T> &&
-		Predicate<R, U, U> &&
-		Predicate<R, T, U> &&
-		Predicate<R, U, T> &&
-		CommonReference<
+	META_CONCEPT relation =
+		predicate<R, T, T> &&
+		predicate<R, U, U> &&
+		predicate<R, T, U> &&
+		predicate<R, U, T> &&
+		common_reference_with<
 			const std::remove_reference_t<T>&,
 			const std::remove_reference_t<U>&> &&
-		Predicate<
+		predicate<
 			R,
 			common_reference_t<
 				const std::remove_reference_t<T>&,
@@ -67,10 +67,10 @@ STL2_OPEN_NAMESPACE {
 				const std::remove_reference_t<U>&>>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// StrictWeakOrder [concepts.lib.callables.strictweakorder]
+	// strict_weak_order [concepts.lib.callables.strictweakorder]
 	//
 	template<class R, class T, class U>
-	META_CONCEPT StrictWeakOrder = Relation<R, T, U>;
+	META_CONCEPT strict_weak_order = relation<R, T, U>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -131,7 +131,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<Integral I>
+		template<integral I>
 		static constexpr auto log2(I n) {
 			STL2_EXPECT(n > 0);
 			I k = 0;

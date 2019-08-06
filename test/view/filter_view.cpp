@@ -48,8 +48,8 @@ int main() {
 	static_assert(size(view::all(rgi))==10);
 
 	auto rng = rgi | view::filter(is_odd());
-	static_assert(Same<int &, decltype(*begin(rgi))>);
-	static_assert(Same<int &, decltype(*begin(rng))>);
+	static_assert(same_as<int &, decltype(*begin(rgi))>);
+	static_assert(same_as<int &, decltype(*begin(rng))>);
 	static_assert(View<decltype(rng)>);
 	static_assert(InputRange<decltype(rng)>);
 	static_assert(CommonRange<decltype(rng)>);
@@ -63,7 +63,7 @@ int main() {
 	CHECK(&*begin(tmp) == &rgi[8]);
 
 	// auto rng2 = view::counted(rgi, 10) | view::remove_if(not_fn(is_odd()));
-	// static_assert(Same<int &, decltype(*begin(rng2))>);
+	// static_assert(same_as<int &, decltype(*begin(rng2))>);
 	// static_assert(BidirectionalView<__f<decltype(rng2)>>);
 	// static_assert(!RandomAccessView<__f<decltype(rng2)>>);
 	// static_assert(CommonView<__f<decltype(rng2)>>);
@@ -72,7 +72,7 @@ int main() {
 	// CHECK(&*begin(rng2) == &rgi[0]);
 
 	// auto rng3 = view::counted(bidirectional_iterator<int*>{rgi}, 10) | view::remove_if(is_even());
-	// static_assert(Same<int &, decltype(*begin(rng3))>);
+	// static_assert(same_as<int &, decltype(*begin(rng3))>);
 	// static_assert(BidirectionalView<__f<decltype(rng3)>>);
 	// static_assert(!RandomAccessView<__f<decltype(rng3)>>);
 	// static_assert(!CommonView<__f<decltype(rng3)>>);
@@ -90,7 +90,7 @@ int main() {
 	auto mutable_rng = view::filter(rgi, [flag](int) mutable { return flag = !flag;});
 	CHECK_EQUAL(mutable_rng, {1,3,5,7,9});
 	static_assert(Range<decltype(mutable_rng)>);
-	static_assert(Copyable<decltype(mutable_rng)>);
+	static_assert(copyable<decltype(mutable_rng)>);
 	static_assert(!View<decltype(mutable_rng) const>);
 
 	// {

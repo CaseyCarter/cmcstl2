@@ -165,8 +165,8 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr __iterator(__iterator<!Const> i) requires Const &&
-			ConvertibleTo<iterator_t<V>, iterator_t<Base>> &&
-			ConvertibleTo<
+			convertible_to<iterator_t<V>, iterator_t<Base>> &&
+			convertible_to<
 				iterator_t<InnerRng>,
 				iterator_t<iter_reference_t<iterator_t<Base>>>>
 		: outer_(std::move(i.outer_))
@@ -230,13 +230,13 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator==(const __iterator& x, const __iterator& y)
-		requires ref_is_glvalue && EqualityComparable<iterator_t<Base>> &&
-			EqualityComparable<iterator_t<iter_reference_t<iterator_t<Base>>>>
+		requires ref_is_glvalue && equality_comparable<iterator_t<Base>> &&
+			equality_comparable<iterator_t<iter_reference_t<iterator_t<Base>>>>
 		{ return bool(x.outer_ == y.outer_) && bool(x.inner_ == y.inner_); } // TODO: file LWG issue
 
 		friend constexpr bool operator!=(const __iterator& x, const __iterator& y)
-		requires ref_is_glvalue && EqualityComparable<iterator_t<Base>> &&
-			EqualityComparable<iterator_t<iter_reference_t<iterator_t<Base>>>>
+		requires ref_is_glvalue && equality_comparable<iterator_t<Base>> &&
+			equality_comparable<iterator_t<iter_reference_t<iterator_t<Base>>>>
 		{ return !(x == y); }
 
 		friend constexpr decltype(auto) iter_move(const __iterator& i)
@@ -270,7 +270,7 @@ STL2_OPEN_NAMESPACE {
 		: end_(__stl2::end(parent.base_)) {}
 
 		constexpr __sentinel(__sentinel<!Const> s) requires Const &&
-			ConvertibleTo<sentinel_t<V>, sentinel_t<Base>>
+			convertible_to<sentinel_t<V>, sentinel_t<Base>>
 		: end_(std::move(s.end_)) {}
 
 		friend constexpr bool operator==(const __iterator<Const>& x, const __sentinel& y)

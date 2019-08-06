@@ -22,27 +22,27 @@
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// CopyConstructible [concepts.lib.object.copyconstructible]
+	// copy_constructible [concepts.lib.object.copyconstructible]
 	//
 	template<class T>
-	META_CONCEPT CopyConstructible =
-		MoveConstructible<T> &&
-		Constructible<T, T&> && ConvertibleTo<T&, T> &&
-		Constructible<T, const T&> && ConvertibleTo<const T&, T> &&
-		Constructible<T, const T> && ConvertibleTo<const T, T>;
+	META_CONCEPT copy_constructible =
+		move_constructible<T> &&
+		constructible_from<T, T&> && convertible_to<T&, T> &&
+		constructible_from<T, const T&> && convertible_to<const T&, T> &&
+		constructible_from<T, const T> && convertible_to<const T, T>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// Copyable [concepts.lib.object.copyable]
+	// copyable [concepts.lib.object.copyable]
 	//
 	template<class T>
-	META_CONCEPT Copyable =
-		CopyConstructible<T> && Movable<T> && Assignable<T&, const T&>;
+	META_CONCEPT copyable =
+		copy_constructible<T> && movable<T> && assignable_from<T&, const T&>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// Semiregular [concepts.lib.object.semiregular]
+	// semiregular [concepts.lib.object.semiregular]
 	//
 	template<class T>
-	META_CONCEPT Semiregular = Copyable<T> && DefaultConstructible<T>;
+	META_CONCEPT semiregular = copyable<T> && default_initializable<T>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

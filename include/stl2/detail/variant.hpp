@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 		std::size_t I = meta::_v<meta::find_index<TypeList, T>>>
 	requires
 		(I != meta::_v<meta::npos> &&
-		Same<meta::find_index<meta::drop_c<TypeList, I + 1>, T>, meta::npos>)
+		same_as<meta::find_index<meta::drop_c<TypeList, I + 1>, T>, meta::npos>)
 	constexpr std::size_t __index_of_type = I;
 
 	// Like std::get<I>(v), but with a precondition that v.index() == I

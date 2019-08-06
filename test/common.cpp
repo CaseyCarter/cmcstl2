@@ -158,9 +158,9 @@ struct common_type<Y2, X2>
 static_assert(is_same_v<common_type_t<X2 &, Y2 const &>, Z2>);
 static_assert(is_same_v<common_reference_t<X2 &, Y2 const &>, Z2>);
 
-static_assert(CommonReference<void, void>);
+static_assert(common_reference_with<void, void>);
 static_assert(is_same_v<common_reference_t<void, void>, void>);
-static_assert(Common<void, void>);
+static_assert(common_with<void, void>);
 static_assert(is_same_v<common_type_t<void, void>, void>);
 
 static_assert(is_same_v<common_type_t<reference_wrapper<int>, int>, int>);
@@ -304,7 +304,7 @@ namespace libstdcpp_tests
 	struct is_type : std::false_type {};
 
 	template<meta::Trait T, typename Expected>
-		requires Same<meta::_t<T>, Expected>
+		requires same_as<meta::_t<T>, Expected>
 	struct is_type<T, Expected> : std::true_type {};
 
 	// Inspection types:

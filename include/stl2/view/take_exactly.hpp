@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 	#else
 			template<class B = Base>
 			requires
-				(Same<B, Base> &&
+				(same_as<B, Base> &&
 				!Range<B const> &&
 				requires(B& b) { __stl2::data(b); })
 			constexpr auto data()
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 	#else
 			template<class B = Base>
 			requires
-				Same<B, Base> &&
+				same_as<B, Base> &&
 				Range<B const> &&
 				requires(B const& b) { __stl2::data(b); }
 			constexpr auto data() const
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 			)
 #endif // STL2_WORKAROUND_CLANGC_50
 
-			template<Integral D>
+			template<integral D>
 			constexpr auto operator()(D count) const {
 				return detail::view_closure(*this, static_cast<D>(count));
 			}

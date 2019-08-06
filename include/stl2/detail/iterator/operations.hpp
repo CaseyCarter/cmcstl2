@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr void operator()(I& i, S bound) const
 		// [[expects axiom: reachable(i, bound)]]
 		{
-			if constexpr (Assignable<I&, S>) {
+			if constexpr (assignable_from<I&, S>) {
 				i = std::move(bound);
 			} else if constexpr (SizedSentinel<S, I>) {
 				iter_difference_t<I> d = bound - i;
@@ -60,11 +60,11 @@ STL2_OPEN_NAMESPACE {
 		operator()(I& i, iter_difference_t<I> n, S bound) const
 		// [[expects axiom: 0 == n ||
 		//     (n > 0 && reachable(i, bound)) ||
-		//     (n < 0 && Same<I, S> && BidirectionalIterator<I> && reachable(bound, i))]]
+		//     (n < 0 && same_as<I, S> && BidirectionalIterator<I> && reachable(bound, i))]]
 		{
 			if constexpr (SizedSentinel<S, I>) {
 				const auto d = bound - i;
-				if constexpr (BidirectionalIterator<I> && Same<I, S>) {
+				if constexpr (BidirectionalIterator<I> && same_as<I, S>) {
 					STL2_EXPECT(n >= 0 ? d >= 0 : d <= 0);
 					if (n >= 0 ? n >= d : n <= d) {
 						i = std::move(bound);
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 				(*this)(i, n);
 				return 0;
 			} else {
-				if constexpr (BidirectionalIterator<I> && Same<I, S>) {
+				if constexpr (BidirectionalIterator<I> && same_as<I, S>) {
 					if (n < 0) {
 						while (n != 0 && i != bound) {
 							--i;

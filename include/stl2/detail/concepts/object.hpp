@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 	// the decayed type can in fact be constructed from the actual type.
 	//
 	template<class T>
-		requires Constructible<std::decay_t<T>, T>
+		requires constructible_from<std::decay_t<T>, T>
 	using __f = std::decay_t<T>;
 
 	namespace ext {
@@ -57,56 +57,56 @@ STL2_OPEN_NAMESPACE {
 		// 'structible object concepts
 		//
 		template<class T>
-		META_CONCEPT DestructibleObject = Object<T> && Destructible<T>;
+		META_CONCEPT DestructibleObject = Object<T> && destructible<T>;
 
 		template<class T, class... Args>
-		META_CONCEPT ConstructibleObject = Object<T> && Constructible<T, Args...>;
+		META_CONCEPT ConstructibleObject = Object<T> && constructible_from<T, Args...>;
 
 		template<class T>
-		META_CONCEPT DefaultConstructibleObject = Object<T> && DefaultConstructible<T>;
+		META_CONCEPT DefaultConstructibleObject = Object<T> && default_initializable<T>;
 
 		template<class T>
-		META_CONCEPT MoveConstructibleObject = Object<T> && MoveConstructible<T>;
+		META_CONCEPT MoveConstructibleObject = Object<T> && move_constructible<T>;
 
 		template<class T>
-		META_CONCEPT CopyConstructibleObject = Object<T> && CopyConstructible<T>;
+		META_CONCEPT CopyConstructibleObject = Object<T> && copy_constructible<T>;
 
 		///////////////////////////////////////////////////////////////////////////
 		// TriviallyFoo concepts
 		//
 		template<class T>
 		META_CONCEPT TriviallyDestructible =
-			Destructible<T> && std::is_trivially_destructible_v<T>;
+			destructible<T> && std::is_trivially_destructible_v<T>;
 
 		template<class T, class... Args>
 		META_CONCEPT TriviallyConstructible =
-			Constructible<T, Args...> &&
+			constructible_from<T, Args...> &&
 			std::is_trivially_constructible_v<T, Args...>;
 
 		template<class T>
 		META_CONCEPT TriviallyDefaultConstructible =
-			DefaultConstructible<T> &&
+			default_initializable<T> &&
 			std::is_trivially_default_constructible_v<T>;
 
 		template<class T>
 		META_CONCEPT TriviallyMoveConstructible =
-			MoveConstructible<T> && std::is_trivially_move_constructible_v<T>;
+			move_constructible<T> && std::is_trivially_move_constructible_v<T>;
 
 		template<class T>
 		META_CONCEPT TriviallyCopyConstructible =
-			CopyConstructible<T> &&
+			copy_constructible<T> &&
 			TriviallyMoveConstructible<T> &&
 			std::is_trivially_copy_constructible_v<T>;
 
 		template<class T>
 		META_CONCEPT TriviallyMovable =
-			Movable<T> &&
+			movable<T> &&
 			TriviallyMoveConstructible<T> &&
 			std::is_trivially_move_assignable_v<T>;
 
 		template<class T>
 		META_CONCEPT TriviallyCopyable =
-			Copyable<T> &&
+			copyable<T> &&
 			TriviallyMovable<T> &&
 			TriviallyCopyConstructible<T> &&
 			std::is_trivially_copy_assignable_v<T>;

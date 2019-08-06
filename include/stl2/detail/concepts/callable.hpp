@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 	: meta::bool_<sizeof...(T) == 1> {};
 
 	template<class T, class U, class... Rest>
-	requires CommonReference<T, U>
+	requires common_reference_with<T, U>
 	struct __common_reference<T, U, Rest...>
 	: __common_reference<common_reference_t<T, U>, Rest...> {};
 
@@ -49,19 +49,19 @@ STL2_OPEN_NAMESPACE {
 			meta::quote<__iter_args_lists>>;
 
 	template<class F, class... Args>
-	requires Invocable<F, Args...>
+	requires invocable<F, Args...>
 	using __callable_result_t = invoke_result_t<F, Args...>;
 
 	namespace ext {
 		template<class F, class... Is>
 		META_CONCEPT IndirectInvocable =
 			(Readable<Is> && ... && true) &&
-			CopyConstructible<F> &&
+			copy_constructible<F> &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
-			Invocable<F&, iter_value_t<Is>&...> &&
-			Invocable<F&, iter_reference_t<Is>...> &&
-			Invocable<F&, iter_common_reference_t<Is>...> &&
+			invocable<F&, iter_value_t<Is>&...> &&
+			invocable<F&, iter_reference_t<Is>...> &&
+			invocable<F&, iter_common_reference_t<Is>...> &&
 			// redundantly checks the above 3 requirements
 			meta::_v<meta::invoke<
 				__iter_map_reduce_fn<
@@ -78,7 +78,7 @@ STL2_OPEN_NAMESPACE {
 	// indirect_result_t
 	//
 	template<class F, class... Is>
-	requires (Readable<Is> && ...) && Invocable<F, iter_reference_t<Is>...>
+	requires (Readable<Is> && ...) && invocable<F, iter_reference_t<Is>...>
 	using indirect_result_t = invoke_result_t<F, iter_reference_t<Is>&&...>;
 
 	namespace ext {
@@ -93,19 +93,19 @@ STL2_OPEN_NAMESPACE {
 
 	template<class, class...> struct __predicate : std::false_type {};
 	template<class F, class... Args>
-	requires Predicate<F, Args...>
+	requires predicate<F, Args...>
 	struct __predicate<F, Args...> : std::true_type {};
 
 	namespace ext {
 		template<class F, class... Is>
 		META_CONCEPT IndirectPredicate =
 			(Readable<Is> && ... && true) &&
-			CopyConstructible<F> &&
+			copy_constructible<F> &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
-			Predicate<F&, iter_value_t<Is>&...> &&
-			Predicate<F&, iter_reference_t<Is>...> &&
-			Predicate<F&, iter_common_reference_t<Is>...> &&
+			predicate<F&, iter_value_t<Is>&...> &&
+			predicate<F&, iter_reference_t<Is>...> &&
+			predicate<F&, iter_common_reference_t<Is>...> &&
 			// redundantly checks the above 3 requirements
 			meta::_v<meta::invoke<
 				__iter_map_reduce_fn<
@@ -122,23 +122,23 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT IndirectRelation =
 		Readable<I1> &&
 		Readable<I2> &&
-		CopyConstructible<F> &&
-		Relation<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
-		Relation<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
-		Relation<F&, iter_reference_t<I1>, iter_value_t<I2>&> &&
-		Relation<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
-		Relation<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
+		copy_constructible<F> &&
+		relation<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
+		relation<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
+		relation<F&, iter_reference_t<I1>, iter_value_t<I2>&> &&
+		relation<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
+		relation<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
 	template<class F, class I1, class I2 = I1>
 	META_CONCEPT IndirectStrictWeakOrder =
 		Readable<I1> &&
 		Readable<I2> &&
-		CopyConstructible<F> &&
-		StrictWeakOrder<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
-		StrictWeakOrder<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
-		StrictWeakOrder<F&, iter_reference_t<I1>, iter_value_t<I2>&> &&
-		StrictWeakOrder<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
-		StrictWeakOrder<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
+		copy_constructible<F> &&
+		strict_weak_order<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
+		strict_weak_order<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
+		strict_weak_order<F&, iter_reference_t<I1>, iter_value_t<I2>&> &&
+		strict_weak_order<F&, iter_reference_t<I1>, iter_reference_t<I2>> &&
+		strict_weak_order<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
 	////////////////////////////////////////////////////////////////////////////
 	// projected [projected.indirectcallables]

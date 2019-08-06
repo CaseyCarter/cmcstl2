@@ -44,16 +44,16 @@ int main() {
 
 		auto res1 =
 			ranges::set_symmetric_difference(std::move(ia), std::move(ib), ic, std::less<int>(), &S::i, &T::j);
-		static_assert(ranges::Same<decltype(res1.in1), ranges::dangling>);
-		static_assert(ranges::Same<decltype(res1.in2), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(res1.in1), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(res1.in2), ranges::dangling>);
 		CHECK((res1.out - ic) == sr);
 		CHECK(!ranges::lexicographical_compare(ic, res1.out, ir, ir+sr, std::less<int>(), &U::k));
 		ranges::fill(ic, U{0});
 
 		auto res2 =
 			ranges::set_symmetric_difference(std::move(ib), std::move(ia), ic, std::less<int>(), &T::j, &S::i);
-		static_assert(ranges::Same<decltype(res2.in1), ranges::dangling>);
-		static_assert(ranges::Same<decltype(res2.in2), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(res2.in1), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(res2.in2), ranges::dangling>);
 		CHECK((res2.out - ic) == sr);
 		CHECK(!ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k));
 	}
