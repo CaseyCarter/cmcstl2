@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	template<class T>
 	META_CONCEPT default_initializable = constructible_from<T>
 #if !STL2_WORKAROUND_GCC_UNKNOWN0 // Implement P/R for LWG 3149
-		&& requires { T{}; } // && is_default_constructible<T>
+		&& requires { T{}; } // && is-default-initializable<T>
 #endif // LWG 3149
 		;
 
