@@ -30,8 +30,8 @@ namespace {
 
 	template<typename T>
 	requires
-		ranges::DefaultConstructible<T> &&
-		ranges::EqualityComparable<T>
+		ranges::default_initializable<T> &&
+		ranges::equality_comparable<T>
 	void uninitialized_value_construct_test()
 	{
 		auto independent = make_buffer<T>(N);

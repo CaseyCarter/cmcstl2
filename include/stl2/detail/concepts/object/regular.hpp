@@ -19,10 +19,10 @@
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// Regular [concepts.lib.object.regular]
+	// regular [concepts.lib.object.regular]
 	//
 	template<class T>
-	META_CONCEPT Regular = Semiregular<T> && EqualityComparable<T>;
+	META_CONCEPT regular = semiregular<T> && equality_comparable<T>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

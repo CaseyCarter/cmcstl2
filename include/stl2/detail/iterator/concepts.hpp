@@ -154,9 +154,9 @@ STL2_OPEN_NAMESPACE {
 			typename iter_rvalue_reference_t<I>;
 		} &&
 		// Relationships between associated types
-		CommonReference<iter_reference_t<I>&&, iter_value_t<I>&> &&
-		CommonReference<iter_reference_t<I>&&, iter_rvalue_reference_t<I>&&> &&
-		CommonReference<iter_rvalue_reference_t<I>&&, const iter_value_t<I>&>;
+		common_reference_with<iter_reference_t<I>&&, iter_value_t<I>&> &&
+		common_reference_with<iter_reference_t<I>&&, iter_rvalue_reference_t<I>&&> &&
+		common_reference_with<iter_rvalue_reference_t<I>&&, const iter_value_t<I>&>;
 
 	// A generally useful dependent type
 	template<Readable I>
@@ -198,9 +198,9 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT IndirectlyMovableStorable =
 		IndirectlyMovable<In, Out> &&
 		Writable<Out, iter_value_t<In>&&> &&
-		Movable<iter_value_t<In>> &&
-		Constructible<iter_value_t<In>, iter_rvalue_reference_t<In>> &&
-		Assignable<iter_value_t<In>&, iter_rvalue_reference_t<In>>;
+		movable<iter_value_t<In>> &&
+		constructible_from<iter_value_t<In>, iter_rvalue_reference_t<In>> &&
+		assignable_from<iter_value_t<In>&, iter_rvalue_reference_t<In>>;
 
 	template<class In, class Out>
 	constexpr bool is_nothrow_indirectly_movable_storable_v = false;
@@ -226,9 +226,9 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT IndirectlyCopyableStorable =
 		IndirectlyCopyable<In, Out> &&
 		Writable<Out, const iter_value_t<In>&> &&
-		Copyable<iter_value_t<In>> &&
-		Constructible<iter_value_t<In>, iter_reference_t<In>> &&
-		Assignable<iter_value_t<In>&, iter_reference_t<In>>;
+		copyable<iter_value_t<In>> &&
+		constructible_from<iter_value_t<In>, iter_reference_t<In>> &&
+		assignable_from<iter_value_t<In>&, iter_reference_t<In>>;
 
 	////////////////////////////////////////////////////////////////////////////
 	// iter_swap
@@ -245,14 +245,14 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class R1, class R2>
-		requires SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>>
+		requires swappable_with<iter_reference_t<R1>, iter_reference_t<R2>>
 		constexpr void impl(R1&& r1, R2&& r2)
 		STL2_NOEXCEPT_RETURN(
 			__stl2::swap(*r1, *r2)
 		)
 
 		template<class R1, class R2>
-		requires (!SwappableWith<iter_reference_t<R1>, iter_reference_t<R2>> &&
+		requires (!swappable_with<iter_reference_t<R1>, iter_reference_t<R2>> &&
 			IndirectlyMovableStorable<R1, R2> &&
 			IndirectlyMovableStorable<R2, R1>)
 		constexpr void impl(R1& r1, R2& r2)
@@ -352,15 +352,15 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template<detail::MemberIteratorCategory T>
-	requires DerivedFrom<typename T::iterator_category, std::input_iterator_tag>
+	requires derived_from<typename T::iterator_category, std::input_iterator_tag>
 	struct iterator_category<T> {
 		using type = detail::std_to_stl2_iterator_category<typename T::iterator_category>;
 	};
 
 	template<detail::MemberIteratorCategory T>
 	requires
-		DerivedFrom<typename T::iterator_category, std::output_iterator_tag> &&
-		(!DerivedFrom<typename T::iterator_category, std::input_iterator_tag>)
+		derived_from<typename T::iterator_category, std::output_iterator_tag> &&
+		(!derived_from<typename T::iterator_category, std::input_iterator_tag>)
 	struct iterator_category<T> {};
 
 	template<class T>
@@ -378,18 +378,18 @@ STL2_OPEN_NAMESPACE {
 		// Axiom?: if i equals j then i and j denote equal elements
 		// Axiom?: I{} is in the domain of copy/move construction/assignment
 		//        (This should probably be a requirement of the object concepts,
-		//         or at least Semiregular.)
+		//         or at least semiregular.)
 
 	////////////////////////////////////////////////////////////////////////////
 	// Sentinel [sentinel.iterators]
 	//
-	// A relationship between an Iterator and a Semiregular ("sentinel")
+	// A relationship between an Iterator and a semiregular ("sentinel")
 	// that denote a range.
 	//
 	template<class S, class I>
 	META_CONCEPT Sentinel =
 		Iterator<I> &&
-		Semiregular<S> &&
+		semiregular<S> &&
 		WeaklyEqualityComparable<S, I>;
 		// Axiom: if [i,s) denotes a range then:
 		//        * i == s is well-defined
@@ -414,8 +414,8 @@ STL2_OPEN_NAMESPACE {
 		Sentinel<S, I> &&
 		!disable_sized_sentinel<std::remove_cv_t<S>, std::remove_cv_t<I>> &&
 		requires(const I i, const S s) {
-			{ s - i } -> STL2_RVALUE_REQ(Same<iter_difference_t<I>>);
-			{ i - s } -> STL2_RVALUE_REQ(Same<iter_difference_t<I>>);
+			{ s - i } -> STL2_RVALUE_REQ(same_as<iter_difference_t<I>>);
+			{ i - s } -> STL2_RVALUE_REQ(same_as<iter_difference_t<I>>);
 			// Axiom: If [i,s) denotes a range and N is the smallest
 			//        non-negative integer such that N applications of
 			//        ++i make bool(i == s) == true
@@ -445,7 +445,7 @@ STL2_OPEN_NAMESPACE {
 		Readable<I> &&
 		requires(I& i, const I& ci) {
 			typename iterator_category_t<I>;
-			DerivedFrom<iterator_category_t<I>, input_iterator_tag>;
+			derived_from<iterator_category_t<I>, input_iterator_tag>;
 			i++;
 		};
 
@@ -461,7 +461,7 @@ STL2_OPEN_NAMESPACE {
 	template<class I>
 	META_CONCEPT ForwardIterator =
 		InputIterator<I> &&
-		DerivedFrom<iterator_category_t<I>, forward_iterator_tag> &&
+		derived_from<iterator_category_t<I>, forward_iterator_tag> &&
 		Incrementable<I> &&
 		Sentinel<I, I>;
 		// Axiom: I{} is equality-preserving and non-singular
@@ -478,7 +478,7 @@ STL2_OPEN_NAMESPACE {
 	template<class I>
 	META_CONCEPT BidirectionalIterator =
 		ForwardIterator<I> &&
-		DerivedFrom<iterator_category_t<I>, bidirectional_iterator_tag> &&
+		derived_from<iterator_category_t<I>, bidirectional_iterator_tag> &&
 		ext::Decrementable<I>;
 
 	////////////////////////////////////////////////////////////////////////////
@@ -487,17 +487,17 @@ STL2_OPEN_NAMESPACE {
 	template<class I>
 	META_CONCEPT RandomAccessIterator =
 		BidirectionalIterator<I> &&
-		DerivedFrom<iterator_category_t<I>, random_access_iterator_tag> &&
+		derived_from<iterator_category_t<I>, random_access_iterator_tag> &&
 		SizedSentinel<I, I> &&
 		// Should ordering be in SizedSentinel and/or RandomAccessIncrementable?
-		StrictTotallyOrdered<I> &&
+		totally_ordered<I> &&
 		ext::RandomAccessIncrementable<I> &&
 		requires(const I& ci, const iter_difference_t<I> n) {
 #ifdef META_HAS_P1084
-			{ ci[n] } -> Same<iter_reference_t<I>>;
+			{ ci[n] } -> same_as<iter_reference_t<I>>;
 #else
 			ci[n];
-			requires Same<decltype(ci[n]), iter_reference_t<I>>;
+			requires same_as<decltype(ci[n]), iter_reference_t<I>>;
 #endif
 		};
 		// FIXME: Axioms for definition space of ordering operations. Don't
@@ -512,9 +512,9 @@ STL2_OPEN_NAMESPACE {
 	template<class I>
 	META_CONCEPT ContiguousIterator =
 		RandomAccessIterator<I> &&
-		DerivedFrom<iterator_category_t<I>, contiguous_iterator_tag> &&
+		derived_from<iterator_category_t<I>, contiguous_iterator_tag> &&
 		std::is_lvalue_reference<iter_reference_t<I>>::value &&
-		Same<iter_value_t<I>, __uncvref<iter_reference_t<I>>>;
+		same_as<iter_value_t<I>, __uncvref<iter_reference_t<I>>>;
 
 	////////////////////////////////////////////////////////////////////////////
 	// iterator_traits [iterator.assoc]
@@ -601,8 +601,8 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT LooksLikeSTL1Iterator =
 			requires {
 				typename I::iterator_category;
-				requires DerivedFrom<typename I::iterator_category, std::input_iterator_tag> ||
-						 DerivedFrom<typename I::iterator_category, std::output_iterator_tag>;
+				requires derived_from<typename I::iterator_category, std::input_iterator_tag> ||
+						 derived_from<typename I::iterator_category, std::output_iterator_tag>;
 			};
 		template<class I>
 		META_CONCEPT ProbablySTL2Iterator = !LooksLikeSTL1Iterator<I> && Iterator<I>;

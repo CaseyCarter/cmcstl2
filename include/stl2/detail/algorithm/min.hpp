@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 			return test ? b : a;
 		}
 
-		template<Copyable T, class Proj = identity,
+		template<copyable T, class Proj = identity,
 			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
 		constexpr T
 		operator()(std::initializer_list<T> r, Comp comp = {}, Proj proj = {}) const {

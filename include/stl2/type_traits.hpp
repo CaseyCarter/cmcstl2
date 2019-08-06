@@ -134,8 +134,8 @@ STL2_OPEN_NAMESPACE {
 
 	template<class T, class U>
 	requires meta::Valid<__common_ref, T&, U&> &&
-		ConvertibleTo<T&&, __rref_res<T, U>> &&
-		ConvertibleTo<U&&, __rref_res<T, U>>
+		convertible_to<T&&, __rref_res<T, U>> &&
+		convertible_to<U&&, __rref_res<T, U>>
 	struct __common_ref_<T&&, U&&> {
 		using type = __rref_res<T, U>;
 	};
@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
 	// [meta.trans.other]/2.7
 	template<class T, class U>
 	requires requires { typename __common_ref<const T&, U&>; } &&
-		ConvertibleTo<T&&, __common_ref<const T&, U&>>
+		convertible_to<T&&, __common_ref<const T&, U&>>
 	struct __common_ref_<T&&, U&> {
 		using type = __common_ref<const T&, U&>;
 	};
@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 	// [meta.trans.other]/2.8
 	template<class T, class U>
 	requires requires { typename __common_ref<T&, const U&>; } &&
-		ConvertibleTo<U&&, __common_ref<T&, const U&>>
+		convertible_to<U&&, __common_ref<T&, const U&>>
 	struct __common_ref_<T&, U&&> {
 		using type = __common_ref<T&, const U&>;
 	};
@@ -239,34 +239,34 @@ STL2_OPEN_NAMESPACE {
 	: common_reference<common_reference_t<T, U>, V, W...> {};
 
 	///////////////////////////////////////////////////////////////////////////
-	// CommonReference [concept.commonref]
+	// common_reference_with [concept.commonref]
 	//
 	template<class T, class U>
-	META_CONCEPT CommonReference =
+	META_CONCEPT common_reference_with =
 		requires {
 			typename common_reference_t<T, U>;
 			typename common_reference_t<U, T>;
 		} &&
-		Same<common_reference_t<T, U>, common_reference_t<U, T>> &&
-		ConvertibleTo<T, common_reference_t<T, U>> &&
-		ConvertibleTo<U, common_reference_t<T, U>>;
+		same_as<common_reference_t<T, U>, common_reference_t<U, T>> &&
+		convertible_to<T, common_reference_t<T, U>> &&
+		convertible_to<U, common_reference_t<T, U>>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// Common [concept.common]
+	// common_with [concept.common]
 	//
 	template<class T, class U>
-	META_CONCEPT Common =
+	META_CONCEPT common_with =
 		requires {
 			typename common_type_t<T, U>;
 			typename common_type_t<U, T>;
-			requires Same<common_type_t<T, U>, common_type_t<U, T>>;
+			requires same_as<common_type_t<T, U>, common_type_t<U, T>>;
 			static_cast<common_type_t<T, U>>(std::declval<T>());
 			static_cast<common_type_t<T, U>>(std::declval<U>());
 		} &&
-		CommonReference<
+		common_reference_with<
 			std::add_lvalue_reference_t<const T>,
 			std::add_lvalue_reference_t<const U>> &&
-		CommonReference<
+		common_reference_with<
 			std::add_lvalue_reference_t<common_type_t<T, U>>,
 			common_reference_t<
 				std::add_lvalue_reference_t<const T>,

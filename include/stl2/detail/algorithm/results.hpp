@@ -23,12 +23,12 @@ STL2_OPEN_NAMESPACE {
 
 		// Extension: the dangling story actually works.
 		template<class I2, class O2>
-		requires ConvertibleTo<const I&, I2> && ConvertibleTo<const O&, O2>
+		requires convertible_to<const I&, I2> && convertible_to<const O&, O2>
 		operator __in_out_result<I2, O2>() const& {
 			return {in, out};
 		}
 		template<class I2, class O2>
-		requires ConvertibleTo<I, I2> && ConvertibleTo<O, O2>
+		requires convertible_to<I, I2> && convertible_to<O, O2>
 		operator __in_out_result<I2, O2>() && {
 			return {std::move(in), std::move(out)};
 		}
@@ -41,12 +41,12 @@ STL2_OPEN_NAMESPACE {
 
 		// Extension: the dangling story actually works.
 		template<class II1, class II2>
-		requires ConvertibleTo<const I1&, II1> && ConvertibleTo<const I2&, II2>
+		requires convertible_to<const I1&, II1> && convertible_to<const I2&, II2>
 		operator __in_in_result<II1, II2>() const& {
 			return {in1, in2};
 		}
 		template<class II1, class II2>
-		requires ConvertibleTo<I1, II1> && ConvertibleTo<I2, II2>
+		requires convertible_to<I1, II1> && convertible_to<I2, II2>
 		operator __in_in_result<II1, II2>() && {
 			return {std::move(in1), std::move(in2)};
 		}
@@ -60,14 +60,14 @@ STL2_OPEN_NAMESPACE {
 
 		// Extension: the dangling story actually works.
 		template<class II1, class II2, class OO>
-		requires ConvertibleTo<const I1&, II1> &&
-			ConvertibleTo<const I2&, II2> && ConvertibleTo<const O&, OO>
+		requires convertible_to<const I1&, II1> &&
+			convertible_to<const I2&, II2> && convertible_to<const O&, OO>
 		operator __in_in_out_result<II1, II2, OO>() const& {
 			return {in1, in2, out};
 		}
 		template<class II1, class II2, class OO>
-		requires ConvertibleTo<I1, II1> &&
-			ConvertibleTo<I2, II2> && ConvertibleTo<O, OO>
+		requires convertible_to<I1, II1> &&
+			convertible_to<I2, II2> && convertible_to<O, OO>
 		operator __in_in_out_result<II1, II2, OO>() && {
 			return {std::move(in1), std::move(in2), std::move(out)};
 		}
@@ -81,14 +81,14 @@ STL2_OPEN_NAMESPACE {
 
 		// Extension: the dangling story actually works.
 		template<class II, class OO1, class OO2>
-		requires ConvertibleTo<const I&, II> &&
-			ConvertibleTo<const O1&, OO1> && ConvertibleTo<const O2&, OO2>
+		requires convertible_to<const I&, II> &&
+			convertible_to<const O1&, OO1> && convertible_to<const O2&, OO2>
 		operator __in_out_out_result<II, OO1, OO2>() const& {
 			return {in, out1, out2};
 		}
 		template<class II, class OO1, class OO2>
-		requires ConvertibleTo<I, II> &&
-			ConvertibleTo<O1, OO1> && ConvertibleTo<O2, OO2>
+		requires convertible_to<I, II> &&
+			convertible_to<O1, OO1> && convertible_to<O2, OO2>
 		operator __in_out_out_result<II, OO1, OO2>() && {
 			return {std::move(in), std::move(out1), std::move(out2)};
 		}
@@ -101,12 +101,12 @@ STL2_OPEN_NAMESPACE {
 
 		// Extension: the dangling story actually works.
 		template<class I2, class F2>
-		requires ConvertibleTo<const I&, I2> && ConvertibleTo<const F&, F2>
+		requires convertible_to<const I&, I2> && convertible_to<const F&, F2>
 		operator __in_fun_result<I2, F2>() const& {
 			return {in, fun};
 		}
 		template<class I2, class F2>
-		requires ConvertibleTo<I, I2> && ConvertibleTo<F, F2>
+		requires convertible_to<I, I2> && convertible_to<F, F2>
 		operator __in_fun_result<I2, F2>() && {
 			return {std::move(in), std::move(fun)};
 		}
@@ -119,12 +119,12 @@ STL2_OPEN_NAMESPACE {
 
 		// Extension: the dangling story actually works.
 		template<class T2>
-		requires ConvertibleTo<const T&, T2>
+		requires convertible_to<const T&, T2>
 		operator minmax_result<T2>() const& {
 			return {min, max};
 		}
 		template<class T2>
-		requires ConvertibleTo<T, T2>
+		requires convertible_to<T, T2>
 		operator minmax_result<T2>() && {
 			return {std::move(min), std::move(max)};
 		}

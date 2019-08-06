@@ -99,11 +99,11 @@ STL2_OPEN_NAMESPACE {
 
 			template<class Range, class ElementType>
 			META_CONCEPT compatible = SizedContiguousRange<Range> &&
-				ConvertibleTo<
+				convertible_to<
 					std::remove_pointer_t<data_pointer_t<Range>>(*)[],
 					ElementType(*)[]>;
 
-			template<Integral To, Integral From>
+			template<integral To, integral From>
 			constexpr To narrow_cast(From from) noexcept {
 				using C = common_type_t<To, From>;
 				auto to = static_cast<To>(from);
@@ -278,36 +278,36 @@ STL2_OPEN_NAMESPACE {
 			friend constexpr iterator end(span s) noexcept { return s.end(); }
 
 			// [span.comparison], span comparison operators
-			template<EqualityComparableWith<ElementType> U, index_type UExtent>
+			template<equality_comparable_with<ElementType> U, index_type UExtent>
 			bool operator==(span<U, UExtent> that) const
 			{
 				STL2_EXPECT(!size() || data());
 				STL2_EXPECT(!that.size() || that.data());
 				return equal(*this, that);
 			}
-			template<EqualityComparableWith<ElementType> U, index_type UExtent>
+			template<equality_comparable_with<ElementType> U, index_type UExtent>
 			bool operator!=(span<U, UExtent> that) const
 			{
 				return !(*this == that);
 			}
-			template<StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
+			template<totally_ordered_with<ElementType> U, index_type UExtent>
 			bool operator<(span<U, UExtent> that) const
 			{
 				STL2_EXPECT(!size() || data());
 				STL2_EXPECT(!that.size() || that.data());
 				return lexicographical_compare(*this, that);
 			}
-			template<StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
+			template<totally_ordered_with<ElementType> U, index_type UExtent>
 			bool operator>(span<U, UExtent> that)
 			{
 				return that < *this;
 			}
-			template<StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
+			template<totally_ordered_with<ElementType> U, index_type UExtent>
 			bool operator<=(span<U, UExtent> that)
 			{
 				return !(that < *this);
 			}
-			template<StrictTotallyOrderedWith<ElementType> U, index_type UExtent>
+			template<totally_ordered_with<ElementType> U, index_type UExtent>
 			bool operator>=(span<U, UExtent> that)
 			{
 				return !(*this < that);

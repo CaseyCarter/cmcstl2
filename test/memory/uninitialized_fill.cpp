@@ -26,7 +26,7 @@ namespace {
 	constexpr auto test_size{1 << 10};
 
 	template<typename T>
-	requires ranges::CopyConstructible<T> && ranges::EqualityComparable<T>
+	requires ranges::copy_constructible<T> && ranges::equality_comparable<T>
 	void uninitialized_fill_test(const T& x) {
 		const auto independent = make_buffer<T>(test_size);
 		auto test = [&independent, &x](const auto& p){

@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 				{ it_ += n; }
 			};
 		public:
-			indirect_view() requires DefaultConstructible<Rng> = default;
+			indirect_view() requires default_initializable<Rng> = default;
 			indirect_view(Rng rng) : base_t{std::move(rng)} {}
 
 			basic_iterator<cursor<false>> begin()

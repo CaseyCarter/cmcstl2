@@ -22,7 +22,7 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<CopyConstructible T>
+	template<copy_constructible T>
 	requires std::is_object_v<T>
 	class single_view : public view_interface<single_view<T>> {
 	private:
@@ -35,7 +35,7 @@ STL2_OPEN_NAMESPACE {
 		: value_(std::move(t)) {}
 
 		template<class... Args>
-		requires Constructible<T, Args...>
+		requires constructible_from<T, Args...>
 		constexpr single_view(std::in_place_t, Args&&... args)
 		: value_(std::in_place, std::forward<Args>(args)...) {}
 

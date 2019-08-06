@@ -30,9 +30,9 @@ STL2_OPEN_NAMESPACE {
 		///////////////////////////////////////////////////////////////////////////
 		// istream_cursor [Implementation detail]
 		//
-		template<Semiregular T, class charT = char,
+		template<semiregular T, class charT = char,
 			class traits = std::char_traits<charT>,
-			SignedIntegral Distance = std::ptrdiff_t>
+			signed_integral Distance = std::ptrdiff_t>
 		requires
 			StreamExtractable<T, charT, traits>
 		class istream_cursor : semiregular_box<T> {
@@ -109,8 +109,8 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// istream_iterator [iterator.istream]
 	//
-	template<Semiregular T, class charT = char, class traits = std::char_traits<charT>,
-		SignedIntegral Distance = std::ptrdiff_t>
+	template<semiregular T, class charT = char, class traits = std::char_traits<charT>,
+		signed_integral Distance = std::ptrdiff_t>
 	requires
 		StreamExtractable<T, charT, traits>
 	using istream_iterator =

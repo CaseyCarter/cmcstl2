@@ -33,7 +33,7 @@
 
 namespace ranges = __stl2;
 
-constexpr ranges::Integral factorial(ranges::Integral x)
+constexpr ranges::integral factorial(ranges::integral x)
 {
 	decltype(x) r = 1;
 	for (; 1 < x; --x)

@@ -19,7 +19,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<Destructible T, Destructible U>
+		template<destructible T, destructible U>
 		class STL2_EMPTY_BASES compressed_pair :
 			detail::ebo_box<T, meta::size_t<0>>,
 			detail::ebo_box<U, meta::size_t<1>> {
@@ -27,12 +27,12 @@ STL2_OPEN_NAMESPACE {
 			using second_t = detail::ebo_box<U, meta::size_t<1>>;
 		public:
 			compressed_pair()
-			requires DefaultConstructible<T> &&
-				DefaultConstructible<U> = default;
+			requires default_initializable<T> &&
+				default_initializable<U> = default;
 
 			template<typename TT = T, typename UU = U>
 			requires
-				Constructible<T, TT> && Constructible<U, UU>
+				constructible_from<T, TT> && constructible_from<U, UU>
 			constexpr compressed_pair(TT&& t, UU&& u)
 			noexcept(is_nothrow_constructible<first_t, TT&&>::value &&
 				is_nothrow_constructible<second_t, UU&&>::value)

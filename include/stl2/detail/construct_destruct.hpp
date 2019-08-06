@@ -20,12 +20,12 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		struct destruct_fn {
-			template<Destructible T>
+			template<destructible T>
 			void operator()(T& t) const noexcept {
 				t.~T();
 			}
 
-			template<Destructible T, std::size_t N>
+			template<destructible T, std::size_t N>
 			void operator()(T (&a)[N]) const noexcept {
 				std::size_t i = N;
 				while (i > 0) {
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 
 		struct construct_fn {
 			template<class T, class... Args>
-			requires Constructible<T, Args...>
+			requires constructible_from<T, Args...>
 			void operator()(T& t, Args&&... args) const
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			{

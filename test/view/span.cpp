@@ -509,31 +509,31 @@ void test_case_class_template_argument_deduction()
 		int arr[] = {1, 2, 3, 4, 5};
 		{
 			span s{arr};
-			static_assert(ranges::Same<span<int, 5>, decltype(s)>);
+			static_assert(ranges::same_as<span<int, 5>, decltype(s)>);
 		}
 		{
 			span s{ranges::begin(arr), ranges::size(arr)};
-			static_assert(ranges::Same<span<int>, decltype(s)>);
+			static_assert(ranges::same_as<span<int>, decltype(s)>);
 		}
 		{
 			span s{ranges::begin(arr), ranges::end(arr)};
-			static_assert(ranges::Same<span<int>, decltype(s)>);
+			static_assert(ranges::same_as<span<int>, decltype(s)>);
 		}
 	}
 	{
 		std::array<int, 5> arr = {1, 2, 3, 4, 5};
 		{
 			span s{arr};
-			static_assert(ranges::Same<span<int, 5>, decltype(s)>);
+			static_assert(ranges::same_as<span<int, 5>, decltype(s)>);
 		}
 #if 0 // TODO: reactivate these cases on the span_updates branch
 		{
 			span s{ranges::begin(arr), ranges::size(arr)};
-			static_assert(ranges::Same<span<int>, decltype(s)>);
+			static_assert(ranges::same_as<span<int>, decltype(s)>);
 		}
 		{
 			span s{ranges::begin(arr), ranges::end(arr)};
-			static_assert(ranges::Same<span<int>, decltype(s)>);
+			static_assert(ranges::same_as<span<int>, decltype(s)>);
 		}
 #endif
 	}
@@ -541,7 +541,7 @@ void test_case_class_template_argument_deduction()
 		std::vector<int> vec = {1, 2, 3, 4, 5};
 		{
 			span s{vec};
-			static_assert(ranges::Same<span<int>, decltype(s)>);
+			static_assert(ranges::same_as<span<int>, decltype(s)>);
 		}
 	}
 #endif
@@ -1038,7 +1038,7 @@ void test_case_interop_with_std_regex()
 	CHECK(match[0].second == (f_it + 1));
 }
 
-void test_case_default_constructible()
+void test_case_default_initializable()
 {
 	CHECK((std::is_default_constructible<span<int>>::value));
 	CHECK((std::is_default_constructible<span<int, 0>>::value));
@@ -1072,16 +1072,16 @@ int main() {
 	test_case_as_writeable_bytes();
 	test_case_fixed_size_conversions();
 	test_case_interop_with_std_regex();
-	test_case_default_constructible();
+	test_case_default_initializable();
 
 	static_assert(ranges::ContiguousRange<span<int>> && ranges::View<span<int>>);
 	static_assert(ranges::ContiguousRange<span<int, 42>> && ranges::View<span<int, 42>>);
 
 	// spans are non-dangling
-	static_assert(ranges::Same<decltype(ranges::begin(std::declval<span<int>>())), ranges::iterator_t<span<int>>>);
-	static_assert(ranges::Same<decltype(ranges::end(std::declval<span<int>>())), ranges::iterator_t<span<int>>>);
-	static_assert(ranges::Same<decltype(ranges::begin(std::declval<const span<int>>())), ranges::iterator_t<span<int>>>);
-	static_assert(ranges::Same<decltype(ranges::end(std::declval<const span<int>>())), ranges::iterator_t<span<int>>>);
+	static_assert(ranges::same_as<decltype(ranges::begin(std::declval<span<int>>())), ranges::iterator_t<span<int>>>);
+	static_assert(ranges::same_as<decltype(ranges::end(std::declval<span<int>>())), ranges::iterator_t<span<int>>>);
+	static_assert(ranges::same_as<decltype(ranges::begin(std::declval<const span<int>>())), ranges::iterator_t<span<int>>>);
+	static_assert(ranges::same_as<decltype(ranges::end(std::declval<const span<int>>())), ranges::iterator_t<span<int>>>);
 	{
 		int some_ints[]{42};
 		CHECK(ranges::data(span{some_ints, 42}) == +some_ints);

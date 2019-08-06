@@ -23,9 +23,9 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT StreamExtractable =
 		requires(std::basic_istream<charT, traits>& is, T& t) {
 #ifdef META_HAS_P1084
-			{ is >> t } -> Same<std::basic_istream<charT, traits>&>;
+			{ is >> t } -> same_as<std::basic_istream<charT, traits>&>;
 #else
-			{ is >> t } -> Same<std::basic_istream<charT, traits>>&;
+			{ is >> t } -> same_as<std::basic_istream<charT, traits>>&;
 #endif
 			// Axiom: &is == &(is << t)
 		};
@@ -37,9 +37,9 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT StreamInsertable =
 		requires(std::basic_ostream<charT, traits>& os, const T& t) {
 #ifdef META_HAS_P1084
-			{ os << t } -> Same<std::basic_ostream<charT, traits>&>;
+			{ os << t } -> same_as<std::basic_ostream<charT, traits>&>;
 #else
-			{ os << t } -> Same<std::basic_ostream<charT, traits>>&;
+			{ os << t } -> same_as<std::basic_ostream<charT, traits>>&;
 #endif
 			// Axiom: &os == &(os << t)
 		};

@@ -37,12 +37,12 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr explicit basic_mixin(const T& t)
 		noexcept(std::is_nothrow_copy_constructible<T>::value)
-		requires CopyConstructible<T>
+		requires copy_constructible<T>
 		: T(t) {}
 
 		constexpr explicit basic_mixin(T&& t)
 		noexcept(std::is_nothrow_move_constructible<T>::value)
-		requires MoveConstructible<T>
+		requires move_constructible<T>
 		: T(std::move(t)) {}
 
 	protected:
@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
 		requires requires { typename C::difference_type; }
 		struct difference_type<C> {
 			using type = typename C::difference_type;
-			static_assert(SignedIntegral<type>,
+			static_assert(signed_integral<type>,
 				"Cursor's member difference_type is not a signed integer type.");
 		};
 		template<class C>
@@ -120,12 +120,12 @@ STL2_OPEN_NAMESPACE {
 		struct difference_type<C> {
 			using type =
 				decltype(std::declval<const C&>().distance_to(std::declval<const C&>()));
-			static_assert(SignedIntegral<type>,
+			static_assert(signed_integral<type>,
 				"Return type of Cursor's member distance_to is not a signed integer type.");
 		};
 		template<class C>
 		requires
-			SignedIntegral<meta::_t<difference_type<C>>>
+			signed_integral<meta::_t<difference_type<C>>>
 		using difference_type_t = meta::_t<difference_type<C>>;
 
 		template<class> struct reference_type {};
@@ -165,10 +165,10 @@ STL2_OPEN_NAMESPACE {
 
 		template<class C, class M>
 		META_CONCEPT _Cursor =
-			Semiregular<C> &&
-			Semiregular<M> &&
-			Constructible<M, C> &&
-			Constructible<M, const C&>;
+			semiregular<C> &&
+			semiregular<M> &&
+			constructible_from<M, C> &&
+			constructible_from<M, const C&>;
 
 		template<class C>
 		META_CONCEPT Cursor =
@@ -210,7 +210,7 @@ STL2_OPEN_NAMESPACE {
 		template<class S, class C>
 		META_CONCEPT Sentinel =
 			Cursor<C> &&
-			Semiregular<S> &&
+			semiregular<S> &&
 			requires(const C& c, const S& s) {
 				{ c.equal(s) } -> bool;
 			};
@@ -218,7 +218,7 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT SizedSentinel =
 			Sentinel<S, C> &&
 			requires(const C& c, const S& s) {
-				{ c.distance_to(s) } -> STL2_RVALUE_REQ(Same<difference_type_t<C>>);
+				{ c.distance_to(s) } -> STL2_RVALUE_REQ(same_as<difference_type_t<C>>);
 			};
 
 		template<class C>
@@ -299,12 +299,12 @@ STL2_OPEN_NAMESPACE {
 			std::is_lvalue_reference<reference_t<C>>::value;
 
 		template<class From, class To>
-		META_CONCEPT ConvertibleTo =
+		META_CONCEPT convertible_to =
 			Cursor<From> &&
 			Cursor<To> &&
-			__stl2::ConvertibleTo<From, To> &&
-			Constructible<mixin_t<To>, From> &&
-			Constructible<mixin_t<To>, const From&>;
+			__stl2::convertible_to<From, To> &&
+			constructible_from<mixin_t<To>, From> &&
+			constructible_from<mixin_t<To>, const From&>;
 
 		template<class>
 		struct category {};
@@ -383,7 +383,7 @@ STL2_OPEN_NAMESPACE {
 			using typename cursor_traits<Cur>::value_t_;
 			using typename cursor_traits<Cur>::reference_t_;
 			using typename cursor_traits<Cur>::rvalue_reference_t_;
-			static_assert(CommonReference<value_t_&, reference_t_&&>,
+			static_assert(common_reference_with<value_t_&, reference_t_&&>,
 				"Your readable and writable cursor must have a value type and a reference "
 				"type that share a common reference type. See the ranges::common_reference "
 				"type trait.");
@@ -402,7 +402,7 @@ STL2_OPEN_NAMESPACE {
 			basic_proxy_reference() = default;
 			basic_proxy_reference(const basic_proxy_reference&) = default;
 			template<class OtherCur>
-			requires ConvertibleTo<OtherCur*, Cur*>
+			requires convertible_to<OtherCur*, Cur*>
 			constexpr basic_proxy_reference(
 				const basic_proxy_reference<OtherCur>& that) noexcept
 			: cur_(that.cur_)
@@ -487,37 +487,37 @@ STL2_OPEN_NAMESPACE {
 			}
 			friend constexpr bool operator==(
 				const basic_proxy_reference& x, const value_t_& y)
-			requires cursor::Readable<Cur> && EqualityComparable<value_t_>
+			requires cursor::Readable<Cur> && equality_comparable<value_t_>
 			{
 				return x.get_() == y;
 			}
 			friend constexpr bool operator!=(
 				const basic_proxy_reference& x, const value_t_& y)
-			requires cursor::Readable<Cur> && EqualityComparable<value_t_>
+			requires cursor::Readable<Cur> && equality_comparable<value_t_>
 			{
 				return !(x == y);
 			}
 			friend constexpr bool operator==(
 				const value_t_& x, const basic_proxy_reference& y)
-			requires cursor::Readable<Cur> && EqualityComparable<value_t_>
+			requires cursor::Readable<Cur> && equality_comparable<value_t_>
 			{
 				return x == y.get_();
 			}
 			friend constexpr bool operator!=(
 				const value_t_& x, const basic_proxy_reference& y)
-			requires cursor::Readable<Cur> && EqualityComparable<value_t_>
+			requires cursor::Readable<Cur> && equality_comparable<value_t_>
 			{
 				return !(x == y);
 			}
 			friend constexpr bool operator==(
 				const basic_proxy_reference& x, const basic_proxy_reference& y)
-			requires cursor::Readable<Cur> && EqualityComparable<value_t_>
+			requires cursor::Readable<Cur> && equality_comparable<value_t_>
 			{
 				return x.get_() == y.get_();
 			}
 			friend constexpr bool operator!=(
 				const basic_proxy_reference& x, const basic_proxy_reference& y)
-			requires cursor::Readable<Cur> && EqualityComparable<value_t_>
+			requires cursor::Readable<Cur> && equality_comparable<value_t_>
 			{
 				return !(x == y);
 			}
@@ -561,7 +561,7 @@ STL2_OPEN_NAMESPACE {
 		template<class C>
 		META_CONCEPT PostIncrementCursor =
 			requires(C& c) {
-				{ c.post_increment() } -> STL2_RVALUE_REQ(Same<C>);
+				{ c.post_increment() } -> STL2_RVALUE_REQ(same_as<C>);
 			};
 	} // namespace detail
 
@@ -649,11 +649,11 @@ STL2_OPEN_NAMESPACE {
 
 	public:
 		basic_iterator() = default;
-		template<cursor::ConvertibleTo<C> O>
+		template<cursor::convertible_to<C> O>
 		constexpr basic_iterator(basic_iterator<O>&& that)
 		noexcept(std::is_nothrow_constructible<mixin, O>::value)
 		: mixin(get_cursor(std::move(that))) {}
-		template<cursor::ConvertibleTo<C> O>
+		template<cursor::convertible_to<C> O>
 		constexpr basic_iterator(const basic_iterator<O>& that)
 		noexcept(std::is_nothrow_constructible<mixin, const O&>::value)
 		: mixin(get_cursor(that)) {}
@@ -665,14 +665,14 @@ STL2_OPEN_NAMESPACE {
 		: mixin(std::move(c)) {}
 		using mixin::mixin;
 
-		template<cursor::ConvertibleTo<C> O>
+		template<cursor::convertible_to<C> O>
 		constexpr basic_iterator& operator=(basic_iterator<O>&& that) &
 		noexcept(std::is_nothrow_assignable<C&, O>::value)
 		{
 			get() = get_cursor(std::move(that));
 			return *this;
 		}
-		template<cursor::ConvertibleTo<C> O>
+		template<cursor::convertible_to<C> O>
 		constexpr basic_iterator& operator=(const basic_iterator<O>& that) &
 		noexcept(std::is_nothrow_assignable<C&, const O&>::value)
 		{
@@ -680,7 +680,7 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 		template<class T>
-		requires (!Same<std::decay_t<T>, basic_iterator> && !cursor::Next<C> &&
+		requires (!same_as<std::decay_t<T>, basic_iterator> && !cursor::Next<C> &&
 			cursor::Writable<C, T>)
 		constexpr basic_iterator& operator=(T&& t)
 		noexcept(noexcept(
@@ -693,8 +693,8 @@ STL2_OPEN_NAMESPACE {
 		// http://wg21.link/P0186
 		template<class O>
 		requires
-			(!Same<std::decay_t<O>, basic_iterator> &&
-			Assignable<C&, O>)
+			(!same_as<std::decay_t<O>, basic_iterator> &&
+			assignable_from<C&, O>)
 		constexpr basic_iterator& operator=(O&& o) &
 		noexcept(std::is_nothrow_assignable<C&, O>::value)
 		{
@@ -742,7 +742,7 @@ STL2_OPEN_NAMESPACE {
 		requires
 			(!cursor::Arrow<C> && cursor::Readable<C> &&
 			std::is_lvalue_reference<const_reference_t>::value &&
-			Same<cursor::value_type_t<BugsBugs>, __uncvref<const_reference_t>>)
+			same_as<cursor::value_type_t<BugsBugs>, __uncvref<const_reference_t>>)
 		{
 			return std::addressof(**this);
 		}

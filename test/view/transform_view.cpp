@@ -38,8 +38,8 @@ int main() {
 	int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
 	auto rng = rgi | view::transform(is_odd());
-	static_assert(Same<int &, decltype(*begin(rgi))>);
-	static_assert(Same<bool, decltype(*begin(rng))>);
+	static_assert(same_as<int &, decltype(*begin(rgi))>);
+	static_assert(same_as<bool, decltype(*begin(rng))>);
 	static_assert(View<decltype(rng)>);
 	static_assert(SizedRange<decltype(rng)>);
 	static_assert(RandomAccessRange<decltype(rng)>);
@@ -47,9 +47,9 @@ int main() {
 
 	std::pair<int, int> rgp[] = {{1,1}, {2,2}, {3,3}, {4,4}, {5,5}, {6,6}, {7,7}, {8,8}, {9,9}, {10,10}};
 	auto rng2 = rgp | view::transform(&std::pair<int,int>::first);
-	static_assert(Same<int &, decltype(*begin(rng2))>);
-	static_assert(Same<iter_value_t<iterator_t<decltype(rng2)>>, int>);
-	static_assert(Same<decltype(iter_move(begin(rng2))), int &&>);
+	static_assert(same_as<int &, decltype(*begin(rng2))>);
+	static_assert(same_as<iter_value_t<iterator_t<decltype(rng2)>>, int>);
+	static_assert(same_as<decltype(iter_move(begin(rng2))), int &&>);
 	static_assert(View<decltype(rng2)>);
 	static_assert(CommonRange<decltype(rng2)>);
 	static_assert(SizedRange<decltype(rng2)>);

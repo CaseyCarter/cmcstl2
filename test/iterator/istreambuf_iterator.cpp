@@ -22,11 +22,11 @@ namespace {
 	void validate_one() {
 		using C = __istreambuf_iterator::cursor<charT, traits>;
 		static_assert(cursor::Cursor<C>);
-		static_assert(Same<typename traits::off_type, cursor::difference_type_t<C>>);
+		static_assert(same_as<typename traits::off_type, cursor::difference_type_t<C>>);
 		static_assert(cursor::Next<C>);
-		static_assert(Same<charT, cursor::value_type_t<C>>);
+		static_assert(same_as<charT, cursor::value_type_t<C>>);
 		static_assert(cursor::Readable<C>);
-		static_assert(Same<charT, cursor::reference_t<C>>);
+		static_assert(same_as<charT, cursor::reference_t<C>>);
 		static_assert(cursor::Input<C>);
 		static_assert(cursor::Sentinel<C, C>);
 		static_assert(cursor::Sentinel<default_sentinel, C>);
@@ -35,28 +35,28 @@ namespace {
 
 		using I = istreambuf_iterator<charT, traits>;
 		static_assert(WeaklyIncrementable<I>);
-		static_assert(Same<typename traits::off_type, iter_difference_t<I>>);
-		static_assert(Same<charT, iter_value_t<I>>);
+		static_assert(same_as<typename traits::off_type, iter_difference_t<I>>);
+		static_assert(same_as<charT, iter_value_t<I>>);
 		static_assert(Readable<I>);
-		static_assert(Same<charT, iter_reference_t<I>>);
-		static_assert(Same<charT, iter_rvalue_reference_t<I>>);
+		static_assert(same_as<charT, iter_reference_t<I>>);
+		static_assert(same_as<charT, iter_rvalue_reference_t<I>>);
 		static_assert(Iterator<I>);
-		static_assert(Same<input_iterator_tag, iterator_category_t<I>>);
+		static_assert(same_as<input_iterator_tag, iterator_category_t<I>>);
 		static_assert(InputIterator<I>);
 		static_assert(!ForwardIterator<I>);
 		static_assert(Sentinel<I, I>);
 		static_assert(Sentinel<default_sentinel, I>);
-		static_assert(Common<I, default_sentinel>);
-		static_assert(Same<I, common_type_t<I, default_sentinel>>);
+		static_assert(common_with<I, default_sentinel>);
+		static_assert(same_as<I, common_type_t<I, default_sentinel>>);
 
-		static_assert(Same<iter_value_t<I>, typename I::value_type>);
-		static_assert(Same<iter_difference_t<I>, typename I::difference_type>);
-		static_assert(Same<input_iterator_tag, typename I::iterator_category>);
-		static_assert(Same<charT, typename I::reference>);
-		static_assert(Same<traits, typename I::traits_type>);
-		static_assert(Same<typename traits::int_type, typename I::int_type>);
-		static_assert(Same<std::basic_streambuf<charT, traits>, typename I::streambuf_type>);
-		static_assert(Same<std::basic_istream<charT, traits>, typename I::istream_type>);
+		static_assert(same_as<iter_value_t<I>, typename I::value_type>);
+		static_assert(same_as<iter_difference_t<I>, typename I::difference_type>);
+		static_assert(same_as<input_iterator_tag, typename I::iterator_category>);
+		static_assert(same_as<charT, typename I::reference>);
+		static_assert(same_as<traits, typename I::traits_type>);
+		static_assert(same_as<typename traits::int_type, typename I::int_type>);
+		static_assert(same_as<std::basic_streambuf<charT, traits>, typename I::streambuf_type>);
+		static_assert(same_as<std::basic_istream<charT, traits>, typename I::istream_type>);
 
 		auto i = I{};
 		auto ci = const_cast<const I&>(i);
@@ -68,14 +68,14 @@ namespace {
 		CHECK(!(ci != default_sentinel{}));
 		CHECK(!(i != default_sentinel{}));
 
-		static_assert(Same<decltype(i.operator->()), typename C::pointer>);
-		static_assert(Same<decltype(i.operator++(0)), typename C::__proxy>);
+		static_assert(same_as<decltype(i.operator->()), typename C::pointer>);
+		static_assert(same_as<decltype(i.operator++(0)), typename C::__proxy>);
 
-		static_assert(Constructible<I, default_sentinel>);
-		static_assert(ConvertibleTo<default_sentinel, I>);
-		static_assert(Constructible<I, std::basic_istream<charT, traits>&>);
-		static_assert(Constructible<I, std::basic_streambuf<charT, traits>*>);
-		static_assert(Constructible<I, decltype(i++)>);
+		static_assert(constructible_from<I, default_sentinel>);
+		static_assert(convertible_to<default_sentinel, I>);
+		static_assert(constructible_from<I, std::basic_istream<charT, traits>&>);
+		static_assert(constructible_from<I, std::basic_streambuf<charT, traits>*>);
+		static_assert(constructible_from<I, decltype(i++)>);
 	}
 
 	template<class... Cs>

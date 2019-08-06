@@ -134,11 +134,11 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator==(const __iterator& x, const __iterator& y)
-		requires EqualityComparable<iterator_t<V>>
+		requires equality_comparable<iterator_t<V>>
 		{ return x.current_ == y.current_; }
 
 		friend constexpr bool operator!=(const __iterator& x, const __iterator& y)
-		requires EqualityComparable<iterator_t<V>>
+		requires equality_comparable<iterator_t<V>>
 		{ return !(x == y); }
 
 		friend constexpr iter_rvalue_reference_t<iterator_t<V>>
@@ -200,7 +200,7 @@ STL2_OPEN_NAMESPACE {
 			)
 #endif // STL2_WORKAROUND_CLANGC_50
 
-			template<CopyConstructible Pred>
+			template<copy_constructible Pred>
 			constexpr auto operator()(Pred pred) const {
 				return detail::view_closure{*this, std::move(pred)};
 			}

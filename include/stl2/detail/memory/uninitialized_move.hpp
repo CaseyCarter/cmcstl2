@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 	struct __uninitialized_move_fn : private __niebloid {
 		template<InputIterator I, Sentinel<I> S1,
 			_NoThrowForwardIterator O, _NoThrowSentinel<O> S2>
-		requires Constructible<iter_value_t<O>, iter_rvalue_reference_t<I>>
+		requires constructible_from<iter_value_t<O>, iter_rvalue_reference_t<I>>
 		uninitialized_move_result<I, O>
 		operator()(I ifirst, S1 ilast, O ofirst, S2 olast) const {
 			auto guard = detail::destroy_guard{ofirst};
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<InputRange IR, _NoThrowForwardRange OR>
-		requires Constructible<iter_value_t<iterator_t<OR>>,
+		requires constructible_from<iter_value_t<iterator_t<OR>>,
 		                       iter_rvalue_reference_t<iterator_t<IR>>>
 		uninitialized_move_result<safe_iterator_t<IR>, safe_iterator_t<OR>>
 		operator()(IR&& in, OR&& out) const {
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 
 	struct __uninitialized_move_n_fn : private __niebloid {
 		template<InputIterator I, _NoThrowForwardIterator O, _NoThrowSentinel<O> S>
-		requires Constructible<iter_value_t<O>, iter_rvalue_reference_t<I>>
+		requires constructible_from<iter_value_t<O>, iter_rvalue_reference_t<I>>
 		uninitialized_move_n_result<I, O>
 		operator()(I ifirst, iter_difference_t<I> n, O ofirst, S olast) const {
 			auto [in, out] = uninitialized_move(counted_iterator{std::move(ifirst), n},

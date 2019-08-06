@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t = detail::ebo_box<Rng, move_view<Rng>>;
 			using base_t::get;
 		public:
-			move_view() requires DefaultConstructible<Rng> = default;
+			move_view() requires default_initializable<Rng> = default;
 
 			constexpr move_view(Rng rng)
 			noexcept(std::is_nothrow_move_constructible<Rng>::value)

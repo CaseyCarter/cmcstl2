@@ -57,7 +57,7 @@ int main() {
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
 #if 0
 		auto x = rg | view::reverse | view::reverse;
-		static_assert(Same<decltype(x), ref_view<decltype(rg)>>);
+		static_assert(same_as<decltype(x), ref_view<decltype(rg)>>);
 		CHECK(&x.base() == &rg);
 #else
 		auto x = view::reverse(rg);

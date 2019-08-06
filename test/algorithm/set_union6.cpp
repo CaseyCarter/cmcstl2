@@ -44,15 +44,15 @@ int main()
 		const int sr = sizeof(ir)/sizeof(ir[0]);
 
 		auto res = ranges::set_union(std::move(ia), std::move(ib), ic, std::less<int>(), &S::i, &T::j);
-		static_assert(ranges::Same<decltype(res.in1), ranges::dangling>);
-		static_assert(ranges::Same<decltype(res.in2), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(res.in1), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(res.in2), ranges::dangling>);
 		CHECK((res.out - ic) == sr);
 		CHECK(!ranges::lexicographical_compare(ic, res.out, ir, ir+sr, std::less<int>(), &U::k));
 		ranges::fill(ic, U{0});
 
 		auto res2 = ranges::set_union(std::move(ib), std::move(ia), ic, std::less<int>(), &T::j, &S::i);
-		static_assert(ranges::Same<decltype(res2.in1), ranges::dangling>);
-		static_assert(ranges::Same<decltype(res2.in2), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(res2.in1), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(res2.in2), ranges::dangling>);
 		CHECK((res2.out - ic) == sr);
 		CHECK(!ranges::lexicographical_compare(ic, res2.out, ir, ir+sr, std::less<int>(), &U::k));
 	}

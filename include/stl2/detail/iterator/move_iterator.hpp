@@ -22,7 +22,7 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<Semiregular> class move_sentinel;
+	template<semiregular> class move_sentinel;
 
 	namespace __move_iterator {
 		template<InputIterator> class cursor;
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 			noexcept(std::is_nothrow_copy_constructible<I>::value)
 			: current_{i}
 			{}
-			template<ConvertibleTo<I> U>
+			template<convertible_to<I> U>
 			constexpr cursor(const cursor<U>& u)
 			noexcept(std::is_nothrow_constructible<I, const U&>::value)
 			: current_{access::current(u)}
@@ -141,7 +141,7 @@ STL2_OPEN_NAMESPACE {
 				current_ += n;
 			}
 
-			template<EqualityComparableWith<I> I2>
+			template<equality_comparable_with<I> I2>
 			constexpr bool equal(const cursor<I2>& that) const
 			STL2_NOEXCEPT_RETURN(
 				current_ == access::current(that)
@@ -188,7 +188,7 @@ STL2_OPEN_NAMESPACE {
 		using type = input_iterator_tag;
 	};
 
-	template<class I1, StrictTotallyOrderedWith<I1> I2>
+	template<class I1, totally_ordered_with<I1> I2>
 	constexpr bool
 	operator<(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
@@ -196,21 +196,21 @@ STL2_OPEN_NAMESPACE {
 			__move_iterator::access::current(get_cursor(b))
 	)
 
-	template<class I1, StrictTotallyOrderedWith<I1> I2>
+	template<class I1, totally_ordered_with<I1> I2>
 	constexpr bool
 	operator>(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
 		b < a
 	)
 
-	template<class I1, StrictTotallyOrderedWith<I1> I2>
+	template<class I1, totally_ordered_with<I1> I2>
 	constexpr bool
 	operator<=(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
 		!(b < a)
 	)
 
-	template<class I1, StrictTotallyOrderedWith<I1> I2>
+	template<class I1, totally_ordered_with<I1> I2>
 	constexpr bool
 	operator>=(const move_iterator<I1>& a, const move_iterator<I2>& b)
 	STL2_NOEXCEPT_RETURN(
@@ -225,7 +225,7 @@ STL2_OPEN_NAMESPACE {
 		move_iterator<__f<I>>{std::forward<I>(i)}
 	)
 
-	template<Semiregular S>
+	template<semiregular S>
 	class move_sentinel : detail::ebo_box<S, move_sentinel<S>> {
 		friend __move_iterator::access;
 		using box_t = detail::ebo_box<S, move_sentinel<S>>;
@@ -239,14 +239,14 @@ STL2_OPEN_NAMESPACE {
 		: box_t(std::move(s))
 		{}
 		template<class T>
-		requires ConvertibleTo<const T&, S>
+		requires convertible_to<const T&, S>
 		constexpr move_sentinel(const move_sentinel<T>& s)
 		noexcept(std::is_nothrow_constructible<S, const T&>::value)
 		: box_t{__move_iterator::access::sentinel(s)}
 		{}
 
 		template<class T>
-		requires Assignable<S&, const T&>
+		requires assignable_from<S&, const T&>
 		constexpr move_sentinel& operator=(const move_sentinel<T>& s) &
 		noexcept(std::is_nothrow_assignable<S&, const T&>::value)
 		{
@@ -260,7 +260,7 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template<class S>
-	requires Semiregular<__f<S>>
+	requires semiregular<__f<S>>
 	constexpr auto make_move_sentinel(S&& s)
 	STL2_NOEXCEPT_RETURN(
 		move_sentinel<__f<S>>(std::forward<S>(s))

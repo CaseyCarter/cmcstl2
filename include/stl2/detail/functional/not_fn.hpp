@@ -25,14 +25,14 @@ STL2_OPEN_NAMESPACE {
 	// not_fn from C++17
 	//
 	template<class F, class... Args>
-	META_CONCEPT _NegateInvocable = Invocable<F, Args...> &&
+	META_CONCEPT _NegateInvocable = invocable<F, Args...> &&
 		requires(F&& f, Args&&... args) {
 #ifdef META_HAS_P1084
-			{ !__stl2::invoke(static_cast<F&&>(f), static_cast<Args&&>(args)...) } -> Boolean;
+			{ !__stl2::invoke(static_cast<F&&>(f), static_cast<Args&&>(args)...) } -> boolean;
 #else
 			!__stl2::invoke(static_cast<F&&>(f),
 				static_cast<Args&&>(args)...);
-			requires Boolean<decltype(!__stl2::invoke(static_cast<F&&>(f),
+			requires boolean<decltype(!__stl2::invoke(static_cast<F&&>(f),
 				static_cast<Args&&>(args)...))>;
 #endif
 		};
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 		using box_t = detail::ebo_box<F, __not_fn<F>>;
 	public:
 		template<class FF>
-		requires Constructible<F, FF>
+		requires constructible_from<F, FF>
 		explicit constexpr __not_fn(FF&& arg)
 		noexcept(std::is_nothrow_constructible_v<F, FF>)
 		: box_t(static_cast<FF&&>(arg))
@@ -79,7 +79,7 @@ STL2_OPEN_NAMESPACE {
 	};
 
 	template<class F>
-	requires MoveConstructible<__f<F>>
+	requires move_constructible<__f<F>>
 	constexpr __not_fn<__f<F>> not_fn(F&& f)
 	STL2_NOEXCEPT_RETURN(
 		__not_fn<__f<F>>{static_cast<F&&>(f)}

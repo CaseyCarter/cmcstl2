@@ -36,7 +36,7 @@ int main() {
 		static_assert(CommonRange<decltype(x)>);
 		static_assert(ForwardRange<decltype(x)>);
 		static_assert(!BidirectionalRange<decltype(x)>);
-		static_assert(Same<decltype(x), decltype(view::common(x))>);
+		static_assert(same_as<decltype(x), decltype(view::common(x))>);
 	}
 	return test_result();
 }

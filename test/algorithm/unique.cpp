@@ -150,7 +150,7 @@ int main()
 	{
 		int a[] = {0, 1, 1, 1, 2, 2, 2};
 		auto r = ranges::unique(std::move(a));
-		static_assert(ranges::Same<decltype(r), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(r), ranges::dangling>);
 		CHECK(a[0] == 0);
 		CHECK(a[1] == 1);
 		CHECK(a[2] == 2);

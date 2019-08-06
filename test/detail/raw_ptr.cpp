@@ -24,10 +24,10 @@ int main() {
 	using RA = raw_ptr<A>;
 	using RB = raw_ptr<B>;
 
-	static_assert(ranges::Regular<RA>);
-	static_assert(ranges::StrictTotallyOrdered<RA>);
-	static_assert(ranges::Regular<RB>);
-	static_assert(ranges::StrictTotallyOrdered<RB>);
+	static_assert(ranges::regular<RA>);
+	static_assert(ranges::totally_ordered<RA>);
+	static_assert(ranges::regular<RB>);
+	static_assert(ranges::totally_ordered<RB>);
 
 	CHECK(RA{} == RA{});
 	CHECK(!(RA{} != RA{}));

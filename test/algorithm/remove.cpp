@@ -158,7 +158,7 @@ int main()
 	// Check rvalue range
 	S ia2[] = {S{0}, S{1}, S{2}, S{3}, S{4}, S{2}, S{3}, S{4}, S{2}};
 	auto r2 = ranges::remove(std::move(ia2), 2, &S::i);
-	static_assert(ranges::Same<decltype(r2), ranges::dangling>);
+	static_assert(ranges::same_as<decltype(r2), ranges::dangling>);
 	CHECK(ia2[0].i == 0);
 	CHECK(ia2[1].i == 1);
 	CHECK(ia2[2].i == 3);

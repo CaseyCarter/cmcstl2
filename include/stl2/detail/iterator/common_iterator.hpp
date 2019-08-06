@@ -25,7 +25,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	template<Iterator I, Sentinel<I> S>
-	requires (!Same<I, S>)
+	requires (!same_as<I, S>)
 	class common_iterator;
 
 	namespace __common_iterator {
@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 			template<class U>
 			constexpr explicit operator_arrow_proxy(U&& u)
 			noexcept(std::is_nothrow_constructible_v<T, U>)
-			requires Constructible<T, U>
+			requires constructible_from<T, U>
 			: value_(std::forward<U>(u)) {}
 
 			constexpr const T* operator->() const noexcept {
@@ -97,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class I1, Sentinel<I1> S1, class I2, Sentinel<I2> S2>
-		requires ConvertibleTo<const I2&, I1> && ConvertibleTo<const S2&, S1>
+		requires convertible_to<const I2&, I1> && convertible_to<const S2&, S1>
 		struct convert_visitor {
 			constexpr auto operator()(const I2& i) const
 			STL2_NOEXCEPT_RETURN(
@@ -110,8 +110,8 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class I1, Sentinel<I1> S1, class I2, Sentinel<I2> S2>
-		requires ConvertibleTo<const I2&, I1> && ConvertibleTo<const S2&, S1> &&
-			Assignable<I1&, const I2&> && Assignable<S1&, const S2&>
+		requires convertible_to<const I2&, I1> && convertible_to<const S2&, S1> &&
+			assignable_from<I1&, const I2&> && assignable_from<S1&, const S2&>
 		struct assign_visitor {
 			std::variant<I1, S1>& v_;
 
@@ -141,7 +141,7 @@ STL2_OPEN_NAMESPACE {
 			}
 			constexpr bool operator()(const I1& i1, const I2& i2) const
 			noexcept(noexcept(bool(i1 == i2)))
-			requires EqualityComparableWith<I1, I2> {
+			requires equality_comparable_with<I1, I2> {
 				return i1 == i2;
 			}
 			constexpr bool operator()(const S1&, const S2&) const noexcept {
@@ -160,7 +160,7 @@ STL2_OPEN_NAMESPACE {
 
 	// common_iterator [common.iterator]
 	template<Iterator I, Sentinel<I> S>
-	requires (!Same<I, S>)
+	requires (!same_as<I, S>)
 	class common_iterator
 	: __common_iterator::access
 	{
@@ -180,7 +180,7 @@ STL2_OPEN_NAMESPACE {
 		: v_{std::in_place_type<S>, std::move(s)} {}
 
 		template<class I2, class S2>
-		requires ConvertibleTo<const I2&, I> && ConvertibleTo<const S2&, S>
+		requires convertible_to<const I2&, I> && convertible_to<const S2&, S>
 		constexpr common_iterator(const common_iterator<I2, S2>& i)
 		noexcept(
 			std::is_nothrow_constructible_v<I, const I2&> &&
@@ -191,8 +191,8 @@ STL2_OPEN_NAMESPACE {
 		{}
 
 		template<class I2, class S2>
-		requires ConvertibleTo<const I2&, I> && ConvertibleTo<const S2&, S> &&
-			Assignable<I&, const I2&> && Assignable<S&, const S2&>
+		requires convertible_to<const I2&, I> && convertible_to<const S2&, S> &&
+			assignable_from<I&, const I2&> && assignable_from<S&, const S2&>
 		common_iterator& operator=(const common_iterator<I2, S2>& i)
 		noexcept(
 			std::is_nothrow_assignable_v<I&, const I2&> &&
@@ -217,7 +217,7 @@ STL2_OPEN_NAMESPACE {
 		requires Readable<const I> &&
 			(_HasArrow<const I> ||
 			 std::is_reference_v<iter_reference_t<I>> ||
-			 Constructible<iter_value_t<I>, iter_reference_t<I>>)
+			 constructible_from<iter_value_t<I>, iter_reference_t<I>>)
 		{
 			if constexpr (std::is_pointer_v<I> || _HasArrow<const I>)
 				return __stl2::__unchecked_get<I>(v_);

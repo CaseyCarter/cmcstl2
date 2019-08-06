@@ -4,8 +4,8 @@
 namespace ranges = __stl2;
 
 struct foo;
-static_assert(ranges::Same<std::ptrdiff_t,ranges::iter_difference_t<foo*>>);
-static_assert(ranges::Same<foo*,ranges::common_type_t<foo*, foo*>>);
+static_assert(ranges::same_as<std::ptrdiff_t,ranges::iter_difference_t<foo*>>);
+static_assert(ranges::same_as<foo*,ranges::common_type_t<foo*, foo*>>);
 struct foo {};
 
 static_assert(ranges::ContiguousIterator<foo*>);

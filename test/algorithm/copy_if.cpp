@@ -60,7 +60,7 @@ int main() {
 		std::fill_n(target, n, -1);
 
 		auto res = ranges::copy_if(std::move(source), target, is_even);
-		static_assert(ranges::Same<decltype(res.in), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(res.in), ranges::dangling>);
 		CHECK(res.out == target + n / 2);
 
 		CHECK(std::equal(target, target + n / 2, evens));

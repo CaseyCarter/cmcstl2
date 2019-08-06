@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool cheaply_copyable = false;
 		template<class T>
 		requires
-			CopyConstructible<T> &&
+			copy_constructible<T> &&
 			std::is_trivially_copyable<T>::value &&
 			((std::is_empty_v<T> && !std::is_final_v<T>) ||
 				sizeof(T) <= cheap_copy_size)
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 			raw_ptr<T> ptr_;
 		};
 
-		// Note: promotes to CopyConstructible
+		// Note: promotes to copy_constructible
 		template<ext::Object T, class Tag = void>
 		using cheap_reference_box_t = meta::if_c<
 			cheaply_copyable<remove_cv_t<T>>,

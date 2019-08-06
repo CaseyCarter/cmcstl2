@@ -18,10 +18,10 @@
 
 namespace ranges = __stl2;
 
-static_assert(ranges::Constructible<ranges::ref_view<const int[42]>, const int(&)[42]>);
-static_assert(ranges::Constructible<ranges::ref_view<const int[42]>, int(&)[42]>);
-static_assert(!ranges::Constructible<ranges::ref_view<const int[42]>, int(&&)[42]>);
-static_assert(!ranges::Constructible<ranges::ref_view<const int[42]>, const int(&&)[42]>);
+static_assert(ranges::constructible_from<ranges::ref_view<const int[42]>, const int(&)[42]>);
+static_assert(ranges::constructible_from<ranges::ref_view<const int[42]>, int(&)[42]>);
+static_assert(!ranges::constructible_from<ranges::ref_view<const int[42]>, int(&&)[42]>);
+static_assert(!ranges::constructible_from<ranges::ref_view<const int[42]>, const int(&&)[42]>);
 
 int main() {
 	{

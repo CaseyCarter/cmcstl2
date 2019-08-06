@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
-	template<WeaklyIncrementable I, Semiregular Bound = unreachable>
+	template<WeaklyIncrementable I, semiregular Bound = unreachable>
 	requires WeaklyEqualityComparable<I, Bound>
 	struct iota_view;
 
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template<WeaklyIncrementable I, Semiregular Bound>
+	template<WeaklyIncrementable I, semiregular Bound>
 	requires WeaklyEqualityComparable<I, Bound>
 	struct STL2_EMPTY_BASES iota_view
 	: private __iota_view_detail::__adl_hook
@@ -84,23 +84,23 @@ STL2_OPEN_NAMESPACE {
 		{ return __iterator{value_}; }
 		constexpr __sentinel end() const
 		{ return __sentinel{bound_}; }
-		constexpr __iterator end() const requires Same<I, Bound>
+		constexpr __iterator end() const requires same_as<I, Bound>
 		{ return __iterator{bound_}; }
 
 		template<class II = I, class BB = Bound> // gcc_bugs_bugs_bugs
 		constexpr auto size() const
-		requires (Same<II, BB> && ext::RandomAccessIncrementable<II>) ||
-			(Integral<II> && Integral<BB>) ||
+		requires (same_as<II, BB> && ext::RandomAccessIncrementable<II>) ||
+			(integral<II> && integral<BB>) ||
 			SizedSentinel<BB, II>
 		{ return bound_ - value_; }
 	};
 
-	template<WeaklyIncrementable I, Semiregular Bound>
+	template<WeaklyIncrementable I, semiregular Bound>
 	requires WeaklyEqualityComparable<I, Bound> &&
-		(!Integral<I> || !Integral<Bound> || std::is_signed_v<I> == std::is_signed_v<Bound>)
+		(!integral<I> || !integral<Bound> || std::is_signed_v<I> == std::is_signed_v<Bound>)
 	iota_view(I, Bound) -> iota_view<I, Bound>;
 
-	template<WeaklyIncrementable I, Semiregular Bound>
+	template<WeaklyIncrementable I, semiregular Bound>
 	requires WeaklyEqualityComparable<I, Bound>
 	struct iota_view<I, Bound>::__iterator
 	: detail::iota_view_iterator_base<I> {
@@ -159,23 +159,23 @@ STL2_OPEN_NAMESPACE {
 		{ return value_ + n; }
 
 		friend constexpr bool operator==(const __iterator& x, const __iterator& y)
-		requires EqualityComparable<I>
+		requires equality_comparable<I>
 		{ return x.value_ == y.value_; }
 		friend constexpr bool operator!=(const __iterator& x, const __iterator& y)
-		requires EqualityComparable<I>
+		requires equality_comparable<I>
 		{ return !(x == y); }
 
 		friend constexpr bool operator<(const __iterator& x, const __iterator& y)
-		requires StrictTotallyOrdered<I>
+		requires totally_ordered<I>
 		{ return x.value_ < y.value_; }
 		friend constexpr bool operator>(const __iterator& x, const __iterator& y)
-		requires StrictTotallyOrdered<I>
+		requires totally_ordered<I>
 		{ return y < x; }
 		friend constexpr bool operator<=(const __iterator& x, const __iterator& y)
-		requires StrictTotallyOrdered<I>
+		requires totally_ordered<I>
 		{ return !(y < x); }
 		friend constexpr bool operator>=(const __iterator& x, const __iterator& y)
-		requires StrictTotallyOrdered<I>
+		requires totally_ordered<I>
 		{ return !(x < y); }
 
 		friend constexpr __iterator operator+(__iterator i, difference_type n)
@@ -196,7 +196,7 @@ STL2_OPEN_NAMESPACE {
 		I value_ {};
 	};
 
-	template<WeaklyIncrementable I, Semiregular Bound>
+	template<WeaklyIncrementable I, semiregular Bound>
 	requires WeaklyEqualityComparable<I, Bound>
 	struct iota_view<I, Bound>::__sentinel {
 		__sentinel() = default;
@@ -227,9 +227,9 @@ STL2_OPEN_NAMESPACE {
 				return iota_view{value};
 			}
 
-			template<WeaklyIncrementable I, Semiregular Bound>
+			template<WeaklyIncrementable I, semiregular Bound>
 			requires WeaklyEqualityComparable<I, Bound> &&
-				(!Integral<I> || !Integral<Bound> ||
+				(!integral<I> || !integral<Bound> ||
 					std::is_signed_v<I> == std::is_signed_v<Bound>)
 			constexpr auto operator()(I value, Bound bound) const {
 				return iota_view{value, bound};

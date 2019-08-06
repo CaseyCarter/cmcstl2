@@ -20,20 +20,20 @@
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// Assignable [concepts.lib.corelang.assignable]
+	// assignable_from [concepts.lib.corelang.assignable]
 	//
 	template<class LHS, class RHS>
-	META_CONCEPT Assignable =
+	META_CONCEPT assignable_from =
 		std::is_lvalue_reference_v<LHS> &&
 #if 0 // TODO: investigate making this change
-		CommonReference<LHS, RHS> &&
+		common_reference_with<LHS, RHS> &&
 #else
-		CommonReference<
+		common_reference_with<
 			const std::remove_reference_t<LHS>&,
 			const std::remove_reference_t<RHS>&> &&
 #endif
 		requires(LHS lhs, RHS&& rhs) {
-			{ lhs = static_cast<RHS&&>(rhs) } -> STL2_RVALUE_REQ(Same<LHS>);
+			{ lhs = static_cast<RHS&&>(rhs) } -> STL2_RVALUE_REQ(same_as<LHS>);
 		};
 } STL2_CLOSE_NAMESPACE
 

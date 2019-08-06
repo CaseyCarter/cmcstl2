@@ -18,7 +18,7 @@
 namespace stl2 = __stl2;
 
 constexpr struct {
-	template<stl2::Integral T>
+	template<stl2::integral T>
 	constexpr bool operator()(T i) const {
 		return i % 2 != 0;
 	}

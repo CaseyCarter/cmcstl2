@@ -143,7 +143,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template<class... Args>
-			requires Constructible<T, Args...>
+			requires constructible_from<T, Args...>
 			void emplace_back(Args&&... args)
 			noexcept(std::is_nothrow_constructible<T, Args...>::value)
 			{
@@ -153,11 +153,11 @@ STL2_OPEN_NAMESPACE {
 			}
 			void push_back(const T& t)
 			noexcept(std::is_nothrow_copy_constructible<T>::value)
-			requires CopyConstructible<T>
+			requires copy_constructible<T>
 			{ emplace_back(t); }
 			void push_back(T&& t)
 			noexcept(std::is_nothrow_move_constructible<T>::value)
-			requires MoveConstructible<T>
+			requires move_constructible<T>
 			{ emplace_back(std::move(t)); }
 		};
 

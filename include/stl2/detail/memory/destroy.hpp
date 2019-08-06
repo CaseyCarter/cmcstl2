@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 	// destroy_at [specialized.destroy]
 	//
 	struct __destroy_at_fn : private __niebloid {
-		template<Destructible T>
+		template<destructible T>
 		void operator()(T* p) const noexcept;
 	};
 
@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	struct __destroy_fn : private __niebloid {
 		template<_NoThrowInputIterator I, _NoThrowSentinel<I> S>
-		requires Destructible<iter_value_t<I>>
+		requires destructible<iter_value_t<I>>
 		I operator()(I first, S last) const noexcept {
 			if constexpr (std::is_trivially_destructible_v<iter_value_t<I>>) {
 				advance(first, last);
@@ -52,10 +52,10 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<_NoThrowInputRange R>
-		requires Destructible<iter_value_t<iterator_t<R>>>
+		requires destructible<iter_value_t<iterator_t<R>>>
 		safe_iterator_t<R> operator()(R&& r) const noexcept {
 			if constexpr (std::is_trivially_destructible_v<iter_value_t<iterator_t<R>>> &&
-			              Same<dangling, safe_iterator_t<R>>) {
+			              same_as<dangling, safe_iterator_t<R>>) {
 				return {};
 			} else {
 				return (*this)(begin(r), end(r));
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 
 	inline constexpr __destroy_fn destroy {};
 
-	template<Destructible T>
+	template<destructible T>
 	inline void __destroy_at_fn::operator()(T* p) const noexcept {
 		if constexpr (!std::is_trivially_destructible_v<T>) {
 			if constexpr (std::is_array_v<T>) {
@@ -81,7 +81,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	struct __destroy_n_fn : private __niebloid {
 		template<_NoThrowInputIterator I>
-		requires Destructible<iter_value_t<I>>
+		requires destructible<iter_value_t<I>>
 		I operator()(I first, iter_difference_t<I> n) const noexcept {
 			if constexpr (std::is_trivially_destructible_v<iter_value_t<I>>) {
 				return next(std::move(first), n);
@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace detail {
 		template<_NoThrowForwardIterator I>
-		requires Destructible<iter_value_t<I>>
+		requires destructible<iter_value_t<I>>
 		struct destroy_guard {
 			~destroy_guard() {
 				if (last_) {
@@ -118,7 +118,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<_NoThrowForwardIterator I>
-		requires Destructible<iter_value_t<I>> &&
+		requires destructible<iter_value_t<I>> &&
 			std::is_trivially_destructible_v<iter_value_t<I>>
 		struct destroy_guard<I> {
 			constexpr explicit destroy_guard(I&) noexcept {}

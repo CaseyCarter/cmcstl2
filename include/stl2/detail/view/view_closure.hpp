@@ -23,15 +23,15 @@ STL2_OPEN_NAMESPACE {
 
 		template<class T>
 		META_CONCEPT Pipeable =
-			DerivedFrom<T, __pipeable_base> && ext::CopyConstructibleObject<T>;
+			derived_from<T, __pipeable_base> && ext::CopyConstructibleObject<T>;
 
 		template<Pipeable, Pipeable>
 		struct __view_pipeline;
 
 		struct __pipeable_base {
 			template<Pipeable A, Pipeable B>
-			requires Constructible<__uncvref<A>, A> &&
-				Constructible<__uncvref<B>, B>
+			requires constructible_from<__uncvref<A>, A> &&
+				constructible_from<__uncvref<B>, B>
 			friend constexpr auto operator|(A&& left, B&& right)
 			{ return __view_pipeline{static_cast<A&&>(left), static_cast<B&&>(right)}; }
 		};
@@ -84,40 +84,40 @@ STL2_OPEN_NAMESPACE {
 			: __box<Is, Ts>{std::forward<Ts>(ts)}... {}
 
 			template<InputRange Rng>
-			requires ViewableRange<Rng> && Invocable<Fn, Rng, Ts...> &&
+			requires ViewableRange<Rng> && invocable<Fn, Rng, Ts...> &&
 				View<invoke_result_t<Fn, Rng, Ts...>>
 			constexpr auto operator()(Rng&& rng) && {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<__box<Is, Ts>&&>(*this).value_...);
 			}
 			template<InputRange Rng>
-			requires ViewableRange<Rng> && Invocable<Fn, Rng, Ts &...> &&
+			requires ViewableRange<Rng> && invocable<Fn, Rng, Ts &...> &&
 				View<invoke_result_t<Fn, Rng, Ts &...>>
 			constexpr auto operator()(Rng&& rng) & {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<__box<Is, Ts>&>(*this).value_...);
 			}
 			template<InputRange Rng>
-			requires ViewableRange<Rng> && Invocable<Fn, Rng, const Ts &...> &&
+			requires ViewableRange<Rng> && invocable<Fn, Rng, const Ts &...> &&
 				View<invoke_result_t<Fn, Rng, const Ts &...>>
 			constexpr auto operator()(Rng&& rng) const & {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<const __box<Is, Ts>&>(*this).value_...);
 			}
 			template<InputRange Rng>
-			requires ViewableRange<Rng> && Invocable<Fn, Rng, const Ts &...> &&
+			requires ViewableRange<Rng> && invocable<Fn, Rng, const Ts &...> &&
 				View<invoke_result_t<Fn, Rng, const Ts &...>>
 			void operator()(Rng&& rng) const && = delete;
 		};
 
-		template<Semiregular Fn, CopyConstructible... Ts>
+		template<semiregular Fn, copy_constructible... Ts>
 		struct STL2_EMPTY_BASES view_closure
 		: __pipeable<view_closure<Fn, Ts...>>
 		, __view_closure<std::index_sequence_for<Ts...>, Fn, Ts...> {
 			using __view_closure<std::index_sequence_for<Ts...>, Fn, Ts...>::__view_closure;
 		};
 
-		template<Semiregular Fn, CopyConstructible... Ts>
+		template<semiregular Fn, copy_constructible... Ts>
 		view_closure(Fn, Ts&&...) -> view_closure<Fn, Ts...>;
 
 		template<Pipeable A, Pipeable B>
@@ -131,18 +131,18 @@ STL2_OPEN_NAMESPACE {
 			: left_(std::move(left)), right_(std::move(right)) {}
 
 			template<ViewableRange R>
-			requires Invocable<A, R> && Invocable<B, invoke_result_t<A, R>>
+			requires invocable<A, R> && invocable<B, invoke_result_t<A, R>>
 			constexpr decltype(auto) operator()(R&& r) &&
 			{ return std::move(right_)(std::move(left_)(std::forward<R>(r))); }
 
 			template<ViewableRange R>
-			requires Invocable<A&, R> && Invocable<B&, invoke_result_t<A&, R>>
+			requires invocable<A&, R> && invocable<B&, invoke_result_t<A&, R>>
 			constexpr decltype(auto) operator()(R&& r) &
 			{ return right_(left_(std::forward<R>(r))); }
 
 			template<ViewableRange R>
-			requires Invocable<const A&, R> &&
-				Invocable<const B&, invoke_result_t<const A&, R>>
+			requires invocable<const A&, R> &&
+				invocable<const B&, invoke_result_t<const A&, R>>
 			constexpr decltype(auto) operator()(R&& r) const &
 			{ return right_(left_(std::forward<R>(r))); }
 		};

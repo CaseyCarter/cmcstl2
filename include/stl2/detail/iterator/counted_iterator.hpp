@@ -77,13 +77,13 @@ STL2_OPEN_NAMESPACE {
 			STL2_EXPECT(n >= 0);
 		}
 		template<class I2>
-		requires ConvertibleTo<const I2&, I>
+		requires convertible_to<const I2&, I>
 		constexpr counted_iterator(const counted_iterator<I2>& i)
 		noexcept(std::is_nothrow_copy_constructible_v<I>) // strengthened
 		: current_(__counted_iterator::access::current(i))
 		, length_{__counted_iterator::access::count(i)} {}
 		template<class I2>
-		requires Assignable<I&, const I2&>
+		requires assignable_from<I&, const I2&>
 		constexpr counted_iterator& operator=(const counted_iterator<I2>& i)
 		noexcept(std::is_nothrow_assignable_v<I&, const I2&>) { // strengthened
 			current_ = __counted_iterator::access::current(i);
@@ -161,7 +161,7 @@ STL2_OPEN_NAMESPACE {
 			STL2_EXPECT(-n <= length_);
 			return counted_iterator(current_ - n, length_ + n);
 		}
-		template<Common<I> I2>
+		template<common_with<I> I2>
 		friend constexpr iter_difference_t<I2>
 		operator-(const counted_iterator& x, const counted_iterator<I2>& y)
 		noexcept { // strengthened
@@ -191,7 +191,7 @@ STL2_OPEN_NAMESPACE {
 			return current_[n];
 		}
 
-		template<Common<I> I2>
+		template<common_with<I> I2>
 		friend constexpr bool
 		operator==(const counted_iterator& x, const counted_iterator<I2>& y)
 		noexcept { // strengthened
@@ -207,7 +207,7 @@ STL2_OPEN_NAMESPACE {
 		noexcept { // strengthened
 			return y.length_ == 0;
 		}
-		template<Common<I> I2>
+		template<common_with<I> I2>
 		friend constexpr bool
 		operator!=(const counted_iterator& x, const counted_iterator<I2>& y)
 		 noexcept { // strengthened
@@ -224,25 +224,25 @@ STL2_OPEN_NAMESPACE {
 			return !(x == y);
 		}
 
-		template<Common<I> I2>
+		template<common_with<I> I2>
 		friend constexpr bool
 		operator<(const counted_iterator& x, const counted_iterator<I2>& y)
 		noexcept { // strengthened
 			return y.count() < x.length_;
 		}
-		template<Common<I> I2>
+		template<common_with<I> I2>
 		friend constexpr bool
 		operator>(const counted_iterator& x, const counted_iterator<I2>& y)
 		noexcept { // strengthened
 			return y < x;
 		}
-		template<Common<I> I2>
+		template<common_with<I> I2>
 		friend constexpr bool
 		operator<=(const counted_iterator& x, const counted_iterator<I2>& y)
 		noexcept { // strengthened
 			return !(y < x);
 		}
-		template<Common<I> I2>
+		template<common_with<I> I2>
 		friend constexpr bool
 		operator>=(const counted_iterator& x, const counted_iterator<I2>& y)
 		noexcept { // strengthened

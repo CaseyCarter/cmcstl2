@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT _NoThrowInputIterator =
 		InputIterator<I> &&
 		std::is_lvalue_reference_v<iter_reference_t<I>> &&
-		Same<__uncvref<iter_reference_t<I>>, iter_value_t<I>>;
+		same_as<__uncvref<iter_reference_t<I>>, iter_value_t<I>>;
 		// Axiom: no exceptions are thrown from increment, copy, move, assignment,
 		//        indirection through valid iterators.
 

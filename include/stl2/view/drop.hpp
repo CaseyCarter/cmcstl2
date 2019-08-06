@@ -105,7 +105,7 @@ STL2_OPEN_NAMESPACE {
 			)
 #endif // STL2_WORKAROUND_CLANGC_50
 
-			template<Integral D>
+			template<integral D>
 			constexpr auto operator()(D count) const
 			{
 				return detail::view_closure(*this, static_cast<D>(count));

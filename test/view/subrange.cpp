@@ -34,50 +34,50 @@ int main() {
 	// safe_subrange_t tests:
 
 	// lvalues are ReferenceableRanges and do not dangle:
-	static_assert(Same<subrange<int*>,
+	static_assert(same_as<subrange<int*>,
 		decltype(::algorithm(std::declval<int(&)[42]>()))>);
-	static_assert(Same<subrange<std::vector<int>::iterator>,
+	static_assert(same_as<subrange<std::vector<int>::iterator>,
 		decltype(::algorithm(vi))>);
 
 	// subrange and ref_view are ReferenceableRanges and do not dangle:
-	static_assert(Same<subrange<int*>,
+	static_assert(same_as<subrange<int*>,
 		decltype(::algorithm(std::declval<subrange<int*>>()))>);
-	static_assert(Same<subrange<int*>,
+	static_assert(same_as<subrange<int*>,
 		decltype(::algorithm(std::declval<ref_view<int[42]>>()))>);
 
 	// non-ReferenceableRange rvalue ranges dangle:
-	static_assert(Same<dangling,
+	static_assert(same_as<dangling,
 		decltype(::algorithm(std::declval<std::vector<int>>()))>);
-	static_assert(Same<dangling,
+	static_assert(same_as<dangling,
 		decltype(::algorithm(std::move(vi)))>);
 
 	// Test that slicing conversions are not allowed.
-	static_assert(Constructible<subrange<Base*, Base*>, Base*, Base*>);
-	static_assert(!Constructible<subrange<Base*, Base*>, Derived*, Derived*>);
-	static_assert(Constructible<subrange<const Base*, const Base*>, Base*, Base*>);
-	static_assert(!Constructible<subrange<const Base*, const Base*>, Derived*, Derived*>);
-	static_assert(!Constructible<subrange<Base*, Base*>, subrange<Derived*, Derived*>>);
+	static_assert(constructible_from<subrange<Base*, Base*>, Base*, Base*>);
+	static_assert(!constructible_from<subrange<Base*, Base*>, Derived*, Derived*>);
+	static_assert(constructible_from<subrange<const Base*, const Base*>, Base*, Base*>);
+	static_assert(!constructible_from<subrange<const Base*, const Base*>, Derived*, Derived*>);
+	static_assert(!constructible_from<subrange<Base*, Base*>, subrange<Derived*, Derived*>>);
 
-	static_assert(Constructible<subrange<Base*, unreachable>, Base*, unreachable>);
-	static_assert(!Constructible<subrange<Base*, unreachable>, Derived*, unreachable>);
-	static_assert(Constructible<subrange<const Base*, unreachable>, Base*, unreachable>);
-	static_assert(!Constructible<subrange<const Base*, unreachable>, Derived*, unreachable>);
-	static_assert(!Constructible<subrange<Base*, unreachable>, subrange<Derived*, unreachable>>);
+	static_assert(constructible_from<subrange<Base*, unreachable>, Base*, unreachable>);
+	static_assert(!constructible_from<subrange<Base*, unreachable>, Derived*, unreachable>);
+	static_assert(constructible_from<subrange<const Base*, unreachable>, Base*, unreachable>);
+	static_assert(!constructible_from<subrange<const Base*, unreachable>, Derived*, unreachable>);
+	static_assert(!constructible_from<subrange<Base*, unreachable>, subrange<Derived*, unreachable>>);
 
-	static_assert(Constructible<subrange<Base*, unreachable, subrange_kind::sized>, Base*, unreachable, std::ptrdiff_t>);
-	static_assert(!Constructible<subrange<Base*, unreachable, subrange_kind::sized>, Derived*, unreachable, std::ptrdiff_t>);
-	static_assert(Constructible<subrange<const Base*, unreachable, subrange_kind::sized>, Base*, unreachable, std::ptrdiff_t>);
-	static_assert(!Constructible<subrange<const Base*, unreachable, subrange_kind::sized>, Derived*, unreachable, std::ptrdiff_t>);
-	static_assert(!Constructible<subrange<Base*, unreachable, subrange_kind::sized>, subrange<Derived*, unreachable>, std::ptrdiff_t>);
+	static_assert(constructible_from<subrange<Base*, unreachable, subrange_kind::sized>, Base*, unreachable, std::ptrdiff_t>);
+	static_assert(!constructible_from<subrange<Base*, unreachable, subrange_kind::sized>, Derived*, unreachable, std::ptrdiff_t>);
+	static_assert(constructible_from<subrange<const Base*, unreachable, subrange_kind::sized>, Base*, unreachable, std::ptrdiff_t>);
+	static_assert(!constructible_from<subrange<const Base*, unreachable, subrange_kind::sized>, Derived*, unreachable, std::ptrdiff_t>);
+	static_assert(!constructible_from<subrange<Base*, unreachable, subrange_kind::sized>, subrange<Derived*, unreachable>, std::ptrdiff_t>);
 
-	static_assert(ConvertibleTo<subrange<Base*, Base*>, std::pair<const Base*, const Base*>>);
-	static_assert(!ConvertibleTo<subrange<Derived*, Derived*>, std::pair<Base*, Base*>>);
+	static_assert(convertible_to<subrange<Base*, Base*>, std::pair<const Base*, const Base*>>);
+	static_assert(!convertible_to<subrange<Derived*, Derived*>, std::pair<Base*, Base*>>);
 
 	subrange<std::vector<int>::iterator> r0 {vi.begin(), vi.end()};
 	static_assert(std::tuple_size<decltype(r0)>::value == 2);
-	static_assert(Same<std::vector<int>::iterator,
+	static_assert(same_as<std::vector<int>::iterator,
 		std::tuple_element<0, decltype(r0)>::type>);
-	static_assert(Same<std::vector<int>::iterator,
+	static_assert(same_as<std::vector<int>::iterator,
 		std::tuple_element<1, decltype(r0)>::type>);
 	static_assert(SizedRange<decltype(r0)>);
 	CHECK(r0.size() == 4);
@@ -101,9 +101,9 @@ int main() {
 
 	subrange<std::vector<int>::iterator, unreachable> r1 { r0.begin(), {} };
 	static_assert(std::tuple_size<decltype(r1)>::value == 2);
-	static_assert(Same<std::vector<int>::iterator,
+	static_assert(same_as<std::vector<int>::iterator,
 		std::tuple_element<0, decltype(r1)>::type>);
-	static_assert(Same<unreachable,
+	static_assert(same_as<unreachable,
 		std::tuple_element<1, decltype(r1)>::type>);
 	static_assert(View<decltype(r1)>);
 	static_assert(!SizedRange<decltype(r1)>);
@@ -145,50 +145,50 @@ int main() {
 	{
 		subrange s0{vi.begin(), vi.end()};
 		subrange s1{li.begin(), li.end()};
-		static_assert(Same<decltype(r0), decltype(s0)>);
-		static_assert(Same<decltype(l1), decltype(s1)>);
+		static_assert(same_as<decltype(r0), decltype(s0)>);
+		static_assert(same_as<decltype(l1), decltype(s1)>);
 	}
 	{
 		subrange s0{vi.begin(), vi.end(), ranges::distance(vi)};
 		subrange s1{li.begin(), li.end(), ranges::distance(li)};
-		static_assert(Same<decltype(r0), decltype(s0)>);
-		static_assert(Same<decltype(l0), decltype(s1)>);
+		static_assert(same_as<decltype(r0), decltype(s0)>);
+		static_assert(same_as<decltype(l0), decltype(s1)>);
 	}
 	{
 		subrange s0{vi};
 		subrange s1{li};
 		subrange s2{view::all(vi)};
 		subrange s3{view::all(li)};
-		static_assert(Same<decltype(r0), decltype(s0)>);
-		static_assert(Same<decltype(l0), decltype(s1)>);
-		static_assert(Same<decltype(r0), decltype(s2)>);
-		static_assert(Same<decltype(l0), decltype(s3)>);
+		static_assert(same_as<decltype(r0), decltype(s0)>);
+		static_assert(same_as<decltype(l0), decltype(s1)>);
+		static_assert(same_as<decltype(r0), decltype(s2)>);
+		static_assert(same_as<decltype(l0), decltype(s3)>);
 	}
 	{
 		subrange s0{r0};
 		subrange s1{l0};
 		subrange s2{l1};
-		static_assert(Same<decltype(r0), decltype(s0)>);
-		static_assert(Same<decltype(l0), decltype(s1)>);
-		static_assert(Same<decltype(l1), decltype(s2)>);
+		static_assert(same_as<decltype(r0), decltype(s0)>);
+		static_assert(same_as<decltype(l0), decltype(s1)>);
+		static_assert(same_as<decltype(l1), decltype(s2)>);
 	}
 	{
 		subrange s0{vi, ranges::distance(vi)};
 		subrange s1{li, ranges::distance(li)};
 		subrange s2{view::all(vi), ranges::distance(vi)};
 		subrange s3{view::all(li), ranges::distance(li)};
-		static_assert(Same<decltype(r0), decltype(s0)>);
-		static_assert(Same<decltype(l0), decltype(s1)>);
-		static_assert(Same<decltype(r0), decltype(s2)>);
-		static_assert(Same<decltype(l0), decltype(s3)>);
+		static_assert(same_as<decltype(r0), decltype(s0)>);
+		static_assert(same_as<decltype(l0), decltype(s1)>);
+		static_assert(same_as<decltype(r0), decltype(s2)>);
+		static_assert(same_as<decltype(l0), decltype(s3)>);
 	}
 	{
 		subrange s0{r0, size(r0)};
 		subrange s1{l0, size(l0)};
 		subrange s2{l1, size(l0)};
-		static_assert(Same<decltype(r0), decltype(s0)>);
-		static_assert(Same<decltype(l0), decltype(s1)>);
-		static_assert(Same<decltype(l0), decltype(s2)>);
+		static_assert(same_as<decltype(r0), decltype(s0)>);
+		static_assert(same_as<decltype(l0), decltype(s1)>);
+		static_assert(same_as<decltype(l0), decltype(s2)>);
 	}
 
 	return ::test_result();

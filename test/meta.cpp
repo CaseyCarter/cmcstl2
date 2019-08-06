@@ -9,7 +9,7 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
 // Acknowledgements: Thanks for Paul Fultz for the suggestions that
-//                   concepts can be ordinary Boolean metafunctions.
+//                   concepts can be ordinary boolean metafunctions.
 //
 // Project home: https://github.com/ericniebler/range-v3
 //

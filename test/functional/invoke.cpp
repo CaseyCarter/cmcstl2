@@ -15,7 +15,7 @@
 
 namespace ranges = __stl2;
 
-static_assert(ranges::Copyable<ranges::reference_wrapper<int>>);
+static_assert(ranges::copyable<ranges::reference_wrapper<int>>);
 
 constexpr struct {
 	template<class T>
@@ -99,8 +99,8 @@ int main() {
 		CHECK(a.i == 0);
 		ranges::invoke(&A::i, &a) = 1;
 		CHECK(a.i == 1);
-		static_assert(ranges::Same<decltype(ranges::invoke(&A::i, ca)), const int&>);
-		static_assert(ranges::Same<decltype(ranges::invoke(&A::i, &ca)), const int&>);
+		static_assert(ranges::same_as<decltype(ranges::invoke(&A::i, ca)), const int&>);
+		static_assert(ranges::same_as<decltype(ranges::invoke(&A::i, &ca)), const int&>);
 	}
 
 	{

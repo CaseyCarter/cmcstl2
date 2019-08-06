@@ -134,7 +134,7 @@ int main()
 		using R = decltype(rng);
 		CONCEPT_ASSERT(InputView<R>());
 		CONCEPT_ASSERT(!ForwardRange<R>());
-		CONCEPT_ASSERT(Same<int const&, ranges::iter_reference_t<R>>());
+		CONCEPT_ASSERT(same_as<int const&, ranges::iter_reference_t<R>>());
 		CHECK_EQUAL(rng, {2,3});
 	}
 

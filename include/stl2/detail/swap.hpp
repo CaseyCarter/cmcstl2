@@ -26,7 +26,7 @@ STL2_OPEN_NAMESPACE {
 	// Not to spec: this wasn't proposed for C++20, but I'm keeping it around
 	// until the libraries we want to support implement constexpr std::exchange.
 	template<class T, class U = T>
-	requires MoveConstructible<T> && Assignable<T&, U>
+	requires move_constructible<T> && assignable_from<T&, U>
 	constexpr T exchange(T& t, U&& u)
 	noexcept(std::is_nothrow_move_constructible<T>::value &&
 		std::is_nothrow_assignable<T&, U>::value)
@@ -74,8 +74,8 @@ STL2_OPEN_NAMESPACE {
 				(void)swap(std::forward<T>(t), std::forward<U>(u))
 			)
 			template<class T>
-			requires (!has_customization<T&, T&> && MoveConstructible<T>
-				&& Assignable<T&, T&&>)
+			requires (!has_customization<T&, T&> && move_constructible<T>
+				&& assignable_from<T&, T&&>)
 			constexpr void operator()(T& a, T& b) const
 			STL2_NOEXCEPT_RETURN(
 				(void)(b = __stl2::exchange(a, std::move(b)))
@@ -95,20 +95,20 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
-	// Swappable [concepts.lib.corelang.swappable]
+	// swappable [concepts.lib.corelang.swappable]
 	//
 	template<class T>
-	META_CONCEPT Swappable =
+	META_CONCEPT swappable =
 		requires(T& a, T& b) {
 			__stl2::swap(a, b);
 		};
 
 	template<class T, class U>
-	META_CONCEPT SwappableWith =
+	META_CONCEPT swappable_with =
 #if 1 // P/R of unfiled LWG issue
-		CommonReference<T, U> &&
+		common_reference_with<T, U> &&
 #else
-		CommonReference<
+		common_reference_with<
 			const remove_reference_t<T>&,
 			const remove_reference_t<U>&> &&
 #endif
@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
 		template<class T, class U>
 		inline constexpr bool is_nothrow_swappable_v = false;
 
-		template<class T, SwappableWith<T> U>
+		template<class T, swappable_with<T> U>
 		inline constexpr bool is_nothrow_swappable_v<T, U> =
 			noexcept(__stl2::swap(std::declval<T>(), std::declval<U>())) &&
 			noexcept(__stl2::swap(std::declval<U>(), std::declval<T>()));

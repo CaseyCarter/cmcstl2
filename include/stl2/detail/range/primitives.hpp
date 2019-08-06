@@ -30,12 +30,12 @@ STL2_OPEN_NAMESPACE {
 			C count;
 
 			template<class I2, class C2>
-			requires ConvertibleTo<const I&, I2> && ConvertibleTo<const C&, C2>
+			requires convertible_to<const I&, I2> && convertible_to<const C&, C2>
 			operator enumerate_result<I2, C2>() const& {
 				return {end, count};
 			}
 			template<class I2, class C2>
-			requires ConvertibleTo<I, I2> && ConvertibleTo<C, C2>
+			requires convertible_to<I, I2> && convertible_to<C, C2>
 			operator enumerate_result<I2, C2>() && {
 				return {std::move(end), std::move(count)};
 			}
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 			operator()(I first, S last) const {
 				if constexpr (SizedSentinel<S, I>) {
 					auto d = last - first;
-					STL2_EXPECT(Same<I, S> || d >= 0);
+					STL2_EXPECT(same_as<I, S> || d >= 0);
 					return {next(std::move(first), std::move(last)), d};
 				} else if constexpr (SizedSentinel<I, I>) {
 					auto end = next(first, std::move(last));
@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
 			iter_difference_t<I> n = 0;
 			if constexpr (SizedSentinel<S, I>) {
 				n = last - first;
-				STL2_EXPECT(Same<I, S> || n >= 0);
+				STL2_EXPECT(same_as<I, S> || n >= 0);
 			} else if constexpr (SizedSentinel<I, I>) {
 				auto end = next(first, std::move(last));
 				n = end - first;

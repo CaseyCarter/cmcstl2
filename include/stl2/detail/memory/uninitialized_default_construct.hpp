@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	struct __uninitialized_default_construct_fn : private __niebloid {
 		template<_NoThrowForwardIterator I, _NoThrowSentinel<I> S>
-		requires DefaultConstructible<iter_value_t<I>>
+		requires default_initializable<iter_value_t<I>>
 		I operator()(I first, S last) const {
 			auto guard = detail::destroy_guard{first};
 			for (; first != last; ++first) {
@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<_NoThrowForwardRange Rng>
-		requires DefaultConstructible<iter_value_t<iterator_t<Rng>>>
+		requires default_initializable<iter_value_t<iterator_t<Rng>>>
 		safe_iterator_t<Rng> operator()(Rng&& rng) const {
 			return (*this)(begin(rng), end(rng));
 		}
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	struct __uninitialized_default_construct_n_fn : private __niebloid {
 		template<_NoThrowForwardIterator I>
-		requires DefaultConstructible<iter_value_t<I>>
+		requires default_initializable<iter_value_t<I>>
 		I operator()(I first, iter_difference_t<I> n) const {
 			return uninitialized_default_construct(
 				counted_iterator{std::move(first), n},

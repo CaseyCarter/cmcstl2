@@ -287,7 +287,7 @@ int main()
 			v[i].j = i;
 		}
 		auto r = ranges::sort(std::move(v), std::less<int>{}, &S::i);
-		static_assert(ranges::Same<decltype(r), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(r), ranges::dangling>);
 		for(int i = 0; (std::size_t)i < v.size(); ++i)
 		{
 			CHECK(v[i].i == i);

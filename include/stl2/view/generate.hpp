@@ -30,12 +30,12 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<class F>
 		META_CONCEPT __ConstInvocable =
-			Invocable<F&> &&
-			Invocable<const F&> &&
-			Same<invoke_result_t<F&>, invoke_result_t<const F&>>;
+			invocable<F&> &&
+			invocable<const F&> &&
+			same_as<invoke_result_t<F&>, invoke_result_t<const F&>>;
 
 		template<CopyConstructibleObject F>
-		requires Invocable<F&>
+		requires invocable<F&>
 		struct STL2_EMPTY_BASES generate_view
 		: view_interface<generate_view<F>>
 		, private detail::semiregular_box<F>
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<CopyConstructibleObject F>
-		requires Invocable<F&>
+		requires invocable<F&>
 		struct generate_view<F>::__iterator {
 			using value_type = result_t;
 			using difference_type = std::intmax_t;

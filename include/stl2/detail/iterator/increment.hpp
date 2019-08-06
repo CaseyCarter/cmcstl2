@@ -50,9 +50,9 @@ STL2_OPEN_NAMESPACE {
 		!std::is_pointer_v<T> && // Avoid GCC PR 78173 (See above)
 		requires(const T& a, const T& b) {
 #ifdef META_HAS_P1084
-			{ a - b } -> Integral;
+			{ a - b } -> integral;
 #else
-			a - b; requires Integral<decltype(a - b)>;
+			a - b; requires integral<decltype(a - b)>;
 #endif
 		})
 	struct incrementable_traits<T> {
@@ -68,14 +68,14 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class I>
 	META_CONCEPT WeaklyIncrementable =
-		Semiregular<I> &&
+		semiregular<I> &&
 		requires(I i) {
 			typename iter_difference_t<I>;
-			requires SignedIntegral<iter_difference_t<I>>;
+			requires signed_integral<iter_difference_t<I>>;
 #ifdef META_HAS_P1084
-			{ ++i } -> Same<I&>; // not required to be equality-preserving
+			{ ++i } -> same_as<I&>; // not required to be equality-preserving
 #else
-			{ ++i } -> Same<I>&; // not required to be equality-preserving
+			{ ++i } -> same_as<I>&; // not required to be equality-preserving
 #endif
 			i++; // not required to be equality-preserving
 		};
@@ -85,13 +85,13 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class I>
 	META_CONCEPT Incrementable =
-		Regular<I> &&
+		regular<I> &&
 		WeaklyIncrementable<I> &&
 		requires(I i) {
 #ifdef META_HAS_P1084
-			{ i++ } -> Same<I>;
+			{ i++ } -> same_as<I>;
 #else
-			i++; requires Same<decltype(i++), I>;
+			i++; requires same_as<decltype(i++), I>;
 #endif
 		};
 
@@ -104,11 +104,11 @@ STL2_OPEN_NAMESPACE {
 			Incrementable<I> &&
 			requires(I i) {
 #ifdef META_HAS_P1084
-				{ --i } -> Same<I&>;
-				{ i-- } -> Same<I>;
+				{ --i } -> same_as<I&>;
+				{ i-- } -> same_as<I>;
 #else
-				{ --i } -> Same<I>&;
-				i--; requires Same<I, decltype(i--)>;
+				{ --i } -> same_as<I>&;
+				i--; requires same_as<I, decltype(i--)>;
 #endif
 			};
 			// Let a and b be objects of type I.
@@ -127,11 +127,11 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT RandomAccessIncrementable =
 			Decrementable<I> &&
 			requires(I& i, const I& ci, const iter_difference_t<I> n) {
-				{ i += n } -> STL2_RVALUE_REQ(Same<I&>);
-				{ i -= n } -> STL2_RVALUE_REQ(Same<I&>);
-				{ ci + n } -> STL2_RVALUE_REQ(Same<I>);
-				{ n + ci } -> STL2_RVALUE_REQ(Same<I>);
-				{ ci - n } -> STL2_RVALUE_REQ(Same<I>);
+				{ i += n } -> STL2_RVALUE_REQ(same_as<I&>);
+				{ i -= n } -> STL2_RVALUE_REQ(same_as<I&>);
+				{ ci + n } -> STL2_RVALUE_REQ(same_as<I>);
+				{ n + ci } -> STL2_RVALUE_REQ(same_as<I>);
+				{ ci - n } -> STL2_RVALUE_REQ(same_as<I>);
 				{ ci - ci } -> iter_difference_t<I>;
 			};
 			// FIXME: Axioms

@@ -24,85 +24,85 @@
 //
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// Boolean [concepts.lib.compare.boolean]
+	// boolean [concepts.lib.compare.boolean]
 	//
 	template<class B>
-	META_CONCEPT Boolean =
-		Movable<std::decay_t<B>> &&
+	META_CONCEPT boolean =
+		movable<std::decay_t<B>> &&
 		requires(const std::remove_reference_t<B>& b1,
 			     const std::remove_reference_t<B>& b2, const bool a) {
-			// Requirements common to both Boolean and BooleanTestable.
-			{  b1      } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
-			{ !b1      } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
-			{  b1 && a } -> STL2_RVALUE_REQ(Same<bool>);
-			{  b1 || a } -> STL2_RVALUE_REQ(Same<bool>);
+			// Requirements common to both boolean and BooleanTestable.
+			{  b1      } -> STL2_RVALUE_REQ(convertible_to<bool>);
+			{ !b1      } -> STL2_RVALUE_REQ(convertible_to<bool>);
+			{  b1 && a } -> STL2_RVALUE_REQ(same_as<bool>);
+			{  b1 || a } -> STL2_RVALUE_REQ(same_as<bool>);
 
-			// Requirements of Boolean that are also be valid for
+			// Requirements of boolean that are also be valid for
 			// BooleanTestable, but for which BooleanTestable does not
 			// require validation.
-			{ b1 && b2 } -> STL2_RVALUE_REQ(Same<bool>);
-			{  a && b2 } -> STL2_RVALUE_REQ(Same<bool>);
-			{ b1 || b2 } -> STL2_RVALUE_REQ(Same<bool>);
-			{  a || b2 } -> STL2_RVALUE_REQ(Same<bool>);
+			{ b1 && b2 } -> STL2_RVALUE_REQ(same_as<bool>);
+			{  a && b2 } -> STL2_RVALUE_REQ(same_as<bool>);
+			{ b1 || b2 } -> STL2_RVALUE_REQ(same_as<bool>);
+			{  a || b2 } -> STL2_RVALUE_REQ(same_as<bool>);
 
-			// Requirements of Boolean that are not required by
+			// Requirements of boolean that are not required by
 			// BooleanTestable.
-			{ b1 == b2 } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
-			{ b1 == a  } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
-			{  a == b2 } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
-			{ b1 != b2 } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
-			{ b1 != a  } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
-			{  a != b2 } -> STL2_RVALUE_REQ(ConvertibleTo<bool>);
+			{ b1 == b2 } -> STL2_RVALUE_REQ(convertible_to<bool>);
+			{ b1 == a  } -> STL2_RVALUE_REQ(convertible_to<bool>);
+			{  a == b2 } -> STL2_RVALUE_REQ(convertible_to<bool>);
+			{ b1 != b2 } -> STL2_RVALUE_REQ(convertible_to<bool>);
+			{ b1 != a  } -> STL2_RVALUE_REQ(convertible_to<bool>);
+			{  a != b2 } -> STL2_RVALUE_REQ(convertible_to<bool>);
 		};
 
 	///////////////////////////////////////////////////////////////////////////
 	// WeaklyEqualityComparable [concepts.lib.compare.equalitycomparable]
-	// Relaxation of EqualityComparable<T, U> that doesn't require
-	// EqualityComparable<T>, EqualityComparable<U>, Common<T, U>, or
-	// EqualityComparable<common_type_t<T, U>>. I.e., provides exactly the
+	// Relaxation of equality_comparable<T, U> that doesn't require
+	// equality_comparable<T>, equality_comparable<U>, common_with<T, U>, or
+	// equality_comparable<common_type_t<T, U>>. I.e., provides exactly the
 	// requirements for Sentinel's operator ==.
 	//
 	template<class T, class U>
 	META_CONCEPT WeaklyEqualityComparable =
 		requires(const std::remove_reference_t<T>& t,
 				 const std::remove_reference_t<U>& u) {
-			{ t == u } -> STL2_RVALUE_REQ(Boolean);
-			{ t != u } -> STL2_RVALUE_REQ(Boolean);
-			{ u == t } -> STL2_RVALUE_REQ(Boolean);
-			{ u != t } -> STL2_RVALUE_REQ(Boolean);
+			{ t == u } -> STL2_RVALUE_REQ(boolean);
+			{ t != u } -> STL2_RVALUE_REQ(boolean);
+			{ u == t } -> STL2_RVALUE_REQ(boolean);
+			{ u != t } -> STL2_RVALUE_REQ(boolean);
 		};
 
 	///////////////////////////////////////////////////////////////////////////
-	// EqualityComparable [concepts.lib.compare.equalitycomparable]
+	// equality_comparable [concepts.lib.compare.equalitycomparable]
 	//
 	template<class T>
-	META_CONCEPT EqualityComparable =
+	META_CONCEPT equality_comparable =
 		WeaklyEqualityComparable<T, T>;
 
 	template<class T, class U>
-	META_CONCEPT EqualityComparableWith =
-		EqualityComparable<T> &&
-		EqualityComparable<U> &&
+	META_CONCEPT equality_comparable_with =
+		equality_comparable<T> &&
+		equality_comparable<U> &&
 		WeaklyEqualityComparable<T, U> &&
-		CommonReference<
+		common_reference_with<
 			const std::remove_reference_t<T>&,
 			const std::remove_reference_t<U>&> &&
-		EqualityComparable<
+		equality_comparable<
 			common_reference_t<
 				const std::remove_reference_t<T>&,
 				const std::remove_reference_t<U>&>>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// StrictTotallyOrdered [concepts.lib.compare.stricttotallyordered]
+	// totally_ordered [concepts.lib.compare.stricttotallyordered]
 	//
 	template<class T, class U>
 	META_CONCEPT __totally_ordered =
 		requires(const std::remove_reference_t<T>& t,
 		         const std::remove_reference_t<U>& u) {
-			{ t <  u } -> STL2_RVALUE_REQ(Boolean);
-			{ t >  u } -> STL2_RVALUE_REQ(Boolean);
-			{ t <= u } -> STL2_RVALUE_REQ(Boolean);
-			{ t >= u } -> STL2_RVALUE_REQ(Boolean);
+			{ t <  u } -> STL2_RVALUE_REQ(boolean);
+			{ t >  u } -> STL2_RVALUE_REQ(boolean);
+			{ t <= u } -> STL2_RVALUE_REQ(boolean);
+			{ t >= u } -> STL2_RVALUE_REQ(boolean);
 			// Axiom: t < u, t > u, t <= u, t >= u have the same definition space.
 			// Axiom: If bool(t < u) then bool(t <= u)
 			// Axiom: If bool(t > u) then bool(t >= u)
@@ -111,22 +111,22 @@ STL2_OPEN_NAMESPACE {
 		};
 
 	template<class T>
-	META_CONCEPT StrictTotallyOrdered =
-		EqualityComparable<T> && __totally_ordered<T, T>;
+	META_CONCEPT totally_ordered =
+		equality_comparable<T> && __totally_ordered<T, T>;
 		// Axiom: t1 == t2 and t1 < t2 have the same definition space.
 		// Axiom: bool(t <= t)
 
 	template<class T, class U>
-	META_CONCEPT StrictTotallyOrderedWith =
-		StrictTotallyOrdered<T> &&
-		StrictTotallyOrdered<U> &&
-		EqualityComparableWith<T, U> &&
+	META_CONCEPT totally_ordered_with =
+		totally_ordered<T> &&
+		totally_ordered<U> &&
+		equality_comparable_with<T, U> &&
 		__totally_ordered<T, U> &&
 		__totally_ordered<U, T> &&
-		CommonReference<
+		common_reference_with<
 			const std::remove_reference_t<T>&,
 			const std::remove_reference_t<U>&> &&
-		StrictTotallyOrdered<
+		totally_ordered<
 			common_reference_t<
 				const std::remove_reference_t<T>&,
 				const std::remove_reference_t<U>&>>;

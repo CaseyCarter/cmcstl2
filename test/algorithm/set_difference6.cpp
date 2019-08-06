@@ -52,7 +52,7 @@ int main() {
 
 		auto res = ranges::set_difference(std::move(ia), std::move(ib), ic,
 			std::less<int>(), &S::i, &T::j);
-		static_assert(ranges::Same<decltype(res.in), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(res.in), ranges::dangling>);
 		CHECK((res.out - ic) == sr);
 		CHECK(!ranges::lexicographical_compare(ic, res.out, ir, ir+sr,
 			std::less<int>(), &U::k));
@@ -62,7 +62,7 @@ int main() {
 		const int srr = sizeof(irr)/sizeof(irr[0]);
 		auto res2 = ranges::set_difference(std::move(ib), std::move(ia), ic,
 			std::less<int>(), &T::j, &S::i);
-		static_assert(ranges::Same<decltype(res2.in), ranges::dangling>);
+		static_assert(ranges::same_as<decltype(res2.in), ranges::dangling>);
 		CHECK((res2.out - ic) == srr);
 		CHECK(!ranges::lexicographical_compare(ic, res2.out, ir, irr+srr,
 			std::less<int>(), &U::k));
