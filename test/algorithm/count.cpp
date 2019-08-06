@@ -20,7 +20,7 @@ struct S
 
 int main()
 {
-	using namespace __stl2;
+	using __stl2::count, __stl2::size, __stl2::subrange;
 
 	int ia[] = {0, 1, 2, 2, 0, 1, 2, 3};
 	constexpr unsigned cia = size(ia);

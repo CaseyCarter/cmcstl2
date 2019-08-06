@@ -24,8 +24,8 @@ STL2_OPEN_NAMESPACE {
 	using reverse_copy_result = __in_out_result<I, O>;
 
 	struct __reverse_copy_fn : private __niebloid {
-		template<BidirectionalIterator I, Sentinel<I> S, WeaklyIncrementable O>
-		requires IndirectlyCopyable<I, O>
+		template<bidirectional_iterator I, sentinel_for<I> S, weakly_incrementable O>
+		requires indirectly_copyable<I, O>
 		constexpr reverse_copy_result<I, O>
 		operator()(I first, S last, O result) const {
 			auto bound = next(first, std::move(last));
@@ -35,8 +35,8 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(bound), std::move(result)};
 		}
 
-		template<BidirectionalRange R, WeaklyIncrementable O>
-		requires IndirectlyCopyable<iterator_t<R>, O>
+		template<bidirectional_range R, weakly_incrementable O>
+		requires indirectly_copyable<iterator_t<R>, O>
 		constexpr reverse_copy_result<safe_iterator_t<R>, O>
 		operator()(R&& r, O result) const {
 			return (*this)(begin(r), end(r), std::move(result));

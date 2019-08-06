@@ -21,36 +21,36 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template<Range Rng>
+		template<range Rng>
 		struct __range_common_iterator_impl {
 			using type = common_iterator<iterator_t<Rng>, sentinel_t<Rng>>;
 		};
-		template<CommonRange Rng>
+		template<common_range Rng>
 		struct __range_common_iterator_impl<Rng> {
 			using type = iterator_t<Rng>;
 		};
-		template<Range Rng>
+		template<range Rng>
 		using __range_common_iterator =
 			typename __range_common_iterator_impl<Rng>::type;
 
 		template<class R>
-		META_CONCEPT CanEmpty = Range<R> && requires(R& r) { empty(r); };
+		META_CONCEPT CanEmpty = range<R> && requires(R& r) { empty(r); };
 		template<class R>
-		META_CONCEPT SizedSentinelForwardRange = ForwardRange<R> && SizedSentinel<sentinel_t<R>, iterator_t<R>>;
+		META_CONCEPT SizedSentinelForwardRange = forward_range<R> && sized_sentinel_for<sentinel_t<R>, iterator_t<R>>;
 		template<class C, class R> // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
-		META_CONCEPT ContainerConvertibleGCCBugs = InputRange<R> &&
+		META_CONCEPT ContainerConvertibleGCCBugs = input_range<R> &&
 			convertible_to<iter_reference_t<iterator_t<R>>, iter_value_t<iterator_t<C>>> &&
 			constructible_from<C, __range_common_iterator<R>, __range_common_iterator<R>>;
 		template<class C, class R>
-		META_CONCEPT ContainerConvertible = ForwardRange<C> && !View<C> &&
+		META_CONCEPT ContainerConvertible = forward_range<C> && !view<C> &&
 			ContainerConvertibleGCCBugs<C, R>;
 
-		template<Range R>
+		template<range R>
 		constexpr bool is_in_range(R& r, iter_difference_t<iterator_t<R>> n) noexcept {
 			return 0 <= n;
 		}
 
-		template<SizedRange R>
+		template<sized_range R>
 		constexpr bool is_in_range(R& r, iter_difference_t<iterator_t<R>> n)
 			noexcept(noexcept(size(r)))
 		{
@@ -75,11 +75,11 @@ STL2_OPEN_NAMESPACE {
 			return static_cast<const D&>(*this);
 		}
 	public:
-		constexpr bool empty() requires ForwardRange<D> {
+		constexpr bool empty() requires forward_range<D> {
 			auto& d = derived();
 			return __stl2::begin(d) == __stl2::end(d);
 		}
-		constexpr bool empty() const requires ForwardRange<const D> {
+		constexpr bool empty() const requires forward_range<const D> {
 			auto& d = derived();
 			return begin(d) == end(d);
 		}
@@ -94,15 +94,15 @@ STL2_OPEN_NAMESPACE {
 		constexpr explicit operator bool() const {
 			return !__stl2::empty(derived());
 		}
-		template<Range R = D>
-		requires ContiguousIterator<iterator_t<R>>
+		template<range R = D>
+		requires contiguous_iterator<iterator_t<R>>
 		constexpr auto data() {
 			auto& d = derived();
 			return __stl2::empty(d) ? nullptr
 				: std::addressof(*begin(d));
 		}
-		template<Range R = const D>
-		requires ContiguousIterator<iterator_t<R>>
+		template<range R = const D>
+		requires contiguous_iterator<iterator_t<R>>
 		constexpr auto data() const {
 			auto& d = derived();
 			return __stl2::empty(d) ? nullptr
@@ -115,39 +115,39 @@ STL2_OPEN_NAMESPACE {
 			auto& d = derived();
 			return end(d) - begin(d);
 		}
-		constexpr decltype(auto) front() requires ForwardRange<D> {
+		constexpr decltype(auto) front() requires forward_range<D> {
 			auto& d = derived();
 			const auto first = begin(d);
 			STL2_EXPECT(first != end(d));
 			return *first;
 		}
-		constexpr decltype(auto) front() const requires ForwardRange<const D> {
+		constexpr decltype(auto) front() const requires forward_range<const D> {
 			auto& d = derived();
 			const auto first = begin(d);
 			STL2_EXPECT(first != end(d));
 			return *first;
 		}
 		constexpr decltype(auto) back()
-		requires BidirectionalRange<D> && CommonRange<D> {
+		requires bidirectional_range<D> && common_range<D> {
 			auto& d = derived();
 			auto last = end(d);
 			STL2_EXPECT(begin(d) != last);
 			return *--last;
 		}
 		constexpr decltype(auto) back() const
-		requires BidirectionalRange<const D> && CommonRange<const D> {
+		requires bidirectional_range<const D> && common_range<const D> {
 			auto& d = derived();
 			auto last = end(d);
 			STL2_EXPECT(begin(d) != last);
 			return *--last;
 		}
-		template<RandomAccessRange R = D>
+		template<random_access_range R = D>
 		constexpr decltype(auto) operator[](iter_difference_t<iterator_t<R>> n) {
 			auto& d = derived();
 			STL2_EXPECT(detail::is_in_range(d, n));
 			return begin(d)[n];
 		}
-		template<RandomAccessRange R = const D>
+		template<random_access_range R = const D>
 		constexpr decltype(auto) operator[](iter_difference_t<iterator_t<R>> n) const {
 			auto& d = derived();
 			STL2_EXPECT(detail::is_in_range(d, n));

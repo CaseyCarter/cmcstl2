@@ -22,10 +22,10 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __shuffle_fn : private __niebloid {
-		template<RandomAccessIterator I, Sentinel<I> S,
+		template<random_access_iterator I, sentinel_for<I> S,
 			class Gen = detail::default_random_engine&>
-		requires Permutable<I> &&
-			UniformRandomBitGenerator<std::remove_reference_t<Gen>>
+		requires permutable<I> &&
+			uniform_random_bit_generator<std::remove_reference_t<Gen>>
 		constexpr I operator()(I const first, S const last,
 			Gen&& g = detail::get_random_engine()) const
 		{
@@ -43,10 +43,10 @@ STL2_OPEN_NAMESPACE {
 			return mid;
 		}
 
-		template<RandomAccessRange Rng,
+		template<random_access_range Rng,
 			class Gen = detail::default_random_engine&>
-		requires Permutable<iterator_t<Rng>> &&
-			UniformRandomBitGenerator<std::remove_reference_t<Gen>>
+		requires permutable<iterator_t<Rng>> &&
+			uniform_random_bit_generator<std::remove_reference_t<Gen>>
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, Gen&& g = detail::get_random_engine()) const {
 			return (*this)(begin(rng), end(rng), std::forward<Gen>(g));

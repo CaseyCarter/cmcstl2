@@ -26,23 +26,23 @@
 STL2_OPEN_NAMESPACE {
 	template<class R>
 	META_CONCEPT _TinyRange =
-		SizedRange<R> &&
+		sized_range<R> &&
 		requires {
 			typename meta::detail::require_constant<std::remove_reference_t<R>::size()>;
 		} &&
 		std::remove_reference_t<R>::size() <= 1;
 
-	template<InputRange Rng>
+	template<input_range Rng>
 	struct __split_view_base {
 		iterator_t<Rng> current_ {};
 	};
-	template<ForwardRange Rng>
+	template<forward_range Rng>
 	struct __split_view_base<Rng> {};
 
-	template<InputRange Rng, ForwardRange Pattern>
-	requires View<Rng> && View<Pattern> &&
-		IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
-		(ForwardRange<Rng> || _TinyRange<Pattern>)
+	template<input_range Rng, forward_range Pattern>
+	requires view<Rng> && view<Pattern> &&
+		indirectly_comparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
+		(forward_range<Rng> || _TinyRange<Pattern>)
 	struct split_view : private __split_view_base<Rng> {
 	private:
 		template<bool Const> struct __outer_iterator;
@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 		, pattern_(single_view{std::move(e)}) {}
 
 		constexpr auto begin() {
-			if constexpr (ForwardRange<Rng>) {
+			if constexpr (forward_range<Rng>) {
 				return __outer_iterator<ext::SimpleView<Rng>>{*this, __stl2::begin(base_)};
 			} else {
 				this->current_ = __stl2::begin(base_);
@@ -71,15 +71,15 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr auto begin() const
-		requires ForwardRange<Rng> && ForwardRange<const Rng>
+		requires forward_range<Rng> && forward_range<const Rng>
 		{ return __outer_iterator<true>{*this, __stl2::begin(base_)}; }
 
-		constexpr auto end() requires ForwardRange<Rng> && CommonRange<Rng>
+		constexpr auto end() requires forward_range<Rng> && common_range<Rng>
 		{ return __outer_iterator<ext::SimpleView<Rng>>{*this, __stl2::end(base_)}; }
 
 		constexpr auto end() const {
-			constexpr bool can_bound = ForwardRange<Rng> &&
-				ForwardRange<const Rng> && CommonRange<const Rng>;
+			constexpr bool can_bound = forward_range<Rng> &&
+				forward_range<const Rng> && common_range<const Rng>;
 			if constexpr (can_bound) {
 				return __outer_iterator<true>{*this, __stl2::end(base_)};
 			} else {
@@ -91,21 +91,21 @@ STL2_OPEN_NAMESPACE {
 	template<class Rng, class Pattern>
 	split_view(Rng&&, Pattern&&) -> split_view<all_view<Rng>, all_view<Pattern>>;
 
-	template<InputRange Rng>
+	template<input_range Rng>
 	split_view(Rng&&, iter_value_t<iterator_t<Rng>>)
 		-> split_view<all_view<Rng>, single_view<iter_value_t<iterator_t<Rng>>>>;
 
 	template<class, bool>
 	struct __split_view_outer_base {};
-	template<ForwardRange Rng, bool Const>
+	template<forward_range Rng, bool Const>
 	struct __split_view_outer_base<Rng, Const> {
 		iterator_t<__maybe_const<Const, Rng>> current_ {};
 	};
 
-	template<InputRange Rng, ForwardRange Pattern>
-	requires View<Rng> && View<Pattern> &&
-		IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
-		(ForwardRange<Rng> || _TinyRange<Pattern>)
+	template<input_range Rng, forward_range Pattern>
+	requires view<Rng> && view<Pattern> &&
+		indirectly_comparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
+		(forward_range<Rng> || _TinyRange<Pattern>)
 	template<bool Const>
 	struct split_view<Rng, Pattern>::__outer_iterator
 	: private __split_view_outer_base<Rng, Const> {
@@ -113,7 +113,7 @@ STL2_OPEN_NAMESPACE {
 		friend __outer_iterator<!Const>;
 		friend __inner_iterator<Const>;
 
-		static_assert(ForwardRange<Rng> || !Const);
+		static_assert(forward_range<Rng> || !Const);
 
 		using Parent = __maybe_const<Const, split_view>;
 		using Base = __maybe_const<Const, Rng>;
@@ -121,10 +121,10 @@ STL2_OPEN_NAMESPACE {
 		Parent* parent_ = nullptr;
 
 		constexpr iterator_t<Base>& current() noexcept
-		requires ForwardRange<Base>
+		requires forward_range<Base>
 		{ return this->current_; }
 		constexpr auto& current() const noexcept {
-			if constexpr (ForwardRange<Base>) {
+			if constexpr (forward_range<Base>) {
 				return this->current_;
 			} else {
 				return parent_->current_;
@@ -135,7 +135,7 @@ STL2_OPEN_NAMESPACE {
 			return current() == __stl2::end(parent_->base_);
 		}
 	public:
-		using iterator_category = meta::if_c<ForwardRange<Base>,
+		using iterator_category = meta::if_c<forward_range<Base>,
 			__stl2::forward_iterator_tag, __stl2::input_iterator_tag>;
 		using difference_type = iter_difference_t<iterator_t<Base>>;
 		struct value_type;
@@ -143,11 +143,11 @@ STL2_OPEN_NAMESPACE {
 		__outer_iterator() = default;
 
 		constexpr explicit  __outer_iterator(Parent& parent)
-		requires (!ForwardRange<Base>)
+		requires (!forward_range<Base>)
 		: parent_(std::addressof(parent)) {}
 
 		constexpr __outer_iterator(Parent& parent, iterator_t<Base> current)
-		requires ForwardRange<Base>
+		requires forward_range<Base>
 		: __split_view_outer_base<Rng, Const>{std::move(current)}
 		, parent_(std::addressof(parent)) {}
 
@@ -179,7 +179,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr decltype(auto) operator++(int) {
-			if constexpr (ForwardRange<Base>) {
+			if constexpr (forward_range<Base>) {
 				auto tmp = *this;
 				++*this;
 				return tmp;
@@ -189,11 +189,11 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator==(const __outer_iterator& x, const __outer_iterator& y)
-		requires ForwardRange<Base>
+		requires forward_range<Base>
 		{ return x.current_ == y.current_; }
 
 		friend constexpr bool operator!=(const __outer_iterator& x, const __outer_iterator& y)
-		requires ForwardRange<Base>
+		requires forward_range<Base>
 		{ return !(x == y); }
 
 		friend constexpr bool operator==(const __outer_iterator& x, default_sentinel)
@@ -206,10 +206,10 @@ STL2_OPEN_NAMESPACE {
 		{ return !y.at_end(); }
 	};
 
-	template<InputRange Rng, ForwardRange Pattern>
-	requires View<Rng> && View<Pattern> &&
-		IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
-		(ForwardRange<Rng> || _TinyRange<Pattern>)
+	template<input_range Rng, forward_range Pattern>
+	requires view<Rng> && view<Pattern> &&
+		indirectly_comparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
+		(forward_range<Rng> || _TinyRange<Pattern>)
 	template<bool Const>
 	struct split_view<Rng, Pattern>::__outer_iterator<Const>::value_type {
 	private:
@@ -226,16 +226,16 @@ STL2_OPEN_NAMESPACE {
 		{ return default_sentinel{}; }
 	};
 
-	template<InputRange Rng, ForwardRange Pattern>
-	requires View<Rng> && View<Pattern> &&
-		IndirectlyComparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
-		(ForwardRange<Rng> || _TinyRange<Pattern>)
+	template<input_range Rng, forward_range Pattern>
+	requires view<Rng> && view<Pattern> &&
+		indirectly_comparable<iterator_t<Rng>, iterator_t<Pattern>, equal_to> &&
+		(forward_range<Rng> || _TinyRange<Pattern>)
 	template<bool Const>
 	struct split_view<Rng, Pattern>::__inner_iterator {
 	private:
 		using Base = __maybe_const<Const, Rng>;
 
-		static_assert(ForwardRange<Rng> || !Const);
+		static_assert(forward_range<Rng> || !Const);
 
 		__outer_iterator<Const> i_ {};
 		bool zero_ = false;
@@ -267,7 +267,7 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr __inner_iterator& operator++() {
 			zero_ = true;
-			if constexpr (!ForwardRange<Base>) {
+			if constexpr (!forward_range<Base>) {
 				if constexpr (Pattern::size() == 0) {
 					return *this;
 				}
@@ -277,7 +277,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr decltype(auto) operator++(int) {
-			if constexpr (ForwardRange<Base>) {
+			if constexpr (forward_range<Base>) {
 				auto tmp = *this;
 				++*this;
 				return tmp;
@@ -286,10 +286,10 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		friend constexpr bool operator==(const __inner_iterator& x, const __inner_iterator& y)
-		requires ForwardRange<Base>
+		requires forward_range<Base>
 		{ return x.i_ == y.i_; }
 		friend constexpr bool operator!=(const __inner_iterator& x, const __inner_iterator& y)
-		requires ForwardRange<Base>
+		requires forward_range<Base>
 		{ return !(x == y); }
 
 		friend constexpr bool operator==(const __inner_iterator& x, default_sentinel)
@@ -308,11 +308,11 @@ STL2_OPEN_NAMESPACE {
 
 		friend constexpr void iter_swap(const __inner_iterator& x, const __inner_iterator& y)
 		noexcept(noexcept(__stl2::iter_swap(x.current(), y.current())))
-		requires IndirectlySwappable<iterator_t<Base>>
+		requires indirectly_swappable<iterator_t<Base>>
 		{ __stl2::iter_swap(x.current(), y.current()); }
 	};
 
-	namespace view {
+	namespace views {
 		struct __split_fn {
 			template<class E, class F>
 			constexpr auto operator()(E&& e, F&& f) const

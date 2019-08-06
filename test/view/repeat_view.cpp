@@ -21,10 +21,10 @@ int main() {
 	{
 		auto v = ranges::ext::repeat_view{42};
 		using R = decltype(v);
-		static_assert(ranges::View<R>);
-		static_assert(ranges::RandomAccessRange<R>);
-		static_assert(!ranges::ContiguousRange<R>);
-		static_assert(!ranges::CommonRange<R>);
+		static_assert(ranges::view<R>);
+		static_assert(ranges::random_access_range<R>);
+		static_assert(!ranges::contiguous_range<R>);
+		static_assert(!ranges::common_range<R>);
 		static_assert(sizeof(v) == sizeof(int));
 		CHECK(v.value() == 42);
 
@@ -36,9 +36,9 @@ int main() {
 		CHECK(ranges::next(first) == first);
 
 		auto const& cv = v;
-		static_assert(ranges::RandomAccessRange<const R>);
-		static_assert(!ranges::ContiguousRange<const R>);
-		static_assert(!ranges::CommonRange<const R>);
+		static_assert(ranges::random_access_range<const R>);
+		static_assert(!ranges::contiguous_range<const R>);
+		static_assert(!ranges::common_range<const R>);
 		CHECK(cv.value() == 42);
 		CHECK(std::addressof(v.value()) == std::addressof(cv.value()));
 
@@ -59,9 +59,9 @@ int main() {
 		CHECK(*cfirst == 13);
 	}
 	{
-		auto v = ranges::view::ext::repeat(9) | ranges::view::take(10);
-		static_assert(ranges::View<decltype(v)>);
-		static_assert(ranges::RandomAccessIterator<decltype(v.begin())>);
+		auto v = ranges::views::ext::repeat(9) | ranges::views::take(10);
+		static_assert(ranges::view<decltype(v)>);
+		static_assert(ranges::random_access_iterator<decltype(v.begin())>);
 		CHECK_EQUAL(v, {9, 9, 9, 9, 9, 9, 9, 9, 9, 9});
 	}
 	{
@@ -71,10 +71,10 @@ int main() {
 		};
 
 		auto e = empty{};
-		auto v2 = ranges::view::ext::repeat(e) | ranges::view::take(3);
+		auto v2 = ranges::views::ext::repeat(e) | ranges::views::take(3);
 		CHECK_EQUAL(v2, {e, e, e});
 
-		auto v3 = ranges::view::ext::repeat(std::move(e)) | ranges::view::take(3);
+		auto v3 = ranges::views::ext::repeat(std::move(e)) | ranges::views::take(3);
 		CHECK_EQUAL(v2, v3);
 	}
 

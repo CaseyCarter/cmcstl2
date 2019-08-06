@@ -25,7 +25,7 @@
 
 STL2_OPEN_NAMESPACE {
 	// ref_view [ranges.view.ref]
-	template<Range R>
+	template<range R>
 	requires std::is_object_v<R>
 	struct STL2_EMPTY_BASES ref_view;
 
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template<Range R>
+	template<range R>
 	requires std::is_object_v<R>
 	struct STL2_EMPTY_BASES ref_view
 	: private __ref_view_detail::__adl_hook
@@ -78,11 +78,11 @@ STL2_OPEN_NAMESPACE {
 			return __stl2::empty(*r_);
 		}
 
-		constexpr auto size() const requires SizedRange<R> {
+		constexpr auto size() const requires sized_range<R> {
 			return __stl2::size(*r_);
 		}
 
-		constexpr auto data() const requires ContiguousRange<R> {
+		constexpr auto data() const requires contiguous_range<R> {
 			return __stl2::data(*r_);
 		}
 	};
@@ -91,7 +91,7 @@ STL2_OPEN_NAMESPACE {
 	template<class R>
 	ref_view(R&) -> ref_view<R>;
 
-	namespace view::ext {
+	namespace views::ext {
 		struct __ref_fn : detail::__pipeable<__ref_fn> {
 			template<class R>
 			auto operator()(R&& r) const
@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __ref_fn ref {};
-	} // namespace view::ext
+	} // namespace views::ext
 } STL2_CLOSE_NAMESPACE
 
 #endif

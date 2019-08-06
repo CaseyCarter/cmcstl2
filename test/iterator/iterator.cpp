@@ -161,18 +161,18 @@ std::ostream& operator<<(std::ostream& sout, category c) {
 
 template<class>
 constexpr category iterator_dispatch() { return category::none; }
-template<ranges::OutputIterator<const int&> I>
-requires (!ranges::InputIterator<I>)
+template<ranges::output_iterator<const int&> I>
+requires (!ranges::input_iterator<I>)
 constexpr category iterator_dispatch() { return category::output; }
-template<ranges::InputIterator>
+template<ranges::input_iterator>
 constexpr category iterator_dispatch() { return category::input; }
-template<ranges::ForwardIterator>
+template<ranges::forward_iterator>
 constexpr category iterator_dispatch() { return category::forward; }
-template<ranges::BidirectionalIterator>
+template<ranges::bidirectional_iterator>
 constexpr category iterator_dispatch() { return category::bidirectional; }
-template<ranges::RandomAccessIterator>
+template<ranges::random_access_iterator>
 constexpr category iterator_dispatch() { return category::random_access; }
-template<ranges::ContiguousIterator>
+template<ranges::contiguous_iterator>
 constexpr category iterator_dispatch() { return category::contiguous; }
 
 template<class C, bool EC, class R = int&>
@@ -245,62 +245,62 @@ arbitrary_iterator<C, B, R> operator+(
 
 void test_iterator_dispatch() {
 	CHECK(iterator_dispatch<void>() == category::none);
-	static_assert(ranges::ContiguousIterator<int*>);
+	static_assert(ranges::contiguous_iterator<int*>);
 	CHECK(iterator_dispatch<int*>() == category::contiguous);
 
 	{
-		static_assert(ranges::Readable<int* const>);
+		static_assert(ranges::readable<int* const>);
 	}
 
 	{
 		using I = arbitrary_iterator<ranges::input_iterator_tag, false>;
-		static_assert(ranges::InputIterator<I>);
+		static_assert(ranges::input_iterator<I>);
 		CHECK(iterator_dispatch<I>() == category::input);
 	}
 	{
 		using I = arbitrary_iterator<ranges::input_iterator_tag, true>;
-		static_assert(ranges::InputIterator<I>);
+		static_assert(ranges::input_iterator<I>);
 		static_assert(ranges::equality_comparable<I>);
 		CHECK(iterator_dispatch<I>() == category::input);
 	}
 	{
 		using I = arbitrary_iterator<ranges::forward_iterator_tag, true>;
-		static_assert(ranges::ForwardIterator<I>);
+		static_assert(ranges::forward_iterator<I>);
 		CHECK(iterator_dispatch<I>() == category::forward);
 	}
 	{
 		using I = arbitrary_iterator<ranges::bidirectional_iterator_tag, true>;
-		static_assert(ranges::BidirectionalIterator<I>);
+		static_assert(ranges::bidirectional_iterator<I>);
 		CHECK(iterator_dispatch<I>() == category::bidirectional);
 	}
 	{
 		using I = arbitrary_iterator<ranges::random_access_iterator_tag, true>;
-		static_assert(ranges::RandomAccessIterator<I>);
+		static_assert(ranges::random_access_iterator<I>);
 		CHECK(iterator_dispatch<I>() == category::random_access);
 	}
 	{
 		using I = arbitrary_iterator<ranges::contiguous_iterator_tag, true>;
-		static_assert(ranges::ContiguousIterator<I>);
+		static_assert(ranges::contiguous_iterator<I>);
 		CHECK(iterator_dispatch<I>() == category::contiguous);
 	}
 
 	{
 		using I = arbitrary_iterator<void, false>;
-		static_assert(ranges::OutputIterator<I, const int&>);
-		static_assert(!ranges::InputIterator<I>);
+		static_assert(ranges::output_iterator<I, const int&>);
+		static_assert(!ranges::input_iterator<I>);
 		CHECK(iterator_dispatch<I>() == category::output);
 	}
 	{
 		using I = arbitrary_iterator<void, true>;
-		static_assert(ranges::OutputIterator<I, const int&>);
+		static_assert(ranges::output_iterator<I, const int&>);
 		static_assert(ranges::equality_comparable<I>);
-		static_assert(!ranges::InputIterator<I>);
+		static_assert(!ranges::input_iterator<I>);
 		CHECK(iterator_dispatch<I>() == category::output);
 	}
 }
 
-template<ranges::InputIterator I, ranges::Sentinel<I> S, class O>
-requires ranges::IndirectlyCopyable<I, O>
+template<ranges::input_iterator I, ranges::sentinel_for<I> S, class O>
+requires ranges::indirectly_copyable<I, O>
 bool copy(I first, S last, O o) {
 	for (; first != last; ++first, ++o) {
 		*o = *first;
@@ -308,10 +308,10 @@ bool copy(I first, S last, O o) {
 	return false;
 }
 
-template<ranges::ContiguousIterator I, ranges::SizedSentinel<I> S,
-	ranges::ContiguousIterator O>
+template<ranges::contiguous_iterator I, ranges::sized_sentinel_for<I> S,
+	ranges::contiguous_iterator O>
 requires
-	ranges::IndirectlyCopyable<I, O> &&
+	ranges::indirectly_copyable<I, O> &&
 	ranges::same_as<ranges::iter_value_t<I>, ranges::iter_value_t<O>> &&
 	std::is_trivially_copyable<ranges::iter_value_t<I>>::value
 bool copy(I first, S last, O o) {
@@ -371,7 +371,7 @@ void test_iter_swap2() {
 		auto b = std::make_unique<int>(13);
 		using I = decltype(a);
 		static_assert(ranges::same_as<I, decltype(b)>);
-		static_assert(ranges::Readable<I>);
+		static_assert(ranges::readable<I>);
 		using R = ranges::iter_reference_t<I>;
 		static_assert(ranges::same_as<int&, R>);
 		using RR = ranges::iter_rvalue_reference_t<I>;
@@ -391,7 +391,7 @@ void test_iter_swap2() {
 	{
 		auto a = array<int, 4>{0,1,2,3};
 		using I = decltype(a.begin());
-		static_assert(ranges::Readable<I>);
+		static_assert(ranges::readable<I>);
 		using V = ranges::iter_value_t<I>;
 		static_assert(ranges::same_as<int, V>);
 		using R = ranges::iter_reference_t<I>;
@@ -402,10 +402,10 @@ void test_iter_swap2() {
 		static_assert(ranges::same_as<I, decltype(a.begin() + 2)>);
 		static_assert(ranges::common_reference_with<const R&, const R&>);
 		static_assert(!ranges::swappable_with<R, R>);
-		static_assert(ranges::IndirectlyMovableStorable<I, I>);
+		static_assert(ranges::indirectly_movable_storable<I, I>);
 
 		// swappable<R, R> is not satisfied, and
-		// IndirectlyMovableStorable<I, I> is satisfied,
+		// indirectly_movable_storable<I, I> is satisfied,
 		// so this should resolve to the second overload of iter_swap.
 		ranges::iter_swap(a.begin() + 1, a.begin() + 3);
 		CHECK(a[0] == 0);
@@ -475,12 +475,12 @@ struct MakeString {
 	std::string operator*() const;
 };
 
-static_assert(ranges::Readable<MakeString>);
-static_assert(!ranges::Writable<MakeString, std::string>);
-static_assert(!ranges::Writable<MakeString, const std::string &>);
-static_assert(!ranges::IndirectlyMovable<MakeString, MakeString>);
-static_assert(!ranges::IndirectlyCopyable<MakeString, MakeString>);
-static_assert(!ranges::IndirectlySwappable<MakeString, MakeString>);
+static_assert(ranges::readable<MakeString>);
+static_assert(!ranges::writable<MakeString, std::string>);
+static_assert(!ranges::writable<MakeString, const std::string &>);
+static_assert(!ranges::indirectly_movable<MakeString, MakeString>);
+static_assert(!ranges::indirectly_copyable<MakeString, MakeString>);
+static_assert(!ranges::indirectly_swappable<MakeString, MakeString>);
 
 int main() {
 	test_iter_swap2();

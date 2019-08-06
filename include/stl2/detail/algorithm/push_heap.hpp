@@ -31,9 +31,9 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __push_heap_fn : private __niebloid {
-		template<RandomAccessIterator I, Sentinel<I> S, class Comp = less,
+		template<random_access_iterator I, sentinel_for<I> S, class Comp = less,
 			class Proj = identity>
-		requires Sortable<I, Comp, Proj>
+		requires sortable<I, Comp, Proj>
 		constexpr I
 		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const {
 			auto n = distance(first, std::move(last));
@@ -41,8 +41,8 @@ STL2_OPEN_NAMESPACE {
 			return first + n;
 		}
 
-		template<RandomAccessRange R, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<R>, Comp, Proj>
+		template<random_access_range R, class Comp = less, class Proj = identity>
+		requires sortable<iterator_t<R>, Comp, Proj>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
 			auto n = distance(r);

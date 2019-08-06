@@ -23,10 +23,10 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __find_end_fn : private __niebloid {
-		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
-			Sentinel<I2> S2, class Pred = equal_to, class Proj1 = identity,
+		template<forward_iterator I1, sentinel_for<I1> S1, forward_iterator I2,
+			sentinel_for<I2> S2, class Pred = equal_to, class Proj1 = identity,
 			class Proj2 = identity>
-		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
+		requires indirectly_comparable<I1, I2, Pred, Proj1, Proj2>
 		constexpr I1 operator()(I1 first1, S1 last1, I2 first2, S2 last2,
 			Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
@@ -34,11 +34,11 @@ STL2_OPEN_NAMESPACE {
 				return next(first1, last1);
 			}
 
-			if constexpr (BidirectionalIterator<I1> && BidirectionalIterator<I2>) {
+			if constexpr (bidirectional_iterator<I1> && bidirectional_iterator<I2>) {
 				auto end1 = next(first1, last1);
 				auto end2 = next(first2, last2);
 
-				if constexpr (RandomAccessIterator<I1> && RandomAccessIterator<I2>) {
+				if constexpr (random_access_iterator<I1> && random_access_iterator<I2>) {
 					// Take advantage of knowing source and pattern lengths.
 					// Stop short when source is smaller than pattern
 					const auto len2 = end2 - first2;
@@ -111,9 +111,9 @@ STL2_OPEN_NAMESPACE {
 		}
 
 
-		template<ForwardRange R1, ForwardRange R2,
+		template<forward_range R1, forward_range R2,
 			class Pred = equal_to, class Proj1 = identity, class Proj2 = identity>
-		requires IndirectlyComparable<iterator_t<R1>, iterator_t<R2>, Pred, Proj1, Proj2>
+		requires indirectly_comparable<iterator_t<R1>, iterator_t<R2>, Pred, Proj1, Proj2>
 		constexpr safe_iterator_t<R1> operator()(R1&& r1, R2&& r2,
 			Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{

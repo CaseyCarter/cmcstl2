@@ -28,7 +28,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<View Base>
+		template<view Base>
 		class STL2_EMPTY_BASES take_exactly_view
 		: public view_interface<take_exactly_view<Base>>
 		, private detail::ebo_box<Base, take_exactly_view<Base>>
@@ -47,21 +47,21 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr auto begin()
 			noexcept(noexcept(counted_iterator{__stl2::begin(std::declval<Base&>()), n_}))
-			requires (!Range<Base const>)
+			requires (!range<Base const>)
 			{ return counted_iterator{__stl2::begin(get()), n_}; }
 
 	#if 0 // FIXME: Untagged bug workaround
 			constexpr auto data()
 			noexcept(noexcept(__stl2::data(std::declval<Base&>())))
 			requires
-				(!Range<Base const> &&
+				(!range<Base const> &&
 				requires(Base& b) { __stl2::data(b); })
 			{ return __stl2::data(get()); }
 	#else
 			template<class B = Base>
 			requires
 				(same_as<B, Base> &&
-				!Range<B const> &&
+				!range<B const> &&
 				requires(B& b) { __stl2::data(b); })
 			constexpr auto data()
 			noexcept(noexcept(__stl2::data(std::declval<B&>())))
@@ -70,21 +70,21 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr auto begin() const
 			noexcept(noexcept(counted_iterator{__stl2::begin(std::declval<Base const&>()), n_}))
-			requires Range<Base const>
+			requires range<Base const>
 			{ return counted_iterator{__stl2::begin(get()), n_}; }
 
 	#if 0 // FIXME: Untagged bug workaround
 			constexpr auto data() const
 			noexcept(noexcept(__stl2::data(std::declval<Base const&>())))
 			requires
-				(!Range<Base const> &&
+				(!range<Base const> &&
 				requires(Base const& b) { __stl2::data(b); })
 			{ return __stl2::data(get()); }
 	#else
 			template<class B = Base>
 			requires
 				same_as<B, Base> &&
-				Range<B const> &&
+				range<B const> &&
 				requires(B const& b) { __stl2::data(b); }
 			constexpr auto data() const
 			noexcept(noexcept(__stl2::data(std::declval<B const&>())))
@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr bool empty() const noexcept { return n_ == 0; }
 		};
 
-		template<Range R>
+		template<range R>
 		take_exactly_view(R&& base, iter_difference_t<iterator_t<R>> n)
 			-> take_exactly_view<all_view<R>>;
 	} // namespace ext
@@ -104,7 +104,7 @@ STL2_OPEN_NAMESPACE {
 	template<class V>
 	inline constexpr bool enable_view<ext::take_exactly_view<V>> = true;
 
-	namespace view::ext {
+	namespace views::ext {
 		struct __take_exactly_fn : detail::__pipeable<__take_exactly_fn> {
 			template<class V>
 			constexpr auto operator()(V&& view, iter_difference_t<iterator_t<V>> const n) const
@@ -127,7 +127,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __take_exactly_fn take_exactly {};
-	} // namespace view::ext
+	} // namespace views::ext
 } STL2_CLOSE_NAMESPACE
 
 #endif

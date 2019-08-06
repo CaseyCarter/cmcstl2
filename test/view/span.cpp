@@ -1074,8 +1074,8 @@ int main() {
 	test_case_interop_with_std_regex();
 	test_case_default_initializable();
 
-	static_assert(ranges::ContiguousRange<span<int>> && ranges::View<span<int>>);
-	static_assert(ranges::ContiguousRange<span<int, 42>> && ranges::View<span<int, 42>>);
+	static_assert(ranges::contiguous_range<span<int>> && ranges::view<span<int>>);
+	static_assert(ranges::contiguous_range<span<int, 42>> && ranges::view<span<int, 42>>);
 
 	// spans are non-dangling
 	static_assert(ranges::same_as<decltype(ranges::begin(std::declval<span<int>>())), ranges::iterator_t<span<int>>>);

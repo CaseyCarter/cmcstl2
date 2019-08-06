@@ -25,8 +25,8 @@ STL2_OPEN_NAMESPACE {
 	using rotate_copy_result = __in_out_result<I, O>;
 
 	struct __rotate_copy_fn : private __niebloid {
-		template<ForwardIterator I, Sentinel<I> S, WeaklyIncrementable O>
-		requires IndirectlyCopyable<I, O>
+		template<forward_iterator I, sentinel_for<I> S, weakly_incrementable O>
+		requires indirectly_copyable<I, O>
 		constexpr rotate_copy_result<I, O>
 		operator()(I first, I middle, S last, O result) const {
 			auto res = copy(middle, std::move(last), std::move(result));
@@ -35,8 +35,8 @@ STL2_OPEN_NAMESPACE {
 			return res;
 		}
 
-		template<ForwardRange R, WeaklyIncrementable O>
-		requires IndirectlyCopyable<iterator_t<R>, O>
+		template<forward_range R, weakly_incrementable O>
+		requires indirectly_copyable<iterator_t<R>, O>
 		constexpr rotate_copy_result<safe_iterator_t<R>, O>
 		operator()(R&& r, iterator_t<R> middle, O result) const {
 			return (*this)(begin(r), std::move(middle), end(r),

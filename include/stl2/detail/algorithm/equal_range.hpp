@@ -23,8 +23,8 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		struct __equal_range_n_fn {
-			template<ForwardIterator I, class T, class Comp = less, class Proj = identity>
-			requires IndirectStrictWeakOrder<Comp, const T*, projected<I, Proj>>
+			template<forward_iterator I, class T, class Comp = less, class Proj = identity>
+			requires indirect_strict_weak_order<Comp, const T*, projected<I, Proj>>
 			constexpr subrange<I>
 			operator()(I first, iter_difference_t<I> dist, const T& value,
 				Comp comp = {}, Proj proj = {}) const {
@@ -60,13 +60,13 @@ STL2_OPEN_NAMESPACE {
 	} // namespace ext
 
 	struct __equal_range_fn : private __niebloid {
-		template<ForwardIterator I, Sentinel<I> S, class T, class Comp = less,
+		template<forward_iterator I, sentinel_for<I> S, class T, class Comp = less,
 			class Proj = identity>
-		requires IndirectStrictWeakOrder<Comp, const T*, projected<I, Proj>>
+		requires indirect_strict_weak_order<Comp, const T*, projected<I, Proj>>
 		constexpr subrange<I> operator()(I first, S last, const T& value,
 			Comp comp = {}, Proj proj = {}) const
 		{
-			if constexpr (SizedSentinel<S, I>) {
+			if constexpr (sized_sentinel_for<S, I>) {
 				auto len = distance(first, std::move(last));
 				return ext::equal_range_n(std::move(first), len, value,
 					__stl2::ref(comp), __stl2::ref(proj));
@@ -110,11 +110,11 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<ForwardRange Rng, class T, class Comp = less, class Proj = identity>
-		requires IndirectStrictWeakOrder<Comp, const T*, projected<iterator_t<Rng>, Proj>>
+		template<forward_range Rng, class T, class Comp = less, class Proj = identity>
+		requires indirect_strict_weak_order<Comp, const T*, projected<iterator_t<Rng>, Proj>>
 		constexpr safe_subrange_t<Rng>
 		operator()(Rng&& rng, const T& value, Comp comp = {}, Proj proj = {}) const {
-			if constexpr (SizedRange<Rng>) {
+			if constexpr (sized_range<Rng>) {
 				return ext::equal_range_n(begin(rng), size(rng), value, __stl2::ref(comp),
 					__stl2::ref(proj));
 			} else {

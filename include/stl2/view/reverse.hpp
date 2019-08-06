@@ -22,11 +22,11 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<View V>
-	requires BidirectionalRange<V>
+	template<view V>
+	requires bidirectional_range<V>
 	class STL2_EMPTY_BASES reverse_view
 	: public view_interface<reverse_view<V>>
-	, private detail::cached_position<V, reverse_view<V>, !CommonRange<V>> {
+	, private detail::cached_position<V, reverse_view<V>, !common_range<V>> {
 	private:
 		V base_ = V();
 
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr V base() const { return base_; }
 
 		constexpr reverse_iterator<iterator_t<V>> begin() {
-			if constexpr (CommonRange<V>) {
+			if constexpr (common_range<V>) {
 				return reverse_iterator<iterator_t<V>>{__stl2::end(base_)};
 			} else {
 				const auto cached = static_cast<bool>(end_());
@@ -55,21 +55,21 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		constexpr auto begin() const requires CommonRange<const V> {
+		constexpr auto begin() const requires common_range<const V> {
 			return reverse_iterator<iterator_t<const V>>{__stl2::end(base_)};
 		}
 
 		constexpr reverse_iterator<iterator_t<V>> end() {
 			return reverse_iterator<iterator_t<V>>{__stl2::begin(base_)};
 		}
-		constexpr auto end() const requires CommonRange<const V> {
+		constexpr auto end() const requires common_range<const V> {
 			return reverse_iterator<iterator_t<const V>>{__stl2::begin(base_)};
 		}
 
-		constexpr auto size() requires SizedRange<V> {
+		constexpr auto size() requires sized_range<V> {
 			return __stl2::size(base_);
 		}
-		constexpr auto size() const requires SizedRange<const V> {
+		constexpr auto size() const requires sized_range<const V> {
 			return __stl2::size(base_);
 		}
 	};
@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 	template<class R>
 	reverse_view(R&&) -> reverse_view<all_view<R>>;
 
-	namespace view {
+	namespace views {
 		template<class>
 		inline constexpr bool __is_reversible_subrange = false;
 		template<class I, subrange_kind K>
@@ -85,14 +85,14 @@ STL2_OPEN_NAMESPACE {
 			subrange<reverse_iterator<I>, reverse_iterator<I>, K>> = true;
 
 		struct __reverse_fn : detail::__pipeable<__reverse_fn> {
-			template<BidirectionalRange R>
-			requires ViewableRange<R>
+			template<bidirectional_range R>
+			requires viewable_range<R>
 			constexpr auto operator()(R&& r) const {
 				if constexpr (_SpecializationOf<R, reverse_view>) {
 					return std::forward<R>(r).base();
 				} else if constexpr (__is_reversible_subrange<__uncvref<R>>) {
 					using I = decltype(begin(r).base());
-					if constexpr (SizedRange<R>) {
+					if constexpr (sized_range<R>) {
 						return subrange<I, I, subrange_kind::sized>(
 							r.end().base(), r.begin().base(), r.size());
 					} else {
@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __reverse_fn reverse {};
-	} // namespace view
+	} // namespace views
 } STL2_CLOSE_NAMESPACE
 
 #endif

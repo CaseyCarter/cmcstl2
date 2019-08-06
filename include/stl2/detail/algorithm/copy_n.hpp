@@ -25,8 +25,8 @@ STL2_OPEN_NAMESPACE {
 	using copy_n_result = __in_out_result<I, O>;
 
 	struct __copy_n_fn : private __niebloid {
-		template<InputIterator I, WeaklyIncrementable O>
-		requires IndirectlyCopyable<I, O>
+		template<input_iterator I, weakly_incrementable O>
+		requires indirectly_copyable<I, O>
 		constexpr copy_n_result<I, O>
 		operator()(I first_, iter_difference_t<I> n, O result) const {
 			if (n < 0) n = 0;

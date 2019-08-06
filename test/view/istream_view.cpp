@@ -38,6 +38,6 @@ namespace ranges = __stl2;
 int main() {
 	constexpr std::string_view test = "abcd3210";
 	std::istringstream ss{test.data()};
-	CHECK_EQUAL(ranges::view::istream<moveonly>(ss), test);
+	CHECK_EQUAL(ranges::views::istream<moveonly>(ss), test);
 	return ::test_result();
 }

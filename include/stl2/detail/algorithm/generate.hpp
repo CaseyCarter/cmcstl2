@@ -20,8 +20,8 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __generate_fn : private __niebloid {
-		template<Iterator O, Sentinel<O> S, copy_constructible F>
-		requires invocable<F&> && Writable<O, invoke_result_t<F&>>
+		template<input_or_output_iterator O, sentinel_for<O> S, copy_constructible F>
+		requires invocable<F&> && writable<O, invoke_result_t<F&>>
 		constexpr O operator()(O first, S last, F gen) const {
 			for (; first != last; ++first) {
 				*first = gen();
@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<class R, copy_constructible F>
-		requires invocable<F&> && OutputRange<R, invoke_result_t<F&>>
+		requires invocable<F&> && output_range<R, invoke_result_t<F&>>
 		constexpr safe_iterator_t<R> operator()(R&& r, F gen) const {
 			return (*this)(begin(r), end(r), __stl2::ref(gen));
 		}

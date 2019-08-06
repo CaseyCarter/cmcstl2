@@ -24,8 +24,8 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		struct rsort {
-			template<BidirectionalIterator I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
+			template<bidirectional_iterator I, class Comp, class Proj>
+			requires sortable<I, Comp, Proj>
 			static constexpr void
 			unguarded_linear_insert(I last, iter_value_t<I> val, Comp& comp, Proj& proj)
 			{
@@ -37,8 +37,8 @@ STL2_OPEN_NAMESPACE {
 				}
 				*last = std::move(val);
 			}
-			template<BidirectionalIterator I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
+			template<bidirectional_iterator I, class Comp, class Proj>
+			requires sortable<I, Comp, Proj>
 			static constexpr void insertion_sort(I first, I last, Comp& comp, Proj& proj)
 			{
 				if (first != last) {
@@ -48,8 +48,8 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 		private:
-			template<BidirectionalIterator I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
+			template<bidirectional_iterator I, class Comp, class Proj>
+			requires sortable<I, Comp, Proj>
 			static constexpr void linear_insert(I first, I last, Comp& comp, Proj& proj)
 			{
 				iter_value_t<I> val = iter_move(last);

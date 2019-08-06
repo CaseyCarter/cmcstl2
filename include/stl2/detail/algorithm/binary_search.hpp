@@ -21,8 +21,8 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __binary_search_fn : private __niebloid {
-		template<ForwardIterator I, Sentinel<I> S, class T, class Proj = identity,
-			IndirectStrictWeakOrder<const T*, projected<I, Proj>> Comp = less>
+		template<forward_iterator I, sentinel_for<I> S, class T, class Proj = identity,
+			indirect_strict_weak_order<const T*, projected<I, Proj>> Comp = less>
 		constexpr bool operator()(I first, S last, const T& value,
 			Comp comp = {}, Proj proj = {}) const
 		{
@@ -32,8 +32,8 @@ STL2_OPEN_NAMESPACE {
 				!__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
 		}
 
-		template<ForwardRange R, class T, class Proj = identity,
-			IndirectStrictWeakOrder<const T*,
+		template<forward_range R, class T, class Proj = identity,
+			indirect_strict_weak_order<const T*,
 				projected<iterator_t<R>, Proj>> Comp = less>
 		constexpr bool operator()(R&& r, const T& value, Comp comp = {},
 			Proj proj = {}) const

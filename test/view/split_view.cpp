@@ -94,7 +94,7 @@ int main() {
 		CHECK_EQUAL(*i, {'m','i','l','k'});
 		++i;
 		CHECK(i != sv.end());
-		CHECK_EQUAL(*i, view::empty<char>);
+		CHECK_EQUAL(*i, views::empty<char>);
 		++i;
 		CHECK(i != sv.end());
 		CHECK_EQUAL(*i, {'b','u','t','t','e','r'});
@@ -108,7 +108,7 @@ int main() {
 		auto rng = subrange{
 			istreambuf_iterator<char>{sin},
 			default_sentinel{}};
-		auto sv = rng | view::split(',');
+		auto sv = rng | views::split(',');
 		auto i = sv.begin();
 		CHECK(i != sv.end());
 		CHECK_EQUAL(*i, {'e','g','g','s'});
@@ -117,7 +117,7 @@ int main() {
 		CHECK_EQUAL(*i, {'m','i','l','k'});
 		++i;
 		CHECK(i != sv.end());
-		CHECK_EQUAL(*i, view::empty<char>);
+		CHECK_EQUAL(*i, views::empty<char>);
 		++i;
 		CHECK(i != sv.end());
 		CHECK_EQUAL(*i, {'b','u','t','t','e','r'});
@@ -127,7 +127,7 @@ int main() {
 
 	{
 		std::string hello("hello");
-		split_view sv{hello, view::empty<char>};
+		split_view sv{hello, views::empty<char>};
 		auto i = sv.begin();
 		CHECK(i != sv.end());
 		CHECK_EQUAL(*i, single_view{'h'});
@@ -153,7 +153,7 @@ int main() {
 		auto rng = subrange{
 			istreambuf_iterator<char>{sin},
 			default_sentinel{}};
-		auto sv = view::split(rng, view::empty<char>);
+		auto sv = views::split(rng, views::empty<char>);
 		auto i = sv.begin();
 		CHECK(i != sv.end());
 		CHECK_EQUAL(*i, single_view{'h'});
@@ -175,7 +175,7 @@ int main() {
 
 	{
 		std::string hello{"hello"};
-		auto sv = view::split(hello, view::empty<char>);
+		auto sv = views::split(hello, views::empty<char>);
 		auto i = sv.begin();
 		CHECK(i != sv.end());
 		++i;
@@ -198,7 +198,7 @@ int main() {
 		auto rng = subrange{
 			istreambuf_iterator<char>{sin},
 			default_sentinel{}};
-		auto sv = view::split(rng, view::empty<char>);
+		auto sv = views::split(rng, views::empty<char>);
 		auto i = sv.begin();
 		CHECK(i != sv.end());
 		++i;

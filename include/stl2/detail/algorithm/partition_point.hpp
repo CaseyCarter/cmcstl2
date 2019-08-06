@@ -32,8 +32,8 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		struct __partition_point_n_fn {
-			template<ForwardIterator I, class Proj = identity,
-				IndirectUnaryPredicate<projected<I, Proj>> Pred>
+			template<forward_iterator I, class Proj = identity,
+				indirect_unary_predicate<projected<I, Proj>> Pred>
 			constexpr I operator()(I first, iter_difference_t<I> n, Pred pred,
 				Proj proj = {}) const
 			{
@@ -56,10 +56,10 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	struct __partition_point_fn : private __niebloid {
-		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
-			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		template<forward_iterator I, sentinel_for<I> S, class Proj = identity,
+			indirect_unary_predicate<projected<I, Proj>> Pred>
 		constexpr I operator()(I first, S last, Pred pred, Proj proj = {}) const {
-			if constexpr (SizedSentinel<S, I>) {
+			if constexpr (sized_sentinel_for<S, I>) {
 				auto n = distance(first, std::move(last));
 				return ext::partition_point_n(std::move(first), n,
 					__stl2::ref(pred), __stl2::ref(proj));
@@ -81,11 +81,11 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<ForwardRange R, class Proj = identity,
-			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
+		template<forward_range R, class Proj = identity,
+			indirect_unary_predicate<projected<iterator_t<R>, Proj>> Pred>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, Pred pred, Proj proj = {}) const {
-			if constexpr (SizedRange<R>) {
+			if constexpr (sized_range<R>) {
 				return ext::partition_point_n(begin(r), distance(r),
 					__stl2::ref(pred), __stl2::ref(proj));
 			} else {

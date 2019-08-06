@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 	struct __common_reference<T, U, Rest...>
 	: __common_reference<common_reference_t<T, U>, Rest...> {};
 
-	template<Readable... Is>
+	template<readable... Is>
 	using __iter_args_lists_ =
 		meta::push_back<
 			meta::cartesian_product<
@@ -55,7 +55,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<class F, class... Is>
 		META_CONCEPT IndirectInvocable =
-			(Readable<Is> && ... && true) &&
+			(readable<Is> && ... && true) &&
 			copy_constructible<F> &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
@@ -71,14 +71,14 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<class F, class I>
-	META_CONCEPT IndirectUnaryInvocable =
+	META_CONCEPT indirect_unary_invocable =
 		ext::IndirectInvocable<F, I>;
 
 	////////////////////////////////////////////////////////////////////////////
 	// indirect_result_t
 	//
 	template<class F, class... Is>
-	requires (Readable<Is> && ...) && invocable<F, iter_reference_t<Is>...>
+	requires (readable<Is> && ...) && invocable<F, iter_reference_t<Is>...>
 	using indirect_result_t = invoke_result_t<F, iter_reference_t<Is>&&...>;
 
 	namespace ext {
@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<class F, class I>
-	META_CONCEPT IndirectRegularUnaryInvocable =
+	META_CONCEPT indirect_regular_unary_invocable =
 		ext::IndirectRegularInvocable<F, I>;
 
 	template<class, class...> struct __predicate : std::false_type {};
@@ -99,7 +99,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<class F, class... Is>
 		META_CONCEPT IndirectPredicate =
-			(Readable<Is> && ... && true) &&
+			(readable<Is> && ... && true) &&
 			copy_constructible<F> &&
 			// The following 3 are checked redundantly, but are called out
 			// specifically for better error messages on concept check failure.
@@ -115,13 +115,13 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<class F, class I>
-	META_CONCEPT IndirectUnaryPredicate =
+	META_CONCEPT indirect_unary_predicate =
 		ext::IndirectPredicate<F, I>;
 
 	template<class F, class I1, class I2 = I1>
-	META_CONCEPT IndirectRelation =
-		Readable<I1> &&
-		Readable<I2> &&
+	META_CONCEPT indirect_relation =
+		readable<I1> &&
+		readable<I2> &&
 		copy_constructible<F> &&
 		relation<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
 		relation<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
@@ -130,9 +130,9 @@ STL2_OPEN_NAMESPACE {
 		relation<F&, iter_common_reference_t<I1>, iter_common_reference_t<I2>>;
 
 	template<class F, class I1, class I2 = I1>
-	META_CONCEPT IndirectStrictWeakOrder =
-		Readable<I1> &&
-		Readable<I2> &&
+	META_CONCEPT indirect_strict_weak_order =
+		readable<I1> &&
+		readable<I2> &&
 		copy_constructible<F> &&
 		strict_weak_order<F&, iter_value_t<I1>&, iter_value_t<I2>&> &&
 		strict_weak_order<F&, iter_value_t<I1>&, iter_reference_t<I2>> &&
@@ -143,48 +143,48 @@ STL2_OPEN_NAMESPACE {
 	////////////////////////////////////////////////////////////////////////////
 	// projected [projected.indirectcallables]
 	//
-	template<Readable I, IndirectRegularUnaryInvocable<I> Proj>
+	template<readable I, indirect_regular_unary_invocable<I> Proj>
 	struct projected {
 		using value_type = __uncvref<indirect_result_t<Proj&, I>>;
 		indirect_result_t<Proj&, I> operator*() const;
 	};
 
-	template<WeaklyIncrementable I, class Proj>
+	template<weakly_incrementable I, class Proj>
 	struct incrementable_traits<projected<I, Proj>> {
 		using type = iter_difference_t<I>;
 	};
 
 	////////////////////////////////////////////////////////////////////////////
-	// IndirectlyComparable [alg.req.ind.cmp]
+	// indirectly_comparable [alg.req.ind.cmp]
 	//
 	template<class I1, class I2, class R = equal_to, class P1 = identity,
 		class P2 = identity>
-	META_CONCEPT IndirectlyComparable =
-		IndirectRelation<R, projected<I1, P1>, projected<I2, P2>>;
+	META_CONCEPT indirectly_comparable =
+		indirect_relation<R, projected<I1, P1>, projected<I2, P2>>;
 
 	////////////////////////////////////////////////////////////////////////////
-	// Permutable [alg.req.permutable]
+	// permutable [alg.req.permutable]
 	//
 	template<class I>
-	META_CONCEPT Permutable = ForwardIterator<I> &&
-		IndirectlyMovableStorable<I, I> && IndirectlySwappable<I, I>;
+	META_CONCEPT permutable = forward_iterator<I> &&
+		indirectly_movable_storable<I, I> && indirectly_swappable<I, I>;
 
 	////////////////////////////////////////////////////////////////////////////
-	// Mergeable [alg.req.mergeable]
+	// mergeable [alg.req.mergeable]
 	//
 	template<class I1, class I2, class Out, class R = less,
 		class P1 = identity, class P2 = identity>
-	META_CONCEPT Mergeable = InputIterator<I1> && InputIterator<I2> &&
-		WeaklyIncrementable<Out> &&
-		IndirectlyCopyable<I1, Out> && IndirectlyCopyable<I2, Out> &&
-		IndirectStrictWeakOrder<R, projected<I1, P1>, projected<I2, P2>>;
+	META_CONCEPT mergeable = input_iterator<I1> && input_iterator<I2> &&
+		weakly_incrementable<Out> &&
+		indirectly_copyable<I1, Out> && indirectly_copyable<I2, Out> &&
+		indirect_strict_weak_order<R, projected<I1, P1>, projected<I2, P2>>;
 
 	////////////////////////////////////////////////////////////////////////////
-	// Sortable [alg.req.sortable]
+	// sortable [alg.req.sortable]
 	//
 	template<class I, class R = less, class P = identity>
-	META_CONCEPT Sortable = Permutable<I> &&
-		IndirectStrictWeakOrder<R, projected<I, P>>;
+	META_CONCEPT sortable = permutable<I> &&
+		indirect_strict_weak_order<R, projected<I, P>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

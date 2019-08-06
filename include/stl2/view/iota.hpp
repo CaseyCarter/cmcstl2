@@ -23,11 +23,11 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template<WeaklyIncrementable I>
+		template<weakly_incrementable I>
 		struct iota_view_iterator_base {
 			using iterator_category = __stl2::input_iterator_tag;
 		};
-		template<Incrementable I>
+		template<incrementable I>
 		struct iota_view_iterator_base<I> {
 			using iterator_category = __stl2::forward_iterator_tag;
 		};
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
-	template<WeaklyIncrementable I, semiregular Bound = unreachable>
+	template<weakly_incrementable I, semiregular Bound = unreachable>
 	requires WeaklyEqualityComparable<I, Bound>
 	struct iota_view;
 
@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template<WeaklyIncrementable I, semiregular Bound>
+	template<weakly_incrementable I, semiregular Bound>
 	requires WeaklyEqualityComparable<I, Bound>
 	struct STL2_EMPTY_BASES iota_view
 	: private __iota_view_detail::__adl_hook
@@ -91,16 +91,16 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto size() const
 		requires (same_as<II, BB> && ext::RandomAccessIncrementable<II>) ||
 			(integral<II> && integral<BB>) ||
-			SizedSentinel<BB, II>
+			sized_sentinel_for<BB, II>
 		{ return bound_ - value_; }
 	};
 
-	template<WeaklyIncrementable I, semiregular Bound>
+	template<weakly_incrementable I, semiregular Bound>
 	requires WeaklyEqualityComparable<I, Bound> &&
 		(!integral<I> || !integral<Bound> || std::is_signed_v<I> == std::is_signed_v<Bound>)
 	iota_view(I, Bound) -> iota_view<I, Bound>;
 
-	template<WeaklyIncrementable I, semiregular Bound>
+	template<weakly_incrementable I, semiregular Bound>
 	requires WeaklyEqualityComparable<I, Bound>
 	struct iota_view<I, Bound>::__iterator
 	: detail::iota_view_iterator_base<I> {
@@ -123,7 +123,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		constexpr void operator++(int)
 		{ ++*this; }
-		constexpr __iterator operator++(int) requires Incrementable<I>
+		constexpr __iterator operator++(int) requires incrementable<I>
 		{
 			auto tmp = *this;
 			++*this;
@@ -196,7 +196,7 @@ STL2_OPEN_NAMESPACE {
 		I value_ {};
 	};
 
-	template<WeaklyIncrementable I, semiregular Bound>
+	template<weakly_incrementable I, semiregular Bound>
 	requires WeaklyEqualityComparable<I, Bound>
 	struct iota_view<I, Bound>::__sentinel {
 		__sentinel() = default;
@@ -220,14 +220,14 @@ STL2_OPEN_NAMESPACE {
 		Bound bound_;
 	};
 
-	namespace view {
+	namespace views {
 		struct __iota_fn {
-			template<WeaklyIncrementable I>
+			template<weakly_incrementable I>
 			constexpr auto operator()(I value) const {
 				return iota_view{value};
 			}
 
-			template<WeaklyIncrementable I, semiregular Bound>
+			template<weakly_incrementable I, semiregular Bound>
 			requires WeaklyEqualityComparable<I, Bound> &&
 				(!integral<I> || !integral<Bound> ||
 					std::is_signed_v<I> == std::is_signed_v<Bound>)

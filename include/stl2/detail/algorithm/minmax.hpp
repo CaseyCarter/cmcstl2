@@ -24,7 +24,7 @@
 STL2_OPEN_NAMESPACE {
 	struct __minmax_fn : private __niebloid {
 		template<class T, class Proj = identity,
-			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
+			indirect_strict_weak_order<projected<const T*, Proj>> Comp = less>
 		constexpr minmax_result<const T&>
 		operator()(const T& a, const T& b, Comp comp = {}, Proj proj = {}) const {
 			const bool test = __stl2::invoke(comp,
@@ -36,23 +36,23 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		template<copyable T, class Proj = identity,
-			IndirectStrictWeakOrder<projected<const T*, Proj>> Comp = less>
+			indirect_strict_weak_order<projected<const T*, Proj>> Comp = less>
 		constexpr minmax_result<T>
 		operator()(std::initializer_list<T>&& r, Comp comp = {}, Proj proj = {}) const {
 			return impl(r, __stl2::ref(comp), __stl2::ref(proj));
 		}
 
-		template<InputRange R, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
+		template<input_range R, class Proj = identity,
+			indirect_strict_weak_order<projected<iterator_t<R>, Proj>> Comp = less>
 		requires copyable<iter_value_t<iterator_t<R>>>
 		constexpr minmax_result<iter_value_t<iterator_t<R>>>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
 			return impl(r, __stl2::ref(comp), __stl2::ref(proj));
 		}
 	private:
-		template<InputRange R, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
-		requires IndirectlyCopyableStorable<iterator_t<R>, iter_value_t<iterator_t<R>>*>
+		template<input_range R, class Proj = identity,
+			indirect_strict_weak_order<projected<iterator_t<R>, Proj>> Comp = less>
+		requires indirectly_copyable_storable<iterator_t<R>, iter_value_t<iterator_t<R>>*>
 		static constexpr minmax_result<iter_value_t<iterator_t<R>>>
 		impl(R&& r, Comp comp = {}, Proj proj = {}) {
 			using V = iter_value_t<iterator_t<R>>;

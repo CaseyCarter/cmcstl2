@@ -38,14 +38,14 @@
 // inplace_merge [alg.merge]
 //
 // TODO:
-// * SizedRange overload; downgrade the enumerate call to a distance?
+// * sized_range overload; downgrade the enumerate call to a distance?
 // * Forward ranges.
 //
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		struct merge_adaptive_fn {
-			template<BidirectionalIterator I, class C, class P>
-			requires Sortable<I, __f<C>, __f<P>>
+			template<bidirectional_iterator I, class C, class P>
+			requires sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, iter_difference_t<I> len1, iter_difference_t<I> len2,
 				detail::temporary_buffer<iter_value_t<I>>& buf, C pred, P proj) const
 			{
@@ -131,8 +131,8 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 		private:
-			template<BidirectionalIterator I, class C, class P>
-			requires Sortable<I, C, P>
+			template<bidirectional_iterator I, class C, class P>
+			requires sortable<I, C, P>
 			static void impl(I first, I middle, I last, iter_difference_t<I> len1,
 				iter_difference_t<I> len2, temporary_buffer<iter_value_t<I>>& buf,
 				C& pred, P& proj)
@@ -168,8 +168,8 @@ STL2_OPEN_NAMESPACE {
 
 		struct inplace_merge_no_buffer_fn
 		{
-			template<BidirectionalIterator I, class C = less, class P = identity>
-			requires Sortable<I, __f<C>, __f<P>>
+			template<bidirectional_iterator I, class C = less, class P = identity>
+			requires sortable<I, __f<C>, __f<P>>
 			void operator()(I begin, I middle, I end, iter_difference_t<I> len1,
 				iter_difference_t<I> len2, C pred = {}, P proj = {}) const
 			{
@@ -183,9 +183,9 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	struct __inplace_merge_fn : private __niebloid {
-		template<BidirectionalIterator I, Sentinel<I> S, class Comp = less,
+		template<bidirectional_iterator I, sentinel_for<I> S, class Comp = less,
 			class Proj = identity>
-		requires Sortable<I, Comp, Proj>
+		requires sortable<I, Comp, Proj>
 		I operator()(I first, I middle, S last, Comp comp = {}, Proj proj = {}) const {
 			auto len1 = distance(first, middle);
 			auto len2_and_end = ext::enumerate(middle, std::move(last));
@@ -199,8 +199,8 @@ STL2_OPEN_NAMESPACE {
 			return len2_and_end.end;
 		}
 
-		template<BidirectionalRange Rng, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<Rng>, Comp, Proj>
+		template<bidirectional_range Rng, class Comp = less, class Proj = identity>
+		requires sortable<iterator_t<Rng>, Comp, Proj>
 		safe_iterator_t<Rng>
 		operator()(Rng&& rng, iterator_t<Rng> middle, Comp comp = {}, Proj proj = {}) const {
 			return (*this)(begin(rng), std::move(middle), end(rng), __stl2::ref(comp),

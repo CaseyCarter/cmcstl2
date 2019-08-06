@@ -18,11 +18,11 @@
 #include <stl2/view/subrange.hpp>
 
 STL2_OPEN_NAMESPACE {
-	namespace view {
+	namespace views {
 		struct __counted_fn {
-			template<Iterator I>
+			template<input_or_output_iterator I>
 			constexpr auto operator()(I i, iter_difference_t<I> d) const {
-				if constexpr (RandomAccessIterator<I>) {
+				if constexpr (random_access_iterator<I>) {
 					return subrange{i, i + d};
 				} else {
 					return subrange{counted_iterator{i, d}, default_sentinel{}};

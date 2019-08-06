@@ -30,10 +30,10 @@ STL2_OPEN_NAMESPACE {
 
 				seeder() = default;
 				seeder(std::initializer_list<result_type>) {}
-				template<InputIterator I, Sentinel<I> S>
+				template<input_iterator I, sentinel_for<I> S>
 				seeder(I, S) {}
 
-				template<RandomAccessIterator I, SizedSentinel<I> S>
+				template<random_access_iterator I, sized_sentinel_for<I> S>
 				void generate(I first, S last) const {
 					std::random_device rd{};
 					__stl2::generate(first, last, __stl2::ref(rd));
@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 
 				static constexpr std::size_t size() noexcept { return ~std::size_t{0}; }
 
-				template<OutputIterator<result_type> I>
+				template<output_iterator<result_type> I>
 				void param(I) noexcept {}
 			};
 		}

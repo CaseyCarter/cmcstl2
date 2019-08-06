@@ -30,7 +30,7 @@ struct S
 
 int main()
 {
-	using namespace __stl2;
+	using __stl2::find_if_not, __stl2::size, __stl2::end, __stl2::subrange;
 
 	int ia[] = {0, 1, 2, 3, 4, 5};
 	constexpr unsigned s = size(ia);

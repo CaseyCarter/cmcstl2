@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 	using uninitialized_copy_result = __in_out_result<I, O>;
 
 	struct __uninitialized_copy_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S1, _NoThrowForwardIterator O, _NoThrowSentinel<O> S2>
+		template<input_iterator I, sentinel_for<I> S1, _NoThrowForwardIterator O, _NoThrowSentinel<O> S2>
 		requires constructible_from<iter_value_t<O>, iter_reference_t<I>>
 		uninitialized_copy_result<I, O> operator()(I ifirst, S1 ilast, O ofirst, S2 olast) const {
 			auto guard = detail::destroy_guard{ofirst};
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(ifirst), std::move(ofirst)};
 		}
 
-		template<InputRange IR, _NoThrowForwardRange OR>
+		template<input_range IR, _NoThrowForwardRange OR>
 		requires constructible_from<iter_value_t<iterator_t<OR>>, iter_reference_t<iterator_t<IR>>>
 		uninitialized_copy_result<safe_iterator_t<IR>, safe_iterator_t<OR>>
 		operator()(IR&& in, OR&& out) const {
@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 	using uninitialized_copy_n_result = __in_out_result<I, O>;
 
 	struct __uninitialized_copy_n_fn : private __niebloid {
-		template<InputIterator I, _NoThrowForwardIterator O, _NoThrowSentinel<O> S>
+		template<input_iterator I, _NoThrowForwardIterator O, _NoThrowSentinel<O> S>
 		requires constructible_from<iter_value_t<O>, iter_reference_t<I>>
 		uninitialized_copy_n_result<I, O>
 		operator()(I first, iter_difference_t<I> n, O ofirst, S olast) const {

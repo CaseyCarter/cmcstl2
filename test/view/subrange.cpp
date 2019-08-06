@@ -21,7 +21,7 @@ namespace ranges = __stl2;
 
 using namespace ranges;
 
-template<Range Rng>
+template<range Rng>
 safe_subrange_t<Rng> algorithm(Rng &&rng);
 
 struct Base {};
@@ -79,7 +79,7 @@ int main() {
 		std::tuple_element<0, decltype(r0)>::type>);
 	static_assert(same_as<std::vector<int>::iterator,
 		std::tuple_element<1, decltype(r0)>::type>);
-	static_assert(SizedRange<decltype(r0)>);
+	static_assert(sized_range<decltype(r0)>);
 	CHECK(r0.size() == 4);
 	CHECK(r0.begin() == vi.begin());
 	CHECK(get<0>(r0) == vi.begin());
@@ -105,8 +105,8 @@ int main() {
 		std::tuple_element<0, decltype(r1)>::type>);
 	static_assert(same_as<unreachable,
 		std::tuple_element<1, decltype(r1)>::type>);
-	static_assert(View<decltype(r1)>);
-	static_assert(!SizedRange<decltype(r1)>);
+	static_assert(view<decltype(r1)>);
+	static_assert(!sized_range<decltype(r1)>);
 	CHECK(r1.begin() == vi.begin()+1);
 	r1.end() = unreachable{};
 
@@ -126,7 +126,7 @@ int main() {
 	std::list<int> li{1,2,3,4};
 	ext::sized_subrange<std::list<int>::iterator> l0 {li.begin(), li.end(),
 		static_cast<std::ptrdiff_t>(li.size())};
-	static_assert(View<decltype(l0)> && SizedRange<decltype(l0)>);
+	static_assert(view<decltype(l0)> && sized_range<decltype(l0)>);
 	CHECK(l0.begin() == li.begin());
 	CHECK(l0.end() == li.end());
 	CHECK(l0.size() == static_cast<std::ptrdiff_t>(li.size()));
@@ -135,10 +135,10 @@ int main() {
 	CHECK(l0.end() == li.end());
 	CHECK(l0.size() == static_cast<std::ptrdiff_t>(li.size()) - 1);
 
-	l0 = view::all(li);
+	l0 = views::all(li);
 
 	subrange<std::list<int>::iterator> l1 = l0;
-	static_assert(!SizedRange<decltype(l1)>);
+	static_assert(!sized_range<decltype(l1)>);
 	CHECK(l1.begin() == li.begin());
 	CHECK(l1.end() == li.end());
 
@@ -157,8 +157,8 @@ int main() {
 	{
 		subrange s0{vi};
 		subrange s1{li};
-		subrange s2{view::all(vi)};
-		subrange s3{view::all(li)};
+		subrange s2{views::all(vi)};
+		subrange s3{views::all(li)};
 		static_assert(same_as<decltype(r0), decltype(s0)>);
 		static_assert(same_as<decltype(l0), decltype(s1)>);
 		static_assert(same_as<decltype(r0), decltype(s2)>);
@@ -175,8 +175,8 @@ int main() {
 	{
 		subrange s0{vi, ranges::distance(vi)};
 		subrange s1{li, ranges::distance(li)};
-		subrange s2{view::all(vi), ranges::distance(vi)};
-		subrange s3{view::all(li), ranges::distance(li)};
+		subrange s2{views::all(vi), ranges::distance(vi)};
+		subrange s3{views::all(li), ranges::distance(li)};
 		static_assert(same_as<decltype(r0), decltype(s0)>);
 		static_assert(same_as<decltype(l0), decltype(s1)>);
 		static_assert(same_as<decltype(r0), decltype(s2)>);

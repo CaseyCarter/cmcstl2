@@ -31,7 +31,7 @@ namespace ranges = __stl2;
 using ranges::ext::span;
 
 namespace {
-	template<ranges::InputRange Rng>
+	template<ranges::input_range Rng>
 	requires requires {
 		typename ranges::iter_value_t<Rng>;
 		&ranges::iter_value_t<Rng>::empty;
@@ -44,7 +44,7 @@ namespace {
 			&ranges::iter_value_t<Rng>::empty);
 	}
 
-	template<ranges::InputRange Rng>
+	template<ranges::input_range Rng>
 	requires requires {
 		typename ranges::iter_value_t<Rng>;
 		requires std::is_fundamental_v<ranges::iter_value_t<Rng>>;

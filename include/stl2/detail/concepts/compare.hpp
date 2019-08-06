@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 	// Relaxation of equality_comparable<T, U> that doesn't require
 	// equality_comparable<T>, equality_comparable<U>, common_with<T, U>, or
 	// equality_comparable<common_type_t<T, U>>. I.e., provides exactly the
-	// requirements for Sentinel's operator ==.
+	// requirements for sentinel_for's operator ==.
 	//
 	template<class T, class U>
 	META_CONCEPT WeaklyEqualityComparable =

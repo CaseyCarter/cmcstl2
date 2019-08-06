@@ -19,7 +19,7 @@ STL2_OPEN_NAMESPACE {
 	template<auto> struct __require_constant; // not defined
 
 	template<class G>
-	META_CONCEPT UniformRandomBitGenerator =
+	META_CONCEPT uniform_random_bit_generator =
 		invocable<G&> && unsigned_integral<invoke_result_t<G&>> &&
 		requires {
 #ifdef META_HAS_P1084

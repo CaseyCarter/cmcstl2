@@ -19,7 +19,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __fill_n_fn : private __niebloid {
-		template<class T, OutputIterator<const T&> O>
+		template<class T, output_iterator<const T&> O>
 		constexpr O
 		operator()(O first, iter_difference_t<O> n, const T& value) const {
 			for (; n > 0; --n, (void)++first) {

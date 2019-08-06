@@ -23,7 +23,7 @@
 #include <stl2/detail/iterator/reverse_iterator.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// Range access [range.access]
+// range access [range.access]
 //
 STL2_OPEN_NAMESPACE {
 	inline constexpr struct __as_const_fn {
@@ -50,13 +50,13 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
 			requires(R& r) {
 				r.begin();
-				{ __decay_copy(r.begin()) } -> Iterator;
+				{ __decay_copy(r.begin()) } -> input_or_output_iterator;
 			};
 
 		template<class R>
 		META_CONCEPT has_non_member = requires(R&& r) {
 			begin(static_cast<R&&>(r));
-			{ __decay_copy(begin(static_cast<R&&>(r))) } -> Iterator;
+			{ __decay_copy(begin(static_cast<R&&>(r))) } -> input_or_output_iterator;
 		};
 
 		template<class>
@@ -116,14 +116,14 @@ STL2_OPEN_NAMESPACE {
 			requires(R& r) {
 				r.end();
 				begin(r);
-				{ __decay_copy(r.end()) } -> Sentinel<__begin_t<R>>;
+				{ __decay_copy(r.end()) } -> sentinel_for<__begin_t<R>>;
 			};
 
 		template<class R>
 		META_CONCEPT has_non_member = requires(R&& r) {
 			end(static_cast<R&&>(r));
 			begin(static_cast<R&&>(r));
-			{ __decay_copy(end(static_cast<R&&>(r))) } -> Sentinel<__begin_t<R>>;
+			{ __decay_copy(end(static_cast<R&&>(r))) } -> sentinel_for<__begin_t<R>>;
 		};
 
 		template<class>
@@ -211,25 +211,25 @@ STL2_OPEN_NAMESPACE {
 		// Poison pill
 		template<class T> void rbegin(T&&) = delete;
 
-		// Prefer member if it returns Iterator
+		// Prefer member if it returns input_or_output_iterator
 		template<class R>
 		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
 			requires(R& r) {
 				r.rbegin();
-				{ __decay_copy(r.rbegin()) } -> Iterator;
+				{ __decay_copy(r.rbegin()) } -> input_or_output_iterator;
 			};
 
 		template<class R>
 		META_CONCEPT has_non_member = requires(R&& r) {
 			rbegin(static_cast<R&&>(r));
-			{ __decay_copy(rbegin(static_cast<R&&>(r))) } -> Iterator;
+			{ __decay_copy(rbegin(static_cast<R&&>(r))) } -> input_or_output_iterator;
 		};
 
 		// Default to make_reverse_iterator(end(r)) for common_with ranges of
 		// Bidirectional iterators.
 		template<class R>
 		META_CONCEPT can_make_reverse = requires(R&& r) {
-			{ begin(static_cast<R&&>(r)) } -> BidirectionalIterator;
+			{ begin(static_cast<R&&>(r)) } -> bidirectional_iterator;
 			{ end(static_cast<R&&>(r)) } -> same_as<__begin_t<R>>;
 		};
 
@@ -280,7 +280,7 @@ STL2_OPEN_NAMESPACE {
 			requires(R& r) {
 				rbegin(r);
 				r.rend();
-				{ __decay_copy(r.rend()) } -> Sentinel<__rbegin_t<R>>;
+				{ __decay_copy(r.rend()) } -> sentinel_for<__rbegin_t<R>>;
 			};
 
 		template<class R>
@@ -288,7 +288,7 @@ STL2_OPEN_NAMESPACE {
 			rbegin(static_cast<R&&>(r));
 			rend(static_cast<R&&>(r));
 			{ __decay_copy(rend(static_cast<R&&>(r))) } ->
-				Sentinel<__rbegin_t<R>>;
+				sentinel_for<__rbegin_t<R>>;
 		};
 
 		using __stl2::__rbegin::can_make_reverse;
@@ -389,8 +389,8 @@ STL2_OPEN_NAMESPACE {
 
 		template<class R>
 		META_CONCEPT has_difference = requires(R& r) {
-			{ begin(r) } -> ForwardIterator;
-			{ end(r) } -> SizedSentinel<__begin_t<R&>>;
+			{ begin(r) } -> forward_iterator;
+			{ end(r) } -> sized_sentinel_for<__begin_t<R&>>;
 		};
 
 		template<class T>
@@ -448,7 +448,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<class R>
 		META_CONCEPT has_begin_end = requires(R& r) {
-			{ begin(r) } -> ForwardIterator;
+			{ begin(r) } -> forward_iterator;
 			end(r);
 		};
 
@@ -511,7 +511,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<class R>
 		META_CONCEPT has_contiguous_iterator = requires(R&& r) {
-			{ begin(static_cast<R&&>(r)) } -> ContiguousIterator;
+			{ begin(static_cast<R&&>(r)) } -> contiguous_iterator;
 			end(static_cast<R&&>(r));
 		};
 

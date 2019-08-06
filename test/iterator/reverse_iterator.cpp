@@ -283,10 +283,10 @@ static_assert(test_constexpr());
 int main() {
 	{
 		static_assert(
-				ranges::BidirectionalIterator<
+				ranges::bidirectional_iterator<
 					ranges::reverse_iterator<bidirectional_iterator<const char *>>>);
 		static_assert(
-				ranges::RandomAccessIterator<
+				ranges::random_access_iterator<
 					ranges::reverse_iterator<random_access_iterator<const char *>>>);
 	}
 	{ // test

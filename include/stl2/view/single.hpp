@@ -48,7 +48,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr const T* data() const noexcept { return std::addressof(value_.get()); }
 	};
 
-	namespace view {
+	namespace views {
 		struct __single_fn {
 			template<class T>
 			constexpr auto operator()(T&& t) const

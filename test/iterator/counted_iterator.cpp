@@ -85,13 +85,16 @@ static_assert(test_constexpr());
 
 int main()
 {
-	using namespace ranges;
+	using ranges::counted_iterator, ranges::common_iterator;
+	using ranges::default_sentinel, ranges::sized_sentinel_for;
+	using ranges::distance;
+	using ranges::begin, ranges::size;
 
 	{
 		int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 		auto i = counted_iterator{forward_iterator<int*>{rgi}, size(rgi)};
 		static_assert(std::is_same<decltype(i),counted_iterator<forward_iterator<int*>>>());
-		static_assert(SizedSentinel<default_sentinel, decltype(i)>);
+		static_assert(sized_sentinel_for<default_sentinel, decltype(i)>);
 		CHECK(static_cast<std::size_t>(default_sentinel{} - i) == size(rgi));
 		CHECK(&*i.base() == begin(rgi));
 		CHECK(std::size_t(i.count()) == size(rgi));
@@ -106,7 +109,7 @@ int main()
 		std::list<int> l;
 		auto a = counted_iterator{l.begin(), 0};
 		auto b = counted_iterator{l.cbegin(), 0};
-		static_assert(std::is_same<common_type_t<decltype(a), decltype(b)>, decltype(b)>());
+		static_assert(std::is_same<ranges::common_type_t<decltype(a), decltype(b)>, decltype(b)>());
 		CHECK((a - a) == 0);
 		CHECK((b - b) == 0);
 		CHECK((a - b) == 0);
@@ -116,7 +119,7 @@ int main()
 	{
 		counted_iterator<char*> c{nullptr, 0};
 		counted_iterator<char const*> d{c};
-		static_assert(!assignable_from<decltype(c)&, decltype(d)>);
+		static_assert(!ranges::assignable_from<decltype(c)&, decltype(d)>);
 		CHECK((c - c) == 0);
 		CHECK((d - d) == 0);
 		CHECK((c - d) == 0);
@@ -126,11 +129,11 @@ int main()
 	{
 		int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 		counted_iterator<output_iterator<int*>> e{output_iterator<int*>{rgi}, 10};
-		fill(e, default_sentinel{}, 0);
+		ranges::fill(e, default_sentinel{}, 0);
 		int expected[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 		CHECK(std::equal(rgi, rgi + size(rgi), expected));
 		// Make sure advance compiles
-		advance(e, 4);
+		ranges::advance(e, 4);
 		CHECK(e.base().base() == rgi + 4);
 		CHECK(e.count() == 10 - 4);
 	}

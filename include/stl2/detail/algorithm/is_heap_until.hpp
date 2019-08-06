@@ -31,8 +31,8 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		struct __is_heap_until_n_fn {
-			template<RandomAccessIterator I, class Proj = identity,
-				IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
+			template<random_access_iterator I, class Proj = identity,
+				indirect_strict_weak_order<projected<I, Proj>> Comp = less>
 			constexpr I operator()(I first, const iter_difference_t<I> n,
 				Comp comp = {}, Proj proj = {}) const
 			{
@@ -65,8 +65,8 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	struct __is_heap_until_fn : private __niebloid {
-		template<RandomAccessIterator I, Sentinel<I> S, class Proj = identity,
-			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
+		template<random_access_iterator I, sentinel_for<I> S, class Proj = identity,
+			indirect_strict_weak_order<projected<I, Proj>> Comp = less>
 		constexpr I
 		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const {
 			auto n = distance(first, std::move(last));
@@ -74,8 +74,8 @@ STL2_OPEN_NAMESPACE {
 				__stl2::ref(comp), __stl2::ref(proj));
 		}
 
-		template<RandomAccessRange Rng, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<Rng>, Proj>> Comp = less>
+		template<random_access_range Rng, class Proj = identity,
+			indirect_strict_weak_order<projected<iterator_t<Rng>, Proj>> Comp = less>
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, Comp comp = {}, Proj proj = {}) const {
 			return detail::is_heap_until_n(begin(rng), distance(rng),

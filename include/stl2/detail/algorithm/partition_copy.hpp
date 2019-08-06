@@ -24,10 +24,10 @@ STL2_OPEN_NAMESPACE {
 	using partition_copy_result = __in_out_out_result<I, O1, O2>;
 
 	struct __partition_copy_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O1,
-			WeaklyIncrementable O2, class Proj = identity,
-			IndirectUnaryPredicate<projected<I, Proj>> Pred>
-		requires IndirectlyCopyable<I, O1> && IndirectlyCopyable<I, O2>
+		template<input_iterator I, sentinel_for<I> S, weakly_incrementable O1,
+			weakly_incrementable O2, class Proj = identity,
+			indirect_unary_predicate<projected<I, Proj>> Pred>
+		requires indirectly_copyable<I, O1> && indirectly_copyable<I, O2>
 		constexpr partition_copy_result<I, O1, O2>
 		operator()(I first, S last, O1 out_true, O2 out_false, Pred pred,
 			Proj proj = {}) const
@@ -45,11 +45,11 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first), std::move(out_true), std::move(out_false)};
 		}
 
-		template<InputRange R, WeaklyIncrementable O1, WeaklyIncrementable O2,
+		template<input_range R, weakly_incrementable O1, weakly_incrementable O2,
 			class Proj = identity,
-			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
-		requires IndirectlyCopyable<iterator_t<R>, O1> &&
-			IndirectlyCopyable<iterator_t<R>, O2>
+			indirect_unary_predicate<projected<iterator_t<R>, Proj>> Pred>
+		requires indirectly_copyable<iterator_t<R>, O1> &&
+			indirectly_copyable<iterator_t<R>, O2>
 		constexpr partition_copy_result<safe_iterator_t<R>, O1, O2>
 		operator()(R&& r, O1 out_true, O2 out_false, Pred pred,
 			Proj proj = {}) const

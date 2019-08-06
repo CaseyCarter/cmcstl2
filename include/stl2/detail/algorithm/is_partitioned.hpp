@@ -21,8 +21,8 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __is_partitioned_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, class Proj = identity,
-			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		template<input_iterator I, sentinel_for<I> S, class Proj = identity,
+			indirect_unary_predicate<projected<I, Proj>> Pred>
 		constexpr bool
 		operator()(I first, S last, Pred pred, Proj proj = {}) const {
 			first = find_if_not(std::move(first), last,
@@ -31,8 +31,8 @@ STL2_OPEN_NAMESPACE {
 				__stl2::ref(pred), __stl2::ref(proj));
 		}
 
-		template<InputRange Rng, class Proj = identity,
-			IndirectUnaryPredicate<projected<iterator_t<Rng>, Proj>> Pred>
+		template<input_range Rng, class Proj = identity,
+			indirect_unary_predicate<projected<iterator_t<Rng>, Proj>> Pred>
 		constexpr bool
 		operator()(Rng&& rng, Pred pred, Proj proj = {}) const {
 			return (*this)(begin(rng), end(rng), __stl2::ref(pred),

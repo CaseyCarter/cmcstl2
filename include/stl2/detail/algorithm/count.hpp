@@ -20,8 +20,8 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __count_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, class T, class Proj = identity>
-		requires IndirectRelation<equal_to, projected<I, Proj>, const T*>
+		template<input_iterator I, sentinel_for<I> S, class T, class Proj = identity>
+		requires indirect_relation<equal_to, projected<I, Proj>, const T*>
 		constexpr iter_difference_t<I>
 		operator()(I first, S last, const T& value, Proj proj = {}) const {
 			iter_difference_t<I> n = 0;
@@ -33,8 +33,8 @@ STL2_OPEN_NAMESPACE {
 			return n;
 		}
 
-		template<InputRange R, class T, class Proj = identity>
-		requires IndirectRelation<equal_to, projected<iterator_t<R>, Proj>, const T*>
+		template<input_range R, class T, class Proj = identity>
+		requires indirect_relation<equal_to, projected<iterator_t<R>, Proj>, const T*>
 		constexpr iter_difference_t<iterator_t<R>>
 		operator()(R&& r, const T& value, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), value, __stl2::ref(proj));

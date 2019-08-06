@@ -24,8 +24,8 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<View Rng>
-		requires InputRange<Rng>
+		template<view Rng>
+		requires input_range<Rng>
 		class STL2_EMPTY_BASES move_view
 		: detail::ebo_box<Rng, move_view<Rng>>
 		, public view_interface<move_view<Rng>> {
@@ -39,37 +39,37 @@ STL2_OPEN_NAMESPACE {
 			: base_t{std::move(rng)} {}
 
 			move_iterator<iterator_t<Rng>> begin() const
-			requires Range<const Rng>
+			requires range<const Rng>
 			{ return __stl2::make_move_iterator(__stl2::begin(get())); }
 			move_sentinel<sentinel_t<Rng>> end() const
-			requires Range<const Rng>
+			requires range<const Rng>
 			{ return __stl2::make_move_sentinel(__stl2::end(get())); }
 			move_iterator<iterator_t<Rng>> end() const
-			requires Range<const Rng> && CommonRange<const Rng>
+			requires range<const Rng> && common_range<const Rng>
 			{ return __stl2::make_move_iterator(__stl2::end(get())); }
 
 			auto size() const
-			requires Range<const Rng> && SizedRange<const Rng>
+			requires range<const Rng> && sized_range<const Rng>
 			{ return __stl2::size(get()); }
 			bool empty() const
-			requires Range<const Rng> && requires(const Rng& r) { __stl2::empty(r); }
+			requires range<const Rng> && requires(const Rng& r) { __stl2::empty(r); }
 			{ return __stl2::empty(get()); }
 
 			move_iterator<iterator_t<Rng>> begin()
-			requires (!Range<const Rng>)
+			requires (!range<const Rng>)
 			{ return __stl2::make_move_iterator(__stl2::begin(get())); }
 			move_sentinel<sentinel_t<Rng>> end()
-			requires (!Range<const Rng>)
+			requires (!range<const Rng>)
 			{ return __stl2::make_move_sentinel(__stl2::end(get())); }
 			move_iterator<iterator_t<Rng>> end()
-			requires (!Range<const Rng> && CommonRange<Rng>)
+			requires (!range<const Rng> && common_range<Rng>)
 			{ return __stl2::make_move_iterator(__stl2::end(get())); }
 
 			auto size()
-			requires (!Range<const Rng> && SizedRange<Rng>)
+			requires (!range<const Rng> && sized_range<Rng>)
 			{ return __stl2::size(get()); }
 			bool empty()
-			requires (!Range<const Rng>)
+			requires (!range<const Rng>)
 			{ return __stl2::empty(get()); }
 		};
 	} // namespace ext
@@ -77,18 +77,18 @@ STL2_OPEN_NAMESPACE {
 	template<class V>
 	inline constexpr bool enable_view<ext::move_view<V>> = true;
 
-	namespace view {
+	namespace views {
 		struct __move_fn : detail::__pipeable<__move_fn> {
-			template<InputRange Rng>
-			requires ViewableRange<Rng>
+			template<input_range Rng>
+			requires viewable_range<Rng>
 			constexpr __stl2::ext::move_view<all_view<Rng>> operator()(Rng&& rng) const {
 				return __stl2::ext::move_view<all_view<Rng>>{
-					view::all(std::forward<Rng>(rng))};
+					views::all(std::forward<Rng>(rng))};
 			}
 		};
 
 		inline constexpr __move_fn move {};
-	} // namespace view
+	} // namespace views
 } STL2_CLOSE_NAMESPACE
 
 #endif

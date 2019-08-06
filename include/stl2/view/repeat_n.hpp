@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
 		using repeat_n_view = take_exactly_view<repeat_view<T>>;
 	} // namespace ext
 
-	namespace view::ext {
+	namespace views::ext {
 		struct __repeat_n_fn {
 		private:
 		template<class T> using V = __stl2::ext::repeat_n_view<__uncvref<T>>;
@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __repeat_n_fn repeat_n {};
-	} // namespace view::ext
+	} // namespace views::ext
 } STL2_CLOSE_NAMESPACE
 
 #endif

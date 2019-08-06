@@ -30,16 +30,16 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __is_heap_fn : private __niebloid {
-		template<RandomAccessIterator I, Sentinel<I> S, class Proj = identity,
-			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
+		template<random_access_iterator I, sentinel_for<I> S, class Proj = identity,
+			indirect_strict_weak_order<projected<I, Proj>> Comp = less>
 		constexpr bool
 		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const {
 			return last == is_heap_until(std::move(first), last,
 				__stl2::ref(comp), __stl2::ref(proj));
 		}
 
-		template<RandomAccessRange Rng, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<Rng>, Proj>> Comp = less>
+		template<random_access_range Rng, class Proj = identity,
+			indirect_strict_weak_order<projected<iterator_t<Rng>, Proj>> Comp = less>
 		constexpr bool
 		operator()(Rng&& rng, Comp comp = {}, Proj proj = {}) const {
 			return end(rng) ==

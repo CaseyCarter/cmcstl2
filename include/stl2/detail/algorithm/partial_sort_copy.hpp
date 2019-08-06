@@ -25,11 +25,11 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __partial_sort_copy_fn : private __niebloid {
-		template<InputIterator I1, Sentinel<I1> S1, RandomAccessIterator I2,
-			Sentinel<I2> S2, class Proj1 = identity, class Proj2 = identity,
-			IndirectStrictWeakOrder<projected<I1, Proj1>,
+		template<input_iterator I1, sentinel_for<I1> S1, random_access_iterator I2,
+			sentinel_for<I2> S2, class Proj1 = identity, class Proj2 = identity,
+			indirect_strict_weak_order<projected<I1, Proj1>,
 				projected<I2, Proj2>> Comp = less>
-		requires IndirectlyCopyable<I1, I2> && Sortable<I2, Comp, Proj2>
+		requires indirectly_copyable<I1, I2> && sortable<I2, Comp, Proj2>
 		constexpr I2
 		operator()(I1 first, S1 last, I2 result_first, S2 result_last,
 			Comp comp = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
@@ -59,12 +59,12 @@ STL2_OPEN_NAMESPACE {
 			return r;
 		}
 
-		template<InputRange R1, RandomAccessRange R2, class Proj1 = identity,
+		template<input_range R1, random_access_range R2, class Proj1 = identity,
 			class Proj2 = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R1>, Proj1>,
+			indirect_strict_weak_order<projected<iterator_t<R1>, Proj1>,
 				projected<iterator_t<R2>, Proj2>> Comp = less>
-		requires IndirectlyCopyable<iterator_t<R1>, iterator_t<R2>> &&
-			Sortable<iterator_t<R2>, Comp, Proj2>
+		requires indirectly_copyable<iterator_t<R1>, iterator_t<R2>> &&
+			sortable<iterator_t<R2>, Comp, Proj2>
 		constexpr safe_iterator_t<R2> operator()(R1&& r, R2&& result_r,
 			Comp comp = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{

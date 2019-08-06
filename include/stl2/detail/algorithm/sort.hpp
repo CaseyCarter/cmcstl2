@@ -25,12 +25,12 @@ STL2_OPEN_NAMESPACE {
 	struct __sort_fn : private __niebloid {
 		/// Extension: sort using forward iterators
 		///
-		template<ForwardIterator I, Sentinel<I> S, class Comp = less,
+		template<forward_iterator I, sentinel_for<I> S, class Comp = less,
 			class Proj = identity>
-		requires Sortable<I, Comp, Proj>
+		requires sortable<I, Comp, Proj>
 		constexpr I
 		operator()(I first, S sent, Comp comp = {}, Proj proj = {}) const {
-			if constexpr (RandomAccessIterator<I>) {
+			if constexpr (random_access_iterator<I>) {
 				if (first == sent) return first;
 				auto last = next(first, std::move(sent));
 				auto n = distance(first, last);
@@ -45,8 +45,8 @@ STL2_OPEN_NAMESPACE {
 
 		/// Extension: sort using forward ranges
 		///
-		template<ForwardRange R, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<R>, Comp, Proj>
+		template<forward_range R, class Comp = less, class Proj = identity>
+		requires sortable<iterator_t<R>, Comp, Proj>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), std::move(comp), std::move(proj));
@@ -54,8 +54,8 @@ STL2_OPEN_NAMESPACE {
 	private:
 		static constexpr std::ptrdiff_t introsort_threshold = 16;
 
-		template<RandomAccessIterator I, class Comp, class Proj>
-		requires Sortable<I, Comp, Proj>
+		template<random_access_iterator I, class Comp, class Proj>
+		requires sortable<I, Comp, Proj>
 		static constexpr I
 		choose_pivot(I first, I last, Comp& comp, Proj& proj) {
 			STL2_EXPECT(first != last);
@@ -69,8 +69,8 @@ STL2_OPEN_NAMESPACE {
 			}(__stl2::invoke(proj, *first), __stl2::invoke(proj, *mid), __stl2::invoke(proj, *last));
 		}
 
-		template<RandomAccessIterator I, class Comp, class Proj>
-		requires Sortable<I, Comp, Proj>
+		template<random_access_iterator I, class Comp, class Proj>
+		requires sortable<I, Comp, Proj>
 		static constexpr I
 		unguarded_partition(I first, I last, Comp& comp, Proj& proj) {
 			I pivot_pnt = choose_pivot(first, last, comp, proj);
@@ -94,8 +94,8 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<RandomAccessIterator I, class Comp, class Proj>
-		requires Sortable<I, Comp, Proj>
+		template<random_access_iterator I, class Comp, class Proj>
+		requires sortable<I, Comp, Proj>
 		static constexpr void
 		introsort_loop(I first, I last, iter_difference_t<I> depth_limit, Comp& comp, Proj& proj)
 		{
@@ -110,8 +110,8 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<BidirectionalIterator I, class Comp, class Proj>
-		requires Sortable<I, Comp, Proj>
+		template<bidirectional_iterator I, class Comp, class Proj>
+		requires sortable<I, Comp, Proj>
 		static constexpr void
 		unguarded_insertion_sort(I first, I last, Comp& comp, Proj& proj) {
 			for (I i = first; i != last; ++i) {
@@ -119,8 +119,8 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<RandomAccessIterator I, class Comp, class Proj>
-		requires Sortable<I, Comp, Proj>
+		template<random_access_iterator I, class Comp, class Proj>
+		requires sortable<I, Comp, Proj>
 		static constexpr void
 		final_insertion_sort(I first, I last, Comp &comp, Proj &proj) {
 			if (distance(first, last) > introsort_threshold) {

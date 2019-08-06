@@ -18,32 +18,32 @@
 
 namespace ranges = __stl2;
 
-namespace view {
-	using namespace ranges::view;
+namespace views {
+	using namespace ranges::views;
 	using namespace ext;
-} // namespace view
+} // namespace views
 
 int main()
 {
 	// Test for constant generator functions
 	{
 		int i = 0, j = 1;
-		auto fib = view::generate([&]{ int tmp = i; i += j; std::swap(i, j); return tmp; });
-		static_assert(ranges::InputRange<decltype(fib)>);
-		static_assert(ranges::View<decltype(fib)>);
-		CHECK_EQUAL(fib | view::take_exactly(10), {0,1,1,2,3,5,8,13,21,34});
+		auto fib = views::generate([&]{ int tmp = i; i += j; std::swap(i, j); return tmp; });
+		static_assert(ranges::input_range<decltype(fib)>);
+		static_assert(ranges::view<decltype(fib)>);
+		CHECK_EQUAL(fib | views::take_exactly(10), {0,1,1,2,3,5,8,13,21,34});
 	}
 
 	// Test for mutable-only generator functions
 	{
 		int i = 0, j = 1;
-		auto fib = view::generate([=]()mutable->int{int tmp = i; i += j; std::swap(i, j); return tmp;});
-		static_assert(ranges::InputRange<decltype(fib)>);
-		static_assert(ranges::View<decltype(fib)>);
-		CHECK_EQUAL(fib | view::take_exactly(10), {0,1,1,2,3,5,8,13,21,34});
+		auto fib = views::generate([=]()mutable->int{int tmp = i; i += j; std::swap(i, j); return tmp;});
+		static_assert(ranges::input_range<decltype(fib)>);
+		static_assert(ranges::view<decltype(fib)>);
+		CHECK_EQUAL(fib | views::take_exactly(10), {0,1,1,2,3,5,8,13,21,34});
 		// The generator cannot be called when it's const-qualified, so "fib const"
-		// does not model View.
-		static_assert(!ranges::View<decltype(fib) const>);
+		// does not model view.
+		static_assert(!ranges::view<decltype(fib) const>);
 	}
 
 #if 0 // unlike range-v3, cmcstl2 doesn't support move-only input views
@@ -56,9 +56,9 @@ int main()
 			char operator()()
 			{ return str_.sz_[i_++]; }
 		};
-		auto r = view::generate(MoveOnlyFunction{"Hello, world!", 0}) | view::take_exactly(5);
-		static_assert(ranges::InputRange<decltype(r)>);
-		static_assert(ranges::View<decltype(r)>);
+		auto r = views::generate(MoveOnlyFunction{"Hello, world!", 0}) | views::take_exactly(5);
+		static_assert(ranges::input_range<decltype(r)>);
+		static_assert(ranges::view<decltype(r)>);
 		CHECK_EQUAL(r, {'H', 'e', 'l', 'l', 'o'});
 	}
 #endif // 0
@@ -69,14 +69,14 @@ int main()
 		using cmcstl2_test::move_only_string;
 
 		char str[] = "gi";
-		auto r = view::generate([&]{str[0]++; return move_only_string{str};}) | view::take_exactly(2);
+		auto r = views::generate([&]{str[0]++; return move_only_string{str};}) | views::take_exactly(2);
 		auto i = r.begin();
 		CHECK(bool(*i == move_only_string{"hi"}));
 		CHECK(bool(*i == move_only_string{"hi"}));
 		CHECK(bool(*r.begin() == move_only_string{"hi"}));
 		CHECK(bool(*r.begin() == move_only_string{"hi"}));
-		static_assert(ranges::InputRange<decltype(r)>);
-		static_assert(ranges::View<decltype(r)>);
+		static_assert(ranges::input_range<decltype(r)>);
+		static_assert(ranges::view<decltype(r)>);
 		CHECK_EQUAL(r, {move_only_string{"hi"}, move_only_string{"ii"}});
 		static_assert(std::is_same<ranges::ext::range_reference_t<decltype(r)>, move_only_string&&>::value, "");
 	}
@@ -85,19 +85,19 @@ int main()
 	// https://github.com/ericniebler/range-v3/issues/807
 	{
 		int i = 42;
-		auto r = view::generate([i]{return &i;});
+		auto r = views::generate([i]{return &i;});
 		auto rng2 = std::move(r);
 		auto it = rng2.begin();
 		auto p = *it;
 		auto p2 = *++it;
 		CHECK(p == p2);
 	}
-	
+
 	// Test that we only call the function once for each dereferenceable position
 	// https://github.com/ericniebler/range-v3/issues/819
 	{
 		int i = 0;
-		auto r = view::generate([&i]{return ++i;});
+		auto r = views::generate([&i]{return ++i;});
 		auto rng2 = std::move(r);
 		auto it = rng2.begin();
 		CHECK(i == 0);

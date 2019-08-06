@@ -60,15 +60,15 @@ STL2_OPEN_NAMESPACE {
 
 	template<class T, class U, class V>
 	META_CONCEPT _PairLikeConvertibleFrom =
-		!Range<T> && _PairLike<T> && constructible_from<T, U, V> &&
+		!range<T> && _PairLike<T> && constructible_from<T, U, V> &&
 		_PairLikeConvertibleFromGCCBugs<T, U, V>; // Separate named concept to avoid
 		                                          // premature substitution.
 
 	enum class subrange_kind : bool { unsized, sized };
 
-	template<Iterator I, Sentinel<I> S = I,
-		subrange_kind K = static_cast<subrange_kind>(SizedSentinel<S, I>)>
-	requires (K == subrange_kind::sized || !SizedSentinel<S, I>)
+	template<input_or_output_iterator I, sentinel_for<I> S = I,
+		subrange_kind K = static_cast<subrange_kind>(sized_sentinel_for<S, I>)>
+	requires (K == subrange_kind::sized || !sized_sentinel_for<S, I>)
 	class subrange;
 
 	namespace __subrange_detail {
@@ -87,14 +87,14 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template<Iterator I, Sentinel<I> S, subrange_kind K>
-	requires (K == subrange_kind::sized || !SizedSentinel<S, I>)
+	template<input_or_output_iterator I, sentinel_for<I> S, subrange_kind K>
+	requires (K == subrange_kind::sized || !sized_sentinel_for<S, I>)
 	class STL2_EMPTY_BASES subrange
 	: private __subrange_detail::__adl_hook
 	, public view_interface<subrange<I, S, K>>
 	{
 		static constexpr bool StoreSize =
-			K == subrange_kind::sized && !SizedSentinel<S, I>;
+			K == subrange_kind::sized && !sized_sentinel_for<S, I>;
 
 		meta::if_c<StoreSize,
 			std::tuple<I, S, iter_difference_t<I>>,
@@ -130,13 +130,13 @@ STL2_OPEN_NAMESPACE {
 		constexpr subrange(I2&& i, S s, iter_difference_t<I> n)
 			requires (StoreSize)
 		: data_{std::forward<I2>(i), std::move(s), n} {
-			if constexpr (RandomAccessIterator<I>) {
+			if constexpr (random_access_iterator<I>) {
 				STL2_EXPECT(first_() + n == last_());
 			}
 		}
 		template<_ConvertibleToNotSlicing<I> I2>
 		constexpr subrange(I2&& i, S s, iter_difference_t<I> n)
-		requires SizedSentinel<S, I>
+		requires sized_sentinel_for<S, I>
 		: data_{std::forward<I2>(i), std::move(s)} {
 			STL2_EXPECT(last_() - first_() == n);
 		}
@@ -162,7 +162,7 @@ STL2_OPEN_NAMESPACE {
 #endif
 			_ConvertibleToNotSlicing<iterator_t<R>, I> &&
 			convertible_to<sentinel_t<R>, S>
-		constexpr subrange(R&& r) requires StoreSize && SizedRange<R>
+		constexpr subrange(R&& r) requires StoreSize && sized_range<R>
 		: subrange{__stl2::begin(r), __stl2::end(r), distance(r)} {}
 
 		template<_ForwardingRange R>
@@ -172,7 +172,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr subrange(R&& r, iter_difference_t<I> n)
 			requires (K == subrange_kind::sized)
 		: subrange{__stl2::begin(r), __stl2::end(r), n} {
-			if constexpr (SizedRange<R>) {
+			if constexpr (sized_range<R>) {
 				STL2_EXPECT(n == distance(r));
 			}
 		}
@@ -213,7 +213,7 @@ STL2_OPEN_NAMESPACE {
 			return tmp;
 		}
 		[[nodiscard]] constexpr subrange prev(iter_difference_t<I> n = 1) const
-		requires BidirectionalIterator<I> {
+		requires bidirectional_iterator<I> {
 			auto tmp = *this;
 			tmp.advance(-n);
 			return tmp;
@@ -231,12 +231,12 @@ STL2_OPEN_NAMESPACE {
 	template<class I, class S>
 	subrange(I, S) -> subrange<I, S>;
 
-	template<Iterator I, class S>
+	template<input_or_output_iterator I, class S>
 	subrange(I, S, iter_difference_t<I>) -> subrange<I, S, subrange_kind::sized>;
 
 	template<_ForwardingRange R>
 	subrange(R&&) -> subrange<iterator_t<R>, sentinel_t<R>,
-		(SizedRange<R> || SizedSentinel<sentinel_t<R>, iterator_t<R>>)
+		(sized_range<R> || sized_sentinel_for<sentinel_t<R>, iterator_t<R>>)
 			? subrange_kind::sized : subrange_kind::unsized>;
 
 	template<_ForwardingRange R>
@@ -244,7 +244,7 @@ STL2_OPEN_NAMESPACE {
 		subrange<iterator_t<R>, sentinel_t<R>, subrange_kind::sized>;
 
 	namespace ext {
-		template<Iterator I, Sentinel<I> S = I>
+		template<input_or_output_iterator I, sentinel_for<I> S = I>
 		using sized_subrange = subrange<I, S, subrange_kind::sized>;
 	}
 
@@ -258,7 +258,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	}
 
-	template<Range R>
+	template<range R>
 	using safe_subrange_t =	__maybe_dangling<R, subrange<iterator_t<R>>>;
 } STL2_CLOSE_NAMESPACE
 

@@ -31,10 +31,10 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __partition_fn : private __niebloid {
-		template<Permutable I, Sentinel<I> S, class Proj = identity,
-			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		template<permutable I, sentinel_for<I> S, class Proj = identity,
+			indirect_unary_predicate<projected<I, Proj>> Pred>
 		constexpr I operator()(I first, S last_, Pred pred, Proj proj = {}) const {
-			if constexpr (BidirectionalIterator<I>) {
+			if constexpr (bidirectional_iterator<I>) {
 				auto last = next(first, std::move(last_));
 
 				for (; first != last; ++first) {
@@ -65,9 +65,9 @@ STL2_OPEN_NAMESPACE {
 			return first;
 		}
 
-		template<ForwardRange R, class Proj = identity,
-			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
-		requires Permutable<iterator_t<R>>
+		template<forward_range R, class Proj = identity,
+			indirect_unary_predicate<projected<iterator_t<R>, Proj>> Pred>
+		requires permutable<iterator_t<R>>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, Pred pred, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), __stl2::ref(pred),

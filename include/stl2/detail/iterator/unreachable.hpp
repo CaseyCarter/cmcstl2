@@ -21,20 +21,20 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct unreachable {
-		template<WeaklyIncrementable WI>
+		template<weakly_incrementable WI>
 		friend constexpr bool operator==(unreachable, const WI&) noexcept {
 			return false;
 		}
-		template<WeaklyIncrementable WI>
+		template<weakly_incrementable WI>
 		friend constexpr bool operator==(const WI&, unreachable) noexcept {
 			return false;
 		}
 
-		template<WeaklyIncrementable WI>
+		template<weakly_incrementable WI>
 		friend constexpr bool operator!=(unreachable, const WI&) noexcept {
 			return true;
 		}
-		template<WeaklyIncrementable WI>
+		template<weakly_incrementable WI>
 		friend constexpr bool operator!=(const WI&, unreachable) noexcept {
 			return true;
 		}

@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 		/// @{
 
 		/// \brief Caches a position in a range.
-		template<Range R, class Tag = void, bool Enable = true>
+		template<range R, class Tag = void, bool Enable = true>
 		struct cached_position {
 			/// \brief Returns `true` if and only if a position is cached.
 			constexpr explicit operator bool() const noexcept {
@@ -33,14 +33,14 @@ STL2_OPEN_NAMESPACE {
 			}
 			/// \brief Retrieves an `iterator_t<R>` denoting the cached position.
 			///
-			/// \pre `*this` caches a position within the \c Range `r`.
+			/// \pre `*this` caches a position within the \c range `r`.
 			[[noreturn]] iterator_t<R> get(R& r) const {
 				(void) r;
 				STL2_EXPECT(false);
 			}
 			/// \brief Caches the position of the `iterator_t<R>` argument.
 			///
-			/// \pre The \c Iterator `it` denotes a position in \c Range r.
+			/// \pre The \c input_or_output_iterator `it` denotes a position in \c range r.
 			constexpr void set(R& r, const iterator_t<R>& it) {
 				(void) r;
 				(void) it;
@@ -49,7 +49,7 @@ STL2_OPEN_NAMESPACE {
 		/// @}
 
 		/// \cond
-		template<Range R, class Tag>
+		template<range R, class Tag>
 		struct cached_position<R, Tag, true> {
 			constexpr explicit operator bool() const noexcept {
 				return static_cast<bool>(cache_);
@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 				std::optional<iterator_t<R>>,
 				non_propagating_cache<iterator_t<R>>> cache_;
 		};
-		template<RandomAccessRange R, class Tag>
+		template<random_access_range R, class Tag>
 		struct cached_position<R, Tag, true> {
 			cached_position() = default;
 			cached_position(const cached_position&) = default;

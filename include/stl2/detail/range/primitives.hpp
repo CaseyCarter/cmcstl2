@@ -19,7 +19,7 @@
 #include <stl2/detail/range/dangling.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// Range primitives [range.primitives]
+// range primitives [range.primitives]
 //
 STL2_OPEN_NAMESPACE {
 	// enumerate
@@ -42,14 +42,14 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		struct __enumerate_fn {
-			template<Iterator I, Sentinel<I> S>
+			template<input_or_output_iterator I, sentinel_for<I> S>
 			constexpr enumerate_result<I, iter_difference_t<I>>
 			operator()(I first, S last) const {
-				if constexpr (SizedSentinel<S, I>) {
+				if constexpr (sized_sentinel_for<S, I>) {
 					auto d = last - first;
 					STL2_EXPECT(same_as<I, S> || d >= 0);
 					return {next(std::move(first), std::move(last)), d};
-				} else if constexpr (SizedSentinel<I, I>) {
+				} else if constexpr (sized_sentinel_for<I, I>) {
 					auto end = next(first, std::move(last));
 					auto n = end - first;
 					return {std::move(end), n};
@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr enumerate_result<iterator_t<R>,
 				iter_difference_t<iterator_t<R>>>
 			operator()(R&& r) const {
-				if constexpr (SizedRange<R>) {
+				if constexpr (sized_range<R>) {
 					using D = iter_difference_t<iterator_t<R>>;
 					auto n = static_cast<D>(size(r));
 					return {next(begin(r), end(r)), n};
@@ -81,13 +81,13 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	struct __distance_fn : private __niebloid {
-		template<Iterator I, Sentinel<I> S>
+		template<input_or_output_iterator I, sentinel_for<I> S>
 		constexpr iter_difference_t<I> operator()(I first, S last) const {
 			iter_difference_t<I> n = 0;
-			if constexpr (SizedSentinel<S, I>) {
+			if constexpr (sized_sentinel_for<S, I>) {
 				n = last - first;
 				STL2_EXPECT(same_as<I, S> || n >= 0);
-			} else if constexpr (SizedSentinel<I, I>) {
+			} else if constexpr (sized_sentinel_for<I, I>) {
 				auto end = next(first, std::move(last));
 				n = end - first;
 			} else {
@@ -98,10 +98,10 @@ STL2_OPEN_NAMESPACE {
 			return n;
 		}
 
-		template<Range R>
+		template<range R>
 		constexpr iter_difference_t<iterator_t<R>> operator()(R&& r) const {
 			iter_difference_t<iterator_t<R>> n = 0;
-			if constexpr (SizedRange<R>) {
+			if constexpr (sized_range<R>) {
 				n = static_cast<iter_difference_t<iterator_t<R>>>(size(r));
 			} else {
 				n = (*this)(begin(r), end(r));

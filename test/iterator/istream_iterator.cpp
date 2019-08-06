@@ -28,18 +28,18 @@ struct Int {
 int main() {
 	{
 		using I = istream_iterator<int>;
-		static_assert(WeaklyIncrementable<I>);
+		static_assert(weakly_incrementable<I>);
 		static_assert(same_as<iter_difference_t<I>, std::ptrdiff_t>);
-		static_assert(Readable<I>);
+		static_assert(readable<I>);
 		static_assert(same_as<iter_value_t<I>, int>);
 		static_assert(same_as<iter_reference_t<I>, const int&>);
 		static_assert(same_as<iter_rvalue_reference_t<I>, const int&&>);
-		static_assert(Iterator<I>);
-		static_assert(InputIterator<I>);
-		static_assert(!ForwardIterator<I>);
+		static_assert(input_or_output_iterator<I>);
+		static_assert(input_iterator<I>);
+		static_assert(!forward_iterator<I>);
 
-		static_assert(Sentinel<I, I>);
-		static_assert(Sentinel<default_sentinel, I>);
+		static_assert(sentinel_for<I, I>);
+		static_assert(sentinel_for<default_sentinel, I>);
 		static_assert(common_with<default_sentinel, I>);
 		static_assert(same_as<I, common_type_t<I, default_sentinel>>);
 

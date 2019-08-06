@@ -25,8 +25,8 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<InputRange V, IndirectUnaryPredicate<iterator_t<V>> Pred>
-	requires View<V>
+	template<input_range V, indirect_unary_predicate<iterator_t<V>> Pred>
+	requires view<V>
 	class filter_view : public view_interface<filter_view<V, Pred>> {
 	private:
 		class __iterator;
@@ -59,12 +59,12 @@ STL2_OPEN_NAMESPACE {
 		constexpr __sentinel end()
 		{ return __sentinel{*this}; }
 
-		constexpr __iterator end() requires CommonRange<V>
+		constexpr __iterator end() requires common_range<V>
 		{ return __iterator{*this, __stl2::end(base_)}; }
 	};
 
-	template<InputRange V, IndirectUnaryPredicate<iterator_t<V>> Pred>
-	requires View<V>
+	template<input_range V, indirect_unary_predicate<iterator_t<V>> Pred>
+	requires view<V>
 	class filter_view<V, Pred>::__iterator {
 	private:
 		iterator_t<V> current_ {};
@@ -72,9 +72,9 @@ STL2_OPEN_NAMESPACE {
 		friend __sentinel;
 	public:
 		using iterator_category =
-			meta::if_c<BidirectionalIterator<iterator_t<V>>,
+			meta::if_c<bidirectional_iterator<iterator_t<V>>,
 				__stl2::bidirectional_iterator_tag,
-			meta::if_c<ForwardIterator<iterator_t<V>>,
+			meta::if_c<forward_iterator<iterator_t<V>>,
 				__stl2::forward_iterator_tag,
 				__stl2::input_iterator_tag>>;
 		using value_type = iter_value_t<iterator_t<V>>;
@@ -111,14 +111,14 @@ STL2_OPEN_NAMESPACE {
 		constexpr void operator++(int)
 		{ (void)++*this; }
 
-		constexpr __iterator operator++(int) requires ForwardRange<V>
+		constexpr __iterator operator++(int) requires forward_range<V>
 		{
 			auto tmp = *this;
 			++*this;
 			return tmp;
 		}
 
-		constexpr __iterator& operator--() requires BidirectionalRange<V>
+		constexpr __iterator& operator--() requires bidirectional_range<V>
 		{
 			do
 				--current_;
@@ -126,7 +126,7 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
-		constexpr __iterator operator--(int) requires BidirectionalRange<V>
+		constexpr __iterator operator--(int) requires bidirectional_range<V>
 		{
 			auto tmp = *this;
 			--*this;
@@ -151,8 +151,8 @@ STL2_OPEN_NAMESPACE {
 		{ __stl2::iter_swap(x.current_, y.current_); }
 	};
 
-	template<InputRange V, IndirectUnaryPredicate<iterator_t<V>> Pred>
-	requires View<V>
+	template<input_range V, indirect_unary_predicate<iterator_t<V>> Pred>
+	requires view<V>
 	class filter_view<V, Pred>::__sentinel {
 	private:
 		sentinel_t<V> end_;
@@ -181,10 +181,10 @@ STL2_OPEN_NAMESPACE {
 	template<class R, class Pred>
 	filter_view(R&&, Pred) -> filter_view<all_view<R>, Pred>;
 
-	namespace view {
+	namespace views {
 		struct __filter_fn {
-			template<InputRange R, IndirectUnaryPredicate<iterator_t<R>> Pred>
-			requires ViewableRange<R>
+			template<input_range R, indirect_unary_predicate<iterator_t<R>> Pred>
+			requires viewable_range<R>
 			constexpr auto operator()(R&& rng, Pred pred) const
 #if STL2_WORKAROUND_CLANGC_50
 			requires requires(R&& rng, Pred pred) {

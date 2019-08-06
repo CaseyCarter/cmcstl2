@@ -33,7 +33,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __sean_parent_fn : private __niebloid {
-		template<Permutable I, Sentinel<I> S>
+		template<permutable I, sentinel_for<I> S>
 		constexpr subrange<I> operator()(I first, I middle, S last) const {
 			if (first == middle) {
 				first = next(std::move(first), std::move(last));
@@ -47,13 +47,13 @@ STL2_OPEN_NAMESPACE {
 					return __rotate_left(std::move(first), std::move(last));
 				}
 				if constexpr (same_as<I, S>) {
-					if constexpr (BidirectionalIterator<I>) {
+					if constexpr (bidirectional_iterator<I>) {
 						if (next(middle) == last) {
 							return __rotate_right(std::move(first), std
 								::move(last));
 						}
 					}
-					if constexpr (RandomAccessIterator<I>) {
+					if constexpr (random_access_iterator<I>) {
 						return __rotate_gcd(std::move(first), std::move(middle),
 							std::move(last));
 					}
@@ -63,14 +63,14 @@ STL2_OPEN_NAMESPACE {
 				std::move(last));
 		}
 
-		template<ForwardRange R>
-		requires Permutable<iterator_t<R>>
+		template<forward_range R>
+		requires permutable<iterator_t<R>>
 		constexpr safe_subrange_t<R>
 		operator()(R&& r, iterator_t<R> middle) const {
 			return (*this)(begin(r), std::move(middle), end(r));
 		}
 	private:
-		template<Permutable I, Sentinel<I> S>
+		template<permutable I, sentinel_for<I> S>
 		static constexpr subrange<I> __rotate_left(I first, S sent) {
 			STL2_EXPECT(first != sent);
 			iter_value_t<I> tmp = iter_move(first);
@@ -79,8 +79,8 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(last_but_one), std::move(last)};
 		}
 
-		template<Permutable I>
-		requires BidirectionalIterator<I>
+		template<permutable I>
+		requires bidirectional_iterator<I>
 		static constexpr subrange<I> __rotate_right(I first, I last) {
 			STL2_EXPECT(first != last);
 			I last_but_one = prev(last);
@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(fp1), std::move(last)};
 		}
 
-		template<Permutable I, Sentinel<I> S>
+		template<permutable I, sentinel_for<I> S>
 		static constexpr subrange<I> __rotate_forward(I first, I middle, S last) {
 			STL2_EXPECT(first != middle);
 			STL2_EXPECT(middle != last);
@@ -134,8 +134,8 @@ STL2_OPEN_NAMESPACE {
 			return x;
 		}
 
-		template<Permutable I>
-		requires RandomAccessIterator<I>
+		template<permutable I>
+		requires random_access_iterator<I>
 		static constexpr subrange<I> __rotate_gcd(I first, I middle, I last) {
 			using D = iter_difference_t<I>;
 			D const m1 = middle - first;

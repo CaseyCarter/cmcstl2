@@ -19,10 +19,10 @@ namespace ranges = __stl2;
 int main() {
 	static constexpr int N = 13;
 	static constexpr int value = 42;
-	auto v = ranges::view::ext::repeat_n(value, N);
+	auto v = ranges::views::ext::repeat_n(value, N);
 	using V = decltype(v);
-	static_assert(ranges::View<V>);
-	static_assert(ranges::SizedRange<V>);
+	static_assert(ranges::view<V>);
+	static_assert(ranges::sized_range<V>);
 
 	CHECK(ranges::size(v) == N);
 	CHECK(ranges::count(v, value) == N);
@@ -36,17 +36,17 @@ int main() {
 			bool operator!=(empty const&) const noexcept { return false; }
 		};
 		auto e = empty{};
-		auto v2 = ranges::view::ext::repeat_n(e, 3);
+		auto v2 = ranges::views::ext::repeat_n(e, 3);
 		CHECK_EQUAL(v2, {e, e, e});
 
-		auto v3 = ranges::view::ext::repeat_n(std::move(e), 3);
+		auto v3 = ranges::views::ext::repeat_n(std::move(e), 3);
 		CHECK_EQUAL(v2, v3);
 	}
 	{
-		auto v = ranges::view::ext::repeat_n(9, 10);
-		static_assert(ranges::View<decltype(v)>);
-		static_assert(ranges::RandomAccessIterator<decltype(v.begin())>);
-		static_assert(ranges::SizedRange<decltype(v)>);
+		auto v = ranges::views::ext::repeat_n(9, 10);
+		static_assert(ranges::view<decltype(v)>);
+		static_assert(ranges::random_access_iterator<decltype(v.begin())>);
+		static_assert(ranges::sized_range<decltype(v)>);
 		CHECK_EQUAL(v, {9, 9, 9, 9, 9, 9, 9, 9, 9, 9});
 	}
 

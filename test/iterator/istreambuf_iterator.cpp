@@ -25,27 +25,27 @@ namespace {
 		static_assert(same_as<typename traits::off_type, cursor::difference_type_t<C>>);
 		static_assert(cursor::Next<C>);
 		static_assert(same_as<charT, cursor::value_type_t<C>>);
-		static_assert(cursor::Readable<C>);
+		static_assert(cursor::readable<C>);
 		static_assert(same_as<charT, cursor::reference_t<C>>);
 		static_assert(cursor::Input<C>);
-		static_assert(cursor::Sentinel<C, C>);
-		static_assert(cursor::Sentinel<default_sentinel, C>);
+		static_assert(cursor::sentinel_for<C, C>);
+		static_assert(cursor::sentinel_for<default_sentinel, C>);
 		static_assert(!cursor::Forward<C>);
 		static_assert(cursor::PostIncrement<C>);
 
 		using I = istreambuf_iterator<charT, traits>;
-		static_assert(WeaklyIncrementable<I>);
+		static_assert(weakly_incrementable<I>);
 		static_assert(same_as<typename traits::off_type, iter_difference_t<I>>);
 		static_assert(same_as<charT, iter_value_t<I>>);
-		static_assert(Readable<I>);
+		static_assert(readable<I>);
 		static_assert(same_as<charT, iter_reference_t<I>>);
 		static_assert(same_as<charT, iter_rvalue_reference_t<I>>);
-		static_assert(Iterator<I>);
+		static_assert(input_or_output_iterator<I>);
 		static_assert(same_as<input_iterator_tag, iterator_category_t<I>>);
-		static_assert(InputIterator<I>);
-		static_assert(!ForwardIterator<I>);
-		static_assert(Sentinel<I, I>);
-		static_assert(Sentinel<default_sentinel, I>);
+		static_assert(input_iterator<I>);
+		static_assert(!forward_iterator<I>);
+		static_assert(sentinel_for<I, I>);
+		static_assert(sentinel_for<default_sentinel, I>);
 		static_assert(common_with<I, default_sentinel>);
 		static_assert(same_as<I, common_type_t<I, default_sentinel>>);
 

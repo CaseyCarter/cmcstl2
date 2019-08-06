@@ -150,334 +150,334 @@ namespace ranges {
 #endif
 
 void ridiculously_exhaustive_range_property_test() {
-	CONCEPT_ASSERT(!ranges::Range<void>);
-	CONCEPT_ASSERT(!ranges::SizedRange<void>);
+	CONCEPT_ASSERT(!ranges::range<void>);
+	CONCEPT_ASSERT(!ranges::sized_range<void>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<void>);
-	CONCEPT_ASSERT(!ranges::View<void>);
+	CONCEPT_ASSERT(!ranges::view<void>);
 
 	using I = int*;
 	using CI = const int*;
 
-	CONCEPT_ASSERT(ranges::Iterator<I>);
-	CONCEPT_ASSERT(ranges::Iterator<CI>);
+	CONCEPT_ASSERT(ranges::input_or_output_iterator<I>);
+	CONCEPT_ASSERT(ranges::input_or_output_iterator<CI>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<int[2]>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<int[2]>, I>);
-	CONCEPT_ASSERT(ranges::Range<int[2]>);
-	CONCEPT_ASSERT(ranges::SizedRange<int[2]>);
+	CONCEPT_ASSERT(ranges::range<int[2]>);
+	CONCEPT_ASSERT(ranges::sized_range<int[2]>);
 	CONCEPT_ASSERT(ranges::_ContainerLike<int[2]>);
-	CONCEPT_ASSERT(!ranges::View<int[2]>);
+	CONCEPT_ASSERT(!ranges::view<int[2]>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<int(&)[2]>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<int(&)[2]>, I>);
-	CONCEPT_ASSERT(ranges::Range<int(&)[2]>);
-	CONCEPT_ASSERT(ranges::SizedRange<int(&)[2]>);
+	CONCEPT_ASSERT(ranges::range<int(&)[2]>);
+	CONCEPT_ASSERT(ranges::sized_range<int(&)[2]>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<int(&)[2]>);
-	CONCEPT_ASSERT(!ranges::View<int(&)[2]>);
+	CONCEPT_ASSERT(!ranges::view<int(&)[2]>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const int[2]>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const int[2]>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const int[2]>);
-	CONCEPT_ASSERT(ranges::SizedRange<const int[2]>);
+	CONCEPT_ASSERT(ranges::range<const int[2]>);
+	CONCEPT_ASSERT(ranges::sized_range<const int[2]>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const int[2]>);
-	CONCEPT_ASSERT(!ranges::View<const int[2]>);
+	CONCEPT_ASSERT(!ranges::view<const int[2]>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const int(&)[2]>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const int(&)[2]>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const int(&)[2]>);
-	CONCEPT_ASSERT(ranges::SizedRange<const int(&)[2]>);
+	CONCEPT_ASSERT(ranges::range<const int(&)[2]>);
+	CONCEPT_ASSERT(ranges::sized_range<const int(&)[2]>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const int(&)[2]>);
-	CONCEPT_ASSERT(!ranges::View<const int(&)[2]>);
+	CONCEPT_ASSERT(!ranges::view<const int(&)[2]>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_unsized_range>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_unsized_range>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_unsized_range>);
-	CONCEPT_ASSERT(ranges::SizedRange<mutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::range<mutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_unsized_range>);
 	CONCEPT_ASSERT(ranges::_ContainerLike<mutable_unsized_range>);
-	CONCEPT_ASSERT(!ranges::View<mutable_unsized_range>);
+	CONCEPT_ASSERT(!ranges::view<mutable_unsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_unsized_range&>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_unsized_range&>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_unsized_range&>);
-	CONCEPT_ASSERT(ranges::SizedRange<mutable_unsized_range&>);
+	CONCEPT_ASSERT(ranges::range<mutable_unsized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_unsized_range&>);
 	CONCEPT_ASSERT(ranges::_ContainerLike<mutable_unsized_range>);
-	CONCEPT_ASSERT(!ranges::View<mutable_unsized_range>);
+	CONCEPT_ASSERT(!ranges::view<mutable_unsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const mutable_unsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_unsized_range>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const mutable_unsized_range>);
-	CONCEPT_ASSERT(ranges::SizedRange<const mutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::range<const mutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<const mutable_unsized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_unsized_range>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_unsized_range>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_unsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const mutable_unsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_unsized_range&>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const mutable_unsized_range&>);
-	CONCEPT_ASSERT(ranges::SizedRange<const mutable_unsized_range&>);
+	CONCEPT_ASSERT(ranges::range<const mutable_unsized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<const mutable_unsized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_unsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_unsized_range&>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_unsized_range&>);
 
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_only_no_size_range&>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_no_size_range&>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_only_no_size_range>);
-	CONCEPT_ASSERT(ranges::SizedRange<mutable_only_no_size_range>);
+	CONCEPT_ASSERT(ranges::range<mutable_only_no_size_range>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_only_no_size_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_no_size_range>);
-	CONCEPT_ASSERT(ranges::View<mutable_only_no_size_range>);
+	CONCEPT_ASSERT(ranges::view<mutable_only_no_size_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_only_no_size_range&>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_no_size_range&>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_only_no_size_range&>);
-	CONCEPT_ASSERT(ranges::SizedRange<mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(ranges::range<mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_only_no_size_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_no_size_range&>);
-	CONCEPT_ASSERT(!ranges::View<mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::view<mutable_only_no_size_range&>);
 
-	CONCEPT_ASSERT(!ranges::Range<const mutable_only_no_size_range>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_only_no_size_range>);
+	CONCEPT_ASSERT(!ranges::range<const mutable_only_no_size_range>);
+	CONCEPT_ASSERT(!ranges::sized_range<const mutable_only_no_size_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_only_no_size_range>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_only_no_size_range>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_only_no_size_range>);
 
-	CONCEPT_ASSERT(!ranges::Range<const mutable_only_no_size_range&>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::range<const mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::sized_range<const mutable_only_no_size_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_only_no_size_range&>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_only_no_size_range&>);
 
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<immutable_unsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_unsized_range>, CI>);
-	CONCEPT_ASSERT(ranges::Range<immutable_unsized_range>);
-	CONCEPT_ASSERT(ranges::SizedRange<immutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::range<immutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<immutable_unsized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_unsized_range>);
-	CONCEPT_ASSERT(ranges::View<immutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::view<immutable_unsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<immutable_unsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_unsized_range&>, CI>);
-	CONCEPT_ASSERT(ranges::Range<immutable_unsized_range&>);
-	CONCEPT_ASSERT(ranges::SizedRange<immutable_unsized_range&>);
+	CONCEPT_ASSERT(ranges::range<immutable_unsized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<immutable_unsized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_unsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<immutable_unsized_range&>);
+	CONCEPT_ASSERT(!ranges::view<immutable_unsized_range&>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const immutable_unsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_unsized_range>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const immutable_unsized_range>);
-	CONCEPT_ASSERT(ranges::SizedRange<const immutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::range<const immutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<const immutable_unsized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_unsized_range>);
-	CONCEPT_ASSERT(!ranges::View<const immutable_unsized_range>);
+	CONCEPT_ASSERT(!ranges::view<const immutable_unsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const immutable_unsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_unsized_range&>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const immutable_unsized_range&>);
-	CONCEPT_ASSERT(ranges::SizedRange<const immutable_unsized_range&>);
+	CONCEPT_ASSERT(ranges::range<const immutable_unsized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<const immutable_unsized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_unsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<const immutable_unsized_range&>);
+	CONCEPT_ASSERT(!ranges::view<const immutable_unsized_range&>);
 
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_sized_range>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_sized_range>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_sized_range>);
-	CONCEPT_ASSERT(ranges::SizedRange<mutable_sized_range>);
+	CONCEPT_ASSERT(ranges::range<mutable_sized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_sized_range>);
 	CONCEPT_ASSERT(ranges::_ContainerLike<mutable_sized_range>);
-	CONCEPT_ASSERT(!ranges::View<mutable_sized_range>);
+	CONCEPT_ASSERT(!ranges::view<mutable_sized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_sized_range&>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_sized_range&>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_sized_range&>);
-	CONCEPT_ASSERT(ranges::SizedRange<mutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::range<mutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_sized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_sized_range&>);
-	CONCEPT_ASSERT(!ranges::View<mutable_sized_range&>);
+	CONCEPT_ASSERT(!ranges::view<mutable_sized_range&>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const mutable_sized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_sized_range>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const mutable_sized_range>);
-	CONCEPT_ASSERT(ranges::SizedRange<const mutable_sized_range>);
+	CONCEPT_ASSERT(ranges::range<const mutable_sized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<const mutable_sized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_sized_range>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_sized_range>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_sized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const mutable_sized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_sized_range&>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const mutable_sized_range&>);
-	CONCEPT_ASSERT(ranges::SizedRange<const mutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::range<const mutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<const mutable_sized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_sized_range&>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_sized_range&>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_sized_range&>);
 
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_only_sized_range>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_sized_range>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_only_sized_range>);
-	CONCEPT_ASSERT(ranges::SizedRange<mutable_only_sized_range>);
+	CONCEPT_ASSERT(ranges::range<mutable_only_sized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_only_sized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_sized_range>);
-	CONCEPT_ASSERT(ranges::View<mutable_only_sized_range>);
+	CONCEPT_ASSERT(ranges::view<mutable_only_sized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_only_sized_range&>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_sized_range&>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_only_sized_range&>);
-	CONCEPT_ASSERT(ranges::SizedRange<mutable_only_sized_range&>);
+	CONCEPT_ASSERT(ranges::range<mutable_only_sized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_only_sized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_sized_range&>);
-	CONCEPT_ASSERT(!ranges::View<mutable_only_sized_range&>);
+	CONCEPT_ASSERT(!ranges::view<mutable_only_sized_range&>);
 
-	CONCEPT_ASSERT(!ranges::Range<const mutable_only_sized_range>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_only_sized_range>);
+	CONCEPT_ASSERT(!ranges::range<const mutable_only_sized_range>);
+	CONCEPT_ASSERT(!ranges::sized_range<const mutable_only_sized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_only_sized_range>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_only_sized_range>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_only_sized_range>);
 
-	CONCEPT_ASSERT(!ranges::Range<const mutable_only_sized_range&>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_only_sized_range&>);
+	CONCEPT_ASSERT(!ranges::range<const mutable_only_sized_range&>);
+	CONCEPT_ASSERT(!ranges::sized_range<const mutable_only_sized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_only_sized_range&>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_only_sized_range&>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_only_sized_range&>);
 
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<immutable_sized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_sized_range>, CI>);
-	CONCEPT_ASSERT(ranges::Range<immutable_sized_range>);
-	CONCEPT_ASSERT(ranges::SizedRange<immutable_sized_range>);
+	CONCEPT_ASSERT(ranges::range<immutable_sized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<immutable_sized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_sized_range>);
-	CONCEPT_ASSERT(ranges::View<immutable_sized_range>);
+	CONCEPT_ASSERT(ranges::view<immutable_sized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<immutable_sized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_sized_range&>, CI>);
-	CONCEPT_ASSERT(ranges::Range<immutable_sized_range&>);
-	CONCEPT_ASSERT(ranges::SizedRange<immutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::range<immutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<immutable_sized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_sized_range&>);
-	CONCEPT_ASSERT(!ranges::View<immutable_sized_range&>);
+	CONCEPT_ASSERT(!ranges::view<immutable_sized_range&>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const immutable_sized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_sized_range>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const immutable_sized_range>);
-	CONCEPT_ASSERT(ranges::SizedRange<const immutable_sized_range>);
+	CONCEPT_ASSERT(ranges::range<const immutable_sized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<const immutable_sized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_sized_range>);
-	CONCEPT_ASSERT(!ranges::View<const immutable_sized_range>);
+	CONCEPT_ASSERT(!ranges::view<const immutable_sized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const immutable_sized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_sized_range&>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const immutable_sized_range&>);
-	CONCEPT_ASSERT(ranges::SizedRange<const immutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::range<const immutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<const immutable_sized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_sized_range&>);
-	CONCEPT_ASSERT(!ranges::View<const immutable_sized_range&>);
+	CONCEPT_ASSERT(!ranges::view<const immutable_sized_range&>);
 
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_badsized_range>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_badsized_range>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_badsized_range>);
-	CONCEPT_ASSERT(!ranges::SizedRange<mutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::range<mutable_badsized_range>);
+	CONCEPT_ASSERT(!ranges::sized_range<mutable_badsized_range>);
 	CONCEPT_ASSERT(ranges::_ContainerLike<mutable_badsized_range>);
-	CONCEPT_ASSERT(!ranges::View<mutable_badsized_range>);
+	CONCEPT_ASSERT(!ranges::view<mutable_badsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_badsized_range&>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_badsized_range&>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::SizedRange<mutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::range<mutable_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::sized_range<mutable_badsized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<mutable_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::view<mutable_badsized_range&>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const mutable_badsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_badsized_range>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const mutable_badsized_range>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::range<const mutable_badsized_range>);
+	CONCEPT_ASSERT(!ranges::sized_range<const mutable_badsized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_badsized_range>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_badsized_range>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_badsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const mutable_badsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_badsized_range&>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const mutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::range<const mutable_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::sized_range<const mutable_badsized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_badsized_range&>);
 
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_only_badsized_range>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_badsized_range>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_only_badsized_range>);
-	CONCEPT_ASSERT(!ranges::SizedRange<mutable_only_badsized_range>);
+	CONCEPT_ASSERT(ranges::range<mutable_only_badsized_range>);
+	CONCEPT_ASSERT(!ranges::sized_range<mutable_only_badsized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_badsized_range>);
-	CONCEPT_ASSERT(ranges::View<mutable_only_badsized_range>);
+	CONCEPT_ASSERT(ranges::view<mutable_only_badsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_only_badsized_range&>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_badsized_range&>, I>);
-	CONCEPT_ASSERT(ranges::Range<mutable_only_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::SizedRange<mutable_only_badsized_range&>);
+	CONCEPT_ASSERT(ranges::range<mutable_only_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::sized_range<mutable_only_badsized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<mutable_only_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::view<mutable_only_badsized_range&>);
 
-	CONCEPT_ASSERT(!ranges::Range<const mutable_only_badsized_range>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_only_badsized_range>);
+	CONCEPT_ASSERT(!ranges::range<const mutable_only_badsized_range>);
+	CONCEPT_ASSERT(!ranges::sized_range<const mutable_only_badsized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_only_badsized_range>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_only_badsized_range>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_only_badsized_range>);
 
-	CONCEPT_ASSERT(!ranges::Range<const mutable_only_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const mutable_only_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::range<const mutable_only_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::sized_range<const mutable_only_badsized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_only_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_only_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_only_badsized_range&>);
 
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<immutable_badsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_badsized_range>, CI>);
-	CONCEPT_ASSERT(ranges::Range<immutable_badsized_range>);
-	CONCEPT_ASSERT(!ranges::SizedRange<immutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::range<immutable_badsized_range>);
+	CONCEPT_ASSERT(!ranges::sized_range<immutable_badsized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_badsized_range>);
-	CONCEPT_ASSERT(ranges::View<immutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::view<immutable_badsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<immutable_badsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_badsized_range&>, CI>);
-	CONCEPT_ASSERT(ranges::Range<immutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::SizedRange<immutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::range<immutable_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::sized_range<immutable_badsized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<immutable_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::view<immutable_badsized_range&>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const immutable_badsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_badsized_range>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const immutable_badsized_range>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const immutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::range<const immutable_badsized_range>);
+	CONCEPT_ASSERT(!ranges::sized_range<const immutable_badsized_range>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_badsized_range>);
-	CONCEPT_ASSERT(!ranges::View<const immutable_badsized_range>);
+	CONCEPT_ASSERT(!ranges::view<const immutable_badsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const immutable_badsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_badsized_range&>, CI>);
-	CONCEPT_ASSERT(ranges::Range<const immutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::SizedRange<const immutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::range<const immutable_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::sized_range<const immutable_badsized_range&>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::View<const immutable_badsized_range&>);
+	CONCEPT_ASSERT(!ranges::view<const immutable_badsized_range&>);
 
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<std::vector<int>>, std::vector<int>::iterator>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<std::vector<int>>, std::vector<int>::iterator>);
-	CONCEPT_ASSERT(ranges::Range<std::vector<int>>);
-	CONCEPT_ASSERT(ranges::SizedRange<std::vector<int>>);
+	CONCEPT_ASSERT(ranges::range<std::vector<int>>);
+	CONCEPT_ASSERT(ranges::sized_range<std::vector<int>>);
 	CONCEPT_ASSERT(ranges::_ContainerLike<std::vector<int>>);
-	CONCEPT_ASSERT(!ranges::View<std::vector<int>>);
+	CONCEPT_ASSERT(!ranges::view<std::vector<int>>);
 
 
-	CONCEPT_ASSERT(ranges::Range<strange_view>);
-	CONCEPT_ASSERT(ranges::Range<strange_view&>);
-	CONCEPT_ASSERT(ranges::View<strange_view>);
-	CONCEPT_ASSERT(!ranges::View<strange_view&>);
-	CONCEPT_ASSERT(!ranges::View<const strange_view>);
+	CONCEPT_ASSERT(ranges::range<strange_view>);
+	CONCEPT_ASSERT(ranges::range<strange_view&>);
+	CONCEPT_ASSERT(ranges::view<strange_view>);
+	CONCEPT_ASSERT(!ranges::view<strange_view&>);
+	CONCEPT_ASSERT(!ranges::view<const strange_view>);
 
-	CONCEPT_ASSERT(ranges::Range<strange_view2>);
-	CONCEPT_ASSERT(ranges::Range<strange_view2&>);
-	CONCEPT_ASSERT(ranges::View<strange_view2>);
-	CONCEPT_ASSERT(!ranges::View<strange_view2&>);
-	CONCEPT_ASSERT(!ranges::View<const strange_view2>);
+	CONCEPT_ASSERT(ranges::range<strange_view2>);
+	CONCEPT_ASSERT(ranges::range<strange_view2&>);
+	CONCEPT_ASSERT(ranges::view<strange_view2>);
+	CONCEPT_ASSERT(!ranges::view<strange_view2&>);
+	CONCEPT_ASSERT(!ranges::view<const strange_view2>);
 
-	CONCEPT_ASSERT(ranges::Range<strange_view3>);
-	CONCEPT_ASSERT(ranges::Range<strange_view3&>);
-	CONCEPT_ASSERT(!ranges::View<strange_view3>);
-	CONCEPT_ASSERT(!ranges::View<strange_view3&>);
-	CONCEPT_ASSERT(!ranges::View<const strange_view3>);
+	CONCEPT_ASSERT(ranges::range<strange_view3>);
+	CONCEPT_ASSERT(ranges::range<strange_view3&>);
+	CONCEPT_ASSERT(!ranges::view<strange_view3>);
+	CONCEPT_ASSERT(!ranges::view<strange_view3&>);
+	CONCEPT_ASSERT(!ranges::view<const strange_view3>);
 
-	CONCEPT_ASSERT(ranges::Range<mutable_only_no_size_range&>);
-	CONCEPT_ASSERT(ranges::Range<mutable_only_no_size_range>);
-	CONCEPT_ASSERT(ranges::View<mutable_only_no_size_range>);
-	CONCEPT_ASSERT(!ranges::View<mutable_only_no_size_range&>);
-	CONCEPT_ASSERT(!ranges::View<mutable_only_no_size_range&&>);
-	CONCEPT_ASSERT(!ranges::Range<const mutable_only_no_size_range&>);
-	CONCEPT_ASSERT(!ranges::View<const mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(ranges::range<mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(ranges::range<mutable_only_no_size_range>);
+	CONCEPT_ASSERT(ranges::view<mutable_only_no_size_range>);
+	CONCEPT_ASSERT(!ranges::view<mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::view<mutable_only_no_size_range&&>);
+	CONCEPT_ASSERT(!ranges::range<const mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(!ranges::view<const mutable_only_no_size_range&>);
 }
 
 #if VALIDATE_RANGES
 template<class I, class S,
-	CONCEPT_REQUIRES_(ranges::InputIterator<I> && ranges::Sentinel<S, I>)>
+	CONCEPT_REQUIRES_(ranges::input_iterator<I> && ranges::sentinel_for<S, I>)>
 #elif VALIDATE_STL2
-template<ns::InputIterator I, ns::Sentinel<I> S>
+template<ns::input_iterator I, ns::sentinel_for<I> S>
 #endif
 I complicated_algorithm(I i, S s) {
 	static constexpr bool output = false;
@@ -493,9 +493,9 @@ I complicated_algorithm(I i, S s) {
 }
 
 #if VALIDATE_RANGES
-template<class R, CONCEPT_REQUIRES_(ranges::Range<R>)>
+template<class R, CONCEPT_REQUIRES_(ranges::range<R>)>
 #elif VALIDATE_STL2
-template<ns::InputRange R>
+template<ns::input_range R>
 #endif
 ns::iterator_t<R> complicated_algorithm(R&& r) {
 	return complicated_algorithm(ns::begin(r), ns::end(r));
@@ -517,15 +517,15 @@ struct array_view {
 
 void complicated_algorithm_test() {
 	static int some_ints[] = {2, 3, 5, 7};
-	CONCEPT_ASSERT(ranges::Range<decltype(some_ints)>);
-	CONCEPT_ASSERT(ranges::SizedRange<decltype(some_ints)>);
+	CONCEPT_ASSERT(ranges::range<decltype(some_ints)>);
+	CONCEPT_ASSERT(ranges::sized_range<decltype(some_ints)>);
 	CONCEPT_ASSERT(ranges::_ContainerLike<decltype(some_ints)>);
-	CONCEPT_ASSERT(!ranges::View<decltype(some_ints)>);
+	CONCEPT_ASSERT(!ranges::view<decltype(some_ints)>);
 	CHECK(complicated_algorithm(some_ints) == ns::end(some_ints));
-	CONCEPT_ASSERT(ranges::Range<array_view<int>>);
-	CONCEPT_ASSERT(ranges::SizedRange<array_view<int>>);
+	CONCEPT_ASSERT(ranges::range<array_view<int>>);
+	CONCEPT_ASSERT(ranges::sized_range<array_view<int>>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<array_view<int>>);
-	CONCEPT_ASSERT(ranges::View<array_view<int>>);
+	CONCEPT_ASSERT(ranges::view<array_view<int>>);
 	CHECK(complicated_algorithm(array_view<int>{some_ints}) == ns::end(some_ints));
 }
 
@@ -535,23 +535,23 @@ int main() {
 
 	{
 		using T = int[2];
-		CONCEPT_ASSERT(ranges::CommonRange<T>);
-		CONCEPT_ASSERT(ranges::OutputRange<T, int>);
-		CONCEPT_ASSERT(ranges::OutputRange<T, const int&>);
-		CONCEPT_ASSERT(ranges::InputRange<T>);
-		CONCEPT_ASSERT(ranges::ForwardRange<T>);
-		CONCEPT_ASSERT(ranges::BidirectionalRange<T>);
-		CONCEPT_ASSERT(ranges::RandomAccessRange<T>);
+		CONCEPT_ASSERT(ranges::common_range<T>);
+		CONCEPT_ASSERT(ranges::output_range<T, int>);
+		CONCEPT_ASSERT(ranges::output_range<T, const int&>);
+		CONCEPT_ASSERT(ranges::input_range<T>);
+		CONCEPT_ASSERT(ranges::forward_range<T>);
+		CONCEPT_ASSERT(ranges::bidirectional_range<T>);
+		CONCEPT_ASSERT(ranges::random_access_range<T>);
 #if VALIDATE_STL2
-		CONCEPT_ASSERT(ranges::ContiguousRange<T>);
+		CONCEPT_ASSERT(ranges::contiguous_range<T>);
 #endif
 	}
 
-	CONCEPT_ASSERT(!ranges::View<std::vector<int>>);
-	CONCEPT_ASSERT(!ranges::View<std::set<int>>);
-	CONCEPT_ASSERT(!ranges::View<std::multiset<int>>);
-	CONCEPT_ASSERT(!ranges::View<std::unordered_set<int>>);
-	CONCEPT_ASSERT(!ranges::View<std::unordered_multiset<int>>);
+	CONCEPT_ASSERT(!ranges::view<std::vector<int>>);
+	CONCEPT_ASSERT(!ranges::view<std::set<int>>);
+	CONCEPT_ASSERT(!ranges::view<std::multiset<int>>);
+	CONCEPT_ASSERT(!ranges::view<std::unordered_set<int>>);
+	CONCEPT_ASSERT(!ranges::view<std::unordered_multiset<int>>);
 
 	return ::test_result();
 }

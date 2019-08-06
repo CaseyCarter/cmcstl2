@@ -310,7 +310,7 @@ int main() {
 			forward_iterator<const T*>(ib), sentinel<const T*>(ib + sa),
 			std::equal_to<int const>(), &S::i, &T::i) == true);
 
-		// Iterator tests, with sentinels, with predicate and projections:
+		// input_or_output_iterator tests, with sentinels, with predicate and projections:
 		CHECK(ranges::is_permutation(
 			forward_iterator<const S*>(ia), sentinel<const S*>(ia + sa),
 			forward_iterator<const T*>(ib), sentinel<const T*>(ib + sa),

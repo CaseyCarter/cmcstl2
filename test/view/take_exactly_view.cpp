@@ -37,24 +37,24 @@ int main()
 	using namespace ranges;
 
 	{
-		auto rng = view::iota(0) | view::ext::take_exactly(10);
-		static_assert(View<decltype(rng)>);
-		static_assert(!SizedRange<iota_view<int>>);
-		static_assert(Range<const decltype(rng)>);
+		auto rng = views::iota(0) | views::ext::take_exactly(10);
+		static_assert(view<decltype(rng)>);
+		static_assert(!sized_range<iota_view<int>>);
+		static_assert(range<const decltype(rng)>);
 		CHECK_EQUAL(rng, {0,1,2,3,4,5,6,7,8,9});
 	}
 
 	{
-		auto rng = view::iota(0, 100) | view::ext::take_exactly(10);
-		static_assert(View<decltype(rng)>);
-		static_assert(Range<const decltype(rng)>);
+		auto rng = views::iota(0, 100) | views::ext::take_exactly(10);
+		static_assert(view<decltype(rng)>);
+		static_assert(range<const decltype(rng)>);
 		CHECK_EQUAL(rng, {0,1,2,3,4,5,6,7,8,9});
 	}
 
 	{
-		auto rng = view::iota(0, 9) | view::ext::take_exactly(10);
-		static_assert(View<decltype(rng)>);
-		static_assert(Range<const decltype(rng)>);
+		auto rng = views::iota(0, 9) | views::ext::take_exactly(10);
+		static_assert(view<decltype(rng)>);
+		static_assert(range<const decltype(rng)>);
 		CHECK_EQUAL(rng, {0,1,2,3,4,5,6,7,8,9});
 	}
 
@@ -62,10 +62,10 @@ int main()
 		auto evens = [](int i){return i%2 == 0;};
 		std::stringstream sin{"0 1 2 3 4 5 6 7 8 9"};
 		my_subrange is{istream_iterator<int>{sin}, istream_iterator<int>{}};
-		static_assert(InputRange<decltype(is)>);
-		auto rng = is | view::filter(evens) | view::ext::take_exactly(3);
-		static_assert(View<decltype(rng)>);
-		static_assert(!Range<const decltype(rng)>);
+		static_assert(input_range<decltype(is)>);
+		auto rng = is | views::filter(evens) | views::ext::take_exactly(3);
+		static_assert(view<decltype(rng)>);
+		static_assert(!range<const decltype(rng)>);
 		CHECK_EQUAL(rng, {0,2,4});
 	}
 
@@ -73,10 +73,10 @@ int main()
 		auto odds = [](int i){return i%2 == 1;};
 		std::stringstream sin{"0 1 2 3 4 5 6 7 8 9"};
 		my_subrange is{istream_iterator<int>{sin}, istream_iterator<int>{}};
-		auto pipe = view::filter(odds) | view::ext::take_exactly(3);
+		auto pipe = views::filter(odds) | views::ext::take_exactly(3);
 		auto rng = is | pipe;
-		static_assert(View<decltype(rng)>);
-		static_assert(!Range<const decltype(rng)>);
+		static_assert(view<decltype(rng)>);
+		static_assert(!range<const decltype(rng)>);
 		CHECK_EQUAL(rng, {1,3,5});
 	}
 

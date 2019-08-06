@@ -24,7 +24,7 @@ namespace {
 		O out;
 	};
 
-	template<InputIterator I, Sentinel<I> S, OutputIterator<iter_reference_t<I>> O>
+	template<input_iterator I, sentinel_for<I> S, output_iterator<iter_reference_t<I>> O>
 	constexpr result<I, O> copy(I first, S last, O out) {
 		for (; first != last; ++first, void(), ++out) {
 			*out = *first;
@@ -38,12 +38,12 @@ int main() {
 	static constexpr int some_ints[] = {0, 7, 1, 6, 2, 5, 3, 4};
 
 	using I = ostream_iterator<int>;
-	static_assert(WeaklyIncrementable<I>);
+	static_assert(weakly_incrementable<I>);
 	static_assert(same_as<iter_difference_t<I>, std::ptrdiff_t>);
-	static_assert(Iterator<I>);
+	static_assert(input_or_output_iterator<I>);
 	static_assert(same_as<iter_reference_t<I>, I&>);
-	static_assert(OutputIterator<I, const int&>);
-	static_assert(!InputIterator<I>);
+	static_assert(output_iterator<I, const int&>);
+	static_assert(!input_iterator<I>);
 
 	I i{ss, " "};
 	static_assert(same_as<I::difference_type, std::ptrdiff_t>);

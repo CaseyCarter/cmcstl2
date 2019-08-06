@@ -30,9 +30,9 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __prev_permutation_fn : private __niebloid {
-		template<BidirectionalIterator I, Sentinel<I> S, class Comp = less,
+		template<bidirectional_iterator I, sentinel_for<I> S, class Comp = less,
 			class Proj = identity>
-		requires Sortable<I, Comp, Proj>
+		requires sortable<I, Comp, Proj>
 		constexpr bool
 		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const {
 			if (first == last) return false;
@@ -65,8 +65,8 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<BidirectionalRange R, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<R>, Comp, Proj>
+		template<bidirectional_range R, class Comp = less, class Proj = identity>
+		requires sortable<iterator_t<R>, Comp, Proj>
 		constexpr bool
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), __stl2::ref(comp),

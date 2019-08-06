@@ -31,52 +31,52 @@ int main()
 		std::vector<std::string> vs{"this","is","his","face"};
 		join_view jv{vs};
 		CHECK_EQUAL(jv, {'t','h','i','s','i','s','h','i','s','f','a','c','e'});
-		static_assert(BidirectionalRange<decltype(jv)>);
-		static_assert(BidirectionalRange<const decltype(jv)>);
-		static_assert(CommonRange<decltype(jv)>);
-		static_assert(CommonRange<const decltype(jv)>);
+		static_assert(bidirectional_range<decltype(jv)>);
+		static_assert(bidirectional_range<const decltype(jv)>);
+		static_assert(common_range<decltype(jv)>);
+		static_assert(common_range<const decltype(jv)>);
 	}
 
 	{
-		auto rng = view::iota(0,4)
-			| view::transform([](int i) {return view::iota(0,i);})
-			| view::join;
+		auto rng = views::iota(0,4)
+			| views::transform([](int i) {return views::iota(0,i);})
+			| views::join;
 		CHECK_EQUAL(rng, {0,0,1,0,1,2});
-		static_assert(InputRange<decltype(rng)>);
-		static_assert(!Range<const decltype(rng)>);
-		static_assert(!ForwardRange<decltype(rng)>);
-		static_assert(!CommonRange<decltype(rng)>);
+		static_assert(input_range<decltype(rng)>);
+		static_assert(!range<const decltype(rng)>);
+		static_assert(!forward_range<decltype(rng)>);
+		static_assert(!common_range<decltype(rng)>);
 	}
 
 	{
-		auto rng = view::iota(0,4)
-			| view::transform([](int i) {return view::iota(0,i);})
-			| view::filter([](auto){ return true; })
-			| view::join;
+		auto rng = views::iota(0,4)
+			| views::transform([](int i) {return views::iota(0,i);})
+			| views::filter([](auto){ return true; })
+			| views::join;
 		CHECK_EQUAL(rng, {0,0,1,0,1,2});
-		static_assert(InputRange<decltype(rng)>);
-		static_assert(!Range<const decltype(rng)>);
-		static_assert(!ForwardRange<decltype(rng)>);
-		static_assert(!CommonRange<decltype(rng)>);
+		static_assert(input_range<decltype(rng)>);
+		static_assert(!range<const decltype(rng)>);
+		static_assert(!forward_range<decltype(rng)>);
+		static_assert(!common_range<decltype(rng)>);
 	}
 
 	{
 		// https://github.com/ericniebler/stl2/issues/604
-		auto rng0 = view::iota(0, 4)
-			| view::transform([](int i) { return view::iota(0, i); });
+		auto rng0 = views::iota(0, 4)
+			| views::transform([](int i) { return views::iota(0, i); });
 		auto rng1 = ref_view{rng0};
-		static_assert(RandomAccessRange<decltype(rng1)>);
-		static_assert(Range<const decltype(rng1)>);
-		static_assert(CommonRange<decltype(rng1)>);
-		static_assert(RandomAccessRange<ext::range_reference_t<decltype(rng1)>>);
+		static_assert(random_access_range<decltype(rng1)>);
+		static_assert(range<const decltype(rng1)>);
+		static_assert(common_range<decltype(rng1)>);
+		static_assert(random_access_range<ext::range_reference_t<decltype(rng1)>>);
 		static_assert(ext::SimpleView<decltype(rng1)>);
 		static_assert(!std::is_reference_v<ext::range_reference_t<decltype(rng1)>>);
-		auto rng2 = rng1 | view::join;
+		auto rng2 = rng1 | views::join;
 		CHECK_EQUAL(rng2, {0,0,1,0,1,2});
-		static_assert(InputRange<decltype(rng2)>);
-		static_assert(!Range<const decltype(rng2)>);
-		static_assert(!ForwardRange<decltype(rng2)>);
-		static_assert(!CommonRange<decltype(rng2)>);
+		static_assert(input_range<decltype(rng2)>);
+		static_assert(!range<const decltype(rng2)>);
+		static_assert(!forward_range<decltype(rng2)>);
+		static_assert(!common_range<decltype(rng2)>);
 	}
 
 	return ::test_result();

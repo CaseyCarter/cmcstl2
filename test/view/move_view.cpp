@@ -25,11 +25,11 @@ namespace ranges = __stl2;
 namespace {
 	template<ranges::integral I>
 	auto make_interval(I from, I to) {
-		return ranges::view::iota(from, to);
+		return ranges::views::iota(from, to);
 	}
 
-	void test(ranges::Range&& base) {
-		auto rng = base | ranges::view::move;
+	void test(ranges::range&& base) {
+		auto rng = base | ranges::views::move;
 		CHECK(static_cast<std::size_t>(ranges::size(rng)) == ranges::size(base));
 		CHECK(!ranges::empty(rng));
 		int count = 0;

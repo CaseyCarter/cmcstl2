@@ -32,8 +32,8 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		struct __pop_heap_n_fn {
-			template<RandomAccessIterator I, class Proj, class Comp>
-			requires Sortable<I, Comp, Proj>
+			template<random_access_iterator I, class Proj, class Comp>
+			requires sortable<I, Comp, Proj>
 			constexpr void
 			operator()(I first, iter_difference_t<I> n, Comp comp, Proj proj) const {
 				if (n > 1) {
@@ -48,9 +48,9 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	struct __pop_heap_fn : private __niebloid {
-		template<RandomAccessIterator I, Sentinel<I> S, class Comp = less,
+		template<random_access_iterator I, sentinel_for<I> S, class Comp = less,
 			class Proj = identity>
-		requires Sortable<I, Comp, Proj>
+		requires sortable<I, Comp, Proj>
 		constexpr I
 		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const {
 			auto n = distance(first, std::move(last));
@@ -58,8 +58,8 @@ STL2_OPEN_NAMESPACE {
 			return first + n;
 		}
 
-		template<RandomAccessRange R, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<R>, Comp, Proj>
+		template<random_access_range R, class Comp = less, class Proj = identity>
+		requires sortable<iterator_t<R>, Comp, Proj>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
 			auto n = distance(r);

@@ -281,11 +281,11 @@ struct proxy_array {
 		O&& indirect_move() const noexcept { return std::move(*ptr_); }
 	};
 
-	static_assert(ranges::cursor::Readable<cursor<false>>);
+	static_assert(ranges::cursor::readable<cursor<false>>);
 	static_assert(ranges::cursor::IndirectMove<cursor<false>>);
 	static_assert(ranges::same_as<T&&, ranges::cursor::rvalue_reference_t<cursor<false>>>);
 
-	static_assert(ranges::cursor::Readable<cursor<true>>);
+	static_assert(ranges::cursor::readable<cursor<true>>);
 	static_assert(ranges::cursor::IndirectMove<cursor<true>>);
 	static_assert(ranges::same_as<const T&&, ranges::cursor::rvalue_reference_t<cursor<true>>>);
 
@@ -312,7 +312,7 @@ struct proxy_array {
 	}
 };
 
-template<ranges::InputRange R>
+template<ranges::input_range R>
 requires
 	(ranges::StreamInsertable<ranges::iter_value_t<ranges::iterator_t<R>>> &&
 	 !ranges::same_as<char, std::remove_cv_t<
@@ -338,20 +338,20 @@ void test_fl() {
 	using Rng = decltype(list);
 	using I = decltype(list.begin());
 	using S = decltype(list.end());
-	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::weakly_incrementable<I>);
 	static_assert(ranges::same_as<ranges::iter_difference_t<I>, std::ptrdiff_t>);
-	static_assert(ranges::Readable<I>);
+	static_assert(ranges::readable<I>);
 	static_assert(ranges::same_as<ranges::iter_value_t<I>, int>);
 	static_assert(ranges::same_as<ranges::iter_reference_t<I>, int&>);
 	static_assert(ranges::same_as<ranges::iter_rvalue_reference_t<I>, int&&>);
 	static_assert(ranges::copyable<I>);
 	static_assert(ranges::default_initializable<I>);
 	static_assert(ranges::semiregular<I>);
-	static_assert(ranges::Incrementable<I>);
+	static_assert(ranges::incrementable<I>);
 	static_assert(ranges::equality_comparable<I>);
-	static_assert(ranges::ForwardIterator<I>);
-	static_assert(ranges::Sentinel<S, I>);
-	static_assert(ranges::ForwardRange<Rng>);
+	static_assert(ranges::forward_iterator<I>);
+	static_assert(ranges::sentinel_for<S, I>);
+	static_assert(ranges::forward_range<Rng>);
 	static_assert(ranges::common_with<S, I>);
 	static_assert(ranges::same_as<ranges::common_type_t<S, I>, I>);
 	std::cout << list << '\n';
@@ -379,14 +379,14 @@ void test_rv() {
 
 	using Rng = decltype(rv);
 	using I = decltype(rv.begin());
-	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::weakly_incrementable<I>);
 	static_assert(ranges::same_as<ranges::iter_difference_t<I>, std::ptrdiff_t>);
-	static_assert(ranges::Readable<I>);
+	static_assert(ranges::readable<I>);
 	static_assert(ranges::same_as<ranges::iter_value_t<I>, int>);
 	static_assert(ranges::same_as<ranges::iter_reference_t<I>, int&>);
 	static_assert(ranges::same_as<ranges::iter_rvalue_reference_t<I>, int&&>);
-	static_assert(ranges::RandomAccessIterator<I>);
-	static_assert(ranges::RandomAccessRange<Rng>);
+	static_assert(ranges::random_access_iterator<I>);
+	static_assert(ranges::random_access_range<Rng>);
 	CHECK(I{} == I{});
 
 	auto i = rv.begin();
@@ -418,17 +418,17 @@ void test_array() {
 	using Rng = decltype(a);
 	using I = decltype(a.begin());
 	CHECK(noexcept(a.begin()));
-	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::weakly_incrementable<I>);
 	static_assert(ranges::same_as<ranges::iter_difference_t<I>, std::ptrdiff_t>);
-	static_assert(ranges::Readable<I>);
+	static_assert(ranges::readable<I>);
 	static_assert(ranges::same_as<ranges::iter_value_t<I>, int>);
 	static_assert(ranges::same_as<ranges::iter_reference_t<I>, int&>);
 	static_assert(ranges::same_as<ranges::iter_rvalue_reference_t<I>, int&&>);
-	static_assert(ranges::ContiguousIterator<I>);
-	static_assert(ranges::RandomAccessRange<Rng>);
-	static_assert(ranges::RandomAccessRange<const Rng>);
-	static_assert(ranges::CommonRange<Rng>);
-	static_assert(ranges::CommonRange<const Rng>);
+	static_assert(ranges::contiguous_iterator<I>);
+	static_assert(ranges::random_access_range<Rng>);
+	static_assert(ranges::random_access_range<const Rng>);
+	static_assert(ranges::common_range<Rng>);
+	static_assert(ranges::common_range<const Rng>);
 	CHECK(I{} == I{});
 	CHECK(noexcept(I{} == I{}));
 
@@ -461,14 +461,14 @@ void test_counted() {
 	std::cout << "test_counted:\n";
 	int some_ints[] = {0,1,2,3};
 	using I = counted_iterator<const int*>;
-	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::weakly_incrementable<I>);
 	static_assert(ranges::same_as<ranges::iter_difference_t<I>, std::ptrdiff_t>);
-	static_assert(ranges::Readable<I>);
+	static_assert(ranges::readable<I>);
 	static_assert(ranges::same_as<ranges::iter_value_t<I>, int>);
 	static_assert(ranges::same_as<ranges::iter_reference_t<I>, const int&>);
 	static_assert(ranges::same_as<ranges::iter_rvalue_reference_t<I>, const int&&>);
-	static_assert(ranges::RandomAccessIterator<I>);
-	static_assert(ranges::ContiguousIterator<I>);
+	static_assert(ranges::random_access_iterator<I>);
+	static_assert(ranges::contiguous_iterator<I>);
 	CHECK(I{} == I{});
 	auto first = I{some_ints, 4};
 	CHECK(first.base() == some_ints);
@@ -476,9 +476,9 @@ void test_counted() {
 	auto last = I{some_ints + 4, 0};
 	CHECK(last.base() == some_ints + 4);
 	CHECK(last.count() == 0);
-	static_assert(ranges::SizedSentinel<I, I>);
+	static_assert(ranges::sized_sentinel_for<I, I>);
 	CHECK((last - first) == 4);
-	static_assert(ranges::SizedSentinel<ranges::default_sentinel, I>);
+	static_assert(ranges::sized_sentinel_for<ranges::default_sentinel, I>);
 	CHECK((ranges::default_sentinel{} - first) == 4);
 	auto out = ranges::ostream_iterator<>{std::cout, " "};
 	ranges::copy(first, last, out);
@@ -512,13 +512,13 @@ void test_always() {
 	using I = decltype(i);
 	static_assert(std::is_empty<I>());
 	static_assert(sizeof(I) == 1);
-	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::weakly_incrementable<I>);
 	static_assert(ranges::same_as<ranges::iter_difference_t<I>, std::ptrdiff_t>);
-	static_assert(ranges::Readable<I>);
+	static_assert(ranges::readable<I>);
 	static_assert(ranges::same_as<ranges::iter_value_t<I>, int>);
 	static_assert(ranges::same_as<ranges::iter_reference_t<I>, int>);
 	static_assert(ranges::same_as<ranges::iter_rvalue_reference_t<I>, int>);
-	static_assert(ranges::RandomAccessIterator<I>);
+	static_assert(ranges::random_access_iterator<I>);
 	CHECK(I{} == I{});
 	ranges::copy_n(i, 13, ranges::ostream_iterator<>{std::cout, " "});
 	std::cout << '\n';
@@ -533,12 +533,12 @@ void test_back_inserter() {
 	auto vec = std::vector<int>{};
 	auto i = ranges::back_inserter(vec);
 	using I = decltype(i);
-	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::weakly_incrementable<I>);
 	static_assert(ranges::same_as<ranges::iter_difference_t<I>, std::ptrdiff_t>);
 	static_assert(ranges::same_as<ranges::iter_reference_t<I>, I&>);
-	static_assert(!ranges::Readable<I>);
-	static_assert(ranges::OutputIterator<I, int>);
-	static_assert(!ranges::InputIterator<I>);
+	static_assert(!ranges::readable<I>);
+	static_assert(ranges::output_iterator<I, int>);
+	static_assert(!ranges::input_iterator<I>);
 	static_assert(!ranges::equality_comparable<I>);
 	ranges::copy_n(always_iterator<int, 42>{}, 13, i);
 	CHECK(vec.size() == 13u);
@@ -558,9 +558,9 @@ void test_proxy_array() {
 	using Rng = decltype(a);
 
 	using I = ranges::iterator_t<Rng>;
-	static_assert(ranges::WeaklyIncrementable<I>);
+	static_assert(ranges::weakly_incrementable<I>);
 	static_assert(ranges::same_as<ranges::iter_difference_t<I>, std::ptrdiff_t>);
-	static_assert(ranges::Readable<I>);
+	static_assert(ranges::readable<I>);
 	using R = ranges::iter_reference_t<I>;
 	static_assert(ranges::same_as<proxy_wrapper<int>, R>);
 	using V = ranges::iter_value_t<I>;
@@ -572,13 +572,13 @@ void test_proxy_array() {
 	static_assert(ranges::__iter_move::has_customization<I&>);
 	using RR = ranges::iter_rvalue_reference_t<I>;
 	static_assert(ranges::same_as<int&&, RR>);
-	static_assert(ranges::RandomAccessIterator<I>);
-	static_assert(!ranges::ContiguousIterator<I>);
-	static_assert(ranges::RandomAccessRange<Rng>);
-	static_assert(ranges::CommonRange<Rng>);
+	static_assert(ranges::random_access_iterator<I>);
+	static_assert(!ranges::contiguous_iterator<I>);
+	static_assert(ranges::random_access_range<Rng>);
+	static_assert(ranges::common_range<Rng>);
 
 	using CI = ranges::iterator_t<const Rng>;
-	static_assert(ranges::WeaklyIncrementable<CI>);
+	static_assert(ranges::weakly_incrementable<CI>);
 	static_assert(ranges::same_as<ranges::iter_difference_t<CI>, std::ptrdiff_t>);
 	using CR = ranges::iter_reference_t<CI>;
 	static_assert(ranges::same_as<proxy_wrapper<const int>, CR>);
@@ -593,22 +593,22 @@ void test_proxy_array() {
 	static_assert(ranges::common_reference_with<CR, CV&>);
 	static_assert(ranges::common_reference_with<CR, CRR>);
 	static_assert(ranges::common_reference_with<CRR, const CV&>);
-	static_assert(ranges::Readable<CI>);
+	static_assert(ranges::readable<CI>);
 	static_assert(ranges::same_as<const int&&, decltype(iter_move(std::declval<const CI&>()))>);
 	static_assert(ranges::same_as<const int&&, decltype(iter_move(std::declval<CI&>()))>);
 
-	static_assert(ranges::RandomAccessIterator<CI>);
-	static_assert(!ranges::ContiguousIterator<CI>);
-	static_assert(ranges::RandomAccessRange<const Rng>);
-	static_assert(ranges::CommonRange<const Rng>);
+	static_assert(ranges::random_access_iterator<CI>);
+	static_assert(!ranges::contiguous_iterator<CI>);
+	static_assert(ranges::random_access_range<const Rng>);
+	static_assert(ranges::common_range<const Rng>);
 
 	static_assert(ranges::same_as<I, decltype(a.begin() + 2)>);
 	static_assert(ranges::common_reference_with<const R&, const R&>);
 	static_assert(!ranges::swappable_with<R, R>);
-	static_assert(ranges::IndirectlyMovableStorable<I, I>);
+	static_assert(ranges::indirectly_movable_storable<I, I>);
 
 	// swappable<R, R> is not satisfied, and
-	// IndirectlyMovableStorable<I, I> is satisfied,
+	// indirectly_movable_storable<I, I> is satisfied,
 	// so this should resolve to the second overload of iter_swap.
 	ranges::iter_swap(a.begin() + 1, a.begin() + 3);
 	CHECK(a[0] == 0);

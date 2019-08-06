@@ -24,10 +24,10 @@ STL2_OPEN_NAMESPACE {
 	using remove_copy_result = __in_out_result<I, O>;
 
 	struct __remove_copy_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O, class T,
+		template<input_iterator I, sentinel_for<I> S, weakly_incrementable O, class T,
 			class Proj = identity>
-		requires IndirectlyCopyable<I, O> &&
-			IndirectRelation<equal_to, projected<I, Proj>, const T*>
+		requires indirectly_copyable<I, O> &&
+			indirect_relation<equal_to, projected<I, Proj>, const T*>
 		constexpr remove_copy_result<I, O>
 		operator()(I first, S last, O result, const T& value, Proj proj = {}) const {
 			for (; first != last; ++first) {
@@ -40,9 +40,9 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first), std::move(result)};
 		}
 
-		template<InputRange R, WeaklyIncrementable O, class T, class Proj = identity>
-		requires IndirectlyCopyable<iterator_t<R>, O> &&
-			IndirectRelation<equal_to, projected<iterator_t<R>, Proj>, const T*>
+		template<input_range R, weakly_incrementable O, class T, class Proj = identity>
+		requires indirectly_copyable<iterator_t<R>, O> &&
+			indirect_relation<equal_to, projected<iterator_t<R>, Proj>, const T*>
 		constexpr remove_copy_result<safe_iterator_t<R>, O>
 		operator()(R&& r, O result, const T& value, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), std::move(result), value, __stl2::ref(proj));

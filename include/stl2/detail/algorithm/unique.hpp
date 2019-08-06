@@ -21,8 +21,8 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __unique_fn : private __niebloid {
-		template<Permutable I, Sentinel<I> S, class Proj = identity,
-			IndirectRelation<projected<I, Proj>> Comp = equal_to>
+		template<permutable I, sentinel_for<I> S, class Proj = identity,
+			indirect_relation<projected<I, Proj>> Comp = equal_to>
 		constexpr I
 		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const {
 			first = adjacent_find(std::move(first), last, __stl2::ref(comp),
@@ -40,9 +40,9 @@ STL2_OPEN_NAMESPACE {
 			return first;
 		}
 
-		template<ForwardRange R, class Proj = identity,
-			IndirectRelation<projected<iterator_t<R>, Proj>> Comp = equal_to>
-		requires Permutable<iterator_t<R>>
+		template<forward_range R, class Proj = identity,
+			indirect_relation<projected<iterator_t<R>, Proj>> Comp = equal_to>
+		requires permutable<iterator_t<R>>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), __stl2::ref(comp),

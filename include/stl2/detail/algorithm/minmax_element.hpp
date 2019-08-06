@@ -25,8 +25,8 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __minmax_element_fn : private __niebloid {
-		template<ForwardIterator I, Sentinel<I> S, class Proj = identity,
-			IndirectStrictWeakOrder<projected<I, Proj>> Comp = less>
+		template<forward_iterator I, sentinel_for<I> S, class Proj = identity,
+			indirect_strict_weak_order<projected<I, Proj>> Comp = less>
 		constexpr minmax_result<I>
 		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const
 		{
@@ -61,8 +61,8 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<ForwardRange R, class Proj = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<R>, Proj>> Comp = less>
+		template<forward_range R, class Proj = identity,
+			indirect_strict_weak_order<projected<iterator_t<R>, Proj>> Comp = less>
 		constexpr minmax_result<safe_iterator_t<R>>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), __stl2::ref(comp), __stl2::ref(proj));

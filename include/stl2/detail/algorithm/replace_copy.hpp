@@ -24,10 +24,10 @@ STL2_OPEN_NAMESPACE {
 	using replace_copy_result = __in_out_result<I, O>;
 
 	struct __replace_copy_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, class T1, class T2,
-			OutputIterator<const T2&> O, class Proj = identity>
-		requires IndirectlyCopyable<I, O> &&
-			IndirectRelation<equal_to, projected<I, Proj>, const T1*>
+		template<input_iterator I, sentinel_for<I> S, class T1, class T2,
+			output_iterator<const T2&> O, class Proj = identity>
+		requires indirectly_copyable<I, O> &&
+			indirect_relation<equal_to, projected<I, Proj>, const T1*>
 		constexpr replace_copy_result<I, O>
 		operator()(I first, S last, O result, const T1& old_value,
 			const T2& new_value, Proj proj = {}) const
@@ -43,10 +43,10 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first), std::move(result)};
 		}
 
-		template<InputRange R, class T1, class T2, OutputIterator<const T2&> O,
+		template<input_range R, class T1, class T2, output_iterator<const T2&> O,
 			class Proj = identity>
-		requires IndirectlyCopyable<iterator_t<R>, O> &&
-			IndirectRelation<equal_to, projected<iterator_t<R>, Proj>, const T1*>
+		requires indirectly_copyable<iterator_t<R>, O> &&
+			indirect_relation<equal_to, projected<iterator_t<R>, Proj>, const T1*>
 		constexpr replace_copy_result<safe_iterator_t<R>, O>
 		operator()(R&& r, O result, const T1& old_value, const T2& new_value,
 			Proj proj = {}) const

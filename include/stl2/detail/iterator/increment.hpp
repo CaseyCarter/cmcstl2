@@ -64,10 +64,10 @@ STL2_OPEN_NAMESPACE {
 	using iter_difference_t = typename incrementable_traits<T>::difference_type;
 
 	///////////////////////////////////////////////////////////////////////////
-	// WeaklyIncrementable [weaklyincrementable.iterators]
+	// weakly_incrementable [weaklyincrementable.iterators]
 	//
 	template<class I>
-	META_CONCEPT WeaklyIncrementable =
+	META_CONCEPT weakly_incrementable =
 		semiregular<I> &&
 		requires(I i) {
 			typename iter_difference_t<I>;
@@ -81,12 +81,12 @@ STL2_OPEN_NAMESPACE {
 		};
 
 	///////////////////////////////////////////////////////////////////////////
-	// Incrementable [incrementable.iterators]
+	// incrementable [incrementable.iterators]
 	//
 	template<class I>
-	META_CONCEPT Incrementable =
+	META_CONCEPT incrementable =
 		regular<I> &&
-		WeaklyIncrementable<I> &&
+		weakly_incrementable<I> &&
 		requires(I i) {
 #ifdef META_HAS_P1084
 			{ i++ } -> same_as<I>;
@@ -101,7 +101,7 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<class I>
 		META_CONCEPT Decrementable =
-			Incrementable<I> &&
+			incrementable<I> &&
 			requires(I i) {
 #ifdef META_HAS_P1084
 				{ --i } -> same_as<I&>;
