@@ -114,7 +114,9 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr iterator_t<Base> base() const
 		{ return current_; }
+
 		constexpr decltype(auto) operator*() const
+		noexcept(noexcept(invoke(parent_->fun_.get(), *current_)))
 		{ return invoke(parent_->fun_.get(), *current_); }
 
 		constexpr __iterator& operator++()
@@ -200,7 +202,7 @@ STL2_OPEN_NAMESPACE {
 		{ return x.current_ - y.current_; }
 
 		friend constexpr decltype(auto) iter_move(const __iterator& i)
-			noexcept(noexcept(invoke(i.parent_->fun_.get(), *i.current_)))
+			noexcept(noexcept(*i))
 		{
 			if constexpr(std::is_lvalue_reference_v<decltype(*i)>)
 				return std::move(*i);
