@@ -27,7 +27,7 @@
 #include <stl2/detail/iterator/increment.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
-// input_or_output_iterator concepts [iterator.requirements]
+// Iterator concepts [iterator.requirements]
 //
 STL2_OPEN_NAMESPACE {
 	template<class T>
