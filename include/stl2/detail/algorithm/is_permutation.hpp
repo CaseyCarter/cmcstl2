@@ -130,7 +130,8 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		// Do the two ranges have the same length, and if so what is it?
-		template<input_or_output_iterator I1, sentinel_for<I1> S1, input_or_output_iterator I2, sentinel_for<I2> S2>
+		template<input_or_output_iterator I1, sentinel_for<I1> S1,
+			input_or_output_iterator I2, sentinel_for<I2> S2>
 		static constexpr std::pair<bool, iter_difference_t<I1>>
 		__common_range_length(I1 first1, S1 last1, I2 first2, S2 last2) {
 			using D = iter_difference_t<I1>;
