@@ -304,7 +304,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 	////////////////////////////////////////////////////////////////////////////
-	// input_or_output_iterator tags [std.iterator.tags]
+	// Iterator tags [std.iterator.tags]
 	// Extension: contiguous_iterator_tag for denoting contiguous iterators.
 	//
 	struct output_iterator_tag {};
