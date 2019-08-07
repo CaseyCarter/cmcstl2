@@ -16,7 +16,7 @@
 #include <stl2/detail/iterator/concepts.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// input_or_output_iterator operations [range.iter.ops]
+// Iterator operations [range.iter.ops]
 STL2_OPEN_NAMESPACE {
 	template<input_or_output_iterator> class counted_iterator;
 
