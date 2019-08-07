@@ -65,7 +65,7 @@ namespace {
 
         {
             auto rng = ranges::ext::take_exactly_view<ranges::iota_view<int>>{{}, 42};
-            static_assert(ranges::RandomAccessRange<decltype(rng)>);
+            static_assert(ranges::random_access_range<decltype(rng)>);
             auto pos = ranges::begin(rng);
             // advance(i, n)
             ranges::advance(pos, 1);
@@ -169,7 +169,7 @@ namespace {
 
         {
             auto rng = ranges::ext::take_exactly_view<ranges::iota_view<int>>{{}, 42};
-            static_assert(ranges::RandomAccessRange<decltype(rng)>);
+            static_assert(ranges::random_access_range<decltype(rng)>);
             // next(i, n)
             auto pos = ranges::next(ranges::begin(rng), 1);
             if (*pos != 1) return false;
@@ -259,7 +259,7 @@ namespace {
 
         {
             auto rng = ranges::ext::take_exactly_view<ranges::iota_view<int>>{{}, 42};
-            static_assert(ranges::RandomAccessRange<decltype(rng)>);
+            static_assert(ranges::random_access_range<decltype(rng)>);
             // prev(i, n)
             auto pos = ranges::prev(ranges::next(ranges::begin(rng), ranges::end(rng)), 1);
             if (pos != ranges::begin(rng) + 41) return false;

@@ -18,7 +18,7 @@ int main() {
 	using namespace ranges;
 
 	{
-		auto rng = view::empty<double>;
+		auto rng = views::empty<double>;
 
 		CHECK(ranges::begin(rng) == nullptr);
 		CHECK(rng.begin() == nullptr);
@@ -31,10 +31,10 @@ int main() {
 	}
 
 	{
-		CHECK(ranges::begin(view::empty<int>) == nullptr);
-		CHECK(ranges::end(view::empty<int>) == nullptr);
-		CHECK(ranges::data(view::empty<int>) == nullptr);
-		CHECK(ranges::size(view::empty<int>) == 0);
+		CHECK(ranges::begin(views::empty<int>) == nullptr);
+		CHECK(ranges::end(views::empty<int>) == nullptr);
+		CHECK(ranges::data(views::empty<int>) == nullptr);
+		CHECK(ranges::size(views::empty<int>) == 0);
 	}
 
 	return test_result();

@@ -83,30 +83,30 @@ STL2_OPEN_NAMESPACE {
 			constexpr explicit __view_closure(Fn, Ts&&... ts)
 			: __box<Is, Ts>{std::forward<Ts>(ts)}... {}
 
-			template<InputRange Rng>
-			requires ViewableRange<Rng> && invocable<Fn, Rng, Ts...> &&
-				View<invoke_result_t<Fn, Rng, Ts...>>
+			template<input_range Rng>
+			requires viewable_range<Rng> && invocable<Fn, Rng, Ts...> &&
+				view<invoke_result_t<Fn, Rng, Ts...>>
 			constexpr auto operator()(Rng&& rng) && {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<__box<Is, Ts>&&>(*this).value_...);
 			}
-			template<InputRange Rng>
-			requires ViewableRange<Rng> && invocable<Fn, Rng, Ts &...> &&
-				View<invoke_result_t<Fn, Rng, Ts &...>>
+			template<input_range Rng>
+			requires viewable_range<Rng> && invocable<Fn, Rng, Ts &...> &&
+				view<invoke_result_t<Fn, Rng, Ts &...>>
 			constexpr auto operator()(Rng&& rng) & {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<__box<Is, Ts>&>(*this).value_...);
 			}
-			template<InputRange Rng>
-			requires ViewableRange<Rng> && invocable<Fn, Rng, const Ts &...> &&
-				View<invoke_result_t<Fn, Rng, const Ts &...>>
+			template<input_range Rng>
+			requires viewable_range<Rng> && invocable<Fn, Rng, const Ts &...> &&
+				view<invoke_result_t<Fn, Rng, const Ts &...>>
 			constexpr auto operator()(Rng&& rng) const & {
 				return Fn{}(std::forward<Rng>(rng),
 					static_cast<const __box<Is, Ts>&>(*this).value_...);
 			}
-			template<InputRange Rng>
-			requires ViewableRange<Rng> && invocable<Fn, Rng, const Ts &...> &&
-				View<invoke_result_t<Fn, Rng, const Ts &...>>
+			template<input_range Rng>
+			requires viewable_range<Rng> && invocable<Fn, Rng, const Ts &...> &&
+				view<invoke_result_t<Fn, Rng, const Ts &...>>
 			void operator()(Rng&& rng) const && = delete;
 		};
 
@@ -130,17 +130,17 @@ STL2_OPEN_NAMESPACE {
 			constexpr __view_pipeline(A&& left, B&& right)
 			: left_(std::move(left)), right_(std::move(right)) {}
 
-			template<ViewableRange R>
+			template<viewable_range R>
 			requires invocable<A, R> && invocable<B, invoke_result_t<A, R>>
 			constexpr decltype(auto) operator()(R&& r) &&
 			{ return std::move(right_)(std::move(left_)(std::forward<R>(r))); }
 
-			template<ViewableRange R>
+			template<viewable_range R>
 			requires invocable<A&, R> && invocable<B&, invoke_result_t<A&, R>>
 			constexpr decltype(auto) operator()(R&& r) &
 			{ return right_(left_(std::forward<R>(r))); }
 
-			template<ViewableRange R>
+			template<viewable_range R>
 			requires invocable<const A&, R> &&
 				invocable<const B&, invoke_result_t<const A&, R>>
 			constexpr decltype(auto) operator()(R&& r) const &

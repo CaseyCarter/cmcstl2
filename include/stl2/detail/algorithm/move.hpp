@@ -24,8 +24,8 @@ STL2_OPEN_NAMESPACE {
 	using move_result = __in_out_result<I, O>;
 
 	struct __move_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O>
-		requires IndirectlyMovable<I, O>
+		template<input_iterator I, sentinel_for<I> S, weakly_incrementable O>
+		requires indirectly_movable<I, O>
 		constexpr move_result<I, O>
 		operator()(I first, S last, O result) const {
 			for (; first != last; (void) ++first, (void) ++result) {
@@ -34,8 +34,8 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first), std::move(result)};
 		}
 
-		template<InputRange R, WeaklyIncrementable O>
-		requires IndirectlyMovable<iterator_t<R>, O>
+		template<input_range R, weakly_incrementable O>
+		requires indirectly_movable<iterator_t<R>, O>
 		constexpr move_result<safe_iterator_t<R>, O>
 		operator()(R&& r, O result) const {
 			return (*this)(begin(r), end(r), std::move(result));
@@ -46,8 +46,8 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		struct __move_fn : private __niebloid {
-			template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O>
-			requires IndirectlyMovable<I, O>
+			template<input_iterator I, sentinel_for<I> S, weakly_incrementable O>
+			requires indirectly_movable<I, O>
 			constexpr move_result<I, O>
 			operator()(I first, S last, O result) const {
 				for (; first != last; (void) ++first, (void) ++result) {
@@ -56,9 +56,9 @@ STL2_OPEN_NAMESPACE {
 				return {std::move(first), std::move(result)};
 			}
 
-			template<InputRange R, class O>
-			requires (!Range<O> && WeaklyIncrementable<__f<O>>
-				&& IndirectlyMovable<iterator_t<R>, __f<O>>)
+			template<input_range R, class O>
+			requires (!range<O> && weakly_incrementable<__f<O>>
+				&& indirectly_movable<iterator_t<R>, __f<O>>)
 			constexpr move_result<safe_iterator_t<R>, __f<O>>
 			operator()(R&& r, O&& result_) const {
 				auto result = std::forward<O>(result_);
@@ -66,9 +66,9 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			// Extension
-			template<InputIterator I1, Sentinel<I1> S1,
-				Iterator I2, Sentinel<I2> S2>
-			requires IndirectlyMovable<I1, I2>
+			template<input_iterator I1, sentinel_for<I1> S1,
+				input_or_output_iterator I2, sentinel_for<I2> S2>
+			requires indirectly_movable<I1, I2>
 			constexpr move_result<I1, I2>
 			operator()(I1 first1, S1 last1, I2 first2, S2 last2) const {
 				while (true) {
@@ -82,8 +82,8 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			// Extension
-			template<InputRange R1, Range R2>
-			requires IndirectlyMovable<iterator_t<R1>, iterator_t<R2>>
+			template<input_range R1, range R2>
+			requires indirectly_movable<iterator_t<R1>, iterator_t<R2>>
 			constexpr move_result<safe_iterator_t<R1>, safe_iterator_t<R2>>
 			operator()(R1&& r1, R2&& r2) const {
 				return (*this)(begin(r1), end(r1), begin(r2), end(r2));

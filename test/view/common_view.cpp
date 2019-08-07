@@ -15,28 +15,31 @@
 #include "../test_iterators.hpp"
 
 namespace ranges = __stl2;
+namespace views = ranges::views;
 
 int main() {
-	using namespace ranges;
+	using ranges::same_as;
+	using ranges::view, ranges::sized_range, ranges::common_range;
+	using ranges::forward_range, ranges::bidirectional_range, ranges::random_access_range;
 	{
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
-		auto x = rg | view::common;
+		auto x = rg | views::common;
 		CHECK_EQUAL(x, {0,1,2,3,4,5,6,7,8,9});
-		static_assert(View<decltype(x)>);
-		static_assert(SizedRange<decltype(x)>);
-		static_assert(CommonRange<decltype(x)>);
-		static_assert(RandomAccessRange<decltype(x)>);
+		static_assert(view<decltype(x)>);
+		static_assert(sized_range<decltype(x)>);
+		static_assert(common_range<decltype(x)>);
+		static_assert(random_access_range<decltype(x)>);
 	}
 	{
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
-		auto x = view::counted(bidirectional_iterator(rg), 5) | view::common;
+		auto x = views::counted(bidirectional_iterator(rg), 5) | views::common;
 		CHECK_EQUAL(x, {0,1,2,3,4});
-		static_assert(View<decltype(x)>);
-		static_assert(SizedRange<decltype(x)>);
-		static_assert(CommonRange<decltype(x)>);
-		static_assert(ForwardRange<decltype(x)>);
-		static_assert(!BidirectionalRange<decltype(x)>);
-		static_assert(same_as<decltype(x), decltype(view::common(x))>);
+		static_assert(view<decltype(x)>);
+		static_assert(sized_range<decltype(x)>);
+		static_assert(common_range<decltype(x)>);
+		static_assert(forward_range<decltype(x)>);
+		static_assert(!bidirectional_range<decltype(x)>);
+		static_assert(same_as<decltype(x), decltype(views::common(x))>);
 	}
 	return test_result();
 }

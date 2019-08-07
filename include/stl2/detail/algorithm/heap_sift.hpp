@@ -31,8 +31,8 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		struct __sift_up_n_fn {
-			template<RandomAccessIterator I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
+			template<random_access_iterator I, class Comp, class Proj>
+			requires sortable<I, Comp, Proj>
 			constexpr void operator()(I first, iter_difference_t<I> n,
 				Comp comp, Proj proj) const
 			{
@@ -65,8 +65,8 @@ STL2_OPEN_NAMESPACE {
 		inline constexpr __sift_up_n_fn sift_up_n {};
 
 		struct __sift_down_n_fn {
-			template<RandomAccessIterator I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
+			template<random_access_iterator I, class Comp, class Proj>
+			requires sortable<I, Comp, Proj>
 			constexpr void operator()(I first, iter_difference_t<I> n, I start,
 				Comp comp, Proj proj) const
 			{

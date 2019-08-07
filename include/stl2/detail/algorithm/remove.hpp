@@ -21,8 +21,8 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __remove_fn : private __niebloid {
-		template<Permutable I, Sentinel<I> S, class T, class Proj = identity>
-		requires IndirectRelation<equal_to, projected<I, Proj>, const T*>
+		template<permutable I, sentinel_for<I> S, class T, class Proj = identity>
+		requires indirect_relation<equal_to, projected<I, Proj>, const T*>
 		constexpr I
 		operator()(I first, S last, const T& value, Proj proj = {}) const {
 			first = find(std::move(first), last, value, __stl2::ref(proj));
@@ -37,9 +37,9 @@ STL2_OPEN_NAMESPACE {
 			return first;
 		}
 
-		template<ForwardRange Rng, class T, class Proj = identity>
-		requires Permutable<iterator_t<Rng>> &&
-			IndirectRelation<equal_to, projected<iterator_t<Rng>, Proj>, const T*>
+		template<forward_range Rng, class T, class Proj = identity>
+		requires permutable<iterator_t<Rng>> &&
+			indirect_relation<equal_to, projected<iterator_t<Rng>, Proj>, const T*>
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, const T& value, Proj proj = {}) const {
 			return (*this)(begin(rng), end(rng), value, __stl2::ref(proj));

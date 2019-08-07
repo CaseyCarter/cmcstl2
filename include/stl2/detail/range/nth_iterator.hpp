@@ -21,22 +21,22 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		struct __nth_iterator {
-			template<Range R>
+			template<range R>
 			constexpr auto operator()(R&& r, iter_difference_t<iterator_t<R>> n) const
 			{
 				STL2_EXPECT(n >= 0);
-				if constexpr (SizedRange<R>) {
+				if constexpr (sized_range<R>) {
 					auto const size = distance(r);
-					constexpr bool CommonNonRandom = CommonRange<R> && !RandomAccessRange<R>;
+					constexpr bool CommonNonRandom = common_range<R> && !random_access_range<R>;
 					if (n >= size) {
-						if constexpr (CommonNonRandom && !BidirectionalRange<R>) {
+						if constexpr (CommonNonRandom && !bidirectional_range<R>) {
 							// If the range is RandomAccess or Bidirectional, this is just extra codegen
 							// with no performance improvement over the following cases.
 							return end(r);
 						}
 						n = size;
 					}
-					if constexpr (CommonNonRandom && BidirectionalRange<R>) {
+					if constexpr (CommonNonRandom && bidirectional_range<R>) {
 						// Again, this would not be an improvement for RandomAccess ranges.
 						if (n > size / 2) {
 							return prev(end(r), size - n);

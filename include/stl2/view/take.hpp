@@ -23,7 +23,7 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<View R>
+	template<view R>
 	struct take_view : view_interface<take_view<R>> {
 	private:
 		template<bool> struct __sentinel;
@@ -35,8 +35,8 @@ STL2_OPEN_NAMESPACE {
 		template<class Self>
 		static constexpr auto begin_(Self& self) {
 			using RR = __maybe_const<std::is_const_v<Self>, R>;
-			if constexpr (SizedRange<RR>) {
-				if constexpr (RandomAccessRange<RR>) {
+			if constexpr (sized_range<RR>) {
+				if constexpr (random_access_range<RR>) {
 					return __stl2::begin(self.base_);
 				} else {
 					return counted_iterator{__stl2::begin(self.base_), static_cast<D>(self.size())};
@@ -49,9 +49,9 @@ STL2_OPEN_NAMESPACE {
 		static constexpr auto end_(Self& self) {
 			constexpr bool is_const = std::is_const_v<Self>;
 			using RR = __maybe_const<is_const, R>;
-			if constexpr (RandomAccessRange<RR> && SizedRange<RR>) {
+			if constexpr (random_access_range<RR> && sized_range<RR>) {
 				return __stl2::begin(self.base_) + self.size();
-			} else if constexpr (SizedRange<RR>) {
+			} else if constexpr (sized_range<RR>) {
 				return default_sentinel{};
 			} else {
 				return __sentinel<is_const>{__stl2::end(self.base_)};
@@ -72,20 +72,20 @@ STL2_OPEN_NAMESPACE {
 		constexpr R base() const { return base_; }
 
 		constexpr auto begin() requires (!ext::SimpleView<R>) { return begin_(*this); }
-		constexpr auto begin() const requires Range<const R> { return begin_(*this); }
+		constexpr auto begin() const requires range<const R> { return begin_(*this); }
 
 		constexpr auto end() requires (!ext::SimpleView<R>) { return end_(*this); }
-		constexpr auto end() const requires Range<const R> || SizedRange<R>
+		constexpr auto end() const requires range<const R> || sized_range<R>
 		{ return end_(*this); }
 
-		constexpr auto size() requires (!ext::SimpleView<R> && SizedRange<R>) { return size_(*this); }
-		constexpr auto size() const requires SizedRange<const R> { return size_(*this); }
+		constexpr auto size() requires (!ext::SimpleView<R> && sized_range<R>) { return size_(*this); }
+		constexpr auto size() const requires sized_range<const R> { return size_(*this); }
 	};
 
-	template<Range R>
+	template<range R>
 	take_view(R&&, iter_difference_t<iterator_t<R>>) -> take_view<all_view<R>>;
 
-	template<View R>
+	template<view R>
 	template<bool Const>
 	struct take_view<R>::__sentinel {
 	private:
@@ -112,19 +112,19 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr bool operator!=(const CI& x, const __sentinel& y) { return !(y == x); }
 	};
 
-	namespace view {
+	namespace views {
 		struct __take_fn {
-			template<Range Rng>
+			template<range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
 #if STL2_WORKAROUND_CLANGC_50
 			requires requires(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) {
-				take_view{view::all(static_cast<Rng&&>(rng)), count};
+				take_view{views::all(static_cast<Rng&&>(rng)), count};
 			} {
-				return take_view{view::all(static_cast<Rng&&>(rng)), count};
+				return take_view{views::all(static_cast<Rng&&>(rng)), count};
 			}
 #else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
-				take_view{view::all(static_cast<Rng&&>(rng)), count}
+				take_view{views::all(static_cast<Rng&&>(rng)), count}
 			)
 #endif // STL2_WORKAROUND_CLANGC_50
 

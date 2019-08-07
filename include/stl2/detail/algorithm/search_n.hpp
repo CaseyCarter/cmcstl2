@@ -32,13 +32,13 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __search_n_fn : private __niebloid {
-		template<ForwardIterator I, Sentinel<I> S, class T,
+		template<forward_iterator I, sentinel_for<I> S, class T,
 			class Pred = equal_to, class Proj = identity>
-		requires IndirectlyComparable<I, const T*, Pred, Proj>
+		requires indirectly_comparable<I, const T*, Pred, Proj>
 		constexpr I operator()(I first, S last, iter_difference_t<I> count,
 			const T& value, Pred pred = {}, Proj proj = {}) const
 		{
-			if constexpr (SizedSentinel<S, I>) {
+			if constexpr (sized_sentinel_for<S, I>) {
 				auto n = static_cast<iter_difference_t<I>>(last - first);
 				return sized(std::move(first), std::move(last),
 					n, count, value, __stl2::ref(pred), __stl2::ref(proj));
@@ -48,14 +48,14 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<ForwardRange R, class T, class Pred = equal_to,
+		template<forward_range R, class T, class Pred = equal_to,
 			class Proj = identity>
-		requires IndirectlyComparable<iterator_t<R>, const T*, Pred, Proj>
+		requires indirectly_comparable<iterator_t<R>, const T*, Pred, Proj>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, iter_difference_t<iterator_t<R>> count,
 			const T& value, Pred pred = {}, Proj proj = {}) const
 		{
-			if constexpr (SizedRange<R>) {
+			if constexpr (sized_range<R>) {
 				return sized(begin(r), end(r), distance(r), count, value,
 					__stl2::ref(pred), __stl2::ref(proj));
 			} else {
@@ -64,9 +64,9 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 	private:
-		template<ForwardIterator I, Sentinel<I> S, class T, class Pred,
+		template<forward_iterator I, sentinel_for<I> S, class T, class Pred,
 			class Proj>
-		requires IndirectlyComparable<I, const T*, Pred, Proj>
+		requires indirectly_comparable<I, const T*, Pred, Proj>
 		static constexpr I unsized(I first, S last, iter_difference_t<I> count,
 			const T& value, Pred pred, Proj proj)
 		{
@@ -92,8 +92,8 @@ STL2_OPEN_NAMESPACE {
 			return first;
 		}
 
-		template<ForwardIterator I, Sentinel<I> S, class T, class Pred, class Proj>
-		requires IndirectlyComparable<I, const T*, Pred, Proj>
+		template<forward_iterator I, sentinel_for<I> S, class T, class Pred, class Proj>
+		requires indirectly_comparable<I, const T*, Pred, Proj>
 		static constexpr I sized(I first_, S last, iter_difference_t<I> d_,
 			iter_difference_t<I> count, const T& value, Pred pred, Proj proj)
 		{

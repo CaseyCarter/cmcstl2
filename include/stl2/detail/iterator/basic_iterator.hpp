@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 
 		// A RandomAccess cursor whose reference_t is a reference type and
 		// whose member type "contiguous" looks like true_type will generate
-		// a ContiguousIterator. i.e., this is an opt-in trait for contiguity.
+		// a contiguous_iterator. i.e., this is an opt-in trait for contiguity.
 		template<class>
 		constexpr bool contiguous = false;
 		template<class C>
@@ -179,7 +179,7 @@ STL2_OPEN_NAMESPACE {
 			_Cursor<std::remove_cv_t<C>, mixin_t<std::remove_cv_t<C>>>;
 
 		template<class C>
-		META_CONCEPT Readable =
+		META_CONCEPT readable =
 			Cursor<C> &&
 			requires(const C& c) {
 #ifdef META_HAS_P1084
@@ -192,7 +192,7 @@ STL2_OPEN_NAMESPACE {
 			};
 		template<class C>
 		META_CONCEPT Arrow =
-			Readable<C> &&
+			readable<C> &&
 			requires(const C& c) {
 #ifdef META_HAS_P1084
 				{ c.arrow() } ->__can_reference;
@@ -201,22 +201,22 @@ STL2_OPEN_NAMESPACE {
 #endif
 			};
 		template<class C, class T>
-		META_CONCEPT Writable =
+		META_CONCEPT writable =
 			Cursor<C> &&
 			requires(C& c, T&& t) {
 				c.write(std::forward<T>(t)); // Not required to be equality-preserving
 			};
 
 		template<class S, class C>
-		META_CONCEPT Sentinel =
+		META_CONCEPT sentinel_for =
 			Cursor<C> &&
 			semiregular<S> &&
 			requires(const C& c, const S& s) {
 				{ c.equal(s) } -> bool;
 			};
 		template<class S, class C>
-		META_CONCEPT SizedSentinel =
-			Sentinel<S, C> &&
+		META_CONCEPT sized_sentinel_for =
+			sentinel_for<S, C> &&
 			requires(const C& c, const S& s) {
 				{ c.distance_to(s) } -> STL2_RVALUE_REQ(same_as<difference_type_t<C>>);
 			};
@@ -241,7 +241,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<class C>
 		META_CONCEPT IndirectMove =
-			Readable<C> && requires(const C& c) {
+			readable<C> && requires(const C& c) {
 #ifdef META_HAS_P1084
 				{ c.indirect_move() } -> __can_reference;
 #else
@@ -252,7 +252,7 @@ STL2_OPEN_NAMESPACE {
 		template<class> struct rvalue_reference {};
 		template<class C>
 		requires
-			Readable<C>
+			readable<C>
 		struct rvalue_reference<C> {
 			using type = meta::if_<
 				std::is_reference<reference_t<C>>,
@@ -270,8 +270,8 @@ STL2_OPEN_NAMESPACE {
 
 		template<class C1, class C2>
 		META_CONCEPT IndirectSwap =
-			Readable<C1> &&
-			Readable<C2> &&
+			readable<C1> &&
+			readable<C2> &&
 			requires(const C1& c1, const C2& c2) {
 				c1.indirect_swap(c2);
 				c2.indirect_swap(c1);
@@ -282,16 +282,16 @@ STL2_OPEN_NAMESPACE {
 
 		template<class C>
 		META_CONCEPT Input =
-			Readable<C> && Next<C>;
+			readable<C> && Next<C>;
 		template<class C>
 		META_CONCEPT Forward =
-			Input<C> && !single_pass<C> && Sentinel<C, C>;
+			Input<C> && !single_pass<C> && sentinel_for<C, C>;
 		template<class C>
 		META_CONCEPT Bidirectional =
 			Forward<C> && Prev<C>;
 		template<class C>
 		META_CONCEPT RandomAccess =
-			Bidirectional<C> && Advance<C> && SizedSentinel<C, C>;
+			Bidirectional<C> && Advance<C> && sized_sentinel_for<C, C>;
 		template<class C>
 		META_CONCEPT Contiguous =
 			RandomAccess<C> &&
@@ -346,7 +346,7 @@ STL2_OPEN_NAMESPACE {
 			using common_refs = meta::list<>;
 		};
 
-		template<cursor::Readable C>
+		template<cursor::readable C>
 		struct cursor_traits<C> {
 			using value_t_ = cursor::value_type_t<C>;
 			using reference_t_ = cursor::reference_t<C>;
@@ -411,23 +411,23 @@ STL2_OPEN_NAMESPACE {
 			: cur_(&cur)
 			{}
 			constexpr basic_proxy_reference& operator=(basic_proxy_reference&& that)
-			requires cursor::Readable<Cur>
+			requires cursor::readable<Cur>
 			{
 				return *this = that;
 			}
 			constexpr basic_proxy_reference& operator=(const basic_proxy_reference& that)
-			requires cursor::Readable<Cur>
+			requires cursor::readable<Cur>
 			{
 				this->set_(that.get_());
 				return *this;
 			}
 			constexpr const basic_proxy_reference& operator=(basic_proxy_reference&& that) const
-			requires cursor::Readable<Cur>
+			requires cursor::readable<Cur>
 			{
 				return *this = that;
 			}
 			constexpr const basic_proxy_reference& operator=(const basic_proxy_reference& that) const
-			requires cursor::Readable<Cur>
+			requires cursor::readable<Cur>
 			{
 				this->set_(that.get_());
 				return *this;
@@ -435,8 +435,8 @@ STL2_OPEN_NAMESPACE {
 
 			template<class OtherCur>
 			requires
-				cursor::Readable<OtherCur> &&
-				cursor::Writable<Cur, cursor::reference_t<OtherCur>>
+				cursor::readable<OtherCur> &&
+				cursor::writable<Cur, cursor::reference_t<OtherCur>>
 			constexpr basic_proxy_reference& operator=(
 				basic_proxy_reference<OtherCur>&& that)
 			{
@@ -444,8 +444,8 @@ STL2_OPEN_NAMESPACE {
 			}
 			template<class OtherCur>
 			requires
-				cursor::Readable<OtherCur> &&
-				cursor::Writable<Cur, cursor::reference_t<OtherCur>>
+				cursor::readable<OtherCur> &&
+				cursor::writable<Cur, cursor::reference_t<OtherCur>>
 			constexpr basic_proxy_reference& operator=(
 				const basic_proxy_reference<OtherCur>& that)
 			{
@@ -454,8 +454,8 @@ STL2_OPEN_NAMESPACE {
 			}
 			template<class OtherCur>
 			requires
-				cursor::Readable<OtherCur> &&
-				cursor::Writable<Cur, cursor::reference_t<OtherCur>>
+				cursor::readable<OtherCur> &&
+				cursor::writable<Cur, cursor::reference_t<OtherCur>>
 			constexpr const basic_proxy_reference& operator=(
 				basic_proxy_reference<OtherCur>&& that) const
 			{
@@ -463,8 +463,8 @@ STL2_OPEN_NAMESPACE {
 			}
 			template<class OtherCur>
 			requires
-				cursor::Readable<OtherCur> &&
-				cursor::Writable<Cur, cursor::reference_t<OtherCur>>
+				cursor::readable<OtherCur> &&
+				cursor::writable<Cur, cursor::reference_t<OtherCur>>
 			constexpr const basic_proxy_reference& operator=(
 				const basic_proxy_reference<OtherCur>& that) const
 			{
@@ -472,14 +472,14 @@ STL2_OPEN_NAMESPACE {
 				return *this;
 			}
 			template<class T>
-			requires cursor::Writable<Cur, T&&>
+			requires cursor::writable<Cur, T&&>
 			constexpr basic_proxy_reference& operator=(T&& t)
 			{
 				this->set_(static_cast<T&&>(t));
 				return *this;
 			}
 			template<class T>
-			requires cursor::Writable<Cur, T&&>
+			requires cursor::writable<Cur, T&&>
 			constexpr const basic_proxy_reference& operator=(T&& t) const
 			{
 				this->set_(static_cast<T&&>(t));
@@ -487,37 +487,37 @@ STL2_OPEN_NAMESPACE {
 			}
 			friend constexpr bool operator==(
 				const basic_proxy_reference& x, const value_t_& y)
-			requires cursor::Readable<Cur> && equality_comparable<value_t_>
+			requires cursor::readable<Cur> && equality_comparable<value_t_>
 			{
 				return x.get_() == y;
 			}
 			friend constexpr bool operator!=(
 				const basic_proxy_reference& x, const value_t_& y)
-			requires cursor::Readable<Cur> && equality_comparable<value_t_>
+			requires cursor::readable<Cur> && equality_comparable<value_t_>
 			{
 				return !(x == y);
 			}
 			friend constexpr bool operator==(
 				const value_t_& x, const basic_proxy_reference& y)
-			requires cursor::Readable<Cur> && equality_comparable<value_t_>
+			requires cursor::readable<Cur> && equality_comparable<value_t_>
 			{
 				return x == y.get_();
 			}
 			friend constexpr bool operator!=(
 				const value_t_& x, const basic_proxy_reference& y)
-			requires cursor::Readable<Cur> && equality_comparable<value_t_>
+			requires cursor::readable<Cur> && equality_comparable<value_t_>
 			{
 				return !(x == y);
 			}
 			friend constexpr bool operator==(
 				const basic_proxy_reference& x, const basic_proxy_reference& y)
-			requires cursor::Readable<Cur> && equality_comparable<value_t_>
+			requires cursor::readable<Cur> && equality_comparable<value_t_>
 			{
 				return x.get_() == y.get_();
 			}
 			friend constexpr bool operator!=(
 				const basic_proxy_reference& x, const basic_proxy_reference& y)
-			requires cursor::Readable<Cur> && equality_comparable<value_t_>
+			requires cursor::readable<Cur> && equality_comparable<value_t_>
 			{
 				return !(x == y);
 			}
@@ -527,12 +527,12 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool is_writable = true;
 		template<class C>
 		requires
-			cursor::Readable<std::remove_cv_t<C>>
+			cursor::readable<std::remove_cv_t<C>>
 		constexpr bool is_writable<C> = false;
 		template<class C>
 		requires
-			cursor::Readable<std::remove_cv_t<C>> &&
-			cursor::Writable<C, cursor::value_type_t<C>&&>
+			cursor::readable<std::remove_cv_t<C>> &&
+			cursor::writable<C, cursor::value_type_t<C>&&>
 		constexpr bool is_writable<C> = true;
 
 		template<class Cur>
@@ -541,7 +541,7 @@ STL2_OPEN_NAMESPACE {
 			using const_reference_t = basic_proxy_reference<const Cur>;
 		};
 
-		template<cursor::Readable Cur>
+		template<cursor::readable Cur>
 		struct iterator_associated_types_base<Cur> {
 			using reference_t =
 				meta::if_c<
@@ -566,19 +566,19 @@ STL2_OPEN_NAMESPACE {
 	} // namespace detail
 
 	// common_reference specializations for basic_proxy_reference
-	template<cursor::Readable Cur, class U,
+	template<cursor::readable Cur, class U,
 		template<class> class TQual, template<class> class UQual>
 	struct basic_common_reference<
 		detail::basic_proxy_reference<Cur>, U, TQual, UQual>
 	: basic_common_reference<cursor::reference_t<Cur>, U, TQual, UQual>
 	{};
-	template<class T, cursor::Readable Cur,
+	template<class T, cursor::readable Cur,
 		template<class> class TQual, template<class> class UQual>
 	struct basic_common_reference<
 		T, detail::basic_proxy_reference<Cur>, TQual, UQual>
 	: basic_common_reference<T, cursor::reference_t<Cur>, TQual, UQual>
 	{};
-	template<cursor::Readable Cur1, cursor::Readable Cur2,
+	template<cursor::readable Cur1, cursor::readable Cur2,
 		template<class> class TQual, template<class> class UQual>
 	struct basic_common_reference<
 		detail::basic_proxy_reference<Cur1>, detail::basic_proxy_reference<Cur2>,
@@ -588,15 +588,15 @@ STL2_OPEN_NAMESPACE {
 	{};
 
 	// common_type specializations for basic_proxy_reference
-	template<cursor::Readable Cur, class U>
+	template<cursor::readable Cur, class U>
 	struct common_type<detail::basic_proxy_reference<Cur>, U>
 	: common_type<cursor::value_type_t<Cur>, U>
 	{};
-	template<class T, cursor::Readable Cur>
+	template<class T, cursor::readable Cur>
 	struct common_type<T, detail::basic_proxy_reference<Cur>>
 	: common_type<T, cursor::value_type_t<Cur>>
 	{};
-	template<cursor::Readable Cur1, cursor::Readable Cur2>
+	template<cursor::readable Cur1, cursor::readable Cur2>
 	struct common_type<
 		detail::basic_proxy_reference<Cur1>, detail::basic_proxy_reference<Cur2>>
 	: common_type<cursor::value_type_t<Cur1>, cursor::value_type_t<Cur2>>
@@ -681,7 +681,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		template<class T>
 		requires (!same_as<std::decay_t<T>, basic_iterator> && !cursor::Next<C> &&
-			cursor::Writable<C, T>)
+			cursor::writable<C, T>)
 		constexpr basic_iterator& operator=(T&& t)
 		noexcept(noexcept(
 			std::declval<C&>().write(static_cast<T&&>(t))))
@@ -704,7 +704,7 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr decltype(auto) operator*() const
 		noexcept(noexcept(std::declval<const C&>().read()))
-		requires (cursor::Readable<C> && !detail::is_writable<C>)
+		requires (cursor::readable<C> && !detail::is_writable<C>)
 		{
 			return get().read();
 		}
@@ -740,7 +740,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto operator->() const
 		noexcept(noexcept(*std::declval<const basic_iterator&>()))
 		requires
-			(!cursor::Arrow<C> && cursor::Readable<C> &&
+			(!cursor::Arrow<C> && cursor::readable<C> &&
 			std::is_lvalue_reference<const_reference_t>::value &&
 			same_as<cursor::value_type_t<BugsBugs>, __uncvref<const_reference_t>>)
 		{
@@ -836,14 +836,14 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr bool operator==(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(x.get().equal(y.get())))
-		requires cursor::Sentinel<C, C>
+		requires cursor::sentinel_for<C, C>
 		{
 			return x.get().equal(y.get());
 		}
 		friend constexpr bool operator!=(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(!(x == y)))
-		requires cursor::Sentinel<C, C>
+		requires cursor::sentinel_for<C, C>
 		{
 			return !(x == y);
 		}
@@ -851,7 +851,7 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr D operator-(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(y.get().distance_to(x.get())))
-		requires cursor::SizedSentinel<C, C>
+		requires cursor::sized_sentinel_for<C, C>
 		{
 			return y.get().distance_to(x.get());
 		}
@@ -859,28 +859,28 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr bool operator<(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(x - y))
-		requires cursor::SizedSentinel<C, C>
+		requires cursor::sized_sentinel_for<C, C>
 		{
 			return x - y < 0;
 		}
 		friend constexpr bool operator>(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(x - y))
-		requires cursor::SizedSentinel<C, C>
+		requires cursor::sized_sentinel_for<C, C>
 		{
 			return x - y > 0;
 		}
 		friend constexpr bool operator<=(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(x - y))
-		requires cursor::SizedSentinel<C, C>
+		requires cursor::sized_sentinel_for<C, C>
 		{
 			return x - y <= 0;
 		}
 		friend constexpr bool operator>=(
 			const basic_iterator& x, const basic_iterator& y)
 		noexcept(noexcept(x - y))
-		requires cursor::SizedSentinel<C, C>
+		requires cursor::sized_sentinel_for<C, C>
 		{
 			return x - y >= 0;
 		}
@@ -931,7 +931,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<class C1, class C2>
-	requires cursor::Sentinel<C2, C1>
+	requires cursor::sentinel_for<C2, C1>
 	constexpr bool operator==(
 		const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -939,7 +939,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C, class S>
-	requires cursor::Sentinel<S, C>
+	requires cursor::sentinel_for<S, C>
 	constexpr bool operator==(
 		const basic_iterator<C>& lhs, const S& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -947,7 +947,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C, class S>
-	requires cursor::Sentinel<S, C>
+	requires cursor::sentinel_for<S, C>
 	constexpr bool operator==(
 		const S& lhs, const basic_iterator<C>& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -955,7 +955,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C1, class C2>
-	requires cursor::Sentinel<C2, C1>
+	requires cursor::sentinel_for<C2, C1>
 	constexpr bool operator!=(
 		const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -963,7 +963,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C, class S>
-	requires cursor::Sentinel<S, C>
+	requires cursor::sentinel_for<S, C>
 	constexpr bool operator!=(
 		const basic_iterator<C>& lhs, const S& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -971,7 +971,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C, class S>
-	requires cursor::Sentinel<S, C>
+	requires cursor::sentinel_for<S, C>
 	constexpr bool operator!=(
 		const S& lhs, const basic_iterator<C>& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -979,7 +979,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C1, class C2>
-	requires cursor::SizedSentinel<C1, C2>
+	requires cursor::sized_sentinel_for<C1, C2>
 	constexpr cursor::difference_type_t<C2> operator-(
 		const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -987,7 +987,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C, class S>
-	requires cursor::SizedSentinel<S, C>
+	requires cursor::sized_sentinel_for<S, C>
 	constexpr cursor::difference_type_t<C> operator-(
 		const S& lhs, const basic_iterator<C>& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -995,7 +995,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C, class S>
-	requires cursor::SizedSentinel<S, C>
+	requires cursor::sized_sentinel_for<S, C>
 	constexpr cursor::difference_type_t<C> operator-(
 		const basic_iterator<C>& lhs, const S& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -1003,7 +1003,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C1, class C2>
-	requires cursor::SizedSentinel<C1, C2>
+	requires cursor::sized_sentinel_for<C1, C2>
 	constexpr bool operator<(
 		const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -1011,7 +1011,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C1, class C2>
-	requires cursor::SizedSentinel<C1, C2>
+	requires cursor::sized_sentinel_for<C1, C2>
 	constexpr bool operator>(
 		const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -1019,7 +1019,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C1, class C2>
-	requires cursor::SizedSentinel<C1, C2>
+	requires cursor::sized_sentinel_for<C1, C2>
 	constexpr bool operator<=(
 		const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
 	STL2_NOEXCEPT_RETURN(
@@ -1027,7 +1027,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class C1, class C2>
-	requires cursor::SizedSentinel<C1, C2>
+	requires cursor::sized_sentinel_for<C1, C2>
 	constexpr bool operator>=(
 		const basic_iterator<C1>& lhs, const basic_iterator<C2>& rhs)
 	STL2_NOEXCEPT_RETURN(

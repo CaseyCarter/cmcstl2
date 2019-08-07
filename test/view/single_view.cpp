@@ -24,9 +24,9 @@ using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
 
 template<class V, class T>
 void test_one(V& v, const T& t) {
-    static_assert(ranges::ContiguousRange<V>);
-    static_assert(ranges::SizedRange<V>);
-    static_assert(ranges::CommonRange<V>);
+    static_assert(ranges::contiguous_range<V>);
+    static_assert(ranges::sized_range<V>);
+    static_assert(ranges::common_range<V>);
     using I = ranges::iterator_t<V>;
     static_assert(std::is_pointer_v<I>);
     static_assert(ranges::same_as<T, ranges::iter_value_t<I>>);
@@ -41,7 +41,7 @@ void test_one(V& v, const T& t) {
 template<class T>
 void test(T&& t) {
     using D = remove_cvref_t<T>;
-    auto v = ranges::view::single(std::forward<T>(t));
+    auto v = ranges::views::single(std::forward<T>(t));
     static_assert(ranges::same_as<ranges::single_view<D>, decltype(v)>);
     test_one(v, t);
     test_one(std::as_const(v), t);

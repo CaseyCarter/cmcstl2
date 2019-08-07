@@ -167,11 +167,11 @@ namespace readable_test {
 		using value_type = int;
 	};
 
-	CONCEPT_ASSERT(!ranges::Readable<void>);
-	CONCEPT_ASSERT(!ranges::Readable<void*>);
-	CONCEPT_ASSERT(ranges::Readable<int*>);
-	CONCEPT_ASSERT(ranges::Readable<const int*>);
-	CONCEPT_ASSERT(ranges::Readable<A>);
+	CONCEPT_ASSERT(!ranges::readable<void>);
+	CONCEPT_ASSERT(!ranges::readable<void*>);
+	CONCEPT_ASSERT(ranges::readable<int*>);
+	CONCEPT_ASSERT(ranges::readable<const int*>);
+	CONCEPT_ASSERT(ranges::readable<A>);
 	CONCEPT_ASSERT(ranges::same_as<ns::iter_value_t<A>,int>);
 
 	struct MoveOnlyReadable {
@@ -179,14 +179,14 @@ namespace readable_test {
 		value_type operator*() const;
 	};
 
-	CONCEPT_ASSERT(ranges::Readable<MoveOnlyReadable>);
+	CONCEPT_ASSERT(ranges::readable<MoveOnlyReadable>);
 
 	struct ArrayReadable {
 		using value_type = int[2];
 		value_type& operator*() const;
 	};
 
-	CONCEPT_ASSERT(ranges::Readable<ArrayReadable>);
+	CONCEPT_ASSERT(ranges::readable<ArrayReadable>);
 
 	struct Abstract {
 		virtual void foo() = 0;
@@ -196,7 +196,7 @@ namespace readable_test {
 		Abstract& operator*() const;
 	};
 
-	CONCEPT_ASSERT(ranges::Readable<AbstractReadable>);
+	CONCEPT_ASSERT(ranges::readable<AbstractReadable>);
 }
 
 namespace writable_test {
@@ -204,32 +204,32 @@ namespace writable_test {
 		int& operator*() const;
 	};
 
-	CONCEPT_ASSERT(ranges::Writable<std::unique_ptr<int>*, std::unique_ptr<int>&&>);
-	CONCEPT_ASSERT(!ranges::Writable<std::unique_ptr<int>*, std::unique_ptr<int>&>);
-	CONCEPT_ASSERT(!ranges::Writable<void, int>);
-	CONCEPT_ASSERT(!ranges::Writable<void*, void>);
-	CONCEPT_ASSERT(ranges::Writable<int*, int>);
-	CONCEPT_ASSERT(ranges::Writable<int*, int&>);
-	CONCEPT_ASSERT(ranges::Writable<int*, const int&>);
-	CONCEPT_ASSERT(ranges::Writable<int*, const int>);
-	CONCEPT_ASSERT(!ranges::Writable<const int*, int>);
-	CONCEPT_ASSERT(ranges::Writable<A, int>);
-	CONCEPT_ASSERT(ranges::Writable<A, const int&>);
-	CONCEPT_ASSERT(ranges::Writable<A, double>);
-	CONCEPT_ASSERT(ranges::Writable<A, const double&>);
+	CONCEPT_ASSERT(ranges::writable<std::unique_ptr<int>*, std::unique_ptr<int>&&>);
+	CONCEPT_ASSERT(!ranges::writable<std::unique_ptr<int>*, std::unique_ptr<int>&>);
+	CONCEPT_ASSERT(!ranges::writable<void, int>);
+	CONCEPT_ASSERT(!ranges::writable<void*, void>);
+	CONCEPT_ASSERT(ranges::writable<int*, int>);
+	CONCEPT_ASSERT(ranges::writable<int*, int&>);
+	CONCEPT_ASSERT(ranges::writable<int*, const int&>);
+	CONCEPT_ASSERT(ranges::writable<int*, const int>);
+	CONCEPT_ASSERT(!ranges::writable<const int*, int>);
+	CONCEPT_ASSERT(ranges::writable<A, int>);
+	CONCEPT_ASSERT(ranges::writable<A, const int&>);
+	CONCEPT_ASSERT(ranges::writable<A, double>);
+	CONCEPT_ASSERT(ranges::writable<A, const double&>);
 } // namespace writable_test
 
-CONCEPT_ASSERT(ranges::WeaklyIncrementable<int>);
-CONCEPT_ASSERT(ranges::WeaklyIncrementable<unsigned int>);
-CONCEPT_ASSERT(!ranges::WeaklyIncrementable<void>);
-CONCEPT_ASSERT(ranges::WeaklyIncrementable<int*>);
-CONCEPT_ASSERT(ranges::WeaklyIncrementable<const int*>);
+CONCEPT_ASSERT(ranges::weakly_incrementable<int>);
+CONCEPT_ASSERT(ranges::weakly_incrementable<unsigned int>);
+CONCEPT_ASSERT(!ranges::weakly_incrementable<void>);
+CONCEPT_ASSERT(ranges::weakly_incrementable<int*>);
+CONCEPT_ASSERT(ranges::weakly_incrementable<const int*>);
 
-CONCEPT_ASSERT(ranges::Incrementable<int>);
-CONCEPT_ASSERT(ranges::Incrementable<unsigned int>);
-CONCEPT_ASSERT(!ranges::Incrementable<void>);
-CONCEPT_ASSERT(ranges::Incrementable<int*>);
-CONCEPT_ASSERT(ranges::Incrementable<const int*>);
+CONCEPT_ASSERT(ranges::incrementable<int>);
+CONCEPT_ASSERT(ranges::incrementable<unsigned int>);
+CONCEPT_ASSERT(!ranges::incrementable<void>);
+CONCEPT_ASSERT(ranges::incrementable<int*>);
+CONCEPT_ASSERT(ranges::incrementable<const int*>);
 
 namespace iterator_sentinel_test {
 	struct A {
@@ -245,18 +245,18 @@ namespace iterator_sentinel_test {
 		bool operator != (const A&) const;
 	};
 
-	CONCEPT_ASSERT(ranges::Iterator<int*>);
-	CONCEPT_ASSERT(ranges::Iterator<const int*>);
-	CONCEPT_ASSERT(!ranges::Iterator<void*>);
-	CONCEPT_ASSERT(ranges::Iterator<A>);
-	CONCEPT_ASSERT(ranges::InputIterator<A>);
+	CONCEPT_ASSERT(ranges::input_or_output_iterator<int*>);
+	CONCEPT_ASSERT(ranges::input_or_output_iterator<const int*>);
+	CONCEPT_ASSERT(!ranges::input_or_output_iterator<void*>);
+	CONCEPT_ASSERT(ranges::input_or_output_iterator<A>);
+	CONCEPT_ASSERT(ranges::input_iterator<A>);
 
-	CONCEPT_ASSERT(ranges::Iterator<int*>);
-	CONCEPT_ASSERT(ranges::Sentinel<int*, int*>);
-	CONCEPT_ASSERT(ranges::Sentinel<const int*, const int*>);
-	CONCEPT_ASSERT(ranges::Sentinel<const int*, int*>);
-	CONCEPT_ASSERT(!ranges::Sentinel<void*, void*>);
-	CONCEPT_ASSERT(ranges::Sentinel<A, A>);
+	CONCEPT_ASSERT(ranges::input_or_output_iterator<int*>);
+	CONCEPT_ASSERT(ranges::sentinel_for<int*, int*>);
+	CONCEPT_ASSERT(ranges::sentinel_for<const int*, const int*>);
+	CONCEPT_ASSERT(ranges::sentinel_for<const int*, int*>);
+	CONCEPT_ASSERT(!ranges::sentinel_for<void*, void*>);
+	CONCEPT_ASSERT(ranges::sentinel_for<A, A>);
 } // namespace iterator_sentinel_test
 
 namespace indirectly_callable_test {
@@ -340,20 +340,20 @@ namespace contiguous_test {
 		bool operator!=(allocator<U>);
 	};
 
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::array<int, 42>::iterator>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::array<int, 42>::const_iterator>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::string::iterator>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::string::const_iterator>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::basic_string<char, std::char_traits<char>, allocator<char>>::iterator>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::basic_string<char, std::char_traits<char>, allocator<char>>::const_iterator>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::string_view::iterator>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::string_view::const_iterator>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<ranges::iterator_t<std::valarray<double>>>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<ranges::iterator_t<const std::valarray<double>>>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::vector<int>::iterator>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::vector<int>::const_iterator>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::vector<int, allocator<int>>::iterator>);
-	CONCEPT_ASSERT(ranges::ContiguousIterator<std::vector<int, allocator<int>>::const_iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::array<int, 42>::iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::array<int, 42>::const_iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::string::iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::string::const_iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::basic_string<char, std::char_traits<char>, allocator<char>>::iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::basic_string<char, std::char_traits<char>, allocator<char>>::const_iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::string_view::iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::string_view::const_iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<ranges::iterator_t<std::valarray<double>>>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<ranges::iterator_t<const std::valarray<double>>>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::vector<int>::iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::vector<int>::const_iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::vector<int, allocator<int>>::iterator>);
+	CONCEPT_ASSERT(ranges::contiguous_iterator<std::vector<int, allocator<int>>::const_iterator>);
 }
 
 int main() {

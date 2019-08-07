@@ -19,7 +19,7 @@
 // fill [alg.fill]
 STL2_OPEN_NAMESPACE {
 	struct __fill_fn : private __niebloid {
-		template<class T, OutputIterator<const T&> O, Sentinel<O> S>
+		template<class T, output_iterator<const T&> O, sentinel_for<O> S>
 		constexpr O operator()(O first, S last, const T& value) const {
 			for (; first != last; ++first) {
 				*first = value;
@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 			return first;
 		}
 
-		template<class T, OutputRange<const T&> R>
+		template<class T, output_range<const T&> R>
 		constexpr safe_iterator_t<R> operator()(R&& r, const T& value) const {
 			return (*this)(begin(r), end(r), value);
 		}

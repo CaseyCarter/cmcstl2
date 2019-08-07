@@ -24,9 +24,9 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __partial_sort_fn : private __niebloid {
-		template<RandomAccessIterator I, Sentinel<I> S, class Comp = less,
+		template<random_access_iterator I, sentinel_for<I> S, class Comp = less,
 			class Proj = identity>
-		requires Sortable<I, Comp, Proj>
+		requires sortable<I, Comp, Proj>
 		constexpr I operator()(I first, I middle, S last, Comp comp = {},
 			Proj proj = {}) const
 		{
@@ -47,8 +47,8 @@ STL2_OPEN_NAMESPACE {
 			return i;
 		}
 
-		template<RandomAccessRange R, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<R>, Comp, Proj>
+		template<random_access_range R, class Comp = less, class Proj = identity>
+		requires sortable<iterator_t<R>, Comp, Proj>
 		constexpr safe_iterator_t<R> operator()(R&& r, iterator_t<R> middle,
 			Comp comp = {}, Proj proj = {}) const
 		{

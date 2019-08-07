@@ -21,8 +21,8 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __remove_if_fn : private __niebloid {
-		template<Permutable I, Sentinel<I> S, class Proj = identity,
-			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		template<permutable I, sentinel_for<I> S, class Proj = identity,
+			indirect_unary_predicate<projected<I, Proj>> Pred>
 		constexpr I
 		operator()(I first, S last, Pred pred, Proj proj = {}) const {
 			first = find_if(std::move(first), last, __stl2::ref(pred),
@@ -38,9 +38,9 @@ STL2_OPEN_NAMESPACE {
 			return first;
 		}
 
-		template<ForwardRange Rng, class Proj = identity,
-			IndirectUnaryPredicate<projected<iterator_t<Rng>, Proj>> Pred>
-		requires Permutable<iterator_t<Rng>>
+		template<forward_range Rng, class Proj = identity,
+			indirect_unary_predicate<projected<iterator_t<Rng>, Proj>> Pred>
+		requires permutable<iterator_t<Rng>>
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, Pred pred, Proj proj = {}) const {
 			return (*this)(begin(rng), end(rng), __stl2::ref(pred),

@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		struct __fsort_n_fn {
 			template<class I, class Comp = less, class Proj = identity>
-			requires Sortable<I, Comp, Proj>
+			requires sortable<I, Comp, Proj>
 			I operator()(I first, const iter_difference_t<I> n,
 				Comp comp = {}, Proj proj = {}) const
 			{
@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 			using buf_t = temporary_buffer<iter_value_t<I>>;
 
 			template<class I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
+			requires sortable<I, Comp, Proj>
 			static I merge_n_with_buffer(I f0, iter_difference_t<I> n0,
 				I f1, iter_difference_t<I> n1,
 				buf_t<I>& buf, Comp& comp, Proj& proj)
@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template<class I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
+			requires sortable<I, Comp, Proj>
 			static constexpr void merge_n_step_0(I f0, iter_difference_t<I> n0,
 				I f1, iter_difference_t<I> n1,
 				Comp& comp, Proj& proj,
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template<class I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
+			requires sortable<I, Comp, Proj>
 			static constexpr void merge_n_step_1(I f0, iter_difference_t<I> n0,
 				I f1, iter_difference_t<I> n1,
 				Comp& comp, Proj& proj,
@@ -133,7 +133,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template<class I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
+			requires sortable<I, Comp, Proj>
 			static I merge_n_adaptive(I f0, iter_difference_t<I> n0,
 				I f1, iter_difference_t<I> n1,
 				buf_t<I>& buf, Comp& comp, Proj& proj)
@@ -163,7 +163,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			template<class I, class Comp, class Proj>
-			requires Sortable<I, Comp, Proj>
+			requires sortable<I, Comp, Proj>
 			static I sort_n_adaptive(I first, const iter_difference_t<I> n, buf_t<I>& buf,
 				Comp& comp, Proj& proj)
 			{

@@ -26,8 +26,8 @@ STL2_OPEN_NAMESPACE {
 	using swap_ranges_result = __in_in_result<I1, I2>;
 
 	struct __swap_ranges3_fn {
-		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2>
-		requires IndirectlySwappable<I1, I2>
+		template<forward_iterator I1, sentinel_for<I1> S1, forward_iterator I2>
+		requires indirectly_swappable<I1, I2>
 		constexpr swap_ranges_result<I1, I2>
 		operator()(I1 first1, S1 last1, I2 first2) const {
 			for (; first1 != last1; (void) ++first1, (void) ++first2) {
@@ -40,9 +40,9 @@ STL2_OPEN_NAMESPACE {
 	inline constexpr __swap_ranges3_fn __swap_ranges3 {};
 
 	struct __swap_ranges_fn : private __niebloid {
-		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
-			Sentinel<I2> S2>
-		requires IndirectlySwappable<I1, I2>
+		template<forward_iterator I1, sentinel_for<I1> S1, forward_iterator I2,
+			sentinel_for<I2> S2>
+		requires indirectly_swappable<I1, I2>
 		constexpr swap_ranges_result<I1, I2>
 		operator()(I1 first1, S1 last1, I2 first2, S2 last2) const {
 			for (; bool(first1 != last1) && bool(first2 != last2);
@@ -53,8 +53,8 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first1), std::move(first2)};
 		}
 
-		template<ForwardRange R1, ForwardRange R2>
-		requires IndirectlySwappable<iterator_t<R1>, iterator_t<R2>>
+		template<forward_range R1, forward_range R2>
+		requires indirectly_swappable<iterator_t<R1>, iterator_t<R2>>
 		constexpr swap_ranges_result<safe_iterator_t<R1>, safe_iterator_t<R2>>
 		operator()(R1&& r1, R2&& r2) const {
 			return (*this)(begin(r1), end(r1), begin(r2), end(r2));

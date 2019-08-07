@@ -24,7 +24,7 @@
 
 STL2_OPEN_NAMESPACE {
 	// Not to spec:
-	// * Extension: satisfies equality_comparable and Sentinel<default_sentinel>
+	// * Extension: satisfies equality_comparable and sentinel_for<default_sentinel>
 	template<class charT, class traits = std::char_traits<charT>>
 	class ostreambuf_iterator {
 	public:

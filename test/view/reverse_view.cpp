@@ -16,36 +16,38 @@
 #include "../test_iterators.hpp"
 
 namespace ranges = __stl2;
+namespace views = ranges::views;
 
 int main() {
-	using namespace ranges;
+	using ranges::view, ranges::range, ranges::sized_range, ranges::common_range;
+	using ranges::bidirectional_range, ranges::random_access_range;
 	{
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
-		auto x = rg | view::reverse;
+		auto x = rg | views::reverse;
 		CHECK_EQUAL(x, {9,8,7,6,5,4,3,2,1,0});
-		static_assert(View<decltype(x)>);
-		static_assert(Range<const decltype(x)>);
-		static_assert(SizedRange<decltype(x)>);
-		static_assert(CommonRange<decltype(x)>);
-		static_assert(RandomAccessRange<decltype(x)>);
+		static_assert(view<decltype(x)>);
+		static_assert(range<const decltype(x)>);
+		static_assert(sized_range<decltype(x)>);
+		static_assert(common_range<decltype(x)>);
+		static_assert(random_access_range<decltype(x)>);
 	}
 	{
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
-		auto x = view::counted(bidirectional_iterator(rg), 5) | view::reverse;
+		auto x = views::counted(bidirectional_iterator(rg), 5) | views::reverse;
 		CHECK_EQUAL(x, {4,3,2,1,0});
-		static_assert(View<decltype(x)>);
-		static_assert(!Range<const decltype(x)>);
-		static_assert(SizedRange<decltype(x)>);
-		static_assert(CommonRange<decltype(x)>);
-		static_assert(BidirectionalRange<decltype(x)>);
-		static_assert(!RandomAccessRange<decltype(x)>);
+		static_assert(view<decltype(x)>);
+		static_assert(!range<const decltype(x)>);
+		static_assert(sized_range<decltype(x)>);
+		static_assert(common_range<decltype(x)>);
+		static_assert(bidirectional_range<decltype(x)>);
+		static_assert(!random_access_range<decltype(x)>);
 	}
 	{
 		// Regression test for CaseyCarter/cmcstl2#223
 		int a[] = {1, 7, 3, 6, 5, 2, 4, 8};
-		auto r0 = ranges::view::reverse(a);
+		auto r0 = views::reverse(a);
 		auto is_even = [](int i) { return i % 2 == 0; };
-		auto r1 = ranges::view::filter(r0, is_even);
+		auto r1 = views::filter(r0, is_even);
 		int sum = 0;
 		for (auto i : r1) {
 			sum += i;
@@ -56,16 +58,17 @@ int main() {
 	{
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
 #if 0
-		auto x = rg | view::reverse | view::reverse;
+		auto x = rg | views::reverse | views::reverse;
 		static_assert(same_as<decltype(x), ref_view<decltype(rg)>>);
 		CHECK(&x.base() == &rg);
 #else
-		auto x = view::reverse(rg);
+		using ranges::_RangeImpl, ranges::viewable_range;
+		auto x = views::reverse(rg);
 		using R = decltype(x);
-		static_assert(Range<R>);
+		static_assert(range<R>);
 		static_assert(!_RangeImpl<R>);
-		static_assert(View<R>);
-		static_assert(ViewableRange<R>);
+		static_assert(view<R>);
+		static_assert(viewable_range<R>);
 #endif
 	}
  	return test_result();

@@ -27,8 +27,8 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<View R, IndirectPredicate<iterator_t<R>> Pred>
-		requires InputRange<R> && std::is_object_v<Pred>
+		template<view R, IndirectPredicate<iterator_t<R>> Pred>
+		requires input_range<R> && std::is_object_v<Pred>
 		class STL2_EMPTY_BASES drop_while_view
 		: public view_interface<drop_while_view<R, Pred>>
 		, private detail::semiregular_box<Pred>
@@ -72,22 +72,22 @@ STL2_OPEN_NAMESPACE {
 		drop_while_view(R&&, Pred) -> drop_while_view<all_view<R>, Pred>;
 	} // namespace ext
 
-	namespace view::ext {
+	namespace views::ext {
 		struct __drop_while_fn : detail::__pipeable<__drop_while_fn> {
 			template<class Rng, class Pred>
 			constexpr auto operator()(Rng&& rng, Pred&& pred) const
 #if STL2_WORKAROUND_CLANGC_50
 			requires requires(Rng&& rng, Pred&& pred) {
 				__stl2::ext::drop_while_view{
-					view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
+					views::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
 			} {
 				return __stl2::ext::drop_while_view{
-					view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
+					views::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
 			}
 #else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				__stl2::ext::drop_while_view{
-					view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
+					views::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
 			)
 #endif // STL2_WORKAROUND_CLANGC_50
 

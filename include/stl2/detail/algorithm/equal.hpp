@@ -21,9 +21,9 @@
 STL2_OPEN_NAMESPACE {
 	struct __equal_fn : private __niebloid {
 	private:
-		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
+		template<input_iterator I1, sentinel_for<I1> S1, input_iterator I2,
 			class Pred, class Proj1, class Proj2>
-		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
+		requires indirectly_comparable<I1, I2, Pred, Proj1, Proj2>
 		static constexpr bool __equal_3(I1 first1, S1 last1, I2 first2,
 			Pred& pred, Proj1& proj1, Proj2& proj2)
 		{
@@ -37,9 +37,9 @@ STL2_OPEN_NAMESPACE {
 			return true;
 		}
 
-		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
-			Sentinel<I2> S2, class Pred, class Proj1, class Proj2>
-		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
+		template<input_iterator I1, sentinel_for<I1> S1, input_iterator I2,
+			sentinel_for<I2> S2, class Pred, class Proj1, class Proj2>
+		requires indirectly_comparable<I1, I2, Pred, Proj1, Proj2>
 		static constexpr bool __equal_4(I1 first1, S1 last1, I2 first2, S2 last2,
 			Pred& pred, Proj1& proj1, Proj2& proj2)
 		{
@@ -55,13 +55,13 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 	public:
-		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2, Sentinel<I2> S2,
+		template<input_iterator I1, sentinel_for<I1> S1, input_iterator I2, sentinel_for<I2> S2,
 			class Pred = equal_to, class Proj1 = identity, class Proj2 = identity>
-		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
+		requires indirectly_comparable<I1, I2, Pred, Proj1, Proj2>
 		constexpr bool operator()(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = {},
 			Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
-			if constexpr (SizedSentinel<S1, I1> && SizedSentinel<S2, I2>) {
+			if constexpr (sized_sentinel_for<S1, I1> && sized_sentinel_for<S2, I2>) {
 				auto len1 = distance(first1, last1);
 				auto len2 = distance(first2, std::move(last2));
 				return len1 == len2 &&
@@ -75,13 +75,13 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<InputRange R1, InputRange R2, class Pred = equal_to,
+		template<input_range R1, input_range R2, class Pred = equal_to,
 			class Proj1 = identity, class Proj2 = identity>
-		requires IndirectlyComparable<iterator_t<R1>, iterator_t<R2>, Pred, Proj1, Proj2>
+		requires indirectly_comparable<iterator_t<R1>, iterator_t<R2>, Pred, Proj1, Proj2>
 		constexpr bool operator()(R1&& r1, R2&& r2, Pred pred = {},
 			Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
-			if constexpr (SizedRange<R1> && SizedRange<R2>) {
+			if constexpr (sized_range<R1> && sized_range<R2>) {
 				return distance(r1) == distance(r2) &&
 					__equal_3(
 						begin(r1), end(r1),

@@ -33,7 +33,7 @@ bool counting_equals(const T &a, const T &b) {
 }
 
 int main() {
-	using namespace ranges;
+	using ranges::equal, ranges::distance, ranges::subrange;
 
 	auto test_case = [](const bool result, const int count,
 		const auto first1, const auto last1, const auto first2, const auto last2)

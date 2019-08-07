@@ -20,9 +20,9 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __lexicographical_compare_fn : private __niebloid {
-		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
-			Sentinel<I2> S2, class Proj1 = identity, class Proj2 = identity,
-			IndirectStrictWeakOrder<projected<I1, Proj1>,
+		template<input_iterator I1, sentinel_for<I1> S1, input_iterator I2,
+			sentinel_for<I2> S2, class Proj1 = identity, class Proj2 = identity,
+			indirect_strict_weak_order<projected<I1, Proj1>,
 				projected<I2, Proj2>> Comp = less>
 		constexpr bool operator()(I1 first1, S1 last1, I2 first2, S2 last2,
 			Comp comp = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
@@ -49,9 +49,9 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<InputRange Rng1, InputRange Rng2,
+		template<input_range Rng1, input_range Rng2,
 			class Proj1 = identity, class Proj2 = identity,
-			IndirectStrictWeakOrder<projected<iterator_t<Rng1>, Proj1>,
+			indirect_strict_weak_order<projected<iterator_t<Rng1>, Proj1>,
 				projected<iterator_t<Rng2>, Proj2>> Comp = less>
 		constexpr bool operator()(Rng1&& rng1, Rng2&& rng2,
 			Comp comp = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const

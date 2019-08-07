@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	} // namespace ext
 
-	namespace view::ext {
+	namespace views::ext {
 		struct __generate_fn : detail::__pipeable<__generate_fn> {
 			template<class F>
 			constexpr auto operator()(F&& f) const
@@ -128,7 +128,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __generate_fn generate {};
-	} // namespace view::ext
+	} // namespace views::ext
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_VIEW_GENERATE_HPP

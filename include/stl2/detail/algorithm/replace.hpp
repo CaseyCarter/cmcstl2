@@ -20,10 +20,10 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __replace_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, class T1, class T2,
+		template<input_iterator I, sentinel_for<I> S, class T1, class T2,
 			class Proj = identity>
-		requires Writable<I, const T2&> &&
-			IndirectRelation<equal_to, projected<I, Proj>, const T1*>
+		requires writable<I, const T2&> &&
+			indirect_relation<equal_to, projected<I, Proj>, const T1*>
 		constexpr I operator()(I first, S last, const T1& old_value,
 			const T2& new_value, Proj proj = {}) const
 		{
@@ -35,9 +35,9 @@ STL2_OPEN_NAMESPACE {
 			return first;
 		}
 
-		template<InputRange R, class T1, class T2, class Proj = identity>
-		requires Writable<iterator_t<R>, const T2&> &&
-			IndirectRelation<equal_to, projected<iterator_t<R>, Proj>, const T1*>
+		template<input_range R, class T1, class T2, class Proj = identity>
+		requires writable<iterator_t<R>, const T2&> &&
+			indirect_relation<equal_to, projected<iterator_t<R>, Proj>, const T1*>
 		constexpr safe_iterator_t<R> operator()(R&& r, const T1& old_value,
 			const T2& new_value, Proj proj = {}) const
 		{

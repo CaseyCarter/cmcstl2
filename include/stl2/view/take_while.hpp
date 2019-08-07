@@ -27,9 +27,9 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<View R, class Pred>
-		requires InputRange<R> && std::is_object_v<Pred> &&
-			IndirectUnaryPredicate<const Pred, iterator_t<R>>
+		template<view R, class Pred>
+		requires input_range<R> && std::is_object_v<Pred> &&
+			indirect_unary_predicate<const Pred, iterator_t<R>>
 		class STL2_EMPTY_BASES take_while_view
 		: public view_interface<take_while_view<R, Pred>>
 		, private detail::semiregular_box<Pred> {
@@ -46,10 +46,10 @@ STL2_OPEN_NAMESPACE {
 			constexpr const Pred& pred() const noexcept { return get(); }
 
 			constexpr auto begin() requires (!SimpleView<R>) { return begin_impl(*this); }
-			constexpr auto begin() const requires Range<const R> { return begin_impl(*this); }
+			constexpr auto begin() const requires range<const R> { return begin_impl(*this); }
 
 			constexpr auto end() requires (!SimpleView<R>) { return end_impl(*this); }
-			constexpr auto end() const requires Range<const R>
+			constexpr auto end() const requires range<const R>
 			{ return end_impl(*this); }
 		private:
 			R base_;
@@ -67,9 +67,9 @@ STL2_OPEN_NAMESPACE {
 		template<class R, class Pred>
 		take_while_view(R&&, Pred) -> take_while_view<all_view<R>, Pred>;
 
-		template<View R, class Pred>
-		requires InputRange<R> && std::is_object_v<Pred> &&
-			IndirectUnaryPredicate<const Pred, iterator_t<R>>
+		template<view R, class Pred>
+		requires input_range<R> && std::is_object_v<Pred> &&
+			indirect_unary_predicate<const Pred, iterator_t<R>>
 		template<bool Const>
 		class take_while_view<R, Pred>::__sentinel {
 			friend __sentinel<false>;
@@ -96,21 +96,21 @@ STL2_OPEN_NAMESPACE {
 		};
 	} // namespace ext
 
-	namespace view::ext {
+	namespace views::ext {
 		struct __take_while_fn : detail::__pipeable<__take_while_fn> {
 			template<class Rng, class Pred>
 			constexpr auto operator()(Rng&& rng, Pred&& pred) const
 #if STL2_WORKAROUND_CLANGC_50
 			requires requires(Rng&& rng, Pred&& pred) {
 				__stl2::ext::take_while_view{
-					view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
+					views::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
 			} {
 				return __stl2::ext::take_while_view{
-					view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
+					views::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
 			}
 #else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
-				__stl2::ext::take_while_view{view::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
+				__stl2::ext::take_while_view{views::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
 			)
 #endif // STL2_WORKAROUND_CLANGC_50
 
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __take_while_fn take_while {};
-	} // namespace view::ext
+	} // namespace views::ext
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_VIEW_TAKE_WHILE_HPP

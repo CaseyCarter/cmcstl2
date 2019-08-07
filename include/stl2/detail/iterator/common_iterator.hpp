@@ -24,7 +24,7 @@
 // common_iterator [common.iterators]
 //
 STL2_OPEN_NAMESPACE {
-	template<Iterator I, Sentinel<I> S>
+	template<input_or_output_iterator I, sentinel_for<I> S>
 	requires (!same_as<I, S>)
 	class common_iterator;
 
@@ -51,13 +51,13 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			// Not to spec: Here to avoid LLVM 37556
-			template<InputIterator I, class S>
+			template<input_iterator I, class S>
 			friend iter_rvalue_reference_t<I>
 			iter_move(const common_iterator<I, S>& i)
 			noexcept(noexcept(__stl2::iter_move(std::declval<const I&>()))) {
 				return __stl2::iter_move(__stl2::__unchecked_get<I>(v(i)));
 			}
-			template<class I1, class S1, IndirectlySwappable<I1> I2, class S2>
+			template<class I1, class S1, indirectly_swappable<I1> I2, class S2>
 			friend void iter_swap(
 				const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
 			noexcept(noexcept(__stl2::iter_swap(std::declval<const I1&>(),
@@ -69,8 +69,8 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			// Not to spec: here avoid GCC hidden friend constraint bugs
-			template<class I1, class S1, SizedSentinel<I1> I2, SizedSentinel<I1> S2>
-			requires SizedSentinel<S1, I2>
+			template<class I1, class S1, sized_sentinel_for<I1> I2, sized_sentinel_for<I1> S2>
+			requires sized_sentinel_for<S1, I2>
 			friend iter_difference_t<I2> operator-(
 				const common_iterator<I1, S1>& x, const common_iterator<I2, S2>& y)
 			{
@@ -79,9 +79,9 @@ STL2_OPEN_NAMESPACE {
 			}
 
 		private:
-			template<class I1, Sentinel<I1> S1, class I2, Sentinel<I2> S2>
-			requires SizedSentinel<I2, I1> && SizedSentinel<S2, I1> &&
-				SizedSentinel<S1, I2>
+			template<class I1, sentinel_for<I1> S1, class I2, sentinel_for<I2> S2>
+			requires sized_sentinel_for<I2, I1> && sized_sentinel_for<S2, I1> &&
+				sized_sentinel_for<S1, I2>
 			struct difference_visitor {
 				template<class T, class U>
 				constexpr iter_difference_t<I2>
@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 			};
 		};
 
-		template<class I1, Sentinel<I1> S1, class I2, Sentinel<I2> S2>
+		template<class I1, sentinel_for<I1> S1, class I2, sentinel_for<I2> S2>
 		requires convertible_to<const I2&, I1> && convertible_to<const S2&, S1>
 		struct convert_visitor {
 			constexpr auto operator()(const I2& i) const
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 
-		template<class I1, Sentinel<I1> S1, class I2, Sentinel<I2> S2>
+		template<class I1, sentinel_for<I1> S1, class I2, sentinel_for<I2> S2>
 		requires convertible_to<const I2&, I1> && convertible_to<const S2&, S1> &&
 			assignable_from<I1&, const I2&> && assignable_from<S1&, const S2&>
 		struct assign_visitor {
@@ -133,8 +133,8 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 
-		template<class I1, Sentinel<I1> S1, class I2, Sentinel<I2> S2>
-		requires Sentinel<S1, I2>
+		template<class I1, sentinel_for<I1> S1, class I2, sentinel_for<I2> S2>
+		requires sentinel_for<S1, I2>
 		struct equal_visitor {
 			constexpr bool operator()(const I1&, const I2&) const noexcept {
 				return true;
@@ -159,7 +159,7 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT _HasArrow = requires(I& i) { i.operator->(); };
 
 	// common_iterator [common.iterator]
-	template<Iterator I, Sentinel<I> S>
+	template<input_or_output_iterator I, sentinel_for<I> S>
 	requires (!same_as<I, S>)
 	class common_iterator
 	: __common_iterator::access
@@ -214,7 +214,7 @@ STL2_OPEN_NAMESPACE {
 			return *__stl2::__unchecked_get<I>(v_);
 		}
 		decltype(auto) operator->() const
-		requires Readable<const I> &&
+		requires readable<const I> &&
 			(_HasArrow<const I> ||
 			 std::is_reference_v<iter_reference_t<I>> ||
 			 constructible_from<iter_value_t<I>, iter_reference_t<I>>)
@@ -239,7 +239,7 @@ STL2_OPEN_NAMESPACE {
 		decltype(auto) operator++(int)
 		{
 			auto& i = __stl2::__unchecked_get<I>(v_);
-			if constexpr (ForwardIterator<I>) {
+			if constexpr (forward_iterator<I>) {
 				auto tmp = *this;
 				++i;
 				return tmp;
@@ -247,16 +247,16 @@ STL2_OPEN_NAMESPACE {
 				return i++;
 		}
 
-		template<class I2, Sentinel<I> S2>
-		requires Sentinel<S, I2>
+		template<class I2, sentinel_for<I> S2>
+		requires sentinel_for<S, I2>
 		friend bool
 		operator==(const common_iterator& x, const common_iterator<I2, S2>& y) {
 			return __stl2::__unchecked_visit(
 				__common_iterator::equal_visitor<I, S, I2, S2>{}, x.v_,
 				__common_iterator::access::v(y));
 		}
-		template<class I2, Sentinel<I> S2>
-		requires Sentinel<S, I2>
+		template<class I2, sentinel_for<I> S2>
+		requires sentinel_for<S, I2>
 		friend bool
 		operator!=(const common_iterator& x, const common_iterator<I2, S2>& y) {
 			return !(x == y);
@@ -268,16 +268,16 @@ STL2_OPEN_NAMESPACE {
 		using difference_type = iter_difference_t<I>;
 	};
 
-	template<Readable I, class S>
+	template<readable I, class S>
 	struct readable_traits<common_iterator<I, S>> {
 		using value_type = iter_value_t<I>;
 	};
 
-	template<InputIterator I, class S>
+	template<input_iterator I, class S>
 	struct iterator_category<common_iterator<I, S>> {
 		using type = input_iterator_tag;
 	};
-	template<ForwardIterator I, class S>
+	template<forward_iterator I, class S>
 	struct iterator_category<common_iterator<I, S>> {
 		using type = forward_iterator_tag;
 	};

@@ -7,14 +7,14 @@ int main() {
 	{
 		using I = subrange<int*, int*>;
 		using CI = subrange<const int*, const int*>;
-		static_assert(View<I>);
-		static_assert(SizedRange<I>);
-		static_assert(ContiguousRange<I>);
-		static_assert(CommonRange<I>);
-		static_assert(View<CI>);
-		static_assert(SizedRange<CI>);
-		static_assert(ContiguousRange<CI>);
-		static_assert(CommonRange<CI>);
+		static_assert(view<I>);
+		static_assert(sized_range<I>);
+		static_assert(contiguous_range<I>);
+		static_assert(common_range<I>);
+		static_assert(view<CI>);
+		static_assert(sized_range<CI>);
+		static_assert(contiguous_range<CI>);
+		static_assert(common_range<CI>);
 	}
 
 	{
@@ -22,10 +22,10 @@ int main() {
 		static constexpr std::size_t n = size(some_ints);
 		auto r = subrange(some_ints + 0, some_ints + n);
 		using R = decltype(r);
-		static_assert(View<R>);
-		static_assert(SizedRange<R>);
-		static_assert(ContiguousRange<R>);
-		static_assert(CommonRange<R>);
+		static_assert(view<R>);
+		static_assert(sized_range<R>);
+		static_assert(contiguous_range<R>);
+		static_assert(common_range<R>);
 
 		CHECK(begin(r) == some_ints + 0);
 		CHECK(end(r) == some_ints + n);

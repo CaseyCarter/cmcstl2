@@ -26,7 +26,7 @@ struct T
 
 int main()
 {
-	using namespace __stl2;
+	using __stl2::count_if, __stl2::size, __stl2::subrange;
 
 	auto equals = [](auto&& i){
 	  return [i = static_cast<decltype(i)>(i)](const auto& j) {

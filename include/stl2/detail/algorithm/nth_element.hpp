@@ -32,9 +32,9 @@
 STL2_OPEN_NAMESPACE {
 	struct __nth_element_fn : private __niebloid {
 		// TODO: refactor this monstrosity.
-		template<RandomAccessIterator I, Sentinel<I> S, class Comp = less,
+		template<random_access_iterator I, sentinel_for<I> S, class Comp = less,
 			class Proj = identity>
-		requires Sortable<I, Comp, Proj>
+		requires sortable<I, Comp, Proj>
 		constexpr I operator()(I first, I nth, S last, Comp comp = {},
 			Proj proj = {}) const
 		{
@@ -214,8 +214,8 @@ STL2_OPEN_NAMESPACE {
 			return end_orig;
 		}
 
-		template<RandomAccessRange Rng, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<Rng>, Comp, Proj>
+		template<random_access_range Rng, class Comp = less, class Proj = identity>
+		requires sortable<iterator_t<Rng>, Comp, Proj>
 		constexpr safe_iterator_t<Rng> operator()(Rng&& rng, iterator_t<Rng> nth,
 			Comp comp = {}, Proj proj = {}) const
 		{
@@ -225,7 +225,7 @@ STL2_OPEN_NAMESPACE {
 	private:
 		// stable, 2-3 compares, 0-2 swaps
 		template<class I, class C, class P>
-		requires Sortable<I, C, P>
+		requires sortable<I, C, P>
 		static constexpr unsigned sort3(I x, I y, I z, C& comp, P& proj) {
 			auto pred = [&](auto&& lhs, auto&& rhs) -> bool {
 				return __stl2::invoke(comp,
@@ -258,8 +258,8 @@ STL2_OPEN_NAMESPACE {
 			return 1;
 		}
 
-		template<BidirectionalIterator I, class C, class P>
-		requires Sortable<I, C, P>
+		template<bidirectional_iterator I, class C, class P>
+		requires sortable<I, C, P>
 		static constexpr void selection_sort(I begin, I end, C &comp, P &proj) {
 			STL2_EXPECT(begin != end);
 			for (I lm1 = prev(end); begin != lm1; ++begin) {

@@ -24,9 +24,9 @@ STL2_OPEN_NAMESPACE {
 	using mismatch_result = __in_in_result<I1, I2>;
 
 	struct __mismatch_fn : private __niebloid {
-		template<InputIterator I1, Sentinel<I1> S1, InputIterator I2,
-			Sentinel<I2> S2, class Proj1 = identity, class Proj2 = identity,
-			IndirectRelation<projected<I1, Proj1>,
+		template<input_iterator I1, sentinel_for<I1> S1, input_iterator I2,
+			sentinel_for<I2> S2, class Proj1 = identity, class Proj2 = identity,
+			indirect_relation<projected<I1, Proj1>,
 				projected<I2, Proj2>> Pred = equal_to>
 		constexpr mismatch_result<I1, I2>
 		operator()(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = {},
@@ -46,9 +46,9 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first1), std::move(first2)};
 		}
 
-		template<InputRange R1, InputRange R2,
+		template<input_range R1, input_range R2,
 			class Proj1 = identity, class Proj2 = identity,
-			IndirectRelation<projected<iterator_t<R1>, Proj1>,
+			indirect_relation<projected<iterator_t<R1>, Proj1>,
 				projected<iterator_t<R2>, Proj2>> Pred = equal_to>
 		constexpr mismatch_result<safe_iterator_t<R1>, safe_iterator_t<R2>>
 		operator()(R1&& r1, R2&& r2, Pred pred = {},

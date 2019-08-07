@@ -108,12 +108,12 @@ namespace {
 int main() {
 	{
 		static_assert(
-			ranges::ForwardIterator<
+			ranges::forward_iterator<
 				__stl2::common_iterator<
 					bidirectional_iterator<const char *>,
 					sentinel<const char *>>>);
 		static_assert(
-			!ranges::BidirectionalIterator<
+			!ranges::bidirectional_iterator<
 				__stl2::common_iterator<
 					bidirectional_iterator<const char *>,
 					sentinel<const char *>>>);
@@ -136,7 +136,7 @@ int main() {
 			>::value);
 		// Sized iterator range tests
 		static_assert(
-			!ranges::SizedSentinel<
+			!ranges::sized_sentinel_for<
 				__stl2::common_iterator<
 					forward_iterator<int*>,
 					sentinel<int*, true> >,
@@ -144,7 +144,7 @@ int main() {
 					forward_iterator<int*>,
 					sentinel<int*, true> > >);
 		static_assert(
-			ranges::SizedSentinel<
+			ranges::sized_sentinel_for<
 				__stl2::common_iterator<
 					random_access_iterator<int*>,
 					sentinel<int*, true> >,
@@ -152,7 +152,7 @@ int main() {
 					random_access_iterator<int*>,
 					sentinel<int*, true> > >);
 		static_assert(
-			!ranges::SizedSentinel<
+			!ranges::sized_sentinel_for<
 				__stl2::common_iterator<
 					random_access_iterator<int*>,
 					sentinel<int*, false> >,

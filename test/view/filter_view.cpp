@@ -45,24 +45,24 @@ int main() {
 	using namespace ranges;
 
 	int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-	static_assert(size(view::all(rgi))==10);
+	static_assert(size(views::all(rgi))==10);
 
-	auto rng = rgi | view::filter(is_odd());
+	auto rng = rgi | views::filter(is_odd());
 	static_assert(same_as<int &, decltype(*begin(rgi))>);
 	static_assert(same_as<int &, decltype(*begin(rng))>);
-	static_assert(View<decltype(rng)>);
-	static_assert(InputRange<decltype(rng)>);
-	static_assert(CommonRange<decltype(rng)>);
-	static_assert(!SizedRange<decltype(rng)>);
-	static_assert(BidirectionalRange<decltype(rng)>);
-	static_assert(!RandomAccessRange<decltype(rng)>);
+	static_assert(view<decltype(rng)>);
+	static_assert(input_range<decltype(rng)>);
+	static_assert(common_range<decltype(rng)>);
+	static_assert(!sized_range<decltype(rng)>);
+	static_assert(bidirectional_range<decltype(rng)>);
+	static_assert(!random_access_range<decltype(rng)>);
 	CHECK_EQUAL(rng, {1,3,5,7,9});
 
-	CHECK_EQUAL(rng | view::reverse, {9,7,5,3,1});
-	auto tmp = rng | view::reverse;
+	CHECK_EQUAL(rng | views::reverse, {9,7,5,3,1});
+	auto tmp = rng | views::reverse;
 	CHECK(&*begin(tmp) == &rgi[8]);
 
-	// auto rng2 = view::counted(rgi, 10) | view::remove_if(not_fn(is_odd()));
+	// auto rng2 = views::counted(rgi, 10) | views::remove_if(not_fn(is_odd()));
 	// static_assert(same_as<int &, decltype(*begin(rng2))>);
 	// static_assert(BidirectionalView<__f<decltype(rng2)>>);
 	// static_assert(!RandomAccessView<__f<decltype(rng2)>>);
@@ -71,7 +71,7 @@ int main() {
 	// CHECK_EQUAL(rng2, {1,3,5,7,9});
 	// CHECK(&*begin(rng2) == &rgi[0]);
 
-	// auto rng3 = view::counted(bidirectional_iterator<int*>{rgi}, 10) | view::remove_if(is_even());
+	// auto rng3 = views::counted(bidirectional_iterator<int*>{rgi}, 10) | views::remove_if(is_even());
 	// static_assert(same_as<int &, decltype(*begin(rng3))>);
 	// static_assert(BidirectionalView<__f<decltype(rng3)>>);
 	// static_assert(!RandomAccessView<__f<decltype(rng3)>>);
@@ -87,31 +87,31 @@ int main() {
 	detail::semiregular_box<decltype(f)> b{f};
 	auto b2 = b;
 	b = b2;
-	auto mutable_rng = view::filter(rgi, [flag](int) mutable { return flag = !flag;});
+	auto mutable_rng = views::filter(rgi, [flag](int) mutable { return flag = !flag;});
 	CHECK_EQUAL(mutable_rng, {1,3,5,7,9});
-	static_assert(Range<decltype(mutable_rng)>);
+	static_assert(range<decltype(mutable_rng)>);
 	static_assert(copyable<decltype(mutable_rng)>);
-	static_assert(!View<decltype(mutable_rng) const>);
+	static_assert(!view<decltype(mutable_rng) const>);
 
 	// {
 	//	 const std::array<int, 3> a{{0, 1, 2}};
 	//	 const std::vector<int> b{3, 4, 5, 6};
 
-	//	 auto r = view::concat(a, b);
+	//	 auto r = views::concat(a, b);
 	//	 auto f = [](int i) { return i != 1 && i != 5; };
-	//	 auto r2 = r | view::remove_if(f);
+	//	 auto r2 = r | views::remove_if(f);
 	//	 CHECK_EQUAL(r2, {1,5});
 	// }
 
 	// {
-	//	 auto rng = debug_input_view<int const>{rgi} | view::remove_if(is_even{});
+	//	 auto rng = debug_input_view<int const>{rgi} | views::remove_if(is_even{});
 	//	 CHECK_EQUAL(rng, {1,3,5,7,9});
 	// }
 
 	{
 		// Test operator-> with pointer
 		std::pair<int, int> pairs[] = {{1, 99}, {2, 1}, {3, 99}, {4, 3}};
-		auto rng = view::filter(pairs, [](auto&& p) { return p.first % 2 == 0; });
+		auto rng = views::filter(pairs, [](auto&& p) { return p.first % 2 == 0; });
 		auto i = ranges::begin(rng);
 		auto const e = ranges::end(rng);
 		int sum = 0;
@@ -124,7 +124,7 @@ int main() {
 	{
 		// Test operator-> with non-pointer
 		std::list<std::pair<int, int>> pairs = {{1, 99}, {2, 1}, {3, 99}, {4, 3}};
-		auto rng = view::filter(pairs, [](auto&& p) { return p.first % 2 == 0; });
+		auto rng = views::filter(pairs, [](auto&& p) { return p.first % 2 == 0; });
 		auto i = ranges::begin(rng);
 		auto const e = ranges::end(rng);
 		int sum = 0;
@@ -136,13 +136,13 @@ int main() {
 
 	{
 		auto yes = [](int) { return true; };
-		(void) (view::iota(0) | view::filter(yes));
+		(void) (views::iota(0) | views::filter(yes));
 	}
 
 	{
 		auto yes = [](int) { return true; };
-		auto const rng = view::iota(0) | view::filter(yes);
-		view::all(rng);
+		auto const rng = views::iota(0) | views::filter(yes);
+		views::all(rng);
 	}
 
 	return test_result();

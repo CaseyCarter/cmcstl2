@@ -27,8 +27,8 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<InputRange V, copy_constructible F>
-	requires View<V> && std::is_object_v<F> &&
+	template<input_range V, copy_constructible F>
+	requires view<V> && std::is_object_v<F> &&
 		regular_invocable<F&, iter_reference_t<iterator_t<V>>>
 	class transform_view : public view_interface<transform_view<V, F>> {
 	private:
@@ -51,12 +51,12 @@ STL2_OPEN_NAMESPACE {
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		template<class ConstV = const V>
-		constexpr __iterator<true> begin() const requires Range<ConstV> &&
+		constexpr __iterator<true> begin() const requires range<ConstV> &&
 			regular_invocable<const F&, iter_reference_t<iterator_t<ConstV>>>
 		{ return {*this, __stl2::begin(base_)}; }
 
 		constexpr auto end() {
-			if constexpr (CommonRange<V>) {
+			if constexpr (common_range<V>) {
 				return __iterator<false>{*this, __stl2::end(base_)};
 			} else {
 				return __sentinel<false>{__stl2::end(base_)};
@@ -65,28 +65,28 @@ STL2_OPEN_NAMESPACE {
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		template<class ConstV = const V>
-		constexpr auto end() const requires Range<ConstV> &&
+		constexpr auto end() const requires range<ConstV> &&
 			regular_invocable<const F&, iter_reference_t<iterator_t<ConstV>>>
 		{
-			if constexpr (CommonRange<const V>) {
+			if constexpr (common_range<const V>) {
 				return __iterator<true>{*this, __stl2::end(base_)};
 			} else {
 				return __sentinel<true>{__stl2::end(base_)};
 			}
 		}
 
-		constexpr auto size() requires SizedRange<V>
+		constexpr auto size() requires sized_range<V>
 		{ return __stl2::size(base_); }
 
-		constexpr auto size() const requires SizedRange<const V>
+		constexpr auto size() const requires sized_range<const V>
 		{ return __stl2::size(base_); }
 	};
 
 	template<class R, class F>
 	transform_view(R&& r, F fun) -> transform_view<all_view<R>, F>;
 
-	template<InputRange V, copy_constructible F>
-	requires View<V> && std::is_object_v<F> &&
+	template<input_range V, copy_constructible F>
+	requires view<V> && std::is_object_v<F> &&
 		regular_invocable<F&, iter_reference_t<iterator_t<V>>>
 	template<bool Const>
 	class transform_view<V, F>::__iterator {
@@ -126,19 +126,19 @@ STL2_OPEN_NAMESPACE {
 		}
 		constexpr void operator++(int)
 		{ ++current_; }
-		constexpr __iterator operator++(int) requires ForwardRange<Base>
+		constexpr __iterator operator++(int) requires forward_range<Base>
 		{
 			auto tmp = *this;
 			++*this;
 			return tmp;
 		}
 
-		constexpr __iterator& operator--() requires BidirectionalRange<Base>
+		constexpr __iterator& operator--() requires bidirectional_range<Base>
 		{
 			--current_;
 			return *this;
 		}
-		constexpr __iterator operator--(int) requires BidirectionalRange<Base>
+		constexpr __iterator operator--(int) requires bidirectional_range<Base>
 		{
 			auto tmp = *this;
 			--*this;
@@ -146,19 +146,19 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr __iterator& operator+=(difference_type n)
-		requires RandomAccessRange<Base>
+		requires random_access_range<Base>
 		{
 			current_ += n;
 			return *this;
 		}
 		constexpr __iterator& operator-=(difference_type n)
-		requires RandomAccessRange<Base>
+		requires random_access_range<Base>
 		{
 			current_ -= n;
 			return *this;
 		}
 		constexpr decltype(auto) operator[](difference_type n) const
-		requires RandomAccessRange<Base>
+		requires random_access_range<Base>
 		{ return invoke(parent_->fun_.get(), current_[n]); }
 
 		friend constexpr bool operator==(const __iterator& x, const __iterator& y)
@@ -170,35 +170,35 @@ STL2_OPEN_NAMESPACE {
 		{ return !(x == y); }
 
 		friend constexpr bool operator<(const __iterator& x, const __iterator& y)
-		requires RandomAccessRange<Base>
+		requires random_access_range<Base>
 		{ return x.current_ < y.current_; }
 
 		friend constexpr bool operator>(const __iterator& x, const __iterator& y)
-		requires RandomAccessRange<Base>
+		requires random_access_range<Base>
 		{ return y < x; }
 
 		friend constexpr bool operator<=(const __iterator& x, const __iterator& y)
-		requires RandomAccessRange<Base>
+		requires random_access_range<Base>
 		{ return !(y < x); }
 
 		friend constexpr bool operator>=(const __iterator& x, const __iterator& y)
-		requires RandomAccessRange<Base>
+		requires random_access_range<Base>
 		{ return !(x < y); }
 
 		friend constexpr __iterator operator+(__iterator i, difference_type n)
-		requires RandomAccessRange<Base>
+		requires random_access_range<Base>
 		{ return __iterator{*i.parent_, i.current_ + n}; }
 
 		friend constexpr __iterator operator+(difference_type n, __iterator i)
-		requires RandomAccessRange<Base>
+		requires random_access_range<Base>
 		{ return __iterator{*i.parent_, i.current_ + n}; }
 
 		friend constexpr __iterator operator-(__iterator i, difference_type n)
-		requires RandomAccessRange<Base>
+		requires random_access_range<Base>
 		{ return __iterator{*i.parent_, i.current_ - n}; }
 
 		friend constexpr difference_type operator-(const __iterator& x, const __iterator& y)
-		requires RandomAccessRange<Base>
+		requires random_access_range<Base>
 		{ return x.current_ - y.current_; }
 
 		friend constexpr decltype(auto) iter_move(const __iterator& i)
@@ -215,8 +215,8 @@ STL2_OPEN_NAMESPACE {
 		{ __stl2::iter_swap(x.current_, y.current_); }
 	};
 
-	template<InputRange V, copy_constructible F>
-	requires View<V> && std::is_object_v<F> &&
+	template<input_range V, copy_constructible F>
+	requires view<V> && std::is_object_v<F> &&
 		regular_invocable<F&, iter_reference_t<iterator_t<V>>>
 	template<bool Const>
 	class transform_view<V, F>::__sentinel {
@@ -258,20 +258,20 @@ STL2_OPEN_NAMESPACE {
 
 		friend constexpr iter_difference_t<iterator_t<Base>>
 		operator-(const __iterator<Const>& x, const __sentinel& y)
-		requires SizedSentinel<sentinel_t<Base>, iterator_t<Base>>
+		requires sized_sentinel_for<sentinel_t<Base>, iterator_t<Base>>
 		{ return -y.distance(x); }
 
 		friend constexpr iter_difference_t<iterator_t<Base>>
 		operator-(const __sentinel& y, const __iterator<Const>& x)
-		requires SizedSentinel<sentinel_t<Base>, iterator_t<Base>>
+		requires sized_sentinel_for<sentinel_t<Base>, iterator_t<Base>>
 		{ return y.distance(x); }
 	};
 
-	namespace view {
+	namespace views {
 		struct __transform_fn {
-			template<InputRange Rng, copy_constructible F>
+			template<input_range Rng, copy_constructible F>
 			requires
-				ViewableRange<Rng> && invocable<F&, iter_reference_t<iterator_t<Rng>>>
+				viewable_range<Rng> && invocable<F&, iter_reference_t<iterator_t<Rng>>>
 			constexpr auto operator()(Rng&& rng, F fun) const {
 				return transform_view{std::forward<Rng>(rng), std::move(fun)};
 			}
@@ -283,7 +283,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __transform_fn transform {};
-	} // namespace view
+	} // namespace views
 } STL2_CLOSE_NAMESPACE
 
 #endif

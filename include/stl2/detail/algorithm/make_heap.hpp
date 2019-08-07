@@ -31,9 +31,9 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __make_heap_fn : private __niebloid {
-		template<RandomAccessIterator I, Sentinel<I> S, class Comp = less,
+		template<random_access_iterator I, sentinel_for<I> S, class Comp = less,
 			class Proj = identity>
-		requires Sortable<I, Comp, Proj>
+		requires sortable<I, Comp, Proj>
 		constexpr I
 		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const {
 			auto n = distance(first, std::move(last));
@@ -41,8 +41,8 @@ STL2_OPEN_NAMESPACE {
 			return first + n;
 		}
 
-		template<RandomAccessRange Rng, class Comp = less, class Proj = identity>
-		requires Sortable<iterator_t<Rng>, Comp, Proj>
+		template<random_access_range Rng, class Comp = less, class Proj = identity>
+		requires sortable<iterator_t<Rng>, Comp, Proj>
 		constexpr safe_iterator_t<Rng>
 		operator()(Rng&& rng, Comp comp = {}, Proj proj = {}) const {
 			auto n = distance(rng);
@@ -50,8 +50,8 @@ STL2_OPEN_NAMESPACE {
 			return begin(rng) + n;
 		}
 	private:
-		template<RandomAccessIterator I, class Comp, class Proj>
-		requires Sortable<I, Comp, Proj>
+		template<random_access_iterator I, class Comp, class Proj>
+		requires sortable<I, Comp, Proj>
 		static void make_heap_n(I first, iter_difference_t<I> n, Comp comp, Proj proj) {
 			if (n > 1) {
 				// start from the first parent, there is no need to consider children

@@ -26,13 +26,13 @@ STL2_OPEN_NAMESPACE {
 		constexpr dangling(Arg&&) noexcept {}
 	};
 
-	template<Range R>
+	template<range R>
 	inline constexpr bool __is_forwarding_range = _ForwardingRange<R>;
 
-	template<Range R, class U>
+	template<range R, class U>
 	using __maybe_dangling = std::conditional_t<__is_forwarding_range<R>, U, dangling>;
 
-	template<Range R>
+	template<range R>
 	using safe_iterator_t = __maybe_dangling<R, iterator_t<R>>;
 
 } STL2_CLOSE_NAMESPACE

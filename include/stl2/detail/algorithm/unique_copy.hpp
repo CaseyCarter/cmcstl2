@@ -24,16 +24,16 @@ STL2_OPEN_NAMESPACE {
 	using unique_copy_result = __in_out_result<I, O>;
 
 	template<class I, class O>
-	META_CONCEPT __unique_copy_helper = InputIterator<I> &&  InputIterator<O> &&
+	META_CONCEPT __unique_copy_helper = input_iterator<I> &&  input_iterator<O> &&
 		same_as<iter_value_t<I>, iter_value_t<O>>;
 
 	struct __unique_copy_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
+		template<input_iterator I, sentinel_for<I> S, weakly_incrementable O,
 			class Proj = identity,
-			IndirectRelation<projected<I, Proj>> C = equal_to>
-		requires IndirectlyCopyable<I, O> &&
-			(ForwardIterator<I> || __unique_copy_helper<I, O> ||
-			 IndirectlyCopyableStorable<I, O>)
+			indirect_relation<projected<I, Proj>> C = equal_to>
+		requires indirectly_copyable<I, O> &&
+			(forward_iterator<I> || __unique_copy_helper<I, O> ||
+			 indirectly_copyable_storable<I, O>)
 		constexpr unique_copy_result<I, O> operator()(I first, const S last,
 			O result, C comp = {}, Proj proj = {}) const
 		{
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 						__stl2::invoke(proj, std::forward<decltype(lhs)>(lhs)),
 						__stl2::invoke(proj, std::forward<decltype(rhs)>(rhs))));
 				};
-				if constexpr (ForwardIterator<I>) {
+				if constexpr (forward_iterator<I>) {
 					*result = *first;
 					++result;
 					auto m = first;
@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 						}
 					}
 					++result;
-				} else { // IndirectlyCopyableStorable<I, O>
+				} else { // indirectly_copyable_storable<I, O>
 					iter_value_t<I> saved = *first;
 					*result = saved;
 					++result;
@@ -81,11 +81,11 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first), std::move(result)};
 		}
 
-		template<InputRange R, WeaklyIncrementable O, class Proj = identity,
-			IndirectRelation<projected<iterator_t<R>, Proj>> C = equal_to>
-		requires IndirectlyCopyable<iterator_t<R>, O> &&
-			(ForwardRange<R> || __unique_copy_helper<iterator_t<R>, O> ||
-			 IndirectlyCopyableStorable<iterator_t<R>, O>)
+		template<input_range R, weakly_incrementable O, class Proj = identity,
+			indirect_relation<projected<iterator_t<R>, Proj>> C = equal_to>
+		requires indirectly_copyable<iterator_t<R>, O> &&
+			(forward_range<R> || __unique_copy_helper<iterator_t<R>, O> ||
+			 indirectly_copyable_storable<iterator_t<R>, O>)
 		constexpr unique_copy_result<safe_iterator_t<R>, O>
 		operator()(R&& r, O result, C comp = {}, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), std::move(result),

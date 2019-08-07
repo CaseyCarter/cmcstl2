@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 		repeat_view(T) -> repeat_view<T>;
 	} // namespace ext
 
-	namespace view::ext {
+	namespace views::ext {
 		struct __repeat_fn {
 			template<class T>
 			constexpr auto operator()(T&& t) const
@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __repeat_fn repeat {};
-	} // namespace view::ext
+	} // namespace views::ext
 } STL2_CLOSE_NAMESPACE
 
 #endif

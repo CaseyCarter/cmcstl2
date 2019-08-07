@@ -21,9 +21,9 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __find_first_of_fn : private __niebloid {
-		template<InputIterator I1, Sentinel<I1> S1, ForwardIterator I2, Sentinel<I2> S2,
+		template<input_iterator I1, sentinel_for<I1> S1, forward_iterator I2, sentinel_for<I2> S2,
 			class Proj1 = identity, class Proj2 = identity,
-			IndirectRelation<projected<I1, Proj1>,	projected<I2, Proj2>> Pred = equal_to>
+			indirect_relation<projected<I1, Proj1>,	projected<I2, Proj2>> Pred = equal_to>
 		constexpr I1 operator()(I1 first1, S1 last1, I2 first2, S2 last2,
 			Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
@@ -39,9 +39,9 @@ STL2_OPEN_NAMESPACE {
 			return first1;
 		}
 
-		template<InputRange R1, ForwardRange R2,
+		template<input_range R1, forward_range R2,
 			class Proj1 = identity, class Proj2 = identity,
-			IndirectRelation<
+			indirect_relation<
 				projected<iterator_t<R1>, Proj1>,
 				projected<iterator_t<R2>, Proj2>> Pred = equal_to>
 		constexpr safe_iterator_t<R1>

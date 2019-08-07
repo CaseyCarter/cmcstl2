@@ -24,10 +24,10 @@ STL2_OPEN_NAMESPACE {
 	using replace_copy_if_result = __in_out_result<I, O>;
 
 	struct __replace_copy_if_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, class T,
-			OutputIterator<const T&> O, class Proj = identity,
-			IndirectUnaryPredicate<projected<I, Proj>> Pred>
-		requires IndirectlyCopyable<I, O>
+		template<input_iterator I, sentinel_for<I> S, class T,
+			output_iterator<const T&> O, class Proj = identity,
+			indirect_unary_predicate<projected<I, Proj>> Pred>
+		requires indirectly_copyable<I, O>
 		constexpr replace_copy_if_result<I, O>
 		operator()(I first, S last, O result, Pred pred,
 			const T& new_value, Proj proj = {}) const
@@ -43,10 +43,10 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first), std::move(result)};
 		}
 
-		template<InputRange R, class T, OutputIterator<const T&> O,
+		template<input_range R, class T, output_iterator<const T&> O,
 			class Proj = identity,
-			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
-		requires IndirectlyCopyable<iterator_t<R>, O>
+			indirect_unary_predicate<projected<iterator_t<R>, Proj>> Pred>
+		requires indirectly_copyable<iterator_t<R>, O>
 		constexpr replace_copy_if_result<safe_iterator_t<R>, O>
 		operator()(R&& r, O result, Pred pred, const T& new_value,
 			Proj proj = {}) const

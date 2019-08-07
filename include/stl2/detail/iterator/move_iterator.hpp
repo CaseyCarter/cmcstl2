@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 	template<semiregular> class move_sentinel;
 
 	namespace __move_iterator {
-		template<InputIterator> class cursor;
+		template<input_iterator> class cursor;
 
 		struct access {
 			template<_SpecializationOf<cursor> C>
@@ -38,14 +38,14 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template<InputIterator I>
+		template<input_iterator I>
 		class cursor {
 			friend access;
 			I current_{};
 		public:
 			using difference_type = iter_difference_t<I>;
 			using value_type = iter_value_t<I>;
-			using single_pass = meta::bool_<!ForwardIterator<I>>;
+			using single_pass = meta::bool_<!forward_iterator<I>>;
 
 			class mixin : protected basic_mixin<cursor> {
 				using base_t = basic_mixin<cursor>;
@@ -104,7 +104,7 @@ STL2_OPEN_NAMESPACE {
 			// BUGBUG doesn't correctly handle when decltype(current_++)
 			// is a reference.
 			using __postinc_t = std::decay_t<decltype(current_++)>;
-			template<Readable R>
+			template<readable R>
 			struct __proxy {
 				using value_type = __stl2::iter_value_t<R>;
 				R __tmp;
@@ -123,20 +123,20 @@ STL2_OPEN_NAMESPACE {
 #endif // STL2_WORKAROUND_GCC_69096
 			constexpr auto post_increment()
 			noexcept(noexcept(__proxy<__postinc_t>{current_++}))
-			requires (!ForwardIterator<I> && Readable<__postinc_t>) {
+			requires (!forward_iterator<I> && readable<__postinc_t>) {
 				return __proxy<__postinc_t>{current_++};
 			}
 
 			constexpr void prev()
 			noexcept(noexcept(--current_))
-			requires BidirectionalIterator<I>
+			requires bidirectional_iterator<I>
 			{
 				--current_;
 			}
 
 			constexpr void advance(iter_difference_t<I> n)
 			noexcept(noexcept(current_ += n))
-			requires RandomAccessIterator<I>
+			requires random_access_iterator<I>
 			{
 				current_ += n;
 			}
@@ -147,20 +147,20 @@ STL2_OPEN_NAMESPACE {
 				current_ == access::current(that)
 			)
 
-			template<Sentinel<I> S>
+			template<sentinel_for<I> S>
 			constexpr bool equal(const move_sentinel<S>& that) const
 			STL2_NOEXCEPT_RETURN(
 				current_ == access::sentinel(that)
 			)
 
-			template<SizedSentinel<I> S>
+			template<sized_sentinel_for<I> S>
 			constexpr iter_difference_t<I>
 			distance_to(const cursor<S>& that) const
 			STL2_NOEXCEPT_RETURN(
 				access::current(that) - current_
 			)
 
-			template<SizedSentinel<I> S>
+			template<sized_sentinel_for<I> S>
 			constexpr iter_difference_t<I>
 			distance_to(const move_sentinel<S>& that) const
 			STL2_NOEXCEPT_RETURN(
@@ -172,7 +172,7 @@ STL2_OPEN_NAMESPACE {
 				iter_move(current_)
 			)
 
-			template<IndirectlySwappable<I> I2>
+			template<indirectly_swappable<I> I2>
 			constexpr void indirect_swap(const cursor<I2>& that) const
 			STL2_NOEXCEPT_RETURN(
 				iter_swap(current_, access::current(that))
@@ -180,7 +180,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
-	template<InputIterator I>
+	template<input_iterator I>
 	using move_iterator = basic_iterator<__move_iterator::cursor<I>>;
 
 	template<class I>
@@ -219,7 +219,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<class I>
 	requires
-		InputIterator<__f<I>>
+		input_iterator<__f<I>>
 	constexpr auto make_move_iterator(I&& i)
 	STL2_NOEXCEPT_RETURN(
 		move_iterator<__f<I>>{std::forward<I>(i)}

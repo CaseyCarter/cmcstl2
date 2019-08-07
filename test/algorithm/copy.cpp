@@ -19,7 +19,7 @@
 
 namespace ranges = __stl2;
 
-template<ranges::InputIterator I>
+template<ranges::input_iterator I>
 	requires ranges::regular<ranges::iter_value_t<I>>
 struct delimiter {
 	delimiter() = default;

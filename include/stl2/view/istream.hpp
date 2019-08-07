@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	} // namespace ext
 
-	namespace view {
+	namespace views {
 		template<class Val>
 		requires requires { typename __stl2::ext::istream_view<Val>; }
 		struct __istream_fn {
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<class Val>
 		inline constexpr __istream_fn<Val> istream{};
-	} // namespace view
+	} // namespace views
 } STL2_CLOSE_NAMESPACE
 
 #endif

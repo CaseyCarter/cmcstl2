@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class I>
 	META_CONCEPT _NoThrowInputIterator =
-		InputIterator<I> &&
+		input_iterator<I> &&
 		std::is_lvalue_reference_v<iter_reference_t<I>> &&
 		same_as<__uncvref<iter_reference_t<I>>, iter_value_t<I>>;
 		// Axiom: no exceptions are thrown from increment, copy, move, assignment,
@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class S, class I>
 	META_CONCEPT _NoThrowSentinel =
-		Sentinel<S, I>;
+		sentinel_for<S, I>;
 		// Axiom: no exceptions are thrown from comparisons between objects of types
 		//        I and S.
 
@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class Rng>
 	META_CONCEPT _NoThrowInputRange =
-		Range<Rng> &&
+		range<Rng> &&
 		_NoThrowInputIterator<iterator_t<Rng>> &&
 		_NoThrowSentinel<sentinel_t<Rng>, iterator_t<Rng>>;
 		// Axiom: no exceptions are thrown from calls to begin and end on a Rng.
@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 	template<class I>
 	META_CONCEPT _NoThrowForwardIterator =
 		_NoThrowInputIterator<I> &&
-		ForwardIterator<I> &&
+		forward_iterator<I> &&
 		_NoThrowSentinel<I, I>;
 
 	///////////////////////////////////////////////////////////////////////////

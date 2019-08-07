@@ -36,7 +36,7 @@ namespace std {
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// Range [ranges.range]
+	// range [ranges.range]
 	//
 	template<class T>
 	using iterator_t = __begin_t<T&>;
@@ -52,24 +52,24 @@ STL2_OPEN_NAMESPACE {
 		};
 
 	template<class T>
-	META_CONCEPT Range = _RangeImpl<T&>;
+	META_CONCEPT range = _RangeImpl<T&>;
 
 	template<class T>
-	META_CONCEPT _ForwardingRange = Range<T> && _RangeImpl<T>;
+	META_CONCEPT _ForwardingRange = range<T> && _RangeImpl<T>;
 
 	template<class R>
-	META_CONCEPT SizedRange =
-		Range<R> && !disable_sized_range<__uncvref<R>> &&
+	META_CONCEPT sized_range =
+		range<R> && !disable_sized_range<__uncvref<R>> &&
 		requires(R& r) { size(r); };
 
 	///////////////////////////////////////////////////////////////////////////
-	// View [ranges.view]
+	// view [ranges.view]
 	//
 	struct view_base {};
 
 	template<class T>
 	META_CONCEPT _ContainerLike =
-		Range<T> && Range<const T> &&
+		range<T> && range<const T> &&
 		!same_as<iter_reference_t<iterator_t<T>>, iter_reference_t<iterator_t<const T>>>;
 
 	template<class T>
@@ -90,59 +90,59 @@ STL2_OPEN_NAMESPACE {
 	inline constexpr bool enable_view<std::unordered_multiset<Key, Hash, Pred, Alloc>> = false;
 
 	template<class T>
-	META_CONCEPT View =
-		Range<T> &&
+	META_CONCEPT view =
+		range<T> &&
 		semiregular<T> &&
 		enable_view<__uncvref<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// CommonRange
+	// common_range
 	//
 	template<class T>
-	META_CONCEPT CommonRange =
-		Range<T> && same_as<iterator_t<T>, sentinel_t<T>>;
+	META_CONCEPT common_range =
+		range<T> && same_as<iterator_t<T>, sentinel_t<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// OutputRange [ranges.output]
+	// output_range [ranges.output]
 	//
 	template<class R, class T>
-	META_CONCEPT OutputRange =
-		Range<R> && OutputIterator<iterator_t<R>, T>;
+	META_CONCEPT output_range =
+		range<R> && output_iterator<iterator_t<R>, T>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// InputRange [ranges.input]
+	// input_range [ranges.input]
 	//
 	template<class T>
-	META_CONCEPT InputRange =
-		Range<T> && InputIterator<iterator_t<T>>;
+	META_CONCEPT input_range =
+		range<T> && input_iterator<iterator_t<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// ForwardRange [ranges.forward]
+	// forward_range [ranges.forward]
 	//
 	template<class T>
-	META_CONCEPT ForwardRange =
-		InputRange<T> && ForwardIterator<iterator_t<T>>;
+	META_CONCEPT forward_range =
+		input_range<T> && forward_iterator<iterator_t<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// BidirectionalRange [ranges.bidirectional]
+	// bidirectional_range [ranges.bidirectional]
 	//
 	template<class T>
-	META_CONCEPT BidirectionalRange =
-		ForwardRange<T> && BidirectionalIterator<iterator_t<T>>;
+	META_CONCEPT bidirectional_range =
+		forward_range<T> && bidirectional_iterator<iterator_t<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// RandomAccessRange [ranges.random.access]
+	// random_access_range [ranges.random.access]
 	//
 	template<class T>
-	META_CONCEPT RandomAccessRange =
-		BidirectionalRange<T> && RandomAccessIterator<iterator_t<T>>;
+	META_CONCEPT random_access_range =
+		bidirectional_range<T> && random_access_iterator<iterator_t<T>>;
 
 	///////////////////////////////////////////////////////////////////////////
-	// ContiguousRange [ranges.contiguous]
+	// contiguous_range [ranges.contiguous]
 	//
 	template<class R>
-	META_CONCEPT ContiguousRange =
-		RandomAccessRange<R> && ContiguousIterator<iterator_t<R>> &&
+	META_CONCEPT contiguous_range =
+		random_access_range<R> && contiguous_iterator<iterator_t<R>> &&
 		requires(R& r) {
 			{ data(r) } -> same_as<std::add_pointer_t<iter_reference_t<iterator_t<R>>>>;
 		};
@@ -150,31 +150,31 @@ STL2_OPEN_NAMESPACE {
 	namespace ext {
 		template<class R>
 		META_CONCEPT SimpleView =
-			View<R> && Range<const R> &&
+			view<R> && range<const R> &&
 			same_as<iterator_t<R>, iterator_t<const R>> &&
 			same_as<sentinel_t<R>, sentinel_t<const R>>;
 	}
 
 	template<class Rng>
-	META_CONCEPT ViewableRange =
+	META_CONCEPT viewable_range =
 #if 1 // This is the PR of https://github.com/ericniebler/stl2/issues/623
-		View<__uncvref<Rng>> || _ForwardingRange<Rng>;
+		view<__uncvref<Rng>> || _ForwardingRange<Rng>;
 #else
-		Range<Rng> &&
-		(_RangeImpl<Rng> || View<std::decay_t<Rng>>);
+		range<Rng> &&
+		(_RangeImpl<Rng> || view<std::decay_t<Rng>>);
 #endif
 
 	namespace ext {
-		template<Range R>
+		template<range R>
 		using range_value_t = iter_value_t<iterator_t<R>>;
 
-		template<Range R>
+		template<range R>
 		using range_difference_t = iter_difference_t<iterator_t<R>>;
 
-		template<Range R>
+		template<range R>
 		using range_reference_t = iter_reference_t<iterator_t<R>>;
 
-		template<Range R>
+		template<range R>
 		using range_rvalue_reference_t = iter_rvalue_reference_t<iterator_t<R>>;
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE

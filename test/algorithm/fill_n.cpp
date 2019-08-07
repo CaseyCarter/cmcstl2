@@ -28,14 +28,14 @@
 
 namespace ranges = __stl2;
 
-template<ranges::ForwardIterator I, ranges::Sentinel<I> S, class T>
-	requires ranges::Writable<I, const T&>
+template<ranges::forward_iterator I, ranges::sentinel_for<I> S, class T>
+	requires ranges::writable<I, const T&>
 I count_and_fill(I i, S s, const T& t) {
 	return ranges::fill_n(i, ranges::distance(i, s), t);
 }
 
-template<ranges::ForwardRange Rng, class T>
-	requires ranges::Writable<ranges::iterator_t<Rng>, const T&>
+template<ranges::forward_range Rng, class T>
+	requires ranges::writable<ranges::iterator_t<Rng>, const T&>
 ranges::safe_iterator_t<Rng> count_and_fill(Rng&& rng, const T& t) {
 	return ranges::fill_n(ranges::begin(rng), ranges::distance(rng), t);
 }

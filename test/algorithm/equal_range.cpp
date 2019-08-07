@@ -74,7 +74,7 @@ void test(Iter first, Sent last, const T& value, Proj proj = {}) {
 
 template<class Iter, class Sent = Iter>
 void test() {
-	using namespace ranges::view;
+	using namespace ranges::views;
 	static constexpr unsigned M = 10;
 	std::vector<int> v;
 	auto input = iota(0) | take(100) | transform([](int i){return ext::repeat_n(i,M);}) | join;

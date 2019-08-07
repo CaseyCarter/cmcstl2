@@ -25,7 +25,7 @@
 //
 STL2_OPEN_NAMESPACE {
 	namespace __reverse_iterator {
-		template<BidirectionalIterator> class cursor;
+		template<bidirectional_iterator> class cursor;
 
 		struct access {
 			template<_SpecializationOf<cursor> C>
@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template<BidirectionalIterator I>
+		template<bidirectional_iterator I>
 		class cursor {
 			friend access;
 			I current_{};
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr void advance(iter_difference_t<I> n)
 			noexcept(noexcept(current_ -= n))
-			requires RandomAccessIterator<I>
+			requires random_access_iterator<I>
 			{
 				current_ -= n;
 			}
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 				current_ == access::current(that)
 			)
 
-			template<SizedSentinel<I> J>
+			template<sized_sentinel_for<I> J>
 			constexpr iter_difference_t<I> distance_to(const cursor<J>& that) const
 			STL2_NOEXCEPT_RETURN(
 				-(access::current(that) - current_)
@@ -120,7 +120,7 @@ STL2_OPEN_NAMESPACE {
 				iter_move(__stl2::prev(current_))
 			)
 
-			template<IndirectlySwappable<I> J>
+			template<indirectly_swappable<I> J>
 			constexpr void indirect_swap(const cursor<J>& that) const
 			STL2_NOEXCEPT_RETURN(
 				iter_swap(
@@ -162,7 +162,7 @@ STL2_OPEN_NAMESPACE {
 	)
 
 	template<class I>
-	requires BidirectionalIterator<__f<I>>
+	requires bidirectional_iterator<__f<I>>
 	constexpr auto make_reverse_iterator(I&& i)
 	STL2_NOEXCEPT_RETURN(
 		reverse_iterator<__f<I>>{std::forward<I>(i)}

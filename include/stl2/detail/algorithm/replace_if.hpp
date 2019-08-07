@@ -20,9 +20,9 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __replace_if_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, class T, class Proj = identity,
-			IndirectUnaryPredicate<projected<I, Proj>> Pred>
-		requires Writable<I, const T&>
+		template<input_iterator I, sentinel_for<I> S, class T, class Proj = identity,
+			indirect_unary_predicate<projected<I, Proj>> Pred>
+		requires writable<I, const T&>
 		constexpr I operator()(I first, S last, Pred pred, const T& new_value,
 			Proj proj = {}) const
 		{
@@ -34,9 +34,9 @@ STL2_OPEN_NAMESPACE {
 			return first;
 		}
 
-		template<InputRange R, class T, class Proj = identity,
-			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
-		requires Writable<iterator_t<R>, const T&>
+		template<input_range R, class T, class Proj = identity,
+			indirect_unary_predicate<projected<iterator_t<R>, Proj>> Pred>
+		requires writable<iterator_t<R>, const T&>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, Pred pred, const T& new_value, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), __stl2::ref(pred), new_value,

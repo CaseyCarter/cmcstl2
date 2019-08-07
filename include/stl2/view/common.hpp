@@ -22,8 +22,8 @@
 
 STL2_OPEN_NAMESPACE {
 	// common_view [range.common.view]
-	template<View V>
-	requires (!CommonRange<V>)
+	template<view V>
+	requires (!common_range<V>)
 	struct common_view : view_interface<common_view<V>> {
 		common_view() = default;
 
@@ -31,34 +31,34 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr V base() const { return base_; }
 
-		constexpr auto size() requires (!ext::SimpleView<V> && SizedRange<V>) {
+		constexpr auto size() requires (!ext::SimpleView<V> && sized_range<V>) {
 			return __stl2::size(base_);
 		}
-		constexpr auto size() const requires SizedRange<const V> {
+		constexpr auto size() const requires sized_range<const V> {
 			return __stl2::size(base_);
 		}
 
 		constexpr auto begin() requires (!ext::SimpleView<V>) {
-			if constexpr (RandomAccessRange<V> && SizedRange<V>)
+			if constexpr (random_access_range<V> && sized_range<V>)
 				return __stl2::begin(base_);
 			else
 				return CI<false>{__stl2::begin(base_)};
 		}
-		constexpr auto begin() const requires Range<const V> {
-			if constexpr (RandomAccessRange<const V> && SizedRange<const V>)
+		constexpr auto begin() const requires range<const V> {
+			if constexpr (random_access_range<const V> && sized_range<const V>)
 				return __stl2::begin(base_);
 			else
 				return CI<true>{__stl2::begin(base_)};
 		}
 
 		constexpr auto end() requires (!ext::SimpleView<V>) {
-			if constexpr (RandomAccessRange<V> && SizedRange<V>)
+			if constexpr (random_access_range<V> && sized_range<V>)
 				return __stl2::begin(base_) + __stl2::size(base_);
 			else
 				return CI<false>{__stl2::end(base_)};
 		}
-		constexpr auto end() const requires Range<const V> {
-			if constexpr (RandomAccessRange<const V> && SizedRange<const V>)
+		constexpr auto end() const requires range<const V> {
+			if constexpr (random_access_range<const V> && sized_range<const V>)
 				return __stl2::begin(base_) + __stl2::size(base_);
 			else
 				return CI<true>{__stl2::end(base_)};
@@ -75,19 +75,19 @@ STL2_OPEN_NAMESPACE {
 	template<class R>
 	common_view(R&&) -> common_view<all_view<R>>;
 
-	namespace view {
+	namespace views {
 		struct __common_fn : detail::__pipeable<__common_fn> {
-			template<ViewableRange R>
+			template<viewable_range R>
 			constexpr auto operator()(R&& r) const {
-				if constexpr (CommonRange<R>)
-					return view::all(std::forward<R>(r));
+				if constexpr (common_range<R>)
+					return views::all(std::forward<R>(r));
 				else
 					return common_view{std::forward<R>(r)};
 			}
 		};
 
 		inline constexpr __common_fn common {};
-	} // namespace view
+	} // namespace views
 } STL2_CLOSE_NAMESPACE
 
 #endif

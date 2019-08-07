@@ -24,7 +24,7 @@ namespace {
 		O out;
 	};
 
-	template<InputIterator I, Sentinel<I> S, OutputIterator<iter_reference_t<I>> O>
+	template<input_iterator I, sentinel_for<I> S, output_iterator<iter_reference_t<I>> O>
 	constexpr result<I, O> copy(I first, S last, O out) {
 		for (; first != last; ++first, void(), ++out) {
 			*out = *first;
@@ -32,7 +32,7 @@ namespace {
 		return {first, out};
 	}
 
-	template<InputRange R, OutputIterator<iter_reference_t<iterator_t<R>>> O>
+	template<input_range R, output_iterator<iter_reference_t<iterator_t<R>>> O>
 	constexpr result<safe_iterator_t<R>, O>
 	copy(R&& range, O out) {
 		return ::copy(begin(range), end(range), std::move(out));
@@ -41,8 +41,8 @@ namespace {
 
 int main() {
 	using I = ostreambuf_iterator<char>;
-	static_assert(OutputIterator<I, const char&>);
-	static_assert(Sentinel<default_sentinel, I>);
+	static_assert(output_iterator<I, const char&>);
+	static_assert(sentinel_for<default_sentinel, I>);
 	static_assert(common_with<I, default_sentinel>);
 	static_assert(std::is_same<I, common_type_t<I, default_sentinel>>());
 

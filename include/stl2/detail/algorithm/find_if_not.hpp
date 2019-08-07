@@ -21,16 +21,16 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __find_if_not_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, class Proj = identity,
-			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		template<input_iterator I, sentinel_for<I> S, class Proj = identity,
+			indirect_unary_predicate<projected<I, Proj>> Pred>
 		constexpr I
 		operator()(I first, S last, Pred pred, Proj proj = {}) const {
 			return find_if(std::move(first), std::move(last),
 				__stl2::not_fn(__stl2::ref(pred)), __stl2::ref(proj));
 		}
 
-		template<InputRange R, class Proj = identity,
-			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
+		template<input_range R, class Proj = identity,
+			indirect_unary_predicate<projected<iterator_t<R>, Proj>> Pred>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, Pred pred, Proj proj = {}) const {
 			return find_if(begin(r), end(r),

@@ -22,7 +22,7 @@
 #include <stl2/detail/iterator/operations.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<Iterator> class counted_iterator;
+	template<input_or_output_iterator> class counted_iterator;
 
 	namespace __counted_iterator {
 		struct access {
@@ -41,10 +41,10 @@ STL2_OPEN_NAMESPACE {
 		constexpr iter_rvalue_reference_t<I>
 		iter_move(const counted_iterator<I>& i)
 			noexcept(noexcept(__stl2::iter_move(access::current(i))))
-			requires InputIterator<I> {
+			requires input_iterator<I> {
 			return __stl2::iter_move(access::current(i));
 		}
-		template<class I, IndirectlySwappable<I> I2>
+		template<class I, indirectly_swappable<I> I2>
 		constexpr void iter_swap(
 			const counted_iterator<I>& x, const counted_iterator<I2>& y)
 			noexcept(noexcept(__stl2::iter_swap(
@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	// counted_iterator [counted.iterator]
-	template<Iterator I>
+	template<input_or_output_iterator I>
 	class counted_iterator
 #if STL2_WORKAROUND_CLANG_37556
 	: __counted_iterator::access
@@ -122,42 +122,42 @@ STL2_OPEN_NAMESPACE {
 				throw;
 			}
 		}
-		constexpr counted_iterator operator++(int) requires ForwardIterator<I> {
+		constexpr counted_iterator operator++(int) requires forward_iterator<I> {
 			auto tmp = *this;
 			++*this;
 			return tmp;
 		}
 		constexpr counted_iterator& operator--()
-		requires BidirectionalIterator<I> {
+		requires bidirectional_iterator<I> {
 			--current_;
 			++length_;
 			return *this;
 		}
 		constexpr counted_iterator operator--(int)
-		requires BidirectionalIterator<I> {
+		requires bidirectional_iterator<I> {
 			auto tmp = *this;
 			--*this;
 			return tmp;
 		}
 		constexpr counted_iterator operator+(iter_difference_t<I> n) const
-		requires RandomAccessIterator<I> {
+		requires random_access_iterator<I> {
 			STL2_EXPECT(n <= length_);
 			return counted_iterator(current_ + n, length_ - n);
 		}
 		friend constexpr counted_iterator
 		operator+(iter_difference_t<I> n, const counted_iterator& x)
-		requires RandomAccessIterator<I> {
+		requires random_access_iterator<I> {
 			return x + n;
 		}
 		constexpr counted_iterator& operator+=(iter_difference_t<I> n)
-		requires RandomAccessIterator<I> {
+		requires random_access_iterator<I> {
 			STL2_EXPECT(n <= length_);
 			current_ += n;
 			length_ -= n;
 			return *this;
 		}
 		constexpr counted_iterator operator-(iter_difference_t<I> n) const
-		requires RandomAccessIterator<I> {
+		requires random_access_iterator<I> {
 			STL2_EXPECT(-n <= length_);
 			return counted_iterator(current_ - n, length_ + n);
 		}
@@ -178,7 +178,7 @@ STL2_OPEN_NAMESPACE {
 			return y.length_;
 		}
 		constexpr counted_iterator& operator-=(iter_difference_t<I> n)
-		requires RandomAccessIterator<I> {
+		requires random_access_iterator<I> {
 			STL2_EXPECT(-n <= length_);
 			current_ -= n;
 			length_ += n;
@@ -186,7 +186,7 @@ STL2_OPEN_NAMESPACE {
 		}
 		constexpr decltype(auto) operator[](iter_difference_t<I> n) const
 		noexcept(noexcept(std::declval<const I&>()[n])) // strengthened
-		requires RandomAccessIterator<I> {
+		requires random_access_iterator<I> {
 			STL2_EXPECT(n <= length_);
 			return current_[n];
 		}
@@ -253,10 +253,10 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr iter_rvalue_reference_t<I>
 		iter_move(const counted_iterator& i)
 		noexcept(noexcept(__stl2::iter_move(i.current_)))
-		requires InputIterator<I> {
+		requires input_iterator<I> {
 			return __stl2::iter_move(i.current_);
 		}
-		template<IndirectlySwappable<I> I2>
+		template<indirectly_swappable<I> I2>
 		friend constexpr void
 		iter_swap(const counted_iterator& x, const counted_iterator<I2>& y)
 		STL2_NOEXCEPT_RETURN(
@@ -271,20 +271,20 @@ STL2_OPEN_NAMESPACE {
 		using difference_type = iter_difference_t<I>;
 	};
 
-	template<Readable I>
+	template<readable I>
 	struct readable_traits<counted_iterator<I>> {
 		using value_type = iter_value_t<I>;
 	};
-	template<InputIterator I>
+	template<input_iterator I>
 	struct iterator_category<counted_iterator<I>> {
 		using type = iterator_category_t<I>;
 	};
 
-	template<Iterator I>
+	template<input_or_output_iterator I>
 	constexpr void __advance_fn::operator()(
 		counted_iterator<I>& i, iter_difference_t<I> n) const
 	{
-		if constexpr (RandomAccessIterator<I>) {
+		if constexpr (random_access_iterator<I>) {
 			i += n;
 		} else {
 			auto& length = __counted_iterator::access::count(i);
@@ -295,7 +295,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	namespace ext {
-		template<Iterator I>
+		template<input_or_output_iterator I>
 		constexpr auto uncounted(const I& i)
 		noexcept(std::is_nothrow_copy_constructible<I>::value) {
 			return i;
@@ -307,7 +307,7 @@ STL2_OPEN_NAMESPACE {
 			i.base()
 		)
 
-		template<Iterator I>
+		template<input_or_output_iterator I>
 		constexpr auto recounted(const I&, const I& i, iter_difference_t<I> = 0)
 		noexcept(std::is_nothrow_copy_constructible<I>::value)
 		{
@@ -325,7 +325,7 @@ STL2_OPEN_NAMESPACE {
 			const counted_iterator<I>& o, I i, iter_difference_t<I> n)
 		noexcept(noexcept(counted_iterator<I>{std::move(i), o.count() - n}))
 		{
-			STL2_EXPENSIVE_ASSERT(!ForwardIterator<I> ||
+			STL2_EXPENSIVE_ASSERT(!forward_iterator<I> ||
 				i == next(o.base(), n));
 			return counted_iterator<I>{std::move(i), o.count() - n};
 		}

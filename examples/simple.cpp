@@ -11,7 +11,7 @@ namespace ranges = std::experimental::ranges;
 
 template<class...> class show_type;
 
-template<ranges::Readable T>
+template<ranges::readable T>
 void foo(T&) {}
 
 int main() {

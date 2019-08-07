@@ -27,16 +27,16 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __is_permutation_fn : private __niebloid {
-		template<ForwardIterator I1, Sentinel<I1> S1, ForwardIterator I2,
-			Sentinel<I2> S2, class Pred = equal_to, class Proj1 = identity,
+		template<forward_iterator I1, sentinel_for<I1> S1, forward_iterator I2,
+			sentinel_for<I2> S2, class Pred = equal_to, class Proj1 = identity,
 			class Proj2 = identity>
-		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
+		requires indirectly_comparable<I1, I2, Pred, Proj1, Proj2>
 		constexpr bool operator()(I1 first1, S1 last1, I2 first2, S2 last2,
 			Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
-			if constexpr (SizedSentinel<S1, I1> || SizedSentinel<S2, I2>) {
+			if constexpr (sized_sentinel_for<S1, I1> || sized_sentinel_for<S2, I2>) {
 				iter_difference_t<I1> count1;
-				if constexpr (SizedSentinel<S1, I1>) {
+				if constexpr (sized_sentinel_for<S1, I1>) {
 					count1 = last1 - first1;
 					if (!__has_length(first2, last2, count1)) return false;
 				} else {
@@ -61,17 +61,17 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<ForwardRange R1, ForwardRange R2, class Pred = equal_to,
+		template<forward_range R1, forward_range R2, class Pred = equal_to,
 			class Proj1 = identity, class Proj2 = identity>
-		requires IndirectlyComparable<iterator_t<R1>, iterator_t<R2>, Pred,
+		requires indirectly_comparable<iterator_t<R1>, iterator_t<R2>, Pred,
 			Proj1, Proj2>
 		constexpr bool operator()(R1&& r1, R2&& r2, Pred pred = {},
 			Proj1 proj1 = {}, Proj2 proj2 = {}) const
 		{
-			if constexpr (SizedRange<R1> || SizedRange<R2>) {
+			if constexpr (sized_range<R1> || sized_range<R2>) {
 				using D = iter_difference_t<iterator_t<R1>>;
 				D count1;
-				if constexpr (SizedRange<R1>) {
+				if constexpr (sized_range<R1>) {
 					count1 = distance(r1);
 					if (!__has_length(r2, count1)) return false;
 				} else {
@@ -105,10 +105,10 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		// Does distance(first, last) == n?
-		template<Iterator I, Sentinel<I> S, signed_integral D>
+		template<input_or_output_iterator I, sentinel_for<I> S, signed_integral D>
 		static constexpr bool __has_length(const I first, const S last, const D n) {
 			STL2_EXPECT(n >= 0);
-			if constexpr (SizedSentinel<S, I>) {
+			if constexpr (sized_sentinel_for<S, I>) {
 				return n == last - first;
 			} else {
 				if (__can_represent<iter_difference_t<I>>(n)) {
@@ -119,10 +119,10 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 		// Does distance(rng) == n?
-		template<Range Rng, signed_integral D>
+		template<range Rng, signed_integral D>
 		static constexpr bool __has_length(Rng&& rng, const D n) {
 			STL2_EXPECT(n >= 0);
-			if constexpr (SizedRange<Rng>) {
+			if constexpr (sized_range<Rng>) {
 				return n == distance(rng);
 			} else {
 				return __has_length(begin(rng), end(rng), n);
@@ -130,15 +130,16 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		// Do the two ranges have the same length, and if so what is it?
-		template<Iterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
+		template<input_or_output_iterator I1, sentinel_for<I1> S1,
+			input_or_output_iterator I2, sentinel_for<I2> S2>
 		static constexpr std::pair<bool, iter_difference_t<I1>>
 		__common_range_length(I1 first1, S1 last1, I2 first2, S2 last2) {
 			using D = iter_difference_t<I1>;
 
-			if constexpr (SizedSentinel<S1, I1>) {
+			if constexpr (sized_sentinel_for<S1, I1>) {
 				const auto count = last1 - first1;
 				return {__has_length(first2, last2, count), count};
-			} else if constexpr (SizedSentinel<S2, I2>) {
+			} else if constexpr (sized_sentinel_for<S2, I2>) {
 				const auto count = last2 - first2;
 				return {__has_length(first1, last1, count), static_cast<D>(count)};
 			} else {
@@ -149,15 +150,15 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 		}
-		template<Range Rng1, Range Rng2>
+		template<range Rng1, range Rng2>
 		static constexpr std::pair<bool, iter_difference_t<iterator_t<Rng1>>>
 		__common_range_length(Rng1&& rng1, Rng2&& rng2) {
 			using D = iter_difference_t<iterator_t<Rng1>>;
 
-			if constexpr (SizedRange<Rng1>) {
+			if constexpr (sized_range<Rng1>) {
 				auto count = distance(rng1);
 				return {__has_length(rng2, count), count};
-			} else if constexpr (SizedRange<Rng2>) {
+			} else if constexpr (sized_range<Rng2>) {
 				auto count = distance(rng2);
 				return {__has_length(rng1, count), static_cast<D>(count)};
 			} else {
@@ -167,9 +168,9 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<ForwardIterator I1, ForwardIterator I2,
+		template<forward_iterator I1, forward_iterator I2,
 			class Pred, class Proj1, class Proj2>
-		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
+		requires indirectly_comparable<I1, I2, Pred, Proj1, Proj2>
 		static bool __is_permutation_tail(const I1 first1, const I2 first2,
 			const iter_difference_t<I1> n, Pred& pred, Proj1& proj1, Proj2& proj2)
 		{
@@ -212,9 +213,9 @@ STL2_OPEN_NAMESPACE {
 			return true;
 		}
 
-		template<ForwardIterator I1, ForwardIterator I2,
+		template<forward_iterator I1, forward_iterator I2,
 			class Pred, class Proj1, class Proj2>
-		requires IndirectlyComparable<I1, I2, Pred, Proj1, Proj2>
+		requires indirectly_comparable<I1, I2, Pred, Proj1, Proj2>
 		static bool __is_permutation_trim(I1 first1, I2 first2, iter_difference_t<I1> n,
 			Pred& pred, Proj1& proj1, Proj2& proj2)
 		{

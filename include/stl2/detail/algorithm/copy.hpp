@@ -24,8 +24,8 @@ STL2_OPEN_NAMESPACE {
 	using copy_result = __in_out_result<I, O>;
 
 	struct __copy_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O>
-		requires IndirectlyCopyable<I, O>
+		template<input_iterator I, sentinel_for<I> S, weakly_incrementable O>
+		requires indirectly_copyable<I, O>
 		constexpr copy_result<I, O>
 		operator()(I first, S last, O result) const {
 			for (; first != last; (void) ++first, (void) ++result) {
@@ -34,8 +34,8 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first), std::move(result)};
 		}
 
-		template<InputRange R, WeaklyIncrementable O>
-		requires IndirectlyCopyable<iterator_t<R>, O>
+		template<input_range R, weakly_incrementable O>
+		requires indirectly_copyable<iterator_t<R>, O>
 		constexpr copy_result<safe_iterator_t<R>, O>
 		operator()(R&& r, O result) const {
 			return (*this)(begin(r), end(r), std::move(result));
@@ -46,8 +46,8 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		struct __copy_fn : private __niebloid {
-			template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O>
-			requires IndirectlyCopyable<I, O>
+			template<input_iterator I, sentinel_for<I> S, weakly_incrementable O>
+			requires indirectly_copyable<I, O>
 			constexpr copy_result<I, O>
 			operator()(I first, S last, O result) const {
 				for (; first != last; (void) ++first, (void) ++result) {
@@ -56,9 +56,9 @@ STL2_OPEN_NAMESPACE {
 				return {std::move(first), std::move(result)};
 			}
 
-			template<InputRange R, class O>
-			requires (!Range<O> && WeaklyIncrementable<__f<O>>
-				&& IndirectlyCopyable<iterator_t<R>, __f<O>>)
+			template<input_range R, class O>
+			requires (!range<O> && weakly_incrementable<__f<O>>
+				&& indirectly_copyable<iterator_t<R>, __f<O>>)
 			constexpr copy_result<safe_iterator_t<R>, __f<O>>
 			operator()(R&& r, O&& result_) const {
 				auto result = std::forward<O>(result_);
@@ -66,8 +66,8 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			// Extension
-			template<InputIterator I1, Sentinel<I1> S1, Iterator I2, Sentinel<I2> S2>
-			requires IndirectlyCopyable<I1, I2>
+			template<input_iterator I1, sentinel_for<I1> S1, input_or_output_iterator I2, sentinel_for<I2> S2>
+			requires indirectly_copyable<I1, I2>
 			constexpr copy_result<I1, I2>
 			operator()(I1 first, S1 last, I2 rfirst, S2 rlast) const {
 				for (; first != last && rfirst != rlast; (void) ++first, (void)++rfirst) {
@@ -77,8 +77,8 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			// Extension
-			template<InputRange R1, Range R2>
-			requires IndirectlyCopyable<iterator_t<R1>, iterator_t<R2>>
+			template<input_range R1, range R2>
+			requires indirectly_copyable<iterator_t<R1>, iterator_t<R2>>
 			constexpr copy_result<safe_iterator_t<R1>, safe_iterator_t<R2>>
 			operator()(R1&& r1, R2&& r2) const {
 				return (*this)(begin(r1), end(r1), begin(r2), end(r2));

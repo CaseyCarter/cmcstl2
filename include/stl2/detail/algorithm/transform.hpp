@@ -28,9 +28,9 @@ STL2_OPEN_NAMESPACE {
 	using binary_transform_result = __in_in_out_result<I1, I2, O>;
 
 	struct __transform_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
+		template<input_iterator I, sentinel_for<I> S, weakly_incrementable O,
 			copy_constructible F, class Proj = identity>
-		requires Writable<O, indirect_result_t<F&, projected<I, Proj>>>
+		requires writable<O, indirect_result_t<F&, projected<I, Proj>>>
 		constexpr unary_transform_result<I, O>
 		operator()(I first, S last, O result, F op, Proj proj = {}) const {
 			for (; first != last; (void) ++first, (void) ++result) {
@@ -39,20 +39,20 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first), std::move(result)};
 		}
 
-		template<InputRange R, WeaklyIncrementable O, copy_constructible F,
+		template<input_range R, weakly_incrementable O, copy_constructible F,
 			class Proj = identity>
-		requires Writable<O, indirect_result_t<F&, projected<iterator_t<R>, Proj>>>
+		requires writable<O, indirect_result_t<F&, projected<iterator_t<R>, Proj>>>
 		constexpr unary_transform_result<safe_iterator_t<R>, O>
 		operator()(R&& r, O result, F op, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), std::move(result), __stl2::ref(op),
 				__stl2::ref(proj));
 		}
 
-		template<InputIterator I1, Sentinel<I1> S1,
-			InputIterator I2, Sentinel<I2> S2,
-			WeaklyIncrementable O, copy_constructible F,
+		template<input_iterator I1, sentinel_for<I1> S1,
+			input_iterator I2, sentinel_for<I2> S2,
+			weakly_incrementable O, copy_constructible F,
 			class Proj1 = identity, class Proj2 = identity>
-		requires Writable<O, indirect_result_t<F&,
+		requires writable<O, indirect_result_t<F&,
 			projected<I1, Proj1>, projected<I2, Proj2>>>
 		constexpr binary_transform_result<I1, I2, O>
 		operator()(I1 first1, S1 last1, I2 first2, S2 last2, O result,
@@ -67,9 +67,9 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first1), std::move(first2), std::move(result)};
 		}
 
-		template<InputRange R1, InputRange R2, WeaklyIncrementable O,
+		template<input_range R1, input_range R2, weakly_incrementable O,
 			copy_constructible F, class Proj1 = identity, class Proj2 = identity>
-		requires Writable<O, indirect_result_t<F&,
+		requires writable<O, indirect_result_t<F&,
 			projected<iterator_t<R1>, Proj1>, projected<iterator_t<R2>, Proj2>>>
 		constexpr binary_transform_result<safe_iterator_t<R1>, safe_iterator_t<R2>, O>
 		operator()(R1&& r1, R2&& r2, O result, F op, Proj1 proj1 = {},

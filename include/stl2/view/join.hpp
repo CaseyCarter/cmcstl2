@@ -24,39 +24,39 @@
 STL2_OPEN_NAMESPACE {
 	namespace detail {
 		template<class R>
-		META_CONCEPT _GLvalueRange = Range<R> &&
+		META_CONCEPT _GLvalueRange = range<R> &&
 			std::is_reference_v<iter_reference_t<iterator_t<R>>>;
 
-		template<InputRange Base>
+		template<input_range Base>
 		struct join_view_iterator_base {
 			using iterator_category = __stl2::input_iterator_tag;
 		};
-		template<ForwardRange Base>
+		template<forward_range Base>
 		requires _GLvalueRange<Base> &&
-			ForwardRange<iter_reference_t<iterator_t<Base>>>
+			forward_range<iter_reference_t<iterator_t<Base>>>
 		struct join_view_iterator_base<Base> {
 			using iterator_category = __stl2::forward_iterator_tag;
 		};
-		template<BidirectionalRange Base>
+		template<bidirectional_range Base>
 		requires _GLvalueRange<Base> &&
-			BidirectionalRange<iter_reference_t<iterator_t<Base>>>
+			bidirectional_range<iter_reference_t<iterator_t<Base>>>
 		struct join_view_iterator_base<Base> {
 			using iterator_category = __stl2::bidirectional_iterator_tag;
 		};
 
-		template<InputRange InnerRng>
+		template<input_range InnerRng>
 		struct join_view_base {
 			// Implements the PR for https://github.com/ericniebler/stl2#604
 			mutable all_view<InnerRng> inner_ = all_view<InnerRng>();
 		};
-		template<InputRange InnerRng>
+		template<input_range InnerRng>
 		requires std::is_reference_v<InnerRng>
 		struct join_view_base<InnerRng> {};
 	}
 
-	template<InputRange V>
-	requires View<V> && InputRange<iter_reference_t<iterator_t<V>>> &&
-		(detail::_GLvalueRange<V> || View<iter_value_t<iterator_t<V>>>) // TODO: file LWG issue
+	template<input_range V>
+	requires view<V> && input_range<iter_reference_t<iterator_t<V>>> &&
+		(detail::_GLvalueRange<V> || view<iter_value_t<iterator_t<V>>>) // TODO: file LWG issue
 	class STL2_EMPTY_BASES join_view
 	: public view_interface<join_view<V>>
 	, detail::join_view_base<iter_reference_t<iterator_t<V>>> {
@@ -79,13 +79,13 @@ STL2_OPEN_NAMESPACE {
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		template<class ConstV = const V>
 		constexpr auto begin() const
-		requires InputRange<ConstV> && detail::_GLvalueRange<ConstV>
+		requires input_range<ConstV> && detail::_GLvalueRange<ConstV>
 		{ return __iterator<true>{*this, __stl2::begin(base_)}; }
 
 		constexpr auto end() {
-			if constexpr (ForwardRange<V> && detail::_GLvalueRange<V> &&
-			              ForwardRange<InnerRng> && CommonRange<V> &&
-			              CommonRange<InnerRng>) {
+			if constexpr (forward_range<V> && detail::_GLvalueRange<V> &&
+			              forward_range<InnerRng> && common_range<V> &&
+			              common_range<InnerRng>) {
 				return __iterator<ext::SimpleView<V>>{*this, __stl2::end(base_)};
 			} else {
 				return __sentinel<ext::SimpleView<V>>{*this};
@@ -95,14 +95,14 @@ STL2_OPEN_NAMESPACE {
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
 		template<class ConstV = const V>
 		constexpr auto end() const
-		requires InputRange<ConstV> &&
+		requires input_range<ConstV> &&
 			std::is_reference_v<iter_reference_t<iterator_t<ConstV>>>
 		{
-			if constexpr (ForwardRange<ConstV> &&
+			if constexpr (forward_range<ConstV> &&
 			              // std::is_reference_v<iter_reference_t<iterator_t<ConstV>>> && // TODO: file LWG issue
-			              ForwardRange<iter_reference_t<iterator_t<ConstV>>> &&
-			              CommonRange<ConstV> &&
-			              CommonRange<iter_reference_t<iterator_t<ConstV>>>) {
+			              forward_range<iter_reference_t<iterator_t<ConstV>>> &&
+			              common_range<ConstV> &&
+			              common_range<iter_reference_t<iterator_t<ConstV>>>) {
 				return __iterator<true>{*this, __stl2::end(base_)};
 			} else {
 				return __sentinel<true>{*this};
@@ -113,9 +113,9 @@ STL2_OPEN_NAMESPACE {
 	template<class R>
 	explicit join_view(R&&) -> join_view<all_view<R>>;
 
-	template<InputRange V> // TODO: file LWG issue
-	requires View<V> && InputRange<iter_reference_t<iterator_t<V>>> &&
-		(detail::_GLvalueRange<V> || View<iter_value_t<iterator_t<V>>>)
+	template<input_range V> // TODO: file LWG issue
+	requires view<V> && input_range<iter_reference_t<iterator_t<V>>> &&
+		(detail::_GLvalueRange<V> || view<iter_value_t<iterator_t<V>>>)
 	template<bool Const>
 	struct join_view<V>::__iterator
 	: detail::join_view_iterator_base<__maybe_const<Const, V>> {
@@ -137,7 +137,7 @@ STL2_OPEN_NAMESPACE {
 			auto update_inner_range =
 				[this](iter_reference_t<iterator_t<Base>> x) -> auto& {
 				if constexpr (ref_is_glvalue) return (x);
-				else return (parent_->inner_ = view::all(std::move(x)));
+				else return (parent_->inner_ = views::all(std::move(x)));
 			};
 
 			for (; outer_ != __stl2::end(parent_->base_); ++outer_) {
@@ -196,8 +196,8 @@ STL2_OPEN_NAMESPACE {
 		constexpr void operator++(int) { ++*this; }
 
 		constexpr __iterator operator++(int)
-		requires ref_is_glvalue && ForwardRange<Base> &&
-			ForwardRange<iter_reference_t<iterator_t<Base>>>
+		requires ref_is_glvalue && forward_range<Base> &&
+			forward_range<iter_reference_t<iterator_t<Base>>>
 		{
 			auto tmp = *this;
 			++*this;
@@ -205,9 +205,9 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr __iterator& operator--()
-		requires ref_is_glvalue && BidirectionalRange<Base> &&
-			BidirectionalRange<iter_reference_t<iterator_t<Base>>> &&
-			CommonRange<iter_reference_t<iterator_t<Base>>>
+		requires ref_is_glvalue && bidirectional_range<Base> &&
+			bidirectional_range<iter_reference_t<iterator_t<Base>>> &&
+			common_range<iter_reference_t<iterator_t<Base>>>
 		{
 			if (outer_ == __stl2::end(parent_->base_)) {
 				inner_ = __stl2::end(*--outer_);
@@ -220,9 +220,9 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		constexpr __iterator operator--(int)
-		requires ref_is_glvalue && BidirectionalRange<Base> &&
-			BidirectionalRange<iter_reference_t<iterator_t<Base>>> &&
-			CommonRange<iter_reference_t<iterator_t<Base>>>
+		requires ref_is_glvalue && bidirectional_range<Base> &&
+			bidirectional_range<iter_reference_t<iterator_t<Base>>> &&
+			common_range<iter_reference_t<iterator_t<Base>>>
 		{
 			auto tmp = *this;
 			--*this;
@@ -248,9 +248,9 @@ STL2_OPEN_NAMESPACE {
 		{ __stl2::iter_swap(x.inner_, y.inner_); }
 	};
 
-	template<InputRange V>
-	requires View<V> && InputRange<iter_reference_t<iterator_t<V>>> &&
-		(detail::_GLvalueRange<V> || View<iter_value_t<iterator_t<V>>>)
+	template<input_range V>
+	requires view<V> && input_range<iter_reference_t<iterator_t<V>>> &&
+		(detail::_GLvalueRange<V> || view<iter_value_t<iterator_t<V>>>)
 	template<bool Const>
 	struct join_view<V>::__sentinel {
 	private:
@@ -283,7 +283,7 @@ STL2_OPEN_NAMESPACE {
 		{ return !x.equal(y); }
 	};
 
-	namespace view {
+	namespace views {
 		struct __join_fn : detail::__pipeable<__join_fn> {
 			template<class R>
 			constexpr auto operator()(R&& r) const
@@ -299,7 +299,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __join_fn join {};
-	} // namespace view
+	} // namespace views
 } STL2_CLOSE_NAMESPACE
 
 #endif

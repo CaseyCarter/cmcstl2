@@ -42,7 +42,7 @@
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		struct __reverse_n_fn {
-			template<Permutable I>
+			template<permutable I>
 			constexpr I operator()(I first, iter_difference_t<I> n) const {
 				auto ufirst = ext::uncounted(first);
 				// TODO: tune this threshold.
@@ -52,12 +52,12 @@ STL2_OPEN_NAMESPACE {
 				return ext::recounted(first, std::move(last), n);
 			}
 		private:
-			template<Readable I>
+			template<readable I>
 			using buf_t = detail::temporary_buffer<iter_value_t<I>>;
 
 			// An adaptation of the EoP algorithm reverse_n_with_buffer
 			// Complexity: n moves + n / 2 swaps
-			template<Permutable I>
+			template<permutable I>
 			static I reverse_n_with_half_buffer(I first, const iter_difference_t<I> n, buf_t<I>& buf) {
 				// Precondition: $\property{mutable\_counted\_range}(first, n)$
 				STL2_EXPECT(n / 2 <= buf.size());
@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			// From EoP
-			template<Permutable I>
+			template<permutable I>
 			static I reverse_n_adaptive(I first, const iter_difference_t<I> n, buf_t<I>& buf)
 			{
 				// Precondition: $\property{mutable\_counted\_range}(first, n)$
@@ -109,11 +109,11 @@ STL2_OPEN_NAMESPACE {
 
 	struct __reverse_fn : private __niebloid {
 		// Extension: supports forward iterators
-		template<Permutable I, Sentinel<I> S>
+		template<permutable I, sentinel_for<I> S>
 		constexpr I operator()(I first, S last) const {
-			if constexpr (BidirectionalIterator<I>) {
+			if constexpr (bidirectional_iterator<I>) {
 				auto bound = next(first, std::move(last));
-				if constexpr (RandomAccessIterator<I>) {
+				if constexpr (random_access_iterator<I>) {
 					if (first != bound) {
 						for (auto m = bound; first < --m; ++first) {
 							iter_swap(first, m);
@@ -135,8 +135,8 @@ STL2_OPEN_NAMESPACE {
 		}
 
 		// Extension: supports forward ranges
-		template<ForwardRange R>
-		requires Permutable<iterator_t<R>>
+		template<forward_range R>
+		requires permutable<iterator_t<R>>
 		constexpr safe_iterator_t<R> operator()(R&& r) const {
 			return (*this)(begin(r), end(r));
 		}

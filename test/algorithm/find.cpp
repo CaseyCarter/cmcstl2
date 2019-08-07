@@ -30,7 +30,7 @@ struct S {
 };
 
 int main() {
-	using namespace ranges;
+	using ranges::find, ranges::size, ranges::subrange, ranges::end;
 
 	int ia[] = {0, 1, 2, 3, 4, 5};
 	auto first = [&ia]{ return input_iterator<const int*>{ia}; };

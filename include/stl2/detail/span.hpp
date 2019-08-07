@@ -30,9 +30,9 @@ STL2_OPEN_NAMESPACE {
 		template<class T>
 		using data_pointer_t = decltype(data(std::declval<T&>()));
 
-		template<class Range>
+		template<class range>
 		META_CONCEPT SizedContiguousRange =
-			ContiguousRange<Range> && SizedRange<Range>;
+			contiguous_range<range> && sized_range<range>;
 
 		namespace __span {
 			using index_t = std::ptrdiff_t;
@@ -93,14 +93,14 @@ STL2_OPEN_NAMESPACE {
 			requires requires { static_extent<T>::value; }
 			constexpr bool has_static_extent<T> = true;
 
-			template<class Range>
+			template<class range>
 			META_CONCEPT StaticSizedContiguousRange =
-				SizedContiguousRange<Range> && has_static_extent<Range>;
+				SizedContiguousRange<range> && has_static_extent<range>;
 
-			template<class Range, class ElementType>
-			META_CONCEPT compatible = SizedContiguousRange<Range> &&
+			template<class range, class ElementType>
+			META_CONCEPT compatible = SizedContiguousRange<range> &&
 				convertible_to<
-					std::remove_pointer_t<data_pointer_t<Range>>(*)[],
+					std::remove_pointer_t<data_pointer_t<range>>(*)[],
 					ElementType(*)[]>;
 
 			template<integral To, integral From>
@@ -151,17 +151,17 @@ STL2_OPEN_NAMESPACE {
 			{}
 
 			// FIXME: accept forwarding-range?
-			template<__span::compatible<ElementType> Range>
-			requires (Extent == __span::static_extent<Range>::value)
-			constexpr span(Range&& rng)
+			template<__span::compatible<ElementType> range>
+			requires (Extent == __span::static_extent<range>::value)
+			constexpr span(range&& rng)
 			noexcept(noexcept(__stl2::data(rng)))
 			: span{__stl2::data(rng), Extent}
 			{}
 
 			// FIXME: accept forwarding-range?
-			template<__span::compatible<ElementType> Range>
-			requires (Extent == dynamic_extent || !__span::has_static_extent<Range>)
-			constexpr span(Range&& rng)
+			template<__span::compatible<ElementType> range>
+			requires (Extent == dynamic_extent || !__span::has_static_extent<range>)
+			constexpr span(range&& rng)
 			noexcept(noexcept(__stl2::data(rng), __stl2::size(rng)))
 			: span{__stl2::data(rng), __span::narrow_cast<index_type>(__stl2::size(rng))}
 			{}

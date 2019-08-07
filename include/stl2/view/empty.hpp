@@ -28,7 +28,7 @@ STL2_OPEN_NAMESPACE {
 		friend constexpr T* end(empty_view) noexcept { return nullptr; }
 	};
 
-	namespace view {
+	namespace views {
 		template<class T>
 		inline constexpr empty_view<T> empty {};
 	}

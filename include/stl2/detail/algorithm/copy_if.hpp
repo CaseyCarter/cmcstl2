@@ -26,9 +26,9 @@ STL2_OPEN_NAMESPACE {
 	using copy_if_result = __in_out_result<I, O>;
 
 	struct __copy_if_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, WeaklyIncrementable O,
-			class Proj = identity, IndirectUnaryPredicate<projected<I, Proj>> Pred>
-		requires IndirectlyCopyable<I, O>
+		template<input_iterator I, sentinel_for<I> S, weakly_incrementable O,
+			class Proj = identity, indirect_unary_predicate<projected<I, Proj>> Pred>
+		requires indirectly_copyable<I, O>
 		constexpr copy_if_result<I, O>
 		operator()(I first, S last, O result, Pred pred, Proj proj = {}) const {
 			for (; first != last; ++first) {
@@ -42,9 +42,9 @@ STL2_OPEN_NAMESPACE {
 			return {std::move(first), std::move(result)};
 		}
 
-		template<InputRange R, WeaklyIncrementable O, class Proj = identity,
-			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
-		requires IndirectlyCopyable<iterator_t<R>, O>
+		template<input_range R, weakly_incrementable O, class Proj = identity,
+			indirect_unary_predicate<projected<iterator_t<R>, Proj>> Pred>
+		requires indirectly_copyable<iterator_t<R>, O>
 		constexpr copy_if_result<safe_iterator_t<R>, O>
 		operator()(R&& r, O result, Pred pred, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), std::move(result),

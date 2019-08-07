@@ -29,21 +29,21 @@ STL2_OPEN_NAMESPACE {
 
 		template<class I, class S, class O, class Gen>
 		META_CONCEPT __sample_constraint =
-			InputIterator<I> && Sentinel<S, I> && WeaklyIncrementable<O> &&
-			IndirectlyCopyable<I, O> &&
-			UniformRandomBitGenerator<std::remove_reference_t<Gen>>;
+			input_iterator<I> && sentinel_for<S, I> && weakly_incrementable<O> &&
+			indirectly_copyable<I, O> &&
+			uniform_random_bit_generator<std::remove_reference_t<Gen>>;
 
 		struct __sample_fn : private __niebloid {
 			template<class I, class S, class O,
 				class Gen = detail::default_random_engine&>
 			requires __sample_constraint<I, S, O, Gen> &&
-				(ForwardIterator<I> || SizedSentinel<S, I> ||
-				 RandomAccessIterator<O>)
+				(forward_iterator<I> || sized_sentinel_for<S, I> ||
+				 random_access_iterator<O>)
 			constexpr sample_result<I, O>
 			operator()(I first, S last, O o, iter_difference_t<I> n,
 				Gen&& gen = detail::get_random_engine()) const
 			{
-				if constexpr (ForwardIterator<I> || SizedSentinel<S, I>) {
+				if constexpr (forward_iterator<I> || sized_sentinel_for<S, I>) {
 					const auto k = distance(first, last);
 					return sized_impl(std::move(first), std::move(last),
 						k, std::move(o), n, gen);
@@ -74,54 +74,54 @@ STL2_OPEN_NAMESPACE {
 			template<class I, class S, class OR,
 				class Gen = detail::default_random_engine&>
 			requires __sample_constraint<I, S, iterator_t<OR>, Gen> &&
-				(ForwardIterator<I> || SizedSentinel<S, I> ||
-				 RandomAccessRange<OR>) &&
-				(ForwardRange<OR> || SizedRange<OR>)
+				(forward_iterator<I> || sized_sentinel_for<S, I> ||
+				 random_access_range<OR>) &&
+				(forward_range<OR> || sized_range<OR>)
 			constexpr sample_result<I, safe_iterator_t<OR>>
 			operator()(I first, S last, OR&& o,
 				Gen&& gen = detail::get_random_engine()) const
 			{
-				if constexpr (ForwardIterator<I> || SizedSentinel<S, I>) {
+				if constexpr (forward_iterator<I> || sized_sentinel_for<S, I>) {
 					auto k = distance(first, last);
 					return sized_impl(std::move(first), std::move(last),
 						k, begin(o), distance(o), gen);
-				} else { // RandomAccessRange<OR>
+				} else { // random_access_range<OR>
 					return (*this)(std::move(first), std::move(last),
 						begin(o), distance(o), std::forward<Gen>(gen));
 				}
 			}
 
-			template<Range R, class O, class Gen = detail::default_random_engine&>
+			template<range R, class O, class Gen = detail::default_random_engine&>
 			requires __sample_constraint<iterator_t<R>, sentinel_t<R>, O, Gen> &&
-				(ForwardRange<R> || SizedRange<R> || RandomAccessIterator<O>)
+				(forward_range<R> || sized_range<R> || random_access_iterator<O>)
 			constexpr sample_result<safe_iterator_t<R>, O>
 			operator()(R&& r, O o, iter_difference_t<iterator_t<R>> n,
 				Gen&& gen = detail::get_random_engine()) const
 			{
-				if constexpr (ForwardRange<R> || SizedRange<R>) {
+				if constexpr (forward_range<R> || sized_range<R>) {
 					return sized_impl(begin(r), end(r), distance(r), std::move(o),
 						n, std::forward<Gen>(gen));
-				} else { // RandomAccessIterator<O>
+				} else { // random_access_iterator<O>
 					return (*this)(begin(r), end(r), std::move(o), n,
 						std::forward<Gen>(gen));
 				}
 			}
 
-			template<Range IR, Range OR,
+			template<range IR, range OR,
 				class Gen = detail::default_random_engine&>
 			requires
 				__sample_constraint<iterator_t<IR>, sentinel_t<IR>,
 					iterator_t<OR>, Gen> &&
-				(ForwardRange<IR> || SizedRange<IR> || RandomAccessRange<OR>) &&
-				(ForwardRange<OR> || SizedRange<OR>)
+				(forward_range<IR> || sized_range<IR> || random_access_range<OR>) &&
+				(forward_range<OR> || sized_range<OR>)
 			constexpr sample_result<safe_iterator_t<IR>, safe_iterator_t<OR>>
 			operator()(IR&& r, OR&& o,
 				Gen&& gen = detail::get_random_engine()) const
 			{
-				if constexpr (ForwardRange<IR> || SizedRange<IR>) {
+				if constexpr (forward_range<IR> || sized_range<IR>) {
 					return sized_impl(begin(r), end(r), distance(r), begin(o),
 						distance(o), std::forward<Gen>(gen));
-				} else { // RandomAccessRange<OR>
+				} else { // random_access_range<OR>
 					return (*this)(begin(r), end(r),
 						begin(o), distance(o), std::forward<Gen>(gen));
 				}

@@ -20,8 +20,8 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __none_of_fn : private __niebloid {
-		template<InputIterator I, Sentinel<I> S, class Proj = identity,
-			IndirectUnaryPredicate<projected<I, Proj>> Pred>
+		template<input_iterator I, sentinel_for<I> S, class Proj = identity,
+			indirect_unary_predicate<projected<I, Proj>> Pred>
 		constexpr bool
 		operator()(I first, S last, Pred pred, Proj proj = {}) const {
 			for (; first != last; ++first) {
@@ -32,8 +32,8 @@ STL2_OPEN_NAMESPACE {
 			return true;
 		}
 
-		template<InputRange R, class Proj = identity,
-			IndirectUnaryPredicate<projected<iterator_t<R>, Proj>> Pred>
+		template<input_range R, class Proj = identity,
+			indirect_unary_predicate<projected<iterator_t<R>, Proj>> Pred>
 		constexpr bool operator()(R&& r, Pred pred, Proj proj = {}) const {
 			return (*this)(begin(r), end(r), __stl2::ref(pred),
 				__stl2::ref(proj));

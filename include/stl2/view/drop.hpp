@@ -27,10 +27,10 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<View R>
+		template<view R>
 		class STL2_EMPTY_BASES drop_view
 		: public view_interface<drop_view<R>>
-		, private detail::cached_position<R, drop_view<R>, !RandomAccessRange<const R>> {
+		, private detail::cached_position<R, drop_view<R>, !random_access_range<const R>> {
 			using D = iter_difference_t<iterator_t<R>>;
 		public:
 			drop_view() = default;
@@ -41,25 +41,25 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr R base() const { return base_; }
 
-			constexpr auto begin() requires (!SimpleView<R> || !RandomAccessRange<R>)
+			constexpr auto begin() requires (!SimpleView<R> || !random_access_range<R>)
 			{ return begin_impl(*this); }
-			constexpr auto begin() const requires Range<const R> && RandomAccessRange<const R>
+			constexpr auto begin() const requires range<const R> && random_access_range<const R>
 			{ return begin_impl(*this); }
 
 			constexpr auto end() requires (!SimpleView<R>)
 			{ return end_impl(*this); }
-			constexpr auto end() const requires Range<const R>
+			constexpr auto end() const requires range<const R>
 			{ return end_impl(*this); }
 
-			constexpr auto size() requires (!SimpleView<R> && SizedRange<R>) { return size_impl(*this); }
-			constexpr auto size() const requires SizedRange<const R> { return size_impl(*this); }
+			constexpr auto size() requires (!SimpleView<R> && sized_range<R>) { return size_impl(*this); }
+			constexpr auto size() const requires sized_range<const R> { return size_impl(*this); }
 		private:
 			R base_;
 			D count_;
 
 			template<class X>
 			static constexpr auto begin_impl(X& x) {
-				if constexpr (RandomAccessRange<__maybe_const<std::is_const_v<X>, R>>) {
+				if constexpr (random_access_range<__maybe_const<std::is_const_v<X>, R>>) {
 					return __stl2::ext::nth_iterator(x.base_, x.count_);
 				} else {
 					using cache_t = typename drop_view::cached_position;
@@ -85,13 +85,13 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template<Range R>
+		template<range R>
 		drop_view(R&&, iter_difference_t<iterator_t<R>>) -> drop_view<all_view<R>>;
 	} // namespace ext
 
-	namespace view::ext {
+	namespace views::ext {
 		struct __drop_fn : detail::__pipeable<__drop_fn> {
-			template<Range Rng>
+			template<range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
 #if STL2_WORKAROUND_CLANGC_50
 			requires requires(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) {
@@ -113,7 +113,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __drop_fn drop {};
-	} // mamespace view::ext
+	} // mamespace views::ext
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_VIEW_DROP_HPP

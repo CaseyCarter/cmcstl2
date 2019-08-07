@@ -20,14 +20,14 @@
 #include <stl2/view/subrange.hpp>
 
 STL2_OPEN_NAMESPACE {
-	namespace view {
+	namespace views {
 		struct __all_fn : detail::__pipeable<__all_fn> {
 		private:
 			enum : unsigned { __throws = 1, __decay = 2, __ref = 4, __subrange = 6 };
 
-			template<ViewableRange _Range>
+			template<viewable_range _Range>
 			static constexpr unsigned __choose() noexcept {
-				if constexpr (View<__uncvref<_Range>>) {
+				if constexpr (view<__uncvref<_Range>>) {
 					return __decay | std::is_nothrow_constructible_v<__uncvref<_Range>, _Range>;
 				} else if constexpr (std::is_lvalue_reference_v<_Range>) {
 					return __ref | noexcept(ref_view{std::declval<_Range>()});
@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 				}
 			}
 		public:
-			template<ViewableRange _Range, unsigned _Choice = __choose<_Range>()>
+			template<viewable_range _Range, unsigned _Choice = __choose<_Range>()>
 			constexpr auto operator()(_Range&& __r) const noexcept(_Choice & __throws) {
 				constexpr auto __strategy = _Choice & ~__throws;
 				if constexpr (__strategy == __decay) {
@@ -50,10 +50,10 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __all_fn all {};
-	} // namespace view
+	} // namespace views
 
-	template<ViewableRange R>
-	using all_view = decltype(view::all(std::declval<R>()));
+	template<viewable_range R>
+	using all_view = decltype(views::all(std::declval<R>()));
 } STL2_CLOSE_NAMESPACE
 
 #endif
