@@ -28,7 +28,8 @@ namespace {
 		return ranges::views::iota(from, to);
 	}
 
-	void test(ranges::range&& base) {
+	template<ranges::range R>
+	void test(R&& base) {
 		auto rng = base | ranges::views::move;
 		CHECK(static_cast<std::size_t>(ranges::size(rng)) == ranges::size(base));
 		CHECK(!ranges::empty(rng));
