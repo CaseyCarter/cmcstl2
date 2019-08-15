@@ -33,7 +33,8 @@
 
 namespace ranges = __stl2;
 
-constexpr ranges::integral factorial(ranges::integral x)
+template<ranges::integral T>
+constexpr auto factorial(T x)
 {
 	decltype(x) r = 1;
 	for (; 1 < x; --x)
