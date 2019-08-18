@@ -69,7 +69,7 @@ int main()
 		static_assert(range<const decltype(rng1)>);
 		static_assert(common_range<decltype(rng1)>);
 		static_assert(random_access_range<ext::range_reference_t<decltype(rng1)>>);
-		static_assert(ext::SimpleView<decltype(rng1)>);
+		static_assert(ext::simple_view<decltype(rng1)>);
 		static_assert(!std::is_reference_v<ext::range_reference_t<decltype(rng1)>>);
 		auto rng2 = rng1 | views::join;
 		CHECK_EQUAL(rng2, {0,0,1,0,1,2});

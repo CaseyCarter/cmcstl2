@@ -31,14 +31,14 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr V base() const { return base_; }
 
-		constexpr auto size() requires (!ext::SimpleView<V> && sized_range<V>) {
+		constexpr auto size() requires (!ext::simple_view<V> && sized_range<V>) {
 			return __stl2::size(base_);
 		}
 		constexpr auto size() const requires sized_range<const V> {
 			return __stl2::size(base_);
 		}
 
-		constexpr auto begin() requires (!ext::SimpleView<V>) {
+		constexpr auto begin() requires (!ext::simple_view<V>) {
 			if constexpr (random_access_range<V> && sized_range<V>)
 				return __stl2::begin(base_);
 			else
@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 				return CI<true>{__stl2::begin(base_)};
 		}
 
-		constexpr auto end() requires (!ext::SimpleView<V>) {
+		constexpr auto end() requires (!ext::simple_view<V>) {
 			if constexpr (random_access_range<V> && sized_range<V>)
 				return __stl2::begin(base_) + __stl2::size(base_);
 			else
