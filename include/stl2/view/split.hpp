@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr auto begin() {
 			if constexpr (forward_range<Rng>) {
-				return __outer_iterator<ext::SimpleView<Rng>>{*this, __stl2::begin(base_)};
+				return __outer_iterator<ext::simple_view<Rng>>{*this, __stl2::begin(base_)};
 			} else {
 				this->current_ = __stl2::begin(base_);
 				return __outer_iterator<false>{*this};
@@ -75,7 +75,7 @@ STL2_OPEN_NAMESPACE {
 		{ return __outer_iterator<true>{*this, __stl2::begin(base_)}; }
 
 		constexpr auto end() requires forward_range<Rng> && common_range<Rng>
-		{ return __outer_iterator<ext::SimpleView<Rng>>{*this, __stl2::end(base_)}; }
+		{ return __outer_iterator<ext::simple_view<Rng>>{*this, __stl2::end(base_)}; }
 
 		constexpr auto end() const {
 			constexpr bool can_bound = forward_range<Rng> &&

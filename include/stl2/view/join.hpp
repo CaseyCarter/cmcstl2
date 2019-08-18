@@ -73,7 +73,7 @@ STL2_OPEN_NAMESPACE {
 		: base_(std::move(base)) {}
 
 		constexpr auto begin() {
-			return __iterator<ext::SimpleView<V>>{*this, __stl2::begin(base_)};
+			return __iterator<ext::simple_view<V>>{*this, __stl2::begin(base_)};
 		}
 
 		// Template to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82507
@@ -86,9 +86,9 @@ STL2_OPEN_NAMESPACE {
 			if constexpr (forward_range<V> && detail::_GLvalueRange<V> &&
 			              forward_range<InnerRng> && common_range<V> &&
 			              common_range<InnerRng>) {
-				return __iterator<ext::SimpleView<V>>{*this, __stl2::end(base_)};
+				return __iterator<ext::simple_view<V>>{*this, __stl2::end(base_)};
 			} else {
-				return __sentinel<ext::SimpleView<V>>{*this};
+				return __sentinel<ext::simple_view<V>>{*this};
 			}
 		}
 
