@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		template<class T> void begin(T&&) = delete;
 
 		template<class T>
-		void begin(std::initializer_list<T>) = delete; // TODO: file LWG issue
+		void begin(std::initializer_list<T>) = delete; // See LWG 3258
 
 		template<class R>
 		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
@@ -109,7 +109,7 @@ STL2_OPEN_NAMESPACE {
 		template<class T> void end(T&&) = delete;
 
 		template<class T>
-		void end(std::initializer_list<T>) = delete; // TODO: file LWG issue
+		void end(std::initializer_list<T>) = delete; // See LWG 3258
 
 		template<class R>
 		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
