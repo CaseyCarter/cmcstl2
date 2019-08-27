@@ -493,14 +493,6 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(!ranges::view<strange_view3>);
 	CONCEPT_ASSERT(!ranges::view<strange_view3&>);
 	CONCEPT_ASSERT(!ranges::view<const strange_view3>);
-
-	CONCEPT_ASSERT(ranges::range<mutable_only_no_size_range&>);
-	CONCEPT_ASSERT(ranges::range<mutable_only_no_size_range>);
-	CONCEPT_ASSERT(ranges::view<mutable_only_no_size_range>);
-	CONCEPT_ASSERT(!ranges::view<mutable_only_no_size_range&>);
-	CONCEPT_ASSERT(!ranges::view<mutable_only_no_size_range&&>);
-	CONCEPT_ASSERT(!ranges::range<const mutable_only_no_size_range&>);
-	CONCEPT_ASSERT(!ranges::view<const mutable_only_no_size_range&>);
 }
 
 #if VALIDATE_RANGES
