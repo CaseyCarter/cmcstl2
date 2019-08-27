@@ -59,7 +59,10 @@ STL2_OPEN_NAMESPACE {
 
 	template<class R>
 	META_CONCEPT sized_range =
-		range<R> && !disable_sized_range<__uncvref<R>> &&
+		range<R> &&
+#if 0 // implement PR of LWG 3264
+		!disable_sized_range<__uncvref<R>> &&
+#endif
 		requires(R& r) { size(r); };
 
 	///////////////////////////////////////////////////////////////////////////

@@ -43,7 +43,7 @@ struct arbitrary_range {
 	const int* end() const;
 
 	CONCEPT_REQUIRES(allow_size)
-	int size() const;
+	unsigned char size() const;
 };
 
 #elif VALIDATE_STL2
@@ -59,7 +59,7 @@ struct arbitrary_range {
 	const int* begin() const requires allow_const;
 	const int* end() const requires allow_const;
 
-	int size() const requires allow_size;
+	unsigned char size() const requires allow_size;
 };
 #endif
 
@@ -67,6 +67,9 @@ struct arbitrary_range {
 #include <set>
 #include <unordered_set>
 #include <vector>
+
+template<class>
+constexpr bool always_false = false;
 
 using mutable_unsized_range =
 	arbitrary_range<true, true, false>;
@@ -87,35 +90,29 @@ using immutable_sized_range =
 	arbitrary_range<false, true, true>;
 
 // size() launches the missiles.
-struct mutable_badsized_range :
-	mutable_sized_range {};
+template<class Base>
+struct bad_sized_range : Base {
+	[[noreturn]] int size() const {
+		static_assert(always_false<Base>);
+	}
+};
 
-struct mutable_only_badsized_range :
-	mutable_only_sized_range {};
+using mutable_badsized_range = bad_sized_range<mutable_sized_range>;
 
-struct immutable_badsized_range :
-	immutable_sized_range {};
+using mutable_only_badsized_range = bad_sized_range<mutable_only_sized_range>;
+
+using immutable_badsized_range = bad_sized_range<immutable_sized_range>;
 
 #if VALIDATE_STL2
 STL2_OPEN_NAMESPACE {
-template<>
-constexpr bool disable_sized_range<mutable_badsized_range> = true;
-template<>
-constexpr bool disable_sized_range<mutable_only_badsized_range> = true;
-template<>
-constexpr bool disable_sized_range<immutable_badsized_range> = true;
+template<class Base>
+constexpr bool disable_sized_range<bad_sized_range<Base>> = true;
 } STL2_CLOSE_NAMESPACE
 
 #elif VALIDATE_RANGES
 namespace ranges {
-template<>
-struct is_sized_range<mutable_badsized_range> :
-	std::false_type {};
-template<>
-struct is_sized_range<mutable_only_badsized_range> :
-	std::false_type {};
-template<>
-struct is_sized_range<immutable_badsized_range> :
+template<class Base>
+struct is_sized_range<bad_sized_range<Base>> :
 	std::false_type {};
 }
 #endif
@@ -193,6 +190,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_unsized_range>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_unsized_range>);
 	CONCEPT_ASSERT(ranges::sized_range<mutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_unsized_range>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(ranges::_ContainerLike<mutable_unsized_range>);
 	CONCEPT_ASSERT(!ranges::view<mutable_unsized_range>);
 
@@ -200,13 +198,15 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_unsized_range&>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_unsized_range&>);
 	CONCEPT_ASSERT(ranges::sized_range<mutable_unsized_range&>);
-	CONCEPT_ASSERT(ranges::_ContainerLike<mutable_unsized_range>);
-	CONCEPT_ASSERT(!ranges::view<mutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_unsized_range&>())), std::ptrdiff_t>);
+	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_unsized_range&>);
+	CONCEPT_ASSERT(!ranges::view<mutable_unsized_range&>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const mutable_unsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_unsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::range<const mutable_unsized_range>);
 	CONCEPT_ASSERT(ranges::sized_range<const mutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const mutable_unsized_range>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_unsized_range>);
 	CONCEPT_ASSERT(!ranges::view<const mutable_unsized_range>);
 
@@ -214,6 +214,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_unsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::range<const mutable_unsized_range&>);
 	CONCEPT_ASSERT(ranges::sized_range<const mutable_unsized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const mutable_unsized_range&>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_unsized_range&>);
 	CONCEPT_ASSERT(!ranges::view<const mutable_unsized_range&>);
 
@@ -222,6 +223,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_no_size_range&>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_only_no_size_range>);
 	CONCEPT_ASSERT(ranges::sized_range<mutable_only_no_size_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_only_no_size_range>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_no_size_range>);
 	CONCEPT_ASSERT(ranges::view<mutable_only_no_size_range>);
 
@@ -229,6 +231,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_no_size_range&>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_only_no_size_range&>);
 	CONCEPT_ASSERT(ranges::sized_range<mutable_only_no_size_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_only_no_size_range&>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_no_size_range&>);
 	CONCEPT_ASSERT(!ranges::view<mutable_only_no_size_range&>);
 
@@ -247,6 +250,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_unsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::range<immutable_unsized_range>);
 	CONCEPT_ASSERT(ranges::sized_range<immutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<immutable_unsized_range>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_unsized_range>);
 	CONCEPT_ASSERT(ranges::view<immutable_unsized_range>);
 
@@ -254,6 +258,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_unsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::range<immutable_unsized_range&>);
 	CONCEPT_ASSERT(ranges::sized_range<immutable_unsized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<immutable_unsized_range&>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_unsized_range&>);
 	CONCEPT_ASSERT(!ranges::view<immutable_unsized_range&>);
 
@@ -261,6 +266,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_unsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::range<const immutable_unsized_range>);
 	CONCEPT_ASSERT(ranges::sized_range<const immutable_unsized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const immutable_unsized_range>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_unsized_range>);
 	CONCEPT_ASSERT(!ranges::view<const immutable_unsized_range>);
 
@@ -268,6 +274,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_unsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::range<const immutable_unsized_range&>);
 	CONCEPT_ASSERT(ranges::sized_range<const immutable_unsized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const immutable_unsized_range&>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_unsized_range&>);
 	CONCEPT_ASSERT(!ranges::view<const immutable_unsized_range&>);
 
@@ -276,6 +283,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_sized_range>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_sized_range>);
 	CONCEPT_ASSERT(ranges::sized_range<mutable_sized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_sized_range>())), unsigned char>);
 	CONCEPT_ASSERT(ranges::_ContainerLike<mutable_sized_range>);
 	CONCEPT_ASSERT(!ranges::view<mutable_sized_range>);
 
@@ -283,6 +291,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_sized_range&>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_sized_range&>);
 	CONCEPT_ASSERT(ranges::sized_range<mutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_sized_range&>())), unsigned char>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_sized_range&>);
 	CONCEPT_ASSERT(!ranges::view<mutable_sized_range&>);
 
@@ -290,6 +299,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_sized_range>, CI>);
 	CONCEPT_ASSERT(ranges::range<const mutable_sized_range>);
 	CONCEPT_ASSERT(ranges::sized_range<const mutable_sized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const mutable_sized_range>())), unsigned char>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_sized_range>);
 	CONCEPT_ASSERT(!ranges::view<const mutable_sized_range>);
 
@@ -297,6 +307,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_sized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::range<const mutable_sized_range&>);
 	CONCEPT_ASSERT(ranges::sized_range<const mutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const mutable_sized_range&>())), unsigned char>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_sized_range&>);
 	CONCEPT_ASSERT(!ranges::view<const mutable_sized_range&>);
 
@@ -305,6 +316,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_sized_range>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_only_sized_range>);
 	CONCEPT_ASSERT(ranges::sized_range<mutable_only_sized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_only_sized_range>())), unsigned char>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_sized_range>);
 	CONCEPT_ASSERT(ranges::view<mutable_only_sized_range>);
 
@@ -312,6 +324,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_sized_range&>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_only_sized_range&>);
 	CONCEPT_ASSERT(ranges::sized_range<mutable_only_sized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_only_sized_range&>())), unsigned char>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_sized_range&>);
 	CONCEPT_ASSERT(!ranges::view<mutable_only_sized_range&>);
 
@@ -330,6 +343,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_sized_range>, CI>);
 	CONCEPT_ASSERT(ranges::range<immutable_sized_range>);
 	CONCEPT_ASSERT(ranges::sized_range<immutable_sized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<immutable_sized_range>())), unsigned char>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_sized_range>);
 	CONCEPT_ASSERT(ranges::view<immutable_sized_range>);
 
@@ -337,6 +351,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_sized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::range<immutable_sized_range&>);
 	CONCEPT_ASSERT(ranges::sized_range<immutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<immutable_sized_range&>())), unsigned char>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_sized_range&>);
 	CONCEPT_ASSERT(!ranges::view<immutable_sized_range&>);
 
@@ -344,6 +359,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_sized_range>, CI>);
 	CONCEPT_ASSERT(ranges::range<const immutable_sized_range>);
 	CONCEPT_ASSERT(ranges::sized_range<const immutable_sized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const immutable_sized_range>())), unsigned char>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_sized_range>);
 	CONCEPT_ASSERT(!ranges::view<const immutable_sized_range>);
 
@@ -351,6 +367,7 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_sized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::range<const immutable_sized_range&>);
 	CONCEPT_ASSERT(ranges::sized_range<const immutable_sized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const immutable_sized_range&>())), unsigned char>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_sized_range&>);
 	CONCEPT_ASSERT(!ranges::view<const immutable_sized_range&>);
 
@@ -358,28 +375,32 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_badsized_range>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_badsized_range>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_badsized_range>);
-	CONCEPT_ASSERT(!ranges::sized_range<mutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_badsized_range>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(ranges::_ContainerLike<mutable_badsized_range>);
 	CONCEPT_ASSERT(!ranges::view<mutable_badsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_badsized_range&>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_badsized_range&>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::sized_range<mutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_badsized_range&>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_badsized_range&>);
 	CONCEPT_ASSERT(!ranges::view<mutable_badsized_range&>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const mutable_badsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_badsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::range<const mutable_badsized_range>);
-	CONCEPT_ASSERT(!ranges::sized_range<const mutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<const mutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const mutable_badsized_range>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_badsized_range>);
 	CONCEPT_ASSERT(!ranges::view<const mutable_badsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const mutable_badsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const mutable_badsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::range<const mutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::sized_range<const mutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<const mutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const mutable_badsized_range&>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const mutable_badsized_range&>);
 	CONCEPT_ASSERT(!ranges::view<const mutable_badsized_range&>);
 
@@ -387,14 +408,16 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_only_badsized_range>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_badsized_range>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_only_badsized_range>);
-	CONCEPT_ASSERT(!ranges::sized_range<mutable_only_badsized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_only_badsized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_only_badsized_range>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_badsized_range>);
 	CONCEPT_ASSERT(ranges::view<mutable_only_badsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_only_badsized_range&>, I>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_badsized_range&>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_only_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::sized_range<mutable_only_badsized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<mutable_only_badsized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_only_badsized_range&>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<mutable_only_badsized_range&>);
 	CONCEPT_ASSERT(!ranges::view<mutable_only_badsized_range&>);
 
@@ -412,28 +435,32 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<immutable_badsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_badsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::range<immutable_badsized_range>);
-	CONCEPT_ASSERT(!ranges::sized_range<immutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<immutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<immutable_badsized_range>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_badsized_range>);
 	CONCEPT_ASSERT(ranges::view<immutable_badsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<immutable_badsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<immutable_badsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::range<immutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::sized_range<immutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<immutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<immutable_badsized_range&>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<immutable_badsized_range&>);
 	CONCEPT_ASSERT(!ranges::view<immutable_badsized_range&>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const immutable_badsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_badsized_range>, CI>);
 	CONCEPT_ASSERT(ranges::range<const immutable_badsized_range>);
-	CONCEPT_ASSERT(!ranges::sized_range<const immutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::sized_range<const immutable_badsized_range>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const immutable_badsized_range>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_badsized_range>);
 	CONCEPT_ASSERT(!ranges::view<const immutable_badsized_range>);
 
 	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<const immutable_badsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<const immutable_badsized_range&>, CI>);
 	CONCEPT_ASSERT(ranges::range<const immutable_badsized_range&>);
-	CONCEPT_ASSERT(!ranges::sized_range<const immutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::sized_range<const immutable_badsized_range&>);
+	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<const immutable_badsized_range&>())), std::ptrdiff_t>);
 	CONCEPT_ASSERT(!ranges::_ContainerLike<const immutable_badsized_range&>);
 	CONCEPT_ASSERT(!ranges::view<const immutable_badsized_range&>);
 
