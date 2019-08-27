@@ -222,8 +222,8 @@ void ridiculously_exhaustive_range_property_test() {
 	CONCEPT_ASSERT(!ranges::view<const mutable_unsized_range&>);
 
 
-	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_only_no_size_range&>, I>);
-	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_no_size_range&>, I>);
+	CONCEPT_ASSERT(ranges::same_as<ns::iterator_t<mutable_only_no_size_range>, I>);
+	CONCEPT_ASSERT(ranges::same_as<ns::sentinel_t<mutable_only_no_size_range>, I>);
 	CONCEPT_ASSERT(ranges::range<mutable_only_no_size_range>);
 	CONCEPT_ASSERT(ranges::sized_range<mutable_only_no_size_range>);
 	CONCEPT_ASSERT(ranges::same_as<decltype(ranges::size(std::declval<mutable_only_no_size_range>())), std::ptrdiff_t>);
