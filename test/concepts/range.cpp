@@ -95,6 +95,9 @@ struct bad_sized_range : Base {
 	[[noreturn]] int size() const {
 		static_assert(always_false<Base>);
 	}
+	[[noreturn]] friend int size(const bad_sized_range&) {
+		static_assert(always_false<Base>);
+	}
 };
 
 using mutable_badsized_range = bad_sized_range<mutable_sized_range>;

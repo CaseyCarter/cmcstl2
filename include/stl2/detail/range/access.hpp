@@ -415,16 +415,16 @@ STL2_OPEN_NAMESPACE {
 				|| (!disable_sized_range<U> && (has_member<T> || has_non_member<T>))
 				|| has_difference<T>
 			constexpr auto operator()(R&& r) const noexcept(nothrow<T>) {
-				if constexpr (std::is_array_v<T>)
+				if constexpr (std::is_array_v<T>) {
 					return std::extent_v<T>;
-				else if constexpr (disable_sized_range<U>) {
+				} else if constexpr (disable_sized_range<U>) {
 					static_assert(has_difference<T>);
 					return end(r) - begin(r);
-				} else if constexpr (has_member<T>)
+				} else if constexpr (has_member<T>) {
 					return r.size();
-				else if constexpr (has_non_member<T>)
+				} else if constexpr (has_non_member<T>) {
 					return size(r);
-				else {
+				} else {
 					static_assert(has_difference<T>);
 					return end(r) - begin(r);
 				}
