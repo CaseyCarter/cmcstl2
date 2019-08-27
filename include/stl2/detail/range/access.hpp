@@ -376,16 +376,18 @@ STL2_OPEN_NAMESPACE {
 		template<class T> void size(T&&) = delete;
 
 		template<class R>
-		META_CONCEPT has_member = requires(R& r) {
-			r.size();
-			{ __decay_copy(r.size()) } -> integral;
-		};
+		META_CONCEPT has_member = !disable_sized_range<std::remove_cv_t<R>> &&
+			requires(R& r) {
+				r.size();
+				{ __decay_copy(r.size()) } -> integral;
+			};
 
 		template<class R>
-		META_CONCEPT has_non_member = requires(R& r) {
-			size(r);
-			{ __decay_copy(size(r)) } -> integral;
-		};
+		META_CONCEPT has_non_member = !disable_sized_range<std::remove_cv_t<R>> &&
+			requires(R& r) {
+				size(r);
+				{ __decay_copy(size(r)) } -> integral;
+			};
 
 		template<class R>
 		META_CONCEPT has_difference = requires(R& r) {
@@ -393,39 +395,39 @@ STL2_OPEN_NAMESPACE {
 			{ end(r) } -> sized_sentinel_for<__begin_t<R&>>;
 		};
 
-		template<class T>
-		inline constexpr bool nothrow = std::is_array_v<T>;
-		template<class T>
-		requires (!disable_sized_range<std::remove_cv_t<T>> && has_member<T>)
-		inline constexpr bool nothrow<T> = noexcept(std::declval<T&>().size());
-		template<class T>
-		requires (!disable_sized_range<std::remove_cv_t<T>>
-			&& !has_member<T> && has_non_member<T>)
-		inline constexpr bool nothrow<T> = noexcept(size(std::declval<T&>()));
-		template<class T>
-		requires (disable_sized_range<std::remove_cv_t<T>>
-			|| (!has_member<T> && !has_non_member<T>)) && has_difference<T>
-		inline constexpr bool nothrow<T> =
-			noexcept(end(std::declval<T&>()) - begin(std::declval<T&>()));
-
 		struct __fn {
-			template<class R, class T = std::remove_reference_t<R>,
-				class U = std::remove_cv_t<T>>
-			requires std::is_array_v<T>
-				|| (!disable_sized_range<U> && (has_member<T> || has_non_member<T>))
-				|| has_difference<T>
-			constexpr auto operator()(R&& r) const noexcept(nothrow<T>) {
+		private:
+			template<class T>
+			static constexpr /* consteval */ int __choose() noexcept {
 				if constexpr (std::is_array_v<T>) {
-					return std::extent_v<T>;
-				} else if constexpr (disable_sized_range<U>) {
-					static_assert(has_difference<T>);
-					return end(r) - begin(r);
+					return 0 | true;
 				} else if constexpr (has_member<T>) {
-					return r.size();
+					return 2 | noexcept(std::declval<T&>().size());
 				} else if constexpr (has_non_member<T>) {
+					return 4 | noexcept(size(std::declval<T&>()));
+				} else if constexpr (has_difference<T>) {
+					return 6 | noexcept(end(std::declval<T&>()) - begin(std::declval<T&>()));
+				} else {
+					return -1;
+				}
+			}
+
+			template<class T>
+			static constexpr int __strategy = __choose<T>();
+		public:
+			template<class R, class T = std::remove_reference_t<R>,
+				int Choice = __strategy<T>>
+			requires (Choice >= 0)
+			constexpr auto operator()(R&& r) const noexcept(Choice & 1) {
+				constexpr int Strategy = Choice / 2;
+				if constexpr (Strategy == 0) {
+					return std::extent_v<T>;
+				} else if constexpr (Strategy == 1) {
+					return r.size();
+				} else if constexpr (Strategy == 2) {
 					return size(r);
 				} else {
-					static_assert(has_difference<T>);
+					static_assert(Strategy == 3);
 					return end(r) - begin(r);
 				}
 			}
