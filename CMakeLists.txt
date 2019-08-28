@@ -36,7 +36,7 @@ target_compile_features(stl2 INTERFACE cxx_std_20)
 target_compile_options(stl2 INTERFACE
     $<$<CXX_COMPILER_ID:GNU>:-fconcepts>
     $<$<CXX_COMPILER_ID:Clang>:-Xclang -fconcepts-ts>
-    $<$<CXX_COMPILER_ID:MSVC>:/permissive- /experimental:concepts>)
+    $<$<CXX_COMPILER_ID:MSVC>:/permissive->)
 
 install(DIRECTORY include/ DESTINATION include)
 install(TARGETS stl2 EXPORT cmcstl2-targets)
