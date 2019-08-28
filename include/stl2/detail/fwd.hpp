@@ -104,11 +104,27 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_MSVC_106654 // "multiple versions of a defaulted special member functions are not allowed"
+ #if defined(_MSC_VER) && !defined(__clang__)
+  #define STL2_WORKAROUND_MSVC_106654 1
+ #else
+  #define STL2_WORKAROUND_MSVC_106654 0
+ #endif
+#endif
+
 #ifndef STL2_WORKAROUND_MSVC_830361 // "The type of ternary operator sometimes keeps cv-qualifier"
  #if defined(_MSC_VER) && !defined(__clang__)
   #define STL2_WORKAROUND_MSVC_830361 1
  #else
   #define STL2_WORKAROUND_MSVC_830361 0
+ #endif
+#endif
+
+#ifndef STL2_WORKAROUND_MSVC_830372 // "explicit ctor is allowed in copy initialization"
+ #if defined(_MSC_VER) && !defined(__clang__)
+  #define STL2_WORKAROUND_MSVC_830372 1
+ #else
+  #define STL2_WORKAROUND_MSVC_830372 0
  #endif
 #endif
 

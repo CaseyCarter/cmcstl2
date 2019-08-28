@@ -169,7 +169,7 @@ static_assert(!ranges::default_initializable<nondefaultconstructible>);
 namespace pathological_explicit_default_constructor {
 	struct S0 { explicit S0() = default; };
 	struct S1 { S0 x; };
-#if STL2_WORKAROUND_GCC_UNKNOWN0
+#if STL2_WORKAROUND_GCC_UNKNOWN0 || STL2_WORKAROUND_MSVC_830372
 	static_assert(ranges::default_initializable<S1>);
 #else // ^^^ workaround / no workaround vvv
 	static_assert(!ranges::default_initializable<S1>);
@@ -224,6 +224,7 @@ static_assert(!ranges::copy_constructible<nonmovable &&>);
 static_assert(ranges::copy_constructible<const nonmovable &>);
 static_assert(!ranges::copy_constructible<const nonmovable &&>);
 
+#if !STL2_WORKAROUND_MSVC_106654
 // https://github.com/ericniebler/stl2/issues/301
 struct not_mutable_ref {
 	not_mutable_ref() = default;
@@ -239,6 +240,7 @@ struct not_const_ref_ref {
 };
 static_assert(!ranges::copy_constructible<not_mutable_ref>);
 static_assert(!ranges::copy_constructible<not_const_ref_ref>);
+#endif // STL2_WORKAROUND_MSVC_106654
 
 static_assert(ranges::movable<int>);
 static_assert(!ranges::movable<const int>);
