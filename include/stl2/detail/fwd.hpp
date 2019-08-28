@@ -104,6 +104,14 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_MSVC_830361 // "The type of ternary operator sometimes keeps cv-qualifier"
+ #if defined(_MSC_VER) && !defined(__clang__)
+  #define STL2_WORKAROUND_MSVC_830361 1
+ #else
+  #define STL2_WORKAROUND_MSVC_830361 0
+ #endif
+#endif
+
 #define STL2_OPEN_NAMESPACE \
 	namespace std { namespace experimental { namespace ranges { inline namespace v1
 #define STL2_CLOSE_NAMESPACE }}}

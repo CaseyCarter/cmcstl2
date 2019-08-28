@@ -439,8 +439,13 @@ namespace libstdcpp_tests
 	static_assert(is_type<common_type<D, B>, B>(), "");
 	static_assert(is_type<common_type<F1, F2>, void*>(), "");
 	static_assert(is_type<common_type<F2, F1>, void*>(), "");
+#if STL2_WORKAROUND_MSVC_830361
+	static_assert(!meta::is_trait<common_type<G1, G2>>(), "");
+	static_assert(!meta::is_trait<common_type<G2, G1>>(), "");
+#else // ^^^ "workaround" / no workaround vvv
 	static_assert(is_type<common_type<G1, G2>, const volatile void*>(), "");
 	static_assert(is_type<common_type<G2, G1>, const volatile void*>(), "");
+#endif // STL2_WORKAROUND_MSVC_830361
 	static_assert(is_type<common_type<int*, const volatile int*>,
 			const volatile int*>(), "");
 	static_assert(is_type<common_type<void*, const volatile int*>,
@@ -456,8 +461,15 @@ namespace libstdcpp_tests
 	static_assert(is_type<common_type<U&&, U&&>, U>(), "");
 	static_assert(is_type<common_type<int B::*, int D::*>, int D::*>(), "");
 	static_assert(is_type<common_type<int D::*, int B::*>, int D::*>(), "");
+#if STL2_WORKAROUND_MSVC_830361
+	// "Workaround" is a misnomer; this simply asserts the incorrect behavior
+	// so we'll notice when the bug is fixed.
+	static_assert(is_type<common_type<const int B::*, volatile int D::*>,
+			volatile int D::*>(), "");
+#else // ^^^ "workaround" / no workaround vvv
 	static_assert(is_type<common_type<const int B::*, volatile int D::*>,
 			const volatile int D::*>(), "");
+#endif // STL2_WORKAROUND_MSVC_830361
 	static_assert(is_type<common_type<int (B::*)(), int (D::*)()>,
 			int (D::*)()>(), "");
 	static_assert(is_type<common_type<int (B::*)() const, int (D::*)() const>,
@@ -563,7 +575,12 @@ namespace libstdcpp_tests
 	static_assert(!meta::is_trait<common_type<B, int, S>>(), "");
 	static_assert(!meta::is_trait<common_type<B, S, int>>(), "");
 	static_assert(!meta::is_trait<common_type<int*, double*>>(), "");
+#ifdef _MSC_VER
+	// MSVC allows function pointers implicitly convert to void*.
+	static_assert(is_type<common_type<void*, void(*)(...)>, void*>(), "");
+#else // ^^^ MSVC / not MSVC vvv
 	static_assert(!meta::is_trait<common_type<void*, void(*)(...)>>(), "");
+#endif // _MSC_VER
 	static_assert(!meta::is_trait<common_type<void(*)(), void(*)(...)>>(), "");
 	static_assert(!meta::is_trait<common_type<void(*)(), void(S::*)()>>(), "");
 	static_assert(!meta::is_trait<common_type<void(S::*)() const,
