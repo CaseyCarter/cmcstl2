@@ -301,11 +301,7 @@ STL2_OPEN_NAMESPACE {
 namespace libstdcpp_tests
 {
 	template<typename T, typename Expected>
-	struct is_type : std::false_type {};
-
-	template<meta::Trait T, typename Expected>
-		requires same_as<meta::_t<T>, Expected>
-	struct is_type<T, Expected> : std::true_type {};
+	using is_type = std::bool_constant<same_as<meta::_t<T>, Expected>>;
 
 	// Inspection types:
 
