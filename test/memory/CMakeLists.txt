@@ -11,9 +11,7 @@
 #
 add_stl2_test(memory.destroy destroy destroy.cpp)
 add_stl2_test(memory.uninitialized_copy uninitialized_copy uninitialized_copy.cpp)
-target_compile_options(uninitialized_copy PRIVATE -Wno-deprecated-declarations)
 add_stl2_test(memory.uninitialized_default_construct uninitialized_default_construct uninitialized_default_construct.cpp)
 add_stl2_test(memory.uninitialized_fill uninitialized_fill uninitialized_fill.cpp)
 add_stl2_test(memory.uninitialized_move uninitialized_move uninitialized_move.cpp)
-target_compile_options(uninitialized_move PRIVATE -Wno-deprecated-declarations)
 add_stl2_test(memory.uninitialized_value_construct uninitialized_value_construct uninitialized_value_construct.cpp)
