@@ -10,15 +10,12 @@
 //
 // Project home: https://github.com/ericniebler/range-v3
 
-#if VALIDATE_RANGES
-#include <range/v3/core.hpp>
-#include <range/v3/algorithm/none_of.hpp>
-#else
 #include <stl2/detail/algorithm/none_of.hpp>
-namespace ranges = __stl2;
-#endif
+
 #include <vector>
 #include "../simple_test.hpp"
+
+namespace ranges = std::experimental::ranges;
 
 bool even(int n) { return n % 2 == 0; }
 

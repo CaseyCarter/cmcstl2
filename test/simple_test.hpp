@@ -15,14 +15,9 @@
 #include <utility>
 #include <iostream>
 #include <typeinfo>
-
-#if VALIDATE_RANGES
-#include <range/v3/begin_end.hpp>
-namespace NS = ::ranges;
-#else
 #include <stl2/iterator.hpp>
-namespace NS = ::__stl2;
-#endif
+
+namespace ranges = std::experimental::ranges;
 
 namespace test_impl
 {
@@ -184,10 +179,10 @@ template<typename Rng, typename Rng2>
 constexpr void check_equal_(const char* file, int line, const char* lhs, const char* rhs,
 	const char* fun, Rng && actual, Rng2&& expected)
 {
-	auto begin0 = NS::begin(actual);
-	auto end0 = NS::end(actual);
-	auto begin1 = NS::begin(expected);
-	auto end1 = NS::end(expected);
+	auto begin0 = ranges::begin(actual);
+	auto end0 = ranges::end(actual);
+	auto begin1 = ranges::begin(expected);
+	auto end1 = ranges::end(expected);
 
 	for(std::size_t i = 0; begin0 != end0 && begin1 != end1; ++begin0, (void)++i, ++begin1) {
 		if (*begin0 != *begin1) {

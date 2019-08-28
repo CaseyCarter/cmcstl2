@@ -9,11 +9,9 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#include "validate.hpp"
-
-#if VALIDATE_STL2
 #include <stl2/detail/concepts/object.hpp>
-#endif
+
+namespace ranges = std::experimental::ranges;
 
 struct copyable {};
 
@@ -85,146 +83,146 @@ struct XXX
 	explicit XXX(int) {}
 };
 
-CONCEPT_ASSERT(ranges::destructible<int>);
-CONCEPT_ASSERT(ranges::destructible<const int>);
-CONCEPT_ASSERT(!ranges::destructible<void>);
-CONCEPT_ASSERT(ranges::destructible<int&>);
-CONCEPT_ASSERT(!ranges::destructible<void()>);
-CONCEPT_ASSERT(ranges::destructible<void(*)()>);
-CONCEPT_ASSERT(ranges::destructible<void(&)()>);
-CONCEPT_ASSERT(!ranges::destructible<int[]>);
-CONCEPT_ASSERT(ranges::destructible<int[2]>);
-CONCEPT_ASSERT(ranges::destructible<int(*)[2]>);
-CONCEPT_ASSERT(ranges::destructible<int(&)[2]>);
-CONCEPT_ASSERT(ranges::destructible<moveonly>);
-CONCEPT_ASSERT(ranges::destructible<nonmovable>);
-CONCEPT_ASSERT(!ranges::destructible<indestructible>);
-CONCEPT_ASSERT(!ranges::destructible<throwing_destructor>);
+static_assert(ranges::destructible<int>);
+static_assert(ranges::destructible<const int>);
+static_assert(!ranges::destructible<void>);
+static_assert(ranges::destructible<int&>);
+static_assert(!ranges::destructible<void()>);
+static_assert(ranges::destructible<void(*)()>);
+static_assert(ranges::destructible<void(&)()>);
+static_assert(!ranges::destructible<int[]>);
+static_assert(ranges::destructible<int[2]>);
+static_assert(ranges::destructible<int(*)[2]>);
+static_assert(ranges::destructible<int(&)[2]>);
+static_assert(ranges::destructible<moveonly>);
+static_assert(ranges::destructible<nonmovable>);
+static_assert(!ranges::destructible<indestructible>);
+static_assert(!ranges::destructible<throwing_destructor>);
 
-CONCEPT_ASSERT(ranges::constructible_from<int>);
-CONCEPT_ASSERT(ranges::constructible_from<int const>);
-CONCEPT_ASSERT(!ranges::constructible_from<int const&>);
-CONCEPT_ASSERT(!ranges::constructible_from<int()>);
-CONCEPT_ASSERT(!ranges::constructible_from<int(&)()>);
-CONCEPT_ASSERT(!ranges::constructible_from<int[]>);
-CONCEPT_ASSERT(ranges::constructible_from<int[5]>);
-CONCEPT_ASSERT(!ranges::constructible_from<nondefaultconstructible>);
-CONCEPT_ASSERT(ranges::constructible_from<int const(&)[5], int(&)[5]>);
-CONCEPT_ASSERT(!ranges::constructible_from<int, int(&)[3]>);
+static_assert(ranges::constructible_from<int>);
+static_assert(ranges::constructible_from<int const>);
+static_assert(!ranges::constructible_from<int const&>);
+static_assert(!ranges::constructible_from<int()>);
+static_assert(!ranges::constructible_from<int(&)()>);
+static_assert(!ranges::constructible_from<int[]>);
+static_assert(ranges::constructible_from<int[5]>);
+static_assert(!ranges::constructible_from<nondefaultconstructible>);
+static_assert(ranges::constructible_from<int const(&)[5], int(&)[5]>);
+static_assert(!ranges::constructible_from<int, int(&)[3]>);
 
-CONCEPT_ASSERT(ranges::constructible_from<int, int>);
-CONCEPT_ASSERT(ranges::constructible_from<int, int&>);
-CONCEPT_ASSERT(ranges::constructible_from<int, int&&>);
-CONCEPT_ASSERT(ranges::constructible_from<int, const int>);
-CONCEPT_ASSERT(ranges::constructible_from<int, const int&>);
-CONCEPT_ASSERT(ranges::constructible_from<int, const int&&>);
+static_assert(ranges::constructible_from<int, int>);
+static_assert(ranges::constructible_from<int, int&>);
+static_assert(ranges::constructible_from<int, int&&>);
+static_assert(ranges::constructible_from<int, const int>);
+static_assert(ranges::constructible_from<int, const int&>);
+static_assert(ranges::constructible_from<int, const int&&>);
 
-CONCEPT_ASSERT(ranges::constructible_from<copyable, copyable>);
-CONCEPT_ASSERT(ranges::constructible_from<copyable, copyable&>);
-CONCEPT_ASSERT(ranges::constructible_from<copyable, copyable&&>);
-CONCEPT_ASSERT(ranges::constructible_from<copyable, const copyable>);
-CONCEPT_ASSERT(ranges::constructible_from<copyable, const copyable&>);
-CONCEPT_ASSERT(ranges::constructible_from<copyable, const copyable&&>);
+static_assert(ranges::constructible_from<copyable, copyable>);
+static_assert(ranges::constructible_from<copyable, copyable&>);
+static_assert(ranges::constructible_from<copyable, copyable&&>);
+static_assert(ranges::constructible_from<copyable, const copyable>);
+static_assert(ranges::constructible_from<copyable, const copyable&>);
+static_assert(ranges::constructible_from<copyable, const copyable&&>);
 
-CONCEPT_ASSERT(!ranges::constructible_from<int&, int>);
-CONCEPT_ASSERT(ranges::constructible_from<int&, int&>);
-CONCEPT_ASSERT(!ranges::constructible_from<int&, int&&>);
-CONCEPT_ASSERT(!ranges::constructible_from<int&, const int>);
-CONCEPT_ASSERT(!ranges::constructible_from<int&, const int&>);
-CONCEPT_ASSERT(!ranges::constructible_from<int&, const int&&>);
+static_assert(!ranges::constructible_from<int&, int>);
+static_assert(ranges::constructible_from<int&, int&>);
+static_assert(!ranges::constructible_from<int&, int&&>);
+static_assert(!ranges::constructible_from<int&, const int>);
+static_assert(!ranges::constructible_from<int&, const int&>);
+static_assert(!ranges::constructible_from<int&, const int&&>);
 
-CONCEPT_ASSERT(ranges::constructible_from<const int&, int>);
-CONCEPT_ASSERT(ranges::constructible_from<const int&, int&>);
-CONCEPT_ASSERT(ranges::constructible_from<const int&, int&&>);
-CONCEPT_ASSERT(ranges::constructible_from<const int&, const int>);
-CONCEPT_ASSERT(ranges::constructible_from<const int&, const int&>);
-CONCEPT_ASSERT(ranges::constructible_from<const int&, const int&&>);
+static_assert(ranges::constructible_from<const int&, int>);
+static_assert(ranges::constructible_from<const int&, int&>);
+static_assert(ranges::constructible_from<const int&, int&&>);
+static_assert(ranges::constructible_from<const int&, const int>);
+static_assert(ranges::constructible_from<const int&, const int&>);
+static_assert(ranges::constructible_from<const int&, const int&&>);
 
-CONCEPT_ASSERT(ranges::constructible_from<int&&, int>);
-CONCEPT_ASSERT(!ranges::constructible_from<int&&, int&>);
-CONCEPT_ASSERT(ranges::constructible_from<int&&, int&&>);
-CONCEPT_ASSERT(!ranges::constructible_from<int&&, const int>);
-CONCEPT_ASSERT(!ranges::constructible_from<int&&, const int&>);
-CONCEPT_ASSERT(!ranges::constructible_from<int&&, const int&&>);
+static_assert(ranges::constructible_from<int&&, int>);
+static_assert(!ranges::constructible_from<int&&, int&>);
+static_assert(ranges::constructible_from<int&&, int&&>);
+static_assert(!ranges::constructible_from<int&&, const int>);
+static_assert(!ranges::constructible_from<int&&, const int&>);
+static_assert(!ranges::constructible_from<int&&, const int&&>);
 
-CONCEPT_ASSERT(ranges::constructible_from<const int&&, int>);
-CONCEPT_ASSERT(!ranges::constructible_from<const int&&, int&>);
-CONCEPT_ASSERT(ranges::constructible_from<const int&&, int&&>);
-CONCEPT_ASSERT(ranges::constructible_from<const int&&, const int>);
-CONCEPT_ASSERT(!ranges::constructible_from<const int&&, const int&>);
-CONCEPT_ASSERT(ranges::constructible_from<const int&&, const int&&>);
+static_assert(ranges::constructible_from<const int&&, int>);
+static_assert(!ranges::constructible_from<const int&&, int&>);
+static_assert(ranges::constructible_from<const int&&, int&&>);
+static_assert(ranges::constructible_from<const int&&, const int>);
+static_assert(!ranges::constructible_from<const int&&, const int&>);
+static_assert(ranges::constructible_from<const int&&, const int&&>);
 
-CONCEPT_ASSERT(ranges::constructible_from<XXX, int>);
+static_assert(ranges::constructible_from<XXX, int>);
 
-CONCEPT_ASSERT(ranges::default_initializable<int>);
-CONCEPT_ASSERT(ranges::default_initializable<int const>);
-CONCEPT_ASSERT(!ranges::default_initializable<int&>);
-CONCEPT_ASSERT(!ranges::default_initializable<int const&>);
-CONCEPT_ASSERT(!ranges::default_initializable<int()>);
-CONCEPT_ASSERT(!ranges::default_initializable<int(&)()>);
-CONCEPT_ASSERT(ranges::default_initializable<double>);
-CONCEPT_ASSERT(!ranges::default_initializable<void>);
-CONCEPT_ASSERT(!ranges::default_initializable<int[]>);
-CONCEPT_ASSERT(ranges::default_initializable<int[2]>);
-CONCEPT_ASSERT(!ranges::default_initializable<nondefaultconstructible>);
+static_assert(ranges::default_initializable<int>);
+static_assert(ranges::default_initializable<int const>);
+static_assert(!ranges::default_initializable<int&>);
+static_assert(!ranges::default_initializable<int const&>);
+static_assert(!ranges::default_initializable<int()>);
+static_assert(!ranges::default_initializable<int(&)()>);
+static_assert(ranges::default_initializable<double>);
+static_assert(!ranges::default_initializable<void>);
+static_assert(!ranges::default_initializable<int[]>);
+static_assert(ranges::default_initializable<int[2]>);
+static_assert(!ranges::default_initializable<nondefaultconstructible>);
 
 namespace pathological_explicit_default_constructor {
 	struct S0 { explicit S0() = default; };
 	struct S1 { S0 x; };
 #if STL2_WORKAROUND_GCC_UNKNOWN0
-	CONCEPT_ASSERT(ranges::default_initializable<S1>);
+	static_assert(ranges::default_initializable<S1>);
 #else // ^^^ workaround / no workaround vvv
-	CONCEPT_ASSERT(!ranges::default_initializable<S1>);
+	static_assert(!ranges::default_initializable<S1>);
 #endif // STL2_WORKAROUND_GCC_UNKNOWN0
 }
 
-CONCEPT_ASSERT(ranges::default_initializable<explicit_move>);
-CONCEPT_ASSERT(ranges::default_initializable<explicit_copy>);
-CONCEPT_ASSERT(!ranges::default_initializable<deleted_default>);
+static_assert(ranges::default_initializable<explicit_move>);
+static_assert(ranges::default_initializable<explicit_copy>);
+static_assert(!ranges::default_initializable<deleted_default>);
 
-CONCEPT_ASSERT(!ranges::move_constructible<void>);
-CONCEPT_ASSERT(ranges::move_constructible<int>);
-CONCEPT_ASSERT(ranges::move_constructible<const int>);
-CONCEPT_ASSERT(!ranges::move_constructible<int[4]>);
-CONCEPT_ASSERT(!ranges::move_constructible<void()>);
-CONCEPT_ASSERT(ranges::move_constructible<int &>);
-CONCEPT_ASSERT(ranges::move_constructible<int &&>);
-CONCEPT_ASSERT(ranges::move_constructible<const int &>);
-CONCEPT_ASSERT(ranges::move_constructible<const int &&>);
+static_assert(!ranges::move_constructible<void>);
+static_assert(ranges::move_constructible<int>);
+static_assert(ranges::move_constructible<const int>);
+static_assert(!ranges::move_constructible<int[4]>);
+static_assert(!ranges::move_constructible<void()>);
+static_assert(ranges::move_constructible<int &>);
+static_assert(ranges::move_constructible<int &&>);
+static_assert(ranges::move_constructible<const int &>);
+static_assert(ranges::move_constructible<const int &&>);
 
-CONCEPT_ASSERT(ranges::constructible_from<moveonly, moveonly>);
-CONCEPT_ASSERT(ranges::move_constructible<copyable>);
-CONCEPT_ASSERT(ranges::move_constructible<moveonly>);
-CONCEPT_ASSERT(!ranges::move_constructible<nonmovable>);
-CONCEPT_ASSERT(!ranges::move_constructible<copyonly>);
-CONCEPT_ASSERT(!ranges::move_constructible<explicit_move>);
-CONCEPT_ASSERT(ranges::move_constructible<explicit_copy>);
+static_assert(ranges::constructible_from<moveonly, moveonly>);
+static_assert(ranges::move_constructible<copyable>);
+static_assert(ranges::move_constructible<moveonly>);
+static_assert(!ranges::move_constructible<nonmovable>);
+static_assert(!ranges::move_constructible<copyonly>);
+static_assert(!ranges::move_constructible<explicit_move>);
+static_assert(ranges::move_constructible<explicit_copy>);
 
-CONCEPT_ASSERT(ranges::move_constructible<nonmovable &>);
-CONCEPT_ASSERT(ranges::move_constructible<nonmovable &&>);
-CONCEPT_ASSERT(ranges::move_constructible<const nonmovable &>);
-CONCEPT_ASSERT(ranges::move_constructible<const nonmovable &&>);
+static_assert(ranges::move_constructible<nonmovable &>);
+static_assert(ranges::move_constructible<nonmovable &&>);
+static_assert(ranges::move_constructible<const nonmovable &>);
+static_assert(ranges::move_constructible<const nonmovable &&>);
 
-CONCEPT_ASSERT(!ranges::copy_constructible<void>);
-CONCEPT_ASSERT(ranges::copy_constructible<int>);
-CONCEPT_ASSERT(ranges::copy_constructible<const int>);
-CONCEPT_ASSERT(ranges::copy_constructible<int&>);
-CONCEPT_ASSERT(!ranges::copy_constructible<int&&>);
-CONCEPT_ASSERT(ranges::copy_constructible<const int&>);
-CONCEPT_ASSERT(!ranges::copy_constructible<const int&&>);
-CONCEPT_ASSERT(!ranges::copy_constructible<int[4]>);
-CONCEPT_ASSERT(!ranges::copy_constructible<void()>);
+static_assert(!ranges::copy_constructible<void>);
+static_assert(ranges::copy_constructible<int>);
+static_assert(ranges::copy_constructible<const int>);
+static_assert(ranges::copy_constructible<int&>);
+static_assert(!ranges::copy_constructible<int&&>);
+static_assert(ranges::copy_constructible<const int&>);
+static_assert(!ranges::copy_constructible<const int&&>);
+static_assert(!ranges::copy_constructible<int[4]>);
+static_assert(!ranges::copy_constructible<void()>);
 
-CONCEPT_ASSERT(ranges::copy_constructible<copyable>);
-CONCEPT_ASSERT(!ranges::copy_constructible<moveonly>);
-CONCEPT_ASSERT(!ranges::copy_constructible<nonmovable>);
-CONCEPT_ASSERT(!ranges::copy_constructible<copyonly>);
-CONCEPT_ASSERT(!ranges::copy_constructible<explicit_move>);
-CONCEPT_ASSERT(!ranges::copy_constructible<explicit_copy>);
-CONCEPT_ASSERT(ranges::copy_constructible<nonmovable &>);
-CONCEPT_ASSERT(!ranges::copy_constructible<nonmovable &&>);
-CONCEPT_ASSERT(ranges::copy_constructible<const nonmovable &>);
-CONCEPT_ASSERT(!ranges::copy_constructible<const nonmovable &&>);
+static_assert(ranges::copy_constructible<copyable>);
+static_assert(!ranges::copy_constructible<moveonly>);
+static_assert(!ranges::copy_constructible<nonmovable>);
+static_assert(!ranges::copy_constructible<copyonly>);
+static_assert(!ranges::copy_constructible<explicit_move>);
+static_assert(!ranges::copy_constructible<explicit_copy>);
+static_assert(ranges::copy_constructible<nonmovable &>);
+static_assert(!ranges::copy_constructible<nonmovable &&>);
+static_assert(ranges::copy_constructible<const nonmovable &>);
+static_assert(!ranges::copy_constructible<const nonmovable &&>);
 
 // https://github.com/ericniebler/stl2/issues/301
 struct not_mutable_ref {
@@ -239,63 +237,63 @@ struct not_const_ref_ref {
 	not_const_ref_ref(not_const_ref_ref&&) = default;
 	not_const_ref_ref(const not_const_ref_ref&&) = delete;
 };
-CONCEPT_ASSERT(!ranges::copy_constructible<not_mutable_ref>);
-CONCEPT_ASSERT(!ranges::copy_constructible<not_const_ref_ref>);
+static_assert(!ranges::copy_constructible<not_mutable_ref>);
+static_assert(!ranges::copy_constructible<not_const_ref_ref>);
 
-CONCEPT_ASSERT(ranges::movable<int>);
-CONCEPT_ASSERT(!ranges::movable<const int>);
-CONCEPT_ASSERT(ranges::movable<double>);
-CONCEPT_ASSERT(!ranges::movable<void>);
-CONCEPT_ASSERT(ranges::movable<copyable>);
-CONCEPT_ASSERT(ranges::movable<moveonly>);
-CONCEPT_ASSERT(!ranges::movable<nonmovable>);
-CONCEPT_ASSERT(!ranges::movable<copyonly>);
+static_assert(ranges::movable<int>);
+static_assert(!ranges::movable<const int>);
+static_assert(ranges::movable<double>);
+static_assert(!ranges::movable<void>);
+static_assert(ranges::movable<copyable>);
+static_assert(ranges::movable<moveonly>);
+static_assert(!ranges::movable<nonmovable>);
+static_assert(!ranges::movable<copyonly>);
 
-CONCEPT_ASSERT(ranges::copyable<int>);
-CONCEPT_ASSERT(!ranges::copyable<const int>);
-CONCEPT_ASSERT(ranges::copyable<double>);
-CONCEPT_ASSERT(!ranges::copyable<void>);
-CONCEPT_ASSERT(ranges::copyable<copyable>);
-CONCEPT_ASSERT(!ranges::copyable<moveonly>);
-CONCEPT_ASSERT(!ranges::copyable<nonmovable>);
-CONCEPT_ASSERT(!ranges::copyable<copyonly>);
+static_assert(ranges::copyable<int>);
+static_assert(!ranges::copyable<const int>);
+static_assert(ranges::copyable<double>);
+static_assert(!ranges::copyable<void>);
+static_assert(ranges::copyable<copyable>);
+static_assert(!ranges::copyable<moveonly>);
+static_assert(!ranges::copyable<nonmovable>);
+static_assert(!ranges::copyable<copyonly>);
 
-CONCEPT_ASSERT(ranges::semiregular<int>);
-CONCEPT_ASSERT(ranges::semiregular<double>);
-CONCEPT_ASSERT(!ranges::semiregular<void>);
-CONCEPT_ASSERT(!ranges::semiregular<int&>);
-CONCEPT_ASSERT(ranges::semiregular<semiregular>);
-CONCEPT_ASSERT(ranges::semiregular<regular>);
-CONCEPT_ASSERT(ranges::semiregular<copyable>);
-CONCEPT_ASSERT(!ranges::semiregular<moveonly>);
-CONCEPT_ASSERT(!ranges::semiregular<nonmovable>);
-CONCEPT_ASSERT(!ranges::semiregular<copyonly>);
-CONCEPT_ASSERT(!ranges::semiregular<explicit_move>);
-CONCEPT_ASSERT(!ranges::semiregular<explicit_copy>);
+static_assert(ranges::semiregular<int>);
+static_assert(ranges::semiregular<double>);
+static_assert(!ranges::semiregular<void>);
+static_assert(!ranges::semiregular<int&>);
+static_assert(ranges::semiregular<semiregular>);
+static_assert(ranges::semiregular<regular>);
+static_assert(ranges::semiregular<copyable>);
+static_assert(!ranges::semiregular<moveonly>);
+static_assert(!ranges::semiregular<nonmovable>);
+static_assert(!ranges::semiregular<copyonly>);
+static_assert(!ranges::semiregular<explicit_move>);
+static_assert(!ranges::semiregular<explicit_copy>);
 
-CONCEPT_ASSERT(ranges::regular<int>);
-CONCEPT_ASSERT(ranges::regular<double>);
-CONCEPT_ASSERT(!ranges::regular<void>);
-CONCEPT_ASSERT(!ranges::regular<int&>);
-CONCEPT_ASSERT(!ranges::regular<semiregular>);
-CONCEPT_ASSERT(ranges::regular<regular>);
-CONCEPT_ASSERT(!ranges::regular<copyable>);
-CONCEPT_ASSERT(!ranges::regular<moveonly>);
-CONCEPT_ASSERT(!ranges::regular<nonmovable>);
-CONCEPT_ASSERT(!ranges::regular<copyonly>);
-CONCEPT_ASSERT(!ranges::regular<explicit_move>);
-CONCEPT_ASSERT(!ranges::regular<explicit_copy>);
+static_assert(ranges::regular<int>);
+static_assert(ranges::regular<double>);
+static_assert(!ranges::regular<void>);
+static_assert(!ranges::regular<int&>);
+static_assert(!ranges::regular<semiregular>);
+static_assert(ranges::regular<regular>);
+static_assert(!ranges::regular<copyable>);
+static_assert(!ranges::regular<moveonly>);
+static_assert(!ranges::regular<nonmovable>);
+static_assert(!ranges::regular<copyonly>);
+static_assert(!ranges::regular<explicit_move>);
+static_assert(!ranges::regular<explicit_copy>);
 
-CONCEPT_ASSERT(ranges::constructible_from<std::initializer_list<int>>);
-CONCEPT_ASSERT(ranges::default_initializable<std::initializer_list<int>>);
+static_assert(ranges::constructible_from<std::initializer_list<int>>);
+static_assert(ranges::default_initializable<std::initializer_list<int>>);
 
-CONCEPT_ASSERT(ranges::constructible_from<int*>);
-CONCEPT_ASSERT(ranges::default_initializable<int*>);
+static_assert(ranges::constructible_from<int*>);
+static_assert(ranges::default_initializable<int*>);
 
 // https://github.com/ericniebler/stl2/issues/301
-CONCEPT_ASSERT(!ranges::constructible_from<int&, long&>);
+static_assert(!ranges::constructible_from<int&, long&>);
 
 // https://github.com/ericniebler/stl2/issues/310
-CONCEPT_ASSERT(!ranges::movable<int&&>);
+static_assert(!ranges::movable<int&&>);
 
 int main() {}

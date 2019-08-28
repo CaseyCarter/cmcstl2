@@ -9,8 +9,6 @@
 #
 # Project home: https://github.com/caseycarter/cmcstl2
 #
-include("../concept_select.txt")
-
 add_stl2_test(test.alg.adjacent_find alg.adjacent_find adjacent_find.cpp)
 add_stl2_test(test.alg.all_of alg.all_of all_of.cpp)
 add_stl2_test(test.alg.any_of alg.any_of any_of.cpp)

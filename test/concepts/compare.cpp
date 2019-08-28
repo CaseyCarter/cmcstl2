@@ -9,37 +9,28 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#include "validate.hpp"
-
-#if VALIDATE_RANGES
-namespace ranges {
-template<class T>
-constexpr bool boolean =
-	std::is_same<T, bool>(); // Obviously many tests will fail ;)
-}
-#elif VALIDATE_STL2
-#include <stl2/detail/concepts/compare.hpp>
-#endif
-
-#include <type_traits>
 #include <bitset>
+#include <type_traits>
+#include <stl2/detail/concepts/compare.hpp>
 #include "../simple_test.hpp"
+
+namespace ranges = std::experimental::ranges;
 
 namespace boolean_test {
 // Better have at least these three, since we use them as
 // examples in the TS draft.
-CONCEPT_ASSERT(ranges::boolean<bool>);
-CONCEPT_ASSERT(ranges::boolean<std::true_type>);
-CONCEPT_ASSERT(ranges::boolean<std::bitset<42>::reference>);
+static_assert(ranges::boolean<bool>);
+static_assert(ranges::boolean<std::true_type>);
+static_assert(ranges::boolean<std::bitset<42>::reference>);
 
-CONCEPT_ASSERT(ranges::boolean<int>);
-CONCEPT_ASSERT(!ranges::boolean<void*>);
+static_assert(ranges::boolean<int>);
+static_assert(!ranges::boolean<void*>);
 
 struct A {};
 struct B { operator bool() const; };
 
-CONCEPT_ASSERT(!ranges::boolean<A>);
-CONCEPT_ASSERT(ranges::boolean<B>);
+static_assert(!ranges::boolean<A>);
+static_assert(ranges::boolean<B>);
 }
 
 namespace equality_comparable_test {
@@ -48,27 +39,27 @@ struct A {
 	friend bool operator!=(const A&, const A&);
 };
 
-CONCEPT_ASSERT(ranges::equality_comparable<int>);
-CONCEPT_ASSERT(ranges::equality_comparable<A>);
-CONCEPT_ASSERT(!ranges::equality_comparable<void>);
-CONCEPT_ASSERT(ranges::equality_comparable<int&>);
-CONCEPT_ASSERT(ranges::equality_comparable<std::nullptr_t>);
+static_assert(ranges::equality_comparable<int>);
+static_assert(ranges::equality_comparable<A>);
+static_assert(!ranges::equality_comparable<void>);
+static_assert(ranges::equality_comparable<int&>);
+static_assert(ranges::equality_comparable<std::nullptr_t>);
 
-CONCEPT_ASSERT(ranges::equality_comparable_with<int, int>);
-CONCEPT_ASSERT(ranges::equality_comparable_with<A, A>);
-CONCEPT_ASSERT(!ranges::equality_comparable_with<void, void>);
-CONCEPT_ASSERT(ranges::equality_comparable_with<int&, int>);
+static_assert(ranges::equality_comparable_with<int, int>);
+static_assert(ranges::equality_comparable_with<A, A>);
+static_assert(!ranges::equality_comparable_with<void, void>);
+static_assert(ranges::equality_comparable_with<int&, int>);
 } // namespace equality_comparable_test
 
-CONCEPT_ASSERT(ranges::totally_ordered<int>);
-CONCEPT_ASSERT(ranges::totally_ordered<float>);
-CONCEPT_ASSERT(!ranges::totally_ordered<void>);
-CONCEPT_ASSERT(ranges::totally_ordered<int&>);
+static_assert(ranges::totally_ordered<int>);
+static_assert(ranges::totally_ordered<float>);
+static_assert(!ranges::totally_ordered<void>);
+static_assert(ranges::totally_ordered<int&>);
 
-CONCEPT_ASSERT(ranges::totally_ordered_with<int, int>);
-CONCEPT_ASSERT(ranges::totally_ordered_with<int, double>);
-CONCEPT_ASSERT(!ranges::totally_ordered_with<int, void>);
-CONCEPT_ASSERT(ranges::totally_ordered_with<int&, int>);
+static_assert(ranges::totally_ordered_with<int, int>);
+static_assert(ranges::totally_ordered_with<int, double>);
+static_assert(!ranges::totally_ordered_with<int, void>);
+static_assert(ranges::totally_ordered_with<int&, int>);
 
 int main() {
 	return ::test_result();
