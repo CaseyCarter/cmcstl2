@@ -10,46 +10,6 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-#include "validate.hpp"
-
-#if VALIDATE_RANGES
-#include <range/v3/utility/iterator_concepts.hpp>
-#include <range/v3/utility/iterator_traits.hpp>
-
-namespace ns {
-	template<class I>
-	using iter_difference_t = ranges::iterator_difference_t<I>;
-
-	template<class I>
-	using iterator_category_t = ranges::iterator_category_t<I>;
-
-	template<class I>
-	using iter_reference_t = ranges::iterator_reference_t<I>;
-
-	template<class I>
-	using iter_rvalue_reference_t = ranges::iterator_rvalue_reference_t<I>;
-
-	template<class I>
-	using iter_value_t = ranges::iterator_value_t<I>;
-
-	using ranges::iterator_category;
-
-	using ranges::input_iterator_tag;
-	using ranges::forward_iterator_tag;
-	using ranges::bidirectional_iterator_tag;
-	using ranges::random_access_iterator_tag;
-
-	using ranges::indirect_result_t;
-}
-
-#elif VALIDATE_STL2
-#include <stl2/iterator.hpp>
-#include <stl2/detail/concepts/callable.hpp>
-#include <stl2/detail/concepts/core.hpp>
-
-namespace ns = ::__stl2;
-#endif
-
 #include <array>
 #include <cstddef>
 #include <memory>
@@ -57,60 +17,63 @@ namespace ns = ::__stl2;
 #include <type_traits>
 #include <valarray>
 #include <vector>
+#include <stl2/iterator.hpp>
+#include <stl2/detail/concepts/callable.hpp>
+#include <stl2/detail/concepts/core.hpp>
 
-#include "../simple_test.hpp"
+namespace ranges = std::experimental::ranges;
 
 namespace associated_type_test {
-	struct A { using value_type = int; int& operator*() const; };
-	struct B : A { using value_type = double; };
+	struct A {
+		using value_type = int;
+		int& operator*() const;
+	};
+	struct B : A {
+		using value_type = double;
+	};
 
 	template<class, class = void>
 	constexpr bool has_member_value_type = false;
 	template<class T>
 	constexpr bool has_member_value_type<T, std::void_t<typename T::value_type>> = true;
 
-	CONCEPT_ASSERT(ranges::same_as<int&, ns::iter_reference_t<int*>>);
-	CONCEPT_ASSERT(ranges::same_as<int&, ns::iter_reference_t<int[]>>);
-	CONCEPT_ASSERT(ranges::same_as<int&, ns::iter_reference_t<int[4]>>);
-	CONCEPT_ASSERT(ranges::same_as<int&, ns::iter_reference_t<A>>);
-	CONCEPT_ASSERT(ranges::same_as<int&, ns::iter_reference_t<B>>);
-	CONCEPT_ASSERT(ranges::same_as<const int&, ns::iter_reference_t<const int*>>);
+	static_assert(ranges::same_as<int&, ranges::iter_reference_t<int*>>);
+	static_assert(ranges::same_as<int&, ranges::iter_reference_t<int[]>>);
+	static_assert(ranges::same_as<int&, ranges::iter_reference_t<int[4]>>);
+	static_assert(ranges::same_as<int&, ranges::iter_reference_t<A>>);
+	static_assert(ranges::same_as<int&, ranges::iter_reference_t<B>>);
+	static_assert(ranges::same_as<const int&, ranges::iter_reference_t<const int*>>);
 
-	CONCEPT_ASSERT(ranges::same_as<int&&, ns::iter_rvalue_reference_t<int*>>);
-	CONCEPT_ASSERT(ranges::same_as<int&&, ns::iter_rvalue_reference_t<int[]>>);
-	CONCEPT_ASSERT(ranges::same_as<int&&, ns::iter_rvalue_reference_t<int[4]>>);
-	CONCEPT_ASSERT(ranges::same_as<int&&, ns::iter_rvalue_reference_t<A>>);
-	CONCEPT_ASSERT(ranges::same_as<int&&, ns::iter_rvalue_reference_t<B>>);
-	CONCEPT_ASSERT(ranges::same_as<const int&&, ns::iter_rvalue_reference_t<const int*>>);
+	static_assert(ranges::same_as<int&&, ranges::iter_rvalue_reference_t<int*>>);
+	static_assert(ranges::same_as<int&&, ranges::iter_rvalue_reference_t<int[]>>);
+	static_assert(ranges::same_as<int&&, ranges::iter_rvalue_reference_t<int[4]>>);
+	static_assert(ranges::same_as<int&&, ranges::iter_rvalue_reference_t<A>>);
+	static_assert(ranges::same_as<int&&, ranges::iter_rvalue_reference_t<B>>);
+	static_assert(ranges::same_as<const int&&, ranges::iter_rvalue_reference_t<const int*>>);
 
-	CONCEPT_ASSERT(ranges::same_as<int, ns::iter_value_t<int*>>);
-	CONCEPT_ASSERT(ranges::same_as<int, ns::iter_value_t<int[]>>);
-	CONCEPT_ASSERT(ranges::same_as<int, ns::iter_value_t<int[4]>>);
-	CONCEPT_ASSERT(ranges::same_as<int, ns::iter_value_t<A>>);
-	CONCEPT_ASSERT(ranges::same_as<double, ns::iter_value_t<B>>);
-	CONCEPT_ASSERT(ranges::same_as<int, ns::iter_value_t<const int*>>);
-	CONCEPT_ASSERT(!has_member_value_type<ns::readable_traits<void>>);
-	CONCEPT_ASSERT(!has_member_value_type<ns::readable_traits<void*>>);
-	CONCEPT_ASSERT(ranges::same_as<int, ns::iter_value_t<const int* const>>);
-	CONCEPT_ASSERT(ranges::same_as<int, ns::iter_value_t<const int[2]>>);
+	static_assert(ranges::same_as<int, ranges::iter_value_t<int*>>);
+	static_assert(ranges::same_as<int, ranges::iter_value_t<int[]>>);
+	static_assert(ranges::same_as<int, ranges::iter_value_t<int[4]>>);
+	static_assert(ranges::same_as<int, ranges::iter_value_t<A>>);
+	static_assert(ranges::same_as<double, ranges::iter_value_t<B>>);
+	static_assert(ranges::same_as<int, ranges::iter_value_t<const int*>>);
+	static_assert(!has_member_value_type<ranges::readable_traits<void>>);
+	static_assert(!has_member_value_type<ranges::readable_traits<void*>>);
+	static_assert(ranges::same_as<int, ranges::iter_value_t<const int* const>>);
+	static_assert(ranges::same_as<int, ranges::iter_value_t<const int[2]>>);
 	struct S { using value_type = int; using element_type = int const; };
-	// ns::readable_traits<S> // ill-formed, hard error
+	// ranges::readable_traits<S> // ill-formed, hard error
 
-	CONCEPT_ASSERT(ranges::same_as<std::ptrdiff_t, ns::iter_difference_t<int*>>);
-	CONCEPT_ASSERT(ranges::same_as<std::ptrdiff_t, ns::iter_difference_t<int[]>>);
-	CONCEPT_ASSERT(ranges::same_as<std::ptrdiff_t, ns::iter_difference_t<int[4]>>);
+	static_assert(ranges::same_as<std::ptrdiff_t, ranges::iter_difference_t<int*>>);
+	static_assert(ranges::same_as<std::ptrdiff_t, ranges::iter_difference_t<int[]>>);
+	static_assert(ranges::same_as<std::ptrdiff_t, ranges::iter_difference_t<int[4]>>);
 
-	CONCEPT_ASSERT(!meta::is_trait<ns::incrementable_traits<void>>());
-	CONCEPT_ASSERT(!meta::is_trait<ns::incrementable_traits<void*>>());
+	static_assert(!meta::is_trait<ranges::incrementable_traits<void>>());
+	static_assert(!meta::is_trait<ranges::incrementable_traits<void*>>());
 
-	CONCEPT_ASSERT(ranges::same_as<int, ns::iter_difference_t<int>>);
-#if VALIDATE_STL2
-	CONCEPT_ASSERT(ranges::same_as<ns::iterator_category_t<int*>, ns::contiguous_iterator_tag>);
-	CONCEPT_ASSERT(ranges::same_as<ns::iterator_category_t<const int*>, ns::contiguous_iterator_tag>);
-#elif VALIDATE_RANGES
-	CONCEPT_ASSERT(ranges::same_as<ns::iterator_category_t<int*>, ns::random_access_iterator_tag>);
-	CONCEPT_ASSERT(ranges::same_as<ns::iterator_category_t<const int*>, ns::random_access_iterator_tag>);
-#endif
+	static_assert(ranges::same_as<int, ranges::iter_difference_t<int>>);
+	static_assert(ranges::same_as<ranges::iterator_category_t<int*>, ranges::contiguous_iterator_tag>);
+	static_assert(ranges::same_as<ranges::iterator_category_t<const int*>, ranges::contiguous_iterator_tag>);
 
 	template<class T>
 	struct derive_from : T {};
@@ -127,38 +90,38 @@ namespace associated_type_test {
 				meta::list<int>>>;
 
 	template<class T, bool B, class U>
-	using test = std::is_same<ns::iterator_category_t<iterator<T, B>>, U>;
+	using test = std::is_same<ranges::iterator_category_t<iterator<T, B>>, U>;
 
-	CONCEPT_ASSERT(!meta::is_trait<ns::iterator_category<void*>>());
-	CONCEPT_ASSERT(!meta::is_trait<ns::iterator_category<int(*)()>>());
-	CONCEPT_ASSERT(!meta::is_trait<ns::iterator_category<iterator<std::output_iterator_tag, false>>>());
-	CONCEPT_ASSERT(!meta::is_trait<ns::iterator_category<iterator<std::output_iterator_tag, true>>>());
+	static_assert(!meta::is_trait<ranges::iterator_category<void*>>());
+	static_assert(!meta::is_trait<ranges::iterator_category<int(*)()>>());
+	static_assert(!meta::is_trait<ranges::iterator_category<iterator<std::output_iterator_tag, false>>>());
+	static_assert(!meta::is_trait<ranges::iterator_category<iterator<std::output_iterator_tag, true>>>());
 
-	CONCEPT_ASSERT(test<std::input_iterator_tag, false, ns::input_iterator_tag>());
-	CONCEPT_ASSERT(test<std::forward_iterator_tag, false, ns::forward_iterator_tag>());
-	CONCEPT_ASSERT(test<std::bidirectional_iterator_tag, false, ns::bidirectional_iterator_tag>());
-	CONCEPT_ASSERT(test<std::random_access_iterator_tag, false, ns::random_access_iterator_tag>());
+	static_assert(test<std::input_iterator_tag, false, ranges::input_iterator_tag>());
+	static_assert(test<std::forward_iterator_tag, false, ranges::forward_iterator_tag>());
+	static_assert(test<std::bidirectional_iterator_tag, false, ranges::bidirectional_iterator_tag>());
+	static_assert(test<std::random_access_iterator_tag, false, ranges::random_access_iterator_tag>());
 
-	CONCEPT_ASSERT(test<std::input_iterator_tag, true, ns::input_iterator_tag>());
-	CONCEPT_ASSERT(test<std::forward_iterator_tag, true, ns::forward_iterator_tag>());
-	CONCEPT_ASSERT(test<std::bidirectional_iterator_tag, true, ns::bidirectional_iterator_tag>());
-	CONCEPT_ASSERT(test<std::random_access_iterator_tag, true, ns::random_access_iterator_tag>());
+	static_assert(test<std::input_iterator_tag, true, ranges::input_iterator_tag>());
+	static_assert(test<std::forward_iterator_tag, true, ranges::forward_iterator_tag>());
+	static_assert(test<std::bidirectional_iterator_tag, true, ranges::bidirectional_iterator_tag>());
+	static_assert(test<std::random_access_iterator_tag, true, ranges::random_access_iterator_tag>());
 
 	struct foo {};
-	CONCEPT_ASSERT(test<foo, false, foo>());
+	static_assert(test<foo, false, foo>());
 
 	// Some sanity tests
-	struct my_wonky_tag : std::random_access_iterator_tag, ns::random_access_iterator_tag {};
-	struct my_wonky_tag2 : std::input_iterator_tag, ns::random_access_iterator_tag {};
-	static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag, int>, my_wonky_tag>::value, "");
-	static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag, int&>, my_wonky_tag>::value, "");
-	static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag2, int>, my_wonky_tag2>::value, "");
-	static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag2, int&>, my_wonky_tag2>::value, "");
-	struct my_wonky_tag3 : ns::random_access_iterator_tag {};
-	static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag3, int>, std::input_iterator_tag>::value, "");
-	static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<my_wonky_tag3, int&>, std::random_access_iterator_tag>::value, "");
-	static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<ns::input_iterator_tag, int>, std::input_iterator_tag>::value, "");
-	static_assert(std::is_same<ns::detail::stl2_to_std_iterator_category<ns::input_iterator_tag, int&>, std::input_iterator_tag>::value, "");
+	struct my_wonky_tag : std::random_access_iterator_tag, ranges::random_access_iterator_tag {};
+	struct my_wonky_tag2 : std::input_iterator_tag, ranges::random_access_iterator_tag {};
+	static_assert(std::is_same<ranges::detail::stl2_to_std_iterator_category<my_wonky_tag, int>, my_wonky_tag>::value, "");
+	static_assert(std::is_same<ranges::detail::stl2_to_std_iterator_category<my_wonky_tag, int&>, my_wonky_tag>::value, "");
+	static_assert(std::is_same<ranges::detail::stl2_to_std_iterator_category<my_wonky_tag2, int>, my_wonky_tag2>::value, "");
+	static_assert(std::is_same<ranges::detail::stl2_to_std_iterator_category<my_wonky_tag2, int&>, my_wonky_tag2>::value, "");
+	struct my_wonky_tag3 : ranges::random_access_iterator_tag {};
+	static_assert(std::is_same<ranges::detail::stl2_to_std_iterator_category<my_wonky_tag3, int>, std::input_iterator_tag>::value, "");
+	static_assert(std::is_same<ranges::detail::stl2_to_std_iterator_category<my_wonky_tag3, int&>, std::random_access_iterator_tag>::value, "");
+	static_assert(std::is_same<ranges::detail::stl2_to_std_iterator_category<ranges::input_iterator_tag, int>, std::input_iterator_tag>::value, "");
+	static_assert(std::is_same<ranges::detail::stl2_to_std_iterator_category<ranges::input_iterator_tag, int&>, std::input_iterator_tag>::value, "");
 } // namespace associated_type_test
 
 namespace readable_test {
@@ -167,26 +130,26 @@ namespace readable_test {
 		using value_type = int;
 	};
 
-	CONCEPT_ASSERT(!ranges::readable<void>);
-	CONCEPT_ASSERT(!ranges::readable<void*>);
-	CONCEPT_ASSERT(ranges::readable<int*>);
-	CONCEPT_ASSERT(ranges::readable<const int*>);
-	CONCEPT_ASSERT(ranges::readable<A>);
-	CONCEPT_ASSERT(ranges::same_as<ns::iter_value_t<A>,int>);
+	static_assert(!ranges::readable<void>);
+	static_assert(!ranges::readable<void*>);
+	static_assert(ranges::readable<int*>);
+	static_assert(ranges::readable<const int*>);
+	static_assert(ranges::readable<A>);
+	static_assert(ranges::same_as<ranges::iter_value_t<A>,int>);
 
 	struct MoveOnlyReadable {
 		using value_type = std::unique_ptr<int>;
 		value_type operator*() const;
 	};
 
-	CONCEPT_ASSERT(ranges::readable<MoveOnlyReadable>);
+	static_assert(ranges::readable<MoveOnlyReadable>);
 
 	struct ArrayReadable {
 		using value_type = int[2];
 		value_type& operator*() const;
 	};
 
-	CONCEPT_ASSERT(ranges::readable<ArrayReadable>);
+	static_assert(ranges::readable<ArrayReadable>);
 
 	struct Abstract {
 		virtual void foo() = 0;
@@ -196,7 +159,7 @@ namespace readable_test {
 		Abstract& operator*() const;
 	};
 
-	CONCEPT_ASSERT(ranges::readable<AbstractReadable>);
+	static_assert(ranges::readable<AbstractReadable>);
 }
 
 namespace writable_test {
@@ -204,37 +167,37 @@ namespace writable_test {
 		int& operator*() const;
 	};
 
-	CONCEPT_ASSERT(ranges::writable<std::unique_ptr<int>*, std::unique_ptr<int>&&>);
-	CONCEPT_ASSERT(!ranges::writable<std::unique_ptr<int>*, std::unique_ptr<int>&>);
-	CONCEPT_ASSERT(!ranges::writable<void, int>);
-	CONCEPT_ASSERT(!ranges::writable<void*, void>);
-	CONCEPT_ASSERT(ranges::writable<int*, int>);
-	CONCEPT_ASSERT(ranges::writable<int*, int&>);
-	CONCEPT_ASSERT(ranges::writable<int*, const int&>);
-	CONCEPT_ASSERT(ranges::writable<int*, const int>);
-	CONCEPT_ASSERT(!ranges::writable<const int*, int>);
-	CONCEPT_ASSERT(ranges::writable<A, int>);
-	CONCEPT_ASSERT(ranges::writable<A, const int&>);
-	CONCEPT_ASSERT(ranges::writable<A, double>);
-	CONCEPT_ASSERT(ranges::writable<A, const double&>);
+	static_assert(ranges::writable<std::unique_ptr<int>*, std::unique_ptr<int>&&>);
+	static_assert(!ranges::writable<std::unique_ptr<int>*, std::unique_ptr<int>&>);
+	static_assert(!ranges::writable<void, int>);
+	static_assert(!ranges::writable<void*, void>);
+	static_assert(ranges::writable<int*, int>);
+	static_assert(ranges::writable<int*, int&>);
+	static_assert(ranges::writable<int*, const int&>);
+	static_assert(ranges::writable<int*, const int>);
+	static_assert(!ranges::writable<const int*, int>);
+	static_assert(ranges::writable<A, int>);
+	static_assert(ranges::writable<A, const int&>);
+	static_assert(ranges::writable<A, double>);
+	static_assert(ranges::writable<A, const double&>);
 } // namespace writable_test
 
-CONCEPT_ASSERT(ranges::weakly_incrementable<int>);
-CONCEPT_ASSERT(ranges::weakly_incrementable<unsigned int>);
-CONCEPT_ASSERT(!ranges::weakly_incrementable<void>);
-CONCEPT_ASSERT(ranges::weakly_incrementable<int*>);
-CONCEPT_ASSERT(ranges::weakly_incrementable<const int*>);
+static_assert(ranges::weakly_incrementable<int>);
+static_assert(ranges::weakly_incrementable<unsigned int>);
+static_assert(!ranges::weakly_incrementable<void>);
+static_assert(ranges::weakly_incrementable<int*>);
+static_assert(ranges::weakly_incrementable<const int*>);
 
-CONCEPT_ASSERT(ranges::incrementable<int>);
-CONCEPT_ASSERT(ranges::incrementable<unsigned int>);
-CONCEPT_ASSERT(!ranges::incrementable<void>);
-CONCEPT_ASSERT(ranges::incrementable<int*>);
-CONCEPT_ASSERT(ranges::incrementable<const int*>);
+static_assert(ranges::incrementable<int>);
+static_assert(ranges::incrementable<unsigned int>);
+static_assert(!ranges::incrementable<void>);
+static_assert(ranges::incrementable<int*>);
+static_assert(ranges::incrementable<const int*>);
 
 namespace iterator_sentinel_test {
 	struct A {
 		using difference_type = signed char;
-		using iterator_category = ns::input_iterator_tag;
+		using iterator_category = ranges::input_iterator_tag;
 		using value_type = double;
 
 		A& operator++();
@@ -245,28 +208,28 @@ namespace iterator_sentinel_test {
 		bool operator != (const A&) const;
 	};
 
-	CONCEPT_ASSERT(ranges::input_or_output_iterator<int*>);
-	CONCEPT_ASSERT(ranges::input_or_output_iterator<const int*>);
-	CONCEPT_ASSERT(!ranges::input_or_output_iterator<void*>);
-	CONCEPT_ASSERT(ranges::input_or_output_iterator<A>);
-	CONCEPT_ASSERT(ranges::input_iterator<A>);
+	static_assert(ranges::input_or_output_iterator<int*>);
+	static_assert(ranges::input_or_output_iterator<const int*>);
+	static_assert(!ranges::input_or_output_iterator<void*>);
+	static_assert(ranges::input_or_output_iterator<A>);
+	static_assert(ranges::input_iterator<A>);
 
-	CONCEPT_ASSERT(ranges::input_or_output_iterator<int*>);
-	CONCEPT_ASSERT(ranges::sentinel_for<int*, int*>);
-	CONCEPT_ASSERT(ranges::sentinel_for<const int*, const int*>);
-	CONCEPT_ASSERT(ranges::sentinel_for<const int*, int*>);
-	CONCEPT_ASSERT(!ranges::sentinel_for<void*, void*>);
-	CONCEPT_ASSERT(ranges::sentinel_for<A, A>);
+	static_assert(ranges::input_or_output_iterator<int*>);
+	static_assert(ranges::sentinel_for<int*, int*>);
+	static_assert(ranges::sentinel_for<const int*, const int*>);
+	static_assert(ranges::sentinel_for<const int*, int*>);
+	static_assert(!ranges::sentinel_for<void*, void*>);
+	static_assert(ranges::sentinel_for<A, A>);
 } // namespace iterator_sentinel_test
 
 namespace indirectly_callable_test {
-	CONCEPT_ASSERT(ranges::ext::IndirectInvocable<std::plus<int>, int*, int*>);
+	static_assert(ranges::ext::IndirectInvocable<std::plus<int>, int*, int*>);
 }
 
 namespace indirect_invoke_result_test {
 	template<class R, class... Args>
 	using fn_t = R(Args...);
-	CONCEPT_ASSERT(ranges::same_as<ns::indirect_result_t<fn_t<void, int>&, const int*>, void>);
+	static_assert(ranges::same_as<ranges::indirect_result_t<fn_t<void, int>&, const int*>, void>);
 }
 
 namespace contiguous_test {
@@ -340,22 +303,20 @@ namespace contiguous_test {
 		bool operator!=(allocator<U>);
 	};
 
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::array<int, 42>::iterator>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::array<int, 42>::const_iterator>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::string::iterator>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::string::const_iterator>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::basic_string<char, std::char_traits<char>, allocator<char>>::iterator>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::basic_string<char, std::char_traits<char>, allocator<char>>::const_iterator>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::string_view::iterator>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::string_view::const_iterator>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<ranges::iterator_t<std::valarray<double>>>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<ranges::iterator_t<const std::valarray<double>>>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::vector<int>::iterator>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::vector<int>::const_iterator>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::vector<int, allocator<int>>::iterator>);
-	CONCEPT_ASSERT(ranges::contiguous_iterator<std::vector<int, allocator<int>>::const_iterator>);
+	static_assert(ranges::contiguous_iterator<std::array<int, 42>::iterator>);
+	static_assert(ranges::contiguous_iterator<std::array<int, 42>::const_iterator>);
+	static_assert(ranges::contiguous_iterator<std::string::iterator>);
+	static_assert(ranges::contiguous_iterator<std::string::const_iterator>);
+	static_assert(ranges::contiguous_iterator<std::basic_string<char, std::char_traits<char>, allocator<char>>::iterator>);
+	static_assert(ranges::contiguous_iterator<std::basic_string<char, std::char_traits<char>, allocator<char>>::const_iterator>);
+	static_assert(ranges::contiguous_iterator<std::string_view::iterator>);
+	static_assert(ranges::contiguous_iterator<std::string_view::const_iterator>);
+	static_assert(ranges::contiguous_iterator<ranges::iterator_t<std::valarray<double>>>);
+	static_assert(ranges::contiguous_iterator<ranges::iterator_t<const std::valarray<double>>>);
+	static_assert(ranges::contiguous_iterator<std::vector<int>::iterator>);
+	static_assert(ranges::contiguous_iterator<std::vector<int>::const_iterator>);
+	static_assert(ranges::contiguous_iterator<std::vector<int, allocator<int>>::iterator>);
+	static_assert(ranges::contiguous_iterator<std::vector<int, allocator<int>>::const_iterator>);
 }
 
-int main() {
-	return ::test_result();
-}
+int main() {}

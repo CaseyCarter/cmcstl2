@@ -9,8 +9,6 @@
 #
 # Project home: https://github.com/caseycarter/cmcstl2
 #
-include("../concept_select.txt")
-
 add_stl2_test(test.concepts.core concepts.core core.cpp)
 add_stl2_test(test.concepts.compare concepts.compare compare.cpp)
 add_stl2_test(test.concepts.fundamental concepts.fundamental fundamental.cpp)

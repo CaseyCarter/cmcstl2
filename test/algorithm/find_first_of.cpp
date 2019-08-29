@@ -18,20 +18,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if VALIDATE_RANGES
-#include <range/v3/core.hpp>
-#include <range/v3/algorithm/find_first_of.hpp>
-
-#elif VALIDATE_STL2
 #include <stl2/detail/algorithm/find_first_of.hpp>
-namespace ranges = __stl2;
-#endif
 
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
 #include "../test_utils.hpp"
 
-namespace rng = ranges;
+namespace rng = std::experimental::ranges;
 
 void test_iter()
 {
