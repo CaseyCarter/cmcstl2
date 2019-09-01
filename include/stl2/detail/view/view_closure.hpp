@@ -114,7 +114,13 @@ STL2_OPEN_NAMESPACE {
 		struct STL2_EMPTY_BASES view_closure
 		: __pipeable<view_closure<Fn, Ts...>>
 		, __view_closure<std::index_sequence_for<Ts...>, Fn, Ts...> {
+#if STL2_WORKAROUND_MSVC_846967
+			using base = __view_closure<std::index_sequence_for<Ts...>, Fn, Ts...>;
+			view_closure() = default;
+			constexpr explicit view_closure(Fn fn, Ts&&... ts) : base{ fn, std::forward<Ts>(ts)... } {}
+#else // ^^^ workaround / no workaround vvv
 			using __view_closure<std::index_sequence_for<Ts...>, Fn, Ts...>::__view_closure;
+#endif // STL2_WORKAROUND_MSVC_846967
 		};
 
 		template<semiregular Fn, copy_constructible... Ts>
