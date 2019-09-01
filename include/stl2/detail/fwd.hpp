@@ -257,6 +257,15 @@ namespace __stl2 = ::std::experimental::ranges;
 #define STL2_EMPTY_BASES
 #endif
 
+#ifndef STL2_HOOK_ITERATOR_TRAITS
+#if defined(__cpp_lib_ranges) || \
+	(defined(_MSVC_STL_UPDATE) && _MSVC_STL_UPDATE >= 201908L && defined(__cpp_lib_concepts))
+#define STL2_HOOK_ITERATOR_TRAITS 0
+#else
+#define STL2_HOOK_ITERATOR_TRAITS 1
+#endif
+#endif
+
 STL2_OPEN_NAMESPACE {
 	namespace ext {
 		// tags for manually specified overload ordering

@@ -561,6 +561,7 @@ STL2_OPEN_NAMESPACE {
 	template<class I>
 	using iterator_traits = __iterator_traits<I>;
 
+#if STL2_HOOK_ITERATOR_TRAITS
 	////////////////////////////////////////////////////////////////////////////
 	// Standard iterator traits [iterator.stdtraits]
 	//
@@ -607,10 +608,10 @@ STL2_OPEN_NAMESPACE {
 		template<class I>
 		META_CONCEPT ProbablySTL2Iterator = !LooksLikeSTL1Iterator<I> && input_or_output_iterator<I>;
 	} // namespace detail
+#endif // STL2_HOOK_ITERATOR_TRAITS
 } STL2_CLOSE_NAMESPACE
 
-#if !defined(__cpp_lib_ranges) && !(defined(_MSVC_STL_UPDATE) && \
-	_MSVC_STL_UPDATE >= 201908L && defined(__cpp_lib_concepts))
+#if STL2_HOOK_ITERATOR_TRAITS
 namespace std {
 	template<::__stl2::detail::ProbablySTL2Iterator Out>
 		// HACKHACK to avoid partial specialization after instantiation errors. Platform
@@ -646,7 +647,7 @@ namespace std {
 					::__stl2::iter_reference_t<In>>;
 	};
 } // namespace std
-#endif
+#endif // STL2_HOOK_ITERATOR_TRAITS
 
 #ifdef __GLIBCXX__ // HACKHACK: pointer iterator wrappers are contiguous
 #include <bits/stl_iterator.h>
