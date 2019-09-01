@@ -144,6 +144,14 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_MSVC_849755 // "cmcstl2 test move_iterator fails"
+ #if defined(_MSC_VER) && !defined(__clang__)
+  #define STL2_WORKAROUND_MSVC_849755 1
+ #else
+  #define STL2_WORKAROUND_MSVC_849755 0
+ #endif
+#endif
+
 #define STL2_OPEN_NAMESPACE \
 	namespace std { namespace experimental { namespace ranges { inline namespace v1
 #define STL2_CLOSE_NAMESPACE }}}
