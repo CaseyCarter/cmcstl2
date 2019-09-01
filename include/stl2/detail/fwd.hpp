@@ -128,6 +128,14 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_MSVC_841651 // "RDParser uses the placeholder directly instead of resolving it"
+ #if defined(_MSC_VER) && !defined(__clang__) && _MSC_VER < 1924 // Fix may miss preview 1
+  #define STL2_WORKAROUND_MSVC_841651 1
+ #else
+  #define STL2_WORKAROUND_MSVC_841651 0
+ #endif
+#endif
+
 #define STL2_OPEN_NAMESPACE \
 	namespace std { namespace experimental { namespace ranges { inline namespace v1
 #define STL2_CLOSE_NAMESPACE }}}

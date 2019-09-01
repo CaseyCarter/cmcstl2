@@ -62,7 +62,11 @@ STL2_OPEN_NAMESPACE {
 				// Precondition: $\property{mutable\_counted\_range}(first, n)$
 				STL2_EXPECT(n / 2 <= buf.size());
 
+#if STL2_WORKAROUND_MSVC_841651
+				detail::temporary_vector<iter_value_t<I>> vec{buf};
+#else // ^^^ workaround / no workaround vvv
 				detail::temporary_vector vec{buf};
+#endif // STL2_WORKAROUND_MSVC_841651
 				auto ufirst = ext::uncounted(first);
 				// Shift the first half of the input range into the buffer.
 				auto umiddle = ext::uncounted(move(
