@@ -31,28 +31,53 @@ STL2_OPEN_NAMESPACE {
 		movable<std::decay_t<B>> &&
 		requires(const std::remove_reference_t<B>& b1,
 			     const std::remove_reference_t<B>& b2, const bool a) {
+#ifdef META_HAS_P1084
 			// Requirements common to both boolean and BooleanTestable.
-			{  b1      } -> STL2_RVALUE_REQ(convertible_to<bool>);
-			{ !b1      } -> STL2_RVALUE_REQ(convertible_to<bool>);
-			{  b1 && a } -> STL2_RVALUE_REQ(same_as<bool>);
-			{  b1 || a } -> STL2_RVALUE_REQ(same_as<bool>);
+			{  b1      } -> convertible_to<bool>;
+			{ !b1      } -> convertible_to<bool>;
+			{  b1 && a } -> same_as<bool>;
+			{  b1 || a } -> same_as<bool>;
 
 			// Requirements of boolean that are also be valid for
 			// BooleanTestable, but for which BooleanTestable does not
 			// require validation.
-			{ b1 && b2 } -> STL2_RVALUE_REQ(same_as<bool>);
-			{  a && b2 } -> STL2_RVALUE_REQ(same_as<bool>);
-			{ b1 || b2 } -> STL2_RVALUE_REQ(same_as<bool>);
-			{  a || b2 } -> STL2_RVALUE_REQ(same_as<bool>);
+			{ b1 && b2 } -> same_as<bool>;
+			{  a && b2 } -> same_as<bool>;
+			{ b1 || b2 } -> same_as<bool>;
+			{  a || b2 } -> same_as<bool>;
 
 			// Requirements of boolean that are not required by
 			// BooleanTestable.
-			{ b1 == b2 } -> STL2_RVALUE_REQ(convertible_to<bool>);
-			{ b1 == a  } -> STL2_RVALUE_REQ(convertible_to<bool>);
-			{  a == b2 } -> STL2_RVALUE_REQ(convertible_to<bool>);
-			{ b1 != b2 } -> STL2_RVALUE_REQ(convertible_to<bool>);
-			{ b1 != a  } -> STL2_RVALUE_REQ(convertible_to<bool>);
-			{  a != b2 } -> STL2_RVALUE_REQ(convertible_to<bool>);
+			{ b1 == b2 } -> convertible_to<bool>;
+			{ b1 == a  } -> convertible_to<bool>;
+			{  a == b2 } -> convertible_to<bool>;
+			{ b1 != b2 } -> convertible_to<bool>;
+			{ b1 != a  } -> convertible_to<bool>;
+			{  a != b2 } -> convertible_to<bool>;
+#else
+			// Requirements common to both boolean and BooleanTestable.
+			 b1     ; requires convertible_to<decltype(( b1)), bool>;
+			!b1     ; requires convertible_to<decltype((!b1)), bool>;
+			 b1 && a; requires same_as<decltype((b1 && a)), bool>;
+			 b1 || a; requires same_as<decltype((b1 || a)), bool>;
+
+			// Requirements of boolean that are also be valid for
+			// BooleanTestable, but for which BooleanTestable does not
+			// require validation.
+			b1 && b2; requires same_as<decltype((b1 && b2)), bool>;
+			 a && b2; requires same_as<decltype(( a && b2)), bool>;
+			b1 || b2; requires same_as<decltype((b1 || b2)), bool>;
+			 a || b2; requires same_as<decltype(( a || b2)), bool>;
+
+			// Requirements of boolean that are not required by
+			// BooleanTestable.
+			b1 == b2; requires convertible_to<decltype((b1 == b2)), bool>;
+			b1 == a ; requires convertible_to<decltype((b1 == a )), bool>;
+			 a == b2; requires convertible_to<decltype(( a == b2)), bool>;
+			b1 != b2; requires convertible_to<decltype((b1 != b2)), bool>;
+			b1 != a ; requires convertible_to<decltype((b1 != a )), bool>;
+			 a != b2; requires convertible_to<decltype(( a != b2)), bool>;
+#endif // META_HAS_P1084
 		};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -66,10 +91,17 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT WeaklyEqualityComparable =
 		requires(const std::remove_reference_t<T>& t,
 				 const std::remove_reference_t<U>& u) {
-			{ t == u } -> STL2_RVALUE_REQ(boolean);
-			{ t != u } -> STL2_RVALUE_REQ(boolean);
-			{ u == t } -> STL2_RVALUE_REQ(boolean);
-			{ u != t } -> STL2_RVALUE_REQ(boolean);
+#ifdef META_HAS_P1084
+			{ t == u } -> boolean;
+			{ t != u } -> boolean;
+			{ u == t } -> boolean;
+			{ u != t } -> boolean;
+#else
+			t == u; requires boolean<decltype((t == u))>;
+			t != u; requires boolean<decltype((t != u))>;
+			u == t; requires boolean<decltype((u == t))>;
+			u != t; requires boolean<decltype((u != t))>;
+#endif // META_HAS_P1084
 		};
 
 	///////////////////////////////////////////////////////////////////////////
@@ -99,10 +131,17 @@ STL2_OPEN_NAMESPACE {
 	META_CONCEPT __totally_ordered =
 		requires(const std::remove_reference_t<T>& t,
 		         const std::remove_reference_t<U>& u) {
-			{ t <  u } -> STL2_RVALUE_REQ(boolean);
-			{ t >  u } -> STL2_RVALUE_REQ(boolean);
-			{ t <= u } -> STL2_RVALUE_REQ(boolean);
-			{ t >= u } -> STL2_RVALUE_REQ(boolean);
+#ifdef META_HAS_P1084
+			{ t <  u } -> boolean;
+			{ t >  u } -> boolean;
+			{ t <= u } -> boolean;
+			{ t >= u } -> boolean;
+#else
+			t <  u; requires boolean<decltype((t <  u))>;
+			t >  u; requires boolean<decltype((t >  u))>;
+			t <= u; requires boolean<decltype((t <= u))>;
+			t >= u; requires boolean<decltype((t >= u))>;
+#endif // META_HAS_P1084
 			// Axiom: t < u, t > u, t <= u, t >= u have the same definition space.
 			// Axiom: If bool(t < u) then bool(t <= u)
 			// Axiom: If bool(t > u) then bool(t >= u)

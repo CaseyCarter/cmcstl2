@@ -33,7 +33,11 @@ STL2_OPEN_NAMESPACE {
 			const std::remove_reference_t<RHS>&> &&
 #endif
 		requires(LHS lhs, RHS&& rhs) {
-			{ lhs = static_cast<RHS&&>(rhs) } -> STL2_RVALUE_REQ(same_as<LHS>);
+#ifdef META_HAS_P1084
+			{ lhs = static_cast<RHS&&>(rhs) } -> same_as<LHS>;
+#else
+			lhs = static_cast<RHS&&>(rhs); requires same_as<decltype(lhs = static_cast<RHS&&>(rhs)), LHS>;
+#endif // META_HAS_P1084
 		};
 } STL2_CLOSE_NAMESPACE
 

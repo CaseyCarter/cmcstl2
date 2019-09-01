@@ -239,12 +239,6 @@ namespace __stl2 = ::std::experimental::ranges;
  #endif
 #endif
 
-#ifdef META_HAS_P1084
-#define STL2_RVALUE_REQ(...) __VA_ARGS__
-#else // ^^^ Has P1084 / No P1084 vvv
-#define STL2_RVALUE_REQ(...) __VA_ARGS__&&
-#endif // Detect support for P1084
-
 #if __has_cpp_attribute(no_unique_address)
 #define STL2_NO_UNIQUE_ADDRESS [[no_unique_address]]
 #else

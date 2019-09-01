@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 #ifdef META_HAS_P1084
 			{ is >> t } -> same_as<std::basic_istream<charT, traits>&>;
 #else
-			{ is >> t } -> same_as<std::basic_istream<charT, traits>>&;
+			is >> t; requires same_as<decltype((is >> t)), std::basic_istream<charT, traits>&>;
 #endif
 			// Axiom: &is == &(is << t)
 		};
@@ -39,7 +39,7 @@ STL2_OPEN_NAMESPACE {
 #ifdef META_HAS_P1084
 			{ os << t } -> same_as<std::basic_ostream<charT, traits>&>;
 #else
-			{ os << t } -> same_as<std::basic_ostream<charT, traits>>&;
+			os << t; requires same_as<decltype((os << t)), std::basic_ostream<charT, traits>&>;
 #endif
 			// Axiom: &os == &(os << t)
 		};

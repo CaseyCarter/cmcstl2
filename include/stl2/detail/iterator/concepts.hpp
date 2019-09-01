@@ -414,8 +414,13 @@ STL2_OPEN_NAMESPACE {
 		sentinel_for<S, I> &&
 		!disable_sized_sentinel<std::remove_cv_t<S>, std::remove_cv_t<I>> &&
 		requires(const I i, const S s) {
-			{ s - i } -> STL2_RVALUE_REQ(same_as<iter_difference_t<I>>);
-			{ i - s } -> STL2_RVALUE_REQ(same_as<iter_difference_t<I>>);
+#ifdef META_HAS_P1084
+			{ s - i } -> same_as<iter_difference_t<I>>;
+			{ i - s } -> same_as<iter_difference_t<I>>;
+#else
+			s - i; requires same_as<decltype((s - i)), iter_difference_t<I>>;
+			i - s; requires same_as<decltype((i - s)), iter_difference_t<I>>;
+#endif // META_HAS_P1084
 			// Axiom: If [i,s) denotes a range and N is the smallest
 			//        non-negative integer such that N applications of
 			//        ++i make bool(i == s) == true

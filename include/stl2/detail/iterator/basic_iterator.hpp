@@ -218,7 +218,11 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT sized_sentinel_for =
 			sentinel_for<S, C> &&
 			requires(const C& c, const S& s) {
-				{ c.distance_to(s) } -> STL2_RVALUE_REQ(same_as<difference_type_t<C>>);
+#ifdef META_HAS_P1084
+				{ c.distance_to(s) } -> same_as<difference_type_t<C>>;
+#else
+				c.distance_to(s); requires same_as<decltype((c.distance_to(s))), difference_type_t<C>>;
+#endif // META_HAS_P1084
 			};
 
 		template<class C>
@@ -561,7 +565,11 @@ STL2_OPEN_NAMESPACE {
 		template<class C>
 		META_CONCEPT PostIncrementCursor =
 			requires(C& c) {
-				{ c.post_increment() } -> STL2_RVALUE_REQ(same_as<C>);
+#ifdef META_HAS_P1084
+				{ c.post_increment() } -> same_as<C>;
+#else
+				c.post_increment(); requires same_as<decltype((c.post_increment())), C>;
+#endif // META_HAS_P1084
 			};
 	} // namespace detail
 
