@@ -609,6 +609,8 @@ STL2_OPEN_NAMESPACE {
 	} // namespace detail
 } STL2_CLOSE_NAMESPACE
 
+#if !defined(__cpp_lib_ranges) && !(defined(_MSVC_STL_UPDATE) && \
+	_MSVC_STL_UPDATE >= 201908L && defined(__cpp_lib_concepts))
 namespace std {
 	template<::__stl2::detail::ProbablySTL2Iterator Out>
 		// HACKHACK to avoid partial specialization after instantiation errors. Platform
@@ -644,6 +646,7 @@ namespace std {
 					::__stl2::iter_reference_t<In>>;
 	};
 } // namespace std
+#endif
 
 #ifdef __GLIBCXX__ // HACKHACK: pointer iterator wrappers are contiguous
 #include <bits/stl_iterator.h>
