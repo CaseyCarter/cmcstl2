@@ -28,11 +28,11 @@ STL2_OPEN_NAMESPACE {
 			template<viewable_range _Range>
 			static constexpr unsigned __choose() noexcept {
 				if constexpr (view<__uncvref<_Range>>) {
-					return __decay | std::is_nothrow_constructible_v<__uncvref<_Range>, _Range>;
+					return __decay | unsigned{std::is_nothrow_constructible_v<__uncvref<_Range>, _Range>};
 				} else if constexpr (std::is_lvalue_reference_v<_Range>) {
-					return __ref | noexcept(ref_view{std::declval<_Range>()});
+					return __ref | unsigned{noexcept(ref_view{std::declval<_Range>()})};
 				} else {
-					return __subrange | noexcept(subrange{std::declval<_Range>()});
+					return __subrange | unsigned{noexcept(subrange{std::declval<_Range>()})};
 				}
 			}
 		public:
@@ -44,6 +44,7 @@ STL2_OPEN_NAMESPACE {
 				} else if constexpr (__strategy == __ref) {
 					return ref_view{__r};
 				} else {
+					static_assert(__strategy == __subrange);
 					return subrange{static_cast<_Range&&>(__r)};
 				}
 			}
