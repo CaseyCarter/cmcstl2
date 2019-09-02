@@ -17,12 +17,6 @@
 #include "./test_iterators.hpp"
 #include "./simple_test.hpp"
 
-template<typename Expected, typename Actual>
-void has_type(Actual &&)
-{
-	static_assert(std::is_same<Expected, Actual>::value, "Not the same");
-}
-
 template<typename T>
 T & as_lvalue(T && t)
 {
