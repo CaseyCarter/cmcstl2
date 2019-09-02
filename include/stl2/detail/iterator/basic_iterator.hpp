@@ -29,7 +29,7 @@
 //   validity requirements for forward iterators.
 
 STL2_OPEN_NAMESPACE {
-	template<ext::DestructibleObject T>
+	template<ext::destructible_object T>
 	requires (std::is_class<T>::value && !std::is_final<T>::value)
 	class basic_mixin : T {
 	public:
@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 	requires
 		requires {
 			typename meta::_t<detail::mixin_base<T>>;
-			requires ext::DestructibleObject<meta::_t<detail::mixin_base<T>>>;
+			requires ext::destructible_object<meta::_t<detail::mixin_base<T>>>;
 			requires std::is_class<meta::_t<detail::mixin_base<T>>>::value;
 			requires !std::is_final<meta::_t<detail::mixin_base<T>>>::value;
 		}

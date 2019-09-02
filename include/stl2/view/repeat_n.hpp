@@ -19,7 +19,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<CopyConstructibleObject T>
+		template<copy_constructible_object T>
 		using repeat_n_view = take_exactly_view<repeat_view<T>>;
 	} // namespace ext
 

@@ -114,7 +114,7 @@ STL2_OPEN_NAMESPACE {
 			)
 #endif // STL2_WORKAROUND_CLANGC_50
 
-			template<__stl2::ext::CopyConstructibleObject Pred>
+			template<__stl2::ext::copy_constructible_object Pred>
 			constexpr auto operator()(Pred pred) const
 			{ return detail::view_closure{*this, std::move(pred)}; }
 		};

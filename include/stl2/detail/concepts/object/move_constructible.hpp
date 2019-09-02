@@ -20,11 +20,11 @@
 
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// Object [Extension]
+	// object [Extension]
 	//
 	namespace ext {
 		template<class T>
-		META_CONCEPT Object = std::is_object_v<T>;
+		META_CONCEPT object = std::is_object_v<T>;
 	} // namespace ext
 
 	///////////////////////////////////////////////////////////////////////////

@@ -190,7 +190,7 @@ struct always_cursor {
 template<class T, T Value>
 using always_iterator = ranges::basic_iterator<always_cursor<T, Value>>;
 
-template<ranges::ext::Object T>
+template<ranges::ext::object T>
 struct proxy_wrapper {
 	ranges::detail::raw_ptr<T> ptr_ = nullptr;
 

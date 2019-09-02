@@ -23,7 +23,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<class T>
 		META_CONCEPT Pipeable =
-			derived_from<T, __pipeable_base> && ext::CopyConstructibleObject<T>;
+			derived_from<T, __pipeable_base> && ext::copy_constructible_object<T>;
 
 		template<Pipeable, Pipeable>
 		struct __view_pipeline;

@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 			invocable<const F&> &&
 			same_as<invoke_result_t<F&>, invoke_result_t<const F&>>;
 
-		template<CopyConstructibleObject F>
+		template<copy_constructible_object F>
 		requires invocable<F&>
 		struct STL2_EMPTY_BASES generate_view
 		: view_interface<generate_view<F>>
@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 			{ return {}; }
 		};
 
-		template<CopyConstructibleObject F>
+		template<copy_constructible_object F>
 		requires invocable<F&>
 		struct generate_view<F>::__iterator {
 			using value_type = result_t;

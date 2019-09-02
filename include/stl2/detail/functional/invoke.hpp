@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 	)
 #endif // STL2_WORKAROUND_CLANGC_50
 
-	template<ext::Object D, class T, class T1>
+	template<ext::object D, class T, class T1>
 	constexpr decltype(auto) invoke(D (T::*f), T1&& t1)
 #if STL2_WORKAROUND_CLANGC_50
 	noexcept(noexcept(__invoke::coerce<T>(static_cast<T1&&>(t1)).*f))

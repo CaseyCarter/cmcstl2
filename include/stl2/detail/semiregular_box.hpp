@@ -24,7 +24,7 @@ STL2_OPEN_NAMESPACE {
 		// If T models move_constructible, semiregular_box<T> models movable &&
 		// default_initializable (so-called "move_semiregular"). If T models
 		// copy_constructible, semiregular_box<T> models semiregular.
-		template<ext::MoveConstructibleObject T>
+		template<ext::move_constructible_object T>
 		struct semiregular_box {
 #if STL2_WORKAROUND_MSVC_106654
 			// Not a proper workaround since semiregular_box<T> should be
@@ -171,7 +171,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<semiregular T>
-		requires ext::Object<T>
+		requires ext::object<T>
 		struct semiregular_box<T> : ebo_box<T, semiregular_box<T>> {
 			using semiregular_box::ebo_box::ebo_box;
 

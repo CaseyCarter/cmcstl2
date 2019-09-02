@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 #endif
 		};
 
-	template<ext::MoveConstructibleObject F>
+	template<ext::move_constructible_object F>
 	struct __not_fn : private detail::ebo_box<F, __not_fn<F>> {
 	private:
 		using box_t = detail::ebo_box<F, __not_fn<F>>;

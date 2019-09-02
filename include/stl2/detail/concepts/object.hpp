@@ -57,58 +57,58 @@ STL2_OPEN_NAMESPACE {
 		// 'structible object concepts
 		//
 		template<class T>
-		META_CONCEPT DestructibleObject = Object<T> && destructible<T>;
+		META_CONCEPT destructible_object = object<T> && destructible<T>;
 
 		template<class T, class... Args>
-		META_CONCEPT ConstructibleObject = Object<T> && constructible_from<T, Args...>;
+		META_CONCEPT object_constructible_from = object<T> && constructible_from<T, Args...>;
 
 		template<class T>
-		META_CONCEPT DefaultConstructibleObject = Object<T> && default_initializable<T>;
+		META_CONCEPT default_initializable_object = object<T> && default_initializable<T>;
 
 		template<class T>
-		META_CONCEPT MoveConstructibleObject = Object<T> && move_constructible<T>;
+		META_CONCEPT move_constructible_object = object<T> && move_constructible<T>;
 
 		template<class T>
-		META_CONCEPT CopyConstructibleObject = Object<T> && copy_constructible<T>;
+		META_CONCEPT copy_constructible_object = object<T> && copy_constructible<T>;
 
 		///////////////////////////////////////////////////////////////////////////
-		// TriviallyFoo concepts
+		// trivially_XXX concepts
 		//
 		template<class T>
-		META_CONCEPT TriviallyDestructible =
+		META_CONCEPT trivially_destructible =
 			destructible<T> && std::is_trivially_destructible_v<T>;
 
 		template<class T, class... Args>
-		META_CONCEPT TriviallyConstructible =
+		META_CONCEPT trivially_constructible_from =
 			constructible_from<T, Args...> &&
 			std::is_trivially_constructible_v<T, Args...>;
 
 		template<class T>
-		META_CONCEPT TriviallyDefaultConstructible =
+		META_CONCEPT trivially_default_initializable =
 			default_initializable<T> &&
 			std::is_trivially_default_constructible_v<T>;
 
 		template<class T>
-		META_CONCEPT TriviallyMoveConstructible =
+		META_CONCEPT trivially_move_constructible =
 			move_constructible<T> && std::is_trivially_move_constructible_v<T>;
 
 		template<class T>
-		META_CONCEPT TriviallyCopyConstructible =
+		META_CONCEPT trivially_copy_constructible =
 			copy_constructible<T> &&
-			TriviallyMoveConstructible<T> &&
+			trivially_move_constructible<T> &&
 			std::is_trivially_copy_constructible_v<T>;
 
 		template<class T>
-		META_CONCEPT TriviallyMovable =
+		META_CONCEPT trivially_movable =
 			movable<T> &&
-			TriviallyMoveConstructible<T> &&
+			trivially_move_constructible<T> &&
 			std::is_trivially_move_assignable_v<T>;
 
 		template<class T>
-		META_CONCEPT TriviallyCopyable =
+		META_CONCEPT trivially_copyable =
 			copyable<T> &&
-			TriviallyMovable<T> &&
-			TriviallyCopyConstructible<T> &&
+			trivially_movable<T> &&
+			trivially_copy_constructible<T> &&
 			std::is_trivially_copy_assignable_v<T>;
 	}
 } STL2_CLOSE_NAMESPACE

@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		template<ext::DestructibleObject T>
+		template<ext::destructible_object T>
 		class temporary_vector {
 			T* begin_ = nullptr;
 			T* end_ = nullptr;
@@ -161,7 +161,7 @@ STL2_OPEN_NAMESPACE {
 			{ emplace_back(std::move(t)); }
 		};
 
-		template<ext::DestructibleObject T>
+		template<ext::destructible_object T>
 		temporary_vector<T> make_temporary_vector(temporary_buffer<T>& buf) {
 			return {buf};
 		}
