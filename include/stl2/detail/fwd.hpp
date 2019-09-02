@@ -140,6 +140,14 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_MSVC_FUNCTION_CONVERSIONS // MSVC allows pointers-to-function to implicitly convert to void*
+ #if defined(_MSC_VER) && !defined(__clang__)
+  #define STL2_WORKAROUND_MSVC_FUNCTION_CONVERSIONS 1
+ #else
+  #define STL2_WORKAROUND_MSVC_FUNCTION_CONVERSIONS 0
+ #endif
+#endif
+
 #define STL2_OPEN_NAMESPACE \
 	namespace std { namespace experimental { namespace ranges { inline namespace v1
 #define STL2_CLOSE_NAMESPACE }}}
