@@ -89,15 +89,9 @@ STL2_OPEN_NAMESPACE {
 		struct __ref_fn : detail::__pipeable<__ref_fn> {
 			template<class R>
 			auto operator()(R&& r) const
-#if STL2_WORKAROUND_CLANGC_50
-			requires requires(R&& r) { ref_view{std::forward<R>(r)}; } {
-				return ref_view{std::forward<R>(r)};
-			}
-#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				ref_view{std::forward<R>(r)}
 			)
-#endif // STL2_WORKAROUND_CLANGC_50
 		};
 
 		inline constexpr __ref_fn ref {};

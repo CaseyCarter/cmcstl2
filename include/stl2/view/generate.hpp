@@ -113,18 +113,9 @@ STL2_OPEN_NAMESPACE {
 		struct __generate_fn : detail::__pipeable<__generate_fn> {
 			template<class F>
 			constexpr auto operator()(F&& f) const
-#if STL2_WORKAROUND_CLANGC_50
-			noexcept(noexcept(__stl2::ext::generate_view{std::forward<F>(f)}))
-			requires requires(F&& f) {
-				__stl2::ext::generate_view{std::forward<F>(f)};
-			} {
-				return __stl2::ext::generate_view{std::forward<F>(f)};
-			}
-#else // ^^^ workaround / no workaround vvv
 			STL2_NOEXCEPT_REQUIRES_RETURN(
 				__stl2::ext::generate_view{std::forward<F>(f)}
 			)
-#endif // STL2_WORKAROUND_CLANGC_50
 		};
 
 		inline constexpr __generate_fn generate {};

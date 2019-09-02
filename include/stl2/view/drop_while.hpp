@@ -76,20 +76,10 @@ STL2_OPEN_NAMESPACE {
 		struct __drop_while_fn : detail::__pipeable<__drop_while_fn> {
 			template<class Rng, class Pred>
 			constexpr auto operator()(Rng&& rng, Pred&& pred) const
-#if STL2_WORKAROUND_CLANGC_50
-			requires requires(Rng&& rng, Pred&& pred) {
-				__stl2::ext::drop_while_view{
-					views::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
-			} {
-				return __stl2::ext::drop_while_view{
-					views::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)};
-			}
-#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				__stl2::ext::drop_while_view{
 					views::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
 			)
-#endif // STL2_WORKAROUND_CLANGC_50
 
 			template<__stl2::ext::copy_constructible_object Pred>
 			constexpr auto operator()(Pred pred) const

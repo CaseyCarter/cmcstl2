@@ -87,17 +87,9 @@ STL2_OPEN_NAMESPACE {
 		struct __repeat_fn {
 			template<class T>
 			constexpr auto operator()(T&& t) const
-#if STL2_WORKAROUND_CLANGC_50
-			requires requires(T&& t) {
-				__stl2::ext::repeat_view{static_cast<T&&>(t)};
-			} {
-				return __stl2::ext::repeat_view{static_cast<T&&>(t)};
-			}
-#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				__stl2::ext::repeat_view{static_cast<T&&>(t)}
 			)
-#endif // STL2_WORKAROUND_CLANGC_50
 		};
 
 		inline constexpr __repeat_fn repeat {};

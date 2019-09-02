@@ -316,17 +316,9 @@ STL2_OPEN_NAMESPACE {
 		struct __split_fn {
 			template<class E, class F>
 			constexpr auto operator()(E&& e, F&& f) const
-#if STL2_WORKAROUND_CLANGC_50
-			requires requires(E&& e, F&& f) {
-				split_view{static_cast<E&&>(e), static_cast<F&&>(f)};
-			} {
-				return split_view{static_cast<E&&>(e), static_cast<F&&>(f)};
-			}
-#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				split_view{static_cast<E&&>(e), static_cast<F&&>(f)}
 			)
-#endif // STL2_WORKAROUND_CLANGC_50
 
 			template<copy_constructible T>
 			constexpr auto operator()(T&& t) const

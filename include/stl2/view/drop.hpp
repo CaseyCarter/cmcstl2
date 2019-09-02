@@ -93,17 +93,9 @@ STL2_OPEN_NAMESPACE {
 		struct __drop_fn : detail::__pipeable<__drop_fn> {
 			template<range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
-#if STL2_WORKAROUND_CLANGC_50
-			requires requires(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) {
-				__stl2::ext::drop_view(all(std::forward<Rng>(rng)), count);
-			} {
-				return __stl2::ext::drop_view(all(std::forward<Rng>(rng)), count);
-			}
-#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				__stl2::ext::drop_view(all(std::forward<Rng>(rng)), count)
 			)
-#endif // STL2_WORKAROUND_CLANGC_50
 
 			template<integral D>
 			constexpr auto operator()(D count) const

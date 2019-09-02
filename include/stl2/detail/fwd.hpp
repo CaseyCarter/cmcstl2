@@ -84,16 +84,6 @@
  #endif
 #endif
 
-#ifndef STL2_WORKAROUND_CLANGC_50
- #if defined(__clang__)
-  // A trailing-requires-clause should be in function parameter scope
-  // https://github.com/saarraz/clang-concepts/issues/50
-  #define STL2_WORKAROUND_CLANGC_50 1
- #else
-  #define STL2_WORKAROUND_CLANGC_50 0
- #endif
-#endif
-
 #ifndef STL2_WORKAROUND_MSVC_106654 // "multiple versions of a defaulted special member functions are not allowed"
  #if defined(_MSC_VER) && !defined(__clang__)
   #define STL2_WORKAROUND_MSVC_106654 1
