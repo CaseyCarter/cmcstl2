@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 			ostream_type& os, const charT* delimiter = nullptr) noexcept
 		: out_stream_(std::addressof(os)), delim_(delimiter) {}
 
-		template<class U, class V = meta::if_<std::is_void<T>, U, T>>
+		template<class U, class V = meta::if_c<STL2_IS_VOID(T), U, T>>
 		requires
 			convertible_to<U, V const&> &&
 			StreamInsertable<V, charT, traits>

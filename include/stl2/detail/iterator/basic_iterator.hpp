@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T>
-		constexpr bool IsValueType = !std::is_void<T>::value;
+		constexpr bool IsValueType = !STL2_IS_VOID(T);
 	} // namespace detail
 	template<class T>
 	requires
