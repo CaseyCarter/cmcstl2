@@ -147,14 +147,14 @@ STL2_OPEN_NAMESPACE {
 			STL2_EXPECT(last_() - first_() == n);
 		}
 
-		template<_NotSameAs<subrange> R>
+		template<detail::NotDerivedFrom<subrange> R>
 		requires _ForwardingRange<R> &&
 			detail::ConvertibleToNotSlicing<iterator_t<R>, I> &&
 			convertible_to<sentinel_t<R>, S>
 		constexpr subrange(R&& r) requires (!StoreSize)
 		: subrange{__stl2::begin(r), __stl2::end(r)} {}
 
-		template<_NotSameAs<subrange> R>
+		template<detail::NotDerivedFrom<subrange> R>
 		requires _ForwardingRange<R> &&
 			detail::ConvertibleToNotSlicing<iterator_t<R>, I> &&
 			convertible_to<sentinel_t<R>, S>
@@ -173,7 +173,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		}
 
-		template<_NotSameAs<subrange> PairLike>
+		template<detail::NotDerivedFrom<subrange> PairLike>
 		requires detail::PairLikeConvertibleFrom<PairLike, const I&, const S&>
 		constexpr operator PairLike() const {
 			return PairLike(first_(), last_());
