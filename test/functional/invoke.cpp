@@ -91,7 +91,9 @@ int main() {
 		CHECK(ranges::invoke(&A::i, ca) == 13);
 		CHECK(noexcept(ranges::invoke(&A::i, ca) == 13));
 		CHECK(ranges::invoke(&A::i, &a) == 13);
+#if !STL2_WORKAROUND_MSVC_836487 // "workaround"
 		CHECK(noexcept(ranges::invoke(&A::i, &a) == 13));
+#endif // !STL2_WORKAROUND_MSVC_836487
 		CHECK(ranges::invoke(&A::i, &ca) == 13);
 		CHECK(noexcept(ranges::invoke(&A::i, &ca) == 13));
 
@@ -123,7 +125,9 @@ int main() {
 		static_assert(b.i == 42);
 		static_assert(b.f() == 42);
 		static_assert(ranges::invoke(&B::i, b) == 42);
+#if !STL2_WORKAROUND_MSVC_836487 // "workaround"
 		static_assert(ranges::invoke(&B::i, &b) == 42);
+#endif // !STL2_WORKAROUND_MSVC_836487
 		static_assert(ranges::invoke(&B::i, B{}) == 42);
 		static_assert(ranges::invoke(&B::f, b) == 42);
 		static_assert(ranges::invoke(&B::f, &b) == 42);
