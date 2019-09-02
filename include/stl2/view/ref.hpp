@@ -57,14 +57,8 @@ STL2_OPEN_NAMESPACE {
 	public:
 		constexpr ref_view() noexcept = default;
 
-#if STL2_WORKAROUND_CLANGC_42
-		template<class T>
-		requires _NotSameAs<T, ref_view> &&
-			requires(T&& t) { fun(static_cast<T&&>(t)); }
-#else
 		template<_NotSameAs<ref_view> T>
 		requires requires(T&& t) { fun(static_cast<T&&>(t)); }
-#endif
 		constexpr ref_view(T&& t)
 		noexcept(is_nothrow_convertible_v<T, R&>) // strengthened
 		: r_{std::addressof(static_cast<R&>(static_cast<T&&>(t)))} {}

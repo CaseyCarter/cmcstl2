@@ -84,16 +84,6 @@
  #endif
 #endif
 
-#ifndef STL2_WORKAROUND_CLANGC_42
- #if defined(__clang__)
-  // Failure to short-circuit with constrained-parameter syntax
-  // https://github.com/saarraz/clang-concepts/issues/42
-  #define STL2_WORKAROUND_CLANGC_42 1
- #else
-  #define STL2_WORKAROUND_CLANGC_42 0
- #endif
-#endif
-
 #ifndef STL2_WORKAROUND_CLANGC_50
  #if defined(__clang__)
   // A trailing-requires-clause should be in function parameter scope

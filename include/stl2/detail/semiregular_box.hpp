@@ -43,13 +43,8 @@ STL2_OPEN_NAMESPACE {
 			: o_{std::in_place} {}
 #endif // STL2_WORKAROUND_MSVC_106654
 
-#if STL2_WORKAROUND_CLANGC_42
-			template<class U>
-			requires _NotSameAs<U, semiregular_box> && convertible_to<U, T>
-#else // ^^^ workaround / no workaround vvv
 			template<_NotSameAs<semiregular_box> U>
 			requires convertible_to<U, T>
-#endif // STL2_WORKAROUND_CLANGC_42
 			constexpr semiregular_box(U&& u)
 			noexcept(std::is_nothrow_constructible_v<T, U>)
 			: o_{std::in_place, static_cast<U&&>(u)} {}
