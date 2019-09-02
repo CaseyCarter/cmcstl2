@@ -23,46 +23,52 @@
 #include <stl2/view/view_interface.hpp>
 
 STL2_OPEN_NAMESPACE {
-	template<class From, class To>
-	META_CONCEPT _ConvertibleToNotSlicing =
-		convertible_to<From, To> &&
-		// A conversion is a slicing conversion if the source and the destination
-		// are both pointers, and if the pointed-to types differ after removing
-		// cv qualifiers.
-		!(std::is_pointer_v<std::decay_t<From>> &&
-		  std::is_pointer_v<std::decay_t<To>> &&
-		  _NotSameAs<std::remove_pointer_t<std::decay_t<From>>,
-		             std::remove_pointer_t<std::decay_t<To>>>);
+	namespace detail {
+		template<class From, class To>
+		META_CONCEPT ConvertibleToNotSlicing =
+			convertible_to<From, To> &&
+			// A conversion is a slicing conversion if the source and the
+			// destination are both pointers, and if the pointed-to types differ
+			// after removing cv qualifiers.
+			!(std::is_pointer_v<std::decay_t<From>> &&
+			std::is_pointer_v<std::decay_t<To>> &&
+			_NotSameAs<std::remove_pointer_t<std::decay_t<From>>,
+			           std::remove_pointer_t<std::decay_t<To>>>);
 
-	template<class T>
-	META_CONCEPT _PairLikeGCCBugs = requires(T t) {
-		{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
-		{ std::get<1>(t) } -> const std::tuple_element_t<1, T>&;
-	};
-
-	template<class T>
-	META_CONCEPT _PairLike =
-		!std::is_reference_v<T> && requires {
-			typename std::tuple_size<T>::type;
-			requires derived_from<std::tuple_size<T>, std::integral_constant<std::size_t, 2>>;
-			typename std::tuple_element_t<0, std::remove_const_t<T>>;
-			typename std::tuple_element_t<1, std::remove_const_t<T>>;
-			requires _PairLikeGCCBugs<T>; // Separate named concept to avoid
-			                              // premature substitution.
+		template<class T>
+		META_CONCEPT PairLikeGCCBugs = requires(T t) {
+			{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
+			{ std::get<1>(t) } -> const std::tuple_element_t<1, T>&;
 		};
 
-	template<class T, class U, class V>
-	META_CONCEPT _PairLikeConvertibleFromGCCBugs =
-		!std::is_reference_v<std::tuple_element_t<0, T>> &&
-		!std::is_reference_v<std::tuple_element_t<1, T>> &&
-		_ConvertibleToNotSlicing<U, std::tuple_element_t<0, T>> &&
-		convertible_to<V, std::tuple_element_t<1, T>>;
+		template<class T>
+		META_CONCEPT PairLike =
+			!std::is_reference_v<T> && requires {
+				typename std::tuple_size<T>::type;
+				requires derived_from<std::tuple_size<T>,
+					std::integral_constant<std::size_t, 2>>;
+				typename std::tuple_element_t<0, std::remove_const_t<T>>;
+				typename std::tuple_element_t<1, std::remove_const_t<T>>;
+				requires PairLikeGCCBugs<T>; // Separate named concept to avoid
+				                             // premature substitution.
+			};
 
-	template<class T, class U, class V>
-	META_CONCEPT _PairLikeConvertibleFrom =
-		!range<T> && _PairLike<T> && constructible_from<T, U, V> &&
-		_PairLikeConvertibleFromGCCBugs<T, U, V>; // Separate named concept to avoid
-		                                          // premature substitution.
+		template<class T, class U, class V>
+		META_CONCEPT PairLikeConvertibleFromGCCBugs =
+			!std::is_reference_v<std::tuple_element_t<0, T>> &&
+			!std::is_reference_v<std::tuple_element_t<1, T>> &&
+			ConvertibleToNotSlicing<U, std::tuple_element_t<0, T>> &&
+			convertible_to<V, std::tuple_element_t<1, T>>;
+
+		template<class T, class U, class V>
+		META_CONCEPT PairLikeConvertibleFrom =
+			!range<T> && PairLike<T> && constructible_from<T, U, V> &&
+			PairLikeConvertibleFromGCCBugs<T, U, V>; // Separate named concept to avoid
+			                                         // premature substitution.
+
+		template<class Derived, class Base>
+		META_CONCEPT NotDerivedFrom = !derived_from<__uncvref<Derived>, Base>;
+	} // namespace detail
 
 	enum class subrange_kind : bool { unsized, sized };
 
@@ -121,12 +127,12 @@ STL2_OPEN_NAMESPACE {
 	public:
 		subrange() = default;
 
-		template<_ConvertibleToNotSlicing<I> I2>
+		template<detail::ConvertibleToNotSlicing<I> I2>
 		constexpr subrange(I2&& i, S s)
 			requires (!StoreSize)
 		: data_{std::forward<I2>(i), std::move(s)} {}
 
-		template<_ConvertibleToNotSlicing<I> I2>
+		template<detail::ConvertibleToNotSlicing<I> I2>
 		constexpr subrange(I2&& i, S s, iter_difference_t<I> n)
 			requires (StoreSize)
 		: data_{std::forward<I2>(i), std::move(s), n} {
@@ -134,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 				STL2_EXPECT(first_() + n == last_());
 			}
 		}
-		template<_ConvertibleToNotSlicing<I> I2>
+		template<detail::ConvertibleToNotSlicing<I> I2>
 		constexpr subrange(I2&& i, S s, iter_difference_t<I> n)
 		requires sized_sentinel_for<S, I>
 		: data_{std::forward<I2>(i), std::move(s)} {
@@ -148,7 +154,7 @@ STL2_OPEN_NAMESPACE {
 		template<_NotSameAs<subrange> R>
 		requires _ForwardingRange<R> &&
 #endif
-			_ConvertibleToNotSlicing<iterator_t<R>, I> &&
+			detail::ConvertibleToNotSlicing<iterator_t<R>, I> &&
 			convertible_to<sentinel_t<R>, S>
 		constexpr subrange(R&& r) requires (!StoreSize)
 		: subrange{__stl2::begin(r), __stl2::end(r)} {}
@@ -160,14 +166,14 @@ STL2_OPEN_NAMESPACE {
 		template<_NotSameAs<subrange> R>
 		requires _ForwardingRange<R> &&
 #endif
-			_ConvertibleToNotSlicing<iterator_t<R>, I> &&
+			detail::ConvertibleToNotSlicing<iterator_t<R>, I> &&
 			convertible_to<sentinel_t<R>, S>
 		constexpr subrange(R&& r) requires StoreSize && sized_range<R>
 		: subrange{__stl2::begin(r), __stl2::end(r), distance(r)} {}
 
 		template<_ForwardingRange R>
 		requires
-			_ConvertibleToNotSlicing<iterator_t<R>, I> &&
+			detail::ConvertibleToNotSlicing<iterator_t<R>, I> &&
 			convertible_to<sentinel_t<R>, S>
 		constexpr subrange(R&& r, iter_difference_t<I> n)
 			requires (K == subrange_kind::sized)
@@ -180,10 +186,10 @@ STL2_OPEN_NAMESPACE {
 #if STL2_WORKAROUND_CLANGC_42
 		template<class PairLike>
 		requires _NotSameAs<PairLike, subrange> &&
-			_PairLikeConvertibleFrom<PairLike, const I&, const S&>
+			detail::PairLikeConvertibleFrom<PairLike, const I&, const S&>
 #else
 		template<_NotSameAs<subrange> PairLike>
-		requires _PairLikeConvertibleFrom<PairLike, const I&, const S&>
+		requires detail::PairLikeConvertibleFrom<PairLike, const I&, const S&>
 #endif
 		constexpr operator PairLike() const {
 			return PairLike(first_(), last_());
