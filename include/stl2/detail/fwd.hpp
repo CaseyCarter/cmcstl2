@@ -57,6 +57,14 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_GCC_UNKNOWN1
+ #ifdef __GNUC__ // Unfiled GCC bug triggered by basic_iterator
+  #define STL2_WORKAROUND_GCC_UNKNOWN1 1
+ #else
+  #define STL2_WORKAROUND_GCC_UNKNOWN1 0
+ #endif
+#endif
+
 #ifndef STL2_WORKAROUND_CLANG_UNKNOWN1
  #if defined(__clang__) && __clang_major < 7
   // Rejects-valid with CTAD nested in parens.

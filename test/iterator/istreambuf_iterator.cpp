@@ -69,7 +69,13 @@ namespace {
 		CHECK(!(i != default_sentinel{}));
 
 		static_assert(same_as<decltype(i.operator->()), typename C::pointer>);
-		static_assert(same_as<decltype(i.operator++(0)), typename C::__proxy>);
+#if 1 // FIXME: remove
+		static_assert(!__stl2::detail::PostIncrementCursor<C>);
+		static_assert(same_as<decltype(std::declval<C&>().post_increment()),
+			typename C::__proxy>);
+		static_assert(!same_as<decltype(i++), I>);
+#endif
+		static_assert(same_as<decltype(i++), typename C::__proxy>);
 
 		static_assert(constructible_from<I, default_sentinel>);
 		static_assert(convertible_to<default_sentinel, I>);

@@ -563,14 +563,13 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class C>
-		META_CONCEPT PostIncrementCursor =
-			requires(C& c) {
+		META_CONCEPT PostIncrementCursor = cursor::PostIncrement<C> && requires(C& c) {
 #ifdef META_HAS_P1084
-				{ c.post_increment() } -> same_as<C>;
+			{ c.post_increment() } -> same_as<C>;
 #else
-				c.post_increment(); requires same_as<decltype((c.post_increment())), C>;
+			c.post_increment(); requires same_as<decltype((c.post_increment())), C>;
 #endif // META_HAS_P1084
-			};
+		};
 	} // namespace detail
 
 	// common_reference specializations for basic_proxy_reference
@@ -766,6 +765,42 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
+#if STL2_WORKAROUND_GCC_UNKNOWN1
+		template<class CC = C>
+		constexpr basic_iterator operator++(int) &
+		noexcept(std::is_nothrow_copy_constructible<basic_iterator>::value &&
+			std::is_nothrow_move_constructible<basic_iterator>::value &&
+			noexcept(++std::declval<basic_iterator&>()))
+		{
+			auto tmp(*this);
+			++*this;
+			return tmp;
+		}
+
+		template<class CC = C>
+		constexpr void operator++(int) &
+		noexcept(noexcept(++std::declval<basic_iterator&>()))
+		requires (cursor::Input<CC> && !cursor::Forward<CC>
+			&& !cursor::PostIncrement<CC>)
+		{
+			++*this;
+		}
+
+		template<class CC = C>
+		constexpr decltype(auto) operator++(int) &
+		noexcept(noexcept(std::declval<C&>().post_increment()))
+		requires cursor::PostIncrement<CC>
+		{
+			return get().post_increment();
+		}
+		template<class CC = C>
+		constexpr basic_iterator operator++(int) &
+		noexcept(noexcept(basic_iterator{std::declval<C&>().post_increment()}))
+		requires detail::PostIncrementCursor<CC>
+		{
+			return basic_iterator{get().post_increment()};
+		}
+#else // ^^^ workaround / no workaround vvv
 		constexpr basic_iterator operator++(int) &
 		noexcept(std::is_nothrow_copy_constructible<basic_iterator>::value &&
 			std::is_nothrow_move_constructible<basic_iterator>::value &&
@@ -778,8 +813,7 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr void operator++(int) &
 		noexcept(noexcept(++std::declval<basic_iterator&>()))
-		requires (cursor::Input<C> && !cursor::Forward<C>
-			&& !cursor::PostIncrement<C>)
+		requires (cursor::Input<C> && !cursor::Forward<C> && !cursor::PostIncrement<C>)
 		{
 			++*this;
 		}
@@ -792,12 +826,11 @@ STL2_OPEN_NAMESPACE {
 		}
 		constexpr basic_iterator operator++(int) &
 		noexcept(noexcept(basic_iterator{std::declval<C&>().post_increment()}))
-		requires
-			cursor::PostIncrement<C> &&
-			detail::PostIncrementCursor<C>
+		requires detail::PostIncrementCursor<C>
 		{
 			return basic_iterator{get().post_increment()};
 		}
+#endif // STL2_WORKAROUND_GCC_UNKNOWN1
 
 		constexpr basic_iterator& operator--() &
 		noexcept(noexcept(std::declval<C&>().prev()))
