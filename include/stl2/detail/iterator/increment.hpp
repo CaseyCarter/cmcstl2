@@ -75,8 +75,8 @@ STL2_OPEN_NAMESPACE {
 #ifdef META_HAS_P1084
 			{ ++i } -> same_as<I&>; // not required to be equality-preserving
 #else
-			{ ++i } -> same_as<I>&; // not required to be equality-preserving
-#endif
+			++i; requires same_as<decltype((++i)), I&>; // not required to be equality-preserving
+#endif // META_HAS_P1084
 			i++; // not required to be equality-preserving
 		};
 
@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 				{ --i } -> same_as<I&>;
 				{ i-- } -> same_as<I>;
 #else
-				{ --i } -> same_as<I>&;
+				--i; requires same_as<decltype((--i)), I&>;
 				i--; requires same_as<I, decltype(i--)>;
 #endif
 			};
@@ -127,11 +127,19 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT RandomAccessIncrementable =
 			Decrementable<I> &&
 			requires(I& i, const I& ci, const iter_difference_t<I> n) {
-				{ i += n } -> STL2_RVALUE_REQ(same_as<I&>);
-				{ i -= n } -> STL2_RVALUE_REQ(same_as<I&>);
-				{ ci + n } -> STL2_RVALUE_REQ(same_as<I>);
-				{ n + ci } -> STL2_RVALUE_REQ(same_as<I>);
-				{ ci - n } -> STL2_RVALUE_REQ(same_as<I>);
+#ifdef META_HAS_P1084
+				{ i += n } -> same_as<I&>;
+				{ i -= n } -> same_as<I&>;
+				{ ci + n } -> same_as<I>;
+				{ n + ci } -> same_as<I>;
+				{ ci - n } -> same_as<I>;
+#else
+				i += n; requires same_as<decltype((i += n)), I&>;
+				i -= n; requires same_as<decltype((i -= n)), I&>;
+				ci + n; requires same_as<decltype((ci + n)), I>;
+				n + ci; requires same_as<decltype((n + ci)), I>;
+				ci - n; requires same_as<decltype((ci - n)), I>;
+#endif // META_HAS_P1084
 				{ ci - ci } -> iter_difference_t<I>;
 			};
 			// FIXME: Axioms

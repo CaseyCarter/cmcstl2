@@ -414,8 +414,13 @@ STL2_OPEN_NAMESPACE {
 		sentinel_for<S, I> &&
 		!disable_sized_sentinel<std::remove_cv_t<S>, std::remove_cv_t<I>> &&
 		requires(const I i, const S s) {
-			{ s - i } -> STL2_RVALUE_REQ(same_as<iter_difference_t<I>>);
-			{ i - s } -> STL2_RVALUE_REQ(same_as<iter_difference_t<I>>);
+#ifdef META_HAS_P1084
+			{ s - i } -> same_as<iter_difference_t<I>>;
+			{ i - s } -> same_as<iter_difference_t<I>>;
+#else
+			s - i; requires same_as<decltype((s - i)), iter_difference_t<I>>;
+			i - s; requires same_as<decltype((i - s)), iter_difference_t<I>>;
+#endif // META_HAS_P1084
 			// Axiom: If [i,s) denotes a range and N is the smallest
 			//        non-negative integer such that N applications of
 			//        ++i make bool(i == s) == true
@@ -561,6 +566,7 @@ STL2_OPEN_NAMESPACE {
 	template<class I>
 	using iterator_traits = __iterator_traits<I>;
 
+#if STL2_HOOK_ITERATOR_TRAITS
 	////////////////////////////////////////////////////////////////////////////
 	// Standard iterator traits [iterator.stdtraits]
 	//
@@ -607,8 +613,10 @@ STL2_OPEN_NAMESPACE {
 		template<class I>
 		META_CONCEPT ProbablySTL2Iterator = !LooksLikeSTL1Iterator<I> && input_or_output_iterator<I>;
 	} // namespace detail
+#endif // STL2_HOOK_ITERATOR_TRAITS
 } STL2_CLOSE_NAMESPACE
 
+#if STL2_HOOK_ITERATOR_TRAITS
 namespace std {
 	template<::__stl2::detail::ProbablySTL2Iterator Out>
 		// HACKHACK to avoid partial specialization after instantiation errors. Platform
@@ -644,6 +652,7 @@ namespace std {
 					::__stl2::iter_reference_t<In>>;
 	};
 } // namespace std
+#endif // STL2_HOOK_ITERATOR_TRAITS
 
 #ifdef __GLIBCXX__ // HACKHACK: pointer iterator wrappers are contiguous
 #include <bits/stl_iterator.h>

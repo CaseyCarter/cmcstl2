@@ -57,6 +57,14 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_GCC_UNKNOWN1
+ #ifdef __GNUC__ // Unfiled GCC bug triggered by basic_iterator
+  #define STL2_WORKAROUND_GCC_UNKNOWN1 1
+ #else
+  #define STL2_WORKAROUND_GCC_UNKNOWN1 0
+ #endif
+#endif
+
 #ifndef STL2_WORKAROUND_CLANG_UNKNOWN1
  #if defined(__clang__) && __clang_major < 7
   // Rejects-valid with CTAD nested in parens.
@@ -84,26 +92,6 @@
  #endif
 #endif
 
-#ifndef STL2_WORKAROUND_CLANGC_42
- #if defined(__clang__)
-  // Failure to short-circuit with constrained-parameter syntax
-  // https://github.com/saarraz/clang-concepts/issues/42
-  #define STL2_WORKAROUND_CLANGC_42 1
- #else
-  #define STL2_WORKAROUND_CLANGC_42 0
- #endif
-#endif
-
-#ifndef STL2_WORKAROUND_CLANGC_50
- #if defined(__clang__)
-  // A trailing-requires-clause should be in function parameter scope
-  // https://github.com/saarraz/clang-concepts/issues/50
-  #define STL2_WORKAROUND_CLANGC_50 1
- #else
-  #define STL2_WORKAROUND_CLANGC_50 0
- #endif
-#endif
-
 #ifndef STL2_WORKAROUND_MSVC_106654 // "multiple versions of a defaulted special member functions are not allowed"
  #if defined(_MSC_VER) && !defined(__clang__)
   #define STL2_WORKAROUND_MSVC_106654 1
@@ -125,6 +113,46 @@
   #define STL2_WORKAROUND_MSVC_830372 1
  #else
   #define STL2_WORKAROUND_MSVC_830372 0
+ #endif
+#endif
+
+#ifndef STL2_WORKAROUND_MSVC_836487 // "constexpr assertion failure"
+ #if defined(_MSC_VER) && !defined(__clang__)
+  #define STL2_WORKAROUND_MSVC_836487 1
+ #else
+  #define STL2_WORKAROUND_MSVC_836487 0
+ #endif
+#endif
+
+#ifndef STL2_WORKAROUND_MSVC_841651 // "RDParser uses the placeholder directly instead of resolving it"
+ #if defined(_MSC_VER) && !defined(__clang__) && _MSC_VER < 1924 // Likely preview 2
+  #define STL2_WORKAROUND_MSVC_841651 1
+ #else
+  #define STL2_WORKAROUND_MSVC_841651 0
+ #endif
+#endif
+
+#ifndef STL2_WORKAROUND_MSVC_846967 // "inheriting ctor and defaulted default ctor which is deleted"
+ #if defined(_MSC_VER) && !defined(__clang__) && _MSC_VER < 1924 // Likely preview 2
+  #define STL2_WORKAROUND_MSVC_846967 1
+ #else
+  #define STL2_WORKAROUND_MSVC_846967 0
+ #endif
+#endif
+
+#ifndef STL2_WORKAROUND_MSVC_849755 // "cmcstl2 test move_iterator fails"
+ #if defined(_MSC_VER) && !defined(__clang__)
+  #define STL2_WORKAROUND_MSVC_849755 1
+ #else
+  #define STL2_WORKAROUND_MSVC_849755 0
+ #endif
+#endif
+
+#ifndef STL2_WORKAROUND_MSVC_FUNCTION_CONVERSIONS // MSVC allows pointers-to-function to implicitly convert to void*
+ #if defined(_MSC_VER) && !defined(__clang__)
+  #define STL2_WORKAROUND_MSVC_FUNCTION_CONVERSIONS 1
+ #else
+  #define STL2_WORKAROUND_MSVC_FUNCTION_CONVERSIONS 0
  #endif
 #endif
 
@@ -215,12 +243,6 @@ namespace __stl2 = ::std::experimental::ranges;
  #endif
 #endif
 
-#ifdef META_HAS_P1084
-#define STL2_RVALUE_REQ(...) __VA_ARGS__
-#else // ^^^ Has P1084 / No P1084 vvv
-#define STL2_RVALUE_REQ(...) __VA_ARGS__&&
-#endif // Detect support for P1084
-
 #if __has_cpp_attribute(no_unique_address)
 #define STL2_NO_UNIQUE_ADDRESS [[no_unique_address]]
 #else
@@ -231,6 +253,15 @@ namespace __stl2 = ::std::experimental::ranges;
 #define STL2_EMPTY_BASES __declspec(empty_bases)
 #else
 #define STL2_EMPTY_BASES
+#endif
+
+#ifndef STL2_HOOK_ITERATOR_TRAITS
+#if defined(__cpp_lib_ranges) || \
+	(defined(_MSVC_STL_UPDATE) && _MSVC_STL_UPDATE >= 201908L && defined(__cpp_lib_concepts))
+#define STL2_HOOK_ITERATOR_TRAITS 0
+#else
+#define STL2_HOOK_ITERATOR_TRAITS 1
+#endif
 #endif
 
 STL2_OPEN_NAMESPACE {

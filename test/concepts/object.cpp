@@ -224,7 +224,9 @@ static_assert(!ranges::copy_constructible<nonmovable &&>);
 static_assert(ranges::copy_constructible<const nonmovable &>);
 static_assert(!ranges::copy_constructible<const nonmovable &&>);
 
-#if !STL2_WORKAROUND_MSVC_106654
+#if STL2_WORKAROUND_MSVC_106654
+// j/k, there's no workaround
+#else // ^^^ "workaround" / no workaround vvv
 // https://github.com/ericniebler/stl2/issues/301
 struct not_mutable_ref {
 	not_mutable_ref() = default;

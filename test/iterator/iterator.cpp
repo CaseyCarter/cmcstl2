@@ -422,6 +422,7 @@ requires requires { typename T::iterator_category; }
 constexpr bool has_category<T> = true;
 
 void test_std_traits() {
+#if STL2_HOOK_ITERATOR_TRAITS
 	using WO = arbitrary_iterator<void, false>;
 	static_assert(ranges::same_as<std::iterator_traits<WO>::iterator_category,
 		std::output_iterator_tag>);
@@ -468,6 +469,7 @@ void test_std_traits() {
 	using RV = arbitrary_iterator<ranges::random_access_iterator_tag, true, int>;
 	static_assert(ranges::same_as<std::iterator_traits<RV>::iterator_category,
 		std::input_iterator_tag>);
+#endif // STL2_HOOK_ITERATOR_TRAITS
 }
 
 struct MakeString {

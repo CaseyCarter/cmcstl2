@@ -50,19 +50,16 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class Derived, class Base>
 	META_CONCEPT derived_from =
-#if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER)
-		META_CONCEPT_BARRIER(__is_base_of(Base, Derived)) &&
-#else
-		META_CONCEPT_BARRIER(std::is_base_of_v<Base, Derived>) &&
-#endif
-		_IsConvertibleImpl<const volatile Derived*, const volatile Base*>;
+		META_CONCEPT_BARRIER(STL2_IS_BASE(Base, Derived)) &&
+		META_CONCEPT_BARRIER(STL2_IS_CONVERTIBLE(
+			const volatile Derived*, const volatile Base*));
 
 	///////////////////////////////////////////////////////////////////////////
 	// convertible_to
 	//
 	template<class From, class To>
 	META_CONCEPT convertible_to =
-		_IsConvertibleImpl<From, To> &&
+		META_CONCEPT_BARRIER(STL2_IS_CONVERTIBLE(From, To)) &&
 #if 1 // This is the PR for https://wg21.link/lwg3151
 		requires {
 			static_cast<To>(std::declval<From>());

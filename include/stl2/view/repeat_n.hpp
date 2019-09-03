@@ -19,7 +19,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace ext {
-		template<CopyConstructibleObject T>
+		template<copy_constructible_object T>
 		using repeat_n_view = take_exactly_view<repeat_view<T>>;
 	} // namespace ext
 
@@ -31,13 +31,7 @@ STL2_OPEN_NAMESPACE {
 			template<class T>
 			constexpr auto operator()(T&& t, std::ptrdiff_t const n) const
 			noexcept(noexcept(V<T>{repeat(static_cast<T&&>(t)), n}))
-#if STL2_WORKAROUND_CLANGC_50
-			requires requires(T&& t, std::ptrdiff_t n) {
-				V<T>{repeat(static_cast<T&&>(t)), n};
-			} {
-#else // ^^^ workaround / no workaround vvv
 			requires requires { V<T>{repeat(static_cast<T&&>(t)), n}; } {
-#endif // STL2_WORKAROUND_CLANGC_50
 				STL2_EXPECT(n >= 0);
 				return V<T>{repeat(static_cast<T&&>(t)), n};
 			}

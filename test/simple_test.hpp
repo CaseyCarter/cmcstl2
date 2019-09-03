@@ -169,10 +169,13 @@ inline int test_result()
 }
 
 #if defined(_MSC_VER) && !defined(__clang__)
-#define __PRETTY_FUNCTION__ __FUNCSIG__
+#define STL2_PRETTY_FUNCTION __FUNCSIG__
+#else
+#define STL2_PRETTY_FUNCTION __PRETTY_FUNCTION__
 #endif
-#define CHECK(...)                                                                                 \
-	(void)(::test_impl::S{__FILE__, __LINE__, #__VA_ARGS__, __PRETTY_FUNCTION__} ->* __VA_ARGS__)  \
+
+#define CHECK(...)                                                                                  \
+	(void)(::test_impl::S{__FILE__, __LINE__, #__VA_ARGS__, STL2_PRETTY_FUNCTION} ->* __VA_ARGS__)  \
 	/**/
 
 template<typename Rng, typename Rng2>
@@ -225,7 +228,7 @@ constexpr void check_equal_(const char* file, int line, const char* lhs, const c
 }
 
 #define CHECK_EQUAL(first, ...) \
-	check_equal_(__FILE__, __LINE__, #first, #__VA_ARGS__, __PRETTY_FUNCTION__, first, __VA_ARGS__) \
+	check_equal_(__FILE__, __LINE__, #first, #__VA_ARGS__, STL2_PRETTY_FUNCTION, first, __VA_ARGS__) \
 	/**/
 
 #endif

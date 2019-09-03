@@ -17,6 +17,27 @@
 
 #include <stl2/detail/fwd.hpp>
 
+// Define some portable type_trait intrinsics
+#if defined(__clang__)
+#define STL2_IS_CONVERTIBLE(From, To) __is_convertible(From, To)
+#elif defined(_MSC_VER)
+#define STL2_IS_CONVERTIBLE(From, To) __is_convertible_to(From, To)
+#else
+#define STL2_IS_CONVERTIBLE(From, To) std::is_convertible_v<From, To>
+#endif
+
+#if defined(__clang__)
+#define STL2_IS_VOID(T) __is_void(T)
+#else
+#define STL2_IS_VOID(T) std::is_void_v<T>
+#endif
+
+#if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER)
+#define STL2_IS_BASE(Base, Derived) __is_base_of(Base, Derived)
+#else
+#define STL2_IS_BASE(Base, Derived) std::is_base_of_v<Base, Derived>
+#endif
+
 STL2_OPEN_NAMESPACE {
 	template<class T>
 	using __uncvref = std::remove_cv_t<std::remove_reference_t<T>>;
@@ -25,28 +46,19 @@ STL2_OPEN_NAMESPACE {
 	using __maybe_const = std::conditional_t<IsConst, T const, T>;
 
 	template<class From, class To>
-	inline constexpr bool _IsConvertibleImpl =
-#if defined(__clang__)
-		META_CONCEPT_BARRIER(__is_convertible(From, To));
-#elif defined(_MSC_VER)
-		META_CONCEPT_BARRIER(__is_convertible_to(From, To));
-#else
-		META_CONCEPT_BARRIER(std::is_convertible_v<From, To>);
-#endif
-
-	template<class From, class To>
-	inline constexpr bool is_nothrow_convertible_v = false;
+	inline constexpr bool is_nothrow_convertible_v =
+		STL2_IS_VOID(From) && STL2_IS_VOID(To);
 
 	template<class T>
 	void __nothrow_convertible_helper(T) noexcept; // not defined
 
 	template<class From, class To>
-	requires _IsConvertibleImpl<From, To>
+	requires META_CONCEPT_BARRIER(STL2_IS_CONVERTIBLE(From, To))
 	inline constexpr bool is_nothrow_convertible_v<From, To> =
 		noexcept(__nothrow_convertible_helper<To>(std::declval<From>()));
 
 	template<class T, class D = std::decay_t<T>>
-	requires _IsConvertibleImpl<T, D>
+	requires META_CONCEPT_BARRIER(STL2_IS_CONVERTIBLE(T, D))
 	D __decay_copy(T&& t)
 	noexcept(is_nothrow_convertible_v<T, D>)
 #if defined(__GNUC__) && !defined(__clang__)

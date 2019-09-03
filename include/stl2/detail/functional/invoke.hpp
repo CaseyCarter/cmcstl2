@@ -54,50 +54,21 @@ STL2_OPEN_NAMESPACE {
 	template<class F, class T, class T1, class... Args>
 	requires std::is_function_v<F>
 	constexpr decltype(auto) invoke(F (T::*f), T1&& t1, Args&&... args)
-#if STL2_WORKAROUND_CLANGC_50
-	noexcept(noexcept((__invoke::coerce<T>(static_cast<T1&&>(t1)).*f)(
-		static_cast<Args&&>(args)...)))
-	requires requires(F (T::*f), T1&& t1, Args&&... args) {
-		(__invoke::coerce<T>(static_cast<T1&&>(t1)).*f)(static_cast<Args&&>(args)...);
-	} {
-		return (__invoke::coerce<T>(static_cast<T1&&>(t1)).*f)(
-			static_cast<Args&&>(args)...);
-	}
-#else // ^^^ workaround / no workaround vvv
 	STL2_NOEXCEPT_REQUIRES_RETURN(
 		(__invoke::coerce<T>(static_cast<T1&&>(t1)).*f)(static_cast<Args&&>(args)...)
 	)
-#endif // STL2_WORKAROUND_CLANGC_50
 
-	template<ext::Object D, class T, class T1>
+	template<ext::object D, class T, class T1>
 	constexpr decltype(auto) invoke(D (T::*f), T1&& t1)
-#if STL2_WORKAROUND_CLANGC_50
-	noexcept(noexcept(__invoke::coerce<T>(static_cast<T1&&>(t1)).*f))
-	requires requires(D (T::*f), T1&& t1) {
-		__invoke::coerce<T>(static_cast<T1&&>(t1)).*f;
-	} {
-		return __invoke::coerce<T>(static_cast<T1&&>(t1)).*f;
-	}
-#else // ^^^ workaround / no workaround vvv
 	STL2_NOEXCEPT_REQUIRES_RETURN(
 		__invoke::coerce<T>(static_cast<T1&&>(t1)).*f
 	)
-#endif // STL2_WORKAROUND_CLANGC_50
 
 	template<class F, class... Args>
 	constexpr decltype(auto) invoke(F&& f, Args&&... args)
-#if STL2_WORKAROUND_CLANGC_50
-	noexcept(noexcept(static_cast<F&&>(f)(static_cast<Args&&>(args)...)))
-	requires requires(F&& f, Args&&... args) {
-		static_cast<F&&>(f)(static_cast<Args&&>(args)...);
-	} {
-		return static_cast<F&&>(f)(static_cast<Args&&>(args)...);
-	}
-#else // ^^^ workaround / no workaround vvv
 	STL2_NOEXCEPT_REQUIRES_RETURN(
 		static_cast<F&&>(f)(static_cast<Args&&>(args)...)
 	)
-#endif // STL2_WORKAROUND_CLANGC_50
 
 	template<class, class...> struct invoke_result {};
 	template<class F, class... Args>
@@ -118,19 +89,10 @@ STL2_OPEN_NAMESPACE {
 	public:
 		using type = T;
 
-#if STL2_WORKAROUND_CLANGC_42
-		template<class U>
-		requires _NotSameAs<U, reference_wrapper>
-#else // ^^^ workaround / no workaround vvv
 		template<_NotSameAs<reference_wrapper> U>
-#endif // STL2_WORKAROUND_CLANGC_42
 		constexpr reference_wrapper(U&& u)
 		noexcept(noexcept(fun(static_cast<U&&>(u))))
-#if STL2_WORKAROUND_CLANGC_50
-		requires requires(U&& u) { fun(static_cast<U&&>(u)); }
-#else // ^^^ workaround / no workaround vvv
 		requires requires { fun(static_cast<U&&>(u)); }
-#endif // STL2_WORKAROUND_CLANGC_50
 		: t_(std::addressof(fun(static_cast<U&&>(u)))) {}
 
 		constexpr operator T&() const noexcept { return *t_; }

@@ -172,16 +172,9 @@ STL2_OPEN_NAMESPACE {
 	struct __cbegin_fn {
 		template<class R>
 		constexpr auto operator()(R&& r) const
-#if STL2_WORKAROUND_CLANGC_50
-		noexcept(noexcept(begin(__as_const(static_cast<R&&>(r)))))
-		requires requires(R&& r) { begin(__as_const(static_cast<R&&>(r))); } {
-			return begin(__as_const(static_cast<R&&>(r)));
-		}
-#else // ^^^ workaround / no workaround vvv
 		STL2_NOEXCEPT_REQUIRES_RETURN(
 			begin(__as_const(static_cast<R&&>(r)))
 		)
-#endif // STL2_WORKAROUND_CLANGC_50
 	};
 	inline namespace __cpos {
 		inline constexpr __cbegin_fn cbegin{};
@@ -191,16 +184,9 @@ STL2_OPEN_NAMESPACE {
 	struct __cend_fn {
 		template<class R>
 		constexpr auto operator()(R&& r) const
-#if STL2_WORKAROUND_CLANGC_50
-		noexcept(noexcept(end(__as_const(static_cast<R&&>(r)))))
-		requires requires(R&& r) { end(__as_const(static_cast<R&&>(r))); } {
-			return end(__as_const(static_cast<R&&>(r)));
-		}
-#else // ^^^ workaround / no workaround vvv
 		STL2_NOEXCEPT_REQUIRES_RETURN(
 			end(__as_const(static_cast<R&&>(r)))
 		)
-#endif // STL2_WORKAROUND_CLANGC_50
 	};
 	inline namespace __cpos {
 		inline constexpr __cend_fn cend{};
@@ -329,16 +315,9 @@ STL2_OPEN_NAMESPACE {
 	struct __crbegin_fn {
 		template<class R>
 		constexpr auto operator()(R&& r) const
-#if STL2_WORKAROUND_CLANGC_50
-		noexcept(noexcept(rbegin(__as_const(static_cast<R&&>(r)))))
-		requires requires(R&& r) { rbegin(__as_const(static_cast<R&&>(r))); } {
-			return rbegin(__as_const(static_cast<R&&>(r)));
-		}
-#else // ^^^ workaround / no workaround vvv
 		STL2_NOEXCEPT_REQUIRES_RETURN(
 			rbegin(__as_const(static_cast<R&&>(r)))
 		)
-#endif // STL2_WORKAROUND_CLANGC_50
 	};
 	inline namespace __cpos {
 		inline constexpr __crbegin_fn crbegin{};
@@ -348,16 +327,9 @@ STL2_OPEN_NAMESPACE {
 	struct __crend_fn {
 		template<class R>
 		constexpr auto operator()(R&& r) const
-#if STL2_WORKAROUND_CLANGC_50
-		noexcept(noexcept(rend(__as_const(static_cast<R&&>(r)))))
-		requires requires(R&& r) { rend(__as_const(static_cast<R&&>(r))); } {
-			return rend(__as_const(static_cast<R&&>(r)));
-		}
-#else // ^^^ workaround / no workaround vvv
 		STL2_NOEXCEPT_REQUIRES_RETURN(
 			rend(__as_const(static_cast<R&&>(r)))
 		)
-#endif // STL2_WORKAROUND_CLANGC_50
 	};
 	inline namespace __cpos {
 		inline constexpr __crend_fn crend{};
@@ -561,16 +533,9 @@ STL2_OPEN_NAMESPACE {
 	struct __cdata_fn {
 		template<class R>
 		constexpr auto operator()(R&& r) const
-#if STL2_WORKAROUND_CLANGC_50
-		noexcept(noexcept(data(__as_const(static_cast<R&&>(r)))))
-		requires requires(R&& r) { data(__as_const(static_cast<R&&>(r))); } {
-			return data(__as_const(static_cast<R&&>(r)));
-		}
-#else // ^^^ workaround / no workaround vvv
 		STL2_NOEXCEPT_REQUIRES_RETURN(
 			data(__as_const(static_cast<R&&>(r)))
 		)
-#endif // STL2_WORKAROUND_CLANGC_50
 	};
 	inline namespace __cpos {
 		inline constexpr __cdata_fn cdata{};

@@ -29,7 +29,7 @@
 //   validity requirements for forward iterators.
 
 STL2_OPEN_NAMESPACE {
-	template<ext::DestructibleObject T>
+	template<ext::destructible_object T>
 	requires (std::is_class<T>::value && !std::is_final<T>::value)
 	class basic_mixin : T {
 	public:
@@ -64,13 +64,13 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class T>
-		constexpr bool IsValueType = !std::is_void<T>::value;
+		constexpr bool IsValueType = !STL2_IS_VOID(T);
 	} // namespace detail
 	template<class T>
 	requires
 		requires {
 			typename meta::_t<detail::mixin_base<T>>;
-			requires ext::DestructibleObject<meta::_t<detail::mixin_base<T>>>;
+			requires ext::destructible_object<meta::_t<detail::mixin_base<T>>>;
 			requires std::is_class<meta::_t<detail::mixin_base<T>>>::value;
 			requires !std::is_final<meta::_t<detail::mixin_base<T>>>::value;
 		}
@@ -218,7 +218,11 @@ STL2_OPEN_NAMESPACE {
 		META_CONCEPT sized_sentinel_for =
 			sentinel_for<S, C> &&
 			requires(const C& c, const S& s) {
-				{ c.distance_to(s) } -> STL2_RVALUE_REQ(same_as<difference_type_t<C>>);
+#ifdef META_HAS_P1084
+				{ c.distance_to(s) } -> same_as<difference_type_t<C>>;
+#else
+				c.distance_to(s); requires same_as<decltype((c.distance_to(s))), difference_type_t<C>>;
+#endif // META_HAS_P1084
 			};
 
 		template<class C>
@@ -559,10 +563,13 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class C>
-		META_CONCEPT PostIncrementCursor =
-			requires(C& c) {
-				{ c.post_increment() } -> STL2_RVALUE_REQ(same_as<C>);
-			};
+		META_CONCEPT PostIncrementCursor = cursor::PostIncrement<C> && requires(C& c) {
+#ifdef META_HAS_P1084
+			{ c.post_increment() } -> same_as<C>;
+#else
+			c.post_increment(); requires same_as<decltype((c.post_increment())), C>;
+#endif // META_HAS_P1084
+		};
 	} // namespace detail
 
 	// common_reference specializations for basic_proxy_reference
@@ -758,6 +765,42 @@ STL2_OPEN_NAMESPACE {
 			return *this;
 		}
 
+#if STL2_WORKAROUND_GCC_UNKNOWN1
+		template<class CC = C>
+		constexpr basic_iterator operator++(int) &
+		noexcept(std::is_nothrow_copy_constructible<basic_iterator>::value &&
+			std::is_nothrow_move_constructible<basic_iterator>::value &&
+			noexcept(++std::declval<basic_iterator&>()))
+		{
+			auto tmp(*this);
+			++*this;
+			return tmp;
+		}
+
+		template<class CC = C>
+		constexpr void operator++(int) &
+		noexcept(noexcept(++std::declval<basic_iterator&>()))
+		requires (cursor::Input<CC> && !cursor::Forward<CC>
+			&& !cursor::PostIncrement<CC>)
+		{
+			++*this;
+		}
+
+		template<class CC = C>
+		constexpr decltype(auto) operator++(int) &
+		noexcept(noexcept(std::declval<C&>().post_increment()))
+		requires cursor::PostIncrement<CC>
+		{
+			return get().post_increment();
+		}
+		template<class CC = C>
+		constexpr basic_iterator operator++(int) &
+		noexcept(noexcept(basic_iterator{std::declval<C&>().post_increment()}))
+		requires detail::PostIncrementCursor<CC>
+		{
+			return basic_iterator{get().post_increment()};
+		}
+#else // ^^^ workaround / no workaround vvv
 		constexpr basic_iterator operator++(int) &
 		noexcept(std::is_nothrow_copy_constructible<basic_iterator>::value &&
 			std::is_nothrow_move_constructible<basic_iterator>::value &&
@@ -770,8 +813,7 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr void operator++(int) &
 		noexcept(noexcept(++std::declval<basic_iterator&>()))
-		requires (cursor::Input<C> && !cursor::Forward<C>
-			&& !cursor::PostIncrement<C>)
+		requires (cursor::Input<C> && !cursor::Forward<C> && !cursor::PostIncrement<C>)
 		{
 			++*this;
 		}
@@ -784,12 +826,11 @@ STL2_OPEN_NAMESPACE {
 		}
 		constexpr basic_iterator operator++(int) &
 		noexcept(noexcept(basic_iterator{std::declval<C&>().post_increment()}))
-		requires
-			cursor::PostIncrement<C> &&
-			detail::PostIncrementCursor<C>
+		requires detail::PostIncrementCursor<C>
 		{
 			return basic_iterator{get().post_increment()};
 		}
+#endif // STL2_WORKAROUND_GCC_UNKNOWN1
 
 		constexpr basic_iterator& operator--() &
 		noexcept(noexcept(std::declval<C&>().prev()))

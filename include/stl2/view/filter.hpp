@@ -186,19 +186,9 @@ STL2_OPEN_NAMESPACE {
 			template<input_range R, indirect_unary_predicate<iterator_t<R>> Pred>
 			requires viewable_range<R>
 			constexpr auto operator()(R&& rng, Pred pred) const
-#if STL2_WORKAROUND_CLANGC_50
-			requires requires(R&& rng, Pred pred) {
-				filter_view<all_view<R>, Pred>{
-					std::forward<R>(rng), std::move(pred)};
-			} {
-				return filter_view<all_view<R>, Pred>{
-					std::forward<R>(rng), std::move(pred)};
-			}
-#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				filter_view<all_view<R>, Pred>{std::forward<R>(rng), std::move(pred)}
 			)
-#endif // STL2_WORKAROUND_CLANGC_50
 
 			template<copy_constructible Pred>
 			constexpr auto operator()(Pred pred) const {

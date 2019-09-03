@@ -116,17 +116,9 @@ STL2_OPEN_NAMESPACE {
 		struct __take_fn {
 			template<range Rng>
 			constexpr auto operator()(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) const
-#if STL2_WORKAROUND_CLANGC_50
-			requires requires(Rng&& rng, iter_difference_t<iterator_t<Rng>> count) {
-				take_view{views::all(static_cast<Rng&&>(rng)), count};
-			} {
-				return take_view{views::all(static_cast<Rng&&>(rng)), count};
-			}
-#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				take_view{views::all(static_cast<Rng&&>(rng)), count}
 			)
-#endif // STL2_WORKAROUND_CLANGC_50
 
 			template<integral D>
 			constexpr auto operator()(D count) const

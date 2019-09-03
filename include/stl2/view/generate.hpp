@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 			invocable<const F&> &&
 			same_as<invoke_result_t<F&>, invoke_result_t<const F&>>;
 
-		template<CopyConstructibleObject F>
+		template<copy_constructible_object F>
 		requires invocable<F&>
 		struct STL2_EMPTY_BASES generate_view
 		: view_interface<generate_view<F>>
@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 			{ return {}; }
 		};
 
-		template<CopyConstructibleObject F>
+		template<copy_constructible_object F>
 		requires invocable<F&>
 		struct generate_view<F>::__iterator {
 			using value_type = result_t;
@@ -113,18 +113,9 @@ STL2_OPEN_NAMESPACE {
 		struct __generate_fn : detail::__pipeable<__generate_fn> {
 			template<class F>
 			constexpr auto operator()(F&& f) const
-#if STL2_WORKAROUND_CLANGC_50
-			noexcept(noexcept(__stl2::ext::generate_view{std::forward<F>(f)}))
-			requires requires(F&& f) {
-				__stl2::ext::generate_view{std::forward<F>(f)};
-			} {
-				return __stl2::ext::generate_view{std::forward<F>(f)};
-			}
-#else // ^^^ workaround / no workaround vvv
 			STL2_NOEXCEPT_REQUIRES_RETURN(
 				__stl2::ext::generate_view{std::forward<F>(f)}
 			)
-#endif // STL2_WORKAROUND_CLANGC_50
 		};
 
 		inline constexpr __generate_fn generate {};

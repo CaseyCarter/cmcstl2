@@ -78,16 +78,23 @@ namespace associated_type_test {
 	template<class T>
 	struct derive_from : T {};
 
+	template<class Cat, class Value, class Distance = std::ptrdiff_t,
+		class Pointer = Value*, class Reference = Value&>
+	struct not_std_iterator {
+		using iterator_category = Cat;
+		using value_type = Value;
+		using difference_type = Distance;
+		using pointer = Pointer;
+		using reference = Reference;
+	};
+
 	template<class T, bool Derive>
 	using iterator =
-		meta::apply<
-			meta::bind_front<
-				meta::quote<std::iterator>,
-				meta::if_c<Derive, derive_from<T>, T>>,
-			meta::if_<
-				std::is_same<T, std::output_iterator_tag>,
-				meta::list<void, void, void, void>,
-				meta::list<int>>>;
+		not_std_iterator<std::conditional_t<Derive, derive_from<T>, T>,
+			std::conditional_t<std::is_same_v<T, std::output_iterator_tag>, int, void>,
+			std::conditional_t<std::is_same_v<T, std::output_iterator_tag>, std::ptrdiff_t, void>,
+			std::conditional_t<std::is_same_v<T, std::output_iterator_tag>, int*, void>,
+			std::conditional_t<std::is_same_v<T, std::output_iterator_tag>, int&, void>>;
 
 	template<class T, bool B, class U>
 	using test = std::is_same<ranges::iterator_category_t<iterator<T, B>>, U>;
@@ -110,6 +117,7 @@ namespace associated_type_test {
 	struct foo {};
 	static_assert(test<foo, false, foo>());
 
+#if STL2_HOOK_ITERATOR_TRAITS
 	// Some sanity tests
 	struct my_wonky_tag : std::random_access_iterator_tag, ranges::random_access_iterator_tag {};
 	struct my_wonky_tag2 : std::input_iterator_tag, ranges::random_access_iterator_tag {};
@@ -122,6 +130,7 @@ namespace associated_type_test {
 	static_assert(std::is_same<ranges::detail::stl2_to_std_iterator_category<my_wonky_tag3, int&>, std::random_access_iterator_tag>::value, "");
 	static_assert(std::is_same<ranges::detail::stl2_to_std_iterator_category<ranges::input_iterator_tag, int>, std::input_iterator_tag>::value, "");
 	static_assert(std::is_same<ranges::detail::stl2_to_std_iterator_category<ranges::input_iterator_tag, int&>, std::input_iterator_tag>::value, "");
+#endif // STL2_HOOK_ITERATOR_TRAITS
 } // namespace associated_type_test
 
 namespace readable_test {

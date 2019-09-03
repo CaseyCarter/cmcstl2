@@ -57,14 +57,8 @@ STL2_OPEN_NAMESPACE {
 	public:
 		constexpr ref_view() noexcept = default;
 
-#if STL2_WORKAROUND_CLANGC_42
-		template<class T>
-		requires _NotSameAs<T, ref_view> &&
-			requires(T&& t) { fun(static_cast<T&&>(t)); }
-#else
 		template<_NotSameAs<ref_view> T>
 		requires requires(T&& t) { fun(static_cast<T&&>(t)); }
-#endif
 		constexpr ref_view(T&& t)
 		noexcept(is_nothrow_convertible_v<T, R&>) // strengthened
 		: r_{std::addressof(static_cast<R&>(static_cast<T&&>(t)))} {}
@@ -95,15 +89,9 @@ STL2_OPEN_NAMESPACE {
 		struct __ref_fn : detail::__pipeable<__ref_fn> {
 			template<class R>
 			auto operator()(R&& r) const
-#if STL2_WORKAROUND_CLANGC_50
-			requires requires(R&& r) { ref_view{std::forward<R>(r)}; } {
-				return ref_view{std::forward<R>(r)};
-			}
-#else // ^^^ workaround / no workaround vvv
 			STL2_REQUIRES_RETURN(
 				ref_view{std::forward<R>(r)}
 			)
-#endif // STL2_WORKAROUND_CLANGC_50
 		};
 
 		inline constexpr __ref_fn ref {};

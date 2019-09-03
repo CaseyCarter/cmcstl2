@@ -575,12 +575,11 @@ namespace libstdcpp_tests
 	static_assert(!meta::is_trait<common_type<B, int, S>>(), "");
 	static_assert(!meta::is_trait<common_type<B, S, int>>(), "");
 	static_assert(!meta::is_trait<common_type<int*, double*>>(), "");
-#ifdef _MSC_VER
-	// MSVC allows function pointers implicitly convert to void*.
+#if STL2_WORKAROUND_MSVC_FUNCTION_CONVERSIONS
 	static_assert(is_type<common_type<void*, void(*)(...)>, void*>(), "");
 #else // ^^^ MSVC / not MSVC vvv
 	static_assert(!meta::is_trait<common_type<void*, void(*)(...)>>(), "");
-#endif // _MSC_VER
+#endif // STL2_WORKAROUND_MSVC_FUNCTION_CONVERSIONS
 	static_assert(!meta::is_trait<common_type<void(*)(), void(*)(...)>>(), "");
 	static_assert(!meta::is_trait<common_type<void(*)(), void(S::*)()>>(), "");
 	static_assert(!meta::is_trait<common_type<void(S::*)() const,

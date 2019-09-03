@@ -309,9 +309,10 @@ constexpr bool test_constexpr() {
 	if (first >= last) return false;
 	if (last - first != 4) return false;
 	if (first - last != -4) return false;
+#if !STL2_WORKAROUND_MSVC_849755 // "workaround"
 	if (Int{*(first + 2)} != 2) return false;
 	if (*(first + 2) != -1) return false;
-
+#endif // STL2_WORKAROUND_MSVC_849755
 	{
 		ranges::move_iterator<Int const*> tmp{first};
 		tmp = first;
@@ -357,8 +358,10 @@ constexpr bool test_constexpr() {
 	if (pos != first) return false;
 	if (pos + 2 != 2 + pos) return false;
 
+#if !STL2_WORKAROUND_MSVC_849755 // "workaround"
 	if (Int{first[3]} != 3) return false;
 	if (first[3] != -1) return false;
+#endif // STL2_WORKAROUND_MSVC_849755
 
 	return true;
 }

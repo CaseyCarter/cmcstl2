@@ -19,7 +19,7 @@
 
 STL2_OPEN_NAMESPACE {
 	namespace detail {
-		template<ext::DestructibleObject T, class Tag = void, bool Enable = true>
+		template<ext::destructible_object T, class Tag = void, bool Enable = true>
 		struct non_propagating_cache : std::optional<T> {
 			non_propagating_cache() = default;
 			constexpr non_propagating_cache(std::nullopt_t) noexcept
@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 			using std::optional<T>::operator=;
 		};
 
-		template<ext::DestructibleObject T, class Tag>
+		template<ext::destructible_object T, class Tag>
 		struct non_propagating_cache<T, Tag, false> {};
 	}
 } STL2_CLOSE_NAMESPACE

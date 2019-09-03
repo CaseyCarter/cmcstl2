@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 
 		inline constexpr auto dynamic_extent = static_cast<__span::index_t>(-1);
 
-		template<ext::Object ElementType, __span::index_t Extent = dynamic_extent>
+		template<ext::object ElementType, __span::index_t Extent = dynamic_extent>
 		requires (Extent >= dynamic_extent)
 		struct span;
 
@@ -124,7 +124,7 @@ STL2_OPEN_NAMESPACE {
 		} // namespace __span
 
 		// [span], class template span
-		template<ext::Object ElementType, __span::index_t Extent>
+		template<ext::object ElementType, __span::index_t Extent>
 		requires (Extent >= dynamic_extent)
 		struct span : private __span::extent<Extent> {
 			// constants and types
