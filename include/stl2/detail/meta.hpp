@@ -57,17 +57,8 @@ STL2_OPEN_NAMESPACE {
 	inline constexpr bool is_nothrow_convertible_v<From, To> =
 		noexcept(__nothrow_convertible_helper<To>(std::declval<From>()));
 
-	template<class T, class D = std::decay_t<T>>
-	requires META_CONCEPT_BARRIER(STL2_IS_CONVERTIBLE(T, D))
-	D __decay_copy(T&& t)
-	noexcept(is_nothrow_convertible_v<T, D>)
-#if defined(__GNUC__) && !defined(__clang__)
-	{
-		return static_cast<T&&>(t);
-	}
-#else
-	; // not defined
-#endif
+	template<class T>
+	T __decay_copy(T) noexcept; // not defined
 } STL2_CLOSE_NAMESPACE
 
 #endif

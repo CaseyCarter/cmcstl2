@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 	} __as_const {};
 
 	// begin
-	namespace __begin {
+	namespace detail::begin_fn {
 		// Poison pill for std::begin. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
 		template<class T> void begin(T&&) = delete;
@@ -47,63 +47,69 @@ STL2_OPEN_NAMESPACE {
 		void begin(std::initializer_list<T>) = delete; // See LWG 3258
 
 		template<class R>
-		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
-			requires(R& r) {
+		META_CONCEPT is_array =
+			std::is_lvalue_reference_v<R> && std::is_array_v<__uncvref<R>>;
+
+		template<class R>
+		META_CONCEPT use_member =
+#if 1 // Handle basic_string_view directly to implement P0970 non-intrusively
+			_SpecializationOf<__uncvref<R>, std::basic_string_view> ||
+#endif
+			std::is_lvalue_reference_v<R> && requires(R& r) {
 				r.begin();
 				{ __decay_copy(r.begin()) } -> input_or_output_iterator;
 			};
 
 		template<class R>
-		META_CONCEPT has_non_member = requires(R&& r) {
+		META_CONCEPT use_non_member = requires(R&& r) {
 			begin(static_cast<R&&>(r));
 			{ __decay_copy(begin(static_cast<R&&>(r))) } -> input_or_output_iterator;
 		};
 
-		template<class>
-		inline constexpr bool nothrow = false;
-		template<has_member R>
-		inline constexpr bool nothrow<R> = noexcept(std::declval<R&>().begin());
-		template<class R>
-		requires (!has_member<R> && has_non_member<R>)
-		inline constexpr bool nothrow<R> = noexcept(begin(std::declval<R>()));
+		struct fn {
+		private:
+			enum : int { nothrow = 1, array = 0, member = 2, non_member = 4 };
 
-		struct __fn {
-			// Handle builtin arrays directly
-			template<class R, std::size_t N>
-			void operator()(R (&&)[N]) const = delete;
-
-			template<class R, std::size_t N>
-			constexpr R* operator()(R (&array)[N]) const noexcept {
-				return array;
+			template <class T>
+			static constexpr int choose() noexcept {
+				if constexpr (is_array<T>) {
+					return array | nothrow;
+				} else if constexpr (use_member<T>) {
+					return member | noexcept(__decay_copy(std::declval<T>().begin()));
+				} else if constexpr (use_non_member<T>) {
+					return non_member | noexcept(__decay_copy(begin(std::declval<T>())));
+				} else {
+					return -1;
+				}
 			}
 
-			// Handle basic_string_view directly to implement P0970 non-intrusively
-			template<class CharT, class Traits>
-			constexpr auto operator()(
-				std::basic_string_view<CharT, Traits> sv) const noexcept {
-				return sv.begin();
-			}
-
+			template <class T>
+			static constexpr int strategy = choose<T>();
+		public:
 			template<class R>
-			requires has_member<R> || has_non_member<R>
-			constexpr auto operator()(R&& r) const noexcept(nothrow<R>) {
-				if constexpr (has_member<R>) {
+			requires (strategy<R> >= 0)
+			constexpr auto operator()(R&& r) const noexcept(strategy<R> & nothrow) {
+				constexpr int choice = strategy<R> & ~nothrow;
+				if constexpr (choice == array) {
+					return r + 0;
+				} else if constexpr (choice == member) {
 					return r.begin();
 				} else {
+					static_assert(choice == non_member);
 					return begin(static_cast<R&&>(r));
 				}
 			}
 		};
-	}
+	} // namespace begin_fn
 	inline namespace __cpos {
-		inline constexpr __begin::__fn begin{};
+		inline constexpr detail::begin_fn::fn begin{};
 	}
 
 	template<class R>
 	using __begin_t = decltype(begin(std::declval<R>()));
 
 	// end
-	namespace __end {
+	namespace end_fn {
 		// Poison pill for std::end. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
 		template<class T> void end(T&&) = delete;
@@ -112,57 +118,64 @@ STL2_OPEN_NAMESPACE {
 		void end(std::initializer_list<T>) = delete; // See LWG 3258
 
 		template<class R>
-		META_CONCEPT has_member = std::is_lvalue_reference_v<R> &&
-			requires(R& r) {
+		META_CONCEPT is_array =
+			std::is_lvalue_reference_v<R> && std::is_array_v<__uncvref<R>>;
+
+		template<class R>
+		META_CONCEPT use_member =
+#if 1 // Handle basic_string_view directly to implement P0970 non-intrusively
+			_SpecializationOf<__uncvref<R>, std::basic_string_view> ||
+#endif
+			std::is_lvalue_reference_v<R> && requires(R& r) {
 				r.end();
 				begin(r);
 				{ __decay_copy(r.end()) } -> sentinel_for<__begin_t<R>>;
 			};
 
 		template<class R>
-		META_CONCEPT has_non_member = requires(R&& r) {
+		META_CONCEPT use_non_member = requires(R&& r) {
 			end(static_cast<R&&>(r));
 			begin(static_cast<R&&>(r));
 			{ __decay_copy(end(static_cast<R&&>(r))) } -> sentinel_for<__begin_t<R>>;
 		};
 
-		template<class>
-		inline constexpr bool nothrow = false;
-		template<has_member R>
-		inline constexpr bool nothrow<R> = noexcept(std::declval<R&>().end());
-		template<class R>
-		requires (!has_member<R> && has_non_member<R>)
-		inline constexpr bool nothrow<R> = noexcept(end(std::declval<R>()));
+		struct fn {
+		private:
+			enum : int { nothrow = 1, array = 0, member = 2, non_member = 4 };
 
-		struct __fn {
-			// Handle builtin arrays directly
-			template<class R, std::size_t N>
-			void operator()(R (&&)[N]) const = delete;
-
-			template<class R, std::size_t N>
-			constexpr R* operator()(R (&array)[N]) const noexcept {
-				return array + N;
+			template<class T>
+			static constexpr int choose() noexcept {
+				if constexpr (is_array<T>) {
+					return array | nothrow;
+				} else if constexpr (use_member<T>) {
+					return member | noexcept(std::declval<T&>().end());
+				} else if constexpr (use_non_member<T>) {
+					return non_member | noexcept(end(std::declval<T>()));
+				} else {
+					return -1;
+				}
 			}
 
-			// Handle basic_string_view directly to implement P0970 non-intrusively
-			template<class CharT, class Traits>
-			constexpr auto operator()(
-				std::basic_string_view<CharT, Traits> sv) const noexcept {
-				return sv.end();
-			}
-
+			template<class T>
+			static constexpr int strategy = choose<T>();
+		public:
 			template<class R>
-			requires has_member<R> || has_non_member<R>
-			constexpr auto operator()(R&& r) const noexcept(nothrow<R>) {
-				if constexpr (has_member<R>)
+			requires (strategy<R> >= 0)
+			constexpr auto operator()(R&& r) const noexcept(strategy<R> & nothrow) {
+				constexpr int choice = strategy<R> & ~nothrow;
+				if constexpr (choice == array) {
+					return r + std::extent_v<__uncvref<R>>;
+				} else if constexpr (choice == member) {
 					return r.end();
-				else
+				} else {
+					static_assert(choice == non_member);
 					return end(static_cast<R&&>(r));
+				}
 			}
 		};
-	}
+	} // namespace end_fn
 	inline namespace __cpos {
-		inline constexpr __end::__fn end{};
+		inline constexpr end_fn::fn end{};
 	}
 
 	template<class R>
