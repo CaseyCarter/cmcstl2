@@ -26,28 +26,24 @@ STL2_OPEN_NAMESPACE {
 	namespace __any_iterator {
 		enum class op { copy, move, nuke, bump, comp, rval };
 
-		struct counted {
-			std::atomic<long> cnt{1};
-		};
 		template<input_iterator I>
-		struct shared_iterator : counted {
+		struct shared_iterator {
 			explicit shared_iterator(I i)
 			noexcept(std::is_nothrow_move_constructible_v<I>)
 			: it(std::move(i)) {}
 
-			I it;
+			STL2_NO_UNIQUE_ADDRESS I it;
+			std::atomic<long> cnt{1};
 		};
 
 		union blob {
-			counted* big;
+			void* big;
 			alignas(std::max_align_t) unsigned char tiny[2 * sizeof(void*)];
 		};
 
 		template<class It>
-		using is_small = std::integral_constant<bool,
-			(sizeof(It) <= sizeof(blob::tiny) && alignof(It) <= alignof(std::max_align_t))>;
-		using small_tag = std::true_type;
-		using big_tag = std::false_type;
+		inline constexpr bool is_small = sizeof(It) <= sizeof(blob::tiny) &&
+			alignof(It) <= alignof(std::max_align_t);
 
 		template<class RValueReference>
 		using iter_move_fn = RValueReference (*)(const blob&);
@@ -117,13 +113,13 @@ STL2_OPEN_NAMESPACE {
 			switch (o) {
 			case op::copy:
 				dst->big = src->big;
-				++src->big->cnt;
+				++static_cast<shared_iterator<I>*>(src->big)->cnt;
 				break;
 			case op::move:
 				dst->big = __stl2::exchange(src->big, nullptr);
 				break;
 			case op::nuke:
-				if (--src->big->cnt == 0) {
+				if (--static_cast<shared_iterator<I>*>(src->big)->cnt == 0) {
 					delete static_cast<shared_iterator<I>*>(src->big);
 				}
 				break;
@@ -153,18 +149,6 @@ STL2_OPEN_NAMESPACE {
 			iter_move_fn<RValueReference> (*exec_)(op, blob*, blob*) =
 				&uninit_noop<RValueReference>;
 
-			template<input_iterator I>
-			cursor(I i, small_tag) {
-				::new (static_cast<void *>(&data_.tiny)) I(std::move(i));
-				deref_ = &deref_small<Reference, I>;
-				exec_ = &exec_small<RValueReference, I>;
-			}
-			template<input_iterator I>
-			cursor(I i, big_tag) {
-				data_.big = new shared_iterator<I>(std::move(i));
-				deref_ = &deref_big<Reference, I>;
-				exec_ = &exec_big<RValueReference, I>;
-			}
 			void reset() noexcept {
 				exec_(op::nuke, &data_, nullptr);
 				deref_ = &uninit_deref<Reference>;
@@ -191,11 +175,13 @@ STL2_OPEN_NAMESPACE {
 				using base_t = basic_mixin<cursor>;
 			public:
 				mixin() = default;
-				template<input_iterator I> explicit mixin(I i)
+				template<class I>
+				requires !derived_from<I, mixin> && input_iterator<I>
+				explicit mixin(I i)
 				: base_t(cursor{std::move(i)})
 				{}
 				using base_t::base_t;
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 7 && __GNUC_MINOR__ < 2
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 8
 				explicit mixin(cursor c)
 				: base_t(std::move(c))
 				{}
@@ -203,21 +189,30 @@ STL2_OPEN_NAMESPACE {
 			};
 
 			cursor() = default;
-			cursor(cursor&& that) {
-				move_from(that);
-			}
 			cursor(const cursor& that) {
 				copy_from(that);
 			}
-			template<input_iterator I>
-			cursor(I i) : cursor{std::move(i), is_small<I>{}} {}
-			cursor& operator=(cursor&& that) {
-				if (&that != this) {
-					reset();
-					move_from(that);
-				}
-				return *this;
+			cursor(cursor&& that) {
+				move_from(that);
 			}
+			template<class I>
+			requires !derived_from<I, cursor> && input_iterator<I>
+			cursor(I i) {
+				if constexpr (is_small<I>) {
+					::new (static_cast<void *>(&data_.tiny)) I(std::move(i));
+					deref_ = &deref_small<Reference, I>;
+					exec_ = &exec_small<RValueReference, I>;
+				} else {
+					data_.big = new shared_iterator<I>(std::move(i));
+					deref_ = &deref_big<Reference, I>;
+					exec_ = &exec_big<RValueReference, I>;
+				}
+			}
+
+			~cursor() {
+				exec_(op::nuke, &data_, nullptr);
+			}
+
 			cursor& operator=(const cursor& that) {
 				if (&that != this) {
 					reset();
@@ -225,9 +220,14 @@ STL2_OPEN_NAMESPACE {
 				}
 				return *this;
 			}
-			~cursor() {
-				exec_(op::nuke, &data_, nullptr);
+			cursor& operator=(cursor&& that) {
+				if (&that != this) {
+					reset();
+					move_from(that);
+				}
+				return *this;
 			}
+
 			Reference read() const {
 				return deref_(data_);
 			}
@@ -242,14 +242,15 @@ STL2_OPEN_NAMESPACE {
 				return exec_(op::rval, nullptr, nullptr)(data_);
 			}
 		};
-	}
+	} // namespace any_iterator
 
-	template<class Reference,
-		class ValueType = __uncvref<Reference>,
-		class RValueReference = __iter_move::rvalue<Reference>>
-	using any_input_iterator =
-		basic_iterator<__any_iterator::cursor<Reference, ValueType, RValueReference>>;
-
+	namespace ext {
+		template<class Reference,
+			class ValueType = __uncvref<Reference>,
+			class RValueReference = __iter_move::rvalue<Reference>>
+		using any_input_iterator =
+			basic_iterator<__any_iterator::cursor<Reference, ValueType, RValueReference>>;
+	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 
 #endif
