@@ -232,7 +232,7 @@ namespace iterator_sentinel_test {
 } // namespace iterator_sentinel_test
 
 namespace indirectly_callable_test {
-	static_assert(ranges::ext::IndirectInvocable<std::plus<int>, int*, int*>);
+	static_assert(ranges::ext::indirect_invocable<std::plus<int>, int*, int*>);
 }
 
 namespace indirect_invoke_result_test {

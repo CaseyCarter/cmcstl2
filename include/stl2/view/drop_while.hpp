@@ -26,8 +26,7 @@
 #include <utility>
 
 STL2_OPEN_NAMESPACE {
-	namespace ext {
-		template<view R, IndirectPredicate<iterator_t<R>> Pred>
+		template<view R, indirect_unary_predicate<iterator_t<R>> Pred>
 		requires input_range<R> && std::is_object_v<Pred>
 		class STL2_EMPTY_BASES drop_while_view
 		: public view_interface<drop_while_view<R, Pred>>
@@ -70,14 +69,13 @@ STL2_OPEN_NAMESPACE {
 
 		template<class R, class Pred>
 		drop_while_view(R&&, Pred) -> drop_while_view<all_view<R>, Pred>;
-	} // namespace ext
 
-	namespace views::ext {
+	namespace views {
 		struct __drop_while_fn : detail::__pipeable<__drop_while_fn> {
 			template<class Rng, class Pred>
 			constexpr auto operator()(Rng&& rng, Pred&& pred) const
 			STL2_REQUIRES_RETURN(
-				__stl2::ext::drop_while_view{
+				drop_while_view{
 					views::all(static_cast<Rng&&>(rng)), std::forward<Pred>(pred)}
 			)
 
@@ -87,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		inline constexpr __drop_while_fn drop_while;
-	}
+	} // namespace views
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_VIEW_DROP_WHILE_HPP

@@ -17,11 +17,7 @@
 #include "../simple_test.hpp"
 
 namespace ranges = __stl2;
-
-namespace views {
-	using namespace ranges::views;
-	using views::ext::take_while;
-} // namespace views
+namespace views = ranges::views;
 
 int main()
 {
