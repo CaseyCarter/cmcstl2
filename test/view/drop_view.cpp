@@ -22,11 +22,7 @@
 #include "../simple_test.hpp"
 
 namespace ranges = __stl2;
-
-namespace views {
-	using namespace ranges::views;
-	using ranges::views::ext::drop;
-}
+namespace views = ranges::views;
 
 int main()
 {

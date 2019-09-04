@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template<class F, class... Is>
-		META_CONCEPT IndirectInvocable =
+		META_CONCEPT indirect_invocable =
 			(readable<Is> && ... && true) &&
 			copy_constructible<F> &&
 			// The following 3 are checked redundantly, but are called out
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<class F, class I>
 	META_CONCEPT indirect_unary_invocable =
-		ext::IndirectInvocable<F, I>;
+		ext::indirect_invocable<F, I>;
 
 	////////////////////////////////////////////////////////////////////////////
 	// indirect_result_t
@@ -83,13 +83,13 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template<class F, class... Is>
-		META_CONCEPT IndirectRegularInvocable =
-			IndirectInvocable<F, Is...>;
+		META_CONCEPT indirect_regular_invocable =
+			indirect_invocable<F, Is...>;
 	}
 
 	template<class F, class I>
 	META_CONCEPT indirect_regular_unary_invocable =
-		ext::IndirectRegularInvocable<F, I>;
+		ext::indirect_regular_invocable<F, I>;
 
 	template<class, class...> struct __predicate : std::false_type {};
 	template<class F, class... Args>
@@ -98,7 +98,7 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template<class F, class... Is>
-		META_CONCEPT IndirectPredicate =
+		META_CONCEPT indirect_predicate =
 			(readable<Is> && ... && true) &&
 			copy_constructible<F> &&
 			// The following 3 are checked redundantly, but are called out
@@ -116,7 +116,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<class F, class I>
 	META_CONCEPT indirect_unary_predicate =
-		ext::IndirectPredicate<F, I>;
+		ext::indirect_predicate<F, I>;
 
 	template<class F, class I1, class I2 = I1>
 	META_CONCEPT indirect_relation =

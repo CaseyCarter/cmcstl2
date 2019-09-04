@@ -167,19 +167,17 @@ STL2_OPEN_NAMESPACE {
 		(_RangeImpl<Rng> || view<std::decay_t<Rng>>);
 #endif
 
-	namespace ext {
-		template<range R>
-		using range_value_t = iter_value_t<iterator_t<R>>;
+	template<range R>
+	using range_value_t = iter_value_t<iterator_t<R>>;
 
-		template<range R>
-		using range_difference_t = iter_difference_t<iterator_t<R>>;
+	template<range R>
+	using range_difference_t = iter_difference_t<iterator_t<R>>;
 
-		template<range R>
-		using range_reference_t = iter_reference_t<iterator_t<R>>;
+	template<range R>
+	using range_reference_t = iter_reference_t<iterator_t<R>>;
 
-		template<range R>
-		using range_rvalue_reference_t = iter_rvalue_reference_t<iterator_t<R>>;
-	} // namespace ext
+	template<range R>
+	using range_rvalue_reference_t = iter_rvalue_reference_t<iterator_t<R>>;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -78,7 +78,7 @@ int main()
 		static_assert(ranges::input_range<decltype(r)>);
 		static_assert(ranges::view<decltype(r)>);
 		CHECK_EQUAL(r, {move_only_string{"hi"}, move_only_string{"ii"}});
-		static_assert(std::is_same<ranges::ext::range_reference_t<decltype(r)>, move_only_string&&>::value, "");
+		static_assert(std::is_same<ranges::range_reference_t<decltype(r)>, move_only_string&&>::value, "");
 	}
 
 	// Test for generator functions that return internal references
