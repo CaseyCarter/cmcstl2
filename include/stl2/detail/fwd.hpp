@@ -117,7 +117,7 @@
 #endif
 
 #ifndef STL2_WORKAROUND_MSVC_836487 // "constexpr assertion failure"
- #if defined(_MSC_VER) && !defined(__clang__)
+ #if defined(_MSC_VER) && !defined(__clang__) && _MSC_VER < 1924 // Likely preview 2
   #define STL2_WORKAROUND_MSVC_836487 1
  #else
   #define STL2_WORKAROUND_MSVC_836487 0
