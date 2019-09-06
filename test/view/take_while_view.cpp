@@ -15,6 +15,7 @@
 #include <list>
 #include <vector>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 namespace views = ranges::views;
@@ -42,6 +43,13 @@ int main()
 		CHECK_EQUAL(rng, {1,2,3,4});
 	}
 #endif
+
+	{
+
+		const single_pass_array a{1, 1, 1, 0, 1, 1};
+		auto rng = views::take_while(a, [](int i) { return i == 1; });
+		CHECK_EQUAL(rng, {1, 1, 1});
+	}
 
 	return ::test_result();
 }
