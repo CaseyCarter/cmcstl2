@@ -118,7 +118,7 @@ STL2_OPEN_NAMESPACE {
 			--length_;
 			return *this;
 		}
-		/* STL2_CXX20_CONSTEXPR */ decltype(auto) operator++(int) requires copy_constructible<I> {
+		/* STL2_CXX20_CONSTEXPR */ decltype(auto) operator++(int) {
 			STL2_EXPECT(length_ > 0);
 			--length_;
 			try {
