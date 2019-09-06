@@ -106,14 +106,17 @@ STL2_OPEN_NAMESPACE {
 		__iterator() = default;
 
 		constexpr __iterator(Parent& parent, iterator_t<Base> current)
-		: current_(current), parent_(&parent) {}
+		: current_(std::move(current)), parent_(&parent) {}
 
 		constexpr __iterator(__iterator<!Const> i)
 		requires Const && convertible_to<iterator_t<V>, iterator_t<Base>>
 		: current_(std::move(i.current_)), parent_(i.parent_) {}
 
-		constexpr iterator_t<Base> base() const
+		constexpr iterator_t<Base> base() const & requires copyable<iterator_t<Base>>
 		{ return current_; }
+
+		constexpr iterator_t<Base> base() &&
+		{ return std::move(current_) ; }
 
 		constexpr decltype(auto) operator*() const
 		noexcept(noexcept(invoke(parent_->fun_.get(), *current_)))
