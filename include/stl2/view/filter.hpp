@@ -27,14 +27,20 @@
 STL2_OPEN_NAMESPACE {
 	template<input_range V, indirect_unary_predicate<iterator_t<V>> Pred>
 	requires view<V>
-	class filter_view : public view_interface<filter_view<V, Pred>> {
+	class filter_view : public view_interface<filter_view<V, Pred>>
+	, private detail::cached_position<V, filter_view<V, Pred>, forward_range<V>>{
 	private:
 		class __iterator;
 		class __sentinel;
 
 		V base_;
 		detail::semiregular_box<Pred> pred_;
-		detail::cached_position<V> begin_;
+
+
+		constexpr auto& begin_() noexcept {
+			return static_cast<typename filter_view::cached_position&>(*this);
+		}
+
 
 	public:
 		filter_view() = default;
@@ -47,13 +53,18 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr __iterator begin()
 		{
-			auto cached = static_cast<bool>(begin_);
-			iterator_t<V> first = cached
-				? begin_.get(base_)
-				: find_if(base_, __stl2::ref(pred_.get()));
-			if(!cached)
-				begin_.set(base_, first);
-			return __iterator{*this, std::move(first)};
+			if constexpr ( !forward_range<V> ) {
+				return __iterator{*this, find_if(base_, __stl2::ref(pred_.get()))};
+			}
+			else {
+				auto cached = static_cast<bool>(begin_());
+				iterator_t<V> first = cached
+					? begin_().get(base_)
+					: find_if(base_, __stl2::ref(pred_.get()));
+				if(!cached)
+					begin_().set(base_, first);
+				return __iterator{*this, std::move(first)};
+			}
 		}
 
 		constexpr __sentinel end()
@@ -83,10 +94,13 @@ STL2_OPEN_NAMESPACE {
 		__iterator() = default;
 
 		constexpr __iterator(filter_view& parent, iterator_t<V> current)
-		: current_(current), parent_(&parent) {}
+			: current_(std::move(current)), parent_(&parent) {}
 
-		constexpr iterator_t<V> base() const
+		constexpr iterator_t<V> base() const & requires copyable<iterator_t<V>>
 		{ return current_; }
+
+		constexpr iterator_t<V> base() &&
+		{ return std::move(current_) ; }
 
 		constexpr iter_reference_t<iterator_t<V>> operator*() const
 		{ return *current_; }
@@ -104,7 +118,8 @@ STL2_OPEN_NAMESPACE {
 		{
 			const auto last = __stl2::end(parent_->base_);
 			STL2_ASSERT(current_ != last);
-			current_ = find_if(++current_, last, __stl2::ref(parent_->pred_.get()));
+			++current_;
+			current_ = find_if(std::move(current_), last, __stl2::ref(parent_->pred_.get()));
 			return *this;
 		}
 
