@@ -20,6 +20,7 @@
 #include <vector>
 #include <string>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -77,6 +78,13 @@ int main()
 		static_assert(!range<const decltype(rng2)>);
 		static_assert(!forward_range<decltype(rng2)>);
 		static_assert(!common_range<decltype(rng2)>);
+	}
+
+
+	{
+		single_pass_array<std::string, 4> vs{"this","is","his","face"};
+		join_view jv{vs};
+		CHECK_EQUAL(jv, {'t','h','i','s','i','s','h','i','s','f','a','c','e'});
 	}
 
 	return ::test_result();
