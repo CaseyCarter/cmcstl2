@@ -11,8 +11,10 @@
 //
 #include <stl2/view/common.hpp>
 #include <stl2/view/counted.hpp>
+#include <stl2/view/take.hpp>
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 namespace views = ranges::views;
@@ -20,7 +22,7 @@ namespace views = ranges::views;
 int main() {
 	using ranges::same_as;
 	using ranges::view, ranges::sized_range, ranges::common_range;
-	using ranges::forward_range, ranges::bidirectional_range, ranges::random_access_range;
+	using ranges::input_range, ranges::forward_range, ranges::bidirectional_range, ranges::random_access_range;
 	{
 		int rg[] = {0,1,2,3,4,5,6,7,8,9};
 		auto x = rg | views::common;
@@ -41,5 +43,18 @@ int main() {
 		static_assert(!bidirectional_range<decltype(x)>);
 		static_assert(same_as<decltype(x), decltype(views::common(x))>);
 	}
+
+	{
+		/*single_pass_array rg{0,1,2,3,4,5,6,7,8,9};
+		auto x = rg | views::take(5) | views::common;
+		CHECK_EQUAL(x, {0,1,2,3,4});
+		static_assert(view<decltype(x)>);
+		static_assert(sized_range<decltype(x)>);
+		static_assert(common_range<decltype(x)>);
+		static_assert(input_range<decltype(x)>);
+		static_assert(!forward_range<decltype(x)>);
+		static_assert(same_as<decltype(x), decltype(views::common(x))>);*/
+	}
+
 	return test_result();
 }

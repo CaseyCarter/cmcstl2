@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 	template<view R>
 	class STL2_EMPTY_BASES drop_view
 	: public view_interface<drop_view<R>>
-	, private detail::cached_position<R, drop_view<R>, !random_access_range<const R>> {
+	, private detail::cached_position<R, drop_view<R>, forward_range<const R> && !random_access_range<const R>> {
 		using D = iter_difference_t<iterator_t<R>>;
 	public:
 		drop_view() = default;
@@ -58,7 +58,7 @@ STL2_OPEN_NAMESPACE {
 
 		template<class X>
 		static constexpr auto begin_impl(X& x) {
-			if constexpr (random_access_range<__maybe_const<std::is_const_v<X>, R>>) {
+			if constexpr (!forward_range<R> || random_access_range<__maybe_const<std::is_const_v<X>, R>>) {
 				return __stl2::ext::nth_iterator(x.base_, x.count_);
 			} else {
 				using cache_t = typename drop_view::cached_position;

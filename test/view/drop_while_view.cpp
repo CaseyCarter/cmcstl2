@@ -15,6 +15,7 @@
 #include <stl2/view/take.hpp>
 #include <list>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 namespace views = ranges::views;
@@ -52,16 +53,11 @@ int main()
 		CHECK_EQUAL(rng0 | views::take(10), {25, 26, 27, 28, 29, 30, 31, 32, 33, 34});
 	}
 
-	//  {
-	//      // Check with move-only subview
-	//      auto rng = debug_input_view<const int>{rgi} | views::drop_while([](int i){ return i < 4; });
-	//      using R = decltype(rng);
-	//      static_assert(InputView<R>());
-	//      static_assert(!forward_range<R>());
-	//      static_assert(!BoundedRange<R>());
-	//      static_assert(same_as<int const&, range_reference_t<R>>());
-	//      CHECK_EQUAL(rng, {4,5,6,7,8,9});
-	//  }
+	{
 
+		single_pass_array a{1, 2, 3, 4};
+		auto rng = a | views::drop_while([](int i) { return i == 1; });
+		CHECK_EQUAL(rng, {2, 3, 4});
+	}
     return ::test_result();
 }

@@ -20,6 +20,7 @@
 #include <list>
 #include <vector>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 namespace views = ranges::views;
@@ -151,6 +152,13 @@ int main()
 		static int const some_ints[] = {0,1,2,3};
 		auto rng = some_ints | views::drop(10);
 		CHECK(ranges::empty(rng));
+	}
+
+	{
+
+	   const single_pass_array a{1, 2, 3, 4};
+	   auto rng = a | views::drop(4);
+	   CHECK(ranges::empty(rng));
 	}
 
 	return test_result();

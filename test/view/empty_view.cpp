@@ -11,6 +11,7 @@
 //
 #include <stl2/view/empty.hpp>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -35,6 +36,13 @@ int main() {
 		CHECK(ranges::end(views::empty<int>) == nullptr);
 		CHECK(ranges::data(views::empty<int>) == nullptr);
 		CHECK(ranges::size(views::empty<int>) == 0);
+	}
+
+	{
+		CHECK(ranges::begin(views::empty<single_pass_array<int, 1>>) == nullptr);
+		CHECK(ranges::end(views::empty<single_pass_array<int, 1>>) == nullptr);
+		CHECK(ranges::data(views::empty<single_pass_array<int, 1>>) == nullptr);
+		CHECK(ranges::size(views::empty<single_pass_array<int, 1>>) == 0);
 	}
 
 	return test_result();

@@ -19,6 +19,8 @@
 #include <vector>
 #include <sstream>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
+
 
 namespace ranges = __stl2;
 
@@ -107,6 +109,25 @@ int main()
 		static_assert(ranges::sized_range<decltype(rng)>);
 		static_assert(ranges::bidirectional_iterator<decltype(ranges::begin(rng))>);
 		CHECK_EQUAL(rng, {0, 1, 2, 3, 4, 5});
+	}
+
+
+	{
+
+		single_pass_array a{1, 2, 3, 4, 5};
+		take_view rng {a, 3};
+		rng.begin();
+		ranges::begin(rng);
+		counted_iterator it{a.begin(), 5};
+
+		static_assert(ranges::input_iterator<decltype(ranges::begin(rng))>);
+		static_assert(ranges::weakly_incrementable<decltype(it)>);
+
+	}
+	{
+		single_pass_array a{1, 2, 3, 4, 5};
+		auto rng = a | views::take(3);
+		CHECK_EQUAL(rng, std::vector{1, 2, 3});
 	}
 
 	return ::test_result();
