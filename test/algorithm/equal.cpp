@@ -21,6 +21,7 @@
 #include <stl2/detail/algorithm/equal.hpp>
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -33,7 +34,20 @@ bool counting_equals(const T &a, const T &b) {
 }
 
 int main() {
-	using ranges::equal, ranges::distance, ranges::subrange;
+	using ranges::equal, ranges::distance, ranges::subrange, ranges::begin, ranges::end;
+
+	{
+		static const int a[] = {0, 1, 2, 3, 4, 5};
+		single_pass_array b {0, 1, 2, 3, 4, 5 };
+		CHECK(equal(b, b));
+		CHECK(equal(b, b, counting_equals<int>));
+		CHECK(equal(a, b));
+		CHECK(equal(b, a));
+		CHECK(equal(begin(a), end(a), begin(b), end(b)));
+		CHECK(equal(begin(b), end(b), begin(a), end(a)));
+		CHECK(equal(begin(a), end(a), begin(b), end(b)));
+		CHECK(equal(begin(b), end(b), begin(a), end(a)));
+	}
 
 	auto test_case = [](const bool result, const int count,
 		const auto first1, const auto last1, const auto first2, const auto last2)

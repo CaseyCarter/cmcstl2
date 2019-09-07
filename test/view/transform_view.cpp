@@ -21,6 +21,7 @@
 #include <stl2/view/iota.hpp>
 #include <stl2/view/reverse.hpp>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -63,6 +64,18 @@ int main() {
 	{
 		auto id = [](int x){ return x; };
 		views::iota(0) | views::filter(id) | views::transform(id);
+	}
+
+	{
+		single_pass_array a{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+		auto rng = a | views::transform(is_odd());
+		static_assert(same_as<bool, decltype(*begin(rng))>);
+		static_assert(view<decltype(rng)>);
+		static_assert(sized_range<decltype(rng)>);
+		static_assert(input_range<decltype(rng)>);
+		CHECK_EQUAL(rng, {true, false, true, false, true, false, true, false, true, false});
+
 	}
 
 	return ::test_result();

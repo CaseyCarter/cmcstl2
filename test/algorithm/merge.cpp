@@ -14,10 +14,12 @@
 //  or a copy at http://stlab.adobe.com/licenses.html)
 
 #include <stl2/detail/algorithm/merge.hpp>
+#include <stl2/detail/algorithm/equal.hpp>
 #include <algorithm>
 #include <memory>
 #include <utility>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -81,6 +83,16 @@ int main() {
 		CHECK(ic[2 * N - 1] == (int)(2 * N - 1));
 		CHECK(std::is_sorted(ic.get(), ic.get() + 2 * N));
 	}
+
+	{
+		const auto a = single_pass_array{1, 3, 5};
+		const auto b = single_pass_array{2, 4, 6};
+		int c[6];
+		int expected[] = {1, 2, 3, 4, 5, 6};
+		ranges::merge(ranges::begin(a), ranges::end(a), ranges::begin(b), ranges::end(b), ranges::begin(c));
+		CHECK(ranges::equal(c, expected));
+	}
+
 
 	return ::test_result();
 }

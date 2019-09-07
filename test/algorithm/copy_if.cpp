@@ -12,6 +12,7 @@
 #include <stl2/detail/algorithm/copy_if.hpp>
 #include <algorithm>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -46,9 +47,9 @@ int main() {
 	{
 		int target[n];
 		std::fill_n(target, n, -1);
-
-		auto res = ranges::copy_if(source, target, is_even);
-		CHECK(res.in == source + n);
+		single_pass_array input = {5,4,3,2,1,0};
+		auto res = ranges::copy_if(input, target, is_even);
+		CHECK(&*res.in == input.data() + n);
 		CHECK(res.out == target + n / 2);
 
 		CHECK(std::equal(target, target + n / 2, evens));

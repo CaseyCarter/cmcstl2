@@ -14,6 +14,7 @@
 
 #include <vector>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = std::experimental::ranges;
 
@@ -75,6 +76,12 @@ int main()
 	{
 		auto il = {S(false), S(false), S(false)};
 		CHECK(ranges::none_of(std::move(il), &S::p));
+	}
+
+	{
+		single_pass_array all_odd { 1, 3, 5, 7 };
+		CHECK(ranges::none_of(all_odd.begin(), all_odd.end(), even));
+		CHECK(ranges::none_of(all_odd, even));
 	}
 
 	return ::test_result();

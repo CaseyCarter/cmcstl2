@@ -28,6 +28,7 @@
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace stl2 = __stl2;
 
@@ -89,6 +90,11 @@ test_iter_comp(unsigned N)
 	test_iter_comp(Iter(a.get()), Sent(a.get()+N));
 }
 
+void test_single_pass() {
+	auto a = single_pass_array{1, 2, 3, 4, 3, 2, 1};
+	CHECK(stl2::max(a) == 4);
+}
+
 template<class Iter, class Sent = Iter>
 void
 test_iter_comp()
@@ -131,6 +137,8 @@ int main()
 	S s[] = {S{1},S{2},S{3},S{4},S{40},S{5},S{6},S{7},S{8},S{9}};
 	S v = stl2::max(s, std::less<int>{}, &S::i);
 	CHECK(v.i == 40);
+
+	test_single_pass();
 
 	return test_result();
 }

@@ -13,6 +13,7 @@
 #include <stl2/view/ref.hpp>
 #include <vector>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 #include "../test_utils.hpp"
 #include <stl2/detail/algorithm/transform.hpp>
 
@@ -25,7 +26,7 @@ static_assert(!ranges::constructible_from<ranges::ref_view<const int[42]>, const
 
 int main() {
 	{
-		auto rng = std::vector<int>(10, 0);
+		auto rng = single_pass_array{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		auto iota = 0;
 		for (auto&& i : ranges::ref_view{rng}) {
 			i += iota;

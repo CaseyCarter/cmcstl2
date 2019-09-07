@@ -22,6 +22,7 @@
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -160,9 +161,17 @@ void test_iter_comp() {
 	test_iter_comp1<const int*, const int*>();
 }
 
+void test_single_pass() {
+	const auto a = single_pass_array{1, 2, 3, 4};
+	const auto b = single_pass_array{1, 2, 3};
+	CHECK(ranges::lexicographical_compare(ranges::begin(b), ranges::end(b), ranges::begin(a), ranges::end(a)));
+	CHECK(ranges::lexicographical_compare(b, a));
+}
+
 int main() {
 	test_iter();
 	test_iter_comp();
+	test_single_pass();
 
 	return test_result();
 }

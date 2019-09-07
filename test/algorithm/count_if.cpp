@@ -12,6 +12,7 @@
 #include <stl2/detail/algorithm/count_if.hpp>
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 struct S
 {
@@ -85,6 +86,12 @@ int main()
 	{
 		auto l = {0, 1, 2, 2, 0, 1, 2, 3};
 		CHECK(count_if(std::move(l), equals(42)) == 0);
+	}
+
+	{
+		single_pass_array a {0, 1, 1, 2, 3};
+		CHECK(count_if(a, equals(1)) == 2);
+		CHECK(count_if(__stl2::begin(a), __stl2::end(a), equals(1)) == 2);
 	}
 
 	return ::test_result();

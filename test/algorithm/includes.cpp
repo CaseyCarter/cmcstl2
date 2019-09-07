@@ -23,6 +23,7 @@
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace stl2 = __stl2;
 
@@ -147,6 +148,14 @@ int main()
 		S ia[] = {{1}, {2}, {2}, {3}, {3}, {3}, {4}, {4}, {4}, {4}};
 		T id[] = {{3}, {3}, {3}};
 		CHECK(stl2::includes(ia, id, std::less<int>(), &S::i, &T::j));
+	}
+
+	// Test Single pass
+	{
+		auto a = single_pass_array{0,1, 2, 3, 4, 5, 5, 7, 8, 9};
+		auto b = single_pass_array{1, 2, 3};
+		CHECK(stl2::includes(stl2::begin(a), stl2::end(a), stl2::begin(b), stl2::end(b)));
+		CHECK(stl2::includes(a, b));
 	}
 
 	return ::test_result();

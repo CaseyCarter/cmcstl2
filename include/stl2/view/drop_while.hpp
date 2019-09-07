@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		class STL2_EMPTY_BASES drop_while_view
 		: public view_interface<drop_while_view<R, Pred>>
 		, private detail::semiregular_box<Pred>
-		, private detail::non_propagating_cache<iterator_t<R>, drop_while_view<R, Pred>> {
+		, private detail::non_propagating_cache<iterator_t<R>, drop_while_view<R, Pred>, forward_range<R>> {
 			using storage_t = detail::semiregular_box<Pred>;
 			using storage_t::get;
 		public:
@@ -43,7 +43,21 @@ STL2_OPEN_NAMESPACE {
 			constexpr R base() const { return base_; }
 			constexpr const Pred& pred() const noexcept { return get(); }
 
-			constexpr auto begin() {
+			constexpr auto begin() const requires !forward_range<R> {
+				return find_if_not(base_, [this](auto&& i) mutable {
+					// A predicate must be equality-preserving. While it's not possible to generally
+					// check that te predicate isn't equality-preserving, we can trap
+					// non-equality-preserving invocables on-the-spot by calling them multiple times
+					// and compare the results.
+					// This is only enabled in debug-mode, since it's potentially an expensive check.
+					auto result = get()(i);
+					STL2_ASSERT(result == get()(i));
+					return result;
+				});
+			}
+
+
+			constexpr auto begin() requires forward_range<R> {
 				using cache_t = typename drop_while_view::non_propagating_cache;
 				auto& iterator_self = static_cast<cache_t&>(*this);
 				if (!iterator_self) {

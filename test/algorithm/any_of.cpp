@@ -14,6 +14,7 @@
 
 #include <vector>
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = std::experimental::ranges;
 
@@ -29,9 +30,10 @@ struct S {
 
 int main()
 {
-	std::vector<int> all_even { 0, 2, 4, 6 };
-	std::vector<int> one_even { 1, 3, 4, 7 };
-	std::vector<int> none_even { 1, 3, 5, 7 };
+	single_pass_array all_even { 0, 2, 4, 6 };
+	single_pass_array one_even { 1, 3, 4, 7 };
+	single_pass_array none_even { 1, 3, 5, 7 };
+
 	CHECK(ranges::any_of(all_even.begin(), all_even.end(), even));
 	CHECK(ranges::any_of(one_even.begin(), one_even.end(), even));
 	CHECK(!ranges::any_of(none_even.begin(), none_even.end(), even));

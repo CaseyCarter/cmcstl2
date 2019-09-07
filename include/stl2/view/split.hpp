@@ -164,17 +164,18 @@ STL2_OPEN_NAMESPACE {
 			const auto end = __stl2::end(parent_->base_);
 			if (cur == end) return *this;
 			const auto [pbegin, pend] = subrange{parent_->pattern_};
-			if (pbegin == pend) ++cur;
-			else {
-				do {
-					const auto [b, p] = mismatch(cur, end, pbegin, pend);
-					if (p == pend) {
-						// The pattern matches, skip it
-						cur = b;
-						break;
-					}
-				} while (++cur != end);
+			if (pbegin == pend) {
+				++cur;
+				return *this;
 			}
+			do {
+				auto [b, p] = mismatch(std::move(cur), end, pbegin, pend);
+				cur = std::move(b);
+				if (p == pend) {
+					// The pattern matches, skip it
+					break;
+				}
+			} while (++cur != end);
 			return *this;
 		}
 
@@ -241,16 +242,28 @@ STL2_OPEN_NAMESPACE {
 		bool zero_ = false;
 
 		constexpr bool at_end() const {
-			auto cur = i_.current();
 			auto end = __stl2::end(i_.parent_->base_);
-			if (cur == end) return true;
 			auto [pcur, pend] = subrange{i_.parent_->pattern_};
 			if (pcur == pend) return zero_;
-			do {
-				if (*cur != *pcur) return false;
-				if (++pcur == pend) return true;
-			} while (++cur != end);
-			return false;
+
+			if constexpr (_TinyRange<Pattern>) {
+				const auto & cur = i_.current();
+				if (cur == end) return true;
+				if (pcur == pend) return zero_;
+				return *cur == *pcur;
+			}
+			else {
+				auto cur = i_.current();
+
+				if (cur == end) return true;
+				auto [pcur, pend] = subrange{i_.parent_->pattern_};
+				if (pcur == pend) return zero_;
+				do {
+					if (*cur != *pcur) return false;
+					if (++pcur == pend) return true;
+				} while (++cur != end);
+				return false;
+			}
 		}
 		constexpr auto& current() const noexcept { return i_.current(); }
 	public:

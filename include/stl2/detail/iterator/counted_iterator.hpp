@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 			STL2_EXPECT(n >= 0);
 		}
 		template<class I2>
-		requires convertible_to<const I2&, I>
+		requires convertible_to<const I2&, I> && copy_constructible<I>
 		constexpr counted_iterator(const counted_iterator<I2>& i)
 		noexcept(std::is_nothrow_copy_constructible_v<I>) // strengthened
 		: current_(__counted_iterator::access::current(i))
@@ -90,9 +90,15 @@ STL2_OPEN_NAMESPACE {
 			length_ = __counted_iterator::access::count(i);
 			return *this;
 		}
-		constexpr I base() const
-		noexcept(std::is_nothrow_copy_constructible_v<I>) { // strengthened
+		constexpr I base() const&
+		noexcept(std::is_nothrow_copy_constructible_v<I>) // strengthened
+		requires copy_constructible<I>
+		{
 			return current_;
+		}
+		constexpr I base() &&
+		noexcept(std::is_nothrow_move_constructible_v<I>) { // strengthened
+			return std::move(current_);
 		}
 		constexpr iter_difference_t<I> count() const noexcept {
 			return length_;
@@ -296,37 +302,37 @@ STL2_OPEN_NAMESPACE {
 
 	namespace ext {
 		template<input_or_output_iterator I>
-		constexpr auto uncounted(const I& i)
-		noexcept(std::is_nothrow_copy_constructible<I>::value) {
-			return i;
+		requires (!std::is_lvalue_reference_v<I>)
+		constexpr auto uncounted(I&& i)
+		noexcept(std::is_nothrow_move_constructible_v<I>) {
+			return std::move(i);
 		}
-
-		template<class I>
-		constexpr auto uncounted(const counted_iterator<I>& i)
-		STL2_NOEXCEPT_RETURN(
-			i.base()
-		)
 
 		template<input_or_output_iterator I>
-		constexpr auto recounted(const I&, const I& i, iter_difference_t<I> = 0)
-		noexcept(std::is_nothrow_copy_constructible<I>::value)
-		{
+		constexpr auto uncounted(const I& i)
+			noexcept(std::is_nothrow_copy_constructible_v<I>) {
 			return i;
 		}
 
 		template<class I>
-		constexpr auto recounted(const counted_iterator<I>& o, I i)
-		STL2_NOEXCEPT_RETURN(
-			counted_iterator<I>{std::move(i), o.count()}
-		)
+		constexpr auto uncounted(counted_iterator<I>&& i)
+		noexcept(std::is_nothrow_move_constructible_v<I>) {
+			return std::move(i).base();
+		}
+
+		template<input_or_output_iterator I>
+		constexpr auto recounted(const I&, I&& i, iter_difference_t<I> = 0)
+			noexcept(std::is_nothrow_move_constructible_v<I>) {
+			return std::move(i);
+		}
 
 		template<class I>
 		constexpr auto recounted(
-			const counted_iterator<I>& o, I i, iter_difference_t<I> n)
-		noexcept(noexcept(counted_iterator<I>{std::move(i), o.count() - n}))
-		{
+			const counted_iterator<I>& o, I && i, iter_difference_t<I> n)
+			noexcept(noexcept(counted_iterator<I>{std::move(i), o.count() - n})) {
 			STL2_EXPENSIVE_ASSERT(!forward_iterator<I> ||
-				i == next(o.base(), n));
+								  i == next(o.base(), n));
+
 			return counted_iterator<I>{std::move(i), o.count() - n};
 		}
 	}

@@ -102,7 +102,7 @@ STL2_OPEN_NAMESPACE {
 			}
 
 			auto d = d_;
-			auto first = ext::uncounted(first_);
+			auto first = ext::uncounted(std::move(first_));
 
 			for (; d >= count; ++first, --d) {
 				if (__stl2::invoke(pred, __stl2::invoke(proj, *first), value)) {

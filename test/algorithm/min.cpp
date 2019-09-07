@@ -28,6 +28,7 @@
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace stl2 = __stl2;
 
@@ -99,6 +100,11 @@ test_iter_comp()
 	test_iter_comp<Iter, Sent>(1000);
 }
 
+void test_single_pass() {
+	auto a = single_pass_array{1, 2, 3, 4, 3, 2, 1};
+	CHECK(stl2::min(a) == 1);
+}
+
 struct S
 {
 	int i;
@@ -130,6 +136,8 @@ int main()
 	S s[] = {S{1},S{2},S{3},S{4},S{-4},S{5},S{6},S{7},S{8},S{9}};
 	S v = stl2::min(s, std::less<int>{}, &S::i);
 	CHECK(v.i == -4);
+
+	test_single_pass();
 
 	return test_result();
 }

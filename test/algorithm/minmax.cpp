@@ -28,6 +28,7 @@
 #include "../simple_test.hpp"
 #include "../test_utils.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -124,6 +125,13 @@ int main() {
 	CHECK(res.min.index == 4);
 	CHECK(res.max.value == 40);
 	CHECK(res.max.index == 7);
+
+	{
+		auto a = single_pass_array{1, 2, 3, 4, 3, 2, 1};
+		auto res = ranges::minmax(a);
+		CHECK(res.min == 1);
+		CHECK(res.max == 4);
+	}
 
 	return test_result();
 }

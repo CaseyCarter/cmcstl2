@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "../simple_test.hpp"
+#include "../single_pass_array.hpp"
 
 namespace ranges = __stl2;
 
@@ -143,6 +144,18 @@ int main() {
 		auto yes = [](int) { return true; };
 		auto const rng = views::iota(0) | views::filter(yes);
 		views::all(rng);
+	}
+
+	{
+		single_pass_array a{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+		static_assert(size(views::all(rgi))==10);
+
+		auto rng = a | views::filter(is_odd());
+		static_assert(same_as<int &, decltype(*begin(a))>);
+		static_assert(input_range<decltype(rng)>);
+		static_assert(!sized_range<decltype(rng)>);
+		static_assert(!forward_range<decltype(rng)>);
+		CHECK_EQUAL(rng, {1,3,5,7,9});
 	}
 
 	return test_result();

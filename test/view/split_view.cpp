@@ -14,6 +14,7 @@
 #include <stl2/detail/iterator/istreambuf_iterator.hpp>
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
+#include "../single_pass_array.hpp"
 
 #include <list>
 #include <sstream>
@@ -214,6 +215,30 @@ int main() {
 		++i;
 		CHECK(i == sv.end());
 	}
+
+
+	{
+		single_pass_array hello{'h','e', 'l', 'l', 'o'};
+		split_view sv{hello, views::empty<char>};
+		auto i = sv.begin();
+		CHECK(i != sv.end());
+		CHECK_EQUAL(*i, single_view{'h'});
+		++i;
+		CHECK(i != sv.end());
+		CHECK_EQUAL(*i, single_view{'e'});
+		++i;
+		CHECK(i != sv.end());
+		CHECK_EQUAL(*i, single_view{'l'});
+		++i;
+		CHECK(i != sv.end());
+		CHECK_EQUAL(*i, single_view{'l'});
+		++i;
+		CHECK(i != sv.end());
+		CHECK_EQUAL(*i, single_view{'o'});
+		++i;
+		CHECK(i == sv.end());
+	}
+
 
 	return test_result();
 }
