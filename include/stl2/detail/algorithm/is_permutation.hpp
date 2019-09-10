@@ -193,17 +193,17 @@ STL2_OPEN_NAMESPACE {
 				// If for some j in [first1, i.base()), *j == e, we've already
 				// validated the counts of elements equal to e.
 				auto match = find_if(counted_iterator{first1, n - i.count()},
-					default_sentinel{}, match_predicate, __stl2::ref(proj1));
+					default_sentinel, match_predicate, __stl2::ref(proj1));
 				++i;
 				if (match.count()) continue;
 
 				// Count number of e in [first2, n)
 				const auto c2 = count_if(counted_iterator{first2, n},
-					default_sentinel{}, match_predicate, __stl2::ref(proj2));
+					default_sentinel, match_predicate, __stl2::ref(proj2));
 				if (c2 == 0) return false;
 
 				// Count number of e in [i, default_sentinel)
-				const auto c1 = count_if(i, default_sentinel{},
+				const auto c1 = count_if(i, default_sentinel,
 					match_predicate, __stl2::ref(proj1));
 
 				// If the number of e in [first2, n) is not equal to
@@ -221,8 +221,8 @@ STL2_OPEN_NAMESPACE {
 		{
 			// trim equal prefixes
 			auto [counted, mid2] = mismatch(
-				counted_iterator{std::move(first1), n}, default_sentinel{},
-				std::move(first2), unreachable{},
+				counted_iterator{std::move(first1), n}, default_sentinel,
+				std::move(first2), unreachable_sentinel,
 				__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 
 			// TODO: trim equal suffixes from bidirectional sequences?

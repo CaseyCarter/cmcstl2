@@ -76,7 +76,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr basic_iterator<cursor<true>> begin() const noexcept
 			{ return basic_iterator{cursor<true>{*this}}; }
 
-			constexpr unreachable end() const noexcept { return {}; }
+			constexpr unreachable_sentinel_t end() const noexcept { return {}; }
 		};
 
 		template<class T>

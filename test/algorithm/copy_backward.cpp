@@ -36,7 +36,7 @@ namespace {
 			auto v = ranges::ext::repeat_view<int>(42);
 			int target[8]{};
 			auto result = ranges::copy_backward(ranges::counted_iterator{v.begin(), 4},
-				ranges::default_sentinel{}, ranges::end(target));
+				ranges::default_sentinel, ranges::end(target));
 			CHECK(result.in.count() == 0);
 			CHECK(result.in.base() == v.begin());
 			CHECK(result.out == target + 4);

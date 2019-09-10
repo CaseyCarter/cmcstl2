@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 
-	template<weakly_incrementable I, semiregular Bound = unreachable>
+	template<weakly_incrementable I, semiregular Bound = unreachable_sentinel_t>
 	requires WeaklyEqualityComparable<I, Bound>
 	struct iota_view;
 

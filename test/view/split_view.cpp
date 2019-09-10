@@ -64,7 +64,7 @@ int main() {
 		std::stringstream sin{greeting};
 		auto rng = subrange{
 			istreambuf_iterator<char>{sin},
-			default_sentinel{}};
+			default_sentinel};
 
 		split_view sv{rng, ' '};
 		auto i = sv.begin();
@@ -107,7 +107,7 @@ int main() {
 		std::stringstream sin{list};
 		auto rng = subrange{
 			istreambuf_iterator<char>{sin},
-			default_sentinel{}};
+			default_sentinel};
 		auto sv = rng | views::split(',');
 		auto i = sv.begin();
 		CHECK(i != sv.end());
@@ -152,7 +152,7 @@ int main() {
 		std::stringstream sin{hello};
 		auto rng = subrange{
 			istreambuf_iterator<char>{sin},
-			default_sentinel{}};
+			default_sentinel};
 		auto sv = views::split(rng, views::empty<char>);
 		auto i = sv.begin();
 		CHECK(i != sv.end());
@@ -197,7 +197,7 @@ int main() {
 		std::stringstream sin{hello};
 		auto rng = subrange{
 			istreambuf_iterator<char>{sin},
-			default_sentinel{}};
+			default_sentinel};
 		auto sv = views::split(rng, views::empty<char>);
 		auto i = sv.begin();
 		CHECK(i != sv.end());

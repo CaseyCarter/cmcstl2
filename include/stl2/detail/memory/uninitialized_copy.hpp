@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 		uninitialized_copy_n_result<I, O>
 		operator()(I first, iter_difference_t<I> n, O ofirst, S olast) const {
 			auto [in, out] = uninitialized_copy(
-				counted_iterator{std::move(first), n}, default_sentinel{},
+				counted_iterator{std::move(first), n}, default_sentinel,
 				std::move(ofirst), std::move(olast));
 			return {in.base(), std::move(out)};
 		}

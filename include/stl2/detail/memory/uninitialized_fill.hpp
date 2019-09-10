@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 		I operator()(I first, const iter_difference_t<I> n, const T& x) const {
 			return uninitialized_fill(
 				counted_iterator{std::move(first), n},
-				default_sentinel{}, x).base();
+				default_sentinel, x).base();
 		}
 	};
 

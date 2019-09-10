@@ -91,7 +91,7 @@ STL2_OPEN_NAMESPACE {
 			{ return __stl2::data(get()); }
 	#endif
 
-			constexpr default_sentinel end() const noexcept { return {}; }
+			constexpr default_sentinel_t end() const noexcept { return {}; }
 			constexpr iter_difference_t<iterator_t<Base>> size() const noexcept { return n_; }
 			constexpr bool empty() const noexcept { return n_ == 0; }
 		};

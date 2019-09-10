@@ -40,7 +40,7 @@ namespace {
 			ranges::iter_reference_t<ranges::iterator_t<const Rng>>>;
 	}
 	bool empty(const Rng& rng, const std::ptrdiff_t n) {
-		return ranges::all_of(ranges::counted_iterator{rng.begin(), n}, ranges::default_sentinel{},
+		return ranges::all_of(ranges::counted_iterator{rng.begin(), n}, ranges::default_sentinel,
 			&ranges::iter_value_t<Rng>::empty);
 	}
 

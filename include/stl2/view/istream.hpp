@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 				return __iterator{*this};
 			}
 
-			constexpr default_sentinel end() const noexcept { return {}; }
+			constexpr default_sentinel_t end() const noexcept { return {}; }
 		};
 
 		template<movable Val>
@@ -70,16 +70,16 @@ STL2_OPEN_NAMESPACE {
 			Val& operator*() const { return parent_->get(); }
 			Val* operator->() const { return std::addressof(parent_->get()); }
 
-			friend bool operator==(__iterator x, default_sentinel) {
+			friend bool operator==(__iterator x, default_sentinel_t) {
 				return x.at_end();
 			}
-			friend bool operator==(default_sentinel, __iterator x) {
+			friend bool operator==(default_sentinel_t, __iterator x) {
 				return x.at_end();
 			}
-			friend bool operator!=(__iterator x, default_sentinel) {
+			friend bool operator!=(__iterator x, default_sentinel_t) {
 				return !x.at_end();
 			}
-			friend bool operator!=(default_sentinel, __iterator x) {
+			friend bool operator!=(default_sentinel_t, __iterator x) {
 				return !x.at_end();
 			}
 		private:

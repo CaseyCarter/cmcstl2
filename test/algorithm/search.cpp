@@ -240,7 +240,7 @@ int main()
 		auto rng = subrange(
 					 ranges::counted_iterator{
 					   bidirectional_iterator<int*>(in), 6},
-					 ranges::default_sentinel{});
+					 ranges::default_sentinel);
 		{
 			auto [b, e] = ranges::search(rng, std::initializer_list<int>{2,3});
 			CHECK(base(b.base()) == in+2);

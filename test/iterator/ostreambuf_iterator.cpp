@@ -42,16 +42,16 @@ namespace {
 int main() {
 	using I = ostreambuf_iterator<char>;
 	static_assert(output_iterator<I, const char&>);
-	static_assert(sentinel_for<default_sentinel, I>);
-	static_assert(common_with<I, default_sentinel>);
-	static_assert(std::is_same<I, common_type_t<I, default_sentinel>>());
+	static_assert(sentinel_for<default_sentinel_t, I>);
+	static_assert(common_with<I, default_sentinel_t>);
+	static_assert(std::is_same<I, common_type_t<I, default_sentinel_t>>());
 
 	{
 		static const char hw[] = "Hello, world!";
 		auto hw_range = subrange(begin(hw), end(hw) - 1);
 		std::ostringstream os;
 		auto r = ::copy(hw_range, I{os});
-		CHECK(r.out != default_sentinel{});
+		CHECK(r.out != default_sentinel);
 		CHECK_EQUAL(os.str(), hw_range);
 	}
 

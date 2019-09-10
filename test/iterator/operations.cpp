@@ -312,12 +312,12 @@ namespace {
             {
                 auto result = ranges::ext::enumerate(rng);
                 if (result.count != 42) return false;
-                if (result.end != ranges::default_sentinel{}) return false;
+                if (result.end != ranges::default_sentinel) return false;
             }
             {
                 auto result = ranges::ext::enumerate(ranges::begin(rng), ranges::end(rng));
                 if (result.count != 42) return false;
-                if (result.end != ranges::default_sentinel{}) return false;
+                if (result.end != ranges::default_sentinel) return false;
             }
         }
 

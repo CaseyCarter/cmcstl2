@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 				auto ufirst = ext::uncounted(first);
 				// Shift the first half of the input range into the buffer.
 				auto umiddle = ext::uncounted(move(
-					counted_iterator{ufirst, n / 2}, default_sentinel{},
+					counted_iterator{ufirst, n / 2}, default_sentinel,
 					__stl2::back_inserter(vec)).in);
 				if (n % 2 != 0) {
 					++umiddle;

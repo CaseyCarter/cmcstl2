@@ -71,7 +71,7 @@ int main() {
 	::copy(begin(some_ints), end(some_ints), i);
 	CHECK(ss.str() == "0 7 1 6 2 5 3 4 ");
 	CHECK_EQUAL(
-		subrange(istream_iterator<int>{ss}, default_sentinel{}),
+		subrange(istream_iterator<int>{ss}, default_sentinel),
 			some_ints);
 
 	static_assert(same_as<

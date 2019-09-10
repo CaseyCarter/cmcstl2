@@ -16,8 +16,8 @@
 namespace ranges = __stl2;
 
 int strlen_test(const char* p) noexcept {
-	using C = ranges::common_iterator<const char*, ranges::unreachable>;
-	return ranges::distance(C{p}, std::find(C{p}, C{ranges::unreachable{}}, '\0'));
+	using C = ranges::common_iterator<const char*, ranges::unreachable_sentinel_t>;
+	return ranges::distance(C{p}, std::find(C{p}, C{ranges::unreachable_sentinel}, '\0'));
 }
 
 int main() {

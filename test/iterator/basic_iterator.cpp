@@ -42,7 +42,7 @@ class forward_list {
 		struct mixin : protected ranges::basic_mixin<cursor> {
 			mixin() = default;
 			using ranges::basic_mixin<cursor>::basic_mixin;
-			constexpr mixin(ranges::default_sentinel) noexcept
+			constexpr mixin(ranges::default_sentinel_t) noexcept
 			: mixin{cursor{}}
 			{}
 		};
@@ -51,7 +51,7 @@ class forward_list {
 			return ptr_->data_;
 		}
 		constexpr void next() noexcept { ptr_ = ptr_->next_.get(); }
-		constexpr bool equal(ranges::default_sentinel) const noexcept { return !ptr_; }
+		constexpr bool equal(ranges::default_sentinel_t) const noexcept { return !ptr_; }
 		constexpr bool equal(const cursor& that) const noexcept { return ptr_ == that.ptr_; }
 
 	private:
@@ -80,7 +80,7 @@ public:
 	constexpr const_iterator begin() const noexcept {
 		return const_iterator{cursor<true>{head_.get()}};
 	}
-	constexpr ranges::default_sentinel end() const noexcept { return {}; }
+	constexpr ranges::default_sentinel_t end() const noexcept { return {}; }
 
 	template<class... Args>
 	requires ranges::constructible_from<T, Args...>
@@ -478,12 +478,12 @@ void test_counted() {
 	CHECK(last.count() == 0);
 	static_assert(ranges::sized_sentinel_for<I, I>);
 	CHECK((last - first) == 4);
-	static_assert(ranges::sized_sentinel_for<ranges::default_sentinel, I>);
-	CHECK((ranges::default_sentinel{} - first) == 4);
+	static_assert(ranges::sized_sentinel_for<ranges::default_sentinel_t, I>);
+	CHECK((ranges::default_sentinel - first) == 4);
 	auto out = ranges::ostream_iterator<>{std::cout, " "};
 	ranges::copy(first, last, out);
 	std::cout << '\n';
-	ranges::copy(first, ranges::default_sentinel{}, out);
+	ranges::copy(first, ranges::default_sentinel, out);
 	std::cout << '\n';
 
 	auto second = first + 1;
