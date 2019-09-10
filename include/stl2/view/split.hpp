@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 			if constexpr (can_bound) {
 				return __outer_iterator<true>{*this, __stl2::end(base_)};
 			} else {
-				return default_sentinel{};
+				return default_sentinel;
 			}
 		}
 	};
@@ -196,13 +196,13 @@ STL2_OPEN_NAMESPACE {
 		requires forward_range<Base>
 		{ return !(x == y); }
 
-		friend constexpr bool operator==(const __outer_iterator& x, default_sentinel)
+		friend constexpr bool operator==(const __outer_iterator& x, default_sentinel_t)
 		{ return x.at_end(); }
-		friend constexpr bool operator==(default_sentinel, const __outer_iterator& y)
+		friend constexpr bool operator==(default_sentinel_t, const __outer_iterator& y)
 		{ return y.at_end(); }
-		friend constexpr bool operator!=(const __outer_iterator& x, default_sentinel)
+		friend constexpr bool operator!=(const __outer_iterator& x, default_sentinel_t)
 		{ return !x.at_end(); }
-		friend constexpr bool operator!=(default_sentinel, const __outer_iterator& y)
+		friend constexpr bool operator!=(default_sentinel_t, const __outer_iterator& y)
 		{ return !y.at_end(); }
 	};
 
@@ -222,8 +222,8 @@ STL2_OPEN_NAMESPACE {
 		constexpr __inner_iterator<Const> begin() const
 		{ return __inner_iterator<Const>{i_}; }
 
-		constexpr default_sentinel end() const
-		{ return default_sentinel{}; }
+		constexpr default_sentinel_t end() const
+		{ return default_sentinel; }
 	};
 
 	template<input_range Rng, forward_range Pattern>
@@ -292,13 +292,13 @@ STL2_OPEN_NAMESPACE {
 		requires forward_range<Base>
 		{ return !(x == y); }
 
-		friend constexpr bool operator==(const __inner_iterator& x, default_sentinel)
+		friend constexpr bool operator==(const __inner_iterator& x, default_sentinel_t)
 		{ return x.at_end(); }
-		friend constexpr bool operator==(default_sentinel, const __inner_iterator& y)
+		friend constexpr bool operator==(default_sentinel_t, const __inner_iterator& y)
 		{ return y.at_end(); }
-		friend constexpr bool operator!=(const __inner_iterator& x, default_sentinel)
+		friend constexpr bool operator!=(const __inner_iterator& x, default_sentinel_t)
 		{ return !x.at_end(); }
-		friend constexpr bool operator!=(default_sentinel, const __inner_iterator& y)
+		friend constexpr bool operator!=(default_sentinel_t, const __inner_iterator& y)
 		{ return !y.at_end(); }
 
 		friend constexpr decltype(auto) iter_move(const __inner_iterator& i)

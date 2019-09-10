@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 				auto counted = counted_iterator{ext::uncounted(next), n - 1};
 				auto pp = partition_copy(
 						__stl2::make_move_iterator(std::move(counted)),
-						move_sentinel<default_sentinel>{},
+						move_sentinel<default_sentinel_t>{},
 						std::move(first), __stl2::back_inserter(vec),
 						__stl2::ref(pred), __stl2::ref(proj)).out1;
 				auto last = move(vec, pp).out;

@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 				return next(std::move(first), n);
 			} else {
 				return destroy(counted_iterator{std::move(first), n},
-					default_sentinel{}).base();
+					default_sentinel).base();
 			}
 		}
 	};

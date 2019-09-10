@@ -54,7 +54,7 @@ constexpr bool test_constexpr() {
 		if (tmp - last != -n) return false;
 	}
 
-	auto end = ranges::default_sentinel{};
+	auto end = ranges::default_sentinel;
 
 	if (first == end) return false;
 	if (end == first) return false;
@@ -86,7 +86,7 @@ static_assert(test_constexpr());
 int main()
 {
 	using ranges::counted_iterator, ranges::common_iterator;
-	using ranges::default_sentinel, ranges::sized_sentinel_for;
+	using ranges::default_sentinel_t, ranges::default_sentinel, ranges::sized_sentinel_for;
 	using ranges::distance;
 	using ranges::begin, ranges::size;
 
@@ -94,15 +94,15 @@ int main()
 		int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 		auto i = counted_iterator{forward_iterator<int*>{rgi}, size(rgi)};
 		static_assert(std::is_same<decltype(i),counted_iterator<forward_iterator<int*>>>());
-		static_assert(sized_sentinel_for<default_sentinel, decltype(i)>);
-		CHECK(static_cast<std::size_t>(default_sentinel{} - i) == size(rgi));
+		static_assert(sized_sentinel_for<default_sentinel_t, decltype(i)>);
+		CHECK(static_cast<std::size_t>(default_sentinel - i) == size(rgi));
 		CHECK(&*i.base() == begin(rgi));
 		CHECK(std::size_t(i.count()) == size(rgi));
-		CHECK(std::size_t(distance(i, default_sentinel{})) == size(rgi));
+		CHECK(std::size_t(distance(i, default_sentinel)) == size(rgi));
 
 		counted_iterator<forward_iterator<const int*>> j{i};
-		using C = common_iterator<decltype(i), default_sentinel>;
-		CHECK(std::equal(C{i}, C{default_sentinel{}}, rgi));
+		using C = common_iterator<decltype(i), default_sentinel_t>;
+		CHECK(std::equal(C{i}, C{default_sentinel}, rgi));
 	}
 
 	{
@@ -129,7 +129,7 @@ int main()
 	{
 		int rgi[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 		counted_iterator<output_iterator<int*>> e{output_iterator<int*>{rgi}, 10};
-		ranges::fill(e, default_sentinel{}, 0);
+		ranges::fill(e, default_sentinel, 0);
 		int expected[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 		CHECK(std::equal(rgi, rgi + size(rgi), expected));
 		// Make sure advance compiles

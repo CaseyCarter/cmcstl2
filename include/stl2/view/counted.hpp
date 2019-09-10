@@ -25,7 +25,7 @@ STL2_OPEN_NAMESPACE {
 				if constexpr (random_access_iterator<I>) {
 					return subrange{i, i + d};
 				} else {
-					return subrange{counted_iterator{i, d}, default_sentinel{}};
+					return subrange{counted_iterator{i, d}, default_sentinel};
 				}
 			}
 		};

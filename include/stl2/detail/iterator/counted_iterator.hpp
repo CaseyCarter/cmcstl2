@@ -168,12 +168,12 @@ STL2_OPEN_NAMESPACE {
 			return y.count() - x.length_;
 		}
 		friend constexpr iter_difference_t<I>
-		operator-(const counted_iterator& x, default_sentinel)
+		operator-(const counted_iterator& x, default_sentinel_t)
 		noexcept { // strengthened
 			return -x.length_;
 		}
 		friend constexpr iter_difference_t<I>
-		operator-(default_sentinel, const counted_iterator& y)
+		operator-(default_sentinel_t, const counted_iterator& y)
 		noexcept { // strengthened
 			return y.length_;
 		}
@@ -198,12 +198,12 @@ STL2_OPEN_NAMESPACE {
 			return x.length_ == y.count();
 		}
 		friend constexpr bool
-		operator==(const counted_iterator& x, default_sentinel)
+		operator==(const counted_iterator& x, default_sentinel_t)
 		noexcept { // strengthened
 			return x.length_ == 0;
 		}
 		friend constexpr bool
-		operator==(default_sentinel, const counted_iterator& y)
+		operator==(default_sentinel_t, const counted_iterator& y)
 		noexcept { // strengthened
 			return y.length_ == 0;
 		}
@@ -214,12 +214,12 @@ STL2_OPEN_NAMESPACE {
 			return !(x == y);
 		}
 		friend constexpr bool
-		operator!=(const counted_iterator& x, default_sentinel y)
+		operator!=(const counted_iterator& x, default_sentinel_t y)
 		 noexcept { // strengthened
 			return !(x == y);
 		}
 		friend constexpr bool
-		operator!=(default_sentinel x, const counted_iterator& y)
+		operator!=(default_sentinel_t x, const counted_iterator& y)
 		 noexcept { // strengthened
 			return !(x == y);
 		}

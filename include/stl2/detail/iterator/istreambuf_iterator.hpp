@@ -110,7 +110,7 @@ STL2_OPEN_NAMESPACE {
 				using istream_type = cursor::istream_type;
 
 				mixin() = default;
-				constexpr mixin(default_sentinel) noexcept
+				constexpr mixin(default_sentinel_t) noexcept
 				: base_t{}
 				{}
 				mixin(streambuf_type* s) noexcept
@@ -134,7 +134,7 @@ STL2_OPEN_NAMESPACE {
 			};
 
 			constexpr cursor() noexcept = default;
-			constexpr cursor(default_sentinel) noexcept
+			constexpr cursor(default_sentinel_t) noexcept
 			: cursor{}
 			{}
 			cursor(streambuf_type* s) noexcept
@@ -164,7 +164,7 @@ STL2_OPEN_NAMESPACE {
 			bool equal(const cursor& that) const noexcept {
 				return at_end() == that.at_end();
 			}
-			bool equal(default_sentinel) const noexcept {
+			bool equal(default_sentinel_t) const noexcept {
 				return at_end();
 			}
 

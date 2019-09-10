@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 				mixin(istream_type& s)
 				: base_t{istream_cursor{s}}
 				{}
-				constexpr mixin(default_sentinel)
+				constexpr mixin(default_sentinel_t)
 				: base_t{}
 				{}
 				using base_t::base_t;
@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 			: stream_{std::addressof(s)}
 			{ next(); }
 
-			constexpr istream_cursor(default_sentinel)
+			constexpr istream_cursor(default_sentinel_t)
 			noexcept(std::is_nothrow_default_constructible<T>::value)
 			: istream_cursor{}
 			{}
@@ -97,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 				return stream_ == that.stream_;
 			}
 
-			bool equal(default_sentinel) const noexcept {
+			bool equal(default_sentinel_t) const noexcept {
 				return stream_ == nullptr;
 			}
 

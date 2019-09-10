@@ -70,7 +70,7 @@ void test2() {
 	std::vector<int> v;
 	auto rng = ranges::subrange(
 		ranges::counted_iterator{ranges::back_inserter(v), 5},
-		ranges::default_sentinel{});
+		ranges::default_sentinel);
 	ranges::generate(rng, gen_test(1));
 	CHECK(v.size() == 5u);
 	CHECK(v[0] == 1);

@@ -39,9 +39,9 @@ int main() {
 		static_assert(!forward_iterator<I>);
 
 		static_assert(sentinel_for<I, I>);
-		static_assert(sentinel_for<default_sentinel, I>);
-		static_assert(common_with<default_sentinel, I>);
-		static_assert(same_as<I, common_type_t<I, default_sentinel>>);
+		static_assert(sentinel_for<default_sentinel_t, I>);
+		static_assert(common_with<default_sentinel_t, I>);
+		static_assert(same_as<I, common_type_t<I, default_sentinel_t>>);
 
 		static_assert(same_as<I::difference_type, std::ptrdiff_t>);
 		static_assert(same_as<I::iterator_category, input_iterator_tag>);
@@ -53,7 +53,7 @@ int main() {
 		static_assert(same_as<I::istream_type, std::istream>);
 
 		I{};
-		I{default_sentinel{}};
+		I{default_sentinel};
 		std::istringstream is("42 13");
 		I i{is};
 		I{i};
@@ -71,34 +71,34 @@ int main() {
 
 		static_assert(same_as<bool, decltype(i == i)>);
 		CHECK(i == i);
-		static_assert(same_as<bool, decltype(default_sentinel{} == i)>);
-		CHECK(default_sentinel{} == i);
-		static_assert(same_as<bool, decltype(i == default_sentinel{})>);
-		CHECK(i == default_sentinel{});
+		static_assert(same_as<bool, decltype(default_sentinel == i)>);
+		CHECK(default_sentinel == i);
+		static_assert(same_as<bool, decltype(i == default_sentinel)>);
+		CHECK(i == default_sentinel);
 		static_assert(same_as<bool, decltype(i != i)>);
 		CHECK(!(i != i));
-		static_assert(same_as<bool, decltype(default_sentinel{} != i)>);
-		CHECK(!(default_sentinel{} != i));
-		static_assert(same_as<bool, decltype(i != default_sentinel{})>);
-		CHECK(!(i != default_sentinel{}));
+		static_assert(same_as<bool, decltype(default_sentinel != i)>);
+		CHECK(!(default_sentinel != i));
+		static_assert(same_as<bool, decltype(i != default_sentinel)>);
+		CHECK(!(i != default_sentinel));
 	}
 	{
 		std::istringstream is("5 4 3 2 1 0");
 		CHECK_EQUAL(
-			subrange(istream_iterator<int>{is}, default_sentinel{}),
+			subrange(istream_iterator<int>{is}, default_sentinel),
 				{5, 4, 3, 2, 1, 0});
 	}
 	{
 		std::istringstream is("0.9 1.8 2.4 3.3");
 		CHECK_EQUAL(
-			subrange(istream_iterator<double>{is}, default_sentinel{}),
+			subrange(istream_iterator<double>{is}, default_sentinel),
 				{0.9, 1.8, 2.4, 3.3});
 	}
 
 	{
 		std::istringstream is("5 4 3 2 1 0");
 		auto i = istream_iterator<Int>{is};
-		for (auto n = 5; i != default_sentinel{} && n >= 0; --n, ++i) {
+		for (auto n = 5; i != default_sentinel && n >= 0; --n, ++i) {
 			CHECK(i->value_ == n);
 		}
 	}

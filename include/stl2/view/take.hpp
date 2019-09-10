@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 			if constexpr (random_access_range<RR> && sized_range<RR>) {
 				return __stl2::begin(self.base_) + self.size();
 			} else if constexpr (sized_range<RR>) {
-				return default_sentinel{};
+				return default_sentinel;
 			} else {
 				return __sentinel<is_const>{__stl2::end(self.base_)};
 			}

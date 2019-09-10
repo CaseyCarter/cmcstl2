@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 		I operator()(I first, iter_difference_t<I> n) const {
 			return uninitialized_value_construct(
 				counted_iterator{first, n},
-				default_sentinel{}).base();
+				default_sentinel).base();
 		}
 	};
 
