@@ -17,7 +17,7 @@
 #include <stl2/detail/iterator/increment.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// unreachable_sentinel_t [unreachable_sentinel_t.sentinel]
+// unreachable_sentinel_t [unreachable.sentinel]
 //
 STL2_OPEN_NAMESPACE {
 	struct unreachable_sentinel_t {

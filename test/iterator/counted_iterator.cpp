@@ -86,7 +86,7 @@ static_assert(test_constexpr());
 int main()
 {
 	using ranges::counted_iterator, ranges::common_iterator;
-	using ranges::default_sentinel_t, ranges::default_sentinel, ranges::sized_sentinel_for;
+	using ranges::default_sentinel, ranges::default_sentinel_t, ranges::sized_sentinel_for;
 	using ranges::distance;
 	using ranges::begin, ranges::size;
 
