@@ -58,17 +58,17 @@ int main() {
 	static_assert(!constructible_from<subrange<const Base*, const Base*>, Derived*, Derived*>);
 	static_assert(!constructible_from<subrange<Base*, Base*>, subrange<Derived*, Derived*>>);
 
-	static_assert(constructible_from<subrange<Base*, unreachable>, Base*, unreachable>);
-	static_assert(!constructible_from<subrange<Base*, unreachable>, Derived*, unreachable>);
-	static_assert(constructible_from<subrange<const Base*, unreachable>, Base*, unreachable>);
-	static_assert(!constructible_from<subrange<const Base*, unreachable>, Derived*, unreachable>);
-	static_assert(!constructible_from<subrange<Base*, unreachable>, subrange<Derived*, unreachable>>);
+	static_assert(constructible_from<subrange<Base*, unreachable_sentinel_t>, Base*, unreachable_sentinel_t>);
+	static_assert(!constructible_from<subrange<Base*, unreachable_sentinel_t>, Derived*, unreachable_sentinel_t>);
+	static_assert(constructible_from<subrange<const Base*, unreachable_sentinel_t>, Base*, unreachable_sentinel_t>);
+	static_assert(!constructible_from<subrange<const Base*, unreachable_sentinel_t>, Derived*, unreachable_sentinel_t>);
+	static_assert(!constructible_from<subrange<Base*, unreachable_sentinel_t>, subrange<Derived*, unreachable_sentinel_t>>);
 
-	static_assert(constructible_from<subrange<Base*, unreachable, subrange_kind::sized>, Base*, unreachable, std::ptrdiff_t>);
-	static_assert(!constructible_from<subrange<Base*, unreachable, subrange_kind::sized>, Derived*, unreachable, std::ptrdiff_t>);
-	static_assert(constructible_from<subrange<const Base*, unreachable, subrange_kind::sized>, Base*, unreachable, std::ptrdiff_t>);
-	static_assert(!constructible_from<subrange<const Base*, unreachable, subrange_kind::sized>, Derived*, unreachable, std::ptrdiff_t>);
-	static_assert(!constructible_from<subrange<Base*, unreachable, subrange_kind::sized>, subrange<Derived*, unreachable>, std::ptrdiff_t>);
+	static_assert(constructible_from<subrange<Base*, unreachable_sentinel_t, subrange_kind::sized>, Base*, unreachable_sentinel_t, std::ptrdiff_t>);
+	static_assert(!constructible_from<subrange<Base*, unreachable_sentinel_t, subrange_kind::sized>, Derived*, unreachable_sentinel_t, std::ptrdiff_t>);
+	static_assert(constructible_from<subrange<const Base*, unreachable_sentinel_t, subrange_kind::sized>, Base*, unreachable_sentinel_t, std::ptrdiff_t>);
+	static_assert(!constructible_from<subrange<const Base*, unreachable_sentinel_t, subrange_kind::sized>, Derived*, unreachable_sentinel_t, std::ptrdiff_t>);
+	static_assert(!constructible_from<subrange<Base*, unreachable_sentinel_t, subrange_kind::sized>, subrange<Derived*, unreachable_sentinel_t>, std::ptrdiff_t>);
 
 	static_assert(convertible_to<subrange<Base*, Base*>, std::pair<const Base*, const Base*>>);
 	static_assert(!convertible_to<subrange<Derived*, Derived*>, std::pair<Base*, Base*>>);
@@ -99,16 +99,16 @@ int main() {
 	CHECK(p0.first == vi.begin()+1);
 	CHECK(p0.second == vi.end());
 
-	subrange<std::vector<int>::iterator, unreachable> r1 { r0.begin(), {} };
+	subrange<std::vector<int>::iterator, unreachable_sentinel_t> r1 { r0.begin(), {} };
 	static_assert(std::tuple_size<decltype(r1)>::value == 2);
 	static_assert(same_as<std::vector<int>::iterator,
 		std::tuple_element<0, decltype(r1)>::type>);
-	static_assert(same_as<unreachable,
+	static_assert(same_as<unreachable_sentinel_t,
 		std::tuple_element<1, decltype(r1)>::type>);
 	static_assert(view<decltype(r1)>);
 	static_assert(!sized_range<decltype(r1)>);
 	CHECK(r1.begin() == vi.begin()+1);
-	r1.end() = unreachable{};
+	r1.end() = unreachable_sentinel;
 
 	r0 = r0.next();
 	++r0.begin();
@@ -120,7 +120,7 @@ int main() {
 	CHECK(r0.front() == 3);
 	CHECK(r0.back() == 3);
 
-	std::pair<std::vector<int>::iterator, unreachable> p1 = r1;
+	std::pair<std::vector<int>::iterator, unreachable_sentinel_t> p1 = r1;
 	CHECK(p1.first == vi.begin()+1);
 
 	std::list<int> li{1,2,3,4};

@@ -32,7 +32,7 @@ void test_iter_3() {
 	int i[3] = {1, 2, 3};
 	int j[3] = {4, 5, 6};
 	ranges::swap_ranges_result<Iter1, Iter2> r =
-		ranges::swap_ranges(Iter1(i), Iter1(i+3), Iter2(j), ranges::unreachable{});
+		ranges::swap_ranges(Iter1(i), Iter1(i+3), Iter2(j), ranges::unreachable_sentinel);
 	CHECK(base(r.in1) == i+3);
 	CHECK(base(r.in2) == j+3);
 	CHECK(i[0] == 4);
@@ -43,7 +43,7 @@ void test_iter_3() {
 	CHECK(j[2] == 3);
 
 	using Sent1 = typename sentinel_type<Iter1>::type;
-	r = ranges::swap_ranges(Iter1(j), Sent1(j+3), Iter2(i), ranges::unreachable{});
+	r = ranges::swap_ranges(Iter1(j), Sent1(j+3), Iter2(i), ranges::unreachable_sentinel);
 	CHECK(base(r.in1) == j+3);
 	CHECK(base(r.in2) == i+3);
 	CHECK(i[0] == 1);
@@ -139,7 +139,7 @@ void test_move_only() {
 	for (int k = 0; k < 3; ++k)
 		j[k].reset(new int(k+4));
 	ranges::swap_ranges_result<Iter1, Iter2> r =
-		ranges::swap_ranges(Iter1(i), Iter1(i+3), Iter2(j), ranges::unreachable{});
+		ranges::swap_ranges(Iter1(i), Iter1(i+3), Iter2(j), ranges::unreachable_sentinel);
 	CHECK(base(r.in1) == i+3);
 	CHECK(base(r.in2) == j+3);
 	CHECK(*i[0] == 4);

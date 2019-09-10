@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 			constexpr __iterator begin()
 			{ return __iterator{*this}; }
 
-			constexpr unreachable end() const noexcept
+			constexpr unreachable_sentinel_t end() const noexcept
 			{ return {}; }
 		};
 

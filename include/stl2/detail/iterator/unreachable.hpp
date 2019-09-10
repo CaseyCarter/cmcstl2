@@ -17,28 +17,30 @@
 #include <stl2/detail/iterator/increment.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-// unreachable [unreachable.sentinel]
+// unreachable_sentinel_t [unreachable_sentinel_t.sentinel]
 //
 STL2_OPEN_NAMESPACE {
-	struct unreachable {
+	struct unreachable_sentinel_t {
 		template<weakly_incrementable WI>
-		friend constexpr bool operator==(unreachable, const WI&) noexcept {
+		friend constexpr bool operator==(unreachable_sentinel_t, const WI&) noexcept {
 			return false;
 		}
 		template<weakly_incrementable WI>
-		friend constexpr bool operator==(const WI&, unreachable) noexcept {
+		friend constexpr bool operator==(const WI&, unreachable_sentinel_t) noexcept {
 			return false;
 		}
 
 		template<weakly_incrementable WI>
-		friend constexpr bool operator!=(unreachable, const WI&) noexcept {
+		friend constexpr bool operator!=(unreachable_sentinel_t, const WI&) noexcept {
 			return true;
 		}
 		template<weakly_incrementable WI>
-		friend constexpr bool operator!=(const WI&, unreachable) noexcept {
+		friend constexpr bool operator!=(const WI&, unreachable_sentinel_t) noexcept {
 			return true;
 		}
 	};
+
+	inline constexpr unreachable_sentinel_t unreachable_sentinel {};
 } STL2_CLOSE_NAMESPACE
 
 #endif

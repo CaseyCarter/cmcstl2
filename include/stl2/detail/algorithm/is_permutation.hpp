@@ -222,7 +222,7 @@ STL2_OPEN_NAMESPACE {
 			// trim equal prefixes
 			auto [counted, mid2] = mismatch(
 				counted_iterator{std::move(first1), n}, default_sentinel{},
-				std::move(first2), unreachable{},
+				std::move(first2), unreachable_sentinel,
 				__stl2::ref(pred), __stl2::ref(proj1), __stl2::ref(proj2));
 
 			// TODO: trim equal suffixes from bidirectional sequences?
