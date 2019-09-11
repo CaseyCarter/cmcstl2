@@ -39,9 +39,15 @@ STL2_OPEN_NAMESPACE {
 	namespace detail {
 		template<class T>
 		META_CONCEPT has_class_or_enum_type =
+#if defined(__clang__) || defined(__GNUC__) || defined(_MSC_VER)
+			__is_class(__uncvref<T>) ||
+			__is_enum(__uncvref<T>) ||
+			__is_union(__uncvref<T>);
+#else // ^^^ Use intrinsics / use type traits vvv
 			std::is_class_v<__uncvref<T>> ||
 			std::is_enum_v<__uncvref<T>> ||
 			std::is_union_v<__uncvref<T>>;
+#endif // intrinsics vs. traits
 	}
 
 	///////////////////////////////////////////////////////////////////////////
