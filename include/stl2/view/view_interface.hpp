@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 			ContainerConvertibleGCCBugs<C, R>;
 
 		template<range R>
-		constexpr bool is_in_range(R& r, iter_difference_t<iterator_t<R>> n) noexcept {
+		constexpr bool is_in_range(R&, iter_difference_t<iterator_t<R>> n) noexcept {
 			return 0 <= n;
 		}
 
