@@ -66,7 +66,7 @@ STL2_OPEN_NAMESPACE {
 		// https://github.com/ericniebler/stl2/issues/139)
 		template<class T> void swap(T&, T&) = delete;
 
-#ifdef STL2_WORKAROUND_MSVC_895622
+#if STL2_WORKAROUND_MSVC_895622
 		void swap();
 #endif // STL2_WORKAROUND_MSVC_895622
 
