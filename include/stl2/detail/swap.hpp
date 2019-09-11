@@ -66,6 +66,10 @@ STL2_OPEN_NAMESPACE {
 		// https://github.com/ericniebler/stl2/issues/139)
 		template<class T> void swap(T&, T&) = delete;
 
+#if STL2_WORKAROUND_MSVC_895622
+		void swap();
+#endif // STL2_WORKAROUND_MSVC_895622
+
 		template<class T, class U>
 		META_CONCEPT has_customization =
 			(detail::has_class_or_enum_type<T> ||

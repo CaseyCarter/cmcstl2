@@ -148,6 +148,14 @@
  #endif
 #endif
 
+#ifndef STL2_WORKAROUND_MSVC_895622 // "Error when phase 1 name binding finds only deleted function"
+ #if defined(_MSC_VER) && !defined(__clang__)
+  #define STL2_WORKAROUND_MSVC_895622 1
+ #else
+  #define STL2_WORKAROUND_MSVC_895622 0
+ #endif
+#endif
+
 #ifndef STL2_WORKAROUND_MSVC_FUNCTION_CONVERSIONS // MSVC allows pointers-to-function to implicitly convert to void*
  #if defined(_MSC_VER) && !defined(__clang__)
   #define STL2_WORKAROUND_MSVC_FUNCTION_CONVERSIONS 1
