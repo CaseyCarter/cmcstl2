@@ -36,6 +36,14 @@ STL2_OPEN_NAMESPACE {
 		return tmp;
 	}
 
+	namespace detail {
+		template<class T>
+		META_CONCEPT has_class_or_enum_type =
+			std::is_class_v<__uncvref<T>> ||
+			std::is_enum_v<__uncvref<T>> ||
+			std::is_union_v<__uncvref<T>>;
+	}
+
 	///////////////////////////////////////////////////////////////////////////
 	// swap [utility.swap]
 	//
@@ -51,14 +59,13 @@ STL2_OPEN_NAMESPACE {
 		// finding std::swap. (See the detailed discussion at
 		// https://github.com/ericniebler/stl2/issues/139)
 		template<class T> void swap(T&, T&) = delete;
-		template<class T, std::size_t N> void swap(T(&)[N], T(&)[N]) = delete;
 
 		template<class T, class U>
 		META_CONCEPT has_customization =
-			(std::is_class_v<__uncvref<T>> || std::is_class_v<__uncvref<U>>
-			 || std::is_enum_v<__uncvref<T>> || std::is_enum_v<__uncvref<U>>) &&
+			(detail::has_class_or_enum_type<T> ||
+			 detail::has_class_or_enum_type<U>) &&
 			requires(T&& t, U&& u) {
-				(void)swap(static_cast<T&&>(t), static_cast<U&&>(u));
+				swap(static_cast<T&&>(t), static_cast<U&&>(u));
 			};
 
 		template<class F, class T, class U>

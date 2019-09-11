@@ -141,6 +141,29 @@ namespace example {
 	}
 }
 
+namespace union_customizable {
+	union U {
+		int i = 42;
+		double d;
+		U() = default;
+		U(U&&) = delete;
+	};
+
+	int count = 0;
+
+	void swap(U&, U&) {
+		++count;
+	}
+
+	void test() {
+		static_assert(swappable<U>);
+		U u0, u1;
+		CHECK(count == 0);
+		ranges::swap(u0, u1);
+		CHECK(count == 1);
+	}
+} // namespace union_customizable
+
 int main() {
 	{
 		int a[2][2] = {{0, 1}, {2, 3}};
@@ -162,6 +185,7 @@ int main() {
 	}
 
 	example::test();
+	union_customizable::test();
 
 	return ::test_result();
 }
