@@ -212,7 +212,7 @@ STL2_OPEN_NAMESPACE {
 			Cursor<C> &&
 			semiregular<S> &&
 			requires(const C& c, const S& s) {
-				{ c.equal(s) } -> bool;
+				{ c.equal(s) } -> same_as<bool>;
 			};
 		template<class S, class C>
 		META_CONCEPT sized_sentinel_for =

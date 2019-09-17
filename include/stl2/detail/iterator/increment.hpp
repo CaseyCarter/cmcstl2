@@ -140,7 +140,7 @@ STL2_OPEN_NAMESPACE {
 				n + ci; requires same_as<decltype((n + ci)), I>;
 				ci - n; requires same_as<decltype((ci - n)), I>;
 #endif // META_HAS_P1084
-				{ ci - ci } -> iter_difference_t<I>;
+				{ ci - ci } -> convertible_to<iter_difference_t<I>>;
 			};
 			// FIXME: Axioms
 	}
