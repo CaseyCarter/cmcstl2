@@ -115,7 +115,7 @@ STL2_OPEN_NAMESPACE {
 		template<class T, class C>
 		META_CONCEPT InsertableInto =
 			requires(T&& t, C& c, iterator_t<C> i) {
-				{  c.insert(i, (T&&)t) } -> iterator_t<C>;
+				{  c.insert(i, (T&&)t) } -> same_as<iterator_t<C>>;
 			};
 	}
 

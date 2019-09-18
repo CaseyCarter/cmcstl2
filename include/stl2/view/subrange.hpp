@@ -37,8 +37,8 @@ STL2_OPEN_NAMESPACE {
 
 		template<class T>
 		META_CONCEPT PairLikeGCCBugs = requires(T t) {
-			{ std::get<0>(t) } -> const std::tuple_element_t<0, T>&;
-			{ std::get<1>(t) } -> const std::tuple_element_t<1, T>&;
+			{ std::get<0>(t) } -> convertible_to<const std::tuple_element_t<0, T>&>;
+			{ std::get<1>(t) } -> convertible_to<const std::tuple_element_t<1, T>&>;
 		};
 
 		template<class T>
