@@ -176,7 +176,7 @@ STL2_OPEN_NAMESPACE {
 			public:
 				mixin() = default;
 				template<class I>
-				requires !derived_from<I, mixin> && input_iterator<I>
+				requires (!derived_from<I, mixin>) && input_iterator<I>
 				explicit mixin(I i)
 				: base_t(cursor{std::move(i)})
 				{}
@@ -196,7 +196,7 @@ STL2_OPEN_NAMESPACE {
 				move_from(that);
 			}
 			template<class I>
-			requires !derived_from<I, cursor> && input_iterator<I>
+			requires (!derived_from<I, cursor>) && input_iterator<I>
 			cursor(I i) {
 				if constexpr (is_small<I>) {
 					::new (static_cast<void *>(&data_.tiny)) I(std::move(i));
