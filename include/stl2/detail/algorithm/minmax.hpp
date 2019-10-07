@@ -82,7 +82,7 @@ STL2_OPEN_NAMESPACE {
 				auto tmp1 = V{*first};
 				if (++first == last) {
 					if (pred(tmp1, result.min)) result.min = std::move(tmp1);
-					else if (!pred(tmp1, result.max)) result.max = std::move(tmp1);
+					else if (!bool(pred(tmp1, result.max))) result.max = std::move(tmp1);
 					return result;
 				}
 
@@ -91,14 +91,14 @@ STL2_OPEN_NAMESPACE {
 					if (pred(tmp2, result.min)) {
 						result.min = static_cast<decltype(tmp2)>(tmp2);
 					}
-					if (!pred(tmp1, result.max)) {
+					if (!bool(pred(tmp1, result.max))) {
 						result.max = std::move(tmp1);
 					}
 				} else {
 					if (pred(tmp1, result.min)) {
 						result.min = std::move(tmp1);
 					}
-					if (!pred(tmp2, result.max)) {
+					if (!bool(pred(tmp2, result.max))) {
 						result.max = static_cast<decltype(tmp2)>(tmp2);
 					}
 				}

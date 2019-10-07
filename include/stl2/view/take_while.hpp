@@ -88,7 +88,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr sentinel_t<Base> base() const { return end_; }
 
 		friend constexpr bool operator==(const __sentinel& x, const iterator_t<Base> y)
-		{ return x.end_ == y || !(*x.pred_)(*y); }
+		{ return bool(x.end_ == y) || !bool((*x.pred_)(*y)); }
 		friend constexpr bool operator==(const iterator_t<Base>& x, const __sentinel& y) { return y == x; }
 		friend constexpr bool operator!=(const __sentinel& x, const iterator_t<Base>& y) { return !(x == y); }
 		friend constexpr bool operator!=(const iterator_t<Base>& x, const __sentinel& y) { return !(y == x); }

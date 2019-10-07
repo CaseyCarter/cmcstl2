@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 			requires indirectly_copyable<I1, I2>
 			constexpr copy_result<I1, I2>
 			operator()(I1 first, S1 last, I2 rfirst, S2 rlast) const {
-				for (; first != last && rfirst != rlast; (void) ++first, (void)++rfirst) {
+				for (; bool(first != last) && bool(rfirst != rlast); (void) ++first, (void)++rfirst) {
 					*rfirst = *first;
 				}
 				return {std::move(first), std::move(rfirst)};

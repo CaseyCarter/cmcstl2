@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 			auto result = lower_bound(std::move(first), last, value,
 				__stl2::ref(comp), __stl2::ref(proj));
 			return bool(result != last) &&
-				!__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
+				!bool(__stl2::invoke(comp, value, __stl2::invoke(proj, *result)));
 		}
 
 		template<forward_range R, class T, class Proj = identity,

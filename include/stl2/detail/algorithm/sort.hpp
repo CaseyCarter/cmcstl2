@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 				while (__stl2::invoke(comp, pivot, __stl2::invoke(proj, *--last))) {
 					; // do nothing
 				}
-				if (!(first < last)) {
+				if (!bool(first < last)) {
 					return first;
 				}
 				iter_swap(first, last);

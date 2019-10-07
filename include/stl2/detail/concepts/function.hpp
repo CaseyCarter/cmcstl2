@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 	//
 	template<class F, class... Args>
 	META_CONCEPT predicate =
-		regular_invocable<F, Args...> && boolean<invoke_result_t<F, Args...>>;
+		regular_invocable<F, Args...> && convertible_to<invoke_result_t<F, Args...>, bool>;
 
 	///////////////////////////////////////////////////////////////////////////
 	// relation [concepts.lib.callables.relation]

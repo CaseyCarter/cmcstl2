@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 				const T& value, Comp comp = {}, Proj proj = {}) const
 			{
 				auto pred = [&](auto&& i) {
-					return !__stl2::invoke(comp, value, i);
+					return !bool(__stl2::invoke(comp, value, i));
 				};
 				return ext::partition_point_n(std::forward<I>(first_), n,
 					std::move(pred), __stl2::ref(proj));
@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 					__stl2::ref(comp), __stl2::ref(proj));
 			} else {
 				auto pred = [&](auto&& i) {
-					return !__stl2::invoke(comp, value, i);
+					return !bool(__stl2::invoke(comp, value, i));
 				};
 				return partition_point(std::move(first), std::move(last),
 					std::move(pred), __stl2::ref(proj));

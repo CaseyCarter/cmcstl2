@@ -27,7 +27,7 @@ STL2_OPEN_NAMESPACE {
 			indirect_unary_predicate<projected<I, Proj>> Pred>
 		constexpr bool operator()(I first, S last, Pred pred, Proj proj = {}) const {
 			for (; first != last; ++first) {
-				if (!__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
+				if (!bool(__stl2::invoke(pred, __stl2::invoke(proj, *first)))) {
 					return false;
 				}
 			}

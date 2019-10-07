@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 				// j points beyond range to be tested, *lm1 is known to be <= *m
 				// The search going up is known to be guarded but the search coming down isn't.
 				// Prime the downward search with a guard.
-				if (!pred(*i, *m)) {  // if *first == *m
+				if (!bool(pred(*i, *m))) {  // if *first == *m
 					// *first == *m, *first doesn't go in first part
 					// manually guard downward moving j against i
 					bool restart = false;
@@ -97,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 							// Parition instead into [first, i) == *first and *first < [i, end)
 							++i;  // first + 1
 							j = end;
-							if (!pred(*first, *--j)) {  // we need a guard if *first == *(end-1)
+							if (!bool(pred(*first, *--j))) {  // we need a guard if *first == *(end-1)
 								while (true) {
 									if (i == j) {
 										return end_orig;  // [first, end) all equivalent elements
@@ -115,7 +115,7 @@ STL2_OPEN_NAMESPACE {
 							if (i == j) return end_orig;
 
 							while (true) {
-								while (!pred(*first, *i)) { ++i; }
+								while (!bool(pred(*first, *i))) { ++i; }
 								while (pred(*first, *--j)) {}
 								if (i >= j) break;
 								iter_swap(i, j);
@@ -151,7 +151,7 @@ STL2_OPEN_NAMESPACE {
 						// m still guards upward moving i
 						while (pred(*i, *m)) { ++i; }
 						// It is now known that a guard exists for downward moving j
-						while (!pred(*--j, *m)) {}
+						while (!bool(pred(*--j, *m))) {}
 						if (i >= j) break;
 						iter_swap(i, j);
 						++n_swaps;
@@ -162,7 +162,7 @@ STL2_OPEN_NAMESPACE {
 					}
 				}
 				// [first, i) < *m and *m <= [i, end)
-				if (i != m && pred(*m, *i)) {
+				if (bool(i != m) && bool(pred(*m, *i))) {
 					iter_swap(i, m);
 					++n_swaps;
 				}
@@ -233,8 +233,8 @@ STL2_OPEN_NAMESPACE {
 					__stl2::invoke(proj, static_cast<decltype(rhs)>(rhs)));
 			};
 
-			if (!pred(*y, *x)) {      // if x <= y
-				if (!pred(*z, *y)) {  // if y <= z
+			if (!bool(pred(*y, *x))) {      // if x <= y
+				if (!bool(pred(*z, *y))) {  // if y <= z
 					return 0;         // x <= y && y <= z
 				}
 				                      // x <= y && y > z

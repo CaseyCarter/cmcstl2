@@ -19,18 +19,18 @@ namespace ranges = std::experimental::ranges;
 namespace boolean_test {
 // Better have at least these three, since we use them as
 // examples in the TS draft.
-static_assert(ranges::boolean<bool>);
-static_assert(ranges::boolean<std::true_type>);
-static_assert(ranges::boolean<std::bitset<42>::reference>);
+static_assert(ranges::convertible_to<bool, bool>);
+static_assert(ranges::convertible_to<std::true_type, bool>);
+static_assert(ranges::convertible_to<std::bitset<42>::reference, bool>);
 
-static_assert(ranges::boolean<int>);
-static_assert(!ranges::boolean<void*>);
+static_assert(ranges::convertible_to<int, bool>);
+static_assert(ranges::convertible_to<void*, bool>);
 
 struct A {};
 struct B { operator bool() const; };
 
-static_assert(!ranges::boolean<A>);
-static_assert(ranges::boolean<B>);
+static_assert(!ranges::convertible_to<A, bool>);
+static_assert(ranges::convertible_to<B, bool>);
 }
 
 namespace equality_comparable_test {

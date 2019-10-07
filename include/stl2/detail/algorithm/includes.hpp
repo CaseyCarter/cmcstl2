@@ -35,9 +35,9 @@ STL2_OPEN_NAMESPACE {
 						__stl2::invoke(proj1, *first1))) {
 					return false;
 				}
-				if (!__stl2::invoke(comp,
+				if (!bool(__stl2::invoke(comp,
 						__stl2::invoke(proj1, *first1),
-						__stl2::invoke(proj2, *first2))) {
+						__stl2::invoke(proj2, *first2)))) {
 					++first2;
 				}
 				++first1;

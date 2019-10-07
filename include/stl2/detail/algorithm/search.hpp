@@ -115,7 +115,7 @@ STL2_OPEN_NAMESPACE {
 
 			auto d1 = d1_;
 			auto first1 = ext::uncounted(first1_);
-			for(; d1 >= d2; ++first1, --d1) {
+			for(; d1 >= d2; ++first1, (void) --d1) {
 				if (__stl2::invoke(pred, __stl2::invoke(proj1, *first1),
 						__stl2::invoke(proj2, *first2)))
 				{

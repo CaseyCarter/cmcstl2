@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 				I ip1 = i;
 				if (pred(*--i, *ip1)) {
 					I j = end;
-					while (!pred(*i, *--j)) {
+					while (!bool(pred(*i, *--j))) {
 						;
 					}
 					iter_swap(i, j);

@@ -27,9 +27,9 @@ STL2_OPEN_NAMESPACE {
 			if (first != last) {
 				while (true) {
 					auto prev = first;
-					if (++first == last || __stl2::invoke(comp,
+					if (bool(++first == last) || bool(__stl2::invoke(comp,
 							__stl2::invoke(proj, *first),
-							__stl2::invoke(proj, *prev))) {
+							__stl2::invoke(proj, *prev)))) {
 						break;
 					}
 				}

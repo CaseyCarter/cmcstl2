@@ -24,19 +24,6 @@ STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
 	// not_fn from C++17
 	//
-	template<class F, class... Args>
-	META_CONCEPT _NegateInvocable = invocable<F, Args...> &&
-		requires(F&& f, Args&&... args) {
-#ifdef META_HAS_P1084
-			{ !__stl2::invoke(static_cast<F&&>(f), static_cast<Args&&>(args)...) } -> boolean;
-#else
-			!__stl2::invoke(static_cast<F&&>(f),
-				static_cast<Args&&>(args)...);
-			requires boolean<decltype(!__stl2::invoke(static_cast<F&&>(f),
-				static_cast<Args&&>(args)...))>;
-#endif
-		};
-
 	template<ext::move_constructible_object F>
 	struct __not_fn : private detail::ebo_box<F, __not_fn<F>> {
 	private:
@@ -49,32 +36,32 @@ STL2_OPEN_NAMESPACE {
 		: box_t(static_cast<FF&&>(arg))
 		{}
 		template<class... Args>
-		requires _NegateInvocable<F&, Args...>
+		requires predicate<F&, Args...>
 		constexpr bool operator()(Args&&... args) &
-		noexcept(noexcept(!__stl2::invoke(std::declval<F&>(), static_cast<Args&&>(args)...)))
+		noexcept(noexcept(!bool(__stl2::invoke(std::declval<F&>(), static_cast<Args&&>(args)...))))
 		{
-			return !__stl2::invoke(box_t::get(), static_cast<Args&&>(args)...);
+			return !bool(__stl2::invoke(box_t::get(), static_cast<Args&&>(args)...));
 		}
 		template<class... Args>
-		requires _NegateInvocable<const F&, Args...>
+		requires predicate<const F&, Args...>
 		constexpr bool operator()(Args&&... args) const &
-		noexcept(noexcept(!__stl2::invoke(std::declval<const F&>(), static_cast<Args&&>(args)...)))
+		noexcept(noexcept(!bool(__stl2::invoke(std::declval<const F&>(), static_cast<Args&&>(args)...))))
 		{
-			return !__stl2::invoke(box_t::get(), static_cast<Args&&>(args)...);
+			return !bool(__stl2::invoke(box_t::get(), static_cast<Args&&>(args)...));
 		}
 		template<class... Args>
-		requires _NegateInvocable<F, Args...>
+		requires predicate<F, Args...>
 		constexpr bool operator()(Args&&... args) &&
-		noexcept(noexcept(!__stl2::invoke(std::declval<F>(), static_cast<Args&&>(args)...)))
+		noexcept(noexcept(!bool(__stl2::invoke(std::declval<F>(), static_cast<Args&&>(args)...))))
 		{
-			return !__stl2::invoke(std::move(box_t::get()), static_cast<Args&&>(args)...);
+			return !bool(__stl2::invoke(std::move(box_t::get()), static_cast<Args&&>(args)...));
 		}
 		template<class... Args>
-		requires _NegateInvocable<const F, Args...>
+		requires predicate<const F, Args...>
 		constexpr bool operator()(Args&&... args) const &&
-		noexcept(noexcept(!__stl2::invoke(std::declval<const F>(), static_cast<Args&&>(args)...)))
+		noexcept(noexcept(!bool(__stl2::invoke(std::declval<const F>(), static_cast<Args&&>(args)...))))
 		{
-			return !__stl2::invoke(std::move(box_t::get()), static_cast<Args&&>(args)...);
+			return !bool(__stl2::invoke(std::move(box_t::get()), static_cast<Args&&>(args)...));
 		}
 	};
 

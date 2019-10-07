@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 		uninitialized_move_result<I, O>
 		operator()(I ifirst, S1 ilast, O ofirst, S2 olast) const {
 			auto guard = detail::destroy_guard{ofirst};
-			for (; ifirst != ilast && ofirst != olast; (void) ++ifirst, (void) ++ofirst) {
+			for (; bool(ifirst != ilast) && bool(ofirst != olast); ++ifirst, (void) ++ofirst) {
 				__stl2::__construct_at(*ofirst, iter_move(ifirst));
 			}
 			guard.release();

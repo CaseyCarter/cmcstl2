@@ -24,63 +24,6 @@
 //
 STL2_OPEN_NAMESPACE {
 	///////////////////////////////////////////////////////////////////////////
-	// boolean [concepts.lib.compare.boolean]
-	//
-	template<class B>
-	META_CONCEPT boolean =
-		movable<std::decay_t<B>> &&
-		requires(const std::remove_reference_t<B>& b1,
-			     const std::remove_reference_t<B>& b2, const bool a) {
-#ifdef META_HAS_P1084
-			// Requirements common to both boolean and BooleanTestable.
-			{  b1      } -> convertible_to<bool>;
-			{ !b1      } -> convertible_to<bool>;
-			{  b1 && a } -> same_as<bool>;
-			{  b1 || a } -> same_as<bool>;
-
-			// Requirements of boolean that are also be valid for
-			// BooleanTestable, but for which BooleanTestable does not
-			// require validation.
-			{ b1 && b2 } -> same_as<bool>;
-			{  a && b2 } -> same_as<bool>;
-			{ b1 || b2 } -> same_as<bool>;
-			{  a || b2 } -> same_as<bool>;
-
-			// Requirements of boolean that are not required by
-			// BooleanTestable.
-			{ b1 == b2 } -> convertible_to<bool>;
-			{ b1 == a  } -> convertible_to<bool>;
-			{  a == b2 } -> convertible_to<bool>;
-			{ b1 != b2 } -> convertible_to<bool>;
-			{ b1 != a  } -> convertible_to<bool>;
-			{  a != b2 } -> convertible_to<bool>;
-#else
-			// Requirements common to both boolean and BooleanTestable.
-			 b1     ; requires convertible_to<decltype(( b1)), bool>;
-			!b1     ; requires convertible_to<decltype((!b1)), bool>;
-			 b1 && a; requires same_as<decltype((b1 && a)), bool>;
-			 b1 || a; requires same_as<decltype((b1 || a)), bool>;
-
-			// Requirements of boolean that are also be valid for
-			// BooleanTestable, but for which BooleanTestable does not
-			// require validation.
-			b1 && b2; requires same_as<decltype((b1 && b2)), bool>;
-			 a && b2; requires same_as<decltype(( a && b2)), bool>;
-			b1 || b2; requires same_as<decltype((b1 || b2)), bool>;
-			 a || b2; requires same_as<decltype(( a || b2)), bool>;
-
-			// Requirements of boolean that are not required by
-			// BooleanTestable.
-			b1 == b2; requires convertible_to<decltype((b1 == b2)), bool>;
-			b1 == a ; requires convertible_to<decltype((b1 == a )), bool>;
-			 a == b2; requires convertible_to<decltype(( a == b2)), bool>;
-			b1 != b2; requires convertible_to<decltype((b1 != b2)), bool>;
-			b1 != a ; requires convertible_to<decltype((b1 != a )), bool>;
-			 a != b2; requires convertible_to<decltype(( a != b2)), bool>;
-#endif // META_HAS_P1084
-		};
-
-	///////////////////////////////////////////////////////////////////////////
 	// WeaklyEqualityComparable [concepts.lib.compare.equalitycomparable]
 	// Relaxation of equality_comparable<T, U> that doesn't require
 	// equality_comparable<T>, equality_comparable<U>, common_with<T, U>, or
@@ -92,15 +35,15 @@ STL2_OPEN_NAMESPACE {
 		requires(const std::remove_reference_t<T>& t,
 				 const std::remove_reference_t<U>& u) {
 #ifdef META_HAS_P1084
-			{ t == u } -> boolean;
-			{ t != u } -> boolean;
-			{ u == t } -> boolean;
-			{ u != t } -> boolean;
+			{ t == u } -> convertible_to<bool>;
+			{ t != u } -> convertible_to<bool>;
+			{ u == t } -> convertible_to<bool>;
+			{ u != t } -> convertible_to<bool>;
 #else
-			t == u; requires boolean<decltype((t == u))>;
-			t != u; requires boolean<decltype((t != u))>;
-			u == t; requires boolean<decltype((u == t))>;
-			u != t; requires boolean<decltype((u != t))>;
+			t == u; requires convertible_to<decltype((t == u)), bool>;
+			t != u; requires convertible_to<decltype((t != u)), bool>;
+			u == t; requires convertible_to<decltype((u == t)), bool>;
+			u != t; requires convertible_to<decltype((u != t)), bool>;
 #endif // META_HAS_P1084
 		};
 
@@ -132,15 +75,15 @@ STL2_OPEN_NAMESPACE {
 		requires(const std::remove_reference_t<T>& t,
 		         const std::remove_reference_t<U>& u) {
 #ifdef META_HAS_P1084
-			{ t <  u } -> boolean;
-			{ t >  u } -> boolean;
-			{ t <= u } -> boolean;
-			{ t >= u } -> boolean;
+			{ t <  u } -> convertible_to<bool>;
+			{ t >  u } -> convertible_to<bool>;
+			{ t <= u } -> convertible_to<bool>;
+			{ t >= u } -> convertible_to<bool>;
 #else
-			t <  u; requires boolean<decltype((t <  u))>;
-			t >  u; requires boolean<decltype((t >  u))>;
-			t <= u; requires boolean<decltype((t <= u))>;
-			t >= u; requires boolean<decltype((t >= u))>;
+			t <  u; requires convertible_to<decltype((t <  u)), bool>;
+			t >  u; requires convertible_to<decltype((t >  u)), bool>;
+			t <= u; requires convertible_to<decltype((t <= u)), bool>;
+			t >= u; requires convertible_to<decltype((t >= u)), bool>;
 #endif // META_HAS_P1084
 			// Axiom: t < u, t > u, t <= u, t >= u have the same definition space.
 			// Axiom: If bool(t < u) then bool(t <= u)

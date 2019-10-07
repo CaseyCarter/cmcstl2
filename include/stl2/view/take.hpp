@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr sentinel_t<Base> base() const { return end_; }
 
 		friend constexpr bool operator==(const __sentinel& x, const CI& y)
-		{ return 0 == y.count() || x.end_ == y.base(); }
+		{ return 0 == y.count() || bool(x.end_ == y.base()); }
 		friend constexpr bool operator==(const CI& x, const __sentinel& y) { return y == x;}
 		friend constexpr bool operator!=(const __sentinel& x, const CI& y) { return !(x == y); }
 		friend constexpr bool operator!=(const CI& x, const __sentinel& y) { return !(y == x); }

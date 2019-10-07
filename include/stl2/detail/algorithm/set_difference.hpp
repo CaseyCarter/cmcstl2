@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 					++result;
 					++first1;
 				} else {
-					if (!__stl2::invoke(comp, p2, p1)) {
+					if (!bool(__stl2::invoke(comp, p2, p1))) {
 						++first1;
 					}
 					++first2;

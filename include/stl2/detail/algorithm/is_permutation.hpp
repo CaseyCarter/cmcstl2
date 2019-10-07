@@ -178,7 +178,7 @@ STL2_OPEN_NAMESPACE {
 			// Pre: n == 0 or *first1 != *first2.
 			STL2_EXPECT(n >= 0);
 			if (n == 0) return true;
-			STL2_ASSERT(!__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2)));
+			STL2_ASSERT(!bool(__stl2::invoke(pred, __stl2::invoke(proj1, *first1), __stl2::invoke(proj2, *first2))));
 			if (n == 1) return false;
 
 			// For each element in [first1, n), see if there are the same number of
@@ -187,7 +187,7 @@ STL2_OPEN_NAMESPACE {
 			while (i.count()) {
 				auto&& e = __stl2::invoke(proj1, *i);
 				auto match_predicate = [&pred, &e](auto&& x) {
-					return __stl2::invoke(pred, e, static_cast<decltype(x)&&>(x));
+					return bool(__stl2::invoke(pred, e, static_cast<decltype(x)&&>(x)));
 				};
 
 				// If for some j in [first1, i.base()), *j == e, we've already

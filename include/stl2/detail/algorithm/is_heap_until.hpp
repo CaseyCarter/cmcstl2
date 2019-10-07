@@ -48,9 +48,9 @@ STL2_OPEN_NAMESPACE {
 					}
 					++c;
 					++cp;
-					if (c == n || __stl2::invoke(comp,
+					if (c == n || bool(__stl2::invoke(comp,
 							__stl2::invoke(proj, *pp),
-							__stl2::invoke(proj, *cp))) {
+							__stl2::invoke(proj, *cp)))) {
 						return cp;
 					}
 					++p;

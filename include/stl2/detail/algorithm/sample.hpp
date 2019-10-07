@@ -138,7 +138,7 @@ STL2_OPEN_NAMESPACE {
 				if (n > pop_size) {
 					n = pop_size;
 				}
-				for (; n > 0 && first != last; ++first) {
+				for (; n > 0 && bool(first != last); ++first) {
 					if (dist(gen, param_t{0, --pop_size}) < n) {
 						--n;
 						*o = *first;

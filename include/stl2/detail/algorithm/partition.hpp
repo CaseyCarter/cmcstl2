@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 				auto last = next(first, std::move(last_));
 
 				for (; first != last; ++first) {
-					if (!__stl2::invoke(pred, __stl2::invoke(proj, *first))) {
+					if (!bool(__stl2::invoke(pred, __stl2::invoke(proj, *first)))) {
 						while (true) {
 							if (--last == first) {
 								return first;

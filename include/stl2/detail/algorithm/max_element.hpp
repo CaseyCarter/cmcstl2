@@ -26,9 +26,9 @@ STL2_OPEN_NAMESPACE {
 		operator()(I first, S last, Comp comp = {}, Proj proj = {}) const {
 			if (first != last) {
 				for (auto i = next(first); i != last; ++i) {
-					if (!__stl2::invoke(comp,
+					if (!bool(__stl2::invoke(comp,
 							__stl2::invoke(proj, *i),
-							__stl2::invoke(proj, *first))) {
+							__stl2::invoke(proj, *first)))) {
 						first = i;
 					}
 				}

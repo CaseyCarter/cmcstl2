@@ -54,7 +54,7 @@ STL2_OPEN_NAMESPACE {
 					*result = std::forward<iter_reference_t<I1>>(v1);
 					++first1;
 				} else {
-					if (!__stl2::invoke(comp, p2, p1)) {
+					if (!bool(__stl2::invoke(comp, p2, p1))) {
 						++first1;
 					}
 					*result = std::forward<iter_reference_t<I2>>(v2);

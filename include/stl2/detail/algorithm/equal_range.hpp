@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 					auto mid = first;
 					auto d = advance(mid, dist, last);
 					STL2_EXPECT(d >= 0);
-					if (d || mid == last) {
+					if (d || bool(mid == last)) {
 						// at the end of the input range
 						return ext::equal_range_n(
 							std::move(first), dist - d, value,
@@ -93,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 						return ext::equal_range_n(
 							std::move(first), dist, value,
 							__stl2::ref(comp), __stl2::ref(proj));
-					} else if (!__stl2::invoke(comp, pv, value)) {
+					} else if (!bool(__stl2::invoke(comp, pv, value))) {
 						// *mid == value: the lower bound is <= mid, and the upper bound is > mid.
 						return {
 							ext::lower_bound_n(std::move(first), dist, value,

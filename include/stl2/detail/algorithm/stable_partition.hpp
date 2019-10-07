@@ -89,7 +89,7 @@ STL2_OPEN_NAMESPACE {
 				// advance "first" past values that satisfy the predicate.
 				// Ensures: n == 0 || !__stl2::invoke(pred, __stl2::invoke(proj, *first))
 				STL2_EXPECT(n >= 0);
-				while (n != 0 && __stl2::invoke(pred, __stl2::invoke(proj, *first))) {
+				while (n != 0 && bool(__stl2::invoke(pred, __stl2::invoke(proj, *first)))) {
 					++first;
 					--n;
 				}
@@ -171,7 +171,7 @@ STL2_OPEN_NAMESPACE {
 
 				do {
 					--last;
-				} while (--n != 0 && !__stl2::invoke(pred, __stl2::invoke(proj, *last)));
+				} while (--n != 0 && !bool(__stl2::invoke(pred, __stl2::invoke(proj, *last))));
 			}
 
 			template<bidirectional_iterator I, class Proj,

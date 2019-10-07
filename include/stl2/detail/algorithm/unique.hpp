@@ -29,8 +29,8 @@ STL2_OPEN_NAMESPACE {
 				__stl2::ref(proj));
 			if (first != last) {
 				for (auto m = next(first, 2); m != last; ++m) {
-					if (!__stl2::invoke(comp, __stl2::invoke(proj, *first),
-							__stl2::invoke(proj, *m)))
+					if (!bool(__stl2::invoke(comp, __stl2::invoke(proj, *first),
+							__stl2::invoke(proj, *m))))
 					{
 						*++first = iter_move(m);
 					}

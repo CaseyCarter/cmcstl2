@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 				while (true) {
 					auto m = first;
 					auto d = advance(m, n, last);
-					if (m == last || !__stl2::invoke(pred, __stl2::invoke(proj, *m))) {
+					if (bool(m == last) || !bool(__stl2::invoke(pred, __stl2::invoke(proj, *m)))) {
 						n -= d;
 						return ext::partition_point_n(std::move(first), n,
 							std::move(pred), std::move(proj));

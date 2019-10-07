@@ -47,16 +47,16 @@ STL2_OPEN_NAMESPACE {
 				I tmp = first;
 				if (++first == last) {
 					if (pred(*tmp, *result.min)) result.min = tmp;
-					else if (!pred(*tmp, *result.max)) result.max = tmp;
+					else if (!bool(pred(*tmp, *result.max))) result.max = tmp;
 					return result;
 				}
 
 				if (pred(*first, *tmp)) {
 					if (pred(*first, *result.min)) result.min = first;
-					if (!pred(*tmp, *result.max)) result.max = tmp;
+					if (!bool(pred(*tmp, *result.max))) result.max = tmp;
 				} else {
 					if (pred(*tmp, *result.min)) result.min = tmp;
-					if (!pred(*first, *result.max)) result.max = first;
+					if (!bool(pred(*first, *result.max))) result.max = first;
 				}
 			}
 		}

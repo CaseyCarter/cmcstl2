@@ -35,9 +35,9 @@ STL2_OPEN_NAMESPACE {
 			while (true) {
 				if (first1 == last1) break;
 				if (first2 == last2) break;
-				if (!__stl2::invoke(pred,
+				if (!bool(__stl2::invoke(pred,
 						__stl2::invoke(proj1, *first1),
-						__stl2::invoke(proj2, *first2))) {
+						__stl2::invoke(proj2, *first2)))) {
 					break;
 				}
 				++first1;

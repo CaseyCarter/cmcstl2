@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		operator()(I first, S last, O result, Pred pred, Proj proj = {}) const {
 			for (; first != last; ++first) {
 				iter_reference_t<I>&& v = *first;
-				if (!__stl2::invoke(pred, __stl2::invoke(proj, v))) {
+				if (!bool(__stl2::invoke(pred, __stl2::invoke(proj, v)))) {
 					*result = std::forward<iter_reference_t<I>>(v);
 					++result;
 				}

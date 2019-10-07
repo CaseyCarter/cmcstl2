@@ -32,7 +32,7 @@ STL2_OPEN_NAMESPACE {
 		requires constructible_from<iter_value_t<O>, iter_reference_t<I>>
 		uninitialized_copy_result<I, O> operator()(I ifirst, S1 ilast, O ofirst, S2 olast) const {
 			auto guard = detail::destroy_guard{ofirst};
-			for (; ifirst != ilast && ofirst != olast; (void) ++ifirst, (void)++ofirst) {
+			for (; bool(ifirst != ilast) && bool(ofirst != olast); ++ifirst, (void) ++ofirst) {
 				__stl2::__construct_at(*ofirst, *ifirst);
 			}
 			guard.release();

@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 				I last = first + n;
 				n = (n - 2) / 2;
 				I i = first + n;
-				if (!pred(*i, *--last)) return;
+				if (!bool(pred(*i, *--last))) return;
 
 				iter_value_t<I> v = iter_move(last);
 				do {
@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 				child = 2 * child + 1;
 				I child_i = first + child;
 
-				if ((child + 1) < n && pred(*child_i, *(child_i + 1))) {
+				if ((child + 1) < n && bool(pred(*child_i, *(child_i + 1)))) {
 					// right-child exists and is greater than left-child
 					++child_i;
 					++child;
@@ -109,14 +109,14 @@ STL2_OPEN_NAMESPACE {
 					child = 2 * child + 1;
 					child_i = first + child;
 
-					if ((child + 1) < n && pred(*child_i, *(child_i + 1))) {
+					if ((child + 1) < n && bool(pred(*child_i, *(child_i + 1)))) {
 						// right-child exists and is greater than left-child
 						++child_i;
 						++child;
 					}
 
 					// check if we are in heap-order
-				} while (!pred(*child_i, top));
+				} while (!bool(pred(*child_i, top)));
 
 				*start = std::move(top);
 			}

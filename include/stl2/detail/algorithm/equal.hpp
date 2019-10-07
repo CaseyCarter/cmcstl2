@@ -28,9 +28,9 @@ STL2_OPEN_NAMESPACE {
 			Pred& pred, Proj1& proj1, Proj2& proj2)
 		{
 			for (; first1 != last1; (void) ++first1, (void) ++first2) {
-				if (!__stl2::invoke(pred,
+				if (!bool(__stl2::invoke(pred,
 						__stl2::invoke(proj1, *first1),
-						__stl2::invoke(proj2, *first2))) {
+						__stl2::invoke(proj2, *first2)))) {
 					return false;
 				}
 			}
@@ -47,9 +47,9 @@ STL2_OPEN_NAMESPACE {
 				const bool b = first2 == last2;
 				if (first1 == last1) return b;
 				if (b) return false;
-				if (!__stl2::invoke(pred,
+				if (!bool(__stl2::invoke(pred,
 						__stl2::invoke(proj1, *first1),
-						__stl2::invoke(proj2, *first2))) return false;
+						__stl2::invoke(proj2, *first2)))) return false;
 				++first1;
 				++first2;
 			}
