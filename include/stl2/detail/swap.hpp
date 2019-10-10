@@ -122,7 +122,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<class T, class U>
 	META_CONCEPT swappable_with =
-#if 1 // P/R of unfiled LWG issue
+#if 1 // P/R of LWG 3175
 		common_reference_with<T, U> &&
 #else
 		common_reference_with<
