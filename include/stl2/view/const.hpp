@@ -35,22 +35,27 @@ STL2_OPEN_NAMESPACE
 
 		constexpr auto base() const noexcept -> R { return base_; }
 
-		constexpr __iterator<false> begin()
+		constexpr __iterator<false> begin() requires (!ext::simple_view<R>)
 		{
-			return __iterator<false>{*this};
+			return __iterator<false>{*this, __stl2::begin(base_)};
 		}
 		constexpr __iterator<true> begin() const requires range<const R>
 		{
-			return __iterator<true>{*this};
+			return __iterator<true>{*this, __stl2::begin(base_)};
 		};
 
-		constexpr auto end()
+		constexpr auto end() requires (!ext::simple_view<R>)
 		{
 			return end_impl(*this);
 		}
 		constexpr auto end() const requires range<const R>
 		{
 			return end_impl(*this);
+		}
+
+		constexpr auto size() requires (!ext::simple_view<R> && sized_range<R>)
+		{
+			return __stl2::size(base_);
 		}
 
 		constexpr auto size() const requires sized_range<R>
@@ -62,7 +67,7 @@ STL2_OPEN_NAMESPACE
 		R base_ = R{};
 
 		template <class Self>
-		static constexpr auto end_impl(Self &self)
+		static constexpr auto end_impl(Self& self)
 		{
 			if constexpr (common_range<R>)
 			{
@@ -96,18 +101,13 @@ STL2_OPEN_NAMESPACE
 
 		__iterator() = default;
 
-		constexpr explicit __iterator(parent_t &parent)
-				: __iterator(parent, __stl2::begin(parent.base()))
-		{
-		}
-
-		constexpr explicit __iterator(parent_t &parent, iterator_t<base_t> current)
+		constexpr explicit __iterator(parent_t& parent, iterator_t<base_t> current)
 				: parent_{std::addressof(parent)},
 					current_{current}
 		{
 		}
 
-		constexpr __iterator(__iterator<!is_const> const &other) requires is_const &&convertible_to<iterator_t<R>, iterator_t<base_t>>
+		constexpr __iterator(__iterator<!is_const> const& other) requires is_const && convertible_to<iterator_t<R>, iterator_t<base_t>>
 				: parent_(other.parent_), current_(other.current_)
 		{
 		}
@@ -122,7 +122,7 @@ STL2_OPEN_NAMESPACE
 			return std::as_const(*current_);
 		}
 
-		constexpr __iterator &operator++()
+		constexpr __iterator& operator++()
 		{
 			++current_;
 			return *this;
@@ -130,7 +130,7 @@ STL2_OPEN_NAMESPACE
 
 		constexpr void operator++(int)
 		{
-			current_++;
+			(void)++*this;
 		}
 
 		constexpr __iterator operator++(int) requires forward_range<base_t>
@@ -140,7 +140,7 @@ STL2_OPEN_NAMESPACE
 			return temp;
 		}
 
-		constexpr __iterator &operator--() requires bidirectional_range<base_t>
+		constexpr __iterator& operator--() requires bidirectional_range<base_t>
 		{
 			--current_;
 			return *this;
@@ -153,13 +153,13 @@ STL2_OPEN_NAMESPACE
 			return temp;
 		}
 
-		constexpr __iterator &operator+=(difference_type const n) requires random_access_range<base_t>
+		constexpr __iterator& operator+=(difference_type const n) requires random_access_range<base_t>
 		{
 			current_ += n;
 			return *this;
 		}
 
-		constexpr __iterator &operator-=(difference_type const n) requires random_access_range<base_t>
+		constexpr __iterator& operator-=(difference_type const n) requires random_access_range<base_t>
 		{
 			current_ -= n;
 			return *this;
@@ -171,52 +171,52 @@ STL2_OPEN_NAMESPACE
 			return *(*this + n);
 		}
 
-		friend constexpr bool operator==(const __iterator &x, const __iterator &y) requires equality_comparable<iterator_t<base_t>>
+		friend constexpr bool operator==(const __iterator& x, const __iterator& y) requires equality_comparable<iterator_t<base_t>>
 		{
 			return x.current_ == y.current_;
 		}
 
-		friend constexpr bool operator!=(const __iterator &x, const __iterator &y) requires equality_comparable<iterator_t<base_t>>
+		friend constexpr bool operator!=(const __iterator& x, const __iterator& y) requires equality_comparable<iterator_t<base_t>>
 		{
 			return !(x == y);
 		}
 
-		friend constexpr bool operator==(const __iterator &x, const sentinel_t<base_t> &y)
+		friend constexpr bool operator==(const __iterator& x, const sentinel_t<base_t>& y)
 		{
 			return x.current_ == y;
 		}
 
-		friend constexpr bool operator==(const sentinel_t<base_t> &y, const __iterator &x)
+		friend constexpr bool operator==(const sentinel_t<base_t>& y, const __iterator& x)
 		{
 			return x == y;
 		}
 
-		friend constexpr bool operator!=(const __iterator &x, const sentinel_t<base_t> &y)
+		friend constexpr bool operator!=(const __iterator& x, const sentinel_t<base_t>& y)
 		{
 			return !(x == y);
 		}
 
-		friend constexpr bool operator!=(const sentinel_t<base_t> &y, const __iterator &x)
+		friend constexpr bool operator!=(const sentinel_t<base_t>& y, const __iterator& x)
 		{
 			return !(x == y);
 		}
 
-		friend constexpr bool operator<(const __iterator &x, const __iterator &y) requires random_access_range<base_t>
+		friend constexpr bool operator<(const __iterator& x, const __iterator& y) requires random_access_range<base_t>
 		{
 			return x.current_ < y.current_;
 		}
 
-		friend constexpr bool operator>(const __iterator &x, const __iterator &y) requires random_access_range<base_t>
+		friend constexpr bool operator>(const __iterator& x, const __iterator& y) requires random_access_range<base_t>
 		{
 			return y < x;
 		}
 
-		friend constexpr bool operator<=(const __iterator &x, const __iterator &y) requires random_access_range<base_t>
+		friend constexpr bool operator<=(const __iterator& x, const __iterator& y) requires random_access_range<base_t>
 		{
 			return !(y < x);
 		}
 
-		friend constexpr bool operator>=(const __iterator &x, const __iterator &y) requires random_access_range<base_t>
+		friend constexpr bool operator>=(const __iterator& x, const __iterator& y) requires random_access_range<base_t>
 		{
 			return !(x < y);
 		}
@@ -236,24 +236,24 @@ STL2_OPEN_NAMESPACE
 			return i -= n;
 		}
 
-		friend constexpr difference_type operator-(const __iterator &x, const __iterator &y) requires random_access_range<base_t>
+		friend constexpr difference_type operator-(const __iterator& x, const __iterator& y) requires random_access_range<base_t>
 		{
 			return x.current_ - y.current_;
 		}
 
-		friend constexpr difference_type operator-(const __iterator &x, const sentinel_t<base_t> &y) requires sized_sentinel_for<iterator_t<base_t>, sentinel_t<base_t>>
+		friend constexpr difference_type operator-(const __iterator& x, const sentinel_t<base_t>& y) requires sized_sentinel_for<iterator_t<base_t>, sentinel_t<base_t>>
 		{
 			return x.current_ - y;
 		}
 
-		friend constexpr difference_type operator-(const sentinel_t<base_t> &x, const __iterator &y) requires sized_sentinel_for<iterator_t<base_t>, sentinel_t<base_t>>
+		friend constexpr difference_type operator-(const sentinel_t<base_t>& x, const __iterator& y) requires sized_sentinel_for<iterator_t<base_t>, sentinel_t<base_t>>
 		{
 			return x - y.current_;
 		}
 	};
 
-	template <class R>
-	const_view(R &&r)->const_view<all_view<R>>;
+	template <input_range R>
+	const_view(R&& r)->const_view<all_view<R>>;
 
 	} // namespace ext
 
@@ -262,7 +262,7 @@ STL2_OPEN_NAMESPACE
 	struct __as_const_fn : detail::__pipeable<__as_const_fn>
 	{
 		template <viewable_range Rng>
-		constexpr auto operator()(Rng &&rng) const
+		constexpr auto operator()(Rng&& rng) const
 		{
 			return __stl2::ext::const_view{std::forward<Rng>(rng)};
 		}

@@ -9,45 +9,46 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 #include <stl2/view/const.hpp>
-//#include <stl2/view/transform.hpp>
 #include <stl2/view/counted.hpp>
+#include <stl2/view/filter.hpp>
+#include <vector>
 #include "../simple_test.hpp"
 #include "../test_iterators.hpp"
 
 namespace ranges = __stl2;
 
 int main() {
-  using namespace ranges;
-  
-  int rgi[] = {1, 2, 3, 4};
+	using namespace ranges;
 
-  {
-	  auto rng = rgi | views::ext::as_const;
-	  static_assert(same_as<int &, decltype(*begin(rgi))>);
-	  static_assert(same_as<int const &, decltype(*begin(rng))>);
-	  static_assert(same_as<int const &&, range_rvalue_reference_t<decltype(rng)>>);
-	  static_assert(view<decltype(rng)>);
-	  static_assert(common_range<decltype(rng)>);
-	  static_assert(sized_range<decltype(rng)>);
-	  static_assert(random_access_range<decltype(rng)>);
-	  CHECK_EQUAL(rng, {1, 2, 3, 4});
-	  CHECK(&*begin(rng) == &rgi[0]);
-	  CHECK(rng.size() == 4u);
-  }
+	int rgi[] = {1, 2, 3, 4};
 
-  {
-	  auto rng2 = views::counted(::forward_iterator(rgi), 4) | views::ext::as_const;
-	  static_assert(same_as<int const &, decltype(*begin(rng2))>);
-	  static_assert(same_as<range_rvalue_reference_t<decltype(rng2)>, int const &&>);
-	  static_assert(view<decltype(rng2)>);
-	  static_assert(forward_range<decltype(rng2)>);
-	  static_assert(!bidirectional_range<decltype(rng2)>);
-	  static_assert(!common_range<decltype(rng2)>);
-	  static_assert(sized_range<decltype(rng2)>);
-	  CHECK_EQUAL(rng2, {1, 2, 3, 4});
-	  CHECK(&*begin(rng2) == &rgi[0]);
-	  CHECK(rng2.size() == 4u);
-  }
+	{
+		auto rng = rgi | views::ext::as_const;
+		static_assert(same_as<int &, decltype(*begin(rgi))>);
+		static_assert(same_as<int const &, decltype(*begin(rng))>);
+		static_assert(same_as<int const &&, range_rvalue_reference_t<decltype(rng)>>);
+		static_assert(view<decltype(rng)>);
+		static_assert(common_range<decltype(rng)>);
+		static_assert(sized_range<decltype(rng)>);
+		static_assert(random_access_range<decltype(rng)>);
+		CHECK_EQUAL(rng, {1, 2, 3, 4});
+		CHECK(&*begin(rng) == &rgi[0]);
+		CHECK(rng.size() == 4u);
+	}
+
+	{
+		auto rng2 = views::counted(::forward_iterator(rgi), 4) | views::ext::as_const;
+		static_assert(same_as<int const &, decltype(*begin(rng2))>);
+		static_assert(same_as<range_rvalue_reference_t<decltype(rng2)>, int const &&>);
+		static_assert(view<decltype(rng2)>);
+		static_assert(forward_range<decltype(rng2)>);
+		static_assert(!bidirectional_range<decltype(rng2)>);
+		static_assert(!common_range<decltype(rng2)>);
+		static_assert(sized_range<decltype(rng2)>);
+		CHECK_EQUAL(rng2, {1, 2, 3, 4});
+		CHECK(&*begin(rng2) == &rgi[0]);
+		CHECK(rng2.size() == 4u);
+	}
 
 #if 0 // Test DISABLED pending view implementations.
   {
@@ -90,6 +91,13 @@ int main() {
 	  CHECK_EQUAL(rng, rgi);
   }
 #endif
+
+	{
+		auto r = rgi 
+		 			 | views::filter([](auto) { return true; }) 
+					 | views::ext::as_const;
+		static_assert(view<decltype(r)>);
+	}
 
 	return ::test_result();
 }
