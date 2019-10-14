@@ -27,7 +27,7 @@
 #endif // __clang__
 
 #ifndef STL2_WORKAROUND_GCC_69096
- #if defined(__GNUC__) && __GNUC__ >= 6 && __GNUC__ < 10
+ #if defined(__GNUC__) && __GNUC__ < 10
   // Return type deduction performed *before* checking constraints.
   // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69096
   #define STL2_WORKAROUND_GCC_69096 1
@@ -37,7 +37,7 @@
 #endif
 
 #ifndef STL2_WORKAROUND_GCC_79591
- #if defined(__GNUC__) && __GNUC__ >= 6 && __GNUC__ < 10
+ #if defined(__GNUC__) && __GNUC__ < 10
   // Overloading function template declarations that differ only in their
   // associated constraints does not work properly when at least one declaration
   // is imported with a using declaration.
