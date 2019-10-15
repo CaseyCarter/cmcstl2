@@ -107,8 +107,9 @@ STL2_OPEN_NAMESPACE
 		{
 		}
 
-		constexpr __iterator(__iterator<!is_const> const& other) requires is_const && convertible_to<iterator_t<R>, iterator_t<base_t>>
-				: parent_(other.parent_), current_(other.current_)
+		constexpr __iterator(__iterator<!is_const> const& other)
+		requires is_const && convertible_to<iterator_t<R>, iterator_t<base_t>>
+: parent_(other.parent_), current_(other.current_)
 		{
 		}
 
@@ -171,12 +172,14 @@ STL2_OPEN_NAMESPACE
 			return *(*this + n);
 		}
 
-		friend constexpr bool operator==(const __iterator& x, const __iterator& y) requires equality_comparable<iterator_t<base_t>>
+		friend constexpr bool operator==(const __iterator& x, const __iterator& y)
+		requires equality_comparable<iterator_t<base_t>>
 		{
 			return x.current_ == y.current_;
 		}
 
-		friend constexpr bool operator!=(const __iterator& x, const __iterator& y) requires equality_comparable<iterator_t<base_t>>
+		friend constexpr bool operator!=(const __iterator& x, const __iterator& y)
+		requires equality_comparable<iterator_t<base_t>>
 		{
 			return !(x == y);
 		}
@@ -201,22 +204,26 @@ STL2_OPEN_NAMESPACE
 			return !(x == y);
 		}
 
-		friend constexpr bool operator<(const __iterator& x, const __iterator& y) requires random_access_range<base_t>
+		friend constexpr bool operator<(const __iterator& x, const __iterator& y)
+		requires random_access_range<base_t>
 		{
 			return x.current_ < y.current_;
 		}
 
-		friend constexpr bool operator>(const __iterator& x, const __iterator& y) requires random_access_range<base_t>
+		friend constexpr bool operator>(const __iterator& x, const __iterator& y)
+		requires random_access_range<base_t>
 		{
 			return y < x;
 		}
 
-		friend constexpr bool operator<=(const __iterator& x, const __iterator& y) requires random_access_range<base_t>
+		friend constexpr bool operator<=(const __iterator& x, const __iterator& y)
+		requires random_access_range<base_t>
 		{
 			return !(y < x);
 		}
 
-		friend constexpr bool operator>=(const __iterator& x, const __iterator& y) requires random_access_range<base_t>
+		friend constexpr bool operator>=(const __iterator& x, const __iterator& y)
+		requires random_access_range<base_t>
 		{
 			return !(x < y);
 		}
@@ -253,6 +260,7 @@ STL2_OPEN_NAMESPACE
 	};
 
 	template <input_range R>
+	requires viewable_range<R>
 	const_view(R&& r)->const_view<all_view<R>>;
 
 	} // namespace ext
