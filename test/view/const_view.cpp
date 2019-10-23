@@ -13,6 +13,7 @@
 #include <stl2/view/const.hpp>
 #include <stl2/view/counted.hpp>
 #include <stl2/view/filter.hpp>
+#include <stl2/view/move.hpp>
 #include <vector>
 
 namespace ranges = __stl2;
@@ -96,9 +97,24 @@ int main() {
 #endif
 
   {
-    auto r =
+    auto rng6 =
         rgi | views::filter([](auto) { return true; }) | views::ext::as_const;
-    static_assert(view<decltype(r)>);
+    static_assert(view<decltype(rng6)>);
+  }
+
+  {
+    auto rng7 = rgi | views::move | views::ext::as_const;
+    static_assert(same_as<int const &&, decltype(*begin(rng7))>);
+    static_assert(
+        same_as<int const &&, range_rvalue_reference_t<decltype(rng7)>>);
+    static_assert(view<decltype(rng7)>);
+    static_assert(common_range<decltype(rng7)>);
+    static_assert(sized_range<decltype(rng7)>);
+    static_assert(!forward_range<decltype(rng7)>);
+    CHECK_EQUAL(rng7, {1, 2, 3, 4});
+    CHECK(rng7.size() == 4u);
+    // no move of const rvalue
+    CHECK_EQUAL(rgi, {1, 2, 3, 4});
   }
 
   return ::test_result();

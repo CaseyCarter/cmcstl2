@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 
 	public:
 		using iterator_category = iterator_category_t<iterator_t<base_t>>;
-		using value_type = std::add_const_t<range_value_t<base_t>>;
+		using value_type = range_value_t<base_t>;
 		using difference_type = range_difference_t<base_t>;
 
 		__iterator() = default;
@@ -98,8 +98,8 @@ STL2_OPEN_NAMESPACE {
 
 		constexpr iterator_t<base_t> base() const { return current_; }
 
-		constexpr decltype(auto) operator*() const {
-			return std::as_const(*current_);
+		constexpr common_reference_t<value_type const &&, range_reference_t<base_t>> operator*() const {
+			return *current_;
 		}
 
 		constexpr __iterator& operator++() {
