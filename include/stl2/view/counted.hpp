@@ -21,12 +21,11 @@ STL2_OPEN_NAMESPACE {
 	namespace views {
 		struct __counted_fn {
 			template<input_or_output_iterator I>
-			requires copyable<I>
 			constexpr auto operator()(I i, iter_difference_t<I> d) const {
 				if constexpr (random_access_iterator<I>) {
 					return subrange{i, i + d};
 				} else {
-					return subrange{counted_iterator{i, d}, default_sentinel{}};
+					return subrange{counted_iterator{std::move(i), d}, default_sentinel{}};
 				}
 			}
 		};

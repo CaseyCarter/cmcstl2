@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<input_or_output_iterator I, sentinel_for<I> S = I,
 		subrange_kind K = static_cast<subrange_kind>(sized_sentinel_for<S, I>)>
-	requires (copyable<I> && (K == subrange_kind::sized || !sized_sentinel_for<S, I>))
+	requires (K == subrange_kind::sized || !sized_sentinel_for<S, I>)
 	class subrange;
 
 	namespace __subrange_detail {
@@ -94,7 +94,7 @@ STL2_OPEN_NAMESPACE {
 	}
 
 	template<input_or_output_iterator I, sentinel_for<I> S, subrange_kind K>
-	requires (copyable<I> && (K == subrange_kind::sized || !sized_sentinel_for<S, I>))
+	requires (K == subrange_kind::sized || !sized_sentinel_for<S, I>)
 	class STL2_EMPTY_BASES subrange
 	: private __subrange_detail::__adl_hook
 	, public view_interface<subrange<I, S, K>>
@@ -179,7 +179,13 @@ STL2_OPEN_NAMESPACE {
 			return PairLike(first_(), last_());
 		}
 
-		constexpr I begin() const noexcept(std::is_nothrow_copy_constructible_v<I>) {
+		constexpr I begin() noexcept(std::is_nothrow_move_constructible_v<I>) {
+		requires !forward_iterator<I> {
+			return std::move(first_());
+		}
+
+		constexpr I begin() const noexcept(std::is_nothrow_copy_constructible_v<I>)
+		requires copyable<I> {
 			return first_();
 		}
 		constexpr S end() const noexcept(std::is_nothrow_copy_constructible_v<S>) {

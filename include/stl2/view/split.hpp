@@ -22,6 +22,7 @@
 #include <stl2/detail/view/view_closure.hpp>
 #include <stl2/view/all.hpp>
 #include <stl2/view/single.hpp>
+#include <iostream>
 
 STL2_OPEN_NAMESPACE {
 	template<class R>
