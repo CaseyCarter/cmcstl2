@@ -10,11 +10,33 @@
 //
 // Project home: https://github.com/caseycarter/cmcstl2
 //
+//  Copyright (c) 1994
+//  Hewlett-Packard Company
+//
+//  Permission to use, copy, modify, distribute and sell this software
+//  and its documentation for any purpose is hereby granted without fee,
+//  provided that the above copyright notice appear in all copies and
+//  that both that copyright notice and this permission notice appear
+//  in supporting documentation.  Hewlett-Packard Company makes no
+//  representations about the suitability of this software for any
+//  purpose.  It is provided "as is" without express or implied warranty.
+//
+//  Copyright (c) 1996
+//  Silicon Graphics Computer Systems, Inc.
+//
+//  Permission to use, copy, modify, distribute and sell this software
+//  and its documentation for any purpose is hereby granted without fee,
+//  provided that the above copyright notice appear in all copies and
+//  that both that copyright notice and this permission notice appear
+//  in supporting documentation.  Silicon Graphics makes no
+//  representations about the suitability of this software for any
+//  purpose.  It is provided "as is" without express or implied warranty.
+//
 #ifndef STL2_DETAIL_ALGORITHM_SORT_HPP
 #define STL2_DETAIL_ALGORITHM_SORT_HPP
 
-#include <stl2/detail/algorithm/forward_sort.hpp>
-#include <stl2/detail/algorithm/random_access_sort.hpp>
+#include <stl2/detail/algorithm/move_backward.hpp>
+#include <stl2/detail/algorithm/partial_sort.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/range/primitives.hpp>
 
@@ -22,34 +44,67 @@
 // sort [sort]
 //
 STL2_OPEN_NAMESPACE {
+	namespace detail {
+		struct rsort {
+			template<bidirectional_iterator I, class Comp, class Proj>
+			requires sortable<I, Comp, Proj>
+			static constexpr void
+			unguarded_linear_insert(I last, iter_value_t<I> val, Comp& comp, Proj& proj)
+			{
+				I next = prev(last);
+				while (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *next))) {
+					*last = iter_move(next);
+					last = next;
+					--next;
+				}
+				*last = std::move(val);
+			}
+			template<bidirectional_iterator I, class Comp, class Proj>
+			requires sortable<I, Comp, Proj>
+			static constexpr void insertion_sort(I first, I last, Comp& comp, Proj& proj)
+			{
+				if (first != last) {
+					for (I i = next(first); i != last; ++i) {
+						linear_insert(first, i, comp, proj);
+					}
+				}
+			}
+		private:
+			template<bidirectional_iterator I, class Comp, class Proj>
+			requires sortable<I, Comp, Proj>
+			static constexpr void linear_insert(I first, I last, Comp& comp, Proj& proj)
+			{
+				iter_value_t<I> val = iter_move(last);
+				if (__stl2::invoke(comp, __stl2::invoke(proj, val), __stl2::invoke(proj, *first))) {
+					move_backward(first, last, last + 1);
+					*first = std::move(val);
+				} else {
+					unguarded_linear_insert(last, std::move(val), comp, proj);
+				}
+			}
+		};
+	}
+
 	struct __sort_fn : private __niebloid {
-		/// Extension: sort using forward iterators
-		///
-		template<forward_iterator I, sentinel_for<I> S, class Comp = less,
+		template<random_access_iterator I, sentinel_for<I> S, class Comp = less,
 			class Proj = identity>
 		requires sortable<I, Comp, Proj>
 		constexpr I
 		operator()(I first, S sent, Comp comp = {}, Proj proj = {}) const {
-			if constexpr (random_access_iterator<I>) {
-				if (first == sent) return first;
-				auto last = next(first, std::move(sent));
-				auto n = distance(first, last);
-				introsort_loop(first, last, log2(n) * 2, comp, proj);
-				final_insertion_sort(first, last, comp, proj);
-				return last;
-			} else {
-				auto n = distance(first, std::move(sent));
-				return detail::fsort_n(std::move(first), n, std::move(comp), std::move(proj));
-			}
+			if (first == sent) return first;
+			auto last = next(first, static_cast<S&&>(sent));
+			auto n = distance(first, last);
+			introsort_loop(first, last, log2(n) * 2, comp, proj);
+			final_insertion_sort(first, last, comp, proj);
+			return last;
 		}
 
-		/// Extension: sort using forward ranges
-		///
-		template<forward_range R, class Comp = less, class Proj = identity>
+		template<random_access_range R, class Comp = less, class Proj = identity>
 		requires sortable<iterator_t<R>, Comp, Proj>
 		constexpr safe_iterator_t<R>
 		operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
-			return (*this)(begin(r), end(r), std::move(comp), std::move(proj));
+			return (*this)(begin(r), end(r), static_cast<Comp&&>(comp),
+				static_cast<Proj&&>(proj));
 		}
 	private:
 		static constexpr std::ptrdiff_t introsort_threshold = 16;
@@ -142,7 +197,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __sort_fn sort {};
+	inline constexpr __sort_fn sort;
 } STL2_CLOSE_NAMESPACE
 
 #endif
