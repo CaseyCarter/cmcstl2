@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __find_first_of_fn find_first_of {};
+	inline constexpr __find_first_of_fn find_first_of;
 } STL2_CLOSE_NAMESPACE
 
 #endif

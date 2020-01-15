@@ -325,7 +325,7 @@ STL2_OPEN_NAMESPACE {
 			{ return detail::view_closure{*this, std::forward<T>(t)}; }
 		};
 
-		inline constexpr __split_fn split {};
+		inline constexpr __split_fn split;
 	}
 } STL2_CLOSE_NAMESPACE
 

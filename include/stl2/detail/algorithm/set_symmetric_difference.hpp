@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __set_symmetric_difference_fn set_symmetric_difference {};
+	inline constexpr __set_symmetric_difference_fn set_symmetric_difference;
 } STL2_CLOSE_NAMESPACE
 
 #endif

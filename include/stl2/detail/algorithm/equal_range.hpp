@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __equal_range_n_fn equal_range_n {};
+		inline constexpr __equal_range_n_fn equal_range_n;
 	} // namespace ext
 
 	struct __equal_range_fn : private __niebloid {
@@ -124,7 +124,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __equal_range_fn equal_range {};
+	inline constexpr __equal_range_fn equal_range;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __count_fn count {};
+	inline constexpr __count_fn count;
 } STL2_CLOSE_NAMESPACE
 
 #endif

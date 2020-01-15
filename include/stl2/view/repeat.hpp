@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 
-		inline constexpr __repeat_fn repeat {};
+		inline constexpr __repeat_fn repeat;
 	} // namespace views::ext
 } STL2_CLOSE_NAMESPACE
 

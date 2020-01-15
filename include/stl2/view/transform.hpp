@@ -282,7 +282,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __transform_fn transform {};
+		inline constexpr __transform_fn transform;
 	} // namespace views
 } STL2_CLOSE_NAMESPACE
 

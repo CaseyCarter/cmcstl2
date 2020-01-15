@@ -102,7 +102,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __drop_fn drop {};
+		inline constexpr __drop_fn drop;
 	} // mamespace views
 } STL2_CLOSE_NAMESPACE
 

@@ -106,7 +106,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __minmax_fn minmax {};
+	inline constexpr __minmax_fn minmax;
 } STL2_CLOSE_NAMESPACE
 
 #endif

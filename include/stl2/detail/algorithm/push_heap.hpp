@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __push_heap_fn push_heap {};
+	inline constexpr __push_heap_fn push_heap;
 } STL2_CLOSE_NAMESPACE
 
 #endif

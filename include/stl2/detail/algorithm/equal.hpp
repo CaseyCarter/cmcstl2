@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __equal_fn equal {};
+	inline constexpr __equal_fn equal;
 } STL2_CLOSE_NAMESPACE
 
 #endif

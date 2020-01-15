@@ -125,7 +125,7 @@ STL2_OPEN_NAMESPACE {
 			{ return detail::view_closure{*this, static_cast<D>(count)}; }
 		};
 
-		inline constexpr __take_fn take {};
+		inline constexpr __take_fn take;
 	}
 } STL2_CLOSE_NAMESPACE
 

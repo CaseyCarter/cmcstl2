@@ -29,22 +29,22 @@ STL2_OPEN_NAMESPACE {
 		requires indirectly_copyable<I1, I2>
 		constexpr copy_backward_result<I1, I2>
 		operator()(I1 first, S1 sent, I2 out) const {
-			auto last = next(first, std::move(sent));
+			auto last = next(first, static_cast<S1&&>(sent));
 			auto i = last;
 			while (i != first) {
 				*--out = *--i;
 			}
-			return {std::move(last), std::move(out)};
+			return {static_cast<I1&&>(last), static_cast<I2&&>(out)};
 		}
 
 		template<bidirectional_range R, bidirectional_iterator I>
 		constexpr copy_backward_result<safe_iterator_t<R>, I>
 		operator()(R&& r, I result) const {
-			return (*this)(begin(r), end(r), std::move(result));
+			return (*this)(begin(r), end(r), static_cast<I&&>(result));
 		}
 	};
 
-	inline constexpr __copy_backward_fn copy_backward {};
+	inline constexpr __copy_backward_fn copy_backward;
 } STL2_CLOSE_NAMESPACE
 
 #endif

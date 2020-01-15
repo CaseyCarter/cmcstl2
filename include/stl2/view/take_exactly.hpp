@@ -118,7 +118,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __take_exactly_fn take_exactly {};
+		inline constexpr __take_exactly_fn take_exactly;
 	} // namespace views::ext
 } STL2_CLOSE_NAMESPACE
 

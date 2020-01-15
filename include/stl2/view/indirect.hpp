@@ -122,7 +122,7 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 
-		inline constexpr __indirect_fn indirect {};
+		inline constexpr __indirect_fn indirect;
 	} // namespace views::ext
 } STL2_CLOSE_NAMESPACE
 

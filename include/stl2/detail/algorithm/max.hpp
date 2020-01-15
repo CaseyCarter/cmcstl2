@@ -70,7 +70,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __max_fn max {};
+	inline constexpr __max_fn max;
 } STL2_CLOSE_NAMESPACE
 
 #endif

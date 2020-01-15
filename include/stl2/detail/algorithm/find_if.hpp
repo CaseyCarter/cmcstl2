@@ -41,7 +41,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __find_if_fn find_if {};
+	inline constexpr __find_if_fn find_if;
 } STL2_CLOSE_NAMESPACE
 
 #endif

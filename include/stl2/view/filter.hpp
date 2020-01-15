@@ -196,7 +196,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __filter_fn filter {};
+		inline constexpr __filter_fn filter;
 	}
 } STL2_CLOSE_NAMESPACE
 

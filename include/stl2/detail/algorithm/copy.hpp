@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __copy_fn copy {};
+	inline constexpr __copy_fn copy;
 
 	namespace ext {
 		struct __copy_fn : private __niebloid {
@@ -85,7 +85,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __copy_fn copy {};
+		inline constexpr __copy_fn copy;
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 

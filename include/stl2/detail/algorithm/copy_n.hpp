@@ -37,12 +37,12 @@ STL2_OPEN_NAMESPACE {
 			}
 			return {
 				ext::recounted(first_, first, norig),
-				std::move(result)
+				static_cast<O&&>(result)
 			};
 		}
 	};
 
-	inline constexpr __copy_n_fn copy_n {};
+	inline constexpr __copy_n_fn copy_n;
 } STL2_CLOSE_NAMESPACE
 
 #endif

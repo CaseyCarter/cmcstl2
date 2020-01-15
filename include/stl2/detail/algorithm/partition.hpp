@@ -75,7 +75,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __partition_fn partition {};
+	inline constexpr __partition_fn partition;
 } STL2_CLOSE_NAMESPACE
 
 #endif

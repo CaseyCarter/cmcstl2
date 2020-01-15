@@ -93,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __unique_copy_fn unique_copy {};
+	inline constexpr __unique_copy_fn unique_copy;
 } STL2_CLOSE_NAMESPACE
 
 #endif

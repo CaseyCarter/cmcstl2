@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __is_heap_fn is_heap {};
+	inline constexpr __is_heap_fn is_heap;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -33,7 +33,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __fill_fn fill {};
+	inline constexpr __fill_fn fill;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -271,7 +271,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __stable_partition_n_fn stable_partition_n {};
+		inline constexpr __stable_partition_n_fn stable_partition_n;
 	} // namespace ext
 
 	struct __stable_partition_fn : private __niebloid {
@@ -309,7 +309,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __stable_partition_fn stable_partition {};
+	inline constexpr __stable_partition_fn stable_partition;
 } STL2_CLOSE_NAMESPACE
 
 #endif

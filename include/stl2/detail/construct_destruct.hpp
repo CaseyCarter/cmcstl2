@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr destruct_fn destruct {};
+		inline constexpr destruct_fn destruct;
 
 		struct construct_fn {
 			template<class T, class... Args>
@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr construct_fn construct {};
+		inline constexpr construct_fn construct;
 	}
 } STL2_CLOSE_NAMESPACE
 

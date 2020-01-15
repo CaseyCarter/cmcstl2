@@ -97,7 +97,7 @@ STL2_OPEN_NAMESPACE {
 		};
 
 		template<class Val>
-		inline constexpr __istream_fn<Val> istream{};
+		inline constexpr __istream_fn<Val> istream;
 	} // namespace views
 } STL2_CLOSE_NAMESPACE
 

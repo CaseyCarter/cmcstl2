@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __fill_n_fn fill_n {};
+	inline constexpr __fill_n_fn fill_n;
 } STL2_CLOSE_NAMESPACE
 
 #endif

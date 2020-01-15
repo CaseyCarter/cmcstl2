@@ -34,12 +34,12 @@ STL2_OPEN_NAMESPACE {
 			for (; first != last; ++first) {
 				iter_reference_t<I>&& v = *first;
 				if (__stl2::invoke(pred, __stl2::invoke(proj, v))) {
-					*result = std::forward<iter_reference_t<I>>(v);
+					*result = static_cast<iter_reference_t<I>&&>(v);
 					++result;
 				}
 			}
 
-			return {std::move(first), std::move(result)};
+			return {static_cast<I&&>(first), static_cast<O&&>(result)};
 		}
 
 		template<input_range R, weakly_incrementable O, class Proj = identity,
@@ -47,12 +47,12 @@ STL2_OPEN_NAMESPACE {
 		requires indirectly_copyable<iterator_t<R>, O>
 		constexpr copy_if_result<safe_iterator_t<R>, O>
 		operator()(R&& r, O result, Pred pred, Proj proj = {}) const {
-			return (*this)(begin(r), end(r), std::move(result),
-				__stl2::ref(pred), __stl2::ref(proj));
+			return (*this)(begin(r), end(r), static_cast<O&&>(result),
+				static_cast<Pred&&>(pred), static_cast<Proj&&>(proj));
 		}
 	};
 
-	inline constexpr __copy_if_fn copy_if {};
+	inline constexpr __copy_if_fn copy_if;
 } STL2_CLOSE_NAMESPACE
 
 #endif
