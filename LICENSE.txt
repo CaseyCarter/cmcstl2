@@ -82,7 +82,7 @@ SOFTWARE.
 
 ==============================================================================
 
-Copyright (c) 2009-2014 by the contributors listed in CREDITS.TXT 
+Copyright (c) 2009-2014 by the contributors listed in CREDITS.TXT
   http://llvm.org/svn/llvm-project/libcxx/trunk/CREDITS.TXT
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -102,26 +102,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-==============================================================================
-Stepanov and McJones, "Elements of Programming" license
-==============================================================================
-
-// Copyright (c) 2009 Alexander Stepanov and Paul McJones
-//
-// Permission to use, copy, modify, distribute and sell this software
-// and its documentation for any purpose is hereby granted without
-// fee, provided that the above copyright notice appear in all copies
-// and that both that copyright notice and this permission notice
-// appear in supporting documentation. The authors make no
-// representations about the suitability of this software for any
-// purpose. It is provided "as is" without express or implied
-// warranty.
-//
-// Algorithms from
-// Elements of Programming
-// by Alexander Stepanov and Paul McJones
-// Addison-Wesley Professional, 2009
 
 ==============================================================================
 SGI C++ Standard Template Library license
