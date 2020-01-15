@@ -17,7 +17,7 @@
 STL2_OPEN_NAMESPACE {
 	struct default_sentinel_t {};
 
-	inline constexpr default_sentinel_t default_sentinel {};
+	inline constexpr default_sentinel_t default_sentinel;
 } STL2_CLOSE_NAMESPACE
 
 #endif

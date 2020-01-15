@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __lexicographical_compare_fn lexicographical_compare {};
+	inline constexpr __lexicographical_compare_fn lexicographical_compare;
 } STL2_CLOSE_NAMESPACE
 
 #endif

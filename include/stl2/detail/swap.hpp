@@ -108,7 +108,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 	inline namespace __cpos {
-		inline constexpr __swap::fn swap{};
+		inline constexpr __swap::fn swap;
 	}
 
 	///////////////////////////////////////////////////////////////////////////

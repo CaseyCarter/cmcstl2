@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __lower_bound_n_fn lower_bound_n {};
+		inline constexpr __lower_bound_n_fn lower_bound_n;
 	}
 
 	struct __lower_bound_fn : private __niebloid {
@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __lower_bound_fn lower_bound {};
+	inline constexpr __lower_bound_fn lower_bound;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -122,7 +122,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __find_end_fn find_end {};
+	inline constexpr __find_end_fn find_end;
 } STL2_CLOSE_NAMESPACE
 
 #endif

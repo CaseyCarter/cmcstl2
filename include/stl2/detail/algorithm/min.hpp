@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __min_fn min {};
+	inline constexpr __min_fn min;
 } STL2_CLOSE_NAMESPACE
 
 #endif

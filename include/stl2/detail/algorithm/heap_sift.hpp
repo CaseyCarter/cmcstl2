@@ -62,7 +62,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __sift_up_n_fn sift_up_n {};
+		inline constexpr __sift_up_n_fn sift_up_n;
 
 		struct __sift_down_n_fn {
 			template<random_access_iterator I, class Comp, class Proj>
@@ -122,7 +122,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __sift_down_n_fn sift_down_n {};
+		inline constexpr __sift_down_n_fn sift_down_n;
 	}
 } STL2_CLOSE_NAMESPACE
 

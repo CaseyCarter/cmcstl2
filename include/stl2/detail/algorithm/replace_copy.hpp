@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __replace_copy_fn replace_copy {};
+	inline constexpr __replace_copy_fn replace_copy;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __uninitialized_default_construct_fn uninitialized_default_construct {};
+	inline constexpr __uninitialized_default_construct_fn uninitialized_default_construct;
 
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_default_construct_n [Extension]
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __uninitialized_default_construct_n_fn uninitialized_default_construct_n {};
+	inline constexpr __uninitialized_default_construct_n_fn uninitialized_default_construct_n;
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_UNINITIALIZED_DEFAULT_CONSTRUCT_HPP

@@ -46,7 +46,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __is_sorted_until_fn is_sorted_until {};
+	inline constexpr __is_sorted_until_fn is_sorted_until;
 } STL2_CLOSE_NAMESPACE
 
 #endif

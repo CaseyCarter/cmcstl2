@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __for_each_fn for_each {};
+	inline constexpr __for_each_fn for_each;
 } STL2_CLOSE_NAMESPACE
 
 #endif

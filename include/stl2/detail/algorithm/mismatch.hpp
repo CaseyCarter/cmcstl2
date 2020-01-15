@@ -59,7 +59,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __mismatch_fn mismatch {};
+	inline constexpr __mismatch_fn mismatch;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -29,7 +29,7 @@ STL2_OPEN_NAMESPACE {
 			auto result = lower_bound(std::move(first), last, value,
 				__stl2::ref(comp), __stl2::ref(proj));
 			return bool(result != last) &&
-				!__stl2::invoke(comp, value, __stl2::invoke(proj, *result));
+				!bool(__stl2::invoke(comp, value, __stl2::invoke(proj, *result)));
 		}
 
 		template<forward_range R, class T, class Proj = identity,
@@ -38,12 +38,12 @@ STL2_OPEN_NAMESPACE {
 		constexpr bool operator()(R&& r, const T& value, Comp comp = {},
 			Proj proj = {}) const
 		{
-			return (*this)(begin(r), end(r), value, __stl2::ref(comp),
-				__stl2::ref(proj));
+			return (*this)(begin(r), end(r), value, static_cast<Comp&&>(comp),
+				static_cast<Proj&&>(proj));
 		}
 	};
 
-	inline constexpr __binary_search_fn binary_search {};
+	inline constexpr __binary_search_fn binary_search;
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -80,7 +80,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __transform_fn transform {};
+	inline constexpr __transform_fn transform;
 } STL2_CLOSE_NAMESPACE
 
 #endif

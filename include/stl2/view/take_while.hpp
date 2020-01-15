@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 			{ return detail::view_closure{*this, std::move(pred)}; }
 		};
 
-		inline constexpr __take_while_fn take_while {};
+		inline constexpr __take_while_fn take_while;
 	} // namespace views
 } STL2_CLOSE_NAMESPACE
 

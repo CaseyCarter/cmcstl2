@@ -105,7 +105,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __reverse_fn reverse {};
+		inline constexpr __reverse_fn reverse;
 	} // namespace views
 } STL2_CLOSE_NAMESPACE
 

@@ -616,7 +616,7 @@ STL2_OPEN_NAMESPACE {
 			static_cast<BI&&>(i).get()
 		)
 	};
-	inline constexpr __get_cursor_fn get_cursor {};
+	inline constexpr __get_cursor_fn get_cursor;
 
 	namespace basic_iterator_adl {
 		struct hook {};

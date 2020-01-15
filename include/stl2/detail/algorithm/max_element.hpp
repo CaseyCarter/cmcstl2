@@ -45,7 +45,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __max_element_fn max_element {};
+	inline constexpr __max_element_fn max_element;
 } STL2_CLOSE_NAMESPACE
 
 #endif

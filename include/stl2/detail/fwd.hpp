@@ -279,7 +279,7 @@ STL2_OPEN_NAMESPACE {
 		struct priority_tag : priority_tag<N - 1> {};
 		template<>
 		struct priority_tag<0> {};
-		inline constexpr priority_tag<4> max_priority_tag{};
+		inline constexpr priority_tag<4> max_priority_tag;
 	}
 
 	struct __niebloid {

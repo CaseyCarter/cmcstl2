@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 
-		inline constexpr __single_fn single {};
+		inline constexpr __single_fn single;
 	}
 } STL2_CLOSE_NAMESPACE
 

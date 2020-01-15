@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __rotate_copy_fn rotate_copy {};
+	inline constexpr __rotate_copy_fn rotate_copy;
 } STL2_CLOSE_NAMESPACE
 
 #endif

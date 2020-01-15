@@ -96,7 +96,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 	inline namespace __cpos {
-		inline constexpr __begin::__fn begin{};
+		inline constexpr __begin::__fn begin;
 	}
 
 	template<class R>
@@ -162,7 +162,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 	inline namespace __cpos {
-		inline constexpr __end::__fn end{};
+		inline constexpr __end::__fn end;
 	}
 
 	template<class R>
@@ -177,7 +177,7 @@ STL2_OPEN_NAMESPACE {
 		)
 	};
 	inline namespace __cpos {
-		inline constexpr __cbegin_fn cbegin{};
+		inline constexpr __cbegin_fn cbegin;
 	}
 
 	// cend
@@ -189,7 +189,7 @@ STL2_OPEN_NAMESPACE {
 		)
 	};
 	inline namespace __cpos {
-		inline constexpr __cend_fn cend{};
+		inline constexpr __cend_fn cend;
 	}
 
 	// rbegin
@@ -250,7 +250,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 	inline namespace __cpos {
-		inline constexpr __rbegin::__fn rbegin{};
+		inline constexpr __rbegin::__fn rbegin;
 	}
 
 	template<class T>
@@ -305,7 +305,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 	inline namespace __cpos {
-		inline constexpr __rend::__fn rend{};
+		inline constexpr __rend::__fn rend;
 	}
 
 	template<class T>
@@ -320,7 +320,7 @@ STL2_OPEN_NAMESPACE {
 		)
 	};
 	inline namespace __cpos {
-		inline constexpr __crbegin_fn crbegin{};
+		inline constexpr __crbegin_fn crbegin;
 	}
 
 	// crend
@@ -332,7 +332,7 @@ STL2_OPEN_NAMESPACE {
 		)
 	};
 	inline namespace __cpos {
-		inline constexpr __crend_fn crend{};
+		inline constexpr __crend_fn crend;
 	}
 
 	// disable_sized_range [range.sized]
@@ -406,7 +406,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 	inline namespace __cpos {
-		inline constexpr __size::__fn size{};
+		inline constexpr __size::__fn size;
 	}
 
 	// empty
@@ -458,7 +458,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 	inline namespace __cpos {
-		inline constexpr __empty::__fn empty{};
+		inline constexpr __empty::__fn empty;
 	}
 
 	// data
@@ -526,7 +526,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 	inline namespace __cpos {
-		inline constexpr __data::__fn data{};
+		inline constexpr __data::__fn data;
 	}
 
 	// cdata
@@ -538,7 +538,7 @@ STL2_OPEN_NAMESPACE {
 		)
 	};
 	inline namespace __cpos {
-		inline constexpr __cdata_fn cdata{};
+		inline constexpr __cdata_fn cdata;
 	}
 } STL2_CLOSE_NAMESPACE
 

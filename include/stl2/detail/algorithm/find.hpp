@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __find_fn find {};
+	inline constexpr __find_fn find;
 } STL2_CLOSE_NAMESPACE
 
 #endif

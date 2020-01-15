@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __adjacent_find_fn adjacent_find {};
+	inline constexpr __adjacent_find_fn adjacent_find;
 } STL2_CLOSE_NAMESPACE
 
 #endif

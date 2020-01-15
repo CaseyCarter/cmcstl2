@@ -236,7 +236,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __iota_fn iota {};
+		inline constexpr __iota_fn iota;
 	}
 } STL2_CLOSE_NAMESPACE
 

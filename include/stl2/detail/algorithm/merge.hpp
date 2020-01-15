@@ -72,7 +72,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __merge_fn merge {};
+	inline constexpr __merge_fn merge;
 } STL2_CLOSE_NAMESPACE
 
 #endif

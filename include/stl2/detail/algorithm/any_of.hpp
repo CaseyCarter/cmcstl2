@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __any_of_fn any_of {};
+	inline constexpr __any_of_fn any_of;
 } STL2_CLOSE_NAMESPACE
 
 #endif
