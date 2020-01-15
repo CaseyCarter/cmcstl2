@@ -35,11 +35,10 @@
 #ifndef STL2_DETAIL_ALGORITHM_STABLE_SORT_HPP
 #define STL2_DETAIL_ALGORITHM_STABLE_SORT_HPP
 
-#include <stl2/detail/algorithm/forward_sort.hpp>
 #include <stl2/detail/algorithm/inplace_merge.hpp>
 #include <stl2/detail/algorithm/merge.hpp>
 #include <stl2/detail/algorithm/min.hpp>
-#include <stl2/detail/algorithm/random_access_sort.hpp>
+#include <stl2/detail/algorithm/sort.hpp>
 #include <stl2/detail/concepts/callable.hpp>
 #include <stl2/detail/iterator/insert_iterators.hpp>
 #include <stl2/detail/iterator/move_iterator.hpp>
@@ -50,38 +49,24 @@
 //
 STL2_OPEN_NAMESPACE {
 	struct __stable_sort_fn : private __niebloid {
-		// Extension: Supports forward iterators.
-		template<class I, class S, class Comp = less, class Proj = identity>
+		template<random_access_iterator I, class S, class Comp = less, class Proj = identity>
 		requires sentinel_for<__f<S>, I> && sortable<I, Comp, Proj>
 		I operator()(I first, S&& last_, Comp comp = {}, Proj proj = {}) const {
-			if constexpr (random_access_iterator<I>) {
-				auto last = next(first, std::forward<S>(last_));
-				auto len = iter_difference_t<I>(last - first);
-				auto buf = len > 256 ? buf_t<I>{len} : buf_t<I>{};
-				if (!buf.size()) {
-					inplace_stable_sort(first, last, comp, proj);
-				} else {
-					stable_sort_adaptive(first, last, buf, comp, proj);
-				}
-				return last;
+			auto last = next(first, static_cast<S&&>(last_));
+			auto len = iter_difference_t<I>(last - first);
+			auto buf = len > 256 ? buf_t<I>{len} : buf_t<I>{};
+			if (!buf.size()) {
+				inplace_stable_sort(first, last, comp, proj);
 			} else {
-				auto n = distance(first, std::forward<S>(last_));
-				return detail::fsort_n(std::move(first), n,
-					__stl2::ref(comp), __stl2::ref(proj));
+				stable_sort_adaptive(first, last, buf, comp, proj);
 			}
+			return last;
 		}
 
-		// Extension: supports forward ranges.
-		template<forward_range R, class Comp = less, class Proj = identity>
+		template<random_access_range R, class Comp = less, class Proj = identity>
 		requires sortable<iterator_t<R>, Comp, Proj>
 		safe_iterator_t<R> operator()(R&& r, Comp comp = {}, Proj proj = {}) const {
-			if constexpr (random_access_range<R>) {
-				return (*this)(begin(r), end(r), __stl2::ref(comp),
-					__stl2::ref(proj));
-			} else {
-				return detail::fsort_n(begin(r), distance(r), __stl2::ref(comp),
-					__stl2::ref(proj));
-			}
+			return (*this)(begin(r), end(r), static_cast<Comp&&>(comp), static_cast<Proj&&>(proj));
 		}
 	private:
 		template<class I>
@@ -181,7 +166,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __stable_sort_fn stable_sort {};
+	inline constexpr __stable_sort_fn stable_sort;
 } STL2_CLOSE_NAMESPACE
 
 #endif
