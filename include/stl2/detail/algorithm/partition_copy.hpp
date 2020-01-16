@@ -60,7 +60,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __partition_copy_fn partition_copy;
+	inline constexpr __partition_copy_fn partition_copy{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

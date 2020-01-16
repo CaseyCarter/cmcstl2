@@ -93,7 +93,7 @@ STL2_OPEN_NAMESPACE {
 	private:
 		using Parent = __maybe_const<Const, transform_view>;
 		using Base = __maybe_const<Const, V>;
-		iterator_t<Base> current_ {};
+		iterator_t<Base> current_{};
 		Parent* parent_ = nullptr;
 		friend __iterator<!Const>;
 		friend __sentinel<Const>;
@@ -223,7 +223,7 @@ STL2_OPEN_NAMESPACE {
 	private:
 		using Parent = __maybe_const<Const, transform_view>;
 		using Base = __maybe_const<Const, V>;
-		sentinel_t<Base> end_ {};
+		sentinel_t<Base> end_{};
 		friend __sentinel<!Const>;
 
 		constexpr bool equal(const __iterator<Const>& i) const {
@@ -282,7 +282,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __transform_fn transform;
+		inline constexpr __transform_fn transform{};
 	} // namespace views
 } STL2_CLOSE_NAMESPACE
 

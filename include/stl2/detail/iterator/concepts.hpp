@@ -87,7 +87,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 	inline namespace __cpos {
-		inline constexpr __iter_move::fn iter_move;
+		inline constexpr __iter_move::fn iter_move{};
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -288,7 +288,7 @@ STL2_OPEN_NAMESPACE {
 		};
 	}
 	inline namespace __cpos {
-		inline constexpr __iter_swap::fn iter_swap;
+		inline constexpr __iter_swap::fn iter_swap{};
 	}
 
 	////////////////////////////////////////////////////////////////////////////

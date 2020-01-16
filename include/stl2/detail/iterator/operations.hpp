@@ -103,7 +103,7 @@ STL2_OPEN_NAMESPACE {
 		operator()(counted_iterator<I>& i, iter_difference_t<I> n) const;
 	};
 
-	inline constexpr __advance_fn advance;
+	inline constexpr __advance_fn advance{};
 
 	// next
 	struct __next_fn : private __niebloid {
@@ -131,7 +131,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __next_fn next;
+	inline constexpr __next_fn next{};
 
 	// prev
 	struct __prev_fn : private __niebloid {
@@ -153,7 +153,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __prev_fn prev;
+	inline constexpr __prev_fn prev{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

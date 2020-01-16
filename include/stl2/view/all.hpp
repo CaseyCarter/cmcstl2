@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __all_fn all;
+		inline constexpr __all_fn all{};
 	} // namespace views
 
 	template<viewable_range R>

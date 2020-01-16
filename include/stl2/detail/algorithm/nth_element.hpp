@@ -272,7 +272,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __nth_element_fn nth_element;
+	inline constexpr __nth_element_fn nth_element{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

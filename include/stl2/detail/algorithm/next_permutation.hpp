@@ -74,7 +74,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __next_permutation_fn next_permutation;
+	inline constexpr __next_permutation_fn next_permutation{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

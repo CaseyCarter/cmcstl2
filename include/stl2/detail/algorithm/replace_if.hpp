@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __replace_if_fn replace_if;
+	inline constexpr __replace_if_fn replace_if{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

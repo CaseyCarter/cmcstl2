@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __move_fn move;
+	inline constexpr __move_fn move{};
 
 	namespace ext {
 		struct __move_fn : private __niebloid {
@@ -90,7 +90,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __move_fn move;
+		inline constexpr __move_fn move{};
 	}
 } STL2_CLOSE_NAMESPACE
 

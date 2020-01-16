@@ -64,7 +64,7 @@ STL2_OPEN_NAMESPACE {
 
 			constexpr auto end() { return __stl2::end(base_); }
 		private:
-			R base_;
+			R base_{};
 		};
 
 		template<class R, class Pred>
@@ -84,7 +84,7 @@ STL2_OPEN_NAMESPACE {
 			{ return detail::view_closure{*this, std::move(pred)}; }
 		};
 
-		inline constexpr __drop_while_fn drop_while;
+		inline constexpr __drop_while_fn drop_while{};
 	} // namespace views
 } STL2_CLOSE_NAMESPACE
 

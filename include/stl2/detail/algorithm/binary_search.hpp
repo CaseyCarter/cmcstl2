@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __binary_search_fn binary_search;
+	inline constexpr __binary_search_fn binary_search{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

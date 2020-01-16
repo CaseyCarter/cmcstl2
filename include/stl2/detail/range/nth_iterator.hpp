@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __nth_iterator nth_iterator;
+		inline constexpr __nth_iterator nth_iterator{};
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 

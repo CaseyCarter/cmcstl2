@@ -164,7 +164,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr merge_adaptive_fn merge_adaptive;
+		inline constexpr merge_adaptive_fn merge_adaptive{};
 
 		struct inplace_merge_no_buffer_fn
 		{
@@ -179,7 +179,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr inplace_merge_no_buffer_fn inplace_merge_no_buffer;
+		inline constexpr inplace_merge_no_buffer_fn inplace_merge_no_buffer{};
 	}
 
 	struct __inplace_merge_fn : private __niebloid {
@@ -208,7 +208,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __inplace_merge_fn inplace_merge;
+	inline constexpr __inplace_merge_fn inplace_merge{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

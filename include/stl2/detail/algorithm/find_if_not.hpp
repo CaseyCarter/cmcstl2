@@ -38,7 +38,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __find_if_not_fn find_if_not;
+	inline constexpr __find_if_not_fn find_if_not{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

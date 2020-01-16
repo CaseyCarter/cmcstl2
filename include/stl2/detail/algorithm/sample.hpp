@@ -149,7 +149,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __sample_fn sample;
+		inline constexpr __sample_fn sample{};
 	} // namespace ext
 } STL2_CLOSE_NAMESPACE
 

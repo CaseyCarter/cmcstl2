@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __move_backward_fn move_backward;
+	inline constexpr __move_backward_fn move_backward{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

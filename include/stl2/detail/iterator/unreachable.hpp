@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr unreachable_sentinel_t unreachable_sentinel;
+	inline constexpr unreachable_sentinel_t unreachable_sentinel{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

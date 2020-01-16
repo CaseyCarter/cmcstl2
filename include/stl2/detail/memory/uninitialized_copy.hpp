@@ -47,7 +47,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __uninitialized_copy_fn uninitialized_copy;
+	inline constexpr __uninitialized_copy_fn uninitialized_copy{};
 
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_copy_n [uninitialized.copy]
@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __uninitialized_copy_n_fn uninitialized_copy_n;
+	inline constexpr __uninitialized_copy_n_fn uninitialized_copy_n{};
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_UNINITIALIZED_COPY_HPP

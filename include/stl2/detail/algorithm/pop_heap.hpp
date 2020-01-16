@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __pop_heap_n_fn pop_heap_n;
+		inline constexpr __pop_heap_n_fn pop_heap_n{};
 	}
 
 	struct __pop_heap_fn : private __niebloid {
@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __pop_heap_fn pop_heap;
+	inline constexpr __pop_heap_fn pop_heap{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

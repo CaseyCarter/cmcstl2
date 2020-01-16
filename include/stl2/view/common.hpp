@@ -86,7 +86,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __common_fn common;
+		inline constexpr __common_fn common{};
 	} // namespace views
 } STL2_CLOSE_NAMESPACE
 

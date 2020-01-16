@@ -34,7 +34,7 @@ STL2_OPEN_NAMESPACE {
 
 	template<input_range Rng>
 	struct __split_view_base {
-		iterator_t<Rng> current_ {};
+		iterator_t<Rng> current_{};
 	};
 	template<forward_range Rng>
 	struct __split_view_base<Rng> {};
@@ -48,8 +48,8 @@ STL2_OPEN_NAMESPACE {
 		template<bool Const> struct __outer_iterator;
 		template<bool Const> struct __inner_iterator;
 
-		Rng base_ {};
-		Pattern pattern_ {};
+		Rng base_{};
+		Pattern pattern_{};
 	public:
 		split_view() = default;
 		constexpr split_view(Rng base, Pattern pattern)
@@ -99,7 +99,7 @@ STL2_OPEN_NAMESPACE {
 	struct __split_view_outer_base {};
 	template<forward_range Rng, bool Const>
 	struct __split_view_outer_base<Rng, Const> {
-		iterator_t<__maybe_const<Const, Rng>> current_ {};
+		iterator_t<__maybe_const<Const, Rng>> current_{};
 	};
 
 	template<input_range Rng, forward_range Pattern>
@@ -213,7 +213,7 @@ STL2_OPEN_NAMESPACE {
 	template<bool Const>
 	struct split_view<Rng, Pattern>::__outer_iterator<Const>::value_type {
 	private:
-		__outer_iterator i_ {};
+		__outer_iterator i_{};
 	public:
 		value_type() = default;
 		constexpr explicit value_type(__outer_iterator i)
@@ -237,7 +237,7 @@ STL2_OPEN_NAMESPACE {
 
 		static_assert(forward_range<Rng> || !Const);
 
-		__outer_iterator<Const> i_ {};
+		__outer_iterator<Const> i_{};
 		bool zero_ = false;
 
 		constexpr bool at_end() const {
@@ -325,7 +325,7 @@ STL2_OPEN_NAMESPACE {
 			{ return detail::view_closure{*this, std::forward<T>(t)}; }
 		};
 
-		inline constexpr __split_fn split;
+		inline constexpr __split_fn split{};
 	}
 } STL2_CLOSE_NAMESPACE
 

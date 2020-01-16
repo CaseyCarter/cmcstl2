@@ -166,7 +166,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __stable_sort_fn stable_sort;
+	inline constexpr __stable_sort_fn stable_sort{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

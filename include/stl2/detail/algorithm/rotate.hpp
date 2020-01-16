@@ -166,7 +166,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __sean_parent_fn rotate;
+	inline constexpr __sean_parent_fn rotate{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

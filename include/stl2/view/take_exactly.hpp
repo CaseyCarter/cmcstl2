@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 			using base_t = detail::ebo_box<Base, take_exactly_view<Base>>;
 			using base_t::get;
 
-			iter_difference_t<iterator_t<Base>> n_;
+			iter_difference_t<iterator_t<Base>> n_ = 0;
 		public:
 			take_exactly_view() = default;
 
@@ -118,7 +118,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __take_exactly_fn take_exactly;
+		inline constexpr __take_exactly_fn take_exactly{};
 	} // namespace views::ext
 } STL2_CLOSE_NAMESPACE
 

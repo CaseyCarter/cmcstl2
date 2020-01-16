@@ -69,8 +69,8 @@ STL2_OPEN_NAMESPACE {
 		struct __iterator;
 		struct __sentinel;
 
-		I value_ {};
-		Bound bound_ {};
+		I value_{};
+		Bound bound_{};
 	public:
 		iota_view() = default;
 		/// \pre: `Bound{}` is reachable from `value`
@@ -193,7 +193,7 @@ STL2_OPEN_NAMESPACE {
 		{ return *x - *y; }
 
 	private:
-		I value_ {};
+		I value_{};
 	};
 
 	template<weakly_incrementable I, semiregular Bound>
@@ -236,7 +236,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __iota_fn iota;
+		inline constexpr __iota_fn iota{};
 	}
 } STL2_CLOSE_NAMESPACE
 
