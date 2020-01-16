@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __set_difference_fn set_difference;
+	inline constexpr __set_difference_fn set_difference{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

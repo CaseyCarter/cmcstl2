@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __is_heap_until_n_fn is_heap_until_n;
+		inline constexpr __is_heap_until_n_fn is_heap_until_n{};
 	}
 
 	struct __is_heap_until_fn : private __niebloid {
@@ -83,7 +83,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __is_heap_until_fn is_heap_until;
+	inline constexpr __is_heap_until_fn is_heap_until{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -36,7 +36,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __is_sorted_fn is_sorted;
+	inline constexpr __is_sorted_fn is_sorted{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

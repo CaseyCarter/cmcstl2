@@ -125,7 +125,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __search_n_fn search_n;
+	inline constexpr __search_n_fn search_n{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

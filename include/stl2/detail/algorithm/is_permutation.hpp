@@ -232,7 +232,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __is_permutation_fn is_permutation;
+	inline constexpr __is_permutation_fn is_permutation{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

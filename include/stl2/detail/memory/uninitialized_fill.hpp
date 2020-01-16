@@ -42,7 +42,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __uninitialized_fill_fn uninitialized_fill;
+	inline constexpr __uninitialized_fill_fn uninitialized_fill{};
 
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_fill_n [uninitialized.fill]
@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __uninitialized_fill_n_fn uninitialized_fill_n;
+	inline constexpr __uninitialized_fill_n_fn uninitialized_fill_n{};
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_UNINITIALIZED_FILL_HPP

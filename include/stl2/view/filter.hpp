@@ -67,7 +67,7 @@ STL2_OPEN_NAMESPACE {
 	requires view<V>
 	class filter_view<V, Pred>::__iterator {
 	private:
-		iterator_t<V> current_ {};
+		iterator_t<V> current_{};
 		filter_view* parent_ = nullptr;
 		friend __sentinel;
 	public:
@@ -196,7 +196,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __filter_fn filter;
+		inline constexpr __filter_fn filter{};
 	}
 } STL2_CLOSE_NAMESPACE
 

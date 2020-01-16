@@ -44,7 +44,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __sort_heap_n_fn sort_heap_n;
+		inline constexpr __sort_heap_n_fn sort_heap_n{};
 	} // namespace ext
 
 	struct __sort_heap_fn : private __niebloid {
@@ -68,7 +68,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __sort_heap_fn sort_heap;
+	inline constexpr __sort_heap_fn sort_heap{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

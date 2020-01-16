@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __set_union set_union;
+	inline constexpr __set_union set_union{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

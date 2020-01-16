@@ -52,7 +52,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __partition_point_n_fn partition_point_n;
+		inline constexpr __partition_point_n_fn partition_point_n{};
 	}
 
 	struct __partition_point_fn : private __niebloid {
@@ -95,7 +95,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __partition_point_fn partition_point;
+	inline constexpr __partition_point_fn partition_point{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

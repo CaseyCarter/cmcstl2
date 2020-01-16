@@ -197,7 +197,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __sort_fn sort;
+	inline constexpr __sort_fn sort{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

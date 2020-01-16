@@ -31,7 +31,7 @@ STL2_OPEN_NAMESPACE {
 		void operator()(T* p) const noexcept;
 	};
 
-	inline constexpr __destroy_at_fn destroy_at;
+	inline constexpr __destroy_at_fn destroy_at{};
 
 	///////////////////////////////////////////////////////////////////////////
 	// destroy [specialized.destroy]
@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __destroy_fn destroy;
+	inline constexpr __destroy_fn destroy{};
 
 	template<destructible T>
 	inline void __destroy_at_fn::operator()(T* p) const noexcept {
@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __destroy_n_fn destroy_n;
+	inline constexpr __destroy_n_fn destroy_n{};
 
 	namespace detail {
 		template<_NoThrowForwardIterator I>

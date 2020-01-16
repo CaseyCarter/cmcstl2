@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __uninitialized_move_fn uninitialized_move;
+	inline constexpr __uninitialized_move_fn uninitialized_move{};
 
 	///////////////////////////////////////////////////////////////////////////
 	// uninitialized_move_n [uninitialized.move]
@@ -69,7 +69,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __uninitialized_move_n_fn uninitialized_move_n;
+	inline constexpr __uninitialized_move_n_fn uninitialized_move_n{};
 } STL2_CLOSE_NAMESPACE
 
 #endif // STL2_DETAIL_MEMORY_UNINITIALIZED_MOVE_HPP

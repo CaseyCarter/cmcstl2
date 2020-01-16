@@ -29,8 +29,8 @@ STL2_OPEN_NAMESPACE {
 		template<bool> struct __sentinel;
 		using D = iter_difference_t<iterator_t<R>>;
 
-		R base_ {};
-		D count_ {};
+		R base_{};
+		D count_{};
 
 		template<class Self>
 		static constexpr auto begin_(Self& self) {
@@ -92,7 +92,7 @@ STL2_OPEN_NAMESPACE {
 		using Base = __maybe_const<Const, R>;
 		using CI = counted_iterator<iterator_t<Base>>;
 
-		sentinel_t<Base> end_ {};
+		sentinel_t<Base> end_{};
 	public:
 		__sentinel() = default;
 
@@ -125,7 +125,7 @@ STL2_OPEN_NAMESPACE {
 			{ return detail::view_closure{*this, static_cast<D>(count)}; }
 		};
 
-		inline constexpr __take_fn take;
+		inline constexpr __take_fn take{};
 	}
 } STL2_CLOSE_NAMESPACE
 

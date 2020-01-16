@@ -77,7 +77,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __enumerate_fn enumerate;
+		inline constexpr __enumerate_fn enumerate{};
 	}
 
 	struct __distance_fn : private __niebloid {
@@ -111,7 +111,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __distance_fn distance;
+	inline constexpr __distance_fn distance{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

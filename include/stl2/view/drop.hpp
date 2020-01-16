@@ -53,8 +53,8 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto size() requires (!ext::simple_view<R> && sized_range<R>) { return size_impl(*this); }
 		constexpr auto size() const requires sized_range<const R> { return size_impl(*this); }
 	private:
-		R base_;
-		D count_;
+		R base_{};
+		D count_ = 0;
 
 		template<class X>
 		static constexpr auto begin_impl(X& x) {
@@ -102,7 +102,7 @@ STL2_OPEN_NAMESPACE {
 			}
 		};
 
-		inline constexpr __drop_fn drop;
+		inline constexpr __drop_fn drop{};
 	} // mamespace views
 } STL2_CLOSE_NAMESPACE
 

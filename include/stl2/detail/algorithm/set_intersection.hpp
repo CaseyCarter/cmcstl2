@@ -65,7 +65,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __set_intersection_fn set_intersection;
+	inline constexpr __set_intersection_fn set_intersection{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

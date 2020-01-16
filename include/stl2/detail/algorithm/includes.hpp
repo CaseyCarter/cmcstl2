@@ -56,7 +56,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __includes_fn includes;
+	inline constexpr __includes_fn includes{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

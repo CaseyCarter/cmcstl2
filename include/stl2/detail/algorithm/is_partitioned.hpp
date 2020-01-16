@@ -40,7 +40,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __is_partitioned_fn is_partitioned;
+	inline constexpr __is_partitioned_fn is_partitioned{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

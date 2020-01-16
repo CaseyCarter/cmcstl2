@@ -30,7 +30,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __generate_n_fn generate_n;
+	inline constexpr __generate_n_fn generate_n{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

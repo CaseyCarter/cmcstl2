@@ -63,7 +63,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __make_heap_fn make_heap;
+	inline constexpr __make_heap_fn make_heap{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

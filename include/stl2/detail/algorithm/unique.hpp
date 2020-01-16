@@ -50,7 +50,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __unique_fn unique;
+	inline constexpr __unique_fn unique{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

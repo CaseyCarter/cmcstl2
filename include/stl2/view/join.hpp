@@ -292,7 +292,7 @@ STL2_OPEN_NAMESPACE {
 			)
 		};
 
-		inline constexpr __join_fn join;
+		inline constexpr __join_fn join{};
 	} // namespace views
 } STL2_CLOSE_NAMESPACE
 

@@ -51,7 +51,7 @@ STL2_OPEN_NAMESPACE {
 		constexpr auto end() const requires range<const R>
 		{ return end_impl(*this); }
 	private:
-		R base_;
+		R base_{};
 
 		template<class Self>
 		static constexpr auto begin_impl(Self& self) { return __stl2::begin(self.base_); }
@@ -73,8 +73,8 @@ STL2_OPEN_NAMESPACE {
 	class take_while_view<R, Pred>::__sentinel {
 		friend __sentinel<false>;
 		using Base = __maybe_const<Const, R>;
-		sentinel_t<Base> end_ {};
-		const Pred* pred_;
+		sentinel_t<Base> end_{};
+		const Pred* pred_ = nullptr;
 	public:
 		__sentinel() = default;
 
@@ -107,7 +107,7 @@ STL2_OPEN_NAMESPACE {
 			{ return detail::view_closure{*this, std::move(pred)}; }
 		};
 
-		inline constexpr __take_while_fn take_while;
+		inline constexpr __take_while_fn take_while{};
 	} // namespace views
 } STL2_CLOSE_NAMESPACE
 

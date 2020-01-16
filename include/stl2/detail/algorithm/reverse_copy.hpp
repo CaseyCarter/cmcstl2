@@ -43,7 +43,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __reverse_copy_fn reverse_copy;
+	inline constexpr __reverse_copy_fn reverse_copy{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

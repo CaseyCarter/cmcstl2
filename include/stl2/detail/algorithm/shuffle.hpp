@@ -53,7 +53,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __shuffle_fn shuffle;
+	inline constexpr __shuffle_fn shuffle{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

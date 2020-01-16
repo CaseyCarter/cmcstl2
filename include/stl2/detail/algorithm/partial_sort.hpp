@@ -57,7 +57,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __partial_sort_fn partial_sort;
+	inline constexpr __partial_sort_fn partial_sort{};
 } STL2_CLOSE_NAMESPACE
 
 #endif

@@ -37,7 +37,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __swap_ranges3_fn __swap_ranges3;
+	inline constexpr __swap_ranges3_fn __swap_ranges3{};
 
 	struct __swap_ranges_fn : private __niebloid {
 		template<forward_iterator I1, sentinel_for<I1> S1, forward_iterator I2,
@@ -61,7 +61,7 @@ STL2_OPEN_NAMESPACE {
 		}
 	};
 
-	inline constexpr __swap_ranges_fn swap_ranges;
+	inline constexpr __swap_ranges_fn swap_ranges{};
 } STL2_CLOSE_NAMESPACE
 
 #endif
