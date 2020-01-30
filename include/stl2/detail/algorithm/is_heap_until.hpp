@@ -1,23 +1,11 @@
 // cmcstl2 - A concept-enabled C++ standard library
-//
-//  Copyright Eric Niebler 2014
-//  Copyright Casey Carter 2015
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0. (See accompanying
-//  file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
-//
 // Project home: https://github.com/caseycarter/cmcstl2
 //
-//===----------------------------------------------------------------------===//
+//  Copyright LLVM Contributors
+//  Copyright Eric Niebler
+//  Copyright Casey Carter
 //
-//                     The LLVM Compiler Infrastructure
-//
-// This file is dual licensed under the MIT and the University of Illinois Open
-// Source Licenses. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
+// SPDX-License-Identifier: (BSL-1.0 AND Apache-2.0 WITH LLVM-exception)
 //
 #ifndef STL2_DETAIL_ALGORITHM_IS_HEAP_UNTIL_HPP
 #define STL2_DETAIL_ALGORITHM_IS_HEAP_UNTIL_HPP

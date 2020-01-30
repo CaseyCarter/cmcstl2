@@ -1,16 +1,10 @@
 // cmcstl2 - A concept-enabled C++ standard library
-//
-// Algorithm adapted (stolen) from Range v3 library
-//
-//  Copyright Andrew Sutton 2014
-//  Copyright Casey Carter 2015
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0. (See accompanying
-//  file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
-//
 // Project home: https://github.com/caseycarter/cmcstl2
+//
+//  Copyright Andrew Sutton
+//  Copyright Casey Carter
+//
+// SPDX-License-Identifier: BSL-1.0
 //
 #ifndef STL2_DETAIL_ALGORITHM_ALL_OF_HPP
 #define STL2_DETAIL_ALGORITHM_ALL_OF_HPP
@@ -36,8 +30,8 @@ STL2_OPEN_NAMESPACE {
 
 		template<input_range R, class Proj = identity,
 			indirect_unary_predicate<projected<iterator_t<R>, Proj>> Pred>
-		constexpr bool operator()(R&& rng, Pred pred, Proj proj = {}) const {
-			return (*this)(begin(rng), end(rng), __stl2::ref(pred), __stl2::ref(proj));
+		constexpr bool operator()(R&& r, Pred pred, Proj proj = {}) const {
+			return (*this)(begin(r), end(r), __stl2::ref(pred), __stl2::ref(proj));
 		}
 	};
 
