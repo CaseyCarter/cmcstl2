@@ -1,6 +1,6 @@
 // cmcstl2 - A concept-enabled C++ standard library
 //
-//  Copyright Casey Carter 2015
+//  Copyright Casey Carter
 //
 //  Use, modification and distribution is subject to the
 //  Boost Software License, Version 1.0. (See accompanying
@@ -27,41 +27,42 @@ STL2_OPEN_NAMESPACE {
 	namespace __invoke {
 		template<class, class T1>
 		constexpr decltype(auto) coerce(T1&& t1)
-		STL2_NOEXCEPT_RETURN(
+		STL2_NOEXCEPT_REQUIRES_RETURN(
 			*static_cast<T1&&>(t1)
 		)
 
 		template<class T, class T1>
-		requires derived_from<std::decay_t<T1>, T>
-		constexpr decltype(auto) coerce(T1&& t1)
-		STL2_NOEXCEPT_RETURN(
-			static_cast<T1&&>(t1)
-		)
+		requires std::is_base_of_v<T, __uncvref<T1>>
+		constexpr auto&& coerce(T1&& t1) noexcept {
+			return static_cast<T1&&>(t1);
+		}
 
 		template<class T>
-		inline constexpr bool is_reference_wrapper =
+		META_CONCEPT is_reference_wrapper =
 			meta::is_v<T, reference_wrapper> ||
 			meta::is_v<T, std::reference_wrapper>;
 
-		template<class, class T1>
-		requires is_reference_wrapper<std::decay_t<T1>>
-		constexpr decltype(auto) coerce(T1&& t1)
-		STL2_NOEXCEPT_RETURN(
-			static_cast<T1&&>(t1).get()
-		)
+		template<class, class RW>
+		requires is_reference_wrapper<RW>
+		constexpr auto& coerce(RW rw) noexcept {
+			return rw.get();
+		}
 	}
 
 	template<class F, class T, class T1, class... Args>
-	requires std::is_function_v<F>
-	constexpr decltype(auto) invoke(F (T::*f), T1&& t1, Args&&... args)
+	constexpr decltype(auto) invoke(F (T::*pmf), T1&& t1, Args&&... args)
 	STL2_NOEXCEPT_REQUIRES_RETURN(
-		(__invoke::coerce<T>(static_cast<T1&&>(t1)).*f)(static_cast<Args&&>(args)...)
+		(__invoke::coerce<T>(static_cast<T1&&>(t1)).*pmf)(static_cast<Args&&>(args)...)
 	)
 
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 10
 	template<ext::object D, class T, class T1>
-	constexpr decltype(auto) invoke(D (T::*f), T1&& t1)
+#else
+	template<class D, class T, class T1>
+#endif
+	constexpr decltype(auto) invoke(D (T::*pmd), T1&& t1)
 	STL2_NOEXCEPT_REQUIRES_RETURN(
-		__invoke::coerce<T>(static_cast<T1&&>(t1)).*f
+		__invoke::coerce<T>(static_cast<T1&&>(t1)).*pmd
 	)
 
 	template<class F, class... Args>
@@ -70,14 +71,14 @@ STL2_OPEN_NAMESPACE {
 		static_cast<F&&>(f)(static_cast<Args&&>(args)...)
 	)
 
+	template<class F, class... Args>
+	using invoke_result_t = decltype(__stl2::invoke(std::declval<F>(), std::declval<Args>()...));
 	template<class, class...> struct invoke_result {};
 	template<class F, class... Args>
-	requires requires { __stl2::invoke(std::declval<F>(), std::declval<Args>()...); }
+	requires requires { typename invoke_result_t<F, Args...>; }
 	struct invoke_result<F, Args...> {
-		using type = decltype(__stl2::invoke(std::declval<F>(), std::declval<Args>()...));
+		using type = invoke_result_t<F, Args...>;
 	};
-	template<class F, class... Args>
-	using invoke_result_t = meta::_t<invoke_result<F, Args...>>;
 
 	template<__can_reference T>
 	struct reference_wrapper {
@@ -89,7 +90,8 @@ STL2_OPEN_NAMESPACE {
 	public:
 		using type = T;
 
-		template<_NotSameAs<reference_wrapper> U>
+		template<class U>
+		requires (!derived_from<U, reference_wrapper>)
 		constexpr reference_wrapper(U&& u)
 		noexcept(noexcept(fun(static_cast<U&&>(u))))
 		requires requires { fun(static_cast<U&&>(u)); }
@@ -99,13 +101,9 @@ STL2_OPEN_NAMESPACE {
 		constexpr T& get() const noexcept { return *t_; }
 
 		template<class... Args>
-		requires requires {
-			__stl2::invoke(std::declval<T&>(), std::declval<Args&&>()...);
-		}
+		requires requires(T& t, Args&&... args) { __stl2::invoke(t, static_cast<Args&&>(args)...); }
 		constexpr decltype(auto) operator()(Args&&... args) const
-		noexcept(noexcept(__stl2::invoke(
-			std::declval<T&>(), static_cast<Args&&>(args)...)))
-		{
+		noexcept(noexcept(__stl2::invoke(*t_, static_cast<Args&&>(args)...))) {
 			return __stl2::invoke(*t_, static_cast<Args&&>(args)...);
 		}
 	};
