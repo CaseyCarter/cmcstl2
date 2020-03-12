@@ -43,6 +43,7 @@
 #include <stl2/view/take_exactly.hpp>
 #include <stl2/view/take_while.hpp>
 #include <stl2/view/transform.hpp>
+#include <stl2/view/elements.hpp>
 #include <stl2/view/view_interface.hpp>
 
 #endif
