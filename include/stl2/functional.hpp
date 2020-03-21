@@ -19,6 +19,7 @@
 #include <stl2/detail/meta.hpp>
 #include <stl2/detail/concepts/compare.hpp>
 #include <stl2/detail/concepts/core.hpp>
+#include <stl2/detail/functional/arithmetic.hpp>
 #include <stl2/detail/functional/comparisons.hpp>
 #include <stl2/detail/functional/invoke.hpp>
 #include <stl2/detail/functional/not_fn.hpp>
