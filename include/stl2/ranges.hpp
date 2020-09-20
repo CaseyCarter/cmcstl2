@@ -38,6 +38,7 @@
 #include <stl2/view/reverse.hpp>
 #include <stl2/view/single.hpp>
 #include <stl2/view/split.hpp>
+#include <stl2/view/stride.hpp>
 #include <stl2/view/subrange.hpp>
 #include <stl2/view/take.hpp>
 #include <stl2/view/take_exactly.hpp>
